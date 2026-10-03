@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-02T19:51:12Z",
- "sourceGeneratedAt": "2026-10-02T19:51:12Z",
+ "generatedAt": "2026-10-03T00:10:51Z",
+ "sourceGeneratedAt": "2026-10-03T00:10:51Z",
  "providerEventId": "401872970",
  "matchup": "LAR @ PHI",
  "kickoffUtc": "2026-10-04T17:00Z",
@@ -26,8 +26,8 @@
    "withheldTeams": [
     {
      "team": "PHI",
-     "sum": 1.1343,
-     "reason": "withheld for PHI: the players' modelled shares add up to 113% of the team's carries, more than exists — shown again once the shares are reconciled"
+     "sum": 1.0718,
+     "reason": "withheld for PHI: the players' modelled shares add up to 107% of the team's carries, more than exists — shown again once the shares are reconciled"
     }
    ]
   },
@@ -95,8 +95,8 @@
  },
  "marketCoverage": {
   "probed": true,
-  "priced": 36,
-  "absent": 12,
+  "priced": 34,
+  "absent": 7,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -202,7 +202,7 @@
      "playerId": "nfl-athlete-4570037",
      "name": "Terrance Ferguson",
      "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
+     "reason": "designation: Injured Reserve"
     },
     {
      "playerId": "nfl-athlete-4243003",
@@ -214,8 +214,8 @@
   },
   "PHI": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -236,20 +236,9 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.134) — family withheld for PHI, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.072) — family withheld for PHI, never renormalised"
       }
      ]
-    },
-    {
-     "playerId": "nfl-athlete-4241478",
-     "name": "DeVonta Smith",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4428850",
@@ -261,17 +250,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-3121023",
-     "name": "Dallas Goedert",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4870795",
@@ -296,22 +274,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4241372",
-     "name": "Marquise Brown",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "QUESTIONABLE",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.134) — family withheld for PHI, never renormalised"
-      }
-     ]
-    },
-    {
      "playerId": "nfl-athlete-4040715",
      "name": "Jalen Hurts",
      "state": "PROJECTED",
@@ -324,7 +286,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.134) — family withheld for PHI, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.072) — family withheld for PHI, never renormalised"
       }
      ]
     },
@@ -345,7 +307,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.134) — family withheld for PHI, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.072) — family withheld for PHI, never renormalised"
       }
      ]
     },
@@ -361,7 +323,7 @@
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.134) — family withheld for PHI, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.072) — family withheld for PHI, never renormalised"
       }
      ]
     },
@@ -372,12 +334,12 @@
      "families": [
       "anytime_td"
      ],
-     "participation": "QUESTIONABLE",
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
      "notModeled": [
       {
        "family": "player_rush_yds",
        "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.134) — family withheld for PHI, never renormalised"
+       "reason": "team carries pool over-allocated (Σshare 1.072) — family withheld for PHI, never renormalised"
       },
       {
        "family": "player_receptions",
@@ -385,6 +347,24 @@
        "reason": "the receiving model's usage pool does not include his 2026 role here yet"
       }
      ]
+    },
+    {
+     "playerId": "nfl-athlete-4241478",
+     "name": "DeVonta Smith",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-3121023",
+     "name": "Dallas Goedert",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4241372",
+     "name": "Marquise Brown",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4685279",
@@ -431,8 +411,8 @@
     "markets": [
      "player_rush_yds"
     ],
-    "sum": 1.1343,
-    "joined": 6,
+    "sum": 1.0718,
+    "joined": 5,
     "missed": 0,
     "state": "OVER_ALLOCATED"
    },
@@ -480,12 +460,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 67.458,
-     "p10": 18.83,
-     "p25": 36.14,
-     "median": 60.45,
-     "p75": 92.23,
-     "p90": 124.21,
+     "mean": 66.391,
+     "p10": 18.29,
+     "p25": 34.77,
+     "median": 60.57,
+     "p75": 90.42,
+     "p90": 121.55,
      "market": {
       "line": 78.5,
       "overOdds": -113,
@@ -495,7 +475,7 @@
      }
     },
     "player_receptions": {
-     "mean": 5.431,
+     "mean": 5.418,
      "p10": 2,
      "p25": 3,
      "median": 5,
@@ -526,12 +506,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 20.486,
+     "mean": 20.728,
      "p10": 0,
-     "p25": 3.24,
-     "median": 14.61,
-     "p75": 30.97,
-     "p90": 49.88,
+     "p25": 3.88,
+     "median": 15.41,
+     "p75": 30.44,
+     "p90": 48.7,
      "market": {
       "line": 13.5,
       "overOdds": -114,
@@ -541,7 +521,7 @@
      }
     },
     "player_receptions": {
-     "mean": 1.992,
+     "mean": 2.043,
      "p10": 0,
      "p25": 1,
      "median": 2,
@@ -587,12 +567,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 62.406,
-     "p10": 13.23,
-     "p25": 29.65,
-     "median": 54.62,
-     "p75": 87.15,
-     "p90": 121.15,
+     "mean": 61.133,
+     "p10": 12.44,
+     "p25": 29.07,
+     "median": 53.99,
+     "p75": 85.23,
+     "p90": 118.92,
      "market": {
       "line": 65.5,
       "overOdds": -111,
@@ -602,7 +582,7 @@
      }
     },
     "player_receptions": {
-     "mean": 4.284,
+     "mean": 4.209,
      "p10": 1,
      "p25": 3,
      "median": 4,
@@ -633,12 +613,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 14.565,
+     "mean": 14.591,
      "p10": 0,
      "p25": 0,
-     "median": 9.14,
-     "p75": 22.02,
-     "p90": 38.13,
+     "median": 9.39,
+     "p75": 22.75,
+     "p90": 38.29,
      "market": {
       "line": 13.5,
       "overOdds": -112,
@@ -648,7 +628,7 @@
      }
     },
     "player_receptions": {
-     "mean": 1.51,
+     "mean": 1.496,
      "p10": 0,
      "p25": 0,
      "median": 1,
@@ -673,82 +653,18 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4241478",
-   "name": "DeVonta Smith",
-   "team": "PHI",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 67.925,
-     "p10": 19.96,
-     "p25": 37.41,
-     "median": 62.82,
-     "p75": 91.61,
-     "p90": 124.25,
-     "pricingState": "NOT_OFFERED"
-    },
-    "player_receptions": {
-     "mean": 5.853,
-     "p10": 2,
-     "p25": 4,
-     "median": 6,
-     "p75": 8,
-     "p90": 10,
-     "pricingState": "NOT_OFFERED"
-    },
-    "anytime_td": {
-     "probability": 0.3595,
-     "market": {
-      "yesOdds": 190,
-      "sportsbook": "betonlineag",
-      "capturedAt": "2026-10-02T18:08:45Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3121023",
-   "name": "Dallas Goedert",
-   "team": "PHI",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 35.613,
-     "p10": 3.03,
-     "p25": 13.21,
-     "median": 29.29,
-     "p75": 51.97,
-     "p90": 76.21,
-     "pricingState": "NOT_OFFERED"
-    },
-    "player_receptions": {
-     "mean": 3.177,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 4,
-     "p90": 6,
-     "pricingState": "NOT_OFFERED"
-    },
-    "anytime_td": {
-     "probability": 0.3151,
-     "pricingState": "NOT_OFFERED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4428850",
    "name": "Dontayvion Wicks",
    "team": "PHI",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 41.203,
-     "p10": 4.45,
-     "p25": 15.74,
-     "median": 34.53,
-     "p75": 58.6,
-     "p90": 86.82,
+     "mean": 42.282,
+     "p10": 4.19,
+     "p25": 15.99,
+     "median": 35.27,
+     "p75": 61.22,
+     "p90": 88.57,
      "market": {
       "line": 54.5,
       "overOdds": -110,
@@ -758,7 +674,7 @@
      }
     },
     "player_receptions": {
-     "mean": 3.193,
+     "mean": 3.2,
      "p10": 1,
      "p25": 2,
      "median": 3,
@@ -820,16 +736,16 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 24.753,
+     "mean": 25.153,
      "p10": 0,
-     "p25": 6.86,
-     "median": 19.38,
-     "p75": 36.76,
-     "p90": 55.9,
+     "p25": 6.98,
+     "median": 19.92,
+     "p75": 37.38,
+     "p90": 56.84,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
-     "mean": 2.383,
+     "mean": 2.457,
      "p10": 0,
      "p25": 1,
      "median": 2,
@@ -901,12 +817,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 22.822,
+     "mean": 22.18,
      "p10": 0,
-     "p25": 5.43,
-     "median": 17.32,
-     "p75": 33.75,
-     "p90": 52.94,
+     "p25": 5.45,
+     "median": 17.3,
+     "p75": 33.4,
+     "p90": 50.51,
      "market": {
       "line": 36.5,
       "overOdds": -110,
@@ -916,7 +832,7 @@
      }
     },
     "player_receptions": {
-     "mean": 2.312,
+     "mean": 2.268,
      "p10": 0,
      "p25": 1,
      "median": 2,
@@ -947,16 +863,16 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 16.728,
+     "mean": 17.355,
      "p10": 0,
      "p25": 0,
-     "median": 10.09,
-     "p75": 25.88,
-     "p90": 45.37,
+     "median": 10.3,
+     "p75": 26.37,
+     "p90": 46,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
-     "mean": 1.36,
+     "mean": 1.401,
      "p10": 0,
      "p25": 0,
      "median": 1,
@@ -981,16 +897,16 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 13.602,
+     "mean": 13.209,
      "p10": 0,
      "p25": 0,
-     "median": 7,
-     "p75": 20.96,
-     "p90": 37.8,
+     "median": 7.33,
+     "p75": 19.95,
+     "p90": 35.6,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
-     "mean": 1.258,
+     "mean": 1.265,
      "p10": 0,
      "p25": 0,
      "median": 1,
@@ -1012,7 +928,7 @@
    "playerId": "nfl-athlete-4431545",
    "name": "Will Shipley",
    "team": "PHI",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "anytime_td": {
      "probability": 0.131,
@@ -1031,12 +947,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 12.234,
+     "mean": 12.244,
      "p10": 0,
      "p25": 0,
-     "median": 6.1,
-     "p75": 18.96,
-     "p90": 34.13,
+     "median": 5.83,
+     "p75": 19.26,
+     "p90": 34.32,
      "market": {
       "line": 16.5,
       "overOdds": -112,
@@ -1046,7 +962,7 @@
      }
     },
     "player_receptions": {
-     "mean": 1.132,
+     "mean": 1.127,
      "p10": 0,
      "p25": 0,
      "median": 1,
@@ -1123,22 +1039,6 @@
      "market": {
       "yesOdds": 2200,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-02T18:08:45Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4241372",
-   "name": "Marquise Brown",
-   "team": "PHI",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.0515,
-     "market": {
-      "yesOdds": 550,
-      "sportsbook": "betonlineag",
       "capturedAt": "2026-10-02T18:08:45Z"
      }
     }
