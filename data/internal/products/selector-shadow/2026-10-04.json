@@ -1,0 +1,627 @@
+{
+ "schemaVersion": 1,
+ "artifact": "selector-shadow-day",
+ "dataClass": "internal-research",
+ "date": "2026-10-04",
+ "asOf": "2026-10-04T11:19:43Z",
+ "generatedAt": "2026-10-04T11:19:44.650Z",
+ "eligibleLegs": 12,
+ "refusedAtRead": 108,
+ "universe": {
+  "legIds": [
+   "mlb:849823:mlb_moneyline:away",
+   "mlb:849823:mlb_moneyline:home",
+   "mlb:849823:mlb_run_line:away:1.5",
+   "mlb:849823:mlb_run_line:home:-1.5",
+   "mlb:849823:mlb_total_runs:over:7",
+   "mlb:849823:mlb_total_runs:under:7",
+   "mlb:849825:mlb_moneyline:away",
+   "mlb:849825:mlb_moneyline:home",
+   "mlb:849825:mlb_run_line:away:1.5",
+   "mlb:849825:mlb_run_line:home:-1.5",
+   "mlb:849825:mlb_total_runs:over:7",
+   "mlb:849825:mlb_total_runs:under:7"
+  ],
+  "sha256": "e4719d271130688532ccc310026ad4476deaa8922a61239cccb82e776e96ffbd"
+ },
+ "availability": {
+  "mlb": {
+   "eligible": 12,
+   "rejected": 0
+  },
+  "nfl": {
+   "eligible": 0,
+   "rejected": 84
+  },
+  "ufc": {
+   "eligible": 0,
+   "rejected": 24
+  },
+  "epl": {
+   "eligible": 0,
+   "rejected": 0
+  },
+  "nba": {
+   "eligible": 0,
+   "rejected": 0
+  }
+ },
+ "policies": {
+  "BB-LEGACY": {
+   "policyId": "BB-LEGACY@7be1d5171769",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 2,
+     "stake": 219.67,
+     "american": 224,
+     "decimal": 3.2441,
+     "potentialReturn": 712.64,
+     "jointP": 0.2816,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [],
+     "legs": [
+      {
+       "legId": "mlb:849825:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "849825",
+       "eventStartUtc": "2026-10-04T20:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -143,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-10-04T11:12:41.063Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5631,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "San Diego Padres @ Milwaukee Brewers",
+       "displaySelection": "Milwaukee Brewers to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-10-04.json",
+        "mlb/statsapi-schedule/2026-10-04.json"
+       ]
+      },
+      {
+       "legId": "mlb:849823:mlb_total_runs:over:7",
+       "sport": "mlb",
+       "eventId": "849823",
+       "eventStartUtc": "2026-10-05T00:00:00Z",
+       "marketFamily": "team_total",
+       "marketKey": "mlb_total_runs",
+       "side": "over",
+       "line": 7,
+       "american": -110,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-10-04T11:12:41.063Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Atlanta Braves @ Los Angeles Dodgers",
+       "displaySelection": "Over 7",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-10-04.json",
+        "mlb/statsapi-schedule/2026-10-04.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "BB-LEGACY@7be1d5171769",
+      "product": "bank-builder",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 2,
+      "stake": 219.67,
+      "requiredAmerican": 219,
+      "requiredDecimal": 3.1866,
+      "poolSize": 12,
+      "considered": 91,
+      "reaching": 75,
+      "concentrated": 71,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "MODEL_STATUS_INELIGIBLE",
+     "detail": {
+      "poolSize": 12
+     },
+     "step": 1,
+     "stake": 100,
+     "receipt": {
+      "policyId": "BB-LEGACY@7be1d5171769",
+      "product": "bank-builder",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 12,
+      "considered": 0
+     }
+    }
+   }
+  },
+  "BB-C1": {
+   "policyId": "BB-C1@b66731b335c2",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 2,
+     "stake": 219.67,
+     "american": 224,
+     "decimal": 3.2441,
+     "potentialReturn": 712.64,
+     "jointP": 0.2816,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [],
+     "legs": [
+      {
+       "legId": "mlb:849825:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "849825",
+       "eventStartUtc": "2026-10-04T20:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -143,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-10-04T11:12:41.063Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5631,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "San Diego Padres @ Milwaukee Brewers",
+       "displaySelection": "Milwaukee Brewers to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-10-04.json",
+        "mlb/statsapi-schedule/2026-10-04.json"
+       ]
+      },
+      {
+       "legId": "mlb:849823:mlb_total_runs:over:7",
+       "sport": "mlb",
+       "eventId": "849823",
+       "eventStartUtc": "2026-10-05T00:00:00Z",
+       "marketFamily": "team_total",
+       "marketKey": "mlb_total_runs",
+       "side": "over",
+       "line": 7,
+       "american": -110,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-10-04T11:12:41.063Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Atlanta Braves @ Los Angeles Dodgers",
+       "displaySelection": "Over 7",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-10-04.json",
+        "mlb/statsapi-schedule/2026-10-04.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "BB-C1@b66731b335c2",
+      "product": "bank-builder",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 2,
+      "stake": 219.67,
+      "requiredAmerican": 219,
+      "requiredDecimal": 3.1866,
+      "poolSize": 12,
+      "considered": 91,
+      "reaching": 75,
+      "concentrated": 71,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "LANE_HELD",
+     "detail": null,
+     "step": 1,
+     "stake": 100,
+     "receipt": {
+      "policyId": "BB-C1@b66731b335c2",
+      "product": "bank-builder",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 12,
+      "considered": 0
+     }
+    }
+   }
+  },
+  "BB-C2b": {
+   "policyId": "BB-C2b@61c455e7d375",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 2,
+     "stake": 219.67,
+     "american": 224,
+     "decimal": 3.2441,
+     "potentialReturn": 712.64,
+     "jointP": 0.2816,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [],
+     "legs": [
+      {
+       "legId": "mlb:849825:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "849825",
+       "eventStartUtc": "2026-10-04T20:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -143,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-10-04T11:12:41.063Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5631,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "San Diego Padres @ Milwaukee Brewers",
+       "displaySelection": "Milwaukee Brewers to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-10-04.json",
+        "mlb/statsapi-schedule/2026-10-04.json"
+       ]
+      },
+      {
+       "legId": "mlb:849823:mlb_total_runs:over:7",
+       "sport": "mlb",
+       "eventId": "849823",
+       "eventStartUtc": "2026-10-05T00:00:00Z",
+       "marketFamily": "team_total",
+       "marketKey": "mlb_total_runs",
+       "side": "over",
+       "line": 7,
+       "american": -110,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-10-04T11:12:41.063Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Atlanta Braves @ Los Angeles Dodgers",
+       "displaySelection": "Over 7",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-10-04.json",
+        "mlb/statsapi-schedule/2026-10-04.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "BB-C2b@61c455e7d375",
+      "product": "bank-builder",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 2,
+      "stake": 219.67,
+      "requiredAmerican": 219,
+      "requiredDecimal": 3.1866,
+      "poolSize": 12,
+      "considered": 91,
+      "reaching": 75,
+      "concentrated": 71,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "LANE_HELD",
+     "detail": null,
+     "step": 1,
+     "stake": 100,
+     "receipt": {
+      "policyId": "BB-C2b@61c455e7d375",
+      "product": "bank-builder",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 1,
+      "stake": 100,
+      "requiredAmerican": 100,
+      "requiredDecimal": 2,
+      "poolSize": 12,
+      "considered": 0
+     }
+    }
+   }
+  },
+  "MS-LEGACY": {
+   "policyId": "MS-LEGACY@311563f3927d",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 1,
+     "stake": 25,
+     "american": 313,
+     "decimal": 4.1313,
+     "potentialReturn": 103.28,
+     "jointP": 0.2211,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [],
+     "legs": [
+      {
+       "legId": "mlb:849823:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "849823",
+       "eventStartUtc": "2026-10-05T00:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -158,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-10-04T11:12:41.063Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5848,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Atlanta Braves @ Los Angeles Dodgers",
+       "displaySelection": "Los Angeles Dodgers to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-10-04.json",
+        "mlb/statsapi-schedule/2026-10-04.json"
+       ]
+      },
+      {
+       "legId": "mlb:849825:mlb_run_line:home:-1.5",
+       "sport": "mlb",
+       "eventId": "849825",
+       "eventStartUtc": "2026-10-04T20:00:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "home",
+       "line": -1.5,
+       "american": 153,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-10-04T11:12:41.063Z",
+       "probability": null,
+       "marketImpliedProbability": 0.378,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "San Diego Padres @ Milwaukee Brewers",
+       "displaySelection": "Milwaukee Brewers -1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-10-04.json",
+        "mlb/statsapi-schedule/2026-10-04.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "MS-LEGACY@311563f3927d",
+      "product": "moonshot",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 12,
+      "considered": 66,
+      "reaching": 26,
+      "concentrated": 12,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "MODEL_STATUS_INELIGIBLE",
+     "detail": {
+      "poolSize": 12
+     },
+     "step": 1,
+     "stake": 25,
+     "receipt": {
+      "policyId": "MS-LEGACY@311563f3927d",
+      "product": "moonshot",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 12,
+      "considered": 0
+     }
+    }
+   }
+  },
+  "MS-C1": {
+   "policyId": "MS-C1@cbd27cd0b408",
+   "lanes": {
+    "A": {
+     "status": "placed",
+     "step": 1,
+     "stake": 25,
+     "american": 313,
+     "decimal": 4.1313,
+     "potentialReturn": 103.28,
+     "jointP": 0.2211,
+     "probabilityBasis": "market-implied",
+     "sports": [
+      "mlb"
+     ],
+     "relationships": [],
+     "legs": [
+      {
+       "legId": "mlb:849823:mlb_moneyline:home",
+       "sport": "mlb",
+       "eventId": "849823",
+       "eventStartUtc": "2026-10-05T00:00:00Z",
+       "marketFamily": "team_result",
+       "marketKey": "mlb_moneyline",
+       "side": "home",
+       "line": null,
+       "american": -158,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-10-04T11:12:41.063Z",
+       "probability": null,
+       "marketImpliedProbability": 0.5848,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "Atlanta Braves @ Los Angeles Dodgers",
+       "displaySelection": "Los Angeles Dodgers to win",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-10-04.json",
+        "mlb/statsapi-schedule/2026-10-04.json"
+       ]
+      },
+      {
+       "legId": "mlb:849825:mlb_run_line:home:-1.5",
+       "sport": "mlb",
+       "eventId": "849825",
+       "eventStartUtc": "2026-10-04T20:00:00Z",
+       "marketFamily": "team_spread",
+       "marketKey": "mlb_run_line",
+       "side": "home",
+       "line": -1.5,
+       "american": 153,
+       "bookmaker": "draftkings",
+       "capturedAt": "2026-10-04T11:12:41.063Z",
+       "probability": null,
+       "marketImpliedProbability": 0.378,
+       "forecastOwner": "mlb/team-markets",
+       "forecastId": null,
+       "modelStatus": "MARKET_CONTEXT",
+       "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+       "displayMatchup": "San Diego Padres @ Milwaukee Brewers",
+       "displaySelection": "Milwaukee Brewers -1.5",
+       "sourceReceiptRefs": [
+        "mlb/team-markets/2026-10-04.json",
+        "mlb/statsapi-schedule/2026-10-04.json"
+       ]
+      }
+     ],
+     "receipt": {
+      "policyId": "MS-C1@cbd27cd0b408",
+      "product": "moonshot",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 12,
+      "considered": 66,
+      "reaching": 26,
+      "concentrated": 12,
+      "ranking": "maxJointP-then-smallestOvershoot-then-fewerLegs-then-legId",
+      "probabilityBasis": "market-implied"
+     },
+     "graded": null
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "MODEL_STATUS_INELIGIBLE",
+     "detail": {
+      "poolSize": 12
+     },
+     "step": 1,
+     "stake": 25,
+     "receipt": {
+      "policyId": "MS-C1@cbd27cd0b408",
+      "product": "moonshot",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 12,
+      "considered": 0
+     }
+    }
+   }
+  },
+  "MS-C4": {
+   "policyId": "MS-C4@5da8e43d1124",
+   "lanes": {
+    "A": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "CADENCE_WINDOW",
+     "detail": {
+      "daysSinceLast": 1
+     },
+     "step": 1,
+     "stake": 25,
+     "receipt": {
+      "policyId": "MS-C4@5da8e43d1124",
+      "product": "moonshot",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 12,
+      "considered": 0
+     }
+    },
+    "B": {
+     "status": "NO_QUALIFYING_PLAY",
+     "reason": "CADENCE_WINDOW",
+     "detail": {
+      "daysSinceLast": 1
+     },
+     "step": 1,
+     "stake": 25,
+     "receipt": {
+      "policyId": "MS-C4@5da8e43d1124",
+      "product": "moonshot",
+      "asOf": "2026-10-04T11:19:43Z",
+      "step": 1,
+      "stake": 25,
+      "requiredAmerican": 300,
+      "requiredDecimal": 4,
+      "poolSize": 12,
+      "considered": 0
+     }
+    }
+   }
+  }
+ }
+}

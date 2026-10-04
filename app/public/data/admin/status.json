@@ -1,14 +1,14 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-03T15:22:13.697Z",
+  "generatedAt": "2026-10-04T14:07:00.212Z",
   "canonical": {
-    "record": "43-42",
-    "bankroll": 15240.4,
+    "record": "44-43",
+    "bankroll": 15090.4,
     "crown": 20465.4,
-    "drawdown": 5225,
-    "profit": 15140.4,
-    "roiMultiple": 151.4,
-    "portfolioMd5": "ebdc0b5ff6d485b540ea595f4f64e19e"
+    "drawdown": 5375,
+    "profit": 14990.4,
+    "roiMultiple": 149.9,
+    "portfolioMd5": "a6774f5ad8a17a1b91f49208dfd95561"
   },
   "moneyGate": {
     "crownMinusDrawdownEqualsBankroll": true,
@@ -16,13 +16,13 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-10-03",
-    "dailyPortfolioDate": "2026-10-03",
-    "activeBankroll": 15240.4,
-    "openExposure": 250,
+    "date": "2026-10-04",
+    "dailyPortfolioDate": "2026-10-04",
+    "activeBankroll": 15090.4,
+    "openExposure": 225,
     "worldCupGames": 0,
-    "mlbGames": 4,
-    "mlbSlate": "2026-10-03"
+    "mlbGames": 2,
+    "mlbSlate": "2026-10-04"
   },
   "sportsbook": {
     "note": "Artifact-level freshness only — the market feed carries no row-level timestamps, so no per-market recency can be claimed.",
@@ -30,25 +30,25 @@
       {
         "source": "mlb/team-markets",
         "state": "CURRENT",
-        "artifactDate": "2026-10-03",
-        "generatedAt": "2026-10-03T10:29:50.243Z",
+        "artifactDate": "2026-10-04",
+        "generatedAt": "2026-10-04T11:12:41.063Z",
         "ageDays": 0
       },
       {
         "source": "mlb/player-props",
         "state": "CURRENT",
-        "artifactDate": "2026-10-03",
-        "generatedAt": "2026-10-03T10:29:51.084Z",
+        "artifactDate": "2026-10-04",
+        "generatedAt": "2026-10-04T11:12:41.917Z",
         "ageDays": 0
       }
     ]
   },
   "productReadiness": {
     "bankBuilder": "active · 2 lane(s)",
-    "moonshot": "active · 2 lane(s)",
+    "moonshot": "active · 1 lane(s)",
     "top10": "live",
     "worldCup": "dormant (no board)",
-    "mlb": "live · 4 game(s)",
+    "mlb": "live · 2 game(s)",
     "wcSpecials": "0 card(s)"
   },
   "products": {
@@ -58,66 +58,63 @@
         {
           "lane": "A",
           "status": "active",
-          "step": 1,
+          "step": 2,
           "legs": 2,
-          "combinedOdds": 120,
-          "stake": 100,
-          "potentialReturn": 219.67,
+          "combinedOdds": 224,
+          "stake": 219.67,
+          "potentialReturn": 712.64,
           "selections": [
-            "Los Angeles Dodgers to win",
-            "Milwaukee Brewers to win"
+            "Milwaukee Brewers to win",
+            "Over 7"
           ]
         },
         {
           "lane": "B",
           "status": "active",
-          "step": 3,
+          "step": 1,
           "legs": 2,
-          "combinedOdds": 209,
-          "stake": 951.89,
-          "potentialReturn": 2944.44,
+          "combinedOdds": 205,
+          "stake": 100,
+          "potentialReturn": 305.28,
           "selections": [
-            "Cleveland Guardians to win",
-            "Under 7"
+            "Los Angeles Dodgers to win",
+            "Over 7"
           ]
         }
       ]
     },
     "moonshot": {
-      "activeLanes": 2,
+      "activeLanes": 1,
       "lanes": [
         {
           "lane": "A",
           "status": "active",
           "step": 1,
           "legs": 2,
-          "combinedOdds": 300,
+          "combinedOdds": 318,
           "stake": 25,
-          "potentialReturn": 100.01,
+          "potentialReturn": 104.52,
           "selections": [
-            "Over 7",
-            "Los Angeles Dodgers -1.5"
+            "San Diego Padres to win",
+            "Under 7"
           ]
         },
         {
           "lane": "B",
-          "status": "active",
-          "step": 2,
-          "legs": 2,
-          "combinedOdds": 300,
-          "stake": 100.17,
-          "potentialReturn": 400.35,
-          "selections": [
-            "New York Yankees +1.5",
-            "San Diego Padres to win"
-          ]
+          "status": "awaiting",
+          "step": 1,
+          "legs": 0,
+          "combinedOdds": 0,
+          "stake": 25,
+          "potentialReturn": 25,
+          "selections": []
         }
       ]
     },
     "forwardCoverage": {
       "present": true,
-      "date": "2026-10-03",
-      "generatedAt": "2026-10-03T15:09:34Z",
+      "date": "2026-10-04",
+      "generatedAt": "2026-10-04T13:06:01Z",
       "sports": [
         {
           "sport": "epl",
@@ -133,15 +130,17 @@
         },
         {
           "sport": "ufc",
-          "state": "DERIVED",
+          "state": "STARTED",
           "counts": {
-            "scheduled": 14,
-            "priced": 11,
-            "generated": 13,
+            "scheduled": 0,
+            "priced": 0,
+            "generated": 0,
             "frozen": 0,
             "started": 0
           },
-          "findings": []
+          "findings": [
+            "CARD_STARTED:UFC 332: Silva vs. Wang started 2026-10-03T20:00Z — no longer forward coverage"
+          ]
         },
         {
           "sport": "nfl",
@@ -161,9 +160,9 @@
           "sport": "mlb",
           "state": "DAILY_BY_CONTRACT",
           "counts": {
-            "scheduled": 4,
-            "priced": 4,
-            "generated": 4,
+            "scheduled": 2,
+            "priced": 2,
+            "generated": 2,
             "frozen": 0,
             "started": 0
           },
@@ -174,10 +173,16 @@
       ]
     },
     "dailyLifecycle": {
-      "receiptDate": "2026-10-03",
+      "receiptDate": "2026-10-04",
       "present": true,
-      "generatedAt": "2026-10-03T15:09:33Z",
-      "watchdog": [],
+      "generatedAt": "2026-10-04T13:06:00Z",
+      "watchdog": [
+        {
+          "product": "end-zone-vault",
+          "kind": "INCIDENT_OPEN",
+          "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-10-04"
+        }
+      ],
       "states": {
         "bank-builder": {
           "state": "ACTIVE",
@@ -188,7 +193,7 @@
           "policyVersion": "moonshot@2"
         },
         "end-zone-vault": {
-          "state": "NO_PLAY",
+          "state": "INCIDENT",
           "policyVersion": "end-zone-vault@1"
         },
         "homer-nukes": {
@@ -216,19 +221,19 @@
   },
   "counts": {
     "activeProducts": 3,
-    "pendingApprovals": 0
+    "pendingApprovals": 1
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-03T15:16:33.536Z",
-    "ageHours": 0.1,
+    "lastRunAt": "2026-10-04T14:04:45.137Z",
+    "ageHours": 0,
     "ok": false,
     "status": "fail",
     "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
-    "etDate": "2026-10-03",
-    "etTime": "11:22",
+    "etDate": "2026-10-04",
+    "etTime": "10:07",
     "stages": [
       {
         "stage": "schedule",
@@ -281,12 +286,12 @@
   },
   "learningLoop": {
     "signal": "GREEN",
-    "summary": "learning data complete through 2026-10-01 (51956 rows)",
+    "summary": "learning data complete through 2026-10-03 (52095 rows)",
     "freshness": {
       "healthy": true,
-      "asOfSettledDate": "2026-10-01",
-      "corpusRows": 51956,
-      "ledgerRows": 51956,
+      "asOfSettledDate": "2026-10-03",
+      "corpusRows": 52095,
+      "ledgerRows": 52095,
       "lagDays": 0,
       "problems": []
     },
@@ -335,9 +340,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-10-03",
-  "nextRefreshDate": "2026-10-04",
-  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-10-03's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
+  "nextSettlementDate": "2026-10-04",
+  "nextRefreshDate": "2026-10-05",
+  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-10-04's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }

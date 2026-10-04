@@ -4,26 +4,25 @@
   "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
-      "state": "PUBLISHING",
-      "reason": "2 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-10-04T18:30:00.000Z",
+      "state": "PUBLISHED",
+      "reason": "all 2 event(s) in the horizon carry a forecast",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 2,
-        "published": 0,
+        "published": 2,
         "missedCoverage": 0,
-        "awaiting": 2
-      },
-      "missed": []
+        "awaiting": 0
+      }
     },
     "nfl": {
       "state": "PUBLISHING",
-      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
+      "reason": "2 event(s) still awaiting a forecast, none of them late yet",
       "deadlineUtc": "2026-10-08T22:45:00.000Z",
       "counts": {
-        "scheduled": 16,
+        "scheduled": 17,
         "published": 15,
         "missedCoverage": 0,
-        "awaiting": 1
+        "awaiting": 2
       },
       "missed": []
     },
@@ -62,20 +61,22 @@
       }
     }
   },
-  "checkedAt": "2026-10-04T05:08:23.017Z",
+  "checkedAt": "2026-10-04T14:04:44.405Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHING",
-  "reason": "today's slate is not published yet and is not late — the deadline is 2026-10-04T18:30:00.000Z",
-  "publishDeadlineUtc": "2026-10-04T18:30:00.000Z",
+  "state": "PUBLISHED",
+  "reason": "board published with 77 rows",
+  "publishDeadlineUtc": null,
   "scheduledGames": 2,
   "pregameRemaining": 2,
   "alreadyStarted": 0,
   "board": {
-    "present": false,
-    "leans": 0,
+    "present": true,
+    "leans": 77,
     "pendingReason": null,
-    "generatedAt": null
+    "generatedAt": "2026-10-04T11:11:06.960677+00:00",
+    "scheduledGames": 2,
+    "startedBeforeGeneration": 0
   },
   "games": [
     {

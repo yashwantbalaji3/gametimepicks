@@ -2,18 +2,18 @@
   "schemaVersion": 1,
   "artifact": "mlb-model-results-index",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-03T14:27:39Z",
+  "generatedAt": "2026-10-04T13:57:15Z",
   "sport": "mlb",
   "coverage": {
-    "dates": 111,
+    "dates": 112,
     "firstDate": "2026-05-16",
-    "lastDate": "2026-10-01",
-    "rows": 51956,
-    "wins": 24556,
-    "losses": 24232,
-    "pushes": 3168,
-    "decisive": 48788,
-    "games": 1369,
+    "lastDate": "2026-10-03",
+    "rows": 52095,
+    "wins": 24612,
+    "losses": 24313,
+    "pushes": 3170,
+    "decisive": 48925,
+    "games": 1373,
     "note": "Every settled model pick this project has graded, one row per pick. Reconciled against graded-picks.json at build time; the build refuses if the two disagree. `games` counts the distinct games those picks came from — the rows are clustered within games and are not independent observations."
   },
   "days": [
@@ -4931,6 +4931,51 @@
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-10-01.json"
+    },
+    {
+      "date": "2026-10-03",
+      "sport": "mlb",
+      "rows": 139,
+      "wins": 56,
+      "losses": 81,
+      "pushes": 2,
+      "decisive": 137,
+      "games": 4,
+      "byMarket": {
+        "batter_hits": {
+          "rows": 65,
+          "wins": 31,
+          "losses": 33,
+          "pushes": 1,
+          "decisive": 64,
+          "games": 4
+        },
+        "batter_hits_runs_rbis": {
+          "rows": 57,
+          "wins": 19,
+          "losses": 37,
+          "pushes": 1,
+          "decisive": 56,
+          "games": 4
+        },
+        "batter_total_bases": {
+          "rows": 9,
+          "wins": 2,
+          "losses": 7,
+          "pushes": 0,
+          "decisive": 9,
+          "games": 4
+        },
+        "pitcher_strikeouts": {
+          "rows": 8,
+          "wins": 4,
+          "losses": 4,
+          "pushes": 0,
+          "decisive": 8,
+          "games": 4
+        }
+      },
+      "rowsUrl": "/data/mlb/results/model-rows/2026-10-03.json"
     }
   ]
 }

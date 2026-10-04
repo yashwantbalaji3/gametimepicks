@@ -2,32 +2,32 @@
  "schemaVersion": 1,
  "artifact": "selector-shadow-ledger",
  "dataClass": "internal-research",
- "generatedAt": "2026-10-03T14:26:42.704Z",
- "days": 10,
+ "generatedAt": "2026-10-04T13:56:16.714Z",
+ "days": 11,
  "firstDate": "2026-09-21",
- "lastDate": "2026-10-03",
+ "lastDate": "2026-10-04",
  "policies": {
   "BB-LEGACY": {
    "policyId": "BB-LEGACY@7be1d5171769",
    "metrics": {
-    "laneDays": 20,
-    "placed": 17,
-    "decided": 15,
-    "pending": 2,
-    "won": 9,
-    "lost": 6,
+    "laneDays": 22,
+    "placed": 18,
+    "decided": 17,
+    "pending": 1,
+    "won": 10,
+    "lost": 7,
     "push": 0,
-    "survivalPerStep": 0.6,
-    "survivalSe": 0.126,
+    "survivalPerStep": 0.588,
+    "survivalSe": 0.119,
     "byStep": {
      "1": {
-      "won": 5,
+      "won": 6,
       "lost": 2,
       "push": 0
      },
      "2": {
       "won": 3,
-      "lost": 1,
+      "lost": 2,
       "push": 0
      },
      "3": {
@@ -43,30 +43,31 @@
     },
     "completions": 0,
     "furthestStep": 4,
-    "noPlayLaneDays": 3,
+    "noPlayLaneDays": 4,
     "noPlayByReason": {
-     "CONCENTRATION_TOO_HIGH": 3
+     "CONCENTRATION_TOO_HIGH": 3,
+     "MODEL_STATUS_INELIGIBLE": 1
     },
-    "publicationRate": 0.85,
-    "expectedWinsUnderPublishedP": 5.22,
-    "meanJointP": 0.348
+    "publicationRate": 0.818,
+    "expectedWinsUnderPublishedP": 5.93,
+    "meanJointP": 0.349
    }
   },
   "BB-C1": {
    "policyId": "BB-C1@b66731b335c2",
    "metrics": {
-    "laneDays": 20,
-    "placed": 15,
-    "decided": 13,
+    "laneDays": 22,
+    "placed": 16,
+    "decided": 14,
     "pending": 2,
-    "won": 6,
+    "won": 7,
     "lost": 7,
     "push": 0,
-    "survivalPerStep": 0.462,
-    "survivalSe": 0.138,
+    "survivalPerStep": 0.5,
+    "survivalSe": 0.134,
     "byStep": {
      "1": {
-      "won": 3,
+      "won": 4,
       "lost": 4,
       "push": 0
      },
@@ -88,31 +89,31 @@
     },
     "completions": 0,
     "furthestStep": 4,
-    "noPlayLaneDays": 5,
+    "noPlayLaneDays": 6,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 2,
-     "LANE_HELD": 3
+     "LANE_HELD": 4
     },
-    "publicationRate": 0.75,
-    "expectedWinsUnderPublishedP": 5.09,
-    "meanJointP": 0.391
+    "publicationRate": 0.727,
+    "expectedWinsUnderPublishedP": 5.5,
+    "meanJointP": 0.393
    }
   },
   "BB-C2b": {
    "policyId": "BB-C2b@61c455e7d375",
    "metrics": {
-    "laneDays": 20,
-    "placed": 15,
-    "decided": 13,
+    "laneDays": 22,
+    "placed": 16,
+    "decided": 14,
     "pending": 2,
-    "won": 6,
+    "won": 7,
     "lost": 7,
     "push": 0,
-    "survivalPerStep": 0.462,
-    "survivalSe": 0.138,
+    "survivalPerStep": 0.5,
+    "survivalSe": 0.134,
     "byStep": {
      "1": {
-      "won": 3,
+      "won": 4,
       "lost": 4,
       "push": 0
      },
@@ -134,108 +135,125 @@
     },
     "completions": 0,
     "furthestStep": 4,
-    "noPlayLaneDays": 5,
+    "noPlayLaneDays": 6,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 2,
-     "LANE_HELD": 3
+     "LANE_HELD": 4
     },
-    "publicationRate": 0.75,
-    "expectedWinsUnderPublishedP": 5.09,
-    "meanJointP": 0.391
+    "publicationRate": 0.727,
+    "expectedWinsUnderPublishedP": 5.5,
+    "meanJointP": 0.393
    }
   },
   "MS-LEGACY": {
    "policyId": "MS-LEGACY@311563f3927d",
    "metrics": {
-    "laneDays": 20,
-    "placed": 5,
-    "decided": 3,
-    "pending": 2,
+    "laneDays": 22,
+    "placed": 6,
+    "decided": 5,
+    "pending": 1,
     "won": 1,
-    "lost": 2,
+    "lost": 4,
     "push": 0,
-    "survivalPerStep": 0.333,
-    "survivalSe": 0.272,
+    "survivalPerStep": 0.2,
+    "survivalSe": 0.179,
     "byStep": {
      "1": {
       "won": 1,
-      "lost": 2,
+      "lost": 3,
+      "push": 0
+     },
+     "2": {
+      "won": 0,
+      "lost": 1,
       "push": 0
      }
     },
     "completions": 0,
     "furthestStep": 2,
-    "noPlayLaneDays": 15,
+    "noPlayLaneDays": 16,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 3,
-     "PRICE_UNAVAILABLE": 12
+     "PRICE_UNAVAILABLE": 12,
+     "MODEL_STATUS_INELIGIBLE": 1
     },
-    "publicationRate": 0.25,
-    "expectedWinsUnderPublishedP": 0.68,
-    "meanJointP": 0.226
+    "publicationRate": 0.273,
+    "expectedWinsUnderPublishedP": 1.13,
+    "meanJointP": 0.227
    }
   },
   "MS-C1": {
    "policyId": "MS-C1@cbd27cd0b408",
    "metrics": {
-    "laneDays": 20,
-    "placed": 5,
-    "decided": 3,
-    "pending": 2,
+    "laneDays": 22,
+    "placed": 6,
+    "decided": 5,
+    "pending": 1,
     "won": 1,
-    "lost": 2,
+    "lost": 4,
     "push": 0,
-    "survivalPerStep": 0.333,
-    "survivalSe": 0.272,
+    "survivalPerStep": 0.2,
+    "survivalSe": 0.179,
     "byStep": {
      "1": {
       "won": 1,
-      "lost": 2,
+      "lost": 3,
+      "push": 0
+     },
+     "2": {
+      "won": 0,
+      "lost": 1,
       "push": 0
      }
     },
     "completions": 0,
     "furthestStep": 2,
-    "noPlayLaneDays": 15,
+    "noPlayLaneDays": 16,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 3,
-     "PRICE_UNAVAILABLE": 12
+     "PRICE_UNAVAILABLE": 12,
+     "MODEL_STATUS_INELIGIBLE": 1
     },
-    "publicationRate": 0.25,
-    "expectedWinsUnderPublishedP": 0.68,
-    "meanJointP": 0.226
+    "publicationRate": 0.273,
+    "expectedWinsUnderPublishedP": 1.13,
+    "meanJointP": 0.227
    }
   },
   "MS-C4": {
    "policyId": "MS-C4@5da8e43d1124",
    "metrics": {
-    "laneDays": 20,
+    "laneDays": 22,
     "placed": 5,
-    "decided": 3,
-    "pending": 2,
+    "decided": 5,
+    "pending": 0,
     "won": 1,
-    "lost": 2,
+    "lost": 4,
     "push": 0,
-    "survivalPerStep": 0.333,
-    "survivalSe": 0.272,
+    "survivalPerStep": 0.2,
+    "survivalSe": 0.179,
     "byStep": {
      "1": {
       "won": 1,
-      "lost": 2,
+      "lost": 3,
+      "push": 0
+     },
+     "2": {
+      "won": 0,
+      "lost": 1,
       "push": 0
      }
     },
     "completions": 0,
     "furthestStep": 2,
-    "noPlayLaneDays": 15,
+    "noPlayLaneDays": 17,
     "noPlayByReason": {
      "CONCENTRATION_TOO_HIGH": 1,
-     "CADENCE_WINDOW": 4,
+     "CADENCE_WINDOW": 6,
      "PRICE_UNAVAILABLE": 10
     },
-    "publicationRate": 0.25,
-    "expectedWinsUnderPublishedP": 0.68,
-    "meanJointP": 0.226
+    "publicationRate": 0.227,
+    "expectedWinsUnderPublishedP": 1.13,
+    "meanJointP": 0.227
    }
   }
  },
@@ -245,15 +263,15 @@
    "control": "BB-LEGACY",
    "state": "NOT_YET",
    "reasons": [
-    "decided 13 < 20",
-    "survival 0.462 < control 0.6"
+    "decided 14 < 20",
+    "survival 0.5 < control 0.588"
    ],
    "measured": {
-    "shadowDecided": 13,
-    "shadowSurvival": 0.462,
-    "controlSurvival": 0.6,
-    "shadowPlaced": 15,
-    "controlPlaced": 17
+    "shadowDecided": 14,
+    "shadowSurvival": 0.5,
+    "controlSurvival": 0.588,
+    "shadowPlaced": 16,
+    "controlPlaced": 18
    },
    "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
   },
@@ -262,15 +280,15 @@
    "control": "BB-LEGACY",
    "state": "NOT_YET",
    "reasons": [
-    "decided 13 < 20",
-    "survival 0.462 < control 0.6"
+    "decided 14 < 20",
+    "survival 0.5 < control 0.588"
    ],
    "measured": {
-    "shadowDecided": 13,
-    "shadowSurvival": 0.462,
-    "controlSurvival": 0.6,
-    "shadowPlaced": 15,
-    "controlPlaced": 17
+    "shadowDecided": 14,
+    "shadowSurvival": 0.5,
+    "controlSurvival": 0.588,
+    "shadowPlaced": 16,
+    "controlPlaced": 18
    },
    "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
   },
@@ -279,14 +297,14 @@
    "control": "MS-LEGACY",
    "state": "NOT_YET",
    "reasons": [
-    "decided 3 < 20"
+    "decided 5 < 20"
    ],
    "measured": {
-    "shadowDecided": 3,
-    "shadowSurvival": 0.333,
-    "controlSurvival": 0.333,
-    "shadowPlaced": 5,
-    "controlPlaced": 5
+    "shadowDecided": 5,
+    "shadowSurvival": 0.2,
+    "controlSurvival": 0.2,
+    "shadowPlaced": 6,
+    "controlPlaced": 6
    },
    "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
   },
@@ -295,14 +313,14 @@
    "control": "MS-LEGACY",
    "state": "NOT_YET",
    "reasons": [
-    "decided 3 < 20"
+    "decided 5 < 20"
    ],
    "measured": {
-    "shadowDecided": 3,
-    "shadowSurvival": 0.333,
-    "controlSurvival": 0.333,
+    "shadowDecided": 5,
+    "shadowSurvival": 0.2,
+    "controlSurvival": 0.2,
     "shadowPlaced": 5,
-    "controlPlaced": 5
+    "controlPlaced": 6
    },
    "note": "ELIGIBLE means the founder may write the adoption receipt; nothing changes on its own."
   }
