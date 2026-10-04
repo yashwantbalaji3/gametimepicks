@@ -20,77 +20,77 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 1,
-  "gamesPending": 15,
+  "gamesFinal": 2,
+  "gamesPending": 14,
   "overall": {
-   "checks": 39,
-   "hits": 33,
-   "rate": 0.8461538461538461
+   "checks": 63,
+   "hits": 54,
+   "rate": 0.8571428571428571
   },
   "props": [
    {
     "id": "winner",
     "label": "Picked the winner",
     "group": "team",
-    "checks": 1,
-    "hits": 0,
+    "checks": 2,
+    "hits": 1,
     "voids": 0,
-    "rate": 0,
-    "expectedHits": 0.5
+    "rate": 0.5,
+    "expectedHits": 1
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 1,
-    "hits": 1,
+    "checks": 2,
+    "hits": 2,
     "voids": 0,
     "rate": 1,
-    "typicalMiss": 12,
+    "typicalMiss": 10,
     "rangeWidth": 34,
-    "lean": -12
+    "lean": -2
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 1,
-    "hits": 1,
+    "checks": 2,
+    "hits": 2,
     "voids": 0,
     "rate": 1,
-    "typicalMiss": 5,
+    "typicalMiss": 11,
     "rangeWidth": 33,
-    "lean": -5
+    "lean": 6
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 13,
-    "hits": 12,
-    "voids": 0,
-    "rate": 0.9230769230769231,
+    "checks": 22,
+    "hits": 21,
+    "voids": 3,
+    "rate": 0.9545454545454546,
     "status": "PUBLISHED",
-    "typicalMiss": 1.1,
-    "rangeWidth": 4.9,
-    "lean": -0.9
+    "typicalMiss": 1,
+    "rangeWidth": 4.7,
+    "lean": -0.7
    },
    {
     "id": "player_reception_yds",
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 13,
-    "hits": 11,
-    "voids": 0,
-    "rate": 0.8461538461538461,
+    "checks": 22,
+    "hits": 18,
+    "voids": 3,
+    "rate": 0.8181818181818182,
     "status": "PUBLISHED",
-    "typicalMiss": 24.3,
-    "rangeWidth": 62.4,
-    "lean": -19.1
+    "typicalMiss": 21.6,
+    "rangeWidth": 59,
+    "lean": -13.9
    },
    {
     "id": "player_rush_yds",
@@ -111,36 +111,36 @@
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 2,
-    "hits": 2,
+    "checks": 4,
+    "hits": 3,
     "voids": 0,
-    "rate": 1,
+    "rate": 0.75,
     "status": "ESTIMATE",
-    "typicalMiss": 80,
-    "rangeWidth": 224,
-    "lean": -80
+    "typicalMiss": 82,
+    "rangeWidth": 215.3,
+    "lean": 2
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 1,
-    "hits": 0,
+    "checks": 2,
+    "hits": 1,
     "voids": 0,
-    "rate": 0
+    "rate": 0.5
    }
   ],
   "context": {
    "closerThanSportsbook": {
     "oursCloser": 1,
-    "booksCloser": 0,
+    "booksCloser": 1,
     "even": 0,
     "noLine": 0
    },
    "touchdowns": {
-    "playersGraded": 16,
-    "expectedScorers": 3.2,
-    "actualScorers": 5
+    "playersGraded": 30,
+    "expectedScorers": 6.5,
+    "actualScorers": 8
    }
   }
  },
@@ -764,11 +764,440 @@
     },
     "sportsbookTotal": 46.5
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 30,
+    "home": 13,
+    "total": 43,
+    "margin": -17
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "HIT"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "HIT",
+     "actual": 43
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "HIT",
+     "actual": -17
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "MISS",
+     "oursOff": 8,
+     "booksOff": 3.5
+    }
+   ],
+   "players": [
+    {
+     "name": "Jonathan Taylor",
+     "team": "IND",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jonathan Taylor",
+     "team": "IND",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 19,
+     "low": 0,
+     "high": 55,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Stefon Diggs",
+     "team": "WSH",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 7,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Stefon Diggs",
+     "team": "WSH",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 34,
+     "low": 6,
+     "high": 78,
+     "actual": 35,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Terry McLaurin",
+     "team": "WSH",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 7,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Terry McLaurin",
+     "team": "WSH",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 39,
+     "low": 7,
+     "high": 90,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Austin Ekeler",
+     "team": "WSH",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Austin Ekeler",
+     "team": "WSH",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 8,
+     "low": 0,
+     "high": 37,
+     "actual": 11,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Warren",
+     "team": "IND",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 5,
+     "low": 2,
+     "high": 8,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Warren",
+     "team": "IND",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 37,
+     "low": 10,
+     "high": 80,
+     "actual": 41,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Josh Downs",
+     "team": "IND",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 2,
+     "high": 8,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Josh Downs",
+     "team": "IND",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 46,
+     "low": 11,
+     "high": 98,
+     "actual": 16,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Antonio Williams",
+     "team": "WSH",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 4,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Antonio Williams",
+     "team": "WSH",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 17,
+     "low": 0,
+     "high": 54,
+     "actual": 21,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jeremy McNichols",
+     "team": "WSH",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Jeremy McNichols",
+     "team": "WSH",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 0,
+     "high": 36,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Chig Okonkwo",
+     "team": "WSH",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Chig Okonkwo",
+     "team": "WSH",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 9,
+     "low": 0,
+     "high": 39,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Treylon Burks",
+     "team": "WSH",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Treylon Burks",
+     "team": "WSH",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 0,
+     "high": 37,
+     "actual": 47,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Dyami Brown",
+     "team": "WSH",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Dyami Brown",
+     "team": "WSH",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 9,
+     "low": 0,
+     "high": 37,
+     "actual": 65,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Daniel Jones",
+     "team": "IND",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 206,
+     "low": 113,
+     "high": 338,
+     "actual": 143,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Marcus Mariota",
+     "team": "WSH",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 151,
+     "low": 76,
+     "high": 264,
+     "actual": 46,
+     "outcome": "MISS"
+    },
+    {
+     "name": "John Bates",
+     "team": "WSH",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "John Bates",
+     "team": "WSH",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 6,
+     "low": 0,
+     "high": 34,
+     "actual": null,
+     "outcome": "VOID"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "Jonathan Taylor",
+     "team": "IND",
+     "probability": 0.7168,
+     "outcome": "SCORED",
+     "likeliest": true
+    },
+    {
+     "name": "Stefon Diggs",
+     "team": "WSH",
+     "probability": 0.4008,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Terry McLaurin",
+     "team": "WSH",
+     "probability": 0.3441,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Austin Ekeler",
+     "team": "WSH",
+     "probability": 0.328,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jacory Croskey-Merritt",
+     "team": "WSH",
+     "probability": 0.3264,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tyler Warren",
+     "team": "IND",
+     "probability": 0.3202,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Josh Downs",
+     "team": "IND",
+     "probability": 0.2487,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Antonio Williams",
+     "team": "WSH",
+     "probability": 0.1953,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jeremy McNichols",
+     "team": "WSH",
+     "probability": 0.1786,
+     "outcome": "VOID"
+    },
+    {
+     "name": "D.J. Montgomery",
+     "team": "IND",
+     "probability": 0.171,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Chig Okonkwo",
+     "team": "WSH",
+     "probability": 0.1543,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Anthony Richardson",
+     "team": "IND",
+     "probability": 0.1473,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Treylon Burks",
+     "team": "WSH",
+     "probability": 0.1438,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Dyami Brown",
+     "team": "WSH",
+     "probability": 0.1303,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Kaytron Allen",
+     "team": "WSH",
+     "probability": 0.0974,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "DJ Giddens",
+     "team": "IND",
+     "probability": 0.0966,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Daniel Jones",
+     "team": "IND",
+     "probability": 0.0914,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Marcus Mariota",
+     "team": "WSH",
+     "probability": 0.0816,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Seth McGowan",
+     "team": "IND",
+     "probability": 0.0806,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
    "boardNote": null
   },
   {
@@ -1112,7 +1541,7 @@
     "name": "Minnesota Vikings"
    },
    "published": {
-    "generatedAt": "2026-10-04T15:02:50Z",
+    "generatedAt": "2026-10-04T17:18:17Z",
     "projectedScore": {
      "away": 15,
      "home": 24
@@ -1153,7 +1582,7 @@
     "name": "San Francisco 49ers"
    },
    "published": {
-    "generatedAt": "2026-10-04T15:02:50Z",
+    "generatedAt": "2026-10-04T17:18:17Z",
     "projectedScore": {
      "away": 22,
      "home": 24
@@ -1172,7 +1601,7 @@
      "low": -15,
      "high": 18
     },
-    "sportsbookTotal": 48.5
+    "sportsbookTotal": 48
    },
    "state": "PENDING",
    "final": null,
@@ -1194,7 +1623,7 @@
     "name": "Las Vegas Raiders"
    },
    "published": {
-    "generatedAt": "2026-10-04T15:02:50Z",
+    "generatedAt": "2026-10-04T17:18:17Z",
     "projectedScore": {
      "away": 21,
      "home": 19
@@ -1213,7 +1642,7 @@
      "low": -19,
      "high": 14
     },
-    "sportsbookTotal": 48
+    "sportsbookTotal": 47.5
    },
    "state": "PENDING",
    "final": null,
@@ -1235,7 +1664,7 @@
     "name": "Seattle Seahawks"
    },
    "published": {
-    "generatedAt": "2026-10-04T15:02:50Z",
+    "generatedAt": "2026-10-04T17:18:17Z",
     "projectedScore": {
      "away": 16,
      "home": 24
@@ -1276,7 +1705,7 @@
     "name": "Carolina Panthers"
    },
    "published": {
-    "generatedAt": "2026-10-04T15:02:50Z",
+    "generatedAt": "2026-10-04T17:18:17Z",
     "projectedScore": {
      "away": 27,
      "home": 24
@@ -1317,7 +1746,7 @@
     "name": "New Orleans Saints"
    },
    "published": {
-    "generatedAt": "2026-10-04T15:02:50Z",
+    "generatedAt": "2026-10-04T17:18:17Z",
     "projectedScore": {
      "away": 22,
      "home": 22
@@ -1347,5 +1776,5 @@
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-10-04T15:02:50Z"
+ "generatedAt": "2026-10-04T17:18:17Z"
 }
