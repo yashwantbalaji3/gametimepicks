@@ -80,6 +80,7 @@ test("P246 · confirmed-out players are excluded from the DEFAULT view (client c
   // labelled toggle shows their conditional-on-playing numbers.
   const ui = fs.readFileSync(path.join(APP, "src/components/nfl/player-board.tsx"), "utf8");
   assert.match(ui, /useState\(false\);\n\s+const outCount/, "the listed-out toggle defaults OFF");
-  assert.match(ui, /includeOut \? true : p\.participation !== "INACTIVE"/, "the default filter excludes confirmed-out players");
+  /* Session 11: the default is the shared public allowlist — confirmed-out AND questionable rows sit behind the toggle. */
+  assert.match(ui, /includeOut \? true : PUBLIC_BOARD_CLEARED\.includes\(p\.participation\)/, "the default filter shows only cleared players");
   assert.match(ui, /conditional on playing/, "the toggle names what the shown numbers mean");
 });
