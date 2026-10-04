@@ -1,6 +1,42 @@
 {
- "groups": {},
+ "groups": {
+  "game.competitors": {
+   "count": 1,
+   "rule": "precedence ufc.espn-results > ufc.espn-schedule > ufc.espn-history",
+   "samples": [
+    {
+     "chosen": {
+      "src": "ufc.espn-results",
+      "value": [
+       {
+        "corner": "RED",
+        "playerId": "ufc-athlete-4684470"
+       },
+       {
+        "corner": "BLUE",
+        "playerId": "ufc-athlete-4895760"
+       }
+      ]
+     },
+     "id": "401927906",
+     "other": {
+      "src": "ufc.espn-schedule",
+      "value": [
+       {
+        "corner": "RED",
+        "playerId": "ufc-athlete-4895760"
+       },
+       {
+        "corner": "BLUE",
+        "playerId": "ufc-athlete-5454993"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ },
  "schemaVersion": 1,
  "sportId": "UFC",
- "total": 0
+ "total": 1
 }
