@@ -67,17 +67,17 @@ on:
         type: boolean
         default: false
 
-# Shares the artifact writer group: this commits to app/public/data, so it must never interleave
-# with the board generator or the settler.
-concurrency:
-  group: gtp-generated-artifacts
-  cancel-in-progress: false
-
 permissions:
   contents: write
 
 jobs:
   generate:
+    # Shares the artifact writer group: this commits to app/public/data, so it must never interleave
+    # with the board generator or the settler. JOB-level (Session 12), not workflow-level, so the
+    # `tick` job below is never parked in — or cancelled out of — the writer queue.
+    concurrency:
+      group: gtp-generated-artifacts
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # THE TRUST BOUNDARY ON A workflow_run TRIGGER.
@@ -498,3 +498,49 @@ jobs:
         run: |
           echo "::error::MLB money products were not generated for ${{ steps.d.outputs.date }} — ${MLB_REASON}. Every other product step ran; the receipt records INPUTS_MISSING."
           exit 1
+
+  # ─────────────────────────────────────────────────────────────────────────────────────────────────
+  # SESSION 12 · THE TICK — a clock for the kickoff-aware owners that does not depend on chain depth.
+  #
+  # nfl-kickoff-refresh and nba-forecast-window listened for this workflow's completion
+  # (`workflow_run`). On Sunday 2026-10-04 this workflow DELIVERED (11:17Z, 13:03Z, 14:04Z, 15:09Z)
+  # while every scheduled clock was silent, yet not one of those runs started either owner: this
+  # run is the 4th link of nightly-settle → morning-projections → mlb-daily-production →
+  # daily-products, and GitHub does not fire `workflow_run` past that depth. The 1 PM ET block went
+  # without its T-120 price refresh until a human dispatched it.
+  #
+  # A `workflow_dispatch` made with GITHUB_TOKEN starts a NEW chain (cron-watchdog relies on the
+  # same fact), so the depth limit no longer applies. Both owners are free deciders: they read
+  # committed artifacts and HOLD unless something is owed, and the paid capture stays behind
+  # nfl-kickoff-refresh's own freshness + in-flight guards. This job spends nothing and writes
+  # nothing — no checkout, no secret beyond the token, `actions: write` only.
+  #
+  # Independent of `generate`: an MLB input refusal (exit 1) or a writer-queue wait must not silence
+  # the tick. Same trust boundary as `generate`, minus the success requirement — any delivered run
+  # is a valid clock tick, exactly as publication-watchdog's are.
+  # ─────────────────────────────────────────────────────────────────────────────────────────────────
+  tick:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.head_branch == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      actions: write
+    steps:
+      - name: Ask the kickoff-aware owners whether anything is owed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Each dispatch is independent: one refusal must not skip the other owner.
+          rc=0
+          for wf in nfl-kickoff-refresh.yml nfl-pregame-free-refresh.yml nba-forecast-window.yml; do
+            if gh workflow run "$wf" --ref main; then
+              echo "::notice::daily-products ticked $wf"
+            else
+              echo "::warning::daily-products could not tick $wf"; rc=1
+            fi
+          done
+          exit "$rc"

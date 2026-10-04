@@ -83,7 +83,10 @@ test("the kickoff checker itself never buys anything", () => {
 
 test("the kickoff checker also ticks on a workflow that DELIVERS (Session 9: its own crons delivered 1 of 10 on TNF)", () => {
   const src = wf("nfl-kickoff-refresh.yml");
-  assert.match(src, /workflow_run:\s*\n\s*workflows: \["publication-watchdog", "daily-products"\]\s*\n\s*types: \[completed\]/);
+  // Session 12: daily-products ticks it by workflow_dispatch (its `tick` job), not workflow_run — it sits
+  // 4 deep in the morning chain, where GitHub never fired this (workflow-trigger-depth.test.mjs).
+  assert.match(src, /workflow_run:\s*\n\s*workflows: \["publication-watchdog"\]\s*\n\s*types: \[completed\]/);
+  assert.match(wf("daily-products.yml"), /for wf in nfl-kickoff-refresh\.yml /, "daily-products' tick must dispatch the kickoff checker");
   /* Never ticked by the workflow it dispatches: a failed capture must not re-trigger a paid run of itself. */
   assert.ok(!/workflows: \[[^\]]*nfl-event-window/.test(src), "nfl-event-window must not be a tick source");
   assert.match(src, /github\.event\.workflow_run\.head_branch == github\.event\.repository\.default_branch/, "default-branch only");

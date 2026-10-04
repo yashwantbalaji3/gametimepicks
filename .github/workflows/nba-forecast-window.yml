@@ -12,8 +12,9 @@
 # forecast changed, and commits. Overlapping or repeated runs are no-ops by construction.
 #
 # CLOCKS. Its own hourly cron (best-effort, like every cron here) plus `workflow_run` on publication-watchdog
-# (dense 12–22Z) and daily-products — the same two clocks nfl-kickoff-refresh relies on, measured to deliver
-# when single crons are dropped.
+# (dense 12–22Z) and a `workflow_dispatch` from daily-products' `tick` job — the same two clocks
+# nfl-kickoff-refresh relies on, measured to deliver when single crons are dropped. (daily-products was a
+# workflow_run source until Session 12; it sits 4 deep in the morning chain, where GitHub never fires one.)
 #
 # ⚠ OWN CONCURRENCY GROUP, DELIBERATELY NOT gtp-generated-artifacts: a pending run in a group cancels the
 # previous pending one, and a dense tick in the shared writer group would cancel daily-products / settle runs.
@@ -27,7 +28,7 @@ on:
   schedule:
     - cron: "17 * * * *"
   workflow_run:
-    workflows: ["publication-watchdog", "daily-products"]
+    workflows: ["publication-watchdog"]
     types: [completed]
   workflow_dispatch:
     inputs:
