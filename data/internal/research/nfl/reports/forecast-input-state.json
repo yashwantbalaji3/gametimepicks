@@ -2,293 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-04T19:24:18Z",
+  "generatedAt": "2026-10-04T22:38:04Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 6,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 6,
-    "eventsWithAMaterialExclusion": 2,
+    "upcomingEvents": 2,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
+    "eventsWithAMaterialExclusion": 0,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401872974",
-      "matchup": "MIA @ MIN",
-      "kickoffUtc": "2026-10-04T20:05Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "6849b354bc71d5b7",
-        "simulations": 10000,
-        "generatedAt": "2026-10-04T19:24:18Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:24:18Z",
-        "participationInputHash": "841c34f99372b208",
-        "excludedCount": 5,
-        "materialExclusions": [
-          {
-            "name": "Max Brosmer",
-            "team": "MIN",
-            "state": "Out",
-            "statedAt": "2026-10-04T18:44Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Max Brosmer",
-            "team": "MIN",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Justin Jefferson",
-            "team": "MIN",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Josh Oliver",
-            "team": "MIN",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "De'Von Achane",
-            "team": "MIA",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Caleb Douglas",
-            "team": "MIA",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872976",
-      "matchup": "KC @ LV",
-      "kickoffUtc": "2026-10-04T20:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "db0251c027f92507",
-        "simulations": 10000,
-        "generatedAt": "2026-10-04T19:24:18Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:24:18Z",
-        "participationInputHash": "9eaf4e4f4f48a419",
-        "excludedCount": 4,
-        "materialExclusions": [
-          {
-            "name": "Aidan O'Connell",
-            "team": "LV",
-            "state": "Out",
-            "statedAt": "2026-10-04T19:20Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Aidan O'Connell",
-            "team": "LV",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Jack Bech",
-            "team": "LV",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Dont'e Thornton Jr.",
-            "team": "LV",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jared Wiley",
-            "team": "KC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872975",
-      "matchup": "DEN @ SF",
-      "kickoffUtc": "2026-10-04T20:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "c637b6330e4b77f0",
-        "simulations": 10000,
-        "generatedAt": "2026-10-04T19:24:18Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:24:18Z",
-        "participationInputHash": "9d644f518eb17fbb",
-        "excludedCount": 3,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Jordan James",
-            "team": "SF",
-            "state": "Out",
-            "families": [
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Demarcus Robinson",
-            "team": "SF",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jonah Coleman",
-            "team": "DEN",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872977",
-      "matchup": "LAC @ SEA",
-      "kickoffUtc": "2026-10-04T20:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "ca08db36cdc6f3c7",
-        "simulations": 10000,
-        "generatedAt": "2026-10-04T19:24:18Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:24:18Z",
-        "participationInputHash": "db6ee9fbbd1c2356",
-        "excludedCount": 7,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Jadarian Price",
-            "team": "SEA",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Zach Charbonnet",
-            "team": "SEA",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Jalen Milroe",
-            "team": "SEA",
-            "state": "Out",
-            "families": [
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Nick Kallerup",
-            "team": "SEA",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "David Njoku",
-            "team": "LAC",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Charlie Kolar",
-            "team": "LAC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Brenen Thompson",
-            "team": "LAC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401872978",
@@ -297,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "a9c725f87a53a9a9",
+        "inputHash": "51fa35666e9e9630",
         "simulations": 10000,
-        "generatedAt": "2026-10-04T19:24:18Z"
+        "generatedAt": "2026-10-04T22:38:04Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:24:18Z",
-        "participationInputHash": "5c9e970a9d5a002e",
+        "snapshotAsOf": "2026-10-04T22:38:04Z",
+        "participationInputHash": "46518714e81e45fd",
         "excludedCount": 2,
         "materialExclusions": [],
         "excluded": [
@@ -338,15 +62,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "7b0b7c4af8292e2c",
+        "inputHash": "022240db2138bda2",
         "simulations": 10000,
-        "generatedAt": "2026-10-04T19:24:18Z"
+        "generatedAt": "2026-10-04T22:38:04Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:24:18Z",
-        "participationInputHash": "45e6fd14c8c95835",
+        "snapshotAsOf": "2026-10-04T22:38:04Z",
+        "participationInputHash": "211712086ac27660",
         "excludedCount": 1,
         "materialExclusions": [],
         "excluded": [
