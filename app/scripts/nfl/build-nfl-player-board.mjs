@@ -351,7 +351,13 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     const roster = rosterByTeam.get(row.team);
     if (!roster || !roster.has(row.playerId)) {
       /* Off the ACTIVE roster because he is on this team's practice squad: named as such, not as departed. */
-      if (practiceSquad.get(row.playerId) === row.team) { practiceSquadFiltered += 1; practiceSquadNamed.push({ playerId: row.playerId, name: row.name, team: row.team }); continue; }
+      if (practiceSquad.get(row.playerId) === row.team) {
+        practiceSquadFiltered += 1; practiceSquadNamed.push({ playerId: row.playerId, name: row.name, team: row.team });
+        /* Session 11: a practice-squad move of a player with this season's usage here is accounted for in the
+           coverage receipt (MATERIAL_OMISSION caught Lil'Jordan Humphrey, DEN, moved to the PS on 10-04). */
+        if (currentUsage.has(`${row.team}:${row.playerId}`)) noRole.push({ playerId: row.playerId, name: row.name, team: row.team, reason: `on ${row.team}'s practice squad — no game-day elevation source` });
+        continue;
+      }
       shareLevelRosterDropped += 1;
       /* Session 4: a player with THIS season's usage here who has since left the roster is named, not silently dropped. */
       if (currentUsage.has(`${row.team}:${row.playerId}`)) noRole.push({ playerId: row.playerId, name: row.name, team: row.team, reason: `not on ${row.team}'s current roster` });
