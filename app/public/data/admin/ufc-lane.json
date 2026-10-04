@@ -2,43 +2,43 @@
   "schemaVersion": 1,
   "artifact": "ufc-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-10-03T15:06:49Z",
+  "generatedAt": "2026-10-04T17:22:31Z",
   "nextCard": {
-    "name": "UFC 332: Silva vs. Wang",
-    "slateDate": "2026-10-03",
-    "bouts": 14,
-    "hoursAway": 4.89
+    "name": "UFC Fight Night: Allen vs. Duncan",
+    "slateDate": "2026-10-10",
+    "bouts": 12,
+    "hoursAway": 147.62
   },
   "freshness": {
     "card": {
       "state": "READ",
-      "stampedAt": "2026-10-03T15:05:53Z",
-      "ageHours": 0.02
+      "stampedAt": "2026-10-04T17:22:01Z",
+      "ageHours": 0.01
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-10-03T15:06:06Z",
-      "ageHours": 0.01
+      "ageHours": 26.27
     },
     "ladder": {
       "state": "READ",
-      "stampedAt": "2026-10-03T15:06:47Z",
+      "stampedAt": "2026-10-04T17:22:29Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-10-03T13:10:07+00:00",
-      "ageHours": 1.95
+      "stampedAt": "2026-10-04T13:49:28+00:00",
+      "ageHours": 3.55
     },
     "settled": {
       "state": "READ",
       "stampedAt": "2026-06-15T13:55:00Z",
-      "ageHours": 2641.2
+      "ageHours": 2667.46
     }
   },
   "cards": {
     "state": "NO_CARDS_FOR_THIS_CARD",
-    "date": "2026-10-03",
+    "date": "2026-10-10",
     "carded": 0,
     "skipped": [],
     "ladderState": "CAPABILITY_GATED",
@@ -57,18 +57,18 @@
     "requests": 32
   },
   "productLane": {
-    "live": true,
-    "blocked": null
+    "live": false,
+    "blocked": "only 0 priced games — the ladder needs 4"
   },
   "population": {
     "state": "POPULATION_EXACT",
-    "generatedAt": "2026-10-03T15:06:04Z",
+    "generatedAt": "2026-10-04T17:22:07Z",
     "counts": {
-      "expected": 14,
-      "captured": 14,
-      "read": 13,
+      "expected": 12,
+      "captured": 12,
+      "read": 11,
       "unmodelled": 1,
-      "priced": 10,
+      "priced": 0,
       "missing": 0,
       "phantom": 0
     }
@@ -76,18 +76,18 @@
   "modelVsMarket": {
     "state": "RECONCILED",
     "cumulative": {
-      "n": 49,
+      "n": 60,
       "model": {
-        "logLoss": 0.670782,
-        "brier": 0.233972,
-        "accuracy": 0.653061
+        "logLoss": 0.717831,
+        "brier": 0.244089,
+        "accuracy": 0.65
       },
       "market": {
-        "logLoss": 0.651281,
-        "brier": 0.231705
+        "logLoss": 0.609837,
+        "brier": 0.212989
       }
     },
-    "gradedTotal": 49,
+    "gradedTotal": 60,
     "reconciliation": [
       {
         "slateDate": "2026-08-22",
@@ -136,12 +136,18 @@
         "void": 0,
         "pending": 1,
         "reconciles": true
+      },
+      {
+        "slateDate": "2026-10-03",
+        "frozen": 11,
+        "graded": 11,
+        "void": 0,
+        "pending": 0,
+        "reconciles": true
       }
     ],
     "postCardLag": {
-      "state": "PENDING_RESULTS",
-      "slateDate": "2026-09-26",
-      "pending": 1
+      "state": "CLEAR"
     }
   },
   "gate": {
@@ -166,6 +172,11 @@
       "id": "calibration-sample",
       "state": "REALITY_GATED",
       "detail": "the model has never been scored against a no-vig UFC line, and one card has been settled from official results. Cards have to be fought."
+    },
+    {
+      "id": "product-lane-closed",
+      "state": "REALITY_GATED",
+      "detail": "the Lab gate has closed this lane: only 0 priced games — the ladder needs 4. It reopens by itself when the evidence returns."
     }
   ]
 }
