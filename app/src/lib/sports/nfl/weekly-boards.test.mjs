@@ -7,6 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { PUBLIC_BOARD_CLEARED } from "./board-ranking.mjs";
 
 const APP = process.cwd();
 const SRC = fs.readFileSync(path.join(APP, "scripts/nfl/build-nfl-weekly-boards.mjs"), "utf8");
@@ -26,7 +27,7 @@ test("ONE ranking owner — the hub renders the artifact verbatim and never rank
   // The hub must not sort player rows — ranking is the owner's job. (The owner sorts by value.)
   assert.doesNotMatch(HUB, /rows\.sort|players\.sort/, "the hub re-ranking players would be a second owner");
   // The owner ranks through the ONE shared rule (B-4a), which the frozen daily Top-5 also uses.
-  assert.match(SRC, /rankFamily\(scoped, family, metric\)/, "the owner ranks via lib/sports/nfl/board-ranking.mjs");
+  assert.match(SRC, /rankFamily\(scoped, family, metric, \{ asOf: NOW, blocked \}\)/, "the owner ranks via lib/sports/nfl/board-ranking.mjs, gated at the build instant");
   const RANK = fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/board-ranking.mjs"), "utf8");
   assert.match(RANK, /b\.value - a\.value \|\| mean\(b\.market\) - mean\(a\.market\)/, "by the family's own metric, ties by the model's mean");
   // Membership is the WEEK, never a clock window.
@@ -53,6 +54,9 @@ test("LIVE · published boards obey the contract (skip-free when the artifact ex
     let prev = Infinity;
     for (const r of b.rows) {
       assert.notEqual(r.participation, "INACTIVE", `${r.name}: a confirmed-out player never ranks on a default board`);
+      /* Session 11 founder policy — only cleared players rank (QUESTIONABLE / DOUBTFUL / unknown never). Live
+         from the first artifact the gated producer writes (it stamps excludedForAvailability on every ranked board). */
+      if ("excludedForAvailability" in b) assert.ok(PUBLIC_BOARD_CLEARED.includes(r.participation), `${r.name}: ${r.participation} may not rank on a public top board`);
       assert.ok(r.value <= prev, `${b.id}: rows out of rank order`);
       prev = r.value;
       /*

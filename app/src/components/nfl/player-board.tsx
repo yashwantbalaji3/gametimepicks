@@ -20,6 +20,7 @@ import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
 import Link from "next/link";
 import FollowToggle from "@/components/follow/follow-toggle";
 import { nflPlayerRef } from "@/lib/follow/follow-schema.mjs";
+import { PUBLIC_BOARD_CLEARED } from "@/lib/sports/nfl/board-ranking.mjs";
 import PredictionBoard, { participationLabel } from "@/components/prediction/prediction-board";
 import { indexLiveProps, liveRowsFromEnvelope, presentPlayerBoardFamily, type PlayerBoardContext, type PlayerBoardPlayer } from "@/lib/prediction-presentation/nfl";
 import { useLiveEvent } from "@/components/live/use-live-event";
@@ -158,14 +159,16 @@ export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { b
   /* P246 (founder §4.1): a player confirmed OUT is excluded from the DEFAULT board — a
      conditional-on-playing number beside active players reads as a projection that he plays.
      The rows stay in the artifact; this toggle is the explicit optional detail that shows them. */
+  /* Session 11 (founder policy): the default board lists only CLEARED players — the same allowlist the
+     public top boards rank with (board-ranking.mjs). Questionable / Doubtful / Out rows sit behind this toggle. */
   const [includeOut, setIncludeOut] = useState(false);
-  const outCount = useMemo(() => board.players.filter((p) => p.participation === "INACTIVE").length, [board.players]);
+  const outCount = useMemo(() => board.players.filter((p) => !PUBLIC_BOARD_CLEARED.includes(p.participation)).length, [board.players]);
 
   const isCombined = family === COMBINED;
   const rows = useMemo(
     () =>
       board.players
-        .filter((p) => (includeOut ? true : p.participation !== "INACTIVE"))
+        .filter((p) => (includeOut ? true : PUBLIC_BOARD_CLEARED.includes(p.participation)))
         .filter((p) => (team ? p.team === team : true))
         .filter((p) =>
           isCombined
@@ -268,8 +271,8 @@ export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { b
         ))}
         {outCount > 0 ? (
           <label className="font-mono" style={{ display: "inline-flex", alignItems: "center", gap: 6, minHeight: 40, fontSize: 11, color: "var(--vault-text-mute)", cursor: "pointer" }}>
-            <input type="checkbox" checked={includeOut} onChange={(e) => setIncludeOut(e.target.checked)} aria-label={`Show listed-out players (${outCount}) — conditional on playing`} />
-            Show listed-out players ({outCount}) — conditional on playing
+            <input type="checkbox" checked={includeOut} onChange={(e) => setIncludeOut(e.target.checked)} aria-label={`Show questionable and listed-out players (${outCount}) — conditional on playing`} />
+            Show questionable and listed-out players ({outCount}) — conditional on playing
           </label>
         ) : null}
         <input

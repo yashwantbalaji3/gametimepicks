@@ -167,9 +167,10 @@ const newArrivalsByEvent = (() => {
 const { active: rosterByTeam, practiceSquad } = activeRosterIndex(read(path.join(APP, "public/data/nfl/rosters/latest.json")));
 
 const ROLE_TO_BOARD = { OUT: "INACTIVE", INACTIVE: "INACTIVE", QUESTIONABLE: "QUESTIONABLE", ACTIVE_PROJECTED: "ACTIVE_PROJECTED", ACTIVE_UNCERTAIN: "AVAILABLE_ROLE_UNCERTAIN", SOURCE_STALE: "AVAILABLE_ROLE_UNCERTAIN" };
+const roleEvidenceDoc = read(path.join(ROOT, "data/internal/nfl/role-evidence/latest.json"));
 const designationByPlayer = (() => {
   const m = new Map();
-  const doc = read(path.join(ROOT, "data/internal/nfl/role-evidence/latest.json"));
+  const doc = roleEvidenceDoc;
   for (const ev of doc?.events ?? []) {
     for (const [abbr, tv] of Object.entries(ev.teams ?? {})) {
       for (const p of tv.players ?? []) {
@@ -481,6 +482,14 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     seasonType: doc.seasonType,
     week: doc.week,
     participationBasis: "Availability refreshes until kickoff.",
+    /* Session 11 — the availability read these rows were joined against, so a top board can refuse to
+       rank on a missing or stale read (board-ranking.mjs boardAvailabilityState) instead of trusting it. */
+    availability: {
+      injuriesCapturedAt: injuriesArtifact.generatedAt ?? null,
+      roleEvidenceAt: roleEvidenceDoc?.generatedAt ?? null,
+      injuries: roleEvidenceDoc?.freshness?.injuries ?? "MISSING",
+      rosters: roleEvidenceDoc?.freshness?.rosters ?? "MISSING",
+    },
     families,
     /* New arrivals per team: factual prior-club per-game usage for notable movers the stint rule
        cannot yet place. NOT part of the simulated numbers, and each row says so. */

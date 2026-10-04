@@ -59,6 +59,7 @@ import { reportCardContext } from "@/lib/command-center/report-card";
 import { archivedEventFrom, archivedEventIds, archivedForecastFor } from "@/lib/sports/nfl/archived-forecast";
 import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
+import { PUBLIC_BOARD_CLEARED } from "@/lib/sports/nfl/board-ranking.mjs";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -353,7 +354,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         const hasRec = fams.player_receptions?.state === "PUBLISHED" && fams.player_reception_yds?.state === "PUBLISHED";
         const ct1 = (v: number | undefined) => (v != null && Number.isFinite(v) ? (Math.round(v * 10) / 10).toString() : "—");
         const yd0 = (v: number | undefined) => (v != null && Number.isFinite(v) ? String(Math.round(v)) : "—");
-        const active = (abbr: string) => players.filter((p) => p.team === abbr && p.participation !== "INACTIVE");
+        /* Session 11: the shared public-board allowlist (board-ranking.mjs) — Questionable / Out never lead a top list. */
+        const active = (abbr: string) => players.filter((p) => p.team === abbr && PUBLIC_BOARD_CLEARED.includes(p.participation));
         const tdTop = (abbr: string) => active(abbr)
           .filter((p) => p.markets.anytime_td?.probability != null)
           .sort((a, b) => b.markets.anytime_td!.probability! - a.markets.anytime_td!.probability!)
@@ -672,7 +674,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           {(() => {
             if (playerBoard.families.anytime_td?.state !== "PUBLISHED") return null;
             const eligible = playerBoard.players
-              .filter((p) => p.markets.anytime_td?.probability != null && p.participation !== "INACTIVE")
+              .filter((p) => p.markets.anytime_td?.probability != null && PUBLIC_BOARD_CLEARED.includes(p.participation))
               .sort((a, b) => b.markets.anytime_td!.probability! - a.markets.anytime_td!.probability!);
             const top = eligible.slice(0, 6);
             if (!top.length) return null;
