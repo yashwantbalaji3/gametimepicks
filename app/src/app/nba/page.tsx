@@ -32,7 +32,8 @@ export default function NbaHubPage() {
         clears its preregistered bars on regular-season games.
       </p>
       <section id="nba-games" className="scroll-mt-24" aria-label="NBA games">
-        <HubHeader model={model} />
+        {/* Session 11: schedule-only — one line per game keeps every game inside the page budget. */}
+        <HubHeader model={model} compact />
       </section>
 
       <section id="nba-model-status" className="scroll-mt-24 flex flex-col gap-2" aria-labelledby="nba-model-status-h">
