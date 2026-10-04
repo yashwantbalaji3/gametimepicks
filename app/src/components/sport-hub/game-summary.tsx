@@ -130,9 +130,29 @@ function EventCard({ row: r, unitLabel }: { row: HubGameRow; unitLabel: string }
   );
 }
 
+/*
+ * SESSION 11 — THE COMPACT ROW, FOR A SCHEDULE-ONLY HUB. The NBA hub lists every game in a ten-day window and
+ * publishes no read, so each ~4KB card (two crests, an empty read box, a note) repeated "No supported read" on
+ * every game and put /nba over its 200KB evidence budget at 32 games (≈100 once the regular season starts).
+ * The same facts — when, who, lifecycle, the final or why there is no report — in one line per game. Every
+ * game is still listed; a read, if one ever exists, is still printed with its kind.
+ */
+function CompactRow({ row: r }: { row: HubGameRow }) {
+  const tone = r.read ? READ_TONE[r.read.kind] : null;
+  return (
+    <li className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 py-2 text-[13px]" style={{ borderBottom: "1px solid var(--vault-rule)" }}>
+      <span className="text-[12px]" style={{ color: "var(--vault-text-mute)", minWidth: 150 }}>{r.startLabel}</span>
+      <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{r.matchup}</span>
+      <span className="text-[11px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)" }}>{r.status}</span>
+      {r.read ? <span style={{ color: tone!.color }}>{r.read.label} <span style={{ color: "var(--vault-text-mute)" }}>· {tone!.label}</span></span> : null}
+      <span className="text-[12px]"><Action row={r} /></span>
+    </li>
+  );
+}
+
 export default function GameSummary({
-  rows, unitLabel, emptyReason, emptyCounts, emptyLink,
-}: { rows: HubGameRow[]; unitLabel: string; emptyReason?: string; emptyCounts?: string; emptyLink?: { href: string; label: string } }) {
+  rows, unitLabel, emptyReason, emptyCounts, emptyLink, compact = false,
+}: { rows: HubGameRow[]; unitLabel: string; emptyReason?: string; emptyCounts?: string; emptyLink?: { href: string; label: string }; compact?: boolean }) {
   const ordered = orderRows(rows);
   const counts = hubCounts(rows);
   const upcoming = ordered.filter((r) => !r.started);
@@ -175,9 +195,13 @@ export default function GameSummary({
       {heading ? (
         <h3 className="mt-6 mb-2 text-[13px] font-semibold" style={{ color: "var(--vault-text-mute)" }}>{heading}</h3>
       ) : null}
-      <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-        {list.map((r) => <EventCard key={r.id} row={r} unitLabel={unitLabel} />)}
-      </ul>
+      {compact ? (
+        <ul className="m-0 p-0 list-none">{list.map((r) => <CompactRow key={r.id} row={r} />)}</ul>
+      ) : (
+        <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+          {list.map((r) => <EventCard key={r.id} row={r} unitLabel={unitLabel} />)}
+        </ul>
+      )}
     </>
   );
 
