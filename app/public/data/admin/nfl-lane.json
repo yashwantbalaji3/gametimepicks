@@ -2,32 +2,32 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-10-04T14:42:21Z",
+ "generatedAt": "2026-10-04T15:02:50Z",
  "program": "P171",
  "nextWindow": {
   "matchup": "NE @ BUF",
   "kickoffUtc": "2026-10-04T17:00Z",
   "seasonType": 2,
   "week": 4,
-  "hoursToKickoff": 2.29,
-  "eventsInWindow": 28
+  "hoursToKickoff": 1.95,
+  "eventsInWindow": 29
  },
  "freshness": {
   "schedule": {
    "state": "FRESH",
-   "detail": "as of 2026-10-03T14:16:53Z (FRESH)"
+   "detail": "as of 2026-10-04T14:45:29Z (FRESH)"
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-10-04T14:42:21Z (FRESH)"
+   "detail": "as of 2026-10-04T15:02:50Z (FRESH)"
   },
   "injuries": {
    "state": "FRESH",
-   "detail": "as of 2026-10-04T14:42:39Z (FRESH)"
+   "detail": "as of 2026-10-04T15:03:14Z (FRESH)"
   },
   "odds": {
-   "state": "STALE",
-   "detail": "as of 2026-10-03T23:32:09Z (STALE)"
+   "state": "FRESH",
+   "detail": "as of 2026-10-04T15:02:50Z (FRESH)"
   }
  },
  "regularSeason": {
@@ -44,7 +44,7 @@
    {
     "id": "schedule",
     "state": "AVAILABLE",
-    "detail": "schedule as of 2026-10-03T14:16:53Z"
+    "detail": "schedule as of 2026-10-04T14:45:29Z"
    },
    {
     "id": "teamStrength",
@@ -54,12 +54,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-10-04T14:42:39Z"
+    "detail": "injuries as of 2026-10-04T15:03:14Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-10-04T14:42:21Z"
+    "detail": "rosters as of 2026-10-04T15:02:50Z"
    },
    {
     "id": "participationRoles",
@@ -89,7 +89,7 @@
    {
     "id": "prices",
     "state": "AVAILABLE",
-    "detail": "prices as of 2026-10-03T23:32:09Z"
+    "detail": "prices as of 2026-10-04T15:02:50Z"
    }
   ]
  },
@@ -97,11 +97,10 @@
   "state": "CAPTURED",
   "events": 62,
   "books": 11,
-  "capturedAt": "2026-10-03T23:32:09Z",
+  "capturedAt": "2026-10-04T15:02:50Z",
   "propMarkets": {
    "state": "PROBED",
    "probedEventIds": [
-    "nfl-401872965",
     "nfl-401872966",
     "nfl-401872973",
     "nfl-401872971",
@@ -117,7 +116,7 @@
     "nfl-401872978",
     "nfl-401872979"
    ],
-   "eventsProbed": 15,
+   "eventsProbed": 14,
    "offeredMarkets": [
     "player_anytime_td",
     "player_pass_yds",
@@ -127,44 +126,6 @@
    ],
    "absentMarkets": [],
    "perEvent": [
-    {
-     "canonicalEventId": "nfl-401872965",
-     "matchup": "Indianapolis Colts @ Washington Commanders",
-     "offeredMarkets": [
-      "player_anytime_td",
-      "player_pass_yds",
-      "player_reception_yds",
-      "player_receptions",
-      "player_rush_yds"
-     ],
-     "absentMarkets": [],
-     "unresolvedIdentities": [
-      {
-       "name": "Indianapolis Colts D/ST",
-       "families": [
-        "anytime_td"
-       ]
-      },
-      {
-       "name": "Indianapolis Colts Defense",
-       "families": [
-        "anytime_td"
-       ]
-      },
-      {
-       "name": "Washington Commanders D/ST",
-       "families": [
-        "anytime_td"
-       ]
-      },
-      {
-       "name": "Washington Commanders Defense",
-       "families": [
-        "anytime_td"
-       ]
-      }
-     ]
-    },
     {
      "canonicalEventId": "nfl-401872966",
      "matchup": "Arizona Cardinals @ New York Giants",
@@ -520,12 +481,6 @@
        "families": [
         "anytime_td"
        ]
-      },
-      {
-       "name": "Xavier Smith",
-       "families": [
-        "anytime_td"
-       ]
       }
      ]
     },
@@ -599,18 +554,6 @@
       },
       {
        "name": "James Jordan",
-       "families": [
-        "anytime_td"
-       ]
-      },
-      {
-       "name": "KhaDarel Hodge",
-       "families": [
-        "anytime_td"
-       ]
-      },
-      {
-       "name": "Lil'Jordan Humphrey",
        "families": [
         "anytime_td"
        ]
@@ -816,17 +759,17 @@
  },
  "credits": {
   "state": "UNKNOWN",
-  "programSpend": 714,
+  "programSpend": 787,
   "ceiling": null,
   "remainingProgram": null,
-  "providerRemaining": 19562,
+  "providerRemaining": 19452,
   "openingBalance": {
    "capturedAt": "2026-08-13T08:57:07Z",
    "providerRequestsUsed": 4342,
    "providerRequestsRemaining": 15658,
    "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
   },
-  "requests": 389,
+  "requests": 406,
   "detail": "authorization receipt did not parse — no paid call may run"
  },
  "models": {
@@ -859,11 +802,11 @@
   }
  },
  "currentArtifacts": {
-  "total": 1887,
-  "contractValid": 1887,
-  "preStart": 392,
-  "settlementReady": 732,
-  "detail": "1887/1887 pass the current-event contract; 732 carry pinned settlement targets"
+  "total": 1901,
+  "contractValid": 1901,
+  "preStart": 406,
+  "settlementReady": 746,
+  "detail": "1901/1901 pass the current-event contract; 746 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",

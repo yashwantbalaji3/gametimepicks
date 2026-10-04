@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-04T14:07:00.212Z",
+  "generatedAt": "2026-10-04T15:00:33.650Z",
   "canonical": {
     "record": "44-43",
     "bankroll": 15090.4,
@@ -114,7 +114,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-04",
-      "generatedAt": "2026-10-04T13:06:01Z",
+      "generatedAt": "2026-10-04T14:07:05Z",
       "sports": [
         {
           "sport": "epl",
@@ -146,14 +146,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 29,
-            "priced": 29,
+            "scheduled": 28,
+            "priced": 28,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:29 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:28 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -175,7 +175,7 @@
     "dailyLifecycle": {
       "receiptDate": "2026-10-04",
       "present": true,
-      "generatedAt": "2026-10-04T13:06:00Z",
+      "generatedAt": "2026-10-04T14:07:05Z",
       "watchdog": [
         {
           "product": "end-zone-vault",
@@ -224,16 +224,16 @@
     "pendingApprovals": 1
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-04T14:04:45.137Z",
+    "lastRunAt": "2026-10-04T15:00:33.057Z",
     "ageHours": 0,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "ok": true,
+    "status": "pass",
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-04",
-    "etTime": "10:07",
+    "etTime": "11:00",
     "stages": [
       {
         "stage": "schedule",
