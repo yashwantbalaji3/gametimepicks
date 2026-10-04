@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-04T18:35:23Z",
- "sourceGeneratedAt": "2026-10-04T18:35:23Z",
+ "generatedAt": "2026-10-04T19:00:56Z",
+ "sourceGeneratedAt": "2026-10-04T19:00:56Z",
  "providerEventId": "401872974",
  "matchup": "MIA @ MIN",
  "kickoffUtc": "2026-10-04T20:05Z",
@@ -11,8 +11,8 @@
  "week": 4,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-04T18:35:23Z",
-  "roleEvidenceAt": "2026-10-04T18:35:23Z",
+  "injuriesCapturedAt": "2026-10-04T19:00:56Z",
+  "roleEvidenceAt": "2026-10-04T19:00:56Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -103,27 +103,6 @@
     },
     "note": "no game for MIN yet this season, so his role there is not yet observed and he is not in this game's numbers; his NO history is kept only as a historical prior"
    }
-  ],
-  "MIA": [
-   {
-    "playerId": "nfl-athlete-4429435",
-    "name": "Brady Cook",
-    "position": "QB",
-    "team": "MIA",
-    "participation": "ACTIVE_UNCERTAIN",
-    "lastSeason": {
-     "club": "NYJ",
-     "games": 8,
-     "targetsPg": 0,
-     "receptionsPg": 0,
-     "recYdsPg": 0,
-     "rushAttPg": 2,
-     "rushYdsPg": 7.1,
-     "passAttPg": 23.9,
-     "passYdsPg": 121.8
-    },
-    "note": "no game for MIA yet this season, so his role there is not yet observed and he is not in this game's numbers; his NYJ history is kept only as a historical prior"
-   }
   ]
  },
  "arrivalsShadowed": 0,
@@ -152,7 +131,7 @@
     "PROJECTED": 9,
     "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
-    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
@@ -264,22 +243,16 @@
      "name": "Caleb Douglas",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
-    },
-    {
-     "playerId": "nfl-athlete-4429435",
-     "name": "Brady Cook",
-     "state": "WITHHELD_ROLE_UNCERTAIN",
-     "reason": "no game for MIA yet this season — role at MIA not yet observed"
     }
    ]
   },
   "MIN": {
    "counts": {
     "PROJECTED": 8,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -394,23 +367,16 @@
      "reason": "designation: Injured Reserve"
     },
     {
+     "playerId": "nfl-athlete-4573398",
+     "name": "Max Brosmer",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4682652",
      "name": "Devin Neal",
      "state": "WITHHELD_ROLE_UNCERTAIN",
      "reason": "no game for MIN yet this season — role at MIN not yet observed"
-    },
-    {
-     "playerId": "nfl-athlete-4573398",
-     "name": "Max Brosmer",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
     }
    ]
   }
@@ -437,10 +403,6 @@
      {
       "playerId": "nfl-athlete-2573079",
       "name": "Carson Wentz"
-     },
-     {
-      "playerId": "nfl-athlete-4573398",
-      "name": "Max Brosmer"
      }
     ],
     "passers": [
