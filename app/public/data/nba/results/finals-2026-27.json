@@ -1,0 +1,55 @@
+{
+ "schemaVersion": 1,
+ "sport": "nba",
+ "dataClass": "FINALS_RECORD",
+ "contract": "nba-finals-record-v1",
+ "season": "2026-27",
+ "note": "Write-once official NBA finals (ESPN scoreboard, accepted by the current-results adapter). A recorded final is never rewritten; disagreeing later observations go to `conflicts`. Holds finals only — a game absent here is pending, never a loss.",
+ "updatedAt": "2026-10-04T14:45:39Z",
+ "counts": {
+  "finals": 1,
+  "preseason": 1,
+  "regular": 0,
+  "postseason": 0,
+  "playIn": 0,
+  "other": 0,
+  "exhibition": 0,
+  "conflicts": 0,
+  "refused": 0
+ },
+ "finals": [
+  {
+   "canonicalEventId": "nba:nba:2026-10-03:401902644",
+   "providerEventId": "401902644",
+   "dateUtc": "2026-10-03T23:00Z",
+   "dateEt": "2026-10-03",
+   "season": "2026-27",
+   "seasonType": 1,
+   "phase": "PRESEASON",
+   "neutralSite": false,
+   "exhibition": false,
+   "home": {
+    "tricode": "TOR",
+    "providerTeamId": "28",
+    "espnAbbr": "TOR",
+    "name": "Toronto Raptors",
+    "exhibition": false
+   },
+   "away": {
+    "tricode": "MIA",
+    "providerTeamId": "14",
+    "espnAbbr": "MIA",
+    "name": "Miami Heat",
+    "exhibition": false
+   },
+   "ftHome": 105,
+   "ftAway": 129,
+   "winnerSide": "away",
+   "statusRaw": "STATUS_FINAL",
+   "firstRecordedAt": "2026-10-04T14:45:39Z",
+   "source": "espn_scoreboard"
+  }
+ ],
+ "conflicts": [],
+ "refused": []
+}

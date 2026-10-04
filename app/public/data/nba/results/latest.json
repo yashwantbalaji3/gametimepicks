@@ -2,24 +2,24 @@
  "schemaVersion": 1,
  "sport": "nba",
  "dataClass": "RESULTS_CAPTURE",
- "generatedAt": "2026-10-03T14:17:00Z",
- "sourceAsOf": "2026-10-03T14:17:00Z",
+ "generatedAt": "2026-10-04T14:45:38Z",
+ "sourceAsOf": "2026-10-04T14:45:38Z",
  "windowDays": 9,
- "state": "NO_RESULTS_YET",
+ "state": "RESULTS",
  "source": {
   "id": "espn_scoreboard",
   "name": "ESPN NBA public scoreboard",
   "license": "public JSON endpoint, no key; used as a point-in-time snapshot with attribution — same class of usage as the schedule capture",
   "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=202609&limit=1000 https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=202610&limit=1000"
  },
- "rowCount": 1,
- "completedCount": 0,
+ "rowCount": 3,
+ "completedCount": 1,
  "rows": [
   {
    "providerEventId": "401902644",
    "shortName": "MIA @ TOR",
    "dateUtc": "2026-10-03T23:00Z",
-   "statusRaw": "STATUS_SCHEDULED",
+   "statusRaw": "STATUS_FINAL",
    "seasonType": 1,
    "neutralSite": false,
    "home": {
@@ -32,9 +32,51 @@
     "name": "Miami Heat",
     "providerTeamId": "14"
    },
+   "ftHome": 105,
+   "ftAway": 129,
+   "capturedAt": "2026-10-04T14:45:38Z"
+  },
+  {
+   "providerEventId": "401914127",
+   "shortName": "UTAH @ DEN",
+   "dateUtc": "2026-10-04T23:00Z",
+   "statusRaw": "STATUS_SCHEDULED",
+   "seasonType": 1,
+   "neutralSite": false,
+   "home": {
+    "abbr": "DEN",
+    "name": "Denver Nuggets",
+    "providerTeamId": "7"
+   },
+   "away": {
+    "abbr": "UTAH",
+    "name": "Utah Jazz",
+    "providerTeamId": "26"
+   },
    "ftHome": 0,
    "ftAway": 0,
-   "capturedAt": "2026-10-03T14:17:00Z"
+   "capturedAt": "2026-10-04T14:45:38Z"
+  },
+  {
+   "providerEventId": "401918010",
+   "shortName": "GS VS LAC",
+   "dateUtc": "2026-10-04T23:00Z",
+   "statusRaw": "STATUS_SCHEDULED",
+   "seasonType": 1,
+   "neutralSite": true,
+   "home": {
+    "abbr": "LAC",
+    "name": "LA Clippers",
+    "providerTeamId": "12"
+   },
+   "away": {
+    "abbr": "GS",
+    "name": "Golden State Warriors",
+    "providerTeamId": "9"
+   },
+   "ftHome": 0,
+   "ftAway": 0,
+   "capturedAt": "2026-10-04T14:45:38Z"
   }
  ]
 }
