@@ -2,34 +2,58 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-03T23:32:09Z",
- "sourceGeneratedAt": "2026-10-03T23:32:09Z",
+ "generatedAt": "2026-10-04T14:42:21Z",
+ "sourceGeneratedAt": "2026-10-04T14:42:21Z",
  "providerEventId": "401872976",
  "matchup": "KC @ LV",
  "kickoffUtc": "2026-10-04T20:25Z",
  "seasonType": 2,
  "week": 4,
  "participationBasis": "Availability refreshes until kickoff.",
+ "availability": {
+  "injuriesCapturedAt": "2026-10-04T14:42:21Z",
+  "roleEvidenceAt": "2026-10-04T14:42:21Z",
+  "injuries": "FRESH",
+  "rosters": "FRESH"
+ },
  "families": {
   "player_pass_yds": {
    "label": "Passing yards",
    "state": "ESTIMATE",
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
-   "model": "nfl-player-share-level-v1"
+   "model": "nfl-player-share-level-v1",
+   "conservation": {
+    "version": "nfl-share-conservation-v1",
+    "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
+    "pools": []
+   }
   },
   "player_rush_yds": {
    "label": "Rushing yards",
    "state": "PUBLISHED",
    "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (14,502 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (216 graded player-games so far).",
    "model": "nfl-player-share-level-v1",
-   "withheldTeams": [
-    {
-     "team": "LV",
-     "sum": 1.2114,
-     "reason": "withheld for LV: the players' modelled shares add up to 121% of the team's carries, more than exists — shown again once the shares are reconciled"
-    }
-   ]
+   "conservation": {
+    "version": "nfl-share-conservation-v1",
+    "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
+    "pools": [
+     {
+      "team": "LV",
+      "pool": "carries",
+      "originalSum": 1.2114,
+      "normalizedSum": 1,
+      "factor": 0.8255,
+      "playerIds": [
+       "nfl-athlete-4890973",
+       "nfl-athlete-4686658",
+       "nfl-athlete-14880",
+       "nfl-athlete-4698191",
+       "nfl-athlete-4260394"
+      ]
+     }
+    ]
+   }
   },
   "player_reception_yds": {
    "label": "Receiving yards",
@@ -97,8 +121,8 @@
  },
  "marketCoverage": {
   "probed": true,
-  "priced": 45,
-  "absent": 2,
+  "priced": 48,
+  "absent": 4,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -225,16 +249,10 @@
      "families": [
       "anytime_td",
       "player_reception_yds",
-      "player_receptions"
+      "player_receptions",
+      "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.211) — family withheld for LV, never renormalised"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4432665",
@@ -297,23 +315,18 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds"
+      "player_pass_yds",
+      "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.211) — family withheld for LV, never renormalised"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4260394",
      "name": "Aidan O'Connell",
      "state": "PROJECTED",
      "families": [
-      "anytime_td"
+      "anytime_td",
+      "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN",
      "notModeled": [
@@ -321,11 +334,6 @@
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
        "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      },
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.211) — family withheld for LV, never renormalised"
       }
      ]
     },
@@ -334,32 +342,20 @@
      "name": "Chris Collier",
      "state": "PROJECTED",
      "families": [
-      "anytime_td"
+      "anytime_td",
+      "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.211) — family withheld for LV, never renormalised"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4686658",
      "name": "Mike Washington Jr.",
      "state": "PROJECTED",
      "families": [
-      "anytime_td"
+      "anytime_td",
+      "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_rush_yds",
-       "state": "WITHHELD_POOL_OVER_ALLOCATED",
-       "reason": "team carries pool over-allocated (Σshare 1.211) — family withheld for LV, never renormalised"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4603186",
@@ -412,10 +408,12 @@
     "markets": [
      "player_rush_yds"
     ],
-    "sum": 1.2114,
+    "sum": 1,
+    "originalSum": 1.2114,
+    "residualOther": 0,
     "joined": 5,
     "missed": 0,
-    "state": "OVER_ALLOCATED"
+    "state": "NORMALIZED"
    },
    {
     "team": "KC",
@@ -424,6 +422,8 @@
      "player_rush_yds"
     ],
     "sum": 1.0038,
+    "originalSum": 1.0038,
+    "residualOther": 0,
     "joined": 3,
     "missed": 0,
     "state": "CONSERVED"
@@ -435,6 +435,8 @@
      "player_pass_yds"
     ],
     "sum": 1,
+    "originalSum": 1,
+    "residualOther": 0,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -446,6 +448,8 @@
      "player_pass_yds"
     ],
     "sum": 0.9934,
+    "originalSum": 0.9934,
+    "residualOther": 0.0066,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -461,12 +465,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 31.899,
-     "p10": 3.51,
-     "p25": 12.76,
-     "median": 26.68,
-     "p75": 45.12,
-     "p90": 66.35,
+     "mean": 31.735,
+     "p10": 3.16,
+     "p25": 12.43,
+     "median": 26.67,
+     "p75": 45.72,
+     "p90": 65.66,
      "market": {
       "line": 21.5,
       "overOdds": -114,
@@ -476,7 +480,7 @@
      }
     },
     "player_receptions": {
-     "mean": 3.21,
+     "mean": 3.197,
      "p10": 1,
      "p25": 2,
      "median": 3,
@@ -522,12 +526,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 62.308,
-     "p10": 17.86,
-     "p25": 33.88,
-     "median": 56.89,
-     "p75": 84.08,
-     "p90": 113.73,
+     "mean": 63.15,
+     "p10": 18.73,
+     "p25": 35.02,
+     "median": 57.43,
+     "p75": 86.25,
+     "p90": 115.23,
      "market": {
       "line": 73.5,
       "overOdds": -111,
@@ -537,12 +541,12 @@
      }
     },
     "player_receptions": {
-     "mean": 5.711,
+     "mean": 5.796,
      "p10": 2,
      "p25": 4,
      "median": 5,
-     "p75": 7,
-     "p90": 9,
+     "p75": 8,
+     "p90": 10,
      "market": {
       "line": 6.5,
       "overOdds": -145,
@@ -568,12 +572,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 30.703,
-     "p10": 3.14,
-     "p25": 11.98,
-     "median": 25.79,
-     "p75": 43.71,
-     "p90": 64.81,
+     "mean": 30.192,
+     "p10": 3.22,
+     "p25": 11.79,
+     "median": 24.99,
+     "p75": 43.4,
+     "p90": 63.51,
      "market": {
       "line": 19.5,
       "overOdds": -112,
@@ -583,7 +587,7 @@
      }
     },
     "player_receptions": {
-     "mean": 3.27,
+     "mean": 3.204,
      "p10": 1,
      "p25": 2,
      "median": 3,
@@ -593,6 +597,25 @@
       "line": 3.5,
       "overOdds": 122,
       "underOdds": -155,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-03T16:52:00Z"
+     }
+    },
+    "player_rush_yds": {
+     "mean": 56.4472,
+     "p10": 14.8848,
+     "p25": 27.0047,
+     "median": 47.2923,
+     "p75": 76.0404,
+     "p90": 110.0092,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.8255
+     },
+     "market": {
+      "line": 59.5,
+      "overOdds": -114,
+      "underOdds": -110,
       "sportsbook": "draftkings",
       "capturedAt": "2026-10-03T16:52:00Z"
      }
@@ -614,12 +637,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 56.646,
-     "p10": 13.24,
-     "p25": 28.39,
-     "median": 50.33,
-     "p75": 78.2,
-     "p90": 109.46,
+     "mean": 58.184,
+     "p10": 14.29,
+     "p25": 29.46,
+     "median": 52.05,
+     "p75": 79.28,
+     "p90": 109.15,
      "market": {
       "line": 56.5,
       "overOdds": -113,
@@ -629,7 +652,7 @@
      }
     },
     "player_receptions": {
-     "mean": 4.77,
+     "mean": 4.828,
      "p10": 2,
      "p25": 3,
      "median": 5,
@@ -660,12 +683,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 46.345,
-     "p10": 7.15,
-     "p25": 20.09,
-     "median": 40.23,
-     "p75": 65.53,
-     "p90": 92.06,
+     "mean": 45.669,
+     "p10": 6.86,
+     "p25": 19.82,
+     "median": 39.15,
+     "p75": 64.34,
+     "p90": 93.3,
      "market": {
       "line": 48.5,
       "overOdds": -113,
@@ -675,7 +698,7 @@
      }
     },
     "player_receptions": {
-     "mean": 3.773,
+     "mean": 3.743,
      "p10": 1,
      "p25": 2,
      "median": 3,
@@ -706,12 +729,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 38.317,
-     "p10": 2.55,
-     "p25": 13.94,
-     "median": 31.96,
-     "p75": 55.28,
-     "p90": 82.05,
+     "mean": 39.072,
+     "p10": 2.98,
+     "p25": 14,
+     "median": 32.1,
+     "p75": 56.44,
+     "p90": 83.95,
      "market": {
       "line": 37.5,
       "overOdds": -110,
@@ -721,7 +744,7 @@
      }
     },
     "player_receptions": {
-     "mean": 3.073,
+     "mean": 3.122,
      "p10": 1,
      "p25": 2,
      "median": 3,
@@ -752,12 +775,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 28.416,
-     "p10": 0.79,
-     "p25": 10.07,
-     "median": 22.95,
-     "p75": 41.31,
-     "p90": 62.41,
+     "mean": 28.359,
+     "p10": 0.93,
+     "p25": 9.67,
+     "median": 22.64,
+     "p75": 41.41,
+     "p90": 62.03,
      "market": {
       "line": 23.5,
       "overOdds": -110,
@@ -767,12 +790,12 @@
      }
     },
     "player_receptions": {
-     "mean": 2.867,
+     "mean": 2.873,
      "p10": 1,
      "p25": 1,
      "median": 3,
      "p75": 4,
-     "p90": 5,
+     "p90": 6,
      "market": {
       "line": 2.5,
       "overOdds": -128,
@@ -798,12 +821,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 30.195,
-     "p10": 2.08,
-     "p25": 10.94,
-     "median": 24.77,
-     "p75": 43.54,
-     "p90": 65.39,
+     "mean": 29.997,
+     "p10": 1.98,
+     "p25": 10.53,
+     "median": 24.93,
+     "p75": 43.05,
+     "p90": 64.73,
      "market": {
       "line": 34.5,
       "overOdds": -112,
@@ -813,7 +836,7 @@
      }
     },
     "player_receptions": {
-     "mean": 2.917,
+     "mean": 2.925,
      "p10": 1,
      "p25": 1,
      "median": 3,
@@ -844,12 +867,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 19.931,
+     "mean": 20.122,
      "p10": 0,
-     "p25": 3.05,
-     "median": 14.01,
-     "p75": 29.57,
-     "p90": 49.11,
+     "p25": 2.6,
+     "median": 14.4,
+     "p75": 30.62,
+     "p90": 48.63,
      "market": {
       "line": 18.5,
       "overOdds": -117,
@@ -859,7 +882,7 @@
      }
     },
     "player_receptions": {
-     "mean": 1.841,
+     "mean": 1.855,
      "p10": 0,
      "p25": 1,
      "median": 2,
@@ -890,12 +913,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 12.113,
+     "mean": 12.022,
      "p10": 0,
      "p25": 0,
-     "median": 5.34,
-     "p75": 18.31,
-     "p90": 34.8,
+     "median": 5.59,
+     "p75": 17.98,
+     "p90": 34.62,
      "market": {
       "line": 9.5,
       "overOdds": -113,
@@ -905,7 +928,7 @@
      }
     },
     "player_receptions": {
-     "mean": 1.124,
+     "mean": 1.115,
      "p10": 0,
      "p25": 0,
      "median": 1,
@@ -966,6 +989,25 @@
    "team": "LV",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 18.6386,
+     "p10": 0.3703,
+     "p25": 2.3587,
+     "median": 9.4426,
+     "p75": 25.2393,
+     "p90": 49.1615,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.8255
+     },
+     "market": {
+      "line": 16.5,
+      "overOdds": -112,
+      "underOdds": -112,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-03T16:52:00Z"
+     }
+    },
     "anytime_td": {
      "probability": 0.1307,
      "market": {
@@ -982,6 +1024,19 @@
    "team": "LV",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 12.134,
+     "p10": 0.0625,
+     "p25": 0.9075,
+     "median": 5.0863,
+     "p75": 15.9446,
+     "p90": 33.5493,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.8255
+     },
+     "pricingState": "NOT_OFFERED"
+    },
     "anytime_td": {
      "probability": 0.1304,
      "pricingState": "NOT_OFFERED"
@@ -995,12 +1050,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 19.643,
+     "mean": 20.078,
      "p10": 0,
      "p25": 0,
-     "median": 12.34,
-     "p75": 30.41,
-     "p90": 50.99,
+     "median": 12.74,
+     "p75": 30.55,
+     "p90": 52.41,
      "market": {
       "line": 21.5,
       "overOdds": -109,
@@ -1010,7 +1065,7 @@
      }
     },
     "player_receptions": {
-     "mean": 1.509,
+     "mean": 1.531,
      "p10": 0,
      "p25": 0,
      "median": 1,
@@ -1087,12 +1142,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 16.03,
+     "mean": 16.04,
      "p10": 0,
      "p25": 0,
-     "median": 9.82,
-     "p75": 24.44,
-     "p90": 43.06,
+     "median": 9.64,
+     "p75": 24.71,
+     "p90": 42.23,
      "market": {
       "line": 8.5,
       "overOdds": -116,
@@ -1102,7 +1157,7 @@
      }
     },
     "player_receptions": {
-     "mean": 1.491,
+     "mean": 1.497,
      "p10": 0,
      "p25": 0,
      "median": 1,
@@ -1132,6 +1187,25 @@
    "team": "LV",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 7.9421,
+     "p10": 0.041,
+     "p25": 0.5944,
+     "median": 3.3299,
+     "p75": 10.4367,
+     "p90": 21.9579,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.8255
+     },
+     "market": {
+      "line": 0.5,
+      "overOdds": 106,
+      "underOdds": -133,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-03T16:52:00Z"
+     }
+    },
     "player_pass_yds": {
      "mean": 226.3733,
      "p10": 116.84,
@@ -1163,6 +1237,19 @@
    "team": "LV",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_rush_yds": {
+     "mean": 8.6123,
+     "p10": 0,
+     "p25": 0.185,
+     "median": 2.4273,
+     "p75": 10.4737,
+     "p90": 25.2669,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.8255
+     },
+     "pricingState": "NOT_OFFERED"
+    },
     "anytime_td": {
      "probability": 0.0582,
      "pricingState": "NOT_OFFERED"
