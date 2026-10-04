@@ -29,7 +29,7 @@ import { opponentIn } from "../../src/lib/sports/nfl/matchup.mjs";
 import path from "node:path";
 
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
-import { rankFamily, familyStateAcross } from "../../src/lib/sports/nfl/board-ranking.mjs";
+import { rankFamily, familyStateAcross, poolWithheldTeams } from "../../src/lib/sports/nfl/board-ranking.mjs";
 
 const APP = process.cwd();
 const BOARD_DIR = path.join(APP, "public/data/nfl/player-board");
@@ -184,11 +184,16 @@ const out = {
     if (fam.state !== "PUBLISHED") return { ...spec, state: "WITHHELD", reason: fam.reason };
     /* Session 5 — a TOP list over a partial population is a false claim: with a team's pool withheld
        (opportunity-conservation.mjs) its players cannot rank, so "Top 10" would silently omit them. */
-    const poolWithheld = scoped.flatMap((b) => (b.families?.[spec.family]?.withheldTeams ?? []).map((w) => w.team));
+    const poolWithheld = poolWithheldTeams(scoped, spec.family);
     if (poolWithheld.length) {
       return { ...spec, state: "WITHHELD", reason: `withheld this week: on ${poolWithheld.length} of ${scoped.length * 2} teams the players' modelled shares add up to more of the team's opportunity than exists, so a ranking would leave those teams out` };
     }
-    return { ...spec, state: "PUBLISHED", basis: fam.basis, rows: rankRows(spec.family, spec.metric, spec.topN) };
+    /* Session 11: which team pools were reconciled (versioned, forward-only) — stated on the board, never silent. */
+    const reconciled = scoped.flatMap((b) => (b.families?.[spec.family]?.conservation?.pools ?? []).map((x) => ({ team: x.team, factor: x.factor, originalSum: x.originalSum })));
+    const conservation = scoped.some((b) => b.families?.[spec.family]?.conservation)
+      ? { version: scoped.find((b) => b.families?.[spec.family]?.conservation).families[spec.family].conservation.version, teamsReconciled: reconciled.length, teams: reconciled }
+      : undefined;
+    return { ...spec, state: "PUBLISHED", basis: fam.basis, ...(conservation ? { conservation } : {}), rows: rankRows(spec.family, spec.metric, spec.topN) };
   }).map((b) => (b.rows ? { ...b, excludedForAvailability: excludedByBoard[b.family] ?? [] } : b)),
   disclaimer: boards[0]?.disclaimer ?? null,
 };

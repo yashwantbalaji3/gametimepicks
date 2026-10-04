@@ -22,7 +22,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { BOARD_METRIC, familyStateAcross, rankFamily } from "../../src/lib/sports/nfl/board-ranking.mjs";
+import { BOARD_METRIC, familyStateAcross, poolWithheldTeams, rankFamily } from "../../src/lib/sports/nfl/board-ranking.mjs";
 import { opponentIn } from "../../src/lib/sports/nfl/matchup.mjs";
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
 
@@ -52,6 +52,9 @@ export function freezeDay(day, boards, frozenAt, prices = propPrices) {
     const st = familyStateAcross(boards, family);
     if (!st) { ineligible.push({ sport: "nfl", propFamily: family, state: "ABSENT", reason: "not on this day's boards" }); continue; }
     if (st.state !== "PUBLISHED") { ineligible.push({ sport: "nfl", propFamily: family, label: st.label, state: st.state, reason: st.reason ?? null }); continue; }
+    /* Session 11: a family withheld for any team on this day's boards cannot be ranked — the top list would omit those teams. */
+    const withheldTeams = poolWithheldTeams(boards, family);
+    if (withheldTeams.length) { ineligible.push({ sport: "nfl", propFamily: family, label: st.label, state: "WITHHELD", reason: `team pool withheld for ${withheldTeams.join(", ")}` }); continue; }
     const metric = BOARD_METRIC[family];
     /* Session 11: the shared availability gate judges each row at the freeze instant (write-once days already frozen are untouched). */
     const rows = rankFamily(boards, family, metric, { asOf: frozenAt }).slice(0, TOP_N).map(({ board: b, player: p, market: m }, i) => {

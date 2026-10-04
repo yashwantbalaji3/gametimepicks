@@ -52,6 +52,8 @@ export interface Board {
   state: string;
   reason?: string;
   caveat?: string;
+  /** Session 11 — team pools reconciled by nfl-share-conservation-v1 (versioned, forward-only). */
+  conservation?: { version: string; teamsReconciled: number };
   rows?: BoardRow[];
 }
 
@@ -174,6 +176,11 @@ export default function NflWeeklyBoards({ boards, generatedAt, model, teamNames 
               {b.state === "ESTIMATE" && b.caveat ? (
                 <p style={{ margin: "0 0 6px", fontSize: 11, lineHeight: 1.5, color: "var(--vault-text-mute)", maxWidth: 720 }}>
                   Estimate — {b.caveat}
+                </p>
+              ) : null}
+              {b.conservation?.teamsReconciled ? (
+                <p style={{ margin: "0 0 6px", fontSize: 11, lineHeight: 1.5, color: "var(--vault-text-mute)", maxWidth: 720 }}>
+                  On {b.conservation.teamsReconciled} team{b.conservation.teamsReconciled === 1 ? "" : "s"} the players&rsquo; modelled shares added up to more than the team&rsquo;s opportunity, so they were scaled down proportionally to fit before ranking.
                 </p>
               ) : null}
               {rows.length === 0 ? (

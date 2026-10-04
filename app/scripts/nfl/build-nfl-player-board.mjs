@@ -38,7 +38,8 @@ import { deriveNewArrivals, shadowProjectedArrivals } from "../../src/lib/sports
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
 import { activeRosterIndex, applyQbStarterRule, auditBoard, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 import { indexDepthCharts } from "../../src/lib/sports/nfl/depth-chart.mjs";
-import { overAllocationReason, SHARE_MARKETS, withholdOverAllocatedPools } from "../../src/lib/sports/nfl/opportunity-conservation.mjs";
+import { CONSERVATION_METHOD, CONSERVATION_VERSION, normalizeOverAllocatedPools, overAllocationReason, SHARE_MARKETS } from "../../src/lib/sports/nfl/opportunity-conservation.mjs";
+import { PUBLIC_BOARD_CLEARED } from "../../src/lib/sports/nfl/board-ranking.mjs";
 import { splitMatchup } from "../../src/lib/sports/nfl/matchup.mjs";
 import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mjs";
 import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets, shareLevelEstimateMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
@@ -417,8 +418,18 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
      a reader would see; never renormalises. v1-allocated families are not passed: they conserve. */
   const poolMarkets = [...(shareLevel?.markets ?? [])].filter((m) => SHARE_MARKETS.includes(m) && publishedMarkets.has(m));
   const shareIndex = shareIndexFor(forecastFor(doc.kickoffUtc, doc.week), shareLevel?.gameId);
-  const pools = withholdOverAllocatedPools({ players, shareOf: (id, team, market) => shareIndex.get(`${id}|${team}|${market}`), markets: poolMarkets });
+  /* SESSION 11 — over-allocated pools are RECONCILED (proportional, per team, over cleared players only),
+     versioned and forward-only (opportunity-conservation.mjs normalizeOverAllocatedPools). A pool that
+     cannot be joined in full is still withheld, exactly as before. */
+  const pools = normalizeOverAllocatedPools({
+    players, shareOf: (id, team, market) => shareIndex.get(`${id}|${team}|${market}`), markets: poolMarkets,
+    eligible: (p) => PUBLIC_BOARD_CLEARED.includes(p.participation),
+  });
   players.length = 0; players.push(...pools.players);
+  for (const m of poolMarkets) {
+    if (!families[m]) continue;
+    families[m].conservation = { version: CONSERVATION_VERSION, method: CONSERVATION_METHOD, pools: pools.normalized.filter((n) => n.markets.includes(m)).map(({ team, pool, originalSum, normalizedSum, factor, players: ps }) => ({ team, pool, originalSum, normalizedSum, factor, playerIds: ps.map((x) => x.playerId) })) };
+  }
   for (const w of pools.withheld) {
     for (const m of w.markets) {
       if (!families[m]) continue;
