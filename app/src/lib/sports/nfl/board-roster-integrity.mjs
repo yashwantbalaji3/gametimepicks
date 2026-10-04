@@ -38,6 +38,7 @@
  */
 import { depthChartAsOf, DEPTH_STATE } from "./depth-chart.mjs";
 import { conservationForBoard, SHARE_MARKETS } from "./opportunity-conservation.mjs";
+import { PUBLIC_BOARD_CLEARED } from "./board-ranking.mjs";
 
 /** Role-evidence states (role-vocabularies.mjs) and board states that prove a player will not play. */
 export const UNAVAILABLE_STATES = Object.freeze(["OUT", "INACTIVE", "NOT_ON_ROSTER"]);
@@ -230,9 +231,19 @@ export function auditBoard({ board, rosterByTeam, unavailable, usage = null, exp
       return f && (f.state === "PUBLISHED" || f.state === "ESTIMATE") && /share-level/.test(String(f.model ?? ""));
     });
     if (shareFamilies.length) {
-      const scoped = { players: (board?.players ?? []).map((p) => ({ ...p, markets: Object.fromEntries(Object.entries(p.markets ?? {}).filter(([m]) => shareFamilies.includes(m))) })) };
+      /* Session 11: the pool is the CLEARED rows (availability gates first). An over-allocated pool may publish
+         only as a reconciliation the producer recorded AND this audit can re-derive from the raw shares:
+         originalSum = Σ recomputed here, factor × Σ = 1, and every cleared row in it carries that factor. */
+      const scoped = { players: (board?.players ?? []).filter((p) => PUBLIC_BOARD_CLEARED.includes(p.participation)).map((p) => ({ ...p, markets: Object.fromEntries(Object.entries(p.markets ?? {}).filter(([m]) => shareFamilies.includes(m))) })) };
       for (const r of conservationForBoard({ board: scoped, shareOf }).rows) {
-        if (r.state === "OVER_ALLOCATED") v.push({ code: "POOL_OVER_ALLOCATED_PUBLISHED", team: r.team, pool: r.pool, sum: r.sum, players: r.players.map((x) => x.name) });
+        const recs = r.markets.map((m) => (board.families[m]?.conservation?.pools ?? []).find((x) => x.team === r.team && x.pool === r.pool));
+        if (r.state === "OVER_ALLOCATED") {
+          const ok = recs.every((x) => x && Math.abs(x.originalSum - r.sum) <= 0.002 && Math.abs(x.factor * r.sum - 1) <= 0.002)
+            && scoped.players.filter((p) => p.team === r.team).every((p) => r.markets.every((m) => !p.markets[m] || Math.abs((p.markets[m].conservation?.factor ?? NaN) - recs[0].factor) <= 1e-4));
+          if (!ok) v.push({ code: "POOL_OVER_ALLOCATED_PUBLISHED", team: r.team, pool: r.pool, sum: r.sum, players: r.players.map((x) => x.name) });
+        } else if (recs.some(Boolean)) {
+          v.push({ code: "POOL_NORMALIZED_WITHOUT_OVERALLOCATION", team: r.team, pool: r.pool, sum: r.sum });
+        }
       }
     }
   }

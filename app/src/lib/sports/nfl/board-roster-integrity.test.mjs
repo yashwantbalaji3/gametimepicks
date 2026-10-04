@@ -245,9 +245,9 @@ test("Session 5 · the audit flags a share-level family published on an over-all
     matchup: "ARI @ NYG",
     families: { player_rush_yds: { state: "PUBLISHED", model: "nfl-player-share-level-v1" }, player_receptions: { state: "PUBLISHED" } },
     players: [
-      { playerId: "nfl-athlete-1", team: "ARI", name: "Love", markets: { player_rush_yds: { median: 50 } } },
-      { playerId: "nfl-athlete-2", team: "ARI", name: "Conner", markets: { player_rush_yds: { median: 40 }, player_receptions: { median: 2 } } },
-      { playerId: "nfl-athlete-3", team: "ARI", name: "WR", markets: { player_receptions: { median: 5 } } },
+      { playerId: "nfl-athlete-1", team: "ARI", name: "Love", markets: { player_rush_yds: { median: 50 } }, participation: "AVAILABLE_ROLE_UNCERTAIN" },
+      { playerId: "nfl-athlete-2", team: "ARI", name: "Conner", markets: { player_rush_yds: { median: 40 }, player_receptions: { median: 2 } }, participation: "AVAILABLE_ROLE_UNCERTAIN" },
+      { playerId: "nfl-athlete-3", team: "ARI", name: "WR", markets: { player_receptions: { median: 5 } }, participation: "AVAILABLE_ROLE_UNCERTAIN" },
     ],
     coverage: {},
   };

@@ -79,7 +79,7 @@ export interface PlayerBoardArtifact {
   newArrivals?: Record<string, NewArrival[]>;
   /* Session 4 — the pregame roster/usage receipt (board-roster-integrity.mjs). */
   coverage?: BoardCoverage;
-  families: Record<string, { label: string; state: string; basis?: string; reason?: string; caveat?: string; withheldTeams?: { team: string; sum: number; reason: string }[] }>;
+  families: Record<string, { label: string; state: string; basis?: string; reason?: string; caveat?: string; withheldTeams?: { team: string; sum: number; reason: string }[]; conservation?: { version: string; pools: { team: string; pool: string; originalSum: number; factor: number }[] } }>;
   players: PlayerBoardRow[];
   disclaimer: string;
   /* The three fields the SHARED presentation contract needs and this artifact already carries. The
@@ -297,6 +297,16 @@ export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { b
       {!isCombined && family && board.families[family]?.withheldTeams?.length ? (
         <p className="mt-2" data-pool-withheld={family} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
           {board.families[family]!.withheldTeams!.map((w) => w.reason.replace(/^withheld/, `${board.families[family]!.label} withheld`)).join(" · ")}
+        </p>
+      ) : null}
+
+      {/* Session 11 — a team pool whose modelled shares summed past 100% is reconciled proportionally (versioned,
+          forward-only); the factor is stated so the scaled numbers are never mistaken for the raw model's. */}
+      {!isCombined && family && board.families[family]?.conservation?.pools?.length ? (
+        <p className="mt-2" data-pool-reconciled={family} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+          {board.families[family]!.label}: the players&rsquo; modelled shares added up to more than the team&rsquo;s{" "}
+          {board.families[family]!.conservation!.pools[0].pool === "carries" ? "carries" : "opportunity"}, so they were scaled down proportionally to fit —{" "}
+          {board.families[family]!.conservation!.pools.map((c) => `${c.team} ${Math.round(c.originalSum * 100)}% → 100%`).join(" · ")}.
         </p>
       ) : null}
 

@@ -83,7 +83,7 @@ export function conservationForBoard({ board, shareOf }) {
       // receptions and reception_yds are ONE target share; counting both would double every WR.
       if (rec.players.some((x) => x.playerId === p.playerId)) continue;
       const share = shareOf(espnId, nflverseTeam(p.team), market);
-      if (typeof share !== "number" || !Number.isFinite(share)) { rec.missed += 1; continue; }
+      if (typeof share !== "number" || !Number.isFinite(share) || share < 0) { rec.missed += 1; continue; } // a negative share is not a share
       rec.joined += 1;
       rec.sum += share;
       rec.players.push({ playerId: p.playerId, name: p.name, share });
@@ -171,4 +171,87 @@ export function withholdOverAllocatedPools({ players, shareOf, markets }) {
 export function overAllocationReason({ team, pool, sum }) {
   const what = pool === "carries" ? "carries" : pool === "passAttempts" ? "pass attempts" : "targets";
   return `withheld for ${team}: the players' modelled shares add up to ${Math.round(sum * 100)}% of the team's ${what}, more than exists — shown again once the shares are reconciled`;
+}
+
+/**
+ * SESSION 11 — FORWARD-ONLY PROPORTIONAL CONSERVATION (founder direction, 2026-10-04; versioned).
+ *
+ * THE SEMANTICS THAT JUSTIFY IT. In the share-level forecast a player's `share` is his decayed fraction of
+ * his team's rush attempts / targets / pass attempts, and his expected volume is `share × team volume`
+ * (forward-player-props-share-level.mjs `moments`). Every carry belongs to exactly one player, so over the
+ * players who will actually take the field the shares partition ONE finite budget: Σ ≤ 1. The forecast
+ * breaks that because each share is measured over the games THAT player appeared in (a back's share when
+ * the other back was hurt, or at his previous club) and nothing reconciles the set (shrinkK 0).
+ *
+ * THE RULE, per (team, pool), over the CLEARED rows only (the availability gate runs first —
+ * board-ranking.mjs PUBLIC_BOARD_CLEARED; a blocked player's carries are not in the reconciled set):
+ *   S = Σ share;  S ≤ 1 + EPS → untouched (OTHER = 1 − S is the unmodelled residual, never scaled up);
+ *   S > 1 + EPS → every cleared share × 1/S, so Σ = 1 and every player keeps his modelled RELATIVE role.
+ * Per-team, never across teams. No clipping, no capping, no row deleted.
+ *
+ * WHAT MOVES. Expected volume is linear in share, so the projected MEAN scales exactly by 1/S. The
+ * per-player rate state that shapes the spread is not in the forecast artifact, so the quantiles are
+ * rescaled by the same factor — a scale approximation, recorded as such on every normalised pool.
+ *
+ * FAIL-CLOSED: a pool with a row whose share cannot be joined (or is negative / non-finite) cannot be
+ * reconciled honestly, so it is WITHHELD exactly as before (withholdOverAllocatedPools' record shape).
+ *
+ * FORWARD-ONLY: applied by the board producer to upcoming events; frozen boards, the committed forward
+ * forecast (graded blind) and settled rows are never touched.
+ */
+export const CONSERVATION_VERSION = "nfl-share-conservation-v1";
+export const CONSERVATION_METHOD = "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)";
+const SCALED_FIELDS = Object.freeze(["mean", "p10", "p25", "median", "p75", "p90"]);
+const r4 = (x) => Math.round(x * 1e4) / 1e4;
+
+/**
+ * @param players   board rows ({ playerId, name, team, participation, markets })
+ * @param shareOf   (espnId, nflverseTeam, market) => number|null
+ * @param markets   share-sourced markets to enforce
+ * @param eligible  (row) => boolean — the public availability gate; only these rows form the pool
+ * @returns { players, normalized:[{team,pool,markets,originalSum,normalizedSum,factor,players}], withheld, pools }
+ */
+export function normalizeOverAllocatedPools({ players, shareOf, markets, eligible }) {
+  if (typeof eligible !== "function") throw new Error("normalizeOverAllocatedPools: eligible(row) is required — availability gates the pool first");
+  const enforce = new Set((markets ?? []).filter((m) => OPPORTUNITY_POOL[m]));
+  const copy = players.map((p) => ({ ...p, markets: Object.fromEntries(Object.entries(p.markets ?? {}).map(([m, v]) => [m, { ...v }])) }));
+  if (!enforce.size) return { players: copy, normalized: [], withheld: [], pools: [] };
+  const scoped = { players: copy.filter((p) => eligible(p)).map((p) => ({ ...p, markets: Object.fromEntries(Object.entries(p.markets).filter(([m]) => enforce.has(m))) })) };
+  const { rows } = conservationForBoard({ board: scoped, shareOf });
+  const normalized = [];
+  const withheld = [];
+  const drop = new Set();
+  for (const r of rows) {
+    if (r.state !== "OVER_ALLOCATED") continue;
+    if (r.missed > 0) { withheld.push({ team: r.team, pool: r.pool, markets: r.markets, sum: r.sum, players: r.players }); for (const m of r.markets) drop.add(`${r.team}|${m}`); continue; }
+    const exact = r.players.reduce((s, x) => s + x.share, 0);
+    const factor = 1 / exact;
+    const ids = new Set(r.players.map((x) => x.playerId));
+    for (const p of copy) {
+      if (p.team !== r.team || !ids.has(p.playerId) || !eligible(p)) continue;
+      for (const m of r.markets) {
+        const mk = p.markets[m];
+        if (!mk) continue;
+        for (const f of SCALED_FIELDS) if (typeof mk[f] === "number" && Number.isFinite(mk[f])) mk[f] = r4(mk[f] * factor);
+        mk.conservation = { version: CONSERVATION_VERSION, factor: r4(factor) };
+      }
+    }
+    normalized.push({
+      team: r.team, pool: r.pool, markets: r.markets,
+      originalSum: r4(exact), normalizedSum: r4(r.players.reduce((s, x) => s + x.share * factor, 0)), factor: r4(factor),
+      players: r.players.map((x) => ({ playerId: x.playerId, name: x.name, share: x.share, normalizedShare: r4(x.share * factor) })),
+    });
+  }
+  const kept = copy.map((p) => ({ ...p, markets: Object.fromEntries(Object.entries(p.markets).filter(([m]) => !drop.has(`${p.team}|${m}`))) }));
+  const norm = new Map(normalized.map((n) => [`${n.team}|${n.pool}`, n]));
+  return {
+    players: kept,
+    normalized,
+    withheld,
+    pools: rows.map((r) => {
+      const n = norm.get(`${r.team}|${r.pool}`);
+      const sum = n ? n.normalizedSum : r.sum;
+      return { team: r.team, pool: r.pool, markets: r.markets, sum, originalSum: r.sum, residualOther: r4(Math.max(0, 1 - sum)), joined: r.joined, missed: r.missed, state: n ? "NORMALIZED" : r.state };
+    }),
+  };
 }

@@ -123,3 +123,13 @@ export function familyStateAcross(boards, key) {
   if (states.size === 1 && states.has("ESTIMATE")) return { label: first.label, state: "ESTIMATE", reason: first.reason, caveat: first.caveat, model: first.model ?? null };
   return { label: first.label, state: "WITHHELD", reason: first.reason ?? [...states].join("/"), model: first.model ?? null };
 }
+
+/**
+ * Session 11 — teams whose pool for `family` a per-game board WITHHELD (it could not be reconciled). A top list
+ * over a partial population is a false claim, so the weekly board and the frozen daily Top-5 both refuse to rank
+ * the family while any constituent board withholds a team. One helper, so the two cannot disagree.
+ * @param {Array<any>} boards @param {string} family @returns {string[]}
+ */
+export function poolWithheldTeams(boards, family) {
+  return boards.flatMap((b) => (b.families?.[family]?.withheldTeams ?? []).map((w) => w.team));
+}
