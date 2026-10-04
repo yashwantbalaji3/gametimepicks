@@ -6,6 +6,8 @@
  * - Recent form is labelled as the PLAYER's history on our boards, with its denominator — context, not a
  *   selection rule and never GameTimePicks' record.
  * - Sports that cannot have a board say why, instead of rendering an empty board.
+ * - A WITHDRAWN row (append-only log, pre-kickoff evidence) stays where it was frozen, is marked not actionable
+ *   with the evidence and when it was recorded, and keeps the settlement owner's word unchanged beside it.
  */
 import type { BoardRowView, DayBoards, SportWithoutBoard } from "@/lib/results/v2/top-boards";
 
@@ -23,6 +25,14 @@ function projectionText(r: BoardRowView, family: string) {
   if ("probability" in r.projection) return `${Math.round(r.projection.probability * 1000) / 10}% to score`;
   const p = r.projection;
   return `${p.median} ${UNIT[family] ?? ""}${p.p10 != null && p.p90 != null ? ` (${p.p10}–${p.p90})` : ""}`;
+}
+
+const REASON_WORD: Record<string, string> = { QUESTIONABLE: "listed Questionable", DOUBTFUL: "listed Doubtful", INACTIVE: "ruled out", PRACTICE_SQUAD: "on the practice squad" };
+const SOURCE_WORD: Record<string, string> = { FROZEN_RECEIPT: "as recorded when this board was published", PLAYER_BOARD: "on the last pre-kickoff injury report" };
+
+function withdrawalText(w: NonNullable<BoardRowView["withdrawal"]>) {
+  const why = REASON_WORD[w.reason] ?? `availability ${w.reason.toLowerCase().replace(/_/g, " ")}`;
+  return `Not actionable — ${why} before kickoff (${SOURCE_WORD[w.source] ?? "pre-kickoff availability"}, ${etTime(w.observedAt)})${w.recordedAfterKickoff ? ". Flag added after kickoff from that pre-kickoff evidence" : ""}. The board itself is unchanged.`;
 }
 
 function formText(r: BoardRowView, family: string) {
@@ -57,15 +67,17 @@ export default function TopBoards({ day, without, dayLabel }: { day: DayBoards |
                 {b.rows.length === 0 ? <p className="m-0 text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No player qualified.</p> : (
                   <ol className="m-0 p-0 list-none flex flex-col">
                     {b.rows.map((r) => (
-                      <li key={r.forecastId} className="py-2.5" style={{ borderTop: "1px solid var(--vault-border)" }}>
+                      <li key={r.forecastId} className="py-2.5" data-withdrawn={r.withdrawal ? "true" : undefined} style={{ borderTop: "1px solid var(--vault-border)" }}>
                         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                           <span className="text-[14px]" style={{ color: "var(--vault-text)" }}>
-                            <span className="font-mono" style={{ color: "var(--vault-text-mute)" }}>{r.rank}.</span> <strong>{r.name}</strong> <span style={{ color: "var(--vault-text-mute)" }}>{r.team}{r.opponent ? ` v ${r.opponent}` : ""}</span>
+                            <span className="font-mono" style={{ color: "var(--vault-text-mute)" }}>{r.rank}.</span> <strong style={r.withdrawal ? { textDecoration: "line-through", textDecorationThickness: 1 } : undefined}>{r.name}</strong> <span style={{ color: "var(--vault-text-mute)" }}>{r.team}{r.opponent ? ` v ${r.opponent}` : ""}</span>
+                            {r.withdrawal ? <span className="font-mono text-[11px] uppercase tracking-[0.06em] ml-2" style={{ color: "var(--vault-text)" }}>Withdrawn</span> : null}
                           </span>
                           <span className="font-mono text-[12px] uppercase tracking-[0.06em]" style={{ color: r.result.state === "INSIDE" || r.result.state === "SCORED" ? "var(--vault-text)" : "var(--vault-text-mute)" }}>
                             {RESULT_WORD[r.result.state]}{r.result.actual != null ? ` · ${r.result.actual}` : ""}
                           </span>
                         </div>
+                        {r.withdrawal ? <div className="text-[12.5px] mt-0.5" style={{ color: "var(--vault-text)" }}>{withdrawalText(r.withdrawal)}</div> : null}
                         <div className="text-[12.5px] mt-0.5" style={{ color: "var(--vault-text-mute)" }}>
                           Projection {projectionText(r, b.propFamily)} · {r.line != null ? `line ${r.line}` : "no book line captured"}
                         </div>

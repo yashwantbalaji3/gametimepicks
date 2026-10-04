@@ -13,11 +13,16 @@
  * RECENT FORM is context, never a selection rule, and comes from the same owner: the player's earlier
  * regular-season games ON OUR BOARDS where he played (VOID rows excluded), newest first, at most three,
  * with the true denominator. It is the player's history, not GameTimePicks' record — the two are never mixed.
+ *
+ * WITHDRAWAL (Session 12) comes from the append-only sidecar results/top-board-withdrawals/<day>.json — never
+ * from the receipt, which is never rewritten. A withdrawn row is shown as frozen, marked not actionable, with
+ * the pre-kickoff evidence; its settlement overlay is UNCHANGED (publication ≠ settlement).
  */
 import fs from "node:fs";
 import path from "node:path";
 
 import { validatedModeledMarkets } from "@/lib/mlb/calibration/eligibility-policy";
+import { effectiveWithdrawal } from "@/lib/results/v2/top-board-withdrawals.mjs";
 
 export type BoardResultState = "PENDING" | "INSIDE" | "OUTSIDE" | "SCORED" | "DID_NOT_SCORE" | "VOID" | "NOT_GRADED";
 export interface BoardRowView {
@@ -25,6 +30,8 @@ export interface BoardRowView {
   providerEventId: string; kickoffUtc: string; line: number | null; pricingState: string | null;
   projection: { median: number; p10: number | null; p90: number | null } | { probability: number };
   result: { state: BoardResultState; actual: number | null };
+  /** The withdrawal in force (append-only log, pre-kickoff evidence), or null — actionable as published. */
+  withdrawal: { reason: string; source: string; observedAt: string; recordedAt: string; recordedAfterKickoff: boolean } | null;
   form: { values: number[]; played: number; aboveLine: number | null } | { scored: number; played: number } | null;
 }
 export interface BoardView { sport: "nfl"; propFamily: string; label: string; metric: string; model: string | null; rows: BoardRowView[] }
@@ -39,6 +46,14 @@ const read = (p: string): any => { try { return JSON.parse(fs.readFileSync(p, "u
 const APP = () => process.cwd();
 const BOARD_DIR = () => path.join(APP(), "public/data/results/top-boards");
 const RECON_DIR = () => path.join(APP(), "public/data/nfl/reconciliation");
+const WITHDRAWAL_DIR = () => path.join(APP(), "public/data/results/top-board-withdrawals");
+
+function withdrawalOf(log: any, row: any): BoardRowView["withdrawal"] {
+  const e = log ? effectiveWithdrawal(log, String(row.forecastId)) : null;
+  if (!e) return null;
+  const kick = Date.parse(String(row.kickoffUtc).replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"));
+  return { reason: String(e.reason), source: String(e.source), observedAt: String(e.observedAt), recordedAt: String(e.recordedAt), recordedAfterKickoff: Date.parse(e.recordedAt) >= kick };
+}
 
 interface ReconRow { eventId: string; kickoffUtc: string; name: string; team: string; prop: string; outcome: string; actual: number | null }
 let reconCache: { rows: ReconRow[]; finals: Set<string> } | null = null;
@@ -92,6 +107,8 @@ function overlay(row: any, family: string, firstKickoffUtc: string): Pick<BoardR
 export function topBoardsFor(date: string): DayBoards | null {
   const doc = read(path.join(BOARD_DIR(), `${date}.json`));
   if (!doc || doc.date !== date || !Array.isArray(doc.boards)) return null;
+  const log = read(path.join(WITHDRAWAL_DIR(), `${date}.json`));
+  const wlog = log && log.date === date && log.receipt?.publishedAt === doc.publishedAt ? log : null; // a log for another receipt is ignored
   return {
     date, publishedAt: String(doc.publishedAt), firstKickoffUtc: String(doc.firstKickoffUtc),
     boards: doc.boards.map((b: any) => ({
@@ -101,6 +118,7 @@ export function topBoardsFor(date: string): DayBoards | null {
         providerEventId: String(r.providerEventId), kickoffUtc: r.kickoffUtc, line: typeof r.line === "number" ? r.line : null,
         pricingState: r.pricingState ?? null, projection: r.projection,
         ...overlay(r, String(b.propFamily), String(doc.firstKickoffUtc)),
+        withdrawal: withdrawalOf(wlog, r),
       })),
     })),
     ineligible: (doc.ineligible ?? []).map((x: any) => ({ propFamily: String(x.propFamily), label: x.label, state: String(x.state), reason: x.reason ?? null })),

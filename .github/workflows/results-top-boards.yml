@@ -5,6 +5,10 @@
 # existing day file is never rewritten; the write uses flag "wx"), never late (a day whose first kickoff has
 # passed is never frozen). The commit that adds the file is the proof it predates every result, so this job
 # MERGES origin/main on a rejected push and never rebases (a rebase would rewrite that commit's date).
+#
+# Session 12: it also appends WITHDRAWAL events (results/top-board-withdrawals/<day>.json) for frozen rows whose
+# player was not cleared on pre-kickoff evidence — a SIDECAR log, never the receipt. Receipts stay add-only; the
+# log may only grow, and the commit refuses anything else (record-top-board-withdrawals.mjs --verify-staged).
 name: results-top-boards
 
 on:
@@ -37,22 +41,29 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/results/freeze-daily-top-boards.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-      - name: Commit a newly frozen day
+      - name: Append withdrawals for frozen rows (pre-kickoff evidence only; the receipt is never touched)
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/results/record-top-board-withdrawals.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      - name: Commit a newly frozen day and any appended withdrawals
         run: |
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          mkdir -p app/public/data/results/top-boards
-          git add app/public/data/results/top-boards/
+          mkdir -p app/public/data/results/top-boards app/public/data/results/top-board-withdrawals
+          git add app/public/data/results/top-boards/ app/public/data/results/top-board-withdrawals/
           if git diff --cached --quiet; then
-            echo "nothing newly frozen"
+            echo "nothing newly frozen, nothing appended"
             exit 0
           fi
-          # Only NEW day files may ever be committed here — a modified one means write-once broke.
-          if git diff --cached --name-status | grep -v '^A'; then
+          # Only NEW day files may ever be committed for receipts — a modified one means write-once broke.
+          if git diff --cached --name-status -- app/public/data/results/top-boards/ | grep -v '^A'; then
             echo "::error::a frozen board would be MODIFIED — write-once violated, refusing to commit"
             exit 1
           fi
+          # A withdrawal log is only ever added or APPENDED to (earlier events byte-identical, pre-kickoff evidence).
+          (cd app && node scripts/results/record-top-board-withdrawals.mjs --verify-staged)
           git commit -m "auto: freeze daily top boards $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
           for a in 1 2 3 4; do
             if git push origin HEAD:main; then
