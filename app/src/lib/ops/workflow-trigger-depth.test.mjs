@@ -35,7 +35,7 @@ const DIR = path.join(REPO, ".github", "workflows");
 const MAX_CHAIN_WORKFLOWS = 4;
 
 /** The free, kickoff-aware deciders a deep chain must reach by dispatch, never by workflow_run. */
-const KICKOFF_OWNERS = Object.freeze(["nfl-kickoff-refresh", "nba-forecast-window"]);
+const KICKOFF_OWNERS = Object.freeze(["nfl-kickoff-refresh", "nfl-pregame-free-refresh", "nba-forecast-window"]);
 
 function loadWorkflows(dir = DIR) {
   const byName = new Map();
