@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-04T11:17:46.270Z",
+  "generatedAt": "2026-10-04T11:19:41.947Z",
   "canonical": {
     "record": "44-43",
     "bankroll": 15090.4,
@@ -19,7 +19,7 @@
     "date": "2026-10-04",
     "dailyPortfolioDate": "2026-10-04",
     "activeBankroll": 15090.4,
-    "openExposure": 0,
+    "openExposure": 225,
     "worldCupGames": 0,
     "mlbGames": 2,
     "mlbSlate": "2026-10-04"
@@ -44,8 +44,8 @@
     ]
   },
   "productReadiness": {
-    "bankBuilder": "awaiting approval",
-    "moonshot": "awaiting approval",
+    "bankBuilder": "active · 2 lane(s)",
+    "moonshot": "active · 1 lane(s)",
     "top10": "live",
     "worldCup": "dormant (no board)",
     "mlb": "live · 2 game(s)",
@@ -53,42 +53,51 @@
   },
   "products": {
     "bankBuilder": {
-      "activeLanes": 0,
+      "activeLanes": 2,
       "lanes": [
         {
           "lane": "A",
-          "status": "awaiting",
+          "status": "active",
           "step": 2,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 2,
+          "combinedOdds": 224,
           "stake": 219.67,
-          "potentialReturn": 219.67,
-          "selections": []
+          "potentialReturn": 712.64,
+          "selections": [
+            "Milwaukee Brewers to win",
+            "Over 7"
+          ]
         },
         {
           "lane": "B",
-          "status": "awaiting",
+          "status": "active",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 2,
+          "combinedOdds": 205,
           "stake": 100,
-          "potentialReturn": 100,
-          "selections": []
+          "potentialReturn": 305.28,
+          "selections": [
+            "Los Angeles Dodgers to win",
+            "Over 7"
+          ]
         }
       ]
     },
     "moonshot": {
-      "activeLanes": 0,
+      "activeLanes": 1,
       "lanes": [
         {
           "lane": "A",
-          "status": "awaiting",
+          "status": "active",
           "step": 1,
-          "legs": 0,
-          "combinedOdds": 0,
+          "legs": 2,
+          "combinedOdds": 318,
           "stake": 25,
-          "potentialReturn": 25,
-          "selections": []
+          "potentialReturn": 104.52,
+          "selections": [
+            "San Diego Padres to win",
+            "Under 7"
+          ]
         },
         {
           "lane": "B",
@@ -125,8 +134,8 @@
     }
   },
   "counts": {
-    "activeProducts": 1,
-    "pendingApprovals": 4
+    "activeProducts": 3,
+    "pendingApprovals": 1
   },
   "workflowHealth": {
     "lastRunAt": "2026-10-04T11:17:45.492Z",
@@ -138,7 +147,7 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-04",
-    "etTime": "07:17",
+    "etTime": "07:19",
     "stages": [
       {
         "stage": "schedule",
@@ -234,7 +243,7 @@
     },
     {
       "step": "Bank Builder card decided (active or no-play)",
-      "done": false
+      "done": true
     },
     {
       "step": "No missing-data warnings",
@@ -247,7 +256,7 @@
   },
   "nextSettlementDate": "2026-10-04",
   "nextRefreshDate": "2026-10-05",
-  "nextAction": "No active Bank Builder lane for 2026-10-04 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextAction": "Monitor the active Bank Builder lane(s); after 2026-10-04's games are official-final, run the nightly settlement (settle_soccer_day.sh --apply).",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
