@@ -47,12 +47,15 @@ on:
   # A clock that delivers: the watchdog's completions (any conclusion — it is only a tick). Default
   # branch only (the job-level `if` below); nothing from the triggering run is read or executed.
   # ⚠ 2026-10-03: publication-watchdog itself went undelivered from 00:57Z through 15:00Z+ (0 of 7+ slots),
-  # so its tick never came. daily-products — a workflow_run chain off MLB production, delivered 5x that
-  # same morning — is a second, independent clock. NOT nfl-event-window: a capture that fails would tick a
-  # re-dispatch of itself; the freshness/in-flight guards make that finite, but a paid loop is not a risk
-  # to accept for redundancy.
+  # so its tick never came. daily-products — delivered 5x that same morning — is the second, independent
+  # clock, but NOT through this list: it is the 4th link of a workflow_run chain and GitHub never fired
+  # this workflow from it (Sunday 2026-10-04: 4 deliveries 11:17Z–15:09Z, 0 ticks). Session 12: its
+  # `tick` job DISPATCHES this workflow instead (workflow_dispatch starts a fresh chain), and
+  # workflow-trigger-depth.test.mjs refuses any workflow_run source here that sits too deep to fire.
+  # NOT nfl-event-window: a capture that fails would tick a re-dispatch of itself; the freshness/in-flight
+  # guards make that finite, but a paid loop is not a risk to accept for redundancy.
   workflow_run:
-    workflows: ["publication-watchdog", "daily-products"]
+    workflows: ["publication-watchdog"]
     types: [completed]
   workflow_dispatch:
     inputs:
