@@ -536,7 +536,7 @@ jobs:
           set -euo pipefail
           # Each dispatch is independent: one refusal must not skip the other owner.
           rc=0
-          for wf in nfl-kickoff-refresh.yml nba-forecast-window.yml; do
+          for wf in nfl-kickoff-refresh.yml nfl-pregame-free-refresh.yml nba-forecast-window.yml; do
             if gh workflow run "$wf" --ref main; then
               echo "::notice::daily-products ticked $wf"
             else

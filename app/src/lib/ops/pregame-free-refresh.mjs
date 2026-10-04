@@ -1,5 +1,6 @@
 /**
  * SESSION 5 · A3/A4 — THE THURSDAY PREGAME REFRESH, WITHOUT A HUMAN AND WITHOUT A CREDIT.
+ * (Session 12: and Sunday's — the same two passes for each kickoff group, in kickoff order.)
  *
  * On 2026-10-01 PIT @ CLE (kickoff 00:15Z Friday) the boards were refreshed by a manual zero-credit
  * dispatch. Two defects made the automatic path unable to do it:
@@ -48,21 +49,10 @@ export const PREGAME_REFRESH = Object.freeze({
 const MIN = 60_000;
 
 /**
- * @param boards  committed nfl-player-board artifacts ({ providerEventId, matchup, kickoffUtc, generatedAt })
- * @param nowIso  the run's own clock
- * @returns {{ decision, pass?, reason, waitSeconds, kickoffUtc?, matchup? }}
+ * One kickoff group's decision (every game at that instant is one refresh).
+ * Returns the first pass that still owes work, or a terminal ALREADY_REFRESHED / TOO_LATE.
  */
-export function decidePregameFreeRefresh({ boards, nowIso }) {
-  const now = Date.parse(nowIso ?? "");
-  if (!Number.isFinite(now)) throw new Error("decidePregameFreeRefresh: nowIso required");
-  /* The next kickoff the job could still wait for. Several games at one kickoff are one refresh. */
-  const upcoming = (boards ?? [])
-    .map((b) => ({ ...b, k: Date.parse(b?.kickoffUtc ?? "") }))
-    .filter((b) => Number.isFinite(b.k) && b.k > now && b.k - now <= HORIZON_MIN * MIN)
-    .sort((a, b) => a.k - b.k);
-  if (!upcoming.length) return { decision: PREGAME_REFRESH.NO_GAME, reason: `no committed board kicks off within ${HORIZON_MIN} minutes`, waitSeconds: 0 };
-  const k = upcoming[0].k;
-  const slate = upcoming.filter((b) => b.k === k);
+function decideKickoff(slate, k, now) {
   const label = slate.map((b) => b.matchup ?? b.providerEventId).join(", ");
   const kickoffUtc = new Date(k).toISOString();
   const oldest = Math.min(...slate.map((b) => { const g = Date.parse(b.generatedAt ?? ""); return Number.isFinite(g) ? g : -Infinity; }));
@@ -76,4 +66,34 @@ export function decidePregameFreeRefresh({ boards, nowIso }) {
     return { ...base, decision: PREGAME_REFRESH.WAIT_THEN_DISPATCH, pass: pass.id, reason: `${label}: waiting for the ${pass.id} pass, ${pass.leadMin} minutes before kickoff`, waitSeconds: Math.round((lead - pass.leadMin) * 60) };
   }
   return { ...base, decision: PREGAME_REFRESH.ALREADY_REFRESHED, reason: `${label}: every board was regenerated after the inactive declaration (within ${PASSES.at(-1).doneWithinMin} minutes of kickoff)`, waitSeconds: 0 };
+}
+
+/**
+ * @param boards  committed nfl-player-board artifacts ({ providerEventId, matchup, kickoffUtc, generatedAt })
+ * @param nowIso  the run's own clock
+ * @returns {{ decision, pass?, reason, waitSeconds, kickoffUtc?, matchup? }}
+ *
+ * SESSION 12 · SUNDAY HAS SEVERAL KICKOFFS. Thursday and Monday have one, so "the next kickoff" was the
+ * whole question. A Sunday has the 1 PM block, 4:05 and 4:25 PM, and the night game. Once the earliest
+ * group is done (ALREADY_REFRESHED) or can no longer be helped (TOO_LATE), the job must move on to the
+ * next group instead of exiting — otherwise the 4 PM inactives pass waits on a fresh delivery that a
+ * Sunday afternoon may not bring. Groups are taken in kickoff order; the first that still owes a pass
+ * decides. When none does, the EARLIEST group's terminal state is reported (unchanged for one game).
+ */
+export function decidePregameFreeRefresh({ boards, nowIso }) {
+  const now = Date.parse(nowIso ?? "");
+  if (!Number.isFinite(now)) throw new Error("decidePregameFreeRefresh: nowIso required");
+  const upcoming = (boards ?? [])
+    .map((b) => ({ ...b, k: Date.parse(b?.kickoffUtc ?? "") }))
+    .filter((b) => Number.isFinite(b.k) && b.k > now && b.k - now <= HORIZON_MIN * MIN)
+    .sort((a, b) => a.k - b.k);
+  if (!upcoming.length) return { decision: PREGAME_REFRESH.NO_GAME, reason: `no committed board kicks off within ${HORIZON_MIN} minutes`, waitSeconds: 0 };
+  const kickoffs = [...new Set(upcoming.map((b) => b.k))];
+  let first = null;
+  for (const k of kickoffs) {
+    const d = decideKickoff(upcoming.filter((b) => b.k === k), k, now);
+    if (d.decision !== PREGAME_REFRESH.ALREADY_REFRESHED && d.decision !== PREGAME_REFRESH.TOO_LATE) return d;
+    first ??= d;
+  }
+  return first;
 }

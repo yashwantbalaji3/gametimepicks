@@ -1,4 +1,5 @@
-# NFL pregame roster/usage + inactives refresh — FREE, for Thursday and Monday night (Session 5 · A3/A4, MNF in B).
+# NFL pregame roster/usage + inactives refresh — FREE, for Thursday, Sunday and Monday (Session 5 · A3/A4, MNF in B,
+# Sunday in Session 12).
 #
 # WHY. Thursday's boards were refreshed before kickoff by a manual zero-credit dispatch: the paid
 # nfl-kickoff-refresh fires 1–5 PM ET on Thursdays (its ≤120-minute rule cannot be true on time for a
@@ -15,6 +16,16 @@
 #
 # DEDUPED. One group, never cancelled: a later arrival queues behind the waiting run and then decides
 # ALREADY_REFRESHED from the boards that run produced.
+#
+# SESSION 12 · SUNDAY. On 2026-10-04 the official inactives reached the injuries feed at 18:38–19:09Z for the
+# 4 PM block (KC's were PUBLISHED after 19:22Z under a 19:09Z stamp), after the last scheduled board, and only
+# manual zero-credit dispatches put them on the boards. Sunday has several kickoff groups (1 PM, 4:05, 4:25,
+# night); the decider walks them in order (a finished group no longer ends the job). Its clocks are the ones
+# that DELIVER: daily-products' `tick` job (workflow_dispatch) in the morning, publication-watchdog
+# (workflow_run, depth 2) through the afternoon, and Sunday crons as best-effort extras. Every arrival only
+# DECIDES; a dispatch still waits out any in-flight event window — paid or free — and RE-DECIDES on the boards
+# that run produced before dispatching, so a paid T-120 refresh that already regenerated the boards satisfies
+# the ROSTER pass instead of drawing a redundant one.
 name: nfl-pregame-free-refresh
 
 on:
@@ -31,6 +42,17 @@ on:
     - cron: "0 18 * * 1"
     - cron: "0 19 * * 1"
     - cron: "0 20 * * 1"
+    # Sunday UTC (Session 12): best-effort extras for the 1 PM, 4 PM and night groups — the delivered clocks
+    # are the daily-products tick and publication-watchdog below.
+    - cron: "0 11 * * 0"
+    - cron: "0 14 * * 0"
+    - cron: "0 18 * * 0"
+    - cron: "0 21 * * 0"
+  # A clock that delivers on Sunday afternoons (measured 2026-10-04: 16:01Z–18:56Z every ~10–30 min). Any
+  # conclusion is a tick; default branch only (the job-level `if`). Nothing from the triggering run is read.
+  workflow_run:
+    workflows: ["publication-watchdog"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       dry_run:
@@ -48,6 +70,10 @@ permissions:
 
 jobs:
   refresh:
+    # THE TRUST BOUNDARY ON A workflow_run TRIGGER: only a default-branch watchdog run may tick this.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.head_branch == github.event.repository.default_branch
     runs-on: ubuntu-latest
     # The horizon (375 min before kickoff) to the last pass (T-55) plus its window run, under GitHub's 360 cap.
     timeout-minutes: 355
@@ -65,15 +91,19 @@ jobs:
         run: |
           set -euo pipefail
           # An in-flight event window (any trigger) is waited out, never raced: its boards decide the next pass.
+          inflight() {
+            gh run list --workflow=nfl-event-window.yml --limit 10 --json status --jq '[.[] | select(.status != "completed")] | length' || echo unknown
+          }
           wait_idle() {
             for _ in $(seq 1 45); do
-              n="$(gh run list --workflow=nfl-event-window.yml --limit 10 --json status --jq '[.[] | select(.status != "completed")] | length' || echo unknown)"
+              n="$(inflight)"
               if [ "$n" = "0" ]; then return 0; fi
               sleep 60
             done
             echo "::warning::nfl-event-window still running after 45 minutes"
           }
-          for _ in 1 2 3 4 5 6; do
+          # Up to ten decisions: a Sunday walks several kickoff groups, and a wait for an in-flight run re-decides.
+          for _ in 1 2 3 4 5 6 7 8 9 10; do
             git pull --quiet --ff-only origin main
             d="$(node scripts/nfl/decide-pregame-free-refresh.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --json)"
             decision="$(echo "$d" | jq -r .decision)"
@@ -85,7 +115,13 @@ jobs:
                 ;;
               DISPATCH_NOW)
                 if [ "${DRY:-false}" = "true" ]; then exit 0; fi
-                wait_idle
+                # Another event window (the paid T-120 refresh, a cron) is writing boards: wait it out, then
+                # RE-DECIDE on what it produced — it may already satisfy this pass. Never dispatch on stale boards.
+                if [ "$(inflight)" != "0" ]; then
+                  echo "an nfl-event-window run is in flight — waiting it out, then re-deciding"
+                  wait_idle
+                  continue
+                fi
                 gh workflow run nfl-event-window.yml --ref main -f skip_odds=true -f lookahead_hours=18
                 echo "::notice::pregame free refresh dispatched nfl-event-window (skip_odds=true) — $(echo "$d" | jq -r .reason)"
                 sleep 90
