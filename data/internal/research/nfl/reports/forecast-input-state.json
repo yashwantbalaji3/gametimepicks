@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-04T19:00:56Z",
+  "generatedAt": "2026-10-04T19:24:18Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
     "upcomingEvents": 6,
     "eventsWhereTeamForecastIsBlindToAnExclusion": 6,
-    "eventsWithAMaterialExclusion": 1,
+    "eventsWithAMaterialExclusion": 2,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
@@ -21,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "1029f8ef3e45107f",
+        "inputHash": "6849b354bc71d5b7",
         "simulations": 10000,
-        "generatedAt": "2026-10-04T19:00:56Z"
+        "generatedAt": "2026-10-04T19:24:18Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:00:56Z",
-        "participationInputHash": "836696e9c8dc2a4a",
+        "snapshotAsOf": "2026-10-04T19:24:18Z",
+        "participationInputHash": "841c34f99372b208",
         "excludedCount": 5,
         "materialExclusions": [
           {
@@ -98,18 +98,38 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "ede7877a86832cfc",
+        "inputHash": "db0251c027f92507",
         "simulations": 10000,
-        "generatedAt": "2026-10-04T19:00:56Z"
+        "generatedAt": "2026-10-04T19:24:18Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:00:56Z",
-        "participationInputHash": "b3f02ce8b0efa0f6",
-        "excludedCount": 2,
-        "materialExclusions": [],
+        "snapshotAsOf": "2026-10-04T19:24:18Z",
+        "participationInputHash": "9eaf4e4f4f48a419",
+        "excludedCount": 4,
+        "materialExclusions": [
+          {
+            "name": "Aidan O'Connell",
+            "team": "LV",
+            "state": "Out",
+            "statedAt": "2026-10-04T19:20Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
         "excluded": [
+          {
+            "name": "Aidan O'Connell",
+            "team": "LV",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Jack Bech",
             "team": "LV",
@@ -122,6 +142,14 @@
             "name": "Dont'e Thornton Jr.",
             "team": "LV",
             "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Jared Wiley",
+            "team": "KC",
+            "state": "Out",
             "families": [
               "targets"
             ]
@@ -138,18 +166,26 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "cf0c8a27d7dd1f8a",
+        "inputHash": "c637b6330e4b77f0",
         "simulations": 10000,
-        "generatedAt": "2026-10-04T19:00:56Z"
+        "generatedAt": "2026-10-04T19:24:18Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:00:56Z",
-        "participationInputHash": "056522b5f34076e0",
-        "excludedCount": 2,
+        "snapshotAsOf": "2026-10-04T19:24:18Z",
+        "participationInputHash": "9d644f518eb17fbb",
+        "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [
+          {
+            "name": "Jordan James",
+            "team": "SF",
+            "state": "Out",
+            "families": [
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Demarcus Robinson",
             "team": "SF",
@@ -179,16 +215,16 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "6c76ec8a3781c84a",
+        "inputHash": "ca08db36cdc6f3c7",
         "simulations": 10000,
-        "generatedAt": "2026-10-04T19:00:56Z"
+        "generatedAt": "2026-10-04T19:24:18Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:00:56Z",
-        "participationInputHash": "3ae4f00263aa39dd",
-        "excludedCount": 5,
+        "snapshotAsOf": "2026-10-04T19:24:18Z",
+        "participationInputHash": "db6ee9fbbd1c2356",
+        "excludedCount": 7,
         "materialExclusions": [],
         "excluded": [
           {
@@ -206,6 +242,22 @@
             "state": "Out",
             "families": [
               "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Jalen Milroe",
+            "team": "SEA",
+            "state": "Out",
+            "families": [
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Nick Kallerup",
+            "team": "SEA",
+            "state": "Out",
+            "families": [
               "targets"
             ]
           },
@@ -245,15 +297,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "8f610e95dd48d56c",
+        "inputHash": "a9c725f87a53a9a9",
         "simulations": 10000,
-        "generatedAt": "2026-10-04T19:00:56Z"
+        "generatedAt": "2026-10-04T19:24:18Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:00:56Z",
-        "participationInputHash": "dba3f45c85e9a154",
+        "snapshotAsOf": "2026-10-04T19:24:18Z",
+        "participationInputHash": "5c9e970a9d5a002e",
         "excludedCount": 2,
         "materialExclusions": [],
         "excluded": [
@@ -286,15 +338,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "73b12b6f3479588b",
+        "inputHash": "7b0b7c4af8292e2c",
         "simulations": 10000,
-        "generatedAt": "2026-10-04T19:00:56Z"
+        "generatedAt": "2026-10-04T19:24:18Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T19:00:56Z",
-        "participationInputHash": "8b645ba85bab9068",
+        "snapshotAsOf": "2026-10-04T19:24:18Z",
+        "participationInputHash": "45e6fd14c8c95835",
         "excludedCount": 1,
         "materialExclusions": [],
         "excluded": [

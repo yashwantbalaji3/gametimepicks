@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-04T19:00:56Z",
- "sourceGeneratedAt": "2026-10-04T19:00:56Z",
+ "generatedAt": "2026-10-04T19:24:18Z",
+ "sourceGeneratedAt": "2026-10-04T19:24:18Z",
  "providerEventId": "401872976",
  "matchup": "KC @ LV",
  "kickoffUtc": "2026-10-04T20:25Z",
@@ -11,8 +11,8 @@
  "week": 4,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-04T19:00:56Z",
-  "roleEvidenceAt": "2026-10-04T19:00:56Z",
+  "injuriesCapturedAt": "2026-10-04T19:24:18Z",
+  "roleEvidenceAt": "2026-10-04T19:24:18Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -41,15 +41,14 @@
      {
       "team": "LV",
       "pool": "carries",
-      "originalSum": 1.2114,
+      "originalSum": 1.1199,
       "normalizedSum": 1,
-      "factor": 0.8255,
+      "factor": 0.8929,
       "playerIds": [
        "nfl-athlete-4890973",
        "nfl-athlete-4686658",
        "nfl-athlete-14880",
-       "nfl-athlete-4698191",
-       "nfl-athlete-4260394"
+       "nfl-athlete-4698191"
       ]
      }
     ]
@@ -122,7 +121,7 @@
  "marketCoverage": {
   "probed": true,
   "priced": 48,
-  "absent": 4,
+  "absent": 2,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -234,8 +233,8 @@
   },
   "LV": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -321,23 +320,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4260394",
-     "name": "Aidan O'Connell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
-    },
-    {
      "playerId": "nfl-athlete-4698191",
      "name": "Chris Collier",
      "state": "PROJECTED",
@@ -356,6 +338,12 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4260394",
+     "name": "Aidan O'Connell",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4603186",
@@ -384,21 +372,11 @@
    },
    {
     "team": "LV",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-14880",
-     "name": "Kirk Cousins"
-    },
-    "snapshotAt": "2026-10-03T12:27:18Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4260394",
-      "name": "Aidan O'Connell"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
      "nfl-athlete-14880"
-    ]
+    ],
+    "removed": []
    }
   ],
   "pools": [
@@ -409,9 +387,9 @@
      "player_rush_yds"
     ],
     "sum": 1,
-    "originalSum": 1.2114,
+    "originalSum": 1.1199,
     "residualOther": 0,
-    "joined": 5,
+    "joined": 4,
     "missed": 0,
     "state": "NORMALIZED"
    },
@@ -602,15 +580,15 @@
      }
     },
     "player_rush_yds": {
-     "mean": 56.4472,
-     "p10": 14.8848,
-     "p25": 27.0047,
-     "median": 47.2923,
-     "p75": 76.0404,
-     "p90": 110.0092,
+     "mean": 61.0591,
+     "p10": 16.101,
+     "p25": 29.2111,
+     "median": 51.1563,
+     "p75": 82.2532,
+     "p90": 118.9974,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.8255
+      "factor": 0.8929
      },
      "market": {
       "line": 58.5,
@@ -990,15 +968,15 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 18.6386,
-     "p10": 0.3703,
-     "p25": 2.3587,
-     "median": 9.4426,
-     "p75": 25.2393,
-     "p90": 49.1615,
+     "mean": 20.1614,
+     "p10": 0.4006,
+     "p25": 2.5514,
+     "median": 10.2141,
+     "p75": 27.3015,
+     "p90": 53.1782,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.8255
+      "factor": 0.8929
      },
      "market": {
       "line": 16.5,
@@ -1025,15 +1003,15 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 12.134,
-     "p10": 0.0625,
-     "p25": 0.9075,
-     "median": 5.0863,
-     "p75": 15.9446,
-     "p90": 33.5493,
+     "mean": 13.1254,
+     "p10": 0.0676,
+     "p25": 0.9816,
+     "median": 5.5018,
+     "p75": 17.2473,
+     "p90": 36.2904,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.8255
+      "factor": 0.8929
      },
      "pricingState": "NOT_OFFERED"
     },
@@ -1188,15 +1166,15 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 7.9421,
-     "p10": 0.041,
-     "p25": 0.5944,
-     "median": 3.3299,
-     "p75": 10.4367,
-     "p90": 21.9579,
+     "mean": 8.5909,
+     "p10": 0.0444,
+     "p25": 0.6429,
+     "median": 3.602,
+     "p75": 11.2894,
+     "p90": 23.7519,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.8255
+      "factor": 0.8929
      },
      "market": {
       "line": 0.5,
@@ -1228,31 +1206,6 @@
       "sportsbook": "draftkings",
       "capturedAt": "2026-10-04T17:18:17Z"
      }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4260394",
-   "name": "Aidan O'Connell",
-   "team": "LV",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 8.6123,
-     "p10": 0,
-     "p25": 0.185,
-     "median": 2.4273,
-     "p75": 10.4737,
-     "p90": 25.2669,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8255
-     },
-     "pricingState": "NOT_OFFERED"
-    },
-    "anytime_td": {
-     "probability": 0.0582,
-     "pricingState": "NOT_OFFERED"
     }
    }
   }
