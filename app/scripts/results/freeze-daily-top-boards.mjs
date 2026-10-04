@@ -53,7 +53,8 @@ export function freezeDay(day, boards, frozenAt, prices = propPrices) {
     if (!st) { ineligible.push({ sport: "nfl", propFamily: family, state: "ABSENT", reason: "not on this day's boards" }); continue; }
     if (st.state !== "PUBLISHED") { ineligible.push({ sport: "nfl", propFamily: family, label: st.label, state: st.state, reason: st.reason ?? null }); continue; }
     const metric = BOARD_METRIC[family];
-    const rows = rankFamily(boards, family, metric).slice(0, TOP_N).map(({ board: b, player: p, market: m }, i) => {
+    /* Session 11: the shared availability gate judges each row at the freeze instant (write-once days already frozen are untouched). */
+    const rows = rankFamily(boards, family, metric, { asOf: frozenAt }).slice(0, TOP_N).map(({ board: b, player: p, market: m }, i) => {
       const slot = prices.slotFor(b.providerEventId, p.playerId, family, p.name);
       return {
         rank: i + 1,

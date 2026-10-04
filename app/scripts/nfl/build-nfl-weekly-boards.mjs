@@ -113,8 +113,17 @@ for (const key of familyKeys) {
  */
 const opponentOf = (b, team) => opponentIn(b.matchup, team);
 
+/*
+ * SESSION 11 — THE PUBLIC AVAILABILITY GATE (founder policy, 2026-10-04): a Questionable / Doubtful /
+ * Out / unknown / stale-availability player never ranks. Applied inside the ONE ranking rule, BEFORE the
+ * top-N cut, so the next valid player takes the place; every removal is named on the board.
+ */
+const excludedByBoard = {};
 function rankRows(family, metric, topN) {
-  const rows = rankFamily(scoped, family, metric).map(({ board: b, player: p, market: m }) => ({
+  const blocked = [];
+  const ranked = rankFamily(scoped, family, metric, { asOf: NOW, blocked });
+  excludedByBoard[family] = blocked;
+  const rows = ranked.map(({ board: b, player: p, market: m }) => ({
     playerId: p.playerId,
     name: p.name,
     team: p.team,
@@ -180,7 +189,7 @@ const out = {
       return { ...spec, state: "WITHHELD", reason: `withheld this week: on ${poolWithheld.length} of ${scoped.length * 2} teams the players' modelled shares add up to more of the team's opportunity than exists, so a ranking would leave those teams out` };
     }
     return { ...spec, state: "PUBLISHED", basis: fam.basis, rows: rankRows(spec.family, spec.metric, spec.topN) };
-  }),
+  }).map((b) => (b.rows ? { ...b, excludedForAvailability: excludedByBoard[b.family] ?? [] } : b)),
   disclaimer: boards[0]?.disclaimer ?? null,
 };
 

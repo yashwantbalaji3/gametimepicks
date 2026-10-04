@@ -36,8 +36,10 @@ export function HubTitle({ model }: { model: SportHubModel }) {
   );
 }
 
-export default function HubHeader({ model, deferToCanonical }: {
+export default function HubHeader({ model, deferToCanonical, compact = false }: {
   model: SportHubModel;
+  /** Session 11 — one line per event (GameSummary's compact row) for a schedule-only hub. */
+  compact?: boolean;
   /**
    * P250-W1 (audit item E): when the page below carries its OWN canonical event table for the same
    * period (NFL's weekly table with projected scores/totals), the hub's generic list is a second
@@ -57,7 +59,7 @@ export default function HubHeader({ model, deferToCanonical }: {
         </summary>
         <div className="px-4 pb-4">
           <p className="m-0 mb-2 text-[12px]" style={{ color: "var(--vault-text-faint)" }}>{deferToCanonical.note}</p>
-          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} />
+          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} compact={compact} />
         </div>
       </details>
     );
@@ -77,7 +79,7 @@ export default function HubHeader({ model, deferToCanonical }: {
           ({model.rows.length} {model.labels.games.toLowerCase()})
         </summary>
         <div className="px-4 pb-4">
-          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} />
+          <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} compact={compact} />
         </div>
       </details>
     );
@@ -85,7 +87,7 @@ export default function HubHeader({ model, deferToCanonical }: {
   return (
     <div>
       <h2 className="m-0 mb-3 text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{model.labels.games}</h2>
-      <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} />
+      <GameSummary rows={model.rows} unitLabel={model.labels.games} emptyReason={model.emptyReason} emptyCounts={model.emptyCounts} emptyLink={model.emptyLink} compact={compact} />
     </div>
   );
 }

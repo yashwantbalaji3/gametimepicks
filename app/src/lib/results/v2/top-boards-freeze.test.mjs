@@ -15,9 +15,14 @@ const SCRIPT = path.join(process.cwd(), "scripts/results/freeze-daily-top-boards
 const { freezeDay } = await import(SCRIPT);
 
 const fam = (state, extra = {}) => ({ label: "L", state, ...(state === "PUBLISHED" ? { basis: "b" } : { reason: "why" }), model: "m-v1", ...extra });
-const player = (id, markets, participation = "ACTIVE") => ({ playerId: id, name: id.toUpperCase(), team: "AAA", participation, markets });
+const player = (id, markets, participation = "AVAILABLE_ROLE_UNCERTAIN") => ({ playerId: id, name: id.toUpperCase(), team: "AAA", participation, markets });
+/* Session 11: every per-game board carries the availability read its rows were joined against (6 h before kickoff here). */
+const availabilityFor = (kickoffUtc) => {
+  const k = Date.parse(kickoffUtc);
+  return Number.isFinite(k) ? { injuriesCapturedAt: new Date(k - 6 * 3600e3).toISOString(), injuries: "FRESH", rosters: "FRESH" } : undefined;
+};
 const board = (eventId, kickoffUtc, players, families = { player_rush_yds: fam("PUBLISHED"), player_pass_yds: fam("ESTIMATE"), anytime_td: fam("PUBLISHED") }) =>
-  ({ providerEventId: eventId, matchup: "AAA @ BBB", kickoffUtc, generatedAt: "2031-10-01T10:00:00Z", families, players });
+  ({ providerEventId: eventId, matchup: "AAA @ BBB", kickoffUtc, generatedAt: "2031-10-01T10:00:00Z", availability: availabilityFor(kickoffUtc), families, players });
 const noPrices = { slotFor: () => ({ pricingState: "NOT_PROBED" }) };
 
 test("🔴 ranking: out players never rank, a missing metric is never zero-filled, ties break on the model's mean then id", () => {
@@ -25,7 +30,7 @@ test("🔴 ranking: out players never rank, a missing metric is never zero-fille
     player("b", { r: { median: 5, mean: 4.6 } }), player("a", { r: { median: 5, mean: 4.6 } }), player("c", { r: { median: 5, mean: 5.2 } }),
     player("d", { r: { median: 9, mean: 9 } }, "INACTIVE"), player("e", { r: { median: null } }), player("f", {}),
   ])];
-  assert.deepEqual(rankFamily(b, "r", "median").map((x) => x.player.playerId), ["c", "a", "b"]);
+  assert.deepEqual(rankFamily(b, "r", "median", { asOf: "2031-10-02T12:00:00Z" }).map((x) => x.player.playerId), ["c", "a", "b"]);
 });
 
 test("a family publishes across a day only when every board publishes it", () => {
@@ -86,7 +91,7 @@ test("🔴 write-once, never retrospective, never early: the freeze window is [f
 
 test("the weekly boards rank with the SAME shared rule (no second copy of the sort)", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "scripts/nfl/build-nfl-weekly-boards.mjs"), "utf8");
-  assert.match(src, /rankFamily\(scoped, family, metric\)/);
+  assert.match(src, /rankFamily\(scoped, family, metric, \{ asOf: NOW, blocked \}\)/);
   assert.match(src, /familyStateAcross\(boards, key\)/);
   assert.doesNotMatch(src, /rows\.sort\(/, "no local ranking");
   const fz = fs.readFileSync(SCRIPT, "utf8");

@@ -163,6 +163,12 @@ for (const f of upcoming) {
         withheld.push({ event: f.matchup, team: teamAbbr, player: p.name, reason: `designated ${role.injuryStatus ?? role.state.toLowerCase()} — a player who is not playing is not a scorer candidate` });
         return;
       }
+      /* Session 11 (founder policy): a Questionable / Doubtful player never appears in a public top list
+         either — withheld with his designation named, the same rule as the boards (board-ranking.mjs). */
+      if (role?.state === "QUESTIONABLE") {
+        withheld.push({ event: f.matchup, team: teamAbbr, player: p.name, reason: `designated ${role.injuryStatus ?? "questionable"} — only players with no designation are listed` });
+        return;
+      }
       const questionable = role?.state === "QUESTIONABLE";
       /*
        * P250-W2b: the availability answer comes from the SAME per-player evidence the board reads,
