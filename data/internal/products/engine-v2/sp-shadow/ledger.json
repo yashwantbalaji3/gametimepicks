@@ -2,14 +2,14 @@
  "schema": "sp-shadow-ledger@1",
  "dataClass": "internal-research",
  "policy": "SP-V2@c0526c1512ed",
- "generatedAt": "2026-10-04T11:08:22.516Z",
- "days": 2,
+ "generatedAt": "2026-10-04T12:54:13.395Z",
+ "days": 3,
  "firstDate": "2026-10-02",
- "lastDate": "2026-10-03",
+ "lastDate": "2026-10-04",
  "note": "expectedWins = sum of each card's market-implied joint probability — the record the market itself predicts. SHADOW: no public record counts these.",
  "tiers": {
   "low": {
-   "days": 2,
+   "days": 3,
    "publishable": 0,
    "won": 0,
    "lost": 0,
@@ -17,43 +17,44 @@
    "pending": 0,
    "noCard": {
     "NO_ELIGIBLE_LEGS": 1,
-    "NO_CARD_IN_BAND": 1
+    "NO_CARD_IN_BAND": 2
    },
    "expectedWins": 0
   },
   "medium": {
-   "days": 2,
-   "publishable": 1,
+   "days": 3,
+   "publishable": 2,
    "won": 1,
    "lost": 0,
    "push": 0,
-   "pending": 0,
+   "pending": 1,
    "noCard": {
     "NO_ELIGIBLE_LEGS": 1
    },
-   "expectedWins": 0.42
+   "expectedWins": 0.8
   },
   "high": {
-   "days": 2,
-   "publishable": 1,
+   "days": 3,
+   "publishable": 2,
    "won": 0,
    "lost": 1,
    "push": 0,
-   "pending": 0,
+   "pending": 1,
    "noCard": {
     "NO_ELIGIBLE_LEGS": 1
    },
-   "expectedWins": 0.19
+   "expectedWins": 0.41
   },
   "longshot": {
-   "days": 2,
+   "days": 3,
    "publishable": 1,
    "won": 0,
    "lost": 1,
    "push": 0,
    "pending": 0,
    "noCard": {
-    "NO_ELIGIBLE_LEGS": 1
+    "NO_ELIGIBLE_LEGS": 1,
+    "NO_CARD_IN_BAND": 1
    },
    "expectedWins": 0.12
   }

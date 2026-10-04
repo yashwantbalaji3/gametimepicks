@@ -1,9 +1,9 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-10-04",
-  "checkedAt": "2026-10-04T11:17:46.793Z",
-  "treeHead": "ce69119c0",
-  "state": "NOT_DUE",
+  "checkedAt": "2026-10-04T12:55:17.364Z",
+  "treeHead": "513c88dd7",
+  "state": "DUE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 2,
   "owners": [
@@ -46,20 +46,21 @@
     },
     {
       "id": "risk-ladder",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-04T19:15:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-10-04T19:15:00.000Z",
+      "receiptAt": "2026-10-04T12:54:13Z",
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
         "mlb-markets"
       ],
-      "receiptPath": null
+      "receiptPath": "parlays/risk-ladder/2026-10-04.json"
     },
     {
       "id": "settlement",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-04T12:00:00.000Z",
+      "state": "DUE",
+      "reason": "past 2026-10-04T12:00:00.000Z, inside grace",
       "dueAtIso": "2026-10-04T12:00:00.000Z",
       "label": "Nightly settlement (previous day)",
       "workflow": "nightly-settle",
@@ -152,7 +153,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-10-04T12:00:00.000Z",
-      "receiptAt": "2026-10-04T11:09:16Z",
+      "receiptAt": "2026-10-04T12:55:05Z",
       "label": "Offered-window matrix (all sports)",
       "workflow": "nightly-settle",
       "dependsOn": [],
