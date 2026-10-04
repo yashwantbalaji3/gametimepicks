@@ -115,3 +115,12 @@ test("P256 · folded days count their Bank Builder steps — history is not rest
       assert.match(t.headline, /Bank Builder step|Moonshot lane/, `${t.date}: a folded loss names what was lost`);
   }
 });
+
+test("Session 12 · the 'As of' KPI is the day the bankroll is true for (the fold), never the lock-frozen generatedAt", () => {
+  const { kpis } = buildTimeline(daily.days, portfolio);
+  assert.equal(kpis.currentDate, portfolio.protectedFold.foldedThrough, "As of == foldedThrough");
+  assert.notEqual(kpis.currentDate, String(portfolio.generatedAt).slice(0, 10), "portfolio.generatedAt is md5-locked at 2026-07-07 — never a freshness stamp");
+  // Without a fold the newest settled timeline day stands in — still a real settled date, never a build time.
+  const { kpis: k2, timeline } = buildTimeline(daily.days, { ...portfolio, protectedFold: undefined });
+  assert.equal(k2.currentDate, timeline[0].date);
+});

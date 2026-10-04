@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-04T19:24:18Z",
+ "generatedAt": "2026-10-04T23:25:49Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 21,
+  "scheduledUpcoming": 17,
   "forecastsTotal": 16,
-  "forecastsUpcoming": 6,
-  "forecastsStarted": 10,
+  "forecastsUpcoming": 2,
+  "forecastsStarted": 14,
   "marketEvents": 6,
   "settled": 1
  },
- "nextKickoffUtc": "2026-10-04T20:05Z",
- "nextMatchup": "MIA @ MIN",
- "nextForecastUtc": "2026-10-04T20:05Z",
- "nextForecastMatchup": "MIA @ MIN",
+ "nextKickoffUtc": "2026-10-05T00:20Z",
+ "nextMatchup": "DET @ CAR",
+ "nextForecastUtc": "2026-10-05T00:20Z",
+ "nextForecastMatchup": "DET @ CAR",
  "marketCapturedAt": "2026-10-04T18:18:48Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-04T19:21:55Z",
+  "generatedAt": "2026-10-04T22:38:04Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -71,178 +71,6 @@
  },
  "events": [
   {
-   "providerEventId": "401872974",
-   "canonicalEventId": "nfl-401872974",
-   "matchup": "MIA @ MIN",
-   "home": {
-    "abbr": "MIN",
-    "name": "Minnesota Vikings"
-   },
-   "away": {
-    "abbr": "MIA",
-    "name": "Miami Dolphins"
-   },
-   "kickoffUtc": "2026-10-04T20:05Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 24,
-    "away": 15,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.7918,
-    "away": 0.1837
-   },
-   "total": {
-    "median": 39,
-    "p10": 22,
-    "p90": 55,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "6849b354bc71d5b7",
-    "generatedAt": "2026-10-04T19:24:18Z"
-   }
-  },
-  {
-   "providerEventId": "401872976",
-   "canonicalEventId": "nfl-401872976",
-   "matchup": "KC @ LV",
-   "home": {
-    "abbr": "LV",
-    "name": "Las Vegas Raiders"
-   },
-   "away": {
-    "abbr": "KC",
-    "name": "Kansas City Chiefs"
-   },
-   "kickoffUtc": "2026-10-04T20:25Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": 5.3,
-    "leansTo": "LV",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
-   "projectedScore": {
-    "home": 19,
-    "away": 21,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.3876,
-    "away": 0.5825
-   },
-   "total": {
-    "median": 40,
-    "p10": 23,
-    "p90": 57,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "db0251c027f92507",
-    "generatedAt": "2026-10-04T19:24:18Z"
-   }
-  },
-  {
-   "providerEventId": "401872975",
-   "canonicalEventId": "nfl-401872975",
-   "matchup": "DEN @ SF",
-   "home": {
-    "abbr": "SF",
-    "name": "San Francisco 49ers"
-   },
-   "away": {
-    "abbr": "DEN",
-    "name": "Denver Broncos"
-   },
-   "kickoffUtc": "2026-10-04T20:25Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 24,
-    "away": 22,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.5467,
-    "away": 0.423
-   },
-   "total": {
-    "median": 46,
-    "p10": 29,
-    "p90": 63,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "c637b6330e4b77f0",
-    "generatedAt": "2026-10-04T19:24:18Z"
-   }
-  },
-  {
-   "providerEventId": "401872977",
-   "canonicalEventId": "nfl-401872977",
-   "matchup": "LAC @ SEA",
-   "home": {
-    "abbr": "SEA",
-    "name": "Seattle Seahawks"
-   },
-   "away": {
-    "abbr": "LAC",
-    "name": "Los Angeles Chargers"
-   },
-   "kickoffUtc": "2026-10-04T20:25Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "EXPERIMENTAL_LEAN",
-   "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
-   "lean": {
-    "gapPp": 6.8,
-    "leansTo": "SEA",
-    "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
-   },
-   "projectedScore": {
-    "home": 24,
-    "away": 16,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.8093,
-    "away": 0.1686
-   },
-   "total": {
-    "median": 40,
-    "p10": 24,
-    "p90": 58,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "ca08db36cdc6f3c7",
-    "generatedAt": "2026-10-04T19:24:18Z"
-   }
-  },
-  {
    "providerEventId": "401872978",
    "canonicalEventId": "nfl-401872978",
    "matchup": "DET @ CAR",
@@ -279,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "a9c725f87a53a9a9",
-    "generatedAt": "2026-10-04T19:24:18Z"
+    "inputHash": "d942029026e757a9",
+    "generatedAt": "2026-10-04T23:25:49Z"
    }
   },
   {
@@ -320,8 +148,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "7b0b7c4af8292e2c",
-    "generatedAt": "2026-10-04T19:24:18Z"
+    "inputHash": "8f42ac361fe8fe97",
+    "generatedAt": "2026-10-04T23:25:49Z"
    }
   },
   {
@@ -732,6 +560,170 @@
     "version": 2,
     "inputHash": "23b7aa1172096a43",
     "generatedAt": "2026-10-04T15:02:50Z"
+   }
+  },
+  {
+   "providerEventId": "401872974",
+   "canonicalEventId": "nfl-401872974",
+   "matchup": "MIA @ MIN",
+   "home": {
+    "abbr": "MIN",
+    "name": "Minnesota Vikings"
+   },
+   "away": {
+    "abbr": "MIA",
+    "name": "Miami Dolphins"
+   },
+   "kickoffUtc": "2026-10-04T20:05Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 24,
+    "away": 15,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.7918,
+    "away": 0.1837
+   },
+   "total": {
+    "median": 39,
+    "p10": 22,
+    "p90": 55,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": true,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "6849b354bc71d5b7",
+    "generatedAt": "2026-10-04T19:24:18Z"
+   }
+  },
+  {
+   "providerEventId": "401872975",
+   "canonicalEventId": "nfl-401872975",
+   "matchup": "DEN @ SF",
+   "home": {
+    "abbr": "SF",
+    "name": "San Francisco 49ers"
+   },
+   "away": {
+    "abbr": "DEN",
+    "name": "Denver Broncos"
+   },
+   "kickoffUtc": "2026-10-04T20:25Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 24,
+    "away": 22,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.5467,
+    "away": 0.423
+   },
+   "total": {
+    "median": 46,
+    "p10": 29,
+    "p90": 63,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": true,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "c637b6330e4b77f0",
+    "generatedAt": "2026-10-04T19:24:18Z"
+   }
+  },
+  {
+   "providerEventId": "401872976",
+   "canonicalEventId": "nfl-401872976",
+   "matchup": "KC @ LV",
+   "home": {
+    "abbr": "LV",
+    "name": "Las Vegas Raiders"
+   },
+   "away": {
+    "abbr": "KC",
+    "name": "Kansas City Chiefs"
+   },
+   "kickoffUtc": "2026-10-04T20:25Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 19,
+    "away": 21,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.3876,
+    "away": 0.5825
+   },
+   "total": {
+    "median": 40,
+    "p10": 23,
+    "p90": 57,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": true,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "db0251c027f92507",
+    "generatedAt": "2026-10-04T19:24:18Z"
+   }
+  },
+  {
+   "providerEventId": "401872977",
+   "canonicalEventId": "nfl-401872977",
+   "matchup": "LAC @ SEA",
+   "home": {
+    "abbr": "SEA",
+    "name": "Seattle Seahawks"
+   },
+   "away": {
+    "abbr": "LAC",
+    "name": "Los Angeles Chargers"
+   },
+   "kickoffUtc": "2026-10-04T20:25Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 24,
+    "away": 16,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.8093,
+    "away": 0.1686
+   },
+   "total": {
+    "median": 40,
+    "p10": 24,
+    "p90": 58,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": true,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "ca08db36cdc6f3c7",
+    "generatedAt": "2026-10-04T19:24:18Z"
    }
   }
  ],
