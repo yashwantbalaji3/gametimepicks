@@ -668,13 +668,15 @@ export default function NflHubPage() {
             /* The stamp and the model cross ONCE, for all forty-five rows. */
             generatedAt={String(weeklyBoards.generatedAt ?? "")}
             model={weeklyBoards.model ? { id: weeklyBoards.model.id, version: weeklyBoards.model.version } : null}
-            boards={weeklyBoards.boards.map((b: { id: string; family: string; title: string; state: string; reason?: string; caveat?: string; rows?: Array<Record<string, unknown>> }) => ({
+            boards={weeklyBoards.boards.map((b: { id: string; family: string; title: string; state: string; reason?: string; caveat?: string; conservation?: { version: string; teamsReconciled: number }; rows?: Array<Record<string, unknown>> }) => ({
             id: b.id,
             family: b.family,
             title: b.title,
             state: b.state,
             reason: b.reason,
             caveat: b.caveat,
+            /* Session 11: the reconciliation statement (version + team count only — never the per-team internals). */
+            conservation: b.conservation ? { version: String(b.conservation.version), teamsReconciled: Number(b.conservation.teamsReconciled) } : undefined,
             /*
              * ⚠ SPREAD FIRST, THEN COERCE. This used to ENUMERATE the fields it copied, and that
              * list is how the hub and the week route diverged: the capture owner started publishing
