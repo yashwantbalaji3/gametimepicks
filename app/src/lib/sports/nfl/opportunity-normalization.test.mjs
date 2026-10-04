@@ -116,3 +116,9 @@ test("🔴 the frozen daily Top-5 refuses a family any board withheld for a team
   assert.ok(!doc.boards.some((x) => x.propFamily === "player_rush_yds"), "a Top-5 over a partial population is a false claim");
   assert.match(doc.ineligible.find((x) => x.propFamily === "player_rush_yds").reason, /AAA/);
 });
+
+test("the /nfl hub carries the reconciliation statement to the weekly boards (its field list is hand-copied)", () => {
+  const hub = fs.readFileSync(path.join(process.cwd(), "src/app/nfl/page.tsx"), "utf8");
+  assert.match(hub, /conservation: b\.conservation \? \{ version: String\(b\.conservation\.version\), teamsReconciled: Number\(b\.conservation\.teamsReconciled\) \}/);
+  assert.match(fs.readFileSync(path.join(process.cwd(), "src/components/nfl/weekly-boards.tsx"), "utf8"), /b\.conservation\?\.teamsReconciled \?/);
+});
