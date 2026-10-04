@@ -6,13 +6,13 @@
   "startingDate": "2026-06-09",
   "startingBankroll": 100,
   "crownBankroll": 20465.4,
-  "currentBankroll": 15240.4,
+  "currentBankroll": 15090.4,
   "openExposure": 0,
-  "settledProfit": 15140.4,
-  "roi": 151.4,
+  "settledProfit": 14990.4,
+  "roi": 149.9,
   "record": {
-    "wins": 43,
-    "losses": 42,
+    "wins": 44,
+    "losses": 43,
     "voids": 0,
     "pending": 0
   },
@@ -39,10 +39,10 @@
   "activeCards": [],
   "generatedAt": "2026-07-07T18:00:00Z",
   "highWaterMark": 20465.4,
-  "drawdown": 5225,
-  "drawdownPct": 0.2553,
+  "drawdown": 5375,
+  "drawdownPct": 0.2626,
   "openExposurePct": 0,
-  "roiMultiple": 151.4,
+  "roiMultiple": 149.9,
   "exposure": {
     "bySport": [],
     "byMarket": [],
@@ -77,9 +77,9 @@
   },
   "intelligence": {
     "highWaterMark": 20465.4,
-    "maxDrawdown": 5225,
-    "drawdown": 5225,
-    "drawdownPct": 0.2553,
+    "maxDrawdown": 5375,
+    "drawdown": 5375,
+    "drawdownPct": 0.2626,
     "winRate": 0.51,
     "exposureBySport": {},
     "largestOpenCard": 0,
@@ -97,7 +97,7 @@
     "inBankrollSince": "2026-08-15",
     "record": {
       "wins": 5,
-      "losses": 41,
+      "losses": 43,
       "voids": 0,
       "pending": 0
     },
@@ -154,6 +154,12 @@
   "protectedFold": {
     "rule": "S",
     "decidedBy": "founder, 2026-09-10 — Rule S (docs/PROTECTED_LEDGER_RECONCILIATION_PROPOSAL.md)",
+    "completionPolicy": {
+      "id": "COMPLETION_BANKING_C1",
+      "rule": "a completed ladder banks its final settled value minus the lane's original seed, once",
+      "effectiveFrom": "2026-10-02",
+      "decidedBy": "founder, Session 9 (2026-10-02) — C1; C2 (bank the full value) and C3 (forfeit the run) rejected"
+    },
     "base": {
       "asOf": "2026-07-07",
       "currentBankroll": 19065.4,
@@ -164,9 +170,9 @@
         "pending": 0
       }
     },
-    "foldedAt": "2026-10-03T10:25:54Z",
-    "foldedThrough": "2026-10-02",
-    "bankrollDelta": -3825,
+    "foldedAt": "2026-10-04T11:08:18Z",
+    "foldedThrough": "2026-10-03",
+    "bankrollDelta": -3975,
     "days": [
       {
         "date": "2026-08-15",
@@ -755,6 +761,18 @@
           "lost": 0
         },
         "delta": 0
+      },
+      {
+        "date": "2026-10-03",
+        "bankBuilder": {
+          "won": 1,
+          "lost": 1
+        },
+        "moonshot": {
+          "won": 0,
+          "lost": 2
+        },
+        "delta": -150
       }
     ],
     "uncarriedWins": [

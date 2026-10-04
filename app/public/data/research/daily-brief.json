@@ -1,43 +1,50 @@
 {
-  "date": "2026-10-01",
-  "decisiveRows": 37,
-  "wins": 18,
-  "decisiveHitRate": 0.4864864864864865,
-  "meanStatedProbability": 0.5834297297297297,
-  "meanMarketProbability": 0.4937393958374992,
-  "calibrationErrorPp": 9.694324324324322,
+  "date": "2026-10-03",
+  "decisiveRows": 137,
+  "wins": 56,
+  "decisiveHitRate": 0.40875912408759124,
+  "meanStatedProbability": 0.6433094890510944,
+  "meanMarketProbability": 0.5154988384571166,
+  "calibrationErrorPp": 23.455036496350317,
   "scoring": {
-    "modelBrier": 0.2614492851351351,
-    "marketBrier": 0.2442068319179411,
-    "rowsScored": 37
+    "modelBrier": 0.2969825081751824,
+    "marketBrier": 0.2424009505811624,
+    "rowsScored": 137
   },
   "byMarketFamily": [
     {
-      "market": "batter_hits",
-      "n": 15,
-      "hitRate": 0.4666666666666667,
-      "calibrationErrorPp": 12.094666666666665,
+      "market": "batter_hits_runs_rbis",
+      "n": 56,
+      "hitRate": 0.3392857142857143,
+      "calibrationErrorPp": 31.50999999999997,
       "sufficientSample": false
     },
     {
       "market": "batter_total_bases",
-      "n": 7,
-      "hitRate": 0.42857142857142855,
-      "calibrationErrorPp": 9.550000000000008,
+      "n": 9,
+      "hitRate": 0.2222222222222222,
+      "calibrationErrorPp": 31.214444444444446,
       "sufficientSample": false
     },
     {
-      "market": "batter_hits_runs_rbis",
-      "n": 15,
-      "hitRate": 0.5333333333333333,
-      "calibrationErrorPp": 7.361333333333331,
+      "market": "batter_hits",
+      "n": 64,
+      "hitRate": 0.484375,
+      "calibrationErrorPp": 17.04140625,
+      "sufficientSample": false
+    },
+    {
+      "market": "pitcher_strikeouts",
+      "n": 8,
+      "hitRate": 0.5,
+      "calibrationErrorPp": 9.650000000000002,
       "sufficientSample": false
     }
   ],
   "observations": [
-    "Stated 58.3% on average and won 48.6% (18/37) — calibration error +9.7pp.",
-    "The de-vigged market stated 49.4% on the same rows.",
-    "Insufficient sample to read: `batter_hits` (n=15), `batter_total_bases` (n=7), `batter_hits_runs_rbis` (n=15)."
+    "Stated 64.3% on average and won 40.9% (56/137) — calibration error +23.5pp.",
+    "The de-vigged market stated 51.5% on the same rows.",
+    "Insufficient sample to read: `batter_hits_runs_rbis` (n=56), `batter_total_bases` (n=9), `batter_hits` (n=64), `pitcher_strikeouts` (n=8)."
   ],
   "whatShouldNotBeConcluded": [
     "One settled date is not evidence of a change in model quality — day-to-day swings in this corpus are larger than most effects worth chasing.",
