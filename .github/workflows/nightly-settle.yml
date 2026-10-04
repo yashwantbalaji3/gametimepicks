@@ -320,6 +320,10 @@ jobs:
           # v1.7 shadow observability: the report is a pure function of the ledger, the day files, the
           # state and mr-dub/settled — regenerated here so docs/V17_SHADOW_REPORT.md and report.json can
           # never be a hand-kept number. It says SHADOW_RUNNING · NOT ADOPTED by construction.
+          # Session 12: this job checks out with fetch-depth 1, where every day file's "first commit" is the shallow
+          # boundary and the rewrite check compared each file with itself. Deepen to the shadow's whole history
+          # first (best effort; the report fails CLOSED to UNVERIFIED if the history is still missing).
+          git fetch --quiet --shallow-since=2026-09-14 origin main 2>/dev/null || echo "::warning::could not deepen history — shadow rewrite check will read UNVERIFIED"
           (cd app && npx tsx scripts/products/report-selector-shadow.mjs --write)
           # Session 7: the Suggested Parlays V2 forward shadow, graded by the same linescore rule. SHADOW only —
           # nothing public reads data/internal/products/engine-v2/.

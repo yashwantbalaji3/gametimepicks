@@ -16,8 +16,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
 import { buildShadowReport, renderShadowReportMarkdown, publicationFingerprint } from "../../src/lib/products/selector/shadow-report.mjs";
+import { firstAddCommit, shallowBoundaries } from "../../src/lib/products/selector/first-commit.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "..", "..", "..");
@@ -32,18 +32,14 @@ const dayFiles = fs.existsSync(DIR) ? fs.readdirSync(DIR).filter((f) => /^\d{4}-
 const days = dayFiles.map((f) => readJson(path.join(DIR, f), null)).filter(Boolean);
 const settledByDate = Object.fromEntries(days.map((d) => [d.date, readJson(path.join(SETTLED, `${d.date}.json`), null)]).filter(([, v]) => v));
 
-/** First commit of each day file, and the publication fingerprint of that first-committed content. */
-function firstCommitOf(rel) {
-  try {
-    const out = execFileSync("git", ["log", "--diff-filter=A", "--format=%H%x09%cI", "--", rel], { cwd: REPO, encoding: "utf8" }).trim().split("\n").filter(Boolean);
-    if (!out.length) return null;
-    const [hash, committedAt] = out.at(-1).split("\t"); // the oldest add wins
-    const content = execFileSync("git", ["show", `${hash}:${rel}`], { cwd: REPO, encoding: "utf8" });
-    return { hash, committedAt, publicationFingerprint: publicationFingerprint(JSON.parse(content)) };
-  } catch { return null; }
-}
+/** First commit of each day file, and the publication fingerprint of that first-committed content (null = UNVERIFIED). */
+const boundaries = shallowBoundaries(REPO);
+if (boundaries.size) console.error(`report-selector-shadow: shallow checkout (${boundaries.size} boundary commit(s)) — a file first seen at the boundary is UNVERIFIED, never INTACT`);
 const firstCommits = {};
-for (const d of days) { const fc = firstCommitOf(path.posix.join("data", "internal", "products", "selector-shadow", `${d.date}.json`)); if (fc) firstCommits[d.date] = fc; }
+for (const d of days) {
+  const fc = firstAddCommit(REPO, path.posix.join("data", "internal", "products", "selector-shadow", `${d.date}.json`), JSON.parse, boundaries);
+  if (fc) firstCommits[d.date] = { hash: fc.hash, committedAt: fc.committedAt, publicationFingerprint: publicationFingerprint(fc.content) };
+}
 
 const report = buildShadowReport({ ledger: readJson(path.join(DIR, "ledger.json"), null), days, state: readJson(path.join(DIR, "state.json"), null), settledByDate, firstCommits, now: NOW });
 const md = renderShadowReportMarkdown(report);
