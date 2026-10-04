@@ -7,11 +7,15 @@ import { execFileSync } from "node:child_process";
 /*
  * NO YAML PARSER. `js-yaml` is not a dependency of this app, so these assertions read the workflow
  * as text and use byte offsets for ordering — the same approach P235 settled on for this reason.
- * daily-products.yml has a single job, which is what makes step ordering by offset sound.
+ * daily-products.yml has a single WRITING job, which is what makes step ordering by offset sound.
+ * Session 12 added a second, non-writing `tick` job AFTER it (it dispatches the kickoff-aware owners;
+ * workflow-trigger-depth.test.mjs owns its contract), so SRC stops where `tick` begins.
  */
 const WF = path.join(process.cwd(), "..", ".github", "workflows");
 const read = (f) => fs.readFileSync(path.join(WF, f), "utf8");
-const SRC = read("daily-products.yml");
+const FULL = read("daily-products.yml");
+const TICK_AT = FULL.search(/^  tick:\n/m);
+const SRC = TICK_AT === -1 ? FULL : FULL.slice(0, TICK_AT);
 const stepAt = (namePattern) => SRC.search(new RegExp(`^      - name: .*${namePattern}`, "mi"));
 /** The body of one `run: |` block, dedented. */
 function runBodyAfter(offset) {
@@ -28,8 +32,12 @@ function runBodyAfter(offset) {
 }
 
 test("exactly one job, so ordering by byte offset is sound", () => {
-  const jobs = [...SRC.matchAll(/^  [a-z0-9_-]+:\n    runs-on:/gmi)];
+  const jobs = [...SRC.matchAll(/^  [a-z0-9_-]+:\n(?:    #.*\n)*    (?:runs-on|concurrency|if):/gmi)];
   assert.equal(jobs.length, 1, `byte-offset ordering assumes one job, found ${jobs.length}`);
+  // The only other job is the tick, and it is LAST — anything after it would escape these checks.
+  const jobsBlock = FULL.slice(FULL.search(/^jobs:\n/m));
+  const jobNames = [...jobsBlock.matchAll(/^  ([a-z0-9_-]+):\n/gm)].map((m) => m[1]);
+  assert.deepEqual(jobNames, ["generate", "tick"], `daily-products jobs: ${jobNames.join(", ")}`);
 });
 
 test("generation depends on the PRODUCER, not on a clock", () => {

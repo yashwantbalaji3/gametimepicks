@@ -105,7 +105,11 @@ test("G2 · the pre-tip window: free, own concurrency group, injuries → v0 →
   assert.doesNotMatch(body, /secrets\./, "the window is free — it must reference no secret");
   assert.match(body, /group: nba-forecast-window\n/, "own concurrency group (a dense tick in gtp-generated-artifacts would cancel other writers' pending runs)");
   assert.doesNotMatch(body, /gtp-generated-artifacts/);
-  assert.match(body, /workflow_run:\n\s+workflows: \["publication-watchdog", "daily-products"\]/, "ticks on the two clocks that deliver");
+  // Two clocks that deliver: publication-watchdog (workflow_run) and daily-products' `tick` job (workflow_dispatch —
+  // daily-products is 4 deep in the morning chain, where GitHub never fires a workflow_run; Session 12).
+  assert.match(body, /workflow_run:\n\s+workflows: \["publication-watchdog"\]/, "ticks on publication-watchdog");
+  assert.match(body, /workflow_dispatch:/, "dispatchable — daily-products' tick reaches it that way");
+  assert.match(fs.readFileSync(path.resolve(process.cwd(), "..", ".github", "workflows", "daily-products.yml"), "utf8"), / nba-forecast-window\.yml; do/, "daily-products' tick must dispatch the window");
   assert.match(body, /head_branch == github\.event\.repository\.default_branch/, "workflow_run trust boundary");
   const order = ["decide-nba-forecast-window.mjs", "capture-injuries.mjs", "--family v0 --horizon-hours 8", "--family v0.1 --horizon-hours 8", "verify-nba-forecast-receipts.mjs --against HEAD", "git commit"];
   const pos = order.map((s) => body.indexOf(s));
