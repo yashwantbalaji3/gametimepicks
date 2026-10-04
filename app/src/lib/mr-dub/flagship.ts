@@ -45,6 +45,8 @@ export interface PortfolioDoc {
   openExposure?: number; settledProfit?: number; roi?: number; roiMultiple?: number;
   record?: { wins: number; losses: number; voids?: number; pending?: number };
   highWaterMark?: number; drawdown?: number; drawdownPct?: number; generatedAt?: string;
+  /** The money owner's fold (Rule S): `foldedThrough` is the last settled day the bankroll includes. */
+  protectedFold?: { foldedThrough?: string | null };
   intelligence?: { longestWinStreak?: number; longestLossStreak?: number; winRate?: number; avgStake?: number; profitFactor?: number | null };
   moonshot?: any;
 }
@@ -236,7 +238,10 @@ export function buildTimeline(days: DailyDay[], portfolio: PortfolioDoc): { time
     profitFactor: intel.profitFactor ?? null,
     startingBankroll: start, startingDate,
     settledDays: settledDays.length, winDays, lossDays,
-    currentDate: (portfolio.generatedAt ?? "").slice(0, 10) || (timeline[timeline.length - 1]?.date ?? startingDate),
+    /* Session 12: the day the bankroll beside it is TRUE for — the fold's own `foldedThrough`. It used to read
+       portfolio.json's `generatedAt`, which the md5 lock deliberately freezes at 2026-07-07, so the public KPI
+       said "As of Jul 7" next to an October bankroll. */
+    currentDate: portfolio.protectedFold?.foldedThrough || (timeline[timeline.length - 1]?.date ?? startingDate),
   };
 
   timeline.reverse(); // newest first for display
