@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 849825,
+  "date": "2026-10-04",
+  "capturedAt": "2026-10-04T15:39:58.037Z",
+  "availableAt": "2026-10-04T15:39:58.037Z",
+  "eventStartTime": "2026-10-04T20:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 701656,
+      "name": "Logan Henderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 11,
+      "lastStartDate": "2026-09-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 6.2,
+        "bbAvg": 1,
+        "erAvg": 1.4,
+        "hrAvg": 0.8,
+        "kPer9": 9.62,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 98.33,
+        "k": 110,
+        "bb": 19,
+        "er": 27,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 650633,
+      "name": "Michael King",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 32,
+      "restDays": 12,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 4.8,
+        "bbAvg": 2,
+        "erAvg": 2,
+        "hrAvg": 0.4,
+        "kPer9": 7.45,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 32,
+        "ip": 185,
+        "k": 159,
+        "bb": 70,
+        "er": 66,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-10-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-10-04T15:39:58.037Z"
+  },
+  "recordHash": "8f13ac9bcc289f4a76f84627b3659b06c90f62adcfe4243dfd313b28b2cf28f5"
+}

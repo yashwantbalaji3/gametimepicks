@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 849823,
+  "date": "2026-10-04",
+  "capturedAt": "2026-10-04T15:39:58.037Z",
+  "availableAt": "2026-10-04T15:39:58.037Z",
+  "eventStartTime": "2026-10-05T00:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 605483,
+      "name": "Blake Snell",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 9,
+      "restDays": 8,
+      "lastStartDate": "2026-09-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.67,
+        "ipAvg": 4.33,
+        "kAvg": 5.8,
+        "bbAvg": 1.4,
+        "erAvg": 0.6,
+        "hrAvg": 0,
+        "kPer9": 12.05,
+        "workloadIpLast5": 21.67
+      },
+      "seasonToDate": {
+        "starts": 9,
+        "ip": 42.67,
+        "k": 55,
+        "bb": 16,
+        "er": 9,
+        "hr": 0
+      }
+    },
+    "away": null
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-10-04&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-10-04T15:39:58.037Z"
+  },
+  "recordHash": "f7ceab4e994064a946ea3e555af6e46b835060005850f429a92de342482a495f"
+}
