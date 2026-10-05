@@ -154,6 +154,8 @@ export const FAMILY_LABELS = Object.freeze({
   mlb_run_line: "Run line pick",
   mlb_total: "Total runs pick",
   mlb_homer_nukes: "Home run (Homer Nukes)",
+  mlb_projected_runs: "Projected runs (median simulation score)",
+  mlb_projected_total: "Projected total runs (simulation median)",
   epl_1x2: "Match result (1X2)",
   epl_over_2_5: "Over 2.5 goals",
   epl_anytime_goalscorer: "Anytime goalscorer",

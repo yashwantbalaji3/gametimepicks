@@ -247,7 +247,11 @@ test("probe: market probability never becomes the model probability (MLB adapter
   const r = mlbGameRows([g])[0];
   assert.equal(r.probability, 0.53);
   assert.equal(r.market.impliedProbability, 0.717);
-  for (const x of ledger().filter((y) => y.sport === "MLB" && y.family !== "mlb_homer_nukes")) assert.equal(typeof x.probability, "number");
+  for (const x of ledger().filter((y) => y.sport === "MLB" && y.family !== "mlb_homer_nukes")) {
+    // Pick families carry the model's probability; the simulation medians (Block A) are projections and carry none.
+    if (x.forecastKind === FORECAST_KIND.BINARY) assert.equal(typeof x.probability, "number");
+    else assert.equal(x.probability, null, `${x.family} is a projection, never a probability`);
+  }
   assert.ok(validateRow({ ...r, market: { ...r.market, probability: 0.717 } }).some((p) => /bare `probability`/.test(p)));
 });
 

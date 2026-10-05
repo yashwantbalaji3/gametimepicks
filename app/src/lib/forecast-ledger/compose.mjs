@@ -51,7 +51,6 @@ export function composeLedger(sources) {
 export const DECLARED_GAPS = Object.freeze([
   { sport: "NFL", family: "player props (before 2026-09-20) — unresolved names only", reason: "Week 1 and Week 2 Thursday props come from the week reconciliation through an exact roster crosswalk (latest capture before kickoff, unique full name on the team). A row whose name matches no one, or several people, on that roster is left out rather than guessed." },
   { sport: "NFL", family: "nfl_score_shape", reason: "Published derived distribution (key numbers, OT/tie) with no settlement owner." },
-  { sport: "MLB", family: "projected score / simulation-median total", reason: "Published on game pages; no owner grades it. UNMEASURED." },
   { sport: "MLB", family: "player-prop leans", reason: "Every MLB prop market is DEMOTED to market context (RESEARCH), so it is not public forecast history." },
   { sport: "EPL", family: "double chance", reason: "Not a separate observation: each double-chance number is exactly 1 − one 1X2 class, so it is already measured inside the 1X2 family (its Brier terms are the 1X2 Brier's). Counting it again would score the same forecast twice." },
   { sport: "UFC", family: "method / round", reason: "Published heads with no forward grader. UNMEASURED." },

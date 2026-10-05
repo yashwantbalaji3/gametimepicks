@@ -88,7 +88,7 @@ the ledger lags the owners by up to one nightly cycle; readers show the manifest
 | NFL Top-5 | `freeze-daily-top-boards` → `results/top-boards/<d>.json` (write-once) + withdrawal sidecar | PUBLISHED | yes | none (reconciliation overlay) | ✅ only when the prop ledger lacks the forecast |
 | NFL score shape | `build-nfl-score-shape` → `score-shape/<d>.json` | PUBLIC derived | no | none | ⛔ declared gap |
 | MLB moneyline / run line / total | `generate-mlb-predictions` → `predictions/<d>.json` (+ snapshots from 08-23) | PUBLIC (total PAUSED) | snapshots / git history | `grade-game-predictions` → `game-predictions-graded.jsonl` | ✅ OWNER_GRADED_LOG |
-| MLB projected score | same | PUBLIC | snapshots | none | ⛔ UNMEASURED |
+| MLB projected score + simulation-median total | same (`projectedScore`, `total.simulationMedian` — the game page's "Median simulation score" row and "Total runs" tile) | PUBLIC | snapshots / git (the revision the game owner graded) | `grade-projected-scores` → `game-projected-scores-graded.jsonl` (Block A, 2026-10-05) | ✅ `mlb_projected_runs` (per team, `mlb-team-<id>`) · `mlb_projected_total` |
 | MLB player-prop leans | `pipeline/mlb/generate_mlb_board.py` → `boards/<d>.json` | **RESEARCH** (every market demoted) | no | `settle_mlb_results.py` | ⛔ not public history |
 | MLB Homer Nukes | `build-homer-nukes` → `homer-nukes/<d>.json` (overwritten) | PUBLIC_EXPERIMENTAL | no | `settle-homer-nukes` → `settled-<d>.json` | ✅ OWNER_SETTLED_UNFROZEN |
 | EPL 1X2 + over 2.5 | `build-epl-forecasts` → `forecasts/<d>.json` + internal snapshots | PUBLIC | snapshots | `grade-epl-forecasts` → `graded-forecasts.jsonl` | ✅ |
@@ -147,3 +147,15 @@ score).
   happened" is the likeliest LISTED score (OTHER usually outweighs any single score but was never the published call).
 - **Clean sheet** is one row per club (subject = canonical `epl-team-<id>`, exact unique name; unresolved = not emitted).
 - **Double chance** is not a separate observation (see §6).
+
+## 10. Block A (2026-10-05): MLB simulation medians get an owner
+
+`app/scripts/mlb/grade-projected-scores.mjs` (rules in `app/src/lib/mlb/prediction/grade-projected-scores.mjs`, run
+by `nightly-settle` step 5b right after the game-prediction grader) re-opens the exact revision the game owner graded
+(its `forecastSource`: a prediction snapshot, a dated file that still holds it, or the git commit) and reads the two
+medians from the same row. It is the same revision only if the generatedAt matches AND every probability the owner
+graded on that game (moneyline / total / run line) is reproduced exactly. First run: 801 of 801 graded games
+(2026-07-24 → 2026-10-04) → +2,403 ledger rows (1,602 team rows, 801 totals); team MAE 2.45 runs, median-total MAE
+3.61 runs. CONTINUOUS only: a median is never given a W/L — the published total pick already is `mlb_total`. The
+historical-restoration question (frozen public forecasts overwritten after first pitch) is untouched: this reads
+only revisions the owner had already graded, never reconstructs one.
