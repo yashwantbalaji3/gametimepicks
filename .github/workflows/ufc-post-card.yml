@@ -38,15 +38,13 @@ jobs:
       - run: npm ci
         working-directory: app
 
-      - name: Post-card pipeline (results → grade → backtest → readiness)
+      - name: Post-card pipeline (results → backtest)
         run: |
           set -e
           python -m pipeline.ufc.build_results
           # grade_moneylines RETIRED 2026-10-05: it graded sportsbook prices, not GTP forecasts.
           python -m pipeline.ufc.build_backtest_dataset
           python -m pipeline.ufc.backtest_moneyline_model
-          python -m pipeline.ufc.build_readiness
-          python -m pipeline.ufc.build_ops_status
       # THE MODEL AGAINST THE PRICE, on the bouts just settled.
       #
       # The pre-fight snapshot recorded both probabilities before the card; this scores them on the
@@ -66,6 +64,13 @@ jobs:
             echo "::warning::UFC results refresh failed — grading from the committed capture"
           npx tsx scripts/ufc/grade-ufc-model-vs-market.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --write || \
             echo "::warning::UFC model-vs-market grading refused this run"
+
+      # Readiness runs AFTER the winner grader so it reads this run's reconciliation, not last night's.
+      - name: Readiness + ops status
+        run: |
+          set -e
+          python -m pipeline.ufc.build_readiness
+          python -m pipeline.ufc.build_ops_status
 
       - name: Summary (graded rows + backtestReady)
         run: |
