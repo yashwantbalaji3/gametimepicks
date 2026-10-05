@@ -4,137 +4,213 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-10-03",
- "generatedAt": "2026-10-04T23:51:01Z",
+ "generatedAt": "2026-10-05T15:58:06Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401872965",
+   "providerEventId": "401872965",
    "matchup": "IND @ WSH",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-10-04T13:30Z",
-   "observed": "STATUS_IN_PROGRESS"
-  },
+   "seasonType": 2,
+   "week": 4,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-03/401872965-rev-2332Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "d7469eaa2c655e85",
+    "forecastGeneratedAt": "2026-10-03T23:32:09Z",
+    "revisionChain": [
+     {
+      "file": "401872965.json",
+      "generatedAt": "2026-10-03T00:10:51Z",
+      "inputHash": "5274802e651f55be"
+     },
+     {
+      "file": "401872965-rev-1418Z.json",
+      "generatedAt": "2026-10-03T14:18:35Z",
+      "inputHash": "b551c024c42d58e3"
+     },
+     {
+      "file": "401872965-rev-1652Z.json",
+      "generatedAt": "2026-10-03T16:52:00Z",
+      "inputHash": "56acb70630762db7"
+     },
+     {
+      "file": "401872965-rev-1808Z.json",
+      "generatedAt": "2026-10-03T18:08:15Z",
+      "inputHash": "3ae26a691f71b2b3"
+     },
+     {
+      "file": "401872965-rev-1837Z.json",
+      "generatedAt": "2026-10-03T18:37:22Z",
+      "inputHash": "7a9c5dfce91ad44f"
+     },
+     {
+      "file": "401872965-rev-2332Z.json",
+      "generatedAt": "2026-10-03T23:32:09Z",
+      "inputHash": "d7469eaa2c655e85"
+     }
+    ],
+    "marketCapturedAt": "2026-10-03T23:32:09Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-10-05T15:47:42Z",
+    "settledAt": "2026-10-05T15:58:06Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 13,
+     "away": 30,
+     "margin": -17,
+     "total": 43,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "AWAY",
+     "correct": true
+    },
+    "margin": {
+     "projected": 0,
+     "actual": -17,
+     "absError": 17,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 51,
+     "actual": 43,
+     "absError": 8,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 26,
+      "away": 25,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 18
+    },
+    "probabilistic": {
+     "brier": 0.233096,
+     "logLoss": 0.659326
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.353774,
+    "brier": 0.125156,
+    "logLoss": 0.436606,
+    "totalAbsError": 3.5,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
+  }
+ ],
+ "pending": [],
+ "quarantined": [],
+ "recordElsewhere": [
   {
    "canonicalEventId": "nfl-401872966",
-   "matchup": "ARI @ NYG",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872967",
-   "matchup": "DAL @ HOU",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872968",
-   "matchup": "GB @ TB",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872969",
-   "matchup": "JAX @ CIN",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872970",
-   "matchup": "LAR @ PHI",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872971",
-   "matchup": "NE @ BUF",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872972",
-   "matchup": "NYJ @ CHI",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872973",
-   "matchup": "TEN @ BAL",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872974",
-   "matchup": "MIA @ MIN",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T20:05Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872975",
-   "matchup": "DEN @ SF",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T20:25Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872976",
-   "matchup": "KC @ LV",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T20:25Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872977",
-   "matchup": "LAC @ SEA",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-04T20:25Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872978",
-   "matchup": "DET @ CAR",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-05T00:20Z"
+   "recordFolder": "2026-10-04",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401872979",
-   "matchup": "ATL @ NO",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-06T00:15Z"
+   "recordFolder": "2026-10-05",
+   "reason": "the forecast of record lives in another receipt folder"
   }
  ],
- "quarantined": [],
  "accounting": {
   "receipts": 15,
-  "settled": 0,
-  "pending": 15,
+  "settled": 1,
+  "pending": 0,
   "quarantined": 0,
+  "recordElsewhere": 14,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 1,
+  "decisive": 1,
   "ties": 0,
-  "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerCorrect": 1,
+  "winnerAccuracy": 1,
+  "marginMAE": 17,
+  "totalMAE": 8,
+  "marginInterval80Coverage": 1,
+  "totalInterval80Coverage": 1,
+  "brier": 0.2331,
+  "logLoss": 0.6593
  },
- "marketBenchmark": null,
- "comparison": null
+ "marketBenchmark": {
+  "n": 1,
+  "brier": 0.1252,
+  "logLoss": 0.4366,
+  "totalMAE": 3.5
+ },
+ "comparison": {
+  "modelBrier": 0.2331,
+  "marketBrier": 0.1252,
+  "note": "shown side by side because the founder asked for transparency; a single slate cannot establish which is better and this is not a claim that it does"
+ }
 }
