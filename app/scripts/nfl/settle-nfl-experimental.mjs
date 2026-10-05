@@ -78,6 +78,44 @@ for (const f of fs.readdirSync(receiptDir).filter((x) => x.endsWith(".json"))) {
 }
 for (const chain of lineageChain.values()) chain.sort((a, b) => a.generatedAt.localeCompare(b.generatedAt));
 
+/*
+ * ONE RECORD FOLDER PER EVENT, EXACTLY ONCE ACROSS FILES (Session 13).
+ *
+ * A game kicking off just after 00:00Z has receipts in TWO UTC date folders (the evening-ET runs write to
+ * "tomorrow"). Settling per folder graded 401874392, 401873300 and 401872962 twice — once against the earlier
+ * folder's superseded receipt. The forecast of record is the latest pre-kickoff receipt across EVERY folder; an event
+ * is graded only in the folder that holds it, and never again once any dated file has graded it. The lifetime
+ * summary already keys by event ("later date wins"); this stops the per-date files from carrying a second grade.
+ */
+const receiptsRoot = path.dirname(receiptDir);
+const recordFolder = new Map();
+for (const d of fs.readdirSync(receiptsRoot).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x))) {
+  for (const f of fs.readdirSync(path.join(receiptsRoot, d)).filter((x) => x.endsWith(".json"))) {
+    const r = read(path.join(receiptsRoot, d, f));
+    if (!r?.providerEventId || !(Date.parse(r.generatedAt) < Date.parse(r.kickoffUtc))) continue;
+    const prev = recordFolder.get(r.providerEventId);
+    if (!prev || r.generatedAt > prev.generatedAt) recordFolder.set(r.providerEventId, { folder: d, generatedAt: r.generatedAt });
+  }
+}
+const settleDir = path.join(ROOT, "data/internal/nfl/experimental-settlement");
+const gradedElsewhere = new Set();
+for (const f of fs.existsSync(settleDir) ? fs.readdirSync(settleDir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x) && x !== `${DATE}.json`) : []) {
+  for (const e of read(path.join(settleDir, f))?.events ?? []) if (e?.providerEventId) gradedElsewhere.add(String(e.providerEventId));
+}
+
+/*
+ * OFFICIAL FINAL FALLBACK. results/latest.json is a rolling window; once a final leaves it, an event still
+ * AWAITING_OFFICIAL_RESULT here could never settle (all of Week 2, 2026-09-18 → 09-22, sat pending). The ESPN official
+ * box score kept once FINAL (data/internal/nfl/official-stats/<id>.json, the week reconciliation's own source) is the
+ * same official result, so it settles the event — never a guess: integer scores and state FINAL, or nothing.
+ */
+const officialFinal = (providerEventId) => {
+  const doc = read(path.join(ROOT, "data/internal/nfl/official-stats", `${providerEventId}.json`));
+  const fsc = doc?.finalScore;
+  if (doc?.state !== "FINAL" || !Number.isInteger(fsc?.home) || !Number.isInteger(fsc?.away)) return null;
+  return { statusRaw: "STATUS_FINAL", ftHome: fsc.home, ftAway: fsc.away, source: "espn_official_box_score", observedAt: doc.capturedAt ?? null };
+};
+
 const results = read(path.join(APP, "public/data/nfl/results/latest.json"));
 const resultRows = new Map((results?.rows ?? []).map((r) => [r.providerEventId, r]));
 const outPath = path.join(ROOT, "data/internal/nfl/experimental-settlement", `${DATE}.json`);
@@ -89,13 +127,20 @@ const clamp01 = (p) => Math.min(1 - 1e-6, Math.max(1e-6, p));
 const events = [];
 const pending = [];
 const quarantined = [];
+const recordElsewhere = [];
 
 for (const [providerEventId, { file, r }] of receipts) {
   try {
     if (already.has(r.canonicalEventId)) continue; // exactly once
+    const record = recordFolder.get(providerEventId);
+    if ((record && record.folder !== DATE) || gradedElsewhere.has(String(providerEventId))) {
+      recordElsewhere.push({ canonicalEventId: r.canonicalEventId, recordFolder: record?.folder ?? null, reason: gradedElsewhere.has(String(providerEventId)) ? "already graded in another dated file" : "the forecast of record lives in another receipt folder" });
+      continue;
+    }
     const kickoff = Date.parse(r.kickoffUtc);
     if (nowMs < kickoff) { pending.push({ canonicalEventId: r.canonicalEventId, matchup: r.matchup, state: "PRE_KICKOFF", kickoffUtc: r.kickoffUtc }); continue; }
-    const res = resultRows.get(providerEventId);
+    const windowRow = resultRows.get(providerEventId);
+    const res = windowRow && /^STATUS_FINAL/.test(windowRow.statusRaw ?? "") ? windowRow : (officialFinal(providerEventId) ?? windowRow);
     if (!res || !/^STATUS_FINAL/.test(res.statusRaw ?? "")) {
       pending.push({ canonicalEventId: r.canonicalEventId, matchup: r.matchup, state: "AWAITING_OFFICIAL_RESULT", kickoffUtc: r.kickoffUtc, observed: res?.statusRaw ?? "no result row" });
       continue;
@@ -153,8 +198,8 @@ for (const [providerEventId, { file, r }] of receipts) {
         // earlier version is preserved rather than replaced
         revisionChain: lineageChain.get(providerEventId) ?? [],
         marketCapturedAt: mc?.capturedAt ?? null,
-        resultSource: results?.source?.id ?? "espn_scoreboard",
-        resultObservedAt: results?.generatedAt ?? null,
+        resultSource: res.source ?? results?.source?.id ?? "espn_scoreboard",
+        resultObservedAt: res.observedAt ?? results?.generatedAt ?? null,
         settledAt: NOW,
         settlementVersion: 1,
       },
@@ -205,12 +250,14 @@ const receipt = {
   events: allEvents,
   pending,
   quarantined,
+  recordElsewhere,
   accounting: {
     receipts: receipts.size,
     settled: allEvents.length,
     pending: pending.length,
     quarantined: quarantined.length,
-    reconciles: allEvents.length + pending.length + quarantined.length === receipts.size,
+    recordElsewhere: recordElsewhere.length,
+    reconciles: allEvents.length + pending.length + quarantined.length + recordElsewhere.length === receipts.size,
   },
   metrics,
   marketBenchmark: benchmark,
@@ -218,7 +265,7 @@ const receipt = {
     ? { modelBrier: metrics.brier, marketBrier: benchmark.brier, note: "shown side by side because the founder asked for transparency; a single slate cannot establish which is better and this is not a claim that it does" }
     : null,
 };
-if (!receipt.accounting.reconciles) { console.error(`REFUSED: population gap — ${receipts.size} receipts ≠ ${allEvents.length} settled + ${pending.length} pending + ${quarantined.length} quarantined`); process.exit(2); }
+if (!receipt.accounting.reconciles) { console.error(`REFUSED: population gap — ${receipts.size} receipts ≠ ${allEvents.length} settled + ${pending.length} pending + ${quarantined.length} quarantined + ${recordElsewhere.length} of record elsewhere`); process.exit(2); }
 
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
 if (dryRun) console.log(`dry-run — would write ${path.relative(ROOT, outPath)}`);

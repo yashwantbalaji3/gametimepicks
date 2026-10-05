@@ -609,6 +609,15 @@ jobs:
               node scripts/nfl/settle-nfl-experimental.mjs --now "$NOW" --date "$D"
             fi
           done
+          # Session 13: a final that left the rolling results window must still settle. Every dated experimental file
+          # that still holds an AWAITING_OFFICIAL_RESULT event is re-run (free; the official box-score fallback;
+          # exactly once per event). All of Week 2 sat pending for two weeks because only yesterday/today were visited.
+          for F in ../data/internal/nfl/experimental-settlement/20??-??-??.json; do
+            [ -f "$F" ] || continue
+            if grep -q '"AWAITING_OFFICIAL_RESULT"' "$F"; then
+              node scripts/nfl/settle-nfl-experimental.mjs --now "$NOW" --date "$(basename "$F" .json)"
+            fi
+          done
 
           # ── THE LATER-CORRECTION PATH (Phase D · A4) ──────────────────────────────────────────
           #
