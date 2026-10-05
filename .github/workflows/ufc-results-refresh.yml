@@ -22,7 +22,7 @@ jobs:
         run: |
           set -e
           python -m pipeline.ufc.build_results
-          python -m pipeline.ufc.grade_moneylines
+          # grade_moneylines RETIRED 2026-10-05: it graded sportsbook prices, not GTP forecasts.
           python -m pipeline.ufc.build_backtest_dataset
           python -m pipeline.ufc.backtest_moneyline_model
           python -m pipeline.ufc.build_readiness
