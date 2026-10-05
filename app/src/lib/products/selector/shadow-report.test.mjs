@@ -73,15 +73,55 @@ test("integrity: a seeded day is RETROACTIVE, a rewritten publication is a REWRI
   assert.equal(r.policies["BB-C1"].forwardOnlyMetrics.decided, 5);
 });
 
-test("settlement disagreement: a leg the live settlement graded differently is listed; pending legs are never compared", () => {
+test("settlement disagreement: a leg the live settlement graded differently is listed; pending is never compared as a result", () => {
   const f = fixture();
   f.days[0].policies["BB-C1"].lanes.A = placed({ graded: { status: "won", legs: ["won", "won"] } });
   f.days[1].policies["BB-C1"].lanes.A = placed({ graded: { status: "pending", legs: ["won", "pending"] } });
   const settled = (date, dResult) => ({ date, lanes: [{ legs: [{ matchup: "A @ B", selection: "B to win", result: "won" }, { matchup: "C @ D", selection: "D to win", result: dResult }] }] });
   const r = buildShadowReport({ ...f, settledByDate: { "2026-09-01": settled("2026-09-01", "lost"), "2026-09-02": settled("2026-09-02", "lost") }, now: "2026-09-07T06:00:00Z" });
   const dis = r.settlementDisagreements.filter((x) => x.policy === "BB-C1");
-  assert.deepEqual(dis, [{ date: "2026-09-01", policy: "BB-C1", lane: "A", leg: "C @ D|D to win", shadow: "won", live: "lost" }]);
+  assert.deepEqual(dis, [{ date: "2026-09-01", policy: "BB-C1", lane: "A", leg: "C @ D|D to win", gamePk: 1, shadow: "won", live: "lost" }]);
   assert.match(renderShadowReportMarkdown(r), /Settlement disagreements[^\n]*\*\*\d+\*\*/);
+});
+
+/* The two 2026-09-22/23 entries, on their real shapes: both were doubleheaders. */
+const dhLeg = (gamePk, matchup, selection) => ({ legId: `mlb:${gamePk}:mlb_moneyline:home`, sport: "mlb", eventId: String(gamePk), marketKey: "mlb_moneyline", side: "home", american: -126, displayMatchup: matchup, displaySelection: selection });
+const NYY = "Tampa Bay Rays @ New York Yankees";
+function dhFixture(liveLeg) {
+  const f = fixture();
+  f.days[0].policies["BB-LEGACY"].lanes.B = placed({ legs: [dhLeg(823543, NYY, "New York Yankees to win"), dhLeg(822840, "New York Mets @ Texas Rangers", "Texas Rangers to win")], graded: { status: "lost", legs: ["won", "lost"] } });
+  const settledByDate = { "2026-09-01": { date: "2026-09-01", lanes: [{ legs: [{ id: "MLB:574050c1:mlb_moneyline:New_York_Yankees_to_win", matchup: NYY, selection: "New York Yankees to win", ...liveLeg }] }] } };
+  return { f, settledByDate };
+}
+
+test("doubleheader: a live leg on the OTHER game of a doubleheader is a different bet, never a disagreement (2026-09-22)", () => {
+  const { f, settledByDate } = dhFixture({ result: "lost" });
+  const liveIdentityByDate = { "2026-09-01": { "MLB:574050c1:mlb_moneyline:New_York_Yankees_to_win": { gamePk: 823494, doubleheader: true } } };
+  const r = buildShadowReport({ ...f, settledByDate, liveIdentityByDate, now: "2026-09-07T06:00:00Z" });
+  assert.equal(r.settlementDisagreements.filter((x) => x.policy === "BB-LEGACY").length, 0);
+  assert.equal(r.liveUngraded.length, 0); assert.equal(r.unmatchedLegs.length, 0);
+  // Control: the SAME game (a receipt-stored gamePk) graded differently IS a disagreement.
+  const same = dhFixture({ result: "lost", gamePk: 823543 });
+  const r2 = buildShadowReport({ ...same.f, settledByDate: same.settledByDate, now: "2026-09-07T06:00:00Z" });
+  assert.deepEqual(r2.settlementDisagreements.filter((x) => x.policy === "BB-LEGACY"), [{ date: "2026-09-01", policy: "BB-LEGACY", lane: "B", leg: `${NYY}|New York Yankees to win`, gamePk: 823543, shadow: "won", live: "lost" }]);
+});
+
+test("doubleheader: a live leg whose game the slate cannot prove is listed UNMATCHED, never joined on team names", () => {
+  const { f, settledByDate } = dhFixture({ result: "lost" });
+  const liveIdentityByDate = { "2026-09-01": { "MLB:574050c1:mlb_moneyline:New_York_Yankees_to_win": { gamePk: null, doubleheader: true } } };
+  const r = buildShadowReport({ ...f, settledByDate, liveIdentityByDate, now: "2026-09-07T06:00:00Z" });
+  assert.equal(r.settlementDisagreements.filter((x) => x.policy === "BB-LEGACY").length, 0);
+  assert.deepEqual(r.unmatchedLegs.filter((x) => x.policy === "BB-LEGACY").map((x) => x.reason), ["LIVE_GAME_UNPROVEN"]);
+});
+
+test("live pending on the same game is LIVE UNGRADED, not a disagreement (2026-09-23)", () => {
+  const { f, settledByDate } = dhFixture({ result: "pending" });
+  const liveIdentityByDate = { "2026-09-01": { "MLB:574050c1:mlb_moneyline:New_York_Yankees_to_win": { gamePk: 823543, doubleheader: true } } };
+  const r = buildShadowReport({ ...f, settledByDate, liveIdentityByDate, now: "2026-09-07T06:00:00Z" });
+  assert.equal(r.settlementDisagreements.length, 0);
+  assert.deepEqual(r.liveUngraded, [{ date: "2026-09-01", policy: "BB-LEGACY", lane: "B", leg: `${NYY}|New York Yankees to win`, gamePk: 823543, shadow: "won", live: "pending" }]);
+  assert.match(renderShadowReportMarkdown(r), /still holds `pending`[^\n]*\*\*1\*\*/);
+  assert.match(renderShadowReportMarkdown(r), /\| live ungraded \|/);
 });
 
 test("pending is not decided and missing is not zero: an ungraded day contributes pending, not a loss; no day files → empty report, no gate", () => {
