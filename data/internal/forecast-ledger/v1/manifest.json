@@ -4,71 +4,72 @@
   "dataClass": "PUBLIC_DERIVED",
   "rule": "One row per published/frozen forecast observation, read from its owner; append-only; missing stays missing.",
   "totals": {
-    "rows": 10081,
+    "rows": 10812,
     "settlement": {
       "NO_MEASUREMENT": 483,
       "PENDING": 177,
-      "SETTLED": 7292,
-      "VOID": 2129
+      "SETTLED": 7906,
+      "VOID": 2246
     },
     "publication": {
-      "PUBLISHED": 10081
+      "PUBLISHED": 10812
     }
   },
   "sports": {
     "NFL": {
       "file": "nfl.jsonl",
-      "rows": 2778,
-      "contentHash": "a0b0fbf0ff2ed1ef",
+      "rows": 3498,
+      "contentHash": "23758c5bc0c60c08",
       "families": {
-        "anytime_td": 634,
+        "anytime_td": 870,
         "nfl_game_margin": 111,
         "nfl_game_total": 111,
         "nfl_game_winner": 111,
         "nfl_team_score": 222,
-        "player_pass_yds": 112,
-        "player_reception_yds": 560,
-        "player_receptions": 560,
-        "player_rush_yds": 357
+        "player_pass_yds": 151,
+        "player_reception_yds": 733,
+        "player_receptions": 733,
+        "player_rush_yds": 456
       },
       "settlement": {
         "NO_MEASUREMENT": 451,
         "PENDING": 175,
-        "SETTLED": 2150,
-        "VOID": 2
+        "SETTLED": 2754,
+        "VOID": 118
       },
       "publication": {
-        "PUBLISHED": 2778
+        "PUBLISHED": 3498
       },
       "recoverability": {
-        "EXACT_FROZEN": 2778
+        "EXACT_FROZEN": 2778,
+        "OWNER_GRADED_LOG": 720
       },
       "latestSettledAt": "2026-10-04T23:44:45Z"
     },
     "MLB": {
       "file": "mlb.jsonl",
-      "rows": 2617,
-      "contentHash": "5a251420141941a4",
+      "rows": 2628,
+      "contentHash": "76f73e70d9d663d6",
       "families": {
-        "mlb_homer_nukes": 225,
-        "mlb_moneyline": 799,
-        "mlb_run_line": 799,
-        "mlb_total": 794
+        "mlb_homer_nukes": 230,
+        "mlb_moneyline": 801,
+        "mlb_run_line": 801,
+        "mlb_total": 796
       },
       "settlement": {
         "NO_MEASUREMENT": 32,
         "PENDING": 2,
-        "SETTLED": 2548,
-        "VOID": 35
+        "SETTLED": 2558,
+        "VOID": 36
       },
       "publication": {
-        "PUBLISHED": 2617
+        "PUBLISHED": 2628
       },
       "recoverability": {
-        "OWNER_GRADED_LOG": 2392,
-        "OWNER_SETTLED_UNFROZEN": 225
+        "OWNER_GRADED_LOG": 2398,
+        "OWNER_SETTLED_UNFROZEN": 230
       },
-      "latestSettledAt": "2026-10-04T11:08:45Z"
+      "latestSettledAt": "2026-10-05T12:19:41Z"
     },
     "EPL": {
       "file": "epl.jsonl",
@@ -132,8 +133,8 @@
   "declaredGaps": [
     {
       "sport": "NFL",
-      "family": "player props (Weeks 1–2, before 2026-09-20)",
-      "reason": "Graded only in the week reconciliation, which records player NAME and team, not an id. Deferred to the Phase G backfill with an exact id crosswalk; never joined by name."
+      "family": "player props (before 2026-09-20) — unresolved names only",
+      "reason": "Week 1 and Week 2 Thursday props come from the week reconciliation through an exact roster crosswalk (latest capture before kickoff, unique full name on the team). A row whose name matches no one, or several people, on that roster is left out rather than guessed."
     },
     {
       "sport": "NFL",
