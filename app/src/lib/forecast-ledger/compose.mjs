@@ -50,10 +50,10 @@ export function composeLedger(sources) {
  */
 export const DECLARED_GAPS = Object.freeze([
   { sport: "NFL", family: "player props (before 2026-09-20) — unresolved names only", reason: "Week 1 and Week 2 Thursday props come from the week reconciliation through an exact roster crosswalk (latest capture before kickoff, unique full name on the team). A row whose name matches no one, or several people, on that roster is left out rather than guessed." },
-  { sport: "NFL", family: "nfl_score_shape", reason: "Published derived distribution (key numbers, OT/tie) with no settlement owner." },
+  { sport: "NFL", family: "nfl_score_shape", reason: "Key-number, tie, overtime and exact-score chances are published, but the file is overwritten on every run, so no frozen pre-kickoff copy exists to grade (only git history). Overtime cannot be settled at all yet: no captured result records whether a game went to overtime. Needs a write-once pre-kickoff receipt first." },
   { sport: "MLB", family: "player-prop leans", reason: "Every MLB prop market is DEMOTED to market context (RESEARCH), so it is not public forecast history." },
   { sport: "EPL", family: "double chance", reason: "Not a separate observation: each double-chance number is exactly 1 − one 1X2 class, so it is already measured inside the 1X2 family (its Brier terms are the 1X2 Brier's). Counting it again would score the same forecast twice." },
-  { sport: "UFC", family: "method / round", reason: "Published heads with no forward grader. UNMEASURED." },
+  { sport: "UFC", family: "method / round", reason: "Published, but the official results we capture by fight id (ESPN) record only the winner; method and round exist only in a source keyed by fighter names, and the pre-fight snapshots freeze only the winner chance. Grading would mean joining fights by name, which the UFC identity gate does not allow yet." },
   { sport: "NBA", family: "game model (v0 / v0.1)", reason: "SHADOW / PRIVATE_RESEARCH — never public forecast history." },
 ]);
 

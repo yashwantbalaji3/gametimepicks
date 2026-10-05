@@ -159,3 +159,15 @@ graded on that game (moneyline / total / run line) is reproduced exactly. First 
 3.61 runs. CONTINUOUS only: a median is never given a W/L — the published total pick already is `mlb_total`. The
 historical-restoration question (frozen public forecasts overwritten after first pitch) is untouched: this reads
 only revisions the owner had already graded, never reconstructs one.
+
+## 11. Block A (2026-10-05): what stays unmeasured, and exactly why
+
+| Family | Forecast of record | Final data | Identity | Verdict |
+|---|---|---|---|---|
+| UFC method (KO/TKO · SUB · DEC) | not frozen: `card-latest.json` is overwritten and the model-vs-market snapshots carry only the winner probability (git history holds pre-bout copies for ~91 bouts) | `ufc/results-latest.json` (ufcstats corpus) has `method` / `round`; the ESPN capture keyed by provider bout id has the winner only | the method/round source is keyed by `<date>:<names>`, not the ESPN bout id → a name join | ⛔ BLOCKED on exact identity (UFC event-identity work); forward fix = freeze `prediction.method` / `prediction.rounds` in the pre-bout snapshot AND capture method/round from ESPN by bout id |
+| UFC round (R1 · R2 · R3+) | same as method | same | same | ⛔ same |
+| NFL score shape (key numbers, tie, exact score, overtime) | not frozen: `score-shape/<d>.json` + `latest.json` rewritten every run; pre-kickoff copies only in git history (~64 events) | final score: yes (`experimental-settlement`); overtime flag: **none captured anywhere** | ESPN event id ✓ | ⛔ needs a write-once pre-kickoff receipt before it can have an owner; overtime additionally needs an OT flag in the results capture |
+
+Neither is graded from git-history copies of an overwritten file: unlike MLB and EPL, no existing owner ever chose
+and recorded a forecast of record for these numbers, so selecting one now from history would be this block
+inventing the forecast of record after the results are known.
