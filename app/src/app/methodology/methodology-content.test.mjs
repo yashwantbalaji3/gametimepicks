@@ -42,8 +42,10 @@ test("covers every sport TRUTHFULLY per the capability registry (one live model,
   assert.equal(registryState("epl"), "EXPERIMENTAL_PUBLIC");
   assert.equal(registryState("nfl"), "EXPERIMENTAL_PUBLIC");
   assert.equal(registryState("ligue-1"), "EXPERIMENTAL_PUBLIC");
-  assert.match(src, /MLB has the full live model\. The NFL, the Premier League and Ligue 1 publish experimental/, "coverage intro");
-  assert.match(src, /MLB is the only sport with the full live model\. NFL, Premier League and Ligue 1 forecasts are experimental/, "limitations repeat it");
+  // UFC is named explicitly: its registry row describes the old market path (products), while the fight-winner
+  // forecasts come from ufc-fight-model, which takes no market input (Results, 2026-10-05).
+  assert.match(src, /MLB has the full live model\. The NFL, the Premier League, Ligue 1 and UFC \(fight winners\) publish\s+experimental/, "coverage intro");
+  assert.match(src, /MLB is the only sport with the full live model\. NFL, Premier League, Ligue 1 and UFC fight-winner forecasts are experimental/, "limitations repeat it");
   assert.doesNotMatch(src, /MLB is the only sport producing model output|One sport has a live model/, "the stale claim is gone");
 });
 

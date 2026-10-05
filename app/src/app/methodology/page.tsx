@@ -248,9 +248,9 @@ export default function MethodologyPage() {
           long after either stopped producing anything. */}
       <Section title="By sport — what is actually modelled">
         <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
-          MLB has the full live model. The NFL, the Premier League and Ligue 1 publish experimental
-          forecasts, which are graded in public but are not used in any product until they pass their
-          bars; Model Lab shows each one&apos;s status. The rest are either history we keep readable or a
+          MLB has the full live model. The NFL, the Premier League, Ligue 1 and UFC (fight winners) publish
+          experimental forecasts, which are graded in public but are not used in any product until they
+          pass their bars; Model Lab shows each one&apos;s status. The rest are either history we keep readable or a
           market price shown as a market price. Nothing below is described in the present tense unless
           it is producing output today.
         </p>
@@ -317,7 +317,7 @@ export default function MethodologyPage() {
         <div className="vault-deluxe-card p-5 sm:p-6">
           <ul className="space-y-3.5 text-[14px] sm:text-[15px] leading-relaxed list-none">
             <LimitationRow title="The market is still the better estimate" body="Scored on identical settled results, the de-vigged sportsbook price beats our probabilities. Nothing here has been shown to out-predict it, and a disagreement between the two is not evidence that we are right." />
-            <LimitationRow title="One sport has the full model" body="MLB is the only sport with the full live model. NFL, Premier League and Ligue 1 forecasts are experimental: graded in public, and kept out of every product until they pass their bars. NBA publishes schedules and final scores only, UFC is a market price with no fight model behind it, and the World Cup is closed." />
+            <LimitationRow title="One sport has the full model" body="MLB is the only sport with the full live model. NFL, Premier League, Ligue 1 and UFC fight-winner forecasts are experimental: graded in public, and kept out of every product until they pass their bars. NBA publishes schedules and final scores only, and the World Cup is closed." />
             <LimitationRow title="Lines move" body="Boards reflect prices as captured, with the capture time shown. By the time you read them, prices have likely shifted, and there is no retained snapshot series to chart movement from." />
             <LimitationRow title="Missing context inputs" body="Park factor, weather, bullpen fatigue and handedness splits are not modelled for MLB." />
             <LimitationRow title="Some markets are switched off" body="Where a market's own settled record sits entirely below break-even across a large sample, predictions in it are disabled. The history stays visible and is never placed in a ranked or difference-ordered list." />
