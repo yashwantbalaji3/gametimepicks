@@ -1022,6 +1022,53 @@ const add = (rel, doc) => {
  * (`public/data/nfl/family-eligibility.json`, written by scripts/nfl/build-nfl-family-eligibility.mjs).
  * Daily (it moves with the slate). Always emitted: an absent record is `available: false`, never a missing file.
  */
+/*
+ * NBA SCHEDULE AND FINALS (2026-10-05, NBA audit X3). Facts only: the schedule capture and the write-once finals
+ * record the /nba/ pages read. No NBA forecast exists (no model has passed validation) and nothing here makes one —
+ * no probability, no line, no pick, no projected score. A game absent from the finals record is pending, never a loss.
+ */
+const NBA_PHASE = { 1: "PRESEASON", 2: "REGULAR_SEASON", 3: "POSTSEASON", 5: "PLAY_IN" };
+function buildNba() {
+  const base = { schemaVersion: ASK_PROJECTION_SCHEMA_VERSION, artifact: "ask-nba" };
+  const read = (rel) => { const f = path.join(APP, "public/data/nba", rel); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : null; };
+  const sched = read("schedule/latest.json");
+  const finalsFiles = fs.existsSync(path.join(APP, "public/data/nba/results")) ? fs.readdirSync(path.join(APP, "public/data/nba/results")).filter((f) => /^finals-\d{4}-\d{2}\.json$/.test(f)).sort() : [];
+  const finalsDoc = finalsFiles.length ? read(`results/${finalsFiles.at(-1)}`) : null;
+  const schedOk = sched?.dataClass === "SCHEDULE_CAPTURE" && Array.isArray(sched.rows);
+  const finalsOk = finalsDoc?.dataClass === "FINALS_RECORD" && finalsDoc?.contract === "nba-finals-record-v1" && Array.isArray(finalsDoc.finals);
+  if (!schedOk && !finalsOk) { notes.push("nba absent"); return { ...base, available: false }; }
+  const etDate = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+  const etTime = (iso) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(iso));
+  const side = (t) => ({ abbr: t?.tricode ?? t?.abbr ?? null, name: t?.name ?? null });
+  /* A placeholder side ("TBD", a knockout slot not yet decided) is not a game anyone can be told about. */
+  const real = (g) => [g.away, g.home].every((t) => t?.name && t.name !== "TBD" && (t.tricode ?? t.abbr) !== "TBD");
+  const finals = finalsOk
+    ? finalsDoc.finals.filter((g) => g.statusRaw === "STATUS_FINAL" && Number.isFinite(g.ftHome) && Number.isFinite(g.ftAway) && !g.exhibition && real(g)).map((g) => ({
+      id: String(g.providerEventId), dateEt: g.dateEt ?? etDate(g.dateUtc), phase: g.phase ?? NBA_PHASE[g.seasonType] ?? null,
+      away: side(g.away), home: side(g.home), awayScore: g.ftAway, homeScore: g.ftHome,
+    })).sort((a, b) => (a.dateEt < b.dateEt ? 1 : a.dateEt > b.dateEt ? -1 : a.id < b.id ? -1 : 1))
+    : [];
+  const finalIds = new Set(finals.map((g) => g.id));
+  const schedule = schedOk
+    ? sched.rows.filter((g) => g.statusRaw === "STATUS_SCHEDULED" && g.dateUtc && real(g) && !finalIds.has(String(g.providerEventId))).map((g) => ({
+      id: String(g.providerEventId), dateEt: etDate(g.dateUtc), timeEt: etTime(g.dateUtc), phase: NBA_PHASE[g.seasonType] ?? null,
+      away: side(g.away), home: side(g.home), venue: g.venue ?? null,
+    })).sort((a, b) => (a.dateEt < b.dateEt ? -1 : a.dateEt > b.dateEt ? 1 : a.id < b.id ? -1 : 1))
+    : [];
+  /* A team is its NAME: the finals record writes Utah as UTA and the schedule as UTAH, so abbreviations are aliases. */
+  const teams = new Map();
+  for (const g of [...finals, ...schedule]) for (const t of [g.away, g.home]) if (t.name) teams.set(t.name, new Set([...(teams.get(t.name) ?? []), ...(t.abbr ? [t.abbr] : [])]));
+  notes.push(`nba ${schedule.length} scheduled · ${finals.length} finals`);
+  return {
+    ...base, available: true,
+    season: finalsDoc?.season ?? null,
+    scheduleAsOf: schedOk ? sched.generatedAt ?? null : null,
+    finalsAsOf: finalsOk ? finalsDoc.updatedAt ?? null : null,
+    teams: [...teams].map(([name, abbrs]) => ({ name, abbrs: [...abbrs].sort() })).sort((a, b) => (a.name < b.name ? -1 : 1)),
+    finals, schedule,
+  };
+}
+
 function buildNflEligibility() {
   const file = path.join(APP, "public/data/nfl/family-eligibility.json");
   const base = { schemaVersion: ASK_PROJECTION_SCHEMA_VERSION, artifact: "ask-nfl-eligibility" };
@@ -1092,6 +1139,7 @@ add("results.json", buildResults());
 }
 add("coverage.json", buildCoverage());
 add("nfl-eligibility.json", buildNflEligibility());
+add("nba.json", buildNba());
 const help = buildHelpCorpus();
 assertLinks("help corpus", help.chunks.flatMap((c) => (c.route ? [{ href: c.route }] : [])));
 add("help.json", help);

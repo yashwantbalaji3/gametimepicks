@@ -565,6 +565,11 @@ export const GOLDEN = [
   /* ─────────────────────  RESULTS DAY (Session 2 · classes D, E, F)  ───────────────────── */
   /* "Yesterday" is the ET day before the product date; the answer is the Results day page's items, never a sum. */
   /* Session 9 · NFL product eligibility comes from the family-gate record, blocker by blocker — never a stock sentence. */
+  /* 2026-10-05 · NBA facts (schedule and finals) — answered from the record, never a forecast (unsup-04 stays unsupported). */
+  { id: "nba-01", category: "factual", q: "Who won Heat vs Raptors?", expectIntent: "FACTUAL_GAME_QUERY", expectTools: ["getNbaGames"], expectGrounded: true,
+    expectLink: "/nba/", mustMention: ["129", "105"], mustNotMention: ["we like", "forecast is", "129-105 record"] },
+  { id: "nba-02", category: "factual", q: "When do the Celtics play next?", expectIntent: "FACTUAL_GAME_QUERY", expectTools: ["getNbaGames"], expectGrounded: true,
+    expectLink: "/nba/", mustMention: ["celtics"], mustNotMention: ["we like", "probability"] },
   { id: "nfl-elig-01", category: "coverage", q: "Why isn't NFL in today's Bank Builder?", fixture: "nfl-eligibility-gated",
     expectTools: ["getNflProductEligibility"], expectGrounded: true, mustMention: ["not eligible"], mustNotMention: ["guaranteed", "coming soon"] },
   { id: "nfl-elig-02", category: "coverage", q: "What is blocking Anytime TD?", fixture: "nfl-eligibility-gated",

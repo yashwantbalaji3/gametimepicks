@@ -191,6 +191,15 @@ function routePlan(user) {
   const needsNow = has("today", "tonight", "now", "current", "this weekend");
   if (needsNow) push("getGameTimeNow");
 
+  /* 2026-10-05 · NBA facts (schedule and finals). A forecast-shaped NBA question falls through to coverage / help. */
+  const NBA_NICKNAMES = ["celtics", "heat", "raptors", "lakers", "knicks", "warriors", "nuggets", "bucks", "76ers", "sixers", "thunder", "cavaliers", "jazz", "grizzlies", "hawks", "clippers", "spurs", "mavericks", "suns", "nets", "bulls", "pistons", "pacers", "magic", "wizards", "hornets", "kings", "pelicans", "rockets", "timberwolves", "blazers"];
+  const nbaTeams = NBA_NICKNAMES.filter((n) => question.includes(n));
+  if ((has("nba") || nbaTeams.length) && !has("predict", "forecast", "pick", "probabilit", "odds", "who will win")) {
+    const show = has("who won", "score", "result", "final", "beat") ? "finals" : has("when", "next", "schedule", "play", "tip") ? "schedule" : "both";
+    push("getNbaGames", { ...(nbaTeams[0] ? { team: nbaTeams[0] } : {}), ...(nbaTeams[1] ? { opponent: nbaTeams[1] } : {}), show });
+    return { intent: "FACTUAL_GAME_QUERY", needsClarification: false, clarification: null, calls };
+  }
+
   /*
    * COVERAGE — "do you cover this, and may it be treated as a forecast?" — AND IT MUST BE MATCHED
    * BEFORE THE FORECAST AND HELP BLOCKS.

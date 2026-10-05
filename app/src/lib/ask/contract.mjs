@@ -28,7 +28,7 @@ export const ASK_TOOL_REGISTRY_VERSION = 1;
  * The system/planner/writer prompt version. Bumped on ANY prompt text change so a receipt can never
  * describe a run by a prompt that has since been edited underneath it (§67 — no hidden prompt drift).
  */
-export const ASK_PROMPT_VERSION = 7;
+export const ASK_PROMPT_VERSION = 8;
 
 /** The committed projection the emit step publishes, and the public prefix it publishes to. */
 export const ASK_PROJECTION_SCHEMA_VERSION = 1;
@@ -398,7 +398,8 @@ export const ASK_LINK_PATTERNS = Object.freeze([
   // Session 13 · the Forecast Record and its per-family pages (sport slug / family slug, both closed vocabularies).
   /^\/results\/forecasts\/(?:(?:nfl|mlb|epl|ligue-1|ufc)\/[a-z0-9-]{3,48}\/)?$/,
   // E-3: /bank-builder/ and /moonshot/ are tool-issued (results.mjs) and were refused as UNSUPPORTED_LINK.
-  /^\/(?:live|today|sports|mlb|nfl|epl|ufc|results|parlay-lab|parlays|build|markets|models|my|saved|following|methodology|learn|responsible-use|system-status|bank-builder|moonshot)\/$/,
+  // 2026-10-05 audit (A6): the product pages the help corpus now describes, /feedback/, and /nba/ for NBA questions.
+  /^\/(?:live|today|sports|mlb|nfl|epl|ufc|nba|results|parlay-lab|parlays|build|markets|models|my|saved|following|methodology|learn|responsible-use|system-status|bank-builder|moonshot|mr-dub|homer-nukes|endzone-vault|cage-chaos|goal-rush|bucket-blitz|feedback)\/$/,
   /^\/$/,
 ]);
 
@@ -516,6 +517,7 @@ export const askAssetPath = Object.freeze({
   coverage: () => `${ASK_ASSET_PREFIX}/coverage.json`,
   /* Session 9 · the NFL family-level product gate, republished in public terms (daily). */
   nflEligibility: () => `${ASK_ASSET_PREFIX}/nfl-eligibility.json`,
+  nba: () => `${ASK_ASSET_PREFIX}/nba.json`,
   recent: (sport, shard) => `${ASK_ASSET_PREFIX}/recent/${String(sport).toLowerCase()}/${shard}.json`,
 });
 
@@ -575,7 +577,7 @@ export const askStoredGzipped = (rel) => /^recent\//.test(rel);
 /* The Forecast Record is an index (families, KPIs, gaps) plus one rows shard per sport, so a lookup loads one sport. */
 export const ASK_FORECAST_SPORTS = Object.freeze(["nfl", "mlb", "epl", "ligue-1", "ufc"]);
 export const ASK_DAILY_FILES = Object.freeze([
-  "forecasts.json", "parlays.json", "results.json", "nfl-eligibility.json",
+  "forecasts.json", "parlays.json", "results.json", "nfl-eligibility.json", "nba.json",
   "forecast-record.json", ...ASK_FORECAST_SPORTS.map((s) => `forecast-record/${s}.json`),
 ]);
 

@@ -526,6 +526,12 @@ the tool module imports no `.ts`.
   instead of "published 0" — game-level rows are keyed by the game, so team and club history beyond NFL team score is a
   Tuesday item; a W–L names its basis in the Results page's words, never "a pick was published"; a median score pair is
   "median simulated points", never a projected (final) score.
+- **2026-10-05 team history + NBA facts** (`ask-forecast-participants.test.mjs`, `ask-nba.test.mjs`): game-level
+  Forecast Record rows carry their joined sides (`lib/ask/forecast-participants.mjs` — MLB/NFL by abbreviation, EPL
+  club / UFC fighter by exact name, fail closed), so team, club and fighter history reaches winner / total / run line /
+  1X2 rows; each probability row names the side it is for, as the Results family page does. `getNbaGames` (registry
+  25, prompt 8) answers NBA schedule and final-score questions from the schedule capture and the write-once finals
+  record (daily `nba.json`); it has no forecast field, and a passed game with no recorded final is pending.
 
 ## 30. Future roadmap
 

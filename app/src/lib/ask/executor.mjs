@@ -30,6 +30,7 @@ import { getParlayCandidates, getPublishedForecasts } from "./tools/forecast.mjs
 import { getOfficialProductCards } from "./tools/official-cards.mjs";
 import { getCoverage } from "./tools/coverage.mjs";
 import { getNflProductEligibility } from "./tools/nfl-eligibility.mjs";
+import { getNbaGames } from "./tools/nba.mjs";
 import { getLiveSlate } from "./tools/live.mjs";
 import { getForecastRecord, getPendingResults, getProductRecord, getRecentResults, getResultsDay } from "./tools/results.mjs";
 import { getForecastFamilyPerformance, getForecastHistory } from "./tools/forecast-record.mjs";
@@ -55,6 +56,7 @@ const HANDLERS = {
   getLiveSlate,
   getCoverage,
   getNflProductEligibility,
+  getNbaGames,
   getProductRecord,
   getForecastRecord,
   getRecentResults,
