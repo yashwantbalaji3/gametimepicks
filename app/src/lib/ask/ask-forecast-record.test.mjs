@@ -62,7 +62,8 @@ test("family performance: each kind in its own yardstick; no pooled number; the 
   assert.match(t, /Brier of 0\.163/);
   assert.match(t, /no single accuracy figure across forecast types/);
   assert.match(t, /none of those counts as a miss/);
-  assert.match(t, /pick record is 2–1/);
+  assert.match(t, /graded on the side of the sportsbook line our projection pointed to, the NFL Receiving yards record is 2–1/);
+  assert.doesNotMatch(t, /pick was published/, "an implied side of a frozen line is not a published pick (2026-10-05 audit)");
   assert.doesNotMatch(t, /% accurate|overall accuracy/i);
   const none = await getForecastFamilyPerformance({ sport: "UFC" }, ctx());
   assert.equal(none.status, ASK_STATUS.UNSUPPORTED, "a sport with no measured family is unsupported, never 0/0");
@@ -80,18 +81,18 @@ test("history: the filters read what WE projected; pending / withdrawn are never
   assert.match(t, /the actual was 102, a miss of 11/);
   assert.doesNotMatch(t, /\b\d+(\.\d+)? ?% (hit|accura)/i, "no hit rate over a filtered window");
   const other = await getForecastHistory({ sport: "NFL", playerId: "nfl-athlete-1" }, ctx());
-  assert.equal(other.matched, 0, "control: another player's rows never leak in");
+  assert.equal(other.status, ASK_STATUS.UNSUPPORTED, "control: another player's rows never leak in — and no rows fails closed, never '0 forecasts'");
   assert.equal((await getForecastHistory({ sport: "NFL" }, ctx())).status, ASK_STATUS.ERROR, "no subject → refused, never the whole league");
 });
 
 test("probe: a projection never gets a W–L unless a pick was published (control: the published pick does)", async () => {
   const r = await getForecastHistory({ sport: "NFL", playerId: "nfl-athlete-4430807", family: "player_reception_yds", limit: 10 }, ctx());
   const t = textOf(r, "getForecastHistory");
-  assert.match(t, /the published pick was a WIN/, "control");
+  assert.match(t, /graded on the side of the sportsbook line our projection pointed to, that side was a WIN/, "control");
   const shard = JSON.parse(JSON.stringify(SHARD));
   shard.rows[3][ASK_FORECAST_ROW.indexOf("directional")] = null;
   const t2 = textOf(await getForecastHistory({ sport: "NFL", playerId: "nfl-athlete-4430807", family: "player_reception_yds", limit: 10 }, ctx(INDEX, shard)), "getForecastHistory");
-  assert.equal((t2.match(/published pick/g) ?? []).length, 1, "the unpicked projection carries no pick word");
+  assert.equal((t2.match(/that side was a/g) ?? []).length, 1, "the unpicked projection carries no graded-side word");
 });
 
 test("probe: no market probability is ever ours — the projection rows carry none, and the leak is caught if added", async () => {
