@@ -106,10 +106,14 @@ test("no MLB surface re-derives a score from a simulated mean", () => {
   }
 });
 
-test("the report's score row reads the owner's label instead of naming the statistic itself", () => {
+test("the report's median row names the statistic as a median, from the one shared copy owner", async () => {
   const src = fs.readFileSync(path.join(app, "src/components/game/mlb-full-game-report.tsx"), "utf8");
-  assert.ok(/prediction\.projectedScore\.label/.test(src),
-    "the head-to-head must render the canonical score under the OWNER's label, so a component can never rename the statistic");
+  /* 2026-10-05: the owner's label "Median simulation score" read as a predicted final (4-4 beside "CLE wins").
+     The row now takes its label from median-runs-copy.mjs, which must still name the median. */
+  const { MEDIAN_RUNS_LABEL } = await import("./median-runs-copy.mjs");
+  assert.match(MEDIAN_RUNS_LABEL, /median/i, "the row label must name the statistic it is");
+  assert.ok(/label:\s*MEDIAN_RUNS_LABEL/.test(src),
+    "the head-to-head must render the canonical medians under the shared median label, so a component can never rename the statistic");
   assert.ok(/label:\s*`Expected \$\{V\.scoreUnit\}`/.test(src),
     "the head-to-head verdict must publish the mean as an EXPECTED value, explicitly labelled");
 });
