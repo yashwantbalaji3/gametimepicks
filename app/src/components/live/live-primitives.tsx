@@ -97,11 +97,25 @@ export function LiveScoreStrip({ envelope }: { envelope: any }) {
   );
 }
 
-/** Period / clock / situation — every part optional, because every provider omits some of them. */
-export function LivePeriodLine({ envelope }: { envelope: any }) {
+/**
+ * Period / clock / situation — every part optional, because every provider omits some of them.
+ *
+ * ⚠ ESPN's NFL label ALREADY CONTAINS THE CLOCK ("7:27 - 1st", with clock "7:27" beside it), so
+ * appending the clock printed "7:27 - 1st · 7:27". The Live hub was fixed for this after it was seen
+ * in Production on 2026-09-27 (nfl-live-hub.tsx `periodLine`); this panel was not. The clock is
+ * added only when the label does not already state it.
+ */
+export function periodParts(envelope: any): string[] {
   const parts: string[] = [];
-  if (envelope.period?.label) parts.push(envelope.period.label);
-  if (envelope.period?.clock) parts.push(envelope.period.clock);
+  const label = typeof envelope?.period?.label === "string" && envelope.period.label ? envelope.period.label : null;
+  const clock = typeof envelope?.period?.clock === "string" && envelope.period.clock ? envelope.period.clock : null;
+  if (label) parts.push(label);
+  if (clock && !(label && label.includes(clock))) parts.push(clock);
+  return parts;
+}
+
+export function LivePeriodLine({ envelope }: { envelope: any }) {
+  const parts = periodParts(envelope);
   if (envelope.situation?.downDistance) parts.push(envelope.situation.downDistance);
   if (typeof envelope.situation?.outs === "number") parts.push(`${envelope.situation.outs} out`);
   if (!parts.length) return null;
