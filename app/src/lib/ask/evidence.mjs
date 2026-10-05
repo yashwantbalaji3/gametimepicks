@@ -460,7 +460,6 @@ export function buildEvidence(envelopes) {
         const who = d.subject ?? "that player";
         if (!d.matched) say(`none of the ${d.subjectTotal} ${sp} forecasts on record for ${who} match this request's filters`, [d.subjectTotal]);
         else say(`GameTime published ${d.matched} ${sp} forecasts matching this request for ${who}; ${d.returned} are listed individually below, newest first — this list is not a record`, [d.matched, d.returned]);
-        if (d.scopeNote) say(d.scopeNote);
         /* One decimal for a projection, its range, the actual and the miss — the precision the Forecast Record prints. */
         const r1 = (v) => (typeof v === "number" && Number.isFinite(v) ? Number(v.toFixed(1)) : v);
         for (const raw of d.rows ?? []) {
@@ -475,8 +474,14 @@ export function buildEvidence(envelopes) {
              */
             ? `GameTime projected ${r.projection}${r.rangeLow != null ? ` (range ${r.rangeLow} to ${r.rangeHigh})` : ""}`
             : r.kind === "BINARY_PROBABILITY"
-              ? (typeof r.probability === "number" ? `GameTime gave it a ${Math.round(r.probability * 1000) / 10}% chance` : "GameTime's probability for it is not recorded")
-              : "GameTime published match probabilities";
+              /* The side a probability is FOR ("SEA (home)", "UNDER 9", "WSH (home) to win") is named, as the Results page pairs
+                 them; worded as a probability, not a "call", because it can be under 50% (WSH 20.1% — we favoured SEA). */
+              ? (typeof r.probability === "number"
+                ? (r.call ? `GameTime's probability for ${r.call} was ${Math.round(r.probability * 1000) / 10}%` : `GameTime gave it a ${Math.round(r.probability * 1000) / 10}% chance`)
+                : "GameTime's probability for it is not recorded")
+              : Array.isArray(r.classes)
+                ? `GameTime gave home ${Math.round(r.classes[0] * 1000) / 10}%, draw ${Math.round(r.classes[1] * 1000) / 10}% and away ${Math.round(r.classes[2] * 1000) / 10}%`
+                : "GameTime published match probabilities";
           const happened = r.state === "WITHDRAWN" ? "the forecast was withdrawn before kickoff, which is not a miss"
             : r.state === "PENDING" ? "it is not final yet, which is not a miss"
               : r.state === "VOID" ? "it was void (did not play, push or tie), which is not a miss"

@@ -4,8 +4,8 @@
  * Results V2 owner's own numbers, and history rows are the ledger's own rows, filtered.
  *
  *   getForecastFamilyPerformance  how one forecast type has done, with the yardstick its kind calls for
- *   getForecastHistory            one player's / game's individual published forecasts and how each turned out (a subject
- *                                 with no rows fails closed — never "0 forecasts")
+ *   getForecastHistory            one player's / team's / fighter's / game's individual published forecasts and how each
+ *                                 turned out (a subject with no rows fails closed — never "0 forecasts")
  *
  * THE RULES THESE KEEP (each one an LLM would otherwise break):
  *   1. NO POOLED ACCURACY. A family returns its own metrics; there is no all-families number to quote.
@@ -82,6 +82,7 @@ function unpack(shard, row) {
     subjectId: subj[0] ?? null,
     subject: subj[1] ?? null,
     team: subj[2] ?? null,
+    participants: Array.isArray(subj[3]) ? subj[3] : null,
     matchup: v("matchup") == null ? null : shard.dict.matchups[v("matchup")] ?? null,
     kind: ASK_FORECAST_KINDS[v("kind")] ?? null,
     projection: v("projection"),
@@ -95,6 +96,8 @@ function unpack(shard, row) {
     absoluteError: v("absoluteError"),
     brier: v("brier"),
     pick: v("directional"),
+    call: v("call") ?? null,
+    classes: v("classes") ?? null,
   };
 }
 
@@ -111,18 +114,23 @@ export async function getForecastHistory(args, ctx) {
   if (!loaded.ok) return { status: ASK_STATUS.ERROR, error: ASK_ERROR.ASSET_UNAVAILABLE };
   const shard = loaded.json;
   let rows = (shard.rows ?? []).map((r) => unpack(shard, r));
-  if (args.playerId) rows = rows.filter((r) => r.subjectId === args.playerId);
-  if (args.teamId) rows = rows.filter((r) => r.subjectId === args.teamId);
+  /* A team, club or fighter is the subject of its own rows (NFL team score) or a joined side of a game-level row. */
+  const involves = (id) => (r) => r.subjectId === id || (r.participants ?? []).some(([pid]) => pid === id);
+  const who = args.playerId ?? args.teamId ?? null;
+  if (args.playerId) rows = rows.filter(involves(args.playerId));
+  if (args.teamId) rows = rows.filter(involves(args.teamId));
   if (args.gameId) rows = rows.filter((r) => r.subjectId === args.gameId || r.matchup === args.gameId);
   /*
    * ⚠ FAIL CLOSED, NEVER "0 FORECASTS" (2026-10-05 audit). Game-level rows (MLB moneyline / run line / total, NFL
-   * winner / total / margin, EPL 1X2 / over 2.5, UFC winner) are keyed by the GAME, so a team, club or fighter id matched
-   * nothing — and the evidence then said "GameTime published 0 forecasts", which a writer turned into "GameTime has not
-   * published any match forecasts for Arsenal". Arsenal has graded match forecasts. A subject with no rows here is a
-   * subject this tool cannot list, said as that, with the Forecast Record linked; it is never an empty record.
+   * winner / total / margin, EPL 1X2 / over 2.5, UFC winner) are keyed by the GAME; they now reach a team, club or
+   * fighter through the joined `participants`, but a side that did not join (a fighter with no Ask entity) still matches
+   * nothing. A subject with no rows here is a subject this tool cannot list, said as that, with the Forecast Record
+   * linked; it is never an empty record — the evidence once turned that into "has not published any match forecasts".
    */
   const subjectTotal = rows.length;
-  const subjectName = rows[0]?.subject ?? null;
+  /* The name of who was asked about: their own row's name, else their joined side's label — never the game's title. */
+  const nameOf = (r) => (r.subjectId === who ? r.subject : (r.participants ?? []).find(([pid]) => pid === who)?.[1] ?? r.subject);
+  const subjectName = rows[0] ? (who ? nameOf(rows[0]) : rows[0].subject) : null;
   const familyLink = args.family ? (idx.doc.families ?? []).find((f) => f.sport === sport && f.family === args.family) : null;
   const recordLinks = [RECORD_LINK, ...(familyLink ? [{ id: `fr-${familyLink.family}`, label: `${sport} ${familyLink.label} record`, href: familyLink.href }] : [])];
   if (!subjectTotal) {
@@ -134,24 +142,11 @@ export async function getForecastHistory(args, ctx) {
       links: recordLinks,
     };
   }
-  /* A team's rows here are NFL team-score projections only; its game-level forecasts are not reachable by team yet. */
-  const scopeNote = args.teamId
-    ? `these are ${sport} team-score projections only; game-level forecasts involving this team (winner, total, margin) are listed on the Forecast Record pages, not here`
-    : null;
   if (args.family) rows = rows.filter((r) => r.family === args.family);
   if (args.minProjection != null) rows = rows.filter((r) => typeof r.projection === "number" && r.projection > args.minProjection);
   if (args.maxProjection != null) rows = rows.filter((r) => typeof r.projection === "number" && r.projection < args.maxProjection);
   if (args.settledOnly) rows = rows.filter((r) => r.state === "SETTLED");
   const matched = rows.length;
-  /* A team filtered down to nothing is the same unreachable game-level history (e.g. family nfl_game_winner): fail closed. */
-  if (args.teamId && !matched) {
-    return {
-      status: ASK_STATUS.UNSUPPORTED,
-      error: ASK_ERROR.UNSUPPORTED_DATA,
-      detail: `forecast history for that team or club is not available through Ask yet; the Forecast Record pages list every graded ${sport} forecast`,
-      links: recordLinks,
-    };
-  }
   const sportFamilies = (idx.doc.families ?? []).filter((f) => f.sport === sport);
   const labels = new Map(sportFamilies.map((f) => [f.family, f.label]));
   /* What a row's WIN / LOSS grades — the family's own basis, so a graded side is never called "the published pick". */
@@ -162,10 +157,9 @@ export async function getForecastHistory(args, ctx) {
     status: ASK_STATUS.OK,
     sport,
     subjectId: args.playerId ?? args.teamId ?? args.gameId,
-    subject: shown[0]?.subject ?? subjectName,
+    subject: subjectName,
     matched,
     subjectTotal,
-    scopeNote,
     returned: shown.length,
     rows: shown,
     asOf: idx.doc.asOf ?? null,

@@ -66,6 +66,7 @@ import { combinedParlayPayoutPer100 } from "../../src/lib/odds-math.ts";
 import { MARKET_COVERAGE } from "../../src/lib/market-coverage.ts";
 import { MLB_MARKET_CALIBRATION, isCalibrationFailed } from "../../src/lib/mlb/model-calibration-status.ts";
 import { buildHelpCorpus } from "../../src/lib/ask/help-source.mjs";
+import { makeParticipantJoiner, readableCall } from "../../src/lib/ask/forecast-participants.mjs";
 import { PLAYER_ROW, WINDOWS } from "../../src/lib/research-pages/player-read-model.mjs";
 import { legIsMarketContext, marketContextFamilies } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 import { getRiskBucketForCombinedOdds, PUBLIC_RISK_LABELS } from "../../src/lib/parlays/risk-odds-bands.mjs";
@@ -902,7 +903,7 @@ function buildResultDays() {
  * tool never recomputes a metric; it filters rows and reads family blocks. Display only: no row carries a market
  * probability, and the ledger never holds shadow / research / withheld rows in the first place.
  */
-function buildForecastRecord() {
+function buildForecastRecord(entities = []) {
   const { rows } = readForecastLedger();
   if (!rows.length) {
     notes.push("forecast record absent");
@@ -936,6 +937,16 @@ function buildForecastRecord() {
   });
   const r3 = (v) => (typeof v === "number" && Number.isFinite(v) ? Number(v.toFixed(3)) : v ?? null);
   const slug = (sport) => String(sport).toLowerCase().replace(/_/g, "-");
+  /* A game-level row's teams / fighters, joined by code to Ask entities (lib/ask/forecast-participants.mjs), so team,
+     club and fighter history can reach game rows. A side that does not join is left out — never guessed. */
+  const participantsOf = makeParticipantJoiner(entities);
+  /* The side a probability row is for, in words (lib/ask/forecast-participants.mjs readableCall). A 1X2 row carries its three classes. */
+  const callOf = readableCall;
+  const classesOf = (r) => {
+    const c = r.forecastKind === "MULTICLASS_PROBABILITY" ? r.classProbabilities : null;
+    return c && ["home", "draw", "away"].every((k) => typeof c[k] === "number") ? [r3(c.home), r3(c.draw), r3(c.away)] : null;
+  };
+  let joinedRows = 0;
   const shards = {};
   for (const sport of ASK_FORECAST_SPORTS) {
     const dict = { families: [], subjects: [], matchups: [] };
@@ -947,7 +958,7 @@ function buildForecastRecord() {
       .map((r) => [
         index(0, `${r.sport}|${r.family}`, [r.sport, r.family]),
         String(r.eventStart ?? r.publishedAt ?? "").slice(0, 10) || null,
-        index(1, r.subjectId, [r.subjectId, r.subjectDisplay ?? null, r.teamId ?? null]),
+        index(1, r.subjectId, [r.subjectId, r.subjectDisplay ?? null, r.teamId ?? null, participantsOf(r)]),
         r.matchup ? index(2, r.matchup, r.matchup) : null,
         ASK_FORECAST_KINDS.indexOf(r.forecastKind),
         r3(r.projection), r3(r.rangeLow), r3(r.rangeHigh), r3(r.probability),
@@ -955,10 +966,12 @@ function buildForecastRecord() {
         r3(r.settlement?.finalValue), r.settlement?.finalCategory ?? null,
         r.measurement?.observed ?? null, r3(r.measurement?.absoluteError), r3(r.measurement?.brier),
         r.measurement?.directionalBasis ? r.measurement.directionalResult : null,
+        callOf(r), classesOf(r),
       ]);
+    joinedRows += rows.filter((r) => slug(r.sport) === sport && participantsOf(r)).length;
     shards[sport] = { schemaVersion: ASK_PROJECTION_SCHEMA_VERSION, artifact: "ask-forecast-rows", sport, columns: [...ASK_FORECAST_ROW], kinds: [...ASK_FORECAST_KINDS], dict, rows: packed };
   }
-  notes.push(`forecast record ${rows.length} rows · ${rec.kpis.families} families`);
+  notes.push(`forecast record ${rows.length} rows · ${rec.kpis.families} families · ${joinedRows} game rows joined to a team or fighter`);
   return {
     schemaVersion: ASK_PROJECTION_SCHEMA_VERSION,
     artifact: "ask-forecast-record",
@@ -1065,14 +1078,15 @@ function buildCoverage() {
   };
 }
 
-add("entities.json", buildEntities());
+const ENTITIES = buildEntities();
+add("entities.json", ENTITIES);
 add("matchups.json", buildMatchups());
 add("forecasts.json", buildForecasts());
 add("parlays.json", buildParlays());
 for (const [key, doc] of Object.entries(buildRecent())) add(`recent/${key}.json`, doc);
 add("results.json", buildResults());
 {
-  const { _shards, ...index } = buildForecastRecord();
+  const { _shards, ...index } = buildForecastRecord(ENTITIES.entries);
   add("forecast-record.json", index);
   for (const [sp, doc] of Object.entries(_shards)) add(`forecast-record/${sp}.json`, doc);
 }
