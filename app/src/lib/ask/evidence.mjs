@@ -414,17 +414,21 @@ export function buildEvidence(envelopes) {
          record is only ever the owner's published-pick record (basis named). */
       case "getForecastFamilyPerformance": {
         const sp = String(d.sport ?? "").toUpperCase();
+        /* A share as a percent, or the words "not recorded" — a missing value never becomes 0%. */
+        const pctW = (v) => (typeof v === "number" && Number.isFinite(v) ? `${Math.round(v * 1000) / 10}%` : "not recorded");
+        const cnt = (v) => (Number.isInteger(v) ? v : "an unrecorded number of");
         for (const f of d.families ?? []) {
           const c = f.counts ?? {};
-          const tail = `${c.measured ?? 0} measured, ${c.pending ?? 0} not final yet, ${(c.void ?? 0) + (c.unmeasured ?? 0)} void or not measurable (none of those counts as a miss)`;
+          const vm = Number.isInteger(c.void) && Number.isInteger(c.unmeasured) ? c.void + c.unmeasured : null;
+          const tail = `${cnt(c.measured)} measured, ${cnt(c.pending)} not final yet, ${cnt(vm)} void or not measurable (none of those counts as a miss)`;
           if (f.kind === "CONTINUOUS_PROJECTION") {
-            say(`GameTime's ${sp} ${f.label} projections missed by ${f.mae} on average (median miss ${f.medianAbsError}, bias ${f.bias} where positive means we projected high) across ${f.n} measured forecasts${f.coverage ? `; ${Math.round((f.coverage.inside ?? 0) * 1000) / 10}% landed inside our printed ${Math.round((f.coverage.target ?? 0.8) * 100)}% range, and about ${Math.round((f.coverage.target ?? 0.8) * 100)}% is the design target` : ""} — ${tail}`,
+            say(`GameTime's ${sp} ${f.label} projections missed by ${f.mae} on average (median miss ${f.medianAbsError}, bias ${f.bias} where positive means we projected high) across ${f.n} measured forecasts${f.coverage ? `; ${pctW(f.coverage.inside)} landed inside our printed ${pctW(f.coverage.target)} range, and about ${pctW(f.coverage.target)} is the design target` : ""} — ${tail}`,
               [f.mae, f.medianAbsError, f.bias, f.n, f.coverage?.inside]);
           } else if (f.kind === "BINARY_PROBABILITY") {
-            say(`GameTime's ${sp} ${f.label} probabilities score a Brier of ${f.brier} and a log loss of ${f.logLoss} (lower is better) across ${f.n} measured forecasts; on average we said ${Math.round((f.meanForecast ?? 0) * 1000) / 10}% and it happened ${Math.round((f.observedRate ?? 0) * 1000) / 10}% of the time (calibration error ${f.ece}) — ${tail}`,
+            say(`GameTime's ${sp} ${f.label} probabilities score a Brier of ${f.brier} and a log loss of ${f.logLoss} (lower is better) across ${f.n} measured forecasts; on average we said ${pctW(f.meanForecast)} and it happened ${pctW(f.observedRate)} of the time (calibration error ${f.ece}) — ${tail}`,
               [f.brier, f.logLoss, f.n, f.meanForecast, f.observedRate, f.ece]);
           } else if (f.kind === "MULTICLASS_PROBABILITY") {
-            say(`GameTime's ${sp} ${f.label} forecasts score a log loss of ${f.logLoss} and a Brier of ${f.brier} across ${f.n} measured matches (a blind guess scores ${f.uniformReference?.logLoss} log loss); our likeliest outcome happened ${Math.round((f.topClassAccuracy ?? 0) * 1000) / 10}% of the time — ${tail}`,
+            say(`GameTime's ${sp} ${f.label} forecasts score a log loss of ${f.logLoss} and a Brier of ${f.brier} across ${f.n} measured matches (a blind guess scores ${f.uniformReference?.logLoss} log loss); our likeliest outcome happened ${pctW(f.topClassAccuracy)} of the time — ${tail}`,
               [f.logLoss, f.brier, f.n, f.uniformReference?.logLoss, f.topClassAccuracy]);
           }
           if (f.pickRecord) say(`where a ${sp} ${f.label} pick was published, the pick record is ${f.pickRecord.win}–${f.pickRecord.loss}${f.pickRecord.push ? `–${f.pickRecord.push}` : ""}`, [f.pickRecord.win, f.pickRecord.loss, f.pickRecord.push]);
@@ -444,7 +448,9 @@ export function buildEvidence(envelopes) {
           const r = { ...raw, projection: r1(raw.projection), rangeLow: r1(raw.rangeLow), rangeHigh: r1(raw.rangeHigh), finalValue: r1(raw.finalValue), absoluteError: r1(raw.absoluteError) };
           const said = r.kind === "CONTINUOUS_PROJECTION"
             ? `GameTime projected ${r.projection}${r.rangeLow != null ? ` (range ${r.rangeLow}–${r.rangeHigh})` : ""}`
-            : r.kind === "BINARY_PROBABILITY" ? `GameTime gave it a ${Math.round((r.probability ?? 0) * 1000) / 10}% chance` : "GameTime published match probabilities";
+            : r.kind === "BINARY_PROBABILITY"
+              ? (typeof r.probability === "number" ? `GameTime gave it a ${Math.round(r.probability * 1000) / 10}% chance` : "GameTime's probability for it is not recorded")
+              : "GameTime published match probabilities";
           const happened = r.state === "WITHDRAWN" ? "the forecast was withdrawn before kickoff, which is not a miss"
             : r.state === "PENDING" ? "it is not final yet, which is not a miss"
               : r.state === "VOID" ? "it was void (did not play, push or tie), which is not a miss"
