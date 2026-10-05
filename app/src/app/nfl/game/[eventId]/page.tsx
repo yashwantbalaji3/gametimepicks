@@ -56,7 +56,7 @@ import SaveForecastButton from "@/components/saved/save-forecast-button";
 import { cardFromNflEvent, type NflEvent } from "@/lib/command-center/featured";
 import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
 import { reportCardContext } from "@/lib/command-center/report-card";
-import { archivedEventFrom, archivedEventIds, archivedForecastFor } from "@/lib/sports/nfl/archived-forecast";
+import { archivedEventFrom, archivedEventIds, archivedForecastFor, reconciledGames } from "@/lib/sports/nfl/archived-forecast";
 import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 import { PUBLIC_BOARD_CLEARED } from "@/lib/sports/nfl/board-ranking.mjs";
@@ -107,6 +107,15 @@ const etTime = (iso: string) =>
    pre-kickoff revision is committed is added, so a saved forecast's link and a shared link never age out. */
 const DATA_ROOT = path.join(process.cwd(), "public", "data");
 const archivedFor = (eventId: string) => archivedForecastFor(DATA_ROOT, eventId);
+/**
+ * The final score of the graded record for the live panel: the week reconciliation row, the same record the
+ * header's "The final was …" line reads. Only a FINAL row with both scores counts. Read-only.
+ */
+const reconciledFinalFor = (eventId: string): { home: number; away: number } | null => {
+  const g = reconciledGames(DATA_ROOT).find((x) => x.game.providerEventId === eventId)?.game;
+  const fin = g?.state === "FINAL" ? g.final : null;
+  return fin && Number.isFinite(fin.home) && Number.isFinite(fin.away) ? { home: fin.home, away: fin.away } : null;
+};
 export function generateStaticParams() {
   const live = (forecastArtifact()?.forecasts ?? []).map((f: Forecast) => f.providerEventId as string);
   const ids = new Set<string>([...live, ...archivedEventIds(DATA_ROOT)]);
@@ -183,6 +192,11 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
   const wx = ((weatherArtifact()?.rows ?? []) as Array<{ espnEventId?: string; summary?: string }>)
     .find((r) => String(r.espnEventId) === String(f.providerEventId)) ?? null;
   const started = lifecycle !== "UPCOMING";
+  /* The live panel reads as graded exactly when THIS page says SETTLED (archived, or settled on the index) and
+     the graded record carries the final. Anything less stays "Final · grading pending": a reconciled score
+     on a game the index still calls STARTED does not make the panel claim more than the page does. */
+  const reconciledFinal = lifecycle === "SETTLED" ? reconciledFinalFor(params.eventId) : null;
+  const liveSettlement = reconciledFinal ? { actual: reconciledFinal, gradedAt: null } : null;
   const s = f.forecastSummary;
   const mc = f.marketComparison;
   const card = artifact?.modelCard ?? null;
@@ -223,6 +237,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       }}
       forecastGeneratedAt={f.generatedAt ?? null}
       startTime={f.kickoffUtc ?? null}
+      settlement={liveSettlement}
       showBetaHeading
     />
   );

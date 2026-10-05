@@ -20,127 +20,127 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 14,
-  "gamesPending": 2,
+  "gamesFinal": 15,
+  "gamesPending": 1,
   "overall": {
-   "checks": 460,
-   "hits": 369,
-   "rate": 0.8021739130434783
+   "checks": 494,
+   "hits": 393,
+   "rate": 0.7955465587044535
   },
   "props": [
    {
     "id": "winner",
     "label": "Picked the winner",
     "group": "team",
-    "checks": 14,
+    "checks": 15,
     "hits": 10,
     "voids": 0,
-    "rate": 0.7142857142857143,
-    "expectedHits": 8.7
+    "rate": 0.6666666666666666,
+    "expectedHits": 9.3
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 14,
-    "hits": 14,
+    "checks": 15,
+    "hits": 15,
     "voids": 0,
     "rate": 1,
-    "typicalMiss": 10.6,
+    "typicalMiss": 10.4,
     "rangeWidth": 33.9,
-    "lean": 0.1
+    "lean": -0.4
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 14,
-    "hits": 14,
+    "checks": 15,
+    "hits": 15,
     "voids": 0,
     "rate": 1,
-    "typicalMiss": 6,
+    "typicalMiss": 6.3,
     "rangeWidth": 33.3,
-    "lean": 2.3
+    "lean": 1.5
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 146,
-    "hits": 122,
+    "checks": 157,
+    "hits": 130,
     "voids": 28,
-    "rate": 0.8356164383561644,
+    "rate": 0.8280254777070064,
     "status": "PUBLISHED",
     "typicalMiss": 1.8,
     "rangeWidth": 4.7,
-    "lean": -1
+    "lean": -1.1
    },
    {
     "id": "player_reception_yds",
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 146,
-    "hits": 110,
+    "checks": 157,
+    "hits": 116,
     "voids": 28,
-    "rate": 0.7534246575342466,
+    "rate": 0.7388535031847133,
     "status": "PUBLISHED",
-    "typicalMiss": 25.5,
+    "typicalMiss": 26.4,
     "rangeWidth": 63,
-    "lean": -13.6
+    "lean": -15.2
    },
    {
     "id": "player_rush_yds",
     "label": "Rushing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 86,
-    "hits": 73,
-    "voids": 22,
-    "rate": 0.8488372093023255,
+    "checks": 92,
+    "hits": 79,
+    "voids": 23,
+    "rate": 0.8586956521739131,
     "status": "PUBLISHED",
-    "typicalMiss": 17.2,
-    "rangeWidth": 61.2,
-    "lean": -10.8
+    "typicalMiss": 17.3,
+    "rangeWidth": 61.5,
+    "lean": -10.4
    },
    {
     "id": "player_pass_yds",
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 26,
-    "hits": 19,
+    "checks": 28,
+    "hits": 20,
     "voids": 1,
-    "rate": 0.7307692307692307,
+    "rate": 0.7142857142857143,
     "status": "ESTIMATE",
-    "typicalMiss": 71.5,
-    "rangeWidth": 232.9,
-    "lean": -19.1
+    "typicalMiss": 75.8,
+    "rangeWidth": 234.3,
+    "lean": -27.1
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 14,
-    "hits": 7,
+    "checks": 15,
+    "hits": 8,
     "voids": 0,
-    "rate": 0.5
+    "rate": 0.5333333333333333
    }
   ],
   "context": {
    "closerThanSportsbook": {
     "oursCloser": 5,
-    "booksCloser": 9,
+    "booksCloser": 10,
     "even": 0,
     "noLine": 0
    },
    "touchdowns": {
-    "playersGraded": 216,
-    "expectedScorers": 50.2,
-    "actualScorers": 52
+    "playersGraded": 231,
+    "expectedScorers": 54,
+    "actualScorers": 56
    }
   }
  },
@@ -8050,11 +8050,477 @@
     },
     "sportsbookTotal": 52
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 26,
+    "home": 32,
+    "total": 58,
+    "margin": 6
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "MISS"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "HIT",
+     "actual": 58
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "HIT",
+     "actual": 6
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "MISS",
+     "oursOff": 7,
+     "booksOff": 6
+    }
+   ],
+   "players": [
+    {
+     "name": "Jahmyr Gibbs",
+     "team": "DET",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 8,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jahmyr Gibbs",
+     "team": "DET",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 38,
+     "low": 9,
+     "high": 84,
+     "actual": 31,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jahmyr Gibbs",
+     "team": "DET",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 75,
+     "low": 24,
+     "high": 173,
+     "actual": 46,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Amon-Ra St. Brown",
+     "team": "DET",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 6,
+     "low": 3,
+     "high": 10,
+     "actual": 8,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Amon-Ra St. Brown",
+     "team": "DET",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 60,
+     "low": 20,
+     "high": 117,
+     "actual": 75,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Chuba Hubbard",
+     "team": "CAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 4,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Chuba Hubbard",
+     "team": "CAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 12,
+     "low": 0,
+     "high": 44,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Chuba Hubbard",
+     "team": "CAR",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 49,
+     "low": 13,
+     "high": 127,
+     "actual": 122,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Sam LaPorta",
+     "team": "DET",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 7,
+     "actual": 8,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Sam LaPorta",
+     "team": "DET",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 34,
+     "low": 5,
+     "high": 80,
+     "actual": 84,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Tetairoa McMillan",
+     "team": "CAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 7,
+     "actual": 14,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Tetairoa McMillan",
+     "team": "CAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 44,
+     "low": 9,
+     "high": 100,
+     "actual": 192,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Jameson Williams",
+     "team": "DET",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 6,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jameson Williams",
+     "team": "DET",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 31,
+     "low": 3,
+     "high": 81,
+     "actual": 102,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Darren Waller",
+     "team": "CAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Darren Waller",
+     "team": "CAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 21,
+     "low": 0,
+     "high": 61,
+     "actual": 36,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Justin Jackson",
+     "team": "DET",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 0,
+     "high": 34,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Isaac TeSlaa",
+     "team": "DET",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 4,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Isaac TeSlaa",
+     "team": "DET",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 13,
+     "low": 0,
+     "high": 49,
+     "actual": 95,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Tommy Tremble",
+     "team": "CAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 4,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tommy Tremble",
+     "team": "CAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 14,
+     "low": 0,
+     "high": 48,
+     "actual": 12,
+     "outcome": "HIT"
+    },
+    {
+     "name": "AJ Dillon",
+     "team": "CAR",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 10,
+     "low": 0,
+     "high": 48,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "John Metchie III",
+     "team": "CAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "John Metchie III",
+     "team": "CAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 5,
+     "low": 0,
+     "high": 34,
+     "actual": 37,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Sione Vaki",
+     "team": "DET",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 0,
+     "high": 30,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Mitchell Evans",
+     "team": "CAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Mitchell Evans",
+     "team": "CAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 0,
+     "high": 37,
+     "actual": 8,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jared Goff",
+     "team": "DET",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 0,
+     "high": 27,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jared Goff",
+     "team": "DET",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 245,
+     "low": 139,
+     "high": 394,
+     "actual": 412,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Bryce Young",
+     "team": "CAR",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 25,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Bryce Young",
+     "team": "CAR",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 233,
+     "low": 130,
+     "high": 380,
+     "actual": 329,
+     "outcome": "HIT"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "Jahmyr Gibbs",
+     "team": "DET",
+     "probability": 0.7712,
+     "outcome": "SCORED",
+     "likeliest": true
+    },
+    {
+     "name": "Amon-Ra St. Brown",
+     "team": "DET",
+     "probability": 0.585,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Chuba Hubbard",
+     "team": "CAR",
+     "probability": 0.4427,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Sam LaPorta",
+     "team": "DET",
+     "probability": 0.2929,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Tetairoa McMillan",
+     "team": "CAR",
+     "probability": 0.2789,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Jameson Williams",
+     "team": "DET",
+     "probability": 0.2471,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Darren Waller",
+     "team": "CAR",
+     "probability": 0.2438,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Justin Jackson",
+     "team": "DET",
+     "probability": 0.1706,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Isaac TeSlaa",
+     "team": "DET",
+     "probability": 0.1505,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tommy Tremble",
+     "team": "CAR",
+     "probability": 0.1399,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "AJ Dillon",
+     "team": "CAR",
+     "probability": 0.1283,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "John Metchie III",
+     "team": "CAR",
+     "probability": 0.1196,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Sione Vaki",
+     "team": "DET",
+     "probability": 0.1149,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Mitchell Evans",
+     "team": "CAR",
+     "probability": 0.0888,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jared Goff",
+     "team": "DET",
+     "probability": 0.087,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Bryce Young",
+     "team": "CAR",
+     "probability": 0.0735,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
    "boardNote": null
   },
   {
@@ -8070,14 +8536,14 @@
     "name": "New Orleans Saints"
    },
    "published": {
-    "generatedAt": "2026-10-04T23:51:01Z",
+    "generatedAt": "2026-10-05T15:58:06Z",
     "projectedScore": {
      "away": 22,
      "home": 22
     },
     "pick": {
      "abbr": "NO",
-     "probability": 0.5117
+     "probability": 0.5111
     },
     "total": {
      "median": 44,
@@ -8100,5 +8566,5 @@
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-10-04T23:51:01Z"
+ "generatedAt": "2026-10-05T15:58:06Z"
 }
