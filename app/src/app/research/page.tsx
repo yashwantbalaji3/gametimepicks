@@ -1,83 +1,158 @@
+/**
+ * /research — THE RESEARCH HOME. PUBLIC.
+ *
+ * Research home PR (2026-10-05). This page used to be a "Research engine · public beta" note about an MLB dataset
+ * milestone ("30 qualifying MLB observation dates") that no longer described the product, and it linked to none of
+ * the research that exists: player and team pages, Compare, Model Lab, the Forecast Record. The discoverability audit
+ * (Research & Model Lab department) found it was the only page named "Research" in the footer and in Ask, and a dead
+ * end. It is now the directory of Research:
+ *
+ *   1. the tools — Research Lab, Compare, Forecast Record, Model Lab, Ask — each with what it answers;
+ *   2. every team page, by sport, from the research projection index (the same registry that generates them, so every
+ *      link is a page this export serves) — the team directory the site did not have, with no new route;
+ *   3. what Research covers, per sport: published page counts and the inclusion bar, from the committed research
+ *      readiness receipt. Counts and every number in the bars (games, appearances, bouts, seasons) are read from the
+ *      receipt's `sports` and `thresholds`; only the sentence around them is written here, because the receipt's own
+ *      `rules` strings are engineering notes (they name a provider and say "noindex").
+ *
+ * Facts and measured records only: no forecast, no pick, and no reader-clock words in static HTML.
+ */
+import fs from "node:fs";
+import path from "node:path";
+
 import type { Metadata } from "next";
 import Link from "next/link";
-import SportOverviewHero from "@/components/sport-overview-hero";
+
+import { Eyebrow, PANEL, ResearchShell, Section } from "@/components/research-pages/research-primitives";
+import { RESEARCH_PROJECTION_DIR, assertProjectionVersion } from "@/lib/research-pages/contract.mjs";
+import { researchIndex, type ResearchSport } from "@/lib/research-pages/projection-store";
+import { inclusionCopy, type Thresholds } from "@/lib/research-pages/research-home";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata: Metadata = withRouteMetadata("/research/", {
-  title: "Research Engine · Public Beta — GameTimePicks",
-  description:
-    "The GameTimePicks research engine: automated pregame data capture, a settlement pipeline, observation-quality validation, and a benchmark framework — building a long-term, leakage-safe MLB dataset. Public beta.",
-  openGraph: {
-    title: "GameTimePicks Research Engine — Public Beta",
-    description: "Simulation-powered sports analytics. Automated pregame capture · settlement · quality validation · benchmark framework. Building the dataset.",
-    type: "website",
-  },
+  title: "Research: teams, players and our forecast record | GameTimePicks",
+  description: "Recorded facts about NFL, MLB, Premier League and UFC teams and players, side-by-side comparisons, and how every forecast GameTimePicks published turned out.",
 });
 
-const MILESTONES: { done: boolean; title: string; body: string }[] = [
-  { done: true, title: "Automated pregame data capture", body: "Every day, leakage-safe pregame features are captured for the MLB slate — starters, lineups, bullpen, matchup, park, team form, and more — each timestamped strictly before first pitch." },
-  { done: true, title: "Settlement pipeline", body: "Official box scores from the MLB Stats API are joined to the pregame snapshots after games finalize, producing a clean, labeled research record." },
-  { done: true, title: "Observation quality validation", body: "An automated quality gate checks every observation for stable IDs, correct outcomes, timestamp integrity, and no leakage before anything enters the dataset." },
-  { done: true, title: "Benchmark framework", body: "A market-baseline benchmark is in place to evaluate any future model out-of-sample — always compared against the market first, never assumed better." },
-  { done: false, title: "Next milestone: 30 qualifying MLB observation dates", body: "The dataset grows one finalized, market-covered slate at a time. We are building a long-term historical foundation so that any future model can be evaluated honestly." },
+const SPORTS: ReadonlyArray<{ sport: ResearchSport; name: string; hub: string }> = [
+  { sport: "NFL", name: "NFL", hub: "/nfl/" },
+  { sport: "MLB", name: "MLB", hub: "/mlb/" },
+  { sport: "EPL", name: "Premier League", hub: "/epl/" },
+  { sport: "UFC", name: "UFC", hub: "/ufc/" },
 ];
 
-export default function ResearchPage() {
+type Readiness = {
+  thresholds: Thresholds;
+  sports: Record<string, { players: { published: number } | null; teams: { published: number } | null }>;
+};
+
+function readiness(): Readiness {
+  const p = path.join(process.cwd(), "..", RESEARCH_PROJECTION_DIR, "readiness.json");
+  return assertProjectionVersion(JSON.parse(fs.readFileSync(p, "utf8")), "research readiness") as Readiness;
+}
+
+const TOOLS: ReadonlyArray<{ href: string; title: string; body: string }> = [
+  { href: "/research/lab/", title: "Research Lab", body: "Find recorded games by team, opponent, result or date; filter player games on one recorded stat; read season results team by team." },
+  { href: "/compare/", title: "Compare", body: "Two teams or two players side by side on the same recorded stat, with the number of games behind every figure." },
+  { href: "/results/forecasts/", title: "Forecast Record", body: "Every forecast GameTimePicks published, frozen before the game and measured against the official result." },
+  { href: "/models/", title: "Model Lab", body: "Which models are live, being tested, holding or paused, and the measured record behind each." },
+  { href: "/ask/", title: "Ask GameTime", body: "Ask about a game, a player or a forecast. Answers come from GameTimePicks' own data, with links to the page behind them." },
+];
+
+const card: React.CSSProperties = { ...PANEL, display: "block", textDecoration: "none", color: "var(--vault-text)", minHeight: 44 };
+const chip: React.CSSProperties = { display: "inline-flex", alignItems: "center", minHeight: 44, padding: "0 10px", borderRadius: 999, border: "1px solid var(--vault-rule)", color: "var(--vault-text)", textDecoration: "none", fontSize: 13 };
+const cell: React.CSSProperties = { padding: "6px 8px", borderTop: "1px solid var(--vault-border)" };
+
+export default function ResearchHome() {
+  const index = researchIndex();
+  const ready = readiness();
+  const teamsBySport = new Map<ResearchSport, Array<{ label: string; path: string }>>();
+  for (const e of index) {
+    if (e.kind !== "team") continue;
+    const list = teamsBySport.get(e.sport) ?? [];
+    list.push({ label: e.label, path: e.path });
+    teamsBySport.set(e.sport, list);
+  }
+  for (const list of teamsBySport.values()) list.sort((a, b) => a.label.localeCompare(b.label));
+
   return (
-    <div className="mx-auto max-w-[760px] px-4 sm:px-6 py-10">
-      <SportOverviewHero
-        eyebrow="Research engine · public beta"
-        sport="Building the dataset."
-        tagline="simulation-powered · research-backed · paper-only"
-        statusKind="neutral"
-        statusLabel="Public Beta"
-        accent="gold"
-        ctas={[
-          { href: "/simulate", label: "Explore simulations", primary: true },
-          { href: "/methodology", label: "How it works" },
-        ]}
-        framing="GameTimePicks is a simulation-powered sports analytics platform. Behind the public 10,000-run game simulations, an automated research engine is quietly building a long-term, leakage-safe historical dataset — so that any future model can be evaluated against the market, honestly and out-of-sample."
-      />
-
-      <div className="mt-8 flex flex-wrap gap-2">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-elevated)] text-[var(--text-mute)]">Simulation-powered analytics</span>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-elevated)] text-[var(--text-mute)]">10,000-run game simulations</span>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-elevated)] text-[var(--text-mute)]">Market comparison</span>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-[12px] font-medium bg-[var(--surface-elevated)] text-[var(--text-mute)]">Public beta</span>
-      </div>
-
-      {/* v1.5 · the Research Lab is the public, factual half of this page's subject: the recorded data itself. */}
-      <div className="mt-10 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] p-4">
-        <div className="text-[15px] font-semibold text-[var(--text)]">Research Lab</div>
-        <p className="mt-1 text-[14px] leading-relaxed text-[var(--text-mute)]">
-          Search the recorded data directly: find MLB and NFL games by team, opponent, result, score or date; filter NFL,
-          Premier League and MLB player games on one recorded stat; or read recorded season results team by team. Facts only —
-          no forecast, no rating, no pick.
-        </p>
-        <Link href="/research/lab/" className="mt-3 inline-flex min-h-[44px] items-center rounded-full border border-[var(--border)] px-4 text-[13px] text-[var(--text)] no-underline">Open Research Lab</Link>
-      </div>
-
-      <h2 className="mt-10 text-[13px] font-semibold uppercase tracking-wide text-[var(--text-mute)]">Research milestones</h2>
-      <ol className="mt-4 space-y-4">
-        {MILESTONES.map((m) => (
-          <li key={m.title} className="flex gap-3 rounded-[6px] border border-[var(--border)] bg-[var(--surface)] p-4">
-            <span
-              aria-hidden
-              className={`mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full text-[13px] font-bold ${m.done ? "bg-[var(--surface-elevated)] text-[var(--accent, var(--vault-loss-red))]" : "border border-dashed border-[var(--border)] text-[var(--text-mute)]"}`}
-            >
-              {m.done ? "✓" : "→"}
-            </span>
-            <div>
-              <div className="text-[15px] font-semibold text-[var(--text)]">{m.title}</div>
-              <p className="mt-1 text-[14px] leading-relaxed text-[var(--text-mute)]">{m.body}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
-
-      <p className="mt-8 text-[13px] leading-relaxed text-[var(--text-mute)]">
-        Everything here is <strong>paper-only and educational</strong>. The public simulator is deterministic — the same 10,000-run result for every user — and is offered as an analytics tool for exploring probabilities and comparing them to the market, not as betting advice or a claim of superiority. The science continues in the background while the product is in public beta.
+    <ResearchShell back={{ href: "/", label: "Home" }}>
+      <Eyebrow>Research</Eyebrow>
+      <h1 style={{ fontSize: "clamp(22px, 4vw, 32px)", fontWeight: 800, margin: "6px 0 0" }}>Teams, players and how our forecasts did</h1>
+      <p style={{ margin: "8px 0 0", fontSize: 14, color: "var(--vault-text-mute)", maxWidth: 680, lineHeight: 1.6 }}>
+        Recorded facts about teams and players, side-by-side comparisons, and the measured record of every forecast GameTimePicks published. Nothing on these pages is a pick.
       </p>
-    </div>
+
+      <Section id="research-tools" title="Research tools" sub="Each tool reads the same recorded data and says what it does not cover.">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+          {TOOLS.map((t) => (
+            <Link key={t.href} href={t.href} style={card}>
+              <strong>{t.title} →</strong>
+              <span style={{ display: "block", fontSize: 12.5, color: "var(--vault-text-mute)", marginTop: 4, lineHeight: 1.5 }}>{t.body}</span>
+            </Link>
+          ))}
+        </div>
+      </Section>
+
+      <Section id="research-teams" title="Team research" sub="Every team with a research page. Each team page links its players, games and comparisons.">
+        {SPORTS.filter((s) => teamsBySport.get(s.sport)?.length).map((s) => (
+          <div key={s.sport} style={{ marginTop: 12 }}>
+            <h3 id={`teams-${s.sport.toLowerCase()}`} style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 700 }}>{s.name} teams</h3>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {teamsBySport.get(s.sport)!.map((t) => (
+                <li key={t.path}><Link href={t.path} style={chip}>{t.label}</Link></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", lineHeight: 1.55 }}>
+          Player pages are linked from each team page and from game pages. UFC fighters have no team; each fighter&apos;s page is linked from their bout on the <Link href="/ufc/" style={{ color: "var(--vault-gold-bright)" }}>UFC hub</Link>.
+        </p>
+      </Section>
+
+      <Section id="research-coverage" title="What Research covers" sub="A page is published only when GameTimePicks has recorded enough for it. A missing page means too few recorded games, not zero.">
+        <div style={{ overflowX: "auto", position: "relative" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
+            <thead>
+              <tr>
+                {["Sport", "Pages", "Who gets a page"].map((h) => (
+                  <th key={h} scope="col" style={{ textAlign: "left", padding: "6px 8px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)", whiteSpace: "nowrap" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {SPORTS.map((s) => {
+                const r = ready.sports[s.sport];
+                const rule = inclusionCopy(s.sport, ready.thresholds);
+                const players = r?.players?.published ?? 0;
+                const teams = r?.teams?.published ?? null;
+                return (
+                  <tr key={s.sport}>
+                    <th scope="row" style={{ ...cell, textAlign: "left", whiteSpace: "nowrap" }}>
+                      <Link href={s.hub} style={{ color: "var(--vault-gold-bright)" }}>{s.name}</Link>
+                    </th>
+                    <td className="font-mono" style={{ ...cell, whiteSpace: "nowrap" }}>
+                      {teams != null ? <>{teams} team{teams === 1 ? "" : "s"}<br /></> : null}
+                      {players} {s.sport === "UFC" ? "fighter" : "player"}{players === 1 ? "" : "s"}
+                    </td>
+                    <td style={{ ...cell, color: "var(--vault-text-mute)", lineHeight: 1.5 }}>
+                      {rule.team ? <><strong style={{ color: "var(--vault-text)" }}>Teams:</strong> {rule.team}<br /></> : null}
+                      <strong style={{ color: "var(--vault-text)" }}>{s.sport === "UFC" ? "Fighters" : "Players"}:</strong> {rule.player}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", lineHeight: 1.55 }}>
+          NBA has a schedule and official finals on the <Link href="/nba/" style={{ color: "var(--vault-gold-bright)" }}>NBA hub</Link> and no research pages.
+        </p>
+      </Section>
+
+      <p style={{ marginTop: 28, fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
+        Everything here is paper-only and educational. <Link href="/methodology/" style={{ color: "var(--vault-gold-bright)" }}>Methodology</Link> explains how each number is built.
+      </p>
+    </ResearchShell>
   );
 }

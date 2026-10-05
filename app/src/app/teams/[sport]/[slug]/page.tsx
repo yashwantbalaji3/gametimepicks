@@ -7,7 +7,12 @@
  *
  * Sport-aware by construction: MLB shows runs, NFL points, and EPL shows fixtures WITHOUT any record, because its
  * platform has no id-keyed final scores (§31). Upcoming games are decided on the reader's clock; this page makes
- * no Live request and joins no forecast — each game link carries its own report.
+ * no Live request — each game link carries its own report.
+ *
+ * Research home PR (2026-10-05): the one forecast this page shows is the team's OWN Forecast Record rows — ledger rows
+ * whose canonical subject id IS this team's id (today: NFL team score, 32/32 teams). Read through the same section and
+ * the same ledger reader as the player pages; no game-level row is attributed to a team (those rows carry no team id),
+ * and the section renders nothing for a team the ledger holds no row for.
  */
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -16,6 +21,7 @@ import { notFound } from "next/navigation";
 import CompareCta from "@/components/compare/compare-cta";
 import { labHref } from "@/lib/lab/lab-store";
 import FollowToggle from "@/components/follow/follow-toggle";
+import ForecastHistorySection from "@/components/research-pages/forecast-history-section";
 import TeamLogo from "@/components/team-logo";
 import { CoverageStrip, EntityLink, Eyebrow, MONO, PANEL, ResearchShell, ResultBadge, Section, StatTile } from "@/components/research-pages/research-primitives";
 import TeamSeasonLog from "@/components/research-pages/team-season-log";
@@ -141,6 +147,9 @@ export default function TeamResearchPage({ params }: { params: { sport: string; 
           ) : <p style={{ fontSize: 13, color: "var(--vault-text-mute)" }}>No final with both scores is recorded yet.</p>}
         </Section>
       ) : null}
+
+      {/* The team's own published forecasts from the Forecast Record (subject id = this team's id). */}
+      <ForecastHistorySection subjectId={t.id} name={t.name} />
 
       <Section id="upcoming" title={sport === "EPL" ? "Upcoming fixtures" : "Upcoming games"} sub="From the committed schedule. Times are US Eastern.">
         <UpcomingList items={upcoming} emptyText={`No upcoming ${sport === "EPL" ? "fixtures" : "games"} in the committed schedule.`} />
