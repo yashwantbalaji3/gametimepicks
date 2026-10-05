@@ -18,7 +18,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { buildNflPresentation } from "./nfl.ts";
+import { buildNflPresentation, etDateOf } from "./nfl.ts";
 import { isPresentable } from "./types.ts";
 
 const INDEX = path.join(process.cwd(), "public/data/nfl/index.json");
@@ -57,7 +57,7 @@ test("IT IS LABELLED WITH ITS TRUE EVENT DATE, not today's", () => {
   if (!e) return;
   const m = buildNflPresentation(e);
   if (!isPresentable(m)) return;
-  assert.equal(m.displayDate, e.kickoffUtc.slice(0, 10), "the display date is the event's own");
+  assert.equal(m.displayDate, etDateOf(e.kickoffUtc), "the display date is the event's own ET day");
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
   if (m.displayDate !== today) {
     assert.notEqual(m.displayDate, today, "a historical event must never be dated today");
@@ -128,4 +128,10 @@ test("a run count is carried only when the forecast artifact states one", () => 
   const withCount = buildNflPresentation(e, { runCount: 20000 });
   assert.equal(withCount.provenance.runCount, 20000, "the forecast artifact's own count is carried when supplied");
   assert.equal(buildNflPresentation(e, { runCount: 0 }).provenance.runCount, null, "zero is not a count");
+});
+
+test("🔴 a night game is dated by its ET day, not the UTC day (8:15 PM ET = 00:15Z next day)", () => {
+  assert.equal(etDateOf("2026-10-06T00:15Z"), "2026-10-05", "MNF ATL @ NO kicks off Monday Oct 5 ET");
+  assert.equal(etDateOf("2026-10-04T17:00Z"), "2026-10-04");
+  assert.equal(etDateOf(null), "", "absent stays absent");
 });
