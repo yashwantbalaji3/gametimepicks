@@ -43,7 +43,9 @@ test("3 · NO public source reads internal research (observations / benchmark / 
   // verbatim (metrics + activation states — governance metadata, not the research payloads the
   // `research` regex above bans, which stay banned from /launch too). Both routes are
   // guardInternalRoute()-protected AND pruned from the public export.
-  const internalPrefixes = [`src${path.sep}app${path.sep}ops${path.sep}`, `src${path.sep}app${path.sep}launch${path.sep}`];
+  // Session 13: /preview/simulation-v2 renders the Simulation Engine V2 SHADOW receipts — guardInternalRoute()-protected
+  // and pruned with /preview, the same two protections; the research-payload regex above still applies to it.
+  const internalPrefixes = [`src${path.sep}app${path.sep}ops${path.sep}`, `src${path.sep}app${path.sep}launch${path.sep}`, `src${path.sep}app${path.sep}preview${path.sep}simulation-v2${path.sep}`];
   const isInternalOps = (f) => internalPrefixes.some((pre) => path.relative(app, f).startsWith(pre));
   const leaks = files.filter((f) => {
     const src = fs.readFileSync(f, "utf8");
