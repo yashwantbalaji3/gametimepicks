@@ -12,6 +12,7 @@
 -- Identities (fixed uuids so a failure message names the actor):
 --   A …0a  invited tester            B …0b  invited tester
 --   C …0c  signed in, NOT invited    R …0d  invited, then REVOKED     anon  no JWT at all
+-- (C and R may not upload slip images either: an upload is a write, and writes need an active invite.)
 \set ON_ERROR_STOP on
 begin;
 
@@ -176,6 +177,7 @@ reset role;
 select rls_test.act_as('0c');
 select rls_test.refused($$insert into public.profiles (id) values ('00000000-0000-4000-8000-00000000000c')$$, 'an uninvited account creates a profile');
 select rls_test.refused($$insert into public.bet_slips (user_id, source) values ('00000000-0000-4000-8000-00000000000c', 'manual')$$, 'an uninvited account records a bet');
+select rls_test.refused($$insert into storage.objects (bucket_id, name) values ('slips', '00000000-0000-4000-8000-00000000000c/c.png')$$, 'an uninvited account uploads a slip image into its own folder');
 reset role;
 
 select rls_test.act_as('0d');
@@ -183,6 +185,7 @@ do $$ begin
   if rls_test.n('select count(*) from public.bet_slips') <> 1 then raise exception 'REVOKED: R cannot read their own slip'; end if;
 end $$;
 select rls_test.refused($$insert into public.bet_slips (user_id, source) values ('00000000-0000-4000-8000-00000000000d', 'manual')$$, 'a revoked tester records a new bet');
+select rls_test.refused($$insert into storage.objects (bucket_id, name) values ('slips', '00000000-0000-4000-8000-00000000000d/r.png')$$, 'a revoked tester uploads a slip image into their own folder');
 delete from public.bet_slips where user_id = '00000000-0000-4000-8000-00000000000d';
 do $$ begin
   if rls_test.n('select count(*) from public.bet_slips') <> 0 then raise exception 'REVOKED: R cannot delete their own slip'; end if;

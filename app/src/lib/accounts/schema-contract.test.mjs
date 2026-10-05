@@ -98,6 +98,14 @@ test("slip images live in a PRIVATE bucket, one folder per person", () => {
   for (const verb of ["select", "insert", "delete"]) {
     assert.match(SQL, new RegExp(`for ${verb}[\\s\\S]{0,220}?storage\\.foldername\\(name\\)\\)\\[1\\] = auth\\.uid\\(\\)::text`), `storage ${verb} is scoped to the user's own folder`);
   }
+  // An upload is a write, so it needs an active invite like every table write; reading and deleting your own
+  // images never do, so a revoked tester keeps them (2026-10-05 beta fix).
+  const policy = (name) => { const at = SQL.indexOf(`create policy ${name} on storage.objects`); return at < 0 ? "" : SQL.slice(at, SQL.indexOf(";", at)); };
+  assert.match(policy("slips_write_own"), /auth\.uid\(\)::text and public\.is_beta_member\(\)/, "a slip-image upload requires the invite");
+  for (const name of ["slips_read_own", "slips_delete_own"]) {
+    const sql = policy(name);
+    assert.ok(sql && !/is_beta_member/.test(sql), `${name} stays open to the owner so a revoked tester keeps their images`);
+  }
 });
 
 test("deleting the account takes the data with it", () => {
