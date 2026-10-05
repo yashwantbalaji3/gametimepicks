@@ -545,3 +545,59 @@ test.describe("reflow", () => {
     });
   }
 });
+
+/* QA 2026-10-05: the routes where axe found sideways-scrolling boxes a keyboard could not reach
+   (`scrollable-region-focusable`) and links told apart by colour alone (`link-in-text-block`).
+   Both are fixed site-wide by components/a11y/scroll-region-a11y.tsx; these pin the result. */
+const QA_A11Y_ROUTES = ["/results/", "/results/nfl/", "/results/mlb/", "/results/model-audit/", "/results/forecasts/nfl/nfl-game-winner/",
+  "/nfl/", "/epl/", "/ufc/", "/sports/", "/models/", "/methodology/", "/bank-builder/", "/moonshot/"];
+
+test.describe("sideways-scrolling boxes are keyboard reachable", () => {
+  // WCAG 2.1.1: a box that scrolls must be focusable (or hold something focusable) so the arrow keys can scroll it.
+  for (const route of QA_A11Y_ROUTES) {
+    test(`${route} — every scrolling box at 390px can take focus and has a name`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await gotoAudited(page, route);
+      await expect.poll(() => page.evaluate(() => {
+        const bad: string[] = [];
+        for (const el of document.querySelectorAll<HTMLElement>("main *")) {
+          if (el.scrollWidth <= el.clientWidth + 1) continue;
+          if (!["auto", "scroll"].includes(getComputedStyle(el).overflowX)) continue;
+          if (el.querySelector("a[href], button, input, select, textarea, summary, [tabindex]")) continue;
+          const named = el.getAttribute("aria-label") || el.getAttribute("aria-labelledby");
+          // A name is a short label, not a panel's whole text read aloud.
+          if (el.tabIndex < 0 || !named || named.length > 81) bad.push(el.tagName.toLowerCase() + "." + String(el.className || "").trim().split(/\s+/).slice(0, 2).join("."));
+        }
+        return bad;
+      }), { message: `unreachable scrolling boxes on ${route}`, timeout: 5000 }).toEqual([]);
+    });
+  }
+});
+
+test.describe("links inside sentences do not rely on colour", () => {
+  // WCAG 1.4.1: an inline link whose block also holds other text needs a non-colour cue (an underline).
+  for (const route of QA_A11Y_ROUTES) {
+    test(`${route} — inline links in running text are underlined`, async ({ page }) => {
+      await gotoAudited(page, route);
+      await expect.poll(() => page.evaluate(() => {
+        const text = (el: Element | null) => (el?.textContent ?? "").replace(/\s+/g, " ").trim();
+        // Text on the block's own lines only — a nested block (a date row under a title link) is not the link's sentence.
+        const inlineText = (node: Node): string => Array.from(node.childNodes).map((c) =>
+          c.nodeType === Node.TEXT_NODE ? c.textContent ?? "" : c instanceof Element && getComputedStyle(c).display.startsWith("inline") ? inlineText(c) : "").join("");
+        const bad: string[] = [];
+        for (const a of document.querySelectorAll<HTMLAnchorElement>("main a[href]")) {
+          const cs = getComputedStyle(a);
+          if (cs.display !== "inline" || !a.getClientRects().length || a.closest("nav, [role=navigation], [role=button]")) continue;
+          let block = a.parentElement;
+          while (block && getComputedStyle(block).display.startsWith("inline")) block = block.parentElement;
+          if (!block || !/[a-z0-9]{2,}/i.test(inlineText(block).replace(a.textContent ?? "", ""))) continue;
+          // The same non-colour cues axe's `link-in-text-block` accepts: underline, border, or a clearly heavier weight.
+          const weightGap = Math.abs(parseInt(cs.fontWeight, 10) - parseInt(getComputedStyle(block).fontWeight, 10));
+          const cue = cs.textDecorationLine.includes("underline") || parseFloat(cs.borderBottomWidth) > 0 || weightGap >= 200;
+          if (!cue) bad.push(`"${text(a).slice(0, 40)}" → ${a.getAttribute("href")}`);
+        }
+        return bad.slice(0, 10);
+      }), { message: `colour-only links on ${route}`, timeout: 5000 }).toEqual([]);
+    });
+  }
+});
