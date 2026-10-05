@@ -46,3 +46,11 @@ test("every way the site is served generates it first", () => {
 
   assert.match(pkg.scripts.predev ?? "", /build-search-index\.mjs/, "local dev generates it too");
 });
+
+test("Session 13: search reaches the Forecast Record — the overview, Model Lab and every measured forecast type", () => {
+  const src = fs.readFileSync(path.join(APP, "scripts/build-search-index.mjs"), "utf8");
+  assert.match(src, /"\/results\/forecasts\/"/, "the Forecast Record overview is a search page");
+  assert.match(src, /"\/models\/"/, "Model Lab is a search page");
+  assert.match(src, /for \(const \{ sport, family \} of ledgerFamilies\(\)\)/, "one entry per forecast type, from the page owner's reader");
+  assert.match(src, /familyHref\(sport, family\)/, "entries link the family's own page — the same href the pages use");
+});

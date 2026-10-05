@@ -26,6 +26,8 @@ import { fileURLToPath } from "node:url";
 import { activeMlbDate } from "../src/lib/data-mlb.ts";
 import { buildAllGameDetails } from "../src/lib/game-detail.ts";
 import { soccerLeaguePages } from "../src/lib/sports/soccer/leagues.mjs";
+import { familyHref, ledgerFamilies } from "../src/lib/results/v2/forecast-ledger-reader.ts";
+import { FAMILY_LABELS, SPORT_LABELS } from "../src/lib/results/v2/forecast-record.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
@@ -211,6 +213,8 @@ for (const [label, sub, href, terms] of [
   ["Picks", "Model probabilities beside the sportsbook price", "/markets/", ["markets", "odds", "prices"]],
   ["Parlay Center", "Suggested cards, or build your own", "/build/", ["parlay", "cards", "builder"]],
   ["Results", "The settled record", "/results/", ["record", "receipts", "settled"]],
+  ["Forecast record", "Every published forecast, measured against the result", "/results/forecasts/", ["accuracy", "how accurate", "calibration", "track record", "brier", "forecast history"]],
+  ["Model Lab", "What is live, being tested or paused", "/models/", ["models", "model status", "calibration", "experiments"]],
   ["NFL", "Football hub", "/nfl/", ["football"]],
   ["MLB", "Baseball hub", "/mlb/", ["baseball"]],
   ["Premier League", "Soccer hub", "/epl/", ["epl", "soccer", "football"]],
@@ -224,6 +228,15 @@ for (const [label, sub, href, terms] of [
   ["How It Works", "A two-minute guide", "/learn/", ["learn", "guide", "help"]],
   ["System status", "What is running right now", "/system-status/", ["status", "health"]],
 ]) add("page", label, sub, href, terms);
+
+// ── FORECAST RECORD (Session 13): one entry per forecast type the ledger measures, from the page owner's own reader,
+// so "receiving yards accuracy" lands on that family's record. Families with no ledger rows have no page and no entry.
+for (const { sport, family } of ledgerFamilies()) {
+  const label = FAMILY_LABELS[family] ?? family;
+  const sportName = SPORT_LABELS[sport] ?? sport;
+  add("page", `${sportName} ${label} — forecast record`, `How every published ${label.toLowerCase()} forecast did`, familyHref(sport, family),
+    [...label.toLowerCase().split(/\s+/), "accuracy", "record", "results", sport.toLowerCase()]);
+}
 
 const rows = [...entries.values()].sort((a, b) => a.k - b.k || a.l.localeCompare(b.l));
 const out = {
