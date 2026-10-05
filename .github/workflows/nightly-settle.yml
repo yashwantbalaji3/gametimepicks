@@ -857,6 +857,25 @@ jobs:
           done
           echo "Pushed: $MSG"
 
+      # ---- THE UNIVERSAL FORECAST LEDGER (Session 13 · Phase B) ----
+      # One row per published/frozen forecast observation, read from the owners settled above (and by the NFL
+      # event window / EPL / UFC graders before this run). Read-only over committed files, $0, deterministic: an
+      # unchanged night writes nothing.
+      #
+      # DELIBERATELY AFTER the settlement commit, as its OWN commit. The builder refuses (exit 3) on an
+      # append-only violation — a vanished row, a rewritten projection / model / publication time, a settled
+      # outcome changed without an owner correction. That must go RED and alert (Notify on failure, below), but
+      # it must never hold back the night's settlement publish: a gate inside the generator froze the site for
+      # 62h once (Aug 1–3). No `continue-on-error`, no `|| true` — both would turn the refusal green.
+      - name: Forecast Ledger (append-only projection over the settled owners)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          node app/scripts/results/build-forecast-ledger.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --verify-against HEAD
+          git add data/internal/forecast-ledger/
+          GENERATED_PATHS="data/internal/forecast-ledger/" \
+            bash scripts/ci/commit-generated.sh "auto: forecast ledger $(TZ=America/New_York date '+%Y-%m-%d %H:%M ET') [skip ci]"
+
       - name: Upload failure logs
         if: failure()
         uses: actions/upload-artifact@v4

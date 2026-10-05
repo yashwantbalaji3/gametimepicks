@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "forecast-ledger@1",
+  "artifact": "forecast-ledger",
+  "dataClass": "PUBLIC_DERIVED",
+  "rule": "One row per published/frozen forecast observation, read from its owner; append-only; missing stays missing.",
+  "totals": {
+    "rows": 10081,
+    "settlement": {
+      "NO_MEASUREMENT": 483,
+      "PENDING": 177,
+      "SETTLED": 7292,
+      "VOID": 2129
+    },
+    "publication": {
+      "PUBLISHED": 10081
+    }
+  },
+  "sports": {
+    "NFL": {
+      "file": "nfl.jsonl",
+      "rows": 2778,
+      "contentHash": "f7302092b11bc822",
+      "families": {
+        "anytime_td": 634,
+        "nfl_game_margin": 111,
+        "nfl_game_total": 111,
+        "nfl_game_winner": 111,
+        "nfl_team_score": 222,
+        "player_pass_yds": 112,
+        "player_reception_yds": 560,
+        "player_receptions": 560,
+        "player_rush_yds": 357
+      },
+      "settlement": {
+        "NO_MEASUREMENT": 451,
+        "PENDING": 175,
+        "SETTLED": 2150,
+        "VOID": 2
+      },
+      "publication": {
+        "PUBLISHED": 2778
+      },
+      "recoverability": {
+        "EXACT_FROZEN": 2778
+      },
+      "latestSettledAt": "2026-10-04T23:44:45Z"
+    },
+    "MLB": {
+      "file": "mlb.jsonl",
+      "rows": 2617,
+      "contentHash": "ba1d273cbccdf20e",
+      "families": {
+        "mlb_homer_nukes": 225,
+        "mlb_moneyline": 799,
+        "mlb_run_line": 799,
+        "mlb_total": 794
+      },
+      "settlement": {
+        "NO_MEASUREMENT": 32,
+        "PENDING": 2,
+        "SETTLED": 2548,
+        "VOID": 35
+      },
+      "publication": {
+        "PUBLISHED": 2617
+      },
+      "recoverability": {
+        "OWNER_GRADED_LOG": 2392,
+        "OWNER_SETTLED_UNFROZEN": 225
+      },
+      "latestSettledAt": "2026-10-04T11:08:45Z"
+    },
+    "EPL": {
+      "file": "epl.jsonl",
+      "rows": 4608,
+      "contentHash": "9dfd6de59aee6396",
+      "families": {
+        "epl_1x2": 46,
+        "epl_anytime_goalscorer": 2258,
+        "epl_over_2_5": 46,
+        "epl_shots_on_goal_over_0_5": 2258
+      },
+      "settlement": {
+        "SETTLED": 2516,
+        "VOID": 2092
+      },
+      "publication": {
+        "PUBLISHED": 4608
+      },
+      "recoverability": {
+        "OWNER_GRADED_LOG": 4608
+      },
+      "latestSettledAt": "2026-09-22T14:47:34.000Z"
+    },
+    "LIGUE_1": {
+      "file": "ligue-1.jsonl",
+      "rows": 18,
+      "contentHash": "5a167494b804f2f7",
+      "families": {
+        "ligue1_1x2": 18
+      },
+      "settlement": {
+        "SETTLED": 18
+      },
+      "publication": {
+        "PUBLISHED": 18
+      },
+      "recoverability": {
+        "OWNER_GRADED_LOG": 18
+      },
+      "latestSettledAt": null
+    },
+    "UFC": {
+      "file": "ufc.jsonl",
+      "rows": 60,
+      "contentHash": "76adc6676e726382",
+      "families": {
+        "ufc_winner": 60
+      },
+      "settlement": {
+        "SETTLED": 60
+      },
+      "publication": {
+        "PUBLISHED": 60
+      },
+      "recoverability": {
+        "OWNER_GRADED_LOG": 60
+      },
+      "latestSettledAt": "2026-10-04T13:49:31Z"
+    }
+  },
+  "declaredGaps": [
+    {
+      "sport": "NFL",
+      "family": "player props (Weeks 1–2, before 2026-09-20)",
+      "reason": "Graded only in the week reconciliation, which records player NAME and team, not an id. Deferred to the Phase G backfill with an exact id crosswalk; never joined by name."
+    },
+    {
+      "sport": "NFL",
+      "family": "nfl_score_shape",
+      "reason": "Published derived distribution (key numbers, OT/tie) with no settlement owner."
+    },
+    {
+      "sport": "MLB",
+      "family": "projected score / simulation-median total",
+      "reason": "Published on game pages; no owner grades it. UNMEASURED."
+    },
+    {
+      "sport": "MLB",
+      "family": "player-prop leans",
+      "reason": "Every MLB prop market is DEMOTED to market context (RESEARCH), so it is not public forecast history."
+    },
+    {
+      "sport": "EPL",
+      "family": "BTTS / clean sheet / double chance / scorelines",
+      "reason": "Published as derived markets; no owner grades them. UNMEASURED."
+    },
+    {
+      "sport": "UFC",
+      "family": "method / round",
+      "reason": "Published heads with no forward grader. UNMEASURED."
+    },
+    {
+      "sport": "NBA",
+      "family": "game model (v0 / v0.1)",
+      "reason": "SHADOW / PRIVATE_RESEARCH — never public forecast history."
+    }
+  ]
+}
