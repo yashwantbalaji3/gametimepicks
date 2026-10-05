@@ -41,6 +41,33 @@ const CHUNKS = [
       "points you at what it does have.",
   },
   {
+    id: "forecast-record",
+    title: "The Forecast Record: how every published forecast is measured",
+    section: "Results",
+    route: "/results/forecasts/",
+    keywords: ["forecast record", "accuracy", "how accurate", "brier", "log loss", "calibration", "average miss", "measured", "track record"],
+    text:
+      "The Forecast Record lists every forecast GameTimePicks published, counted once, and checks each against the " +
+      "official result. Each kind of forecast gets its own yardstick: a yardage or points projection is measured by " +
+      "how far it missed, a probability by Brier score and log loss (lower is better) and by calibration, and a " +
+      "match-result forecast by log loss and how often the likeliest outcome happened. There is no single accuracy " +
+      "number across forecast types. Forecasts that are not final, void (the player did not play, a push or a tie) " +
+      "or withdrawn before kickoff are shown and never counted as misses. Every forecast type has a downloadable CSV.",
+  },
+  {
+    id: "simulation-meaning",
+    title: "What \"simulation\" means on GameTimePicks",
+    section: "Methodology",
+    route: "/results/forecasts/",
+    keywords: ["simulation", "simulated", "simulations", "monte carlo", "10,000", "expected statistical summaries", "not one simulated game", "game path"],
+    text:
+      "A simulation should mean that each run is one coherent possible game, with every team and player number in " +
+      "that run agreeing with the others. GameTime's MLB game reports come from complete simulated games. The NFL " +
+      "game pages today show expected statistical summaries, not one simulated game, and say so on the page: the win " +
+      "chance, score ranges and player projections come from separate models. A drive-by-drive NFL game simulator " +
+      "is being tested privately and is not used for any published NFL number until it passes its validation.",
+  },
+  {
     id: "forecast-vs-fact",
     title: "Forecast versus recorded fact",
     section: "Glossary",

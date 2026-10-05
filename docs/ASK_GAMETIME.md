@@ -498,6 +498,28 @@ diagnostic, because it means nothing was thrown by the provider at all.
 | suspected leak | `npm run suite:built` — the negative bundle test scans every downloadable byte |
 | `INTERNAL_ERROR` in a refusal | **ours, not the provider's.** An uncaught throw inside the turn. Read the deployment log line (`{"ask":"failed",…}`) via `vercel logs <deployment-url> --follow`; a `PROVIDER_*` code would mean the opposite |
 
+## 29b. Session 13 · Ask V2 over the Forecast Record
+
+Two tools (registry v1, 24 tools) read the Universal Forecast Ledger through its Ask projection — an index
+`ask/v1/forecast-record.json` (KPIs, every family's measured record, published-but-unmeasured gaps) plus one packed rows
+shard per sport `ask/v1/forecast-record/<sport>.json`. All are DAILY files (`ASK_DAILY_FILES`, gitignored): the ledger
+rebuilds nightly. Derivation lives in `build-ask-projections.mjs` (tsx, reads `lib/results/v2/forecast-ledger-reader.ts`);
+the tool module imports no `.ts`.
+
+| Intent | Tool | Answers | Rules it keeps |
+|---|---|---|---|
+| `MODEL_PERFORMANCE` | `getForecastFamilyPerformance {sport, family?}` | "how well calibrated is your ATD model", "how good are your EPL match forecasts" | each kind in its own yardstick; **no pooled accuracy**; pick record only where a pick was published |
+| `FORECAST_HISTORY` | `getForecastHistory {sport, playerId|teamId|gameId, family?, minProjection?, maxProjection?, settledOnly?, limit}` | "how did JSN do the last 3 times we projected him over 80 receiving yards" | filters read what WE projected; **a list is not a record** (no hit rate); not final / void / withdrawn are never misses; no market column exists |
+
+- Links: `/results/forecasts/` and `/results/forecasts/<sport>/<family>/` are approved (`ASK_LINK_PATTERNS`).
+- Help corpus: `forecast-record` (how measurement works) and `simulation-meaning` (what "simulation" means; NFL pages are
+  expected summaries; the drive simulator is private until validated). Simulation V2 SHADOW numbers are NOT exposed.
+- Follow-ups: the engine's existing resolved-entity carry (`ALREADY RESOLVED`) serves "he"/"him" on the next turn.
+- Eval: golden `frc-01..03` (fake provider) — calibration answer cites Brier, 1X2 answer cites log loss and the blind-guess
+  reference, history answer says "this list is not a record". Total 145/145.
+- Known limits: Ligue 1 is not in `ASK_SPORTS` (its family is visible on the Results page only); team history works for
+  NFL team-score rows (ids are the canonical `nfl-team-<ESPN id>` after the 2026-10-05 ledger re-key).
+
 ## 30. Future roadmap
 
 Not started, listed as measured gaps rather than ambitions: conversation persistence (needs an account
