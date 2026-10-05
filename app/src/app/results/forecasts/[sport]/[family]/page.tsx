@@ -38,7 +38,7 @@ const CSS = `
 .ff .f{color:var(--vault-text-faint);font-size:11px}
 .ff .k{font-family:var(--font-mono,ui-monospace,monospace);font-size:12px}
 .ff .nw{white-space:nowrap}
-.ff .scroll{overflow-x:auto;margin-top:8px}
+.ff .scroll{overflow-x:auto;margin-top:8px;position:relative}
 .ff section{margin-top:26px}
 .ff h2{font-size:19px;margin:0 0 4px;color:var(--vault-text)}
 .ff .note{margin:8px 0 0;max-width:760px;font-size:12.5px;line-height:1.65;color:var(--vault-text-mute)}

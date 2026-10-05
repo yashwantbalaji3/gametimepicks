@@ -27,7 +27,7 @@ const CSS = `
 .fr .f{color:var(--vault-text-faint);font-size:11px}
 .fr .k{font-family:var(--font-mono,ui-monospace,monospace);font-size:12px}
 .fr .nw{white-space:nowrap}
-.fr .scroll{overflow-x:auto;margin-top:8px}
+.fr .scroll{overflow-x:auto;margin-top:8px;position:relative}
 .fr .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0 6px}
 .fr .kpi{border:1px solid var(--vault-border-strong);border-radius:10px;padding:10px 12px;background:var(--gtp-card)}
 .fr .kpi b{display:block;font-size:20px;color:var(--vault-text);font-weight:600}
