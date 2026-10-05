@@ -4,7 +4,7 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-08-28",
- "generatedAt": "2026-08-29T22:59:51Z",
+ "generatedAt": "2026-10-05T15:58:06Z",
  "modelVersion": "nfl-preseason-public-beta-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
@@ -882,28 +882,26 @@
    }
   }
  ],
- "pending": [
+ "pending": [],
+ "quarantined": [],
+ "recordElsewhere": [
   {
    "canonicalEventId": "nfl-401873308",
-   "matchup": "DET @ IND",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-08-29T17:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-08-29",
+   "reason": "already graded in another dated file"
   },
   {
    "canonicalEventId": "nfl-401874394",
-   "matchup": "CHI @ TEN",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-08-29T22:00Z",
-   "observed": "STATUS_SCHEDULED"
+   "recordFolder": "2026-08-29",
+   "reason": "already graded in another dated file"
   }
  ],
- "quarantined": [],
  "accounting": {
   "receipts": 13,
   "settled": 11,
-  "pending": 2,
+  "pending": 0,
   "quarantined": 0,
+  "recordElsewhere": 2,
   "reconciles": true
  },
  "metrics": {
