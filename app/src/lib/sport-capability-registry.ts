@@ -85,7 +85,7 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     label: "UFC",
     state: "SCAFFOLD_ONLY",
     reason:
-      "Formally downgraded 2026-07-23: the moneyline is a de-vigged market price with a capped nudge (no independent signal), and zero bouts are cleanly backtestable because there is no point-in-time pregame odds capture.",
+      "SCAFFOLD_ONLY covers products: UFC stays out of every product. Downgraded 2026-07-23 because the old moneyline path was a de-vigged market price with a capped nudge (no independent signal) and no bout was cleanly backtestable; its moneyline grader, which graded sportsbook prices rather than GameTimePicks forecasts, is retired. The /ufc card's picks come from a separate, experimental fight model built from fight records with no market input; its winner forecasts are graded pre-fight in the Forecast Ledger (ufc_winner) as research. Method and round remain unmeasured.",
     evidence: [
       "status/ufc-graduation-decision.json",
       "app/public/data/ufc/readiness-latest.json",

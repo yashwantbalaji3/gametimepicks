@@ -124,8 +124,8 @@ test("the registry AGREES with the repo's own status artifacts — it cannot dri
   // UFC: the graduation decision is the authority.
   const ufc = read("status/ufc-graduation-decision.json");
   if (ufc) {
-    assert.equal(ufc.genuineModel ?? false, false, "fixture check: UFC has no genuine model");
-    assert.notEqual(capabilityState("ufc"), "FULL_MODEL", "UFC cannot be FULL_MODEL without a genuine model");
+    assert.equal(ufc.genuineModel ?? false, false, "fixture check: the graduation decision records no product-grade UFC model (the experimental fight model is research, not a product)");
+    assert.notEqual(capabilityState("ufc"), "FULL_MODEL", "UFC cannot be FULL_MODEL while the graduation decision keeps it out of products");
     if (String(ufc.decision ?? "").includes("SCAFFOLD")) {
       assert.equal(capabilityState("ufc"), "SCAFFOLD_ONLY", "registry must match the graduation decision");
     }
