@@ -76,9 +76,13 @@ fi
 #                                    the raw /data/ URLs the prune keep-set retains)
 #   data/*-projection/             — repo-root projections the emit steps and the research/compare/
 #                                    lab/ask pages + the search index read at build (v1.3–v1.6)
-#   data/internal/<three paths>    — the only repo-root internal files a PUBLIC route reads at build:
+#   data/internal/<four paths>     — the only repo-root internal files a PUBLIC route reads at build:
 #                                    /markets (calibrator manifest), /nfl/game + /results/nfl + /my
-#                                    (NFL forecast receipts), /today (MLB prediction snapshots)
+#                                    (NFL forecast receipts), /today (MLB prediction snapshots), and
+#                                    (Session 13) the Forecast Ledger — /results/forecasts/**, /results,
+#                                    /models, player Research pages, the search index and the Ask
+#                                    projection. Its nightly commit touches ONLY this path; without it the
+#                                    public Forecast Record stayed on the previous build's rows.
 # Everything else under data/internal (85k files: pregame archive, linescores, research corpora) is
 # read only by pipeline scripts that are not build steps, so it stays skip-able.
 #
@@ -126,6 +130,7 @@ BUILD_INPUTS=(
     ':(top)data/internal/mlb/model-learning/calibrator-manifest.json'
     ':(top)data/internal/nfl/forecast-receipts/'
     ':(top)data/internal/mlb/prediction-snapshots/'
+    ':(top)data/internal/forecast-ledger/'
 )
 for _nbi in "${NON_BUILD_INPUTS[@]}"; do
     BUILD_INPUTS+=( ":(top,exclude)${_nbi}" )
