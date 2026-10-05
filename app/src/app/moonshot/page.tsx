@@ -188,9 +188,13 @@ export default function MoonshotPage() {
               ["Legacy stranded stake", `$${moonshot.openExposure.toFixed(2)}`, "legacy lane · paper"],
             ].map(([k, v, sub]) => (
               <div key={k} className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
-                <dd className="font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{v}</dd>
+                {/* <dt> before <dd>, and the sub-line INSIDE the <dd>: a <dl> group may hold only dt/dd (axe
+                    definition-list / dlitem). The term reads first for a screen reader as well as visually. */}
                 <dt className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{k}</dt>
-                {sub ? <p className="font-mono mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{sub}</p> : null}
+                <dd>
+                  <span className="block font-mono tabular" style={{ color: "var(--vault-text)", fontSize: 15, fontWeight: 700 }}>{v}</span>
+                  {sub ? <span className="block font-mono mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{sub}</span> : null}
+                </dd>
               </div>
             ))}
           </dl>

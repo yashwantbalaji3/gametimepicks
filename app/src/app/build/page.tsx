@@ -20,6 +20,7 @@ import { etDayLabel } from "@/lib/et-stamp.mjs";
 import PicksExperience from "@/components/picks-experience";
 import Link from "next/link";
 import { loadSuggestedCards } from "@/lib/picks/suggested-cards";
+import FocusOnHash from "@/components/focus-on-hash";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
@@ -146,6 +147,7 @@ export default function ParlayCenterSuggestedPage() {
           Addressable at /build#suggested-cards — the anchor every legacy alias and in-page link
           targets — so those links land exactly here with no redirect chain. */}
       <section id="suggested-cards" aria-labelledby="suggested-cards-heading" className="flex flex-col gap-3 scroll-mt-6">
+        <FocusOnHash hash="suggested-cards" targetId="suggested-cards-heading" />
         <div>
           <h2
             id="suggested-cards-heading"
