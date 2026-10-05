@@ -158,6 +158,10 @@ availability, role shares or params. The latest pre-kickoff receipt per game is 
 hash covers the engine VERSION, not its code: any engine change must bump `NFL_SIM_V2_VERSION`, or old and new code would
 share receipt ids. Isolated from publishing: nothing public reads these files.
 
+Runtime status (2026-10-05 ~14:15Z): **PENDING.** The workflow has not run yet. Its hourly slots were not delivered
+on a day when GitHub dropped most repo crons, and no `nfl-event-window` run has happened since #965 merged. The one
+committed receipt (`shadow/2026-10-05/401872979.json`) came from the Session 13 build, not from the schedule.
+
 ## 7b. Simulation Center V2 (Phase F) — internal presentation
 
 `/preview/simulation-v2/` (internal: `guardInternalRoute()` + `/preview` pruned from the export; run with

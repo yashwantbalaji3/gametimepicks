@@ -4,6 +4,9 @@ Built 2026-10-05 from a dry run of `main` `8943cb6c65` (owners as committed; inc
 which the next nightly appends to the committed ledger). Every row is a published forecast read from its owner — never
 a re-prediction, never reconstructed from a final.
 
+*Point-in-time report, kept as built.* The first unattended nightly (2026-10-05 12:21Z) committed these rows plus 11 MLB
+grades → **10,812**; the #959 settlement sweep for the 16 Week 2 games has not run yet (Session 13 handoff §16).
+
 **Totals:** 10,801 published forecast observations · 19 forecast types · 5 competitions. Unresolved (left out, never
 guessed): NFL Weeks 1–2 names with no unique roster match **7**; EPL player rows with no exact published event id **0**.
 
