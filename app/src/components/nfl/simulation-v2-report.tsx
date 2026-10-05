@@ -224,7 +224,7 @@ export default function SimulationV2Report({ r, file, canonical, gameHref }: { r
             <thead><tr><th scope="col">Player</th><th scope="col">Team</th><th scope="col">Anytime TD</th><th scope="col">2+ TDs</th><th scope="col">First TD of the game</th></tr></thead>
             <tbody>{tdList.slice(0, 16).map((p: any) => {
               const ft = firstTd.find((x: any) => x.playerId === p.playerId && x.team === p.team);
-              return <tr key={`${p.team}-${p.playerId}`}><td>{p.name} {p.position ? <span className="f">{p.position}</span> : null}</td><td>{p.team}</td><td className="k">{pct(p.anytimeTd)}</td><td className="k">{pct(p.twoPlusTd)}</td><td className="k">{pct(ft?.probability ?? 0)}</td></tr>;
+              return <tr key={`${p.team}-${p.playerId}`}><td>{p.name} {p.position ? <span className="f">{p.position}</span> : null}</td><td>{p.team}</td><td className="k">{pct(p.anytimeTd)}</td><td className="k">{pct(p.twoPlusTd)}</td><td className="k">{pct(ft?.probability)}</td></tr>;
             })}</tbody>
           </table>
         </Region>
