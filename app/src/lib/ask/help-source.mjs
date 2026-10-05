@@ -298,6 +298,132 @@ const CHUNKS = [
       "Research → Lab, Compare is under Research, Live has its own page, and your followed and saved items " +
       "are under My GameTime. Ask links directly to the page behind any answer it gives.",
   },
+  /*
+   * PRODUCT PAGES (2026-10-05 audit, A6). "What is Moonshot?" had nothing to retrieve. Each chunk below restates
+   * its page's own public description (the page's metadata copy) and nothing more: what the product is, that it
+   * is paper-only, and whether it publishes yet. Records, hit rates and today's cards are deliberately absent —
+   * those change daily and come from the results tools, never from help text.
+   */
+  {
+    id: "bank-builder",
+    title: "Bank Builder",
+    section: "Products",
+    route: "/bank-builder/",
+    keywords: ["bank builder", "ladder", "100 to 10000", "$100", "10k", "paper bankroll", "official card", "bankroll ladder"],
+    text:
+      "Bank Builder is an educational $100 → $10,000 paper-bankroll ladder, one card per step. Its page shows the " +
+      "current run, today's official card and previous hits. It is paper-only: GameTimePicks does not take real " +
+      "money, and the ladder is not advice on what to stake. Ask can report its published record from Results.",
+  },
+  {
+    id: "moonshot",
+    title: "Moonshot",
+    section: "Products",
+    route: "/moonshot/",
+    keywords: ["moonshot", "higher volatility", "volatile", "long shot product", "moonshot record"],
+    text:
+      "Moonshot is a separate, higher-volatility paper product. It is tracked on its own record, apart from the " +
+      "Bank Builder, so its results never mix into the Bank Builder's. Higher volatility means bigger swings, not a " +
+      "better chance. It is educational and paper-only.",
+  },
+  {
+    id: "mr-dub",
+    title: "Mr. Dub's Portfolio",
+    section: "Products",
+    route: "/mr-dub/",
+    keywords: ["mr dub", "mr. dub", "dub", "portfolio", "paper portfolio", "flagship"],
+    text:
+      "Mr. Dub's Portfolio is GameTime's flagship paper portfolio: the $100 → $10K Bank Builder ladders in full, " +
+      "with headline numbers, the visual ladder, performance analytics, a day-by-day timeline and every paper card " +
+      "by product. It uses official results only. It is educational and paper-only, not financial advice.",
+  },
+  {
+    id: "homer-nukes",
+    title: "Homer Nukes",
+    section: "Products",
+    route: "/homer-nukes/",
+    keywords: ["homer nukes", "home run", "home runs", "homer", "hr", "most likely home runs"],
+    text:
+      "Homer Nukes lists the model's five most likely home runs today, each with its own probability and the " +
+      "numbers behind it. A probability is the model's chance that it happens, not a call that it will. Homer " +
+      "Nukes is paper-only and educational.",
+  },
+  {
+    id: "endzone-vault",
+    title: "Endzone Vault",
+    section: "Products",
+    route: "/endzone-vault/",
+    keywords: ["endzone vault", "end zone", "touchdown", "anytime touchdown", "td scorer", "nfl touchdowns"],
+    text:
+      "Endzone Vault shows who the model thinks is most likely to score a touchdown in every game on the NFL slate, " +
+      "with the gates a card would have to clear and why today is or is not one. When no card clears the gates, " +
+      "the page says so rather than publishing one. It is paper-only and educational.",
+  },
+  {
+    id: "cage-chaos",
+    title: "Cage Chaos",
+    section: "Products",
+    route: "/cage-chaos/",
+    keywords: ["cage chaos", "ufc card", "fight", "method", "round", "how the fight ends", "ufc picks"],
+    text:
+      "Cage Chaos covers how each fight on the next UFC card ends: winner, method and round. Each of those three " +
+      "comes from a separately evaluated part of the model, and each is published only once it passes its own " +
+      "check, set before the results were known. It is paper-only and educational, not betting advice.",
+  },
+  {
+    id: "goal-rush",
+    title: "Goal Rush",
+    section: "Products",
+    route: "/goal-rush/",
+    keywords: ["goal rush", "premier league product", "epl product", "goalscorer product", "soccer product"],
+    text:
+      "Goal Rush is the Premier League signature product, and it is still in development. Its inputs exist — " +
+      "authorised matchweek odds and a validated anytime-goalscorer model on the EPL pages — but the product built " +
+      "from them does not yet, so no Goal Rush picks publish.",
+  },
+  {
+    id: "bucket-blitz",
+    title: "Bucket Blitz",
+    section: "Products",
+    route: "/bucket-blitz/",
+    keywords: ["bucket blitz", "nba product", "basketball product", "nba picks"],
+    text:
+      "Bucket Blitz is the NBA signature product, and it is still in development. Its page shows what is captured " +
+      "today and every stage still standing between that and a published read. No Bucket Blitz picks publish, " +
+      "because no NBA player model has been validated yet.",
+  },
+  {
+    id: "model-lab",
+    title: "Model Lab",
+    section: "Methodology",
+    route: "/models/",
+    keywords: ["model lab", "models", "which models are live", "being tested", "receipts", "model receipts"],
+    text:
+      "Model Lab lists which GameTime models are live, which are being tested and which are paused, and what each " +
+      "model's receipts decided, in plain English. For a single market's status right now, Ask reads the live " +
+      "coverage registry rather than repeating the page.",
+  },
+  {
+    id: "feedback",
+    title: "Sending feedback",
+    section: "Account",
+    route: "/feedback/",
+    keywords: ["feedback", "report a bug", "bug", "something broke", "suggestion", "contact", "beta"],
+    text:
+      "During the friends beta, signed-in testers can tell the GameTimePicks team what broke, what looked wrong or " +
+      "what confused them on the Send feedback page. Only the sender and the team see a report. Ask cannot " +
+      "file feedback on your behalf.",
+  },
+  {
+    id: "retired-pages",
+    title: "Pages that have moved: player trends and the World Cup",
+    section: "Navigation",
+    route: "/mlb/board/",
+    keywords: ["trends", "player trends", "world cup", "world cup 2026", "retired", "moved", "where did it go"],
+    text:
+      "Player trends has been retired; its old address now leads to the MLB model board. World Cup 2026 is " +
+      "complete, and its old page now leads to Results.",
+  },
   {
     id: "freshness",
     title: "How current the data is",
