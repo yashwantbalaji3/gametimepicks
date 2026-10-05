@@ -43,8 +43,11 @@ export default function YesterdayCard({ recap }: { recap: Recap | null }) {
         >
           {/* The recap's day is the newest day with SETTLED CARDS. When that is not yesterday (a day that
               published no card sits between), say so — "How Sunday went" under "Settled · Sep 29" read
-              as a contradiction. */}
-          {recapIsYesterday(recap.date) ? `How ${ET_DAY(recap.date)} went` : `Latest settled cards · ${ET_DAY(recap.date)}`}
+              as a contradiction. The cards are SUGGESTED PARLAYS only (parlays/lab-settled), so the stale case
+              names the product: on 2026-10-05 "Latest settled cards · Sep 27" sat under a header settled
+              through Oct 4 (Bank Builder / Moonshot / model rows) and read as a feed a week behind. It was
+              not: every Suggested Parlays tier has been withheld since Sep 28, so nothing newer exists. */}
+          {recapIsYesterday(recap.date) ? `How ${ET_DAY(recap.date)} went` : `Suggested Parlays · last settled ${ET_DAY(recap.date)} · none since`}
         </h2>
 
         <span style={{ fontSize: 13.5, color: "var(--vault-text)" }}>{cardLine}</span>
