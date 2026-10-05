@@ -34,6 +34,9 @@ import { fileURLToPath } from "node:url";
 
 import { fitPlayerRates, predictPlayer, fitCountRates, predictCount, positionGroup } from "../../src/lib/sports/epl/player-rates.mjs";
 import { allocateGoals, coherenceRatio } from "../../src/lib/sports/epl/match-simulation.mjs";
+import { matchEspnEvent, lineupSides, squadForClub } from "../../src/lib/sports/epl/espn-club-match.mjs";
+/* The canonical EPL club table. A .ts module behind the "@/" alias: run this script with `npx tsx` from app/. */
+import { buildEplClubIndex } from "../../src/lib/soccer/epl-clubs.ts";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -46,7 +49,6 @@ const WRITE = process.argv.includes("--write");
 if (!Number.isFinite(Date.parse(NOW))) { console.error("usage: build-epl-player-projections.mjs --now <iso>"); process.exit(1); }
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
-const normalizeClub = (n) => String(n ?? "").toLowerCase().replace(/[^a-z]/g, "");
 const SITE = "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1";
 
 /* ── The model, and the configuration its backtest locked ────────────────────────────────────── */
@@ -142,7 +144,9 @@ if (sogAccepted) {
 }
 
 const squads = readJson(path.join(RESEARCH, "players/squads-2026-27.json"));
-const squadByClub = new Map(squads.squads.map((s) => [s.teamName, s]));
+const clubIndex = buildEplClubIndex();
+if (!clubIndex.isSound) { console.error("REFUSED — the EPL club alias table has collisions; club identity cannot be trusted"); process.exit(2); }
+const resolveClub = (name) => clubIndex.resolve(name);
 
 /* ── The fixtures to project ──────────────────────────────────────────────────────────────────
  *
@@ -169,23 +173,12 @@ const get = async (url) => {
   return res.json();
 };
 
-/** ESPN's event id for a fixture, matched on club identity within the kickoff date. */
+/** ESPN's event id for a fixture: exactly one event whose clubs resolve to the fixture's canonical clubs. */
 async function espnEventFor(row) {
   const date = String(row.kickoffUtc).slice(0, 10).replace(/-/g, "");
   try {
     const board = await get(`${SITE}/scoreboard?dates=${date}`);
-    const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z]/g, "");
-    for (const ev of board.events ?? []) {
-      const c = ev.competitions?.[0];
-      const h = c?.competitors?.find((x) => x.homeAway === "home")?.team?.displayName;
-      const a = c?.competitors?.find((x) => x.homeAway === "away")?.team?.displayName;
-      if (!h || !a) continue;
-      if (norm(h) === norm(row.homeClub) && norm(a) === norm(row.awayClub)) return { id: String(ev.id), home: h, away: a };
-      /* Club naming differs between feeds ("Bournemouth" vs "AFC Bournemouth"); accept containment. */
-      if (norm(h).includes(norm(row.homeClub)) || norm(row.homeClub).includes(norm(h))) {
-        if (norm(a).includes(norm(row.awayClub)) || norm(row.awayClub).includes(norm(a))) return { id: String(ev.id), home: h, away: a };
-      }
-    }
+    return matchEspnEvent(board.events, row, resolveClub);
   } catch { /* a failed lookup is an absent lineup, never a guessed one */ }
   return null;
 }
@@ -216,7 +209,14 @@ let withLineup = 0;
 
 for (const row of priced) {
   const ev = await espnEventFor(row);
-  const lineup = ev ? await lineupFor(ev.id) : null;
+  let lineup = ev ? await lineupFor(ev.id) : null;
+  /* Each posted eleven's side, by canonical club — never by spelling. If the two lineups are not exactly this
+     fixture's home and away clubs, the lineup is not used: rows stay the conditional pre-lineup quantity. */
+  const sides = lineup ? lineupSides(lineup, row, resolveClub) : null;
+  if (lineup && !sides) {
+    console.warn(`  ${row.matchup}: lineup teams ${JSON.stringify(lineup.map((t) => t.teamName))} do not resolve to this fixture's clubs — lineup not used`);
+    lineup = null;
+  }
   const clubs = [row.homeClub, row.awayClub];
 
   const players = [];
@@ -227,8 +227,8 @@ for (const row of priced) {
     let matrix = null;
     if (simAccepted) { try { matrix = scoreMatrix(strengthState, row.homeClub, row.awayClub); } catch { matrix = null; } }
 
-    for (const t of lineup) {
-      const side = normalizeClub(t.teamName) === normalizeClub(row.homeClub) ? "home" : "away";
+    for (const [i, t] of lineup.entries()) {
+      const side = sides[i];
       const named = t.players.filter((p) => p.playerId);
       const rated = named.map((p) => {
         const state = p.started ? "START" : "SUB";
@@ -263,9 +263,8 @@ for (const row of priced) {
   } else {
     /* No XI yet. Every row is the VALIDATED quantity with its condition attached, never an assumed XI. */
     for (const club of clubs) {
-      const squad = squadByClub.get(club)
-        ?? [...squadByClub.values()].find((s) => s.teamName.toLowerCase().includes(String(club).toLowerCase()));
-      if (!squad) continue;
+      const squad = squadForClub(squads.squads, club, resolveClub);
+      if (!squad) { console.warn(`  ${row.matchup}: no squad resolves to ${club} — its players are not projected`); continue; }
       for (const p of squad.players) {
         const pred = predictPlayer(fit, { playerId: p.playerId, position: p.position, state: "START" }, { k: K });
         if (!pred) continue;
