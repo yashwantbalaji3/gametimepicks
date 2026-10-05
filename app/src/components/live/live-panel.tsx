@@ -87,7 +87,11 @@ export interface LivePanelProps {
    * arrive hours apart (last night: FINAL 05:14Z, graded 09:58Z) and in that window the honest
    * answer is "Final · grading pending", which is its own state rather than a rounding of either.
    */
-  settlement?: { actual: { homeRuns: number; awayRuns: number }; gradedAt: string | null } | null;
+  settlement?: {
+    /* MLB passes runs; NFL passes the final points from its week reconciliation (the graded record). */
+    actual: { homeRuns: number; awayRuns: number } | { home: number; away: number };
+    gradedAt: string | null;
+  } | null;
   /** Render the "Live beta" heading strip. Off on the internal preview, which says so already. */
   showBetaHeading?: boolean;
 }
@@ -142,6 +146,13 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, nf
                 Final score reported · grading pending
               </p>
             )}
+            {/* The settlement owner HAS graded it. Without this line the panel said "grading pending"
+                forever on NFL pages, beside a header that already said the game was settled. */}
+            {life.state === "SETTLED" && (
+              <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-mute)", margin: "0 0 6px" }}>
+                Final · graded against the frozen forecast
+              </p>
+            )}
             <LiveScoreStrip envelope={envelope} />
             <LivePeriodLine envelope={envelope} />
             <FreshnessLine state={envelope.state} freshness={freshness} />
@@ -156,7 +167,7 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, nf
       </Region>
 
       <Region
-        title={life.showsPostgameReview ? "Pregame GameTime · frozen · reviewed" : "Pregame GameTime · frozen"}
+        title={life.showsPostgameReview && review ? "Pregame GameTime · frozen · reviewed" : "Pregame GameTime · frozen"}
         /*
          * ⚠ The stamp describes a forecast, so it may only appear when one exists. Caught in QA: a
          * game with no publishable simulation rendered "No GameTime pregame forecast for this game"
