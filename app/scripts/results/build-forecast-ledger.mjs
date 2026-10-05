@@ -23,7 +23,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { nflGameRows, nflPropRows, nflTopBoardRows, forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
+import { nflGameRows, nflPropRows, nflReconciliationRows, nflTopBoardRows, forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
 import { mlbGameRows, homerNukesRows } from "../../src/lib/forecast-ledger/adapters/mlb.mjs";
 import { eplEventIndex, eplMatchRows, eplPlayerRows, ligue1Rows } from "../../src/lib/forecast-ledger/adapters/soccer.mjs";
 import { ufcWinnerRows } from "../../src/lib/forecast-ledger/adapters/ufc.mjs";
@@ -80,6 +80,15 @@ export function readSources(now) {
   const wdDir = path.join(PUB, "results/top-board-withdrawals");
   const withdrawals = listJson(wdDir, /^\d{4}-\d{2}-\d{2}\.json$/).flatMap((f) => readJson(path.join(wdDir, f)).events ?? []);
 
+  // NFL Weeks 1–2 props: the week reconciliation (name + team rows) + roster captures for the exact id crosswalk.
+  const reconDir = path.join(PUB, "nfl/reconciliation");
+  const reconWeeks = listJson(reconDir, /^\d+-\d+\.json$/).map((f) => ({ file: `nfl/reconciliation/${f}`, doc: readJson(path.join(reconDir, f)) }));
+  const rosterDir = path.join(PUB, "nfl/rosters");
+  const rosterCaptures = listJson(rosterDir, /^capture-\d{4}-\d{2}-\d{2}T\d{4}\.json$/).map((f) => {
+    const m = /^capture-(\d{4}-\d{2}-\d{2})T(\d{2})(\d{2})\.json$/.exec(f);
+    return { stampMs: Date.parse(`${m[1]}T${m[2]}:${m[3]}:00Z`), doc: readJson(path.join(rosterDir, f)) };
+  });
+
   // MLB game grades + the model id of each SNAPSHOT source (git sources stay null: a shallow checkout could not
   // reproduce them, and a value that depends on clone depth would break append-only).
   const mlbGraded = readJsonl(path.join(PUB, "mlb/results/game-predictions-graded.jsonl"));
@@ -115,18 +124,21 @@ export function readSources(now) {
   for (const e of nflTeams) counts.set(e.hint, (counts.get(e.hint) ?? 0) + 1);
   const teamIds = new Map(nflTeams.filter((e) => counts.get(e.hint) === 1).map((e) => [e.hint, e.id]));
 
-  return { now, teamIds, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
+  return { now, teamIds, reconWeeks, rosterCaptures, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
 }
 
 export function buildRows(src, report = {}) {
   const props = nflPropRows(src.propRows);
   const eplPlayers = eplPlayerRows(src.eplPlayers, src.eplIndex);
   report.eplPlayerUnresolved = eplPlayers.unresolved;
+  const recon = nflReconciliationRows({ weeks: src.reconWeeks ?? [], captures: src.rosterCaptures ?? [] });
+  report.nflReconciliationUnresolved = recon.unresolved;
   const heldIds = new Set(props.map((r) => r.forecastId));
   return composeLedger([
     { source: "nfl-experimental-settlement", rows: nflGameRows({ settledEvents: src.settledEvents, receiptsOfRecord: src.ofRecord, now: src.now, teamIds: src.teamIds }) },
     { source: "nfl-prop-settlement", rows: props },
     { source: "results-top-board", rows: nflTopBoardRows({ boards: src.boards, withdrawals: src.withdrawals, heldIds, now: src.now }) },
+    { source: "nfl-week-reconciliation", rows: recon.rows },
     { source: "mlb-game-grades", rows: mlbGameRows(src.mlbGraded, src.sourceModels) },
     { source: "mlb-homer-nukes-settled", rows: homerNukesRows(src.hn) },
     { source: "epl-match-grades", rows: eplMatchRows(src.eplMatch) },
@@ -217,6 +229,7 @@ function main() {
   console.log(`forecast ledger: ${rows.length} rows (${prev.length} at ${ref}) · ${JSON.stringify(manifest.totals.settlement)}`);
   for (const [s, m] of Object.entries(manifest.sports)) console.log(`  ${s}: ${m.rows} rows · ${JSON.stringify(m.families)}`);
   if (report.eplPlayerUnresolved) console.log(`  EPL player rows with no exact published event id (not emitted): ${report.eplPlayerUnresolved}`);
+  if (report.nflReconciliationUnresolved?.length) console.log(`  NFL Weeks 1–2 rows with no unique roster match (not emitted): ${report.nflReconciliationUnresolved.length}`);
   if (violations.length) {
     console.error(`APPEND_ONLY_VIOLATION: ${violations.length}`);
     for (const v of violations.slice(0, 25)) console.error(`  ${v.kind} ${v.forecastId} ${v.detail}`);

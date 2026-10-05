@@ -49,7 +49,7 @@ export function composeLedger(sources) {
  * page reads this list rather than implying the ledger is complete.
  */
 export const DECLARED_GAPS = Object.freeze([
-  { sport: "NFL", family: "player props (Weeks 1–2, before 2026-09-20)", reason: "Graded only in the week reconciliation, which records player NAME and team, not an id. Deferred to the Phase G backfill with an exact id crosswalk; never joined by name." },
+  { sport: "NFL", family: "player props (before 2026-09-20) — unresolved names only", reason: "Week 1 and Week 2 Thursday props come from the week reconciliation through an exact roster crosswalk (latest capture before kickoff, unique full name on the team). A row whose name matches no one, or several people, on that roster is left out rather than guessed." },
   { sport: "NFL", family: "nfl_score_shape", reason: "Published derived distribution (key numbers, OT/tie) with no settlement owner." },
   { sport: "MLB", family: "projected score / simulation-median total", reason: "Published on game pages; no owner grades it. UNMEASURED." },
   { sport: "MLB", family: "player-prop leans", reason: "Every MLB prop market is DEMOTED to market context (RESEARCH), so it is not public forecast history." },
