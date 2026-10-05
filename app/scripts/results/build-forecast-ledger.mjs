@@ -24,8 +24,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { nflGameRows, nflPropRows, nflReconciliationRows, nflTopBoardRows, forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
-import { mlbGameRows, homerNukesRows } from "../../src/lib/forecast-ledger/adapters/mlb.mjs";
-import { eplEventIndex, eplMatchRows, eplPlayerRows, ligue1Rows } from "../../src/lib/forecast-ledger/adapters/soccer.mjs";
+import { mlbGameRows, mlbProjectedRows, homerNukesRows } from "../../src/lib/forecast-ledger/adapters/mlb.mjs";
+import { eplDerivedRows, eplEventIndex, eplMatchRows, eplPlayerRows, ligue1Rows } from "../../src/lib/forecast-ledger/adapters/soccer.mjs";
 import { ufcWinnerRows } from "../../src/lib/forecast-ledger/adapters/ufc.mjs";
 import { compareLedgers, pairRekeys } from "../../src/lib/forecast-ledger/append-only.mjs";
 import { buildManifest, composeLedger, serializeRow } from "../../src/lib/forecast-ledger/compose.mjs";
@@ -92,6 +92,7 @@ export function readSources(now) {
   // MLB game grades + the model id of each SNAPSHOT source (git sources stay null: a shallow checkout could not
   // reproduce them, and a value that depends on clone depth would break append-only).
   const mlbGraded = readJsonl(path.join(PUB, "mlb/results/game-predictions-graded.jsonl"));
+  const mlbProjected = readJsonl(path.join(PUB, "mlb/results/game-projected-scores-graded.jsonl"));
   const sourceModels = new Map();
   for (const src of new Set(mlbGraded.map((g) => g.forecastSource))) {
     const m = /^snapshot:(\d{4}-\d{2}-\d{2}\/snapshot-\d+\.json)$/.exec(String(src ?? ""));
@@ -106,6 +107,7 @@ export function readSources(now) {
 
   const eplMatch = readJsonl(path.join(PUB, "soccer/epl/results/graded-forecasts.jsonl"));
   const eplPlayers = readJsonl(path.join(PUB, "soccer/epl/results/graded-player-projections.jsonl"));
+  const eplDerived = readJsonl(path.join(PUB, "soccer/epl/results/graded-derived-markets.jsonl"));
   // Every published EPL match id (forecast files + the match grade log) — the player rows join to these exactly.
   const eplDir = path.join(PUB, "soccer/epl/forecasts");
   const eplEvents = new Map();
@@ -123,14 +125,28 @@ export function readSources(now) {
   const counts = new Map();
   for (const e of nflTeams) counts.set(e.hint, (counts.get(e.hint) ?? 0) + 1);
   const teamIds = new Map(nflTeams.filter((e) => counts.get(e.hint) === 1).map((e) => [e.hint, e.id]));
+  // EPL clubs: exact display name → id, only where exactly one canonical team carries that name.
+  const eplTeams = (registry.entries ?? []).filter((e) => e.sport === "EPL" && e.kind === "team" && e.label && e.id);
+  const eplLabelCounts = new Map();
+  for (const e of eplTeams) eplLabelCounts.set(e.label, (eplLabelCounts.get(e.label) ?? 0) + 1);
+  const eplTeamIds = new Map(eplTeams.filter((e) => eplLabelCounts.get(e.label) === 1).map((e) => [e.label, e.id]));
 
-  return { now, teamIds, reconWeeks, rosterCaptures, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
+  const mlbTeams = (registry.entries ?? []).filter((e) => e.sport === "MLB" && e.kind === "team" && e.hint && e.id);
+  const mlbHintCounts = new Map();
+  for (const e of mlbTeams) mlbHintCounts.set(e.hint, (mlbHintCounts.get(e.hint) ?? 0) + 1);
+  const mlbTeamIds = new Map(mlbTeams.filter((e) => mlbHintCounts.get(e.hint) === 1).map((e) => [e.hint, e.id]));
+
+  return { now, teamIds, eplTeamIds, eplDerived, mlbTeamIds, mlbProjected, reconWeeks, rosterCaptures, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
 }
 
 export function buildRows(src, report = {}) {
   const props = nflPropRows(src.propRows);
   const eplPlayers = eplPlayerRows(src.eplPlayers, src.eplIndex);
   report.eplPlayerUnresolved = eplPlayers.unresolved;
+  const eplDerived = eplDerivedRows(src.eplDerived ?? [], src.eplTeamIds ?? new Map());
+  report.eplClubUnresolved = eplDerived.unresolved;
+  const mlbProjected = mlbProjectedRows(src.mlbProjected ?? [], src.mlbTeamIds ?? new Map());
+  report.mlbTeamUnresolved = mlbProjected.unresolved;
   const recon = nflReconciliationRows({ weeks: src.reconWeeks ?? [], captures: src.rosterCaptures ?? [] });
   report.nflReconciliationUnresolved = recon.unresolved;
   const heldIds = new Set(props.map((r) => r.forecastId));
@@ -140,9 +156,11 @@ export function buildRows(src, report = {}) {
     { source: "results-top-board", rows: nflTopBoardRows({ boards: src.boards, withdrawals: src.withdrawals, heldIds, now: src.now }) },
     { source: "nfl-week-reconciliation", rows: recon.rows },
     { source: "mlb-game-grades", rows: mlbGameRows(src.mlbGraded, src.sourceModels) },
+    { source: "mlb-projected-score-grades", rows: mlbProjected.rows },
     { source: "mlb-homer-nukes-settled", rows: homerNukesRows(src.hn) },
     { source: "epl-match-grades", rows: eplMatchRows(src.eplMatch) },
     { source: "epl-player-grades", rows: eplPlayers.rows },
+    { source: "epl-derived-market-grades", rows: eplDerived.rows },
     { source: "ligue-1-grades", rows: ligue1Rows(src.ligue1) },
     { source: "ufc-model-vs-market-grades", rows: ufcWinnerRows(src.ufc) },
   ]);
@@ -229,6 +247,8 @@ function main() {
   console.log(`forecast ledger: ${rows.length} rows (${prev.length} at ${ref}) · ${JSON.stringify(manifest.totals.settlement)}`);
   for (const [s, m] of Object.entries(manifest.sports)) console.log(`  ${s}: ${m.rows} rows · ${JSON.stringify(m.families)}`);
   if (report.eplPlayerUnresolved) console.log(`  EPL player rows with no exact published event id (not emitted): ${report.eplPlayerUnresolved}`);
+  if (report.mlbTeamUnresolved) console.log(`  MLB projected-runs rows whose team abbreviation is not exactly one canonical team (not emitted): ${report.mlbTeamUnresolved}`);
+  if (report.eplClubUnresolved) console.log(`  EPL clean-sheet rows whose club is not exactly one canonical team (not emitted): ${report.eplClubUnresolved}`);
   if (report.nflReconciliationUnresolved?.length) console.log(`  NFL Weeks 1–2 rows with no unique roster match (not emitted): ${report.nflReconciliationUnresolved.length}`);
   if (violations.length) {
     console.error(`APPEND_ONLY_VIOLATION: ${violations.length}`);

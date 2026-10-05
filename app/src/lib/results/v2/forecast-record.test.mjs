@@ -48,6 +48,17 @@ test("multiclass metrics: log loss, Brier, top class, and the uniform reference"
   assert.equal(m.uniformReference.logLoss, Number(Math.log(3).toFixed(4)));
 });
 
+test("probe: a score table's top-1 hit is labelled as exactly that, never as a likeliest-outcome accuracy (control: 1X2 keeps its label)", () => {
+  const x12 = row({ forecastKind: "MULTICLASS_PROBABILITY", classProbabilities: { home: 0.5, draw: 0.3, away: 0.2 }, measurement: { type: "MULTICLASS_SCORE", brier: 0.38, logLoss: 0.693, topClassHit: true } });
+  assert.equal(familyMetrics([x12]).topClassLabel, null, "control: a 1X2 keeps the plain likeliest-outcome wording");
+  const cp = { "1-1": 0.12, "1-0": 0.11, OTHER: 0.77 };
+  assert.ok(Math.abs(Object.values(cp).reduce((a, v) => a + v, 0) - 1) < 1e-9, "the scored outcome space includes OTHER and sums to 1");
+  const table = row({ family: "epl_scoreline", forecastKind: "MULTICLASS_PROBABILITY", classProbabilities: cp, measurement: { type: "MULTICLASS_SCORE", brier: 0.1, logLoss: 0.26, topClassHit: false } });
+  const m = familyMetrics([table]);
+  assert.match(m.topClassLabel, /^top-1 exact-score hit rate/);
+  assert.equal(m.topClassAccuracy, 0);
+});
+
 // ── Results mutation probes (§E8) ─────────────────────────────────────────────────────────────────────────────────
 test("probe: pending → loss and withdrawn → loss never enter a pick record (control: a settled published pick does)", () => {
   const pick = (over) => row({ measurement: { ...row().measurement, directionalResult: "LOSS", directionalBasis: "IMPLIED_SIDE_OF_FROZEN_LINE" }, ...over });
