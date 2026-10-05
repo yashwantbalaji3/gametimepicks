@@ -1,0 +1,485 @@
+{
+  "schemaVersion": "nfl-sim-v2-validation@1",
+  "engine": "nfl-drive-sim-v2",
+  "protocol": "A",
+  "testSeasons": [
+    2019,
+    2021
+  ],
+  "driveFitSeasons": [
+    2015,
+    2018
+  ],
+  "kickoffSeason": 2018,
+  "anchorLeakage": "NONE — test seasons are inside both heads' held-out replays",
+  "runsPerGame": 2000,
+  "games": 821,
+  "params": {
+    "file": "data/internal/research/nfl/sim-v2/drive-params-2015-2018.json",
+    "sha256": "cc43bd5869745c3b6d3ce222cf60ec429cd5df23339531a5012b4d22534ec5cc"
+  },
+  "anchorHeads": {
+    "win": "nfl-win-elo-mov-v1",
+    "margin": "nfl-margin-elo-hfa-v1",
+    "totals": "matchup-totals-v3-play-efficiency",
+    "sigmaMargin": 13.03176,
+    "sigmaTotal": 13.32677
+  },
+  "marketSource": "data/internal/research/nfl/raw/nflverse/games.csv (local, git-ignored) sha256 cf8632c85fdc82c8915c7866d0bd16465a88946052bccfbf83b44bee87d5d65e",
+  "summary": {
+    "winner": {
+      "n": 818,
+      "v1": {
+        "brier": 0.2217,
+        "logLoss": 0.6358
+      },
+      "v2": {
+        "brier": 0.2273,
+        "logLoss": 0.6468
+      },
+      "baseRate": {
+        "p": 0.5733,
+        "brier": 0.2534,
+        "logLoss": 0.7
+      },
+      "market": {
+        "n": 818,
+        "brier": 0.2113,
+        "logLoss": 0.6101,
+        "note": "no-vig closing moneyline, benchmark only"
+      }
+    },
+    "continuous": {
+      "v1": {
+        "teamScoreMAE": 7.7482,
+        "marginMAE": 10.6976,
+        "totalMAE": 10.9428,
+        "teamScoreCov80": 0.785,
+        "marginCov80": 0.7783,
+        "totalCov80": 0.7832,
+        "marginCRPS": 7.6669,
+        "totalCRPS": 7.7091
+      },
+      "v2": {
+        "teamScoreMAE": 7.7533,
+        "marginMAE": 10.6845,
+        "totalMAE": 10.9147,
+        "teamScoreCov80": 0.8325,
+        "marginCov80": 0.8258,
+        "totalCov80": 0.7893,
+        "marginCRPS": 7.6778,
+        "totalCRPS": 7.7059
+      }
+    },
+    "periods": {
+      "quarterMeanPoints": {
+        "sim": [
+          10.2029,
+          13.781,
+          10.1582,
+          12.4529
+        ],
+        "actual": [
+          9.1888,
+          14.4543,
+          9.7296,
+          13.4531
+        ]
+      },
+      "homeLeadsAtHalf": {
+        "n": 767,
+        "v2Brier": 0.2366,
+        "coinBrier": 0.25,
+        "v1": "NO PERIOD MODEL"
+      }
+    },
+    "distributionSanity": {
+      "passAtt": {
+        "simMean": 34.3721,
+        "actMean": 34.6882,
+        "simSd": 7.3074,
+        "actSd": 8.4241
+      },
+      "cmp": {
+        "simMean": 22.0134,
+        "actMean": 22.461,
+        "simSd": 5.3849,
+        "actSd": 6.1122
+      },
+      "passYds": {
+        "simMean": 223.0932,
+        "actMean": 250.4629,
+        "simSd": 73.5596,
+        "actSd": 76.5042
+      },
+      "sacks": {
+        "simMean": 2.1114,
+        "actMean": 2.3398,
+        "simSd": 1.521,
+        "actSd": 1.7304
+      },
+      "rushAtt": {
+        "simMean": 25.8118,
+        "actMean": 25.7631,
+        "simSd": 6.9106,
+        "actSd": 7.2208
+      },
+      "rushYds": {
+        "simMean": 132.6644,
+        "actMean": 116.4178,
+        "simSd": 57.5394,
+        "actSd": 51.8456
+      },
+      "plays": {
+        "simMean": 62.9671,
+        "actMean": 63.7138,
+        "simSd": 9.901,
+        "actSd": 8.5048
+      },
+      "drives": {
+        "simMean": 11.2497,
+        "actMean": 10.9379,
+        "simSd": 1.6613,
+        "actSd": 1.6451
+      },
+      "passTd": {
+        "simMean": 1.6236,
+        "actMean": 1.6041,
+        "simSd": 1.1982,
+        "actSd": 1.2011
+      },
+      "rushTd": {
+        "simMean": 0.8508,
+        "actMean": 0.9458,
+        "simSd": 0.8879,
+        "actSd": 0.9533
+      },
+      "int": {
+        "simMean": 0.768,
+        "actMean": 0.7929,
+        "simSd": 0.8934,
+        "actSd": 0.9337
+      },
+      "fumLost": {
+        "simMean": 0.4775,
+        "actMean": 0.4665,
+        "simSd": 0.71,
+        "actSd": 0.6824
+      },
+      "fgMade": {
+        "simMean": 1.6352,
+        "actMean": 1.5895,
+        "simSd": 1.1749,
+        "actSd": 1.1772
+      }
+    },
+    "correlations": {
+      "passAttMargin": {
+        "sim": -0.2272,
+        "actual": -0.2765
+      },
+      "rushAttMargin": {
+        "sim": 0.5328,
+        "actual": 0.5118
+      },
+      "ownOppPts": {
+        "sim": -0.1448,
+        "actual": -0.0604
+      },
+      "passTdPts": {
+        "sim": 0.7141,
+        "actual": 0.6544
+      },
+      "playsTotal": {
+        "sim": 0.2234,
+        "actual": 0.1798
+      }
+    },
+    "frequencies": {
+      "overtime": {
+        "sim": 0.0317,
+        "actual": 0.0524
+      },
+      "tie": {
+        "sim": 0.0037,
+        "actual": 0.0037
+      },
+      "absMargin": {
+        "1": {
+          "sim": 0.0467,
+          "actual": 0.0365
+        },
+        "2": {
+          "sim": 0.0411,
+          "actual": 0.0463
+        },
+        "3": {
+          "sim": 0.0783,
+          "actual": 0.134
+        },
+        "4": {
+          "sim": 0.0543,
+          "actual": 0.0438
+        },
+        "6": {
+          "sim": 0.0477,
+          "actual": 0.0694
+        },
+        "7": {
+          "sim": 0.0648,
+          "actual": 0.0877
+        },
+        "10": {
+          "sim": 0.0545,
+          "actual": 0.0585
+        },
+        "14": {
+          "sim": 0.042,
+          "actual": 0.0499
+        }
+      }
+    },
+    "coherence": {
+      "runs": 1642000,
+      "failedRuns": 0,
+      "failureCodes": {}
+    },
+    "convergence": [
+      {
+        "gameId": "2019_01_ATL_MIN",
+        "at": {
+          "1000": {
+            "pHome": 0.595,
+            "overtime": 0.031,
+            "totalP50": 44,
+            "marginP10": -14,
+            "marginP90": 22
+          },
+          "5000": {
+            "pHome": 0.5948,
+            "overtime": 0.032,
+            "totalP50": 44,
+            "marginP10": -15,
+            "marginP90": 21
+          },
+          "10000": {
+            "pHome": 0.6011,
+            "overtime": 0.0316,
+            "totalP50": 44,
+            "marginP10": -15,
+            "marginP90": 22
+          },
+          "20000": {
+            "pHome": 0.6042,
+            "overtime": 0.0334,
+            "totalP50": 44,
+            "marginP10": -14,
+            "marginP90": 22
+          }
+        },
+        "maxAbsDiffVs20k": {
+          "1000": {
+            "pHome": 0.0092,
+            "overtime": 0.0024
+          },
+          "5000": {
+            "pHome": 0.0094,
+            "overtime": 0.0014
+          },
+          "10000": {
+            "pHome": 0.0031,
+            "overtime": 0.0018
+          }
+        }
+      },
+      {
+        "gameId": "2019_12_DAL_NE",
+        "at": {
+          "1000": {
+            "pHome": 0.731,
+            "overtime": 0.028,
+            "totalP50": 46,
+            "marginP10": -9,
+            "marginP90": 26
+          },
+          "5000": {
+            "pHome": 0.721,
+            "overtime": 0.0306,
+            "totalP50": 46,
+            "marginP10": -10,
+            "marginP90": 27
+          },
+          "10000": {
+            "pHome": 0.7238,
+            "overtime": 0.0291,
+            "totalP50": 46,
+            "marginP10": -10,
+            "marginP90": 27
+          },
+          "20000": {
+            "pHome": 0.7223,
+            "overtime": 0.0284,
+            "totalP50": 46,
+            "marginP10": -10,
+            "marginP90": 27
+          }
+        },
+        "maxAbsDiffVs20k": {
+          "1000": {
+            "pHome": 0.0087,
+            "overtime": 0.0004
+          },
+          "5000": {
+            "pHome": 0.0013,
+            "overtime": 0.0022
+          },
+          "10000": {
+            "pHome": 0.0015,
+            "overtime": 0.0007
+          }
+        }
+      },
+      {
+        "gameId": "2020_04_PHI_SF",
+        "at": {
+          "1000": {
+            "pHome": 0.612,
+            "overtime": 0.038,
+            "totalP50": 47,
+            "marginP10": -15,
+            "marginP90": 23
+          },
+          "5000": {
+            "pHome": 0.6092,
+            "overtime": 0.0334,
+            "totalP50": 47,
+            "marginP10": -14,
+            "marginP90": 23
+          },
+          "10000": {
+            "pHome": 0.6134,
+            "overtime": 0.0329,
+            "totalP50": 46,
+            "marginP10": -14,
+            "marginP90": 22
+          },
+          "20000": {
+            "pHome": 0.6157,
+            "overtime": 0.0331,
+            "totalP50": 46,
+            "marginP10": -14,
+            "marginP90": 23
+          }
+        },
+        "maxAbsDiffVs20k": {
+          "1000": {
+            "pHome": 0.0037,
+            "overtime": 0.0049
+          },
+          "5000": {
+            "pHome": 0.0065,
+            "overtime": 0.0003
+          },
+          "10000": {
+            "pHome": 0.0023,
+            "overtime": 0.0002
+          }
+        }
+      },
+      {
+        "gameId": "2020_16_BUF_NE",
+        "at": {
+          "1000": {
+            "pHome": 0.487,
+            "overtime": 0.035,
+            "totalP50": 45,
+            "marginP10": -19,
+            "marginP90": 18
+          },
+          "5000": {
+            "pHome": 0.5076,
+            "overtime": 0.0352,
+            "totalP50": 45,
+            "marginP10": -19,
+            "marginP90": 18
+          },
+          "10000": {
+            "pHome": 0.5094,
+            "overtime": 0.0344,
+            "totalP50": 45,
+            "marginP10": -18,
+            "marginP90": 19
+          },
+          "20000": {
+            "pHome": 0.5089,
+            "overtime": 0.034,
+            "totalP50": 45,
+            "marginP10": -18,
+            "marginP90": 18
+          }
+        },
+        "maxAbsDiffVs20k": {
+          "1000": {
+            "pHome": 0.0219,
+            "overtime": 0.001
+          },
+          "5000": {
+            "pHome": 0.0013,
+            "overtime": 0.0012
+          },
+          "10000": {
+            "pHome": 0.0005,
+            "overtime": 0.0004
+          }
+        }
+      },
+      {
+        "gameId": "2021_08_TEN_IND",
+        "at": {
+          "1000": {
+            "pHome": 0.47,
+            "overtime": 0.035,
+            "totalP50": 50,
+            "marginP10": -20,
+            "marginP90": 18
+          },
+          "5000": {
+            "pHome": 0.4826,
+            "overtime": 0.0376,
+            "totalP50": 50,
+            "marginP10": -19,
+            "marginP90": 18
+          },
+          "10000": {
+            "pHome": 0.4787,
+            "overtime": 0.0358,
+            "totalP50": 50,
+            "marginP10": -19,
+            "marginP90": 18
+          },
+          "20000": {
+            "pHome": 0.4837,
+            "overtime": 0.0333,
+            "totalP50": 50,
+            "marginP10": -19,
+            "marginP90": 18
+          }
+        },
+        "maxAbsDiffVs20k": {
+          "1000": {
+            "pHome": 0.0137,
+            "overtime": 0.0017
+          },
+          "5000": {
+            "pHome": 0.0011,
+            "overtime": 0.0043
+          },
+          "10000": {
+            "pHome": 0.005,
+            "overtime": 0.0025
+          }
+        }
+      }
+    ]
+  }
+}

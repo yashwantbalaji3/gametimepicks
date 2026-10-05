@@ -1,0 +1,485 @@
+{
+  "schemaVersion": "nfl-sim-v2-validation@1",
+  "engine": "nfl-drive-sim-v2",
+  "protocol": "B",
+  "testSeasons": [
+    2023,
+    2025
+  ],
+  "driveFitSeasons": [
+    2015,
+    2022
+  ],
+  "kickoffSeason": 2022,
+  "anchorLeakage": "IN-SAMPLE — heads' dev fits used 2022–2025; kickoff rules changed 2024/2025",
+  "runsPerGame": 2000,
+  "games": 855,
+  "params": {
+    "file": "data/internal/research/nfl/sim-v2/drive-params-2015-2022.json",
+    "sha256": "3c371ab6e5010012b34d3bbcc733e2c58ad46ff39a3b7395c7df3caf43983713"
+  },
+  "anchorHeads": {
+    "win": "nfl-win-elo-mov-v1",
+    "margin": "nfl-margin-elo-hfa-v1",
+    "totals": "matchup-totals-v3-play-efficiency",
+    "sigmaMargin": 13.03176,
+    "sigmaTotal": 13.32677
+  },
+  "marketSource": "data/internal/research/nfl/raw/nflverse/games.csv (local, git-ignored) sha256 cf8632c85fdc82c8915c7866d0bd16465a88946052bccfbf83b44bee87d5d65e",
+  "summary": {
+    "winner": {
+      "n": 854,
+      "v1": {
+        "brier": 0.2216,
+        "logLoss": 0.6343
+      },
+      "v2": {
+        "brier": 0.2253,
+        "logLoss": 0.6419
+      },
+      "baseRate": {
+        "p": 0.5499,
+        "brier": 0.2476,
+        "logLoss": 0.6883
+      },
+      "market": {
+        "n": 854,
+        "brier": 0.2102,
+        "logLoss": 0.6077,
+        "note": "no-vig closing moneyline, benchmark only"
+      }
+    },
+    "continuous": {
+      "v1": {
+        "teamScoreMAE": 7.4494,
+        "marginMAE": 10.3372,
+        "totalMAE": 10.377,
+        "teamScoreCov80": 0.7883,
+        "marginCov80": 0.7836,
+        "totalCov80": 0.8152,
+        "marginCRPS": 7.4664,
+        "totalCRPS": 7.4164
+      },
+      "v2": {
+        "teamScoreMAE": 7.4556,
+        "marginMAE": 10.3485,
+        "totalMAE": 10.3673,
+        "teamScoreCov80": 0.8257,
+        "marginCov80": 0.8199,
+        "totalCov80": 0.8094,
+        "marginCRPS": 7.4927,
+        "totalCRPS": 7.4121
+      }
+    },
+    "periods": {
+      "quarterMeanPoints": {
+        "sim": [
+          9.8285,
+          13.3934,
+          9.7518,
+          11.9136
+        ],
+        "actual": [
+          8.8398,
+          13.9801,
+          9.2585,
+          12.8994
+        ]
+      },
+      "homeLeadsAtHalf": {
+        "n": 801,
+        "v2Brier": 0.2349,
+        "coinBrier": 0.25,
+        "v1": "NO PERIOD MODEL"
+      }
+    },
+    "distributionSanity": {
+      "passAtt": {
+        "simMean": 34.3088,
+        "actMean": 32.7351,
+        "simSd": 7.3642,
+        "actSd": 7.7369
+      },
+      "cmp": {
+        "simMean": 22.0129,
+        "actMean": 21.2351,
+        "simSd": 5.395,
+        "actSd": 5.5527
+      },
+      "passYds": {
+        "simMean": 216.1544,
+        "actMean": 232.1936,
+        "simSd": 71.4983,
+        "actSd": 70.9891
+      },
+      "sacks": {
+        "simMean": 2.1456,
+        "actMean": 2.4579,
+        "simSd": 1.5014,
+        "actSd": 1.8039
+      },
+      "rushAtt": {
+        "simMean": 25.6433,
+        "actMean": 26.1392,
+        "simSd": 6.7875,
+        "actSd": 7.2253
+      },
+      "rushYds": {
+        "simMean": 128.038,
+        "actMean": 117.5357,
+        "simSd": 56.0406,
+        "actSd": 50.1653
+      },
+      "plays": {
+        "simMean": 62.8058,
+        "actMean": 62.2485,
+        "simSd": 10.2882,
+        "actSd": 8.4376
+      },
+      "drives": {
+        "simMean": 11.0368,
+        "actMean": 10.748,
+        "simSd": 1.6898,
+        "actSd": 1.6409
+      },
+      "passTd": {
+        "simMean": 1.5234,
+        "actMean": 1.4608,
+        "simSd": 1.1724,
+        "actSd": 1.1329
+      },
+      "rushTd": {
+        "simMean": 0.8579,
+        "actMean": 0.9164,
+        "simSd": 0.8952,
+        "actSd": 0.9658
+      },
+      "int": {
+        "simMean": 0.8199,
+        "actMean": 0.7333,
+        "simSd": 0.9121,
+        "actSd": 0.8814
+      },
+      "fumLost": {
+        "simMean": 0.4947,
+        "actMean": 0.445,
+        "simSd": 0.6897,
+        "actSd": 0.6764
+      },
+      "fgMade": {
+        "simMean": 1.576,
+        "actMean": 1.7006,
+        "simSd": 1.209,
+        "actSd": 1.2469
+      }
+    },
+    "correlations": {
+      "passAttMargin": {
+        "sim": -0.1818,
+        "actual": -0.2525
+      },
+      "rushAttMargin": {
+        "sim": 0.5068,
+        "actual": 0.4884
+      },
+      "ownOppPts": {
+        "sim": -0.0688,
+        "actual": -0.0654
+      },
+      "passTdPts": {
+        "sim": 0.6905,
+        "actual": 0.6393
+      },
+      "playsTotal": {
+        "sim": 0.2372,
+        "actual": 0.1418
+      }
+    },
+    "frequencies": {
+      "overtime": {
+        "sim": 0.0316,
+        "actual": 0.0538
+      },
+      "tie": {
+        "sim": 0.0038,
+        "actual": 0.0012
+      },
+      "absMargin": {
+        "1": {
+          "sim": 0.0481,
+          "actual": 0.0515
+        },
+        "2": {
+          "sim": 0.0415,
+          "actual": 0.055
+        },
+        "3": {
+          "sim": 0.0801,
+          "actual": 0.1485
+        },
+        "4": {
+          "sim": 0.0554,
+          "actual": 0.0515
+        },
+        "6": {
+          "sim": 0.0484,
+          "actual": 0.0643
+        },
+        "7": {
+          "sim": 0.0644,
+          "actual": 0.0807
+        },
+        "10": {
+          "sim": 0.0551,
+          "actual": 0.0398
+        },
+        "14": {
+          "sim": 0.0413,
+          "actual": 0.0456
+        }
+      }
+    },
+    "coherence": {
+      "runs": 1710000,
+      "failedRuns": 0,
+      "failureCodes": {}
+    },
+    "convergence": [
+      {
+        "gameId": "2023_01_ARI_WAS",
+        "at": {
+          "1000": {
+            "pHome": 0.632,
+            "overtime": 0.036,
+            "totalP50": 42,
+            "marginP10": -14,
+            "marginP90": 22
+          },
+          "5000": {
+            "pHome": 0.6182,
+            "overtime": 0.0306,
+            "totalP50": 42,
+            "marginP10": -14,
+            "marginP90": 22
+          },
+          "10000": {
+            "pHome": 0.6118,
+            "overtime": 0.0308,
+            "totalP50": 42,
+            "marginP10": -14,
+            "marginP90": 22
+          },
+          "20000": {
+            "pHome": 0.6102,
+            "overtime": 0.0313,
+            "totalP50": 42,
+            "marginP10": -14,
+            "marginP90": 22
+          }
+        },
+        "maxAbsDiffVs20k": {
+          "1000": {
+            "pHome": 0.0218,
+            "overtime": 0.0047
+          },
+          "5000": {
+            "pHome": 0.008,
+            "overtime": 0.0007
+          },
+          "10000": {
+            "pHome": 0.0016,
+            "overtime": 0.0005
+          }
+        }
+      },
+      {
+        "gameId": "2023_12_KC_LV",
+        "at": {
+          "1000": {
+            "pHome": 0.326,
+            "overtime": 0.03,
+            "totalP50": 41,
+            "marginP10": -24,
+            "marginP90": 12
+          },
+          "5000": {
+            "pHome": 0.3302,
+            "overtime": 0.0292,
+            "totalP50": 42,
+            "marginP10": -24,
+            "marginP90": 12
+          },
+          "10000": {
+            "pHome": 0.3297,
+            "overtime": 0.0289,
+            "totalP50": 42,
+            "marginP10": -24,
+            "marginP90": 13
+          },
+          "20000": {
+            "pHome": 0.3291,
+            "overtime": 0.029,
+            "totalP50": 42,
+            "marginP10": -24,
+            "marginP90": 13
+          }
+        },
+        "maxAbsDiffVs20k": {
+          "1000": {
+            "pHome": 0.0031,
+            "overtime": 0.001
+          },
+          "5000": {
+            "pHome": 0.0011,
+            "overtime": 0.0002
+          },
+          "10000": {
+            "pHome": 0.0006,
+            "overtime": 0.0001
+          }
+        }
+      },
+      {
+        "gameId": "2024_04_NE_SF",
+        "at": {
+          "1000": {
+            "pHome": 0.731,
+            "overtime": 0.023,
+            "totalP50": 41,
+            "marginP10": -10,
+            "marginP90": 27
+          },
+          "5000": {
+            "pHome": 0.7198,
+            "overtime": 0.0262,
+            "totalP50": 41,
+            "marginP10": -10,
+            "marginP90": 26
+          },
+          "10000": {
+            "pHome": 0.7278,
+            "overtime": 0.0279,
+            "totalP50": 41,
+            "marginP10": -10,
+            "marginP90": 26
+          },
+          "20000": {
+            "pHome": 0.7249,
+            "overtime": 0.0296,
+            "totalP50": 41,
+            "marginP10": -10,
+            "marginP90": 26
+          }
+        },
+        "maxAbsDiffVs20k": {
+          "1000": {
+            "pHome": 0.0061,
+            "overtime": 0.0066
+          },
+          "5000": {
+            "pHome": 0.0051,
+            "overtime": 0.0034
+          },
+          "10000": {
+            "pHome": 0.0029,
+            "overtime": 0.0017
+          }
+        }
+      },
+      {
+        "gameId": "2024_16_HOU_KC",
+        "at": {
+          "1000": {
+            "pHome": 0.778,
+            "overtime": 0.028,
+            "totalP50": 43,
+            "marginP10": -7,
+            "marginP90": 28
+          },
+          "5000": {
+            "pHome": 0.7766,
+            "overtime": 0.0258,
+            "totalP50": 43,
+            "marginP10": -8,
+            "marginP90": 28
+          },
+          "10000": {
+            "pHome": 0.7811,
+            "overtime": 0.0266,
+            "totalP50": 43,
+            "marginP10": -7,
+            "marginP90": 29
+          },
+          "20000": {
+            "pHome": 0.7782,
+            "overtime": 0.0256,
+            "totalP50": 43,
+            "marginP10": -7,
+            "marginP90": 29
+          }
+        },
+        "maxAbsDiffVs20k": {
+          "1000": {
+            "pHome": 0.0002,
+            "overtime": 0.0024
+          },
+          "5000": {
+            "pHome": 0.0016,
+            "overtime": 0.0002
+          },
+          "10000": {
+            "pHome": 0.0029,
+            "overtime": 0.001
+          }
+        }
+      },
+      {
+        "gameId": "2025_08_MIN_LAC",
+        "at": {
+          "1000": {
+            "pHome": 0.526,
+            "overtime": 0.034,
+            "totalP50": 43,
+            "marginP10": -18,
+            "marginP90": 19
+          },
+          "5000": {
+            "pHome": 0.5118,
+            "overtime": 0.0334,
+            "totalP50": 43,
+            "marginP10": -18,
+            "marginP90": 18
+          },
+          "10000": {
+            "pHome": 0.5111,
+            "overtime": 0.0303,
+            "totalP50": 43,
+            "marginP10": -18,
+            "marginP90": 19
+          },
+          "20000": {
+            "pHome": 0.512,
+            "overtime": 0.0318,
+            "totalP50": 44,
+            "marginP10": -18,
+            "marginP90": 19
+          }
+        },
+        "maxAbsDiffVs20k": {
+          "1000": {
+            "pHome": 0.014,
+            "overtime": 0.0022
+          },
+          "5000": {
+            "pHome": 0.0002,
+            "overtime": 0.0016
+          },
+          "10000": {
+            "pHome": 0.0009,
+            "overtime": 0.0015
+          }
+        }
+      }
+    ]
+  }
+}
