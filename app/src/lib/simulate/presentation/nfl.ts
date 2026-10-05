@@ -19,6 +19,17 @@ import type { NflEligibleEvent } from "@/lib/sports/nfl/simulate-eligibility";
 import type { ChapterKind, PresentationChapter, PresentationManifest, PresentationResult } from "./types";
 import { hasStarted } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 
+/**
+ * The event's calendar day in ET (YYYY-MM-DD), like every other date on this site. `kickoffUtc.slice(0, 10)`
+ * printed the UTC day, so every night game (8:15 PM ET = 00:15Z) was dated a day late — the /nfl list was
+ * fixed for exactly this; the story header and the archived note were not.
+ */
+export function etDateOf(kickoffUtc: string | null | undefined): string {
+  const ms = Date.parse(kickoffUtc ?? "");
+  if (!Number.isFinite(ms)) return (kickoffUtc ?? "").slice(0, 10);
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(ms));
+}
+
 const HOLD = { light: 4200, normal: 5200, dense: 6400 } as const;
 const pctOf = (n: number) => Math.round(n * 100);
 
@@ -117,7 +128,7 @@ export function buildNflPresentation(
   if (archived) {
     limits.push({
       label: "Archived",
-      detail: `This is the frozen pre-event forecast for a game played on ${(e.kickoffUtc ?? "").slice(0, 10)}. It is shown after the fact and was not regenerated; no forecast may be made for a game that has started.`,
+      detail: `This is the frozen pre-event forecast for a game played on ${etDateOf(e.kickoffUtc)}. It is shown after the fact and was not regenerated; no forecast may be made for a game that has started.`,
     });
   }
   limits.push({ label: e.readiness === "BASELINE_ONLY" ? "Baseline only" : "Readiness", detail: e.readinessReason });
@@ -157,7 +168,7 @@ export function buildNflPresentation(
     schema: 1, sport: "nfl", eventId,
     slug: e.providerEventId,
     title: e.matchup,
-    displayDate: (e.kickoffUtc ?? "").slice(0, 10),
+    displayDate: etDateOf(e.kickoffUtc),
     startUtc: e.kickoffUtc ?? null,
     venue: e.venue ?? null,
     home: { name: e.home.name, abbr: e.home.abbr, logo: null },
