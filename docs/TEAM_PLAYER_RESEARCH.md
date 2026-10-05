@@ -283,3 +283,25 @@ registry and budget. **v1.4 = Matchup Explorer + Compare. Not started.**
   comparable stat family; UFC fighter pages never do.
 - Research table scrollers now set `position: relative`: an `sr-only` header cell inside a non-positioned scroller made
   the document wider than a phone screen (found in v1.4 QA; the a11y spec now pins document width for these routes).
+
+## 21. Research home + team forecast history (2026-10-05)
+
+From the Research & Model Lab discoverability audit (2,703-page crawl of the built export; `/research/` was a stale MLB
+"public beta" note that linked to none of the research below).
+
+- **`/research/` is the Research directory.** It has the tools (Research Lab, Compare, Forecast Record, Model Lab, Ask), every
+  team page by sport (from `researchIndex()`, the registry that generates them, so this is the team directory with no
+  new route), and "What Research covers": published page counts per sport and who gets a page. The bars' NUMBERS are read
+  from `readiness.json` `thresholds`, while the sentences come from `lib/research-pages/research-home.ts`. The receipt's
+  `rules` strings stay internal, because they name a provider and say "noindex". It carries no forecast and no pick.
+- **Team pages show "Our forecasts for <team>"** through the same `ForecastHistorySection` and Forecast Ledger reader as the
+  player pages, by exact canonical id. Today that means NFL team score: all 32 ledger TEAM subjects equal NFL team ids
+  (RH3 pins this). Game-level rows (moneyline, 1X2, winner, totals) carry no team id and are **not** attributed to
+  teams; that join would belong in the ledger reader (Results).
+- **Forecast history links each game** through `game-links.ts` `gameHref`, the same owner the game logs use, so a link is
+  emitted only to a page this export serves (Ligue 1 never links). Rows past the first 8 are kept in a collapsed
+  "Show N older forecasts" block instead of being dropped (the max today is 21 rows per subject).
+- Guards: `research-home.test.mjs` (unit; includes a mutation probe on the thresholds) and `research-home-built.test.mjs`
+  (post-build: every team linked from `/research/`, history ⇔ ledger rows with every row rendered, every game link served).
+- Not changed here (reserved shared surfaces): global nav, the footer label "Research engine", site search, Home, Sports
+  and the sport hubs. The entry-point proposal is in the department report.
