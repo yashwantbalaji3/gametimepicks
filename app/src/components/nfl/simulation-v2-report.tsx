@@ -36,6 +36,7 @@ const CSS = `
 .s2 .canon{border-top:2px solid var(--vault-gold)}
 .s2 .tag{font-family:var(--font-mono,ui-monospace,monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--vault-text-faint)}
 .s2 summary{cursor:pointer;font-size:13px;color:var(--vault-text);min-height:32px;padding:6px 0}
+.s2 summary:focus-visible{outline:2px solid var(--vault-accent);outline-offset:2px}
 `;
 
 const pct = (v: number | null | undefined) => (v == null || !Number.isFinite(v) ? "—" : `${(v * 100).toFixed(1)}%`);
@@ -82,6 +83,8 @@ export default function SimulationV2Report({ r, file, canonical, gameHref }: { r
   const firstTd = r.scoringEventDistributions?.firstTdScorer ?? [];
   const teamFirst = r.scoringEventDistributions?.teamFirstTd ?? {};
   const kickoff = new Date(r.eventStart);
+  // margin is home minus away; say it as who leads, the same way everywhere on the page
+  const lead = (m: number) => (m > 0 ? `${H} by ${m}` : m < 0 ? `${A} by ${-m}` : "Even");
   const stamp = (iso: string) => `${String(iso).slice(0, 16).replace("T", " ")} UTC`;
 
   return (
@@ -89,13 +92,14 @@ export default function SimulationV2Report({ r, file, canonical, gameHref }: { r
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
 
       <div className="card exp">
-        <p className="tag" style={{ margin: 0 }}>Simulation V2 · experimental · {r.runCount.toLocaleString("en-US")} coherent game paths</p>
+        <p className="tag" style={{ margin: 0 }}>Simulation V2 · experimental · how to read this page</p>
         <p style={{ margin: "6px 0 0", fontSize: 13.5, color: "var(--vault-text)" }}>
           Each run is one internally consistent possible game: drives, plays, player stats and points all add up inside that run.
           The numbers below summarise all {r.runCount.toLocaleString("en-US")} simulated games.
         </p>
         <p className="m" style={{ margin: "6px 0 0", fontSize: 12.5 }}>
-          This is a separate, experimental engine, not our main forecast. It has not been shown to be more accurate than the Game Time
+          This is a separate, experimental engine, not our main forecast. It is not independent of it: each team&apos;s scoring level is
+          set so the simulated average total and margin match the Game Time Forecast&apos;s expected total and margin. It has not been shown to be more accurate than the Game Time
           Forecast: on held-out past games its win chances scored slightly worse. It is shown for exploration, takes no betting-market
           input, and feeds no pick or product. It was frozen before kickoff and is never re-run with live information.
         </p>
@@ -103,11 +107,11 @@ export default function SimulationV2Report({ r, file, canonical, gameHref }: { r
 
       {canonical ? (
         <div className="card canon">
-          <p className="tag" style={{ margin: 0 }}>Game Time Forecast · our main model · not part of this simulation</p>
+          <p className="tag" style={{ margin: 0 }}>Game Time Forecast · our main model · separate from this simulation</p>
           <p style={{ margin: "6px 0 0", fontSize: 13, fontFamily: "var(--font-mono,ui-monospace,monospace)", overflowWrap: "anywhere" }}>
             {A} {canonical.projectedAway} — {canonical.projectedHome} {H} · win chance {A} {pct(canonical.awayWin)} · {H} {pct(canonical.homeWin)} · total {canonical.totalMedian}
           </p>
-          <p className="f" style={{ margin: "4px 0 0" }}>Different model, different method. <Link href={gameHref}>Open the Game Time Forecast</Link>.</p>
+          <p className="f" style={{ margin: "4px 0 0" }}>A different engine, anchored to the Game Time Forecast&apos;s expected total and margin. <Link href={gameHref}>Open the Game Time Forecast</Link>.</p>
         </div>
       ) : null}
 
@@ -120,7 +124,7 @@ export default function SimulationV2Report({ r, file, canonical, gameHref }: { r
           <div className="tile"><b>{pct(a.overtimeProbability)}</b><span>game goes to overtime</span></div>
           <div className="tile"><b>{A} {a.score.away.p50} – {a.score.home.p50} {H}</b><span>median score · averages {a.score.away.mean} – {a.score.home.mean}</span></div>
           <div className="tile"><b>{a.total.p50}</b><span>median total · 80% of games {a.total.p10}–{a.total.p90}</span></div>
-          <div className="tile"><b>{a.margin.p50 > 0 ? `${H} +${a.margin.p50}` : a.margin.p50 < 0 ? `${A} +${-a.margin.p50}` : "Even"}</b><span>median margin · 80%: {H} {a.margin.p10} to {a.margin.p90}</span></div>
+          <div className="tile"><b>{lead(a.margin.p50)}</b><span>median margin · 80% range: {lead(a.margin.p10)} to {lead(a.margin.p90)}</span></div>
           <div className="tile"><b>{pct(oneScore)}</b><span>one-score game (decided by 8 or fewer)</span></div>
           <div className="tile"><b>{pct(by3)} · {pct(by7)}</b><span>decided by exactly 3 · by exactly 7</span></div>
         </div>
@@ -129,7 +133,7 @@ export default function SimulationV2Report({ r, file, canonical, gameHref }: { r
       <section aria-labelledby="s2-dist">
         <h2 id="s2-dist">Score distribution</h2>
         <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))" }}>
-          <Bars hist={a.marginHistogram} width={3} median={a.margin.p50} label={`Final margin (${H} minus ${A})`} />
+          <Bars hist={a.marginHistogram} width={3} median={a.margin.p50} label={`Final margin: ${H} points minus ${A} points (below 0 means ${A} won)`} />
           <Bars hist={a.totalHistogram} width={4} median={a.total.p50} label="Final total points" />
         </div>
         <h3>Each team&apos;s score</h3>

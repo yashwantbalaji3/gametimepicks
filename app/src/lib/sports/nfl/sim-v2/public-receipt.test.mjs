@@ -72,7 +72,7 @@ test("the page is generated only for showable records and 404s otherwise (dynami
 
 test("separate from the canonical forecast: its own labelled card, the scorecard label untouched, experimental wording", () => {
   assert.match(gamePage, /expected statistical summaries · not one simulated game/, "the canonical scorecard keeps its truthful label");
-  assert.match(report, /Game Time Forecast · our main model · not part of this simulation/);
+  assert.match(report, /Game Time Forecast · our main model · separate from this simulation/);
   assert.match(report, /Simulation V2 · experimental/);
   assert.match(report, /not our main forecast/);
   assert.match(report, /has not been shown to be more accurate/);
