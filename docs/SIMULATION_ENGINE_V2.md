@@ -149,6 +149,16 @@ key-number / OT / yardage-split biases), material output provenance clear (✅),
 3. Forward shadow ledger: V2 receipts written pregame every NFL week (this script, write-once) and graded into the
    Forecast Ledger as `SHADOW` (never public history) until each player family clears its bar.
 
+## 7b. Simulation Center V2 (Phase F) — internal presentation
+
+`/preview/simulation-v2/` (internal: `guardInternalRoute()` + `/preview` pruned from the export; run with
+`NEXT_PUBLIC_INTERNAL_ROUTES=1 npx next dev`) renders every shadow receipt: win / tie / OT probabilities, median scores
+and 80% ranges, margin and total histograms (median bucket highlighted), Q1–Q4 / H1 / H2 from the same game paths, the
+team box, per-player medians (80% range) with anytime / 2+ TD counted over the same runs, the first-TD distribution, and
+the REPRESENTATIVE SIMULATED GAMES (median-like, high, low, upset, overtime) with their drive logs — each labelled an
+illustration, not the forecast. No market number appears (the receipt carries none). It becomes a public game-report
+section only after the §7 promotion gate; until then the public NFL label stays.
+
 ## 8. Migration plan — other sports (common receipt + sport adapter)
 
 | Sport | V2 unit of simulation | Current engine | Gap to V2 |

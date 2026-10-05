@@ -2,11 +2,11 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-10-05T02:51:34Z",
+ "generatedAt": "2026-10-05T05:12:45Z",
  "totals": {
-  "routes": 89,
+  "routes": 90,
   "public": 62,
-  "internal": 8,
+  "internal": 9,
   "redirects": 15,
   "archive": 2,
   "findings": 0,
@@ -539,6 +539,15 @@
    "built": false
   },
   {
+   "route": "/preview/simulation-v2",
+   "classification": "internal",
+   "owner": "research",
+   "purpose": "Simulation Engine V2 SHADOW receipts presentation (Session 13 · Phase F) — internal until the founder/model gate (pruned)",
+   "dataOwner": "data/internal/research/nfl/sim-v2/shadow (build-nfl-sim-v2-shadow)",
+   "freshness": "each receipt's generatedAt",
+   "built": false
+  },
+  {
    "route": "/privacy",
    "classification": "internal",
    "owner": "legal",
@@ -720,7 +729,7 @@
    "purpose": "one static page per in-window date — same selector, date as the route (P209)",
    "dataOwner": "lib/simulate/day-view over per-sport owners",
    "freshness": "each owner's own stamp",
-   "built": "FAMILY (24 generated page(s))"
+   "built": "FAMILY (23 generated page(s))"
   },
   {
    "route": "/soccer/[league]",
