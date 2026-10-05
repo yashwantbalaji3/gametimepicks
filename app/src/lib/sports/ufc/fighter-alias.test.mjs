@@ -90,3 +90,36 @@ test("a malformed provider key is skipped, never parsed into a match", () => {
   const keys = ["justonename", "a|b|c", "cameron nelson|meng ding"];
   assert.equal(findLooseMatch([fold("Ding Meng"), fold("Cameron Nelson")], keys), "cameron nelson|meng ding");
 });
+
+/* ── SHORT AND LONG GIVEN NAMES (UFC 332, 2026-10-03) ─────────────────────────────────────────── */
+
+test("UFC 332 · the two bouts the book listed under a different first name now join", async () => {
+  const { sameFighterByGivenName } = await import("./fighter-alias.mjs");
+  assert.equal(sameFighterByGivenName(fold("Alexander Hernandez"), "alex hernandez"), true, "prefix");
+  assert.equal(sameFighterByGivenName(fold("Mick Parkin"), "michael parkin"), true, "nickname table");
+  // The real UFC 332 payload's two unmatched keys, against the card's spellings.
+  const keys = ["alex hernandez|rafael dos anjos", "johnny walker|michael parkin"];
+  assert.equal(findLooseMatch([fold("Rafael Dos Anjos"), fold("Alexander Hernandez")], keys), "alex hernandez|rafael dos anjos");
+  assert.equal(findLooseMatch([fold("Johnny Walker"), fold("Mick Parkin")], keys), "johnny walker|michael parkin");
+});
+
+test("GIVEN-NAME FLOOR · the family name must be identical, and the first names a real pair", async () => {
+  const { sameFighterByGivenName, sameGivenName } = await import("./fighter-alias.mjs");
+  assert.equal(sameFighterByGivenName("alex perez", "alexander pereira"), false, "different family name");
+  assert.equal(sameFighterByGivenName("mick parkin", "mark parkin"), false, "mark is not a form of mick");
+  assert.equal(sameFighterByGivenName("jo smith", "joseph smith"), false, "two-letter prefix is too short to mean anything");
+  assert.equal(sameFighterByGivenName("parkin", "michael parkin"), false, "a single token has no given name to compare");
+  assert.equal(sameGivenName("mike", "mick"), true, "same row of the table");
+  assert.equal(sameGivenName("tony", "michael"), false);
+});
+
+test("GIVEN-NAME REFUSAL · two brothers on one payload is ambiguity, never a pick", () => {
+  // The card's "Alex Hernandez" is a short form of both listed names, so neither may be chosen.
+  const keys = ["alexander hernandez|rafael dos anjos", "alexandre hernandez|rafael dos anjos"];
+  assert.equal(findLooseMatch([fold("Rafael Dos Anjos"), fold("Alex Hernandez")], keys), null);
+});
+
+test("BOTH sides must still agree under the given-name rule", () => {
+  const keys = ["alex hernandez|somebody else"];
+  assert.equal(findLooseMatch([fold("Rafael Dos Anjos"), fold("Alexander Hernandez")], keys), null);
+});
