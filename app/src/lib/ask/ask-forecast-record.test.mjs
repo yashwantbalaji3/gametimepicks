@@ -115,3 +115,22 @@ test("router: history and performance questions reach their tools", async () => 
   assert.equal(m.intent, "MODEL_PERFORMANCE");
   assert.deepEqual(m.calls[0].arguments, { sport: "NFL", family: "anytime_td" });
 });
+
+test("follow-up: 'what about his receptions?' keeps the carried player id (no re-resolve); control: no earlier history turn", async () => {
+  const plan = async (user) => JSON.parse((await createFakeProvider({}).plan({ user })).text);
+  const user = [
+    "EARLIER IN THIS CONVERSATION (the user's own turns):",
+    "- How did Jaxon Smith-Njigba do the last 3 times we projected him over 80 receiving yards?",
+    "",
+    "ALREADY RESOLVED (use these ids directly — do not resolve these names again):",
+    "- Jaxon Smith-Njigba: nfl-athlete-4430878 (NFL player)",
+    "",
+    "QUESTION: What about his receptions?",
+  ].join("\n");
+  const p = await plan(user);
+  assert.equal(p.intent, "FORECAST_HISTORY");
+  assert.deepEqual(p.calls.map((c) => c.name), ["getForecastHistory"], "the carried id is used directly");
+  assert.deepEqual([p.calls[0].arguments.playerId, p.calls[0].arguments.family], ["nfl-athlete-4430878", "player_receptions"]);
+  const cold = await plan("QUESTION: What about his receptions?");
+  assert.notEqual(cold.intent, "FORECAST_HISTORY", "control: with no earlier forecast-history turn, a pronoun is not resolved to anyone");
+});
