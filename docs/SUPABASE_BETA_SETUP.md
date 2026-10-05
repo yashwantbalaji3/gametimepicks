@@ -36,11 +36,20 @@ An optional standalone version for a helper is [`OPTIONAL_DP_SUPABASE_SETUP.md`]
 
 - Every **write** (insert/update) also requires `public.is_beta_member()`.
 - **Read and delete** never require it, so a revoked tester can always see, export and delete their own data.
+- Slip-image **uploads** are writes too: the `slips_write_own` storage policy also requires `public.is_beta_member()`
+  (2026-10-05 beta fix), so a revoked tester or an uninvited account cannot upload. Reading and deleting their own
+  images stay open.
+
+**What the database allows vs. what the site offers today.** The policies permit an owner to delete their own rows
+and images, and the battery proves it. The site itself has **no delete button** yet for bets, slips, follows or saves
+(follows and saves are removed by un-following / un-saving and syncing). Until one exists, a tester who wants data
+gone asks the founder, who deletes it in the dashboard (below). This is a known non-blocker for the friends beta.
 
 ## Inviting, disabling, identifying
 
 1. **Supabase → Authentication → Providers → Email:** turn **off** "Allow new users to sign up". Sign-in then
-   works only for users the founder invites. Invite with **Authentication → Users → Invite user**.
+   works only for users the founder creates: **Authentication → Users → Add user → Create new user** (Auto Confirm),
+   after which the person signs in at `/account/` with "Email me a link" (`beta/HOSTED_BETA_RUNBOOK.md` Part C).
 2. **Add the email to `beta_access`** in the SQL editor. This is the second lock, and the one that can be
    revoked:
    ```sql
@@ -48,7 +57,9 @@ An optional standalone version for a helper is [`OPTIONAL_DP_SUPABASE_SETUP.md`]
    ```
 3. **To disable a tester:** run
    `update public.beta_access set revoked_at = now() where tester_code = 'T1';`
-   They can no longer write. To remove the account entirely, delete the user in Authentication → Users;
+   They can no longer write. To remove the account entirely, first delete their folder in Storage → `slips` →
+   `<user id>/` (storage has no cascade and no code removes images yet), then delete the user in
+   Authentication → Users;
    this cascades to every row they own.
 4. **In logs and notes, use the tester code (T1–T10), never an email or name.** Emails live only in the
    `beta_access` table, never in this repository (`data/internal/beta/cohort-contract.json` rule).
@@ -109,7 +120,8 @@ Run in this order and record the result in the Session handoff:
 4. A's personal P/L shows staked / returned / net / open exposure correctly.
 5. `npm run money:audit` is unchanged before and after. A user's bets never touch Mr. Dub money; a test
    forbids the accounts libs from reading it.
-6. Revoke A: A can still read and delete their own rows, and can write nothing.
+6. Revoke A: A can still read their own rows, and can write nothing (no new bet, no feedback, no slip-image upload).
+   Owner delete after revocation is proven by the hosted battery (step 3), not by a site button: none exists yet.
 
 ## Data collected (privacy checklist — not a legal review)
 
@@ -117,8 +129,22 @@ Run in this order and record the result in the Session handoff:
 |---|---|---|---|
 | Email | sign-in, invite list | Supabase auth + `beta_access` | delete the user in the dashboard (cascades); remove the `beta_access` row |
 | Display name (optional) | how the account greets you | `profiles` | the same cascade |
-| Bets you choose to record, slip images | your own history and P/L | `bet_slips`, private `slips` bucket | delete in `/account`, or via the cascade |
+| Bets you choose to record, slip images | your own history and P/L | `bet_slips`, private `slips` bucket | no in-site delete yet: the founder deletes on request (the `slips/<user id>/` folder first, then the user, which cascades the rows) |
 | Preferences, follows, saves | ordering your page | Session 8 tables | the same cascade |
+
+## Known non-blockers for the friends beta (2026-10-05, founder-accepted)
+
+- **Preferences have no screen.** `user_preferences` exists with own-row RLS, but nothing writes it and `/my` does not
+  read it. Personalization in the beta is follows and saves only.
+- **Follows cover MLB teams, NFL teams and NFL players only** (`lib/follow/follow-schema.mjs`). NBA, soccer and UFC
+  follows wait on those departments' canonical ids.
+- **Sync runs when `/account` is opened**, not from `/my`: a follow made on one device reaches another after a visit
+  to `/account` there.
+- **No in-site delete** (above).
+- **AI slip reading is OFF** for the beta: `ANTHROPIC_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are not set in Vercel,
+  and `/api/slip-read` answers 503 by design.
+
+The Friday step-by-step is [`beta/HOSTED_BETA_RUNBOOK.md`](./beta/HOSTED_BETA_RUNBOOK.md).
 | Feedback | fixing the beta | `beta_feedback` | the same cascade |
 | Page views (no account id) | product analytics, 90-day retention | private Vercel Blob (P256) | expires after 90 days |
 
