@@ -288,6 +288,24 @@ function routePlan(user) {
         : has("shots on") ? "epl_shots_on_goal_over_0_5" : has("1x2", "match result", "match forecast") ? "epl_1x2"
           : has("homer", "home run") ? "mlb_homer_nukes" : has("moneyline") ? "mlb_moneyline" : has("run line") ? "mlb_run_line"
             : has("winner") ? (sp === "UFC" ? "ufc_winner" : "nfl_game_winner") : null;
+  /* Session 13 · F4 follow-up: "what about his receptions?" after a forecast-history turn keeps the SAME player — the id
+     comes from the engine's ALREADY RESOLVED block (never re-resolved from a pronoun), only the family changes. */
+  const resolvedPlayer = /ALREADY RESOLVED[^]*?\n- [^\n]*?: ((?:nfl-athlete|mlb-player|epl-athlete)-\d+) \((NFL|MLB|EPL) player\)/.exec(raw);
+  if (hadEarlier("we projected", "projected him", "projected her", "forecast history", "our forecasts for") && has("what about", "and his", "and her", "his ", "her ")) {
+    if (resolvedPlayer && famOf(resolvedPlayer[2])) {
+      push("getForecastHistory", { sport: resolvedPlayer[2], playerId: resolvedPlayer[1], family: famOf(resolvedPlayer[2]), limit: 5 });
+      return { intent: "FORECAST_HISTORY", needsClarification: false, clarification: null, calls };
+    }
+    /* No carried id (a client that sent none): resolve the NAME the earlier turn wrote — never the pronoun. */
+    const earlierRaw = raw.match(/EARLIER IN THIS CONVERSATION[^]*?(?=\n\n|QUESTION:)/i)?.[0] ?? "";
+    const earlierName = nameIn(earlierRaw.replace(/EARLIER IN THIS CONVERSATION[^\n]*\n?/i, ""));
+    const sp = sportOf(conversation) ?? "NFL";
+    if (earlierName && famOf(sp)) {
+      push("resolveEntity", { kind: "player", text: earlierName });
+      push("getForecastHistory", { sport: sp, playerId: "RESOLVED", family: famOf(sp), limit: 5 }, ["c0"]);
+      return { intent: "FORECAST_HISTORY", needsClarification: false, clarification: null, calls };
+    }
+  }
   if (has("times we projected", "we projected", "our past forecasts", "our forecasts for", "forecast history", "projected him", "projected her")) {
     const sp = sportOf(question) ?? "NFL";
     const over = /over\s+(\d+(?:\.\d+)?)/.exec(question);
