@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "sport": "nba",
  "dataClass": "RESULTS_CAPTURE",
- "generatedAt": "2026-10-04T14:45:38Z",
- "sourceAsOf": "2026-10-04T14:45:38Z",
+ "generatedAt": "2026-10-05T15:47:44Z",
+ "sourceAsOf": "2026-10-05T15:47:44Z",
  "windowDays": 9,
  "state": "RESULTS",
  "source": {
@@ -12,8 +12,8 @@
   "license": "public JSON endpoint, no key; used as a point-in-time snapshot with attribution — same class of usage as the schedule capture",
   "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=202609&limit=1000 https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=202610&limit=1000"
  },
- "rowCount": 3,
- "completedCount": 1,
+ "rowCount": 6,
+ "completedCount": 3,
  "rows": [
   {
    "providerEventId": "401902644",
@@ -34,13 +34,13 @@
    },
    "ftHome": 105,
    "ftAway": 129,
-   "capturedAt": "2026-10-04T14:45:38Z"
+   "capturedAt": "2026-10-05T15:47:44Z"
   },
   {
    "providerEventId": "401914127",
    "shortName": "UTAH @ DEN",
    "dateUtc": "2026-10-04T23:00Z",
-   "statusRaw": "STATUS_SCHEDULED",
+   "statusRaw": "STATUS_FINAL",
    "seasonType": 1,
    "neutralSite": false,
    "home": {
@@ -53,15 +53,15 @@
     "name": "Utah Jazz",
     "providerTeamId": "26"
    },
-   "ftHome": 0,
-   "ftAway": 0,
-   "capturedAt": "2026-10-04T14:45:38Z"
+   "ftHome": 97,
+   "ftAway": 109,
+   "capturedAt": "2026-10-05T15:47:44Z"
   },
   {
    "providerEventId": "401918010",
    "shortName": "GS VS LAC",
    "dateUtc": "2026-10-04T23:00Z",
-   "statusRaw": "STATUS_SCHEDULED",
+   "statusRaw": "STATUS_FINAL",
    "seasonType": 1,
    "neutralSite": true,
    "home": {
@@ -74,9 +74,72 @@
     "name": "Golden State Warriors",
     "providerTeamId": "9"
    },
+   "ftHome": 104,
+   "ftAway": 101,
+   "capturedAt": "2026-10-05T15:47:44Z"
+  },
+  {
+   "providerEventId": "401898388",
+   "shortName": "MEM @ ATL",
+   "dateUtc": "2026-10-05T23:00Z",
+   "statusRaw": "STATUS_SCHEDULED",
+   "seasonType": 1,
+   "neutralSite": false,
+   "home": {
+    "abbr": "ATL",
+    "name": "Atlanta Hawks",
+    "providerTeamId": "1"
+   },
+   "away": {
+    "abbr": "MEM",
+    "name": "Memphis Grizzlies",
+    "providerTeamId": "29"
+   },
    "ftHome": 0,
    "ftAway": 0,
-   "capturedAt": "2026-10-04T14:45:38Z"
+   "capturedAt": "2026-10-05T15:47:44Z"
+  },
+  {
+   "providerEventId": "401908947",
+   "shortName": "PHX @ DET",
+   "dateUtc": "2026-10-05T23:00Z",
+   "statusRaw": "STATUS_SCHEDULED",
+   "seasonType": 1,
+   "neutralSite": false,
+   "home": {
+    "abbr": "DET",
+    "name": "Detroit Pistons",
+    "providerTeamId": "8"
+   },
+   "away": {
+    "abbr": "PHX",
+    "name": "Phoenix Suns",
+    "providerTeamId": "21"
+   },
+   "ftHome": 0,
+   "ftAway": 0,
+   "capturedAt": "2026-10-05T15:47:44Z"
+  },
+  {
+   "providerEventId": "401914101",
+   "shortName": "NY @ PHI",
+   "dateUtc": "2026-10-05T23:00Z",
+   "statusRaw": "STATUS_SCHEDULED",
+   "seasonType": 1,
+   "neutralSite": false,
+   "home": {
+    "abbr": "PHI",
+    "name": "Philadelphia 76ers",
+    "providerTeamId": "20"
+   },
+   "away": {
+    "abbr": "NY",
+    "name": "New York Knicks",
+    "providerTeamId": "18"
+   },
+   "ftHome": 0,
+   "ftAway": 0,
+   "capturedAt": "2026-10-05T15:47:44Z"
   }
  ]
 }
