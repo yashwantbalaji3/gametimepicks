@@ -1,0 +1,110 @@
+# NBA results refresh — the ONE writer of NBA finals (Session 14 · NBA department).
+#
+# ⚠ WHY THIS EXISTS. NBA finals were captured only inside sport-schedules (cron 09:07Z, delivered 14–17Z), so
+# a game that ended at 02:00Z showed "Final not recorded yet" on /nba/ for ~13–18 h (2026-10-04's finals first
+# recorded 2026-10-05T15:47Z). Opening night is 2026-10-20, launch day. This workflow runs the SAME two scripts
+# on denser, delivered clocks; sport-schedules no longer carries the NBA results steps, so there is one writer.
+#
+#   capture-nba-results.mjs     → app/public/data/nba/results/latest.json   (rolling 9-day window)
+#   build-nba-finals-record.mjs → app/public/data/nba/results/finals-<season>.json  (write-once season record)
+#
+# Nothing here changes what counts as a final: the scripts, the current-results adapter's acceptance rules and
+# the write-once finals record are unchanged. A game absent from the record is pending, never a loss.
+#
+# CLOCKS. Hourly cron, a denser cron across the post-game hours (00–07Z: US evening games end ~01:30–05:30Z),
+# and `workflow_run` on publication-watchdog (dense 12–22Z) — the clocks nba-forecast-window relies on. Every
+# cron here is best-effort; a missed tick only delays a final to the next one.
+#
+# ⚠ OWN CONCURRENCY GROUP, DELIBERATELY NOT gtp-generated-artifacts (same reason as nba-forecast-window: a dense
+# tick in the shared writer group would cancel a pending daily-products / settle run). It writes only
+# app/public/data/nba/results/**; a lost push race re-captures on the new main, up to 3 times.
+#
+# COMMITS ONLY ON CONTENT. Rows carry capturedAt stamps; a stamp-only change to latest.json is dropped, and a new
+# final in finals-<season>.json is never discarded with it (the rule sport-schedules used).
+#
+# FREE: no secrets, no paid provider, no npm install (the scripts are dependency-free .mjs). A commit under
+# app/public/data triggers the Vercel build (scripts/vercel-ignore-build.sh), so a new final deploys on its own.
+name: nba-results-refresh
+
+on:
+  schedule:
+    - cron: "41 * * * *"
+    - cron: "11,26 0-7 * * *"
+  workflow_run:
+    workflows: ["publication-watchdog"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Capture and report, but never commit"
+        required: false
+        default: "false"
+
+concurrency:
+  group: nba-results-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    # THE TRUST BOUNDARY ON A workflow_run TRIGGER: only a default-branch run may tick this; nothing from the
+    # triggering run is read or executed.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.head_branch == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Capture NBA results, fold finals, commit if content changed
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          set -uo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          RESULTS=app/public/data/nba/results
+          git fetch -q origin main
+          for ATTEMPT in 1 2 3; do
+            git reset -q --hard origin/main
+            NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            # A 4xx from the provider is a contract change: the capture exits 1 and the run goes red. Network /
+            # 5xx / malformed payloads exit 0 having written nothing (last-known-good stands).
+            (cd app && node scripts/nba/capture-nba-results.mjs --now "$NOW") || { echo "::error::NBA results capture refused"; exit 1; }
+            (cd app && node scripts/nba/build-nba-finals-record.mjs --now "$NOW") || { echo "::error::NBA finals record refused"; exit 1; }
+            git add "$RESULTS/"
+            if git diff --cached --quiet; then echo "no change"; exit 0; fi
+            if node -e "
+              const { execSync } = require('child_process');
+              const strip = (j) => { const o = JSON.parse(j); delete o.generatedAt; delete o.sourceAsOf;
+                o.rows = (o.rows||[]).map(r => { const { capturedAt, ...rest } = r; return rest; }); return JSON.stringify(o); };
+              const f = '$RESULTS/latest.json';
+              let head; try { head = execSync('git show HEAD:' + f, { encoding: 'utf8' }); } catch { process.exit(1); }
+              process.exit(strip(head) === strip(require('fs').readFileSync(f, 'utf8')) ? 0 : 1);
+            "; then
+              # Only latest.json's stamps moved: put THAT file back, but keep anything else staged — a new final
+              # in finals-<season>.json must never be discarded with a stamp-only window refresh.
+              echo "only capture stamps moved in latest.json — keeping the committed window"
+              git reset -q -- "$RESULTS/latest.json"
+              git checkout -q -- "$RESULTS/latest.json"
+            fi
+            if git diff --cached --quiet; then echo "nothing but stamps — no commit"; exit 0; fi
+            git diff --cached --stat
+            if [ "$DRY_RUN" = "true" ]; then echo "dry run — not committing"; exit 0; fi
+            git commit -q -m "auto: nba results capture $NOW [skip ci]"
+            if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; exit 0; fi
+            # Lost a race with another writer: re-capture on the new main (the finals record is write-once).
+            echo "::warning::push lost a race (attempt $ATTEMPT) — re-capturing on the new main"
+            sleep $((ATTEMPT * 15))
+            git fetch -q origin main
+          done
+          echo "::error::could not push after 3 attempts"
+          exit 1
