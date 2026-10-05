@@ -47,7 +47,13 @@ test("every matching row is reachable — no arbitrary render ceiling", async ({
   await expect(range).toBeVisible();
   const first = (await range.textContent()) ?? "";
   const total = Number((first.match(/of ([\d,]+)/)?.[1] ?? "0").replace(/,/g, ""));
-  expect(total).toBeGreaterThan(200); // the old cap would have hidden these
+  /* 2026-10-05: the bar is the page's own window, not a constant. "more than 200" failed on a light Monday
+     slate (164 rows) although nothing was hidden. What this test protects is that rows past the first window
+     stay reachable, so it needs a slate with more rows than one window holds, and says so when there isn't one. */
+  const pageEnd = Number(first.match(/\d+–(\d+) of/)?.[1] ?? "0");
+  expect(total).toBeGreaterThan(0);
+  expect(pageEnd).toBeLessThanOrEqual(total);
+  test.skip(total <= pageEnd, `this slate fits in one window (${total} rows), so there is no second page to reach`);
 
   // Paging forward advances the window rather than repeating it.
   await page.getByRole("button", { name: "Next" }).click();
