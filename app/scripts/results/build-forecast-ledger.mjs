@@ -26,7 +26,7 @@ import { fileURLToPath } from "node:url";
 import { readNflSideCutover, readNflWinnerCorrections } from "../../src/lib/results/nfl-model-favored-io.mjs";
 import { nflGameRows, nflPropRows, nflReconciliationRows, nflTopBoardRows, forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
 import { mlbGameRows, mlbProjectedRows, homerNukesRows } from "../../src/lib/forecast-ledger/adapters/mlb.mjs";
-import { eplDerivedRows, eplEventIndex, eplMatchRows, eplPlayerRows, ligue1Rows } from "../../src/lib/forecast-ledger/adapters/soccer.mjs";
+import { eplDerivedRows, eplEventIndex, eplMatchRows, eplPlayerRows, ligue1DerivedRows, ligue1Rows } from "../../src/lib/forecast-ledger/adapters/soccer.mjs";
 import { ufcWinnerRows } from "../../src/lib/forecast-ledger/adapters/ufc.mjs";
 import { compareLedgers, pairRekeys } from "../../src/lib/forecast-ledger/append-only.mjs";
 import { buildManifest, composeLedger, serializeRow } from "../../src/lib/forecast-ledger/compose.mjs";
@@ -118,6 +118,7 @@ export function readSources(now) {
   const eplIndex = eplEventIndex([...eplEvents.keys()].sort().map((k) => eplEvents.get(k)));
   const l1Path = path.join(PUB, "soccer/ligue-1/results/graded.json");
   const ligue1 = fs.existsSync(l1Path) ? readJson(l1Path) : null;
+  const ligue1Derived = readJsonl(path.join(PUB, "soccer/ligue-1/results/graded-derived-markets.jsonl"));
   const ufc = readJsonl(path.join(INT, "research/ufc/model-vs-market/graded.jsonl"));
 
   // Canonical team ids (the research-projection entity index Ask and Research resolve against): abbr → id, exact.
@@ -139,7 +140,7 @@ export function readSources(now) {
 
   const winnerCorrections = readNflWinnerCorrections(ROOT);
   const sideCutoverAt = readNflSideCutover(ROOT);
-  return { now, teamIds, winnerCorrections, sideCutoverAt, eplTeamIds, eplDerived, mlbTeamIds, mlbProjected, reconWeeks, rosterCaptures, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
+  return { now, teamIds, winnerCorrections, sideCutoverAt, eplTeamIds, eplDerived, mlbTeamIds, mlbProjected, reconWeeks, rosterCaptures, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ligue1Derived, ufc };
 }
 
 export function buildRows(src, report = {}) {
@@ -165,6 +166,7 @@ export function buildRows(src, report = {}) {
     { source: "epl-player-grades", rows: eplPlayers.rows },
     { source: "epl-derived-market-grades", rows: eplDerived.rows },
     { source: "ligue-1-grades", rows: ligue1Rows(src.ligue1) },
+    { source: "ligue-1-derived-market-grades", rows: ligue1DerivedRows(src.ligue1Derived ?? []) },
     { source: "ufc-model-vs-market-grades", rows: ufcWinnerRows(src.ufc) },
   ]);
 }

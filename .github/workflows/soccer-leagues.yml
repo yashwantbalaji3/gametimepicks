@@ -69,6 +69,20 @@ jobs:
             node scripts/soccer/grade-league-forecasts.mjs --league "$k" --now "$NOW"
           done
 
+      # Over 2.5, both teams to score and the likeliest score, from the SAME forecast the step above graded (re-opened
+      # from the dated archive before the rebuild below rewrites today's file). Append-only. A match that cannot be
+      # re-opened is flagged, never approximated; it does not stop the forecasts from publishing.
+      - name: Grade the derived markets the league page prints (append-only)
+        if: steps.leagues.outputs.keys != ''
+        working-directory: app
+        run: |
+          set -uo pipefail
+          IFS=',' read -ra KEYS <<< "${{ steps.leagues.outputs.keys }}"
+          for k in "${KEYS[@]}"; do
+            node scripts/soccer/grade-league-derived-markets.mjs --league "$k" --write \
+              || echo "::error::$k derived-market grading refused (a graded match could not be re-opened) — see the log; nothing was approximated"
+          done
+
       - name: Build the forecasts (fail loud on any refusal of a whole run)
         if: steps.leagues.outputs.keys != ''
         working-directory: app

@@ -182,6 +182,9 @@ export const FAMILY_LABELS = Object.freeze({
   epl_clean_sheet: "Clean sheet",
   epl_scoreline: "Correct score (top-10 table)",
   ligue1_1x2: "Match result (1X2)",
+  ligue1_over_2_5: "Over 2.5 goals",
+  ligue1_btts: "Both teams to score",
+  ligue1_likeliest_score: "Likeliest score",
   ufc_winner: "Fight winner",
 });
 

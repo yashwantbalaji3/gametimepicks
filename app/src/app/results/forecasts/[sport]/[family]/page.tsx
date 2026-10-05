@@ -82,7 +82,9 @@ function outcomeText(r: any): string {
   if (s.state === "NO_MEASUREMENT") return "Not measurable — no official line";
   if (r.forecastKind === "CONTINUOUS_PROJECTION") return `Actual ${fmt(s.finalValue)}`;
   if (r.forecastKind === "MULTICLASS_PROBABILITY") return s.finalCategory === "OTHER" ? `Result: a score not in the table${s.reason ? ` (${s.reason.replace(/^final /, "").replace(/ is outside the published table$/, "")})` : ""}` : `Result: ${s.finalCategory ?? "—"}`;
-  return r.measurement?.observed === 1 ? "Happened" : r.measurement?.observed === 0 ? "Did not happen" : s.finalCategory ? String(s.finalCategory) : "Settled";
+  // A score claim (Ligue 1 likeliest score) keeps the final score beside the verdict, so a miss shows what happened.
+  const score = /^\d+-\d+$/.test(String(s.finalCategory ?? "")) ? ` (final ${s.finalCategory})` : "";
+  return r.measurement?.observed === 1 ? `Happened${score}` : r.measurement?.observed === 0 ? `Did not happen${score}` : s.finalCategory ? String(s.finalCategory) : "Settled";
 }
 
 function scoreText(r: any): string {

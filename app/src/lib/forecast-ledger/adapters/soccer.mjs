@@ -302,3 +302,63 @@ export function ligue1Rows(doc) {
   }
   return out;
 }
+
+/**
+ * LIGUE 1 DERIVED MARKETS (owner: grade-league-derived-markets.mjs → ligue-1/results/graded-derived-markets.jsonl,
+ * append-only, re-opening the SAME pre-kickoff forecast the 1X2 owner graded — same forecastAt, 1X2 to the digit).
+ * Per match, all subject = the match:
+ *   ligue1_over_2_5           BINARY  P(3+ goals)
+ *   ligue1_btts               BINARY  P(both teams score)
+ *   ligue1_likeliest_score    BINARY  P(the one score the page printed as "Likeliest score") — the page shows only
+ *                                     that score and its probability, so that is the whole published claim
+ */
+export function ligue1DerivedRows(graded = []) {
+  const out = [];
+  for (const g of graded) {
+    if (!g?.eventId || !g.forecast) continue;
+    const h = g.final?.home;
+    const a = g.final?.away;
+    const ft = Number.isInteger(h) && Number.isInteger(a);
+    const base = {
+      sport: "LIGUE_1",
+      competition: "Ligue 1",
+      season: g.kickoffUtc ? soccerSeason(g.kickoffUtc) : null,
+      eventId: g.eventId,
+      eventStart: g.kickoffUtc ?? null,
+      matchup: g.matchup ?? null,
+      subjectType: "GAME",
+      subjectId: g.eventId,
+      subjectDisplay: g.matchup ?? null,
+      modelId: g.modelId ?? null,
+      publicationSurface: "soccer-league-forecast",
+      receiptId: g.recoveredFrom ? `ligue-1/${g.recoveredFrom}` : null,
+      publishedAt: g.forecastAt ?? null,
+      forecastKind: FORECAST_KIND.BINARY,
+      probabilityType: "MODEL",
+      recoverability: RECOVERABILITY.OWNER_GRADED_LOG,
+    };
+    const binary = (family, direction, p, observed, category) => makeRow({
+      ...base,
+      family,
+      direction,
+      probability: p,
+      settlement: ft ? { state: "SETTLED", finalValue: observed, finalCategory: category, finality: "CANONICAL" } : { state: "PENDING" },
+      measurement: ft ? measureBinary({ probability: p, observed }) : {},
+    });
+    const f = g.forecast;
+    if (isNum(f.over25)) {
+      const over = ft && h + a >= 3;
+      out.push(binary("ligue1_over_2_5", "OVER_2_5_GOALS", f.over25, over ? 1 : 0, over ? "OVER" : "UNDER"));
+    }
+    if (isNum(f.bttsYes)) {
+      const yes = ft && h > 0 && a > 0;
+      out.push(binary("ligue1_btts", "BOTH_TEAMS_SCORE", f.bttsYes, yes ? 1 : 0, yes ? "YES" : "NO"));
+    }
+    const ls = f.likeliestScore;
+    if (ls && isNum(ls.p) && /^\d+-\d+$/.test(String(ls.score))) {
+      const hit = ft && `${h}-${a}` === ls.score;
+      out.push(binary("ligue1_likeliest_score", `final score ${ls.score}`, ls.p, hit ? 1 : 0, ft ? `${h}-${a}` : null));
+    }
+  }
+  return out;
+}

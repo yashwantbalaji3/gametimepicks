@@ -96,6 +96,7 @@ the ledger lags the owners by up to one nightly cycle; readers show the manifest
 | EPL double chance | same | PUBLIC derived | — | — (exactly 1 − one 1X2 class) | ➖ measured inside `epl_1x2`, never a second observation |
 | EPL anytime scorer / SOG ≥1 | `build-epl-player-projections` → snapshots | PUBLIC | snapshots | `grade-epl-player-projections` → `graded-player-projections.jsonl` | ✅ (event id by exact join) |
 | Ligue 1 1X2 | `build-league-forecasts` → `ligue-1/forecasts/<d>.json` | PUBLIC model-only | — | `grade-league-forecasts` → `ligue-1/results/graded.json` | ✅ |
+| Ligue 1 over 2.5 / BTTS / likeliest score | same (on the page since it went public, 2026-09-11T14:43Z, `c2bb480`) | PUBLIC model-only | dated archive (keeps kicked-off matches) | `grade-league-derived-markets` → `ligue-1/results/graded-derived-markets.jsonl` (Block A) | ✅ `ligue1_over_2_5` · `ligue1_btts` · `ligue1_likeliest_score` |
 | UFC winner | `build-ufc-card` → `card-latest.json` (overwritten) + model-vs-market snapshots | PUBLIC_EXPERIMENTAL | snapshots | `grade-ufc-model-vs-market` → `graded.jsonl` | ✅ |
 | UFC method / round | same | PUBLIC_EXPERIMENTAL | snapshots | none | ⛔ UNMEASURED |
 | NBA v0 / v0.1 | `build-nba-experimental-forecasts` → `research/nba/experimental*/` (write-once receipts) | **SHADOW** | yes | `grade-nba-experimental-forecasts` | ⛔ never public history |
@@ -178,3 +179,28 @@ before first pitch and committed shortly after (the snapshot's generatedAt is wh
 Neither is graded from git-history copies of an overwritten file: unlike MLB and EPL, no existing owner ever chose
 and recorded a forecast of record for these numbers, so selecting one now from history would be this block
 inventing the forecast of record after the results are known.
+
+Founder rule for the future NFL score-shape grader (Yash, 2026-10-05, approving #974): grade only from an actual
+preserved pre-kickoff receipt; where a game has several valid pre-kickoff receipts, define a deterministic
+forecast-of-record selection rule before grading; never reconstruct or rerun a historical score shape once the
+result is known.
+
+## 12. Block A (2026-10-05): Ligue 1 over 2.5, both teams to score and likeliest score get an owner
+
+`/soccer/ligue-1` has printed three numbers beside each 1X2 since the page went public (`c2bb480`,
+2026-09-11T14:43:20Z): **Over 2.5**, **Both score** and **Likeliest score** (the forecast's first listed score and its
+probability; the artifact holds five, the page shows one). Nothing graded them.
+
+- Owner: `scripts/soccer/grade-league-derived-markets.mjs --league ligue-1 --write`, pure rules in
+  `lib/sports/soccer/derived-markets-grade.mjs`. It runs in `soccer-leagues` right after the 1X2 grader and before
+  the rebuild, and appends `ligue-1/results/graded-derived-markets.jsonl`.
+- Forecast of record: the one the 1X2 owner already graded. It is re-opened from the dated archive only when the
+  event, the `forecastAt` and the 1X2 vector all match exactly. A same-day rebuild keeps matches that have kicked
+  off (`989f72a`), so the revision stays in the archive; a miss is a broken join and is flagged, never approximated.
+- Final: the 1X2 owner's own 90-minute final (`final.home` / `final.away`), never re-fetched.
+- Ledger: three BINARY rows per match on the match subject. `ligue1_likeliest_score` is P(that one printed score),
+  graded hit/miss with its own probability; it is not a score table, because the page never showed one.
+- Backfill: 18/18 graded matches re-opened (every one from `forecasts/<date>.json`); 3 of 18 likeliest scores hit.
+- Not measured: Ligue 1 double chance is in the artifact but not on the page (and is 1 − one 1X2 class anyway).
+  A league other than Ligue 1 grades nothing here until its page's public date is recorded in
+  `LEAGUE_DERIVED_PUBLIC_SINCE`.
