@@ -14,6 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
 import { pausedFamiliesFrom, pauseMlbMarkets } from "@/lib/ops/live-record-gate.mjs";
+import { medianRunsCopy } from "@/lib/mlb/prediction/median-runs-copy.mjs";
 import type { EplForecastRow, EplForecastSet } from "@/lib/sports/epl/forecast-view";
 import type { CardSport, ConfidenceSignal, Freshness, ModelStatusItem, PredictionCardModel } from "./contract";
 
@@ -64,9 +65,11 @@ export function cardFromMlbPrediction(p: MlbPrediction, start: string | null, ct
   if (p.total?.pausedReason) risks.push("The over/under call is paused: its live record is below a coin flip.");
   if (p.pausedReasons?.runLine) risks.push("The run-line call is paused: its live record is below a coin flip.");
   risks.push("Not validated to out-predict the sportsbook market.");
+  // Two separate team medians, not a predicted final (a 4-4 pair beside "CLE 58%" read as a tie): same copy as the game page.
+  const medians = medianRunsCopy(p.projectedScore, p.awayTeam, p.homeTeam);
   const forecast = ml
-    ? { label: "Winner", value: `${ml.team} ${pct(ml.simulationProbability)}`, sub: p.projectedScore ? `Projected ${p.awayTeam} ${p.projectedScore.away}–${p.projectedScore.home} ${p.homeTeam}` : null }
-    : { label: winnerPaused ? "Winner call paused" : "No winner call", value: p.projectedScore ? `${p.awayTeam} ${p.projectedScore.away}–${p.projectedScore.home} ${p.homeTeam}` : "—", sub: p.projectedScore ? "projected score, from the simulation" : null };
+    ? { label: "Winner", value: `${ml.team} ${pct(ml.simulationProbability)}`, sub: medians ? `${medians.label}: ${medians.text}` : null }
+    : { label: winnerPaused ? "Winner call paused" : "No winner call", value: medians ? medians.text : "—", sub: medians ? `${medians.label}. ${medians.note}` : null };
   const signal: ConfidenceSignal = ml
     ? { kind: "SIM_STRENGTH", label: ml.strengthLabel ?? "LEAN", probability: ml.simulationProbability }
     : { kind: "NONE", reason: winnerPaused ? "paused" : "no call" };

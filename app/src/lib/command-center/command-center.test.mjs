@@ -86,7 +86,8 @@ test("MLB featured card: a paused family cannot reach the card with a probabilit
   assert.ok(card);
   assert.equal(card.signal.kind, "NONE", "no winner probability while the winner call is paused");
   assert.equal(card.forecast.label, "Winner call paused");
-  assert.match(card.forecast.value, /LAA 3–4 SF/, "the projected score stays as evidence");
+  assert.equal(card.forecast.value, "LAA 3 · SF 4", "the team medians stay as evidence, never as a scoreline");
+  assert.match(card.forecast.sub ?? "", /Median runs per team\. .*not a predicted final score/);
   assert.ok(card.risks[0].includes("winner call is paused"));
   assert.doesNotMatch(card.context ?? "", /Over 8\.5/, "the paused total is not in the context line either");
   assert.match(card.context ?? "", /LAA \+1\.5 · 62%/, "the run line still stands");
