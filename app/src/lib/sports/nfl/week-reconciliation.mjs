@@ -83,6 +83,45 @@ export function officialFromEspnSummary(json) {
   return { state: "FINAL", finalScore, players, scorers };
 }
 
+/**
+ * The period facts of a FINAL game, from the same ESPN event summary: quarter-by-quarter points, the
+ * final period, and whether it went to overtime or ended tied. Additive and separate from
+ * officialFromEspnSummary on purpose — nothing that already grades reads these fields.
+ *
+ * MISSING IS NOT FALSE. `overtime` is true or false only when the linescores are present AND they sum
+ * to the official final score; otherwise it is null and the reason is named.
+ * @returns {null | {state: "FINAL", finalScore: {home: number, away: number}, periods: {home: number[], away: number[]} | null, finalPeriod: number | null, overtime: boolean | null, tie: boolean, note: string | null}}
+ */
+export function periodsFromEspnSummary(json) {
+  const official = officialFromEspnSummary(json);
+  if (official.state !== "FINAL") return null;
+  const comp = json.header.competitions[0];
+  const side = (homeAway) => comp.competitors?.find((c) => c.homeAway === homeAway);
+  const lines = (c) => {
+    const ls = c?.linescores;
+    if (!Array.isArray(ls) || !ls.length) return null;
+    const pts = ls.map((l) => num(l?.value ?? l?.displayValue));
+    return pts.every((v) => v != null) ? pts : null;
+  };
+  const home = lines(side("home"));
+  const away = lines(side("away"));
+  const tie = official.finalScore.home === official.finalScore.away;
+  const sum = (a) => a.reduce((t, v) => t + v, 0);
+  let note = null;
+  let periods = null;
+  if (!home || !away) note = "linescores absent from the official summary";
+  else if (home.length !== away.length) note = "home and away linescores have different lengths";
+  else if (home.length < 4) note = "fewer than four periods in the official linescores";
+  else if (sum(home) !== official.finalScore.home || sum(away) !== official.finalScore.away) note = "linescores do not sum to the official final score";
+  else periods = { home, away };
+  const statusPeriod = num(comp.status?.period);
+  const finalPeriod = periods ? periods.home.length : null;
+  if (periods && statusPeriod != null && statusPeriod !== finalPeriod) {
+    return { state: "FINAL", finalScore: official.finalScore, periods, finalPeriod: null, overtime: null, tie, note: `status period ${statusPeriod} disagrees with ${finalPeriod} linescores` };
+  }
+  return { state: "FINAL", finalScore: official.finalScore, periods, finalPeriod, overtime: finalPeriod == null ? null : finalPeriod > 4, tie, note };
+}
+
 /* The player families a board can publish, with the stat that settles each and how the page rounds it. */
 export const PLAYER_PROPS = Object.freeze([
   { key: "player_receptions", label: "Receptions", stat: "receptions", round: (v) => Math.round(v * 10) / 10 },

@@ -89,6 +89,87 @@ export function eplMatchRows(graded = []) {
   return out;
 }
 
+/**
+ * EPL DERIVED MARKETS (owner: grade-epl-derived-markets.mjs → graded-derived-markets.jsonl, append-only, re-opening the
+ * SAME pre-kickoff forecast the 1X2 owner graded — its 1X2 must match to the digit). Per match:
+ *   epl_btts         BINARY      P(both teams score)                                   subject: the match
+ *   epl_clean_sheet  BINARY      P(this club concedes 0), one row per club              subject: the club (epl-team-<id>)
+ *   epl_scoreline    MULTICLASS  the published top-10 score table + OTHER (1 − listed)  subject: the match
+ * The scoreline classes are exactly what the page printed: a score outside the table is OTHER, never given a
+ * probability the reader did not see. A club whose name is not exactly one canonical EPL team is counted unresolved
+ * and its clean-sheet row is not emitted. Double chance has no rows: it is 1 − one 1X2 class, already measured there.
+ */
+export function eplDerivedRows(graded = [], teamIds = new Map()) {
+  const out = [];
+  let unresolved = 0;
+  for (const g of graded) {
+    if (!g?.eventId || !g.forecast) continue;
+    const ft = g.status === "FULL_TIME" && Number.isInteger(g.actual?.homeGoalsFT) && Number.isInteger(g.actual?.awayGoalsFT);
+    const base = {
+      sport: "EPL",
+      competition: "Premier League",
+      season: g.kickoffUtc ? soccerSeason(g.kickoffUtc) : null,
+      eventId: g.eventId,
+      eventStart: g.kickoffUtc ?? null,
+      matchup: g.matchup ?? null,
+      modelId: g.modelId ?? null,
+      publicationSurface: "epl-match-forecast",
+      receiptId: g.recoveredFrom ?? null,
+      publishedAt: g.forecastGeneratedAt ?? null,
+      probabilityType: "MODEL",
+      recoverability: RECOVERABILITY.OWNER_GRADED_LOG,
+      provenance: { notes: String(g.recoveredFrom ?? "").startsWith("git:") ? [`forecast of record re-opened from committed history (${g.recoveredFrom})`] : [] },
+    };
+    const settled = { settledAt: g.gradedAt ?? null, finality: "CANONICAL", source: g.resultSource ?? null };
+    const binary = (fields, p, observed, category) => makeRow({
+      ...base,
+      ...fields,
+      forecastKind: FORECAST_KIND.BINARY,
+      probability: p,
+      settlement: ft ? { state: "SETTLED", finalValue: observed, finalCategory: category, ...settled } : { state: "PENDING" },
+      measurement: ft ? measureBinary({ probability: p, observed }) : {},
+    });
+    const h = g.actual?.homeGoalsFT;
+    const a = g.actual?.awayGoalsFT;
+    if (isNum(g.forecast.btts?.yes)) {
+      const yes = ft && h > 0 && a > 0;
+      out.push(binary({ subjectType: "GAME", subjectId: g.eventId, subjectDisplay: g.matchup ?? null, family: "epl_btts", direction: "BOTH_TEAMS_SCORE" }, g.forecast.btts.yes, yes ? 1 : 0, yes ? "YES" : "NO"));
+    }
+    for (const [side, club, conceded] of [["home", g.homeClub, a], ["away", g.awayClub, h]]) {
+      const p = g.forecast.cleanSheet?.[side];
+      if (!isNum(p)) continue;
+      const teamId = club ? teamIds.get(club) ?? null : null;
+      if (!teamId) { unresolved += 1; continue; }
+      const kept = ft && conceded === 0;
+      out.push(binary({ subjectType: "TEAM", subjectId: teamId, subjectDisplay: club, teamId, family: "epl_clean_sheet", direction: `${club} keeps a clean sheet` }, p, kept ? 1 : 0, kept ? "CLEAN_SHEET" : "CONCEDED"));
+    }
+    const top = Array.isArray(g.forecast.topScorelines) ? g.forecast.topScorelines : [];
+    if (top.length && top.every((s) => isNum(s.p))) {
+      const cp = {};
+      for (const s of top) cp[s.score] = s.p;
+      cp.OTHER = Number(Math.max(0, 1 - top.reduce((x, s) => x + s.p, 0)).toFixed(6));
+      const cls = ft ? (top.some((s) => s.score === `${h}-${a}`) ? `${h}-${a}` : "OTHER") : null;
+      // The published call is the table's most likely SCORE. OTHER (the unlisted remainder) usually outweighs any
+      // single score, so the generic top-class rule would grade "some unlisted score" as the pick — never published.
+      const pick = top.reduce((best, s) => (s.p > best.p ? s : best), top[0]);
+      const pickUnique = top.filter((s) => s.p === pick.p).length === 1;
+      out.push(makeRow({
+        ...base,
+        subjectType: "GAME",
+        subjectId: g.eventId,
+        subjectDisplay: g.matchup ?? null,
+        family: "epl_scoreline",
+        forecastKind: FORECAST_KIND.MULTICLASS,
+        classProbabilities: cp,
+        categoryPrediction: pick.score,
+        settlement: ft ? { state: "SETTLED", finalValue: null, finalCategory: cls, ...settled, reason: cls === "OTHER" ? `final ${h}-${a} is outside the published table` : null } : { state: "PENDING" },
+        measurement: ft ? { ...measureMulticlass({ classProbabilities: cp, finalCategory: cls }), topClassHit: pickUnique ? cls === pick.score : null } : {},
+      }));
+    }
+  }
+  return { rows: out, unresolved };
+}
+
 /** Kickoff minute in the derived scheme: "2026-08-21T19:00:00Z" → "20260821t1900". */
 function kickoffMinute(kickoffUtc) {
   const t = Date.parse(kickoffUtc);

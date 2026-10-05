@@ -20,6 +20,8 @@ import zlib from "node:zlib";
 import path from "node:path";
 import crypto from "node:crypto";
 
+import { matchEventToGamePk } from "../src/lib/mlb/event-game-match.mjs";
+
 const APP = process.cwd().endsWith("/app") ? process.cwd() : path.join(process.cwd(), "app");
 const REPO = path.dirname(APP);
 const ARCHIVE = path.join(REPO, "data/internal/mlb/pregame-archive/market-snapshots");
@@ -142,11 +144,16 @@ async function main() {
   const capturedAt = nowIso();
   const res = await getJson(`${API}/sports/${SPORT}/odds/?apiKey=${KEY}&regions=${REGIONS}&markets=${MARKETS.join(",")}&oddsFormat=american&dateFormat=iso`);
   if (!res.ok) { console.error(`odds fetch failed: ${res.error}`); process.exit(1); }
-  const gpByPair = new Map(sched.map((g) => [`${g.away}|${g.home}`, g.gamePk]));
+  /* Teams AND start time, fail-closed (event-game-match.mjs). The old team-pair map stamped doubleheader game 1
+     and the next day's series game with the wrong gamePk; an event now gets a gamePk only when exactly one
+     scheduled game on DATE has its teams and a start within tolerance of its commence time. */
   const records = [];
+  summary.unmatchedEvents = { NO_GAME: 0, AMBIGUOUS: 0, NO_EVENT_TIME: 0 };
   for (const ev of res.body ?? []) {
     if (Date.parse(ev.commence_time) <= Date.parse(capturedAt)) { summary.skippedStarted++; continue; } // started
-    const gamePk = gpByPair.get(`${ev.away_team}|${ev.home_team}`) ?? null;
+    const match = matchEventToGamePk({ away: ev.away_team, home: ev.home_team, commenceTime: ev.commence_time }, sched);
+    if (match.gamePk == null) summary.unmatchedEvents[match.reason] += 1;
+    const gamePk = match.gamePk;
     records.push(...normalizeEvent(ev, gamePk, capturedAt));
   }
   const dir = path.join(ARCHIVE, DATE, captureId);
