@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-10-02T17:55:40Z",
+ "generatedAt": "2026-10-05T02:51:34Z",
  "totals": {
-  "routes": 87,
-  "public": 60,
+  "routes": 89,
+  "public": 62,
   "internal": 8,
   "redirects": 15,
   "archive": 2,
@@ -215,7 +215,7 @@
    "family": true,
    "dataOwner": "game detail artifacts",
    "freshness": "artifact stamps",
-   "built": "FAMILY (2 generated page(s))"
+   "built": "FAMILY (3 generated page(s))"
   },
   {
    "route": "/goal-rush",
@@ -333,7 +333,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (133 generated page(s))"
+   "built": "FAMILY (135 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -599,7 +599,26 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "FAMILY (118 generated page(s))"
+   "built": "FAMILY (122 generated page(s))"
+  },
+  {
+   "route": "/results/forecasts",
+   "classification": "public",
+   "owner": "settlement",
+   "purpose": "Forecast Record (Session 13 · Results V2): every published forecast in every sport, counted once and measured per family (projection miss, probability calibration, 1X2 scores); pending / void / withdrawn shown, never a loss; no pooled accuracy",
+   "dataOwner": "data/internal/forecast-ledger/v1 (build-forecast-ledger, nightly-settle) via lib/results/v2/forecast-ledger-reader",
+   "freshness": "the ledger manifest's latest settledAt, printed as 'last settled'",
+   "built": true
+  },
+  {
+   "route": "/results/forecasts/[sport]/[family]",
+   "classification": "public",
+   "owner": "settlement",
+   "family": true,
+   "purpose": "One forecast type's record: metrics by kind, calibration, pick record only where a pick was published, latest rows in words, CSV of every row",
+   "dataOwner": "data/internal/forecast-ledger/v1 + public/data/forecast-record/v1/<sport>-<family>.csv (emit-forecast-record-assets)",
+   "freshness": "rows carry their own settledAt",
+   "built": "FAMILY (5 generated page(s))"
   },
   {
    "route": "/results/mlb",
@@ -701,7 +720,7 @@
    "purpose": "one static page per in-window date — same selector, date as the route (P209)",
    "dataOwner": "lib/simulate/day-view over per-sport owners",
    "freshness": "each owner's own stamp",
-   "built": "FAMILY (25 generated page(s))"
+   "built": "FAMILY (24 generated page(s))"
   },
   {
    "route": "/soccer/[league]",
@@ -784,7 +803,7 @@
    "purpose": "UFC per-bout model report (P251 · F3): the winner split over the two fighters, the method distribution (KO / submission / decision, read among fights that end with a winner), the round distribution with goes-the-distance stated as the method head's decision probability rather than a separate model, both fighters' tracked corpus profiles, and the three heads' held-out evidence printed WITH its denominator. Every figure is read from card-latest.json — nothing is computed here. Statically generated for every bout on the current card including the ones the model refuses to read, which render the producer's own refusal instead of a fabricated read. dynamicParams=false",
    "dataOwner": "public/data/ufc/card-latest.json via lib/sports/ufc/bout (build-time read)",
    "freshness": "the card artifact's own generatedAt, printed in the method section",
-   "built": "FAMILY (13 generated page(s))"
+   "built": "FAMILY (12 generated page(s))"
   },
   {
    "route": "/world-cup",
