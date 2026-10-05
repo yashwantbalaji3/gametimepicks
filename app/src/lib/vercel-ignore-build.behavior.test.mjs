@@ -34,6 +34,9 @@ const REPO_ROOT_BUILD_INPUTS = [
   "data/internal/mlb/model-learning/calibrator-manifest.json",
   "data/internal/nfl/forecast-receipts/2026-w03.json",
   "data/internal/mlb/prediction-snapshots/2026-09-22/1.json",
+  /* Session 13: the Forecast Ledger is read at build by /results/forecasts/**, /models, player Research pages, search
+     and the Ask projection — its nightly commit touches only this path, so it must build. */
+  "data/internal/forecast-ledger/v1/nfl.jsonl",
 ];
 
 function git(args, opts = {}) {
@@ -171,7 +174,7 @@ test("`[skip ci]` in the commit message never skips a Vercel build — only the 
     "the script must not read the commit message at all");
 });
 
-test("repo-root build inputs outside app/ → BUILD (projections + the three read data/internal paths)", () => {
+test("repo-root build inputs outside app/ → BUILD (projections + the four read data/internal paths)", () => {
   // Each input-N commit changes exactly one repo-root file the build reads; base = its parent.
   for (const [i, rel] of REPO_ROOT_BUILD_INPUTS.entries()) {
     const head = shas[`input-${i}`];

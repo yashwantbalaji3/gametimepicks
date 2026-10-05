@@ -119,8 +119,10 @@ adoption · NBA G3 / G10 · MLB historical restoration · new paid spend · Supa
 
 ## 13. Runtime proofs pending (check first next session)
 
-1. **Ledger nightly** — the first unattended `nightly-settle` "Forecast Ledger" step (crons run hours late; last delivered
-   10-04 14:57Z). Expect `UNCHANGED` or new rows, no `APPEND_ONLY_VIOLATION`.
+1. **Ledger nightly — ✅ PROVEN** (run `37308269305`, 12:15Z): `auto: forecast ledger` `2b31f76c39` as its own commit after
+   the settlement commit; 10,081 → **10,812** rows (+720 NFL Weeks 1–2 from #968, +11 MLB grades), no violation; a rebuild
+   against the new HEAD is clean. ⚠ Found: the ledger path was not a Vercel build input, so the nightly commit SKIPPED the
+   build and the public Forecast Record stayed on 10,081 — fixed in the build-input PR that follows this addendum.
 2. **#959 sweep** — the next `nfl-event-window` run settles Week 2 (09-17 +1, 09-20 +14, 09-21 +1) from the official box
    score; then the ledger moves those 80 rows PENDING → SETTLED.
 3. **#965 forward shadow** — first `nfl-sim-v2-shadow` run (cron :41 / after an event window); MNF ATL @ NO should print
