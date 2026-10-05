@@ -2,74 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-04T23:51:01Z",
+  "generatedAt": "2026-10-05T15:58:06Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 2,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
+    "upcomingEvents": 1,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
     "eventsWithAMaterialExclusion": 0,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401872978",
-      "matchup": "DET @ CAR",
-      "kickoffUtc": "2026-10-05T00:20Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "8ca11225789ba664",
-        "simulations": 10000,
-        "generatedAt": "2026-10-04T23:51:01Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T23:51:01Z",
-        "participationInputHash": "0d61bbd4c7315c1a",
-        "excludedCount": 4,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Jonathon Brooks",
-            "team": "CAR",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Jalen Coker",
-            "team": "CAR",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Xavier Legette",
-            "team": "CAR",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Ja'Tavion Sanders",
-            "team": "CAR",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401872979",
@@ -78,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "5d85874f4d0ffe42",
+        "inputHash": "98a8c476c7cc5782",
         "simulations": 10000,
-        "generatedAt": "2026-10-04T23:51:01Z"
+        "generatedAt": "2026-10-05T15:58:06Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-04T23:51:01Z",
-        "participationInputHash": "8e6d5bd36573e8ad",
+        "snapshotAsOf": "2026-10-05T15:58:06Z",
+        "participationInputHash": "ab8360aa4df19542",
         "excludedCount": 1,
         "materialExclusions": [],
         "excluded": [
