@@ -2,23 +2,14 @@
   "schemaVersion": 1,
   "artifact": "nfl-product-eligibility",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-04T23:51:01Z",
-  "indexGeneratedAt": "2026-10-04T23:51:01Z",
+  "generatedAt": "2026-10-05T15:58:06Z",
+  "indexGeneratedAt": "2026-10-05T15:58:06Z",
   "note": "Whether any NFL output may enter a paper product today, evaluated against the same gate the money path enforces. A refusal here is a finding, not an absence.",
-  "evaluatedAt": "2026-10-04T23:51:01Z",
+  "evaluatedAt": "2026-10-05T15:58:06Z",
   "gate": "output-state.permitsProductLeg — true only for VALIDATED_PICK",
-  "consideredEvents": 2,
+  "consideredEvents": 1,
   "qualifyingEvents": 0,
   "events": [
-    {
-      "canonicalEventId": "nfl-401872978",
-      "matchup": "DET @ CAR",
-      "kickoffUtc": "2026-10-05T00:20Z",
-      "state": "PUBLIC_EXPERIMENTAL",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified PUBLIC_EXPERIMENTAL; only VALIDATED_PICK may become a product leg"
-    },
     {
       "canonicalEventId": "nfl-401872979",
       "matchup": "ATL @ NO",
@@ -153,6 +144,15 @@
       "considered": false,
       "qualifies": false,
       "reason": "already kicked off — never a candidate for a paper card"
+    },
+    {
+      "canonicalEventId": "nfl-401872978",
+      "matchup": "DET @ CAR",
+      "kickoffUtc": "2026-10-05T00:20Z",
+      "state": "STARTED",
+      "considered": false,
+      "qualifies": false,
+      "reason": "already kicked off — never a candidate for a paper card"
     }
   ],
   "products": [
@@ -161,9 +161,9 @@
       "label": "Bank Builder",
       "state": "EVALUATED_NONE_QUALIFY",
       "eligible": false,
-      "consideredEvents": 2,
+      "consideredEvents": 1,
       "qualifyingEvents": 0,
-      "reason": "2 pre-kickoff NFL games were evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
+      "reason": "1 pre-kickoff NFL game was evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
       "whatWouldQualify": [
         "an NFL model version that meets its own preregistered promotion bar on held-out data",
         "enough settled experimental forecasts to measure whether it is calibrated",
@@ -175,9 +175,9 @@
       "label": "Moonshot",
       "state": "EVALUATED_NONE_QUALIFY",
       "eligible": false,
-      "consideredEvents": 2,
+      "consideredEvents": 1,
       "qualifyingEvents": 0,
-      "reason": "2 pre-kickoff NFL games were evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
+      "reason": "1 pre-kickoff NFL game was evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
       "whatWouldQualify": [
         "an NFL model version that meets its own preregistered promotion bar on held-out data",
         "enough settled experimental forecasts to measure whether it is calibrated",
@@ -189,9 +189,9 @@
       "label": "Card builder",
       "state": "EVALUATED_NONE_QUALIFY",
       "eligible": false,
-      "consideredEvents": 2,
+      "consideredEvents": 1,
       "qualifyingEvents": 0,
-      "reason": "2 pre-kickoff NFL games were evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
+      "reason": "1 pre-kickoff NFL game was evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
       "whatWouldQualify": [
         "an NFL model version that meets its own preregistered promotion bar on held-out data",
         "enough settled experimental forecasts to measure whether it is calibrated",
@@ -203,9 +203,9 @@
       "label": "Endzone Vault",
       "state": "PRODUCT_GATED",
       "eligible": false,
-      "consideredEvents": 2,
+      "consideredEvents": 1,
       "qualifyingEvents": 0,
-      "reason": "the Vault reports WATCHLIST_ONLY on its own evaluation: 19 model candidates · the Vault stays a watchlist until the card is authorized — the model and price gates are met",
+      "reason": "the Vault reports WATCHLIST_ONLY on its own evaluation: 10 model candidates · the Vault stays a watchlist until the card is authorized — the model and price gates are met",
       "whatWouldQualify": []
     }
   ],
