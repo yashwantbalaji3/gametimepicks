@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { classifyCardCoverage, coverageReconciles } from "./card-coverage.mjs";
+import { classifyCardCoverage, coverageReconciles, providerEventIdOf } from "./card-coverage.mjs";
 
 const keyOf = (b) => [b.red?.name, b.blue?.name].sort().join("|");
 const bout = (id, red, blue) => ({ boutId: id, red: { name: red }, blue: { name: blue }, weightClass: "Bantamweight", startUtc: "2026-08-29T10:00Z" });
@@ -193,42 +193,97 @@ test("LIVE ARTIFACT · the published snapshot reconciles against the card it nam
   }
 });
 
-/* ── The provider event a card joined to (P264) ─────────────────────────────────────────────────
+/* ── Card identity is ESPN's — the provider has no card (2026-10-05) ────────────────────────────
  *
- * The capture script crashed on this value for three runs — a `matchedEvent` that was never defined —
- * after the paid call and with the workflow swallowing the failure. It now lives here, with tests.
+ * The bulk MMA endpoint returns one provider event PER FIGHT, each with its own hash. P264 tallied
+ * those hashes, took the "most claimed" as the card's event id and compared it with the card's ESPN
+ * id, so every capture that priced a single bout reported "the odds artifact describes event
+ * 4a469d6a…, not this card (600061182)" — and no UFC card could read ready, 12/12 included. The old
+ * fixtures let several fights share one provider id; these use the provider's real shape.
  */
-test("the matched provider event is the one most of the card's joined bouts came from", async () => {
-  const { matchedProviderEventId } = await import("./card-coverage.mjs");
-  const priced = new Map([
-    ["a|b", { providerEventId: "ours" }],
-    ["c|d", { providerEventId: "ours" }],
-    ["e|f", { providerEventId: "another-promotion" }],
-  ]);
-  // The bulk endpoint returns every promotion's fights; only the keys this card consumed count.
-  assert.equal(matchedProviderEventId(["a|b", "c|d"], priced), "ours");
-  assert.equal(matchedProviderEventId(["e|f"], priced), "another-promotion");
+
+/** UFC 332 (ESPN event 600061182) as captured 2026-10-03, every bout priced, ONE provider hash per fight. */
+const UFC332_EVENT = "600061182";
+const ufc332 = () => {
+  const all = [
+    bout("401912278", "Natalia Silva", "Wang Cong"),
+    bout("401907087", "Deiveson Figueiredo", "Payton Talbott"),
+    bout("401917347", "King Green", "Esteban Ribovics"),
+    bout("401917345", "Roberto Soldić", "Khaos Williams"),
+    bout("401907088", "Roman Kopylov", "Ateba Gautier"),
+    bout("401912276", "Alden Coria", "Imanol Rodriguez"),
+    bout("401912277", "Andrey Pulyaev", "Damian Pinas"),
+    bout("401927906", "Anthony Romero", "Marcus McGhee"),
+    bout("401922306", "Anthony Wint", "Lucas Armand"),
+    bout("401926808", "Jacobe Smith", "Bruce Whitehead"),
+    bout("401912275", "Marvin Vettori", "Ismail Naurdiev"),
+    bout("401907089", "Court McGee", "Eric Nolan"),
+    bout("401912274", "Johnny Walker", "Mick Parkin"),
+    bout("401917346", "Rafael Dos Anjos", "Alexander Hernandez"),
+  ];
+  // A 32-hex id per fight, distinct — the first is the real hash the false blocker named.
+  const hash = (i) => (i === 0 ? "4a469d6a287808bf75aa8a246197f51d" : (i * 2654435761 >>> 0).toString(16).padStart(8, "0").repeat(4));
+  const map = new Map(all.map((b, i) => [keyOf(b), { providerEventId: hash(i), commenceUtc: "2026-10-03T20:00:00Z" }]));
+  return { all, map, matched: all.map(keyOf) };
+};
+const classify332 = (snapshotEventId, { all, map, matched } = ufc332()) =>
+  classifyCardCoverage({ cardBouts: all, pricedByKey: map, matchedKeys: new Set(matched), keyOf, fighterKeys, cardEventId: UFC332_EVENT, snapshotEventId });
+
+test("REAL PROVIDER SHAPE · a fully priced card captured for its own ESPN event is ready, with no mismatch", () => {
+  const fx = ufc332();
+  assert.equal(new Set([...fx.map.values()].map((p) => p.providerEventId)).size, fx.all.length, "one provider id per fight");
+  const r = classify332(UFC332_EVENT, fx);
+  assert.equal(r.eventMismatch, false);
+  assert.equal(r.oddsReady, true);
+  assert.deepEqual(r.blockers, []);
 });
 
-test("no joined bout means no event id — never a guess, and never a throw", async () => {
-  const { matchedProviderEventId } = await import("./card-coverage.mjs");
-  assert.equal(matchedProviderEventId([], new Map()), null);
-  assert.equal(matchedProviderEventId(["missing"], new Map()), null);
-  assert.equal(matchedProviderEventId(null, null), null);
-  assert.equal(matchedProviderEventId(["x"], new Map([["x", { providerEventId: "" }]])), null, "an empty id is not an id");
+test("MUTATION PROBE · the P264 identity (most-claimed provider hash) fails this fixture", () => {
+  // Reinstated in memory, exactly as it ran: tally the joined bouts' provider ids, most-claimed wins,
+  // ties by id. With one id per fight every tally is 1, so the "card id" is just the lowest hash.
+  const fx = ufc332();
+  const tally = new Map();
+  for (const k of fx.matched) { const id = fx.map.get(k).providerEventId; tally.set(id, (tally.get(id) ?? 0) + 1); }
+  const p264 = [...tally.entries()].sort((a, b) => (b[1] - a[1]) || String(a[0]).localeCompare(String(b[0])))[0][0];
+  const mutant = classify332(p264, fx);
+  assert.equal(mutant.eventMismatch, true, "the fixture must catch the defect, or it proves nothing");
+  assert.equal(mutant.oddsReady, false, "the mutant reports a fully priced card as not ready");
+  assert.match(mutant.blockers[0], /^the odds artifact describes event [0-9a-f]{32}, not this card \(600061182\)/);
+  // …and the real identity, on the same bytes, does not.
+  assert.equal(classify332(UFC332_EVENT, fx).eventMismatch, false);
 });
 
-test("a tie resolves the same way on every run", async () => {
-  const { matchedProviderEventId } = await import("./card-coverage.mjs");
-  const priced = new Map([["a|b", { providerEventId: "zzz" }], ["c|d", { providerEventId: "aaa" }]]);
-  assert.equal(matchedProviderEventId(["a|b", "c|d"], priced), "aaa");
-  assert.equal(matchedProviderEventId(["c|d", "a|b"], priced), "aaa", "order in, same answer out");
+test("a snapshot written under a DIFFERENT ESPN event is still no coverage of this card", () => {
+  const r = classify332("600061541");
+  assert.equal(r.eventMismatch, true);
+  assert.equal(r.oddsReady, false);
+  assert.equal(r.partiallyPriced, false);
+  assert.match(r.blockers[0], /describes event 600061541, not this card \(600061182\)/);
 });
 
-test("the capture script uses it, and its caller can no longer swallow a crash", () => {
+test("no event id on either side asserts no mismatch — absence is not evidence", () => {
+  assert.equal(classify332(null).eventMismatch, false);
+});
+
+test("a provider id is per-bout provenance: read for the key the bout claimed, never guessed", () => {
+  const { all, map } = ufc332();
+  assert.equal(providerEventIdOf(keyOf(all[0]), map), "4a469d6a287808bf75aa8a246197f51d");
+  assert.notEqual(providerEventIdOf(keyOf(all[1]), map), providerEventIdOf(keyOf(all[0]), map));
+  assert.equal(providerEventIdOf("missing", map), null);
+  assert.equal(providerEventIdOf("x", new Map([["x", { providerEventId: "" }]])), null, "an empty id is not an id");
+  assert.equal(providerEventIdOf("x", null), null);
+});
+
+test("the capture script judges identity in ESPN ids only, and its caller can no longer swallow a crash", () => {
   const script = fs.readFileSync(path.join(process.cwd(), "scripts/ufc/capture-ufc-odds.mjs"), "utf8");
-  assert.match(script, /const matchedEventId = matchedProviderEventId\(consumed, priced\)/);
+  assert.match(script, /cardEventId: card\.event\?\.providerEventId \?\? null,/, "the card side is the card's ESPN event");
+  assert.match(script, /snapshotEventId: snapshotEvent\.providerEventId \?\? null,/, "the snapshot side is the ESPN event it is written under");
+  assert.match(script, /event: snapshotEvent,/, "and that is the event the artifact names");
+  assert.match(script, /const snapshotEvent = \{ providerEventId: card\.event\.providerEventId,/);
+  assert.ok(!/matchedProviderEventId|matchedEventId|oddsEventId/.test(script), "no provider id is promoted to card identity");
   assert.ok(!/matchedEvent\?\./.test(script), "the undefined identifier is gone");
+  assert.match(script, /providerEventId: providerEventIdOf\(matchedKey, priced\)/, "the provider id rides on its own bout");
+  assert.match(script, /^  unmatchedProviderEvents,$/m, "the evidence behind JOIN_FAILED is persisted, not only logged");
   assert.match(script, /process\.exit\(3\)/, "nothing-to-price has its own exit code");
 
   const wf = fs.readFileSync(path.join(process.cwd(), "..", ".github/workflows/ufc-fight-week.yml"), "utf8");
