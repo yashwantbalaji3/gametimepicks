@@ -19,6 +19,8 @@ import zlib from "node:zlib";
 import path from "node:path";
 import crypto from "node:crypto";
 
+import { matchEventToGamePk } from "../src/lib/mlb/event-game-match.mjs";
+
 const APP = process.cwd().endsWith("/app") ? process.cwd() : path.join(process.cwd(), "app");
 const REPO = path.dirname(APP);
 const ARCHIVE = path.join(REPO, "data/internal/mlb/pregame-archive/market-snapshots");
@@ -69,14 +71,13 @@ function boardMaps() {
   return { evToGame, nameId };
 }
 
-/** StatsAPI schedule fallback: (awayTeamName|homeTeamName) → gamePk, so gamePk maps even before the board exists. */
-async function scheduleGamePkByTeams(date) {
+/** StatsAPI schedule fallback, so gamePk maps even before the board exists. Matched by teams AND start time,
+ *  fail-closed (event-game-match.mjs): the old team-pair-only map gave a doubleheader's game 1 game 2's gamePk. */
+async function scheduleGames(date) {
   try {
     const r = await getJson(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${date}&hydrate=team`);
-    const m = new Map();
-    for (const g of r.body?.dates?.[0]?.games ?? []) m.set(`${norm(g.teams?.away?.team?.name)}|${norm(g.teams?.home?.team?.name)}`, g.gamePk);
-    return m;
-  } catch { return new Map(); }
+    return (r.body?.dates?.[0]?.games ?? []).map((g) => ({ gamePk: g.gamePk, away: g.teams?.away?.team?.name, home: g.teams?.home?.team?.name, commenceTime: g.gameDate }));
+  } catch { return []; }
 }
 
 /** Normalize one event's player-prop odds → records with de-vig (paired over/under at same player+market+line). */
@@ -151,7 +152,7 @@ async function main() {
   if (Number.isFinite(events.remaining) && events.remaining < CREDIT_FLOOR + estCredits) { console.error(`credit guard: remaining ${events.remaining} < floor ${CREDIT_FLOOR} + est ${estCredits}. Aborting.`); process.exit(1); }
   if (MAX_CREDITS && estCredits > MAX_CREDITS) { console.error(`--max-credits ${MAX_CREDITS} < est ${estCredits}. Aborting.`); process.exit(1); }
   const { evToGame, nameId } = boardMaps();
-  const schedByTeams = await scheduleGamePkByTeams(DATE); // free StatsAPI fallback so gamePk maps pre-board
+  const schedGames = await scheduleGames(DATE); // free StatsAPI fallback so gamePk maps pre-board
   const records = []; const rawByEvent = {}; let lastRemaining = events.remaining;
   for (const ev of targetEvents) {
     if (Date.parse(ev.commence_time) <= Date.now()) { continue; } // started since /events — skip
@@ -159,7 +160,7 @@ async function main() {
     const res = await getJson(`${API}/sports/${SPORT}/events/${ev.id}/odds/?apiKey=${KEY}&regions=${REGIONS}&markets=${MARKETS.join(",")}&oddsFormat=american&dateFormat=iso`);
     if (!res.ok) { summary.providerUnavailable.push({ event: ev.id, error: res.error }); continue; } // provider_unavailable — no retry loop
     lastRemaining = Number.isFinite(res.remaining) ? res.remaining : lastRemaining;
-    const gamePk = evToGame.get(ev.id) ?? schedByTeams.get(`${norm(ev.away_team)}|${norm(ev.home_team)}`) ?? null;
+    const gamePk = evToGame.get(ev.id) ?? matchEventToGamePk({ away: ev.away_team, home: ev.home_team, commenceTime: ev.commence_time }, schedGames, { norm }).gamePk;
     const recs = normalizeProps(res.body, gamePk, capturedAt, nameId);
     if (recs.length === 0) summary.providerUnavailable.push({ event: ev.id, reason: "no player-prop markets returned" });
     records.push(...recs); rawByEvent[ev.id] = res.body;
