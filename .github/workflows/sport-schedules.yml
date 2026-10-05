@@ -416,7 +416,9 @@ jobs:
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
           git add data/internal/research/injuries/
-          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          if git diff --cached --quiet; then
+            echo "no change"; exit 0
+          fi
           if node -e "
             const { execSync } = require('child_process');
             const strip = (j) => { const o = JSON.parse(j); delete o.generatedAt; delete o.sourceAsOf; return JSON.stringify(o); };
