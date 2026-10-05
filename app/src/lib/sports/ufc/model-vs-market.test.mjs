@@ -133,3 +133,22 @@ test("LIVE · tonight's snapshot exists and both figures are on every row", () =
   // Recorded BEFORE the card, which is the whole basis of the comparison.
   assert.ok(Date.parse(snap.capturedAt) < Date.parse(snap.event.startUtc), "the snapshot predates the card");
 });
+
+test("REPLACEMENT · each row carries the athlete pair, oriented to the pick", () => {
+  // Gall v Dumas (2026-09-26) froze as provider bout 401923433; Gall was replaced and the bout that
+  // happened was 401924683 (Hernandez v Dumas). Only the athlete pair says who the forecast was about.
+  const card = {
+    event: { slateDate: "2026-09-26", startUtc: "2026-09-26T21:00Z" },
+    bouts: [
+      { boutId: "401923433", red: { name: "Mickey Gall", athleteId: "3960470" }, blue: { name: "Sedriques Dumas", athleteId: 5060467 },
+        prediction: { winner: { name: "Sedriques Dumas", probability: 0.52 } } },
+      { boutId: "9", red: { name: "A" }, blue: { name: "B" }, prediction: { winner: { name: "A", probability: 0.6 } } },
+    ],
+  };
+  const odds = { bouts: ["401923433", "9"].map((boutId) => ({ boutId, red: { price: { american: -120 } }, blue: { price: { american: 100 } } })) };
+  const [withIds, withoutIds] = buildPreFightRows({ card, odds, capturedAt: "2026-09-24T15:34:00Z" }).rows;
+  assert.equal(withIds.pickAthleteId, "5060467", "picked the BLUE corner, so the pick id is blue's, as a string");
+  assert.equal(withIds.opponentAthleteId, "3960470");
+  assert.equal(withoutIds.pickAthleteId, null, "a missing id stays null, never invented");
+  assert.equal(withoutIds.opponentAthleteId, null);
+});

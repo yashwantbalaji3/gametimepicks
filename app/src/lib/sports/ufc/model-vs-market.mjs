@@ -100,6 +100,10 @@ export function buildPreFightRows({ card, odds, capturedAt }) {
       eventName: card?.event?.name ?? null,
       pick: w.name,
       opponent: pickedRed ? b.blue?.name ?? null : b.red?.name ?? null,
+      // The athlete pair, so a later replacement (new opponent, often a NEW provider bout id) is
+      // detectable by who fought, not by name or bout id alone (Gall→Hernandez v Dumas, 2026-09-26).
+      pickAthleteId: (pickedRed ? b.red?.athleteId : b.blue?.athleteId) != null ? String(pickedRed ? b.red.athleteId : b.blue.athleteId) : null,
+      opponentAthleteId: (pickedRed ? b.blue?.athleteId : b.red?.athleteId) != null ? String(pickedRed ? b.blue.athleteId : b.red.athleteId) : null,
       modelProbability: Number(w.probability.toFixed(6)),
       marketProbability: Number(marketForPick.toFixed(6)),
       impliedSum: devig.impliedSum,
