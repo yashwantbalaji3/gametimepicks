@@ -14,6 +14,7 @@
  * THE REVISION RULE. `fullGameSim` and `prediction` are separate artifacts joined by gamePk. Both
  * stamp `artifactHash`. If they disagree this refuses to build rather than narrating half of each.
  */
+import { medianRunsCopy } from "../../mlb/prediction/median-runs-copy.mjs";
 import type { PublicGameDetail } from "@/lib/game-detail";
 import type {
   ChapterKind,
@@ -117,7 +118,7 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
 
   /* ── 2 · who wins ──────────────────────────────────────────────────────────────────────────── */
   const wp = fg.winProbability;
-  /* Live-record gate: a paused winner call shows no win probabilities and names no side; the median final stays. */
+  /* Live-record gate: a paused winner call shows no win probabilities and names no side; the team medians stay. */
   const moneylinePaused = Boolean(pred.pausedReasons?.moneyline);
   if (wp && Number.isFinite(wp.home) && Number.isFinite(wp.away)) {
     const winner = moneylinePaused ? null : pred.predictedWinner;
@@ -128,13 +129,15 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
           { label: `${awayAbbr} win`, value: wp.away, format: "probability" },
           { label: `${homeAbbr} win`, value: wp.home, format: "probability" },
         ];
-    if (score && Number.isFinite(score.away) && Number.isFinite(score.home)) {
+    /* Two separate team medians, not a simulated final (median-runs-copy.mjs), so never labelled a final. */
+    const medianRuns = medianRunsCopy(score, awayAbbr, homeAbbr);
+    if (medianRuns) {
       stats.push({
-        label: "Median final",
+        label: medianRuns.label,
         value: null,
         format: "text",
-        text: `${awayAbbr} ${score.away} — ${homeAbbr} ${score.home}`,
-        note: score.label ?? undefined,
+        text: medianRuns.text,
+        note: medianRuns.note,
       });
     }
     chapters.push({

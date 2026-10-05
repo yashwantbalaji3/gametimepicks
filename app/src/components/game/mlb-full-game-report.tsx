@@ -19,6 +19,7 @@ import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import type { FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
 import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
+import { medianRunsCopy, MEDIAN_RUNS_LABEL } from "@/lib/mlb/prediction/median-runs-copy.mjs";
 
 const int0 = (n: number): string => Math.round(n).toLocaleString();
 
@@ -139,6 +140,9 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
   const ml = p.moneyline;
   const total = p.total;
   const rl = p.runLine;
+  /* Two separate team medians, not a simulated final: shown as "CWS 4 · CLE 4" with its own name, so a tie can
+     never read as a predicted tied final next to the winner (median-runs-copy.mjs). */
+  const medianRuns = medianRunsCopy(p.projectedScore, p.awayTeam, p.homeTeam);
   return (
     <section className="rounded-[16px] px-4 py-4 flex flex-col gap-3" style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--vault-crown) 10%, transparent), color-mix(in srgb, var(--vault-crown) 3%, transparent))", border: "1px solid color-mix(in srgb, var(--vault-crown) 35%, transparent)" }}>
       <div className="flex items-baseline justify-between gap-2 flex-wrap">
@@ -153,9 +157,10 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
                 read HOME-first while the head-to-head above it read AWAY-first, so the same game
                 appeared as "CHC 4 – 4 BOS" up top and "BOS 3 – CHC 4" here: a reader had to notice
                 that the two sides had swapped ends before they could even compare the numbers. */}
-            {p.awayTeam} {p.projectedScore.away} – {p.projectedScore.home} {p.homeTeam}
+            {medianRuns?.text}
           </div>
-          <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{p.projectedScore.label}</div>
+          <div className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{medianRuns?.label}</div>
+          <div className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{medianRuns?.note}</div>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-2">
@@ -290,9 +295,10 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
               right: `${Math.round(g.winProbability.home * 100)}%`,
               better: g.winProbability.away > g.winProbability.home ? "left" : g.winProbability.home > g.winProbability.away ? "right" : null },
             /* The canonical projected score, read from the decision owner rather than re-derived
-               here, and carrying the owner's OWN label so this tile can never rename it. */
+               here. It is two separate team medians, so the row is named "Median runs per team",
+               never a score (median-runs-copy.mjs). */
             ...(prediction?.projectedScore ? [{
-              label: prediction.projectedScore.label,
+              label: MEDIAN_RUNS_LABEL,
               left: String(prediction.projectedScore.away),
               right: String(prediction.projectedScore.home),
               better: (prediction.projectedScore.away > prediction.projectedScore.home ? "left"
