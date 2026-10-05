@@ -553,7 +553,7 @@ const QA_A11Y_ROUTES = ["/results/", "/results/nfl/", "/results/mlb/", "/results
   "/nfl/", "/epl/", "/ufc/", "/sports/", "/models/", "/methodology/", "/bank-builder/", "/moonshot/"];
 
 test.describe("sideways-scrolling boxes are keyboard reachable", () => {
-  // WCAG 2.1.1: a box that scrolls must be focusable (or hold something focusable) so the arrow keys can scroll it.
+  // WCAG 2.1.1: a box that scrolls must be focusable (or hold controls reaching its last column) so the arrow keys can scroll it.
   for (const route of QA_A11Y_ROUTES) {
     test(`${route} — every scrolling box at 390px can take focus and has a name`, async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 844 });
@@ -563,7 +563,12 @@ test.describe("sideways-scrolling boxes are keyboard reachable", () => {
         for (const el of document.querySelectorAll<HTMLElement>("main *")) {
           if (el.scrollWidth <= el.clientWidth + 1) continue;
           if (!["auto", "scroll"].includes(getComputedStyle(el).overflowX)) continue;
-          if (el.querySelector("a[href], button, input, select, textarea, summary, [tabindex]")) continue;
+          // Controls inside only excuse the box when tabbing through them scrolls it to its last column —
+          // links in a first column alone left Results tables' right-hand columns out of keyboard reach.
+          const controls = Array.from(el.querySelectorAll("a[href], button, input, select, textarea, summary, [tabindex]"));
+          const left = el.getBoundingClientRect().left - el.scrollLeft;
+          const rightmost = Math.max(el.clientWidth, ...controls.map((c) => c.getBoundingClientRect().right - left));
+          if (controls.length && el.scrollWidth - rightmost <= 24) continue;
           const named = el.getAttribute("aria-label") || el.getAttribute("aria-labelledby");
           // A name is a short label, not a panel's whole text read aloud.
           if (el.tabIndex < 0 || !named || named.length > 81) bad.push(el.tagName.toLowerCase() + "." + String(el.className || "").trim().split(/\s+/).slice(0, 2).join("."));

@@ -15,7 +15,8 @@
  *      runs here on used style and marks matches with `data-prose-link`; globals.css underlines them.
  *
  * WHAT IT DOES, after mount and again (debounced) when <main>'s subtree or the viewport changes:
- *   - a box that scrolls sideways, has no tabindex and contains nothing focusable gets
+ *   - a box that scrolls sideways, has no tabindex and whose own controls cannot scroll it to its
+ *     last column (or that has no controls at all) gets
  *     `tabindex=0`, `role=region` and a name (section label → heading → caption → fallback). If it
  *     stops overflowing it is restored, so it never adds a dead Tab stop on a wide screen;
  *   - an inline link with no underline whose block also holds other text gets `data-prose-link`.
@@ -33,6 +34,23 @@ function textOf(el: Element | null): string {
 }
 
 const MAX_NAME = 80;
+
+/** Columns a Tab through the box's own links and buttons can never scroll into view. */
+const REACH_SLACK = 24;
+
+/**
+ * True when focusing the box's own controls scrolls it far enough to show every column. A
+ * focused child is scrolled into view, so the box scrolls only as far as its rightmost control:
+ * a table whose links sit in the first column (Results by-week and game-by-game tables, QA
+ * Production check 2026-10-05) hid 132–458px of columns from the keyboard.
+ */
+function focusReachesEnd(box: HTMLElement): boolean {
+  const controls = Array.from(box.querySelectorAll<HTMLElement>(FOCUSABLE));
+  if (!controls.length) return false;
+  const left = box.getBoundingClientRect().left - box.scrollLeft;
+  const rightmost = Math.max(...controls.map((c) => c.getBoundingClientRect().right - left));
+  return box.scrollWidth - Math.max(rightmost, box.clientWidth) <= REACH_SLACK;
+}
 
 function nearestHeading(box: HTMLElement): string {
   const headings = Array.from(document.querySelectorAll("main h1, main h2, main h3, main h4"));
@@ -63,7 +81,7 @@ function fixScrollRegions(main: HTMLElement) {
     if (!ours && el.scrollWidth <= el.clientWidth + 1) continue; // cheap check first; most elements stop here
     const overflowX = getComputedStyle(el).overflowX;
     const scrolls = (overflowX === "auto" || overflowX === "scroll") && el.scrollWidth > el.clientWidth + 1;
-    if (scrolls && !ours && !el.hasAttribute("tabindex") && !el.querySelector(FOCUSABLE)) {
+    if (scrolls && !ours && !el.hasAttribute("tabindex") && !focusReachesEnd(el)) {
       el.setAttribute(MARK, "");
       el.tabIndex = 0;
       if (!el.hasAttribute("role")) el.setAttribute("role", "region");
