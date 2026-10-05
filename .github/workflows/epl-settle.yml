@@ -78,6 +78,18 @@ jobs:
             echo "TEAM_GRADE=refused" >> "$GITHUB_ENV"
           fi
 
+      # Derived team markets: both teams to score, clean sheet, correct score — against the SAME forecast the
+      # step above graded (re-opened by its generatedAt; its 1X2 must match to the digit). Carried, not raised.
+      - name: Grade derived team markets
+        working-directory: app
+        run: |
+          set -uo pipefail
+          if node scripts/epl/grade-epl-derived-markets.mjs --write; then
+            echo "DERIVED_GRADE=ok" >> "$GITHUB_ENV"
+          else
+            echo "DERIVED_GRADE=refused" >> "$GITHUB_ENV"
+          fi
+
       # Player markets: anytime goalscorer and shots on goal, against the pre-kickoff snapshot.
       # A conditional row whose condition did not hold is VOIDED, never scored as a miss.
       - name: Grade player projections
@@ -152,6 +164,11 @@ jobs:
           if [ "${TEAM_GRADE:-ok}" != "ok" ]; then
             echo "::error::EPL TEAM grading refused — completed fixtures could not be joined to any"
             echo "::error::pre-kickoff forecast. A broken join, not a quiet matchday."
+            FAILED=1
+          fi
+          if [ "${DERIVED_GRADE:-ok}" != "ok" ]; then
+            echo "::error::EPL derived-market grading refused — a match graded after per-run snapshots began"
+            echo "::error::could not be re-opened at its forecast of record (BTTS / clean sheet / correct score)."
             FAILED=1
           fi
           if [ "${PLAYER_GRADE:-ok}" != "ok" ]; then
