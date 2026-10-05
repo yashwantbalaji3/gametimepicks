@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 849839,
+  "date": "2026-10-05",
+  "capturedAt": "2026-10-05T06:33:09.124Z",
+  "availableAt": "2026-10-05T06:33:09.124Z",
+  "eventStartTime": "2026-10-06T00:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 642547,
+      "name": "Freddy Peralta",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 32,
+      "restDays": 10,
+      "lastStartDate": "2026-09-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28,
+        "ipAvg": 5.6,
+        "kAvg": 4.6,
+        "bbAvg": 1.8,
+        "erAvg": 0.6,
+        "hrAvg": 0.2,
+        "kPer9": 7.39,
+        "workloadIpLast5": 28
+      },
+      "seasonToDate": {
+        "starts": 32,
+        "ip": 169,
+        "k": 156,
+        "bb": 63,
+        "er": 83,
+        "hr": 23
+      }
+    },
+    "away": {
+      "id": 693645,
+      "name": "Cam Schlittler",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 33,
+      "restDays": 11,
+      "lastStartDate": "2026-09-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 30,
+        "ipAvg": 6,
+        "kAvg": 7.6,
+        "bbAvg": 1.4,
+        "erAvg": 0.8,
+        "hrAvg": 0.4,
+        "kPer9": 11.4,
+        "workloadIpLast5": 30
+      },
+      "seasonToDate": {
+        "starts": 33,
+        "ip": 193.67,
+        "k": 239,
+        "bb": 49,
+        "er": 42,
+        "hr": 16
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-10-05&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-10-05T06:33:09.124Z"
+  },
+  "recordHash": "8852e8ad0d2c764e62d4cb2a0d117f40dd7d6d5eec5a0564b6fff68d50a66375"
+}
