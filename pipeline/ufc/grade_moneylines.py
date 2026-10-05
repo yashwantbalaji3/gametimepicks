@@ -11,7 +11,16 @@ NEVER decides — 10 rematch pairs share the pair key, 6 with different winners
 (Pereira/Ankalaev, Grasso/Shevchenko, ...). Missing or ambiguous boutId fails
 closed to pending with an explicit warning.
 
-Run: python -m pipeline.ufc.grade_moneylines
+RETIRED 2026-10-05 (founder-approved). This graded sportsbook moneyline PRICES,
+not a GameTimePicks forecast, and since the JS odds capture replaced the Python
+odds shape it skipped every bout. It is no longer invoked by any workflow. Its
+artifact is kept as a frozen historical record, marked RETIRED in its own
+content. What replaces build_readiness.py's grading_gate is owned by Results &
+Forecast Ledger; market-price grading is never a proxy for model grading.
+
+Run once to mark the artifact: python -m pipeline.ufc.grade_moneylines --retire
+A plain run refuses once the artifact is RETIRED, so the record cannot be
+silently overwritten or regraded.
 """
 from __future__ import annotations
 
@@ -137,12 +146,55 @@ def grade(odds: dict, results: dict, now: datetime | None = None) -> dict:
     }
 
 
+RETIRED = "RETIRED"
+RETIRED_REASON = (
+    "Retired 2026-10-05 (founder-approved). This artifact graded sportsbook moneyline prices, "
+    "not GameTimePicks forecasts, and had graded nothing since the odds capture changed shape. "
+    "Every other field in this file is kept unchanged as a historical record. GameTimePicks UFC winner forecasts are "
+    "graded in the Forecast Ledger (family ufc_winner); what UFC readiness means is owned by "
+    "Results & Forecast Ledger. Market-price grading is not a proxy for model grading."
+)
+
+
+def retire_payload(existing: dict, now: str | None = None) -> dict:
+    """Mark an existing graded artifact RETIRED. Every original field is kept
+    verbatim (no regrade, no reinterpretation); only retirement metadata is added.
+    Idempotent: re-retiring keeps the first retiredAt."""
+    out = dict(existing)
+    if out.get("status") == RETIRED and out.get("retiredAt"):
+        return out
+    out["status"] = RETIRED
+    out["retiredAt"] = now or datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    out["retiredReason"] = RETIRED_REASON
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--odds", default=str(DATA / "odds-latest.json"))
     ap.add_argument("--results", default=str(DATA / "results-latest.json"))
     ap.add_argument("--out", default=str(OUT))
+    ap.add_argument("--retire", action="store_true", help="mark the artifact RETIRED, keeping every existing field")
+    ap.add_argument("--now", default=None)
     args = ap.parse_args(argv)
+    out = Path(args.out)
+
+    existing = None
+    try:
+        existing = json.loads(out.read_text())
+    except Exception:
+        existing = None
+    if args.retire:
+        if existing is None:
+            print(f"REFUSED: {out} missing or unreadable; nothing to retire")
+            return 1
+        stamped = retire_payload(existing, now=args.now)
+        out.write_text(json.dumps(stamped, indent=2) + "\n")
+        print(f"marked {out} RETIRED (gradedCount={stamped.get('gradedCount')}, tally={stamped.get('tally')})")
+        return 0
+    if isinstance(existing, dict) and existing.get("status") == RETIRED:
+        print(f"REFUSED: {out} is RETIRED ({existing.get('retiredAt')}); the moneyline grader no longer runs")
+        return 1
 
     def _load(p):
         try:
@@ -150,7 +202,6 @@ def main(argv: list[str] | None = None) -> int:
         except Exception:
             return {}
     payload = grade(_load(args.odds), _load(args.results))
-    out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2) + "\n")
     print(f"wrote {out} → graded={payload['gradedCount']} tally={payload['tally']}")

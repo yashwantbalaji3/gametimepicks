@@ -345,5 +345,60 @@ class MutationProofTests(unittest.TestCase):
         self.assertEqual(Path(gm.__file__).read_bytes(), src_bytes)
 
 
+
+class RetirementTest(unittest.TestCase):
+    """2026-10-05 founder-approved retirement: the artifact is kept verbatim and
+    marked RETIRED; no workflow invokes the grader; a plain run cannot overwrite it."""
+
+    ORIGINAL = {"generatedAt": "2026-10-05T16:56:43+00:00", "market": "h2h", "gradedCount": 0,
+                "tally": {"win": 0, "loss": 0, "push": 0, "void": 0, "pending": 0, "unknown": 0},
+                "note": "original note", "graded": []}
+
+    def _write(self, tmp, payload):
+        out = Path(tmp) / "graded.json"
+        out.write_text(json.dumps(payload))
+        return out
+
+    def test_retire_keeps_every_original_field_and_adds_only_metadata(self):
+        stamped = gm.retire_payload(self.ORIGINAL, now="2026-10-05T19:00:00+00:00")
+        for k, v in self.ORIGINAL.items():
+            self.assertEqual(stamped[k], v, k)
+        self.assertEqual(set(stamped) - set(self.ORIGINAL), {"status", "retiredAt", "retiredReason"})
+        self.assertEqual(stamped["status"], "RETIRED")
+        self.assertIn("not a proxy for model grading", stamped["retiredReason"])
+
+    def test_retire_is_idempotent(self):
+        once = gm.retire_payload(self.ORIGINAL, now="2026-10-05T19:00:00+00:00")
+        twice = gm.retire_payload(once, now="2027-01-01T00:00:00+00:00")
+        self.assertEqual(twice["retiredAt"], "2026-10-05T19:00:00+00:00")
+
+    def test_plain_run_refuses_to_overwrite_a_retired_artifact(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            out = self._write(tmp, gm.retire_payload(self.ORIGINAL, now="2026-10-05T19:00:00+00:00"))
+            before = out.read_bytes()
+            self.assertEqual(gm.main(["--odds", str(ODDS_LATEST), "--results", str(RESULTS_LATEST), "--out", str(out)]), 1)
+            self.assertEqual(out.read_bytes(), before)
+
+    def test_retire_flag_writes_the_marker(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            out = self._write(tmp, self.ORIGINAL)
+            self.assertEqual(gm.main(["--out", str(out), "--retire", "--now", "2026-10-05T19:00:00+00:00"]), 0)
+            self.assertEqual(json.loads(out.read_text())["status"], "RETIRED")
+
+    def test_committed_artifact_is_marked_retired(self):
+        art = json.loads((REPO_ROOT / "app/public/data/ufc/graded-moneylines-latest.json").read_text())
+        self.assertEqual(art.get("status"), "RETIRED")
+
+    def test_no_workflow_invokes_the_retired_grader(self):
+        wf = REPO_ROOT / ".github" / "workflows"
+        offenders = [p.name for p in wf.glob("*.yml")
+                     if any(l.strip() == "python -m pipeline.ufc.grade_moneylines" or
+                            (l.strip().startswith("python") and "pipeline.ufc.grade_moneylines" in l)
+                            for l in p.read_text().splitlines())]
+        self.assertEqual(offenders, [])
+
+
 if __name__ == "__main__":
     unittest.main()
