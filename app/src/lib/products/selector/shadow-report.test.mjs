@@ -132,3 +132,18 @@ test("pending is not decided and missing is not zero: an ungraded day contribute
   assert.equal(empty.days, 0); assert.deepEqual(empty.gates, {}); assert.equal(empty.candidatePool.meanEligibleLegs, null);
   assert.match(renderShadowReportMarkdown(empty), /no decided lane-day yet/);
 });
+
+test("actual vs market-expected wins: Σ joint p over decided won/lost cards, per rung, never read by the gate", () => {
+  const f = fixture();
+  f.days[0].policies["BB-C1"].lanes.A = placed({ step: 2, jointP: 0.5, graded: { status: "lost", legs: ["lost", "won"] } });
+  f.days[1].policies["BB-C1"].lanes.A = placed({ jointP: null, graded: { status: "won", legs: ["won", "won"] } });
+  const r = buildShadowReport({ ...f, now: "2026-09-07T06:00:00Z" });
+  const v = r.policies["BB-C1"].vsMarket;
+  // 4 rung-1 wins at 0.38 + 1 rung-2 loss at 0.5; the card without a joint p is excluded and counted, never zero.
+  assert.equal(v.n, 5); assert.equal(v.won, 4); assert.equal(v.expectedWins, 2.02); assert.equal(v.excludedNoJointP, 1);
+  assert.equal(v.actualMinusExpected, 1.98);
+  assert.deepEqual(Object.keys(v.byRung), ["1", "2"]); assert.equal(v.byRung["2"].won, 0); assert.equal(v.byRung["2"].expectedWins, 0.5);
+  // The gate is unchanged: same inputs without the measurement give the same gate.
+  assert.deepEqual(r.gates["BB-C1"].allDays.reasons, buildShadowReport({ ...f, now: "2026-09-07T06:00:00Z" }).gates["BB-C1"].allDays.reasons);
+  assert.match(renderShadowReportMarkdown(r), /Actual vs market-expected wins/);
+});

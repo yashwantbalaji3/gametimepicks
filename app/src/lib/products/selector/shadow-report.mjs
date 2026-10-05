@@ -107,6 +107,28 @@ function settlementComparison(days, settledByDate, liveIdentityByDate = {}) {
 }
 
 /**
+ * ACTUAL vs MARKET-EXPECTED WINS (measurement only — the adoption gate does not read it; founder decision
+ * 2026-10-05 #3/#5). Every shadow card's jointP is the de-vigged market's own probability, so the sum of
+ * jointP over decided won/lost cards is how many wins the market expected. Actual − expected, with the
+ * binomial sd √Σp(1−p), separates "this selector picked better cards" from "this selector got lucky",
+ * which raw survival cannot: on 2026-10-05 the control led on survival while winning ~1.9 sd above its
+ * own market expectation. Per rung too, because policies sit on different rungs (different prices).
+ * Pushes and cards without a jointP are excluded and counted, never treated as zero.
+ */
+function marketExpectation(rows) {
+  const tally = (rs) => {
+    const d = rs.filter((x) => (x.status === "won" || x.status === "lost") && typeof x.jointP === "number");
+    const expected = d.reduce((a, x) => a + x.jointP, 0), variance = d.reduce((a, x) => a + x.jointP * (1 - x.jointP), 0);
+    const won = d.filter((x) => x.status === "won").length, sd = Math.sqrt(variance);
+    return { n: d.length, won, expectedWins: +expected.toFixed(2), sd: +sd.toFixed(2), actualMinusExpected: +(won - expected).toFixed(2), z: sd > 0 ? +((won - expected) / sd).toFixed(2) : null };
+  };
+  const excluded = rows.filter((x) => (x.status === "won" || x.status === "lost") && typeof x.jointP !== "number").length;
+  const byRung = {};
+  for (const step of [...new Set(rows.map((x) => x.step).filter((s) => s != null))].sort((a, b) => a - b)) byRung[step] = tally(rows.filter((x) => x.step === step));
+  return { ...tally(rows), excludedNoJointP: excluded, byRung };
+}
+
+/**
  * @param {object} inputs
  * @param {object|null} inputs.ledger      ledger.json as written by the grader (its metrics are cross-checked, never trusted alone)
  * @param {object[]} inputs.days           every <date>.json, any order
@@ -136,7 +158,8 @@ export function buildShadowReport({ ledger = null, days = [], state = null, sett
     const survivalByRung = Object.fromEntries(Object.entries(m.byStep).map(([s, c]) => [s, { ...c, survival: c.won + c.lost ? +(c.won / (c.won + c.lost)).toFixed(3) : null }]));
     const ledgerM = ledger?.policies?.[name]?.metrics ?? null;
     const ledgerAgrees = ledgerM ? ["placed", "decided", "won", "lost", "push", "pending"].every((k) => ledgerM[k] === m[k]) : null;
-    policies[name] = { policyId: sorted.at(-1)?.policies?.[name]?.policyId ?? ledger?.policies?.[name]?.policyId ?? null, metrics: m, forwardOnlyMetrics: mf, survivalByRung, sportComposition: sports, probabilityBasis: basis, ledgerAgrees, position: state?.policies?.[name]?.positions ?? null };
+    const vsMarket = marketExpectation(r);
+    policies[name] = { vsMarket, policyId: sorted.at(-1)?.policies?.[name]?.policyId ?? ledger?.policies?.[name]?.policyId ?? null, metrics: m, forwardOnlyMetrics: mf, survivalByRung, sportComposition: sports, probabilityBasis: basis, ledgerAgrees, position: state?.policies?.[name]?.positions ?? null };
   }
   const gates = {};
   for (const [product, cfg] of Object.entries(SHADOW_POLICIES)) for (const s of cfg.shadow) {
@@ -175,6 +198,13 @@ export function renderShadowReportMarkdown(r) {
   let anyRung = false;
   for (const [name, p] of Object.entries(r.policies)) for (const [s, c] of Object.entries(p.survivalByRung)) { anyRung = true; L.push(`| ${name} | ${s} | ${c.won} | ${c.lost} | ${c.push} | ${num(c.survival)} |`); }
   if (!anyRung) L.push(`| — | — | — | — | — | no decided lane-day yet |`);
+  L.push(``, `### Actual vs market-expected wins (measurement only — not read by the gate)`, ``,
+    `Each card's joint p is the de-vigged market price, so Σ joint p over decided cards is the market's expected wins. Actual − expected (in sd units, z) separates selection from luck; raw survival does not. Policies sit on different rungs, so the per-rung rows are the like-for-like comparison.`, ``,
+    `| Policy | Rung | Decided | Won | Market-expected | Actual − expected | sd | z |`, `|---|---|---|---|---|---|---|---|`);
+  for (const [name, p] of Object.entries(r.policies)) {
+    const v = p.vsMarket; L.push(`| ${name} | all | ${v.n} | ${v.won} | ${v.expectedWins} | ${v.actualMinusExpected} | ${v.sd} | ${num(v.z)} |`);
+    for (const [s, x] of Object.entries(v.byRung)) if (x.n) L.push(`| ${name} | ${s} | ${x.n} | ${x.won} | ${x.expectedWins} | ${x.actualMinusExpected} | ${x.sd} | ${num(x.z)} |`);
+  }
   L.push(``, `### No-play reasons · sport composition · ladder position`, ``, `| Policy | No-play lane-days | By reason | Sports (placed cards) | Lane A | Lane B | Ledger agrees |`, `|---|---|---|---|---|---|---|`);
   for (const [name, p] of Object.entries(r.policies)) { const m = p.metrics; const pos = (l) => (p.position?.[l] ? `s${p.position[l].step} $${p.position[l].stake}${p.position[l].pending ? " (pending)" : ""}` : "—"); L.push(`| ${name} | ${m.noPlayLaneDays} | ${Object.entries(m.noPlayByReason).map(([k, v]) => `${k} ${v}`).join(", ") || "—"} | ${Object.entries(p.sportComposition).map(([k, v]) => `${k} ${v}`).join(", ") || "—"} | ${pos("A")} | ${pos("B")} | ${p.ledgerAgrees == null ? "no ledger" : p.ledgerAgrees ? "yes" : "**NO**"} |`); }
   L.push(``, `## 3. Candidate pool`, ``, `Eligible legs per day file (after \`guardLegs\`): mean ${num(r.candidatePool.meanEligibleLegs)} · min ${num(r.candidatePool.minEligibleLegs)} · max ${num(r.candidatePool.maxEligibleLegs)}. Every policy in the shadow pools MLB only; the eligible universe is what every policy — control and candidates — ranked over.`, ``);
