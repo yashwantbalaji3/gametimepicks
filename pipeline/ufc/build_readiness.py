@@ -371,10 +371,17 @@ def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
     else:
         public_level = "schedule-only"
 
+    # Name only what is actually missing: a sentence listing a connected gate as pending is false.
+    def _join(items: list[str]) -> str:
+        return ", ".join(items[:-1]) + " and " + items[-1] if len(items) > 1 else "".join(items)
+    missing = [name for name, ok in (("odds", odds), ("fighter stats", stats), ("results grading", grading),
+                                     ("backtesting", backtest)) if not ok]
+    connecting = [m for m in missing if m != "backtesting"]
     if public_level == "schedule-only":
-        public_message = "UFC coverage is being built — schedule available; predictions publish only after odds, fighter stats, results grading, and backtesting are connected."
+        public_message = f"UFC coverage is being built — schedule available; predictions publish only after {_join(missing)} are connected."
     elif public_level in ("odds-internal", "projections-internal", "grading-internal"):
-        public_message = "UFC odds, fighter stats, and results grading are being connected. Model picks publish only after a backtest passes."
+        public_message = (f"UFC {_join(connecting)} {'is' if len(connecting) == 1 else 'are'} being connected. " if connecting else "") \
+            + "Model picks publish only after a backtest passes."
     else:
         public_message = "UFC model picks are live."
 

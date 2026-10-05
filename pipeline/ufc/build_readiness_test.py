@@ -314,6 +314,15 @@ class UfcGradingGateTests(unittest.TestCase):
         self.assertTrue(r["gradingReady"])
         self.assertFalse(r["productSettlementReady"])
 
+    def test_the_public_sentence_names_only_missing_gates(self):
+        from pipeline.ufc.build_readiness import derive_readiness
+        r = derive_readiness({"scheduleReady": True, "resultsCorpusReady": True, "forecastSettlementReady": True})
+        self.assertEqual(r["publicLevel"], "schedule-only")
+        self.assertNotIn("results grading", r["publicMessage"])
+        self.assertIn("odds, fighter stats and backtesting", r["publicMessage"])
+        r = derive_readiness({"scheduleReady": True})
+        self.assertIn("results grading", r["publicMessage"])
+
     def test_the_retired_moneyline_file_is_not_read(self):
         from pathlib import Path
         src = Path(__file__).with_name("build_readiness.py").read_text()
