@@ -24,7 +24,7 @@ const SPORTS = [...ASK_SPORTS];
 const FORECAST_FAMILIES = Object.freeze([
   "nfl_game_winner", "nfl_game_total", "nfl_game_margin", "nfl_team_score", "player_pass_yds", "player_rush_yds",
   "player_reception_yds", "player_receptions", "anytime_td", "mlb_moneyline", "mlb_run_line", "mlb_total",
-  "mlb_homer_nukes", "epl_1x2", "epl_over_2_5", "epl_anytime_goalscorer", "epl_shots_on_goal_over_0_5", "ufc_winner",
+  "mlb_homer_nukes", "mlb_projected_runs", "mlb_projected_total", "epl_1x2", "epl_over_2_5", "epl_anytime_goalscorer", "epl_shots_on_goal_over_0_5", "epl_btts", "epl_clean_sheet", "epl_scoreline", "ufc_winner",
 ]);
 
 /**

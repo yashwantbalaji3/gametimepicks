@@ -60,7 +60,7 @@ function primary(f: any): { main: string; sub: string } {
     return { main: `Brier ${num(f.brier)}`, sub: `log loss ${num(f.logLoss)} · forecast ${pct(f.meanForecast)} vs happened ${pct(f.observedRate)} · ECE ${num(f.calibration?.ece)}` };
   }
   if (f.kind === "MULTICLASS_PROBABILITY") {
-    return { main: `Log loss ${num(f.logLoss)}`, sub: `Brier ${num(f.brier)} · likeliest outcome happened ${pct(f.topClassAccuracy)} · a blind guess scores ${num(f.uniformReference?.logLoss)}` };
+    return { main: `Log loss ${num(f.logLoss)}`, sub: `Brier ${num(f.brier)} · ${f.topClassLabel ? `${f.topClassLabel}: ${pct(f.topClassAccuracy)}` : `likeliest outcome happened ${pct(f.topClassAccuracy)}`} · a blind guess scores ${num(f.uniformReference?.logLoss)}` };
   }
   return { main: "—", sub: "" };
 }
