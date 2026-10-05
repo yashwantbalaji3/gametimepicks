@@ -492,6 +492,12 @@ jobs:
               || echo "::warning::game-prediction grading failed for $D — prior ledger retained"
           done
 
+          # 5b) Block A: the projected score + simulation-median total, from the SAME revision step 5 graded
+          #     (re-opened by its recorded source; every graded probability must reproduce exactly). Error
+          #     only, never W/L. Append-only; a game whose revision cannot be re-opened stays UNRECOVERED.
+          node scripts/mlb/grade-projected-scores.mjs --write \
+            || echo "::warning::projected-score grading refused — a snapshot-sourced game could not be re-opened"
+
       # ---- SPRINT 048: the learning loop ----
       # The prediction-history exporter existed since Sprint 036 and was referenced by NO workflow and
       # no npm script. It silently froze on 2026-07-08 — 18,227 rows while the ledger held 22,660 — so

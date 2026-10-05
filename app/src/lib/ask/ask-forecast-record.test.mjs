@@ -47,6 +47,17 @@ test("contract: two V2 intents, two registered tools, the record's files are dai
   for (const f of ["forecast-record.json", "forecast-record/nfl.json", "forecast-record/epl.json"]) assert.ok(ASK_DAILY_FILES.includes(f), f);
 });
 
+test("probe: EPL correct score reads as a top-1 exact-score hit rate, never as 'our likeliest outcome happened' (control: 1X2 keeps it)", async () => {
+  const fam = (family, label, topClassLabel) => ({ sport: "EPL", family, label, kind: "MULTICLASS_PROBABILITY", counts: { published: 46, withdrawn: 0, measured: 46, pending: 0, void: 0, unmeasured: 0 }, n: 46, brier: 0.95, logLoss: 2.1, topClassAccuracy: 0.087, topClassLabel, uniformReference: { logLoss: 2.3979, brier: 0.9091 }, pickRecord: null, latestEvent: "2026-09-20T14:00Z", href: `/results/forecasts/epl/${family}/` });
+  const index = { ...INDEX, families: [fam("epl_1x2", "Match result (1X2)", null), fam("epl_scoreline", "Correct score (top-10 table)", "top-1 exact-score hit rate (how often our single likeliest listed score was the exact final)")], gaps: [] };
+  const r = await getForecastFamilyPerformance({ sport: "EPL" }, ctx(index));
+  assert.equal(r.families.find((f) => f.family === "epl_scoreline").topClassLabel, "top-1 exact-score hit rate (how often our single likeliest listed score was the exact final)");
+  const t = textOf(r, "getForecastFamilyPerformance");
+  assert.match(t, /Correct score \(top-10 table\) forecasts[^|]*our top-1 exact-score hit rate \(how often our single likeliest listed score was the exact final\) is 8\.7%/);
+  assert.doesNotMatch(t, /Correct score[^|]*likeliest outcome happened/);
+  assert.match(t, /Match result \(1X2\) forecasts[^|]*our likeliest outcome happened 8\.7% of the time/, "control");
+});
+
 test("family performance: each kind in its own yardstick; no pooled number; the pick record only where published", async () => {
   const r = await getForecastFamilyPerformance({ sport: "NFL" }, ctx());
   assert.equal(r.status, ASK_STATUS.OK);

@@ -119,6 +119,12 @@ export function familyMetrics(rows) {
       brier: round(mean(measured.map((r) => r.measurement.brier).filter(isNum))),
       logLoss: round(mean(measured.map((r) => r.measurement.logLoss).filter(isNum))),
       topClassAccuracy: top.length ? round(top.filter((r) => r.measurement.topClassHit).length / top.length) : null,
+      // A score table (classes = listed scores + OTHER): the hit means "the single likeliest LISTED score was the final"
+      // — a top-1 exact-score hit rate, never a pooled accuracy. Brier/log loss above run over the full, normalized
+      // outcome space including OTHER.
+      topClassLabel: "OTHER" in (rows[0]?.classProbabilities ?? {})
+        ? "top-1 exact-score hit rate (how often our single likeliest listed score was the exact final)"
+        : null,
       uniformReference: { logLoss: round(Math.log(k)), brier: round(1 - 1 / k) },
     };
   }
@@ -154,10 +160,15 @@ export const FAMILY_LABELS = Object.freeze({
   mlb_run_line: "Run line pick",
   mlb_total: "Total runs pick",
   mlb_homer_nukes: "Home run (Homer Nukes)",
+  mlb_projected_runs: "Projected runs (median simulation score)",
+  mlb_projected_total: "Projected total runs (simulation median)",
   epl_1x2: "Match result (1X2)",
   epl_over_2_5: "Over 2.5 goals",
   epl_anytime_goalscorer: "Anytime goalscorer",
   epl_shots_on_goal_over_0_5: "1+ shot on target",
+  epl_btts: "Both teams to score",
+  epl_clean_sheet: "Clean sheet",
+  epl_scoreline: "Correct score (top-10 table)",
   ligue1_1x2: "Match result (1X2)",
   ufc_winner: "Fight winner",
 });
