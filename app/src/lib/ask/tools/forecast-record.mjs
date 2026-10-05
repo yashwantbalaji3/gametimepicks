@@ -4,11 +4,13 @@
  * Results V2 owner's own numbers, and history rows are the ledger's own rows, filtered.
  *
  *   getForecastFamilyPerformance  how one forecast type has done, with the yardstick its kind calls for
- *   getForecastHistory            one player's / game's individual published forecasts and how each turned out
+ *   getForecastHistory            one player's / game's individual published forecasts and how each turned out (a subject
+ *                                 with no rows fails closed — never "0 forecasts")
  *
  * THE RULES THESE KEEP (each one an LLM would otherwise break):
  *   1. NO POOLED ACCURACY. A family returns its own metrics; there is no all-families number to quote.
- *   2. A PROJECTION HAS NO W–L. A pick record is returned ONLY where the owner graded a published pick (basis named).
+ *   2. A PROJECTION HAS NO W–L. A record is returned ONLY where the owner graded a directional claim, with the basis it
+ *      graded (a published pick, or the side a projection or probability pointed to).
  *   3. PENDING, VOID AND WITHDRAWN ARE NEVER MISSES. Each row carries its state in words; only measured rows carry a score.
  *   4. A FILTERED LIST IS NOT A RECORD. History returns the matched rows and how many matched — never a hit rate over
  *      a window the owner did not publish.
@@ -112,20 +114,58 @@ export async function getForecastHistory(args, ctx) {
   if (args.playerId) rows = rows.filter((r) => r.subjectId === args.playerId);
   if (args.teamId) rows = rows.filter((r) => r.subjectId === args.teamId);
   if (args.gameId) rows = rows.filter((r) => r.subjectId === args.gameId || r.matchup === args.gameId);
+  /*
+   * ⚠ FAIL CLOSED, NEVER "0 FORECASTS" (2026-10-05 audit). Game-level rows (MLB moneyline / run line / total, NFL
+   * winner / total / margin, EPL 1X2 / over 2.5, UFC winner) are keyed by the GAME, so a team, club or fighter id matched
+   * nothing — and the evidence then said "GameTime published 0 forecasts", which a writer turned into "GameTime has not
+   * published any match forecasts for Arsenal". Arsenal has graded match forecasts. A subject with no rows here is a
+   * subject this tool cannot list, said as that, with the Forecast Record linked; it is never an empty record.
+   */
+  const subjectTotal = rows.length;
+  const subjectName = rows[0]?.subject ?? null;
+  const familyLink = args.family ? (idx.doc.families ?? []).find((f) => f.sport === sport && f.family === args.family) : null;
+  const recordLinks = [RECORD_LINK, ...(familyLink ? [{ id: `fr-${familyLink.family}`, label: `${sport} ${familyLink.label} record`, href: familyLink.href }] : [])];
+  if (!subjectTotal) {
+    const what = args.teamId ? "team or club" : args.gameId ? "game" : sport === "UFC" ? "fighter" : "player";
+    return {
+      status: ASK_STATUS.UNSUPPORTED,
+      error: ASK_ERROR.UNSUPPORTED_DATA,
+      detail: `forecast history for that ${what} is not available through Ask yet; the Forecast Record pages list every graded ${sport} forecast`,
+      links: recordLinks,
+    };
+  }
+  /* A team's rows here are NFL team-score projections only; its game-level forecasts are not reachable by team yet. */
+  const scopeNote = args.teamId
+    ? `these are ${sport} team-score projections only; game-level forecasts involving this team (winner, total, margin) are listed on the Forecast Record pages, not here`
+    : null;
   if (args.family) rows = rows.filter((r) => r.family === args.family);
   if (args.minProjection != null) rows = rows.filter((r) => typeof r.projection === "number" && r.projection > args.minProjection);
   if (args.maxProjection != null) rows = rows.filter((r) => typeof r.projection === "number" && r.projection < args.maxProjection);
   if (args.settledOnly) rows = rows.filter((r) => r.state === "SETTLED");
   const matched = rows.length;
-  const labels = new Map((idx.doc.families ?? []).filter((f) => f.sport === sport).map((f) => [f.family, f.label]));
-  const shown = rows.slice(0, args.limit ?? 5).map((r) => ({ ...r, familyLabel: labels.get(r.family) ?? r.family }));
-  const fam = args.family ? (idx.doc.families ?? []).find((f) => f.sport === sport && f.family === args.family) : null;
+  /* A team filtered down to nothing is the same unreachable game-level history (e.g. family nfl_game_winner): fail closed. */
+  if (args.teamId && !matched) {
+    return {
+      status: ASK_STATUS.UNSUPPORTED,
+      error: ASK_ERROR.UNSUPPORTED_DATA,
+      detail: `forecast history for that team or club is not available through Ask yet; the Forecast Record pages list every graded ${sport} forecast`,
+      links: recordLinks,
+    };
+  }
+  const sportFamilies = (idx.doc.families ?? []).filter((f) => f.sport === sport);
+  const labels = new Map(sportFamilies.map((f) => [f.family, f.label]));
+  /* What a row's WIN / LOSS grades — the family's own basis, so a graded side is never called "the published pick". */
+  const bases = new Map(sportFamilies.map((f) => [f.family, f.pickRecord?.basis ?? null]));
+  const shown = rows.slice(0, args.limit ?? 5).map((r) => ({ ...r, familyLabel: labels.get(r.family) ?? r.family, pickBasis: r.pick ? bases.get(r.family) ?? null : null }));
+  const fam = familyLink;
   return {
     status: ASK_STATUS.OK,
     sport,
     subjectId: args.playerId ?? args.teamId ?? args.gameId,
-    subject: shown[0]?.subject ?? null,
+    subject: shown[0]?.subject ?? subjectName,
     matched,
+    subjectTotal,
+    scopeNote,
     returned: shown.length,
     rows: shown,
     asOf: idx.doc.asOf ?? null,
