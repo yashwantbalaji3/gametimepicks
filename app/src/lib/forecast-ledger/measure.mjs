@@ -4,7 +4,7 @@
  * One forecast observation carries ONE measurement object, whose fields depend on what kind of claim it was:
  *   CONTINUOUS  → absoluteError, squaredError, signedError (projection − actual: positive = over-projected),
  *                 insideRange (only if a range was printed)
- *   BINARY      → brier, logLoss
+ *   BINARY      → brier, logLoss, observed (the 0/1 outcome scored)
  *   MULTICLASS  → brier (sum over classes), logLoss, topClassHit
  * plus, on any kind, the OWNER's directional word (WIN / LOSS / PUSH / VOID) — carried only when the owner graded a
  * directional claim that was actually published, with `directionalBasis` naming that claim. A continuous projection
@@ -27,6 +27,7 @@ export const EMPTY_MEASUREMENT = Object.freeze({
   brier: null,
   logLoss: null,
   topClassHit: null,
+  observed: null,
   directionalResult: null,
   directionalBasis: null,
 });
@@ -50,6 +51,7 @@ export function measureBinary({ probability, observed }) {
   return {
     ...EMPTY_MEASUREMENT,
     type: "PROBABILITY_SCORE",
+    observed,
     brier: r6((p - observed) ** 2),
     logLoss: r6(observed === 1 ? -Math.log(p) : -Math.log(1 - p)),
   };

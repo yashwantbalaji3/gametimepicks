@@ -49,6 +49,7 @@ import {
 } from "@/lib/data-parlays";
 import { currentEtDate } from "@/lib/freshness";
 import { readNflWeekReports, pct as pctRate } from "@/lib/sports/nfl/week-report-data";
+import { forecastRecordView } from "@/lib/results/v2/forecast-ledger-reader";
 import { resultsMode } from "@/lib/sport-capability-registry";
 import FreshnessBadge from "@/components/ui/freshness-badge";
 import { PUBLIC_PARLAY_RESULTS_START_DATE } from "@/lib/public-parlay-era";
@@ -158,6 +159,7 @@ function overviewProducts(): OverviewProduct[] {
 export default function ResultsPage() {
   const summary = getOptimizerSummary();
   const nflWeek = readNflWeekReports();
+  const forecastKpis = forecastRecordView().kpis;
 
   // Leg-level PROJECTION accuracy (the model-quality lead) — settled-only,
   // sourced from lifetime_summary.json (NBA = results/, MLB = mlb/results/).
@@ -284,6 +286,32 @@ export default function ResultsPage() {
       <ResultsOverview populations={overviewPopulations()} products={overviewProducts()} seedToday={currentEtDate()} />
       <LatestTopBoard />
       <TrendingOnOurBoards trending={latestTrending()} />
+      {forecastKpis.forecasts > 0 ? (
+        <section
+          aria-label="Forecast record"
+          className="mb-6 rounded-[10px] px-4 py-3 flex flex-wrap items-center justify-between gap-3"
+          style={{ border: "1px solid var(--vault-border-strong)", background: "var(--gtp-card)" }}
+        >
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
+              Forecast record · every sport
+            </span>
+            <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 16, lineHeight: 1.3 }}>
+              {forecastKpis.measured.toLocaleString("en-US")} published forecasts measured against the official result
+            </span>
+            <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
+              {forecastKpis.forecasts.toLocaleString("en-US")} forecasts across {forecastKpis.sports} sports and {forecastKpis.families} forecast types, each counted once and scored with the right yardstick for its kind. Not-final, void and withdrawn forecasts are shown, never counted as misses.
+            </span>
+          </div>
+          <Link
+            href="/results/forecasts/"
+            className="font-mono uppercase tracking-[0.12em] px-3.5 py-2 rounded-full shrink-0"
+            style={{ color: "var(--vault-gold-bright)", border: "1px solid var(--vault-gold-bright)", fontSize: 12, lineHeight: 1.1 }}
+          >
+            See the forecast record →
+          </Link>
+        </section>
+      ) : null}
       <h2 className="font-display m-0 mb-3 text-[20px]" style={{ color: "var(--vault-text)" }}>Detailed record</h2>
       <ResultsExplorer
         rows={buildResultRows(resultSources()) as ResultRow[]}
@@ -342,9 +370,13 @@ export default function ResultsPage() {
         style={{ border: "1px solid var(--vault-border-strong)" }}
       >
         <div className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
-          Five separate records · never blended
+          Six separate records · never blended
         </div>
         <ul className="mt-2 flex flex-col gap-1.5" style={{ fontSize: 12.5, lineHeight: 1.55, listStyle: "none", padding: 0 }}>
+          <li>
+            <Link href="/results/forecasts/" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>Forecast record</Link>
+            <span style={{ color: "var(--vault-text-mute)" }}> — every forecast we published in every sport, counted once and measured with the right yardstick for its kind (projection miss, probability calibration); no single accuracy number.</span>
+          </li>
           <li>
             <Link href="/results/picks" style={{ color: "var(--gtp-bank-heat)", fontWeight: 600 }}>Model picks</Link>
             <span style={{ color: "var(--vault-text-mute)" }}> — every published per-sport model read vs the official outcome; graded from official results only.</span>
