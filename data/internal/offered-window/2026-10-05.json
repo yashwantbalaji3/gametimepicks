@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "offered-window-matrix",
   "dataClass": "INTERNAL_DERIVED",
-  "generatedAt": "2026-10-05T12:20:15Z",
+  "generatedAt": "2026-10-05T15:21:09Z",
   "date": "2026-10-05",
   "state": "FINDINGS",
   "sports": [
@@ -17,48 +17,17 @@
         "SETTLED": 0,
         "STARTED": 0,
         "REFUSED": 0,
-        "PUBLISHED": 0,
+        "PUBLISHED": 2,
         "FORECAST_READY": 0,
         "OFFERED_PRICED": 0,
         "OFFERED_UNPRICED": 0,
-        "NOT_YET_CAPTURED": 2,
+        "NOT_YET_CAPTURED": 0,
         "ACQUISITION_UNSCHEDULED": 0,
         "ACQUISITION_UNAUTHORIZED": 0,
         "NOT_OFFERED": 0
       },
       "owed": [],
-      "awaited": [
-        {
-          "sport": "mlb",
-          "providerEventId": "849834",
-          "canonicalId": "mlb-849834",
-          "startUtc": "2026-10-05T21:00:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": null,
-          "forecastRevision": null,
-          "publicRoute": "/games/mlb/sox-vs-gua-2026-10-05/",
-          "settlementId": "849834",
-          "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T19:30:00.000Z",
-          "state": "NOT_YET_CAPTURED",
-          "reason": "scheduled 2026-10-05T21:00:00Z; the board is built ~90 minutes before first pitch"
-        },
-        {
-          "sport": "mlb",
-          "providerEventId": "849839",
-          "canonicalId": "mlb-849839",
-          "startUtc": "2026-10-06T00:00:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": null,
-          "forecastRevision": null,
-          "publicRoute": "/games/mlb/yan-vs-ray-2026-10-05/",
-          "settlementId": "849839",
-          "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T22:30:00.000Z",
-          "state": "NOT_YET_CAPTURED",
-          "reason": "scheduled 2026-10-06T00:00:00Z; the board is built ~90 minutes before first pitch"
-        }
-      ],
+      "awaited": [],
       "findings": [],
       "rows": [
         {
@@ -66,34 +35,40 @@
           "providerEventId": "849834",
           "canonicalId": "mlb-849834",
           "startUtc": "2026-10-05T21:00:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": null,
+          "marketFamilies": [
+            "team",
+            "player"
+          ],
+          "acquisitionAt": "2026-10-05T12:22:28.893464+00:00",
           "forecastRevision": null,
           "publicRoute": "/games/mlb/sox-vs-gua-2026-10-05/",
           "settlementId": "849834",
-          "sourceAgeHours": null,
+          "sourceAgeHours": 2.9778075,
           "nextDeadlineUtc": "2026-10-05T19:30:00.000Z",
-          "state": "NOT_YET_CAPTURED",
-          "reason": "scheduled 2026-10-05T21:00:00Z; the board is built ~90 minutes before first pitch"
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "mlb",
           "providerEventId": "849839",
           "canonicalId": "mlb-849839",
           "startUtc": "2026-10-06T00:00:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": null,
+          "marketFamilies": [
+            "team",
+            "player"
+          ],
+          "acquisitionAt": "2026-10-05T12:22:28.893464+00:00",
           "forecastRevision": null,
           "publicRoute": "/games/mlb/yan-vs-ray-2026-10-05/",
           "settlementId": "849839",
-          "sourceAgeHours": null,
+          "sourceAgeHours": 2.9778075,
           "nextDeadlineUtc": "2026-10-05T22:30:00.000Z",
-          "state": "NOT_YET_CAPTURED",
-          "reason": "scheduled 2026-10-06T00:00:00Z; the board is built ~90 minutes before first pitch"
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         }
       ],
       "conserved": true,
-      "windowDate": "2026-10-04"
+      "windowDate": "2026-10-05"
     },
     {
       "sport": "nfl",
@@ -131,7 +106,7 @@
           "forecastRevision": "b9ee7113d38b42e2",
           "publicRoute": "/nfl/game/401872971/",
           "settlementId": "401872971",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -148,7 +123,7 @@
           "forecastRevision": "77f999c573ed4310",
           "publicRoute": "/nfl/game/401872972/",
           "settlementId": "401872972",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -165,7 +140,7 @@
           "forecastRevision": "cb818bf570a55da1",
           "publicRoute": "/nfl/game/401872969/",
           "settlementId": "401872969",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -182,7 +157,7 @@
           "forecastRevision": "26f98bef2ac80f4e",
           "publicRoute": "/nfl/game/401872966/",
           "settlementId": "401872966",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -199,7 +174,7 @@
           "forecastRevision": "e6445960890a3b71",
           "publicRoute": "/nfl/game/401872970/",
           "settlementId": "401872970",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -216,7 +191,7 @@
           "forecastRevision": "86d5a78329b4ac56",
           "publicRoute": "/nfl/game/401872968/",
           "settlementId": "401872968",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -233,7 +208,7 @@
           "forecastRevision": "23b7aa1172096a43",
           "publicRoute": "/nfl/game/401872973/",
           "settlementId": "401872973",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -250,7 +225,7 @@
           "forecastRevision": "82cbb03ceaa7ce25",
           "publicRoute": "/nfl/game/401872967/",
           "settlementId": "401872967",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -267,7 +242,7 @@
           "forecastRevision": "6849b354bc71d5b7",
           "publicRoute": "/nfl/game/401872974/",
           "settlementId": "401872974",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -284,7 +259,7 @@
           "forecastRevision": "db0251c027f92507",
           "publicRoute": "/nfl/game/401872976/",
           "settlementId": "401872976",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -301,7 +276,7 @@
           "forecastRevision": "c637b6330e4b77f0",
           "publicRoute": "/nfl/game/401872975/",
           "settlementId": "401872975",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -318,7 +293,7 @@
           "forecastRevision": "ca08db36cdc6f3c7",
           "publicRoute": "/nfl/game/401872977/",
           "settlementId": "401872977",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -335,7 +310,7 @@
           "forecastRevision": "8ca11225789ba664",
           "publicRoute": "/nfl/game/401872978/",
           "settlementId": "401872978",
-          "sourceAgeHours": 12.591666666666667,
+          "sourceAgeHours": 15.606666666666667,
           "nextDeadlineUtc": null,
           "state": "STARTED",
           "reason": "the event has begun; nothing new may be generated for it"
@@ -352,8 +327,8 @@
           "forecastRevision": "5d85874f4d0ffe42",
           "publicRoute": "/nfl/game/401872979/",
           "settlementId": "401872979",
-          "sourceAgeHours": 12.591666666666667,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "sourceAgeHours": 15.606666666666667,
+          "nextDeadlineUtc": null,
           "state": "PUBLISHED",
           "reason": "reached a public surface"
         },
@@ -368,7 +343,7 @@
           "publicRoute": "/nfl/game/401872980/",
           "settlementId": "401872980",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -383,7 +358,7 @@
           "publicRoute": "/nfl/game/401872981/",
           "settlementId": "401872981",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -398,7 +373,7 @@
           "publicRoute": "/nfl/game/401872990/",
           "settlementId": "401872990",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -413,7 +388,7 @@
           "publicRoute": "/nfl/game/401872984/",
           "settlementId": "401872984",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -428,7 +403,7 @@
           "publicRoute": "/nfl/game/401872982/",
           "settlementId": "401872982",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -443,7 +418,7 @@
           "publicRoute": "/nfl/game/401872986/",
           "settlementId": "401872986",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -458,7 +433,7 @@
           "publicRoute": "/nfl/game/401872987/",
           "settlementId": "401872987",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -473,7 +448,7 @@
           "publicRoute": "/nfl/game/401872983/",
           "settlementId": "401872983",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -488,7 +463,7 @@
           "publicRoute": "/nfl/game/401872985/",
           "settlementId": "401872985",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -503,7 +478,7 @@
           "publicRoute": "/nfl/game/401872988/",
           "settlementId": "401872988",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -518,7 +493,7 @@
           "publicRoute": "/nfl/game/401872989/",
           "settlementId": "401872989",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -533,7 +508,7 @@
           "publicRoute": "/nfl/game/401872991/",
           "settlementId": "401872991",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -548,7 +523,7 @@
           "publicRoute": "/nfl/game/401872992/",
           "settlementId": "401872992",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -563,7 +538,7 @@
           "publicRoute": "/nfl/game/401872993/",
           "settlementId": "401872993",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -578,7 +553,7 @@
           "publicRoute": "/nfl/game/401872994/",
           "settlementId": "401872994",
           "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-05T15:00:00.000Z",
+          "nextDeadlineUtc": "2026-10-06T15:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         }
@@ -618,8 +593,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401916276",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -633,8 +608,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927415",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -648,8 +623,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401924510",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -663,8 +638,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927416",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -678,8 +653,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927417",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -693,8 +668,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927421",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -708,8 +683,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401916277",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -723,8 +698,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927419",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -738,8 +713,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927420",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -753,8 +728,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401924512",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -768,8 +743,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401924511",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         }
@@ -786,8 +761,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401916276",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -801,8 +776,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927415",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -816,8 +791,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401924510",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -831,8 +806,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927416",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -846,8 +821,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927417",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -861,8 +836,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927421",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -876,8 +851,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401916277",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -891,8 +866,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927419",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -906,8 +881,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927420",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -921,8 +896,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401927418",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "NOT_OFFERED",
           "reason": "the provider lists no supported market — evidence, not an outage"
         },
@@ -936,8 +911,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401924512",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         },
@@ -951,8 +926,8 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401924511",
-          "sourceAgeHours": 45.23583333333333,
-          "nextDeadlineUtc": "2026-10-05T13:00:00.000Z",
+          "sourceAgeHours": 48.25083333333333,
+          "nextDeadlineUtc": "2026-10-06T13:00:00.000Z",
           "state": "FORECAST_READY",
           "reason": "a pre-start model artifact exists"
         }
@@ -996,10 +971,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#arsenal-v-leeds-united-2026-10-10",
           "settlementId": "soccer:epl:arsenal-v-leeds-united:20261010t1130",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1014,10 +989,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#sunderland-v-brighton-and-hove-albion-2026-10-10",
           "settlementId": "soccer:epl:brighton-hove-albion-v-sunderland:20261010t1400",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1032,10 +1007,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#chelsea-v-bournemouth-2026-10-10",
           "settlementId": "soccer:epl:bournemouth-v-chelsea:20261010t1400",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1050,10 +1025,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#ipswich-town-v-fulham-2026-10-10",
           "settlementId": "soccer:epl:fulham-v-ipswich-town:20261010t1400",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1068,10 +1043,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#aston-villa-v-brentford-2026-10-10",
           "settlementId": "soccer:epl:aston-villa-v-brentford:20261010t1400",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1086,10 +1061,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#manchester-united-v-tottenham-hotspur-2026-10-10",
           "settlementId": "soccer:epl:manchester-united-v-tottenham-hotspur:20261010t1630",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1104,10 +1079,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#hull-city-v-everton-2026-10-11",
           "settlementId": "soccer:epl:everton-v-hull-city:20261011t1300",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1122,10 +1097,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#crystal-palace-v-nottingham-forest-2026-10-11",
           "settlementId": "soccer:epl:crystal-palace-v-nottingham-forest:20261011t1300",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1140,10 +1115,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#liverpool-v-manchester-city-2026-10-11",
           "settlementId": "soccer:epl:liverpool-v-manchester-city:20261011t1530",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1158,10 +1133,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#coventry-city-v-newcastle-united-2026-10-12",
           "settlementId": "soccer:epl:coventry-city-v-newcastle-united:20261012t1900",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         }
       ],
       "rows": [
@@ -1178,10 +1153,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#arsenal-v-leeds-united-2026-10-10",
           "settlementId": "soccer:epl:arsenal-v-leeds-united:20261010t1130",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1196,10 +1171,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#sunderland-v-brighton-and-hove-albion-2026-10-10",
           "settlementId": "soccer:epl:brighton-hove-albion-v-sunderland:20261010t1400",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1214,10 +1189,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#chelsea-v-bournemouth-2026-10-10",
           "settlementId": "soccer:epl:bournemouth-v-chelsea:20261010t1400",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1232,10 +1207,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#ipswich-town-v-fulham-2026-10-10",
           "settlementId": "soccer:epl:fulham-v-ipswich-town:20261010t1400",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1250,10 +1225,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#aston-villa-v-brentford-2026-10-10",
           "settlementId": "soccer:epl:aston-villa-v-brentford:20261010t1400",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1268,10 +1243,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#manchester-united-v-tottenham-hotspur-2026-10-10",
           "settlementId": "soccer:epl:manchester-united-v-tottenham-hotspur:20261010t1630",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1286,10 +1261,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#hull-city-v-everton-2026-10-11",
           "settlementId": "soccer:epl:everton-v-hull-city:20261011t1300",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1304,10 +1279,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#crystal-palace-v-nottingham-forest-2026-10-11",
           "settlementId": "soccer:epl:crystal-palace-v-nottingham-forest:20261011t1300",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1322,10 +1297,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#liverpool-v-manchester-city-2026-10-11",
           "settlementId": "soccer:epl:liverpool-v-manchester-city:20261011t1530",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         },
         {
           "sport": "epl",
@@ -1340,10 +1315,10 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#coventry-city-v-newcastle-united-2026-10-12",
           "settlementId": "soccer:epl:coventry-city-v-newcastle-united:20261012t1900",
-          "sourceAgeHours": 373.74694444444447,
+          "sourceAgeHours": 376.76194444444445,
           "nextDeadlineUtc": "2026-10-08T21:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 373.7h old against a 120h bound"
+          "reason": "newest capture is 376.8h old against a 120h bound"
         }
       ],
       "conserved": true,
