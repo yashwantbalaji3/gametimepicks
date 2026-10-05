@@ -1,5 +1,5 @@
 /**
- * SECOND-CHANCE FIGHTER MATCHING — for the three ways a book writes a name differently from a card.
+ * SECOND-CHANCE FIGHTER MATCHING — for the ways a book writes a name differently from a card.
  *
  * WHAT THIS RECOVERED. On the Aug-29 Shanghai card, five of thirteen bouts published unpriced. The
  * coverage classifier's fighter-identity test proved the book HAD all five, and reading the five
@@ -54,12 +54,73 @@ export function looseForms(foldedName) {
   };
 }
 
-/** True when two folded names are the same fighter under either loose form. */
+/*
+ * SHORT AND LONG FORMS OF ONE GIVEN NAME (2026-10-05).
+ *
+ * UFC 332 (2026-10-03) priced 12 of 14 bouts. The two it missed were on the book under a different
+ * FIRST name, same family name:
+ *
+ *   card "Alexander Hernandez" ↔ provider "alex hernandez"   — short form is a prefix of the long
+ *   card "Mick Parkin"         ↔ provider "michael parkin"   — a nickname no prefix rule reaches
+ *
+ * The rule is narrow on purpose: the family name (every token after the first, suffixes dropped)
+ * must be IDENTICAL, and the first names must be a known short/long pair — either one is a prefix of
+ * the other (three letters at least), or both sit in the same row of the short table below. The
+ * table is a list of pairs we have seen or that are unambiguous in English; it is not a guess at what
+ * a name "might" be short for. "Alex Perez" and "Alex Pereira" still never meet: the family names
+ * differ.
+ */
+const GIVEN_NAME_FORMS = [
+  ["michael", "mick", "mike", "mikey", "mickey"],
+  ["william", "will", "bill", "billy", "liam"],
+  ["robert", "rob", "bob", "bobby", "robbie"],
+  ["richard", "rick", "rich", "dick", "ricky"],
+  ["joseph", "joe", "joey"],
+  ["james", "jim", "jimmy", "jamie"],
+  ["anthony", "tony"],
+  ["nicholas", "nick", "nicky"],
+  ["christopher", "chris"],
+  ["matthew", "matt"],
+  ["benjamin", "ben"],
+  ["daniel", "dan", "danny"],
+  ["jonathan", "jon", "jonny"],
+  ["thomas", "tom", "tommy"],
+  ["edward", "ed", "eddie"],
+  ["charles", "charlie", "chuck"],
+  ["steven", "steve"],
+  ["stephen", "steve"],
+];
+const SAME_GIVEN = new Map();
+for (const row of GIVEN_NAME_FORMS) for (const n of row) {
+  const set = SAME_GIVEN.get(n) ?? new Set();
+  for (const m of row) set.add(m);
+  SAME_GIVEN.set(n, set);
+}
+
+/** True when two folded given names are the short and long form of one name. */
+export function sameGivenName(x, y) {
+  if (!x || !y) return false;
+  if (x === y) return true;
+  const [short, long] = x.length <= y.length ? [x, y] : [y, x];
+  if (short.length >= 3 && long.startsWith(short)) return true;
+  return SAME_GIVEN.get(x)?.has(y) ?? false;
+}
+
+/** Same family name, given names a known short/long pair: "alex hernandez" ↔ "alexander hernandez". */
+export function sameFighterByGivenName(a, b) {
+  const x = base(a).split(" ").filter(Boolean);
+  const y = base(b).split(" ").filter(Boolean);
+  if (x.length < 2 || y.length < 2) return false;
+  if (x.slice(1).join(" ") !== y.slice(1).join(" ")) return false;
+  return sameGivenName(x[0], y[0]);
+}
+
+/** True when two folded names are the same fighter under either loose form, or a given-name pair. */
 export function looselySameFighter(a, b) {
   const x = looseForms(a);
   const y = looseForms(b);
   if (!x || !y) return false;
-  return x.joined === y.joined || x.ordered === y.ordered;
+  return x.joined === y.joined || x.ordered === y.ordered || sameFighterByGivenName(a, b);
 }
 
 /**
