@@ -49,6 +49,22 @@ test("a delayed start inside the tolerance still matches; teams must match exact
   assert.equal(matchEventToGamePk({ away: TB, home: NYY, commenceTime: null }, sched0922).reason, "NO_EVENT_TIME");
 });
 
+test("times are compared as UTC instants: an offset form matches, a zoneless string is refused", () => {
+  // 13:05 EDT (-04:00) is 17:05Z: the same instant as game 1 of the 09-22 doubleheader.
+  assert.equal(matchEventToGamePk({ away: TB, home: NYY, commenceTime: "2026-09-22T13:05:00-04:00" }, sched0922).gamePk, 823543);
+  assert.equal(matchEventToGamePk({ away: TB, home: NYY, commenceTime: "2026-09-22T17:05:00.000Z" }, sched0922).gamePk, 823543);
+  // No zone: it would be read in the runner's local time, so it is not trusted.
+  assert.equal(matchEventToGamePk({ away: TB, home: NYY, commenceTime: "2026-09-22T17:05:00" }, sched0922).reason, "NO_EVENT_TIME");
+  assert.equal(matchEventToGamePk({ away: TB, home: NYY, commenceTime: "2026-09-22T17:05:00Z" }, [{ ...sched0922[0], commenceTime: "2026-09-22 17:05" }]).gamePk, null);
+});
+
+test("an ambiguous event is never resolved by team names alone", () => {
+  // Both games share the teams; with no time that separates them the result is null, not either gamePk.
+  for (const commenceTime of ["2026-09-25T20:05:00Z", "2026-09-25T20:10:00Z", "2026-09-25T21:00:00Z"]) {
+    assert.equal(matchEventToGamePk({ away: BAL, home: NYY, commenceTime }, sched0925).gamePk, null, commenceTime);
+  }
+});
+
 test("the reverse join refuses a doubleheader without start times and respects the time window", () => {
   const events = [
     { id: "g1", away: TB, home: NYY, commenceTime: "2026-09-22T17:05:00Z" },

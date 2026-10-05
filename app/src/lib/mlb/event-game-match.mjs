@@ -17,7 +17,10 @@
 
 export const EVENT_MATCH_TOLERANCE_MINUTES = 90;
 
-const t = (s) => (typeof s === "string" ? Date.parse(s) : NaN);
+/* Canonical instants only: an ISO-8601 time WITH an explicit zone (Z or ±hh:mm), compared as UTC epoch ms. A
+   zoneless string would be read in the runner's local zone, so it is treated as no time at all (refused). */
+const ZONED_ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
+const t = (s) => (typeof s === "string" && ZONED_ISO.test(s) ? Date.parse(s) : NaN);
 
 /**
  * @param {{ away: string, home: string, commenceTime: string }} event
