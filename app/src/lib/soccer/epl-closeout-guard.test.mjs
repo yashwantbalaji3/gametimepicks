@@ -42,6 +42,12 @@ const CROSS_LANE_READERS = [
    */
   "src/lib/sports/graded-pick-owners.mjs",
   "src/lib/results/v2",
+  /*
+   * Session 13 · the Universal Forecast Ledger: one append-only row per published forecast of EVERY sport, read
+   * from each sport's settlement owner (for EPL: the match and player grade logs). Read-only, renders nothing, no
+   * World Cup path — the same cross-sport role as the Results read model above.
+   */
+  "src/lib/forecast-ledger",
   // data-platform (v1.2): the internal canonical store normalizes EPL fixture identity and names the lane's
   // committed artifacts as provenance. It is read-only, renders nothing, and no surface imports it
   // (data-platform/boundary.test.mjs B1) — a cross-sport registry, like learning-paths below.
