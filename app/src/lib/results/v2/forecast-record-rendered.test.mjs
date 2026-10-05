@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { forecastRecordView, ledgerFamilies, familyRows, SPORT_SLUGS } from "./forecast-ledger-reader.ts";
+import { forecastRecordView, ledgerFamilies, familyRows, SPORT_SLUGS, researchHrefFor, subjectRows, familyHref } from "./forecast-ledger-reader.ts";
 
 const OUT = path.join(process.cwd(), "out");
 const html = (rel) => fs.readFileSync(path.join(OUT, rel), "utf8");
@@ -49,3 +49,44 @@ test("every family page exists, counts its rows, ships a matching CSV and stays 
     assert.equal(fs.readFileSync(csv, "utf8").trimEnd().split("\n").length - 1, n, `${slug}: CSV rows = page rows`);
   }
 });
+
+// ── Research V2 (Session 13): the intelligence graph's links exist in the built pages ─────────────────────────────
+
+test("a player's Research page shows their own forecast history, and links each forecast type's record", { skip: !fs.existsSync(OUT) && "no built export" }, () => {
+  // Every ledger player with a Research page, sampled deterministically: the first 25 by id.
+  const { rows } = readLedgerForTest();
+  const ids = [...new Set(rows.filter((r) => r.subjectType === "PLAYER").map((r) => r.subjectId))].sort().filter((id) => researchHrefFor(id)).slice(0, 25);
+  assert.ok(ids.length >= 10, `players with a Research page and ledger rows: ${ids.length}`);
+  let checked = 0;
+  for (const id of ids) {
+    const href = researchHrefFor(id);
+    const rel = `${href.replace(/^\//, "")}index.html`;
+    if (!fs.existsSync(path.join(OUT, rel))) continue;
+    checked += 1;
+    const h = html(rel);
+    const t = mainText(h);
+    const n = subjectRows(id).length;
+    assert.match(t, /Our forecasts for /, `${href}: history section`);
+    assert.ok(t.includes(`${n} published forecast${n === 1 ? "" : "s"}`), `${href}: states ${n} forecasts`);
+    const fam = subjectRows(id)[0];
+    assert.ok(h.includes(familyHref(fam.sport, fam.family)), `${href}: links its forecast type's record`);
+  }
+  assert.ok(checked >= 10, `only ${checked} player pages were built — the guard would be vacuous`);
+});
+
+test("family pages link players to Research; Model Lab links every family's record", { skip: !fs.existsSync(OUT) && "no built export" }, () => {
+  const fam = html("results/forecasts/nfl/player-receptions/index.html");
+  assert.match(fam, /href="\/players\/nfl\/[a-z0-9-]+\/"/, "a forecast row links its player's Research page");
+  const models = html("models/index.html");
+  for (const { sport, family } of ledgerFamilies()) assert.ok(models.includes(familyHref(sport, family)), `/models links ${sport} ${family}`);
+});
+
+function readLedgerForTest() {
+  return { rows: readAll() };
+}
+function readAll() {
+  const dir = path.resolve(process.cwd(), "..", "data/internal/forecast-ledger/v1");
+  const out = [];
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".jsonl"))) for (const l of fs.readFileSync(path.join(dir, f), "utf8").split("\n")) if (l.trim()) out.push(JSON.parse(l));
+  return out;
+}

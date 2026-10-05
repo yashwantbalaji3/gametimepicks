@@ -56,3 +56,30 @@ export function familyRows(sport: string, family: string): LedgerRow[] {
     .filter((r) => r.sport === sport && r.family === family)
     .sort((a, b) => String(b.eventStart ?? b.publishedAt ?? "").localeCompare(String(a.eventStart ?? a.publishedAt ?? "")) || (a.forecastId < b.forecastId ? -1 : 1));
 }
+
+/** One subject's ledger rows (canonical entity id), newest first — Research's player/team forecast history. */
+let bySubject: Map<string, LedgerRow[]> | null = null;
+export function subjectRows(subjectId: string): LedgerRow[] {
+  if (!bySubject) {
+    bySubject = new Map();
+    for (const r of readForecastLedger().rows) {
+      const a = bySubject.get(r.subjectId) ?? [];
+      a.push(r);
+      bySubject.set(r.subjectId, a);
+    }
+    for (const a of bySubject.values()) a.sort((x, y) => String(y.eventStart ?? y.publishedAt ?? "").localeCompare(String(x.eventStart ?? x.publishedAt ?? "")) || (x.forecastId < y.forecastId ? -1 : 1));
+  }
+  return bySubject.get(subjectId) ?? [];
+}
+
+let researchPaths: Map<string, string> | null = null;
+/** The Research page of a canonical entity id (research-projection index), or null — never a guessed URL. */
+export function researchHrefFor(subjectId: string | null | undefined): string | null {
+  if (!subjectId) return null;
+  if (!researchPaths) {
+    const p = path.resolve(process.cwd(), "..", "data/research-projection/v1/index.json");
+    const idx = fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, "utf8")) : { entries: [] };
+    researchPaths = new Map((idx.entries ?? []).filter((e: any) => e.id && e.path).map((e: any) => [e.id, e.path]));
+  }
+  return researchPaths.get(subjectId) ?? null;
+}

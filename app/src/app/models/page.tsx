@@ -13,6 +13,7 @@ import ModelStatusChip from "@/components/command-center/model-status-chip";
 import { buildModelLab, type LabDecision } from "@/lib/command-center/model-lab";
 import { PUBLIC_STATE_LABEL, PUBLIC_STATE_MEANING, type PublicModelState } from "@/lib/command-center/contract";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { familyHref, forecastRecordView } from "@/lib/results/v2/forecast-ledger-reader";
 
 export const metadata: Metadata = withRouteMetadata("/models/", {
   title: "Model Lab — GameTime Picks",
@@ -37,6 +38,7 @@ function Section({ id, title, sub, children }: { id: string; title: string; sub:
 
 export default function ModelLabPage() {
   const lab = buildModelLab({ dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString() });
+  const forecastRecord = forecastRecordView();
   const statesInUse = new Set<PublicModelState>([...lab.live.flatMap((l) => l.items.map((i) => i.state)), ...lab.experiments.map((e) => e.state)]);
   return (
     <div className="vault-page-shell flex flex-col gap-8">
@@ -47,7 +49,7 @@ export default function ModelLabPage() {
           Every model here was scored on past games it had never seen before it went live, is graded on every new game after, and can be paused or replaced by its own record. This page reads those receipts; it does not restate them.
         </p>
         <nav aria-label="Model Lab sections" className="flex flex-wrap gap-2 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10 }}>
-          {[["#live", "Live models"], ["#experiments", "Experiments"], ["#decisions", "Recent decisions"], ["#paused", "Why a model pauses"], ["#glossary", "The words we use"]].map(([href, label]) => (
+          {[["#live", "Live models"], ["#forecast-record", "Measured record"], ["#experiments", "Experiments"], ["#decisions", "Recent decisions"], ["#paused", "Why a model pauses"], ["#glossary", "The words we use"]].map(([href, label]) => (
             <a key={href} href={href} className="rounded-full px-2.5 py-1" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-rule)", minHeight: 36, display: "inline-flex", alignItems: "center" }}>{label}</a>
           ))}
         </nav>
@@ -58,6 +60,23 @@ export default function ModelLabPage() {
           {lab.live.map((l) => <ModelStatusPanel key={l.sport} id={`live-${l.sport}`} sportLabel={l.label} items={l.items} />)}
         </div>
       </Section>
+
+      {/* Research V2 / Session 13 (I4): every model family links to its settled forecast history in the Forecast Record. */}
+      {forecastRecord.sports.length ? (
+        <Section id="forecast-record" title="Measured record by forecast type" sub="Every published forecast, counted once and scored against the official result — the settled history behind each family.">
+          <ul className="m-0 p-0 list-none grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {forecastRecord.sports.flatMap((s: any) => s.families.map((f: any) => (
+              <li key={`${s.sport}-${f.family}`} className="flex items-center justify-between gap-2 rounded-[10px] px-3 py-2" style={{ border: "1px solid var(--vault-rule)" }}>
+                <Link href={familyHref(s.sport, f.family)} style={{ color: "var(--gtp-bank-heat)", fontWeight: 600, fontSize: 13 }}>{s.label} · {f.label}</Link>
+                <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{f.counts.measured.toLocaleString("en-US")} measured</span>
+              </li>
+            )))}
+          </ul>
+          <p className="m-0 mt-2 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+            <Link href="/results/forecasts/" style={{ color: "var(--vault-gold-bright)" }}>The full Forecast Record</Link> explains how each kind of forecast is measured.
+          </p>
+        </Section>
+      ) : null}
 
       <Section id="experiments" title="Experiments and shadows" sub="Blind forward tests grade a live model week by week; a shadow is scored privately and powers nothing public.">
         {lab.experiments.length ? (
