@@ -20,8 +20,26 @@ test("sport-schedules may start workflows, and starts nfl-event-window after an 
 });
 
 test("only a change in the NFL facts starts it — stamps or NBA-only changes do not", () => {
-  const step = WF.slice(WF.indexOf("Rebuild the NFL boards when the NFL injury facts changed"));
-  assert.match(step, /injuries\/nfl\/latest\.json/, "compares the NFL file specifically");
-  assert.match(step, /delete o\.generatedAt; delete o\.sourceAsOf/, "stamps are stripped before comparing");
-  assert.match(step, /HEAD~1/, "against the previous commit's NFL facts");
+  const commitStep = WF.slice(WF.indexOf("- name: Commit injuries captures if content changed"), WF.indexOf('git commit -m "auto: injuries facts capture [skip ci]"'));
+  assert.match(commitStep, /id: injuriescommit/, "the commit step carries an id so its decision can be read");
+  assert.match(commitStep, /injuries\/nfl\/latest\.json/, "compares the NFL file specifically");
+  assert.match(commitStep, /delete o\.generatedAt; delete o\.sourceAsOf/, "stamps are stripped before comparing");
+  assert.match(commitStep, /git show HEAD:/, "against the capture this commit replaces, read BEFORE committing");
+  const afterCommit = WF.slice(WF.indexOf('git commit -m "auto: injuries facts capture [skip ci]"'));
+  assert.ok(afterCommit.indexOf("git push origin HEAD:main") < afterCommit.indexOf('echo "nfl_changed=$NFL_CHANGED" >> "$GITHUB_OUTPUT"'),
+    "the decision is published only after the push succeeded, so the window reads facts that are on main");
+});
+
+test("the rebuild is gated on the commit step's decision, never on whatever HEAD is by then (2026-10-05)", () => {
+  /*
+   * The NBA research commits run between the injuries commit and the rebuild. The old step asked
+   * `git log -1` whether HEAD was the injuries commit and diffed HEAD~1, so on 2026-10-05 (15:48Z and
+   * 18:19Z) it saw an NBA commit, decided "nothing committed", and never started the window.
+   */
+  const start = WF.indexOf("- name: Rebuild the NFL boards when the NFL injury facts changed");
+  const step = WF.slice(start, WF.indexOf("- name:", start + 10));
+  assert.match(step, /steps\.injuriescommit\.outputs\.nfl_changed == 'true'/);
+  assert.doesNotMatch(step, /git log -1|HEAD~1/, "HEAD at this point may be an NBA commit");
+  const nbaCommit = WF.indexOf('git commit -m "auto: nba experimental forecasts');
+  assert.ok(nbaCommit > 0 && nbaCommit < start, "the hazard this guards: NBA commits do sit between the two steps");
 });
