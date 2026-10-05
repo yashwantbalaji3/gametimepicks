@@ -1,18 +1,19 @@
 {
   "kind": "publication-slo",
-  "date": "2026-10-04",
+  "date": "2026-10-05",
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "PUBLISHED",
-      "reason": "all 2 event(s) in the horizon carry a forecast",
-      "deadlineUtc": null,
+      "state": "PUBLISHING",
+      "reason": "2 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-10-05T19:30:00.000Z",
       "counts": {
         "scheduled": 2,
-        "published": 2,
+        "published": 0,
         "missedCoverage": 0,
-        "awaiting": 0
-      }
+        "awaiting": 2
+      },
+      "missed": []
     },
     "nfl": {
       "state": "PUBLISHING",
@@ -50,39 +51,37 @@
       }
     }
   },
-  "checkedAt": "2026-10-05T02:18:49.283Z",
+  "checkedAt": "2026-10-05T08:42:42.970Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHED",
-  "reason": "board published with 77 rows",
-  "publishDeadlineUtc": null,
+  "state": "PUBLISHING",
+  "reason": "today's slate is not published yet and is not late — the deadline is 2026-10-05T19:30:00.000Z",
+  "publishDeadlineUtc": "2026-10-05T19:30:00.000Z",
   "scheduledGames": 2,
-  "pregameRemaining": 0,
-  "alreadyStarted": 2,
+  "pregameRemaining": 2,
+  "alreadyStarted": 0,
   "board": {
-    "present": true,
-    "leans": 77,
+    "present": false,
+    "leans": 0,
     "pendingReason": null,
-    "generatedAt": "2026-10-04T11:11:06.960677+00:00",
-    "scheduledGames": 2,
-    "startedBeforeGeneration": 0
+    "generatedAt": null
   },
   "games": [
     {
-      "gamePk": 849825,
-      "startUtc": "2026-10-04T20:00:00Z",
-      "away": "San Diego Padres",
-      "home": "Milwaukee Brewers",
-      "detailedState": "Final",
-      "pregameAtCheck": false
+      "gamePk": 849834,
+      "startUtc": "2026-10-05T21:00:00Z",
+      "away": "Chicago White Sox",
+      "home": "Cleveland Guardians",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
     },
     {
-      "gamePk": 849823,
-      "startUtc": "2026-10-05T00:00:00Z",
-      "away": "Atlanta Braves",
-      "home": "Los Angeles Dodgers",
-      "detailedState": "In Progress",
-      "pregameAtCheck": false
+      "gamePk": 849839,
+      "startUtc": "2026-10-06T00:00:00Z",
+      "away": "New York Yankees",
+      "home": "Tampa Bay Rays",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
     }
   ]
 }
