@@ -53,6 +53,8 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     { kind: "link", target: "/mlb/power", label: "Power board" },
     /* Session 5 · B8: the hub links the live hub for the sports /live covers, and Ask everywhere. */
     { kind: "link", target: "/live", label: "Live" },
+    /* 2026-10-05: the hub reaches its teams and players on the Research home (one click, not footer-only). */
+    { kind: "link", target: "/research#teams-mlb", label: "Teams & players" },
     { kind: "link", target: "/ask", label: "Ask" },
   ],
   epl: [
@@ -63,6 +65,7 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     { kind: "anchor", target: "schedule", label: "Fixture list" },
     { kind: "anchor", target: "record", label: "Results" },
     { kind: "link", target: "/results/picks/epl", label: "Full record" },
+    { kind: "link", target: "/research#teams-epl", label: "Teams & players" },
     { kind: "link", target: "/ask", label: "Ask" },
   ],
   ufc: [
@@ -73,6 +76,7 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     { kind: "link", target: "/cards/ufc", label: "Products" },
     { kind: "link", target: "/results/picks/ufc", label: "Results" },
     { kind: "link", target: "/build/custom?sport=ufc", label: "Build your own" },
+    { kind: "link", target: "/research", label: "Fighters" },
     { kind: "link", target: "/ask", label: "Ask" },
   ],
   nfl: [
@@ -88,6 +92,7 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     { kind: "anchor", target: "nfl-coverage", label: "Coverage" },
     { kind: "link", target: "/cards/nfl", label: "Paper cards" },
     { kind: "link", target: "/live", label: "Live" },
+    { kind: "link", target: "/research#teams-nfl", label: "Teams & players" },
     { kind: "link", target: "/ask", label: "Ask" },
   ],
 };

@@ -287,15 +287,18 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     desc: "Every settled receipt, in depth", surfaces: ["footer"] },
   { href: "/market-guide", label: "Market Guide", group: "record",
     desc: "How to read a price", surfaces: ["footer"] },
-  { href: "/research", label: "Research engine", group: "record",
-    desc: "What the model is being tested against", surfaces: ["footer"] },
   /*
-   * v1.5 · Research Lab. A SECONDARY destination on the rail and the footer sitemap, never a primary: P243
-   * charter E fixes the primaries at five, and this is a tool a reader reaches for deliberately rather than a
-   * place the product sends them. It is the only nav change v1.5 makes.
+   * 2026-10-05 · RESEARCH. /research is the Research directory (teams, players, tools), so it takes the rail
+   * slot Research Lab held: a reader finds every team, Compare, the forecast record and Research Lab one click
+   * from it. Still a SECONDARY destination (P243 charter E: five primaries), and the rail stays the same length.
    */
-  { href: "/research/lab", label: "Research Lab", group: "record", glyph: "🔎", note: "MLB · NFL · Premier League",
-    desc: "Search recorded games, player games and season results", surfaces: ["rail", "footer"] },
+  { href: "/research", label: "Research", group: "record", glyph: "🔎",
+    desc: "Teams, players, Compare and the forecast record", surfaces: ["rail", "footer"] },
+  /* v1.5 · Research Lab: footer sitemap only since 2026-10-05; it is one click from the Research home. */
+  { href: "/research/lab", label: "Research Lab", group: "record", note: "MLB · NFL · Premier League",
+    desc: "Search recorded games, player games and season results", surfaces: ["footer"] },
+  { href: "/compare", label: "Compare", group: "record",
+    desc: "Two teams or players, side by side", surfaces: ["footer"] },
   /*
    * v1.6: ASK GAMETIME.
    *

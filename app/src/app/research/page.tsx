@@ -97,7 +97,7 @@ export default function ResearchHome() {
       <Section id="research-teams" title="Team research" sub="Every team with a research page. Each team page links its players, games and comparisons.">
         {SPORTS.filter((s) => teamsBySport.get(s.sport)?.length).map((s) => (
           <div key={s.sport} style={{ marginTop: 12 }}>
-            <h3 id={`teams-${s.sport.toLowerCase()}`} style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 700 }}>{s.name} teams</h3>
+            <h3 id={`teams-${s.sport.toLowerCase()}`} style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 700, scrollMarginTop: 96 }}>{s.name} teams</h3>
             <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexWrap: "wrap", gap: 6 }}>
               {teamsBySport.get(s.sport)!.map((t) => (
                 <li key={t.path}><Link href={t.path} style={chip}>{t.label}</Link></li>

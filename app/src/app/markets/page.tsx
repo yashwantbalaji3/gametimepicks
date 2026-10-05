@@ -24,7 +24,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import NotTodaysMarket from "@/components/markets/not-todays-market";
 
 export const metadata: Metadata = withRouteMetadata("/markets/", {
-  title: "Picks · GameTimePicks",
+  title: "Picks · GameTime Picks",
   /* Phase 6 · P606: this page names every in-season sport from the product-day owner, not just MLB — the
      description said "the current MLB slate" while the page itself lists the other hubs. */
   description:

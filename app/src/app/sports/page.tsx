@@ -22,6 +22,7 @@ import Link from "next/link";
 import { allUpcoming, resultsTrackingNote } from "@/lib/sports/upcoming/adapters.mjs";
 import { UpcomingSportsSections, type SportSchedule } from "@/components/sports/upcoming-sports";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { TEAM_COMPARE_SPORTS } from "@/lib/compare/contract.mjs";
 /*
  * #797 PR B · THE SPORTS PRIMARY IS A SWITCHER FIRST. "Sports" is one of the five primaries on every nav
  * surface, and it opened on a paragraph with the four hubs as inline links and a raw schedule list — a
@@ -36,6 +37,13 @@ export const metadata: Metadata = withRouteMetadata("/sports/", {
     "Premier League, NFL, NBA and UFC schedule status — what data exists, where it comes from, and what is honestly not published yet. MLB, NFL, EPL and UFC are modelled on their own hubs; NBA carries schedules only.",
 });
 
+const RESEARCH_LINKS = [
+  { href: "/research#teams-nfl", label: "NFL" },
+  { href: "/research#teams-mlb", label: "MLB" },
+  { href: "/research#teams-epl", label: "Premier League" },
+  ...TEAM_COMPARE_SPORTS.map((s) => ({ href: `/compare/teams/${s.toLowerCase()}`, label: `Compare ${s} teams` })),
+];
+
 export default function UpcomingSportsPage() {
   const sports = (allUpcoming({ nowIso: new Date().toISOString() }) as SportSchedule[])
     .map((s) => ({ ...s, resultsNote: resultsTrackingNote(s.sport) }));
@@ -44,6 +52,16 @@ export default function UpcomingSportsPage() {
       <h1 style={{ margin: 0, fontSize: 26 }}>Sports</h1>
       <p style={{ margin: "6px 0 0", fontSize: 14, color: "var(--vault-text-mute)" }}>Choose a sport — each hub has its games, predictions and simulations.</p>
       <SportChooser />
+      {/* 2026-10-05: the research for each sport, one click from the Sports primary (it was footer-only). */}
+      <nav aria-label="Teams and players" style={{ margin: "16px 0 0", fontSize: 14, lineHeight: 1.8 }}>
+        <span style={{ color: "var(--vault-text-mute)" }}>Teams &amp; players: </span>
+        {RESEARCH_LINKS.map((l, i) => (
+          <span key={l.href}>
+            {i > 0 ? " · " : null}
+            <Link href={l.href} style={{ color: "var(--vault-gold)" }}>{l.label}</Link>
+          </span>
+        ))}
+      </nav>
       <h2 style={{ margin: "34px 0 0", fontSize: 18 }}>Schedules and coverage status</h2>
       <p style={{ margin: "12px 0 0", fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))", maxWidth: 640 }}>
         Four sports we track toward coverage. Each section says exactly what exists today — the

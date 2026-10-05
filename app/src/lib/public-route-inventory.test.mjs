@@ -156,6 +156,11 @@ const APPROVED_DESTINATIONS = new Set([
    */
   "/research/lab",
   /*
+   * 2026-10-05: Compare, footer only. Side-by-side views of two teams or players built from the same committed
+   * research and compare projections the team and player pages read; it publishes no forecast or grade of its own.
+   */
+  "/compare",
+  /*
    * v1.6: Ask GameTime. A secondary tool destination (rail + footer), never a primary — P243 charter E
    * fixes the primaries at five. It clears the bar this list exists to hold in the strictest way any
    * destination here does: it OWNS no sports data at all. Every fact in every answer is returned by an

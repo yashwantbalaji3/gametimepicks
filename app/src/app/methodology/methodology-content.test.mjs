@@ -34,9 +34,17 @@ test("covers every sport TRUTHFULLY per the capability registry (one live model,
   assert.equal(registryState("ufc"), "SCAFFOLD_ONLY", "registry: UFC has no model");
   assert.match(src, /stage="market-implied only · no fight model"/, "UFC card is staged as market-implied, no model");
   assert.match(src, /stage="closed · archive only"/, "World Cup card is staged as a closed archive");
-  // The one-live-sport statement appears both in the coverage intro and the standing limitations.
-  assert.match(src, /One sport has a live model/, "coverage intro states exactly one live sport");
-  assert.match(src, /MLB is the only sport producing model output/, "limitations repeat it");
+  // The coverage intro and the standing limitations name exactly the registry's states: one FULL_MODEL sport,
+  // and every EXPERIMENTAL_PUBLIC sport named as experimental (2026-10-05: the old "only MLB produces output"
+  // line went stale once the NFL, Premier League and Ligue 1 published).
+  const full = ["mlb", "nba", "ufc", "epl", "nfl", "ligue-1"].filter((k) => registryState(k) === "FULL_MODEL");
+  assert.deepEqual(full, ["mlb"], "registry: MLB is the one full model");
+  assert.equal(registryState("epl"), "EXPERIMENTAL_PUBLIC");
+  assert.equal(registryState("nfl"), "EXPERIMENTAL_PUBLIC");
+  assert.equal(registryState("ligue-1"), "EXPERIMENTAL_PUBLIC");
+  assert.match(src, /MLB has the full live model\. The NFL, the Premier League and Ligue 1 publish experimental/, "coverage intro");
+  assert.match(src, /MLB is the only sport with the full live model\. NFL, Premier League and Ligue 1 forecasts are experimental/, "limitations repeat it");
+  assert.doesNotMatch(src, /MLB is the only sport producing model output|One sport has a live model/, "the stale claim is gone");
 });
 
 test("distinguishes priced vs unpriced markets (the surviving odds-backed / model-only guarantee)", () => {

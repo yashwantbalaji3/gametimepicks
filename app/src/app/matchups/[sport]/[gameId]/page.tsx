@@ -54,7 +54,7 @@ const joiner = (neutral: boolean) => (neutral ? "vs" : "at");
 
 export function generateMetadata({ params }: { params: { sport: string; gameId: string } }): Metadata {
   const x = load(params);
-  if (!x) return { title: "Matchup research · GameTimePicks" };
+  if (!x) return { title: "Matchup research · GameTime Picks" };
   const { sport, entry, m } = x;
   /*
    * UX-1: this read "{away} at {home} matchup history and team stats" for every game, so 93 MLB matchups
@@ -66,7 +66,7 @@ export function generateMetadata({ params }: { params: { sport: string; gameId: 
     return `${t.get(e.awayTeamId)?.name} ${joiner(m.neutralSite)} ${t.get(e.homeTeamId)?.name}`;
   };
   const titled = matchupTitles(matchupEntries(sport), describe, formatGameDate).get(String(entry.gameId));
-  const title = `${titled ?? `${m.away.name} ${joiner(m.neutralSite)} ${m.home.name}`} · matchup history | GameTimePicks`;
+  const title = `${titled ?? `${m.away.name} ${joiner(m.neutralSite)} ${m.home.name}`} · matchup history · GameTime Picks`;
   const description = `${m.away.name} ${joiner(m.neutralSite)} ${m.home.name}, ${formatGameDate(m.startUtc)}: each team's recorded results entering the game and their recorded meetings in ${SPORT_NAME[sport]} data.`;
   return withRouteMetadata(matchupPath(sport, entry.gameId), { title, description, ...(entry.indexable ? {} : { robots: { index: false, follow: true } }) });
 }

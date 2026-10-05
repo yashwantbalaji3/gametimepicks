@@ -26,9 +26,9 @@ const sportOf = (seg: string) => (PLAYER_COMPARE_SPORTS as readonly string[]).fi
 
 export function generateMetadata({ params }: { params: { sport: string } }): Metadata {
   const sport = sportOf(params.sport);
-  if (!sport) return { title: "Compare players · GameTimePicks" };
+  if (!sport) return { title: "Compare players · GameTime Picks" };
   return withRouteMetadata(comparePath("player", sport), {
-    title: `Compare ${SPORT_NAME[sport]} players: game logs side by side | GameTimePicks`,
+    title: `Compare ${SPORT_NAME[sport]} players: game logs side by side · GameTime Picks`,
     description: `Compare two ${SPORT_NAME[sport]} players on the same recorded stat: per-game averages with sample sizes, recent recorded games and coverage notes${sport === "MLB" ? " (captured categories only)" : ""}.`,
   });
 }
