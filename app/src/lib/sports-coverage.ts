@@ -160,7 +160,9 @@ export const SPORTS_COVERAGE: ReadonlyArray<SportCoverage> = [
      * real fix and is a deliberate follow-up, not something to improvise at the registry's edge.
      */
     level: "schedule",
-    blurb: "Fixtures plus team-level model forecasts — match result, scorelines, goals and margin, per fixture. Not validated out of sample, and no player markets: the model is fitted on match results only.",
+    /* 2026-10-05 (Soccer, approved by Yash): this said "Not validated out of sample, and no player markets"
+       while /epl published player projections. Facts only now, with no count that can go stale. */
+    blurb: "Fixtures plus experimental, model-only forecasts — match result, scorelines, goals and margin per fixture, and anytime-scorer and shot-on-target projections per player. Not official picks. Graded after each full time; the record is still too small to judge accuracy. No sportsbook player markets.",
     links: [{ label: "Fixtures + forecasts", href: "/epl/" }],
   },
   {
