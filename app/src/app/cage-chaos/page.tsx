@@ -10,6 +10,7 @@ import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
 import { loadUfcCard } from "@/lib/sports/ufc/bout";
+import { ufcModelLabel } from "@/lib/sports/ufc/model-label.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata = withRouteMetadata("/cage-chaos/", {
@@ -138,7 +139,7 @@ export default function CageChaosPage() {
                 <p className="font-mono m-0" style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>
                   corpus {card.model.corpus.fights.toLocaleString()} fights
                   {card.model.corpus.from && card.model.corpus.to ? ` · ${card.model.corpus.from} to ${card.model.corpus.to}` : ""}
-                  {card.model.id ? ` · model ${card.model.id}` : ""}
+                  {card.model.id ? ` · ${ufcModelLabel(card.model.id)}` : ""}
                 </p>
               ) : null}
               <p className="m-0" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>Educational and paper-only — not betting advice.</p>

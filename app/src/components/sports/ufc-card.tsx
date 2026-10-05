@@ -11,6 +11,7 @@
  *   · "goes the distance" is the method head's decision probability, not a separate model.
  */
 import { roundPhrase } from "@/lib/sports/ufc/round-phrase.mjs";
+import { ufcNotModelledLabel } from "@/lib/sports/ufc/model-label.mjs";
 import HeadToHead from "@/components/ui/head-to-head";
 import { Histogram, ProbabilityBar } from "@/components/distribution-chart";
 
@@ -270,7 +271,7 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
         ) : null}
         {Object.entries(m.notModelled ?? {}).map(([k, v]) => (
           <p key={k} className="font-mono m-0" style={{ fontSize: 10.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
-            <strong style={{ color: "var(--vault-text-mute)" }}>{k === "methodOfVictory" ? "Method of victory" : k === "moneyline" ? "Moneyline" : k}:</strong> {v}
+            <strong style={{ color: "var(--vault-text-mute)" }}>{ufcNotModelledLabel(k)}:</strong> {v}
           </p>
         ))}
       </div>

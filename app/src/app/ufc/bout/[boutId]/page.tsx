@@ -17,6 +17,7 @@
  * A bout the model refuses to read still gets a page. It says why, in the producer's own words.
  */
 import { roundPhrase } from "@/lib/sports/ufc/round-phrase.mjs";
+import { ufcModelLabel, ufcCorpusSourceLabel } from "@/lib/sports/ufc/model-label.mjs";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -298,12 +299,12 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
             <EvidenceRow label="Round" e={card.model?.evidence?.round} />
           </div>
           <div className="font-mono" style={{ fontSize: 11, color: "var(--vault-text-faint)", lineHeight: 1.7 }}>
-            {card.model?.id ? <div>model {card.model.id}</div> : null}
+            {card.model?.id ? <div>{ufcModelLabel(card.model.id)}</div> : null}
             {card.model?.corpus?.fights ? (
               <div>
                 corpus {card.model.corpus.fights.toLocaleString()} fights
                 {card.model.corpus.from && card.model.corpus.to ? ` · ${card.model.corpus.from} to ${card.model.corpus.to}` : ""}
-                {card.model.corpus.source ? ` · ${card.model.corpus.source}` : ""}
+                {card.model.corpus.source ? ` · ${ufcCorpusSourceLabel(card.model.corpus.source)}` : ""}
               </div>
             ) : null}
             {card.generatedAt ? <div>generated {card.generatedAt}</div> : null}
