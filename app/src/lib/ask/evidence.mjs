@@ -275,7 +275,13 @@ export function buildEvidence(envelopes) {
             say(`${f.matchup} · EXPERIMENTAL model win probability: ${f.away ?? "away"} ${pct(pr.away)}, ${f.home ?? "home"} ${pct(pr.home)}${pr.tie != null ? `, tie ${pct(pr.tie)}` : ""}`, [pr.away, pr.home, pr.tie]);
           }
           if (f.projectedScore?.home != null && f.projectedScore?.away != null) {
-            say(`${f.matchup} · EXPERIMENTAL projected score: ${f.away ?? "away"} ${f.projectedScore.away}, ${f.home ?? "home"} ${f.projectedScore.home}`, [f.projectedScore.away, f.projectedScore.home]);
+            /*
+             * ⚠ A MEDIAN, NOT A FINAL (2026-10-05 audit). Each side's number is the middle of that team's simulated points,
+             * so the pair can tie ("ATL 22, NO 22") beside a 51% win chance for one side. Called a "projected score", a
+             * writer restates it as a predicted 22–22 final. The sentence now says what it is, in the NFL game page's own
+             * words ("the middle of our simulated outcomes, not a call on the exact final").
+             */
+            say(`${f.matchup} · EXPERIMENTAL median simulated points — the middle of our simulated outcomes for each team, not a predicted final score: ${f.away ?? "away"} ${f.projectedScore.away}, ${f.home ?? "home"} ${f.projectedScore.home}`, [f.projectedScore.away, f.projectedScore.home]);
           }
           for (const m of f.markets ?? []) {
             say(`${f.matchup} · ${m.label}: GameTime's pick is ${m.pick ?? "none stated"}${m.line != null ? ` at ${m.line}` : ""}, model probability ${pct(m.modelProbability)}, market-implied ${pct(m.marketImpliedProbability)}, confidence ${m.confidence ?? "not stated"}`,
@@ -431,7 +437,13 @@ export function buildEvidence(envelopes) {
             say(`GameTime's ${sp} ${f.label} forecasts score a log loss of ${f.logLoss} and a Brier of ${f.brier} across ${f.n} measured matches (a blind guess scores ${f.uniformReference?.logLoss} log loss); our likeliest outcome happened ${pctW(f.topClassAccuracy)} of the time — ${tail}`,
               [f.logLoss, f.brier, f.n, f.uniformReference?.logLoss, f.topClassAccuracy]);
           }
-          if (f.pickRecord) say(`where a ${sp} ${f.label} pick was published, the pick record is ${f.pickRecord.win}–${f.pickRecord.loss}${f.pickRecord.push ? `–${f.pickRecord.push}` : ""}`, [f.pickRecord.win, f.pickRecord.loss, f.pickRecord.push]);
+          /*
+           * ⚠ THE RECORD SAYS WHAT IT GRADES (2026-10-05 audit). This read "where a … pick was published" for every family,
+           * but NFL prop records grade the side of the frozen sportsbook line the projection pointed to, and the NFL
+           * winner record grades the side given the better win chance — neither is a published pick. The basis words are
+           * the Results family page's own (BASIS_WORDS).
+           */
+          if (f.pickRecord) say(`graded on ${basisWords(f.pickRecord.basis)}, the ${sp} ${f.label} record is ${f.pickRecord.win}–${f.pickRecord.loss}${f.pickRecord.push ? `–${f.pickRecord.push}` : ""}`, [f.pickRecord.win, f.pickRecord.loss, f.pickRecord.push]);
         }
         say(`there is no single accuracy figure across forecast types: a yardage projection and a win probability are measured differently and are never pooled`);
         for (const g of (d.gaps ?? []).slice(0, 3)) say(`${g.sport} ${g.family} is published but not measured yet: ${g.reason}`);
@@ -441,13 +453,27 @@ export function buildEvidence(envelopes) {
 
       case "getForecastHistory": {
         const sp = String(d.sport ?? "").toUpperCase();
-        say(`GameTime published ${d.matched} ${sp} forecasts matching this request for ${d.subject ?? d.subjectId}; ${d.returned} are listed individually below, newest first — this list is not a record`, [d.matched, d.returned]);
+        /*
+         * ⚠ AN EMPTY FILTER IS NOT "PUBLISHED 0" (2026-10-05 audit). The tool now fails closed when the subject has no
+         * rows at all; an empty list here means the subject has rows and none matched the filters, and it says so.
+         */
+        const who = d.subject ?? "that player";
+        if (!d.matched) say(`none of the ${d.subjectTotal} ${sp} forecasts on record for ${who} match this request's filters`, [d.subjectTotal]);
+        else say(`GameTime published ${d.matched} ${sp} forecasts matching this request for ${who}; ${d.returned} are listed individually below, newest first — this list is not a record`, [d.matched, d.returned]);
+        if (d.scopeNote) say(d.scopeNote);
         /* One decimal for a projection, its range, the actual and the miss — the precision the Forecast Record prints. */
         const r1 = (v) => (typeof v === "number" && Number.isFinite(v) ? Number(v.toFixed(1)) : v);
         for (const raw of d.rows ?? []) {
           const r = { ...raw, projection: r1(raw.projection), rangeLow: r1(raw.rangeLow), rangeHigh: r1(raw.rangeHigh), finalValue: r1(raw.finalValue), absoluteError: r1(raw.absoluteError) };
           const said = r.kind === "CONTINUOUS_PROJECTION"
-            ? `GameTime projected ${r.projection}${r.rangeLow != null ? ` (range ${r.rangeLow}–${r.rangeHigh})` : ""}`
+            /*
+             * ⚠ "X to Y", NEVER "X–Y" (2026-10-05 audit, reproduced offline). A dashed range ("50.8–196.1") contains "8–196",
+             * which the verifier's record check reads as a W–L; a writer naming the opponent in the same clause ("at
+             * Washington — projected 107.5 (range 50.8–196.1)") was refused as a record given to the wrong owner, the
+             * record-rule retry could not help, and every such history answer shipped as the deterministic fallback.
+             * Player projections already say "a range of X to Y"; history now matches them. The verifier is unchanged.
+             */
+            ? `GameTime projected ${r.projection}${r.rangeLow != null ? ` (range ${r.rangeLow} to ${r.rangeHigh})` : ""}`
             : r.kind === "BINARY_PROBABILITY"
               ? (typeof r.probability === "number" ? `GameTime gave it a ${Math.round(r.probability * 1000) / 10}% chance` : "GameTime's probability for it is not recorded")
               : "GameTime published match probabilities";
@@ -457,7 +483,7 @@ export function buildEvidence(envelopes) {
                 : r.state === "NO_MEASUREMENT" ? "the official result has no line for it, so it is not measured"
                   : r.kind === "CONTINUOUS_PROJECTION" ? `the actual was ${r.finalValue}, a miss of ${r.absoluteError}`
                     : r.observed === 1 ? `it happened (Brier ${r.brier})` : r.observed === 0 ? `it did not happen (Brier ${r.brier})` : `it settled as ${r.finalCategory}`;
-          say(`${r.date} — ${r.matchup ?? ""} ${r.familyLabel ?? r.family}: ${said}; ${happened}${r.pick ? `; the published pick was a ${r.pick}` : ""}`,
+          say(`${r.date} — ${r.matchup ?? ""} ${r.familyLabel ?? r.family}: ${said}; ${happened}${r.pick ? `; graded on ${basisWords(r.pickBasis)}, that side was a ${r.pick}` : ""}`,
             [r.projection, r.rangeLow, r.rangeHigh, r.probability, r.finalValue, r.absoluteError, r.brier]);
         }
         break;
@@ -644,6 +670,7 @@ function unsupportedSentence(env) {
     getPlayerComparison: "GameTimePicks cannot compare those two players",
     getTeamComparison: "GameTimePicks cannot compare those two teams",
     getMatchupContext: "GameTimePicks does not have a matchup research page for that game",
+    getForecastHistory: "Ask cannot list that forecast history",
     getPublishedForecasts: "GameTimePicks has no currently published forecast matching that",
     getParlayCandidates: "GameTimePicks has no published parlay candidate matching that",
     getOfficialProductCards: "GameTimePicks published no official card matching that",
@@ -654,6 +681,16 @@ function unsupportedSentence(env) {
 }
 
 const trim = (x) => String(Number(x.toFixed(4)).valueOf());
+/* What a directional record grades, in the Results family page's words (results/forecasts/[sport]/[family]/page.tsx BASIS_WORDS). */
+const BASIS_WORDS = {
+  HIGHER_WIN_PROBABILITY_SIDE: "the team we gave the better win chance",
+  IMPLIED_SIDE_OF_FROZEN_LINE: "the side of the sportsbook line our projection pointed to",
+  PUBLISHED_PICK: "the pick we published",
+};
+const basisWords = (basis) => {
+  const words = [].concat(basis ?? []).map((b) => BASIS_WORDS[b]).filter(Boolean);
+  return words.length ? words.join(" and ") : "the side it graded";
+};
 const day = (iso) => (typeof iso === "string" ? iso.slice(0, 10) : iso);
 /* Exported so the answer display (display.mjs) prints a probability with the SAME rounding as the evidence sentence. */
 export const askPercent = (p) => `${Math.round(p * 1000) / 10}%`;

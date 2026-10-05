@@ -179,8 +179,10 @@ function ForecastCard({ g }: { g: ForecastGame }) {
 
       {g.projectedScore ? (
         <div className="ask-block">
-          <p className="ask-block-label">Projected score</p>
+          {/* Each side is that team's median simulated points, so the pair can tie beside a win chance: never a predicted final. */}
+          <p className="ask-block-label">Median simulated points</p>
           <p className="ask-block-value">{g.projectedScore.away} {g.projectedScore.awayScore}, {g.projectedScore.home} {g.projectedScore.homeScore}</p>
+          <p className="ask-block-note">The middle of our simulated outcomes for each team, not a call on the exact final.</p>
         </div>
       ) : null}
       {g.expectedGoals != null ? (
