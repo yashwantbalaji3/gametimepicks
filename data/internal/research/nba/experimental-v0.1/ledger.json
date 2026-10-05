@@ -13,7 +13,7 @@
  "entries": [
   {
    "date": "2026-10-03",
-   "gradedAt": "2026-10-04T14:46:00Z",
+   "gradedAt": "2026-10-05T15:48:06Z",
    "modelVersion": "nba-preseason-experimental-v0.1",
    "inputAsOf": "2026-10-03T14:17:19Z",
    "forecastGames": 1,
@@ -1144,29 +1144,2438 @@
      }
     }
    ]
+  },
+  {
+   "date": "2026-10-04",
+   "gradedAt": "2026-10-05T15:48:06Z",
+   "modelVersion": "nba-preseason-experimental-v0.1",
+   "inputAsOf": "2026-10-04T14:46:00Z",
+   "forecastGames": 2,
+   "graded": 2,
+   "pending": [],
+   "fetched": [],
+   "summary": {
+    "NBA PRESEASON — EXPERIMENTAL": {
+     "games": 2,
+     "winner": {
+      "elo": {
+       "n": 2,
+       "brier": 0.3181,
+       "logLoss": 0.8314,
+       "accuracy": 0
+      },
+      "sim": {
+       "n": 2,
+       "brier": 0.0996,
+       "logLoss": 0.3792,
+       "accuracy": 1
+      }
+     },
+     "score": {
+      "homeMAE": 21.415,
+      "awayMAE": 16.155,
+      "marginMAE": 5.85,
+      "marginBias": 5.26,
+      "totalMAE": 37.57,
+      "totalBias": 37.57
+     },
+     "players": {
+      "gamesWithBoxscore": 2,
+      "matchedRows": 48,
+      "minutesMAE": 5.9886,
+      "conditionalMAE": {
+       "pts": 3.4012,
+       "reb": 1.3257,
+       "ast": 0.9814,
+       "threePm": 0.6542
+      },
+      "unconditionalMAE": {
+       "pts": 4.0958,
+       "reb": 1.5219,
+       "ast": 1.4227,
+       "threePm": 0.8233
+      },
+      "predictedButAbsent": 0,
+      "predictedButDnp": 7,
+      "playedButUnpredicted": 21,
+      "nullMinutesActual": 0
+     }
+    },
+    "NBA REGULAR SEASON — SHADOW": {
+     "games": 0,
+     "winner": {
+      "elo": {
+       "n": 0
+      },
+      "sim": {
+       "n": 0
+      }
+     },
+     "score": null,
+     "players": {
+      "gamesWithBoxscore": 0,
+      "matchedRows": 0,
+      "minutesMAE": null,
+      "conditionalMAE": {
+       "pts": null,
+       "reb": null,
+       "ast": null,
+       "threePm": null
+      },
+      "unconditionalMAE": {
+       "pts": null,
+       "reb": null,
+       "ast": null,
+       "threePm": null
+      },
+      "predictedButAbsent": 0,
+      "predictedButDnp": 0,
+      "playedButUnpredicted": 0,
+      "nullMinutesActual": 0
+     }
+    }
+   },
+   "games": [
+    {
+     "providerEventId": "401914127",
+     "label": "NBA PRESEASON — EXPERIMENTAL",
+     "seasonType": 1,
+     "population": "preseason",
+     "dateUtc": "2026-10-04T23:00Z",
+     "graded": true,
+     "final": {
+      "ftHome": 97,
+      "ftAway": 109,
+      "source": "results-capture"
+     },
+     "winner": {
+      "elo": {
+       "p": 0.6083,
+       "y": 0,
+       "brier": 0.37,
+       "logLoss": 0.9373,
+       "hit": 0
+      },
+      "sim": {
+       "p": 0.3081,
+       "y": 0,
+       "brier": 0.0949,
+       "logLoss": 0.3683,
+       "hit": 1
+      }
+     },
+     "score": {
+      "homeErr": 20.18,
+      "awayErr": 20.77,
+      "homeAbsErr": 20.18,
+      "awayAbsErr": 20.77,
+      "marginErr": -0.59,
+      "marginAbsErr": 0.59,
+      "totalErr": 40.96,
+      "totalAbsErr": 40.96
+     },
+     "intervals": {
+      "margin": {
+       "actual": -12,
+       "p10": -44,
+       "p90": 19,
+       "inside80": 1
+      },
+      "total": {
+       "actual": 206,
+       "p10": 216,
+       "p90": 279,
+       "inside80": 0
+      }
+     },
+     "overtime": {
+      "simTieMass": 0.0151,
+      "actual": null
+     },
+     "timing": {
+      "inputAsOf": "2026-10-04T14:46:00Z",
+      "tipUtc": "2026-10-04T23:00Z",
+      "preTip": true
+     },
+     "players": {
+      "rows": [
+       {
+        "side": "home",
+        "providerAthleteId": "3064290",
+        "name": "Aaron Gordon",
+        "expectedMinutes": 19.3963,
+        "actualMinutes": 10,
+        "minutesAbsErr": 9.3963,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 3.69,
+         "reb": 1.63,
+         "ast": 0.68,
+         "threePm": 0.15
+        },
+        "unconditional": {
+         "pts": 4.13,
+         "reb": 0.58,
+         "ast": 1.32,
+         "threePm": 0.65
+        },
+        "rates": {
+         "pts": 0.831,
+         "reb": 0.237,
+         "ast": 0.068,
+         "threePm": 0.085
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "3138196",
+        "name": "Cameron Johnson",
+        "expectedMinutes": 20.5137,
+        "actualMinutes": 15,
+        "minutesAbsErr": 5.5137,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 2.09,
+         "reb": 0.125,
+         "ast": 1.005,
+         "threePm": 0.995
+        },
+        "unconditional": {
+         "pts": 0.08,
+         "reb": 0.69,
+         "ast": 1.45,
+         "threePm": 0.61
+        },
+        "rates": {
+         "pts": 0.394,
+         "reb": 0.125,
+         "ast": 0.067,
+         "threePm": 0.067
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "3112335",
+        "name": "Nikola Jokic",
+        "expectedMinutes": 21.204,
+        "actualMinutes": 15,
+        "minutesAbsErr": 6.204,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 7.635,
+         "reb": 1.89,
+         "ast": 3.34,
+         "threePm": 0
+        },
+        "unconditional": {
+         "pts": 12.01,
+         "reb": 3.94,
+         "ast": 1.8,
+         "threePm": 0
+        },
+        "rates": {
+         "pts": 0.709,
+         "reb": 0.326,
+         "ast": 0.244,
+         "threePm": 0
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "3135046",
+        "name": "Tyus Jones",
+        "expectedMinutes": 17.0125,
+        "actualMinutes": 19,
+        "minutesAbsErr": 1.9875,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 4.428,
+         "reb": 0.898,
+         "ast": 3.53,
+         "threePm": 1.183
+        },
+        "unconditional": {
+         "pts": 4.8,
+         "reb": 0.91,
+         "ast": 3.78,
+         "threePm": 1.24
+        },
+        "rates": {
+         "pts": 0.188,
+         "reb": 0.058,
+         "ast": 0.13,
+         "threePm": 0.043
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4431767",
+        "name": "Christian Braun",
+        "expectedMinutes": 21.6971,
+        "actualMinutes": 15,
+        "minutesAbsErr": 6.6971,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 1.335,
+         "reb": 0.78,
+         "ast": 0.71,
+         "threePm": 1.2
+        },
+        "unconditional": {
+         "pts": 4.74,
+         "reb": 0.31,
+         "ast": 1.51,
+         "threePm": 1.8
+        },
+        "rates": {
+         "pts": 0.489,
+         "reb": 0.148,
+         "ast": 0.114,
+         "threePm": 0.08
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4277848",
+        "name": "Marvin Bagley III",
+        "expectedMinutes": 17.0944,
+        "actualMinutes": 14,
+        "minutesAbsErr": 3.0944,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 4.968,
+         "reb": 0.812,
+         "ast": 1.89,
+         "threePm": 0
+        },
+        "unconditional": {
+         "pts": 7.19,
+         "reb": 0.57,
+         "ast": 2.31,
+         "threePm": 0
+        },
+        "rates": {
+         "pts": 0.712,
+         "reb": 0.442,
+         "ast": 0.135,
+         "threePm": 0
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4431690",
+        "name": "Zeke Nnaji",
+        "expectedMinutes": 10.8486,
+        "actualMinutes": 15,
+        "minutesAbsErr": 4.1514,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 0.825,
+         "reb": 0.27,
+         "ast": 0.175,
+         "threePm": 0.27
+        },
+        "unconditional": {
+         "pts": 0.22,
+         "reb": 0.98,
+         "ast": 0.34,
+         "threePm": 0.22
+        },
+        "rates": {
+         "pts": 0.255,
+         "reb": 0.182,
+         "ast": 0.055,
+         "threePm": 0.018
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4432872",
+        "name": "Emanuel Miller",
+        "expectedMinutes": 4.4381,
+        "actualMinutes": 3,
+        "minutesAbsErr": 1.4381,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 3.833,
+         "reb": 0.499,
+         "ast": 0,
+         "threePm": 0
+        },
+        "unconditional": {
+         "pts": 3.17,
+         "reb": 0.18,
+         "ast": 0,
+         "threePm": 0
+        },
+        "rates": {
+         "pts": 0.389,
+         "reb": 0.167,
+         "ast": 0,
+         "threePm": 0
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4433607",
+        "name": "DaRon Holmes II",
+        "expectedMinutes": 6.9036,
+        "actualMinutes": 12,
+        "minutesAbsErr": 5.0964,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 0.452,
+         "reb": 1.748,
+         "ast": 0.032,
+         "threePm": 1.032
+        },
+        "unconditional": {
+         "pts": 0.73,
+         "reb": 0.7,
+         "ast": 0.34,
+         "threePm": 0.94
+        },
+        "rates": {
+         "pts": 0.371,
+         "reb": 0.229,
+         "ast": 0.086,
+         "threePm": 0.086
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "5105592",
+        "name": "Cam Whitmore",
+        "expectedMinutes": 13.3142,
+        "actualMinutes": 15,
+        "minutesAbsErr": 1.6858,
+        "ratesBasis": "team-pool-fallback",
+        "conditional": {
+         "pts": 1.2525,
+         "reb": 0.829,
+         "ast": 0.7805,
+         "threePm": 1.2725
+        },
+        "unconditional": {
+         "pts": 0.48,
+         "reb": 0.5,
+         "ast": 0.61,
+         "threePm": 1.35
+        },
+        "rates": {
+         "pts": 0.4835,
+         "reb": 0.1886,
+         "ast": 0.1187,
+         "threePm": 0.0485
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "3978",
+        "name": "DeMar DeRozan",
+        "expectedMinutes": 25.6421,
+        "actualMinutes": 10,
+        "minutesAbsErr": 15.6421,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 1.79,
+         "reb": 0.28,
+         "ast": 0.23,
+         "threePm": 0.26
+        },
+        "unconditional": {
+         "pts": 3.25,
+         "reb": 2.44,
+         "ast": 1.2,
+         "threePm": 0.7
+        },
+        "rates": {
+         "pts": 0.321,
+         "reb": 0.128,
+         "ast": 0.077,
+         "threePm": 0.026
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4432181",
+        "name": "Julian Strawther",
+        "expectedMinutes": 14.5963,
+        "actualMinutes": 20,
+        "minutesAbsErr": 5.4037,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 3.18,
+         "reb": 1.86,
+         "ast": 0.08,
+         "threePm": 1.16
+        },
+        "unconditional": {
+         "pts": 6.09,
+         "reb": 0.54,
+         "ast": 0.14,
+         "threePm": 0.65
+        },
+        "rates": {
+         "pts": 0.541,
+         "reb": 0.243,
+         "ast": 0.054,
+         "threePm": 0.108
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4433629",
+        "name": "Ryan Nembhard",
+        "expectedMinutes": 15.7797,
+        "actualMinutes": 17,
+        "minutesAbsErr": 1.2203,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 0.321,
+         "reb": 0.348,
+         "ast": 1.321,
+         "threePm": 0.201
+        },
+        "unconditional": {
+         "pts": 0.07,
+         "reb": 0.46,
+         "ast": 0.94,
+         "threePm": 0.22
+        },
+        "rates": {
+         "pts": 0.313,
+         "reb": 0.156,
+         "ast": 0.313,
+         "threePm": 0.047
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4066336",
+        "name": "Lauri Markkanen",
+        "expectedMinutes": 18.2872,
+        "actualMinutes": 14,
+        "minutesAbsErr": 4.2872,
+        "ratesBasis": "team-pool-fallback",
+        "conditional": {
+         "pts": 9.4638,
+         "reb": 0.541,
+         "ast": 1.3426,
+         "threePm": 2.1712
+        },
+        "unconditional": {
+         "pts": 7.15,
+         "reb": 1.32,
+         "ast": 1.75,
+         "threePm": 1.9
+        },
+        "rates": {
+         "pts": 0.5383,
+         "reb": 0.1815,
+         "ast": 0.0959,
+         "threePm": 0.0592
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4277961",
+        "name": "Jaren Jackson Jr.",
+        "expectedMinutes": 22.5073,
+        "actualMinutes": 18,
+        "minutesAbsErr": 4.5073,
+        "ratesBasis": "team-pool-fallback",
+        "conditional": {
+         "pts": 1.3106,
+         "reb": 0.733,
+         "ast": 0.2738,
+         "threePm": 0.0656
+        },
+        "unconditional": {
+         "pts": 1.09,
+         "reb": 0.11,
+         "ast": 0.16,
+         "threePm": 0.33
+        },
+        "rates": {
+         "pts": 0.5383,
+         "reb": 0.1815,
+         "ast": 0.0959,
+         "threePm": 0.0592
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "3102530",
+        "name": "Jusuf Nurkic",
+        "expectedMinutes": 18.9905,
+        "actualMinutes": 11,
+        "minutesAbsErr": 7.9905,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 2.655,
+         "reb": 0.787,
+         "ast": 2.372,
+         "threePm": 0.814
+        },
+        "unconditional": {
+         "pts": 7.46,
+         "reb": 2.25,
+         "ast": 1.16,
+         "threePm": 1.46
+        },
+        "rates": {
+         "pts": 0.605,
+         "reb": 0.383,
+         "ast": 0.148,
+         "threePm": 0.074
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4433627",
+        "name": "Keyonte George",
+        "expectedMinutes": 26.493,
+        "actualMinutes": 21,
+        "minutesAbsErr": 5.493,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 4.416,
+         "reb": 1.774,
+         "ast": 0.906,
+         "threePm": 0.302
+        },
+        "unconditional": {
+         "pts": 1.55,
+         "reb": 0.92,
+         "ast": 2,
+         "threePm": 0.71
+        },
+        "rates": {
+         "pts": 0.504,
+         "reb": 0.106,
+         "ast": 0.186,
+         "threePm": 0.062
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4433618",
+        "name": "Harrison Ingram",
+        "expectedMinutes": 12.1915,
+        "actualMinutes": 12,
+        "minutesAbsErr": 0.1915,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 2.076,
+         "reb": 2.228,
+         "ast": 0.924,
+         "threePm": 0.228
+        },
+        "unconditional": {
+         "pts": 1.96,
+         "reb": 2.29,
+         "ast": 1.02,
+         "threePm": 0.28
+        },
+        "rates": {
+         "pts": 0.327,
+         "reb": 0.269,
+         "ast": 0.077,
+         "threePm": 0.019
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4277919",
+        "name": "Mo Bamba",
+        "expectedMinutes": 8.4402,
+        "actualMinutes": 12,
+        "minutesAbsErr": 3.5598,
+        "ratesBasis": "team-pool-fallback",
+        "conditional": {
+         "pts": 0.4596,
+         "reb": 4.822,
+         "ast": 0.8492,
+         "threePm": 0.7104
+        },
+        "unconditional": {
+         "pts": 1.44,
+         "reb": 5.44,
+         "ast": 1.18,
+         "threePm": 0.5
+        },
+        "rates": {
+         "pts": 0.5383,
+         "reb": 0.1815,
+         "ast": 0.0959,
+         "threePm": 0.0592
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4397077",
+        "name": "Jaxson Hayes",
+        "expectedMinutes": 15.0049,
+        "actualMinutes": 19,
+        "minutesAbsErr": 3.9951,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 7.025,
+         "reb": 3.878,
+         "ast": 2.1,
+         "threePm": 0
+        },
+        "unconditional": {
+         "pts": 5.19,
+         "reb": 2.47,
+         "ast": 2.47,
+         "threePm": 0
+        },
+        "rates": {
+         "pts": 0.475,
+         "reb": 0.362,
+         "ast": 0.1,
+         "threePm": 0
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "3133602",
+        "name": "Svi Mykhailiuk",
+        "expectedMinutes": 18.9905,
+        "actualMinutes": 17,
+        "minutesAbsErr": 1.9905,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 2.489,
+         "reb": 1.462,
+         "ast": 1.317,
+         "threePm": 1.538
+        },
+        "unconditional": {
+         "pts": 1.66,
+         "reb": 1.65,
+         "ast": 1.08,
+         "threePm": 1.22
+        },
+        "rates": {
+         "pts": 0.383,
+         "reb": 0.086,
+         "ast": 0.099,
+         "threePm": 0.086
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4065663",
+        "name": "Josh Okogie",
+        "expectedMinutes": 19.225,
+        "actualMinutes": 14,
+        "minutesAbsErr": 5.225,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 5.876,
+         "reb": 1.226,
+         "ast": 0.022,
+         "threePm": 0.314
+        },
+        "unconditional": {
+         "pts": 9.15,
+         "reb": 2.09,
+         "ast": 0.53,
+         "threePm": 0.05
+        },
+        "rates": {
+         "pts": 0.634,
+         "reb": 0.159,
+         "ast": 0.073,
+         "threePm": 0.049
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4433268",
+        "name": "Trey Alexander",
+        "expectedMinutes": 10.0036,
+        "actualMinutes": 12,
+        "minutesAbsErr": 1.9964,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 3.372,
+         "reb": 0.872,
+         "ast": 1.244,
+         "threePm": 0
+        },
+        "unconditional": {
+         "pts": 2.94,
+         "reb": 0.76,
+         "ast": 1.28,
+         "threePm": 0
+        },
+        "rates": {
+         "pts": 0.281,
+         "reb": 0.094,
+         "ast": 0.063,
+         "threePm": 0
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4683933",
+        "name": "Tamar Bates",
+        "expectedMinutes": 4.689,
+        "actualMinutes": 15,
+        "minutesAbsErr": 10.311,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 4.995,
+         "reb": 2,
+         "ast": 0.005,
+         "threePm": 0
+        },
+        "unconditional": {
+         "pts": 1.63,
+         "reb": 2,
+         "ast": 0.59,
+         "threePm": 0
+        },
+        "rates": {
+         "pts": 0.333,
+         "reb": 0,
+         "ast": 0.067,
+         "threePm": 0
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4873138",
+        "name": "Ace Bailey",
+        "expectedMinutes": 25.3207,
+        "actualMinutes": 20,
+        "minutesAbsErr": 5.3207,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 1.86,
+         "reb": 1.54,
+         "ast": 0.98,
+         "threePm": 1.24
+        },
+        "unconditional": {
+         "pts": 4.93,
+         "reb": 0.63,
+         "ast": 1.33,
+         "threePm": 1.56
+        },
+        "rates": {
+         "pts": 0.593,
+         "reb": 0.173,
+         "ast": 0.049,
+         "threePm": 0.062
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 0
+        }
+       }
+      ],
+      "predictedButAbsent": [],
+      "playedButUnpredicted": [
+       {
+        "side": "home",
+        "providerAthleteId": "4065813",
+        "name": "Alpha Diallo",
+        "minutes": 13,
+        "pts": 2
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4432976",
+        "name": "Coleman Hawkins",
+        "minutes": 3,
+        "pts": 0
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4565698",
+        "name": "Bryce Hopkins",
+        "minutes": 12,
+        "pts": 1
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4698719",
+        "name": "Trevon Brazile",
+        "minutes": 20,
+        "pts": 7
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4277890",
+        "name": "Lonnie Walker IV",
+        "minutes": 9,
+        "pts": 3
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4395667",
+        "name": "Dane Goodwin",
+        "minutes": 3,
+        "pts": 0
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "5041955",
+        "name": "Darryn Peterson",
+        "minutes": 19,
+        "pts": 3
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4396963",
+        "name": "Blake Hinson",
+        "minutes": 17,
+        "pts": 14
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4684682",
+        "name": "Jonas Aidoo",
+        "minutes": 3,
+        "pts": 0
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4683766",
+        "name": "Isaiah Collier",
+        "minutes": 15,
+        "pts": 9
+       }
+      ],
+      "predictedButDnp": [
+       {
+        "side": "home",
+        "providerAthleteId": "4592427",
+        "name": "Spencer Jones",
+        "expectedMinutes": 10.8486,
+        "dnpReason": "COACH'S DECISION"
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "3936299",
+        "name": "Jamal Murray",
+        "expectedMinutes": 20.7109,
+        "dnpReason": "COACH'S DECISION"
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4684793",
+        "name": "Kyle Filipowski",
+        "expectedMinutes": 17.8183,
+        "dnpReason": "COACH'S DECISION"
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "5105839",
+        "name": "Brice Sensabaugh",
+        "expectedMinutes": 22.0384,
+        "dnpReason": "COACH'S DECISION"
+       }
+      ],
+      "nullMinutesActual": 0
+     }
+    },
+    {
+     "providerEventId": "401918010",
+     "label": "NBA PRESEASON — EXPERIMENTAL",
+     "seasonType": 1,
+     "population": "preseason",
+     "dateUtc": "2026-10-04T23:00Z",
+     "graded": true,
+     "final": {
+      "ftHome": 104,
+      "ftAway": 101,
+      "source": "results-capture"
+     },
+     "winner": {
+      "elo": {
+       "p": 0.4841,
+       "y": 1,
+       "brier": 0.2662,
+       "logLoss": 0.7255,
+       "hit": 0
+      },
+      "sim": {
+       "p": 0.677,
+       "y": 1,
+       "brier": 0.1043,
+       "logLoss": 0.3901,
+       "hit": 1
+      }
+     },
+     "score": {
+      "homeErr": 22.65,
+      "awayErr": 11.54,
+      "homeAbsErr": 22.65,
+      "awayAbsErr": 11.54,
+      "marginErr": 11.11,
+      "marginAbsErr": 11.11,
+      "totalErr": 34.18,
+      "totalAbsErr": 34.18
+     },
+     "intervals": {
+      "margin": {
+       "actual": 3,
+       "p10": -25,
+       "p90": 53,
+       "inside80": 1
+      },
+      "total": {
+       "actual": 205,
+       "p10": 201,
+       "p90": 278,
+       "inside80": 1
+      }
+     },
+     "overtime": {
+      "simTieMass": 0.0108,
+      "actual": null
+     },
+     "timing": {
+      "inputAsOf": "2026-10-04T14:46:00Z",
+      "tipUtc": "2026-10-04T23:00Z",
+      "preTip": true
+     },
+     "players": {
+      "rows": [
+       {
+        "side": "home",
+        "providerAthleteId": "3936099",
+        "name": "Derrick Jones Jr.",
+        "expectedMinutes": 18.5336,
+        "actualMinutes": 15,
+        "minutesAbsErr": 3.5336,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 2.79,
+         "reb": 0.29,
+         "ast": 0.78,
+         "threePm": 0.22
+        },
+        "unconditional": {
+         "pts": 4.93,
+         "reb": 0.66,
+         "ast": 1.56,
+         "threePm": 0.47
+        },
+        "rates": {
+         "pts": 0.586,
+         "reb": 0.086,
+         "ast": 0.052,
+         "threePm": 0.052
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4066648",
+        "name": "Rui Hachimura",
+        "expectedMinutes": 33.2327,
+        "actualMinutes": 15,
+        "minutesAbsErr": 18.2327,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 13.155,
+         "reb": 3.5,
+         "ast": 0.57,
+         "threePm": 2.965
+        },
+        "unconditional": {
+         "pts": 3.63,
+         "reb": 1.68,
+         "ast": 1.3,
+         "threePm": 1.59
+        },
+        "rates": {
+         "pts": 0.523,
+         "reb": 0.1,
+         "ast": 0.038,
+         "threePm": 0.069
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4432170",
+        "name": "Isaiah Jackson",
+        "expectedMinutes": 16.6163,
+        "actualMinutes": 17,
+        "minutesAbsErr": 0.3837,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 0.25,
+         "reb": 0.396,
+         "ast": 2.354,
+         "threePm": 0
+        },
+        "unconditional": {
+         "pts": 0.42,
+         "reb": 0.49,
+         "ast": 2.3,
+         "threePm": 0
+        },
+        "rates": {
+         "pts": 0.25,
+         "reb": 0.212,
+         "ast": 0.038,
+         "threePm": 0
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "3448",
+        "name": "Brook Lopez",
+        "expectedMinutes": 21.7291,
+        "actualMinutes": 7,
+        "minutesAbsErr": 14.7291,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 4.488,
+         "reb": 2.041,
+         "ast": 0.546,
+         "threePm": 1.099
+        },
+        "unconditional": {
+         "pts": 15.99,
+         "reb": 0.01,
+         "ast": 1.95,
+         "threePm": 3.44
+        },
+        "rates": {
+         "pts": 0.784,
+         "reb": 0.137,
+         "ast": 0.078,
+         "threePm": 0.157
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "2991139",
+        "name": "Kris Dunn",
+        "expectedMinutes": 16.9359,
+        "actualMinutes": 6,
+        "minutesAbsErr": 10.9359,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 1.302,
+         "reb": 0.094,
+         "ast": 1.02,
+         "threePm": 0.886
+        },
+        "unconditional": {
+         "pts": 1.86,
+         "reb": 1.58,
+         "ast": 3.07,
+         "threePm": 0.62
+        },
+        "rates": {
+         "pts": 0.283,
+         "reb": 0.151,
+         "ast": 0.17,
+         "threePm": 0.019
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4398390",
+        "name": "Jalen Pickett",
+        "expectedMinutes": 17.3832,
+        "actualMinutes": 14,
+        "minutesAbsErr": 3.3832,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 2.594,
+         "reb": 0.058,
+         "ast": 1.848,
+         "threePm": 1.232
+        },
+        "unconditional": {
+         "pts": 4.64,
+         "reb": 0.8,
+         "ast": 2.5,
+         "threePm": 1.71
+        },
+        "rates": {
+         "pts": 0.471,
+         "reb": 0.147,
+         "ast": 0.132,
+         "threePm": 0.088
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4683935",
+        "name": "Blake Wesley",
+        "expectedMinutes": 24.605,
+        "actualMinutes": 18,
+        "minutesAbsErr": 6.605,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 2.384,
+         "reb": 0.042,
+         "ast": 1.574,
+         "threePm": 0
+        },
+        "unconditional": {
+         "pts": 0.49,
+         "reb": 1.26,
+         "ast": 2.56,
+         "threePm": 0
+        },
+        "rates": {
+         "pts": 0.312,
+         "reb": 0.169,
+         "ast": 0.143,
+         "threePm": 0
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4845363",
+        "name": "Cam Christie",
+        "expectedMinutes": 11.078,
+        "actualMinutes": 28,
+        "minutesAbsErr": 16.922,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 15.688,
+         "reb": 4.78,
+         "ast": 1.312,
+         "threePm": 1.064
+        },
+        "unconditional": {
+         "pts": 1.4,
+         "reb": 6.61,
+         "ast": 1.29,
+         "threePm": 0.49
+        },
+        "rates": {
+         "pts": 0.846,
+         "reb": 0.115,
+         "ast": 0.154,
+         "threePm": 0.038
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "5106258",
+        "name": "Gradey Dick",
+        "expectedMinutes": 24.2854,
+        "actualMinutes": 16,
+        "minutesAbsErr": 8.2854,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 5.424,
+         "reb": 3.472,
+         "ast": 0.152,
+         "threePm": 1.184
+        },
+        "unconditional": {
+         "pts": 10.41,
+         "reb": 2.16,
+         "ast": 0.29,
+         "threePm": 1.86
+        },
+        "rates": {
+         "pts": 0.589,
+         "reb": 0.158,
+         "ast": 0.053,
+         "threePm": 0.074
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "5159895",
+        "name": "Yuki Kawamura",
+        "expectedMinutes": 13.4209,
+        "actualMinutes": 4,
+        "minutesAbsErr": 9.4209,
+        "ratesBasis": "team-pool-fallback",
+        "conditional": {
+         "pts": 1.0796,
+         "reb": 0.5468,
+         "ast": 0.3544,
+         "threePm": 0.2564
+        },
+        "unconditional": {
+         "pts": 6.04,
+         "reb": 1.84,
+         "ast": 1.21,
+         "threePm": 0.86
+        },
+        "rates": {
+         "pts": 0.5199,
+         "reb": 0.1367,
+         "ast": 0.0886,
+         "threePm": 0.0641
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "6589",
+        "name": "Draymond Green",
+        "expectedMinutes": 19.1834,
+        "actualMinutes": 14,
+        "minutesAbsErr": 5.1834,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 2.158,
+         "reb": 0.11,
+         "ast": 0.646,
+         "threePm": 0.574
+        },
+        "unconditional": {
+         "pts": 3.84,
+         "reb": 0.67,
+         "ast": 1.63,
+         "threePm": 0.96
+        },
+        "rates": {
+         "pts": 0.297,
+         "reb": 0.135,
+         "ast": 0.189,
+         "threePm": 0.041
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "3213",
+        "name": "Al Horford",
+        "expectedMinutes": 17.1095,
+        "actualMinutes": 16,
+        "minutesAbsErr": 1.1095,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 2.088,
+         "reb": 0.568,
+         "ast": 0.936,
+         "threePm": 0.024
+        },
+        "unconditional": {
+         "pts": 2.6,
+         "reb": 0.31,
+         "ast": 1.09,
+         "threePm": 0.06
+        },
+        "rates": {
+         "pts": 0.318,
+         "reb": 0.152,
+         "ast": 0.121,
+         "threePm": 0.061
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "3975",
+        "name": "Stephen Curry",
+        "expectedMinutes": 22.8127,
+        "actualMinutes": 13,
+        "minutesAbsErr": 9.8127,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 0.79,
+         "reb": 0.21,
+         "ast": 0.21,
+         "threePm": 0.076
+        },
+        "unconditional": {
+         "pts": 8.76,
+         "reb": 1.89,
+         "ast": 1.87,
+         "threePm": 1.36
+        },
+        "rates": {
+         "pts": 0.83,
+         "reb": 0.17,
+         "ast": 0.17,
+         "threePm": 0.148
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4709138",
+        "name": "Brandin Podziemski",
+        "expectedMinutes": 22.1905,
+        "actualMinutes": 18,
+        "minutesAbsErr": 4.1905,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 0.578,
+         "reb": 0.358,
+         "ast": 1.366,
+         "threePm": 0.35
+        },
+        "unconditional": {
+         "pts": 2.5,
+         "reb": 0.91,
+         "ast": 2.16,
+         "threePm": 0.68
+        },
+        "rates": {
+         "pts": 0.421,
+         "reb": 0.131,
+         "ast": 0.187,
+         "threePm": 0.075
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4897449",
+        "name": "Malevy Leons",
+        "expectedMinutes": 20.3935,
+        "actualMinutes": 10,
+        "minutesAbsErr": 10.3935,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 4.1,
+         "reb": 0.29,
+         "ast": 0.66,
+         "threePm": 0.68
+        },
+        "unconditional": {
+         "pts": 0.06,
+         "reb": 2.71,
+         "ast": 0.09,
+         "threePm": 1.49
+        },
+        "rates": {
+         "pts": 0.39,
+         "reb": 0.229,
+         "ast": 0.034,
+         "threePm": 0.068
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4997536",
+        "name": "Gui Santos",
+        "expectedMinutes": 18.4057,
+        "actualMinutes": 17,
+        "minutesAbsErr": 1.4057,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 4.206,
+         "reb": 1.365,
+         "ast": 1.683,
+         "threePm": 0.286
+        },
+        "unconditional": {
+         "pts": 3.84,
+         "reb": 1.16,
+         "ast": 1.88,
+         "threePm": 0.22
+        },
+        "rates": {
+         "pts": 0.282,
+         "reb": 0.155,
+         "ast": 0.099,
+         "threePm": 0.042
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4397886",
+        "name": "Charles Bassey",
+        "expectedMinutes": 17.628,
+        "actualMinutes": 16,
+        "minutesAbsErr": 1.628,
+        "ratesBasis": "team-pool-fallback",
+        "conditional": {
+         "pts": 4.6416,
+         "reb": 5.1872,
+         "ast": 1.008,
+         "threePm": 1.12
+        },
+        "unconditional": {
+         "pts": 3.07,
+         "reb": 4.6,
+         "ast": 1.44,
+         "threePm": 1.35
+        },
+        "rates": {
+         "pts": 0.4599,
+         "reb": 0.1758,
+         "ast": 0.1255,
+         "threePm": 0.07
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "3134903",
+        "name": "Gary Payton II",
+        "expectedMinutes": 14.3098,
+        "actualMinutes": 12,
+        "minutesAbsErr": 2.3098,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 1.128,
+         "reb": 1.56,
+         "ast": 0.652,
+         "threePm": 0.516
+        },
+        "unconditional": {
+         "pts": 2.49,
+         "reb": 1.86,
+         "ast": 0.52,
+         "threePm": 0.65
+        },
+        "rates": {
+         "pts": 0.594,
+         "reb": 0.13,
+         "ast": 0.029,
+         "threePm": 0.043
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4397040",
+        "name": "Brandon Williams",
+        "expectedMinutes": 3.1108,
+        "actualMinutes": 16,
+        "minutesAbsErr": 12.8892,
+        "ratesBasis": "team-pool-fallback",
+        "conditional": {
+         "pts": 3.6416,
+         "reb": 0.8128,
+         "ast": 0.992,
+         "threePm": 1.12
+        },
+        "unconditional": {
+         "pts": 9.57,
+         "reb": 1.45,
+         "ast": 2.61,
+         "threePm": 0.22
+        },
+        "rates": {
+         "pts": 0.4599,
+         "reb": 0.1758,
+         "ast": 0.1255,
+         "threePm": 0.07
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4433149",
+        "name": "LJ Cryer",
+        "expectedMinutes": 9.9546,
+        "actualMinutes": 3,
+        "minutesAbsErr": 6.9546,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 0.563,
+         "reb": 0.501,
+         "ast": 0.564,
+         "threePm": 0.375
+        },
+        "unconditional": {
+         "pts": 4.9,
+         "reb": 1.88,
+         "ast": 1.87,
+         "threePm": 1.43
+        },
+        "rates": {
+         "pts": 0.521,
+         "reb": 0.167,
+         "ast": 0.188,
+         "threePm": 0.125
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4433159",
+        "name": "Dalen Terry",
+        "expectedMinutes": 16.7984,
+        "actualMinutes": 11,
+        "minutesAbsErr": 5.7984,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 1.876,
+         "reb": 2.415,
+         "ast": 0.178,
+         "threePm": 0.132
+        },
+        "unconditional": {
+         "pts": 0.11,
+         "reb": 1.08,
+         "ast": 1.34,
+         "threePm": 0.26
+        },
+        "rates": {
+         "pts": 0.284,
+         "reb": 0.235,
+         "ast": 0.198,
+         "threePm": 0.012
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 1,
+         "reb": 1,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4696317",
+        "name": "Miles Kelly",
+        "expectedMinutes": 11.9248,
+        "actualMinutes": 7,
+        "minutesAbsErr": 4.9248,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 1.955,
+         "reb": 0.91,
+         "ast": 0.218,
+         "threePm": 0.91
+        },
+        "unconditional": {
+         "pts": 5.05,
+         "reb": 1.6,
+         "ast": 1.55,
+         "threePm": 1.72
+        },
+        "rates": {
+         "pts": 0.565,
+         "reb": 0.13,
+         "ast": 0.174,
+         "threePm": 0.13
+        },
+        "inside80": {
+         "pts": 1,
+         "reb": 0,
+         "ast": 1,
+         "threePm": 1
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4897262",
+        "name": "Will Richard",
+        "expectedMinutes": 23.0201,
+        "actualMinutes": 17,
+        "minutesAbsErr": 6.0201,
+        "ratesBasis": "player-window",
+        "conditional": {
+         "pts": 4.579,
+         "reb": 0.295,
+         "ast": 1.377,
+         "threePm": 1.224
+        },
+        "unconditional": {
+         "pts": 6.89,
+         "reb": 1.11,
+         "ast": 1.92,
+         "threePm": 1.69
+        },
+        "rates": {
+         "pts": 0.387,
+         "reb": 0.135,
+         "ast": 0.081,
+         "threePm": 0.072
+        },
+        "inside80": {
+         "pts": 0,
+         "reb": 1,
+         "ast": 1,
+         "threePm": 0
+        },
+        "atOrAboveMedian": {
+         "pts": 0,
+         "reb": 0,
+         "ast": 0,
+         "threePm": 0
+        }
+       }
+      ],
+      "predictedButAbsent": [],
+      "playedButUnpredicted": [
+       {
+        "side": "home",
+        "providerAthleteId": "4065778",
+        "name": "Max Strus",
+        "minutes": 5,
+        "pts": 0
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4396907",
+        "name": "Darius Garland",
+        "minutes": 15,
+        "pts": 15
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "5075626",
+        "name": "Baba Miller",
+        "minutes": 20,
+        "pts": 9
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "5105832",
+        "name": "Nick Martinelli",
+        "minutes": 24,
+        "pts": 5
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "5105853",
+        "name": "Fletcher Loyer",
+        "minutes": 7,
+        "pts": 0
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "5254165",
+        "name": "Keaton Wagler",
+        "minutes": 30,
+        "pts": 15
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "5175737",
+        "name": "Yaxel Lendeborg",
+        "minutes": 19,
+        "pts": 4
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "2990969",
+        "name": "Georges Niang",
+        "minutes": 12,
+        "pts": 4
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4703396",
+        "name": "Graham Ike",
+        "minutes": 16,
+        "pts": 11
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "5170949",
+        "name": "Alex Toohey",
+        "minutes": 8,
+        "pts": 2
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "4066436",
+        "name": "De'Anthony Melton",
+        "minutes": 16,
+        "pts": 2
+       }
+      ],
+      "predictedButDnp": [
+       {
+        "side": "home",
+        "providerAthleteId": "6580",
+        "name": "Bradley Beal",
+        "expectedMinutes": 19.1727,
+        "dnpReason": "COACH'S DECISION"
+       },
+       {
+        "side": "home",
+        "providerAthleteId": "4702352",
+        "name": "Kobe Sanders",
+        "expectedMinutes": 23.0072,
+        "dnpReason": "COACH'S DECISION"
+       },
+       {
+        "side": "away",
+        "providerAthleteId": "3102531",
+        "name": "Kristaps Porzingis",
+        "expectedMinutes": 23.158,
+        "dnpReason": "NOT WITH TEAM"
+       }
+      ],
+      "nullMinutesActual": 0
+     }
+    }
+   ]
+  },
+  {
+   "date": "2026-10-05",
+   "gradedAt": "2026-10-05T15:48:06Z",
+   "modelVersion": "nba-preseason-experimental-v0.1",
+   "inputAsOf": "2026-10-05T15:31:14Z",
+   "forecastGames": 3,
+   "graded": 0,
+   "pending": [
+    {
+     "providerEventId": "401898388",
+     "reason": "no final in results capture or corpus"
+    },
+    {
+     "providerEventId": "401908947",
+     "reason": "no final in results capture or corpus"
+    },
+    {
+     "providerEventId": "401914101",
+     "reason": "no final in results capture or corpus"
+    }
+   ],
+   "fetched": [],
+   "summary": {
+    "NBA PRESEASON — EXPERIMENTAL": {
+     "games": 0,
+     "winner": {
+      "elo": {
+       "n": 0
+      },
+      "sim": {
+       "n": 0
+      }
+     },
+     "score": null,
+     "players": {
+      "gamesWithBoxscore": 0,
+      "matchedRows": 0,
+      "minutesMAE": null,
+      "conditionalMAE": {
+       "pts": null,
+       "reb": null,
+       "ast": null,
+       "threePm": null
+      },
+      "unconditionalMAE": {
+       "pts": null,
+       "reb": null,
+       "ast": null,
+       "threePm": null
+      },
+      "predictedButAbsent": 0,
+      "predictedButDnp": 0,
+      "playedButUnpredicted": 0,
+      "nullMinutesActual": 0
+     }
+    },
+    "NBA REGULAR SEASON — SHADOW": {
+     "games": 0,
+     "winner": {
+      "elo": {
+       "n": 0
+      },
+      "sim": {
+       "n": 0
+      }
+     },
+     "score": null,
+     "players": {
+      "gamesWithBoxscore": 0,
+      "matchedRows": 0,
+      "minutesMAE": null,
+      "conditionalMAE": {
+       "pts": null,
+       "reb": null,
+       "ast": null,
+       "threePm": null
+      },
+      "unconditionalMAE": {
+       "pts": null,
+       "reb": null,
+       "ast": null,
+       "threePm": null
+      },
+      "predictedButAbsent": 0,
+      "predictedButDnp": 0,
+      "playedButUnpredicted": 0,
+      "nullMinutesActual": 0
+     }
+    }
+   },
+   "games": []
   }
  ],
- "updatedAt": "2026-10-04T14:46:00Z",
+ "updatedAt": "2026-10-05T15:48:06Z",
  "requestsMade": 0,
  "validation": {
   "preregistration": "docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md",
-  "computedAt": "2026-10-04T14:46:00Z",
+  "computedAt": "2026-10-05T15:48:06Z",
   "byLabel": {
    "NBA PRESEASON — EXPERIMENTAL": {
-    "games": 1,
+    "games": 3,
     "timing": {
-     "preTip": 1,
+     "preTip": 3,
      "notPreTip": 0,
      "unknown": 0,
      "rule": "§8: only forecasts written before tip count; any other graded game holds every market (§10)"
     },
     "winner": {
      "sim": {
-      "n": 1,
-      "brier": 0.5194,
-      "logLoss": 1.2755,
-      "ece": 0.7207,
+      "n": 3,
+      "brier": 0.2396,
+      "logLoss": 0.678,
+      "ece": 0.4506,
       "reliability": [
+       {
+        "bin": "0.3–0.4",
+        "n": 1,
+        "predicted": 0.3081,
+        "actual": 0
+       },
+       {
+        "bin": "0.6–0.7",
+        "n": 1,
+        "predicted": 0.677,
+        "actual": 1
+       },
        {
         "bin": "0.7–0.8",
         "n": 1,
@@ -1176,15 +3585,21 @@
       ]
      },
      "elo": {
-      "n": 1,
-      "brier": 0.4754,
-      "logLoss": 1.1696,
-      "ece": 0.6895,
+      "n": 3,
+      "brier": 0.3705,
+      "logLoss": 0.9441,
+      "ece": 0.6046,
       "reliability": [
        {
-        "bin": "0.6–0.7",
+        "bin": "0.4–0.5",
         "n": 1,
-        "predicted": 0.6895,
+        "predicted": 0.4841,
+        "actual": 1
+       },
+       {
+        "bin": "0.6–0.7",
+        "n": 2,
+        "predicted": 0.6489,
         "actual": 0
        }
       ]
@@ -1195,10 +3610,10 @@
        "logLoss": 0.6931
       },
       "homeRate": {
-       "rate": 0,
+       "rate": 0.3333,
        "inSample": true,
-       "brier": 0,
-       "logLoss": 0
+       "brier": 0.2222,
+       "logLoss": 0.6365
       },
       "market": {
        "state": "NO_AUTHORIZED_PRICE",
@@ -1207,108 +3622,108 @@
      }
     },
     "margin": {
-     "n": 1,
-     "mae": 38.73,
-     "bias": 38.73,
-     "coverage80": 0,
-     "coverage80N": 1,
+     "n": 3,
+     "mae": 16.81,
+     "bias": 16.4167,
+     "coverage80": 0.6667,
+     "coverage80N": 3,
      "coverage50": null,
      "coverage50Reason": "NOT_RECORDED — the v0 artifact stores p10/p50/p90, not p25/p75",
      "intervalNotRecorded": 0
     },
     "total": {
-     "n": 1,
-     "mae": 2.1,
-     "bias": -2.1,
-     "coverage80": 1,
-     "coverage80N": 1,
+     "n": 3,
+     "mae": 25.7467,
+     "bias": 24.3467,
+     "coverage80": 0.6667,
+     "coverage80N": 3,
      "coverage50": null,
      "coverage50Reason": "NOT_RECORDED — the v0 artifact stores p10/p50/p90, not p25/p75",
      "intervalNotRecorded": 0
     },
     "overtime": {
      "n": 0,
-     "notMeasured": 1,
+     "notMeasured": 3,
      "actualRate": null,
      "simTieMassMean": null,
      "note": "forward finals carry no overtime fact (results capture + box score); only corpus finals do — NOT_MEASURED is not 'no overtime'"
     },
     "players": {
      "minutes": {
-      "n": 22,
-      "mae": 5.9688
+      "n": 70,
+      "mae": 5.9824
      },
      "families": {
       "pts": {
-       "n": 5,
+       "n": 20,
        "minN": 1500,
-       "conditionalMAE": 2.4877,
-       "unconditionalMAE": 2.398,
-       "coverage80": 0.8,
-       "coverage80N": 5,
-       "atOrAboveMedianRate": 0.2,
+       "conditionalMAE": 3.4187,
+       "unconditionalMAE": 4.4185,
+       "coverage80": 0.75,
+       "coverage80N": 20,
+       "atOrAboveMedianRate": 0.3,
        "medianEce": null,
        "medianEceReason": "NOT_RECORDED — the artifact stores the median, not P(stat ≥ median); the at-or-above rate is reported instead",
        "notRecorded": 0
       },
       "reb": {
-       "n": 5,
+       "n": 20,
        "minN": 1500,
-       "conditionalMAE": 1.3427,
-       "unconditionalMAE": 1.87,
-       "coverage80": 0.8,
-       "coverage80N": 5,
-       "atOrAboveMedianRate": 0,
+       "conditionalMAE": 1.2022,
+       "unconditionalMAE": 1.506,
+       "coverage80": 0.9,
+       "coverage80N": 20,
+       "atOrAboveMedianRate": 0.25,
        "medianEce": null,
        "medianEceReason": "NOT_RECORDED — the artifact stores the median, not P(stat ≥ median); the at-or-above rate is reported instead",
        "notRecorded": 0
       },
       "ast": {
-       "n": 5,
+       "n": 20,
        "minN": 1500,
-       "conditionalMAE": 1.8138,
-       "unconditionalMAE": 2.514,
-       "coverage80": 0.6,
-       "coverage80N": 5,
-       "atOrAboveMedianRate": 0.2,
+       "conditionalMAE": 1.1484,
+       "unconditionalMAE": 1.708,
+       "coverage80": 0.8,
+       "coverage80N": 20,
+       "atOrAboveMedianRate": 0.15,
        "medianEce": null,
        "medianEceReason": "NOT_RECORDED — the artifact stores the median, not P(stat ≥ median); the at-or-above rate is reported instead",
        "notRecorded": 0
       },
       "threePm": {
-       "n": 3,
+       "n": 15,
        "minN": 800,
-       "conditionalMAE": 0.5633,
-       "unconditionalMAE": 0.9667,
+       "conditionalMAE": 0.8714,
+       "unconditionalMAE": 1.3347,
        "coverage80": 0.6667,
-       "coverage80N": 3,
-       "atOrAboveMedianRate": 0,
+       "coverage80N": 15,
+       "atOrAboveMedianRate": 0.1333,
        "medianEce": null,
        "medianEceReason": "NOT_RECORDED — the artifact stores the median, not P(stat ≥ median); the at-or-above rate is reported instead",
        "notRecorded": 0
       }
      },
      "availability": {
-      "predictedButDnp": 0,
+      "predictedButDnp": 7,
       "predictedButAbsent": 8,
-      "playedButUnpredicted": 9
+      "playedButUnpredicted": 30
      }
     },
     "states": {
      "winner": {
       "state": "HOLD",
-      "n": 1,
+      "n": 3,
       "minN": 300,
       "bars": {
-       "logLossVsElo": false,
-       "logLossVsCoin": false,
+       "logLossVsElo": true,
+       "logLossVsCoin": true,
        "ece": false,
-       "brier": false
+       "brier": true
       }
      },
      "margin": {
       "state": "HOLD",
-      "n": 1,
+      "n": 3,
       "minN": 300,
       "bars": {
        "mae": false,
@@ -1318,10 +3733,10 @@
      },
      "total": {
       "state": "HOLD",
-      "n": 1,
+      "n": 3,
       "minN": 300,
       "bars": {
-       "mae": true,
+       "mae": false,
        "coverage": false,
        "bias": false
       },
@@ -1329,27 +3744,7 @@
      },
      "pts": {
       "state": "HOLD",
-      "n": 5,
-      "minN": 1500,
-      "bars": {
-       "minutesMae": true,
-       "coverage": true
-      },
-      "unrecordedBars": "season-mean-rate baseline and median ECE are not recorded — this family cannot reach BARS_HOLD from this ledger"
-     },
-     "reb": {
-      "state": "HOLD",
-      "n": 5,
-      "minN": 1500,
-      "bars": {
-       "minutesMae": true,
-       "coverage": true
-      },
-      "unrecordedBars": "season-mean-rate baseline and median ECE are not recorded — this family cannot reach BARS_HOLD from this ledger"
-     },
-     "ast": {
-      "state": "HOLD",
-      "n": 5,
+      "n": 20,
       "minN": 1500,
       "bars": {
        "minutesMae": true,
@@ -1357,9 +3752,29 @@
       },
       "unrecordedBars": "season-mean-rate baseline and median ECE are not recorded — this family cannot reach BARS_HOLD from this ledger"
      },
+     "reb": {
+      "state": "HOLD",
+      "n": 20,
+      "minN": 1500,
+      "bars": {
+       "minutesMae": true,
+       "coverage": false
+      },
+      "unrecordedBars": "season-mean-rate baseline and median ECE are not recorded — this family cannot reach BARS_HOLD from this ledger"
+     },
+     "ast": {
+      "state": "HOLD",
+      "n": 20,
+      "minN": 1500,
+      "bars": {
+       "minutesMae": true,
+       "coverage": true
+      },
+      "unrecordedBars": "season-mean-rate baseline and median ECE are not recorded — this family cannot reach BARS_HOLD from this ledger"
+     },
      "threePm": {
       "state": "HOLD",
-      "n": 3,
+      "n": 15,
       "minN": 800,
       "bars": {
        "minutesMae": true,
