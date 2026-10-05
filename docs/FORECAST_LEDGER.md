@@ -27,6 +27,13 @@ version is an IMMUTABLE field, so re-labelling it is an append-only violation ra
 Existing schemes this maps onto: NFL prop `predictionId = <event>:<player>:<family>` (= the Top-5 `forecastId`),
 NFL game `canonicalEventId`, MLB `gamePk` + market, EPL derived match id (`soccer:epl:<a>-v-<b>:<minute>`, the pair
 ordered **alphabetically**), Ligue 1 ESPN-scheme id, UFC provider (ESPN) bout id — never the name-based bout key.
+**Subject ids are the platform's canonical entity ids** (the `data/research-projection/v1/index.json` ids Ask and Research
+resolve): `nfl-athlete-<ESPN id>`, `mlb-player-<MLBAM id>`, `epl-athlete-<id>`, `nfl-team-<ESPN team id>` (found by the
+team's abbreviation; an unresolvable team withholds its team rows rather than guessing). The first build used
+`mlbam-` / `epl-player-` / `nfl-team-<ABBR>`; they were re-keyed on 2026-10-05 by the one audited identity path
+(`--rekey`): a vanished row is forgiven only when `pairRekeys` finds exactly one successor identical in every immutable
+field except the ids, and the 4,963 old → new pairs are committed in `v1/migrations/2026-10-05-canonical-subject-ids.json`.
+
 Note: in `lib/products/eligible-leg/*` `forecastId` means a MODEL id, not a row id; the ledger's field is
 `forecastId` = row id, and products should reference it by that meaning going forward.
 

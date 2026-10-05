@@ -51,7 +51,7 @@ export function forecastOfRecord(receipts) {
   return best;
 }
 
-function gameRows({ file, receipt: r, grade, settledAt, resultSource, notes = [] }) {
+function gameRows({ file, receipt: r, grade, settledAt, resultSource, notes = [], teamIds = new Map() }) {
   const s = r.forecastSummary;
   if (!s) return [];
   const base = {
@@ -145,12 +145,16 @@ function gameRows({ file, receipt: r, grade, settledAt, resultSource, notes = []
   continuous("nfl_game_margin", "GAME", gameId, r.matchup ?? null, null, s.margin, settled ? a.home - a.away : null, null);
   const ps = s.projectedScore;
   const sr = s.scoreRange ?? {};
-  if (r.home?.abbr && ps && isNum(ps.home)) {
-    continuous("nfl_team_score", "TEAM", `nfl-team-${r.home.abbr}`, r.home.name ?? r.home.abbr, r.home.abbr,
+  /* Team subjects use the platform's canonical team id (research-projection index: nfl-team-<ESPN id>), found by the
+     team's abbreviation — one exact match or the team row is not emitted (fail closed, never a guessed id). */
+  const homeId = r.home?.abbr ? teamIds.get(r.home.abbr) : null;
+  const awayId = r.away?.abbr ? teamIds.get(r.away.abbr) : null;
+  if (homeId && ps && isNum(ps.home)) {
+    continuous("nfl_team_score", "TEAM", homeId, r.home.name ?? r.home.abbr, r.home.abbr,
       { median: ps.home, p10: sr.homeP10, p90: sr.homeP90 }, settled ? a.home : null, null);
   }
-  if (r.away?.abbr && ps && isNum(ps.away)) {
-    continuous("nfl_team_score", "TEAM", `nfl-team-${r.away.abbr}`, r.away.name ?? r.away.abbr, r.away.abbr,
+  if (awayId && ps && isNum(ps.away)) {
+    continuous("nfl_team_score", "TEAM", awayId, r.away.name ?? r.away.abbr, r.away.abbr,
       { median: ps.away, p10: sr.awayP10, p90: sr.awayP90 }, settled ? a.away : null, null);
   }
   return rows;
@@ -160,7 +164,7 @@ function gameRows({ file, receipt: r, grade, settledAt, resultSource, notes = []
  * @param settledEvents  [{ event, receipt }] — owner-graded events with the receipt they graded
  * @param receiptsOfRecord Map<providerEventId, {file, receipt}> — for events not yet graded
  */
-export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), now }) {
+export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), now, teamIds = new Map() }) {
   const nowMs = Date.parse(now);
   if (!Number.isFinite(nowMs)) throw new Error("nflGameRows: now is required");
   const rows = [];
@@ -183,7 +187,7 @@ export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), 
   for (const { item: { event: e, receipt }, superseded } of best.values()) {
     graded.add(String(e.providerEventId));
     const notes = superseded.length ? [`owner also graded superseded receipt(s) ${superseded.join(", ")} — not of record, not counted`] : [];
-    rows.push(...gameRows({ notes,
+    rows.push(...gameRows({ notes, teamIds,
       file: e.lineage?.receiptFile ?? null,
       receipt,
       grade: e.grade,
@@ -195,7 +199,7 @@ export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), 
     if (graded.has(String(id))) continue;
     // Before kickoff the forecast of record can still be revised; only a started event's forecast is final.
     if (!(Date.parse(rec.receipt.kickoffUtc) <= nowMs)) continue;
-    rows.push(...gameRows({ file: rec.relPath ?? rec.file, receipt: rec.receipt, grade: null }));
+    rows.push(...gameRows({ file: rec.relPath ?? rec.file, receipt: rec.receipt, grade: null, teamIds }));
   }
   return rows;
 }
