@@ -14,7 +14,7 @@ import { measureBinary, measureContinuous, measureMulticlass, withDirectional } 
 import { makeRow } from "./row.mjs";
 import { composeLedger } from "./compose.mjs";
 import { compareLedgers, pairRekeys } from "./append-only.mjs";
-import { nflGameRows, nflPropRows, nflTopBoardRows } from "./adapters/nfl.mjs";
+import { nflGameRows, nflPropRows, nflTopBoardRows, rosterCrosswalk, nflReconciliationRows, PROP_LEDGER_START } from "./adapters/nfl.mjs";
 import { mlbGameRows } from "./adapters/mlb.mjs";
 import { eplEventIdFor, eplEventIndex } from "./adapters/soccer.mjs";
 import { buildRows, readSources, renderFiles } from "../../../scripts/results/build-forecast-ledger.mjs";
@@ -330,4 +330,46 @@ test("subject ids are the platform's canonical entity ids (the ids Ask and Resea
     if (r.sport === "NFL" && r.subjectType === "PLAYER") assert.match(r.subjectId, /^nfl-athlete-\d+$/);
     if (r.sport === "NFL" && r.subjectType === "TEAM") assert.ok(teamIds.has(r.subjectId), `${r.subjectId} is a registry team id`);
   }
+});
+
+test("Weeks 1–2 crosswalk: exact unique full name on the team, from the latest capture BEFORE kickoff; else unresolved", () => {
+  const cap = (stamp, players) => ({ stampMs: Date.parse(stamp), doc: { teams: [{ teamAbbr: "SEA", players }] } });
+  const xw = rosterCrosswalk([
+    cap("2031-09-01T00:00:00Z", [{ id: "1", fullName: "A Receiver" }]),
+    cap("2031-09-09T00:00:00Z", [{ id: "1", fullName: "A Receiver" }, { id: "2", fullName: "Twin Name" }, { id: "3", fullName: "Twin Name" }]),
+    cap("2031-09-11T00:00:00Z", [{ id: "9", fullName: "Late Signing" }]),
+  ]);
+  const kick = Date.parse("2031-09-10T17:00:00Z");
+  assert.equal(xw("A Receiver", "SEA", kick), "nfl-athlete-1", "control: exact unique match");
+  assert.equal(xw("Twin Name", "SEA", kick), null, "two players share the name → unresolved, never a pick");
+  assert.equal(xw("Late Signing", "SEA", kick), null, "a capture taken after kickoff is never used");
+  assert.equal(xw("A. Receiver", "SEA", kick), null, "no fuzzy match");
+  assert.equal(xw("A Receiver", "SF", kick), null, "wrong team → unresolved");
+});
+
+test("Weeks 1–2 backfill: only games before the prop ledger began; parity with the owner's own HIT / MISS", () => {
+  const doc = { games: [
+    { providerEventId: "1", kickoffUtc: "2026-09-14T17:00Z", matchup: "A @ B", players: [{ name: "P", team: "B", prop: "player_receptions", status: "PUBLISHED", median: 4, low: 2, high: 7, actual: 5, outcome: "HIT" }], touchdowns: [] },
+    { providerEventId: "2", kickoffUtc: PROP_LEDGER_START.replace("00:00:00Z", "17:00Z"), matchup: "C @ D", players: [{ name: "P", team: "B", prop: "player_receptions", status: "PUBLISHED", median: 4, low: 2, high: 7, actual: 5, outcome: "HIT" }], touchdowns: [] },
+  ] };
+  const captures = [{ stampMs: Date.parse("2026-09-01T00:00:00Z"), doc: { teams: [{ teamAbbr: "B", players: [{ id: "7", fullName: "P" }] }] } }];
+  const { rows } = nflReconciliationRows({ weeks: [{ file: "w.json", doc }], captures });
+  assert.deepEqual(rows.map((r) => r.eventId), ["1"], "the game on/after the prop ledger's first day is never taken from the reconciliation");
+  assert.equal(rows[0].publishedAt, null, "publication instant not recorded → null, never invented");
+  // Real ledger: every recovered row's inside-range equals the owner's HIT / MISS (the owner graded the printed range).
+  const real = ledger().filter((r) => r.provenance.owner === "nfl-week-reconciliation");
+  assert.ok(real.length >= 600, `recovered rows ${real.length}`);
+  const recon = ["2-01.json", "2-02.json"].flatMap((f) => JSON.parse(fs.readFileSync(path.join(ROOT, "app/public/data/nfl/reconciliation", f), "utf8")).games
+    .flatMap((g) => (g.players ?? []).map((p) => [`${g.providerEventId}|${p.name}|${p.prop}`, p.outcome])));
+  const owner = new Map(recon);
+  let checked = 0;
+  for (const r of real.filter((x) => x.forecastKind === FORECAST_KIND.CONTINUOUS && x.settlement.state === "SETTLED")) {
+    const o = owner.get(`${r.eventId}|${r.subjectDisplay}|${r.family}`);
+    assert.equal(r.measurement.insideRange, o === "HIT", `${r.eventId} ${r.subjectDisplay} ${r.family}: ledger inside-range must equal the owner's ${o}`);
+    checked += 1;
+  }
+  assert.ok(checked >= 400, `parity rows ${checked}`);
+  const report = {};
+  buildRows(readSources(NOW), report);
+  assert.ok(report.nflReconciliationUnresolved.length <= Math.ceil(real.length * 0.02), `unresolved ${report.nflReconciliationUnresolved.length} of ${real.length}`);
 });

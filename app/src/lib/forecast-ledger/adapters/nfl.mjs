@@ -359,3 +359,125 @@ export function nflTopBoardRows({ boards = [], withdrawals = [], heldIds = new S
   }
   return out;
 }
+
+/* ───────────────────────── NFL props, Weeks 1–2 (Session 13 · Phase G backfill) ───────────────────────── */
+
+/**
+ * Before the prop-settlement ledger existed (first day 2026-09-20), published player forecasts were graded only in the
+ * week reconciliation, which records each row by player NAME and team — exactly as printed (values rounded the way the
+ * page rounded them), against the official box score. Those rows join the ledger here through an EXACT crosswalk: the
+ * latest roster capture before the game's kickoff, the row's team, and a full-name string match that is unique on that
+ * team. Zero or several matches → the row stays UNRESOLVED (counted, never guessed).
+ *
+ * Only games kicking off before PROP_LEDGER_START: from then on the prop ledger owns these forecasts (frozen, raw values),
+ * and a forecast that could later switch source would break append-only.
+ */
+export const PROP_LEDGER_START = "2026-09-20T00:00:00Z";
+const RECON_FAMILIES = new Set(["player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions"]);
+
+/** @param captures [{ stampMs, doc }] roster captures (doc.teams[].teamAbbr, .players[].id/.fullName) */
+export function rosterCrosswalk(captures) {
+  const sorted = [...captures].filter((c) => Number.isFinite(c.stampMs)).sort((a, b) => a.stampMs - b.stampMs);
+  const indexes = new Map();
+  const indexOf = (cap) => {
+    if (!indexes.has(cap)) {
+      const byTeam = new Map();
+      for (const t of cap.doc?.teams ?? []) {
+        const m = new Map();
+        for (const p of t.players ?? []) {
+          if (!p?.id || !p?.fullName) continue;
+          const a = m.get(p.fullName) ?? [];
+          a.push(`nfl-athlete-${p.id}`);
+          m.set(p.fullName, a);
+        }
+        byTeam.set(t.teamAbbr, m);
+      }
+      indexes.set(cap, byTeam);
+    }
+    return indexes.get(cap);
+  };
+  return (name, team, beforeMs) => {
+    let cap = null;
+    for (const c of sorted) { if (c.stampMs < beforeMs) cap = c; else break; }
+    if (!cap) return null;
+    const ids = indexOf(cap).get(team)?.get(name) ?? [];
+    return ids.length === 1 ? ids[0] : null;
+  };
+}
+
+export function nflReconciliationRows({ weeks = [], captures = [] }) {
+  const resolve = rosterCrosswalk(captures);
+  const cutoff = Date.parse(PROP_LEDGER_START);
+  const rows = [];
+  const unresolved = [];
+  for (const { file, doc } of weeks) {
+    for (const g of doc?.games ?? []) {
+      const kick = Date.parse(g.kickoffUtc);
+      if (!Number.isFinite(kick) || !(kick < cutoff) || !g.providerEventId) continue;
+      const base = (name, team) => ({
+        sport: SPORT,
+        competition: "NFL",
+        season: nflSeason(g.kickoffUtc),
+        eventId: String(g.providerEventId),
+        eventStart: g.kickoffUtc,
+        matchup: g.matchup ?? null,
+        subjectType: "PLAYER",
+        subjectDisplay: name,
+        teamId: team ?? null,
+        modelId: null,
+        modelVersion: null,
+        publicationSurface: "nfl-player-board",
+        publishedAt: null, // the reconciliation records the board's values, not its publication instant (graded only if before kickoff)
+        recoverability: RECOVERABILITY.OWNER_GRADED_LOG,
+        provenance: { notes: ["values as printed on the pre-kickoff board (rounded the way the page rounded them); id by exact roster crosswalk"] },
+      });
+      for (const p of g.players ?? []) {
+        if (!RECON_FAMILIES.has(p.prop) || (p.status !== "PUBLISHED" && p.status !== "ESTIMATE") || !isNum(p.median)) continue;
+        const subjectId = resolve(p.name, p.team, kick);
+        if (!subjectId) { unresolved.push({ eventId: String(g.providerEventId), name: p.name, team: p.team, family: p.prop }); continue; }
+        const lo = isNum(p.low) ? p.low : null;
+        const hi = isNum(p.high) ? p.high : null;
+        const settled = (p.outcome === "HIT" || p.outcome === "MISS") && isNum(p.actual);
+        rows.push(makeRow({
+          ...base(p.name, p.team),
+          subjectId,
+          family: p.prop,
+          forecastKind: FORECAST_KIND.CONTINUOUS,
+          modelStatusAtPublish: p.status,
+          receiptId: `${file}#${g.providerEventId}:${subjectId}:${p.prop}`,
+          projection: p.median,
+          rangeLow: lo,
+          rangeHigh: hi,
+          rangeCoverage: lo != null && hi != null ? 0.8 : null,
+          settlement: settled
+            ? { state: "SETTLED", finalValue: p.actual, finality: "CANONICAL", source: "nfl-week-reconciliation" }
+            : p.outcome === "VOID" ? { state: "VOID", reason: "NOT_IN_OFFICIAL_BOX_SCORE", source: "nfl-week-reconciliation" }
+              : { state: "NO_MEASUREMENT", reason: `OWNER_OUTCOME_${String(p.outcome).toUpperCase()}` },
+          measurement: settled ? measureContinuous({ projection: p.median, rangeLow: lo, rangeHigh: hi, finalValue: p.actual }) : {},
+        }));
+      }
+      for (const t of g.touchdowns ?? []) {
+        if (!isNum(t.probability)) continue;
+        const subjectId = resolve(t.name, t.team, kick);
+        if (!subjectId) { unresolved.push({ eventId: String(g.providerEventId), name: t.name, team: t.team, family: "anytime_td" }); continue; }
+        const observed = t.outcome === "SCORED" ? 1 : t.outcome === "DID_NOT_SCORE" ? 0 : null;
+        rows.push(makeRow({
+          ...base(t.name, t.team),
+          subjectId,
+          family: "anytime_td",
+          forecastKind: FORECAST_KIND.BINARY,
+          modelStatusAtPublish: "PUBLISHED",
+          receiptId: `${file}#${g.providerEventId}:${subjectId}:anytime_td`,
+          probability: t.probability,
+          probabilityType: "MODEL",
+          direction: "SCORES_TD",
+          settlement: observed != null
+            ? { state: "SETTLED", finalValue: observed, finalCategory: t.outcome, finality: "CANONICAL", source: "nfl-week-reconciliation" }
+            : t.outcome === "VOID" ? { state: "VOID", reason: "DID_NOT_PLAY", source: "nfl-week-reconciliation" } : { state: "NO_MEASUREMENT" },
+          measurement: observed != null ? measureBinary({ probability: t.probability, observed }) : {},
+        }));
+      }
+    }
+  }
+  return { rows, unresolved };
+}
