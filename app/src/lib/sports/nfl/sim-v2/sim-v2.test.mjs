@@ -191,3 +191,25 @@ test("the shadow producer refuses a started game and never rewrites a receipt (c
   assert.equal(quarterOf(1800), 2);
   assert.equal(quarterOf(0), 4);
 });
+
+test("the forward shadow ledger is SCHEDULED: after every event window + hourly, add-only commit (probes catch each break)", () => {
+  const raw = fs.readFileSync(path.join(ROOT, ".github/workflows/nfl-sim-v2-shadow.yml"), "utf8");
+  const strip = (y) => y.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+  const ok = (y) => {
+    const s = strip(y);
+    return /workflows: \[nfl-event-window\]/.test(s) && /- cron: "/.test(s) && /node app\/scripts\/nfl\/build-nfl-sim-v2-shadow\.mjs --now/.test(s)
+      && /git add data\/internal\/research\/nfl\/sim-v2\/shadow\//.test(s) && /grep -v '\^A'/.test(s) && !/continue-on-error|\|\|\s*true/.test(s) && !/rebase/.test(s.replace(/never rebase/g, ""));
+  };
+  assert.ok(ok(raw), "control: the real workflow");
+  const muts = {
+    "unscheduled": raw.replace(/node app\/scripts\/nfl\/build-nfl-sim-v2-shadow\.mjs --now[^\n]*/, "echo skipped"),
+    "no write-once guard": raw.replace(/grep -v '\^A'/, "true"),
+    "never staged": raw.replace("git add data/internal/research/nfl/sim-v2/shadow/", "true"),
+    "swallowed": raw.replace(/build-nfl-sim-v2-shadow\.mjs --now "\$\(date -u \+%Y-%m-%dT%H:%M:%SZ\)"/, (m) => `${m} || true`),
+    "not after the event window": raw.replace("workflows: [nfl-event-window]", "workflows: [nothing]"),
+  };
+  for (const [name, m] of Object.entries(muts)) {
+    assert.notEqual(m, raw, `${name}: mutation applied`);
+    assert.equal(ok(m), false, `${name}: caught`);
+  }
+});

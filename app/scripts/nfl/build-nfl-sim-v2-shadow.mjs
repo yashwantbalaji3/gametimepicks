@@ -4,9 +4,10 @@
  *
  *   node app/scripts/nfl/build-nfl-sim-v2-shadow.mjs --now <ISO> [--event <providerEventId>]… [--runs 10000] [--dry-run]
  *
- * For each NOT-YET-STARTED event (default: every unstarted event with a forecast receipt), writes ONE SimulationReceiptV2
- * to data/internal/research/nfl/sim-v2/shadow/<receipt date>/<eventId>.json — write-once (`wx`): a started game is never
- * simulated, an existing receipt is never rewritten.
+ * For each NOT-YET-STARTED event kicking off within 8 days, writes a SimulationReceiptV2 to
+ * data/internal/research/nfl/sim-v2/shadow/<run date>/<eventId>-<inputHash>.json — write-once (`wx`), and only when the
+ * inputs changed since the last receipt for that event (same input hash ⇒ UNCHANGED, nothing written). A started game is
+ * never simulated; an existing receipt is never rewritten. Scheduled by .github/workflows/nfl-sim-v2-shadow.yml.
  *
  * Inputs, all model-owned and frozen into the receipt's inputSnapshotIds:
  *   anchors       the forecast-of-record receipt's published total and margin medians → team means
@@ -83,10 +84,25 @@ function main() {
   const { active } = activeRosterIndex(rosters);
   const availability = `injuries@${injuries.generatedAt ?? "?"}+rosters@${rosters.capturedAt ?? rosters.generatedAt ?? "?"}`;
 
+  /* A receipt is re-written only when its INPUTS change (new anchors, availability, role shares, params): every
+     receipt id embeds its input hash, so an hourly run over an unchanged game is a no-op, and a game whose
+     availability moved gets a new receipt beside the old one — the latest pre-kickoff receipt is the one of record. */
+  const outRoot = path.join(ROOT, OUT_DIR);
+  const existingIds = new Set();
+  for (const d of fs.existsSync(outRoot) ? fs.readdirSync(outRoot) : []) {
+    const dir = path.join(outRoot, d);
+    if (!fs.statSync(dir).isDirectory()) continue;
+    for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".json"))) {
+      try { existingIds.add(JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).simulationReceiptId); } catch { /* unreadable: ignored */ }
+    }
+  }
+  const HORIZON_MS = 8 * 86400000;
+
   let wrote = 0;
   for (const [eventId, { file, receipt: r }] of latestBefore) {
     if (wanted.size && !wanted.has(eventId)) continue;
     if (!(Date.parse(r.kickoffUtc) > nowMs)) continue; // never simulate a started game
+    if (Date.parse(r.kickoffUtc) - nowMs > HORIZON_MS) continue; // this week's games only
     if (r.seasonType === 1) continue; // regular season / postseason only
     const anchors = anchorsFromReceipt(r);
     if (!anchors) { console.log(`SKIP ${eventId}: receipt has no total/margin medians`); continue; }
@@ -114,6 +130,7 @@ function main() {
       engine: NFL_SIM_V2_VERSION, params: paramsRef.sha256, anchors: [anchors.home, anchors.away], runs,
       players: inputs.map((t) => t.players.map((p) => [p.playerId, p.passShare, p.targetShare, p.carryShare, p.catchRate, p.ypr, p.ypc])),
     }));
+    if (existingIds.has(`nfl-sim-v2:${eventId}:${inputHash}`)) { console.log(`${eventId} ${r.matchup}: UNCHANGED inputs — receipt exists`); continue; }
     const baseSeed = fnv1a64(`${NFL_SIM_V2_ENGINE}|${eventId}|${inputHash}`).slice(0, 8);
     const postseason = r.seasonType === 3;
     const calibration = calibrate({ compiled, anchors, baseSeed, postseason });
@@ -123,7 +140,7 @@ function main() {
       compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt: now, postseason,
       inputs: { forecastReceipt: `data/internal/nfl/forecast-receipts/${file}`, roleShares: `${ROLE_SHARES}@${roleShares.generatedAt}`, availability, params: paramsRef.sha256 },
     });
-    const outRel = `${OUT_DIR}/${now.slice(0, 10)}/${eventId}.json`;
+    const outRel = `${OUT_DIR}/${now.slice(0, 10)}/${eventId}-${inputHash}.json`;
     const a = receipt.aggregate;
     console.log(`${eventId} ${r.matchup}: P(home) ${a.winProbability.home} · OT ${a.overtimeProbability} · total p50 ${a.total.p50} · margin p50 ${a.margin.p50} · failed runs ${receipt.validation.failedRuns}/${runs} → ${outRel}`);
     if (dryRun) continue;
