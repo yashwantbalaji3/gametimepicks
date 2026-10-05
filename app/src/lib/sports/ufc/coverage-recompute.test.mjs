@@ -73,3 +73,18 @@ test("MUTATION PROBE · the old stale-denominator snapshot fails the published-s
   cheat.coverage.priced += 1; cheat.coverage.addedAfterCapture -= 1;
   assert.equal(guard(cheat), false, "counting an uncaptured bout as priced is caught");
 });
+
+test("a recompute drops the false provider-hash mismatch an older capture carried (2026-10-05)", () => {
+  // Captures from 2026-09-11 to 2026-10-05 compared the card's ESPN id with a per-fight provider hash and
+  // wrote this blocker for a card they had in fact priced. The recompute only runs for the same ESPN event,
+  // so there is no mismatch to carry — copying it forward re-published a verdict that was never true.
+  const snapshot = { ...snap13(), blockers: ["the odds artifact describes event 4a469d6a287808bf75aa8a246197f51d, not this card (600061182) — no prices have been captured for it yet", ...snap13().blockers] };
+  const r = recomputeCoverageAgainstCard({ snapshot, card: card(ids14) });
+  assert.ok(!r.blockers.some((x) => /describes event/.test(x)), JSON.stringify(r.blockers));
+  assert.equal(r.oddsReady, false, "still not ready: one bout unpriced, two join-failed");
+  assert.equal(r.partiallyPriced, true);
+});
+
+test("a recompute never runs across ESPN events", () => {
+  assert.equal(recomputeCoverageAgainstCard({ snapshot: snap13(), card: { ...card(ids14), event: { providerEventId: "600061541" } } }), null);
+});
