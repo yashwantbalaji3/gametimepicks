@@ -38,6 +38,26 @@ export const RUN_OUTCOME = Object.freeze({
   OUTSIDE_HORIZON: "OUTSIDE_HORIZON",                   // a windowed run only forecasts games tipping within its horizon
 });
 
+/*
+ * OVERNIGHT TIPS (Session 13 · #963; Session 14 NBA dept). A tip whose UTC hour falls in [OVERNIGHT_FROM, OVERNIGHT_TO)
+ * sits in the overnight hole where scheduled clocks rarely deliver, so a windowed run owes it from
+ * OVERNIGHT_HORIZON_HOURS out instead of its own horizon. The decider AND the builder must apply the same rule:
+ * #963 widened only the decider, so the evening run decided BUILD and the builder (still on 8 h) skipped the game
+ * as OUTSIDE_HORIZON. Timing only — model, inputs and the write-once rule are unchanged.
+ */
+export const OVERNIGHT_FROM = 6;
+export const OVERNIGHT_TO = 14;
+export const OVERNIGHT_HORIZON_HOURS = 18;
+export const isOvernightTip = (tipUtc) => {
+  const t = Date.parse(tipUtc);
+  if (!Number.isFinite(t)) return false;
+  const h = new Date(t).getUTCHours();
+  return h >= OVERNIGHT_FROM && h < OVERNIGHT_TO;
+};
+/** A windowed run's horizon for one tip: its own horizon, widened to the overnight horizon for an overnight tip. */
+export const horizonForTip = (tipUtc, horizonHours) =>
+  horizonHours == null ? null : isOvernightTip(tipUtc) ? Math.max(horizonHours, OVERNIGHT_HORIZON_HOURS) : horizonHours;
+
 /** Deterministic JSON: object keys sorted at every depth, arrays kept in order. */
 export function canonicalJson(value) {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
@@ -143,7 +163,7 @@ export function planRun({ scheduleRows, date, etDateOf, existingIds, now, horizo
     const tipMs = Date.parse(r.dateUtc);
     if (existingIds.has(id)) plan.outcomes.push({ providerEventId: id, outcome: RUN_OUTCOME.ALREADY_FROZEN });
     else if (!(tipMs > nowMs)) plan.outcomes.push({ providerEventId: id, outcome: RUN_OUTCOME.STARTED_BEFORE_FIRST_FORECAST, tipUtc: r.dateUtc });
-    else if (horizonHours != null && tipMs - nowMs > horizonHours * 3_600_000) plan.outcomes.push({ providerEventId: id, outcome: RUN_OUTCOME.OUTSIDE_HORIZON, tipUtc: r.dateUtc });
+    else if (horizonHours != null && tipMs - nowMs > horizonForTip(r.dateUtc, horizonHours) * 3_600_000) plan.outcomes.push({ providerEventId: id, outcome: RUN_OUTCOME.OUTSIDE_HORIZON, tipUtc: r.dateUtc });
     else { plan.build.push(id); plan.outcomes.push({ providerEventId: id, outcome: RUN_OUTCOME.ADDED, tipUtc: r.dateUtc }); }
   }
   return plan;
