@@ -19,26 +19,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { etDateOf, FAMILIES } from "../../src/lib/sports/nba/experimental-forecast.mjs";
-import { owedForecastDates } from "../../src/lib/sports/nba/forecast-receipt.mjs";
+import { owedForecastDates, isOvernightTip, OVERNIGHT_FROM, OVERNIGHT_TO, OVERNIGHT_HORIZON_HOURS } from "../../src/lib/sports/nba/forecast-receipt.mjs";
 
 export const WINDOW_HORIZON_HOURS = 8;
 /*
  * OVERNIGHT TIPS (Session 13 side lane). The clocks that reliably deliver are daytime: publication-watchdog's dense
  * 12–22Z ticks and daily-products' morning tick. The hourly cron delivered 4 of ~20 overnight slots, so a tip in the
- * overnight hole (the 10:00Z / 12:00Z international games — West Coast late tips at 03–05Z are already inside the evening ticks' 8 h window: HOU @ DAL 10-09 12:00Z, DAL @ HOU 10-11 10:00Z) could only
- * be forecast by a run that rarely happens. A tip whose UTC hour falls in [OVERNIGHT_FROM, OVERNIGHT_TO) is owed from
- * OVERNIGHT_HORIZON_HOURS out, so the last dependable evening tick (~22Z) forecasts it. Timing only: the model, its
- * inputs and the write-once receipt rule are unchanged — a forecast made earlier, never one made after tip.
+ * overnight hole (the 10:00Z / 12:00Z international games: HOU @ DAL 10-09 12:00Z, DAL @ HOU 10-11 10:00Z) is owed
+ * from OVERNIGHT_HORIZON_HOURS out, so the last dependable evening tick forecasts it. The rule lives in
+ * forecast-receipt.mjs so the builder's planRun applies the same widened horizon (it did not until Session 14).
  */
-export const OVERNIGHT_FROM = 6;
-export const OVERNIGHT_TO = 14;
-export const OVERNIGHT_HORIZON_HOURS = 18;
-export const isOvernightTip = (tipUtc) => {
-  const t = Date.parse(tipUtc);
-  if (!Number.isFinite(t)) return false;
-  const h = new Date(t).getUTCHours();
-  return h >= OVERNIGHT_FROM && h < OVERNIGHT_TO;
-};
+export { OVERNIGHT_FROM, OVERNIGHT_TO, OVERNIGHT_HORIZON_HOURS, isOvernightTip };
 
 /** Owed dates: the normal horizon for every tip, plus the overnight horizon for overnight tips. Pure. */
 export function owedWithOvernight({ rows, storedIdsByDate, now, horizonHours = WINDOW_HORIZON_HOURS }) {
