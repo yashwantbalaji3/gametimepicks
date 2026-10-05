@@ -516,7 +516,8 @@ the tool module imports no `.ts`.
   expected summaries; the drive simulator is private until validated). Simulation V2 SHADOW numbers are NOT exposed.
 - Follow-ups: the engine's existing resolved-entity carry (`ALREADY RESOLVED`) serves "he"/"him" on the next turn.
 - Eval: golden `frc-01..03` (fake provider) — calibration answer cites Brier, 1X2 answer cites log loss and the blind-guess
-  reference, history answer says "this list is not a record". Total 145/145.
+  reference, history answer says "this list is not a record". Total 145/145 at #961; **146/146** after #969 (`multi-06`: a
+  pronoun follow-up keeps the player for forecast history).
 - Known limits: Ligue 1 is not in `ASK_SPORTS` (its family is visible on the Results page only); team history works for
   NFL team-score rows (ids are the canonical `nfl-team-<ESPN id>` after the 2026-10-05 ledger re-key).
 

@@ -127,3 +127,5 @@ owners' own scores on every row they publish.
    the finals left the window, the `AWAITING_OFFICIAL_RESULT` rows were never revisited. The week reconciliation did
    grade Week 2, so `/results/nfl` shows it while the experimental lifetime record silently lacks it. Ledger rows for
    those games are honestly PENDING until the owner settles them (an allowed transition).
+   *Status (Session 14 · Chunk 1, 2026-10-05):* fixed forward by #959 (official box-score fallback + pending sweep in
+   `nfl-event-window`); runtime proof PENDING — no event-window run on a #959 SHA yet (Session 13 handoff §16).
