@@ -5,6 +5,8 @@ Mirrors the launch-gate ladder in app/src/lib/ufc-types.ts (ufcPublicLevel):
   schedule + odds          → odds-internal (still NO public picks)
   + fighter stats          → projections-internal
   + results grading + backtest → parlays-public
+    (grading = results corpus + our winner forecasts settled in the Forecast Ledger;
+     never a market-price grade)
 Anything missing keeps projections/parlays locked. This script NEVER invents data;
 each gate must be backed by a real, connected provider. Today only the free ESPN
 MMA schedule exists, so the artifact reports schedule-only with everything else
@@ -31,7 +33,8 @@ CURRENT_GATES: dict[str, bool] = {
     "scheduleReady": True,       # free ESPN MMA schedule
     "oddsReady": False,          # DERIVED from odds-latest.json at build time
     "fighterStatsReady": False,  # no fighter-stat provider (paid decision pending)
-    "gradingReady": False,       # no results-grading contract
+    "resultsCorpusReady": False,       # DERIVED from results-latest.json (factual finals input)
+    "forecastSettlementReady": False,  # DERIVED from Forecast Ledger ufc_winner rows
     "backtestReady": False,      # no historical backtest
     "parlaySimReady": False,     # no parlay simulation yet
 }
@@ -118,18 +121,30 @@ def fighter_stats_gate(path: Path = FIGHTERS_ARTIFACT, now: datetime | None = No
 
 
 RESULTS_ARTIFACT = REPO_ROOT / "app" / "public" / "data" / "ufc" / "results-latest.json"
-GRADED_ARTIFACT = REPO_ROOT / "app" / "public" / "data" / "ufc" / "graded-moneylines-latest.json"
 GRADING_MIN_FINAL = 100          # need a real results corpus
 GRADING_FRESH_DAYS = 120
 
+# WHAT "GRADING" MEANS (Results, 2026-10-05). The old gate also required the legacy moneyline grader
+# (graded-moneylines-latest.json) to have graded >=1 bout. That file graded MARKET PRICES, not a
+# GameTimePicks forecast, and it is retired. Grading is now three separate facts, never one word:
+#   forecastSettlementReady  our model's winner forecasts are settled against canonical finals
+#                            (Forecast Ledger ufc_winner rows) — the only one the ladder's grading step uses
+#   marketCaptureReady       the market price was captured beside the forecast (comparison input only)
+#   productSettlementReady   a published UFC product pick has a settlement owner (none: UFC is out of products)
+# A market-price settlement is never evidence that our model is graded.
+FORECAST_LEDGER = REPO_ROOT / "data" / "internal" / "forecast-ledger" / "v1" / "ufc.jsonl"
+WINNER_SUMMARY = REPO_ROOT / "data" / "internal" / "research" / "ufc" / "model-vs-market" / "summary.json"
+WINNER_FAMILY = "ufc_winner"
+STALE_PENDING_DAYS = 7           # a frozen bout still unsettled a week after its card is named, not hidden
 
-def grading_gate(results_path: Path = RESULTS_ARTIFACT, graded_path: Path = GRADED_ARTIFACT,
-                 now: datetime | None = None) -> tuple[bool, dict]:
-    """Derive gradingReady: a real results artifact (>=100 final bouts, fresh,
-    licensed) AND a working moneyline grader (graded artifact present + has graded
-    >=1 decisive result, proving the grader functions). Fail-closed."""
+
+def results_corpus_gate(results_path: Path = RESULTS_ARTIFACT,
+                        now: datetime | None = None) -> tuple[bool, dict]:
+    """resultsCorpusReady: a real, licensed, fresh results corpus (>=100 final bouts, latest event
+    within 120 days). A factual input, owned by UFC. It says finals exist, not that anything is
+    graded. Fail-closed."""
     status = {"configured": True, "eventCount": 0, "finalBoutCount": 0,
-              "latestEventDate": None, "gradingReady": False, "warnings": []}
+              "latestEventDate": None, "resultsCorpusReady": False, "warnings": []}
     if not results_path.exists():
         status["warnings"].append("results artifact missing")
         return False, status
@@ -148,24 +163,136 @@ def grading_gate(results_path: Path = RESULTS_ARTIFACT, graded_path: Path = GRAD
         status["warnings"].append(f"too few final bouts ({status['finalBoutCount']})")
         return False, status
     ld = res.get("latestEventDate")
-    fresh = isinstance(ld, str) and (((now or datetime.now(timezone.utc)).date() - datetime.fromisoformat(ld).date()).days <= GRADING_FRESH_DAYS)
+    try:
+        fresh = isinstance(ld, str) and (((now or datetime.now(timezone.utc)).date() - datetime.fromisoformat(ld).date()).days <= GRADING_FRESH_DAYS)
+    except Exception:
+        fresh = False
     if not fresh:
         status["warnings"].append("results stale")
         return False, status
-    # grader must function: a graded artifact exists with >=1 decisive grade
-    if not graded_path.exists():
-        status["warnings"].append("moneyline grader has not run")
-        return False, status
-    try:
-        gr = json.loads(graded_path.read_text())
-        decisive = (gr.get("tally", {}).get("win", 0) + gr.get("tally", {}).get("loss", 0))
-    except Exception:
-        decisive = 0
-    if decisive < 1:
-        status["warnings"].append("grader produced no decisive grades to validate")
-        return False, status
-    status["gradingReady"] = True
+    status["resultsCorpusReady"] = True
     return True, status
+
+
+def _parse_ts(v) -> datetime | None:
+    if not isinstance(v, str):
+        return None
+    try:
+        return datetime.fromisoformat(v.replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
+def forecast_settlement_gate(ledger_path: Path = FORECAST_LEDGER, summary_path: Path = WINNER_SUMMARY,
+                             now: datetime | None = None) -> tuple[bool, dict]:
+    """forecastSettlementReady: our model's winner forecasts are being settled, read from the Forecast
+    Ledger's ufc_winner rows (the same rows /results/forecasts shows). A row counts only when it is
+    SETTLED with CANONICAL finality, carries a MODEL probability, and was published before it settled.
+    Ready = >=1 such row, the newest settled within GRADING_FRESH_DAYS, and every frozen card in the
+    owner's reconciliation adding up (frozen = graded + void + pending). PENDING and VOID are never
+    misses and never block readiness; a bout pending longer than STALE_PENDING_DAYS is reported as a
+    warning by id. Method and round are not graded and do not count. Fail-closed."""
+    ref = now or datetime.now(timezone.utc)
+    status = {"configured": True, "source": "forecast-ledger/v1/ufc.jsonl#ufc_winner",
+              "settledCount": 0, "voidCount": 0, "pendingCount": 0, "latestSettledAt": None,
+              "cardsReconciled": None, "stalePendingBoutIds": [],
+              "forecastSettlementReady": False, "warnings": []}
+    if not ledger_path.exists():
+        status["warnings"].append("forecast ledger UFC file missing")
+        return False, status
+    settled: list[dict] = []
+    try:
+        for line in ledger_path.read_text().splitlines():
+            if not line.strip():
+                continue
+            r = json.loads(line)
+            if r.get("family") != WINNER_FAMILY:
+                continue
+            st = (r.get("settlement") or {}).get("state")
+            if st == "VOID":
+                status["voidCount"] += 1
+            elif st == "PENDING":
+                status["pendingCount"] += 1
+            elif st == "SETTLED":
+                settled.append(r)
+    except Exception:
+        status["warnings"].append("forecast ledger UFC file corrupt")
+        return False, status
+
+    def counts(r: dict) -> bool:
+        s = r.get("settlement") or {}
+        pub, at = _parse_ts(r.get("publishedAt")), _parse_ts(s.get("settledAt"))
+        return (s.get("finality") == "CANONICAL" and r.get("probabilityType") == "MODEL"
+                and isinstance(r.get("probability"), (int, float))
+                and pub is not None and at is not None and pub < at)
+
+    good = [r for r in settled if counts(r)]
+    if len(good) != len(settled):
+        status["warnings"].append(f"{len(settled) - len(good)} settled row(s) not counted (not canonical, not a model probability, or not published before settlement)")
+    status["settledCount"] = len(good)
+    if not good:
+        status["warnings"].append("no settled model winner forecasts in the Forecast Ledger")
+        return False, status
+    latest = max(_parse_ts(r["settlement"]["settledAt"]) for r in good)
+    status["latestSettledAt"] = latest.strftime("%Y-%m-%dT%H:%M:%SZ")
+    if (ref - latest).days > GRADING_FRESH_DAYS:
+        status["warnings"].append("winner settlement stale")
+        return False, status
+
+    try:
+        summary = json.loads(summary_path.read_text())
+        recon = summary.get("reconciliation")
+    except Exception:
+        recon = None
+    if not isinstance(recon, list):
+        status["warnings"].append("winner reconciliation missing")
+        return False, status
+    status["cardsReconciled"] = all(bool(c.get("reconciles")) for c in recon)
+    if not status["cardsReconciled"]:
+        status["warnings"].append("a card's frozen bouts do not equal graded + void + pending")
+        return False, status
+    for c in recon:
+        d = _parse_ts(f"{c.get('slateDate')}T00:00:00+00:00")
+        if c.get("pending") and d is not None and (ref - d).days > STALE_PENDING_DAYS:
+            status["stalePendingBoutIds"].extend(c.get("pendingBoutIds") or [])
+    if status["stalePendingBoutIds"]:
+        status["warnings"].append(f"{len(status['stalePendingBoutIds'])} bout(s) still pending more than {STALE_PENDING_DAYS} days after the card (likely replaced or cancelled; PENDING, never a miss)")
+    status["forecastSettlementReady"] = True
+    return True, status
+
+
+def market_capture_gate(ledger_path: Path = FORECAST_LEDGER) -> tuple[bool, dict]:
+    """marketCaptureReady: the newest settled card's winner forecasts carry the market's implied
+    probability captured in the same pregame snapshot. A comparison input for the backtest. It never
+    feeds the grading step: a market price settling is a fact about the book, not about our model."""
+    status = {"latestCard": None, "rows": 0, "withMarket": 0, "marketCaptureReady": False, "warnings": []}
+    try:
+        rows = [json.loads(l) for l in ledger_path.read_text().splitlines() if l.strip()]
+    except Exception:
+        status["warnings"].append("forecast ledger UFC file missing or corrupt")
+        return False, status
+    rows = [r for r in rows if r.get("family") == WINNER_FAMILY and (r.get("settlement") or {}).get("state") == "SETTLED"]
+    if not rows:
+        status["warnings"].append("no settled winner forecasts")
+        return False, status
+    newest = max(rows, key=lambda r: (r.get("settlement") or {}).get("settledAt") or "")
+    card = [r for r in rows if r.get("competition") == newest.get("competition")]
+    m = lambda r: r.get("market") or {}
+    status["latestCard"] = newest.get("competition")
+    status["rows"] = len(card)
+    status["withMarket"] = sum(1 for r in card if isinstance(m(r).get("impliedProbability"), (int, float))
+                               and m(r).get("capturedAt") == r.get("publishedAt"))
+    ready = status["withMarket"] == status["rows"] > 0
+    if not ready:
+        status["warnings"].append(f"{status['rows'] - status['withMarket']} of {status['rows']} rows lack a same-snapshot market price")
+    status["marketCaptureReady"] = ready
+    return ready, status
+
+
+# No UFC product (pick card, parlay, ladder) is published, so nothing has a product settlement owner.
+# This flips only when a product engine settles UFC picks from its own receipts — never from this file.
+PRODUCT_SETTLEMENT_READY = False
+PRODUCT_SETTLEMENT_REASON = "UFC is out of products; no product settlement owner"
 
 
 BACKTEST_SUMMARY = REPO_ROOT / "app" / "public" / "data" / "ufc" / "backtest-summary-latest.json"
@@ -206,7 +333,11 @@ def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
     schedule = bool(gates.get("scheduleReady"))
     odds = bool(gates.get("oddsReady"))
     stats = bool(gates.get("fighterStatsReady"))
-    grading = bool(gates.get("gradingReady"))
+    # The ladder's grading step = finals exist AND our model's forecasts are settled against them.
+    # A caller may still pass the legacy single "gradingReady" (it then stands for both).
+    corpus = bool(gates.get("resultsCorpusReady", gates.get("gradingReady")))
+    settlement = bool(gates.get("forecastSettlementReady", gates.get("gradingReady")))
+    grading = corpus and settlement
     backtest = bool(gates.get("backtestReady"))
     parlay_sim = bool(gates.get("parlaySimReady"))
 
@@ -220,8 +351,10 @@ def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
         blockers.append("odds provider not connected (Odds API MMA)")
     if not stats:
         blockers.append("fighter-stat provider not connected")
-    if not grading:
-        blockers.append("results grading not implemented")
+    if not corpus:
+        blockers.append("results corpus not ready (finals missing, unlicensed, too few or stale)")
+    if not settlement:
+        blockers.append("model winner forecasts not settled in the Forecast Ledger")
     if not backtest:
         blockers.append("no historical backtest yet")
 
@@ -249,7 +382,13 @@ def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
         "scheduleReady": schedule,
         "oddsReady": odds,
         "fighterStatsReady": stats,
+        # Legacy single flag, kept so existing readers keep working. It now means exactly
+        # resultsCorpusReady AND forecastSettlementReady, and nothing about market prices.
         "gradingReady": grading,
+        "resultsCorpusReady": corpus,
+        "forecastSettlementReady": settlement,
+        "marketCaptureReady": bool(gates.get("marketCaptureReady")),
+        "productSettlementReady": bool(gates.get("productSettlementReady", PRODUCT_SETTLEMENT_READY)),
         "backtestReady": backtest,
         "parlaySimReady": parlay_sim,
         # Prop markets (method/distance/round) require their OWN OddsAPI markets,
@@ -267,7 +406,7 @@ def derive_readiness(gates: dict[str, bool]) -> dict[str, object]:
             "schedule": "espn_mma" if schedule else "none",
             "odds": "the_odds_api_mma" if odds else "not_connected",
             "fighterStats": "connected" if stats else "not_connected",
-            "grading": "connected" if grading else "not_connected",
+            "grading": "forecast_ledger" if grading else "not_connected",
         },
         "publicMessage": public_message,
         "internalMessage": f"fail-closed: projectionsReady={projections_ready} parlayReady={parlay_ready}; blockers={blockers}",
@@ -278,28 +417,37 @@ def build(date: str | None, gates: dict[str, bool] | None = None) -> dict[str, o
     base = dict(gates if gates is not None else CURRENT_GATES)
     # Derive oddsReady + fighterStatsReady from the REAL artifacts (fail-closed)
     # unless the caller supplied explicit gates (tests pass exact gates).
-    odds_status = stats_status = grading_status = None
+    odds_status = stats_status = corpus_status = settlement_status = market_status = None
     if gates is None:
         odds_ready, odds_status = odds_gate()
         base["oddsReady"] = odds_ready
         stats_ready, stats_status = fighter_stats_gate()
         base["fighterStatsReady"] = stats_ready
-        grading_ready, grading_status = grading_gate()
-        base["gradingReady"] = grading_ready
+        base["resultsCorpusReady"], corpus_status = results_corpus_gate()
+        base["forecastSettlementReady"], settlement_status = forecast_settlement_gate()
+        base["marketCaptureReady"], market_status = market_capture_gate()
+        base["productSettlementReady"] = PRODUCT_SETTLEMENT_READY
         backtest_ready, backtest_status = backtest_gate()
         base["backtestReady"] = backtest_ready
     else:
         backtest_status = None
     payload = {"generatedFor": date, "nextEventDate": None}
     payload.update(derive_readiness(base))
-    if odds_status or stats_status or grading_status or backtest_status:
+    if odds_status or stats_status or corpus_status or settlement_status or backtest_status:
         payload.setdefault("providerStatus", {})
         if odds_status is not None:
             payload["providerStatus"]["oddsapi"] = odds_status
         if stats_status is not None:
             payload["providerStatus"]["greco1899_ufcstats_csv"] = stats_status
-        if grading_status is not None:
-            payload["providerStatus"]["greco1899_results"] = grading_status
+        if corpus_status is not None:
+            payload["providerStatus"]["greco1899_results"] = corpus_status
+        if settlement_status is not None:
+            payload["providerStatus"]["forecastSettlement"] = settlement_status
+        if market_status is not None:
+            payload["providerStatus"]["marketCapture"] = market_status
+        if gates is None:
+            payload["providerStatus"]["productSettlement"] = {"productSettlementReady": PRODUCT_SETTLEMENT_READY,
+                                                              "reason": PRODUCT_SETTLEMENT_REASON}
         if backtest_status is not None:
             payload["providerStatus"]["backtest"] = backtest_status
     return payload

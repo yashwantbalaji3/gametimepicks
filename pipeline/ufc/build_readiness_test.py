@@ -179,53 +179,145 @@ class UfcFighterStatsGateTests(unittest.TestCase):
 
 
 class UfcGradingGateTests(unittest.TestCase):
-    """gradingReady from real results + a working grader; never unlocks public picks."""
+    """Grading = a real results corpus AND our model's winner forecasts settled in the Forecast
+    Ledger. A market-price grade never counts, and grading never unlocks public picks."""
 
     def setUp(self):
         import tempfile
         from pathlib import Path
         self._d = tempfile.TemporaryDirectory()
         self.res = Path(self._d.name) / "results.json"
-        self.grd = Path(self._d.name) / "graded.json"
+        self.ledger = Path(self._d.name) / "ufc.jsonl"
+        self.summary = Path(self._d.name) / "summary.json"
 
     def tearDown(self):
         self._d.cleanup()
 
-    def _write(self, *, final=1519, latest=None, license_="GPL-3.0", decisive=1):
+    def _write_results(self, *, final=1519, latest=None, license_="GPL-3.0"):
         import json
         from datetime import datetime, timezone
         latest = latest or datetime.now(timezone.utc).date().isoformat()
         self.res.write_text(json.dumps({"provider": "greco1899_ufcstats_csv", "sourceLicense": license_,
                                         "eventCount": 126, "finalBoutCount": final, "latestEventDate": latest}))
-        self.grd.write_text(json.dumps({"tally": {"win": decisive, "loss": 1, "pending": 8}}))
 
-    def test_valid_results_and_grader_flip_gradingReady(self):
-        from pipeline.ufc.build_readiness import grading_gate
-        self._write()
-        self.assertTrue(grading_gate(self.res, self.grd)[0])
+    @staticmethod
+    def _row(**over):
+        from datetime import datetime, timedelta, timezone
+        now = datetime.now(timezone.utc)
+        row = {"family": "ufc_winner", "competition": "UFC Test", "probability": 0.61, "probabilityType": "MODEL",
+               "publishedAt": (now - timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+               "market": {"impliedProbability": 0.55, "capturedAt": (now - timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ")},
+               "settlement": {"state": "SETTLED", "finality": "CANONICAL",
+                              "settledAt": (now - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")}}
+        for k, v in over.items():
+            if isinstance(v, dict) and isinstance(row.get(k), dict):
+                row[k] = {**row[k], **v}
+            else:
+                row[k] = v
+        return row
+
+    def _write_ledger(self, rows, recon=None):
+        import json
+        self.ledger.write_text("".join(json.dumps(r) + "\n" for r in rows))
+        self.summary.write_text(json.dumps({"reconciliation": recon if recon is not None else
+                                            [{"slateDate": "2026-01-01", "frozen": len(rows), "graded": len(rows),
+                                              "void": 0, "pending": 0, "pendingBoutIds": [], "reconciles": True}]}))
+
+    def _settle(self):
+        from pipeline.ufc.build_readiness import forecast_settlement_gate
+        return forecast_settlement_gate(self.ledger, self.summary)
+
+    def test_results_corpus_valid(self):
+        from pipeline.ufc.build_readiness import results_corpus_gate
+        self._write_results()
+        self.assertTrue(results_corpus_gate(self.res)[0])
 
     def test_too_few_final_bouts_fails_closed(self):
-        from pipeline.ufc.build_readiness import grading_gate
-        self._write(final=10)
-        self.assertFalse(grading_gate(self.res, self.grd)[0])
+        from pipeline.ufc.build_readiness import results_corpus_gate
+        self._write_results(final=10)
+        self.assertFalse(results_corpus_gate(self.res)[0])
 
     def test_stale_results_fail_closed(self):
-        from pipeline.ufc.build_readiness import grading_gate
-        self._write(latest="2024-01-01")
-        self.assertFalse(grading_gate(self.res, self.grd)[0])
+        from pipeline.ufc.build_readiness import results_corpus_gate
+        self._write_results(latest="2024-01-01")
+        self.assertFalse(results_corpus_gate(self.res)[0])
 
-    def test_no_grader_artifact_fails_closed(self):
-        from pipeline.ufc.build_readiness import grading_gate
-        self._write()
-        self.grd.unlink()
-        self.assertFalse(grading_gate(self.res, self.grd)[0])
+    def test_settled_model_winner_rows_flip_forecastSettlementReady(self):
+        self._write_ledger([self._row(), self._row()])
+        ok, st = self._settle()
+        self.assertTrue(ok)
+        self.assertEqual(st["settledCount"], 2)
 
-    def test_grader_no_decisive_fails_closed(self):
-        from pipeline.ufc.build_readiness import grading_gate
-        self._write(decisive=0)
-        # tally win=0,loss=1 → decisive=1 still; force both 0
-        self.grd.write_text('{"tally":{"win":0,"loss":0,"pending":8}}')
-        self.assertFalse(grading_gate(self.res, self.grd)[0])
+    def test_no_ledger_fails_closed(self):
+        self.assertFalse(self._settle()[0])
+
+    def test_only_pending_and_void_rows_fail_closed(self):
+        # PENDING and VOID are never misses, and never evidence that grading works.
+        self._write_ledger([self._row(settlement={"state": "PENDING"}), self._row(settlement={"state": "VOID"})])
+        ok, st = self._settle()
+        self.assertFalse(ok)
+        self.assertEqual((st["pendingCount"], st["voidCount"]), (1, 1))
+
+    def test_a_market_probability_is_not_a_model_grade(self):
+        self._write_ledger([self._row(probabilityType="MARKET")])
+        self.assertFalse(self._settle()[0])
+
+    def test_a_forecast_published_after_settlement_does_not_count(self):
+        self._write_ledger([self._row(publishedAt="2099-01-01T00:00:00Z")])
+        self.assertFalse(self._settle()[0])
+
+    def test_non_canonical_finality_does_not_count(self):
+        self._write_ledger([self._row(settlement={"finality": "PROVISIONAL"})])
+        self.assertFalse(self._settle()[0])
+
+    def test_method_and_round_rows_never_count(self):
+        self._write_ledger([self._row(family="ufc_method"), self._row(family="ufc_round")])
+        self.assertFalse(self._settle()[0])
+
+    def test_stale_settlement_fails_closed(self):
+        self._write_ledger([self._row(publishedAt="2024-01-01T00:00:00Z",
+                                      settlement={"settledAt": "2024-01-02T00:00:00Z"})])
+        self.assertFalse(self._settle()[0])
+
+    def test_a_card_that_does_not_reconcile_fails_closed(self):
+        self._write_ledger([self._row()], recon=[{"slateDate": "2026-01-01", "frozen": 3, "graded": 1, "void": 0,
+                                                  "pending": 1, "reconciles": False}])
+        self.assertFalse(self._settle()[0])
+
+    def test_a_long_pending_bout_is_named_not_blocking(self):
+        # A replaced or cancelled bout stays PENDING (never a miss); readiness names it by id.
+        self._write_ledger([self._row()], recon=[{"slateDate": "2020-01-01", "frozen": 2, "graded": 1, "void": 0,
+                                                  "pending": 1, "pendingBoutIds": ["2020-01-01:a|b"], "reconciles": True}])
+        ok, st = self._settle()
+        self.assertTrue(ok)
+        self.assertEqual(st["stalePendingBoutIds"], ["2020-01-01:a|b"])
+
+    def test_market_capture_is_reported_and_never_grades(self):
+        from pipeline.ufc.build_readiness import market_capture_gate, derive_readiness
+        self._write_ledger([self._row(), self._row(market={"impliedProbability": None})])
+        ok, st = market_capture_gate(self.ledger)
+        self.assertFalse(ok)
+        self.assertEqual((st["rows"], st["withMarket"]), (2, 1))
+        r = derive_readiness({"scheduleReady": True, "oddsReady": True, "fighterStatsReady": True,
+                              "resultsCorpusReady": True, "forecastSettlementReady": False,
+                              "marketCaptureReady": True})
+        self.assertFalse(r["gradingReady"])
+        self.assertEqual(r["publicLevel"], "projections-internal")
+
+    def test_grading_needs_both_corpus_and_settlement(self):
+        from pipeline.ufc.build_readiness import derive_readiness
+        base = {"scheduleReady": True, "oddsReady": True, "fighterStatsReady": True}
+        for corpus, settled in ((True, False), (False, True)):
+            r = derive_readiness({**base, "resultsCorpusReady": corpus, "forecastSettlementReady": settled})
+            self.assertFalse(r["gradingReady"])
+        r = derive_readiness({**base, "resultsCorpusReady": True, "forecastSettlementReady": True})
+        self.assertTrue(r["gradingReady"])
+        self.assertFalse(r["productSettlementReady"])
+
+    def test_the_retired_moneyline_file_is_not_read(self):
+        from pathlib import Path
+        src = Path(__file__).with_name("build_readiness.py").read_text()
+        self.assertNotIn('"graded-moneylines-latest.json"', src, "the retired market-price grade must not feed readiness")
 
     def test_grading_plus_stats_odds_still_lock_projections(self):
         from pipeline.ufc.build_readiness import derive_readiness
