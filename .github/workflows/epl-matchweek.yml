@@ -313,12 +313,39 @@ jobs:
       #
       # Not fail-loud: a projection set is additive. If it cannot build, the team forecasts and the
       # odds capture still commit, and the page renders its honest empty state.
+      # ---- Squads (who is at each club NOW) ----
+      #
+      # The pre-lineup rows project each club's CURRENT squad. That file was captured once, on
+      # 2026-08-21, and nothing refreshed it: by October 39 players who had appeared in published
+      # lineups were missing from it, and departed players were still listed under their old club.
+      # Refreshed here at most once every 20 hours (one commit a day, not one per lineup run).
+      # Non-fatal by design: the capture REFUSES rather than half-writes, and on any refusal the
+      # last good squad file stands — but the failure is annotated, never swallowed into an echo.
+      - name: Refresh EPL squads (at most once per 20h)
+        id: squads
+        continue-on-error: true
+        working-directory: app
+        run: |
+          set -euo pipefail
+          F=../data/internal/research/epl/players/squads-2026-27.json
+          AGE_H=$(node -e 'const f=process.argv[1];let t=0;try{t=Date.parse(JSON.parse(require("fs").readFileSync(f,"utf8")).capturedAt)}catch{};console.log(Number.isFinite(t)?Math.floor((Date.now()-t)/3.6e6):9999)' "$F")
+          if [ "$AGE_H" -lt 20 ]; then echo "squads captured ${AGE_H}h ago — fresh enough"; exit 0; fi
+          node scripts/epl/capture-epl-squads.mjs --write
+      - name: Flag a failed squad refresh
+        if: steps.squads.outcome == 'failure'
+        run: echo "::warning::EPL squad refresh refused this run — the previous squad file stands"
+
+      # working-directory: app AND npx tsx, neither optional (2026-10-05). The script resolves club
+      # identity through lib/soccer/epl-clubs.ts, which imports "@/lib/..." — only resolvable from app/.
+      # Before this, ESPN's "AFC Bournemouth" failed an exact letters-only compare against
+      # "Bournemouth" and a Bournemouth home lineup was given the AWAY side's goal distribution.
       - name: Build EPL player projections
+        working-directory: app
         run: |
           set -uo pipefail
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          node app/scripts/epl/build-epl-player-projections.mjs --now "$NOW" --write || \
-            echo "player projections: refused this run — the team forecast is unaffected"
+          npx tsx scripts/epl/build-epl-player-projections.mjs --now "$NOW" --write || \
+            echo "::warning::player projections: refused this run — the team forecast is unaffected"
 
       # With real prices EPL can clear the Parlay Lab's eligibility gate, so the grids are
       # The product-state contract for this lane, built LAST so it summarises the artifacts this run
@@ -384,13 +411,14 @@ jobs:
                   data/internal/research/epl/learning \
                   data/internal/research/epl/forward \
                   data/internal/research/epl/forward-totals \
+                  data/internal/research/epl/players/squads-2026-27.json \
                   data/internal/research/soccer/epl \
                   data/internal/research/odds/epl/authorization-ledger.json 2>/dev/null || true
           if git diff --cached --quiet; then echo "nothing changed"; exit 0; fi
           # P257: a same-day rebase conflict on these regenerated files failed this job twice (Sep 5, Sep 6).
           # The helper retries and resolves a conflict INSIDE these generated paths to this run's copy; any
           # other conflict fails loud.
-          GENERATED_PATHS="app/public/data/soccer/epl app/public/data/parlays/tier-grid app/public/data/admin/epl-lane.json app/public/data/parlays/risk-ladder-epl data/internal/research/epl/forecasts data/internal/research/epl/model-read data/internal/research/epl/corpus-current-season.json data/internal/research/epl/learning data/internal/research/epl/forward data/internal/research/epl/forward-totals data/internal/research/soccer/epl" \
+          GENERATED_PATHS="app/public/data/soccer/epl app/public/data/parlays/tier-grid app/public/data/admin/epl-lane.json app/public/data/parlays/risk-ladder-epl data/internal/research/epl/forecasts data/internal/research/epl/model-read data/internal/research/epl/corpus-current-season.json data/internal/research/epl/learning data/internal/research/epl/forward data/internal/research/epl/forward-totals data/internal/research/epl/players/squads-2026-27.json data/internal/research/soccer/epl" \
             bash scripts/ci/commit-generated.sh "auto: epl matchweek refresh $(date -u +%Y-%m-%d) [skip ci]"
 
       # Runs AFTER the commit, deliberately. It used to sit before, and a legitimate skip — the

@@ -19,8 +19,8 @@ clubs meet twice.
 |---|---|---|
 | `fixtures/` | One artifact per fixture-list capture: clubs, kickoff (UTC), lifecycle state, provider aliases | sample only |
 | `odds/` | **Snapshot per capture**, never regenerated in place. One file per capture instant | sample only |
-| `results/` | Official final scores | **empty — no approved results source** |
-| `settlement/` | Graded output | **empty — settlement is switched off** |
+| `results/` | Official final scores (`latest.json`, ESPN `eng.1` scoreboard) and the append-only grade logs: `graded-forecasts.jsonl` (1X2, over 2.5), `graded-player-projections.jsonl` (anytime scorer, shots on goal) | live since 2026-08-21 (corrected 2026-10-05) |
+| `settlement/` | Reserved for a lineage-gated settlement writer | empty — grading is written under `results/` instead |
 
 ## Rules the schema enforces (not conventions — validation)
 

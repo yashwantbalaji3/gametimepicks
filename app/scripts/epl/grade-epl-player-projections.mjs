@@ -22,6 +22,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { indexProjections, gradePlayerProjections, classifyEmptyRun, summarisePlayerGrades } from "../../src/lib/sports/epl/grade-player-projections.mjs";
+import { matchEspnEvent } from "../../src/lib/sports/epl/espn-club-match.mjs";
+/* The canonical EPL club table (a .ts module behind the "@/" alias — run with `npx tsx` from app/, as the workflows do). */
+import { buildEplClubIndex } from "../../src/lib/soccer/epl-clubs.ts";
+
+const clubIndex = buildEplClubIndex();
+const resolveClub = (name) => clubIndex.resolve(name);
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const PUBLIC_EPL = path.join(APP, "public/data/soccer/epl");
@@ -75,14 +81,8 @@ for (const [slug, rec] of byFixture) {
   if (!eventId) {
     try {
       const board = await get(`${SITE}/scoreboard?dates=${date}`);
-      const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z]/g, "");
-      const hit = (board.events ?? []).find((ev) => {
-        const c = ev.competitions?.[0];
-        const h = norm(c?.competitors?.find((x) => x.homeAway === "home")?.team?.displayName);
-        const a = norm(c?.competitors?.find((x) => x.homeAway === "away")?.team?.displayName);
-        return (h.includes(norm(rec.fixture.homeClub)) || norm(rec.fixture.homeClub).includes(h))
-          && (a.includes(norm(rec.fixture.awayClub)) || norm(rec.fixture.awayClub).includes(a));
-      });
+      /* Exact canonical clubs, one event or none — the projection recorded no ESPN id, so it is never guessed. */
+      const hit = clubIndex.isSound ? matchEspnEvent(board.events, rec.fixture, resolveClub) : null;
       eventId = hit ? String(hit.id) : null;
     } catch { /* an unreachable board is an ungraded fixture, never a guessed one */ }
   }
