@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-05T22:20:35Z",
+  "generatedAt": "2026-10-05T23:01:35Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
@@ -21,16 +21,16 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "1cdcbf3dc2d0939b",
+        "inputHash": "7d149b70fdea666d",
         "simulations": 10000,
-        "generatedAt": "2026-10-05T22:20:35Z"
+        "generatedAt": "2026-10-05T23:01:35Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-05T22:20:35Z",
-        "participationInputHash": "8ccf3bf2184f791a",
-        "excludedCount": 1,
+        "snapshotAsOf": "2026-10-05T23:01:35Z",
+        "participationInputHash": "2567d5b5b660b5b0",
+        "excludedCount": 2,
         "materialExclusions": [],
         "excluded": [
           {
@@ -39,6 +39,14 @@
             "state": "Injured Reserve",
             "families": [
               "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Noah Fant",
+            "team": "NO",
+            "state": "Out",
+            "families": [
               "targets"
             ]
           }
