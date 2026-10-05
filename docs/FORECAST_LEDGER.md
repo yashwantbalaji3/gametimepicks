@@ -92,7 +92,8 @@ the ledger lags the owners by up to one nightly cycle; readers show the manifest
 | MLB player-prop leans | `pipeline/mlb/generate_mlb_board.py` → `boards/<d>.json` | **RESEARCH** (every market demoted) | no | `settle_mlb_results.py` | ⛔ not public history |
 | MLB Homer Nukes | `build-homer-nukes` → `homer-nukes/<d>.json` (overwritten) | PUBLIC_EXPERIMENTAL | no | `settle-homer-nukes` → `settled-<d>.json` | ✅ OWNER_SETTLED_UNFROZEN |
 | EPL 1X2 + over 2.5 | `build-epl-forecasts` → `forecasts/<d>.json` + internal snapshots | PUBLIC | snapshots | `grade-epl-forecasts` → `graded-forecasts.jsonl` | ✅ |
-| EPL BTTS / clean sheet / double chance / scorelines | same | PUBLIC derived | snapshots | none | ⛔ UNMEASURED |
+| EPL BTTS / clean sheet / correct score | same (public since 2026-08-21T00:59Z, `581b84c`) | PUBLIC derived | snapshots (+ git for the 1 match before snapshots) | `grade-epl-derived-markets` → `graded-derived-markets.jsonl` (Block A, 2026-10-05) | ✅ `epl_btts` · `epl_clean_sheet` (per club, `epl-team-<id>`) · `epl_scoreline` (top-10 table + OTHER) |
+| EPL double chance | same | PUBLIC derived | — | — (exactly 1 − one 1X2 class) | ➖ measured inside `epl_1x2`, never a second observation |
 | EPL anytime scorer / SOG ≥1 | `build-epl-player-projections` → snapshots | PUBLIC | snapshots | `grade-epl-player-projections` → `graded-player-projections.jsonl` | ✅ (event id by exact join) |
 | Ligue 1 1X2 | `build-league-forecasts` → `ligue-1/forecasts/<d>.json` | PUBLIC model-only | — | `grade-league-forecasts` → `ligue-1/results/graded.json` | ✅ |
 | UFC winner | `build-ufc-card` → `card-latest.json` (overwritten) + model-vs-market snapshots | PUBLIC_EXPERIMENTAL | snapshots | `grade-ufc-model-vs-market` → `graded.jsonl` | ✅ |
@@ -129,3 +130,20 @@ owners' own scores on every row they publish.
    those games are honestly PENDING until the owner settles them (an allowed transition).
    *Status (Session 14 · Chunk 1, 2026-10-05):* fixed forward by #959 (official box-score fallback + pending sweep in
    `nfl-event-window`); runtime proof PENDING — no event-window run on a #959 SHA yet (Session 13 handoff §16).
+
+## 9. Block A (2026-10-05): EPL derived markets get an owner
+
+`app/scripts/epl/grade-epl-derived-markets.mjs` (rules in `app/src/lib/sports/epl/derived-markets-grade.mjs`, run by
+`epl-settle` right after the 1X2 grader) re-opens the SAME forecast of record the 1X2 owner graded — matched by event,
+`generatedAt` and an identical 1X2 vector — and records BTTS, both clean sheets and the published top-10 score table
+against the official full-time score the 1X2 owner already holds. Refused, never approximated: a forecast generated
+before the markets were public (`EPL_DERIVED_PUBLIC_SINCE`), a revision that cannot be re-opened (a snapshot-era miss
+fails the run), a non-final match. First run: 46 of 46 graded matches (45 from snapshots / dated files, Arsenal v
+Coventry City from commit `b2985ad59bbf`, `--from-history`) → +184 ledger rows (46 BTTS, 92 clean sheet, 46 correct
+score).
+
+- **Correct score** is MULTICLASS over the classes the page printed: the ten listed scores plus OTHER = 1 − their sum.
+  A final outside the table settles OTHER — it is never given a probability the reader did not see. "Likeliest outcome
+  happened" is the likeliest LISTED score (OTHER usually outweighs any single score but was never the published call).
+- **Clean sheet** is one row per club (subject = canonical `epl-team-<id>`, exact unique name; unresolved = not emitted).
+- **Double chance** is not a separate observation (see §6).

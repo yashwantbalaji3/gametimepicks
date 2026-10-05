@@ -158,6 +158,9 @@ export const FAMILY_LABELS = Object.freeze({
   epl_over_2_5: "Over 2.5 goals",
   epl_anytime_goalscorer: "Anytime goalscorer",
   epl_shots_on_goal_over_0_5: "1+ shot on target",
+  epl_btts: "Both teams to score",
+  epl_clean_sheet: "Clean sheet",
+  epl_scoreline: "Correct score (top-10 table)",
   ligue1_1x2: "Match result (1X2)",
   ufc_winner: "Fight winner",
 });
