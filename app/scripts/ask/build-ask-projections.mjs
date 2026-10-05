@@ -928,6 +928,7 @@ function buildForecastRecord() {
     observedRate: f.observedRate ?? null,
     ece: f.calibration?.ece ?? null,
     topClassAccuracy: f.topClassAccuracy ?? null,
+    topClassLabel: f.topClassLabel ?? null,
     uniformReference: f.uniformReference ?? null,
     pickRecord: f.directional ? { win: f.directional.win, loss: f.directional.loss, push: f.directional.push, basis: f.directional.basis } : null,
     latestEvent: f.latestEvent ?? null,

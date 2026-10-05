@@ -22,12 +22,13 @@
  * Usage: node scripts/nfl/build-nfl-week-reconciliation.mjs --now <iso> [--week 2-01] [--espn-dir <dir of summary JSON>]
  * Writes: app/public/data/nfl/reconciliation/<week>.json + index.json   (PUBLIC_DERIVED)
  *         data/internal/nfl/official-stats/<eventId>.json                (official lines used, once FINAL)
+ *         data/internal/nfl/official-periods/<eventId>.json              (quarters, OT, tie; write-once, once FINAL)
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { officialFromEspnSummary, gradeGame, summariseWeek, RECONCILIATION_RULES } from "../../src/lib/sports/nfl/week-reconciliation.mjs";
+import { officialFromEspnSummary, periodsFromEspnSummary, gradeGame, summariseWeek, RECONCILIATION_RULES } from "../../src/lib/sports/nfl/week-reconciliation.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -68,6 +69,7 @@ if (!forecasts.length) { console.log(`no pre-kickoff forecasts on file for ${WEE
 
 // ── official lines: a FINAL receipt is reused; otherwise capture it (never before kickoff) ──────────
 const statsDir = path.join(ROOT, "data/internal/nfl/official-stats");
+const periodsDir = path.join(ROOT, "data/internal/nfl/official-periods");
 async function officialFor(eventId, kickoffUtc) {
   const kept = read(path.join(statsDir, `${eventId}.json`));
   if (kept?.state === "FINAL") return kept;
@@ -86,6 +88,14 @@ async function officialFor(eventId, kickoffUtc) {
   if (official.state === "FINAL") {
     fs.mkdirSync(statsDir, { recursive: true });
     fs.writeFileSync(path.join(statsDir, `${eventId}.json`), JSON.stringify({ ...official, capturedAt: NOW, source: "ESPN official box score (site.api.espn.com summary)" }, null, 1));
+    // Period facts (quarters, OT, tie) beside the official lines, write-once. Additive: nothing that
+    // grades today reads them; they exist so overtime and score shape can be settled later.
+    const periods = periodsFromEspnSummary(summary);
+    const periodsPath = path.join(periodsDir, `${eventId}.json`);
+    if (periods && !fs.existsSync(periodsPath)) {
+      fs.mkdirSync(periodsDir, { recursive: true });
+      fs.writeFileSync(periodsPath, JSON.stringify({ providerEventId: eventId, ...periods, capturedAt: NOW, source: "ESPN official box score (site.api.espn.com summary)" }, null, 1));
+    }
   }
   return official;
 }

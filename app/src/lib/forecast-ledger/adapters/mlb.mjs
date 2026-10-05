@@ -12,12 +12,17 @@
  * published day file is overwritten during the day and has no frozen copy, so these rows are labelled
  * OWNER_SETTLED_UNFROZEN and carry no publication time (the settled file does not record one).
  *
- * NOT HERE (stated, not hidden): MLB projected score / simulation-median total (published, never graded by an owner
- * → reported UNMEASURED in coverage) and the MLB player-prop leans (every market DEMOTED to market context → RESEARCH,
- * never public forecast history).
+ * PROJECTED SCORE + SIMULATION-MEDIAN TOTAL (owner: grade-projected-scores.mjs → game-projected-scores-graded.jsonl,
+ * Block A, re-opening the SAME revision the game owner graded and reproducing its probabilities exactly). CONTINUOUS:
+ *   mlb_projected_runs   one row per team (subject mlb-team-<id>, exact unique abbreviation; unresolved = not emitted)
+ *   mlb_projected_total  one row per game (the simulation median of total runs — NOT the sum of the two team medians)
+ * Measured by error only. A median carries no W/L: the published total PICK is already its own family (mlb_total).
+ *
+ * NOT HERE (stated, not hidden): the MLB player-prop leans (every market DEMOTED to market context → RESEARCH, never
+ * public forecast history).
  */
 import { FORECAST_KIND, RECOVERABILITY } from "../contract.mjs";
-import { measureBinary, withDirectional } from "../measure.mjs";
+import { measureBinary, measureContinuous, withDirectional } from "../measure.mjs";
 import { makeRow, marketBlock } from "../row.mjs";
 
 const FAMILY = { moneyline: "mlb_moneyline", run_line: "mlb_run_line", total: "mlb_total" };
@@ -120,4 +125,66 @@ export function homerNukesRows(settledFiles = []) {
     }
   }
   return out;
+}
+
+/**
+ * @param graded   parsed game-projected-scores-graded.jsonl rows
+ * @param teamIds  Map<abbreviation, mlb-team-<id>> (exact, unique)
+ * @returns {{ rows, unresolved }}
+ */
+export function mlbProjectedRows(graded = [], teamIds = new Map()) {
+  const out = [];
+  let unresolved = 0;
+  for (const g of graded) {
+    if (!Number.isInteger(g.gamePk)) continue;
+    const fin = Number.isInteger(g.actual?.awayRuns) && Number.isInteger(g.actual?.homeRuns);
+    const base = {
+      sport: "MLB",
+      competition: "MLB",
+      season: typeof g.date === "string" ? g.date.slice(0, 4) : null,
+      eventId: String(g.gamePk),
+      eventStart: g.firstPitchUtc ?? null,
+      matchup: g.matchup ?? null,
+      forecastKind: FORECAST_KIND.CONTINUOUS,
+      modelId: g.modelId ?? null,
+      publicationSurface: "mlb-game-prediction",
+      receiptId: g.forecastSource ?? null,
+      publishedAt: g.forecastGeneratedAt ?? null,
+      recoverability: RECOVERABILITY.OWNER_GRADED_LOG,
+    };
+    const settle = (finalValue, projection) => fin
+      ? { settlement: { state: "SETTLED", finalValue, settledAt: g.gradedAt ?? null, finality: "CANONICAL", source: g.resultSource ?? null }, measurement: measureContinuous({ projection, finalValue }) }
+      : { settlement: { state: "PENDING" }, measurement: {} };
+    for (const side of ["away", "home"]) {
+      const projection = g.projectedScore?.[side];
+      if (!isNum(projection)) continue;
+      const abbr = side === "away" ? g.awayTeam : g.homeTeam;
+      const teamId = abbr ? teamIds.get(abbr) ?? null : null;
+      if (!teamId) { unresolved += 1; continue; }
+      out.push(makeRow({
+        ...base,
+        subjectType: "TEAM",
+        subjectId: teamId,
+        subjectDisplay: abbr,
+        teamId,
+        family: "mlb_projected_runs",
+        projection,
+        direction: g.projectedScore.label ?? null,
+        ...settle(side === "away" ? g.actual?.awayRuns : g.actual?.homeRuns, projection),
+      }));
+    }
+    if (isNum(g.simulationMedianTotal)) {
+      out.push(makeRow({
+        ...base,
+        subjectType: "GAME",
+        subjectId: `mlb-${g.gamePk}`,
+        subjectDisplay: g.matchup ?? null,
+        family: "mlb_projected_total",
+        projection: g.simulationMedianTotal,
+        direction: "Simulation median total runs",
+        ...settle(fin ? g.actual.awayRuns + g.actual.homeRuns : null, g.simulationMedianTotal),
+      }));
+    }
+  }
+  return { rows: out, unresolved };
 }

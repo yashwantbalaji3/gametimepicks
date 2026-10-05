@@ -14,6 +14,10 @@
  *       so on every branch at once. Raising it runs MORE validation; this guard exists so that is
  *       always a choice someone made, never drift.
  *  QG3  the browser phase still runs all three engines over both specs, with retries unchanged.
+ *  QG4  every merge commit on main gets its own completed run: on main the concurrency group is the
+ *       commit SHA, so a later merge cannot cancel an earlier merge's gate (2026-10-05: #976 and #975
+ *       both lost theirs to the next merge). PR branches keep the ref-keyed group and still cancel
+ *       a superseded run.
  *
  * Run: npx tsx --test src/lib/ci/quality-gate-contract.test.mjs
  */
@@ -65,4 +69,18 @@ test("QG3 the browser phase keeps three engines, both specs and its retry policy
   for (const spec of ["accessibility.spec.ts", "route-assurance.spec.ts"]) {
     for (const m of [...pw.matchAll(/testMatch: \/([^/]+)\//g)]) assert.ok(new RegExp(m[1]).test(spec), `${spec} runs on every a11y project`);
   }
+});
+
+test("QG4 a merge to main can never cancel the previous merge's gate; PR pushes still supersede", () => {
+  // Read the top-level block as CODE: the comment above it explains the change and mentions both refs.
+  const code = wf.replace(/^\s*#.*$/gm, "");
+  const block = code.slice(code.indexOf("\nconcurrency:"), code.indexOf("\npermissions:"));
+  const group = block.match(/^\s*group:\s*(.+)$/m)?.[1]?.trim();
+  assert.equal(
+    group,
+    "quality-gate-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}",
+    "on main the group is the commit (one run per merge, nothing cancels it); elsewhere it is the branch",
+  );
+  assert.match(block, /^\s*cancel-in-progress: true$/m, "a PR's superseded run is still cancelled");
+  assert.doesNotMatch(group, /^quality-gate-\$\{\{ github\.ref \}\}$/, "the ref-only group is the shape that dropped #976's and #975's gates");
 });

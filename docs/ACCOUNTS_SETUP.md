@@ -124,8 +124,9 @@ Exit codes: 0 ready · 1 unsafe or incomplete · 2 could not prove · 3 no keys 
 
 - **Privacy policy must cover slip data.** It goes into the counsel review that is already blocking
   the legal pages (G1): what we store, where, for how long, and how someone deletes it.
-- **21+ gate and account deletion.** Deleting an account cascades to every row; the images are removed
-  by the application first, because storage has no cascade.
+- **21+ gate and account deletion.** Deleting an account cascades to every row. Storage has no cascade, and no
+  code removes images yet, so the `slips/<user id>/` folder must be deleted first, by hand in the dashboard,
+  until an in-site delete exists (none does today — `SUPABASE_BETA_SETUP.md` § known non-blockers).
 - **Sportsbook linking** (the Pikkit-style sync you asked about) needs a licensed bet-sync provider such
   as SharpSports — it is a paid service, and storing sportsbook passwords ourselves would breach most
   books' terms. I'll bring you the cost before anything is signed.

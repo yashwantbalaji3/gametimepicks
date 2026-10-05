@@ -241,9 +241,12 @@ insert into storage.buckets (id, name, public)
 drop policy if exists slips_read_own on storage.objects;
 create policy slips_read_own on storage.objects for select
   using (bucket_id = 'slips' and (storage.foldername(name))[1] = auth.uid()::text);
+-- Uploading is a WRITE, so it needs an active invite like every table write above (2026-10-05 beta fix: a
+-- revoked tester, or a stranger on a project where sign-up was left open, could otherwise still upload into
+-- their own folder). Reading and deleting your own images never need it, so a revoked tester keeps them.
 drop policy if exists slips_write_own on storage.objects;
 create policy slips_write_own on storage.objects for insert
-  with check (bucket_id = 'slips' and (storage.foldername(name))[1] = auth.uid()::text);
+  with check (bucket_id = 'slips' and (storage.foldername(name))[1] = auth.uid()::text and public.is_beta_member());
 drop policy if exists slips_delete_own on storage.objects;
 create policy slips_delete_own on storage.objects for delete
   using (bucket_id = 'slips' and (storage.foldername(name))[1] = auth.uid()::text);
