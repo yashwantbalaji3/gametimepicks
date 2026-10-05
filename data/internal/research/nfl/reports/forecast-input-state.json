@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-05T23:01:35Z",
+  "generatedAt": "2026-10-05T23:21:06Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
     "upcomingEvents": 1,
     "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
-    "eventsWithAMaterialExclusion": 0,
+    "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
@@ -21,17 +21,38 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "7d149b70fdea666d",
+        "inputHash": "68ff1724bb6cebff",
         "simulations": 10000,
-        "generatedAt": "2026-10-05T23:01:35Z"
+        "generatedAt": "2026-10-05T23:21:06Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-05T23:01:35Z",
-        "participationInputHash": "2567d5b5b660b5b0",
-        "excludedCount": 2,
-        "materialExclusions": [],
+        "snapshotAsOf": "2026-10-05T23:21:06Z",
+        "participationInputHash": "85aaad542a42e094",
+        "excludedCount": 4,
+        "materialExclusions": [
+          {
+            "name": "Cooper Rush",
+            "team": "ATL",
+            "state": "Out",
+            "statedAt": "2026-10-05T23:07Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Jack Strand",
+            "team": "ATL",
+            "state": "Out",
+            "statedAt": "2026-10-05T22:53Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
         "excluded": [
           {
             "name": "Travis Etienne Jr.",
@@ -48,6 +69,24 @@
             "state": "Out",
             "families": [
               "targets"
+            ]
+          },
+          {
+            "name": "Cooper Rush",
+            "team": "ATL",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Jack Strand",
+            "team": "ATL",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
             ]
           }
         ]
