@@ -280,6 +280,32 @@ function routePlan(user) {
     push("getOfficialProductCards", { product: officialProduct, ...tier }, needsNow ? ["c0"] : []);
     return { intent: "PRODUCT_CARDS", needsClarification: false, clarification: null, calls };
   }
+  /* Session 13 · Ask V2 over the Forecast Record. History first: "the last 3 times we projected him over 80" is about
+     one player's published forecasts, not his recent box scores (the Last-N rule below) and not a sport's record. */
+  const famOf = (sp) => has("receiving yard") ? "player_reception_yds" : has("reception", "catches") ? "player_receptions"
+    : has("rushing yard") ? "player_rush_yds" : has("passing yard") ? "player_pass_yds"
+      : has("goalscorer", "goal scorer") ? "epl_anytime_goalscorer" : has("anytime td", "anytime touchdown", "touchdown") ? "anytime_td"
+        : has("shots on") ? "epl_shots_on_goal_over_0_5" : has("1x2", "match result", "match forecast") ? "epl_1x2"
+          : has("homer", "home run") ? "mlb_homer_nukes" : has("moneyline") ? "mlb_moneyline" : has("run line") ? "mlb_run_line"
+            : has("winner") ? (sp === "UFC" ? "ufc_winner" : "nfl_game_winner") : null;
+  if (has("times we projected", "we projected", "our past forecasts", "our forecasts for", "forecast history", "projected him", "projected her")) {
+    const sp = sportOf(question) ?? "NFL";
+    const over = /over\s+(\d+(?:\.\d+)?)/.exec(question);
+    const lastN = /last\s+(\d+)/.exec(question);
+    const fam = famOf(sp);
+    push("resolveEntity", { kind: "player", text: nameIn(rawQuestion(raw)) });
+    push("getForecastHistory", {
+      sport: sp, playerId: "RESOLVED", ...(fam ? { family: fam } : {}), ...(over ? { minProjection: Number(over[1]) } : {}),
+      limit: lastN ? Math.min(25, Number(lastN[1])) : 5,
+    }, ["c0"]);
+    return { intent: "FORECAST_HISTORY", needsClarification: false, clarification: null, calls };
+  }
+  if (has("calibrat", "brier", "how good are your", "how well do your", "average miss") || (has("how accurate") && famOf(sportOf(question) ?? "NFL"))) {
+    const sp = sportOf(question) ?? "NFL";
+    const fam = famOf(sp);
+    push("getForecastFamilyPerformance", { sport: sp, ...(fam ? { family: fam } : {}) });
+    return { intent: "MODEL_PERFORMANCE", needsClarification: false, clarification: null, calls };
+  }
   if (has("how accurate", "forecast record", "model record", "gametime's record")) {
     push("getForecastRecord", { sport: sportOf(question) ?? "NFL" });
     return { intent: "RESULTS_FORECAST_RECORD", needsClarification: false, clarification: null, calls };

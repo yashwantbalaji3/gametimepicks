@@ -24,6 +24,8 @@ export const ASK_SOURCE_LABEL = Object.freeze({
   calculate: "Calculator",
   getProductRecord: "Results",
   getForecastRecord: "Results",
+  getForecastFamilyPerformance: "Forecast record",
+  getForecastHistory: "Forecast record",
   getRecentResults: "Results",
   getResultsDay: "Results day",
   getPendingResults: "Results",

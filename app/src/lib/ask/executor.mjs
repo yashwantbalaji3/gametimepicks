@@ -32,6 +32,7 @@ import { getCoverage } from "./tools/coverage.mjs";
 import { getNflProductEligibility } from "./tools/nfl-eligibility.mjs";
 import { getLiveSlate } from "./tools/live.mjs";
 import { getForecastRecord, getPendingResults, getProductRecord, getRecentResults, getResultsDay } from "./tools/results.mjs";
+import { getForecastFamilyPerformance, getForecastHistory } from "./tools/forecast-record.mjs";
 
 /**
  * The handler table. Its keys are asserted against the registry at module load, so a tool that is
@@ -59,6 +60,8 @@ const HANDLERS = {
   getRecentResults,
   getResultsDay,
   getPendingResults,
+  getForecastFamilyPerformance,
+  getForecastHistory,
   searchGameTimeHelp,
   calculate,
 };

@@ -20,6 +20,12 @@ import { ASK_RISK_PROFILES, ASK_SPORTS, ASK_TOOL_REGISTRY_VERSION } from "./cont
 import { toProviderSchema } from "./schema.mjs";
 
 const SPORTS = [...ASK_SPORTS];
+/* The Forecast Ledger's family keys (Session 13). Closed: an unknown family cannot be passed. */
+const FORECAST_FAMILIES = Object.freeze([
+  "nfl_game_winner", "nfl_game_total", "nfl_game_margin", "nfl_team_score", "player_pass_yds", "player_rush_yds",
+  "player_reception_yds", "player_receptions", "anytime_td", "mlb_moneyline", "mlb_run_line", "mlb_total",
+  "mlb_homer_nukes", "epl_1x2", "epl_over_2_5", "epl_anytime_goalscorer", "epl_shots_on_goal_over_0_5", "ufc_winner",
+]);
 
 /**
  * The registry. `name` is the wire identity the planner emits; `version` is per tool so one contract
@@ -289,6 +295,46 @@ export const ASK_TOOLS = Object.freeze({
       "period the owner has stated it cannot account for; report it as such rather than treating it as " +
       "nothing to report.",
     args: {},
+  },
+
+  /* Session 13 · Ask V2 over the Universal Forecast Ledger (the Forecast Record). */
+  getForecastFamilyPerformance: {
+    version: 1,
+    kind: "results",
+    describe:
+      "How one KIND of GameTime forecast has done, measured with the right yardstick — from the Forecast Record " +
+      "(every published forecast, counted once). Use for 'how good are your receiving-yards projections', 'how " +
+      "well calibrated is your anytime-TD model', 'how accurate are your EPL match forecasts'. A projection is " +
+      "measured by how far it missed (average miss, bias, range coverage); a probability by Brier score, log loss " +
+      "and calibration; a 1X2 forecast by log loss and how often the likeliest outcome happened. There is NO " +
+      "single accuracy number across forecast types — never pool them. A pick record exists only where a pick " +
+      "was published. Distinct from getForecastRecord (the Results page's designated headline record per sport).",
+    args: {
+      sport: { kind: "enum", options: SPORTS, required: true, describe: "Which sport." },
+      family: { kind: "enum", options: [...FORECAST_FAMILIES], describe: "One forecast type; omit for every type in the sport." },
+    },
+  },
+
+  getForecastHistory: {
+    version: 1,
+    kind: "results",
+    describe:
+      "One player's, team's or game's INDIVIDUAL published forecasts and how each turned out, newest first — from " +
+      "the Forecast Record. Use for 'how did Jaxon Smith-Njigba do the last 3 times we projected him over 80 " +
+      "receiving yards', 'show me our past forecasts for Bijan Robinson'. Call resolveEntity first for the id. " +
+      "minProjection / maxProjection filter on what WE projected. Returns how many matched and the rows; this " +
+      "list is not a record, so never turn it into a hit rate. Not final, void and withdrawn rows are never misses.",
+    args: {
+      sport: { kind: "enum", options: SPORTS, required: true, describe: "Which sport." },
+      playerId: { kind: "slug", describe: "Canonical player id from resolveEntity." },
+      teamId: { kind: "slug", describe: "Canonical team id from resolveEntity (team score forecasts)." },
+      gameId: { kind: "slug", describe: "A game's canonical id (game-level forecasts: winner, total, margin, 1X2)." },
+      family: { kind: "enum", options: [...FORECAST_FAMILIES], describe: "One forecast type, e.g. player_reception_yds." },
+      minProjection: { kind: "number", min: -1000, max: 10000, describe: "Only forecasts where we projected MORE than this." },
+      maxProjection: { kind: "number", min: -1000, max: 10000, describe: "Only forecasts where we projected LESS than this." },
+      settledOnly: { kind: "boolean", describe: "Only forecasts already measured against the official result." },
+      limit: { kind: "integer", min: 1, max: 25, default: 5, describe: "Rows to return; how many matched is always reported." },
+    },
   },
 
   getLiveSlate: {

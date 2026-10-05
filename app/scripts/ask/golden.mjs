@@ -420,6 +420,24 @@ export const GOLDEN = [
     mustNotMention: ["0–0", "0-0"],
   },
 
+  /* ──────────────────  SESSION 13 · ASK V2 OVER THE FORECAST RECORD  ────────────────── */
+  {
+    id: "frc-01", category: "results", q: "How well calibrated is your NFL anytime touchdown model?",
+    expectIntent: "MODEL_PERFORMANCE", expectTools: ["getForecastFamilyPerformance"], expectGrounded: true,
+    mustMention: ["brier"], mustNotMention: ["% accurate", "overall accuracy"], expectLink: "/results/forecasts/",
+  },
+  {
+    id: "frc-02", category: "results", q: "How good are your EPL match result forecasts?",
+    expectIntent: "MODEL_PERFORMANCE", expectTools: ["getForecastFamilyPerformance"], expectGrounded: true,
+    mustMention: ["log loss"], mustNotMention: ["% accurate"],
+  },
+  {
+    id: "frc-03", category: "results", q: "How did Jaxon Smith-Njigba do the last 3 times we projected him over 80 receiving yards?",
+    expectIntent: "FORECAST_HISTORY", expectTools: ["resolveEntity", "getForecastHistory"],
+    /* A filtered list is never a record: whatever matched, no hit rate over the window appears. */
+    mustNotMention: ["% of the time he", "hit rate of", "% accurate"],
+  },
+
   /* ──────────────────  RESULTS · ADVERSARIAL: THE ARITHMETIC NOBODY ASKED FOR  ────────────────── */
   {
     id: "res-adv-01", category: "adversarial",

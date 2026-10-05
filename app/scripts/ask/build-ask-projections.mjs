@@ -72,6 +72,8 @@ import { getRiskBucketForCombinedOdds, PUBLIC_RISK_LABELS } from "../../src/lib/
 import { publishedBandRecord } from "../../src/lib/parlays/published-band-record.mjs";
 import { resultsDay, resultsDayDates } from "../../src/lib/results/v2/day.ts";
 import { productReceiptDates, productReceiptsFor } from "../../src/lib/results/v2/product-receipts.ts";
+import { forecastRecordView, familyHref, readForecastLedger } from "../../src/lib/results/v2/forecast-ledger-reader.ts";
+import { ASK_FORECAST_KINDS, ASK_FORECAST_ROW, ASK_FORECAST_SPORTS } from "../../src/lib/ask/contract.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.join(APP, "..");
@@ -892,6 +894,88 @@ function buildResultDays() {
   return days;
 }
 
+/**
+ * SESSION 13 · THE FORECAST RECORD FOR ASK — the Universal Forecast Ledger, projected (daily).
+ *
+ * One packed row per published forecast observation (ASK_FORECAST_ROW), plus each family's measured record with the
+ * yardstick its kind calls for, exactly as /results/forecasts computes it (one reader: forecast-ledger-reader). The
+ * tool never recomputes a metric; it filters rows and reads family blocks. Display only: no row carries a market
+ * probability, and the ledger never holds shadow / research / withheld rows in the first place.
+ */
+function buildForecastRecord() {
+  const { rows } = readForecastLedger();
+  if (!rows.length) {
+    notes.push("forecast record absent");
+    const empty = Object.fromEntries(ASK_FORECAST_SPORTS.map((sp) => [sp, { schemaVersion: ASK_PROJECTION_SCHEMA_VERSION, artifact: "ask-forecast-rows", sport: sp, columns: [...ASK_FORECAST_ROW], kinds: [...ASK_FORECAST_KINDS], dict: { families: [], subjects: [], matchups: [] }, rows: [] }]));
+    return { schemaVersion: ASK_PROJECTION_SCHEMA_VERSION, artifact: "ask-forecast-record", available: false, families: [], gaps: [], shards: {}, _shards: empty };
+  }
+  const rec = forecastRecordView();
+  const fam = (s, f) => ({
+    sport: s.sport,
+    family: f.family,
+    label: f.label,
+    kind: f.kind,
+    counts: f.counts,
+    n: f.n ?? 0,
+    mae: f.mae ?? null,
+    medianAbsError: f.medianAbsError ?? null,
+    rmse: f.rmse ?? null,
+    bias: f.bias ?? null,
+    coverage: f.coverage ?? null,
+    brier: f.brier ?? null,
+    logLoss: f.logLoss ?? null,
+    meanForecast: f.meanForecast ?? null,
+    observedRate: f.observedRate ?? null,
+    ece: f.calibration?.ece ?? null,
+    topClassAccuracy: f.topClassAccuracy ?? null,
+    uniformReference: f.uniformReference ?? null,
+    pickRecord: f.directional ? { win: f.directional.win, loss: f.directional.loss, push: f.directional.push, basis: f.directional.basis } : null,
+    latestEvent: f.latestEvent ?? null,
+    href: familyHref(s.sport, f.family),
+  });
+  const r3 = (v) => (typeof v === "number" && Number.isFinite(v) ? Number(v.toFixed(3)) : v ?? null);
+  const slug = (sport) => String(sport).toLowerCase().replace(/_/g, "-");
+  const shards = {};
+  for (const sport of ASK_FORECAST_SPORTS) {
+    const dict = { families: [], subjects: [], matchups: [] };
+    const maps = [new Map(), new Map(), new Map()];
+    const index = (i, key, value) => { if (!maps[i].has(key)) { maps[i].set(key, dict[["families", "subjects", "matchups"][i]].length); dict[["families", "subjects", "matchups"][i]].push(value); } return maps[i].get(key); };
+    const packed = rows
+      .filter((r) => slug(r.sport) === sport)
+      .sort((a, b) => String(b.eventStart ?? b.publishedAt ?? "").localeCompare(String(a.eventStart ?? a.publishedAt ?? "")) || (a.forecastId < b.forecastId ? -1 : 1))
+      .map((r) => [
+        index(0, `${r.sport}|${r.family}`, [r.sport, r.family]),
+        String(r.eventStart ?? r.publishedAt ?? "").slice(0, 10) || null,
+        index(1, r.subjectId, [r.subjectId, r.subjectDisplay ?? null, r.teamId ?? null]),
+        r.matchup ? index(2, r.matchup, r.matchup) : null,
+        ASK_FORECAST_KINDS.indexOf(r.forecastKind),
+        r3(r.projection), r3(r.rangeLow), r3(r.rangeHigh), r3(r.probability),
+        r.publicationStatus === "WITHDRAWN" ? "WITHDRAWN" : r.settlement?.state ?? null,
+        r3(r.settlement?.finalValue), r.settlement?.finalCategory ?? null,
+        r.measurement?.observed ?? null, r3(r.measurement?.absoluteError), r3(r.measurement?.brier),
+        r.measurement?.directionalBasis ? r.measurement.directionalResult : null,
+      ]);
+    shards[sport] = { schemaVersion: ASK_PROJECTION_SCHEMA_VERSION, artifact: "ask-forecast-rows", sport, columns: [...ASK_FORECAST_ROW], kinds: [...ASK_FORECAST_KINDS], dict, rows: packed };
+  }
+  notes.push(`forecast record ${rows.length} rows · ${rec.kpis.families} families`);
+  return {
+    schemaVersion: ASK_PROJECTION_SCHEMA_VERSION,
+    artifact: "ask-forecast-record",
+    available: true,
+    asOf: rec.kpis.lastSettledAt,
+    kpis: rec.kpis,
+    families: rec.sports.flatMap((s) => s.families.map((f) => fam(s, f))),
+    /* Published-but-unmeasured families, in the ledger's own words. A gap whose wording names a non-public lane (the NBA
+       shadow models) is not a PUBLIC family at all, so it stays out of the Ask projection — the leak guard, applied
+       to each gap rather than failing the artifact. */
+    gaps: rec.declaredGaps
+      .filter((g) => !FORBIDDEN_ASK_FIELDS.some((f) => new RegExp(`(^|[^a-z])${f.toLowerCase()}([^a-z]|$)`).test(`${g.family} ${g.reason}`.toLowerCase())))
+      .map((g) => ({ sport: g.sport, family: g.family, reason: g.reason })),
+    shards: Object.fromEntries(ASK_FORECAST_SPORTS.map((sp) => [sp, shards[sp].rows.length])),
+    _shards: shards,
+  };
+}
+
 /* ────────────────────────────────── 6. WRITE ────────────────────────────────── */
 
 const artifacts = new Map();
@@ -986,6 +1070,11 @@ add("forecasts.json", buildForecasts());
 add("parlays.json", buildParlays());
 for (const [key, doc] of Object.entries(buildRecent())) add(`recent/${key}.json`, doc);
 add("results.json", buildResults());
+{
+  const { _shards, ...index } = buildForecastRecord();
+  add("forecast-record.json", index);
+  for (const [sp, doc] of Object.entries(_shards)) add(`forecast-record/${sp}.json`, doc);
+}
 add("coverage.json", buildCoverage());
 add("nfl-eligibility.json", buildNflEligibility());
 const help = buildHelpCorpus();

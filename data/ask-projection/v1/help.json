@@ -19,6 +19,41 @@
    "title": "What Ask GameTime can access"
   },
   {
+   "id": "forecast-record",
+   "keywords": [
+    "forecast record",
+    "accuracy",
+    "how accurate",
+    "brier",
+    "log loss",
+    "calibration",
+    "average miss",
+    "measured",
+    "track record"
+   ],
+   "route": "/results/forecasts/",
+   "section": "Results",
+   "text": "The Forecast Record lists every forecast GameTimePicks published, counted once, and checks each against the official result. Each kind of forecast gets its own yardstick: a yardage or points projection is measured by how far it missed, a probability by Brier score and log loss (lower is better) and by calibration, and a match-result forecast by log loss and how often the likeliest outcome happened. There is no single accuracy number across forecast types. Forecasts that are not final, void (the player did not play, a push or a tie) or withdrawn before kickoff are shown and never counted as misses. Every forecast type has a downloadable CSV.",
+   "title": "The Forecast Record: how every published forecast is measured"
+  },
+  {
+   "id": "simulation-meaning",
+   "keywords": [
+    "simulation",
+    "simulated",
+    "simulations",
+    "monte carlo",
+    "10,000",
+    "expected statistical summaries",
+    "not one simulated game",
+    "game path"
+   ],
+   "route": "/results/forecasts/",
+   "section": "Methodology",
+   "text": "A simulation should mean that each run is one coherent possible game, with every team and player number in that run agreeing with the others. GameTime's MLB game reports come from complete simulated games. The NFL game pages today show expected statistical summaries, not one simulated game, and say so on the page: the win chance, score ranges and player projections come from separate models. A drive-by-drive NFL game simulator is being tested privately and is not used for any published NFL number until it passes its validation.",
+   "title": "What \"simulation\" means on GameTimePicks"
+  },
+  {
    "id": "forecast-vs-fact",
    "keywords": [
     "forecast",
@@ -326,7 +361,7 @@
    "title": "How current the data is"
   }
  ],
- "corpusFingerprint": "help-21-5d465c1e",
- "count": 21,
+ "corpusFingerprint": "help-23-321c33cb",
+ "count": 23,
  "schemaVersion": 1
 }

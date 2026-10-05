@@ -410,6 +410,53 @@ export function buildEvidence(envelopes) {
         break;
       }
 
+      /* Session 13 · the Forecast Record. Each family speaks in its own yardstick; no sentence pools families, and a pick
+         record is only ever the owner's published-pick record (basis named). */
+      case "getForecastFamilyPerformance": {
+        const sp = String(d.sport ?? "").toUpperCase();
+        for (const f of d.families ?? []) {
+          const c = f.counts ?? {};
+          const tail = `${c.measured ?? 0} measured, ${c.pending ?? 0} not final yet, ${(c.void ?? 0) + (c.unmeasured ?? 0)} void or not measurable (none of those counts as a miss)`;
+          if (f.kind === "CONTINUOUS_PROJECTION") {
+            say(`GameTime's ${sp} ${f.label} projections missed by ${f.mae} on average (median miss ${f.medianAbsError}, bias ${f.bias} where positive means we projected high) across ${f.n} measured forecasts${f.coverage ? `; ${Math.round((f.coverage.inside ?? 0) * 1000) / 10}% landed inside our printed ${Math.round((f.coverage.target ?? 0.8) * 100)}% range, and about ${Math.round((f.coverage.target ?? 0.8) * 100)}% is the design target` : ""} — ${tail}`,
+              [f.mae, f.medianAbsError, f.bias, f.n, f.coverage?.inside]);
+          } else if (f.kind === "BINARY_PROBABILITY") {
+            say(`GameTime's ${sp} ${f.label} probabilities score a Brier of ${f.brier} and a log loss of ${f.logLoss} (lower is better) across ${f.n} measured forecasts; on average we said ${Math.round((f.meanForecast ?? 0) * 1000) / 10}% and it happened ${Math.round((f.observedRate ?? 0) * 1000) / 10}% of the time (calibration error ${f.ece}) — ${tail}`,
+              [f.brier, f.logLoss, f.n, f.meanForecast, f.observedRate, f.ece]);
+          } else if (f.kind === "MULTICLASS_PROBABILITY") {
+            say(`GameTime's ${sp} ${f.label} forecasts score a log loss of ${f.logLoss} and a Brier of ${f.brier} across ${f.n} measured matches (a blind guess scores ${f.uniformReference?.logLoss} log loss); our likeliest outcome happened ${Math.round((f.topClassAccuracy ?? 0) * 1000) / 10}% of the time — ${tail}`,
+              [f.logLoss, f.brier, f.n, f.uniformReference?.logLoss, f.topClassAccuracy]);
+          }
+          if (f.pickRecord) say(`where a ${sp} ${f.label} pick was published, the pick record is ${f.pickRecord.win}–${f.pickRecord.loss}${f.pickRecord.push ? `–${f.pickRecord.push}` : ""}`, [f.pickRecord.win, f.pickRecord.loss, f.pickRecord.push]);
+        }
+        say(`there is no single accuracy figure across forecast types: a yardage projection and a win probability are measured differently and are never pooled`);
+        for (const g of (d.gaps ?? []).slice(0, 3)) say(`${g.sport} ${g.family} is published but not measured yet: ${g.reason}`);
+        if (d.asOf) say(`the Forecast Record was last settled ${String(d.asOf).slice(0, 10)}`);
+        break;
+      }
+
+      case "getForecastHistory": {
+        const sp = String(d.sport ?? "").toUpperCase();
+        say(`GameTime published ${d.matched} ${sp} forecasts matching this request for ${d.subject ?? d.subjectId}; ${d.returned} are listed individually below, newest first — this list is not a record`, [d.matched, d.returned]);
+        /* One decimal for a projection, its range, the actual and the miss — the precision the Forecast Record prints. */
+        const r1 = (v) => (typeof v === "number" && Number.isFinite(v) ? Number(v.toFixed(1)) : v);
+        for (const raw of d.rows ?? []) {
+          const r = { ...raw, projection: r1(raw.projection), rangeLow: r1(raw.rangeLow), rangeHigh: r1(raw.rangeHigh), finalValue: r1(raw.finalValue), absoluteError: r1(raw.absoluteError) };
+          const said = r.kind === "CONTINUOUS_PROJECTION"
+            ? `GameTime projected ${r.projection}${r.rangeLow != null ? ` (range ${r.rangeLow}–${r.rangeHigh})` : ""}`
+            : r.kind === "BINARY_PROBABILITY" ? `GameTime gave it a ${Math.round((r.probability ?? 0) * 1000) / 10}% chance` : "GameTime published match probabilities";
+          const happened = r.state === "WITHDRAWN" ? "the forecast was withdrawn before kickoff, which is not a miss"
+            : r.state === "PENDING" ? "it is not final yet, which is not a miss"
+              : r.state === "VOID" ? "it was void (did not play, push or tie), which is not a miss"
+                : r.state === "NO_MEASUREMENT" ? "the official result has no line for it, so it is not measured"
+                  : r.kind === "CONTINUOUS_PROJECTION" ? `the actual was ${r.finalValue}, a miss of ${r.absoluteError}`
+                    : r.observed === 1 ? `it happened (Brier ${r.brier})` : r.observed === 0 ? `it did not happen (Brier ${r.brier})` : `it settled as ${r.finalCategory}`;
+          say(`${r.date} — ${r.matchup ?? ""} ${r.familyLabel ?? r.family}: ${said}; ${happened}${r.pick ? `; the published pick was a ${r.pick}` : ""}`,
+            [r.projection, r.rangeLow, r.rangeHigh, r.probability, r.finalValue, r.absoluteError, r.brier]);
+        }
+        break;
+      }
+
       case "getRecentResults": {
         // E-3: counts of rows only — never a W–L the owner did not publish (that is getForecastRecord's job).
         say(`GameTime has ${d.totalRecorded} graded ${String(d.sport).toUpperCase()} forecasts on record; ${d.matched} match this request and ${d.returned ?? (d.rows ?? []).length} are listed individually below — this list is not a record`,

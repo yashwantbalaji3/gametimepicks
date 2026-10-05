@@ -240,6 +240,13 @@ export const ASK_INTENTS = Object.freeze([
   "RESULTS_FORECAST_RECORD",
   "RESULTS_RECENT",
   "RESULTS_PENDING",
+  /* Session 13 · Ask V2 over the Universal Forecast Ledger. FORECAST_HISTORY = one subject's (player / team / game)
+     individual published forecasts and how each turned out ("how did he do the last 3 times we projected him over
+     80?"); MODEL_PERFORMANCE = one forecast type's measured record with the right yardstick for its kind (Brier,
+     average miss, calibration). Distinct from RESULTS_FORECAST_RECORD (the Results projection's designated headline
+     record per sport) — the ledger is the per-row, per-family measurement under it. */
+  "FORECAST_HISTORY",
+  "MODEL_PERFORMANCE",
   /* §10 · COVERAGE. Its own intent for the same reason the four Results intents are four: it has
      its own owner (the coverage registry joined to the calibration verdicts) and answers a question
      none of the others can — "may this market be treated as a GameTimePicks forecast at all?".
@@ -388,6 +395,8 @@ export const ASK_LINK_PATTERNS = Object.freeze([
   /^\/epl\/match\/[A-Za-z0-9-]{1,120}\/$/,
   /* Session 2 · the Results day page, issued by getResultsDay. */
   /^\/results\/date\/[0-9]{4}-[0-9]{2}-[0-9]{2}\/$/,
+  // Session 13 · the Forecast Record and its per-family pages (sport slug / family slug, both closed vocabularies).
+  /^\/results\/forecasts\/(?:(?:nfl|mlb|epl|ligue-1|ufc)\/[a-z0-9-]{3,48}\/)?$/,
   // E-3: /bank-builder/ and /moonshot/ are tool-issued (results.mjs) and were refused as UNSUPPORTED_LINK.
   /^\/(?:live|today|sports|mlb|nfl|epl|ufc|results|parlay-lab|parlays|build|markets|models|my|saved|following|methodology|learn|responsible-use|system-status|bank-builder|moonshot)\/$/,
   /^\/$/,
@@ -497,6 +506,9 @@ export const askAssetPath = Object.freeze({
   matchups: () => `${ASK_ASSET_PREFIX}/matchups.json`,
   parlays: () => `${ASK_ASSET_PREFIX}/parlays.json`,
   results: () => `${ASK_ASSET_PREFIX}/results.json`,
+  /* Session 13 · the Forecast Record (Universal Forecast Ledger) projected for Ask: family metrics + packed rows (daily). */
+  forecastRecord: () => `${ASK_ASSET_PREFIX}/forecast-record.json`,
+  forecastRows: (sport) => `${ASK_ASSET_PREFIX}/forecast-record/${String(sport).toLowerCase().replace(/_/g, "-")}.json`,
   help: () => `${ASK_ASSET_PREFIX}/help.json`,
   routes: () => `${ASK_ASSET_PREFIX}/routes.json`,
   /* §10's coverage registry, projected for Ask: what is published, what has been measured, and
@@ -559,7 +571,24 @@ export const askStoredGzipped = (rel) => /^recent\//.test(rel);
  * rebuilt nightly by the settlement pipeline, so committing it would leave `ask:check` reporting the
  * projection stale on `main` every morning — a currency check that cries wolf is one nobody reads.
  */
-export const ASK_DAILY_FILES = Object.freeze(["forecasts.json", "parlays.json", "results.json", "nfl-eligibility.json"]);
+/* Session 13: `forecast-record.json` is daily for the same reason — the Forecast Ledger is rebuilt nightly. */
+/* The Forecast Record is an index (families, KPIs, gaps) plus one rows shard per sport, so a lookup loads one sport. */
+export const ASK_FORECAST_SPORTS = Object.freeze(["nfl", "mlb", "epl", "ligue-1", "ufc"]);
+export const ASK_DAILY_FILES = Object.freeze([
+  "forecasts.json", "parlays.json", "results.json", "nfl-eligibility.json",
+  "forecast-record.json", ...ASK_FORECAST_SPORTS.map((s) => `forecast-record/${s}.json`),
+]);
+
+/**
+ * The packed Forecast Record row layout (forecast-record.json `rows`). Unpacked only by tools/forecast-record.mjs.
+ * `family`, `subject` and `matchup` are indexes into the artifact's `dict.families` ([sport, family]),
+ * `dict.subjects` ([subjectId, name, team]) and `dict.matchups` — 10k rows inside the loader's asset ceiling.
+ */
+export const ASK_FORECAST_ROW = Object.freeze([
+  "family", "date", "subject", "matchup", "kind", "projection", "rangeLow", "rangeHigh", "probability",
+  "state", "finalValue", "finalCategory", "observed", "absoluteError", "brier", "directional",
+]);
+export const ASK_FORECAST_KINDS = Object.freeze(["CONTINUOUS_PROJECTION", "BINARY_PROBABILITY", "MULTICLASS_PROBABILITY"]);
 export const isAskDailyFile = (rel) => ASK_DAILY_FILES.includes(rel);
 
 /** The committed filename for a projection-relative path. The PUBLIC emit always writes plain JSON. */
