@@ -64,8 +64,17 @@ on:
 
 # Independent of gtp-generated-artifacts: this job writes no artifact and spends no API credit, so
 # it must never queue behind (or cancel) a data writer.
+#
+# ⚠ ON MAIN THE GROUP IS THE COMMIT, NOT THE BRANCH (2026-10-05). Keyed on `github.ref`, every merge
+# to main cancelled the run of the merge before it: #976's run 37340816965 and #975's 37342374504
+# were both cancelled by the next merge, so neither merge commit ever got a completed gate and a
+# later red could not be traced to the merge that caused it. With several departments merging, that
+# is the normal case, not an edge. Keyed on `github.sha` for main, each merge commit gets its own
+# run that nothing cancels. Turning cancellation off alone would not do it: GitHub keeps one pending
+# run per group, so the middle merge of a burst would still be dropped. PR branches keep the
+# ref-keyed group, so a new push to a PR still cancels its superseded run.
 concurrency:
-  group: quality-gate-${{ github.ref }}
+  group: quality-gate-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}
   cancel-in-progress: true
 
 permissions:
