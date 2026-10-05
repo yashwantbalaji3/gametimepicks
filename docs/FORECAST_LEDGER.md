@@ -109,10 +109,12 @@ owners' own scores on every row they publish.
 
 ## 8. Owner defects the ledger surfaced (not fixed here — measurement only)
 
-1. **NFL experimental settlement double-grades evening games.** A game kicking off just after 00:00Z has receipts in
-   two UTC date folders; the settler runs per folder, so 401874392, 401873300 and 401872962 were each graded twice —
-   once against a superseded receipt. The owner's lifetime metrics count 79 events for 76 games. The ledger keeps only
-   the forecast of record and names the superseded grade in `provenance.notes`.
+1. **NFL experimental settlement grades evening games once per UTC folder.** A game kicking off just after 00:00Z has
+   receipts in two UTC date folders; the settler runs per folder, so 401874392, 401873300 and 401872962 each carry a
+   second, per-date grade against a superseded receipt. *Correction (same session):* the owner's LIFETIME summary
+   already de-duplicates by event ("later date wins" — the same forecast of record the ledger keeps), so the public
+   lifetime record does not double-count; only the per-date files carry the extra grade. The ledger keeps only the
+   forecast of record and names the superseded grade in `provenance.notes`.
 2. **NFL experimental settlement never graded Week 2 (16 games, 2026-09-18 → 09-22) or five preseason games
    (08-21/22).** The settle step only revisits yesterday/today, and the results feed it reads is a rolling window; once
    the finals left the window, the `AWAITING_OFFICIAL_RESULT` rows were never revisited. The week reconciliation did
