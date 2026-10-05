@@ -52,8 +52,11 @@
  * @param {Function} args.keyOf       `(bout) => key`, the same fold used to build `pricedByKey`
  * @param {Function} args.fighterKeys `(bout) => [keyA, keyB]`, the per-FIGHTER fold. This is what
  *   separates a missed join on our own card from another promotion's fight in the same payload.
+ * @param {string|null} args.cardEventId     the card's ESPN event id (`card.event.providerEventId`)
+ * @param {string|null} args.snapshotEventId the ESPN event id the odds snapshot is written under. ESPN, never the
+ *   odds provider's: see the identity note below.
  */
-export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyOf, fighterKeys, cardEventId = null, oddsEventId = null }) {
+export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyOf, fighterKeys, cardEventId = null, snapshotEventId = null }) {
   const bouts = Array.isArray(cardBouts) ? cardBouts : [];
 
   // Everyone we know is fighting on this card, as individual folded names.
@@ -110,13 +113,20 @@ export function classifyCardCoverage({ cardBouts, pricedByKey, matchedKeys, keyO
    *
    * A capture for a DIFFERENT event is not partial coverage of this one. It is no coverage, and it
    * is named as such rather than counted.
+   *
+   * ⚠ BOTH IDS ARE ESPN EVENT IDS. The odds provider has no id for a card: every FIGHT is its own
+   * provider event with its own hash. From P264 (2026-09-11) to 2026-10-05 the capture passed one of
+   * those per-fight hashes here, so "600061182" was compared with "4a469d6a…", the check fired whenever
+   * a single bout was priced, and no UFC capture could ever read ready — the fully priced 12/12 card of
+   * 2026-09-17 included. The fixtures had several fights sharing one provider id, which the provider
+   * never does. A provider id is per-bout provenance (`bouts[].providerEventId`), not card identity.
    */
-  const eventMismatch = Boolean(cardEventId && oddsEventId && String(cardEventId) !== String(oddsEventId));
+  const eventMismatch = Boolean(cardEventId && snapshotEventId && String(cardEventId) !== String(snapshotEventId));
 
   const blockers = [];
   if (eventMismatch) {
     blockers.push(
-      `the odds artifact describes event ${oddsEventId}, not this card (${cardEventId}) — no prices have been captured for it yet`,
+      `the odds artifact describes event ${snapshotEventId}, not this card (${cardEventId}) — no prices have been captured for it yet`,
     );
   }
   if (!pricedCount && !eventMismatch) blockers.push("the provider returned no h2h market that joined to this card");
@@ -211,11 +221,13 @@ export function recomputeCoverageAgainstCard({ snapshot, card, nowIso }) {
     addedAfterCapture: unpriced.filter((u) => u.state === ADDED_AFTER_CAPTURE).length,
     unmatchedProviderEvents: snapshot.coverage?.unmatchedProviderEvents ?? 0,
   };
-  // The capture's own identity verdict is preserved verbatim; it is a statement about the bought bytes.
-  const mismatchBlocker = (snapshot.blockers ?? []).find((x) => /^the odds artifact describes event /.test(x)) ?? null;
-  const eventMismatch = Boolean(mismatchBlocker);
+  /*
+   * Same ESPN event by the guard above, so there is no event mismatch to carry. This used to copy the
+   * capture's mismatch blocker verbatim — which, until 2026-10-05, was the false ESPN-vs-provider-hash
+   * verdict (see classifyCardCoverage), so a recompute re-published a blocker that was never true.
+   */
+  const eventMismatch = false;
   const blockers = [];
-  if (mismatchBlocker) blockers.push(mismatchBlocker);
   if (!coverage.priced && !eventMismatch) blockers.push("the provider returned no h2h market that joined to this card");
   if (coverage.joinFailed) blockers.push(`${coverage.joinFailed} bout(s) could not be joined to a provider event that exists — a defect, not a closed market`);
   if (coverage.marketNotOpen) blockers.push(`${coverage.marketNotOpen} of ${coverage.cardBouts} bouts have no posted h2h market yet`);
@@ -236,28 +248,20 @@ export function recomputeCoverageAgainstCard({ snapshot, card, nowIso }) {
 }
 
 /**
- * WHICH PROVIDER EVENT THIS CARD ACTUALLY JOINED TO (P264).
+ * THE PROVIDER EVENT BEHIND ONE PRICED BOUT — provenance, not identity.
  *
- * The authorised call is the BULK MMA endpoint, so the response carries every promotion's upcoming
- * fights. The identity guard in `classifyCardCoverage` needs the odds side's event id, and the answer
- * is the event that most of THIS card's matched bouts came from — not the first row in the payload.
+ * This replaced `matchedProviderEventId` (P264), which tallied the provider ids of a card's joined
+ * bouts and returned the "most claimed" one as the card's event id, on the belief that a card's
+ * fights share a provider event. They never do: the bulk MMA endpoint returns one event per FIGHT,
+ * so every tally was 1-1-1… and the "winner" was whichever hash sorted first. That hash was then
+ * compared with the card's ESPN event id. Kept per bout, the provider id is a useful audit trail
+ * (which book event priced this fight); promoted to card identity, it was a guaranteed mismatch.
  *
- * Written here rather than inline in the capture script because the capture script crashed on this
- * exact value for three runs (a `matchedEvent` that was never defined), after the paid call and with
- * the failure swallowed by the workflow. A value worth guarding is a value worth testing.
- *
- * @param {Iterable<string>} consumedKeys  bout keys that joined
+ * @param {string} key  the provider key the bout claimed
  * @param {Map<string, {providerEventId?: string}>} pricedByKey
  * @returns {string|null}
  */
-export function matchedProviderEventId(consumedKeys, pricedByKey) {
-  const tally = new Map();
-  for (const key of consumedKeys ?? []) {
-    const id = pricedByKey?.get?.(key)?.providerEventId;
-    if (id == null || id === "") continue;
-    tally.set(id, (tally.get(id) ?? 0) + 1);
-  }
-  if (tally.size === 0) return null;
-  // Most-claimed wins; ties resolve by id so the answer is stable run to run.
-  return [...tally.entries()].sort((a, b) => (b[1] - a[1]) || String(a[0]).localeCompare(String(b[0])))[0][0];
+export function providerEventIdOf(key, pricedByKey) {
+  const id = pricedByKey?.get?.(key)?.providerEventId;
+  return id == null || id === "" ? null : String(id);
 }
