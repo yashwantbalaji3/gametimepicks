@@ -1,6 +1,6 @@
 {
   "kind": "cron-slot-watchdog",
-  "generatedAt": "2026-10-04T18:18:15Z",
+  "generatedAt": "2026-10-05T21:36:40Z",
   "lookbackHours": 168,
   "sports": {
     "mlb": {
@@ -8,11 +8,11 @@
       "crons": [
         "17 11 * * *"
       ],
-      "createdAt": "2026-09-15T02:56:21.000Z",
+      "createdAt": "2026-09-16T00:44:40.000Z",
       "expected": 7,
       "ran": 100,
       "missed": [],
-      "lastConclusion": "success",
+      "lastConclusion": "skipped",
       "consecutiveFailures": 0,
       "state": "OK"
     },
@@ -24,13 +24,15 @@
         "0 11 * * 6",
         "0 13 * * 0,1,3,5"
       ],
-      "createdAt": "2026-09-15T02:56:21.000Z",
+      "createdAt": "2026-09-16T00:44:40.000Z",
       "expected": 7,
-      "ran": 62,
-      "missed": [],
-      "lastConclusion": "success",
-      "consecutiveFailures": 0,
-      "state": "OK"
+      "ran": 63,
+      "missed": [
+        "2026-10-05T13:00:00.000Z"
+      ],
+      "lastConclusion": "failure",
+      "consecutiveFailures": 1,
+      "state": "MISSED"
     },
     "nfl": {
       "workflow": "nfl-event-window.yml",
@@ -42,7 +44,7 @@
         "0 13 * * 6",
         "0 13 * * 0"
       ],
-      "createdAt": "2026-09-15T02:56:21.000Z",
+      "createdAt": "2026-09-16T00:44:40.000Z",
       "expected": 24,
       "ran": 100,
       "missed": [],
@@ -72,7 +74,7 @@
         "0 15 * * 0",
         "30 18 * * 1"
       ],
-      "createdAt": "2026-09-15T02:56:21.000Z",
+      "createdAt": "2026-09-16T00:44:40.000Z",
       "expected": 18,
       "ran": 100,
       "missed": [],
@@ -85,18 +87,16 @@
       "crons": [
         "7 9 * * *"
       ],
-      "createdAt": "2026-09-15T02:56:21.000Z",
+      "createdAt": "2026-09-16T00:44:40.000Z",
       "expected": 7,
-      "ran": 60,
-      "missed": [
-        "2026-09-28T09:07:00.000Z"
-      ],
+      "ran": 62,
+      "missed": [],
       "lastConclusion": "success",
       "consecutiveFailures": 0,
-      "state": "MISSED"
+      "state": "OK"
     }
   },
   "missedTotal": 1,
-  "failingTotal": 0,
+  "failingTotal": 1,
   "unknown": []
 }
