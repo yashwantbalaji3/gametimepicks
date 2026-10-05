@@ -520,6 +520,12 @@ the tool module imports no `.ts`.
   pronoun follow-up keeps the player for forecast history).
 - Known limits: Ligue 1 is not in `ASK_SPORTS` (its family is visible on the Results page only); team history works for
   NFL team-score rows (ids are the canonical `nfl-team-<ESPN id>` after the 2026-10-05 ledger re-key).
+- **2026-10-05 audit fixes** (`ask-history-audit.test.mjs`): history ranges read "X to Y" (a dashed "50.8–196.1" was
+  read by the record check as a W–L and sent every opponent-naming answer to the fallback; the verifier is unchanged);
+  a team / club / fighter / game with no rows fails closed ("not available through Ask yet", Forecast Record linked)
+  instead of "published 0" — game-level rows are keyed by the game, so team and club history beyond NFL team score is a
+  Tuesday item; a W–L names its basis in the Results page's words, never "a pick was published"; a median score pair is
+  "median simulated points", never a projected (final) score.
 
 ## 30. Future roadmap
 
