@@ -1,0 +1,71 @@
+# NFL SIMULATION ENGINE V2 — FORWARD SHADOW RECEIPTS (Session 13). $0: no provider call, no market input.
+#
+# Writes a SimulationReceiptV2 (data/internal/research/nfl/sim-v2/shadow/<date>/<eventId>-<inputHash>.json) for every NFL
+# game kicking off within 8 days whose inputs changed since its last receipt (anchors from the forecast of record,
+# availability from the injuries contract + active roster, role shares, fitted params). Write-once; a started game is
+# never simulated. These receipts are the FORWARD SHADOW LEDGER the promotion gate needs (docs/SIMULATION_ENGINE_V2.md §7):
+# frozen before kickoff, graded later, never public.
+#
+# ISOLATED FROM THE PUBLISHING PATH ON PURPOSE. It runs after nfl-event-window (workflow_run, depth 2 when the window
+# was dispatched) and hourly in season as a fallback, in its own job with its own commit. A failure here goes red and
+# blocks nothing: no forecast, board, settlement or product reads these files. Built-but-unscheduled jobs are a known
+# silent-failure class in this repo; this is the schedule.
+name: nfl-sim-v2-shadow
+
+on:
+  workflow_run:
+    workflows: [nfl-event-window]
+    types: [completed]
+  schedule:
+    - cron: "41 * * 9-12,1,2 *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: nfl-sim-v2-shadow
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+      - name: Simulate unstarted games whose inputs changed (write-once)
+        run: |
+          set -euo pipefail
+          node app/scripts/nfl/build-nfl-sim-v2-shadow.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      - name: Commit new shadow receipts (add-only)
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          mkdir -p data/internal/research/nfl/sim-v2/shadow
+          git add data/internal/research/nfl/sim-v2/shadow/
+          if git diff --cached --quiet; then
+            echo "no new shadow receipt (inputs unchanged or no game inside 8 days)"
+            exit 0
+          fi
+          if git diff --cached --name-status -- data/internal/research/nfl/sim-v2/shadow/ | grep -v '^A'; then
+            echo "::error::a shadow receipt would be MODIFIED or deleted — write-once violated, refusing to commit"
+            exit 1
+          fi
+          git commit -m "auto: nfl sim v2 shadow receipts $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+          for a in 1 2 3 4; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "push rejected (attempt $a) — merging origin/main (never rebase)"
+            git fetch origin main
+            git merge --no-edit origin/main
+            sleep $((a * 5))
+          done
+          echo "::error::push never landed after 4 attempts"
+          exit 1

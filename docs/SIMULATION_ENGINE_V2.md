@@ -149,6 +149,15 @@ key-number / OT / yardage-split biases), material output provenance clear (✅),
 3. Forward shadow ledger: V2 receipts written pregame every NFL week (this script, write-once) and graded into the
    Forecast Ledger as `SHADOW` (never public history) until each player family clears its bar.
 
+## 7a. Forward shadow ledger — scheduled
+
+`.github/workflows/nfl-sim-v2-shadow.yml` runs the shadow producer after every `nfl-event-window` (`workflow_run`) and
+hourly in season (fallback), in its own job with an add-only commit (a modified or deleted receipt refuses). It writes a
+receipt for each game inside 8 days only when its INPUTS changed (`<eventId>-<inputHash>.json`): new anchors,
+availability, role shares or params. The latest pre-kickoff receipt per game is the one of record for grading. ⚠ The input
+hash covers the engine VERSION, not its code: any engine change must bump `NFL_SIM_V2_VERSION`, or old and new code would
+share receipt ids. Isolated from publishing: nothing public reads these files.
+
 ## 7b. Simulation Center V2 (Phase F) — internal presentation
 
 `/preview/simulation-v2/` (internal: `guardInternalRoute()` + `/preview` pruned from the export; run with
