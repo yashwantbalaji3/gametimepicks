@@ -25,12 +25,15 @@
  *
  * Usage: node scripts/nfl/build-nfl-score-shape.mjs --now <iso> [--runs 20000]
  * Writes: app/public/data/nfl/score-shape/<date>.json + latest.json
+ *         data/internal/nfl/score-shape-receipts/<kickoff-date>/<eventId>[-rev-<stamp>Z].json
+ *         (write-once, pre-kickoff only: lib/sports/nfl/score-shape-receipts.mjs)
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { simulateFullGame, REGULAR_SCORING } from "./lib/nfl-score-engine.mjs";
+import { scoreShapeReceiptKey, writeScoreShapeReceipt } from "../../src/lib/sports/nfl/score-shape-receipts.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -84,6 +87,7 @@ function solveForGame({ gameId, away, home, targetMargin, targetTotal }) {
 
 const games = [];
 const refused = [];
+const receipts = [];
 for (const f of forecasts.forecasts) {
   const s = f.forecastSummary;
   if (!s?.margin || !s?.total) {
@@ -92,8 +96,11 @@ for (const f of forecasts.forecasts) {
   }
   const away = f.away?.abbr ?? "AWAY";
   const home = f.home?.abbr ?? "HOME";
+  /* The seed follows what the shape is computed FROM (forecast inputs + engine + runs), not the run's
+     clock, so an unchanged forecast re-solves to the identical shape and its receipt stays UNCHANGED. */
+  const receiptKey = scoreShapeReceiptKey({ forecastInputHash: f.model?.inputHash, engineId: REGULAR_SCORING.MODEL_VERSION, runs: RUNS });
   const solved = solveForGame({
-    gameId: `nfl-score-shape::${f.providerEventId}::${forecasts.generatedAt}`,
+    gameId: `nfl-score-shape::${f.providerEventId}::${receiptKey ?? forecasts.generatedAt}`,
     away, home,
     targetMargin: s.margin.median,
     targetTotal: s.total.median,
@@ -106,7 +113,7 @@ for (const f of forecasts.forecasts) {
     continue;
   }
   const sim = solved.sim;
-  games.push({
+  const game = {
     providerEventId: f.providerEventId,
     canonicalEventId: f.canonicalEventId,
     matchup: f.matchup,
@@ -126,7 +133,10 @@ for (const f of forecasts.forecasts) {
     scoringRates: sim.scoringRates,
     overtimeProbability: sim.overtimeProbability,
     tieProbability: sim.tieProbability,
-  });
+  };
+  games.push(game);
+  const receipt = writeScoreShapeReceipt({ root: ROOT, game, forecast: f, receiptKey, engineId: REGULAR_SCORING.MODEL_VERSION, runs: RUNS, nowIso: NOW });
+  receipts.push({ providerEventId: f.providerEventId, matchup: f.matchup, ...receipt });
 }
 
 /**
@@ -182,3 +192,4 @@ for (const g of games.slice(0, 3)) {
   console.log(`  ${g.matchup}  top ${g.away} ${g.finalScores[0].away}–${g.finalScores[0].home} ${g.home}  ·  ${k}`);
 }
 for (const r of refused) console.log(`  REFUSED ${r.matchup}: ${r.reason}`);
+for (const r of receipts) console.log(`  receipt ${r.matchup}: ${r.action}${r.file ? ` → ${r.file}` : ""}${r.reason ? ` (${r.reason})` : ""}`);
