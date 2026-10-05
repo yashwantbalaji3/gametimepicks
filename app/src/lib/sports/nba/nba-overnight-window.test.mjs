@@ -29,3 +29,19 @@ test("an international tip is owed from the evening before; a West Coast late ti
   const done = owedWithOvernight({ rows, storedIdsByDate: () => new Set(["intl", "west"]), now: "2031-10-08T22:00:00Z" });
   assert.deepEqual(done.flatMap((o) => o.eventIds), [], "control: an already-forecast tip is never owed again");
 });
+
+test("the builder's planRun builds every overnight tip the decider owes (decider and builder agree)", async () => {
+  const { planRun } = await import("../../../lib/sports/nba/forecast-receipt.mjs");
+  const etDateOf = (iso) => new Date(Date.parse(iso) - 4 * 3_600_000).toISOString().slice(0, 10);
+  const now = "2031-10-08T22:00:00Z";
+  const owed = owedWithOvernight({ rows, storedIdsByDate: none, now });
+  for (const { date, eventIds } of owed) {
+    const plan = planRun({ scheduleRows: rows, date, etDateOf, existingIds: new Set(), now, horizonHours: WINDOW_HORIZON_HOURS });
+    for (const id of eventIds) assert.ok(plan.build.includes(id), `${id} owed on ${date} but the builder would skip it`);
+  }
+  const intlPlan = planRun({ scheduleRows: rows, date: "2031-10-09", etDateOf, existingIds: new Set(), now, horizonHours: WINDOW_HORIZON_HOURS });
+  assert.ok(intlPlan.build.includes("intl"), "14 h before an overnight tip: the 8 h windowed build still builds it");
+  assert.equal(intlPlan.outcomes.find((o) => o.providerEventId === "evening")?.outcome, "OUTSIDE_HORIZON", "control: an evening tip 25.5 h out stays outside");
+  const unwindowed = planRun({ scheduleRows: rows, date: "2031-10-09", etDateOf, existingIds: new Set(), now, horizonHours: null });
+  assert.ok(unwindowed.build.includes("evening"), "control: the daily run (no horizon) is unchanged");
+});
