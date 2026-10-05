@@ -57,7 +57,7 @@ export async function getForecastFamilyPerformance(args, ctx) {
       family: f.family, label: f.label, kind: f.kind, counts: f.counts, n: f.n,
       ...(f.kind === "CONTINUOUS_PROJECTION" ? { mae: f.mae, medianAbsError: f.medianAbsError, rmse: f.rmse, bias: f.bias, coverage: f.coverage } : {}),
       ...(f.kind === "BINARY_PROBABILITY" ? { brier: f.brier, logLoss: f.logLoss, meanForecast: f.meanForecast, observedRate: f.observedRate, ece: f.ece } : {}),
-      ...(f.kind === "MULTICLASS_PROBABILITY" ? { brier: f.brier, logLoss: f.logLoss, topClassAccuracy: f.topClassAccuracy, uniformReference: f.uniformReference } : {}),
+      ...(f.kind === "MULTICLASS_PROBABILITY" ? { brier: f.brier, logLoss: f.logLoss, topClassAccuracy: f.topClassAccuracy, topClassLabel: f.topClassLabel ?? null, uniformReference: f.uniformReference } : {}),
       pickRecord: f.pickRecord ?? null,
       latestEvent: f.latestEvent ?? null,
       href: f.href,

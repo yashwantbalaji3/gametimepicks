@@ -136,7 +136,7 @@ export default async function ForecastFamilyPage({ params }: { params: Promise<P
           <>
             <div className="stat"><b>{num(m.logLoss)}</b><span>log loss (n {n(m.n)}) — a blind guess scores {num(m.uniformReference?.logLoss)}</span></div>
             <div className="stat"><b>{num(m.brier)}</b><span>Brier score — a blind guess scores {num(m.uniformReference?.brier)}</span></div>
-            <div className="stat"><b>{pct(m.topClassAccuracy)}</b><span>our likeliest outcome happened</span></div>
+            <div className="stat"><b>{pct(m.topClassAccuracy)}</b><span>{m.topClassLabel ?? "our likeliest outcome happened"}</span></div>
           </>
         )}
         {m.directional ? (

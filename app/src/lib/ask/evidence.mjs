@@ -428,7 +428,7 @@ export function buildEvidence(envelopes) {
             say(`GameTime's ${sp} ${f.label} probabilities score a Brier of ${f.brier} and a log loss of ${f.logLoss} (lower is better) across ${f.n} measured forecasts; on average we said ${pctW(f.meanForecast)} and it happened ${pctW(f.observedRate)} of the time (calibration error ${f.ece}) — ${tail}`,
               [f.brier, f.logLoss, f.n, f.meanForecast, f.observedRate, f.ece]);
           } else if (f.kind === "MULTICLASS_PROBABILITY") {
-            say(`GameTime's ${sp} ${f.label} forecasts score a log loss of ${f.logLoss} and a Brier of ${f.brier} across ${f.n} measured matches (a blind guess scores ${f.uniformReference?.logLoss} log loss); our likeliest outcome happened ${pctW(f.topClassAccuracy)} of the time — ${tail}`,
+            say(`GameTime's ${sp} ${f.label} forecasts score a log loss of ${f.logLoss} and a Brier of ${f.brier} across ${f.n} measured matches (a blind guess scores ${f.uniformReference?.logLoss} log loss); ${f.topClassLabel ? `our ${f.topClassLabel} is ${pctW(f.topClassAccuracy)}` : `our likeliest outcome happened ${pctW(f.topClassAccuracy)} of the time`} — ${tail}`,
               [f.logLoss, f.brier, f.n, f.uniformReference?.logLoss, f.topClassAccuracy]);
           }
           if (f.pickRecord) say(`where a ${sp} ${f.label} pick was published, the pick record is ${f.pickRecord.win}–${f.pickRecord.loss}${f.pickRecord.push ? `–${f.pickRecord.push}` : ""}`, [f.pickRecord.win, f.pickRecord.loss, f.pickRecord.push]);

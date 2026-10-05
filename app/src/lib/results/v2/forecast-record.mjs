@@ -119,6 +119,12 @@ export function familyMetrics(rows) {
       brier: round(mean(measured.map((r) => r.measurement.brier).filter(isNum))),
       logLoss: round(mean(measured.map((r) => r.measurement.logLoss).filter(isNum))),
       topClassAccuracy: top.length ? round(top.filter((r) => r.measurement.topClassHit).length / top.length) : null,
+      // A score table (classes = listed scores + OTHER): the hit means "the single likeliest LISTED score was the final"
+      // — a top-1 exact-score hit rate, never a pooled accuracy. Brier/log loss above run over the full, normalized
+      // outcome space including OTHER.
+      topClassLabel: "OTHER" in (rows[0]?.classProbabilities ?? {})
+        ? "top-1 exact-score hit rate (how often our single likeliest listed score was the exact final)"
+        : null,
       uniformReference: { logLoss: round(Math.log(k)), brier: round(1 - 1 / k) },
     };
   }
