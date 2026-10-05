@@ -73,7 +73,7 @@ test("🔴 the NFL and EPL game forecast reaches the evidence, dated and labelle
   assert.match(text, /EXPERIMENTAL expected goals: 2\.9; chance of over 2\.5 goals 53%/);
   assert.match(text, /CLE @ PIT \(NFL\) on 2031-10-05/);
   assert.match(text, /EXPERIMENTAL model win probability: CLE 42\.6%, PIT 54\.4%, tie 3%/);
-  assert.match(text, /EXPERIMENTAL projected score: CLE 19, PIT 20/);
+  assert.match(text, /EXPERIMENTAL median simulated points — the middle of our simulated outcomes for each team, not a predicted final score: CLE 19, PIT 20/);
 });
 
 test("the verifier can now check a game-forecast answer: the owner's number passes, an invented one does not", async () => {
