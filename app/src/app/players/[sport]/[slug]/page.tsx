@@ -28,6 +28,7 @@ import { comparePath } from "@/lib/compare/contract.mjs";
 import { playerHasComparablePeer } from "@/lib/compare/compare-store";
 import { SPORT_SEGMENTS, hrefsFor, playerBySlug, staticParams, teamLabels, type PlayerProjection, type ResearchSport } from "@/lib/research-pages/projection-store";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import ForecastHistorySection from "@/components/research-pages/forecast-history-section";
 
 export const dynamicParams = false;
 
@@ -121,6 +122,9 @@ export default function PlayerResearchPage({ params }: { params: { sport: string
           ))}
         </section>
       ) : null}
+
+      {/* Research V2 (Session 13): this player's own published forecasts, from the Forecast Record. */}
+      <ForecastHistorySection subjectId={p.id} name={p.name} />
 
       {latest ? (
         <Section id="snapshot" title={`${latest.label} recorded snapshot`} sub="Totals over the games GameTime recorded that season, not a complete season line.">
