@@ -2,20 +2,20 @@
   "schemaVersion": 1,
   "artifact": "nfl-live-props",
   "dataClass": "PUBLIC_DERIVED",
-  "providerEventId": "401872974",
-  "matchup": "MIA @ MIN",
-  "kickoffUtc": "2026-10-04T20:05Z",
+  "providerEventId": "401872977",
+  "matchup": "LAC @ SEA",
+  "kickoffUtc": "2026-10-04T20:25Z",
   "phase": "FINAL",
-  "finality": "CANONICAL",
-  "finalFirstObservedAt": "2026-10-04T23:44:45Z",
-  "observedAt": "2026-10-04T23:51:01Z",
+  "finality": "PROVISIONAL",
+  "finalFirstObservedAt": "2026-10-05T15:58:06Z",
+  "observedAt": "2026-10-05T15:58:06Z",
   "source": "espn-nfl-summary (free)",
   "frozenFrom": "2026-10-04T19:24:18Z",
   "counts": {
-    "rows": 44,
-    "withLiveStat": 33,
-    "settled": 33,
-    "noMeasurement": 11,
+    "rows": 45,
+    "withLiveStat": 41,
+    "settled": 41,
+    "noMeasurement": 4,
     "frozenRefusedNewerBoard": 0,
     "frozenRefusedNoPregameSnapshot": 0,
     "reconciled": 0
@@ -23,23 +23,23 @@
   "disclaimer": "Live figures are the provider's factual game state. The projection and the sportsbook line beside them are our pre-kickoff record and do not change during the game. No live probability, projected finish or on-track reading is shown.",
   "rows": [
     {
-      "predictionId": "401872974:nfl-athlete-3042519:player_rush_yds",
-      "playerId": "nfl-athlete-3042519",
-      "espnId": "3042519",
-      "name": "Aaron Jones Sr.",
-      "team": "MIN",
-      "family": "player_rush_yds",
+      "predictionId": "401872977:nfl-athlete-4430878:player_reception_yds",
+      "playerId": "nfl-athlete-4430878",
+      "espnId": "4430878",
+      "name": "Jaxon Smith-Njigba",
+      "team": "SEA",
+      "family": "player_reception_yds",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "54f5b636b65468fa",
+      "frozenIdentity": "12d6dfc8d1417d37",
       "frozen": {
         "projection": {
-          "median": 43.7278,
-          "p10": 12.7516,
-          "p90": 106.0021,
+          "median": 86.93,
+          "p10": 34.53,
+          "p90": 164.91,
           "probability": null
         },
         "market": {
-          "line": 66.5,
+          "line": 95.5,
           "overOdds": -114,
           "underOdds": -110,
           "sportsbook": "draftkings",
@@ -52,518 +52,49 @@
       "frozenRefusal": null,
       "live": {
         "phase": "FINAL",
-        "statValue": 94,
+        "statValue": 76,
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
         "state": "SETTLED",
-        "finalStat": 94,
-        "line": 66.5,
-        "lineResult": "OVER",
-        "forecastResult": "LOSS",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-3042519:player_reception_yds",
-      "playerId": "nfl-athlete-3042519",
-      "espnId": "3042519",
-      "name": "Aaron Jones Sr.",
-      "team": "MIN",
-      "family": "player_reception_yds",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "85f93eadb8ab9042",
-      "frozen": {
-        "projection": {
-          "median": 16.62,
-          "p10": 0,
-          "p90": 50.02,
-          "probability": null
-        },
-        "market": {
-          "line": 19.5,
-          "overOdds": -111,
-          "underOdds": -113,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 34,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 34,
-        "line": 19.5,
-        "lineResult": "OVER",
-        "forecastResult": "LOSS",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-3042519:player_receptions",
-      "playerId": "nfl-athlete-3042519",
-      "espnId": "3042519",
-      "name": "Aaron Jones Sr.",
-      "team": "MIN",
-      "family": "player_receptions",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "0004dc7d0b652552",
-      "frozen": {
-        "projection": {
-          "median": 2,
-          "p10": 0,
-          "p90": 5,
-          "probability": null
-        },
-        "market": {
-          "line": 3.5,
-          "overOdds": 131,
-          "underOdds": -168,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 4,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 4,
-        "line": 3.5,
-        "lineResult": "OVER",
-        "forecastResult": "LOSS",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-3042519:anytime_td",
-      "playerId": "nfl-athlete-3042519",
-      "espnId": "3042519",
-      "name": "Aaron Jones Sr.",
-      "team": "MIN",
-      "family": "anytime_td",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "9d5d16ebd395281a",
-      "frozen": {
-        "projection": {
-          "median": null,
-          "p10": null,
-          "p90": null,
-          "probability": 0.4279
-        },
-        "market": {
-          "yesOdds": -145,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 0,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 0,
-        "line": null,
-        "lineResult": "NO",
-        "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4360569:player_rush_yds",
-      "playerId": "nfl-athlete-4360569",
-      "espnId": "4360569",
-      "name": "Jordan Mason",
-      "team": "MIN",
-      "family": "player_rush_yds",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "998b6ed4a5876c16",
-      "frozen": {
-        "projection": {
-          "median": 27.5029,
-          "p10": 5.5855,
-          "p90": 79.9366,
-          "probability": null
-        },
-        "market": null,
-        "pricingState": "NOT_OFFERED",
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": null,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "NO_MEASUREMENT",
-        "finalStat": null,
-        "line": null,
-        "lineResult": null,
-        "forecastResult": null,
-        "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
-        "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
-        "bookRuleUnknown": true,
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL",
-        "reObservedAt": "2026-10-04T23:51:01Z"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4360569:anytime_td",
-      "playerId": "nfl-athlete-4360569",
-      "espnId": "4360569",
-      "name": "Jordan Mason",
-      "team": "MIN",
-      "family": "anytime_td",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "9e4b5b528e17bf4e",
-      "frozen": {
-        "projection": {
-          "median": null,
-          "p10": null,
-          "p90": null,
-          "probability": 0.3111
-        },
-        "market": null,
-        "pricingState": "NOT_OFFERED",
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": null,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "NO_MEASUREMENT",
-        "finalStat": null,
-        "line": null,
-        "lineResult": null,
-        "forecastResult": null,
-        "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
-        "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
-        "bookRuleUnknown": true,
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL",
-        "reObservedAt": "2026-10-04T23:51:01Z"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4429205:player_reception_yds",
-      "playerId": "nfl-athlete-4429205",
-      "espnId": "4429205",
-      "name": "Jordan Addison",
-      "team": "MIN",
-      "family": "player_reception_yds",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "bf6923165f9e8c9f",
-      "frozen": {
-        "projection": {
-          "median": 39.38,
-          "p10": 6.65,
-          "p90": 91.59,
-          "probability": null
-        },
-        "market": {
-          "line": 62.5,
-          "overOdds": -113,
-          "underOdds": -111,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 52,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 52,
-        "line": 62.5,
+        "finalStat": 76,
+        "line": 95.5,
         "lineResult": "UNDER",
         "forecastResult": "WIN",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4429205:player_receptions",
-      "playerId": "nfl-athlete-4429205",
-      "espnId": "4429205",
-      "name": "Jordan Addison",
-      "team": "MIN",
+      "predictionId": "401872977:nfl-athlete-4430878:player_receptions",
+      "playerId": "nfl-athlete-4430878",
+      "espnId": "4430878",
+      "name": "Jaxon Smith-Njigba",
+      "team": "SEA",
       "family": "player_receptions",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "fa70b74006999910",
+      "frozenIdentity": "af843d4a930a9081",
       "frozen": {
         "projection": {
-          "median": 3,
-          "p10": 1,
-          "p90": 7,
+          "median": 7,
+          "p10": 3,
+          "p90": 12,
           "probability": null
         },
         "market": {
-          "line": 4.5,
-          "overOdds": 104,
-          "underOdds": -133,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 4,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 4,
-        "line": 4.5,
-        "lineResult": "UNDER",
-        "forecastResult": "WIN",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4429205:anytime_td",
-      "playerId": "nfl-athlete-4429205",
-      "espnId": "4429205",
-      "name": "Jordan Addison",
-      "team": "MIN",
-      "family": "anytime_td",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "c69b8c22f1ce21c9",
-      "frozen": {
-        "projection": {
-          "median": null,
-          "p10": null,
-          "p90": null,
-          "probability": 0.2874
-        },
-        "market": {
-          "yesOdds": 135,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 0,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 0,
-        "line": null,
-        "lineResult": "NO",
-        "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4569603:player_reception_yds",
-      "playerId": "nfl-athlete-4569603",
-      "espnId": "4569603",
-      "name": "Malik Washington",
-      "team": "MIA",
-      "family": "player_reception_yds",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "44b0370116199b5c",
-      "frozen": {
-        "projection": {
-          "median": 41.33,
-          "p10": 8.95,
-          "p90": 90.9,
-          "probability": null
-        },
-        "market": {
-          "line": 40.5,
-          "overOdds": -110,
-          "underOdds": -114,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 67,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 67,
-        "line": 40.5,
-        "lineResult": "OVER",
-        "forecastResult": "WIN",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4569603:player_receptions",
-      "playerId": "nfl-athlete-4569603",
-      "espnId": "4569603",
-      "name": "Malik Washington",
-      "team": "MIA",
-      "family": "player_receptions",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "554d7f871dad6bb0",
-      "frozen": {
-        "projection": {
-          "median": 4,
-          "p10": 1,
-          "p90": 7,
-          "probability": null
-        },
-        "market": {
-          "line": 4.5,
-          "overOdds": 104,
-          "underOdds": -132,
+          "line": 6.5,
+          "overOdds": -143,
+          "underOdds": 112,
           "sportsbook": "draftkings",
           "capturedAt": "2026-10-04T17:18:17Z"
         },
@@ -578,43 +109,43 @@
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
         "state": "SETTLED",
         "finalStat": 5,
-        "line": 4.5,
-        "lineResult": "OVER",
+        "line": 6.5,
+        "lineResult": "UNDER",
         "forecastResult": "LOSS",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4569603:anytime_td",
-      "playerId": "nfl-athlete-4569603",
-      "espnId": "4569603",
-      "name": "Malik Washington",
-      "team": "MIA",
+      "predictionId": "401872977:nfl-athlete-4430878:anytime_td",
+      "playerId": "nfl-athlete-4430878",
+      "espnId": "4430878",
+      "name": "Jaxon Smith-Njigba",
+      "team": "SEA",
       "family": "anytime_td",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "e731181d8ab93845",
+      "frozenIdentity": "826fcecaff4bff4d",
       "frozen": {
         "projection": {
           "median": null,
           "p10": null,
           "p90": null,
-          "probability": 0.2408
+          "probability": 0.6734
         },
         "market": {
-          "yesOdds": 370,
+          "yesOdds": -135,
           "sportsbook": "draftkings",
           "capturedAt": "2026-10-04T17:18:17Z"
         },
@@ -629,11 +160,11 @@
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
@@ -642,30 +173,30 @@
         "line": null,
         "lineResult": "NO",
         "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4036133:player_reception_yds",
-      "playerId": "nfl-athlete-4036133",
-      "espnId": "4036133",
-      "name": "T.J. Hockenson",
-      "team": "MIN",
-      "family": "player_reception_yds",
+      "predictionId": "401872977:nfl-athlete-4685382:player_rush_yds",
+      "playerId": "nfl-athlete-4685382",
+      "espnId": "4685382",
+      "name": "Omarion Hampton",
+      "team": "LAC",
+      "family": "player_rush_yds",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "2fbd657673b3fec9",
+      "frozenIdentity": "f21864570b532ae8",
       "frozen": {
         "projection": {
-          "median": 31.4,
-          "p10": 5.41,
-          "p90": 75.44,
+          "median": 39.8407,
+          "p10": 11.0211,
+          "p90": 99.3078,
           "probability": null
         },
         "market": {
-          "line": 38.5,
+          "line": 46.5,
           "overOdds": -113,
           "underOdds": -111,
           "sportsbook": "draftkings",
@@ -678,204 +209,47 @@
       "frozenRefusal": null,
       "live": {
         "phase": "FINAL",
-        "statValue": 119,
+        "statValue": 45,
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
         "state": "SETTLED",
-        "finalStat": 119,
-        "line": 38.5,
-        "lineResult": "OVER",
-        "forecastResult": "LOSS",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "finalStat": 45,
+        "line": 46.5,
+        "lineResult": "UNDER",
+        "forecastResult": "WIN",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4036133:player_receptions",
-      "playerId": "nfl-athlete-4036133",
-      "espnId": "4036133",
-      "name": "T.J. Hockenson",
-      "team": "MIN",
-      "family": "player_receptions",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "4d63bb9321977a51",
-      "frozen": {
-        "projection": {
-          "median": 3,
-          "p10": 1,
-          "p90": 7,
-          "probability": null
-        },
-        "market": {
-          "line": 4.5,
-          "overOdds": 106,
-          "underOdds": -136,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 13,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 13,
-        "line": 4.5,
-        "lineResult": "OVER",
-        "forecastResult": "LOSS",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4036133:anytime_td",
-      "playerId": "nfl-athlete-4036133",
-      "espnId": "4036133",
-      "name": "T.J. Hockenson",
-      "team": "MIN",
+      "predictionId": "401872977:nfl-athlete-4685382:anytime_td",
+      "playerId": "nfl-athlete-4685382",
+      "espnId": "4685382",
+      "name": "Omarion Hampton",
+      "team": "LAC",
       "family": "anytime_td",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "7bf9276ffc63fa91",
+      "frozenIdentity": "74776519f0d480cd",
       "frozen": {
         "projection": {
           "median": null,
           "p10": null,
           "p90": null,
-          "probability": 0.2393
+          "probability": 0.4126
         },
         "market": {
-          "yesOdds": 175,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 0,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 0,
-        "line": null,
-        "lineResult": "NO",
-        "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4711533:player_rush_yds",
-      "playerId": "nfl-athlete-4711533",
-      "espnId": "4711533",
-      "name": "Ollie Gordon II",
-      "team": "MIA",
-      "family": "player_rush_yds",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "344b9134c0347c5b",
-      "frozen": {
-        "projection": {
-          "median": 12.3753,
-          "p10": 1.1661,
-          "p90": 49.4448,
-          "probability": null
-        },
-        "market": {
-          "line": 25.5,
-          "overOdds": -117,
-          "underOdds": -107,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 100,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 100,
-        "line": 25.5,
-        "lineResult": "OVER",
-        "forecastResult": "LOSS",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4711533:anytime_td",
-      "playerId": "nfl-athlete-4711533",
-      "espnId": "4711533",
-      "name": "Ollie Gordon II",
-      "team": "MIA",
-      "family": "anytime_td",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "0f810896e5bab46b",
-      "frozen": {
-        "projection": {
-          "median": null,
-          "p10": null,
-          "p90": null,
-          "probability": 0.2121
-        },
-        "market": {
-          "yesOdds": 340,
+          "yesOdds": 130,
           "sportsbook": "draftkings",
           "capturedAt": "2026-10-04T17:18:17Z"
         },
@@ -890,11 +264,11 @@
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
@@ -903,30 +277,501 @@
         "line": null,
         "lineResult": "YES",
         "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4242512:player_pass_yds",
-      "playerId": "nfl-athlete-4242512",
-      "espnId": "4242512",
-      "name": "Malik Willis",
-      "team": "MIA",
-      "family": "player_pass_yds",
-      "familyState": "ESTIMATE",
-      "frozenIdentity": "e2c6dc9db88c487f",
+      "predictionId": "401872977:nfl-athlete-4429025:player_reception_yds",
+      "playerId": "nfl-athlete-4429025",
+      "espnId": "4429025",
+      "name": "Quentin Johnston",
+      "team": "LAC",
+      "family": "player_reception_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "d18811a2eeaffe9a",
       "frozen": {
         "projection": {
-          "median": 217.6715,
-          "p10": 115.7057,
-          "p90": 367.3218,
+          "median": 27.73,
+          "p10": 2.21,
+          "p90": 70.7,
           "probability": null
         },
         "market": {
-          "line": 169.5,
+          "line": 36.5,
+          "overOdds": -110,
+          "underOdds": -114,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 44,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 44,
+        "line": 36.5,
+        "lineResult": "OVER",
+        "forecastResult": "LOSS",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4429025:player_receptions",
+      "playerId": "nfl-athlete-4429025",
+      "espnId": "4429025",
+      "name": "Quentin Johnston",
+      "team": "LAC",
+      "family": "player_receptions",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "3930653c148cd05e",
+      "frozen": {
+        "projection": {
+          "median": 3,
+          "p10": 1,
+          "p90": 6,
+          "probability": null
+        },
+        "market": {
+          "line": 3.5,
+          "overOdds": 127,
+          "underOdds": -162,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 1,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 1,
+        "line": 3.5,
+        "lineResult": "UNDER",
+        "forecastResult": "WIN",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4429025:anytime_td",
+      "playerId": "nfl-athlete-4429025",
+      "espnId": "4429025",
+      "name": "Quentin Johnston",
+      "team": "LAC",
+      "family": "anytime_td",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "3ebb2767566afa26",
+      "frozen": {
+        "projection": {
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.228
+        },
+        "market": {
+          "yesOdds": 340,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 0,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 0,
+        "line": null,
+        "lineResult": "NO",
+        "forecastResult": "NOT_APPLICABLE",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4612826:player_reception_yds",
+      "playerId": "nfl-athlete-4612826",
+      "espnId": "4612826",
+      "name": "Ladd McConkey",
+      "team": "LAC",
+      "family": "player_reception_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "ebe7795d060a9ca6",
+      "frozen": {
+        "projection": {
+          "median": 33.77,
+          "p10": 4.65,
+          "p90": 85.59,
+          "probability": null
+        },
+        "market": {
+          "line": 47.5,
+          "overOdds": -111,
+          "underOdds": -113,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 0,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": "Questionable",
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 0,
+        "line": 47.5,
+        "lineResult": "UNDER",
+        "forecastResult": "WIN",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4612826:player_receptions",
+      "playerId": "nfl-athlete-4612826",
+      "espnId": "4612826",
+      "name": "Ladd McConkey",
+      "team": "LAC",
+      "family": "player_receptions",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "a6edb048a58c01e7",
+      "frozen": {
+        "projection": {
+          "median": 3,
+          "p10": 1,
+          "p90": 6,
+          "probability": null
+        },
+        "market": {
+          "line": 4.5,
+          "overOdds": 122,
+          "underOdds": -156,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 0,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": "Questionable",
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 0,
+        "line": 4.5,
+        "lineResult": "UNDER",
+        "forecastResult": "WIN",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4612826:anytime_td",
+      "playerId": "nfl-athlete-4612826",
+      "espnId": "4612826",
+      "name": "Ladd McConkey",
+      "team": "LAC",
+      "family": "anytime_td",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "229b3a7b129fc27c",
+      "frozen": {
+        "projection": {
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.2271
+        },
+        "market": {
+          "yesOdds": 310,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 0,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": "Questionable",
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 0,
+        "line": null,
+        "lineResult": "NO",
+        "forecastResult": "NOT_APPLICABLE",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-2977187:player_reception_yds",
+      "playerId": "nfl-athlete-2977187",
+      "espnId": "2977187",
+      "name": "Cooper Kupp",
+      "team": "SEA",
+      "family": "player_reception_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "7fefa614df05f339",
+      "frozen": {
+        "projection": {
+          "median": 21.03,
+          "p10": 0,
+          "p90": 63.03,
+          "probability": null
+        },
+        "market": {
+          "line": 23.5,
+          "overOdds": -111,
+          "underOdds": -113,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 13,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 13,
+        "line": 23.5,
+        "lineResult": "UNDER",
+        "forecastResult": "WIN",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-2977187:player_receptions",
+      "playerId": "nfl-athlete-2977187",
+      "espnId": "2977187",
+      "name": "Cooper Kupp",
+      "team": "SEA",
+      "family": "player_receptions",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "5ea45fb2d1cebe77",
+      "frozen": {
+        "projection": {
+          "median": 2,
+          "p10": 0,
+          "p90": 5,
+          "probability": null
+        },
+        "market": {
+          "line": 2.5,
+          "overOdds": 118,
+          "underOdds": -150,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 1,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 1,
+        "line": 2.5,
+        "lineResult": "UNDER",
+        "forecastResult": "WIN",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-2977187:anytime_td",
+      "playerId": "nfl-athlete-2977187",
+      "espnId": "2977187",
+      "name": "Cooper Kupp",
+      "team": "SEA",
+      "family": "anytime_td",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "c18156f7233f6fff",
+      "frozen": {
+        "projection": {
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.2268
+        },
+        "market": {
+          "yesOdds": 330,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 0,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 0,
+        "line": null,
+        "lineResult": "NO",
+        "forecastResult": "NOT_APPLICABLE",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4887558:player_rush_yds",
+      "playerId": "nfl-athlete-4887558",
+      "espnId": "4887558",
+      "name": "Emanuel Wilson",
+      "team": "SEA",
+      "family": "player_rush_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "591d2aa21b89f3e3",
+      "frozen": {
+        "projection": {
+          "median": 31.1859,
+          "p10": 6.5226,
+          "p90": 89.3853,
+          "probability": null
+        },
+        "market": {
+          "line": 49.5,
           "overOdds": -113,
           "underOdds": -111,
           "sportsbook": "draftkings",
@@ -939,49 +784,47 @@
       "frozenRefusal": null,
       "live": {
         "phase": "FINAL",
-        "statValue": 85,
+        "statValue": 81,
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
         "state": "SETTLED",
-        "finalStat": 85,
-        "line": 169.5,
-        "lineResult": "UNDER",
-        "forecastResult": "NOT_PUBLISHED",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "finalStat": 81,
+        "line": 49.5,
+        "lineResult": "OVER",
+        "forecastResult": "LOSS",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4242512:player_rush_yds",
-      "playerId": "nfl-athlete-4242512",
-      "espnId": "4242512",
-      "name": "Malik Willis",
-      "team": "MIA",
-      "family": "player_rush_yds",
+      "predictionId": "401872977:nfl-athlete-4887558:anytime_td",
+      "playerId": "nfl-athlete-4887558",
+      "espnId": "4887558",
+      "name": "Emanuel Wilson",
+      "team": "SEA",
+      "family": "anytime_td",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "9abf275e7de74ff6",
+      "frozenIdentity": "0fb861e80255c406",
       "frozen": {
         "projection": {
-          "median": 19.1563,
-          "p10": 1.8831,
-          "p90": 75.3768,
-          "probability": null
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.2254
         },
         "market": {
-          "line": 30.5,
-          "overOdds": -114,
-          "underOdds": -110,
+          "yesOdds": 140,
           "sportsbook": "draftkings",
           "capturedAt": "2026-10-04T17:18:17Z"
         },
@@ -992,44 +835,97 @@
       "frozenRefusal": null,
       "live": {
         "phase": "FINAL",
-        "statValue": 11,
+        "statValue": 2,
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
         "state": "SETTLED",
-        "finalStat": 11,
-        "line": 30.5,
-        "lineResult": "UNDER",
-        "forecastResult": "WIN",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "finalStat": 2,
+        "line": null,
+        "lineResult": "YES",
+        "forecastResult": "NOT_APPLICABLE",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4242512:anytime_td",
-      "playerId": "nfl-athlete-4242512",
-      "espnId": "4242512",
-      "name": "Malik Willis",
-      "team": "MIA",
+      "predictionId": "401872977:nfl-athlete-4596334:player_rush_yds",
+      "playerId": "nfl-athlete-4596334",
+      "espnId": "4596334",
+      "name": "Keaton Mitchell",
+      "team": "LAC",
+      "family": "player_rush_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "f90157bc9f74d0d2",
+      "frozen": {
+        "projection": {
+          "median": 13.2915,
+          "p10": 1.2011,
+          "p90": 53.9016,
+          "probability": null
+        },
+        "market": {
+          "line": 18.5,
+          "overOdds": -109,
+          "underOdds": -115,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 39,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 39,
+        "line": 18.5,
+        "lineResult": "OVER",
+        "forecastResult": "LOSS",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4596334:anytime_td",
+      "playerId": "nfl-athlete-4596334",
+      "espnId": "4596334",
+      "name": "Keaton Mitchell",
+      "team": "LAC",
       "family": "anytime_td",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "5d384e8a090e4cbc",
+      "frozenIdentity": "28bf6eff048d22d6",
       "frozen": {
         "projection": {
           "median": null,
           "p10": null,
           "p90": null,
-          "probability": 0.1949
+          "probability": 0.1931
         },
         "market": {
           "yesOdds": 500,
@@ -1047,11 +943,11 @@
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
@@ -1060,876 +956,30 @@
         "line": null,
         "lineResult": "NO",
         "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4367209:player_reception_yds",
-      "playerId": "nfl-athlete-4367209",
-      "espnId": "4367209",
-      "name": "Greg Dulcich",
-      "team": "MIA",
-      "family": "player_reception_yds",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "6d287c6e514df08d",
-      "frozen": {
-        "projection": {
-          "median": 26.3,
-          "p10": 2.15,
-          "p90": 70.32,
-          "probability": null
-        },
-        "market": {
-          "line": 30.5,
-          "overOdds": -110,
-          "underOdds": -114,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": null,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "NO_MEASUREMENT",
-        "finalStat": null,
-        "line": 30.5,
-        "lineResult": null,
-        "forecastResult": null,
-        "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
-        "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
-        "bookRuleUnknown": true,
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL",
-        "reObservedAt": "2026-10-04T23:51:01Z"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4367209:player_receptions",
-      "playerId": "nfl-athlete-4367209",
-      "espnId": "4367209",
-      "name": "Greg Dulcich",
-      "team": "MIA",
-      "family": "player_receptions",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "54dd39e7ed494fa7",
-      "frozen": {
-        "projection": {
-          "median": 3,
-          "p10": 1,
-          "p90": 6,
-          "probability": null
-        },
-        "market": {
-          "line": 2.5,
-          "overOdds": -165,
-          "underOdds": 129,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": null,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "NO_MEASUREMENT",
-        "finalStat": null,
-        "line": 2.5,
-        "lineResult": null,
-        "forecastResult": null,
-        "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
-        "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
-        "bookRuleUnknown": true,
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL",
-        "reObservedAt": "2026-10-04T23:51:01Z"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4367209:anytime_td",
-      "playerId": "nfl-athlete-4367209",
-      "espnId": "4367209",
-      "name": "Greg Dulcich",
-      "team": "MIA",
-      "family": "anytime_td",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "ab2d29771f916a85",
-      "frozen": {
-        "projection": {
-          "median": null,
-          "p10": null,
-          "p90": null,
-          "probability": 0.1507
-        },
-        "market": {
-          "yesOdds": 550,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": null,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "NO_MEASUREMENT",
-        "finalStat": null,
-        "line": null,
-        "lineResult": null,
-        "forecastResult": null,
-        "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
-        "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
-        "bookRuleUnknown": true,
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL",
-        "reObservedAt": "2026-10-04T23:51:01Z"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4869961:player_reception_yds",
-      "playerId": "nfl-athlete-4869961",
-      "espnId": "4869961",
-      "name": "Chris Bell",
-      "team": "MIA",
-      "family": "player_reception_yds",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "d1b4bc23d7813786",
-      "frozen": {
-        "projection": {
-          "median": 20.26,
-          "p10": 0,
-          "p90": 61.54,
-          "probability": null
-        },
-        "market": {
-          "line": 33.5,
-          "overOdds": -110,
-          "underOdds": -114,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 0,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 0,
-        "line": 33.5,
-        "lineResult": "UNDER",
-        "forecastResult": "WIN",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4869961:player_receptions",
-      "playerId": "nfl-athlete-4869961",
-      "espnId": "4869961",
-      "name": "Chris Bell",
-      "team": "MIA",
-      "family": "player_receptions",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "bacd51cad327a361",
-      "frozen": {
-        "projection": {
-          "median": 2,
-          "p10": 0,
-          "p90": 4,
-          "probability": null
-        },
-        "market": {
-          "line": 2.5,
-          "overOdds": -113,
-          "underOdds": -112,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 0,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 0,
-        "line": 2.5,
-        "lineResult": "UNDER",
-        "forecastResult": "WIN",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4869961:anytime_td",
-      "playerId": "nfl-athlete-4869961",
-      "espnId": "4869961",
-      "name": "Chris Bell",
-      "team": "MIA",
-      "family": "anytime_td",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "38beb4cae0b7820e",
-      "frozen": {
-        "projection": {
-          "median": null,
-          "p10": null,
-          "p90": null,
-          "probability": 0.1224
-        },
-        "market": {
-          "yesOdds": 600,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 0,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 0,
-        "line": null,
-        "lineResult": "NO",
-        "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4682745:player_rush_yds",
-      "playerId": "nfl-athlete-4682745",
-      "espnId": "4682745",
-      "name": "Jaylen Wright",
-      "team": "MIA",
+      "predictionId": "401872977:nfl-athlete-4429835:player_rush_yds",
+      "playerId": "nfl-athlete-4429835",
+      "espnId": "4429835",
+      "name": "George Holani",
+      "team": "SEA",
       "family": "player_rush_yds",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "3bb48e9ae94fd49c",
+      "frozenIdentity": "7163b8da42d57bc9",
       "frozen": {
         "projection": {
-          "median": 6.245,
-          "p10": 0.0887,
-          "p90": 40.1966,
+          "median": 9.7199,
+          "p10": 0.4914,
+          "p90": 47.3153,
           "probability": null
         },
         "market": {
-          "line": 28.5,
-          "overOdds": -116,
-          "underOdds": -108,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 7,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 7,
-        "line": 28.5,
-        "lineResult": "UNDER",
-        "forecastResult": "WIN",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4682745:anytime_td",
-      "playerId": "nfl-athlete-4682745",
-      "espnId": "4682745",
-      "name": "Jaylen Wright",
-      "team": "MIA",
-      "family": "anytime_td",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "4776ec20570ef4bb",
-      "frozen": {
-        "projection": {
-          "median": null,
-          "p10": null,
-          "p90": null,
-          "probability": 0.1139
-        },
-        "market": {
-          "yesOdds": 380,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 0,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 0,
-        "line": null,
-        "lineResult": "NO",
-        "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-3886598:anytime_td",
-      "playerId": "nfl-athlete-3886598",
-      "espnId": "3886598",
-      "name": "Jauan Jennings",
-      "team": "MIN",
-      "family": "anytime_td",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "5c38a82e4a4508af",
-      "frozen": {
-        "projection": {
-          "median": null,
-          "p10": null,
-          "p90": null,
-          "probability": 0.0949
-        },
-        "market": {
-          "yesOdds": 425,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 0,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 0,
-        "line": null,
-        "lineResult": "NO",
-        "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4369466:player_reception_yds",
-      "playerId": "nfl-athlete-4369466",
-      "espnId": "4369466",
-      "name": "Ryan Miller",
-      "team": "MIA",
-      "family": "player_reception_yds",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "9f1c0637261f91ff",
-      "frozen": {
-        "projection": {
-          "median": 7.54,
-          "p10": 0,
-          "p90": 43.2,
-          "probability": null
-        },
-        "market": {
-          "line": 3.5,
-          "overOdds": -113,
-          "underOdds": -111,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": null,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "NO_MEASUREMENT",
-        "finalStat": null,
-        "line": 3.5,
-        "lineResult": null,
-        "forecastResult": null,
-        "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
-        "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
-        "bookRuleUnknown": true,
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL",
-        "reObservedAt": "2026-10-04T23:51:01Z"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4369466:player_receptions",
-      "playerId": "nfl-athlete-4369466",
-      "espnId": "4369466",
-      "name": "Ryan Miller",
-      "team": "MIA",
-      "family": "player_receptions",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "ea3960431b958bb3",
-      "frozen": {
-        "projection": {
-          "median": 1,
-          "p10": 0,
-          "p90": 3,
-          "probability": null
-        },
-        "market": {
-          "line": 0.5,
-          "overOdds": -141,
-          "underOdds": 110,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": null,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "NO_MEASUREMENT",
-        "finalStat": null,
-        "line": 0.5,
-        "lineResult": null,
-        "forecastResult": null,
-        "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
-        "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
-        "bookRuleUnknown": true,
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL",
-        "reObservedAt": "2026-10-04T23:51:01Z"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4369466:anytime_td",
-      "playerId": "nfl-athlete-4369466",
-      "espnId": "4369466",
-      "name": "Ryan Miller",
-      "team": "MIA",
-      "family": "anytime_td",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "fd843e1110f49831",
-      "frozen": {
-        "projection": {
-          "median": null,
-          "p10": null,
-          "p90": null,
-          "probability": 0.0944
-        },
-        "market": {
-          "yesOdds": 1400,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 0,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 0,
-        "line": null,
-        "lineResult": "NO",
-        "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4832846:player_rush_yds",
-      "playerId": "nfl-athlete-4832846",
-      "espnId": "4832846",
-      "name": "Demond Claiborne",
-      "team": "MIN",
-      "family": "player_rush_yds",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "f014919da84d418e",
-      "frozen": {
-        "projection": {
-          "median": 1.0049,
-          "p10": 0,
-          "p90": 17.7472,
-          "probability": null
-        },
-        "market": null,
-        "pricingState": "NOT_OFFERED",
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 12,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 12,
-        "line": null,
-        "lineResult": null,
-        "forecastResult": null,
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4832846:anytime_td",
-      "playerId": "nfl-athlete-4832846",
-      "espnId": "4832846",
-      "name": "Demond Claiborne",
-      "team": "MIN",
-      "family": "anytime_td",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "df2a6a2a226aec5e",
-      "frozen": {
-        "projection": {
-          "median": null,
-          "p10": null,
-          "p90": null,
-          "probability": 0.0865
-        },
-        "market": {
-          "yesOdds": 950,
-          "sportsbook": "draftkings",
-          "capturedAt": "2026-10-04T17:18:17Z"
-        },
-        "pricingState": null,
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": 0,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "SETTLED",
-        "finalStat": 0,
-        "line": null,
-        "lineResult": "NO",
-        "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-2573079:player_rush_yds",
-      "playerId": "nfl-athlete-2573079",
-      "espnId": "2573079",
-      "name": "Carson Wentz",
-      "team": "MIN",
-      "family": "player_rush_yds",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "f00c8a68369bc671",
-      "frozen": {
-        "projection": {
-          "median": 3.3706,
-          "p10": 0.0202,
-          "p90": 24.6583,
-          "probability": null
-        },
-        "market": null,
-        "pricingState": "NOT_OFFERED",
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": null,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "NO_MEASUREMENT",
-        "finalStat": null,
-        "line": null,
-        "lineResult": null,
-        "forecastResult": null,
-        "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
-        "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
-        "bookRuleUnknown": true,
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL",
-        "reObservedAt": "2026-10-04T23:51:01Z"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-2573079:anytime_td",
-      "playerId": "nfl-athlete-2573079",
-      "espnId": "2573079",
-      "name": "Carson Wentz",
-      "team": "MIN",
-      "family": "anytime_td",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "55e5b69b2d4b082e",
-      "frozen": {
-        "projection": {
-          "median": null,
-          "p10": null,
-          "p90": null,
-          "probability": 0.0828
-        },
-        "market": null,
-        "pricingState": "NOT_OFFERED",
-        "participation": "AVAILABLE_ROLE_UNCERTAIN",
-        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
-      },
-      "frozenRefusal": null,
-      "live": {
-        "phase": "FINAL",
-        "statValue": null,
-        "clock": null,
-        "period": null,
-        "score": {
-          "home": 15,
-          "away": 10
-        },
-        "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
-        "source": "espn-nfl-summary"
-      },
-      "settlement": {
-        "state": "NO_MEASUREMENT",
-        "finalStat": null,
-        "line": null,
-        "lineResult": null,
-        "forecastResult": null,
-        "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
-        "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
-        "bookRuleUnknown": true,
-        "settledAt": "2026-10-04T23:44:45Z",
-        "source": "espn-nfl-summary",
-        "finality": "CANONICAL",
-        "reObservedAt": "2026-10-04T23:51:01Z"
-      },
-      "reconciliation": null
-    },
-    {
-      "predictionId": "401872974:nfl-athlete-4685307:player_reception_yds",
-      "playerId": "nfl-athlete-4685307",
-      "espnId": "4685307",
-      "name": "Kevin Coleman Jr.",
-      "team": "MIA",
-      "family": "player_reception_yds",
-      "familyState": "PUBLISHED",
-      "frozenIdentity": "dce0ad9f246e94e0",
-      "frozen": {
-        "projection": {
-          "median": 9.61,
-          "p10": 0,
-          "p90": 40.99,
-          "probability": null
-        },
-        "market": {
-          "line": 15.5,
+          "line": 32.5,
           "overOdds": -109,
           "underOdds": -115,
           "sportsbook": "draftkings",
@@ -1942,49 +992,153 @@
       "frozenRefusal": null,
       "live": {
         "phase": "FINAL",
-        "statValue": 3,
+        "statValue": 18,
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
         "state": "SETTLED",
-        "finalStat": 3,
-        "line": 15.5,
+        "finalStat": 18,
+        "line": 32.5,
         "lineResult": "UNDER",
         "forecastResult": "WIN",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4685307:player_receptions",
-      "playerId": "nfl-athlete-4685307",
-      "espnId": "4685307",
-      "name": "Kevin Coleman Jr.",
-      "team": "MIA",
-      "family": "player_receptions",
+      "predictionId": "401872977:nfl-athlete-4429835:anytime_td",
+      "playerId": "nfl-athlete-4429835",
+      "espnId": "4429835",
+      "name": "George Holani",
+      "team": "SEA",
+      "family": "anytime_td",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "2f6c1042305d35fd",
+      "frozenIdentity": "e6cb70a419974f63",
       "frozen": {
         "projection": {
-          "median": 1,
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.1931
+        },
+        "market": {
+          "yesOdds": 170,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 0,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 0,
+        "line": null,
+        "lineResult": "NO",
+        "forecastResult": "NOT_APPLICABLE",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4032473:player_reception_yds",
+      "playerId": "nfl-athlete-4032473",
+      "espnId": "4032473",
+      "name": "Rashid Shaheed",
+      "team": "SEA",
+      "family": "player_reception_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "e71e9861c4999057",
+      "frozen": {
+        "projection": {
+          "median": 17.63,
           "p10": 0,
-          "p90": 3,
+          "p90": 53.97,
           "probability": null
         },
         "market": {
-          "line": 1.5,
-          "overOdds": -118,
-          "underOdds": -108,
+          "line": 22.5,
+          "overOdds": -113,
+          "underOdds": -111,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 20,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 20,
+        "line": 22.5,
+        "lineResult": "UNDER",
+        "forecastResult": "WIN",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4032473:player_receptions",
+      "playerId": "nfl-athlete-4032473",
+      "espnId": "4032473",
+      "name": "Rashid Shaheed",
+      "team": "SEA",
+      "family": "player_receptions",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "540e2d7ce561d160",
+      "frozen": {
+        "projection": {
+          "median": 2,
+          "p10": 0,
+          "p90": 4,
+          "probability": null
+        },
+        "market": {
+          "line": 2.5,
+          "overOdds": 148,
+          "underOdds": -191,
           "sportsbook": "draftkings",
           "capturedAt": "2026-10-04T17:18:17Z"
         },
@@ -1999,40 +1153,866 @@
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
         "state": "SETTLED",
         "finalStat": 1,
-        "line": 1.5,
+        "line": 2.5,
         "lineResult": "UNDER",
         "forecastResult": "WIN",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4685307:anytime_td",
-      "playerId": "nfl-athlete-4685307",
-      "espnId": "4685307",
-      "name": "Kevin Coleman Jr.",
-      "team": "MIA",
+      "predictionId": "401872977:nfl-athlete-4032473:anytime_td",
+      "playerId": "nfl-athlete-4032473",
+      "espnId": "4032473",
+      "name": "Rashid Shaheed",
+      "team": "SEA",
       "family": "anytime_td",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "c75ff6f8f5c703e3",
+      "frozenIdentity": "e7da06de4e61bf24",
       "frozen": {
         "projection": {
           "median": null,
           "p10": null,
           "p90": null,
-          "probability": 0.0762
+          "probability": 0.1921
+        },
+        "market": {
+          "yesOdds": 310,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 1,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 1,
+        "line": null,
+        "lineResult": "YES",
+        "forecastResult": "NOT_APPLICABLE",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4576297:player_reception_yds",
+      "playerId": "nfl-athlete-4576297",
+      "espnId": "4576297",
+      "name": "AJ Barner",
+      "team": "SEA",
+      "family": "player_reception_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "df9ab5c236ff8b96",
+      "frozen": {
+        "projection": {
+          "median": 16.77,
+          "p10": 0,
+          "p90": 53.32,
+          "probability": null
+        },
+        "market": {
+          "line": 31.5,
+          "overOdds": -113,
+          "underOdds": -111,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 12,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 12,
+        "line": 31.5,
+        "lineResult": "UNDER",
+        "forecastResult": "WIN",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4576297:player_receptions",
+      "playerId": "nfl-athlete-4576297",
+      "espnId": "4576297",
+      "name": "AJ Barner",
+      "team": "SEA",
+      "family": "player_receptions",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "06b6bd48890d44ea",
+      "frozen": {
+        "projection": {
+          "median": 2,
+          "p10": 0,
+          "p90": 4,
+          "probability": null
+        },
+        "market": {
+          "line": 3.5,
+          "overOdds": 136,
+          "underOdds": -174,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 1,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 1,
+        "line": 3.5,
+        "lineResult": "UNDER",
+        "forecastResult": "WIN",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4576297:anytime_td",
+      "playerId": "nfl-athlete-4576297",
+      "espnId": "4576297",
+      "name": "AJ Barner",
+      "team": "SEA",
+      "family": "anytime_td",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "687dc6065f14ee94",
+      "frozen": {
+        "projection": {
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.1919
+        },
+        "market": {
+          "yesOdds": 280,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 0,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 0,
+        "line": null,
+        "lineResult": "NO",
+        "forecastResult": "NOT_APPLICABLE",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4686612:player_reception_yds",
+      "playerId": "nfl-athlete-4686612",
+      "espnId": "4686612",
+      "name": "Tre' Harris",
+      "team": "LAC",
+      "family": "player_reception_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "db5eca0efee07741",
+      "frozen": {
+        "projection": {
+          "median": 28.36,
+          "p10": 1.73,
+          "p90": 72.5,
+          "probability": null
+        },
+        "market": {
+          "line": 35.5,
+          "overOdds": -113,
+          "underOdds": -111,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 60,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 60,
+        "line": 35.5,
+        "lineResult": "OVER",
+        "forecastResult": "LOSS",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4686612:player_receptions",
+      "playerId": "nfl-athlete-4686612",
+      "espnId": "4686612",
+      "name": "Tre' Harris",
+      "team": "LAC",
+      "family": "player_receptions",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "fc24795926696442",
+      "frozen": {
+        "projection": {
+          "median": 3,
+          "p10": 1,
+          "p90": 5,
+          "probability": null
+        },
+        "market": {
+          "line": 3.5,
+          "overOdds": 111,
+          "underOdds": -142,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 3,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 3,
+        "line": 3.5,
+        "lineResult": "UNDER",
+        "forecastResult": "WIN",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4686612:anytime_td",
+      "playerId": "nfl-athlete-4686612",
+      "espnId": "4686612",
+      "name": "Tre' Harris",
+      "team": "LAC",
+      "family": "anytime_td",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "151335a98a4a0288",
+      "frozen": {
+        "projection": {
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.178
+        },
+        "market": {
+          "yesOdds": 550,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 0,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 0,
+        "line": null,
+        "lineResult": "NO",
+        "forecastResult": "NOT_APPLICABLE",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4383351:player_rush_yds",
+      "playerId": "nfl-athlete-4383351",
+      "espnId": "4383351",
+      "name": "Trey Lance",
+      "team": "LAC",
+      "family": "player_rush_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "53f8407df5c252a1",
+      "frozen": {
+        "projection": {
+          "median": 11.8341,
+          "p10": 1.0088,
+          "p90": 48.9761,
+          "probability": null
+        },
+        "market": null,
+        "pricingState": "NOT_OFFERED",
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": null,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "NO_MEASUREMENT",
+        "finalStat": null,
+        "line": null,
+        "lineResult": null,
+        "forecastResult": null,
+        "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
+        "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
+        "bookRuleUnknown": true,
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4383351:anytime_td",
+      "playerId": "nfl-athlete-4383351",
+      "espnId": "4383351",
+      "name": "Trey Lance",
+      "team": "LAC",
+      "family": "anytime_td",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "1384021d872a3ab8",
+      "frozen": {
+        "projection": {
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.1405
+        },
+        "market": null,
+        "pricingState": "NOT_OFFERED",
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": null,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "NO_MEASUREMENT",
+        "finalStat": null,
+        "line": null,
+        "lineResult": null,
+        "forecastResult": null,
+        "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
+        "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
+        "bookRuleUnknown": true,
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4595342:player_reception_yds",
+      "playerId": "nfl-athlete-4595342",
+      "espnId": "4595342",
+      "name": "Oronde Gadsden",
+      "team": "LAC",
+      "family": "player_reception_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "6c98a7d88f684b20",
+      "frozen": {
+        "projection": {
+          "median": 12.42,
+          "p10": 0,
+          "p90": 48.11,
+          "probability": null
+        },
+        "market": {
+          "line": 29.5,
+          "overOdds": -109,
+          "underOdds": -115,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 36,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 36,
+        "line": 29.5,
+        "lineResult": "OVER",
+        "forecastResult": "LOSS",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4595342:player_receptions",
+      "playerId": "nfl-athlete-4595342",
+      "espnId": "4595342",
+      "name": "Oronde Gadsden",
+      "team": "LAC",
+      "family": "player_receptions",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "258f663938473c6d",
+      "frozen": {
+        "projection": {
+          "median": 1,
+          "p10": 0,
+          "p90": 4,
+          "probability": null
+        },
+        "market": {
+          "line": 2.5,
+          "overOdds": -147,
+          "underOdds": 115,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 5,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 5,
+        "line": 2.5,
+        "lineResult": "OVER",
+        "forecastResult": "LOSS",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4595342:anytime_td",
+      "playerId": "nfl-athlete-4595342",
+      "espnId": "4595342",
+      "name": "Oronde Gadsden",
+      "team": "LAC",
+      "family": "anytime_td",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "e6115c0ee2f48139",
+      "frozen": {
+        "projection": {
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.1376
+        },
+        "market": {
+          "yesOdds": 400,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 0,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 0,
+        "line": null,
+        "lineResult": "NO",
+        "forecastResult": "NOT_APPLICABLE",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4430968:player_rush_yds",
+      "playerId": "nfl-athlete-4430968",
+      "espnId": "4430968",
+      "name": "Kimani Vidal",
+      "team": "LAC",
+      "family": "player_rush_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "56dd2c556aa9b544",
+      "frozen": {
+        "projection": {
+          "median": 3.2797,
+          "p10": 0.0069,
+          "p90": 26.7997,
+          "probability": null
+        },
+        "market": null,
+        "pricingState": "NOT_OFFERED",
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 25,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 25,
+        "line": null,
+        "lineResult": null,
+        "forecastResult": null,
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4430968:anytime_td",
+      "playerId": "nfl-athlete-4430968",
+      "espnId": "4430968",
+      "name": "Kimani Vidal",
+      "team": "LAC",
+      "family": "anytime_td",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "182874a30dc0ba6d",
+      "frozen": {
+        "projection": {
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.1217
+        },
+        "market": {
+          "yesOdds": 1700,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 1,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 1,
+        "line": null,
+        "lineResult": "YES",
+        "forecastResult": "NOT_APPLICABLE",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4597703:player_reception_yds",
+      "playerId": "nfl-athlete-4597703",
+      "espnId": "4597703",
+      "name": "Tory Horton",
+      "team": "SEA",
+      "family": "player_reception_yds",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "9ba85a52b9f817a5",
+      "frozen": {
+        "projection": {
+          "median": 11.05,
+          "p10": 0,
+          "p90": 45.98,
+          "probability": null
+        },
+        "market": {
+          "line": 7.5,
+          "overOdds": -117,
+          "underOdds": -107,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 6,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 6,
+        "line": 7.5,
+        "lineResult": "UNDER",
+        "forecastResult": "LOSS",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4597703:player_receptions",
+      "playerId": "nfl-athlete-4597703",
+      "espnId": "4597703",
+      "name": "Tory Horton",
+      "team": "SEA",
+      "family": "player_receptions",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "079acd58b0268d01",
+      "frozen": {
+        "projection": {
+          "median": 1,
+          "p10": 0,
+          "p90": 3,
+          "probability": null
+        },
+        "market": {
+          "line": 0.5,
+          "overOdds": -237,
+          "underOdds": 183,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 1,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 1,
+        "line": 0.5,
+        "lineResult": "OVER",
+        "forecastResult": "WIN",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-4597703:anytime_td",
+      "playerId": "nfl-athlete-4597703",
+      "espnId": "4597703",
+      "name": "Tory Horton",
+      "team": "SEA",
+      "family": "anytime_td",
+      "familyState": "PUBLISHED",
+      "frozenIdentity": "e5892a3319d01e7a",
+      "frozen": {
+        "projection": {
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.1162
         },
         "market": {
           "yesOdds": 950,
@@ -2046,47 +2026,47 @@
       "frozenRefusal": null,
       "live": {
         "phase": "FINAL",
-        "statValue": 0,
+        "statValue": 1,
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
         "state": "SETTLED",
-        "finalStat": 0,
+        "finalStat": 1,
         "line": null,
-        "lineResult": "NO",
+        "lineResult": "YES",
         "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-3917315:player_pass_yds",
-      "playerId": "nfl-athlete-3917315",
-      "espnId": "3917315",
-      "name": "Kyler Murray",
-      "team": "MIN",
+      "predictionId": "401872977:nfl-athlete-4038941:player_pass_yds",
+      "playerId": "nfl-athlete-4038941",
+      "espnId": "4038941",
+      "name": "Justin Herbert",
+      "team": "LAC",
       "family": "player_pass_yds",
       "familyState": "ESTIMATE",
-      "frozenIdentity": "85a13d26c8375c15",
+      "frozenIdentity": "c5d643b65d1631e2",
       "frozen": {
         "projection": {
-          "median": 111.3849,
-          "p10": 51.8547,
-          "p90": 205.3198,
+          "median": 213.6642,
+          "p10": 115.7698,
+          "p90": 355.8126,
           "probability": null
         },
         "market": {
-          "line": 204.5,
+          "line": 200.5,
           "overOdds": -111,
           "underOdds": -113,
           "sportsbook": "draftkings",
@@ -2099,49 +2079,49 @@
       "frozenRefusal": null,
       "live": {
         "phase": "FINAL",
-        "statValue": 247,
+        "statValue": 189,
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
         "state": "SETTLED",
-        "finalStat": 247,
-        "line": 204.5,
-        "lineResult": "OVER",
+        "finalStat": 189,
+        "line": 200.5,
+        "lineResult": "UNDER",
         "forecastResult": "NOT_PUBLISHED",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-3917315:player_rush_yds",
-      "playerId": "nfl-athlete-3917315",
-      "espnId": "3917315",
-      "name": "Kyler Murray",
-      "team": "MIN",
+      "predictionId": "401872977:nfl-athlete-4038941:player_rush_yds",
+      "playerId": "nfl-athlete-4038941",
+      "espnId": "4038941",
+      "name": "Justin Herbert",
+      "team": "LAC",
       "family": "player_rush_yds",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "0cb343f9a79bb0fb",
+      "frozenIdentity": "22466e526efca183",
       "frozen": {
         "projection": {
-          "median": 1.4703,
-          "p10": 0,
-          "p90": 23.3149,
+          "median": 9.2109,
+          "p10": 0.5002,
+          "p90": 43.9338,
           "probability": null
         },
         "market": {
-          "line": 21.5,
-          "overOdds": -116,
-          "underOdds": -108,
+          "line": 20.5,
+          "overOdds": -113,
+          "underOdds": -111,
           "sportsbook": "draftkings",
           "capturedAt": "2026-10-04T17:18:17Z"
         },
@@ -2152,47 +2132,47 @@
       "frozenRefusal": null,
       "live": {
         "phase": "FINAL",
-        "statValue": 16,
+        "statValue": 40,
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
         "state": "SETTLED",
-        "finalStat": 16,
-        "line": 21.5,
-        "lineResult": "UNDER",
-        "forecastResult": "WIN",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "finalStat": 40,
+        "line": 20.5,
+        "lineResult": "OVER",
+        "forecastResult": "LOSS",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-3917315:anytime_td",
-      "playerId": "nfl-athlete-3917315",
-      "espnId": "3917315",
-      "name": "Kyler Murray",
-      "team": "MIN",
+      "predictionId": "401872977:nfl-athlete-4038941:anytime_td",
+      "playerId": "nfl-athlete-4038941",
+      "espnId": "4038941",
+      "name": "Justin Herbert",
+      "team": "LAC",
       "family": "anytime_td",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "f78ceaeefcf7b424",
+      "frozenIdentity": "6cb79c996e9c875b",
       "frozen": {
         "projection": {
           "median": null,
           "p10": null,
           "p90": null,
-          "probability": 0.0593
+          "probability": 0.1118
         },
         "market": {
-          "yesOdds": 360,
+          "yesOdds": 700,
           "sportsbook": "draftkings",
           "capturedAt": "2026-10-04T17:18:17Z"
         },
@@ -2207,11 +2187,11 @@
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
@@ -2220,26 +2200,26 @@
         "line": null,
         "lineResult": "NO",
         "forecastResult": "NOT_APPLICABLE",
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4685116:player_reception_yds",
-      "playerId": "nfl-athlete-4685116",
-      "espnId": "4685116",
-      "name": "DJ Herman",
-      "team": "MIA",
-      "family": "player_reception_yds",
+      "predictionId": "401872977:nfl-athlete-4035693:player_rush_yds",
+      "playerId": "nfl-athlete-4035693",
+      "espnId": "4035693",
+      "name": "Velus Jones Jr.",
+      "team": "SEA",
+      "family": "player_rush_yds",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "659c8235e10723c4",
+      "frozenIdentity": "7aae6f1fab409c35",
       "frozen": {
         "projection": {
-          "median": 15.44,
-          "p10": 0,
-          "p90": 50.89,
+          "median": 5.1385,
+          "p10": 0.03,
+          "p90": 37.7097,
           "probability": null
         },
         "market": null,
@@ -2254,11 +2234,11 @@
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
@@ -2270,31 +2250,34 @@
         "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
         "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
         "bookRuleUnknown": true,
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL",
-        "reObservedAt": "2026-10-04T23:51:01Z"
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     },
     {
-      "predictionId": "401872974:nfl-athlete-4685116:player_receptions",
-      "playerId": "nfl-athlete-4685116",
-      "espnId": "4685116",
-      "name": "DJ Herman",
-      "team": "MIA",
-      "family": "player_receptions",
+      "predictionId": "401872977:nfl-athlete-4035693:anytime_td",
+      "playerId": "nfl-athlete-4035693",
+      "espnId": "4035693",
+      "name": "Velus Jones Jr.",
+      "team": "SEA",
+      "family": "anytime_td",
       "familyState": "PUBLISHED",
-      "frozenIdentity": "bbd4d6e078455bec",
+      "frozenIdentity": "b72df865133ac4be",
       "frozen": {
         "projection": {
-          "median": 2,
-          "p10": 0,
-          "p90": 4,
-          "probability": null
+          "median": null,
+          "p10": null,
+          "p90": null,
+          "probability": 0.0834
         },
-        "market": null,
-        "pricingState": "NOT_OFFERED",
+        "market": {
+          "yesOdds": 1900,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
         "participation": "AVAILABLE_ROLE_UNCERTAIN",
         "forecastGeneratedAt": "2026-10-04T19:24:18Z"
       },
@@ -2305,11 +2288,11 @@
         "clock": null,
         "period": null,
         "score": {
-          "home": 15,
-          "away": 10
+          "home": 30,
+          "away": 23
         },
         "participation": null,
-        "observedAt": "2026-10-04T23:51:01Z",
+        "observedAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary"
       },
       "settlement": {
@@ -2321,10 +2304,62 @@
         "participationAtFreeze": "AVAILABLE_ROLE_UNCERTAIN",
         "reason": "the provider reports no stat row for this player in this family at FINAL. Whether he was inactive, dressed without recording one, or is missing from a feed still updating is not distinguished here — and which of those a sportsbook voids rather than settles is its rule, not ours.",
         "bookRuleUnknown": true,
-        "settledAt": "2026-10-04T23:44:45Z",
+        "settledAt": "2026-10-05T15:58:06Z",
         "source": "espn-nfl-summary",
-        "finality": "CANONICAL",
-        "reObservedAt": "2026-10-04T23:51:01Z"
+        "finality": "PROVISIONAL"
+      },
+      "reconciliation": null
+    },
+    {
+      "predictionId": "401872977:nfl-athlete-3912547:player_pass_yds",
+      "playerId": "nfl-athlete-3912547",
+      "espnId": "3912547",
+      "name": "Sam Darnold",
+      "team": "SEA",
+      "family": "player_pass_yds",
+      "familyState": "ESTIMATE",
+      "frozenIdentity": "0246da2d93240eee",
+      "frozen": {
+        "projection": {
+          "median": 172.0219,
+          "p10": 87.9791,
+          "p90": 298.0333,
+          "probability": null
+        },
+        "market": {
+          "line": 233.5,
+          "overOdds": -113,
+          "underOdds": -111,
+          "sportsbook": "draftkings",
+          "capturedAt": "2026-10-04T17:18:17Z"
+        },
+        "pricingState": null,
+        "participation": "AVAILABLE_ROLE_UNCERTAIN",
+        "forecastGeneratedAt": "2026-10-04T19:24:18Z"
+      },
+      "frozenRefusal": null,
+      "live": {
+        "phase": "FINAL",
+        "statValue": 168,
+        "clock": null,
+        "period": null,
+        "score": {
+          "home": 30,
+          "away": 23
+        },
+        "participation": null,
+        "observedAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary"
+      },
+      "settlement": {
+        "state": "SETTLED",
+        "finalStat": 168,
+        "line": 233.5,
+        "lineResult": "UNDER",
+        "forecastResult": "NOT_PUBLISHED",
+        "settledAt": "2026-10-05T15:58:06Z",
+        "source": "espn-nfl-summary",
+        "finality": "PROVISIONAL"
       },
       "reconciliation": null
     }
