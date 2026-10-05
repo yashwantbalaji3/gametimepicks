@@ -651,6 +651,15 @@ a {
   text-decoration: none;
 }
 
+/* WCAG 1.4.1 — a link inside running text must not rely on colour alone. `data-prose-link` is set
+   by components/a11y/scroll-region-a11y.tsx on inline links whose block also holds other text;
+   nav, buttons and cards never match. */
+a[data-prose-link] {
+  text-decoration-line: underline;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.18em;
+}
+
 /* Tabular numerals everywhere — broadcast-style stat alignment */
 .tabular,
 table,
