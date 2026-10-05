@@ -48,3 +48,35 @@ export function compareLedgers(prevRows, nextRows) {
   }
   return violations;
 }
+
+/**
+ * AN EXPLICIT SUBJECT RE-KEY MIGRATION — the only way a row's identity may change, and never silently.
+ *
+ * A vanished row is accepted ONLY when exactly one new row carries the same forecast in every immutable field except
+ * `forecastId` and `subjectId`, and `mapSubject(old.subjectId)` equals the new subjectId. Everything else is still a
+ * violation. The caller writes the returned pairs to a committed migration receipt (old → new forecastId).
+ */
+export function pairRekeys(prevRows, nextRows, mapSubject) {
+  const SAME = IMMUTABLE_FIELDS.filter((f) => f !== "forecastId" && f !== "subjectId");
+  const sig = (r) => stable(Object.fromEntries(SAME.map((f) => [f, r[f]])));
+  const nextIds = new Set(nextRows.map((r) => r.forecastId));
+  const prevIds = new Set(prevRows.map((r) => r.forecastId));
+  const candidates = new Map();
+  for (const n of nextRows) {
+    if (prevIds.has(n.forecastId)) continue; // not new
+    const k = sig(n);
+    const a = candidates.get(k) ?? [];
+    a.push(n);
+    candidates.set(k, a);
+  }
+  const pairs = [];
+  const unexplained = [];
+  for (const p of prevRows) {
+    if (nextIds.has(p.forecastId)) continue;
+    const want = mapSubject(p.subjectId);
+    const hits = (candidates.get(sig(p)) ?? []).filter((n) => want && n.subjectId === want);
+    if (hits.length === 1) pairs.push({ from: p.forecastId, to: hits[0].forecastId, subjectFrom: p.subjectId, subjectTo: want });
+    else unexplained.push({ forecastId: p.forecastId, subjectId: p.subjectId, matches: hits.length });
+  }
+  return { pairs, unexplained };
+}

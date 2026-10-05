@@ -27,7 +27,7 @@ import { nflGameRows, nflPropRows, nflTopBoardRows, forecastOfRecord } from "../
 import { mlbGameRows, homerNukesRows } from "../../src/lib/forecast-ledger/adapters/mlb.mjs";
 import { eplEventIndex, eplMatchRows, eplPlayerRows, ligue1Rows } from "../../src/lib/forecast-ledger/adapters/soccer.mjs";
 import { ufcWinnerRows } from "../../src/lib/forecast-ledger/adapters/ufc.mjs";
-import { compareLedgers } from "../../src/lib/forecast-ledger/append-only.mjs";
+import { compareLedgers, pairRekeys } from "../../src/lib/forecast-ledger/append-only.mjs";
 import { buildManifest, composeLedger, serializeRow } from "../../src/lib/forecast-ledger/compose.mjs";
 import { LEDGER_SCHEMA_VERSION } from "../../src/lib/forecast-ledger/contract.mjs";
 
@@ -108,7 +108,14 @@ export function readSources(now) {
   const ligue1 = fs.existsSync(l1Path) ? readJson(l1Path) : null;
   const ufc = readJsonl(path.join(INT, "research/ufc/model-vs-market/graded.jsonl"));
 
-  return { now, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
+  // Canonical team ids (the research-projection entity index Ask and Research resolve against): abbr → id, exact.
+  const registry = readJson(path.join(ROOT, "data/research-projection/v1/index.json"));
+  const nflTeams = (registry.entries ?? []).filter((e) => e.sport === "NFL" && e.kind === "team" && e.hint && e.id);
+  const counts = new Map();
+  for (const e of nflTeams) counts.set(e.hint, (counts.get(e.hint) ?? 0) + 1);
+  const teamIds = new Map(nflTeams.filter((e) => counts.get(e.hint) === 1).map((e) => [e.hint, e.id]));
+
+  return { now, teamIds, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
 }
 
 export function buildRows(src, report = {}) {
@@ -117,7 +124,7 @@ export function buildRows(src, report = {}) {
   report.eplPlayerUnresolved = eplPlayers.unresolved;
   const heldIds = new Set(props.map((r) => r.forecastId));
   return composeLedger([
-    { source: "nfl-experimental-settlement", rows: nflGameRows({ settledEvents: src.settledEvents, receiptsOfRecord: src.ofRecord, now: src.now }) },
+    { source: "nfl-experimental-settlement", rows: nflGameRows({ settledEvents: src.settledEvents, receiptsOfRecord: src.ofRecord, now: src.now, teamIds: src.teamIds }) },
     { source: "nfl-prop-settlement", rows: props },
     { source: "results-top-board", rows: nflTopBoardRows({ boards: src.boards, withdrawals: src.withdrawals, heldIds, now: src.now }) },
     { source: "mlb-game-grades", rows: mlbGameRows(src.mlbGraded, src.sourceModels) },
@@ -177,7 +184,36 @@ function main() {
 
   const ref = arg("--verify-against", "HEAD");
   const prev = ledgerAtRef(ref);
-  const violations = compareLedgers(prev, rows);
+  let violations = compareLedgers(prev, rows);
+  /*
+   * --rekey <migrationId>: the one audited path for an identity change (Session 13: subject ids moved to the
+   * platform's canonical ids — mlbam-N → mlb-player-N, epl-player-N → epl-athlete-N, nfl-team-<ABBR> → nfl-team-<ESPN
+   * id>). A MISSING_ROW is forgiven only when pairRekeys finds its exact successor; every other violation still refuses.
+   */
+  const rekey = arg("--rekey");
+  if (rekey) {
+    const src = readSources(now);
+    const map = (id) => {
+      let m;
+      if ((m = /^mlbam-(\d+)$/.exec(id))) return `mlb-player-${m[1]}`;
+      if ((m = /^epl-player-(\d+)$/.exec(id))) return `epl-athlete-${m[1]}`;
+      if ((m = /^nfl-team-([A-Z]{2,3})$/.exec(id))) return src.teamIds.get(m[1]) ?? null;
+      return null;
+    };
+    const { pairs, unexplained } = pairRekeys(prev, rows, map);
+    const forgiven = new Set(pairs.map((p) => p.from));
+    violations = violations.filter((v) => !(v.kind === "MISSING_ROW" && forgiven.has(v.forecastId)));
+    console.log(`REKEY ${rekey}: ${pairs.length} row(s) re-keyed, ${unexplained.length} unexplained`);
+    if (!unexplained.length && !violations.length && !has("--dry-run")) {
+      const mDir = path.join(OUT, "migrations");
+      fs.mkdirSync(mDir, { recursive: true });
+      fs.writeFileSync(path.join(mDir, `${rekey}.json`), JSON.stringify({
+        schemaVersion: "forecast-ledger-migration@1", migration: rekey, verifiedAgainst: ref,
+        rule: "subject ids moved to the platform's canonical ids; every other immutable field identical (pairRekeys)",
+        count: pairs.length, pairs,
+      }, null, 1) + "\n");
+    }
+  }
   console.log(`forecast ledger: ${rows.length} rows (${prev.length} at ${ref}) · ${JSON.stringify(manifest.totals.settlement)}`);
   for (const [s, m] of Object.entries(manifest.sports)) console.log(`  ${s}: ${m.rows} rows · ${JSON.stringify(m.families)}`);
   if (report.eplPlayerUnresolved) console.log(`  EPL player rows with no exact published event id (not emitted): ${report.eplPlayerUnresolved}`);

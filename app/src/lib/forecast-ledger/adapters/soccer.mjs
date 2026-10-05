@@ -169,7 +169,7 @@ export function eplPlayerRows(graded = [], index = new Map()) {
       eventStart: g.kickoffUtc ?? null,
       matchup: g.matchup ?? null,
       subjectType: "PLAYER",
-      subjectId: `epl-player-${g.playerId}`,
+      subjectId: `epl-athlete-${g.playerId}`, // the platform's canonical player id (research-projection index)
       subjectDisplay: g.playerName ?? null,
       teamId: g.teamName ?? null,
       family,

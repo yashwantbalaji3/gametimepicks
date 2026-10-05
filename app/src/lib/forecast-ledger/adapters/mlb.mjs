@@ -100,7 +100,7 @@ export function homerNukesRows(settledFiles = []) {
         eventStart: null, // the settled file does not record first pitch
         matchup: p.matchup ?? null,
         subjectType: "PLAYER",
-        subjectId: `mlbam-${p.playerId}`,
+        subjectId: `mlb-player-${p.playerId}`, // the platform's canonical player id (research-projection index): MLBAM number
         subjectDisplay: p.player ?? null,
         teamId: p.teamAbbr ?? null,
         family: "mlb_homer_nukes",

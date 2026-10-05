@@ -13,7 +13,7 @@ import { forecastIdFor, fnv1a64 } from "./identity.mjs";
 import { measureBinary, measureContinuous, measureMulticlass, withDirectional } from "./measure.mjs";
 import { makeRow } from "./row.mjs";
 import { composeLedger } from "./compose.mjs";
-import { compareLedgers } from "./append-only.mjs";
+import { compareLedgers, pairRekeys } from "./append-only.mjs";
 import { nflGameRows, nflPropRows, nflTopBoardRows } from "./adapters/nfl.mjs";
 import { mlbGameRows } from "./adapters/mlb.mjs";
 import { eplEventIdFor, eplEventIndex } from "./adapters/soccer.mjs";
@@ -273,7 +273,9 @@ test("probe: an unstarted NFL game never enters (its forecast can still be revis
     home: { abbr: "B" }, away: { abbr: "A" } };
   const map = new Map([["7", { file: "x", receipt }]]);
   assert.equal(nflGameRows({ receiptsOfRecord: map, now: "2031-10-05T16:59:00Z" }).length, 0);
-  assert.equal(nflGameRows({ receiptsOfRecord: map, now: "2031-10-05T17:00:00Z" }).length, 5, "control: started → 5 PENDING observations");
+  const teamIds = new Map([["B", "nfl-team-2"], ["A", "nfl-team-1"]]);
+  assert.equal(nflGameRows({ receiptsOfRecord: map, now: "2031-10-05T17:00:00Z", teamIds }).length, 5, "control: started → 5 PENDING observations");
+  assert.equal(nflGameRows({ receiptsOfRecord: map, now: "2031-10-05T17:00:00Z" }).length, 3, "an unresolved team id withholds the team rows (fail closed), never guesses one");
 });
 
 // ── scheduling: a writer that is built but never run (or run but never staged) is the autopilot-silent-failure class ──
@@ -301,5 +303,31 @@ test("nightly-settle runs, verifies and commits the ledger — after the settlem
   for (const [name, m] of Object.entries(muts)) {
     assert.notEqual(m, yml, `${name}: mutation applied`);
     assert.equal(ledgerStepOk(ledgerStep(m)), false, `${name}: caught`);
+  }
+});
+
+test("re-key migration: only an exact successor (same forecast, mapped subject) is forgiven; anything else stays a violation", () => {
+  const old = baseContinuous({ subjectId: "mlbam-1", sport: "MLB" });
+  const moved = baseContinuous({ subjectId: "mlb-player-1", sport: "MLB" });
+  const map = (id) => id.replace(/^mlbam-/, "mlb-player-");
+  const ok = pairRekeys([old], [moved], map);
+  assert.deepEqual([ok.pairs.length, ok.unexplained.length], [1, 0], "control: a pure re-key pairs");
+  assert.notEqual(ok.pairs[0].from, ok.pairs[0].to);
+  const changed = baseContinuous({ subjectId: "mlb-player-1", sport: "MLB", projection: 6 });
+  assert.deepEqual([pairRekeys([old], [changed], map).pairs.length, pairRekeys([old], [changed], map).unexplained.length], [0, 1], "a re-key that also moved the projection is not a re-key");
+  const elsewhere = baseContinuous({ subjectId: "mlb-player-2", sport: "MLB" });
+  assert.equal(pairRekeys([old], [elsewhere], map).unexplained.length, 1, "a successor under a different subject is not this forecast");
+  assert.equal(pairRekeys([old], [moved], () => null).unexplained.length, 1, "an unmapped subject is never forgiven");
+});
+
+test("subject ids are the platform's canonical entity ids (the ids Ask and Research resolve)", () => {
+  const rows = ledger();
+  const idx = JSON.parse(fs.readFileSync(path.join(ROOT, "data/research-projection/v1/index.json"), "utf8"));
+  const teamIds = new Set(idx.entries.filter((e) => e.kind === "team").map((e) => e.id));
+  for (const r of rows) {
+    if (r.sport === "MLB" && r.subjectType === "PLAYER") assert.match(r.subjectId, /^mlb-player-\d+$/);
+    if (r.sport === "EPL" && r.subjectType === "PLAYER") assert.match(r.subjectId, /^epl-athlete-\d+$/);
+    if (r.sport === "NFL" && r.subjectType === "PLAYER") assert.match(r.subjectId, /^nfl-athlete-\d+$/);
+    if (r.sport === "NFL" && r.subjectType === "TEAM") assert.ok(teamIds.has(r.subjectId), `${r.subjectId} is a registry team id`);
   }
 });
