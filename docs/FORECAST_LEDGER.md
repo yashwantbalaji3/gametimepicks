@@ -146,7 +146,8 @@ score).
   A final outside the table settles OTHER — it is never given a probability the reader did not see. "Likeliest outcome
   happened" is the likeliest LISTED score (OTHER usually outweighs any single score but was never the published call).
 - **Clean sheet** is one row per club (subject = canonical `epl-team-<id>`, exact unique name; unresolved = not emitted).
-- **Double chance** is not a separate observation (see §6).
+- **Double chance** is not a separate observation (see §6). Checked independently by the Soccer department on 319
+  forecasts: every double-chance number equals 1 − the matching 1X2 number.
 
 ## 10. Block A (2026-10-05): MLB simulation medians get an owner
 
@@ -158,7 +159,13 @@ graded on that game (moneyline / total / run line) is reproduced exactly. First 
 (2026-07-24 → 2026-10-04) → +2,403 ledger rows (1,602 team rows, 801 totals); team MAE 2.45 runs, median-total MAE
 3.61 runs. CONTINUOUS only: a median is never given a W/L — the published total pick already is `mlb_total`. The
 historical-restoration question (frozen public forecasts overwritten after first pitch) is untouched: this reads
-only revisions the owner had already graded, never reconstructs one.
+only revisions the owner had already graded, never reconstructs one. Joined by `gamePk` end to end, so a doubleheader
+never crosses games (probe: 2026-09-22 TB @ NYY, 823543 vs 823494). Named gaps, not graded: ~103 finals since 07-24
+have no revision that pre-dates first pitch (e.g. every game of 07-29, 08-01, 08-02, 08-06) — the game owner counts
+them as `missingPreEventFinals` and so does this owner, by never seeing them. Provenance notes from the MLB
+department's audit: 3 games of 07-24 cite commit `a717fdc3f`, a post-pitch commit of a file whose generatedAt (16:30Z)
+and game rows are byte-identical to the pre-pitch commit `ae7f5849b`; 11 snapshot games were generated 0–6 minutes
+before first pitch and committed shortly after (the snapshot's generatedAt is what the rule tests).
 
 ## 11. Block A (2026-10-05): what stays unmeasured, and exactly why
 

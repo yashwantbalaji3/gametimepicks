@@ -89,3 +89,19 @@ test("committed owner log: one row per graded game, same forecast of record and 
     assert.ok(Date.parse(r.forecastGeneratedAt) < Date.parse(r.firstPitchUtc));
   }
 });
+
+test("probe: a doubleheader — same teams, same date — joins each game by gamePk, never by teams (9/22 TB @ NYY)", () => {
+  // Game 1 (823543, 17:05Z): NYY won 2-0. Game 2 (823494, 23:05Z): NYY lost 6-1. A team/date join would cross them.
+  const g1 = [owner("moneyline", 0.5612, { gamePk: 823543, firstPitchUtc: "2026-09-22T17:05:00Z", forecastGeneratedAt: "2026-09-22T15:33:00Z", actual: { homeRuns: 2, awayRuns: 0 } })];
+  const g2 = [owner("moneyline", 0.5612, { gamePk: 823494, firstPitchUtc: "2026-09-22T23:05:00Z", forecastGeneratedAt: "2026-09-22T15:33:00Z", actual: { homeRuns: 1, awayRuns: 6 } })];
+  const both = rev([
+    pred({ gamePk: 823494, awayTeam: "TB", homeTeam: "NYY", projectedScore: { away: 2, home: 2, label: "Median simulation score" } }),
+    pred({ gamePk: 823543, awayTeam: "TB", homeTeam: "NYY", projectedScore: { away: 4, home: 4, label: "Median simulation score" } }),
+  ], "2026-09-22T15:33:00Z");
+  const a = gradeProjectedScore(g1, both).row;
+  const b = gradeProjectedScore(g2, both).row;
+  assert.deepEqual([a.gamePk, a.projectedScore.away, a.actual.homeRuns], [823543, 4, 2]);
+  assert.deepEqual([b.gamePk, b.projectedScore.away, b.actual.awayRuns], [823494, 2, 6]);
+  // Control: a revision carrying only the OTHER game of the pair is refused, not borrowed.
+  assert.equal(gradeProjectedScore(g1, rev([pred({ gamePk: 823494 })], "2026-09-22T15:33:00Z")).refused, "GAME_ABSENT_FROM_REVISION");
+});
