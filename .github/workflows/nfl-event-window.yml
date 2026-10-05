@@ -714,6 +714,7 @@ jobs:
           # P296: the week report and the official lines it graded (created on the first reconciled week).
           if [ -d app/public/data/nfl/reconciliation ]; then git add app/public/data/nfl/reconciliation/; fi
           if [ -d data/internal/nfl/official-stats ]; then git add data/internal/nfl/official-stats/; fi
+          if [ -d data/internal/nfl/official-periods ]; then git add data/internal/nfl/official-periods/; fi
           # Phase D: the prop-settlement ledger, when the later-correction fold above has touched it,
           # and the live artifacts the promotion step may have advanced to CANONICAL. The earlier
           # commit in this workflow covers app/public/data/nfl/ but runs BEFORE that step, so without
