@@ -4,41 +4,132 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-09-21",
- "generatedAt": "2026-09-22T23:30:30Z",
+ "generatedAt": "2026-10-05T15:58:06Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401872947",
+   "providerEventId": "401872947",
    "matchup": "NYG @ LAR",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-09-22T00:15Z",
-   "observed": "no result row"
+   "seasonType": 2,
+   "week": 2,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-09-21/401872947-rev-2350Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "cb4a254ca297f1fc",
+    "forecastGeneratedAt": "2026-09-21T23:50:21Z",
+    "revisionChain": [
+     {
+      "file": "401872947.json",
+      "generatedAt": "2026-09-21T15:53:10Z",
+      "inputHash": "428c832896a2b0a1"
+     },
+     {
+      "file": "401872947-rev-1940Z.json",
+      "generatedAt": "2026-09-21T19:40:58Z",
+      "inputHash": "700e39fabe03ebca"
+     },
+     {
+      "file": "401872947-rev-1955Z.json",
+      "generatedAt": "2026-09-21T19:55:53Z",
+      "inputHash": "c62ac41e270626ec"
+     },
+     {
+      "file": "401872947-rev-2350Z.json",
+      "generatedAt": "2026-09-21T23:50:21Z",
+      "inputHash": "cb4a254ca297f1fc"
+     }
+    ],
+    "marketCapturedAt": "2026-09-21T23:50:21Z",
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-09-22T14:02:52Z",
+    "settledAt": "2026-10-05T15:58:06Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 28,
+     "away": 6,
+     "margin": 22,
+     "total": 34,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "HOME",
+     "correct": true
+    },
+    "margin": {
+     "projected": 9,
+     "actual": 22,
+     "absError": 13,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 51,
+     "actual": 34,
+     "absError": 17,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 30,
+      "away": 21,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 17
+    },
+    "probabilistic": {
+     "brier": 0.092416,
+     "logLoss": 0.362406
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.716967,
+    "brier": 0.080108,
+    "logLoss": 0.332725,
+    "totalAbsError": 13,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
   }
  ],
+ "pending": [],
  "quarantined": [],
+ "recordElsewhere": [],
  "accounting": {
   "receipts": 1,
-  "settled": 0,
-  "pending": 1,
+  "settled": 1,
+  "pending": 0,
   "quarantined": 0,
+  "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 1,
+  "decisive": 1,
   "ties": 0,
-  "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerCorrect": 1,
+  "winnerAccuracy": 1,
+  "marginMAE": 13,
+  "totalMAE": 17,
+  "marginInterval80Coverage": 1,
+  "totalInterval80Coverage": 1,
+  "brier": 0.0924,
+  "logLoss": 0.3624
  },
- "marketBenchmark": null,
- "comparison": null
+ "marketBenchmark": {
+  "n": 1,
+  "brier": 0.0801,
+  "logLoss": 0.3327,
+  "totalMAE": 13
+ },
+ "comparison": {
+  "modelBrier": 0.0924,
+  "marketBrier": 0.0801,
+  "note": "shown side by side because the founder asked for transparency; a single slate cannot establish which is better and this is not a claim that it does"
+ }
 }
