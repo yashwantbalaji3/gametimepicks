@@ -1,0 +1,6663 @@
+{
+ "schemaVersion": "mlb-provider-event-aliases-1",
+ "public": false,
+ "producedBy": "app/scripts/mlb/build-provider-event-aliases.mjs",
+ "rule": "A foreign providerEventId in a settlement-join file for gamePk G is aliased to G only when the provider's own record (teams + commence time) is known and consistent, the id is not another game's own event, G is on that date's StatsAPI board with no other game between the same clubs and no second provider start for them that day (no doubleheader), the event matches exactly G with the same home and away clubs and a scheduled start within 30 minutes, and every join file holding the id agrees. Everything else is refused. No archive row is edited or re-joined.",
+ "inputs": {
+  "settlementJoinFiles": 913,
+  "providerSnapshotFiles": 6920,
+  "providerEvents": 827,
+  "boardDates": 69
+ },
+ "summary": {
+  "foreignEventIds": 401,
+  "aliased": 77,
+  "aliasedRows": 14270,
+  "refused": 324,
+  "refusedRowsByFirstReason": {
+   "OWNED_BY_ANOTHER_GAME": 9280,
+   "NOT_ON_BOARD": 1564,
+   "NO_PROVIDER_RECORD": 2466,
+   "DOUBLEHEADER": 993,
+   "NOT_WITHIN_30_MIN_SAME_CLUBS": 2152,
+   "INCONSISTENT_PROVIDER_RECORD": 758
+  },
+  "joinFilesWithUnverifiedOwnEvent": 406
+ },
+ "aliases": [
+  {
+   "foreignProviderEventId": "00828e81b6bef980ada2777528d99f93",
+   "gamePk": 824731,
+   "rows": 4,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/824731.json",
+     "date": "2026-08-04",
+     "rows": 4,
+     "providerEvent": {
+      "awayTeam": "Chicago White Sox",
+      "homeTeam": "Boston Red Sox",
+      "commenceTime": "2026-08-04T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824731,
+      "awayTeam": "Chicago White Sox",
+      "homeTeam": "Boston Red Sox",
+      "gameDate": "2026-08-04T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "0902d8258427af19994e87abb3519262",
+   "gamePk": 823742,
+   "rows": 8,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/823742.json",
+     "date": "2026-09-07",
+     "rows": 8,
+     "providerEvent": {
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Milwaukee Brewers",
+      "commenceTime": "2026-09-07T18:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823742,
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Milwaukee Brewers",
+      "gameDate": "2026-09-07T18:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "0a5522c3b427e5162e8c13c1ddb05dd7",
+   "gamePk": 824793,
+   "rows": 263,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/824793.json",
+     "date": "2026-09-07",
+     "rows": 263,
+     "providerEvent": {
+      "awayTeam": "Cleveland Guardians",
+      "homeTeam": "Baltimore Orioles",
+      "commenceTime": "2026-09-07T17:36:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824793,
+      "awayTeam": "Cleveland Guardians",
+      "homeTeam": "Baltimore Orioles",
+      "gameDate": "2026-09-07T17:35:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "119e7c7799ddcc034a09522f5abe00ba",
+   "gamePk": 823170,
+   "rows": 6,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/823170.json",
+     "date": "2026-09-12",
+     "rows": 6,
+     "providerEvent": {
+      "awayTeam": "San Diego Padres",
+      "homeTeam": "San Francisco Giants",
+      "commenceTime": "2026-09-12T20:06:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823170,
+      "awayTeam": "San Diego Padres",
+      "homeTeam": "San Francisco Giants",
+      "gameDate": "2026-09-12T20:05:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "198233ed5390fadb40e84cac794551ab",
+   "gamePk": 824787,
+   "rows": 260,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-21/824787.json",
+     "date": "2026-09-21",
+     "rows": 260,
+     "providerEvent": {
+      "awayTeam": "Toronto Blue Jays",
+      "homeTeam": "Baltimore Orioles",
+      "commenceTime": "2026-09-21T22:36:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824787,
+      "awayTeam": "Toronto Blue Jays",
+      "homeTeam": "Baltimore Orioles",
+      "gameDate": "2026-09-21T22:35:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "1c02a0524bf42a304b0b1cf019ea12c8",
+   "gamePk": 822949,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/822949.json",
+     "date": "2026-07-28",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "Texas Rangers",
+      "homeTeam": "Tampa Bay Rays",
+      "commenceTime": "2026-07-28T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822949,
+      "awayTeam": "Texas Rangers",
+      "homeTeam": "Tampa Bay Rays",
+      "gameDate": "2026-07-28T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "1d34c8ba40aec1ca9cadb1ff7ef37e42",
+   "gamePk": 822691,
+   "rows": 261,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/822691.json",
+     "date": "2026-08-28",
+     "rows": 261,
+     "providerEvent": {
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Washington Nationals",
+      "commenceTime": "2026-08-28T22:46:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822691,
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Washington Nationals",
+      "gameDate": "2026-08-28T22:45:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "209f31db8e00b79cd7185e2e0d10d825",
+   "gamePk": 823826,
+   "rows": 273,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-25/823826.json",
+     "date": "2026-08-25",
+     "rows": 273,
+     "providerEvent": {
+      "awayTeam": "Boston Red Sox",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-08-25T22:40:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823826,
+      "awayTeam": "Boston Red Sox",
+      "homeTeam": "Miami Marlins",
+      "gameDate": "2026-08-25T22:40:00Z"
+     },
+     "startDeltaMinutes": 0,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "2124d4bb5569819a30020e5b907ca202",
+   "gamePk": 824479,
+   "rows": 262,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-14/824479.json",
+     "date": "2026-08-14",
+     "rows": 262,
+     "providerEvent": {
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Cincinnati Reds",
+      "commenceTime": "2026-08-14T22:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824479,
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Cincinnati Reds",
+      "gameDate": "2026-08-14T22:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "22430c880f9e9118f74aacf0b720b7ee",
+   "gamePk": 824715,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/824715.json",
+     "date": "2026-09-07",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "Los Angeles Angels",
+      "homeTeam": "Boston Red Sox",
+      "commenceTime": "2026-09-07T17:36:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824715,
+      "awayTeam": "Los Angeles Angels",
+      "homeTeam": "Boston Red Sox",
+      "gameDate": "2026-09-07T17:35:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "254ca63a4cce98af560e2a7fa7b64551",
+   "gamePk": 822701,
+   "rows": 241,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/822701.json",
+     "date": "2026-08-08",
+     "rows": 241,
+     "providerEvent": {
+      "awayTeam": "Cincinnati Reds",
+      "homeTeam": "Washington Nationals",
+      "commenceTime": "2026-08-08T22:46:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822701,
+      "awayTeam": "Cincinnati Reds",
+      "homeTeam": "Washington Nationals",
+      "gameDate": "2026-08-08T22:45:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "263ea76f8b365e6d8c84baff2fab2b70",
+   "gamePk": 823582,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/823582.json",
+     "date": "2026-08-29",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "Houston Astros",
+      "homeTeam": "New York Mets",
+      "commenceTime": "2026-08-29T20:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823582,
+      "awayTeam": "Houston Astros",
+      "homeTeam": "New York Mets",
+      "gameDate": "2026-08-29T20:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "2a828119814add28306d706ccb802ac3",
+   "gamePk": 824386,
+   "rows": 242,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-14/824386.json",
+     "date": "2026-09-14",
+     "rows": 242,
+     "providerEvent": {
+      "awayTeam": "Chicago White Sox",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-09-14T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824386,
+      "awayTeam": "Chicago White Sox",
+      "homeTeam": "Cleveland Guardians",
+      "gameDate": "2026-09-14T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "2acdb349dc48b0b151d3ecf05b134e88",
+   "gamePk": 824240,
+   "rows": 247,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-11/824240.json",
+     "date": "2026-08-11",
+     "rows": 247,
+     "providerEvent": {
+      "awayTeam": "Cleveland Guardians",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-08-11T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824240,
+      "awayTeam": "Cleveland Guardians",
+      "homeTeam": "Detroit Tigers",
+      "gameDate": "2026-08-11T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "2c93c46c050aa7c593f71d0b3fa569fe",
+   "gamePk": 824631,
+   "rows": 265,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-11/824631.json",
+     "date": "2026-09-11",
+     "rows": 265,
+     "providerEvent": {
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "Chicago Cubs",
+      "commenceTime": "2026-09-11T18:21:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824631,
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "Chicago Cubs",
+      "gameDate": "2026-09-11T18:20:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "35b8e20be878e657d78dad6bea7642dc",
+   "gamePk": 824725,
+   "rows": 265,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-17/824725.json",
+     "date": "2026-08-17",
+     "rows": 265,
+     "providerEvent": {
+      "awayTeam": "Arizona Diamondbacks",
+      "homeTeam": "Boston Red Sox",
+      "commenceTime": "2026-08-17T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824725,
+      "awayTeam": "Arizona Diamondbacks",
+      "homeTeam": "Boston Red Sox",
+      "gameDate": "2026-08-17T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "36793e7e4ba4b8f8902fb3b7f99c3083",
+   "gamePk": 823011,
+   "rows": 226,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/823011.json",
+     "date": "2026-08-29",
+     "rows": 226,
+     "providerEvent": {
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "St. Louis Cardinals",
+      "commenceTime": "2026-08-29T18:16:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823011,
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "St. Louis Cardinals",
+      "gameDate": "2026-08-29T18:15:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "3cf7e6e67663cb95cf7840aeb10f3020",
+   "gamePk": 824482,
+   "rows": 268,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-05/824482.json",
+     "date": "2026-08-05",
+     "rows": 268,
+     "providerEvent": {
+      "awayTeam": "Athletics",
+      "homeTeam": "Cincinnati Reds",
+      "commenceTime": "2026-08-05T22:40:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824482,
+      "awayTeam": "Athletics",
+      "homeTeam": "Cincinnati Reds",
+      "gameDate": "2026-08-05T22:40:00Z"
+     },
+     "startDeltaMinutes": 0,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "3e7090629723a062facffeca147d8c9d",
+   "gamePk": 824221,
+   "rows": 271,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-21/824221.json",
+     "date": "2026-09-21",
+     "rows": 271,
+     "providerEvent": {
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-09-21T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824221,
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "Detroit Tigers",
+      "gameDate": "2026-09-21T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "4645b2d34e3503155b3ff308836621dc",
+   "gamePk": 823820,
+   "rows": 271,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/823820.json",
+     "date": "2026-09-07",
+     "rows": 271,
+     "providerEvent": {
+      "awayTeam": "New York Mets",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-09-07T17:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823820,
+      "awayTeam": "New York Mets",
+      "homeTeam": "Miami Marlins",
+      "gameDate": "2026-09-07T17:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "4a90a077ddd83a66ffc796851a64a7ac",
+   "gamePk": 824887,
+   "rows": 246,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-10/824887.json",
+     "date": "2026-08-10",
+     "rows": 246,
+     "providerEvent": {
+      "awayTeam": "New York Mets",
+      "homeTeam": "Atlanta Braves",
+      "commenceTime": "2026-08-10T23:15:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824887,
+      "awayTeam": "New York Mets",
+      "homeTeam": "Atlanta Braves",
+      "gameDate": "2026-08-10T23:15:00Z"
+     },
+     "startDeltaMinutes": 0,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "587e76b251f060a951bfa47ee07cf6ac",
+   "gamePk": 822773,
+   "rows": 76,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-25/822773.json",
+     "date": "2026-08-25",
+     "rows": 76,
+     "providerEvent": {
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-08-25T23:08:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822773,
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Toronto Blue Jays",
+      "gameDate": "2026-08-25T23:07:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "5adabe1a546de0ad6f64e2789b2b8f8d",
+   "gamePk": 823585,
+   "rows": 263,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-25/823585.json",
+     "date": "2026-08-25",
+     "rows": 263,
+     "providerEvent": {
+      "awayTeam": "Milwaukee Brewers",
+      "homeTeam": "New York Mets",
+      "commenceTime": "2026-08-25T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823585,
+      "awayTeam": "Milwaukee Brewers",
+      "homeTeam": "New York Mets",
+      "gameDate": "2026-08-25T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "6e66851b93b3cdcc4578b23ae9b93d6d",
+   "gamePk": 824877,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/824877.json",
+     "date": "2026-08-28",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "Colorado Rockies",
+      "homeTeam": "Atlanta Braves",
+      "commenceTime": "2026-08-28T23:16:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824877,
+      "awayTeam": "Colorado Rockies",
+      "homeTeam": "Atlanta Braves",
+      "gameDate": "2026-08-28T23:15:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "6f154c72fa0631ec5a970f84c1492463",
+   "gamePk": 823575,
+   "rows": 4,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-14/823575.json",
+     "date": "2026-09-14",
+     "rows": 4,
+     "providerEvent": {
+      "awayTeam": "Baltimore Orioles",
+      "homeTeam": "New York Mets",
+      "commenceTime": "2026-09-14T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823575,
+      "awayTeam": "Baltimore Orioles",
+      "homeTeam": "New York Mets",
+      "gameDate": "2026-09-14T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "6fb81f375a5fc10737ecb85381f1ac0b",
+   "gamePk": 824569,
+   "rows": 4,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/824569.json",
+     "date": "2026-07-28",
+     "rows": 4,
+     "providerEvent": {
+      "awayTeam": "New York Yankees",
+      "homeTeam": "Chicago White Sox",
+      "commenceTime": "2026-07-28T23:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824569,
+      "awayTeam": "New York Yankees",
+      "homeTeam": "Chicago White Sox",
+      "gameDate": "2026-07-28T23:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "74ae10226cb75552e9cb91f8488d161e",
+   "gamePk": 823520,
+   "rows": 263,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-03/823520.json",
+     "date": "2026-08-03",
+     "rows": 263,
+     "providerEvent": {
+      "awayTeam": "St. Louis Cardinals",
+      "homeTeam": "New York Yankees",
+      "commenceTime": "2026-08-03T23:06:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823520,
+      "awayTeam": "St. Louis Cardinals",
+      "homeTeam": "New York Yankees",
+      "gameDate": "2026-08-03T23:05:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "79741766452af66a44a3ea604d9c3e43",
+   "gamePk": 823588,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/823588.json",
+     "date": "2026-08-15",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "New York Mets",
+      "commenceTime": "2026-08-15T20:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823588,
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "New York Mets",
+      "gameDate": "2026-08-15T20:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "80d706190519a0e4956a64e84e72ed94",
+   "gamePk": 822681,
+   "rows": 241,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-25/822681.json",
+     "date": "2026-09-25",
+     "rows": 241,
+     "providerEvent": {
+      "awayTeam": "New York Mets",
+      "homeTeam": "Washington Nationals",
+      "commenceTime": "2026-09-25T22:46:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822681,
+      "awayTeam": "New York Mets",
+      "homeTeam": "Washington Nationals",
+      "gameDate": "2026-09-25T22:45:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "83b4bc6720bc5b4953002ee5327e881d",
+   "gamePk": 823026,
+   "rows": 256,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/823026.json",
+     "date": "2026-07-28",
+     "rows": 256,
+     "providerEvent": {
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "St. Louis Cardinals",
+      "commenceTime": "2026-07-28T23:46:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823026,
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "St. Louis Cardinals",
+      "gameDate": "2026-07-28T23:45:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "890be5ce6e3ea3d7c6f0b76bd9a0e45a",
+   "gamePk": 822760,
+   "rows": 237,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-25/822760.json",
+     "date": "2026-09-25",
+     "rows": 237,
+     "providerEvent": {
+      "awayTeam": "Cincinnati Reds",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-09-25T23:08:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822760,
+      "awayTeam": "Cincinnati Reds",
+      "homeTeam": "Toronto Blue Jays",
+      "gameDate": "2026-09-25T23:07:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "891013ebeed8b3769cf5a80f9ff242a1",
+   "gamePk": 824394,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-19/824394.json",
+     "date": "2026-08-19",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "San Francisco Giants",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-08-19T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824394,
+      "awayTeam": "San Francisco Giants",
+      "homeTeam": "Cleveland Guardians",
+      "gameDate": "2026-08-19T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "8fa2b64a3a88b00af2cc037c70eaed6e",
+   "gamePk": 823676,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/823676.json",
+     "date": "2026-07-28",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Minnesota Twins",
+      "commenceTime": "2026-07-28T23:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823676,
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Minnesota Twins",
+      "gameDate": "2026-07-28T23:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "96401141a6a40b437d7e705946993a7b",
+   "gamePk": 824400,
+   "rows": 271,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/824400.json",
+     "date": "2026-08-15",
+     "rows": 271,
+     "providerEvent": {
+      "awayTeam": "San Diego Padres",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-08-15T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824400,
+      "awayTeam": "San Diego Padres",
+      "homeTeam": "Cleveland Guardians",
+      "gameDate": "2026-08-15T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "964e45be7256059f585689e2580e6e87",
+   "gamePk": 823819,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/823819.json",
+     "date": "2026-09-12",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-09-12T20:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823819,
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Miami Marlins",
+      "gameDate": "2026-09-12T20:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "9a3a05b0699b94aa59ea0048eb3a31ea",
+   "gamePk": 823830,
+   "rows": 251,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-21/823830.json",
+     "date": "2026-08-21",
+     "rows": 251,
+     "providerEvent": {
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-08-21T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823830,
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "Miami Marlins",
+      "gameDate": "2026-08-21T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "9bff8c9d21336a9f547bec785afbb238",
+   "gamePk": 824389,
+   "rows": 231,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-05/824389.json",
+     "date": "2026-09-05",
+     "rows": 231,
+     "providerEvent": {
+      "awayTeam": "Detroit Tigers",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-09-05T22:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824389,
+      "awayTeam": "Detroit Tigers",
+      "homeTeam": "Cleveland Guardians",
+      "gameDate": "2026-09-05T22:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "9c77a3a4edfe3bf897bbe0330b1edbb7",
+   "gamePk": 824084,
+   "rows": 273,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/824084.json",
+     "date": "2026-08-04",
+     "rows": 273,
+     "providerEvent": {
+      "awayTeam": "Minnesota Twins",
+      "homeTeam": "Kansas City Royals",
+      "commenceTime": "2026-08-04T23:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824084,
+      "awayTeam": "Minnesota Twins",
+      "homeTeam": "Kansas City Royals",
+      "gameDate": "2026-08-04T23:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "a34743d79cd5b394262c790c11e888a2",
+   "gamePk": 822768,
+   "rows": 223,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/822768.json",
+     "date": "2026-09-12",
+     "rows": 223,
+     "providerEvent": {
+      "awayTeam": "Baltimore Orioles",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-09-12T19:08:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822768,
+      "awayTeam": "Baltimore Orioles",
+      "homeTeam": "Toronto Blue Jays",
+      "gameDate": "2026-09-12T19:07:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "a410afcc86bee1b6cbe7e60eafd8d50e",
+   "gamePk": 824229,
+   "rows": 244,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/824229.json",
+     "date": "2026-09-07",
+     "rows": 244,
+     "providerEvent": {
+      "awayTeam": "Minnesota Twins",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-09-07T19:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824229,
+      "awayTeam": "Minnesota Twins",
+      "homeTeam": "Detroit Tigers",
+      "gameDate": "2026-09-07T19:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "a6d63d072ba391db5be1a628a064656c",
+   "gamePk": 824638,
+   "rows": 235,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/824638.json",
+     "date": "2026-08-28",
+     "rows": 235,
+     "providerEvent": {
+      "awayTeam": "Cincinnati Reds",
+      "homeTeam": "Chicago Cubs",
+      "commenceTime": "2026-08-28T18:21:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824638,
+      "awayTeam": "Cincinnati Reds",
+      "homeTeam": "Chicago Cubs",
+      "gameDate": "2026-08-28T18:20:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "a889ec328e20424c875cd7f4c5f12ac1",
+   "gamePk": 823420,
+   "rows": 269,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-21/823420.json",
+     "date": "2026-08-21",
+     "rows": 269,
+     "providerEvent": {
+      "awayTeam": "St. Louis Cardinals",
+      "homeTeam": "Philadelphia Phillies",
+      "commenceTime": "2026-08-21T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823420,
+      "awayTeam": "St. Louis Cardinals",
+      "homeTeam": "Philadelphia Phillies",
+      "gameDate": "2026-08-21T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "ac5e921307945f0cd2dcd651f4209604",
+   "gamePk": 823752,
+   "rows": 237,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/823752.json",
+     "date": "2026-08-08",
+     "rows": 237,
+     "providerEvent": {
+      "awayTeam": "Minnesota Twins",
+      "homeTeam": "Milwaukee Brewers",
+      "commenceTime": "2026-08-08T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823752,
+      "awayTeam": "Minnesota Twins",
+      "homeTeam": "Milwaukee Brewers",
+      "gameDate": "2026-08-08T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "af25489423425fb7619de2e178b46bc0",
+   "gamePk": 822780,
+   "rows": 263,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-10/822780.json",
+     "date": "2026-08-10",
+     "rows": 263,
+     "providerEvent": {
+      "awayTeam": "Boston Red Sox",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-08-10T23:07:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822780,
+      "awayTeam": "Boston Red Sox",
+      "homeTeam": "Toronto Blue Jays",
+      "gameDate": "2026-08-10T23:07:00Z"
+     },
+     "startDeltaMinutes": 0,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "b16edbe527767ab334db0995f39c8a5d",
+   "gamePk": 823349,
+   "rows": 270,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-07/823349.json",
+     "date": "2026-08-07",
+     "rows": 270,
+     "providerEvent": {
+      "awayTeam": "New York Mets",
+      "homeTeam": "Pittsburgh Pirates",
+      "commenceTime": "2026-08-07T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823349,
+      "awayTeam": "New York Mets",
+      "homeTeam": "Pittsburgh Pirates",
+      "gameDate": "2026-08-07T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "b4745820fda1c660f277b88a71e25596",
+   "gamePk": 824062,
+   "rows": 4,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/824062.json",
+     "date": "2026-09-07",
+     "rows": 4,
+     "providerEvent": {
+      "awayTeam": "Arizona Diamondbacks",
+      "homeTeam": "Kansas City Royals",
+      "commenceTime": "2026-09-07T18:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824062,
+      "awayTeam": "Arizona Diamondbacks",
+      "homeTeam": "Kansas City Royals",
+      "gameDate": "2026-09-07T18:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "b5df91df571dbd961d2781f345abe770",
+   "gamePk": 824235,
+   "rows": 253,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-24/824235.json",
+     "date": "2026-08-24",
+     "rows": 253,
+     "providerEvent": {
+      "awayTeam": "Tampa Bay Rays",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-08-24T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824235,
+      "awayTeam": "Tampa Bay Rays",
+      "homeTeam": "Detroit Tigers",
+      "gameDate": "2026-08-24T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "b78e7c3194121b22ad94556a6db3048c",
+   "gamePk": 824888,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/824888.json",
+     "date": "2026-08-04",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Atlanta Braves",
+      "commenceTime": "2026-08-04T23:16:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824888,
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Atlanta Braves",
+      "gameDate": "2026-08-04T23:15:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "bb28f14c5f48561498ab3fabd1ebf47b",
+   "gamePk": 824231,
+   "rows": 266,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/824231.json",
+     "date": "2026-08-28",
+     "rows": 266,
+     "providerEvent": {
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-08-28T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824231,
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Detroit Tigers",
+      "gameDate": "2026-08-28T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "bf03cc7b1d68cf11be4a1b5a7f3aee73",
+   "gamePk": 822770,
+   "rows": 6,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/822770.json",
+     "date": "2026-08-29",
+     "rows": 6,
+     "providerEvent": {
+      "awayTeam": "Seattle Mariners",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-08-29T19:08:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822770,
+      "awayTeam": "Seattle Mariners",
+      "homeTeam": "Toronto Blue Jays",
+      "gameDate": "2026-08-29T19:07:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "c067c47b7d8f62f37eeeaba15f35ae55",
+   "gamePk": 823813,
+   "rows": 220,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-26/823813.json",
+     "date": "2026-09-26",
+     "rows": 220,
+     "providerEvent": {
+      "awayTeam": "Atlanta Braves",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-09-26T20:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823813,
+      "awayTeam": "Atlanta Braves",
+      "homeTeam": "Miami Marlins",
+      "gameDate": "2026-09-26T20:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "c12f319c29358a2c3e02be8f3377ded9",
+   "gamePk": 824721,
+   "rows": 74,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-21/824721.json",
+     "date": "2026-08-21",
+     "rows": 74,
+     "providerEvent": {
+      "awayTeam": "San Francisco Giants",
+      "homeTeam": "Boston Red Sox",
+      "commenceTime": "2026-08-21T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824721,
+      "awayTeam": "San Francisco Giants",
+      "homeTeam": "Boston Red Sox",
+      "gameDate": "2026-08-21T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "c242db575b7b666cd549f31569266d89",
+   "gamePk": 824403,
+   "rows": 258,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/824403.json",
+     "date": "2026-08-04",
+     "rows": 258,
+     "providerEvent": {
+      "awayTeam": "New York Mets",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-08-04T22:40:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824403,
+      "awayTeam": "New York Mets",
+      "homeTeam": "Cleveland Guardians",
+      "gameDate": "2026-08-04T22:40:00Z"
+     },
+     "startDeltaMinutes": 0,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "c3af289a1433ac426961691deab41154",
+   "gamePk": 823823,
+   "rows": 256,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-05/823823.json",
+     "date": "2026-09-05",
+     "rows": 256,
+     "providerEvent": {
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-09-05T20:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823823,
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Miami Marlins",
+      "gameDate": "2026-09-05T20:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "c3be44cb6d56f79e2cd298812a7f7624",
+   "gamePk": 823510,
+   "rows": 257,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-21/823510.json",
+     "date": "2026-08-21",
+     "rows": 257,
+     "providerEvent": {
+      "awayTeam": "Toronto Blue Jays",
+      "homeTeam": "New York Yankees",
+      "commenceTime": "2026-08-21T23:06:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823510,
+      "awayTeam": "Toronto Blue Jays",
+      "homeTeam": "New York Yankees",
+      "gameDate": "2026-08-21T23:05:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "c63a7d48eec7289e56b5115bf9fcb09e",
+   "gamePk": 824224,
+   "rows": 267,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/824224.json",
+     "date": "2026-09-12",
+     "rows": 267,
+     "providerEvent": {
+      "awayTeam": "Colorado Rockies",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-09-12T17:10:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824224,
+      "awayTeam": "Colorado Rockies",
+      "homeTeam": "Detroit Tigers",
+      "gameDate": "2026-09-12T17:10:00Z"
+     },
+     "startDeltaMinutes": 0,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "c7e232240c764a7cc09ae780b3289626",
+   "gamePk": 823746,
+   "rows": 274,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-21/823746.json",
+     "date": "2026-08-21",
+     "rows": 274,
+     "providerEvent": {
+      "awayTeam": "Atlanta Braves",
+      "homeTeam": "Milwaukee Brewers",
+      "commenceTime": "2026-08-21T20:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823746,
+      "awayTeam": "Atlanta Braves",
+      "homeTeam": "Milwaukee Brewers",
+      "gameDate": "2026-08-21T20:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "cb69b5e66b3d1c6129ed75513c2e5de0",
+   "gamePk": 824237,
+   "rows": 270,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-14/824237.json",
+     "date": "2026-08-14",
+     "rows": 270,
+     "providerEvent": {
+      "awayTeam": "Chicago White Sox",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-08-14T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824237,
+      "awayTeam": "Chicago White Sox",
+      "homeTeam": "Detroit Tigers",
+      "gameDate": "2026-08-14T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "cd7a442939785b6d6b84212d352d5f62",
+   "gamePk": 823836,
+   "rows": 270,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-07/823836.json",
+     "date": "2026-08-07",
+     "rows": 270,
+     "providerEvent": {
+      "awayTeam": "Los Angeles Angels",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-08-07T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823836,
+      "awayTeam": "Los Angeles Angels",
+      "homeTeam": "Miami Marlins",
+      "gameDate": "2026-08-07T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "d5f05941c82f5ea7de7ee32d879c0d59",
+   "gamePk": 823431,
+   "rows": 258,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-03/823431.json",
+     "date": "2026-08-03",
+     "rows": 258,
+     "providerEvent": {
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "Philadelphia Phillies",
+      "commenceTime": "2026-08-03T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823431,
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "Philadelphia Phillies",
+      "gameDate": "2026-08-03T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "d7bed76714eb2b887f979d5156f6863c",
+   "gamePk": 824881,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-25/824881.json",
+     "date": "2026-08-25",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Atlanta Braves",
+      "commenceTime": "2026-08-25T23:16:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824881,
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Atlanta Braves",
+      "gameDate": "2026-08-25T23:15:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "d959d72a9bedf8bf352ced6c59eee454",
+   "gamePk": 823427,
+   "rows": 269,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-17/823427.json",
+     "date": "2026-08-17",
+     "rows": 269,
+     "providerEvent": {
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Philadelphia Phillies",
+      "commenceTime": "2026-08-17T22:40:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823427,
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Philadelphia Phillies",
+      "gameDate": "2026-08-17T22:40:00Z"
+     },
+     "startDeltaMinutes": 0,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "dbbb481a063336e996454ea669238bf7",
+   "gamePk": 822775,
+   "rows": 247,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/822775.json",
+     "date": "2026-08-15",
+     "rows": 247,
+     "providerEvent": {
+      "awayTeam": "New York Yankees",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-08-15T19:08:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822775,
+      "awayTeam": "New York Yankees",
+      "homeTeam": "Toronto Blue Jays",
+      "gameDate": "2026-08-15T19:07:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "e8bcfb6024c2cbac0531a6a70933b0f0",
+   "gamePk": 823589,
+   "rows": 4,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-17/823589.json",
+     "date": "2026-08-17",
+     "rows": 4,
+     "providerEvent": {
+      "awayTeam": "San Diego Padres",
+      "homeTeam": "New York Mets",
+      "commenceTime": "2026-08-17T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823589,
+      "awayTeam": "San Diego Padres",
+      "homeTeam": "New York Mets",
+      "gameDate": "2026-08-17T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "ecc0c12601956f4d4217883a9c7ca7ca",
+   "gamePk": 823512,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-11/823512.json",
+     "date": "2026-08-11",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "Seattle Mariners",
+      "homeTeam": "New York Yankees",
+      "commenceTime": "2026-08-11T23:06:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823512,
+      "awayTeam": "Seattle Mariners",
+      "homeTeam": "New York Yankees",
+      "gameDate": "2026-08-11T23:05:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "ef65849259f26e9d34360ce6755ee236",
+   "gamePk": 822698,
+   "rows": 250,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-12/822698.json",
+     "date": "2026-08-12",
+     "rows": 250,
+     "providerEvent": {
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Washington Nationals",
+      "commenceTime": "2026-08-12T22:45:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822698,
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Washington Nationals",
+      "gameDate": "2026-08-12T22:45:00Z"
+     },
+     "startDeltaMinutes": 0,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "f1e49b28e98e693eaa5d5a27c58ece19",
+   "gamePk": 822942,
+   "rows": 243,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-14/822942.json",
+     "date": "2026-08-14",
+     "rows": 243,
+     "providerEvent": {
+      "awayTeam": "Baltimore Orioles",
+      "homeTeam": "Tampa Bay Rays",
+      "commenceTime": "2026-08-14T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 822942,
+      "awayTeam": "Baltimore Orioles",
+      "homeTeam": "Tampa Bay Rays",
+      "gameDate": "2026-08-14T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "f3659cdd72f761a2763f92483ca59b6e",
+   "gamePk": 824643,
+   "rows": 256,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-14/824643.json",
+     "date": "2026-08-14",
+     "rows": 256,
+     "providerEvent": {
+      "awayTeam": "St. Louis Cardinals",
+      "homeTeam": "Chicago Cubs",
+      "commenceTime": "2026-08-14T18:20:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824643,
+      "awayTeam": "St. Louis Cardinals",
+      "homeTeam": "Chicago Cubs",
+      "gameDate": "2026-08-14T18:20:00Z"
+     },
+     "startDeltaMinutes": 0,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "f55697bcdc0241e9015625a0b5281355",
+   "gamePk": 824079,
+   "rows": 271,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/824079.json",
+     "date": "2026-08-08",
+     "rows": 271,
+     "providerEvent": {
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Kansas City Royals",
+      "commenceTime": "2026-08-08T23:10:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824079,
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Kansas City Royals",
+      "gameDate": "2026-08-08T23:10:00Z"
+     },
+     "startDeltaMinutes": 0,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "f6f17db1f13670f04ec571027601d33c",
+   "gamePk": 823833,
+   "rows": 268,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-12/823833.json",
+     "date": "2026-08-12",
+     "rows": 268,
+     "providerEvent": {
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-08-12T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823833,
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "Miami Marlins",
+      "gameDate": "2026-08-12T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "f6f4976b029249f664cf53c32044f64a",
+   "gamePk": 824219,
+   "rows": 263,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-26/824219.json",
+     "date": "2026-09-26",
+     "rows": 263,
+     "providerEvent": {
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-09-26T17:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824219,
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "Detroit Tigers",
+      "gameDate": "2026-09-26T17:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "f6f64c128ccbed0075d0f180def1fb56",
+   "gamePk": 824788,
+   "rows": 249,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-19/824788.json",
+     "date": "2026-09-19",
+     "rows": 249,
+     "providerEvent": {
+      "awayTeam": "Milwaukee Brewers",
+      "homeTeam": "Baltimore Orioles",
+      "commenceTime": "2026-09-19T20:06:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824788,
+      "awayTeam": "Milwaukee Brewers",
+      "homeTeam": "Baltimore Orioles",
+      "gameDate": "2026-09-19T20:05:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "f7e02d88c3c8adff188802734b303bb7",
+   "gamePk": 823343,
+   "rows": 240,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-17/823343.json",
+     "date": "2026-08-17",
+     "rows": 240,
+     "providerEvent": {
+      "awayTeam": "Detroit Tigers",
+      "homeTeam": "Pittsburgh Pirates",
+      "commenceTime": "2026-08-17T23:06:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823343,
+      "awayTeam": "Detroit Tigers",
+      "homeTeam": "Pittsburgh Pirates",
+      "gameDate": "2026-08-17T23:05:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "faaa421be783eb6c7c0a7508f6d200a8",
+   "gamePk": 824712,
+   "rows": 2,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/824712.json",
+     "date": "2026-09-12",
+     "rows": 2,
+     "providerEvent": {
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Boston Red Sox",
+      "commenceTime": "2026-09-12T20:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824712,
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Boston Red Sox",
+      "gameDate": "2026-09-12T20:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "fab839164ecf4aec65df50e5ee9bbed3",
+   "gamePk": 824396,
+   "rows": 240,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/824396.json",
+     "date": "2026-08-28",
+     "rows": 240,
+     "providerEvent": {
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-08-28T23:11:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824396,
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Cleveland Guardians",
+      "gameDate": "2026-08-28T23:10:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "fd0c792d70a4325cb16c03c7af9a089a",
+   "gamePk": 824465,
+   "rows": 260,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-14/824465.json",
+     "date": "2026-09-14",
+     "rows": 260,
+     "providerEvent": {
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Cincinnati Reds",
+      "commenceTime": "2026-09-14T22:41:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 824465,
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Cincinnati Reds",
+      "gameDate": "2026-09-14T22:40:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  },
+  {
+   "foreignProviderEventId": "ff08b7b349f719f151912ec3a9a09257",
+   "gamePk": 823496,
+   "rows": 263,
+   "evidence": [
+    {
+     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/823496.json",
+     "date": "2026-09-12",
+     "rows": 263,
+     "providerEvent": {
+      "awayTeam": "New York Mets",
+      "homeTeam": "New York Yankees",
+      "commenceTime": "2026-09-12T17:36:00Z"
+     },
+     "scheduledGame": {
+      "gamePk": 823496,
+      "awayTeam": "New York Mets",
+      "homeTeam": "New York Yankees",
+      "gameDate": "2026-09-12T17:35:00Z"
+     },
+     "startDeltaMinutes": 1,
+     "gamesBetweenClubsOnDate": 1
+    }
+   ]
+  }
+ ],
+ "refused": [
+  {
+   "foreignProviderEventId": "020653ceed65201c49a3b6e0c3f3cbec",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "0472808610b7bdd2a94311cb114e3c4a",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "05846a699cfe1709affba4abc9b862ef",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "07b62357ba8988490469a685727ecf38",
+   "rows": 2,
+   "reasons": [
+    "NOT_ON_BOARD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "08b25f6a0f8cef91660f3825d3a5a34e",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "0ae15942e1f4c4657b06458868afbf96",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "0b0373954f04c35c2aaee9aed8171c17",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "0d8a10122998e00420770fa704603388",
+   "rows": 2,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "0dd445d18f48f0eb4d3bc0d4ee41011f",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "0e8da1c4233051485aceb65b1a5c417a",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "0eb6629148e96e8af74128cc11ba2b37",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "0f350cb709d6394c946ef1df6fca40af",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "0f7b4e8f0c23ecca42f1c5e69ecc9bcc",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "10ee5044193bffe8f24adf381ebde5ad",
+   "rows": 204,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "1105cf475ac0bf505e3529166e54197c",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "118d9a25ad5e9070a57cf4cb0b5d0314",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "12a8e27a29d44d46e10583c9c875e5f5",
+   "rows": 252,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "13fc628a643df99823132352ed6779c6",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "147cde54c2c64f6e17c1f5a1ec9fadf7",
+   "rows": 2,
+   "reasons": [
+    "DOUBLEHEADER"
+   ]
+  },
+  {
+   "foreignProviderEventId": "14b28cc8951c1250a20d6aa224ec3317",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "159efeea2dcd885c7cbe6edfea2f2603",
+   "rows": 8,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "15c9ca42142414287f11247c92905d9f",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "163a7ada5c294169bddfad332af498ef",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "1686c3eaa46bbe30e7c4e29863bb9ce4",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "16c1ff66c09048a0d06a0b9a90a78d7d",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "174a988fce36a476af3e712057a97ebe",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "1832664964f1aa706bdd77989f364361",
+   "rows": 255,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "18452193d8715008eccc60bd8b4204aa",
+   "rows": 2,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "18cd67572e0e03220737b61b0542a0c0",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "18d975d07e13a3b661fde1c6b246c75e",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "18f51290a26a4a37315eaba858f736c8",
+   "rows": 253,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "19261384ae25b556afee649a8ebe7008",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "1a1c1a4c350d1fb71d29920db55c19f5",
+   "rows": 4,
+   "reasons": [
+    "NOT_ON_BOARD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "1b131c580c5da54dd5ca7bcb24d0c131",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "1b3b4a290694391bf3fe17adc8693cbd",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "1f3cb32a66435b66d77c6543ea984cc6",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "1fb92c4b21dd10a8a1075a624ab98438",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "218c78582553292c5431be2af26fd240",
+   "rows": 268,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "21df82e501e6c1d230d9c511b814ed68",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "2279edd120dc52c88defa2a54e0e107d",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "229c4156bb02dc75dc6f247f5380c6ca",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "24be08805f9e6d828810ae8435d2563a",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "24d1608c7ffefab567006f6da92fc5f0",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "24dff06b7aac0693e5e299af47f50290",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "24e2844ddd06b300f6491b2912fa652c",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "256d7de8ceb3804256d260a74263d82c",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "259b6ad0c039c2a2dd00d378d88eb549",
+   "rows": 255,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "25afb7f521e15df3fe39a9d8d2db3bb7",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "25cef778b3e407c237781a8c82899494",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "267dae014ac02839048da8da0bf226c3",
+   "rows": 2,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "26d4c80fbedae27b50bb14b2ae483938",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "275215c7903b36c511b863b276f1010b",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "287e49b158c6a0b40e1ca1a98f81cee8",
+   "rows": 147,
+   "reasons": [
+    "DOUBLEHEADER"
+   ]
+  },
+  {
+   "foreignProviderEventId": "29327cf0a9d96265c67832a691838a89",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "29437f5a0e0b0af43535ee03d438df64",
+   "rows": 2,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "2984d38103bf67fc68bc0fb23e98ad8e",
+   "rows": 262,
+   "reasons": [
+    "NOT_ON_BOARD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "2b7c78b3c1a232ece3e9752493924b6c",
+   "rows": 104,
+   "reasons": [
+    "DOUBLEHEADER"
+   ]
+  },
+  {
+   "foreignProviderEventId": "2c0c5fa6dfe40dcd60cf3217261fb2d9",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "2dba5e88d89d78ac32b8892ae2214bb9",
+   "rows": 2,
+   "reasons": [
+    "NOT_ON_BOARD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "2e165d36c5dd97967e8e9d1e53290d71",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "2e7a78600f125d7177fff8e02c0eff74",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "309bc53328fe78f477537b0dcbef3ddf",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "30fc735653380dfae5b9de10acf8b5f6",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "315bf242d2edacc5912ce11b61b7de41",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "3200119bc7fbf549a208a197223c9966",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "322d54946bb18482b7d8348b69b6942e",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "335cdc2989ec57b83bd603b5beeb7fcc",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "33be2f3b18fff5a3f250b48a5980305d",
+   "rows": 6,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "3440c51cbfebc0ac81d574f6052d2eae",
+   "rows": 2,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "345a79a77604407117e7bd66c12244a0",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "34a753d38dc147edbd4974784d1746a0",
+   "rows": 270,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "35484b18fe129394ebc819752a8b92c1",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "37d5ada29cdca43791f56ead0c6f958a",
+   "rows": 278,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "382fb88aee61d73f9cc4f47fabd2c7e7",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "3835e2aa32cf2b9c29c510c140edab2c",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "38b96dae7f6cab01cf931c9faefc2606",
+   "rows": 268,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "38d3052ec454022a14314b324e0ff5f3",
+   "rows": 270,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "394e1e2b849c5b4eaf2b5984eaa74b79",
+   "rows": 142,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "3b910a2e0ac0e7339bf6d0b3857bf1bc",
+   "rows": 249,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "3ba899e2de8498870462a2bf41364384",
+   "rows": 6,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "3c57e2dd92e3e26dff7fb8c2898891bd",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "3c82e5f5dfc13cc84376bc1add8c4c06",
+   "rows": 2,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "3c86d930d993bc3d18da99df6bc33038",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "3da21002f25375898c7d03328e5a64b2",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "3ea3ed4f9423dd9e4a95e0e6fa3e4cb3",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "3ffa69e9cd90187364365a87f82ce273",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "41aa20c582aac0979e875a6e5a86b79b",
+   "rows": 6,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "428de1142289c9bb933a480d8c5b44f4",
+   "rows": 265,
+   "reasons": [
+    "NOT_ON_BOARD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "440458d6d4f20aa4ec271bc5f4501fa5",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "440aafab0430618ed61d5310ba093b5c",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "443672ce29e54ba67b3d8d50d63c33f8",
+   "rows": 4,
+   "reasons": [
+    "NOT_ON_BOARD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "44a6d81175e6cca1f6d5804b150427a1",
+   "rows": 257,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "458febdbf016dd7687ef2e5fe5edce26",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "45d79b3c7b013180e77cfe3675a85eb6",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "45eb66bca21d81d652f8f776e25c0a60",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "4641a1b30b5bae3cfb30564156dc2003",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "46bb732d224f9da07f9e3bb2f32281cc",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "481f3fef3aca60dd9a1d5f67af61fdef",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "484411acaf382c9b99aa08d6e6ccd79f",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "48805e1d6ad752f8943b4149bd983ec2",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "49cc06c81f0e3b50d6dfa054a1883b24",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "4cb76cceb16eb603c683038d132f4642",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "4cf22ff99815959994e2c4f8662d97bf",
+   "rows": 256,
+   "reasons": [
+    "NOT_ON_BOARD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "4d0a3e98e89c319342e1597db85fdb41",
+   "rows": 274,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "4e1d4c17ae27eeb2388a146c248b5fb6",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "4e61a59acf88cd455b2de1e25f9e81e2",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "4f28746c8d3ba89a48ef42722f1bbc9c",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "50491a98ba9ab1b1502809e59c3cd776",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5099914e07241203eb3dca62ddc5318c",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5284155e4abb961e855f8786e8ad3d51",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5315049742364f1f962411a129153260",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5421f226ba19cb1198c31f339c373ad2",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5552db2bbb6ea8db5548a0b2bd77cc77",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "55ee0a20c48002519602e2362965c6e6",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "56329e0195eb8df1d61a2ced249e623d",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "56ed4ca39605247d3e4d3168064bb5cc",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "573a8d20a4ce1b6795f2e3ac8d30cae0",
+   "rows": 6,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5829b429dfb2b487aaca727451b8c55c",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5859ce305cb0ae65e5e7f771db28dcdd",
+   "rows": 6,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "594a3405f55139e4b9bd00aa0518f4a4",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "59c14a5981b0869948d86636923f1c90",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5bab26a4a86845bfbf909f59a676a22a",
+   "rows": 239,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5c292777a98d90d363d05f1ad9eb489d",
+   "rows": 259,
+   "reasons": [
+    "INCONSISTENT_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5d13b613a334039f0694d8c95af28728",
+   "rows": 267,
+   "reasons": [
+    "INCONSISTENT_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5dc243f04181b459d0cc18968be70660",
+   "rows": 4,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5f31d0e2c7e8dbd68ea839d172d9fd00",
+   "rows": 8,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "5f4869b56718214a6d125d5753923a20",
+   "rows": 268,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "60b3d02ac77cf6a81e234358cfe187bb",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "60f49a7e49d759fbf523ceb66bc321c7",
+   "rows": 267,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "62272079b123c3878cf52a664914a57f",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "62943d2963a59424707e551cf46e5987",
+   "rows": 262,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "62d92e8ecf4bb3be97f03a09925eaec3",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "62de22eed3e75e821935c107e38ad8a7",
+   "rows": 225,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "6467c41d2b7da8c9e8efcda4c5d5f7b8",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "6473ba72a414bbd4449567e4ff83e076",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "65088419b2bbe20536ff82ba4b8956c4",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "652c3471321a108cc9222b8e5b773ad2",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "65f625f15ac20a0c9dd7905ac686d7aa",
+   "rows": 2,
+   "reasons": [
+    "NOT_ON_BOARD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "6713999ff416bdeecd85c7e84327602b",
+   "rows": 270,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "67a95b403897bde4e3f38d5448f9c94c",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "68a5f4cb0d65f2fc93321ae004027c46",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "69928d29919a7b30493d93a7e4d73a32",
+   "rows": 255,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "6a85ed309a708411951843fe95d213bb",
+   "rows": 2,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "6b474c64214114311f42d90b1a674c02",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "6b50126f3d5d20aaeb5339572c025bf3",
+   "rows": 250,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "6bd83b91a8bb56ff6403609a135f92ba",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "6e7150d8c439882971bcb51d92f290ca",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "6eed9689ad215fe5673360260ee19300",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "70b9a39a05a83f14d55b30a01b17396f",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "712095bfc2d808a30b170139a010a1d4",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "7147180b37c36caf2b4003b82c2d1afa",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "7294e99a67c70c66b6edecf9841d4f03",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "74749169ead486e15c8bbd906e738bd6",
+   "rows": 266,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "74d637de5babda95c445e8cf11c32a15",
+   "rows": 65,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "75953b32fa27c51a72f60f3760802810",
+   "rows": 8,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "76967dffaea1fac3dcec1e9edc62b85f",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "76aa8ee5b6dc041221d46b2517b118e4",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "78fdc67e4f138889d4f1634cb2c5500a",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "79a0c1e324175df9d0c7f93de8d4dc44",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "79a6d874eef0ff0b65cd9e48cc4dd5d7",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "79ee109acafadb327efea9802f800779",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "7b589a322a1e421d031d8b1abb24d911",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "7cb10d307b371751677d513fb168b3bd",
+   "rows": 6,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "7d03df008d15f138b3726ef4b85c983f",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "7d87987ec48dfc47ee32eab874f92200",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "7d9e89063e6e0241bd42d8621d9a3aa8",
+   "rows": 4,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "7ebaf13916efa137bac4a274d53d01ed",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "7fe872788a9a570ceb3aa6918bbf641d",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "81f539754930db6ffbd116ca2d30ee9c",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "828e21d2b1a6b79dd714546f52d7a38d",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "8291188eca889695bdbc42aac91ad1e5",
+   "rows": 286,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "837b77a12931b96e7f399811d7f8ca29",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "8382b682e2f2b236e23d2867f1ad2174",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "84746342d2944e433747b81eda041fa8",
+   "rows": 232,
+   "reasons": [
+    "INCONSISTENT_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "8550a2048d2b7f67231d7180079f8ddd",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "865b5161840c3b0f959eaa526c8ac629",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "87469e2153fb7260dafc6c43a4ebee53",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "8777958bb59fab1de0fad4589b6bc278",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "887515990979436aed352a22f6f8fdff",
+   "rows": 260,
+   "reasons": [
+    "NOT_ON_BOARD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "89a101c5567e20eb28151ba175250010",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "8a02d651eed1b9025dca5ab193f2fb68",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "8a1eca9b5002748c0050289d4c35b045",
+   "rows": 4,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "8a7f796244408c6c830bfc2be2edb9a9",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "8ad8229352651cf1b573f9ee834b57ac",
+   "rows": 252,
+   "reasons": [
+    "NOT_ON_BOARD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "8d270beb38a7f10433d0b54d64dfcc06",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "8dafff0a0578488c760ea460e1e6f7b3",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "8eb22b9b7908e0cc06501501e79a4d17",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "9053a0685edebb19cd19f34cb274be0d",
+   "rows": 6,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "9075e1d97a68d5244fa70607c57e266e",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "917d1a9786952f563f30186ce8a09731",
+   "rows": 213,
+   "reasons": [
+    "DOUBLEHEADER"
+   ]
+  },
+  {
+   "foreignProviderEventId": "927a7b09cc5f1512d0324748164c0b5f",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "92e25bff5f6c907dca22a23e2493de73",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "9320b01114d200ee9f8d2fb0848e6496",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "93719cc1bad0db5bf175f542387ea869",
+   "rows": 250,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "978ae6e06ae74cf00dc1df03b72363d9",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "979a29c09433f74c9cf81057e852ddf2",
+   "rows": 253,
+   "reasons": [
+    "DOUBLEHEADER"
+   ]
+  },
+  {
+   "foreignProviderEventId": "981879bf214542d1037319de2491b463",
+   "rows": 259,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "9981a2df41e94c5547e84ff3f9979beb",
+   "rows": 258,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "99d0aa9944cae60f4cd020c7b883b0e9",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "99e8d3217fe1ac7aeaf6b77ec6e6fb7c",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "9ad4c06c6c9f5cf366798cada970f547",
+   "rows": 272,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "9c0b5b3f819915fa2cd982a14186b77d",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "9c82c4f0b33ba5e7ab520128ca969014",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "9d137e890c8e3337cf83b0d6d1fea2fb",
+   "rows": 253,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "9d696e41666e6fc76dc4b83ced2e8996",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a0767b1624cd67e6552807bd00d4b2ee",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a081961893797b7b0bda834791610d56",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a0d104e8bf314f79a38436433c2fa67a",
+   "rows": 10,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a4558d70afe6992060734e6ea21ca616",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a4fe71fcdb68ebdb641116734d66ebb7",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a573344b838cf527e969e7065ee6a4e7",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a5c57f0a71bfbec1df5c314f86bb79cd",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a5e0deb6f51b7edebbd82d0eaf966294",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a724c4baba286e2f8b35bb652ee597a1",
+   "rows": 262,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a7521ab1b3d33fa79e27498c47700cb4",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a78d8674e699409d8d881b105ba90acd",
+   "rows": 2,
+   "reasons": [
+    "DOUBLEHEADER"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a7e19db363201c4f9f334c8e70c4ae71",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a8a56ccf8ee0c53a32d197ae5ffa812c",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a91d64137833f64718d0174df935abdb",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a981fee543b7844ab5bf4928bdca43d2",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "a9d5955568a03f0891eda9aba40a95f6",
+   "rows": 276,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "ab0bc299e48e6a4feb43688eda780998",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "abb3f111a0be68d4bdf0608a428f8d55",
+   "rows": 268,
+   "reasons": [
+    "DOUBLEHEADER"
+   ]
+  },
+  {
+   "foreignProviderEventId": "abd20077e0d7c1491fcc361d264cbc3d",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "abfd6c313f05e6a63db17ff99a71c76b",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "ac809bf2f9ff5445c2ded443c4cc7795",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "ac94f561e1f61674d2b43a1be8f5788b",
+   "rows": 252,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "add942d9a7eebd81c252d596832ff941",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "af7b25a4d0428e7f04b74c6c3a75c59d",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "afe94dee1642445e86e426474b8e7dee",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "b0c3869f276e1d63fbbce0cfdcbf8f1c",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "b343b2c13d1aaa540bd4974035adc893",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "b6df72e0280eb235fcca22cc3d3fc1ab",
+   "rows": 6,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "b77df217e739f24b8ab3440a9f013da0",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "b8e341bd32a393ea6e1d1f3b843bf452",
+   "rows": 2,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "ba3a4cc7ae5fe8f253de4da50e16ef96",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "baaae4c94f3b7e7c21e2e4219bb5f0fd",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "bbab891f2a9defcd506aafce495b42dc",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "bbf1e6cb506f7bad49e73490f15d2a14",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "bc93cc6a5c4779c620007a3657cc78ad",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "bcdc1aac5215baec8c6c6fd8a7a22f9d",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "be25eb82b82629d959c1e5ccb8dcc1e7",
+   "rows": 286,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c0d390a487adbc676467b156b561e0f0",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c12be047c8ded8a9a907d99bef5494f7",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c2e9498aaeb076eb5c7ec70719c85b49",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c4e5d894df1c758237b65a07b20a62b2",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c5b03415dadb8213241501d56b4926bc",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c5e971853b3a0b4ad3526141459bf5d5",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c6a02f59db24e462163d3092b8ab79f8",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c70414f74d2d01667ec47d97408c9f83",
+   "rows": 266,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c77232b741072d22e3c49926ff91c383",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c7a2e07e8423be48d4f797c2aab365ae",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c8354a0c9f4876c67feb31fa06f35aa5",
+   "rows": 246,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c840ffd21f721ac963c0f3d748f5db02",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c8513bd1ec6dd659d64e9c17052f4c9d",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c869940458363d7a7eafe0d2a6de32b7",
+   "rows": 4,
+   "reasons": [
+    "DOUBLEHEADER",
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "c8c288fb5f290ac3cb4c91c056e01cdc",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "cac66a5844ce45f66674c93fb778eeaf",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "cbbb7f035af8c6962dbaf7ef81ec594f",
+   "rows": 275,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "cbde6bd02f030c8e94c35c62ed4a4044",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "cc3886440708c8649f6f878183416628",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "cce625b7dac12280fdb88a6f44058c93",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "cdf157d86eeb76344f4827066cfb24b7",
+   "rows": 8,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "cdfa947143c57e6933ca955cf87ebabe",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "ceacc88501fe426069c942442f28b728",
+   "rows": 272,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "ceb78c18c34b6f6922ac73e4cb32b373",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "cee011b0978086fc2ebee48d455d495e",
+   "rows": 2,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "cf3dedae37cf6426bfdf0b99237f1ba0",
+   "rows": 4,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d30d8cd5fc6b55f7548118280dd2b37f",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d3dfabfdd39cb168285821d91a382724",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d545cab19c6dbf61ef08fc9c481877f8",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d64025a75ea543bf8f87ab2a697704d8",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d65c687b0748c456de9fbecd90808fe1",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d6738463ee902306e2e71f297603b26e",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d7f4b3c3080d3f6612a4be54f7e0f798",
+   "rows": 262,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d85bb371f18080847c97ecffd8f5fe93",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d8f7f270cd38a387ce9133e82dc7b60e",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d99e3dbbb8b295eec806a390d5a0d113",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d9ec780336d9a4003b470398837385da",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "da4b9485dac20060b228d56c1eba64b2",
+   "rows": 265,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "dae6d7e042dc64a28ea484408927af8c",
+   "rows": 255,
+   "reasons": [
+    "NOT_ON_BOARD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "dce673f29a2a1bdfc8ad0e51de72a21d",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "de5c4fe6a041ce8073e59e063fe7f31f",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "de8bbf8d379bf416df612c557ddd338a",
+   "rows": 259,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "df53cc747b6ef1e7688d8595a1d6aec6",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e0254ee2268c129376e98827bedc7496",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e1530fe384fbce5fff1d0a587c45122e",
+   "rows": 6,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e2e25c66df409559d9d80cd2f5c0583e",
+   "rows": 245,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e3f232afa3f72858e94154eb4e526488",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e51668b233a9e89462f303ece6fac37e",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e5573b0492ef2f689b729412d3bde508",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e615304e9c8bbe51f395e5baf369353a",
+   "rows": 265,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e7c0a434cffb5f56a2446383ebb2e3ad",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e7cd26360ce2edd30f37cdfc01391fd5",
+   "rows": 266,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e92bbb840d0b4b67982c31bc3cef37bf",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e9344aee4810e4127e69c73c13c781d7",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e956df5f498f78f522f5b8656f304df4",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "e9aa9f3f95397e0ea42fbde233eb3e3b",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "ea131cf353575f759f07ef2dddd66dc7",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "eb8b9160f66fc6d5f6bd58bf4a888011",
+   "rows": 248,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "eba81e8f90abe50ccdfcee55fe0080b8",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "ebada13102ac78459b266ff9c6e9d207",
+   "rows": 250,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "ec7b83371ca62b477633373d340e589b",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "ee5bdf1920cb1fffe248c1f4bb875246",
+   "rows": 210,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "ef5ae47c92d83c4feec38fd6e38ce4ae",
+   "rows": 199,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "efbec01e9ddadbf59d572981c0ab0b39",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "f01c292dd868a51b739e2283164a5e94",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "f09fa6908679cc62186874d19386d9ae",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "f1963b019550753f962dfa7a7fa3e781",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "f1e238320de4aea5750434c876076d20",
+   "rows": 8,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "f30a8fd0e01d631f6eaa1a3533faf544",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "f367b112dcb4fea1a4ff67e49ee1f0cd",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "f4592955744665289f90514e92145dcf",
+   "rows": 4,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "f71617a2d08c1daac109bf9f87e7ddae",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "f7a4edfc8ce302460d9f8c40851ca78b",
+   "rows": 235,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "f8c336fa447564a17616c2127dc61bf7",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "f9b96108d4bae8b60bcda1e87549bedc",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "fa53df0ea33f6bbfb66e7e6198f715dd",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "fbdb4a62358d122e0acbb41bc889d778",
+   "rows": 262,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "fbf7e1c3dc649ffbc76604f37419e3d8",
+   "rows": 284,
+   "reasons": [
+    "NO_PROVIDER_RECORD"
+   ]
+  },
+  {
+   "foreignProviderEventId": "fc1d0b97ed35a31e5f1f60df77f6b377",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "fdff6c89acb4de39265f17044023a88c",
+   "rows": 6,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "fe0d956203b65ef42f68a6d324f8b922",
+   "rows": 269,
+   "reasons": [
+    "NOT_WITHIN_30_MIN_SAME_CLUBS"
+   ]
+  },
+  {
+   "foreignProviderEventId": "febfe492bcd191327b90c25777e21db4",
+   "rows": 2,
+   "reasons": [
+    "OWNED_BY_ANOTHER_GAME"
+   ]
+  }
+ ],
+ "ownEventUnverified": [
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/822784.json",
+   "gamePk": 822784,
+   "ownProviderEventId": "36ba7a8a8c46e8cc308c1dd037995889",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/822873.json",
+   "gamePk": 822873,
+   "ownProviderEventId": "5a272ddcdf5d8b9d87abacf3a492c021",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/823110.json",
+   "gamePk": 823110,
+   "ownProviderEventId": "5d1eeebcccadcfc65a1ae65709da7845",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/823438.json",
+   "gamePk": 823438,
+   "ownProviderEventId": "111a955795876d50988b15c219ce0796",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/823519.json",
+   "gamePk": 823519,
+   "ownProviderEventId": "825819c6eb7f33c306b094f49bcd9bb0",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/823761.json",
+   "gamePk": 823761,
+   "ownProviderEventId": "a362299f25a2814e5b0e40d072bb782f",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/824004.json",
+   "gamePk": 824004,
+   "ownProviderEventId": "9121395092ebe73ce8eaba439dc5be34",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/824083.json",
+   "gamePk": 824083,
+   "ownProviderEventId": "a319064ad34e8e60220140acb9035af3",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/824166.json",
+   "gamePk": 824166,
+   "ownProviderEventId": "46df00997efe9e30fd9b1130a3774851",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/824327.json",
+   "gamePk": 824327,
+   "ownProviderEventId": "fcc83e954b9e74964b190cb0e29366c7",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/824408.json",
+   "gamePk": 824408,
+   "ownProviderEventId": "5c7e77b42c0db49ce882d3c9473d74c1",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/824650.json",
+   "gamePk": 824650,
+   "ownProviderEventId": "83d83fb84e3bfedb96b4ae81d9283bfb",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/824732.json",
+   "gamePk": 824732,
+   "ownProviderEventId": "e3d220f8bbf8ac99e58dbf7088695b59",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/824896.json",
+   "gamePk": 824896,
+   "ownProviderEventId": "22fc220be6958e93fba4354054d8fd16",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-22/825055.json",
+   "gamePk": 825055,
+   "ownProviderEventId": "fe2c8918c10c47fffd27be962809d726",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-23/822785.json",
+   "gamePk": 822785,
+   "ownProviderEventId": "36ba7a8a8c46e8cc308c1dd037995889",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-23/823042.json",
+   "gamePk": 823042,
+   "ownProviderEventId": "8e2411581a27c6dccd9eae0b233fe64c",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-23/824247.json",
+   "gamePk": 824247,
+   "ownProviderEventId": "74d637de5babda95c445e8cf11c32a15",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-23/824406.json",
+   "gamePk": 824406,
+   "ownProviderEventId": "5c7e77b42c0db49ce882d3c9473d74c1",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-23/824893.json",
+   "gamePk": 824893,
+   "ownProviderEventId": "22fc220be6958e93fba4354054d8fd16",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/822707.json",
+   "gamePk": 822707,
+   "ownProviderEventId": "4d0a3e98e89c319342e1597db85fdb41",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/822872.json",
+   "gamePk": 822872,
+   "ownProviderEventId": "7623b2ff95daaba1c14165f508c506b8",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/822952.json",
+   "gamePk": 822952,
+   "ownProviderEventId": "6b50126f3d5d20aaeb5339572c025bf3",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/823031.json",
+   "gamePk": 823031,
+   "ownProviderEventId": "e52022e436fbab769c0e31e1eec70f53",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/823196.json",
+   "gamePk": 823196,
+   "ownProviderEventId": "2192276baf2c4e8e5358e9905c801e2f",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/823352.json",
+   "gamePk": 823352,
+   "ownProviderEventId": "263aac2dfd923f6a65c5136418407715",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/823434.json",
+   "gamePk": 823434,
+   "ownProviderEventId": "ebada13102ac78459b266ff9c6e9d207",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/823601.json",
+   "gamePk": 823601,
+   "ownProviderEventId": "d65c687b0748c456de9fbecd90808fe1",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/823680.json",
+   "gamePk": 823680,
+   "ownProviderEventId": "6f9f1f656034bccc0a22e55a976cdf3b",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/823759.json",
+   "gamePk": 823759,
+   "ownProviderEventId": "7d87987ec48dfc47ee32eab874f92200",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/823843.json",
+   "gamePk": 823843,
+   "ownProviderEventId": "6713999ff416bdeecd85c7e84327602b",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/824248.json",
+   "gamePk": 824248,
+   "ownProviderEventId": "6b06a4bf25ee92a7ac908981664ca759",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/824573.json",
+   "gamePk": 824573,
+   "ownProviderEventId": "e25ed72c9f5c072ef60c242c29ccf1a3",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/824733.json",
+   "gamePk": 824733,
+   "ownProviderEventId": "e7cd26360ce2edd30f37cdfc01391fd5",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-24/824812.json",
+   "gamePk": 824812,
+   "ownProviderEventId": "45d79b3c7b013180e77cfe3675a85eb6",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/822704.json",
+   "gamePk": 822704,
+   "ownProviderEventId": "714c1847e9003da34be408b74dca72e3",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/822869.json",
+   "gamePk": 822869,
+   "ownProviderEventId": "8eb22b9b7908e0cc06501501e79a4d17",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/822948.json",
+   "gamePk": 822948,
+   "ownProviderEventId": "d651270eb53d061fc93a471f11c2f53d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/823027.json",
+   "gamePk": 823027,
+   "ownProviderEventId": "9064f61fe767dfa3c4a613a4f02250d3",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/823197.json",
+   "gamePk": 823197,
+   "ownProviderEventId": "863fffb8c7bb8eba061b9c449d582054",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/823355.json",
+   "gamePk": 823355,
+   "ownProviderEventId": "458f1aad594ae5477de447c6d836a79d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/823435.json",
+   "gamePk": 823435,
+   "ownProviderEventId": "210e6566d3641ee245e8a099a1679244",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/823600.json",
+   "gamePk": 823600,
+   "ownProviderEventId": "17b69aed6b1c1715ffbd01b155af848d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/823679.json",
+   "gamePk": 823679,
+   "ownProviderEventId": "a9c8aad6e31f322b330deb1a7fdd3eb3",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/823758.json",
+   "gamePk": 823758,
+   "ownProviderEventId": "c66c0c97123e0bc5e1a3c1b170c9b269",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/823841.json",
+   "gamePk": 823841,
+   "ownProviderEventId": "3f5e40b78b4be8ec30a552f1081e4dc0",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/824244.json",
+   "gamePk": 824244,
+   "ownProviderEventId": "6b06a4bf25ee92a7ac908981664ca759",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/824571.json",
+   "gamePk": 824571,
+   "ownProviderEventId": "b61e67dbd760d186d865cc2ff013a7c0",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/824734.json",
+   "gamePk": 824734,
+   "ownProviderEventId": "48df7c31ab5c07dc2c7073170f193a8f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-25/824811.json",
+   "gamePk": 824811,
+   "ownProviderEventId": "ce049001315d997fa2641116b7a1ede0",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/822706.json",
+   "gamePk": 822706,
+   "ownProviderEventId": "714c1847e9003da34be408b74dca72e3",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/822870.json",
+   "gamePk": 822870,
+   "ownProviderEventId": "0740e4a4b0377a066eec394f1a30425b",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/822950.json",
+   "gamePk": 822950,
+   "ownProviderEventId": "d651270eb53d061fc93a471f11c2f53d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/823028.json",
+   "gamePk": 823028,
+   "ownProviderEventId": "9064f61fe767dfa3c4a613a4f02250d3",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/823194.json",
+   "gamePk": 823194,
+   "ownProviderEventId": "863fffb8c7bb8eba061b9c449d582054",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/823354.json",
+   "gamePk": 823354,
+   "ownProviderEventId": "458f1aad594ae5477de447c6d836a79d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/823433.json",
+   "gamePk": 823433,
+   "ownProviderEventId": "210e6566d3641ee245e8a099a1679244",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/823599.json",
+   "gamePk": 823599,
+   "ownProviderEventId": "17b69aed6b1c1715ffbd01b155af848d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/823678.json",
+   "gamePk": 823678,
+   "ownProviderEventId": "a9c8aad6e31f322b330deb1a7fdd3eb3",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/823755.json",
+   "gamePk": 823755,
+   "ownProviderEventId": "c66c0c97123e0bc5e1a3c1b170c9b269",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/823840.json",
+   "gamePk": 823840,
+   "ownProviderEventId": "3f5e40b78b4be8ec30a552f1081e4dc0",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/824246.json",
+   "gamePk": 824246,
+   "ownProviderEventId": "695de475f6a8dd1f205bda6ba50db0ee",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/824572.json",
+   "gamePk": 824572,
+   "ownProviderEventId": "b61e67dbd760d186d865cc2ff013a7c0",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/824730.json",
+   "gamePk": 824730,
+   "ownProviderEventId": "48df7c31ab5c07dc2c7073170f193a8f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-26/824810.json",
+   "gamePk": 824810,
+   "ownProviderEventId": "ce049001315d997fa2641116b7a1ede0",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/822705.json",
+   "gamePk": 822705,
+   "ownProviderEventId": "652c3471321a108cc9222b8e5b773ad2",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/822868.json",
+   "gamePk": 822868,
+   "ownProviderEventId": "0740e4a4b0377a066eec394f1a30425b",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/823025.json",
+   "gamePk": 823025,
+   "ownProviderEventId": "8f968dc825f43310933db311e1e61a6c",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/823195.json",
+   "gamePk": 823195,
+   "ownProviderEventId": "9b0ec0a466486c849457165fd2c565e1",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/823353.json",
+   "gamePk": 823353,
+   "ownProviderEventId": "3200119bc7fbf549a208a197223c9966",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/823597.json",
+   "gamePk": 823597,
+   "ownProviderEventId": "828e21d2b1a6b79dd714546f52d7a38d",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/823839.json",
+   "gamePk": 823839,
+   "ownProviderEventId": "11fd3db49ab86a1ca24414fd4f9c4af6",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/824001.json",
+   "gamePk": 824001,
+   "ownProviderEventId": "cd620c9f1e94a2b82e14a13d09fd7a77",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/824245.json",
+   "gamePk": 824245,
+   "ownProviderEventId": "01c25573da43dfef2b25036b3d865245",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/824490.json",
+   "gamePk": 824490,
+   "ownProviderEventId": "4f2695cf655e94d9dd1a7ef77b7861be",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/824570.json",
+   "gamePk": 824570,
+   "ownProviderEventId": "302aa3f7c3d634878483c7edadbfdb0f",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-27/824977.json",
+   "gamePk": 824977,
+   "ownProviderEventId": "ee5f7b3a90890ec4fbb3146543125fe7",
+   "reason": "NO_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/822703.json",
+   "gamePk": 822703,
+   "ownProviderEventId": "00cfd9daf945b43d83d13223ae65d32d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/822949.json",
+   "gamePk": 822949,
+   "ownProviderEventId": "f7a4edfc8ce302460d9f8c40851ca78b",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/823026.json",
+   "gamePk": 823026,
+   "ownProviderEventId": "c8354a0c9f4876c67feb31fa06f35aa5",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/823350.json",
+   "gamePk": 823350,
+   "ownProviderEventId": "f915125c1b1553c2c8ceb8acef3f2c11",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/823598.json",
+   "gamePk": 823598,
+   "ownProviderEventId": "428de1142289c9bb933a480d8c5b44f4",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/823676.json",
+   "gamePk": 823676,
+   "ownProviderEventId": "8550a2048d2b7f67231d7180079f8ddd",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/823838.json",
+   "gamePk": 823838,
+   "ownProviderEventId": "90886b82a7992a92d8826ca80ba69be0",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/824489.json",
+   "gamePk": 824489,
+   "ownProviderEventId": "d3a738dccfb8833e757d8dbc4caead9d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-28/824569.json",
+   "gamePk": 824569,
+   "ownProviderEventId": "0eb6629148e96e8af74128cc11ba2b37",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/822702.json",
+   "gamePk": 822702,
+   "ownProviderEventId": "00cfd9daf945b43d83d13223ae65d32d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/822947.json",
+   "gamePk": 822947,
+   "ownProviderEventId": "a711967b87d0815d1a1b45806b632b42",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/823022.json",
+   "gamePk": 823022,
+   "ownProviderEventId": "459ad5aa37b0d7865d087c8acb7d9d4d",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/823192.json",
+   "gamePk": 823192,
+   "ownProviderEventId": "92e25bff5f6c907dca22a23e2493de73",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/823273.json",
+   "gamePk": 823273,
+   "ownProviderEventId": "fc8fe7c515f49fbf66ce1f60a9d39f32",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/823351.json",
+   "gamePk": 823351,
+   "ownProviderEventId": "f915125c1b1553c2c8ceb8acef3f2c11",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/823598.json",
+   "gamePk": 823598,
+   "ownProviderEventId": "b8e341bd32a393ea6e1d1f3b843bf452",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/823677.json",
+   "gamePk": 823677,
+   "ownProviderEventId": "4ab9265338d5ee8f4e0ecf43a83aa9d7",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/823837.json",
+   "gamePk": 823837,
+   "ownProviderEventId": "90886b82a7992a92d8826ca80ba69be0",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/823924.json",
+   "gamePk": 823924,
+   "ownProviderEventId": "94e1ca20cc591b6b6cdc042c16880a40",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/824002.json",
+   "gamePk": 824002,
+   "ownProviderEventId": "45eb66bca21d81d652f8f776e25c0a60",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/824242.json",
+   "gamePk": 824242,
+   "ownProviderEventId": "2803bb8e96c2e13f37418f06bbba2ead",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/824487.json",
+   "gamePk": 824487,
+   "ownProviderEventId": "d3a738dccfb8833e757d8dbc4caead9d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/824567.json",
+   "gamePk": 824567,
+   "ownProviderEventId": "c4f54051354f3d027c0f1cabfc630e52",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-07-29/824973.json",
+   "gamePk": 824973,
+   "ownProviderEventId": "8777958bb59fab1de0fad4589b6bc278",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/822781.json",
+   "gamePk": 822781,
+   "ownProviderEventId": "2ee28b25d57aa155a35d9706065b4963",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/822944.json",
+   "gamePk": 822944,
+   "ownProviderEventId": "47af60aedd60c2f453d5618c98f9a180",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/823109.json",
+   "gamePk": 823109,
+   "ownProviderEventId": "90e23149710c7c8f69e968ca8323f375",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/823269.json",
+   "gamePk": 823269,
+   "ownProviderEventId": "a7b185894ae44e79e7e12c8533b5778b",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/823594.json",
+   "gamePk": 823594,
+   "ownProviderEventId": "42cc8ab6df88e7bec73eafe4f684cbb1",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/823920.json",
+   "gamePk": 823920,
+   "ownProviderEventId": "0d7964018e0254e779126e68c56e0a5e",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/824000.json",
+   "gamePk": 824000,
+   "ownProviderEventId": "77b8e5ac49b26052a451b5de23d0959e",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/824162.json",
+   "gamePk": 824162,
+   "ownProviderEventId": "5df20c738d76a47684394acb9ea9814e",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/824326.json",
+   "gamePk": 824326,
+   "ownProviderEventId": "e22f383c06fc65d61b450e0039f9ec3f",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/824405.json",
+   "gamePk": 824405,
+   "ownProviderEventId": "93093742f035808566b727b495407df8",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/824485.json",
+   "gamePk": 824485,
+   "ownProviderEventId": "65c026b0a2fdad67a6ebb83ff414a011",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/824649.json",
+   "gamePk": 824649,
+   "ownProviderEventId": "7cae5f89359f34f8e1b03d1c46f2c3d6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/824808.json",
+   "gamePk": 824808,
+   "ownProviderEventId": "0a83565a7c1b5059b188a176bf7ef21f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/824890.json",
+   "gamePk": 824890,
+   "ownProviderEventId": "279531c847530b5f8dc9fa88594748e6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-01/824972.json",
+   "gamePk": 824972,
+   "ownProviderEventId": "54d17e06d14159867e038e2ea043aabd",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/822783.json",
+   "gamePk": 822783,
+   "ownProviderEventId": "2ee28b25d57aa155a35d9706065b4963",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/822943.json",
+   "gamePk": 822943,
+   "ownProviderEventId": "47af60aedd60c2f453d5618c98f9a180",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/823107.json",
+   "gamePk": 823107,
+   "ownProviderEventId": "90e23149710c7c8f69e968ca8323f375",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/823270.json",
+   "gamePk": 823270,
+   "ownProviderEventId": "436bf68ad25a5637c9bf15c85396514a",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/823592.json",
+   "gamePk": 823592,
+   "ownProviderEventId": "42cc8ab6df88e7bec73eafe4f684cbb1",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/823919.json",
+   "gamePk": 823919,
+   "ownProviderEventId": "9075e1d97a68d5244fa70607c57e266e",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/823996.json",
+   "gamePk": 823996,
+   "ownProviderEventId": "76967dffaea1fac3dcec1e9edc62b85f",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/824163.json",
+   "gamePk": 824163,
+   "ownProviderEventId": "5df20c738d76a47684394acb9ea9814e",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/824323.json",
+   "gamePk": 824323,
+   "ownProviderEventId": "c77232b741072d22e3c49926ff91c383",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/824404.json",
+   "gamePk": 824404,
+   "ownProviderEventId": "93093742f035808566b727b495407df8",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/824483.json",
+   "gamePk": 824483,
+   "ownProviderEventId": "65c026b0a2fdad67a6ebb83ff414a011",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/824648.json",
+   "gamePk": 824648,
+   "ownProviderEventId": "7cae5f89359f34f8e1b03d1c46f2c3d6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/824807.json",
+   "gamePk": 824807,
+   "ownProviderEventId": "0a83565a7c1b5059b188a176bf7ef21f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/824891.json",
+   "gamePk": 824891,
+   "ownProviderEventId": "279531c847530b5f8dc9fa88594748e6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-02/824971.json",
+   "gamePk": 824971,
+   "ownProviderEventId": "f30a8fd0e01d631f6eaa1a3533faf544",
+   "reason": "NOT_ON_BOARD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-03/823431.json",
+   "gamePk": 823431,
+   "ownProviderEventId": "9d696e41666e6fc76dc4b83ced2e8996",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-03/823520.json",
+   "gamePk": 823520,
+   "ownProviderEventId": "2279edd120dc52c88defa2a54e0e107d",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/823432.json",
+   "gamePk": 823432,
+   "ownProviderEventId": "abfd6c313f05e6a63db17ff99a71c76b",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/823517.json",
+   "gamePk": 823517,
+   "ownProviderEventId": "2da70aefb8ce542046f6790787c32469",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/823756.json",
+   "gamePk": 823756,
+   "ownProviderEventId": "34a753d38dc147edbd4974784d1746a0",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/824084.json",
+   "gamePk": 824084,
+   "ownProviderEventId": "fbdb4a62358d122e0acbb41bc889d778",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/824161.json",
+   "gamePk": 824161,
+   "ownProviderEventId": "8d270beb38a7f10433d0b54d64dfcc06",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/824403.json",
+   "gamePk": 824403,
+   "ownProviderEventId": "6eed9689ad215fe5673360260ee19300",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/824731.json",
+   "gamePk": 824731,
+   "ownProviderEventId": "1f3cb32a66435b66d77c6543ea984cc6",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-04/824888.json",
+   "gamePk": 824888,
+   "ownProviderEventId": "13fc628a643df99823132352ed6779c6",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-05/823429.json",
+   "gamePk": 823429,
+   "ownProviderEventId": "e5bd0415f3218955de3af0edaea0e987",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-05/823516.json",
+   "gamePk": 823516,
+   "ownProviderEventId": "2da70aefb8ce542046f6790787c32469",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-05/823753.json",
+   "gamePk": 823753,
+   "ownProviderEventId": "33efbfd48fbb5b3d12cc4aa1a6018b34",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-05/824082.json",
+   "gamePk": 824082,
+   "ownProviderEventId": "7ccb6905d278343fbef656a8d2664d89",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-05/824158.json",
+   "gamePk": 824158,
+   "ownProviderEventId": "62d92e8ecf4bb3be97f03a09925eaec3",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-05/824402.json",
+   "gamePk": 824402,
+   "ownProviderEventId": "311a536eb6f91726dc481b22b9ef6b79",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-05/824482.json",
+   "gamePk": 824482,
+   "ownProviderEventId": "7c802d98715da7e739509739f8e60f5f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-05/824728.json",
+   "gamePk": 824728,
+   "ownProviderEventId": "ea84587619219eda157528a5519fdb38",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-05/824806.json",
+   "gamePk": 824806,
+   "ownProviderEventId": "3b23ade05c9d38068df5e7af422bca05",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-05/824889.json",
+   "gamePk": 824889,
+   "ownProviderEventId": "4f9df9d570d705ced380cfa799b0b640",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-06/823430.json",
+   "gamePk": 823430,
+   "ownProviderEventId": "e5bd0415f3218955de3af0edaea0e987",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-06/823754.json",
+   "gamePk": 823754,
+   "ownProviderEventId": "33efbfd48fbb5b3d12cc4aa1a6018b34",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-06/824080.json",
+   "gamePk": 824080,
+   "ownProviderEventId": "7ccb6905d278343fbef656a8d2664d89",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-06/824401.json",
+   "gamePk": 824401,
+   "ownProviderEventId": "311a536eb6f91726dc481b22b9ef6b79",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-06/824481.json",
+   "gamePk": 824481,
+   "ownProviderEventId": "7c802d98715da7e739509739f8e60f5f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-06/824729.json",
+   "gamePk": 824729,
+   "ownProviderEventId": "ea84587619219eda157528a5519fdb38",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-06/824804.json",
+   "gamePk": 824804,
+   "ownProviderEventId": "3b23ade05c9d38068df5e7af422bca05",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-06/824885.json",
+   "gamePk": 824885,
+   "ownProviderEventId": "4f9df9d570d705ced380cfa799b0b640",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-07/822699.json",
+   "gamePk": 822699,
+   "ownProviderEventId": "99fc4bfc698f7aa670b98139e490d1ff",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-07/823349.json",
+   "gamePk": 823349,
+   "ownProviderEventId": "c70414f74d2d01667ec47d97408c9f83",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-07/823428.json",
+   "gamePk": 823428,
+   "ownProviderEventId": "de2d6836db4bc97363ff6663002a1226",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-07/823515.json",
+   "gamePk": 823515,
+   "ownProviderEventId": "f21b26648f99c091191633eaa4b9d593",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-07/823836.json",
+   "gamePk": 823836,
+   "ownProviderEventId": "60f49a7e49d759fbf523ceb66bc321c7",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/822701.json",
+   "gamePk": 822701,
+   "ownProviderEventId": "fd748664266c10ada741bfb6caf0caaa",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/823021.json",
+   "gamePk": 823021,
+   "ownProviderEventId": "6b6ba5b15bfaaa7ec8e1e6d5c8666468",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/823102.json",
+   "gamePk": 823102,
+   "ownProviderEventId": "79a0c1e324175df9d0c7f93de8d4dc44",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/823188.json",
+   "gamePk": 823188,
+   "ownProviderEventId": "9e78ca8707c1e5012ccd30c142e37a40",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/823348.json",
+   "gamePk": 823348,
+   "ownProviderEventId": "3081c067af129c2354800a0fde3a3568",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/823426.json",
+   "gamePk": 823426,
+   "ownProviderEventId": "8b5f6c697c629a56e47212f0e767cc15",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/823514.json",
+   "gamePk": 823514,
+   "ownProviderEventId": "daa4e04859053509cd5193e35c94fd0f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/823752.json",
+   "gamePk": 823752,
+   "ownProviderEventId": "cace409c1c9708d449b8598e55ca9536",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/823834.json",
+   "gamePk": 823834,
+   "ownProviderEventId": "440c77bba5359e2f5581b4cc8db80c54",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/824079.json",
+   "gamePk": 824079,
+   "ownProviderEventId": "d9bb4855e4ed5d8ae038db62356ed74f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-08/824565.json",
+   "gamePk": 824565,
+   "ownProviderEventId": "9787ffdc39d62ec33a07c7d40b78adee",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-09/822700.json",
+   "gamePk": 822700,
+   "ownProviderEventId": "fd748664266c10ada741bfb6caf0caaa",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-09/823020.json",
+   "gamePk": 823020,
+   "ownProviderEventId": "6b6ba5b15bfaaa7ec8e1e6d5c8666468",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-09/823190.json",
+   "gamePk": 823190,
+   "ownProviderEventId": "9e78ca8707c1e5012ccd30c142e37a40",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-09/823345.json",
+   "gamePk": 823345,
+   "ownProviderEventId": "3081c067af129c2354800a0fde3a3568",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-09/823425.json",
+   "gamePk": 823425,
+   "ownProviderEventId": "8b5f6c697c629a56e47212f0e767cc15",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-09/823513.json",
+   "gamePk": 823513,
+   "ownProviderEventId": "daa4e04859053509cd5193e35c94fd0f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-09/823751.json",
+   "gamePk": 823751,
+   "ownProviderEventId": "cace409c1c9708d449b8598e55ca9536",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-09/823835.json",
+   "gamePk": 823835,
+   "ownProviderEventId": "440c77bba5359e2f5581b4cc8db80c54",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-09/824078.json",
+   "gamePk": 824078,
+   "ownProviderEventId": "d9bb4855e4ed5d8ae038db62356ed74f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-09/824564.json",
+   "gamePk": 824564,
+   "ownProviderEventId": "9787ffdc39d62ec33a07c7d40b78adee",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-10/822780.json",
+   "gamePk": 822780,
+   "ownProviderEventId": "9c82c4f0b33ba5e7ab520128ca969014",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-10/824887.json",
+   "gamePk": 824887,
+   "ownProviderEventId": "6da2466049f8fac0d952ce018080b949",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-11/822778.json",
+   "gamePk": 822778,
+   "ownProviderEventId": "275215c7903b36c511b863b276f1010b",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-11/823512.json",
+   "gamePk": 823512,
+   "ownProviderEventId": "0472808610b7bdd2a94311cb114e3c4a",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-11/824240.json",
+   "gamePk": 824240,
+   "ownProviderEventId": "e2e25c66df409559d9d80cd2f5c0583e",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-11/824886.json",
+   "gamePk": 824886,
+   "ownProviderEventId": "6da2466049f8fac0d952ce018080b949",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-12/822698.json",
+   "gamePk": 822698,
+   "ownProviderEventId": "41d927261a15c8d84075af83997d53c1",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-12/822779.json",
+   "gamePk": 822779,
+   "ownProviderEventId": "3ed772c2f7f038e1b8d40c6a678ecc88",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-12/823511.json",
+   "gamePk": 823511,
+   "ownProviderEventId": "3e1c279359817c97e285db96732ef225",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-12/823833.json",
+   "gamePk": 823833,
+   "ownProviderEventId": "7f3d422253cc0ea2296a6cb920fc2186",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-12/824241.json",
+   "gamePk": 824241,
+   "ownProviderEventId": "32dd5e1c6b71a610636cc0fb2087b9a4",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-13/822696.json",
+   "gamePk": 822696,
+   "ownProviderEventId": "41d927261a15c8d84075af83997d53c1",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-13/822776.json",
+   "gamePk": 822776,
+   "ownProviderEventId": "3ed772c2f7f038e1b8d40c6a678ecc88",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-13/823508.json",
+   "gamePk": 823508,
+   "ownProviderEventId": "3e1c279359817c97e285db96732ef225",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-13/823669.json",
+   "gamePk": 823669,
+   "ownProviderEventId": "9fa039b0c801332ed857fb145a2926b9",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-13/823829.json",
+   "gamePk": 823829,
+   "ownProviderEventId": "7f3d422253cc0ea2296a6cb920fc2186",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-13/824238.json",
+   "gamePk": 824238,
+   "ownProviderEventId": "32dd5e1c6b71a610636cc0fb2087b9a4",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-13/824561.json",
+   "gamePk": 824561,
+   "ownProviderEventId": "7d03df008d15f138b3726ef4b85c983f",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-14/822942.json",
+   "gamePk": 822942,
+   "ownProviderEventId": "93719cc1bad0db5bf175f542387ea869",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-14/824237.json",
+   "gamePk": 824237,
+   "ownProviderEventId": "cbbb7f035af8c6962dbaf7ef81ec594f",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-14/824479.json",
+   "gamePk": 824479,
+   "ownProviderEventId": "5bab26a4a86845bfbf909f59a676a22a",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-14/824643.json",
+   "gamePk": 824643,
+   "ownProviderEventId": "62943d2963a59424707e551cf46e5987",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/822775.json",
+   "gamePk": 822775,
+   "ownProviderEventId": "43eaf8201a5f300983718f2c0ced6285",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/822941.json",
+   "gamePk": 822941,
+   "ownProviderEventId": "2c36a75025232680270055f9dc17e6a1",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/823184.json",
+   "gamePk": 823184,
+   "ownProviderEventId": "7cbc2fdbcb76365df956f2fb706f3017",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/823588.json",
+   "gamePk": 823588,
+   "ownProviderEventId": "3a2403381633c75a1079d5ba12656cac",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/824157.json",
+   "gamePk": 824157,
+   "ownProviderEventId": "48a5944d0473c78bfacde374ade3a3bf",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/824239.json",
+   "gamePk": 824239,
+   "ownProviderEventId": "b9ca059d2c11f42fa007c731af1dd7a2",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/824400.json",
+   "gamePk": 824400,
+   "ownProviderEventId": "35501cb39a66beda8aa7bc5e98bf37ca",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/824480.json",
+   "gamePk": 824480,
+   "ownProviderEventId": "bfdc3a34aa130db7e4155b33b98a7c37",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/824644.json",
+   "gamePk": 824644,
+   "ownProviderEventId": "4ac1d4b9642e9093871c7d439602a459",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-15/824884.json",
+   "gamePk": 824884,
+   "ownProviderEventId": "d3dfabfdd39cb168285821d91a382724",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-16/822774.json",
+   "gamePk": 822774,
+   "ownProviderEventId": "43eaf8201a5f300983718f2c0ced6285",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-16/822940.json",
+   "gamePk": 822940,
+   "ownProviderEventId": "2c36a75025232680270055f9dc17e6a1",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-16/823182.json",
+   "gamePk": 823182,
+   "ownProviderEventId": "7cbc2fdbcb76365df956f2fb706f3017",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-16/823590.json",
+   "gamePk": 823590,
+   "ownProviderEventId": "3a2403381633c75a1079d5ba12656cac",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-16/824156.json",
+   "gamePk": 824156,
+   "ownProviderEventId": "48a5944d0473c78bfacde374ade3a3bf",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-16/824236.json",
+   "gamePk": 824236,
+   "ownProviderEventId": "b9ca059d2c11f42fa007c731af1dd7a2",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-16/824397.json",
+   "gamePk": 824397,
+   "ownProviderEventId": "35501cb39a66beda8aa7bc5e98bf37ca",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-16/824477.json",
+   "gamePk": 824477,
+   "ownProviderEventId": "bfdc3a34aa130db7e4155b33b98a7c37",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-16/824642.json",
+   "gamePk": 824642,
+   "ownProviderEventId": "4ac1d4b9642e9093871c7d439602a459",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-17/823343.json",
+   "gamePk": 823343,
+   "ownProviderEventId": "0dd445d18f48f0eb4d3bc0d4ee41011f",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-17/823427.json",
+   "gamePk": 823427,
+   "ownProviderEventId": "a573344b838cf527e969e7065ee6a4e7",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-17/823589.json",
+   "gamePk": 823589,
+   "ownProviderEventId": "218c78582553292c5431be2af26fd240",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-17/824478.json",
+   "gamePk": 824478,
+   "ownProviderEventId": "62de22eed3e75e821935c107e38ad8a7",
+   "reason": "DOUBLEHEADER"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-17/824514.json",
+   "gamePk": 824514,
+   "ownProviderEventId": "837b77a12931b96e7f399811d7f8ca29",
+   "reason": "DOUBLEHEADER"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-17/824725.json",
+   "gamePk": 824725,
+   "ownProviderEventId": "5f4869b56718214a6d125d5753923a20",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-18/822938.json",
+   "gamePk": 822938,
+   "ownProviderEventId": "d6738463ee902306e2e71f297603b26e",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-18/823341.json",
+   "gamePk": 823341,
+   "ownProviderEventId": "c0a1041457ba1cf76c5f2a1ac9eb70bc",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-18/823423.json",
+   "gamePk": 823423,
+   "ownProviderEventId": "6d6d28fd44922349f17b60e2eb9dc487",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-18/823586.json",
+   "gamePk": 823586,
+   "ownProviderEventId": "68cb74d6a042f0c12d3b2e066f58bee6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-18/823667.json",
+   "gamePk": 823667,
+   "ownProviderEventId": "020653ceed65201c49a3b6e0c3f3cbec",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-18/824475.json",
+   "gamePk": 824475,
+   "ownProviderEventId": "18f51290a26a4a37315eaba858f736c8",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-18/824723.json",
+   "gamePk": 824723,
+   "ownProviderEventId": "c33202230303d0e5a447c1ab406dbed5",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-19/822937.json",
+   "gamePk": 822937,
+   "ownProviderEventId": "3bcf2e3b041524ff81a10ccac32db220",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-19/823342.json",
+   "gamePk": 823342,
+   "ownProviderEventId": "c0a1041457ba1cf76c5f2a1ac9eb70bc",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-19/823424.json",
+   "gamePk": 823424,
+   "ownProviderEventId": "6d6d28fd44922349f17b60e2eb9dc487",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-19/823587.json",
+   "gamePk": 823587,
+   "ownProviderEventId": "68cb74d6a042f0c12d3b2e066f58bee6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-19/824394.json",
+   "gamePk": 824394,
+   "ownProviderEventId": "2b7408aef064f311c0be470b8f761505",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-19/824476.json",
+   "gamePk": 824476,
+   "ownProviderEventId": "48f1a38db4ac9c09c80dc35075975eff",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-19/824722.json",
+   "gamePk": 824722,
+   "ownProviderEventId": "c33202230303d0e5a447c1ab406dbed5",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-20/822934.json",
+   "gamePk": 822934,
+   "ownProviderEventId": "3bcf2e3b041524ff81a10ccac32db220",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-20/824395.json",
+   "gamePk": 824395,
+   "ownProviderEventId": "2b7408aef064f311c0be470b8f761505",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-20/824474.json",
+   "gamePk": 824474,
+   "ownProviderEventId": "48f1a38db4ac9c09c80dc35075975eff",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-21/823420.json",
+   "gamePk": 823420,
+   "ownProviderEventId": "981879bf214542d1037319de2491b463",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-21/823510.json",
+   "gamePk": 823510,
+   "ownProviderEventId": "37d5ada29cdca43791f56ead0c6f958a",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-21/823746.json",
+   "gamePk": 823746,
+   "ownProviderEventId": "44a6d81175e6cca1f6d5804b150427a1",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-21/823830.json",
+   "gamePk": 823830,
+   "ownProviderEventId": "da4b9485dac20060b228d56c1eba64b2",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-21/824559.json",
+   "gamePk": 824559,
+   "ownProviderEventId": "4d3658b1534e40fb6966575b9ceae5e0",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-21/824721.json",
+   "gamePk": 824721,
+   "ownProviderEventId": "9c20ecc53352a8369b35a68e8479750d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-22/823422.json",
+   "gamePk": 823422,
+   "ownProviderEventId": "e8147bd69a2caf63f87fb43a5fe6e09a",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-22/823509.json",
+   "gamePk": 823509,
+   "ownProviderEventId": "d9bbd7d0eafee71f6c247c16a8110194",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-22/823743.json",
+   "gamePk": 823743,
+   "ownProviderEventId": "bda345f597a8317d5812e066bfdd364a",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-22/823831.json",
+   "gamePk": 823831,
+   "ownProviderEventId": "7ef0cb74e5060370ebecf7de3a8a3ee2",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-22/824718.json",
+   "gamePk": 824718,
+   "ownProviderEventId": "9c20ecc53352a8369b35a68e8479750d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-22/824798.json",
+   "gamePk": 824798,
+   "ownProviderEventId": "919b54b699710c4b1f18913861564941",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-23/823421.json",
+   "gamePk": 823421,
+   "ownProviderEventId": "e8147bd69a2caf63f87fb43a5fe6e09a",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-23/823507.json",
+   "gamePk": 823507,
+   "ownProviderEventId": "d9bbd7d0eafee71f6c247c16a8110194",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-23/823745.json",
+   "gamePk": 823745,
+   "ownProviderEventId": "bda345f597a8317d5812e066bfdd364a",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-23/823827.json",
+   "gamePk": 823827,
+   "ownProviderEventId": "7ef0cb74e5060370ebecf7de3a8a3ee2",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-23/824799.json",
+   "gamePk": 824799,
+   "ownProviderEventId": "919b54b699710c4b1f18913861564941",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-24/824235.json",
+   "gamePk": 824235,
+   "ownProviderEventId": "259b6ad0c039c2a2dd00d378d88eb549",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-25/822773.json",
+   "gamePk": 822773,
+   "ownProviderEventId": "9fc104e94a575a09146f04bf7bbb0e32",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-25/823585.json",
+   "gamePk": 823585,
+   "ownProviderEventId": "821b22e0957b3177e6e950de4b55696f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-25/823826.json",
+   "gamePk": 823826,
+   "ownProviderEventId": "ee171a97363a2c6a55459f804c2d35e6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-25/824233.json",
+   "gamePk": 824233,
+   "ownProviderEventId": "8e42a5450f35bf142633e40243b30561",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-25/824881.json",
+   "gamePk": 824881,
+   "ownProviderEventId": "04da7d827887da84da9926f799c9153d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-26/822772.json",
+   "gamePk": 822772,
+   "ownProviderEventId": "9fc104e94a575a09146f04bf7bbb0e32",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-26/823584.json",
+   "gamePk": 823584,
+   "ownProviderEventId": "821b22e0957b3177e6e950de4b55696f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-26/823825.json",
+   "gamePk": 823825,
+   "ownProviderEventId": "ee171a97363a2c6a55459f804c2d35e6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-26/824234.json",
+   "gamePk": 824234,
+   "ownProviderEventId": "8e42a5450f35bf142633e40243b30561",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-26/824878.json",
+   "gamePk": 824878,
+   "ownProviderEventId": "04da7d827887da84da9926f799c9153d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/822691.json",
+   "gamePk": 822691,
+   "ownProviderEventId": "1105cf475ac0bf505e3529166e54197c",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/822935.json",
+   "gamePk": 822935,
+   "ownProviderEventId": "a4558d70afe6992060734e6ea21ca616",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/823744.json",
+   "gamePk": 823744,
+   "ownProviderEventId": "52d2d3c67d49f8908f4acb9bfc013533",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/824231.json",
+   "gamePk": 824231,
+   "ownProviderEventId": "ceacc88501fe426069c942442f28b728",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/824396.json",
+   "gamePk": 824396,
+   "ownProviderEventId": "a4fe71fcdb68ebdb641116734d66ebb7",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/824638.json",
+   "gamePk": 824638,
+   "ownProviderEventId": "ac94f561e1f61674d2b43a1be8f5788b",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/824877.json",
+   "gamePk": 824877,
+   "ownProviderEventId": "f09fa6908679cc62186874d19386d9ae",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/822690.json",
+   "gamePk": 822690,
+   "ownProviderEventId": "9d137e890c8e3337cf83b0d6d1fea2fb",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/822770.json",
+   "gamePk": 822770,
+   "ownProviderEventId": "d03e2aff6dbfcf8c397adbf517f2d0dd",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/822936.json",
+   "gamePk": 822936,
+   "ownProviderEventId": "726da57c20b076baecbbed501a78e728",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/823011.json",
+   "gamePk": 823011,
+   "ownProviderEventId": "d487524ecd9c4b4fcea5c92c7f2081a4",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/823176.json",
+   "gamePk": 823176,
+   "ownProviderEventId": "f007a8d44c9c2b52df9d2e68b822e580",
+   "reason": "DOUBLEHEADER"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/823501.json",
+   "gamePk": 823501,
+   "ownProviderEventId": "03a0ddbd6b3c88cdb2490d592317291f",
+   "reason": "DOUBLEHEADER"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/823539.json",
+   "gamePk": 823539,
+   "ownProviderEventId": "ef5ae47c92d83c4feec38fd6e38ce4ae",
+   "reason": "DOUBLEHEADER"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/823582.json",
+   "gamePk": 823582,
+   "ownProviderEventId": "799823f7421c5a5c018435aa85a7b250",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/823741.json",
+   "gamePk": 823741,
+   "ownProviderEventId": "52d2d3c67d49f8908f4acb9bfc013533",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/824230.json",
+   "gamePk": 824230,
+   "ownProviderEventId": "369e8c1f02400fd5e4528e7397bdcde6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/824392.json",
+   "gamePk": 824392,
+   "ownProviderEventId": "c30933ae1af977f17e3c51c0dc107680",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/824637.json",
+   "gamePk": 824637,
+   "ownProviderEventId": "fad352c2e9cdf4ad800e2693f20256b7",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-29/824874.json",
+   "gamePk": 824874,
+   "ownProviderEventId": "e176f9d4e92b024e920cd73cf8ebbf44",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-30/822688.json",
+   "gamePk": 822688,
+   "ownProviderEventId": "d119b7382bfaef2bf17260cdd10bc93f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-30/822766.json",
+   "gamePk": 822766,
+   "ownProviderEventId": "d03e2aff6dbfcf8c397adbf517f2d0dd",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-30/822933.json",
+   "gamePk": 822933,
+   "ownProviderEventId": "726da57c20b076baecbbed501a78e728",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-30/823010.json",
+   "gamePk": 823010,
+   "ownProviderEventId": "d487524ecd9c4b4fcea5c92c7f2081a4",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-30/823580.json",
+   "gamePk": 823580,
+   "ownProviderEventId": "799823f7421c5a5c018435aa85a7b250",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-30/824232.json",
+   "gamePk": 824232,
+   "ownProviderEventId": "369e8c1f02400fd5e4528e7397bdcde6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-30/824393.json",
+   "gamePk": 824393,
+   "ownProviderEventId": "c30933ae1af977f17e3c51c0dc107680",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-30/824636.json",
+   "gamePk": 824636,
+   "ownProviderEventId": "fad352c2e9cdf4ad800e2693f20256b7",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-30/824876.json",
+   "gamePk": 824876,
+   "ownProviderEventId": "e176f9d4e92b024e920cd73cf8ebbf44",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-31/822689.json",
+   "gamePk": 822689,
+   "ownProviderEventId": "d119b7382bfaef2bf17260cdd10bc93f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-31/823982.json",
+   "gamePk": 823982,
+   "ownProviderEventId": "1a445560d2b4ababdc8ae392129d42cb",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-31/824911.json",
+   "gamePk": 824911,
+   "ownProviderEventId": "07d39d9ad653030c4c89d9a08c4071f5",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-03/822853.json",
+   "gamePk": 822853,
+   "ownProviderEventId": "3ce16b1285f3f868ac4262314873f267",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-03/823095.json",
+   "gamePk": 823095,
+   "ownProviderEventId": "9218b403d53014d099eb5bec35ae957c",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-03/823337.json",
+   "gamePk": 823337,
+   "ownProviderEventId": "f857ea6771bf681398b05379f108f0c5",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-03/824796.json",
+   "gamePk": 824796,
+   "ownProviderEventId": "b27b102032634f4f3dc542889c7d62e9",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-04/824387.json",
+   "gamePk": 824387,
+   "ownProviderEventId": "062e69d482e7d6bf3c2d654eca93bd44",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-04/824424.json",
+   "gamePk": 824424,
+   "ownProviderEventId": "062e69d482e7d6bf3c2d654eca93bd44",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-05/823823.json",
+   "gamePk": 823823,
+   "ownProviderEventId": "109d31adb57ca2a65a0e61f6bc9ad6c7",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-05/824389.json",
+   "gamePk": 824389,
+   "ownProviderEventId": "f864d689c5ac704d8c9a644afb516e5a",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-06/823336.json",
+   "gamePk": 823336,
+   "ownProviderEventId": "739d53b2d2899aaf9a833b48ae636d03",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-06/823417.json",
+   "gamePk": 823417,
+   "ownProviderEventId": "ce94c6d5ef8ae9f29d29223e386beee1",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-06/823578.json",
+   "gamePk": 823578,
+   "ownProviderEventId": "756b1fa5fc5aae0f6173b45c15d5e49f",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-06/823822.json",
+   "gamePk": 823822,
+   "ownProviderEventId": "109d31adb57ca2a65a0e61f6bc9ad6c7",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-06/824385.json",
+   "gamePk": 824385,
+   "ownProviderEventId": "f864d689c5ac704d8c9a644afb516e5a",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/823415.json",
+   "gamePk": 823415,
+   "ownProviderEventId": "ce94c6d5ef8ae9f29d29223e386beee1",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/823742.json",
+   "gamePk": 823742,
+   "ownProviderEventId": "85c65d8138861fb6a024b339bf4f5ab6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/823820.json",
+   "gamePk": 823820,
+   "ownProviderEventId": "73c13ede933eb472cc249b925289fd11",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/824062.json",
+   "gamePk": 824062,
+   "ownProviderEventId": "e28a92e1cd8fe7ce97b34004a0d2063e",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/824229.json",
+   "gamePk": 824229,
+   "ownProviderEventId": "10492fa54f9765a1ae3c65266b20ca1a",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/824715.json",
+   "gamePk": 824715,
+   "ownProviderEventId": "13b2a30b2be9fb761113ce7cb8d2ea9d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-07/824793.json",
+   "gamePk": 824793,
+   "ownProviderEventId": "34562a9fcbcea523c510c1e42991506b",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-08/823738.json",
+   "gamePk": 823738,
+   "ownProviderEventId": "85c65d8138861fb6a024b339bf4f5ab6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-08/823821.json",
+   "gamePk": 823821,
+   "ownProviderEventId": "73c13ede933eb472cc249b925289fd11",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-08/824063.json",
+   "gamePk": 824063,
+   "ownProviderEventId": "e28a92e1cd8fe7ce97b34004a0d2063e",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-08/824228.json",
+   "gamePk": 824228,
+   "ownProviderEventId": "10492fa54f9765a1ae3c65266b20ca1a",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-08/824714.json",
+   "gamePk": 824714,
+   "ownProviderEventId": "13b2a30b2be9fb761113ce7cb8d2ea9d",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-08/824792.json",
+   "gamePk": 824792,
+   "ownProviderEventId": "34562a9fcbcea523c510c1e42991506b",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-09/823090.json",
+   "gamePk": 823090,
+   "ownProviderEventId": "36a89478e8db28447dfe1b5d1f656477",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-09/824064.json",
+   "gamePk": 824064,
+   "ownProviderEventId": "01ff759b99c1daf7fe8fbee28fd97362",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-09/824226.json",
+   "gamePk": 824226,
+   "ownProviderEventId": "3fdcf1fc18b369e071964b94abe0e5fe",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-10/823088.json",
+   "gamePk": 823088,
+   "ownProviderEventId": "36a89478e8db28447dfe1b5d1f656477",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-11/823012.json",
+   "gamePk": 823012,
+   "ownProviderEventId": "c4e5d894df1c758237b65a07b20a62b2",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-11/824631.json",
+   "gamePk": 824631,
+   "ownProviderEventId": "3b910a2e0ac0e7339bf6d0b3857bf1bc",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/822685.json",
+   "gamePk": 822685,
+   "ownProviderEventId": "56927216de1b9cc394e6c83b75d6926b",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/822768.json",
+   "gamePk": 822768,
+   "ownProviderEventId": "e11cab546e55ee3d1f8dbb787a7d7fee",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/823170.json",
+   "gamePk": 823170,
+   "ownProviderEventId": "6f96adeb30e87f1372ad951bf3404d21",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/823496.json",
+   "gamePk": 823496,
+   "ownProviderEventId": "25ea35d9e1cfed80a2bef6c8e21f0786",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/823819.json",
+   "gamePk": 823819,
+   "ownProviderEventId": "bb473dec1856e220c392f73ee51cb98a",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/824224.json",
+   "gamePk": 824224,
+   "ownProviderEventId": "83d0a9d067e7d1abba253a527eb4257f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/824630.json",
+   "gamePk": 824630,
+   "ownProviderEventId": "07ac61b68b123cfa71662bb8a948366e",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-12/824712.json",
+   "gamePk": 824712,
+   "ownProviderEventId": "119261d49b81854e942bebf7f44afa6b",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-13/822682.json",
+   "gamePk": 822682,
+   "ownProviderEventId": "56927216de1b9cc394e6c83b75d6926b",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-13/822764.json",
+   "gamePk": 822764,
+   "ownProviderEventId": "e11cab546e55ee3d1f8dbb787a7d7fee",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-13/823171.json",
+   "gamePk": 823171,
+   "ownProviderEventId": "6f96adeb30e87f1372ad951bf3404d21",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-13/823495.json",
+   "gamePk": 823495,
+   "ownProviderEventId": "25ea35d9e1cfed80a2bef6c8e21f0786",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-13/823815.json",
+   "gamePk": 823815,
+   "ownProviderEventId": "bb473dec1856e220c392f73ee51cb98a",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-13/824225.json",
+   "gamePk": 824225,
+   "ownProviderEventId": "83d0a9d067e7d1abba253a527eb4257f",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-13/824628.json",
+   "gamePk": 824628,
+   "ownProviderEventId": "07ac61b68b123cfa71662bb8a948366e",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-13/824708.json",
+   "gamePk": 824708,
+   "ownProviderEventId": "119261d49b81854e942bebf7f44afa6b",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-14/823575.json",
+   "gamePk": 823575,
+   "ownProviderEventId": "a1a608b633419833caf64ad8739781f3",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-14/824386.json",
+   "gamePk": 824386,
+   "ownProviderEventId": "2f2faff81101f84158c3cfbd630bcb30",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-14/824465.json",
+   "gamePk": 824465,
+   "ownProviderEventId": "baa7f738229bf9855e24037a2a30a2cb",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-15/823574.json",
+   "gamePk": 823574,
+   "ownProviderEventId": "a1a608b633419833caf64ad8739781f3",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-15/824384.json",
+   "gamePk": 824384,
+   "ownProviderEventId": "2f2faff81101f84158c3cfbd630bcb30",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-15/824466.json",
+   "gamePk": 824466,
+   "ownProviderEventId": "baa7f738229bf9855e24037a2a30a2cb",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-17/824141.json",
+   "gamePk": 824141,
+   "ownProviderEventId": "b9c3b50472005c67c30de323cd8a5396",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-19/823249.json",
+   "gamePk": 823249,
+   "ownProviderEventId": "59c14a5981b0869948d86636923f1c90",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-19/823571.json",
+   "gamePk": 823571,
+   "ownProviderEventId": "09a8d21707b561bb7c88b6b936dff49c",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-19/824545.json",
+   "gamePk": 824545,
+   "ownProviderEventId": "7b148d0f1eaf595528a0bf3c835fdfb3",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-19/824788.json",
+   "gamePk": 824788,
+   "ownProviderEventId": "b93df18188b2370baac5d9d231f2bd59",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-19/825029.json",
+   "gamePk": 825029,
+   "ownProviderEventId": "0f7b4e8f0c23ecca42f1c5e69ecc9bcc",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-20/823570.json",
+   "gamePk": 823570,
+   "ownProviderEventId": "09a8d21707b561bb7c88b6b936dff49c",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-20/824381.json",
+   "gamePk": 824381,
+   "ownProviderEventId": "d99e3dbbb8b295eec806a390d5a0d113",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-20/824546.json",
+   "gamePk": 824546,
+   "ownProviderEventId": "7b148d0f1eaf595528a0bf3c835fdfb3",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-20/824789.json",
+   "gamePk": 824789,
+   "ownProviderEventId": "b93df18188b2370baac5d9d231f2bd59",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-21/824221.json",
+   "gamePk": 824221,
+   "ownProviderEventId": "e1693becb4cbacb4b30e46c1c960d9a5",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-21/824787.json",
+   "gamePk": 824787,
+   "ownProviderEventId": "7fafa79a573ac098f38c8c6c4293b93e",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-22/823494.json",
+   "gamePk": 823494,
+   "ownProviderEventId": "574050c10d1acc2da7baf72384eeaa11",
+   "reason": "DOUBLEHEADER"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-22/823543.json",
+   "gamePk": 823543,
+   "ownProviderEventId": "394e1e2b849c5b4eaf2b5984eaa74b79",
+   "reason": "DOUBLEHEADER"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-22/824222.json",
+   "gamePk": 824222,
+   "ownProviderEventId": "e1693becb4cbacb4b30e46c1c960d9a5",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-22/824785.json",
+   "gamePk": 824785,
+   "ownProviderEventId": "7fafa79a573ac098f38c8c6c4293b93e",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-23/824784.json",
+   "gamePk": 824784,
+   "ownProviderEventId": "94d0c4d70e74a3ca8f70abe5a0859ea1",
+   "reason": "DOUBLEHEADER"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-23/824785.json",
+   "gamePk": 824785,
+   "ownProviderEventId": "cc3886440708c8649f6f878183416628",
+   "reason": "DOUBLEHEADER"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-25/822681.json",
+   "gamePk": 822681,
+   "ownProviderEventId": "b9398adf1faaf0c53a1212c75565dff6",
+   "reason": "NOT_WITHIN_30_MIN_SAME_CLUBS"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-25/822760.json",
+   "gamePk": 822760,
+   "ownProviderEventId": "0112f4a595862d820eb4e9640d31ea4c",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-25/823489.json",
+   "gamePk": 823489,
+   "ownProviderEventId": "3fe14d478bc1ffac17198c460085ca70",
+   "reason": "DOUBLEHEADER"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-25/823735.json",
+   "gamePk": 823735,
+   "ownProviderEventId": "bff2944df94a062f85abadcd9aab1086",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-25/824058.json",
+   "gamePk": 824058,
+   "ownProviderEventId": "7bd30076728c7fcf1f893c1d269a60af",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-25/824544.json",
+   "gamePk": 824544,
+   "ownProviderEventId": "5e96347a5c09f2be46dc616aa404bf27",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-26/822678.json",
+   "gamePk": 822678,
+   "ownProviderEventId": "f915dd93e407b20c3b8693fa226d6bf6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-26/822759.json",
+   "gamePk": 822759,
+   "ownProviderEventId": "0112f4a595862d820eb4e9640d31ea4c",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-26/823245.json",
+   "gamePk": 823245,
+   "ownProviderEventId": "a0fc8eb52d64679d94e7eaa311299d74",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-26/823653.json",
+   "gamePk": 823653,
+   "ownProviderEventId": "f02fbe7c7bb8a6741f285b306e7d8fa8",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-26/823733.json",
+   "gamePk": 823733,
+   "ownProviderEventId": "bff2944df94a062f85abadcd9aab1086",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-26/823813.json",
+   "gamePk": 823813,
+   "ownProviderEventId": "f4a70a1cc28098ce3bd4a521555ad809",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-26/824219.json",
+   "gamePk": 824219,
+   "ownProviderEventId": "f55ce2717fb90929c3519929cc3263f0",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-26/824543.json",
+   "gamePk": 824543,
+   "ownProviderEventId": "5e96347a5c09f2be46dc616aa404bf27",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-27/822679.json",
+   "gamePk": 822679,
+   "ownProviderEventId": "f915dd93e407b20c3b8693fa226d6bf6",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-27/823490.json",
+   "gamePk": 823490,
+   "ownProviderEventId": "8d968b3a9346c52d763b36a57a1cb74a",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-27/823814.json",
+   "gamePk": 823814,
+   "ownProviderEventId": "f4a70a1cc28098ce3bd4a521555ad809",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-27/824217.json",
+   "gamePk": 824217,
+   "ownProviderEventId": "f55ce2717fb90929c3519929cc3263f0",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-29/849843.json",
+   "gamePk": 849843,
+   "ownProviderEventId": "98adc841e3aababc93878e3cf743a2d4",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-29/849851.json",
+   "gamePk": 849851,
+   "ownProviderEventId": "4cb76cceb16eb603c683038d132f4642",
+   "reason": "INCONSISTENT_PROVIDER_RECORD"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-09-30/849842.json",
+   "gamePk": 849842,
+   "ownProviderEventId": "66c0c13a06424600557af241371043fc",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-10-01/849840.json",
+   "gamePk": 849840,
+   "ownProviderEventId": "66c0c13a06424600557af241371043fc",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-10-01/849844.json",
+   "gamePk": 849844,
+   "ownProviderEventId": "5524c44b05e28aa899909c9e001184ec",
+   "reason": "DOUBLEHEADER"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-10-03/849829.json",
+   "gamePk": 849829,
+   "ownProviderEventId": "ccd487a87bb73145e3f12dd3a765ad47",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  },
+  {
+   "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-10-05/849834.json",
+   "gamePk": 849834,
+   "ownProviderEventId": "ccd487a87bb73145e3f12dd3a765ad47",
+   "reason": "OWNED_BY_ANOTHER_GAME"
+  }
+ ]
+}
