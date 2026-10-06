@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { loadTodaySlate } from "./ui-loader.ts";
 import { pinnedLaneRoot } from "../bank-builder/fixtures/root.mjs";
+import { ARCHIVE_MECHANICS_COVERAGE } from "./fixtures/archive-mechanics-coverage.mjs";
 
 const launchDir = path.join(process.cwd(), "public", "data", "methodology", "launch");
 
@@ -24,7 +25,7 @@ test("missing/unknown date yields an honest empty state (no crash, no fabricatio
 });
 
 test("real slate normalizes MLB parlays with identity attached", () => {
-  const v = loadTodaySlate("2026-06-17", "2026-06-17T18:45:45Z", pinnedLaneRoot());
+  const v = loadTodaySlate("2026-06-17", "2026-06-17T18:45:45Z", pinnedLaneRoot(), ARCHIVE_MECHANICS_COVERAGE);
   assert.equal(v.available, true);
   const mlb = v.sports.find((s) => s.sport === "MLB");
   assert.ok(mlb && mlb.eligibleCount > 0, "MLB has eligible legs");
@@ -150,7 +151,7 @@ test("ARCHIVE money-integrity: the BANKED 2nd ladder ($10,089.23 final) is prese
 });
 
 test("mixed-sport parlays: each card spans a World Cup leg + another sport, by risk", () => {
-  const v = loadTodaySlate("2026-06-18", "2026-06-18T15:55:00Z", pinnedLaneRoot());
+  const v = loadTodaySlate("2026-06-18", "2026-06-18T15:55:00Z", pinnedLaneRoot(), ARCHIVE_MECHANICS_COVERAGE);
   const mixedTotal = Object.values(v.mixedByRisk).reduce((n, cards) => n + (cards?.length ?? 0), 0);
   assert.ok(mixedTotal > 0, "mixed cards are generated when WC + MLB legs exist");
   for (const cards of Object.values(v.mixedByRisk)) {
@@ -204,7 +205,7 @@ test("ARCHIVE: banked-ladder MLB Bank Builder legs carry REAL last-5 prop histor
 });
 
 test("canonical engine slate (Today/Picks/Parlays source): WC + Mixed cards present, no active UFC cards", () => {
-  const v = loadTodaySlate("2026-06-18", "2026-06-18T17:00:00Z", pinnedLaneRoot());
+  const v = loadTodaySlate("2026-06-18", "2026-06-18T17:00:00Z", pinnedLaneRoot(), ARCHIVE_MECHANICS_COVERAGE);
   // World Cup cards exist (the slate's headline sport).
   const wc = v.suggestedBySportRisk["WORLD_CUP"] ?? {};
   const wcTotal = Object.values(wc).reduce((n, c) => n + (c?.length ?? 0), 0);

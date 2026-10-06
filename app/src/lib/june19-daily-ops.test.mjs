@@ -5,6 +5,7 @@ import { loadTodaySlate } from "./parlays/ui-loader.ts";
 import { buildCardFactoryDiagnostics } from "./parlays/card-factory-diagnostics.ts";
 import { getRiskBucketForCombinedOdds, INDIVIDUAL_LEG_ODDS_GUARDS } from "./parlays/risk-odds-bands.ts";
 import { getGameDetail, gameSlug } from "./game-detail.ts";
+import { ARCHIVE_MECHANICS_COVERAGE } from "./parlays/fixtures/archive-mechanics-coverage.mjs";
 
 test("current slate auto-detects the latest World Cup slate (now June 23)", () => {
   const v = loadTodaySlate(undefined, "2026-06-23T12:00:00Z");
@@ -76,7 +77,7 @@ test("no card anywhere sits out of its combined-odds band, and no card pads with
 });
 
 test("MLB + Mixed buckets are now odds-backed (paid key), every card fits its band, none fabricated", () => {
-  const v = loadTodaySlate("2026-06-19", "2026-06-19T15:00:00Z");
+  const v = loadTodaySlate("2026-06-19", "2026-06-19T15:00:00Z", undefined, ARCHIVE_MECHANICS_COVERAGE);
   const diag = buildCardFactoryDiagnostics(v, "2026-06-19T15:00:00Z");
   assert.equal(diag.slatePresent, true);
   // With the paid Odds API key the MLB board carries real odds → MLB + Mixed cards now generate.
