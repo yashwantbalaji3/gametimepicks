@@ -511,7 +511,10 @@ test("…while counting reader A's files naively reproduces the #999 over-count"
 
 /* ── 7 · 3A scope: contract only, no reader migration ─────────────────────────────────────────── */
 
-test("3A scope: nothing outside this test imports forecast-of-record.mjs yet (readers move in 3B–3E)", () => {
+/* 3B: the MLB lean adapter is the one importer; MLB readers import the adapter, never the contract directly. */
+const IMPORTERS_THROUGH_3B = ["src/lib/results/mlb-leans-of-record.mjs", "src/lib/results/mlb-leans-of-record.test.mjs"];
+
+test("scope: only the slice adapters import forecast-of-record.mjs (3B: the MLB lean adapter; 3C–3E add theirs)", () => {
   const APP = path.resolve(HERE, "..", "..", "..");
   const offenders = [];
   const walk = (dir) => {
@@ -520,10 +523,11 @@ test("3A scope: nothing outside this test imports forecast-of-record.mjs yet (re
       const p = path.join(dir, e.name);
       if (e.isDirectory()) walk(p);
       else if (/\.(mjs|js|ts|tsx)$/.test(e.name) && !p.endsWith("forecast-of-record.test.mjs") && !p.endsWith("forecast-of-record.mjs")) {
-        if (/forecast-of-record(\.mjs)?["']/.test(fs.readFileSync(p, "utf8"))) offenders.push(path.relative(APP, p));
+        if (/forecast-of-record(\.mjs)?["']/.test(fs.readFileSync(p, "utf8")) && !IMPORTERS_THROUGH_3B.includes(path.relative(APP, p))) offenders.push(path.relative(APP, p));
       }
     }
   };
   for (const d of ["src", "scripts"]) walk(path.join(APP, d));
   assert.deepEqual(offenders, [], "a reader started importing the contract outside its 3B–3E slice");
+  for (const p of IMPORTERS_THROUGH_3B) assert.ok(fs.existsSync(path.join(APP, p)), `${p} is listed but missing`);
 });

@@ -25,6 +25,7 @@ import { fileURLToPath } from "node:url";
 
 import { buildGradedRecord } from "../../src/lib/sports/graded-picks.mjs";
 import { makeGradedPickOwners } from "../../src/lib/sports/graded-pick-owners.mjs";
+import { mlbOfRecordDisclosure } from "../../src/lib/results/mlb-leans-of-record.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.resolve(APP, "..");
@@ -33,7 +34,7 @@ const NOW = arg("--now", new Date().toISOString());
 const WRITE = process.argv.includes("--write");
 
 /* The owner readers live in src/lib/sports/graded-pick-owners.mjs (Results V2 reads the same rows). */
-const { ufcPicks, eplPicks, nflPicks, mlbPicks } = makeGradedPickOwners({ appDir: APP, rootDir: ROOT });
+const { ufcPicks, eplPicks, nflPicks, mlbPicks, mlbLeanSelection } = makeGradedPickOwners({ appDir: APP, rootDir: ROOT });
 
 const SPORTS = [
   { sport: "mlb", label: "MLB", picks: mlbPicks, shown: 60,
@@ -59,8 +60,10 @@ for (const s of SPORTS) {
     schemaVersion: 1, artifact: "graded-picks", dataClass: "PUBLIC_DERIVED", moneyClass: "NON_MONEY",
     generatedAt: NOW, ...record,
   };
+  /* Stage 3B: the MLB record counts each lean once (forecast of record); what it left out is disclosed, never hidden. */
+  if (s.sport === "mlb" && mlbLeanSelection()) artifact.notOfRecord = mlbOfRecordDisclosure(mlbLeanSelection());
   const out = path.join(APP, "public", "data", s.sport, "graded-picks.json");
-  console.log(`${s.sport}: ${record.counts.counted} graded · ${record.counts.hits} hit · ${record.counts.voided} void · ${record.sampleState}`);
+  console.log(`${s.sport}: ${record.counts.counted} graded · ${record.counts.hits} hit · ${record.counts.voided} void · ${record.sampleState}${artifact.notOfRecord ? ` · not of record: ${artifact.notOfRecord.superseded} superseded, ${artifact.notOfRecord.late} late, ${artifact.notOfRecord.conflictRows} conflict, ${artifact.notOfRecord.unkeyed} unkeyed` : ""}`);
   if (WRITE) { fs.mkdirSync(path.dirname(out), { recursive: true }); fs.writeFileSync(out, JSON.stringify(artifact, null, 1) + "\n"); wrote += 1; }
 }
 console.log(WRITE ? `wrote ${wrote} artifact(s)` : "dry run — pass --write to publish");

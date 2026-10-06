@@ -25,11 +25,19 @@
  * wins, 18,943 losses, 2,114 pushes — or the whole feature is a second set of numbers disagreeing
  * with the first. The build refuses when it does not.
  *
+ * FORECAST OF RECORD (Stage 3B). A postponed game's leans are re-issued on the next board, so the dated files hold
+ * them twice (gamePk 824785: 2026-09-22 and 2026-09-23). Only the forecast of record is indexed and partitioned
+ * (lib/results/mlb-leans-of-record.mjs, the same selection graded-picks.json counts), so a day, a market filter and
+ * the sparkline count each lean once. The calibration files are read whole and never rewritten; the rows left out
+ * are counted in coverage.notOfRecord.
+ *
  *   node app/scripts/results/build-model-results-index.mjs [--apply]
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { makeGradedPickOwners } from "../../src/lib/sports/graded-pick-owners.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SRC = path.join(APP, "public/data/mlb/results/calibration");
@@ -69,8 +77,13 @@ const files = (() => {
 })();
 if (!files.length) { console.error(`REFUSED: no calibration rows at ${path.relative(APP, SRC)}`); process.exit(1); }
 
+/* The lean ledger's forecast-of-record selection (same owner rows and rule as graded-picks.json). Calibration rows
+   carry the ledger's row id; a row the ledger knows and does not hold of record is left out. A row the ledger does
+   not know is kept, and the reconciliation below refuses if that makes the two disagree. */
+const selection = makeGradedPickOwners({ appDir: APP, rootDir: path.resolve(APP, "..") }).mlbLeanSelection();
 const byDate = new Map();
 let malformed = 0;
+let notOfRecord = 0;
 for (const file of files) {
   const date = file.slice(0, 10);
   const rows = [];
@@ -79,6 +92,7 @@ for (const file of files) {
     let r;
     try { r = JSON.parse(line); } catch { malformed += 1; continue; }
     if (!r?.outcome || !r?.market) { malformed += 1; continue; }
+    if (selection?.notOfRecordIds.has(r.id)) { notOfRecord += 1; continue; }
     rows.push(sanitize(r));
   }
   if (rows.length) byDate.set(date, rows);
@@ -130,7 +144,7 @@ if (agg?.counts) {
 }
 
 console.log(`model results index — ${apply ? "APPLY" : "DRY RUN"}`);
-console.log(`  source files: ${files.length} · dates with rows: ${byDate.size} · malformed lines skipped: ${malformed}`);
+console.log(`  source files: ${files.length} · dates with rows: ${byDate.size} · malformed lines skipped: ${malformed} · not of record (left out): ${notOfRecord}`);
 console.log(`  rows: ${totals.rows} · ${totals.wins}-${totals.losses} · ${totals.pushes} push · ${totals.decisive} decisive`);
 if (problems.length) {
   console.error("REFUSED: the detail does not reconcile with the published aggregate:");
@@ -154,7 +168,8 @@ fs.writeFileSync(INDEX, JSON.stringify({
   coverage: {
     dates: byDate.size, firstDate: index[0]?.date ?? null, lastDate: index[index.length - 1]?.date ?? null,
     ...totals,
-    note: "Every settled model pick this project has graded, one row per pick. Reconciled against graded-picks.json at build time; the build refuses if the two disagree. `games` counts the distinct games those picks came from — the rows are clustered within games and are not independent observations.",
+    notOfRecord,
+    note: "Every settled model pick this project has graded, one row per pick. Reconciled against graded-picks.json at build time; the build refuses if the two disagree. `games` counts the distinct games those picks came from — the rows are clustered within games and are not independent observations. `notOfRecord` counts earlier-board copies of re-issued leans (postponed games), kept in the raw ledger and counted once.",
   },
   days: index,
 }, null, 2) + "\n");
