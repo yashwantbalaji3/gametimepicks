@@ -1,0 +1,968 @@
+{
+ "schema": "recommendation-universe@1",
+ "artifact": "recommendation-universe",
+ "dataClass": "internal",
+ "date": "2026-10-06",
+ "asOf": "2026-10-06T09:36:23Z",
+ "floor": {
+  "version": "leg-floor@2",
+  "oddsMin": -650,
+  "oddsMax": 400,
+  "maxPriceAgeMs": 43200000,
+  "activationCutoffMs": 1800000,
+  "requireSettlement": "PROVEN",
+  "admitsMarketImplied": true,
+  "marketPricedLegPolicy": {
+   "state": "ADMITTED_PENDING_FOUNDER_DECISION",
+   "gate": "F1",
+   "since": "2026-09-21"
+  }
+ },
+ "note": "Every candidate leg judged by one floor. Zero eligible is a result, not a failure. Probabilities: MODEL = a GameTimePicks model number (usable only when MODEL_PUBLISHED); MARKET_IMPLIED = the book's de-vigged price, never ours.",
+ "counts": {
+  "candidates": 81,
+  "eligible": 12,
+  "universeHash": "1ea504939841"
+ },
+ "bySport": {
+  "mlb": {
+   "registryState": "FULL_MODEL",
+   "candidates": 81,
+   "eligible": 12,
+   "events": 4,
+   "exclusions": {
+    "AVAILABILITY_BLOCKED": 69,
+    "MARKET_MISSING": 69,
+    "MODEL_DEMOTED": 69
+   }
+  },
+  "nfl": {
+   "registryState": "EXPERIMENTAL_PUBLIC",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  },
+  "epl": {
+   "registryState": "EXPERIMENTAL_PUBLIC",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  },
+  "ufc": {
+   "registryState": "SCAFFOLD_ONLY",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  },
+  "nba": {
+   "registryState": "HISTORICAL_ONLY",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  }
+ },
+ "coverage": [
+  {
+   "sport": "mlb",
+   "family": "batter_hits",
+   "candidates": 28,
+   "gtpProbabilityAny": 28,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 28,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "batter_hits_runs_rbis",
+   "candidates": 30,
+   "gtpProbabilityAny": 30,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 30,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "batter_total_bases",
+   "candidates": 6,
+   "gtpProbabilityAny": 6,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 6,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "pitcher_strikeouts",
+   "candidates": 5,
+   "gtpProbabilityAny": 5,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 5,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "team_result",
+   "candidates": 4,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 4,
+   "noProbability": 0,
+   "priced": 4,
+   "eligible": 4,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "team_spread",
+   "candidates": 4,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 4,
+   "noProbability": 0,
+   "priced": 4,
+   "eligible": 4,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "team_total",
+   "candidates": 4,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 4,
+   "noProbability": 0,
+   "priced": 4,
+   "eligible": 4,
+   "sportState": "FULL_MODEL"
+  }
+ ],
+ "exclusions": {
+  "AVAILABILITY_BLOCKED": 69,
+  "MARKET_MISSING": 69,
+  "MODEL_DEMOTED": 69
+ },
+ "nflUnknownFamilies": [],
+ "grantedFamilies": [],
+ "nflFamilyGate": [],
+ "eligibleReceipts": [
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849819:mlb_moneyline:-:home:",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849819",
+    "eventStartUtc": "2026-10-06T22:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-144",
+    "opponentId": "mlb-team-119",
+    "matchup": "Los Angeles Dodgers @ Atlanta Braves"
+   },
+   "market": {
+    "family": "team_result",
+    "marketKey": "mlb_moneyline",
+    "side": "home",
+    "line": null,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -115,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.512,
+    "selectionLabel": "Atlanta Braves to win"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849819",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849819",
+     "family:team_result",
+     "team:mlb:mlb-team-144",
+     "opponent:mlb:mlb-team-119"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849819:mlb_moneyline:-:away:",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849819",
+    "eventStartUtc": "2026-10-06T22:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-119",
+    "opponentId": "mlb-team-144",
+    "matchup": "Los Angeles Dodgers @ Atlanta Braves"
+   },
+   "market": {
+    "family": "team_result",
+    "marketKey": "mlb_moneyline",
+    "side": "away",
+    "line": null,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -104,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.488,
+    "selectionLabel": "Los Angeles Dodgers to win"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849819",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849819",
+     "family:team_result",
+     "team:mlb:mlb-team-119",
+     "opponent:mlb:mlb-team-144"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849819:mlb_run_line:-:home:1.5",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849819",
+    "eventStartUtc": "2026-10-06T22:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-144",
+    "opponentId": "mlb-team-119",
+    "matchup": "Los Angeles Dodgers @ Atlanta Braves"
+   },
+   "market": {
+    "family": "team_spread",
+    "marketKey": "mlb_run_line",
+    "side": "home",
+    "line": 1.5,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -208,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.6458,
+    "selectionLabel": "Atlanta Braves +1.5"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849819",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849819",
+     "family:team_spread",
+     "team:mlb:mlb-team-144",
+     "opponent:mlb:mlb-team-119"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849819:mlb_run_line:-:away:-1.5",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849819",
+    "eventStartUtc": "2026-10-06T22:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-119",
+    "opponentId": "mlb-team-144",
+    "matchup": "Los Angeles Dodgers @ Atlanta Braves"
+   },
+   "market": {
+    "family": "team_spread",
+    "marketKey": "mlb_run_line",
+    "side": "away",
+    "line": -1.5,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": 170,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.3542,
+    "selectionLabel": "Los Angeles Dodgers -1.5"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849819",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849819",
+     "family:team_spread",
+     "team:mlb:mlb-team-119",
+     "opponent:mlb:mlb-team-144"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849819:mlb_total_runs:-:over:6",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849819",
+    "eventStartUtc": "2026-10-06T22:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-144",
+    "opponentId": "mlb-team-119",
+    "matchup": "Los Angeles Dodgers @ Atlanta Braves"
+   },
+   "market": {
+    "family": "team_total",
+    "marketKey": "mlb_total_runs",
+    "side": "over",
+    "line": 6,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -118,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.5174,
+    "selectionLabel": "Over 6"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849819",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849819",
+     "family:team_total",
+     "team:mlb:mlb-team-144",
+     "opponent:mlb:mlb-team-119"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849819:mlb_total_runs:-:under:6",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849819",
+    "eventStartUtc": "2026-10-06T22:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-144",
+    "opponentId": "mlb-team-119",
+    "matchup": "Los Angeles Dodgers @ Atlanta Braves"
+   },
+   "market": {
+    "family": "team_total",
+    "marketKey": "mlb_total_runs",
+    "side": "under",
+    "line": 6,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -102,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.4826,
+    "selectionLabel": "Under 6"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849819",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849819",
+     "family:team_total",
+     "team:mlb:mlb-team-144",
+     "opponent:mlb:mlb-team-119"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849826:mlb_moneyline:-:home:",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849826",
+    "eventStartUtc": "2026-10-07T01:30:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-135",
+    "opponentId": "mlb-team-158",
+    "matchup": "Milwaukee Brewers @ San Diego Padres"
+   },
+   "market": {
+    "family": "team_result",
+    "marketKey": "mlb_moneyline",
+    "side": "home",
+    "line": null,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -136,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.5511,
+    "selectionLabel": "San Diego Padres to win"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849826",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849826",
+     "family:team_result",
+     "team:mlb:mlb-team-135",
+     "opponent:mlb:mlb-team-158"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849826:mlb_moneyline:-:away:",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849826",
+    "eventStartUtc": "2026-10-07T01:30:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-158",
+    "opponentId": "mlb-team-135",
+    "matchup": "Milwaukee Brewers @ San Diego Padres"
+   },
+   "market": {
+    "family": "team_result",
+    "marketKey": "mlb_moneyline",
+    "side": "away",
+    "line": null,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": 113,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.4489,
+    "selectionLabel": "Milwaukee Brewers to win"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849826",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849826",
+     "family:team_result",
+     "team:mlb:mlb-team-158",
+     "opponent:mlb:mlb-team-135"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849826:mlb_run_line:-:home:-1.5",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849826",
+    "eventStartUtc": "2026-10-07T01:30:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-135",
+    "opponentId": "mlb-team-158",
+    "matchup": "Milwaukee Brewers @ San Diego Padres"
+   },
+   "market": {
+    "family": "team_spread",
+    "marketKey": "mlb_run_line",
+    "side": "home",
+    "line": -1.5,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": 163,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.3636,
+    "selectionLabel": "San Diego Padres -1.5"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849826",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849826",
+     "family:team_spread",
+     "team:mlb:mlb-team-135",
+     "opponent:mlb:mlb-team-158"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849826:mlb_run_line:-:away:1.5",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849826",
+    "eventStartUtc": "2026-10-07T01:30:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-158",
+    "opponentId": "mlb-team-135",
+    "matchup": "Milwaukee Brewers @ San Diego Padres"
+   },
+   "market": {
+    "family": "team_spread",
+    "marketKey": "mlb_run_line",
+    "side": "away",
+    "line": 1.5,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -199,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.6364,
+    "selectionLabel": "Milwaukee Brewers +1.5"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849826",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849826",
+     "family:team_spread",
+     "team:mlb:mlb-team-158",
+     "opponent:mlb:mlb-team-135"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849826:mlb_total_runs:-:over:7",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849826",
+    "eventStartUtc": "2026-10-07T01:30:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-135",
+    "opponentId": "mlb-team-158",
+    "matchup": "Milwaukee Brewers @ San Diego Padres"
+   },
+   "market": {
+    "family": "team_total",
+    "marketKey": "mlb_total_runs",
+    "side": "over",
+    "line": 7,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -118,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.5174,
+    "selectionLabel": "Over 7"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849826",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849826",
+     "family:team_total",
+     "team:mlb:mlb-team-135",
+     "opponent:mlb:mlb-team-158"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849826:mlb_total_runs:-:under:7",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849826",
+    "eventStartUtc": "2026-10-07T01:30:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-135",
+    "opponentId": "mlb-team-158",
+    "matchup": "Milwaukee Brewers @ San Diego Padres"
+   },
+   "market": {
+    "family": "team_total",
+    "marketKey": "mlb_total_runs",
+    "side": "under",
+    "line": 7,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -102,
+    "marketCapturedAt": "2026-10-06T09:29:18.042Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.4826,
+    "selectionLabel": "Under 7"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-06T09:29:18.042Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-06.json",
+     "mlb/statsapi-schedule/2026-10-06.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849826",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849826",
+     "family:team_total",
+     "team:mlb:mlb-team-135",
+     "opponent:mlb:mlb-team-158"
+    ]
+   }
+  }
+ ]
+}
