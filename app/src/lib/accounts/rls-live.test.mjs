@@ -6,6 +6,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { MUTATIONS, pgEnvFromUrl } from "../../../scripts/accounts/rls-live.mjs";
 
 const havePg = ["initdb", "pg_ctl", "psql"].every((b) => spawnSync("which", [b]).status === 0);
 const run = (...a) => spawnSync(process.execPath, ["scripts/accounts/rls-live.mjs", ...a], { encoding: "utf8", timeout: 240_000 });
@@ -19,5 +20,19 @@ test("live RLS: two accounts isolated on every private table; anon reads nothing
 test("live RLS: every injected defect lands and is caught", { skip: !havePg && "no local Postgres" }, () => {
   const r = run("--all-mutations");
   assert.equal(r.status, 0, r.stderr || r.stdout);
-  assert.equal((r.stdout.match(/✓ mutation "/g) ?? []).length, 8);
+  assert.equal((r.stdout.match(/✓ mutation "/g) ?? []).length, Object.keys(MUTATIONS).length);
+});
+
+test("--hosted: the connection string becomes libpq env vars, so psql reaches the hosted project, not a local socket", () => {
+  // psql ignores a URI in PGDATABASE (it is read as a plain database NAME) and `-d postgres` overrides it anyway:
+  // the first version of --hosted therefore connected to the local default socket and never ran against the project.
+  const env = pgEnvFromUrl("postgresql://postgres.abcd:p%40ss%2Fw0rd@aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require");
+  assert.deepEqual(env, {
+    PGHOST: "aws-0-us-east-1.pooler.supabase.com", PGPORT: "5432", PGUSER: "postgres.abcd",
+    PGPASSWORD: "p@ss/w0rd", PGDATABASE: "postgres", PGSSLMODE: "require",
+  });
+  assert.equal(pgEnvFromUrl("postgres://u:p@h/db").PGPORT, "5432", "default port");
+  assert.equal(pgEnvFromUrl("postgres://u:p@h/db").PGSSLMODE, "require", "TLS by default for a hosted project");
+  assert.equal(pgEnvFromUrl("https://x.supabase.co"), null, "a project URL is not a database connection string");
+  assert.equal(pgEnvFromUrl("not a url"), null);
 });

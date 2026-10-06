@@ -33,6 +33,19 @@ test("reachability distinguishes a bad key from a bad day", () => {
   assert.equal(classifyReachable({ status: 503 }).state, "UNKNOWN");
   assert.equal(classifyReachable({ status: 200 }).state, "PASS");
   assert.equal(classifyReachable({ error: "ENOTFOUND" }).state, "FAIL");
+  assert.equal(classifyReachable({ status: 401, body: { message: "Invalid API key" } }).state, "FAIL", "a gateway refusal is a bad key");
+  assert.equal(classifyReachable({ status: 401, body: { code: "42501", message: "permission denied for table profiles" } }).state, "PASS",
+    "the database refusing the table means the key got through; the table probe judges the table");
+});
+
+test("the reachability probe is an anon-readable table, never the service_role-only REST root", async () => {
+  // Hosted Supabase answers GET /rest/v1/ with 401 "Only the service_role API key can be used for this
+  // endpoint" even for a valid anon key, so asking the root reported a good key as rejected (2026-10-05).
+  const { readFileSync } = await import("node:fs");
+  const script = readFileSync(new URL("../../../scripts/accounts/verify-setup.mjs", import.meta.url), "utf8");
+  assert.ok(!/\$\{cfg\.url\}\/rest\/v1\/`/.test(script), "verify-setup must not probe the bare /rest/v1/ root");
+  assert.match(script, /rest\/v1\/profiles\?select=id&limit=0`, anon\)/, "reachability asks profiles for zero rows with the anon key");
+  assert.ok(!/SERVICE_ROLE[^\n]*\n[^\n]*classifyReachable/.test(script), "reachability never uses the service_role key");
 });
 
 test("a missing reader key is a smaller product, not a broken one", () => {

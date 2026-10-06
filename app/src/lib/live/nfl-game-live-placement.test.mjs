@@ -17,9 +17,11 @@ test("🔴 exactly ONE live panel element — two slots, never two panels or two
 
 test("🔴 started or archived → the panel sits directly under the header; before kickoff it stays with the forecast", () => {
   assert.match(code, /const liveTop = started \|\| !!archived;/);
+  /* The two slots re-ask on the reader's clock (kickoff-aware.tsx): a page built before kickoff moves the
+     panel to the top once the game starts, without waiting for a rebuild. */
   const header = code.indexOf("</header>");
-  const top = code.indexOf("{liveTop ? <div");
-  const lower = code.indexOf("{liveTop ? null : livePanel}");
+  const top = code.indexOf('<KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="after"><div style={{ marginTop: 16 }}>{livePanel}</div></KickoffSlot>');
+  const lower = code.indexOf('<KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="before">{livePanel}</KickoffSlot>');
   const summary = code.indexOf('aria-labelledby="sim-summary"');
   assert.ok(header > 0 && top > header && top < code.indexOf("<SaveForecastButton"), "top slot follows the header, before anything else");
   assert.ok(lower > summary, "the pregame slot stays inside the forecast section");
