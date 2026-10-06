@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Writes data/internal/mlb/pregame-archive/provider-event-aliases.json: the only way Research's row-lineage
+ * Writes data/internal/mlb/reference/provider-event-aliases.json: the only way Research's row-lineage
  * loader admits a settlement-join market row whose providerEventId is not the join file's own (MLB Department,
  * 2026-10-05). Rules: app/src/lib/mlb/provider-event-aliases.mjs.
  *
@@ -22,7 +22,9 @@ const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..
 const ROOT = path.resolve(APP, "..");
 const ARCHIVE = path.join(ROOT, "data/internal/mlb/pregame-archive");
 const BOARDS = path.join(APP, "public/data/mlb/boards");
-const OUT = path.join(ARCHIVE, "provider-event-aliases.json");
+// Lives outside pregame-archive/: that folder caps committable files at 128 KB (commit-persistence guard),
+// and this receipt is one reviewable document, not an archive snapshot.
+const OUT = path.join(ROOT, "data/internal/mlb/reference/provider-event-aliases.json");
 const WRITE = process.argv.includes("--write");
 
 const rel = (p) => path.relative(ROOT, p).split(path.sep).join("/");

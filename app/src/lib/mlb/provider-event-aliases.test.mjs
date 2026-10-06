@@ -147,7 +147,7 @@ test("ET date of a late-evening UTC start is the board date", () => {
 });
 
 test("the committed receipt file: every alias carries evidence that satisfies the rule", () => {
-  const p = path.join(process.cwd(), "..", "data/internal/mlb/pregame-archive/provider-event-aliases.json");
+  const p = path.join(process.cwd(), "..", "data/internal/mlb/reference/provider-event-aliases.json");
   const doc = JSON.parse(fs.readFileSync(p, "utf8"));
   assert.equal(doc.schemaVersion, ALIAS_SCHEMA_VERSION);
   assert.equal(doc.public, false);
