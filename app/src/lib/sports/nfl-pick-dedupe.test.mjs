@@ -40,7 +40,10 @@ test("genuinely distinct games still count independently; the provider id is the
 test("🔴 from the committed data: 61–43, each duplicated game once, ties stay void", () => {
   const rows = owners.nflPicks();
   assert.equal(new Set(rows.map((r) => r.eventId)).size, rows.length, "one row per game");
-  assert.deepEqual(wl(rows), { w: 61, l: 43 });
+  /* 61–43 is the record the #999 fix established for every game through 2026-10-04. It is pinned on that frozen
+     window, so a newly graded game (MNF ATL @ NO, 2026-10-05, settled 2026-10-06) cannot fail it — and a
+     re-introduced double count in that window still does. */
+  assert.deepEqual(wl(rows.filter((r) => r.when <= "2026-10-04")), { w: 61, l: 43 });
   for (const [id, matchup] of Object.entries(DUPLICATED)) {
     const hits = rows.filter((r) => r.eventId === id);
     assert.equal(hits.length, 1, `${matchup} once`);
