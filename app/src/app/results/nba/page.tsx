@@ -39,6 +39,33 @@ export const metadata = withRouteMetadata("/results/nba/", {
     "The settled May–June NBA archive — every lean graded against the verified final box score. Historical record only; the current season's schedule and finals are on /nba, with no forecast published.",
 });
 
+/**
+ * The archive is the retired May–June 2026 player-prop model's settled record. A reader arriving from Results during
+ * the 2026-27 season must not read its hit rate as the current NBA model: this says what the page is and where the
+ * current season lives. No NBA forecast is published (the 2026-27 model is in validation, founder-gated).
+ */
+function NbaArchiveNotice() {
+  return (
+    <aside
+      aria-label="About this archive"
+      className="mb-6 px-4 py-3 rounded-[3px] text-[13px] leading-relaxed"
+      style={{
+        background: "var(--vault-warn-dim)",
+        border: "1px solid color-mix(in srgb, var(--vault-accent) 30%, transparent)",
+        color: "var(--vault-text-mute)",
+      }}
+    >
+      <strong style={{ color: "var(--vault-text)" }}>Archive.</strong> These are settled leans from a
+      player-prop model that was retired after June 13, 2026. Nothing new is graded here, and these numbers
+      do not describe a current NBA model. For the 2026-27 season, the{" "}
+      <Link href="/nba/" className="underline" style={{ color: "var(--vault-gold-bright)" }}>
+        NBA hub
+      </Link>{" "}
+      has the schedule and official finals. No NBA forecast is published while the new model is in validation.
+    </aside>
+  );
+}
+
 function findLatestScoredBoardDate(): string | null {
   const dates = getAvailableBoardDates().slice().sort().reverse();
   for (const d of dates) {
@@ -78,24 +105,23 @@ export default function NbaResultsPage() {
             className="font-mono uppercase tracking-[0.16em]"
             style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
           >
-            NBA model audit · pending first settlement
+            NBA archive · retired May–June 2026 player-prop model
           </div>
           <h1
             className="mt-2 vault-display-h2"
             style={{ color: "var(--vault-text)" }}
           >
-            Grades land here after final box scores post.
+            No settled archive rows are available.
           </h1>
           <p
             className="mt-3 max-w-2xl text-[13px] leading-relaxed"
             style={{ color: "var(--vault-text-mute)" }}
           >
-            Every NBA model lean is logged at generation time and
-            graded against the verified box score after each game
-            completes. When the next slate finals, the audit lands
-            here.
+            This page holds the settled record of a retired NBA
+            player-prop model. Nothing new is graded here.
           </p>
         </div>
+        <NbaArchiveNotice />
         <div className="mt-8">
           <EmptyResultsCard latestScoredDate={latestScoredDate} />
         </div>
@@ -128,6 +154,8 @@ export default function NbaResultsPage() {
         />
       </div>
 
+      <NbaArchiveNotice />
+
       {/* Hero — NBA-only audit. The cross-sport overall hit rate lives
           on the global /results hub. */}
       <section className="reveal vault-data-orbit neon-corner-bracket gtp-line-scan relative overflow-hidden -mx-4 sm:-mx-8 px-4 sm:px-8 pt-6 pb-4">
@@ -148,7 +176,7 @@ export default function NbaResultsPage() {
             className="font-mono uppercase tracking-[0.18em]"
             style={{ color: "var(--vault-gold)", fontSize: 10, margin: 0, fontWeight: "inherit" }}
           >
-            NBA model audit · graded against final box scores
+            NBA archive · retired May–June 2026 player-prop model
           </h1>
         </div>
         {/*
@@ -479,8 +507,8 @@ export default function NbaResultsPage() {
             text: (
               <>
                 Mid-band edges (10–20pp) outperformed both weak edges and
-                anomaly-territory edges on this slate. We did not encode this
-                bucketing yet — needs more graded slates first.
+                anomaly-territory edges on this slate. The model was retired
+                before this bucketing could be tested on more slates.
               </>
             ),
             caveat: <>Single-slate signal — descriptive, not predictive.</>,
