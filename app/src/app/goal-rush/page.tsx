@@ -15,7 +15,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 export const metadata = withRouteMetadata("/goal-rush/", {
   title: "Goal Rush · GameTime Picks",
   description:
-    "The Premier League signature product, in development. Its inputs exist — authorized matchweek odds and a validated anytime-goalscorer model on /epl — but the product assembled from them does not, so no picks publish here yet.",
+    "The Premier League signature product, in development. Its inputs exist — authorized Premier League odds and an anytime-goalscorer model (not validated) on /epl — but the product assembled from them does not, so no picks publish here yet.",
 });
 
 export default function GoalRushPage() {
