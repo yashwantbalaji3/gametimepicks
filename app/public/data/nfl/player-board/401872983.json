@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-06T19:46:11Z",
- "sourceGeneratedAt": "2026-10-06T19:46:11Z",
+ "generatedAt": "2026-10-06T20:07:32Z",
+ "sourceGeneratedAt": "2026-10-06T20:07:32Z",
  "providerEventId": "401872983",
  "matchup": "CLE @ NYJ",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-06T19:46:11Z",
-  "roleEvidenceAt": "2026-10-06T19:46:11Z",
+  "injuriesCapturedAt": "2026-10-06T20:07:32Z",
+  "roleEvidenceAt": "2026-10-06T20:07:32Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -30,13 +30,12 @@
      {
       "team": "CLE",
       "pool": "passAttempts",
-      "originalSum": 1.9637,
+      "originalSum": 1.4824,
       "normalizedSum": 1,
-      "factor": 0.5092,
+      "factor": 0.6746,
       "playerIds": [
        "nfl-athlete-3122840",
-       "nfl-athlete-4432762",
-       "nfl-athlete-4427238"
+       "nfl-athlete-4432762"
       ]
      }
     ]
@@ -138,14 +137,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 57,
+  "absent": 56,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "CLE": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -255,11 +254,8 @@
     {
      "playerId": "nfl-athlete-4427238",
      "name": "Dillon Gabriel",
-     "state": "PROJECTED",
-     "families": [
-      "player_pass_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
     }
    ]
   },
@@ -390,8 +386,7 @@
     "reason": "depth chart STALE",
     "passers": [
      "nfl-athlete-3122840",
-     "nfl-athlete-4432762",
-     "nfl-athlete-4427238"
+     "nfl-athlete-4432762"
     ],
     "removed": [],
     "snapshotAt": "2026-10-03T12:27:18Z"
@@ -413,9 +408,9 @@
      "player_pass_yds"
     ],
     "sum": 1,
-    "originalSum": 1.9637,
+    "originalSum": 1.4824,
     "residualOther": 0,
-    "joined": 3,
+    "joined": 2,
     "missed": 0,
     "state": "NORMALIZED"
    },
@@ -855,15 +850,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 115.4656,
-     "p10": 59.6109,
-     "p25": 80.4122,
-     "median": 108.8395,
-     "p75": 143.3268,
-     "p90": 179.8922,
+     "mean": 152.9545,
+     "p10": 78.9652,
+     "p25": 106.5202,
+     "median": 144.1771,
+     "p75": 189.8616,
+     "p90": 238.299,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.5092
+      "factor": 0.6746
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1038,41 +1033,20 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_pass_yds": {
-     "mean": 53.6932,
-     "p10": 21.0648,
-     "p25": 32.0869,
-     "median": 48.431,
-     "p75": 69.6108,
-     "p90": 93.1761,
+     "mean": 71.1261,
+     "p10": 27.9041,
+     "p25": 42.5048,
+     "median": 64.1554,
+     "p75": 92.2118,
+     "p90": 123.4282,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.5092
+      "factor": 0.6746
      },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
      "probability": 0.044,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4427238",
-   "name": "Dillon Gabriel",
-   "team": "CLE",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 47.9072,
-     "p10": 18.6152,
-     "p25": 28.4776,
-     "median": 43.1421,
-     "p75": 62.1866,
-     "p90": 83.4087,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5092
-     },
      "pricingState": "NOT_PROBED"
     }
    }
