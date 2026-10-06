@@ -56,7 +56,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
     title: `${row.matchup} — model forecast · GameTime Picks`,
     description:
       `Model distribution for ${row.matchup}: match-result probabilities, scoreline table, goals ladder and each side's goal curve. ` +
-      "Distributions only — not picks. No Premier League match has been graded under this model yet.",
+      // No graded-record claim here: a fixed string in a description goes stale the night a match settles
+      // (it said "no match graded" with 46 graded). The page body states the live record from the ledger.
+      "Model distributions only — not picks.",
   });
 }
 
