@@ -11,6 +11,27 @@
 import fs from "node:fs";
 import path from "node:path";
 
+/**
+ * ONE ROW PER NFL GAME — the forecast of record (the same rule the Forecast Ledger applies, lib/forecast-ledger/
+ * adapters/nfl.mjs nflGameRows). The settler grades per receipt-date FOLDER, so a game kicking off just after 00:00Z
+ * is graded twice: once against an earlier, superseded receipt and once against the latest pre-kickoff one. Counting
+ * both counted three wins twice (64–43 published, 61–43 true). Keyed on the canonical game id (fallback
+ * nfl-<providerEventId>); the row whose receipt was generated latest is the one of record. A row with no game id
+ * cannot be matched to another and is kept. Pure.
+ */
+export function nflSettlementOfRecord(events) {
+  const best = new Map();
+  const keyless = [];
+  for (const e of events ?? []) {
+    const key = e?.canonicalEventId ?? (e?.providerEventId != null ? `nfl-${e.providerEventId}` : null);
+    if (key == null) { keyless.push(e); continue; }
+    const prev = best.get(key);
+    const at = String(e.lineage?.forecastGeneratedAt ?? "");
+    if (!prev || at > String(prev.lineage?.forecastGeneratedAt ?? "")) best.set(key, e);
+  }
+  return [...best.values(), ...keyless];
+}
+
 export function makeGradedPickOwners({ appDir, rootDir }) {
   const APP = appDir;
   const ROOT = rootDir;
@@ -97,26 +118,28 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
   function nflPicks() {
     const dir = path.join(ROOT, "data/internal/nfl/experimental-settlement");
     if (!fs.existsSync(dir)) return null;
-    const out = [];
+    const graded = [];
     for (const f of fs.readdirSync(dir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort().reverse()) {
-      for (const e of readJson(path.join(dir, f))?.events ?? []) {
-        const g = e.grade ?? {};
-        out.push({
-          eventId: e.canonicalEventId ?? null,
-          when: etDayOf(e.kickoffUtc, f),
-          eventName: null,
-          subject: e.matchup ?? null,
-          market: "Winner",
-          predicted: g.winner?.modelFavoured ?? null,
-          actual: g.actual?.tie ? "tie" : (g.winner?.outcome ?? null),
-          modelProbability: null,
-          probabilityOfActual: g.probabilistic?.brier != null && g.probabilistic?.logLoss != null
-            ? Number(Math.exp(-g.probabilistic.logLoss).toFixed(4)) : null,
-          marketProbabilityOfActual: null,
-          // A tie is not a loss. It is a question the model was not asked and could not answer.
-          hit: g.actual?.tie ? null : (typeof g.winner?.correct === "boolean" ? g.winner.correct : null),
-        });
-      }
+      for (const e of readJson(path.join(dir, f))?.events ?? []) graded.push({ ...e, _file: f });
+    }
+    const out = [];
+    for (const { _file: f, ...e } of nflSettlementOfRecord(graded)) {
+      const g = e.grade ?? {};
+      out.push({
+        eventId: e.canonicalEventId ?? null,
+        when: etDayOf(e.kickoffUtc, f),
+        eventName: null,
+        subject: e.matchup ?? null,
+        market: "Winner",
+        predicted: g.winner?.modelFavoured ?? null,
+        actual: g.actual?.tie ? "tie" : (g.winner?.outcome ?? null),
+        modelProbability: null,
+        probabilityOfActual: g.probabilistic?.brier != null && g.probabilistic?.logLoss != null
+          ? Number(Math.exp(-g.probabilistic.logLoss).toFixed(4)) : null,
+        marketProbabilityOfActual: null,
+        // A tie is not a loss. It is a question the model was not asked and could not answer.
+        hit: g.actual?.tie ? null : (typeof g.winner?.correct === "boolean" ? g.winner.correct : null),
+      });
     }
     return out;
   }
