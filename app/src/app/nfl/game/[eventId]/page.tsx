@@ -61,6 +61,7 @@ import { archivedEventFrom, archivedEventIds, archivedForecastFor, reconciledGam
 import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 import { PUBLIC_BOARD_CLEARED } from "@/lib/sports/nfl/board-ranking.mjs";
+import SimulationV2Link from "@/components/nfl/simulation-v2-link";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -522,6 +523,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           </section>
         );
       })()}
+      <SimulationV2Link eventId={f.providerEventId} />
 
       <section aria-labelledby="score-range" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Range" title="How wide the outcomes are" sub="the 10th to 90th percentile of each team's simulated score" />
