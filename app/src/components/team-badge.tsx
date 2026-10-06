@@ -70,6 +70,34 @@ const TEAM_COLORS: Record<
   ATL: { primary: "#CE1141", secondary: "#13274F", ink: "#FFFFFF" },
 };
 
+/** WCAG relative luminance of a #RRGGBB colour. */
+function luminance(hex: string): number {
+  const ch = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const [r, g, b] = ch.map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function mix(a: string, b: string, t: number): string {
+  const hex = [1, 3, 5].map((i) => {
+    const v = Math.round(parseInt(a.slice(i, i + 2), 16) * (1 - t) + parseInt(b.slice(i, i + 2), 16) * t);
+    return v.toString(16).padStart(2, "0");
+  });
+  return `#${hex.join("")}`;
+}
+
+/**
+ * The gradient's light end, pulled toward the primary until white ink on it reaches 4.5:1. The
+ * monogram is what readers see when an ESPN logo fails to load; QA 2026-10-05 measured white on
+ * the raw secondary at 1.6:1 (CWS, #C4CED4) and 1.7:1 (CLE, #FDBB30).
+ */
+function readableSecondary(primary: string, secondary: string): string {
+  for (let t = 0; t <= 1; t += 0.05) {
+    const stop = mix(secondary, primary, t);
+    if (1.05 / (luminance(stop) + 0.05) >= 4.5) return stop;
+  }
+  return primary;
+}
+
 const NEUTRAL = {
   primary: "#1a1f33",
   secondary: "#2a3247",
@@ -96,7 +124,9 @@ export default function TeamBadge({
         width: dim.px,
         height: dim.px,
         borderRadius: dim.px / 5,
-        background: `linear-gradient(155deg, ${colors.primary} 0%, ${colors.secondary} 100%)`,
+        background: `linear-gradient(155deg, ${colors.primary} 0%, ${
+          colors.ink === "#FFFFFF" ? readableSecondary(colors.primary, colors.secondary) : colors.secondary
+        } 100%)`,
         color: colors.ink,
         fontSize: dim.font,
         letterSpacing: dim.font > 12 ? "-0.02em" : "0.02em",
