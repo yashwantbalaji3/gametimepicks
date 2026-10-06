@@ -25,6 +25,7 @@ import fs from "node:fs";
 
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { pausedFamiliesFrom, MLB_TOTAL_FAMILY, MLB_MONEYLINE_FAMILY } from "@/lib/ops/live-record-gate.mjs";
+import { medianRunsCopy } from "@/lib/mlb/prediction/median-runs-copy.mjs";
 import path from "node:path";
 
 export interface TopRead {
@@ -174,13 +175,15 @@ export function loadTopReads(): TopReadsSet | null {
   for (const p of mlb?.predictions ?? []) {
     const ml = mlbMoneylinePaused ? null : p.moneyline;
     if (ml?.simulationProbability != null && p.slug) {
+      // Two team medians, never "projected 4–4" (a tie beside a winner); missing medians print nothing, not "?".
+      const medians = medianRunsCopy(p.projectedScore, p.awayTeam, p.homeTeam);
       push({
         sport: "mlb", sportLabel: "MLB", kind: "team",
         headline: `${ml.team} to win`,
         subject: ml.team, team: ml.team, photoUrl: null,
         probability: ml.simulationProbability,
         market: "Moneyline",
-        context: `${p.awayTeam} @ ${p.homeTeam} · projected ${p.projectedScore?.away ?? "?"}–${p.projectedScore?.home ?? "?"}`,
+        context: `${p.awayTeam} @ ${p.homeTeam}${medians ? ` · median runs ${medians.text}` : ""}`,
         href: `/games/mlb/${p.slug}/`,
         eventEtDate: today,
       });

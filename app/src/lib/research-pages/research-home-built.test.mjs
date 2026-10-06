@@ -63,7 +63,12 @@ test("RHB2 team forecast history appears exactly where the ledger holds that tea
     const bodyRows = (sec.match(/<tr>/g) ?? []).length - (sec.match(/<thead>/g) ?? []).length;
     assert.equal(bodyRows, n, `${e.path}: every ledger row is on the page`);
   }
-  assert.ok(withHistory >= 32 && without > 0, `non-vacuous: ${withHistory} with, ${without} without`);
+  /* 2026-10-06: once the ledger held rows for every team (82 of 82 after the Oct 6 settle), "without > 0" failed on
+     the data, not the code. The per-team ⇔ check above is the guard; the "without" side is exercised whenever the
+     ledger has a team with no rows, and the count must match exactly. */
+  const teamsWithoutRows = index.filter((x) => x.kind === "team" && !(ledgerCounts.get(x.id) > 0)).length;
+  assert.ok(withHistory >= 32, `non-vacuous: ${withHistory} with history`);
+  assert.equal(without, teamsWithoutRows, `pages without history (${without}) ⇔ teams with no ledger rows (${teamsWithoutRows})`);
 });
 
 test("RHB3 player forecast history links games, only to pages this export serves, and keeps older rows", () => {

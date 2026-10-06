@@ -51,3 +51,12 @@ test("the MLB game-page surfaces show the projected score only through this copy
   }
   assert.ok(!/Median final/.test(story), "the story chapter must not call two medians a final");
 });
+
+test("the Home featured card and top reads show MLB team medians only through this copy", () => {
+  for (const rel of ["src/lib/command-center/featured.ts", "src/lib/top-reads.ts"]) {
+    const src = read(rel);
+    assert.match(src, /medianRunsCopy\(p\.projectedScore/, `${rel} formats the MLB medians through medianRunsCopy`);
+    assert.ok(!/projected \$\{p\.projectedScore/i.test(src), `${rel} must not print "projected 4–4" from the MLB medians`);
+    assert.ok(!/p\.projectedScore\.away\}\s*[–—-]\s*\$\{p\.projectedScore\.home/.test(src), `${rel} must not join the MLB medians with a score dash`);
+  }
+});
