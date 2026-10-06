@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-04T17:22:01Z",
+ "generatedAt": "2026-10-06T17:06:53Z",
  "sport": "ufc",
  "state": "SCHEDULED_CARD",
  "event": {
@@ -14,9 +14,9 @@
   {
    "name": "Dana White's Contender Series: Season 10, Week 9",
    "dateUtc": "2026-10-06T23:00Z",
-   "bouts": 1,
+   "bouts": 5,
    "modellableBouts": 0,
-   "reason": "only 0 of 1 bouts have both fighters in the corpus"
+   "reason": "only 0 of 5 bouts have both fighters in the corpus"
   }
  ],
  "model": {
@@ -708,10 +708,138 @@
    "unmodelledReason": null
   },
   {
+   "boutId": "401927421",
+   "weightClass": "Bantamweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-10-11T00:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "5212853",
+    "name": "Otari Tanzilovi",
+    "record": "10-2-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5212853.png",
+    "priorBoutsInCorpus": 1,
+    "profile": {
+     "bouts": 1,
+     "record": {
+      "wins": 0,
+      "losses": 1
+     },
+     "last5": [
+      {
+       "date": "2026-06-20",
+       "opponent": "Shane Collins",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Featherweight"
+      }
+     ],
+     "strengths": [
+      "1 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "Too few tracked losses to name a pattern — absence of data, not absence of weakness"
+     ],
+     "summary": "0-1 in the last 1. 0% of wins come by finish; 100% of fights reach the judges."
+    }
+   },
+   "blue": {
+    "athleteId": "5212854",
+    "name": "Malcolm Wellmaker",
+    "record": "10-2-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5212854.png",
+    "priorBoutsInCorpus": 4,
+    "profile": {
+     "bouts": 4,
+     "record": {
+      "wins": 2,
+      "losses": 2
+     },
+     "last5": [
+      {
+       "date": "2026-05-16",
+       "opponent": "Juan Diaz",
+       "result": "L",
+       "method": "SUB",
+       "round": 2,
+       "weightClass": "Bantamweight"
+      },
+      {
+       "date": "2025-11-15",
+       "opponent": "Ethyn Ewing",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Featherweight"
+      },
+      {
+       "date": "2025-06-14",
+       "opponent": "Kris Moutinho",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Bantamweight"
+      },
+      {
+       "date": "2025-04-26",
+       "opponent": "Cameron Saaiman",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Bantamweight"
+      }
+     ],
+     "strengths": [
+      "4 tracked bouts — too few clear tendencies to call out"
+     ],
+     "weaknesses": [
+      "Too few tracked losses to name a pattern — absence of data, not absence of weakness"
+     ],
+     "summary": "2-2 in the last 4. 100% of wins come by finish; 25% of fights reach the judges."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Malcolm Wellmaker",
+     "probability": 0.5136,
+     "byFighter": {
+      "Malcolm Wellmaker": 0.5136,
+      "Otari Tanzilovi": 0.4864
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.3733,
+      "submission": 0.1825,
+      "decision": 0.4442
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.3276,
+      "round2": 0.1635,
+      "round3plus": 0.5089
+     },
+     "goesTheDistance": 0.4442
+    },
+    "priorFights": {
+     "a": 4,
+     "b": 1
+    },
+    "basis": "ONE_FIGHTER_DEBUT",
+    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
+    "reason": "Malcolm Wellmaker wins 50% of tracked bouts to Tanzilovi's 0%, 100% of wins come by finish — and the matchup profiles as one that reaches the judges."
+   },
+   "unmodelledReason": null
+  },
+  {
    "boutId": "401927417",
    "weightClass": "Light Heavyweight",
    "scheduledRounds": 3,
-   "startUtc": "2026-10-11T00:00Z",
+   "startUtc": "2026-10-10T21:00Z",
    "titleFight": false,
    "red": {
     "athleteId": "2553261",
@@ -865,134 +993,6 @@
     "basis": "BOTH_FIGHTERS",
     "basisNote": null,
     "reason": "Julius Walker the shorter record is Walker's (4 vs 26), so the read leans on the opponent's history — and the finish profile points to a submission."
-   },
-   "unmodelledReason": null
-  },
-  {
-   "boutId": "401927421",
-   "weightClass": "Bantamweight",
-   "scheduledRounds": 3,
-   "startUtc": "2026-10-11T00:00Z",
-   "titleFight": false,
-   "red": {
-    "athleteId": "5212853",
-    "name": "Otari Tanzilovi",
-    "record": "10-2-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5212853.png",
-    "priorBoutsInCorpus": 1,
-    "profile": {
-     "bouts": 1,
-     "record": {
-      "wins": 0,
-      "losses": 1
-     },
-     "last5": [
-      {
-       "date": "2026-06-20",
-       "opponent": "Shane Collins",
-       "result": "L",
-       "method": "DEC",
-       "round": 3,
-       "weightClass": "Featherweight"
-      }
-     ],
-     "strengths": [
-      "1 tracked bouts — too few clear tendencies to call out"
-     ],
-     "weaknesses": [
-      "Too few tracked losses to name a pattern — absence of data, not absence of weakness"
-     ],
-     "summary": "0-1 in the last 1. 0% of wins come by finish; 100% of fights reach the judges."
-    }
-   },
-   "blue": {
-    "athleteId": "5212854",
-    "name": "Malcolm Wellmaker",
-    "record": "10-2-0",
-    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5212854.png",
-    "priorBoutsInCorpus": 4,
-    "profile": {
-     "bouts": 4,
-     "record": {
-      "wins": 2,
-      "losses": 2
-     },
-     "last5": [
-      {
-       "date": "2026-05-16",
-       "opponent": "Juan Diaz",
-       "result": "L",
-       "method": "SUB",
-       "round": 2,
-       "weightClass": "Bantamweight"
-      },
-      {
-       "date": "2025-11-15",
-       "opponent": "Ethyn Ewing",
-       "result": "L",
-       "method": "DEC",
-       "round": 3,
-       "weightClass": "Featherweight"
-      },
-      {
-       "date": "2025-06-14",
-       "opponent": "Kris Moutinho",
-       "result": "W",
-       "method": "KO",
-       "round": 1,
-       "weightClass": "Bantamweight"
-      },
-      {
-       "date": "2025-04-26",
-       "opponent": "Cameron Saaiman",
-       "result": "W",
-       "method": "KO",
-       "round": 1,
-       "weightClass": "Bantamweight"
-      }
-     ],
-     "strengths": [
-      "4 tracked bouts — too few clear tendencies to call out"
-     ],
-     "weaknesses": [
-      "Too few tracked losses to name a pattern — absence of data, not absence of weakness"
-     ],
-     "summary": "2-2 in the last 4. 100% of wins come by finish; 25% of fights reach the judges."
-    }
-   },
-   "prediction": {
-    "winner": {
-     "name": "Malcolm Wellmaker",
-     "probability": 0.5136,
-     "byFighter": {
-      "Malcolm Wellmaker": 0.5136,
-      "Otari Tanzilovi": 0.4864
-     }
-    },
-    "method": {
-     "most": "DEC",
-     "probabilities": {
-      "ko": 0.3733,
-      "submission": 0.1825,
-      "decision": 0.4442
-     }
-    },
-    "rounds": {
-     "endsIn": "3+",
-     "probabilities": {
-      "round1": 0.3276,
-      "round2": 0.1635,
-      "round3plus": 0.5089
-     },
-     "goesTheDistance": 0.4442
-    },
-    "priorFights": {
-     "a": 4,
-     "b": 1
-    },
-    "basis": "ONE_FIGHTER_DEBUT",
-    "basisNote": "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
-    "reason": "Malcolm Wellmaker wins 50% of tracked bouts to Tanzilovi's 0%, 100% of wins come by finish — and the matchup profiles as one that reaches the judges."
    },
    "unmodelledReason": null
   },
