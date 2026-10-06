@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 849826,
+  "date": "2026-10-06",
+  "capturedAt": "2026-10-06T02:36:49.645Z",
+  "availableAt": "2026-10-06T02:36:49.645Z",
+  "eventStartTime": "2026-10-07T01:30:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 601713,
+      "name": "Nick Pivetta",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 8,
+      "restDays": 12,
+      "lastStartDate": "2026-09-24",
+      "last5": {
+        "starts": 5,
+        "ipSum": 21.67,
+        "ipAvg": 4.33,
+        "kAvg": 4.4,
+        "bbAvg": 0.4,
+        "erAvg": 0.6,
+        "hrAvg": 0.4,
+        "kPer9": 9.14,
+        "workloadIpLast5": 21.67
+      },
+      "seasonToDate": {
+        "starts": 8,
+        "ip": 34.67,
+        "k": 42,
+        "bb": 8,
+        "er": 11,
+        "hr": 2
+      }
+    },
+    "away": {
+      "id": 669160,
+      "name": "Dustin May",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 10,
+      "lastStartDate": "2026-09-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 17,
+        "ipAvg": 3.4,
+        "kAvg": 4.4,
+        "bbAvg": 1,
+        "erAvg": 1.8,
+        "hrAvg": 0.8,
+        "kPer9": 11.65,
+        "workloadIpLast5": 17
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 145.67,
+        "k": 144,
+        "bb": 50,
+        "er": 76,
+        "hr": 14
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-10-06&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-10-06T02:36:49.645Z"
+  },
+  "recordHash": "564e6c2217f9767be6a4c56e6cde6797f194fc90643d10756763b026c7e3f1da"
+}
