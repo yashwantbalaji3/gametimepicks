@@ -47,6 +47,23 @@ function newestReport() {
 
 const found = newestReport();
 
+/* 2026-10-06: the newest report (10-05, end of the regular season) has no voided rows, so the two void tests
+   below failed on the calendar, not on the code. They read the newest report that has at least one void;
+   their own "proved nothing" checks still fail if no committed report has any. */
+function newestReportWithVoids() {
+  let best = null;
+  for (const f of fs.readdirSync(DIR).sort()) {
+    if (!f.startsWith("comparison_report_") || !f.endsWith(".json")) continue;
+    try {
+      const j = JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8"));
+      if (j?.byMarket && Object.values(j.byMarket).some((b) => b?.voids > 0)) best = { file: f, report: j };
+    } catch { /* a malformed archive row is not this test's subject */ }
+  }
+  return best ?? found;
+}
+
+const withVoids = newestReportWithVoids();
+
 test("a committed comparison report with bucket splits exists — otherwise this suite is vacuous", () => {
   assert.ok(found, `no comparison_report_*.json with byMarket/byConfidence under ${DIR}`);
   assert.ok(Object.keys(found.report.byMarket).length > 0);
@@ -143,12 +160,12 @@ test("🔴 §6 · every bucket's rate is over ITS decisive count, never over its
   }
 });
 
-test("🔴 §6 · the RENDERED row shows the decisive denominator the rate divides by", { skip: !found }, () => {
-  const html = renderToStaticMarkup(React.createElement(Breakdown, { report: found.report }));
+test("🔴 §6 · the RENDERED row shows the decisive denominator the rate divides by", { skip: !withVoids }, () => {
+  const html = renderToStaticMarkup(React.createElement(Breakdown, { report: withVoids.report }));
   const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
   let checked = 0;
-  for (const [key, b] of Object.entries(found.report.byMarket)) {
+  for (const [key, b] of Object.entries(withVoids.report.byMarket)) {
     const dec = b.wins + b.losses;
     if (b.total === dec) continue;           // nothing to distinguish on this row
     checked += 1;
@@ -160,11 +177,11 @@ test("🔴 §6 · the RENDERED row shows the decisive denominator the rate divid
   assert.ok(checked > 0, "no market has voids today, so this assertion proved nothing — widen the fixture");
 });
 
-test("🔴 voided rows are NAMED, not absorbed into a total nobody can explain", { skip: !found }, () => {
-  const html = renderToStaticMarkup(React.createElement(Breakdown, { report: found.report }));
+test("🔴 voided rows are NAMED, not absorbed into a total nobody can explain", { skip: !withVoids }, () => {
+  const html = renderToStaticMarkup(React.createElement(Breakdown, { report: withVoids.report }));
   const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   let checked = 0;
-  for (const [key, b] of Object.entries(found.report.byMarket)) {
+  for (const [key, b] of Object.entries(withVoids.report.byMarket)) {
     if (b.voids === 0) continue;
     checked += 1;
     assert.match(text, new RegExp(`${b.voids} void`), `${key}: ${b.voids} voided rows are invisible`);
