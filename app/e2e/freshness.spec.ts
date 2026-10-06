@@ -37,10 +37,11 @@ test("footer renders freshness pill and last-refresh stamp", async ({
 
   const footer = page.locator("footer");
   await expect(footer).toBeVisible();
-  // Footer status block always shows version + last refresh + freshness
-  await expect(footer).toContainText(/version/i);
-  await expect(footer).toContainText(/last refresh/i);
+  // Footer status block shows the build stamp + freshness. The "version" chip was removed on purpose
+  // (P251-F12) and "last refresh" became "last build" (v1.7, 2026-09-22); see footer.tsx.
+  await expect(footer).toContainText(/last build/i);
   await expect(footer).toContainText(/freshness/i);
+  await expect(footer).not.toContainText(/version \d/i);
 });
 
 test("footer freshness label is one of the known states", async ({ page }) => {

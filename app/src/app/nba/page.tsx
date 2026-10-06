@@ -15,7 +15,7 @@ import { nbaHub } from "@/lib/sport-hub/nba-hub";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata = withRouteMetadata("/nba/", {
-  title: "NBA — Schedule & Finals · GameTime Picks",
+  title: "NBA — Schedule & final scores · GameTime Picks",
   description:
     "The 2026-27 NBA schedule and official finals. No NBA forecast is published yet: the model is in validation against preregistered bars. The retired May–June 2026 player-prop archive is linked separately.",
 });

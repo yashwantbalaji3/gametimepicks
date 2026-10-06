@@ -438,15 +438,17 @@ export default function SimulateLobby() {
     /*
      * EPL (P188). Listed on the same terms as every other sport: the state word follows the READY
      * count, which is the rule P185-D established after NFL wore "active" on fifteen shared-prior
-     * games. The note carries the one thing a reader must not have to hunt for — this model has
-     * graded ZERO matches, so a rich readout is not a record.
+     * games. The note carries the one thing a reader must not have to hunt for — these are
+     * experimental model outputs, not picks, and the graded record is too small to judge accuracy.
+     * (It said "no match has been graded" until 2026-10-05, long after matches were graded; the
+     * note carries no count so it cannot go stale that way again.)
      */
     eplRows.length > 0
       ? mk("epl", eplId.label, eplId.icon,
           simReadyCountFor("epl") > 0 ? "active" : "conditional",
           simReadyCountFor("epl") > 0 ? "active" : "no priced fixtures",
           eplRows.length, simReadyCountFor("epl"),
-          "Per-fixture score distributions from an exact Poisson matrix — match result, scorelines, goals ladder and each side's goal curve. Not validated out of sample: no Premier League match has been graded under this model.")
+          "Per-fixture score distributions from an exact Poisson matrix — match result, scorelines, goals ladder and each side's goal curve — plus anytime-scorer projections per player. Experimental, model-only: not official picks. Graded after each full time; the record is still too small to judge accuracy.")
       : mk("epl", eplId.label, eplId.icon, "conditional", "no current fixtures", 0, 0,
           "No Premier League fixtures inside the forecast window. The schedule stays on /epl."),
     // NBA: off-season unless a fresh board produced rows.

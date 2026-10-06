@@ -32,7 +32,7 @@ import {
   assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, LEDGER_RELPATH,
 } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { nameKey } from "./lib/fight-model.mjs";
-import { classifyCardCoverage, coverageReconciles, matchedProviderEventId } from "../../src/lib/sports/ufc/card-coverage.mjs";
+import { classifyCardCoverage, coverageReconciles, providerEventIdOf } from "../../src/lib/sports/ufc/card-coverage.mjs";
 import { findLooseMatch } from "../../src/lib/sports/ufc/fighter-alias.mjs";
 import { writeAcquisition, readAcquisition } from "../../src/lib/sports/odds/acquisition-cache.mjs";
 import { buildUfcOddsSnapshot } from "../../src/lib/sports/ufc/odds-snapshot.mjs";
@@ -260,6 +260,9 @@ for (const b of card.bouts ?? []) {
      * thin to build a ladder from. The card's own id is on the snapshot, once, where it belongs.
      */
     boutId: b.boutId, eventId: b.boutId,
+    /* The odds provider's id for this ONE fight — provenance for the price, never the card's identity
+       (the provider has no card-level event; see lib/sports/ufc/card-coverage.mjs). */
+    providerEventId: providerEventIdOf(matchedKey, priced),
     /* "exact" or "alias". A rescued join is a fact about our matching, and hiding it would make the
        fold look healthier than it is — the aliases below are how we learn the fold needs work. */
     joinMethod,
@@ -322,11 +325,10 @@ console.log(`ufc odds: private per-book snapshot → ${shadowSnapshot.rows.lengt
 /* The per-book markets are the model's input, not the reader's — strip them from the public shape. */
 for (const b of bouts) delete b._books;
 
-/* The provider event this card joined to — derived in lib/sports/ufc/card-coverage.mjs. This read an
-   undefined `matchedEvent` and threw HERE, after the paid call and after the private snapshot was
-   written: 2026-09-08 and 09-10 each spent a credit and left odds-latest.json on the previous card,
-   while the workflow's `|| echo` reported the step as a success. */
-const matchedEventId = matchedProviderEventId(consumed, priced);
+/* The event this snapshot is written under: the CARD's ESPN event, the only card-level identity there
+   is. The odds provider lists every fight as its own event, so no provider id can stand for the card —
+   passing one here (P264 → 2026-10-05) made every priced capture report a mismatch with itself. */
+const snapshotEvent = { providerEventId: card.event.providerEventId, name: card.event.name, slateDate: card.event.slateDate };
 
 const {
   coverage, unpriced, unmatchedProviderEvents, blockers, oddsReady, partiallyPriced,
@@ -334,7 +336,7 @@ const {
   cardBouts: card.bouts ?? [],
   // Identity, so a capture for a DIFFERENT event can never be counted as coverage of this card.
   cardEventId: card.event?.providerEventId ?? null,
-  oddsEventId: matchedEventId ?? card.event?.providerEventId ?? null,
+  snapshotEventId: snapshotEvent.providerEventId ?? null,
   pricedByKey: priced,
   matchedKeys: consumed,
   // The keys a bout CLAIMED, which for an aliased join is the provider's spelling rather than the
@@ -360,7 +362,7 @@ if (!coverageReconciles(coverage)) {
 const snapshot = {
   generatedAt: NOW,
   sportKey: SPORT_KEY,
-  event: { providerEventId: card.event.providerEventId, name: card.event.name, slateDate: card.event.slateDate },
+  event: snapshotEvent,
   eventCount: bouts.length,
   marketCount: bouts.length,
   markets: MARKETS,
@@ -372,6 +374,10 @@ const snapshot = {
   /* Bouts joined only by the alias pass. An empty list is the healthy state; a growing one names
      exactly which fighters our fold cannot spell the way the book does. */
   aliasJoins: rescued,
+  /* The provider events that name a fighter from this card yet joined no bout — the evidence behind
+     every JOIN_FAILED. Printed to the log only until 2026-10-05, so a miss could not be diagnosed
+     from the artifact. */
+  unmatchedProviderEvents,
   /*
    * Ready means the WHOLE card is priced. A partially priced card is still useful and still
    * publishes its eight fights; it is simply not a state anything downstream should treat as

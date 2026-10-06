@@ -62,15 +62,32 @@ test("THE NEXT KICKOFF IS A SCHEDULE FACT · it cannot be null while a game is s
   const captureAt = schedule.capturedAt ?? schedule.generatedAt ?? null;
   const captureIsNewer = Boolean(captureAt) && Date.parse(captureAt) > Date.parse(idx.generatedAt);
 
+  /*
+   * Lagging cuts both ways (2026-10-05). The index built at 10-04T23:51Z counted SNF DET @ CAR (00:20Z)
+   * as upcoming; the 15:48Z recapture is a rolling window that no longer holds that game at all, so
+   * "17 vs 16" read as an invented game. A game the INDEX ITSELF listed as UPCOMING, kicking off after
+   * the index was built and at or before the newer capture, was upcoming when the index counted it.
+   * Only those are allowed for: the allowance comes from the index's own events, never from the
+   * schedule, so a game the capture dropped for any other reason is never excused.
+   */
+  const departed = captureIsNewer
+    ? (idx.events ?? []).filter((e) => e.lifecycle === "UPCOMING"
+      && Date.parse(e.kickoffUtc) > Date.parse(idx.generatedAt) && Date.parse(e.kickoffUtc) <= Date.parse(captureAt))
+    : [];
   assert.ok(
-    idx.counts.scheduledUpcoming <= upcomingRows.length,
-    `the index counts ${idx.counts.scheduledUpcoming} upcoming games and the capture holds ${upcomingRows.length} — an index may lag its schedule, never exceed it`,
+    idx.counts.scheduledUpcoming <= upcomingRows.length + departed.length,
+    `the index counts ${idx.counts.scheduledUpcoming} upcoming games and the capture holds ${upcomingRows.length} (+${departed.length} kicked off since the index) — an index may lag its schedule, never exceed it`,
   );
   if (!captureIsNewer) {
     assert.equal(idx.counts.scheduledUpcoming, upcomingRows.length, "the count reconciles with the committed capture");
   }
 
-  if (upcomingRows.length > 0) {
+  if (departed.some((e) => e.kickoffUtc === idx.nextKickoffUtc)) {
+    // The index's next game has kicked off since it was built: stale by time, not wrong. It must
+    // still name the game it counted, and nothing the capture shows as earlier.
+    assert.ok(!upcomingRows.length || idx.nextKickoffUtc <= upcomingRows[0].dateUtc, "a lagging index names no game later than the capture's next");
+    assert.ok(idx.nextMatchup, "and name the matchup");
+  } else if (upcomingRows.length > 0) {
     assert.equal(idx.nextKickoffUtc, upcomingRows[0].dateUtc,
       "a scheduled game exists, so the index must name it — null here is the P224 defect");
     assert.ok(idx.nextMatchup, "and name the matchup");

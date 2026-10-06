@@ -43,6 +43,7 @@ export const MUTATIONS = Object.freeze({
   "no-invite-check": "drop policy profiles_insert_own on public.profiles; create policy profiles_insert_any on public.profiles for insert with check (auth.uid() = id);",
   "allowlist-readable": "create policy beta_access_read on public.beta_access for select using (true);",
   "storage-any-folder": "drop policy slips_read_own on storage.objects; create policy slips_read_any on storage.objects for select using (bucket_id = 'slips');",
+  "storage-no-invite-check": "drop policy slips_write_own on storage.objects; create policy slips_write_any_member on storage.objects for insert with check (bucket_id = 'slips' and (storage.foldername(name))[1] = auth.uid()::text);",
   "unprotected-table": "create table public.user_notes (user_id uuid, body text);",
 });
 
@@ -67,11 +68,34 @@ function verdict(res, { expectFail = false, label = "" } = {}) {
   return 0;
 }
 
+/**
+ * The project's connection string → libpq environment variables. The secret travels in the child's env, never on
+ * the command line (process lists, shell history, CI logs). A URI in PGDATABASE does NOT work: psql reads it as a
+ * plain database name and falls back to the local socket, so the string is split into its parts here.
+ * @returns {Record<string,string>|null} null when the string is not a postgres:// or postgresql:// URL
+ */
+export function pgEnvFromUrl(raw) {
+  let u;
+  try { u = new URL(String(raw ?? "").trim()); } catch { return null; }
+  if (!["postgres:", "postgresql:"].includes(u.protocol) || !u.hostname) return null;
+  return {
+    PGHOST: u.hostname,
+    PGPORT: u.port || "5432",
+    PGUSER: decodeURIComponent(u.username || "postgres"),
+    PGPASSWORD: decodeURIComponent(u.password),
+    PGDATABASE: decodeURIComponent(u.pathname.replace(/^\//, "")) || "postgres",
+    PGSSLMODE: u.searchParams.get("sslmode") || "require",
+  };
+}
+
 function hosted() {
   const url = String(process.env.RLS_DB_URL ?? "").trim();
   if (!url) { console.error("--hosted needs RLS_DB_URL (the project's postgres connection string) in the environment"); return 3; }
-  // The URL travels in PGDATABASE-style env, never on the command line (process lists, CI logs).
-  return verdict(psqlFile(["-d", "postgres"], BATTERY, { PGDATABASE: url }), { label: "hosted project" });
+  const env = pgEnvFromUrl(url);
+  if (!env) { console.error("RLS_DB_URL is not a postgresql://… connection string (Supabase → Connect → Session pooler)"); return 3; }
+  if (run("which", ["psql"]).status !== 0) { console.error("--hosted needs psql on PATH (macOS: brew install libpq && brew link --force libpq)"); return 3; }
+  // No -d / -h flags: libpq takes every connection parameter from the env above.
+  return verdict(psqlFile([], BATTERY, env), { label: "hosted project" });
 }
 
 function local(mutation) {

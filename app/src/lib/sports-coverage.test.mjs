@@ -62,8 +62,18 @@ test("EPL's registry entry describes what it publishes, and claims no player cap
   assert.notEqual(epl?.level, "projections", "that level asserts player-prop projections, which EPL does not have");
   assert.ok((epl?.links.length ?? 0) >= 1, "a sport that publishes must link to where");
   assert.match(epl?.blurb ?? "", /forecast/i, "the blurb says what actually publishes");
-  assert.match(epl?.blurb ?? "", /not validated out of sample/i, "the blurb carries the limitation");
-  assert.match(epl?.blurb ?? "", /no player markets/i, "and states the player refusal rather than omitting it");
+  // 2026-10-05: the blurb said "Not validated out of sample, and no player markets" while /epl published
+  // player projections. It now states facts only. It must never claim validation (a founder gate; being
+  // graded is not being validated), never deny the player projections that publish, and never quote a
+  // count that goes stale.
+  const blurb = epl?.blurb ?? "";
+  assert.match(blurb, /experimental, model-only/i, "the blurb carries the experimental, model-only status");
+  assert.match(blurb, /not official picks/i, "model outputs are not official picks");
+  assert.match(blurb, /too small to judge accuracy/i, "and the graded record supports no accuracy claim");
+  assert.match(blurb, /no sportsbook player markets/i, "player projections are not sportsbook player markets");
+  assert.doesNotMatch(blurb, /\bvalidated\b/i, "no validation claim in the EPL blurb");
+  assert.doesNotMatch(blurb, /no player (data|predictions|projections)|no match(es)? (has|have) been graded/i, "no stale denial");
+  assert.doesNotMatch(blurb, /\d/, "no hard-coded count that goes stale");
 });
 
 test("MLS now has a real sourced schedule (schedule-only, linked)", () => {

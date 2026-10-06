@@ -88,11 +88,12 @@ the ledger lags the owners by up to one nightly cycle; readers show the manifest
 | NFL Top-5 | `freeze-daily-top-boards` → `results/top-boards/<d>.json` (write-once) + withdrawal sidecar | PUBLISHED | yes | none (reconciliation overlay) | ✅ only when the prop ledger lacks the forecast |
 | NFL score shape | `build-nfl-score-shape` → `score-shape/<d>.json` | PUBLIC derived | no | none | ⛔ declared gap |
 | MLB moneyline / run line / total | `generate-mlb-predictions` → `predictions/<d>.json` (+ snapshots from 08-23) | PUBLIC (total PAUSED) | snapshots / git history | `grade-game-predictions` → `game-predictions-graded.jsonl` | ✅ OWNER_GRADED_LOG |
-| MLB projected score | same | PUBLIC | snapshots | none | ⛔ UNMEASURED |
+| MLB projected score + simulation-median total | same (`projectedScore`, `total.simulationMedian` — the game page's "Median simulation score" row and "Total runs" tile) | PUBLIC | snapshots / git (the revision the game owner graded) | `grade-projected-scores` → `game-projected-scores-graded.jsonl` (Block A, 2026-10-05) | ✅ `mlb_projected_runs` (per team, `mlb-team-<id>`) · `mlb_projected_total` |
 | MLB player-prop leans | `pipeline/mlb/generate_mlb_board.py` → `boards/<d>.json` | **RESEARCH** (every market demoted) | no | `settle_mlb_results.py` | ⛔ not public history |
 | MLB Homer Nukes | `build-homer-nukes` → `homer-nukes/<d>.json` (overwritten) | PUBLIC_EXPERIMENTAL | no | `settle-homer-nukes` → `settled-<d>.json` | ✅ OWNER_SETTLED_UNFROZEN |
 | EPL 1X2 + over 2.5 | `build-epl-forecasts` → `forecasts/<d>.json` + internal snapshots | PUBLIC | snapshots | `grade-epl-forecasts` → `graded-forecasts.jsonl` | ✅ |
-| EPL BTTS / clean sheet / double chance / scorelines | same | PUBLIC derived | snapshots | none | ⛔ UNMEASURED |
+| EPL BTTS / clean sheet / correct score | same (public since 2026-08-21T00:59Z, `581b84c`) | PUBLIC derived | snapshots (+ git for the 1 match before snapshots) | `grade-epl-derived-markets` → `graded-derived-markets.jsonl` (Block A, 2026-10-05) | ✅ `epl_btts` · `epl_clean_sheet` (per club, `epl-team-<id>`) · `epl_scoreline` (top-10 table + OTHER) |
+| EPL double chance | same | PUBLIC derived | — | — (exactly 1 − one 1X2 class) | ➖ measured inside `epl_1x2`, never a second observation |
 | EPL anytime scorer / SOG ≥1 | `build-epl-player-projections` → snapshots | PUBLIC | snapshots | `grade-epl-player-projections` → `graded-player-projections.jsonl` | ✅ (event id by exact join) |
 | Ligue 1 1X2 | `build-league-forecasts` → `ligue-1/forecasts/<d>.json` | PUBLIC model-only | — | `grade-league-forecasts` → `ligue-1/results/graded.json` | ✅ |
 | UFC winner | `build-ufc-card` → `card-latest.json` (overwritten) + model-vs-market snapshots | PUBLIC_EXPERIMENTAL | snapshots | `grade-ufc-model-vs-market` → `graded.jsonl` | ✅ |
@@ -129,3 +130,51 @@ owners' own scores on every row they publish.
    those games are honestly PENDING until the owner settles them (an allowed transition).
    *Status (Session 14 · Chunk 1, 2026-10-05):* fixed forward by #959 (official box-score fallback + pending sweep in
    `nfl-event-window`); runtime proof PENDING — no event-window run on a #959 SHA yet (Session 13 handoff §16).
+
+## 9. Block A (2026-10-05): EPL derived markets get an owner
+
+`app/scripts/epl/grade-epl-derived-markets.mjs` (rules in `app/src/lib/sports/epl/derived-markets-grade.mjs`, run by
+`epl-settle` right after the 1X2 grader) re-opens the SAME forecast of record the 1X2 owner graded — matched by event,
+`generatedAt` and an identical 1X2 vector — and records BTTS, both clean sheets and the published top-10 score table
+against the official full-time score the 1X2 owner already holds. Refused, never approximated: a forecast generated
+before the markets were public (`EPL_DERIVED_PUBLIC_SINCE`), a revision that cannot be re-opened (a snapshot-era miss
+fails the run), a non-final match. First run: 46 of 46 graded matches (45 from snapshots / dated files, Arsenal v
+Coventry City from commit `b2985ad59bbf`, `--from-history`) → +184 ledger rows (46 BTTS, 92 clean sheet, 46 correct
+score).
+
+- **Correct score** is MULTICLASS over the classes the page printed: the ten listed scores plus OTHER = 1 − their sum.
+  A final outside the table settles OTHER — it is never given a probability the reader did not see. "Likeliest outcome
+  happened" is the likeliest LISTED score (OTHER usually outweighs any single score but was never the published call).
+- **Clean sheet** is one row per club (subject = canonical `epl-team-<id>`, exact unique name; unresolved = not emitted).
+- **Double chance** is not a separate observation (see §6). Checked independently by the Soccer department on 319
+  forecasts: every double-chance number equals 1 − the matching 1X2 number.
+
+## 10. Block A (2026-10-05): MLB simulation medians get an owner
+
+`app/scripts/mlb/grade-projected-scores.mjs` (rules in `app/src/lib/mlb/prediction/grade-projected-scores.mjs`, run
+by `nightly-settle` step 5b right after the game-prediction grader) re-opens the exact revision the game owner graded
+(its `forecastSource`: a prediction snapshot, a dated file that still holds it, or the git commit) and reads the two
+medians from the same row. It is the same revision only if the generatedAt matches AND every probability the owner
+graded on that game (moneyline / total / run line) is reproduced exactly. First run: 801 of 801 graded games
+(2026-07-24 → 2026-10-04) → +2,403 ledger rows (1,602 team rows, 801 totals); team MAE 2.45 runs, median-total MAE
+3.61 runs. CONTINUOUS only: a median is never given a W/L — the published total pick already is `mlb_total`. The
+historical-restoration question (frozen public forecasts overwritten after first pitch) is untouched: this reads
+only revisions the owner had already graded, never reconstructs one. Joined by `gamePk` end to end, so a doubleheader
+never crosses games (probe: 2026-09-22 TB @ NYY, 823543 vs 823494). Named gaps, not graded: ~103 finals since 07-24
+have no revision that pre-dates first pitch (e.g. every game of 07-29, 08-01, 08-02, 08-06) — the game owner counts
+them as `missingPreEventFinals` and so does this owner, by never seeing them. Provenance notes from the MLB
+department's audit: 3 games of 07-24 cite commit `a717fdc3f`, a post-pitch commit of a file whose generatedAt (16:30Z)
+and game rows are byte-identical to the pre-pitch commit `ae7f5849b`; 11 snapshot games were generated 0–6 minutes
+before first pitch and committed shortly after (the snapshot's generatedAt is what the rule tests).
+
+## 11. Block A (2026-10-05): what stays unmeasured, and exactly why
+
+| Family | Forecast of record | Final data | Identity | Verdict |
+|---|---|---|---|---|
+| UFC method (KO/TKO · SUB · DEC) | not frozen: `card-latest.json` is overwritten and the model-vs-market snapshots carry only the winner probability (git history holds pre-bout copies for ~91 bouts) | `ufc/results-latest.json` (ufcstats corpus) has `method` / `round`; the ESPN capture keyed by provider bout id has the winner only | the method/round source is keyed by `<date>:<names>`, not the ESPN bout id → a name join | ⛔ BLOCKED on exact identity (UFC event-identity work); forward fix = freeze `prediction.method` / `prediction.rounds` in the pre-bout snapshot AND capture method/round from ESPN by bout id |
+| UFC round (R1 · R2 · R3+) | same as method | same | same | ⛔ same |
+| NFL score shape (key numbers, tie, exact score, overtime) | not frozen: `score-shape/<d>.json` + `latest.json` rewritten every run; pre-kickoff copies only in git history (~64 events) | final score: yes (`experimental-settlement`); overtime flag: **none captured anywhere** | ESPN event id ✓ | ⛔ needs a write-once pre-kickoff receipt before it can have an owner; overtime additionally needs an OT flag in the results capture |
+
+Neither is graded from git-history copies of an overwritten file: unlike MLB and EPL, no existing owner ever chose
+and recorded a forecast of record for these numbers, so selecting one now from history would be this block
+inventing the forecast of record after the results are known.

@@ -42,9 +42,16 @@ export function classifyBucket({ status, bucket, error }) {
   return { id: "bucket:slips", state: "PASS", detail: "the `slips` bucket exists and is private" };
 }
 
-/** The REST endpoint answering at all, with the anon key. */
-export function classifyReachable({ status, error }) {
+/**
+ * The project answering at all, with the anon key. Asked of a real table (`profiles?select=id&limit=0`)
+ * rather than the bare `/rest/v1/` root: hosted Supabase now answers the root 401 "Only the service_role
+ * API key can be used for this endpoint" even for a valid anon key, which read as a rejected key
+ * (2026-10-05 hosted beta). A 401 carrying Postgres's permission-denied code (42501) is the database
+ * refusing the table, not the gateway refusing the key, so the key is fine and the table probe judges it.
+ */
+export function classifyReachable({ status, body, error }) {
   if (error) return { id: "project", state: "FAIL", detail: `the project URL did not answer: ${error}` };
+  if (status === 401 && body?.code === "42501") return { id: "project", state: "PASS", detail: "the project answers and accepts the anon key" };
   if (status === 401) return { id: "project", state: "FAIL", detail: "the anon key was rejected — check NEXT_PUBLIC_SUPABASE_ANON_KEY" };
   if (status >= 500) return { id: "project", state: "UNKNOWN", detail: `the project answered ${status}` };
   return { id: "project", state: "PASS", detail: "the project answers and accepts the anon key" };

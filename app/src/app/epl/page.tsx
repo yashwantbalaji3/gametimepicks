@@ -10,10 +10,10 @@
  * FIRST. Signature product, then the predictions for the matchday in question, then the per-fixture
  * simulations, and only then the schedule — which is reference material, not the point.
  *
- * WHAT IS DELIBERATELY ABSENT, AND SAID OUT LOUD. There are no player markets. Not "coming soon" —
- * there is no player-level Premier League data in this system at all, so any player number would be
- * invented. That refusal is RENDERED rather than left as a hole a reader has to notice, because an
- * absence with no explanation reads as an oversight and invites someone to quietly fill it in.
+ * PLAYER PREDICTIONS. Anytime-scorer and shot-on-target projections publish from their own player head
+ * (P251), conditional on the posted or assumed lineup. When no upcoming fixture carries player rows the
+ * section says so in words rather than leaving a hole a reader has to notice. (This header used to say
+ * there was no player data at all; that stopped being true on 2026-08-21.)
  *
  * NOT VALIDATED OUT OF SAMPLE. The graded record to date renders dynamically from its own artifact
  * (never a hand-typed count — those drift the moment the next match settles), and the validation
@@ -45,7 +45,6 @@ import {
   type EplForecastRow,
   type EplForecastSet,
 } from "@/lib/sports/epl/forecast-view";
-import { eplPlayerMarketStatus } from "@/lib/sports/epl/player-markets.mjs";
 import { gradedRecordCaption, loadEplGradedRecord } from "@/lib/sports/epl/graded-record";
 import SportLabCards from "@/components/sport-lab-cards";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
@@ -184,7 +183,6 @@ export default function EplPage() {
   /** The matchweek every priced fixture belongs to, or null when they straddle more than one. */
   const weeks = new Set(priced.map((r) => r.matchweek).filter((w) => w != null));
   const matchweek = weeks.size === 1 ? [...weeks][0] : null;
-  const player = eplPlayerMarketStatus();
   const players = loadEplPlayerProjections();
   const gradedRecord = loadEplGradedRecord();
   /*
@@ -525,7 +523,14 @@ export default function EplPage() {
         <section className="mt-8">
           <SectionHeader eyebrow="Player predictions" title="Not available for this slate" />
           <div className="rounded-[12px] p-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
-            <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>{player.reason}</p>
+            {/* This used to print player-markets.mjs's August refusal ("no model… nothing about an individual
+                player is published") while the player head was publishing. The fallback only means no
+                upcoming fixture carries player rows right now, or the file could not be read — say which. */}
+            <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>
+              {players
+                ? "No upcoming fixture has player predictions yet. Anytime-scorer and shot-on-target projections appear here once the next matchweek's forecasts are built."
+                : "The player prediction file could not be read, so no player numbers are shown."}
+            </p>
           </div>
         </section>
       )}
@@ -544,7 +549,14 @@ export default function EplPage() {
           <SectionHeader
             eyebrow="Settled"
             title={`Graded so far · ${gradedRecord.team.matches} match${gradedRecord.team.matches === 1 ? "" : "es"}`}
-            sub="Read against the official result after full time. This is a log of what has been checked, not evidence the model works — that is a preregistered backtest, and it has not been run for this competition."
+            sub={
+              /* The record line must not contradict the banner above it: when the artifact says the team
+                 model was tested blind on past seasons, say that is where its test lives; otherwise say
+                 none has been run. Either way this log is a count, never an accuracy claim. */
+              set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY"
+                ? "Read against the official result after full time. This is a log of what has been checked this season, far too short to say anything about accuracy — the model's test is the blind run on past seasons described above."
+                : "Read against the official result after full time. This is a log of what has been checked, not evidence the model works — that is a preregistered backtest, and it has not been run for this competition."
+            }
           />
           <div className="mt-3 overflow-x-auto">
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>

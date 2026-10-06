@@ -58,13 +58,13 @@ test("the footer states coverage honestly: MLB's hub, NBA archive, and NO schedu
     // now names what the hub is; the property (MLB is labelled, and not as an archive) is unchanged.
     assert.match(builtFooter, /MLB<span[^>]*> · simulation center/, "MLB is labelled by what its hub is");
     assert.match(builtFooter, /NBA archive<span[^>]*> · retired model/, "the NBA archive is labelled a retired model's record, not current coverage");
-    assert.match(builtFooter, /NBA<span[^>]*> · schedule \+ finals · no forecast/, "the NBA hub is labelled factual-only");
+    assert.match(builtFooter, /NBA<span[^>]*> · schedule \+ final scores · no forecast/, "the NBA hub is labelled factual-only");
   }
   assert.match(registry, /href: "\/mlb", label: "MLB", note: "simulation center"/, "MLB declares its coverage");
   assert.match(registry, /href: "\/results\/nba", label: "NBA archive", note: "retired model/,
     "the NBA archive declares itself a retired model's archive");
   // Session 6 (founder decision 3): /nba is a factual hub in the sports group, and its entry says it publishes no forecast.
-  assert.match(registry, /href: "\/nba", label: "NBA", note: "schedule \+ finals · no forecast"/,
+  assert.match(registry, /href: "\/nba", label: "NBA", note: "schedule \+ final scores · no forecast"/,
     "the NBA hub's nav entry must not imply a model");
   // The schedule-only leagues have no public destination at all, so nothing links to them.
   for (const league of ["nhl", "ipl"]) {
