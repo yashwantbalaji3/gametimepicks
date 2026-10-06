@@ -42,7 +42,7 @@ function newestDate(dir) {
  * The recap's day is the newest day with SETTLED CARDS — not the newest settled day. On 2026-09-30 the
  * header chip said "Settled · Sep 29" beside "How Sunday, September 27 went": settlement had run through
  * the 29th, but Sep 28 and 29 published no card. Both were true and together they read as a contradiction.
- * When the recap's day is not yesterday, the heading names what it is instead ("Latest settled cards").
+ * When the recap's day is not yesterday, the heading names what it is instead ("Suggested Parlays · last settled <day> · none since").
  */
 export function recapIsYesterday(date, nowMs = Date.now()) {
   if (typeof date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
