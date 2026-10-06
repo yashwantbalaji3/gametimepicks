@@ -125,7 +125,7 @@ export default function TeamBadge({
         height: dim.px,
         borderRadius: dim.px / 5,
         background: `linear-gradient(155deg, ${colors.primary} 0%, ${
-          colors.ink === "#FFFFFF" ? readableSecondary(colors.primary, colors.secondary) : colors.secondary
+          luminance(colors.ink) > 0.5 ? readableSecondary(colors.primary, colors.secondary) : colors.secondary
         } 100%)`,
         color: colors.ink,
         fontSize: dim.font,
