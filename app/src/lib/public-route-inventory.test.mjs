@@ -134,7 +134,7 @@ const APPROVED_DESTINATIONS = new Set([
   "/results/picks/ufc",
   "/results/picks/epl",
   "/results/nba",
-  // Session 6 (founder decision 3): the factual NBA hub (schedule + finals, no forecast).
+  // Session 6 (founder decision 3): the factual NBA hub (schedule + final scores, no forecast).
   "/nba",
   "/results/nfl", // P296: the NFL week report — every published prediction graded against the official box score
   "/mlb",
@@ -183,7 +183,7 @@ const NEVER_IN_NAV = [
   // "/ufc" left it in Program 186 on the same terms: it carries an upcoming schedule marked
   // "Schedule only — simulation pending" above its settled archive, and the rendered-text guard
   // above holds it to publishing nothing predictive. "/nba" left it in Session 6 on the founder's navigation
-  // decision (2026-10-02): a factual schedule + finals hub whose page and nav entry both say "no forecast".
+  // decision (2026-10-02): a factual schedule + final scores hub whose page and nav entry both say "no forecast".
   "/nhl", "/ipl", "/board", "/projections", "/events",
   "/trends", "/world-cup", "/world-cup-specials", "/mlb/parlays",
   "/parlays", "/parlay-lab", "/games", "/ops", "/preview",

@@ -189,7 +189,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   /* Session 6 (founder decision 3, 2026-10-02): NBA is a FACTUAL hub — schedule and official finals, no forecast
      while every NBA model is shadow/withheld. The note says exactly that, so the rail never implies a model; the
      page states it again ("Schedule only — no public forecast"), and product-reset-phase-a pins both. */
-  { href: "/nba", label: "NBA", note: "schedule + finals · no forecast", group: "sports", glyph: "🏀", desc: "Basketball hub",
+  { href: "/nba", label: "NBA", note: "schedule + final scores · no forecast", group: "sports", glyph: "🏀", desc: "Basketball hub",
     surfaces: ["rail", "footer"] },
   /* No `note`: the label already ends in "Schedules", and "Sports · Schedules · schedules" is
      what a note that repeats its own label looks like. */

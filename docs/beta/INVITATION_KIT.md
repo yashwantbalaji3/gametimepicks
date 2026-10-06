@@ -1,5 +1,9 @@
 # Friends beta — invitation kit (cohort `friends-beta-2026-09`)
 
+> **Superseded for the hosted, sign-in beta (`friends-beta-2026-10`):** use the note and steps in
+> [`HOSTED_BETA_RUNBOOK.md`](./HOSTED_BETA_RUNBOOK.md). The message below promises no sign-up and no email, which
+> is no longer true once accounts are on.
+
 For the founder to send personally to up to five close friends. Nothing here collects a name or an
 address; testers are referred to as T1–T5 in `FEEDBACK_LOG.md`.
 

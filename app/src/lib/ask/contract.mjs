@@ -398,7 +398,8 @@ export const ASK_LINK_PATTERNS = Object.freeze([
   // Session 13 · the Forecast Record and its per-family pages (sport slug / family slug, both closed vocabularies).
   /^\/results\/forecasts\/(?:(?:nfl|mlb|epl|ligue-1|ufc)\/[a-z0-9-]{3,48}\/)?$/,
   // E-3: /bank-builder/ and /moonshot/ are tool-issued (results.mjs) and were refused as UNSUPPORTED_LINK.
-  /^\/(?:live|today|sports|mlb|nfl|epl|ufc|results|parlay-lab|parlays|build|markets|models|my|saved|following|methodology|learn|responsible-use|system-status|bank-builder|moonshot)\/$/,
+  // 2026-10-05 audit (A6): the product pages the help corpus now describes, /feedback/, and /nba/ for NBA questions.
+  /^\/(?:live|today|sports|mlb|nfl|epl|ufc|nba|results|parlay-lab|parlays|build|markets|models|my|saved|following|methodology|learn|responsible-use|system-status|bank-builder|moonshot|mr-dub|homer-nukes|endzone-vault|cage-chaos|goal-rush|bucket-blitz|feedback)\/$/,
   /^\/$/,
 ]);
 

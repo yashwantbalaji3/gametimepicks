@@ -13,6 +13,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { matchGameToEvent } from "../src/lib/mlb/event-game-match.mjs";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(__dirname, "..", "..");
 const args = process.argv.slice(2);
@@ -29,6 +31,7 @@ const deVig2 = (a, b) => { const ia = 1 / a, ib = 1 / b; const s = ia + ib; retu
 
 // First, discover each date's games + commence times via one snapshot near midday, then snapshot per commence.
 const out = [];
+const skippedDoubleheader = [];
 let remaining = Infinity;
 for (const date of dates) {
   if (remaining < floor) { console.log(`STOP credits ${remaining} < floor ${floor}`); break; }
@@ -37,12 +40,23 @@ for (const date of dates) {
   if (!settled.length) continue;
   // discovery snapshot: 16:00Z that day usually predates the first evening slate; use it to read commence times.
   const disc = await fetch(`https://api.the-odds-api.com/v4/historical/sports/baseball_mlb/odds?apiKey=${KEY}&regions=us&markets=h2h&date=${date}T15:00:00Z`).then((r) => { remaining = Number(r.headers.get("x-requests-remaining") ?? remaining); return r.ok ? r.json() : { data: [] }; }).catch(() => ({ data: [] }));
-  const commenceByGame = new Map();
-  for (const g of disc.data || []) commenceByGame.set(norm(g.home_team) + "|" + norm(g.away_team), g.commence_time);
+  /* Doubleheader-safe (2026-10-05): the discovery snapshot lists every upcoming event, so a team pair alone also
+     matches the next day's game in the series, and a doubleheader's two games share it. Only events that start
+     on this date are candidates, and a doubleheader (finals carry no start time to tell its games apart) is
+     skipped rather than given one game's odds twice (07-07 823062/823035 carried identical closing odds). */
+  const dayStart = Date.parse(`${date}T08:00:00Z`);
+  const discEvents = (disc.data || [])
+    .map((e) => ({ away: e.away_team, home: e.home_team, commenceTime: e.commence_time }))
+    .filter((e) => { const at = Date.parse(e.commenceTime); return at >= dayStart && at < dayStart + 24 * 3600e3; });
+  const pairCount = new Map();
+  for (const g of settled) pairCount.set(`${norm(g.awayTeam)}|${norm(g.homeTeam)}`, (pairCount.get(`${norm(g.awayTeam)}|${norm(g.homeTeam)}`) ?? 0) + 1);
   // group settled games by commence time (fallback: a fixed evening snapshot when discovery missed it)
   const slots = new Map();
   for (const g of settled) {
-    const c = commenceByGame.get(norm(g.homeTeam) + "|" + norm(g.awayTeam)) || `${date}T23:00:00Z`;
+    const sameTeamGamesOnDate = pairCount.get(`${norm(g.awayTeam)}|${norm(g.homeTeam)}`);
+    if (sameTeamGamesOnDate > 1) { skippedDoubleheader.push({ date, gamePk: g.gamePk }); continue; }
+    const found = matchGameToEvent({ away: g.awayTeam, home: g.homeTeam, commenceTime: null }, discEvents, { norm, sameTeamGamesOnDate });
+    const c = found?.commenceTime || `${date}T23:00:00Z`;
     (slots.get(c) ?? slots.set(c, []).get(c)).push(g);
   }
   for (const [commence, games] of slots) {
@@ -51,7 +65,8 @@ for (const date of dates) {
     const snap = await fetch(`https://api.the-odds-api.com/v4/historical/sports/baseball_mlb/odds?apiKey=${KEY}&regions=us&markets=h2h,totals,spreads&oddsFormat=decimal&date=${snapAt}`).then((r) => { remaining = Number(r.headers.get("x-requests-remaining") ?? remaining); return r.ok ? r.json() : null; }).catch(() => null);
     if (!snap || !(new Date(snap.timestamp) < new Date(commence))) continue;
     for (const g of games) {
-      const ev = (snap.data || []).find((e) => norm(e.home_team) === norm(g.homeTeam) && norm(e.away_team) === norm(g.awayTeam));
+      const snapEvents = (snap.data || []).map((e) => ({ ...e, away: e.away_team, home: e.home_team, commenceTime: e.commence_time }));
+      const ev = matchGameToEvent({ away: g.awayTeam, home: g.homeTeam, commenceTime: commence }, snapEvents, { norm });
       if (!ev) continue;
       const h2h = [], tot = [], spr = [];
       for (const bk of ev.bookmakers || []) {
@@ -84,7 +99,7 @@ const artifact = {
   _sourceNote: "De-vigged per bookmaker, averaged across books. All snapshots asserted strictly before commence.",
   _internal: true, _public: false, _officialMoneyRecordAffected: false,
   asOf: "2026-07-14", coverage: `${out.length} settled games across ${new Set(out.map((o) => o.date)).size} dates`,
-  creditsRemaining: remaining, games: out,
+  creditsRemaining: remaining, skippedDoubleheader, games: out,
 };
 fs.mkdirSync(path.join(REPO, "data/internal/mlb/reference"), { recursive: true });
 fs.writeFileSync(path.join(REPO, "data/internal/mlb/reference/mlb-closing-odds.json"), JSON.stringify(artifact, null, 2));

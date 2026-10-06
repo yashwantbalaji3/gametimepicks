@@ -37,7 +37,7 @@ const SPORTS: Array<{ name: string; note: string }> = [
   { name: "NFL", note: "Experimental team simulations — projected score and win probability per game, clearly labelled, with the evaluation receipts on the hub." },
   { name: "Premier League", note: "Match-result and total-goals forecasts each matchweek, plus a validated anytime-goalscorer player head and priced matchday cards." },
   { name: "UFC", note: "A fight model trained on tracked bout history: winner, method and finishing round for every bout with enough data — the unmodelled ones say so." },
-  { name: "NBA", note: "History only. The settled record from earlier seasons stays readable, but nothing new is being modelled or published for NBA." },
+  { name: "NBA", note: "Schedule and official final scores for 2026-27 on the NBA hub. No NBA forecast is published, and the settled record from earlier seasons stays readable as an archive." },
   { name: "World Cup", note: "Closed. Kept as an archive of what was published at the time." },
 ];
 

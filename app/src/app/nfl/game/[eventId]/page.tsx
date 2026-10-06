@@ -29,6 +29,7 @@ import SectionHeader from "@/components/section-header";
 import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/player-board";
 import NotInTheseNumbers from "@/components/nfl/not-in-these-numbers";
 import LivePanel from "@/components/live/live-panel";
+import { KickoffSlot } from "@/components/live/kickoff-aware";
 import { participationLabel } from "@/components/prediction/prediction-board";
 
 /*
@@ -60,6 +61,7 @@ import { archivedEventFrom, archivedEventIds, archivedForecastFor, reconciledGam
 import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 import { PUBLIC_BOARD_CLEARED } from "@/lib/sports/nfl/board-ranking.mjs";
+import SimulationV2Link from "@/components/nfl/simulation-v2-link";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -250,7 +252,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       <header style={{ marginTop: 12 }}>
         <p style={{ margin: 0, fontSize: 10.5, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
           {f.seasonType === 1 ? "Preseason" : "Regular season"} · week {f.week} · {etTime(f.kickoffUtc)}
-          {started ? " · started" : ""}
+          <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={started} when="after">{" · started"}</KickoffSlot>
         </p>
         <h1 style={{ margin: "8px 0 0", fontSize: 26, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <TeamLogo team={f.away.abbr} sport="nfl" size="sm" ariaLabel={`${f.away.name} logo`} />
@@ -277,14 +279,18 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             <strong style={{ color: "var(--vault-text)" }}>Archived pregame read · published before kickoff.</strong> Everything below is the forecast revision the graded record names, read from its committed file and not regenerated.
             {archived.reconciliation.final ? <> The final was <span style={{ fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text)" }}>{f.away.abbr} {archived.reconciliation.final.away} – {archived.reconciliation.final.home} {f.home.abbr}</span>, from the {archived.weekLabel} record.</> : null}
           </p>
-        ) : started ? (
-          <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 720 }}>
-            This game has kicked off. Everything below is exactly what was published before kickoff and has not been changed since — that is the point of keeping it.
-          </p>
-        ) : null}
+        ) : (
+          /* The build's "started" is only true when the page was rebuilt after kickoff; the slot re-asks on
+             the reader's clock so a page built before kickoff stops framing a live game as upcoming. */
+          <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={started} when="after">
+            <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 720 }}>
+              This game has kicked off. Everything below is exactly what was published before kickoff and has not been changed since — that is the point of keeping it.
+            </p>
+          </KickoffSlot>
+        )}
       </header>
 
-      {liveTop ? <div style={{ marginTop: 16 }}>{livePanel}</div> : null}
+      <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="after"><div style={{ marginTop: 16 }}>{livePanel}</div></KickoffSlot>
 
       {/* P319: save exactly this forecast — the card the homepage would feature for this game, same identity and
           settlement key; the control itself refuses once the game has kicked off. */}
@@ -344,7 +350,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           * Self-gates on `liveReadyFor("nfl")`: with the flag off it renders nothing and fetches
           * nothing.
           */}
-        {liveTop ? null : livePanel}
+        <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="before">{livePanel}</KickoffSlot>
 
         {/* P246 (founder): the calibration paragraph left the browsing path — it lives in an
             optional disclosure here and in the artifact itself, not beside every number. */}
@@ -517,6 +523,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           </section>
         );
       })()}
+      <SimulationV2Link eventId={f.providerEventId} />
 
       <section aria-labelledby="score-range" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Range" title="How wide the outcomes are" sub="the 10th to 90th percentile of each team's simulated score" />
@@ -756,7 +763,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <dt>input hash</dt><dd style={{ margin: 0 }}>{f.model.inputHash}</dd>
           <dt>generated</dt><dd style={{ margin: 0 }}>{f.generatedAt}</dd>
           <dt>kickoff</dt><dd style={{ margin: 0 }}>{f.kickoffUtc}</dd>
-          <dt>state</dt><dd style={{ margin: 0 }}>{lifecycle}</dd>
+          <dt>state</dt><dd style={{ margin: 0 }}>{lifecycle === "UPCOMING" ? <><KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={false} when="before">UPCOMING</KickoffSlot><KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={false} when="after">STARTED</KickoffSlot></> : lifecycle}</dd>
         </dl>
         {/* P250 · A15: the player board's model provenance — the receipt above names only the team
             forecast model, and nothing else on the page said which evaluation produced each player

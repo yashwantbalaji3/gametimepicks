@@ -15,16 +15,15 @@
       }
     },
     "nfl": {
-      "state": "PUBLISHING",
-      "reason": "14 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-10-08T22:45:00.000Z",
+      "state": "PUBLISHED",
+      "reason": "all 16 event(s) in the horizon carry a forecast",
+      "deadlineUtc": null,
       "counts": {
-        "scheduled": 15,
-        "published": 1,
+        "scheduled": 16,
+        "published": 16,
         "missedCoverage": 0,
-        "awaiting": 14
-      },
-      "missed": []
+        "awaiting": 0
+      }
     },
     "ufc": {
       "state": "PUBLISHING",
@@ -50,15 +49,15 @@
       }
     }
   },
-  "checkedAt": "2026-10-05T18:53:21.136Z",
+  "checkedAt": "2026-10-06T02:22:29.565Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
   "reason": "board published with 81 rows",
   "publishDeadlineUtc": null,
   "scheduledGames": 2,
-  "pregameRemaining": 2,
-  "alreadyStarted": 0,
+  "pregameRemaining": 0,
+  "alreadyStarted": 2,
   "board": {
     "present": true,
     "leans": 81,
@@ -73,16 +72,16 @@
       "startUtc": "2026-10-05T21:00:00Z",
       "away": "Chicago White Sox",
       "home": "Cleveland Guardians",
-      "detailedState": "Pre-Game",
-      "pregameAtCheck": true
+      "detailedState": "Final",
+      "pregameAtCheck": false
     },
     {
       "gamePk": 849839,
       "startUtc": "2026-10-06T00:00:00Z",
       "away": "New York Yankees",
       "home": "Tampa Bay Rays",
-      "detailedState": "Scheduled",
-      "pregameAtCheck": true
+      "detailedState": "In Progress",
+      "pregameAtCheck": false
     }
   ]
 }

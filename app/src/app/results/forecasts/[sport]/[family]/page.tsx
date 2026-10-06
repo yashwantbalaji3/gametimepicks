@@ -65,7 +65,10 @@ function forecastText(r: any): string {
   if (r.forecastKind === "BINARY_PROBABILITY") return `${pct(r.probability)}${r.direction && !/^[A-Z_]+$/.test(r.direction) ? ` · ${r.direction}` : ""}`;
   if (r.forecastKind === "MULTICLASS_PROBABILITY" && r.classProbabilities) {
     const c = r.classProbabilities;
-    return `Home ${pct(c.home)} · Draw ${pct(c.draw)} · Away ${pct(c.away)}`;
+    if ("home" in c && "draw" in c && "away" in c) return `Home ${pct(c.home)} · Draw ${pct(c.draw)} · Away ${pct(c.away)}`;
+    // A score table (EPL correct score): the likeliest listed score, and the share left to scores the table omitted.
+    if (r.categoryPrediction && "OTHER" in c) return `Likeliest ${r.categoryPrediction} (${pct(c[r.categoryPrediction])}) · scores not listed ${pct(c.OTHER)}`;
+    return "—";
   }
   return "—";
 }
@@ -77,7 +80,7 @@ function outcomeText(r: any): string {
   if (s.state === "VOID") return s.reason === "DID_NOT_PLAY" ? "Void — did not play" : s.reason === "PUSH" ? "Void — push" : s.reason === "TIE_NO_WINNER" ? "Void — tie" : "Void";
   if (s.state === "NO_MEASUREMENT") return "Not measurable — no official line";
   if (r.forecastKind === "CONTINUOUS_PROJECTION") return `Actual ${fmt(s.finalValue)}`;
-  if (r.forecastKind === "MULTICLASS_PROBABILITY") return `Result: ${s.finalCategory ?? "—"}`;
+  if (r.forecastKind === "MULTICLASS_PROBABILITY") return s.finalCategory === "OTHER" ? `Result: a score not in the table${s.reason ? ` (${s.reason.replace(/^final /, "").replace(/ is outside the published table$/, "")})` : ""}` : `Result: ${s.finalCategory ?? "—"}`;
   return r.measurement?.observed === 1 ? "Happened" : r.measurement?.observed === 0 ? "Did not happen" : s.finalCategory ? String(s.finalCategory) : "Settled";
 }
 
@@ -133,7 +136,7 @@ export default async function ForecastFamilyPage({ params }: { params: Promise<P
           <>
             <div className="stat"><b>{num(m.logLoss)}</b><span>log loss (n {n(m.n)}) — a blind guess scores {num(m.uniformReference?.logLoss)}</span></div>
             <div className="stat"><b>{num(m.brier)}</b><span>Brier score — a blind guess scores {num(m.uniformReference?.brier)}</span></div>
-            <div className="stat"><b>{pct(m.topClassAccuracy)}</b><span>our likeliest outcome happened</span></div>
+            <div className="stat"><b>{pct(m.topClassAccuracy)}</b><span>{m.topClassLabel ?? "our likeliest outcome happened"}</span></div>
           </>
         )}
         {m.directional ? (

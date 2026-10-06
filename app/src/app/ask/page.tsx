@@ -17,7 +17,7 @@ import { ASK_ROUTE } from "@/lib/ask/contract.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata: Metadata = withRouteMetadata(ASK_ROUTE, {
-  title: "Ask GameTime: questions about games, players, forecasts and the site | GameTimePicks",
+  title: "Ask GameTime · GameTime Picks",
   description:
     "Ask GameTimePicks about recorded games and player stats, team and player comparisons, matchup context, published model forecasts, live MLB games, parlay candidates and how the site works. Every answer comes from GameTime's own tools.",
   openGraph: {

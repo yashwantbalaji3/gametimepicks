@@ -1,5 +1,8 @@
 # OPTIONAL — Supabase setup task packet (standalone)
 
+> The founder-approved Friday plan, with exact commands, is [`beta/HOSTED_BETA_RUNBOOK.md`](./beta/HOSTED_BETA_RUNBOOK.md).
+> Where the two differ, the runbook wins.
+
 **Optional.** The founder decides whether to hand this to someone. Nobody is assigned. It contains no product
 or methodology decisions.
 
@@ -26,8 +29,8 @@ for a ~10-person friends beta.
 6. **Vercel env.** In Vercel project `gametime-picks` → Settings → Environment Variables → Production, add:
    - `NEXT_PUBLIC_SUPABASE_URL` = the Project URL
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = the anon key
-   - `SUPABASE_SERVICE_ROLE_KEY` = the service_role key (server-only, **no** `NEXT_PUBLIC_` prefix), only if
-     AI slip reading is wanted
+   - `SUPABASE_SERVICE_ROLE_KEY`: **not for the friends beta.** It is needed only for AI slip reading, which the
+     founder turned OFF for the beta (2026-10-05)
 
    Then **redeploy**. Env vars bind at build time.
 7. **RLS verification.** Run:
@@ -39,8 +42,9 @@ for a ~10-person friends beta.
    ```sql
    insert into public.beta_access (email, tester_code) values (lower('<your email>'), 'T0');
    ```
-   Then Authentication → Users → Invite user (same email). Open the link, land on `/account/`, record one
-   manual test bet, and confirm it appears. Delete the test user afterwards; this cascades.
+   Then Authentication → Users → Add user → Create new user (same email, Auto Confirm). Sign in at `/account/`
+   with "Email me a link", record one manual test bet, and confirm it appears. Delete the test user afterwards;
+   this cascades.
 
 ## Rules
 - Commit no secrets. Keys go only into Vercel and your password manager.

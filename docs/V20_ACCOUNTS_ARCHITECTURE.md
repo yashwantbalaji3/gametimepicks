@@ -1,13 +1,21 @@
-# Accounts — architecture (design only, v2.0 candidate)
+# Accounts — architecture (2026-09-22 design, reconciled with the built schema 2026-10-05)
 
-**Status:** DESIGN. Nothing here is provisioned. No production Supabase project is connected, no key
-exists in Vercel, no auth runs. The v1.7 overnight session (2026-09-22) wrote this so the accounts
-program can start from a decided shape rather than from the P266 slip-upload scaffold alone.
-**Existing groundwork (BUILT AND OFF):** `docs/ACCOUNTS_SETUP.md`, `db/accounts-schema.sql`
-(`profiles`, `bet_slips`, private `slips` bucket, RLS keyed to `auth.uid()`),
-`app/src/lib/accounts/{config,client,setup-check,guardrails}.mjs`, `schema-contract.test.mjs`
-(fails CI if a table lacks own-row policies), `scripts/accounts/verify-setup.mjs` (STOPs if an
-anonymous read returns any row).
+**Status (corrected 2026-10-05):** BUILT AND OFF. The schema in `db/accounts-schema.sql` is written, its RLS is
+proven by an executed two-account battery on local Postgres (`app/scripts/accounts/rls-live.mjs`, 9 injected defects
+caught), and the client surfaces exist (`/account`, `/feedback`, follow + saved sync). **No hosted Supabase project
+exists yet**; the friends beta (founder-approved 2026-10-05) is switched on by `docs/beta/HOSTED_BETA_RUNBOOK.md`.
+This page was written on 2026-09-22 as a design; sections 1, 3, 7 and 8 still hold. Where the design and the built
+schema differ, **the schema wins**:
+
+| Design (2026-09-22) | Built (`db/accounts-schema.sql`) |
+|---|---|
+| `follows(user_id, entity_id, followed_at)` | `user_follows(id, user_id, kind ∈ sport/team/player/game, entity_id, label, followed_at)` |
+| `saved_items(kind ∈ forecast/game/card/report, ref, payload)` | `saved_items(kind ∈ game/official_forecast/official_card, ref, snapshot)` |
+| `profiles.prefs jsonb` | a separate `user_preferences` table (no screen writes it yet) |
+| `profiles.age_attested_at`, `device_migrated_at` | not built |
+| writes open to any signed-in user | every write, including slip-image uploads, also requires `public.is_beta_member()` (invite list `beta_access`) |
+| one-screen "Bring these to your account?" migration | automatic union sync on `/account` (`lib/accounts/account-sync.mjs`; nothing is deleted on first sign-in) |
+| export + ordered delete endpoints (§6) | not built: no `/api/account-export`, no in-site delete; deletion is by the founder in the dashboard |
 
 ## 1. The one rule that shapes everything
 
@@ -48,7 +56,7 @@ The nav offers **Your bets** / **Account** only when `NEXT_PUBLIC_SUPABASE_URL` 
   wording must be; the column can exist (`profiles.age_attested_at timestamptz null`) but nothing
   writes it until then.
 
-## 4. Schema additions (proposed, not run)
+## 4. Schema additions (2026-09-22 proposal — superseded by the built schema; see the table at the top)
 
 ```sql
 -- all: user-owned, RLS own-row select/insert/update/delete, cascade on auth.users delete
@@ -74,7 +82,7 @@ server-only (the existing browser-code guard).
 4. Rollback: sign-out returns the reader to the device stores untouched. Deleting the account deletes
    the rows (cascade) and never touches the device.
 
-## 6. Deletion and export
+## 6. Deletion and export (design — not built yet)
 
 - **Export**: one endpoint (`/api/account-export`, server, own-`uid` only) returns `profiles`,
   `follows`, `saved_items`, `bet_slips` rows and signed URLs for the user's `slips/` objects as one JSON.
@@ -101,7 +109,7 @@ server-only (the existing browser-code guard).
 - No storing of forecasts, finals, live state or the protected record in Supabase.
 - No production connection, key, or auth switch-on from an autonomous session.
 
-## 9. Order of work when the founder opens the program
+## 9. Order of work when the founder opens the program (2026-09-22 plan; steps 2–3 are done in a different shape, 4–6 are open)
 
 1. Founder runs `docs/ACCOUNTS_SETUP.md` steps 1–4 (keys are theirs; ~20 min).
 2. Add `follows` / `saved_items` to `db/accounts-schema.sql` + the column-name integrity assertion.
