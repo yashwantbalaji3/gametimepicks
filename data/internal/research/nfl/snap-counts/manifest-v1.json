@@ -10,7 +10,7 @@
   "project": "https://github.com/nflverse/nflverse-data",
   "upstream": "snap counts are sourced by nflverse from Pro-Football-Reference"
  },
- "capturedAt": "2026-09-29T16:57:23Z",
+ "capturedAt": "2026-10-06T17:20:34Z",
  "script": "app/scripts/nfl/capture-nfl-snap-counts.mjs",
  "consumers": "research only — no model, board, promotion or public page reads these files",
  "seasons": {
@@ -65,14 +65,14 @@
   "2026": {
    "file": "snap-counts-2026.json",
    "published": true,
-   "rowCount": 4488,
-   "offenseRows": 1784,
-   "teamGames": 96,
+   "rowCount": 5970,
+   "offenseRows": 2365,
+   "teamGames": 128,
    "weekRange": [
     1,
-    3
+    4
    ],
-   "contentSha256": "eb29cb6fe810c7203dcfadbf66d5541ed15e891b7152a870e9ccc806a8722e43"
+   "contentSha256": "9662a9132747fdc114c66c1b7010198704dddd7f58d3619bf5d745b842030921"
   }
  },
  "tablesOnDisk": [
@@ -84,10 +84,10 @@
  ],
  "bridge": {
   "file": "id-bridge-v1.json",
-  "pfrIdsInTables": 3752,
-  "inPlayersFile": 3738,
-  "withGsisId": 3738,
-  "withEspnId": 3730,
+  "pfrIdsInTables": 3768,
+  "inPlayersFile": 3754,
+  "withGsisId": 3754,
+  "withEspnId": 3746,
   "espnCollisions": 0
  },
  "joinAudit": {
@@ -435,8 +435,101 @@
    }
   },
   "2026": {
-   "state": "NO_BOARD_ID_CORPUS",
-   "note": "no data/internal/research/nfl/player-events-v1/2026.json — reverse join not measurable"
+   "season": 2026,
+   "method": "id join pfr_player_id → nflverse players.csv (pfr_id → espn_id); names are audited, never used to join",
+   "forward": {
+    "offenseRows": 2365,
+    "withEspnId": 2354,
+    "rate": 0.9953,
+    "skillOffenseRows": 1560,
+    "skillWithEspnId": 1556,
+    "skillRate": 0.9974,
+    "rowsWithoutPfrId": 0
+   },
+   "reverse": {
+    "playerGames": 1243,
+    "matched": 1239,
+    "unbridged": 4,
+    "ambiguous": 0,
+    "noSnapRow": 0,
+    "teamAgree": 1239,
+    "nameAgree": 1228,
+    "examplesUnmatched": [
+     {
+      "playerId": "nfl-athlete-4241983",
+      "name": "Cody White",
+      "week": 1,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4241983",
+      "name": "Cody White",
+      "week": 2,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4241983",
+      "name": "Cody White",
+      "week": 3,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4241983",
+      "name": "Cody White",
+      "week": 4,
+      "why": "UNBRIDGED"
+     }
+    ],
+    "examplesNameDisagree": [
+     {
+      "espn": "Drew Ogletree",
+      "nflverse": "Andrew Ogletree"
+     },
+     {
+      "espn": "Joshua Palmer",
+      "nflverse": "Josh Palmer"
+     },
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
+     },
+     {
+      "espn": "Joshua Palmer",
+      "nflverse": "Josh Palmer"
+     },
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
+     },
+     {
+      "espn": "Hollywood Brown",
+      "nflverse": "Marquise Brown"
+     },
+     {
+      "espn": "Bam Knight",
+      "nflverse": "Zonovan Knight"
+     },
+     {
+      "espn": "Drew Ogletree",
+      "nflverse": "Andrew Ogletree"
+     },
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
+     },
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
+     },
+     {
+      "espn": "Joshua Palmer",
+      "nflverse": "Josh Palmer"
+     }
+    ],
+    "rate": 0.9968,
+    "teamAgreeRate": 1,
+    "nameAgreeRate": 0.9911
+   }
   }
  }
 }
