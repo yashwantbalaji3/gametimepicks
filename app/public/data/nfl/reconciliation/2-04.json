@@ -20,76 +20,76 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 15,
-  "gamesPending": 1,
+  "gamesFinal": 16,
+  "gamesPending": 0,
   "overall": {
-   "checks": 494,
-   "hits": 393,
-   "rate": 0.7955465587044535
+   "checks": 526,
+   "hits": 419,
+   "rate": 0.7965779467680608
   },
   "props": [
    {
     "id": "winner",
     "label": "Picked the winner",
     "group": "team",
-    "checks": 15,
+    "checks": 16,
     "hits": 10,
     "voids": 0,
-    "rate": 0.6666666666666666,
-    "expectedHits": 9.3
+    "rate": 0.625,
+    "expectedHits": 9.8
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 15,
+    "checks": 16,
     "hits": 15,
     "voids": 0,
-    "rate": 1,
-    "typicalMiss": 10.4,
+    "rate": 0.9375,
+    "typicalMiss": 11.3,
     "rangeWidth": 33.9,
-    "lean": -0.4
+    "lean": -1.9
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 15,
+    "checks": 16,
     "hits": 15,
     "voids": 0,
-    "rate": 1,
-    "typicalMiss": 6.3,
+    "rate": 0.9375,
+    "typicalMiss": 7.2,
     "rangeWidth": 33.3,
-    "lean": 1.5
+    "lean": 2.7
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 157,
-    "hits": 130,
-    "voids": 28,
-    "rate": 0.8280254777070064,
+    "checks": 167,
+    "hits": 139,
+    "voids": 29,
+    "rate": 0.8323353293413174,
     "status": "PUBLISHED",
     "typicalMiss": 1.8,
     "rangeWidth": 4.7,
-    "lean": -1.1
+    "lean": -1
    },
    {
     "id": "player_reception_yds",
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 157,
-    "hits": 116,
-    "voids": 28,
-    "rate": 0.7388535031847133,
+    "checks": 167,
+    "hits": 125,
+    "voids": 29,
+    "rate": 0.7485029940119761,
     "status": "PUBLISHED",
     "typicalMiss": 26.4,
-    "rangeWidth": 63,
+    "rangeWidth": 63.4,
     "lean": -15.2
    },
    {
@@ -97,50 +97,50 @@
     "label": "Rushing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 92,
-    "hits": 79,
-    "voids": 23,
-    "rate": 0.8586956521739131,
+    "checks": 98,
+    "hits": 84,
+    "voids": 24,
+    "rate": 0.8571428571428571,
     "status": "PUBLISHED",
-    "typicalMiss": 17.3,
-    "rangeWidth": 61.5,
-    "lean": -10.4
+    "typicalMiss": 17.5,
+    "rangeWidth": 62.3,
+    "lean": -10.6
    },
    {
     "id": "player_pass_yds",
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 28,
-    "hits": 20,
+    "checks": 30,
+    "hits": 22,
     "voids": 1,
-    "rate": 0.7142857142857143,
+    "rate": 0.7333333333333333,
     "status": "ESTIMATE",
-    "typicalMiss": 75.8,
-    "rangeWidth": 234.3,
+    "typicalMiss": 72.5,
+    "rangeWidth": 235.1,
     "lean": -27.1
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 15,
-    "hits": 8,
+    "checks": 16,
+    "hits": 9,
     "voids": 0,
-    "rate": 0.5333333333333333
+    "rate": 0.5625
    }
   ],
   "context": {
    "closerThanSportsbook": {
     "oursCloser": 5,
-    "booksCloser": 10,
+    "booksCloser": 11,
     "even": 0,
     "noLine": 0
    },
    "touchdowns": {
-    "playersGraded": 231,
-    "expectedScorers": 54,
-    "actualScorers": 56
+    "playersGraded": 247,
+    "expectedScorers": 57.5,
+    "actualScorers": 61
    }
   }
  },
@@ -8557,14 +8557,492 @@
     },
     "sportsbookTotal": 47.5
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 45,
+    "home": 24,
+    "total": 69,
+    "margin": -21
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "MISS"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "MISS",
+     "actual": 69
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "MISS",
+     "actual": -21
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "MISS",
+     "oursOff": 25,
+     "booksOff": 21.5
+    }
+   ],
+   "players": [
+    {
+     "name": "Bijan Robinson",
+     "team": "ATL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 8,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Bijan Robinson",
+     "team": "ATL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 40,
+     "low": 10,
+     "high": 88,
+     "actual": 2,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Bijan Robinson",
+     "team": "ATL",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 79,
+     "low": 25,
+     "high": 182,
+     "actual": 145,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Chris Olave",
+     "team": "NO",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 5,
+     "low": 2,
+     "high": 9,
+     "actual": 8,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Chris Olave",
+     "team": "NO",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 65,
+     "low": 21,
+     "high": 129,
+     "actual": 116,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Juwan Johnson",
+     "team": "NO",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 6,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Juwan Johnson",
+     "team": "NO",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 30,
+     "low": 3,
+     "high": 76,
+     "actual": 59,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Alvin Kamara",
+     "team": "NO",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 4,
+     "actual": 5,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Alvin Kamara",
+     "team": "NO",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 13,
+     "low": 0,
+     "high": 43,
+     "actual": 35,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Alvin Kamara",
+     "team": "NO",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 26,
+     "low": 5,
+     "high": 80,
+     "actual": 23,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Drake London",
+     "team": "ATL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 5,
+     "low": 2,
+     "high": 10,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Drake London",
+     "team": "ATL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 72,
+     "low": 23,
+     "high": 144,
+     "actual": 96,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Devaughn Vele",
+     "team": "NO",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 6,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Devaughn Vele",
+     "team": "NO",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 30,
+     "low": 4,
+     "high": 76,
+     "actual": 54,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Brian Robinson",
+     "team": "ATL",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 26,
+     "low": 4,
+     "high": 83,
+     "actual": 62,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kendre Miller",
+     "team": "NO",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 17,
+     "low": 2,
+     "high": 63,
+     "actual": 9,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jahan Dotson",
+     "team": "ATL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jahan Dotson",
+     "team": "ATL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 20,
+     "low": 0,
+     "high": 58,
+     "actual": 54,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kyle Pitts Sr.",
+     "team": "ATL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kyle Pitts Sr.",
+     "team": "ATL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 19,
+     "low": 0,
+     "high": 56,
+     "actual": 47,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Shough",
+     "team": "NO",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 11,
+     "low": 0,
+     "high": 53,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Shough",
+     "team": "NO",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 238,
+     "low": 138,
+     "high": 379,
+     "actual": 286,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Austin Hooper",
+     "team": "ATL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 4,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Austin Hooper",
+     "team": "ATL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 15,
+     "low": 0,
+     "high": 48,
+     "actual": 9,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Olamide Zaccheaus",
+     "team": "ATL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Olamide Zaccheaus",
+     "team": "ATL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 9,
+     "low": 0,
+     "high": 40,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Spencer Rattler",
+     "team": "NO",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 0,
+     "high": 43,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Michael Penix Jr.",
+     "team": "ATL",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 22,
+     "actual": -2,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Michael Penix Jr.",
+     "team": "ATL",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 218,
+     "low": 116,
+     "high": 367,
+     "actual": 223,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kevin Austin Jr.",
+     "team": "NO",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Kevin Austin Jr.",
+     "team": "NO",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 9,
+     "low": 0,
+     "high": 41,
+     "actual": null,
+     "outcome": "VOID"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "Bijan Robinson",
+     "team": "ATL",
+     "probability": 0.5823,
+     "outcome": "SCORED",
+     "likeliest": true
+    },
+    {
+     "name": "Chris Olave",
+     "team": "NO",
+     "probability": 0.406,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Juwan Johnson",
+     "team": "NO",
+     "probability": 0.3125,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Alvin Kamara",
+     "team": "NO",
+     "probability": 0.309,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Drake London",
+     "team": "ATL",
+     "probability": 0.2965,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Devaughn Vele",
+     "team": "NO",
+     "probability": 0.2573,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Brian Robinson",
+     "team": "ATL",
+     "probability": 0.2564,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Kendre Miller",
+     "team": "NO",
+     "probability": 0.2338,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jahan Dotson",
+     "team": "ATL",
+     "probability": 0.1513,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Kyle Pitts Sr.",
+     "team": "ATL",
+     "probability": 0.1467,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tyler Shough",
+     "team": "NO",
+     "probability": 0.1449,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Austin Hooper",
+     "team": "ATL",
+     "probability": 0.1122,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Mason Tipton",
+     "team": "NO",
+     "probability": 0.1012,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Olamide Zaccheaus",
+     "team": "ATL",
+     "probability": 0.1,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Spencer Rattler",
+     "team": "NO",
+     "probability": 0.0995,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Bryce Lance",
+     "team": "NO",
+     "probability": 0.0981,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Zachariah Branch",
+     "team": "ATL",
+     "probability": 0.07,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Michael Penix Jr.",
+     "team": "ATL",
+     "probability": 0.0573,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
    "boardNote": null
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-10-05T23:21:06Z"
+ "generatedAt": "2026-10-06T15:53:10Z"
 }
