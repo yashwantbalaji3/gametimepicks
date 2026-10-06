@@ -526,6 +526,11 @@ the tool module imports no `.ts`.
   instead of "published 0" — game-level rows are keyed by the game, so team and club history beyond NFL team score is a
   Tuesday item; a W–L names its basis in the Results page's words, never "a pick was published"; a median score pair is
   "median simulated points", never a projected (final) score.
+- **2026-10-05 entry points** (`ask-entry-points.test.mjs`): `/ask/?q=…` types a question into the composer and
+  never sends it (`lib/ask/prefill.mjs`; `askHrefFor(question)` builds the link for other pages); a typed name word must
+  START a label word ("Saka" is no longer ambiguous with Wan-Bissaka) and a possessive is dropped ("Josh Allen's");
+  help chunks for Bank Builder, Moonshot, Mr. Dub, Homer Nukes, Endzone Vault, Cage Chaos, Goal Rush, Bucket Blitz,
+  Model Lab, feedback and moved pages, each restating only its page's own description (no records or hit rates).
 
 ## 30. Future roadmap
 

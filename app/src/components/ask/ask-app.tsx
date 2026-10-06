@@ -21,6 +21,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { askPrefillFromSearch } from "@/lib/ask/prefill.mjs";
 import { ASK_STARTER_GROUPS } from "@/lib/ask/prompts.mjs";
 
 import { AssistantAnswer, renderMarkdown, type AnswerDisplay } from "./ask-answer";
@@ -62,6 +63,14 @@ export default function AskApp({ context }: { context?: { pageType: string; id?:
   const abortRef = useRef<AbortController | null>(null);
   const logRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  /* `/ask/?q=…` types the question in for the reader; it is never sent until they press Ask (lib/ask/prefill.mjs). */
+  useEffect(() => {
+    const q = askPrefillFromSearch(window.location.search);
+    if (!q) return;
+    setDraft(q);
+    inputRef.current?.focus();
+  }, []);
 
   /* Focus returns to the composer when an answer completes, so a keyboard user can simply keep typing. */
   useEffect(() => {

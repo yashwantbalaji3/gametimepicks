@@ -74,7 +74,9 @@ export async function resolveEntity(args, ctx) {
   const loaded = await ctx.turn.load(askAssetPath.entities());
   if (!loaded.ok) return { status: ASK_STATUS.ERROR, error: ASK_ERROR.ASSET_UNAVAILABLE };
 
-  const wanted = fold(args.text);
+  // A possessive is not part of a name: "Josh Allen's" is Josh Allen. Folding alone would leave a stray "s" word,
+  // which no longer matches now that a word must START a label word rather than sit anywhere inside one.
+  const wanted = fold(String(args.text ?? "").replace(/['’]s\b/gi, ""));
   if (!wanted) return { status: ASK_STATUS.UNSUPPORTED, error: ASK_ERROR.ENTITY_NOT_FOUND, resolution: "NONE", candidates: [] };
 
   const pool = (loaded.json.entries ?? []).filter(
@@ -85,12 +87,14 @@ export async function resolveEntity(args, ctx) {
   if (exact.length === 1) return resolved("EXACT", exact[0]);
   if (exact.length > 1) return ambiguous(exact);
 
-  // Looser rule: every word the caller typed appears in the label. "allen" matches "Keenan Allen" and
-  // "Josh Allen" — deliberately BOTH, so the caller is asked rather than handed the first one.
+  // Looser rule: every word the caller typed starts a word of the label. "allen" matches "Keenan Allen" and
+  // "Josh Allen" — deliberately BOTH, so the caller is asked rather than handed the first one. A word must
+  // START a label word, not merely sit inside one: "saka" is Bukayo Saka, and was being reported as ambiguous
+  // with Aaron Wan-Bissaka because "bissaka" contains it (2026-10-05 audit, A5).
   const words = wanted.split(" ").filter(Boolean);
   const loose = pool.filter((e) => {
-    const label = fold(e.label);
-    return words.every((w) => label.includes(w));
+    const labelWords = fold(e.label).split(" ");
+    return words.every((w) => labelWords.some((lw) => lw.startsWith(w)));
   });
   if (loose.length === 1) return resolved("UNIQUE_SEARCH_MATCH", loose[0]);
   if (loose.length > 1) return ambiguous(loose);
