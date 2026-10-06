@@ -95,8 +95,8 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
     state: "coming-soon",
     question: "Who finds the net today?",
     basis:
-      "Not built as a product — but its inputs now exist (P241 · A20): authorized EPL odds are " +
-      "captured each matchweek and a validated anytime-goalscorer model publishes player " +
+      "Not built as a product — but its inputs exist: authorized EPL odds are captured for " +
+      "priced matchweeks, and an anytime-goalscorer model (not validated) publishes player " +
       "probabilities on /epl. What is missing is the signature product assembled from them; until " +
       "that is built and gated, nothing publishes here.",
   },

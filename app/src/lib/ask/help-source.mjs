@@ -378,7 +378,7 @@ const CHUNKS = [
     keywords: ["goal rush", "premier league product", "epl product", "goalscorer product", "soccer product"],
     text:
       "Goal Rush is the Premier League signature product, and it is still in development. Its inputs exist — " +
-      "authorised matchweek odds and a validated anytime-goalscorer model on the EPL pages — but the product built " +
+      "authorised Premier League odds and an anytime-goalscorer model (not validated) on the EPL pages — but the product built " +
       "from them does not yet, so no Goal Rush picks publish.",
   },
   {

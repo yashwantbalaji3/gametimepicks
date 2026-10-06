@@ -85,7 +85,10 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
   const set = loadEplForecasts();
   const trackRecordLine = set?.trackRecord ?? "The graded record could not be read, so no accuracy claim is made here.";
   const generatedLine = set?.generatedAt ?? "see the dated forecast artifact for this fixture";
-  const validationLine = set?.validation ?? "NOT_VALIDATED_OUT_OF_SAMPLE";
+  /* The raw validation enum is mapped to words at render time; it is never printed as-is. */
+  const validationLine = set?.validation === "VALIDATED_OUT_OF_SAMPLE_HISTORY"
+    ? "Team match model tested blind on past seasons · not shown to outperform market prices"
+    : "Team match model not tested out of sample";
   const row = findEplForecastAnywhere(params.slug);
   /* P251-F5: the fixture's slate-mates, from the SAME reportable set the hub lists — so a match
      that has no report is never offered here, and the strip cannot outlive the matchweek. */
