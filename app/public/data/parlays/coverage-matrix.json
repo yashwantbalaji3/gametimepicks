@@ -2,7 +2,7 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-06T17:10:11Z",
+ "generatedAt": "2026-10-06T17:25:15Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
   "PUBLISHED": 0,
@@ -62,24 +62,24 @@
   {
    "lane": "ufc",
    "date": "2026-10-10",
-   "laneState": "CLOSED",
-   "laneReason": "the last price capture is 3.1 days old; only 0 priced games — the ladder needs 4",
+   "laneState": "LIVE",
+   "laneReason": null,
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.1 days old; only 0 priced games — the ladder needs 4"
+     "reason": "lane evaluation of record refused (CAPABILITY_GATED) at 2026-10-06T17:07:46Z; the next scheduled run re-evaluates under current eligibility"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.1 days old; only 0 priced games — the ladder needs 4"
+     "reason": "lane evaluation of record refused (CAPABILITY_GATED) at 2026-10-06T17:07:46Z; the next scheduled run re-evaluates under current eligibility"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.1 days old; only 0 priced games — the ladder needs 4"
+     "reason": "lane evaluation of record refused (CAPABILITY_GATED) at 2026-10-06T17:07:46Z; the next scheduled run re-evaluates under current eligibility"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.1 days old; only 0 priced games — the ladder needs 4"
+     "reason": "lane evaluation of record refused (CAPABILITY_GATED) at 2026-10-06T17:07:46Z; the next scheduled run re-evaluates under current eligibility"
     }
    }
   },
@@ -111,23 +111,23 @@
    "lane": "multi",
    "date": "2026-10-05",
    "laneState": "CLOSED",
-   "laneReason": "a cross-sport card needs two live sports; none is cleared",
+   "laneReason": "a cross-sport card needs two live sports; only UFC is cleared",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two live sports; none is cleared"
+     "reason": "a cross-sport card needs two live sports; only UFC is cleared"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two live sports; none is cleared"
+     "reason": "a cross-sport card needs two live sports; only UFC is cleared"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two live sports; none is cleared"
+     "reason": "a cross-sport card needs two live sports; only UFC is cleared"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two live sports; none is cleared"
+     "reason": "a cross-sport card needs two live sports; only UFC is cleared"
     }
    }
   }
