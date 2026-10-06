@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-06T01:41:00Z",
- "sourceGeneratedAt": "2026-10-06T01:41:00Z",
+ "generatedAt": "2026-10-06T15:53:10Z",
+ "sourceGeneratedAt": "2026-10-06T15:53:10Z",
  "providerEventId": "401872992",
  "matchup": "SF @ SEA",
  "kickoffUtc": "2026-10-11T20:25Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-06T01:41:00Z",
-  "roleEvidenceAt": "2026-10-06T01:41:00Z",
+  "injuriesCapturedAt": "2026-10-06T15:53:10Z",
+  "roleEvidenceAt": "2026-10-06T15:53:10Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -64,7 +64,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 51,
+  "absent": 52,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -212,17 +212,26 @@
   },
   "SEA": {
    "counts": {
-    "PROJECTED": 10,
+    "PROJECTED": 11,
     "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
     {
      "playerId": "nfl-athlete-3912547",
      "name": "Sam Darnold",
+     "state": "PROJECTED",
+     "families": [
+      "player_pass_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3924327",
+     "name": "Drew Lock",
      "state": "PROJECTED",
      "families": [
       "player_pass_yds"
@@ -334,19 +343,6 @@
      "name": "Zach Charbonnet",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
-    },
-    {
-     "playerId": "nfl-athlete-3924327",
-     "name": "Drew Lock",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
     }
    ]
   }
@@ -363,21 +359,14 @@
    },
    {
     "team": "SEA",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3912547",
-     "name": "Sam Darnold"
-    },
-    "snapshotAt": "2026-10-03T12:27:18Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-3924327",
-      "name": "Drew Lock"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-3912547"
-    ]
+     "nfl-athlete-3912547",
+     "nfl-athlete-3924327"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-03T12:27:18Z"
    }
   ],
   "pools": [],
@@ -907,6 +896,23 @@
      "median": 119.1,
      "p75": 192.23,
      "p90": 259.42,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3924327",
+   "name": "Drew Lock",
+   "team": "SEA",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 124.587,
+     "p10": 12.29,
+     "p25": 46.16,
+     "median": 109.59,
+     "p75": 186.37,
+     "p90": 255.74,
      "pricingState": "NOT_PROBED"
     }
    }

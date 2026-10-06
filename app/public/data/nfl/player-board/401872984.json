@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-06T01:41:00Z",
- "sourceGeneratedAt": "2026-10-06T01:41:00Z",
+ "generatedAt": "2026-10-06T15:53:10Z",
+ "sourceGeneratedAt": "2026-10-06T15:53:10Z",
  "providerEventId": "401872984",
  "matchup": "HOU @ TEN",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-06T01:41:00Z",
-  "roleEvidenceAt": "2026-10-06T01:41:00Z",
+  "injuriesCapturedAt": "2026-10-06T15:53:10Z",
+  "roleEvidenceAt": "2026-10-06T15:53:10Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -92,17 +92,17 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 52,
+  "absent": 53,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "HOU": {
    "counts": {
-    "PROJECTED": 12,
+    "PROJECTED": 13,
     "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -125,6 +125,15 @@
       "player_rush_yds"
      ],
      "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4242546",
+     "name": "Davis Mills",
+     "state": "PROJECTED",
+     "families": [
+      "player_pass_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4429059",
@@ -232,19 +241,6 @@
      "name": "Tank Dell",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-4242546",
-     "name": "Davis Mills",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
     }
    ]
   },
@@ -386,21 +382,14 @@
   "qbStarter": [
    {
     "team": "HOU",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4432577",
-     "name": "C.J. Stroud"
-    },
-    "snapshotAt": "2026-10-03T12:27:18Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4242546",
-      "name": "Davis Mills"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-4432577"
-    ]
+     "nfl-athlete-4432577",
+     "nfl-athlete-4242546"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-03T12:27:18Z"
    },
    {
     "team": "TEN",
@@ -899,6 +888,23 @@
      "median": 1,
      "p75": 2,
      "p90": 4,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4242546",
+   "name": "Davis Mills",
+   "team": "HOU",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 72.203,
+     "p10": 0,
+     "p25": 13.62,
+     "median": 53.32,
+     "p75": 113.59,
+     "p90": 173.64,
      "pricingState": "NOT_PROBED"
     }
    }
