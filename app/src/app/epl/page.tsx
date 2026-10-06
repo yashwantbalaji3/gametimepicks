@@ -498,12 +498,12 @@ export default function EplPage() {
             </ul>
           </div>
 
-          {/* P213 R-C2: the receipt stays beside the numbers — behind one disclosure whose summary
-              carries the claim. A reader still never takes the validation on trust; the detail no
-              longer competes with the table it validates. */}
+          {/* P213 R-C2: the receipt stays beside the numbers — behind one disclosure. Founder decision
+              2026-10-06: the summary makes no validation claim ("Player model · not validated"); the
+              holdout numbers below are the test it was given, not a stamp of approval. */}
           <details className="mt-3">
             <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-              Player head ({players.model.id}) — validated out of sample, the receipt
+              Player model · not validated ({players.model.id}) — the holdout test
             </summary>
             <p className="mt-1.5" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
               Fitted on {players.model.fittedAppearances.toLocaleString()} appearances,
