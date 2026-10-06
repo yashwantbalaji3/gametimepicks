@@ -31,7 +31,7 @@ export const NBA_PRESEASON_NOTE = "Preseason — no forecast published";
 type Side = { abbr?: string | null; name?: string | null; providerTeamId?: string | number | null };
 type ScheduleRow = { providerEventId?: string; dateUtc?: string; statusRaw?: string | null; seasonType?: number | null; home?: Side | null; away?: Side | null };
 type ScheduleCapture = { generatedAt?: string; rows?: ScheduleRow[] } | null;
-type FinalsRecord = { finals?: Array<Record<string, any>>; conflicts?: unknown[] } | null;
+type FinalsRecord = { finals?: Array<Record<string, any>>; conflicts?: unknown[]; updatedAt?: string } | null;
 
 /** An NBA side we can name by ESPN team id. Placeholder ("TBD") and exhibition sides keep their text. */
 function sideOf(s: Side | null | undefined): { label: string; team: ReturnType<typeof espnTeamById> } | null {
@@ -48,6 +48,11 @@ const startLabel = (iso: string) => {
     + `${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: ET })} ET`;
 };
 const shortDay = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: ET });
+
+const latestStamp = (...stamps: unknown[]): string | null => {
+  const real = stamps.filter((x): x is string => typeof x === "string" && Number.isFinite(Date.parse(x)));
+  return real.length ? real.reduce((a, b) => (Date.parse(b) > Date.parse(a) ? b : a)) : null;
+};
 
 /** Pure builder — every input passed in, so the page and the tests read the same function. */
 export function nbaHubFrom({ nowIso, schedule, finals }: { nowIso: string; schedule: ScheduleCapture; finals: FinalsRecord }): SportHubModel {
@@ -133,7 +138,9 @@ export function nbaHubFrom({ nowIso, schedule, finals }: { nowIso: string; sched
     labels: { ...DEFAULT_LABELS },
     periodLabel: next ? (nextIsPreseason ? `${season} preseason` : `${season} regular season`) : `${season} season`,
     periodRange: `${shortDay(new Date(lo).toISOString())} – ${shortDay(new Date(hi).toISOString())}`,
-    freshness: typeof schedule?.generatedAt === "string" ? schedule.generatedAt : null,
+    /* The rows come from two artifacts: the schedule capture and the finals record. Since Session 14 the finals record
+       refreshes on its own clock (nba-results-refresh), so "updated" is the later of the two real stamps. */
+    freshness: latestStamp(schedule?.generatedAt, finals?.updatedAt),
     rows,
     present: ["games", "results"],
     emptyReason: `No NBA games in the next ${NBA_HUB_AHEAD_DAYS} days on the published schedule.`,

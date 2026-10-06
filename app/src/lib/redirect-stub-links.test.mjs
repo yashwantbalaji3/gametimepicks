@@ -50,7 +50,7 @@ const STUBS = {
   "/nhl": "/today",
   "/ipl": "/today",
   // "/sports" removed in Program 158: no longer a stub — it is a real destination (schedules directory).
-  // "/nba" removed in Session 6: a schedule + finals hub again, not a stub — linking it is correct.
+  // "/nba" removed in Session 6: a schedule + final scores hub again, not a stub — linking it is correct.
   "/mlb/parlays": "/build#suggested-cards",
   // "/homer-nukes" was a stub redirecting to /results while the product was retired. It is a real
   // page again (2026-08-17), so linking it is correct rather than a wasted hop.

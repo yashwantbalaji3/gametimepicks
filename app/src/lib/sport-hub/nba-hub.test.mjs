@@ -69,7 +69,8 @@ test("preseason is labelled; a regular-season game says no forecast; the period 
   assert.equal(byId["next-pre"].reportNote, NBA_PRESEASON_NOTE);
   assert.equal(byId.reg.reportNote, NBA_NO_FORECAST_NOTE);
   assert.equal(hub.periodLabel, "2026-27 preseason");
-  assert.equal(hub.freshness, SCHEDULE.generatedAt, "freshness is the schedule capture behind the rows");
+  const later = Date.parse(FINALS.updatedAt) > Date.parse(SCHEDULE.generatedAt) ? FINALS.updatedAt : SCHEDULE.generatedAt;
+  assert.equal(hub.freshness, later, "freshness is the later of the two artifacts behind the rows");
 });
 
 test("no schedule → an honest empty state, not a crash", () => {
@@ -105,4 +106,13 @@ test("a final the schedule has already dropped is listed from the finals record 
   // a final outside the 3-day look-back stays off the page; the schedule copy is never duplicated
   assert.equal(nbaHubFrom({ nowIso: "2026-10-20T16:00:00Z", schedule: realistic, finals: FINALS }).rows.find((r) => r.id === played.providerEventId), undefined);
   assert.equal(nbaHubFrom({ nowIso: NOW, schedule: SCHEDULE, finals: FINALS }).rows.filter((r) => r.id === played.providerEventId).length, 1);
+});
+
+test("freshness follows whichever artifact moved last — the finals record refreshes on its own clock", () => {
+  const sched = { ...SCHEDULE, generatedAt: "2026-10-04T14:45:29Z" };
+  const fin = { ...FINALS, updatedAt: "2026-10-06T02:10:00Z" };
+  assert.equal(nbaHubFrom({ nowIso: NOW, schedule: sched, finals: fin }).freshness, "2026-10-06T02:10:00Z");
+  assert.equal(nbaHubFrom({ nowIso: NOW, schedule: { ...sched, generatedAt: "2026-10-07T14:00:00Z" }, finals: fin }).freshness, "2026-10-07T14:00:00Z");
+  assert.equal(nbaHubFrom({ nowIso: NOW, schedule: sched, finals: null }).freshness, "2026-10-04T14:45:29Z", "no finals record: the schedule stamp alone");
+  assert.equal(nbaHubFrom({ nowIso: NOW, schedule: null, finals: null }).freshness, null, "no stamp is invented");
 });

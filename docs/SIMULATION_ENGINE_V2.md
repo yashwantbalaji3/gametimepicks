@@ -170,7 +170,18 @@ and 80% ranges, margin and total histograms (median bucket highlighted), Q1–Q4
 team box, per-player medians (80% range) with anytime / 2+ TD counted over the same runs, the first-TD distribution, and
 the REPRESENTATIVE SIMULATED GAMES (median-like, high, low, upset, overtime) with their drive logs — each labelled an
 illustration, not the forecast. No market number appears (the receipt carries none). It becomes a public game-report
-section only after the §7 promotion gate; until then the public NFL label stays.
+section only after the §7 promotion gate; until then the public NFL label stays (the separate experimental page is §7c).
+
+## 7c. Public EXPERIMENTAL page — founder decision (2026-10-05)
+
+The founder asked for Simulation V2 to be shown to readers as a separate EXPERIMENTAL experience, starting with MNF
+ATL @ NO, **without** promoting it: `/nfl/simulation/<eventId>/` renders one game's receipt of record (the latest receipt
+generated strictly before kickoff, `sim-v2/public-receipt.mjs`) only when it passes `validateSimulationReceipt` with 0
+incoherent runs and ≥ 10,000 runs. A failing record shows nothing; an older receipt is never substituted. The game page
+links to it only when it exists. The canonical forecast and its Projected Scorecard are unchanged and keep the
+"expected statistical summaries · not one simulated game" label; on the simulation page the canonical numbers appear only
+in their own labelled card. Receipts stay `SHADOW`; §7's gate for replacing the canonical scorecard is unchanged, and
+nothing here feeds products, picks, Mr Dub or eligibility.
 
 ## 8. Migration plan — other sports (common receipt + sport adapter)
 

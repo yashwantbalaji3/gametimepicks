@@ -8,6 +8,7 @@ import MobileBottomNav from "@/components/mobile-bottom-nav";
 import CommandRail from "@/components/command-rail";
 import SlateStatusBar from "@/components/slate-status-bar";
 import AnalyticsBootstrap from "@/components/analytics-bootstrap";
+import ScrollRegionA11y from "@/components/a11y/scroll-region-a11y";
 // PR `feature/results-ux-restructure` (2026-05-29) — removed the
 // `DesktopSportsRail` import. The rail duplicated the top nav
 // (Home / Parlay Lab / Results) for desktop users and surfaced
@@ -107,6 +108,8 @@ export default function RootLayout({
         <MobileBottomNav />
         {/* Analytics bootstrap — coarse source + funnel page-views. NO-OP unless a provider is configured. */}
         <AnalyticsBootstrap />
+        {/* Keyboard access for sideways-scrolling tables + underlines for links inside sentences (WCAG 2.1.1, 1.4.1). */}
+        <ScrollRegionA11y />
       </body>
     </html>
   );

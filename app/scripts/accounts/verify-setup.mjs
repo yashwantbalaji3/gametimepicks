@@ -35,8 +35,9 @@ const get = async (url, headers) => {
 };
 
 const results = [];
-const root = await get(`${cfg.url}/rest/v1/`, anon);
-results.push(classifyReachable(root));
+// A harmless anon read of zero rows — not the `/rest/v1/` root, which hosted Supabase reserves for service_role.
+const reach = await get(`${cfg.url}/rest/v1/profiles?select=id&limit=0`, anon);
+results.push(classifyReachable(reach));
 
 for (const table of ["profiles", "bet_slips"]) {
   const r = await get(`${cfg.url}/rest/v1/${table}?select=id&limit=1`, anon);
