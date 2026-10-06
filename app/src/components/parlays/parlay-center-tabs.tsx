@@ -12,7 +12,7 @@ import Link from "next/link";
 export type ParlayCenterMode = "suggested" | "custom";
 
 const TABS: ReadonlyArray<{ mode: ParlayCenterMode; href: string; label: string; sub: string }> = [
-  { mode: "suggested", href: "/build", label: "Suggested Parlays", sub: "Start from a model-built card" },
+  { mode: "suggested", href: "/build", label: "Suggested Parlays", sub: "Start from a suggested card" },
   { mode: "custom", href: "/build/custom", label: "Build Your Own", sub: "Pick legs, set a paper stake" },
 ];
 

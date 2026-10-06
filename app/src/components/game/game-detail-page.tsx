@@ -469,7 +469,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
   // ── Tab: Suggested parlays (prominent, by risk) ──
   const cardsTab = (
     <div className="flex flex-col gap-4">
-      <SectionHeader eyebrow={`Model-built cards · ${engineTotal}`} title="Model-built cards for this match" sub="Generated from current odds and model gates, by risk. Tap any leg for model + market detail." />
+      <SectionHeader eyebrow={`Suggested cards · ${engineTotal}`} title="Suggested cards for this match" sub="Generated from current odds and card rules, by risk. Tap any leg for model + market detail." />
       {engineTotal > 0 ? (
         RISK_ORDER.map((lvl) => {
           const cards = engineCards?.byRisk[lvl] ?? [];

@@ -85,7 +85,7 @@ export default function ParlayCenterSuggestedPage() {
         primaryAction={{ label: "Build your own card", href: "/build/custom" }}
         secondaryAction={{ label: "How it works", href: "/methodology" }}
         note={ladderDate >= currentEtDate()
-          ? "Model-built cards at every risk level, each carrying its own settled record. Start from one and customize it, swap any leg you do not like, or switch to Build Your Own. Paper-only — no stake is ever filled in for you."
+          ? "Suggested cards at every risk level, each carrying its own settled record. Start from one and customize it, swap any leg you do not like, or switch to Build Your Own. Paper-only — no stake is ever filled in for you."
           : `These are the latest published cards (${etDayLabel(ladderDate) ?? ladderDate}) — today's arrive when the board posts. Customizing an expired card is a hypothetical replay; it cannot enter today's ledger. Paper-only — no stake is ever filled in for you.`}
       />
 
@@ -154,10 +154,10 @@ export default function ParlayCenterSuggestedPage() {
             className="font-semibold"
             style={{ color: "var(--vault-text)", fontSize: 17 }}
           >
-            Every card the model built
+            Every suggested card
           </h2>
           <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6, maxWidth: "72ch" }}>
-            Every model-built card behind the ladder above, by sport and risk tier. Enter any stake to see the
+            Every suggested card behind the ladder above, by sport and risk tier. Enter any stake to see the
             projected paper return — arithmetic on the odds, not an expectation of profit; nothing here is placed.
           </p>
         </div>
@@ -168,7 +168,7 @@ export default function ParlayCenterSuggestedPage() {
           <details className="gtp-disclose rounded-[12px]" style={{ border: "1px solid var(--vault-border)" }}>
             <summary className="vault-press cursor-pointer flex items-center justify-between gap-2 px-4 py-3"
               style={{ minHeight: 48, color: "var(--vault-text)", fontWeight: 700, fontSize: 14 }}>
-              <span>See all {suggestedCards.length} cards the model built today</span>
+              <span>See all {suggestedCards.length} suggested cards today</span>
               <span aria-hidden="true" style={{ color: "var(--vault-text-faint)" }}>▾</span>
             </summary>
             <div className="px-2 pb-3 sm:px-3">
@@ -181,7 +181,7 @@ export default function ParlayCenterSuggestedPage() {
             <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
               {/* F-2: the ladder's own recorded reason when the card-leg rule emptied the day — never a generic claim. */}
               {riskLadder?.eligibility?.withheldMarketContext
-                ? <>{riskLadder.eligibility.withheldMarketContext} model-built candidates were withheld: every one uses a market-context family ({(riskLadder.eligibility.withheldFamilies ?? []).join(", ")}) — the model behind it was demoted and is not a published GameTime projection. </>
+                ? <>{riskLadder.eligibility.withheldMarketContext} candidate cards were withheld: every one uses a market-context family ({(riskLadder.eligibility.withheldFamilies ?? []).join(", ")}) — the model behind it was demoted and is not a published GameTime projection. </>
                 : <>The slate was assessed and nothing cleared the card gates. That is the model&rsquo;s answer for today, not a missing update. </>}
               <Link href="/build/custom" style={{ color: "var(--vault-gold-bright)" }}>Build your own card</Link>,
               or see the ranked markets on{" "}
