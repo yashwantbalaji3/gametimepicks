@@ -4,28 +4,28 @@
   "dataClass": "PUBLIC_DERIVED",
   "rule": "One row per published/frozen forecast observation, read from its owner; append-only; missing stays missing.",
   "totals": {
-    "rows": 11021,
+    "rows": 13630,
     "settlement": {
-      "NO_MEASUREMENT": 521,
-      "PENDING": 27,
-      "SETTLED": 8227,
+      "NO_MEASUREMENT": 522,
+      "PENDING": 32,
+      "SETTLED": 10830,
       "VOID": 2246
     },
     "publication": {
-      "PUBLISHED": 11021
+      "PUBLISHED": 13630
     }
   },
   "sports": {
     "NFL": {
       "file": "nfl.jsonl",
-      "rows": 3707,
-      "contentHash": "e2fed486816bc257",
+      "rows": 3712,
+      "contentHash": "ec717513e6cc7294",
       "families": {
         "anytime_td": 944,
-        "nfl_game_margin": 111,
-        "nfl_game_total": 111,
-        "nfl_game_winner": 111,
-        "nfl_team_score": 222,
+        "nfl_game_margin": 112,
+        "nfl_game_total": 112,
+        "nfl_game_winner": 112,
+        "nfl_team_score": 224,
         "player_pass_yds": 159,
         "player_reception_yds": 781,
         "player_receptions": 781,
@@ -33,63 +33,68 @@
       },
       "settlement": {
         "NO_MEASUREMENT": 489,
-        "PENDING": 25,
+        "PENDING": 30,
         "SETTLED": 3075,
         "VOID": 118
       },
       "publication": {
-        "PUBLISHED": 3707
+        "PUBLISHED": 3712
       },
       "recoverability": {
-        "EXACT_FROZEN": 2987,
+        "EXACT_FROZEN": 2992,
         "OWNER_GRADED_LOG": 720
       },
       "latestSettledAt": "2026-10-05T15:58:06Z"
     },
     "MLB": {
       "file": "mlb.jsonl",
-      "rows": 2628,
-      "contentHash": "76f73e70d9d663d6",
+      "rows": 5048,
+      "contentHash": "704527e7d5e736c2",
       "families": {
-        "mlb_homer_nukes": 230,
-        "mlb_moneyline": 801,
-        "mlb_run_line": 801,
-        "mlb_total": 796
+        "mlb_homer_nukes": 235,
+        "mlb_moneyline": 803,
+        "mlb_projected_runs": 1606,
+        "mlb_projected_total": 803,
+        "mlb_run_line": 803,
+        "mlb_total": 798
       },
       "settlement": {
-        "NO_MEASUREMENT": 32,
+        "NO_MEASUREMENT": 33,
         "PENDING": 2,
-        "SETTLED": 2558,
+        "SETTLED": 4977,
         "VOID": 36
       },
       "publication": {
-        "PUBLISHED": 2628
+        "PUBLISHED": 5048
       },
       "recoverability": {
-        "OWNER_GRADED_LOG": 2398,
-        "OWNER_SETTLED_UNFROZEN": 230
+        "OWNER_GRADED_LOG": 4813,
+        "OWNER_SETTLED_UNFROZEN": 235
       },
-      "latestSettledAt": "2026-10-05T12:19:41Z"
+      "latestSettledAt": "2026-10-06T09:24:58Z"
     },
     "EPL": {
       "file": "epl.jsonl",
-      "rows": 4608,
-      "contentHash": "f960daa49cacb48c",
+      "rows": 4792,
+      "contentHash": "583fff7db161f43f",
       "families": {
         "epl_1x2": 46,
         "epl_anytime_goalscorer": 2258,
+        "epl_btts": 46,
+        "epl_clean_sheet": 92,
         "epl_over_2_5": 46,
+        "epl_scoreline": 46,
         "epl_shots_on_goal_over_0_5": 2258
       },
       "settlement": {
-        "SETTLED": 2516,
+        "SETTLED": 2700,
         "VOID": 2092
       },
       "publication": {
-        "PUBLISHED": 4608
+        "PUBLISHED": 4792
       },
       "recoverability": {
-        "OWNER_GRADED_LOG": 4608
+        "OWNER_GRADED_LOG": 4792
       },
       "latestSettledAt": "2026-09-22T14:47:34.000Z"
     },
@@ -139,12 +144,7 @@
     {
       "sport": "NFL",
       "family": "nfl_score_shape",
-      "reason": "Published derived distribution (key numbers, OT/tie) with no settlement owner."
-    },
-    {
-      "sport": "MLB",
-      "family": "projected score / simulation-median total",
-      "reason": "Published on game pages; no owner grades it. UNMEASURED."
+      "reason": "Key-number, tie, overtime and exact-score chances are published, but the file is overwritten on every run, so no frozen pre-kickoff copy exists to grade (only git history). Overtime cannot be settled at all yet: no captured result records whether a game went to overtime. Needs a write-once pre-kickoff receipt first."
     },
     {
       "sport": "MLB",
@@ -153,13 +153,18 @@
     },
     {
       "sport": "EPL",
-      "family": "BTTS / clean sheet / double chance / scorelines",
-      "reason": "Published as derived markets; no owner grades them. UNMEASURED."
+      "family": "double chance",
+      "reason": "Not a separate observation: each double-chance number is exactly 1 − one 1X2 class, so it is already measured inside the 1X2 family (its Brier terms are the 1X2 Brier's). Counting it again would score the same forecast twice."
+    },
+    {
+      "sport": "LIGUE_1",
+      "family": "over 2.5 / both teams to score / likeliest score",
+      "reason": "Shown on the Ligue 1 page beside the measured 1X2, but no owner grades them yet. UNMEASURED."
     },
     {
       "sport": "UFC",
       "family": "method / round",
-      "reason": "Published heads with no forward grader. UNMEASURED."
+      "reason": "Published, but the official results we capture by fight id (ESPN) record only the winner; method and round exist only in a source keyed by fighter names, and the pre-fight snapshots freeze only the winner chance. Grading would mean joining fights by name, which the UFC identity gate does not allow yet."
     },
     {
       "sport": "NBA",
