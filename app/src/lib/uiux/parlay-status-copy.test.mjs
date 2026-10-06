@@ -34,8 +34,6 @@ const SCANNED_FILES = [
 
 /** rel path -> exact number of banned hits allowed to remain (outside rows #14-#27; open items). */
 const KNOWN_RESIDUE = {
-  // "{n} model-built cards today, by scope × risk" (Suggested parlay coverage accordion on /build/custom).
-  "src/components/parlays/parlays-explorer.tsx": 1,
   // "No model-qualified pick" empty states and the "Up to 3 model-qualified picks per market" sub/hint
   // in the game page's player-prop sections (not the card section this batch changed).
   "src/components/game/game-detail-page.tsx": 4,

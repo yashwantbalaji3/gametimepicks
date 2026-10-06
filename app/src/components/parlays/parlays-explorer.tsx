@@ -223,7 +223,7 @@ function CoverageMatrix({ data }: { data?: CoverageMatrixData }) {
   // Empty-bucket reasons grouped for the diagnostics drawer.
   const emptyReasons = data.rows.flatMap((r) => r.cells.filter((c) => c.count === 0 && c.scope !== "moonshot" && c.scope !== "bank_builder").map((c) => `${r.displayName} · ${c.label}: ${c.message}`));
   return (
-    <Accordion title="Suggested parlay coverage" subtitle={`${data.grandTotal} model-built cards today, by scope × risk`} defaultOpen>
+    <Accordion title="Suggested parlay coverage" subtitle={`${data.grandTotal} suggested cards today, by scope × risk`} defaultOpen>
       <div className="overflow-x-auto -mx-1 px-1">
         <table className="w-full border-collapse" style={{ minWidth: 420 }}>
           <thead>
