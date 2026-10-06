@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-06T01:41:00Z",
- "sourceGeneratedAt": "2026-10-06T01:41:00Z",
+ "generatedAt": "2026-10-06T15:53:10Z",
+ "sourceGeneratedAt": "2026-10-06T15:53:10Z",
  "providerEventId": "401872987",
  "matchup": "MIN @ NO",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-06T01:41:00Z",
-  "roleEvidenceAt": "2026-10-06T01:41:00Z",
+  "injuriesCapturedAt": "2026-10-06T15:53:10Z",
+  "roleEvidenceAt": "2026-10-06T15:53:10Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -107,7 +107,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 38,
+  "absent": 40,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -138,16 +138,10 @@
      "name": "Carson Wentz",
      "state": "PROJECTED",
      "families": [
+      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-3917315",
@@ -246,16 +240,10 @@
      "name": "Spencer Rattler",
      "state": "PROJECTED",
      "families": [
+      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-3054850",
@@ -348,39 +336,25 @@
   "qbStarter": [
    {
     "team": "MIN",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3917315",
-     "name": "Kyler Murray"
-    },
-    "snapshotAt": "2026-10-03T12:27:18Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-2573079",
-      "name": "Carson Wentz"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
+     "nfl-athlete-2573079",
      "nfl-athlete-3917315"
-    ]
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-03T12:27:18Z"
    },
    {
     "team": "NO",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4360689",
-     "name": "Tyler Shough"
-    },
-    "snapshotAt": "2026-10-03T12:27:18Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4426339",
-      "name": "Spencer Rattler"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-4360689"
-    ]
+     "nfl-athlete-4360689",
+     "nfl-athlete-4426339"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-03T12:27:18Z"
    }
   ],
   "pools": [],
@@ -734,6 +708,15 @@
    "team": "NO",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_pass_yds": {
+     "mean": 80.982,
+     "p10": 0,
+     "p25": 19.42,
+     "median": 62.71,
+     "p75": 126.67,
+     "p90": 186.65,
+     "pricingState": "NOT_PROBED"
+    },
     "player_rush_yds": {
      "mean": 9.802,
      "p10": 0,
@@ -777,6 +760,15 @@
    "team": "MIN",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_pass_yds": {
+     "mean": 103.039,
+     "p10": 5.13,
+     "p25": 33.68,
+     "median": 88.93,
+     "p75": 156.96,
+     "p90": 221.02,
+     "pricingState": "NOT_PROBED"
+    },
     "player_rush_yds": {
      "mean": 7.938,
      "p10": 0,
