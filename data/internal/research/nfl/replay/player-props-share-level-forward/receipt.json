@@ -5,93 +5,100 @@
  "program": "300",
  "evidenceTier": "BLIND_FORWARD — every included week was committed before its first kickoff",
  "season": 2026,
- "updatedAt": "2026-09-29T18:48:13Z",
+ "updatedAt": "2026-10-06T18:59:54Z",
  "weeksIncluded": [
   2,
-  3
+  3,
+  4
  ],
  "weeksExcludedLate": [],
  "families": {
   "player_receptions": {
-   "state": "FORWARD_BREACHED",
-   "n": 394,
+   "state": "FORWARD_HOLDING",
+   "n": 586,
    "metrics": {
-    "n": 394,
-    "mae": 1.6701,
-    "rolling4Mae": 1.7303,
-    "shareVolMae": 1.6565,
-    "coverage80": 0.7716,
-    "ece": 0.0709,
-    "level": 1.0937
+    "n": 586,
+    "mae": 1.6724,
+    "rolling4Mae": 1.7476,
+    "shareVolMae": 1.6773,
+    "coverage80": 0.7773,
+    "ece": 0.0413,
+    "level": 1.0494
    },
    "bars": {
     "beatsRolling4": true,
-    "beatsShareVolume": false,
+    "beatsShareVolume": true,
     "coverage80": true,
-    "thresholdCalibration": false,
-    "level": false
+    "thresholdCalibration": true,
+    "level": true
    }
   },
   "player_reception_yds": {
    "state": "FORWARD_BREACHED",
-   "n": 394,
+   "n": 586,
    "metrics": {
-    "n": 394,
-    "mae": 22.2738,
-    "rolling4Mae": 22.8902,
-    "shareVolMae": 22.254,
-    "coverage80": 0.7665,
-    "ece": 0.101,
-    "level": 1.0651
+    "n": 586,
+    "mae": 22.955,
+    "rolling4Mae": 23.8811,
+    "shareVolMae": 22.959,
+    "coverage80": 0.7577,
+    "ece": 0.0853,
+    "level": 1.023
    },
    "bars": {
     "beatsRolling4": true,
-    "beatsShareVolume": false,
+    "beatsShareVolume": true,
     "coverage80": true,
     "thresholdCalibration": false,
     "level": true
    }
   },
   "player_rush_yds": {
-   "state": "ACCUMULATING",
-   "n": 216,
-   "needed": 300,
+   "state": "FORWARD_BREACHED",
+   "n": 323,
    "metrics": {
-    "n": 216,
-    "mae": 16.9482,
-    "rolling4Mae": 20.0475,
-    "shareVolMae": 17.4379,
-    "coverage80": 0.8472,
-    "ece": 0.0622,
-    "level": 1.1285
+    "n": 323,
+    "mae": 16.7922,
+    "rolling4Mae": 19.2928,
+    "shareVolMae": 17.4398,
+    "coverage80": 0.8297,
+    "ece": 0.064,
+    "level": 1.0969
+   },
+   "bars": {
+    "beatsRolling4": true,
+    "beatsShareVolume": true,
+    "coverage80": true,
+    "thresholdCalibration": false,
+    "level": false
    }
   },
   "player_pass_yds": {
    "state": "ACCUMULATING",
-   "n": 66,
+   "n": 98,
    "needed": 300,
    "metrics": {
-    "n": 66,
-    "mae": 62.6899,
-    "rolling4Mae": 66.803,
-    "shareVolMae": 69.7654,
-    "coverage80": 0.8788,
-    "ece": 0.1077,
-    "level": 1.0133
+    "n": 98,
+    "mae": 67.2617,
+    "rolling4Mae": 67.9821,
+    "shareVolMae": 73.481,
+    "coverage80": 0.8265,
+    "ece": 0.0923,
+    "level": 1.0037
    }
   },
   "anytime_td": {
    "state": "ACCUMULATING",
-   "n": 524,
+   "n": 782,
    "needed": 1000,
    "metrics": {
-    "n": 524,
-    "logLoss": 0.4867,
-    "constantRateLogLoss": 0.5009,
-    "meanPredicted": 0.2369,
-    "actualRate": 0.2004,
-    "level": 1.1823,
-    "ece": 0.0431
+    "n": 782,
+    "logLoss": 0.4905,
+    "constantRateLogLoss": 0.517,
+    "meanPredicted": 0.2344,
+    "actualRate": 0.2123,
+    "level": 1.1042,
+    "ece": 0.0279
    }
   }
  },
