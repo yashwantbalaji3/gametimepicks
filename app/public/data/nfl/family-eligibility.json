@@ -2,7 +2,7 @@
  "schema": "nfl-family-eligibility@1",
  "artifact": "nfl-family-eligibility",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-06T15:53:10Z",
+ "generatedAt": "2026-10-06T19:46:11Z",
  "slate": {
   "from": "2026-10-08",
   "to": "2026-10-12",
@@ -44,9 +44,9 @@
    "gtpProbability": true,
    "blockers": [
     {
-     "code": "NO_FORWARD_TEST",
-     "says": "the published model has no live forward test registered",
-     "clearsWhen": "a forward test is registered and passes"
+     "code": "FORWARD_TEST_IN_PROGRESS",
+     "says": "the model's live 2026 forward test has not reached its sample size, so it has no verdict yet",
+     "clearsWhen": "the forward test reaches its sample size and passes its bars"
     },
     {
      "code": "ROLE_NOT_CONFIRMED",
@@ -65,10 +65,16 @@
     }
    ],
    "evidence": {
-    "forwardTest": null,
+    "forwardTest": {
+     "state": "ACCUMULATING",
+     "n": 782,
+     "needed": 1000,
+     "calibrationLevel": 1.104,
+     "ece": 0.028
+    },
     "slate": {
-     "candidates": 197,
-     "withGtpProbability": 197,
+     "candidates": 302,
+     "withGtpProbability": 302,
      "roleConfirmed": 0,
      "priced": 0
     },
@@ -92,9 +98,9 @@
      "clearsWhen": "a calibrated probability model for the market passes its own validation (a projection is never turned into a probability)"
     },
     {
-     "code": "NO_FORWARD_TEST",
-     "says": "the published model has no live forward test registered",
-     "clearsWhen": "a forward test is registered and passes"
+     "code": "FORWARD_TEST_IN_PROGRESS",
+     "says": "the model's live 2026 forward test has not reached its sample size, so it has no verdict yet",
+     "clearsWhen": "the forward test reaches its sample size and passes its bars"
     },
     {
      "code": "ROLE_NOT_CONFIRMED",
@@ -113,9 +119,15 @@
     }
    ],
    "evidence": {
-    "forwardTest": null,
+    "forwardTest": {
+     "state": "ACCUMULATING",
+     "n": 98,
+     "needed": 300,
+     "calibrationLevel": 1.004,
+     "ece": 0.092
+    },
     "slate": {
-     "candidates": 36,
+     "candidates": 50,
      "withGtpProbability": 0,
      "roleConfirmed": 0,
      "priced": 0
@@ -158,7 +170,7 @@
    "evidence": {
     "forwardTest": null,
     "slate": {
-     "candidates": 184,
+     "candidates": 202,
      "withGtpProbability": 0,
      "roleConfirmed": 0,
      "priced": 0
@@ -178,9 +190,9 @@
      "clearsWhen": "a calibrated probability model for the market passes its own validation (a projection is never turned into a probability)"
     },
     {
-     "code": "NO_FORWARD_TEST",
-     "says": "the published model has no live forward test registered",
-     "clearsWhen": "a forward test is registered and passes"
+     "code": "FORWARD_TEST_IN_PROGRESS",
+     "says": "the model's live 2026 forward test has not reached its sample size, so it has no verdict yet",
+     "clearsWhen": "the forward test reaches its sample size and passes its bars"
     },
     {
      "code": "ROLE_NOT_CONFIRMED",
@@ -199,9 +211,15 @@
     }
    ],
    "evidence": {
-    "forwardTest": null,
+    "forwardTest": {
+     "state": "FORWARD_HOLDING",
+     "n": 586,
+     "needed": null,
+     "calibrationLevel": 1.049,
+     "ece": 0.041
+    },
     "slate": {
-     "candidates": 184,
+     "candidates": 219,
      "withGtpProbability": 0,
      "roleConfirmed": 0,
      "priced": 0
@@ -249,7 +267,7 @@
    "evidence": {
     "forwardTest": null,
     "slate": {
-     "candidates": 116,
+     "candidates": 121,
      "withGtpProbability": 0,
      "roleConfirmed": 0,
      "priced": 0

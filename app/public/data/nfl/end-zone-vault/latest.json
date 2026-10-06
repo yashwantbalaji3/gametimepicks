@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-10-06",
- "generatedAt": "2026-10-06T15:53:10Z",
+ "generatedAt": "2026-10-06T19:46:11Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "161 model candidates · no current comparable touchdown price is available",
+ "reason": "162 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -55,26 +55,6 @@
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   },
   {
-   "playerId": "nfl-athlete-4430807",
-   "name": "Bijan Robinson",
-   "position": "RB",
-   "team": "ATL",
-   "opponent": "BAL",
-   "event": "BAL @ ATL",
-   "providerEventId": "401872993",
-   "kickoffUtc": "2026-10-12T00:20Z",
-   "tdProbability": 0.631973,
-   "probabilityRange": {
-    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "corpus-role 2023-26 stint (nEff 2.89, g 48, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
-  },
-  {
    "playerId": "nfl-athlete-4361579",
    "name": "Javonte Williams",
    "position": "RB",
@@ -112,6 +92,26 @@
    "marketPrice": null,
    "pricingState": "NOT_PROBED",
    "shareBasis": "corpus-role 2023-26 stint (nEff 3.91, g 53, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4430807",
+   "name": "Bijan Robinson",
+   "position": "RB",
+   "team": "ATL",
+   "opponent": "BAL",
+   "event": "BAL @ ATL",
+   "providerEventId": "401872993",
+   "kickoffUtc": "2026-10-12T00:20Z",
+   "tdProbability": 0.590198,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "corpus-role 2023-26 stint (nEff 3.43, g 49, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   },
   {
@@ -255,7 +255,7 @@
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   }
  ],
- "candidateCount": 161,
+ "candidateCount": 162,
  "withheld": [
   {
    "event": "TB @ DAL",
@@ -267,13 +267,13 @@
    "event": "PHI @ JAX",
    "team": "PHI",
    "player": "Dallas Goedert",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+   "reason": "designated Doubtful — only players with no designation are listed"
   },
   {
    "event": "PHI @ JAX",
    "team": "PHI",
    "player": "DeVonta Smith",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "PHI @ JAX",
@@ -339,13 +339,13 @@
    "event": "MIN @ NO",
    "team": "NO",
    "player": "Noah Fant",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "MIN @ NO",
    "team": "MIN",
    "player": "Justin Jefferson",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "MIN @ NO",
@@ -357,13 +357,13 @@
    "event": "CLE @ NYJ",
    "team": "NYJ",
    "player": "Breece Hall",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+   "reason": "designated Doubtful — only players with no designation are listed"
   },
   {
    "event": "IND @ PIT",
    "team": "IND",
    "player": "Keenan Allen",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "IND @ PIT",
@@ -375,19 +375,19 @@
    "event": "NYG @ WSH",
    "team": "WSH",
    "player": "Terry McLaurin",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "NYG @ WSH",
    "team": "WSH",
    "player": "Rachaad White",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "NYG @ WSH",
    "team": "WSH",
    "player": "Jayden Daniels",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "NYG @ WSH",
@@ -435,7 +435,7 @@
    "event": "BAL @ ATL",
    "team": "BAL",
    "player": "Chris Moore",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "BAL @ ATL",
@@ -459,7 +459,7 @@
    "event": "BUF @ LAR",
    "team": "LAR",
    "player": "Colby Parkinson",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "BUF @ LAR",
@@ -478,7 +478,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 161,
+  "roleReadyCandidates": 162,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."

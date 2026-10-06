@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-model-status",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-06T15:53:10Z",
+ "generatedAt": "2026-10-06T19:46:11Z",
  "windowSeasonType": "MIXED_OR_REGULAR",
  "note": "Derived from committed evaluation receipts. Every state here is evidence-backed; a layer with no receipt reads UNKNOWN rather than green.",
  "teamSimulation": {
@@ -55,14 +55,16 @@
     "states": [
      "ESTIMATE"
     ],
-    "models": []
+    "models": [
+     "nfl-player-share-level-v1"
+    ]
    },
    "source": "boards",
    "nextGate": "Current role evidence, a current offered line, and settlement support.",
    "state": "ESTIMATE_BELOW_BAR",
-   "modelId": null,
+   "modelId": "nfl-player-share-level-v1",
    "headline": "Passing yards: displayed as an unvalidated estimate",
-   "detail": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk — on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+   "detail": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss — the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance."
   },
   {
    "key": "player_rush_yds",
@@ -109,17 +111,16 @@
     "states": [
      "PUBLISHED"
     ],
-    "models": [],
-    "bases": [
-     "props-v1 evaluation: n=3575, all promotion bars pass"
+    "models": [
+     "nfl-player-share-level-v1"
     ]
    },
    "source": "boards",
    "nextGate": null,
    "state": "PUBLISHED",
-   "modelId": null,
-   "headline": "Receptions: published this week on every game",
-   "detail": "Every game on this week's slate publishes receptions from the same evaluated model. Each game page states its own range."
+   "modelId": "nfl-player-share-level-v1",
+   "headline": "Receptions: published this week by nfl-player-share-level-v1",
+   "detail": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (586 graded player-games)."
   }
  ],
  "anytimeTd": {
