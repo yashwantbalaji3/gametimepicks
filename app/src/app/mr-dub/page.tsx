@@ -212,7 +212,7 @@ export default function MrDubPage() {
             {moonshotState.legacyRecord && moonshotState.displayRecord?.era === "receipts" ? (
               <details className="mb-2 text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
                 <summary className="cursor-pointer font-mono">{moonshotState.legacyRecord.label}</summary>
-                <span className="block mt-1">A different product era — June multi-leg cards from {moonshotState.legacyRecord.source}. History only; never added to the current record.</span>
+                <span className="block mt-1">A different product era — June multi-leg cards from the June 2026 ledger. History only; never added to the current record.</span>
               </details>
             ) : null}
             {moonshotLane ? (

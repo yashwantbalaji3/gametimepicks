@@ -68,7 +68,7 @@ const TEAM_STATS: Array<[string, string]> = [["drives", "Drives"], ["plays", "Pl
 
 export interface CanonicalForecast { awayWin: number; homeWin: number; projectedAway: number; projectedHome: number; totalMedian: number; modelId: string | null; generatedAt: string | null }
 
-export default function SimulationV2Report({ r, file, canonical, gameHref }: { r: any; file: string; canonical: CanonicalForecast | null; gameHref: string }) {
+export default function SimulationV2Report({ r, canonical, gameHref }: { r: any; file: string; canonical: CanonicalForecast | null; gameHref: string }) {
   const a = r.aggregate;
   const H = r.home.abbr;
   const A = r.away.abbr;
@@ -263,14 +263,14 @@ export default function SimulationV2Report({ r, file, canonical, gameHref }: { r
           <table>
             <tbody>
               <tr><th scope="row">Engine</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.simulationEngine} {r.simulationEngineVersion}</td></tr>
-              <tr><th scope="row">Status</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.promotionState} · experimental · not promoted · not our main forecast</td></tr>
+              <tr><th scope="row">Status</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>Research only · experimental · not promoted · not our main forecast</td></tr>
               <tr><th scope="row">Runs</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.runCount.toLocaleString("en-US")} · incoherent runs {r.validation.failedRuns} of {r.validation.sampleCount.toLocaleString("en-US")}</td></tr>
               <tr><th scope="row">Generated</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{stamp(r.generatedAt)} · before kickoff {stamp(kickoff.toISOString())}</td></tr>
               <tr><th scope="row">Seed</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.baseSeed} · {r.seedStrategy}</td></tr>
               <tr><th scope="row">Team strength</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.calibration?.anchors?.source} · calibrated means {H} {r.calibration?.calibratedMean?.[0]} / {A} {r.calibration?.calibratedMean?.[1]}</td></tr>
               <tr><th scope="row">Availability</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.availabilitySnapshotId}</td></tr>
-              <tr><th scope="row">Market</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.marketUse}</td></tr>
-              <tr><th scope="row">Receipt</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.simulationReceiptId} · {file.split("/").slice(-2).join("/")}</td></tr>
+              <tr><th scope="row">Market</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{String(r.marketUse ?? "").startsWith("NOT_AN_INPUT") ? "Not used as an input" : r.marketUse}</td></tr>
+              <tr><th scope="row">Receipt</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.simulationReceiptId}</td></tr>
             </tbody>
           </table>
         </Region>

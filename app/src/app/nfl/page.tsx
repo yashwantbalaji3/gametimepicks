@@ -83,6 +83,26 @@ const etDay = (iso: string) =>
 const etDayLabel = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "long", month: "long", day: "numeric" }).format(new Date(iso));
 
+/*
+ * Stage 2C truth copy (prep row #38): the coverage table's Status cell shows words, not the
+ * producer's enum. Render-time only — the artifacts keep their states, and the cell's colour check
+ * still reads the raw value. LIVE and DEPLOYED already read as words and are left as they are.
+ */
+const COVERAGE_STATE_LABEL: Record<string, string> = {
+  PUBLIC_EXPERIMENTAL: "Experimental",
+  ARCHIVED_CAPTURE: "Archived prices",
+  IN_USE: "In use",
+  EVALUATED_NONE_QUALIFY: "Evaluated · none qualify",
+  PRODUCT_GATED: "Gated",
+};
+function coverageStateLabel(state: string): string {
+  if (state === "LIVE" || state === "DEPLOYED") return state;
+  if (COVERAGE_STATE_LABEL[state]) return COVERAGE_STATE_LABEL[state];
+  if (state.startsWith("ESTIMATE_")) return "Estimate";
+  const words = state.replace(/_/g, " ").toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
 type MarketRow = {
   providerEventId: string;
   kickoffUtc: string;
@@ -942,7 +962,7 @@ export default function NflHubPage() {
               {coverage.map((c) => (
                 <tr key={c.layer}>
                   <td className="gtp-nfl-td gtp-nfl-td-13">{c.layer}</td>
-                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: c.state === "LIVE" || c.state === "DEPLOYED" ? "var(--gtp-success-on-dark)" : "var(--vault-text-mute)" }}>{c.state}</td>
+                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: c.state === "LIVE" || c.state === "DEPLOYED" ? "var(--gtp-success-on-dark)" : "var(--vault-text-mute)" }}>{coverageStateLabel(c.state)}</td>
                   <td className="gtp-nfl-td gtp-nfl-td-mute">{c.detail}</td>
                 </tr>
               ))}

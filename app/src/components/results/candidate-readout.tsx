@@ -83,7 +83,7 @@ export default function CandidateReadout({ rows, auditRange }: { rows: ReadoutRo
       </div>
 
       <p className="m-0 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10, lineHeight: 1.6 }}>
-        Reproduce: npx tsx scripts/model-learning-audit.mjs --json /tmp/audit.json &amp;&amp; npx tsx scripts/model-eval/evaluate-candidate.mjs --audit /tmp/audit.json
+        Reproducible from the project&rsquo;s published audit scripts.
       </p>
     </section>
   );

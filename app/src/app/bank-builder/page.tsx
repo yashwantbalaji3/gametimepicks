@@ -574,14 +574,14 @@ export default function BankBuilderPage() {
                     "the lifecycle store's rule-derived position" names a file, not a fact anyone
                     outside this repository can act on. What a reader needs is which number the
                     board follows and why the other one exists. */}
-                Lane {d.lane} is on <strong style={{ color: "var(--vault-text)" }}>step {d.generated}</strong>. An older store still
-                reads step {d.lifecycleStore}; nothing has written to it since {d.staleSince ?? "its last card"}, and it is kept
-                visible as history rather than hidden. Today&rsquo;s card and this board follow the official daily receipts.
+                Lane {d.lane} is on <strong style={{ color: "var(--vault-text)" }}>step {d.generated}</strong>, from the official
+                daily receipts. A retired record (last written {d.staleSince ?? "with its last card"}) still shows
+                step {d.lifecycleStore}; it is history and does not move this board.
               </li>
             ))}
           </ul>
         ) : (
-          <p className="m-0 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>No step-counter divergence between the generator and the lifecycle store today.</p>
+          <p className="m-0 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>The ladder step and the retired record agree today.</p>
         )}
       </section>
 

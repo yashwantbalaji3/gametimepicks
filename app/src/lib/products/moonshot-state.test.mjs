@@ -70,7 +70,7 @@ test("the note states the truth and never claims daily publication", () => {
 
 test("the self-declared status does not survive its own staleness", () => {
   // `active.json` still says "active" fifteen days on. Freshness outranks a file's opinion of itself.
-  assert.match(derive().contradictions.join(" | "), /declares status "active" but was last written 15 days ago/);
+  assert.match(derive().contradictions.join(" | "), /The old lane record still says "active" but has not been updated in 15 days/);
 });
 
 test("TWO SETTLED COUNTS FOR ONE PRODUCT are reported, not silently reconciled", () => {
@@ -92,7 +92,7 @@ test("ZERO PENDING beside two open cards is a contradiction", () => {
 });
 
 test("a stopped portfolio beside an active lane is a contradiction", () => {
-  assert.match(derive().contradictions.join(" | "), /"stopped" while the lane artifact says "active"/);
+  assert.match(derive().contradictions.join(" | "), /"stopped" while the old lane record says "active"/);
 });
 
 test("legs with no game identity are counted and named", () => {
