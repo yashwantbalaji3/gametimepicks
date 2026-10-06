@@ -22,12 +22,12 @@ import { OS_CHROME_GROUND } from "@/lib/brand-chrome";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GameTimePicks — Simulation-Powered Sports Analytics (Public Beta)",
+  title: "GameTime Picks — Simulation-Powered Sports Analytics (Public Beta)",
   description:
     "Explore probabilities, 10,000-run game simulations, and market comparisons. A simulation-powered sports analytics platform — paper-only, educational, and research-backed. Public beta.",
   metadataBase: new URL("https://gametimepicks.yashwantbalaji.com"),
   openGraph: {
-    title: "GameTimePicks — Simulation-Powered Sports Analytics",
+    title: "GameTime Picks — Simulation-Powered Sports Analytics",
     description:
       "10,000-run game simulations and market comparisons. Explore probabilities — paper-only, educational, public beta.",
     url: "https://gametimepicks.yashwantbalaji.com",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "GameTimePicks — Simulation-Powered Sports Analytics",
+    title: "GameTime Picks — Simulation-Powered Sports Analytics",
     description:
       "10,000-run game simulations and market comparisons. Explore probabilities — paper-only, educational, public beta.",
     images: ["/brand/gametime-picks-og.png"],

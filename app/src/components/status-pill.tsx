@@ -165,8 +165,10 @@ export default function StatusPill({
         />
       )}
       <span>{text}</span>
+      {/* QA 2026-10-05: was `opacity: 0.7`, which put "· 14 games" on the NFL hero at 4.27:1 (AA needs
+          4.5:1 at 10px). The "·" still sets the caption apart. */}
       {caption && (
-        <span style={{ opacity: 0.7, marginLeft: 2 }}>· {caption}</span>
+        <span style={{ marginLeft: 2 }}>· {caption}</span>
       )}
     </span>
   );
