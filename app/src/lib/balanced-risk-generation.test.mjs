@@ -8,8 +8,9 @@ import { RISK_BUCKET_TARGETS } from "./parlays/risk-bucket-targets.ts";
 import { getRiskBucketForCombinedOdds } from "./parlays/risk-odds-bands.ts";
 import path from "node:path";
 import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
+import { ARCHIVE_MECHANICS_COVERAGE } from "./parlays/fixtures/archive-mechanics-coverage.mjs";
 
-const slate = loadTodaySlate("2026-06-19", "2026-06-19T20:20:00Z", pinnedLaneRoot());
+const slate = loadTodaySlate("2026-06-19", "2026-06-19T20:20:00Z", pinnedLaneRoot(), ARCHIVE_MECHANICS_COVERAGE);
 const m = buildCoverageMatrix(slate, loadMoonshotLane(), "2026-06-19T20:20:00Z");
 const RB = ["low", "medium", "high", "longshot"];
 

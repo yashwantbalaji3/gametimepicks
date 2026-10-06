@@ -6,9 +6,10 @@ import { loadTodaySlate } from "./parlays/ui-loader.ts";
 import { loadWorldCupPlayerPropLegs } from "./parlays/world-cup-player-prop-legs.ts";
 import { getWorldCupMultiGameCardsForGame, getGameSpecificCardsForGame } from "./world-cup/game-specific-cards.ts";
 import { pinnedLaneRoot } from "./bank-builder/fixtures/root.mjs";
+import { ARCHIVE_MECHANICS_COVERAGE } from "./parlays/fixtures/archive-mechanics-coverage.mjs";
 
 const NOW = "2026-06-22T12:00:00Z";
-const slate = loadTodaySlate("2026-06-22", NOW);
+const slate = loadTodaySlate("2026-06-22", NOW, undefined, ARCHIVE_MECHANICS_COVERAGE);
 // The current World Cup slate has rolled to June 23 (multi-game cards target the live fixtures).
 const WC_NOW = "2026-06-23T12:00:00Z";
 

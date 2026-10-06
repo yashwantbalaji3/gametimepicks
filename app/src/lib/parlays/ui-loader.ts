@@ -14,6 +14,7 @@ import type { ExtractorStatus } from "../methodology/adapter";
 import { loadSourceForSport, ALL_SPORTS } from "../methodology/sources";
 import { extractPredictionsBySport, type SportExtractionResult } from "../methodology/adapter";
 import { buildLegsForSport, eligibleLegs } from "./eligible-leg";
+import { loadCommittedCoverage, withholdMarketContextLegs } from "./card-leg-eligibility.mjs";
 import { generateDailyParlays, generateMixedParlays } from "./daily-parlays";
 import { selectDualBankBuilder, survivalScore } from "./dual-bank-builder";
 import { currentEtDate } from "../freshness";
@@ -520,13 +521,17 @@ const _cache = new Map<string, TodaySlateView>();
  * @param rootOverride  A pinned data root, for regressions that are ABOUT a specific historical lane
  *   state. Production always omits it. Without this, those tests could only assert against the live
  *   ladder — which is what made a running product break tests simply by advancing.
+ * @param coverageOverride  TESTS ONLY. A coverage document used instead of the committed registry, so archived-slate
+ *   regressions about card MECHANICS (bands, identity, mixed cards) can still build MLB cards from legs the registry
+ *   demoted later. Production never passes it (pinned by slate-leg-eligibility.test.mjs); `null` means "registry
+ *   unavailable", which keeps no leg.
  */
-export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string, rootOverride?: string): TodaySlateView {
+export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string, rootOverride?: string, coverageOverride?: unknown): TodaySlateView {
   const root = rootOverride ?? dataRoot();
   const nowIso = nowIsoOverride ?? new Date().toISOString();
   // Cap the auto-resolved slate at the wall clock (ET) so a pre-generated future slate never surfaces.
   const date = explicitDate ?? latestSlateDate(root, currentEtDate(new Date(nowIso))) ?? "";
-  const cacheKey = `${root}|${date}|${nowIsoOverride ?? "live"}`;
+  const cacheKey = `${root}|${date}|${nowIsoOverride ?? "live"}|${coverageOverride === undefined ? "committed" : JSON.stringify(coverageOverride)}`;
   const cached = _cache.get(cacheKey);
   if (cached) return cached;
 
@@ -558,7 +563,22 @@ export function loadTodaySlate(explicitDate?: string, nowIsoOverride?: string, r
     // Individual-leg price guard: drop extreme-favorite filler (shorter than -500, e.g. -1000/-7000 —
     // barely moves a parlay's payout) and extreme underdogs (above +1200) so no card pads with them.
     const oddsBandDiagnostics: OddsBandDiagnostics = { legsDroppedTooShort: 0, legsDroppedTooLong: 0, cardsRebucketed: 0, cardsDroppedOutOfBucket: 0 };
-    const eligible = eligibleLegs(allLegs).filter((l) => {
+    // F-1 card-leg rule on the pool itself: a demoted (market-context) family never becomes an eligible leg just
+    // because its event has not started. Fails closed when the registry or a leg's family cannot be resolved.
+    const familyKeysByLabel = new Map<string, Set<string>>();
+    for (const [sport, raw] of Object.entries(rawBySport)) {
+      for (const lean of Array.isArray(raw?.leans) ? raw.leans : []) {
+        if (!lean?.marketKey) continue;
+        const k = `${sport.toUpperCase()}|${String(lean.marketLabel ?? lean.marketKey)}`;
+        (familyKeysByLabel.get(k) ?? familyKeysByLabel.set(k, new Set()).get(k)!).add(String(lean.marketKey));
+      }
+    }
+    const productEligible = withholdMarketContextLegs(
+      eligibleLegs(allLegs),
+      coverageOverride === undefined ? loadCommittedCoverage(path.resolve(process.cwd(), "..")) : coverageOverride,
+      familyKeysByLabel,
+    ).kept as EligibleLeg[];
+    const eligible = productEligible.filter((l) => {
       const o = (l as { odds?: number | null }).odds;
       if (o == null) return true;
       if (o < INDIVIDUAL_LEG_ODDS_GUARDS.minFavoriteAmerican) { oddsBandDiagnostics.legsDroppedTooShort++; return false; }

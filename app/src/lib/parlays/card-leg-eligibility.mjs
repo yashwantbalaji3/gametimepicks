@@ -47,6 +47,37 @@ export function partitionByLegEligibility(slips, families, sport = null) {
   return { eligible, withheld, withheldFamilies: [...named].sort() };
 }
 
+/**
+ * The same rule applied to the LIVE LEG POOL (Build Your Own, /today's Parlay Center tile, the explorer, the Bank
+ * Builder dry-run preview — every surface fed by `loadTodaySlate`). Before this, that pool only checked that an event
+ * had not started, so before first pitch every demoted MLB prop leg reached Build Your Own as "model-qualified".
+ *
+ * Fails CLOSED, never open:
+ *   - no coverage document → no leg is kept (the rule cannot be judged, so nothing is promoted);
+ *   - a sport whose registry demotes any family → a leg of that sport must resolve to exactly ONE family key
+ *     (its own `marketKey`, else `familyKeysByLabel.get("SPORT|<marketType>")`); an unknown or ambiguous family
+ *     is withheld.
+ * Legs of sports with no demoted family are unchanged. Pure: the caller loads the coverage document.
+ */
+export function withholdMarketContextLegs(legs, coverageDoc, familyKeysByLabel = new Map()) {
+  const all = legs ?? [];
+  if (!coverageDoc) return { kept: [], withheldCount: all.length };
+  const families = marketContextFamilies(coverageDoc);
+  const gatedSports = new Set([...families].map((k) => k.split(":")[0]));
+  const kept = all.filter((l) => {
+    const sport = String(l?.sport ?? "").toUpperCase();
+    if (!gatedSports.has(sport)) return true;
+    let family = l?.marketKey ?? null;
+    if (!family) {
+      const keys = familyKeysByLabel.get(`${sport}|${l?.marketType ?? ""}`);
+      if (!keys || keys.size !== 1) return false;
+      family = [...keys][0];
+    }
+    return !legIsMarketContext({ sport, market: family }, families);
+  });
+  return { kept, withheldCount: all.length - kept.length };
+}
+
 /** Is a price captured at `capturedAt` still fresh at `nowIso`? An unreadable timestamp is never fresh. */
 export function priceIsFresh(capturedAt, nowIso) {
   const c = Date.parse(capturedAt ?? ""), n = Date.parse(nowIso ?? "");

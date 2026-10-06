@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { buildCardFactoryDiagnostics } from "./card-factory-diagnostics.ts";
 import { loadTodaySlate } from "./ui-loader.ts";
 import { RISK_BUCKETS } from "./risk-taxonomy.ts";
+import { ARCHIVE_MECHANICS_COVERAGE } from "./fixtures/archive-mechanics-coverage.mjs";
 
 const SCOPES = ["world_cup_single_game", "world_cup_multi_game", "mlb", "mixed"];
 
@@ -24,7 +25,7 @@ test("every scope × risk cell has a message and a non-vague reason when empty",
 });
 
 test("June 19 slate present: World Cup + MLB + Mixed all pass (paid odds), empty buckets stay honest", () => {
-  const slate = loadTodaySlate("2026-06-19", "2026-06-19T15:00:00Z");
+  const slate = loadTodaySlate("2026-06-19", "2026-06-19T15:00:00Z", undefined, ARCHIVE_MECHANICS_COVERAGE);
   const diag = buildCardFactoryDiagnostics(slate, "2026-06-19T15:00:00Z");
   assert.equal(diag.slatePresent, true, "the generated June 19 slate is present");
   // World Cup multi-game + MLB + Mixed all have passed cards (real odds-backed legs, paid Odds API key).
