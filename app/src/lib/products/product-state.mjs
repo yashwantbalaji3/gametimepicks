@@ -146,7 +146,7 @@ export function productStateLabel(state, { artifactDate = null, productDate = nu
  */
 export function productStateExplanation(state) {
   switch (state) {
-    case PRODUCT_STATES.CARD_PUBLISHED: return "Today's card is published and its events have not started.";
+    case PRODUCT_STATES.CARD_PUBLISHED: return "Today's card is published. It is graded from official results after its games finish.";
     case PRODUCT_STATES.AWAITING_SETTLEMENT: return "Today's card is placed; results are graded from official box scores once games finish.";
     case PRODUCT_STATES.SETTLED: return "Today's card has been graded from official results.";
     case PRODUCT_STATES.COMPLETED_NO_QUALIFIED_CARD:

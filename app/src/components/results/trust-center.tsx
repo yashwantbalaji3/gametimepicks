@@ -320,7 +320,7 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
               label: "Parlay Center",
               href: "/build/",
               status: "Suggested cards + custom builds",
-              detail: "Model-built cards — educational",
+              detail: "Suggested cards — educational",
             },
             {
               label: "Soccer Specials",

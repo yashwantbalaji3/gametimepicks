@@ -121,7 +121,7 @@ export default function SuggestedCard({
       ) : (
         <div className="rounded-[8px] px-3 py-2.5" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 30%, transparent)", border: "1px solid var(--vault-rule)" }}>
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
-            Model card · no market odds (no paper payout)
+            Card · no market odds (no paper payout)
           </span>
         </div>
       )}

@@ -42,7 +42,7 @@ test("🔴 pregame, demoted MLB prop legs that otherwise look valid are NOT in t
 });
 
 test("🔴 pregame, /today's Parlay Center counts no card built from a demoted family", () => {
-  // /today's tile value is `loadTodaySlate().allSuggested.length` ("N model cards").
+  // /today's tile value is `loadTodaySlate().allSuggested.length` ("N suggested cards").
   const without = loadTodaySlate(DATE, PREGAME, undefined, ARCHIVE_MECHANICS_COVERAGE);
   assert.ok(without.allSuggested.length > 0, "without the rule the same slate produced model cards");
   const v = loadTodaySlate(DATE, PREGAME);

@@ -222,10 +222,10 @@ export default function TodayPage() {
   // ── Build-a-Pick — the engine's suggested-card count for today (public label "Build-a-Pick" → /picks). ──
   const engineSlate = loadTodaySlate();
   const engineSuggested = engineSlate.allSuggested.length;
-  const bapStatus = engineSlate.available && engineSuggested > 0 ? `${engineSuggested} model card${engineSuggested === 1 ? "" : "s"}` : "No cards today";
+  const bapStatus = engineSlate.available && engineSuggested > 0 ? `${engineSuggested} suggested card${engineSuggested === 1 ? "" : "s"}` : "No cards today";
   const bapSuggestedLine = engineSlate.available && engineSuggested > 0
-    ? "Model-ranked, leakage-validated legs — build any card and see the projected paper return."
-    : "No model-qualified legs cleared today — the builder returns with the next slate.";
+    ? "Suggested from today's eligible legs — build any card and see the projected paper return."
+    : "No eligible legs today — the builder returns with the next slate.";
 
   // ── Active-sport labels for the header — from the PRODUCT-DAY OWNER (P201 · A1), never counted
   //    here. A sport is "active today" exactly when its own canonical artifacts say LIVE; upcoming

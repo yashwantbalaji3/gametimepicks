@@ -78,7 +78,7 @@ export default function ParlayCenterCustomPage() {
         counts={{ builderLegs: pool.length }}
         primaryAction={{ label: "Browse suggested parlays", href: "/build" }}
         secondaryAction={{ label: "How it works", href: "/methodology" }}
-        note="Every leg here is model-qualified — odds-backed, pre-event, role-quality screened. Add legs, set a paper stake, and see the combined return live. Your card stays in this browser; nothing is placed or recorded."
+        note="Every leg here passed the card rules — odds-backed, pre-event, role-quality screened. Add legs, set a paper stake, and see the combined return live. Your card stays in this browser; nothing is placed or recorded."
       />
 
       <ParlayCenterTabs active="custom" />

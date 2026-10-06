@@ -22,7 +22,7 @@ test("🔴 the EPL ladder refuses a stale capture with the ONE freshness rule, b
 test("🔴 /build's empty card list states the ladder's recorded reason when the card-leg rule emptied the day", () => {
   const p = src("src/app/build/page.tsx");
   assert.match(p, /riskLadder\?\.eligibility\?\.withheldMarketContext/);
-  assert.match(p, /model-built candidates were withheld: every one uses a market-context family/);
+  assert.match(p, /candidate cards were withheld: every one uses a market-context family/);
   assert.match(src("src/lib/parlays/risk-ladder.ts"), /readonly eligibility\?: \{/, "the ladder type carries the rule's record");
 });
 
