@@ -155,6 +155,10 @@ function main() {
         byState: l.coverage.byState,
         rowLevelClaimable: l.coverage.rowLevelClaimable,
         countable: l.coverage.countable,
+        // Archive rows captured under another provider event (next-day series game or doubleheader partner);
+        // never evidence for this slate. See RESEARCH_ROW_LINEAGE_CONTRACT.md "Provider event mismatch".
+        foreignRowsExcluded: l.foreignRowsExcluded,
+        unverifiedOwnRowsExcluded: l.unverifiedOwnRowsExcluded,
       };
     }),
   };

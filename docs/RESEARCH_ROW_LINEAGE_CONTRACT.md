@@ -190,3 +190,66 @@ every run rewrites the timestamp.
 producing `EventIdentity` values, a pregame artifact carrying a per-row `capturedAt` and an event
 start, and an ID-based join key. Until those exist, its rows are `LEGACY_UNSTAMPED` — which is the
 correct published answer, not a blocker.
+
+## Provider event mismatch (2026-10-05)
+
+**What went wrong.** The MLB pregame capture mapped Odds-API events to a `gamePk` by `away|home` with no date. A
+settlement-join file could therefore hold `marketRows` captured for the next day's series game, or for the other half of
+a doubleheader, all stamped with this file's `gamePk`. MLB's read-only scan on 2026-10-05 found 31,483 such rows in
+416 of 913 files. Of those, 3,871 are confirmed mis-joins (2,728 different-day and 1,143 other doubleheader game),
+25,146 started within 30 minutes of the file's game and are probably the same game under a reissued id, and 2,466
+foreign events could not be dated. Read as-is, each row lent its capture time and price to a board row of the
+wrong game.
+
+**Rule (fail closed).** A `marketRow` whose `providerEventId` differs from its file's own `providerEventId` is **not
+pregame evidence** for that file's game (`rowBelongsToFile`). The file itself says which rows these are, so no
+hand-kept list exists that could drift or fail open. A file with no own id proves no mismatch and is read as before.
+Nothing is re-joined to a "right" game, because that would be a guess (rule 4), and **no archive file is changed**
+(rule 5). Per-date counts are published as `foreignRowsExcluded` in `index.json`.
+
+**A file's own id is not proof by itself.** MLB found that a file's own `providerEventId` can also be a mis-stamp. 406
+files have an own event that cannot be verified as their game, and 258 of them share their own id with a different
+`gamePk`'s file (for example 2026-07-22/822784 and 2026-07-23/822785 both claim `36ba7a8a…`). A file whose own event
+is unverified vouches for **no** row: its own-id rows and its id-less rows are excluded too (`unverifiedOwnRowsExcluded`
+in `index.json`). Either of two sources marks a file unverified:
+1. the archive itself, when the file's own id is the own id of another `gamePk`'s file. This needs no list, and it
+   covers all 258 shared-id files;
+2. MLB's receipt `ownEventUnverified[]`, which adds the files whose own event fails MLB's other checks (no provider
+   record, not on the board, a doubleheader, and so on).
+
+**The one way back in.** `data/internal/mlb/reference/provider-event-aliases.json` is MLB-owned, written by
+`app/scripts/mlb/build-provider-event-aliases.mjs`, with schema `mlb-provider-event-aliases-1`. Its `aliases[]`
+(`{ foreignProviderEventId, gamePk, evidence }`) admit a foreign id for exactly its one `gamePk`, and only on MLB's
+recorded evidence: same clubs, provider start within 30 minutes, no second meeting that day, and the id is not another
+game's own event. An id listed for two games admits nothing, and nor does a receipt with any other `schemaVersion`.
+Nothing re-admits an own-id row from an unverified file. While the receipt is absent there are no aliases and only
+check 1 runs.
+
+**Re-admission is limited to the 74 aliases the founder approved** (Yash, 2026-10-06 00:31Z, "Option A, Strict 74").
+They are listed as exact (foreign id, gamePk) pairs in `app/src/lib/research/approved-provider-event-aliases.ts`. Each
+passed MLB's six rules and also appears, with the same clubs and start, in the provider's own daily event listing for
+that date. A foreign row returns only when MLB's receipt and that list both name the same pair
+(`approvedReadmissions`). A receipt alias outside the list, or naming a different game, admits nothing. The 3 ids
+that pass the six rules but are missing from the daily listing (2026-08-03 STL @ NYY 823520, 2026-08-03 WSH @ PHI
+823431, 2026-08-28 CIN @ CHC 824638) stay excluded and are never inferred from name or time similarity. Adding a pair is
+a reviewed code change. Re-admission affects research labels only; public picks, settlement, the Forecast Ledger and
+published results do not read the list.
+
+**The settlement-lineage gate now runs on every row whose archive file carries an official settlement**, not only on
+rows that have a pregame observation. The gate's subjects (official source, `fetchedAt`, event start, provider event)
+all come from the join file, not from the pregame observation, so requiring one was a gap. It hid 49 rows whose
+archived box score was fetched **before their own first pitch**, the doubleheader signature. Those rows are now
+`CONFLICTED`.
+
+**Effect on 2026-10-05 data** (69 row-level dates):
+- `PROVEN_SIDECAR` drops from 13,426 to **7,329** without MLB's receipt. With the receipt (measured against MLB's
+  preview, re-admission off) it drops to **6,327**, because the receipt flags more files whose own event is
+  unverified. With MLB's Strict-74 receipt and the 74 approved aliases re-admitted it is **8,103**. This count is the per-date "N of M rows have a pregame capture record" on `/markets`. It drops on 52
+  of 69 dates without the receipt, and on 56 with it. 2026-10-04, the date `/markets` showed on 2026-10-05, is
+  unchanged at 40.
+- `CONFLICTED` rises from 73 to 122.
+- The official ledger and every published result are untouched.
+
+Guard: `app/src/lib/research/row-lineage-misjoin.test.mjs`. It checks one file per scan class against MLB's scan as
+the oracle, plus alias semantics, the shared-own-id rule (MLB's 822784 and 822785 example), the per-date counts, and that no
+archive file is modified.

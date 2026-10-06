@@ -10,6 +10,8 @@
  *   archive data/internal/mlb/pregame-archive/settlement-joins/<date>/<gamePk>.json
  *                                                          per-row capture times + the official source
  *   refusal data/internal/mlb/research-quarantine/<date>.json  rows an eligibility gate withheld
+ *   aliases data/internal/mlb/reference/provider-event-aliases.json  (optional, MLB-owned) foreign provider
+ *           event ids MLB has PROVEN to be the same game as a join file's gamePk — absent = no aliases
  *   terminal public/data/research/terminal-summary.json    date-level quarantines + market registry
  *
  * The ledger is never written. Nothing here modifies any input; the whole product of this module is a
@@ -51,6 +53,7 @@ import {
   type ResearchRowLineage,
   type SettlementRecord,
 } from "./row-lineage";
+import { APPROVED_PROVIDER_EVENT_ALIASES, EXCLUDED_UNCONFIRMED_PROVIDER_EVENT_ALIASES } from "./approved-provider-event-aliases";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -58,6 +61,7 @@ const BOARDS = path.join(APP, "public/data/mlb/boards");
 const LEDGER = path.join(APP, "public/data/mlb/results/settled_leans.jsonl");
 const ARCHIVE = path.join(REPO, "data/internal/mlb/pregame-archive/settlement-joins");
 const REFUSALS = path.join(REPO, "data/internal/mlb/research-quarantine");
+export const PROVIDER_EVENT_ALIASES = path.join(REPO, "data/internal/mlb/reference/provider-event-aliases.json");
 export const LINEAGE_ARTIFACT_DIR = path.join(APP, "public/data/research/row-lineage");
 
 const readJson = <T>(p: string): T | null => {
@@ -182,6 +186,125 @@ export interface ArchiveIndex {
   readonly eventStartByGamePk: ReadonlyMap<string, string | null>;
   readonly providerEventByGamePk: ReadonlyMap<string, string | null>;
   readonly files: number;
+  /** marketRows captured under ANOTHER provider event than their file's own — never indexed as evidence. */
+  readonly foreignRowsExcluded: number;
+  /** marketRows of a file whose OWN provider event is unverified (shared with another game, or listed by MLB). */
+  readonly unverifiedOwnRowsExcluded: number;
+}
+
+// ── provider-event mismatch (2026-10-05) ───────────────────────────────────────────────────────
+//
+// The capture mapped Odds-API events to a gamePk by "away|home" with no date, so a join file could hold rows
+// captured for the NEXT day's series game or for the other half of a doubleheader, all stamped with this file's
+// gamePk (MLB scan 2026-10-05: 31,483 such rows in 237+ files). Indexed as-is, such a row lends its capture time and
+// price to a board row of the wrong game, and is judged against the wrong first pitch. The file itself says which
+// rows these are — `row.providerEventId !== file.providerEventId` — so the rule needs no hand-kept list and applies
+// to every future file. It fails CLOSED: a foreign row is never evidence for this gamePk unless MLB's alias receipt
+// proves that exact (foreign id → gamePk) is the same game. Nothing is re-joined to a "right" game (that would be a
+// guess), and no archive file is changed. See docs/RESEARCH_ROW_LINEAGE_CONTRACT.md §"Provider event mismatch".
+
+//
+// A file's OWN providerEventId can itself be a mis-stamp (MLB, 2026-10-05: 406 files whose own event cannot be
+// verified as their game; 258 share their own id with a different gamePk's file — one of each pair is the next
+// day's game). So "row id == file id" is not proof on its own. A file whose own event is unverified contributes
+// NO row as evidence: neither its own-id rows nor its id-less rows. Two sources mark a file unverified, and either
+// is enough: (1) the archive itself, when the file's own id is also the own id of another gamePk's file (no list
+// needed), and (2) MLB's receipt `ownEventUnverified[]`. Nothing re-admits an own-id row from such a file; a
+// foreign row is admitted only by the receipt's `aliases[]`, which proves that exact (id → gamePk).
+
+export const PROVIDER_EVENT_ALIASES_SCHEMA = "mlb-provider-event-aliases-1";
+
+/**
+ * The foreign rows MLB's receipt may re-admit: only the pairs the founder approved (Yash, 2026-10-06 00:31Z, "Strict
+ * 74"; approved-provider-event-aliases.ts). A receipt alias outside that list, or one naming a different gamePk than
+ * the list, admits nothing, and the 3 unconfirmed ids never do. So the receipt can widen nothing by itself; it can
+ * still make the archive stricter (`ownEventUnverified`). Widening the list is a reviewed code change, never a data drop.
+ */
+export function approvedReadmissions(
+  receiptAliases: ReadonlyMap<string, string>,
+  approved: readonly (readonly [string, number])[] = APPROVED_PROVIDER_EVENT_ALIASES,
+): ReadonlyMap<string, string> {
+  const excluded = new Set(EXCLUDED_UNCONFIRMED_PROVIDER_EVENT_ALIASES.map(([id]) => id));
+  const out = new Map<string, string>();
+  for (const [id, gamePk] of approved) {
+    if (excluded.has(id)) continue;
+    if (receiptAliases.get(id) === String(gamePk)) out.set(id, String(gamePk));
+  }
+  return out;
+}
+
+export interface ProviderEventReceipt {
+  /** foreign providerEventId → the one gamePk MLB proved it is. */
+  readonly aliases: ReadonlyMap<string, string>;
+  /** Repo-relative join files whose own provider event MLB could not verify. */
+  readonly ownEventUnverified: ReadonlySet<string>;
+}
+
+const EMPTY_RECEIPT: ProviderEventReceipt = { aliases: new Map(), ownEventUnverified: new Set() };
+
+/** MLB's alias receipt. Absent, unreadable or another schema = no aliases and no unverified list (fails closed for
+ *  foreign rows; the archive's own shared-id check still runs). */
+let receiptCache: ProviderEventReceipt | null = null;
+export function loadProviderEventReceipt(file: string = PROVIDER_EVENT_ALIASES): ProviderEventReceipt {
+  if (file === PROVIDER_EVENT_ALIASES && receiptCache) return receiptCache;
+  const doc = readJson<{
+    schemaVersion?: string;
+    aliases?: { foreignProviderEventId?: string; gamePk?: number | string }[];
+    ownEventUnverified?: { joinFile?: string }[];
+  }>(file);
+  let out = EMPTY_RECEIPT;
+  if (doc && doc.schemaVersion === PROVIDER_EVENT_ALIASES_SCHEMA) {
+    const seen = new Map<string, Set<string>>();
+    for (const a of doc.aliases ?? []) {
+      if (!a.foreignProviderEventId || a.gamePk == null) continue;
+      const set = seen.get(a.foreignProviderEventId) ?? new Set<string>();
+      set.add(String(a.gamePk));
+      seen.set(a.foreignProviderEventId, set);
+    }
+    const aliases = new Map<string, string>();
+    // An id aliased to two games is ambiguity, and ambiguity resolves to nothing (contract rule 4).
+    for (const [id, pks] of seen) if (pks.size === 1) aliases.set(id, [...pks][0]!);
+    const unverified = new Set((doc.ownEventUnverified ?? []).map((u) => u.joinFile).filter((f): f is string => !!f));
+    out = { aliases, ownEventUnverified: unverified };
+  }
+  if (file === PROVIDER_EVENT_ALIASES) receiptCache = out;
+  return out;
+}
+
+/** Own provider event ids that more than one gamePk's join file claims, across the whole archive. */
+let sharedOwnCache: ReadonlySet<string> | null = null;
+export function sharedOwnProviderEvents(root: string = ARCHIVE): ReadonlySet<string> {
+  if (root === ARCHIVE && sharedOwnCache) return sharedOwnCache;
+  const owners = new Map<string, Set<string>>();
+  if (fs.existsSync(root)) {
+    for (const date of fs.readdirSync(root).sort()) {
+      const dir = path.join(root, date);
+      if (!fs.statSync(dir).isDirectory()) continue;
+      for (const name of fs.readdirSync(dir).filter((f) => f.endsWith(".json"))) {
+        const f = readJson<{ providerEventId?: string | null; gamePk?: number | string }>(path.join(dir, name));
+        if (!f?.providerEventId || f.gamePk == null) continue;
+        const set = owners.get(f.providerEventId) ?? new Set<string>();
+        set.add(String(f.gamePk));
+        owners.set(f.providerEventId, set);
+      }
+    }
+  }
+  const out = new Set([...owners].filter(([, pks]) => pks.size > 1).map(([id]) => id));
+  if (root === ARCHIVE) sharedOwnCache = out;
+  return out;
+}
+
+/** True when a marketRow may be read as evidence for its file's game. */
+export function rowBelongsToFile(
+  rowProviderEventId: string | null | undefined,
+  file: { providerEventId: string | null; gamePk: number | string; ownEventUnverified?: boolean },
+  aliases: ReadonlyMap<string, string>,
+): boolean {
+  // A foreign id MLB proved to be this game is evidence whatever the file's own stamp says.
+  if (rowProviderEventId && rowProviderEventId !== file.providerEventId && aliases.get(rowProviderEventId) === String(file.gamePk)) return true;
+  if (file.ownEventUnverified) return false; // the file cannot vouch for any row, its own-id rows included
+  if (!rowProviderEventId || !file.providerEventId) return true; // nothing to compare — no mismatch is provable
+  return rowProviderEventId === file.providerEventId;
 }
 
 /**
@@ -198,7 +321,12 @@ export function loadArchiveIndex(date: string): ArchiveIndex {
   const settlementByGamePk = new Map<string, SettlementRecord>();
   const eventStartByGamePk = new Map<string, string | null>();
   const providerEventByGamePk = new Map<string, string | null>();
+  const receipt = loadProviderEventReceipt();
+  const readmit = approvedReadmissions(receipt.aliases);
+  const sharedOwn = sharedOwnProviderEvents();
   let files = 0;
+  let foreignRowsExcluded = 0;
+  let unverifiedOwnRowsExcluded = 0;
 
   if (fs.existsSync(dir)) {
     for (const name of fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort()) {
@@ -218,7 +346,16 @@ export function loadArchiveIndex(date: string): ArchiveIndex {
         finalizedAt: file.officialSource?.fetchedAt ?? null,
       });
 
+      const ownEventUnverified =
+        receipt.ownEventUnverified.has(rel) || (!!file.providerEventId && sharedOwn.has(file.providerEventId));
+      const subject = { providerEventId: file.providerEventId ?? null, gamePk: file.gamePk, ownEventUnverified };
       for (const row of file.marketRows ?? []) {
+        if (!rowBelongsToFile(row.providerEventId, subject, readmit)) {
+          const foreign = !!row.providerEventId && !!file.providerEventId && row.providerEventId !== file.providerEventId;
+          if (foreign) foreignRowsExcluded += 1;
+          else unverifiedOwnRowsExcluded += 1;
+          continue;
+        }
         entries.push([
           {
             gamePk: row.gamePk,
@@ -249,6 +386,8 @@ export function loadArchiveIndex(date: string): ArchiveIndex {
     eventStartByGamePk,
     providerEventByGamePk,
     files,
+    foreignRowsExcluded,
+    unverifiedOwnRowsExcluded,
   };
 }
 
@@ -303,6 +442,9 @@ export interface DateLineage {
   readonly violations: readonly string[];
   /** True when a pregame archive exists for this date, i.e. row-level proof is even possible. */
   readonly archivePresent: boolean;
+  /** Archive rows captured under another provider event, excluded as evidence for this slate (see rowBelongsToFile). */
+  readonly foreignRowsExcluded: number;
+  readonly unverifiedOwnRowsExcluded: number;
 }
 
 /**
@@ -323,6 +465,8 @@ export function buildDateLineage(date: string, ctx: LineageContext): DateLineage
       coverage: summarizeCoverage([]),
       violations: [`board for ${date} is missing or unreadable`],
       archivePresent: false,
+      foreignRowsExcluded: 0,
+      unverifiedOwnRowsExcluded: 0,
     };
   }
 
@@ -408,7 +552,7 @@ export function buildDateLineage(date: string, ctx: LineageContext): DateLineage
         }
       : (rowRefusal ? (refusals.get(rowRefusal) ?? null) : null);
 
-    if (pregame && archiveSettlement?.sourceType && archiveSettlement.finalizedAt && identity.eventId) {
+    if (archiveSettlement?.sourceType && archiveSettlement.finalizedAt && identity.eventId) {
       gateRowIds.add(id);
       gateSubjects.push({
         predictionId: id,
@@ -458,6 +602,8 @@ export function buildDateLineage(date: string, ctx: LineageContext): DateLineage
     coverage: summarizeCoverage(rows),
     violations,
     archivePresent: archive.files > 0,
+    foreignRowsExcluded: archive.foreignRowsExcluded,
+    unverifiedOwnRowsExcluded: archive.unverifiedOwnRowsExcluded,
   };
 }
 
