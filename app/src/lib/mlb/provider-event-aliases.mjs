@@ -14,7 +14,11 @@
  *      (no doubleheader that day);
  *   4. the #984 matcher, at a 30-minute tolerance against that board, returns exactly G (same home and away
  *      clubs, scheduled start within 30 minutes);
- *   5. every join file that holds the foreign id agrees on the same G.
+ *   5. every join file that holds the foreign id agrees on the same G;
+ *   6. a second, independent source confirms it: the provider's own daily event listing for that date
+ *      (app/public/data/mlb/schedule/<date>.json) lists that exact id with the same home and away clubs and a
+ *      start within 30 minutes of G (founder decision 2026-10-06: "Strict 74"; an id the listing does not show is
+ *      refused, never inferred from name/time similarity).
  * Anything else is refused with a reason. Nothing is guessed, and no archive row is edited or re-joined.
  */
 import { matchEventToGamePk } from "./event-game-match.mjs";
@@ -52,7 +56,7 @@ export function indexProviderEvents(records, index = new Map()) {
  *   boards: Map<string, { gamePk: number, away: string, home: string, commenceTime: string }[]>,
  * }} input
  */
-export function buildProviderEventAliases({ joinFiles, events, boards }) {
+export function buildProviderEventAliases({ joinFiles, events, boards, listings = new Map() }) {
   // Every gamePk whose join file names this id as its own event. More than one means the id was stamped onto
   // two games, so it proves neither.
   const ownersOf = new Map();
@@ -69,7 +73,7 @@ export function buildProviderEventAliases({ joinFiles, events, boards }) {
   }
 
   /** Does provider event `id` provably belong to join file `j`'s game? → { ok: true, ev, game } or { reason }. */
-  const verify = (id, j) => {
+  const verify = (id, j, { requireListing = false } = {}) => {
     if ([...(ownersOf.get(id) ?? [])].some((pk) => pk !== j.gamePk)) return { reason: "OWNED_BY_ANOTHER_GAME" };
     const ev = events.get(id);
     if (!ev) return { reason: "NO_PROVIDER_RECORD" };
@@ -83,6 +87,13 @@ export function buildProviderEventAliases({ joinFiles, events, boards }) {
     if (m.reason === "NO_EVENT_TIME") return { reason: "NO_EVENT_TIME" };
     if (m.reason !== "MATCHED") return { reason: "NOT_WITHIN_30_MIN_SAME_CLUBS" };
     if (m.gamePk !== j.gamePk) return { reason: "MATCHES_ANOTHER_GAME" };
+    if (requireListing) {
+      const listed = (listings.get(j.date) ?? []).find((l) => l.id === id);
+      const confirms = listed && norm(listed.away) === norm(game.away) && norm(listed.home) === norm(game.home)
+        && Math.abs(Date.parse(listed.commenceTime) - Date.parse(game.commenceTime)) <= ALIAS_TOLERANCE_MINUTES * 60e3;
+      if (!confirms) return { reason: "NOT_CONFIRMED_BY_PROVIDER_DAILY_LISTING" };
+      return { ok: true, ev, game, listed };
+    }
     return { ok: true, ev, game };
   };
 
@@ -100,13 +111,14 @@ export function buildProviderEventAliases({ joinFiles, events, boards }) {
       const slot = byId.get(id) ?? { gamePks: new Set(), evidence: [], refusals: new Set(), rows: 0 };
       byId.set(id, slot);
       slot.rows += rows;
-      const v = verify(id, j);
+      const v = verify(id, j, { requireListing: true });
       if (!v.ok) { slot.refusals.add(v.reason); continue; }
       slot.gamePks.add(j.gamePk);
       slot.evidence.push({
         joinFile: j.file, date: j.date, rows,
         providerEvent: { awayTeam: v.ev.away, homeTeam: v.ev.home, commenceTime: v.ev.start },
         scheduledGame: { gamePk: v.game.gamePk, awayTeam: v.game.away, homeTeam: v.game.home, gameDate: v.game.commenceTime },
+        providerDailyListing: { file: `app/public/data/mlb/schedule/${j.date}.json`, awayTeam: v.listed.away, homeTeam: v.listed.home, commenceTime: v.listed.commenceTime },
         startDeltaMinutes: Math.round(Math.abs(Date.parse(v.ev.start) - Date.parse(v.game.commenceTime)) / 60e3),
         gamesBetweenClubsOnDate: 1,
       });

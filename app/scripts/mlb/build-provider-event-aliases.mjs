@@ -5,7 +5,7 @@
  * 2026-10-05). Rules: app/src/lib/mlb/provider-event-aliases.mjs.
  *
  * Reads only recorded inputs: settlement-join files, the provider's own event fields in the pregame-archive
- * market snapshots and snapshots, and the StatsAPI boards. Reads no network, edits no archive file, re-joins nothing.
+ * market snapshots and snapshots, the StatsAPI boards, and the provider daily event listings. Reads no network, edits no archive file, re-joins nothing.
  * The output carries no wall-clock time, so a rerun on the same inputs is byte-identical.
  *
  *   node scripts/mlb/build-provider-event-aliases.mjs          # dry run: prints the summary
@@ -77,13 +77,22 @@ for (const date of new Set(joinFiles.map((j) => j.date))) {
   boards.set(date, (b.games ?? []).map((g) => ({ gamePk: g.gamePk, away: g.awayTeamName, home: g.homeTeamName, commenceTime: g.gameDate })));
 }
 
-const result = buildProviderEventAliases({ joinFiles, events, boards });
+// 4. The provider's own daily event listing (the Odds API /events snapshot): the independent second source.
+const listings = new Map();
+for (const date of boards.keys()) {
+  const p = path.join(APP, "public/data/mlb/schedule", `${date}.json`);
+  if (!fs.existsSync(p)) continue;
+  const doc = JSON.parse(fs.readFileSync(p, "utf8"));
+  listings.set(date, (doc.games ?? []).filter((g) => g.gameId).map((g) => ({ id: g.gameId, away: g.away, home: g.home, commenceTime: g.commenceTime })));
+}
+
+const result = buildProviderEventAliases({ joinFiles, events, boards, listings });
 const doc = {
   schemaVersion: ALIAS_SCHEMA_VERSION,
   public: false,
   producedBy: "app/scripts/mlb/build-provider-event-aliases.mjs",
-  rule: `A foreign providerEventId in a settlement-join file for gamePk G is aliased to G only when the provider's own record (teams + commence time) is known and consistent, the id is not another game's own event, G is on that date's StatsAPI board with no other game between the same clubs and no second provider start for them that day (no doubleheader), the event matches exactly G with the same home and away clubs and a scheduled start within ${ALIAS_TOLERANCE_MINUTES} minutes, and every join file holding the id agrees. Everything else is refused. No archive row is edited or re-joined.`,
-  inputs: { settlementJoinFiles: joinFiles.length, providerSnapshotFiles: snapshotFiles, providerEvents: events.size, boardDates: boards.size },
+  rule: `A foreign providerEventId in a settlement-join file for gamePk G is aliased to G only when the provider's own record (teams + commence time) is known and consistent, the id is not another game's own event, G is on that date's StatsAPI board with no other game between the same clubs and no second provider start for them that day (no doubleheader), the event matches exactly G with the same home and away clubs and a scheduled start within ${ALIAS_TOLERANCE_MINUTES} minutes, every join file holding the id agrees, and the provider's own daily event listing for that date independently lists the exact id with the same clubs and start. Everything else is refused. No archive row is edited or re-joined.`,
+  inputs: { providerDailyListingDates: listings.size, settlementJoinFiles: joinFiles.length, providerSnapshotFiles: snapshotFiles, providerEvents: events.size, boardDates: boards.size },
   summary: result.summary,
   aliases: result.aliases,
   refused: result.refused,

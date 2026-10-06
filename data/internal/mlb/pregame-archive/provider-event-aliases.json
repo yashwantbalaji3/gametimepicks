@@ -2,8 +2,9 @@
  "schemaVersion": "mlb-provider-event-aliases-1",
  "public": false,
  "producedBy": "app/scripts/mlb/build-provider-event-aliases.mjs",
- "rule": "A foreign providerEventId in a settlement-join file for gamePk G is aliased to G only when the provider's own record (teams + commence time) is known and consistent, the id is not another game's own event, G is on that date's StatsAPI board with no other game between the same clubs and no second provider start for them that day (no doubleheader), the event matches exactly G with the same home and away clubs and a scheduled start within 30 minutes, and every join file holding the id agrees. Everything else is refused. No archive row is edited or re-joined.",
+ "rule": "A foreign providerEventId in a settlement-join file for gamePk G is aliased to G only when the provider's own record (teams + commence time) is known and consistent, the id is not another game's own event, G is on that date's StatsAPI board with no other game between the same clubs and no second provider start for them that day (no doubleheader), the event matches exactly G with the same home and away clubs and a scheduled start within 30 minutes, every join file holding the id agrees, and the provider's own daily event listing for that date independently lists the exact id with the same clubs and start. Everything else is refused. No archive row is edited or re-joined.",
  "inputs": {
+  "providerDailyListingDates": 69,
   "settlementJoinFiles": 913,
   "providerSnapshotFiles": 6920,
   "providerEvents": 827,
@@ -11,16 +12,17 @@
  },
  "summary": {
   "foreignEventIds": 401,
-  "aliased": 77,
-  "aliasedRows": 14270,
-  "refused": 324,
+  "aliased": 74,
+  "aliasedRows": 13514,
+  "refused": 327,
   "refusedRowsByFirstReason": {
    "OWNED_BY_ANOTHER_GAME": 9280,
    "NOT_ON_BOARD": 1564,
    "NO_PROVIDER_RECORD": 2466,
    "DOUBLEHEADER": 993,
    "NOT_WITHIN_30_MIN_SAME_CLUBS": 2152,
-   "INCONSISTENT_PROVIDER_RECORD": 758
+   "INCONSISTENT_PROVIDER_RECORD": 758,
+   "NOT_CONFIRMED_BY_PROVIDER_DAILY_LISTING": 756
   },
   "joinFilesWithUnverifiedOwnEvent": 406
  },
@@ -44,6 +46,12 @@
       "awayTeam": "Chicago White Sox",
       "homeTeam": "Boston Red Sox",
       "gameDate": "2026-08-04T23:10:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-04.json",
+      "awayTeam": "Chicago White Sox",
+      "homeTeam": "Boston Red Sox",
+      "commenceTime": "2026-08-04T23:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -70,6 +78,12 @@
       "homeTeam": "Milwaukee Brewers",
       "gameDate": "2026-09-07T18:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-07.json",
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Milwaukee Brewers",
+      "commenceTime": "2026-09-07T18:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -94,6 +108,12 @@
       "awayTeam": "Cleveland Guardians",
       "homeTeam": "Baltimore Orioles",
       "gameDate": "2026-09-07T17:35:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-07.json",
+      "awayTeam": "Cleveland Guardians",
+      "homeTeam": "Baltimore Orioles",
+      "commenceTime": "2026-09-07T17:36:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -120,6 +140,12 @@
       "homeTeam": "San Francisco Giants",
       "gameDate": "2026-09-12T20:05:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-12.json",
+      "awayTeam": "San Diego Padres",
+      "homeTeam": "San Francisco Giants",
+      "commenceTime": "2026-09-12T20:06:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -144,6 +170,12 @@
       "awayTeam": "Toronto Blue Jays",
       "homeTeam": "Baltimore Orioles",
       "gameDate": "2026-09-21T22:35:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-21.json",
+      "awayTeam": "Toronto Blue Jays",
+      "homeTeam": "Baltimore Orioles",
+      "commenceTime": "2026-09-21T22:36:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -170,6 +202,12 @@
       "homeTeam": "Tampa Bay Rays",
       "gameDate": "2026-07-28T22:40:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-07-28.json",
+      "awayTeam": "Texas Rangers",
+      "homeTeam": "Tampa Bay Rays",
+      "commenceTime": "2026-07-28T22:41:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -194,6 +232,12 @@
       "awayTeam": "Miami Marlins",
       "homeTeam": "Washington Nationals",
       "gameDate": "2026-08-28T22:45:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-28.json",
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Washington Nationals",
+      "commenceTime": "2026-08-28T22:46:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -220,6 +264,12 @@
       "homeTeam": "Miami Marlins",
       "gameDate": "2026-08-25T22:40:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-25.json",
+      "awayTeam": "Boston Red Sox",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-08-25T22:40:00Z"
+     },
      "startDeltaMinutes": 0,
      "gamesBetweenClubsOnDate": 1
     }
@@ -244,6 +294,12 @@
       "awayTeam": "Miami Marlins",
       "homeTeam": "Cincinnati Reds",
       "gameDate": "2026-08-14T22:10:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-14.json",
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Cincinnati Reds",
+      "commenceTime": "2026-08-14T22:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -270,6 +326,12 @@
       "homeTeam": "Boston Red Sox",
       "gameDate": "2026-09-07T17:35:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-07.json",
+      "awayTeam": "Los Angeles Angels",
+      "homeTeam": "Boston Red Sox",
+      "commenceTime": "2026-09-07T17:36:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -294,6 +356,12 @@
       "awayTeam": "Cincinnati Reds",
       "homeTeam": "Washington Nationals",
       "gameDate": "2026-08-08T22:45:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-08.json",
+      "awayTeam": "Cincinnati Reds",
+      "homeTeam": "Washington Nationals",
+      "commenceTime": "2026-08-08T22:46:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -320,6 +388,12 @@
       "homeTeam": "New York Mets",
       "gameDate": "2026-08-29T20:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-29.json",
+      "awayTeam": "Houston Astros",
+      "homeTeam": "New York Mets",
+      "commenceTime": "2026-08-29T20:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -344,6 +418,12 @@
       "awayTeam": "Chicago White Sox",
       "homeTeam": "Cleveland Guardians",
       "gameDate": "2026-09-14T22:40:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-14.json",
+      "awayTeam": "Chicago White Sox",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-09-14T22:41:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -370,6 +450,12 @@
       "homeTeam": "Detroit Tigers",
       "gameDate": "2026-08-11T22:40:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-11.json",
+      "awayTeam": "Cleveland Guardians",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-08-11T22:41:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -394,6 +480,12 @@
       "awayTeam": "Pittsburgh Pirates",
       "homeTeam": "Chicago Cubs",
       "gameDate": "2026-09-11T18:20:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-11.json",
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "Chicago Cubs",
+      "commenceTime": "2026-09-11T18:21:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -420,6 +512,12 @@
       "homeTeam": "Boston Red Sox",
       "gameDate": "2026-08-17T23:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-17.json",
+      "awayTeam": "Arizona Diamondbacks",
+      "homeTeam": "Boston Red Sox",
+      "commenceTime": "2026-08-17T23:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -444,6 +542,12 @@
       "awayTeam": "Pittsburgh Pirates",
       "homeTeam": "St. Louis Cardinals",
       "gameDate": "2026-08-29T18:15:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-29.json",
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "St. Louis Cardinals",
+      "commenceTime": "2026-08-29T18:16:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -470,6 +574,12 @@
       "homeTeam": "Cincinnati Reds",
       "gameDate": "2026-08-05T22:40:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-05.json",
+      "awayTeam": "Athletics",
+      "homeTeam": "Cincinnati Reds",
+      "commenceTime": "2026-08-05T22:40:00Z"
+     },
      "startDeltaMinutes": 0,
      "gamesBetweenClubsOnDate": 1
     }
@@ -494,6 +604,12 @@
       "awayTeam": "Washington Nationals",
       "homeTeam": "Detroit Tigers",
       "gameDate": "2026-09-21T22:40:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-21.json",
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-09-21T22:41:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -520,6 +636,12 @@
       "homeTeam": "Miami Marlins",
       "gameDate": "2026-09-07T17:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-07.json",
+      "awayTeam": "New York Mets",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-09-07T17:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -544,6 +666,12 @@
       "awayTeam": "New York Mets",
       "homeTeam": "Atlanta Braves",
       "gameDate": "2026-08-10T23:15:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-10.json",
+      "awayTeam": "New York Mets",
+      "homeTeam": "Atlanta Braves",
+      "commenceTime": "2026-08-10T23:15:00Z"
      },
      "startDeltaMinutes": 0,
      "gamesBetweenClubsOnDate": 1
@@ -570,6 +698,12 @@
       "homeTeam": "Toronto Blue Jays",
       "gameDate": "2026-08-25T23:07:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-25.json",
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-08-25T23:08:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -594,6 +728,12 @@
       "awayTeam": "Milwaukee Brewers",
       "homeTeam": "New York Mets",
       "gameDate": "2026-08-25T23:10:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-25.json",
+      "awayTeam": "Milwaukee Brewers",
+      "homeTeam": "New York Mets",
+      "commenceTime": "2026-08-25T23:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -620,6 +760,12 @@
       "homeTeam": "Atlanta Braves",
       "gameDate": "2026-08-28T23:15:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-28.json",
+      "awayTeam": "Colorado Rockies",
+      "homeTeam": "Atlanta Braves",
+      "commenceTime": "2026-08-28T23:17:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -644,6 +790,12 @@
       "awayTeam": "Baltimore Orioles",
       "homeTeam": "New York Mets",
       "gameDate": "2026-09-14T23:10:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-14.json",
+      "awayTeam": "Baltimore Orioles",
+      "homeTeam": "New York Mets",
+      "commenceTime": "2026-09-14T23:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -670,30 +822,11 @@
       "homeTeam": "Chicago White Sox",
       "gameDate": "2026-07-28T23:40:00Z"
      },
-     "startDeltaMinutes": 1,
-     "gamesBetweenClubsOnDate": 1
-    }
-   ]
-  },
-  {
-   "foreignProviderEventId": "74ae10226cb75552e9cb91f8488d161e",
-   "gamePk": 823520,
-   "rows": 263,
-   "evidence": [
-    {
-     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-03/823520.json",
-     "date": "2026-08-03",
-     "rows": 263,
-     "providerEvent": {
-      "awayTeam": "St. Louis Cardinals",
-      "homeTeam": "New York Yankees",
-      "commenceTime": "2026-08-03T23:06:00Z"
-     },
-     "scheduledGame": {
-      "gamePk": 823520,
-      "awayTeam": "St. Louis Cardinals",
-      "homeTeam": "New York Yankees",
-      "gameDate": "2026-08-03T23:05:00Z"
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-07-28.json",
+      "awayTeam": "New York Yankees",
+      "homeTeam": "Chicago White Sox",
+      "commenceTime": "2026-07-28T23:41:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -720,6 +853,12 @@
       "homeTeam": "New York Mets",
       "gameDate": "2026-08-15T20:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-15.json",
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "New York Mets",
+      "commenceTime": "2026-08-15T20:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -744,6 +883,12 @@
       "awayTeam": "New York Mets",
       "homeTeam": "Washington Nationals",
       "gameDate": "2026-09-25T22:45:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-25.json",
+      "awayTeam": "New York Mets",
+      "homeTeam": "Washington Nationals",
+      "commenceTime": "2026-09-25T22:46:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -770,6 +915,12 @@
       "homeTeam": "St. Louis Cardinals",
       "gameDate": "2026-07-28T23:45:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-07-28.json",
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "St. Louis Cardinals",
+      "commenceTime": "2026-07-28T23:46:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -794,6 +945,12 @@
       "awayTeam": "Cincinnati Reds",
       "homeTeam": "Toronto Blue Jays",
       "gameDate": "2026-09-25T23:07:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-25.json",
+      "awayTeam": "Cincinnati Reds",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-09-25T23:08:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -820,6 +977,12 @@
       "homeTeam": "Cleveland Guardians",
       "gameDate": "2026-08-19T22:40:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-19.json",
+      "awayTeam": "San Francisco Giants",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-08-19T22:41:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -844,6 +1007,12 @@
       "awayTeam": "Kansas City Royals",
       "homeTeam": "Minnesota Twins",
       "gameDate": "2026-07-28T23:40:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-07-28.json",
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Minnesota Twins",
+      "commenceTime": "2026-07-28T23:41:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -870,6 +1039,12 @@
       "homeTeam": "Cleveland Guardians",
       "gameDate": "2026-08-15T23:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-15.json",
+      "awayTeam": "San Diego Padres",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-08-15T23:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -894,6 +1069,12 @@
       "awayTeam": "Los Angeles Dodgers",
       "homeTeam": "Miami Marlins",
       "gameDate": "2026-09-12T20:10:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-12.json",
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-09-12T20:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -920,6 +1101,12 @@
       "homeTeam": "Miami Marlins",
       "gameDate": "2026-08-21T23:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-21.json",
+      "awayTeam": "Washington Nationals",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-08-21T23:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -944,6 +1131,12 @@
       "awayTeam": "Detroit Tigers",
       "homeTeam": "Cleveland Guardians",
       "gameDate": "2026-09-05T22:10:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-05.json",
+      "awayTeam": "Detroit Tigers",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-09-05T22:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -970,6 +1163,12 @@
       "homeTeam": "Kansas City Royals",
       "gameDate": "2026-08-04T23:40:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-04.json",
+      "awayTeam": "Minnesota Twins",
+      "homeTeam": "Kansas City Royals",
+      "commenceTime": "2026-08-04T23:41:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -994,6 +1193,12 @@
       "awayTeam": "Baltimore Orioles",
       "homeTeam": "Toronto Blue Jays",
       "gameDate": "2026-09-12T19:07:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-12.json",
+      "awayTeam": "Baltimore Orioles",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-09-12T19:08:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1020,30 +1225,11 @@
       "homeTeam": "Detroit Tigers",
       "gameDate": "2026-09-07T19:10:00Z"
      },
-     "startDeltaMinutes": 1,
-     "gamesBetweenClubsOnDate": 1
-    }
-   ]
-  },
-  {
-   "foreignProviderEventId": "a6d63d072ba391db5be1a628a064656c",
-   "gamePk": 824638,
-   "rows": 235,
-   "evidence": [
-    {
-     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-28/824638.json",
-     "date": "2026-08-28",
-     "rows": 235,
-     "providerEvent": {
-      "awayTeam": "Cincinnati Reds",
-      "homeTeam": "Chicago Cubs",
-      "commenceTime": "2026-08-28T18:21:00Z"
-     },
-     "scheduledGame": {
-      "gamePk": 824638,
-      "awayTeam": "Cincinnati Reds",
-      "homeTeam": "Chicago Cubs",
-      "gameDate": "2026-08-28T18:20:00Z"
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-07.json",
+      "awayTeam": "Minnesota Twins",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-09-07T19:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1070,6 +1256,12 @@
       "homeTeam": "Philadelphia Phillies",
       "gameDate": "2026-08-21T22:40:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-21.json",
+      "awayTeam": "St. Louis Cardinals",
+      "homeTeam": "Philadelphia Phillies",
+      "commenceTime": "2026-08-21T22:41:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1094,6 +1286,12 @@
       "awayTeam": "Minnesota Twins",
       "homeTeam": "Milwaukee Brewers",
       "gameDate": "2026-08-08T23:10:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-08.json",
+      "awayTeam": "Minnesota Twins",
+      "homeTeam": "Milwaukee Brewers",
+      "commenceTime": "2026-08-08T23:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1120,6 +1318,12 @@
       "homeTeam": "Toronto Blue Jays",
       "gameDate": "2026-08-10T23:07:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-10.json",
+      "awayTeam": "Boston Red Sox",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-08-10T23:07:00Z"
+     },
      "startDeltaMinutes": 0,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1144,6 +1348,12 @@
       "awayTeam": "New York Mets",
       "homeTeam": "Pittsburgh Pirates",
       "gameDate": "2026-08-07T22:40:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-07.json",
+      "awayTeam": "New York Mets",
+      "homeTeam": "Pittsburgh Pirates",
+      "commenceTime": "2026-08-07T22:41:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1170,6 +1380,12 @@
       "homeTeam": "Kansas City Royals",
       "gameDate": "2026-09-07T18:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-07.json",
+      "awayTeam": "Arizona Diamondbacks",
+      "homeTeam": "Kansas City Royals",
+      "commenceTime": "2026-09-07T18:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1194,6 +1410,12 @@
       "awayTeam": "Tampa Bay Rays",
       "homeTeam": "Detroit Tigers",
       "gameDate": "2026-08-24T22:40:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-24.json",
+      "awayTeam": "Tampa Bay Rays",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-08-24T22:41:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1220,6 +1442,12 @@
       "homeTeam": "Atlanta Braves",
       "gameDate": "2026-08-04T23:15:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-04.json",
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Atlanta Braves",
+      "commenceTime": "2026-08-04T23:16:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1244,6 +1472,12 @@
       "awayTeam": "Los Angeles Dodgers",
       "homeTeam": "Detroit Tigers",
       "gameDate": "2026-08-28T22:40:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-28.json",
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-08-28T22:41:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1270,6 +1504,12 @@
       "homeTeam": "Toronto Blue Jays",
       "gameDate": "2026-08-29T19:07:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-29.json",
+      "awayTeam": "Seattle Mariners",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-08-29T19:08:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1294,6 +1534,12 @@
       "awayTeam": "Atlanta Braves",
       "homeTeam": "Miami Marlins",
       "gameDate": "2026-09-26T20:10:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-26.json",
+      "awayTeam": "Atlanta Braves",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-09-26T20:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1320,6 +1566,12 @@
       "homeTeam": "Boston Red Sox",
       "gameDate": "2026-08-21T23:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-21.json",
+      "awayTeam": "San Francisco Giants",
+      "homeTeam": "Boston Red Sox",
+      "commenceTime": "2026-08-21T23:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1344,6 +1596,12 @@
       "awayTeam": "New York Mets",
       "homeTeam": "Cleveland Guardians",
       "gameDate": "2026-08-04T22:40:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-04.json",
+      "awayTeam": "New York Mets",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-08-04T22:40:00Z"
      },
      "startDeltaMinutes": 0,
      "gamesBetweenClubsOnDate": 1
@@ -1370,6 +1628,12 @@
       "homeTeam": "Miami Marlins",
       "gameDate": "2026-09-05T20:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-05.json",
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-09-05T20:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1394,6 +1658,12 @@
       "awayTeam": "Toronto Blue Jays",
       "homeTeam": "New York Yankees",
       "gameDate": "2026-08-21T23:05:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-21.json",
+      "awayTeam": "Toronto Blue Jays",
+      "homeTeam": "New York Yankees",
+      "commenceTime": "2026-08-21T23:06:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1420,6 +1690,12 @@
       "homeTeam": "Detroit Tigers",
       "gameDate": "2026-09-12T17:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-12.json",
+      "awayTeam": "Colorado Rockies",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-09-12T17:10:00Z"
+     },
      "startDeltaMinutes": 0,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1444,6 +1720,12 @@
       "awayTeam": "Atlanta Braves",
       "homeTeam": "Milwaukee Brewers",
       "gameDate": "2026-08-21T20:10:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-21.json",
+      "awayTeam": "Atlanta Braves",
+      "homeTeam": "Milwaukee Brewers",
+      "commenceTime": "2026-08-21T20:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1470,6 +1752,12 @@
       "homeTeam": "Detroit Tigers",
       "gameDate": "2026-08-14T22:40:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-14.json",
+      "awayTeam": "Chicago White Sox",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-08-14T22:41:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1495,30 +1783,11 @@
       "homeTeam": "Miami Marlins",
       "gameDate": "2026-08-07T23:10:00Z"
      },
-     "startDeltaMinutes": 1,
-     "gamesBetweenClubsOnDate": 1
-    }
-   ]
-  },
-  {
-   "foreignProviderEventId": "d5f05941c82f5ea7de7ee32d879c0d59",
-   "gamePk": 823431,
-   "rows": 258,
-   "evidence": [
-    {
-     "joinFile": "data/internal/mlb/pregame-archive/settlement-joins/2026-08-03/823431.json",
-     "date": "2026-08-03",
-     "rows": 258,
-     "providerEvent": {
-      "awayTeam": "Washington Nationals",
-      "homeTeam": "Philadelphia Phillies",
-      "commenceTime": "2026-08-03T22:41:00Z"
-     },
-     "scheduledGame": {
-      "gamePk": 823431,
-      "awayTeam": "Washington Nationals",
-      "homeTeam": "Philadelphia Phillies",
-      "gameDate": "2026-08-03T22:40:00Z"
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-07.json",
+      "awayTeam": "Los Angeles Angels",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-08-07T23:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1545,6 +1814,12 @@
       "homeTeam": "Atlanta Braves",
       "gameDate": "2026-08-25T23:15:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-25.json",
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Atlanta Braves",
+      "commenceTime": "2026-08-25T23:16:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1569,6 +1844,12 @@
       "awayTeam": "Miami Marlins",
       "homeTeam": "Philadelphia Phillies",
       "gameDate": "2026-08-17T22:40:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-17.json",
+      "awayTeam": "Miami Marlins",
+      "homeTeam": "Philadelphia Phillies",
+      "commenceTime": "2026-08-17T22:40:00Z"
      },
      "startDeltaMinutes": 0,
      "gamesBetweenClubsOnDate": 1
@@ -1595,6 +1876,12 @@
       "homeTeam": "Toronto Blue Jays",
       "gameDate": "2026-08-15T19:07:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-15.json",
+      "awayTeam": "New York Yankees",
+      "homeTeam": "Toronto Blue Jays",
+      "commenceTime": "2026-08-15T19:08:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1619,6 +1906,12 @@
       "awayTeam": "San Diego Padres",
       "homeTeam": "New York Mets",
       "gameDate": "2026-08-17T23:10:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-17.json",
+      "awayTeam": "San Diego Padres",
+      "homeTeam": "New York Mets",
+      "commenceTime": "2026-08-17T23:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1645,6 +1938,12 @@
       "homeTeam": "New York Yankees",
       "gameDate": "2026-08-11T23:05:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-11.json",
+      "awayTeam": "Seattle Mariners",
+      "homeTeam": "New York Yankees",
+      "commenceTime": "2026-08-11T23:06:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1669,6 +1968,12 @@
       "awayTeam": "Chicago Cubs",
       "homeTeam": "Washington Nationals",
       "gameDate": "2026-08-12T22:45:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-12.json",
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Washington Nationals",
+      "commenceTime": "2026-08-12T22:45:00Z"
      },
      "startDeltaMinutes": 0,
      "gamesBetweenClubsOnDate": 1
@@ -1695,6 +2000,12 @@
       "homeTeam": "Tampa Bay Rays",
       "gameDate": "2026-08-14T23:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-14.json",
+      "awayTeam": "Baltimore Orioles",
+      "homeTeam": "Tampa Bay Rays",
+      "commenceTime": "2026-08-14T23:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1719,6 +2030,12 @@
       "awayTeam": "St. Louis Cardinals",
       "homeTeam": "Chicago Cubs",
       "gameDate": "2026-08-14T18:20:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-14.json",
+      "awayTeam": "St. Louis Cardinals",
+      "homeTeam": "Chicago Cubs",
+      "commenceTime": "2026-08-14T18:20:00Z"
      },
      "startDeltaMinutes": 0,
      "gamesBetweenClubsOnDate": 1
@@ -1745,6 +2062,12 @@
       "homeTeam": "Kansas City Royals",
       "gameDate": "2026-08-08T23:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-08.json",
+      "awayTeam": "Chicago Cubs",
+      "homeTeam": "Kansas City Royals",
+      "commenceTime": "2026-08-08T23:10:00Z"
+     },
      "startDeltaMinutes": 0,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1769,6 +2092,12 @@
       "awayTeam": "Pittsburgh Pirates",
       "homeTeam": "Miami Marlins",
       "gameDate": "2026-08-12T22:40:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-12.json",
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "Miami Marlins",
+      "commenceTime": "2026-08-12T22:41:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1795,6 +2124,12 @@
       "homeTeam": "Detroit Tigers",
       "gameDate": "2026-09-26T17:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-26.json",
+      "awayTeam": "Pittsburgh Pirates",
+      "homeTeam": "Detroit Tigers",
+      "commenceTime": "2026-09-26T17:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1819,6 +2154,12 @@
       "awayTeam": "Milwaukee Brewers",
       "homeTeam": "Baltimore Orioles",
       "gameDate": "2026-09-19T20:05:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-19.json",
+      "awayTeam": "Milwaukee Brewers",
+      "homeTeam": "Baltimore Orioles",
+      "commenceTime": "2026-09-19T20:06:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1845,6 +2186,12 @@
       "homeTeam": "Pittsburgh Pirates",
       "gameDate": "2026-08-17T23:05:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-17.json",
+      "awayTeam": "Detroit Tigers",
+      "homeTeam": "Pittsburgh Pirates",
+      "commenceTime": "2026-08-17T23:06:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1869,6 +2216,12 @@
       "awayTeam": "Kansas City Royals",
       "homeTeam": "Boston Red Sox",
       "gameDate": "2026-09-12T20:10:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-12.json",
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Boston Red Sox",
+      "commenceTime": "2026-09-12T20:11:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -1895,6 +2248,12 @@
       "homeTeam": "Cleveland Guardians",
       "gameDate": "2026-08-28T23:10:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-08-28.json",
+      "awayTeam": "Kansas City Royals",
+      "homeTeam": "Cleveland Guardians",
+      "commenceTime": "2026-08-28T23:11:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1920,6 +2279,12 @@
       "homeTeam": "Cincinnati Reds",
       "gameDate": "2026-09-14T22:40:00Z"
      },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-14.json",
+      "awayTeam": "Los Angeles Dodgers",
+      "homeTeam": "Cincinnati Reds",
+      "commenceTime": "2026-09-14T22:41:00Z"
+     },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
     }
@@ -1944,6 +2309,12 @@
       "awayTeam": "New York Mets",
       "homeTeam": "New York Yankees",
       "gameDate": "2026-09-12T17:35:00Z"
+     },
+     "providerDailyListing": {
+      "file": "app/public/data/mlb/schedule/2026-09-12.json",
+      "awayTeam": "New York Mets",
+      "homeTeam": "New York Yankees",
+      "commenceTime": "2026-09-12T17:36:00Z"
      },
      "startDeltaMinutes": 1,
      "gamesBetweenClubsOnDate": 1
@@ -3024,6 +3395,13 @@
    ]
   },
   {
+   "foreignProviderEventId": "74ae10226cb75552e9cb91f8488d161e",
+   "rows": 263,
+   "reasons": [
+    "NOT_CONFIRMED_BY_PROVIDER_DAILY_LISTING"
+   ]
+  },
+  {
    "foreignProviderEventId": "74d637de5babda95c445e8cf11c32a15",
    "rows": 65,
    "reasons": [
@@ -3444,6 +3822,13 @@
    ]
   },
   {
+   "foreignProviderEventId": "a6d63d072ba391db5be1a628a064656c",
+   "rows": 235,
+   "reasons": [
+    "NOT_CONFIRMED_BY_PROVIDER_DAILY_LISTING"
+   ]
+  },
+  {
    "foreignProviderEventId": "a724c4baba286e2f8b35bb652ee597a1",
    "rows": 262,
    "reasons": [
@@ -3848,6 +4233,13 @@
    "rows": 2,
    "reasons": [
     "OWNED_BY_ANOTHER_GAME"
+   ]
+  },
+  {
+   "foreignProviderEventId": "d5f05941c82f5ea7de7ee32d879c0d59",
+   "rows": 258,
+   "reasons": [
+    "NOT_CONFIRMED_BY_PROVIDER_DAILY_LISTING"
    ]
   },
   {

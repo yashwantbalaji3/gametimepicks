@@ -20,7 +20,13 @@ const board = (...games) => new Map([["2026-09-22", games]]);
 const g = (gamePk, away, home, commenceTime) => ({ gamePk, away, home, commenceTime });
 const ev = (providerEventId, awayTeam, homeTeam, eventStartTime) => ({ providerEventId, awayTeam, homeTeam, eventStartTime });
 const join = (gamePk, providerEventId, foreignRows, date = "2026-09-22") => ({ file: `settlement-joins/${date}/${gamePk}.json`, date, gamePk, providerEventId, foreignRows });
-const run = (joinFiles, records, boards) => buildProviderEventAliases({ joinFiles, events: indexProviderEvents(records), boards });
+/** By default the provider's daily listing shows every recorded event on its ET date; tests of rule 6 pass their own. */
+const listingsOf = (records) => {
+  const m = new Map();
+  for (const r of records) m.set(etDate(r.eventStartTime), [...(m.get(etDate(r.eventStartTime)) ?? []), { id: r.providerEventId, away: r.awayTeam, home: r.homeTeam, commenceTime: r.eventStartTime }]);
+  return m;
+};
+const run = (joinFiles, records, boards, listings = listingsOf(records)) => buildProviderEventAliases({ joinFiles, events: indexProviderEvents(records), boards, listings });
 
 test("a reissued id for the same single game, same clubs, start 1 minute off → one receipt with its evidence", () => {
   const r = run(
@@ -117,6 +123,25 @@ test("a join file whose own event is shared with another game is reported, both 
   assert.deepEqual(r.ownEventUnverified.map((x) => [x.gamePk, x.reason]), [[900001, "OWNED_BY_ANOTHER_GAME"], [900002, "OWNED_BY_ANOTHER_GAME"]]);
 });
 
+test("rule 6: an id the provider's daily listing does not show is refused, even when rules 1-5 all pass", () => {
+  const records = [ev("own", DET, CWS, "2026-09-22T18:10:00Z"), ev("reissued", DET, CWS, "2026-09-22T18:11:00Z")];
+  const boards = board(g(900001, DET, CWS, "2026-09-22T18:10:00Z"));
+  const files = [join(900001, "own", { reissued: 12 })];
+  const listed = (entry) => run(files, records, boards, new Map([["2026-09-22", [entry]]]));
+  assert.equal(listed({ id: "reissued", away: DET, home: CWS, commenceTime: "2026-09-22T18:11:00Z" }).aliases.length, 1, "listed with the same clubs and start → admitted");
+  assert.equal(listed({ id: "reissued", away: DET, home: CWS, commenceTime: "2026-09-22T18:11:00Z" }).aliases[0].evidence[0].providerDailyListing.file, "app/public/data/mlb/schedule/2026-09-22.json");
+  for (const [why, entry] of [
+    ["absent from the listing", { id: "other", away: DET, home: CWS, commenceTime: "2026-09-22T18:11:00Z" }],
+    ["listed with other clubs", { id: "reissued", away: TB, home: NYY, commenceTime: "2026-09-22T18:11:00Z" }],
+    ["listed at another time", { id: "reissued", away: DET, home: CWS, commenceTime: "2026-09-22T23:10:00Z" }],
+  ]) {
+    const r = listed(entry);
+    assert.equal(r.aliases.length, 0, why);
+    assert.deepEqual(r.refused[0].reasons, ["NOT_CONFIRMED_BY_PROVIDER_DAILY_LISTING"], why);
+  }
+  assert.equal(run(files, records, boards, new Map()).aliases.length, 0, "no listing for the date → refused, never inferred");
+});
+
 test("ET date of a late-evening UTC start is the board date", () => {
   assert.equal(etDate("2026-09-23T01:40:00Z"), "2026-09-22");
 });
@@ -137,6 +162,9 @@ test("the committed receipt file: every alias carries evidence that satisfies th
       assert.equal(e.providerEvent.homeTeam, e.scheduledGame.homeTeam);
       assert.ok(Math.abs(Date.parse(e.providerEvent.commenceTime) - Date.parse(e.scheduledGame.gameDate)) <= ALIAS_TOLERANCE_MINUTES * 60e3);
       assert.equal(e.gamesBetweenClubsOnDate, 1);
+      assert.equal(e.providerDailyListing.awayTeam, e.scheduledGame.awayTeam, "independently confirmed by the provider's daily listing");
+      assert.equal(e.providerDailyListing.homeTeam, e.scheduledGame.homeTeam);
+      assert.ok(Math.abs(Date.parse(e.providerDailyListing.commenceTime) - Date.parse(e.scheduledGame.gameDate)) <= ALIAS_TOLERANCE_MINUTES * 60e3);
     }
   }
   for (const r of doc.refused) assert.ok(!ids.has(r.foreignProviderEventId), "an id is aliased or refused, never both");
