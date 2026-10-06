@@ -221,7 +221,7 @@ test("a PUBLISHED ladder for a capability-gated sport is refused by every loader
     const reason = sportLadderCapabilityRefusal(sport);
     assert.equal(reason === null, canShowLiveProjections(sport), `${sport}: refusal must follow the registry`);
     if (!reason) continue;
-    assert.match(reason, /capability registry lists/);
+    assert.match(reason, /is not cleared to show forward-looking model cards right now: /);
     const dir = { mlb: "risk-ladder", ufc: "risk-ladder-ufc", epl: "risk-ladder-epl", nfl: "risk-ladder-nfl" }[sport];
     const doc = readLadder(dir);
     assert.equal(loadSportLabLadder(sport, doc?.date ?? "2026-10-03"), null, `${sport}: gated ladder must not load on its own date`);

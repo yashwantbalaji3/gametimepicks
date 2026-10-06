@@ -212,7 +212,7 @@ export default function MoonshotPage() {
                 {moonshot.legacyRecord.label}
               </summary>
               <p className="mt-1.5 font-mono leading-relaxed" style={{ color: "var(--vault-text-mute)", fontSize: 10.5 }}>
-                The June 2026 Moonshot was a different product — {moonshot.legacyRecord.settled} multi-leg card{moonshot.legacyRecord.settled === 1 ? "" : "s"} settled from {moonshot.legacyRecord.source}. It is kept here as history and is never added to the current record above.
+                The June 2026 Moonshot was a different product — {moonshot.legacyRecord.settled} multi-leg card{moonshot.legacyRecord.settled === 1 ? "" : "s"} settled in the June 2026 ledger. It is kept here as history and is never added to the current record above.
               </p>
             </details>
           ) : null}

@@ -38,7 +38,7 @@ import { canShowLiveProjections, capabilityOf } from "../sport-capability-regist
 export function sportLadderCapabilityRefusal(sport: string): string | null {
   if (canShowLiveProjections(sport)) return null;
   const cap = capabilityOf(sport);
-  return `the capability registry lists ${cap.label} as ${cap.state}, which may not show forward-looking model output: ${cap.reason}`;
+  return `${cap.label} is not cleared to show forward-looking model cards right now: ${cap.reason}`;
 }
 
 export interface SportLabLeg {

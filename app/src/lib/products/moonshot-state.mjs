@@ -257,7 +257,7 @@ export function deriveMoonshotState({
    */
   if (lane?.status === "active" && daysSince !== null && daysSince >= 2) {
     contradictions.push(
-      `moonshot-lane/active.json declares status "active" but was last written ${daysSince} days ago (${laneDate})`,
+      `The old lane record still says "active" but has not been updated in ${daysSince} days (since ${laneDate}); this page follows the daily receipts.`,
     );
   }
 
@@ -306,14 +306,22 @@ export function deriveMoonshotState({
       }
     : null;
 
+  /*
+   * Rendered names for the two records (Stage 2C truth copy). The `source` fields above keep their
+   * file paths — read-model and its tests key on them — but the reader is told which record, not which
+   * file. A pre-fold portfolio block is not the current receipts era, so it is not called that.
+   */
+  const PORTFOLIO_NAME = foldEra ? "the current receipts record" : "the portfolio record";
+  const LEDGER_NAME = "the June 2026 ledger";
+
   if (ledgerRecord && portfolioRecord) {
     contradictions.push(
       foldEra
-        ? `two eras, not one record: ${portfolioRecord.source} counts ${portfolioRecord.settled} settled receipt-era lanes since ${portfolioRecord.fromDate} (the current record, graded nightly from official results); ` +
-          `${ledgerRecord.source} counts ${ledgerRecord.settled} settled June 2026 legacy cards` +
+        ? `two eras, not one record: ${PORTFOLIO_NAME} counts ${portfolioRecord.settled} settled receipt-era lanes since ${portfolioRecord.fromDate} (the current record, graded nightly from official results); ` +
+          `${LEDGER_NAME} counts ${ledgerRecord.settled} settled June 2026 legacy cards` +
           `${ledgerRecord.fromDate ? ` (${ledgerRecord.fromDate} … ${ledgerRecord.throughDate})` : ""} — a different population, kept as legacy and never summed with the current era`
-        : `two settled counts for one product: ${portfolioRecord.source} says ${portfolioRecord.settled}, ` +
-          `${ledgerRecord.source} says ${ledgerRecord.settled}` +
+        : `two settled counts for one product: ${PORTFOLIO_NAME} says ${portfolioRecord.settled}, ` +
+          `${LEDGER_NAME} says ${ledgerRecord.settled}` +
           `${ledgerRecord.fromDate ? ` (${ledgerRecord.fromDate} … ${ledgerRecord.throughDate})` : ""}`,
     );
   }
@@ -325,12 +333,12 @@ export function deriveMoonshotState({
 
   if (portfolioRecord && openCards.length && portfolioRecord.pending !== openCards.length) {
     contradictions.push(
-      `${portfolioRecord.source} reports ${portfolioRecord.pending} pending while ${openCards.length} published card(s) are still open`,
+      `${PORTFOLIO_NAME} reports ${portfolioRecord.pending} pending while ${openCards.length} published card(s) are still open`,
     );
   }
 
   if (portfolioMoonshot?.status === "stopped" && lane?.status === "active") {
-    contradictions.push(`the portfolio says "stopped" while the lane artifact says "active"`);
+    contradictions.push(`the portfolio says "stopped" while the old lane record says "active"`);
   }
 
   if (unsettleable.length) {
