@@ -15,6 +15,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
 
 import {
   START_SOURCE, mlbLeanToCanonical, mlbCanonicalStarts, mlbFirstPitches, mlbLeansOfRecord, mlbOfRecordDisclosure,
@@ -202,4 +203,21 @@ test("3B scope: the MLB lean readers ask the adapter; only the adapter imports t
   assert.match(src("src/lib/results/v2/day.ts"), /mlbLeansOfRecord\(readJsonl\(path\.join\(app, "public\/data\/mlb\/results\/settled_leans\.jsonl"\)\)/);
   assert.match(src("scripts/results/build-model-results-index.mjs"), /selection\?\.notOfRecordIds\.has\(r\.id\)/);
   assert.match(src("scripts/sports/build-graded-picks.mjs"), /mlbOfRecordDisclosure\(mlbLeanSelection\(\)\)/);
+});
+
+test("parity: the id CLI the Python lifetime writer calls returns the adapter's selection (one rule, not a port)", () => {
+  const { root, app } = scratchTree();
+  try {
+    const out = JSON.parse(execFileSync(process.execPath, [path.join(APP, "scripts/results/mlb-leans-of-record-ids.mjs"),
+      "--leans", path.join(root, "pipeline/validation/mlb_settled_leans.jsonl"),
+      "--games", path.join(app, "public/data/mlb/results/game-predictions-graded.jsonl")], { encoding: "utf8" }));
+    const sel = mlbLeansOfRecord(fresh(), { firstPitches: mlbFirstPitches(F.gameGrader) });
+    assert.equal(out.sourceRows, E.rows);
+    assert.deepEqual(new Set(out.recordIds), sel.recordIds);
+    assert.deepEqual(new Set(out.notOfRecordIds), sel.notOfRecordIds);
+    assert.equal(out.excluded.superseded, E.superseded.rows);
+    const py = fs.readFileSync(path.join(APP, "..", "pipeline/mlb/export_mlb_results.py"), "utf8");
+    assert.match(py, /mlb-leans-of-record-ids\.mjs/, "the Python lifetime writer asks the JS rule");
+    assert.match(py, /record, not_of_record = _of_record\(rows\)/);
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });
