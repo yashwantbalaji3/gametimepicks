@@ -93,7 +93,7 @@ export default function LeagueForecastPage({ leagueKey }: { leagueKey: string })
         <p className="font-mono uppercase" style={{ margin: 0, fontSize: 11, letterSpacing: "0.08em", color: "var(--vault-text-faint)" }}>Soccer · model-only forecasts</p>
         <h1 style={{ margin: "6px 0 0", fontSize: 28, lineHeight: 1.15, color: "var(--vault-text)", textWrap: "balance" }}>{name} match forecasts</h1>
         <p style={{ margin: "8px 0 0", maxWidth: "65ch", fontSize: 14.5, color: "var(--vault-text-mute)" }}>
-          Win, draw or win, expected goals, over 2.5, both teams to score and the likeliest scorelines for every {name} fixture in the next eight days — from the same model as our Premier League page.
+          Win, draw or win, expected goals, over 2.5, both teams to score and the likeliest scorelines for every {name} fixture in the next eight days — from the first version of our Premier League goals model, fit on {name}&rsquo;s own results. The Premier League page now runs a newer version.
         </p>
         {set ? <p className="font-mono" style={{ margin: "8px 0 0", fontSize: 11, color: "var(--vault-text-faint)" }}>Updated {ET_STAMP.format(new Date(set.generatedAt))} ET · fit on {set.model.matchesFitted.toLocaleString("en-US")} {name} matches</p> : null}
       </header>
