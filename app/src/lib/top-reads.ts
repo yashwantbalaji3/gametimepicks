@@ -7,7 +7,7 @@
  * bets of the day" would reverse all three, and would do it while most of the models cannot
  * support it: MLB's markets were demoted to market context, NFL's regular-season model is
  * experimental with an accumulating walk-forward record, and EPL's model has never been scored
- * against a price. Only UFC's has cleared a preregistered bar.
+ * against a price. UFC's is experimental: tested on past fights, graded on every new card.
  *
  * WHAT IT IS. The outputs each model is most confident about, ranked by the MODEL'S OWN probability —
  * never by a gap against a price. A gap is a claim that the market is wrong, and we have not
@@ -82,7 +82,7 @@ const PROVENANCE: Record<string, string> = {
    * from the ledger, and an unreadable ledger yields no clause rather than a claim in either
    * direction.
    */
-  ufc: "A fitted fight model that cleared its preregistered bar on a held-out sample — the exact counts live in its committed evaluation receipt.",
+  ufc: "An experimental fight model, tested on held-out past fights and graded on every new card — the exact counts live in its committed evaluation receipt.",
   nfl: "An experimental regular-season model publishing forecasts-of-record before kickoff. Evaluated on a held-out season; not shown to out-predict the sportsbook, and its 2026 walk-forward record is still accumulating.",
 };
 
@@ -270,7 +270,7 @@ export function loadTopReads(): TopReadsSet | null {
     }
   }
 
-  /* ── UFC: the bout winner, from the one model that cleared its bar ──────────────────────────── */
+  /* ── UFC: the bout winner, from the experimental fight model (founder D2: no implied edge) ──── */
   const ufc = read("public/data/ufc/card-latest.json");
   for (const b of ufc?.bouts ?? []) {
     const w = b.prediction?.winner;
