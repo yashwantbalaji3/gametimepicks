@@ -330,7 +330,13 @@ test("no rate on the shipped table lacks a denominator, and no empty range inven
 test("the shipped difference ordering excludes total bases and keeps its caution", () => {
   const view = loadExplorer();
   assert.ok(view.largestGapCaution, "the sort must not be offered without the measured caution");
-  const ordered = orderExplorerRows(view.rows, "largest_gap");
+  /* The shipped board follows the live slate, and some days carry no total-bases row at all
+     (2026-10-07 did not). Add one with the biggest gap of the day so the exclusion is exercised
+     every day rather than passing or failing on what the slate happened to contain. */
+  const shipped = view.rows.some((r) => r.marketKey === "batter_total_bases")
+    ? view.rows
+    : [...view.rows, { ...view.rows[0], rowId: "test-total-bases", marketKey: "batter_total_bases", gapPp: 99 }];
+  const ordered = orderExplorerRows(shipped, "largest_gap");
   assert.ok(
     !ordered.rows.some((r) => r.marketKey === "batter_total_bases"),
     "a prediction-disabled market must not appear in a magnitude-ordered list",

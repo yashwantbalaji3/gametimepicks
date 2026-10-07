@@ -39,6 +39,8 @@ import { coherentDirection } from "../../src/lib/sports/nfl/coherence.mjs";
 import { rowCapturedAt } from "../../src/lib/sports/odds/capture-merge.mjs";
 import { publishedMarginInterval } from "../../src/lib/sports/nfl/margin-interval-shadow.mjs";
 import { selectFrozenReceipts, terminalEventIds } from "../../src/lib/sports/nfl/frozen-carry.mjs";
+import { SIDE_RULE, freezeSideDecision } from "../../src/lib/results/side-decision.mjs";
+import { NFL_SIDE_CUTOVER_FILE } from "../../src/lib/results/nfl-model-favored-io.mjs";
 
 /* A narrow root seam so tests can run THIS builder — not a copy of its rules — against a
  * disposable repo-shaped store. Production default is unchanged: the app directory above this
@@ -355,6 +357,23 @@ const sortNum = (xs) => [...xs].sort((x, y) => x - y);
 
 const published = [];
 const refused = [];
+/*
+ * Stage 3D: the side-decision cutover, written ONCE, by the first receipt that freezes a side. From then on a winner
+ * receipt with no side decision is graded as NO_PICK (lib/results/nfl-model-favored.mjs), never by the historical rule.
+ */
+function markSideCutover(f) {
+  if (!f.sideDecision) return;
+  const p = path.join(ROOT, NFL_SIDE_CUTOVER_FILE);
+  if (fs.existsSync(p)) return;
+  fs.mkdirSync(path.dirname(p), { recursive: true });
+  fs.writeFileSync(p, JSON.stringify({
+    schemaVersion: "nfl-side-decision-cutover@1",
+    firstFrozenAt: f.sideDecision.frozenAt,
+    rule: f.sideDecision.rule,
+    note: "NFL winner receipts generated at or after firstFrozenAt carry a frozen sideDecision; one without it has no graded side. Receipts before it are graded by the historical model-favored rule (founder Q4). Write-once.",
+  }, null, 1) + "\n");
+}
+
 for (const ev of events) {
   const kickoff = Date.parse(ev.dateUtc);
   if (!ev.home?.abbr || !ev.away?.abbr) { refused.push({ providerEventId: ev.providerEventId, state: "IDENTITY_MISSING", reason: "participants unresolved — identity is never guessed" }); continue; }
@@ -683,11 +702,25 @@ for (const ev of events) {
   };
   }
 
+  /*
+   * Stage 3D (founder Q3 YES): the side is FROZEN here, before kickoff, and never worked out afterwards. The rule is
+   * MODEL_FAVORED_V1 (the higher frozen win probability; equal teams: TOO_CLOSE). No abstention threshold is adopted
+   * (lib/results/side-decision.mjs refuses one until the founder sets that rule), so this never calls a game
+   * "too close" because both teams sit under 50%.
+   */
+  forecast.sideDecision = freezeSideDecision({
+    sideProbabilities: { HOME: forecast.forecastSummary.winProbability.home, AWAY: forecast.forecastSummary.winProbability.away },
+    sides: ["HOME", "AWAY"], rule: SIDE_RULE.MODEL_FAVORED_V1, frozenAt: forecast.generatedAt,
+  });
+
   // immutable receipt: refuse to rewrite one that already exists for this event+date
   const receiptPath = path.join(ROOT, "data/internal/nfl/forecast-receipts", DATE, `${ev.providerEventId}.json`);
   if (fs.existsSync(receiptPath)) {
     const existing = read(receiptPath);
     if (existing?.model?.inputHash === forecast.model.inputHash) {
+      // Publish only what the receipt froze: a receipt written before 3D has no side decision, so none is shown.
+      if (existing.sideDecision) forecast.sideDecision = existing.sideDecision;
+      else delete forecast.sideDecision;
       published.push(forecast);
       continue; // identical inputs → identical forecast; nothing to rewrite
     }
@@ -697,11 +730,13 @@ for (const ev of events) {
     }
     // pre-kickoff revision: new file with lineage, original preserved
     const revPath = path.join(ROOT, "data/internal/nfl/forecast-receipts", DATE, `${ev.providerEventId}-rev-${NOW.slice(11, 16).replace(":", "")}Z.json`);
+    markSideCutover(forecast);
     fs.writeFileSync(revPath, JSON.stringify({ ...forecast, revisionOf: path.basename(receiptPath), priorInputHash: existing?.model?.inputHash ?? null }, null, 1));
     published.push(forecast);
     continue;
   }
   fs.mkdirSync(path.dirname(receiptPath), { recursive: true });
+  markSideCutover(forecast);
   fs.writeFileSync(receiptPath, JSON.stringify(forecast, null, 1));
   published.push(forecast);
 }
