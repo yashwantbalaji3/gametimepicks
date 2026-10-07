@@ -53,7 +53,11 @@ export const GTP_PROBABILITY_METRICS = Object.freeze(new Set([METRIC_KIND.MODEL_
  */
 export const SELECTOR_STATUS = Object.freeze({ SHADOW: "SHADOW", PUBLIC_RANKED_FORECAST: "PUBLIC_RANKED_FORECAST", ADOPTED: "ADOPTED" });
 
-/** Outcome words: identical to Stage 3A forecast-of-record OUTCOME (replace with an import once 3A is on main). */
+/**
+ * Outcome words: identical to Stage 3A forecast-of-record OUTCOME (merged, #1006). Kept as a copy on purpose for now:
+ * 3A's scope test pins which files may import the contract (forecast-of-record.test.mjs §7), and that list is Results'
+ * to extend. When 5A is promoted, it adds itself to that list and this becomes an import.
+ */
 export const OUTCOME = Object.freeze({ WIN: "WIN", LOSS: "LOSS", PUSH: "PUSH", VOID: "VOID", PENDING: "PENDING", NO_PICK: "NO_PICK", UNKNOWN: "UNKNOWN" });
 const BESIDE = [OUTCOME.PUSH, OUTCOME.VOID, OUTCOME.PENDING, OUTCOME.NO_PICK, OUTCOME.UNKNOWN];
 
