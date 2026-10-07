@@ -213,7 +213,8 @@ export function gradeGame({ forecast, board, boardRefused = null, official }) {
 }
 
 const PROPS = [
-  { id: "winner", label: "Picked the winner", group: "team" },
+  // Stage 3C (founder Q4): the graded team is the model-favored one, not a published pick; the label says so.
+  { id: "winner", label: "Model-favored team won", group: "team" },
   { id: "total_range", label: "Total points landed in our range", group: "team", target: 0.8 },
   { id: "margin_range", label: "Winning margin landed in our range", group: "team", target: 0.8 },
   ...PLAYER_PROPS.map((p) => ({ id: p.key, label: `${p.label} landed in our range`, group: "player", target: 0.8 })),
