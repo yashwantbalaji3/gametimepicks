@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T00:23:08Z",
- "sourceGeneratedAt": "2026-10-07T00:23:08Z",
+ "generatedAt": "2026-10-07T16:22:43Z",
+ "sourceGeneratedAt": "2026-10-07T16:22:43Z",
  "providerEventId": "401872983",
  "matchup": "CLE @ NYJ",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T00:23:08Z",
-  "roleEvidenceAt": "2026-10-07T00:23:08Z",
+  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
+  "roleEvidenceAt": "2026-10-07T16:22:43Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -26,19 +26,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "CLE",
-      "pool": "passAttempts",
-      "originalSum": 1.4824,
-      "normalizedSum": 1,
-      "factor": 0.6746,
-      "playerIds": [
-       "nfl-athlete-3122840",
-       "nfl-athlete-4432762"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -137,7 +125,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 56,
+  "absent": 55,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -246,10 +234,16 @@
      "name": "Shedeur Sanders",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_pass_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4427238",
@@ -382,14 +376,21 @@
   "qbStarter": [
    {
     "team": "CLE",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3122840",
-     "nfl-athlete-4432762"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3122840",
+     "name": "Deshaun Watson"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4432762",
+      "name": "Shedeur Sanders"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-3122840"
+    ]
    },
    {
     "team": "NYJ",
@@ -401,19 +402,6 @@
    }
   ],
   "pools": [
-   {
-    "team": "CLE",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 1.4824,
-    "residualOther": 0,
-    "joined": 2,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
    {
     "team": "CLE",
     "pool": "targets",
@@ -436,6 +424,19 @@
     "sum": 1,
     "originalSum": 1,
     "residualOther": 0,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "CLE",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9847,
+    "originalSum": 0.9847,
+    "residualOther": 0.0153,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -850,16 +851,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 152.9545,
-     "p10": 78.9652,
-     "p25": 106.5202,
-     "median": 144.1771,
-     "p75": 189.8616,
-     "p90": 238.299,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.6746
-     },
+     "mean": 226.7398,
+     "p10": 117.058,
+     "p25": 157.9055,
+     "median": 213.7282,
+     "p75": 281.4508,
+     "p90": 353.2544,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1032,19 +1029,6 @@
    "team": "CLE",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_pass_yds": {
-     "mean": 71.1261,
-     "p10": 27.9041,
-     "p25": 42.5048,
-     "median": 64.1554,
-     "p75": 92.2118,
-     "p90": 123.4282,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.6746
-     },
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.044,
      "pricingState": "NOT_PROBED"
