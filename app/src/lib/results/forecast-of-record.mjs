@@ -16,9 +16,23 @@
  *      file name: a re-issue, a restatement or a second dated file is the SAME question.
  *    - Claim/line: two genuinely distinct lines published at the same time for one question are two claims, each
  *      graded against its own frozen line (Q2 TWO).
- *    - Revision lineage: a later pregame version replaces the earlier one. When the owner carries an explicit
- *      `claimId`, copies with the same claimId are one claim's revisions and each claimId keeps its own latest
- *      version. Without claimId, a later publication of the question replaces everything published for it earlier.
+ *    - Revision lineage (founder ruling 2026-10-07 00:25Z: a later revision replaces earlier versions of the SAME
+ *      claim only; two simultaneous different lines stay two forecasts; never collapse a question to its latest
+ *      publication). Three paths, most explicit first:
+ *        a. Board provenance: a copy whose `publicationId` is named in a LATER pregame publication's
+ *           `replacesPublicationIds` was replaced with its whole board/group and is superseded, whether or not the new
+ *           board republished it. Only this explicit, producer-written field does that; dates alone never do.
+ *        b. `claimId`: copies with the same claimId are one claim's revisions; each claimId keeps its own latest
+ *           version and a revision touches no other claim.
+ *        c. Fallback (no claimId): a claim's slot is its question + side (OVER/UNDER, a team). Publications are read
+ *           in time order. An identical republication (same side, same line) replaces its earlier copy. Otherwise a
+ *           later claim replaces an earlier one only when the link is one-to-one: they share the side (the line moved)
+ *           or the line (the same claim/line restated, incl. a flipped side and line-less questions such as a game
+ *           winner), and neither has any other such link. An earlier claim that no later claim shares a side or a
+ *           line with is untouched and remains its own forecast (Over 5.5 + Under 4.5, then Over 6.5 ⇒ Over 6.5 and
+ *           Under 4.5 are of record, Over 5.5 is superseded). Any other relation is AMBIGUOUS_REVISION: the earlier
+ *           copy is kept, disclosed as a count, excluded from the W–L and never a loss; it is never deleted silently
+ *           and never assumed replaced.
  *    - A row missing any question field cannot be counted once, so it is not counted: it is disclosed as `unkeyed`,
  *      never a loss, never zero, and never given an inferred identity (no matchup text, no name match).
  *
@@ -77,7 +91,22 @@ export const EXCLUSION = Object.freeze({
   CONFLICT: "CONFLICT",
   /** Missing a question-identity field (Q5). Preserved in raw history, excluded from aggregates. */
   UNKEYED: "UNKEYED",
+  /** An earlier claim a later publication may or may not have replaced, with no lineage or board provenance to say
+   *  which (e.g. two earlier same-side lines, one later). Kept and disclosed; excluded from the W–L; never a loss. */
+  AMBIGUOUS_REVISION: "AMBIGUOUS_REVISION",
 });
+
+/** Every exclusion reason, in disclosure order. A row is of record or carries exactly one of these. */
+export const EXCLUSION_REASONS = Object.freeze([
+  EXCLUSION.SUPERSEDED, EXCLUSION.LATE, EXCLUSION.CONFLICT, EXCLUSION.AMBIGUOUS_REVISION, EXCLUSION.UNKEYED,
+]);
+
+/**
+ * Board-level provenance a producer may write (none does yet; see protocol/evidence/stage-3a/
+ * REVISION_LINEAGE_EVIDENCE.md). `publicationId`: the board/run/group a copy was published in.
+ * `replacesPublicationIds`: publications this one replaced IN FULL. Only these fields trigger whole-board supersession.
+ */
+export const BOARD_PROVENANCE_FIELDS = Object.freeze(["publicationId", "replacesPublicationIds"]);
 
 /** Conflict reasons (surfaced, never silently picked). */
 export const CONFLICT_REASON = Object.freeze({
@@ -135,6 +164,9 @@ const hasClaimId = (f) => typeof f?.claimId === "string" && f.claimId.length > 0
  *                                           pre-postponement start). Used as the cut-off only when no canonical start
  *                                           is supplied and every copy agrees on it; disclosed when it is
  * @property {string|null} [receiptId]       where this copy lives (provenance only, never identity)
+ * @property {string|null} [publicationId]   the board/run/group this copy was published in (provenance only)
+ * @property {string[]|null} [replacesPublicationIds]  publications this copy's publication replaced in full
+ *                                           (explicit board provenance; the only trigger for whole-board supersession)
  * @property {string|null} [frozenSide]      side written down before the start (HOME / AWAY / OVER / UNDER / a team),
  *                                           or "TOO_CLOSE"
  * @property {string|null} [sideBasis]       "HISTORICAL_MODEL_FAVORED" for Q4 rows only; otherwise absent
@@ -209,16 +241,13 @@ function resolveCutoff(copies, canonicalStarts) {
   return { at: null, source: "NONE" };
 }
 
-/**
- * Latest pregame version(s) of one lineage. `allowDistinctLines`: without claimId lineage, distinct lines published
- * at the same latest time are separate claims (Q2 TWO). Within one claimId they are a conflict (a claim has one line).
- */
-function pickLatest(copies, allowDistinctLines) {
-  if (copies.length === 1) return { record: copies, superseded: [] };
+/** Latest version of ONE claimId lineage. A claim has one line: different copies at the same latest time conflict. */
+function pickLatest(copies) {
+  if (copies.length === 1) return { record: copies, superseded: [], ambiguous: [] };
   if (copies.some((c) => !isIso(c.publishedAt))) {
     // At least one copy cannot be placed in time. Identical claims are one forecast listed twice; different claims
     // would need a guess about which was published last, so they are a conflict.
-    if (copies.every((c) => sameClaim(c, copies[0]))) return { record: [copies[0]], superseded: copies.slice(1) };
+    if (copies.every((c) => sameClaim(c, copies[0]))) return { record: [copies[0]], superseded: copies.slice(1), ambiguous: [] };
     return { conflict: CONFLICT_REASON.COPIES_WITHOUT_PUBLISHED_AT };
   }
   const sorted = [...copies].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
@@ -228,26 +257,100 @@ function pickLatest(copies, allowDistinctLines) {
   const unique = [];
   const duplicates = [];
   for (const c of tied) (unique.some((u) => sameClaim(u, c)) ? duplicates : unique).push(c);
-  if (unique.length === 1) return { record: unique, superseded: [...duplicates, ...earlier] };
-  const lines = unique.map((c) => c.line);
-  const distinctLines = lines.every(isLine) && new Set(lines).size === lines.length;
-  if (allowDistinctLines && distinctLines) return { record: unique, superseded: [...duplicates, ...earlier] };
+  if (unique.length === 1) return { record: unique, superseded: [...duplicates, ...earlier], ambiguous: [] };
   return { conflict: CONFLICT_REASON.SAME_TIME_DIFFERENT_CLAIM };
+}
+
+const sideWord = (c) => (typeof c.frozenSide === "string" && c.frozenSide ? c.frozenSide.toUpperCase() : null);
+const lineOf = (c) => (isLine(c.line) ? c.line : null);
+const sameSide = (a, b) => sideWord(a) === sideWord(b);
+const sameLine = (a, b) => lineOf(a) === lineOf(b);
+/** A later claim may be a revision of an earlier one: same slot (side; the line moved) or same claim/line (the side
+ *  may have flipped; a line-less question such as a game winner has one claim/line). */
+const mayRevise = (earlier, later) => sameSide(earlier, later) || sameLine(earlier, later);
+
+/**
+ * Revision lineage without claimId (path c of the identity rule). Publications (copies sharing one publishedAt) are
+ * read oldest first; `live` holds the current version of every claim seen so far. Each later publication:
+ *   1. an identical republication (same side, same line) replaces its earlier copy;
+ *   2. an earlier claim no new claim shares a side or a line with is untouched: it stays its own forecast (Q2);
+ *   3. otherwise it is replaced only when exactly one remaining new claim may revise it and that new claim may revise
+ *      no other remaining earlier claim (one-to-one); any other relation is AMBIGUOUS_REVISION (kept, excluded).
+ * Distinct lines published at one time are separate claims (Q2 TWO); two different claims on one line at one time
+ * cannot both be meant, so that is a conflict.
+ */
+function reviseBySlot(copies) {
+  if (copies.length === 1) return { record: copies, superseded: [], ambiguous: [] };
+  if (copies.some((c) => !isIso(c.publishedAt))) {
+    if (copies.every((c) => sameClaim(c, copies[0]))) return { record: [copies[0]], superseded: copies.slice(1), ambiguous: [] };
+    return { conflict: CONFLICT_REASON.COPIES_WITHOUT_PUBLISHED_AT };
+  }
+  const byTime = new Map();
+  for (const c of copies) {
+    const t = Date.parse(c.publishedAt);
+    if (!byTime.has(t)) byTime.set(t, []);
+    byTime.get(t).push(c);
+  }
+  const superseded = [];
+  const ambiguous = [];
+  let live = [];
+  for (const t of [...byTime.keys()].sort((a, b) => a - b)) {
+    const news = [];
+    for (const c of byTime.get(t)) (news.some((u) => sameClaim(u, c)) ? superseded : news).push(c);
+    const lines = news.map((c) => c.line);
+    if (news.length > 1 && !(lines.every(isLine) && new Set(lines).size === lines.length)) {
+      return { conflict: CONFLICT_REASON.SAME_TIME_DIFFERENT_CLAIM };
+    }
+    const paired = new Set();
+    const restLive = [];
+    for (const x of live) {
+      const n = news.find((c) => !paired.has(c) && sameSide(x, c) && sameLine(x, c));
+      if (n) { paired.add(n); superseded.push(x); } else restLive.push(x);
+    }
+    const restNew = news.filter((c) => !paired.has(c));
+    const nextLive = [...news];
+    for (const x of restLive) {
+      if (!news.some((c) => mayRevise(x, c))) { nextLive.push(x); continue; }
+      const by = restNew.filter((c) => mayRevise(x, c));
+      if (by.length === 1 && restLive.filter((y) => mayRevise(y, by[0])).length === 1) superseded.push(x);
+      else ambiguous.push(x);
+    }
+    live = nextLive;
+  }
+  return { record: live, superseded, ambiguous };
+}
+
+/** publicationId → publishedAt (ms) of every publication that declared it replaced in full (board provenance, path a). */
+function boardReplacements(rows) {
+  const out = new Map();
+  for (const r of rows ?? []) {
+    if (!Array.isArray(r?.replacesPublicationIds) || !isIso(r.publishedAt)) continue;
+    const t = Date.parse(r.publishedAt);
+    for (const id of r.replacesPublicationIds) {
+      if (typeof id !== "string" || id.length === 0 || id === r.publicationId) continue;
+      if (!out.has(id)) out.set(id, new Set());
+      out.get(id).add(t);
+    }
+  }
+  return out;
 }
 
 /**
  * The identity/dedupe helper: raw owner rows (any number of copies, in any order) → the rows of record.
- * Every input row lands in exactly one of record / superseded / late / conflicts[].rows / unkeyed.
+ * Every input row lands in exactly one of record / superseded / late / conflicts[].rows / ambiguous / unkeyed.
  *
  * @param {CanonicalForecast[]} rows
  * @param {{ canonicalStarts?: Record<string, string> | Map<string, string> }} [opts]
  *        canonicalStarts: `${sport}|${eventId}` → the event's canonical (rescheduled) start, from the schedule owner
  * @returns {{
  *   record: CanonicalForecast[],      one row per claim of record
- *   superseded: CanonicalForecast[],  earlier pregame versions and exact duplicates (audit only)
+ *   superseded: CanonicalForecast[],  earlier pregame versions, exact duplicates and board-replaced copies (audit only)
  *   late: CanonicalForecast[],        published at/after the canonical start (never of record)
  *   conflicts: Array<{ key: string, rows: CanonicalForecast[], reason: string }>,
+ *   ambiguous: CanonicalForecast[],   AMBIGUOUS_REVISION: earlier claims that may or may not have been replaced
+ *                                     (kept, disclosed, excluded from the W–L, never a loss)
  *   unkeyed: CanonicalForecast[],     missing a question-identity field (Q5: excluded, disclosed)
+ *   supersededByBoard: number,        the part of `superseded` replaced by explicit board provenance
  *   timingUnverified: number,         records with no publishedAt or no cut-off (accepted, disclosed)
  *   cutoffFromEventStart: number      records whose cut-off came from the copies' agreed own eventStart, not a
  *                                     canonical start (disclosed: the adapter owes a canonical start)
@@ -262,10 +365,13 @@ export function selectForecastOfRecord(rows, { canonicalStarts } = {}) {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(r);
   }
+  const replaced = boardReplacements(rows);
   const record = [];
   const superseded = [];
   const late = [];
   const conflicts = [];
+  const ambiguous = [];
+  let supersededByBoard = 0;
   let timingUnverified = 0;
   let cutoffFromEventStart = 0;
   for (const [key, copies] of groups) {
@@ -274,6 +380,7 @@ export function selectForecastOfRecord(rows, { canonicalStarts } = {}) {
     const pre = [];
     for (const c of copies) {
       if (cutoff.at != null && isIso(c.publishedAt) && !(Date.parse(c.publishedAt) < cutoff.at)) late.push(c);
+      else if (boardReplaced(c, replaced, cutoff.at)) { superseded.push(c); supersededByBoard += 1; }
       else pre.push(c);
     }
     if (pre.length === 0) continue;
@@ -283,27 +390,36 @@ export function selectForecastOfRecord(rows, { canonicalStarts } = {}) {
       continue;
     }
     const lineages = [];
-    if (withLineage.length === 0) lineages.push({ key, copies: pre, allowDistinctLines: true });
+    if (withLineage.length === 0) lineages.push({ key, copies: pre, revise: reviseBySlot });
     else {
       const byClaim = new Map();
       for (const c of pre) {
         if (!byClaim.has(c.claimId)) byClaim.set(c.claimId, []);
         byClaim.get(c.claimId).push(c);
       }
-      for (const [claimId, cs] of byClaim) lineages.push({ key: `${key}#claim=${claimId}`, copies: cs, allowDistinctLines: false });
+      for (const [claimId, cs] of byClaim) lineages.push({ key: `${key}#claim=${claimId}`, copies: cs, revise: pickLatest });
     }
     for (const l of lineages) {
-      const pick = pickLatest(l.copies, l.allowDistinctLines);
+      const pick = l.revise(l.copies);
       if ("conflict" in pick) { conflicts.push({ key: l.key, rows: l.copies, reason: pick.conflict }); continue; }
       record.push(...pick.record);
       superseded.push(...pick.superseded);
+      ambiguous.push(...pick.ambiguous);
       for (const r of pick.record) {
         if (cutoff.at == null || !isIso(r.publishedAt)) timingUnverified += 1;
         if (cutoff.source === "EVENT_START") cutoffFromEventStart += 1;
       }
     }
   }
-  return { record, superseded, late, conflicts, unkeyed, timingUnverified, cutoffFromEventStart };
+  return { record, superseded, late, conflicts, ambiguous, unkeyed, supersededByBoard, timingUnverified, cutoffFromEventStart };
+}
+
+/** A pregame copy whose publication a LATER publication, itself before the cut-off, declared replaced in full. */
+function boardReplaced(c, replaced, cutoffAt) {
+  if (typeof c.publicationId !== "string" || !isIso(c.publishedAt)) return false;
+  const at = Date.parse(c.publishedAt);
+  for (const t of replaced.get(c.publicationId) ?? []) if (t > at && (cutoffAt == null || t < cutoffAt)) return true;
+  return false;
 }
 
 /**
@@ -414,7 +530,9 @@ export function recordOf(rows, opts = {}) {
       late: sel.late.length,
       conflicts: sel.conflicts.length,
       conflictRows: sel.conflicts.reduce((n, c) => n + c.rows.length, 0),
+      ambiguousRevision: sel.ambiguous.length,
       unkeyed: sel.unkeyed.length,
+      supersededByBoard: sel.supersededByBoard,
     },
     timingUnverified: sel.timingUnverified,
     cutoffFromEventStart: sel.cutoffFromEventStart,

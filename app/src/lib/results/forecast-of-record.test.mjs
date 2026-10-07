@@ -3,7 +3,9 @@
  *
  * Founder decisions 2026-10-06 22:22Z (protocol/STAGE-3-FOUNDER-DECISIONS-2026-10-06.md): Q1 YES (rescheduled
  * canonical start), Q2 TWO (+ revision lineage), Q3 YES (frozen side or TOO_CLOSE; no threshold defined here),
- * Q4 HIGHER (historical NFL winner rows; "historical model-favored winner accuracy"), Q5 EXCLUDE.
+ * Q4 HIGHER (historical NFL winner rows; "historical model-favored winner accuracy"), Q5 EXCLUDE. Revision ruling
+ * 2026-10-07 00:25Z: a later revision replaces only the SAME claim; whole-board replacement only on explicit provenance;
+ * no lineage and no one-to-one mapping ⇒ AMBIGUOUS_REVISION (kept, disclosed, excluded, never a loss).
  *
  * Pins rules on synthetic fixtures (__fixtures__/forecast-of-record/cases.json). No live data and no live count is
  * read or pinned: the rules and invariants are under test, never today's record.
@@ -16,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  OUTCOME, DENOMINATOR, CONFLICT_REASON, TOO_CLOSE, SIDE_BASIS, HISTORICAL_MODEL_FAVORED_LABEL,
+  OUTCOME, DENOMINATOR, CONFLICT_REASON, EXCLUSION, EXCLUSION_REASONS, BOARD_PROVENANCE_FIELDS, TOO_CLOSE, SIDE_BASIS, HISTORICAL_MODEL_FAVORED_LABEL,
   questionKey, identityKey, claimKey, selectForecastOfRecord, sideOf, publishedSide, outcomeOf, tally, recordBasis,
   recordOf, formatRecord,
 } from "./forecast-of-record.mjs";
@@ -26,10 +28,11 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const F = JSON.parse(fs.readFileSync(path.join(HERE, "__fixtures__/forecast-of-record/cases.json"), "utf8"));
 const without = (row, ...keys) => { const r = { ...row }; for (const k of keys) delete r[k]; return r; };
 const tags = (rows) => rows.map((r) => r.tag);
+const hasLineage = (r) => r.claimId != null || r.publicationId != null || r.replacesPublicationIds != null;
 
 /** Every raw row must land in exactly one bucket: nothing double-counted, nothing silently dropped. */
 function assertConserved(rows, sel) {
-  const out = [...sel.record, ...sel.superseded, ...sel.late, ...sel.conflicts.flatMap((c) => c.rows), ...sel.unkeyed];
+  const out = [...sel.record, ...sel.superseded, ...sel.late, ...sel.conflicts.flatMap((c) => c.rows), ...sel.ambiguous, ...sel.unkeyed];
   assert.equal(out.length, rows.length, "every input row is accounted for exactly once");
   for (const r of rows) assert.equal(out.filter((o) => o === r).length, 1);
 }
@@ -191,12 +194,110 @@ test("🔴 Q2 lineage · a later revision supersedes only its own claim; the oth
   assert.deepEqual({ forecasts: t.forecasts, win: t.win, loss: t.loss }, { forecasts: 2, win: 0, loss: 2 }, "the superseded 5.5 would have won; it is not counted");
 });
 
-test("Q2 lineage · without claimId, a later publication of the question replaces everything published for it earlier", () => {
-  const rows = F.lineRevision.map((r) => without(r, "claimId"));
+/* Founder ruling 2026-10-07 00:25Z: later revisions replace earlier versions of the SAME claim only; two simultaneous
+   different lines are two forecasts; no question-level latest-wins; whole-board replacement only on explicit provenance;
+   no lineage ⇒ preserve or classify AMBIGUOUS_REVISION, never delete. */
+const rowsOf = (set) => set.rows;
+const byTag = (sel) => ({
+  record: sel.record.map((r) => `${r.subjectId} ${r.frozenSide} ${r.line}`).sort(),
+  superseded: sel.superseded.map((r) => `${r.subjectId} ${r.frozenSide} ${r.line}`).sort(),
+  ambiguous: sel.ambiguous.map((r) => `${r.subjectId} ${r.frozenSide} ${r.line}`).sort(),
+});
+const expectTags = (rows) => {
+  const pick = (t) => rows.filter((r) => r.tag === t).map((r) => `${r.subjectId} ${r.frozenSide} ${r.line}`).sort();
+  return { record: pick("record"), superseded: pick("superseded"), ambiguous: pick("ambiguous") };
+};
+const orders = (rows) => [rows, [...rows].reverse(), [...rows.slice(1), rows[0]]];
+
+test("🔴 founder ruling · Over 5.5 + Under 4.5, later Over 6.5, no lineage: Over 6.5 and Under 4.5 are of record, Over 5.5 superseded", () => {
+  const rows = rowsOf(F.founderRevisionCase);
+  for (const order of orders(rows)) {
+    const sel = selectForecastOfRecord(order);
+    assertConserved(order, sel);
+    assert.deepEqual(byTag(sel), expectTags(rows), "file/array order never decides it");
+    assert.ok(rows.every((r) => !hasLineage(r)), "fixture: no claimId and no board provenance");
+  }
   const sel = selectForecastOfRecord(rows);
-  assertConserved(rows, sel);
-  assert.deepEqual(sel.record.map((r) => r.line), [6.5]);
-  assert.deepEqual(sel.superseded.map((r) => r.line).sort(), [4.5, 5.5]);
+  assert.deepEqual(sel.record.map((r) => r.line).sort(), [4.5, 6.5], "two forecasts: the Over claim's latest version and the untouched Under");
+  assert.ok(sel.record.some((r) => r.frozenSide === "UNDER" && r.line === 4.5), "the untouched simultaneous Under 4.5 survives");
+  assert.deepEqual(sel.superseded.map((r) => r.line), [5.5], "only the Over claim's earlier version is replaced");
+  assert.equal(sel.ambiguous.length, 0);
+  const t = recordOf(rows);
+  assert.deepEqual({ forecasts: t.forecasts, win: t.win, loss: t.loss, superseded: t.excluded.superseded }, { forecasts: 2, win: 1, loss: 1, superseded: 1 });
+});
+
+test("🔴 founder ruling · two simultaneous lines stay two forecasts while nothing later touches them", () => {
+  const firstBoard = rowsOf(F.founderRevisionCase).filter((r) => r.publishedAt === "2026-05-16T12:00:00Z");
+  assert.equal(firstBoard.length, 2);
+  const sel = selectForecastOfRecord(firstBoard);
+  assertConserved(firstBoard, sel);
+  assert.equal(sel.record.length, 2);
+  assert.equal(new Set(sel.record.map(claimKey)).size, 2);
+});
+
+test("🔴 founder ruling · with claimId lineage the revision replaces only the claim it links to (incl. where the fallback would be ambiguous)", () => {
+  const rows = rowsOf(F.lineageResolvesAmbiguity);
+  for (const order of orders(rows)) {
+    const sel = selectForecastOfRecord(order);
+    assertConserved(order, sel);
+    assert.deepEqual(byTag(sel), expectTags(rows));
+  }
+  const stripped = rows.map((r) => without(r, "claimId"));
+  const sel = selectForecastOfRecord(stripped);
+  assertConserved(stripped, sel);
+  assert.deepEqual(sel.record.map((r) => r.line), [6.5], "without lineage the same rows are not one-to-one…");
+  assert.deepEqual(sel.ambiguous.map((r) => r.line).sort(), [4.5, 5.5], "…so both earlier Over lines are AMBIGUOUS_REVISION, not deleted");
+});
+
+test("🔴 founder ruling · whole-board supersession only with explicit board provenance (replacesPublicationIds), never from dates", () => {
+  const rows = rowsOf(F.boardReplaced);
+  for (const order of orders(rows)) {
+    const sel = selectForecastOfRecord(order);
+    assertConserved(order, sel);
+    assert.deepEqual(byTag(sel), expectTags(rows));
+    assert.equal(sel.supersededByBoard, 3, "the Under 4.5 and the dropped player go with the replaced board");
+  }
+  const t = recordOf(rows);
+  assert.deepEqual({ forecasts: t.forecasts, superseded: t.excluded.superseded, byBoard: t.excluded.supersededByBoard }, { forecasts: 1, superseded: 3, byBoard: 3 });
+  // Same rows, same dates, no replacement field ⇒ the side-slot fallback: the Under 4.5 and the dropped player survive.
+  const noProv = rows.map((r) => without(r, "replacesPublicationIds"));
+  const sel = selectForecastOfRecord(noProv);
+  assertConserved(noProv, sel);
+  assert.equal(sel.supersededByBoard, 0);
+  assert.deepEqual(sel.record.map((r) => `${r.subjectId} ${r.frozenSide} ${r.line}`).sort(),
+    ["mlb-player-666 OVER 6.5", "mlb-player-666 UNDER 4.5", "mlb-player-666b OVER 0.5"]);
+  // A replacement published at/after the canonical start replaces nothing pregame (the replacing copy is itself late).
+  const lateBoard = rows.map((r) => (r.publicationId === "board-B" ? { ...r, publishedAt: "2026-05-16T23:30:00Z" } : r));
+  const selLate = selectForecastOfRecord(lateBoard);
+  assertConserved(lateBoard, selLate);
+  assert.equal(selLate.supersededByBoard, 0);
+  assert.equal(selLate.record.length, 3, "board A's pregame copies stand");
+  assert.deepEqual(BOARD_PROVENANCE_FIELDS, ["publicationId", "replacesPublicationIds"]);
+});
+
+test("🔴 founder ruling · no one-to-one mapping and no lineage ⇒ AMBIGUOUS_REVISION: kept, disclosed, excluded from W–L, never a loss", () => {
+  const rows = rowsOf(F.ambiguousRevision);
+  for (const order of orders(rows)) {
+    const sel = selectForecastOfRecord(order);
+    assertConserved(order, sel);
+    assert.deepEqual(byTag(sel), expectTags(rows));
+  }
+  const amb = rows.filter((r) => r.tag === "ambiguous");
+  assert.ok(amb.every((r) => outcomeOf(r) === OUTCOME.LOSS), "fixture: every ambiguous copy would have been a loss");
+  const t = recordOf(rows);
+  assert.deepEqual({ forecasts: t.forecasts, win: t.win, loss: t.loss }, { forecasts: 3, win: 2, loss: 1 }, "only the records' own outcomes count");
+  assert.equal(t.excluded.ambiguousRevision, amb.length, "disclosed as a count");
+  assert.ok(EXCLUSION_REASONS.includes(EXCLUSION.AMBIGUOUS_REVISION));
+});
+
+test("founder ruling · a later copy of the same line (side flipped) or a same-side line move with one candidate is a one-to-one revision", () => {
+  for (const rows of [F.postponedStaleStart, F.reissuedDisagreeing, F.simultaneousLines]) {
+    const sel = selectForecastOfRecord(rows);
+    assertConserved(rows, sel);
+    assert.equal(sel.ambiguous.length, 0);
+  }
+  assert.deepEqual(tags(selectForecastOfRecord(F.postponedStaleStart).superseded), ["superseded"], "UNDER 0.5 → OVER 0.5: one claim/line, restated");
+  assert.deepEqual(tags(selectForecastOfRecord(F.reissuedDisagreeing).superseded), ["superseded"], "a line-less game winner has one claim");
 });
 
 test("Q2 lineage · partial lineage, or two lines at once inside ONE claim, is a conflict — never guessed", () => {
@@ -229,7 +330,8 @@ test("an exact duplicate (same time, same claim) is one forecast; so is an undat
 
 test("invariant · no two rows of record share a claim key, across every fixture set", () => {
   const sets = [F.reissued, F.reissuedDisagreeing, F.lateCopy, F.onlyLate, F.statuses, F.historicalNflWinner, F.postponed,
-    F.postponedStaleStart, F.lineRevision, F.simultaneousLines, F.conflicts, F.undatedDuplicate, F.exactDuplicate, F.unkeyed];
+    F.postponedStaleStart, F.lineRevision, F.simultaneousLines, F.conflicts, F.undatedDuplicate, F.exactDuplicate, F.unkeyed,
+    F.founderRevisionCase.rows, F.boardReplaced.rows, F.ambiguousRevision.rows, F.lineageResolvesAmbiguity.rows];
   const all = sets.flat();
   const sel = selectForecastOfRecord(all);
   assertConserved(all, sel);
@@ -339,6 +441,10 @@ test("🔴 denominator contract: every outcome word is either decisive or shown 
   const all = [...DENOMINATOR.DECISIVE, ...DENOMINATOR.SHOWN_BESIDE];
   assert.equal(new Set(all).size, all.length);
   assert.deepEqual(new Set(all), new Set(Object.values(OUTCOME)));
+  assert.deepEqual(new Set(EXCLUSION_REASONS), new Set(Object.values(EXCLUSION)), "every exclusion reason is listed once");
+  assert.equal(EXCLUSION_REASONS.length, Object.values(EXCLUSION).length);
+  const ex = recordOf([]).excluded;
+  for (const k of ["superseded", "late", "conflicts", "conflictRows", "ambiguousRevision", "unkeyed", "supersededByBoard"]) assert.equal(ex[k], 0, k);
 });
 
 test("each status maps to exactly one outcome word (pending ≠ loss, void ≠ loss, missing ≠ zero)", () => {

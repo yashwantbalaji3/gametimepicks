@@ -178,6 +178,68 @@
       "publishedAt": "2026-09-14T15:00:00Z", "eventStart": "2026-09-14T17:00:00Z", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "HOME" }
   ],
 
+  "founderRevisionCase": {
+    "_about": "Founder ruling 2026-10-07 00:25Z, verbatim case, NO claimId and NO board provenance: one board publishes Over 5.5 K and Under 4.5 K together; a later board republishes only Over 6.5 K. Actual 4 K.",
+    "rows": [
+      { "sport": "MLB", "eventId": "665", "subjectType": "PLAYER", "subjectId": "mlb-player-665", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "superseded", "note": "the Over claim's earlier version" },
+      { "sport": "MLB", "eventId": "665", "subjectType": "PLAYER", "subjectId": "mlb-player-665", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "UNDER", "line": 4.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record", "note": "untouched simultaneous claim: remains its own forecast" },
+      { "sport": "MLB", "eventId": "665", "subjectType": "PLAYER", "subjectId": "mlb-player-665", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 6.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record", "note": "forecast of record for the Over claim" }
+    ]
+  },
+
+  "boardReplaced": {
+    "_about": "The same case WITH explicit board provenance: board B declares it replaced board A in full (replacesPublicationIds). Every board-A copy is superseded, including the Under 4.5 and a player board B dropped entirely.",
+    "rows": [
+      { "sport": "MLB", "eventId": "666", "subjectType": "PLAYER", "subjectId": "mlb-player-666", "family": "pitcher_strikeouts", "publicationId": "board-A",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "superseded" },
+      { "sport": "MLB", "eventId": "666", "subjectType": "PLAYER", "subjectId": "mlb-player-666", "family": "pitcher_strikeouts", "publicationId": "board-A",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "UNDER", "line": 4.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "superseded" },
+      { "sport": "MLB", "eventId": "666", "subjectType": "PLAYER", "subjectId": "mlb-player-666b", "family": "batter_hits", "publicationId": "board-A",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 0.5, "state": "SETTLED", "finalSide": "OVER", "tag": "superseded", "note": "not on board B at all: withdrawn with the board it was on" },
+      { "sport": "MLB", "eventId": "666", "subjectType": "PLAYER", "subjectId": "mlb-player-666", "family": "pitcher_strikeouts", "publicationId": "board-B", "replacesPublicationIds": ["board-A"],
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 6.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record" }
+    ]
+  },
+
+  "ambiguousRevision": {
+    "_about": "No claimId, no board provenance, and the later publication cannot be mapped one-to-one onto the earlier claims: the earlier claims are AMBIGUOUS_REVISION (kept, disclosed, excluded from the W-L, never a loss).",
+    "rows": [
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-668", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "ambiguous", "note": "two earlier Over lines, one later Over line" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-668", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 4.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "ambiguous" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-668", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 6.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-669", "family": "batter_hits_runs_rbis",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 1.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "ambiguous", "note": "the Over slot was republished without it: dropped or still standing is unknown" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-669", "family": "batter_hits_runs_rbis",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 0.5, "state": "SETTLED", "finalSide": "OVER", "tag": "superseded", "note": "republished identically" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-669", "family": "batter_hits_runs_rbis",
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 0.5, "state": "SETTLED", "finalSide": "OVER", "tag": "record" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-670", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "ambiguous", "note": "the later Under 5.5 shares a line with this and a side with the Under 4.5" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-670", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "UNDER", "line": 4.5, "state": "SETTLED", "finalSide": "OVER", "tag": "ambiguous" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-670", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "UNDER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record" }
+    ]
+  },
+
+  "lineageResolvesAmbiguity": {
+    "_about": "The two-earlier-Over-lines case WITH claimId lineage: the revision replaces only the claim it links to; nothing is ambiguous.",
+    "rows": [
+      { "sport": "MLB", "eventId": "671", "subjectType": "PLAYER", "subjectId": "mlb-player-671", "family": "pitcher_strikeouts", "claimId": "k-a",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "superseded" },
+      { "sport": "MLB", "eventId": "671", "subjectType": "PLAYER", "subjectId": "mlb-player-671", "family": "pitcher_strikeouts", "claimId": "k-b",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 4.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record" },
+      { "sport": "MLB", "eventId": "671", "subjectType": "PLAYER", "subjectId": "mlb-player-671", "family": "pitcher_strikeouts", "claimId": "k-a",
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 6.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record", "note": "revision of k-a (5.5 -> 6.5); k-b untouched" }
+    ]
+  },
+
   "twoReaders": {
     "_about": "One NFL slate seen by two readers. Reader A is the owner's per-date settlement files (a game kicking off after 00:00Z is graded in two folders). Reader B is a week report (one row per game, its own field names). Same games, same frozen sides; the contract must give both readers the same record.",
     "readerA_settlementFiles": {
