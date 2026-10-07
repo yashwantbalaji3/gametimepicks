@@ -24,6 +24,7 @@ import { fileURLToPath } from "node:url";
 
 import { summariseByCohort } from "../../src/lib/sports/nfl/experimental-summary.mjs";
 import { nflReceiptWinnerGrade, winnerOfRecord } from "../../src/lib/results/nfl-model-favored.mjs";
+import { nflSettlementSelection } from "../../src/lib/results/nfl-settlement-of-record.mjs";
 import { readGradedReceipt, readNflSideCutover, readNflWinnerCorrections } from "../../src/lib/results/nfl-model-favored-io.mjs";
 
 const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : f; };
@@ -310,16 +311,16 @@ const lifetime = (() => {
    * the one direction an accuracy ledger must never drift. Later dates win, so the newest grade for
    * an event is the one that counts.
    */
-  const byId = new Map();
+  /* Stage 3E: "later date file wins" is replaced by the one NFL settlement-of-record rule (the latest pre-kickoff
+     receipt per game; lib/results/nfl-settlement-of-record.mjs), the rule every other NFL reader uses. */
+  const all = [];
   for (const f of fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort()) {
     try {
-      for (const e of JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).events ?? []) {
-        if (e?.canonicalEventId) byId.set(e.canonicalEventId, e);
-      }
+      for (const e of JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).events ?? []) all.push(e);
     } catch { /* a malformed day never erases the rest */ }
   }
   // The date just written is on disk already, so it is included above — no double count.
-  const evs = [...byId.values()].map(ofRecord);
+  const evs = nflSettlementSelection(all).record.map(ofRecord);
   /*
    * COHORTS, NEVER A BLEND (P196 · Release E). Season type resolves from the settled row itself
    * (stamped going forward), falling back to the row's OWN receipt file — every receipt has

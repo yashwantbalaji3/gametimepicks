@@ -26,6 +26,7 @@ import { FORECAST_KIND, RECOVERABILITY } from "../contract.mjs";
 import { measureBinary, measureContinuous, withDirectional } from "../measure.mjs";
 import { makeRow, marketBlock } from "../row.mjs";
 import { NFL_WINNER_BASIS, nflReceiptWinnerGrade, winnerOfRecord } from "../../results/nfl-model-favored.mjs";
+import { nflSettlementSelection } from "../../results/nfl-settlement-of-record.mjs";
 
 const SPORT = "NFL";
 
@@ -179,18 +180,18 @@ export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), 
      folders — so it was graded twice, once against an earlier, superseded receipt (3 games through 2026-10-04:
      401874392, 401873300, 401872962). The forecast of record is the LATEST pre-kickoff receipt; only that grade
      becomes a row, and the superseded grade is named in the row's provenance notes, never counted. */
-  const best = new Map();
-  for (const item of settledEvents) {
-    if (!item.receipt) continue;
-    const id = String(item.event.providerEventId);
-    const prev = best.get(id);
-    const at = item.event.lineage?.forecastGeneratedAt ?? "";
-    if (!prev) { best.set(id, { item, superseded: [] }); continue; }
-    const prevAt = prev.item.event.lineage?.forecastGeneratedAt ?? "";
-    if (at > prevAt) best.set(id, { item, superseded: [...prev.superseded, prev.item.event.lineage?.receiptFile ?? null] });
-    else prev.superseded.push(item.event.lineage?.receiptFile ?? null);
+  // Stage 3E: the one NFL settlement-of-record rule (lib/results/nfl-settlement-of-record.mjs), shared with every reader.
+  const items = settledEvents.filter((i) => i.receipt);
+  const receiptOf = new Map(items.map((i) => [i.event, i.receipt]));
+  const sel = nflSettlementSelection(items.map((i) => i.event));
+  const supersededOf = new Map();
+  for (const [sup, rec] of sel.supersededBy) {
+    if (!rec) continue;
+    if (!supersededOf.has(rec)) supersededOf.set(rec, []);
+    supersededOf.get(rec).push(sup.lineage?.receiptFile ?? null);
   }
-  for (const { item: { event: e, receipt }, superseded } of best.values()) {
+  const best = sel.record.map((e) => ({ item: { event: e, receipt: receiptOf.get(e) }, superseded: (supersededOf.get(e) ?? []).sort() }));
+  for (const { item: { event: e, receipt }, superseded } of best) {
     graded.add(String(e.providerEventId));
     const notes = superseded.length ? [`owner also graded superseded receipt(s) ${superseded.join(", ")} — not of record, not counted`] : [];
     if (!e.grade?.actual?.tie) {
