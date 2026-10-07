@@ -20,6 +20,7 @@ import { useMemo } from "react";
 
 import { liveReadyFor } from "@/lib/live/client";
 import { ageSeconds } from "@/lib/live/freshness.mjs";
+import { slateFeedStatus } from "@/lib/live/slate-scope.mjs";
 import {
   HUB_GROUPS,
   HUB_GROUP_LABEL,
@@ -147,7 +148,12 @@ function Empty({ children }: { children: React.ReactNode }) {
 }
 
 export default function LiveHub({ roster }: { roster: HubRoster }) {
-  const { byGamePk, unavailable, loading, freshness } = useLiveSlate("mlb");
+  // Only today's roster is joined: another day's finals can neither stop the poll nor set freshness.
+  const scope = useMemo(
+    () => ({ rosterIds: roster.games.map((g) => g.gamePk), rosterDate: roster.etDate }),
+    [roster.games, roster.etDate],
+  );
+  const { byGamePk, unavailable, loading, freshness, matched, settled, rosterIsToday, lastObservedAt } = useLiveSlate("mlb", scope);
   const enabled = liveReadyFor("mlb");
 
   const grouped = useMemo(() => {
@@ -166,25 +172,44 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
   }, [roster.games, byGamePk, unavailable]);
 
   const secs = ageSeconds(freshness.ageMs);
+  const status = slateFeedStatus({
+    enabled, rosterIsToday, rosterSize: roster.games.length, unavailable, loading,
+    matched, settled, freshnessLevel: freshness.level, ageSecs: secs,
+  });
+  const checkedAt = etTime(lastObservedAt);
+
+  /* One line for the WHOLE slate, because there was one request. Each status says only what is
+     known: no "updated N sec ago" unless that age is being measured right now. */
+  const line: string | null =
+    status === "OFF" ? "Live tracking is currently turned off. Scheduled games and frozen forecasts are unaffected."
+    : status === "NO_GAMES" ? null
+    : status === "PRIOR_DAY_DONE" ? `All MLB games from ${roster.etDate} (ET) are final. Today's games appear here once today's slate is published.`
+    : status === "UNAVAILABLE" ? "Live data is unavailable right now. Scheduled games and frozen forecasts below are unaffected."
+    : status === "CHECKING" ? "Checking the live feed…"
+    : status === "NO_TODAY_DATA" ? "No live data for today's games yet. Checking again every minute."
+    : status === "ALL_FINAL" ? `All of today's games are final${checkedAt ? ` · last checked ${checkedAt}` : ""} · source MLB StatsAPI`
+    : status === "AGE_UNKNOWN" ? "Live feed age unknown"
+    : status === "STALE" ? `Live feed delayed — showing the last confirmed state from ${secs} sec ago`
+    : `Live feed updated ${secs} sec ago · source MLB StatsAPI`;
 
   return (
     <div>
-      {/* Freshness for the WHOLE slate — one line, because there was one request. */}
-      <p style={{ fontFamily: MONO, fontSize: 10, color: freshness.level === "STALE" ? "var(--vault-warn)" : "var(--vault-text-faint)", margin: "0 0 16px" }}>
-        {!enabled
-          ? "Live tracking is currently turned off. Scheduled games and frozen forecasts are unaffected."
-          : unavailable
-            ? "Live data is unavailable right now. Scheduled games and frozen forecasts below are unaffected."
-            : loading
-              ? "Checking the live feed…"
-              : secs === null
-                ? "Live feed age unknown"
-                : freshness.level === "STALE"
-                  ? `Live feed delayed — showing the last confirmed state from ${secs} sec ago`
-                  : `Live feed updated ${secs} sec ago · source MLB StatsAPI`}
-      </p>
+      {/* A roster built before midnight ET keeps its own date (the feed is asked for that date too),
+          and says so — another day's games are never presented as today's. */}
+      {rosterIsToday === false && status !== "PRIOR_DAY_DONE" ? (
+        <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-warn)", margin: "0 0 8px" }}>
+          {`Showing MLB games for ${roster.etDate} (ET). Today's slate has not been published here yet.`}
+        </p>
+      ) : null}
+      {line ? (
+        <p style={{ fontFamily: MONO, fontSize: 10, color: status === "STALE" ? "var(--vault-warn)" : "var(--vault-text-faint)", margin: "0 0 16px" }}>
+          {line}
+        </p>
+      ) : null}
 
-      {!roster.slateArtifactPresent ? (
+      {/* A finished prior-day slate is retired: its cards are not shown, and nothing stands in for
+          today's list until the real one is published. */}
+      {status === "PRIOR_DAY_DONE" ? null : !roster.slateArtifactPresent ? (
         <Empty>No MLB slate has been published for {roster.etDate} yet.</Empty>
       ) : roster.games.length === 0 ? (
         <Empty>No MLB games are scheduled for {roster.etDate}.</Empty>
