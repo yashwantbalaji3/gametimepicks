@@ -42,22 +42,28 @@ export function statusCounts(rows) {
 
 function directional(rows) {
   const d = { win: 0, loss: 0, push: 0, basis: new Set() };
+  const by = new Map();
   for (const r of rows) {
     const m = r.measurement ?? {};
     // Only a published claim that the owner settled counts: pending, withdrawn and unmeasured rows never add a W/L.
     if (!m.directionalBasis || r.publicationStatus !== "PUBLISHED") continue;
     if (r.settlement?.state !== "SETTLED" && !(r.settlement?.state === "VOID" && m.directionalResult === "PUSH")) continue;
-    if (m.directionalResult === "WIN") d.win += 1;
-    else if (m.directionalResult === "LOSS") d.loss += 1;
-    else if (m.directionalResult === "PUSH") d.push += 1;
-    else continue;
+    const word = m.directionalResult === "WIN" ? "win" : m.directionalResult === "LOSS" ? "loss" : m.directionalResult === "PUSH" ? "push" : null;
+    if (word == null) continue;
+    d[word] += 1;
     d.basis.add(m.directionalBasis);
+    if (!by.has(m.directionalBasis)) by.set(m.directionalBasis, { win: 0, loss: 0, push: 0 });
+    by.get(m.directionalBasis)[word] += 1;
   }
   if (!d.win && !d.loss && !d.push) return null;
   const basis = [...d.basis].sort();
-  /* Stage 3C (founder Q4): a record graded on the model-favored team, with no published side, is never a "pick record". */
-  const label = basis.length === 1 && basis[0] === HISTORICAL_MODEL_FAVORED ? HISTORICAL_MODEL_FAVORED_LABEL : "pick record";
-  return { win: d.win, loss: d.loss, push: d.push, decided: d.win + d.loss, basis, label };
+  const labelOf = (b) => (b === HISTORICAL_MODEL_FAVORED ? HISTORICAL_MODEL_FAVORED_LABEL : "pick record");
+  /* Stage 3C (founder Q4): a record graded on the model-favored team, with no published side, is never a "pick record".
+     Stage 3D: once forward forecasts freeze a side, one family can hold both kinds. They are never pooled under one
+     label: `byBasis` carries each record on its own, and `label` is null for a mixed record (render byBasis). */
+  const byBasis = basis.map((b) => ({ basis: b, label: labelOf(b), ...by.get(b), decided: by.get(b).win + by.get(b).loss }));
+  const mixed = basis.includes(HISTORICAL_MODEL_FAVORED) && basis.length > 1;
+  return { win: d.win, loss: d.loss, push: d.push, decided: d.win + d.loss, basis, label: mixed ? null : labelOf(basis[0]), byBasis };
 }
 
 export function reliabilityBins(pairs, bins = 10) {

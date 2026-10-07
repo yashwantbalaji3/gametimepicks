@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-07T12:00:41.246Z",
+  "generatedAt": "2026-10-07T14:13:18.435Z",
   "canonical": {
     "record": "45-48",
     "bankroll": 14540.4,
@@ -117,19 +117,21 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-07",
-      "generatedAt": "2026-10-07T09:33:40Z",
+      "generatedAt": "2026-10-07T12:00:45Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 10,
-            "priced": 10,
+            "scheduled": 11,
+            "priced": 11,
             "generated": 10,
             "frozen": 0,
             "started": 0
           },
-          "findings": []
+          "findings": [
+            "GENERATION_PENDING:1 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
+          ]
         },
         {
           "sport": "ufc",
@@ -178,7 +180,7 @@
     "dailyLifecycle": {
       "receiptDate": "2026-10-07",
       "present": true,
-      "generatedAt": "2026-10-07T09:33:39Z",
+      "generatedAt": "2026-10-07T12:00:45Z",
       "watchdog": [],
       "states": {
         "bank-builder": {
@@ -221,16 +223,16 @@
     "pendingApprovals": 0
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-07T11:58:34.901Z",
-    "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "lastRunAt": "2026-10-07T14:10:17.369Z",
+    "ageHours": 0.1,
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-07",
-    "etTime": "08:00",
+    "etTime": "10:13",
     "stages": [
       {
         "stage": "schedule",

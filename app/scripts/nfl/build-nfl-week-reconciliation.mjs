@@ -29,6 +29,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { officialFromEspnSummary, periodsFromEspnSummary, gradeGame, summariseWeek, RECONCILIATION_RULES } from "../../src/lib/sports/nfl/week-reconciliation.mjs";
+import { readNflSideCutover } from "../../src/lib/results/nfl-model-favored-io.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -38,6 +39,8 @@ if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <
 const nowMs = Date.parse(NOW);
 const ESPN_DIR = arg("--espn-dir");
 const read = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
+// Stage 3D: receipts generated at/after the cutover are graded on their frozen side only (fails closed if unreadable).
+const sideCutoverAt = readNflSideCutover(ROOT);
 
 // ── the forecasts of record: latest receipt generated strictly before kickoff, per event ──────────
 const receiptsRoot = path.join(ROOT, "data/internal/nfl/forecast-receipts");
@@ -107,7 +110,7 @@ for (const f of forecasts) {
   /* A board regenerated at or after kickoff is not what readers saw before the game — it is not graded. */
   const boardOfRecord = board && board.generatedAt && Date.parse(board.generatedAt) < Date.parse(f.kickoffUtc) ? board : null;
   const official = await officialFor(id, f.kickoffUtc);
-  games.push(gradeGame({ forecast: f, board: boardOfRecord, boardRefused: board && !boardOfRecord ? "the player board on file was generated at or after kickoff" : null, official }));
+  games.push(gradeGame({ forecast: f, board: boardOfRecord, boardRefused: board && !boardOfRecord ? "the player board on file was generated at or after kickoff" : null, official, sideCutoverAt }));
 }
 
 const body = {

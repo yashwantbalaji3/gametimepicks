@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import {
   CORRECTIONS_DIR, CORRECTION_SCHEMA, DECISION_REF, NFL_MODEL_FAVORED_RULE, SUPERSEDED_RULE, pendingCorrections,
 } from "../../src/lib/results/nfl-model-favored.mjs";
-import { readGradedReceipt, readNflWinnerCorrections } from "../../src/lib/results/nfl-model-favored-io.mjs";
+import { readGradedReceipt, readNflSideCutover, readNflWinnerCorrections } from "../../src/lib/results/nfl-model-favored-io.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.resolve(APP, "..");
@@ -34,7 +34,7 @@ for (const f of fs.readdirSync(dir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.te
   }
 }
 const existing = readNflWinnerCorrections(ROOT);
-const entries = pendingCorrections(graded, existing);
+const entries = pendingCorrections(graded, existing, { cutoverAt: readNflSideCutover(ROOT) });
 console.log(`nfl winner corrections: ${graded.length} settled grades read · ${existing.size} already restated · ${entries.length} to restate`);
 for (const e of entries) console.log(`  ${e.providerEventId} ${e.matchup}: ${e.before.modelFavoured} ${e.before.correct} → ${e.after.modelFavoured} ${e.after.correct}`);
 

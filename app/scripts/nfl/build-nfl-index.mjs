@@ -23,6 +23,8 @@ import { fileURLToPath } from "node:url";
 
 import { classifyTeamOutput } from "../../src/lib/sports/nfl/output-state.mjs";
 import { unionFrozenForecasts } from "../../src/lib/sports/nfl/public-forecast-union.mjs";
+import { nflSettlementSelection } from "../../src/lib/results/nfl-settlement-of-record.mjs";
+
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -57,11 +59,15 @@ const nowMs = Date.parse(NOW);
 const marketByEvent = new Map((markets?.rows ?? []).map((r) => [r.providerEventId, r]));
 const resultByEvent = new Map((results?.rows ?? []).map((r) => [r.providerEventId, r]));
 const settlementDir = path.join(ROOT, "data/internal/nfl/experimental-settlement");
+/* Stage 3E: the settlement of record per game (lib/results/nfl-settlement-of-record.mjs), never "last file read
+   wins" in readdir order, which could attach a superseded receipt's grade (inventory R4). */
 const settlementByEvent = new Map();
 if (fs.existsSync(settlementDir)) {
-  for (const f of fs.readdirSync(settlementDir).filter((x) => x.endsWith(".json"))) {
-    for (const e of read(path.join(settlementDir, f))?.events ?? []) settlementByEvent.set(e.providerEventId, { settled: true, ...e });
+  const all = [];
+  for (const f of fs.readdirSync(settlementDir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort()) {
+    for (const e of read(path.join(settlementDir, f))?.events ?? []) all.push(e);
   }
+  for (const e of nflSettlementSelection(all).record) settlementByEvent.set(e.providerEventId, { settled: true, ...e });
 }
 
 const contradictions = [];
