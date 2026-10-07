@@ -37,8 +37,8 @@ test("one TOP_10 and one TOP_5 receipt per eligible family; every receipt valida
   for (const r of rs) assert.deepEqual(validateBoardReceipt(r), [], r.boardId);
   const top10 = rs.find((r) => r.boardId.endsWith("player_receptions:2031-10-05:TOP_10"));
   assert.equal(top10.rows.length, 10);
-  assert.equal(top10.selectorStatus, "SHADOW");
-  assert.equal(rs.find((r) => r.boardId.endsWith("player_receptions:2031-10-05:TOP_5")).selectorStatus, "PUBLIC_RANKED_FORECAST");
+  // Founder Q9 DISPLAY: every board is a ranked display, never ADOPTED (no product grant).
+  assert.ok(rs.every((r) => r.selectorStatus === "PUBLIC_RANKED_FORECAST" && !("adoptionRef" in r)));
   assert.ok(rs.every((r) => r.modelVersion === null && r.generation === null && r.rows.every((x) => x.frozenSide === null)));
 });
 

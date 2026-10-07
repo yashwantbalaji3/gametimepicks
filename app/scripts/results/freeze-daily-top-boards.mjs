@@ -17,8 +17,9 @@
  *
  * TOP-10 RECEIPTS (Stage 7.0). The same run, at the same instant, from the same ranked pool, also freezes ONE
  * pair of `top-board-receipt@0` receipts (lib/products/top-board/top-board.mjs, the Product Engine Top Board
- * schema) per eligible family: TOP_5 (exactly the public Top-5 above; PUBLIC_RANKED_FORECAST, it is displayed) and
- * TOP_10 (ranks 1..k, k <= 10, of the same pool; SHADOW, no surface displays a daily Top-10 yet: Stage 7C decides).
+ * schema) per eligible family: TOP_5 (exactly the public Top-5 above) and TOP_10 (ranks 1..k, k <= 10, of the same
+ * pool). Both are PUBLIC_RANKED_FORECAST: founder Q9 DISPLAY (2026-10-07) — a Top Board is a ranked prediction
+ * display, never a product grant; its rows feed products only through the canonical eligibility contract.
  * Two separate receipts, so a Top-10 record never reads a Top-5 board and vice versa. Receipts are internal
  * (data/internal/results/top-board-receipts/<day>.json), write-once with the same guard, and change nothing on the
  * site.
@@ -41,8 +42,8 @@ const BOARD_DIR = path.join(APP, "public/data/nfl/player-board");
 const OUT_DIR = path.join(APP, "public/data/results/top-boards");
 const RECEIPT_DIR = path.join(APP, "../data/internal/results/top-board-receipts");
 const TOP_N = 5;
-/** boardType → [size, selectorStatus]. TOP_5 is the displayed public board; TOP_10 is not displayed anywhere yet. */
-const RECEIPT_BOARDS = Object.freeze([["TOP_10", 10, "SHADOW"], ["TOP_5", TOP_N, "PUBLIC_RANKED_FORECAST"]]);
+/** boardType → [size, selectorStatus]. Q9 DISPLAY: boards are ranked displays (never ADOPTED, never a product grant). */
+const RECEIPT_BOARDS = Object.freeze([["TOP_10", 10, "PUBLIC_RANKED_FORECAST"], ["TOP_5", TOP_N, "PUBLIC_RANKED_FORECAST"]]);
 const WINDOW_MS = 24 * 3600 * 1000;
 
 const arg = (name) => { const i = process.argv.indexOf(name); return i >= 0 ? process.argv[i + 1] : null; };
