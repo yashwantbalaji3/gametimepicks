@@ -74,7 +74,7 @@ export function buildNflPresentation(
     id: "event", kind: "event",
     title: e.matchup,
     line: archived
-      ? `${e.away.name} at ${e.home.name}, ${(e.kickoffUtc ?? "").slice(0, 10)}. This game has been played — what follows is the forecast as it was frozen BEFORE kickoff, not a current read.`
+      ? `${e.away.name} at ${e.home.name}, ${etDateOf(e.kickoffUtc)}. This game has been played — what follows is the forecast as it was frozen BEFORE kickoff, not a current read.`
       : baseline
         ? `${e.away.name} at ${e.home.name}. This is a BASELINE read: a real, reproducible run whose team numbers come from a shared prior rather than from anything specific to these two teams.`
         : `${e.away.name} at ${e.home.name}${e.venue ? ` at ${e.venue}` : ""}.`,
