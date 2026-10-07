@@ -1,0 +1,323 @@
+{
+ "schema": "homer-nukes-correction@1",
+ "id": "2026-10-07-hn1-q1-rule",
+ "createdAt": "2026-10-07T04:00:00Z",
+ "decision": {
+  "ref": "cmsg_018esqVkc9tL9hjPpUhCNowm61RB59h7ePH7bq1LFDx3qQ",
+  "id": "HN-1",
+  "answer": "Q1-RULE",
+  "at": "2026-10-07T03:21:56Z",
+  "rule": "No valid pregame frozen list: exclude and disclose. Sep 10 uses the last valid pre-first-pitch list. Never reconstruct a historical Top-5 list after the event. Source history preserved; correction append-only with provenance."
+ },
+ "evidenceAudit": "departments/product-engine/HOMER_NUKES_FREEZE_AUDIT_2026-10-07.txt (Product Engine replay through lib/mlb/homer-nukes-freeze.mjs, basis=built)",
+ "entries": [
+  {
+   "date": "2026-08-27",
+   "action": "EXCLUDE_DAY",
+   "reason": "NO_PREGAME_LIST",
+   "explanation": "Every version of the 2026-08-27 board was built after a member's game had started (first pitch 2026-08-27T17:05:00Z); no list was ever frozen before first pitch, so there is no forecast of record to grade.",
+   "evidence": {
+    "source": "git history of app/public/data/mlb/homer-nukes/2026-08-27.json",
+    "earliestFirstPitchUtc": "2026-08-27T17:05:00Z",
+    "versions": [
+     {
+      "commit": "be10c2aa7d3c",
+      "committedAt": "2026-08-27T18:16:03+00:00",
+      "generatedAt": "2026-08-27T18:13:16.000Z"
+     },
+     {
+      "commit": "e0e368fe6eec",
+      "committedAt": "2026-08-27T23:09:40+00:00",
+      "generatedAt": "2026-08-27T23:05:45.000Z"
+     },
+     {
+      "commit": "f9442005d579",
+      "committedAt": "2026-08-27T23:53:32+00:00",
+      "generatedAt": "2026-08-27T23:48:34.000Z"
+     }
+    ]
+   },
+   "gradedAsPublished": {
+    "settledFile": "app/public/data/mlb/homer-nukes/settled-2026-08-27.json",
+    "picks": [
+     {
+      "playerId": 696100,
+      "player": "Hunter Goodman",
+      "probability": 0.2698,
+      "result": "miss"
+     },
+     {
+      "playerId": 666160,
+      "player": "Mickey Moniak",
+      "probability": 0.2143,
+      "result": "miss"
+     },
+     {
+      "playerId": 670541,
+      "player": "Yordan Alvarez",
+      "probability": 0.2106,
+      "result": "miss"
+     },
+     {
+      "playerId": 621566,
+      "player": "Matt Olson",
+      "probability": 0.1986,
+      "result": "miss"
+     },
+     {
+      "playerId": 641343,
+      "player": "Jake Bauers",
+      "probability": 0.1952,
+      "result": "miss"
+     }
+    ]
+   }
+  },
+  {
+   "date": "2026-09-03",
+   "action": "EXCLUDE_DAY",
+   "reason": "NO_PREGAME_LIST",
+   "explanation": "Every version of the 2026-09-03 board was built after a member's game had started (first pitch 2026-09-03T16:35:00Z); no list was ever frozen before first pitch, so there is no forecast of record to grade.",
+   "evidence": {
+    "source": "git history of app/public/data/mlb/homer-nukes/2026-09-03.json",
+    "earliestFirstPitchUtc": "2026-09-03T16:35:00Z",
+    "versions": [
+     {
+      "commit": "7ded9b0852bf",
+      "committedAt": "2026-09-03T17:17:18+00:00",
+      "generatedAt": "2026-09-03T17:11:44.000Z"
+     },
+     {
+      "commit": "57f23ed4f412",
+      "committedAt": "2026-09-03T17:59:05+00:00",
+      "generatedAt": "2026-09-03T17:53:38.000Z"
+     }
+    ]
+   },
+   "gradedAsPublished": {
+    "settledFile": "app/public/data/mlb/homer-nukes/settled-2026-09-03.json",
+    "picks": [
+     {
+      "playerId": 670541,
+      "player": "Yordan Alvarez",
+      "probability": 0.2531,
+      "result": "miss"
+     },
+     {
+      "playerId": 691718,
+      "player": "Pete Crow-Armstrong",
+      "probability": 0.2302,
+      "result": "hit"
+     },
+     {
+      "playerId": 646240,
+      "player": "Rafael Devers",
+      "probability": 0.2161,
+      "result": "miss"
+     },
+     {
+      "playerId": 672960,
+      "player": "Kazuma Okamoto",
+      "probability": 0.2088,
+      "result": "miss"
+     },
+     {
+      "playerId": 691406,
+      "player": "Junior Caminero",
+      "probability": 0.2049,
+      "result": "miss"
+     }
+    ]
+   }
+  },
+  {
+   "date": "2026-09-07",
+   "action": "EXCLUDE_DAY",
+   "reason": "NO_PREGAME_LIST",
+   "explanation": "Every version of the 2026-09-07 board was built after a member's game had started (first pitch 2026-09-07T17:05:00Z); no list was ever frozen before first pitch, so there is no forecast of record to grade.",
+   "evidence": {
+    "source": "git history of app/public/data/mlb/homer-nukes/2026-09-07.json",
+    "earliestFirstPitchUtc": "2026-09-07T17:05:00Z",
+    "versions": [
+     {
+      "commit": "38d63e5d3f8c",
+      "committedAt": "2026-09-07T18:06:29+00:00",
+      "generatedAt": "2026-09-07T18:00:26.000Z"
+     },
+     {
+      "commit": "a6385eeb2a49",
+      "committedAt": "2026-09-07T18:30:13+00:00",
+      "generatedAt": "2026-09-07T18:25:26.000Z"
+     },
+     {
+      "commit": "d429c037e9f9",
+      "committedAt": "2026-09-07T18:51:15+00:00",
+      "generatedAt": "2026-09-07T18:45:11.000Z"
+     }
+    ]
+   },
+   "gradedAsPublished": {
+    "settledFile": "app/public/data/mlb/homer-nukes/settled-2026-09-07.json",
+    "picks": [
+     {
+      "playerId": 656941,
+      "player": "Kyle Schwarber",
+      "probability": 0.235,
+      "result": "hit"
+     },
+     {
+      "playerId": 691718,
+      "player": "Pete Crow-Armstrong",
+      "probability": 0.2213,
+      "result": "hit"
+     },
+     {
+      "playerId": 646240,
+      "player": "Rafael Devers",
+      "probability": 0.2055,
+      "result": "miss"
+     },
+     {
+      "playerId": 575929,
+      "player": "Willson Contreras",
+      "probability": 0.1978,
+      "result": "pending"
+     },
+     {
+      "playerId": 621439,
+      "player": "Byron Buxton",
+      "probability": 0.1949,
+      "result": "pending"
+     }
+    ]
+   }
+  },
+  {
+   "date": "2026-09-10",
+   "action": "GRADE_ON_LIST_OF_RECORD",
+   "reason": "POST_START_REWRITE",
+   "explanation": "The graded list came from a rebuild at 17:43:35Z, after Kyle Schwarber and Yordan Alvarez's 17:05Z first pitch. It swapped Yordan Alvarez (670541) for Munetaka Murakami (808959) and re-priced two members. The list of record is the last version built before first pitch (17:04:46Z).",
+   "evidence": {
+    "source": "git history of app/public/data/mlb/homer-nukes/2026-09-10.json",
+    "earliestFirstPitchUtc": "2026-09-10T17:05:00Z",
+    "listOfRecord": {
+     "commit": "3550c3095fc1",
+     "committedAt": "2026-09-10T17:11:37+00:00",
+     "generatedAt": "2026-09-10T17:04:46.000Z"
+    },
+    "gradedVersion": {
+     "commit": "f1bc001eacff",
+     "committedAt": "2026-09-10T17:50:41+00:00",
+     "generatedAt": "2026-09-10T17:43:35.000Z"
+    },
+    "versions": [
+     {
+      "commit": "b5395109038c",
+      "committedAt": "2026-09-10T15:15:42+00:00",
+      "generatedAt": "2026-09-10T15:10:19.000Z"
+     },
+     {
+      "commit": "3550c3095fc1",
+      "committedAt": "2026-09-10T17:11:37+00:00",
+      "generatedAt": "2026-09-10T17:04:46.000Z"
+     },
+     {
+      "commit": "f1bc001eacff",
+      "committedAt": "2026-09-10T17:50:41+00:00",
+      "generatedAt": "2026-09-10T17:43:35.000Z"
+     }
+    ]
+   },
+   "gradedAsPublished": {
+    "settledFile": "app/public/data/mlb/homer-nukes/settled-2026-09-10.json",
+    "picks": [
+     {
+      "playerId": 656941,
+      "player": "Kyle Schwarber",
+      "probability": 0.2567,
+      "result": "miss"
+     },
+     {
+      "playerId": 700250,
+      "player": "Ben Rice",
+      "probability": 0.238,
+      "result": "miss"
+     },
+     {
+      "playerId": 592626,
+      "player": "Joc Pederson",
+      "probability": 0.2299,
+      "result": "hit"
+     },
+     {
+      "playerId": 671277,
+      "player": "Luis García Jr.",
+      "probability": 0.2294,
+      "result": "hit"
+     },
+     {
+      "playerId": 808959,
+      "player": "Munetaka Murakami",
+      "probability": 0.2281,
+      "result": "miss"
+     }
+    ]
+   },
+   "ofRecord": [
+    {
+     "playerId": 656941,
+     "player": "Kyle Schwarber",
+     "gamePk": 823413,
+     "probability": 0.2596,
+     "result": "miss",
+     "homeRuns": 0,
+     "resultSource": "settled file (official box score, mlb_stats_api)",
+     "probabilityAsGraded": 0.2567
+    },
+    {
+     "playerId": 700250,
+     "player": "Ben Rice",
+     "gamePk": 823499,
+     "probability": 0.238,
+     "result": "miss",
+     "homeRuns": 0,
+     "resultSource": "settled file (official box score, mlb_stats_api)"
+    },
+    {
+     "playerId": 592626,
+     "player": "Joc Pederson",
+     "gamePk": 823088,
+     "probability": 0.2299,
+     "result": "hit",
+     "homeRuns": 1,
+     "resultSource": "settled file (official box score, mlb_stats_api)"
+    },
+    {
+     "playerId": 671277,
+     "player": "Luis García Jr.",
+     "gamePk": 823499,
+     "probability": 0.2294,
+     "result": "hit",
+     "homeRuns": 1,
+     "resultSource": "settled file (official box score, mlb_stats_api)"
+    },
+    {
+     "playerId": 670541,
+     "player": "Yordan Alvarez",
+     "gamePk": 823413,
+     "probability": 0.2288,
+     "result": "miss",
+     "homeRuns": 0,
+     "resultSource": "official box score as settled by the MLB player-prop settler: pipeline/validation/mlb_settled_leans.jsonl, 2026-09-10 gamePk 823413 playerId 670541, batter_hits actual 0 and batter_total_bases actual 0 (he played; zero hits means zero home runs). Confirm with the Homer Nukes settler's own box-score fetch at promotion."
+    }
+   ],
+   "excludedPicks": [
+    {
+     "playerId": 808959,
+     "player": "Munetaka Murakami",
+     "reason": "added after first pitch (not on any pre-first-pitch list)"
+    }
+   ]
+  }
+ ]
+}
