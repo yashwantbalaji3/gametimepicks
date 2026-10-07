@@ -343,7 +343,7 @@ function LiveLine({ live }: { live: NonNullable<PredictionPresentation["live"]> 
           {/* Final, ungraded: say which half is missing rather than leaving a bare number that reads
               as a result. No colour and no outcome word — this is not a settlement. */}
           {providerFinal ? <span className="gtp-pred-live-sub">result pending</span> : null}
-          {!settled && !providerFinal && f?.period != null ? <span className="gtp-pred-live-sub">{f.period}Q · {f.clock ?? "—"}</span> : null}
+          {!settled && !providerFinal && f?.period != null ? <span className="gtp-pred-live-sub">{f.period}Q{f.clock ? ` · ${f.clock}` : ""}</span> : null}
           {f?.score ? <span className="gtp-pred-live-sub">{f.score.away} – {f.score.home}</span> : null}
         </>
       )}

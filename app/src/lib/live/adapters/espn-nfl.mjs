@@ -31,6 +31,9 @@ const num = (x) => {
  * `post`, so the specific status NAME is consulted first. An unrecognized name with a known coarse
  * state still resolves; an unrecognized both resolves to UNKNOWN rather than to a plausible guess.
  */
+/** Status names that are a pause between periods: still LIVE, but with no clock running. */
+export const BREAK_PHASES = Object.freeze(new Set(["STATUS_HALFTIME", "STATUS_END_PERIOD"]));
+
 export function mapNflState(status) {
   const name = status?.type?.name ?? "";
   if (name === "STATUS_POSTPONED") return "POSTPONED";
@@ -71,6 +74,11 @@ export function normalizeNflEvent(event, fetchedAt) {
   };
 
   const periodNumber = num(status?.period);
+  /* A BREAK IS NOT A RUNNING CLOCK. ESPN keeps `displayClock: "0:00"` through halftime and the end of
+     a quarter, and the state is LIVE (play has not finished), so the clock survived and every surface
+     printed it: "Halftime · 0:00" on the panel, "Q2 · 0:00" on the hub, "2Q · 0:00" on player rows.
+     Dropping it here, once, lets each surface fall back to the label ("Halftime", "End of 1st"). */
+  const inBreak = BREAK_PHASES.has(status?.type?.name ?? "");
   const period =
     periodNumber === null && !status?.type?.shortDetail
       ? null
@@ -78,7 +86,7 @@ export function normalizeNflEvent(event, fetchedAt) {
           number: periodNumber,
           label: status?.type?.shortDetail ?? null,
           // The clock is meaningless once the game is over; "0:00" on a final reads as a live clock.
-          clock: state === "LIVE" && typeof status?.displayClock === "string" ? status.displayClock : null,
+          clock: state === "LIVE" && !inBreak && typeof status?.displayClock === "string" ? status.displayClock : null,
           phase: status?.type?.name ?? null,
         };
 

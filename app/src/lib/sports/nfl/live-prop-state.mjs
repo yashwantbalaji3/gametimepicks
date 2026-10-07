@@ -187,6 +187,8 @@ export function participationOf(summary, espnId) {
  * it would make every unstarted game read as a player who has done nothing — the same defect as
  * StatsAPI zeroing an MLB score at "Pre-Game".
  */
+const BREAK_PHASES = new Set(["STATUS_HALFTIME", "STATUS_END_PERIOD"]);
+
 export function liveFactual({ summary, espnId, family, observedAt, source = "espn-nfl-summary" }) {
   const phase = phaseOf(summary);
   if (phase === "PRE") {
@@ -196,7 +198,8 @@ export function liveFactual({ summary, espnId, family, observedAt, source = "esp
   return {
     phase,
     statValue: statFor(summary, espnId, family),
-    clock: phase === "IN_PROGRESS" ? st?.displayClock ?? null : null,
+    /* Halftime and end-of-quarter keep ESPN's "0:00", which read as a running clock ("2Q · 0:00"). */
+    clock: phase === "IN_PROGRESS" && !BREAK_PHASES.has(st?.type?.name ?? "") ? st?.displayClock ?? null : null,
     period: phase === "IN_PROGRESS" ? num(st?.period) : null,
     score: scoreOf(summary),
     participation: participationOf(summary, espnId),

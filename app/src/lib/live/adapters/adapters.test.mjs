@@ -156,6 +156,26 @@ test("NFL 5 · a live event surfaces the clock and the situation", () => {
   assert.equal(isTerminal(e.state), false);
 });
 
+test("NFL 5b · halftime and end-of-quarter carry no clock, so no surface can print '0:00'", () => {
+  const at = (name, shortDetail, period) => normalizeNflEvent(
+    {
+      id: "401872979", date: "2026-10-06T00:15Z",
+      status: { type: { name, state: "in", shortDetail }, period, displayClock: "0:00" },
+      competitions: [{ competitors: [{ homeAway: "home", score: "10", team: { id: "18", abbreviation: "NO" } }, { homeAway: "away", score: "7", team: { id: "1", abbreviation: "ATL" } }] }],
+    },
+    FETCHED,
+  );
+  const half = at("STATUS_HALFTIME", "Halftime", 2);
+  assert.equal(half.state, "LIVE", "a break is still in play");
+  assert.equal(half.period.clock, null);
+  assert.equal(half.period.label, "Halftime");
+  assert.equal(half.period.number, 2);
+  const endQ = at("STATUS_END_PERIOD", "End of 1st", 1);
+  assert.equal(endQ.period.clock, null);
+  assert.equal(endQ.period.label, "End of 1st");
+  assert.equal(at("STATUS_IN_PROGRESS", "0:00 - 2nd", 2).period.clock, "0:00", "a running quarter keeps its clock");
+});
+
 test("NFL 6 · an event with no id is refused; a malformed payload yields nothing", () => {
   assert.equal(normalizeNflEvent({ status: {} }, FETCHED), null);
   for (const bad of [null, {}, { events: null }, "nope"]) assert.deepEqual(normalizeNflScoreboard(bad, FETCHED), []);

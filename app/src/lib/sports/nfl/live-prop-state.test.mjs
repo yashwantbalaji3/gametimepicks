@@ -96,6 +96,17 @@ test("an unfinished game NEVER settles", () => {
   assert.deepEqual(f.score, { home: 41, away: 31 });
 });
 
+test("halftime and end-of-quarter carry no clock, so a player row cannot read '2Q · 0:00'", () => {
+  for (const [name, period] of [["STATUS_HALFTIME", 2], ["STATUS_END_PERIOD", 1]]) {
+    const brk = structuredClone(SUMMARY);
+    brk.header.competitions[0].status = { type: { name, state: "in", completed: false }, displayClock: "0:00", period };
+    const f = liveFactual({ summary: brk, espnId: STBROWN, family: "player_reception_yds", observedAt: AT });
+    assert.equal(f.phase, "IN_PROGRESS");
+    assert.equal(f.clock, null, `${name} is a pause, not a running clock`);
+    assert.equal(f.period, period);
+  }
+});
+
 test("⚠ A PRE-GAME READ CARRIES NO STAT AND NO SCORE", () => {
   /* Zero is a measurement nobody took. StatsAPI zeroing an MLB score at "Pre-Game" is the same
      defect, and it made unstarted games read as 0-0 contests. */
