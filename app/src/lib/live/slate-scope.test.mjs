@@ -215,7 +215,7 @@ test("G7 · a roster built before midnight ET keeps its own date for the join, a
   assert.equal(plan.rosterIsToday, false);
   assert.equal(slateRequestPlan({ sport: "mlb", roster, nowMs: LATE_EVENING_ET }).rosterIsToday, true);
   const hub = read("src/components/live/live-hub.tsx");
-  assert.match(hub, /rosterIsToday === false \?/);
+  assert.match(hub, /rosterIsToday === false &&/);
   assert.ok(hub.includes("Today's slate has not been published here yet."), "the label states it is not today's slate");
 });
 
@@ -420,4 +420,45 @@ test("LATE-3 · Ask: a late game keeps Ask on the prior date; once Final, Ask re
   } finally {
     globalThis.fetch = prev;
   }
+});
+
+test("LATE-4 · /live: late game → Final → prior-day roster fully terminal → old slate retires without waiting for the rebuild", () => {
+  const OTHER_PK = "900000557";
+  const roster = { rosterIds: [LATE_PK, OTHER_PK], rosterDate: "2026-10-07" };
+  const status = (rosterIsToday, settled, matched = 2) =>
+    slateFeedStatus({ ...base, rosterIsToday, rosterSize: 2, matched, settled });
+
+  // 11:55 PM: Oct 7 is today, one game still in play.
+  const p1 = slateRequestPlan({ sport: "mlb", roster, nowMs: T_2355 });
+  const s1 = scopeSlate([{ eventId: LATE_PK, state: "LIVE" }, { eventId: OTHER_PK, state: "FINAL" }], roster.rosterIds);
+  assert.equal(nextSlatePollMs({ states: s1.states, rosterSize: 2, hidden: false }), MOVING_INTERVAL_MS);
+  assert.equal(status(p1.rosterIsToday, false), "FRESH");
+
+  // 12:05 AM: still in play → still shown (labelled as Oct 7's), still polling, not retired.
+  const p2 = slateRequestPlan({ sport: "mlb", roster, nowMs: T_0005 });
+  assert.equal(p2.date, "2026-10-07");
+  assert.equal(p2.rosterIsToday, false);
+  assert.equal(nextSlatePollMs({ states: s1.states, rosterSize: 2, hidden: false }), MOVING_INTERVAL_MS);
+  assert.equal(status(false, false), "FRESH", "an active prior-day game is never retired");
+
+  // A PARTIAL answer (only the finished game returned) cannot trigger the transition.
+  const partial = scopeSlate([{ eventId: OTHER_PK, state: "FINAL" }], roster.rosterIds);
+  assert.notEqual(nextSlatePollMs({ states: partial.states, rosterSize: 2, hidden: false }), null);
+  assert.equal(status(false, false, 1), "FRESH");
+
+  // Final: the whole Oct 7 roster is terminal → the poll stops (settled) → the slate retires now.
+  const done = scopeSlate([{ eventId: LATE_PK, state: "FINAL" }, { eventId: OTHER_PK, state: "FINAL" }], roster.rosterIds);
+  assert.equal(nextSlatePollMs({ states: done.states, rosterSize: 2, hidden: false }), null);
+  assert.equal(status(false, true), "PRIOR_DAY_DONE");
+  // Same day, all final: an ordinary finished day, NOT retired.
+  assert.equal(status(true, true), "ALL_FINAL");
+
+  // The hub hides the retired cards, says why, and invents nothing for today.
+  const hub = read("src/components/live/live-hub.tsx");
+  assert.match(hub, /status === "PRIOR_DAY_DONE" \? null : !roster\.slateArtifactPresent/, "retired cards are not rendered");
+  assert.ok(hub.includes("are final. Today's games appear here once today's slate is published."));
+  // A hub that stopped before midnight still notices the date change (clock only, no request).
+  const hook = read("src/components/live/use-live-slate.ts");
+  const tick = hook.slice(hook.indexOf("const id = setInterval(() => setRosterIsToday("), hook.indexOf("}, [sport, scopeKey])"));
+  assert.ok(tick.length > 0 && !/fetch\(/.test(tick), "the midnight check spends no request");
 });

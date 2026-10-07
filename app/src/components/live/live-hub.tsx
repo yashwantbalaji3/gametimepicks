@@ -173,7 +173,7 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
 
   const secs = ageSeconds(freshness.ageMs);
   const status = slateFeedStatus({
-    enabled, rosterSize: roster.games.length, unavailable, loading,
+    enabled, rosterIsToday, rosterSize: roster.games.length, unavailable, loading,
     matched, settled, freshnessLevel: freshness.level, ageSecs: secs,
   });
   const checkedAt = etTime(lastObservedAt);
@@ -183,6 +183,7 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
   const line: string | null =
     status === "OFF" ? "Live tracking is currently turned off. Scheduled games and frozen forecasts are unaffected."
     : status === "NO_GAMES" ? null
+    : status === "PRIOR_DAY_DONE" ? `All MLB games from ${roster.etDate} (ET) are final. Today's games appear here once today's slate is published.`
     : status === "UNAVAILABLE" ? "Live data is unavailable right now. Scheduled games and frozen forecasts below are unaffected."
     : status === "CHECKING" ? "Checking the live feed…"
     : status === "NO_TODAY_DATA" ? "No live data for today's games yet. Checking again every minute."
@@ -195,7 +196,7 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
     <div>
       {/* A roster built before midnight ET keeps its own date (the feed is asked for that date too),
           and says so — another day's games are never presented as today's. */}
-      {rosterIsToday === false ? (
+      {rosterIsToday === false && status !== "PRIOR_DAY_DONE" ? (
         <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-warn)", margin: "0 0 8px" }}>
           {`Showing MLB games for ${roster.etDate} (ET). Today's slate has not been published here yet.`}
         </p>
@@ -206,7 +207,9 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
         </p>
       ) : null}
 
-      {!roster.slateArtifactPresent ? (
+      {/* A finished prior-day slate is retired: its cards are not shown, and nothing stands in for
+          today's list until the real one is published. */}
+      {status === "PRIOR_DAY_DONE" ? null : !roster.slateArtifactPresent ? (
         <Empty>No MLB slate has been published for {roster.etDate} yet.</Empty>
       ) : roster.games.length === 0 ? (
         <Empty>No MLB games are scheduled for {roster.etDate}.</Empty>

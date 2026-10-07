@@ -163,12 +163,23 @@ export function nextSlatePollMs({ states, rosterSize, hidden }) {
 /**
  * What the hub's one feed line may claim. The hub maps each value to its copy.
  *
- * OFF · NO_GAMES · UNAVAILABLE · CHECKING · NO_TODAY_DATA · ALL_FINAL · AGE_UNKNOWN ·
+ * OFF · NO_GAMES · PRIOR_DAY_DONE · UNAVAILABLE · CHECKING · NO_TODAY_DATA · ALL_FINAL · AGE_UNKNOWN ·
  * STALE · FRESH
  */
-export function slateFeedStatus({ enabled, rosterSize, unavailable, loading, matched, settled, freshnessLevel, ageSecs }) {
+/**
+ * @param {{ enabled: boolean, rosterIsToday?: boolean | null, rosterSize: number | null, unavailable: any, loading: boolean, matched: number, settled: boolean, freshnessLevel: string, ageSecs: number | null | undefined }} input
+ */
+export function slateFeedStatus({ enabled, rosterIsToday = null, rosterSize, unavailable, loading, matched, settled, freshnessLevel, ageSecs }) {
   if (!enabled) return "OFF";
   if (rosterSize === 0) return "NO_GAMES";
+  /*
+   * PRIOR_DAY_DONE (Yash, 2026-10-07 15:01Z): the page's roster is a previous ET day's AND every one
+   * of its games is in the feed and terminal (`settled` is only ever set on full roster coverage, so
+   * a partial response cannot reach here). That slate is retired at once: the hub stops showing it
+   * and says today's games appear once today's list is published, instead of waiting for the next
+   * build. While any of its games is still in play, `settled` is false and the late game stays.
+   */
+  if (rosterIsToday === false && settled) return "PRIOR_DAY_DONE";
   if (unavailable) return "UNAVAILABLE";
   if (loading) return "CHECKING";
   if (!matched) return "NO_TODAY_DATA";

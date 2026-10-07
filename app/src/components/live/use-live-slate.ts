@@ -168,6 +168,15 @@ export function useLiveSlate(sport: "nfl" | "mlb" = "mlb", scope?: LiveSlateScop
     };
   }, [sport, poll, clearTimer, scopeKey]);
 
+  /* A stopped hub must still notice midnight ET: a roster that was today's at its last poll becomes the
+     prior day's, so the hub can retire it rather than keep calling yesterday's finals "today's".
+     Clock only — no request. */
+  useEffect(() => {
+    if (!scope) return;
+    const id = setInterval(() => setRosterIsToday(slateRequestPlan({ sport, roster: scopeRef.current ?? null, nowMs: Date.now() }).rosterIsToday), 60_000);
+    return () => clearInterval(id);
+  }, [sport, scopeKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Age ticker — runs whenever an age is being shown, so "N sec ago" can never freeze while the page
   // stays open. A settled slate shows no age (the hub states the last-checked time instead), so it
   // is idle.
