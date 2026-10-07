@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { mlbFirstPitches, mlbLeansOfRecord } from "./results/mlb-leans-of-record.mjs";
 import type {
   MlbAvailableDates,
   MlbComparisonReport,
@@ -66,30 +67,46 @@ export function latestMlbResultDate(): string | null {
   return dates.length ? dates[dates.length - 1] : null;
 }
 
-/**
- * Stream the public settled-leans jsonl into memory. The whole file is
- * the audit for ALL settled dates — typical day has a few hundred rows.
- * Returns [] when the file doesn't exist yet.
- */
-export function getMlbSettledLeans(): MlbSettledLean[] {
-  const p = path.join(RESULTS_DIR, "settled_leans.jsonl");
+function readJsonl(name: string): Record<string, unknown>[] {
+  const p = path.join(RESULTS_DIR, name);
   if (!fs.existsSync(p)) return [];
-  const out: MlbSettledLean[] = [];
+  const out: Record<string, unknown>[] = [];
   try {
     const text = fs.readFileSync(p, "utf-8");
     for (const line of text.split("\n")) {
       const t = line.trim();
       if (!t) continue;
       try {
-        out.push(JSON.parse(t) as MlbSettledLean);
+        out.push(JSON.parse(t));
       } catch {
         // Skip malformed lines silently — never break the page on one bad row
       }
     }
   } catch (err) {
-    console.warn("[data-mlb-results] could not read settled_leans.jsonl:", err);
+    console.warn(`[data-mlb-results] could not read ${name}:`, err);
   }
   return out;
+}
+
+/**
+ * The settled MLB leans OF RECORD, for every settled date. The public
+ * settled_leans.jsonl keeps every raw row; a lean re-issued on a later
+ * board (the postponed 824785 game, Sep 22 → Sep 23) is in it twice.
+ * Stage 3B: every page that counts these rows reads them through the one
+ * forecast-of-record rule (lib/results/mlb-leans-of-record.mjs), the same
+ * selection as graded-picks.json, lifetime_summary.json, model_audit.json
+ * and the Results day pages, so no page counts an earlier copy.
+ * Returns [] when the file doesn't exist yet.
+ */
+let leansOfRecordCache: MlbSettledLean[] | null = null;
+export function getMlbSettledLeans(): MlbSettledLean[] {
+  // Read once per build process: every date page calls this, and the files only change between builds.
+  if (leansOfRecordCache) return leansOfRecordCache;
+  const leans = readJsonl("settled_leans.jsonl");
+  if (leans.length === 0) return [];
+  const games = readJsonl("game-predictions-graded.jsonl");
+  leansOfRecordCache = mlbLeansOfRecord(leans, { firstPitches: mlbFirstPitches(games) }).record as unknown as MlbSettledLean[];
+  return leansOfRecordCache;
 }
 
 export function getMlbSettledLeansForDate(date: string): MlbSettledLean[] {
