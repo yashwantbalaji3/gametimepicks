@@ -10,6 +10,7 @@
  *   Ligue 1 match result      public/data/soccer/ligue-1/results/graded.json            log loss vs even odds (1/3)
  *   MLB game picks            public/data/mlb/results/game-predictions-graded.jsonl     log loss vs a coin flip, per market
  *   NFL winner                public/data/nfl/reconciliation/*.json                      log loss vs a coin flip
+ *                             data/internal/research/nfl/reports/win-head-vs-cutoff-elo-forward.json  its bar: vs cutoff Elo
  *   NFL 80% ranges            public/data/nfl/reconciliation/*.json                      coverage vs 0.8, per prediction
  *   NFL touchdown chances     public/data/nfl/reconciliation/*.json                      expected vs actual scorers
  *   NFL share-level forward   data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json (its own states)
@@ -115,6 +116,10 @@ const missing = (id, sport, label, source) => add({ id, sport, label, state: "IN
     const judgement = comparePairedLoss(winnerRows.map(({ g, outcome }) => logLossOf(outcome === "HIT" ? g.published.pick.probability : 1 - g.published.pick.probability) - LN2), { minN: 48 });
     add({ id: "nfl_winner", sport: "nfl", label: "NFL winner", baseline: "coin flip (log loss 0.6931)", state: judgement.state, n: judgement.n, judgement,
       context: { hits: winnerRows.filter((x) => x.outcome === "HIT").length, expectedHits: r4(winnerRows.reduce((a, x) => a + x.g.published.pick.probability, 0)) }, source });
+    /* E-2 (architecture audit II.D #4): the contract's win bar compares against the cutoff-Elo baseline on identical
+       games. The paired forward report supplies it; absent, the bar stays NOT_COMPUTABLE exactly as before. */
+    const baselinePair = readJson(path.join(ROOT, "data/internal/research/nfl/reports/win-head-vs-cutoff-elo-forward.json"))?.summary;
+    if (Number.isFinite(baselinePair?.logLossVsBaseline)) measures.nfl_winner = { logLossVsBaseline: baselinePair.logLossVsBaseline, n: baselinePair.paired, ci95: baselinePair.ci95 ?? null, source: "data/internal/research/nfl/reports/win-head-vs-cutoff-elo-forward.json" };
 
     const rangeProps = [
       ["total_range", "NFL total points 80% range", (g) => g.team.filter((t) => t.prop === "total_range")],

@@ -620,6 +620,12 @@ jobs:
       # admin/model-health.json as an owner. It used to run after it, so each day's FIRST settle pinned
       # yesterday's scorecard in the write-once dated projection, and every later slot that day computed
       # different model-family cells and was refused. A read model is built after the owners it reads.
+      # E-2: the NFL win head vs the cutoff-Elo baseline on identical settled games (report only; feeds the
+      # nfl_winner bar below, which is advisory). A failure leaves the bar NOT_COMPUTABLE and blocks nothing.
+      - name: NFL win head vs cutoff-Elo baseline (forward pairing)
+        if: always()
+        continue-on-error: true
+        run: node app/scripts/nfl/build-nfl-win-baseline-forward.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
       - name: Model health scorecard (live results vs baselines)
         if: always()
         continue-on-error: true
@@ -753,6 +759,7 @@ jobs:
           git add data/internal/audits/ 2>/dev/null || true
           git add data/internal/offered-window/ 2>/dev/null || true
           git add data/internal/products/ 2>/dev/null || true
+          git add data/internal/research/nfl/reports/win-head-vs-cutoff-elo-forward.json 2>/dev/null || true
           # v1.7 shadow report (generated above from the ledger; never hand-edited).
           git add docs/V17_SHADOW_REPORT.md 2>/dev/null || true
           git add app/public/data/mlb/statsapi-schedule/ 2>/dev/null || true
