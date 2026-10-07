@@ -206,7 +206,7 @@ function PageHero({ artifact }: { artifact: ModelAuditArtifact }) {
         className="mt-3 text-[13px] leading-relaxed max-w-2xl"
         style={{ color: "var(--vault-text-mute)" }}
       >
-        Sourced from the model audit, rebuilt after every settlement. Pushes excluded from the
+        Sourced from the model audit, rebuilt after every settlement. Voids and pushes excluded from the
         denominator; pending and insufficient-data rows never counted.
         Educational only — not betting advice.
       </p>
@@ -747,7 +747,7 @@ function HonestyFooter({ generatedAt }: { generatedAt: string }) {
       <p>
         Generated <code className="font-mono">{generatedAt}</code> by the
         nightly settlement pipeline. The pipeline derives every cell on
-        this page from the settled-leans record — no live model calls, no projections. Pushes are excluded from the
+        this page from the settled-leans record — no live model calls, no projections. Voids and pushes are excluded from the
         denominator; pending and insufficient-data rows are never counted.
       </p>
       <p className="mt-3">

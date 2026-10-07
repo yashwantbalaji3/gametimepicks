@@ -153,8 +153,8 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
             41,593 decisive across MLB and NBA, of which these are the MLB 37,958. Two correct
             numbers on one page need labels, or a reader is left to assume one of them is wrong. */}
         All {coverage.rows.toLocaleString()} graded MLB picks across {coverage.dates} settled days,
-        {" "}{coverage.firstDate} to {coverage.lastDate} — not a sample of them. Pushes are neither a win
-        nor a loss and are in no rate below. Every row carries both the model's probability and the
+        {" "}{coverage.firstDate} to {coverage.lastDate} — not a sample of them. Voids and pushes are neither a
+        win nor a loss and are in no rate below. Every row carries both the model's probability and the
         market's, so the two are compared on the same picks.
       </p>
 
@@ -229,14 +229,14 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
             <caption className="sr-only">Settled model picks by day for {rangeLabel}</caption>
             <thead>
               <tr>
-                {["Date", "Record", "Decisive", "Push", ""].map((h, i) => (
+                {["Date", "Record", "Decisive", "Void / push", ""].map((h, i) => (
                   <th key={i} scope="col" style={{ textAlign: "left", padding: "6px 12px 6px 0", borderBottom: "1px solid var(--vault-rule)", fontSize: 11, color: "var(--vault-text-faint)", position: "sticky", top: 0, background: "var(--vault-scrim-base)" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {[...selected].reverse().map((d) => {
-                const m = market === "all" ? { wins: d.wins, losses: d.losses, pushes: d.pushes } : (d.byMarket?.[market] ?? { wins: 0, losses: 0, pushes: 0 });
+                const m = market === "all" ? { wins: d.wins, losses: d.losses, pushes: d.pushes, voids: d.voids ?? 0 } : (d.byMarket?.[market] ?? { wins: 0, losses: 0, pushes: 0, voids: 0 });
                 const r = pct(m.wins, m.losses);
                 return (
                   <tr key={d.date}>
@@ -245,7 +245,7 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
                       {r == null ? <span style={{ color: "var(--vault-text-faint)" }}>no decided pick</span> : `${r.toFixed(1)}% ${m.wins}-${m.losses}`}
                     </td>
                     <td style={{ padding: "6px 12px 6px 0", fontFamily: "monospace", fontSize: 11.5 }}>{m.wins + m.losses}</td>
-                    <td style={{ padding: "6px 12px 6px 0", fontFamily: "monospace", fontSize: 11.5, color: "var(--vault-text-faint)" }}>{m.pushes || "—"}</td>
+                    <td style={{ padding: "6px 12px 6px 0", fontFamily: "monospace", fontSize: 11.5, color: "var(--vault-text-faint)" }}>{(m.pushes + (m.voids ?? 0)) || "—"}</td>
                     <td style={{ padding: "6px 0" }}>
                       <button type="button" onClick={() => setOpenDate(openDate === d.date ? null : d.date)}
                         style={{ color: "var(--vault-gold-bright)", background: "none", border: "none", padding: 0, font: "inherit", cursor: "pointer", textDecoration: "underline", fontSize: 11.5 }}

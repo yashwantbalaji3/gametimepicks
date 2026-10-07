@@ -163,3 +163,15 @@ test("A DAY'S GAME COUNT MATCHES ITS PARTITION", () => {
     assert.equal(d.games, distinct, `${d.date}: index says ${d.games} games, its partition holds ${distinct}`);
   }
 });
+
+test("EVERY DAY'S PICKS ARE DECISIVE OR VOID / PUSH — the day table's 'Void / push' column holds the rest", () => {
+  if (!index) return;
+  for (const d of index.days) {
+    assert.equal(d.rows, d.decisive + d.pushes + (d.voids ?? 0), `${d.date}: ${d.rows} picks but ${d.decisive} decisive + ${d.pushes} push + ${d.voids ?? 0} void`);
+  }
+  /* The explorer's per-day column must count voids too: a ledger Void published under a "Push"
+     header showed "—" on days that had voids (2026-10-06: 73 picks, 71 decisive). */
+  const src = fs.readFileSync(path.join(APP, "src/components/results/model-results-explorer.tsx"), "utf8");
+  assert.ok(src.includes('"Void / push"'), "the per-day column is headed Void / push");
+  assert.ok(src.includes("m.pushes + (m.voids ?? 0)"), "the per-day column counts voids as well as pushes");
+});
