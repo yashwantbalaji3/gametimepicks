@@ -40,6 +40,7 @@
  *   node app/scripts/mlb/build-homer-nukes.mjs --now <ISO> [--date YYYY-MM-DD] [--write]
  */
 import { homerNukesHonestLimit } from "../../src/lib/mlb/homer-nukes-honesty.mjs";
+import { appendRevision } from "../../src/lib/mlb/homer-nukes-freeze.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -208,10 +209,24 @@ async function main() {
   if (skipped.length) console.log(`  ${skipped.length} side(s) skipped: ${[...new Set(skipped.map((s) => s.reason))].join("; ")}`);
 
   if (!write) { console.log("\ndry-run — nothing written. Re-run with --write."); return; }
+  /*
+   * WRITE-ONCE PREGAME MEMBERSHIP (Stage 5D). Every build appends a revision to an append-only per-day log and
+   * the public board follows the log's board of record. Once any game on the current or the new board has
+   * started, no revision is taken and NEITHER file is rewritten, so the Top 5 the settler grades cannot change
+   * after first pitch. An identical board appends nothing (no churn). See lib/mlb/homer-nukes-freeze.mjs.
+   */
   const outDir = path.join(APP, "public", "data", "mlb", "homer-nukes");
+  const revDir = path.join(APP, "public", "data", "mlb", "homer-nukes-revisions");
+  const revPath = path.join(revDir, `${DATE}.json`);
+  const priorLog = fs.existsSync(revPath) ? JSON.parse(fs.readFileSync(revPath, "utf8")) : null;
+  const { log, appended, reason } = appendRevision(priorLog, artifact, NOW);
+  if (reason) { console.log(`\nFROZEN: no revision taken (${reason}); mlb/homer-nukes/${DATE}.json left as it is`); return; }
+  if (!appended) { console.log(`\nUNCHANGED: identical to revision ${log.revisions.length}; nothing written`); return; }
+  fs.mkdirSync(revDir, { recursive: true });
+  fs.writeFileSync(revPath, JSON.stringify(log, null, 1) + "\n");
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(path.join(outDir, `${DATE}.json`), JSON.stringify(artifact, null, 1) + "\n");
-  console.log(`\nwrote mlb/homer-nukes/${DATE}.json`);
+  console.log(`\nwrote mlb/homer-nukes/${DATE}.json (revision ${log.revisions.length}) + mlb/homer-nukes-revisions/${DATE}.json`);
 }
 
 /** One line naming the actual drivers — the numbers a reader could check, never an adjective. */

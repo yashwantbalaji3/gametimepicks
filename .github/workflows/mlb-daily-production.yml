@@ -181,7 +181,10 @@ jobs:
             echo "NO_SLATE: the ${{ steps.cfg.outputs.date }} board has 0 games — Homer Nukes publishes no board by design"
             exit 0
           fi
-          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" \
+          # Stage 5D: the board is write-once per revision. A run after first pitch (FROZEN) or with an identical
+          # board (UNCHANGED) correctly writes nothing, so "written by THIS run" is the wrong test; the day's board
+          # must exist and be from the last 24h (the deduplicating-producer mode of assert-run-produced).
+          node app/scripts/ops/assert-run-produced.mjs --since "$RUN_STARTED" --max-age-min 1440 \
             "app/public/data/mlb/homer-nukes/${{ steps.cfg.outputs.date }}.json"
       # P230 · G — RE-RESOLVE THE MLB TIER GRID ON MLB'S OWN CADENCE.
       #
