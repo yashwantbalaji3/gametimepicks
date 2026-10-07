@@ -2,7 +2,7 @@
  * RESEARCH ENTRY POINTS (2026-10-05) — built-export guards. Post-build phase: reads out/.
  *
  *  EP1 every sport hub and /sports/ link the Research home in one click, and each link's #anchor exists there
- *  EP2 the rail and footer carry "Research"; the footer carries Compare; every new link resolves in this export
+ *  EP2 the Research, Compare and Research Lab destinations are served (rail/footer changes left to Stage 8 nav)
  *  EP3 site search reaches Research, Research Lab, Compare (and each shipped Compare builder), Ask and Live
  *
  * Run (after `npm run build`): npx tsx --test src/lib/research-pages/entry-points-built.test.mjs
@@ -38,15 +38,13 @@ test("EP1 every sport hub and /sports/ reach the Research home in one click, lan
   for (const h of sports.filter((x) => x.startsWith("/compare/"))) assert.ok(exists(h.split("#")[0]), `/sports/ → ${h} resolves`);
 });
 
-test("EP2 the rail and footer carry Research, the footer carries Compare, and both resolve", () => {
-  const html = htmlOf("/");
-  const rail = /<aside[^>]*aria-label="Primary"[\s\S]*?<\/aside>/.exec(html)?.[0] ?? "";
-  assert.ok(rail, "the rail renders on Home");
-  assert.match(rail, /href="\/research\/?"/, "rail links /research/");
-  const footer = /<footer[\s\S]*?<\/footer>/.exec(html)?.[0] ?? "";
-  for (const h of ["/research", "/compare", "/research/lab"]) assert.match(footer, new RegExp(`href="${h}/?"`), `footer links ${h}/`);
+/*
+ * EP2 (nav split out, 2026-10-07): the rail and footer belong to the Stage 8 navigation work (decided nav: Today ·
+ * Simulations · Parlays · Results; utilities Search · Ask · My GameTime), so this slice leaves navigation.ts alone.
+ * It only checks that the destinations the existing footer already names are still served.
+ */
+test("EP2 the destinations this slice links to are served", () => {
   for (const h of ["/research/", "/compare/", "/research/lab/"]) assert.ok(exists(h), `${h} is served`);
-  assert.doesNotMatch(footer, />Research engine</, "the stale label is gone");
 });
 
 test("EP3 site search reaches the Research tools and every shipped Compare builder, all served", () => {
