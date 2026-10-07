@@ -210,3 +210,15 @@ test("the summary carries n and the calibration question a reader actually asks"
   assert.equal(s.predictedScorers, 1);
   assert.equal(s.countError, 0, "predicted one scorer, one scored");
 });
+
+test("SOCCER S4: an appearance with no stat for the market is UNMEASURED — never a miss, never written", () => {
+  const p = index([snapshot("s.json", "2026-08-21T18:00:00Z", [proj([{ ...row("9", { conditional: false }), shotsOnGoalOver05: 0.4 }], "PUBLISHED")])]);
+  const out = gradePlayerProjections({ projections: p, actuals: actual([act("9", { started: true, goals: 0, shotsOnGoal: null })]) });
+  assert.equal(out.graded.filter((g) => g.market === "shots_on_goal_over_0_5").length, 0, "a missing SOG stat must not grade as 0");
+  assert.equal(out.voided.length, 0, "missing is not void either");
+  assert.equal(out.skipped.unmeasured, 1);
+  assert.deepEqual(out.unmeasured.map((u) => u.market), ["shots_on_goal_over_0_5"]);
+  assert.equal(out.graded.filter((g) => g.market !== "shots_on_goal_over_0_5").length, 1, "the scorer market, whose stat is present, still grades");
+  const present = gradePlayerProjections({ projections: p, actuals: actual([act("9", { started: true, goals: 0, shotsOnGoal: 0 })]) });
+  assert.equal(present.graded.find((g) => g.market === "shots_on_goal_over_0_5")?.outcome, "MISS", "a reported 0 is still a real 0");
+});

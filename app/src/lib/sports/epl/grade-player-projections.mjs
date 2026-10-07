@@ -93,7 +93,8 @@ const r6 = (v) => Number(v.toFixed(6));
 export function gradePlayerProjections({ projections, actuals, alreadyGraded = new Set() }) {
   const graded = [];
   const voided = [];
-  const skipped = { alreadyGraded: 0, noProjection: 0, notFinal: 0 };
+  const unmeasured = [];
+  const skipped = { alreadyGraded: 0, noProjection: 0, notFinal: 0, unmeasured: 0 };
 
   for (const [slug, actual] of actuals ?? new Map()) {
     if (actual?.status !== "FULL_TIME") { skipped.notFinal += 1; continue; }
@@ -146,7 +147,11 @@ export function gradePlayerProjections({ projections, actuals, alreadyGraded = n
         continue;
       }
 
-      const observed = Number(a[market.actualField] ?? 0);
+      /* Missing is not zero (Soccer S4). An appearance with no stat for this market is UNMEASURED: not a
+         miss, not a void, not written to the ledger, so the next run grades it if the source fills it in. */
+      const rawObserved = a[market.actualField];
+      if (rawObserved == null || !Number.isFinite(Number(rawObserved))) { skipped.unmeasured += 1; unmeasured.push({ key, market: market.id, playerId: row.playerId, slug }); continue; }
+      const observed = Number(rawObserved);
       const y = observed > market.line ? 1 : 0;
       graded.push({
         ...base,
@@ -162,7 +167,7 @@ export function gradePlayerProjections({ projections, actuals, alreadyGraded = n
      }
     }
   }
-  return { graded, voided, skipped };
+  return { graded, voided, skipped, unmeasured };
 }
 
 /**

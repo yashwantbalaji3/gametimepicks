@@ -100,16 +100,17 @@ for (const [slug, rec] of byFixture) {
   for (const t of sum.rosters ?? []) {
     for (const p of t.roster ?? []) {
       const st = {};
-      for (const s of p.stats ?? []) st[s.abbreviation ?? s.name] = Number(s.value ?? 0);
+      /* A stat ESPN did not report stays absent (missing is not zero, Soccer S4). */
+      for (const s of p.stats ?? []) { const v = Number(s.value); if (s.value != null && Number.isFinite(v)) st[s.abbreviation ?? s.name] = v; }
       players.push({
         playerId: String(p.athlete?.id ?? ""),
         name: p.athlete?.displayName ?? null,
         started: p.starter === true,
         subbedIn: p.subbedIn === true,
-        goals: st.G ?? 0,
+        goals: st.G ?? null,
         /* Every field any GRADED_MARKET scores against. A market whose actual is missing here would
            grade as a silent zero, which is worse than not grading at all. */
-        shotsOnGoal: st.SOG ?? 0,
+        shotsOnGoal: st.SOG ?? null,
       });
     }
   }
@@ -118,10 +119,11 @@ for (const [slug, rec] of byFixture) {
 }
 
 /* ── Grade ───────────────────────────────────────────────────────────────────────────────────── */
-const { graded, voided, skipped } = gradePlayerProjections({ projections: byFixture, actuals, alreadyGraded });
+const { graded, voided, skipped, unmeasured } = gradePlayerProjections({ projections: byFixture, actuals, alreadyGraded });
 
 console.log(`\nfinished fixtures with results: ${finishedFixtures}`);
 console.log(`  NEWLY GRADED: ${graded.length}   VOIDED: ${voided.length}   skipped: ${JSON.stringify(skipped)}`);
+if (unmeasured.length) console.log(`::warning::EPL player grading: ${unmeasured.length} appearance(s) have no stat for their market — left ungraded (missing is not zero), retried next run`);
 
 if (graded.length > 0) {
   const s = summarisePlayerGrades(graded);
