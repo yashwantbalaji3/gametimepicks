@@ -23,7 +23,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { readNflWinnerCorrections } from "../../src/lib/results/nfl-model-favored-io.mjs";
+import { readNflSideCutover, readNflWinnerCorrections } from "../../src/lib/results/nfl-model-favored-io.mjs";
 import { nflGameRows, nflPropRows, nflReconciliationRows, nflTopBoardRows, forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
 import { mlbGameRows, mlbProjectedRows, homerNukesRows } from "../../src/lib/forecast-ledger/adapters/mlb.mjs";
 import { eplDerivedRows, eplEventIndex, eplMatchRows, eplPlayerRows, ligue1Rows } from "../../src/lib/forecast-ledger/adapters/soccer.mjs";
@@ -138,7 +138,8 @@ export function readSources(now) {
   const mlbTeamIds = new Map(mlbTeams.filter((e) => mlbHintCounts.get(e.hint) === 1).map((e) => [e.hint, e.id]));
 
   const winnerCorrections = readNflWinnerCorrections(ROOT);
-  return { now, teamIds, winnerCorrections, eplTeamIds, eplDerived, mlbTeamIds, mlbProjected, reconWeeks, rosterCaptures, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
+  const sideCutoverAt = readNflSideCutover(ROOT);
+  return { now, teamIds, winnerCorrections, sideCutoverAt, eplTeamIds, eplDerived, mlbTeamIds, mlbProjected, reconWeeks, rosterCaptures, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
 }
 
 export function buildRows(src, report = {}) {
@@ -153,7 +154,7 @@ export function buildRows(src, report = {}) {
   report.nflReconciliationUnresolved = recon.unresolved;
   const heldIds = new Set(props.map((r) => r.forecastId));
   return composeLedger([
-    { source: "nfl-experimental-settlement", rows: nflGameRows({ settledEvents: src.settledEvents, receiptsOfRecord: src.ofRecord, now: src.now, teamIds: src.teamIds, winnerCorrections: src.winnerCorrections }) },
+    { source: "nfl-experimental-settlement", rows: nflGameRows({ settledEvents: src.settledEvents, receiptsOfRecord: src.ofRecord, now: src.now, teamIds: src.teamIds, winnerCorrections: src.winnerCorrections, sideCutoverAt: src.sideCutoverAt }) },
     { source: "nfl-prop-settlement", rows: props },
     { source: "results-top-board", rows: nflTopBoardRows({ boards: src.boards, withdrawals: src.withdrawals, heldIds, now: src.now }) },
     { source: "nfl-week-reconciliation", rows: recon.rows },

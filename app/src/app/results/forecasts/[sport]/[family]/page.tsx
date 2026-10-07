@@ -140,9 +140,9 @@ export default async function ForecastFamilyPage({ params }: { params: Promise<P
             <div className="stat"><b>{pct(m.topClassAccuracy)}</b><span>{m.topClassLabel ?? "our likeliest outcome happened"}</span></div>
           </>
         )}
-        {m.directional ? (
-          <div className="stat"><b>{m.directional.win}–{m.directional.loss}{m.directional.push ? `–${m.directional.push}` : ""}</b><span>{m.directional.label ?? "pick record"}: {m.directional.basis.map((b: string) => BASIS_WORDS[b] ?? b).join("; ")}</span></div>
-        ) : null}
+        {m.directional ? (m.directional.byBasis ?? [{ ...m.directional, basis: m.directional.basis[0], label: m.directional.label ?? "pick record" }]).map((d: any) => (
+          <div className="stat" key={d.basis}><b>{d.win}–{d.loss}{d.push ? `–${d.push}` : ""}</b><span>{d.label}: {BASIS_WORDS[d.basis] ?? d.basis}</span></div>
+        )) : null}
       </div>
 
       {m.kind === "BINARY_PROBABILITY" && m.calibration?.bins?.length ? (

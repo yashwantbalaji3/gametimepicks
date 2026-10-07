@@ -725,6 +725,8 @@ function forecastCells(src, push) {
   for (const [sport, g] of Object.entries(gradedPicks)) {
     const c = g?.doc?.counts;
     if (!g?.doc || !c || !isInt(c.hits) || !isInt(c.misses)) continue;
+    // Stage 3D: a record pooling two side bases (historical model-favored + frozen sides) is never one cell.
+    if (g.doc.recordBasis === "MIXED") continue;
     const pending = isInt(c.total) && isInt(c.counted) ? Math.max(0, c.total - c.counted - (intOrNull(c.voided) ?? 0)) : null;
     const cell = makeCell({
       recordType: RECORD_TYPES.FORECAST_RECORD, family: FAMILIES.FORECAST, sport, product: null, market: null, segment: "graded-picks",

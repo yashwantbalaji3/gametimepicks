@@ -25,7 +25,7 @@
 import { FORECAST_KIND, RECOVERABILITY } from "../contract.mjs";
 import { measureBinary, measureContinuous, withDirectional } from "../measure.mjs";
 import { makeRow, marketBlock } from "../row.mjs";
-import { NFL_WINNER_BASIS, nflWinnerGrade, winnerOfRecord } from "../../results/nfl-model-favored.mjs";
+import { NFL_WINNER_BASIS, nflReceiptWinnerGrade, winnerOfRecord } from "../../results/nfl-model-favored.mjs";
 
 const SPORT = "NFL";
 
@@ -52,7 +52,7 @@ export function forecastOfRecord(receipts) {
   return best;
 }
 
-function gameRows({ file, receipt: r, grade, settledAt, resultSource, notes = [], teamIds = new Map() }) {
+function gameRows({ file, receipt: r, grade, settledAt, resultSource, notes = [], teamIds = new Map(), sideCutoverAt = null }) {
   const s = r.forecastSummary;
   if (!s) return [];
   const base = {
@@ -99,7 +99,7 @@ function gameRows({ file, receipt: r, grade, settledAt, resultSource, notes = []
            "historical model-favored winner accuracy", never a published pick. The two restated games are listed in
            the append-only correction log (data/internal/nfl/winner-corrections/) and named in this row's notes.
            categoryPrediction (immutable) stays as first written: it buckets P(home), it is not the graded side. */
-        const w = nflWinnerGrade({ winProbability: s.winProbability, actual: a, publishedSide: r.publishedSide ?? null });
+        const w = nflReceiptWinnerGrade(r, a, { cutoverAt: sideCutoverAt });
         if (w.correct != null) measurement = withDirectional(measurement, { result: w.correct ? "WIN" : "LOSS", basis: w.sideBasis === NFL_WINNER_BASIS ? NFL_WINNER_BASIS : "PUBLISHED_PICK" });
       }
     }
@@ -170,7 +170,7 @@ function gameRows({ file, receipt: r, grade, settledAt, resultSource, notes = []
  *                          winner correction logs. A settled grade the settler stored under the old rule must be
  *                          restated there, or the build refuses (winnerOfRecord throws).
  */
-export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), now, teamIds = new Map(), winnerCorrections = new Map() }) {
+export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), now, teamIds = new Map(), winnerCorrections = new Map(), sideCutoverAt = null }) {
   const nowMs = Date.parse(now);
   if (!Number.isFinite(nowMs)) throw new Error("nflGameRows: now is required");
   const rows = [];
@@ -194,10 +194,10 @@ export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), 
     graded.add(String(e.providerEventId));
     const notes = superseded.length ? [`owner also graded superseded receipt(s) ${superseded.join(", ")} — not of record, not counted`] : [];
     if (!e.grade?.actual?.tie) {
-      const { correction } = winnerOfRecord(e, receipt, winnerCorrections);
+      const { correction } = winnerOfRecord(e, receipt, winnerCorrections, { cutoverAt: sideCutoverAt });
       if (correction) notes.push(`winner grade restated by ${correction.file} (founder Q4 HIGHER): the owner's stored grade (model-favoured ${correction.before.modelFavoured}, ${correction.before.correct ? "correct" : "incorrect"}) used ${correction.before.rule}; the stored grade is unchanged`);
     }
-    rows.push(...gameRows({ notes, teamIds,
+    rows.push(...gameRows({ notes, teamIds, sideCutoverAt,
       file: e.lineage?.receiptFile ?? null,
       receipt,
       grade: e.grade,
@@ -209,7 +209,7 @@ export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), 
     if (graded.has(String(id))) continue;
     // Before kickoff the forecast of record can still be revised; only a started event's forecast is final.
     if (!(Date.parse(rec.receipt.kickoffUtc) <= nowMs)) continue;
-    rows.push(...gameRows({ file: rec.relPath ?? rec.file, receipt: rec.receipt, grade: null, teamIds }));
+    rows.push(...gameRows({ file: rec.relPath ?? rec.file, receipt: rec.receipt, grade: null, teamIds, sideCutoverAt }));
   }
   return rows;
 }
