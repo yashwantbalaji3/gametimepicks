@@ -16,6 +16,8 @@
  * paused call would keep publishing in prose.
  */
 
+import { FRESHNESS } from "../products/product-status.mjs";
+
 export const MLB_TOTAL_FAMILY = "mlb_total";
 export const MLB_MONEYLINE_FAMILY = "mlb_moneyline";
 export const MLB_RUN_LINE_FAMILY = "mlb_run_line";
@@ -30,8 +32,11 @@ export const PAUSED_TOTAL_REASON = pausedReason("over/under call");
 export const PAUSED_MONEYLINE_REASON = pausedReason("winner call");
 export const PAUSED_RUN_LINE_REASON = pausedReason("run-line call");
 
-/** Family ids the scorecard currently marks BREACHED — empty when the scorecard is absent or older than maxAgeHours. */
-export function pausedFamiliesFrom(scorecard, nowMs, { maxAgeHours = 72 } = {}) {
+/**
+ * Family ids the scorecard currently marks BREACHED — empty when the scorecard is absent or older than maxAgeHours.
+ * The default age is the central freshness table's (Stage 4C; founder Q4/Q5; unchanged at 72 h).
+ */
+export function pausedFamiliesFrom(scorecard, nowMs, { maxAgeHours = FRESHNESS.scorecardMaxAgeMs / 3600e3 } = {}) {
   const at = Date.parse(scorecard?.generatedAt ?? "");
   if (!Number.isFinite(at) || !Number.isFinite(nowMs) || nowMs - at > maxAgeHours * 3600e3 || at - nowMs > 3600e3) return new Set();
   return new Set((scorecard.families ?? []).filter((f) => f?.state === "BREACHED" && typeof f.id === "string" && GATED_FAMILIES.has(f.id)).map((f) => f.id));

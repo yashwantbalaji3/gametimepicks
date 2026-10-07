@@ -219,12 +219,18 @@ test("participation crosswalk: real words from the repo's vocabularies land on t
   assert.ok(leg("Out", "OFFICIAL_LINEUP").reasonCodes.includes(REASON.AVAILABILITY_BLOCKED), "either word blocking blocks");
 });
 
-test("4A ships unwired: only its own test and the replay import the contract (4B–4D add readers one slice at a time)", async () => {
+test("importer pin: 4A shipped it unwired; 4C added the three freshness constants; each later reader is added here deliberately", async () => {
   const { execFileSync } = await import("node:child_process");
   const path = await import("node:path");
   const { fileURLToPath } = await import("node:url");
   const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
-  const out = execFileSync("git", ["-C", app, "grep", "-l", "-E", "from ['\"][^'\"]*products/product-status(\\.mjs)?['\"]|from ['\"]\\./product-status(\\.mjs)?['\"]", "--", "."], { encoding: "utf8" });
+  const out = execFileSync("git", ["-C", app, "grep", "-l", "-E", "from ['\"]([^'\"]*products/|\\.\\.?/)product-status(\\.mjs)?['\"]", "--", "."], { encoding: "utf8" });
   const importers = out.split("\n").filter(Boolean).sort();
-  assert.deepEqual(importers, ["scripts/products/replay-product-status.mjs", "src/lib/products/product-status.test.mjs"]);
+  assert.deepEqual(importers, [
+    "scripts/products/replay-product-status.mjs",
+    "src/lib/ops/live-record-gate.mjs", // 4C: scorecard age
+    "src/lib/parlays/card-leg-eligibility.mjs", // 4C: lab-card price age
+    "src/lib/products/eligible-leg/contract.mjs", // 4C: promoted price age
+    "src/lib/products/product-status.test.mjs",
+  ]);
 });

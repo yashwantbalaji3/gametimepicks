@@ -28,6 +28,7 @@
  * Pure: no fs, no fetch, no clock (the clock is an argument).
  */
 import { canEnterPredictionProducts, capabilityState } from "../../sport-capability-registry.ts";
+import { FRESHNESS, PRODUCT } from "../product-status.mjs";
 
 export const PRODUCT_ELIGIBLE_LEG_SCHEMA_VERSION = 1;
 
@@ -78,8 +79,11 @@ export const REASON = Object.freeze({
 /** Reasons that are recorded but do not refuse the leg. */
 const INFORMATIONAL = new Set([REASON.MARKET_PRICED_NO_FORECAST]);
 
-/** Frozen product bounds shared by every sport (the legacy MLB window, unchanged). */
-export const LEG_BOUNDS = Object.freeze({ oddsMin: -650, oddsMax: 400, maxPriceAgeMs: 12 * 60 * 60 * 1000, activationCutoffMs: 30 * 60 * 1000 });
+/**
+ * Frozen product bounds shared by every sport (the legacy MLB window, unchanged). Stage 4C: price age is read from
+ * the one central freshness table (founder Q5 PER-PRODUCT, 2026-10-07); promoted products share one value (12 h).
+ */
+export const LEG_BOUNDS = Object.freeze({ oddsMin: -650, oddsMax: 400, maxPriceAgeMs: FRESHNESS.priceMaxAgeMs[PRODUCT.BANK_BUILDER], activationCutoffMs: 30 * 60 * 1000 });
 
 /**
  * @typedef {object} ProductEligibleLegV1

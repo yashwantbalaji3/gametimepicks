@@ -16,9 +16,13 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { FRESHNESS, PRODUCT } from "../products/product-status.mjs";
 
-/** How stale a price capture may be before it stops being publishable (was lab-eligibility's private constant). */
-export const PRICE_MAX_AGE_DAYS = 3;
+/**
+ * How stale a price capture may be before it stops being publishable on a paper lab card. Stage 4C: read from the
+ * one central freshness table (founder Q5 PER-PRODUCT, 2026-10-07); the value is unchanged (3 days).
+ */
+export const PRICE_MAX_AGE_DAYS = FRESHNESS.priceMaxAgeMs[PRODUCT.LAB_CARD] / 86_400_000;
 
 /**
  * Stage 4B · FAIL CLOSED (founder Q3 CLOSED, 2026-10-07). When the coverage document cannot be read, the family set
