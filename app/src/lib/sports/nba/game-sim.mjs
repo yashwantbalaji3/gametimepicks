@@ -28,6 +28,19 @@ export const MAX_PLAYER_MINUTES = 48;
 export const MINUTES_RESCALE_BOUNDS = Object.freeze({ min: 0.5, max: 1.5 });
 export const DEFAULT_MINUTES_SD_RATIO = 0.3; // when a player's window gives no sd (gamesUsed < 2)
 const STAT_KEYS = Object.freeze(["pts", "reb", "ast", "threePm"]);
+/*
+ * JOINT COMBINATIONS (Stage 12-S1; preregistration §5 "PRA only as the joint combination", §7 P+A / P+R rows).
+ * Each is the quantiles of the PER-DRAW SUM of the player's own simulated components, so the correlation through
+ * shared minutes is kept (summing marginal medians would not be). Computed after the draw loop from arrays the
+ * loop already fills: no extra random number is consumed, so every pre-existing output is byte-identical.
+ */
+export const COMBO_KEYS = Object.freeze({ pra: ["pts", "reb", "ast"], ptsAst: ["pts", "ast"], ptsReb: ["pts", "reb"] });
+
+function comboDraws(stats, parts, n) {
+  const out = new Float64Array(n);
+  for (const k of parts) { const a = stats[k]; for (let i = 0; i < n; i += 1) out[i] += a[i]; }
+  return out;
+}
 
 /** 32-bit FNV-1a as 8 hex chars. */
 export function fnv1a32(str) {
@@ -201,6 +214,7 @@ export function simulateGame({ providerEventId, inputAsOf, neutralSite = false, 
     availability: p.availability, injuryStatus: p.injuryStatus, ratesBasis: p.ratesBasis, rates: p.rates,
     minutes: quantiles(playerStats[t][j].minutes),
     ...Object.fromEntries(STAT_KEYS.map((k) => [k, quantiles(playerStats[t][j][k])])),
+    ...Object.fromEntries(Object.entries(COMBO_KEYS).map(([k, parts]) => [k, quantiles(comboDraws(playerStats[t][j], parts, simulations))])),
   }));
 
   const eloP = Number.isFinite(eloWinProbability) ? eloWinProbability : null;

@@ -18,6 +18,9 @@ market moves only with a receipt that cites the bars here.
 | Box-score corpus | `BOXSCORE_SCHEMA_VERSION = 1`, builder `nba-boxscore-corpus-1.2.0` | `boxscore-parse.mjs`, `app/scripts/nba/build-nba-boxscore-corpus.mjs` |
 | Roster capture | `nba-roster-contract-v1`, `nba-roster-capture-1.0.0` (reconciled in the artifact, **not applied to the pool** at v0) | `roster-contract.mjs`, `roster-parse.mjs`, `app/scripts/nba/capture-nba-rosters.mjs` |
 | Grader | `grade-nba-experimental-forecasts.mjs` → `experimental/ledger.json` (separate preseason / regular buckets) | `app/scripts/nba/grade-nba-experimental-forecasts.mjs` |
+| Winner side (Stage 12-S1) | `nba-winner-side@1`: the side of `elo.pHome` (founder N2), TOO_CLOSE only at exactly 0.5 (N4 open), frozen with the producing `modelVersion` | `app/src/lib/sports/nba/winner-side.mjs` |
+| Joint combinations (Stage 12-S1) | `pra`, `ptsAst`, `ptsReb`: quantiles of the per-draw sums of the player's own simulated components (no extra randomness) | `game-sim.mjs` `COMBO_KEYS` |
+| 2026-27 challenger (Stage 12-S1b, founder N3) | family `v0.2`, `nba-experimental-v0.2-season-2026-27`: v0.1's pool, Elo and minutes also folding the 2026-27 finals record and fetched box scores as of the forecast instant | `season-fold.mjs`, `experimental-forecast.mjs` `FAMILIES` |
 
 The shadow runs **v0 exactly as frozen**. Any v1 candidate from the dispersion plan is a separate
 version string, gets its own forward shadow from the day it is armed, and never rewrites v0's ledger.
@@ -52,8 +55,9 @@ finding may motivate a candidate; it cannot promote one.
 ## 5. Player metrics by market family
 
 Graded per matched player-game (predicted row ↔ box-score row; DNP and null-minute rows excluded and
-counted, never zero). Families: **points, rebounds, assists, 3PM**; **PRA only as the joint combination**
-of the simulated components (never a separately fitted market).
+counted, never zero). Families: **points, rebounds, assists, 3PM**; **PRA, points + assists (P+A) and
+points + rebounds (P+R) only as joint combinations** of the simulated components (never separately fitted
+markets; P+A and P+R added before their first frozen forecast, founder N5, 2026-10-07).
 
 | Metric | Definition |
 |---|---|
@@ -71,6 +75,7 @@ of the simulated components (never a separately fitted market).
 | points, rebounds, assists | 1,500 matched player-games with expectedMinutes ≥ 20 |
 | 3PM | 800 matched player-games with expectedMinutes ≥ 20 and rate ≥ 0.05/min |
 | PRA | the three component families must each have met their bar |
+| P+A, P+R | the two component families must each have met their bar |
 | rest / back-to-back / role-change slices | 100 per slice — reported, not gated, until then |
 
 Below the minimum a market is **HOLD** regardless of its numbers.
@@ -92,6 +97,7 @@ market on Brier **and** log loss (`docs/MLB_FULL_GAME_PUBLIC_READINESS_AUDIT.md`
 | Rebounds, assists | same shape as points, n ≥ 1,500 each | same | each family earns support separately |
 | 3PM | n ≥ 800; same shape; coverage ∈ [0.74, 0.86] (discrete, low counts) | same | wider band for a discrete low-count stat |
 | PRA | components each PUBLIC; joint coverage ∈ [0.76, 0.84] on ≥ 1,000 rows | same | never fitted alone |
+| P+A, P+R | components each PUBLIC; joint coverage ∈ [0.76, 0.84] on ≥ 1,000 rows each | same | never fitted alone; same shape as PRA (founder N5) |
 
 **No adoption on a pooled all-market score.** A market passes or fails on its own rows. A pooled ledger
 number is reported for context and cannot promote anything.
@@ -137,3 +143,4 @@ into the capability registry by automation.
 |---|---|---|---|
 | 1 | 2026-09-22 | this file, written before any 2026-27 result; 2024-25 dispersion diagnostic (60 games, v0 unchanged) | bars frozen; assessment season (2025-26) not yet read by any candidate |
 | 2 | 2026-10-02 | 2024-25 **development** season, full (1,005 games after day 30), v0 + shadow Elo unchanged, 1,000 sims, dry run (`diagnose-sim-dispersion.mjs --season 2025 --games 1005 --simulations 1000`) | v0 sim winner Brier **0.267** vs shadow Elo **0.215** (bar ≤ 0.240); margin p10–p90 coverage **0.88** (bar 0.76–0.84); margin bias −1.42 (bar \|bias\| ≤ 1.0); sim total SD 22.02 ≈ margin SD 22.00 (bar: total SD > margin SD). v0 cannot meet the winner, margin or total bars; it stays the frozen shadow. No bar changed; assessment season (2025-26) still unread by any candidate |
+| 3 | 2026-10-07 | no outcome: founder decisions N1–N3, N5 (Yash, 2026-10-07 03:21Z) recorded before the first 2026-27 regular-season game. Additions only: the frozen Elo winner side and the joint PRA / P+A / P+R quantiles become new keys in every family's receipt (v0 included; no existing v0 or v0.1 number changes, checked byte-for-byte against the previous build on real slates), the P+A / P+R rows above (PRA's shape), and the v0.2 challenger family | no bar changed. v0.1 is the player champion (N1); v0.2 shadows from game 1 and never replaces v0.1 or the Elo side automatically (N3). The winner row's bar names `sim`; scoring an Elo-side winner for promotion is a later founder reading (N6), not this look |

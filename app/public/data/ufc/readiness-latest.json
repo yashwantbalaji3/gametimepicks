@@ -2,7 +2,7 @@
   "generatedFor": null,
   "nextEventDate": null,
   "scheduleReady": true,
-  "oddsReady": false,
+  "oddsReady": true,
   "fighterStatsReady": false,
   "gradingReady": false,
   "backtestReady": false,
@@ -18,27 +18,24 @@
   },
   "projectionsReady": false,
   "parlayReady": false,
-  "publicLevel": "schedule-only",
+  "publicLevel": "odds-internal",
   "blockers": [
-    "odds provider not connected (Odds API MMA)",
     "fighter-stat provider not connected",
     "results grading not implemented",
     "no historical backtest yet"
   ],
   "providerStatus": {
     "schedule": "espn_mma",
-    "odds": "not_connected",
+    "odds": "the_odds_api_mma",
     "fighterStats": "not_connected",
     "grading": "not_connected",
     "oddsapi": {
       "configured": true,
-      "lastFetchAt": "2026-10-03T15:06:06Z",
+      "lastFetchAt": "2026-10-07T04:44:45Z",
       "eventCount": 12,
       "marketCount": 12,
-      "oddsReady": false,
-      "warnings": [
-        "odds stale (72h)"
-      ]
+      "oddsReady": true,
+      "warnings": []
     },
     "greco1899_ufcstats_csv": {
       "configured": true,
@@ -71,6 +68,6 @@
       ]
     }
   },
-  "publicMessage": "UFC coverage is being built \u2014 schedule available; predictions publish only after odds, fighter stats, results grading, and backtesting are connected.",
-  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['odds provider not connected (Odds API MMA)', 'fighter-stat provider not connected', 'results grading not implemented', 'no historical backtest yet']"
+  "publicMessage": "UFC odds, fighter stats, and results grading are being connected. Model picks publish only after a backtest passes.",
+  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['fighter-stat provider not connected', 'results grading not implemented', 'no historical backtest yet']"
 }

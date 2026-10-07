@@ -118,4 +118,9 @@ test("G2 · the pre-tip window: free, own concurrency group, injuries → v0 →
   // v0.1's refusal is the roster gate working: it must never stop v0 or fail the run.
   assert.match(body, /--family v0\.1 --horizon-hours 8 \\\n[^\n]*\|\| echo "::warning::/, "v0.1 refusal warns, never fails");
   assert.match(body, /--family v0 --horizon-hours 8 \|\| V0_FAILED=1/, "v0 refusal is recorded and fails the run");
+  // Stage 12-S1b (founder N3): the 2026-27 challenger is built at the same instant, after v0.1, never fatal, and committed.
+  assert.ok(body.indexOf("--family v0.1 --horizon-hours 8") < body.indexOf("--family v0.2 --horizon-hours 8"), "v0.2 builds after v0.1");
+  assert.ok(body.indexOf("--family v0.2 --horizon-hours 8") < body.indexOf("verify-nba-forecast-receipts.mjs --against HEAD"), "v0.2 builds before the frozen-game guard");
+  assert.match(body, /--family v0\.2 --horizon-hours 8 \\\n[^\n]*\|\| echo "::warning::/, "v0.2 refusal warns, never fails");
+  assert.match(body, /git add [^\n]*experimental-v0\.2\//, "the challenger's directory is committed with the others");
 });
