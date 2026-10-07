@@ -13,7 +13,7 @@ import path from "node:path";
 
 import { mlbLeansOfRecord, mlbFirstPitches } from "../results/mlb-leans-of-record.mjs";
 import { winnerOfRecord } from "../results/nfl-model-favored.mjs";
-import { readGradedReceipt, readNflWinnerCorrections } from "../results/nfl-model-favored-io.mjs";
+import { readGradedReceipt, readNflSideCutover, readNflWinnerCorrections } from "../results/nfl-model-favored-io.mjs";
 
 /**
  * ONE ROW PER NFL GAME — the forecast of record (the same rule the Forecast Ledger applies, lib/forecast-ledger/
@@ -132,9 +132,10 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
       for (const e of readJson(path.join(dir, f))?.events ?? []) graded.push({ ...e, _file: f });
     }
     const corrections = readNflWinnerCorrections(ROOT);
+    const cutoverAt = readNflSideCutover(ROOT);
     const out = [];
     for (const { _file: f, ...e } of nflSettlementOfRecord(graded)) {
-      const g = e.grade?.actual?.tie ? (e.grade ?? {}) : { ...e.grade, winner: winnerOfRecord(e, readGradedReceipt(ROOT, e), corrections).winner };
+      const g = e.grade?.actual?.tie ? (e.grade ?? {}) : { ...e.grade, winner: winnerOfRecord(e, readGradedReceipt(ROOT, e), corrections, { cutoverAt }).winner };
       out.push({
         eventId: e.canonicalEventId ?? null,
         when: etDayOf(e.kickoffUtc, f),
@@ -142,6 +143,8 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
         subject: e.matchup ?? null,
         market: "Winner",
         basis: g.winner?.sideBasis ?? null,
+        // Stage 3D: a frozen TOO_CLOSE, or a post-cutover receipt with no valid frozen side, has no side to grade.
+        noPick: !g.actual?.tie && (g.winner?.sideBasis === "TOO_CLOSE" || g.winner?.sideBasis === "NONE" || g.winner?.sideProblem != null),
         predicted: g.winner?.modelFavoured ?? null,
         actual: g.actual?.tie ? "tie" : (g.winner?.outcome ?? null),
         modelProbability: null,

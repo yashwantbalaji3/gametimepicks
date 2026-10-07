@@ -30,6 +30,9 @@ export interface GradedRecord {
   generatedAt: string;
   counts: { counted: number; hits: number; misses: number; voided: number; shown: number; total: number };
   hitRate: number | null;
+  /** Stage 3D: where the graded side came from; "MIXED" means render byBasis, never the pooled counts as one record. */
+  recordBasis?: string;
+  byBasis?: { basis: string; counted: number; hits: number; misses: number; hitRate: number | null }[] | null;
   sampleState: string;
   sampleNote: string;
   picks: GradedPick[];

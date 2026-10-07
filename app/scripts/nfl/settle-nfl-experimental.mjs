@@ -23,8 +23,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { summariseByCohort } from "../../src/lib/sports/nfl/experimental-summary.mjs";
-import { nflWinnerGrade, winnerOfRecord } from "../../src/lib/results/nfl-model-favored.mjs";
-import { readGradedReceipt, readNflWinnerCorrections } from "../../src/lib/results/nfl-model-favored-io.mjs";
+import { nflReceiptWinnerGrade, winnerOfRecord } from "../../src/lib/results/nfl-model-favored.mjs";
+import { readGradedReceipt, readNflSideCutover, readNflWinnerCorrections } from "../../src/lib/results/nfl-model-favored-io.mjs";
 
 const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : f; };
 
@@ -100,6 +100,8 @@ for (const d of fs.readdirSync(receiptsRoot).filter((x) => /^\d{4}-\d{2}-\d{2}$/
   }
 }
 const settleDir = path.join(ROOT, "data/internal/nfl/experimental-settlement");
+/* Stage 3D: receipts generated from the side-decision cutover on are graded on their frozen side only. */
+const sideCutoverAt = readNflSideCutover(ROOT);
 const gradedElsewhere = new Set();
 for (const f of fs.existsSync(settleDir) ? fs.readdirSync(settleDir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x) && x !== `${DATE}.json`) : []) {
   for (const e of read(path.join(settleDir, f))?.events ?? []) if (e?.providerEventId) gradedElsewhere.add(String(e.providerEventId));
@@ -163,7 +165,7 @@ for (const [providerEventId, { file, r }] of receipts) {
       actual: { home: res.ftHome, away: res.ftAway, margin: actualMargin, total: actualTotal, tie },
       // Stage 3C (founder Q4 HIGHER): the model-favored team is the one with the higher frozen win probability, never
       // "P(home) > 0.5" (tie mass can push both under 50%). A frozen published side, once receipts carry one, wins.
-      winner: nflWinnerGrade({ winProbability: s.winProbability, actual: { home: res.ftHome, away: res.ftAway }, publishedSide: r.publishedSide ?? null }),
+      winner: nflReceiptWinnerGrade(r, { home: res.ftHome, away: res.ftAway }, { cutoverAt: sideCutoverAt }),
       margin: { projected: s.margin.median, actual: actualMargin, absError: Math.abs(s.margin.median - actualMargin), insideInterval80: actualMargin >= s.margin.p10 && actualMargin <= s.margin.p90 },
       total: { projected: s.total.median, actual: actualTotal, absError: Math.abs(s.total.median - actualTotal), insideInterval80: actualTotal >= s.total.p10 && actualTotal <= s.total.p90 },
       score: { projected: s.projectedScore, absError: Math.abs(s.projectedScore.home - res.ftHome) + Math.abs(s.projectedScore.away - res.ftAway) },
@@ -220,7 +222,7 @@ const allEvents = [...(prior?.events ?? []), ...events];
 const corrections = readNflWinnerCorrections(ROOT);
 const ofRecord = (e) => {
   if (e?.grade?.actual?.tie) return e;
-  const { winner } = winnerOfRecord(e, readGradedReceipt(ROOT, e), corrections);
+  const { winner } = winnerOfRecord(e, readGradedReceipt(ROOT, e), corrections, { cutoverAt: sideCutoverAt });
   return { ...e, grade: { ...e.grade, winner } };
 };
 const decisive = allEvents.map(ofRecord).filter((e) => e.grade.winner.correct !== null);

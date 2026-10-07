@@ -930,7 +930,9 @@ function buildForecastRecord() {
     topClassAccuracy: f.topClassAccuracy ?? null,
     topClassLabel: f.topClassLabel ?? null,
     uniformReference: f.uniformReference ?? null,
-    pickRecord: f.directional ? { win: f.directional.win, loss: f.directional.loss, push: f.directional.push, basis: f.directional.basis } : null,
+    /* Stage 3D: a family holding both historical model-favored rows and frozen-side rows has no single record; Ask
+       states none rather than pool them (forecast-record.mjs byBasis; the split wording is a 3E reader-parity item). */
+    pickRecord: f.directional && f.directional.label != null ? { win: f.directional.win, loss: f.directional.loss, push: f.directional.push, basis: f.directional.basis } : null,
     latestEvent: f.latestEvent ?? null,
     href: familyHref(s.sport, f.family),
   });

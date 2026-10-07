@@ -20,11 +20,18 @@
  * that disagrees with the rule unless the log restates it, and refuses a log entry the rule does not reproduce: no
  * reader can silently use either rule.
  *
+ * FORWARD (Stage 3D, founder Q3 YES). From the side-decision cutover on (data/internal/nfl/side-decision-cutover.json:
+ * the first receipt the producer froze a `sideDecision` on), a receipt's frozen `sideDecision.publishedSide` (a team or
+ * TOO_CLOSE) is the only side graded. A receipt generated at or after the cutover with no valid side decision has NO
+ * side (NO_PICK, disclosed as MISSING_SIDE_DECISION / INVALID_SIDE_DECISION): the Q4 historical rule never reaches a
+ * forward forecast, and no side is ever worked out after the start.
+ *
  * Pure: no fs. Callers read files and pass parsed objects in.
  */
 import {
   HISTORICAL_MODEL_FAVORED_LABEL, OUTCOME, SIDE_BASIS, outcomeOf, sideOf,
 } from "./forecast-of-record.mjs";
+import { validateSideDecision } from "./side-decision.mjs";
 
 export const NFL_SPORT = "NFL";
 export const NFL_WINNER_FAMILY = "nfl_game_winner";
@@ -59,14 +66,40 @@ function sideProbabilities(wp) {
   return { HOME: wp.home, AWAY: wp.away, ...(isProb(wp.tieMass) ? { TIE: wp.tieMass } : {}) };
 }
 
+export const SIDE_PROBLEM = Object.freeze({
+  /** Generated at/after the cutover with no sideDecision: no side, never inferred. */
+  MISSING_SIDE_DECISION: "MISSING_SIDE_DECISION",
+  /** A sideDecision that fails validation (unknown rule, side, or frozen at/after the start): no side. */
+  INVALID_SIDE_DECISION: "INVALID_SIDE_DECISION",
+});
+
 /**
- * One NFL winner forecast → CanonicalForecast. `publishedSide` is the 3D seam: a receipt that froze a side (or
- * TOO_CLOSE) is graded on it; without one, the Q4 historical model-favored basis applies.
- * @param {{ providerEventId: string|number, canonicalEventId?: string|null, winProbability: object,
- *           publishedSide?: string|null, actual?: { home: number, away: number }|null, receiptId?: string|null,
- *           publishedAt?: string|null, kickoffUtc?: string|null }} a
+ * Which side input a frozen receipt carries (Stage 3D).
+ * @param {object} receipt   frozen NFL forecast receipt
+ * @param {{ cutoverAt?: string|null }} [opts]  side-decision cutover (firstFrozenAt), or null before any exists
+ * @returns {{ publishedSide: string|null, historical: boolean, problem: string|null }}
  */
-export function nflWinnerForecast({ providerEventId, canonicalEventId = null, winProbability, publishedSide = null, actual = null, receiptId = null, publishedAt = null, kickoffUtc = null }) {
+export function nflSideInput(receipt, { cutoverAt = null } = {}) {
+  const d = receipt?.sideDecision;
+  if (d != null) {
+    const bad = validateSideDecision(d, { sides: ["HOME", "AWAY"], startUtc: receipt?.kickoffUtc ?? null });
+    return bad.length ? { publishedSide: null, historical: false, problem: SIDE_PROBLEM.INVALID_SIDE_DECISION } : { publishedSide: d.publishedSide, historical: false, problem: null };
+  }
+  const at = Date.parse(receipt?.generatedAt ?? "");
+  const cut = Date.parse(cutoverAt ?? "");
+  if (Number.isFinite(cut) && !(Number.isFinite(at) && at < cut)) return { publishedSide: null, historical: false, problem: SIDE_PROBLEM.MISSING_SIDE_DECISION };
+  return { publishedSide: null, historical: true, problem: null };
+}
+
+/**
+ * One NFL winner forecast → CanonicalForecast. A frozen `publishedSide` (a team or TOO_CLOSE) is graded as frozen;
+ * with none, `historical` (default true: a pre-cutover receipt) applies the Q4 model-favored basis, and false leaves
+ * the forecast with no side (NO_PICK).
+ * @param {{ providerEventId: string|number, canonicalEventId?: string|null, winProbability: object,
+ *           publishedSide?: string|null, historical?: boolean, actual?: { home: number, away: number }|null,
+ *           receiptId?: string|null, publishedAt?: string|null, kickoffUtc?: string|null }} a
+ */
+export function nflWinnerForecast({ providerEventId, canonicalEventId = null, winProbability, publishedSide = null, historical = true, actual = null, receiptId = null, publishedAt = null, kickoffUtc = null }) {
   const settled = actual != null && Number.isInteger(actual.home) && Number.isInteger(actual.away);
   const id = providerEventId == null ? null : String(providerEventId);
   return {
@@ -80,7 +113,7 @@ export function nflWinnerForecast({ providerEventId, canonicalEventId = null, wi
     canonicalStart: kickoffUtc,
     receiptId,
     frozenSide: typeof publishedSide === "string" && publishedSide ? publishedSide : null,
-    sideBasis: typeof publishedSide === "string" && publishedSide ? null : SIDE_BASIS.HISTORICAL_MODEL_FAVORED,
+    sideBasis: (typeof publishedSide === "string" && publishedSide) || !historical ? null : SIDE_BASIS.HISTORICAL_MODEL_FAVORED,
     sideProbabilities: sideProbabilities(winProbability),
     state: settled ? "SETTLED" : "PENDING",
     finalSide: settled ? (actual.home > actual.away ? "HOME" : actual.home < actual.away ? "AWAY" : "TIE") : null,
@@ -96,8 +129,8 @@ export function nflModelFavored(winProbability) {
  * The settler's `grade.winner` block under the rule (same shape the dated files carry, plus `sideBasis` and `rule`).
  * `modelFavoured` keeps its historical spelling; "EVEN" is an exact tie between the teams (no side).
  */
-export function nflWinnerGrade({ winProbability, actual, publishedSide = null }) {
-  const f = nflWinnerForecast({ providerEventId: "x", winProbability, actual, publishedSide });
+export function nflWinnerGrade({ winProbability, actual, publishedSide = null, historical = true }) {
+  const f = nflWinnerForecast({ providerEventId: "x", winProbability, actual, publishedSide, historical });
   const { side, basis } = sideOf(f);
   const o = outcomeOf(f);
   if (f.finalSide === "TIE") return { outcome: "TIE", correct: null, note: "a tie has no winner side; excluded from the decisive denominator" };
@@ -108,6 +141,13 @@ export function nflWinnerGrade({ winProbability, actual, publishedSide = null })
     sideBasis: basis,
     rule: basis === SIDE_BASIS.HISTORICAL_MODEL_FAVORED ? NFL_MODEL_FAVORED_RULE : null,
   };
+}
+
+/** nflWinnerGrade for a frozen receipt: its side decision (3D) or, before the cutover, the Q4 rule. */
+export function nflReceiptWinnerGrade(receipt, actual, { cutoverAt = null } = {}) {
+  const side = nflSideInput(receipt, { cutoverAt });
+  const g = nflWinnerGrade({ winProbability: receipt?.forecastSummary?.winProbability, actual, publishedSide: side.publishedSide, historical: side.historical });
+  return side.problem && g.outcome !== "TIE" ? { ...g, sideProblem: side.problem } : g;
 }
 
 const sameWinner = (a, b) => (a?.modelFavoured ?? null) === (b?.modelFavoured ?? null) && (a?.correct ?? null) === (b?.correct ?? null);
@@ -141,7 +181,7 @@ export function indexCorrections(logs) {
  * @param {Map<string, object>} corrections  indexCorrections() output
  * @returns {{ winner: object, correction: object|null }}
  */
-export function winnerOfRecord(event, receipt, corrections = new Map()) {
+export function winnerOfRecord(event, receipt, corrections = new Map(), { cutoverAt = null } = {}) {
   const stored = event?.grade?.winner ?? null;
   const actual = event?.grade?.actual ?? null;
   const wp = receipt?.forecastSummary?.winProbability ?? null;
@@ -151,11 +191,11 @@ export function winnerOfRecord(event, receipt, corrections = new Map()) {
     if (entry) throw new Error(`nfl winner: ${id} has a correction but no frozen receipt to check it against`);
     return { winner: stored, correction: null }; // no frozen probabilities: nothing to restate (missing stays missing)
   }
-  const ruled = nflWinnerGrade({ winProbability: wp, actual, publishedSide: receipt?.publishedSide ?? null });
+  const ruled = nflReceiptWinnerGrade(receipt, actual, { cutoverAt });
   if (ruled.outcome === "TIE") return { winner: stored ?? ruled, correction: null };
   if (sameWinner(stored, ruled)) {
     if (entry) throw new Error(`nfl winner: ${id} is listed in ${entry.file} but its stored grade already follows the rule`);
-    return { winner: { ...stored, sideBasis: ruled.sideBasis, rule: ruled.rule }, correction: null };
+    return { winner: { ...stored, sideBasis: ruled.sideBasis, rule: ruled.rule, ...(ruled.sideProblem ? { sideProblem: ruled.sideProblem } : {}) }, correction: null };
   }
   if (!entry) throw new Error(`nfl winner: ${id} stored grade ${JSON.stringify({ modelFavoured: stored?.modelFavoured, correct: stored?.correct })} breaks the rule (${JSON.stringify({ modelFavoured: ruled.modelFavoured, correct: ruled.correct })}) and no correction restates it`);
   if (!sameWinner(entry.after, ruled)) throw new Error(`nfl winner: ${id} correction in ${entry.file} does not reproduce the rule`);
@@ -167,12 +207,12 @@ export function winnerOfRecord(event, receipt, corrections = new Map()) {
  * committed log restates yet. Used by scripts/results/nfl-winner-corrections.mjs.
  * @param {Array<{ event: object, receipt: object, gradedIn: string }>} graded
  */
-export function pendingCorrections(graded, corrections = new Map()) {
+export function pendingCorrections(graded, corrections = new Map(), { cutoverAt = null } = {}) {
   const out = [];
   for (const { event, receipt, gradedIn } of graded ?? []) {
     const wp = receipt?.forecastSummary?.winProbability ?? null;
     if (!wp) continue;
-    const ruled = nflWinnerGrade({ winProbability: wp, actual: event?.grade?.actual ?? null, publishedSide: receipt?.publishedSide ?? null });
+    const ruled = nflReceiptWinnerGrade(receipt, event?.grade?.actual ?? null, { cutoverAt });
     const stored = event?.grade?.winner ?? null;
     if (ruled.outcome === "TIE" || sameWinner(stored, ruled) || corrections.has(String(event.providerEventId))) continue;
     out.push({
