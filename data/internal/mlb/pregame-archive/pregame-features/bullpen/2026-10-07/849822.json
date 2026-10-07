@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849822,
+  "date": "2026-10-07",
+  "capturedAt": "2026-10-07T00:15:10.049Z",
+  "availableAt": "2026-10-07T00:15:10.049Z",
+  "eventStartTime": "2026-10-07T22:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-10-04",
+    "2026-10-05",
+    "2026-10-06"
+  ],
+  "home": {
+    "teamId": 144,
+    "teamName": "Atlanta Braves",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 96,
+      "relievers": [
+        {
+          "id": 800311,
+          "name": "Didier Fuentes",
+          "appearances": 1,
+          "pitches": 47,
+          "outs": 11,
+          "dates": [
+            "2026-10-04"
+          ]
+        },
+        {
+          "id": 656550,
+          "name": "Grant Holmes",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-10-04"
+          ]
+        },
+        {
+          "id": 663158,
+          "name": "Robert Suarez",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-10-04"
+          ]
+        },
+        {
+          "id": 669276,
+          "name": "Dylan Lee",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 2,
+          "dates": [
+            "2026-10-04"
+          ]
+        },
+        {
+          "id": 628452,
+          "name": "Raisel Iglesias",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-10-04"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 119,
+    "teamName": "Los Angeles Dodgers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 6,
+      "pitches": 92,
+      "relievers": [
+        {
+          "id": 808963,
+          "name": "Roki Sasaki",
+          "appearances": 1,
+          "pitches": 36,
+          "outs": 6,
+          "dates": [
+            "2026-10-04"
+          ]
+        },
+        {
+          "id": 683618,
+          "name": "Edgardo Henriquez",
+          "appearances": 1,
+          "pitches": 21,
+          "outs": 3,
+          "dates": [
+            "2026-10-04"
+          ]
+        },
+        {
+          "id": 663460,
+          "name": "Kris Bubic",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 2,
+          "dates": [
+            "2026-10-04"
+          ]
+        },
+        {
+          "id": 621242,
+          "name": "Edwin Díaz",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-10-04"
+          ]
+        },
+        {
+          "id": 623465,
+          "name": "Evan Phillips",
+          "appearances": 1,
+          "pitches": 4,
+          "outs": 1,
+          "dates": [
+            "2026-10-04"
+          ]
+        },
+        {
+          "id": 592779,
+          "name": "Brock Stewart",
+          "appearances": 1,
+          "pitches": 2,
+          "outs": 1,
+          "dates": [
+            "2026-10-04"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-10-04,2026-10-05,2026-10-06) + feed/live box scores",
+    "capturedAt": "2026-10-07T00:15:10.049Z"
+  },
+  "recordHash": "7cb49ceb26ecfe83344320a55a2ccfecccbdc7d89a2bb1baab844cde20053bc8"
+}

@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849838,
+  "date": "2026-10-07",
+  "capturedAt": "2026-10-07T00:15:10.049Z",
+  "availableAt": "2026-10-07T00:15:10.049Z",
+  "eventStartTime": "2026-10-08T00:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-10-04",
+    "2026-10-05",
+    "2026-10-06"
+  ],
+  "home": {
+    "teamId": 147,
+    "teamName": "New York Yankees",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 5,
+      "pitches": 61,
+      "relievers": [
+        {
+          "id": 687396,
+          "name": "Brent Headrick",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 2,
+          "dates": [
+            "2026-10-05"
+          ]
+        },
+        {
+          "id": 670167,
+          "name": "John Schreiber",
+          "appearances": 1,
+          "pitches": 15,
+          "outs": 3,
+          "dates": [
+            "2026-10-05"
+          ]
+        },
+        {
+          "id": 677960,
+          "name": "Ryan Weathers",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 2,
+          "dates": [
+            "2026-10-05"
+          ]
+        },
+        {
+          "id": 621112,
+          "name": "Paul Blackburn",
+          "appearances": 1,
+          "pitches": 12,
+          "outs": 3,
+          "dates": [
+            "2026-10-05"
+          ]
+        },
+        {
+          "id": 670280,
+          "name": "David Bednar",
+          "appearances": 1,
+          "pitches": 3,
+          "outs": 1,
+          "dates": [
+            "2026-10-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 58,
+      "relievers": [
+        {
+          "id": 693855,
+          "name": "Ian Seymour",
+          "appearances": 1,
+          "pitches": 41,
+          "outs": 9,
+          "dates": [
+            "2026-10-05"
+          ]
+        },
+        {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 1,
+          "pitches": 9,
+          "outs": 3,
+          "dates": [
+            "2026-10-05"
+          ]
+        },
+        {
+          "id": 592155,
+          "name": "Cam Booser",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 1,
+          "dates": [
+            "2026-10-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-10-04,2026-10-05,2026-10-06) + feed/live box scores",
+    "capturedAt": "2026-10-07T00:15:10.049Z"
+  },
+  "recordHash": "35239b6ffee9a88a18ba4016dad62b99c62d64643c8779defd41915f64eca67d"
+}

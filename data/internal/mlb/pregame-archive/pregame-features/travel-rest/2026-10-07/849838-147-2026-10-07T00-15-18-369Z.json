@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 849838,
+  "teamId": 147,
+  "name": "New York Yankees",
+  "side": "home",
+  "date": "2026-10-07",
+  "capturedAt": "2026-10-07T00:15:18.369Z",
+  "availableAt": "2026-10-07T00:15:18.369Z",
+  "eventStartTime": "2026-10-08T00:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 2,
+  "gamesLast7": 3,
+  "gamesLast10": 4,
+  "travelDistanceKm": 1656.7,
+  "previousGameDate": "2026-10-05",
+  "previousVenueId": 12,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=147&startDate=2026-09-23&endDate=2026-10-06",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-10-07T00:15:18.369Z"
+  },
+  "recordHash": "b1f0c982515b61efb8f8eb370caac881bb7638a082ca47c684f049459691bf0b"
+}

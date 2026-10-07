@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849833,
+  "date": "2026-10-07",
+  "capturedAt": "2026-10-07T00:15:10.049Z",
+  "availableAt": "2026-10-07T00:15:10.049Z",
+  "eventStartTime": "2026-10-07T20:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-10-04",
+    "2026-10-05",
+    "2026-10-06"
+  ],
+  "home": {
+    "teamId": 145,
+    "teamName": "Chicago White Sox",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 130,
+      "relievers": [
+        {
+          "id": 680732,
+          "name": "Sean Burke",
+          "appearances": 1,
+          "pitches": 83,
+          "outs": 16,
+          "dates": [
+            "2026-10-05"
+          ]
+        },
+        {
+          "id": 656794,
+          "name": "Sean Newcomb",
+          "appearances": 1,
+          "pitches": 40,
+          "outs": 6,
+          "dates": [
+            "2026-10-05"
+          ]
+        },
+        {
+          "id": 691799,
+          "name": "Grant Taylor",
+          "appearances": 1,
+          "pitches": 7,
+          "outs": 4,
+          "dates": [
+            "2026-10-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 114,
+    "teamName": "Cleveland Guardians",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 4,
+      "pitches": 49,
+      "relievers": [
+        {
+          "id": 683769,
+          "name": "Hunter Gaddis",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-10-05"
+          ]
+        },
+        {
+          "id": 542888,
+          "name": "Shawn Armstrong",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 4,
+          "dates": [
+            "2026-10-05"
+          ]
+        },
+        {
+          "id": 681870,
+          "name": "Erik Sabrowski",
+          "appearances": 1,
+          "pitches": 11,
+          "outs": 2,
+          "dates": [
+            "2026-10-05"
+          ]
+        },
+        {
+          "id": 671922,
+          "name": "Cade Smith",
+          "appearances": 1,
+          "pitches": 5,
+          "outs": 3,
+          "dates": [
+            "2026-10-05"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-10-04,2026-10-05,2026-10-06) + feed/live box scores",
+    "capturedAt": "2026-10-07T00:15:10.049Z"
+  },
+  "recordHash": "c5472961c68212157df4871b8a490834ecf84fbc533f484edd444fec946121d5"
+}
