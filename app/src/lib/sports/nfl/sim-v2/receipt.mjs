@@ -163,7 +163,12 @@ export function representativeIndices(batch, homeFavoured) {
 /**
  * Build the receipt. `generatedAt` is the only clock and is excluded from `artifactHash`.
  */
-export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt, inputs, postseason = false }) {
+/*
+ * NS-1: `anchoring` (optional) records how the tilts were solved against the validated heads, and `idPrefix` keeps
+ * head-anchored receipts in their own id namespace. Both absent (the existing median-anchored producer) → the
+ * receipt is byte-identical to before.
+ */
+export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt, inputs, postseason = false, anchoring = null, idPrefix = "nfl-sim-v2" }) {
   const n = batch.runs;
   let hw = 0;
   let aw = 0;
@@ -238,7 +243,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
 
   const body = {
     schemaVersion: SIMULATION_RECEIPT_SCHEMA,
-    simulationReceiptId: `nfl-sim-v2:${event.eventId}:${inputHash}`,
+    simulationReceiptId: `${idPrefix}:${event.eventId}:${inputHash}`,
     sport: "NFL",
     eventId: event.eventId,
     eventStart: event.kickoffUtc,
@@ -258,6 +263,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
     runSchemaVersion: RUN_SCHEMA_VERSION,
     params: paramsRef,
     calibration: { anchors: { home: anchors.home, away: anchors.away, source: anchors.source }, thetas: calibration.thetas.map(r4), calibratedMean: calibration.achieved.map(r2) },
+    ...(anchoring ? { anchoring } : {}),
     aggregate: {
       winProbability: { home: r4(hw / n), away: r4(aw / n), tie: r4(ties / n) },
       overtimeProbability: r4(ots / n),

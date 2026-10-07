@@ -42,18 +42,26 @@ jobs:
         run: |
           set -euo pipefail
           node app/scripts/nfl/build-nfl-sim-v2-shadow.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      # NS-1 (architecture audit §8A, founder F-5): the same games with the tilts solved against the validated win and
+      # totals heads, written to their own directory (anchored-shadow/) that no page reads. A failure here goes red but
+      # does not stop the median-anchored receipts above from committing.
+      - name: Simulate the same games anchored to the validated heads (shadow, write-once)
+        run: |
+          set -euo pipefail
+          node app/scripts/nfl/build-nfl-sim-v2-shadow.mjs --anchor heads --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
       - name: Commit new shadow receipts (add-only)
+        if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          mkdir -p data/internal/research/nfl/sim-v2/shadow
-          git add data/internal/research/nfl/sim-v2/shadow/
+          mkdir -p data/internal/research/nfl/sim-v2/shadow data/internal/research/nfl/sim-v2/anchored-shadow
+          git add data/internal/research/nfl/sim-v2/shadow/ data/internal/research/nfl/sim-v2/anchored-shadow/
           if git diff --cached --quiet; then
             echo "no new shadow receipt (inputs unchanged or no game inside 8 days)"
             exit 0
           fi
-          if git diff --cached --name-status -- data/internal/research/nfl/sim-v2/shadow/ | grep -v '^A'; then
+          if git diff --cached --name-status -- data/internal/research/nfl/sim-v2/shadow/ data/internal/research/nfl/sim-v2/anchored-shadow/ | grep -v '^A'; then
             echo "::error::a shadow receipt would be MODIFIED or deleted — write-once violated, refusing to commit"
             exit 1
           fi
