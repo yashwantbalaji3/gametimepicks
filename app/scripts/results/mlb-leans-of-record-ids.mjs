@@ -9,12 +9,13 @@
  *
  *   node app/scripts/results/mlb-leans-of-record-ids.mjs --leans <mlb_settled_leans.jsonl> [--games <game-predictions-graded.jsonl>]
  *
- * Output: { schemaVersion, sourceRows, recordIds: [...], notOfRecordIds: [...], excluded, timingUnverified, startSources }
+ * Output: { schemaVersion, sourceRows, recordIds: [...], notOfRecordIds: [...], excluded, disclosure, timingUnverified,
+ *          startSources }. `disclosure` is the exact block graded-picks.json publishes, so the two writers disclose alike.
  * Exit 1 when --leans is missing or unreadable (the caller fails closed: no summary is better than a second rule).
  */
 import fs from "node:fs";
 
-import { mlbFirstPitches, mlbLeansOfRecord } from "../../src/lib/results/mlb-leans-of-record.mjs";
+import { mlbFirstPitches, mlbLeansOfRecord, mlbOfRecordDisclosure } from "../../src/lib/results/mlb-leans-of-record.mjs";
 
 const arg = (f) => { const i = process.argv.indexOf(f); return i > -1 ? process.argv[i + 1] ?? null : null; };
 const readJsonl = (p) => fs.readFileSync(p, "utf8").split("\n").filter((l) => l.trim())
@@ -35,6 +36,7 @@ process.stdout.write(JSON.stringify({
   recordIds: [...sel.recordIds],
   notOfRecordIds: [...sel.notOfRecordIds],
   excluded: sel.excluded,
+  disclosure: mlbOfRecordDisclosure(sel),
   timingUnverified: sel.timingUnverified,
   startSources: sel.startSources,
 }) + "\n");

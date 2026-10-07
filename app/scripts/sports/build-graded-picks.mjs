@@ -63,7 +63,7 @@ for (const s of SPORTS) {
   /* Stage 3B: the MLB record counts each lean once (forecast of record); what it left out is disclosed, never hidden. */
   if (s.sport === "mlb" && mlbLeanSelection()) artifact.notOfRecord = mlbOfRecordDisclosure(mlbLeanSelection());
   const out = path.join(APP, "public", "data", s.sport, "graded-picks.json");
-  console.log(`${s.sport}: ${record.counts.counted} graded · ${record.counts.hits} hit · ${record.counts.voided} void · ${record.sampleState}${artifact.notOfRecord ? ` · not of record: ${artifact.notOfRecord.superseded} superseded, ${artifact.notOfRecord.late} late, ${artifact.notOfRecord.conflictRows} conflict, ${artifact.notOfRecord.unkeyed} unkeyed` : ""}`);
+  console.log(`${s.sport}: ${record.counts.counted} graded · ${record.counts.hits} hit · ${record.counts.voided} void · ${record.sampleState}${artifact.notOfRecord ? ` · not of record: ${artifact.notOfRecord.superseded} superseded, ${artifact.notOfRecord.late} late, ${artifact.notOfRecord.conflictRows} conflict, ${artifact.notOfRecord.ambiguousRevision} ambiguous, ${artifact.notOfRecord.unkeyed} unkeyed` : ""}`);
   if (WRITE) { fs.mkdirSync(path.dirname(out), { recursive: true }); fs.writeFileSync(out, JSON.stringify(artifact, null, 1) + "\n"); wrote += 1; }
 }
 console.log(WRITE ? `wrote ${wrote} artifact(s)` : "dry run — pass --write to publish");

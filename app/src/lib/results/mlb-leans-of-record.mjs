@@ -11,9 +11,13 @@
  * MAPPING (owner row → CanonicalForecast). Founder decisions 2026-10-06 22:22Z:
  *   - Question (Q1): MLB | gamePk | PLAYER | playerId | marketKey. The board date, the providerEventId and the row id
  *     are NOT identity (all three change when a postponed game is re-issued).
- *   - Claim (Q2): the line. Distinct lines on the same board are two claims. A later board's lean replaces the earlier
- *     board's lean for the same question (including a changed line or side). No claimId: the ledger carries no
- *     lineage id that survives a re-issue.
+ *   - Claim (Q2): the line. Distinct lines on the same board are two claims. No claimId and no board provenance: the
+ *     ledger carries no lineage id that survives a re-issue (protocol/evidence/stage-3a/REVISION_LINEAGE_EVIDENCE.md,
+ *     verdict C). So the contract's claim-slot rule applies (founder ruling 2026-10-07 00:25Z): a later board's lean
+ *     replaces only the earlier lean it revises one-to-one (same side, the line moved; or the same line restated). An
+ *     earlier lean no later lean shares a side or a line with stays its own forecast (Over 0.5 + Under 1.5, then
+ *     Over 2.5 ⇒ Over 2.5 and Under 1.5 are of record). Any other relation is AMBIGUOUS_REVISION: kept in the raw
+ *     ledger, disclosed, excluded from the W–L, never a loss and never assumed replaced.
  *   - publishedAt: the board date at day precision (`<date>T00:00:00Z`). The ledger records no publication instant,
  *     so copies on one board are simultaneous and copies on different boards are ordered by date.
  *   - Canonical start (Q1, 3A review point a): supplied for every game, never the original start of a postponed game:
@@ -118,8 +122,9 @@ export function mlbFirstPitches(gameRows) {
  *   record: object[],            owner rows of record, in input order (the only rows a W–L may count)
  *   isOfRecord: (row: object) => boolean,
  *   recordIds: Set<string>,      owner `id`s of the rows of record
- *   notOfRecordIds: Set<string>, owner `id`s of every other row (superseded, late, conflict, unkeyed)
- *   excluded: { superseded: number, late: number, conflicts: number, conflictRows: number, unkeyed: number },
+ *   notOfRecordIds: Set<string>, owner `id`s of every other row (superseded, late, conflict, ambiguous, unkeyed)
+ *   excluded: { superseded: number, late: number, conflicts: number, conflictRows: number, ambiguousRevision: number,
+ *               unkeyed: number },
  *   tally: ReturnType<typeof tally>,
  *   timingUnverified: number, cutoffFromEventStart: number,
  *   startSources: Record<string, number>   games by canonical-start source
@@ -150,6 +155,7 @@ export function mlbLeansOfRecord(leans, { firstPitches } = {}) {
       late: sel.late.length,
       conflicts: sel.conflicts.length,
       conflictRows: sel.conflicts.reduce((n, c) => n + c.rows.length, 0),
+      ambiguousRevision: sel.ambiguous.length,
       unkeyed: sel.unkeyed.length,
     },
     tally: tally(sel.record),
@@ -159,13 +165,17 @@ export function mlbLeansOfRecord(leans, { firstPitches } = {}) {
   };
 }
 
+/** The rule sentence every MLB lean record discloses (graded-picks.json, model-index.json, lifetime_summary.json). */
+export const MLB_OF_RECORD_RULE = "forecast-of-record: each lean claim counts once, as its last version on a board before the game's canonical start; a later board replaces only the lean it revises (same side or same line), earlier-board copies stay in the raw ledger and are not counted, and a lean whose replacement is ambiguous is kept, disclosed and not counted";
+
 /** The disclosure a published MLB lean record carries: what was left out of the W–L and why (never a loss, never 0). */
 export function mlbOfRecordDisclosure(sel) {
   return {
-    rule: "forecast-of-record: one lean per game · player · market (the last board before the game's canonical start); earlier-board copies of a re-issued lean stay in the raw ledger and are not counted",
+    rule: MLB_OF_RECORD_RULE,
     superseded: sel.excluded.superseded,
     late: sel.excluded.late,
     conflictRows: sel.excluded.conflictRows,
+    ambiguousRevision: sel.excluded.ambiguousRevision,
     unkeyed: sel.excluded.unkeyed,
   };
 }

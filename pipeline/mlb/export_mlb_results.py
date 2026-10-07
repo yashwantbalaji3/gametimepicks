@@ -106,7 +106,7 @@ def _load_comparison_reports() -> dict[str, dict]:
 def _of_record(rows: list[dict]) -> tuple[list[dict], dict]:
     """Rows of record + the disclosure, from the JS rule. Raises when it cannot be applied (fail closed)."""
     if not rows:
-        return [], {"superseded": 0, "late": 0, "conflictRows": 0, "unkeyed": 0}
+        return [], {"superseded": 0, "late": 0, "conflictRows": 0, "ambiguousRevision": 0, "unkeyed": 0}
     ids = [r.get("id") for r in rows]
     if any(not isinstance(i, str) or not i for i in ids):
         raise RuntimeError("forecast of record: a settled lean has no id — it cannot be matched to the rule's output")
@@ -124,14 +124,10 @@ def _of_record(rows: list[dict]) -> tuple[list[dict], dict]:
     not_ids = set(sel["notOfRecordIds"])
     if sel.get("sourceRows") != len(rows) or record_ids | not_ids != set(ids) or record_ids & not_ids:
         raise RuntimeError("forecast of record: the rule's output does not cover exactly the rows read here")
-    ex = sel.get("excluded") or {}
-    disclosure = {
-        "rule": "forecast-of-record: one lean per game · player · market (the last board before the game's canonical start); earlier-board copies of a re-issued lean stay in settled_leans.jsonl and are not counted",
-        "superseded": ex.get("superseded", 0),
-        "late": ex.get("late", 0),
-        "conflictRows": ex.get("conflictRows", 0),
-        "unkeyed": ex.get("unkeyed", 0),
-    }
+    # The disclosure block is the JS rule's own (same text and keys as graded-picks.json), never re-worded here.
+    disclosure = sel.get("disclosure")
+    if not isinstance(disclosure, dict) or not isinstance(disclosure.get("rule"), str):
+        raise RuntimeError("forecast of record: the rule's output carries no disclosure block")
     return [r for r in rows if r["id"] in record_ids], disclosure
 
 

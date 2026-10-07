@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
 import {
-  START_SOURCE, mlbLeanToCanonical, mlbCanonicalStarts, mlbFirstPitches, mlbLeansOfRecord, mlbOfRecordDisclosure,
+  START_SOURCE, mlbLeanToCanonical, mlbCanonicalStarts, mlbFirstPitches, mlbLeansOfRecord, mlbOfRecordDisclosure, MLB_OF_RECORD_RULE,
 } from "./mlb-leans-of-record.mjs";
 import { selectForecastOfRecord, OUTCOME, outcomeOf } from "./forecast-of-record.mjs";
 import { makeGradedPickOwners } from "../sports/graded-pick-owners.mjs";
@@ -61,8 +61,8 @@ test("824785: each game · player · market lean counts ONCE, on the board of re
   assert.equal(sel.excluded.superseded, E.superseded.rows);
   assert.equal(E.naive.win - sel.tally.win, E.superseded.win);
   assert.equal(E.naive.loss - sel.tally.loss, E.superseded.loss);
-  assert.deepEqual({ late: sel.excluded.late, conflictRows: sel.excluded.conflictRows, unkeyed: sel.excluded.unkeyed },
-    { late: 0, conflictRows: 0, unkeyed: 0 });
+  assert.deepEqual({ late: sel.excluded.late, conflictRows: sel.excluded.conflictRows, ambiguousRevision: sel.excluded.ambiguousRevision, unkeyed: sel.excluded.unkeyed },
+    { late: 0, conflictRows: 0, ambiguousRevision: 0, unkeyed: 0 });
   // the re-issued board holds every one of its leans of record; the original board keeps only leans never re-issued
   const byDate = sel.record.reduce((a, r) => ({ ...a, [r.date]: (a[r.date] ?? 0) + 1 }), {});
   assert.deepEqual(byDate, E.record.byDate);
@@ -77,7 +77,7 @@ test("824785: raw rows are preserved — every row is either of record or disclo
   assert.equal(JSON.stringify(leans), before, "the owner rows are not mutated");
   assert.equal(sel.recordIds.size + sel.notOfRecordIds.size, leans.length);
   for (const r of leans) assert.ok(sel.recordIds.has(r.id) !== sel.notOfRecordIds.has(r.id), `${r.id} is in exactly one set`);
-  assert.deepEqual(mlbOfRecordDisclosure(sel), { rule: mlbOfRecordDisclosure(sel).rule, superseded: E.superseded.rows, late: 0, conflictRows: 0, unkeyed: 0 });
+  assert.deepEqual(mlbOfRecordDisclosure(sel), { rule: MLB_OF_RECORD_RULE, superseded: E.superseded.rows, late: 0, conflictRows: 0, ambiguousRevision: 0, unkeyed: 0 });
 });
 
 /* ── 2 · the canonical start is the rescheduled one (3A review point a) ───────────────────────── */
@@ -116,13 +116,35 @@ test("a copy's own board start is never a fallback cut-off: with no start known,
 
 const lean = (o) => ({ id: o.id, date: "2026-07-01", gamePk: 900001, playerId: 1, marketKey: "batter_hits", line: 0.5, lean: "Over", outcome: "Win", graded: true, ...o });
 
-test("Q2 TWO: two lines on the same board are two claims; a later board's revised line supersedes both", () => {
+test("Q2 TWO: two lines on the same board are two claims", () => {
   const sameBoard = [lean({ id: "a", line: 0.5 }), lean({ id: "b", line: 1.5, lean: "Under", outcome: "Loss" })];
-  assert.equal(mlbLeansOfRecord(sameBoard).record.length, 2);
-  const revised = [...sameBoard, lean({ id: "c", date: "2026-07-02", line: 2.5 })];
-  const sel = mlbLeansOfRecord(revised);
-  assert.deepEqual(sel.record.map((r) => r.id), ["c"]);
-  assert.equal(sel.excluded.superseded, 2);
+  const sel = mlbLeansOfRecord(sameBoard);
+  assert.deepEqual(sel.record.map((r) => r.id), ["a", "b"]);
+  assert.equal(sel.tally.decided, 2);
+});
+
+test("founder 00:25Z case: a later board's Over revises only the earlier Over; the untouched Under stays of record", () => {
+  // Over 0.5 + Under 1.5 on 07-01, then only Over 2.5 on 07-02 (no lineage, no board provenance in the ledger).
+  const rows = [lean({ id: "o05", line: 0.5 }), lean({ id: "u15", line: 1.5, lean: "Under", outcome: "Loss" }),
+    lean({ id: "o25", date: "2026-07-02", line: 2.5, outcome: "Loss" })];
+  const sel = mlbLeansOfRecord(rows);
+  assert.deepEqual(sel.record.map((r) => r.id).sort(), ["o25", "u15"]);
+  assert.deepEqual([...sel.notOfRecordIds], ["o05"]);
+  assert.equal(sel.excluded.superseded, 1);
+  assert.equal(sel.excluded.ambiguousRevision, 0);
+  assert.deepEqual([sel.tally.win, sel.tally.loss], [0, 2]);
+});
+
+test("ambiguous re-issue (two earlier Overs, one later Over): both earlier kept out of the W–L, disclosed, never a loss", () => {
+  const rows = [lean({ id: "o05", line: 0.5, outcome: "Loss" }), lean({ id: "o15", line: 1.5, outcome: "Loss" }),
+    lean({ id: "o25", date: "2026-07-02", line: 2.5 })];
+  const sel = mlbLeansOfRecord(rows);
+  assert.deepEqual(sel.record.map((r) => r.id), ["o25"]);
+  assert.equal(sel.excluded.ambiguousRevision, 2);
+  assert.equal(sel.excluded.superseded, 0);
+  assert.ok(sel.notOfRecordIds.has("o05") && sel.notOfRecordIds.has("o15"));
+  assert.equal(sel.tally.loss, 0, "an ambiguous earlier lean is never a loss");
+  assert.equal(mlbOfRecordDisclosure(sel).ambiguousRevision, 2);
 });
 
 test("a board published after first pitch is late, never of record; a row without player id is unkeyed (Q5)", () => {
