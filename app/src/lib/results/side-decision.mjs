@@ -26,7 +26,9 @@ export const SIDE_DECISION_SCHEMA = "side-decision@1";
 
 /** Side rules a producer may freeze under. Adding one is a product/model decision, recorded here. */
 export const SIDE_RULE = Object.freeze({
-  /** The side with the higher frozen probability (non-side mass such as a tie is ignored); equal sides: TOO_CLOSE. */
+  /** The side with the higher frozen probability (non-side mass such as a tie is ignored); equal sides: TOO_CLOSE.
+      Founder F3D-1 YES (2026-10-07 03:21Z, cmsg_018esqVkc9tL9hjPpUhCNowm61RB59h7ePH7bq1LFDx3qQ): the forward NFL
+      winner side; TOO_CLOSE only on an exact tie, no abstention band; frozen before kickoff, never reconstructed. */
   MODEL_FAVORED_V1: "MODEL_FAVORED_V1",
 });
 
