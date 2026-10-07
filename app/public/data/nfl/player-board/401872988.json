@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T20:06:53Z",
- "sourceGeneratedAt": "2026-10-07T20:06:53Z",
+ "generatedAt": "2026-10-07T20:32:23Z",
+ "sourceGeneratedAt": "2026-10-07T20:32:23Z",
  "providerEventId": "401872988",
  "matchup": "NYG @ WSH",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T20:06:53Z",
-  "roleEvidenceAt": "2026-10-07T20:06:53Z",
+  "injuriesCapturedAt": "2026-10-07T20:32:23Z",
+  "roleEvidenceAt": "2026-10-07T20:32:23Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -178,7 +178,7 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4361050",
@@ -325,7 +325,7 @@
       "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4432722",
@@ -352,7 +352,7 @@
       "anytime_td",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-2576980",
@@ -446,7 +446,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4361577",
@@ -547,17 +547,30 @@
     "state": "CONSERVED"
    },
    {
+    "team": "WSH",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.7819,
+    "originalSum": 0.7819,
+    "residualOther": 0.2181,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "NYG",
     "pool": "targets",
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.8347,
-    "originalSum": 0.8347,
-    "residualOther": 0.1653,
-    "joined": 7,
+    "sum": 0.7384,
+    "originalSum": 0.7384,
+    "residualOther": 0.2616,
+    "joined": 6,
     "missed": 0,
-    "state": "CONSERVED"
+    "state": "UNDER_ALLOCATED"
    },
    {
     "team": "WSH",
@@ -565,10 +578,10 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.5966,
-    "originalSum": 0.5966,
-    "residualOther": 0.4034,
-    "joined": 6,
+    "sum": 0.489,
+    "originalSum": 0.489,
+    "residualOther": 0.511,
+    "joined": 5,
     "missed": 0,
     "state": "UNDER_ALLOCATED"
    }
@@ -610,7 +623,7 @@
    "playerId": "nfl-athlete-4696981",
    "name": "Cam Skattebo",
    "team": "NYG",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
      "mean": 39.154,
@@ -739,7 +752,7 @@
    "playerId": "nfl-athlete-4575131",
    "name": "Jacory Croskey-Merritt",
    "team": "WSH",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
      "mean": 29.602,
@@ -988,7 +1001,7 @@
    "playerId": "nfl-athlete-4360635",
    "name": "Chig Okonkwo",
    "team": "WSH",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 14.53,
@@ -1039,7 +1052,7 @@
    "playerId": "nfl-athlete-4426348",
    "name": "Jayden Daniels",
    "team": "WSH",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 21.51,
