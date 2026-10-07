@@ -1,0 +1,271 @@
+{
+  "_about": "Stage 3A fixtures for lib/results/forecast-of-record.mjs (founder decisions 2026-10-06: Q1 YES, Q2 TWO, Q3 YES, Q4 HIGHER, Q5 EXCLUDE). Synthetic rows shaped like the real owners; the probabilities in historicalNflWinner are copied from two frozen 2026 NFL receipts (CIN @ PIT 401872950, LAR @ PHI 401872970) because those are the cases Q4 decides. No live counts are pinned.",
+
+  "reissued": [
+    { "sport": "NFL", "eventId": "9001", "subjectType": "GAME", "subjectId": "nfl-9001", "family": "nfl_game_winner",
+      "publishedAt": "2026-09-27T23:40:42Z", "eventStart": "2026-09-28T00:20:00Z", "receiptId": "receipts/2026-09-27/9001.json",
+      "modelVersion": "v1", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "HOME", "tag": "superseded" },
+    { "sport": "NFL", "eventId": "9001", "subjectType": "GAME", "subjectId": "nfl-9001", "family": "nfl_game_winner",
+      "publishedAt": "2026-09-28T00:17:41Z", "eventStart": "2026-09-28T00:20:00Z", "receiptId": "receipts/2026-09-28/9001.json",
+      "modelVersion": "v2", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "HOME", "tag": "record" }
+  ],
+
+  "reissuedDisagreeing": [
+    { "sport": "NFL", "eventId": "9002", "subjectType": "GAME", "subjectId": "nfl-9002", "family": "nfl_game_winner",
+      "publishedAt": "2026-09-28T00:17:41Z", "eventStart": "2026-09-28T00:20:00Z", "frozenSide": "AWAY", "state": "SETTLED", "finalSide": "HOME", "tag": "record" },
+    { "sport": "NFL", "eventId": "9002", "subjectType": "GAME", "subjectId": "nfl-9002", "family": "nfl_game_winner",
+      "publishedAt": "2026-09-27T21:00:00Z", "eventStart": "2026-09-28T00:20:00Z", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "HOME", "tag": "superseded" }
+  ],
+
+  "lateCopy": [
+    { "sport": "MLB", "eventId": "777001", "subjectType": "GAME", "subjectId": "mlb-777001", "family": "mlb_moneyline",
+      "publishedAt": "2026-07-01T22:00:00Z", "eventStart": "2026-07-01T23:05:00Z", "frozenSide": "AWAY", "state": "SETTLED", "finalSide": "HOME", "tag": "record" },
+    { "sport": "MLB", "eventId": "777001", "subjectType": "GAME", "subjectId": "mlb-777001", "family": "mlb_moneyline",
+      "publishedAt": "2026-07-01T23:30:00Z", "eventStart": "2026-07-01T23:05:00Z", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "HOME", "tag": "late" }
+  ],
+
+  "onlyLate": [
+    { "sport": "MLB", "eventId": "777002", "subjectType": "GAME", "subjectId": "mlb-777002", "family": "mlb_moneyline",
+      "publishedAt": "2026-07-02T23:30:00Z", "eventStart": "2026-07-02T23:05:00Z", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "HOME" }
+  ],
+
+  "statuses": [
+    { "case": "win", "expect": "WIN",
+      "sport": "MLB", "eventId": "1", "subjectType": "GAME", "subjectId": "mlb-1", "family": "mlb_moneyline",
+      "publishedAt": "2026-07-01T20:00:00Z", "eventStart": "2026-07-01T23:00:00Z", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "HOME" },
+    { "case": "loss", "expect": "LOSS",
+      "sport": "MLB", "eventId": "2", "subjectType": "GAME", "subjectId": "mlb-2", "family": "mlb_moneyline",
+      "publishedAt": "2026-07-01T20:00:00Z", "eventStart": "2026-07-01T23:00:00Z", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "AWAY" },
+    { "case": "nfl tie: no winner, so void (never a loss)", "expect": "VOID",
+      "sport": "NFL", "eventId": "3", "subjectType": "GAME", "subjectId": "nfl-3", "family": "nfl_game_winner",
+      "publishedAt": "2026-09-14T15:00:00Z", "eventStart": "2026-09-14T17:00:00Z", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "TIE" },
+    { "case": "player did not play: owner VOID", "expect": "VOID",
+      "sport": "NFL", "eventId": "4", "subjectType": "PLAYER", "subjectId": "nfl-athlete-44", "family": "player_receptions",
+      "publishedAt": "2026-09-14T15:00:00Z", "eventStart": "2026-09-14T17:00:00Z", "frozenSide": "OVER", "line": 4.5, "state": "VOID", "finalSide": null },
+    { "case": "withdrawn before start", "expect": "VOID",
+      "sport": "NFL", "eventId": "5", "subjectType": "PLAYER", "subjectId": "nfl-athlete-55", "family": "player_reception_yds",
+      "publishedAt": "2026-09-14T15:00:00Z", "eventStart": "2026-09-14T17:00:00Z", "frozenSide": "OVER", "line": 55.5, "state": "WITHDRAWN" },
+    { "case": "push: landed exactly on the line", "expect": "PUSH",
+      "sport": "MLB", "eventId": "6", "subjectType": "GAME", "subjectId": "mlb-6", "family": "mlb_total",
+      "publishedAt": "2026-07-01T20:00:00Z", "eventStart": "2026-07-01T23:00:00Z", "frozenSide": "OVER", "line": 8, "state": "SETTLED", "finalSide": "PUSH" },
+    { "case": "pending: not settled, never a loss", "expect": "PENDING",
+      "sport": "NFL", "eventId": "7", "subjectType": "GAME", "subjectId": "nfl-7", "family": "nfl_game_winner",
+      "publishedAt": "2026-08-20T20:00:00Z", "eventStart": "2026-08-21T00:00:00Z", "frozenSide": "AWAY", "state": "PENDING" },
+    { "case": "missing settlement state", "expect": "UNKNOWN",
+      "sport": "UFC", "eventId": "8", "subjectType": "BOUT", "subjectId": "ufc-bout-8", "family": "ufc_winner",
+      "publishedAt": null, "eventStart": null, "frozenSide": "Fighter A", "state": null },
+    { "case": "settled but the owner recorded no result", "expect": "UNKNOWN",
+      "sport": "EPL", "eventId": "9", "subjectType": "GAME", "subjectId": "soccer:epl:9", "family": "epl_1x2",
+      "publishedAt": "2026-09-20T10:00:00Z", "eventStart": "2026-09-20T14:00:00Z", "frozenSide": "HOME", "state": "SETTLED", "finalSide": null, "ownerResult": null },
+    { "case": "settled, no category, owner's word for its own frozen side", "expect": "WIN",
+      "sport": "UFC", "eventId": "10", "subjectType": "BOUT", "subjectId": "ufc-bout-10", "family": "ufc_winner",
+      "publishedAt": "2026-09-26T18:00:00Z", "eventStart": "2026-09-26T23:00:00Z", "frozenSide": "Fighter A", "state": "SETTLED", "finalSide": null, "ownerResult": "WIN" },
+    { "case": "no measurement possible (no stat row at the final)", "expect": "UNKNOWN",
+      "sport": "NFL", "eventId": "11", "subjectType": "PLAYER", "subjectId": "nfl-athlete-11", "family": "player_rush_yds",
+      "publishedAt": "2026-09-14T15:00:00Z", "eventStart": "2026-09-14T17:00:00Z", "frozenSide": "UNDER", "line": 40.5, "state": "NO_MEASUREMENT" },
+    { "case": "a probability with no frozen side (proposed rule: no pick)", "expect": "NO_PICK",
+      "sport": "NFL", "eventId": "12", "subjectType": "GAME", "subjectId": "nfl-12", "family": "nfl_game_winner",
+      "publishedAt": "2026-09-14T15:00:00Z", "eventStart": "2026-09-14T17:00:00Z", "sideProbabilities": { "HOME": 0.62, "AWAY": 0.35 }, "state": "SETTLED", "finalSide": "HOME" },
+    { "case": "a frozen TOO_CLOSE abstention: no pick, never a loss", "expect": "NO_PICK",
+      "sport": "NFL", "eventId": "13", "subjectType": "GAME", "subjectId": "nfl-13", "family": "nfl_game_winner",
+      "publishedAt": "2026-09-14T15:00:00Z", "eventStart": "2026-09-14T17:00:00Z", "frozenSide": "TOO_CLOSE", "sideProbabilities": { "HOME": 0.51, "AWAY": 0.46, "TIE": 0.03 }, "state": "SETTLED", "finalSide": "AWAY" }
+  ],
+
+  "historicalNflWinner": [
+    { "case": "CIN @ PIT: PIT (home) 49.63%, CIN 47.47%, tie mass 2.90%; PIT won",
+      "sport": "NFL", "eventId": "8801", "subjectType": "GAME", "subjectId": "nfl-8801", "family": "nfl_game_winner",
+      "homeTeam": "PIT", "awayTeam": "CIN", "publishedAt": "2026-09-27T15:00:00Z", "canonicalStart": "2026-09-27T17:00:00Z",
+      "sideBasis": "HISTORICAL_MODEL_FAVORED", "sideProbabilities": { "HOME": 0.4963, "AWAY": 0.4747, "TIE": 0.029 }, "state": "SETTLED", "finalSide": "HOME",
+      "expect": { "historicalModelFavored": "WIN", "frozenOnly": "NO_PICK", "rejectedLedgerHomeOverHalf": "LOSS", "rejectedOverHalf": "NO_PICK" } },
+    { "case": "LAR @ PHI: PHI (home) 48.87%, LAR 48.03%, tie mass 3.10%; LAR won",
+      "sport": "NFL", "eventId": "8802", "subjectType": "GAME", "subjectId": "nfl-8802", "family": "nfl_game_winner",
+      "homeTeam": "PHI", "awayTeam": "LAR", "publishedAt": "2026-10-04T15:00:00Z", "canonicalStart": "2026-10-04T17:00:00Z",
+      "sideBasis": "HISTORICAL_MODEL_FAVORED", "sideProbabilities": { "HOME": 0.4887, "AWAY": 0.4803, "TIE": 0.031 }, "state": "SETTLED", "finalSide": "AWAY",
+      "expect": { "historicalModelFavored": "LOSS", "frozenOnly": "NO_PICK", "rejectedLedgerHomeOverHalf": "WIN", "rejectedOverHalf": "NO_PICK" } },
+    { "case": "teams exactly level (48.5% each, tie mass 3%): no side is invented; away won",
+      "sport": "NFL", "eventId": "8803", "subjectType": "GAME", "subjectId": "nfl-8803", "family": "nfl_game_winner",
+      "publishedAt": "2026-10-04T15:00:00Z", "canonicalStart": "2026-10-04T17:00:00Z",
+      "sideBasis": "HISTORICAL_MODEL_FAVORED", "sideProbabilities": { "HOME": 0.485, "AWAY": 0.485, "TIE": 0.03 }, "state": "SETTLED", "finalSide": "AWAY",
+      "expect": { "historicalModelFavored": "NO_PICK", "frozenOnly": "NO_PICK", "rejectedLedgerHomeOverHalf": "WIN", "rejectedOverHalf": "NO_PICK" } },
+    { "case": "near 50/50 but a side WAS frozen pregame: the frozen side is graded, never the probabilities",
+      "sport": "NFL", "eventId": "8804", "subjectType": "GAME", "subjectId": "nfl-8804", "family": "nfl_game_winner",
+      "publishedAt": "2026-10-04T15:00:00Z", "canonicalStart": "2026-10-04T17:00:00Z",
+      "frozenSide": "AWAY", "sideBasis": "HISTORICAL_MODEL_FAVORED", "sideProbabilities": { "HOME": 0.4963, "AWAY": 0.4747, "TIE": 0.029 }, "state": "SETTLED", "finalSide": "AWAY",
+      "expect": { "historicalModelFavored": "WIN", "frozenOnly": "WIN", "rejectedLedgerHomeOverHalf": "WIN", "rejectedOverHalf": "WIN" } },
+    { "case": "near 50/50, no frozen side, still pending: pending under every rule",
+      "sport": "NFL", "eventId": "8805", "subjectType": "GAME", "subjectId": "nfl-8805", "family": "nfl_game_winner",
+      "publishedAt": "2026-10-05T15:00:00Z", "canonicalStart": "2026-10-06T00:15:00Z",
+      "sideBasis": "HISTORICAL_MODEL_FAVORED", "sideProbabilities": { "HOME": 0.4963, "AWAY": 0.4747, "TIE": 0.029 }, "state": "PENDING", "finalSide": null,
+      "expect": { "historicalModelFavored": "PENDING", "frozenOnly": "PENDING", "rejectedLedgerHomeOverHalf": "PENDING", "rejectedOverHalf": "PENDING" } },
+    { "case": "a real favourite (51.5% vs 45.5%), no frozen side; away won",
+      "sport": "NFL", "eventId": "8806", "subjectType": "GAME", "subjectId": "nfl-8806", "family": "nfl_game_winner",
+      "publishedAt": "2026-10-04T15:00:00Z", "canonicalStart": "2026-10-04T17:00:00Z",
+      "sideBasis": "HISTORICAL_MODEL_FAVORED", "sideProbabilities": { "HOME": 0.515, "AWAY": 0.455, "TIE": 0.03 }, "state": "SETTLED", "finalSide": "AWAY",
+      "expect": { "historicalModelFavored": "LOSS", "frozenOnly": "NO_PICK", "rejectedLedgerHomeOverHalf": "LOSS", "rejectedOverHalf": "LOSS" } }
+  ],
+
+  "postponed": [
+    { "sport": "MLB", "eventId": "555785", "subjectType": "PLAYER", "subjectId": "mlb-player-1", "family": "batter_hits",
+      "publishedAt": "2026-09-22T16:00:00Z", "eventStart": "2026-09-22T22:35:00Z", "canonicalStart": "2026-09-23T22:35:00Z",
+      "frozenSide": "OVER", "line": 0.5, "state": "SETTLED", "finalSide": "OVER", "tag": "superseded",
+      "note": "original-date copy: its own eventStart is the ORIGINAL start; the owner graded it against the make-up game" },
+    { "sport": "MLB", "eventId": "555785", "subjectType": "PLAYER", "subjectId": "mlb-player-1", "family": "batter_hits",
+      "publishedAt": "2026-09-23T16:00:00Z", "eventStart": "2026-09-23T22:35:00Z", "canonicalStart": "2026-09-23T22:35:00Z",
+      "frozenSide": "OVER", "line": 0.5, "state": "SETTLED", "finalSide": "OVER", "tag": "record",
+      "note": "make-up-date copy, last version before the rescheduled start" },
+    { "sport": "MLB", "eventId": "555785", "subjectType": "PLAYER", "subjectId": "mlb-player-1", "family": "batter_hits",
+      "publishedAt": "2026-09-23T22:50:00Z", "eventStart": null, "canonicalStart": "2026-09-23T22:35:00Z",
+      "frozenSide": "OVER", "line": 0.5, "state": "SETTLED", "finalSide": "OVER", "tag": "late",
+      "note": "published after the rescheduled first pitch; its file carries no start of its own" }
+  ],
+
+  "postponedStaleStart": [
+    { "sport": "MLB", "eventId": "555786", "subjectType": "PLAYER", "subjectId": "mlb-player-2", "family": "batter_hits",
+      "publishedAt": "2026-09-22T16:00:00Z", "eventStart": "2026-09-22T22:35:00Z", "canonicalStart": "2026-09-23T22:35:00Z",
+      "frozenSide": "UNDER", "line": 0.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "superseded" },
+    { "sport": "MLB", "eventId": "555786", "subjectType": "PLAYER", "subjectId": "mlb-player-2", "family": "batter_hits",
+      "publishedAt": "2026-09-22T23:00:00Z", "eventStart": "2026-09-22T22:35:00Z", "canonicalStart": "2026-09-23T22:35:00Z",
+      "frozenSide": "OVER", "line": 0.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record",
+      "note": "revised after the ORIGINAL start (the game had been postponed) and before the rescheduled one; its file still carries the original start" }
+  ],
+
+  "lineRevision": [
+    { "sport": "MLB", "eventId": "664", "subjectType": "PLAYER", "subjectId": "mlb-player-664", "family": "pitcher_strikeouts", "claimId": "k-a",
+      "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "OVER", "tag": "superseded" },
+    { "sport": "MLB", "eventId": "664", "subjectType": "PLAYER", "subjectId": "mlb-player-664", "family": "pitcher_strikeouts", "claimId": "k-b",
+      "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "UNDER", "line": 4.5, "state": "SETTLED", "finalSide": "OVER", "tag": "record" },
+    { "sport": "MLB", "eventId": "664", "subjectType": "PLAYER", "subjectId": "mlb-player-664", "family": "pitcher_strikeouts", "claimId": "k-a",
+      "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 6.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record",
+      "note": "revision of claim k-a (5.5 -> 6.5); claim k-b is untouched" }
+  ],
+
+  "simultaneousLines": [
+    { "sport": "MLB", "eventId": "660", "subjectType": "PLAYER", "subjectId": "mlb-player-660", "family": "pitcher_strikeouts",
+      "publishedAt": "2026-05-16T15:00:00Z", "eventStart": "2026-05-16T23:05:00Z", "frozenSide": "UNDER", "line": 4.5, "state": "SETTLED", "finalSide": "OVER" },
+    { "sport": "MLB", "eventId": "660", "subjectType": "PLAYER", "subjectId": "mlb-player-660", "family": "pitcher_strikeouts",
+      "publishedAt": "2026-05-16T15:00:00Z", "eventStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "OVER" },
+    { "sport": "MLB", "eventId": "660", "subjectType": "PLAYER", "subjectId": "mlb-player-660", "family": "pitcher_strikeouts",
+      "publishedAt": "2026-05-16T12:00:00Z", "eventStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 3.5, "state": "SETTLED", "finalSide": "OVER", "tag": "earlier line, replaced" }
+  ],
+
+  "conflicts": [
+    { "sport": "MLB", "eventId": "663", "subjectType": "GAME", "subjectId": "mlb-663", "family": "mlb_total",
+      "publishedAt": "2026-05-16T15:00:00Z", "eventStart": "2026-05-16T23:05:00Z", "frozenSide": "UNDER", "line": 8.5, "state": "SETTLED", "finalSide": "OVER" },
+    { "sport": "MLB", "eventId": "663", "subjectType": "GAME", "subjectId": "mlb-663", "family": "mlb_total",
+      "publishedAt": "2026-05-16T15:00:00Z", "eventStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 8.5, "state": "SETTLED", "finalSide": "OVER" },
+    { "sport": "UFC", "eventId": "661", "subjectType": "BOUT", "subjectId": "ufc-bout-661", "family": "ufc_winner",
+      "publishedAt": null, "eventStart": null, "frozenSide": "Fighter A", "state": "SETTLED", "finalSide": "FIGHTER A" },
+    { "sport": "UFC", "eventId": "661", "subjectType": "BOUT", "subjectId": "ufc-bout-661", "family": "ufc_winner",
+      "publishedAt": null, "eventStart": null, "frozenSide": "Fighter B", "state": "SETTLED", "finalSide": "FIGHTER A" }
+  ],
+
+  "undatedDuplicate": [
+    { "sport": "UFC", "eventId": "662", "subjectType": "BOUT", "subjectId": "ufc-bout-662", "family": "ufc_winner",
+      "publishedAt": null, "eventStart": null, "frozenSide": "Fighter A", "state": "SETTLED", "finalSide": "FIGHTER A" },
+    { "sport": "UFC", "eventId": "662", "subjectType": "BOUT", "subjectId": "ufc-bout-662", "family": "ufc_winner",
+      "publishedAt": null, "eventStart": null, "frozenSide": "Fighter A", "state": "SETTLED", "finalSide": "FIGHTER A" }
+  ],
+
+  "exactDuplicate": [
+    { "sport": "EPL", "eventId": "770", "subjectType": "GAME", "subjectId": "soccer:epl:770", "family": "epl_1x2",
+      "publishedAt": "2026-09-20T10:00:00Z", "eventStart": "2026-09-20T14:00:00Z", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "HOME" },
+    { "sport": "EPL", "eventId": "770", "subjectType": "GAME", "subjectId": "soccer:epl:770", "family": "epl_1x2",
+      "publishedAt": "2026-09-20T10:00:00Z", "eventStart": "2026-09-20T14:00:00Z", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "HOME" }
+  ],
+
+  "unkeyed": [
+    { "sport": "NFL", "eventId": null, "subjectType": "GAME", "subjectId": null, "family": "nfl_game_winner", "matchup": "no id",
+      "publishedAt": "2026-09-14T15:00:00Z", "eventStart": "2026-09-14T17:00:00Z", "frozenSide": "HOME", "state": "SETTLED", "finalSide": "HOME" }
+  ],
+
+  "founderRevisionCase": {
+    "_about": "Founder ruling 2026-10-07 00:25Z, verbatim case, NO claimId and NO board provenance: one board publishes Over 5.5 K and Under 4.5 K together; a later board republishes only Over 6.5 K. Actual 4 K.",
+    "rows": [
+      { "sport": "MLB", "eventId": "665", "subjectType": "PLAYER", "subjectId": "mlb-player-665", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "superseded", "note": "the Over claim's earlier version" },
+      { "sport": "MLB", "eventId": "665", "subjectType": "PLAYER", "subjectId": "mlb-player-665", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "UNDER", "line": 4.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record", "note": "untouched simultaneous claim: remains its own forecast" },
+      { "sport": "MLB", "eventId": "665", "subjectType": "PLAYER", "subjectId": "mlb-player-665", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 6.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record", "note": "forecast of record for the Over claim" }
+    ]
+  },
+
+  "boardReplaced": {
+    "_about": "The same case WITH explicit board provenance: board B declares it replaced board A in full (replacesPublicationIds). Every board-A copy is superseded, including the Under 4.5 and a player board B dropped entirely.",
+    "rows": [
+      { "sport": "MLB", "eventId": "666", "subjectType": "PLAYER", "subjectId": "mlb-player-666", "family": "pitcher_strikeouts", "publicationId": "board-A",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "superseded" },
+      { "sport": "MLB", "eventId": "666", "subjectType": "PLAYER", "subjectId": "mlb-player-666", "family": "pitcher_strikeouts", "publicationId": "board-A",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "UNDER", "line": 4.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "superseded" },
+      { "sport": "MLB", "eventId": "666", "subjectType": "PLAYER", "subjectId": "mlb-player-666b", "family": "batter_hits", "publicationId": "board-A",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 0.5, "state": "SETTLED", "finalSide": "OVER", "tag": "superseded", "note": "not on board B at all: withdrawn with the board it was on" },
+      { "sport": "MLB", "eventId": "666", "subjectType": "PLAYER", "subjectId": "mlb-player-666", "family": "pitcher_strikeouts", "publicationId": "board-B", "replacesPublicationIds": ["board-A"],
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 6.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record" }
+    ]
+  },
+
+  "ambiguousRevision": {
+    "_about": "No claimId, no board provenance, and the later publication cannot be mapped one-to-one onto the earlier claims: the earlier claims are AMBIGUOUS_REVISION (kept, disclosed, excluded from the W-L, never a loss).",
+    "rows": [
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-668", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "ambiguous", "note": "two earlier Over lines, one later Over line" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-668", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 4.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "ambiguous" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-668", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 6.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-669", "family": "batter_hits_runs_rbis",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 1.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "ambiguous", "note": "the Over slot was republished without it: dropped or still standing is unknown" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-669", "family": "batter_hits_runs_rbis",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 0.5, "state": "SETTLED", "finalSide": "OVER", "tag": "superseded", "note": "republished identically" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-669", "family": "batter_hits_runs_rbis",
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 0.5, "state": "SETTLED", "finalSide": "OVER", "tag": "record" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-670", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "ambiguous", "note": "the later Under 5.5 shares a line with this and a side with the Under 4.5" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-670", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "UNDER", "line": 4.5, "state": "SETTLED", "finalSide": "OVER", "tag": "ambiguous" },
+      { "sport": "MLB", "eventId": "668", "subjectType": "PLAYER", "subjectId": "mlb-player-670", "family": "pitcher_strikeouts",
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "UNDER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record" }
+    ]
+  },
+
+  "lineageResolvesAmbiguity": {
+    "_about": "The two-earlier-Over-lines case WITH claimId lineage: the revision replaces only the claim it links to; nothing is ambiguous.",
+    "rows": [
+      { "sport": "MLB", "eventId": "671", "subjectType": "PLAYER", "subjectId": "mlb-player-671", "family": "pitcher_strikeouts", "claimId": "k-a",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 5.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "superseded" },
+      { "sport": "MLB", "eventId": "671", "subjectType": "PLAYER", "subjectId": "mlb-player-671", "family": "pitcher_strikeouts", "claimId": "k-b",
+        "publishedAt": "2026-05-16T12:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 4.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record" },
+      { "sport": "MLB", "eventId": "671", "subjectType": "PLAYER", "subjectId": "mlb-player-671", "family": "pitcher_strikeouts", "claimId": "k-a",
+        "publishedAt": "2026-05-16T15:00:00Z", "canonicalStart": "2026-05-16T23:05:00Z", "frozenSide": "OVER", "line": 6.5, "state": "SETTLED", "finalSide": "UNDER", "tag": "record", "note": "revision of k-a (5.5 -> 6.5); k-b untouched" }
+    ]
+  },
+
+  "twoReaders": {
+    "_about": "One NFL slate seen by two readers. Reader A is the owner's per-date settlement files (a game kicking off after 00:00Z is graded in two folders). Reader B is a week report (one row per game, its own field names). Same games, same frozen sides; the contract must give both readers the same record.",
+    "readerA_settlementFiles": {
+      "2026-09-27.json": [
+        { "canonicalEventId": "nfl-7001", "providerEventId": "7001", "matchup": "AAA @ BBB", "kickoffUtc": "2026-09-27T17:00:00Z",
+          "lineage": { "forecastGeneratedAt": "2026-09-27T15:00:00Z" }, "pick": "HOME", "actual": { "home": 24, "away": 17 } },
+        { "canonicalEventId": "nfl-7002", "providerEventId": "7002", "matchup": "CCC @ DDD", "kickoffUtc": "2026-09-28T00:20:00Z",
+          "lineage": { "forecastGeneratedAt": "2026-09-27T23:40:42Z" }, "pick": "AWAY", "actual": { "home": 20, "away": 27 } },
+        { "canonicalEventId": "nfl-7003", "providerEventId": "7003", "matchup": "EEE @ FFF", "kickoffUtc": "2026-09-27T20:25:00Z",
+          "lineage": { "forecastGeneratedAt": "2026-09-27T18:00:00Z" }, "pick": "HOME", "actual": { "home": 13, "away": 16 } },
+        { "canonicalEventId": "nfl-7004", "providerEventId": "7004", "matchup": "GGG @ HHH", "kickoffUtc": "2026-09-27T17:00:00Z",
+          "lineage": { "forecastGeneratedAt": "2026-09-27T15:00:00Z" }, "pick": "AWAY", "actual": { "home": 20, "away": 20 } }
+      ],
+      "2026-09-28.json": [
+        { "canonicalEventId": "nfl-7002", "providerEventId": "7002", "matchup": "CCC @ DDD", "kickoffUtc": "2026-09-28T00:20:00Z",
+          "lineage": { "forecastGeneratedAt": "2026-09-28T00:17:41Z" }, "pick": "AWAY", "actual": { "home": 20, "away": 27 } }
+      ]
+    },
+    "readerB_weekReport": {
+      "games": [
+        { "providerEventId": "7001", "matchup": "AAA @ BBB", "kickoff": "2026-09-27T17:00:00Z", "publishedAt": "2026-09-27T15:00:00Z", "published": { "pickSide": "home" }, "final": { "home": 24, "away": 17 } },
+        { "providerEventId": "7002", "matchup": "CCC @ DDD", "kickoff": "2026-09-28T00:20:00Z", "publishedAt": "2026-09-28T00:17:41Z", "published": { "pickSide": "away" }, "final": { "home": 20, "away": 27 } },
+        { "providerEventId": "7003", "matchup": "EEE @ FFF", "kickoff": "2026-09-27T20:25:00Z", "publishedAt": "2026-09-27T18:00:00Z", "published": { "pickSide": "home" }, "final": { "home": 13, "away": 16 } },
+        { "providerEventId": "7004", "matchup": "GGG @ HHH", "kickoff": "2026-09-27T17:00:00Z", "publishedAt": "2026-09-27T15:00:00Z", "published": { "pickSide": "away" }, "final": { "home": 20, "away": 20 } }
+      ]
+    },
+    "expect": { "win": 2, "loss": 1, "void": 1, "decided": 3, "naiveReaderAWins": 3 }
+  }
+}
