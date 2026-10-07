@@ -327,7 +327,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           {/* P295 · labels a first-time bettor can read without a glossary: what each number is, which
               team a signed number favours, and what the range means in simulations rather than "p10". */}
           <Stat label="Projected score" value={`${f.away.abbr} ${s.projectedScore.away} — ${s.projectedScore.home} ${f.home.abbr}`} sub="the middle of our simulated outcomes, not a call on the exact final" />
-          <Stat label="Win chance" value={`${f.away.abbr} ${pct(s.winProbability.away)} · ${f.home.abbr} ${pct(s.winProbability.home)}`} sub={`how often each side won in ${f.model.simulations.toLocaleString()} simulations · ties ${pct(s.winProbability.tieMass)}`} />
+          <Stat label="Win chance" value={`${f.away.abbr} ${pct(s.winProbability.away)} · ${f.home.abbr} ${pct(s.winProbability.home)}`} sub={`the model's win probability from its team rating, not a count of simulated wins · ties ${pct(s.winProbability.tieMass)} of ${f.model.simulations.toLocaleString()} simulations`} />
           <Stat label="Total points (both teams)" value={`${s.total.median}`} sub={`8 in 10 simulations landed between ${s.total.p10} and ${s.total.p90}`} />
           <Stat label={`${f.home.abbr} winning margin`} value={`${s.margin.median > 0 ? "+" : ""}${s.margin.median}`} sub={`a minus means ${f.away.abbr} wins by that much · 8 in 10 between ${s.margin.p10} and ${s.margin.p90}`} />
         </div>
