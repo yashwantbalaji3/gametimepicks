@@ -36,6 +36,7 @@ import { fileURLToPath } from "node:url";
 
 import { gradeEplLeg } from "../../src/lib/sports/epl/settlement-contract.mjs";
 import { loadCurrentEplResults } from "../../src/lib/soccer/epl-current-results.mjs";
+import { publishedModel } from "../../src/lib/sports/epl/published-forecast.mjs";
 import { classifyEmptyRun, scoreControlBlock, scoreShadowTotalsBlock } from "../../src/lib/sports/epl/grade-forecasts.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -166,13 +167,14 @@ for (const file of forecastFiles) {
   const generatedAt = Date.parse(art.generatedAt ?? "");
   for (const row of art.rows ?? []) {
     if (row.eventId) seenInArtifacts.add(row.eventId);
-    if (row.state !== "CURRENT_PRE_EVENT" || !row.model?.probs) continue;
+    const pub = publishedModel(row);                                        // priced OR model-only; withheld rows were never a forecast
+    if (!pub) continue;
     const kickoff = Date.parse(row.kickoffUtc ?? "");
     if (!Number.isFinite(kickoff) || !Number.isFinite(generatedAt)) continue;
     if (generatedAt >= kickoff) continue;                                    // rule 3
     const prev = forecastByEvent.get(row.eventId);
     if (!prev || generatedAt > prev.generatedAt) {
-      forecastByEvent.set(row.eventId, { row, generatedAt, sourceFile: `forecasts/${file}` });
+      forecastByEvent.set(row.eventId, { row, model: pub.model, basis: pub.basis, generatedAt, sourceFile: `forecasts/${file}` });
     }
   }
 }
@@ -218,13 +220,13 @@ for (const r of bridged.results) {
   if (probe.outcome === "VOID_PENDING_REVIEW") { skipped.notFinal += 1; continue; }
   if (homeGoalsFT == null || awayGoalsFT == null) { skipped.noResultRow += 1; continue; }
 
-  const p = fc.row.model.probs;
+  const p = fc.model.probs;
   const actual = homeGoalsFT > awayGoalsFT ? "H" : homeGoalsFT === awayGoalsFT ? "D" : "A";
   const total = homeGoalsFT + awayGoalsFT;
   const pActual = actual === "H" ? p.home : actual === "D" ? p.draw : p.away;
   const predicted = p.home >= p.draw && p.home >= p.away ? "H" : p.draw >= p.away ? "D" : "A";
 
-  const over25 = fc.row.model.totals?.over25 ?? null;
+  const over25 = fc.model.totals?.over25 ?? null;
   const overHit = total >= 3;
 
   graded.push({
@@ -235,12 +237,13 @@ for (const r of bridged.results) {
     /* Provenance of the prediction being scored — file and stamp, so a row can be re-derived. */
     forecastGeneratedAt: fc.row.generatedAtOverride ?? new Date(fc.generatedAt).toISOString(),
     forecastSource: fc.sourceFile,
-    modelId: fc.row.model.modelId ?? null,
+    modelId: fc.model.modelId ?? null,
+    forecastBasis: fc.basis,
     resultSource: results.source?.id ?? null,
     resultAsOf: results.sourceAsOf ?? null,
     status,
     actual: { homeGoalsFT, awayGoalsFT, outcome: actual, totalGoals: total },
-    forecast: { probs: p, over25, expectedGoals: fc.row.model.totals?.expected ?? null },
+    forecast: { probs: p, over25, expectedGoals: fc.model.totals?.expected ?? null },
     /*
      * The market as it stood when the forecast was published — the baseline the model has to beat to
      * be worth anything. null when the row carried no usable de-vigged set, which is a different

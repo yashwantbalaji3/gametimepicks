@@ -20,6 +20,7 @@
  * that identity), so its scores are the per-class terms of the 1X2 multiclass Brier already in the ledger. A second
  * set of rows would count the same forecast twice — the ledger's own rule is one observation however it is rendered.
  */
+import { publishedModel } from "./published-forecast.mjs";
 
 export const EPL_DERIVED_GRADING_VERSION = 1;
 /** The commit that first copied btts / cleanSheet / doubleChance / topScorelines into the PUBLIC forecast rows. */
@@ -50,9 +51,10 @@ export function locateForecastOfRecord(graded, artifacts) {
   for (const art of artifacts ?? []) {
     if (!sameInstant(art.generatedAt, graded.forecastGeneratedAt)) continue;
     for (const row of art.rows ?? []) {
-      if (row.eventId !== graded.eventId || row.state !== "CURRENT_PRE_EVENT") continue;
-      if (!probsEqual(row.model?.probs, graded.forecast?.probs)) continue;
-      hits.push({ row, source: art.source });
+      if (row.eventId !== graded.eventId) continue;
+      const pub = publishedModel(row);                     // the same rule the 1X2 grader used to pick it
+      if (!pub || !probsEqual(pub.model.probs, graded.forecast?.probs)) continue;
+      hits.push({ row, model: pub.model, source: art.source });
     }
   }
   hits.sort((a, b) => sourceRank(a.source) - sourceRank(b.source) || (a.source < b.source ? -1 : a.source > b.source ? 1 : 0));
@@ -98,7 +100,7 @@ export function gradeDerivedMarkets(graded, located) {
   if (!(Date.parse(graded.forecastGeneratedAt ?? "") >= Date.parse(EPL_DERIVED_PUBLIC_SINCE))) return { refused: "NOT_PUBLIC_AT_FORECAST_TIME" };
   if (!(Date.parse(graded.forecastGeneratedAt) < Date.parse(graded.kickoffUtc ?? ""))) return { refused: "FORECAST_NOT_PRE_KICKOFF" };
   if (!located) return { refused: "FORECAST_OF_RECORD_UNRECOVERED" };
-  const { forecast, reason } = derivedForecast(located.row.model);
+  const { forecast, reason } = derivedForecast(located.model ?? located.row.model);
   if (!forecast) return { refused: reason };
   const score = `${h}-${a}`;
   return {
@@ -110,7 +112,7 @@ export function gradeDerivedMarkets(graded, located) {
       homeClub: located.row.homeClub ?? null,
       awayClub: located.row.awayClub ?? null,
       kickoffUtc: graded.kickoffUtc,
-      modelId: graded.modelId ?? located.row.model?.modelId ?? null,
+      modelId: graded.modelId ?? (located.model ?? located.row.model)?.modelId ?? null,
       /* The 1X2 owner's pointer, and where this owner actually re-opened that same revision. */
       forecastGeneratedAt: graded.forecastGeneratedAt,
       forecastSource: graded.forecastSource ?? null,
