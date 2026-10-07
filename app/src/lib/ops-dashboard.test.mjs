@@ -19,6 +19,13 @@ test("/ops is READ-ONLY — no write actions, no client mutation", () => {
   assert.ok(!/writeFileSync|activate-daily-portfolio|settle-|promote-/.test(opsSrc), "never invokes a money/data mutation");
 });
 
+test("PE-1 · under the real registry the July 6 reads are withheld, each with a stated reason", () => {
+  const board = buildTop10Board(path.join(app, "public", "data"), "2026-07-06", Date.parse("2026-07-06T15:15:00Z"));
+  assert.equal(board.overall.length, 0, "demoted MLB prop reads are not ranked as model picks");
+  assert.ok(board.withheldIneligible.length > 0, "the withheld rows are published, not silently dropped");
+  for (const w of board.withheldIneligible) assert.ok(w.reason && w.id, `withheld row ${w.id} carries its reason`);
+});
+
 test("/ops is noindex and renders from the derived status backbone", () => {
   assert.match(opsSrc, /robots:\s*\{\s*index:\s*false/, "marked noindex");
   assert.match(opsSrc, /admin"[,)]\s*"status\.json"|admin", "status\.json/, "reads admin/status.json");
@@ -26,7 +33,21 @@ test("/ops is noindex and renders from the derived status backbone", () => {
 });
 
 test("pick-explanation standard: EVERY Top 10 pick carries a specific reason + risk", () => {
-  const board = buildTop10Board(path.join(app, "public", "data"), "2026-07-06", Date.parse("2026-07-06T15:15:00Z"));
+  /* PE-1: under the real registry this July 6 board ranks nothing: its MLB prop reads come from families
+     demoted to market context (see the next test). The explanation standard is a property of every row the
+     board CAN rank, so it is checked with a test-only registry that admits those families and a scorecard
+     stamped at the board's own instant. Fixture only — never a real status. */
+  const nowMs = Date.parse("2026-07-06T15:15:00Z");
+  const admitAll = {
+    coverage: { markets: [
+      { sport: "mlb", market: "player_props", publicEligible: true, predictionSource: "projection_only",
+        governedFamilies: ["pitcher_strikeouts", "batter_hits", "batter_total_bases", "batter_hits_runs_rbis", "batter_home_runs"] },
+      ...["double_chance", "draw_no_bet", "match_result", "total_goals", "btts"]
+        .map((market) => ({ sport: "soccer", market, publicEligible: true, predictionSource: "independent_sim" })),
+    ] },
+    scorecard: { generatedAt: new Date(nowMs).toISOString(), families: [] },
+  };
+  const board = buildTop10Board(path.join(app, "public", "data"), "2026-07-06", nowMs, admitAll);
   const all = [...board.overall, ...board.safe, ...board.value, ...board.team, ...board.props];
   assert.ok(all.length > 0, "the board has picks to check");
   for (const p of all) {

@@ -24,7 +24,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import NotTodaysMarket from "@/components/markets/not-todays-market";
 
 export const metadata: Metadata = withRouteMetadata("/markets/", {
-  title: "Picks · GameTimePicks",
+  title: "Market context · GameTimePicks",
   /* Phase 6 · P606: this page names every in-season sport from the product-day owner, not just MLB — the
      description said "the current MLB slate" while the page itself lists the other hubs. */
   description:
@@ -39,7 +39,7 @@ export default function MarketsPage() {
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
         <PageHero
-          eyebrow="Picks"
+          eyebrow="Market context"
           title="No sportsbook snapshot available"
           sub="No captured sportsbook artifact was found. Nothing is shown rather than presenting an older snapshot as the current market."
         />
@@ -49,7 +49,8 @@ export default function MarketsPage() {
 
   // A pinned instant so event phase is evaluated once. "Current vs not today's market" is NOT decided
   // here: NotTodaysMarket and MarketCenter re-derive it on the reader's ET day after mount (#761 PR 1).
-  const nowIso = new Date().toISOString();
+  const builtAtMs = Date.now();
+  const nowIso = new Date(builtAtMs).toISOString();
   const data = loadMarketCenter(date, today, nowIso);
 
   // The explorer runs on SETTLED slates with a per-row provenance record, which is a different date
@@ -60,7 +61,7 @@ export default function MarketsPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
       <PageHero
-        eyebrow="Picks"
+        eyebrow="Market context"
         title="Sportsbook prices next to our simulations"
         // P213 R-C: one 12-word-class purpose line — market probabilities' provenance stays (the
         // MATERIAL_LIMIT), the labelling taxonomy lives in the reading key, the educational note
@@ -110,7 +111,9 @@ export default function MarketsPage() {
           beginner comparison view: the founder's complaint about this page was that it opened with a
           wall of numbers, and a second wall above the reading key would undo the Program 141 fix. */}
       <section className="reveal" style={{ marginTop: 24 }}>
-        <ModelRankedList board={buildTop10Board(`${process.cwd()}/public/data`, today, Date.now())} />
+        {/* PE-1: the board ranks only publicly eligible families (lib/top10/public-eligibility); the list
+            re-checks started events on the reader's clock, seeded with this build instant. */}
+        <ModelRankedList board={buildTop10Board(`${process.cwd()}/public/data`, today, builtAtMs)} builtAtMs={builtAtMs} />
       </section>
 
       <section className="reveal" style={{ marginTop: 28 }}>

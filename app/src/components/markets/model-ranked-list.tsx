@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Model-ranked picks — the full ranked list, inside Market Center (Program 142, Train 1 step 3B).
  *
@@ -15,9 +17,18 @@
  * Terminology is the Program 141 contract: the difference is in **pp** (percentage points), never
  * "pts", which on this site means scoring points. Definitions are NOT repeated here — they live in
  * `HowToReadMarkets` on the same page, so there is exactly one glossary.
+ *
+ * PE-1 · two eligibility rules, each owned elsewhere and only RENDERED here:
+ *   - the board only ranks families the coverage registry makes publicly eligible (lib/top10/public-eligibility);
+ *     what it withheld arrives as `board.withheldIneligible` and is explained, never silently dropped;
+ *   - the page is a static export, so a row that was pregame at build time can have started by the time it is
+ *     read. A started event is not an upcoming pick: rows are re-checked on the READER's clock after mount and a
+ *     started row leaves the ranking (the server render uses the build instant, so hydration matches).
  */
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Top10Board, Top10Pick } from "@/lib/top10/top10-picks";
+import { INELIGIBLE_TEXT, type IneligibleReason } from "@/lib/top10/ineligible-reasons";
 
 const pct = (p: number | null | undefined) =>
   typeof p === "number" && Number.isFinite(p) ? `${(p * 100).toFixed(1)}%` : "—";
@@ -131,8 +142,35 @@ function Row({ pick, rank }: { pick: Top10Pick; rank: number }) {
   );
 }
 
-export default function ModelRankedList({ board }: { board: Top10Board }) {
-  const picks = board.overall ?? [];
+/** A row whose event has started (or cannot say when it starts) is not an upcoming pick at `nowMs`. */
+export function notStarted(pick: Top10Pick, nowMs: number): boolean {
+  const start = Date.parse(pick.startsAt ?? "");
+  return Number.isFinite(start) && start > nowMs;
+}
+
+/** "demoted to market context … (batter hits, pitcher strikeouts)" — one line per reason, families named. */
+function withheldLines(board: Top10Board): string[] {
+  const byReason = new Map<IneligibleReason, Set<string>>();
+  for (const w of board.withheldIneligible ?? []) {
+    if (!byReason.has(w.reason)) byReason.set(w.reason, new Set());
+    if (w.family) byReason.get(w.reason)!.add(w.family.replace(/_/g, " "));
+  }
+  return [...byReason].map(([reason, fams]) => `${INELIGIBLE_TEXT[reason]}${fams.size ? ` (${[...fams].sort().join(", ")})` : ""}`);
+}
+
+export default function ModelRankedList({ board, builtAtMs }: { board: Top10Board; builtAtMs: number }) {
+  const [nowMs, setNowMs] = useState(builtAtMs);
+  useEffect(() => {
+    setNowMs(Date.now());
+    const t = setInterval(() => setNowMs(Date.now()), 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  const ranked = board.overall ?? [];
+  const picks = ranked.filter((p) => notStarted(p, nowMs));
+  const startedCount = ranked.length - picks.length;
+  const withheldCount = board.withheldIneligible?.length ?? 0;
+  const withheld = withheldLines(board);
 
   return (
     <details className="rounded-xl" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 45%, transparent)" }}>
@@ -150,10 +188,30 @@ export default function ModelRankedList({ board }: { board: Top10Board }) {
           ordered by the size of the difference. Terms are defined in the reading key above.
         </p>
 
-        {picks.length === 0 ? (
-          <p className="px-4 py-6" style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
-            No ranked picks for {board.date}. That is the model&rsquo;s answer for this slate, not a missing update.
+        {startedCount > 0 ? (
+          <p className="px-4 pb-1" style={{ color: "var(--vault-text-faint)", fontSize: 11.5, lineHeight: 1.6, maxWidth: "72ch" }}>
+            {startedCount} ranked {startedCount === 1 ? "pick has" : "picks have"} started since this list was built and{" "}
+            {startedCount === 1 ? "is" : "are"} no longer shown.
           </p>
+        ) : null}
+
+        {picks.length === 0 ? (
+          <div className="px-4 py-6" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, lineHeight: 1.6, maxWidth: "72ch" }}>
+            <p>
+              No model-ranked picks for {board.date}. That is the eligibility rule&rsquo;s answer for this slate, not a missing update.
+            </p>
+            {withheldCount > 0 ? (
+              <>
+                <p style={{ marginTop: 8 }}>
+                  {withheldCount} model {withheldCount === 1 ? "read was" : "reads were"} not ranked because the market family is not publicly eligible:
+                </p>
+                <ul style={{ marginTop: 4, paddingLeft: 18, listStyle: "disc" }}>
+                  {withheld.map((line) => <li key={line}>{line}</li>)}
+                </ul>
+                <p style={{ marginTop: 8 }}>The sportsbook prices for these markets are still shown below as market context.</p>
+              </>
+            ) : null}
+          </div>
         ) : (
           <ol className="list-none p-0 m-0">
             {picks.map((p, i) => (

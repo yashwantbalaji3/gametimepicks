@@ -19,6 +19,7 @@ import path from "node:path";
 import { etDayOf } from "@/lib/simulate/day-view";
 import { loadRoundOf32Board, type RoundOf32Game } from "@/lib/world-cup/round-of-32";
 import { MARKET_RELIABILITY, type LadderMarket } from "@/lib/methodology/ladder-policy";
+import { loadEligibilityInputs, partitionRankable, type EligibilityInputs, type WithheldRow } from "@/lib/top10/public-eligibility";
 
 export interface Top10Pick {
   id: string;
@@ -27,6 +28,8 @@ export interface Top10Pick {
   game: string;               // "Brazil v Norway"
   gameSlug: string | null;    // detail link when one exists
   market: string;             // human label
+  /** The forecast family key the coverage registry knows it by (PE-1 ranking eligibility). */
+  family: string;
   selection: string;
   odds: number;               // American
   modelProbability: number | null;
@@ -52,6 +55,12 @@ export interface Top10Board {
    * because four rows belonged to tomorrow" are different facts.
    */
   refusedWrongDay: { id: string; reason: string; day: string | null }[];
+  /**
+   * PE-1: candidates withheld from the ranking because their family is not publicly eligible (demoted,
+   * paused, not publicEligible, UFC, unresolved) or the status owners could not be read. Published for the
+   * same reason as `refusedWrongDay`: an empty ranking should say why it is empty.
+   */
+  withheldIneligible: WithheldRow[];
   overall: Top10Pick[];
   safe: Top10Pick[];
   value: Top10Pick[];
@@ -64,6 +73,15 @@ const readJson = (p: string): any => { try { return JSON.parse(fs.readFileSync(p
 const impliedProb = (american: number): number | null => {
   if (!Number.isFinite(american) || american === 0) return null;
   return round3(american < 0 ? -american / (-american + 100) : 100 / (american + 100));
+};
+
+/** WC team ladder market → the coverage registry's soccer family (the 90' match result is `match_result`). */
+const WC_REGISTRY_FAMILY: Record<LadderMarket, string> = {
+  double_chance: "double_chance",
+  draw_no_bet: "draw_no_bet",
+  moneyline_90: "match_result",
+  match_total_goals: "total_goals",
+  btts: "btts",
 };
 
 /** WC TEAM candidates from the knockout board — one candidate per (game, market), pregame only. */
@@ -99,7 +117,7 @@ function wcTeamPicks(root: string, nowMs: number): Top10Pick[] {
         id: `${g.gameSlug}:${marketKey}`,
         sport: "world-cup", kind: "team", flagCode,
         game: `${g.home} v ${g.away}`, gameSlug: g.gameSlug,
-        market: label, selection: pick.pick, odds: pick.americanOdds,
+        market: label, family: WC_REGISTRY_FAMILY[marketKey], selection: pick.pick, odds: pick.americanOdds,
         modelProbability: round3(pick.modelProbability), marketProbability: mkt,
         confidence: g.confidence,
         score: round3(rel * pick.modelProbability),
@@ -136,7 +154,7 @@ function wcPropPicks(root: string, date: string, nowMs: number): Top10Pick[] {
       id: `${r.matchId ?? r.fixture}:${r.player.name}:${r.market}`,
       sport: "world-cup", kind: "prop",
       game: r.fixture ?? "", gameSlug: null,
-      market, selection: `${r.player.name} — ${r.pick}${r.line != null ? ` ${r.line}` : ""} ${market}`,
+      market, family: String(r.market ?? ""), selection: `${r.player.name} — ${r.pick}${r.line != null ? ` ${r.line}` : ""} ${market}`,
       odds: r.americanOdds,
       modelProbability: round3(prob), marketProbability: mkt,
       confidence: r.confidence ?? "Lean",
@@ -170,7 +188,7 @@ function mlbPropPicks(root: string, date: string, nowMs: number): Top10Pick[] {
       id: r.id,
       sport: "mlb", kind: "prop",
       game: `${r.awayTeamAbbr} @ ${r.homeTeamAbbr}`, gameSlug: null,
-      market: r.marketLabel ?? r.marketKey, selection: `${r.playerName} ${r.lean} ${r.line} ${r.marketLabel ?? ""}`.trim(),
+      market: r.marketLabel ?? r.marketKey, family: String(r.marketKey ?? ""), selection: `${r.playerName} ${r.lean} ${r.line} ${r.marketLabel ?? ""}`.trim(),
       odds, modelProbability: round3(prob), marketProbability: typeof mkt === "number" ? round3(mkt) : impliedProb(odds),
       confidence: r.confidence ?? "Lean",
       // MLB leans settle nightly (validated pipeline) — 0.7 reliability vs team markets' 0.85-1.0.
@@ -206,7 +224,7 @@ function mlbTeamContextRows(root: string, date: string, nowMs: number): Top10Pic
       id: `mlb-team:${g.gameId}:${marketKey}`,
       sport: "mlb", kind: "team", flagCode: null,
       game: `${away} @ ${home}`, gameSlug: null,
-      market: `${label} · market`, selection,
+      market: `${label} · market`, family: marketKey, selection,
       odds: oddsN,
       modelProbability: null,                     // no independent model — MARKET CONTEXT only
       marketProbability: mkt,
@@ -300,14 +318,22 @@ export function refuseWrongDay(picks: Top10Pick[], date: string): { kept: Top10P
   return { kept, refused };
 }
 
-export function buildTop10Board(root: string, date: string, nowMs: number): Top10Board {
+export function buildTop10Board(
+  root: string,
+  date: string,
+  nowMs: number,
+  eligibility: EligibilityInputs = loadEligibilityInputs(root),
+): Top10Board {
   const candidates = [
     ...wcTeamPicks(root, nowMs),
     ...wcPropPicks(root, date, nowMs),
     ...mlbPropPicks(root, date, nowMs),
   ].sort((a, b) => b.score - a.score);
 
-  const { kept: all, refused: wrongDay } = refuseWrongDay(candidates, date);
+  const { kept: onDay, refused: wrongDay } = refuseWrongDay(candidates, date);
+  // PE-1: only families the coverage registry makes publicly eligible (not demoted, not paused, not UFC)
+  // may be RANKED as model picks. Fails closed when the registry or scorecard cannot be read.
+  const { kept: all, withheld } = partitionRankable(onDay, eligibility, nowMs);
 
   const wcTeam = all.filter((p) => p.kind === "team");
   // Team-markets tab: WC knockout team picks while the tournament is live; otherwise fall back to MLB
@@ -335,6 +361,7 @@ export function buildTop10Board(root: string, date: string, nowMs: number): Top1
      * them tells an operator something is wrong upstream.
      */
     refusedWrongDay: wrongDay,
+    withheldIneligible: withheld,
     overall: diversify(all),
     safe: diversify(safe),
     value: diversify(value),
