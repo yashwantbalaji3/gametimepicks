@@ -9,13 +9,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { eplMatchesOfRecord } from "./epl-matches-of-record.mjs";
+import { eplMatchesOfRecord, eplPublishedCopy } from "./epl-matches-of-record.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const F = JSON.parse(fs.readFileSync(path.join(HERE, "../sports/soccer/__fixtures__/canonical-match.json"), "utf8"));
 
 test("a match published under two kickoff ids is ONE question; the last pre-start copy is of record", () => {
-  const s = eplMatchesOfRecord({ copies: F.eplForecastCopies, graded: [], captures: F.eplCaptures });
+  // Soccer's identity fixture carries no forecast state; mark each copy as a priced published forecast.
+  const copies = F.eplForecastCopies.map((c) => ({ ...c, state: "CURRENT_PRE_EVENT", probs: { home: 0.4, draw: 0.3, away: 0.3 } }));
+  const s = eplMatchesOfRecord({ copies, graded: [], captures: F.eplCaptures });
   assert.equal(s.providerIds, 2);
   assert.equal(s.matches, 1);
   assert.equal(s.matchesWithSeveralIds, 1);
@@ -50,4 +52,33 @@ test("a row Soccer's identity refuses is UNKEYED (Q5): excluded and counted, nev
   const s = eplMatchesOfRecord({ copies: [], graded: [grade({ eventId: null, matchup: "Sunderland" })], captures: [] });
   assert.equal(s.graded.length, 0);
   assert.equal(s.unkeyed.length, 1);
+});
+
+/* Soccer 13F: "was it forecast?" is Soccer's one rule (published-forecast.mjs). */
+const P = { home: 0.4, draw: 0.3, away: 0.3 };
+
+test("13F: a match whose every copy withheld its probabilities is NOT FORECAST: never pending, never a loss", () => {
+  const copies = F.eplForecastCopies.map((c) => ({ ...c, state: "READY_EXCEPT_ODDS", unavailableReason: "probabilities withheld" }));
+  const s = eplMatchesOfRecord({ copies, graded: [], captures: F.eplCaptures });
+  assert.equal(s.matches, 0);
+  assert.equal(s.pending.length, 0);
+  assert.equal(s.notForecast.length, 1);
+  assert.equal(s.notForecast[0].reason, "probabilities withheld");
+  assert.equal(s.withheldCopies, 3);
+});
+
+test("13F: a withheld copy is never of record, even when it is the latest; a model-only copy with numbers is published", () => {
+  const [a, b, c] = F.eplForecastCopies;
+  const copies = [{ ...a, state: "CURRENT_PRE_EVENT", probs: P }, { ...b, state: "READY_EXCEPT_ODDS", modelOnly: true, probs: P }, { ...c, state: "READY_EXCEPT_ODDS" }];
+  const s = eplMatchesOfRecord({ copies, graded: [], captures: F.eplCaptures });
+  assert.equal(s.notForecast.length, 0);
+  assert.equal(s.pending.length, 1);
+  assert.equal(s.pending[0].publishedAt, b.publishedAt, "the last copy that published numbers, not the later withheld one");
+  assert.equal(s.withheldCopies, 1);
+});
+
+test("13F: a research-shaped row (nested model / modelOnly blocks) is read by the same rule", () => {
+  const [a] = F.eplForecastCopies;
+  assert.ok(eplPublishedCopy({ ...a, state: "READY_EXCEPT_ODDS", modelOnly: { probs: P } }));
+  assert.equal(eplPublishedCopy({ ...a, state: "SOMETHING_ELSE", model: { probs: P } }), null);
 });
