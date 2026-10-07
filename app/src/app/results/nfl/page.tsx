@@ -2,7 +2,8 @@
  * /results/nfl — every NFL prediction we published for a week, graded against the official box score (P296).
  *
  * The founder asked for a thorough reconciliation readers can see: each team and player prediction, hit or
- * miss, with a success rate per prop and overall. We publish ranges rather than over/under calls, so the
+ * miss, with a rate per prop. There is no "overall" rate: winner calls, likeliest-scorer calls and range
+ * coverage are different measurements and are shown apart, never added together (founder ruling 2026-10-07). We publish ranges rather than over/under calls, so the
  * page leads with what a "hit" means before it shows a single percentage — a rookie reading "85%" needs to
  * know that about 80% is the design target for a range, and that a higher number is not simply better.
  *
@@ -18,7 +19,7 @@ import path from "node:path";
 import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import SectionHeader from "@/components/section-header";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import { readAllNflWeekReports, readNflWeekReports, pct, unitFigure, type Outcome, type WeekGame } from "@/lib/sports/nfl/week-report-data";
+import { readAllNflWeekReports, readNflWeekReports, pct, separateWeekMetrics, unitFigure, type Outcome, type WeekGame } from "@/lib/sports/nfl/week-report-data";
 import { nflFamilyRecord } from "@/lib/results/v2/nfl-family-record.mjs";
 import NflFamilyDrilldown from "@/components/results/nfl-family-drilldown";
 
@@ -133,6 +134,7 @@ export default function NflWeekReportPage() {
   const pendingGames = latest.games.filter((g) => g.state === "PENDING");
   const team = (g: WeekGame, prop: string) => g.team.find((t) => t.prop === prop);
   const c = s.context.closerThanSportsbook;
+  const m = separateWeekMetrics(s.props);
 
   return (
     <div className="wr vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden flex flex-col gap-10">
@@ -140,10 +142,15 @@ export default function NflWeekReportPage() {
       <header style={{ maxWidth: 760 }}>
         <div className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 11, color: "var(--sport-nfl)" }}>NFL · {latest.period.label} report</div>
         <h1 className="font-display m-0 mt-2" style={{ color: "var(--vault-text)", fontSize: 28, lineHeight: 1.2, textWrap: "balance" }}>
-          {latest.period.label}: {pct(s.overall.rate)} of our predictions came true
+          {latest.period.label}: how our NFL forecasts did
         </h1>
+        <ul style={{ margin: "10px 0 0", paddingLeft: 18, fontSize: 15, lineHeight: 1.7, color: "var(--vault-text)" }}>
+          {m.winner ? <li>Winner calls: our favoured team won {m.winner.hits} of {m.winner.checks} ({pct(m.winner.rate)}).</li> : null}
+          {m.scorer ? <li>Likeliest touchdown scorer: scored in {m.scorer.hits} of {m.scorer.checks} games ({pct(m.scorer.rate)}).</li> : null}
+          {m.coverage ? <li>Range coverage: {m.coverage.hits} of {m.coverage.checks} actual results fell inside our forecast ranges ({pct(m.coverage.rate)}, against a target of {Math.round(m.coverage.target * 100)}%).</li> : null}
+        </ul>
         <p style={{ margin: "10px 0 0", fontSize: 14, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
-          {s.overall.hits} of {s.overall.checks} checks across {s.gamesFinal} final game{s.gamesFinal === 1 ? "" : "s"}, each graded exactly as we published it before kickoff against the official box score.
+          Across {s.gamesFinal} final game{s.gamesFinal === 1 ? "" : "s"}, each graded exactly as we published it before kickoff against the official box score. Coverage measures whether results landed inside our ranges, not whether a call was right, so these three are never added into one accuracy figure.
           {pendingGames.length ? ` ${pendingGames.map((g) => `${g.away.abbr} at ${g.home.abbr}`).join(", ")} ${pendingGames.length === 1 ? "is" : "are"} not final yet and will be added when ${pendingGames.length === 1 ? "it finishes" : "they finish"}.` : ""}
         </p>
       </header>
@@ -161,10 +168,10 @@ export default function NflWeekReportPage() {
       </section>
 
       <section aria-labelledby="by-prop">
-        <SectionHeader eyebrow={latest.period.label} title="Success rate by prediction" sub={`${s.gamesFinal} final game${s.gamesFinal === 1 ? "" : "s"} · void predictions are not counted`} />
+        <SectionHeader eyebrow={latest.period.label} title="Rate by prediction" sub={`${s.gamesFinal} final game${s.gamesFinal === 1 ? "" : "s"} · void predictions are not counted · each row stands alone; rows are never added together`} />
         <div className="scroll">
           <table style={{ minWidth: 800 }}>
-            <thead><tr><th scope="col">Prediction</th><th scope="col">Success rate</th><th scope="col">Hits</th><th scope="col">Void</th><th scope="col">Typical miss</th><th scope="col">Range width</th><th scope="col">What counts</th></tr></thead>
+            <thead><tr><th scope="col">Prediction</th><th scope="col">Rate</th><th scope="col">Hits</th><th scope="col">Void</th><th scope="col">Typical miss</th><th scope="col">Range width</th><th scope="col">What counts</th></tr></thead>
             <tbody>
               {s.props.map((p) => (
                 <tr key={p.id}>
@@ -185,15 +192,6 @@ export default function NflWeekReportPage() {
                   </td>
                 </tr>
               ))}
-              <tr>
-                <td style={{ fontWeight: 700, color: "var(--vault-text)" }}>Overall</td>
-                <td className="k" style={{ fontSize: 14, fontWeight: 700, color: "var(--vault-text)" }}>{pct(s.overall.rate)}</td>
-                <td className="k m">{s.overall.hits}/{s.overall.checks}</td>
-                <td />
-                <td />
-                <td />
-                <td className="m" style={{ fontSize: 12 }}>Every check above, added together.</td>
-              </tr>
             </tbody>
           </table>
         </div>
@@ -269,7 +267,7 @@ export default function NflWeekReportPage() {
         <p style={{ margin: 0 }}>{latest.source} {latest.disclaimer}</p>
         <p style={{ margin: "6px 0 0" }}>
           Graded {etKickoff(latest.generatedAt).replace(" ET", "")} ET
-          {earlier.length ? ` · earlier weeks: ${earlier.map((w) => `${w.label} ${pct(w.overall.rate)}`).join(" · ")}` : ""}
+          {earlier.length ? ` · earlier weeks: ${earlier.map((w) => w.label).join(", ")} (each week's measures are in the season table above)` : ""}
           {" · "}<Link href="/nfl/" style={{ color: "var(--vault-gold-bright)" }}>This week&rsquo;s NFL predictions</Link>
           {" · "}<Link href="/results/picks/nfl/" style={{ color: "var(--vault-gold-bright)" }}>NFL model record</Link>
         </p>

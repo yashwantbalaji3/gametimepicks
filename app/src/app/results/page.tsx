@@ -48,7 +48,7 @@ import {
   getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
 import { currentEtDate } from "@/lib/freshness";
-import { readNflWeekReports, pct as pctRate } from "@/lib/sports/nfl/week-report-data";
+import { readNflWeekReports, pct as pctRate, separateWeekMetrics } from "@/lib/sports/nfl/week-report-data";
 import { forecastRecordView } from "@/lib/results/v2/forecast-ledger-reader";
 import { resultsMode } from "@/lib/sport-capability-registry";
 import FreshnessBadge from "@/components/ui/freshness-badge";
@@ -159,6 +159,7 @@ function overviewProducts(): OverviewProduct[] {
 export default function ResultsPage() {
   const summary = getOptimizerSummary();
   const nflWeek = readNflWeekReports();
+  const nflMetrics = nflWeek.latest ? separateWeekMetrics(nflWeek.latest.summary.props) : null;
   const forecastKpis = forecastRecordView().kpis;
 
   // Leg-level PROJECTION accuracy (the model-quality lead) — settled-only,
@@ -348,10 +349,12 @@ export default function ResultsPage() {
               NFL · {nflWeek.latest.period.label} report
             </span>
             <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 16, lineHeight: 1.3 }}>
-              {pctRate(nflWeek.latest.summary.overall.rate)} of our NFL predictions came true
+              {nflMetrics?.winner ? <>Winner calls {nflMetrics.winner.hits} of {nflMetrics.winner.checks}</> : <>Winner calls not graded yet</>}
+              {nflMetrics?.scorer ? <> · likeliest TD scorer {nflMetrics.scorer.hits} of {nflMetrics.scorer.checks}</> : null}
             </span>
             <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
-              {nflWeek.latest.summary.overall.hits} of {nflWeek.latest.summary.overall.checks} checks across {nflWeek.latest.summary.gamesFinal} final games — every team and player prediction, graded against the official box score.
+              {nflMetrics?.coverage ? <>Range coverage: {nflMetrics.coverage.hits} of {nflMetrics.coverage.checks} results inside our ranges ({pctRate(nflMetrics.coverage.rate)}, target {Math.round(nflMetrics.coverage.target * 100)}%). </> : null}
+              Three separate measures across {nflWeek.latest.summary.gamesFinal} final games, graded against the official box score; never added together.
             </span>
           </div>
           <Link

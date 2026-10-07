@@ -25,6 +25,31 @@ export interface WeekProp {
   expectedHits?: number;
 }
 
+/**
+ * A week's three NFL measures, kept apart (Yash 2026-10-07, "SEPARATE"). Winner and likeliest-scorer are
+ * discrete calls; range coverage says whether actual results fell inside our forecast ranges and is measured
+ * against its 80% target. They are different kinds of measurement, so no page adds them into one "prediction
+ * accuracy" figure. Reads the graded props; coverage is the sum of the range props' own hits and checks.
+ */
+export interface SeparateWeekMetrics {
+  winner: WeekProp | null;
+  scorer: WeekProp | null;
+  coverage: { hits: number; checks: number; rate: number | null; target: number } | null;
+}
+export function separateWeekMetrics(props: WeekProp[]): SeparateWeekMetrics {
+  const graded = (id: string) => props.find((p) => p.id === id && p.checks > 0) ?? null;
+  const ranges = props.filter((p) => p.target != null && p.checks > 0);
+  const targets = new Set(ranges.map((p) => p.target));
+  const hits = ranges.reduce((n, p) => n + p.hits, 0);
+  const checks = ranges.reduce((n, p) => n + p.checks, 0);
+  return {
+    winner: graded("winner"),
+    scorer: graded("likeliest_scorer"),
+    // One target or none: ranges built to different targets are not one coverage figure either.
+    coverage: checks > 0 && targets.size === 1 ? { hits, checks, rate: hits / checks, target: [...targets][0] as number } : null,
+  };
+}
+
 export interface WeekGame {
   providerEventId: string;
   matchup: string;

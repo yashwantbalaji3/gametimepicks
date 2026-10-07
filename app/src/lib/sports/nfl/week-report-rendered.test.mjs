@@ -39,16 +39,30 @@ test("a reconciled week exists, so the checks below are not vacuous", () => {
   assert.ok(fs.existsSync(REPORT_HTML), "the built export has no /results/nfl page");
 });
 
-test("the headline, every prop's rate and the overall line render exactly as graded", () => {
+/* Founder ruling 2026-10-07 ("SEPARATE"): winner calls, likeliest-scorer calls and range coverage are three
+   different measurements. They render apart, coverage against its target, and nothing pools them. */
+const separate = (s) => {
+  const w = s.props.find((p) => p.id === "winner"), sc = s.props.find((p) => p.id === "likeliest_scorer");
+  const ranges = s.props.filter((p) => p.target != null && p.checks > 0);
+  const hits = ranges.reduce((n, p) => n + p.hits, 0), checks = ranges.reduce((n, p) => n + p.checks, 0);
+  return { w, sc, hits, checks, target: ranges[0]?.target };
+};
+
+test("the three measures, every prop's rate, and no pooled figure render exactly as graded", () => {
   const text = visibleText(fs.readFileSync(REPORT_HTML, "utf8"));
   const s = report.summary;
-  assert.ok(text.includes(`${report.period.label}: ${pct(s.overall.rate)} of our predictions came true`), "headline rate");
-  assert.ok(text.includes(`${s.overall.hits} of ${s.overall.checks} checks`), "headline count");
+  const { w, sc, hits, checks, target } = separate(s);
+  assert.ok(text.includes(`Winner calls: our favoured team won ${w.hits} of ${w.checks} (${pct(w.rate)})`), "winner measure");
+  assert.ok(text.includes(`Likeliest touchdown scorer: scored in ${sc.hits} of ${sc.checks} games (${pct(sc.rate)})`), "scorer measure");
+  assert.ok(text.includes(`Range coverage: ${hits} of ${checks} actual results fell inside our forecast ranges (${pct(hits / checks)}, against a target of ${Math.round(target * 100)}%)`), "coverage measure");
+  // No pooled figure: neither the old headline nor the pooled count/rate appears anywhere on the page.
+  assert.ok(!text.includes("came true"), "no 'came true' headline");
+  assert.ok(!text.includes(`${s.overall.hits}/${s.overall.checks}`) && !text.includes(`${s.overall.hits} of ${s.overall.checks}`), "the pooled count is not shown");
+  assert.doesNotMatch(text, /\bOverall\b/, "no Overall row");
   for (const p of s.props) {
     const row = new RegExp(`${p.label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?: · estimate)? ${pct(p.rate).replace(".", "\\.")} ${p.hits}/${p.checks}`);
     assert.match(text, row, `${p.label}: rendered row must read ${pct(p.rate)} ${p.hits}/${p.checks}`);
   }
-  assert.match(text, new RegExp(`Overall ${pct(s.overall.rate).replace(".", "\\.")} ${s.overall.hits}/${s.overall.checks}`));
 });
 
 test("every game is listed, and a game that is not final says so rather than disappearing", () => {
@@ -63,6 +77,9 @@ test("the card on /results quotes the same week, the same rate, and links to the
   const html = fs.readFileSync(HUB_HTML, "utf8");
   const text = visibleText(html);
   assert.ok(text.includes(`NFL · ${report.period.label} report`), "card eyebrow");
-  assert.ok(text.includes(`${pct(report.summary.overall.rate)} of our NFL predictions came true`), "card rate must equal the report's");
+  const { w, sc, hits, checks, target } = separate(report.summary);
+  assert.ok(text.includes(`Winner calls ${w.hits} of ${w.checks} · likeliest TD scorer ${sc.hits} of ${sc.checks}`), "card calls must equal the report's");
+  assert.ok(text.includes(`Range coverage: ${hits} of ${checks} results inside our ranges (${pct(hits / checks)}, target ${Math.round(target * 100)}%)`), "card coverage must equal the report's");
+  assert.ok(!text.includes("of our NFL predictions came true"), "the card carries no pooled NFL rate");
   assert.match(html, /href="\/results\/nfl\/?"/, "card links to the report");
 });
