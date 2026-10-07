@@ -20,6 +20,7 @@ import type { FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
 import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
 import { medianRunsCopy, MEDIAN_RUNS_LABEL } from "@/lib/mlb/prediction/median-runs-copy.mjs";
+import { modelImpliedTotal, modelTotalCopy, type ModelImpliedTotal } from "@/lib/mlb/full-game/model-total";
 
 const int0 = (n: number): string => Math.round(n).toLocaleString();
 
@@ -129,8 +130,30 @@ function PredictionCard({ label, pick, prob, strength, unavailable }: { label: s
   );
 }
 
+/**
+ * The model-implied total (founder decision 2026-10-07): when the over/under CALL is paused or has no pick, the
+ * simulation still produced a total in the same games as the winner and score above — so show it as the model's
+ * view, with the product pause named beside it. No pick, no strength label: nothing here can become a board leg.
+ */
+function ModelTotalCard({ t, productPaused, modelVersion }: { t: ModelImpliedTotal; productPaused: boolean; modelVersion?: string | null }) {
+  const c = modelTotalCopy(t, { productPaused, modelVersion });
+  return (
+    <div className="rounded-[12px] px-3 py-3 flex flex-col gap-1" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-border)" }}>
+      <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{c.eyebrow}</span>
+      <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 17, fontWeight: 800, lineHeight: 1.1 }}>{c.headline}</span>
+      <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>{c.median}</span>
+      <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>{c.sportsbook}</span>
+      {c.splits.map((l) => (
+        <span key={l} className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 10 }}>{l}</span>
+      ))}
+      <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{c.source}</span>
+      <span className="font-mono uppercase tracking-[0.08em] mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{c.status}</span>
+    </div>
+  );
+}
+
 /** The prediction-first hero: the direct answers the simulation gives, before any probability evidence. */
-function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecision; runCount?: number | null , spreadLabel: string }) {
+function PredictionHero({ p, runCount , spreadLabel, g, modelVersion }: { p: GamePredictionDecision; runCount?: number | null , spreadLabel: string; g?: FullGameSimGame | null; modelVersion?: string | null }) {
   if (!p.projectedScore) return null;
   /* Live-record gate: a paused winner call has no predictedWinner; the hero says so instead of naming a side.
      Without a pause and without a winner there is nothing to lead with, as before. */
@@ -140,6 +163,7 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
   const ml = p.moneyline;
   const total = p.total;
   const rl = p.runLine;
+  const modelTotal = modelImpliedTotal(g);
   /* Two separate team medians, not a simulated final: shown as "CWS 4 · CLE 4" with its own name, so a tie can
      never read as a predicted tied final next to the winner (median-runs-copy.mjs). */
   const medianRuns = medianRunsCopy(p.projectedScore, p.awayTeam, p.homeTeam);
@@ -179,6 +203,8 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
             })()}
             strength={shortStrength(total.strengthLabel)}
           />
+        ) : modelTotal ? (
+          <ModelTotalCard t={modelTotal} productPaused={Boolean(total?.pausedReason)} modelVersion={modelVersion ?? null} />
         ) : (
           <PredictionCard label="Total" pick="" prob="" strength="" unavailable={total?.unavailableReason ?? "No line"} />
         )}
@@ -248,7 +274,7 @@ function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame
   );
 }
 
-function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, storySlot, saveSlot }: { g: FullGameSimGame; prediction: GamePredictionDecision | null; awayCode: string; homeCode: string; awayLogo?: string | null; homeLogo?: string | null; storySlot?: ReactNode; saveSlot?: ReactNode }) {
+function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, storySlot, saveSlot, modelVersion }: { g: FullGameSimGame; prediction: GamePredictionDecision | null; modelVersion?: string | null; awayCode: string; homeCode: string; awayLogo?: string | null; homeLogo?: string | null; storySlot?: ReactNode; saveSlot?: ReactNode }) {
   const V = g.vocabulary ?? BASEBALL_VOCAB;
   if (!g.winProbability || !g.runs || !g.totalRuns) return null;
   const rl15 = g.runLine.find((r) => r.line === 1.5);
@@ -329,7 +355,7 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
           delivers the projected score, the win probability and the total, so the hero repeated the
           same three numbers directly beneath itself. The honest "these teams project level" note it
           carried now rides on the head-to-head. */}
-      {prediction ? <PredictionHero p={prediction} runCount={g.runCount} spreadLabel={(g.vocabulary ?? BASEBALL_VOCAB).spreadLabel} /> : null}
+      {prediction ? <PredictionHero p={prediction} runCount={g.runCount} spreadLabel={(g.vocabulary ?? BASEBALL_VOCAB).spreadLabel} g={g} modelVersion={modelVersion} /> : null}
       {/* P319: save exactly this forecast — the same card the homepage would feature for this game. */}
       {saveSlot ? <div style={{ display: "flex", justifyContent: "flex-end" }}>{saveSlot}</div> : null}
       {/* P308: the inline simulation story — under the answer, never over it; the report below stays the record. */}
@@ -735,7 +761,7 @@ export default function MlbFullGameReport({
 
       {/* Panels */}
       <div role="tabpanel">
-        {tab === "overview" && (available ? <Overview g={g} prediction={prediction} awayCode={awayCode} homeCode={homeCode} awayLogo={awayLogo} homeLogo={homeLogo} storySlot={storySlot} saveSlot={saveSlot} /> : <UnavailableNote g={g} />)}
+        {tab === "overview" && (available ? <Overview g={g} prediction={prediction} modelVersion={meta?.modelVersion ?? null} awayCode={awayCode} homeCode={homeCode} awayLogo={awayLogo} homeLogo={homeLogo} storySlot={storySlot} saveSlot={saveSlot} /> : <UnavailableNote g={g} />)}
         {tab === "box" && (available ? <BoxScore g={g} /> : <UnavailableNote g={g} />)}
         {tab === "market" && <div>{marketNode}</div>}
         {tab === "players" && <div>{deepDive}</div>}
