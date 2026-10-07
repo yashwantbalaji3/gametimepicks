@@ -195,6 +195,7 @@ export function loadRows() {
       const q = (side === "over" ? o : u) / (o + u);   // de-vigged
 
       rows.push({
+        id: lean.id,
         date: settled.date ?? f.slice(0, 10),
         market: lean.marketKey,
         confidence: lean.confidence,

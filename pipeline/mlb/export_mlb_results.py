@@ -103,8 +103,11 @@ def _load_comparison_reports() -> dict[str, dict]:
     return reports
 
 
-def _of_record(rows: list[dict]) -> tuple[list[dict], dict]:
-    """Rows of record + the disclosure, from the JS rule. Raises when it cannot be applied (fail closed)."""
+def _of_record(rows: list[dict], leans_path: Path | None = None) -> tuple[list[dict], dict]:
+    """Rows of record + the disclosure, from the JS rule. Raises when it cannot be applied (fail closed).
+
+    `rows` must be every row read from `leans_path`. pipeline.model_audit calls this too, so the MLB audit
+    counts the same rows of record as lifetime_summary.json and graded-picks.json."""
     if not rows:
         return [], {"superseded": 0, "late": 0, "conflictRows": 0, "ambiguousRevision": 0, "unkeyed": 0}
     ids = [r.get("id") for r in rows]
@@ -115,7 +118,7 @@ def _of_record(rows: list[dict]) -> tuple[list[dict], dict]:
     node = shutil.which("node")
     if node is None:
         raise RuntimeError("forecast of record: `node` is not on PATH — refusing to publish an uncorrected lifetime record")
-    cmd = [node, str(OF_RECORD_CLI), "--leans", str(SETTLED_LEANS_PATH), "--games", str(PUBLIC_DIR / GAME_GRADER_NAME)]
+    cmd = [node, str(OF_RECORD_CLI), "--leans", str(leans_path or SETTLED_LEANS_PATH), "--games", str(PUBLIC_DIR / GAME_GRADER_NAME)]
     proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
     if proc.returncode != 0:
         raise RuntimeError(f"forecast of record: {OF_RECORD_CLI.name} failed: {proc.stderr.strip()}")

@@ -739,6 +739,21 @@ def build_audit(
 # ─────────────────────────────────────────────────────────────────────
 
 
+def _mlb_rows_of_record(
+    rows: list[dict[str, Any]], path: str
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Stage 3B: the MLB audit counts each lean claim once, under the same
+    forecast-of-record rule as lifetime_summary.json and graded-picks.json
+    (app/src/lib/results/mlb-leans-of-record.mjs). Earlier copies of a
+    re-issued lean stay in the JSONL and are disclosed, never counted.
+    Raises when the rule cannot be applied (fail closed)."""
+    from pathlib import Path
+
+    from .mlb.export_mlb_results import _of_record
+
+    return _of_record(rows, Path(path))
+
+
 def _atomic_write_json(path: str, payload: dict[str, Any]) -> None:
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     tmp = f"{path}.tmp"
@@ -755,8 +770,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     nba_rows = _load_jsonl(args.nba_jsonl)
-    mlb_rows = _load_jsonl(args.mlb_jsonl)
+    mlb_rows, mlb_not_of_record = _mlb_rows_of_record(_load_jsonl(args.mlb_jsonl), args.mlb_jsonl)
     payload = build_audit(nba_rows, mlb_rows)
+    payload["sports"]["mlb"]["notOfRecord"] = mlb_not_of_record
     _atomic_write_json(args.out, payload)
 
     nba = payload["sports"]["nba"]

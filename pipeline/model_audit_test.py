@@ -17,7 +17,11 @@ Run:  python -m pipeline.model_audit_test
 """
 from __future__ import annotations
 
+import json
 import sys
+import tempfile
+from pathlib import Path
+from unittest import mock
 
 from . import model_audit as MA
 
@@ -378,6 +382,58 @@ def test_atomic_write_creates_dir(s: Suite) -> None:
         s.assert_eq(data, {"hello": "world"}, "payload round-trips")
 
 
+FIXTURE_824785 = (
+    Path(__file__).resolve().parents[1] / "app" / "src" / "lib" / "results" / "__fixtures__"
+    / "mlb-leans-of-record" / "postponed-824785.json"
+)
+
+
+def _run_audit_on_fixture(tdir: Path, leans: list[dict], games: list[dict]) -> dict:
+    """main() on a temp MLB JSONL + game-grader log; returns the written audit."""
+    from .mlb import export_mlb_results as exp
+
+    settled = tdir / "mlb_settled_leans.jsonl"
+    settled.write_text("\n".join(json.dumps(r) for r in leans) + "\n")
+    (tdir / exp.GAME_GRADER_NAME).write_text("\n".join(json.dumps(g) for g in games) + "\n")
+    out = tdir / "model_audit.json"
+    with mock.patch.object(exp, "PUBLIC_DIR", tdir):
+        MA.main(["--nba-jsonl", str(tdir / "none.jsonl"), "--mlb-jsonl", str(settled), "--out", str(out)])
+    return json.loads(out.read_text())
+
+
+def test_mlb_audit_counts_leans_of_record(s: Suite) -> None:
+    """Stage 3B: the MLB audit uses the same forecast-of-record rule as
+    lifetime_summary.json and graded-picks.json (postponed 824785 fixture,
+    the same expectations export_mlb_results_test pins)."""
+    fx = json.loads(FIXTURE_824785.read_text())
+    e = fx["expect"]
+    with tempfile.TemporaryDirectory() as tdir:
+        audit = _run_audit_on_fixture(Path(tdir), fx["leans"], fx["gameGrader"])
+    mlb = audit["sports"]["mlb"]
+    s.assert_eq(mlb["lifetime"]["wins"], e["record"]["win"], "audit wins of record")
+    s.assert_eq(mlb["lifetime"]["losses"], e["record"]["loss"], "audit losses of record")
+    s.assert_eq(mlb["notOfRecord"]["superseded"], e["superseded"]["rows"], "superseded disclosed")
+    s.assert_eq(
+        sum(r["wins"] for r in mlb["byDate"]), e["record"]["win"],
+        "per-date wins add up to the record (no earlier-board copy left in a date)",
+    )
+
+
+def test_mlb_audit_fails_closed_without_the_rule(s: Suite) -> None:
+    from .mlb import export_mlb_results as exp
+
+    fx = json.loads(FIXTURE_824785.read_text())
+    with tempfile.TemporaryDirectory() as tdir:
+        with mock.patch.object(exp.shutil, "which", return_value=None):
+            try:
+                _run_audit_on_fixture(Path(tdir), fx["leans"], fx["gameGrader"])
+            except RuntimeError:
+                s.assert_true(True, "audit refused without the forecast-of-record rule")
+            else:
+                s.assert_true(False, "audit published an MLB record without the forecast-of-record rule")
+            s.assert_true(not (Path(tdir) / "model_audit.json").exists(), "no audit file written")
+
+
 # ─────────────────────────────────────────────────────────────────────
 # Runner
 # ─────────────────────────────────────────────────────────────────────
@@ -399,6 +455,8 @@ def main() -> int:
         test_weak_strong_cohorts_require_min_decisive,
         test_build_audit_integration,
         test_atomic_write_creates_dir,
+        test_mlb_audit_counts_leans_of_record,
+        test_mlb_audit_fails_closed_without_the_rule,
     ]
     for t in tests:
         t(s)
