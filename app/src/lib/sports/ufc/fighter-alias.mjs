@@ -89,6 +89,8 @@ const GIVEN_NAME_FORMS = [
   ["charles", "charlie", "chuck"],
   ["steven", "steve"],
   ["stephen", "steve"],
+  // Seen 2026-10-06: card "Loopy Godínez" ↔ provider "lupita godinez" (the Oct 10 Fight Night).
+  ["lupita", "loopy"],
 ];
 const SAME_GIVEN = new Map();
 for (const row of GIVEN_NAME_FORMS) for (const n of row) {
@@ -115,12 +117,57 @@ export function sameFighterByGivenName(a, b) {
   return sameGivenName(x[0], y[0]);
 }
 
+/*
+ * ONE NAME, TWO ROMANISATIONS (2026-10-07).
+ *
+ * The Oct 10 Fight Night priced 10 of 12 bouts. One of the two misses was the same fighter written
+ * from Russian two ways:
+ *
+ *   card "Daria Zhelezniakova" ↔ provider "darya zheleznyakova"
+ *
+ * Cyrillic "я" and "ю" are written "ia"/"iu" by one source and "ya"/"yu" by another. The fold
+ * below turns an "i" in front of "a" or "u" into "y" on BOTH names, then compares the whole name.
+ * Nothing else changes: the family name still has to agree letter for letter after the fold, both
+ * fighters in the bout still have to agree, and ambiguity still refuses.
+ */
+export function romanisedForm(foldedName) {
+  const b = base(foldedName);
+  return b ? b.replace(/i(?=[au])/g, "y").replace(/\s+/g, "") : null;
+}
+
 /** True when two folded names are the same fighter under either loose form, or a given-name pair. */
 export function looselySameFighter(a, b) {
   const x = looseForms(a);
   const y = looseForms(b);
   if (!x || !y) return false;
-  return x.joined === y.joined || x.ordered === y.ordered || sameFighterByGivenName(a, b);
+  return x.joined === y.joined || x.ordered === y.ordered || sameFighterByGivenName(a, b) ||
+    romanisedForm(a) === romanisedForm(b);
+}
+
+/**
+ * Which provider outcome name is each card fighter's price, once a bout is joined.
+ *
+ * The join above matches the BOUT; the prices inside it are still keyed by the book's own spelling.
+ * Looking a price up by the card's spelling found nothing for every rescued fighter, so an alias
+ * join published one side with no price (Oct 10: "Kai Kamaka III" vs the book's "kai kamaka"). This
+ * maps each card fighter to exactly one outcome: the exact fold first, otherwise the single outcome
+ * that loosely matches. Two card fighters may never claim the same outcome; ambiguity returns null.
+ *
+ * @param {string[]} cardSides     the bout's two ALREADY-FOLDED card names
+ * @param {Iterable} outcomeKeys   the folded outcome names the book posted for this bout
+ * @returns {(string|null)[]} the outcome key for each card side, or null where it cannot be said
+ */
+export function resolveOutcomeNames(cardSides, outcomeKeys) {
+  const keys = [...new Set(outcomeKeys)];
+  const pick = (name) => {
+    if (!name) return null;
+    if (keys.includes(name)) return name;
+    const hits = keys.filter((k) => looselySameFighter(name, k));
+    return hits.length === 1 ? hits[0] : null;
+  };
+  const out = (cardSides ?? []).map(pick);
+  if (out.length === 2 && out[0] && out[0] === out[1]) return [null, null];
+  return out;
 }
 
 /**

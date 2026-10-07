@@ -123,3 +123,42 @@ test("BOTH sides must still agree under the given-name rule", () => {
   const keys = ["alex hernandez|somebody else"];
   assert.equal(findLooseMatch([fold("Rafael Dos Anjos"), fold("Alexander Hernandez")], keys), null);
 });
+
+/* ── OCT 10 FIGHT NIGHT (2026-10-06 capture): a nickname and a second romanisation ────────────── */
+
+test("Oct 10 · the two bouts the 2026-10-06 capture could not join now join", () => {
+  // The real unmatched provider keys from that capture, against the card's spellings.
+  const keys = ["alice pereira|darya zheleznyakova", "ketlen souza|lupita godinez"];
+  assert.equal(findLooseMatch([fold("Daria Zhelezniakova"), fold("Alice Pereira")], keys), "alice pereira|darya zheleznyakova");
+  assert.equal(findLooseMatch([fold("Ketlen Souza"), fold("Loopy Godínez")], keys), "ketlen souza|lupita godinez");
+});
+
+test("ROMANISATION FLOOR · only i→y before a or u, and the rest of the name must match exactly", async () => {
+  const { romanisedForm } = await import("./fighter-alias.mjs");
+  assert.equal(romanisedForm("daria zhelezniakova"), romanisedForm("darya zheleznyakova"));
+  assert.equal(looselySameFighter("yulia ivanova", "iulia ivanova"), true);
+  assert.equal(looselySameFighter("daria ivanova", "darya petrova"), false, "different family name");
+  assert.equal(looselySameFighter("maria silva", "mario silva"), false, "a different vowel is a different name");
+  assert.equal(looselySameFighter("ilia topuria", "ilya topuria"), true);
+  assert.equal(looselySameFighter("luis pena", "luys pena"), false, "i before s is never folded");
+});
+
+test("PRICE SIDES · a rescued join prices both fighters under the book's own spelling", async () => {
+  const { resolveOutcomeNames } = await import("./fighter-alias.mjs");
+  // Oct 10: the card's "Kai Kamaka III" was posted by the book as "Kai Kamaka"; before this, that side
+  // published with no price even though seven books had one.
+  assert.deepEqual(resolveOutcomeNames([fold("Andre Fili"), fold("Kai Kamaka III")], ["andre fili", "kai kamaka"]), ["andre fili", "kai kamaka"]);
+  assert.deepEqual(resolveOutcomeNames([fold("Ketlen Souza"), fold("Loopy Godínez")], ["ketlen souza", "lupita godinez"]), ["ketlen souza", "lupita godinez"]);
+  // An exact spelling always wins and is untouched.
+  assert.deepEqual(resolveOutcomeNames(["a b", "c d"], ["c d", "a b"]), ["a b", "c d"]);
+  // Missing stays missing: a fighter the book did not post gets null, never the other fighter's price.
+  assert.deepEqual(resolveOutcomeNames(["andre fili", "kai kamaka iii"], ["andre fili"]), ["andre fili", null]);
+});
+
+test("PRICE SIDES REFUSE · two card fighters may never share one price", async () => {
+  const { resolveOutcomeNames } = await import("./fighter-alias.mjs");
+  // Both card names loosely match the single outcome: neither side may take it.
+  assert.deepEqual(resolveOutcomeNames(["alex hernandez", "alexander hernandez"], ["alexander hernandez jr"]), [null, null]);
+  // One card name loosely matches two outcomes: ambiguity, no price.
+  assert.deepEqual(resolveOutcomeNames(["alex hernandez", "rafael dos anjos"], ["alexander hernandez", "alexandre hernandez", "rafael dos anjos"]), [null, "rafael dos anjos"]);
+});
