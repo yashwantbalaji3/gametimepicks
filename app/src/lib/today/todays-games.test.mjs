@@ -120,3 +120,17 @@ test("on committed data, NFL / MLB / EPL / UFC counts equal product-day's buildS
   }
   assert.ok(compared >= 18, "anti-vacuity");
 });
+
+test("T1 · a game with no forecast is listed and counted, and its forecast state is a separate field", () => {
+  const day = buildTodaysGames({
+    today: MON, nowMs: at("2026-10-05T12:00Z"),
+    sports: [{ sport: "nba", known: true, rows: [row({ eventId: "nba:1", startUtc: "2026-10-05T23:30Z", hasForecast: false })] }],
+  });
+  assert.equal(day.state, "EVENTS", "a missing prediction never reads as 'schedule still loading'");
+  assert.equal(day.eventsToday, 1);
+  assert.equal(day.forecastsToday, 0);
+  const [r] = day.rows;
+  assert.equal(r.forecast, "NONE");
+  assert.equal(r.forecastText, "No GameTimePicks forecast");
+  assert.doesNotMatch(r.statusText, /forecast/i, "the status line says what the game is doing, not whether we forecast it");
+});
