@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T16:22:43Z",
- "sourceGeneratedAt": "2026-10-07T16:22:43Z",
+ "generatedAt": "2026-10-07T20:32:23Z",
+ "sourceGeneratedAt": "2026-10-07T20:32:23Z",
  "providerEventId": "401872989",
  "matchup": "DEN @ LAC",
  "kickoffUtc": "2026-10-11T20:05Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
-  "roleEvidenceAt": "2026-10-07T16:22:43Z",
+  "injuriesCapturedAt": "2026-10-07T20:32:23Z",
+  "roleEvidenceAt": "2026-10-07T20:32:23Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -119,7 +119,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 61,
+  "absent": 64,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -272,8 +272,8 @@
   },
   "LAC": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -387,6 +387,17 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-3123076",
+     "name": "David Njoku",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
      "playerId": "nfl-athlete-4241263",
      "name": "Charlie Kolar",
      "state": "PROJECTED",
@@ -407,12 +418,6 @@
       "player_receptions"
      ],
      "participation": "QUESTIONABLE"
-    },
-    {
-     "playerId": "nfl-athlete-3123076",
-     "name": "David Njoku",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
     },
     {
      "playerId": "nfl-athlete-4426535",
@@ -508,12 +513,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.6658,
-    "originalSum": 0.6658,
-    "residualOther": 0.3342,
-    "joined": 6,
+    "sum": 0.8131,
+    "originalSum": 0.8131,
+    "residualOther": 0.1869,
+    "joined": 7,
     "missed": 0,
-    "state": "UNDER_ALLOCATED"
+    "state": "CONSERVED"
    }
   ],
   "violations": 0
@@ -764,6 +769,36 @@
     },
     "anytime_td": {
      "probability": 0.1875,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3123076",
+   "name": "David Njoku",
+   "team": "LAC",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 24.202,
+     "p10": 0,
+     "p25": 5.47,
+     "median": 18.04,
+     "p75": 36.51,
+     "p90": 57.33,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 3.2421,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 5,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1836,
      "pricingState": "NOT_PROBED"
     }
    }

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "availability-audit",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-07T17:38:57Z",
+  "generatedAt": "2026-10-07T20:06:38Z",
   "question": "Can a participant who cannot or is not expected to play still enter the active simulation population?",
   "sports": {
     "nfl": {
@@ -617,7 +617,7 @@
       "hardExclusionReachable": true,
       "state": "ACTIVE",
       "slate": "2026-10-07.json",
-      "confirmedLineups": 0,
+      "confirmedLineups": 1,
       "totalSimulated": 4,
       "events": [
         {
@@ -625,22 +625,21 @@
           "matchup": "CLE @ CWS",
           "startUtc": "2026-10-07T20:00:00Z",
           "lineupSource": {
-            "away": "prop-derived",
-            "home": "prop-derived"
+            "away": "confirmed",
+            "home": "confirmed"
           },
-          "confirmed": false,
-          "includedBatters": 14,
+          "confirmed": true,
+          "includedBatters": 18,
           "startersKnown": true,
           "level": "degraded",
           "missingFamilies": [
-            "confirmed_batting_order",
             "park_run_factors",
             "weather",
             "batter_handedness_splits"
           ],
           "notes": [
-            "CLE lineup padded: 7/9 batters have a posted line and the rest are at replacement level; CLE have not posted a batting order yet, and this refreshes hourly until they do.",
-            "CWS lineup padded: 7/9 batters have a posted line and the rest are at replacement level; CWS have not posted a batting order yet, and this refreshes hourly until they do.",
+            "CLE confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level.",
+            "CWS confirmed batting order used; 2 of 9 have no posted prop line and are priced at replacement level.",
             "CLE starter Daniel Espino has no strikeout projection — league starter rate used.",
             "CWS starter Sean Newcomb has no strikeout projection — league starter rate used."
           ]
@@ -717,7 +716,7 @@
         }
       ],
       "gaps": [
-        "4 of 4 simulated games ran on a PROP-DERIVED lineup because no batting order had been posted yet. A batter enters that lineup because a sportsbook posted a line for him, so a player scratched AFTER the lines were posted can still be simulated. The artifact records this as level \"degraded\" with lineupSource \"prop-derived\" and the hourly lineup refresh replaces it once the order lands — it is a labelled weaker state, not a silent one."
+        "3 of 4 simulated games ran on a PROP-DERIVED lineup because no batting order had been posted yet. A batter enters that lineup because a sportsbook posted a line for him, so a player scratched AFTER the lines were posted can still be simulated. The artifact records this as level \"degraded\" with lineupSource \"prop-derived\" and the hourly lineup refresh replaces it once the order lands — it is a labelled weaker state, not a silent one."
       ]
     },
     "epl": {
@@ -829,10 +828,10 @@
       "owner": "track-ufc-card-lineage.mjs · classifyUfcLineage over consecutive schedule captures",
       "hardExclusionReachable": true,
       "state": "NO_CHANGE",
-      "receipt": "2026-10-06.json",
-      "generatedAt": "2026-10-06T17:07:05Z",
+      "receipt": "2026-10-07.json",
+      "generatedAt": "2026-10-07T19:20:00Z",
       "boutClasses": {
-        "UNCHANGED": 86
+        "UNCHANGED": 83
       },
       "excluded": [],
       "events": [],
