@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T00:23:08Z",
- "sourceGeneratedAt": "2026-10-07T00:23:08Z",
+ "generatedAt": "2026-10-07T16:22:43Z",
+ "sourceGeneratedAt": "2026-10-07T16:22:43Z",
  "providerEventId": "401872981",
  "matchup": "PHI @ JAX",
  "kickoffUtc": "2026-10-11T13:30Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T00:23:08Z",
-  "roleEvidenceAt": "2026-10-07T00:23:08Z",
+  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
+  "roleEvidenceAt": "2026-10-07T16:22:43Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -26,19 +26,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "PHI",
-      "pool": "passAttempts",
-      "originalSum": 1.3634,
-      "normalizedSum": 1,
-      "factor": 0.7335,
-      "playerIds": [
-       "nfl-athlete-4040715",
-       "nfl-athlete-4685201"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -147,7 +135,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 59,
+  "absent": 58,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -266,10 +254,16 @@
      "name": "Tanner McKee",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_pass_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4241372",
@@ -425,14 +419,21 @@
   "qbStarter": [
    {
     "team": "PHI",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4040715",
-     "nfl-athlete-4685201"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4040715",
+     "name": "Jalen Hurts"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4685201",
+      "name": "Tanner McKee"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-4040715"
+    ]
    },
    {
     "team": "JAX",
@@ -445,19 +446,6 @@
   ],
   "pools": [
    {
-    "team": "PHI",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 1.3634,
-    "residualOther": 0,
-    "joined": 2,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "JAX",
     "pool": "passAttempts",
     "markets": [
@@ -466,6 +454,19 @@
     "sum": 0.9976,
     "originalSum": 0.9976,
     "residualOther": 0.0024,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "PHI",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9883,
+    "originalSum": 0.9883,
+    "residualOther": 0.0117,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -915,16 +916,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 146.8569,
-     "p10": 73.2957,
-     "p25": 100.3611,
-     "median": 137.7289,
-     "p75": 183.4487,
-     "p90": 232.234,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.7335
-     },
+     "mean": 200.2247,
+     "p10": 99.9314,
+     "p25": 136.8323,
+     "median": 187.7796,
+     "p75": 250.114,
+     "p90": 316.6278,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1071,19 +1068,6 @@
    "team": "PHI",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_pass_yds": {
-     "mean": 59.3477,
-     "p10": 20.0136,
-     "p25": 32.6538,
-     "median": 52.1807,
-     "p75": 78.3203,
-     "p90": 108.0747,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.7335
-     },
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0544,
      "pricingState": "NOT_PROBED"

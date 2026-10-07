@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T00:23:08Z",
- "sourceGeneratedAt": "2026-10-07T00:23:08Z",
+ "generatedAt": "2026-10-07T16:22:43Z",
+ "sourceGeneratedAt": "2026-10-07T16:22:43Z",
  "providerEventId": "401872985",
  "matchup": "IND @ PIT",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T00:23:08Z",
-  "roleEvidenceAt": "2026-10-07T00:23:08Z",
+  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
+  "roleEvidenceAt": "2026-10-07T16:22:43Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -26,20 +26,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "IND",
-      "pool": "passAttempts",
-      "originalSum": 1.7399,
-      "normalizedSum": 1,
-      "factor": 0.5747,
-      "playerIds": [
-       "nfl-athlete-3917792",
-       "nfl-athlete-4683423",
-       "nfl-athlete-4429084"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -142,17 +129,17 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 63,
+  "absent": 61,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "IND": {
    "counts": {
-    "PROJECTED": 12,
+    "PROJECTED": 11,
     "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
-    "NOT_MODELED_BY_FAMILY": 0,
+    "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -218,10 +205,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4874509",
@@ -276,15 +269,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4683423",
-     "name": "Riley Leonard",
-     "state": "PROJECTED",
-     "families": [
-      "player_pass_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4360078",
      "name": "Alec Pierce",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -295,6 +279,19 @@
      "name": "Darius Slayton",
      "state": "WITHHELD_ROLE_UNCERTAIN",
      "reason": "no game for IND yet this season — role at IND not yet observed"
+    },
+    {
+     "playerId": "nfl-athlete-4683423",
+     "name": "Riley Leonard",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     }
    ]
   },
@@ -432,15 +429,25 @@
   "qbStarter": [
    {
     "team": "IND",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3917792",
-     "nfl-athlete-4429084",
-     "nfl-athlete-4683423"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3917792",
+     "name": "Daniel Jones"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4429084",
+      "name": "Anthony Richardson Sr."
+     },
+     {
+      "playerId": "nfl-athlete-4683423",
+      "name": "Riley Leonard"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-3917792"
+    ]
    },
    {
     "team": "PIT",
@@ -453,19 +460,6 @@
   ],
   "pools": [
    {
-    "team": "IND",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 1.7399,
-    "residualOther": 0,
-    "joined": 3,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "PIT",
     "pool": "passAttempts",
     "markets": [
@@ -474,6 +468,19 @@
     "sum": 0.9843,
     "originalSum": 0.9843,
     "residualOther": 0.0157,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "IND",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9722,
+    "originalSum": 0.9722,
+    "residualOther": 0.0278,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -820,19 +827,6 @@
      "p90": 23.22,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 45.1738,
-     "p10": 14.8474,
-     "p25": 24.518,
-     "median": 39.5506,
-     "p75": 59.7756,
-     "p90": 82.8784,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5747
-     },
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1653,
      "pricingState": "NOT_PROBED"
@@ -957,16 +951,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 118.3355,
-     "p10": 61.3459,
-     "p25": 82.6014,
-     "median": 111.613,
-     "p75": 146.7724,
-     "p90": 184.0211,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5747
-     },
+     "mean": 205.8919,
+     "p10": 106.7358,
+     "p25": 143.7182,
+     "median": 194.1954,
+     "p75": 255.3693,
+     "p90": 320.1783,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1133,27 +1123,6 @@
     },
     "anytime_td": {
      "probability": 0.0408,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4683423",
-   "name": "Riley Leonard",
-   "team": "IND",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 54.56,
-     "p10": 20.4948,
-     "p25": 31.8335,
-     "median": 48.8533,
-     "p75": 71.1233,
-     "p90": 96.0716,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5747
-     },
      "pricingState": "NOT_PROBED"
     }
    }

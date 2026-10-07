@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T00:23:08Z",
- "sourceGeneratedAt": "2026-10-07T00:23:08Z",
+ "generatedAt": "2026-10-07T16:22:43Z",
+ "sourceGeneratedAt": "2026-10-07T16:22:43Z",
  "providerEventId": "401872984",
  "matchup": "HOU @ TEN",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T00:23:08Z",
-  "roleEvidenceAt": "2026-10-07T00:23:08Z",
+  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
+  "roleEvidenceAt": "2026-10-07T16:22:43Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -26,19 +26,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "HOU",
-      "pool": "passAttempts",
-      "originalSum": 1.6553,
-      "normalizedSum": 1,
-      "factor": 0.6041,
-      "playerIds": [
-       "nfl-athlete-4432577",
-       "nfl-athlete-4242546"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -167,7 +155,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 63,
+  "absent": 62,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -305,10 +293,16 @@
      "name": "Davis Mills",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_pass_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4366031",
@@ -451,14 +445,21 @@
   "qbStarter": [
    {
     "team": "HOU",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4432577",
-     "nfl-athlete-4242546"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4432577",
+     "name": "C.J. Stroud"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4242546",
+      "name": "Davis Mills"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-4432577"
+    ]
    },
    {
     "team": "TEN",
@@ -470,19 +471,6 @@
    }
   ],
   "pools": [
-   {
-    "team": "HOU",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 1.6553,
-    "residualOther": 0,
-    "joined": 2,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
    {
     "team": "HOU",
     "pool": "targets",
@@ -508,6 +496,19 @@
     "joined": 8,
     "missed": 0,
     "state": "NORMALIZED"
+   },
+   {
+    "team": "HOU",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9834,
+    "originalSum": 0.9834,
+    "residualOther": 0.0166,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
    },
    {
     "team": "TEN",
@@ -1167,16 +1168,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 151.7696,
-     "p10": 80.1862,
-     "p25": 107.0671,
-     "median": 143.5465,
-     "p75": 187.5443,
-     "p90": 233.9868,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.6041
-     },
+     "mean": 251.2243,
+     "p10": 132.7322,
+     "p25": 177.2281,
+     "median": 237.6126,
+     "p75": 310.4421,
+     "p90": 387.3184,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1216,19 +1213,6 @@
    "team": "HOU",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_pass_yds": {
-     "mean": 89.7178,
-     "p10": 41.977,
-     "p25": 59.1406,
-     "median": 83.3029,
-     "p75": 113.3402,
-     "p90": 145.7732,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.6041
-     },
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0636,
      "pricingState": "NOT_PROBED"

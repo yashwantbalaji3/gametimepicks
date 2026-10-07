@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T00:23:08Z",
- "sourceGeneratedAt": "2026-10-07T00:23:08Z",
+ "generatedAt": "2026-10-07T16:22:43Z",
+ "sourceGeneratedAt": "2026-10-07T16:22:43Z",
  "providerEventId": "401872987",
  "matchup": "MIN @ NO",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T00:23:08Z",
-  "roleEvidenceAt": "2026-10-07T00:23:08Z",
+  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
+  "roleEvidenceAt": "2026-10-07T16:22:43Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -26,31 +26,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "MIN",
-      "pool": "passAttempts",
-      "originalSum": 2.1674,
-      "normalizedSum": 1,
-      "factor": 0.4614,
-      "playerIds": [
-       "nfl-athlete-2573079",
-       "nfl-athlete-3917315",
-       "nfl-athlete-4573398"
-      ]
-     },
-     {
-      "team": "NO",
-      "pool": "passAttempts",
-      "originalSum": 1.6937,
-      "normalizedSum": 1,
-      "factor": 0.5904,
-      "playerIds": [
-       "nfl-athlete-4360689",
-       "nfl-athlete-4426339"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -113,27 +89,6 @@
     },
     "note": "no game for NO yet this season, so his role there is not yet observed and he is not in this game's numbers; his CLE history is kept only as a historical prior"
    }
-  ],
-  "MIN": [
-   {
-    "playerId": "nfl-athlete-4682652",
-    "name": "Devin Neal",
-    "position": "RB",
-    "team": "MIN",
-    "participation": "ACTIVE_UNCERTAIN",
-    "lastSeason": {
-     "club": "NO",
-     "games": 10,
-     "targetsPg": 2.1,
-     "receptionsPg": 1.9,
-     "recYdsPg": 11.4,
-     "rushAttPg": 6.2,
-     "rushYdsPg": 22.6,
-     "passAttPg": 0,
-     "passYdsPg": 0
-    },
-    "note": "no game for MIN yet this season, so his role there is not yet observed and he is not in this game's numbers; his NO history is kept only as a historical prior"
-   }
   ]
  },
  "arrivalsShadowed": 0,
@@ -153,17 +108,17 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 58,
+  "absent": 55,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "MIN": {
    "counts": {
-    "PROJECTED": 10,
+    "PROJECTED": 9,
     "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
-    "WITHHELD_ROLE_UNCERTAIN": 1,
-    "NOT_MODELED_BY_FAMILY": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 0,
+    "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -185,10 +140,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-3917315",
@@ -265,25 +226,23 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4573398",
-     "name": "Max Brosmer",
-     "state": "PROJECTED",
-     "families": [
-      "player_pass_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-3921690",
      "name": "Josh Oliver",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
     },
     {
-     "playerId": "nfl-athlete-4682652",
-     "name": "Devin Neal",
-     "state": "WITHHELD_ROLE_UNCERTAIN",
-     "reason": "no game for MIN yet this season — role at MIN not yet observed"
+     "playerId": "nfl-athlete-4573398",
+     "name": "Max Brosmer",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     }
    ]
   },
@@ -314,10 +273,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-3054850",
@@ -444,54 +409,58 @@
   "qbStarter": [
    {
     "team": "MIN",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-2573079",
-     "nfl-athlete-3917315",
-     "nfl-athlete-4573398"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3917315",
+     "name": "Kyler Murray"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-2573079",
+      "name": "Carson Wentz"
+     },
+     {
+      "playerId": "nfl-athlete-4573398",
+      "name": "Max Brosmer"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-3917315"
+    ]
    },
    {
     "team": "NO",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4360689",
-     "nfl-athlete-4426339"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4360689",
+     "name": "Tyler Shough"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4426339",
+      "name": "Spencer Rattler"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-4360689"
+    ]
    }
   ],
   "pools": [
    {
-    "team": "MIN",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 2.1674,
-    "residualOther": 0,
-    "joined": 3,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "NO",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
     ],
-    "sum": 1,
-    "originalSum": 1.6937,
-    "residualOther": 0,
-    "joined": 2,
+    "sum": 0.9894,
+    "originalSum": 0.9894,
+    "residualOther": 0.0106,
+    "joined": 1,
     "missed": 0,
-    "state": "NORMALIZED"
+    "state": "CONSERVED"
    },
    {
     "team": "NO",
@@ -503,6 +472,19 @@
     "originalSum": 0.8713,
     "residualOther": 0.1287,
     "joined": 6,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "MIN",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.7803,
+    "originalSum": 0.7803,
+    "residualOther": 0.2197,
+    "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -869,16 +851,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 147.4685,
-     "p10": 81.9611,
-     "p25": 107.0108,
-     "median": 140.4875,
-     "p75": 180.3427,
-     "p90": 221.9959,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5904
-     },
+     "mean": 249.7674,
+     "p10": 138.8175,
+     "p25": 181.2442,
+     "median": 237.9436,
+     "p75": 305.4465,
+     "p90": 375.9945,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -930,19 +908,6 @@
      "median": 3.5,
      "p75": 13.86,
      "p90": 27.82,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 101.8876,
-     "p10": 51.5859,
-     "p25": 70.1888,
-     "median": 95.7619,
-     "p75": 126.9389,
-     "p90": 160.117,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.5904
-     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1009,16 +974,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 71.573,
-     "p10": 33.6597,
-     "p25": 47.3151,
-     "median": 66.5092,
-     "p75": 90.3406,
-     "p90": 116.049,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.4614
-     },
+     "mean": 155.1274,
+     "p10": 72.954,
+     "p25": 102.5507,
+     "median": 144.1521,
+     "p75": 195.8043,
+     "p90": 251.5247,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1040,19 +1001,6 @@
      "median": 3.49,
      "p75": 11.76,
      "p90": 22.67,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 91.779,
-     "p10": 44.6104,
-     "p25": 61.8013,
-     "median": 85.7262,
-     "p75": 115.1914,
-     "p90": 146.7868,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.4614
-     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1116,27 +1064,6 @@
      "median": 8.43,
      "p75": 22.99,
      "p90": 39.32,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4573398",
-   "name": "Max Brosmer",
-   "team": "MIN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 43.4859,
-     "p10": 16.8697,
-     "p25": 25.8258,
-     "median": 39.1493,
-     "p75": 56.459,
-     "p90": 75.7531,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.4614
-     },
      "pricingState": "NOT_PROBED"
     }
    }

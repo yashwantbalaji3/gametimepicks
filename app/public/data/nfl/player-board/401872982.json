@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T00:23:08Z",
- "sourceGeneratedAt": "2026-10-07T00:23:08Z",
+ "generatedAt": "2026-10-07T16:22:43Z",
+ "sourceGeneratedAt": "2026-10-07T16:22:43Z",
  "providerEventId": "401872982",
  "matchup": "CIN @ MIA",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T00:23:08Z",
-  "roleEvidenceAt": "2026-10-07T00:23:08Z",
+  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
+  "roleEvidenceAt": "2026-10-07T16:22:43Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -26,19 +26,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "CIN",
-      "pool": "passAttempts",
-      "originalSum": 1.4985,
-      "normalizedSum": 1,
-      "factor": 0.6673,
-      "playerIds": [
-       "nfl-athlete-3915511",
-       "nfl-athlete-11252"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -147,7 +135,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 55,
+  "absent": 54,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -264,10 +252,16 @@
      "name": "Joe Flacco",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_pass_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4368003",
@@ -419,14 +413,21 @@
   "qbStarter": [
    {
     "team": "CIN",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3915511",
-     "nfl-athlete-11252"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3915511",
+     "name": "Joe Burrow"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-11252",
+      "name": "Joe Flacco"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-3915511"
+    ]
    },
    {
     "team": "MIA",
@@ -439,19 +440,6 @@
   ],
   "pools": [
    {
-    "team": "CIN",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 1.4985,
-    "residualOther": 0,
-    "joined": 2,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "MIA",
     "pool": "passAttempts",
     "markets": [
@@ -460,6 +448,19 @@
     "sum": 1,
     "originalSum": 1,
     "residualOther": 0,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "CIN",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9871,
+    "originalSum": 0.9871,
+    "residualOther": 0.0129,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -960,16 +961,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 174.9996,
-     "p10": 97.0093,
-     "p25": 126.8045,
-     "median": 166.6547,
-     "p75": 214.1298,
-     "p90": 263.7724,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.6673
-     },
+     "mean": 262.2369,
+     "p10": 145.3684,
+     "p25": 190.0166,
+     "median": 249.732,
+     "p75": 320.8735,
+     "p90": 395.263,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1014,19 +1011,6 @@
    "team": "CIN",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_pass_yds": {
-     "mean": 79.2356,
-     "p10": 34.4188,
-     "p25": 50.1101,
-     "median": 72.695,
-     "p75": 101.2777,
-     "p90": 132.5456,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.6673
-     },
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0466,
      "pricingState": "NOT_PROBED"

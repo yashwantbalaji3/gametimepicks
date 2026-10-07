@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T00:23:08Z",
- "sourceGeneratedAt": "2026-10-07T00:23:08Z",
+ "generatedAt": "2026-10-07T16:22:43Z",
+ "sourceGeneratedAt": "2026-10-07T16:22:43Z",
  "providerEventId": "401872993",
  "matchup": "BAL @ ATL",
  "kickoffUtc": "2026-10-12T00:20Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T00:23:08Z",
-  "roleEvidenceAt": "2026-10-07T00:23:08Z",
+  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
+  "roleEvidenceAt": "2026-10-07T16:22:43Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -26,20 +26,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "ATL",
-      "pool": "passAttempts",
-      "originalSum": 2.1771,
-      "normalizedSum": 1,
-      "factor": 0.4593,
-      "playerIds": [
-       "nfl-athlete-4360423",
-       "nfl-athlete-2972515",
-       "nfl-athlete-5344782"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -140,7 +127,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 66,
+  "absent": 63,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -183,10 +170,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4429615",
@@ -290,11 +283,11 @@
   },
   "ATL": {
    "counts": {
-    "PROJECTED": 11,
+    "PROJECTED": 10,
     "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
-    "NOT_MODELED_BY_FAMILY": 0,
+    "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -398,29 +391,39 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-2972515",
-     "name": "Cooper Rush",
-     "state": "PROJECTED",
-     "families": [
-      "player_pass_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-5344782",
      "name": "Jack Strand",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_pass_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4241479",
      "name": "Tua Tagovailoa",
      "state": "WITHHELD_ROLE_UNCERTAIN",
      "reason": "no game for ATL yet this season — role at ATL not yet observed"
+    },
+    {
+     "playerId": "nfl-athlete-2972515",
+     "name": "Cooper Rush",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     }
    ]
   }
@@ -429,42 +432,46 @@
   "qbStarter": [
    {
     "team": "BAL",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3916387",
-     "nfl-athlete-4035671"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3916387",
+     "name": "Lamar Jackson"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4035671",
+      "name": "Tyler Huntley"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-3916387"
+    ]
    },
    {
     "team": "ATL",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4360423",
-     "nfl-athlete-2972515",
-     "nfl-athlete-5344782"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4360423",
+     "name": "Michael Penix Jr."
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-2972515",
+      "name": "Cooper Rush"
+     },
+     {
+      "playerId": "nfl-athlete-5344782",
+      "name": "Jack Strand"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-4360423"
+    ]
    }
   ],
   "pools": [
-   {
-    "team": "ATL",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 2.1771,
-    "residualOther": 0,
-    "joined": 3,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
    {
     "team": "BAL",
     "pool": "targets",
@@ -480,6 +487,19 @@
    },
    {
     "team": "ATL",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9629,
+    "originalSum": 0.9629,
+    "residualOther": 0.0371,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "ATL",
     "pool": "targets",
     "markets": [
      "player_receptions"
@@ -490,19 +510,6 @@
     "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
-   },
-   {
-    "team": "BAL",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.4419,
-    "originalSum": 0.4419,
-    "residualOther": 0.5581,
-    "joined": 1,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -925,15 +932,6 @@
      "p90": 32.13,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 92.496,
-     "p10": 35.3818,
-     "p25": 54.507,
-     "median": 83.0731,
-     "p75": 120.3034,
-     "p90": 161.8946,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1415,
      "pricingState": "NOT_PROBED"
@@ -1150,19 +1148,6 @@
    "team": "ATL",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_pass_yds": {
-     "mean": 39.9915,
-     "p10": 14.6508,
-     "p25": 23.0138,
-     "median": 35.6557,
-     "p75": 52.2887,
-     "p90": 70.9945,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.4593
-     },
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0758,
      "pricingState": "NOT_PROBED"
@@ -1185,41 +1170,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 113.0271,
-     "p10": 56.157,
-     "p25": 77.0474,
-     "median": 105.929,
-     "p75": 141.3057,
-     "p90": 179.0863,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.4593
-     },
+     "mean": 246.0713,
+     "p10": 122.2594,
+     "p25": 167.7398,
+     "median": 230.618,
+     "p75": 307.6366,
+     "p90": 389.8887,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
      "probability": 0.0735,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-2972515",
-   "name": "Cooper Rush",
-   "team": "ATL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 65.8517,
-     "p10": 29.4694,
-     "p25": 42.3428,
-     "median": 60.709,
-     "p75": 83.7885,
-     "p90": 108.9063,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.4593
-     },
      "pricingState": "NOT_PROBED"
     }
    }

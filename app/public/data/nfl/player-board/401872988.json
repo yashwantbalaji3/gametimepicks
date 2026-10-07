@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T00:23:08Z",
- "sourceGeneratedAt": "2026-10-07T00:23:08Z",
+ "generatedAt": "2026-10-07T16:22:43Z",
+ "sourceGeneratedAt": "2026-10-07T16:22:43Z",
  "providerEventId": "401872988",
  "matchup": "NYG @ WSH",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T00:23:08Z",
-  "roleEvidenceAt": "2026-10-07T00:23:08Z",
+  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
+  "roleEvidenceAt": "2026-10-07T16:22:43Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -172,7 +172,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 72,
+  "absent": 70,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -351,10 +351,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4575131",
@@ -372,10 +378,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-3121422",
@@ -517,15 +529,25 @@
    },
    {
     "team": "WSH",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4426348",
-     "nfl-athlete-4432722",
-     "nfl-athlete-2576980"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4426348",
+     "name": "Jayden Daniels"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4432722",
+      "name": "Athan Kaliakmanis"
+     },
+     {
+      "playerId": "nfl-athlete-2576980",
+      "name": "Marcus Mariota"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-4426348"
+    ]
    }
   ],
   "pools": [
@@ -551,19 +573,6 @@
     "sum": 0.9117,
     "originalSum": 0.9117,
     "residualOther": 0.0883,
-    "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "WSH",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.8919,
-    "originalSum": 0.8919,
-    "residualOther": 0.1081,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -1228,15 +1237,6 @@
      "p90": 25.11,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 179.9436,
-     "p10": 85.8868,
-     "p25": 119.9438,
-     "median": 167.6018,
-     "p75": 226.5596,
-     "p90": 289.9905,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.091,
      "pricingState": "NOT_PROBED"
@@ -1314,15 +1314,6 @@
      "median": 2.8,
      "p75": 13.57,
      "p90": 27.68,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 125.9244,
-     "p10": 53.4917,
-     "p25": 78.6511,
-     "median": 115.1048,
-     "p75": 161.4844,
-     "p90": 212.4149,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

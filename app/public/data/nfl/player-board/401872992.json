@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T00:23:08Z",
- "sourceGeneratedAt": "2026-10-07T00:23:08Z",
+ "generatedAt": "2026-10-07T16:22:43Z",
+ "sourceGeneratedAt": "2026-10-07T16:22:43Z",
  "providerEventId": "401872992",
  "matchup": "SF @ SEA",
  "kickoffUtc": "2026-10-11T20:25Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T00:23:08Z",
-  "roleEvidenceAt": "2026-10-07T00:23:08Z",
+  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
+  "roleEvidenceAt": "2026-10-07T16:22:43Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -26,19 +26,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "SEA",
-      "pool": "passAttempts",
-      "originalSum": 1.5026,
-      "normalizedSum": 1,
-      "factor": 0.6655,
-      "playerIds": [
-       "nfl-athlete-3912547",
-       "nfl-athlete-3924327"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -121,7 +109,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 60,
+  "absent": 59,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -275,11 +263,11 @@
   },
   "SEA": {
    "counts": {
-    "PROJECTED": 10,
+    "PROJECTED": 9,
     "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 0,
+    "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -381,15 +369,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-3924327",
-     "name": "Drew Lock",
-     "state": "PROJECTED",
-     "families": [
-      "player_pass_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4685512",
      "name": "Jadarian Price",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -400,6 +379,19 @@
      "name": "Zach Charbonnet",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-3924327",
+     "name": "Drew Lock",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     }
    ]
   }
@@ -416,30 +408,24 @@
    },
    {
     "team": "SEA",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3912547",
-     "nfl-athlete-3924327"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3912547",
+     "name": "Sam Darnold"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-3924327",
+      "name": "Drew Lock"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-3912547"
+    ]
    }
   ],
   "pools": [
-   {
-    "team": "SEA",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 1,
-    "originalSum": 1.5026,
-    "residualOther": 0,
-    "joined": 2,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
    {
     "team": "SF",
     "pool": "targets",
@@ -476,6 +462,19 @@
     "originalSum": 0.9188,
     "residualOther": 0.0812,
     "joined": 7,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "SEA",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.8065,
+    "originalSum": 0.8065,
+    "residualOther": 0.1935,
+    "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -1079,16 +1078,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_pass_yds": {
-     "mean": 131.8078,
-     "p10": 63.4109,
-     "p25": 88.2469,
-     "median": 122.9188,
-     "p75": 165.7282,
-     "p90": 211.7193,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.6655
-     },
+     "mean": 198.0544,
+     "p10": 95.2812,
+     "p25": 132.5998,
+     "median": 184.6978,
+     "p75": 249.0232,
+     "p90": 318.1294,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1110,27 +1105,6 @@
      "median": 1.84,
      "p75": 10.42,
      "p90": 22.61,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3924327",
-   "name": "Drew Lock",
-   "team": "SEA",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 116.8914,
-     "p10": 54.7964,
-     "p25": 77.1358,
-     "median": 108.5664,
-     "p75": 147.6212,
-     "p90": 189.7762,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.6655
-     },
      "pricingState": "NOT_PROBED"
     }
    }

@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T00:23:08Z",
- "sourceGeneratedAt": "2026-10-07T00:23:08Z",
+ "generatedAt": "2026-10-07T16:22:43Z",
+ "sourceGeneratedAt": "2026-10-07T16:22:43Z",
  "providerEventId": "401872989",
  "matchup": "DEN @ LAC",
  "kickoffUtc": "2026-10-11T20:05Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T00:23:08Z",
-  "roleEvidenceAt": "2026-10-07T00:23:08Z",
+  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
+  "roleEvidenceAt": "2026-10-07T16:22:43Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -26,30 +26,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "DEN",
-      "pool": "passAttempts",
-      "originalSum": 1.4443,
-      "normalizedSum": 1,
-      "factor": 0.6924,
-      "playerIds": [
-       "nfl-athlete-4426338",
-       "nfl-athlete-3892775"
-      ]
-     },
-     {
-      "team": "LAC",
-      "pool": "passAttempts",
-      "originalSum": 1.4104,
-      "normalizedSum": 1,
-      "factor": 0.709,
-      "playerIds": [
-       "nfl-athlete-4038941",
-       "nfl-athlete-4383351"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_rush_yds": {
@@ -142,7 +119,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 63,
+  "absent": 61,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -258,10 +235,16 @@
      "name": "Jarrett Stidham",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_pass_yds"
+      "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4362748",
@@ -325,10 +308,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4596334",
@@ -438,25 +427,39 @@
   "qbStarter": [
    {
     "team": "DEN",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4426338",
-     "nfl-athlete-3892775"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4426338",
+     "name": "Bo Nix"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-3892775",
+      "name": "Jarrett Stidham"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-4426338"
+    ]
    },
    {
     "team": "LAC",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4038941",
-     "nfl-athlete-4383351"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4038941",
+     "name": "Justin Herbert"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4383351",
+      "name": "Trey Lance"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-03T12:27:18Z"
+    "passers": [
+     "nfl-athlete-4038941"
+    ]
    }
   ],
   "pools": [
@@ -466,12 +469,12 @@
     "markets": [
      "player_pass_yds"
     ],
-    "sum": 1,
-    "originalSum": 1.4443,
-    "residualOther": 0,
-    "joined": 2,
+    "sum": 0.9997,
+    "originalSum": 0.9997,
+    "residualOther": 0.0003,
+    "joined": 1,
     "missed": 0,
-    "state": "NORMALIZED"
+    "state": "CONSERVED"
    },
    {
     "team": "LAC",
@@ -479,12 +482,12 @@
     "markets": [
      "player_pass_yds"
     ],
-    "sum": 1,
-    "originalSum": 1.4104,
-    "residualOther": 0,
-    "joined": 2,
+    "sum": 0.9873,
+    "originalSum": 0.9873,
+    "residualOther": 0.0127,
+    "joined": 1,
     "missed": 0,
-    "state": "NORMALIZED"
+    "state": "CONSERVED"
    },
    {
     "team": "DEN",
@@ -900,19 +903,6 @@
      "p90": 33.89,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 58.8671,
-     "p10": 21.0104,
-     "p25": 33.3985,
-     "median": 52.2552,
-     "p75": 77.2029,
-     "p90": 105.3688,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.709
-     },
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1443,
      "pricingState": "NOT_PROBED"
@@ -965,16 +955,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 148.4242,
-     "p10": 77.7174,
-     "p25": 104.1837,
-     "median": 140.1984,
-     "p75": 183.7347,
-     "p90": 229.7697,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.6924
-     },
+     "mean": 214.369,
+     "p10": 112.2473,
+     "p25": 150.4725,
+     "median": 202.4885,
+     "p75": 265.368,
+     "p90": 331.8564,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -999,16 +985,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
-     "mean": 156.3237,
-     "p10": 79.4837,
-     "p25": 107.9444,
-     "median": 147.0187,
-     "p75": 194.6049,
-     "p90": 245.2047,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.709
-     },
+     "mean": 220.479,
+     "p10": 112.1038,
+     "p25": 152.2448,
+     "median": 207.3552,
+     "p75": 274.4707,
+     "p90": 345.8367,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1134,19 +1116,6 @@
    "team": "DEN",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_pass_yds": {
-     "mean": 68.6681,
-     "p10": 27.0899,
-     "p25": 41.1633,
-     "median": 61.9974,
-     "p75": 88.9613,
-     "p90": 118.9348,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.6924
-     },
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0666,
      "pricingState": "NOT_PROBED"
