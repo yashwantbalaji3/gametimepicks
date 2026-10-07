@@ -19,10 +19,14 @@
  *   · a settled day is written ONCE; an identical re-run is a no-op, a differing one refuses
  *
  *   node app/scripts/mlb/settle-homer-nukes.mjs --now <ISO> [--date YYYY-MM-DD] [--write]
+ *   node app/scripts/mlb/settle-homer-nukes.mjs --now <ISO> --record-only --write   (rebuild record.json only, HN-1)
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { homerNukesDayOfRecord, homerNukesRecord } from "../../src/lib/results/homer-nukes-of-record.mjs";
+import { readHomerNukesCorrections } from "../../src/lib/results/homer-nukes-of-record-io.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -62,6 +66,13 @@ async function boxFor(gamePk) {
 }
 
 async function main() {
+  if (process.argv.includes("--record-only")) {
+    let modelId = null;
+    try { modelId = JSON.parse(fs.readFileSync(path.join(BOARD_DIR, "record.json"), "utf8")).modelId ?? null; } catch { /* none yet */ }
+    if (!write) { console.log("dry-run --record-only: nothing written. Re-run with --write."); }
+    else writeRecord(modelId);
+    return;
+  }
   const boardPath = path.join(BOARD_DIR, `${DATE}.json`);
   if (!fs.existsSync(boardPath)) { console.log(`NOT_OBSERVABLE: no Homer Nukes board for ${DATE}`); return; }
   const board = JSON.parse(fs.readFileSync(boardPath, "utf8"));
@@ -108,30 +119,39 @@ async function main() {
     console.log(`wrote mlb/homer-nukes/settled-${DATE}.json`);
   }
 
+  writeRecord(board.model?.id ?? null);
+}
+
+/**
+ * HN-1: `--record-only` rebuilds record.json from the settled days on disk through the of-record rule, grading nothing
+ * and fetching nothing (used to publish a committed correction without waiting for the next slate).
+ */
+function writeRecord(modelId) {
   /*
    * The cumulative record is REBUILT from every settled day on disk, never incremented in place.
    * Both settlement ledgers in this repository have been wiped by a job that rewrote a running
    * total from one day's view; deriving it from the receipts makes that failure unreachable.
    */
-  const all = [];
-  for (const f of fs.readdirSync(BOARD_DIR).filter((f) => /^settled-\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort()) {
-    for (const g of JSON.parse(fs.readFileSync(path.join(BOARD_DIR, f), "utf8")).picks ?? []) {
-      if (g.result !== "pending") all.push(g);
-    }
-  }
-  const hits = all.filter((g) => g.result === "hit").length;
-  const exp = all.reduce((n, g) => n + g.probability, 0);
+  /* HN-1 (founder Q1-RULE): days are read through the one of-record rule, which applies the append-only correction log
+     (a day with no pregame list is excluded and disclosed; Sep 10 is graded on its last pre-first-pitch list). The
+     settled files themselves are never rewritten. */
+  const corrections = readHomerNukesCorrections(path.resolve(APP, ".."));
+  const days = fs.readdirSync(BOARD_DIR).filter((f) => /^settled-\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort()
+    .map((f) => homerNukesDayOfRecord(JSON.parse(fs.readFileSync(path.join(BOARD_DIR, f), "utf8")), corrections));
+  const rec = homerNukesRecord(days);
+  const hits = rec.actual;
   const lifetime = {
     schemaVersion: 1, artifact: "mlb-homer-nukes-record", dataClass: "PUBLIC_DERIVED",
-    generatedAt: NOW, modelId: board.model?.id ?? null,
-    gradedPicks: all.length, predicted: round(exp), actual: hits,
-    brier: all.length ? round(all.reduce((n, g) => n + Math.pow(g.probability - (g.result === "hit" ? 1 : 0), 2), 0) / all.length) : null,
-    note: all.length
+    generatedAt: NOW, modelId,
+    gradedPicks: rec.gradedPicks, predicted: rec.predicted, actual: rec.actual,
+    brier: rec.brier,
+    ...(rec.excluded ? { excluded: rec.excluded } : {}),
+    note: rec.gradedPicks
       ? "Predicted counts how many homers the published probabilities expected; actual counts how many happened. A board of ~25% picks is SUPPOSED to miss most of the time — the question is whether the rate matches the number."
       : "No Homer Nukes pick has been graded yet. A record appears here once the first board's games are final.",
   };
   fs.writeFileSync(path.join(BOARD_DIR, "record.json"), JSON.stringify(lifetime, null, 1) + "\n");
-  console.log(`record: ${all.length} graded · predicted ${lifetime.predicted} · actual ${hits}${lifetime.brier != null ? ` · brier ${lifetime.brier}` : ""}`);
+  console.log(`record: ${rec.gradedPicks} graded · predicted ${lifetime.predicted} · actual ${hits}${lifetime.brier != null ? ` · brier ${lifetime.brier}` : ""}`);
 }
 
 const slim = (p) => ({ playerId: p.playerId, player: p.player, teamAbbr: p.teamAbbr, matchup: p.matchup, gamePk: p.gamePk, probability: p.probability });

@@ -10,6 +10,7 @@
  *   MLB player leans       graded-picks.json · Python lifetime_summary.json · model-index.json
  *                          · audit/model_audit.json (pipeline/model_audit.py) · research/terminal-summary.json
  *   MLB game calls         game-predictions-record.json · Forecast Ledger (moneyline, run line, total)
+ *   MLB Homer Nukes        homer-nukes/record.json (homered vs not) · Forecast Ledger mlb_homer_nukes (HIT / MISS)
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -29,6 +30,12 @@ const settler = json(path.join(ROOT, "data/internal/nfl/experimental-settlement/
 const lifetime = json(path.join(APP, "public/data/mlb/results/lifetime_summary.json"));
 const modelIndex = json(path.join(APP, "public/data/mlb/results/model-index.json"));
 const gameRecord = json(path.join(APP, "public/data/mlb/results/game-predictions-record.json"));
+const hnRecord = json(path.join(APP, "public/data/mlb/homer-nukes/record.json"));
+const hnLedger = (() => {
+  if (!mlbLedger) return { win: null, loss: null };
+  const rows = mlbLedger.filter((r) => r.family === "mlb_homer_nukes" && r.settlement?.state === "SETTLED");
+  return { win: rows.filter((r) => r.settlement.finalCategory === "HIT").length, loss: rows.filter((r) => r.settlement.finalCategory === "MISS").length };
+})();
 const modelAudit = json(path.join(APP, "public/data/audit/model_audit.json"));
 const terminal = json(path.join(APP, "public/data/research/terminal-summary.json"));
 const nflIndex = json(path.join(APP, "public/data/nfl/index.json"));
@@ -69,6 +76,10 @@ const groups = [
     { name: "model_audit (Python)", ...counts(modelAudit?.sports?.mlb?.lifetime) },
     { name: "research terminal-summary", win: terminal?.modelUniverse?.wins ?? null,
       loss: Number.isInteger(terminal?.modelUniverse?.decisiveRows) && Number.isInteger(terminal?.modelUniverse?.wins) ? terminal.modelUniverse.decisiveRows - terminal.modelUniverse.wins : null },
+  ] },
+  { record: "MLB Homer Nukes (homered / did not)", readers: [
+    { name: "homer-nukes record.json", win: hnRecord?.actual ?? null, loss: Number.isInteger(hnRecord?.gradedPicks) && Number.isInteger(hnRecord?.actual) ? hnRecord.gradedPicks - hnRecord.actual : null },
+    { name: "forecast-ledger", ...hnLedger },
   ] },
   ...[["moneyline", "mlb_moneyline"], ["run_line", "mlb_run_line"], ["total", "mlb_total"]].map(([fam, ledgerFam]) => ({
     record: `MLB game calls · ${fam}`, readers: [

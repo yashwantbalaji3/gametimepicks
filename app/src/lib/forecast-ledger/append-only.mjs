@@ -7,6 +7,7 @@
  *   SETTLEMENT_REWRITTEN a settled / void / unmeasured row changed outcome without the owner recording a correction
  *   SETTLEMENT_REVERTED  a decided row went back to PENDING
  *   PUBLICATION_CHANGED  publication status moved other than PUBLISHED → WITHDRAWN (an append-only withdrawal event)
+ *   (HN-1) a restated `probability` is accepted only for ids a committed Homer Nukes correction names
  *   DIRECTIONAL_REWRITTEN a settled row's directional WIN / LOSS / PUSH changed while its settlement did not, and no
  *                        committed correction restates it (Stage 3C: a grading-rule restatement is append-only and
  *                        named, e.g. data/internal/nfl/winner-corrections/; the caller passes the restated ids)
@@ -22,9 +23,11 @@ const stable = (v) => JSON.stringify(v, (_k, x) => (x && typeof x === "object" &
 /**
  * @param {object[]} prevRows
  * @param {object[]} nextRows
- * @param {{ directionalRestated?: Set<string> }} [opts]  forecastIds a committed correction log restates
+ * @param {{ directionalRestated?: Set<string>, probabilityRestated?: Set<string> }} [opts]  forecastIds a committed
+ *        correction log restates (directional word: NFL winner log; probability: HN-1 Homer Nukes log, the list of
+ *        record's number replacing one graded from a post-start rebuild). Nothing else may ever change.
  */
-export function compareLedgers(prevRows, nextRows, { directionalRestated = new Set() } = {}) {
+export function compareLedgers(prevRows, nextRows, { directionalRestated = new Set(), probabilityRestated = new Set() } = {}) {
   const next = new Map(nextRows.map((r) => [r.forecastId, r]));
   const violations = [];
   for (const p of prevRows) {
@@ -34,6 +37,7 @@ export function compareLedgers(prevRows, nextRows, { directionalRestated = new S
       continue;
     }
     for (const f of IMMUTABLE_FIELDS) {
+      if (f === "probability" && probabilityRestated.has(p.forecastId)) continue;
       if (stable(p[f]) !== stable(n[f])) {
         violations.push({ forecastId: p.forecastId, kind: "IMMUTABLE_CHANGED", detail: `${f}: ${stable(p[f])} → ${stable(n[f])}` });
       }

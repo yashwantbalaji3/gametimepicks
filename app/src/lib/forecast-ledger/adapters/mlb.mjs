@@ -24,6 +24,7 @@
 import { FORECAST_KIND, RECOVERABILITY } from "../contract.mjs";
 import { measureBinary, measureContinuous, withDirectional } from "../measure.mjs";
 import { makeRow, marketBlock } from "../row.mjs";
+import { homerNukesDayOfRecord } from "../../results/homer-nukes-of-record.mjs";
 
 const FAMILY = { moneyline: "mlb_moneyline", run_line: "mlb_run_line", total: "mlb_total" };
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
@@ -79,18 +80,41 @@ export function mlbGameRows(graded = [], sourceModels = new Map()) {
   return out;
 }
 
-/** @param settledFiles [{ file, doc }] homer-nukes settled-<date>.json */
-export function homerNukesRows(settledFiles = []) {
+/**
+ * @param settledFiles [{ file, doc }] homer-nukes settled-<date>.json
+ * @param corrections  HN-1: indexHomerNukesCorrections(...) (lib/results/homer-nukes-of-record.mjs). A pick the log
+ *        excludes keeps its row (raw history) as NO_MEASUREMENT with one recorded correction; a member of the list of
+ *        record the settled file never graded gets its own row, sourced to that list; a member whose graded
+ *        probability differs from the list of record carries the list's probability (a restatement the ledger guard
+ *        accepts only for the ids returned in `restated`).
+ */
+export function homerNukesRows(settledFiles = [], corrections = new Map()) {
   const out = [];
   for (const { file, doc } of settledFiles) {
-    for (const p of doc?.picks ?? []) {
+    const day = homerNukesDayOfRecord(doc, corrections);
+    const excluded = new Map((day.excluded?.picks ?? []).map((p) => [String(p.playerId), day.excluded]));
+    const ofRecord = new Map((day.corrected ? day.picks : []).map((p) => [String(p.playerId), p]));
+    const raw = new Set((doc?.picks ?? []).map((p) => String(p.playerId)));
+    const added = [...ofRecord.values()].filter((p) => !raw.has(String(p.playerId)));
+    const listOfRecord = corrections.get(doc?.date)?.entry?.evidence?.listOfRecord ?? null;
+    for (const source of [...(doc?.picks ?? []), ...added]) {
+      const isAdded = !raw.has(String(source.playerId));
+      const restated = ofRecord.get(String(source.playerId));
+      const p = restated ? { ...source, probability: restated.probability, result: restated.result, homeRuns: restated.homeRuns } : source;
       if (!Number.isInteger(p.gamePk) || p.playerId == null || !isNum(p.probability)) continue;
       let settlement = { state: "PENDING" };
       let measurement = {};
-      if (p.result === "hit" || p.result === "miss") {
+      const ex = excluded.get(String(p.playerId));
+      const notes = [];
+      if (ex) {
+        settlement = { state: "NO_MEASUREMENT", reason: ex.reason, corrections: 1, source: `correction ${ex.logId}` };
+        notes.push(`HN-1: not of record (${ex.reason}); correction ${ex.logId}`);
+      } else if (p.result === "hit" || p.result === "miss") {
         const observed = p.result === "hit" ? 1 : 0;
         settlement = { state: "SETTLED", finalValue: Number.isInteger(p.homeRuns) ? p.homeRuns : null, finalCategory: p.result.toUpperCase(), settledAt: doc.settledAt ?? null, finality: "CANONICAL", source: p.source ?? doc.source ?? null };
         measurement = measureBinary({ probability: p.probability, observed });
+        if (isAdded) notes.push(`HN-1: on the list of record, never graded by the settler; graded by correction ${restated.correction}`);
+        else if (restated?.probabilityAsGraded != null) notes.push(`HN-1: probability restated to the list of record (graded on ${restated.probabilityAsGraded} from a post-start rebuild); correction ${restated.correction}`);
       } else if (p.result === "pending" && /absent from the official box score/.test(String(p.note ?? ""))) {
         // The owner's own words: a possible scratch is "never graded as a miss". Unmeasured, not pending forever.
         settlement = { state: "NO_MEASUREMENT", reason: "ABSENT_FROM_OFFICIAL_BOX_SCORE" };
@@ -113,7 +137,7 @@ export function homerNukesRows(settledFiles = []) {
         modelId: doc.modelId ?? null,
         modelStatusAtPublish: null,
         publicationSurface: "homer-nukes",
-        receiptId: file,
+        receiptId: isAdded && listOfRecord ? `mlb/homer-nukes/${doc.date}.json@${listOfRecord.commit}` : file,
         publishedAt: null,
         probability: p.probability,
         probabilityType: "MODEL",
@@ -121,10 +145,16 @@ export function homerNukesRows(settledFiles = []) {
         settlement,
         measurement,
         recoverability: RECOVERABILITY.OWNER_SETTLED_UNFROZEN,
+        ...(notes.length ? { provenance: { notes } } : {}),
       }));
     }
   }
   return out;
+}
+
+/** HN-1: forecastIds whose probability a committed Homer Nukes correction restates (for the append-only guard). */
+export function homerNukesRestatedIds(rows) {
+  return new Set(rows.filter((r) => r.family === "mlb_homer_nukes" && (r.provenance?.notes ?? []).some((n) => /^HN-1: probability restated/.test(n))).map((r) => r.forecastId));
 }
 
 /**

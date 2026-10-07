@@ -24,6 +24,8 @@ import HomerNukesBoardSection from "@/components/mlb/homer-nukes-board";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { homerNukesDayOfRecord } from "@/lib/results/homer-nukes-of-record.mjs";
+import { readHomerNukesCorrections } from "@/lib/results/homer-nukes-of-record-io.mjs";
 
 export const metadata = withRouteMetadata("/homer-nukes/", {
   title: "Homer Nukes · GameTime Picks",
@@ -32,39 +34,31 @@ export const metadata = withRouteMetadata("/homer-nukes/", {
 });
 
 /** Every graded day on disk, newest first. Absent until a slate settles. */
-function settledDays(dir: string): { date: string; hits: number; picks: number }[] {
+/*
+ * HN-1 (founder Q1-RULE): every day is read through the one Homer Nukes of-record rule
+ * (lib/results/homer-nukes-of-record.mjs), the same one the settler's record.json uses. A day whose list was never
+ * frozen before first pitch is EXCLUDED and listed as such, never counted as a miss; Sep 10 counts its last
+ * pre-first-pitch list. The settled files are read as written; the correction log says what counts.
+ *
+ * P224 (kept): the numerator counts `result: "hit"` (the field the settler writes), and ungraded picks are not in the
+ * denominator.
+ */
+function settledDays(dir: string): { date: string; hits: number; picks: number; excluded: string | null }[] {
   try {
+    const corrections = readHomerNukesCorrections(path.resolve(process.cwd(), ".."));
     return fs
       .readdirSync(dir)
       .filter((f) => /^settled-\d{4}-\d{2}-\d{2}\.json$/.test(f))
       .sort()
       .reverse()
       .map((f) => {
-        const r = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
-        const picks: Array<{ result?: string }> = r.picks ?? [];
-        /*
-         * P224: THE NUMERATOR WAS STRUCTURALLY ZERO.
-         *
-         * This counted `p.homered` — a field the settlement artifact has never written. It records
-         * `result: "hit" | "miss"` and `homeRuns`. So `p.homered` was always `undefined`, the filter
-         * always empty, and the page had reported "0 of N picks homered" since the day it was
-         * written, for any results whatsoever. The inline `{ homered?: boolean }` annotation is
-         * optional, so nothing type-checked it against the producer.
-         *
-         * The real record is 11 hits on 60 graded picks against 14.7 expected — and the page said
-         * zero. Understating a record is as false as overstating one.
-         *
-         * The producer already publishes both counts on `day`; prefer them and only fall back to
-         * counting rows, for the same reason the UFC lane must not re-derive its ladder's verdict.
-         *
-         * UNGRADED PICKS ARE NOT IN THE DENOMINATOR. Ten of the seventy have no official result yet;
-         * counting them as looked-at-and-missed is how "0 of 70" grew a slate at a time.
-         */
-        const graded = picks.filter((p) => p.result === "hit" || p.result === "miss");
+        const d = homerNukesDayOfRecord(JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")), corrections);
+        const graded = (d.picks as Array<{ result?: string }>).filter((p) => p.result === "hit" || p.result === "miss");
         return {
-          date: r.date,
-          hits: typeof r.day?.actual === "number" ? r.day.actual : graded.filter((p) => p.result === "hit").length,
-          picks: typeof r.day?.graded === "number" ? r.day.graded : graded.length,
+          date: d.date as string,
+          hits: graded.filter((p) => p.result === "hit").length,
+          picks: graded.length,
+          excluded: d.excluded && d.picks.length === 0 ? "not graded: no list was frozen before first pitch" : null,
         };
       });
   } catch {
@@ -81,6 +75,8 @@ export default function HomerNukesPage() {
   const homerNukesRecord = (() => { try { return JSON.parse(fs.readFileSync(path.join(dataRoot, "mlb", "homer-nukes", "record.json"), "utf8")); } catch { return null; } })();
   const gradedPicks = settled.reduce((n, d) => n + d.picks, 0);
   const gradedHits = settled.reduce((n, d) => n + d.hits, 0);
+  const gradedSlates = settled.filter((d) => !d.excluded).length;
+  const excludedSlates = settled.filter((d) => d.excluded).length;
 
   return (
     <div data-sport="mlb" className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-8">
@@ -153,16 +149,22 @@ export default function HomerNukesPage() {
         ) : (
           <>
             <p className="m-0" style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 700 }}>
-              {gradedHits} of {gradedPicks} picks homered across {settled.length}{" "}
-              {settled.length === 1 ? "slate" : "slates"}
+              {gradedHits} of {gradedPicks} picks homered across {gradedSlates}{" "}
+              {gradedSlates === 1 ? "slate" : "slates"}
             </p>
+            {excludedSlates ? (
+              <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.6 }}>
+                {excludedSlates} earlier {excludedSlates === 1 ? "slate is" : "slates are"} left out: the list was only
+                built after a game had started, so no pregame list exists to grade. They are not counted as misses.
+              </p>
+            ) : null}
             <ul className="m-0 flex flex-col gap-1 p-0" style={{ listStyle: "none" }}>
               {settled.slice(0, 14).map((d) => (
                 <li key={d.date} className="flex items-center justify-between font-mono"
                   style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
                   <span>{d.date}</span>
                   <span style={{ color: d.hits > 0 ? "var(--vault-success)" : "var(--vault-text-faint)" }}>
-                    {d.hits}/{d.picks} homered
+                    {d.excluded ?? `${d.hits}/${d.picks} homered`}
                   </span>
                 </li>
               ))}
