@@ -241,13 +241,13 @@ export default function NflWeekReportPage() {
         <SectionHeader eyebrow={latest.period.label} title="Game by game" sub="Our pre-kickoff read beside the final score" />
         <div className="scroll">
           <table style={{ minWidth: 820 }}>
-            <thead><tr><th scope="col">Game</th><th scope="col">Final</th><th scope="col">Our pick</th><th scope="col">Our total (range)</th><th scope="col">Margin in range</th><th scope="col">Sportsbook total</th></tr></thead>
+            <thead><tr><th scope="col">Game</th><th scope="col">Final</th><th scope="col">Model favored</th><th scope="col">Our total (range)</th><th scope="col">Margin in range</th><th scope="col">Sportsbook total</th></tr></thead>
             <tbody>
               {latest.games.map((g) => (
                 <tr key={g.providerEventId}>
                   <td className="nw">{archived.has(g.providerEventId) ? <Link href={`/nfl/game/${g.providerEventId}/`} style={{ color: "var(--vault-text)", textDecoration: "none" }}>{g.away.abbr} at {g.home.abbr}</Link> : <>{g.away.abbr} at {g.home.abbr}</>}<div className="f">{etKickoff(g.kickoffUtc)}{archived.has(g.providerEventId) ? <> · <Link href={`/nfl/game/${g.providerEventId}/`} style={{ color: "var(--vault-gold-bright)" }}>archived read →</Link></> : null}</div></td>
                   <td className="k nw">{g.final ? `${g.away.abbr} ${g.final.away} — ${g.final.home} ${g.home.abbr}` : "not final"}</td>
-                  <td className="nw"><span className="k">{g.published.pick.abbr} {(g.published.pick.probability * 100).toFixed(0)}%</span> {g.final ? <Mark outcome={team(g, "winner")?.outcome} /> : null}</td>
+                  <td className="nw">{g.published.pick ? <><span className="k">{g.published.pick.abbr} {(g.published.pick.probability * 100).toFixed(0)}%</span> {g.final ? <Mark outcome={team(g, "winner")?.outcome} /> : null}</> : "—"}</td>
                   <td className="nw"><span className="k">{g.published.total.median} ({g.published.total.low}–{g.published.total.high})</span> {g.final ? <Mark outcome={team(g, "total_range")?.outcome} /> : null}</td>
                   <td className="nw">{g.final ? <Mark outcome={team(g, "margin_range")?.outcome} /> : "—"}</td>
                   <td className="k m">{g.published.sportsbookTotal ?? "—"}</td>

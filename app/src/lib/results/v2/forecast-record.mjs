@@ -13,6 +13,9 @@
  * pending / withdrawn / void counted as a loss.
  */
 
+import { HISTORICAL_MODEL_FAVORED_LABEL, SIDE_BASIS } from "../forecast-of-record.mjs";
+
+const HISTORICAL_MODEL_FAVORED = SIDE_BASIS.HISTORICAL_MODEL_FAVORED;
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 const median = (xs) => {
@@ -51,7 +54,10 @@ function directional(rows) {
     d.basis.add(m.directionalBasis);
   }
   if (!d.win && !d.loss && !d.push) return null;
-  return { win: d.win, loss: d.loss, push: d.push, decided: d.win + d.loss, basis: [...d.basis].sort() };
+  const basis = [...d.basis].sort();
+  /* Stage 3C (founder Q4): a record graded on the model-favored team, with no published side, is never a "pick record". */
+  const label = basis.length === 1 && basis[0] === HISTORICAL_MODEL_FAVORED ? HISTORICAL_MODEL_FAVORED_LABEL : "pick record";
+  return { win: d.win, loss: d.loss, push: d.push, decided: d.win + d.loss, basis, label };
 }
 
 export function reliabilityBins(pairs, bins = 10) {

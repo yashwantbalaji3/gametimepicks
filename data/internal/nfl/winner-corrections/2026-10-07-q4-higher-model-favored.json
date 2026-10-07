@@ -1,0 +1,72 @@
+{
+ "schemaVersion": "nfl-winner-correction@1",
+ "correctionId": "2026-10-07-q4-higher-model-favored",
+ "createdAt": "2026-10-07T03:00:00Z",
+ "decision": {
+  "decision": "Q4 HIGHER",
+  "by": "Yash",
+  "at": "2026-10-06T22:22:19Z",
+  "message": "cmsg_018esqVkc9tL9hjPpUhCNowmPMre9wy1wG2rPfVjB5jrGL"
+ },
+ "supersededRule": "P(home) > 0.5 else away",
+ "rule": "historical model-favored winner: the team with the higher frozen win probability (tie mass ignored; an exact tie is no side); a tie game is void",
+ "label": "historical model-favored winner accuracy",
+ "scope": "NFL game-winner forecasts with frozen team win probabilities and no frozen published side",
+ "appendOnly": "The receipts and the settler's dated grade files are unchanged. Readers apply these entries; nothing is deleted.",
+ "entries": [
+  {
+   "providerEventId": "401872950",
+   "canonicalEventId": "nfl-401872950",
+   "matchup": "CIN @ PIT",
+   "kickoffUtc": "2026-09-27T17:00Z",
+   "gradedIn": "data/internal/nfl/experimental-settlement/2026-09-27.json",
+   "receiptFile": "data/internal/nfl/forecast-receipts/2026-09-27/401872950.json",
+   "frozenWinProbability": {
+    "home": 0.4963,
+    "away": 0.4747,
+    "tieMass": 0.029
+   },
+   "finalScore": {
+    "home": 30,
+    "away": 27
+   },
+   "before": {
+    "modelFavoured": "AWAY",
+    "correct": false,
+    "rule": "P(home) > 0.5 else away"
+   },
+   "after": {
+    "modelFavoured": "HOME",
+    "correct": true,
+    "rule": "historical model-favored winner: the team with the higher frozen win probability (tie mass ignored; an exact tie is no side); a tie game is void"
+   }
+  },
+  {
+   "providerEventId": "401872970",
+   "canonicalEventId": "nfl-401872970",
+   "matchup": "LAR @ PHI",
+   "kickoffUtc": "2026-10-04T17:00Z",
+   "gradedIn": "data/internal/nfl/experimental-settlement/2026-10-04.json",
+   "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-04/401872970-rev-1502Z.json",
+   "frozenWinProbability": {
+    "home": 0.4887,
+    "away": 0.4803,
+    "tieMass": 0.031
+   },
+   "finalScore": {
+    "home": 20,
+    "away": 24
+   },
+   "before": {
+    "modelFavoured": "AWAY",
+    "correct": true,
+    "rule": "P(home) > 0.5 else away"
+   },
+   "after": {
+    "modelFavoured": "HOME",
+    "correct": false,
+    "rule": "historical model-favored winner: the team with the higher frozen win probability (tie mass ignored; an exact tie is no side); a tie game is void"
+   }
+  }
+ ]
+}
