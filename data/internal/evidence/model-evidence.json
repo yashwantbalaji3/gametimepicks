@@ -1,0 +1,5124 @@
+{
+ "schemaVersion": "model-evidence@1",
+ "artifact": "model-evidence",
+ "dataClass": "INTERNAL_RESEARCH",
+ "mode": "REPORT_ONLY",
+ "effect": "Changes no status, maturity, label, eligibility or published number. Status reads this only after slice E-5 and founder sign-off.",
+ "generatedAt": "2026-10-07T16:45:00Z",
+ "metricRule": "One entry = one sport × family × model version, one score. Never pooled across families, metric types or sports; no overall figure.",
+ "method": {
+  "difference": "d = loss(model) − loss(baseline); below zero = model better",
+  "bound": "asymptotic normal-mixture confidence sequence on mean(d), two-sided, slate-clustered (one ET day = one block); no bound before 3 slates; slate variance inflated (K+1)/(K-4) for few slates and floored at the event-level variance",
+  "validity": "asymptotic, not exact. Simulated false-verdict rate over 60 nightly looks: about 2% with independent events, about 4% with strong same-day correlation (sequential.test.mjs pins <= 5%)",
+  "alpha": 0.05,
+  "plannedEvents": 200,
+  "floors": {
+   "minSlates": 3,
+   "minEventsProbability": 30,
+   "minEventsDistribution": 20
+  },
+  "trailingRateWarmupEvents": 30,
+  "backtestPrior": "a walk-forward backtest may enter worth at most 4 slates and never satisfies the forward floors; none is registered yet",
+  "calibration": "binary families: logistic recalibration slope/intercept, Wald 95%, event-level",
+  "established": "upper < 0 AND slope interval contains 1 AND intercept interval contains 0 AND floors met AND model-health not BREACHED",
+  "pause": "lower > 0 OR model-health BREACHED",
+  "market": "separate badge: same bound with the recorded market as baseline; never the maturity baseline",
+  "excluded": "pending, void, withdrawn and unmeasured rows are excluded and counted, never scored as losses"
+ },
+ "inputs": {
+  "ledger": {
+   "EPL": {
+    "file": "data/internal/forecast-ledger/v1/epl.jsonl",
+    "contentHash": "583fff7db161f43f",
+    "rows": 4792
+   },
+   "LIGUE_1": {
+    "file": "data/internal/forecast-ledger/v1/ligue-1.jsonl",
+    "contentHash": "50608a17dc0eac47",
+    "rows": 18
+   },
+   "MLB": {
+    "file": "data/internal/forecast-ledger/v1/mlb.jsonl",
+    "contentHash": "3a474219ea58d7c2",
+    "rows": 5065
+   },
+   "NFL": {
+    "file": "data/internal/forecast-ledger/v1/nfl.jsonl",
+    "contentHash": "13d6cbfdb732bba2",
+    "rows": 3761
+   },
+   "UFC": {
+    "file": "data/internal/forecast-ledger/v1/ufc.jsonl",
+    "contentHash": "c06ad8c2b7c6f375",
+    "rows": 60
+   }
+  },
+  "modelHealth": {
+   "file": "app/public/data/admin/model-health.json",
+   "generatedAt": "2026-10-07T09:24:12Z"
+  }
+ },
+ "families": [
+  {
+   "sport": "EPL",
+   "family": "epl_1x2",
+   "forecastKind": "MULTICLASS_PROBABILITY",
+   "modelId": "epl-model-v1-split-poisson",
+   "modelVersion": null,
+   "baseline": {
+    "id": "UNIFORM_CLASSES",
+    "description": "even odds across classes (1/K)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 36,
+    "settled": 36,
+    "scored": 36,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 36
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 36,
+    "slates": 13,
+    "priorEvents": 0,
+    "meanDiff": -0.040061,
+    "lower": -0.372418,
+    "upper": 0.292297,
+    "halfWidth": 0.332357,
+    "path": [
+     {
+      "slate": "2026-08-21",
+      "n": 1,
+      "meanDiff": -0.7296,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-22",
+      "n": 6,
+      "meanDiff": -0.0265,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-23",
+      "n": 8,
+      "meanDiff": -0.0759,
+      "lower": -1.9353,
+      "upper": 1.7836
+     },
+     {
+      "slate": "2026-08-24",
+      "n": 9,
+      "meanDiff": -0.0824,
+      "lower": -1.6953,
+      "upper": 1.5305
+     },
+     {
+      "slate": "2026-08-29",
+      "n": 13,
+      "meanDiff": -0.0055,
+      "lower": -1.0297,
+      "upper": 1.0188
+     },
+     {
+      "slate": "2026-08-30",
+      "n": 16,
+      "meanDiff": -0.0411,
+      "lower": -0.7388,
+      "upper": 0.6565
+     },
+     {
+      "slate": "2026-08-31",
+      "n": 17,
+      "meanDiff": -0.0661,
+      "lower": -0.6817,
+      "upper": 0.5495
+     },
+     {
+      "slate": "2026-09-04",
+      "n": 18,
+      "meanDiff": -0.1135,
+      "lower": -0.7585,
+      "upper": 0.5316
+     },
+     {
+      "slate": "2026-09-05",
+      "n": 24,
+      "meanDiff": -0.0435,
+      "lower": -0.5148,
+      "upper": 0.4279
+     },
+     {
+      "slate": "2026-09-06",
+      "n": 26,
+      "meanDiff": -0.0596,
+      "lower": -0.4912,
+      "upper": 0.372
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 33,
+      "meanDiff": -0.0134,
+      "lower": -0.345,
+      "upper": 0.3181
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 35,
+      "meanDiff": -0.0451,
+      "lower": -0.3994,
+      "upper": 0.3091
+     },
+     {
+      "slate": "2026-09-14",
+      "n": 36,
+      "meanDiff": -0.0401,
+      "lower": -0.3724,
+      "upper": 0.2923
+     }
+    ]
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "epl_result",
+    "state": "INSUFFICIENT_SAMPLE"
+   },
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_BETTER",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "UNDECIDED",
+    "n": 30,
+    "slates": 12,
+    "meanDiff": -0.0074,
+    "lower": -0.2012,
+    "upper": 0.1864
+   }
+  },
+  {
+   "sport": "EPL",
+   "family": "epl_1x2",
+   "forecastKind": "MULTICLASS_PROBABILITY",
+   "modelId": "epl-model-v2-elo-poisson",
+   "modelVersion": null,
+   "baseline": {
+    "id": "UNIFORM_CLASSES",
+    "description": "even odds across classes (1/K)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 10,
+    "settled": 10,
+    "scored": 10,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 10
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 10,
+    "slates": 3,
+    "priorEvents": 0,
+    "meanDiff": -0.07092,
+    "lower": -0.837968,
+    "upper": 0.696127,
+    "halfWidth": 0.767047,
+    "path": [
+     {
+      "slate": "2026-09-18",
+      "n": 1,
+      "meanDiff": -0.3021,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-19",
+      "n": 6,
+      "meanDiff": -0.0792,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 10,
+      "meanDiff": -0.0709,
+      "lower": -0.838,
+      "upper": 0.6961
+     }
+    ]
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "epl_result",
+    "state": "INSUFFICIENT_SAMPLE"
+   },
+   "evidence": {
+    "floorsMet": false,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "TOO_EARLY",
+    "lean": null,
+    "wouldBe": "NONE",
+    "reasons": [
+     "floors: 3/3 slates, 10/30 graded events"
+    ]
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "TOO_EARLY",
+    "n": 9,
+    "slates": 3,
+    "meanDiff": -0.0344,
+    "lower": -0.6433,
+    "upper": 0.5745
+   }
+  },
+  {
+   "sport": "EPL",
+   "family": "epl_anytime_goalscorer",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": null,
+   "modelVersion": null,
+   "baseline": {
+    "id": "TRAILING_RATE",
+    "description": "the family's observed rate on earlier slates only (Laplace-smoothed)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 2258,
+    "settled": 1212,
+    "scored": 1181,
+    "excluded": {
+     "void": 1046,
+     "warmup": 31
+    },
+    "slateDateSource": {
+     "eventStart": 1212
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 1181,
+    "slates": 15,
+    "priorEvents": 0,
+    "meanDiff": -0.032664,
+    "lower": -0.066122,
+    "upper": 0.000794,
+    "halfWidth": 0.033458,
+    "path": [
+     {
+      "slate": "2026-08-22",
+      "n": 155,
+      "meanDiff": -0.0043,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-23",
+      "n": 216,
+      "meanDiff": -0.0031,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-24",
+      "n": 247,
+      "meanDiff": -0.0239,
+      "lower": -0.1927,
+      "upper": 0.145
+     },
+     {
+      "slate": "2026-08-29",
+      "n": 333,
+      "meanDiff": -0.0302,
+      "lower": -0.1727,
+      "upper": 0.1123
+     },
+     {
+      "slate": "2026-08-30",
+      "n": 399,
+      "meanDiff": -0.0308,
+      "lower": -0.151,
+      "upper": 0.0894
+     },
+     {
+      "slate": "2026-08-31",
+      "n": 420,
+      "meanDiff": -0.032,
+      "lower": -0.1207,
+      "upper": 0.0568
+     },
+     {
+      "slate": "2026-09-04",
+      "n": 441,
+      "meanDiff": -0.0325,
+      "lower": -0.1069,
+      "upper": 0.0419
+     },
+     {
+      "slate": "2026-09-05",
+      "n": 616,
+      "meanDiff": -0.0293,
+      "lower": -0.0781,
+      "upper": 0.0196
+     },
+     {
+      "slate": "2026-09-06",
+      "n": 669,
+      "meanDiff": -0.0338,
+      "lower": -0.0835,
+      "upper": 0.0159
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 877,
+      "meanDiff": -0.0284,
+      "lower": -0.067,
+      "upper": 0.0103
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 919,
+      "meanDiff": -0.0298,
+      "lower": -0.0669,
+      "upper": 0.0073
+     },
+     {
+      "slate": "2026-09-14",
+      "n": 939,
+      "meanDiff": -0.0308,
+      "lower": -0.067,
+      "upper": 0.0055
+     },
+     {
+      "slate": "2026-09-18",
+      "n": 960,
+      "meanDiff": -0.0321,
+      "lower": -0.0682,
+      "upper": 0.0039
+     },
+     {
+      "slate": "2026-09-19",
+      "n": 1100,
+      "meanDiff": -0.0291,
+      "lower": -0.0602,
+      "upper": 0.0021
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 1181,
+      "meanDiff": -0.0327,
+      "lower": -0.0661,
+      "upper": 0.0008
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 1181,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.8587,
+    "slopeLo": 0.6276,
+    "slopeHi": 1.0898,
+    "intercept": -0.3575,
+    "interceptLo": -0.8728,
+    "interceptHi": 0.1577,
+    "slopeContainsOne": true,
+    "interceptContainsZero": true
+   },
+   "modelHealth": null,
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_BETTER",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "EPL",
+   "family": "epl_btts",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "epl-model-v1-split-poisson",
+   "modelVersion": null,
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 36,
+    "settled": 36,
+    "scored": 36,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 36
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 36,
+    "slates": 13,
+    "priorEvents": 0,
+    "meanDiff": 0.022086,
+    "lower": -0.34059,
+    "upper": 0.384761,
+    "halfWidth": 0.362676,
+    "path": [
+     {
+      "slate": "2026-08-21",
+      "n": 1,
+      "meanDiff": 0.0802,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-22",
+      "n": 6,
+      "meanDiff": 0.1483,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-23",
+      "n": 8,
+      "meanDiff": 0.0516,
+      "lower": -1.1992,
+      "upper": 1.3024
+     },
+     {
+      "slate": "2026-08-24",
+      "n": 9,
+      "meanDiff": 0.0254,
+      "lower": -1.1591,
+      "upper": 1.2098
+     },
+     {
+      "slate": "2026-08-29",
+      "n": 13,
+      "meanDiff": 0.075,
+      "lower": -0.6781,
+      "upper": 0.828
+     },
+     {
+      "slate": "2026-08-30",
+      "n": 16,
+      "meanDiff": 0.0385,
+      "lower": -0.5092,
+      "upper": 0.5862
+     },
+     {
+      "slate": "2026-08-31",
+      "n": 17,
+      "meanDiff": 0.0381,
+      "lower": -0.4049,
+      "upper": 0.4811
+     },
+     {
+      "slate": "2026-09-04",
+      "n": 18,
+      "meanDiff": 0.0354,
+      "lower": -0.3457,
+      "upper": 0.4165
+     },
+     {
+      "slate": "2026-09-05",
+      "n": 24,
+      "meanDiff": -0.0333,
+      "lower": -0.4423,
+      "upper": 0.3758
+     },
+     {
+      "slate": "2026-09-06",
+      "n": 26,
+      "meanDiff": -0.033,
+      "lower": -0.3884,
+      "upper": 0.3224
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 33,
+      "meanDiff": 0.0468,
+      "lower": -0.3557,
+      "upper": 0.4494
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 35,
+      "meanDiff": 0.0274,
+      "lower": -0.3531,
+      "upper": 0.408
+     },
+     {
+      "slate": "2026-09-14",
+      "n": 36,
+      "meanDiff": 0.0221,
+      "lower": -0.3406,
+      "upper": 0.3848
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 36,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.3466,
+    "slopeLo": -0.3108,
+    "slopeHi": 1.0041,
+    "intercept": 0.0692,
+    "interceptLo": -0.6021,
+    "interceptHi": 0.7405,
+    "slopeContainsOne": true,
+    "interceptContainsZero": true
+   },
+   "modelHealth": null,
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_WORSE",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "EPL",
+   "family": "epl_btts",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "epl-model-v2-elo-poisson",
+   "modelVersion": null,
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 10,
+    "settled": 10,
+    "scored": 10,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 10
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 10,
+    "slates": 3,
+    "priorEvents": 0,
+    "meanDiff": 0.041517,
+    "lower": -0.449811,
+    "upper": 0.532846,
+    "halfWidth": 0.491328,
+    "path": [
+     {
+      "slate": "2026-09-18",
+      "n": 1,
+      "meanDiff": 0.1158,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-19",
+      "n": 6,
+      "meanDiff": -0.0012,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 10,
+      "meanDiff": 0.0415,
+      "lower": -0.4498,
+      "upper": 0.5328
+     }
+    ]
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "n": 10,
+    "reason": "fewer than 30 graded events"
+   },
+   "modelHealth": null,
+   "evidence": {
+    "floorsMet": false,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "TOO_EARLY",
+    "lean": null,
+    "wouldBe": "NONE",
+    "reasons": [
+     "floors: 3/3 slates, 10/30 graded events"
+    ]
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "EPL",
+   "family": "epl_clean_sheet",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "epl-model-v1-split-poisson",
+   "modelVersion": null,
+   "baseline": {
+    "id": "TRAILING_RATE",
+    "description": "the family's observed rate on earlier slates only (Laplace-smoothed)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 72,
+    "settled": 72,
+    "scored": 40,
+    "excluded": {
+     "warmup": 32
+    },
+    "slateDateSource": {
+     "eventStart": 72
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 40,
+    "slates": 7,
+    "priorEvents": 0,
+    "meanDiff": -0.060154,
+    "lower": -0.601006,
+    "upper": 0.480697,
+    "halfWidth": 0.540852,
+    "path": [
+     {
+      "slate": "2026-08-31",
+      "n": 2,
+      "meanDiff": -0.212,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-04",
+      "n": 4,
+      "meanDiff": -0.3133,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-05",
+      "n": 16,
+      "meanDiff": -0.1998,
+      "lower": -0.674,
+      "upper": 0.2744
+     },
+     {
+      "slate": "2026-09-06",
+      "n": 20,
+      "meanDiff": -0.1706,
+      "lower": -0.5355,
+      "upper": 0.1944
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 34,
+      "meanDiff": -0.0229,
+      "lower": -0.8949,
+      "upper": 0.8492
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 38,
+      "meanDiff": -0.057,
+      "lower": -0.7104,
+      "upper": 0.5964
+     },
+     {
+      "slate": "2026-09-14",
+      "n": 40,
+      "meanDiff": -0.0602,
+      "lower": -0.601,
+      "upper": 0.4807
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 40,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.5718,
+    "slopeLo": 0.0107,
+    "slopeHi": 1.1329,
+    "intercept": -0.2235,
+    "interceptLo": -1.0277,
+    "interceptHi": 0.5808,
+    "slopeContainsOne": true,
+    "interceptContainsZero": true
+   },
+   "modelHealth": null,
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_BETTER",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "EPL",
+   "family": "epl_clean_sheet",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "epl-model-v2-elo-poisson",
+   "modelVersion": null,
+   "baseline": {
+    "id": "TRAILING_RATE",
+    "description": "the family's observed rate on earlier slates only (Laplace-smoothed)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 20,
+    "settled": 20,
+    "scored": 20,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 20
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 20,
+    "slates": 3,
+    "priorEvents": 0,
+    "meanDiff": 0.082766,
+    "lower": -0.185635,
+    "upper": 0.351167,
+    "halfWidth": 0.268401,
+    "path": [
+     {
+      "slate": "2026-09-18",
+      "n": 2,
+      "meanDiff": -0.0431,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-19",
+      "n": 12,
+      "meanDiff": 0.0703,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 20,
+      "meanDiff": 0.0828,
+      "lower": -0.1856,
+      "upper": 0.3512
+     }
+    ]
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "n": 20,
+    "reason": "fewer than 30 graded events"
+   },
+   "modelHealth": null,
+   "evidence": {
+    "floorsMet": false,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "TOO_EARLY",
+    "lean": null,
+    "wouldBe": "NONE",
+    "reasons": [
+     "floors: 3/3 slates, 20/30 graded events"
+    ]
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "EPL",
+   "family": "epl_over_2_5",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "epl-model-v1-split-poisson",
+   "modelVersion": null,
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 36,
+    "settled": 36,
+    "scored": 36,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 36
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 36,
+    "slates": 13,
+    "priorEvents": 0,
+    "meanDiff": 0.067576,
+    "lower": -0.221581,
+    "upper": 0.356733,
+    "halfWidth": 0.289157,
+    "path": [
+     {
+      "slate": "2026-08-21",
+      "n": 1,
+      "meanDiff": -0.2275,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-22",
+      "n": 6,
+      "meanDiff": -0.0806,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-23",
+      "n": 8,
+      "meanDiff": -0.1528,
+      "lower": -1.2016,
+      "upper": 0.8961
+     },
+     {
+      "slate": "2026-08-24",
+      "n": 9,
+      "meanDiff": -0.1511,
+      "lower": -1.0403,
+      "upper": 0.7381
+     },
+     {
+      "slate": "2026-08-29",
+      "n": 13,
+      "meanDiff": -0.1126,
+      "lower": -0.6859,
+      "upper": 0.4607
+     },
+     {
+      "slate": "2026-08-30",
+      "n": 16,
+      "meanDiff": -0.1135,
+      "lower": -0.4496,
+      "upper": 0.2226
+     },
+     {
+      "slate": "2026-08-31",
+      "n": 17,
+      "meanDiff": -0.1066,
+      "lower": -0.3756,
+      "upper": 0.1624
+     },
+     {
+      "slate": "2026-09-04",
+      "n": 18,
+      "meanDiff": -0.0656,
+      "lower": -0.3862,
+      "upper": 0.255
+     },
+     {
+      "slate": "2026-09-05",
+      "n": 24,
+      "meanDiff": -0.0192,
+      "lower": -0.3098,
+      "upper": 0.2714
+     },
+     {
+      "slate": "2026-09-06",
+      "n": 26,
+      "meanDiff": -0.0185,
+      "lower": -0.2757,
+      "upper": 0.2387
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 33,
+      "meanDiff": 0.035,
+      "lower": -0.2528,
+      "upper": 0.3227
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 35,
+      "meanDiff": 0.0733,
+      "lower": -0.2248,
+      "upper": 0.3714
+     },
+     {
+      "slate": "2026-09-14",
+      "n": 36,
+      "meanDiff": 0.0676,
+      "lower": -0.2216,
+      "upper": 0.3567
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 36,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.0328,
+    "slopeLo": -0.7802,
+    "slopeHi": 0.8458,
+    "intercept": -0.0023,
+    "interceptLo": -0.6582,
+    "interceptHi": 0.6536,
+    "slopeContainsOne": false,
+    "interceptContainsZero": true
+   },
+   "modelHealth": null,
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_WORSE",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "EPL",
+   "family": "epl_over_2_5",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "epl-model-v2-elo-poisson",
+   "modelVersion": null,
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 10,
+    "settled": 10,
+    "scored": 10,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 10
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 10,
+    "slates": 3,
+    "priorEvents": 0,
+    "meanDiff": 0.004117,
+    "lower": -0.148584,
+    "upper": 0.156817,
+    "halfWidth": 0.1527,
+    "path": [
+     {
+      "slate": "2026-09-18",
+      "n": 1,
+      "meanDiff": -0.0449,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-19",
+      "n": 6,
+      "meanDiff": -0.0138,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 10,
+      "meanDiff": 0.0041,
+      "lower": -0.1486,
+      "upper": 0.1568
+     }
+    ]
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "n": 10,
+    "reason": "fewer than 30 graded events"
+   },
+   "modelHealth": null,
+   "evidence": {
+    "floorsMet": false,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "TOO_EARLY",
+    "lean": null,
+    "wouldBe": "NONE",
+    "reasons": [
+     "floors: 3/3 slates, 10/30 graded events"
+    ]
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "EPL",
+   "family": "epl_scoreline",
+   "forecastKind": "MULTICLASS_PROBABILITY",
+   "modelId": "epl-model-v1-split-poisson",
+   "modelVersion": null,
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 36,
+    "settled": 36,
+    "scored": 0,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 36
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered baseline for this family"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": null,
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered baseline for this family"
+    ]
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "EPL",
+   "family": "epl_scoreline",
+   "forecastKind": "MULTICLASS_PROBABILITY",
+   "modelId": "epl-model-v2-elo-poisson",
+   "modelVersion": null,
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 10,
+    "settled": 10,
+    "scored": 0,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 10
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered baseline for this family"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": null,
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered baseline for this family"
+    ]
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "EPL",
+   "family": "epl_shots_on_goal_over_0_5",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": null,
+   "modelVersion": null,
+   "baseline": {
+    "id": "TRAILING_RATE",
+    "description": "the family's observed rate on earlier slates only (Laplace-smoothed)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 2258,
+    "settled": 1212,
+    "scored": 1181,
+    "excluded": {
+     "void": 1046,
+     "warmup": 31
+    },
+    "slateDateSource": {
+     "eventStart": 1212
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 1181,
+    "slates": 15,
+    "priorEvents": 0,
+    "meanDiff": -0.078056,
+    "lower": -0.119404,
+    "upper": -0.036707,
+    "halfWidth": 0.041348,
+    "path": [
+     {
+      "slate": "2026-08-22",
+      "n": 155,
+      "meanDiff": -0.0507,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-23",
+      "n": 216,
+      "meanDiff": -0.0738,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-24",
+      "n": 247,
+      "meanDiff": -0.0801,
+      "lower": -0.2531,
+      "upper": 0.0928
+     },
+     {
+      "slate": "2026-08-29",
+      "n": 333,
+      "meanDiff": -0.0844,
+      "lower": -0.2237,
+      "upper": 0.0549
+     },
+     {
+      "slate": "2026-08-30",
+      "n": 399,
+      "meanDiff": -0.0839,
+      "lower": -0.2,
+      "upper": 0.0321
+     },
+     {
+      "slate": "2026-08-31",
+      "n": 420,
+      "meanDiff": -0.0849,
+      "lower": -0.1704,
+      "upper": 0.0007
+     },
+     {
+      "slate": "2026-09-04",
+      "n": 441,
+      "meanDiff": -0.0898,
+      "lower": -0.1699,
+      "upper": -0.0097
+     },
+     {
+      "slate": "2026-09-05",
+      "n": 616,
+      "meanDiff": -0.0703,
+      "lower": -0.1504,
+      "upper": 0.0098
+     },
+     {
+      "slate": "2026-09-06",
+      "n": 669,
+      "meanDiff": -0.0718,
+      "lower": -0.143,
+      "upper": -0.0005
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 877,
+      "meanDiff": -0.0704,
+      "lower": -0.1222,
+      "upper": -0.0185
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 919,
+      "meanDiff": -0.0705,
+      "lower": -0.1186,
+      "upper": -0.0225
+     },
+     {
+      "slate": "2026-09-14",
+      "n": 939,
+      "meanDiff": -0.0715,
+      "lower": -0.1181,
+      "upper": -0.0249
+     },
+     {
+      "slate": "2026-09-18",
+      "n": 960,
+      "meanDiff": -0.074,
+      "lower": -0.1213,
+      "upper": -0.0267
+     },
+     {
+      "slate": "2026-09-19",
+      "n": 1100,
+      "meanDiff": -0.0749,
+      "lower": -0.1163,
+      "upper": -0.0336
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 1181,
+      "meanDiff": -0.0781,
+      "lower": -0.1194,
+      "upper": -0.0367
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 1181,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.9427,
+    "slopeLo": 0.7787,
+    "slopeHi": 1.1067,
+    "intercept": -0.0712,
+    "interceptLo": -0.2811,
+    "interceptHi": 0.1386,
+    "slopeContainsOne": true,
+    "interceptContainsZero": true
+   },
+   "modelHealth": null,
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "BETTER_THAN_BASELINE",
+    "lean": null,
+    "wouldBe": "ESTABLISHED_ELIGIBLE",
+    "reasons": [
+     "upper bound of mean(d) < 0, calibration slope ~1, intercept ~0, floors met, not BREACHED"
+    ]
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "LIGUE_1",
+   "family": "ligue1_1x2",
+   "forecastKind": "MULTICLASS_PROBABILITY",
+   "modelId": null,
+   "modelVersion": null,
+   "baseline": {
+    "id": "UNIFORM_CLASSES",
+    "description": "even odds across classes (1/K)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 18,
+    "settled": 18,
+    "scored": 18,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 18
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 18,
+    "slates": 6,
+    "priorEvents": 0,
+    "meanDiff": -0.137363,
+    "lower": -1.010124,
+    "upper": 0.735397,
+    "halfWidth": 0.872761,
+    "path": [
+     {
+      "slate": "2026-09-11",
+      "n": 1,
+      "meanDiff": -0.3387,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 6,
+      "meanDiff": 0.1381,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 9,
+      "meanDiff": -0.0216,
+      "lower": -2.1863,
+      "upper": 2.1432
+     },
+     {
+      "slate": "2026-09-18",
+      "n": 10,
+      "meanDiff": -0.0343,
+      "lower": -1.9489,
+      "upper": 1.8802
+     },
+     {
+      "slate": "2026-09-19",
+      "n": 15,
+      "meanDiff": -0.1192,
+      "lower": -1.5312,
+      "upper": 1.2929
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 18,
+      "meanDiff": -0.1374,
+      "lower": -1.0101,
+      "upper": 0.7354
+     }
+    ]
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "ligue1_result",
+    "state": "INSUFFICIENT_SAMPLE"
+   },
+   "evidence": {
+    "floorsMet": false,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "TOO_EARLY",
+    "lean": null,
+    "wouldBe": "NONE",
+    "reasons": [
+     "floors: 6/3 slates, 18/30 graded events"
+    ]
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "MLB",
+   "family": "mlb_homer_nukes",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "mlb-homer-nukes-v1",
+   "modelVersion": null,
+   "baseline": {
+    "id": "TRAILING_RATE",
+    "description": "the family's observed rate on earlier slates only (Laplace-smoothed)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 240,
+    "settled": 205,
+    "scored": 173,
+    "excluded": {
+     "noMeasurement": 33,
+     "pending": 2,
+     "warmup": 32
+    },
+    "slateDateSource": {
+     "receiptId": 205
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 173,
+    "slates": 40,
+    "priorEvents": 0,
+    "meanDiff": 0.008682,
+    "lower": -0.026237,
+    "upper": 0.0436,
+    "halfWidth": 0.034918,
+    "path": [
+     {
+      "slate": "2026-08-25",
+      "n": 4,
+      "meanDiff": 0.0298,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-26",
+      "n": 8,
+      "meanDiff": -0.0586,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-27",
+      "n": 13,
+      "meanDiff": -0.0342,
+      "lower": -0.4877,
+      "upper": 0.4193
+     },
+     {
+      "slate": "2026-08-28",
+      "n": 18,
+      "meanDiff": -0.015,
+      "lower": -0.3486,
+      "upper": 0.3186
+     },
+     {
+      "slate": "2026-08-29",
+      "n": 23,
+      "meanDiff": 0.0063,
+      "lower": -0.289,
+      "upper": 0.3016
+     },
+     {
+      "slate": "2026-08-30",
+      "n": 28,
+      "meanDiff": -0.0085,
+      "lower": -0.2096,
+      "upper": 0.1926
+     },
+     {
+      "slate": "2026-08-31",
+      "n": 33,
+      "meanDiff": 0.0005,
+      "lower": -0.1507,
+      "upper": 0.1518
+     },
+     {
+      "slate": "2026-09-01",
+      "n": 38,
+      "meanDiff": 0.0018,
+      "lower": -0.1161,
+      "upper": 0.1197
+     },
+     {
+      "slate": "2026-09-02",
+      "n": 42,
+      "meanDiff": 0.0086,
+      "lower": -0.0948,
+      "upper": 0.112
+     },
+     {
+      "slate": "2026-09-03",
+      "n": 47,
+      "meanDiff": 0.0067,
+      "lower": -0.0809,
+      "upper": 0.0942
+     },
+     {
+      "slate": "2026-09-04",
+      "n": 52,
+      "meanDiff": 0.017,
+      "lower": -0.0692,
+      "upper": 0.1032
+     },
+     {
+      "slate": "2026-09-05",
+      "n": 56,
+      "meanDiff": 0.0244,
+      "lower": -0.0581,
+      "upper": 0.1069
+     },
+     {
+      "slate": "2026-09-06",
+      "n": 61,
+      "meanDiff": 0.0232,
+      "lower": -0.0503,
+      "upper": 0.0968
+     },
+     {
+      "slate": "2026-09-07",
+      "n": 64,
+      "meanDiff": 0.0116,
+      "lower": -0.0704,
+      "upper": 0.0936
+     },
+     {
+      "slate": "2026-09-08",
+      "n": 68,
+      "meanDiff": 0.0146,
+      "lower": -0.0617,
+      "upper": 0.0909
+     },
+     {
+      "slate": "2026-09-09",
+      "n": 73,
+      "meanDiff": 0.0076,
+      "lower": -0.0669,
+      "upper": 0.082
+     },
+     {
+      "slate": "2026-09-10",
+      "n": 78,
+      "meanDiff": 0.0036,
+      "lower": -0.0665,
+      "upper": 0.0737
+     },
+     {
+      "slate": "2026-09-11",
+      "n": 82,
+      "meanDiff": 0.002,
+      "lower": -0.064,
+      "upper": 0.0681
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 87,
+      "meanDiff": 0.0053,
+      "lower": -0.0572,
+      "upper": 0.0677
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 91,
+      "meanDiff": 0.0047,
+      "lower": -0.0544,
+      "upper": 0.0638
+     },
+     {
+      "slate": "2026-09-14",
+      "n": 96,
+      "meanDiff": 0.005,
+      "lower": -0.0505,
+      "upper": 0.0605
+     },
+     {
+      "slate": "2026-09-15",
+      "n": 100,
+      "meanDiff": 0.0033,
+      "lower": -0.0498,
+      "upper": 0.0565
+     },
+     {
+      "slate": "2026-09-16",
+      "n": 104,
+      "meanDiff": 0.007,
+      "lower": -0.0452,
+      "upper": 0.0592
+     },
+     {
+      "slate": "2026-09-17",
+      "n": 109,
+      "meanDiff": 0.0114,
+      "lower": -0.0401,
+      "upper": 0.0628
+     },
+     {
+      "slate": "2026-09-18",
+      "n": 112,
+      "meanDiff": 0.0131,
+      "lower": -0.037,
+      "upper": 0.0631
+     },
+     {
+      "slate": "2026-09-19",
+      "n": 117,
+      "meanDiff": 0.0165,
+      "lower": -0.0324,
+      "upper": 0.0654
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 120,
+      "meanDiff": 0.0143,
+      "lower": -0.0337,
+      "upper": 0.0624
+     },
+     {
+      "slate": "2026-09-21",
+      "n": 121,
+      "meanDiff": 0.0137,
+      "lower": -0.0339,
+      "upper": 0.0612
+     },
+     {
+      "slate": "2026-09-22",
+      "n": 123,
+      "meanDiff": 0.0113,
+      "lower": -0.0361,
+      "upper": 0.0586
+     },
+     {
+      "slate": "2026-09-23",
+      "n": 127,
+      "meanDiff": 0.0102,
+      "lower": -0.0356,
+      "upper": 0.0561
+     },
+     {
+      "slate": "2026-09-24",
+      "n": 131,
+      "meanDiff": 0.0133,
+      "lower": -0.032,
+      "upper": 0.0586
+     },
+     {
+      "slate": "2026-09-25",
+      "n": 136,
+      "meanDiff": 0.0121,
+      "lower": -0.0316,
+      "upper": 0.0558
+     },
+     {
+      "slate": "2026-09-26",
+      "n": 140,
+      "meanDiff": 0.0112,
+      "lower": -0.0313,
+      "upper": 0.0536
+     },
+     {
+      "slate": "2026-09-27",
+      "n": 144,
+      "meanDiff": 0.013,
+      "lower": -0.0285,
+      "upper": 0.0545
+     },
+     {
+      "slate": "2026-09-29",
+      "n": 149,
+      "meanDiff": 0.0125,
+      "lower": -0.0276,
+      "upper": 0.0526
+     },
+     {
+      "slate": "2026-09-30",
+      "n": 154,
+      "meanDiff": 0.0107,
+      "lower": -0.0284,
+      "upper": 0.0498
+     },
+     {
+      "slate": "2026-10-03",
+      "n": 159,
+      "meanDiff": 0.0112,
+      "lower": -0.0266,
+      "upper": 0.049
+     },
+     {
+      "slate": "2026-10-04",
+      "n": 164,
+      "meanDiff": 0.0104,
+      "lower": -0.0263,
+      "upper": 0.0471
+     },
+     {
+      "slate": "2026-10-05",
+      "n": 168,
+      "meanDiff": 0.0098,
+      "lower": -0.026,
+      "upper": 0.0456
+     },
+     {
+      "slate": "2026-10-06",
+      "n": 173,
+      "meanDiff": 0.0087,
+      "lower": -0.0262,
+      "upper": 0.0436
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 173,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.2621,
+    "slopeLo": -1.8903,
+    "slopeHi": 2.4145,
+    "intercept": -1.2906,
+    "interceptLo": -3.8766,
+    "interceptHi": 1.2954,
+    "slopeContainsOne": true,
+    "interceptContainsZero": true
+   },
+   "modelHealth": null,
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_WORSE",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "MLB",
+   "family": "mlb_moneyline",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "mlb-prediction-2026.08-v1",
+   "modelVersion": null,
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 454,
+    "settled": 454,
+    "scored": 454,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 454
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 454,
+    "slates": 42,
+    "priorEvents": 0,
+    "meanDiff": 0.002284,
+    "lower": -0.030335,
+    "upper": 0.034903,
+    "halfWidth": 0.032619,
+    "path": [
+     {
+      "slate": "2026-08-24",
+      "n": 10,
+      "meanDiff": 0.0096,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-25",
+      "n": 25,
+      "meanDiff": 0.0364,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-26",
+      "n": 40,
+      "meanDiff": 0.0204,
+      "lower": -0.1151,
+      "upper": 0.1558
+     },
+     {
+      "slate": "2026-08-27",
+      "n": 45,
+      "meanDiff": 0.0202,
+      "lower": -0.0983,
+      "upper": 0.1386
+     },
+     {
+      "slate": "2026-08-28",
+      "n": 54,
+      "meanDiff": 0.0094,
+      "lower": -0.1176,
+      "upper": 0.1364
+     },
+     {
+      "slate": "2026-08-29",
+      "n": 69,
+      "meanDiff": -0.0049,
+      "lower": -0.1115,
+      "upper": 0.1017
+     },
+     {
+      "slate": "2026-08-30",
+      "n": 76,
+      "meanDiff": -0.0036,
+      "lower": -0.0877,
+      "upper": 0.0805
+     },
+     {
+      "slate": "2026-08-31",
+      "n": 88,
+      "meanDiff": -0.0038,
+      "lower": -0.0699,
+      "upper": 0.0622
+     },
+     {
+      "slate": "2026-09-01",
+      "n": 103,
+      "meanDiff": 0.0096,
+      "lower": -0.0655,
+      "upper": 0.0847
+     },
+     {
+      "slate": "2026-09-02",
+      "n": 116,
+      "meanDiff": 0.0254,
+      "lower": -0.0626,
+      "upper": 0.1134
+     },
+     {
+      "slate": "2026-09-03",
+      "n": 123,
+      "meanDiff": 0.0193,
+      "lower": -0.0647,
+      "upper": 0.1033
+     },
+     {
+      "slate": "2026-09-04",
+      "n": 139,
+      "meanDiff": 0.0137,
+      "lower": -0.0617,
+      "upper": 0.0891
+     },
+     {
+      "slate": "2026-09-05",
+      "n": 154,
+      "meanDiff": 0.0074,
+      "lower": -0.0629,
+      "upper": 0.0778
+     },
+     {
+      "slate": "2026-09-06",
+      "n": 168,
+      "meanDiff": 0.0114,
+      "lower": -0.0533,
+      "upper": 0.0761
+     },
+     {
+      "slate": "2026-09-07",
+      "n": 175,
+      "meanDiff": 0.0168,
+      "lower": -0.0473,
+      "upper": 0.081
+     },
+     {
+      "slate": "2026-09-08",
+      "n": 190,
+      "meanDiff": 0.0164,
+      "lower": -0.0419,
+      "upper": 0.0747
+     },
+     {
+      "slate": "2026-09-09",
+      "n": 205,
+      "meanDiff": 0.0142,
+      "lower": -0.0397,
+      "upper": 0.0681
+     },
+     {
+      "slate": "2026-09-10",
+      "n": 210,
+      "meanDiff": 0.0134,
+      "lower": -0.0387,
+      "upper": 0.0656
+     },
+     {
+      "slate": "2026-09-11",
+      "n": 225,
+      "meanDiff": 0.0152,
+      "lower": -0.0335,
+      "upper": 0.0638
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 240,
+      "meanDiff": 0.0111,
+      "lower": -0.0363,
+      "upper": 0.0584
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 254,
+      "meanDiff": 0.0098,
+      "lower": -0.0347,
+      "upper": 0.0544
+     },
+     {
+      "slate": "2026-09-14",
+      "n": 264,
+      "meanDiff": 0.015,
+      "lower": -0.0311,
+      "upper": 0.0612
+     },
+     {
+      "slate": "2026-09-15",
+      "n": 279,
+      "meanDiff": 0.0174,
+      "lower": -0.0269,
+      "upper": 0.0616
+     },
+     {
+      "slate": "2026-09-16",
+      "n": 294,
+      "meanDiff": 0.0146,
+      "lower": -0.0281,
+      "upper": 0.0573
+     },
+     {
+      "slate": "2026-09-17",
+      "n": 303,
+      "meanDiff": 0.0186,
+      "lower": -0.0249,
+      "upper": 0.062
+     },
+     {
+      "slate": "2026-09-18",
+      "n": 318,
+      "meanDiff": 0.0147,
+      "lower": -0.0283,
+      "upper": 0.0577
+     },
+     {
+      "slate": "2026-09-19",
+      "n": 333,
+      "meanDiff": 0.0103,
+      "lower": -0.0329,
+      "upper": 0.0536
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 348,
+      "meanDiff": 0.0086,
+      "lower": -0.033,
+      "upper": 0.0502
+     },
+     {
+      "slate": "2026-09-21",
+      "n": 351,
+      "meanDiff": 0.0099,
+      "lower": -0.0315,
+      "upper": 0.0513
+     },
+     {
+      "slate": "2026-09-22",
+      "n": 366,
+      "meanDiff": 0.0094,
+      "lower": -0.0302,
+      "upper": 0.049
+     },
+     {
+      "slate": "2026-09-23",
+      "n": 382,
+      "meanDiff": 0.007,
+      "lower": -0.0316,
+      "upper": 0.0455
+     },
+     {
+      "slate": "2026-09-24",
+      "n": 394,
+      "meanDiff": 0.0058,
+      "lower": -0.0317,
+      "upper": 0.0432
+     },
+     {
+      "slate": "2026-09-25",
+      "n": 409,
+      "meanDiff": 0.0056,
+      "lower": -0.0304,
+      "upper": 0.0416
+     },
+     {
+      "slate": "2026-09-26",
+      "n": 422,
+      "meanDiff": 0.0049,
+      "lower": -0.0299,
+      "upper": 0.0398
+     },
+     {
+      "slate": "2026-09-27",
+      "n": 435,
+      "meanDiff": 0.0031,
+      "lower": -0.0311,
+      "upper": 0.0373
+     },
+     {
+      "slate": "2026-09-29",
+      "n": 439,
+      "meanDiff": 0.0028,
+      "lower": -0.0311,
+      "upper": 0.0366
+     },
+     {
+      "slate": "2026-09-30",
+      "n": 443,
+      "meanDiff": 0.003,
+      "lower": -0.0305,
+      "upper": 0.0365
+     },
+     {
+      "slate": "2026-10-01",
+      "n": 444,
+      "meanDiff": 0.0027,
+      "lower": -0.0306,
+      "upper": 0.0361
+     },
+     {
+      "slate": "2026-10-03",
+      "n": 448,
+      "meanDiff": 0.0022,
+      "lower": -0.0309,
+      "upper": 0.0352
+     },
+     {
+      "slate": "2026-10-04",
+      "n": 450,
+      "meanDiff": 0.003,
+      "lower": -0.03,
+      "upper": 0.0359
+     },
+     {
+      "slate": "2026-10-05",
+      "n": 452,
+      "meanDiff": 0.0029,
+      "lower": -0.0299,
+      "upper": 0.0357
+     },
+     {
+      "slate": "2026-10-06",
+      "n": 454,
+      "meanDiff": 0.0023,
+      "lower": -0.0303,
+      "upper": 0.0349
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 454,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.6021,
+    "slopeLo": -0.197,
+    "slopeHi": 1.4013,
+    "intercept": -0.0829,
+    "interceptLo": -0.3745,
+    "interceptHi": 0.2087,
+    "slopeContainsOne": true,
+    "interceptContainsZero": true
+   },
+   "modelHealth": {
+    "id": "mlb_moneyline",
+    "state": "WATCH"
+   },
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_WORSE",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "UNDECIDED",
+    "n": 449,
+    "slates": 42,
+    "meanDiff": 0.0301,
+    "lower": -0.0063,
+    "upper": 0.0665
+   }
+  },
+  {
+   "sport": "MLB",
+   "family": "mlb_moneyline",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": null,
+   "modelVersion": null,
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 351,
+    "settled": 351,
+    "scored": 351,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 351
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 351,
+    "slates": 27,
+    "priorEvents": 0,
+    "meanDiff": 0.011193,
+    "lower": -0.020053,
+    "upper": 0.042439,
+    "halfWidth": 0.031246,
+    "path": [
+     {
+      "slate": "2026-07-24",
+      "n": 15,
+      "meanDiff": -0.0982,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-07-25",
+      "n": 30,
+      "meanDiff": -0.0358,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-07-26",
+      "n": 44,
+      "meanDiff": -0.0241,
+      "lower": -0.2812,
+      "upper": 0.233
+     },
+     {
+      "slate": "2026-07-27",
+      "n": 55,
+      "meanDiff": -0.002,
+      "lower": -0.26,
+      "upper": 0.2561
+     },
+     {
+      "slate": "2026-07-28",
+      "n": 69,
+      "meanDiff": -0.0094,
+      "lower": -0.2153,
+      "upper": 0.1965
+     },
+     {
+      "slate": "2026-07-30",
+      "n": 78,
+      "meanDiff": -0.0023,
+      "lower": -0.147,
+      "upper": 0.1423
+     },
+     {
+      "slate": "2026-07-31",
+      "n": 87,
+      "meanDiff": 0.0002,
+      "lower": -0.1133,
+      "upper": 0.1138
+     },
+     {
+      "slate": "2026-08-03",
+      "n": 94,
+      "meanDiff": 0.0039,
+      "lower": -0.0944,
+      "upper": 0.1021
+     },
+     {
+      "slate": "2026-08-04",
+      "n": 108,
+      "meanDiff": -0.0007,
+      "lower": -0.082,
+      "upper": 0.0806
+     },
+     {
+      "slate": "2026-08-05",
+      "n": 123,
+      "meanDiff": 0.0031,
+      "lower": -0.0671,
+      "upper": 0.0732
+     },
+     {
+      "slate": "2026-08-07",
+      "n": 138,
+      "meanDiff": 0.0109,
+      "lower": -0.057,
+      "upper": 0.0788
+     },
+     {
+      "slate": "2026-08-08",
+      "n": 152,
+      "meanDiff": 0.0113,
+      "lower": -0.0487,
+      "upper": 0.0712
+     },
+     {
+      "slate": "2026-08-09",
+      "n": 167,
+      "meanDiff": 0.011,
+      "lower": -0.0423,
+      "upper": 0.0643
+     },
+     {
+      "slate": "2026-08-10",
+      "n": 177,
+      "meanDiff": 0.0084,
+      "lower": -0.0417,
+      "upper": 0.0585
+     },
+     {
+      "slate": "2026-08-11",
+      "n": 192,
+      "meanDiff": 0.0112,
+      "lower": -0.0354,
+      "upper": 0.0577
+     },
+     {
+      "slate": "2026-08-12",
+      "n": 207,
+      "meanDiff": 0.0098,
+      "lower": -0.033,
+      "upper": 0.0526
+     },
+     {
+      "slate": "2026-08-13",
+      "n": 216,
+      "meanDiff": 0.0128,
+      "lower": -0.0292,
+      "upper": 0.0549
+     },
+     {
+      "slate": "2026-08-14",
+      "n": 230,
+      "meanDiff": 0.0104,
+      "lower": -0.0296,
+      "upper": 0.0504
+     },
+     {
+      "slate": "2026-08-15",
+      "n": 244,
+      "meanDiff": 0.0146,
+      "lower": -0.0255,
+      "upper": 0.0546
+     },
+     {
+      "slate": "2026-08-16",
+      "n": 259,
+      "meanDiff": 0.0179,
+      "lower": -0.0213,
+      "upper": 0.0571
+     },
+     {
+      "slate": "2026-08-17",
+      "n": 269,
+      "meanDiff": 0.0149,
+      "lower": -0.0239,
+      "upper": 0.0536
+     },
+     {
+      "slate": "2026-08-18",
+      "n": 283,
+      "meanDiff": 0.0136,
+      "lower": -0.0233,
+      "upper": 0.0505
+     },
+     {
+      "slate": "2026-08-19",
+      "n": 297,
+      "meanDiff": 0.0143,
+      "lower": -0.0208,
+      "upper": 0.0494
+     },
+     {
+      "slate": "2026-08-20",
+      "n": 306,
+      "meanDiff": 0.0158,
+      "lower": -0.0185,
+      "upper": 0.0501
+     },
+     {
+      "slate": "2026-08-21",
+      "n": 321,
+      "meanDiff": 0.0131,
+      "lower": -0.0206,
+      "upper": 0.0468
+     },
+     {
+      "slate": "2026-08-22",
+      "n": 336,
+      "meanDiff": 0.0115,
+      "lower": -0.0211,
+      "upper": 0.044
+     },
+     {
+      "slate": "2026-08-23",
+      "n": 351,
+      "meanDiff": 0.0112,
+      "lower": -0.0201,
+      "upper": 0.0424
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 351,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.4218,
+    "slopeLo": -0.489,
+    "slopeHi": 1.3325,
+    "intercept": -0.1122,
+    "interceptLo": -0.461,
+    "interceptHi": 0.2365,
+    "slopeContainsOne": true,
+    "interceptContainsZero": true
+   },
+   "modelHealth": {
+    "id": "mlb_moneyline",
+    "state": "WATCH"
+   },
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_WORSE",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "UNDECIDED",
+    "n": 351,
+    "slates": 27,
+    "meanDiff": 0.0328,
+    "lower": -0.0048,
+    "upper": 0.0704
+   }
+  },
+  {
+   "sport": "MLB",
+   "family": "mlb_projected_runs",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": "mlb-prediction-2026.08-v1",
+   "modelVersion": null,
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 1610,
+    "settled": 1610,
+    "scored": 0,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 1610
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": null,
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "MLB",
+   "family": "mlb_projected_total",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": "mlb-prediction-2026.08-v1",
+   "modelVersion": null,
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 805,
+    "settled": 805,
+    "scored": 0,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 805
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": null,
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "MLB",
+   "family": "mlb_run_line",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "mlb-prediction-2026.08-v1",
+   "modelVersion": null,
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 454,
+    "settled": 454,
+    "scored": 454,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 454
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 454,
+    "slates": 42,
+    "priorEvents": 0,
+    "meanDiff": -0.032178,
+    "lower": -0.065333,
+    "upper": 0.000977,
+    "halfWidth": 0.033155,
+    "path": [
+     {
+      "slate": "2026-08-24",
+      "n": 10,
+      "meanDiff": 0.0605,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-25",
+      "n": 25,
+      "meanDiff": -0.0259,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-26",
+      "n": 40,
+      "meanDiff": -0.0278,
+      "lower": -0.2785,
+      "upper": 0.2229
+     },
+     {
+      "slate": "2026-08-27",
+      "n": 45,
+      "meanDiff": -0.0298,
+      "lower": -0.2483,
+      "upper": 0.1887
+     },
+     {
+      "slate": "2026-08-28",
+      "n": 54,
+      "meanDiff": -0.0205,
+      "lower": -0.2157,
+      "upper": 0.1748
+     },
+     {
+      "slate": "2026-08-29",
+      "n": 69,
+      "meanDiff": -0.0177,
+      "lower": -0.1335,
+      "upper": 0.0981
+     },
+     {
+      "slate": "2026-08-30",
+      "n": 76,
+      "meanDiff": -0.0298,
+      "lower": -0.137,
+      "upper": 0.0775
+     },
+     {
+      "slate": "2026-08-31",
+      "n": 88,
+      "meanDiff": -0.0373,
+      "lower": -0.1277,
+      "upper": 0.0531
+     },
+     {
+      "slate": "2026-09-01",
+      "n": 103,
+      "meanDiff": -0.0402,
+      "lower": -0.1134,
+      "upper": 0.0329
+     },
+     {
+      "slate": "2026-09-02",
+      "n": 116,
+      "meanDiff": -0.0429,
+      "lower": -0.1056,
+      "upper": 0.0198
+     },
+     {
+      "slate": "2026-09-03",
+      "n": 123,
+      "meanDiff": -0.0439,
+      "lower": -0.1041,
+      "upper": 0.0163
+     },
+     {
+      "slate": "2026-09-04",
+      "n": 139,
+      "meanDiff": -0.0511,
+      "lower": -0.1081,
+      "upper": 0.0059
+     },
+     {
+      "slate": "2026-09-05",
+      "n": 154,
+      "meanDiff": -0.046,
+      "lower": -0.1003,
+      "upper": 0.0082
+     },
+     {
+      "slate": "2026-09-06",
+      "n": 168,
+      "meanDiff": -0.0422,
+      "lower": -0.0951,
+      "upper": 0.0106
+     },
+     {
+      "slate": "2026-09-07",
+      "n": 175,
+      "meanDiff": -0.0457,
+      "lower": -0.0966,
+      "upper": 0.0053
+     },
+     {
+      "slate": "2026-09-08",
+      "n": 190,
+      "meanDiff": -0.0467,
+      "lower": -0.0951,
+      "upper": 0.0017
+     },
+     {
+      "slate": "2026-09-09",
+      "n": 205,
+      "meanDiff": -0.048,
+      "lower": -0.0945,
+      "upper": -0.0015
+     },
+     {
+      "slate": "2026-09-10",
+      "n": 210,
+      "meanDiff": -0.0475,
+      "lower": -0.0937,
+      "upper": -0.0013
+     },
+     {
+      "slate": "2026-09-11",
+      "n": 225,
+      "meanDiff": -0.0466,
+      "lower": -0.0915,
+      "upper": -0.0017
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 240,
+      "meanDiff": -0.0506,
+      "lower": -0.0938,
+      "upper": -0.0075
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 254,
+      "meanDiff": -0.0514,
+      "lower": -0.093,
+      "upper": -0.0099
+     },
+     {
+      "slate": "2026-09-14",
+      "n": 264,
+      "meanDiff": -0.0513,
+      "lower": -0.0919,
+      "upper": -0.0107
+     },
+     {
+      "slate": "2026-09-15",
+      "n": 279,
+      "meanDiff": -0.0507,
+      "lower": -0.0901,
+      "upper": -0.0113
+     },
+     {
+      "slate": "2026-09-16",
+      "n": 294,
+      "meanDiff": -0.0447,
+      "lower": -0.0834,
+      "upper": -0.0061
+     },
+     {
+      "slate": "2026-09-17",
+      "n": 303,
+      "meanDiff": -0.0446,
+      "lower": -0.0827,
+      "upper": -0.0064
+     },
+     {
+      "slate": "2026-09-18",
+      "n": 318,
+      "meanDiff": -0.0394,
+      "lower": -0.0768,
+      "upper": -0.002
+     },
+     {
+      "slate": "2026-09-19",
+      "n": 333,
+      "meanDiff": -0.0364,
+      "lower": -0.0731,
+      "upper": 0.0002
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 348,
+      "meanDiff": -0.0382,
+      "lower": -0.0741,
+      "upper": -0.0022
+     },
+     {
+      "slate": "2026-09-21",
+      "n": 351,
+      "meanDiff": -0.0392,
+      "lower": -0.0749,
+      "upper": -0.0034
+     },
+     {
+      "slate": "2026-09-22",
+      "n": 366,
+      "meanDiff": -0.0353,
+      "lower": -0.0706,
+      "upper": 0.0001
+     },
+     {
+      "slate": "2026-09-23",
+      "n": 382,
+      "meanDiff": -0.0323,
+      "lower": -0.0674,
+      "upper": 0.0027
+     },
+     {
+      "slate": "2026-09-24",
+      "n": 394,
+      "meanDiff": -0.0324,
+      "lower": -0.0667,
+      "upper": 0.0018
+     },
+     {
+      "slate": "2026-09-25",
+      "n": 409,
+      "meanDiff": -0.036,
+      "lower": -0.0708,
+      "upper": -0.0013
+     },
+     {
+      "slate": "2026-09-26",
+      "n": 422,
+      "meanDiff": -0.0373,
+      "lower": -0.0712,
+      "upper": -0.0034
+     },
+     {
+      "slate": "2026-09-27",
+      "n": 435,
+      "meanDiff": -0.0347,
+      "lower": -0.0685,
+      "upper": -0.0008
+     },
+     {
+      "slate": "2026-09-29",
+      "n": 439,
+      "meanDiff": -0.0327,
+      "lower": -0.0668,
+      "upper": 0.0014
+     },
+     {
+      "slate": "2026-09-30",
+      "n": 443,
+      "meanDiff": -0.0316,
+      "lower": -0.0655,
+      "upper": 0.0022
+     },
+     {
+      "slate": "2026-10-01",
+      "n": 444,
+      "meanDiff": -0.0309,
+      "lower": -0.0647,
+      "upper": 0.003
+     },
+     {
+      "slate": "2026-10-03",
+      "n": 448,
+      "meanDiff": -0.032,
+      "lower": -0.0657,
+      "upper": 0.0017
+     },
+     {
+      "slate": "2026-10-04",
+      "n": 450,
+      "meanDiff": -0.0325,
+      "lower": -0.066,
+      "upper": 0.001
+     },
+     {
+      "slate": "2026-10-05",
+      "n": 452,
+      "meanDiff": -0.0322,
+      "lower": -0.0655,
+      "upper": 0.0012
+     },
+     {
+      "slate": "2026-10-06",
+      "n": 454,
+      "meanDiff": -0.0322,
+      "lower": -0.0653,
+      "upper": 0.001
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 454,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.4661,
+    "slopeLo": -0.4434,
+    "slopeHi": 1.3755,
+    "intercept": 0.3382,
+    "interceptLo": -0.0833,
+    "interceptHi": 0.7596,
+    "slopeContainsOne": true,
+    "interceptContainsZero": true
+   },
+   "modelHealth": {
+    "id": "mlb_run_line",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_BETTER",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "MLB",
+   "family": "mlb_run_line",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": null,
+   "modelVersion": null,
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 351,
+    "settled": 351,
+    "scored": 351,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 351
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 351,
+    "slates": 27,
+    "priorEvents": 0,
+    "meanDiff": -0.030559,
+    "lower": -0.065235,
+    "upper": 0.004118,
+    "halfWidth": 0.034676,
+    "path": [
+     {
+      "slate": "2026-07-24",
+      "n": 15,
+      "meanDiff": -0.0171,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-07-25",
+      "n": 30,
+      "meanDiff": -0.0403,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-07-26",
+      "n": 44,
+      "meanDiff": -0.0557,
+      "lower": -0.1944,
+      "upper": 0.0829
+     },
+     {
+      "slate": "2026-07-27",
+      "n": 55,
+      "meanDiff": -0.0599,
+      "lower": -0.1725,
+      "upper": 0.0526
+     },
+     {
+      "slate": "2026-07-28",
+      "n": 69,
+      "meanDiff": -0.0537,
+      "lower": -0.1506,
+      "upper": 0.0432
+     },
+     {
+      "slate": "2026-07-30",
+      "n": 78,
+      "meanDiff": -0.055,
+      "lower": -0.1219,
+      "upper": 0.0118
+     },
+     {
+      "slate": "2026-07-31",
+      "n": 87,
+      "meanDiff": -0.0432,
+      "lower": -0.1197,
+      "upper": 0.0333
+     },
+     {
+      "slate": "2026-08-03",
+      "n": 94,
+      "meanDiff": -0.0454,
+      "lower": -0.1108,
+      "upper": 0.02
+     },
+     {
+      "slate": "2026-08-04",
+      "n": 108,
+      "meanDiff": -0.0296,
+      "lower": -0.1129,
+      "upper": 0.0537
+     },
+     {
+      "slate": "2026-08-05",
+      "n": 123,
+      "meanDiff": -0.0346,
+      "lower": -0.107,
+      "upper": 0.0378
+     },
+     {
+      "slate": "2026-08-07",
+      "n": 138,
+      "meanDiff": -0.031,
+      "lower": -0.0947,
+      "upper": 0.0326
+     },
+     {
+      "slate": "2026-08-08",
+      "n": 152,
+      "meanDiff": -0.0332,
+      "lower": -0.0899,
+      "upper": 0.0235
+     },
+     {
+      "slate": "2026-08-09",
+      "n": 167,
+      "meanDiff": -0.0313,
+      "lower": -0.0821,
+      "upper": 0.0196
+     },
+     {
+      "slate": "2026-08-10",
+      "n": 177,
+      "meanDiff": -0.0295,
+      "lower": -0.077,
+      "upper": 0.018
+     },
+     {
+      "slate": "2026-08-11",
+      "n": 192,
+      "meanDiff": -0.029,
+      "lower": -0.0739,
+      "upper": 0.0158
+     },
+     {
+      "slate": "2026-08-12",
+      "n": 207,
+      "meanDiff": -0.0254,
+      "lower": -0.0691,
+      "upper": 0.0183
+     },
+     {
+      "slate": "2026-08-13",
+      "n": 216,
+      "meanDiff": -0.0268,
+      "lower": -0.0696,
+      "upper": 0.016
+     },
+     {
+      "slate": "2026-08-14",
+      "n": 230,
+      "meanDiff": -0.0196,
+      "lower": -0.0639,
+      "upper": 0.0248
+     },
+     {
+      "slate": "2026-08-15",
+      "n": 244,
+      "meanDiff": -0.0215,
+      "lower": -0.0635,
+      "upper": 0.0205
+     },
+     {
+      "slate": "2026-08-16",
+      "n": 259,
+      "meanDiff": -0.023,
+      "lower": -0.0626,
+      "upper": 0.0166
+     },
+     {
+      "slate": "2026-08-17",
+      "n": 269,
+      "meanDiff": -0.0249,
+      "lower": -0.0637,
+      "upper": 0.014
+     },
+     {
+      "slate": "2026-08-18",
+      "n": 283,
+      "meanDiff": -0.0236,
+      "lower": -0.0618,
+      "upper": 0.0146
+     },
+     {
+      "slate": "2026-08-19",
+      "n": 297,
+      "meanDiff": -0.0248,
+      "lower": -0.0619,
+      "upper": 0.0123
+     },
+     {
+      "slate": "2026-08-20",
+      "n": 306,
+      "meanDiff": -0.0277,
+      "lower": -0.0643,
+      "upper": 0.0088
+     },
+     {
+      "slate": "2026-08-21",
+      "n": 321,
+      "meanDiff": -0.033,
+      "lower": -0.0707,
+      "upper": 0.0048
+     },
+     {
+      "slate": "2026-08-22",
+      "n": 336,
+      "meanDiff": -0.0316,
+      "lower": -0.0678,
+      "upper": 0.0046
+     },
+     {
+      "slate": "2026-08-23",
+      "n": 351,
+      "meanDiff": -0.0306,
+      "lower": -0.0652,
+      "upper": 0.0041
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 351,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.5111,
+    "slopeLo": -0.5698,
+    "slopeHi": 1.592,
+    "intercept": 0.3199,
+    "interceptLo": -0.1501,
+    "interceptHi": 0.7899,
+    "slopeContainsOne": true,
+    "interceptContainsZero": true
+   },
+   "modelHealth": {
+    "id": "mlb_run_line",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_BETTER",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "MLB",
+   "family": "mlb_total",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "mlb-prediction-2026.08-v1",
+   "modelVersion": null,
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 449,
+    "settled": 427,
+    "scored": 427,
+    "excluded": {
+     "void": 22
+    },
+    "slateDateSource": {
+     "eventStart": 427
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 427,
+    "slates": 42,
+    "priorEvents": 0,
+    "meanDiff": 0.048499,
+    "lower": 0.009845,
+    "upper": 0.087152,
+    "halfWidth": 0.038654,
+    "path": [
+     {
+      "slate": "2026-08-24",
+      "n": 10,
+      "meanDiff": 0.0291,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-25",
+      "n": 25,
+      "meanDiff": -0.0032,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-26",
+      "n": 40,
+      "meanDiff": 0.0535,
+      "lower": -0.3286,
+      "upper": 0.4356
+     },
+     {
+      "slate": "2026-08-27",
+      "n": 45,
+      "meanDiff": 0.0478,
+      "lower": -0.2902,
+      "upper": 0.3858
+     },
+     {
+      "slate": "2026-08-28",
+      "n": 53,
+      "meanDiff": 0.0471,
+      "lower": -0.2344,
+      "upper": 0.3286
+     },
+     {
+      "slate": "2026-08-29",
+      "n": 64,
+      "meanDiff": 0.0463,
+      "lower": -0.1286,
+      "upper": 0.2211
+     },
+     {
+      "slate": "2026-08-30",
+      "n": 70,
+      "meanDiff": 0.0537,
+      "lower": -0.089,
+      "upper": 0.1965
+     },
+     {
+      "slate": "2026-08-31",
+      "n": 81,
+      "meanDiff": 0.0585,
+      "lower": -0.0554,
+      "upper": 0.1724
+     },
+     {
+      "slate": "2026-09-01",
+      "n": 95,
+      "meanDiff": 0.0553,
+      "lower": -0.0362,
+      "upper": 0.1469
+     },
+     {
+      "slate": "2026-09-02",
+      "n": 108,
+      "meanDiff": 0.051,
+      "lower": -0.0274,
+      "upper": 0.1295
+     },
+     {
+      "slate": "2026-09-03",
+      "n": 115,
+      "meanDiff": 0.0474,
+      "lower": -0.0257,
+      "upper": 0.1206
+     },
+     {
+      "slate": "2026-09-04",
+      "n": 131,
+      "meanDiff": 0.0466,
+      "lower": -0.0261,
+      "upper": 0.1193
+     },
+     {
+      "slate": "2026-09-05",
+      "n": 146,
+      "meanDiff": 0.0425,
+      "lower": -0.0246,
+      "upper": 0.1096
+     },
+     {
+      "slate": "2026-09-06",
+      "n": 159,
+      "meanDiff": 0.041,
+      "lower": -0.0227,
+      "upper": 0.1047
+     },
+     {
+      "slate": "2026-09-07",
+      "n": 165,
+      "meanDiff": 0.0446,
+      "lower": -0.0174,
+      "upper": 0.1066
+     },
+     {
+      "slate": "2026-09-08",
+      "n": 178,
+      "meanDiff": 0.0452,
+      "lower": -0.0142,
+      "upper": 0.1047
+     },
+     {
+      "slate": "2026-09-09",
+      "n": 193,
+      "meanDiff": 0.0525,
+      "lower": -0.0058,
+      "upper": 0.1107
+     },
+     {
+      "slate": "2026-09-10",
+      "n": 197,
+      "meanDiff": 0.0498,
+      "lower": -0.0078,
+      "upper": 0.1074
+     },
+     {
+      "slate": "2026-09-11",
+      "n": 211,
+      "meanDiff": 0.0536,
+      "lower": -0.0017,
+      "upper": 0.1088
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 226,
+      "meanDiff": 0.0555,
+      "lower": 0.0025,
+      "upper": 0.1086
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 240,
+      "meanDiff": 0.06,
+      "lower": 0.0085,
+      "upper": 0.1115
+     },
+     {
+      "slate": "2026-09-14",
+      "n": 250,
+      "meanDiff": 0.0612,
+      "lower": 0.0108,
+      "upper": 0.1116
+     },
+     {
+      "slate": "2026-09-15",
+      "n": 265,
+      "meanDiff": 0.0637,
+      "lower": 0.0149,
+      "upper": 0.1126
+     },
+     {
+      "slate": "2026-09-16",
+      "n": 280,
+      "meanDiff": 0.0627,
+      "lower": 0.0152,
+      "upper": 0.1101
+     },
+     {
+      "slate": "2026-09-17",
+      "n": 287,
+      "meanDiff": 0.0618,
+      "lower": 0.015,
+      "upper": 0.1086
+     },
+     {
+      "slate": "2026-09-18",
+      "n": 301,
+      "meanDiff": 0.0584,
+      "lower": 0.0125,
+      "upper": 0.1043
+     },
+     {
+      "slate": "2026-09-19",
+      "n": 315,
+      "meanDiff": 0.057,
+      "lower": 0.0122,
+      "upper": 0.1018
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 328,
+      "meanDiff": 0.0516,
+      "lower": 0.0077,
+      "upper": 0.0955
+     },
+     {
+      "slate": "2026-09-21",
+      "n": 331,
+      "meanDiff": 0.0502,
+      "lower": 0.0065,
+      "upper": 0.0939
+     },
+     {
+      "slate": "2026-09-22",
+      "n": 346,
+      "meanDiff": 0.0506,
+      "lower": 0.0069,
+      "upper": 0.0942
+     },
+     {
+      "slate": "2026-09-23",
+      "n": 361,
+      "meanDiff": 0.0509,
+      "lower": 0.0082,
+      "upper": 0.0937
+     },
+     {
+      "slate": "2026-09-24",
+      "n": 373,
+      "meanDiff": 0.054,
+      "lower": 0.0121,
+      "upper": 0.0959
+     },
+     {
+      "slate": "2026-09-25",
+      "n": 386,
+      "meanDiff": 0.054,
+      "lower": 0.0132,
+      "upper": 0.0949
+     },
+     {
+      "slate": "2026-09-26",
+      "n": 398,
+      "meanDiff": 0.0531,
+      "lower": 0.013,
+      "upper": 0.0933
+     },
+     {
+      "slate": "2026-09-27",
+      "n": 411,
+      "meanDiff": 0.0505,
+      "lower": 0.0108,
+      "upper": 0.0901
+     },
+     {
+      "slate": "2026-09-29",
+      "n": 415,
+      "meanDiff": 0.0489,
+      "lower": 0.0095,
+      "upper": 0.0883
+     },
+     {
+      "slate": "2026-09-30",
+      "n": 418,
+      "meanDiff": 0.0489,
+      "lower": 0.0097,
+      "upper": 0.0881
+     },
+     {
+      "slate": "2026-10-01",
+      "n": 419,
+      "meanDiff": 0.0492,
+      "lower": 0.01,
+      "upper": 0.0883
+     },
+     {
+      "slate": "2026-10-03",
+      "n": 423,
+      "meanDiff": 0.0487,
+      "lower": 0.0098,
+      "upper": 0.0875
+     },
+     {
+      "slate": "2026-10-04",
+      "n": 424,
+      "meanDiff": 0.0487,
+      "lower": 0.01,
+      "upper": 0.0875
+     },
+     {
+      "slate": "2026-10-05",
+      "n": 426,
+      "meanDiff": 0.0476,
+      "lower": 0.009,
+      "upper": 0.0863
+     },
+     {
+      "slate": "2026-10-06",
+      "n": 427,
+      "meanDiff": 0.0485,
+      "lower": 0.0098,
+      "upper": 0.0872
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 427,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": -0.3458,
+    "slopeLo": -0.8881,
+    "slopeHi": 0.1964,
+    "intercept": 0.0686,
+    "interceptLo": -0.2091,
+    "interceptHi": 0.3463,
+    "slopeContainsOne": false,
+    "interceptContainsZero": true
+   },
+   "modelHealth": {
+    "id": "mlb_total",
+    "state": "BREACHED"
+   },
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "WORSE_THAN_BASELINE",
+    "lean": null,
+    "wouldBe": "PAUSE_SIGNAL",
+    "reasons": [
+     "model-health says BREACHED",
+     "lower bound of mean(d) > 0"
+    ]
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "TRAILS_MARKET",
+    "n": 427,
+    "slates": 42,
+    "meanDiff": 0.0481,
+    "lower": 0.0095,
+    "upper": 0.0868
+   }
+  },
+  {
+   "sport": "MLB",
+   "family": "mlb_total",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": null,
+   "modelVersion": null,
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 351,
+    "settled": 336,
+    "scored": 336,
+    "excluded": {
+     "void": 15
+    },
+    "slateDateSource": {
+     "eventStart": 336
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 336,
+    "slates": 27,
+    "priorEvents": 0,
+    "meanDiff": 0.016124,
+    "lower": -0.032362,
+    "upper": 0.064609,
+    "halfWidth": 0.048486,
+    "path": [
+     {
+      "slate": "2026-07-24",
+      "n": 15,
+      "meanDiff": 0.0221,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-07-25",
+      "n": 30,
+      "meanDiff": -0.0017,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-07-26",
+      "n": 43,
+      "meanDiff": 0.0293,
+      "lower": -0.2066,
+      "upper": 0.2652
+     },
+     {
+      "slate": "2026-07-27",
+      "n": 54,
+      "meanDiff": 0.0342,
+      "lower": -0.1529,
+      "upper": 0.2214
+     },
+     {
+      "slate": "2026-07-28",
+      "n": 68,
+      "meanDiff": 0.0231,
+      "lower": -0.1391,
+      "upper": 0.1852
+     },
+     {
+      "slate": "2026-07-30",
+      "n": 77,
+      "meanDiff": 0.0019,
+      "lower": -0.1576,
+      "upper": 0.1614
+     },
+     {
+      "slate": "2026-07-31",
+      "n": 86,
+      "meanDiff": -0.0084,
+      "lower": -0.1431,
+      "upper": 0.1264
+     },
+     {
+      "slate": "2026-08-03",
+      "n": 92,
+      "meanDiff": 0.0068,
+      "lower": -0.1261,
+      "upper": 0.1396
+     },
+     {
+      "slate": "2026-08-04",
+      "n": 105,
+      "meanDiff": 0.015,
+      "lower": -0.0992,
+      "upper": 0.1293
+     },
+     {
+      "slate": "2026-08-05",
+      "n": 120,
+      "meanDiff": 0.0019,
+      "lower": -0.1056,
+      "upper": 0.1094
+     },
+     {
+      "slate": "2026-08-07",
+      "n": 135,
+      "meanDiff": 0.0007,
+      "lower": -0.0915,
+      "upper": 0.0929
+     },
+     {
+      "slate": "2026-08-08",
+      "n": 147,
+      "meanDiff": 0.0097,
+      "lower": -0.0795,
+      "upper": 0.0989
+     },
+     {
+      "slate": "2026-08-09",
+      "n": 161,
+      "meanDiff": 0.0143,
+      "lower": -0.0672,
+      "upper": 0.0958
+     },
+     {
+      "slate": "2026-08-10",
+      "n": 170,
+      "meanDiff": 0.0233,
+      "lower": -0.0596,
+      "upper": 0.1061
+     },
+     {
+      "slate": "2026-08-11",
+      "n": 185,
+      "meanDiff": 0.0222,
+      "lower": -0.0527,
+      "upper": 0.0971
+     },
+     {
+      "slate": "2026-08-12",
+      "n": 199,
+      "meanDiff": 0.0239,
+      "lower": -0.0452,
+      "upper": 0.0929
+     },
+     {
+      "slate": "2026-08-13",
+      "n": 208,
+      "meanDiff": 0.0279,
+      "lower": -0.0392,
+      "upper": 0.095
+     },
+     {
+      "slate": "2026-08-14",
+      "n": 222,
+      "meanDiff": 0.0314,
+      "lower": -0.0322,
+      "upper": 0.0949
+     },
+     {
+      "slate": "2026-08-15",
+      "n": 236,
+      "meanDiff": 0.0304,
+      "lower": -0.0289,
+      "upper": 0.0897
+     },
+     {
+      "slate": "2026-08-16",
+      "n": 250,
+      "meanDiff": 0.0255,
+      "lower": -0.0323,
+      "upper": 0.0832
+     },
+     {
+      "slate": "2026-08-17",
+      "n": 260,
+      "meanDiff": 0.0277,
+      "lower": -0.0281,
+      "upper": 0.0835
+     },
+     {
+      "slate": "2026-08-18",
+      "n": 274,
+      "meanDiff": 0.0282,
+      "lower": -0.0245,
+      "upper": 0.0809
+     },
+     {
+      "slate": "2026-08-19",
+      "n": 288,
+      "meanDiff": 0.0233,
+      "lower": -0.0289,
+      "upper": 0.0755
+     },
+     {
+      "slate": "2026-08-20",
+      "n": 295,
+      "meanDiff": 0.0249,
+      "lower": -0.0262,
+      "upper": 0.076
+     },
+     {
+      "slate": "2026-08-21",
+      "n": 309,
+      "meanDiff": 0.0208,
+      "lower": -0.0294,
+      "upper": 0.0711
+     },
+     {
+      "slate": "2026-08-22",
+      "n": 324,
+      "meanDiff": 0.0157,
+      "lower": -0.0347,
+      "upper": 0.0661
+     },
+     {
+      "slate": "2026-08-23",
+      "n": 336,
+      "meanDiff": 0.0161,
+      "lower": -0.0324,
+      "upper": 0.0646
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 336,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.4185,
+    "slopeLo": -0.163,
+    "slopeHi": 0.9999,
+    "intercept": -0.135,
+    "interceptLo": -0.4305,
+    "interceptHi": 0.1604,
+    "slopeContainsOne": false,
+    "interceptContainsZero": true
+   },
+   "modelHealth": {
+    "id": "mlb_total",
+    "state": "BREACHED"
+   },
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_WORSE",
+    "wouldBe": "PAUSE_SIGNAL",
+    "reasons": [
+     "model-health says BREACHED"
+    ]
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "UNDECIDED",
+    "n": 336,
+    "slates": 27,
+    "meanDiff": 0.0153,
+    "lower": -0.0325,
+    "upper": 0.0631
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "anytime_td",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": null,
+   "modelVersion": null,
+   "baseline": {
+    "id": "TRAILING_RATE",
+    "description": "the family's observed rate on earlier slates only (Laplace-smoothed)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 962,
+    "settled": 783,
+    "scored": 615,
+    "excluded": {
+     "void": 43,
+     "noMeasurement": 136,
+     "warmup": 168
+    },
+    "slateDateSource": {
+     "eventStart": 783
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 615,
+    "slates": 10,
+    "priorEvents": 0,
+    "meanDiff": -0.033737,
+    "lower": -0.0782,
+    "upper": 0.010726,
+    "halfWidth": 0.044463,
+    "path": [
+     {
+      "slate": "2026-09-14",
+      "n": 12,
+      "meanDiff": -0.0886,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-17",
+      "n": 25,
+      "meanDiff": -0.114,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 248,
+      "meanDiff": -0.0497,
+      "lower": -0.1105,
+      "upper": 0.0111
+     },
+     {
+      "slate": "2026-09-21",
+      "n": 263,
+      "meanDiff": -0.046,
+      "lower": -0.0989,
+      "upper": 0.0068
+     },
+     {
+      "slate": "2026-09-24",
+      "n": 278,
+      "meanDiff": -0.0488,
+      "lower": -0.1085,
+      "upper": 0.0109
+     },
+     {
+      "slate": "2026-09-27",
+      "n": 357,
+      "meanDiff": -0.0306,
+      "lower": -0.127,
+      "upper": 0.0658
+     },
+     {
+      "slate": "2026-09-28",
+      "n": 372,
+      "meanDiff": -0.0269,
+      "lower": -0.1123,
+      "upper": 0.0586
+     },
+     {
+      "slate": "2026-10-01",
+      "n": 387,
+      "meanDiff": -0.0261,
+      "lower": -0.1023,
+      "upper": 0.0501
+     },
+     {
+      "slate": "2026-10-04",
+      "n": 599,
+      "meanDiff": -0.032,
+      "lower": -0.08,
+      "upper": 0.016
+     },
+     {
+      "slate": "2026-10-05",
+      "n": 615,
+      "meanDiff": -0.0337,
+      "lower": -0.0782,
+      "upper": 0.0107
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 615,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.7147,
+    "slopeLo": 0.4631,
+    "slopeHi": 0.9664,
+    "intercept": -0.4041,
+    "interceptLo": -0.7392,
+    "interceptHi": -0.069,
+    "slopeContainsOne": false,
+    "interceptContainsZero": false
+   },
+   "modelHealth": {
+    "id": "nfl_anytime_td",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_BETTER",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_game_margin",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": "nfl-preseason-public-beta-v1",
+   "modelVersion": "1",
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 48,
+    "settled": 43,
+    "scored": 0,
+    "excluded": {
+     "pending": 5
+    },
+    "slateDateSource": {
+     "eventStart": 43
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "nfl_margin_range",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_game_margin",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": "nfl-regular-season-public-v1",
+   "modelVersion": "1",
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 15,
+    "settled": 15,
+    "scored": 0,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 15
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "nfl_margin_range",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_game_margin",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": "nfl-regular-season-public-v1",
+   "modelVersion": "2",
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 49,
+    "settled": 49,
+    "scored": 0,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 49
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "nfl_margin_range",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_game_total",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": "nfl-preseason-public-beta-v1",
+   "modelVersion": "1",
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 48,
+    "settled": 43,
+    "scored": 0,
+    "excluded": {
+     "pending": 5
+    },
+    "slateDateSource": {
+     "eventStart": 43
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "nfl_total_range",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "UNDECIDED",
+    "n": 43,
+    "slates": 8,
+    "meanDiff": -0.2093,
+    "lower": -1.2023,
+    "upper": 0.7837
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_game_total",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": "nfl-regular-season-public-v1",
+   "modelVersion": "1",
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 15,
+    "settled": 15,
+    "scored": 0,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 15
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "nfl_total_range",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "TOO_EARLY",
+    "n": 13,
+    "slates": 1,
+    "meanDiff": 1.3462,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_game_total",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": "nfl-regular-season-public-v1",
+   "modelVersion": "2",
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 49,
+    "settled": 49,
+    "scored": 0,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 49
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "nfl_total_range",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "UNDECIDED",
+    "n": 49,
+    "slates": 10,
+    "meanDiff": 0.4898,
+    "lower": -1.6359,
+    "upper": 2.6154
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_game_winner",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "nfl-preseason-public-beta-v1",
+   "modelVersion": "1",
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 48,
+    "settled": 41,
+    "scored": 41,
+    "excluded": {
+     "pending": 5,
+     "void": 2
+    },
+    "slateDateSource": {
+     "eventStart": 41
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 41,
+    "slates": 8,
+    "priorEvents": 0,
+    "meanDiff": -0.004808,
+    "lower": -0.0431,
+    "upper": 0.033484,
+    "halfWidth": 0.038292,
+    "path": [
+     {
+      "slate": "2026-08-13",
+      "n": 5,
+      "meanDiff": -0.0219,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-14",
+      "n": 8,
+      "meanDiff": -0.0236,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-15",
+      "n": 15,
+      "meanDiff": -0.0179,
+      "lower": -0.093,
+      "upper": 0.0572
+     },
+     {
+      "slate": "2026-08-22",
+      "n": 25,
+      "meanDiff": -0.0098,
+      "lower": -0.0619,
+      "upper": 0.0422
+     },
+     {
+      "slate": "2026-08-23",
+      "n": 26,
+      "meanDiff": -0.0061,
+      "lower": -0.0624,
+      "upper": 0.0502
+     },
+     {
+      "slate": "2026-08-27",
+      "n": 30,
+      "meanDiff": -0.0047,
+      "lower": -0.0508,
+      "upper": 0.0415
+     },
+     {
+      "slate": "2026-08-28",
+      "n": 39,
+      "meanDiff": -0.0011,
+      "lower": -0.0406,
+      "upper": 0.0384
+     },
+     {
+      "slate": "2026-08-29",
+      "n": 41,
+      "meanDiff": -0.0048,
+      "lower": -0.0431,
+      "upper": 0.0335
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 41,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 11.9042,
+    "slopeLo": -12.0982,
+    "slopeHi": 35.9066,
+    "intercept": 1.571,
+    "interceptLo": -1.9312,
+    "interceptHi": 5.0731,
+    "slopeContainsOne": true,
+    "interceptContainsZero": true
+   },
+   "modelHealth": {
+    "id": "nfl_winner",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_BETTER",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "UNDECIDED",
+    "n": 41,
+    "slates": 8,
+    "meanDiff": -0.052,
+    "lower": -0.2027,
+    "upper": 0.0988
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_game_winner",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "nfl-regular-season-public-v1",
+   "modelVersion": "1",
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 15,
+    "settled": 15,
+    "scored": 15,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 15
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 15,
+    "slates": 3,
+    "priorEvents": 0,
+    "meanDiff": -0.03527,
+    "lower": -0.244461,
+    "upper": 0.17392,
+    "halfWidth": 0.20919,
+    "path": [
+     {
+      "slate": "2026-09-09",
+      "n": 1,
+      "meanDiff": -0.2101,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-10",
+      "n": 2,
+      "meanDiff": -0.0157,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-13",
+      "n": 15,
+      "meanDiff": -0.0353,
+      "lower": -0.2445,
+      "upper": 0.1739
+     }
+    ]
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "n": 15,
+    "reason": "fewer than 30 graded events"
+   },
+   "modelHealth": {
+    "id": "nfl_winner",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "floorsMet": false,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "TOO_EARLY",
+    "lean": null,
+    "wouldBe": "NONE",
+    "reasons": [
+     "floors: 3/3 slates, 15/30 graded events"
+    ]
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "TOO_EARLY",
+    "n": 13,
+    "slates": 1,
+    "meanDiff": 0.0614,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_game_winner",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "nfl-regular-season-public-v1",
+   "modelVersion": "2",
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 49,
+    "settled": 49,
+    "scored": 49,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 49
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 49,
+    "slates": 10,
+    "priorEvents": 0,
+    "meanDiff": -0.046977,
+    "lower": -0.191732,
+    "upper": 0.097779,
+    "halfWidth": 0.144756,
+    "path": [
+     {
+      "slate": "2026-09-14",
+      "n": 1,
+      "meanDiff": 0.3019,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-17",
+      "n": 2,
+      "meanDiff": 0.0403,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-20",
+      "n": 16,
+      "meanDiff": -0.0084,
+      "lower": -0.3235,
+      "upper": 0.3066
+     },
+     {
+      "slate": "2026-09-21",
+      "n": 17,
+      "meanDiff": -0.0274,
+      "lower": -0.3283,
+      "upper": 0.2735
+     },
+     {
+      "slate": "2026-09-24",
+      "n": 18,
+      "meanDiff": -0.0029,
+      "lower": -0.3655,
+      "upper": 0.3597
+     },
+     {
+      "slate": "2026-09-27",
+      "n": 32,
+      "meanDiff": -0.032,
+      "lower": -0.2368,
+      "upper": 0.1727
+     },
+     {
+      "slate": "2026-09-28",
+      "n": 33,
+      "meanDiff": -0.0291,
+      "lower": -0.2268,
+      "upper": 0.1687
+     },
+     {
+      "slate": "2026-10-01",
+      "n": 34,
+      "meanDiff": -0.0235,
+      "lower": -0.2153,
+      "upper": 0.1684
+     },
+     {
+      "slate": "2026-10-04",
+      "n": 48,
+      "meanDiff": -0.0484,
+      "lower": -0.1965,
+      "upper": 0.0997
+     },
+     {
+      "slate": "2026-10-05",
+      "n": 49,
+      "meanDiff": -0.047,
+      "lower": -0.1917,
+      "upper": 0.0978
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 49,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": 0.8992,
+    "slopeLo": -0.0152,
+    "slopeHi": 1.8137,
+    "intercept": 0.0298,
+    "interceptLo": -0.5809,
+    "interceptHi": 0.6405,
+    "slopeContainsOne": true,
+    "interceptContainsZero": true
+   },
+   "modelHealth": {
+    "id": "nfl_winner",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_BETTER",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "UNDECIDED",
+    "n": 49,
+    "slates": 10,
+    "meanDiff": -0.0148,
+    "lower": -0.1061,
+    "upper": 0.0766
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_team_score",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": "nfl-preseason-public-beta-v1",
+   "modelVersion": "1",
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 96,
+    "settled": 86,
+    "scored": 0,
+    "excluded": {
+     "pending": 10
+    },
+    "slateDateSource": {
+     "eventStart": 86
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": null,
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_team_score",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": "nfl-regular-season-public-v1",
+   "modelVersion": "1",
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 30,
+    "settled": 30,
+    "scored": 0,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 30
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": null,
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "nfl_team_score",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": "nfl-regular-season-public-v1",
+   "modelVersion": "2",
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": true,
+   "sample": {
+    "rows": 98,
+    "settled": 98,
+    "scored": 0,
+    "excluded": {},
+    "slateDateSource": {
+     "eventStart": 98
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": null,
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "NOT_COMPUTABLE",
+    "n": 0,
+    "slates": 0,
+    "meanDiff": null,
+    "lower": null,
+    "upper": null
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "player_pass_yds",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": null,
+   "modelVersion": null,
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 161,
+    "settled": 122,
+    "scored": 0,
+    "excluded": {
+     "noMeasurement": 29,
+     "void": 10
+    },
+    "slateDateSource": {
+     "eventStart": 122
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "nfl_player_pass_yds",
+    "state": "INSUFFICIENT_SAMPLE"
+   },
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "UNDECIDED",
+    "n": 56,
+    "slates": 4,
+    "meanDiff": 9.29,
+    "lower": -2.9154,
+    "upper": 21.4953
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "player_reception_yds",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": null,
+   "modelVersion": null,
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 792,
+    "settled": 667,
+    "scored": 0,
+    "excluded": {
+     "noMeasurement": 106,
+     "void": 19
+    },
+    "slateDateSource": {
+     "eventStart": 667
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "nfl_player_reception_yds",
+    "state": "HOLDING"
+   },
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "UNDECIDED",
+    "n": 290,
+    "slates": 4,
+    "meanDiff": 1.3944,
+    "lower": -1.7235,
+    "upper": 4.5124
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "player_receptions",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": null,
+   "modelVersion": null,
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 792,
+    "settled": 667,
+    "scored": 0,
+    "excluded": {
+     "noMeasurement": 106,
+     "void": 19
+    },
+    "slateDateSource": {
+     "eventStart": 667
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "nfl_player_receptions",
+    "state": "BREACHED"
+   },
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "PAUSE_SIGNAL",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)",
+     "model-health says BREACHED"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "UNDECIDED",
+    "n": 286,
+    "slates": 4,
+    "meanDiff": 0.1014,
+    "lower": -0.2125,
+    "upper": 0.4153
+   }
+  },
+  {
+   "sport": "NFL",
+   "family": "player_rush_yds",
+   "forecastKind": "CONTINUOUS_PROJECTION",
+   "modelId": null,
+   "modelVersion": null,
+   "baseline": {
+    "id": "NONE",
+    "description": "no pre-registered baseline in the ledger"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 494,
+    "settled": 352,
+    "scored": 0,
+    "excluded": {
+     "void": 25,
+     "noMeasurement": 117
+    },
+    "slateDateSource": {
+     "eventStart": 352
+    }
+   },
+   "primary": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+   },
+   "calibration": {
+    "state": "NOT_COMPUTABLE",
+    "reason": "binary families only in v1"
+   },
+   "modelHealth": {
+    "id": "nfl_player_rush_yds",
+    "state": "WATCH"
+   },
+   "evidence": {
+    "meter": "NOT_COMPUTABLE",
+    "lean": null,
+    "wouldBe": "NONE",
+    "floorsMet": null,
+    "reasons": [
+     "no pre-registered model baseline for a projection in the ledger (E-2 / owner receipts add one)"
+    ]
+   },
+   "marketBadge": {
+    "score": "absolute error vs the frozen line",
+    "state": "UNDECIDED",
+    "n": 151,
+    "slates": 4,
+    "meanDiff": 2.2462,
+    "lower": -1.1712,
+    "upper": 5.6637
+   }
+  },
+  {
+   "sport": "UFC",
+   "family": "ufc_winner",
+   "forecastKind": "BINARY_PROBABILITY",
+   "modelId": "ufc-fight-model@e657fc40b64d",
+   "modelVersion": null,
+   "baseline": {
+    "id": "COIN",
+    "description": "coin flip (p = 0.5, log loss 0.6931)"
+   },
+   "modelVersionRecorded": false,
+   "sample": {
+    "rows": 60,
+    "settled": 60,
+    "scored": 60,
+    "excluded": {},
+    "slateDateSource": {
+     "publishedAt": 60
+    }
+   },
+   "primary": {
+    "state": "COMPUTED",
+    "score": "log loss",
+    "n": 60,
+    "slates": 7,
+    "priorEvents": 0,
+    "meanDiff": 0.024684,
+    "lower": -0.282266,
+    "upper": 0.331633,
+    "halfWidth": 0.306949,
+    "path": [
+     {
+      "slate": "2026-08-22",
+      "n": 10,
+      "meanDiff": 0.147,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-08-28",
+      "n": 16,
+      "meanDiff": -0.005,
+      "lower": null,
+      "upper": null
+     },
+     {
+      "slate": "2026-09-05",
+      "n": 24,
+      "meanDiff": 0.0206,
+      "lower": -0.7852,
+      "upper": 0.8263
+     },
+     {
+      "slate": "2026-09-12",
+      "n": 31,
+      "meanDiff": 0.0166,
+      "lower": -0.5797,
+      "upper": 0.6129
+     },
+     {
+      "slate": "2026-09-18",
+      "n": 41,
+      "meanDiff": 0.0052,
+      "lower": -0.4389,
+      "upper": 0.4492
+     },
+     {
+      "slate": "2026-09-26",
+      "n": 49,
+      "meanDiff": -0.0224,
+      "lower": -0.3469,
+      "upper": 0.3022
+     },
+     {
+      "slate": "2026-10-03",
+      "n": 60,
+      "meanDiff": 0.0247,
+      "lower": -0.2823,
+      "upper": 0.3316
+     }
+    ]
+   },
+   "calibration": {
+    "state": "COMPUTED",
+    "n": 60,
+    "method": "logistic recalibration on logit(p), Wald 95%, event-level",
+    "slope": -0.4205,
+    "slopeLo": -1.2964,
+    "slopeHi": 0.4555,
+    "intercept": 0.9211,
+    "interceptLo": 0.0894,
+    "interceptHi": 1.7529,
+    "slopeContainsOne": false,
+    "interceptContainsZero": false
+   },
+   "modelHealth": {
+    "id": "ufc_winner",
+    "state": "WATCH"
+   },
+   "evidence": {
+    "floorsMet": true,
+    "minEvents": 30,
+    "minSlates": 3,
+    "meter": "EVIDENCE_BUILDING",
+    "lean": "LEANING_WORSE",
+    "wouldBe": "NONE",
+    "reasons": []
+   },
+   "marketBadge": {
+    "score": "log loss vs the recorded market probability",
+    "state": "UNDECIDED",
+    "n": 60,
+    "slates": 7,
+    "meanDiff": 0.108,
+    "lower": -0.3334,
+    "upper": 0.5494
+   }
+  }
+ ]
+}
