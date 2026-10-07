@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-10-07",
-  "generatedAt": "2026-10-07T23:16:47.000Z",
+  "generatedAt": "2026-10-07T22:09:51.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.08-v1",
   "sourceArtifact": "full-game-simulations/2026-10-07.json",
   "notBettingAdvice": true,
@@ -575,17 +575,16 @@
       "homeTeam": "SD",
       "awayTeamName": "Milwaukee Brewers",
       "homeTeamName": "San Diego Padres",
-      "artifactHash": "3903130c15bf93b49fef7d9893b78c7a54418e4b3382cf9918e87196cbef03de",
+      "artifactHash": "aaa24d610e1ac988e0620b2ebace7fa62bd27efab012e1e6c67f15e485d45d24",
       "decisionEngineVersion": "mlb-prediction-2026.08-v1",
       "completeness": {
         "level": "degraded",
         "notes": [
-          "MIL confirmed batting order used, all 9 with posted prop lines.",
           "SD confirmed batting order used, all 9 with posted prop lines.",
           "MIL has no posted probable starter — simulated vs a league bullpen aggregate.",
           "SD starter Walker Buehler has no strikeout projection — league starter rate used."
         ],
-        "awayLineupSource": "confirmed",
+        "awayLineupSource": "prop-derived",
         "homeLineupSource": "confirmed",
         "awayRatedCount": 9,
         "homeRatedCount": 9,
@@ -596,6 +595,7 @@
         "startedBeforeGeneration": false,
         "missingFamilies": [
           "away_probable_starter",
+          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -638,8 +638,8 @@
       "total": {
         "line": 7.5,
         "pick": "OVER",
-        "overProbability": 0.624,
-        "underProbability": 0.376,
+        "overProbability": 0.627,
+        "underProbability": 0.373,
         "pushProbability": 0,
         "simulationMedian": 9,
         "marketImpliedOver": 0.489,
@@ -651,8 +651,8 @@
         "pick": "MIL +1.5",
         "pickSide": "away",
         "pickLine": 1.5,
-        "coverProbability": 0.611,
-        "opposingCoverProbability": 0.389,
+        "coverProbability": 0.609,
+        "opposingCoverProbability": 0.391,
         "pushProbability": 0,
         "strengthLabel": "STRONG SIMULATION"
       },
