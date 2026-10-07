@@ -108,13 +108,28 @@ export function loadTodaysGames(dataRoot: string, opts: { today: string; nowMs: 
     };
   });
 
-  // Ligue 1 — forecast rows are the only source; they list games but cannot prove a quiet day.
+  // Ligue 1 — no standalone schedule file: the forecast run lists the matchday from ESPN fixtures
+  // (forecast rows + refused rows), and the graded file carries finals. It knows a day only inside the
+  // window that run covered, so it never blocks a quiet-day claim (`required: false`).
   const l1 = readJson(dataRoot, "soccer", "ligue-1", "forecasts", "latest.json");
-  const ligue1 = (l1?.rows ?? []).map((r: any) => ({
-    eventId: String(r.eventId), startUtc: r.kickoffUtc, providerStatus: r.lifecycle ?? r.status ?? null,
-    away: r.awayClub ?? null, home: r.homeClub ?? null, hasForecast: true, settled: false,
+  const l1Graded = readJson(dataRoot, "soccer", "ligue-1", "results", "graded.json");
+  const l1Rows = new Map<string, any>();
+  const l1Row = (r: any, hasForecast: boolean) => ({
+    eventId: String(r.eventId), startUtc: r.kickoffUtc ?? null, providerStatus: r.lifecycle ?? r.status ?? null,
+    away: r.awayClub ?? null, home: r.homeClub ?? null, hasForecast, settled: false,
     href: "/soccer/ligue-1/", liveFeed: false,
-  }));
+  });
+  for (const r of l1?.rows ?? []) if (r?.eventId) l1Rows.set(String(r.eventId), l1Row(r, true));
+  for (const r of l1?.refused ?? []) if (r?.eventId && !l1Rows.has(String(r.eventId))) l1Rows.set(String(r.eventId), l1Row(r, false));
+  for (const m of l1Graded?.matches ?? []) {
+    if (!m?.eventId || !m.final) continue;
+    // A graded match is a final, and it had a frozen forecast (that is what was graded).
+    l1Rows.set(String(m.eventId), { ...l1Row(m, true), providerStatus: "FINAL", settled: true });
+  }
+  const ligue1 = [...l1Rows.values()];
+  const l1Kicks = (l1?.rows ?? []).map((r: any) => etDayOf(r.kickoffUtc)).filter(Boolean).sort();
+  const l1Gen = typeof l1?.generatedAt === "string" ? etDayOf(l1.generatedAt) : null;
+  const l1Known = Boolean(l1Gen && l1Kicks.length && l1Gen <= today && today <= l1Kicks[l1Kicks.length - 1]);
 
   // UFC — one card, one row.
   const card = readJson(dataRoot, "ufc", "card-latest.json");
@@ -133,7 +148,7 @@ export function loadTodaysGames(dataRoot: string, opts: { today: string; nowMs: 
       { sport: "mlb", known: Array.isArray(mlbOfficial?.games), rows: mlb },
       { sport: "nba", known: windowCovers(nbaSched, today), rows: nba },
       { sport: "epl", known: Array.isArray(eplFixtures?.rows ?? eplFixtures?.fixtures) && (eplFixtures?.rows ?? eplFixtures?.fixtures).length > 0, rows: epl },
-      { sport: "ligue-1", known: false, required: false, rows: ligue1 },
+      { sport: "ligue-1", known: l1Known, required: false, rows: ligue1 },
       { sport: "ufc", known: Boolean(ev), rows: ufc },
     ],
   });

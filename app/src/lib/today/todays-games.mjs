@@ -18,6 +18,10 @@
  * registered clock-only vocabulary (`sports/event-lifecycle.mjs`). A started game with no final in
  * the capture is "result not in yet", never "Final".
  *
+ * FOUNDER T1 (2026-10-07): NBA and Ligue 1 games and finals are listed as facts even with no forecast;
+ * "game exists" stays separate from "GTP forecast available" (`forecast` / `forecastText`), and a
+ * missing prediction never produces "schedule still loading" (only an unreadable schedule can).
+ *
  * Day basis: the ET calendar day of the event's own start instant, the site's anchor. MNF at 00:15Z
  * Tuesday is Monday. Postponed and cancelled games do not count toward "events today" (the same rule
  * as `sportTodayFrom`) but are listed, so a reader is told rather than left to wonder.
@@ -153,6 +157,10 @@ export function buildTodaysGames({ today, nowMs, sports }) {
         phase,
         group: GROUP_OF[phase],
         statusText: rowStatusText(r, phase),
+        /* T1 (Yash 2026-10-07): "game exists" and "GTP forecast available" are separate facts, shown
+           separately. A game is listed and counted whether or not we forecast it. */
+        forecast: r.hasForecast ? "AVAILABLE" : "NONE",
+        forecastText: r.hasForecast ? "GameTimePicks forecast" : "No GameTimePicks forecast",
       });
     }
     const played = mine.filter((r) => r.group !== "NOT_PLAYED");
