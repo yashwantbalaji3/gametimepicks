@@ -49,20 +49,28 @@ jobs:
         run: |
           set -euo pipefail
           node app/scripts/nfl/build-nfl-sim-v2-shadow.mjs --anchor heads --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      # NS-2: grade each finished game's receipt of record (both variants) once against the captured final and box
+      # score; write-once grade files plus a summary. SHADOW evidence only.
+      - name: Grade finished games' receipts (shadow, write-once)
+        if: ${{ !cancelled() }}
+        run: |
+          set -euo pipefail
+          node app/scripts/nfl/grade-nfl-sim-v2-shadow.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
       - name: Commit new shadow receipts (add-only)
         if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          mkdir -p data/internal/research/nfl/sim-v2/shadow data/internal/research/nfl/sim-v2/anchored-shadow
-          git add data/internal/research/nfl/sim-v2/shadow/ data/internal/research/nfl/sim-v2/anchored-shadow/
+          mkdir -p data/internal/research/nfl/sim-v2/shadow data/internal/research/nfl/sim-v2/anchored-shadow data/internal/research/nfl/sim-v2/grades
+          git add data/internal/research/nfl/sim-v2/shadow/ data/internal/research/nfl/sim-v2/anchored-shadow/ data/internal/research/nfl/sim-v2/grades/
+          if [ -f data/internal/research/nfl/sim-v2/grades-summary.json ]; then git add data/internal/research/nfl/sim-v2/grades-summary.json; fi
           if git diff --cached --quiet; then
             echo "no new shadow receipt (inputs unchanged or no game inside 8 days)"
             exit 0
           fi
-          if git diff --cached --name-status -- data/internal/research/nfl/sim-v2/shadow/ data/internal/research/nfl/sim-v2/anchored-shadow/ | grep -v '^A'; then
-            echo "::error::a shadow receipt would be MODIFIED or deleted — write-once violated, refusing to commit"
+          if git diff --cached --name-status -- data/internal/research/nfl/sim-v2/shadow/ data/internal/research/nfl/sim-v2/anchored-shadow/ data/internal/research/nfl/sim-v2/grades/ | grep -v '^A'; then
+            echo "::error::a shadow receipt or grade would be MODIFIED or deleted — write-once violated, refusing to commit"
             exit 1
           fi
           git commit -m "auto: nfl sim v2 shadow receipts $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
