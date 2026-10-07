@@ -11,16 +11,18 @@
  * every game is terminal it stops entirely, so an evening of finished baseball costs nothing.
  * Hidden tabs back off. Freshness is recomputed on the reader's clock, never frozen into a payload.
  *
- * ⚠ TODAY ONLY (LV-1..3). MLB is always asked for today's ET date, and when the caller passes its
- * roster only those games count: a slate of yesterday's finals can neither stop the poll nor make
- * the hub claim a fresh feed. The rules live in `slate-scope.mjs` so they are tested without a DOM.
+ * ⚠ ONE DATED SLATE (LV-1..3). MLB always names its date in the URL: the roster's own ET date when
+ * the caller passes a roster (today's, once the day's build is out), otherwise today's. Only roster
+ * games count, a body for another date is ignored, and an empty roster asks for nothing: a slate of
+ * another day's finals can neither stop the poll nor make the hub claim a fresh feed. The rules live
+ * in `slate-scope.mjs` so they are tested without a DOM.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { liveReadyFor, liveUrl } from "@/lib/live/client";
 import { isUnavailable } from "@/lib/live/contract.mjs";
 import { freshnessOf } from "@/lib/live/freshness.mjs";
-import { etDateAt, nextSlatePollMs, scopeSlate } from "@/lib/live/slate-scope.mjs";
+import { acceptSlateBody, nextSlatePollMs, scopeSlate, slateRequestPlan } from "@/lib/live/slate-scope.mjs";
 
 type Envelope = Record<string, any>;
 
@@ -46,7 +48,7 @@ export interface LiveSlateResult {
   matched: number;
   /** Every roster game is in the feed and terminal, so polling has stopped. */
   settled: boolean;
-  /** False when the caller's roster is not for today's ET date (null until the reader's clock is known). */
+  /** False when the caller's roster is not for today's ET date (null until the reader's clock is known, or with no roster). */
   rosterIsToday: boolean | null;
 }
 
@@ -88,22 +90,25 @@ export function useLiveSlate(sport: "nfl" | "mlb" = "mlb", scope?: LiveSlateScop
     abort.current = controller;
     let states: string[] = [];
     const roster = scopeRef.current ?? null;
-    // MLB always names today's ET date; NFL keeps ESPN's current week, which its roster is built on.
-    const date = sport === "mlb" ? etDateAt(Date.now()) : undefined;
-    if (roster && date && roster.rosterDate !== date) {
-      // The roster on this page is not today's. Nothing here can be joined to today's feed, so no
-      // request is spent and the hub says so rather than painting another day's games as today's.
-      setRosterIsToday(false);
+    // MLB always names a date in the URL itself (the CDN keys on it): the roster's own ET date, or
+    // today's without a roster. NFL keeps ESPN's current week, which its roster is built on.
+    const plan = slateRequestPlan({ sport, roster, nowMs: Date.now() });
+    const date = plan.date;
+    setRosterIsToday(plan.rosterIsToday);
+    if (!plan.fetch) {
+      // An off day: nothing on the roster to track, so no request is spent.
       setLoading(false);
       return;
     }
-    if (roster) setRosterIsToday(true);
     try {
       const res = await fetch(liveUrl({ sport, date }), { signal: controller.signal, headers: { accept: "application/json" } });
       const body = await res.json();
       if (isUnavailable(body)) {
         // Keep the last good slate and let it age; a refusal never blanks the hub.
         setUnavailable({ reason: body.reason });
+      } else if (!acceptSlateBody(body, date)) {
+        // A body for another date (or an undated one) is not evidence about this slate: it neither
+        // replaces the slate nor advances freshness, and the poll keeps waiting for the right one.
       } else if (Array.isArray(body?.events)) {
         const scoped = scopeSlate(body.events, roster ? roster.rosterIds : null);
         setByGamePk(scoped.byGamePk);

@@ -16,6 +16,7 @@
  * a change to the gateway's own allowlist, which is a founder gate.
  */
 import { ASK_ERROR, ASK_STATUS } from "../contract.mjs";
+import { etDateAt } from "../../live/slate-scope.mjs";
 
 /**
  * @param {{sport: string}} args
@@ -121,7 +122,10 @@ export function originLiveFetch(origin, { timeoutMs = 8000 } = {}) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const res = await fetch(`${origin}/api/live/?sport=${encodeURIComponent(sport)}`, {
+      // MLB names today's ET date in the URL itself (LV-1): the CDN keys on the URL, so a dateless
+      // key could serve another day's slate. NFL keeps the gateway's undated current-week read.
+      const date = String(sport).toLowerCase() === "mlb" ? `&date=${etDateAt(Date.now())}` : "";
+      const res = await fetch(`${origin}/api/live/?sport=${encodeURIComponent(sport)}${date}`, {
         signal: controller.signal,
         headers: { accept: "application/json" },
         redirect: "error",

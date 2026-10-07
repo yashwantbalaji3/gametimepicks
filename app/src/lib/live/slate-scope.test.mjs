@@ -15,16 +15,18 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { cacheHeaderFor, memoReset, planRequest, scoreboardTtl, ttlForPlan, upstreamUrls } from "../../../api/_live-core.mjs";
+import { cacheHeaderFor, memoReset, planRequest, scoreboardTtl, selectMlbDateGroup, ttlForPlan, upstreamUrls } from "../../../api/_live-core.mjs";
 import { TTL_SECONDS } from "./freshness.mjs";
 import {
   MOVING_INTERVAL_MS,
   TODAY_MAX_TTL_SECONDS,
   WAITING_INTERVAL_MS,
+  acceptSlateBody,
   etDateAt,
   nextSlatePollMs,
   scopeSlate,
   slateFeedStatus,
+  slateRequestPlan,
 } from "./slate-scope.mjs";
 import { HIDDEN_TAB_MIN_INTERVAL_MS } from "./freshness.mjs";
 import { normalizeMlbSchedule } from "./adapters/mlb-statsapi.mjs";
@@ -48,6 +50,7 @@ function slateAll(abstractGameState, codedGameState) {
 }
 const FINAL_SLATE = normalizeMlbSchedule(slateAll("Final", "F"), "2026-10-08T04:30:00.000Z");
 const FIXTURE_IDS = FINAL_SLATE.map((e) => e.eventId);
+const base = { enabled: true, rosterSize: 5, unavailable: null, loading: false, matched: 5, settled: false, freshnessLevel: "FRESH", ageSecs: 3 };
 
 /* ───────────── LV-1 · the request always names today's ET date ───────────── */
 
@@ -84,11 +87,34 @@ test("LV-1d · NFL is untouched: ESPN keeps its current-week default when no dat
   assert.equal(/dates=/.test(upstreamUrls(plan).scoreboard), false);
 });
 
-test("LV-1e · the slate hook sends today's ET date for MLB on every poll", () => {
+test("LV-1e · the slate hook puts the planned date in the request URL itself on every poll", () => {
   const hook = read("src/components/live/use-live-slate.ts").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
-  assert.match(hook, /const date = sport === "mlb" \? etDateAt\(Date\.now\(\)\) : undefined;/,
-    "the date is computed from the reader's clock at poll time, so a page left open past midnight moves on");
+  assert.match(hook, /const plan = slateRequestPlan\(\{ sport, roster, nowMs: Date\.now\(\) \}\);/,
+    "planned on the reader's clock at poll time");
+  assert.match(hook, /const date = plan\.date;/);
   assert.match(hook, /liveUrl\(\{\s*sport,\s*date\s*\}\)/);
+});
+
+test("G3 · ⚠ every MLB caller's URL carries a date — the CDN keys on the URL, not the gateway default", async () => {
+  // Hub and My GameTime (through the hook's plan).
+  assert.equal(slateRequestPlan({ sport: "mlb", roster: null, nowMs: AFTER_MIDNIGHT_ET }).date, "2026-10-08");
+  assert.equal(slateRequestPlan({ sport: "mlb", roster: { rosterIds: ["1"], rosterDate: "2026-10-08" }, nowMs: AFTER_MIDNIGHT_ET }).date, "2026-10-08");
+  // NFL: unchanged, no date.
+  assert.equal(slateRequestPlan({ sport: "nfl", roster: null, nowMs: AFTER_MIDNIGHT_ET }).date, undefined);
+
+  // Ask's MLB live transport.
+  const { originLiveFetch } = await import("../ask/tools/live.mjs");
+  const prev = globalThis.fetch;
+  const asked = [];
+  globalThis.fetch = async (url) => { asked.push(String(url)); return { ok: true, text: async () => "{}" }; };
+  try {
+    await originLiveFetch("https://example.test")("mlb");
+    await originLiveFetch("https://example.test")("nfl");
+  } finally {
+    globalThis.fetch = prev;
+  }
+  assert.match(asked[0], /[?&]sport=mlb&date=\d{4}-\d{2}-\d{2}$/, `Ask's MLB URL is dated: ${asked[0]}`);
+  assert.equal(/date=/.test(asked[1]), false, "Ask's NFL URL is unchanged");
 });
 
 /* ───────────── LV-2 · only today's roster counts ───────────── */
@@ -142,25 +168,60 @@ test("LV-2d · a row for today's roster game joins by gamePk; a foreign row does
   assert.equal(b in scoped.byGamePk, false);
 });
 
-test("LV-2e · the MLB hub passes its roster and date, and hides another day's roster", () => {
+test("LV-2e · the MLB hub passes its roster and date", () => {
   const hub = read("src/components/live/live-hub.tsx").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
   assert.match(hub, /rosterIds: roster\.games\.map\(\(g\) => g\.gamePk\), rosterDate: roster\.etDate/);
   assert.match(hub, /useLiveSlate\("mlb", scope\)/);
-  assert.match(hub, /rosterIsToday === false \? null/, "a roster for another day is not painted as today");
-  const hook = read("src/components/live/use-live-slate.ts");
-  assert.match(hook, /roster\.rosterDate !== date/, "the hook refuses to join a roster that is not today's");
+});
+
+test("G1 · ⚠ 2 of today's 4 games returned, both final: the other 2 stay unresolved and polling continues", () => {
+  const next = nextSlatePollMs({ states: ["FINAL", "FINAL"], rosterSize: 4, hidden: false });
+  assert.notEqual(next, null, "partial coverage never stops the poll");
+  // The hook marks the slate settled only when the poll stops, and the hub says "final" only then.
+  const hook = read("src/components/live/use-live-slate.ts").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+  assert.match(hook, /if \(next === null\) \{\s*setSettled\(states\.length > 0\);/);
+  assert.equal(slateFeedStatus({ ...base, matched: 2, settled: false }), "FRESH", "not ALL_FINAL while unresolved");
+});
+
+test("G2 · ⚠ a body for another date, or with no date, fails closed", () => {
+  assert.equal(acceptSlateBody({ date: "2026-10-08", events: [] }, "2026-10-08"), true);
+  assert.equal(acceptSlateBody({ date: "2026-10-07", events: [] }, "2026-10-08"), false, "another day's slate");
+  assert.equal(acceptSlateBody({ events: [] }, "2026-10-08"), false, "an undated (old cached) body");
+  assert.equal(acceptSlateBody({ events: [] }, undefined), true, "NFL asks for no date and accepts its body");
+  // In the hook the refusal branch comes BEFORE the branch that replaces the slate and its fetchedAt.
+  const hook = read("src/components/live/use-live-slate.ts").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+  const reject = hook.indexOf("!acceptSlateBody(body, date)");
+  const accept = hook.indexOf("setFetchedAt(body.fetchedAt");
+  assert.ok(reject > 0 && accept > reject, "a wrong-date body can neither replace the slate nor advance freshness");
+});
+
+test("G6 · an off-day empty roster makes no live request", () => {
+  const plan = slateRequestPlan({ sport: "mlb", roster: { rosterIds: [], rosterDate: "2026-10-08" }, nowMs: AFTER_MIDNIGHT_ET });
+  assert.equal(plan.fetch, false);
+  const hook = read("src/components/live/use-live-slate.ts").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+  const skip = hook.indexOf("if (!plan.fetch)");
+  assert.ok(skip > 0 && skip < hook.indexOf("await fetch("), "the skip precedes the only fetch");
+});
+
+test("G7 · a roster built before midnight ET keeps its own date for the join, and is labelled", () => {
+  const roster = { rosterIds: FIXTURE_IDS, rosterDate: "2026-10-07" };
+  const plan = slateRequestPlan({ sport: "mlb", roster, nowMs: AFTER_MIDNIGHT_ET });
+  assert.equal(plan.date, "2026-10-07", "yesterday's cards are joined to yesterday's feed, never today's");
+  assert.equal(plan.rosterIsToday, false);
+  assert.equal(slateRequestPlan({ sport: "mlb", roster, nowMs: LATE_EVENING_ET }).rosterIsToday, true);
+  const hub = read("src/components/live/live-hub.tsx");
+  assert.match(hub, /rosterIsToday === false \?/);
+  assert.ok(hub.includes("Today's slate has not been published here yet."), "the label states it is not today's slate");
 });
 
 /* ───────────── honest feed line ───────────── */
 
-const base = { enabled: true, rosterIsToday: true, rosterSize: 5, unavailable: null, loading: false, matched: 5, settled: false, freshnessLevel: "FRESH", ageSecs: 3 };
 
 test("LV-HONEST · the feed line claims a recent update only while one is being measured", () => {
   assert.equal(slateFeedStatus(base), "FRESH");
   assert.equal(slateFeedStatus({ ...base, settled: true, ageSecs: null, freshnessLevel: "NOT_APPLICABLE" }), "ALL_FINAL",
     "a settled slate states the last-checked time, never an age that stopped ticking");
   assert.equal(slateFeedStatus({ ...base, matched: 0 }), "NO_TODAY_DATA");
-  assert.equal(slateFeedStatus({ ...base, rosterIsToday: false }), "NOT_TODAY");
   assert.equal(slateFeedStatus({ ...base, rosterSize: 0 }), "NO_GAMES");
   assert.equal(slateFeedStatus({ ...base, unavailable: { reason: "PROVIDER_ERROR" } }), "UNAVAILABLE");
   assert.equal(slateFeedStatus({ ...base, loading: true }), "CHECKING");
@@ -196,9 +257,32 @@ test("LV-3b · a past MLB date keeps the terminal TTL; shorter TTLs and NFL are 
   assert.equal(ttlForPlan(nfl, TTL_SECONDS.TERMINAL, AFTER_MIDNIGHT_ET), TTL_SECONDS.TERMINAL);
 });
 
+/* ───────────── G5 · the provider's date group, not each game's UTC instant ───────────── */
+
+/** The captured slate as StatsAPI groups it: `dates[{ date, games }]` (group date added in memory). */
+function grouped(groups) {
+  return { dates: groups.map(([date, games]) => ({ date, games })) };
+}
+
+test("G5 · ⚠ the slate is chosen by `dates[].date`, so a late ET game past midnight UTC is kept", () => {
+  const games = structuredClone(fixture.dates[0].games);
+  // A 10:10 PM ET first pitch on Oct 7 is 02:10Z on Oct 8: its UTC day is the NEXT day.
+  games[0] = { ...games[0], gameDate: "2026-10-08T02:10:00Z" };
+  const decoy = { ...structuredClone(games[1]), gamePk: 900000777 };
+  const payload = grouped([["2026-10-07", games], ["2026-10-06", [decoy]]]);
+
+  const kept = normalizeMlbSchedule(selectMlbDateGroup(payload, "2026-10-07"), "2026-10-08T03:00:00.000Z");
+  assert.equal(kept.length, games.length, "every game in the requested group survives, the late one included");
+  assert.ok(kept.some((e) => e.eventId === String(games[0].gamePk)), "the late game is not lost to its UTC date");
+  assert.equal(kept.some((e) => e.eventId === "900000777"), false, "another day's group is dropped");
+
+  // A group with no date is not trusted.
+  assert.equal(selectMlbDateGroup({ dates: [{ games }] }, "2026-10-07").dates.length, 0);
+});
+
 /* ───────────── end to end through the gateway handler (stubbed upstream) ───────────── */
 
-test("LV-E2E · the gateway asks StatsAPI for today and serves today's finals with a short cache", async () => {
+test("LV-E2E · the gateway asks StatsAPI for today, keeps only today's group, dates the body, short cache", async () => {
   const { default: handler } = await import("../../../api/live.mjs");
   const prevEnabled = process.env.LIVE_GATEWAY_ENABLED;
   const prevSports = process.env.LIVE_PUBLIC_SPORTS;
@@ -207,9 +291,13 @@ test("LV-E2E · the gateway asks StatsAPI for today and serves today's finals wi
   delete process.env.LIVE_PUBLIC_SPORTS;
   memoReset();
   const asked = [];
+  const today = etDateAt(Date.now());
+  const finals = slateAll("Final", "F").dates[0].games;
+  const decoy = { ...structuredClone(fixture.dates[0].games[0]), gamePk: 900000777 };
   globalThis.fetch = async (url) => {
     asked.push(String(url));
-    const body = JSON.stringify(slateAll("Final", "F"));
+    // The requested day's finals plus a decoy group for another day.
+    const body = JSON.stringify(grouped([[today, finals], ["1999-01-01", [decoy]]]));
     return { ok: true, text: async () => body };
   };
   const headers = {};
@@ -228,7 +316,10 @@ test("LV-E2E · the gateway asks StatsAPI for today and serves today's finals wi
     const m = asked[0].match(/[?&]date=(\d{4}-\d{2}-\d{2})/);
     assert.ok(m, `upstream was asked without a date: ${asked[0]}`);
     assert.ok(m[1] === before || m[1] === after, "the date is today's ET date");
-    assert.ok(Array.isArray(payload?.events) && payload.events.every((e) => e.state === "FINAL"));
+    assert.ok(Array.isArray(payload?.events) && payload.events.length === finals.length);
+    assert.ok(payload.events.every((e) => e.state === "FINAL"));
+    assert.equal(payload.events.some((e) => e.eventId === "900000777"), false, "another day's group never reaches a reader");
+    assert.equal(payload.date, m[1], "the body names the date it describes, so a reader can refuse another day's");
     const sMax = Number(/s-maxage=(\d+)/.exec(headers["Cache-Control"])?.[1]);
     assert.ok(sMax <= TODAY_MAX_TTL_SECONDS, `today's all-final slate cached ${sMax}s`);
   } finally {

@@ -166,6 +166,19 @@ export function cacheHeaderFor(ttlSeconds) {
 }
 
 /**
+ * Keep only the provider's date group for the requested date (guard 5).
+ *
+ * StatsAPI groups games under `dates[].date`, the slate's own ET date. A game's `gameDate` is a UTC
+ * instant and a late Eastern first pitch is already the next UTC day, so filtering on it would drop
+ * real games; the group's date is the provider's own answer to "which slate". A group with no date,
+ * or another date, is dropped: fail closed rather than mixing another day's games into this one.
+ */
+export function selectMlbDateGroup(payload, date) {
+  const dates = Array.isArray(payload?.dates) ? payload.dates : [];
+  return { ...payload, dates: date ? dates.filter((d) => d?.date === date) : dates };
+}
+
+/**
  * The TTL for a plan's response. An MLB answer about today never gets the one-hour terminal cache
  * (LV-3): a slate that reads final now may still change today, and the CDN must not pin it.
  */

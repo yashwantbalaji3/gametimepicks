@@ -28,6 +28,7 @@ import {
   gatewayDisabled,
   planRequest,
   scoreboardTtl,
+  selectMlbDateGroup,
   ttlForPlan,
   upstreamUrls,
 } from "./_live-core.mjs";
@@ -96,16 +97,19 @@ export default async function handler(req, res) {
   try {
     envelopes =
       plan.sport === "mlb"
-        ? normalizeMlbSchedule(board.json, fetchedAt)
+        ? normalizeMlbSchedule(selectMlbDateGroup(board.json, plan.date), fetchedAt)
         : normalizeNflScoreboard(board.json, fetchedAt);
   } catch {
     return refuse(res, "PROVIDER_MALFORMED", { sport: plan.sport, eventId: plan.eventId });
   }
 
+  // MLB answers echo the slate date they describe, so a reader can refuse a body for another day.
+  const dated = plan.sport === "mlb" ? { date: plan.date } : {};
+
   if (plan.mode === "scoreboard") {
     res.setHeader("Cache-Control", cacheHeaderFor(ttlForPlan(plan, scoreboardTtl(envelopes), nowMs)));
     res.setHeader("Content-Type", "application/json");
-    return res.status(200).json({ schemaVersion: 1, sport: plan.sport, fetchedAt, events: envelopes });
+    return res.status(200).json({ schemaVersion: 1, sport: plan.sport, ...dated, fetchedAt, events: envelopes });
   }
 
   const matches = envelopes.filter((e) => e.eventId === plan.eventId);
@@ -140,5 +144,5 @@ export default async function handler(req, res) {
   const policy = refreshPolicyFor(envelope, Date.parse(fetchedAt));
   res.setHeader("Cache-Control", cacheHeaderFor(ttlForPlan(plan, policy.ttlSeconds, nowMs)));
   res.setHeader("Content-Type", "application/json");
-  return res.status(200).json({ schemaVersion: 1, sport: plan.sport, fetchedAt, event: envelope, policy });
+  return res.status(200).json({ schemaVersion: 1, sport: plan.sport, ...dated, fetchedAt, event: envelope, policy });
 }

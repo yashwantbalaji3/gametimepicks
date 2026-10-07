@@ -29,6 +29,38 @@ export function etDateAt(nowMs) {
 }
 
 /**
+ * What one slate poll should ask for (guards 3, 6, 7).
+ *
+ * - With a roster, the request names THE ROSTER's own ET date. Before the first rebuild after
+ *   midnight ET a page legitimately carries the previous day's roster; asking today's feed against
+ *   those cards would join nothing and could paint them wrongly, so the join keeps the roster's date
+ *   and the hub labels it (`rosterIsToday: false`). A today roster therefore always asks for today.
+ * - An empty roster asks for nothing: an off day spends no request at all.
+ * - Without a roster, MLB asks for today's ET date; NFL sends no date (ESPN's current week), unchanged.
+ */
+export function slateRequestPlan({ sport, roster, nowMs }) {
+  const today = etDateAt(nowMs);
+  if (roster) {
+    const rosterIsToday = roster.rosterDate === today;
+    if (roster.rosterIds.length === 0) return { fetch: false, date: roster.rosterDate, rosterIsToday };
+    return { fetch: true, date: sport === "mlb" ? roster.rosterDate : undefined, rosterIsToday };
+  }
+  return { fetch: true, date: sport === "mlb" ? today : undefined, rosterIsToday: null };
+}
+
+/**
+ * Does this response describe the date we asked for? (guard 2)
+ *
+ * The gateway echoes the date it asked the provider for. A body for another date, or one with no
+ * date at all (an older cached response), is not evidence about the requested slate: it must not
+ * replace the slate, advance freshness or stop the poll. A request with no date (NFL) accepts any.
+ */
+export function acceptSlateBody(body, requestedDate) {
+  if (!requestedDate) return true;
+  return typeof body?.date === "string" && body.date === requestedDate;
+}
+
+/**
  * Join a provider slate to the roster.
  *
  * `rosterIds` null means "no roster to join" (a caller that wants the whole dated slate). Otherwise
@@ -81,12 +113,11 @@ export function nextSlatePollMs({ states, rosterSize, hidden }) {
 /**
  * What the hub's one feed line may claim. The hub maps each value to its copy.
  *
- * OFF · NOT_TODAY · NO_GAMES · UNAVAILABLE · CHECKING · NO_TODAY_DATA · ALL_FINAL · AGE_UNKNOWN ·
+ * OFF · NO_GAMES · UNAVAILABLE · CHECKING · NO_TODAY_DATA · ALL_FINAL · AGE_UNKNOWN ·
  * STALE · FRESH
  */
-export function slateFeedStatus({ enabled, rosterIsToday, rosterSize, unavailable, loading, matched, settled, freshnessLevel, ageSecs }) {
+export function slateFeedStatus({ enabled, rosterSize, unavailable, loading, matched, settled, freshnessLevel, ageSecs }) {
   if (!enabled) return "OFF";
-  if (rosterIsToday === false) return "NOT_TODAY";
   if (rosterSize === 0) return "NO_GAMES";
   if (unavailable) return "UNAVAILABLE";
   if (loading) return "CHECKING";

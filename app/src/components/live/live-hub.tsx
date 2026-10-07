@@ -173,7 +173,7 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
 
   const secs = ageSeconds(freshness.ageMs);
   const status = slateFeedStatus({
-    enabled, rosterIsToday, rosterSize: roster.games.length, unavailable, loading,
+    enabled, rosterSize: roster.games.length, unavailable, loading,
     matched, settled, freshnessLevel: freshness.level, ageSecs: secs,
   });
   const checkedAt = etTime(lastObservedAt);
@@ -182,7 +182,6 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
      known: no "updated N sec ago" unless that age is being measured right now. */
   const line: string | null =
     status === "OFF" ? "Live tracking is currently turned off. Scheduled games and frozen forecasts are unaffected."
-    : status === "NOT_TODAY" ? "Today's MLB slate has not been published here yet. Live scores appear once it is."
     : status === "NO_GAMES" ? null
     : status === "UNAVAILABLE" ? "Live data is unavailable right now. Scheduled games and frozen forecasts below are unaffected."
     : status === "CHECKING" ? "Checking the live feed…"
@@ -194,13 +193,20 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
 
   return (
     <div>
+      {/* A roster built before midnight ET keeps its own date (the feed is asked for that date too),
+          and says so — another day's games are never presented as today's. */}
+      {rosterIsToday === false ? (
+        <p style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-warn)", margin: "0 0 8px" }}>
+          {`Showing MLB games for ${roster.etDate} (ET). Today's slate has not been published here yet.`}
+        </p>
+      ) : null}
       {line ? (
         <p style={{ fontFamily: MONO, fontSize: 10, color: status === "STALE" ? "var(--vault-warn)" : "var(--vault-text-faint)", margin: "0 0 16px" }}>
           {line}
         </p>
       ) : null}
 
-      {rosterIsToday === false ? null : !roster.slateArtifactPresent ? (
+      {!roster.slateArtifactPresent ? (
         <Empty>No MLB slate has been published for {roster.etDate} yet.</Empty>
       ) : roster.games.length === 0 ? (
         <Empty>No MLB games are scheduled for {roster.etDate}.</Empty>
