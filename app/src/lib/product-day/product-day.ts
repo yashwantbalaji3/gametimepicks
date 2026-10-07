@@ -345,8 +345,14 @@ export function productDayFor(sport: ProductDay["sport"], dataRoot: string, opts
  * Dates are ET days, the site's established anchor.
  */
 export interface TodayItem { id: string; startUtc: string | null | undefined; status?: string | null }
+/**
+ * Sports the DAY claim counts. Wider than ProductDay["sport"] on purpose (founder T1, 2026-10-07): NBA
+ * and Ligue 1 games are facts about the day even with no product or forecast behind them, and a day
+ * on which only they play is not "still loading".
+ */
+export type DaySport = ProductDay["sport"] | "nba" | "ligue-1";
 export interface SportToday {
-  sport: ProductDay["sport"];
+  sport: DaySport;
   today: string;
   /** Scheduled events whose ET start date is today — with or without a forecast. */
   eventsToday: number;
@@ -356,13 +362,18 @@ export interface SportToday {
   known: boolean;
   /** Start times (ISO) of today's events, one per event, where the schedule owner carries them. */
   startsUtc?: string[];
+  /**
+   * false = this sport's only source is forecast rows, which can list games but cannot prove a quiet
+   * day. It adds events when it has them and never blocks (or makes) a "No games today" claim.
+   */
+  required?: boolean;
 }
 export interface CrossSportToday {
   today: string;
   eventsToday: number;
   forecastsToday: number;
   /** Sports with at least one event today, in activation order. */
-  sportsWithEvents: ProductDay["sport"][];
+  sportsWithEvents: DaySport[];
   bySport: SportToday[];
   /** Every known start time of today's events across sports, ascending. */
   startsUtc: string[];
@@ -378,7 +389,7 @@ export interface CrossSportToday {
 const NOT_PLAYED = /POSTPONED|CANCEL/i;
 
 /** Pure. Union of scheduled and forecast items by id, counted on the ET day `today`. */
-export function sportTodayFrom(sport: ProductDay["sport"], today: string, scheduled: TodayItem[], forecasts: TodayItem[], known = true): SportToday {
+export function sportTodayFrom(sport: DaySport, today: string, scheduled: TodayItem[], forecasts: TodayItem[], known = true): SportToday {
   const onToday = (x: TodayItem) => typeof x?.startUtc === "string" && !Number.isNaN(Date.parse(x.startUtc)) && etDay(x.startUtc) === today && !NOT_PLAYED.test(x.status ?? "");
   const events = new Map<string, string>();
   for (const x of scheduled) if (onToday(x)) events.set(x.id, x.startUtc as string);
@@ -392,7 +403,8 @@ export function crossSportToday(today: string, bySport: SportToday[]): CrossSpor
   const own = bySport.filter((s) => s.today === today);
   const eventsToday = own.reduce((n, s) => n + s.eventsToday, 0);
   const forecastsToday = own.reduce((n, s) => n + Math.min(s.forecastsToday, s.eventsToday), 0);
-  const allKnown = own.length > 0 && own.every((s) => s.known);
+  const required = own.filter((s) => s.required !== false);
+  const allKnown = required.length > 0 && required.every((s) => s.known);
   const state = eventsToday > 0 ? "EVENTS" : allKnown ? "NO_EVENTS" : "UNKNOWN";
   return {
     today, eventsToday, forecastsToday,
@@ -422,12 +434,39 @@ export function buildSportToday(dataRoot: string, opts?: { today?: string; days?
   const nflSchedule = readJson(dataRoot, "nfl", "schedule", "latest.json");
   const nflIndex = readJson(dataRoot, "nfl", "index.json");
   // Known when the capture's forward window covers today (it is taken daily, windowDays ahead).
-  const capDay = typeof nflSchedule?.generatedAt === "string" ? etDay(nflSchedule.generatedAt) : null;
-  const windowEnd = capDay ? etDay(Date.parse(`${capDay}T12:00:00Z`) + Number(nflSchedule?.windowDays ?? 7) * 86_400_000) : null;
+  const windowCovers = (capture: { generatedAt?: unknown; windowDays?: unknown; rows?: unknown } | null): boolean => {
+    const capDay = typeof capture?.generatedAt === "string" ? etDay(capture.generatedAt) : null;
+    const windowEnd = capDay ? etDay(Date.parse(`${capDay}T12:00:00Z`) + Number(capture?.windowDays ?? 7) * 86_400_000) : null;
+    return Array.isArray(capture?.rows) && capDay != null && windowEnd != null && capDay <= today && today <= windowEnd;
+  };
+  const scheduleRows = (capture: { rows?: Array<{ providerEventId: string; dateUtc: string; statusRaw?: string }> } | null) =>
+    (capture?.rows ?? []).map((r) => ({ id: String(r.providerEventId), startUtc: r.dateUtc, status: r.statusRaw }));
   const nfl = sportTodayFrom("nfl", today,
-    (nflSchedule?.rows ?? []).map((r: { providerEventId: string; dateUtc: string; statusRaw?: string }) => ({ id: String(r.providerEventId), startUtc: r.dateUtc, status: r.statusRaw })),
+    scheduleRows(nflSchedule),
     (nflIndex?.events ?? []).map((e: { providerEventId: string; kickoffUtc: string }) => ({ id: String(e.providerEventId), startUtc: e.kickoffUtc })),
-    Array.isArray(nflSchedule?.rows) && capDay != null && windowEnd != null && capDay <= today && today <= windowEnd);
+    windowCovers(nflSchedule));
+
+  // NBA — the factual schedule capture (same shape and window rule as NFL). No forecast is counted:
+  // predictive NBA is SHADOW, so forecastsToday stays 0 by construction.
+  const nbaSchedule = readJson(dataRoot, "nba", "schedule", "latest.json");
+  const nba = sportTodayFrom("nba", today, scheduleRows(nbaSchedule), [], windowCovers(nbaSchedule));
+
+  // Ligue 1 — no standalone schedule: the forecast run lists the matchday (forecast + refused rows) and
+  // the graded file carries finals. It knows a day only inside the window that run covered, and it is
+  // never required for a quiet-day claim.
+  const l1 = readJson(dataRoot, "soccer", "ligue-1", "forecasts", "latest.json");
+  const l1Graded = readJson(dataRoot, "soccer", "ligue-1", "results", "graded.json");
+  type L1Row = { eventId?: string; kickoffUtc?: string; final?: unknown };
+  const l1Forecast: TodayItem[] = [...(l1?.rows ?? []), ...((l1Graded?.matches ?? []) as L1Row[]).filter((m) => m?.final)]
+    .filter((r: L1Row) => r?.eventId).map((r: L1Row) => ({ id: String(r.eventId), startUtc: r.kickoffUtc }));
+  const l1Refused: TodayItem[] = ((l1?.refused ?? []) as L1Row[]).filter((r) => r?.eventId).map((r) => ({ id: String(r.eventId), startUtc: r.kickoffUtc }));
+  const l1Kicks = ((l1?.rows ?? []) as L1Row[]).map((r) => (r.kickoffUtc ? etDay(r.kickoffUtc) : null)).filter((d): d is string => !!d).sort();
+  const l1Gen = typeof l1?.generatedAt === "string" ? etDay(l1.generatedAt) : null;
+  const ligue1: SportToday = {
+    ...sportTodayFrom("ligue-1", today, l1Refused, l1Forecast,
+      Boolean(l1Gen && l1Kicks.length > 0 && l1Gen <= today && today <= l1Kicks[l1Kicks.length - 1])),
+    required: false,
+  };
 
   // EPL — the newest fixtures capture ∪ forecast rows.
   const fixtures = newestCapture(path.join(dataRoot, "soccer", "epl", "fixtures"), "capture-") as { rows?: Array<{ eventId: string; kickoffIso: string; lifecycle?: string }> } | null;
@@ -468,5 +507,5 @@ export function buildSportToday(dataRoot: string, opts?: { today?: string; days?
         startsUtc: ufcDayNow.nextEventUtc ? [ufcDayNow.nextEventUtc] : [] /* one card, one start */ }
     : { sport: "ufc", today, eventsToday: 0, forecastsToday: 0, known: ufcKnown };
 
-  return [mlb, epl, ufc, nfl];
+  return [mlb, epl, ufc, nfl, nba, ligue1];
 }

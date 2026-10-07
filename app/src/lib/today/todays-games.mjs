@@ -130,12 +130,27 @@ export function rowStatusText(row, phase) {
 }
 
 /**
+ * @typedef {object} TodayRowInput
+ * @property {string} eventId
+ * @property {string|null} startUtc
+ * @property {string|null} [providerStatus]
+ * @property {string} href
+ * @property {boolean} hasForecast
+ * @property {boolean} [settled]
+ * @property {boolean} [liveFeed]
+ * @property {string|null} [away]
+ * @property {string|null} [home]
+ * @property {string|null} [title]
+ * @property {number|null} [boutCount]
+ */
+
+/**
  * Build the day.
  *
  * @param {object} o
  * @param {string} o.today ET day, YYYY-MM-DD
  * @param {number} o.nowMs the clock phases are judged on (build clock on the server; the reader's in the island)
- * @param {Array<{ sport: string, known: boolean, required?: boolean, rows: Array<object> }>} o.sports
+ * @param {Array<{ sport: string, known: boolean, required?: boolean, rows: Array<TodayRowInput> }>} o.sports
  *   one entry per sport. `required: false` marks a sport whose only source is forecasts (it cannot
  *   prove a quiet day), so it never blocks a NO_EVENTS claim and is disclosed instead.
  */
@@ -212,4 +227,17 @@ export function buildTodaysGames({ today, nowMs, sports }) {
  */
 export function liveCandidates(day) {
   return day.rows.filter((r) => r.liveFeed && (r.phase === ROW_PHASE.STARTED || r.phase === ROW_PHASE.UPCOMING));
+}
+
+/**
+ * The words a STATIC (build-time) page may print beside a row. A built page is read hours later, so it
+ * states only what stays true: the start time, or a terminal fact from the capture. It never prints a
+ * clock-derived "Started" or "result not in yet", which a later reader could find wrong.
+ */
+export function staticStatusText(row) {
+  const fact = terminalFact(row.providerStatus);
+  if (fact === ROW_PHASE.FINAL) return rowStatusText(row, fact);
+  if (fact === ROW_PHASE.POSTPONED) return "Postponed";
+  if (fact === ROW_PHASE.CANCELLED) return "Cancelled";
+  return etClock(row.startUtc) ?? "Time to be confirmed";
 }

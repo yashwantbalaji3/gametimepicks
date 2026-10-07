@@ -35,6 +35,8 @@ import { resolveLadderStep } from "@/lib/bank-builder-ladder";
 import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 
 import TodayDailySlateHeader from "@/components/today/daily-slate-header";
+import TodaysGames from "@/components/today/todays-games";
+import { loadTodaysGames } from "@/lib/today/todays-games-source";
 import SuggestedParlaysPreview from "@/components/home/suggested-parlays-preview";
 import { loadSuggestedParlaysPreview, TIER_INTENT } from "@/lib/home/suggested-parlays.mjs";
 import { buildProductDays, buildSportToday, crossSportToday } from "@/lib/product-day/product-day";
@@ -113,6 +115,9 @@ export default function TodayPage() {
      clocks — which is how the predictions table and the slate list came to print first pitches a
      minute apart for every one of fifteen games. */
   const nowMs = Date.now();
+  /* T1 (founder, 2026-10-07): every sport's games for the ET day as facts, forecast or not, read from the
+     same schedule owners as the cross-sport day claim — so the list and the count cannot disagree. */
+  const todaysGames = loadTodaysGames(dataRoot, { today: serverToday, nowMs });
   const slate = slateGames(details, today, { nowMs });
   // Explicit readiness for a CURRENT slate (ready vs still-filling-in); stale/no-games stay with the banner.
   const slateReadiness = slateReadinessNote(slate.summary, today >= serverToday);
@@ -336,6 +341,9 @@ export default function TodayPage() {
         mlbGames={mlbGames}
         mlbLeans={mlbLeans}
       />
+
+      {/* 1a — Today's games, every sport (T1). Times and capture facts only: a static page never says "Live". */}
+      <TodaysGames day={todaysGames} />
 
       {/* 1b — P251-F9: the payoff for following a club. Renders nothing until a reader has followed
               one, and only ever offers a destination the search index derived from a published

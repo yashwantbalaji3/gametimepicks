@@ -134,3 +134,13 @@ test("T1 · a game with no forecast is listed and counted, and its forecast stat
   assert.equal(r.forecastText, "No GameTimePicks forecast");
   assert.doesNotMatch(r.statusText, /forecast/i, "the status line says what the game is doing, not whether we forecast it");
 });
+
+test("static wording states only what stays true: a start time or a capture's terminal fact", async () => {
+  const { staticStatusText } = await import("./todays-games.mjs");
+  assert.equal(staticStatusText(row({ startUtc: "2026-10-05T23:05Z" })), "7:05 PM ET");
+  assert.equal(staticStatusText(row({ startUtc: "2026-10-05T23:05Z", providerStatus: "STATUS_SCHEDULED" })), "7:05 PM ET", "never 'Started' from a build clock");
+  assert.equal(staticStatusText(row({ providerStatus: "STATUS_FINAL", hasForecast: false })), "Final");
+  assert.equal(staticStatusText(row({ providerStatus: "STATUS_FINAL", settled: true })), "Final · graded");
+  assert.equal(staticStatusText(row({ providerStatus: "STATUS_POSTPONED" })), "Postponed");
+  assert.equal(staticStatusText(row({ startUtc: null })), "Time to be confirmed");
+});

@@ -144,3 +144,41 @@ test("the MLB product day consults the official schedule before it can say 'No M
   const home = fs.readFileSync(path.join(process.cwd(), "src/app/page.tsx"), "utf8");
   assert.match(home, /\(mlbDay\?\.eligible \?\? 0\) > 0 \? `\$\{mlbLeans\} model leans`/, "Home prints a leans count only when today's board exists");
 });
+
+/* ── Founder T1 (2026-10-07): NBA and Ligue 1 games are facts about the day, forecast or not. ── */
+
+test("🔴 T1 — an NBA-only day is EVENTS, never 'still loading' (launch day Oct 20 shape)", () => {
+  const c = crossSportToday(D, [S("mlb", 0), S("epl", 0), S("ufc", 0), S("nfl", 0), S("nba", 3, 0)]);
+  assert.equal(c.state, "EVENTS");
+  assert.equal(c.eventsToday, 3);
+  assert.equal(c.forecastsToday, 0, "a game with no forecast is counted as a game, not as a forecast");
+  assert.deepEqual(c.sportsWithEvents, ["nba"]);
+  assert.doesNotMatch(c.headline, /loading/);
+});
+
+test("T1 — Ligue 1 (forecast-only source) adds games but never blocks or makes a quiet-day claim", () => {
+  const l1 = (n, known) => ({ ...S("ligue-1", n, n, known), required: false });
+  assert.equal(crossSportToday(D, [S("mlb", 0), S("nfl", 0), S("nba", 0), l1(0, false)]).state, "NO_EVENTS");
+  assert.equal(crossSportToday(D, [S("mlb", 0), S("nfl", 0), S("nba", 0), l1(2, true)]).state, "EVENTS");
+  assert.equal(crossSportToday(D, [l1(0, true)]).state, "UNKNOWN", "a forecast-only source alone proves nothing");
+  assert.equal(crossSportToday(D, [S("mlb", 0), S("nba", 0, 0, false), l1(0, true)]).state, "UNKNOWN", "an unread required schedule still blocks");
+});
+
+test("T1 — buildSportToday reads the NBA schedule capture with the NFL window rule", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "t1-nba-"));
+  fs.mkdirSync(path.join(root, "nba", "schedule"), { recursive: true });
+  fs.writeFileSync(path.join(root, "nba", "schedule", "latest.json"), JSON.stringify({
+    generatedAt: `${D}T15:00:00Z`, windowDays: 7,
+    rows: [
+      { providerEventId: "1", dateUtc: `${D}T23:30Z`, statusRaw: "STATUS_SCHEDULED" },
+      { providerEventId: "2", dateUtc: `${D}T23:30Z`, statusRaw: "STATUS_POSTPONED" },
+      { providerEventId: "3", dateUtc: "2031-01-17T00:30Z", statusRaw: "STATUS_SCHEDULED" },
+    ],
+  }));
+  const nba = buildSportToday(root, { today: D, days: [] }).find((s) => s.sport === "nba");
+  assert.equal(nba.eventsToday, 1, "postponed and other-day games are not today's");
+  assert.equal(nba.forecastsToday, 0);
+  assert.equal(nba.known, true);
+  const later = buildSportToday(root, { today: "2031-02-20", days: [] }).find((s) => s.sport === "nba");
+  assert.equal(later.known, false, "outside the capture's window, zero is not a fact");
+});
