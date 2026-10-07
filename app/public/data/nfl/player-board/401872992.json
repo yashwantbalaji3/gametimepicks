@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-07T16:22:43Z",
- "sourceGeneratedAt": "2026-10-07T16:22:43Z",
+ "generatedAt": "2026-10-07T20:06:53Z",
+ "sourceGeneratedAt": "2026-10-07T20:06:53Z",
  "providerEventId": "401872992",
  "matchup": "SF @ SEA",
  "kickoffUtc": "2026-10-11T20:25Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-07T16:22:43Z",
-  "roleEvidenceAt": "2026-10-07T16:22:43Z",
+  "injuriesCapturedAt": "2026-10-07T20:06:53Z",
+  "roleEvidenceAt": "2026-10-07T20:06:53Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -48,24 +48,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "SF",
-      "pool": "targets",
-      "originalSum": 1.2174,
-      "normalizedSum": 1,
-      "factor": 0.8214,
-      "playerIds": [
-       "nfl-athlete-4360438",
-       "nfl-athlete-16737",
-       "nfl-athlete-3040151",
-       "nfl-athlete-3117251",
-       "nfl-athlete-4428209",
-       "nfl-athlete-3126486",
-       "nfl-athlete-4259147"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_pass_int": {
@@ -109,14 +92,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 59,
+  "absent": 57,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "SF": {
    "counts": {
-    "PROJECTED": 12,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -175,7 +158,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-3040151",
@@ -244,20 +227,16 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-16002",
-     "name": "Kyle Juszczyk",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-3043116",
      "name": "Demarcus Robinson",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-16002",
+     "name": "Kyle Juszczyk",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   },
@@ -432,12 +411,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 1,
-    "originalSum": 1.2174,
-    "residualOther": 0,
-    "joined": 7,
+    "sum": 0.9968,
+    "originalSum": 0.9968,
+    "residualOther": 0.0032,
+    "joined": 6,
     "missed": 0,
-    "state": "NORMALIZED"
+    "state": "CONSERVED"
    },
    {
     "team": "SF",
@@ -507,16 +486,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.6672,
-     "p10": 0.8214,
-     "p25": 1.6428,
-     "median": 3.2857,
-     "p75": 4.9285,
-     "p90": 6.5714,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8214
-     },
+     "mean": 4.4645,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -571,16 +546,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.8475,
-     "p10": 0.8214,
-     "p25": 1.6428,
-     "median": 3.2857,
-     "p75": 4.9285,
-     "p90": 7.3928,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8214
-     },
+     "mean": 4.6839,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 9,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -632,7 +603,7 @@
    "playerId": "nfl-athlete-16737",
    "name": "Mike Evans",
    "team": "SF",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 39.468,
@@ -644,16 +615,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.7193,
-     "p10": 0.8214,
-     "p25": 1.6428,
-     "median": 3.2857,
-     "p75": 4.9285,
-     "p90": 7.3928,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8214
-     },
+     "mean": 4.5279,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 9,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -678,16 +645,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.7806,
-     "p10": 0.8214,
-     "p25": 1.6428,
-     "median": 3.2857,
-     "p75": 4.9285,
-     "p90": 7.3928,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8214
-     },
+     "mean": 4.6025,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 9,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -721,16 +684,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.7353,
-     "p10": 0.8214,
-     "p25": 1.6428,
-     "median": 2.4643,
-     "p75": 4.1071,
-     "p90": 5.75,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8214
-     },
+     "mean": 3.33,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -755,16 +714,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.787,
-     "p10": 0.8214,
-     "p25": 1.6428,
-     "median": 2.4643,
-     "p75": 4.1071,
-     "p90": 5.75,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8214
-     },
+     "mean": 3.3929,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -945,27 +900,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-16002",
-   "name": "Kyle Juszczyk",
-   "team": "SF",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_receptions": {
-     "mean": 1.3693,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1347,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4685397",
    "name": "Jordan James",
    "team": "SF",
@@ -1032,16 +966,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.0057,
+     "mean": 1.2244,
      "p10": 0,
      "p25": 0,
-     "median": 0.8214,
-     "p75": 1.6428,
-     "p90": 2.4643,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.8214
-     },
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
