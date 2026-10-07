@@ -5,7 +5,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { resolveProductStatus, deriveMaturity, assertFrozenPregame, MATURITY, PRODUCT, REASON, REASON_TEXT } from "./product-status.mjs";
+import { resolveProductStatus, deriveMaturity, assertFrozenPregame, participationOf, PARTICIPATION, MATURITY, PRODUCT, REASON, REASON_TEXT, LIVE_RECORD_SCOPE } from "./product-status.mjs";
 
 const ASOF = "2026-10-06T16:00:00Z";
 const START = "2026-10-06T23:05:00Z";
@@ -40,7 +40,7 @@ test("F1 is product policy passed in, not assumed: without admission a price-onl
 });
 
 test("#998 class: a demoted MLB prop family never enters a promoted product, but still displays as market context", () => {
-  const prop = { family: "batter_hits", coverage: { status: "experimental", demoted: true }, probabilityKind: "MODEL", gtpProbability: 0.7, isPlayer: true, availabilityState: "STARTER" };
+  const prop = { family: "batter_hits", coverage: { status: "experimental", demoted: true }, probabilityKind: "MODEL", gtpProbability: 0.7, isPlayer: true, availabilityState: "ACTIVE_EXPECTED", roleState: "STARTER" };
   const bb = resolveProductStatus(base(prop));
   assert.equal(bb.eligible, false);
   assert.ok(bb.reasonCodes.includes(REASON.MODEL_DEMOTED));
@@ -59,7 +59,7 @@ test("FAIL CLOSED: an unreadable coverage document refuses every promoted produc
 });
 
 test("live-record pause: a fresh BREACHED verdict withdraws the call and refuses promotion; the evidence stays displayable", () => {
-  const paused = { family: "mlb_total", health: health("BREACHED") };
+  const paused = { family: "mlb_total", health: health("BREACHED"), probabilityKind: "MODEL", gtpProbability: 0.54 };
   const fc = resolveProductStatus(base({ ...paused, product: PRODUCT.FORECAST }));
   assert.equal(fc.maturity, MATURITY.PAUSED);
   assert.equal(fc.displayable, true);
@@ -70,19 +70,19 @@ test("live-record pause: a fresh BREACHED verdict withdraws the call and refuses
 });
 
 test("stale scorecard: display keeps today's founder-approved rule (no verdict, no pause); promotion fails closed", () => {
-  const stale = { family: "mlb_total", health: health("BREACHED", "2026-09-30T00:00:00Z") };
+  const stale = { family: "mlb_total", health: health("BREACHED", "2026-09-30T00:00:00Z"), probabilityKind: "MODEL", gtpProbability: 0.54 };
   const fc = resolveProductStatus(base({ ...stale, product: PRODUCT.FORECAST }));
   assert.notEqual(fc.maturity, MATURITY.PAUSED);
   assert.equal(fc.freshness.health, "STALE");
   const bb = resolveProductStatus(base(stale));
   assert.equal(bb.eligible, false);
   assert.ok(bb.reasonCodes.includes(REASON.HEALTH_UNKNOWN));
-  const none = resolveProductStatus(base({ health: null }));
+  const none = resolveProductStatus(base({ ...stale, health: null }));
   assert.ok(none.reasonCodes.includes(REASON.HEALTH_UNKNOWN));
 });
 
 test("experimental NFL family: forecast continues; promotion refused unless a founder family grant exists", () => {
-  const nfl = { sport: "nfl", family: "nfl_anytime_td", eventId: "401772", registryState: "EXPERIMENTAL_PUBLIC", coverage: { status: "experimental", demoted: false }, health: health("HOLDING"), probabilityKind: "MODEL", gtpProbability: 0.41, isPlayer: true, availabilityState: "STARTER" };
+  const nfl = { sport: "nfl", family: "nfl_anytime_td", eventId: "401772", registryState: "EXPERIMENTAL_PUBLIC", coverage: { status: "experimental", demoted: false }, health: health("HOLDING"), probabilityKind: "MODEL", gtpProbability: 0.41, isPlayer: true, availabilityState: "ACTIVE_EXPECTED", roleState: "STARTER" };
   const fc = resolveProductStatus(base({ ...nfl, product: PRODUCT.FORECAST }));
   assert.equal(fc.maturity, MATURITY.EXPERIMENTAL);
   assert.equal(fc.eligible, true, "forecast broadly");
@@ -150,4 +150,28 @@ test("DOCUMENTED CONFLICT (founder Q6): with today's registry row, the contract 
   const ufc = resolveProductStatus(base({ product: PRODUCT.FORECAST, sport: "ufc", family: "ufc_winner", registryState: "SCAFFOLD_ONLY", coverage: { status: "experimental", demoted: false }, publicState: "VALIDATED", probabilityKind: "MODEL", gtpProbability: 0.6 }));
   assert.equal(ufc.maturity, MATURITY.RESEARCH);
   assert.equal(ufc.displayable, false);
+});
+
+test("Q8 open: the scorecard grades GTP calls; whether it also removes a price-only leg of the same market is passed in", () => {
+  const priceOnlyTotal = { family: "mlb_total", health: health("BREACHED") }; // base() is MARKET_IMPLIED (F1 shape)
+  const modelOnly = resolveProductStatus(base({ ...priceOnlyTotal, liveRecordScope: LIVE_RECORD_SCOPE.MODEL_ONLY }));
+  assert.equal(modelOnly.eligible, true, "MODEL_ONLY: today's leg floor admits the market-priced total leg");
+  assert.equal(modelOnly.freshness.health, "NOT_APPLICABLE");
+  const allLegs = resolveProductStatus(base({ ...priceOnlyTotal, liveRecordScope: LIVE_RECORD_SCOPE.ALL_LEGS }));
+  assert.equal(allLegs.eligible, false);
+  assert.equal(allLegs.reasonCode, REASON.MODEL_PAUSED);
+  // a price-only leg with no scorecard at all is not refused for HEALTH_UNKNOWN under MODEL_ONLY
+  assert.equal(resolveProductStatus(base({ health: null, liveRecordScope: LIVE_RECORD_SCOPE.MODEL_ONLY })).eligible, true);
+  assert.throws(() => resolveProductStatus(base({ liveRecordScope: "SOMETIMES" })));
+});
+
+test("participation crosswalk: real words from the repo's vocabularies land on the right reason, case-insensitively", () => {
+  for (const w of ["CONFIRMED_OUT", "Out", "Injured Reserve", "Suspension", "Day-To-Day", "INJURED", "NOT_ON_ROSTER", "QUESTIONABLE"]) assert.equal(participationOf(w), PARTICIPATION.BLOCKED, w);
+  for (const w of ["OFFICIAL_LINEUP", "confirmed", "posted", "ROLE_CONFIRMED", "ACTIVE_CONFIRMED"]) assert.equal(participationOf(w), PARTICIPATION.CONFIRMED, w);
+  for (const w of [null, "", "UNKNOWN", "SOURCE_STALE", "EXPECTED_STARTER", "PROJECTED_DEPTH_STARTER", "AVAILABLE_ROLE_UNCERTAIN", "Active", "PROJECTED_LINEUP", "LIMITED", "WHATEVER"]) assert.equal(participationOf(w), PARTICIPATION.UNCERTAIN, String(w));
+  const leg = (a, r) => resolveProductStatus(base({ isPlayer: true, availabilityState: a, roleState: r }));
+  assert.equal(leg("CONFIRMED_OUT", "CONFIRMED_OUT").reasonCodes.includes(REASON.AVAILABILITY_BLOCKED), true);
+  assert.equal(leg("ACTIVE_EXPECTED", "OFFICIAL_LINEUP").reasonCodes.some((c) => c === REASON.ROLE_UNCERTAIN || c === REASON.AVAILABILITY_BLOCKED), false);
+  assert.ok(leg("CONFIRMED", null).reasonCodes.includes(REASON.ROLE_UNCERTAIN), "an availability word never stands in for a role");
+  assert.ok(leg("Out", "OFFICIAL_LINEUP").reasonCodes.includes(REASON.AVAILABILITY_BLOCKED), "either word blocking blocks");
 });

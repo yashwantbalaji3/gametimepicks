@@ -153,6 +153,15 @@ export const MATURITY_FROM_SOURCE = Object.freeze({
   "public:PAUSED": MATURITY.PAUSED,
 });
 
+/**
+ * Q8 (founder gate). Which legs the live-record scorecard speaks for.
+ *   MODEL_ONLY: only legs that carry a GameTimePicks model probability (the scorecard grades our calls).
+ *   ALL_LEGS:   every leg of the family, including F1 market constructions priced only by a sportsbook.
+ */
+export const LIVE_RECORD_SCOPE = Object.freeze({ MODEL_ONLY: "MODEL_ONLY", ALL_LEGS: "ALL_LEGS" });
+/** PROPOSED, not decided. */
+export const LIVE_RECORD_SCOPE_PROPOSED = LIVE_RECORD_SCOPE.MODEL_ONLY;
+
 const RANK = { RETIRED: 0, PAUSED: 1, UNKNOWN: 2, RESEARCH: 3, EXPERIMENTAL: 4, ESTABLISHED: 5 };
 
 /**
@@ -165,8 +174,36 @@ export function deriveMaturity(sourceWords) {
   return mapped.reduce((lo, m) => (RANK[m] < RANK[lo] ? m : lo));
 }
 
-const BLOCKED_AVAILABILITY = new Set(["QUESTIONABLE", "DOUBTFUL", "OUT", "INACTIVE", "SUSPENDED", "UNKNOWN"]);
-const CONFIRMED_ROLE = new Set(["AVAILABLE_ROLE_CONFIRMED", "STARTER", "CONFIRMED"]);
+/**
+ * PROPOSED participation crosswalk (Product Engine prep 2026-10-07). The repo has ~12 availability / role / lineup
+ * vocabularies (NFL participation, NFL role evidence + confirmation, the injury feed in title case, the cross-sport
+ * lineup contract, MLB lowercase lineup words, FPL, NBA minutes, UFC bout states). The first prototype matched three
+ * upper-case words and let an availability word stand in for a role, so OFFICIAL_LINEUP, ROLE_CONFIRMED and MLB
+ * "confirmed" were refused as ROLE_UNCERTAIN and CONFIRMED_OUT / Injured Reserve as ROLE_UNCERTAIN instead of
+ * AVAILABILITY_BLOCKED. Matching is case-insensitive. Anything unlisted is UNCERTAIN (fails closed), never CONFIRMED.
+ *   BLOCKED   → AVAILABILITY_BLOCKED (the player may not play)
+ *   CONFIRMED → passes (an official lineup or an explicitly confirmed role)
+ *   UNCERTAIN → ROLE_UNCERTAIN (expected, projected, probable, stale or unknown)
+ */
+export const PARTICIPATION = Object.freeze({ BLOCKED: "BLOCKED", CONFIRMED: "CONFIRMED", UNCERTAIN: "UNCERTAIN" });
+const P = PARTICIPATION;
+export const PARTICIPATION_FROM_SOURCE = Object.freeze({
+  // blocked: out, inactive, injured, suspended, not on roster, bout off
+  OUT: P.BLOCKED, CONFIRMED_OUT: P.BLOCKED, INACTIVE: P.BLOCKED, DOUBTFUL: P.BLOCKED, QUESTIONABLE: P.BLOCKED,
+  "INJURED RESERVE": P.BLOCKED, SUSPENSION: P.BLOCKED, SUSPENDED: P.BLOCKED, INJURED: P.BLOCKED, UNAVAILABLE: P.BLOCKED,
+  NOT_ON_ROSTER: P.BLOCKED, AVAILABILITY_BLOCKED: P.BLOCKED, "DAY-TO-DAY": P.BLOCKED,
+  BOUT_CANCELLED: P.BLOCKED, REPLACEMENT_PENDING: P.BLOCKED,
+  // confirmed: an official lineup or an explicitly confirmed role
+  OFFICIAL_LINEUP: P.CONFIRMED, CONFIRMED: P.CONFIRMED, POSTED: P.CONFIRMED, ROLE_CONFIRMED: P.CONFIRMED,
+  AVAILABLE_ROLE_CONFIRMED: P.CONFIRMED, ACTIVE_CONFIRMED: P.CONFIRMED, STARTER: P.CONFIRMED,
+  // everything else, including EXPECTED_STARTER, PROJECTED_DEPTH_STARTER (the role gate does not accept these
+  // today, role-confirmation.mjs:39), LIMITED, DEPTH_ONLY, SOURCE_STALE, PROJECTED_LINEUP, ACTIVE (injury feed
+  // "Active" says only "not on the report"), falls to UNCERTAIN by omission.
+});
+export function participationOf(word) {
+  if (word == null || word === "") return P.UNCERTAIN;
+  return PARTICIPATION_FROM_SOURCE[String(word).trim().toUpperCase()] ?? P.UNCERTAIN;
+}
 
 /**
  * Resolve one status record.
@@ -194,6 +231,7 @@ const CONFIRMED_ROLE = new Set(["AVAILABLE_ROLE_CONFIRMED", "STARTER", "CONFIRME
  * @param {number} [i.maxPriceAgeMs]          REQUIRED for promoted products that use a price: no safe default
  * @param {number} [i.maxHealthAgeMs]         REQUIRED for promoted products
  * @param {boolean} [i.settlementProven]
+ * @param {"MODEL_ONLY"|"ALL_LEGS"} [i.liveRecordScope]  Q8; defaults to the PROPOSED value
  */
 export function resolveProductStatus(i) {
   const asOfMs = Date.parse(i?.asOf ?? "");
@@ -221,10 +259,18 @@ export function resolveProductStatus(i) {
 
   // 3b · live record. Display keeps today's founder-approved rule (no verdict → no pause). Promotion needs a
   //      CURRENT verdict, so a missing or stale scorecard refuses (PROPOSED: CONTRACT_OPTIONS.md Q4).
+  //      The scorecard grades GameTimePicks CALLS. Whether it also speaks for a leg that carries only a sportsbook
+  //      price (an F1 market construction of the same market) is founder question Q8; `liveRecordScope` carries the
+  //      answer. The replay (scripts/products/replay-product-status.mjs) shows MODEL_ONLY reproduces today's leg floor
+  //      exactly on every committed day, while ALL_LEGS removes the MLB total legs from Bank Builder / Moonshot
+  //      whenever the mlb_total call is paused.
+  const scope = i.liveRecordScope ?? LIVE_RECORD_SCOPE_PROPOSED;
+  if (!Object.values(LIVE_RECORD_SCOPE).includes(scope)) throw new Error(`resolveProductStatus: unknown liveRecordScope ${scope}`);
+  const healthApplies = scope === LIVE_RECORD_SCOPE.ALL_LEGS || i.probabilityKind === "MODEL";
   const hAt = Date.parse(i.health?.generatedAt ?? "");
   const healthFresh = Number.isFinite(hAt) && Number.isFinite(i.maxHealthAgeMs) && asOfMs - hAt <= i.maxHealthAgeMs && hAt - asOfMs <= 3600e3;
-  if (i.health?.state === "BREACHED" && healthFresh) words.push("health:BREACHED");
-  if (promoted && (!i.health || !healthFresh)) codes.add(REASON.HEALTH_UNKNOWN);
+  if (healthApplies && i.health?.state === "BREACHED" && healthFresh) words.push("health:BREACHED");
+  if (healthApplies && promoted && (!i.health || !healthFresh)) codes.add(REASON.HEALTH_UNKNOWN);
 
   const maturity = deriveMaturity(words);
   if (maturity === MATURITY.UNKNOWN) codes.add(REASON.MATURITY_UNKNOWN);
@@ -247,9 +293,11 @@ export function resolveProductStatus(i) {
     } else if (i.probabilityKind !== "MODEL" || i.gtpProbability == null) codes.add(REASON.NO_PROBABILITY);
 
     if (i.isPlayer) {
-      const a = String(i.availabilityState ?? "UNKNOWN");
-      if (BLOCKED_AVAILABILITY.has(a)) codes.add(REASON.AVAILABILITY_BLOCKED);
-      else if (!CONFIRMED_ROLE.has(String(i.roleState ?? a))) codes.add(REASON.ROLE_UNCERTAIN);
+      // Either word blocking blocks. A role is confirmed only by a role/lineup word; an availability word never
+      // stands in for a role (except the single combined word some producers write in both fields).
+      const a = participationOf(i.availabilityState), r = participationOf(i.roleState);
+      if (a === P.BLOCKED || r === P.BLOCKED) codes.add(REASON.AVAILABILITY_BLOCKED);
+      else if (r !== P.CONFIRMED) codes.add(REASON.ROLE_UNCERTAIN);
     }
 
     if (i.product !== PRODUCT.TOP_BOARD) {
@@ -289,7 +337,7 @@ export function resolveProductStatus(i) {
     sportState: i.registryState ?? null,
     familyState: i.coverage ? (i.coverage.demoted ? "DEMOTED_TO_MARKET_CONTEXT" : i.coverage.status) : null,
     freshness: {
-      health: i.health ? (healthFresh ? "FRESH" : "STALE") : "MISSING",
+      health: !healthApplies ? "NOT_APPLICABLE" : i.health ? (healthFresh ? "FRESH" : "STALE") : "MISSING",
       price: i.market?.capturedAt ? (codes.has(REASON.ODDS_STALE) ? "STALE" : "FRESH") : "MISSING",
     },
     availability: i.isPlayer ? String(i.availabilityState ?? "UNKNOWN") : "NOT_APPLICABLE",
