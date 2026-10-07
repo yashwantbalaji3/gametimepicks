@@ -51,8 +51,8 @@ jobs:
           set -euo pipefail
           git config user.name "gtp-bot"
           git config user.email "bot@users.noreply.github.com"
-          mkdir -p app/public/data/results/top-boards app/public/data/results/top-board-withdrawals
-          git add app/public/data/results/top-boards/ app/public/data/results/top-board-withdrawals/
+          mkdir -p app/public/data/results/top-boards app/public/data/results/top-board-withdrawals data/internal/results/top-board-receipts
+          git add app/public/data/results/top-boards/ app/public/data/results/top-board-withdrawals/ data/internal/results/top-board-receipts/
           if git diff --cached --quiet; then
             echo "nothing newly frozen, nothing appended"
             exit 0
@@ -60,6 +60,11 @@ jobs:
           # Only NEW day files may ever be committed for receipts — a modified one means write-once broke.
           if git diff --cached --name-status -- app/public/data/results/top-boards/ | grep -v '^A'; then
             echo "::error::a frozen board would be MODIFIED — write-once violated, refusing to commit"
+            exit 1
+          fi
+          # Stage 7.0: the Top-10/Top-5 membership receipts are write-once too, judged on their own path.
+          if git diff --cached --name-status -- data/internal/results/top-board-receipts/ | grep -v '^A'; then
+            echo "::error::a frozen Top-board receipt would be MODIFIED — write-once violated, refusing to commit"
             exit 1
           fi
           # A withdrawal log is only ever added or APPENDED to (earlier events byte-identical, pre-kickoff evidence).
