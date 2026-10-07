@@ -3,10 +3,13 @@
  * Stage 3E — do all public readers of a record publish the same numbers? Reads the committed artifacts (what
  * Production serves) and exits 1 on any disagreement or missing reader. Run from app/:
  *   node scripts/results/check-record-parity.mjs [--json]
- * Records checked:
- *   NFL game winners  graded-picks.json · Forecast Ledger nfl_game_winner · settler lifetime summary (cohorts)
- *   MLB player leans  graded-picks.json · Python lifetime_summary.json · model-index.json
- *   MLB game calls    game-predictions-record.json · Forecast Ledger (moneyline, run line, total)
+ * Records checked (every committed artifact that states one of these records, found by search on 2026-10-07):
+ *   NFL game winners       graded-picks.json · Forecast Ledger nfl_game_winner · settler lifetime summary (cohorts)
+ *                          · NFL index experimentalRecord (cohorts) · interval-calibration.json (cohorts)
+ *   NFL regular season     settler regular-season cohort · NFL index · interval-calibration · weekly reports (sum)
+ *   MLB player leans       graded-picks.json · Python lifetime_summary.json · model-index.json
+ *                          · audit/model_audit.json (pipeline/model_audit.py) · research/terminal-summary.json
+ *   MLB game calls         game-predictions-record.json · Forecast Ledger (moneyline, run line, total)
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -26,17 +29,46 @@ const settler = json(path.join(ROOT, "data/internal/nfl/experimental-settlement/
 const lifetime = json(path.join(APP, "public/data/mlb/results/lifetime_summary.json"));
 const modelIndex = json(path.join(APP, "public/data/mlb/results/model-index.json"));
 const gameRecord = json(path.join(APP, "public/data/mlb/results/game-predictions-record.json"));
+const modelAudit = json(path.join(APP, "public/data/audit/model_audit.json"));
+const terminal = json(path.join(APP, "public/data/research/terminal-summary.json"));
+const nflIndex = json(path.join(APP, "public/data/nfl/index.json"));
+const intervals = json(path.join(APP, "public/data/nfl/interval-calibration.json"));
+const reconDir = path.join(APP, "public/data/nfl/reconciliation");
+const weekly = (() => {
+  // Sum of the weekly reports' winner lines (regular season, one report per week).
+  let win = 0, loss = 0, seen = 0;
+  for (const f of fs.existsSync(reconDir) ? fs.readdirSync(reconDir).filter((f) => /^2-\d{2}\.json$/.test(f)) : []) {
+    const w = json(path.join(reconDir, f))?.summary?.props?.find((p) => p.id === "winner");
+    if (!w || !Number.isInteger(w.hits) || !Number.isInteger(w.checks)) return { win: null, loss: null };
+    seen += 1; win += w.hits; loss += w.checks - w.hits - (w.voids ?? 0);
+  }
+  return seen ? { win, loss } : { win: null, loss: null };
+})();
+const cohortsOf = (list) => (Array.isArray(list) ? Object.fromEntries(list.map((c) => [c.label, { decisive: c.n, winnerAccuracy: c.winnerAccuracy }])) : null);
+const only = (cohorts, label) => (cohorts?.[label] ? { [label]: cohorts[label] } : null);
+const fromCohorts = (c) => (c ? winsFromAccuracy(c) : { win: null, loss: null });
 
 const groups = [
   { record: "NFL game winners", readers: [
     { name: "graded-picks", ...counts(nflPicks?.counts, "hits", "misses") },
     { name: "forecast-ledger", ...ledgerDirectional(nflLedger, "nfl_game_winner") },
-    { name: "settler lifetime", ...(settler?.cohorts ? winsFromAccuracy(settler.cohorts) : { win: null, loss: null }) },
+    { name: "settler lifetime", ...fromCohorts(settler?.cohorts) },
+    { name: "NFL index", ...fromCohorts(nflIndex?.experimentalRecord?.cohorts) },
+    { name: "interval-calibration", ...fromCohorts(cohortsOf(intervals?.cohorts)) },
+  ] },
+  { record: "NFL game winners · regular season", readers: [
+    { name: "settler lifetime", ...fromCohorts(only(settler?.cohorts, "regular-season")) },
+    { name: "NFL index", ...fromCohorts(only(nflIndex?.experimentalRecord?.cohorts, "regular-season")) },
+    { name: "interval-calibration", ...fromCohorts(only(cohortsOf(intervals?.cohorts), "regular-season")) },
+    { name: "weekly reports", ...weekly },
   ] },
   { record: "MLB player leans", readers: [
     { name: "graded-picks", ...counts(mlbPicks?.counts, "hits", "misses") },
     { name: "lifetime_summary (Python)", ...counts(lifetime) },
     { name: "model-index", ...counts(modelIndex?.coverage) },
+    { name: "model_audit (Python)", ...counts(modelAudit?.sports?.mlb?.lifetime) },
+    { name: "research terminal-summary", win: terminal?.modelUniverse?.wins ?? null,
+      loss: Number.isInteger(terminal?.modelUniverse?.decisiveRows) && Number.isInteger(terminal?.modelUniverse?.wins) ? terminal.modelUniverse.decisiveRows - terminal.modelUniverse.wins : null },
   ] },
   ...[["moneyline", "mlb_moneyline"], ["run_line", "mlb_run_line"], ["total", "mlb_total"]].map(([fam, ledgerFam]) => ({
     record: `MLB game calls · ${fam}`, readers: [
