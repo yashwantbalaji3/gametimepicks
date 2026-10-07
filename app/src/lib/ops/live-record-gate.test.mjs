@@ -122,3 +122,18 @@ test("the PUBLISHED prediction artifacts never carry a pause — grading reads t
   }
   assert.doesNotMatch(fs.readFileSync(path.join(process.cwd(), "scripts/generate-mlb-predictions.mjs"), "utf8"), /live-record-gate/, "the generator does not import the gate");
 });
+
+test("Stage 4D · Q7 ALL: every fresh BREACHED family gets the Paused label, whatever its sport; stale labels nothing", async () => {
+  const { pauseLabelsFrom, PAUSED_SHORT } = await import("./live-record-gate.mjs");
+  const sc = { generatedAt: "2026-10-06T16:18:37Z", families: [
+    { id: "mlb_total", state: "BREACHED" }, { id: "nfl_player_receptions", state: "BREACHED" },
+    { id: "nfl_forward_player_receptions", state: "BREACHED" }, { id: "ufc_winner", state: "WATCH" }, { id: "epl_result", state: "INSUFFICIENT_SAMPLE" },
+  ] };
+  const labels = pauseLabelsFrom(sc, Date.parse("2026-10-07T03:00:00Z"));
+  assert.deepEqual([...labels.keys()].sort(), ["mlb_total", "nfl_forward_player_receptions", "nfl_player_receptions"]);
+  assert.equal(labels.get("nfl_player_receptions").label, PAUSED_SHORT);
+  assert.equal(labels.get("nfl_player_receptions").wired, false, "NFL has no pause mechanics yet; the label is still owed");
+  assert.equal(labels.get("mlb_total").wired, true);
+  assert.equal(pauseLabelsFrom(sc, Date.parse("2026-10-12T00:00:00Z")).size, 0, "stale scorecard: no verdict, no label");
+  assert.equal(pauseLabelsFrom(null, Date.now()).size, 0);
+});

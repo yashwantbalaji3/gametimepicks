@@ -43,6 +43,23 @@ export function pausedFamiliesFrom(scorecard, nowMs, { maxAgeHours = FRESHNESS.s
 }
 
 /**
+ * Stage 4D · founder Q7 ALL (2026-10-07): a fresh BREACHED verdict maps VISIBLY to Paused on every sport, not only on
+ * the three MLB families whose pause mechanics are wired above. This returns every BREACHED family id with its label,
+ * for surfaces to show "Paused" beside the forecast (evidence stays; generation and grading continue). Same freshness
+ * rule as pausedFamiliesFrom: an absent or stale scorecard labels nothing (Q4 SPLIT, display degrades gracefully).
+ * Wiring the label into the NFL player-board / weekly-board artifacts (families[market].paused) is the NFL owner's
+ * step; see the Product Engine Stage 4 handoff.
+ */
+export const PAUSED_SHORT = PAUSED_TOTAL_SHORT;
+export function pauseLabelsFrom(scorecard, nowMs, { maxAgeHours = FRESHNESS.scorecardMaxAgeMs / 3600e3 } = {}) {
+  const at = Date.parse(scorecard?.generatedAt ?? "");
+  if (!Number.isFinite(at) || !Number.isFinite(nowMs) || nowMs - at > maxAgeHours * 3600e3 || at - nowMs > 3600e3) return new Map();
+  return new Map((scorecard.families ?? [])
+    .filter((f) => f?.state === "BREACHED" && typeof f.id === "string")
+    .map((f) => [f.id, { label: PAUSED_SHORT, wired: GATED_FAMILIES.has(f.id) }]));
+}
+
+/**
  * An MLB game decision with its total paused: no pick, no probabilities, the reason on the record. Every surface
  * already renders an UNAVAILABLE total without a probability, so the pause needs no new display path to be safe.
  * @template T
