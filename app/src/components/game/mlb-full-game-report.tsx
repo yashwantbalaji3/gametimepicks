@@ -148,6 +148,8 @@ function ModelTotalCard({ t, productPaused, modelVersion }: { t: ModelImpliedTot
       ))}
       <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{c.source}</span>
       <span className="font-mono uppercase tracking-[0.08em] mt-0.5" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{c.status}</span>
+      {/* Optional evidence line (founder's call): the recorded forward result for this totals model. */}
+      <span style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{c.evidenceNote}</span>
     </div>
   );
 }
