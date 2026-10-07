@@ -84,8 +84,22 @@ export function buildGradedRecord({ sport, label, picks, shown = 100, what, cave
   // conditional projection and one that quietly counts its own unmet conditions as losses.
   const decided = all.filter((p) => p.hit === true || p.hit === false);
   const hits = decided.filter((p) => p.hit === true).length;
-  const voided = all.length - decided.length;
+  // Stage 3D: a frozen TOO_CLOSE abstention (or a forecast with no valid frozen side) is NO PICK, not a void.
+  const noPick = all.filter((p) => p.noPick === true && p.hit !== true && p.hit !== false).length;
+  // Stage 3E: a stored grade the owner could not read is UNKNOWN: disclosed, never a void and never in the denominator.
+  const unknown = all.filter((p) => p.unknown === true && p.hit !== true && p.hit !== false && p.noPick !== true).length;
+  const voided = all.length - decided.length - noPick - unknown;
   const state = sampleStateFor(decided.length);
+  /* Stage 3D: picks may carry the basis their side came from (NFL: HISTORICAL_MODEL_FAVORED before the side-decision
+     cutover, PUBLISHED after). Two bases are two records, never one pooled hit rate: `byBasis` splits them and a mixed
+     record publishes no top-level rate (recordBasis "MIXED"). */
+  const bases = [...new Set(decided.map((p) => p.basis).filter((b) => typeof b === "string" && b))].sort();
+  const byBasis = bases.length ? bases.map((b) => {
+    const d = decided.filter((p) => p.basis === b);
+    const h = d.filter((p) => p.hit === true).length;
+    return { basis: b, counted: d.length, hits: h, misses: d.length - h, hitRate: d.length ? Number((h / d.length).toFixed(4)) : null };
+  }) : null;
+  const mixed = bases.length > 1;
   return {
     sport,
     label,
@@ -97,11 +111,14 @@ export function buildGradedRecord({ sport, label, picks, shown = 100, what, cave
       hits,
       misses: decided.length - hits,
       voided,
+      ...(noPick ? { noPick } : {}),
+      ...(unknown ? { unknown } : {}),
       shown: Math.min(shown, all.length),
       total: all.length,
     },
-    /** Null below a real sample — never a percentage presented without its qualifier. */
-    hitRate: decided.length ? Number((hits / decided.length).toFixed(4)) : null,
+    /** Null below a real sample — never a percentage presented without its qualifier. Null for a mixed-basis record. */
+    hitRate: decided.length && !mixed ? Number((hits / decided.length).toFixed(4)) : null,
+    ...(byBasis ? { recordBasis: mixed ? "MIXED" : bases[0], byBasis } : {}),
     sampleState: state,
     sampleNote: sampleNote(state, decided.length),
     picks: all.slice(0, shown),

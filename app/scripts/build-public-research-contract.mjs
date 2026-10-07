@@ -28,6 +28,7 @@ import path from "node:path";
 
 import { loadRows, marketRegistry } from "./model-learning-audit.mjs";
 import { autopsy } from "./build-learning-report.mjs";
+import { mlbFirstPitches, mlbLeansOfRecord, mlbOfRecordDisclosure } from "../src/lib/results/mlb-leans-of-record.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -173,8 +174,22 @@ function publicBrief(report, rows) {
   };
 }
 
+/**
+ * Stage 3B: the research universe counts each MLB lean claim once, under the same forecast-of-record rule as
+ * graded-picks.json, lifetime_summary.json and model_audit.json (lib/results/mlb-leans-of-record.mjs). The earlier
+ * board's copy of a re-issued lean stays in the ledger and is disclosed, never counted. Read from the same public
+ * ledger loadRows() joins on, so the ids line up one-to-one.
+ */
+function leansOfRecord(rows) {
+  const readJsonl = (p) => (fs.existsSync(p) ? fs.readFileSync(p, "utf8").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l)) : []);
+  const leans = readJsonl(path.join(APP, "public/data/mlb/results/settled_leans.jsonl"));
+  const sel = mlbLeansOfRecord(leans, { firstPitches: mlbFirstPitches(readJsonl(path.join(APP, "public/data/mlb/results/game-predictions-graded.jsonl"))) });
+  if (rows.some((r) => typeof r.id !== "string" || !r.id)) throw new Error("research universe: a row has no lean id; it cannot be matched to the forecast-of-record rule");
+  return { rows: rows.filter((r) => !sel.notOfRecordIds.has(r.id)), disclosure: mlbOfRecordDisclosure(sel) };
+}
+
 export function build() {
-  const rows = loadRows();
+  const { rows, disclosure: notOfRecord } = leansOfRecord(loadRows());
   const freshness = readJson(path.join(INTERNAL, "learning-freshness.json"));
   const manifest = readJson(path.join(INTERNAL, "calibrator-manifest.json"));
   const registryArtifact = readJson(path.join(INTERNAL, "registry.json"));
@@ -218,6 +233,7 @@ export function build() {
       overconfidencePp: rows.length ? 100 * (rows.reduce((a, r) => a + r.p, 0) / rows.length - wins / rows.length) : null,
       separateFromPaperRecord:
         "The paper-money record is a different product, over different dates, with a different denominator. The two are never combined.",
+      notOfRecord,
     },
     calibration: manifest
       ? {

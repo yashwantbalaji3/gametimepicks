@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 
-import { outcomeFromHit, outcomeFromWord, dailySeries, windowsFrom, finish, population } from "./populations.mjs";
+import { outcomeFromHit, outcomeOfPick, outcomeFromWord, dailySeries, windowsFrom, finish, population } from "./populations.mjs";
 import { makeGradedPickOwners } from "../../sports/graded-pick-owners.mjs";
 import { buildGradedRecord } from "../../sports/graded-picks.mjs";
 
@@ -77,4 +77,20 @@ test("🔴 owners date a game by its ET day — Monday Night Football is a Monda
     const ET = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
     assert.equal(ET.format(new Date("2031-09-30T00:15:00Z")), "2031-09-29", "the rule the owner applies");
   });
+});
+
+test("Stage 3E (R9): a no-pick or unknown graded-picks row has no outcome and is counted apart, never a void", () => {
+  assert.equal(outcomeOfPick({ hit: true }), "WIN");
+  assert.equal(outcomeOfPick({ hit: false }), "LOSS");
+  assert.equal(outcomeOfPick({ hit: null }), "VOID");                        // a tie / push stays a void
+  assert.equal(outcomeOfPick({ hit: null, noPick: true }), null);            // frozen TOO_CLOSE
+  assert.equal(outcomeOfPick({ hit: null, unknown: true }), null);           // unreadable stored grade
+  const s = dailySeries([
+    { date: "2026-10-05", outcome: "WIN" },
+    { date: "2026-10-05", outcome: null, noPick: true },
+    { date: "2026-10-05", outcome: null },
+  ]);
+  assert.equal(s.noPick, 1);
+  assert.equal(s.unreadable, 1);
+  assert.deepEqual(s.days, [{ date: "2026-10-05", won: 1, lost: 0, push: 0, void: 0 }]);
 });

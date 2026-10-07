@@ -1,0 +1,149 @@
+{
+ "_note": "Copied verbatim (fields trimmed to those the rule reads) from data/internal/research/epl/forecasts on main a134c15a0: the LAST pre-kickoff row for each of the 4 played-but-ungraded EPL matches, plus one model-only row with probabilities.",
+ "withheld": [
+  {
+   "source": "snapshot-202609051340.json",
+   "generatedAt": "2026-09-05T13:40:45Z",
+   "row": {
+    "eventId": "soccer:epl:brighton-hove-albion-v-leeds-united:20260905t1400",
+    "matchup": "Brighton & Hove Albion v Leeds United",
+    "homeClub": "Brighton & Hove Albion",
+    "awayClub": "Leeds United",
+    "kickoffUtc": "2026-09-05T14:00:00Z",
+    "state": "READY_EXCEPT_ODDS",
+    "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture \u2014 probabilities withheld",
+    "model": null,
+    "modelOnly": null
+   }
+  },
+  {
+   "source": "snapshot-202608231238.json",
+   "generatedAt": "2026-08-23T12:38:51Z",
+   "row": {
+    "eventId": "soccer:epl:aston-villa-v-brighton-hove-albion:20260823t1300",
+    "matchup": "Brighton & Hove Albion v Aston Villa",
+    "homeClub": "Brighton & Hove Albion",
+    "awayClub": "Aston Villa",
+    "kickoffUtc": "2026-08-23T13:00:00Z",
+    "state": "READY_EXCEPT_ODDS",
+    "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture \u2014 probabilities withheld",
+    "model": null,
+    "modelOnly": null
+   }
+  },
+  {
+   "source": "2026-08-29.json",
+   "generatedAt": "2026-08-29T22:56:44Z",
+   "row": {
+    "eventId": "soccer:epl:brighton-hove-albion-v-chelsea:20260830t1300",
+    "matchup": "Chelsea v Brighton & Hove Albion",
+    "homeClub": "Chelsea",
+    "awayClub": "Brighton & Hove Albion",
+    "kickoffUtc": "2026-08-30T13:00:00Z",
+    "state": "READY_EXCEPT_ODDS",
+    "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture \u2014 probabilities withheld",
+    "model": null,
+    "modelOnly": null
+   }
+  },
+  {
+   "source": "snapshot-202608281048.json",
+   "generatedAt": "2026-08-28T10:48:48Z",
+   "row": {
+    "eventId": "soccer:epl:crystal-palace-v-manchester-city:20260828t1900",
+    "matchup": "Crystal Palace v Manchester City",
+    "homeClub": "Crystal Palace",
+    "awayClub": "Manchester City",
+    "kickoffUtc": "2026-08-28T19:00:00Z",
+    "state": "READY_EXCEPT_ODDS",
+    "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture \u2014 probabilities withheld",
+    "model": null,
+    "modelOnly": null
+   }
+  }
+ ],
+ "modelOnly": {
+  "source": "2026-10-06.json",
+  "generatedAt": "2026-10-06T00:15:08Z",
+  "row": {
+   "eventId": "soccer:epl:arsenal-v-leeds-united:20261010t1130",
+   "matchup": "Arsenal v Leeds United",
+   "homeClub": "Arsenal",
+   "awayClub": "Leeds United",
+   "kickoffUtc": "2026-10-10T11:30:00Z",
+   "state": "READY_EXCEPT_ODDS",
+   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture \u2014 no market comparison exists yet",
+   "model": null,
+   "modelOnly": {
+    "modelId": "epl-model-v2-elo-poisson",
+    "probs": {
+     "home": 0.71241,
+     "draw": 0.183934,
+     "away": 0.103656
+    },
+    "totals": {
+     "expected": 2.7946,
+     "over25": 0.529284,
+     "under25": 0.470716,
+     "quantiles": {
+      "p10": 1,
+      "p25": 2,
+      "p50": 3,
+      "p75": 4,
+      "p90": 5
+     },
+     "distribution": [
+      0.061132,
+      0.170847,
+      0.238737,
+      0.222402,
+      0.155389,
+      0.086854,
+      0.040456,
+      0.016152,
+      0.005643,
+      0.001752,
+      0.00049,
+      0.000118,
+      2.4e-05,
+      4e-06,
+      1e-06,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "ladder": [
+      {
+       "line": 0.5,
+       "over": 0.938868,
+       "under": 0.061132
+      },
+      {
+       "line": 1.5,
+       "over": 0.768021,
+       "under": 0.231979
+      },
+      {
+       "line": 2.5,
+       "over": 0.529284,
+       "under": 0.470716
+      },
+      {
+       "line": 3.5,
+       "over": 0.306882,
+       "under": 0.693118
+      },
+      {
+       "line": 4.5,
+       "over": 0.151493,
+       "under": 0.848507
+      }
+     ]
+    }
+   }
+  }
+ }
+}

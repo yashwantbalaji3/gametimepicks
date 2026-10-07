@@ -81,6 +81,7 @@ if (!files.length) { console.error(`REFUSED: no calibration rows at ${path.relat
    carry the ledger's row id; a row the ledger knows and does not hold of record is left out. A row the ledger does
    not know is kept, and the reconciliation below refuses if that makes the two disagree. */
 const selection = makeGradedPickOwners({ appDir: APP, rootDir: path.resolve(APP, "..") }).mlbLeanSelection();
+const ledgerWord = new Map((selection?.record ?? []).map((r) => [r.id, String(r.outcome ?? "").toLowerCase()]));
 const byDate = new Map();
 let malformed = 0;
 let notOfRecord = 0;
@@ -93,7 +94,10 @@ for (const file of files) {
     try { r = JSON.parse(line); } catch { malformed += 1; continue; }
     if (!r?.outcome || !r?.market) { malformed += 1; continue; }
     if (selection?.notOfRecordIds.has(r.id)) { notOfRecord += 1; continue; }
-    rows.push(sanitize(r));
+    /* Stage 3E (inventory R10): the calibration files write "push" for every lean the ledger settled as Void (a
+       player who did not play, a postponed game). The ledger's own word is carried; a push stays a push. */
+    const word = ledgerWord.get(r.id);
+    rows.push(sanitize(word === "void" && r.outcome === "push" ? { ...r, outcome: "void" } : r));
   }
   if (rows.length) byDate.set(date, rows);
 }
@@ -111,8 +115,9 @@ const tally = (rows) => {
   const wins = rows.filter((r) => r.outcome === "win").length;
   const losses = rows.filter((r) => r.outcome === "loss").length;
   const pushes = rows.filter((r) => r.outcome === "push").length;
+  const voids = rows.filter((r) => r.outcome === "void").length;
   const games = new Set(rows.map((r) => `${r.date}:${r.gameId ?? "?"}`)).size;
-  return { rows: rows.length, wins, losses, pushes, decisive: wins + losses, games };
+  return { rows: rows.length, wins, losses, pushes, voids, decisive: wins + losses, games };
 };
 
 const index = [];
@@ -137,7 +142,7 @@ const problems = [];
 if (agg?.counts) {
   if (totals.wins !== agg.counts.hits) problems.push(`wins ${totals.wins} vs published hits ${agg.counts.hits}`);
   if (totals.losses !== agg.counts.misses) problems.push(`losses ${totals.losses} vs published misses ${agg.counts.misses}`);
-  if (totals.pushes !== agg.counts.voided) problems.push(`pushes ${totals.pushes} vs published voided ${agg.counts.voided}`);
+  if (totals.pushes + totals.voids !== agg.counts.voided) problems.push(`pushes + voids ${totals.pushes + totals.voids} vs published voided ${agg.counts.voided}`);
   if (totals.decisive !== agg.counts.counted) problems.push(`decisive ${totals.decisive} vs published counted ${agg.counts.counted}`);
 } else {
   problems.push("the published aggregate could not be read — there is nothing to reconcile against");
@@ -145,13 +150,13 @@ if (agg?.counts) {
 
 console.log(`model results index — ${apply ? "APPLY" : "DRY RUN"}`);
 console.log(`  source files: ${files.length} · dates with rows: ${byDate.size} · malformed lines skipped: ${malformed} · not of record (left out): ${notOfRecord}`);
-console.log(`  rows: ${totals.rows} · ${totals.wins}-${totals.losses} · ${totals.pushes} push · ${totals.decisive} decisive`);
+console.log(`  rows: ${totals.rows} · ${totals.wins}-${totals.losses} · ${totals.pushes} push · ${totals.voids} void · ${totals.decisive} decisive`);
 if (problems.length) {
   console.error("REFUSED: the detail does not reconcile with the published aggregate:");
   for (const p of problems) console.error(`  · ${p}`);
   process.exit(2);
 }
-console.log(`  reconciles with graded-picks.json: wins, losses, pushes and decisive all match`);
+console.log(`  reconciles with graded-picks.json: wins, losses, pushes + voids and decisive all match`);
 
 if (!apply) { console.log("\ndry run — nothing written. Re-run with --apply."); process.exit(0); }
 

@@ -444,6 +444,8 @@ export function buildEvidence(envelopes) {
            * the Results family page's own (BASIS_WORDS).
            */
           if (f.pickRecord) say(`graded on ${basisWords(f.pickRecord.basis)}, the ${sp} ${f.label} record is ${f.pickRecord.win}–${f.pickRecord.loss}${f.pickRecord.push ? `–${f.pickRecord.push}` : ""}`, [f.pickRecord.win, f.pickRecord.loss, f.pickRecord.push]);
+          // Stage 3E: a family graded on two bases states each record on its own; the two are never added together.
+          else if (Array.isArray(f.pickRecords)) for (const r of f.pickRecords) say(`graded on ${basisWords(r.basis)}, the ${sp} ${f.label} record is ${r.win}–${r.loss}${r.push ? `–${r.push}` : ""}, counted separately from the other basis`, [r.win, r.loss, r.push]);
         }
         say(`there is no single accuracy figure across forecast types: a yardage projection and a win probability are measured differently and are never pooled`);
         for (const g of (d.gaps ?? []).slice(0, 3)) say(`${g.sport} ${g.family} is published but not measured yet: ${g.reason}`);
@@ -684,6 +686,7 @@ const trim = (x) => String(Number(x.toFixed(4)).valueOf());
 /* What a directional record grades, in the Results family page's words (results/forecasts/[sport]/[family]/page.tsx BASIS_WORDS). */
 const BASIS_WORDS = {
   HIGHER_WIN_PROBABILITY_SIDE: "the team we gave the better win chance",
+  HISTORICAL_MODEL_FAVORED: "the team with the higher frozen win chance (historical model-favored winner accuracy, not a published pick)",
   IMPLIED_SIDE_OF_FROZEN_LINE: "the side of the sportsbook line our projection pointed to",
   PUBLISHED_PICK: "the pick we published",
 };

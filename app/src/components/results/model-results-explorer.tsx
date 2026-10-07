@@ -25,15 +25,17 @@ import { useEffect, useMemo, useState } from "react";
 export interface ModelDay {
   date: string;
   wins: number; losses: number; pushes: number; rows: number;
+  /** Stage 3E: leans the ledger settled as Void (did not play, postponed). Older index files have none. */
+  voids?: number;
   /** Distinct games these picks came from — the unit that governs uncertainty, not the row count. */
   games: number;
   rowsUrl: string;
-  byMarket: Record<string, { wins: number; losses: number; pushes: number }>;
+  byMarket: Record<string, { wins: number; losses: number; pushes: number; voids?: number }>;
 }
 
 export interface ModelCoverage {
   dates: number; firstDate: string | null; lastDate: string | null;
-  rows: number; wins: number; losses: number; pushes: number; decisive: number; games: number;
+  rows: number; wins: number; losses: number; pushes: number; voids?: number; decisive: number; games: number;
 }
 
 interface DetailRow {
@@ -103,14 +105,14 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
 
   /** Pooled from SUMMED COUNTS, never averaged across days. */
   const pooled = useMemo(() => {
-    let wins = 0, losses = 0, pushes = 0, games = 0;
+    let wins = 0, losses = 0, pushes = 0, voids = 0, games = 0;
     for (const d of selected) {
       games += d.games ?? 0;
-      if (market === "all") { wins += d.wins; losses += d.losses; pushes += d.pushes; continue; }
+      if (market === "all") { wins += d.wins; losses += d.losses; pushes += d.pushes; voids += d.voids ?? 0; continue; }
       const m = d.byMarket?.[market];
-      if (m) { wins += m.wins; losses += m.losses; pushes += m.pushes; }
+      if (m) { wins += m.wins; losses += m.losses; pushes += m.pushes; voids += m.voids ?? 0; }
     }
-    return { wins, losses, pushes, decisive: wins + losses, games };
+    return { wins, losses, pushes, voids, decisive: wins + losses, games };
   }, [selected, market]);
 
   /* Opening a day fetches that day alone. A failure says so rather than rendering an empty table. */
@@ -213,6 +215,7 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
             <span style={{ fontSize: 11.5, color: "var(--vault-text-mute)", fontFamily: "monospace" }}>
               {pooled.decisive.toLocaleString()} decisive
               {pooled.pushes ? ` · ${pooled.pushes.toLocaleString()} push` : ""}
+              {pooled.voids ? ` · ${pooled.voids.toLocaleString()} void` : ""}
               {pooled.games ? ` · ${pooled.games.toLocaleString()} games` : ""}
               {` · ${selected.length} day${selected.length === 1 ? "" : "s"}`}
             </span>

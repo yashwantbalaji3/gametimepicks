@@ -512,7 +512,17 @@ test("…while counting reader A's files naively reproduces the #999 over-count"
 /* ── 7 · 3A scope: contract only, no reader migration ─────────────────────────────────────────── */
 
 /* 3B: the MLB lean adapter is the one importer; MLB readers import the adapter, never the contract directly. */
-const IMPORTERS_THROUGH_3B = ["src/lib/results/mlb-leans-of-record.mjs", "src/lib/results/mlb-leans-of-record.test.mjs"];
+const IMPORTERS_THROUGH_3B = [
+  "src/lib/results/mlb-leans-of-record.mjs", "src/lib/results/mlb-leans-of-record.test.mjs",
+  // 3C: the NFL winner rule and the forecast-record label
+  "src/lib/results/nfl-model-favored.mjs", "src/lib/results/nfl-model-favored.test.mjs", "src/lib/results/v2/forecast-record.mjs",
+  // 3D: the frozen side decision
+  "src/lib/results/side-decision.mjs", "src/lib/results/side-decision.test.mjs",
+  // 3E: the one NFL copy-of-record rule (settler lifetime, NFL index, ledger adapter, graded-pick owners)
+  "src/lib/results/nfl-settlement-of-record.mjs",
+  // 3E (optional Soccer slice, gated on Soccer S2): EPL 1X2 on the canonical match identity
+  "src/lib/results/epl-matches-of-record.mjs",
+];
 
 test("scope: only the slice adapters import forecast-of-record.mjs (3B: the MLB lean adapter; 3C–3E add theirs)", () => {
   const APP = path.resolve(HERE, "..", "..", "..");

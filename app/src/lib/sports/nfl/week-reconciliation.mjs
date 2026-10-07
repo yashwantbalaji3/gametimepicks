@@ -16,6 +16,7 @@
  *
  * Every function here is pure. The builder (scripts/nfl/build-nfl-week-reconciliation.mjs) does the I/O.
  */
+import { nflModelFavored, nflSideInput } from "../../results/nfl-model-favored.mjs";
 import { settleAnytimeTd } from "./td-engine.mjs";
 
 export const RECONCILIATION_RULES = Object.freeze({
@@ -132,15 +133,25 @@ export const PLAYER_PROPS = Object.freeze([
 
 /**
  * Grade one game. Never throws: missing pieces become PENDING, VOID or a named note.
- * @param {{forecast: object, board: object|null, boardRefused?: string|null, official: object}} a
+ * @param {{forecast: object, board: object|null, boardRefused?: string|null, official: object, sideCutoverAt?: string|null}} a
+ *        sideCutoverAt: the 3D side-decision cutover (data/internal/nfl/side-decision-cutover.json), or null
  */
-export function gradeGame({ forecast, board, boardRefused = null, official }) {
+export function gradeGame({ forecast, board, boardRefused = null, official, sideCutoverAt = null }) {
   const s = forecast.forecastSummary;
-  const pickHome = s.winProbability.home >= s.winProbability.away;
+  /* Stage 3C (founder Q4 HIGHER): the graded team is the MODEL-FAVORED one, the higher frozen win probability, read
+     through the one rule (lib/results/nfl-model-favored.mjs). An exact tie between the teams is no side (NO_PICK),
+     never the home team. `pick` keeps its key for the page; it is the model-favored team, not a published pick. */
+  /* Stage 3D (founder Q3): a receipt that froze a side is graded on THAT side (TOO_CLOSE = no pick); a post-cutover
+     receipt with no valid frozen side has no side. Only a pre-cutover receipt falls back to the Q4 historical rule.
+     No side is ever worked out from the probabilities for a forward forecast. */
+  const side = nflSideInput(forecast, { cutoverAt: sideCutoverAt });
+  const fav = side.publishedSide === "HOME" || side.publishedSide === "AWAY" ? side.publishedSide
+    : side.historical ? nflModelFavored(s.winProbability).side : null;
+  const pickHome = fav === "HOME";
   const published = {
     generatedAt: forecast.generatedAt,
     projectedScore: { away: s.projectedScore.away, home: s.projectedScore.home },
-    pick: { abbr: pickHome ? forecast.home.abbr : forecast.away.abbr, probability: pickHome ? s.winProbability.home : s.winProbability.away },
+    pick: fav == null ? null : { abbr: pickHome ? forecast.home.abbr : forecast.away.abbr, probability: pickHome ? s.winProbability.home : s.winProbability.away },
     total: { median: s.total.median, low: s.total.p10, high: s.total.p90 },
     margin: { median: s.margin.median, low: s.margin.p10, high: s.margin.p90 },
     sportsbookTotal: forecast.marketComparison?.marketTotal ?? null,
@@ -163,7 +174,7 @@ export function gradeGame({ forecast, board, boardRefused = null, official }) {
   const oursOff = Math.abs(published.total.median - total);
   const booksOff = published.sportsbookTotal == null ? null : Math.abs(published.sportsbookTotal - total);
   const team = [
-    { prop: "winner", outcome: winnerSide === "tie" ? "VOID" : (winnerSide === "home") === pickHome ? "HIT" : "MISS" },
+    { prop: "winner", outcome: winnerSide === "tie" ? "VOID" : fav == null ? "NO_PICK" : (winnerSide === "home") === pickHome ? "HIT" : "MISS" },
     { prop: "total_range", outcome: inside(total, published.total.low, published.total.high) ? "HIT" : "MISS", actual: total },
     { prop: "margin_range", outcome: inside(margin, published.margin.low, published.margin.high) ? "HIT" : "MISS", actual: margin },
     { prop: "closer_than_sportsbook", outcome: booksOff == null ? "NO_LINE" : oursOff < booksOff ? "HIT" : oursOff > booksOff ? "MISS" : "PUSH", oursOff, booksOff },
@@ -208,7 +219,8 @@ export function gradeGame({ forecast, board, boardRefused = null, official }) {
 }
 
 const PROPS = [
-  { id: "winner", label: "Picked the winner", group: "team" },
+  // Stage 3C (founder Q4): the graded team is the model-favored one, not a published pick; the label says so.
+  { id: "winner", label: "Model-favored team won", group: "team" },
   { id: "total_range", label: "Total points landed in our range", group: "team", target: 0.8 },
   { id: "margin_range", label: "Winning margin landed in our range", group: "team", target: 0.8 },
   ...PLAYER_PROPS.map((p) => ({ id: p.key, label: `${p.label} landed in our range`, group: "player", target: 0.8 })),
@@ -243,7 +255,7 @@ export function summariseWeek(games) {
     const sharpness = p.target ? rangeSharpness(rangeRowsFor(p.id)) : null;
     /* Winner: how many picks the published chances expected to come true, so 8 of 15 reads against a real bar. */
     const expected = p.id === "winner"
-      ? { expectedHits: round1(final.filter((g) => g.team.find((t) => t.prop === "winner")?.outcome !== "VOID").reduce((a, g) => a + g.published.pick.probability, 0)) }
+      ? { expectedHits: round1(final.filter((g) => !["VOID", "NO_PICK"].includes(g.team.find((t) => t.prop === "winner")?.outcome) && g.published.pick).reduce((a, g) => a + g.published.pick.probability, 0)) }
       : {};
     return { ...p, checks, hits, voids: o.filter((x) => x === "VOID").length, rate: checks ? hits / checks : null, ...(statuses.length ? { status: statuses.includes("ESTIMATE") ? "ESTIMATE" : "PUBLISHED" } : {}), ...(sharpness ?? {}), ...expected };
   });

@@ -18,7 +18,7 @@ import path from "node:path";
 
 import { makeGradedPickOwners } from "@/lib/sports/graded-pick-owners.mjs";
 import { mlbFirstPitches, mlbLeansOfRecord } from "@/lib/results/mlb-leans-of-record.mjs";
-import { outcomeFromHit, outcomeFromWord } from "./populations.mjs";
+import { outcomeOfPick, outcomeFromWord } from "./populations.mjs";
 
 export type V2Outcome = "WIN" | "LOSS" | "PUSH" | "VOID";
 export interface DayCall { market: string; pick: string; line: string | null; outcome: V2Outcome | null }
@@ -124,13 +124,13 @@ export function resultsDay(date: string): Record<"mlb" | "nfl" | "epl" | "ufc", 
     return {
     id: String(p.eventId), sport: "nfl" as const, title,
     final: f ? (away && home ? `${away} ${f.away} – ${f.home} ${home}` : `${f.away}–${f.home}`) : null,
-    calls: [{ market: "Winner", pick: sideTeam(title, p.predicted), line: null, outcome: outcomeFromHit(p.hit) as V2Outcome }],
+    calls: [{ market: "Winner", pick: sideTeam(title, p.predicted), line: null, outcome: outcomeOfPick(p) as V2Outcome | null }],
     props: [], ranges: ranges.get(String(p.eventId)) ?? [],
     };
   });
   const simple = (sport: "epl" | "ufc", market: string, finalWord: string) => src.picks[sport].filter((p: any) => p.when === date).map((p: any) => ({
     id: String(p.eventId), sport, title: String(p.subject ?? p.eventId), final: p.actual != null ? `${finalWord}: ${p.actual}` : null,
-    calls: [{ market, pick: String(p.predicted ?? "—"), line: null, outcome: outcomeFromHit(p.hit) as V2Outcome }], props: [], ranges: [],
+    calls: [{ market, pick: String(p.predicted ?? "—"), line: null, outcome: outcomeOfPick(p) as V2Outcome | null }], props: [], ranges: [],
   }));
   return { mlb: [...mlb.values()], nfl, epl: simple("epl", "Match result", "Result"), ufc: simple("ufc", "Fight winner", "Winner") };
 }

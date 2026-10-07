@@ -1,15 +1,15 @@
 {
   "kind": "publication-slo",
-  "date": "2026-10-06",
+  "date": "2026-10-07",
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
-      "reason": "all 2 event(s) in the horizon carry a forecast",
+      "reason": "all 4 event(s) in the horizon carry a forecast",
       "deadlineUtc": null,
       "counts": {
-        "scheduled": 2,
-        "published": 2,
+        "scheduled": 4,
+        "published": 4,
         "missedCoverage": 0,
         "awaiting": 0
       }
@@ -26,62 +26,78 @@
       }
     },
     "ufc": {
-      "state": "PUBLISHING",
-      "reason": "2 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-10-10T19:30:00.000Z",
-      "counts": {
-        "scheduled": 12,
-        "published": 10,
-        "missedCoverage": 0,
-        "awaiting": 2
-      },
-      "missed": []
-    },
-    "epl": {
       "state": "PUBLISHED",
-      "reason": "all 10 event(s) in the horizon carry a forecast",
+      "reason": "all 12 event(s) in the horizon carry a forecast",
       "deadlineUtc": null,
       "counts": {
-        "scheduled": 10,
-        "published": 10,
+        "scheduled": 12,
+        "published": 12,
         "missedCoverage": 0,
         "awaiting": 0
       }
+    },
+    "epl": {
+      "state": "PUBLISHING",
+      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-10-17T10:00:00.000Z",
+      "counts": {
+        "scheduled": 11,
+        "published": 10,
+        "missedCoverage": 0,
+        "awaiting": 1
+      },
+      "missed": []
     }
   },
-  "checkedAt": "2026-10-07T02:39:25.078Z",
+  "checkedAt": "2026-10-07T11:58:35.632Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
-  "reason": "board published with 79 rows",
+  "reason": "board published with 163 rows",
   "publishDeadlineUtc": null,
-  "scheduledGames": 2,
-  "pregameRemaining": 0,
-  "alreadyStarted": 2,
+  "scheduledGames": 4,
+  "pregameRemaining": 4,
+  "alreadyStarted": 0,
   "board": {
     "present": true,
-    "leans": 79,
+    "leans": 163,
     "pendingReason": null,
-    "generatedAt": "2026-10-06T09:27:37.175462+00:00",
-    "scheduledGames": 2,
+    "generatedAt": "2026-10-07T09:26:11.976440+00:00",
+    "scheduledGames": 4,
     "startedBeforeGeneration": 0
   },
   "games": [
     {
-      "gamePk": 849819,
-      "startUtc": "2026-10-06T22:00:00Z",
-      "away": "Los Angeles Dodgers",
-      "home": "Atlanta Braves",
-      "detailedState": "Final",
-      "pregameAtCheck": false
+      "gamePk": 849833,
+      "startUtc": "2026-10-07T20:00:00Z",
+      "away": "Cleveland Guardians",
+      "home": "Chicago White Sox",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
     },
     {
-      "gamePk": 849826,
-      "startUtc": "2026-10-07T01:30:00Z",
+      "gamePk": 849822,
+      "startUtc": "2026-10-07T22:00:00Z",
+      "away": "Los Angeles Dodgers",
+      "home": "Atlanta Braves",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 849838,
+      "startUtc": "2026-10-08T00:00:00Z",
+      "away": "Tampa Bay Rays",
+      "home": "New York Yankees",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 849827,
+      "startUtc": "2026-10-08T02:00:00Z",
       "away": "Milwaukee Brewers",
       "home": "San Diego Padres",
-      "detailedState": "In Progress",
-      "pregameAtCheck": false
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
     }
   ]
 }

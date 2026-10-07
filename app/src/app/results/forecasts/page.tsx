@@ -113,7 +113,7 @@ export default function ForecastRecordPage() {
                       const p = primary(f);
                       return (
                         <tr key={f.family}>
-                          <td><span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{f.label}</span>{f.directional ? <div className="f">Pick record {f.directional.win}–{f.directional.loss}{f.directional.push ? `–${f.directional.push}` : ""}</div> : null}</td>
+                          <td><span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{f.label}</span>{f.directional ? (f.directional.byBasis ?? [{ ...f.directional, label: f.directional.label ?? "pick record" }]).map((d: any) => <div className="f" key={d.basis ?? "all"}>{d.label.charAt(0).toUpperCase() + d.label.slice(1)} {d.win}–{d.loss}{d.push ? `–${d.push}` : ""}</div>) : null}</td>
                           <td className="m nw">{KIND_WORD[f.kind] ?? f.kind}</td>
                           <td className="k nw">{n(f.counts.measured)}</td>
                           <td><span className="k">{p.main}</span><div className="f">{p.sub}</div></td>

@@ -41,7 +41,7 @@ const SPORTS = [
     what: "Player-prop projections: the model's over/under lean against the book's line, graded from the official box score.",
     caveat: "A model-performance record, independent of the paper bankroll. It shares no row with the settled money record on /results." },
   { sport: "nfl", label: "NFL", picks: nflPicks, shown: 60,
-    what: "Preseason game forecasts: which side the model favoured, graded against the official final.",
+    what: "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
     caveat: "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss." },
   { sport: "ufc", label: "UFC", picks: ufcPicks, shown: 60,
     what: "Fight-winner picks: the model's chosen fighter and its probability, graded against the official result.",

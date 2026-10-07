@@ -42,6 +42,9 @@ const CROSS_LANE_READERS = [
    */
   "src/lib/sports/graded-pick-owners.mjs",
   "src/lib/results/v2",
+  /* Stage 3E: the reader-parity pins build a throwaway EPL graded log in a temp directory to prove the owner above
+     never re-grades a row. Test fixture only; reads nothing from the real EPL root. */
+  "src/lib/results/reader-parity.test.mjs",
   /*
    * Session 13 · the Universal Forecast Ledger: one append-only row per published forecast of EVERY sport, read
    * from each sport's settlement owner (for EPL: the match and player grade logs). Read-only, renders nothing, no

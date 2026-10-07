@@ -37,7 +37,8 @@ test("THE INDEX RECONCILES WITH THE PUBLISHED AGGREGATE, exactly", () => {
   const c = aggregate.counts;
   assert.equal(index.coverage.wins, c.hits, "wins disagree with the published hit count");
   assert.equal(index.coverage.losses, c.misses, "losses disagree with the published miss count");
-  assert.equal(index.coverage.pushes, c.voided, "pushes disagree with the published void count");
+  /* Stage 3E: a ledger Void is published as a void, never a push. The published void count is both together. */
+  assert.equal(index.coverage.pushes + index.coverage.voids, c.voided, "pushes + voids disagree with the published void count");
   assert.equal(index.coverage.decisive, c.counted, "the decisive denominator disagrees with the published one");
   assert.equal(index.coverage.rows, c.total, "the row total disagrees with the published total");
 });
@@ -84,7 +85,7 @@ test("EVERY PARTITION RECONCILES WITH ITS INDEX ROW", () => {
 test("A PUSH IS IN NO RATE — decisive is wins plus losses and nothing else", () => {
   if (!index) return;
   assert.equal(index.coverage.decisive, index.coverage.wins + index.coverage.losses);
-  assert.ok(index.coverage.pushes > 0, "the corpus contains pushes, so this distinction is load-bearing");
+  assert.ok(index.coverage.pushes + index.coverage.voids > 0, "the corpus contains pushes or voids, so this distinction is load-bearing");
   assert.notEqual(index.coverage.decisive, index.coverage.rows, "pushes were folded into the denominator");
 });
 

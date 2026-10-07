@@ -23,6 +23,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { summariseByCohort } from "../../src/lib/sports/nfl/experimental-summary.mjs";
+import { nflReceiptWinnerGrade, winnerOfRecord } from "../../src/lib/results/nfl-model-favored.mjs";
+import { nflSettlementSelection } from "../../src/lib/results/nfl-settlement-of-record.mjs";
+import { readGradedReceipt, readNflSideCutover, readNflWinnerCorrections } from "../../src/lib/results/nfl-model-favored-io.mjs";
 
 const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : f; };
 
@@ -98,6 +101,8 @@ for (const d of fs.readdirSync(receiptsRoot).filter((x) => /^\d{4}-\d{2}-\d{2}$/
   }
 }
 const settleDir = path.join(ROOT, "data/internal/nfl/experimental-settlement");
+/* Stage 3D: receipts generated from the side-decision cutover on are graded on their frozen side only. */
+const sideCutoverAt = readNflSideCutover(ROOT);
 const gradedElsewhere = new Set();
 for (const f of fs.existsSync(settleDir) ? fs.readdirSync(settleDir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x) && x !== `${DATE}.json`) : []) {
   for (const e of read(path.join(settleDir, f))?.events ?? []) if (e?.providerEventId) gradedElsewhere.add(String(e.providerEventId));
@@ -159,8 +164,9 @@ for (const [providerEventId, { file, r }] of receipts) {
     // a distribution is graded as a distribution, never as a bet
     const grade = {
       actual: { home: res.ftHome, away: res.ftAway, margin: actualMargin, total: actualTotal, tie },
-      winner: tie ? { outcome: "TIE", correct: null, note: "a tie has no winner side; excluded from the decisive denominator" }
-        : { outcome: homeWon ? "HOME" : "AWAY", modelFavoured: pHome > 0.5 ? "HOME" : pHome < 0.5 ? "AWAY" : "EVEN", correct: pHome === 0.5 ? null : (pHome > 0.5) === homeWon },
+      // Stage 3C (founder Q4 HIGHER): the model-favored team is the one with the higher frozen win probability, never
+      // "P(home) > 0.5" (tie mass can push both under 50%). A frozen published side, once receipts carry one, wins.
+      winner: nflReceiptWinnerGrade(r, { home: res.ftHome, away: res.ftAway }, { cutoverAt: sideCutoverAt }),
       margin: { projected: s.margin.median, actual: actualMargin, absError: Math.abs(s.margin.median - actualMargin), insideInterval80: actualMargin >= s.margin.p10 && actualMargin <= s.margin.p90 },
       total: { projected: s.total.median, actual: actualTotal, absError: Math.abs(s.total.median - actualTotal), insideInterval80: actualTotal >= s.total.p10 && actualTotal <= s.total.p90 },
       score: { projected: s.projectedScore, absError: Math.abs(s.projectedScore.home - res.ftHome) + Math.abs(s.projectedScore.away - res.ftAway) },
@@ -212,7 +218,15 @@ for (const [providerEventId, { file, r }] of receipts) {
 }
 
 const allEvents = [...(prior?.events ?? []), ...events];
-const decisive = allEvents.filter((e) => e.grade.winner.correct !== null);
+/* Stage 3C: stored grades are never rewritten. Aggregates read each grade through the winner rule, which applies the
+   committed append-only correction log (data/internal/nfl/winner-corrections/) and refuses an unrestated old-rule grade. */
+const corrections = readNflWinnerCorrections(ROOT);
+const ofRecord = (e) => {
+  if (e?.grade?.actual?.tie) return e;
+  const { winner } = winnerOfRecord(e, readGradedReceipt(ROOT, e), corrections, { cutoverAt: sideCutoverAt });
+  return { ...e, grade: { ...e.grade, winner } };
+};
+const decisive = allEvents.map(ofRecord).filter((e) => e.grade.winner.correct !== null);
 const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 const round = (v) => (v == null ? null : Number(v.toFixed(4)));
 
@@ -297,16 +311,16 @@ const lifetime = (() => {
    * the one direction an accuracy ledger must never drift. Later dates win, so the newest grade for
    * an event is the one that counts.
    */
-  const byId = new Map();
+  /* Stage 3E: "later date file wins" is replaced by the one NFL settlement-of-record rule (the latest pre-kickoff
+     receipt per game; lib/results/nfl-settlement-of-record.mjs), the rule every other NFL reader uses. */
+  const all = [];
   for (const f of fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort()) {
     try {
-      for (const e of JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).events ?? []) {
-        if (e?.canonicalEventId) byId.set(e.canonicalEventId, e);
-      }
+      for (const e of JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).events ?? []) all.push(e);
     } catch { /* a malformed day never erases the rest */ }
   }
   // The date just written is on disk already, so it is included above — no double count.
-  const evs = [...byId.values()];
+  const evs = nflSettlementSelection(all).record.map(ofRecord);
   /*
    * COHORTS, NEVER A BLEND (P196 · Release E). Season type resolves from the settled row itself
    * (stamped going forward), falling back to the row's OWN receipt file — every receipt has
