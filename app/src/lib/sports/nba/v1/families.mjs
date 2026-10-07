@@ -34,9 +34,17 @@ export const NBA_V1_FAMILIES = Object.freeze([
   // receipt stores each component's marginal quantiles only, and the median of a sum is not the sum of medians, so
   // these families stay unproduced until the simulator freezes the joint quantiles in the receipt (slice 12-S2).
   { family: "nba_player_pra", subject: "PLAYER", kind: CONTINUOUS, source: null, stat: ["pts", "reb", "ast"], prereg: "PRA", boardable: true },
-  { family: "nba_player_points_assists", subject: "PLAYER", kind: CONTINUOUS, source: null, stat: ["pts", "ast"], prereg: "none yet (needs a §7 row)", boardable: true },
-  { family: "nba_player_points_rebounds", subject: "PLAYER", kind: CONTINUOUS, source: null, stat: ["pts", "reb"], prereg: "none yet (needs a §7 row)", boardable: true },
+  { family: "nba_player_points_assists", subject: "PLAYER", kind: CONTINUOUS, source: null, stat: ["pts", "ast"], prereg: "P+A (N5 approved; §7 row before first frozen forecast)", boardable: true },
+  { family: "nba_player_points_rebounds", subject: "PLAYER", kind: CONTINUOUS, source: null, stat: ["pts", "reb"], prereg: "P+R (N5 approved; §7 row before first frozen forecast)", boardable: true },
 ]);
+
+/**
+ * Founder decisions, Yash 2026-10-07 03:21Z (recorded, not a promotion — everything stays SHADOW):
+ *   N1 player champion = roster-gated v0.1 · N2 winner side = Elo, exact generation on every frozen forecast ·
+ *   N3 a 2026-27-data version runs as a SHADOW challenger from game 1, never replaces the champion automatically ·
+ *   N5 P+A and P+R get preregistration rows before their first frozen forecasts. N4 (TOO_CLOSE band) still open.
+ */
+export const NBA_V1_DECISIONS = Object.freeze({ playerChampion: "v0.1", winnerHead: "elo", challenger2627: "SHADOW_ONLY", tooCloseBand: null });
 
 export const familyById = (id) => NBA_V1_FAMILIES.find((f) => f.family === id) ?? null;
 export const producedFamilies = () => NBA_V1_FAMILIES.filter((f) => f.source != null);

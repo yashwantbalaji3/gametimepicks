@@ -19,16 +19,21 @@ export const TOO_CLOSE = "TOO_CLOSE"; // same word as the 3A helper's TOO_CLOSE
 
 export const WINNER_HEADS = Object.freeze(["sim", "elo"]);
 
+/** Founder decision N2 (Yash, 2026-10-07 03:21Z): Elo sets the frozen NBA winner side for the initial generation. */
+export const DECIDED_WINNER_HEAD = "elo";
+
 /**
- * @param forecast  a receipt game's `forecast` block ({ sim: { pHome }, elo: { pHome } })
+ * @param forecast    a receipt game's `forecast` block ({ sim: { pHome }, elo: { pHome } })
+ * @param generation  the receipt's exact modelVersion (N2: recorded on every frozen side)
  * @returns {{ head, pHome, publishedSide: "HOME"|"AWAY"|"TOO_CLOSE"|null, sideRule }}
  *          publishedSide null = the head's probability is missing (no side is ever guessed)
  */
-export function frozenWinnerSide(forecast, { head, tooCloseBelow = 0 } = {}) {
+export function frozenWinnerSide(forecast, { head, tooCloseBelow = 0, generation = null } = {}) {
   if (!WINNER_HEADS.includes(head)) throw new Error(`nba winner side: head must be one of ${WINNER_HEADS.join("/")} (founder decision), got ${head}`);
   if (!(typeof tooCloseBelow === "number" && tooCloseBelow >= 0 && tooCloseBelow < 0.5)) throw new Error("nba winner side: tooCloseBelow must be in [0, 0.5)");
   const p = forecast?.[head]?.pHome;
-  const sideRule = { id: "nba-winner-side@0", head, tooCloseBelow };
+  // N2: the exact model generation that set the side is frozen with it, so a later challenger can be compared.
+  const sideRule = { id: "nba-winner-side@0", head, tooCloseBelow, generation: generation == null ? null : String(generation) };
   if (typeof p !== "number" || !Number.isFinite(p) || p < 0 || p > 1) return { head, pHome: null, publishedSide: null, sideRule };
   const gap = Math.abs(p - 0.5);
   const publishedSide = p === 0.5 || gap < tooCloseBelow ? TOO_CLOSE : p > 0.5 ? "HOME" : "AWAY";

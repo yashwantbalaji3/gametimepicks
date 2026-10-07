@@ -14,8 +14,8 @@ import { validateBoardReceipt } from "../../../products/top-board/top-board.mjs"
 import { finalFor } from "../finals-record.mjs";
 import { nbaReceiptGameRows, assertOneChampion, competitionOf, nbaSeasonOf } from "./ledger-rows.mjs";
 import { nbaDayBoard, earliestHonestFreeze, NBA_BOARD_POOL } from "./top-boards.mjs";
-import { frozenWinnerSide, headDisagreement, TOO_CLOSE } from "./winner-side.mjs";
-import { NBA_V1_FAMILIES, producedFamilies } from "./families.mjs";
+import { frozenWinnerSide, headDisagreement, TOO_CLOSE, DECIDED_WINNER_HEAD } from "./winner-side.mjs";
+import { NBA_V1_FAMILIES, NBA_V1_DECISIONS, producedFamilies } from "./families.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const FX = JSON.parse(fs.readFileSync(path.join(here, "__fixtures__", "oct5-day.json"), "utf8"));
@@ -209,4 +209,15 @@ test("the roster-gated v0.1 receipts fit the same adapter, and miss far fewer pl
   assert.ok(FX.gamesV01.every((g) => g.receipt.family === "v0.1"));
   const v0 = missRate(FX.games), v01 = missRate(FX.gamesV01);
   assert.ok(v01 < v0 / 2, `v0.1 availability misses ${v01} vs v0 ${v0}`);
+});
+
+test("founder decisions N1/N2: v0.1 champion, Elo side with its exact generation frozen beside it", () => {
+  assert.equal(NBA_V1_DECISIONS.playerChampion, "v0.1");
+  assert.equal(NBA_V1_DECISIONS.winnerHead, DECIDED_WINNER_HEAD);
+  assert.equal(DECIDED_WINNER_HEAD, "elo");
+  assert.equal(NBA_V1_DECISIONS.tooCloseBand, null); // N4 still open: only an exact 0.5 abstains
+  const g = FX.gamesV01.find((x) => typeof x.forecast?.elo?.pHome === "number");
+  const s = frozenWinnerSide(g.forecast, { head: DECIDED_WINNER_HEAD, generation: g.receipt.modelVersion });
+  assert.equal(s.sideRule.generation, "nba-preseason-experimental-v0.1");
+  assert.equal(frozenWinnerSide({ elo: { pHome: 0.6 } }, { head: "elo" }).sideRule.generation, null);
 });

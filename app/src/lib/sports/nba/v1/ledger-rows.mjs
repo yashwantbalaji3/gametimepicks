@@ -108,7 +108,7 @@ export function nbaReceiptGameRows({ game, file, final = null, canonicalEventId 
 
   // Winner — the head of record's P(home), and the side frozen in the receipt if (and only if) the receipt froze one.
   // A v0/v0.1 receipt froze no side, so these rows are measured by Brier / log loss only (Stage 3 Q3: never inferred).
-  const side = frozenWinnerSide(f, { head: winnerHead });
+  const side = frozenWinnerSide(f, { head: winnerHead, generation: base.modelVersion });
   if (isNum(side.pHome)) {
     const frozen = typeof f.publishedSide === "string" ? f.publishedSide : null; // future receipt field (slice 12-S1)
     let measurement = {};
