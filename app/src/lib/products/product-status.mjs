@@ -1,5 +1,6 @@
 /**
- * PROTOTYPE · Stage 4 prep (Lane C, local only). NOT WIRED: no surface imports this module.
+ * STAGE 4 · THE CANONICAL PRODUCT ELIGIBILITY / MATURITY CONTRACT (schema 1, founder-decided 2026-10-07 03:21Z).
+ * Slice 4A ships it unwired (a test pins the importer list); 4B–4D move readers onto it.
  *
  * ONE ANSWER TO "WHAT IS THIS FORECAST FAMILY, AND MAY THIS PRODUCT USE IT?"
  *
@@ -24,19 +25,27 @@
  *   · A decision used for later evaluation is taken before the start and never after (Stage 3 Q1/Q3).
  *   · Forecasting continues regardless: `displayable` is decided separately from `eligible`.
  *
- * WHAT IS **NOT** SETTLED (founder gate; options in CONTRACT_OPTIONS.md). These are inputs or
- * labelled PROPOSED tables, never baked-in answers:
- *   · MATURITY_FROM_SOURCE: how today's ~10 state vocabularies map onto the five maturity words.
- *   · maxPriceAgeMs: there is no default (3 days in card-leg-eligibility vs 12 h in the leg floor).
- *   · `staleHealthPolicy`: today a stale or missing scorecard pauses NOTHING (founder-approved
- *     2026-09-14, display). For PROMOTION the prototype fails closed; the option paper asks whether
- *     that split is right.
- *   · Market-priced legs (F1): admission is passed in as `marketImpliedAdmitted`.
+ * FOUNDER DECISIONS (Yash, 2026-10-07 03:21Z, Founder Decision Packet P0+P1, Stage 4 Q1–Q9):
+ *   Q1 YES   `displayable` (may be shown) is separate from `eligible` (may be used in this product).
+ *   Q2 YES   Five maturity words; the LEAST mature applicable layer wins (MATURITY_FROM_SOURCE). Research or
+ *            Experimental never stops forecasting: forecast broadly, promote cautiously.
+ *   Q3 CLOSED  Unreadable authoritative status (coverage) → promoted products refuse (COVERAGE_UNKNOWN).
+ *   Q4 SPLIT   Missing/stale scorecard: display degrades gracefully (no verdict, no pause); promotion refuses.
+ *   Q5 PER-PRODUCT  One central freshness table (FRESHNESS): money/promoted products strict, paper/research
+ *            cards looser. Live odds are NOT covered: they will need minutes-scale, event-state freshness.
+ *   Q6 EXPERIMENTAL  UFC's sport row is corrected to experimental (slice 4D, with the UFC department); that never
+ *            makes UFC product-eligible on its own.
+ *   Q7 ALL   A fresh BREACHED verdict maps to Paused on every sport.
+ *   Q8 MODEL-ONLY  The scorecard speaks only for legs that carry a GameTimePicks model probability; a paused call
+ *            does not remove price-only legs that do not consume it.
+ *   Q9 DISPLAY  A Top Board is a ranked DISPLAY of forecasts, not a product. Its verdict is computed on its own
+ *            and never grants eligibility to any product; predictions reach products only through this contract.
+ * Market-priced legs (F1 = A, 2026-09-22): admission is product policy, passed in as `marketImpliedAdmitted`.
  *
  * Pure: no fs, no clock (asOf is an argument), no imports.
  */
 
-export const PRODUCT_STATUS_SCHEMA_VERSION = 0; // 0 = prototype; becomes 1 only after founder review
+export const PRODUCT_STATUS_SCHEMA_VERSION = 1; // founder-decided 2026-10-07 (Q1–Q9)
 
 /** The roadmap's maturity words (roadmap §2.1, protocol §16) plus the fail-closed UNKNOWN. */
 export const MATURITY = Object.freeze({
@@ -50,7 +59,8 @@ export const MATURITY = Object.freeze({
 
 /**
  * Products a status can be asked about. "forecast" is the plain published forecast (display); the rest
- * are PROMOTED products, where missing metadata fails closed.
+ * are PROMOTED products, where missing metadata fails closed. TOP_BOARD and LAB_CARD are displays (Q9; paper/research
+ * cards): they follow display rules plus their own pregame, availability and freshness checks, and never promote.
  */
 export const PRODUCT = Object.freeze({
   FORECAST: "forecast",
@@ -59,8 +69,25 @@ export const PRODUCT = Object.freeze({
   BANK_BUILDER: "bank_builder",
   MOONSHOT: "moonshot",
   BUILD_YOUR_OWN: "build_your_own",
+  LAB_CARD: "lab_card",
 });
-const PROMOTED = new Set([PRODUCT.TOP_BOARD, PRODUCT.SUGGESTED_PARLAY, PRODUCT.BANK_BUILDER, PRODUCT.MOONSHOT, PRODUCT.BUILD_YOUR_OWN]);
+const PROMOTED = new Set([PRODUCT.SUGGESTED_PARLAY, PRODUCT.BANK_BUILDER, PRODUCT.MOONSHOT, PRODUCT.BUILD_YOUR_OWN]);
+
+const H = 3600e3;
+/**
+ * Q5 PER-PRODUCT · THE one pregame freshness table. Price age: money/promoted products 12 h (the leg floor's
+ * LEG_BOUNDS.maxPriceAgeMs), paper lab cards 3 days (card-leg-eligibility PRICE_MAX_AGE_DAYS). Top Boards rank
+ * forecasts and use no price. Scorecard age: 72 h (live-record-gate maxAgeHours). Slice 4C points the two existing
+ * constants at this table. LIVE odds are deliberately absent: they need minutes-scale, event-state freshness and
+ * must never inherit a pregame number from here.
+ */
+export const FRESHNESS = Object.freeze({
+  priceMaxAgeMs: Object.freeze({
+    [PRODUCT.SUGGESTED_PARLAY]: 12 * H, [PRODUCT.BANK_BUILDER]: 12 * H, [PRODUCT.MOONSHOT]: 12 * H, [PRODUCT.BUILD_YOUR_OWN]: 12 * H,
+    [PRODUCT.LAB_CARD]: 3 * 24 * H,
+  }),
+  scorecardMaxAgeMs: 72 * H,
+});
 
 /**
  * Canonical reason codes. Names are REUSED from engine-v2 EXCLUSION wherever one exists, so adopting this
@@ -101,7 +128,7 @@ const PRECEDENCE = [
   REASON.MARKET_MISSING, REASON.ODDS_CAPTURED_AFTER_START, REASON.ODDS_STALE, REASON.SETTLEMENT_UNSUPPORTED,
 ];
 
-/** Public text per code. Plain words; never a raw code on a page. PROPOSED copy, Stage 2 tone. */
+/** Public text per code. Plain words; never a raw code on a page. Stage 2 tone; copy-reviewed with the 4D slice. */
 export const REASON_TEXT = Object.freeze({
   SPORT_UNKNOWN: "This sport is not covered.",
   SPORT_GATED: "This sport's forecasts are published as experimental and do not enter promoted products.",
@@ -127,7 +154,7 @@ export const REASON_TEXT = Object.freeze({
 });
 
 /**
- * PROPOSED (founder gate, CONTRACT_OPTIONS.md Q2). Source-vocabulary word → maturity.
+ * DECIDED (Q2 YES, 2026-10-07). Source-vocabulary word → maturity, as tabled in CONTRACT_OPTIONS.md §2.
  * Keys are `<vocabulary>:<word>`. Anything unlisted maps to UNKNOWN, which fails closed for promotion.
  */
 export const MATURITY_FROM_SOURCE = Object.freeze({
@@ -154,13 +181,11 @@ export const MATURITY_FROM_SOURCE = Object.freeze({
 });
 
 /**
- * Q8 (founder gate). Which legs the live-record scorecard speaks for.
- *   MODEL_ONLY: only legs that carry a GameTimePicks model probability (the scorecard grades our calls).
- *   ALL_LEGS:   every leg of the family, including F1 market constructions priced only by a sportsbook.
+ * Q8 MODEL-ONLY (decided 2026-10-07). The live-record scorecard grades GameTimePicks calls, so it speaks only for legs
+ * that carry a GameTimePicks model probability. A price-only leg (F1 market construction) is not paused by it and
+ * does not need it.
  */
-export const LIVE_RECORD_SCOPE = Object.freeze({ MODEL_ONLY: "MODEL_ONLY", ALL_LEGS: "ALL_LEGS" });
-/** PROPOSED, not decided. */
-export const LIVE_RECORD_SCOPE_PROPOSED = LIVE_RECORD_SCOPE.MODEL_ONLY;
+export const LIVE_RECORD_SCOPE = "MODEL_ONLY";
 
 const RANK = { RETIRED: 0, PAUSED: 1, UNKNOWN: 2, RESEARCH: 3, EXPERIMENTAL: 4, ESTABLISHED: 5 };
 
@@ -175,7 +200,7 @@ export function deriveMaturity(sourceWords) {
 }
 
 /**
- * PROPOSED participation crosswalk (Product Engine prep 2026-10-07). The repo has ~12 availability / role / lineup
+ * Participation crosswalk (Product Engine, 2026-10-07; part of the Q1/Q2 contract). The repo has ~12 availability / role / lineup
  * vocabularies (NFL participation, NFL role evidence + confirmation, the injury feed in title case, the cross-sport
  * lineup contract, MLB lowercase lineup words, FPL, NBA minutes, UFC bout states). The first prototype matched three
  * upper-case words and let an availability word stand in for a role, so OFFICIAL_LINEUP, ROLE_CONFIRMED and MLB
@@ -205,6 +230,15 @@ export function participationOf(word) {
   return PARTICIPATION_FROM_SOURCE[String(word).trim().toUpperCase()] ?? P.UNCERTAIN;
 }
 
+/** Price checks shared by promoted products and lab cards; age limit from FRESHNESS unless a test overrides it. */
+function priceChecks(i, codes, { asOfMs, startMs }) {
+  const maxAge = Number.isFinite(i.maxPriceAgeMs) ? i.maxPriceAgeMs : FRESHNESS.priceMaxAgeMs[i.product];
+  const capMs = Date.parse(i.market?.capturedAt ?? "");
+  if (i.market?.price == null || !Number.isFinite(capMs)) { codes.add(REASON.MARKET_MISSING); return; }
+  if (Number.isFinite(startMs) && capMs >= startMs) codes.add(REASON.ODDS_CAPTURED_AFTER_START);
+  if (!Number.isFinite(maxAge) || asOfMs - capMs > maxAge) codes.add(REASON.ODDS_STALE);
+}
+
 /**
  * Resolve one status record.
  *
@@ -228,10 +262,9 @@ export function participationOf(word) {
  * @param {string|null} [i.availabilityState]
  * @param {string|null} [i.roleState]
  * @param {{price:number|null, capturedAt:string|null}|null} [i.market]
- * @param {number} [i.maxPriceAgeMs]          REQUIRED for promoted products that use a price: no safe default
- * @param {number} [i.maxHealthAgeMs]         REQUIRED for promoted products
+ * @param {number} [i.maxPriceAgeMs]          override for tests/replay only; defaults to FRESHNESS (Q5)
+ * @param {number} [i.maxHealthAgeMs]         override for tests/replay only; defaults to FRESHNESS (Q4)
  * @param {boolean} [i.settlementProven]
- * @param {"MODEL_ONLY"|"ALL_LEGS"} [i.liveRecordScope]  Q8; defaults to the PROPOSED value
  */
 export function resolveProductStatus(i) {
   const asOfMs = Date.parse(i?.asOf ?? "");
@@ -257,18 +290,12 @@ export function resolveProductStatus(i) {
   else words.push(i.coverage.demoted ? "coverage:demoted" : `coverage:${i.coverage.status}`);
   if (i.publicState) words.push(`public:${i.publicState}`);
 
-  // 3b · live record. Display keeps today's founder-approved rule (no verdict → no pause). Promotion needs a
-  //      CURRENT verdict, so a missing or stale scorecard refuses (PROPOSED: CONTRACT_OPTIONS.md Q4).
-  //      The scorecard grades GameTimePicks CALLS. Whether it also speaks for a leg that carries only a sportsbook
-  //      price (an F1 market construction of the same market) is founder question Q8; `liveRecordScope` carries the
-  //      answer. The replay (scripts/products/replay-product-status.mjs) shows MODEL_ONLY reproduces today's leg floor
-  //      exactly on every committed day, while ALL_LEGS removes the MLB total legs from Bank Builder / Moonshot
-  //      whenever the mlb_total call is paused.
-  const scope = i.liveRecordScope ?? LIVE_RECORD_SCOPE_PROPOSED;
-  if (!Object.values(LIVE_RECORD_SCOPE).includes(scope)) throw new Error(`resolveProductStatus: unknown liveRecordScope ${scope}`);
-  const healthApplies = scope === LIVE_RECORD_SCOPE.ALL_LEGS || i.probabilityKind === "MODEL";
+  // 3b · live record (Q4 SPLIT, Q7 ALL, Q8 MODEL-ONLY). Display: no current verdict → no pause. Promotion: a
+  //      model-probability leg needs a CURRENT verdict; a fresh BREACHED verdict pauses it on every sport.
+  const healthApplies = i.probabilityKind === "MODEL";
+  const maxHealthAgeMs = Number.isFinite(i.maxHealthAgeMs) ? i.maxHealthAgeMs : FRESHNESS.scorecardMaxAgeMs;
   const hAt = Date.parse(i.health?.generatedAt ?? "");
-  const healthFresh = Number.isFinite(hAt) && Number.isFinite(i.maxHealthAgeMs) && asOfMs - hAt <= i.maxHealthAgeMs && hAt - asOfMs <= 3600e3;
+  const healthFresh = Number.isFinite(hAt) && asOfMs - hAt <= maxHealthAgeMs && hAt - asOfMs <= 3600e3;
   if (healthApplies && i.health?.state === "BREACHED" && healthFresh) words.push("health:BREACHED");
   if (healthApplies && promoted && (!i.health || !healthFresh)) codes.add(REASON.HEALTH_UNKNOWN);
 
@@ -300,15 +327,12 @@ export function resolveProductStatus(i) {
       else if (r !== P.CONFIRMED) codes.add(REASON.ROLE_UNCERTAIN);
     }
 
-    if (i.product !== PRODUCT.TOP_BOARD) {
-      const capMs = Date.parse(i.market?.capturedAt ?? "");
-      if (i.market?.price == null || !Number.isFinite(capMs)) codes.add(REASON.MARKET_MISSING);
-      else {
-        if (Number.isFinite(startMs) && capMs >= startMs) codes.add(REASON.ODDS_CAPTURED_AFTER_START);
-        if (!Number.isFinite(i.maxPriceAgeMs) || asOfMs - capMs > i.maxPriceAgeMs) codes.add(REASON.ODDS_STALE);
-      }
-      if (i.settlementProven !== true) codes.add(REASON.SETTLEMENT_UNSUPPORTED);
-    }
+    priceChecks(i, codes, { asOfMs, startMs });
+    if (i.settlementProven !== true) codes.add(REASON.SETTLEMENT_UNSUPPORTED);
+  } else if (i.product === PRODUCT.TOP_BOARD || i.product === PRODUCT.LAB_CARD) {
+    // Displays with their own checks (Q9): a ruled-out player is never ranked; a lab card prices its legs.
+    if (i.isPlayer && (participationOf(i.availabilityState) === P.BLOCKED || participationOf(i.roleState) === P.BLOCKED)) codes.add(REASON.AVAILABILITY_BLOCKED);
+    if (i.product === PRODUCT.LAB_CARD) priceChecks(i, codes, { asOfMs, startMs });
   }
 
   const reasonCodes = PRECEDENCE.filter((c) => codes.has(c));
@@ -318,8 +342,13 @@ export function resolveProductStatus(i) {
   const displayBlockers = new Set([REASON.SPORT_UNKNOWN, REASON.IDENTITY_MISSING, REASON.MODEL_RETIRED, REASON.MODEL_NOT_PUBLIC, REASON.MATURITY_UNKNOWN]);
   const displayable = !reasonCodes.some((c) => displayBlockers.has(c));
   // For the plain forecast, a PAUSED family keeps its evidence on the page but its CALL is withdrawn
-  // (live-record-gate.mjs), so the call itself is not eligible.
-  const eligible = promoted ? reasonCodes.length === 0 : displayable && !codes.has(REASON.MODEL_PAUSED);
+  // (live-record-gate.mjs), so the call itself is not eligible. A Top Board or lab card also needs the event not to
+  // have started (membership is frozen pregame), a known start, and its own checks above.
+  const displayOnlyBlockers = [REASON.MODEL_PAUSED, REASON.AVAILABILITY_BLOCKED, REASON.MARKET_MISSING, REASON.ODDS_STALE, REASON.ODDS_CAPTURED_AFTER_START];
+  const pregameDisplay = i.product === PRODUCT.TOP_BOARD || i.product === PRODUCT.LAB_CARD;
+  const eligible = promoted
+    ? reasonCodes.length === 0
+    : displayable && !displayOnlyBlockers.some((c) => codes.has(c)) && !(pregameDisplay && (codes.has(REASON.EVENT_STARTED) || codes.has(REASON.EVENT_START_UNKNOWN)));
   const reasonCode = eligible ? null : (reasonCodes[0] ?? REASON.MATURITY_UNKNOWN);
 
   return {

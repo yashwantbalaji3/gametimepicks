@@ -18,12 +18,12 @@
  *   · The sport gate is the capability registry (`canEnterPredictionProducts`), read at BOTH the
  *     build and the read boundary — the NBA lesson (a dormant key is not an empty check).
  *
- * PRODUCT POLICY FOR MARKET-PRICED LEGS (frozen v1.7 · founder gate F1 open)
- *   The live products have only ever placed market-priced legs. Refusing them outright would empty
- *   both products on day one of the contract, which is a product decision the founder owns (charter
- *   §29.6). Until that decision, a MARKET_IMPLIED_NO_FORECAST leg from a registry-eligible sport is
- *   ADMITTED with reason code MARKET_PRICED_NO_FORECAST recorded on the leg and on every card built
- *   from it, so the surface can say what it is. `MARKET_PRICED_LEG_POLICY` names the state.
+ * PRODUCT POLICY FOR MARKET-PRICED LEGS (founder gate F1 decided A, 2026-09-22)
+ *   The live products have only ever placed market-priced legs. The founder chose to keep admitting
+ *   them transitionally: a MARKET_IMPLIED_NO_FORECAST leg from a registry-eligible sport is ADMITTED
+ *   with reason code MARKET_PRICED_NO_FORECAST recorded on the leg and on every card built from it, so
+ *   the surface can say what it is. `MARKET_PRICED_LEG_POLICY` names the state. (Until Stage 4A the state
+ *   read ADMITTED_PENDING_FOUNDER_DECISION; engine-v2 accepts both words, so older artifacts still read.)
  *
  * Pure: no fs, no fetch, no clock (the clock is an argument).
  */
@@ -33,9 +33,10 @@ export const PRODUCT_ELIGIBLE_LEG_SCHEMA_VERSION = 1;
 
 /** Product policy on legs whose only probability is the market's. See header. */
 export const MARKET_PRICED_LEG_POLICY = Object.freeze({
-  state: "ADMITTED_PENDING_FOUNDER_DECISION",
+  state: "ADMITTED",
   gate: "F1",
   since: "2026-09-21",
+  decided: "2026-09-22",
 });
 
 /** Sports the contract knows how to carry. Unknown sports are refused by the sport gate regardless. */

@@ -16,7 +16,7 @@
  * 🔴 In V1, `MARKET_PRICED_NO_FORECAST` is INFORMATIONAL — "recorded but does not refuse the leg".
  * That is how all 78 MLB legs in today's manifest are admitted while carrying no GameTimePicks model
  * probability at all: they are de-vigged bookmaker prices, under a policy whose own state is
- * `ADMITTED_PENDING_FOUNDER_DECISION` (gate F1).
+ * `ADMITTED` (gate F1, decided A on 2026-09-22; it read ADMITTED_PENDING_FOUNDER_DECISION before).
  *
  * V2 does NOT flip that policy — the admission is a founder decision, not mine. What it makes
  * impossible is the MASQUERADE: `probabilityBasis` is required, and a leg whose basis is not

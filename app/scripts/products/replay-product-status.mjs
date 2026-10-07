@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 /**
- * PREP ONLY (Product Engine, Stage 4). Replays the unwired product-status prototype against the committed
- * recommendation universe and compares its verdict with today's leg floor (engine-v2 leg-floor@2).
+ * Stage 4A replay. Runs the unwired product-status contract (schema 1, founder-decided) against the committed
+ * recommendation universe and compares its verdict with today's leg floor (engine-v2 leg-floor@2). 4A is
+ * behaviour-neutral only if the diff count is zero; any slice that changes it stops.
  *
  *   node --experimental-strip-types --no-warnings app/scripts/products/replay-product-status.mjs [--json]
  *
  * Reads committed artifacts only (data/internal/products/recommendation-universe/<date>.json for the dates and
  * asOf instants, then rebuilds each day's full receipt list with buildRecommendationUniverse). Writes nothing.
+ * The live-record scorecard is read from git AS OF each day (today's file is newer and would refuse everything);
+ * the pinned test passes a fixture instead (replay-product-status.test.mjs).
  *
- * Two health joins are compared, because the prototype as exported joins the live-record scorecard to a family
- * by key even when the leg carries only a sportsbook price:
- *   A · "all-legs": health applies to every leg (market-priced legs included).
- *   B · "model-only":  health applies only when the leg carries a GameTimePicks model probability.
+ * Freshness, the live-record scope (Q8 MODEL-ONLY) and price age (Q5) come from the contract's own defaults: the
+ * replay passes no overrides.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -29,11 +30,10 @@ const read = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 const coverage = read(path.join(REPO, "data/ask-projection/v1/coverage.json"));
 /** The scorecard as committed at or before `asOf` (the file is overwritten nightly; git keeps each version). */
 const HEALTH_PATH = "app/public/data/admin/model-health.json";
-function healthAsOf(asOf) {
+export function healthFromGit(asOf) {
   const sha = execFileSync("git", ["-C", REPO, "log", "-1", "--format=%H", `--before=${asOf}`, "--", HEALTH_PATH], { encoding: "utf8" }).trim();
   return sha ? JSON.parse(execFileSync("git", ["-C", REPO, "show", `${sha}:${HEALTH_PATH}`], { encoding: "utf8", maxBuffer: 64e6 })) : null;
 }
-let health = null;
 
 /** Receipt family → coverage market key, per sport. Unlisted → null (coverage unknown). */
 const COVERAGE_KEY = {
@@ -53,16 +53,14 @@ function coverageRow(sport, legClass, family) {
   return { status: row.status, demoted: (row.demotedFamilies ?? []).includes(family) };
 }
 
-function healthEntry(sport, family, { modelOnly, probabilityKind }) {
-  if (modelOnly && probabilityKind !== "MODEL") return { skip: true };
+function healthEntry(health, sport, family) {
   const id = HEALTH_KEY[sport]?.[family];
   const f = id && health ? health.families.find((x) => x.id === id) : null;
   return f ? { state: f.state, generatedAt: health.generatedAt } : null;
 }
 
-function inputFor(rec, { asOf, granted, admitsMarketImplied, modelOnly }) {
+function inputFor(rec, { asOf, granted, admitsMarketImplied, health }) {
   const r = rec, id = r.identity, m = r.market, f = r.forecast, c = r.context;
-  const h = healthEntry(id.sport, m.family, { modelOnly, probabilityKind: f.probabilityKind });
   return {
     product: id.sport === "mlb" && r.legClass === "TEAM" ? PRODUCT.BANK_BUILDER : PRODUCT.SUGGESTED_PARLAY,
     asOf,
@@ -72,8 +70,7 @@ function inputFor(rec, { asOf, granted, admitsMarketImplied, modelOnly }) {
     eventStartUtc: id.eventStartUtc,
     registryState: capabilityState(id.sport),
     coverage: coverageRow(id.sport, r.legClass, m.family),
-    // model-only join: a market-priced leg has no GTP live record to read, so it is judged as "fresh, not breached".
-    health: h?.skip ? { state: null, generatedAt: asOf } : h,
+    health: healthEntry(health, id.sport, m.family), // the contract ignores it for price-only legs (Q8)
     familyGranted: granted.has(`${id.sport}:${m.family}`),
     probabilityKind: f.probabilityKind,
     gtpProbability: f.probabilityKind === "MODEL" ? f.probability : null,
@@ -83,39 +80,45 @@ function inputFor(rec, { asOf, granted, admitsMarketImplied, modelOnly }) {
     availabilityState: c.availabilityState,
     roleState: c.roleState,
     market: { price: m.price, capturedAt: m.marketCapturedAt },
-    maxPriceAgeMs: 12 * 3600e3,
-    maxHealthAgeMs: 72 * 3600e3,
     settlementProven: c.settlementSupport === "PROVEN",
-    liveRecordScope: modelOnly ? "MODEL_ONLY" : "ALL_LEGS",
   };
 }
 
-const dir = path.join(REPO, "data/internal/products/recommendation-universe");
-const days = fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort().map((f) => read(path.join(dir, f)));
-const report = [];
-for (const day of days) {
-  const u = buildRecommendationUniverse({ date: day.date, now: day.asOf });
-  const granted = new Set(u.grantedFamilies ?? []);
-  health = healthAsOf(day.asOf);
-  for (const variant of ["all-legs", "model-only"]) {
+/**
+ * Replay the committed universe days. `healthAsOf(asOf)` returns the scorecard document to use for that day.
+ * `dates` limits the replay to a fixed window (the pinned test uses one; live data keeps growing).
+ */
+export function replayProductStatus({ healthAsOf = healthFromGit, dates = null } = {}) {
+  const dir = path.join(REPO, "data/internal/products/recommendation-universe");
+  const days = fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort().map((f) => read(path.join(dir, f)))
+    .filter((d) => !dates || dates.includes(d.date));
+  const report = [];
+  for (const day of days) {
+    const u = buildRecommendationUniverse({ date: day.date, now: day.asOf });
+    const granted = new Set(u.grantedFamilies ?? []);
+    const health = healthAsOf(day.asOf);
     const diff = new Map();
-    let v2Eligible = 0, protoEligible = 0;
+    let v2Eligible = 0, contractEligible = 0;
     for (const row of u._rows) {
       const rec = row.receipt, v2 = row.evaluation ?? rec.evaluation;
-      const s = resolveProductStatus(inputFor(rec, { asOf: day.asOf, granted, admitsMarketImplied: !!u.floor?.admitsMarketImplied, modelOnly: variant === "model-only" }));
+      const s = resolveProductStatus(inputFor(rec, { asOf: day.asOf, granted, admitsMarketImplied: !!u.floor?.admitsMarketImplied, health }));
       if (v2.eligible) v2Eligible++;
-      if (s.eligible) protoEligible++;
+      if (s.eligible) contractEligible++;
       if (v2.eligible !== s.eligible) {
-        const k = `${rec.identity.sport}/${rec.market.family} v2=${v2.eligible} proto=${s.eligible} [${s.reasonCodes.join(",")}] vs v2 [${v2.exclusionCodes.join(",")}]`;
+        const k = `${rec.identity.sport}/${rec.market.family} v2=${v2.eligible} contract=${s.eligible} [${s.reasonCodes.join(",")}] vs v2 [${v2.exclusionCodes.join(",")}]`;
         diff.set(k, (diff.get(k) ?? 0) + 1);
       }
     }
-    report.push({ date: day.date, asOf: day.asOf, healthAt: health?.generatedAt ?? null, mlbTotal: health?.families?.find((x) => x.id === "mlb_total")?.state ?? null, variant, receipts: u._rows.length, v2Eligible, protoEligible, committedEligible: day.counts.eligible, diffs: Object.fromEntries(diff) });
+    report.push({ date: day.date, asOf: day.asOf, healthAt: health?.generatedAt ?? null, mlbTotal: health?.families?.find((x) => x.id === "mlb_total")?.state ?? null, receipts: u._rows.length, v2Eligible, contractEligible, committedEligible: day.counts.eligible, diffs: Object.fromEntries(diff) });
   }
+  return report;
 }
 
-if (process.argv.includes("--json")) process.stdout.write(JSON.stringify(report, null, 1) + "\n");
-else for (const r of report) {
-  console.log(`${r.date} ${r.variant.padEnd(11)} health@${r.healthAt} mlb_total=${r.mlbTotal} receipts=${r.receipts} committed=${r.committedEligible} v2=${r.v2Eligible} proto=${r.protoEligible}`);
-  for (const [k, n] of Object.entries(r.diffs)) console.log(`   ${String(n).padStart(4)}  ${k}`);
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const report = replayProductStatus();
+  if (process.argv.includes("--json")) process.stdout.write(JSON.stringify(report, null, 1) + "\n");
+  else for (const r of report) {
+    console.log(`${r.date} health@${r.healthAt} mlb_total=${r.mlbTotal} receipts=${r.receipts} committed=${r.committedEligible} v2=${r.v2Eligible} contract=${r.contractEligible}`);
+    for (const [k, n] of Object.entries(r.diffs)) console.log(`   ${String(n).padStart(4)}  ${k}`);
+  }
 }

@@ -22,6 +22,8 @@
 
 /** Founder-granted sport-families. Empty: no family has been granted. Shape when one is:
  *  { sport: "nfl", family: "anytime_td", grantedBy: "founder", grantedAt: "<ISO>", decisionRef: "<doc path>" } */
+import { PRODUCT_CLEARED_FAMILY_STATES } from "../candidate-universe.mjs";
+
 export const FAMILY_PRODUCT_GRANTS = Object.freeze([]);
 
 export const FAMILY_GATE_STATE = Object.freeze({ PRODUCT_ELIGIBLE: "PRODUCT_ELIGIBLE", GATED: "GATED" });
@@ -39,7 +41,8 @@ export const FAMILY_BLOCKER = Object.freeze({
   NO_FOUNDER_GRANT: "NO_FOUNDER_GRANT",
 });
 
-const PUBLISHED_STATES = new Set(["PUBLISHED", "VALIDATED_PICK", "ADOPTED"]);
+// Stage 4A: one shared allowlist of product-cleared family states (was a second copy here).
+const PUBLISHED_STATES = PRODUCT_CLEARED_FAMILY_STATES;
 
 /**
  * Derive one family's gate from its evidence. Pure.

@@ -1,11 +1,11 @@
 /**
- * PROTOTYPE tests · Stage 4 prep (Lane C). They pin INVARIANTS already in force (fail closed, no market price
- * as a GTP number, no inferred identity, pregame freezing, all reasons reported) and document the conflicts
- * the founder is asked about. They do not pin any open mapping choice beyond "unknown fails closed".
+ * Stage 4 contract tests (schema 1). They pin the invariants already in force (fail closed, no market price as a GTP
+ * number, no inferred identity, pregame freezing, all reasons reported) and the founder decisions of 2026-10-07
+ * 03:21Z (Q1–Q9): central freshness table, MODEL-ONLY live record, Top Boards are displays.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { resolveProductStatus, deriveMaturity, assertFrozenPregame, participationOf, PARTICIPATION, MATURITY, PRODUCT, REASON, REASON_TEXT, LIVE_RECORD_SCOPE } from "./product-status.mjs";
+import { resolveProductStatus, deriveMaturity, assertFrozenPregame, participationOf, PARTICIPATION, MATURITY, PRODUCT, REASON, REASON_TEXT, LIVE_RECORD_SCOPE, FRESHNESS } from "./product-status.mjs";
 
 const ASOF = "2026-10-06T16:00:00Z";
 const START = "2026-10-06T23:05:00Z";
@@ -50,8 +50,8 @@ test("#998 class: a demoted MLB prop family never enters a promoted product, but
   assert.equal(fc.familyState, "DEMOTED_TO_MARKET_CONTEXT");
 });
 
-test("FAIL CLOSED: an unreadable coverage document refuses every promoted product (today six readers fail open)", () => {
-  for (const product of [PRODUCT.BANK_BUILDER, PRODUCT.SUGGESTED_PARLAY, PRODUCT.MOONSHOT, PRODUCT.BUILD_YOUR_OWN, PRODUCT.TOP_BOARD]) {
+test("Q3 CLOSED: an unreadable coverage document refuses every promoted product (today six readers fail open)", () => {
+  for (const product of [PRODUCT.BANK_BUILDER, PRODUCT.SUGGESTED_PARLAY, PRODUCT.MOONSHOT, PRODUCT.BUILD_YOUR_OWN]) {
     const s = resolveProductStatus(base({ product, coverage: null }));
     assert.equal(s.eligible, false, product);
     assert.ok(s.reasonCodes.includes(REASON.COVERAGE_UNKNOWN), product);
@@ -106,9 +106,37 @@ test("every failing gate is reported, not the first; the primary code follows pr
   for (const code of Object.values(REASON)) assert.ok(REASON_TEXT[code], `public text for ${code}`);
 });
 
-test("price freshness has no default: a promoted priced product without maxPriceAgeMs is refused as stale", () => {
-  const s = resolveProductStatus(base({ maxPriceAgeMs: undefined }));
-  assert.ok(s.reasonCodes.includes(REASON.ODDS_STALE));
+test("Q5 PER-PRODUCT: price age comes from the one central table; promoted 12 h, lab cards 3 days, no live odds", () => {
+  for (const p of [PRODUCT.SUGGESTED_PARLAY, PRODUCT.BANK_BUILDER, PRODUCT.MOONSHOT, PRODUCT.BUILD_YOUR_OWN]) assert.equal(FRESHNESS.priceMaxAgeMs[p], 12 * H, p);
+  assert.equal(FRESHNESS.priceMaxAgeMs[PRODUCT.LAB_CARD], 72 * H);
+  assert.equal(FRESHNESS.scorecardMaxAgeMs, 72 * H);
+  assert.equal(FRESHNESS.priceMaxAgeMs[PRODUCT.TOP_BOARD], undefined, "a Top Board ranks forecasts and uses no price");
+  assert.ok(!Object.keys(FRESHNESS.priceMaxAgeMs).some((k) => /live/i.test(k)), "live odds never inherit a pregame number");
+  const cap = (hoursBeforeAsOf) => ({ market: { price: -120, capturedAt: new Date(Date.parse(ASOF) - hoursBeforeAsOf * H).toISOString() }, maxPriceAgeMs: undefined, maxHealthAgeMs: undefined });
+  assert.equal(resolveProductStatus(base(cap(11))).eligible, true, "11 h old: fresh for a promoted product");
+  assert.ok(resolveProductStatus(base(cap(13))).reasonCodes.includes(REASON.ODDS_STALE), "13 h old: stale for a promoted product");
+  const lab = (h) => resolveProductStatus(base({ ...cap(h), product: PRODUCT.LAB_CARD }));
+  assert.equal(lab(13).eligible, true, "13 h old: fine on a paper lab card");
+  assert.equal(lab(71).eligible, true);
+  assert.ok(lab(73).reasonCodes.includes(REASON.ODDS_STALE), "over 3 days: stale even on a lab card");
+});
+
+test("Q9 DISPLAY: a Top Board is a display; its verdict never grants product eligibility, and a ruled-out player is not ranked", () => {
+  // An experimental, ungranted NFL family: a board may rank it, a promoted product may not use it.
+  const nfl = { sport: "nfl", family: "nfl_player_rec_yds", eventId: "401772", registryState: "EXPERIMENTAL_PUBLIC", coverage: { status: "experimental", demoted: false }, health: health("HOLDING"), probabilityKind: "MODEL", gtpProbability: 0.58, isPlayer: true, availabilityState: "ACTIVE_EXPECTED", roleState: "EXPECTED_STARTER" };
+  const board = resolveProductStatus(base({ ...nfl, product: PRODUCT.TOP_BOARD }));
+  assert.equal(board.eligible, true, "ranked on the board");
+  const sp = resolveProductStatus(base({ ...nfl, product: PRODUCT.SUGGESTED_PARLAY }));
+  assert.equal(sp.eligible, false, "the board verdict does not carry over to a product");
+  // A board needs no coverage document, scorecard or price, but never ranks a ruled-out player or a started game.
+  assert.equal(resolveProductStatus(base({ ...nfl, product: PRODUCT.TOP_BOARD, coverage: null, health: null, market: null })).eligible, true);
+  const out = resolveProductStatus(base({ ...nfl, product: PRODUCT.TOP_BOARD, availabilityState: "Injured Reserve" }));
+  assert.equal(out.eligible, false);
+  assert.equal(out.reasonCode, REASON.AVAILABILITY_BLOCKED);
+  assert.equal(resolveProductStatus(base({ ...nfl, product: PRODUCT.TOP_BOARD, asOf: START })).eligible, false, "membership is frozen pregame");
+  assert.equal(resolveProductStatus(base({ ...nfl, product: PRODUCT.TOP_BOARD, eventStartUtc: null })).eligible, false);
+  // a paused family's call is withdrawn from the board too (Q7)
+  assert.equal(resolveProductStatus(base({ ...nfl, product: PRODUCT.TOP_BOARD, health: health("BREACHED") })).eligible, false);
 });
 
 test("Stage 3 Q5 alignment: missing identity is refused everywhere and never inferred", () => {
@@ -143,26 +171,41 @@ test("maturity is the least mature layer, and an unlisted source word is UNKNOWN
   assert.equal(deriveMaturity([]), MATURITY.UNKNOWN);
 });
 
-test("DOCUMENTED CONFLICT (founder Q6): with today's registry row, the contract would hide UFC forecasts that /ufc publishes", () => {
-  // sport-capability-registry.ts still holds UFC at SCAFFOLD_ONLY (2026-07-23, "de-vigged price with a capped
-  // nudge"), while market-coverage.ts (P246) and /ufc publish a fitted model since 2026-08-22. Least-mature
-  // composition makes the stale row win. This test records the conflict; it does not choose the fix.
-  const ufc = resolveProductStatus(base({ product: PRODUCT.FORECAST, sport: "ufc", family: "ufc_winner", registryState: "SCAFFOLD_ONLY", coverage: { status: "experimental", demoted: false }, publicState: "VALIDATED", probabilityKind: "MODEL", gtpProbability: 0.6 }));
-  assert.equal(ufc.maturity, MATURITY.RESEARCH);
-  assert.equal(ufc.displayable, false);
+test("Q6 EXPERIMENTAL: UFC on today's stale row would be hidden; on the corrected row it displays but is never promoted", () => {
+  // sport-capability-registry.ts still holds UFC at SCAFFOLD_ONLY (2026-07-23), while market-coverage.ts and /ufc
+  // publish a fitted model since 2026-08-22. Slice 4D (with the UFC department) moves the row to EXPERIMENTAL_PUBLIC.
+  const ufc = { sport: "ufc", family: "ufc_winner", coverage: { status: "experimental", demoted: false }, publicState: "VALIDATED", probabilityKind: "MODEL", gtpProbability: 0.6 };
+  const stale = resolveProductStatus(base({ ...ufc, product: PRODUCT.FORECAST, registryState: "SCAFFOLD_ONLY" }));
+  assert.equal(stale.maturity, MATURITY.RESEARCH);
+  assert.equal(stale.displayable, false);
+  const fixed = resolveProductStatus(base({ ...ufc, product: PRODUCT.FORECAST, registryState: "EXPERIMENTAL_PUBLIC" }));
+  assert.equal(fixed.maturity, MATURITY.EXPERIMENTAL);
+  assert.equal(fixed.displayable, true);
+  for (const product of [PRODUCT.SUGGESTED_PARLAY, PRODUCT.BANK_BUILDER, PRODUCT.MOONSHOT, PRODUCT.BUILD_YOUR_OWN]) {
+    const s = resolveProductStatus(base({ ...ufc, product, registryState: "EXPERIMENTAL_PUBLIC" }));
+    assert.equal(s.eligible, false, `Q6 does not make UFC eligible for ${product}`);
+    assert.ok(s.reasonCodes.includes(REASON.SPORT_GATED));
+  }
 });
 
-test("Q8 open: the scorecard grades GTP calls; whether it also removes a price-only leg of the same market is passed in", () => {
+test("Q8 MODEL-ONLY: the scorecard speaks for GTP calls; a price-only leg of a paused market is not removed by it", () => {
+  assert.equal(LIVE_RECORD_SCOPE, "MODEL_ONLY");
   const priceOnlyTotal = { family: "mlb_total", health: health("BREACHED") }; // base() is MARKET_IMPLIED (F1 shape)
-  const modelOnly = resolveProductStatus(base({ ...priceOnlyTotal, liveRecordScope: LIVE_RECORD_SCOPE.MODEL_ONLY }));
-  assert.equal(modelOnly.eligible, true, "MODEL_ONLY: today's leg floor admits the market-priced total leg");
-  assert.equal(modelOnly.freshness.health, "NOT_APPLICABLE");
-  const allLegs = resolveProductStatus(base({ ...priceOnlyTotal, liveRecordScope: LIVE_RECORD_SCOPE.ALL_LEGS }));
-  assert.equal(allLegs.eligible, false);
-  assert.equal(allLegs.reasonCode, REASON.MODEL_PAUSED);
-  // a price-only leg with no scorecard at all is not refused for HEALTH_UNKNOWN under MODEL_ONLY
-  assert.equal(resolveProductStatus(base({ health: null, liveRecordScope: LIVE_RECORD_SCOPE.MODEL_ONLY })).eligible, true);
-  assert.throws(() => resolveProductStatus(base({ liveRecordScope: "SOMETIMES" })));
+  const leg = resolveProductStatus(base(priceOnlyTotal));
+  assert.equal(leg.eligible, true, "today's leg floor admits the market-priced total leg");
+  assert.equal(leg.freshness.health, "NOT_APPLICABLE");
+  assert.equal(resolveProductStatus(base({ health: null })).eligible, true, "no HEALTH_UNKNOWN for a price-only leg");
+  const call = resolveProductStatus(base({ ...priceOnlyTotal, probabilityKind: "MODEL", gtpProbability: 0.54 }));
+  assert.equal(call.reasonCode, REASON.MODEL_PAUSED, "the GTP call on the same market is paused");
+});
+
+test("Q7 ALL: a fresh BREACHED verdict maps to Paused on every sport", () => {
+  for (const [sport, registryState] of [["mlb", "FULL_MODEL"], ["nfl", "EXPERIMENTAL_PUBLIC"], ["soccer", "EXPERIMENTAL_PUBLIC"], ["ufc", "EXPERIMENTAL_PUBLIC"], ["nba", "EXPERIMENTAL_PUBLIC"]]) {
+    const s = resolveProductStatus(base({ product: PRODUCT.FORECAST, sport, family: `${sport}_x`, registryState, coverage: { status: "experimental", demoted: false }, health: health("BREACHED"), probabilityKind: "MODEL", gtpProbability: 0.5 }));
+    assert.equal(s.maturity, MATURITY.PAUSED, sport);
+    assert.equal(s.displayable, true, `${sport}: evidence stays shown`);
+    assert.equal(s.eligible, false, `${sport}: the call is withdrawn`);
+  }
 });
 
 test("participation crosswalk: real words from the repo's vocabularies land on the right reason, case-insensitively", () => {
@@ -174,4 +217,14 @@ test("participation crosswalk: real words from the repo's vocabularies land on t
   assert.equal(leg("ACTIVE_EXPECTED", "OFFICIAL_LINEUP").reasonCodes.some((c) => c === REASON.ROLE_UNCERTAIN || c === REASON.AVAILABILITY_BLOCKED), false);
   assert.ok(leg("CONFIRMED", null).reasonCodes.includes(REASON.ROLE_UNCERTAIN), "an availability word never stands in for a role");
   assert.ok(leg("Out", "OFFICIAL_LINEUP").reasonCodes.includes(REASON.AVAILABILITY_BLOCKED), "either word blocking blocks");
+});
+
+test("4A ships unwired: only its own test and the replay import the contract (4B–4D add readers one slice at a time)", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const path = await import("node:path");
+  const { fileURLToPath } = await import("node:url");
+  const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+  const out = execFileSync("git", ["-C", app, "grep", "-l", "-E", "from ['\"][^'\"]*products/product-status(\\.mjs)?['\"]|from ['\"]\\./product-status(\\.mjs)?['\"]", "--", "."], { encoding: "utf8" });
+  const importers = out.split("\n").filter(Boolean).sort();
+  assert.deepEqual(importers, ["scripts/products/replay-product-status.mjs", "src/lib/products/product-status.test.mjs"]);
 });

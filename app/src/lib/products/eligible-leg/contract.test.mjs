@@ -32,6 +32,7 @@ test("a clean market-priced MLB leg is eligible, and says it is market-priced", 
   assert.equal(leg.legId, "mlb:823570:mlb_moneyline:home");
   assert.equal(leg.schemaVersion, PRODUCT_ELIGIBLE_LEG_SCHEMA_VERSION);
   assert.equal(MARKET_PRICED_LEG_POLICY.gate, "F1");
+  assert.equal(MARKET_PRICED_LEG_POLICY.state, "ADMITTED", "F1 decided A (2026-09-22): no longer pending");
 });
 
 test("sport gate: a sport the registry refuses is refused even with a perfect record (the NBA lesson)", () => {
