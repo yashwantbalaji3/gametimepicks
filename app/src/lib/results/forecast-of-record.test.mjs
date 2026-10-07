@@ -518,6 +518,10 @@ const IMPORTERS_THROUGH_3B = [
   "src/lib/results/nfl-model-favored.mjs", "src/lib/results/nfl-model-favored.test.mjs", "src/lib/results/v2/forecast-record.mjs",
   // 3D: the frozen side decision
   "src/lib/results/side-decision.mjs", "src/lib/results/side-decision.test.mjs",
+  // 3E: the one NFL copy-of-record rule (settler lifetime, NFL index, ledger adapter, graded-pick owners)
+  "src/lib/results/nfl-settlement-of-record.mjs",
+  // 3E (optional Soccer slice, gated on Soccer S2): EPL 1X2 on the canonical match identity
+  "src/lib/results/epl-matches-of-record.mjs",
 ];
 
 test("scope: only the slice adapters import forecast-of-record.mjs (3B: the MLB lean adapter; 3C–3E add theirs)", () => {

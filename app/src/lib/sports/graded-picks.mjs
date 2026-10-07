@@ -86,7 +86,9 @@ export function buildGradedRecord({ sport, label, picks, shown = 100, what, cave
   const hits = decided.filter((p) => p.hit === true).length;
   // Stage 3D: a frozen TOO_CLOSE abstention (or a forecast with no valid frozen side) is NO PICK, not a void.
   const noPick = all.filter((p) => p.noPick === true && p.hit !== true && p.hit !== false).length;
-  const voided = all.length - decided.length - noPick;
+  // Stage 3E: a stored grade the owner could not read is UNKNOWN: disclosed, never a void and never in the denominator.
+  const unknown = all.filter((p) => p.unknown === true && p.hit !== true && p.hit !== false && p.noPick !== true).length;
+  const voided = all.length - decided.length - noPick - unknown;
   const state = sampleStateFor(decided.length);
   /* Stage 3D: picks may carry the basis their side came from (NFL: HISTORICAL_MODEL_FAVORED before the side-decision
      cutover, PUBLISHED after). Two bases are two records, never one pooled hit rate: `byBasis` splits them and a mixed
@@ -110,6 +112,7 @@ export function buildGradedRecord({ sport, label, picks, shown = 100, what, cave
       misses: decided.length - hits,
       voided,
       ...(noPick ? { noPick } : {}),
+      ...(unknown ? { unknown } : {}),
       shown: Math.min(shown, all.length),
       total: all.length,
     },
