@@ -37,7 +37,7 @@ import {
   selectRecentFollowedResults, selectUpcomingFollowedGames,
 } from "@/lib/my/selectors.mjs";
 import { derivePresentationState } from "@/lib/live/lifecycle.mjs";
-import { ageSeconds } from "@/lib/live/freshness.mjs";
+import { freshnessSentence } from "@/lib/live/freshness.mjs";
 import { liveReadyFor } from "@/lib/live/client";
 import { useLiveSlate } from "@/components/live/use-live-slate";
 import type { MyGame, MyPlayerRow, MyReadModel, MyResult } from "@/lib/my/read-model";
@@ -125,7 +125,6 @@ function LiveNowModule({ followed, upcomingMlbToday, onSlate }: { followed: Foll
   const { events } = selectFollowedLiveEvents(byGamePk, followed);
   const slateHasLive = Object.values(byGamePk).some((e: any) => e?.state === "LIVE" || e?.state === "DELAYED");
   const hrefByPk = new Map(upcomingMlbToday.map((g) => [g.gameId, g.href]));
-  const secs = ageSeconds(freshness.ageMs);
 
   return (
     <Module id="live" title="Live now" cta={{ href: "/live", label: "All live →" }}>
@@ -170,7 +169,7 @@ function LiveNowModule({ followed, upcomingMlbToday, onSlate }: { followed: Foll
             })}
           </ul>
           <p style={{ fontFamily: MONO, fontSize: 10, color: freshness.level === "STALE" ? "var(--vault-warn)" : "var(--vault-text-faint)", margin: "6px 0 0" }}>
-            {secs === null ? "Live feed age unknown" : freshness.level === "STALE" ? `Live feed delayed — last confirmed ${secs} sec ago` : `Live feed updated ${secs} sec ago · source MLB StatsAPI`}
+            {freshnessSentence(freshness, { source: "MLB StatsAPI" })}
           </p>
         </>
       )}

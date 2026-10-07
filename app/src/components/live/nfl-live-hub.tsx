@@ -30,7 +30,7 @@ import { useMemo } from "react";
 import TeamLogo from "@/components/team-logo";
 import FollowedMark from "@/components/today/followed-mark";
 import { liveReadyFor } from "@/lib/live/client";
-import { derivePresentationState } from "@/lib/live/lifecycle.mjs";
+import { derivePresentationState, hubGroupFor, HUB_GROUPS, HUB_GROUP_LABEL } from "@/lib/live/lifecycle.mjs";
 import type { NflHubRoster, NflHubRosterGame } from "@/lib/live/nfl-hub-data";
 import { FEED, GAME_PHASE, cardFreshness, gamePhaseForLifecycle, trackForecast } from "@/lib/live/featured-forecasts.mjs";
 import FeaturedForecastRow from "./featured-forecast-row";
@@ -41,27 +41,9 @@ import { useLiveSlate } from "./use-live-slate";
 
 const SANS = "var(--font-display)";
 
-/**
- * The four sections §4 asks for.
- *
- * Defined here rather than widening the shared `HUB_GROUPS` (which is three, and which the MLB hub
- * renders today) so this release cannot change what /live already shows for baseball.
- */
-const SECTIONS = [
-  { key: "LIVE_NOW", label: "Live now" },
-  { key: "UPCOMING", label: "Upcoming" },
-  { key: "FINAL_PENDING", label: "Final — grading pending" },
-  { key: "SETTLED", label: "Settled today" },
-] as const;
-type SectionKey = (typeof SECTIONS)[number]["key"];
-
-/** Presentation state → section. An unknown state goes to UPCOMING, never silently vanishes. */
-function sectionFor(state: string): SectionKey {
-  if (state === "LIVE" || state === "DELAYED") return "LIVE_NOW";
-  if (state === "SETTLED") return "SETTLED";
-  if (state === "FINAL_PENDING_SETTLEMENT") return "FINAL_PENDING";
-  return "UPCOMING";
-}
+/* The hub sections are the shared ones (lib/live/lifecycle.mjs), so NFL and MLB file a postponed
+   game, a provider final and a graded game in the same place under the same words. */
+const SECTIONS = HUB_GROUPS.map((key) => ({ key, label: (HUB_GROUP_LABEL as Record<string, string>)[key] }));
 
 const CHIP: Record<string, { fg: string; border: string; bg: string }> = {
   LIVE: { fg: "var(--vault-bg)", border: "var(--vault-success)", bg: "var(--vault-success)" },
@@ -255,8 +237,8 @@ export default function NflLiveHub({ roster }: { roster: NflHubRoster }) {
   const enabled = liveReadyFor("nfl");
 
   const grouped = useMemo(() => {
-    const out: Record<SectionKey, Array<{ game: NflHubRosterGame; envelope: any; state: string; label: string }>> =
-      { LIVE_NOW: [], UPCOMING: [], FINAL_PENDING: [], SETTLED: [] };
+    const out: Record<string, Array<{ game: NflHubRosterGame; envelope: any; state: string; label: string }>> =
+      Object.fromEntries(HUB_GROUPS.map((g) => [g, []]));
     for (const game of roster.games) {
       const envelope = byGamePk[game.providerEventId] ?? null;
       /*
@@ -271,7 +253,7 @@ export default function NflLiveHub({ roster }: { roster: NflHubRoster }) {
         envelope, settlement: null,
         feedState: unavailable ? "REFUSED" : "NOT_ASKED",
       });
-      out[sectionFor(life.state)].push({ game, envelope, state: life.state, label: life.label });
+      out[hubGroupFor(life.state)].push({ game, envelope, state: life.state, label: life.label });
     }
     return out;
   }, [roster.games, byGamePk, unavailable]);

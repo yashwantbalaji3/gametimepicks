@@ -110,10 +110,10 @@ test("HUB 3 · each provider state lands in the intended hub group", () => {
   assert.equal(groupOf("DELAYED"), "LIVE_NOW");
   assert.equal(groupOf("PRE"), "UPCOMING");
   assert.equal(groupOf("UNKNOWN"), "UPCOMING");
-  assert.equal(groupOf("FINAL"), "FINAL_TODAY");
-  assert.equal(groupOf("FINAL", { actual: { homeRuns: 1, awayRuns: 2 } }), "FINAL_TODAY");
-  assert.equal(groupOf("POSTPONED"), "FINAL_TODAY");
-  assert.equal(groupOf("CANCELLED"), "FINAL_TODAY");
+  assert.equal(groupOf("FINAL"), "FINAL_PENDING");
+  assert.equal(groupOf("FINAL", { actual: { homeRuns: 1, awayRuns: 2 } }), "SETTLED");
+  assert.equal(groupOf("POSTPONED"), "NOT_PLAYED");
+  assert.equal(groupOf("CANCELLED"), "NOT_PLAYED");
 });
 
 test("HUB 4 · ⚠ a postponed or cancelled game never becomes a fake score or a fake final", () => {
@@ -204,7 +204,7 @@ test("HUB 10 · every empty/failure state has intentional copy", () => {
     "No MLB slate has been published",             // artifact missing
     "No MLB games are scheduled",                  // genuinely no games
     "Checking the live feed",                      // first load
-    "Live feed delayed",                           // stale
+    "freshnessSentence(",                          // stale / delayed: the shared sentence
   ]) {
     assert.ok(hub.includes(phrase), `missing intentional state copy: "${phrase}"`);
   }

@@ -42,7 +42,7 @@ export const LIFECYCLE_LABEL = Object.freeze({
   LIVE: "Live",
   DELAYED: "Delayed",
   FINAL_PENDING_SETTLEMENT: "Final · grading pending",
-  SETTLED: "Final",
+  SETTLED: "Final · graded",
   POSTPONED: "Postponed",
   CANCELLED: "Cancelled",
   UNKNOWN: "Status unknown",
@@ -151,21 +151,48 @@ function frame(state, { polling, frozenForecast, postgameReview, reason }) {
   };
 }
 
-/** Which of the hub's three groups a game belongs to. Exceptional states surface, never hide. */
-/** @param {string} state @returns {"LIVE_NOW"|"UPCOMING"|"FINAL_TODAY"} */
+/**
+ * Which hub section a game belongs to. ONE grouping for every Live hub (MLB and NFL used to differ:
+ * NFL filed a POSTPONED game under "Upcoming", MLB under "Final today").
+ *
+ * Five sections, because each is a different claim a reader acts on:
+ *   LIVE_NOW       in play (or delayed in play)
+ *   UPCOMING       not started, or we cannot tell (UNKNOWN keeps its own "Status unknown" chip)
+ *   FINAL_PENDING  the provider says final; nothing is graded yet
+ *   SETTLED        the settlement owner has graded it
+ *   NOT_PLAYED     postponed or cancelled: it will not produce a result today, and it is not upcoming
+ *
+ * @param {string} state
+ * @returns {"LIVE_NOW"|"UPCOMING"|"FINAL_PENDING"|"SETTLED"|"NOT_PLAYED"}
+ */
 export function hubGroupFor(state) {
   if (state === "LIVE" || state === "DELAYED") return "LIVE_NOW";
-  if (state === "PRE" || state === "UNKNOWN") return "UPCOMING";
-  return "FINAL_TODAY"; // FINAL_PENDING_SETTLEMENT, SETTLED, POSTPONED, CANCELLED
+  if (state === "FINAL_PENDING_SETTLEMENT") return "FINAL_PENDING";
+  if (state === "SETTLED") return "SETTLED";
+  if (state === "POSTPONED" || state === "CANCELLED") return "NOT_PLAYED";
+  return "UPCOMING"; // PRE, UNKNOWN, and anything unrecognized: surfaced, never silently dropped
 }
 
-export const HUB_GROUPS = Object.freeze(["LIVE_NOW", "UPCOMING", "FINAL_TODAY"]);
+export const HUB_GROUPS = Object.freeze(["LIVE_NOW", "UPCOMING", "FINAL_PENDING", "SETTLED", "NOT_PLAYED"]);
 
 export const HUB_GROUP_LABEL = Object.freeze({
   LIVE_NOW: "Live now",
-  UPCOMING: "Starting soon",
-  FINAL_TODAY: "Final today",
+  UPCOMING: "Upcoming",
+  FINAL_PENDING: LIFECYCLE_LABEL.FINAL_PENDING_SETTLEMENT,
+  SETTLED: LIFECYCLE_LABEL.SETTLED,
+  NOT_PLAYED: "Postponed or cancelled",
 });
+
+/**
+ * The heading of a single game's live region. "Live now" is a claim about the present, so it is
+ * the heading ONLY while the game is in play; a final game under "Live now" was the polish item.
+ * @param {string} state
+ */
+export function liveRegionTitleFor(state) {
+  if (state === "LIVE" || state === "DELAYED") return "Live now";
+  if (state === "PRE") return "Before the game";
+  return LIFECYCLE_LABEL[state] ?? LIFECYCLE_LABEL.UNKNOWN;
+}
 
 /**
  * Does ANY game on the slate still warrant polling?

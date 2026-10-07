@@ -17,10 +17,17 @@
  */
 import { isInPlay, isTerminal } from "./contract.mjs";
 
+/*
+ * WHY 90s AND 180s (were 45s and 120s). `fetchedAt` is when the gateway read the provider. A healthy
+ * read can already be ~45s old when it reaches the reader (20s gateway memo + 25s CDN s-maxage), and
+ * the client asks again only every 30s, so a perfectly healthy feed routinely aged past 45s and showed
+ * the amber "delayed" treatment. FRESH now covers one full healthy cycle (45s + 30s) with margin;
+ * DELAYED means one cycle was missed; STALE means two were.
+ */
 /** Under this age an in-play envelope is FRESH. */
-export const FRESH_MAX_MS = 45_000;
+export const FRESH_MAX_MS = 90_000;
 /** Under this age it is DELAYED — shown, but labelled as the last confirmed state. */
-export const DELAYED_MAX_MS = 120_000;
+export const DELAYED_MAX_MS = 180_000;
 
 /**
  * FRESH | DELAYED | STALE | NOT_APPLICABLE.
@@ -93,4 +100,29 @@ export function effectiveIntervalMs(policy, documentHidden) {
   return documentHidden
     ? Math.max(policy.clientIntervalMs, HIDDEN_TAB_MIN_INTERVAL_MS)
     : policy.clientIntervalMs;
+}
+
+/** Age in reader words: "12 sec", "3 min", "1 hr". */
+export function formatAge(secs) {
+  if (secs < 60) return `${secs} sec`;
+  const m = Math.floor(secs / 60);
+  return m < 60 ? `${m} min` : `${Math.floor(m / 60)} hr`;
+}
+
+/**
+ * THE ONE FRESHNESS SENTENCE. Three surfaces each wrote their own, and the words were inverted: level
+ * DELAYED read "Live feed updated 50 sec ago" in amber, and level STALE read "delayed". The words now
+ * follow the level, and say "checked", not "updated", because `fetchedAt` is when we asked — no
+ * provider here publishes when it last changed (the weaker claim, stated as the weaker claim).
+ *
+ * @param {{ level: string, ageMs: number | null }} freshness
+ * @param {{ source?: string | null }} [opts] a reader-facing source name, e.g. "MLB StatsAPI"
+ */
+export function freshnessSentence(freshness, { source = null } = {}) {
+  const secs = ageSeconds(freshness?.ageMs);
+  const tail = source ? ` · source ${source}` : "";
+  if (secs === null) return "Live feed age unknown — showing the last confirmed state";
+  if (freshness.level === "STALE") return `Live feed stale — showing the last confirmed state from ${formatAge(secs)} ago`;
+  if (freshness.level === "DELAYED") return `Live feed delayed — last checked ${formatAge(secs)} ago${tail}`;
+  return `Live feed checked ${formatAge(secs)} ago${tail}`;
 }

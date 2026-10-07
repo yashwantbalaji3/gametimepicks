@@ -35,7 +35,6 @@
  *   asserted never to read a live field, and the tracker never decides membership.
  */
 import { MARKET_KIND, MEASUREMENT_STATES, FINALITY, RAIL_STATE, makeTrackedPrediction, railStateOf } from "./tracked-prediction.mjs";
-import { DELAYED_MAX_MS } from "./freshness.mjs";
 
 /**
  * Promotion states a product may show. An explicit allowlist: a family nobody has cleared fails
@@ -285,8 +284,12 @@ export function settledStatusFor(settled) {
   return parts.join(" · ");
 }
 
-/** A live measurement older than this is shown as LAST KNOWN, never as current (the live window's own bound). */
-export const LIVE_STALE_AFTER_MS = DELAYED_MAX_MS;
+/**
+ * A live measurement older than this is shown as LAST KNOWN, never as current. Pinned at 120s on its
+ * own: it was the gateway's DELAYED bound, which widened to 180s for the scoreboard's cache cycle, and
+ * a live-props record has its own (60s) refresh, so it keeps the tighter window.
+ */
+export const LIVE_STALE_AFTER_MS = 120_000;
 
 /**
  * Join ONE featured forecast to its live-props row and derive what the card may say.

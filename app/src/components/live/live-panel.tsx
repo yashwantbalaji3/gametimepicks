@@ -15,7 +15,7 @@
  */
 import { etDateOf, liveReadyFor } from "@/lib/live/client";
 import { comparisonSentence, joinNflPlayerBoard } from "@/lib/live/forecast-join.mjs";
-import { derivePresentationState, postgameRunComparison } from "@/lib/live/lifecycle.mjs";
+import { derivePresentationState, liveRegionTitleFor, postgameRunComparison } from "@/lib/live/lifecycle.mjs";
 import { useLiveEvent } from "./use-live-event";
 import {
   FreshnessLine, LiveBadge, LivePeriodLine, LiveRangeRow, LiveScoreStrip, LiveUnavailable,
@@ -116,7 +116,7 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, nf
   const grid = (
     <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
       <Region
-        title="Live now"
+        title={liveRegionTitleFor(life.state)}
         note={
           envelope?.provider === "mlb-statsapi"
             ? "Source: MLB StatsAPI"

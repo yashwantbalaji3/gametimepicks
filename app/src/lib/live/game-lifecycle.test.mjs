@@ -11,7 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  LIFECYCLE_STATES, LIFECYCLE_LABEL, derivePresentationState, hubGroupFor,
+  LIFECYCLE_STATES, LIFECYCLE_LABEL, derivePresentationState, hubGroupFor, HUB_GROUPS, liveRegionTitleFor,
   postgameRunComparison, slateStillMoving,
 } from "./lifecycle.mjs";
 
@@ -152,20 +152,32 @@ test("LIFE 10 · no forecast, no settlement, or a partial result ⇒ NO review r
 
 /* ───────────────────── hub grouping + slate cadence ───────────────────── */
 
-test("LIFE 11 · every lifecycle state lands in exactly one hub group", () => {
+test("LIFE 11 · every lifecycle state lands in exactly one hub section", () => {
   const seen = {};
   for (const s of LIFECYCLE_STATES) {
     const g = hubGroupFor(s);
-    assert.ok(["LIVE_NOW", "UPCOMING", "FINAL_TODAY"].includes(g), `${s} → ${g}`);
+    assert.ok(HUB_GROUPS.includes(g), `${s} → ${g}`);
     seen[g] = true;
   }
-  assert.deepEqual(Object.keys(seen).sort(), ["FINAL_TODAY", "LIVE_NOW", "UPCOMING"]);
+  assert.deepEqual(Object.keys(seen).sort(), [...HUB_GROUPS].sort(), "every section is reachable");
   assert.equal(hubGroupFor("LIVE"), "LIVE_NOW");
   assert.equal(hubGroupFor("DELAYED"), "LIVE_NOW", "a delayed game is still today's live story");
   assert.equal(hubGroupFor("PRE"), "UPCOMING");
-  assert.equal(hubGroupFor("FINAL_PENDING_SETTLEMENT"), "FINAL_TODAY");
-  assert.equal(hubGroupFor("SETTLED"), "FINAL_TODAY");
-  assert.equal(hubGroupFor("POSTPONED"), "FINAL_TODAY", "an exceptional state surfaces, never hides");
+  assert.equal(hubGroupFor("UNKNOWN"), "UPCOMING");
+  assert.equal(hubGroupFor("FINAL_PENDING_SETTLEMENT"), "FINAL_PENDING");
+  assert.equal(hubGroupFor("SETTLED"), "SETTLED");
+  assert.equal(hubGroupFor("POSTPONED"), "NOT_PLAYED", "a postponed game is neither upcoming nor final");
+  assert.equal(hubGroupFor("CANCELLED"), "NOT_PLAYED");
+});
+
+test("LIFE 11b · 'Live now' heads a game only while it is in play", () => {
+  assert.equal(liveRegionTitleFor("LIVE"), "Live now");
+  assert.equal(liveRegionTitleFor("DELAYED"), "Live now");
+  for (const s of ["PRE", "FINAL_PENDING_SETTLEMENT", "SETTLED", "POSTPONED", "CANCELLED", "UNKNOWN", "BOGUS"]) {
+    assert.notEqual(liveRegionTitleFor(s), "Live now", s);
+  }
+  assert.equal(liveRegionTitleFor("FINAL_PENDING_SETTLEMENT"), "Final · grading pending");
+  assert.equal(liveRegionTitleFor("SETTLED"), "Final · graded");
 });
 
 test("LIFE 12 · an all-terminal slate stops the hub loop; one live game keeps it", () => {

@@ -19,7 +19,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import { liveReadyFor } from "@/lib/live/client";
-import { ageSeconds } from "@/lib/live/freshness.mjs";
+import { freshnessSentence } from "@/lib/live/freshness.mjs";
 import {
   HUB_GROUPS,
   HUB_GROUP_LABEL,
@@ -151,7 +151,7 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
   const enabled = liveReadyFor("mlb");
 
   const grouped = useMemo(() => {
-    const out: Record<string, Array<{ game: HubRosterGame; envelope: any }>> = { LIVE_NOW: [], UPCOMING: [], FINAL_TODAY: [] };
+    const out: Record<string, Array<{ game: HubRosterGame; envelope: any }>> = Object.fromEntries(HUB_GROUPS.map((g) => [g, []]));
     for (const game of roster.games) {
       const envelope = byGamePk[game.gamePk] ?? null;
       /* ⚠ The hub knows whether it asked and was refused; the lifecycle function cannot. Without
@@ -165,23 +165,18 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
     return out;
   }, [roster.games, byGamePk, unavailable]);
 
-  const secs = ageSeconds(freshness.ageMs);
 
   return (
     <div>
       {/* Freshness for the WHOLE slate — one line, because there was one request. */}
-      <p style={{ fontFamily: MONO, fontSize: 10, color: freshness.level === "STALE" ? "var(--vault-warn)" : "var(--vault-text-faint)", margin: "0 0 16px" }}>
+      <p style={{ fontFamily: MONO, fontSize: 10, color: freshness.level === "STALE" || freshness.level === "DELAYED" ? "var(--vault-warn)" : "var(--vault-text-faint)", margin: "0 0 16px" }}>
         {!enabled
           ? "Live tracking is currently turned off. Scheduled games and frozen forecasts are unaffected."
           : unavailable
             ? "Live data is unavailable right now. Scheduled games and frozen forecasts below are unaffected."
             : loading
               ? "Checking the live feed…"
-              : secs === null
-                ? "Live feed age unknown"
-                : freshness.level === "STALE"
-                  ? `Live feed delayed — showing the last confirmed state from ${secs} sec ago`
-                  : `Live feed updated ${secs} sec ago · source MLB StatsAPI`}
+              : freshnessSentence(freshness, { source: "MLB StatsAPI" })}
       </p>
 
       {!roster.slateArtifactPresent ? (

@@ -49,7 +49,7 @@ test("LIFE 1 · Rule B — freshness is measured on the READER's clock, not froz
   const e = envelopeAt("LIVE", "2026-09-16T02:00:00.000Z");
   // One envelope, three readers, three different truths — the same object cannot claim one age.
   assert.equal(freshnessOf(e, T0 + 10_000).level, "FRESH");
-  assert.equal(freshnessOf(e, T0 + 60_000).level, "DELAYED");
+  assert.equal(freshnessOf(e, T0 + 120_000).level, "DELAYED");
   assert.equal(freshnessOf(e, T0 + 300_000).level, "STALE");
 });
 
@@ -392,4 +392,21 @@ test("MEMO 4 · MEASURED — many event requests share ONE upstream slate call",
     if (!memoGet(u, T0)) { fetches++; memoPut(u, { dates: [] }, "2026-09-16T02:00:00.000Z", T0); }
   }
   assert.equal(fetches, 1, "three game views, one upstream fetch");
+});
+
+test("FRESH 9 · the freshness sentence follows the level, and says 'checked', never 'updated'", async () => {
+  const { freshnessSentence } = await import("./freshness.mjs");
+  assert.equal(freshnessSentence({ level: "FRESH", ageMs: 12_000 }), "Live feed checked 12 sec ago");
+  assert.equal(freshnessSentence({ level: "FRESH", ageMs: 12_000 }, { source: "MLB StatsAPI" }), "Live feed checked 12 sec ago · source MLB StatsAPI");
+  assert.match(freshnessSentence({ level: "DELAYED", ageMs: 100_000 }), /^Live feed delayed — last checked 1 min ago/);
+  assert.match(freshnessSentence({ level: "STALE", ageMs: 400_000 }), /^Live feed stale — showing the last confirmed state from 6 min ago/);
+  assert.match(freshnessSentence({ level: "STALE", ageMs: null }), /age unknown/, "an unknown age is never a confident '0 sec'");
+  for (const level of ["FRESH", "DELAYED", "STALE"]) {
+    assert.doesNotMatch(freshnessSentence({ level, ageMs: 50_000 }), /updated/, level);
+  }
+});
+
+test("FRESH 10 · a healthy feed at its oldest (45s cache + one 30s poll) still reads FRESH", () => {
+  const e = { state: "LIVE", fetchedAt: new Date(T0).toISOString() };
+  assert.equal(freshnessOf(e, T0 + 45_000 + 30_000).level, "FRESH");
 });

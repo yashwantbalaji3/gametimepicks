@@ -12,7 +12,7 @@
  * number sits. There is no prop through which a percentage, a pace or an updated forecast could be
  * passed, which is a stronger guarantee than a rule about copy.
  */
-import { ageSeconds } from "@/lib/live/freshness.mjs";
+import { freshnessSentence } from "@/lib/live/freshness.mjs";
 
 const MONO = "var(--font-mono)";
 
@@ -52,14 +52,7 @@ export function LiveBadge({ state, freshness }: { state: string; freshness?: { l
 
 export function FreshnessLine({ state, freshness }: { state: string; freshness: { level: string; ageMs: number | null } }) {
   if (state !== "LIVE" && state !== "DELAYED") return null;
-  const secs = ageSeconds(freshness.ageMs);
-  // An unknown age says so. "Updated 0 sec ago" would be a confident claim we cannot support.
-  const text =
-    secs === null
-      ? "Live feed age unknown — showing the last confirmed state"
-      : freshness.level === "STALE"
-        ? `Live feed delayed — showing the last confirmed state from ${formatAge(secs)} ago`
-        : `Live feed updated ${formatAge(secs)} ago`;
+  const text = freshnessSentence(freshness);
   return (
     <p style={{ fontFamily: MONO, fontSize: 10, color: freshness.level === "FRESH" ? "var(--vault-text-faint)" : "var(--vault-warn)", margin: 0 }}>
       {text}
@@ -67,11 +60,6 @@ export function FreshnessLine({ state, freshness }: { state: string; freshness: 
   );
 }
 
-function formatAge(secs: number): string {
-  if (secs < 60) return `${secs} sec`;
-  const m = Math.floor(secs / 60);
-  return m < 60 ? `${m} min` : `${Math.floor(m / 60)} hr`;
-}
 
 /* ─────────────────────────── score strip ─────────────────────────── */
 

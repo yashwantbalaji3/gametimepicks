@@ -122,7 +122,7 @@ export default function MlbGameSection({
                     padding: "1px 5px",
                   }}
                 >
-                  {settled ? "Final · graded" : "Final · awaiting grade"}
+                  {settled ? "Final · graded" : "Final · grading pending"}
                 </span>
               )}
               {gameState === "live" && (
@@ -373,7 +373,7 @@ function FinalNoLeansNote({ settled }: { settled?: boolean }) {
           fontSize: 10,
         }}
       >
-        {settled ? "Game final · graded" : "Game final · awaiting grade"}
+        {settled ? "Game final · graded" : "Game final · grading pending"}
       </div>
       {settled ? (
         <>
