@@ -1,0 +1,5442 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-match-worlds-shadow",
+ "dataClass": "RESEARCH_SHADOW",
+ "public": false,
+ "generatedAt": "2026-10-07T17:00:00.000Z",
+ "version": "soccer-match-worlds-v1",
+ "rule": "Every probability is the exact score-matrix value (basis ANALYTIC_MODEL). Sampled shares are the sampler's convergence check only and are never published. Worlds exist for joint/player products (SW-3, P-2).",
+ "defaults": {
+  "runs": 10000,
+  "zMax": 4,
+  "toleranceSingle": 0.005,
+  "toleranceJoint": 0.003,
+  "massTolerance": 1e-9
+ },
+ "counts": {
+  "matches": 45,
+  "skipped": 0,
+  "byStatus": {
+   "CONVERGED": 45
+  },
+  "byLeague": {
+   "epl": 10,
+   "laliga": 18,
+   "serie-a": 9,
+   "bundesliga": 8
+  }
+ },
+ "matches": [
+  {
+   "league": "epl",
+   "eventId": "soccer:epl:arsenal-v-leeds-united:20261010t1130",
+   "matchup": "Arsenal v Leeds United",
+   "kickoffUtc": "2026-10-10T11:30:00Z",
+   "modelId": "epl-model-v2-elo-poisson",
+   "source": "app/public/data/soccer/epl/forecasts/latest.json",
+   "lambdas": {
+    "home": 2.128,
+    "away": 0.6667
+   },
+   "rho": 0,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25",
+     "bttsYes",
+     "homeOrDraw"
+    ],
+    "maxAbsDiff": 0.000009,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:06d43566",
+   "seed": 114570598,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 2.1376,
+    "away": 0.6622
+   },
+   "exactMeanGoals": {
+    "home": 2.127867,
+    "away": 0.6667
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.00585,
+    "maxAbsZ": 1.251859,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27429
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.443897,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4484,
+     "z": 0.906345,
+     "mcStdError": 0.004968,
+     "requiredRuns": 27429
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.04931,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0466,
+     "z": -1.251859,
+     "mcStdError": 0.002165,
+     "requiredRuns": 5209
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.147867,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1482,
+     "z": 0.093709,
+     "mcStdError": 0.00355,
+     "requiredRuns": 14001
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.341924,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3392,
+     "z": -0.574232,
+     "mcStdError": 0.004744,
+     "requiredRuns": 25002
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.260144,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2611,
+     "z": 0.217972,
+     "mcStdError": 0.004387,
+     "requiredRuns": 21386
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.60685,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.601,
+     "z": -1.197615,
+     "mcStdError": 0.004884,
+     "requiredRuns": 26510
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "epl",
+   "eventId": "soccer:epl:brighton-hove-albion-v-sunderland:20261010t1400",
+   "matchup": "Sunderland v Brighton & Hove Albion",
+   "kickoffUtc": "2026-10-10T14:00:00Z",
+   "modelId": "epl-model-v2-elo-poisson",
+   "source": "app/public/data/soccer/epl/forecasts/latest.json",
+   "lambdas": {
+    "home": 1.2193,
+    "away": 1.5754
+   },
+   "rho": 0,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25",
+     "bttsYes",
+     "homeOrDraw"
+    ],
+    "maxAbsDiff": 0.000013,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:a0c8ffb1",
+   "seed": 2697527217,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.2295,
+    "away": 1.6146
+   },
+   "exactMeanGoals": {
+    "home": 1.219299,
+    "away": 1.575392
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.015615,
+    "maxAbsZ": 3.129691,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27396
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.175336,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1733,
+     "z": -0.535348,
+     "mcStdError": 0.003803,
+     "requiredRuns": 16066
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.283955,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2972,
+     "z": 2.937277,
+     "mcStdError": 0.004509,
+     "requiredRuns": 22592
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.178563,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1713,
+     "z": -1.896482,
+     "mcStdError": 0.00383,
+     "requiredRuns": 16298
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.441341,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4527,
+     "z": 2.287516,
+     "mcStdError": 0.004965,
+     "requiredRuns": 27396
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.149527,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1483,
+     "z": -0.344073,
+     "mcStdError": 0.003566,
+     "requiredRuns": 14130
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.388607,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3743,
+     "z": -2.935183,
+     "mcStdError": 0.004874,
+     "requiredRuns": 26400
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "epl",
+   "eventId": "soccer:epl:bournemouth-v-chelsea:20261010t1400",
+   "matchup": "Chelsea v Bournemouth",
+   "kickoffUtc": "2026-10-10T14:00:00Z",
+   "modelId": "epl-model-v2-elo-poisson",
+   "source": "app/public/data/soccer/epl/forecasts/latest.json",
+   "lambdas": {
+    "home": 1.4961,
+    "away": 1.2986
+   },
+   "rho": 0,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25",
+     "bttsYes",
+     "homeOrDraw"
+    ],
+    "maxAbsDiff": 0.000011,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:9bc43d55",
+   "seed": 2613329237,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.4899,
+    "away": 1.2945
+   },
+   "exactMeanGoals": {
+    "home": 1.496095,
+    "away": 1.298599
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006965,
+    "maxAbsZ": 1.986851,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27624
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.259033,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2612,
+     "z": 0.494681,
+     "mcStdError": 0.004381,
+     "requiredRuns": 21327
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.198471,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1982,
+     "z": -0.067893,
+     "mcStdError": 0.003988,
+     "requiredRuns": 17676
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.179905,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1843,
+     "z": 1.144181,
+     "mcStdError": 0.003841,
+     "requiredRuns": 16394
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.445446,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4484,
+     "z": 0.594434,
+     "mcStdError": 0.00497,
+     "requiredRuns": 27448
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.207132,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.212,
+     "z": 1.201331,
+     "mcStdError": 0.004053,
+     "requiredRuns": 18248
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.462752,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4625,
+     "z": -0.050444,
+     "mcStdError": 0.004986,
+     "requiredRuns": 27624
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "epl",
+   "eventId": "soccer:epl:fulham-v-ipswich-town:20261010t1400",
+   "matchup": "Ipswich Town v Fulham",
+   "kickoffUtc": "2026-10-10T14:00:00Z",
+   "modelId": "epl-model-v2-elo-poisson",
+   "source": "app/public/data/soccer/epl/forecasts/latest.json",
+   "lambdas": {
+    "home": 1.3151,
+    "away": 1.4797
+   },
+   "rho": 0,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25",
+     "bttsYes",
+     "homeOrDraw"
+    ],
+    "maxAbsDiff": 0.000016,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:515f92d3",
+   "seed": 1365218003,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.2794,
+    "away": 1.4668
+   },
+   "exactMeanGoals": {
+    "home": 1.315098,
+    "away": 1.479695
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.014406,
+    "maxAbsZ": 3.135548,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27455
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.203384,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1975,
+     "z": -1.461828,
+     "mcStdError": 0.004025,
+     "requiredRuns": 18003
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.253894,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2461,
+     "z": -1.790853,
+     "mcStdError": 0.004352,
+     "requiredRuns": 21049
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.180078,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1826,
+     "z": 0.656417,
+     "mcStdError": 0.003843,
+     "requiredRuns": 16406
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.446023,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4366,
+     "z": -1.895669,
+     "mcStdError": 0.004971,
+     "requiredRuns": 27455
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.170053,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1675,
+     "z": -0.679502,
+     "mcStdError": 0.003757,
+     "requiredRuns": 15682
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.414713,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4143,
+     "z": -0.083836,
+     "mcStdError": 0.004927,
+     "requiredRuns": 26970
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "epl",
+   "eventId": "soccer:epl:aston-villa-v-brentford:20261010t1400",
+   "matchup": "Aston Villa v Brentford",
+   "kickoffUtc": "2026-10-10T14:00:00Z",
+   "modelId": "epl-model-v2-elo-poisson",
+   "source": "app/public/data/soccer/epl/forecasts/latest.json",
+   "lambdas": {
+    "home": 1.5198,
+    "away": 1.2749
+   },
+   "rho": 0,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25",
+     "bttsYes",
+     "homeOrDraw"
+    ],
+    "maxAbsDiff": 0.000013,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:35bcc858",
+   "seed": 901564504,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.5248,
+    "away": 1.2845
+   },
+   "exactMeanGoals": {
+    "home": 1.519794,
+    "away": 1.274899
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006801,
+    "maxAbsZ": 1.896934,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27671
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.266468,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.264,
+     "z": -0.558121,
+     "mcStdError": 0.004421,
+     "requiredRuns": 21719
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.191465,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1929,
+     "z": 0.364616,
+     "mcStdError": 0.003935,
+     "requiredRuns": 17201
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.179585,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1776,
+     "z": -0.517044,
+     "mcStdError": 0.003838,
+     "requiredRuns": 16371
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.444467,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4475,
+     "z": 0.610342,
+     "mcStdError": 0.004969,
+     "requiredRuns": 27436
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.211655,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2126,
+     "z": 0.231416,
+     "mcStdError": 0.004085,
+     "requiredRuns": 18540
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.468876,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4679,
+     "z": -0.195571,
+     "mcStdError": 0.00499,
+     "requiredRuns": 27671
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "epl",
+   "eventId": "soccer:epl:manchester-united-v-tottenham-hotspur:20261010t1630",
+   "matchup": "Manchester United v Tottenham Hotspur",
+   "kickoffUtc": "2026-10-10T16:30:00Z",
+   "modelId": "epl-model-v2-elo-poisson",
+   "source": "app/public/data/soccer/epl/forecasts/latest.json",
+   "lambdas": {
+    "home": 2.0106,
+    "away": 0.7842
+   },
+   "rho": 0,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25",
+     "bttsYes",
+     "homeOrDraw"
+    ],
+    "maxAbsDiff": 0.000015,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:034566ae",
+   "seed": 54879918,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 2.0104,
+    "away": 0.7864
+   },
+   "exactMeanGoals": {
+    "home": 2.01052,
+    "away": 0.7842
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006117,
+    "maxAbsZ": 1.291877,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27001
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.41406,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4129,
+     "z": -0.235434,
+     "mcStdError": 0.004926,
+     "requiredRuns": 26958
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.069896,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.071,
+     "z": 0.432942,
+     "mcStdError": 0.00255,
+     "requiredRuns": 7224
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.157508,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1591,
+     "z": 0.436936,
+     "mcStdError": 0.003643,
+     "requiredRuns": 14745
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.374353,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3714,
+     "z": -0.610121,
+     "mcStdError": 0.00484,
+     "requiredRuns": 26024
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.26516,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2608,
+     "z": -0.987806,
+     "mcStdError": 0.004414,
+     "requiredRuns": 21651
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.583664,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5784,
+     "z": -1.067849,
+     "mcStdError": 0.00493,
+     "requiredRuns": 27001
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "epl",
+   "eventId": "soccer:epl:everton-v-hull-city:20261011t1300",
+   "matchup": "Hull City v Everton",
+   "kickoffUtc": "2026-10-11T13:00:00Z",
+   "modelId": "epl-model-v2-elo-poisson",
+   "source": "app/public/data/soccer/epl/forecasts/latest.json",
+   "lambdas": {
+    "home": 1.2988,
+    "away": 1.496
+   },
+   "rho": 0,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25",
+     "bttsYes",
+     "homeOrDraw"
+    ],
+    "maxAbsDiff": 0.000016,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:9123a327",
+   "seed": 2435031847,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.3064,
+    "away": 1.5003
+   },
+   "exactMeanGoals": {
+    "home": 1.298799,
+    "away": 1.495995
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006995,
+    "maxAbsZ": 1.516576,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27448
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.198525,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2017,
+     "z": 0.796033,
+     "mcStdError": 0.003989,
+     "requiredRuns": 17680
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.258996,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2584,
+     "z": -0.136051,
+     "mcStdError": 0.004381,
+     "requiredRuns": 21325
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.179897,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1769,
+     "z": -0.780383,
+     "mcStdError": 0.003841,
+     "requiredRuns": 16393
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.445473,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4474,
+     "z": 0.38768,
+     "mcStdError": 0.00497,
+     "requiredRuns": 27448
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.166576,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1692,
+     "z": 0.704163,
+     "mcStdError": 0.003726,
+     "requiredRuns": 15426
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.410297,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4093,
+     "z": -0.202639,
+     "mcStdError": 0.004919,
+     "requiredRuns": 26884
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "epl",
+   "eventId": "soccer:epl:crystal-palace-v-nottingham-forest:20261011t1300",
+   "matchup": "Crystal Palace v Nottingham Forest",
+   "kickoffUtc": "2026-10-11T13:00:00Z",
+   "modelId": "epl-model-v2-elo-poisson",
+   "source": "app/public/data/soccer/epl/forecasts/latest.json",
+   "lambdas": {
+    "home": 1.4675,
+    "away": 1.3273
+   },
+   "rho": 0,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25",
+     "bttsYes",
+     "homeOrDraw"
+    ],
+    "maxAbsDiff": 0.000016,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:c404417a",
+   "seed": 3288613242,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.4651,
+    "away": 1.3313
+   },
+   "exactMeanGoals": {
+    "home": 1.467496,
+    "away": 1.327298
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006462,
+    "maxAbsZ": 1.316668,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27556
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.250084,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.246,
+     "z": -0.943018,
+     "mcStdError": 0.004331,
+     "requiredRuns": 20838
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.207042,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2052,
+     "z": -0.454548,
+     "mcStdError": 0.004052,
+     "requiredRuns": 18242
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.180191,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1759,
+     "z": -1.116531,
+     "mcStdError": 0.003843,
+     "requiredRuns": 16414
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.446369,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4485,
+     "z": 0.428584,
+     "mcStdError": 0.004971,
+     "requiredRuns": 27459
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.201543,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2016,
+     "z": 0.014195,
+     "mcStdError": 0.004012,
+     "requiredRuns": 17881
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.455276,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4552,
+     "z": -0.015318,
+     "mcStdError": 0.00498,
+     "requiredRuns": 27556
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "epl",
+   "eventId": "soccer:epl:liverpool-v-manchester-city:20261011t1530",
+   "matchup": "Liverpool v Manchester City",
+   "kickoffUtc": "2026-10-11T15:30:00Z",
+   "modelId": "epl-model-v2-elo-poisson",
+   "source": "app/public/data/soccer/epl/forecasts/latest.json",
+   "lambdas": {
+    "home": 1.2685,
+    "away": 1.5262
+   },
+   "rho": 0,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25",
+     "bttsYes",
+     "homeOrDraw"
+    ],
+    "maxAbsDiff": 0.000015,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:ec6a421e",
+   "seed": 3966386718,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.2495,
+    "away": 1.5149
+   },
+   "exactMeanGoals": {
+    "home": 1.268499,
+    "away": 1.526194
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.010182,
+    "maxAbsZ": 2.039824,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27432
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.189586,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1865,
+     "z": -0.787388,
+     "mcStdError": 0.00392,
+     "requiredRuns": 17072
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.268478,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2632,
+     "z": -1.190966,
+     "mcStdError": 0.004432,
+     "requiredRuns": 21822
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.179486,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1847,
+     "z": 1.358584,
+     "mcStdError": 0.003838,
+     "requiredRuns": 16364
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.444167,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4382,
+     "z": -1.200867,
+     "mcStdError": 0.004969,
+     "requiredRuns": 27432
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.160091,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1583,
+     "z": -0.488549,
+     "mcStdError": 0.003667,
+     "requiredRuns": 14941
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.402081,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4076,
+     "z": 1.125666,
+     "mcStdError": 0.004903,
+     "requiredRuns": 26713
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "epl",
+   "eventId": "soccer:epl:coventry-city-v-newcastle-united:20261012t1900",
+   "matchup": "Coventry City v Newcastle United",
+   "kickoffUtc": "2026-10-12T19:00:00Z",
+   "modelId": "epl-model-v2-elo-poisson",
+   "source": "app/public/data/soccer/epl/forecasts/latest.json",
+   "lambdas": {
+    "home": 1.147,
+    "away": 1.6477
+   },
+   "rho": 0,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25",
+     "bttsYes",
+     "homeOrDraw"
+    ],
+    "maxAbsDiff": 0.000009,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:ac369f5a",
+   "seed": 2889260890,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.1434,
+    "away": 1.6383
+   },
+   "exactMeanGoals": {
+    "home": 1.147,
+    "away": 1.647687
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006183,
+    "maxAbsZ": 1.340559,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27316
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.155089,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1538,
+     "z": -0.356036,
+     "mcStdError": 0.00362,
+     "requiredRuns": 14560
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.306679,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3071,
+     "z": 0.091294,
+     "mcStdError": 0.004611,
+     "requiredRuns": 23626
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.17667,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1753,
+     "z": -0.359172,
+     "mcStdError": 0.003814,
+     "requiredRuns": 16162
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.435516,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4333,
+     "z": -0.446981,
+     "mcStdError": 0.004958,
+     "requiredRuns": 27316
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.134063,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1308,
+     "z": -0.957784,
+     "mcStdError": 0.003407,
+     "requiredRuns": 12899
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.368639,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3744,
+     "z": 1.194198,
+     "mcStdError": 0.004824,
+     "requiredRuns": 25861
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882881",
+   "matchup": "Racing Santander v Alavés",
+   "kickoffUtc": "2026-09-12T12:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.827,
+    "away": 1.5591
+   },
+   "rho": 0.001949,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000004,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:53576466",
+   "seed": 1398236262,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.8214,
+    "away": 1.5565
+   },
+   "exactMeanGoals": {
+    "home": 1.826966,
+    "away": 1.559092
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.009631,
+    "maxAbsZ": 2.150454,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27291
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.324857,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3255,
+     "z": 0.137387,
+     "mcStdError": 0.004683,
+     "requiredRuns": 24370
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.237998,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2379,
+     "z": -0.023007,
+     "mcStdError": 0.004259,
+     "requiredRuns": 20151
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.129859,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1232,
+     "z": -1.980906,
+     "mcStdError": 0.003361,
+     "requiredRuns": 12556
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.566225,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5612,
+     "z": -1.013937,
+     "mcStdError": 0.004956,
+     "requiredRuns": 27291
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.266677,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2661,
+     "z": -0.130485,
+     "mcStdError": 0.004422,
+     "requiredRuns": 21729
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.370803,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3675,
+     "z": -0.683905,
+     "mcStdError": 0.00483,
+     "requiredRuns": 25924
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882882",
+   "matchup": "Osasuna v Espanyol",
+   "kickoffUtc": "2026-09-12T14:15:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.4574,
+    "away": 1.0052
+   },
+   "rho": 0.001949,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000018,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:f18653a7",
+   "seed": 4052112295,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.4714,
+    "away": 1.0274
+   },
+   "exactMeanGoals": {
+    "home": 1.457396,
+    "away": 1.0052
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.012223,
+    "maxAbsZ": 2.678929,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27386
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.260849,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2595,
+     "z": -0.307201,
+     "mcStdError": 0.004391,
+     "requiredRuns": 21423
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.131823,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1355,
+     "z": 1.086807,
+     "mcStdError": 0.003383,
+     "requiredRuns": 12717
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.209562,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2016,
+     "z": -1.956275,
+     "mcStdError": 0.00407,
+     "requiredRuns": 18406
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.361565,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3702,
+     "z": 1.797194,
+     "mcStdError": 0.004805,
+     "requiredRuns": 25649
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.194777,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1949,
+     "z": 0.030996,
+     "mcStdError": 0.00396,
+     "requiredRuns": 17427
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.559423,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5472,
+     "z": -2.462029,
+     "mcStdError": 0.004965,
+     "requiredRuns": 27386
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882886",
+   "matchup": "Athletic Club v Elche",
+   "kickoffUtc": "2026-09-12T16:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.8213,
+    "away": 0.9591
+   },
+   "rho": 0.001949,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.00001,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:da3eac33",
+   "seed": 3661540403,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.8286,
+    "away": 0.9584
+   },
+   "exactMeanGoals": {
+    "home": 1.821267,
+    "away": 0.9591
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.008618,
+    "maxAbsZ": 2.29473,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27533
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.360533,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3587,
+     "z": -0.381831,
+     "mcStdError": 0.004802,
+     "requiredRuns": 25617
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.107762,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1069,
+     "z": -0.277998,
+     "mcStdError": 0.003101,
+     "requiredRuns": 10684
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.169918,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1613,
+     "z": -2.29473,
+     "mcStdError": 0.003756,
+     "requiredRuns": 15672
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.408634,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4083,
+     "z": -0.067943,
+     "mcStdError": 0.004916,
+     "requiredRuns": 26851
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.25511,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2525,
+     "z": -0.598686,
+     "mcStdError": 0.004359,
+     "requiredRuns": 21115
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.54702,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.542,
+     "z": -1.008405,
+     "mcStdError": 0.004978,
+     "requiredRuns": 27533
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882880",
+   "matchup": "Real Madrid v Rayo Vallecano",
+   "kickoffUtc": "2026-09-12T19:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 2.2158,
+    "away": 0.6664
+   },
+   "rho": 0.001949,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000011,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:af1e0966",
+   "seed": 2937981286,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 2.2153,
+    "away": 0.6625
+   },
+   "exactMeanGoals": {
+    "home": 2.21561,
+    "away": 0.6664
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.005898,
+    "maxAbsZ": 1.378194,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27654
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.466608,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4631,
+     "z": -0.703082,
+     "mcStdError": 0.004989,
+     "requiredRuns": 27654
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.047258,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0473,
+     "z": 0.019905,
+     "mcStdError": 0.002122,
+     "requiredRuns": 5003
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.138399,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1366,
+     "z": -0.520934,
+     "mcStdError": 0.003453,
+     "requiredRuns": 13250
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.350681,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3495,
+     "z": -0.24756,
+     "mcStdError": 0.004772,
+     "requiredRuns": 25301
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.270683,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2723,
+     "z": 0.363882,
+     "mcStdError": 0.004443,
+     "requiredRuns": 21935
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.593371,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5962,
+     "z": 0.575942,
+     "mcStdError": 0.004912,
+     "requiredRuns": 26810
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882885",
+   "matchup": "Celta Vigo v Málaga",
+   "kickoffUtc": "2026-09-13T12:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.5673,
+    "away": 0.5258
+   },
+   "rho": 0.001949,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000013,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:5a335a21",
+   "seed": 1513314849,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.5787,
+    "away": 0.5264
+   },
+   "exactMeanGoals": {
+    "home": 1.567292,
+    "away": 0.5258
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.009691,
+    "maxAbsZ": 1.994927,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 22668
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.285544,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2878,
+     "z": 0.499544,
+     "mcStdError": 0.004517,
+     "requiredRuns": 22668
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.040007,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0409,
+     "z": 0.455418,
+     "mcStdError": 0.00196,
+     "requiredRuns": 4268
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.224522,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2267,
+     "z": 0.522019,
+     "mcStdError": 0.004173,
+     "requiredRuns": 19346
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.222001,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2241,
+     "z": 0.505116,
+     "mcStdError": 0.004156,
+     "requiredRuns": 19191
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.162465,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1636,
+     "z": 0.307676,
+     "mcStdError": 0.003689,
+     "requiredRuns": 15119
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.728168,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.7309,
+     "z": 0.614058,
+     "mcStdError": 0.004449,
+     "requiredRuns": 21994
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882883",
+   "matchup": "Levante v Barcelona",
+   "kickoffUtc": "2026-09-13T14:15:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.0852,
+    "away": 2.4471
+   },
+   "rho": 0.001949,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000016,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:2d3aac65",
+   "seed": 758819941,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.0667,
+    "away": 2.4434
+   },
+   "exactMeanGoals": {
+    "home": 1.0852,
+    "away": 2.446651
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006605,
+    "maxAbsZ": 1.350935,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27758
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.101935,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0991,
+     "z": -0.936927,
+     "mcStdError": 0.003026,
+     "requiredRuns": 10172
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.513561,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5129,
+     "z": -0.132202,
+     "mcStdError": 0.004998,
+     "requiredRuns": 27758
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.106584,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1065,
+     "z": -0.027068,
+     "mcStdError": 0.003086,
+     "requiredRuns": 10581
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.527209,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5216,
+     "z": -1.123491,
+     "mcStdError": 0.004993,
+     "requiredRuns": 27696
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.093572,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0918,
+     "z": -0.608567,
+     "mcStdError": 0.002912,
+     "requiredRuns": 9425
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.204041,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2077,
+     "z": 0.907897,
+     "mcStdError": 0.00403,
+     "requiredRuns": 18046
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882884",
+   "matchup": "Getafe v Deportivo",
+   "kickoffUtc": "2026-09-13T16:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.0302,
+    "away": 1.1628
+   },
+   "rho": 0.001949,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000011,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:6a5a90ac",
+   "seed": 1784320172,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.0257,
+    "away": 1.1518
+   },
+   "exactMeanGoals": {
+    "home": 1.0302,
+    "away": 1.1628
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.008864,
+    "maxAbsZ": 1.850242,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27771
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.146932,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1487,
+     "z": 0.499245,
+     "mcStdError": 0.00354,
+     "requiredRuns": 13928
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.182699,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1767,
+     "z": -1.552563,
+     "mcStdError": 0.003864,
+     "requiredRuns": 16592
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.244726,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2472,
+     "z": 0.575492,
+     "mcStdError": 0.004299,
+     "requiredRuns": 20538
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.308371,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.302,
+     "z": -1.379527,
+     "mcStdError": 0.004618,
+     "requiredRuns": 23698
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.120067,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1214,
+     "z": 0.410105,
+     "mcStdError": 0.00325,
+     "requiredRuns": 11739
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.508333,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.509,
+     "z": 0.133377,
+     "mcStdError": 0.004999,
+     "requiredRuns": 27771
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882879",
+   "matchup": "Real Sociedad v Atlético Madrid",
+   "kickoffUtc": "2026-09-13T19:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.3075,
+    "away": 1.5069
+   },
+   "rho": 0.001949,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000015,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:6e9f2fdb",
+   "seed": 1855926235,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.3052,
+    "away": 1.5099
+   },
+   "exactMeanGoals": {
+    "home": 1.307499,
+    "away": 1.506894
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006144,
+    "maxAbsZ": 1.250554,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27498
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.200026,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2,
+     "z": -0.006432,
+     "mcStdError": 0.004,
+     "requiredRuns": 17780
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.26134,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.265,
+     "z": 0.833035,
+     "mcStdError": 0.004394,
+     "requiredRuns": 21450
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.17758,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1814,
+     "z": 0.999621,
+     "mcStdError": 0.003822,
+     "requiredRuns": 16228
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.44975,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4492,
+     "z": -0.110507,
+     "mcStdError": 0.004975,
+     "requiredRuns": 27498
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.167979,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1683,
+     "z": 0.085876,
+     "mcStdError": 0.003738,
+     "requiredRuns": 15530
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.406956,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4131,
+     "z": 1.250554,
+     "mcStdError": 0.004913,
+     "requiredRuns": 26816
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882877",
+   "matchup": "Villarreal v Real Betis",
+   "kickoffUtc": "2026-09-14T19:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.9764,
+    "away": 1.2693
+   },
+   "rho": 0.001949,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000013,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:cd10b4c8",
+   "seed": 3440424136,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.9847,
+    "away": 1.2704
+   },
+   "exactMeanGoals": {
+    "home": 1.976331,
+    "away": 1.269299
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.004734,
+    "maxAbsZ": 1.258185,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27726
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.385349,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3825,
+     "z": -0.585418,
+     "mcStdError": 0.004867,
+     "requiredRuns": 26318
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.162889,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1648,
+     "z": 0.517589,
+     "mcStdError": 0.003693,
+     "requiredRuns": 15151
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.136251,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1376,
+     "z": 0.393115,
+     "mcStdError": 0.003431,
+     "requiredRuns": 13077
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.521654,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5232,
+     "z": 0.309397,
+     "mcStdError": 0.004995,
+     "requiredRuns": 27726
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.296283,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2943,
+     "z": -0.434177,
+     "mcStdError": 0.004566,
+     "requiredRuns": 23167
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.436105,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4382,
+     "z": 0.422367,
+     "mcStdError": 0.004959,
+     "requiredRuns": 27325
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882868",
+   "matchup": "Rayo Vallecano v Espanyol",
+   "kickoffUtc": "2026-09-15T17:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-13.json",
+   "forecastAt": "2026-09-13T13:53:49.000Z",
+   "lambdas": {
+    "home": 1.3337,
+    "away": 0.9328
+   },
+   "rho": 0.001948,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000012,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:0a542948",
+   "seed": 173287752,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.3357,
+    "away": 0.9457
+   },
+   "exactMeanGoals": {
+    "home": 1.333698,
+    "away": 0.9328
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006679,
+    "maxAbsZ": 1.567488,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 26881
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.229052,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2289,
+     "z": -0.036163,
+     "mcStdError": 0.004202,
+     "requiredRuns": 19621
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.119893,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1242,
+     "z": 1.325803,
+     "mcStdError": 0.003248,
+     "requiredRuns": 11725
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.232151,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2275,
+     "z": -1.101532,
+     "mcStdError": 0.004222,
+     "requiredRuns": 19807
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.317745,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3221,
+     "z": 0.935445,
+     "mcStdError": 0.004656,
+     "requiredRuns": 24087
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.169752,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1685,
+     "z": -0.333551,
+     "mcStdError": 0.003754,
+     "requiredRuns": 15660
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.589879,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5832,
+     "z": -1.358,
+     "mcStdError": 0.004919,
+     "requiredRuns": 26881
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882876",
+   "matchup": "Alavés v Valencia",
+   "kickoffUtc": "2026-09-15T18:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-13.json",
+   "forecastAt": "2026-09-13T13:53:49.000Z",
+   "lambdas": {
+    "home": 1.469,
+    "away": 0.9592
+   },
+   "rho": 0.001948,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000005,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:4f7b63c5",
+   "seed": 1333486533,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.4715,
+    "away": 0.9629
+   },
+   "exactMeanGoals": {
+    "home": 1.468996,
+    "away": 0.9592
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.007702,
+    "maxAbsZ": 1.553312,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27156
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.265037,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2663,
+     "z": 0.286099,
+     "mcStdError": 0.004414,
+     "requiredRuns": 21644
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.121334,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1196,
+     "z": -0.53098,
+     "mcStdError": 0.003265,
+     "requiredRuns": 11846
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.211984,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2171,
+     "z": 1.251618,
+     "mcStdError": 0.004087,
+     "requiredRuns": 18561
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.350567,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3554,
+     "z": 1.012815,
+     "mcStdError": 0.004771,
+     "requiredRuns": 25297
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.194754,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1989,
+     "z": 1.046987,
+     "mcStdError": 0.00396,
+     "requiredRuns": 17425
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.574823,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5749,
+     "z": 0.015613,
+     "mcStdError": 0.004944,
+     "requiredRuns": 27156
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882872",
+   "matchup": "Elche v Real Madrid",
+   "kickoffUtc": "2026-09-15T19:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-13.json",
+   "forecastAt": "2026-09-13T13:53:49.000Z",
+   "lambdas": {
+    "home": 1.0252,
+    "away": 2.12
+   },
+   "rho": 0.001948,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000006,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:1e32db95",
+   "seed": 506649493,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.026,
+    "away": 2.1317
+   },
+   "exactMeanGoals": {
+    "home": 1.0252,
+    "away": 2.119871
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.012507,
+    "maxAbsZ": 2.521768,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27683
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.107091,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1044,
+     "z": -0.870259,
+     "mcStdError": 0.003092,
+     "requiredRuns": 10625
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.436493,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.449,
+     "z": 2.521768,
+     "mcStdError": 0.00496,
+     "requiredRuns": 27330
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.13628,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.134,
+     "z": -0.664443,
+     "mcStdError": 0.003431,
+     "requiredRuns": 13079
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.470716,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4784,
+     "z": 1.539526,
+     "mcStdError": 0.004991,
+     "requiredRuns": 27683
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.096889,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0948,
+     "z": -0.706175,
+     "mcStdError": 0.002958,
+     "requiredRuns": 9723
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.258939,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2573,
+     "z": -0.374105,
+     "mcStdError": 0.004381,
+     "requiredRuns": 21322
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882875",
+   "matchup": "Atlético Madrid v Osasuna",
+   "kickoffUtc": "2026-09-16T17:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-14.json",
+   "forecastAt": "2026-09-14T16:00:14.000Z",
+   "lambdas": {
+    "home": 1.9834,
+    "away": 0.8621
+   },
+   "rho": 0.001947,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000013,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:629047d6",
+   "seed": 1653622742,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.9903,
+    "away": 0.8669
+   },
+   "exactMeanGoals": {
+    "home": 1.983329,
+    "away": 0.8621
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.010174,
+    "maxAbsZ": 2.100466,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27366
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.406091,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.412,
+     "z": 1.203268,
+     "mcStdError": 0.004911,
+     "requiredRuns": 26798
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.083763,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0811,
+     "z": -0.961128,
+     "mcStdError": 0.00277,
+     "requiredRuns": 8528
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.157073,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1579,
+     "z": 0.22728,
+     "mcStdError": 0.003639,
+     "requiredRuns": 14712
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.398875,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4044,
+     "z": 1.128237,
+     "mcStdError": 0.004897,
+     "requiredRuns": 26642
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.271459,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2808,
+     "z": 2.100466,
+     "mcStdError": 0.004447,
+     "requiredRuns": 21975
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.560894,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5579,
+     "z": -0.603301,
+     "mcStdError": 0.004963,
+     "requiredRuns": 27366
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882873",
+   "matchup": "Deportivo v Sevilla",
+   "kickoffUtc": "2026-09-16T17:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-14.json",
+   "forecastAt": "2026-09-14T16:00:14.000Z",
+   "lambdas": {
+    "home": 2.1747,
+    "away": 1.0968
+   },
+   "rho": 0.001947,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.00001,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:56a878b1",
+   "seed": 1453881521,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 2.1797,
+    "away": 1.0961
+   },
+   "exactMeanGoals": {
+    "home": 2.174539,
+    "away": 1.0968
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.00514,
+    "maxAbsZ": 1.095963,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27778
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.44667,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4464,
+     "z": -0.054351,
+     "mcStdError": 0.004971,
+     "requiredRuns": 27462
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.117509,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1206,
+     "z": 0.959855,
+     "mcStdError": 0.00322,
+     "requiredRuns": 11523
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.128117,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1266,
+     "z": -0.453815,
+     "mcStdError": 0.003342,
+     "requiredRuns": 12412
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.499849,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5018,
+     "z": 0.39024,
+     "mcStdError": 0.005,
+     "requiredRuns": 27778
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.322952,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3239,
+     "z": 0.2028,
+     "mcStdError": 0.004676,
+     "requiredRuns": 24295
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.46404,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4589,
+     "z": -1.030704,
+     "mcStdError": 0.004987,
+     "requiredRuns": 27635
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882871",
+   "matchup": "Barcelona v Racing Santander",
+   "kickoffUtc": "2026-09-16T19:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-14.json",
+   "forecastAt": "2026-09-14T16:00:14.000Z",
+   "lambdas": {
+    "home": 4.3062,
+    "away": 0.9982
+   },
+   "rho": 0.001947,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000004,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:14cd83d7",
+   "seed": 349012951,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 4.2717,
+    "away": 0.9975
+   },
+   "exactMeanGoals": {
+    "home": 4.270944,
+    "away": 0.9982
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.003507,
+    "maxAbsZ": 1.492599,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27649
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.829907,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.8264,
+     "z": -0.933363,
+     "mcStdError": 0.003757,
+     "requiredRuns": 15685
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.03073,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0307,
+     "z": -0.017521,
+     "mcStdError": 0.001726,
+     "requiredRuns": 3310
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.026377,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0264,
+     "z": 0.014351,
+     "mcStdError": 0.001603,
+     "requiredRuns": 2854
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.601434,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.6016,
+     "z": 0.033807,
+     "mcStdError": 0.004896,
+     "requiredRuns": 26635
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.534167,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5341,
+     "z": -0.013406,
+     "mcStdError": 0.004988,
+     "requiredRuns": 27649
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.20691,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2083,
+     "z": 0.343111,
+     "mcStdError": 0.004051,
+     "requiredRuns": 18234
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882870",
+   "matchup": "Levante v Athletic Club",
+   "kickoffUtc": "2026-09-16T19:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-14.json",
+   "forecastAt": "2026-09-14T16:00:14.000Z",
+   "lambdas": {
+    "home": 1.3254,
+    "away": 1.2702
+   },
+   "rho": 0.001947,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.00002,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:fa57702c",
+   "seed": 4200034348,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.3325,
+    "away": 1.2581
+   },
+   "exactMeanGoals": {
+    "home": 1.325398,
+    "away": 1.270199
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.00857,
+    "maxAbsZ": 1.818284,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27717
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.216511,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.224,
+     "z": 1.818284,
+     "mcStdError": 0.004119,
+     "requiredRuns": 18849
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.200093,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1991,
+     "z": -0.24816,
+     "mcStdError": 0.004001,
+     "requiredRuns": 17784
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.199705,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.201,
+     "z": 0.323985,
+     "mcStdError": 0.003998,
+     "requiredRuns": 17759
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.402536,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4043,
+     "z": 0.359656,
+     "mcStdError": 0.004904,
+     "requiredRuns": 26723
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.174738,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1813,
+     "z": 1.727905,
+     "mcStdError": 0.003797,
+     "requiredRuns": 16023
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.47653,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4851,
+     "z": 1.715819,
+     "mcStdError": 0.004994,
+     "requiredRuns": 27717
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882874",
+   "matchup": "Real Betis v Getafe",
+   "kickoffUtc": "2026-09-17T17:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-15.json",
+   "forecastAt": "2026-09-15T14:29:52.000Z",
+   "lambdas": {
+    "home": 1.3554,
+    "away": 0.6936
+   },
+   "rho": 0.006952,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000019,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:e0baf9a4",
+   "seed": 3770349988,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.3673,
+    "away": 0.6815
+   },
+   "exactMeanGoals": {
+    "home": 1.355398,
+    "away": 0.6936
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006578,
+    "maxAbsZ": 1.462145,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 24267
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.23415,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2391,
+     "z": 1.168948,
+     "mcStdError": 0.004235,
+     "requiredRuns": 19925
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.070806,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0671,
+     "z": -1.444751,
+     "mcStdError": 0.002565,
+     "requiredRuns": 7311
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.248325,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2466,
+     "z": -0.399225,
+     "mcStdError": 0.00432,
+     "requiredRuns": 20740
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.2501,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2488,
+     "z": -0.300276,
+     "mcStdError": 0.004331,
+     "requiredRuns": 20839
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.15627,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.157,
+     "z": 0.20097,
+     "mcStdError": 0.003631,
+     "requiredRuns": 14650
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.677776,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.6788,
+     "z": 0.219029,
+     "mcStdError": 0.004673,
+     "requiredRuns": 24267
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "laliga",
+   "eventId": "soccer:laliga:401882869",
+   "matchup": "Málaga v Villarreal",
+   "kickoffUtc": "2026-09-17T19:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/laliga/shadow-dc-v2/forecasts-2026-09-15.json",
+   "forecastAt": "2026-09-15T14:29:52.000Z",
+   "lambdas": {
+    "home": 0.7185,
+    "away": 1.5783
+   },
+   "rho": 0.006952,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000017,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:ae9e3995",
+   "seed": 2929605013,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 0.7253,
+    "away": 1.6041
+   },
+   "exactMeanGoals": {
+    "home": 0.7185,
+    "away": 1.578291
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.011621,
+    "maxAbsZ": 2.374501,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 25578
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.070618,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0706,
+     "z": -0.006932,
+     "mcStdError": 0.002562,
+     "requiredRuns": 7293
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.295782,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.301,
+     "z": 1.143418,
+     "mcStdError": 0.004564,
+     "requiredRuns": 23144
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.213053,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2166,
+     "z": 0.86618,
+     "mcStdError": 0.004095,
+     "requiredRuns": 18630
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.292713,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3014,
+     "z": 1.909262,
+     "mcStdError": 0.00455,
+     "requiredRuns": 23004
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.063101,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.063,
+     "z": -0.041587,
+     "mcStdError": 0.002431,
+     "requiredRuns": 6569
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.359269,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3556,
+     "z": -0.76463,
+     "mcStdError": 0.004798,
+     "requiredRuns": 25578
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "serie-a",
+   "eventId": "soccer:serie-a:401874991",
+   "matchup": "Genoa v Frosinone",
+   "kickoffUtc": "2026-09-12T13:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/serie-a/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.3547,
+    "away": 1.3441
+   },
+   "rho": -0.011483,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000011,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:b405b4a0",
+   "seed": 3020272800,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.3331,
+    "away": 1.3644
+   },
+   "exactMeanGoals": {
+    "home": 1.354698,
+    "away": 1.344098
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.011371,
+    "maxAbsZ": 2.359218,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27553
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.220427,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2139,
+     "z": -1.574512,
+     "mcStdError": 0.004145,
+     "requiredRuns": 19094
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.217216,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2231,
+     "z": 1.426859,
+     "mcStdError": 0.004124,
+     "requiredRuns": 18893
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.192618,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1924,
+     "z": -0.055352,
+     "mcStdError": 0.003944,
+     "requiredRuns": 17280
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.425969,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4225,
+     "z": -0.701502,
+     "mcStdError": 0.004945,
+     "requiredRuns": 27169
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.179834,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1746,
+     "z": -1.362769,
+     "mcStdError": 0.00384,
+     "requiredRuns": 16389
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.454975,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4493,
+     "z": -1.139596,
+     "mcStdError": 0.00498,
+     "requiredRuns": 27553
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "serie-a",
+   "eventId": "soccer:serie-a:401874941",
+   "matchup": "Lazio v AC Milan",
+   "kickoffUtc": "2026-09-12T16:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/serie-a/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.1273,
+    "away": 1.2343
+   },
+   "rho": -0.011483,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000006,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:bf93da23",
+   "seed": 3214137891,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.138,
+    "away": 1.2223
+   },
+   "exactMeanGoals": {
+    "home": 1.1273,
+    "away": 1.234299
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.00802,
+    "maxAbsZ": 2.143397,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27766
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.168327,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1664,
+     "z": -0.51501,
+     "mcStdError": 0.003742,
+     "requiredRuns": 15555
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.198569,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1955,
+     "z": -0.769362,
+     "mcStdError": 0.003989,
+     "requiredRuns": 17683
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.22845,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2281,
+     "z": -0.083479,
+     "mcStdError": 0.004198,
+     "requiredRuns": 19585
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.348155,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3493,
+     "z": 0.24026,
+     "mcStdError": 0.004764,
+     "requiredRuns": 25216
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.137726,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1343,
+     "z": -0.994304,
+     "mcStdError": 0.003446,
+     "requiredRuns": 13196
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.489554,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4869,
+     "z": -0.530972,
+     "mcStdError": 0.004999,
+     "requiredRuns": 27766
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "serie-a",
+   "eventId": "soccer:serie-a:401874979",
+   "matchup": "Atalanta v Cagliari",
+   "kickoffUtc": "2026-09-12T18:45:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/serie-a/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.8447,
+    "away": 0.8159
+   },
+   "rho": -0.011483,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000013,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:44392996",
+   "seed": 1144596886,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.8319,
+    "away": 0.8039
+   },
+   "exactMeanGoals": {
+    "home": 1.844663,
+    "away": 0.8159
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.009976,
+    "maxAbsZ": 2.07299,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 26788
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.369409,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.369,
+     "z": -0.084656,
+     "mcStdError": 0.004826,
+     "requiredRuns": 25883
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.080392,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0765,
+     "z": -1.431486,
+     "mcStdError": 0.002719,
+     "requiredRuns": 8215
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.177539,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1796,
+     "z": 0.539456,
+     "mcStdError": 0.003821,
+     "requiredRuns": 16225
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.364376,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3544,
+     "z": -2.07299,
+     "mcStdError": 0.004813,
+     "requiredRuns": 25735
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.244974,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2424,
+     "z": -0.598437,
+     "mcStdError": 0.004301,
+     "requiredRuns": 20552
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.594414,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.6017,
+     "z": 1.483908,
+     "mcStdError": 0.00491,
+     "requiredRuns": 26788
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "serie-a",
+   "eventId": "soccer:serie-a:401874936",
+   "matchup": "Lecce v Monza",
+   "kickoffUtc": "2026-09-13T13:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/serie-a/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.1099,
+    "away": 1.0009
+   },
+   "rho": -0.011483,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000019,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:1d07dd8a",
+   "seed": 487054730,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.1126,
+    "away": 0.9975
+   },
+   "exactMeanGoals": {
+    "home": 1.1099,
+    "away": 1.0009
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.007392,
+    "maxAbsZ": 1.572533,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27255
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.16981,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.167,
+     "z": -0.748438,
+     "mcStdError": 0.003755,
+     "requiredRuns": 15664
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.141151,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1461,
+     "z": 1.421497,
+     "mcStdError": 0.003482,
+     "requiredRuns": 13470
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.258807,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2595,
+     "z": 0.158203,
+     "mcStdError": 0.00438,
+     "requiredRuns": 21314
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.289425,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2914,
+     "z": 0.43547,
+     "mcStdError": 0.004535,
+     "requiredRuns": 22851
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.132473,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1301,
+     "z": -0.699858,
+     "mcStdError": 0.00339,
+     "requiredRuns": 12770
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.56862,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5711,
+     "z": 0.50083,
+     "mcStdError": 0.004953,
+     "requiredRuns": 27255
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "serie-a",
+   "eventId": "soccer:serie-a:401874792",
+   "matchup": "Napoli v Bologna",
+   "kickoffUtc": "2026-09-13T16:00:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/serie-a/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.5347,
+    "away": 0.9712
+   },
+   "rho": -0.011483,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000015,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:65112d85",
+   "seed": 1695624581,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.5277,
+    "away": 0.9573
+   },
+   "exactMeanGoals": {
+    "home": 1.534693,
+    "away": 0.9712
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006772,
+    "maxAbsZ": 1.396073,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27258
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.282583,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.279,
+     "z": -0.795745,
+     "mcStdError": 0.004503,
+     "requiredRuns": 22526
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.121546,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1202,
+     "z": -0.411929,
+     "mcStdError": 0.003268,
+     "requiredRuns": 11864
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.206024,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2077,
+     "z": 0.414493,
+     "mcStdError": 0.004044,
+     "requiredRuns": 18176
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.365825,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3622,
+     "z": -0.752641,
+     "mcStdError": 0.004817,
+     "requiredRuns": 25778
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.20689,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2035,
+     "z": -0.837,
+     "mcStdError": 0.004051,
+     "requiredRuns": 18232
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.568453,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5739,
+     "z": 1.099729,
+     "mcStdError": 0.004953,
+     "requiredRuns": 27258
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "serie-a",
+   "eventId": "soccer:serie-a:401874750",
+   "matchup": "Sassuolo v Juventus",
+   "kickoffUtc": "2026-09-13T18:45:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/serie-a/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 0.9286,
+    "away": 1.6637
+   },
+   "rho": -0.011483,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000004,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:47211be4",
+   "seed": 1193352164,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 0.932,
+    "away": 1.67
+   },
+   "exactMeanGoals": {
+    "home": 0.9286,
+    "away": 1.663686
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006079,
+    "maxAbsZ": 1.733087,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 26033
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.107899,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1034,
+     "z": -1.45001,
+     "mcStdError": 0.003103,
+     "requiredRuns": 10696
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.318621,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3247,
+     "z": 1.304656,
+     "mcStdError": 0.004659,
+     "requiredRuns": 24123
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.193137,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1929,
+     "z": -0.059959,
+     "mcStdError": 0.003948,
+     "requiredRuns": 17315
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.374671,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3775,
+     "z": 0.584453,
+     "mcStdError": 0.00484,
+     "requiredRuns": 26033
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.095084,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.09,
+     "z": -1.733087,
+     "mcStdError": 0.002933,
+     "requiredRuns": 9561
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.35726,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3572,
+     "z": -0.012612,
+     "mcStdError": 0.004792,
+     "requiredRuns": 25514
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "serie-a",
+   "eventId": "soccer:serie-a:401874933",
+   "matchup": "Como v Parma",
+   "kickoffUtc": "2026-09-14T16:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/serie-a/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.7679,
+    "away": 0.6391
+   },
+   "rho": -0.011483,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000013,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:91096e00",
+   "seed": 2433314304,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.7783,
+    "away": 0.6366
+   },
+   "exactMeanGoals": {
+    "home": 1.767875,
+    "away": 0.6391
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.004957,
+    "maxAbsZ": 1.32788,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 25150
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.346197,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3503,
+     "z": 0.862497,
+     "mcStdError": 0.004758,
+     "requiredRuns": 25150
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.053294,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0504,
+     "z": -1.288479,
+     "mcStdError": 0.002246,
+     "requiredRuns": 5606
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.194207,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1931,
+     "z": -0.279905,
+     "mcStdError": 0.003956,
+     "requiredRuns": 17388
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.289842,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2855,
+     "z": -0.957122,
+     "mcStdError": 0.004537,
+     "requiredRuns": 22871
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.208556,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2082,
+     "z": -0.087709,
+     "mcStdError": 0.004063,
+     "requiredRuns": 18341
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.666014,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.6629,
+     "z": -0.660191,
+     "mcStdError": 0.004716,
+     "requiredRuns": 24716
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "serie-a",
+   "eventId": "soccer:serie-a:401874950",
+   "matchup": "Torino v AS Roma",
+   "kickoffUtc": "2026-09-14T16:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/serie-a/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 0.854,
+    "away": 1.7357
+   },
+   "rho": -0.011483,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000015,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:cf47ddf8",
+   "seed": 3477593592,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 0.8406,
+    "away": 1.7243
+   },
+   "exactMeanGoals": {
+    "home": 0.854,
+    "away": 1.735679
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.009996,
+    "maxAbsZ": 2.256684,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 25657
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.090865,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0857,
+     "z": -1.797138,
+     "mcStdError": 0.002874,
+     "requiredRuns": 9179
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.339438,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3376,
+     "z": -0.388122,
+     "mcStdError": 0.004735,
+     "requiredRuns": 24914
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.188832,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1843,
+     "z": -1.158029,
+     "mcStdError": 0.003914,
+     "requiredRuns": 17020
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.361822,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3576,
+     "z": -0.878611,
+     "mcStdError": 0.004805,
+     "requiredRuns": 25657
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.081082,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0751,
+     "z": -2.191613,
+     "mcStdError": 0.00273,
+     "requiredRuns": 8279
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.334294,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3282,
+     "z": -1.291704,
+     "mcStdError": 0.004717,
+     "requiredRuns": 24727
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "serie-a",
+   "eventId": "soccer:serie-a:401874966",
+   "matchup": "Internazionale v Udinese",
+   "kickoffUtc": "2026-09-14T18:45:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/serie-a/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 2.4435,
+    "away": 0.8352
+   },
+   "rho": -0.011483,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000005,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:17e6817f",
+   "seed": 400982399,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 2.4563,
+    "away": 0.832
+   },
+   "exactMeanGoals": {
+    "home": 2.443056,
+    "away": 0.8352
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.005505,
+    "maxAbsZ": 1.359294,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27775
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.522953,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5275,
+     "z": 0.910373,
+     "mcStdError": 0.004995,
+     "requiredRuns": 27720
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.063945,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0627,
+     "z": -0.50891,
+     "mcStdError": 0.002447,
+     "requiredRuns": 6651
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.116341,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1189,
+     "z": 0.798096,
+     "mcStdError": 0.003206,
+     "requiredRuns": 11423
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.440135,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4383,
+     "z": -0.369608,
+     "mcStdError": 0.004964,
+     "requiredRuns": 27380
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.331398,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3334,
+     "z": 0.425227,
+     "mcStdError": 0.004707,
+     "requiredRuns": 24620
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.505579,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5079,
+     "z": 0.46425,
+     "mcStdError": 0.005,
+     "requiredRuns": 27775
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "bundesliga",
+   "eventId": "soccer:bundesliga:401884799",
+   "matchup": "Borussia Dortmund v SC Paderborn 07",
+   "kickoffUtc": "2026-09-12T13:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/bundesliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.4968,
+    "away": 0.4941
+   },
+   "rho": -0.078292,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.00001,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:3354f471",
+   "seed": 861205617,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.5121,
+    "away": 0.4992
+   },
+   "exactMeanGoals": {
+    "home": 1.496795,
+    "away": 0.4941
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.008867,
+    "maxAbsZ": 1.809524,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 21596
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.264116,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2673,
+     "z": 0.722126,
+     "mcStdError": 0.004409,
+     "requiredRuns": 21596
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.036461,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0384,
+     "z": 1.034482,
+     "mcStdError": 0.001874,
+     "requiredRuns": 3904
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.253393,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2494,
+     "z": -0.918041,
+     "mcStdError": 0.00435,
+     "requiredRuns": 21021
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.201603,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2051,
+     "z": 0.87176,
+     "mcStdError": 0.004012,
+     "requiredRuns": 17885
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.14798,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1472,
+     "z": -0.219723,
+     "mcStdError": 0.003551,
+     "requiredRuns": 14010
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.75482,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.749,
+     "z": -1.352788,
+     "mcStdError": 0.004302,
+     "requiredRuns": 20563
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "bundesliga",
+   "eventId": "soccer:bundesliga:401884795",
+   "matchup": "FC Augsburg v Bayer Leverkusen",
+   "kickoffUtc": "2026-09-12T13:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/bundesliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.1825,
+    "away": 1.8888
+   },
+   "rho": -0.078292,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000005,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:251f630b",
+   "seed": 622813963,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.1905,
+    "away": 1.8902
+   },
+   "exactMeanGoals": {
+    "home": 1.182499,
+    "away": 1.888755
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.006148,
+    "maxAbsZ": 1.601981,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27753
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.14984,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1527,
+     "z": 0.801279,
+     "mcStdError": 0.003569,
+     "requiredRuns": 14155
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.36839,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3647,
+     "z": -0.764941,
+     "mcStdError": 0.004824,
+     "requiredRuns": 25854
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.166123,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.172,
+     "z": 1.5791,
+     "mcStdError": 0.003722,
+     "requiredRuns": 15392
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.485048,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4813,
+     "z": -0.74991,
+     "mcStdError": 0.004998,
+     "requiredRuns": 27753
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.132183,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1329,
+     "z": 0.211784,
+     "mcStdError": 0.003387,
+     "requiredRuns": 12746
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.31925,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3226,
+     "z": 0.718563,
+     "mcStdError": 0.004662,
+     "requiredRuns": 24148
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "bundesliga",
+   "eventId": "soccer:bundesliga:401884794",
+   "matchup": "Mainz v Eintracht Frankfurt",
+   "kickoffUtc": "2026-09-12T13:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/bundesliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.7531,
+    "away": 1.4129
+   },
+   "rho": -0.078292,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000006,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:45b42b92",
+   "seed": 1169435538,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.7408,
+    "away": 1.4058
+   },
+   "exactMeanGoals": {
+    "home": 1.753077,
+    "away": 1.412897
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.010777,
+    "maxAbsZ": 2.236917,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27729
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.317888,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3172,
+     "z": -0.14776,
+     "mcStdError": 0.004657,
+     "requiredRuns": 24093
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.20953,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2109,
+     "z": 0.336548,
+     "mcStdError": 0.00407,
+     "requiredRuns": 18404
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.162987,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1608,
+     "z": -0.59208,
+     "mcStdError": 0.003694,
+     "requiredRuns": 15159
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.521041,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5142,
+     "z": -1.369391,
+     "mcStdError": 0.004996,
+     "requiredRuns": 27729
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.255361,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2507,
+     "z": -1.068779,
+     "mcStdError": 0.004361,
+     "requiredRuns": 21128
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.422978,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4275,
+     "z": 0.915282,
+     "mcStdError": 0.00494,
+     "requiredRuns": 27119
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "bundesliga",
+   "eventId": "soccer:bundesliga:401884796",
+   "matchup": "SC Freiburg v Borussia Mönchengladbach",
+   "kickoffUtc": "2026-09-12T13:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/bundesliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.7405,
+    "away": 1.2755
+   },
+   "rho": -0.078292,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000012,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:ea4ee603",
+   "seed": 3931039235,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.7494,
+    "away": 1.2563
+   },
+   "exactMeanGoals": {
+    "home": 1.740479,
+    "away": 1.275499
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.010703,
+    "maxAbsZ": 2.146379,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27755
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.324024,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3282,
+     "z": 0.892326,
+     "mcStdError": 0.00468,
+     "requiredRuns": 24337
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.178838,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1726,
+     "z": -1.627785,
+     "mcStdError": 0.003832,
+     "requiredRuns": 16318
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.174803,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.172,
+     "z": -0.737944,
+     "mcStdError": 0.003798,
+     "requiredRuns": 16028
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.485499,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4827,
+     "z": -0.560032,
+     "mcStdError": 0.004998,
+     "requiredRuns": 27755
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.253223,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2536,
+     "z": 0.086742,
+     "mcStdError": 0.004349,
+     "requiredRuns": 21012
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.463497,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4742,
+     "z": 2.146379,
+     "mcStdError": 0.004987,
+     "requiredRuns": 27630
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "bundesliga",
+   "eventId": "soccer:bundesliga:401884797",
+   "matchup": "TSG Hoffenheim v VfB Stuttgart",
+   "kickoffUtc": "2026-09-12T13:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/bundesliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.7868,
+    "away": 2.0484
+   },
+   "rho": -0.078292,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000012,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:82e60271",
+   "seed": 2196111985,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.8008,
+    "away": 2.0466
+   },
+   "exactMeanGoals": {
+    "home": 1.786773,
+    "away": 2.048305
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.004791,
+    "maxAbsZ": 1.259872,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 25496
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.270499,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2741,
+     "z": 0.810746,
+     "mcStdError": 0.004442,
+     "requiredRuns": 21926
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.356672,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.3543,
+     "z": -0.495164,
+     "mcStdError": 0.00479,
+     "requiredRuns": 25496
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.113023,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1157,
+     "z": 0.845545,
+     "mcStdError": 0.003166,
+     "requiredRuns": 11139
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.646111,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.6471,
+     "z": 0.206775,
+     "mcStdError": 0.004782,
+     "requiredRuns": 25406
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.23622,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2394,
+     "z": 0.748689,
+     "mcStdError": 0.004248,
+     "requiredRuns": 20047
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.271056,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2699,
+     "z": -0.260052,
+     "mcStdError": 0.004445,
+     "requiredRuns": 21954
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "bundesliga",
+   "eventId": "soccer:bundesliga:401884792",
+   "matchup": "FC Cologne v Werder Bremen",
+   "kickoffUtc": "2026-09-12T16:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/bundesliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 1.6038,
+    "away": 1.3766
+   },
+   "rho": -0.078292,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000012,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:ebe0626f",
+   "seed": 3957351023,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 1.5923,
+    "away": 1.3717
+   },
+   "exactMeanGoals": {
+    "home": 1.60379,
+    "away": 1.376598
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.011495,
+    "maxAbsZ": 2.517268,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27754
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.282179,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2776,
+     "z": -1.017407,
+     "mcStdError": 0.004501,
+     "requiredRuns": 22506
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.210886,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.21,
+     "z": -0.217074,
+     "mcStdError": 0.004079,
+     "requiredRuns": 18491
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.18042,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1901,
+     "z": 2.517268,
+     "mcStdError": 0.003845,
+     "requiredRuns": 16430
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.485111,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4826,
+     "z": -0.502405,
+     "mcStdError": 0.004998,
+     "requiredRuns": 27754
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.227243,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2249,
+     "z": -0.559154,
+     "mcStdError": 0.004191,
+     "requiredRuns": 19512
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.443169,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4464,
+     "z": 0.650506,
+     "mcStdError": 0.004968,
+     "requiredRuns": 27419
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "bundesliga",
+   "eventId": "soccer:bundesliga:401884798",
+   "matchup": "RB Leipzig v Hamburg SV",
+   "kickoffUtc": "2026-09-13T13:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/bundesliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 2.1725,
+    "away": 0.9153
+   },
+   "rho": -0.078292,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000008,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:12787ab9",
+   "seed": 309885625,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 2.1501,
+    "away": 0.9055
+   },
+   "exactMeanGoals": {
+    "home": 2.17234,
+    "away": 0.9153
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.012591,
+    "maxAbsZ": 2.521794,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 27700
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.454039,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.448,
+     "z": -1.212924,
+     "mcStdError": 0.004979,
+     "requiredRuns": 27544
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.085763,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0879,
+     "z": 0.76329,
+     "mcStdError": 0.0028,
+     "requiredRuns": 8712
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.150483,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.1544,
+     "z": 1.095473,
+     "mcStdError": 0.003575,
+     "requiredRuns": 14205
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.440631,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.4328,
+     "z": -1.577342,
+     "mcStdError": 0.004965,
+     "requiredRuns": 27387
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.305935,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2988,
+     "z": -1.548462,
+     "mcStdError": 0.004608,
+     "requiredRuns": 23594
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.526509,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5391,
+     "z": 2.521794,
+     "mcStdError": 0.004993,
+     "requiredRuns": 27700
+    }
+   ],
+   "status": "CONVERGED"
+  },
+  {
+   "league": "bundesliga",
+   "eventId": "soccer:bundesliga:401884791",
+   "matchup": "SV Elversberg v Bayern Munich",
+   "kickoffUtc": "2026-09-13T15:30:00.000Z",
+   "modelId": "soccer-dixon-coles-v2",
+   "source": "data/internal/research/soccer/bundesliga/shadow-dc-v2/forecasts-2026-09-11.json",
+   "forecastAt": "2026-09-11T19:49:51.000Z",
+   "lambdas": {
+    "home": 2.4013,
+    "away": 3.658
+   },
+   "rho": -0.078292,
+   "rebuild": {
+    "ok": true,
+    "checked": [
+     "home",
+     "draw",
+     "away",
+     "over25"
+    ],
+    "maxAbsDiff": 0.000009,
+    "tolerance": 0.0005
+   },
+   "worldSetId": "soccer-match-worlds-v1:01ed08c7",
+   "seed": 32311495,
+   "runs": 10000,
+   "sampledMeanGoals": {
+    "home": 2.395,
+    "away": 3.6338
+   },
+   "exactMeanGoals": {
+    "home": 2.400918,
+    "away": 3.646834
+   },
+   "convergence": {
+    "checks": 28,
+    "maxAbsDiff": 0.003425,
+    "maxAbsZ": 1.368841,
+    "withinNoise": true,
+    "singlesWithinTolerance": true,
+    "jointsWithinTolerance": false,
+    "maxRequiredRunsJoint": 26797
+   },
+   "joints": [
+    {
+     "legs": [
+      "result:home",
+      "total:over:2.5"
+     ],
+     "probability": 0.222202,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.2213,
+     "z": -0.217075,
+     "mcStdError": 0.004157,
+     "requiredRuns": 19204
+    },
+    {
+     "legs": [
+      "result:away",
+      "total:over:2.5"
+     ],
+     "probability": 0.593985,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.5946,
+     "z": 0.125327,
+     "mcStdError": 0.004911,
+     "requiredRuns": 26797
+    },
+    {
+     "legs": [
+      "result:draw",
+      "total:under:2.5"
+     ],
+     "probability": 0.026107,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0279,
+     "z": 1.124193,
+     "mcStdError": 0.001595,
+     "requiredRuns": 2826
+    },
+    {
+     "legs": [
+      "btts:yes",
+      "total:over:2.5"
+     ],
+     "probability": 0.865364,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.8631,
+     "z": -0.663336,
+     "mcStdError": 0.003413,
+     "requiredRuns": 12946
+    },
+    {
+     "legs": [
+      "result:home",
+      "btts:yes"
+     ],
+     "probability": 0.211084,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.211,
+     "z": -0.020504,
+     "mcStdError": 0.004081,
+     "requiredRuns": 18504
+    },
+    {
+     "legs": [
+      "doubleChance:homeOrDraw",
+      "total:under:3.5"
+     ],
+     "probability": 0.066934,
+     "basis": "ANALYTIC_MODEL",
+     "sampled": 0.0687,
+     "z": 0.706704,
+     "mcStdError": 0.002499,
+     "requiredRuns": 6940
+    }
+   ],
+   "status": "CONVERGED"
+  }
+ ],
+ "skipped": []
+}
