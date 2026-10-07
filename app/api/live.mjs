@@ -28,6 +28,7 @@ import {
   gatewayDisabled,
   planRequest,
   scoreboardTtl,
+  ttlForPlan,
   upstreamUrls,
 } from "./_live-core.mjs";
 import { makeUnavailable } from "../src/lib/live/contract.mjs";
@@ -102,7 +103,7 @@ export default async function handler(req, res) {
   }
 
   if (plan.mode === "scoreboard") {
-    res.setHeader("Cache-Control", cacheHeaderFor(scoreboardTtl(envelopes)));
+    res.setHeader("Cache-Control", cacheHeaderFor(ttlForPlan(plan, scoreboardTtl(envelopes), nowMs)));
     res.setHeader("Content-Type", "application/json");
     return res.status(200).json({ schemaVersion: 1, sport: plan.sport, fetchedAt, events: envelopes });
   }
@@ -137,7 +138,7 @@ export default async function handler(req, res) {
   }
 
   const policy = refreshPolicyFor(envelope, Date.parse(fetchedAt));
-  res.setHeader("Cache-Control", cacheHeaderFor(policy.ttlSeconds));
+  res.setHeader("Cache-Control", cacheHeaderFor(ttlForPlan(plan, policy.ttlSeconds, nowMs)));
   res.setHeader("Content-Type", "application/json");
   return res.status(200).json({ schemaVersion: 1, sport: plan.sport, fetchedAt, event: envelope, policy });
 }

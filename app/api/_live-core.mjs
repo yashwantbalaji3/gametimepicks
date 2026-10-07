@@ -11,6 +11,7 @@
  *   - the cache header that makes one upstream refresh serve many readers
  */
 import { TTL_SECONDS } from "../src/lib/live/freshness.mjs";
+import { capTtlForDate, etDateAt } from "../src/lib/live/slate-scope.mjs";
 
 /** Sports an adapter EXISTS for. Being here is a capability, not a permission — see PUBLIC_SPORTS. */
 export const SUPPORTED_SPORTS = Object.freeze(["nfl", "mlb"]);
@@ -71,15 +72,22 @@ const ET_DATE = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
  * Modes: `scoreboard` (one batch call covering a whole slate — the cheap default) and `event` (one
  * event, plus the heavy NFL summary only when player stats are asked for).
  */
-export function planRequest(query, allowed = publicSports()) {
+export function planRequest(query, allowed = publicSports(), nowMs = Date.now()) {
   const sport = String(query?.sport ?? "").toLowerCase();
   // Permission first. A sport we CAN serve but may not is indistinguishable, to a caller, from one
   // we have no adapter for — the refusal deliberately reveals nothing about what else exists.
   if (!allowed.includes(sport)) return { ok: false, reason: "UNSUPPORTED_SPORT" };
 
   const eventRaw = query?.event === undefined || query?.event === null ? "" : String(query.event);
-  const date = query?.date === undefined || query?.date === null ? "" : String(query.date);
+  let date = query?.date === undefined || query?.date === null ? "" : String(query.date);
   if (date && !ET_DATE.test(date)) return { ok: false, reason: "PROVIDER_MALFORMED" };
+  /*
+   * ⚠ MLB IS NEVER ASKED WITHOUT A DATE (LV-1). StatsAPI's undated schedule can still be YESTERDAY's
+   * slate after midnight ET; a hub that received it read a board of finals as "today is over" and
+   * stopped polling. An undated MLB request is therefore pinned to today's ET date here, on the
+   * server, so even an old client that never sends one gets today.
+   */
+  if (sport === "mlb" && !date) date = etDateAt(nowMs);
 
   if (eventRaw) {
     if (!EVENT_ID.test(eventRaw)) return { ok: false, reason: "EVENT_NOT_FOUND" };
@@ -155,6 +163,14 @@ export function cacheHeaderFor(ttlSeconds) {
    * private copy of a moment that has passed.
    */
   return `public, max-age=0, s-maxage=${ttlSeconds}, stale-while-revalidate=${swr}`;
+}
+
+/**
+ * The TTL for a plan's response. An MLB answer about today never gets the one-hour terminal cache
+ * (LV-3): a slate that reads final now may still change today, and the CDN must not pin it.
+ */
+export function ttlForPlan(plan, ttlSeconds, nowMs = Date.now()) {
+  return plan.sport === "mlb" ? capTtlForDate(ttlSeconds, plan.date, nowMs) : ttlSeconds;
 }
 
 /** The TTL for a whole scoreboard: the shortest any of its events wants. */

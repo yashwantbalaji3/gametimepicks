@@ -77,8 +77,9 @@ test("HUB 1b · each sport's hub names only its OWN sport, and both are mounted"
    *   The mutation probe for this pair is "make the MLB hub ask for nfl", and it must go red.
    */
   const mlbHub = read("src/components/live/live-hub.tsx");
-  assert.match(mlbHub, /useLiveSlate\("mlb"\)/, "the MLB hub asks for its own sport explicitly");
-  assert.equal(/useLiveSlate\("nfl"\)/.test(mlbHub), false, "the MLB hub must not ask for NFL");
+  // The MLB hub also passes its roster scope (LV-1..3), so the call may carry a second argument.
+  assert.match(mlbHub, /useLiveSlate\("mlb"[,)]/, "the MLB hub asks for its own sport explicitly");
+  assert.equal(/useLiveSlate\("nfl"[,)]/.test(mlbHub), false, "the MLB hub must not ask for NFL");
 
   const nflHub = read("src/components/live/nfl-live-hub.tsx");
   assert.match(nflHub, /useLiveSlate\("nfl"\)/, "the NFL hub asks for its own sport explicitly");
@@ -87,8 +88,8 @@ test("HUB 1b · each sport's hub names only its OWN sport, and both are mounted"
 
 test("HUB 2 · the hub asks in BATCH mode — one request for the slate, never one per card", () => {
   const hook = codeOnly(read("src/components/live/use-live-slate.ts"));
-  // liveUrl is called with sport only — no `event`, which is what would make it per-card.
-  assert.match(hook, /liveUrl\(\{\s*sport\s*\}\)/, "the slate hook requests the batch scoreboard");
+  // liveUrl is called with sport and the slate's date only — no `event`, which is what would make it per-card.
+  assert.match(hook, /liveUrl\(\{\s*sport,\s*date\s*\}\)/, "the slate hook requests the batch scoreboard");
   assert.equal(/liveUrl\([^)]*event/.test(hook), false, "an event parameter would defeat batching and the CDN");
 
   // The card component performs no fetching at all.

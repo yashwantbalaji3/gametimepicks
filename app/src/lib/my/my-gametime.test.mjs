@@ -148,8 +148,8 @@ test("REQ2 · ⚠ 1 or 20 followed teams → the same ONE batch request (no per-
   assert.match(src, /useLiveSlate\("mlb"\)/);
   assert.equal(/followed\.map\([^)]*useLiveSlate|\.map\([^)]*liveUrl/.test(src), false, "no request per followed team");
   assert.equal(/liveUrl\(|\/api\/live/.test(src), false, "the page never builds a Live URL itself");
-  // The batch hook itself requests the slate with sport only (asserted in hub.test.mjs too).
-  assert.match(code("src/components/live/use-live-slate.ts"), /liveUrl\(\{\s*sport\s*\}\)/);
+  // The batch hook itself requests the slate with sport and date only (asserted in hub.test.mjs too).
+  assert.match(code("src/components/live/use-live-slate.ts"), /liveUrl\(\{\s*sport,\s*date\s*\}\)/);
 });
 
 test("REQ3 · following or saving cannot trigger a Live request", () => {
