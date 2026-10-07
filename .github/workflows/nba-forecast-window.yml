@@ -7,7 +7,8 @@
 # preseason games) was never forecast before tip, and the preregistration only counts pre-tip artifacts.
 #
 # This workflow asks one free question often: does a game tip within 8 hours that some family (v0, the v0.1
-# champion, the v0.2 2026-27 challenger) has not forecast? If so
+# champion, the v0.2 2026-27 challenger) has not forecast, or is a day's private shadow Top Board due to freeze
+# (lib/sports/nba/top-boards.mjs)? If so
 # it captures the injuries feed FIRST (free ESPN, G4), then builds only that game (write-once: a stored game
 # is never rewritten, a tipped game is refused — lib/sports/nba/forecast-receipt.mjs), verifies no committed
 # forecast changed, and commits. Overlapping or repeated runs are no-ops by construction.
@@ -99,10 +100,15 @@ jobs:
                 || echo "::warning::v0.2 refused for $D — v0 and v0.1 unaffected"
             done
             if [ "$V0_FAILED" = "1" ]; then echo "::error::v0 forecast build refused"; exit 1; fi
-            git add ../data/internal/research/nba/experimental/ ../data/internal/research/nba/experimental-v0.1/ ../data/internal/research/nba/experimental-v0.2/
-            if git diff --cached --quiet; then echo "no forecast added — nothing to commit"; exit 0; fi
-            # Never commit a run that changed or removed an already-committed forecast.
+            # Stage 12-S2: freeze the day's private SHADOW Top Boards from the champion's receipts once they are due
+            # (write-once, before the first tip; never back-filled). A refusal warns and never costs a forecast.
+            node scripts/nba/freeze-nba-top-boards.mjs --now "$NOW" --write \
+              || echo "::warning::NBA shadow Top Board freeze refused — forecasts unaffected"
+            git add ../data/internal/research/nba/experimental/ ../data/internal/research/nba/experimental-v0.1/ ../data/internal/research/nba/experimental-v0.2/ ../data/internal/research/nba/top-board-receipts/
+            if git diff --cached --quiet; then echo "no forecast or board added — nothing to commit"; exit 0; fi
+            # Never commit a run that changed or removed an already-committed forecast or board (boards are add-only).
             node scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD || exit 1
+            if [ -n "$(git diff --cached --name-only --diff-filter=MDR HEAD -- ../data/internal/research/nba/top-board-receipts/)" ]; then echo "::error::a frozen NBA Top Board was changed or removed"; exit 1; fi
             # The exact injury snapshot the receipts hash, so the hash can be checked against history.
             git add ../data/internal/research/injuries/nba/latest.json
             git commit -q -m "auto: nba pre-tip forecast window $NOW [skip ci]"
@@ -117,4 +123,4 @@ jobs:
 
       - name: Report a hold
         if: steps.decide.outputs.decision != 'BUILD'
-        run: echo "::notice::nba-forecast-window held — no NBA game tips within 8 h without a forecast from every family"
+        run: echo "::notice::nba-forecast-window held — no NBA game tips within 8 h without a forecast from every family, and no Top Board is due"
