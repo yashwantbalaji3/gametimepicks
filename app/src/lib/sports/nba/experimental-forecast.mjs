@@ -24,6 +24,7 @@ import { expectedMinutes } from "./minutes-model.mjs";
 import { simulateGame, DEFAULT_SIMULATIONS, NBA_SIM_MODEL_VERSION } from "./game-sim.mjs";
 import { rosterForTeam } from "./roster-contract.mjs";
 import { gatePool, POOL_VERSION as ROSTER_GATED_POOL_VERSION } from "./roster-gated-pool.mjs";
+import { frozenWinnerSide, DECIDED_WINNER_HEAD } from "./winner-side.mjs";
 
 export const FORECAST_ARTIFACT = "nba-experimental-forecasts";
 /**
@@ -31,10 +32,18 @@ export const FORECAST_ARTIFACT = "nba-experimental-forecasts";
  * §1) and keeps its directory, its ledger and its model-version string. v0.1 is the roster-gated pool: same
  * Elo, same minutes model, same seeded simulation engine — only the POOL rule changes — written to its own
  * directory with its own ledger so the two are graded side by side and neither rewrites the other.
+ *
+ * v0.2 (Stage 12-S1b, founder decision N3, 2026-10-07) is the 2026-27 CHALLENGER: v0.1's roster-gated pool, but its
+ * Elo and minutes also fold the 2026-27 season as it happens (the finals record and the fetched box scores — see
+ * season-fold.mjs), which v0 and v0.1 never read. It is SHADOW research beside the champion: it never replaces
+ * v0.1 (N1 champion) or the Elo winner side (N2) automatically.
+ *
+ * `role` and `dataRule` are labels for readers; nothing in the build branches on `role`.
  */
 export const FAMILIES = Object.freeze({
-  "v0": Object.freeze({ family: "v0", poolRule: "box-score-history", modelVersion: "nba-preseason-experimental-v0", dir: "experimental" }),
-  "v0.1": Object.freeze({ family: "v0.1", poolRule: "roster-gated", modelVersion: "nba-preseason-experimental-v0.1", dir: "experimental-v0.1" }),
+  "v0": Object.freeze({ family: "v0", poolRule: "box-score-history", dataRule: "corpus-v1", role: "PREREGISTERED_SHADOW", modelVersion: "nba-preseason-experimental-v0", dir: "experimental" }),
+  "v0.1": Object.freeze({ family: "v0.1", poolRule: "roster-gated", dataRule: "corpus-v1", role: "CHAMPION", modelVersion: "nba-preseason-experimental-v0.1", dir: "experimental-v0.1" }),
+  "v0.2": Object.freeze({ family: "v0.2", poolRule: "roster-gated", dataRule: "corpus-v1+season-2026-27", role: "CHALLENGER", modelVersion: "nba-experimental-v0.2-season-2026-27", dir: "experimental-v0.2" }),
 });
 export function familySpec(family) {
   const f = FAMILIES[String(family ?? "v0")];
@@ -144,7 +153,7 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
   const spec = familySpec(family);
   const rosterGated = spec.poolRule === "roster-gated";
   // v0.1 FAILS CLOSED on a missing roster capture at the artifact level too: no roster, no forecast, no fallback.
-  if (rosterGated && !rosters) throw new Error("REFUSED: family v0.1 requires a roster capture (rosters/latest.json) — it never falls back to box-score membership");
+  if (rosterGated && !rosters) throw new Error(`REFUSED: family ${spec.family} requires a roster capture (rosters/latest.json) — it never falls back to box-score membership`);
   const teamMinutesCache = new Map();
 
   const slate = (Array.isArray(scheduleRows) ? scheduleRows : [])
@@ -239,7 +248,8 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
       home: { name: home.name, abbr: home.abbr, providerTeamId: home.providerTeamId, rating: home.rating, minutesModel: { modelVersion: home.minutes.modelVersion, seasonUsed: home.minutes.seasonUsed, teamGamesInSeason: home.minutes.teamGamesInSeason, teamGamesInWindow: home.minutes.teamGamesInWindow, windowFromDateUtc: home.minutes.windowFromDateUtc, windowToDateUtc: home.minutes.windowToDateUtc }, rosterReconciliation: home.rosterReconciliation, ...(rosterGated ? { pool: home.pool } : {}) },
       away: { name: away.name, abbr: away.abbr, providerTeamId: away.providerTeamId, rating: away.rating, minutesModel: { modelVersion: away.minutes.modelVersion, seasonUsed: away.minutes.seasonUsed, teamGamesInSeason: away.minutes.teamGamesInSeason, teamGamesInWindow: away.minutes.teamGamesInWindow, windowFromDateUtc: away.minutes.windowFromDateUtc, windowToDateUtc: away.minutes.windowToDateUtc }, rosterReconciliation: away.rosterReconciliation, ...(rosterGated ? { pool: away.pool } : {}) },
       ...(rosterGated ? { poolVersion: ROSTER_GATED_POOL_VERSION } : {}),
-      forecast: sim,
+      // Stage 12-S1: the winner side is frozen beside the probabilities it comes from (N2: Elo, with the generation).
+      forecast: { ...sim, ...frozenWinnerSide(sim, { head: DECIDED_WINNER_HEAD, generation: spec.modelVersion }) },
     });
     manifest.gamesForecast += 1;
   }
@@ -252,6 +262,7 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     neverReadBy: "app/src/app/** (public routes) — internal research only; sport-capability-registry keeps NBA HISTORICAL_ONLY",
     modelVersion: spec.modelVersion,
     ...(rosterGated ? { family: spec.family, poolRule: spec.poolRule, poolVersion: ROSTER_GATED_POOL_VERSION, simEngineVersion: NBA_SIM_MODEL_VERSION } : {}),
+    ...(spec.dataRule !== "corpus-v1" ? { dataRule: spec.dataRule, role: spec.role } : {}),
     generatedAt: now,
     inputAsOf: now,
     date,

@@ -18,7 +18,9 @@
  *
  * FAMILIES (v1.8 A1): --family v0 (default) is the frozen preregistered pool (box-score history) and writes
  * experimental/forecasts/; --family v0.1 is the ROSTER-GATED pool and writes experimental-v0.1/forecasts/.
- * v0.1 REFUSES (exit 1) when rosters/latest.json is absent — it never falls back to history. --out <file>
+ * v0.1 REFUSES (exit 1) when rosters/latest.json is absent — it never falls back to history. --family v0.2 is the
+ * 2026-27 CHALLENGER (founder N3): v0.1's pool, plus the season's finals record and fetched box scores folded at
+ * --now (season-fold.mjs); writes experimental-v0.2/forecasts/ and REFUSES when the finals record is unreadable. --out <file>
  * overrides the output path for a research comparison (never used by the workflow).
  * WRITE-ONCE, PRE-TIP (Session 10 · G2/G4/G7 — lib/sports/nba/forecast-receipt.mjs): the date file is never
  * rewritten whole. A game already in it is kept byte-for-byte; a game whose tip is at or before --now is
@@ -33,7 +35,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { buildForecastArtifact, familySpec, familyGuard, etDateOf } from "../../src/lib/sports/nba/experimental-forecast.mjs";
+import { buildForecastArtifact, familySpec, familyGuard, etDateOf, FAMILIES } from "../../src/lib/sports/nba/experimental-forecast.mjs";
+import { finalsAsCorpusRows, foldBoxscores } from "../../src/lib/sports/nba/season-fold.mjs";
 import { DEFAULT_SIMULATIONS } from "../../src/lib/sports/nba/game-sim.mjs";
 import { planRun, stampReceipt, mergeForecastArtifact, frozenGameViolations, injurySnapshotProvenance, sha256 } from "../../src/lib/sports/nba/forecast-receipt.mjs";
 
@@ -45,6 +48,7 @@ const BOXSCORES = path.join(NBA, "boxscores");
 const SCHEDULE = path.join(APP, "public", "data", "nba", "schedule", "latest.json");
 const INJURIES = path.join(RESEARCH, "injuries", "nba", "latest.json");
 const ROSTERS = path.join(NBA, "rosters", "latest.json");
+const FINALS = path.join(APP, "public", "data", "nba", "results", "finals-2026-27.json");
 
 const argv = process.argv.slice(2);
 const flag = (n) => argv.includes(n);
@@ -94,13 +98,28 @@ if (plan.outcomes.length > 0 && plan.build.length === 0) {
 }
 const buildIds = new Set(plan.build);
 if (FAMILY.poolRule === "roster-gated" && !rosters) { console.error(`REFUSED: family ${FAMILY.family} requires ${path.relative(path.resolve(APP, ".."), ROSTERS)} — no roster capture, no forecast (never box-score membership)`); process.exit(1); }
-const boxscores = fs.readdirSync(BOXSCORES)
-  .filter((f) => /^\d+\.json$/.test(f))
-  .map((f) => readJson(path.join(BOXSCORES, f)));
+const readBoxDir = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /^\d+\.json$/.test(f)).map((f) => readJson(path.join(dir, f))) : []);
+const corpusBoxscores = readBoxDir(BOXSCORES);
+let boxscores = corpusBoxscores;
+let corpusRows = corpus.rows ?? [];
+let seasonFold = null;
+let finalsText = null;
+if (FAMILY.dataRule !== "corpus-v1") {
+  // v0.2 (N3): fold the 2026-27 season as of --now. No finals record → no challenger forecast (never a silent v0.1 copy).
+  if (!fs.existsSync(FINALS)) { console.error(`REFUSED: family ${FAMILY.family} requires ${path.relative(path.resolve(APP, ".."), FINALS)}`); process.exit(1); }
+  finalsText = fs.readFileSync(FINALS, "utf8");
+  const finals = finalsAsCorpusRows(JSON.parse(finalsText), { corpusIds: new Set(corpusRows.map((r) => String(r.providerEventId))), now: NOW });
+  const fetched = Object.values(FAMILIES).flatMap((f) => readBoxDir(path.join(NBA, f.dir, "boxscores")));
+  const box = foldBoxscores(corpusBoxscores, fetched, { now: NOW });
+  corpusRows = [...corpusRows, ...finals.rows];
+  boxscores = box.docs;
+  seasonFold = { finalsFolded: finals.rows.length, finalsSkipped: finals.skipped, boxscoresFolded: box.added, boxscoresSkipped: box.skipped };
+  console.log(`season fold @ ${NOW}: finals +${finals.rows.length} ${JSON.stringify(finals.skipped)} · box scores +${box.added} ${JSON.stringify(box.skipped)}`);
+}
 
 const { artifact, manifest } = buildForecastArtifact({
   date: DATE, now: NOW,
-  scheduleRows: (schedule.rows ?? []).filter((r) => buildIds.has(String(r?.providerEventId))), corpusRows: corpus.rows ?? [], boxscores,
+  scheduleRows: (schedule.rows ?? []).filter((r) => buildIds.has(String(r?.providerEventId))), corpusRows, boxscores,
   injuries: injuries?.entries ?? null, rosters, simulations: SIMS, family: FAMILY.family,
 });
 artifact.inputs = {
@@ -109,6 +128,7 @@ artifact.inputs = {
   schedule: { file: "app/public/data/nba/schedule/latest.json", generatedAt: schedule.generatedAt ?? null, rows: (schedule.rows ?? []).length },
   injuries: injuries ? { file: "injuries/nba/latest.json", generatedAt: injuries.generatedAt ?? null, sourceAsOf: injuries.sourceAsOf ?? null, entries: (injuries.entries ?? []).length } : null,
   rosters: rosters ? { file: "rosters/latest.json", asOf: rosters.asOf ?? null, contractVersion: rosters.contractVersion ?? null, teamsCaptured: rosters.manifest?.teamsCaptured ?? null, players: rosters.manifest?.players ?? null } : null,
+  ...(seasonFold ? { seasonFold } : {}),
 };
 /* The per-game receipt's inputs: what THIS game was built from, with content hashes (G4). */
 const receiptInputs = {
@@ -117,6 +137,7 @@ const receiptInputs = {
   schedule: { file: "app/public/data/nba/schedule/latest.json", generatedAt: schedule.generatedAt ?? null },
   corpus: { file: "corpus-v1.json", generatedAt: corpus.generatedAt ?? null, rows: (corpus.rows ?? []).length },
   boxscores: { dir: "boxscores/", docs: boxscores.length },
+  ...(seasonFold ? { finals: { file: "app/public/data/nba/results/finals-2026-27.json", sha256: sha256(finalsText), folded: seasonFold.finalsFolded }, fetchedBoxscores: { folded: seasonFold.boxscoresFolded } } : {}),
 };
 
 console.log(`NBA experimental forecasts · family ${FAMILY.family} (${FAMILY.poolRule}) · ${DATE} · now ${NOW} · sims ${SIMS}`);
@@ -129,7 +150,7 @@ for (const g of artifact.games) {
 console.log(` players: expectedMinutes ${manifest.playersWithExpectedMinutes} · out ${manifest.playersOut} · noMinutes ${manifest.playersNoMinutes} · basis ${JSON.stringify(manifest.minutesBasisCounts)}`);
 console.log(` unknown-to-history (injuries): ${manifest.playersUnknownToHistory.length} · teams w/o boxscore history: ${manifest.teamsWithoutBoxscoreHistory.length} · w/o rating: regular ${manifest.teamsWithoutRegularHistory.length} preseason ${manifest.teamsWithoutPreseasonHistory.length}`);
 console.log(` substitutions: pool-rate ${manifest.poolRateSubstitutions} · default-sd ${manifest.defaultSdSubstitutions}`);
-if (FAMILY.poolRule === "roster-gated") console.log(` pool v0.1: roster players ${manifest.pool.rosterPlayers} · simulated ${manifest.pool.playersSimulated} · INSUFFICIENT_HISTORY ${manifest.pool.playersInsufficientHistory} · excluded (not on roster) ${manifest.pool.playersExcludedNotOnRoster} · other-team history ${manifest.pool.playersOtherTeamHistory} · games refused by gate ${manifest.pool.gamesRefusedByRosterGate}`);
+if (FAMILY.poolRule === "roster-gated") console.log(` pool ${FAMILY.family}: roster players ${manifest.pool.rosterPlayers} · simulated ${manifest.pool.playersSimulated} · INSUFFICIENT_HISTORY ${manifest.pool.playersInsufficientHistory} · excluded (not on roster) ${manifest.pool.playersExcludedNotOnRoster} · other-team history ${manifest.pool.playersOtherTeamHistory} · games refused by gate ${manifest.pool.gamesRefusedByRosterGate}`);
 console.log(` roster: ${manifest.roster.provided ? `asOf ${manifest.roster.asOf} · on roster w/o history ${manifest.roster.playersOnRosterWithoutHistory} · simulated but not on roster ${manifest.roster.playersSimulatedButNotOnRoster} · teams missing ${manifest.roster.teamsMissingRoster.length}` : "not provided (rosters/latest.json absent)"}`);
 
 // NO-OP IS NOT A FAILURE: a date with no NBA game on the schedule writes nothing and exits 0 with an

@@ -6,7 +6,7 @@
  * 14:09Z–17:35Z over the 12 days before 2026-10-03. A game that tips before that run arrives — opening day's
  * 19:00Z BOS @ DET, the 17:00–21:00Z weekend and holiday tips, the 10:00Z / 12:00Z international preseason
  * games — was never forecast before tip. This answers one question, often: which ET dates have a scheduled
- * game tipping within the horizon that neither family has forecast yet? The workflow builds only those, and
+ * game tipping within the horizon that some family has not forecast yet? The workflow builds only those, and
  * the write-once builder (forecast-receipt.mjs) makes a repeated or overlapping run a no-op.
  *
  *   node scripts/nba/decide-nba-forecast-window.mjs --now <ISO> [--horizon-hours 8]   (overnight tips: 18 h)
@@ -44,6 +44,13 @@ export function owedWithOvernight({ rows, storedIdsByDate, now, horizonHours = W
   return [...owedByDate.values()].sort((a, b) => (a.date < b.date ? -1 : 1));
 }
 
+/** Events every family has frozen (one Set per family). A game missing from any family stays owed. Pure. */
+export function frozenByEveryFamily(idSets) {
+  const [first, ...rest] = idSets ?? [];
+  if (!first) return new Set();
+  return new Set([...first].filter((id) => rest.every((s) => s.has(id))));
+}
+
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const NBA = path.resolve(APP, "..", "data", "internal", "research", "nba");
 const SCHEDULE = path.join(APP, "public", "data", "nba", "schedule", "latest.json");
@@ -63,13 +70,15 @@ function main() {
     emit("decision", "HOLD"); emit("dates", ""); process.exit(0);
   }
 
-  /* Owed = v0 (the PREREGISTERED record) has not forecast it. v0.1 is research built alongside on the same run;
-     keying on it too would re-fire every tick whenever its roster gate refuses (which is the gate working). */
-  const V0_DIR = FAMILIES["v0"].dir;
-  const storedIdsByDate = (date) => {
-    try { return new Set((JSON.parse(fs.readFileSync(path.join(NBA, V0_DIR, "forecasts", `${date}.json`), "utf8")).games ?? []).map((g) => String(g.providerEventId))); }
-    catch { return new Set(); }
-  };
+  /* Owed = ANY family has not forecast it (Stage 12-S1b). v0 is the preregistered record, v0.1 the champion (N1)
+     and v0.2 the challenger (N3); the daily sport-schedules run builds only v0 and v0.1, so keying on v0 alone
+     held every window once that run had landed and the challenger never got its game. A roster-gate refusal can
+     re-fire BUILD on later ticks until tip; that costs a no-op run (the write-once builder adds nothing twice),
+     never a forecast. */
+  const storedIdsByDate = (date) => frozenByEveryFamily(Object.values(FAMILIES).map((fam) => {
+    try { return new Set((JSON.parse(fs.readFileSync(path.join(NBA, fam.dir, "forecasts", `${date}.json`), "utf8")).games ?? []).map((g) => String(g.providerEventId))); }
+    catch { return new Set(); } // no file yet = that family has frozen nothing for the date
+  }));
 
   const owed = owedWithOvernight({ rows: schedule.rows ?? [], storedIdsByDate, now: NOW, horizonHours: HORIZON });
   if (!owed.length) {

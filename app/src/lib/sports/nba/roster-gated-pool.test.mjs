@@ -179,7 +179,7 @@ test("FAMILY v0.1 through the artifact: own model version, v0 untouched, refused
   assert.match(stale.manifest.refused[0].reason, /ROSTER_GATE: ROSTER_STALE/);
   assert.equal(stale.artifact.games.length, 0);
   // the families are a closed set
-  assert.deepEqual(Object.keys(FAMILIES), ["v0", "v0.1"]);
+  assert.deepEqual(Object.keys(FAMILIES), ["v0", "v0.1", "v0.2"]); // v0.2 = the 2026-27 challenger (founder N3)
   assert.throws(() => familySpec("v1"), /REFUSED: unknown NBA experimental family/);
   assert.equal(familySpec("v0.1").dir, "experimental-v0.1");
   assert.equal(familySpec("v0").dir, "experimental");
@@ -232,16 +232,17 @@ test("FAMILY ISOLATION — an UNSTAMPED document is legacy v0 and is adopted by 
   assert.equal(familyGuard({ family: "v0", doc: null }).ok, true);
   assert.equal(familyGuard({ family: "v0.1", doc: null }).ok, false);
   // an unknown family never silently becomes v0
-  assert.throws(() => familyGuard({ family: "v0.2", doc: {} }), /unknown NBA experimental family/);
+  assert.throws(() => familyGuard({ family: "v0.9", doc: {} }), /unknown NBA experimental family/);
 });
 
-test("FAMILY ISOLATION — the two families' directories, ledgers and model versions are all distinct", () => {
+test("FAMILY ISOLATION — the families' directories, ledgers and model versions are all distinct", () => {
   const dirs = Object.values(FAMILIES).map((f) => f.dir);
   const versions = Object.values(FAMILIES).map((f) => f.modelVersion);
-  const rules = Object.values(FAMILIES).map((f) => f.poolRule);
+  // v0.2 shares v0.1's pool rule on purpose (the challenger isolates the 2026-27 data); pool + data rule is unique.
+  const rules = Object.values(FAMILIES).map((f) => `${f.poolRule}|${f.dataRule}`);
   assert.equal(new Set(dirs).size, dirs.length, "two families must never share a directory");
   assert.equal(new Set(versions).size, versions.length, "two families must never share a model version");
-  assert.equal(new Set(rules).size, rules.length, "two families must never share a pool rule");
+  assert.equal(new Set(rules).size, rules.length, "two families must never share a pool rule AND a data rule");
   assert.equal(familySpec("v0").dir, "experimental", "v0 keeps the directory it was preregistered in");
 });
 
