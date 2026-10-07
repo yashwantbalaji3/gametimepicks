@@ -111,8 +111,11 @@ test("the replacement words are what renders (rows #28-#32, #34-#39)", () => {
   assert.match(audit, /this page from the settled-leans record/);
   const about = rendered("src/app/about/page.tsx");
   // TR-COPY-1 retired the archived curated-rail and confidence-overlay bullets that carried rows #35-#36;
-  // the page now says those were retired instead, and the developer names stay out.
-  assert.match(about, /confidence tiers and the edge-ranked curated rail are no longer\s+shown here: both were retired/);
+  // the page now labels those methods retired (their May 22 figures stay for the record), and the developer
+  // names stay out.
+  assert.match(about, /the edge-ranked curated rail it describes are retired methods,\s+kept here for the record only/);
+  assert.match(about, /Retired method · MLB confidence tiers on the May 22/);
+  assert.match(about, /High was 49\.7% on 396 settled rows,\s+Medium 50\.4% on 141, Low 53\.3% on 435/);
   assert.doesNotMatch(about, /pipeline\.(snapshot|grade)_curated/);
   // #38: words in the Status cell; the colour check still reads the raw state.
   const nfl = rendered("src/app/nfl/page.tsx");

@@ -196,9 +196,9 @@ export default function AboutPage() {
           An archived read from the NBA/MLB era of the site, kept for the
           record. For current model states, see System Status and each sport
           hub&apos;s coverage table — those derive from live receipts; this
-          snapshot does not update. Its notes on the old High / Medium / Low
-          confidence tiers and the edge-ranked curated rail are no longer
-          shown here: both were retired, and the neutral A / B / C categories
+          snapshot does not update. The High / Medium / Low confidence tiers
+          and the edge-ranked curated rail it describes are retired methods,
+          kept here for the record only: the neutral A / B / C categories
           explained above replaced the tiers.
           <ul className="mt-3 space-y-1 list-disc pl-5">
             <li>
@@ -223,6 +223,20 @@ export default function AboutPage() {
               — smallest sample of any market we cover and below coin
               flip so far. The variance profile of pitcher hooks +
               manager decisions makes this an honest weak spot.
+            </li>
+            <li>
+              <strong style={{ color: "var(--vault-text-mute)" }}>
+                Retired method · MLB confidence tiers on the May 22
+                settlement
+              </strong>{" "}
+              — as of that date High was 49.7% on 396 settled rows,
+              Medium 50.4% on 141, Low 53.3% on 435. These are the
+              May 22 figures, not current ones; the live rates are in
+              the category captions above. At the time Low was the best
+              MLB cohort, and only ONE rival beat High by ≥1.5pp (both
+              had before May 22). The tiers, and the calibration overlay
+              that adjusted their labels (it inverted a tier only when ≥ 2
+              rivals beat it by ≥ 1.5pp), have since been retired.
             </li>
             <li>
               <strong style={{ color: "var(--vault-text-mute)" }}>
