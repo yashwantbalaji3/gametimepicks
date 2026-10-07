@@ -1,0 +1,93 @@
+# MLB per-game batter and pitcher box lines (MS-2a) — PRIVATE research input for MS-2 talent estimates.
+#
+# Archives every regular-season and postseason game's box lines by date into data/internal/mlb/game-logs/,
+# append-only, with capturedAt on each record and missing data recorded as gaps (never as zero). Nothing public
+# reads these files. Source: the MLB Stats API the board already uses (free; no key). Its own workflow on
+# purpose: a capture refusal must fail loudly here and can never be the reason the daily MLB slate does not
+# publish. Only this job writes data/internal/mlb/game-logs/, so it needs no shared writer queue.
+#
+# Daily: yesterday's games. Backfill: workflow_dispatch with a start/end window; --max-days keeps one run
+# bounded, and re-running the same window resumes (complete days are skipped).
+name: mlb-game-logs
+
+on:
+  schedule:
+    - cron: "40 13 * * *"   # 09:40 ET — every game of the previous day is final
+  workflow_dispatch:
+    inputs:
+      backfill_start:
+        description: "Backfill start YYYY-MM-DD (blank = yesterday only)"
+        required: false
+      backfill_end:
+        description: "Backfill end YYYY-MM-DD"
+        required: false
+      max_days:
+        description: "Max dates captured this run (backfill only)"
+        required: false
+        default: "45"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mlb-game-logs
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Capture box lines
+        id: capture
+        env:
+          BACKFILL_START: ${{ github.event.inputs.backfill_start }}
+          BACKFILL_END: ${{ github.event.inputs.backfill_end }}
+          MAX_DAYS: ${{ github.event.inputs.max_days }}
+        run: |
+          set -uo pipefail
+          if [ -n "${BACKFILL_START:-}" ]; then
+            ARGS=(--backfill-start "$BACKFILL_START" --backfill-end "$BACKFILL_END" --max-days "${MAX_DAYS:-45}")
+          else
+            ARGS=()
+          fi
+          PYTHONPATH=. python3 -m pipeline.mlb.capture_game_logs "${ARGS[@]}" 2>&1 | tee /tmp/game-logs.txt
+          rc=${PIPESTATUS[0]}
+          { echo "### MLB game logs (private)"; echo '```'; cat /tmp/game-logs.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          echo "rc=$rc" >> "$GITHUB_OUTPUT"
+
+      - name: Commit the captured days
+        run: |
+          set -euo pipefail
+          git config user.name "gtp-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data/internal/mlb/game-logs/
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: mlb game logs $(date -u +%Y-%m-%d) [skip ci]"
+          for a in 1 2 3 4; do
+            git push origin HEAD:main && exit 0
+            echo "push rejected (attempt $a) — rebasing onto origin/main and retrying"
+            git pull --rebase --autostash origin main || exit 1
+            sleep $((a * 5))
+          done
+          echo "::error::game logs captured and committed locally but never pushed after 4 attempts"; exit 1
+
+      - name: Fail visibly if any date was refused
+        if: steps.capture.outputs.rc != '0'
+        run: |
+          echo "::error::capture_game_logs exited ${{ steps.capture.outputs.rc }} — a date was refused (schedule unreachable or an append-only violation). Valid days were committed; see the step summary."
+          exit 1
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: mlb-game-logs
+          EXIT_STATUS: "1"
+          ERROR_LINE: "MLB game-log capture failed. Exit 3 is a refusal for at least one date; committed days are intact."
+        run: bash scripts/ops_alert.sh

@@ -117,6 +117,7 @@ MLB_TESTS=(
     capture_provenance_test
     event_scope_equivalence_test
     pre_event_boundary_test
+    capture_game_logs_test
     test_runner_coverage_test
 )
 MLB_FAILED=0
