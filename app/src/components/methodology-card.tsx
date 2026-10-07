@@ -162,7 +162,7 @@ export default function MethodologyCard() {
               textUnderlineOffset: 3,
             }}
           >
-            MODEL_LEARNING_ROADMAP_2026-05-28.md
+            the model learning roadmap (May 28, 2026)
           </a>
           .
         </p>

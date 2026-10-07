@@ -2,7 +2,7 @@
  * /about — friendly explainer for non-bettors.
  *
  * Six short sections covering what GameTimePicks is, how the model
- * works, how to read a projection, what confidence means, why results
+ * works, how to read a projection, what the category labels mean, why results
  * matter, and responsible use. Long-form technical detail still lives
  * on /methodology, /responsible-use, and /results/model-audit — this
  * page is the casual entry point.
@@ -150,8 +150,8 @@ export default function AboutPage() {
           >
             Results
           </Link>{" "}
-          page — wins, losses, and pushes — and grade after the final box
-          score. Pushes are excluded from the hit-rate denominator;
+          page — wins, losses, pushes and voids — and grade after the final box
+          score. Voids and pushes are excluded from the hit-rate denominator;
           pending games never count as losses. The deep-dive technical
           breakdown lives at{" "}
           <Link
@@ -196,7 +196,10 @@ export default function AboutPage() {
           An archived read from the NBA/MLB era of the site, kept for the
           record. For current model states, see System Status and each sport
           hub&apos;s coverage table — those derive from live receipts; this
-          snapshot does not update.
+          snapshot does not update. Its notes on the old High / Medium / Low
+          confidence tiers and the edge-ranked curated rail are no longer
+          shown here: both were retired, and the neutral A / B / C categories
+          explained above replaced the tiers.
           <ul className="mt-3 space-y-1 list-disc pl-5">
             <li>
               <strong style={{ color: "var(--vault-success)" }}>
@@ -211,7 +214,7 @@ export default function AboutPage() {
               </strong>{" "}
               — barely above coin flip on a large sample. We surface
               these projections but treat them as watch-list calls, not
-              high-confidence reads.
+              stronger reads.
             </li>
             <li>
               <strong style={{ color: "var(--vault-warn)" }}>
@@ -220,23 +223,6 @@ export default function AboutPage() {
               — smallest sample of any market we cover and below coin
               flip so far. The variance profile of pitcher hooks +
               manager decisions makes this an honest weak spot.
-            </li>
-            <li>
-              <strong style={{ color: "var(--vault-text-mute)" }}>
-                MLB confidence climbed back into &quot;watch&quot; on
-                the May 22 settlement
-              </strong>{" "}
-              — as of that date High was 49.7% on 396 settled rows,
-              Medium 50.4% on 141, Low 53.3% on 435. These are the
-              May 22 figures, not current ones; the live rates are in
-              the category captions above. Low is still the best MLB
-              cohort, but only ONE rival now beats High by ≥1.5pp
-              (was both before May 22). The calibration overlay
-              auto-promotes MLB High from a &quot;Needs more
-              tracking&quot; downgrade back to its raw label. The
-              decision rule is pinned by tests — we only invert when ≥ 2 rivals
-              beat by ≥ 1.5pp, so a single best-tier (Low) can&apos;t
-              trigger inversion.
             </li>
             <li>
               <strong style={{ color: "var(--vault-text-mute)" }}>
@@ -261,42 +247,7 @@ export default function AboutPage() {
               <strong>6-44 (12.0% on 50)</strong>. MLB-only curated
               picks are 5-1 (83.3%). The honest read: selectivity
               over volume is working; correlation risk is brutal on
-              4-5 leg slips. We surface both tracks but expect
-              users to weight the curated rail more heavily.
-            </li>
-            <li>
-              <strong style={{ color: "var(--vault-gold-bright)" }}>
-                Curated rail prefers selectivity over volume
-              </strong>{" "}
-              — the homepage &quot;Tonight&apos;s curated
-              projections&quot; rail picks up to six leans per slate
-              by edge × calibration-adjusted confidence × market
-              strength. Inverted (sport, tier) combos are excluded.
-              Better to see six trustworthy reads than 300 of mixed
-              quality. The picks are saved before games and graded
-              after settlement — so the curated rail will eventually carry a real,
-              auditable hit rate of its own.
-            </li>
-            <li>
-              <strong style={{ color: "var(--vault-text-mute)" }}>
-                Calibration is now derived from the live audit
-              </strong>{" "}
-              — the confidence overlay reads{" "}
-              <Link
-                href="/results/model-audit"
-                style={{
-                  color: "var(--vault-gold-bright)",
-                  textDecoration: "none",
-                }}
-              >
-                the model audit
-              </Link>{" "}
-              every render. When the nightly settle adds more data,
-              labels adjust automatically. We fail closed: thin
-              samples stay informational and inverted tiers are flagged.
-              No category is ever promoted above another: on settled data the
-              categories run in the opposite order to what their old names
-              implied, so none of them earns priority.
+              4-5 leg slips.
             </li>
           </ul>
           <p

@@ -176,7 +176,20 @@ export function featuredEpl(input: FeaturedInput & { set: EplForecastSet | null 
     .filter((r) => r.probs && r.state === "CURRENT_PRE_EVENT" && lifecycleOf(r.kickoffUtc, input.nowIso) === "PREGAME")
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
   const r = rows[0];
-  if (!r || !r.probs || !r.homeClub || !r.awayClub) return { card: null, reason: set.rows.length ? "Every forecast fixture has kicked off; the next matchweek appears when its forecasts publish." : "No fixture carries a current forecast yet." };
+  if (!r || !r.probs || !r.homeClub || !r.awayClub) {
+    /* "Every fixture has kicked off" was said whenever nothing was featured — including when the next matchweek's
+       fixtures were still days away but their forecasts were no longer current, beside "from Sat, Oct 10" on the
+       same card. Say which of the two is true. */
+    const upcoming = set.rows.filter((x) => lifecycleOf(x.kickoffUtc, input.nowIso) === "PREGAME");
+    const reason = !set.rows.length
+      ? "No fixture carries a current forecast yet."
+      : !upcoming.length
+        ? "Every forecast fixture has kicked off; the next matchweek appears when its forecasts publish."
+        : upcoming.some((x) => x.modelOnly && x.probs)
+          ? "The upcoming fixtures have model-only forecasts on the Premier League hub; one is featured here once a sportsbook price is captured."
+          : "The upcoming fixtures' forecasts are not current yet, so none is featured until they refresh before kickoff.";
+    return { card: null, reason };
+  }
   return { card: cardFromEplRow(r, input), reason: null };
 }
 

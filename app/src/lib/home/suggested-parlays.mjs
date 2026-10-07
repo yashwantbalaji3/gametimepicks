@@ -45,13 +45,30 @@ export function loadSuggestedParlaysPreview(dataRoot) {
   // One honest line per closed lane. The gate's own reason, clipped for a strip — the full
   // sentence stays in the artifact and on the Lab record page.
   const clip = (s) => (s.length > 110 ? `${s.slice(0, 110).trimEnd()}…` : s);
+  /*
+   * The coverage producer writes a refused lane evaluation as "lane evaluation of record refused
+   * (CAPABILITY_GATED) at <ISO time>; …" — an internal state name and a raw timestamp, which reached
+   * the homepage and /today verbatim. Say the same thing in the reader's words; the artifact keeps
+   * its own sentence. Any other reason passes through unchanged.
+   */
+  const publicReason = (s) => {
+    const m = /^lane evaluation of record refused \(([A-Z_]+)\)(?: at (\d{4})-(\d{2})-(\d{2})T[^;]*)?/.exec(s);
+    if (!m) return s;
+    const why = m[1] === "CAPABILITY_GATED"
+      ? "not cleared for model-built cards yet"
+      : "today's card evaluation did not complete";
+    const when = m[2]
+      ? ` (checked ${new Date(Date.UTC(+m[2], +m[3] - 1, +m[4])).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })})`
+      : "";
+    return `${why}${when}; the next scheduled run checks again`;
+  };
 
   const live = [];
   const closed = [];
   for (const row of matrix.rows) {
     const label = LANE_LABEL[row.lane] ?? row.lane;
     if (row.laneState === "CLOSED") {
-      closed.push({ lane: row.lane, label, reason: clip(row.laneReason ?? "closed by the eligibility gate") });
+      closed.push({ lane: row.lane, label, reason: clip(publicReason(row.laneReason ?? "closed by the eligibility gate")) });
       continue;
     }
     /*
@@ -63,7 +80,7 @@ export function loadSuggestedParlaysPreview(dataRoot) {
      */
     const cells = RISK_ORDER.map((tier) => row.tiers?.[tier] ?? { state: "MISSING" });
     if (cells.every((c) => c.state === "LANE_CLOSED")) {
-      closed.push({ lane: row.lane, label, reason: clip(cells[0].reason ?? "the lane evaluation refused") });
+      closed.push({ lane: row.lane, label, reason: clip(publicReason(cells[0].reason ?? "the lane evaluation refused")) });
       continue;
     }
     const tiers = RISK_ORDER.map((tier) => {

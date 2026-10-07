@@ -1108,7 +1108,7 @@ export default function NflHubPage() {
                 {productReceipts.lanes.map((l) => (
                   <tr key={l.product}>
                     <td className="gtp-nfl-td gtp-nfl-td-13">{l.label}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{l.state}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{coverageStateLabel(l.state)}</td>
                     <td className="gtp-nfl-td gtp-nfl-td-mono">{l.candidatesConsidered}</td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, lineHeight: 1.55, color: "var(--vault-text-mute)" }}>
                       {l.rejections.map((r) => `${r.count} × ${r.label}`).join("; ") || "—"}

@@ -15,7 +15,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 export const metadata = withRouteMetadata("/bucket-blitz/", {
   title: "Bucket Blitz · GameTime Picks",
   description:
-    "The NBA signature product, in development. What is captured today, and every stage still standing between that and a published read. No picks — the league is out of season and no player model is validated.",
+    "The NBA signature product, in development. What is captured today, and every stage still standing between that and a published read. No picks — no NBA player model is validated yet.",
 });
 
 export default function BucketBlitzPage() {

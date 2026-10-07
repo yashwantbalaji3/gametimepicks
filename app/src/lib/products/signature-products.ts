@@ -109,8 +109,8 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
     state: "coming-soon",
     question: "Who is filling it up tonight?",
     basis:
-      "Not built. The NBA surface is a settled archive — the league is out of season and no live " +
-      "board or player model is running.",
+      "Not built. The NBA season is starting, but no public live board or player model is running " +
+      "yet.",
   },
 ];
 

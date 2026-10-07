@@ -6,7 +6,7 @@
  * full-game artifact or the Sprint 009 prediction decision:
  *
  *   winner    → game.winProbability            ("SF wins 58% of simulations")
- *   outcome   → game.finalScores[0]            ("Most common outcome: SF 4 – LAA 3")
+ *   outcome   → game.finalScores[0]            ("Most common exact score: SF 4 – LAA 3")
  *   closeness → game.runDifferential.distribution  ("31% of simulations finish within one run")
  *   player    → prediction.topPlayerPredictions[0] ("Logan Webb UNDER 5.5 Strikeouts: 8,400 / 10,000")
  *
@@ -89,13 +89,17 @@ function winnerBeat(game: FullGameSimGame): StoryBeat | null {
   return { kind: "winner", text: `${team} wins ${pct}% of simulations.` };
 }
 
-/** "Most common outcome: SF 4 – LAA 3 (370 / 10,000 simulations)." Null when no final scores were recorded. */
+/**
+ * "Most common exact score: SF 4 – LAA 3 (370 / 10,000 simulations)." Null when no final scores were
+ * recorded. It is the single most frequent score, which still happens in only a few percent of runs, so the beat
+ * names it as a simulation count rather than as an outcome the game is expected to have.
+ */
 function outcomeBeat(game: FullGameSimGame): StoryBeat | null {
   const top = game.finalScores?.[0];
   if (!top) return null;
   const freq = simulationFrequency(top.probability, game.runCount);
   const score = `${game.awayTeam} ${top.away} – ${game.homeTeam} ${top.home}`;
-  return { kind: "outcome", text: freq ? `Most common outcome: ${score} (${freq}).` : `Most common outcome: ${score}.` };
+  return { kind: "outcome", text: freq ? `Most common exact score: ${score} (${freq}).` : `Most common exact score: ${score}.` };
 }
 
 /** "This matchup is relatively close: 31% of simulations finish within one run." */

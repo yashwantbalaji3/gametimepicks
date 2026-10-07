@@ -111,7 +111,7 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
           <div className="grid grid-cols-2 gap-2">
             {g.finalScores.length ? (
               <div className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
-                <span className="font-mono uppercase tracking-[0.1em] block mb-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Most likely score</span>
+                <span className="font-mono uppercase tracking-[0.1em] block mb-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Most common simulated score</span>
                 <span className="font-mono" style={{ color: "var(--vault-text)", fontSize: 13 }}>
                   {g.awayTeam} {g.finalScores[0].away} – {g.finalScores[0].home} {g.homeTeam}
                 </span>

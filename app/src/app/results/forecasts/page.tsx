@@ -13,6 +13,7 @@ import Link from "next/link";
 
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { forecastRecordView, familyHref, csvHref } from "@/lib/results/v2/forecast-ledger-reader";
+import { SPORT_LABELS } from "@/lib/results/v2/forecast-record.mjs";
 
 export const metadata = withRouteMetadata("/results/forecasts/", {
   title: "Forecast Record — Every Published Forecast, Measured · GameTime Picks",
@@ -42,6 +43,17 @@ const n = (v: number | null | undefined) => (v == null ? "—" : v.toLocaleStrin
 const pct = (v: number | null | undefined) => (v == null ? "—" : `${(v * 100).toFixed(1)}%`);
 const num = (v: number | null | undefined, d = 3) => (v == null ? "—" : v.toFixed(d));
 const day = (iso: string | null) => (iso ? iso.slice(0, 10) : "—");
+
+/*
+ * The declared-gap list is ledger data (compose.mjs DECLARED_GAPS → manifest → Ask), so its words are not
+ * rewritten there. Two of its tokens are internal codes, though: the sport key "LIGUE_1" and the NBA row's
+ * "SHADOW / PRIVATE_RESEARCH" class. Render those in the reader's words here; the record keeps its own.
+ */
+const gapSport = (s: string) => (SPORT_LABELS as Record<string, string>)[s] ?? s;
+const gapReason = (r: string) =>
+  r
+    .replace(/^SHADOW \/ PRIVATE_RESEARCH — never public forecast history\.$/, "A private research model only, so it is never part of the public forecast record.")
+    .replace(/ UNMEASURED\.$/, " Not measured yet.");
 
 const KIND_WORD: Record<string, string> = {
   CONTINUOUS_PROJECTION: "Projection",
@@ -132,7 +144,7 @@ export default function ForecastRecordPage() {
             <h2 id="fr-gaps" className="font-display">Published but not in this record yet</h2>
             <ul className="note" style={{ paddingLeft: 18 }}>
               {rec.declaredGaps.map((g: any) => (
-                <li key={`${g.sport}-${g.family}`}><b style={{ color: "var(--vault-text)" }}>{g.sport} · {g.family}</b>: {g.reason}</li>
+                <li key={`${g.sport}-${g.family}`}><b style={{ color: "var(--vault-text)" }}>{gapSport(g.sport)} · {g.family}</b>: {gapReason(g.reason)}</li>
               ))}
             </ul>
           </section>
