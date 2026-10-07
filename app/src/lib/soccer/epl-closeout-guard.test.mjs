@@ -119,6 +119,12 @@ const CROSS_LANE_READERS = [
    * into the lane. It imports nothing from the lane and writes nothing.
    */
   "src/lib/top-reads.ts",
+  /*
+   * methodology-soccer (Research, 2026-10-05): the /methodology Premier League card reads its counts from the EPL
+   * lane's own committed artifacts so no number is hand-typed, and its test recounts the same grade log. Read-only,
+   * renders counts on /methodology, no World Cup path.
+   */
+  "src/lib/research-pages/methodology-soccer",
 ];
 
 /** Every source file this lane owns. */
