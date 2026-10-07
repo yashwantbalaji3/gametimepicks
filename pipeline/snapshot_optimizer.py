@@ -86,6 +86,8 @@ def _leg_to_payload(leg: OptimizerLean) -> dict[str, Any]:
         "confidence": leg.confidence,
         "bookmaker": leg.bookmaker,
         "oddsForSide": leg.oddsForSide,
+        # Stage 4C groundwork: when this price was observed; null when the source row has no stamp.
+        "capturedAt": leg.capturedAt,
         "recent10Count": leg.recent10Count,
         "recentSeries": list(leg.recentSeries),
         # PR #116 — per-game metadata parallel to `recentSeries`.

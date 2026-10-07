@@ -77,6 +77,7 @@ export interface PortfolioLaneLeg {
   startUtc?: string | null;     // machine kickoff / first pitch
   marketKey?: string | null;    // e.g. mlb_moneyline
   line?: number | null;         // null when not applicable
+  capturedAt?: string | null;   // when the price was observed; null when the source did not stamp it (Stage 4C groundwork)
 }
 export interface PortfolioLane {
   id: string;
@@ -168,6 +169,7 @@ const toLeg = (p: ModelPick): PortfolioLaneLeg => {
     impliedProbability: probabilityBasis === "market-implied" ? p.modelProbability : null,
     probabilityBasis, probabilitySource,
     kickoffEt: p.kickoffEt, risk: p.risk, photoUrl: p.playerPortrait ?? null, teamLogo: p.teamLogo ?? null, eventId: p.gameId ?? null, startUtc: p.kickoffUtc ?? null, marketKey: p.marketKey ?? null, line: lineOf(p),
+    capturedAt: p.capturedAt ?? null,
   };
 };
 
@@ -412,6 +414,8 @@ export function approvedBankBuilderLanes(root: string, date: string): PortfolioL
       kickoffEt: leg.kickoffUtc ? new Date(leg.kickoffUtc).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }) + " ET" : "",
       risk: "Lower-volatility",
       teamLogo: null,
+      // the approved store's own stamp when it recorded one; never a substitute
+      capturedAt: typeof leg.capturedAt === "string" && leg.capturedAt ? leg.capturedAt : null,
     }));
     return {
       id: `bank-builder-approved-lane-${String(l.lane).toLowerCase()}-${date}`,

@@ -525,6 +525,8 @@ function buildParlays(days = 3) {
             confidence: l.confidence ?? null,
             bookmaker: l.bookmaker ?? null,
             oddsForSide: l.oddsForSide ?? null,
+            // Stage 4C groundwork: when this price was observed (optimizer leg). null = not stamped.
+            capturedAt: l.capturedAt ?? null,
             commenceTime: l.commenceTime ?? null,
           }));
           const mc = legs.filter((l) => legIsMarketContext(l, marketContext, cut));

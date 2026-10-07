@@ -377,6 +377,11 @@ class OptimizerLean:
     # missing. Never fabricated.
     commenceTime: str | None = None
     gameTime: str | None = None
+    # Stage 4C groundwork — when the leg's sportsbook price was observed (ISO UTC), carried verbatim
+    # from the source board row's `capturedAt` (stamped at the odds call, mlb/generate_mlb_board.py).
+    # None when the source row has no stamp; never back-filled from a file-level generatedAt. No
+    # price-age rule reads it yet (that threshold is founder question Q5).
+    capturedAt: str | None = None
 
     @property
     def isStar(self) -> bool:
@@ -439,6 +444,17 @@ def last_n_recent_values(series, n: int = 10) -> list:
     if n <= 0:
         return []
     return list(series or [])[-n:]
+
+
+def _iso_or_none(v: Any) -> str | None:
+    """An instant string the source actually wrote, else None. Never a substitute timestamp."""
+    if not isinstance(v, str) or not v.strip():
+        return None
+    try:
+        datetime.fromisoformat(v.strip().replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return v.strip()
 
 
 def normalize_lean(raw: dict[str, Any], *, sport: str | None = None) -> OptimizerLean:
@@ -531,6 +547,7 @@ def normalize_lean(raw: dict[str, Any], *, sport: str | None = None) -> Optimize
             and raw.get("gameTime").strip()
             else None
         ),
+        capturedAt=_iso_or_none(raw.get("capturedAt")),
     )
 
 
@@ -2259,6 +2276,7 @@ def _lean_from_payload(d: dict[str, Any]) -> OptimizerLean:
         # carries the same provenance the standard buckets do.
         commenceTime=d.get("commenceTime") if isinstance(d.get("commenceTime"), str) else None,
         gameTime=d.get("gameTime") if isinstance(d.get("gameTime"), str) else None,
+        capturedAt=_iso_or_none(d.get("capturedAt")),
     )
 
 

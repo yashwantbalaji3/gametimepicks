@@ -52,6 +52,8 @@ export interface ModelPick {
   teamLogo?: string | null;       // team/flag logo URL (team & total markets) for the card display
   playerId?: number | null;       // MLB player id (player props) → headshot
   playerPortrait?: string | null; // player headshot URL (player props)
+  /** When this leg's price was observed (ISO UTC); null/absent when the source did not stamp it. Stage 4C groundwork. */
+  capturedAt?: string | null;
 }
 
 export interface LaneCandidate {

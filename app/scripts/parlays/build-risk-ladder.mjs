@@ -347,6 +347,8 @@ for (const tier of TIERS) {
       gamePk: gamePkByGameId.get(String(l.gameId ?? "")) ?? null,
       market: l.market, marketLabel: l.marketLabel, side: l.side, line: l.line,
       odds: l.oddsForSide, result: l.result ?? null,
+      // Stage 4C groundwork: when this price was observed (optimizer leg, from the board row). null = not stamped.
+      capturedAt: l.capturedAt ?? null,
     })),
     status: String(best.status ?? "pending").toLowerCase(),
     /*

@@ -48,6 +48,7 @@ const inWindow = (o: unknown): o is number => typeof o === "number" && Number.is
 function pick(
   gameId: string, matchup: string, kickoffUtc: string | null, marketKey: string, marketLabel: string,
   selection: string, team: string | null, odds: number, prob: number, provider: string | null,
+  capturedAt: string | null = null,
 ): ModelPick {
   return {
     id: `MLB:${gameId}:${marketKey}:${selection.replace(/\s+/g, "_")}`,
@@ -66,6 +67,7 @@ function pick(
     hitRateScore: Math.round(prob * 100),
     upsideScore: Math.round((dec(odds) - 1) * 25),
     teamLogo: null, playerId: null, playerPortrait: null,
+    capturedAt,
   };
 }
 
@@ -89,6 +91,9 @@ export function loadMlbTeamLegs(root: string, _nowIso: string, date: string, opt
     const matchup = `${game.awayTeam} @ ${game.homeTeam}`;
     const kickoffUtc = game.commenceTime ?? null;
     const provider = game.bookmaker ?? doc.bookmaker ?? null;
+    // Stage 4C groundwork: the instant this game's prices were captured (team-market-capture). Never the file's
+    // generatedAt as a stand-in; null when the game row carries none.
+    const capturedAt = typeof game.capturedAt === "string" && Number.isFinite(Date.parse(game.capturedAt)) ? game.capturedAt : null;
 
     // ── Moneyline: the de-vigged FAVOURITE only by default. Bank Builder wants the likelier side, and
     //    offering both sides of one game would let its selector build a card against itself.
@@ -102,7 +107,7 @@ export function loadMlbTeamLegs(root: string, _nowIso: string, date: string, opt
         : [homeFav ? [ml.home, game.homeTeam] : [ml.away, game.awayTeam]];
       for (const [side, team] of sides) {
         if (inWindow(side?.odds) && typeof side?.noVigProb === "number") {
-          out.push(pick(gameId, matchup, kickoffUtc, "mlb_moneyline", "Moneyline", `${team} to win`, team, side.odds, side.noVigProb, provider));
+          out.push(pick(gameId, matchup, kickoffUtc, "mlb_moneyline", "Moneyline", `${team} to win`, team, side.odds, side.noVigProb, provider, capturedAt));
         }
       }
     }
@@ -115,7 +120,7 @@ export function loadMlbTeamLegs(root: string, _nowIso: string, date: string, opt
       for (const [side, over] of sides) {
         if (inWindow(side?.odds) && typeof side?.noVigProb === "number") {
           out.push(pick(gameId, matchup, kickoffUtc, "mlb_total_runs", "Total Runs",
-            `${over ? "Over" : "Under"} ${t.line}`, null, side.odds, side.noVigProb, provider));
+            `${over ? "Over" : "Under"} ${t.line}`, null, side.odds, side.noVigProb, provider, capturedAt));
         }
       }
     }
@@ -132,7 +137,7 @@ export function loadMlbTeamLegs(root: string, _nowIso: string, date: string, opt
       for (const [side, team] of sides) {
         if (inWindow(side?.odds) && typeof side?.coverNoVigProb === "number") {
           out.push(pick(gameId, matchup, kickoffUtc, "mlb_run_line", "Run Line",
-            `${team} ${side.line > 0 ? "+" : ""}${side.line}`, team, side.odds, side.coverNoVigProb, provider));
+            `${team} ${side.line > 0 ? "+" : ""}${side.line}`, team, side.odds, side.coverNoVigProb, provider, capturedAt));
         }
       }
     }
