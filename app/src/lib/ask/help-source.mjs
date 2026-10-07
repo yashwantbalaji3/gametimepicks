@@ -367,8 +367,9 @@ const CHUNKS = [
     keywords: ["cage chaos", "ufc card", "fight", "method", "round", "how the fight ends", "ufc picks"],
     text:
       "Cage Chaos covers how each fight on the next UFC card ends: winner, method and round. Each of those three " +
-      "comes from a separately evaluated part of the model, and each is published only once it passes its own " +
-      "check, set before the results were known. It is paper-only and educational, not betting advice.",
+      "comes from a separately evaluated part of the model, each tested on past fights against a check set " +
+      "before it was fitted. It is experimental: winner picks are graded on every new card, while method and " +
+      "round are not yet graded going forward. It is paper-only and educational, not betting advice.",
   },
   {
     id: "goal-rush",

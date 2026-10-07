@@ -289,8 +289,8 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
         <div style={{ ...PANEL, display: "grid", gap: 10 }}>
           <p className="m-0" style={{ fontSize: 13, lineHeight: 1.65, color: "var(--vault-text-mute)" }}>
             Three separate heads — winner, method and round — each fitted on a corpus of tracked UFC fights and each
-            published only on its own PASS verdict against a bar frozen before it was fitted. This is the one model on
-            the site that beat its baseline on every head it was tested on.
+            tested on held-out past fights against a bar written down before it was fitted. Winner picks are graded on
+            every new card in the Results record; method and round are not yet graded going forward.
           </p>
           <div className="grid gap-1">
             <EvidenceRow label="Winner" e={card.model?.evidence?.winner} />

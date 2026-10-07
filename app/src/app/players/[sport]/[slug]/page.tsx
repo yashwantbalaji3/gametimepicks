@@ -185,7 +185,7 @@ function FighterPage({ p, period }: { p: PlayerProjection; period: string | null
           <Eyebrow>Current GameTime forecast · model output, not history</Eyebrow>
           <h2 id="current-forecast" style={{ margin: "6px 0 4px", fontSize: 17, fontWeight: 750 }}>{forecast.matchup}</h2>
           <p style={{ margin: 0, fontSize: 13, color: "var(--vault-text-mute)" }}>
-            {forecast.eventName ? `${forecast.eventName} · ` : ""}{formatKickoff(forecast.startUtc)} · Win chance for {p.name}: <strong style={{ color: "var(--vault-text)" }}>{Math.round(forecast.winnerChance * 1000) / 10}%</strong> · Model status: winner head passed its preregistered evaluation
+            {forecast.eventName ? `${forecast.eventName} · ` : ""}{formatKickoff(forecast.startUtc)} · Win chance for {p.name}: <strong style={{ color: "var(--vault-text)" }}>{Math.round(forecast.winnerChance * 1000) / 10}%</strong> · Model status: experimental · tested on past fights, graded on every new card
           </p>
           <Link href={forecast.href} style={{ display: "inline-flex", minHeight: 44, alignItems: "center", fontFamily: MONO, fontSize: 11.5, color: "var(--vault-gold-bright)" }}>Why and risk: open the bout forecast →</Link>
         </section>

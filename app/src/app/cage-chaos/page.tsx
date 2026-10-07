@@ -49,9 +49,9 @@ export default function CageChaosPage() {
           How each fight ends — and in which round
         </h1>
         <p className="m-0 max-w-[68ch]" style={{ color: "var(--vault-text-mute)", fontSize: 14, lineHeight: 1.6 }}>
-          Three heads, evaluated separately: who wins, how it ends, and how far it goes. Each publishes only on its own
-          PASS verdict against a bar frozen before it was fitted — and all three cleared theirs, which no other model
-          here has done.
+          Three heads, evaluated separately: who wins, how it ends, and how far it goes. Each beat a simple baseline on
+          held-out past fights, against a bar written down before it was fitted. That test is on past fights only:
+          winner picks are now graded on every new card, and method and round are not yet graded going forward.
         </p>
       </header>
 
