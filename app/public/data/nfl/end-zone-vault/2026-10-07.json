@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-10-07",
- "generatedAt": "2026-10-07T16:22:43Z",
+ "generatedAt": "2026-10-07T20:06:53Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "162 model candidates · no current comparable touchdown price is available",
+ "reason": "155 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -195,26 +195,6 @@
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   },
   {
-   "playerId": "nfl-athlete-4429205",
-   "name": "Jordan Addison",
-   "position": "WR",
-   "team": "MIN",
-   "opponent": "NO",
-   "event": "MIN @ NO",
-   "providerEventId": "401872987",
-   "kickoffUtc": "2026-10-11T17:00Z",
-   "tdProbability": 0.493193,
-   "probabilityRange": {
-    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "corpus-role 2023-26 stint (nEff 2.85, g 44, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
-   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
-  },
-  {
    "playerId": "nfl-athlete-4430878",
    "name": "Jaxon Smith-Njigba",
    "position": "WR",
@@ -253,9 +233,29 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "corpus-role 2023-26 stint (nEff 3.90, g 58, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
    "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
+  },
+  {
+   "playerId": "nfl-athlete-4361411",
+   "name": "Pat Freiermuth",
+   "position": "TE",
+   "team": "PIT",
+   "opponent": "IND",
+   "event": "IND @ PIT",
+   "providerEventId": "401872985",
+   "kickoffUtc": "2026-10-11T17:00Z",
+   "tdProbability": 0.472494,
+   "probabilityRange": {
+    "note": "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "corpus-role 2023-26 stint (nEff 3.42, g 44, hl=4, k=0.5, boundary=0.25) — nfl-role-shares-v1-decayed-stint",
+   "modelVersion": "nfl-anytime-td-v1-calibration@2026-09-08T22:00:00Z"
   }
  ],
- "candidateCount": 162,
+ "candidateCount": 155,
  "withheld": [
   {
    "event": "TB @ DAL",
@@ -267,7 +267,7 @@
    "event": "PHI @ JAX",
    "team": "PHI",
    "player": "Dallas Goedert",
-   "reason": "designated Doubtful — only players with no designation are listed"
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "PHI @ JAX",
@@ -291,6 +291,12 @@
    "event": "CHI @ GB",
    "team": "CHI",
    "player": "Kyle Monangai",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "CHI @ GB",
+   "team": "CHI",
+   "player": "D'Andre Swift",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -331,6 +337,12 @@
   },
   {
    "event": "LV @ NE",
+   "team": "NE",
+   "player": "Rhamondre Stevenson",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "LV @ NE",
    "team": "LV",
    "player": "Jack Bech",
    "reason": "designated Injured Reserve — a player who is not playing is not a scorer candidate"
@@ -339,6 +351,12 @@
    "event": "MIN @ NO",
    "team": "NO",
    "player": "Noah Fant",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "MIN @ NO",
+   "team": "MIN",
+   "player": "Jordan Addison",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -374,6 +392,12 @@
   {
    "event": "NYG @ WSH",
    "team": "WSH",
+   "player": "Stefon Diggs",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "NYG @ WSH",
+   "team": "WSH",
    "player": "Terry McLaurin",
    "reason": "designated Questionable — only players with no designation are listed"
   },
@@ -387,6 +411,12 @@
    "event": "NYG @ WSH",
    "team": "WSH",
    "player": "Jayden Daniels",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "NYG @ WSH",
+   "team": "NYG",
+   "player": "Malik Nabers",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -428,8 +458,20 @@
   {
    "event": "SF @ SEA",
    "team": "SF",
+   "player": "Mike Evans",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "SF @ SEA",
+   "team": "SF",
    "player": "Kyle Juszczyk",
-   "reason": "designated Doubtful — only players with no designation are listed"
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
+  },
+  {
+   "event": "BAL @ ATL",
+   "team": "BAL",
+   "player": "Zay Flowers",
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "BAL @ ATL",
@@ -478,7 +520,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 162,
+  "roleReadyCandidates": 155,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."

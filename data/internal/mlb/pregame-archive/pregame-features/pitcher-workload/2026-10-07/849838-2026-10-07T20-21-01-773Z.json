@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 849838,
+  "date": "2026-10-07",
+  "capturedAt": "2026-10-07T20:21:01.773Z",
+  "availableAt": "2026-10-07T20:21:01.773Z",
+  "eventStartTime": "2026-10-08T00:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 608331,
+      "name": "Max Fried",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 20,
+      "restDays": 15,
+      "lastStartDate": "2026-09-22",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 5,
+        "bbAvg": 1.2,
+        "erAvg": 1.6,
+        "hrAvg": 0.4,
+        "kPer9": 8.54,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 20,
+        "ip": 112.67,
+        "k": 104,
+        "bb": 33,
+        "er": 35,
+        "hr": 4
+      }
+    },
+    "away": {
+      "id": 607259,
+      "name": "Nick Martinez",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 31,
+      "restDays": 10,
+      "lastStartDate": "2026-09-27",
+      "last5": {
+        "starts": 5,
+        "ipSum": 26.33,
+        "ipAvg": 5.27,
+        "kAvg": 3.6,
+        "bbAvg": 0.8,
+        "erAvg": 2.2,
+        "hrAvg": 0.8,
+        "kPer9": 6.15,
+        "workloadIpLast5": 26.33
+      },
+      "seasonToDate": {
+        "starts": 31,
+        "ip": 180,
+        "k": 109,
+        "bb": 26,
+        "er": 62,
+        "hr": 22
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-10-07&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-10-07T20:21:01.773Z"
+  },
+  "recordHash": "05fc04c764ed212d7f6ac80c50c69cc678b5d919c9e5c5ee92c3445c614745b1"
+}
