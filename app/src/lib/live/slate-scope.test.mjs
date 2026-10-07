@@ -23,6 +23,9 @@ import {
   WAITING_INTERVAL_MS,
   acceptSlateBody,
   etDateAt,
+  initialUnrosteredDate,
+  nextUnrosteredDate,
+  priorEtDate,
   nextSlatePollMs,
   scopeSlate,
   slateFeedStatus,
@@ -89,7 +92,7 @@ test("LV-1d · NFL is untouched: ESPN keeps its current-week default when no dat
 
 test("LV-1e · the slate hook puts the planned date in the request URL itself on every poll", () => {
   const hook = read("src/components/live/use-live-slate.ts").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
-  assert.match(hook, /const plan = slateRequestPlan\(\{ sport, roster, nowMs: Date\.now\(\) \}\);/,
+  assert.match(hook, /const plan = slateRequestPlan\(\{ sport, roster, nowMs: Date\.now\(\), activeDate: activeDate\.current \}\);/,
     "planned on the reader's clock at poll time");
   assert.match(hook, /const date = plan\.date;/);
   assert.match(hook, /liveUrl\(\{\s*sport,\s*date\s*\}\)/);
@@ -97,7 +100,9 @@ test("LV-1e · the slate hook puts the planned date in the request URL itself on
 
 test("G3 · ⚠ every MLB caller's URL carries a date — the CDN keys on the URL, not the gateway default", async () => {
   // Hub and My GameTime (through the hook's plan).
-  assert.equal(slateRequestPlan({ sport: "mlb", roster: null, nowMs: AFTER_MIDNIGHT_ET }).date, "2026-10-08");
+  // (Just after midnight a roster-less reader first looks at the prior day — see LATE-2.)
+  assert.equal(slateRequestPlan({ sport: "mlb", roster: null, nowMs: AFTER_MIDNIGHT_ET }).date, "2026-10-07");
+  assert.equal(slateRequestPlan({ sport: "mlb", roster: null, nowMs: Date.parse("2026-10-08T16:00:00Z") }).date, "2026-10-08");
   assert.equal(slateRequestPlan({ sport: "mlb", roster: { rosterIds: ["1"], rosterDate: "2026-10-08" }, nowMs: AFTER_MIDNIGHT_ET }).date, "2026-10-08");
   // NFL: unchanged, no date.
   assert.equal(slateRequestPlan({ sport: "nfl", roster: null, nowMs: AFTER_MIDNIGHT_ET }).date, undefined);
@@ -327,5 +332,92 @@ test("LV-E2E · the gateway asks StatsAPI for today, keeps only today's group, d
     memoReset();
     if (prevEnabled === undefined) delete process.env.LIVE_GATEWAY_ENABLED; else process.env.LIVE_GATEWAY_ENABLED = prevEnabled;
     if (prevSports !== undefined) process.env.LIVE_PUBLIC_SPORTS = prevSports;
+  }
+});
+
+/* ───────────── LATE · a game that began before midnight ET stays until it ends (Yash 14:48Z) ───────────── */
+
+const T_2355 = Date.parse("2026-10-08T03:55:00Z"); // 11:55 PM ET Oct 7
+const T_0005 = Date.parse("2026-10-08T04:05:00Z"); // 12:05 AM ET Oct 8
+const T_0050 = Date.parse("2026-10-08T04:50:00Z"); // 12:50 AM ET Oct 8
+const LATE_PK = "900000555";
+
+test("LATE-1 · /live: 11:55 PM active → 12:05 AM still active, visible, polling, labelled → Final → only then terminal", () => {
+  const roster = { rosterIds: [LATE_PK], rosterDate: "2026-10-07" };
+  const live = [{ eventId: LATE_PK, state: "LIVE" }];
+
+  const p1 = slateRequestPlan({ sport: "mlb", roster, nowMs: T_2355 });
+  assert.equal(p1.date, "2026-10-07");
+  assert.equal(p1.rosterIsToday, true);
+  assert.equal(nextSlatePollMs({ states: scopeSlate(live, roster.rosterIds).states, rosterSize: 1, hidden: false }), MOVING_INTERVAL_MS);
+
+  const p2 = slateRequestPlan({ sport: "mlb", roster, nowMs: T_0005 });
+  assert.equal(p2.date, "2026-10-07", "after midnight the request still follows the roster's date, not the wall clock");
+  assert.equal(p2.rosterIsToday, false, "and the hub labels it as Oct 7's slate, never as the new day's");
+  const s2 = scopeSlate(live, roster.rosterIds);
+  assert.equal(s2.matched, 1, "the game stays visible");
+  assert.equal(nextSlatePollMs({ states: s2.states, rosterSize: 1, hidden: false }), MOVING_INTERVAL_MS, "and polling");
+  assert.equal(slateFeedStatus({ ...base, rosterSize: 1, matched: 1, settled: false }), "FRESH");
+
+  const fin = scopeSlate([{ eventId: LATE_PK, state: "FINAL" }], roster.rosterIds);
+  assert.equal(nextSlatePollMs({ states: fin.states, rosterSize: 1, hidden: false }), null, "only Final ends it");
+});
+
+test("LATE-2 · /my (no roster): the same game holds the prior date while in play, then hands over to today", () => {
+  // Page open since 11:55 PM: following Oct 7.
+  assert.equal(initialUnrosteredDate(T_2355), "2026-10-07");
+  assert.equal(nextUnrosteredDate({ activeDate: "2026-10-07", today: etDateAt(T_2355), states: ["LIVE"] }), "2026-10-07");
+  // 12:05 AM: still in play → still Oct 7, still polling.
+  assert.equal(slateRequestPlan({ sport: "mlb", roster: null, nowMs: T_0005, activeDate: "2026-10-07" }).date, "2026-10-07");
+  assert.equal(nextUnrosteredDate({ activeDate: "2026-10-07", today: etDateAt(T_0005), states: ["LIVE"] }), "2026-10-07");
+  assert.equal(nextSlatePollMs({ states: ["LIVE"], rosterSize: null, hidden: false }), MOVING_INTERVAL_MS);
+  // A fresh load at 12:05 AM looks at Oct 7 first, so the late game is not lost on a reload either.
+  assert.equal(initialUnrosteredDate(T_0005), "2026-10-07");
+  // Final: Oct 7 is done; the reader moves to Oct 8 rather than stopping on Oct 7's finals.
+  assert.equal(nextUnrosteredDate({ activeDate: "2026-10-07", today: etDateAt(T_0050), states: ["FINAL"] }), "2026-10-08");
+  // Daytime: no prior-day probe at all.
+  assert.equal(initialUnrosteredDate(Date.parse("2026-10-08T16:00:00Z")), "2026-10-08");
+  assert.equal(priorEtDate("2026-11-02"), "2026-11-01", "DST-safe day arithmetic");
+  // A wrong-date body never reaches the transition: the hook only passes accepted bodies.
+  assert.equal(acceptSlateBody({ date: "2026-10-08", events: [] }, "2026-10-07"), false);
+  const hook = read("src/components/live/use-live-slate.ts").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+  assert.match(hook, /if \(sport === "mlb" && !roster && accepted && date\) \{/);
+  assert.match(hook, /activeDate: activeDate\.current/);
+});
+
+test("LATE-3 · Ask: a late game keeps Ask on the prior date; once Final, Ask reads today; wrong dates fail closed", async () => {
+  const { originLiveFetch, getLiveSlate } = await import("../ask/tools/live.mjs");
+  const prev = globalThis.fetch;
+  let bodies;
+  const asked = [];
+  globalThis.fetch = async (url) => {
+    asked.push(String(url));
+    const d = /date=(\d{4}-\d{2}-\d{2})/.exec(String(url))?.[1];
+    const body = JSON.stringify(bodies[d] ?? { date: d, events: [] });
+    return { ok: true, text: async () => body };
+  };
+  try {
+    bodies = { "2026-10-07": { date: "2026-10-07", fetchedAt: "x", events: [{ eventId: LATE_PK, state: "LIVE" }] } };
+    const held = await originLiveFetch("https://example.test", { now: () => T_0005 })("mlb");
+    assert.equal(held.date, "2026-10-07");
+    assert.deepEqual(asked.map((u) => /date=([\d-]+)/.exec(u)[1]), ["2026-10-07"]);
+    const tool = await getLiveSlate({ sport: "mlb" }, { liveFetch: async () => held });
+    assert.equal(tool.date, "2026-10-07", "Ask reports the slate's own date, not the new day");
+    assert.equal(tool.liveCount, 1);
+
+    asked.length = 0;
+    bodies = {
+      "2026-10-07": { date: "2026-10-07", events: [{ eventId: LATE_PK, state: "FINAL" }] },
+      "2026-10-08": { date: "2026-10-08", events: [{ eventId: "900000556", state: "PRE" }] },
+    };
+    const moved = await originLiveFetch("https://example.test", { now: () => T_0050 })("mlb");
+    assert.equal(moved.date, "2026-10-08");
+    assert.deepEqual(asked.map((u) => /date=([\d-]+)/.exec(u)[1]), ["2026-10-07", "2026-10-08"]);
+
+    bodies = { "2026-10-07": { date: "2026-10-08", events: [{ eventId: LATE_PK, state: "LIVE" }] } };
+    const wrong = await originLiveFetch("https://example.test", { now: () => T_0005 })("mlb");
+    assert.equal(wrong.unavailable, true, "a body for another date than asked fails closed");
+  } finally {
+    globalThis.fetch = prev;
   }
 });

@@ -22,7 +22,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { liveReadyFor, liveUrl } from "@/lib/live/client";
 import { isUnavailable } from "@/lib/live/contract.mjs";
 import { freshnessOf } from "@/lib/live/freshness.mjs";
-import { acceptSlateBody, nextSlatePollMs, scopeSlate, slateRequestPlan } from "@/lib/live/slate-scope.mjs";
+import { acceptSlateBody, etDateAt, nextSlatePollMs, nextUnrosteredDate, scopeSlate, slateRequestPlan } from "@/lib/live/slate-scope.mjs";
 
 type Envelope = Record<string, any>;
 
@@ -74,6 +74,9 @@ export function useLiveSlate(sport: "nfl" | "mlb" = "mlb", scope?: LiveSlateScop
   scopeRef.current = scope;
   const scopeKey = scope ? `${scope.rosterDate}|${scope.rosterIds.join(",")}` : "";
 
+  /* Without a roster (My GameTime): the slate date being followed. Held on the prior ET day while one
+     of its games is still in play after midnight, then moved to today (`nextUnrosteredDate`). */
+  const activeDate = useRef<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abort = useRef<AbortController | null>(null);
   const stopped = useRef(false);
@@ -89,10 +92,11 @@ export function useLiveSlate(sport: "nfl" | "mlb" = "mlb", scope?: LiveSlateScop
     const controller = new AbortController();
     abort.current = controller;
     let states: string[] = [];
+    let accepted = false;
     const roster = scopeRef.current ?? null;
     // MLB always names a date in the URL itself (the CDN keys on it): the roster's own ET date, or
-    // today's without a roster. NFL keeps ESPN's current week, which its roster is built on.
-    const plan = slateRequestPlan({ sport, roster, nowMs: Date.now() });
+    // the followed slate's date without a roster. NFL keeps ESPN's current week, which its roster is built on.
+    const plan = slateRequestPlan({ sport, roster, nowMs: Date.now(), activeDate: activeDate.current });
     const date = plan.date;
     setRosterIsToday(plan.rosterIsToday);
     if (!plan.fetch) {
@@ -116,6 +120,7 @@ export function useLiveSlate(sport: "nfl" | "mlb" = "mlb", scope?: LiveSlateScop
         setFetchedAt(body.fetchedAt ?? null);
         setUnavailable(null);
         states = scoped.states;
+        accepted = true;
       }
     } catch {
       if (controller.signal.aborted) return;
@@ -129,6 +134,15 @@ export function useLiveSlate(sport: "nfl" | "mlb" = "mlb", scope?: LiveSlateScop
     }
 
     if (stopped.current) return;
+    if (sport === "mlb" && !roster && accepted && date) {
+      // A prior-day slate with no game in play hands over to today at once — never a stop.
+      const nextDate = nextUnrosteredDate({ activeDate: date, today: etDateAt(Date.now()), states });
+      activeDate.current = nextDate;
+      if (nextDate !== date) {
+        timer.current = setTimeout(poll, 0);
+        return;
+      }
+    }
     const hidden = typeof document !== "undefined" && document.hidden;
     const next = nextSlatePollMs({ states, rosterSize: roster ? roster.rosterIds.length : null, hidden });
     // Every one of TODAY's roster games is terminal: the loop ends. Not a longer interval — a stop.

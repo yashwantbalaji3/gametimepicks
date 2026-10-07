@@ -17,6 +17,7 @@
  * and the hub states what it actually knows, never "updated recently" off a stale instant
  *                                                           -> slateFeedStatus()
  */
+import { isInPlay } from "./contract.mjs";
 import { HIDDEN_TAB_MIN_INTERVAL_MS, TTL_SECONDS } from "./freshness.mjs";
 import { slateStillMoving } from "./lifecycle.mjs";
 
@@ -36,16 +37,65 @@ export function etDateAt(nowMs) {
  *   those cards would join nothing and could paint them wrongly, so the join keeps the roster's date
  *   and the hub labels it (`rosterIsToday: false`). A today roster therefore always asks for today.
  * - An empty roster asks for nothing: an off day spends no request at all.
- * - Without a roster, MLB asks for today's ET date; NFL sends no date (ESPN's current week), unchanged.
+ * - Without a roster, MLB asks for its active slate date (`activeDate`, see below; first poll:
+ *   `initialUnrosteredDate`); NFL sends no date (ESPN's current week), unchanged.
  */
-export function slateRequestPlan({ sport, roster, nowMs }) {
+/**
+ * @param {{ sport: string, roster: { rosterIds: string[], rosterDate: string } | null, nowMs: number, activeDate?: string | null }} input
+ */
+export function slateRequestPlan({ sport, roster, nowMs, activeDate = null }) {
   const today = etDateAt(nowMs);
   if (roster) {
     const rosterIsToday = roster.rosterDate === today;
     if (roster.rosterIds.length === 0) return { fetch: false, date: roster.rosterDate, rosterIsToday };
     return { fetch: true, date: sport === "mlb" ? roster.rosterDate : undefined, rosterIsToday };
   }
-  return { fetch: true, date: sport === "mlb" ? today : undefined, rosterIsToday: null };
+  return { fetch: true, date: sport === "mlb" ? activeDate ?? initialUnrosteredDate(nowMs) : undefined, rosterIsToday: null };
+}
+
+/**
+ * LATE GAMES ACROSS MIDNIGHT ET (Yash, 2026-10-07 14:48Z).
+ *
+ * A game that began on the previous ET date and is still in play after midnight belongs to THAT
+ * date's slate. Callers without a build-time roster (My GameTime, Ask) therefore follow the slate,
+ * not the wall clock: they keep asking for the prior date while any of its games is in play, and
+ * move to today only once that slate is done. Callers with a roster already follow the roster's
+ * own date (`slateRequestPlan`), which stays the prior day until the next build.
+ *
+ * The prior day is only probed in the first hours after midnight: no MLB game runs later, and it
+ * keeps the daytime cost at one request.
+ */
+export const PRIOR_DAY_WINDOW_HOURS = 6;
+
+/** The ET calendar day before `etDate` (YYYY-MM-DD). Noon UTC keeps the arithmetic DST-proof. */
+export function priorEtDate(etDate) {
+  const d = new Date(`${etDate}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/** The hour (0–23) in America/New_York. */
+export function etHourAt(nowMs) {
+  const h = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hourCycle: "h23" }).format(new Date(nowMs));
+  return Number(h);
+}
+
+/** The first date a roster-less MLB reader asks for: the prior day in the early hours, else today. */
+export function initialUnrosteredDate(nowMs) {
+  const today = etDateAt(nowMs);
+  return etHourAt(nowMs) < PRIOR_DAY_WINDOW_HOURS ? priorEtDate(today) : today;
+}
+
+/**
+ * After an ACCEPTED body for `activeDate`: which date to ask next.
+ *
+ * Today's slate is kept. A prior-day slate is kept while any of its games is in play (a game that
+ * legitimately began yesterday); once none is, the reader moves to today. Only a body whose date
+ * matched the request may be passed here — a wrong-date body never decides a transition.
+ */
+export function nextUnrosteredDate({ activeDate, today, states }) {
+  if (activeDate >= today) return activeDate;
+  return (states ?? []).some(isInPlay) ? activeDate : today;
 }
 
 /**

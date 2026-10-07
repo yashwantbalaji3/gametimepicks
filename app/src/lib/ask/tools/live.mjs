@@ -16,7 +16,7 @@
  * a change to the gateway's own allowlist, which is a founder gate.
  */
 import { ASK_ERROR, ASK_STATUS } from "../contract.mjs";
-import { etDateAt } from "../../live/slate-scope.mjs";
+import { etDateAt, initialUnrosteredDate, nextUnrosteredDate } from "../../live/slate-scope.mjs";
 
 /**
  * @param {{sport: string}} args
@@ -95,6 +95,8 @@ export async function getLiveSlate(args, ctx) {
     sport: args.sport,
     /* The instant the payload describes — repeated verbatim so the writer can say "as of", and must. */
     fetchedAt: payload.fetchedAt ?? null,
+    /* The slate's own ET date: after midnight a late game is reported as the prior day's, never today's. */
+    date: payload.date ?? null,
     total: events.length,
     liveCount: live.length,
     preCount: byState.pre,
@@ -117,15 +119,12 @@ export async function getLiveSlate(args, ctx) {
  * readers is the request storm the gateway's own comment forbids, and its stale-while-revalidate cache
  * already covers a single slow response.
  */
-export function originLiveFetch(origin, { timeoutMs = 8000 } = {}) {
+export function originLiveFetch(origin, { timeoutMs = 8000, now = Date.now } = {}) {
   return async (sport) => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      // MLB names today's ET date in the URL itself (LV-1): the CDN keys on the URL, so a dateless
-      // key could serve another day's slate. NFL keeps the gateway's undated current-week read.
-      const date = String(sport).toLowerCase() === "mlb" ? `&date=${etDateAt(Date.now())}` : "";
-      const res = await fetch(`${origin}/api/live/?sport=${encodeURIComponent(sport)}${date}`, {
+    const get = async (dateParam) => {
+      const res = await fetch(`${origin}/api/live/?sport=${encodeURIComponent(sport)}${dateParam}`, {
         signal: controller.signal,
         headers: { accept: "application/json" },
         redirect: "error",
@@ -134,6 +133,26 @@ export function originLiveFetch(origin, { timeoutMs = 8000 } = {}) {
       const text = await res.text();
       if (text.length > 3_000_000) return { unavailable: true, reason: "PROVIDER_MALFORMED" };
       return JSON.parse(text);
+    };
+    try {
+      // NFL keeps the gateway's undated current-week read.
+      if (String(sport).toLowerCase() !== "mlb") return await get("");
+      /*
+       * MLB names its date in the URL itself (LV-1: the CDN keys on the URL), and follows the SLATE,
+       * not the wall clock: in the hours after midnight ET it first asks for the prior day, keeps it
+       * while a game that began then is still in play, and otherwise asks for today. A body for any
+       * other date than the one asked for fails closed.
+       */
+      const dated = async (date) => {
+        const body = await get(`&date=${date}`);
+        if (body?.unavailable) return body;
+        return body?.date === date ? body : { unavailable: true, reason: "PROVIDER_MALFORMED" };
+      };
+      const first = initialUnrosteredDate(now());
+      const body = await dated(first);
+      if (body?.unavailable || !Array.isArray(body?.events)) return body;
+      const next = nextUnrosteredDate({ activeDate: first, today: etDateAt(now()), states: body.events.map((e) => e?.state) });
+      return next === first ? body : await dated(next);
     } catch {
       return { unavailable: true, reason: "PROVIDER_ERROR" };
     } finally {
