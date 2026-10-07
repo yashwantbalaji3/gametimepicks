@@ -7,7 +7,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { canonicalMatchKey, providerIdIndex, canonicalStarts, augMaySeason, singleTableRefusal } from "./canonical-match.mjs";
+import { canonicalMatchKey, providerIdIndex, canonicalStarts, augMaySeason, pairingRepeatReason } from "./canonical-match.mjs";
+import { SOCCER_LEAGUES } from "./leagues.mjs";
 
 const FX = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "__fixtures__/canonical-match.json"), "utf8"));
 
@@ -44,13 +45,50 @@ test("registry aliases make ESPN and corpus spellings one club", () => {
   assert.equal(canonicalMatchKey({ league: "epl", homeClub: "Brighton & Hove Albion", awayClub: "Chelsea", kickoffUtc: "2026-08-30T13:00:00Z" }).key, "soccer:epl:2026-27:brighton~chelsea");
 });
 
-test("anything that is not provably single-table is refused (Q5: excluded and disclosed, never guessed)", () => {
-  for (const k of ["ucl", "uel", "world-cup", "mls", "championship"]) assert.ok(singleTableRefusal(k), `${k} must be refused`);
-  for (const k of ["epl", "ligue-1", "laliga", "serie-a", "bundesliga"]) assert.equal(singleTableRefusal(k), null, `${k} is single-table`);
-  assert.equal(canonicalMatchKey({ league: "ucl", homeClub: "A", awayClub: "B", kickoffUtc: "2026-10-01T19:00:00Z" }).ok, false);
+test("S2: a format that can repeat a pairing needs the owner's fixture/round reference; without it, refused, never inferred", () => {
+  for (const k of ["ucl", "uel", "world-cup", "mls", "championship"]) assert.ok(pairingRepeatReason(k), `${k} can repeat a pairing`);
+  for (const k of ["epl", "ligue-1", "laliga", "serie-a", "bundesliga", "eredivisie", "primeira"]) assert.equal(pairingRepeatReason(k), null, `${k} cannot`);
+  const leg = (fixtureRef) => canonicalMatchKey({ league: "ucl", homeClub: "Arsenal", awayClub: "Inter", season: "2026-27", fixtureRef });
+  assert.equal(leg(undefined).ok, false, "no reference, no identity");
+  assert.match(leg(undefined).reason, /fixture\/round reference/);
+  assert.equal(leg("Groups-MD3").key, "soccer:ucl:2026-27:arsenal~inter:groups-md3");
+  assert.notEqual(leg("qf-leg1").key, leg("qf-leg2").key, "two meetings, two questions");
+  assert.equal(leg("bad ref!").ok, false);
+  assert.equal(canonicalMatchKey({ league: "ucl", homeClub: "Arsenal", awayClub: "Inter", kickoffUtc: "2026-10-01T19:00:00Z", fixtureRef: "md3" }).key, "soccer:ucl:2026-27:arsenal~inter:md3", "UCL runs Aug–May");
+  assert.equal(canonicalMatchKey({ league: "mls", homeClub: "A", awayClub: "B", kickoffUtc: "2026-05-01T00:00:00Z", fixtureRef: "md10" }).ok, false, "a calendar-year league must pass its season, never derive an Aug–May one");
+  assert.equal(canonicalMatchKey({ league: "mls", homeClub: "A", awayClub: "B", season: "2026", fixtureRef: "md10" }).key, "soccer:mls:2026:a~b:md10");
+});
+
+test("in a single-table league a fixture reference never changes the key (the date and the provider id do not either)", () => {
+  const a = canonicalMatchKey({ league: "epl", homeClub: "Arsenal", awayClub: "Leeds United", season: "2026-27" });
+  const b = canonicalMatchKey({ league: "epl", homeClub: "Arsenal", awayClub: "Leeds United", season: "2026-27", fixtureRef: "md8" });
+  assert.equal(a.key, b.key);
+  assert.equal(a.key, "soccer:epl:2026-27:arsenal~leeds");
+});
+
+test("refusals: a missing side, the same club twice, no season and no kickoff, an unknown league", () => {
   assert.equal(canonicalMatchKey({ league: "epl", homeClub: "Arsenal", awayClub: "", kickoffUtc: "2026-10-01T19:00:00Z" }).ok, false);
   assert.equal(canonicalMatchKey({ league: "epl", homeClub: "Arsenal", awayClub: "Arsenal", kickoffUtc: "2026-10-01T19:00:00Z" }).ok, false);
   assert.equal(canonicalMatchKey({ league: "epl", homeClub: "Arsenal", awayClub: "Leeds" }).ok, false, "no season, no kickoff");
+  assert.equal(canonicalMatchKey({ league: "nope", homeClub: "A", awayClub: "B", season: "2026-27" }).ok, false);
+});
+
+test("every registered competition is classified, and every single-table corpus really has each pairing once a season", () => {
+  for (const l of SOCCER_LEAGUES) assert.ok(pairingRepeatReason(l.key) === null || typeof pairingRepeatReason(l.key) === "string", l.key);
+  const REPO = path.join(process.cwd(), "..");
+  for (const l of SOCCER_LEAGUES.filter((x) => pairingRepeatReason(x.key) === null)) {
+    for (const f of ["corpus-openfootball-v1.json", "history-openfootball-v1.json"]) {
+      const p = path.join(REPO, "data/internal/research/soccer", l.key, f);
+      if (!fs.existsSync(p)) continue;
+      const doc = JSON.parse(fs.readFileSync(p, "utf8"));
+      const seen = new Set();
+      for (const r of doc.rows ?? doc) {
+        const k = `${r.season}|${r.home}|${r.away}`;
+        assert.ok(!seen.has(k), `${l.key} ${f}: ${k} appears twice in one season, so this league needs a discriminator`);
+        seen.add(k);
+      }
+    }
+  }
 });
 
 test("a provider id that points at two different matches is a conflict and maps to nothing", () => {
