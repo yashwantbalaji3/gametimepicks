@@ -326,14 +326,34 @@ export const ASK_TOOLS = Object.freeze({
       "list is not a record, so never turn it into a hit rate. Not final, void and withdrawn rows are never misses.",
     args: {
       sport: { kind: "enum", options: SPORTS, required: true, describe: "Which sport." },
-      playerId: { kind: "slug", describe: "Canonical player id from resolveEntity." },
-      teamId: { kind: "slug", describe: "Canonical team id from resolveEntity (team score forecasts)." },
+      playerId: { kind: "slug", describe: "Canonical player id from resolveEntity — a UFC fighter's id goes here too." },
+      teamId: { kind: "slug", describe: "Canonical team or club id from resolveEntity: its team-score and game-level forecasts (winner, total, run line, 1X2)." },
       gameId: { kind: "slug", describe: "A game's canonical id (game-level forecasts: winner, total, margin, 1X2)." },
       family: { kind: "enum", options: [...FORECAST_FAMILIES], describe: "One forecast type, e.g. player_reception_yds." },
       minProjection: { kind: "number", min: -1000, max: 10000, describe: "Only forecasts where we projected MORE than this." },
       maxProjection: { kind: "number", min: -1000, max: 10000, describe: "Only forecasts where we projected LESS than this." },
       settledOnly: { kind: "boolean", describe: "Only forecasts already measured against the official result." },
       limit: { kind: "integer", min: 1, max: 25, default: 5, describe: "Rows to return; how many matched is always reported." },
+    },
+  },
+
+  /* 2026-10-05 · NBA facts (NBA audit X3). NBA is not an ASK_SPORTS sport: no NBA forecast exists, so no other tool
+     takes NBA, and this one has no field that could carry a forecast. */
+  getNbaGames: {
+    version: 1,
+    kind: "results",
+    describe:
+      "NBA FACTS ONLY: recorded NBA final scores and the upcoming NBA schedule (date, ET tip time, home and away, " +
+      "preseason or regular season), from GameTime's NBA schedule capture and finals record. Use for 'who won " +
+      "Heat–Raptors', 'when do the Celtics play next', 'what NBA games are on 2026-10-21'. Pass team names as the user " +
+      "wrote them (no resolveEntity — NBA teams are matched here). GameTime publishes NO NBA forecast, prediction, " +
+      "probability or pick; never call another tool for NBA. A game missing from the finals is pending, never a loss.",
+    args: {
+      team: { kind: "string", maxLength: 40, describe: "An NBA team as the user wrote it: 'Celtics', 'Boston Celtics' or 'BOS'." },
+      opponent: { kind: "string", maxLength: 40, describe: "A second NBA team, for a head-to-head question ('Heat–Raptors')." },
+      date: { kind: "isoDate", describe: "One ET day as YYYY-MM-DD, only when the user named a day. Omit for today or any day (games are then listed from every day) — never write a placeholder here." },
+      show: { kind: "enum", options: ["finals", "schedule", "both"], default: "both", describe: "finals for results ('who won'), schedule for upcoming games ('when do they play'), both if unclear." },
+      limit: { kind: "integer", min: 1, max: 10, default: 5, describe: "Games to list of each kind; how many matched is always reported." },
     },
   },
 

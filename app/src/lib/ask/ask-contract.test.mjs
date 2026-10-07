@@ -55,7 +55,7 @@ test("the registry contains no tool that could reach a file, a shell, a database
 test("every declared tool is implemented, and every implemented tool is declared", () => {
   // makeExecutor's module body throws if these disagree; constructing one is the assertion.
   assert.doesNotThrow(() => makeExecutor({}));
-  assert.equal(ASK_TOOL_NAMES.length, 24, "14 + the four Results tools (v1.9) + getCoverage (§10) + getResultsDay (Session 2) + getOfficialProductCards (Session 5) + getNflProductEligibility (Session 9) + the two Forecast Record tools (Session 13)");
+  assert.equal(ASK_TOOL_NAMES.length, 25, "14 + the four Results tools (v1.9) + getCoverage (§10) + getResultsDay (Session 2) + getOfficialProductCards (Session 5) + getNflProductEligibility (Session 9) + the two Forecast Record tools (Session 13) + getNbaGames (2026-10-05)");
 });
 
 test("the planner prompt actually CONTAINS the tool catalogue", () => {
@@ -829,8 +829,8 @@ test("an aborted turn stops rather than completing", async () => {
 
 test("every turn records the prompt, registry and provider versions", async () => {
   const r = await ask("Why can't I compare UFC fighters?");
-  assert.equal(r.receipt.promptVersion, 7, "the prompt changed, so its version must have moved (Session 9: NFL eligibility routing)");
-  assert.match(r.receipt.registry, /^v1\/24\/[0-9a-f]{8}$/);
+  assert.equal(r.receipt.promptVersion, 8, "the prompt changed, so its version must have moved (2026-10-05: NBA schedule and finals routing)");
+  assert.match(r.receipt.registry, /^v1\/25\/[0-9a-f]{8}$/);
   assert.equal(r.receipt.provider, "fake");
 });
 

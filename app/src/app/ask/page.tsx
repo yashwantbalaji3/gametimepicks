@@ -48,6 +48,7 @@ export default function AskPage() {
           <li>Team and player comparisons and matchup context, through <Link href="/compare/" style={{ color: "var(--vault-gold-bright)", textDecoration: "underline", textUnderlineOffset: 3 }}>Compare</Link>.</li>
           <li>Currently published model forecasts, with each one&apos;s status and confidence.</li>
           <li>Live MLB game state. NFL live state is not available in GameTimePicks.</li>
+          <li>The NBA schedule and recorded NBA final scores. GameTime publishes no NBA forecasts.</li>
           <li>Settled results by day and each product&apos;s record, through <Link href="/results/" style={{ color: "var(--vault-gold-bright)", textDecoration: "underline", textUnderlineOffset: 3 }}>Results</Link>.</li>
           <li>Published parlay candidates and how the site works.</li>
         </ul>

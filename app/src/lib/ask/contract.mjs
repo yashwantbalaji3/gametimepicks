@@ -28,7 +28,7 @@ export const ASK_TOOL_REGISTRY_VERSION = 1;
  * The system/planner/writer prompt version. Bumped on ANY prompt text change so a receipt can never
  * describe a run by a prompt that has since been edited underneath it (§67 — no hidden prompt drift).
  */
-export const ASK_PROMPT_VERSION = 7;
+export const ASK_PROMPT_VERSION = 8;
 
 /** The committed projection the emit step publishes, and the public prefix it publishes to. */
 export const ASK_PROJECTION_SCHEMA_VERSION = 1;
@@ -517,6 +517,7 @@ export const askAssetPath = Object.freeze({
   coverage: () => `${ASK_ASSET_PREFIX}/coverage.json`,
   /* Session 9 · the NFL family-level product gate, republished in public terms (daily). */
   nflEligibility: () => `${ASK_ASSET_PREFIX}/nfl-eligibility.json`,
+  nba: () => `${ASK_ASSET_PREFIX}/nba.json`,
   recent: (sport, shard) => `${ASK_ASSET_PREFIX}/recent/${String(sport).toLowerCase()}/${shard}.json`,
 });
 
@@ -576,18 +577,21 @@ export const askStoredGzipped = (rel) => /^recent\//.test(rel);
 /* The Forecast Record is an index (families, KPIs, gaps) plus one rows shard per sport, so a lookup loads one sport. */
 export const ASK_FORECAST_SPORTS = Object.freeze(["nfl", "mlb", "epl", "ligue-1", "ufc"]);
 export const ASK_DAILY_FILES = Object.freeze([
-  "forecasts.json", "parlays.json", "results.json", "nfl-eligibility.json",
+  "forecasts.json", "parlays.json", "results.json", "nfl-eligibility.json", "nba.json",
   "forecast-record.json", ...ASK_FORECAST_SPORTS.map((s) => `forecast-record/${s}.json`),
 ]);
 
 /**
  * The packed Forecast Record row layout (forecast-record.json `rows`). Unpacked only by tools/forecast-record.mjs.
  * `family`, `subject` and `matchup` are indexes into the artifact's `dict.families` ([sport, family]),
- * `dict.subjects` ([subjectId, name, team]) and `dict.matchups` — 10k rows inside the loader's asset ceiling.
+ * `dict.subjects` ([subjectId, name, team, participants]) and `dict.matchups` — 10k rows inside the loader's asset ceiling.
+ * `participants` is a game-level subject's joined sides, [[entityId, label], …] or null (lib/ask/forecast-participants.mjs).
+ * `call` is a probability row's readable direction ("SEA (home)", "UNDER 9"), shown beside its percentage exactly as the
+ * Results family page shows it; `classes` is a 1X2 row's [home, draw, away] probabilities.
  */
 export const ASK_FORECAST_ROW = Object.freeze([
   "family", "date", "subject", "matchup", "kind", "projection", "rangeLow", "rangeHigh", "probability",
-  "state", "finalValue", "finalCategory", "observed", "absoluteError", "brier", "directional",
+  "state", "finalValue", "finalCategory", "observed", "absoluteError", "brier", "directional", "call", "classes",
 ]);
 export const ASK_FORECAST_KINDS = Object.freeze(["CONTINUOUS_PROJECTION", "BINARY_PROBABILITY", "MULTICLASS_PROBABILITY"]);
 export const isAskDailyFile = (rel) => ASK_DAILY_FILES.includes(rel);

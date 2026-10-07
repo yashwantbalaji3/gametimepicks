@@ -66,6 +66,7 @@ import { combinedParlayPayoutPer100 } from "../../src/lib/odds-math.ts";
 import { MARKET_COVERAGE } from "../../src/lib/market-coverage.ts";
 import { MLB_MARKET_CALIBRATION, isCalibrationFailed } from "../../src/lib/mlb/model-calibration-status.ts";
 import { buildHelpCorpus } from "../../src/lib/ask/help-source.mjs";
+import { makeParticipantJoiner, readableCall } from "../../src/lib/ask/forecast-participants.mjs";
 import { PLAYER_ROW, WINDOWS } from "../../src/lib/research-pages/player-read-model.mjs";
 import { legIsMarketContext, marketContextFamilies } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 import { getRiskBucketForCombinedOdds, PUBLIC_RISK_LABELS } from "../../src/lib/parlays/risk-odds-bands.mjs";
@@ -902,7 +903,7 @@ function buildResultDays() {
  * tool never recomputes a metric; it filters rows and reads family blocks. Display only: no row carries a market
  * probability, and the ledger never holds shadow / research / withheld rows in the first place.
  */
-function buildForecastRecord() {
+function buildForecastRecord(entities = []) {
   const { rows } = readForecastLedger();
   if (!rows.length) {
     notes.push("forecast record absent");
@@ -936,6 +937,16 @@ function buildForecastRecord() {
   });
   const r3 = (v) => (typeof v === "number" && Number.isFinite(v) ? Number(v.toFixed(3)) : v ?? null);
   const slug = (sport) => String(sport).toLowerCase().replace(/_/g, "-");
+  /* A game-level row's teams / fighters, joined by code to Ask entities (lib/ask/forecast-participants.mjs), so team,
+     club and fighter history can reach game rows. A side that does not join is left out — never guessed. */
+  const participantsOf = makeParticipantJoiner(entities);
+  /* The side a probability row is for, in words (lib/ask/forecast-participants.mjs readableCall). A 1X2 row carries its three classes. */
+  const callOf = readableCall;
+  const classesOf = (r) => {
+    const c = r.forecastKind === "MULTICLASS_PROBABILITY" ? r.classProbabilities : null;
+    return c && ["home", "draw", "away"].every((k) => typeof c[k] === "number") ? [r3(c.home), r3(c.draw), r3(c.away)] : null;
+  };
+  let joinedRows = 0;
   const shards = {};
   for (const sport of ASK_FORECAST_SPORTS) {
     const dict = { families: [], subjects: [], matchups: [] };
@@ -947,7 +958,7 @@ function buildForecastRecord() {
       .map((r) => [
         index(0, `${r.sport}|${r.family}`, [r.sport, r.family]),
         String(r.eventStart ?? r.publishedAt ?? "").slice(0, 10) || null,
-        index(1, r.subjectId, [r.subjectId, r.subjectDisplay ?? null, r.teamId ?? null]),
+        index(1, r.subjectId, [r.subjectId, r.subjectDisplay ?? null, r.teamId ?? null, participantsOf(r)]),
         r.matchup ? index(2, r.matchup, r.matchup) : null,
         ASK_FORECAST_KINDS.indexOf(r.forecastKind),
         r3(r.projection), r3(r.rangeLow), r3(r.rangeHigh), r3(r.probability),
@@ -955,10 +966,12 @@ function buildForecastRecord() {
         r3(r.settlement?.finalValue), r.settlement?.finalCategory ?? null,
         r.measurement?.observed ?? null, r3(r.measurement?.absoluteError), r3(r.measurement?.brier),
         r.measurement?.directionalBasis ? r.measurement.directionalResult : null,
+        callOf(r), classesOf(r),
       ]);
+    joinedRows += rows.filter((r) => slug(r.sport) === sport && participantsOf(r)).length;
     shards[sport] = { schemaVersion: ASK_PROJECTION_SCHEMA_VERSION, artifact: "ask-forecast-rows", sport, columns: [...ASK_FORECAST_ROW], kinds: [...ASK_FORECAST_KINDS], dict, rows: packed };
   }
-  notes.push(`forecast record ${rows.length} rows · ${rec.kpis.families} families`);
+  notes.push(`forecast record ${rows.length} rows · ${rec.kpis.families} families · ${joinedRows} game rows joined to a team or fighter`);
   return {
     schemaVersion: ASK_PROJECTION_SCHEMA_VERSION,
     artifact: "ask-forecast-record",
@@ -1009,6 +1022,53 @@ const add = (rel, doc) => {
  * (`public/data/nfl/family-eligibility.json`, written by scripts/nfl/build-nfl-family-eligibility.mjs).
  * Daily (it moves with the slate). Always emitted: an absent record is `available: false`, never a missing file.
  */
+/*
+ * NBA SCHEDULE AND FINALS (2026-10-05, NBA audit X3). Facts only: the schedule capture and the write-once finals
+ * record the /nba/ pages read. No NBA forecast exists (no model has passed validation) and nothing here makes one —
+ * no probability, no line, no pick, no projected score. A game absent from the finals record is pending, never a loss.
+ */
+const NBA_PHASE = { 1: "PRESEASON", 2: "REGULAR_SEASON", 3: "POSTSEASON", 5: "PLAY_IN" };
+function buildNba() {
+  const base = { schemaVersion: ASK_PROJECTION_SCHEMA_VERSION, artifact: "ask-nba" };
+  const read = (rel) => { const f = path.join(APP, "public/data/nba", rel); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : null; };
+  const sched = read("schedule/latest.json");
+  const finalsFiles = fs.existsSync(path.join(APP, "public/data/nba/results")) ? fs.readdirSync(path.join(APP, "public/data/nba/results")).filter((f) => /^finals-\d{4}-\d{2}\.json$/.test(f)).sort() : [];
+  const finalsDoc = finalsFiles.length ? read(`results/${finalsFiles.at(-1)}`) : null;
+  const schedOk = sched?.dataClass === "SCHEDULE_CAPTURE" && Array.isArray(sched.rows);
+  const finalsOk = finalsDoc?.dataClass === "FINALS_RECORD" && finalsDoc?.contract === "nba-finals-record-v1" && Array.isArray(finalsDoc.finals);
+  if (!schedOk && !finalsOk) { notes.push("nba absent"); return { ...base, available: false }; }
+  const etDate = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+  const etTime = (iso) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(iso));
+  const side = (t) => ({ abbr: t?.tricode ?? t?.abbr ?? null, name: t?.name ?? null });
+  /* A placeholder side ("TBD", a knockout slot not yet decided) is not a game anyone can be told about. */
+  const real = (g) => [g.away, g.home].every((t) => t?.name && t.name !== "TBD" && (t.tricode ?? t.abbr) !== "TBD");
+  const finals = finalsOk
+    ? finalsDoc.finals.filter((g) => g.statusRaw === "STATUS_FINAL" && Number.isFinite(g.ftHome) && Number.isFinite(g.ftAway) && !g.exhibition && real(g)).map((g) => ({
+      id: String(g.providerEventId), dateEt: g.dateEt ?? etDate(g.dateUtc), phase: g.phase ?? NBA_PHASE[g.seasonType] ?? null,
+      away: side(g.away), home: side(g.home), awayScore: g.ftAway, homeScore: g.ftHome,
+    })).sort((a, b) => (a.dateEt < b.dateEt ? 1 : a.dateEt > b.dateEt ? -1 : a.id < b.id ? -1 : 1))
+    : [];
+  const finalIds = new Set(finals.map((g) => g.id));
+  const schedule = schedOk
+    ? sched.rows.filter((g) => g.statusRaw === "STATUS_SCHEDULED" && g.dateUtc && real(g) && !finalIds.has(String(g.providerEventId))).map((g) => ({
+      id: String(g.providerEventId), dateEt: etDate(g.dateUtc), timeEt: etTime(g.dateUtc), phase: NBA_PHASE[g.seasonType] ?? null,
+      away: side(g.away), home: side(g.home), venue: g.venue ?? null,
+    })).sort((a, b) => (a.dateEt < b.dateEt ? -1 : a.dateEt > b.dateEt ? 1 : a.id < b.id ? -1 : 1))
+    : [];
+  /* A team is its NAME: the finals record writes Utah as UTA and the schedule as UTAH, so abbreviations are aliases. */
+  const teams = new Map();
+  for (const g of [...finals, ...schedule]) for (const t of [g.away, g.home]) if (t.name) teams.set(t.name, new Set([...(teams.get(t.name) ?? []), ...(t.abbr ? [t.abbr] : [])]));
+  notes.push(`nba ${schedule.length} scheduled · ${finals.length} finals`);
+  return {
+    ...base, available: true,
+    season: finalsDoc?.season ?? null,
+    scheduleAsOf: schedOk ? sched.generatedAt ?? null : null,
+    finalsAsOf: finalsOk ? finalsDoc.updatedAt ?? null : null,
+    teams: [...teams].map(([name, abbrs]) => ({ name, abbrs: [...abbrs].sort() })).sort((a, b) => (a.name < b.name ? -1 : 1)),
+    finals, schedule,
+  };
+}
+
 function buildNflEligibility() {
   const file = path.join(APP, "public/data/nfl/family-eligibility.json");
   const base = { schemaVersion: ASK_PROJECTION_SCHEMA_VERSION, artifact: "ask-nfl-eligibility" };
@@ -1065,19 +1125,21 @@ function buildCoverage() {
   };
 }
 
-add("entities.json", buildEntities());
+const ENTITIES = buildEntities();
+add("entities.json", ENTITIES);
 add("matchups.json", buildMatchups());
 add("forecasts.json", buildForecasts());
 add("parlays.json", buildParlays());
 for (const [key, doc] of Object.entries(buildRecent())) add(`recent/${key}.json`, doc);
 add("results.json", buildResults());
 {
-  const { _shards, ...index } = buildForecastRecord();
+  const { _shards, ...index } = buildForecastRecord(ENTITIES.entries);
   add("forecast-record.json", index);
   for (const [sp, doc] of Object.entries(_shards)) add(`forecast-record/${sp}.json`, doc);
 }
 add("coverage.json", buildCoverage());
 add("nfl-eligibility.json", buildNflEligibility());
+add("nba.json", buildNba());
 const help = buildHelpCorpus();
 assertLinks("help corpus", help.chunks.flatMap((c) => (c.route ? [{ href: c.route }] : [])));
 add("help.json", help);

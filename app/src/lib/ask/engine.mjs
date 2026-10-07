@@ -254,7 +254,7 @@ async function planWithRepair(state, deps, receipt, opts = {}) {
  * own division of labour, not from a model's opinion, and used only as a hint on the second pass.
  */
 const SUBSTANTIVE_FOR_INTENT = Object.freeze({
-  FACTUAL_GAME_QUERY: ["runGameFinder"],
+  FACTUAL_GAME_QUERY: ["runGameFinder", "getNbaGames"],
   FACTUAL_PLAYER_QUERY: ["getPlayerRecentGames", "runPlayerResearchQuery"],
   SEASON_QUERY: ["getSeasonExplorer"],
   TEAM_COMPARE: ["getTeamComparison"],
@@ -262,7 +262,7 @@ const SUBSTANTIVE_FOR_INTENT = Object.freeze({
   MATCHUP_CONTEXT: ["getMatchupContext"],
   PUBLISHED_FORECAST: ["getPublishedForecasts"],
   RESULTS_RECENT: ["getResultsDay", "getRecentResults"],
-  LIVE_STATUS: ["getLiveSlate"],
+  LIVE_STATUS: ["getLiveSlate", "getNbaGames"],
   PARLAY_REQUEST: ["getOfficialProductCards", "getParlayCandidates"],
   BANKROLL_PARLAY_REQUEST: ["getParlayCandidates"],
   PRODUCT_CARDS: ["getOfficialProductCards", "getNflProductEligibility"],
@@ -462,6 +462,7 @@ function toolStatusCopy(name) {
     getParlayCandidates: "Checking GameTime parlay candidates…",
     getOfficialProductCards: "Reading today's official cards…",
     getNflProductEligibility: "Checking NFL product eligibility…",
+    getNbaGames: "Checking the NBA schedule and finals…",
     getLiveSlate: "Checking live games…",
     searchGameTimeHelp: "Checking the GameTime guide…",
     calculate: "Working out the numbers…",

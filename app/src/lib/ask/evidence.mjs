@@ -460,7 +460,6 @@ export function buildEvidence(envelopes) {
         const who = d.subject ?? "that player";
         if (!d.matched) say(`none of the ${d.subjectTotal} ${sp} forecasts on record for ${who} match this request's filters`, [d.subjectTotal]);
         else say(`GameTime published ${d.matched} ${sp} forecasts matching this request for ${who}; ${d.returned} are listed individually below, newest first — this list is not a record`, [d.matched, d.returned]);
-        if (d.scopeNote) say(d.scopeNote);
         /* One decimal for a projection, its range, the actual and the miss — the precision the Forecast Record prints. */
         const r1 = (v) => (typeof v === "number" && Number.isFinite(v) ? Number(v.toFixed(1)) : v);
         for (const raw of d.rows ?? []) {
@@ -475,8 +474,14 @@ export function buildEvidence(envelopes) {
              */
             ? `GameTime projected ${r.projection}${r.rangeLow != null ? ` (range ${r.rangeLow} to ${r.rangeHigh})` : ""}`
             : r.kind === "BINARY_PROBABILITY"
-              ? (typeof r.probability === "number" ? `GameTime gave it a ${Math.round(r.probability * 1000) / 10}% chance` : "GameTime's probability for it is not recorded")
-              : "GameTime published match probabilities";
+              /* The side a probability is FOR ("SEA (home)", "UNDER 9", "WSH (home) to win") is named, as the Results page pairs
+                 them; worded as a probability, not a "call", because it can be under 50% (WSH 20.1% — we favoured SEA). */
+              ? (typeof r.probability === "number"
+                ? (r.call ? `GameTime's probability for ${r.call} was ${Math.round(r.probability * 1000) / 10}%` : `GameTime gave it a ${Math.round(r.probability * 1000) / 10}% chance`)
+                : "GameTime's probability for it is not recorded")
+              : Array.isArray(r.classes)
+                ? `GameTime gave home ${Math.round(r.classes[0] * 1000) / 10}%, draw ${Math.round(r.classes[1] * 1000) / 10}% and away ${Math.round(r.classes[2] * 1000) / 10}%`
+                : "GameTime published match probabilities";
           const happened = r.state === "WITHDRAWN" ? "the forecast was withdrawn before kickoff, which is not a miss"
             : r.state === "PENDING" ? "it is not final yet, which is not a miss"
               : r.state === "VOID" ? "it was void (did not play, push or tie), which is not a miss"
@@ -582,6 +587,29 @@ export function buildEvidence(envelopes) {
         break;
       }
 
+      /* 2026-10-05 · NBA facts. Scores are written "Team 129, Team 105" — never "129–105", which the record check would
+         read as a W–L. No sentence here can carry a forecast: the tool holds none. */
+      case "getNbaGames": {
+        const PHASE = { PRESEASON: "preseason", REGULAR_SEASON: "regular season", POSTSEASON: "playoffs", PLAY_IN: "play-in" };
+        const ph = (g) => (PHASE[g.phase] ? ` (${PHASE[g.phase]})` : "");
+        const scope = [d.team, d.opponent].filter(Boolean).join(" and ") || "the NBA";
+        if (d.show !== "schedule") {
+          if (d.finalsMatched) say(`GameTime's NBA finals record holds ${d.finalsMatched} final${d.finalsMatched === 1 ? "" : "s"} for ${scope}${d.date ? ` on ${d.date}` : ""}${d.finalsAsOf ? `, as of ${d.finalsAsOf}` : ""}; newest first:`, [d.finalsMatched]);
+          else say(`GameTime's NBA finals record holds no final for ${scope}${d.date ? ` on ${d.date}` : ""}${d.finalsAsOf ? ` as of ${d.finalsAsOf}` : ""}; a game not yet recorded is pending, not a loss`);
+          for (const g of d.finals ?? []) {
+            say(`${g.dateEt}${ph(g)} — final: ${g.away.name} ${g.awayScore}, ${g.home.name} ${g.homeScore} (at ${g.home.name})`, [g.awayScore, g.homeScore]);
+          }
+          for (const g of d.pending ?? []) say(`${g.dateEt}${ph(g)} — ${g.away.name} at ${g.home.name}: no final is recorded yet, so it is pending (not a loss)`);
+        }
+        if (d.show !== "finals") {
+          if (d.scheduledMatched) say(`GameTime's NBA schedule lists ${d.scheduledMatched} upcoming game${d.scheduledMatched === 1 ? "" : "s"} for ${scope}${d.date ? ` on ${d.date}` : ""}${d.scheduleAsOf ? `, captured ${d.scheduleAsOf}` : ""}; soonest first:`, [d.scheduledMatched]);
+          else say(`GameTime's NBA schedule lists no upcoming game for ${scope}${d.date ? ` on ${d.date}` : ""}${d.scheduleAsOf ? ` as of ${d.scheduleAsOf}` : ""}`);
+          for (const g of d.scheduled ?? []) say(`${g.dateEt} at ${g.timeEt} ET${ph(g)} — ${g.away.name} at ${g.home.name}${g.venue ? `, ${g.venue}` : ""}`);
+        }
+        say("the NBA has no GameTime forecast, pick or probability; these are recorded and scheduled games only");
+        break;
+      }
+
       case "getNflProductEligibility": {
         /*
          * Session 9 · G — every reason is the record's own blocker, said with its evidence and with what
@@ -663,6 +691,7 @@ function unsupportedSentence(env) {
     getLiveSlate: `GameTimePicks does not currently hold live game state for ${env.arguments?.sport ?? "that sport"}`,
     getCoverage: `GameTimePicks publishes no coverage registry for ${env.arguments?.sport ?? "that sport"}`,
     getNflProductEligibility: "GameTimePicks has not published an NFL product-eligibility record for that",
+    getNbaGames: "GameTimePicks does not hold that NBA game or team in its NBA schedule and finals",
     runGameFinder: `GameTimePicks does not currently hold recorded team game results for ${env.arguments?.sport ?? "that sport"}`,
     getSeasonExplorer: `GameTimePicks does not currently hold recorded season totals for ${env.arguments?.sport ?? "that sport"}`,
     runPlayerResearchQuery: "GameTimePicks does not currently hold that recorded player data",

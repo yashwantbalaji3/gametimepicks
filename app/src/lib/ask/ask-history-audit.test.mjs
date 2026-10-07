@@ -36,7 +36,7 @@ const SHARD = {
   schemaVersion: 1, artifact: "ask-forecast-rows", sport: "nfl", columns: [...ASK_FORECAST_ROW], kinds: [...ASK_FORECAST_KINDS],
   dict: {
     families: [["NFL", "player_reception_yds"], ["NFL", "nfl_team_score"], ["NFL", "nfl_game_winner"]],
-    subjects: [["nfl-athlete-4430878", "Jaxon Smith-Njigba", "SEA"], ["nfl-team-26", "Seattle Seahawks", "nfl-team-26"], ["nfl-401872900", "SEA @ WSH", null]],
+    subjects: [["nfl-athlete-4430878", "Jaxon Smith-Njigba", "SEA"], ["nfl-team-26", "Seattle Seahawks", "nfl-team-26"], ["nfl-401872900", "SEA @ WSH", null, [["nfl-team-26", "Seattle Seahawks"], ["nfl-team-28", "Washington Commanders"]]]],
     matchups: ["SEA @ WSH", "SEA @ ARI"],
   },
   rows: [
@@ -104,12 +104,18 @@ test("2 · a fighter or game with no rows fails closed too; control: a game that
   assert.equal(control.matched, 1);
 });
 
-test("2 · a team's rows are scoped to team score; a team filtered to nothing fails closed", async () => {
+test("2 · a team's history reaches its game-level rows through the joined sides, named as the team", async () => {
   const env = await getForecastHistory({ sport: "NFL", teamId: "nfl-team-26" }, ctx());
   assert.equal(env.status, ASK_STATUS.OK);
-  assert.match(textOf(env, "getForecastHistory"), /team-score projections only; game-level forecasts involving this team/);
-  const winner = await getForecastHistory({ sport: "NFL", teamId: "nfl-team-26", family: "nfl_game_winner" }, ctx());
-  assert.equal(winner.status, ASK_STATUS.UNSUPPORTED, "the team's winner rows live on the game, so this is unreachable, not empty");
+  assert.equal(env.matched, 2, "its own team-score row and the game-winner row it took part in");
+  const t = textOf(env, "getForecastHistory");
+  assert.match(t, /for Seattle Seahawks;/, "named as the team asked about");
+  assert.doesNotMatch(t, /for SEA @ WSH/, "never as the game's title");
+  const winner = await getForecastHistory({ sport: "NFL", teamId: "nfl-team-28", family: "nfl_game_winner" }, ctx());
+  assert.equal(winner.status, ASK_STATUS.OK, "the other side of the game reaches it too");
+  assert.equal(winner.subject, "Washington Commanders");
+  const none = await getForecastHistory({ sport: "NFL", teamId: "nfl-team-28", family: "player_reception_yds" }, ctx());
+  assert.match(textOf(none, "getForecastHistory"), /none of the 1 NFL forecasts on record for Washington Commanders match/, "filtered to nothing is 'none match', not 'published 0'");
 });
 
 test("2 · a player whose rows all miss the filter says 'none of N match', never 'published 0'", async () => {

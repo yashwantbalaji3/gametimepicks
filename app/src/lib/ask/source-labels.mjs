@@ -31,4 +31,5 @@ export const ASK_SOURCE_LABEL = Object.freeze({
   getPendingResults: "Results",
   getCoverage: "Coverage",
   getNflProductEligibility: "NFL eligibility",
+  getNbaGames: "NBA schedule and finals",
 });

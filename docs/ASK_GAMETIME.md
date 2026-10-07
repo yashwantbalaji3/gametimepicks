@@ -531,6 +531,12 @@ the tool module imports no `.ts`.
   START a label word ("Saka" is no longer ambiguous with Wan-Bissaka) and a possessive is dropped ("Josh Allen's");
   help chunks for Bank Builder, Moonshot, Mr. Dub, Homer Nukes, Endzone Vault, Cage Chaos, Goal Rush, Bucket Blitz,
   Model Lab, feedback and moved pages, each restating only its page's own description (no records or hit rates).
+- **2026-10-05 team history + NBA facts** (`ask-forecast-participants.test.mjs`, `ask-nba.test.mjs`): game-level
+  Forecast Record rows carry their joined sides (`lib/ask/forecast-participants.mjs` — MLB/NFL by abbreviation, EPL
+  club / UFC fighter by exact name, fail closed), so team, club and fighter history reaches winner / total / run line /
+  1X2 rows; each probability row names the side it is for, as the Results family page does. `getNbaGames` (registry
+  25, prompt 8) answers NBA schedule and final-score questions from the schedule capture and the write-once finals
+  record (daily `nba.json`); it has no forecast field, and a passed game with no recorded final is pending.
 
 ## 30. Future roadmap
 

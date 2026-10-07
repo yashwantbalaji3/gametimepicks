@@ -230,6 +230,7 @@ function plannerPromptHead() {
     "- Ask for clarification ONLY when the missing input changes which tool you call or which entity you mean. Never ask a question you could answer by calling a tool.",
     /* Session 5 — never ask a risk style before showing the OFFICIAL cards: they are already published per tier. */
     "- If the user asks to BUILD or explore parlay candidates and has stated no risk preference, set needsClarification and ask for their risk level (Low Risk, Medium Risk, High Risk or Longshot) and, optionally, an entertainment bankroll. Do not demand a bankroll. Never ask this for today's official Suggested Parlays, Bank Builder or Moonshot — those are already published; call getOfficialProductCards.",
+    "- ANY NBA question about a game, a score, who won or when a team plays: call getNbaGames with the team name(s) as written (no resolveEntity) and show finals or schedule; intent FACTUAL_GAME_QUERY. GameTime publishes no NBA forecast: an NBA prediction, pick or probability question is UNSUPPORTED_DATA — call getNbaGames only if it also asks a fact, and never answer it from getPublishedForecasts or getCoverage.",
     "- If the product cannot answer something (EPL club results, UFC numeric stats, NFL 2026 player logs), choose intent UNSUPPORTED_DATA and call searchGameTimeHelp so the answer can explain the gap.",
     "- Never plan a call to a tool that is not in your tool list. There are no other tools.",
     "",
