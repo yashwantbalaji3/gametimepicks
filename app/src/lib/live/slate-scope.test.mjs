@@ -34,7 +34,7 @@ import {
 import { HIDDEN_TAB_MIN_INTERVAL_MS } from "./freshness.mjs";
 import { normalizeMlbSchedule } from "./adapters/mlb-statsapi.mjs";
 
-const APP = path.resolve(import.meta.dirname, "../../..");
+const APP = path.join(path.dirname(new URL(import.meta.url).pathname), "..", "..", "..");
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 const MLB_ONLY = ["mlb"];
 const BOTH = ["mlb", "nfl"];
