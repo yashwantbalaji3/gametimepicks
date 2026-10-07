@@ -33,7 +33,7 @@ import {
 } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { nameKey } from "./lib/fight-model.mjs";
 import { classifyCardCoverage, coverageReconciles, providerEventIdOf } from "../../src/lib/sports/ufc/card-coverage.mjs";
-import { findLooseMatch } from "../../src/lib/sports/ufc/fighter-alias.mjs";
+import { findLooseMatch, resolveOutcomeNames } from "../../src/lib/sports/ufc/fighter-alias.mjs";
 import { writeAcquisition, readAcquisition } from "../../src/lib/sports/odds/acquisition-cache.mjs";
 import { buildUfcOddsSnapshot } from "../../src/lib/sports/ufc/odds-snapshot.mjs";
 
@@ -245,8 +245,13 @@ for (const b of card.bouts ?? []) {
     byFighter.set(nameKey(o.name), arr);
   }
   const median = (xs) => { const s = [...xs].sort((a, z) => a - z); return s.length % 2 ? s[(s.length - 1) / 2] : Math.round((s[s.length / 2 - 1] + s[s.length / 2]) / 2); };
+  /* The book's spelling of each card fighter (see resolveOutcomeNames): a rescued join otherwise
+     priced only the fighter whose name already folded the same. */
+  const [redKey, blueKey] = resolveOutcomeNames([nameKey(b.red?.name), nameKey(b.blue?.name)], byFighter.keys());
+  const outcomeKeyOf = new Map([[b.red?.name, redKey], [b.blue?.name, blueKey]]);
   const side = (name) => {
-    const xs = (byFighter.get(nameKey(name)) ?? []).filter(Number.isFinite);
+    const k = outcomeKeyOf.get(name);
+    const xs = (k ? byFighter.get(k) ?? [] : []).filter(Number.isFinite);
     return xs.length ? { american: median(xs), books: xs.length } : null;
   };
 
