@@ -99,3 +99,19 @@ test("the NFL producer freezes the side through the one helper and never re-deri
   assert.match(src, /markSideCutover\(forecast\);\s*fs\.writeFileSync\(revPath/);
   assert.match(src, /markSideCutover\(forecast\);\s*fs\.writeFileSync\(receiptPath/);
 });
+
+test("3D: the NFL week report grades a forward receipt on its FROZEN side, never one worked out from probabilities", async () => {
+  const { gradeGame } = await import("../sports/nfl/week-reconciliation.mjs");
+  const summary = { winProbability: { home: 0.48, away: 0.49, tieMass: 0.03 }, projectedScore: { home: 21, away: 22 },
+    total: { median: 43, p10: 30, p90: 56 }, margin: { median: -1, p10: -14, p90: 12 } };
+  const base = { providerEventId: "9", matchup: "A @ H", kickoffUtc: "2026-10-12T17:00:00Z", generatedAt: "2026-10-12T12:00:00Z",
+    away: { abbr: "A", name: "A" }, home: { abbr: "H", name: "H" }, forecastSummary: summary };
+  const official = { state: "FINAL", finalScore: { home: 24, away: 20 } };
+  const cut = "2026-10-11T00:00:00Z";
+  const winner = (forecast, cutover) => gradeGame({ forecast, board: null, official, sideCutoverAt: cutover }).team.find((t) => t.prop === "winner").outcome;
+  const frozen = (side) => ({ ...base, sideDecision: { schemaVersion: SIDE_DECISION_SCHEMA, publishedSide: side, rule: SIDE_RULE.MODEL_FAVORED_V1, abstention: null, frozenAt: base.generatedAt } });
+  assert.equal(winner(frozen("HOME"), cut), "HIT", "the frozen HOME side is graded, though AWAY has the higher probability");
+  assert.equal(winner(frozen(TOO_CLOSE), cut), "NO_PICK");
+  assert.equal(winner(base, cut), "NO_PICK", "post-cutover receipt without a frozen side: no side, never re-derived");
+  assert.equal(winner(base, null), "MISS", "pre-cutover (historical): Q4 model-favored AWAY");
+});
