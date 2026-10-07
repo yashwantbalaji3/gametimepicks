@@ -20,6 +20,7 @@ import { fileURLToPath } from "node:url";
 
 import { etDateOf, FAMILIES } from "../../src/lib/sports/nba/experimental-forecast.mjs";
 import { owedForecastDates, isOvernightTip, OVERNIGHT_FROM, OVERNIGHT_TO, OVERNIGHT_HORIZON_HOURS } from "../../src/lib/sports/nba/forecast-receipt.mjs";
+import { owedBoardDays, NBA_BOARD_CHAMPION } from "../../src/lib/sports/nba/top-boards.mjs";
 
 export const WINDOW_HORIZON_HOURS = 8;
 /*
@@ -81,6 +82,19 @@ function main() {
   }));
 
   const owed = owedWithOvernight({ rows: schedule.rows ?? [], storedIdsByDate, now: NOW, horizonHours: HORIZON });
+  /* Stage 12-S2: a day whose shadow Top Board is due to freeze (top-boards.mjs) is owed a run too, even when every
+     forecast is already frozen; the builders then add nothing and the run freezes the board. */
+  const champion = FAMILIES[NBA_BOARD_CHAMPION].dir;
+  const boardDays = owedBoardDays({
+    rows: schedule.rows ?? [], now: NOW, etDateOf,
+    championIdsByDate: (date) => {
+      try { return new Set((JSON.parse(fs.readFileSync(path.join(NBA, champion, "forecasts", `${date}.json`), "utf8")).games ?? []).filter((g) => g?.receipt?.payloadSha256 && Date.parse(g.receipt.generatedAt) <= Date.parse(NOW)).map((g) => String(g.providerEventId))); }
+      catch { return new Set(); }
+    },
+    hasBoardFor: (date) => fs.existsSync(path.join(NBA, "top-board-receipts", `${date}.json`)),
+  });
+  for (const d of boardDays) { console.log(`board owed ${d}`); if (!owed.some((o) => o.date === d)) owed.push({ date: d, eventIds: [] }); }
+  owed.sort((a, b) => (a.date < b.date ? -1 : 1));
   if (!owed.length) {
     console.log(`decision=HOLD · ${NOW}: no NBA game tips within ${HORIZON} h without a forecast`);
     emit("decision", "HOLD"); emit("dates", "");
