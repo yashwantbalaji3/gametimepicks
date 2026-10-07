@@ -22,7 +22,7 @@ import {
   ufcStatusText,
 } from "./ufc-live-card.mjs";
 
-const FIX = path.join(import.meta.dirname, "fixtures");
+const FIX = path.join(path.dirname(new URL(import.meta.url).pathname), "fixtures");
 const capture = (name) => JSON.parse(fs.readFileSync(path.join(FIX, `mma-scoreboard-${name}.json`), "utf8"));
 const FETCHED = "2026-09-26T22:00:00.000Z";
 
