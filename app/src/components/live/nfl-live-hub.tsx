@@ -262,6 +262,8 @@ export default function NflLiveHub({ roster }: { roster: NflHubRoster }) {
   const plan = useMemo(() => liveRefreshPlan(
     (Object.values(grouped).flat() as Array<{ game: NflHubRosterGame; state: string }>).map((r) => ({
       id: r.game.providerEventId, phase: gamePhaseOf(r.state), featured: r.game.featured.length,
+      /* The roster read the record at build time; the static export serves exactly that set. */
+      producer: r.game.liveRecordAtBuild,
     })),
   ), [grouped]);
   const liveProps = useLivePropsStore(plan);

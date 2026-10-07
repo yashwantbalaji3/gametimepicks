@@ -118,6 +118,8 @@ export interface NflHubRosterGame {
   featured: FeaturedForecast[];
   /** Which owner supplied the selection rows. */
   featuredSource: "live-props" | "board";
+  /** Whether a live-props record existed at build time. The static export serves exactly that set. */
+  liveRecordAtBuild: boolean;
   /** Legitimate published forecasts for the game — the honest "View all N". */
   eligibleForecastCount: number;
   /** When the frozen board was published — the provenance of every number above. */
@@ -315,6 +317,7 @@ export function buildNflHubRoster(
       trackedPredictions: tracked.slice(0, Math.max(0, previewPerGame)),
       featured,
       featuredSource: selection.source as "live-props" | "board",
+      liveRecordAtBuild: artifact != null,
       eligibleForecastCount: eligibleForecastCount({ rows: selection.rows }),
       boardGeneratedAt: normalizeInstant(board?.generatedAt),
     });

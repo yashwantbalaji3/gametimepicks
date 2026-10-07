@@ -30,18 +30,22 @@ export const NOT_ASKED: LivePropsState = { feed: "NOT_ASKED", artifact: null };
  * visible), FINAL ids are fetched once, PRE ids are never fetched. When no game is live the interval
  * does not exist. A failed refresh keeps the last record — staleness is read off its own observedAt.
  */
-export function useLivePropsStore(plan: { poll: string[]; once: string[] }, pollMs = LIVE_PROPS_REFRESH_MS): Record<string, LivePropsState> {
+export function useLivePropsStore(plan: { poll: string[]; once: string[]; noProducer?: string[] }, pollMs = LIVE_PROPS_REFRESH_MS): Record<string, LivePropsState> {
   const [store, setStore] = useState<Record<string, LivePropsState>>({});
   const onceDone = useRef(new Set<string>());
   const pollKey = plan.poll.join(",");
   const onceKey = plan.once.join(",");
 
+  const noProducerKey = (plan.noProducer ?? []).join(",");
   const load = useCallback(async (id: string) => {
+    const producerExists = !(noProducerKey ? noProducerKey.split(",") : []).includes(id);
     /* Session 5 — the producer record (frozen + settlement) and the gateway (live facts) on the SAME tick.
        The gateway call is the one useLiveEvent makes, CDN-cached by s-maxage; never a per-row request. */
     const [producer, gateway] = await Promise.all([
       /* `no-cache` revalidates against the CDN's ETag: an unchanged record costs a 304, not a body. */
-      fetch(`/data/nfl/live-props/${id}.json`, { cache: "no-cache" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      producerExists
+        ? fetch(`/data/nfl/live-props/${id}.json`, { cache: "no-cache" }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
+        : Promise.resolve(null),
       liveReadyFor("nfl")
         ? fetch(liveUrl({ sport: "nfl", event: id, players: true }), { headers: { accept: "application/json" } }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
         : Promise.resolve(null),
@@ -52,7 +56,7 @@ export function useLivePropsStore(plan: { poll: string[]; once: string[] }, poll
       return;
     }
     setStore((s) => ({ ...s, [id]: { feed: "OK", artifact: merged.artifact, producerFeed: producer ? "OK" : "UNAVAILABLE", gatewayRead: merged.gatewayRead, gatewayIds: merged.gatewayIds } }));
-  }, []);
+  }, [noProducerKey]);
 
   /* FINAL games: one fetch each, for the final stat. */
   useEffect(() => {

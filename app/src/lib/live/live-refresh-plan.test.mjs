@@ -18,8 +18,20 @@ test("only LIVE games are refreshed; FINAL games once; PRE games never", () => {
   ]);
   assert.deepEqual(plan.poll, ["402"]);
   assert.deepEqual(plan.once, ["404"]);
-  assert.deepEqual(liveRefreshPlan([{ id: "401", phase: "PRE", featured: 5 }]), { poll: [], once: [] }, "a pregame slate fetches nothing");
+  assert.deepEqual(liveRefreshPlan([{ id: "401", phase: "PRE", featured: 5 }]), { poll: [], once: [], noProducer: [] }, "a pregame slate fetches nothing");
   assert.ok(LIVE_PROPS_REFRESH_MS >= 30_000, "the shared cadence is bounded");
+});
+
+test("a live game whose record did not exist at build is not asked for its record (a guaranteed 404)", () => {
+  const plan = liveRefreshPlan([
+    { id: "401", phase: "LIVE", featured: 3, producer: false },
+    { id: "402", phase: "LIVE", featured: 3, producer: true },
+    { id: "403", phase: "FINAL", featured: 2, producer: false },
+    { id: "404", phase: "PRE", featured: 2, producer: false },
+    { id: "405", phase: "LIVE", featured: 2 },
+  ]);
+  assert.deepEqual(plan.poll, ["401", "402", "405"], "the gateway half is still read for every live game");
+  assert.deepEqual(plan.noProducer, ["401", "403"], "PRE is never fetched; unknown keeps the old behaviour");
 });
 
 test("🔴 ONE refresh owner: the page holds the only interval; cards and rows hold none", () => {

@@ -58,6 +58,7 @@ const GAME: NflHubRosterGame = {
   trackedPredictions: [],
   featured: FEATURED,
   featuredSource: "live-props",
+  liveRecordAtBuild: true,
   eligibleForecastCount: 51,
   boardGeneratedAt: FROZEN_AT,
 };
