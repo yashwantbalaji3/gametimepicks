@@ -2,18 +2,18 @@
   "schemaVersion": 1,
   "artifact": "mlb-model-results-index",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-07T02:27:23Z",
+  "generatedAt": "2026-10-07T09:24:12Z",
   "sport": "mlb",
   "coverage": {
-    "dates": 114,
+    "dates": 115,
     "firstDate": "2026-05-16",
-    "lastDate": "2026-10-05",
-    "rows": 52178,
-    "wins": 24665,
-    "losses": 24378,
-    "pushes": 3135,
-    "decisive": 49043,
-    "games": 1377,
+    "lastDate": "2026-10-06",
+    "rows": 52251,
+    "wins": 24698,
+    "losses": 24416,
+    "pushes": 3137,
+    "decisive": 49114,
+    "games": 1379,
     "notOfRecord": 57,
     "note": "Every settled model pick this project has graded, one row per pick. Reconciled against graded-picks.json at build time; the build refuses if the two disagree. `games` counts the distinct games those picks came from — the rows are clustered within games and are not independent observations. `notOfRecord` counts earlier-board copies of re-issued leans (postponed games), kept in the raw ledger and counted once."
   },
@@ -5067,6 +5067,51 @@
         }
       },
       "rowsUrl": "/data/mlb/results/model-rows/2026-10-05.json"
+    },
+    {
+      "date": "2026-10-06",
+      "sport": "mlb",
+      "rows": 73,
+      "wins": 33,
+      "losses": 38,
+      "pushes": 2,
+      "decisive": 71,
+      "games": 2,
+      "byMarket": {
+        "batter_hits": {
+          "rows": 31,
+          "wins": 15,
+          "losses": 15,
+          "pushes": 1,
+          "decisive": 30,
+          "games": 2
+        },
+        "batter_hits_runs_rbis": {
+          "rows": 31,
+          "wins": 14,
+          "losses": 16,
+          "pushes": 1,
+          "decisive": 30,
+          "games": 2
+        },
+        "batter_total_bases": {
+          "rows": 6,
+          "wins": 1,
+          "losses": 5,
+          "pushes": 0,
+          "decisive": 6,
+          "games": 1
+        },
+        "pitcher_strikeouts": {
+          "rows": 5,
+          "wins": 3,
+          "losses": 2,
+          "pushes": 0,
+          "decisive": 5,
+          "games": 2
+        }
+      },
+      "rowsUrl": "/data/mlb/results/model-rows/2026-10-06.json"
     }
   ]
 }
