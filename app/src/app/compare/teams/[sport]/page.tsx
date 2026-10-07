@@ -29,10 +29,10 @@ const sportOf = (seg: string) => SPORTS.find((s) => s.toLowerCase() === seg) ?? 
 
 export function generateMetadata({ params }: { params: { sport: string } }): Metadata {
   const sport = sportOf(params.sport);
-  if (!sport) return { title: "Compare teams · GameTimePicks" };
+  if (!sport) return { title: "Compare teams · GameTime Picks" };
   const blocked = TEAM_COMPARE_BLOCKED_SPORTS.includes(sport);
   return withRouteMetadata(comparePath("team", sport), {
-    title: blocked ? `${SPORT_NAME[sport]} team comparison | GameTimePicks` : `Compare ${SPORT_NAME[sport]} teams: records, results and meetings | GameTimePicks`,
+    title: blocked ? `${SPORT_NAME[sport]} team comparison · GameTime Picks` : `Compare ${SPORT_NAME[sport]} teams: records, results and meetings · GameTime Picks`,
     description: blocked
       ? `${SPORT_NAME[sport]} team comparison is not available because final results are not yet an ID-based fact in GameTimePicks data.`
       : `Compare two ${SPORT_NAME[sport]} teams side by side: season records and ${sport === "MLB" ? "runs" : "points"} from official final scores, recent finals and recorded meetings, with sample sizes.`,

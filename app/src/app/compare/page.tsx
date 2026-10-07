@@ -14,7 +14,7 @@ import { compareReadiness } from "@/lib/compare/compare-store";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata: Metadata = withRouteMetadata("/compare/", {
-  title: "Compare teams and players | GameTimePicks",
+  title: "Compare teams and players · GameTime Picks",
   description: "Compare two MLB or NFL teams on recorded results and meetings, or two NFL, Premier League or MLB players on the same recorded stat, with sample sizes and coverage shown.",
 });
 

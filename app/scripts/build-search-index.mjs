@@ -28,6 +28,7 @@ import { buildAllGameDetails } from "../src/lib/game-detail.ts";
 import { soccerLeaguePages } from "../src/lib/sports/soccer/leagues.mjs";
 import { familyHref, ledgerFamilies } from "../src/lib/results/v2/forecast-ledger-reader.ts";
 import { FAMILY_LABELS, SPORT_LABELS } from "../src/lib/results/v2/forecast-record.mjs";
+import { PLAYER_COMPARE_SPORTS, TEAM_COMPARE_SPORTS } from "../src/lib/compare/contract.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
@@ -227,7 +228,23 @@ for (const [label, sub, href, terms] of [
   ["Methodology", "How every number is built", "/methodology/", ["method", "how it works"]],
   ["How It Works", "A two-minute guide", "/learn/", ["learn", "guide", "help"]],
   ["System status", "What is running right now", "/system-status/", ["status", "health"]],
+  // 2026-10-05: the Research tools, which search did not reach before.
+  ["Research", "Every team and player with a research page", "/research/", ["research", "teams", "players", "stats", "directory"]],
+  ["Research Lab", "Search recorded games, player games and season results", "/research/lab/", ["game finder", "player stats", "season results", "filter"]],
+  ["Compare", "Two teams or players, side by side", "/compare/", ["compare", "head to head", "versus", "vs"]],
+  ["Ask GameTime", "Ask about games, players, forecasts and the site", "/ask/", ["ask", "question", "help"]],
+  ["Live", "Games in progress", "/live/", ["live", "scores", "in progress"]],
 ]) add("page", label, sub, href, terms);
+
+// Compare builders, from the Compare owner's own lists of what ships (a blocked shell is not offered as a tool).
+for (const s of TEAM_COMPARE_SPORTS) {
+  const name = SPORT_LABELS[s] ?? s;
+  add("page", `Compare ${name} teams`, "Two teams side by side", `/compare/teams/${s.toLowerCase()}/`, ["compare", "teams", "head to head", s.toLowerCase()]);
+}
+for (const s of PLAYER_COMPARE_SPORTS) {
+  const name = SPORT_LABELS[s] ?? s;
+  add("page", `Compare ${name} players`, "Two players side by side", `/compare/players/${s.toLowerCase()}/`, ["compare", "players", "head to head", s.toLowerCase()]);
+}
 
 // ── FORECAST RECORD (Session 13): one entry per forecast type the ledger measures, from the page owner's own reader,
 // so "receiving yards accuracy" lands on that family's record. Families with no ledger rows have no page and no entry.

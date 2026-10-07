@@ -35,7 +35,7 @@ test("the registry's link targets are real routes in the export", () => {
   if (!hasBuild) return; // no build in this run (CI unit lane)
   for (const sport of HUBS) {
     for (const item of HUB_SECTIONS[sport].filter((i) => i.kind === "link")) {
-      const route = item.target.split("?")[0].replace(/^\//, "").replace(/\/$/, "");
+      const route = item.target.split(/[?#]/)[0].replace(/^\//, "").replace(/\/$/, "");
       const f = path.join(APP, "out", route, "index.html");
       assert.ok(fs.existsSync(f), `${sport}: link target ${item.target} exists in the export`);
     }

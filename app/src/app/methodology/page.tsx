@@ -20,6 +20,7 @@ import { loadTerminal } from "@/lib/research/public-contract-adapter";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import SimulationCoverageMatrix from "@/components/simulation-coverage-matrix";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { eplFacts, ligue1Facts, n } from "@/lib/research-pages/methodology-soccer";
 
 /**
  * /methodology — how a number on this site is produced and how it is judged.
@@ -35,6 +36,8 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
  * revised, reads as a track record and is not one.
  */
 export default function MethodologyPage() {
+  const epl = eplFacts();
+  const l1 = ligue1Facts();
 
   return (
     <div className="mx-auto max-w-[880px] px-4 sm:px-6 py-10">
@@ -248,9 +251,11 @@ export default function MethodologyPage() {
           long after either stopped producing anything. */}
       <Section title="By sport — what is actually modelled">
         <p className="text-[14px] sm:text-[15px] leading-relaxed mb-4" style={{ color: "var(--vault-text-mute)" }}>
-          One sport has a live model. The rest are either history we keep readable or a market price
-          shown as a market price. Nothing below is described in the present tense unless it is
-          producing output today.
+          MLB has the full live model. The NFL, the Premier League, Ligue 1 and UFC (fight winners) publish
+          experimental forecasts, which are graded in public but are not used in any product until they
+          pass their bars; Model Lab shows each one&apos;s status. The rest are either history we keep readable or a
+          market price shown as a market price. Nothing below is described in the present tense unless
+          it is producing output today.
         </p>
         <div className="space-y-4">
           <SportCard
@@ -286,6 +291,30 @@ export default function MethodologyPage() {
             settlement="Official finals; a bout that cannot be matched to a result is left ungraded rather than guessed."
             limits="No settled record exists against which any UFC number here could be judged."
           />
+          {/* 2026-10-05: Premier League and Ligue 1 publish, and had no card. Facts from Soccer's method notes; every
+              count is read from the artifact that holds it (lib/research-pages/methodology-soccer.ts). */}
+          <SportCard
+            accent="var(--vault-gold)"
+            name="Premier League"
+            stage="experimental · model-only forecasts, kept out of products"
+            inputs="Official Premier League results for the match model; player appearances, starts and lineups for the player projections."
+            model={`The match model gives every fixture one exact score grid, computed exactly rather than simulated. Win, draw or win, the ten likeliest scorelines, total goals (including over 2.5), both teams to score, clean sheets and winning margin all come from that grid. A separate player model projects anytime scorer and at least one shot on target; before the lineup is posted a row means "if he starts", and after it the player's actual role is used. The match model was tested blind on nine past seasons (2013-14 to 2021-22, 3,420 matches). The player model was tested once on the held-out 2024-25 season (${n(epl.playerHoldoutN)} player-matches), for players who appeared and for anytime scorer only; it does not predict whether a player will play.`}
+            markets="Model-only numbers. Neither model has been compared against a sportsbook price, and none of these numbers is a pick or advice."
+            cards="None. Shown under an experimental banner and kept out of official prediction products."
+            settlement={`Graded against the official 90-minute result and the forecast published before kickoff. Match results: ${n(epl.matchGradedTotal)} graded, ${n(epl.matchGradedCurrent)} under the current model and ${n(epl.matchGradedPrior)} under the model it replaced (kept separately, not counted for the current one). Player rows: anytime scorer ${n(epl.scorer?.hit ?? null)} hit, ${n(epl.scorer?.miss ?? null)} miss, ${n(epl.scorer?.void ?? null)} void; shot on target ${n(epl.shot?.hit ?? null)} hit, ${n(epl.shot?.miss ?? null)} miss, ${n(epl.shot?.void ?? null)} void. A void (not in the squad, did not play, or not in the assumed role) is never counted as a miss.`}
+            limits="The live match record is far too small to support any claim about accuracy, so no hit rate is quoted."
+          />
+          <SportCard
+            accent="var(--vault-gold)"
+            name="Ligue 1"
+            stage="experimental · model-only match forecasts, kept out of products"
+            inputs="Official Ligue 1 results. No odds and no player data."
+            model={`The Premier League's split-Poisson match model, fitted on Ligue 1's own results. For each fixture in the next eight days it gives win, draw or win, expected goals, over 2.5, both teams to score and the likeliest scorelines. On one held-out season (${l1.holdoutSeason ?? "not available"}, ${n(l1.holdoutMatches)} matches) its log loss was ${l1.holdoutLogLoss ?? "not available"} against ${l1.holdoutBaseline ?? "not available"} for a no-information baseline.`}
+            markets="No odds and no player numbers. Over that held-out season the sportsbook closing line and a plain Elo rating were both more accurate than this model."
+            cards="None. Kept out of official prediction products."
+            settlement={`Win, draw or win only, graded once each against the forecast published before kickoff: ${n(l1.graded)} matches so far, average log loss ${l1.gradedLogLoss ?? "not available"} (a one-in-three guess scores ${l1.uniformLogLoss ?? "not available"}). Over 2.5, both teams to score and the scorelines are published but not yet graded.`}
+            limits={l1.tooSmall ? "The graded sample is too small to assess." : "The graded sample is still accumulating; it is not yet a verdict on accuracy."}
+          />
           <SportCard
             accent="var(--vault-text)"
             name="Soccer / World Cup"
@@ -315,7 +344,7 @@ export default function MethodologyPage() {
         <div className="vault-deluxe-card p-5 sm:p-6">
           <ul className="space-y-3.5 text-[14px] sm:text-[15px] leading-relaxed list-none">
             <LimitationRow title="The market is still the better estimate" body="Scored on identical settled results, the de-vigged sportsbook price beats our probabilities. Nothing here has been shown to out-predict it, and a disagreement between the two is not evidence that we are right." />
-            <LimitationRow title="One sport is live" body="MLB is the only sport producing model output. NBA is frozen history, UFC is a market price with no model behind it, and soccer is closed." />
+            <LimitationRow title="One sport has the full model" body="MLB is the only sport with the full live model. NFL, Premier League, Ligue 1 and UFC fight-winner forecasts are experimental: graded in public, and kept out of every product until they pass their bars. NBA publishes schedules and final scores only, and the World Cup is closed." />
             <LimitationRow title="Lines move" body="Boards reflect prices as captured, with the capture time shown. By the time you read them, prices have likely shifted, and there is no retained snapshot series to chart movement from." />
             <LimitationRow title="Missing context inputs" body="Park factor, weather, bullpen fatigue and handedness splits are not modelled for MLB." />
             <LimitationRow title="Some markets are switched off" body="Where a market's own settled record sits entirely below break-even across a large sample, predictions in it are disabled. The history stays visible and is never placed in a ranked or difference-ordered list." />

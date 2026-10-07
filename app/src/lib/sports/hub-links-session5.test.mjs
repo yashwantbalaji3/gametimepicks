@@ -18,6 +18,20 @@ test("Live is linked only where /live has a live adapter (MLB, NFL); Ask from ev
   assert.ok(fs.existsSync("src/app/live") && fs.existsSync("src/app/ask"));
 });
 
+test("every hub reaches its teams and players on the Research home, one click from the strip", () => {
+  const want = { mlb: "/research#teams-mlb", epl: "/research#teams-epl", nfl: "/research#teams-nfl", ufc: "/research" };
+  for (const [sport, items] of Object.entries(HUB_SECTIONS)) {
+    const hit = items.find((x) => x.kind === "link" && x.target.startsWith("/research"));
+    assert.ok(hit, `${sport}: no Research link`);
+    assert.equal(hit.target, want[sport], `${sport}: Research link lands on its own sport's directory`);
+  }
+  assert.match(fs.readFileSync("src/app/research/page.tsx", "utf8"), /id=\{`teams-\$\{s\.sport\.toLowerCase\(\)\}`\}/, "the Research home renders a #teams-<sport> anchor");
+  const built = "out/research/index.html";
+  if (!fs.existsSync(built)) return; // unit lane: no export
+  const html = fs.readFileSync(built, "utf8");
+  for (const s of ["nfl", "mlb", "epl"]) assert.match(html, new RegExp(`id="teams-${s}"`), `the built Research home carries #teams-${s}`);
+});
+
 test("EPL's strip names the fixture list as what it is", () => {
   const item = HUB_SECTIONS.epl.find((x) => x.target === "schedule");
   assert.equal(item.label, "Fixture list");
