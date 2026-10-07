@@ -42,6 +42,19 @@ def setup_temp(tmp: Path) -> tuple[Path, Path, Path]:
     return val, settled, pub
 
 
+def _lean(id_: str, player: int, outcome: str, date: str = "2026-05-16", game: int = 900001, line: float = 0.5) -> dict:
+    """A settled lean with its question identity (game · player · market) — every real ledger row carries one."""
+    return {"id": id_, "date": date, "gamePk": game, "playerId": player, "marketKey": "batter_hits",
+            "line": line, "lean": "Over", "outcome": outcome}
+
+
+def _run(val: Path, settled: Path, pub: Path) -> dict:
+    with mock.patch.object(exp, "VALIDATION_DIR", val), \
+         mock.patch.object(exp, "SETTLED_LEANS_PATH", settled), \
+         mock.patch.object(exp, "PUBLIC_DIR", pub):
+        return exp.export()
+
+
 def test_export_empty():
     print("\n─── empty settlement → clean zeros ───")
     import tempfile
@@ -74,10 +87,10 @@ def test_export_with_rows_and_partial_flag():
         settled.write_text(
             "\n".join(
                 [
-                    json.dumps({"id": "a", "date": "2026-05-16", "outcome": "Win"}),
-                    json.dumps({"id": "b", "date": "2026-05-16", "outcome": "Win"}),
-                    json.dumps({"id": "c", "date": "2026-05-16", "outcome": "Loss"}),
-                    json.dumps({"id": "d", "date": "2026-05-16", "outcome": "Push"}),
+                    json.dumps(_lean("a", 1, "Win")),
+                    json.dumps(_lean("b", 2, "Win")),
+                    json.dumps(_lean("c", 3, "Loss")),
+                    json.dumps(_lean("d", 4, "Push")),
                 ]
             )
             + "\n"
@@ -117,7 +130,7 @@ def test_export_idempotent_overwrites():
         tdir_path = Path(tdir)
         val, settled, pub = setup_temp(tdir_path)
         settled.write_text(
-            json.dumps({"id": "a", "date": "2026-05-16", "outcome": "Win"}) + "\n"
+            json.dumps(_lean("a", 1, "Win")) + "\n"
         )
         with mock.patch.object(exp, "VALIDATION_DIR", val), \
              mock.patch.object(exp, "SETTLED_LEANS_PATH", settled), \
@@ -155,6 +168,8 @@ def test_public_jsonl_strips_internal_fields():
                     "matchMethod": "id",
                     "modelProbOver": 0.6,
                     "playerName": "Test",
+                    "gamePk": 900001,
+                    "playerId": 1,
                     "marketKey": "batter_hits",
                     "line": 1.5,
                     "lean": "Over",
@@ -180,12 +195,71 @@ def test_public_jsonl_strips_internal_fields():
         _ok("internal-only fields not exposed publicly")
 
 
+FIXTURE_824785 = (Path(__file__).resolve().parents[2] / "app" / "src" / "lib" / "results" / "__fixtures__"
+                  / "mlb-leans-of-record" / "postponed-824785.json")
+
+
+def test_postponed_824785_counts_once():
+    print("\n─── Stage 3B: postponed 824785 re-issued leans count once (same rule as graded-picks) ───")
+    import tempfile
+
+    fx = json.loads(FIXTURE_824785.read_text())
+    e = fx["expect"]
+    with tempfile.TemporaryDirectory() as tdir:
+        val, settled, pub = setup_temp(Path(tdir))
+        settled.write_text("\n".join(json.dumps(r) for r in fx["leans"]) + "\n")
+        (pub / exp.GAME_GRADER_NAME).write_text("\n".join(json.dumps(g) for g in fx["gameGrader"]) + "\n")
+        summary = _run(val, settled, pub)
+        assert_eq(summary["wins"], e["record"]["win"], "wins of record")
+        assert_eq(summary["losses"], e["record"]["loss"], "losses of record")
+        assert_eq(summary["decisive"], e["record"]["win"] + e["record"]["loss"], "decisive of record")
+        assert_eq(summary["totalSettled"], e["record"]["rows"], "rows of record")
+        assert_eq(summary["notOfRecord"]["superseded"], e["superseded"]["rows"], "superseded disclosed")
+        assert_eq(e["naive"]["win"] - summary["wins"], e["superseded"]["win"], "wins removed = earlier-board copies")
+        # raw rows preserved: the public jsonl still carries every row
+        public = [line for line in (pub / "settled_leans.jsonl").read_text().splitlines() if line]
+        assert_eq(len(public), e["rows"], "public settled_leans keeps every raw row")
+
+
+def test_unkeyed_row_excluded_never_a_loss():
+    print("\n─── Stage 3B: a row without game/player identity is excluded and disclosed (Q5) ───")
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tdir:
+        val, settled, pub = setup_temp(Path(tdir))
+        nokey = {k: v for k, v in _lean("z", 9, "Loss").items() if k != "playerId"}
+        settled.write_text(json.dumps(_lean("a", 1, "Win")) + "\n" + json.dumps(nokey) + "\n")
+        summary = _run(val, settled, pub)
+        assert_eq(summary["losses"], 0, "unkeyed loss is not counted")
+        assert_eq(summary["notOfRecord"]["unkeyed"], 1, "unkeyed disclosed")
+
+
+def test_fails_closed_without_the_rule():
+    print("\n─── Stage 3B: no node → no uncorrected lifetime record (fail closed) ───")
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tdir:
+        val, settled, pub = setup_temp(Path(tdir))
+        settled.write_text(json.dumps(_lean("a", 1, "Win")) + "\n")
+        with mock.patch.object(exp.shutil, "which", return_value=None):
+            try:
+                _run(val, settled, pub)
+            except RuntimeError:
+                _ok("export refused")
+            else:
+                _fail("export published a lifetime record without the forecast-of-record rule")
+        assert not (pub / "lifetime_summary.json").exists(), "no lifetime summary written"
+
+
 def main() -> int:
     print("\n=== pipeline.mlb.export_mlb_results tests ===")
     test_export_empty()
     test_export_with_rows_and_partial_flag()
     test_export_idempotent_overwrites()
     test_public_jsonl_strips_internal_fields()
+    test_postponed_824785_counts_once()
+    test_unkeyed_row_excluded_never_a_loss()
+    test_fails_closed_without_the_rule()
     print("\n\033[0;32m✓ all export_mlb_results assertions passed\033[0m")
     return 0
 
