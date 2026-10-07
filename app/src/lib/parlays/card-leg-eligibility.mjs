@@ -20,9 +20,23 @@ import path from "node:path";
 /** How stale a price capture may be before it stops being publishable (was lab-eligibility's private constant). */
 export const PRICE_MAX_AGE_DAYS = 3;
 
-/** The coverage registry's demoted families as "SPORT:family" keys (sport upper-cased). */
+/**
+ * Stage 4B · FAIL CLOSED (founder Q3 CLOSED, 2026-10-07). When the coverage document cannot be read, the family set
+ * is UNREADABLE: it answers "demoted" for every key, so every reader that asks `.has(...)` (directly or through
+ * legIsMarketContext / partitionByLegEligibility / engine-v2 sources) withholds the leg instead of passing it. Before
+ * 4B an unreadable document gave an empty set, and six readers promoted every leg as if nothing were demoted.
+ * `unreadable` lets a surface say why a lane is empty.
+ */
+class UnreadableCoverage extends Set {
+  get unreadable() { return true; }
+  has() { return true; }
+}
+export const coverageUnreadable = (families) => families?.unreadable === true;
+
+/** The coverage registry's demoted families as "SPORT:family" keys (sport upper-cased); UNREADABLE when no document. */
 export function marketContextFamilies(coverageDoc) {
-  return new Set((coverageDoc?.markets ?? [])
+  if (!Array.isArray(coverageDoc?.markets)) return new UnreadableCoverage();
+  return new Set(coverageDoc.markets
     .flatMap((m) => (m.demotedFamilies ?? []).map((f) => `${String(m.sport).toUpperCase()}:${f}`)));
 }
 
@@ -41,7 +55,7 @@ export function partitionByLegEligibility(slips, families, sport = null) {
   const named = new Set();
   for (const s of slips ?? []) {
     const bad = (s.legs ?? []).filter((l) => legIsMarketContext(l, families, s.sport ?? sport));
-    if (bad.length) { withheld.push(s); for (const l of bad) named.add(l.marketLabel ?? l.market); }
+    if (bad.length) { withheld.push(s); if (!coverageUnreadable(families)) for (const l of bad) named.add(l.marketLabel ?? l.market); }
     else eligible.push(s);
   }
   return { eligible, withheld, withheldFamilies: [...named].sort() };
@@ -84,12 +98,13 @@ export function priceIsFresh(capturedAt, nowIso) {
   return Number.isFinite(c) && Number.isFinite(n) && (n - c) / 86_400_000 <= PRICE_MAX_AGE_DAYS;
 }
 
-/** The committed coverage projection, or null (a caller then withholds nothing it cannot judge — and says so). */
+/** The committed coverage projection, or null (marketContextFamilies(null) then withholds every leg — Stage 4B). */
 export function loadCommittedCoverage(repoRoot) {
   try { return JSON.parse(fs.readFileSync(path.join(repoRoot, "data/ask-projection/v1/coverage.json"), "utf8")); }
   catch { return null; }
 }
 
 /** The one sentence every surface uses for a lane emptied by this rule. */
-export const marketContextReason = (families) =>
-  `every candidate on today's slate uses a market-context family (${families.join(", ") || "demoted"}) — the model behind it was demoted and is not a published GameTime projection, so no card is offered`;
+export const marketContextReason = (families, { unreadable = false } = {}) => unreadable
+  ? "the market-status registry could not be read, so no card is offered until it can"
+  : `every candidate on today's slate uses a market-context family (${families.join(", ") || "demoted"}) — the model behind it was demoted and is not a published GameTime projection, so no card is offered`;

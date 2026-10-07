@@ -25,7 +25,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadCommittedCoverage, marketContextFamilies, partitionByLegEligibility, marketContextReason } from "../../src/lib/parlays/card-leg-eligibility.mjs";
+import { loadCommittedCoverage, marketContextFamilies, partitionByLegEligibility, marketContextReason, coverageUnreadable } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 import { slipHasNotStarted } from "../../src/lib/parlays/started-guard.mjs";
 import { publishedBandRecord } from "../../src/lib/parlays/published-band-record.mjs";
 import { PUBLIC_RISK_LABELS, READER_STYLE_LABELS, readerStyleBlurb } from "../../src/lib/parlays/risk-odds-bands.mjs";
@@ -323,7 +323,7 @@ for (const tier of TIERS) {
           ? "every candidate in this tier includes a game that had already started (or has no known start) when the ladder was built"
           : "every card in this tier reused a leg already on the ladder, ran past the five-leg cap, included a game that had already started, or held two legs from one game")
         : withheldByTier[tier]
-          ? marketContextReason([...withheldFamilies])
+          ? marketContextReason([...withheldFamilies], { unreadable: coverageUnreadable(families) })
           : "no priced card in this tier on today's slate",
       ...(withheldByTier[tier] ? { withheldMarketContext: withheldByTier[tier] } : {}),
     });
@@ -486,7 +486,7 @@ const payload = {
   /* F-1: what the card-leg eligibility rule withheld today, and from which source — a lane emptied by the rule says so. */
   eligibility: {
     rule: "a card with any leg from a family the coverage registry demotes to market context is withheld",
-    source: coverageDoc ? "data/ask-projection/v1/coverage.json (lib/market-coverage.ts)" : "coverage projection unavailable — nothing withheld",
+    source: coverageDoc ? "data/ask-projection/v1/coverage.json (lib/market-coverage.ts)" : "coverage projection unreadable — every card withheld (fails closed)",
     withheldMarketContext: TIERS.reduce((n, t) => n + (withheldByTier[t] ?? 0), 0),
     withheldFamilies: [...withheldFamilies].sort(),
   },

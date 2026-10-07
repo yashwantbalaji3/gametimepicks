@@ -33,7 +33,7 @@ import {
 /* Parlay Lab is retired in rendered copy (its route is a redirect stub to /build#suggested-cards). */
 const SUGGESTED_LINKS = Object.freeze([{ id: "suggested", label: "Open Suggested cards", href: "/build/" }]);
 
-import { legIsMarketContext, marketContextFamilies } from "../../parlays/card-leg-eligibility.mjs";
+import { legIsMarketContext, marketContextFamilies, coverageUnreadable } from "../../parlays/card-leg-eligibility.mjs";
 
 /* ────────────────────────────  getPublishedForecasts  ──────────────────────────── */
 
@@ -238,7 +238,9 @@ export async function getParlayCandidates(args, ctx) {
     return {
       status: ASK_STATUS.UNSUPPORTED,
       error: ASK_ERROR.NOT_PUBLISHED,
-      detail: `${withheldMarketContext} parlay candidates were built for ${date}, but every one uses a market-context family (${demotedFamiliesSeen.join(", ")}) that is not a published GameTime projection, so none is offered`,
+      detail: coverageUnreadable(demoted) // Stage 4B: an unreadable registry withholds every slip (fails closed)
+        ? `${withheldMarketContext} parlay candidates were built for ${date}, but the market-status registry could not be read, so none is offered until it can`
+        : `${withheldMarketContext} parlay candidates were built for ${date}, but every one uses a market-context family (${demotedFamiliesSeen.join(", ")}) that is not a published GameTime projection, so none is offered`,
       date,
       withheldMarketContext,
       links: SUGGESTED_LINKS,

@@ -266,6 +266,8 @@ test("the parlay adapter drops an ineligible sport cut EVEN WHEN IT IS NOT EMPTY
       },
       evOwner: null,
     },
+    // Stage 4B: the read-time card-leg rule now fails closed without a readable coverage registry.
+    "/data/ask/v1/coverage.json": { markets: [] },
   }));
   // E-3: an omitted date is today's product date, so the clock is pinned to the fixture's day.
   const ex = makeExecutor({ turn: loader.beginTurn(), now: () => new Date("2026-09-17T16:00:00Z") });
@@ -275,6 +277,21 @@ test("the parlay adapter drops an ineligible sport cut EVEN WHEN IT IS NOT EMPTY
   const ids = r.data.candidates.map((c) => c.slipId);
   assert.deepEqual(ids, ["s-mlb"], "the NBA candidate must be refused even though its score is higher");
   assert.ok(r.data.refusedSports.includes("NBA"), "the refusal must be reported, not silent");
+});
+
+test("Stage 4B: with the coverage registry unreadable, Ask offers no parlay candidate and says why", async () => {
+  const loader = makeAskLoader(fixtureFetchText({
+    "/data/ask/v1/parlays.json": {
+      schemaVersion: 1, dates: ["2026-09-17"], evOwner: null,
+      byDate: { "2026-09-17": { date: "2026-09-17", generatedAt: "2026-09-17T10:00:00Z", eligibleSports: ["mlb"], profiles: { MEDIUM: [
+        { slipId: "s-mlb", profile: "MEDIUM", sport: "MLB", legCount: 2, legs: [{ sport: "MLB", playerName: "A", oddsForSide: -110 }, { sport: "MLB", playerName: "B", oddsForSide: -110 }], score: 0.2, correlationPenalty: 0, payoutPer100: { american: 264, decimal: 3.64, profitPer100: 264 } },
+      ] } } },
+    },
+  }));
+  const ex = makeExecutor({ turn: loader.beginTurn(), now: () => new Date("2026-09-17T16:00:00Z") });
+  const r = await ex.run({ name: "getParlayCandidates", arguments: { riskProfile: "MEDIUM", limit: 5 } });
+  assert.equal(r.status, "UNSUPPORTED", "fails closed (founder Q3), never open");
+  assert.match(r.detail, /could not be read/);
 });
 
 test("the risk profiles are the optimizer artifact's own section keys", () => {
@@ -1116,6 +1133,7 @@ const twoDayParlayDeps = () => ({
       },
       evOwner: null,
     },
+    "/data/ask/v1/coverage.json": { markets: [] }, // Stage 4B: unreadable coverage withholds every slip
   })).beginTurn(),
 });
 const parlayPlan = (args, after) => JSON.stringify({

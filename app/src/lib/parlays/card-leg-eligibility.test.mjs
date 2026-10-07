@@ -63,3 +63,21 @@ test("LIVE · no published ladder card built under the rule carries a market-con
   for (const c of doc.cards ?? []) for (const l of c.legs ?? []) assert.ok(!legIsMarketContext({ ...l, sport: "MLB" }, f), `${c.slipId}: ${l.market} is market context`);
   assert.ok(doc.eligibility, "a ladder built under the rule declares what it withheld");
 });
+
+test("Stage 4B · Q3 CLOSED: an unreadable coverage document withholds every leg at every reader instead of passing it", async () => {
+  const { coverageUnreadable } = await import("./card-leg-eligibility.mjs");
+  const { receiptFromMlbOptimizerLeg } = await import("../products/engine-v2/sources.mjs");
+  for (const doc of [null, undefined, {}, { markets: "garbled" }]) {
+    const f = marketContextFamilies(doc);
+    assert.equal(coverageUnreadable(f), true, JSON.stringify(doc));
+    assert.equal(legIsMarketContext(leg("moneyline"), f), true, "even a team market is withheld when status cannot be read");
+    const { eligible, withheld, withheldFamilies } = partitionByLegEligibility([{ slipId: "a", legs: [leg("moneyline")] }], f, "MLB");
+    assert.equal(eligible.length, 0);
+    assert.equal(withheld.length, 1);
+    assert.deepEqual(withheldFamilies, [], "no family is falsely named as demoted");
+    assert.equal(f.has("MLB:anything"), true, "engine-v2 readers that call .has see it as demoted");
+  }
+  assert.equal(receiptFromMlbOptimizerLeg({ market: "batter_hits", gamePk: 1, player: "x" }, { demotedFamilies: marketContextFamilies(null) }) != null, true);
+  assert.equal(coverageUnreadable(marketContextFamilies(coverage)), false, "the committed document is readable");
+  assert.match(marketContextReason([], { unreadable: true }), /could not be read/);
+});
