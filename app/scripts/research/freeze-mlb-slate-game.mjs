@@ -327,6 +327,11 @@ const receipt = {
       totalMedian: champion.totalRuns.median,
       atMarketLine: championTl,
       runLine15: champion.runLine.find((r) => r.line === 1.5),
+      // The public Simulation Read shows the champion's total (founder decision 16:50Z), so its full
+      // distribution is frozen here too, read from its own same-seed worlds.
+      runs: { away: champion.runs.away, home: champion.runs.home },
+      total: { mean: Math.round(mean(championWorlds.map((w) => w.away + w.home)) * 1e3) / 1e3, ...quantiles(championWorlds.map((w) => w.away + w.home)), histogram: totalHistogram(championWorlds) },
+      championWorldsMatchArtifact: Math.abs(champion.totalRuns.mean - Math.round(mean(championWorlds.map((w) => w.away + w.home)) * 100) / 100) < 1e-9,
       note: "Same inputs and seed, default parameters. Its known forward level error is about +0.62 runs per game too low (P317 receipt).",
     },
     market: input.market ?? null,
