@@ -61,6 +61,7 @@ export async function getForecastFamilyPerformance(args, ctx) {
       ...(f.kind === "BINARY_PROBABILITY" ? { brier: f.brier, logLoss: f.logLoss, meanForecast: f.meanForecast, observedRate: f.observedRate, ece: f.ece } : {}),
       ...(f.kind === "MULTICLASS_PROBABILITY" ? { brier: f.brier, logLoss: f.logLoss, topClassAccuracy: f.topClassAccuracy, topClassLabel: f.topClassLabel ?? null, uniformReference: f.uniformReference } : {}),
       pickRecord: f.pickRecord ?? null,
+      ...(Array.isArray(f.pickRecords) ? { pickRecords: f.pickRecords } : {}),
       latestEvent: f.latestEvent ?? null,
       href: f.href,
     })),

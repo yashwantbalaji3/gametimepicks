@@ -27,6 +27,12 @@ function Outcome({ hit }: { hit: boolean | null }) {
   return <span className="font-mono" style={{ fontSize: 10.5, color: colour, letterSpacing: "0.08em" }}>{label}</span>;
 }
 
+/* Stage 3D: a mixed record is shown per basis, in these words (never "our pick" for the historical rows). */
+const BASIS_LABEL: Record<string, string> = {
+  HISTORICAL_MODEL_FAVORED: "Historical model-favored winner accuracy",
+  PUBLISHED: "Sides frozen before kickoff",
+};
+
 export default function GradedPicksSection({ record, rows = 6, href }: { record: GradedRecord; rows?: number; href: string }) {
   const c = record.counts;
   /* P246 (UFC labeling audit): the UFC caveat said the market's de-vigged probability "is shown
@@ -47,7 +53,9 @@ export default function GradedPicksSection({ record, rows = 6, href }: { record:
         }
       />
       <div className="mt-3 flex flex-wrap gap-4 font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
-        <span>{c.hits.toLocaleString()} hit · {c.misses.toLocaleString()} missed</span>
+        {record.recordBasis === "MIXED" && record.byBasis
+          ? record.byBasis.map((b) => <span key={b.basis}>{BASIS_LABEL[b.basis] ?? b.basis}: {b.hits.toLocaleString()} hit · {b.misses.toLocaleString()} missed</span>)
+          : <span>{c.hits.toLocaleString()} hit · {c.misses.toLocaleString()} missed</span>}
         {c.voided > 0 ? <span>{c.voided.toLocaleString()} void — a condition that did not hold is never scored as a miss</span> : null}
         {record.hitRate != null && SHOW_RATE.has(record.sampleState) ? <span>{pct(record.hitRate)} hit rate</span> : null}
       </div>

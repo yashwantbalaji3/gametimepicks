@@ -146,3 +146,16 @@ test("follow-up: 'what about his receptions?' keeps the carried player id (no re
   const cold = await plan("QUESTION: What about his receptions?");
   assert.notEqual(cold.intent, "FORECAST_HISTORY", "control: with no earlier forecast-history turn, a pronoun is not resolved to anyone");
 });
+
+test("Stage 3E: a family graded on two bases states each record on its own, never one pooled record", async () => {
+  const fam = { sport: "NFL", family: "nfl_game_winner", label: "Game winner", kind: "BINARY_PROBABILITY", counts: { published: 110, withdrawn: 0, measured: 108, pending: 0, void: 2, unmeasured: 0 }, n: 108, brier: 0.22, logLoss: 0.63, meanForecast: 0.5, observedRate: 0.5, ece: 0.04,
+    pickRecord: null, pickRecords: [{ win: 61, loss: 44, push: 0, basis: ["HISTORICAL_MODEL_FAVORED"] }, { win: 2, loss: 1, push: 0, basis: ["PUBLISHED_PICK"] }],
+    latestEvent: "2026-10-12T17:00Z", href: "/results/forecasts/nfl/nfl-game-winner/" };
+  const r = await getForecastFamilyPerformance({ sport: "NFL" }, ctx({ ...INDEX, families: [fam], gaps: [] }));
+  assert.equal(r.families[0].pickRecord, null);
+  assert.equal(r.families[0].pickRecords.length, 2);
+  const t = textOf(r, "getForecastFamilyPerformance");
+  assert.match(t, /historical model-favored winner accuracy[^|]*Game winner record is 61–44, counted separately/);
+  assert.match(t, /the pick we published, the NFL Game winner record is 2–1, counted separately/);
+  assert.doesNotMatch(t, /63–45/, "the two bases are never added together");
+});

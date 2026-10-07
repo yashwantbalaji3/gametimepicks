@@ -3,7 +3,8 @@
  *
  * Each sport's full graded ledger, read into one uniform row: {eventId, when, subject, market, predicted,
  * actual, modelProbability, probabilityOfActual, marketProbabilityOfActual, hit} where hit is true / false /
- * null (void — a tie, a draw the market did not ask about, a push). The graded-picks builder and the Results V2
+ * null (void — a tie, a draw the market did not ask about, a push). Stage 3E: a row whose stored grade is not one the
+ * owner writes carries `unknown: true` (hit null): disclosed and counted apart, never a void, a loss or a re-grade. The graded-picks builder and the Results V2
  * overview read the SAME rows, so the two cannot disagree about what was graded. IO only; no grading here.
  *
  * `appDir` is the Next app directory, `rootDir` the repository root (internal ledgers live there).
@@ -13,27 +14,19 @@ import path from "node:path";
 
 import { mlbLeansOfRecord, mlbFirstPitches } from "../results/mlb-leans-of-record.mjs";
 import { winnerOfRecord } from "../results/nfl-model-favored.mjs";
-import { readGradedReceipt, readNflWinnerCorrections } from "../results/nfl-model-favored-io.mjs";
+import { nflSettlementSelection } from "../results/nfl-settlement-of-record.mjs";
+import { readGradedReceipt, readNflSideCutover, readNflWinnerCorrections } from "../results/nfl-model-favored-io.mjs";
 
 /**
- * ONE ROW PER NFL GAME — the forecast of record (the same rule the Forecast Ledger applies, lib/forecast-ledger/
- * adapters/nfl.mjs nflGameRows). The settler grades per receipt-date FOLDER, so a game kicking off just after 00:00Z
- * is graded twice: once against an earlier, superseded receipt and once against the latest pre-kickoff one. Counting
- * both counted three wins twice (64–43 published, 61–43 true). Keyed on the canonical game id (fallback
- * nfl-<providerEventId>); the row whose receipt was generated latest is the one of record. A row with no game id
- * cannot be matched to another and is kept. Pure.
+ * ONE ROW PER NFL GAME — the forecast of record. The settler grades per receipt-date FOLDER, so a game kicking off just
+ * after 00:00Z is graded twice: once against an earlier, superseded receipt and once against the latest pre-kickoff
+ * one. Counting both counted three wins twice (64–43 published, 61–43 true). Stage 3E: the selection is the one shared
+ * rule (lib/results/nfl-settlement-of-record.mjs, on the forecast-of-record contract) that the ledger adapter, the
+ * settler's lifetime summary and the NFL index also use. A row with no game id is UNKEYED (founder Q5): left out,
+ * never a loss. Pure.
  */
 export function nflSettlementOfRecord(events) {
-  const best = new Map();
-  const keyless = [];
-  for (const e of events ?? []) {
-    const key = e?.canonicalEventId ?? (e?.providerEventId != null ? `nfl-${e.providerEventId}` : null);
-    if (key == null) { keyless.push(e); continue; }
-    const prev = best.get(key);
-    const at = String(e.lineage?.forecastGeneratedAt ?? "");
-    if (!prev || at > String(prev.lineage?.forecastGeneratedAt ?? "")) best.set(key, e);
-  }
-  return [...best.values(), ...keyless];
+  return nflSettlementSelection(events).record;
 }
 
 export function makeGradedPickOwners({ appDir, rootDir }) {
@@ -71,6 +64,9 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
         probabilityOfActual: r.model?.probabilityOfActual ?? null,
         marketProbabilityOfActual: r.market?.probabilityOfActual ?? null,
         hit: typeof r.hit === "boolean" ? r.hit : null,
+        // Stage 3E: the grader writes a boolean for every decided bout and a null hit only beside a draw / no contest
+        // (no winner). A null hit beside a winner is a grade the reader cannot read: UNKNOWN, never a void.
+        ...(typeof r.hit !== "boolean" && r.winner ? { unknown: true } : {}),
       }));
   }
 
@@ -110,7 +106,11 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
             : null,
           probabilityOfActual: r.scores?.probabilityOfActual ?? null,
           marketProbabilityOfActual: null,
-          hit: typeof r.scores?.hit === "boolean" ? r.scores.hit : (predicted && actual ? predicted === actual : null),
+          /* Stage 3E (inventory R8): the grader's `scores.hit` is the grade; the reader never re-grades a row. 1X2 has no
+             void outcome, so a graded row without a boolean hit is UNKNOWN (counted apart), never a void or a re-derived
+             hit. */
+          hit: typeof r.scores?.hit === "boolean" ? r.scores.hit : null,
+          ...(typeof r.scores?.hit === "boolean" ? {} : { unknown: true }),
         };
       });
   }
@@ -132,9 +132,10 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
       for (const e of readJson(path.join(dir, f))?.events ?? []) graded.push({ ...e, _file: f });
     }
     const corrections = readNflWinnerCorrections(ROOT);
+    const cutoverAt = readNflSideCutover(ROOT);
     const out = [];
     for (const { _file: f, ...e } of nflSettlementOfRecord(graded)) {
-      const g = e.grade?.actual?.tie ? (e.grade ?? {}) : { ...e.grade, winner: winnerOfRecord(e, readGradedReceipt(ROOT, e), corrections).winner };
+      const g = e.grade?.actual?.tie ? (e.grade ?? {}) : { ...e.grade, winner: winnerOfRecord(e, readGradedReceipt(ROOT, e), corrections, { cutoverAt }).winner };
       out.push({
         eventId: e.canonicalEventId ?? null,
         when: etDayOf(e.kickoffUtc, f),
@@ -142,6 +143,8 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
         subject: e.matchup ?? null,
         market: "Winner",
         basis: g.winner?.sideBasis ?? null,
+        // Stage 3D: a frozen TOO_CLOSE, or a post-cutover receipt with no valid frozen side, has no side to grade.
+        noPick: !g.actual?.tie && (g.winner?.sideBasis === "TOO_CLOSE" || g.winner?.sideBasis === "NONE" || g.winner?.sideProblem != null),
         predicted: g.winner?.modelFavoured ?? null,
         actual: g.actual?.tie ? "tie" : (g.winner?.outcome ?? null),
         modelProbability: null,
@@ -196,6 +199,8 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
           probabilityOfActual: null,
           marketProbabilityOfActual: null,
           hit: outcome === "win" ? true : outcome === "loss" ? false : null,   // a Push is a void
+          // Stage 3E: an outcome the settler does not write (not Win / Loss / Push / Void) is UNKNOWN, never a void.
+          ...(["win", "loss", "push", "void"].includes(outcome) ? {} : { unknown: true }),
         };
       });
   }

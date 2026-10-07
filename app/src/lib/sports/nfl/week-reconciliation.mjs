@@ -16,7 +16,7 @@
  *
  * Every function here is pure. The builder (scripts/nfl/build-nfl-week-reconciliation.mjs) does the I/O.
  */
-import { nflModelFavored } from "../../results/nfl-model-favored.mjs";
+import { nflModelFavored, nflSideInput } from "../../results/nfl-model-favored.mjs";
 import { settleAnytimeTd } from "./td-engine.mjs";
 
 export const RECONCILIATION_RULES = Object.freeze({
@@ -133,14 +133,20 @@ export const PLAYER_PROPS = Object.freeze([
 
 /**
  * Grade one game. Never throws: missing pieces become PENDING, VOID or a named note.
- * @param {{forecast: object, board: object|null, boardRefused?: string|null, official: object}} a
+ * @param {{forecast: object, board: object|null, boardRefused?: string|null, official: object, sideCutoverAt?: string|null}} a
+ *        sideCutoverAt: the 3D side-decision cutover (data/internal/nfl/side-decision-cutover.json), or null
  */
-export function gradeGame({ forecast, board, boardRefused = null, official }) {
+export function gradeGame({ forecast, board, boardRefused = null, official, sideCutoverAt = null }) {
   const s = forecast.forecastSummary;
   /* Stage 3C (founder Q4 HIGHER): the graded team is the MODEL-FAVORED one, the higher frozen win probability, read
      through the one rule (lib/results/nfl-model-favored.mjs). An exact tie between the teams is no side (NO_PICK),
      never the home team. `pick` keeps its key for the page; it is the model-favored team, not a published pick. */
-  const fav = nflModelFavored(s.winProbability).side;
+  /* Stage 3D (founder Q3): a receipt that froze a side is graded on THAT side (TOO_CLOSE = no pick); a post-cutover
+     receipt with no valid frozen side has no side. Only a pre-cutover receipt falls back to the Q4 historical rule.
+     No side is ever worked out from the probabilities for a forward forecast. */
+  const side = nflSideInput(forecast, { cutoverAt: sideCutoverAt });
+  const fav = side.publishedSide === "HOME" || side.publishedSide === "AWAY" ? side.publishedSide
+    : side.historical ? nflModelFavored(s.winProbability).side : null;
   const pickHome = fav === "HOME";
   const published = {
     generatedAt: forecast.generatedAt,

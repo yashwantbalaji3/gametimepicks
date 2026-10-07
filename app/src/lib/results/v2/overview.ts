@@ -13,7 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { makeGradedPickOwners } from "@/lib/sports/graded-pick-owners.mjs";
-import { population, outcomeFromHit, outcomeFromWord } from "./populations.mjs";
+import { population, outcomeOfPick, outcomeFromWord } from "./populations.mjs";
 
 export interface V2Counts { won: number; lost: number; push: number; void: number; decisive: number; n: number; hitRate: number | null }
 export interface V2Day { date: string; won: number; lost: number; push: number; void: number }
@@ -21,7 +21,7 @@ export interface V2Population {
   id: string; sport: "mlb" | "nfl" | "epl" | "ufc"; label: string;
   class: "PUBLIC" | "RESEARCH"; kind: "GAME" | "PROP" | "MATCH" | "FIGHT";
   owner: string; note: string | null; seasonStart: string | null; seasonLabel: string | null;
-  pending: number | null; undated: number; unreadable: number;
+  pending: number | null; undated: number; unreadable: number; noPick?: number;
   days: V2Day[];
   windows: { today: V2Counts; d7: V2Counts; d30: V2Counts; season: V2Counts | null; all: V2Counts };
 }
@@ -49,8 +49,9 @@ export function resultsV2Populations(today: string): V2Population[] {
   const appDir = process.cwd();
   const rootDir = path.resolve(appDir, "..");
   const owners = makeGradedPickOwners({ appDir, rootDir });
-  const fromPicks = (rows: Array<{ when?: string | null; hit?: boolean | null }> | null) =>
-    (rows ?? []).map((r) => ({ date: r.when ?? null, outcome: outcomeFromHit(r.hit) }));
+  // Stage 3E: a no-pick or unknown row has no outcome (counted apart), never a void.
+  const fromPicks = (rows: Array<{ when?: string | null; hit?: boolean | null; noPick?: boolean; unknown?: boolean }> | null) =>
+    (rows ?? []).map((r) => ({ date: r.when ?? null, outcome: outcomeOfPick(r), noPick: r.noPick === true }));
 
   const pops: V2Population[] = [];
 
