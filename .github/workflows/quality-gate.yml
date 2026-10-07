@@ -98,7 +98,13 @@ jobs:
     # coverage is dropped, no assertion is relaxed, no exit code is suppressed. #639's 60s child cap is
     # what keeps this safe — a genuinely hung child now fails its own test in a minute instead of
     # running out the clock, so the ceiling bounds cost rather than correctness.
-    timeout-minutes: 40
+    #
+    # RAISED 40 -> 75 on 2026-10-07 (founder-approved, CI-only). Three runs of #1016 at 5dc5452 were
+    # cancelled at 40m part-way through browser a11y with no failed test and every earlier step green.
+    # That runner was ~2-5x slower at every phase than the same job hours earlier (unit 13.5m vs 5.5m,
+    # build 9.4m vs 5.1m, guards 5.0m vs 2.2m, browser install 6.5m vs 1.3m), leaving under 4m for a
+    # suite that takes ~8m. Nothing is skipped or relaxed; the per-test and child caps still fail a hang.
+    timeout-minutes: 75
     defaults:
       run:
         working-directory: app

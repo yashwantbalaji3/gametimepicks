@@ -12,7 +12,9 @@
  *       doubled to ~28m, so the job died PART-WAY THROUGH browser a11y with every earlier phase green.
  *       A ceiling that fires before the last step reports red without asking the question, and it did
  *       so on every branch at once. Raising it runs MORE validation; this guard exists so that is
- *       always a choice someone made, never drift.
+ *       always a choice someone made, never drift. It moved again: 40 -> 75 on 2026-10-07 (founder
+ *       decision, CI-only), after three #1016 runs were cancelled part-way through browser a11y with
+ *       no failed test on a runner ~2-5x slower at every phase.
  *  QG3  the browser phase still runs all three engines over both specs, with retries unchanged.
  *  QG4  every merge commit on main gets its own completed run: on main the concurrency group is the
  *       commit SHA, so a later merge cannot cancel an earlier merge's gate (2026-10-05: #976 and #975
@@ -43,11 +45,11 @@ test("QG1 every CI run still type-checks: the build does it, and nothing disable
 });
 
 test("QG2 failures stay loud: both suite phases assert, nothing is continue-on-error, timeout unchanged", () => {
-  // Match on CODE, not prose: the block's own comment explains the 25 -> 40 move, and a guard that
+  // Match on CODE, not prose: the block's own comment explains the 25 -> 40 -> 75 moves, and a guard that
   // reads its own explanation is satisfied by the wrong thing.
   const qualityCode = quality.replace(/^\s*#.*$/gm, "");
-  assert.match(qualityCode, /^\s*timeout-minutes: 40$/m, "the quality job timeout is pinned at 40 minutes");
-  assert.doesNotMatch(qualityCode, /^\s*timeout-minutes: (?!40$)/m, "exactly one timeout, and it is the pinned one");
+  assert.match(qualityCode, /^\s*timeout-minutes: 75$/m, "the quality job timeout is pinned at 75 minutes");
+  assert.doesNotMatch(qualityCode, /^\s*timeout-minutes: (?!75$)/m, "exactly one timeout, and it is the pinned one");
   assert.doesNotMatch(quality, /continue-on-error/, "a green step must mean the work passed");
   const asserts = [...quality.matchAll(/grep -cE '\^not ok'/g)];
   assert.equal(asserts.length, 2, "both the unit and rendered phases count failing TAP lines");
