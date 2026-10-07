@@ -10,7 +10,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { buildGamePredictionDecision } from "./decision.ts";
+import { buildGamePredictionDecision, buildPlayerPrediction } from "./decision.ts";
 import { strengthLabel, STRENGTH_THRESHOLDS } from "./strength.ts";
 
 /** A synthetic full-game artifact game: home favored 58/42, total dist centred ~8, home run-line dog. */
@@ -121,10 +121,11 @@ test("team totals fail closed with no market line, but show the simulated team m
 
 test("player direction is the SIMULATED probability side, not the model-vs-market gap; deterministic top-N", () => {
   const picks = [
-    { player: "A", team: "SF", market: "batter_hits", line: 0.5, side: "over", modelProbability: 0.8, marketProbability: 0.6 },
+    // PE-1: markets not demoted or disabled (the demoted four are withheld; see the next test).
+    { player: "A", team: "SF", market: "batter_home_runs", line: 0.5, side: "over", modelProbability: 0.8, marketProbability: 0.6 },
     // an edge-picked UNDER lean where the model side prob is < 0.5 → the OVER side is actually higher.
-    { player: "B", team: "LAA", market: "batter_total_bases", line: 1.5, side: "under", modelProbability: 0.45, marketProbability: 0.35 },
-    { player: "C", team: "SF", market: "pitcher_strikeouts", line: 5.5, side: "over", modelProbability: 0.62, marketProbability: 0.5 },
+    { player: "B", team: "LAA", market: "batter_rbis", line: 1.5, side: "under", modelProbability: 0.45, marketProbability: 0.35 },
+    { player: "C", team: "SF", market: "batter_runs_scored", line: 0.5, side: "over", modelProbability: 0.62, marketProbability: 0.5 },
   ];
   const d = buildGamePredictionDecision(fixtureGame(), picks, { maxPlayers: 5 });
   const a = d.topPlayerPredictions.find((p) => p.player === "A");
@@ -138,6 +139,27 @@ test("player direction is the SIMULATED probability side, not the model-vs-marke
   // ranked by simulated probability descending.
   const probs = d.topPlayerPredictions.map((p) => p.simulationProbability);
   assert.deepEqual(probs, [...probs].sort((x, y) => y - x));
+});
+
+test("PE-1 · demoted / prediction-disabled player markets are named as market context, never published as simulated picks", () => {
+  const picks = [
+    { player: "Betts", team: "LAD", market: "batter_total_bases", line: 1.5, side: "over", modelProbability: 0.641, marketProbability: 0.45 },
+    { player: "D", team: "SF", market: "batter_hits", line: 0.5, side: "over", modelProbability: 0.8, marketProbability: 0.6 },
+    { player: "E", team: "SF", market: "pitcher_strikeouts", line: 5.5, side: "over", modelProbability: 0.72, marketProbability: 0.5 },
+    { player: "F", team: "SF", market: "batter_hits_runs_rbis", line: 1.5, side: "over", modelProbability: 0.66, marketProbability: 0.5 },
+    { player: "G", team: "SF", market: "batter_home_runs", line: 0.5, side: "over", modelProbability: 0.61, marketProbability: 0.2 },
+  ];
+  const d = buildGamePredictionDecision(fixtureGame(), picks, { maxPlayers: 5 });
+  assert.deepEqual(d.topPlayerPredictions.map((p) => p.player), ["G"], "only a non-demoted market is a simulated pick");
+  assert.equal(d.topPlayerPredictions[0].strengthLabel, "STRONG SIMULATION");
+  assert.deepEqual(d.withheldPlayerMarkets, ["Hits", "Hits + Runs + RBIs", "Strikeouts", "Total bases"]);
+  // The shared builder (also used by /today) never labels a market-context market with simulation strength.
+  for (const p of picks.slice(0, 4)) {
+    const pp = buildPlayerPrediction(p);
+    assert.equal(pp.strengthLabel, null, `${p.market}: no STRONG/VERY STRONG label on a demoted model`);
+    assert.equal(pp.marketContext, true);
+  }
+  assert.equal(buildPlayerPrediction(picks[4]).marketContext, false);
 });
 
 test("the market never changes the DECISION — same picks with the market removed", () => {

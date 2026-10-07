@@ -79,7 +79,10 @@ export interface PlayerPrediction {
   pick: "OVER" | "UNDER";
   simulationProbability: number;
   marketImpliedProbability: number | null;
-  strengthLabel: StrengthLabel;
+  /** null for a market-context market (PE-1): a demoted or prediction-disabled model gets no strength label. */
+  strengthLabel: StrengthLabel | null;
+  /** PE-1: true when the market's model is demoted to market context or disabled for prediction. */
+  marketContext?: boolean;
   /** Which engine produced this line-level probability (legacy prop engine until parity migration). */
   source: "unified_full_game" | "legacy_prop_engine";
   /** Optional display enrichment (Sprint 010) — the official-headshot id + opponent, joined from the board.
@@ -109,6 +112,8 @@ export interface GamePredictionDecision {
   runLine: RunLinePrediction | null;
   teamTotals: TeamTotalPrediction[];
   topPlayerPredictions: PlayerPrediction[];
+  /** PE-1: labels of player markets present for this game but withheld as market context (demoted / disabled). */
+  withheldPlayerMarkets?: string[];
   /** Human-readable reasons for any market family that could not be predicted. */
   unavailableReasons: string[];
   /** The market snapshot the decision compared against (threshold + comparison only). */

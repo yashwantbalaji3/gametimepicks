@@ -211,6 +211,15 @@ function PredictionHero({ p, runCount , spreadLabel }: { p: GamePredictionDecisi
           <span className="font-mono block mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Direction from simulated probability across {runCount && runCount > 0 ? `${runCount.toLocaleString()} ` : "the simulated "}games · legacy prop engine · not a bet</span>
         </div>
       ) : null}
+      {/* PE-1: demoted / prediction-disabled player markets are market context, not simulated picks. Named so the
+          missing player section is explained; their sportsbook prices are on /markets. */}
+      {p.withheldPlayerMarkets?.length ? (
+        <p className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5, lineHeight: 1.6 }}>
+          Player props ({p.withheldPlayerMarkets.join(", ")}) are market context only: our model for them has not beaten
+          the sportsbook price, so no simulated pick is shown.{" "}
+          <a href="/markets/" style={{ color: "var(--vault-gold-bright)" }}>See the sportsbook prices →</a>
+        </p>
+      ) : null}
     </section>
   );
 }

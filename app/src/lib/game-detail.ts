@@ -36,7 +36,7 @@ import { currentEtDate } from "@/lib/freshness";
 import { loadFullGameArtifact, type FullGameArtifactMeta } from "@/lib/mlb/full-game/read";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
-import { buildGamePredictionDecision, buildPlayerPrediction, type PlayerPickInput } from "@/lib/mlb/prediction/decision";
+import { buildGamePredictionDecision, buildPlayerPrediction, isMarketContextPlayerMarket, type PlayerPickInput } from "@/lib/mlb/prediction/decision";
 import type { GamePredictionDecision, PlayerPrediction } from "@/lib/mlb/prediction/types";
 import { compactPredictionLine } from "@/lib/mlb/prediction/summary";
 import { getWcGameCenter, type WcGameCenter } from "@/lib/wc-game-center";
@@ -514,7 +514,9 @@ function mlbDetails(): PublicGameDetail[] {
           .map((p) => buildPlayerPrediction(p, leanByKey.get(`${p.player.toLowerCase()}|${p.market}|${p.line}`)))
           .sort((a, b) => b.simulationProbability - a.simulationProbability)
       : [];
-    if (prediction) prediction.topPlayerPredictions = playerPredictions.slice(0, 5);
+    // PE-1: the report's top five are publishable picks only; market-context markets stay out (the decision
+    // already names them in withheldPlayerMarkets). /today's category view reads `playerPredictions` and labels them.
+    if (prediction) prediction.topPlayerPredictions = playerPredictions.filter((p) => !isMarketContextPlayerMarket(p.market)).slice(0, 5);
 
     // Canonical sportsbook intelligence (Sprint 030) — built by the SAME function that powers
     // /markets, so the two surfaces cannot disagree about this event. Freshness is judged through

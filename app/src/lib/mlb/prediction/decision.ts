@@ -8,6 +8,7 @@
 
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import { strengthLabel, type StrengthLabel } from "./strength";
+import { isCalibrationFailed, isPredictionDisabled } from "../model-calibration-status";
 import type {
   GamePredictionDecision,
   MarketAgreement,
@@ -67,6 +68,18 @@ function overUnderPush(distribution: { value: number; probability: number }[], l
 const round3 = (x: number): number => Math.round(x * 1000) / 1000;
 
 /**
+ * PE-1 amendment · a player market whose model is demoted to market context (calibration-failed) or disabled for
+ * prediction is NOT a publishable simulated pick. Both lists live in lib/mlb/model-calibration-status.ts (the one
+ * owner); this only applies them where the decision is made, so every surface that reads the decision (game
+ * report, simulation card, story, /simulate) stops presenting those markets as simulated picks. The probability
+ * comes from the legacy prop engine's resampled formula, not the 10,000-game simulation, so it also never
+ * carries a simulation-strength label.
+ */
+export function isMarketContextPlayerMarket(market: string): boolean {
+  return isCalibrationFailed(market) || isPredictionDisabled(market);
+}
+
+/**
  * Derive ONE canonical player prediction from a legacy prop pick. The direction is the side with the greater
  * SIMULATED probability (never the model-vs-market gap): if the pick's own side has < 0.5 simulated
  * probability, the opposite side is the prediction. Shared by the per-game decision AND the /today category
@@ -93,7 +106,8 @@ export function buildPlayerPrediction(
     pick,
     simulationProbability: round3(simProb),
     marketImpliedProbability: marketForPick == null ? null : round3(marketForPick),
-    strengthLabel: strengthLabel(simProb),
+    strengthLabel: isMarketContextPlayerMarket(p.market) ? null : strengthLabel(simProb),
+    marketContext: isMarketContextPlayerMarket(p.market),
     source: "legacy_prop_engine",
     playerId: enrich?.playerId ?? null,
     opponent: enrich?.opponent ?? null,
@@ -235,7 +249,12 @@ export function buildGamePredictionDecision(
   unavailableReasons.push("Team totals: no posted market lines (simulated team runs shown as evidence).");
 
   // ── Top player predictions — direction from the SIMULATED probability (never the model-vs-market gap). ──
+  // PE-1: market-context (demoted / prediction-disabled) markets are named, not published as picks.
+  const withheldPlayerMarkets = [...new Set((playerPicks ?? [])
+    .filter((p) => isMarketContextPlayerMarket(p.market))
+    .map((p) => p.marketLabel ?? MARKET_LABELS[p.market] ?? p.market))].sort();
   const topPlayerPredictions: PlayerPrediction[] = (playerPicks ?? [])
+    .filter((p) => !isMarketContextPlayerMarket(p.market))
     .map((p) => buildPlayerPrediction(p))
     .sort((a, b) => b.simulationProbability - a.simulationProbability)
     .slice(0, maxPlayers);
@@ -250,6 +269,7 @@ export function buildGamePredictionDecision(
     runLine,
     teamTotals,
     topPlayerPredictions,
+    withheldPlayerMarkets,
     unavailableReasons,
   };
 }
