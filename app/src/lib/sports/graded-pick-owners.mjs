@@ -11,6 +11,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { mlbLeansOfRecord, mlbFirstPitches } from "../results/mlb-leans-of-record.mjs";
+
 /**
  * ONE ROW PER NFL GAME — the forecast of record (the same rule the Forecast Ledger applies, lib/forecast-ledger/
  * adapters/nfl.mjs nflGameRows). The settler grades per receipt-date FOLDER, so a game kicking off just after 00:00Z
@@ -147,11 +149,27 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
   /* ── MLB ───────────────────────────────────────────────────────────────────────────────────────
    * The settled-leans validation ledger: 30k+ graded player-prop projections. This is a MODEL
    * ledger and shares no row with the paper bankroll. Only rows the pipeline marked graded are read,
-   * and a Push is a void rather than either result. */
-  function mlbPicks() {
+   * and a Push is a void rather than either result.
+   *
+   * FORECAST OF RECORD (Stage 3B). The ledger keeps one row per lean per BOARD date, so a postponed game's
+   * re-issued leans are in it twice, both graded against the one make-up game (gamePk 824785, 2026-09-22/23).
+   * Only the forecast of record counts (lib/results/mlb-leans-of-record.mjs: one lean per game · player · market,
+   * the last board before the game's canonical start). The raw ledger is read whole and never rewritten; the
+   * other copies are disclosed by mlbLeanSelection().excluded. */
+  let mlbSelection;
+  function mlbLeanSelection() {
+    if (mlbSelection !== undefined) return mlbSelection;
     const rows = readJsonl(path.join(ROOT, "pipeline/validation/mlb_settled_leans.jsonl"));
-    if (!rows) return null;
-    return rows
+    if (!rows) { mlbSelection = null; return null; }
+    const games = readJsonl(path.join(APP, "public/data/mlb/results/game-predictions-graded.jsonl")) ?? [];
+    mlbSelection = mlbLeansOfRecord(rows, { firstPitches: mlbFirstPitches(games) });
+    return mlbSelection;
+  }
+
+  function mlbPicks() {
+    const sel = mlbLeanSelection();
+    if (!sel) return null;
+    return sel.record
       .filter((r) => r.graded)
       .sort((a, b) => String(b.date).localeCompare(String(a.date)))
       .map((r) => {
@@ -173,5 +191,5 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
       });
   }
 
-  return { ufcPicks, eplPicks, nflPicks, mlbPicks };
+  return { ufcPicks, eplPicks, nflPicks, mlbPicks, mlbLeanSelection };
 }

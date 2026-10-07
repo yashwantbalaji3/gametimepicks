@@ -5,6 +5,8 @@
  * Nothing is graded or recomputed here: each outcome, line and actual value is the owner's own.
  *   MLB  game calls  public/data/mlb/results/game-predictions-graded.jsonl   (WIN / LOSS / PUSH)
  *        prop leans  public/data/mlb/results/settled_leans.jsonl            (Win / Loss / Void — RESEARCH)
+ *                    forecast of record only (Stage 3B, lib/results/mlb-leans-of-record.mjs): a postponed game's
+ *                    re-issued lean is listed once, on the board of record, never on both dates
  *   NFL  winners     lib/sports/graded-pick-owners.mjs (experimental settlement; a tie is a void)
  *        finals      data/internal/nfl/experimental-settlement (grade.actual — the settled score, display only)
  *        ranges      public/data/nfl/reconciliation/<period>.json   (HIT = the final landed INSIDE the
@@ -15,6 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { makeGradedPickOwners } from "@/lib/sports/graded-pick-owners.mjs";
+import { mlbFirstPitches, mlbLeansOfRecord } from "@/lib/results/mlb-leans-of-record.mjs";
 import { outcomeFromHit, outcomeFromWord } from "./populations.mjs";
 
 export type V2Outcome = "WIN" | "LOSS" | "PUSH" | "VOID";
@@ -40,9 +43,10 @@ function sources() {
   if (cache) return cache;
   const app = process.cwd();
   const owners = makeGradedPickOwners({ appDir: app, rootDir: path.resolve(app, "..") });
+  const mlbGames = readJsonl(path.join(app, "public/data/mlb/results/game-predictions-graded.jsonl"));
   cache = {
-    mlbGames: readJsonl(path.join(app, "public/data/mlb/results/game-predictions-graded.jsonl")),
-    mlbProps: readJsonl(path.join(app, "public/data/mlb/results/settled_leans.jsonl")),
+    mlbGames,
+    mlbProps: mlbLeansOfRecord(readJsonl(path.join(app, "public/data/mlb/results/settled_leans.jsonl")), { firstPitches: mlbFirstPitches(mlbGames) }).record,
     picks: { nfl: owners.nflPicks() ?? [], epl: owners.eplPicks() ?? [], ufc: owners.ufcPicks() ?? [] },
   };
   return cache;

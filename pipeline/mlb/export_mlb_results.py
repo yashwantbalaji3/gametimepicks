@@ -15,6 +15,16 @@ Writes (public — `app/public/data/mlb/results/`):
                                    internal report
 
 Honest behavior:
+  - Forecast of record (Stage 3B): the lifetime W/L/P counts each lean ONCE.
+    A postponed game's leans are re-issued on the next board and both copies
+    are graded against the one make-up game (gamePk 824785, 2026-09-22/23).
+    Which rows are of record is decided by the ONE JS rule
+    (app/src/lib/results/mlb-leans-of-record.mjs, via
+    app/scripts/results/mlb-leans-of-record-ids.mjs) — the same selection
+    graded-picks.json counts — never by a second Python dedupe. The raw and
+    public settled_leans.jsonl keep every row; lifetime_summary.json discloses
+    what it left out (`notOfRecord`). If the rule cannot be run the export
+    fails closed rather than publish a record the guard would reject.
   - Pending games stay in `pendingGameList`. Never silently counted.
   - Lifetime summary marks `partial=True` whenever any date in the audit
     still has pending games.
@@ -25,6 +35,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,6 +46,9 @@ from .. import config as C
 VALIDATION_DIR = C.ROOT_DIR / "pipeline" / "validation"
 SETTLED_LEANS_PATH = VALIDATION_DIR / "mlb_settled_leans.jsonl"
 PUBLIC_DIR = C.APP_PUBLIC_DATA / "mlb" / "results"
+# The one forecast-of-record rule (JS). Read-only CLI; prints the row ids of record.
+OF_RECORD_CLI = C.ROOT_DIR / "app" / "scripts" / "results" / "mlb-leans-of-record-ids.mjs"
+GAME_GRADER_NAME = "game-predictions-graded.jsonl"  # StatsAPI first pitch per gamePk (canonical start)
 
 
 # Fields stripped from the public jsonl. Keep nothing operationally sensitive.
@@ -88,6 +103,34 @@ def _load_comparison_reports() -> dict[str, dict]:
     return reports
 
 
+def _of_record(rows: list[dict]) -> tuple[list[dict], dict]:
+    """Rows of record + the disclosure, from the JS rule. Raises when it cannot be applied (fail closed)."""
+    if not rows:
+        return [], {"superseded": 0, "late": 0, "conflictRows": 0, "ambiguousRevision": 0, "unkeyed": 0}
+    ids = [r.get("id") for r in rows]
+    if any(not isinstance(i, str) or not i for i in ids):
+        raise RuntimeError("forecast of record: a settled lean has no id — it cannot be matched to the rule's output")
+    if len(set(ids)) != len(ids):
+        raise RuntimeError("forecast of record: duplicate settled-lean ids — rows cannot be matched one-to-one")
+    node = shutil.which("node")
+    if node is None:
+        raise RuntimeError("forecast of record: `node` is not on PATH — refusing to publish an uncorrected lifetime record")
+    cmd = [node, str(OF_RECORD_CLI), "--leans", str(SETTLED_LEANS_PATH), "--games", str(PUBLIC_DIR / GAME_GRADER_NAME)]
+    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if proc.returncode != 0:
+        raise RuntimeError(f"forecast of record: {OF_RECORD_CLI.name} failed: {proc.stderr.strip()}")
+    sel = json.loads(proc.stdout)
+    record_ids = set(sel["recordIds"])
+    not_ids = set(sel["notOfRecordIds"])
+    if sel.get("sourceRows") != len(rows) or record_ids | not_ids != set(ids) or record_ids & not_ids:
+        raise RuntimeError("forecast of record: the rule's output does not cover exactly the rows read here")
+    # The disclosure block is the JS rule's own (same text and keys as graded-picks.json), never re-worded here.
+    disclosure = sel.get("disclosure")
+    if not isinstance(disclosure, dict) or not isinstance(disclosure.get("rule"), str):
+        raise RuntimeError("forecast of record: the rule's output carries no disclosure block")
+    return [r for r in rows if r["id"] in record_ids], disclosure
+
+
 def export() -> dict:
     """Run the export. Returns the lifetime summary dict."""
     PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
@@ -120,11 +163,13 @@ def export() -> dict:
         )
 
     # ---------- lifetime_summary.json ----------
-    total_settled = len(rows)
-    decisive_rows = [r for r in rows if r.get("outcome") in ("Win", "Loss")]
-    wins = sum(1 for r in rows if r.get("outcome") == "Win")
-    losses = sum(1 for r in rows if r.get("outcome") == "Loss")
-    pushes = sum(1 for r in rows if r.get("outcome") == "Push")
+    # Forecast of record only (Stage 3B): the JS rule says which rows count.
+    record, not_of_record = _of_record(rows)
+    total_settled = len(record)
+    decisive_rows = [r for r in record if r.get("outcome") in ("Win", "Loss")]
+    wins = sum(1 for r in record if r.get("outcome") == "Win")
+    losses = sum(1 for r in record if r.get("outcome") == "Loss")
+    pushes = sum(1 for r in record if r.get("outcome") == "Push")
     hit_rate = (wins / len(decisive_rows)) if decisive_rows else None
 
     # Aggregate partial flag — if ANY date in the report set is partial,
@@ -151,6 +196,7 @@ def export() -> dict:
         "pendingGamesTotal": pending_games_total,
         "oldestDate": dates[0] if dates else None,
         "newestDate": dates[-1] if dates else None,
+        "notOfRecord": not_of_record,
     }
     (PUBLIC_DIR / "lifetime_summary.json").write_text(json.dumps(summary, indent=2))
 
