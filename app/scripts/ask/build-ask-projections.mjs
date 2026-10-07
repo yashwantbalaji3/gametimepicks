@@ -931,8 +931,12 @@ function buildForecastRecord() {
     topClassLabel: f.topClassLabel ?? null,
     uniformReference: f.uniformReference ?? null,
     /* Stage 3D: a family holding both historical model-favored rows and frozen-side rows has no single record; Ask
-       states none rather than pool them (forecast-record.mjs byBasis; the split wording is a 3E reader-parity item). */
+       states none rather than pool them. Stage 3E: it carries each basis's record on its own instead (`pickRecords`,
+       forecast-record.mjs byBasis), so Ask can state both, side by side, never summed. */
     pickRecord: f.directional && f.directional.label != null ? { win: f.directional.win, loss: f.directional.loss, push: f.directional.push, basis: f.directional.basis } : null,
+    ...(f.directional && f.directional.label == null && Array.isArray(f.directional.byBasis)
+      ? { pickRecords: f.directional.byBasis.map((b) => ({ win: b.win, loss: b.loss, push: b.push, basis: [b.basis] })) }
+      : {}),
     latestEvent: f.latestEvent ?? null,
     href: familyHref(s.sport, f.family),
   });

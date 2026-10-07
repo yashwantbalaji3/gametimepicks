@@ -23,6 +23,18 @@ export function outcomeFromHit(hit) {
   return hit === true ? "WIN" : hit === false ? "LOSS" : "VOID";
 }
 
+/**
+ * Stage 3E (inventory R9): a graded-picks ROW → the V2 outcome. Unlike outcomeFromHit, a row the owner marked NO PICK
+ * (a frozen TOO_CLOSE, or a forecast with no valid frozen side) or UNKNOWN (a stored grade it could not read) has NO
+ * outcome (null): it is counted apart, never relabelled a void.
+ */
+export function outcomeOfPick(p) {
+  if (p?.hit === true) return "WIN";
+  if (p?.hit === false) return "LOSS";
+  if (p?.noPick === true || p?.unknown === true) return null;
+  return "VOID";
+}
+
 /** An owner's outcome word → the V2 outcome, or null when unreadable (never guessed). */
 export function outcomeFromWord(word) {
   const w = String(word ?? "").trim().toUpperCase();
@@ -57,15 +69,16 @@ export function dailySeries(rows) {
   const byDay = new Map();
   let undated = 0;
   let unreadable = 0;
+  let noPick = 0;
   for (const r of rows ?? []) {
-    if (!OUTCOMES.includes(r?.outcome)) { unreadable += 1; continue; }
+    if (!OUTCOMES.includes(r?.outcome)) { if (r?.noPick === true) noPick += 1; else unreadable += 1; continue; }
     const d = typeof r.date === "string" ? r.date.slice(0, 10) : "";
     if (!DAY.test(d)) { undated += 1; continue; }
     if (!byDay.has(d)) byDay.set(d, emptyCounts());
     add(byDay.get(d), r.outcome);
   }
   const days = [...byDay.entries()].sort((a, b) => b[0].localeCompare(a[0])).map(([date, c]) => ({ date, ...c }));
-  return { days, undated, unreadable };
+  return { days, undated, unreadable, noPick };
 }
 
 const minusDays = (day, n) => new Date(Date.parse(`${day}T12:00:00Z`) - n * 86_400_000).toISOString().slice(0, 10);
@@ -97,14 +110,14 @@ export function windowsFrom(days, { today, seasonStart = null }) {
  * Assemble one population. `pending` stays null unless the owner genuinely carries a pending count.
  * @param {{ id: string, sport: string, label: string, klass: string, kind: string, owner: string,
  *   note?: string | null, seasonStart?: string | null, seasonLabel?: string | null,
- *   rows: Array<{ date: string | null, outcome: string | null }>, pending?: number | null, today: string }} args
+ *   rows: Array<{ date: string | null, outcome: string | null, noPick?: boolean }>, pending?: number | null, today: string }} args
  */
 export function population({ id, sport, label, klass, kind, owner, note = null, seasonStart = null, seasonLabel = null, rows, pending = null, today }) {
   const series = dailySeries(rows);
   return {
     id, sport, label, class: klass, kind, owner, note, seasonStart, seasonLabel,
     pending,
-    undated: series.undated, unreadable: series.unreadable,
+    undated: series.undated, unreadable: series.unreadable, noPick: series.noPick,
     days: series.days,
     windows: windowsFrom(series.days, { today, seasonStart }),
   };

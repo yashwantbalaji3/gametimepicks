@@ -28,13 +28,14 @@ test("🔴 two representations of the same game count once — the latest pre-ki
   assert.deepEqual(reversed.map((e) => e.tag), ["record"], "file order does not decide it");
 });
 
-test("genuinely distinct games still count independently; the provider id is the fallback key; an unkeyed row is kept", () => {
+test("genuinely distinct games still count independently; the provider id is the fallback key; an unkeyed row is left out (Q5)", () => {
   const kept = nflSettlementOfRecord([
     ev("nfl-1", "2026-09-28T00:00:00Z", true), ev("nfl-2", "2026-09-28T00:00:00Z", false),
     { providerEventId: "3", lineage: { forecastGeneratedAt: "a" } }, { canonicalEventId: "nfl-3", lineage: { forecastGeneratedAt: "b" } },
     { matchup: "no id" },
   ]);
-  assert.equal(kept.length, 4, "nfl-1, nfl-2, one nfl-3, and the unkeyed row");
+  assert.equal(kept.length, 3, "nfl-1, nfl-2 and one nfl-3; the row with no game id is never counted (founder Q5, Stage 3E)");
+  assert.ok(!kept.some((e) => e.matchup === "no id"));
 });
 
 test("🔴 from the committed data: 61–43, each duplicated game once, ties stay void", () => {
