@@ -342,6 +342,13 @@ neither opens NFL.
 **To roll back:** unset `LIVE_GATEWAY_ENABLED`. Effective on the next invocation — no rebuild, no
 model artifact regenerated. To remove the UI too, unset `NEXT_PUBLIC_LIVE_ENABLED` and rebuild.
 
+**UFC (Oct 10, 2026 mount): bout state on `/ufc` only, no `/live` tab.** Set both `*_SPORTS` to
+`mlb,nfl,ufc` (the build variable needs a redeploy to take effect). Requests must carry the card's ET
+date (`/api/live?sport=ufc&date=YYYY-MM-DD`); undated or per-bout requests are refused. The panel
+shows Upcoming / Round N · clock / Final (provisional) / Cancelled / Unavailable, never a method, and
+only from 30 minutes before the first bout to 6 hours after the last. Naming `ufc` before the code
+ships is harmless: unknown names are dropped. Roll back by removing `ufc` from both.
+
 **To enable NFL later (needs decision 1 below):** set both `*_SPORTS` to `mlb,nfl`. Nothing else
 changes — adapter, fixtures, identity join and player-stat mapping are all in place and still tested.
 

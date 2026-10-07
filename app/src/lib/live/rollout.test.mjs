@@ -30,8 +30,10 @@ const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 test("ROLLOUT 1 · the default allowlist is MLB ONLY — an unset variable cannot open NFL", () => {
   assert.deepEqual(publicSports({}), ["mlb"]);
   assert.deepEqual(publicSports({ LIVE_PUBLIC_SPORTS: "" }), ["mlb"]);
-  // A capability list is not a permission list. NFL has an adapter and no permission.
-  assert.deepEqual([...SUPPORTED_SPORTS].sort(), ["mlb", "nfl"]);
+  // A capability list is not a permission list. NFL has an adapter and no permission. UFC (the Oct 10
+  // /ufc bout-state mount) is a capability too, opened only by naming it in LIVE_PUBLIC_SPORTS.
+  assert.deepEqual([...SUPPORTED_SPORTS].sort(), ["mlb", "nfl", "ufc"]);
+  assert.equal(publicSports({ LIVE_PUBLIC_SPORTS: "mlb,nfl" }).includes("ufc"), false, "the current setting cannot open UFC");
 });
 
 test("ROLLOUT 2 · ⚠ a direct request for NFL is refused in a default (production) environment", () => {

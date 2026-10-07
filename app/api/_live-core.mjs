@@ -14,7 +14,7 @@ import { TTL_SECONDS } from "../src/lib/live/freshness.mjs";
 import { capTtlForDate, etDateAt } from "../src/lib/live/slate-scope.mjs";
 
 /** Sports an adapter EXISTS for. Being here is a capability, not a permission — see PUBLIC_SPORTS. */
-export const SUPPORTED_SPORTS = Object.freeze(["nfl", "mlb"]);
+export const SUPPORTED_SPORTS = Object.freeze(["nfl", "mlb", "ufc"]);
 
 /**
  * Sports this deployment may actually call upstream for. **Default: MLB only.**
@@ -31,6 +31,9 @@ export const SUPPORTED_SPORTS = Object.freeze(["nfl", "mlb"]);
  * no reader, and no page we did not write, can reach the ESPN-backed surface.
  *
  * To enable NFL later: set `LIVE_PUBLIC_SPORTS=mlb,nfl`. Nothing else changes.
+ *
+ * UFC (bout state only — round, clock, provisional winner; never a method) is the same kind of
+ * capability: it answers only once `ufc` is added to `LIVE_PUBLIC_SPORTS`.
  */
 export function publicSports(env = process.env) {
   const raw = env.LIVE_PUBLIC_SPORTS;
@@ -89,6 +92,17 @@ export function planRequest(query, allowed = publicSports(), nowMs = Date.now())
    */
   if (sport === "mlb" && !date) date = etDateAt(nowMs);
 
+  /*
+   * ⚠ UFC IS ASKED FOR ONE CARD'S DATE, AND ONLY AS A WHOLE CARD. The /ufc panel always sends the
+   * card's ET date; an undated UFC request would be ESPN's idea of "current", which is the same
+   * yesterday-as-today trap LV-1 closes for MLB, so it is refused rather than guessed. A card is
+   * one scoreboard call; there is no per-bout read to offer, so an `event` is refused too.
+   */
+  if (sport === "ufc") {
+    if (!date) return { ok: false, reason: "PROVIDER_MALFORMED" };
+    if (eventRaw) return { ok: false, reason: "EVENT_NOT_FOUND" };
+  }
+
   if (eventRaw) {
     if (!EVENT_ID.test(eventRaw)) return { ok: false, reason: "EVENT_NOT_FOUND" };
     return {
@@ -112,6 +126,13 @@ export function planRequest(query, allowed = publicSports(), nowMs = Date.now())
  * hub and two readers on different games share one response.
  */
 export function upstreamUrls(plan) {
+  if (plan.sport === "ufc") {
+    /* The same ESPN MMA scoreboard the fight-week capture reads, scoped to the card's ET date. */
+    return {
+      scoreboard: `https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${plan.date.replace(/-/g, "")}`,
+      summary: null,
+    };
+  }
   if (plan.sport === "mlb") {
     const date = plan.date ? `&date=${plan.date}` : "";
     return {
@@ -180,10 +201,11 @@ export function selectMlbDateGroup(payload, date) {
 
 /**
  * The TTL for a plan's response. An MLB answer about today never gets the one-hour terminal cache
- * (LV-3): a slate that reads final now may still change today, and the CDN must not pin it.
+ * (LV-3): a slate that reads final now may still change today, and the CDN must not pin it. A UFC
+ * card about today follows the same cap.
  */
 export function ttlForPlan(plan, ttlSeconds, nowMs = Date.now()) {
-  return plan.sport === "mlb" ? capTtlForDate(ttlSeconds, plan.date, nowMs) : ttlSeconds;
+  return plan.sport === "mlb" || plan.sport === "ufc" ? capTtlForDate(ttlSeconds, plan.date, nowMs) : ttlSeconds;
 }
 
 /** The TTL for a whole scoreboard: the shortest any of its events wants. */

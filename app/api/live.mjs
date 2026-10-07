@@ -35,6 +35,7 @@ import {
 import { makeUnavailable } from "../src/lib/live/contract.mjs";
 import { refreshPolicyFor } from "../src/lib/live/freshness.mjs";
 import { normalizeMlbSchedule } from "../src/lib/live/adapters/mlb-statsapi.mjs";
+import { normalizeMmaScoreboard } from "../src/lib/live/adapters/espn-mma.mjs";
 import {
   normalizeNflPlayerStats,
   normalizeNflScoreboard,
@@ -98,13 +99,15 @@ export default async function handler(req, res) {
     envelopes =
       plan.sport === "mlb"
         ? normalizeMlbSchedule(selectMlbDateGroup(board.json, plan.date), fetchedAt)
-        : normalizeNflScoreboard(board.json, fetchedAt);
+        : plan.sport === "ufc"
+          ? normalizeMmaScoreboard(board.json, fetchedAt)
+          : normalizeNflScoreboard(board.json, fetchedAt);
   } catch {
     return refuse(res, "PROVIDER_MALFORMED", { sport: plan.sport, eventId: plan.eventId });
   }
 
-  // MLB answers echo the slate date they describe, so a reader can refuse a body for another day.
-  const dated = plan.sport === "mlb" ? { date: plan.date } : {};
+  // MLB and UFC answers echo the date they describe, so a reader can refuse a body for another day.
+  const dated = plan.sport === "mlb" || plan.sport === "ufc" ? { date: plan.date } : {};
 
   if (plan.mode === "scoreboard") {
     res.setHeader("Cache-Control", cacheHeaderFor(ttlForPlan(plan, scoreboardTtl(envelopes), nowMs)));

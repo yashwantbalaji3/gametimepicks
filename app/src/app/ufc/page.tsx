@@ -21,6 +21,7 @@ import Explain from "@/components/ui/explain";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, sportPanelReads } from "@/lib/top-reads";
 import UfcCard, { type UfcCardArtifact } from "@/components/sports/ufc-card";
+import UfcLivePanel from "@/components/live/ufc-live-panel";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import path from "node:path";
@@ -252,6 +253,21 @@ export default function UfcArchivePage() {
             to say about it and we publish no read. The card below is the next one it can read.
           </p>
         ))}
+        {/* UFC Live (Oct 10 mount): bout state on fight night only; renders nothing off the card's window
+            or while the build has not enabled UFC Live. Read-only beside the frozen card. */}
+        {card?.bouts?.length ? (
+          <UfcLivePanel
+            cardStartUtc={card.event?.startUtc}
+            bouts={card.bouts
+              .filter((b) => b.boutId && b.red?.name && b.blue?.name)
+              .map((b) => ({
+                boutId: String(b.boutId),
+                startUtc: b.startUtc,
+                red: { name: b.red.name, athleteId: b.red.athleteId ?? null },
+                blue: { name: b.blue.name, athleteId: b.blue.athleteId ?? null },
+              }))}
+          />
+        ) : null}
         {card?.bouts?.length
           ? <UfcCard card={card} />
           : <ScheduleList events={(feed?.events ?? []) as never[]} sides={["red", "blue"]} joiner="vs" />}
