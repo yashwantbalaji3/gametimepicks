@@ -512,7 +512,11 @@ test("…while counting reader A's files naively reproduces the #999 over-count"
 /* ── 7 · 3A scope: contract only, no reader migration ─────────────────────────────────────────── */
 
 /* 3B: the MLB lean adapter is the one importer; MLB readers import the adapter, never the contract directly. */
-const IMPORTERS_THROUGH_3B = ["src/lib/results/mlb-leans-of-record.mjs", "src/lib/results/mlb-leans-of-record.test.mjs"];
+const IMPORTERS_THROUGH_3B = [
+  "src/lib/results/mlb-leans-of-record.mjs", "src/lib/results/mlb-leans-of-record.test.mjs",
+  // 3C: the NFL winner rule and the forecast-record label
+  "src/lib/results/nfl-model-favored.mjs", "src/lib/results/nfl-model-favored.test.mjs", "src/lib/results/v2/forecast-record.mjs",
+];
 
 test("scope: only the slice adapters import forecast-of-record.mjs (3B: the MLB lean adapter; 3C–3E add theirs)", () => {
   const APP = path.resolve(HERE, "..", "..", "..");

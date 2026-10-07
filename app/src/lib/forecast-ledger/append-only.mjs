@@ -7,6 +7,9 @@
  *   SETTLEMENT_REWRITTEN a settled / void / unmeasured row changed outcome without the owner recording a correction
  *   SETTLEMENT_REVERTED  a decided row went back to PENDING
  *   PUBLICATION_CHANGED  publication status moved other than PUBLISHED → WITHDRAWN (an append-only withdrawal event)
+ *   DIRECTIONAL_REWRITTEN a settled row's directional WIN / LOSS / PUSH changed while its settlement did not, and no
+ *                        committed correction restates it (Stage 3C: a grading-rule restatement is append-only and
+ *                        named, e.g. data/internal/nfl/winner-corrections/; the caller passes the restated ids)
  *
  * Allowed: new rows; PENDING → anything; NO_MEASUREMENT → SETTLED (a late official stat); a settled outcome change
  * that comes with a larger `settlement.corrections` count (the owner's own correction log); measurement fields that
@@ -16,7 +19,12 @@ import { IMMUTABLE_FIELDS } from "./contract.mjs";
 
 const stable = (v) => JSON.stringify(v, (_k, x) => (x && typeof x === "object" && !Array.isArray(x) ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => (a < b ? -1 : 1))) : x));
 
-export function compareLedgers(prevRows, nextRows) {
+/**
+ * @param {object[]} prevRows
+ * @param {object[]} nextRows
+ * @param {{ directionalRestated?: Set<string> }} [opts]  forecastIds a committed correction log restates
+ */
+export function compareLedgers(prevRows, nextRows, { directionalRestated = new Set() } = {}) {
   const next = new Map(nextRows.map((r) => [r.forecastId, r]));
   const violations = [];
   for (const p of prevRows) {
@@ -44,6 +52,12 @@ export function compareLedgers(prevRows, nextRows) {
     const outcome = (s) => stable({ state: s.state, finalValue: s.finalValue, finalCategory: s.finalCategory });
     if (outcome(ps) !== outcome(ns) && !((ns.corrections ?? 0) > (ps.corrections ?? 0))) {
       violations.push({ forecastId: p.forecastId, kind: "SETTLEMENT_REWRITTEN", detail: `${outcome(ps)} → ${outcome(ns)}` });
+      continue;
+    }
+    const pd = p.measurement?.directionalResult ?? null;
+    const nd = n.measurement?.directionalResult ?? null;
+    if (outcome(ps) === outcome(ns) && pd != null && pd !== nd && !directionalRestated.has(p.forecastId)) {
+      violations.push({ forecastId: p.forecastId, kind: "DIRECTIONAL_REWRITTEN", detail: `${pd} → ${nd ?? "none"} with no committed restatement` });
     }
   }
   return violations;

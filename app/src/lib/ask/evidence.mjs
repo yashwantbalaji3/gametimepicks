@@ -684,6 +684,7 @@ const trim = (x) => String(Number(x.toFixed(4)).valueOf());
 /* What a directional record grades, in the Results family page's words (results/forecasts/[sport]/[family]/page.tsx BASIS_WORDS). */
 const BASIS_WORDS = {
   HIGHER_WIN_PROBABILITY_SIDE: "the team we gave the better win chance",
+  HISTORICAL_MODEL_FAVORED: "the team with the higher frozen win chance (historical model-favored winner accuracy, not a published pick)",
   IMPLIED_SIDE_OF_FROZEN_LINE: "the side of the sportsbook line our projection pointed to",
   PUBLISHED_PICK: "the pick we published",
 };

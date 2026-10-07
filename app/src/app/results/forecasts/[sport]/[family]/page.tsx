@@ -56,6 +56,7 @@ const fmt = (v: number | null | undefined) => (v == null ? "—" : Number.isInte
 
 const BASIS_WORDS: Record<string, string> = {
   HIGHER_WIN_PROBABILITY_SIDE: "the team we gave the better win chance",
+  HISTORICAL_MODEL_FAVORED: "the team with the higher frozen win chance (no pick was published)",
   IMPLIED_SIDE_OF_FROZEN_LINE: "the side of the sportsbook line our projection pointed to",
   PUBLISHED_PICK: "the pick we published",
 };
@@ -140,7 +141,7 @@ export default async function ForecastFamilyPage({ params }: { params: Promise<P
           </>
         )}
         {m.directional ? (
-          <div className="stat"><b>{m.directional.win}–{m.directional.loss}{m.directional.push ? `–${m.directional.push}` : ""}</b><span>pick record: {m.directional.basis.map((b: string) => BASIS_WORDS[b] ?? b).join("; ")}</span></div>
+          <div className="stat"><b>{m.directional.win}–{m.directional.loss}{m.directional.push ? `–${m.directional.push}` : ""}</b><span>{m.directional.label ?? "pick record"}: {m.directional.basis.map((b: string) => BASIS_WORDS[b] ?? b).join("; ")}</span></div>
         ) : null}
       </div>
 

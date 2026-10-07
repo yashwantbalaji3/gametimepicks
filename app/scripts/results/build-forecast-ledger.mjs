@@ -23,6 +23,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { readNflWinnerCorrections } from "../../src/lib/results/nfl-model-favored-io.mjs";
 import { nflGameRows, nflPropRows, nflReconciliationRows, nflTopBoardRows, forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
 import { mlbGameRows, mlbProjectedRows, homerNukesRows } from "../../src/lib/forecast-ledger/adapters/mlb.mjs";
 import { eplDerivedRows, eplEventIndex, eplMatchRows, eplPlayerRows, ligue1Rows } from "../../src/lib/forecast-ledger/adapters/soccer.mjs";
@@ -136,7 +137,8 @@ export function readSources(now) {
   for (const e of mlbTeams) mlbHintCounts.set(e.hint, (mlbHintCounts.get(e.hint) ?? 0) + 1);
   const mlbTeamIds = new Map(mlbTeams.filter((e) => mlbHintCounts.get(e.hint) === 1).map((e) => [e.hint, e.id]));
 
-  return { now, teamIds, eplTeamIds, eplDerived, mlbTeamIds, mlbProjected, reconWeeks, rosterCaptures, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
+  const winnerCorrections = readNflWinnerCorrections(ROOT);
+  return { now, teamIds, winnerCorrections, eplTeamIds, eplDerived, mlbTeamIds, mlbProjected, reconWeeks, rosterCaptures, settledEvents, ofRecord, propRows, boards, withdrawals, mlbGraded, sourceModels, hn, eplMatch, eplPlayers, eplIndex, ligue1, ufc };
 }
 
 export function buildRows(src, report = {}) {
@@ -151,7 +153,7 @@ export function buildRows(src, report = {}) {
   report.nflReconciliationUnresolved = recon.unresolved;
   const heldIds = new Set(props.map((r) => r.forecastId));
   return composeLedger([
-    { source: "nfl-experimental-settlement", rows: nflGameRows({ settledEvents: src.settledEvents, receiptsOfRecord: src.ofRecord, now: src.now, teamIds: src.teamIds }) },
+    { source: "nfl-experimental-settlement", rows: nflGameRows({ settledEvents: src.settledEvents, receiptsOfRecord: src.ofRecord, now: src.now, teamIds: src.teamIds, winnerCorrections: src.winnerCorrections }) },
     { source: "nfl-prop-settlement", rows: props },
     { source: "results-top-board", rows: nflTopBoardRows({ boards: src.boards, withdrawals: src.withdrawals, heldIds, now: src.now }) },
     { source: "nfl-week-reconciliation", rows: recon.rows },
@@ -214,7 +216,10 @@ function main() {
 
   const ref = arg("--verify-against", "HEAD");
   const prev = ledgerAtRef(ref);
-  let violations = compareLedgers(prev, rows);
+  /* Stage 3C: a directional W/L may change on a settled row only when a committed correction log restates it. */
+  const restatedEvents = readNflWinnerCorrections(ROOT);
+  const directionalRestated = new Set(rows.filter((r) => r.sport === "NFL" && r.family === "nfl_game_winner" && restatedEvents.has(r.eventId)).map((r) => r.forecastId));
+  let violations = compareLedgers(prev, rows, { directionalRestated });
   /*
    * --rekey <migrationId>: the one audited path for an identity change (Session 13: subject ids moved to the
    * platform's canonical ids — mlbam-N → mlb-player-N, epl-player-N → epl-athlete-N, nfl-team-<ABBR> → nfl-team-<ESPN

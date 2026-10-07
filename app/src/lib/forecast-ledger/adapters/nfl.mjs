@@ -25,6 +25,7 @@
 import { FORECAST_KIND, RECOVERABILITY } from "../contract.mjs";
 import { measureBinary, measureContinuous, withDirectional } from "../measure.mjs";
 import { makeRow, marketBlock } from "../row.mjs";
+import { NFL_WINNER_BASIS, nflWinnerGrade, winnerOfRecord } from "../../results/nfl-model-favored.mjs";
 
 const SPORT = "NFL";
 
@@ -92,12 +93,14 @@ function gameRows({ file, receipt: r, grade, settledAt, resultSource, notes = []
         const homeWon = a.home > a.away;
         settlementW = { ...settlementW, finalValue: homeWon ? 1 : 0, finalCategory: homeWon ? "HOME" : "AWAY" };
         measurement = measureBinary({ probability: pHome, observed: homeWon ? 1 : 0 });
-        if (pHome !== 0.5) {
-          measurement = withDirectional(measurement, {
-            result: (pHome > 0.5) === homeWon ? "WIN" : "LOSS",
-            basis: "HIGHER_WIN_PROBABILITY_SIDE",
-          });
-        }
+        /* Stage 3C (founder Q4 HIGHER): the graded side is the MODEL-FAVORED team, the higher frozen win probability
+           (tie mass ignored; an exact tie is no side), never "P(home) > 0.5" (tie mass can push both teams under 50%,
+           which graded CIN @ PIT and LAR @ PHI on the team we gave the lower chance). The basis names it:
+           "historical model-favored winner accuracy", never a published pick. The two restated games are listed in
+           the append-only correction log (data/internal/nfl/winner-corrections/) and named in this row's notes.
+           categoryPrediction (immutable) stays as first written: it buckets P(home), it is not the graded side. */
+        const w = nflWinnerGrade({ winProbability: s.winProbability, actual: a, publishedSide: r.publishedSide ?? null });
+        if (w.correct != null) measurement = withDirectional(measurement, { result: w.correct ? "WIN" : "LOSS", basis: w.sideBasis === NFL_WINNER_BASIS ? NFL_WINNER_BASIS : "PUBLISHED_PICK" });
       }
     }
     rows.push(makeRow({
@@ -163,8 +166,11 @@ function gameRows({ file, receipt: r, grade, settledAt, resultSource, notes = []
 /**
  * @param settledEvents  [{ event, receipt }] — owner-graded events with the receipt they graded
  * @param receiptsOfRecord Map<providerEventId, {file, receipt}> — for events not yet graded
+ * @param winnerCorrections Map — lib/results/nfl-model-favored.mjs indexCorrections() of the committed append-only
+ *                          winner correction logs. A settled grade the settler stored under the old rule must be
+ *                          restated there, or the build refuses (winnerOfRecord throws).
  */
-export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), now, teamIds = new Map() }) {
+export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), now, teamIds = new Map(), winnerCorrections = new Map() }) {
   const nowMs = Date.parse(now);
   if (!Number.isFinite(nowMs)) throw new Error("nflGameRows: now is required");
   const rows = [];
@@ -187,6 +193,10 @@ export function nflGameRows({ settledEvents = [], receiptsOfRecord = new Map(), 
   for (const { item: { event: e, receipt }, superseded } of best.values()) {
     graded.add(String(e.providerEventId));
     const notes = superseded.length ? [`owner also graded superseded receipt(s) ${superseded.join(", ")} — not of record, not counted`] : [];
+    if (!e.grade?.actual?.tie) {
+      const { correction } = winnerOfRecord(e, receipt, winnerCorrections);
+      if (correction) notes.push(`winner grade restated by ${correction.file} (founder Q4 HIGHER): the owner's stored grade (model-favoured ${correction.before.modelFavoured}, ${correction.before.correct ? "correct" : "incorrect"}) used ${correction.before.rule}; the stored grade is unchanged`);
+    }
     rows.push(...gameRows({ notes, teamIds,
       file: e.lineage?.receiptFile ?? null,
       receipt,

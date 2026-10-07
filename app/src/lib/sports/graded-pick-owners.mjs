@@ -12,6 +12,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { mlbLeansOfRecord, mlbFirstPitches } from "../results/mlb-leans-of-record.mjs";
+import { winnerOfRecord } from "../results/nfl-model-favored.mjs";
+import { readGradedReceipt, readNflWinnerCorrections } from "../results/nfl-model-favored-io.mjs";
 
 /**
  * ONE ROW PER NFL GAME — the forecast of record (the same rule the Forecast Ledger applies, lib/forecast-ledger/
@@ -116,7 +118,12 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
   /* ── NFL ───────────────────────────────────────────────────────────────────────────────────────
    * Dated experimental-settlement files, each holding graded forecasts. A TIE is recorded as a void,
    * not a miss: the model answered "who wins" and the game produced no winner — the same rule UFC
-   * applies to a draw. */
+   * applies to a draw.
+   *
+   * WHICH TEAM IS GRADED (Stage 3C, founder Q4 HIGHER). The receipts froze win probabilities, not a side. The graded
+   * team is the MODEL-FAVORED one (higher frozen win probability), read through lib/results/nfl-model-favored.mjs,
+   * which applies the append-only correction log to the two grades the settler stored under the old
+   * "P(home) > 0.5" rule. It is "historical model-favored winner accuracy", never "our pick" (`basis`). */
   function nflPicks() {
     const dir = path.join(ROOT, "data/internal/nfl/experimental-settlement");
     if (!fs.existsSync(dir)) return null;
@@ -124,15 +131,17 @@ export function makeGradedPickOwners({ appDir, rootDir }) {
     for (const f of fs.readdirSync(dir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort().reverse()) {
       for (const e of readJson(path.join(dir, f))?.events ?? []) graded.push({ ...e, _file: f });
     }
+    const corrections = readNflWinnerCorrections(ROOT);
     const out = [];
     for (const { _file: f, ...e } of nflSettlementOfRecord(graded)) {
-      const g = e.grade ?? {};
+      const g = e.grade?.actual?.tie ? (e.grade ?? {}) : { ...e.grade, winner: winnerOfRecord(e, readGradedReceipt(ROOT, e), corrections).winner };
       out.push({
         eventId: e.canonicalEventId ?? null,
         when: etDayOf(e.kickoffUtc, f),
         eventName: null,
         subject: e.matchup ?? null,
         market: "Winner",
+        basis: g.winner?.sideBasis ?? null,
         predicted: g.winner?.modelFavoured ?? null,
         actual: g.actual?.tie ? "tie" : (g.winner?.outcome ?? null),
         modelProbability: null,
