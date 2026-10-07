@@ -3,7 +3,7 @@
  "artifact": "forward-coverage",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-10-07",
- "generatedAt": "2026-10-07T09:33:40Z",
+ "generatedAt": "2026-10-07T12:00:45Z",
  "sources": {
   "eplFixturesCapture": "capture-2026-27-2026-10-06T0014.json",
   "eplOddsCapturedAt": "2026-09-19T22:35:26Z",
@@ -11,7 +11,7 @@
   "ufcCardGeneratedAt": "2026-10-06T17:06:53Z",
   "nflIndexGeneratedAt": "2026-10-07T00:23:08Z"
  },
- "derivedAtMs": 1791365620000,
+ "derivedAtMs": 1791374445000,
  "sports": [
   {
    "sport": "epl",
@@ -116,16 +116,28 @@
      "refusalPublished": false,
      "frozen": false,
      "started": false
+    },
+    {
+     "eventId": "soccer:epl:chelsea-v-everton:20261017t1130",
+     "label": "Everton vs Chelsea",
+     "startUtc": "2026-10-17T11:30:00Z",
+     "priced": true,
+     "generated": false,
+     "refusalPublished": false,
+     "frozen": false,
+     "started": false
     }
    ],
    "counts": {
-    "scheduled": 10,
-    "priced": 10,
+    "scheduled": 11,
+    "priced": 11,
     "generated": 10,
     "frozen": 0,
     "started": 0
    },
-   "findings": []
+   "findings": [
+    "GENERATION_PENDING:1 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
+   ]
   },
   {
    "sport": "ufc",
