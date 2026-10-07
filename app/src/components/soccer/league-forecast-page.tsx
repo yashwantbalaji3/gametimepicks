@@ -117,11 +117,11 @@ export default function LeagueForecastPage({ leagueKey }: { leagueKey: string })
             ? `${graded.summary.matches} ${graded.summary.matches === 1 ? "match" : "matches"} graded · average log loss ${graded.summary.logLoss} (a one-in-three guess scores ${graded.summary.uniformLogLoss}) — ${gradedCaption(graded.summary)}.`
             : "No forecast match has finished yet. Each result is graded once, against the forecast published before kick-off."}
         </p>
-        {/* SAY WHAT THE RECORD COVERS. graded.json grades the win/draw/win forecast only; the over 2.5, both-score
-            and scoreline numbers on this page are published and not yet graded. Change this line when the
-            graded file carries those families (Results owns the grading). */}
+        {/* SAY WHAT THE RECORD COVERS. The figures above are graded.json (win/draw/win only). Over 2.5, both-score
+            and the likeliest score are graded by grade-league-derived-markets.mjs into the Forecast Ledger and shown
+            on the Results forecast record, not here (Results owns the grading). */}
         <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--vault-text-faint)", maxWidth: "75ch" }}>
-          Only the win/draw/win forecast is graded so far. Over 2.5, both teams to score and the likeliest score are published here but not yet graded.
+          The record above covers the win/draw/win forecast. Over 2.5, both teams to score and the likeliest score are graded too, against the same pre-kick-off forecast, on the <a href="/results/forecasts/" style={{ color: "inherit", textDecoration: "underline" }}>Results forecast record</a>.
         </p>
         {recent.length ? (
           <ul style={{ margin: "8px 0 0", paddingLeft: 18, fontSize: 12.5, color: "var(--vault-text-mute)" }}>
