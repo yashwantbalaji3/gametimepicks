@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-10-07",
-  "platformState": "PUBLISHED",
+  "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
@@ -37,18 +37,19 @@
       }
     },
     "epl": {
-      "state": "PUBLISHED",
-      "reason": "all 10 event(s) in the horizon carry a forecast",
-      "deadlineUtc": null,
+      "state": "PUBLISHING",
+      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-10-17T10:00:00.000Z",
       "counts": {
-        "scheduled": 10,
+        "scheduled": 11,
         "published": 10,
         "missedCoverage": 0,
-        "awaiting": 0
-      }
+        "awaiting": 1
+      },
+      "missed": []
     }
   },
-  "checkedAt": "2026-10-07T09:31:02.014Z",
+  "checkedAt": "2026-10-07T11:51:11.621Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
