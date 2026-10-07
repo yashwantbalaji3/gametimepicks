@@ -171,13 +171,13 @@ write({
   /*
    * HOW THE SIDE WAS CHOSEN, carried WITH the cards.
    *
-   * UFC may select on its model where MLB and EPL may not: this is the one model on the site that
-   * passed its preregistered bar. That distinction is the whole reason the three ladders differ, and
+   * UFC may select on its model where MLB and EPL may not: it is an experimental model tested on
+   * held-out past fights (founder D2: HONEST, never an implied edge). That distinction is the whole reason the three ladders differ, and
    * a page reading a shared component must not be able to render a sport's cards under another
    * sport's sentence. So the sentence lives on the artifact rather than in any page.
    */
-  selection: "the model's own read — a fitted fight model that passed its preregistered bar. Since 2026-08-22 it is graded publicly beside the de-vigged line, and the cumulative comparison currently favours the market",
-  note: "Prices are real and posted; the side is the model's own read — the one model here that passed its preregistered bar. No comparison against a no-vig UFC line has been run. Paper-only.",
+  selection: "the model's own read — an experimental fight model, tested on held-out past fights and graded on every new card. Since 2026-08-22 it is graded publicly beside the de-vigged line, and the cumulative comparison currently favours the market",
+  note: "Prices are real and posted; the side is the model's own read — an experimental fight model, tested on held-out past fights; that is not proof of an edge. No comparison against a no-vig UFC line has been run. Paper-only.",
 });
 console.log(`ufc ladder ${DATE}: ${legs.length} eligible legs -> ${cards.length}/4 bands carded${skipped.length ? ` (skipped ${skipped.map((s) => s.tier).join(", ")})` : ""}`);
 for (const c of cards) console.log(`  ${c.tier.padEnd(9)} ${c.combinedAmerican > 0 ? "+" : ""}${c.combinedAmerican} · ${c.legs.length} legs`);

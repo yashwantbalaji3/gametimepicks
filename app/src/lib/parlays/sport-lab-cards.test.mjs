@@ -152,11 +152,13 @@ test("BUILT EXPORT · each sport's page carries its OWN sentence and not the oth
   }
   if (ufcPage.includes("Paper cards")) {
     /*
-     * The copy says "CLEARED its preregistered bar"; this pinned "passed". The sentence was reworded
-     * and this guard was not — the identical miss the EPL comment above records, in the same file,
-     * one branch down. Match the CLAIM (a preregistered bar that the model met) rather than the verb.
+     * Founder D2 (HONEST, 2026-10-07): UFC's cards say what the test showed — an experimental model,
+     * tested on held-out past fights — and never that it passed or cleared a bar, which reads as a
+     * proven edge. This used to REQUIRE the bar claim; it now requires the honest wording and
+     * forbids the claim, whichever verb a later rewording picks.
      */
-    assert.match(ufcPage, /(passed|cleared) its preregistered bar/i, "UFC's cards may state the bar its model met");
+    assert.match(ufcPage, /experimental fight model, tested on held-out past fights/i, "UFC's cards say the model is experimental and tested on past fights");
+    assert.doesNotMatch(ufcPage, /(passed|cleared|met) its preregistered bar/i, "UFC's cards must not claim a cleared bar (D2 HONEST)");
     assert.doesNotMatch(ufcPage, /market's own favourite/i, "UFC's cards are its model's read, not the price's");
   }
 });
@@ -237,4 +239,18 @@ test("the lab settler asks the registry before grading a sport's ladder", () => 
   const push = src.search(/sources\.push\(/);
   assert.ok(gate > 0, "the settler must gate each ladder on canShowLiveProjections");
   assert.ok(gate < push, "the gate must run before the ladder joins the settlement sources");
+});
+
+/*
+ * D2 HONEST, checked at the SOURCE so it runs without a build: the ladder producer writes the
+ * sentence /ufc renders under its paper cards, so the claim is stopped where it is typed.
+ */
+test("UFC ladder producer: honest selection wording, no cleared-bar claim (founder D2)", () => {
+  const src = fs.readFileSync(path.join(APP, "scripts/ufc/build-ufc-ladder.mjs"), "utf8");
+  const lines = src.split("\n").filter((l) => /^\s*(selection|note):/.test(l));
+  assert.equal(lines.length, 2, "selection and note are both found");
+  for (const l of lines) {
+    assert.doesNotMatch(l, /(passed|cleared|met) its preregistered bar|the one model (here|on the site)/i, l.trim());
+    assert.match(l, /experimental fight model, tested on held-out past fights/i, l.trim());
+  }
 });
