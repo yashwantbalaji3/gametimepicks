@@ -7,11 +7,12 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
-const { acceptanceVerdict, normalize, BOT_EMAIL } = await import(pathToFileURL(path.join(ROOT, "scripts/ops-002-acceptance.mjs")).href);
+const { acceptanceVerdict, normalize, isDataCommit, BOT_EMAIL } = await import(pathToFileURL(path.join(ROOT, "scripts/ops-002-acceptance.mjs")).href);
 
 const H = 3_600_000, DAY = 24 * H;
 const CUT = Date.parse("2026-10-08T06:00:00Z");
@@ -105,4 +106,43 @@ test("pre-cutover legacy commits (runs that started before the merge) do not cou
   const h = healthy();
   const before = dep({ at: CUT - H, login: "bot", type: "user", email: "bot@users.noreply.github.com" });
   assert.equal(v({ ...h, deployments: [before, ...h.deployments] }).verdict, "PASS");
+});
+
+test("the roll-forward convention counts as a data commit; a retired identity fails even under an unknown subject", () => {
+  const h = healthy();
+  const roll = dep({ at: CUT + DAY, login: "bot", type: "user", email: "bot@users.noreply.github.com", msg: "Daily roll-forward 2026-10-09 (settled 2026-10-08) — automated" });
+  assert.equal(v({ ...h, deployments: [...h.deployments, roll] }).verdict, "FAIL");
+  const odd = dep({ at: CUT + DAY, login: "web-flow", type: "user", email: "noreply@github.com", msg: "refresh things" });
+  assert.equal(v({ ...h, deployments: [...h.deployments, odd] }).verdict, "FAIL");
+  const human = dep({ at: CUT + DAY, login: "yashwantbalaji3", type: "user", email: "117693418+yashwantbalaji3@users.noreply.github.com", msg: "Merge pull request #2" });
+  assert.equal(v({ ...h, deployments: [...h.deployments, human] }).verdict, "PASS", "human merges are not data commits");
+});
+
+/**
+ * Coverage: every commit subject a producer can write must be recognised as a data commit, or the identity check
+ * silently skips it. Reads the literal subjects in the workflows and commit scripts: `git commit -m "<lit>"`,
+ * `commit-generated.sh "<lit>"`, and for `git commit -m "$MSG"` the nearest preceding `MSG="…"`.
+ */
+test("every automated commit subject in the workflows and commit scripts is classified as a data commit", () => {
+  const files = [
+    ...fs.readdirSync(path.join(ROOT, ".github/workflows")).filter((f) => /\.ya?ml$/.test(f)).map((f) => path.join(ROOT, ".github/workflows", f)),
+    path.join(ROOT, "scripts/roll_to_next_day.sh"),
+  ];
+  const subjects = [];
+  for (const file of files) {
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+    lines.forEach((line, i) => {
+      if (/^\s*#/.test(line)) return;
+      const lit = line.match(/git\s+commit\b[^"\n]*-m\s+"([^"$][^"]*)"/) ?? line.match(/commit-generated\.sh\s+"([^"]+)"/);
+      if (lit) subjects.push([path.basename(file), lit[1]]);
+      if (/git\s+commit\b.*-m\s+"\$MSG"/.test(line)) {
+        const prev = lines.slice(0, i).reverse().find((l) => /^\s*MSG="/.test(l));
+        assert.ok(prev, `${path.basename(file)}:${i + 1} commits $MSG with no MSG= before it`);
+        subjects.push([path.basename(file), prev.match(/MSG="([^"]*)"/)[1]]);
+      }
+    });
+  }
+  assert.ok(subjects.length >= 40, `parsed ${subjects.length} commit subjects`);
+  const unknown = subjects.filter(([, m]) => !isDataCommit({ message: m })).map(([f, m]) => `${f}: ${m}`);
+  assert.deepEqual(unknown, []);
 });

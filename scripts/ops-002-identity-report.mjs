@@ -28,7 +28,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { acceptanceVerdict, normalize, BOT_LOGIN, BOT_EMAIL } from "./ops-002-acceptance.mjs";
+import { acceptanceVerdict, normalize, BOT_LOGIN, BOT_EMAIL, DATA_SUBJECT } from "./ops-002-acceptance.mjs";
 
 const TEAM = "team_Apd3fTXpVls1DK5CwAt0Uzd5";
 const PROJECT = "prj_qaHS65v4G30tTy1s6MYbsLbKYvbh"; // gametime-picks (canonical)
@@ -57,7 +57,14 @@ function token() {
       path.join(os.homedir(), "Library/Application Support/com.vercel.cli/auth.json"),
       path.join(os.homedir(), ".local/share/com.vercel.cli/auth.json"),
     ]) {
-      if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, "utf8")).token;
+      if (!fs.existsSync(p)) continue;
+      const auth = JSON.parse(fs.readFileSync(p, "utf8"));
+      // CLI OAuth sessions last hours, not days: an expired one returns 403 on every call
+      if (auth.expiresAt && auth.expiresAt * 1000 < Date.now()) {
+        console.error(`Vercel CLI session expired ${new Date(auth.expiresAt * 1000).toISOString()}. Run \`npx vercel whoami\` (read-only; refreshes it), then re-run.`);
+        process.exit(1);
+      }
+      return auth.token;
     }
   }
   console.error("Set VERCEL_TOKEN, or pass --cli-auth after `npx vercel login`.");
@@ -72,6 +79,10 @@ async function get(p, attempt = 0) {
   if (res.status === 429 && attempt < 5) {
     await new Promise((r) => setTimeout(r, 2000 * (attempt + 1)));
     return get(p, attempt + 1);
+  }
+  if (res.status === 401 || res.status === 403) {
+    console.error(`GET ${p.split("?")[0]} → ${res.status}: Vercel auth rejected. Run \`npx vercel whoami\` to refresh the CLI session (or set VERCEL_TOKEN), then re-run.`);
+    process.exit(1);
   }
   if (!res.ok) throw new Error(`GET ${p} → ${res.status}`);
   return res.json();
@@ -89,7 +100,7 @@ deps.sort((a, b) => a.created - b.created);
 
 const iso = (t) => new Date(t).toISOString().replace(/\.\d+Z$/, "Z");
 const who = (d) => `${d.attribution?.gitUser?.login ?? "(unresolved)"}/${d.attribution?.gitUser?.type ?? "-"}`;
-const isData = (d) => /^auto[:\- ]/.test(d.meta?.githubCommitMessage ?? "");
+const isData = (d) => DATA_SUBJECT.test(d.meta?.githubCommitMessage ?? "");
 
 const byWho = {};
 for (const d of deps) {

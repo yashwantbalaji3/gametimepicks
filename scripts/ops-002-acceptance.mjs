@@ -39,7 +39,16 @@ export function normalize(d) {
   };
 }
 
-export const isDataCommit = (d) => /^auto[:\- ]/.test(d.message);
+/**
+ * Automated data-commit subjects. Every producer uses `auto:` / `auto-refresh:` (2,167 of 2,167 bot commits on
+ * main 2026-09-01 → 10-08) except scripts/roll_to_next_day.sh (manual daily-lifecycle), which ends its subject
+ * with "— automated". ops-002-acceptance.test.mjs fails if a workflow or commit script introduces a subject
+ * this does not recognise.
+ */
+export const DATA_SUBJECT = /^auto[:\- ]|— automated\s*$/;
+export const isDataCommit = (d) => DATA_SUBJECT.test(d.message);
+/** Author emails that must never reach Production again, whatever the subject says (they resolve to accounts we do not control). */
+export const RETIRED_EMAILS = ["bot@users.noreply.github.com", "noreply@github.com", "gtp-lifecycle@users.noreply.github.com"];
 export const isBotIdentity = (d) => d.gitLogin === BOT_LOGIN && d.gitType === "bot" && d.authorEmail === BOT_EMAIL;
 export const isIgnoredSkip = (d) => d.readyState === "CANCELED" && /Ignored Build Step/i.test(d.errorMessage);
 
@@ -60,6 +69,10 @@ export function acceptanceVerdict({ deployments, cutover, now, buildInfoSha, mai
   for (const d of blocks) fail.push(`TEAM_ACCESS_REQUIRED ${d.uid} (${d.gitLogin}) ${d.message.slice(0, 50)}`);
   const post = cutover === null ? [] : deps.filter((d) => d.created >= cutover && isDataCommit(d));
   for (const d of post.filter((d) => !isBotIdentity(d))) fail.push(`data commit as ${d.gitLogin}/${d.gitType} <${d.authorEmail}> ${d.uid}`);
+  // backstop for a subject convention the classifier does not know: a retired identity is a failure on its own
+  if (cutover !== null)
+    for (const d of deps.filter((d) => d.created >= cutover && !isDataCommit(d) && RETIRED_EMAILS.includes(d.authorEmail)))
+      fail.push(`retired identity <${d.authorEmail}> on ${d.uid}: ${d.message.slice(0, 50)}`);
 
   // ── freshness (current state, positively verified) ────────────────────────────────────────────
   const ready = deps.filter((d) => d.readyState === "READY");

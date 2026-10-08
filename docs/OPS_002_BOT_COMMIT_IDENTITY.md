@@ -147,6 +147,26 @@ pinned by `app/src/lib/ops/ops-002-acceptance.test.mjs`):
 Ignored-build skips, and builds in flight for less than 30 min, count as fresh. Pre-cutover `gtp-bot`
 commits (runs that started before the merge) are excluded.
 
+**Coverage of automated commits.**
+- **Subjects:** a deployment counts as a data commit when its subject matches `^auto[:\- ]` or ends with `— automated`.
+  - All 2,167 bot-authored commits on `main` from 2026-09-01 to 10-08 match `^auto[:\- ]`.
+  - The second form is `scripts/roll_to_next_day.sh`, used by the manual `daily-lifecycle`. It never ran in that period, but it would otherwise have been invisible.
+  - `ops-002-acceptance.test.mjs` parses every literal and `$MSG` commit subject in the workflows and the roll-forward script, and fails if one is not recognised. A new producer convention therefore breaks CI instead of silently escaping the check.
+- **Retired identities:** any post-cutover deployment authored by a retired address is a `FAIL`, whatever its subject. The retired addresses are `bot@users.noreply.github.com`, `noreply@github.com` and `gtp-lifecycle@…`.
+- **Residual limitation:** a future producer that commits under a new, non-`auto` subject *and* a new, non-retired identity is caught only by the CI identity guard (`bot-commit-identity.test.mjs`, which pins every workflow identity), not by the runtime report. Human and Claude-session commits (for example `Claude <noreply@anthropic.com>`) are deliberately not data commits.
+
+**Procedure for the remaining observation period** (read-only, $0, no builds):
+1. Once a day, from a checkout of `main`, run:
+   ```bash
+   node scripts/ops-002-identity-report.mjs --cli-auth --cutover 2026-10-08T05:56:44Z
+   ```
+   Exit codes: `0` PASS · `2` FAIL · `3` NOT_YET · `4` STALE · `1` auth or tooling problem.
+2. If it reports an expired Vercel session (CLI sessions last about 12 h), run `npx vercel whoami`, which is read-only and refreshes it, then run the report again. You can also set `VERCEL_TOKEN`.
+3. `NOT_YET` is expected until **2026-10-15T05:57Z**.
+   - `FAIL`: reopen OPS-002 and investigate the listed deployment.
+   - `STALE`: a Production freshness incident. Explain it, as OPS-001 work, before accepting.
+4. When the report returns `PASS`, record the output in the roadmap and set OPS-002 to `DONE` in the next documentation integration.
+
 **OPS-002 is DONE when the report returns `PASS` at ≥ 7 days after the cutover**, and the report shows the
 data lanes still publishing (MLB lineup/slate, NFL event window/settlement, NBA, EPL, UFC subjects in the
 window).

@@ -821,6 +821,14 @@ Only after live straights and dependence/joint-world validation.
 
 Daily check (read-only, $0): `node scripts/ops-002-identity-report.mjs --cli-auth --cutover 2026-10-08T05:56:44Z`. Any `FAIL` reopens the investigation; `STALE` means a freshness incident (OPS-001 territory) and must be explained before acceptance.
 
+**Monitoring coverage (PR #1020 review):**
+- Data commits are recognised by `^auto[:\- ]` (2,167 of 2,167 bot commits since 09-01) plus `— automated` (`roll_to_next_day.sh`, the manual lifecycle; previously uncovered).
+- A CI test parses every producer's commit subject and fails on an unrecognised one.
+- Retired identities FAIL whatever their subject.
+- Residual limitation: a new producer with both a new subject convention and a new identity is caught by the CI identity guard, not the runtime report.
+- Expired Vercel CLI sessions now give a clear refresh instruction (`npx vercel whoami`) instead of a 403.
+- Full procedure: docs/OPS_002 §6.
+
 Limit: while the repo is public Vercel runs no team-access check, so the 7 days prove **attribution**; behaviour under private visibility rests on the one READY `github-actions[bot]` deployment during the private window plus Vercel's `type: bot`. Do not make the repo private to test it.
 
 ### Evidence (COST-001 audit, Vercel API, read-only)
