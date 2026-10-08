@@ -79,9 +79,9 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 
 | Rank | Task ID | Department | Task | Status | Dependency | Production-bound? |
 |---:|---|---|---|---|---|---|
-| 0 | `CI-001` | Release Engineering / CI | Main-wide `quality` failure: adapters.test.mjs MLB 8 rolling-window `ready` precondition + vacuous per-player check | IN_PROGRESS — root cause proven; deterministic fix locally verified; PR → exact-head CI → merge → Production verification | None — P0 blocker for #1020 and all PRs | Test/fixture only (1 Production build on merge) |
+| 0 | `CI-001` | Release Engineering / CI | Main-wide `quality` failure: adapters.test.mjs MLB 8 rolling-window `ready` precondition + vacuous per-player check | DONE 2026-10-08 — #1021 merged `d03691c4`; exact-head CI green; Production READY, build-info = merge SHA | None — P0 blocker for #1020 and all PRs | Test/fixture only (1 Production build on merge) |
 | 1 | `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — Phase 1 verified 2026-10-08; awaiting founder spend-alert confirmation | None — do first | Process/config, no app release expected |
-| 2 | `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | IN_PROGRESS — root cause proven (private-repo team-access check × `bot` identity); fix locally verified; PR awaiting founder merge approval, then 7-day observation | None | Workflow/identity config; Production freshness |
+| 2 | `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | IN_PROGRESS — fix merged (#1019 → `f65e7656`, 2026-10-08 04:03Z); first bot data commit attributed `github-actions[bot]`, READY, live; **7-day observation running from cutover 2026-10-08T05:56:44Z** (earliest DONE ≈ 2026-10-15T05:57Z) | None | Workflow/identity config; Production freshness |
 | 3 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED — unblocked (deploy gate verified 2026-10-08) | COST-001 deployment gate verified ✓ | Yes |
 | 4 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | NOT_STARTED | Founder rules below | Foundation |
 | 5 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | NOT_STARTED | CONTRACT-001 | Yes |
@@ -784,12 +784,14 @@ Only after live straights and dependence/joint-world validation.
 
 ## `OPS-002` — Bot commit identity and blocked Production deployments
 **Priority:** HIGH — address promptly after COST-001 Phase 1 (founder, 2026-10-07)  
-**Status:** IN_PROGRESS — implementation locally verified; awaiting founder approval to merge; then ≥ 7-day observation  
+**Status:** IN_PROGRESS — merged and verified in Production; **seven-day observation running** (cutover 2026-10-08T05:56:44Z → earliest DONE ≈ 2026-10-15T05:57Z)  
 **Owner/session:** Claude Code session 2026-10-08 (OPS-002)  
-**Branch:** `claude/ops-002-bot-commit-identity` (from `origin/main` `a20ec45c79`)  
-**PR / exact head / merge:** recorded in the Session Log and the post-merge batched roadmap update  
-**Evidence:** `docs/OPS_002_BOT_COMMIT_IDENTITY.md`; `scripts/ops-002-identity-report.mjs`; guard `app/src/lib/ops/bot-commit-identity.test.mjs`  
-**Production acceptance:** PENDING (merge → first `github-actions[bot]` data commit = cutover → 7 clean days)
+**Branch:** `claude/ops-002-bot-commit-identity` (from `origin/main` `a20ec45c79`, merged) · acceptance monitor + records: `claude/ops-002-acceptance-monitor`  
+**PR:** [#1019](https://github.com/yashwantbalaji3/gametimepicks/pull/1019) (merged by founder approval, exact head enforced with `--match-head-commit`)  
+**Exact head:** `f4cc4b885b171e55de7c2c509cc6d7d0d1e6b9dd` → merge `f65e7656afc21f59b959aafb06a25f46e530a8e9` (2026-10-08T04:03:07Z)  
+**CI (exact head):** quality-gate run 37723793669: `python` ✓ (03:41:30Z), `quality` ✓ (03:59:44Z); post-merge `main` quality-gate ✓  
+**Evidence:** `docs/OPS_002_BOT_COMMIT_IDENTITY.md`; `scripts/ops-002-identity-report.mjs` + `scripts/ops-002-acceptance.mjs`; guards `app/src/lib/ops/bot-commit-identity.test.mjs`, `app/src/lib/ops/ops-002-acceptance.test.mjs`  
+**Production acceptance:** initial verification PASS (below); seven-day acceptance NOT_YET
 
 ### Progress (2026-10-08)
 - Status: IN_PROGRESS
@@ -803,14 +805,44 @@ Only after live straights and dependence/joint-world validation.
 - Blockers: founder approval to merge.
 - Follow-ups (docs/OPS_002 §7): **F1** local `.git/config` identity `gtp-ops[bot] <gtp-ops@users.noreply.github.com>` resolves to user `gtp-ops` (140865288) — ownership unconfirmed; affects Claude-session commits (not Production today: merges are founder-authored). **F2** explain the 10-07 visibility change (also affects the "Actions are free" assumption). **F3** NWS User-Agent contact uses the dead `bot@` address (OPS-001, cosmetic).
 
+### Production verification (2026-10-08)
+- Merge deployment `dpl_9N2jR3QXtGTXKP1NobMRy6vR4ERu` (author founder) READY 04:06:50Z. Billed `cpuTimeForBilling` was 2,400,000 ms = **40 CPU-min ≈ $0.14**. Production build-info = `f65e7656` (built 04:04:23Z). `/`, `/mlb/`, `/nfl/`, `/results/`, `/today/`, `/markets/`, `/live/`, `/bank-builder/` all returned 200.
+- Vercel deployments created by this work: **Preview 0** (branch push 03:39:39Z, verified by API) · **Production 1** (the merge). No synthetic commits, redeploys or setting changes.
+- No scheduled workflow ran from 02:50Z to 05:56Z. This is GitHub's normal overnight scheduler gap (last night: 02:38Z → 05:09Z), it started before the merge, and githubstatus showed Actions operational.
+- **Cutover:** first post-merge data commit `851ecc754ebb7c9017d16a169aee30061dff32af` (`auto: nba results capture 2026-10-08T05:56:43Z`), committed 05:56:44Z by the real scheduled `nba-results-refresh`.
+  - Git author = committer = `github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>`; GitHub `author.login` `github-actions[bot]`, type Bot.
+  - Vercel `dpl_BjrG1yjNziJ91VNqAnRv3nKASiSS`: `attribution.gitUser = {id: 41898282, login: github-actions[bot], type: bot}`, **`seatBlock` none, READY** 06:00:34Z (repo public).
+  - Production build-info advanced to `851ecc75` (built 05:58:04Z) = `main` head.
+  - The commit touched only the producer's own two files (`app/public/data/nba/results/finals-2026-27.json`, `latest.json`); no other sport data changed.
+- Acceptance report at cutover: 0 blocks; 1/1 post-cutover data deployments attributed to the bot; Production at main head; verdict **NOT_YET** (0 of 7 days). The verdict refuses to pass on absence of evidence.
+
 ### Remaining acceptance (OPS-002)
 | # | Item | Status |
 |---|---|---|
-| 1 | Exact-head CI green on the PR | after push |
-| 2 | Founder approves merge; merge exact head (`--match-head-commit`); 1 Production build | WAITING ON FOUNDER |
-| 3 | Cutover = first post-merge data commit authored `github-actions[bot]`; Vercel attributes it `github-actions[bot]/bot`, READY; build-info advances | after merge |
-| 4 | ≥ 7 days after cutover: `node scripts/ops-002-identity-report.mjs --cli-auth --since <merge> --cutover <cutover>` exits 0 (no `TEAM_ACCESS_REQUIRED`; all `auto…` deployments as `github-actions[bot]`); Production build-info keeps pace with `main` | after merge (read-only, $0) |
-| 5 | Record evidence → `DONE` | — |
+| 1 | Exact-head CI green on the PR | DONE — run 37723793669 (`python`, `quality` ✓) |
+| 2 | Founder approves merge; merge exact head (`--match-head-commit`); 1 Production build | DONE — approved 2026-10-08; merged `f65e7656`; 1 build (40 CPU-min ≈ $0.14) |
+| 3 | Cutover = first post-merge data commit authored `github-actions[bot]`; Vercel attributes it `github-actions[bot]/bot`, READY; build-info advances | DONE — `851ecc75` @ 05:56:44Z → `dpl_BjrG1yjNziJ91VNqAnRv3nKASiSS` READY, live |
+| 4 | ≥ 7 days after cutover: `node scripts/ops-002-identity-report.mjs --cli-auth --cutover <cutover>` returns **`PASS`** (exit 0). PASS requires all of: no `TEAM_ACCESS_REQUIRED`; every post-cutover `auto…` deployment attributed to `github-actions[bot]`/bot; ≥ 1 READY bot data deployment in **every** 24 h slot; live build-info = newest READY build; `main` head deployed; nothing errored, blocked or stuck. `NOT_YET` (3) and `STALE` (4) are never acceptance (founder requirement 2026-10-08; docs/OPS_002 §6) | after merge (read-only, $0) |
+| 5 | Record evidence → `DONE` | NOT_STARTED — earliest 2026-10-15T05:57Z. If the report is not run, the seven days are not accepted |
+
+Daily check (read-only, $0): `node scripts/ops-002-identity-report.mjs --cli-auth --cutover 2026-10-08T05:56:44Z`. Any `FAIL` reopens the investigation; `STALE` means a freshness incident (OPS-001 territory) and must be explained before acceptance.
+
+**PR #1020 integration status (2026-10-08 12:55Z):** founder-approved conditionally, **not merged**.
+- `python` ✓, but `quality` ✗ on head `a462bc5a1e` (run 37777802882). The one failure is `app/src/lib/live/adapters/adapters.test.mjs` "MLB 8 · MLB carries NO live player stats", which says "no ready simulation in the last 14 slates".
+- Bisect: `34d87c5d0b` (`auto: mlb daily production slate 2026-10-08`, 09:32Z) is the first bad commit. It fails identically on `origin/main` without #1020; the earlier #1020 head passed this suite at 06:29Z.
+- Cause: the newest `ready` MLB full-game simulation is in the 2026-09-24 slate; every slate since is `degraded`/`unavailable`. Today's slate pushed 09-24 out of the test's rolling 14-slate window.
+- This is a **main-wide red test independent of OPS-002**, and it blocks every PR's quality gate. It was not weakened here.
+- Follow-up **OPS-002-F4** (MLB/live owner): decide whether the test's window should anchor to a fixed fixture, or whether "no ready MLB simulation since 09-24" is itself a Production truth defect. After that fix lands on `main`, re-run #1020's CI and merge at the exact head.
+- Until #1020 merges, run the daily report from the `claude/ops-002-acceptance-monitor` branch. The `main` version (#1019) exits 0 on "no failures" and does not enforce the evidence rules.
+- **Resolved 2026-10-08 by `CI-001`** (#1021, merge `d03691c4`): MLB 8 now uses verbatim fixtures plus a whole-corpus contract instead of a rolling `ready` window. The #1020 branch was refreshed by merging `origin/main`, never rebased. MLB 8 now passes there (adapters 27/27), and #1020 awaits founder approval of its final exact head.
+
+**Monitoring coverage (PR #1020 review):**
+- Data commits are recognised by `^auto[:\- ]` (2,167 of 2,167 bot commits since 09-01) plus `— automated` (`roll_to_next_day.sh`, the manual lifecycle; previously uncovered).
+- A CI test parses every producer's commit subject and fails on an unrecognised one.
+- Retired identities FAIL whatever their subject.
+- Residual limitation: a new producer with both a new subject convention and a new identity is caught by the CI identity guard, not the runtime report.
+- Expired Vercel CLI sessions now give a clear refresh instruction (`npx vercel whoami`) instead of a 403.
+- Full procedure: docs/OPS_002 §6.
 
 Limit: while the repo is public Vercel runs no team-access check, so the 7 days prove **attribution**; behaviour under private visibility rests on the one READY `github-actions[bot]` deployment during the private window plus Vercel's `type: bot`. Do not make the repo private to test it.
 
@@ -832,12 +864,12 @@ Limit: while the repo is public Vercel runs no team-access check, so the 7 days 
 
 ## `CI-001` — MLB live-adapter test MLB 8: main-wide CI blocker (rolling-window precondition + vacuous subject)
 **Priority:** P0 — main-wide `quality` failure blocking PR #1020 and every later integration  
-**Status:** IN_PROGRESS — root cause proven, fix locally verified; awaiting exact-head CI → merge → Production verification  
+**Status:** DONE (2026-10-08). Founder-approved merge, exact-head CI green, Production acceptance PASS  
 **Owner/session:** Claude Code session 2026-10-08 (CI-001)  
 **Branch:** `claude/mlb-ci-001-adapter-test-determinism` (from `origin/main` `60e05879cb4a4f47646958e9ba2555b5f78aee02`)  
-**PR / exact head / merge:** recorded in the Session Log  
+**PR / exact head / merge:** [#1021](https://github.com/yashwantbalaji3/gametimepicks/pull/1021) · exact head `f842d15d47ee1f815231cda38615b637065d7cd1` · merge `d03691c445b39e03f79561e1099491a3783cce90` (2026-10-08T13:50:01Z, `--match-head-commit`)  
 **Evidence:** `app/src/lib/live/adapters/adapters.test.mjs` (MLB 8, 8a, 8b, 8c); fixture `app/src/lib/live/fixtures/mlb-full-game-sims.json`  
-**Production acceptance:** PENDING (test + fixture only; no rendered code or data change)
+**Production acceptance:** PASS. `dpl_Bk1ZAgxsAvZCUHTk77hrzJ9Gdyo8` READY 13:53:52Z; `/data/build-info.json` = `d03691c4` (built 13:51:27Z); key routes 200; smoke 8/9 (same pre-existing failure as COST-001 §9)
 
 ### Reproduction (current main)
 - `origin/main` `60e05879` locally: `npx tsx --test src/lib/live/adapters/adapters.test.mjs` → `not ok — MLB 8 … 'no ready simulation in the last 14 slates'`. Same failure in CI on PR #1020 (run 37780742736, `quality`).
@@ -863,6 +895,20 @@ Limit: while the repo is public Vercel runs no team-access check, so the 7 days 
 ### Acceptance
 - MLB 8–8c pass on current main data. They also pass with 40 synthetic future degraded-only slates (the exact failure mode). Mutation probes caught: fixture edit (8a), odds field on a corpus player row (8c), players on an `unavailable` game (8c), filler given a real name (8c), old `Array.isArray` predicate restored (8b, 8c), live adapter emitting `playerStats` (MLB 8).
 - CI unit phase locally; exact-head CI green on the PR; merge with `--match-head-commit`; one Production build; Production build-info advances to the merge SHA; key routes 200.
+
+### Completion record (2026-10-08)
+- Status: DONE
+- Exact tested head: `f842d15d47ee1f815231cda38615b637065d7cd1`. quality-gate run 37783964588: `quality` success, `python` success. CI log: MLB 8, 8a, 8b, 8c ok; unit phase 9,043 pass, 0 fail.
+- Scope at merge: 3 files (`adapters.test.mjs`, `fixtures/mlb-full-game-sims.json`, this roadmap). No producer, simulation, UI or data change.
+- Merge SHA: `d03691c445b39e03f79561e1099491a3783cce90`
+- Production build SHA: `d03691c4` (`dpl_Bk1ZAgxsAvZCUHTk77hrzJ9Gdyo8`; building 13:50:07Z → READY 13:53:52Z; aliases `gametime-picks.vercel.app`, `gametimepicks.yashwantbalaji.com`)
+- Local acceptance: PASS
+- Vercel Preview build count: **0** (two branch pushes; 0 Preview deployments project-wide since the COST-001 gate went live at 01:53Z)
+- Vercel Production build count: **1**. It was the only deployment created 13:00Z → 13:55Z. Billed `cpuTimeForBilling` 40.0 CPU-min ≈ **$0.14** (Enhanced, $0.0035/CPU-min).
+- Production acceptance: PASS. Before the merge, build-info was `60e05879` (the pre-merge main head); after, `d03691c4`. HTTP 200: `/`, `/mlb/`, `/nfl/`, `/results/`, `/today/`, `/markets/`, `/live/`, `/bank-builder/`, `/simulate/`. `/ops/` 404 with `X-Robots-Tag: noindex, nofollow, noarchive`, unchanged. `smoke-test-production.mjs`: 8/9; the one failure ("home does not reflect canonical money") is the pre-existing stale check recorded in COST-001 §9.
+- COST-001 protections intact: `app/vercel.json` `git.deploymentEnabled` = `main` + `preview/**` only (unchanged); build queue `WAIT_FOR_NAMESPACE_QUEUE` (unchanged); machine `enhanced` (unchanged); no Vercel setting touched.
+- Evidence path: this section; PR #1021; `adapters.test.mjs` MLB 8–8c.
+- Close-out: this documentation-only update sits on `claude/ci-001-closeout` and is to be **batched** with the next integration rather than merged alone (a docs-only main push is an ignored build that still bills ≈ 16 CPU-min).
 
 ### Follow-ups
 - Replacement-level batter rows are not disclosed per row in the simulated box score. Folded into **`TRUTH-001`** (provenance of visible numbers) and **`MLB-003`** (structural cause: projections exist only where a book posts a line, so `ready` is rare, 8/860). `LIVE-001` carries the dependency. No separate task, to avoid duplicate ownership.
@@ -1081,6 +1127,40 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Roadmap tasks updated: OPS-002 (status, progress, remaining acceptance), priority table, change log.
 - Remaining blockers / recommended next task: founder merge approval for OPS-002. Founder follow-ups F1 (local `gtp-ops` identity ownership) and F2 (why the repo went private on 10-07). Next roadmap task: **TRUTH-001** (P0, unblocked). The OPS-002 observation does not block it.
 
+## 2026-10-08 — Claude Code (OPS-002 session, continued) — `OPS-002` merge + Production verification
+- Starting main SHA: `a20ec45c79` (PR base). Main unchanged at merge time.
+- Branch: `claude/ops-002-bot-commit-identity` (PR #1019, merged) · follow-up `claude/ops-002-acceptance-monitor`
+- Goal: founder-approved conditional merge (exact head, all CI green). Verify the first real bot data commit. Make the seven-day acceptance unable to pass on absence of evidence.
+- Decisions made:
+  - Merged only after exact-head CI was green: run 37723793669, `python` ✓ 03:41:30Z, `quality` ✓ 03:59:44Z. Used `gh pr merge --merge --match-head-commit f4cc4b88…`.
+  - Waited for a genuine scheduled data commit; created no synthetic commits.
+  - Built the monitoring improvement on a separate branch so the approved head stayed untouched.
+- Files/contracts changed (follow-up branch):
+  - `scripts/ops-002-acceptance.mjs` (new, pure verdict)
+  - `scripts/ops-002-identity-report.mjs` (now exits with the verdict)
+  - `app/src/lib/ops/ops-002-acceptance.test.mjs` (new, 8 tests)
+  - docs/OPS_002 §6, this roadmap.
+- Monitoring improvement (founder requirement): PASS now requires all of the following. Otherwise the result is FAIL 2 / NOT_YET 3 / STALE 4.
+  - ≥ 7 days since cutover.
+  - ≥ 1 READY `github-actions[bot]` data deployment in **every** 24 h slot.
+  - No block and no foreign identity.
+  - Positively verified freshness: live build-info = newest READY build, `main` head deployed, nothing errored, blocked or pending > 30 min.
+- Local tests/build/UX checks run: acceptance tests 8/8 + identity guard 7/7. The acceptance tests catch 6/6 mutation probes, including restoring the old "pass when no failures" logic (3 fail). Report run live at the cutover gave NOT_YET (correct). No app build needed.
+- Result: **merged `f65e7656` (04:03:07Z).**
+  - Merge deployment READY 04:06:50Z, 40 CPU-min ≈ $0.14; key routes 200; post-merge main quality-gate ✓.
+  - **Cutover 2026-10-08T05:56:44Z:** `851ecc75` (`auto: nba results capture`) authored and committed as `github-actions[bot]`. Vercel `dpl_BjrG1yjNziJ91VNqAnRv3nKASiSS` attributes it to `github-actions[bot]` (id 41898282, type bot), no seatBlock, READY 06:00:34Z. Production build-info = `851ecc75`. Only the NBA results files changed.
+- PR / exact head: #1019 / `f4cc4b885b171e55de7c2c509cc6d7d0d1e6b9dd` → merge `f65e7656afc21f59b959aafb06a25f46e530a8e9`. The follow-up PR (acceptance monitor + these records) is opened from `claude/ops-002-acceptance-monitor` and awaits founder approval to merge.
+- Vercel Preview / Production build counts: **0 / 1** for OPS-002 (plus genuine bot data deployments, which happen anyway).
+- Remote-only exception: none.
+- Build CPU/cost evidence: merge build 2,400,000 ms `cpuTimeForBilling` = 40 CPU-min ≈ $0.14 on Enhanced.
+- Production acceptance: initial verification **PASS**; seven-day acceptance **NOT_YET**. Window 2026-10-08T05:56:44Z → earliest 2026-10-15T05:57Z. OPS-002 stays IN_PROGRESS.
+- Roadmap tasks updated: OPS-002 (header, production verification, remaining acceptance), priority table, change log.
+- Remaining blockers / recommended next task:
+  - Run the daily report through 2026-10-15; mark OPS-002 DONE only on `PASS`.
+  - Founder: approve or merge the follow-up PR (≈ 1 build, ≈ $0.14, often absorbed by the next bot data build).
+  - Founder follow-ups F1 and F2 are still open.
+  - Next roadmap task: TRUTH-001. Not started in this session, per founder instruction.
+
 ## 2026-10-08 — Claude Code (CI-001 session) — `CI-001`
 - Starting main SHA: `60e05879cb4a4f47646958e9ba2555b5f78aee02` (fetched; branch created from `origin/main`)
 - Branch: `claude/mlb-ci-001-adapter-test-determinism`
@@ -1097,6 +1177,36 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Production acceptance: PENDING. Merge build READY; build-info = merge SHA; key routes 200.
 - Roadmap tasks updated: `CI-001` (new); the replacement-level disclosure finding is recorded under `TRUTH-001` (disclosure), `MLB-003` (coverage) and `LIVE-001` (dependency), with no new task ID; priority table; change log.
 - Remaining blockers / recommended next task: after merge, rebase/re-run PR #1020 (OPS-002 follow-up). Then `TRUTH-001`. The `TRUTH-001` box-score item comes before any `LIVE-001` MLB player join.
+
+## 2026-10-08 — Claude Code (CI-001 session, close-out) — `CI-001`
+- Starting main SHA: `60e05879cb` → merged `d03691c445`
+- Branch: `claude/mlb-ci-001-adapter-test-determinism` (merged); close-out docs: `claude/ci-001-closeout` (not merged; batch with the next integration)
+- Goal: founder-approved merge of #1021 with exact-head verification, then controlled Production acceptance.
+- Reproduced current issue/state: exact head `f842d15d47` green on both checks (run 37783964588); scope 3 files; mergeable CLEAN.
+- Decisions made: merged with `--match-head-commit`. DONE record kept off `main` until the next batch, per founder instruction.
+- Files/contracts changed: this roadmap only (CI-001 → DONE).
+- Local tests/build/UX checks run: none needed (no code change in the close-out).
+- Result: CI-001 DONE.
+- PR / exact head: #1021 · `f842d15d47` → merge `d03691c445`
+- Vercel Preview / Production build counts: 0 / 1
+- Remote-only exception: none.
+- Build CPU/cost evidence: merge build 40.0 billed CPU-min ≈ $0.14. Cycle to date $329.89, projected $340.12 (`vercel-cost-report.mjs --days 1`).
+- Production acceptance: PASS (see CI-001 completion record).
+- Roadmap tasks updated: CI-001 (DONE), priority table.
+- Remaining blockers / recommended next task: re-run CI on #1020 (OPS-002 follow-up) on top of `d03691c4`. Next roadmap task: `TRUTH-001`, which now includes the MLB box-score replacement-level disclosure item.
+
+## 2026-10-08 — Claude Code (OPS-002 session, resumed) — `OPS-002` PR #1020 refresh
+- Starting main SHA: `f08ddfd1f44d9ff3a3770e27fc300ce5a4033c89` (contains CI-001 merge `d03691c445b39e03f79561e1099491a3783cce90`)
+- Branch: `claude/ops-002-acceptance-monitor` (PR #1020), previous head `45a628dfa4`
+- Goal: un-block #1020 after CI-001; refresh against main without losing the monitoring work or roadmap history; fold in the pending CI-001 `DONE` records without a docs-only deployment.
+- Decisions made:
+  - Merged `origin/main` into the branch; no rebase, so pushed history is preserved. The only conflict was in this Session Log: both sides had appended an entry. Both were kept in chronological order, unedited.
+  - Merged `claude/ci-001-closeout` (`759247c2e4`, roadmap only, based on `d03691c4`) cleanly. Against that branch, this file differs only where OPS-002 status lines were superseded; every CI-001 record is retained. CI-001's `DONE` record therefore reaches `main` with #1020's single merge, with no separate documentation deployment.
+- Files/contracts changed: this roadmap only (merge resolution, the #1020 blocker marked resolved, this entry). No script, test, workflow, app or Vercel config change in this step.
+- Local tests: adapters 27/27 (MLB 8 + 8a/8b/8c green). OPS-002 + COST-001 guards 28/28. CI unit phase: see the hand-off.
+- Result: #1020 ready for exact-head CI → founder approval of the final head → merge (≈ 1 Production build).
+- Vercel Preview / Production build counts this step: 0 / 0.
+- Production acceptance: unchanged. The OPS-002 seven-day observation continues from cutover 2026-10-08T05:56:44Z; status IN_PROGRESS, not DONE.
 
 ---
 
@@ -1140,6 +1250,7 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 
 - **2026-10-08 — CI-001:** main's `quality` gate was red because adapters.test.mjs MLB 8 required a `ready` MLB simulation in the newest 14 slates. `ready` (input completeness) has been rare by design since 2026-09-25, while the simulations themselves are healthy. The test's per-player check had been vacuous since it was written. It is replaced by hash-verified fixtures and a status-agnostic corpus contract. Rule: **tests must not take a precondition from rolling committed data; use pinned, self-verifying evidence or whole-history invariants.** The replacement-level batter disclosure finding is folded into `TRUTH-001` and `MLB-003`.
 - **2026-10-07 — Founder infrastructure-cost directive:** Added `COST-001` as the first priority after reviewing the previous Vercel billing cycle. Localhost-first implementation, local build/test/UX acceptance, batched changes, controlled automatic deployment triggers, founder review where requested, limited remote builds, budget/Build CPU measurement, and explicit remote-build exceptions are now mandatory. **This is a roadmap policy update only; `COST-001` implementation and Vercel configuration audit have not yet been performed.**
+- **2026-10-08 — OPS-002 merged and verified:** #1019 → `f65e7656`. The first bot data commit (`851ecc75`, 05:56:44Z) was attributed to `github-actions[bot]` and went READY and live. The seven-day acceptance now needs positive evidence (daily bot deployments + verified freshness) and cannot pass on zero failures alone; earliest DONE 2026-10-15.
 - **2026-10-08 — OPS-002 root cause:** the 21 blocked bot deploys were Vercel's private-repo team-access check applied to `gtp-bot`'s stranger identity (`bot`) while the repo was briefly private. They were not intermittent. All workflow commits now author as `github-actions[bot]`, guarded by `bot-commit-identity.test.mjs`. Seven-day attribution observation follows the merge.
 - **2026-10-08 — COST-001 Phase 1 executed:** previews gated (proven), build queue one-per-branch, PR #1017 merged with one Production build; Phase 2 local test shows Standard unsafe → `COST-002`; `OPS-002` opened for blocked bot deploys.
 - **2026-10-07 — COST-001 audit:** roadmap adopted into the repository. Measured Build CPU as 99.9% of the bill, driven by the 09-24 Enhanced machine (no free slot) × ~130 builds/day, 37% of them unconsumed previews. Previews made opt-in (`preview/**`) in `app/vercel.json` pending approval; full evidence in `docs/COST_001_VERCEL_COST_CONTROL.md`.
