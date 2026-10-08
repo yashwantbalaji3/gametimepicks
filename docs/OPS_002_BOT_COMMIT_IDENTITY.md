@@ -106,7 +106,7 @@ F1).
 | New guard against `origin/main` workflows | **3 fail** (catches the defect) |
 | Mutation probes: email back to `bot@…`; name back to `gtp-bot`; identity removed from a committing workflow; `git -c user.email=` override; a commit script setting its own identity | each probe fails the guard (3/1/1/1/1 failing tests) |
 | `js-yaml` parse of all 34 changed workflows + structural diff vs `origin/main` | 34/34 parse; 34/34 identical apart from identity strings; permissions identical |
-| CI unit phase (`node scripts/ci/run-suite.mjs --phase unit`) | see roadmap Session Log |
+| CI unit phase (`node scripts/ci/run-suite.mjs --phase unit`), clean worktree of the implementation commit | 9,039 pass; 2 fail = `rls-live` (needs a live DB), failing identically on `origin/main` |
 | `ops-002-identity-report.mjs` on the incident window (10-07 12:00Z →) | lists all 21 `TEAM_ACCESS_REQUIRED`, exit 2 |
 | Same, 10-08 00:08Z →, with that time as a pretend cutover | flags the 4+ `bot`-attributed data commits, exit 2; without cutover exit 0 |
 
