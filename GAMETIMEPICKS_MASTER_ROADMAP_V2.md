@@ -79,25 +79,26 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 
 | Rank | Task ID | Department | Task | Status | Dependency | Production-bound? |
 |---:|---|---|---|---|---|---|
-| 1 | `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — audit done; Phase 1 awaiting founder approval | None — do first | Process/config, no app release expected |
-| 2 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED | COST-001 deployment gate verified | Yes |
-| 3 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | NOT_STARTED | Founder rules below | Foundation |
-| 4 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | NOT_STARTED | CONTRACT-001 | Yes |
-| 5 | `TEMPORAL-001` | Data Platform | Point-in-time temporal data/identity foundation for MLB/NFL critical fields | NOT_STARTED | CONTRACT-001 | Foundation |
-| 6 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 | NOT_STARTED | CONTRACT-001 view contracts | Yes |
-| 7 | `RESULTS-001` | Results | Prop-family Results V2 + time filters + drill-down | NOT_STARTED | LEDGER-001 | Yes |
-| 8 | `MLB-001` | MLB Modeling | World Model V2 research, rules, feature audit, benchmark ladder | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
-| 9 | `NFL-001` | NFL Modeling | World Model V2 research, team/player world architecture | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
-| 10 | `PRODUCT-001` | Product Engine | Canonical multi-sport candidate/eligibility/selection engine | NOT_STARTED | CONTRACT-001, LEDGER-001 | Shadow → Yes |
-| 11 | `PRODUCT-002` | Bank Builder / Moonshot | Migrate to canonical multi-sport forecast candidates | NOT_STARTED | PRODUCT-001 + passing family gates | Yes |
-| 12 | `PARLAY-001` | Parlay Lab | Same-world joint probability / dependency architecture | NOT_STARTED | PRODUCT-001 + world receipts | Shadow → Yes |
-| 13 | `LIVE-001` | Live | MLB factual prop tracking + event timeline | NOT_STARTED | Live data/ID capability | Yes |
-| 14 | `LIVE-002` | Live | MLB visual Game Center / pitch & field graphics | NOT_STARTED | LIVE-001 | Yes |
-| 15 | `LIVE-003` | Live Modeling | Conditional live forecasts from captured state | NOT_STARTED | LIVE-001/002 replay archive | Shadow |
-| 16 | `LIVE-004` | Live Products | Validated live straight opportunities | NOT_STARTED | LIVE-003 + fresh market identity | Shadow → Yes |
-| 17 | `LIVE-005` | Live Products | Supported live parlays | NOT_STARTED | LIVE-004 + dependence validation | Last |
-| 18 | `OPS-001` | Operations | Freshness, dependency receipts, retries, alerts, cost controls | NOT_STARTED | Parallel | Yes |
-| 19 | `TRUTHDOC-001` | Documentation | Generated “what runs now” inventory | NOT_STARTED | CONTRACT-001 | Yes |
+| 1 | `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — Phase 1 approved 2026-10-07; executing | None — do first | Process/config, no app release expected |
+| 2 | `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | NOT_STARTED — HIGH, promptly after COST-001 Phase 1 | None | Workflow/identity config; Production freshness |
+| 3 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED | COST-001 deployment gate verified | Yes |
+| 4 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | NOT_STARTED | Founder rules below | Foundation |
+| 5 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | NOT_STARTED | CONTRACT-001 | Yes |
+| 6 | `TEMPORAL-001` | Data Platform | Point-in-time temporal data/identity foundation for MLB/NFL critical fields | NOT_STARTED | CONTRACT-001 | Foundation |
+| 7 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 | NOT_STARTED | CONTRACT-001 view contracts | Yes |
+| 8 | `RESULTS-001` | Results | Prop-family Results V2 + time filters + drill-down | NOT_STARTED | LEDGER-001 | Yes |
+| 9 | `MLB-001` | MLB Modeling | World Model V2 research, rules, feature audit, benchmark ladder | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
+| 10 | `NFL-001` | NFL Modeling | World Model V2 research, team/player world architecture | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
+| 11 | `PRODUCT-001` | Product Engine | Canonical multi-sport candidate/eligibility/selection engine | NOT_STARTED | CONTRACT-001, LEDGER-001 | Shadow → Yes |
+| 12 | `PRODUCT-002` | Bank Builder / Moonshot | Migrate to canonical multi-sport forecast candidates | NOT_STARTED | PRODUCT-001 + passing family gates | Yes |
+| 13 | `PARLAY-001` | Parlay Lab | Same-world joint probability / dependency architecture | NOT_STARTED | PRODUCT-001 + world receipts | Shadow → Yes |
+| 14 | `LIVE-001` | Live | MLB factual prop tracking + event timeline | NOT_STARTED | Live data/ID capability | Yes |
+| 15 | `LIVE-002` | Live | MLB visual Game Center / pitch & field graphics | NOT_STARTED | LIVE-001 | Yes |
+| 16 | `LIVE-003` | Live Modeling | Conditional live forecasts from captured state | NOT_STARTED | LIVE-001/002 replay archive | Shadow |
+| 17 | `LIVE-004` | Live Products | Validated live straight opportunities | NOT_STARTED | LIVE-003 + fresh market identity | Shadow → Yes |
+| 18 | `LIVE-005` | Live Products | Supported live parlays | NOT_STARTED | LIVE-004 + dependence validation | Last |
+| 19 | `OPS-001` | Operations | Freshness, dependency receipts, retries, alerts, cost controls | NOT_STARTED | Parallel | Yes |
+| 20 | `TRUTHDOC-001` | Documentation | Generated “what runs now” inventory | NOT_STARTED | CONTRACT-001 | Yes |
 
 ---
 
@@ -158,7 +159,7 @@ Event/player IDs, source sequence/event ID, source time when available, ingestio
 
 ## `COST-001` — Localhost-first development and controlled deployments
 **Priority:** P0 / immediate — **do before normal roadmap bootstrap or the next application PR**  
-**Status:** IN_PROGRESS — measurement complete; Phase 1 implemented + tested locally; **not pushed** (awaiting founder approval)  
+**Status:** IN_PROGRESS — Phase 1 approved by founder 2026-10-07; executing (push → gating proof → PR/CI → queue setting → merge → Production acceptance)  
 **Owner/session:** Claude Code session 2026-10-07 (COST-001)  
 **Branch:** `claude/cost-001-vercel-cost-control` (local only)  
 **PR:** —  
@@ -761,6 +762,26 @@ Only after live straights and dependence/joint-world validation.
 ---
 
 # 18. Operations, freshness and cost
+
+## `OPS-002` — Bot commit identity and blocked Production deployments
+**Priority:** HIGH — address promptly after COST-001 Phase 1 (founder, 2026-10-07)  
+**Status:** NOT_STARTED
+
+### Evidence (COST-001 audit, Vercel API, read-only)
+- 2026-10-07 17:40Z → 23:58Z: **21 Production deployments BLOCKED**, `readyStateReason`: "the commit author doesn't have permission to create deployments for this project"; `seatBlock.blockCode: TEAM_ACCESS_REQUIRED`, `gitUserId: 58210622`.
+- All blocked commits were authored `gtp-bot <bot@users.noreply.github.com>`. GitHub resolves that noreply address to an **unrelated real GitHub account `bot` (id 58210622)**; Vercel attributes the deployment to that user and applies its team-access check. Other bot identities (`gtp-mlb-production-bot`, `gtp-pregame-bot`, `github-actions[bot]`) and PR merges built normally in the same window; `gtp-bot` deployments were READY again from 2026-10-08 00:08Z (intermittent).
+- Effect: bot data reached Production only when another author's commit happened to build (the ignore script diffs from the last successful deploy, so nothing was lost, only delayed). This is a **Production freshness** defect, not a cost defect.
+
+### Scope / rules
+- Inventory every workflow/script that sets the data-commit author/committer.
+- Choose one identity GitHub and Vercel attribute correctly (a GitHub App bot identity or `github-actions[bot]`), verified against Vercel deployment `attribution`/`seatBlock` history.
+- **Do not weaken Vercel team-access protections.** Do not rewrite historical commits or receipts.
+- Update any workflow-text guard tests that pin the identity; localhost-first; change producers only (no bot-regenerated artifacts in the PR).
+
+### Acceptance
+- No `TEAM_ACCESS_REQUIRED` blocks for bot data commits over ≥ 7 days; Vercel attribution for data commits names the intended bot identity.
+- Production `build-info` keeps pace with bot data commits (lag measured with `scripts/vercel-cost-report.mjs` + build-info).
+
 
 ## `OPS-001`
 **Priority:** P1/P2  
