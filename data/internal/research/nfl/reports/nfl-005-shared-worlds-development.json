@@ -1,0 +1,251 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-005-shared-worlds-development",
+ "dataClass": "PRIVATE_RESEARCH",
+ "evidenceTier": "DEVELOPMENT — protocol A games 2019-2021; player rows inside the spent P299/P300 window. Not a blind result.",
+ "generatedAt": "2026-10-08T17:55:31Z",
+ "preregistration": {
+  "path": "data/internal/research/nfl/reports/nfl-005-shared-worlds-preregistration.json",
+  "commit": "89a0f2a4b3fc125c673ae6149b8d20b6854b2ffb 2026-10-08T13:53:37-04:00"
+ },
+ "scriptSha256": "aab9378e49edd703e6c8fc1df56d4f2cdaab222b73ac149a67da0ac287a30867",
+ "population": {
+  "games": 821,
+  "rows": {
+   "player_receptions": 10387,
+   "player_reception_yds": 10387,
+   "player_rush_yds": 5536,
+   "player_pass_yds": 1674
+  },
+  "testRowsBeforeJoin": 27984
+ },
+ "inputsFromNfl003": {
+  "rho": {
+   "passAttempts": 0.5,
+   "rushAttempts": 0.25,
+   "targets": 0
+  },
+  "volume": {
+   "passAttempts": {
+    "bT": 1.05178,
+    "bO": 0.49539,
+    "g": 0.01952,
+    "devTeamGames": 2278
+   },
+   "rushAttempts": {
+    "bT": 0.89346,
+    "bO": 0.4989,
+    "g": 0.08905,
+    "devTeamGames": 2278
+   },
+   "targets": {
+    "bT": 1.09859,
+    "bO": 0.558,
+    "g": 0.0296,
+    "devTeamGames": 2278
+   }
+  }
+ },
+ "preScoreProbeDisclosure": "Before this score the author ran --probe 20 (the first 20 test games, all four families; printed, nothing written) to check runtime and joins. No registered parameter, bar or population rule changed after it.",
+ "coherence": {
+  "games": 821,
+  "runs": 821000,
+  "failedRuns": 0,
+  "failureCodes": {},
+  "recEqualsPassMismatches": 0
+ },
+ "crossFamilyAnalytic": {
+  "teamGames": 1566,
+  "meanRatio": 0.91993,
+  "p90": 1.06416,
+  "shareAbove1_1": 0.08238,
+  "note": "analytic allocV1: Σ named receiving-yard means / main passer's passing-yard mean (named receivers are a subset, so > 1 is an incoherence); Sim V2 makes it exactly Σ receiving = passing in every run"
+ },
+ "results": {
+  "player_receptions": {
+   "allocV1_analytic": {
+    "n": 10387,
+    "mae": 1.57254,
+    "coverage80": 0.78829,
+    "ece": 0.02559,
+    "level": 0.99504
+   },
+   "simV2_allocV1": {
+    "n": 10387,
+    "mae": 1.59026,
+    "coverage80": 0.70583,
+    "ece": 0.05357,
+    "level": 1.02629
+   }
+  },
+  "player_reception_yds": {
+   "allocV1_analytic": {
+    "n": 10387,
+    "mae": 21.188,
+    "coverage80": 0.79792,
+    "ece": 0.03492,
+    "level": 0.98863
+   },
+   "simV2_allocV1": {
+    "n": 10387,
+    "mae": 21.5324,
+    "coverage80": 0.82209,
+    "ece": 0.05605,
+    "level": 0.88912
+   }
+  },
+  "player_rush_yds": {
+   "allocV1_analytic": {
+    "n": 5536,
+    "mae": 18.42725,
+    "coverage80": 0.8022,
+    "ece": 0.03842,
+    "level": 1.02576
+   },
+   "simV2_allocV1": {
+    "n": 5536,
+    "mae": 18.8237,
+    "coverage80": 0.78829,
+    "ece": 0.08778,
+    "level": 1.11336
+   }
+  },
+  "player_pass_yds": {
+   "allocV1_analytic": {
+    "n": 1674,
+    "mae": 62.73749,
+    "coverage80": 0.80526,
+    "ece": 0.04787,
+    "level": 0.99629
+   },
+   "simV2_allocV1": {
+    "n": 1674,
+    "mae": 66.44444,
+    "coverage80": 0.71924,
+    "ece": 0.1235,
+    "level": 0.9036
+   }
+  }
+ },
+ "bars": {
+  "player_receptions": {
+   "nonInferiorMae": {
+    "pass": false,
+    "observed": [
+     1.59026,
+     1.57254
+    ]
+   },
+   "coverage80": {
+    "pass": false,
+    "observed": 0.70583
+   },
+   "ece": {
+    "pass": false,
+    "observed": 0.05357
+   },
+   "level": {
+    "pass": true,
+    "observed": 1.02629
+   },
+   "coherence": {
+    "pass": true,
+    "observed": {
+     "failedRuns": 0,
+     "recEqualsPassMismatches": 0
+    }
+   }
+  },
+  "player_reception_yds": {
+   "nonInferiorMae": {
+    "pass": false,
+    "observed": [
+     21.5324,
+     21.188
+    ]
+   },
+   "coverage80": {
+    "pass": true,
+    "observed": 0.82209
+   },
+   "ece": {
+    "pass": false,
+    "observed": 0.05605
+   },
+   "level": {
+    "pass": false,
+    "observed": 0.88912
+   },
+   "coherence": {
+    "pass": true,
+    "observed": {
+     "failedRuns": 0,
+     "recEqualsPassMismatches": 0
+    }
+   }
+  },
+  "player_rush_yds": {
+   "nonInferiorMae": {
+    "pass": false,
+    "observed": [
+     18.8237,
+     18.42725
+    ]
+   },
+   "coverage80": {
+    "pass": true,
+    "observed": 0.78829
+   },
+   "ece": {
+    "pass": false,
+    "observed": 0.08778
+   },
+   "level": {
+    "pass": false,
+    "observed": 1.11336
+   },
+   "coherence": {
+    "pass": true,
+    "observed": {
+     "failedRuns": 0,
+     "recEqualsPassMismatches": 0
+    }
+   }
+  },
+  "player_pass_yds": {
+   "nonInferiorMae": {
+    "pass": false,
+    "observed": [
+     66.44444,
+     62.73749
+    ]
+   },
+   "coverage80": {
+    "pass": false,
+    "observed": 0.71924
+   },
+   "ece": {
+    "pass": false,
+    "observed": 0.1235
+   },
+   "level": {
+    "pass": false,
+    "observed": 0.9036
+   },
+   "coherence": {
+    "pass": true,
+    "observed": {
+     "failedRuns": 0,
+     "recEqualsPassMismatches": 0
+    }
+   }
+  }
+ },
+ "outcome": {
+  "player_receptions": "DO_NOT_PROCEED",
+  "player_reception_yds": "DO_NOT_PROCEED",
+  "player_rush_yds": "DO_NOT_PROCEED",
+  "player_pass_yds": "DO_NOT_PROCEED"
+ },
+ "consequence": "Nothing publishes. A PROCEED_TO_FORWARD_SHADOW family gets Sim V2 + allocV1 as its registered blind 2026 forward shadow generator."
+}
