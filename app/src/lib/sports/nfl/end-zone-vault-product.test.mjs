@@ -223,3 +223,22 @@ test("today's real outcome is the honest one: candidates exist, a card does not"
   assert.match(builder, /no touchdown market is captured/, "the blocker states OUR capture state, never a claim about what the books offer");
   assert.ok(!builder.includes("the sportsbooks are not offering"), "the unobservable claim about the books is gone");
 });
+
+test("ONE TOUCHDOWN NUMBER PER PLAYER: the Vault shows the board's published anytime-TD probability, never a second one", () => {
+  /*
+   * NFL Week 5 (2026-10-08): the Vault printed td-engine's probability under "who our model thinks is most likely to
+   * score" while the game page printed the board's published family for the same player (Javonte Williams 62.5% vs
+   * 72.5%). The rule is pinned at the producer, not on committed data — the data follows on the next pipeline run,
+   * and a test that waited on rolling data would be the CI-001 defect again.
+   */
+  const builder = fs.readFileSync(path.join(APP, "scripts/nfl/build-end-zone-vault.mjs"), "utf8");
+  const rule = (src) => /tdProbability: published,/.test(src) && /boardAtdFor\(f\.providerEventId\)/.test(src)
+    && /the Vault never shows a second number/.test(src) && !/tdProbability: prob\.probability/.test(src)
+    && /modelVersion: board\.model/.test(src) && /for \(const p of board\.rows\.filter/.test(src)
+    && !/fam\.players\.forEach/.test(src) && !/simulated scoring distribution/.test(src);
+  assert.ok(rule(builder), "the Vault's displayed probability must be the board's published one");
+  assert.equal(rule(builder.replace("tdProbability: published,", "tdProbability: prob.probability,")), false, "mutation probe: reverting to td-engine's number must fail");
+  assert.equal(rule(builder.replace("for (const p of board.rows.filter", "for (const p of fam.players.filter")), false, "mutation probe: selecting from another model's pool must fail");
+  const page = fs.readFileSync(path.join(APP, "src/app/endzone-vault/page.tsx"), "utf8");
+  assert.ok(!/historically been shared across its roster/.test(page), "the page must not describe td-engine's method for the board's number");
+});
