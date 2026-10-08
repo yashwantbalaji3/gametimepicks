@@ -1,18 +1,19 @@
 {
   "kind": "publication-slo",
-  "date": "2026-10-07",
+  "date": "2026-10-08",
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "PUBLISHED",
-      "reason": "all 4 event(s) in the horizon carry a forecast",
-      "deadlineUtc": null,
+      "state": "PUBLISHING",
+      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-10-08T22:30:00.000Z",
       "counts": {
-        "scheduled": 4,
-        "published": 4,
+        "scheduled": 1,
+        "published": 0,
         "missedCoverage": 0,
-        "awaiting": 0
-      }
+        "awaiting": 1
+      },
+      "missed": []
     },
     "nfl": {
       "state": "PUBLISHED",
@@ -49,55 +50,29 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-10-08T02:52:09.375Z",
+  "checkedAt": "2026-10-08T08:39:17.820Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHED",
-  "reason": "board published with 163 rows",
-  "publishDeadlineUtc": null,
-  "scheduledGames": 4,
-  "pregameRemaining": 0,
-  "alreadyStarted": 4,
+  "state": "PUBLISHING",
+  "reason": "today's slate is not published yet and is not late — the deadline is 2026-10-08T22:30:00.000Z",
+  "publishDeadlineUtc": "2026-10-08T22:30:00.000Z",
+  "scheduledGames": 1,
+  "pregameRemaining": 1,
+  "alreadyStarted": 0,
   "board": {
-    "present": true,
-    "leans": 163,
+    "present": false,
+    "leans": 0,
     "pendingReason": null,
-    "generatedAt": "2026-10-07T09:26:11.976440+00:00",
-    "scheduledGames": 4,
-    "startedBeforeGeneration": 0
+    "generatedAt": null
   },
   "games": [
     {
-      "gamePk": 849833,
-      "startUtc": "2026-10-07T20:00:00Z",
+      "gamePk": 849832,
+      "startUtc": "2026-10-09T00:00:00Z",
       "away": "Cleveland Guardians",
       "home": "Chicago White Sox",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 849822,
-      "startUtc": "2026-10-07T22:00:00Z",
-      "away": "Los Angeles Dodgers",
-      "home": "Atlanta Braves",
-      "detailedState": "Final",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 849838,
-      "startUtc": "2026-10-08T00:00:00Z",
-      "away": "Tampa Bay Rays",
-      "home": "New York Yankees",
-      "detailedState": "In Progress",
-      "pregameAtCheck": false
-    },
-    {
-      "gamePk": 849827,
-      "startUtc": "2026-10-08T02:00:00Z",
-      "away": "Milwaukee Brewers",
-      "home": "San Diego Padres",
-      "detailedState": "In Progress",
-      "pregameAtCheck": false
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
     }
   ]
 }
