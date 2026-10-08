@@ -428,6 +428,13 @@ jobs:
           # that changed nothing triggers no data commit for this. A started game is never re-simulated; every run is
           # also kept write-once under data/internal/nfl/world-model-v2/runs/. LOUD, NOT FATAL: a refusal keeps the
           # previous pregame simulations rather than taking the window's other artifacts down with it.
+          # NFL-005 weekly inputs, no manual step: fold this season's committed finals into the player history, then
+          # export the input packet for the week of the next game — written only when its MODEL CONTENT changed (a new
+          # final, a new week), never for a timestamp. A refusal keeps the previous packet (and so the previous runs).
+          if ! node ../scripts/research/nfl/build-player-games-2026.mjs \
+             || ! node ../scripts/research/nfl/export-world-model-v2-inputs.mjs --now "${{ steps.window.outputs.now }}" --week auto; then
+            echo "::error::World Model V2 input export refused — the previous packet stays in use"
+          fi
           if ! node scripts/nfl/build-nfl-world-model-v2.mjs --now "${{ steps.window.outputs.now }}"; then
             echo "::error::World Model V2 rebuild refused — the previous pregame simulations stay published"
           fi

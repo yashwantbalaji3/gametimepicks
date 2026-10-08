@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-005-allocation-worlds-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "NFL-005 (shared worlds), NFL World Model V2 — second candidate; also NFL-003's Dirichlet-multinomial allocation rung",
+  "registeredAt": "2026-10-08T18:05:00Z",
+  "whyThisExists": "The first NFL-005 look (nfl-005-shared-worlds-development.json) showed Sim V2's drive worlds are perfectly coherent but carry the drive engine's yardage biases into player marginals (DO_NOT_PROCEED x4 against allocV1 analytic). The analytic allocV1 marginals are accurate but not jointly coherent (8.2% of team-games have named receiving means > 1.1 x the passer's). This candidate generates joint team-game worlds AROUND allocV1's inputs: team volume, Dirichlet-multinomial allocation over the active players plus OTHER, binomial catches, gamma yards per opportunity, passing = sum of receiving by construction. It asks whether coherence can be had without losing accuracy.",
+  "evidenceTier": "DEVELOPMENT. Test rows = P300's scored rows in 2019-2021 (inside the spent P299/P300 window and NFL-003's development look). Dev fits on 2022-2025. Outcome is only PROCEED_TO_FORWARD_SHADOW or DO_NOT_PROCEED per family.",
+  "whatTheAuthorHasSeenBeforeRegistering": ["NFL-003 development receipt; NFL-005 Sim V2 development receipt (both committed). No number from this candidate."],
+  "candidate": {
+    "id": "nfl-allocation-worlds-v1",
+    "inputs": "Exactly allocV1's (NFL-003 development receipt): reallocated shares per family with OTHER = 1 - sum(named) >= 0.02, team volumes V_pass, V_carries, V_targets from the dev-fitted volume model, shrunk catch rate / yards per reception / yards per carry per player (P300 estimators); OTHER uses league rates.",
+    "world": [
+      "A = max(0, round(V_pass + sigmaPass * z1)); K = max(0, round(V_carries + sigmaRush * z2)); z1, z2 independent standard normal; sigma = P300's volumeSigmaPass 7.4689 / volumeSigmaRush 6.378.",
+      "T = round(A * V_targets / V_pass) (team targets move with team attempts).",
+      "Target probabilities p ~ Dirichlet(kappa_t * [named shares, OTHER]); target counts ~ Multinomial(T, p). Carries likewise with kappa_c over carry shares; pass attempts likewise with kappa_p over pass shares.",
+      "Receptions_i ~ Binomial(targets_i, catchRate_i); receiving yards_i ~ Gamma(shape = receptions_i * receivingShape, scale = ypr_i / receivingShape) (0 when no reception). Rushing yards_i ~ Gamma(carries_i * rushingShape, ypc_i / rushingShape). Shapes = P300's receivingShape 1.3741 and rushingShape 0.5619.",
+      "Team completions = sum of receptions (named + OTHER); team passing yards = sum of receiving yards (named + OTHER). Completions are split among passers ~ Multinomial(completions, realised attempt shares); passer i's passing yards = team passing yards * completions_i / completions."
+    ],
+    "fit": "kappa_t, kappa_c, kappa_p each from the grid [2, 5, 10, 20, 50, 200] on dev (2022-2025) team-games, 600 runs each, choosing the value whose dev 80% coverage is closest to 0.80 for receptions (kappa_t), rushing yards (kappa_c) and passing yards (kappa_p); ties to the larger kappa. Receiving yards uses kappa_t.",
+    "runs": 2000
+  },
+  "comparator": "allocV1 analytic, exactly as in nfl-003-opportunity-allocation-development.json (its dev scales), on identical rows.",
+  "population": "P300's scored rows whose season is 2019-2021 and whose player is in the active pool of the simulated team-game.",
+  "invariants": "Checked in EVERY run and every team-game; any violation aborts: allocated targets / carries / pass attempts (named + OTHER) equal the team totals; receptions <= targets per player; sum of receiving yards (named + OTHER) = team passing yards = sum of passer passing yards (within 1e-6); completions = sum of receptions.",
+  "frozenBars": {
+    "proceedToForwardShadow_perFamily": [
+      "non-inferiority: MAE <= allocV1 analytic MAE x 1.01",
+      "coverage80 within [0.72, 0.88]",
+      "threshold ECE <= 0.05",
+      "level within [0.92, 1.08]",
+      "0 invariant violations"
+    ],
+    "outcome": "PROCEED_TO_FORWARD_SHADOW per family: the allocation worlds become that family's registered blind 2026 forward shadow generator (jointly coherent), compared with allocV1 analytic and the incumbent. Nothing public changes."
+  },
+  "frozen": {
+    "testSeasons": [2019, 2021],
+    "devSeasons": [2022, 2025],
+    "kappaGrid": [2, 5, 10, 20, 50, 200],
+    "fitRuns": 600,
+    "runs": 2000,
+    "nonInferiorityRatio": 1.01,
+    "bars": { "coverageBand": [0.72, 0.88], "eceMax": 0.05, "levelBand": [0.92, 1.08] },
+    "seed": "nfl005-aw",
+    "inputs": {
+      "nfl003DevelopmentSha256": "ff32d9303bf8af219d90451df842da9d6ff0075da8d2c00223b614e169c15c4c",
+      "playerGamesSha256": "81279aecfcc2fa4a26f93ebac764e075075ecf30a8375c92fe367fc3634d2f63"
+    }
+  },
+  "output": "data/internal/research/nfl/reports/nfl-005-allocation-worlds-development.json"
+}

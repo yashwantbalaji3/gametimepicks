@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-003-opportunity-allocation-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "NFL-003 (player opportunity allocation), NFL World Model V2",
+  "registeredAt": "2026-10-08T17:46:00Z",
+  "whyThisExists": "The published share-level engine (P300 levelShareTeamForm) projects each player independently: a share from his own decayed history times a team volume from the team's own recent form. Three things it cannot do are the NFL-003 defects measured on 2026 Week 5: (1) an absent teammate's opportunity is not reallocated (Jalon Daniels kept a relief share 0.58 when Baker Mayfield was Out; the receivers kept volume earned with both QBs), (2) named shares in a team pool are not conserved (29 of 90 Week 5 pools summed past 1 before normalisation), and (3) team volume ignores the opponent and the expected game script. This registers ONE allocation candidate that conserves opportunity by construction and fixes those three, and scores it on the published engine's own rows.",
+  "evidenceTier": "THIRD_LOOK_DEVELOPMENT. 2014-2021 was scored blind by P299 and again (second look) by P300, and the author has read both receipts' aggregate figures. Nothing produced under this registration is a blind held-out result. Its only possible outcome on 2014-2021 is PROCEED_TO_FORWARD or DO_NOT_PROCEED; eligibility can only come from the blind 2026 forward test below.",
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "P299 and P300 receipts' aggregate figures by family (MAE, coverage, ECE, level) and the P300 forward receipt through 2026 Week 4.",
+    "The 2026 Week 5 public boards and their conservation audit (29 of 90 pools over-allocated before normalisation).",
+    "No candidate defined below has been computed on any season before this file was written."
+  ],
+  "data": {
+    "playerGames": "data/internal/research/nfl/replay/player-games-v1.json.gz (the P300 table, sha pinned)",
+    "games": "data/internal/research/nfl/replay/games-history-v2.json (for the pregame expected margin)",
+    "marginHead": "the published margin head nfl-margin-elo-hfa-v1, replayed walk-forward with app/src/lib/sports/nfl/win-margin-heads.mjs replayWinMarginHeads and the P297 receipt's dev fit; team-perspective expected margin = +mean for the home team, -mean for the away team"
+  },
+  "engine": "scripts/research/nfl/replay-opportunity-allocation.mjs — a fork of P300's replay-player-props-v2.mjs whose walk-forward, gating, rate estimators, distributions, dispersion-scale fit and metrics are byte-for-byte the same code; the incumbent levelShareTeamForm is recomputed in the same run.",
+  "population": "EXACTLY P300's scored rows: a (team-game, player, market) is scored iff the INCUMBENT's no-pull share clears P300's threshold (pass 0.30, rush 0.05, target 0.05), the player has a row in that game and the row is not UNKNOWN. The candidate never applies a gate of its own, so every model is scored on identical rows.",
+  "candidates": {
+    "incumbent": { "id": "levelShareTeamForm (P300)", "implementationCheck": "the recomputed incumbent must reproduce P300's second-look overall MAE per family within 1e-3 (receptions 1.5705, receiving yards 21.428, rushing yards 18.577, passing yards 66.97); otherwise the run refuses" },
+    "allocV1": {
+      "id": "nfl-opportunity-allocation-v1",
+      "declaredPrimary": true,
+      "shares": "Per team-game and family (pass attempts, carries, targets): the named pool is every player whose latest game was for this team and whose no-pull share (P300's estimator) is > 0. The ACTIVE set is the pool members with a row in this game (PLAYED or PLAYED_NO_ROW) — the historical proxy for the official game-day actives, which are public about 90 minutes before kickoff (assumption declared; the forward test uses the board's pregame availability instead). Vacated mass v = sum of inactive members' shares. Each active member's share is multiplied by (1 + rho_f * v / a), a = sum of active members' shares, and the remaining (1 - rho_f) * v stays in OTHER. If the active named shares then sum above 1 - otherFloor they are scaled down proportionally to 1 - otherFloor. OTHER = 1 - sum(named) >= otherFloor by construction.",
+      "volume": "Per team-game and family f: V_f = I_f + bT_f * (teamForm_f - I_f) + bO_f * (oppAllowed_f - I_f) + g_f * m, where teamForm is P300's team EWMA (half-life 8, season boundary decay 0.25), oppAllowed is the same EWMA of the volumes the opponent's defense allowed, I_f the P300 intercepts, and m the pregame team-perspective expected margin from the published margin head. bT, bO, g are fit by least squares on dev (2022-2025) team-games, one set per family (targets uses the pass-attempt intercept, as P300 does).",
+      "rates_and_distributions": "P300's estimators and distribution families unchanged (shrunk catch/ypr/ypc/comp/ypcmp rates; binomial thinning; negative binomial counts; zero-inflated Gamma yards; dispersion scale fit on dev to 80% coverage from P300's grid).",
+      "grid": { "rho": [0, 0.25, 0.5, 0.75, 1.0], "otherFloor": 0.02 },
+      "selection": "rho per family by dev MAE (p50) of that family's market: targets -> receptions, carries -> rushing yards, pass attempts -> passing yards; receiving yards uses the targets rho."
+    },
+    "ablations_reportedNotPromotable": {
+      "allocRedistributeOnly": "allocV1 shares with the incumbent's team-form volume",
+      "allocVolumeOnly": "the incumbent's shares with allocV1's volume"
+    }
+  },
+  "invariants": "Checked on every scored team-game for allocV1: every allocated share >= 0; sum of named allocated shares <= 1 - otherFloor + 1e-9 per family; the vacated mass reallocated never exceeds the vacated mass. A violation aborts the run.",
+  "frozenBars": {
+    "proceedToForward_perFamily": [
+      "allocV1 MAE (p50) below the incumbent's overall and in both eras (2014-17, 2018-21)",
+      "season-bootstrap (2,000 resamples, seed 20261009) 95% upper bound of the paired per-row absolute-error difference (allocV1 - incumbent) < 0",
+      "coverage80 within [0.72, 0.88] (P300's band)",
+      "threshold ECE <= 0.05 overall and <= 0.06 per era (P300's bars) AND not more than 0.01 above the incumbent's overall ECE",
+      "level (mean forecast / mean actual) within [0.92, 1.08] overall and per era"
+    ],
+    "outcome": "PROCEED_TO_FORWARD when every bar passes for a family; otherwise DO_NOT_PROCEED for that family. Neither outcome changes anything public."
+  },
+  "forwardTest": "Blind 2026 forward from Week 6, captured strictly before each kickoff with the board's pregame availability as the active set, graded under P300's forward protocol bars (n >= 300, coverage [0.72, 0.88], ECE <= 0.05, level [0.92, 1.08], MAE below both baselines). Only a forward pass can make a family eligible for a founder-approved promotion PR. The capture tool is a separate step and is not part of this look.",
+  "whatIsNotAllowed": [
+    "Running --score more than once (the scorer refuses if the output exists).",
+    "Changing grids, bars, the population rule or the primary candidate after this file is committed.",
+    "Using any same-game statistic other than the active-set membership declared above, or any market price."
+  ],
+  "frozen": {
+    "seasons": { "warmup": [2013, 2013], "development": [2014, 2021], "dev": [2022, 2025] },
+    "eras": [[2014, 2017], [2018, 2021]],
+    "rhoGrid": [0, 0.25, 0.5, 0.75, 1.0],
+    "otherFloor": 0.02,
+    "bootstrap": { "unit": "season", "resamples": 2000, "seed": 20261009 },
+    "bars": { "coverageBand": [0.72, 0.88], "eceMax": 0.05, "eceEraMax": 0.06, "eceSlackVsIncumbent": 0.01, "levelBand": [0.92, 1.08] },
+    "inputs": {
+      "playerGamesSha256": "81279aecfcc2fa4a26f93ebac764e075075ecf30a8375c92fe367fc3634d2f63",
+      "p300EngineSha256": "e2b661aa610e62fbc048ed6bc2d9658b0d8d0d2cfb3a1b8d7d353f5c5a393186",
+      "p300Preregistration": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json"
+    }
+  },
+  "output": "data/internal/research/nfl/reports/nfl-003-opportunity-allocation-development.json"
+}
