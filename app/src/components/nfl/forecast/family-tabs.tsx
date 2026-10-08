@@ -30,23 +30,28 @@ export interface TabRow { player: RowPlayer; entry: RowEntry; rank?: number }
 const LIVE_MARKET: Record<string, string> = { passingYards: "player_pass_yds", rushingYards: "player_rush_yds", receivingYards: "player_reception_yds", receptions: "player_receptions", anytimeTd: "anytime_td" };
 const fmtAsOf = (iso: string | null) => (iso ? `${iso.slice(0, 16).replace("T", " ")} UTC` : null);
 
-export default function FamilyTabs({ families, lists, linkToGame, label, emptyText, filters, live }: {
+export default function FamilyTabs({ families, lists, linkToGame, label, emptyText, filters, live, staticPanels = "all" }: {
   families: TabFamily[]; lists: Record<string, TabRow[]>; linkToGame?: boolean; label: string; emptyText: string;
   filters?: { teamRefs?: Record<string, FollowRef> };
   live?: { eventId: string; kickoffUtc: string };
+  /** "all": every panel is in the static page (game page — every captured price is on the page); "active": only the
+   *  selected panel (hub — inside its page-weight budget; each row is also on its game page, prices included). */
+  staticPanels?: "all" | "active";
 }) {
   const [active, setActive] = useState(families[0]?.key);
   const [team, setTeam] = useState("All");
   const [q, setQ] = useState("");
   const fam = families.find((f) => f.key === active) ?? families[0];
+  const rowsOf = (key: string) => {
+    const a = lists[key] ?? [];
+    return filters ? a.filter((r) => (team === "All" || r.player.team === team) && (query === "" || r.player.name.toLowerCase().includes(query))) : a;
+  };
 
   const feed = useLiveEvent("nfl", live?.eventId ?? null, { players: true, etDate: live ? etDateOf(live.kickoffUtc) : undefined });
   const liveIndex = useMemo(() => indexLiveProps({ rows: liveRowsFromEnvelope(feed.envelope) }), [feed.envelope]);
 
   const teams = useMemo(() => [...new Set(Object.values(lists).flat().map((r) => r.player.team))].sort(), [lists]);
   const query = q.trim().toLowerCase();
-  const all = lists[fam.key] ?? [];
-  const rows = filters ? all.filter((r) => (team === "All" || r.player.team === team) && (query === "" || r.player.name.toLowerCase().includes(query))) : all;
   const narrowed = !!filters && (team !== "All" || query !== "");
 
   return (
@@ -74,26 +79,34 @@ export default function FamilyTabs({ families, lists, linkToGame, label, emptyTe
           </button>
         ))}
       </div>
-      <div role="tabpanel" id={`panel-${label}-${fam.key}`} aria-labelledby={`tab-${label}-${fam.key}`}>
-        {fam.withheld ? (
-          <p className="nf-withheld" data-withheld={fam.key}><strong style={{ color: "var(--vault-text)" }}>Not published yet.</strong> {fam.withheld}</p>
-        ) : rows.length ? (
-          <>
-            <ol className="nf-rows">
-              {rows.map((r) => {
-                const lr = live ? liveIndex.get(`${r.player.playerId}|${LIVE_MARKET[fam.key]}`)?.live : null;
-                const factual = lr && lr.phase !== "PRE" && lr.statValue != null ? { phase: lr.phase, value: lr.statValue } : null;
-                return <PlayerRow key={`${r.player.playerId}-${fam.key}`} player={r.player} entry={r.entry} family={fam} rank={r.rank} linkToGame={linkToGame} live={factual} />;
-              })}
-            </ol>
-            <p className="nf-faint" style={{ margin: "8px 0 0" }}>
-              {narrowed ? `${rows.length} of ${all.length} shown · ` : ""}{fam.metric}{fam.sourceLabel ? ` · ${fam.sourceLabel}` : ""}{fam.asOf ? ` · as of ${fmtAsOf(fam.asOf)}` : ""}
-            </p>
-          </>
-        ) : (
-          <p className="nf-withheld">{narrowed ? "No published row matches this filter." : emptyText}</p>
-        )}
-      </div>
+      {/* Every family's panel is in the static page; only the selected one is shown. A row (and the market beside it)
+          never exists only after a click — the export carries all of them, as the one-market-truth guard requires. */}
+      {families.filter((f) => staticPanels === "all" || f.key === fam.key).map((f) => {
+        const rows = rowsOf(f.key);
+        const total = (lists[f.key] ?? []).length;
+        return (
+          <div key={f.key} role="tabpanel" id={`panel-${label}-${f.key}`} aria-labelledby={`tab-${label}-${f.key}`} hidden={f.key !== fam.key}>
+            {f.withheld ? (
+              <p className="nf-withheld" data-withheld={f.key}><strong style={{ color: "var(--vault-text)" }}>Not published yet.</strong> {f.withheld}</p>
+            ) : rows.length ? (
+              <>
+                <ol className="nf-rows">
+                  {rows.map((r) => {
+                    const lr = live ? liveIndex.get(`${r.player.playerId}|${LIVE_MARKET[f.key]}`)?.live : null;
+                    const factual = lr && lr.phase !== "PRE" && lr.statValue != null ? { phase: lr.phase, value: lr.statValue } : null;
+                    return <PlayerRow key={`${r.player.playerId}-${f.key}`} player={r.player} entry={r.entry} family={f} rank={r.rank} linkToGame={linkToGame} live={factual} />;
+                  })}
+                </ol>
+                <p className="nf-faint" style={{ margin: "8px 0 0" }}>
+                  {narrowed ? `${rows.length} of ${total} shown · ` : ""}{f.metric}{f.sourceLabel ? ` · ${f.sourceLabel}` : ""}{f.asOf ? ` · as of ${fmtAsOf(f.asOf)}` : ""}
+                </p>
+              </>
+            ) : (
+              <p className="nf-withheld">{narrowed ? "No published row matches this filter." : emptyText}</p>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

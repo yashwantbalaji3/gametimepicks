@@ -684,7 +684,7 @@ export default function NflHubPage() {
             sub="The top projected players across every game still to kick off — the same numbers as each game page. Players listed as Questionable, Doubtful or Out are left out, and a list shows fewer than ten rather than fill."
           />
           <FamilyTabs
-            {...boardTabs(unifiedBoards.boards)} linkToGame label="hub-boards" emptyText="No player is cleared for this list in the games still to kick off."
+            {...boardTabs(unifiedBoards.boards)} linkToGame label="hub-boards" staticPanels="active" emptyText="No player is cleared for this list in the games still to kick off."
             filters={{ teamRefs: nflTeamRefsByAbbr((forecastArtifact?.forecasts ?? []).flatMap((x: { home?: { abbr?: string }; away?: { abbr?: string } }) => [x.home?.abbr, x.away?.abbr])) }}
           />
           {/* P251 follows were created on the previous board, so this is where they migrate forward. */}

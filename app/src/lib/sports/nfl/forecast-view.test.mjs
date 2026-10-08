@@ -141,3 +141,23 @@ test("RESULTS INTEGRITY · every surface that shows World Model V2 player number
   // and the historical grades are untouched: the results page still grades the player board's own published ranges
   assert.match(fs.readFileSync(path.join(APP, "src/app/results/nfl/page.tsx"), "utf8"), /each graded exactly as we published it before kickoff/);
 });
+
+test("ONE MARKET TRUTH · a captured sportsbook price reaches the row unchanged, whichever model supplies the projection", () => {
+  let priced = 0;
+  for (const v of views) {
+    const board = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/player-board", `${v.providerEventId}.json`), "utf8"));
+    for (const p of v.players) for (const [k, e] of Object.entries(p.families)) {
+      const m = board.players.find((x) => x.playerId === p.playerId)?.markets?.[e.marketKey]?.market ?? null;
+      assert.ok(e.marketKey, `${p.name} ${k} names its canonical market key`);
+      if (!m) { assert.equal(e.market, null, `${p.name} ${k}: no captured price, none invented`); continue; }
+      priced += 1;
+      assert.deepEqual({ book: e.market.sportsbook, line: e.market.line, over: e.market.overOdds, under: e.market.underOdds, yes: e.market.yesOdds },
+        { book: m.sportsbook, line: m.line ?? null, over: m.overOdds ?? null, under: m.underOdds ?? null, yes: m.yesOdds ?? null }, `${p.name} ${k}: same book, line and prices as the artifact`);
+    }
+  }
+  assert.ok(priced >= 0);
+  const row = fs.readFileSync(path.join(APP, "src/components/nfl/forecast/player-row.tsx"), "utf8");
+  assert.match(row, /className=\{`gtp-pred-row nf-row/, "a forecast row is a prediction row");
+  assert.match(row, /data-family=\{e\.marketKey \?\? f\.key\} data-view-family=\{f\.key\} data-event=\{p\.providerEventId\}/, "with its canonical identity");
+  assert.match(row, /bookmakerLabel\(e\.market\.sportsbook\)/, "and its book named");
+});

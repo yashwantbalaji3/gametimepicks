@@ -91,7 +91,7 @@ test("the player projections compose ONLY the shared forecast view — numbers w
   assert.match(view, /const atdPublished = board\?\.families\?\.anytime_td\?\.state === "PUBLISHED";/, "anytime TD renders only via its family state");
   assert.match(view, /key: "passingTd"[^\n]*source: null, withheld: "/, "passing TDs are a typed absence with a reason");
   assert.match(view, /key: "firstTd"[^\n]*source: null, withheld: "/, "first TD is a typed absence with a reason");
-  assert.match(read("src/components/nfl/forecast/family-tabs.tsx"), /fam\.withheld \? \(/, "and the absence renders as text, never a number");
+  assert.match(read("src/components/nfl/forecast/family-tabs.tsx"), /f\.withheld \? \(/, "and the absence renders as text, never a number");
 });
 
 test("the NFL hub carries ONE canonical week table — the events lead as cards, never as a second table", () => {
