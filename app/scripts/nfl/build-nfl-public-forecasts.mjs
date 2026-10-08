@@ -30,7 +30,7 @@ import {
   TOTALS_REPLAY_RECEIPT, TOTALS_REPLAY_PREREG, GAMES_HISTORY, EFFICIENCY_HISTORY, CURRENT_SEASON,
 } from "../../src/lib/sports/nfl/totals-play-efficiency.mjs";
 import {
-  winMarginGate, rowsFromTable, foldWinMarginHeads, winMarginCoverage, adoptedHeadsFor,
+  winMarginGate, rowsFromTable, foldWinMarginHeads, winMarginCoverage, adoptedHeadsFor, neutralSiteOf,
   NFL_WIN_HEAD_ID, NFL_MARGIN_HEAD_ID, WIN_MARGIN_RECEIPT, WIN_MARGIN_PREREG, GAMES_HISTORY_V2,
 } from "../../src/lib/sports/nfl/win-margin-heads.mjs";
 import { fnv1a } from "../../src/lib/sports/research/replay-runner.mjs";
@@ -92,8 +92,16 @@ const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -
  * A margin of exactly 0 still prints a level score, because that is precisely what the model says.
  */
 const SCORE_DISPLAY_CONVENTION = "scores-derived-from-total-and-margin-v1";
-function derivedProjectedScore(totalMedian, marginMedian) {
-  let home = Math.round((totalMedian + marginMedian) / 2);
+/*
+ * Week 5 (2026-10-08) · A ZERO MARGIN ON AN ODD TOTAL. round(21.5) always gave the odd point to the HOME
+ * side, so PHI vs JAX (neutral site, margin median 0, total 43, PHI marginally favoured) printed "JAX 22 — 21"
+ * beside a win chance that favours Philadelphia. When the caller supplies which side the published win
+ * chance favours, that side takes the odd point. Without it (preseason path, older callers) nothing changes.
+ */
+function derivedProjectedScore(totalMedian, marginMedian, homeFavoured = null) {
+  let home = marginMedian === 0 && totalMedian % 2 !== 0 && homeFavoured !== null
+    ? (homeFavoured ? Math.ceil(totalMedian / 2) : Math.floor(totalMedian / 2))
+    : Math.round((totalMedian + marginMedian) / 2);
   let away = totalMedian - home;
   if (marginMedian !== 0 && Math.sign(home - away) !== Math.sign(marginMedian)) {
     /* One point, moved across the pair so the total is preserved exactly. */
@@ -491,18 +499,20 @@ for (const ev of events) {
         headsFallbackReason = `this season's results are incomplete before ${foldBefore}: ${cov.missingGames.length} official final(s) not yet published by nflverse`;
       } else {
         headsFold = foldWinMarginHeads({ games: winMargin.games, gate: winMargin.gate, beforeDate: foldBefore, targetSeason });
-        const pick = adoptedHeadsFor({ fold: headsFold, home: ev.home.abbr, away: ev.away.abbr, neutral: winMargin.neutralEspnIds.has(String(ev.providerEventId)) });
+        const pick = adoptedHeadsFor({ fold: headsFold, home: ev.home.abbr, away: ev.away.abbr, neutral: neutralSiteOf(ev, winMargin.neutralEspnIds) === true });
         if (pick.state === "READY") heads = pick;
         else headsFallbackReason = pick.reason;
       }
     }
 
-    const sim = simulateNflGame({ fit: rsFit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS, heads });
+    /* Week 5: the venue fact reaches the fallback pair too — a neutral site carries no home term in either path. */
+    const neutralSite = neutralSiteOf(ev, winMargin.neutralEspnIds) === true;
+    const sim = simulateNflGame({ fit: rsFit, strengthState: wrapped, event: neutralSite ? { ...ev, neutral: true } : ev, artifactDate: DATE, runs: RUNS, heads });
     if (sim.state !== "SIMULATED") {
       refused.push({ providerEventId: ev.providerEventId, state: "SIM_ABSTAINED", reason: sim.reason ?? "the simulation abstained" });
       continue;
     }
-    const dExact = wrapped.ratingFor(ev.home.abbr) + ELO_PARAMS.HOME_ADVANTAGE - wrapped.ratingFor(ev.away.abbr);
+    const dExact = wrapped.ratingFor(ev.home.abbr) + (neutralSite ? 0 : ELO_PARAMS.HOME_ADVANTAGE) - wrapped.ratingFor(ev.away.abbr);
     const inputHash = crypto.createHash("md5").update(JSON.stringify({
       modelId: rsCard.modelId, version: rsCard.version, eventId: ev.providerEventId, kickoff: ev.dateUtc,
       d: Number(dExact.toFixed(6)),
@@ -598,7 +608,7 @@ for (const ev of events) {
         regressedToSeason: strength.regressedToSeason,
       },
       forecastSummary: {
-        projectedScore: derivedProjectedScore(sim.totalQuantiles.p50, sim.marginQuantiles.p50),
+        projectedScore: derivedProjectedScore(sim.totalQuantiles.p50, sim.marginQuantiles.p50, sim.winProbability.home >= sim.winProbability.away),
         winProbability: {
           home: sim.winProbability.home,
           away: sim.winProbability.away,

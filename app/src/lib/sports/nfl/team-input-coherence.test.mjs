@@ -102,3 +102,31 @@ test("the floor sits below every Week 5 starter's measured share (lowest: Darnol
   assert.ok(PASSER_STARTER_SHARE_FLOOR < 0.806);
   assert.ok(PASSER_STARTER_SHARE_FLOOR > 0.58 && PASSER_STARTER_SHARE_FLOOR > 0.522);
 });
+
+/* ── Week 5 venue identity: PHI vs JAX (Tottenham Hotspur Stadium) was published with Jacksonville home field. ── */
+import { neutralSiteOf } from "./win-margin-heads.mjs";
+import { simulateNflGame } from "./game-sim.mjs";
+
+test("neutral site: ESPN's 'VS' form OR the nflverse list makes a game neutral; neither known ⇒ null, never a guess", () => {
+  const nflverse = new Set(["401872965"]);
+  assert.equal(neutralSiteOf({ providerEventId: "401872981", shortName: "PHI VS JAX" }, nflverse), true, "London, missing from the nflverse list");
+  assert.equal(neutralSiteOf({ providerEventId: "401872965", shortName: "IND @ WSH" }, nflverse), true, "listed by nflverse");
+  assert.equal(neutralSiteOf({ providerEventId: "401872980", shortName: "TB @ DAL" }, nflverse), false);
+  assert.equal(neutralSiteOf({ providerEventId: "401872980", shortName: "TB @ DAL" }, null), null, "no venue list: unknown");
+  assert.equal(neutralSiteOf({ providerEventId: "1", shortName: "JAX VS PHI" }, null), true);
+  assert.equal(neutralSiteOf({ providerEventId: "1", shortName: "NAVSEA @ X" }, new Set()), false, "a team name containing 'VS' is not the VS form");
+});
+
+test("game-sim: event.neutral === true zeroes the home term; absent, the simulation is byte-identical", () => {
+  const fit = { params: { marginSlope: 0.069322, sigmaMargin: 13.7007, muTotal: 45, sigmaTotal: 13.5 } };
+  const ratings = { PHI: 1560, JAX: 1540 };
+  const strengthState = { ratingFor: (t) => ratings[t], cutoffIso: "2026-10-08T00:00:00Z" };
+  const ev = { providerEventId: "401872981", home: "JAX", away: "PHI", seasonType: 2 };
+  const a = simulateNflGame({ fit, strengthState, event: ev, artifactDate: "2026-10-08", runs: 2000 });
+  const b = simulateNflGame({ fit, strengthState, event: { ...ev, neutral: false }, artifactDate: "2026-10-08", runs: 2000 });
+  assert.deepEqual(a, b, "neutral:false and absent are the same game");
+  const n = simulateNflGame({ fit, strengthState, event: { ...ev, neutral: true }, artifactDate: "2026-10-08", runs: 2000 });
+  assert.equal(a.features.eloDiffEffective, 1540 + 48 - 1560);
+  assert.equal(n.features.eloDiffEffective, 1540 - 1560, "no home field at a neutral site");
+  assert.ok(n.winProbability.home < 0.5 && a.winProbability.home > 0.5, "the better team is favoured once JAX loses a home field it does not have");
+});

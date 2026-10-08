@@ -86,7 +86,11 @@ export function simulateNflGame({ fit, strengthState, event, artifactDate, runs 
   const preseason = seasonType === 1;
   const variant = preseason ? "PRESEASON_CONSERVATIVE" : "REGULAR";
 
-  const d = strengthState.ratingFor(home) + ELO_PARAMS.HOME_ADVANTAGE - strengthState.ratingFor(away);
+  /* Week 5 (2026-10-08): a caller that KNOWS the venue is neutral passes event.neutral === true and the home
+     term is 0, exactly as the adopted heads (win-margin-heads.mjs) already treat a neutral site. Absent or
+     false — every existing caller — the arithmetic is byte-identical. */
+  const homeTerm = event?.neutral === true ? 0 : ELO_PARAMS.HOME_ADVANTAGE;
+  const d = strengthState.ratingFor(home) + homeTerm - strengthState.ratingFor(away);
   const shrink = preseason ? PRESEASON_VARIANT.marginShrink : 1;
   const widen = preseason ? PRESEASON_VARIANT.sigmaWiden : 1;
   /* P298: the adopted heads replace the incumbent's margin mean, sigma and win probability — regular season
