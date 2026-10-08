@@ -19,7 +19,7 @@ Branch `claude/nfl-world-model-v2-priority-79e413`. Roadmap: §2 queue, §8 NFL,
 
 **Analytic-winner vs sampled-score disagreement — reproduced.** The published win % is the win head × (1 − tie mass); the scores come from the *margin* head's draws. Week 5 (audit repro of `forecasts/latest.json`): PHI@JAX published P(JAX) 0.6586 vs 0.5242 of draws; DEN@LAC 0.331 vs 0.414; MIN@NO 0.264 vs 0.330. On held-out 2006–21 the *margin-implied* win probability scores 0.63759 log loss vs the win head's 0.62907 — so "count the draws" is not a fix; one coherent distribution that is at least as good is (NFL-002 L6, below).
 
-**Historical V2 evaluation — reproduced** (see §5 for the rerun numbers). Sim V2 is coherent and has better 80% margin coverage, but is worse on winner scoring and tied on CRPS. It stays shadow.
+**Historical V2 evaluation — reproduced.** `validate-drive-sim-v2.mjs --protocol A --runs 2000` was rerun from scratch and is identical to the committed `validation-A.json` apart from timestamps (winner LL V2 0.6468 vs V1 0.6358; margin CRPS 7.678 vs 7.667; total CRPS 7.706 vs 7.709; margin 80% coverage 0.826 vs 0.778). Sim V2 is coherent and has better 80% margin coverage, but is worse on winner scoring and tied on CRPS. It stays shadow.
 
 ## 2. NFL-002 — benchmark ladder (preregistered, one look)
 

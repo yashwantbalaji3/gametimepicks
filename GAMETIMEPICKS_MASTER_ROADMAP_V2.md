@@ -82,8 +82,8 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | Rank | Task ID | Department | Task | Status | Dependency | Production-bound? |
 |---:|---|---|---|---|---|---|
 | 0 | `CI-001` | Release Engineering / CI | Main-wide `quality` failure: adapters.test.mjs MLB 8 rolling-window `ready` precondition + vacuous per-player check | DONE 2026-10-08 — #1021 merged `d03691c4`; exact-head CI green; Production READY, build-info = merge SHA | None — P0 blocker for #1020 and all PRs | Test/fixture only (1 Production build on merge) |
-| 1 | `NFL-001` | NFL Modeling | World Model V2 research, team/player world architecture — champion/control audit (preserve V1 control, reproduce analytic-winner vs sampled-score disagreement and the historical V2 evaluation) | IN_PROGRESS — 2026-10-08 (NFL World Model V2 session) | None (TEMPORAL-001 can progress in parallel) | Shadow (audit); Week 5 truth fixes may ship |
-| 2 | `NFL-002` | NFL Modeling | Benchmark ladder: MOV/Elo champion → opponent-adjusted EPA → dynamic hierarchical → drive process → distributional ML → calibrated ensemble | NOT_STARTED | NFL-001 | Shadow → family-by-family promotion |
+| 1 | `NFL-001` | NFL Modeling | World Model V2 research, team/player world architecture — champion/control audit (preserve V1 control, reproduce analytic-winner vs sampled-score disagreement and the historical V2 evaluation) | DONE 2026-10-08 (research audit; evidence `docs/NFL_WORLD_MODEL_V2_2026-10-08.md`) | None (TEMPORAL-001 can progress in parallel) | Shadow (audit); Week 5 truth fixes may ship |
+| 2 | `NFL-002` | NFL Modeling | Benchmark ladder: MOV/Elo champion → opponent-adjusted EPA → dynamic hierarchical → drive process → distributional ML → calibrated ensemble | IN_PROGRESS — L6 win REJECTED / margin ELIGIBLE / totals REJECTED; incumbent retained; Week 5 forward shadow captured | NFL-001 | Shadow → family-by-family promotion |
 | 3 | `NFL-003` | NFL Modeling | Player opportunity allocation (plays → pass/rush → attempts/carries → targets → catches → yards → TDs, with `OTHER`) | NOT_STARTED | NFL-002 team volume | Shadow → family-by-family promotion |
 | 4 | `NFL-004` | NFL Modeling | TD model: hierarchical Bernoulli → team scoring opportunities → red-zone role → drive attribution | NOT_STARTED | NFL-003 | Shadow → family-by-family promotion |
 | 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | NOT_STARTED | NFL-002, NFL-003, NFL-004 | Yes, family by family |
@@ -495,17 +495,22 @@ One coherent football world should connect game script, score, team opportunity,
 
 ## `NFL-001` — Champion/control audit
 **Priority:** P1 → **P0 (founder priority override 2026-10-08)**  
-**Status:** IN_PROGRESS  
+**Status:** DONE (research audit, 2026-10-08) — every acceptance item below evidenced; no promotion  
 **Owner/session:** Claude Code session 2026-10-08 (NFL World Model V2)  
 **Branch:** `claude/nfl-world-model-v2-priority-79e413` (worktree, from `origin/main` `629cfbf494bb2ca2809af5e379abaa56901e49f9`)  
-**PR:** —  
-**Exact head:** —  
-**Evidence:** — (audit in progress)  
-**Production acceptance:** —
+**PR:** see Week 5 milestone  
+**Evidence:** `docs/NFL_WORLD_MODEL_V2_2026-10-08.md` §1  
+**Production acceptance:** n/a (audit); the Week 5 truth fixes it found ship under the milestone PR
 - Preserve canonical V1 as control.
 - Reproduce analytic winner vs sampled-score disagreement.
 - Reproduce historical V2 evaluation.
 - Do not promote V2 for architectural elegance alone.
+
+### Completion record (2026-10-08)
+- Control preserved: the published pair (MOV-Elo win, HFA-Elo margin, v3 totals, cutoff-Elo fallback) is unchanged; NFL-002's challenger did not clear the win bar.
+- Disagreement reproduced on Week 5: published P(home) vs share of its own 10,000 draws — PHI@JAX 0.659 vs 0.524, DEN@LAC 0.331 vs 0.414, MIN@NO 0.264 vs 0.330. Cause: two ratings (win vs margin head) + logistic vs normal. Held-out, the margin-implied win probability is worse (0.63759 vs 0.62907), so counting draws is not a fix.
+- Historical V2 evaluation reproduced: `validate-drive-sim-v2.mjs --protocol A --runs 2000` rerun is identical to the committed `sim-v2/validation-A.json` (timestamps aside): winner LL V2 0.6468 vs V1 0.6358 (market 0.6101), margin CRPS 7.678 vs 7.667, total CRPS 7.706 vs 7.709, margin 80% coverage 0.826 vs 0.778. V2 is anchored to the champion's means (not independent) and stays shadow.
+- Also found and fixed under the Week 5 milestone: team heads blind to QB1 absence (false TB lean), London PHI vs JAX given home field, relief-share passer projections, simulation-count copy.
 
 ## `NFL-002` — Benchmark ladder
 **Status:** NOT_STARTED
@@ -1271,7 +1276,7 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Reproduced current state (NFL-001): champion = MOV-Elo win head + HFA-Elo margin head + v3 totals; published win % is analytic and disagrees with its own 10,000 draws (PHI@JAX 0.659 vs 0.524); Sim V2 does not beat the incumbent (winner LL worse, CRPS tied) and is anchored to the champion; team heads are blind to availability (TB@DAL: Mayfield Out → a 16.6pp "lean" toward TB); London PHI vs JAX given JAX home field; Daniels 116 pass yds from a relief share; "won in 10,000 simulations" copy on an analytic number.
 - Decisions: NFL-002 ladder preregistered and scored once (L6 win REJECTED, margin ELIGIBLE, totals REJECTED → incumbent retained, nothing promoted); Week 5 ships truth fixes only (disclose/withhold, venue identity, passer floor, copy) — no model change; spread/total probabilities per game not published while win and margin come from different ratings.
 - Files/contracts: `app/src/lib/sports/nfl/{team-ladder-v2,team-input-coherence}.mjs` (+tests); `board-roster-integrity.mjs` (applyPasserShareFloor, coverage); `output-state.mjs` (withheld comparison ⇒ no lean); `win-margin-heads.mjs` (neutralSiteOf); `game-sim.mjs` (opt-in neutral); `build-nfl-public-forecasts.mjs`, `build-nfl-player-board.mjs`, `ops/forecast-input-state.mjs`; NFL game/hub/week pages, `player-board.tsx`, `simulate/presentation/nfl.ts`; research `scripts/research/nfl/{replay-team-ladder,capture-team-ladder-forward}.mjs`; receipts under `data/internal/research/nfl/reports/nfl-002-*` and `team-ladder-forward/`. No forecast contract redesign (CONTRACT-001 untouched): new fields are additive (`teamInputs`, `withheldPassers`, `integrity.passerShareFloor`, `marketComparison.state = WITHHELD_TEAM_INPUTS`).
-- Local tests/build/UX: unit suite 9,068/9,072 (2 failures = `rls-live` needs a local Postgres binary; environment); typecheck clean; new tests 22 + 8/8 mutation probes caught; scratch e2e at one clock vs `origin/main` producers: 1/15 forecast summaries changed (PHI vs JAX), 3 player rows changed, board audit 0, roster audit 0. Local production build + post-build suite: see PR.
+- Local tests/build/UX: unit suite 9,068/9,072 (2 failures = `rls-live` needs a local Postgres binary; environment); typecheck clean; new tests 22 + 8/8 mutation probes caught; scratch e2e at one clock vs `origin/main` producers: 1/15 forecast summaries changed (PHI vs JAX), 3 player rows changed, board audit 0, roster audit 0. Local production build `npm run build` PASS (2,766 pages, next-build 117–139 s, 16 GB machine); post-build suite 673/676, 0 failures (3 skips), on both the committed data and an overlay of the regenerated Week 5 artifacts. Static-export visual QA (mobile 784 px and desktop): TB@DAL disclosure + withheld comparison + withheld Daniels passing line; PHI vs JAX "PHI 22 — 21 JAX", PHI 48.8% / JAX 48.4%; `/nfl` no lean; 0 console errors; no horizontal overflow. Sim V2 protocol A rerun identical to its receipt.
 - Result: READY_FOR_REVIEW (Week 5 truth package); NFL-002 IN_PROGRESS; NFL-003/004/005 NOT_STARTED with findings recorded.
 - PR / exact head: (filled at push)
 - Vercel Preview / Production build counts: 0 / 0 so far (branch `claude/*` is not deployed by `git.deploymentEnabled`). Expected on merge: 1 Production build.
