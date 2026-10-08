@@ -70,8 +70,8 @@ jobs:
         if: github.event.inputs.authorized == 'true'
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/internal/research/odds/
           if git diff --cached --quiet; then echo "no snapshot written"; exit 0; fi
           git commit -m "auto: odds canary ${{ github.event.inputs.sport }} [skip ci]"

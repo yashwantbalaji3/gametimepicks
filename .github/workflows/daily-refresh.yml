@@ -137,8 +137,8 @@ jobs:
             exit 0
           fi
 
-          git config user.name "GametimePicks Bot"
-          git config user.email "noreply@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           # [skip ci] is defensive — schedule-triggered runs ignore commit
           # messages, but this prevents recursion if push triggers are added later.

@@ -48,8 +48,8 @@ jobs:
       - name: Commit the research tables
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # ALLOWLIST EVERY FILE THIS JOB PRODUCES. The public view was added beside the private
           # captures; leaving it out of both the add and GENERATED_PATHS would have written it in CI
           # every run and committed it never — a page reading a file the pipeline keeps forgetting.

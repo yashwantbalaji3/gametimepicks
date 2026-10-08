@@ -144,8 +144,8 @@ jobs:
         if: steps.board.outputs.have == 'true'
         run: |
           set -euo pipefail
-          git config user.name  "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Path-scoped: this job produces exactly two artifacts and must not carry anything else.
           # app/public/data/ops carries the publication-SLO verdict written by the step above. Without
           # it in scope the check would run eight times a day and its answer would never reach the site.

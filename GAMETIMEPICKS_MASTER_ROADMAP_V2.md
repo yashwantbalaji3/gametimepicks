@@ -80,7 +80,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | Rank | Task ID | Department | Task | Status | Dependency | Production-bound? |
 |---:|---|---|---|---|---|---|
 | 1 | `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — Phase 1 verified 2026-10-08; awaiting founder spend-alert confirmation | None — do first | Process/config, no app release expected |
-| 2 | `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | NOT_STARTED — HIGH, promptly after COST-001 Phase 1 | None | Workflow/identity config; Production freshness |
+| 2 | `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | IN_PROGRESS — root cause proven (private-repo team-access check × `bot` identity); fix locally verified; PR awaiting founder merge approval, then 7-day observation | None | Workflow/identity config; Production freshness |
 | 3 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED — unblocked (deploy gate verified 2026-10-08) | COST-001 deployment gate verified ✓ | Yes |
 | 4 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | NOT_STARTED | Founder rules below | Foundation |
 | 5 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | NOT_STARTED | CONTRACT-001 | Yes |
@@ -778,7 +778,35 @@ Only after live straights and dependence/joint-world validation.
 
 ## `OPS-002` — Bot commit identity and blocked Production deployments
 **Priority:** HIGH — address promptly after COST-001 Phase 1 (founder, 2026-10-07)  
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — implementation locally verified; awaiting founder approval to merge; then ≥ 7-day observation  
+**Owner/session:** Claude Code session 2026-10-08 (OPS-002)  
+**Branch:** `claude/ops-002-bot-commit-identity` (from `origin/main` `a20ec45c79`)  
+**PR / exact head / merge:** recorded in the Session Log and the post-merge batched roadmap update  
+**Evidence:** `docs/OPS_002_BOT_COMMIT_IDENTITY.md`; `scripts/ops-002-identity-report.mjs`; guard `app/src/lib/ops/bot-commit-identity.test.mjs`  
+**Production acceptance:** PENDING (merge → first `github-actions[bot]` data commit = cutover → 7 clean days)
+
+### Progress (2026-10-08)
+- Status: IN_PROGRESS
+- Base main SHA: `a20ec45c790b731c1db1fda0adac6f6f47a71bcf`
+- **Root cause (proven, not intermittent):** Vercel checks that the GitHub account resolved from the commit **author email** is a team member **only when the repo is private**. `bot@users.noreply.github.com` is the legacy login-based noreply form and resolves to the stranger `bot` (58210622). Vercel's `meta.githubRepoVisibility` shows the repo **private 2026-10-07 17:09Z → 10-08 00:08Z** — the only private period in 4,254 deployments since 08-20. `gtp-bot` Production deployments: **private 21/21 BLOCKED; public 0/1,616 blocked.** In the same private window `github-actions[bot]` (type Bot) built READY (`dpl_8gZDEGumuxFxtZx5kRh7bUC6niTG`). The COST-001 "intermittent" reading was the visibility change.
+- Same latent defect: `GametimePicks Bot <noreply@github.com>` → GitHub `web-flow` (8 workflows); `noreply@anthropic.com` → Anthropic's `claude` account (2); `gtp-lifecycle@…` → unregistered, claimable login (1).
+- **Fix:** every workflow identity (34 files, 45 name/email pairs) → `github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>` = the `GITHUB_TOKEN` pusher; id-bound noreply (cannot be captured by a login). No permissions/steps/triggers/path scopes changed (js-yaml structural diff: 34/34 identical apart from the strings). No new secret, seat, account or service; Vercel team-access protection untouched; no historical data touched.
+- Rejected: adding `bot` to the team (stranger, paid seat); relying on public visibility; machine user + seat; new GitHub App (secret + token step × 35 workflows for the same `bot` type); keeping custom names with the bot email.
+- Local tests: new guard 7/7; it **fails on origin/main** (3) and catches all 5 mutation probes; identity-step simulation gives author = committer = `github-actions[bot]`; report script reproduces the 21 blocks (exit 2); CI unit phase: see Session Log.
+- Vercel Preview builds triggered: 0 (branch gated). Production builds expected on merge: 1 (test under `app/src/` is a build input; ≈ $0.15–0.17; bot data commits build every few minutes anyway).
+- Blockers: founder approval to merge.
+- Follow-ups (docs/OPS_002 §7): **F1** local `.git/config` identity `gtp-ops[bot] <gtp-ops@users.noreply.github.com>` resolves to user `gtp-ops` (140865288) — ownership unconfirmed; affects Claude-session commits (not Production today: merges are founder-authored). **F2** explain the 10-07 visibility change (also affects the "Actions are free" assumption). **F3** NWS User-Agent contact uses the dead `bot@` address (OPS-001, cosmetic).
+
+### Remaining acceptance (OPS-002)
+| # | Item | Status |
+|---|---|---|
+| 1 | Exact-head CI green on the PR | after push |
+| 2 | Founder approves merge; merge exact head (`--match-head-commit`); 1 Production build | WAITING ON FOUNDER |
+| 3 | Cutover = first post-merge data commit authored `github-actions[bot]`; Vercel attributes it `github-actions[bot]/bot`, READY; build-info advances | after merge |
+| 4 | ≥ 7 days after cutover: `node scripts/ops-002-identity-report.mjs --cli-auth --since <merge> --cutover <cutover>` exits 0 (no `TEAM_ACCESS_REQUIRED`; all `auto…` deployments as `github-actions[bot]`); Production build-info keeps pace with `main` | after merge (read-only, $0) |
+| 5 | Record evidence → `DONE` | — |
+
+Limit: while the repo is public Vercel runs no team-access check, so the 7 days prove **attribution**; behaviour under private visibility rests on the one READY `github-actions[bot]` deployment during the private window plus Vercel's `type: bot`. Do not make the repo private to test it.
 
 ### Evidence (COST-001 audit, Vercel API, read-only)
 - 2026-10-07 17:40Z → 23:58Z: **21 Production deployments BLOCKED**, `readyStateReason`: "the commit author doesn't have permission to create deployments for this project"; `seatBlock.blockCode: TEAM_ACCESS_REQUIRED`, `gitUserId: 58210622`.
@@ -993,6 +1021,23 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Roadmap tasks updated: COST-001, OPS-002 (new), COST-002 (new), TRUTH-001 unblocked.
 - Remaining blockers / recommended next task: founder sets Spend Management (docs §10) → COST-001 DONE. Then OPS-002 (bot identity, HIGH) and TRUTH-001 can proceed; TRUTH-001 is not blocked by cost controls. Follow-up: update or retire the stale smoke "home money" check.
 
+## 2026-10-08 — Claude Code (OPS-002 session) — `OPS-002`
+- Starting main SHA: `a20ec45c790b731c1db1fda0adac6f6f47a71bcf` (repo, origin, clean tree verified; local `main` was 4 behind and was not used)
+- Branch: `claude/ops-002-bot-commit-identity` from `origin/main`; implementation commit `cb9561d9c4`
+- Goal: find the real cause of the 21 `TEAM_ACCESS_REQUIRED` Production blocks and fix bot commit identity durably.
+- Reproduced current issue/state: Vercel `GET /v6/deployments` (4,254 records, 08-20 → 10-08) plus the GitHub commits/users API. All 21 BLOCKED = `gtp-bot` → GitHub user `bot` **while `githubRepoVisibility` = private** (10-07 17:09Z → 10-08 00:08Z). 0 of 1,616 public-period `gtp-bot` deployments were blocked. Production at the start was healthy and current (build-info = `a20ec45c` = main head).
+- Decisions made: one identity for all workflow commits, `github-actions[bot]` with the id-bound noreply (the same account as the `GITHUB_TOKEN` pusher). Also retired `web-flow`, `claude` and the unregistered `gtp-lifecycle@` attributions. No App, secret, seat or Vercel/GitHub setting change. Corrects COST-001's "intermittent" reading.
+- Files/contracts changed: 34 `.github/workflows/*.yml` (identity strings only); `app/src/lib/ops/bot-commit-identity.test.mjs` (new); `scripts/ops-002-identity-report.mjs` (new, read-only); `docs/OPS_002_BOT_COMMIT_IDENTITY.md` (new); `docs/AUTOMATION.md`, `docs/deploy.md` (identity mentions); this roadmap.
+- Local tests/build/UX checks run: guard 7/7 (fails 3 on origin/main; 5/5 mutation probes caught); js-yaml parse + structural diff of 34 workflows vs main (identical apart from identity, permissions unchanged); identity-step simulation (author = committer = bot); report script on the incident window (21 blocks, exit 2). CI unit phase (`run-suite.mjs --phase unit`) in the dev checkout: 9,039 / 9,043 pass. The 3 failures do not come from this change: the 2 `rls-live` tests fail identically on `origin/main` (they need a live DB), and `ask-official-cards` "LIVE why-words" reads a stale, git-ignored local `data/ask-projection/v1/parlays.json` (absent in clean checkouts; passes on clean main). Clean worktree of `cb9561d9c4`: **9,039 pass, 2 fail (both `rls-live`, identical on origin/main), 2 skipped**. No app build needed: no rendered code changed.
+- Result: fix ready; awaiting founder approval to merge.
+- PR / exact head: opened from this branch after the single push (number/head recorded in the post-merge batched update)
+- Vercel Preview / Production build counts: 0 / 0 so far. Merge expected = 1 Production build (≈ $0.15–0.17).
+- Remote-only exception: none.
+- Build CPU/cost evidence: n/a until merge; the identity report and `vercel-cost-report.mjs` are both read-only.
+- Production acceptance: PENDING. Cutover + 7-day observation per OPS-002 "Remaining acceptance".
+- Roadmap tasks updated: OPS-002 (status, progress, remaining acceptance), priority table, change log.
+- Remaining blockers / recommended next task: founder merge approval for OPS-002. Founder follow-ups F1 (local `gtp-ops` identity ownership) and F2 (why the repo went private on 10-07). Next roadmap task: **TRUTH-001** (P0, unblocked). The OPS-002 observation does not block it.
+
 ---
 
 # 26. Immediate execution waves
@@ -1034,6 +1079,7 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 ## Roadmap policy change log
 
 - **2026-10-07 — Founder infrastructure-cost directive:** Added `COST-001` as the first priority after reviewing the previous Vercel billing cycle. Localhost-first implementation, local build/test/UX acceptance, batched changes, controlled automatic deployment triggers, founder review where requested, limited remote builds, budget/Build CPU measurement, and explicit remote-build exceptions are now mandatory. **This is a roadmap policy update only; `COST-001` implementation and Vercel configuration audit have not yet been performed.**
+- **2026-10-08 — OPS-002 root cause:** the 21 blocked bot deploys were Vercel's private-repo team-access check applied to `gtp-bot`'s stranger identity (`bot`) while the repo was briefly private. They were not intermittent. All workflow commits now author as `github-actions[bot]`, guarded by `bot-commit-identity.test.mjs`. Seven-day attribution observation follows the merge.
 - **2026-10-08 — COST-001 Phase 1 executed:** previews gated (proven), build queue one-per-branch, PR #1017 merged with one Production build; Phase 2 local test shows Standard unsafe → `COST-002`; `OPS-002` opened for blocked bot deploys.
 - **2026-10-07 — COST-001 audit:** roadmap adopted into the repository. Measured Build CPU as 99.9% of the bill, driven by the 09-24 Enhanced machine (no free slot) × ~130 builds/day, 37% of them unconsumed previews. Previews made opt-in (`preview/**`) in `app/vercel.json` pending approval; full evidence in `docs/COST_001_VERCEL_COST_CONTROL.md`.
 

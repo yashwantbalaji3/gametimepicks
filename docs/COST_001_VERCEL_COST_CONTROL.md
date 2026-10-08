@@ -124,7 +124,7 @@ rounded up: **16 CPU-minutes ($0.056) per skip** on Enhanced (deployment
 commits as `bot@users.noreply.github.com`, which GitHub resolves to an unrelated real GitHub user `bot`
 (id 58210622); Vercel's Pro team-access check intermittently refused that author. Bot data reached
 production only when another author's commit happened to build. Raised as a separate task (bot commit
-identity); out of COST-001 scope.
+identity); out of COST-001 scope. *(2026-10-08, OPS-002: not intermittent — the block applied exactly while the repo was private, 10-07 17:09Z → 10-08 00:08Z; see docs/OPS_002_BOT_COMMIT_IDENTITY.md §1.)*
 
 ## 4. Options weighed
 

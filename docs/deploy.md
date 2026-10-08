@@ -148,8 +148,8 @@ jobs:
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
       - run: |
-          git config user.name "gtp-bot"
-          git config user.email "bot@yashwantbalaji.com"
+          git config user.name "github-actions[bot]"   # OPS-002: never a personal or legacy noreply address
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add app/public/data/*.json
           git diff --cached --quiet || git commit -m "data refresh $(date +%F)"
           git push

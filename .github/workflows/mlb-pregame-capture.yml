@@ -229,8 +229,8 @@ jobs:
           MAX_FILE_BYTES: "131072"
         run: |
           set -u
-          git config user.name "gtp-pregame-bot"
-          git config user.email "noreply@anthropic.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           # ── PATH-SCOPE: stage ONLY the internal pregame-archive tree. raw.json/normalized.json are gitignored,
           #    so the large market payloads are never staged. This add stages new/updated small metadata only. ──

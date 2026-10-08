@@ -138,8 +138,8 @@ jobs:
       - name: Commit the results and the grades
         run: |
           set -euo pipefail
-          git config user.name  "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add app/public/data/soccer/epl/results \
                   data/internal/research/epl/corpus-current-season.json \
                   data/internal/research/epl/learning 2>/dev/null || true

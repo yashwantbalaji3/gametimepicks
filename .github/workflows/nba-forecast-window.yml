@@ -77,8 +77,8 @@ jobs:
           DATES: ${{ steps.decide.outputs.dates }}
         run: |
           set -uo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch -q origin main
           for ATTEMPT in 1 2 3; do
             git reset -q --hard origin/main

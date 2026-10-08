@@ -45,8 +45,8 @@ jobs:
       - name: Commit new shadow receipts (add-only)
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           mkdir -p data/internal/research/nfl/sim-v2/shadow
           git add data/internal/research/nfl/sim-v2/shadow/
           if git diff --cached --quiet; then

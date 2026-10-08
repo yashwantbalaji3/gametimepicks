@@ -200,8 +200,8 @@ jobs:
         if: github.event.inputs.dry_run != 'true'
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Per-sport content-idempotency: strip run stamps; keep a sport's files staged only when
           # its schedule content moved. Dated capture files ride along with their latest.json.
           KEEP=""
@@ -281,8 +281,8 @@ jobs:
         if: github.event.inputs.dry_run != 'true' && steps.eplresults.outputs.state == 'CAPTURED'
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add app/public/data/soccer/epl/results/
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           if node -e "
@@ -320,8 +320,8 @@ jobs:
         if: github.event.inputs.dry_run != 'true' && steps.nflresults.outputs.state == 'CAPTURED'
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add app/public/data/nfl/results/
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           if node -e "
@@ -377,8 +377,8 @@ jobs:
         if: github.event.inputs.dry_run != 'true' && steps.nbarosters.outputs.state == 'CAPTURED'
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Normalised artifacts only; raw/ is gitignored-by-omission here (uploaded above).
           git add data/internal/research/nba/rosters/latest.json
           git add data/internal/research/nba/rosters/*.json
@@ -413,8 +413,8 @@ jobs:
         if: github.event.inputs.dry_run != 'true' && steps.injuries.outputs.state == 'CAPTURED'
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/internal/research/injuries/
           if git diff --cached --quiet; then
             echo "no change"; exit 0
@@ -510,8 +510,8 @@ jobs:
         if: github.event.inputs.dry_run != 'true' && steps.nbaexp.outputs.state == 'BUILT'
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/internal/research/nba/experimental/
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           node app/scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD
@@ -523,8 +523,8 @@ jobs:
         if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' && steps.nbaexpv01.outputs.state == 'BUILT' }}
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/internal/research/nba/experimental-v0.1/
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           node app/scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD
@@ -572,8 +572,8 @@ jobs:
         if: github.event.inputs.dry_run != 'true' && steps.ufcresults.outputs.state == 'CAPTURED'
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add app/public/data/ufc/results/
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           if node -e "
