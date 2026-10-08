@@ -834,6 +834,7 @@ Daily check (read-only, $0): `node scripts/ops-002-identity-report.mjs --cli-aut
 - This is a **main-wide red test independent of OPS-002**, and it blocks every PR's quality gate. It was not weakened here.
 - Follow-up **OPS-002-F4** (MLB/live owner): decide whether the test's window should anchor to a fixed fixture, or whether "no ready MLB simulation since 09-24" is itself a Production truth defect. After that fix lands on `main`, re-run #1020's CI and merge at the exact head.
 - Until #1020 merges, run the daily report from the `claude/ops-002-acceptance-monitor` branch. The `main` version (#1019) exits 0 on "no failures" and does not enforce the evidence rules.
+- **Resolved 2026-10-08 by `CI-001`** (#1021, merge `d03691c4`): MLB 8 now uses verbatim fixtures plus a whole-corpus contract instead of a rolling `ready` window. The #1020 branch was refreshed by merging `origin/main`, never rebased. MLB 8 now passes there (adapters 27/27), and #1020 awaits founder approval of its final exact head.
 
 **Monitoring coverage (PR #1020 review):**
 - Data commits are recognised by `^auto[:\- ]` (2,167 of 2,167 bot commits since 09-01) plus `— automated` (`roll_to_next_day.sh`, the manual lifecycle; previously uncovered).
@@ -1193,6 +1194,19 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Production acceptance: PASS (see CI-001 completion record).
 - Roadmap tasks updated: CI-001 (DONE), priority table.
 - Remaining blockers / recommended next task: re-run CI on #1020 (OPS-002 follow-up) on top of `d03691c4`. Next roadmap task: `TRUTH-001`, which now includes the MLB box-score replacement-level disclosure item.
+
+## 2026-10-08 — Claude Code (OPS-002 session, resumed) — `OPS-002` PR #1020 refresh
+- Starting main SHA: `f08ddfd1f44d9ff3a3770e27fc300ce5a4033c89` (contains CI-001 merge `d03691c445b39e03f79561e1099491a3783cce90`)
+- Branch: `claude/ops-002-acceptance-monitor` (PR #1020), previous head `45a628dfa4`
+- Goal: un-block #1020 after CI-001; refresh against main without losing the monitoring work or roadmap history; fold in the pending CI-001 `DONE` records without a docs-only deployment.
+- Decisions made:
+  - Merged `origin/main` into the branch; no rebase, so pushed history is preserved. The only conflict was in this Session Log: both sides had appended an entry. Both were kept in chronological order, unedited.
+  - Merged `claude/ci-001-closeout` (`759247c2e4`, roadmap only, based on `d03691c4`) cleanly. Against that branch, this file differs only where OPS-002 status lines were superseded; every CI-001 record is retained. CI-001's `DONE` record therefore reaches `main` with #1020's single merge, with no separate documentation deployment.
+- Files/contracts changed: this roadmap only (merge resolution, the #1020 blocker marked resolved, this entry). No script, test, workflow, app or Vercel config change in this step.
+- Local tests: adapters 27/27 (MLB 8 + 8a/8b/8c green). OPS-002 + COST-001 guards 28/28. CI unit phase: see the hand-off.
+- Result: #1020 ready for exact-head CI → founder approval of the final head → merge (≈ 1 Production build).
+- Vercel Preview / Production build counts this step: 0 / 0.
+- Production acceptance: unchanged. The OPS-002 seven-day observation continues from cutover 2026-10-08T05:56:44Z; status IN_PROGRESS, not DONE.
 
 ---
 
