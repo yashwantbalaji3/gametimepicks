@@ -1,0 +1,1584 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-002-team-ladder-evaluation",
+  "dataClass": "PRIVATE_RESEARCH",
+  "generatedAt": "2026-10-08T15:43:48Z",
+  "preregistration": "data/internal/research/nfl/reports/nfl-002-team-ladder-preregistration.json",
+  "scriptSha256": "d5d7d24016cbd32d9609ebeae700fd55556ec3d2ddb9d95e8b0e6b17307da4f8",
+  "population": {
+    "heldOutSeasons": [
+      2006,
+      2021
+    ],
+    "heldOutGames": 4292,
+    "heldOutDecisive": 4281,
+    "totalsComparedGames": 4292
+  },
+  "devFits": {
+    "nfl-epa-adj-v1": {
+      "edgeKey": "epaEdge",
+      "a": 35.44633876960378,
+      "b": 2.283623741200811,
+      "sigma": 12.903750901965676
+    },
+    "nfl-dyn-od-points-v1": {
+      "edgeKey": "ptsEdge",
+      "a": 0.9794962611972157,
+      "b": 2.246508226921536,
+      "sigma": 12.851662679672591
+    },
+    "nfl-team-stack-v1": {
+      "modelId": "nfl-team-stack-v1",
+      "margin": {
+        "features": [
+          "hInd",
+          "eloD",
+          "epaEdge",
+          "ptsEdge",
+          "restDiff"
+        ],
+        "coef": [
+          2.233767186219975,
+          0.27937790316309485,
+          4.885984880618592,
+          0.5888936670694943,
+          1.9841583832018215
+        ],
+        "sigma": 12.837956538520416
+      },
+      "total": {
+        "features": [
+          "one",
+          "ptsTotal",
+          "epaSum"
+        ],
+        "coef": [
+          27.30577871117264,
+          0.38716203358310103,
+          13.121849909133267
+        ],
+        "sigma": 13.287949261307466
+      },
+      "rho": 0.02105385798685149,
+      "n": 1139
+    }
+  },
+  "selected": {
+    "gE": 0.12,
+    "carryE": 0.8,
+    "gP": 0.08,
+    "carryP": 0.5
+  },
+  "results": {
+    "overall": {
+      "games": 4292,
+      "win": {
+        "L6": {
+          "decisive": 4281,
+          "logLoss": 0.62632,
+          "brier": 0.21852,
+          "ece": 0.01558
+        },
+        "L2": {
+          "decisive": 4281,
+          "logLoss": 0.63227,
+          "brier": 0.22113,
+          "ece": 0.02167
+        },
+        "L3": {
+          "decisive": 4281,
+          "logLoss": 0.62815,
+          "brier": 0.21927,
+          "ece": 0.02018
+        },
+        "incumbent": {
+          "decisive": 4281,
+          "logLoss": 0.62907,
+          "brier": 0.21977,
+          "ece": 0.01757
+        },
+        "incumbentMarginImplied": {
+          "decisive": 4281,
+          "logLoss": 0.63759,
+          "brier": 0.22357,
+          "ece": 0.01392
+        },
+        "L6OnPriced": {
+          "decisive": 4145,
+          "logLoss": 0.62565,
+          "brier": 0.21825,
+          "ece": 0.01433
+        },
+        "marketOnPriced": {
+          "decisive": 4145,
+          "logLoss": 0.61012,
+          "brier": 0.21143,
+          "ece": 0.02083
+        }
+      },
+      "margin": {
+        "L6": {
+          "n": 4292,
+          "mae": 10.6238,
+          "rmse": 13.61498,
+          "bias": 0.17997,
+          "crps": 7.62859,
+          "nll": 4.0337,
+          "coverage80": 0.77586
+        },
+        "L2": {
+          "n": 4292,
+          "mae": 10.71169,
+          "rmse": 13.7263,
+          "bias": 0.1993,
+          "crps": 7.69458,
+          "nll": 4.04223,
+          "coverage80": 0.77283
+        },
+        "L3": {
+          "n": 4292,
+          "mae": 10.65034,
+          "rmse": 13.64021,
+          "bias": 0.21839,
+          "crps": 7.6445,
+          "nll": 4.03565,
+          "coverage80": 0.77377
+        },
+        "incumbent": {
+          "n": 4292,
+          "mae": 10.78546,
+          "rmse": 13.84863,
+          "bias": 0.11881,
+          "crps": 7.75651,
+          "nll": 4.05098,
+          "coverage80": 0.774
+        }
+      },
+      "totals": {
+        "comparedGames": 4292,
+        "L6": {
+          "n": 4292,
+          "mae": 10.79423,
+          "rmse": 13.64427,
+          "bias": -0.25401,
+          "crps": 7.66318,
+          "nll": 4.03297,
+          "coverage80": 0.78984
+        },
+        "v3": {
+          "n": 4292,
+          "mae": 10.80143,
+          "rmse": 13.64877,
+          "bias": -0.19642,
+          "crps": 7.66914,
+          "nll": 4.03317,
+          "coverage80": 0.78844
+        }
+      }
+    },
+    "eras": {
+      "2006-2011": {
+        "games": 1602,
+        "win": {
+          "L6": {
+            "decisive": 1601,
+            "logLoss": 0.62412,
+            "brier": 0.21779,
+            "ece": 0.02828
+          },
+          "L2": {
+            "decisive": 1601,
+            "logLoss": 0.62936,
+            "brier": 0.21998,
+            "ece": 0.02473
+          },
+          "L3": {
+            "decisive": 1601,
+            "logLoss": 0.62688,
+            "brier": 0.21895,
+            "ece": 0.03478
+          },
+          "incumbent": {
+            "decisive": 1601,
+            "logLoss": 0.6289,
+            "brier": 0.22001,
+            "ece": 0.02848
+          },
+          "incumbentMarginImplied": {
+            "decisive": 1601,
+            "logLoss": 0.63518,
+            "brier": 0.22266,
+            "ece": 0.02607
+          },
+          "L6OnPriced": {
+            "decisive": 1466,
+            "logLoss": 0.62179,
+            "brier": 0.21684,
+            "ece": 0.02732
+          },
+          "marketOnPriced": {
+            "decisive": 1466,
+            "logLoss": 0.61014,
+            "brier": 0.21163,
+            "ece": 0.04324
+          }
+        },
+        "margin": {
+          "L6": {
+            "n": 1602,
+            "mae": 11.00674,
+            "rmse": 13.95242,
+            "bias": -0.04083,
+            "crps": 7.863,
+            "nll": 4.06192,
+            "coverage80": 0.7603
+          },
+          "L2": {
+            "n": 1602,
+            "mae": 11.05801,
+            "rmse": 14.04433,
+            "bias": -0.03815,
+            "crps": 7.91495,
+            "nll": 4.06875,
+            "coverage80": 0.75094
+          },
+          "L3": {
+            "n": 1602,
+            "mae": 11.05218,
+            "rmse": 14.00899,
+            "bias": -0.01636,
+            "crps": 7.89735,
+            "nll": 4.06652,
+            "coverage80": 0.75593
+          },
+          "incumbent": {
+            "n": 1602,
+            "mae": 11.11127,
+            "rmse": 14.15427,
+            "bias": -0.10566,
+            "crps": 7.96455,
+            "nll": 4.07617,
+            "coverage80": 0.75468
+          }
+        },
+        "totals": {
+          "comparedGames": 1602,
+          "L6": {
+            "n": 1602,
+            "mae": 10.71646,
+            "rmse": 13.60481,
+            "bias": 0.43003,
+            "crps": 7.63126,
+            "nll": 4.02993,
+            "coverage80": 0.78464
+          },
+          "v3": {
+            "n": 1602,
+            "mae": 10.68871,
+            "rmse": 13.59431,
+            "bias": -0.32807,
+            "crps": 7.61957,
+            "nll": 4.02899,
+            "coverage80": 0.78901
+          }
+        }
+      },
+      "2012-2016": {
+        "games": 1335,
+        "win": {
+          "L6": {
+            "decisive": 1330,
+            "logLoss": 0.62069,
+            "brier": 0.2162,
+            "ece": 0.02209
+          },
+          "L2": {
+            "decisive": 1330,
+            "logLoss": 0.62988,
+            "brier": 0.22017,
+            "ece": 0.02279
+          },
+          "L3": {
+            "decisive": 1330,
+            "logLoss": 0.62129,
+            "brier": 0.21648,
+            "ece": 0.019
+          },
+          "incumbent": {
+            "decisive": 1330,
+            "logLoss": 0.62454,
+            "brier": 0.21787,
+            "ece": 0.03496
+          },
+          "incumbentMarginImplied": {
+            "decisive": 1330,
+            "logLoss": 0.63309,
+            "brier": 0.22142,
+            "ece": 0.02923
+          },
+          "L6OnPriced": {
+            "decisive": 1330,
+            "logLoss": 0.62069,
+            "brier": 0.2162,
+            "ece": 0.02209
+          },
+          "marketOnPriced": {
+            "decisive": 1330,
+            "logLoss": 0.61285,
+            "brier": 0.21276,
+            "ece": 0.0137
+          }
+        },
+        "margin": {
+          "L6": {
+            "n": 1335,
+            "mae": 10.33215,
+            "rmse": 13.34389,
+            "bias": -0.32905,
+            "crps": 7.44823,
+            "nll": 4.01153,
+            "coverage80": 0.78502
+          },
+          "L2": {
+            "n": 1335,
+            "mae": 10.46079,
+            "rmse": 13.53209,
+            "bias": -0.28429,
+            "crps": 7.55696,
+            "nll": 4.02634,
+            "coverage80": 0.77978
+          },
+          "L3": {
+            "n": 1335,
+            "mae": 10.35026,
+            "rmse": 13.3502,
+            "bias": -0.28199,
+            "crps": 7.45072,
+            "nll": 4.01196,
+            "coverage80": 0.78727
+          },
+          "incumbent": {
+            "n": 1335,
+            "mae": 10.51222,
+            "rmse": 13.55569,
+            "bias": -0.38517,
+            "crps": 7.5789,
+            "nll": 4.02734,
+            "coverage80": 0.78801
+          }
+        },
+        "totals": {
+          "comparedGames": 1335,
+          "L6": {
+            "n": 1335,
+            "mae": 10.65758,
+            "rmse": 13.36245,
+            "bias": -0.59722,
+            "crps": 7.52921,
+            "nll": 4.01142,
+            "coverage80": 0.79476
+          },
+          "v3": {
+            "n": 1335,
+            "mae": 10.63434,
+            "rmse": 13.33801,
+            "bias": -0.13966,
+            "crps": 7.52161,
+            "nll": 4.00956,
+            "coverage80": 0.797
+          }
+        }
+      },
+      "2017-2021": {
+        "games": 1355,
+        "win": {
+          "L6": {
+            "decisive": 1350,
+            "logLoss": 0.63446,
+            "brier": 0.22168,
+            "ece": 0.02794
+          },
+          "L2": {
+            "decisive": 1350,
+            "logLoss": 0.63807,
+            "brier": 0.22345,
+            "ece": 0.03037
+          },
+          "L3": {
+            "decisive": 1350,
+            "logLoss": 0.63642,
+            "brier": 0.22241,
+            "ece": 0.0405
+          },
+          "incumbent": {
+            "decisive": 1350,
+            "logLoss": 0.63375,
+            "brier": 0.22137,
+            "ece": 0.02068
+          },
+          "incumbentMarginImplied": {
+            "decisive": 1350,
+            "logLoss": 0.64489,
+            "brier": 0.22677,
+            "ece": 0.03314
+          },
+          "L6OnPriced": {
+            "decisive": 1349,
+            "logLoss": 0.63472,
+            "brier": 0.22179,
+            "ece": 0.02815
+          },
+          "marketOnPriced": {
+            "decisive": 1349,
+            "logLoss": 0.60742,
+            "brier": 0.20991,
+            "ece": 0.03412
+          }
+        },
+        "margin": {
+          "L6": {
+            "n": 1355,
+            "mae": 10.4584,
+            "rmse": 13.47479,
+            "bias": 0.94254,
+            "crps": 7.52915,
+            "nll": 4.02218,
+            "coverage80": 0.78524
+          },
+          "L2": {
+            "n": 1355,
+            "mae": 10.54943,
+            "rmse": 13.5346,
+            "bias": 0.95648,
+            "crps": 7.56963,
+            "nll": 4.02654,
+            "coverage80": 0.79188
+          },
+          "L3": {
+            "n": 1355,
+            "mae": 10.4709,
+            "rmse": 13.48004,
+            "bias": 0.98893,
+            "crps": 7.53649,
+            "nll": 4.0225,
+            "coverage80": 0.78155
+          },
+          "incumbent": {
+            "n": 1355,
+            "mae": 10.66947,
+            "rmse": 13.76862,
+            "bias": 0.88073,
+            "crps": 7.68554,
+            "nll": 4.04447,
+            "coverage80": 0.78303
+          }
+        },
+        "totals": {
+          "comparedGames": 1355,
+          "L6": {
+            "n": 1355,
+            "mae": 11.02082,
+            "rmse": 13.96196,
+            "bias": -0.7246,
+            "crps": 7.83291,
+            "nll": 4.05781,
+            "coverage80": 0.79114
+          },
+          "v3": {
+            "n": 1355,
+            "mae": 11.09931,
+            "rmse": 14.01092,
+            "bias": -0.0967,
+            "crps": 7.87312,
+            "nll": 4.06137,
+            "coverage80": 0.77934
+          }
+        }
+      }
+    },
+    "perSeason": {
+      "2006": {
+        "L6": {
+          "decisive": 267,
+          "logLoss": 0.65689,
+          "brier": 0.23306,
+          "ece": 0.07718
+        },
+        "L2": {
+          "decisive": 267,
+          "logLoss": 0.66581,
+          "brier": 0.23733,
+          "ece": 0.08041
+        },
+        "L3": {
+          "decisive": 267,
+          "logLoss": 0.66122,
+          "brier": 0.23452,
+          "ece": 0.06467
+        },
+        "incumbent": {
+          "decisive": 267,
+          "logLoss": 0.65546,
+          "brier": 0.2323,
+          "ece": 0.09903
+        },
+        "incumbentMarginImplied": {
+          "decisive": 267,
+          "logLoss": 0.65185,
+          "brier": 0.23039,
+          "ece": 0.08907
+        },
+        "L6OnPriced": {
+          "decisive": 220,
+          "logLoss": 0.65602,
+          "brier": 0.23263,
+          "ece": 0.0561
+        },
+        "marketOnPriced": {
+          "decisive": 220,
+          "logLoss": 0.66941,
+          "brier": 0.23798,
+          "ece": 0.1085
+        }
+      },
+      "2007": {
+        "L6": {
+          "decisive": 267,
+          "logLoss": 0.61355,
+          "brier": 0.21353,
+          "ece": 0.0535
+        },
+        "L2": {
+          "decisive": 267,
+          "logLoss": 0.62887,
+          "brier": 0.21988,
+          "ece": 0.06371
+        },
+        "L3": {
+          "decisive": 267,
+          "logLoss": 0.61644,
+          "brier": 0.21483,
+          "ece": 0.06797
+        },
+        "incumbent": {
+          "decisive": 267,
+          "logLoss": 0.61874,
+          "brier": 0.21579,
+          "ece": 0.07385
+        },
+        "incumbentMarginImplied": {
+          "decisive": 267,
+          "logLoss": 0.62759,
+          "brier": 0.21971,
+          "ece": 0.05823
+        },
+        "L6OnPriced": {
+          "decisive": 266,
+          "logLoss": 0.61486,
+          "brier": 0.21412,
+          "ece": 0.05282
+        },
+        "marketOnPriced": {
+          "decisive": 266,
+          "logLoss": 0.58957,
+          "brier": 0.20344,
+          "ece": 0.04635
+        }
+      },
+      "2008": {
+        "L6": {
+          "decisive": 266,
+          "logLoss": 0.6239,
+          "brier": 0.21742,
+          "ece": 0.0442
+        },
+        "L2": {
+          "decisive": 266,
+          "logLoss": 0.62125,
+          "brier": 0.21583,
+          "ece": 0.03869
+        },
+        "L3": {
+          "decisive": 266,
+          "logLoss": 0.62959,
+          "brier": 0.21993,
+          "ece": 0.03691
+        },
+        "incumbent": {
+          "decisive": 266,
+          "logLoss": 0.62822,
+          "brier": 0.21913,
+          "ece": 0.06632
+        },
+        "incumbentMarginImplied": {
+          "decisive": 266,
+          "logLoss": 0.63377,
+          "brier": 0.22118,
+          "ece": 0.05063
+        },
+        "L6OnPriced": {
+          "decisive": 193,
+          "logLoss": 0.6161,
+          "brier": 0.21455,
+          "ece": 0.04404
+        },
+        "marketOnPriced": {
+          "decisive": 193,
+          "logLoss": 0.60027,
+          "brier": 0.20819,
+          "ece": 0.05487
+        }
+      },
+      "2009": {
+        "L6": {
+          "decisive": 267,
+          "logLoss": 0.59934,
+          "brier": 0.20632,
+          "ece": 0.03341
+        },
+        "L2": {
+          "decisive": 267,
+          "logLoss": 0.59969,
+          "brier": 0.20625,
+          "ece": 0.05633
+        },
+        "L3": {
+          "decisive": 267,
+          "logLoss": 0.60181,
+          "brier": 0.20772,
+          "ece": 0.03548
+        },
+        "incumbent": {
+          "decisive": 267,
+          "logLoss": 0.60035,
+          "brier": 0.20668,
+          "ece": 0.04012
+        },
+        "incumbentMarginImplied": {
+          "decisive": 267,
+          "logLoss": 0.6093,
+          "brier": 0.21022,
+          "ece": 0.06118
+        },
+        "L6OnPriced": {
+          "decisive": 253,
+          "logLoss": 0.59582,
+          "brier": 0.20481,
+          "ece": 0.03679
+        },
+        "marketOnPriced": {
+          "decisive": 253,
+          "logLoss": 0.58217,
+          "brier": 0.19837,
+          "ece": 0.0516
+        }
+      },
+      "2010": {
+        "L6": {
+          "decisive": 267,
+          "logLoss": 0.64816,
+          "brier": 0.22843,
+          "ece": 0.04339
+        },
+        "L2": {
+          "decisive": 267,
+          "logLoss": 0.65769,
+          "brier": 0.2325,
+          "ece": 0.06346
+        },
+        "L3": {
+          "decisive": 267,
+          "logLoss": 0.65158,
+          "brier": 0.2301,
+          "ece": 0.06927
+        },
+        "incumbent": {
+          "decisive": 267,
+          "logLoss": 0.65701,
+          "brier": 0.23281,
+          "ece": 0.0758
+        },
+        "incumbentMarginImplied": {
+          "decisive": 267,
+          "logLoss": 0.66062,
+          "brier": 0.23448,
+          "ece": 0.05145
+        },
+        "L6OnPriced": {
+          "decisive": 267,
+          "logLoss": 0.64816,
+          "brier": 0.22843,
+          "ece": 0.04339
+        },
+        "marketOnPriced": {
+          "decisive": 267,
+          "logLoss": 0.63243,
+          "brier": 0.22092,
+          "ece": 0.0646
+        }
+      },
+      "2011": {
+        "L6": {
+          "decisive": 267,
+          "logLoss": 0.60287,
+          "brier": 0.208,
+          "ece": 0.05545
+        },
+        "L2": {
+          "decisive": 267,
+          "logLoss": 0.60283,
+          "brier": 0.20806,
+          "ece": 0.05605
+        },
+        "L3": {
+          "decisive": 267,
+          "logLoss": 0.60063,
+          "brier": 0.20659,
+          "ece": 0.05344
+        },
+        "incumbent": {
+          "decisive": 267,
+          "logLoss": 0.61362,
+          "brier": 0.21334,
+          "ece": 0.02572
+        },
+        "incumbentMarginImplied": {
+          "decisive": 267,
+          "logLoss": 0.62796,
+          "brier": 0.21996,
+          "ece": 0.04136
+        },
+        "L6OnPriced": {
+          "decisive": 267,
+          "logLoss": 0.60287,
+          "brier": 0.208,
+          "ece": 0.05545
+        },
+        "marketOnPriced": {
+          "decisive": 267,
+          "logLoss": 0.59312,
+          "brier": 0.20385,
+          "ece": 0.08038
+        }
+      },
+      "2012": {
+        "L6": {
+          "decisive": 266,
+          "logLoss": 0.6208,
+          "brier": 0.21664,
+          "ece": 0.03137
+        },
+        "L2": {
+          "decisive": 266,
+          "logLoss": 0.62165,
+          "brier": 0.21665,
+          "ece": 0.0424
+        },
+        "L3": {
+          "decisive": 266,
+          "logLoss": 0.6218,
+          "brier": 0.21733,
+          "ece": 0.03122
+        },
+        "incumbent": {
+          "decisive": 266,
+          "logLoss": 0.6281,
+          "brier": 0.21998,
+          "ece": 0.04389
+        },
+        "incumbentMarginImplied": {
+          "decisive": 266,
+          "logLoss": 0.6421,
+          "brier": 0.22582,
+          "ece": 0.05388
+        },
+        "L6OnPriced": {
+          "decisive": 266,
+          "logLoss": 0.6208,
+          "brier": 0.21664,
+          "ece": 0.03137
+        },
+        "marketOnPriced": {
+          "decisive": 266,
+          "logLoss": 0.60228,
+          "brier": 0.20869,
+          "ece": 0.05533
+        }
+      },
+      "2013": {
+        "L6": {
+          "decisive": 266,
+          "logLoss": 0.60991,
+          "brier": 0.21168,
+          "ece": 0.08033
+        },
+        "L2": {
+          "decisive": 266,
+          "logLoss": 0.62168,
+          "brier": 0.21624,
+          "ece": 0.05752
+        },
+        "L3": {
+          "decisive": 266,
+          "logLoss": 0.60663,
+          "brier": 0.20987,
+          "ece": 0.06126
+        },
+        "incumbent": {
+          "decisive": 266,
+          "logLoss": 0.62357,
+          "brier": 0.21819,
+          "ece": 0.07309
+        },
+        "incumbentMarginImplied": {
+          "decisive": 266,
+          "logLoss": 0.63601,
+          "brier": 0.22318,
+          "ece": 0.04698
+        },
+        "L6OnPriced": {
+          "decisive": 266,
+          "logLoss": 0.60991,
+          "brier": 0.21168,
+          "ece": 0.08033
+        },
+        "marketOnPriced": {
+          "decisive": 266,
+          "logLoss": 0.59237,
+          "brier": 0.20274,
+          "ece": 0.06983
+        }
+      },
+      "2014": {
+        "L6": {
+          "decisive": 266,
+          "logLoss": 0.60313,
+          "brier": 0.20795,
+          "ece": 0.0617
+        },
+        "L2": {
+          "decisive": 266,
+          "logLoss": 0.60627,
+          "brier": 0.20918,
+          "ece": 0.06655
+        },
+        "L3": {
+          "decisive": 266,
+          "logLoss": 0.59945,
+          "brier": 0.20636,
+          "ece": 0.0548
+        },
+        "incumbent": {
+          "decisive": 266,
+          "logLoss": 0.60204,
+          "brier": 0.20722,
+          "ece": 0.07333
+        },
+        "incumbentMarginImplied": {
+          "decisive": 266,
+          "logLoss": 0.6108,
+          "brier": 0.21105,
+          "ece": 0.05549
+        },
+        "L6OnPriced": {
+          "decisive": 266,
+          "logLoss": 0.60313,
+          "brier": 0.20795,
+          "ece": 0.0617
+        },
+        "marketOnPriced": {
+          "decisive": 266,
+          "logLoss": 0.59908,
+          "brier": 0.20664,
+          "ece": 0.03836
+        }
+      },
+      "2015": {
+        "L6": {
+          "decisive": 267,
+          "logLoss": 0.64076,
+          "brier": 0.22453,
+          "ece": 0.05257
+        },
+        "L2": {
+          "decisive": 267,
+          "logLoss": 0.64797,
+          "brier": 0.22797,
+          "ece": 0.04675
+        },
+        "L3": {
+          "decisive": 267,
+          "logLoss": 0.64717,
+          "brier": 0.22739,
+          "ece": 0.04075
+        },
+        "incumbent": {
+          "decisive": 267,
+          "logLoss": 0.64053,
+          "brier": 0.22396,
+          "ece": 0.06396
+        },
+        "incumbentMarginImplied": {
+          "decisive": 267,
+          "logLoss": 0.64372,
+          "brier": 0.22558,
+          "ece": 0.08886
+        },
+        "L6OnPriced": {
+          "decisive": 267,
+          "logLoss": 0.64076,
+          "brier": 0.22453,
+          "ece": 0.05257
+        },
+        "marketOnPriced": {
+          "decisive": 267,
+          "logLoss": 0.64882,
+          "brier": 0.22867,
+          "ece": 0.03777
+        }
+      },
+      "2016": {
+        "L6": {
+          "decisive": 265,
+          "logLoss": 0.62881,
+          "brier": 0.22018,
+          "ece": 0.04334
+        },
+        "L2": {
+          "decisive": 265,
+          "logLoss": 0.65184,
+          "brier": 0.23082,
+          "ece": 0.04225
+        },
+        "L3": {
+          "decisive": 265,
+          "logLoss": 0.63134,
+          "brier": 0.22141,
+          "ece": 0.03138
+        },
+        "incumbent": {
+          "decisive": 265,
+          "logLoss": 0.62839,
+          "brier": 0.21996,
+          "ece": 0.06223
+        },
+        "incumbentMarginImplied": {
+          "decisive": 265,
+          "logLoss": 0.63277,
+          "brier": 0.22145,
+          "ece": 0.04185
+        },
+        "L6OnPriced": {
+          "decisive": 265,
+          "logLoss": 0.62881,
+          "brier": 0.22018,
+          "ece": 0.04334
+        },
+        "marketOnPriced": {
+          "decisive": 265,
+          "logLoss": 0.62157,
+          "brier": 0.21703,
+          "ece": 0.03412
+        }
+      },
+      "2017": {
+        "L6": {
+          "decisive": 267,
+          "logLoss": 0.62002,
+          "brier": 0.21536,
+          "ece": 0.05078
+        },
+        "L2": {
+          "decisive": 267,
+          "logLoss": 0.62795,
+          "brier": 0.21901,
+          "ece": 0.04053
+        },
+        "L3": {
+          "decisive": 267,
+          "logLoss": 0.62047,
+          "brier": 0.2156,
+          "ece": 0.07674
+        },
+        "incumbent": {
+          "decisive": 267,
+          "logLoss": 0.62236,
+          "brier": 0.21707,
+          "ece": 0.07477
+        },
+        "incumbentMarginImplied": {
+          "decisive": 267,
+          "logLoss": 0.63876,
+          "brier": 0.2245,
+          "ece": 0.04714
+        },
+        "L6OnPriced": {
+          "decisive": 266,
+          "logLoss": 0.62127,
+          "brier": 0.21593,
+          "ece": 0.05191
+        },
+        "marketOnPriced": {
+          "decisive": 266,
+          "logLoss": 0.59323,
+          "brier": 0.20307,
+          "ece": 0.04121
+        }
+      },
+      "2018": {
+        "L6": {
+          "decisive": 265,
+          "logLoss": 0.62126,
+          "brier": 0.21636,
+          "ece": 0.03779
+        },
+        "L2": {
+          "decisive": 265,
+          "logLoss": 0.62973,
+          "brier": 0.21992,
+          "ece": 0.04841
+        },
+        "L3": {
+          "decisive": 265,
+          "logLoss": 0.62015,
+          "brier": 0.21582,
+          "ece": 0.03775
+        },
+        "incumbent": {
+          "decisive": 265,
+          "logLoss": 0.63882,
+          "brier": 0.22474,
+          "ece": 0.0579
+        },
+        "incumbentMarginImplied": {
+          "decisive": 265,
+          "logLoss": 0.64674,
+          "brier": 0.22832,
+          "ece": 0.04906
+        },
+        "L6OnPriced": {
+          "decisive": 265,
+          "logLoss": 0.62126,
+          "brier": 0.21636,
+          "ece": 0.03779
+        },
+        "marketOnPriced": {
+          "decisive": 265,
+          "logLoss": 0.61354,
+          "brier": 0.21239,
+          "ece": 0.04307
+        }
+      },
+      "2019": {
+        "L6": {
+          "decisive": 266,
+          "logLoss": 0.64183,
+          "brier": 0.22487,
+          "ece": 0.05393
+        },
+        "L2": {
+          "decisive": 266,
+          "logLoss": 0.63792,
+          "brier": 0.22377,
+          "ece": 0.06183
+        },
+        "L3": {
+          "decisive": 266,
+          "logLoss": 0.64061,
+          "brier": 0.22408,
+          "ece": 0.04933
+        },
+        "incumbent": {
+          "decisive": 266,
+          "logLoss": 0.63433,
+          "brier": 0.22162,
+          "ece": 0.05925
+        },
+        "incumbentMarginImplied": {
+          "decisive": 266,
+          "logLoss": 0.64754,
+          "brier": 0.22756,
+          "ece": 0.06256
+        },
+        "L6OnPriced": {
+          "decisive": 266,
+          "logLoss": 0.64183,
+          "brier": 0.22487,
+          "ece": 0.05393
+        },
+        "marketOnPriced": {
+          "decisive": 266,
+          "logLoss": 0.6163,
+          "brier": 0.21412,
+          "ece": 0.05871
+        }
+      },
+      "2020": {
+        "L6": {
+          "decisive": 268,
+          "logLoss": 0.62796,
+          "brier": 0.21785,
+          "ece": 0.07488
+        },
+        "L2": {
+          "decisive": 268,
+          "logLoss": 0.63517,
+          "brier": 0.22117,
+          "ece": 0.07389
+        },
+        "L3": {
+          "decisive": 268,
+          "logLoss": 0.63536,
+          "brier": 0.22128,
+          "ece": 0.07086
+        },
+        "incumbent": {
+          "decisive": 268,
+          "logLoss": 0.61871,
+          "brier": 0.21345,
+          "ece": 0.05828
+        },
+        "incumbentMarginImplied": {
+          "decisive": 268,
+          "logLoss": 0.63681,
+          "brier": 0.22234,
+          "ece": 0.08342
+        },
+        "L6OnPriced": {
+          "decisive": 268,
+          "logLoss": 0.62796,
+          "brier": 0.21785,
+          "ece": 0.07488
+        },
+        "marketOnPriced": {
+          "decisive": 268,
+          "logLoss": 0.58995,
+          "brier": 0.20187,
+          "ece": 0.07519
+        }
+      },
+      "2021": {
+        "L6": {
+          "decisive": 284,
+          "logLoss": 0.65959,
+          "brier": 0.2332,
+          "ece": 0.07833
+        },
+        "L2": {
+          "decisive": 284,
+          "logLoss": 0.65823,
+          "brier": 0.23277,
+          "ece": 0.08149
+        },
+        "L3": {
+          "decisive": 284,
+          "logLoss": 0.66365,
+          "brier": 0.23448,
+          "ece": 0.07688
+        },
+        "incumbent": {
+          "decisive": 284,
+          "logLoss": 0.65336,
+          "brier": 0.22951,
+          "ece": 0.08309
+        },
+        "incumbentMarginImplied": {
+          "decisive": 284,
+          "logLoss": 0.65407,
+          "brier": 0.23091,
+          "ece": 0.08544
+        },
+        "L6OnPriced": {
+          "decisive": 284,
+          "logLoss": 0.65959,
+          "brier": 0.2332,
+          "ece": 0.07833
+        },
+        "marketOnPriced": {
+          "decisive": 284,
+          "logLoss": 0.62319,
+          "brier": 0.21766,
+          "ece": 0.09339
+        }
+      }
+    }
+  },
+  "forwardGuard": {
+    "fit": [
+      2006,
+      2015
+    ],
+    "score": [
+      2016,
+      2021
+    ],
+    "selected": {
+      "gE": 0.08,
+      "carryE": 0.67,
+      "gP": 0.08,
+      "carryP": 0.67
+    },
+    "results": {
+      "games": 1622,
+      "win": {
+        "L6": {
+          "decisive": 1615,
+          "logLoss": 0.63293,
+          "brier": 0.2212,
+          "ece": 0.02548
+        },
+        "L2": {
+          "decisive": 1615,
+          "logLoss": 0.63852,
+          "brier": 0.22372,
+          "ece": 0.02369
+        },
+        "L3": {
+          "decisive": 1615,
+          "logLoss": 0.63459,
+          "brier": 0.22192,
+          "ece": 0.02875
+        },
+        "incumbent": {
+          "decisive": 1615,
+          "logLoss": 0.63287,
+          "brier": 0.22114,
+          "ece": 0.0122
+        },
+        "incumbentMarginImplied": {
+          "decisive": 1615,
+          "logLoss": 0.6429,
+          "brier": 0.2259,
+          "ece": 0.02499
+        },
+        "L6OnPriced": {
+          "decisive": 1614,
+          "logLoss": 0.63315,
+          "brier": 0.2213,
+          "ece": 0.02535
+        },
+        "marketOnPriced": {
+          "decisive": 1614,
+          "logLoss": 0.60975,
+          "brier": 0.21108,
+          "ece": 0.03155
+        }
+      },
+      "margin": {
+        "L6": {
+          "n": 1622,
+          "mae": 10.28729,
+          "rmse": 13.24409,
+          "bias": 0.80551,
+          "crps": 7.41019,
+          "nll": 4.00438,
+          "coverage80": 0.83354
+        },
+        "L2": {
+          "n": 1622,
+          "mae": 10.35525,
+          "rmse": 13.29736,
+          "bias": 0.78523,
+          "crps": 7.44448,
+          "nll": 4.00859,
+          "coverage80": 0.82552
+        },
+        "L3": {
+          "n": 1622,
+          "mae": 10.29129,
+          "rmse": 13.24271,
+          "bias": 0.78622,
+          "crps": 7.4131,
+          "nll": 4.00442,
+          "coverage80": 0.82614
+        },
+        "incumbent": {
+          "n": 1622,
+          "mae": 10.47073,
+          "rmse": 13.50082,
+          "bias": 0.58531,
+          "crps": 7.53886,
+          "nll": 4.02297,
+          "coverage80": 0.791
+        }
+      },
+      "totals": {
+        "comparedGames": 1622,
+        "L6": {
+          "n": 1622,
+          "mae": 10.88785,
+          "rmse": 13.76463,
+          "bias": -0.67292,
+          "crps": 7.7242,
+          "nll": 4.04124,
+          "coverage80": 0.80641
+        },
+        "v3": {
+          "n": 1622,
+          "mae": 10.93256,
+          "rmse": 13.78727,
+          "bias": -0.14631,
+          "crps": 7.74826,
+          "nll": 4.04386,
+          "coverage80": 0.78792
+        }
+      }
+    }
+  },
+  "season2026ReportOnly": {
+    "games": 64,
+    "win": {
+      "L6": {
+        "decisive": 64,
+        "logLoss": 0.63236,
+        "brier": 0.22194,
+        "ece": 0.16919
+      },
+      "L2": {
+        "decisive": 64,
+        "logLoss": 0.63688,
+        "brier": 0.2241,
+        "ece": 0.20698
+      },
+      "L3": {
+        "decisive": 64,
+        "logLoss": 0.63757,
+        "brier": 0.22411,
+        "ece": 0.17184
+      },
+      "incumbent": {
+        "decisive": 0,
+        "logLoss": null,
+        "brier": null,
+        "ece": 0
+      },
+      "incumbentMarginImplied": {
+        "decisive": 0,
+        "logLoss": null,
+        "brier": null,
+        "ece": 0
+      },
+      "L6OnPriced": {
+        "decisive": 54,
+        "logLoss": 0.64018,
+        "brier": 0.22572,
+        "ece": 0.15914
+      },
+      "marketOnPriced": {
+        "decisive": 54,
+        "logLoss": 0.64815,
+        "brier": 0.2279,
+        "ece": 0.13047
+      }
+    },
+    "margin": {
+      "L6": {
+        "n": 64,
+        "mae": 9.67452,
+        "rmse": 12.49628,
+        "bias": 2.16652,
+        "crps": 7.01857,
+        "nll": 3.94508,
+        "coverage80": 0.79688
+      },
+      "L2": {
+        "n": 64,
+        "mae": 9.81543,
+        "rmse": 12.71495,
+        "bias": 2.10544,
+        "crps": 7.13512,
+        "nll": 3.96193,
+        "coverage80": 0.78125
+      },
+      "L3": {
+        "n": 64,
+        "mae": 9.65763,
+        "rmse": 12.53837,
+        "bias": 2.18211,
+        "crps": 7.0453,
+        "nll": 3.94833,
+        "coverage80": 0.76563
+      },
+      "incumbent": {
+        "n": 0,
+        "mae": null,
+        "rmse": null,
+        "bias": null,
+        "crps": null,
+        "nll": null,
+        "coverage80": null
+      }
+    },
+    "totals": {
+      "comparedGames": 0,
+      "L6": {
+        "n": 0,
+        "mae": null,
+        "rmse": null,
+        "bias": null,
+        "crps": null,
+        "nll": null,
+        "coverage80": null
+      },
+      "v3": {
+        "n": 0,
+        "mae": null,
+        "rmse": null,
+        "bias": null,
+        "crps": null,
+        "nll": null,
+        "coverage80": null
+      }
+    }
+  },
+  "bars": {
+    "win": {
+      "logLossImprovement": {
+        "pass": false,
+        "observed": 0.62632,
+        "incumbent": 0.62907
+      },
+      "notNoise": {
+        "pass": false,
+        "observed": {
+          "point": -0.00276,
+          "lo95": -0.00621,
+          "hi95": 0.00073,
+          "n": 4281
+        }
+      },
+      "eras": {
+        "pass": true,
+        "observed": {
+          "2006-2011": {
+            "L6": 0.62412,
+            "incumbent": 0.6289
+          },
+          "2012-2016": {
+            "L6": 0.62069,
+            "incumbent": 0.62454
+          },
+          "2017-2021": {
+            "L6": 0.63446,
+            "incumbent": 0.63375
+          }
+        }
+      },
+      "calibration": {
+        "pass": true,
+        "observed": 0.01558,
+        "incumbent": 0.01757
+      },
+      "marketHardStop": {
+        "pass": true,
+        "observed": 0.62565,
+        "market": 0.61012
+      },
+      "forwardGuard": {
+        "pass": false,
+        "observed": 0.63293,
+        "incumbent": 0.63287
+      }
+    },
+    "margin": {
+      "maeImprovement": {
+        "pass": true,
+        "observed": 10.6238,
+        "incumbent": 10.78546,
+        "bootstrap": {
+          "point": -0.16166,
+          "lo95": -0.22951,
+          "hi95": -0.09109,
+          "n": 4292
+        }
+      },
+      "nonInferior": {
+        "pass": true,
+        "observed": 10.6238
+      },
+      "coverageBand": {
+        "pass": true,
+        "observed": {
+          "overall": 0.77586,
+          "2006-2011": 0.7603,
+          "2012-2016": 0.78502,
+          "2017-2021": 0.78524
+        }
+      },
+      "forwardGuard": {
+        "pass": true,
+        "observed": 10.28729,
+        "incumbent": 10.47073
+      }
+    },
+    "totals": {
+      "mae": {
+        "pass": true,
+        "observed": 10.79423,
+        "v3": 10.80143
+      },
+      "nll": {
+        "pass": false,
+        "observed": 4.03297,
+        "v3": 4.03317,
+        "bootstrap": {
+          "point": -0.0002,
+          "lo95": -0.00369,
+          "hi95": 0.00246,
+          "n": 4292
+        }
+      },
+      "coverageBand": {
+        "pass": true,
+        "observed": {
+          "overall": 0.78984,
+          "2006-2011": 0.78464,
+          "2012-2016": 0.79476,
+          "2017-2021": 0.79114
+        }
+      },
+      "bias": {
+        "pass": true,
+        "observed": {
+          "2006-2011": 0.43003,
+          "2012-2016": -0.59722,
+          "2017-2021": -0.7246
+        }
+      },
+      "forwardGuard": {
+        "pass": true,
+        "observed": 10.88785,
+        "v3": 10.93256
+      }
+    }
+  },
+  "verdicts": {
+    "nfl-team-stack-v1": {
+      "win": "REJECTED",
+      "margin": "ELIGIBLE",
+      "coherentPair": "REJECTED",
+      "totals": "REJECTED"
+    }
+  },
+  "rungsReportedNotPromotable": [
+    "nfl-epa-adj-v1",
+    "nfl-dyn-od-points-v1"
+  ],
+  "implementationChecks": {
+    "incumbentWinLogLoss": {
+      "expected": 0.62907,
+      "observed": 0.62907,
+      "pass": true
+    },
+    "incumbentMarginMae": {
+      "expected": 10.78546,
+      "observed": 10.78546,
+      "pass": true
+    },
+    "v3TotalsMae": {
+      "expected": 10.87108,
+      "observed": 10.87108,
+      "pass": true
+    }
+  }
+}
