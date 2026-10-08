@@ -22,6 +22,7 @@ import {
   summaryEventId,
 } from "./espn-nfl.mjs";
 import { LIVE_SCHEMA_VERSION, isTerminal, isUnavailable, makeUnavailable } from "../contract.mjs";
+import { stableHash } from "../../game-simulations/rng.ts";
 
 const here = path.dirname(new URL(import.meta.url).pathname);
 const fixture = (name) => JSON.parse(fs.readFileSync(path.join(here, "..", "fixtures", name), "utf8"));
@@ -232,54 +233,173 @@ test("CONTRACT · a refusal is envelope-shaped and recognizable without duck typ
   assert.equal(isUnavailable(normalizeMlbSchedule(fixture("mlb-schedule.json"), FETCHED)[0]), false);
 });
 
-test("MLB 8 · ⚠ MLB carries NO live player stats — and the reason is a missing FORECAST, not a missing feed", () => {
+/*
+ * ── MLB 8 · WHY MLB SHIPS NO LIVE PLAYER STATS, AND WHAT THE OTHER SIDE OF THE JOIN REALLY IS ────────
+ *
+ * CI-001 (2026-10-08). The first version of this test said the full-game simulation emits NO per-player
+ * output ("verified 2026-09-15: `players` is undefined on gamePk 824307"). That was never true. Every
+ * simulated game since the engine landed (2026-07-24), 824307 included, carries
+ * `players: { batters: [...], pitchers: [...] }`, an OBJECT. The check was
+ * `Array.isArray(g.players) && g.players.length > 0`, which an object can never satisfy, so the
+ * subject assertion passed vacuously on all 583 simulated games. The only line that could ever go red
+ * was a non-vacuity precondition: "a `ready` game exists in the newest slate", later "in the last 14
+ * slates". That precondition broke on its own when `ready` became rare (board-adapter.ts, 2026-09-25:
+ * nine POSTED-line projections per side). Only 8 of the 245 historical `ready` games meet that
+ * predicate, and the newest is 2026-09-07. The 2026-10-08 slate pushed the last 2026-09-24 `ready`
+ * label (pre-correction) out of the 14-slate window, and main went red.
+ *
+ * Nothing about the simulation broke. Every non-`unavailable` game in the window has 10,000 runs and
+ * full winner / score / total / run-line / team-total distributions. `ready` vs `degraded` is an
+ * INPUT-COMPLETENESS label (the "Complete inputs" / "Degraded inputs" chip). It is not product
+ * eligibility, which reads `gameLabSimulation.status` from a different artifact.
+ *
+ * So these tests pin the invariant that matters, on deterministic evidence:
+ *   - MLB 8  : the live adapter emits no MLB player stats.
+ *   - MLB 8a : the evidence is real producer output, untouched, and covers every level.
+ *   - MLB 8b : what the simulation's per-player rows ARE (simulated means keyed by StatsAPI id) and
+ *              what they can never be (a bookmaker price), plus the shape check the old one missed.
+ *   - MLB 8c : the same invariant over EVERY committed slate, status-agnostic. No rolling window, and
+ *              no dependence on any level being common.
+ */
+const SIM_FIXTURE = fixture("mlb-full-game-sims.json");
+const SIM_DIR = path.join(APP_PUBLIC, "mlb/full-game-simulations");
+const BATTER_KEYS = ["playerId", "name", "team", "battingOrder", "plateAppearances", "hits", "totalBases", "homeRuns", "runs", "rbi", "walks", "strikeouts"];
+const PITCHER_KEYS = ["playerId", "name", "team", "role", "battersFaced", "strikeouts", "hitsAllowed", "runsAllowed", "outsRecorded"];
+/** Any key a sportsbook row carries. One of these on a simulation player row means a price is posing as a projection. */
+const MARKET_KEY = /odds|price|implied|book|provider|vig|juice|selection|^line$|^point$|market/i;
+const emitsPlayers = (g) => g.players != null && typeof g.players === "object" && (g.players.batters?.length > 0 || g.players.pitchers?.length > 0);
+const marketKeysOf = (row) => Object.keys(row).filter((k) => MARKET_KEY.test(k));
+
+/** Every way a simulation game can violate the player-output contract. Empty list = clean. */
+function playerContractViolations(g) {
+  const where = `gamePk ${g.gamePk} (${g.status})`;
+  const out = [];
+  if (g.status === "unavailable") {
+    // The pre-event boundary: a refused game structurally cannot carry a forecast of any kind.
+    if (g.players != null) out.push(`${where}: unavailable but carries players`);
+    if (g.winProbability != null) out.push(`${where}: unavailable but carries a win probability`);
+    return out;
+  }
+  if (!emitsPlayers(g)) return [`${where}: simulated but emits no per-player rows`];
+  for (const [rows, keys, kind] of [[g.players.batters, BATTER_KEYS, "batter"], [g.players.pitchers, PITCHER_KEYS, "pitcher"]]) {
+    for (const r of rows) {
+      const leaked = marketKeysOf(r);
+      if (leaked.length) out.push(`${where}: ${kind} ${r.name} carries market field(s) ${leaked.join(",")}`);
+      if (JSON.stringify(Object.keys(r).sort()) !== JSON.stringify([...keys].sort())) out.push(`${where}: ${kind} ${r.name} keys ${Object.keys(r).join(",")}`);
+      for (const k of keys.filter((k) => !["playerId", "name", "team", "role"].includes(k))) {
+        if (!Number.isFinite(r[k]) || r[k] < 0) out.push(`${where}: ${kind} ${r.name} ${k}=${r[k]} is not a simulated non-negative mean`);
+      }
+      // A filler is never dressed as a person, and a person is never given a filler's identity.
+      if (kind === "batter" && (r.playerId < 0) !== (r.name === "Lineup fallback")) out.push(`${where}: batter ${r.name} id ${r.playerId} — fallback identity mismatch`);
+    }
+  }
+  for (const side of ["away", "home"]) {
+    const team = side === "away" ? g.awayTeam : g.homeTeam;
+    const batters = g.players.batters.filter((b) => b.team === team);
+    if (batters.length !== 9) out.push(`${where}: ${team} has ${batters.length} batters, not 9`);
+    const source = g.completeness?.[`${side}LineupSource`];
+    const rated = g.completeness?.[`${side}RatedCount`];
+    const fillers = batters.filter((b) => b.playerId < 0).length;
+    if (source === "confirmed" && fillers) out.push(`${where}: ${team} confirmed order contains ${fillers} filler row(s)`);
+    if (source === "prop-derived" && fillers !== Math.max(0, 9 - rated)) out.push(`${where}: ${team} ${fillers} filler row(s) vs ${rated} rated`);
+  }
+  return out;
+}
+
+test("MLB 8 · ⚠ MLB carries NO live player stats — no join exists yet that would not misstate a forecast", () => {
   /*
    * Deferred on principle, so a future author does not "complete" it by reaching for the wrong join.
    *
-   * A live comparison needs a published GameTime range on the other side. MLB has none per player:
-   *   - `mlb/full-game-simulations/<date>.json` emits NO per-player output even on a `ready` game
-   *     (verified 2026-09-15: `players` is undefined on gamePk 824307).
-   *   - `mlb/player-props/<date>.json` is a BOOKMAKER PRICE LIST — American odds, provider names,
-   *     the player identified by NAME with `team: null` and an opaque hashed gameId. It is not a
-   *     GameTime forecast and it carries no person id to join on.
-   *
-   * So a live MLB player stat would sit either beside nothing, or beside a market price dressed as a
-   * GameTime projection. Both are worse than the honest absence below.
+   * A live player stat needs a published GameTime forecast for THAT player on the other side. Neither
+   * MLB source qualifies today:
+   *   - `mlb/player-props/<date>.json` is a BOOKMAKER PRICE LIST: American odds, provider names, the
+   *     player named by NAME with `team: null` and an opaque hashed gameId. It is not a GameTime
+   *     forecast and has no person id to join on. Showing it beside a live stat dresses a market
+   *     price as a GameTime projection.
+   *   - `mlb/full-game-simulations/<date>.json` DOES emit per-player rows, keyed by StatsAPI id (MLB 8b).
+   *     They are average box-score lines across the simulated games, not a published per-player range.
+   *     On a confirmed order, a batter with no posted line keeps his real name but is simulated at
+   *     REPLACEMENT-LEVEL rates, and the row does not say which batters those are (only the game-level
+   *     notes do). A live join would put a generic rate beside a real player's live line as if it
+   *     were his forecast. Per-row disclosure is roadmap TRUTH-001; coverage is MLB-003. Live
+   *     player tracking belongs to LIVE-001.
    */
   const [live] = normalizeMlbSchedule(fixture("mlb-schedule.json"), FETCHED);
   assert.equal(live.playerStats, null);
+  for (const g of normalizeMlbSchedule(fixture("mlb-schedule.json"), FETCHED)) {
+    assert.equal(g.playerStats, null, `MLB event ${g.eventId} must not carry player stats`);
+  }
+});
 
-  /*
-   * ── NON-VACUITY, WITHOUT ASSUMING `ready` IS COMMON ────────────────────────────────────────────
-   *
-   * This read the NEWEST slate and required a `ready` game in it. That held only while `fullyReady`
-   * was satisfied by nine occupied lineup slots: READY ran 12-15 per slate. Now that it asks for nine
-   * POSTED PROP LINES per side (board-adapter.ts), a single slate can legitimately have none — the
-   * 2026-09-25 slate has zero — and this failed on its own precondition rather than on its subject.
-   *
-   * The subject is unchanged: a simulation must emit no per-player output, whatever its level. So the
-   * sample is taken across the recent slates, the size is asserted rather than assumed, and the
-   * `ready` ones are checked as a named subset when the window contains any.
-   */
-  const simDate = path.join(APP_PUBLIC, "mlb/full-game-simulations");
-  const recent = fs.readdirSync(simDate).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().slice(-14);
-  const sims = recent.flatMap((f) => JSON.parse(fs.readFileSync(path.join(simDate, f), "utf8")).games ?? []);
-  assert.ok(sims.length >= 50, `expected a real sample of simulations, saw ${sims.length} across ${recent.length} slate(s)`);
+test("MLB 8a · the simulation evidence is verbatim producer output and covers every completeness level", () => {
+  const { _provenance: prov, games } = SIM_FIXTURE;
+  assert.equal(games.length, prov.sources.length);
+  for (const [i, g] of games.entries()) {
+    // Self-verifying: the producer hashes each game without its hash. An edited fixture cannot pass.
+    assert.equal(stableHash({ ...g, artifactHash: undefined }), g.artifactHash, `fixture gamePk ${g.gamePk} was altered after extraction`);
+    assert.equal(g.artifactHash, prov.sources[i].artifactHash);
+    assert.equal(g.gamePk, prov.sources[i].gamePk);
+    assert.equal(g.status, g.completeness.level, "status mirrors the completeness level");
+  }
+  const levels = new Set(games.map((g) => g.status));
+  assert.deepEqual([...levels].sort(), ["degraded", "ready", "unavailable"], "every level the producer can emit is represented");
+  // The scenarios the invariants below are about, named so they cannot be dropped silently.
+  const by = (pk) => games.find((g) => g.gamePk === pk);
+  const ready = by(824229);
+  assert.ok(ready.completeness.awayRatedCount >= 9 && ready.completeness.homeRatedCount >= 9, "`ready` under the CURRENT predicate");
+  assert.equal(by(849838).completeness.awayLineupSource, "confirmed");
+  assert.ok(by(849838).completeness.awayRatedCount < 9, "a confirmed order with replacement-rated real batters");
+  assert.equal(by(849832).completeness.awayLineupSource, "prop-derived");
+  assert.ok(by(849832).players.batters.some((b) => b.playerId < 0), "a prop-derived order with filler rows");
+  assert.equal(by(823570).completeness.startedBeforeGeneration, true);
+});
 
-  const emitsPlayers = (g) => Array.isArray(g.players) && g.players.length > 0;
-  // Positive control: the predicate must actually fire on the thing it is looking for, or "none found"
-  // is a statement about the predicate rather than about the artifacts.
-  assert.equal(emitsPlayers({ gamePk: 1, status: "ready", players: [{ playerId: 1 }] }), true);
-  assert.equal(emitsPlayers({ gamePk: 1, status: "ready", players: [] }), false);
-  assert.equal(emitsPlayers({ gamePk: 1, status: "ready" }), false);
+test("MLB 8b · ⚠ simulation player rows are simulated means keyed by StatsAPI id — never a bookmaker price", () => {
+  const { games } = SIM_FIXTURE;
+  const ready = games.find((g) => g.status === "ready");
 
-  const emitting = sims.filter(emitsPlayers).map((g) => `gamePk ${g.gamePk} (${g.status})`);
-  assert.deepEqual(emitting, [],
-    `a simulation now emits per-player output — revisit the MLB live player slice:\n  ${emitting.join("\n  ")}`);
+  // Why the old check was blind, pinned so it cannot come back: it looked for an ARRAY.
+  const oldPredicate = (g) => Array.isArray(g.players) && g.players.length > 0;
+  assert.equal(oldPredicate(ready), false, "the pre-CI-001 predicate cannot see real output");
+  assert.equal(ready.players.batters.length, 18);
 
-  // And say plainly whether the window contained the level this was originally written about.
-  const ready = sims.filter((g) => g.status === "ready");
-  assert.ok(ready.length > 0, `no ready simulation in the last ${recent.length} slates — widen the window or check board-adapter.ts`);
+  // Positive / negative controls for the predicates used here and in MLB 8c.
+  assert.equal(emitsPlayers(ready), true);
+  assert.equal(emitsPlayers({ players: null }), false);
+  assert.equal(emitsPlayers({ players: { batters: [], pitchers: [] } }), false);
+  const propsRow = { player: "Jose Ramirez", team: null, market: "batter_hits", point: 0.5, americanOdds: -225, provider: "BetMGM" };
+  const boardLean = { playerId: 608070, marketKey: "batter_hits", line: 0.5, oddsOver: -240, impliedOver: 0.7059, bookmaker: "draftkings", projection: 1.11 };
+  assert.deepEqual(marketKeysOf(propsRow).sort(), ["americanOdds", "market", "point", "provider"]);
+  assert.deepEqual(marketKeysOf(boardLean).sort(), ["bookmaker", "impliedOver", "line", "marketKey", "oddsOver"]);
+  assert.deepEqual(marketKeysOf(ready.players.batters[0]), []);
+  // The detector must fire through the full contract check, not just in isolation.
+  const leaked = structuredClone(ready);
+  leaked.players.batters[0].oddsOver = -240;
+  assert.ok(playerContractViolations(leaked).some((v) => v.includes("market field")));
+  const disguised = structuredClone(ready);
+  disguised.players.batters[0].playerId = -1;
+  assert.ok(playerContractViolations(disguised).some((v) => v.includes("fallback identity")));
+
+  for (const g of games) assert.deepEqual(playerContractViolations(g), [], `fixture gamePk ${g.gamePk}`);
+
+  // Simulated, not padded: every simulated level carries full game-level distributions too.
+  for (const g of games.filter((x) => x.status !== "unavailable")) {
+    assert.equal(g.runCount, 10000);
+    assert.ok(g.winProbability && g.totalRuns?.distribution?.length && g.finalScores.length, `gamePk ${g.gamePk} has full distributions`);
+  }
+  // Pitcher rows only for posted starters: MIL had none on 2026-10-07, so one row, and it is SD's.
+  const noStarter = games.find((g) => g.gamePk === 849827);
+  assert.deepEqual(noStarter.players.pitchers.map((p) => p.team), ["SD"]);
+});
+
+test("MLB 8c · every committed MLB simulation honours the player-output contract — all slates, any level", () => {
+  const files = fs.readdirSync(SIM_DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f));
+  const sims = files.flatMap((f) => JSON.parse(fs.readFileSync(path.join(SIM_DIR, f), "utf8")).games ?? []);
+  // Whole history, not a rolling window: this only shrinks if committed forecasts are deleted.
+  const simulated = sims.filter(emitsPlayers);
+  assert.ok(simulated.length > 0, `no simulated game with player rows in ${files.length} committed slate(s)`);
+  const violations = sims.flatMap(playerContractViolations);
+  assert.deepEqual(violations, [], `player-output contract broken:\n  ${violations.slice(0, 20).join("\n  ")}`);
 });
 
 test("MLB 9 · ⚠ a PRE game carries NO score — StatsAPI zeroes it an hour before first pitch", () => {
