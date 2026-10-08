@@ -36,7 +36,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deriveNewArrivals, shadowProjectedArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
-import { activeRosterIndex, applyQbStarterRule, auditBoard, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
+import { activeRosterIndex, applyPasserShareFloor, applyQbStarterRule, auditBoard, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
+import { nflverseTeam } from "../../src/lib/sports/nfl/snap-share.mjs";
 import { indexDepthCharts } from "../../src/lib/sports/nfl/depth-chart.mjs";
 import { CONSERVATION_METHOD, CONSERVATION_VERSION, normalizeOverAllocatedPools, overAllocationReason, SHARE_MARKETS } from "../../src/lib/sports/nfl/opportunity-conservation.mjs";
 import { PUBLIC_BOARD_CLEARED } from "../../src/lib/sports/nfl/board-ranking.mjs";
@@ -424,6 +425,13 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
      a reader would see; never renormalises. v1-allocated families are not passed: they conserve. */
   const poolMarkets = [...(shareLevel?.markets ?? [])].filter((m) => SHARE_MARKETS.includes(m) && publishedMarkets.has(m));
   const shareIndex = shareIndexFor(forecastFor(doc.kickoffUtc, doc.week), shareLevel?.gameId);
+  /* NFL World Model V2 (Week 5) — a published passer must carry a starter's share; a relief-sized share
+     cannot project a start (board-roster-integrity.mjs applyPasserShareFloor). Withheld with its reason. */
+  const passerFloor = matchupTeams.map((team) => applyPasserShareFloor({
+    players, team, nflverseTeam, shareOf: (id, t, market) => shareIndex.get(`${id}|${t}|${market}`),
+  }));
+  const withheldPassers = passerFloor.flatMap((r) => r.withheld);
+  if (withheldPassers.length && families.player_pass_yds) families.player_pass_yds.withheldPassers = withheldPassers;
   /* SESSION 11 — over-allocated pools are RECONCILED (proportional, per team, over cleared players only),
      versioned and forward-only (opportunity-conservation.mjs normalizeOverAllocatedPools). A pool that
      cannot be joined in full is still withheld, exactly as before. */
@@ -485,7 +493,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   const familyGaps = shareLevel && !shareLevel.markets.has("player_receptions")
     ? receivingFamilyGaps({ forecast: forecastFor(doc.kickoffUtc, doc.week), gameId: shareLevel.gameId, season: seasonOfKickoff(doc.kickoffUtc), toBoardTeam: (t) => (t === "WAS" ? "WSH" : t === "LA" ? "LAR" : t), published: publishedMarkets })
     : [];
-  const coverage = buildCoverage({ teams: matchupTeams, players, excluded, arrivals: newArrivals, qbRules: qbStarter, noRole, familyGaps, poolWithheld: pools.withheld });
+  const coverage = buildCoverage({ teams: matchupTeams, players, excluded, arrivals: newArrivals, qbRules: qbStarter, noRole, familyGaps, poolWithheld: pools.withheld, passerWithheld: withheldPassers });
 
   const artifact = {
     schemaVersion: 1,
@@ -528,7 +536,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     /* SESSION 4 — the pregame roster/usage receipt: every material player's state, and the integrity
        facts the audit below checks (one passer per pool, nobody unavailable, nobody off-roster). */
     coverage,
-    integrity: { qbStarter, pools: pools.pools, violations: null },
+    integrity: { qbStarter, passerShareFloor: passerFloor, pools: pools.pools, violations: null },
     players: players.sort((a, b) => (b.markets.anytime_td?.probability ?? 0) - (a.markets.anytime_td?.probability ?? 0) || (b.markets.player_rush_yds?.mean ?? 0) - (a.markets.player_rush_yds?.mean ?? 0)),
     disclaimer: "Model projections. Educational.",
   };

@@ -41,6 +41,10 @@ import { publishedMarginInterval } from "../../src/lib/sports/nfl/margin-interva
 import { selectFrozenReceipts, terminalEventIds } from "../../src/lib/sports/nfl/frozen-carry.mjs";
 import { SIDE_RULE, freezeSideDecision } from "../../src/lib/results/side-decision.mjs";
 import { NFL_SIDE_CUTOVER_FILE } from "../../src/lib/results/nfl-model-favored-io.mjs";
+import { teamInputCoherence } from "../../src/lib/sports/nfl/team-input-coherence.mjs";
+import { indexDepthCharts, depthChartAsOf } from "../../src/lib/sports/nfl/depth-chart.mjs";
+import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mjs";
+import { QB_CHART_MAX_AGE_MS } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 
 /* A narrow root seam so tests can run THIS builder — not a copy of its rules — against a
  * disposable repo-shaped store. Production default is unchanged: the app directory above this
@@ -374,6 +378,26 @@ function markSideCutover(f) {
   }, null, 1) + "\n");
 }
 
+/*
+ * NFL World Model V2 · Week 5 — TEAM-INPUT COHERENCE (team-input-coherence.mjs). The team heads take no
+ * availability input; this READS the participation record (built earlier in the same window) and the
+ * depth chart only to STATE when a team's QB1 is unavailable and the number cannot know it. The win
+ * chance is unchanged; the model-vs-market comparison is withheld on that game and the reason published.
+ * It is never an input to any head (teamInputs.consumedByModel is false, declared on every forecast).
+ */
+const qbDepthIndex = (() => {
+  const dir = path.join(ROOT, "data/internal/research/nfl/depth-charts");
+  const caps = (fs.existsSync(dir) ? fs.readdirSync(dir) : []).filter((f) => f.endsWith(".json"))
+    .map((file) => ({ file, doc: read(path.join(dir, file)) })).filter((c) => c.doc?.snapshots?.length);
+  const picked = pickNewestCapture(caps);
+  return picked ? indexDepthCharts(picked.doc) : null;
+})();
+const teamInputsFor = (ev) => teamInputCoherence({
+  participation: read(path.join(ROOT, "data/internal/nfl/participation", ev.dateUtc.slice(0, 10), `${ev.providerEventId}.json`)),
+  teams: [ev.away.abbr, ev.home.abbr],
+  qb1Of: (team) => (qbDepthIndex ? depthChartAsOf(qbDepthIndex, team, NOW, QB_CHART_MAX_AGE_MS) : null),
+});
+
 for (const ev of events) {
   const kickoff = Date.parse(ev.dateUtc);
   if (!ev.home?.abbr || !ev.away?.abbr) { refused.push({ providerEventId: ev.providerEventId, state: "IDENTITY_MISSING", reason: "participants unresolved — identity is never guessed" }); continue; }
@@ -399,6 +423,7 @@ for (const ev of events) {
 
   let forecast;
   if (ev.seasonType !== 1) {
+    const teamInputs = teamInputsFor(ev);
     // ── the regular-season path: the evaluated engines, frozen params, explicit boundary ───────
     const nameOf = new Map([[ev.home.abbr, ev.home.name], [ev.away.abbr, ev.away.name]]);
     const targetSeason = nflSeasonOf(ev.dateUtc);
@@ -491,6 +516,9 @@ for (const ev of events) {
       ...(v3State ? { totalsHead: totalsHeadId, muTotalHead: Number(matchupTotals.muTotal.toFixed(6)) } : {}),
       /* P298: the adopted win + margin numbers are inputs too — a head switch or a new final is a revision. */
       ...(heads ? { winHead: NFL_WIN_HEAD_ID, marginHead: NFL_MARGIN_HEAD_ID, pHomeHead: Number(heads.pHome.toFixed(6)), marginMeanHead: Number(heads.marginMean.toFixed(6)) } : {}),
+      /* Week 5: a QB1 absence the heads cannot see changes what publishes (the comparison is withheld), so it is
+         a pre-kickoff REVISION with lineage. Absent otherwise, so unaffected receipts stay byte-identical. */
+      ...(teamInputs.comparisonWithheld ? { teamInputs: teamInputs.state, qb1Absent: teamInputs.absences.map((a) => a.playerId).sort() } : {}),
     })).digest("hex").slice(0, 16);
 
     /*
@@ -588,9 +616,12 @@ for (const ev of events) {
         total: { median: sim.totalQuantiles.p50, p10: sim.totalQuantiles.p10, p90: sim.totalQuantiles.p90, head: totalsHeadId },
         scoreRange: { homeP10: sim.scores.home.quantiles.p10, homeP90: sim.scores.home.quantiles.p90, awayP10: sim.scores.away.quantiles.p10, awayP90: sim.scores.away.quantiles.p90 },
       },
-      marketComparison: marketFresh
-        ? { ...marketComparison, modelVsMarketTotal: Number((sim.totalQuantiles.p50 - (market.consensus.total ?? 0)).toFixed(1)) }
-        : marketComparison,
+      marketComparison: marketFresh && teamInputs.comparisonWithheld
+        ? { state: "WITHHELD_TEAM_INPUTS", capturedAt: marketCapturedAt, books: market.books.length, note: teamInputs.note }
+        : marketFresh
+          ? { ...marketComparison, modelVsMarketTotal: Number((sim.totalQuantiles.p50 - (market.consensus.total ?? 0)).toFixed(1)) }
+          : marketComparison,
+      teamInputs,
       settlementKey: { canonicalEventId: `nfl-${ev.providerEventId}`, settlesAgainst: "official final score", ledger: "experimental-forecast" },
       /* P250-W2: the market non-claim is rendered directly above this line from the model's own
          recorded honestLimit, so repeating it here made a reader meet it twice in two sentences. */

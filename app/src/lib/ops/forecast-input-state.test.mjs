@@ -36,7 +36,13 @@ test("the report's claim about each producer matches what that producer actually
   const AVAIL = /participation|injuries\/|rosters\/latest|role-shares/;
 
   const team = strip(fs.readFileSync(path.join(REPO, "app/scripts/nfl/build-nfl-public-forecasts.mjs"), "utf8"));
-  assert.equal(r.nfl.teamForecastConsumesAvailability, AVAIL.test(team),
+  /* NFL World Model V2 · Week 5: the team builder now READS participation to disclose a QB1 absence its heads
+     cannot model (team-input-coherence.mjs). Reading is not consuming, so the forecast's own declaration
+     (`teamInputs.consumedByModel`) decides when present; the source scan decides for artifacts without it. */
+  const forecasts = JSON.parse(fs.readFileSync(path.join(REPO, "app/public/data/nfl/forecasts/latest.json"), "utf8")).forecasts ?? [];
+  const declared = forecasts.map((f) => f.teamInputs?.consumedByModel).filter((v) => typeof v === "boolean");
+  const expected = declared.length ? !declared.every((v) => v === false) : AVAIL.test(team);
+  assert.equal(r.nfl.teamForecastConsumesAvailability, expected,
     "the report must describe the producer as it is, not as it was when this was written");
 
   const boards = strip(fs.readFileSync(path.join(REPO, "app/scripts/nfl/build-nfl-player-board.mjs"), "utf8"));

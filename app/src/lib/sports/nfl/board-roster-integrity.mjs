@@ -131,10 +131,48 @@ export function applyQbStarterRule({ players, team, index, asOf, maxAgeMs = QB_C
 }
 
 /**
+ * A PASSER'S PROJECTION MUST BE A STARTER'S PROJECTION (NFL World Model V2 · Week 5, 2026-10-08).
+ *
+ * Measured on TB @ DAL: Baker Mayfield is Out, so the board's one passer is Jalon Daniels — whose
+ * share-level share of Tampa's pass attempts is 0.58, the share of a player who has mostly come on in
+ * relief. 0.58 × the team's volume printed "Jalon Daniels 116 passing yards" for the man who will start,
+ * while Tampa's receivers (whose volume is the team's, whoever throws) summed to 202 receiving yards.
+ * CHI did the same with two relief-sized shares (Bagent 0.52, Keenum 0.46) after Caleb Williams went Out.
+ *
+ * The share is the model's conditional-on-appearance share, so every current starter sits at 0.80–1.00
+ * (Week 5: lowest Darnold 0.806). A share below PASSER_STARTER_SHARE_FLOOR is not evidence about a start,
+ * and nothing here may rescale it into one (that is a model change, NFL-003). The projection is WITHHELD
+ * with its reason — never renormalised, never zeroed. Rows without a joinable share are left untouched
+ * and say so; no other family is affected.
+ */
+export const PASSER_STARTER_SHARE_FLOOR = 0.75;
+
+export function applyPasserShareFloor({ players, team, shareOf, nflverseTeam, floor = PASSER_STARTER_SHARE_FLOOR }) {
+  const passers = (players ?? []).filter((p) => p.team === team && p.markets?.player_pass_yds);
+  const withheld = [];
+  const unjoined = [];
+  for (const p of passers) {
+    const espnId = String(p.playerId ?? "").replace(/^nfl-athlete-/, "");
+    const share = shareOf(espnId, nflverseTeam(team), "player_pass_yds");
+    if (typeof share !== "number" || !Number.isFinite(share)) { unjoined.push(p.playerId); continue; }
+    if (share >= floor) continue;
+    delete p.markets.player_pass_yds;
+    withheld.push({
+      team,
+      playerId: p.playerId,
+      name: p.name,
+      share: Number(share.toFixed(3)),
+      reason: `withheld for ${p.name} (${team}): his modelled share of ${team}'s pass attempts is ${share.toFixed(2)}, a relief appearance's share rather than a starter's, so it cannot project the yards of a start`,
+    });
+  }
+  return { team, floor, passers: passers.map((p) => p.playerId), withheld, unjoined };
+}
+
+/**
  * The pregame roster/usage receipt for one board (§24), per team. Built from what the builder
  * already decided — it states the decisions, it does not make new ones.
  */
-export function buildCoverage({ teams, players, excluded, arrivals, qbRules, noRole = [], familyGaps = [], poolWithheld = [] }) {
+export function buildCoverage({ teams, players, excluded, arrivals, qbRules, noRole = [], familyGaps = [], poolWithheld = [], passerWithheld = [] }) {
   const out = {};
   for (const team of teams) {
     const rows = [];
@@ -160,6 +198,14 @@ export function buildCoverage({ teams, players, excluded, arrivals, qbRules, noR
          accounted for, never dropped in silence (caught by MATERIAL_OMISSION on Drew Lock, SEA). */
       if (row) row.notModeled = notModeled;
       else rows.push({ playerId: r.playerId, name: r.name, state: COVERAGE.NOT_MODELED_BY_FAMILY, reason: notModeled[0].reason, notModeled });
+    }
+    /* Week 5 (applyPasserShareFloor) — a passer whose relief-sized share was withheld is accounted for; one
+       whose ONLY family was passing has no row left, and is listed here rather than dropped in silence. */
+    for (const w of passerWithheld.filter((x) => x.team === team)) {
+      const notModeled = [{ family: "player_pass_yds", state: COVERAGE.NOT_MODELED_BY_FAMILY, reason: w.reason }];
+      const row = rows.find((x) => x.playerId === w.playerId);
+      if (row) row.notModeled = [...(row.notModeled ?? []), ...notModeled];
+      else rows.push({ playerId: w.playerId, name: w.name, state: COVERAGE.NOT_MODELED_BY_FAMILY, reason: w.reason, notModeled });
     }
     /* Session 5 — every holder of a withheld pool is accounted for, including a player whose ONLY row was
        that family (a backup QB's rushing): removed, never dropped in silence. */
