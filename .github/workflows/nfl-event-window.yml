@@ -422,6 +422,15 @@ jobs:
           # boards; top-N are maximums, confirmed-out players never rank.
           node scripts/nfl/build-nfl-weekly-boards.mjs --now "${{ steps.window.outputs.now }}"
           node scripts/nfl/build-nfl-product-receipts.mjs --now "${{ steps.window.outputs.now }}"
+          # NFL-005 freshness (founder directive 2026-10-08): World Model V2 re-simulates ONLY the games whose inputs
+          # changed since their last run — the published margin and total, availability (injuries, active roster,
+          # participation), the depth-chart passer, the model version. Unchanged inputs write nothing, so a refresh
+          # that changed nothing triggers no data commit for this. A started game is never re-simulated; every run is
+          # also kept write-once under data/internal/nfl/world-model-v2/runs/. LOUD, NOT FATAL: a refusal keeps the
+          # previous pregame simulations rather than taking the window's other artifacts down with it.
+          if ! node scripts/nfl/build-nfl-world-model-v2.mjs --now "${{ steps.window.outputs.now }}"; then
+            echo "::error::World Model V2 rebuild refused — the previous pregame simulations stay published"
+          fi
 
       # ── THE INDEX IS RE-DERIVED EVERY RUN, WINDOW OR NOT ────────────────────────────────────────
       #

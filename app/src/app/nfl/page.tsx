@@ -49,12 +49,16 @@ import GradedPicksSection from "@/components/sports/graded-picks-section";
 import IntervalCalibrationPanel, { loadIntervalCalibration } from "@/components/nfl/interval-calibration-panel";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import NflWeeklyBoards from "@/components/nfl/weekly-boards";
 import FollowLegacyMigration from "@/components/follow/follow-legacy-migration";
 import DeferUntilVisible from "@/components/defer-until-visible";
 import { legacyNameMap, nflTeamRefsByAbbr } from "@/lib/follow/entity-registry";
 import { hasStarted } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { availableWeekKeys, weekKeyOf } from "@/lib/sports/nfl/week-keys";
+import ForecastStyles from "@/components/nfl/forecast/styles";
+import ModelStatus from "@/components/nfl/forecast/model-status";
+import FamilyTabs from "@/components/nfl/forecast/family-tabs";
+import { boardTabs, topBoards } from "@/lib/sports/nfl/forecast-view.mjs";
+import { loadForecastViews } from "@/lib/sports/nfl/forecast-view-load.mjs";
 
 export const metadata: Metadata = withRouteMetadata("/nfl/", {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
@@ -329,6 +333,8 @@ export default function NflHubPage() {
   /* P246 §5: the weekly top boards render VERBATIM from the one canonical ranking owner
      (scripts/nfl/build-nfl-weekly-boards.mjs). The hub never ranks players itself. */
   type WeeklyBoardRow = { playerId: string; name: string; team: string; opponent: string; providerEventId: string; kickoffUtc: string; participation: string; value: number; p10?: number; median?: number; p90?: number; probability?: number; pricingState?: string };
+  /* Founder directive 2026-10-08: the hub's Top boards, from the shared forecast view. */
+  const unifiedBoards = topBoards(loadForecastViews(path.join(process.cwd(), "public")), { now: new Date().toISOString() });
   const weeklyBoards = read("nfl/weekly-boards/latest.json") as
     | { generatedAt?: string; model?: { id?: string; version?: number | string } | null;
         period: { seasonType: number; week: number }; scope: { kind: string; eventsIncluded: number; eventsDroppedAfterKickoff: number };
@@ -400,7 +406,7 @@ export default function NflHubPage() {
         anchors={[
           "nfl-games",
           "nfl-slate",
-          ...(weeklyBoards?.boards?.length ? ["nfl-boards"] : []),
+          ...(unifiedBoards.games ? ["nfl-boards"] : []),
           ...(vault && (vault.watchlist?.length || vault.selections?.length) ? ["nfl-vault"] : []),
           ...(slateMarketRows.length ? ["nfl-markets"] : []),
           /* Session 5 · B8: "Simulations" renders whenever forecasts are published — its strip item must too. */
@@ -408,6 +414,8 @@ export default function NflHubPage() {
           "nfl-results", "nfl-coverage",
         ]}
       />
+      {/* Founder directive 2026-10-08: the evaluation status, stated once for the whole NFL experience. */}
+      <div className="nf"><ForecastStyles /><ModelStatus /></div>
       {/* P250-W1: the canonical weekly table (projected scores + totals, permalinked, guard-tested)
           renders a few sections below — the hub's generic list was a second 16-row copy of the same
           games directly above it, so it collapses to a counts line with the quick list one click
@@ -663,75 +671,23 @@ export default function NflHubPage() {
         ) : null}
       </section>
 
-      {/* ── WEEKLY TOP BOARDS · P246 §3/§5 ─────────────────────────────────────
-          Rendered VERBATIM from the canonical ranking owner. Top-N is a MAXIMUM, never a quota;
-          a confirmed-out player never ranks; a withheld family names the exact bar it failed. */}
-      {weeklyBoards?.boards?.length ? (
-        <section aria-labelledby="nfl-boards" id="nfl-boards" className="scroll-mt-24">
+      {/* ── WEEKLY LEADERS · founder directive 2026-10-08 (one NFL forecast experience) ──────────────
+          ONE set of Top boards, ranked by lib/sports/nfl/forecast-view.mjs topBoards from the SAME player rows each game
+          page renders — a player's number here is his number there. Top-N is a maximum, never a quota; Questionable,
+          Doubtful and Out never rank; a family with no published model says so instead of showing a number. The
+          weekly-boards artifact is still produced and settled; it is no longer a second public board on this page. */}
+      {unifiedBoards.games ? (
+        <section aria-labelledby="nfl-boards" id="nfl-boards" className="scroll-mt-24 nf">
           <SectionHeader
-            eyebrow={weeklyBoards.scope.kind === "REMAINING_EVENTS" ? `This week · ${weeklyBoards.scope.eventsIncluded} games left` : "This week"}
-            title="Weekly top boards"
-            sub={`Ranked across ${weeklyBoards.scope.kind === "REMAINING_EVENTS" ? `the ${weeklyBoards.scope.eventsIncluded} games still to kick off (${weeklyBoards.scope.eventsDroppedAfterKickoff} dropped after kickoff)` : "every game this week"} by one ranking owner. A top-N table is a maximum, not a quota — fewer qualified players publish fewer rows, and a player listed out never ranks here.`}
-            rightSlot={experimentalChip}
+            eyebrow={`This week · ${unifiedBoards.games} ${unifiedBoards.games === 1 ? "game" : "games"} to come`}
+            title="Weekly leaders"
+            sub="The top projected players across every game still to kick off — the same numbers as each game page. Players listed as Questionable, Doubtful or Out are left out, and a list shows fewer than ten rather than fill."
           />
-          {/* P251-F5: the board block moved to a client component so it can be filtered by team
-              and by player name. Same rows, same ranking, same states — the chips narrow what is
-              SHOWN and never re-rank, and a board with no matching row says so instead of
-              vanishing. The hub carried no control of any kind before this. */}
-          {/*
-            PROJECTED AT THE BOUNDARY, NOT PASSED WHOLE (P229's lesson, applied here).
-            Handing the artifact's board objects to a client component serialises EVERY field into
-            the RSC payload — including `basis`, which carries internal model ids the public page
-            must never carry. This ships the fields the component actually renders and nothing else.
-          */}
-          <NflWeeklyBoards
-            /* The stamp and the model cross ONCE, for all forty-five rows. */
-            generatedAt={String(weeklyBoards.generatedAt ?? "")}
-            model={weeklyBoards.model ? { id: weeklyBoards.model.id, version: weeklyBoards.model.version } : null}
-            boards={weeklyBoards.boards.map((b: { id: string; family: string; title: string; state: string; reason?: string; caveat?: string; conservation?: { version: string; teamsReconciled: number }; rows?: Array<Record<string, unknown>> }) => ({
-            id: b.id,
-            family: b.family,
-            title: b.title,
-            state: b.state,
-            reason: b.reason,
-            caveat: b.caveat,
-            /* Session 11: the reconciliation statement (version + team count only — never the per-team internals). */
-            conservation: b.conservation ? { version: String(b.conservation.version), teamsReconciled: Number(b.conservation.teamsReconciled) } : undefined,
-            /*
-             * ⚠ SPREAD FIRST, THEN COERCE. This used to ENUMERATE the fields it copied, and that
-             * list is how the hub and the week route diverged: the capture owner started publishing
-             * a real `market` on priced rows, `/nfl/week/[key]` passes the artifact to the shared
-             * presenter untouched and rendered a DraftKings line, and this route — copying field by
-             * field — silently dropped it and fell through to the typed absence. Same artifact, same
-             * player, same market: one page showed "O/U 78.5 · O -111 · U -113 · draftkings" and the
-             * other said "Not checked".
-             *
-             * A hand-maintained field list is a second, invisible schema. It cannot fail loudly: the
-             * row still renders, still looks right, and simply omits whatever the owner added last.
-             * Spreading first means a new field reaches every surface the day the owner publishes
-             * it, and the coercions below still defend the fields this route actually depends on.
-             */
-            rows: (b.rows ?? []).map((r) => ({
-              ...r,
-              playerId: String(r.playerId), name: String(r.name), team: String(r.team), opponent: String(r.opponent),
-              kickoffUtc: String(r.kickoffUtc), providerEventId: String(r.providerEventId),
-              participation: String(r.participation ?? ""),
-              value: Number(r.value), median: r.median as number | undefined,
-              p10: r.p10 as number | undefined, p90: r.p90 as number | undefined,
-              probability: r.probability as number | undefined,
-              /* The builder's own pricing state, carried through. Never inferred here. */
-              pricingState: r.pricingState as string | undefined,
-            })),
-          }))}
-            /* P251-F9: abbr → published club name, from the forecast artifact — the follow store
-               and the search index both key on the name, and no second identity space is made. */
-            teamNames={Object.fromEntries((forecastArtifact?.forecasts ?? []).flatMap((x: { home?: { abbr?: string; name?: string }; away?: { abbr?: string; name?: string } }) =>
-              [x.home, x.away].filter((t): t is { abbr: string; name: string } => !!t?.abbr && !!t?.name).map((t) => [t.abbr, t.name])))}
-            /* v1.1.2: canonical ESPN team ids for the follow stars, resolved server-side from published
-               artifacts. An abbreviation that does not resolve is absent, and its chip gets no star. */
-            teamRefs={nflTeamRefsByAbbr((forecastArtifact?.forecasts ?? []).flatMap((x: { home?: { abbr?: string }; away?: { abbr?: string } }) => [x.home?.abbr, x.away?.abbr]))}
+          <FamilyTabs
+            {...boardTabs(unifiedBoards.boards)} linkToGame label="hub-boards" emptyText="No player is cleared for this list in the games still to kick off."
+            filters={{ teamRefs: nflTeamRefsByAbbr((forecastArtifact?.forecasts ?? []).flatMap((x: { home?: { abbr?: string }; away?: { abbr?: string } }) => [x.home?.abbr, x.away?.abbr])) }}
           />
-          {/* P251 follows were created on THIS board, so this is where they migrate forward. */}
+          {/* P251 follows were created on the previous board, so this is where they migrate forward. */}
           <FollowLegacyMigration legacyMap={legacyNameMap()} />
         </section>
       ) : null}

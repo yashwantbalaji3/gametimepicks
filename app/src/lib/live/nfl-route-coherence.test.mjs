@@ -236,8 +236,14 @@ test("the NFL game page mounts the game-level panel WITHOUT the player board", (
   assert.ok(mount.includes("nflForecast"), "and it carries the frozen game forecast");
   assert.equal(mount.includes("playerBoard"), false, "it must NOT also render the prop rows");
 
-  // The player board is still mounted separately — the prop rows have exactly one home.
-  assert.match(page, /<NflPlayerBoard/, "the player board still owns the per-prop live lines");
+  // The per-prop live lines have exactly one home: the player projections (2026-10-08: the unified game page's
+  // FamilyTabs, which reads the single live poller). The retired player board is not mounted beside them.
+  assert.match(page, /<FamilyTabs \{\.\.\.gameTabs\(view\)\}[^\n]*live=\{\{ eventId: f\.providerEventId/, "the player projections own the per-prop live lines");
+  // A game with no simulation keeps its original player board (history is not re-presented) — never both on one page.
+  const legacy = page.slice(page.indexOf("{!view?.simulation ? ("), page.indexOf("      ) : null}", page.indexOf("P245 · the promotion-gated")) );
+  assert.ok((page.match(/<NflPlayerBoard/g) ?? []).length === 1 && legacy.includes("<NflPlayerBoard"), "the player board renders only on the no-simulation branch");
+  assert.match(page, /\{view\?\.simulation \? \(\n\s*<section id="players"/, "the unified rows render only where a simulation exists");
+  assert.match(read("src/components/nfl/forecast/family-tabs.tsx"), /useLiveEvent\("nfl", live\?\.eventId \?\? null/, "through the single live poller");
 });
 
 test("the panel self-gates per sport, so NFL off costs nothing on this page", () => {

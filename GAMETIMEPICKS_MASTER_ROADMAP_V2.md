@@ -315,6 +315,9 @@ Use only after current-main reproduction.
 
 # 5. Canonical architecture, ledger and temporal data
 
+### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
+- NFL-local truth defect found and fixed in the unified package: World Model V2's QB split (see NFL-003). No cross-sport provenance defect found in this work.
+
 ## `CONTRACT-001` — Canonical forecast architecture
 **Priority:** P0  
 **Status:** NOT_STARTED
@@ -355,6 +358,9 @@ Use only after current-main reproduction.
 - Conflict fixtures cannot be silently merged.
 - Correction replay is idempotent.
 - Historical prediction bytes remain unchanged.
+
+### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
+- NFL hooks ready for the ledger: every World Model V2 run is an immutable record. Each carries event id, per-player family distributions with percentiles and ladders, model version, simulationId = inputsKey, generatedAt, input as-of timestamps (forecast, injuries, rosters, depth chart, packet sha) and availability state per player. Still to do: a grader and ledger rows (settle against official box scores; pending/void/no-play never counted as a loss). The player board's existing settlement is unchanged.
 
 ## `TEMPORAL-001` — Temporal Data & Identity Platform
 **Priority:** P1  
@@ -533,6 +539,9 @@ Features: QB scenario/availability, OL, skill-player availability, pace, PROE/pa
 - Next: grade Week 5+ forward receipts; founder decision on proposing the ELIGIBLE L6 margin head; rung 5; a pregame-knowable QB term only with archived pregame evidence.
 - **Founder decision (2026-10-08):** do NOT promote the L6 margin head yet; keep collecting forward evidence; the incumbent remains champion.
 
+### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
+- Still open: there is no single-distribution win head (L6 win REJECTED). The game page therefore shows the forecast of record's win chance, and the simulated games' own counted win share sits in the simulation section with the difference stated once. Week 5 home share is higher in 14 of 15 games. Score-model validation remains: the score draw has no key-number clustering, and exact-score frequencies are not published.
+
 ## `NFL-003` — Player opportunity allocation
 **Status:** NOT_STARTED
 
@@ -554,6 +563,10 @@ Hard invariants: allocated opportunities reconcile; catches ≤ targets; receivi
 - Development look (THIRD look at 2014–21, disclosed; cannot confer eligibility), identical rows to P300: pass yds MAE **66.97 → 62.44** (bootstrap [−5.43, −3.73]; ECE 0.055 → 0.048), rush yds 18.58 → 18.27, rec yds 21.43 → 21.34, receptions 1.571 → 1.565 (level 1.035 → 1.006); better in both eras for every family → **PROCEED_TO_FORWARD ×4** (`reports/nfl-003-opportunity-allocation-development.json`).
 - Remaining for acceptance: blind 2026 forward test from Week 6 (capture tool not yet built); Dirichlet-multinomial allocation worlds (in progress under NFL-005); hard invariants on published boards.
 
+### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
+- **Live defect fixed:** World Model V2 split passing attempts between the starter and an active backup QB (Week 5 build: Burrow 0.65 / Flacco 0.33 → 152 passing yds). The development fit's active set came from who actually played. Prospectively, the depth-chart QB1 who is not ruled out now holds the passing share; every other passer's share is vacated (rho 0.5 → capped 0.98). All 15 Week 5 games now have one passer at 0.98.
+- Player yardage/receptions on every public NFL surface now come from one source of record, World Model V2 (`lib/sports/nfl/forecast-view.mjs`), pending founder confirmation at Checkpoint B. A game without a simulation falls back to the player board's families, labelled. Still open: forward evaluation (n ≥ 300 per family).
+
 ## `NFL-004` — TD model
 **Status:** NOT_STARTED
 Hierarchical Bernoulli baseline → team scoring opportunities → red-zone/goal-line role → TD attribution within drives. Evaluate rare-event log loss/calibration separately.
@@ -565,6 +578,11 @@ Hierarchical Bernoulli baseline → team scoring opportunities → red-zone/goal
 - New table `replay/player-redzone-v1.json.gz` (inside-20/10/5 carries and targets per player-game, nflverse pbp 2013–2025; 99.8% join, carries exact 98.6%, targets 99.9%), builder `scripts/research/nfl/build-player-redzone-v1.mjs`.
 - Candidate `nfl-anytime-td-redzone-v1` (rzTdV1): inside-N carry/target share shrunk to the overall share (dev chose N=10, k=40, rho=0). Development look (second look at 2014–21, disclosed), identical rows to P301: log loss **0.50435 → 0.50295** (bootstrap hi95 −0.00036), ECE 0.020 → 0.014, top decile 0.527 vs 0.440 → **0.469 vs 0.444** → **PROCEED_TO_FORWARD**. Ablation: capping the incumbent's named pool alone reaches 0.50292 log loss but keeps the top-bin over-prediction.
 - Remaining: blind 2026 forward test (ATD protocol); one public ATD number per player (board / Vault / Sim V2) once a model is promoted.
+
+### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
+- Anytime TD on the unified surfaces = the published opportunity touchdown model (player board), labelled. World TD marginals stay unpublished; root cause recorded (`reports/nfl-005-game-worlds-td-diagnosis.json`: scorer-eligibility gate double-counts opportunity).
+- Passing TDs: credited to a passer in every world; no evaluated distribution → withheld with a reason (no placeholder).
+- First TD scorer: needs scoring-event ORDER, which the worlds do not generate → withheld. Research plan: settlement rule (first TD of the game by any player; no-TD games settle 'no scorer'), sequential competing-risks model over drives (team first-possession, scoring hazard by team strength and pace, opportunity-weighted scorer at the event). New preregistration before any look.
 
 ## `NFL-005` — Shared worlds + forward promotion
 **Status:** NOT_STARTED
@@ -597,6 +615,21 @@ Mirror `scripts/research/nfl/forward-player-props-share-level.mjs` (P300's forwa
 ### Existing references
 - `claude/arch-nfl-ns1-ns2-e2-87uth3`
 - `claude/handoff-nfl-7-0-top-board-receipts`
+
+### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
+- One NFL forecast consumption layer (`forecast-view.mjs` + `forecast-view-load.mjs`) feeds the hub Weekly leaders, the game dashboard and their parity tests; each family has exactly one source.
+- **Game dashboard** (`/nfl/game/[id]`):
+  - Hero: forecast of record, projected score centrepiece, win chance, margin, total with 80% ranges, likeliest exact final from the score-shape engine.
+  - Simulated game outcomes: counted win share, margin and total histograms, scoring mix.
+  - Player projections: tabs, portraits, logos, live stat feed.
+  - Simulated game explorer (5 real sampled games) and collapsible model details.
+- `/nfl/world-model/*` routes now redirect into these surfaces. The separate player board and score-range sections are retired from the page; the board artifact is still produced and settled.
+- **Freshness:** the event window runs `build-nfl-world-model-v2.mjs` after the boards. A game is re-simulated only when its inputs key changes (heads, availability, passer, version); no change writes nothing, including the index. Started games are never touched, and every run stays write-once under `data/internal/nfl/world-model-v2/runs/`. Artifact schema 2 adds histograms, `inputsKey` and `supersedes`. Model version 2.1.0 (QB rule).
+- **Still open:**
+  - The weekly input packet is exported from the research branch (`export-world-model-v2-inputs.mjs`); move it to main so Week 6+ simulations need no manual step.
+  - Forward grading of World Model V2 runs (immutable records exist; grader to port).
+  - TD families.
+  - Promotion.
 
 ## Milestone — NFL Week 5 readiness (2026-10-08 → 2026-10-12)
 Founder-approved, time-sensitive milestone **inside** the NFL program (not a new task). Work items belong to `NFL-001` → `NFL-005` above.
@@ -775,6 +808,9 @@ Brier, log loss, calibration, CRPS, interval coverage, model-generation comparis
 ### Drill-down
 Every metric links to all underlying forecasts with date/event/subject/target/line/selection/projection/probability/market snapshot/result/status/model version/publication evidence.
 
+### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
+- Needed from RESULTS-001 for NFL: per-family metrics for World Model V2 records (MAE / CRPS / 80% coverage for yards and receptions; Brier / log loss / calibration bands for TD families), and champion/challenger tables (old version, new version, period, n, metrics, reason, rollback rule). No combined accuracy % across incompatible families.
+
 ## `RESULTS-002` — Product results
 **Status:** NOT_STARTED
 Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parlay Lab, and live recommendations. Grade exact frozen/public product receipts, never reconstructed current logic.
@@ -786,6 +822,9 @@ Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parla
 ## `UX-001` — Shared Sport Hub
 **Priority:** P1  
 **Status:** NOT_STARTED
+
+### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
+- NFL is the first sport on the shared presentation pieces: `components/nfl/forecast/` (one model-status explainer, hero, histogram panels, tabbed player rows with ESPN portraits + team logos, sampled-game explorer, collapsible methodology). Remaining UX-001 scope: generalise these into the Sport Hub components for every sport (not started); NFL week selector beyond the existing `/nfl/week/[key]` permalinks.
 
 ## Universal order
 1. Sport header + period selector
@@ -1350,6 +1389,14 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Vault data: the live page briefly carried the new copy over the old data (a false "same as the board" claim), so ONE zero-credit `nfl-event-window` dispatch was run at 19:36Z (run 37833227448; no other window was running) → `e9ac36125` (Vault 172 candidates, ledger entry unchanged, roster audit 0) → Production 19:40:00Z. Live `/endzone-vault`: "172 players cleared the minimum … the 12 above are the highest", Javonte Williams 72.5% = game page; deployed artifact 12/12 rows equal the boards, ranked by the displayed number, 0 Questionable/Out listed (Swift, Bowers withheld with designation); no new accuracy/calibration claim.
 - Vercel today from this session: Preview **0**; Production builds: #1022 merge 40 CPU-min, 17:21Z dispatch data commit 48 CPU-min, #1023 merge 64 CPU-min, 19:36Z dispatch data commit (billing pending at 19:44Z).
 - **World Model V2 full simulation engine directive (≈19:55Z):** built the coherent game-world engine, per-game artifacts, experimental game pages and simulation-derived Top boards on `claude/nfl-world-model-v2-sim` from `main` `907a698e4f`. Research-side input exporter and TD diagnosis committed on `claude/nfl-003-005-world-model` (`8be895d99d`, `6f32bfa7f5`). The TB@DAL post-inactives watcher was left running; the frozen captures are untouched. Release path A (experimental display) awaits founder approval; path B (promotion) is not proposed.
+- **#1024 launched (founder launch decision, experimental public integration):**
+  - Pre-merge checks at exact head `6af3b00a51`: CI run 37838853725 `python` ✓ `quality` ✓; MERGEABLE/CLEAN; 46 in-scope files with no forecast, board, Vault, injury or capture file.
+  - All 15 artifacts rebuilt from the engine with their recorded seeds came out identical. TD marginals are absent. The frozen captures are unchanged: one commit each, sha `2f269a14…` and `a1078a7c…`.
+  - Merged with `--match-head-commit` → `aed2872f85edccd7f8b579608b8fbea94d54946b` at 20:52:50Z.
+  - Vercel Production `dpl_3FC4ruwLRf9zTWbrYvZvjwbYf21S` READY at 20:58Z. Preview **0**; odds credits **0**.
+  - Production parity: 15/15 `/nfl/world-model/[eventId]` pages match their artifacts (win chances, simulation id, version, disclosures, players, game-page link); 40/40 `/nfl/world-model/` board rows equal `topBoards` over the committed artifacts.
+  - Mobile 375 px: no page-level horizontal scroll.
+  - Gap found: the `/nfl` hub had no entry point. Fixed by a separate discovery PR (one hub card, tested) awaiting approval.
 
 ---
 

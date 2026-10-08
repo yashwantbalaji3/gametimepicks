@@ -53,7 +53,7 @@ test("a started game's frozen pregame read never enters Top Reads", () => {
   assert.match(t, /effectiveLifecycle\(e, nowIso\) !== "UPCOMING"/, "only events that are STILL upcoming rank");
 });
 
-test("the projected scorecard composes ONLY page-loaded artifact data — numbers where earned, typed absence where not", () => {
+test("LEGACY BRANCH · the projected scorecard composes ONLY page-loaded artifact data — numbers where earned, typed absence where not", () => {
   const page = read("src/app/nfl/game/[eventId]/page.tsx");
   assert.match(page, /Projected scorecard/, "the scorecard section exists");
   assert.match(page, /expected statistical summaries · not one simulated game/, "it carries the P249 architecture label");
@@ -62,7 +62,7 @@ test("the projected scorecard composes ONLY page-loaded artifact data — number
   assert.match(page, /withheld, with the exact bar each failed/, "unearned families are stated inside the scorecard frame");
   assert.match(page, /x\.reason \?\? "did not clear its evaluation bar"/, "the failed bar is read from the artifact, never typed");
   // The scorecard can never source a number outside the two artifacts the page already loads.
-  const section = page.slice(page.indexOf("P250-GD"), page.indexOf('aria-labelledby="score-range"'));
+  const section = page.slice(page.indexOf("P250-GD"), page.indexOf("{view?.simulation ? <SimulationPanel"));
   assert.ok(!/readPublic|fs\.readFileSync/.test(section), "no new data reads inside the scorecard");
   /*
    * P250-GD2/W2 (owner display decision): passing/rushing render only behind their family-state
@@ -75,6 +75,23 @@ test("the projected scorecard composes ONLY page-loaded artifact data — number
   assert.match(section, /hasRush = fams\.player_rush_yds\?\.state === "ESTIMATE" \|\| fams\.player_rush_yds\?\.state === "PUBLISHED"/, "rushing renders only via its family state");
   assert.ok(!/estMark/.test(section), "no dead marker helper is left behind rendering an empty string");
   assert.match(section, /x\.state === "WITHHELD"/, "truly-absent families stay a typed absence");
+});
+
+test("the player projections compose ONLY the shared forecast view — numbers where earned, typed absence where not", () => {
+  /* 2026-10-08 (founder directive, one NFL experience): the projected scorecard became the player projections section,
+     read from lib/sports/nfl/forecast-view.mjs. Same rules: the P249 label, no new data reads inside the section, a
+     family renders only through its gate, and a family with no model is a typed absence with its reason. */
+  const page = read("src/app/nfl/game/[eventId]/page.tsx");
+  assert.match(page, /expected statistical summaries · not one simulated game/, "it carries the P249 architecture label");
+  const section = page.slice(page.indexOf('id="players"'), page.indexOf('id="sampled-games"'));
+  assert.ok(section.length > 200, "the players section exists");
+  assert.ok(!/readPublic|fs\.readFileSync/.test(section), "no new data reads inside the section");
+  assert.match(section, /<FamilyTabs \{\.\.\.gameTabs\(view\)\}/, "rows come from the shared view");
+  const view = read("src/lib/sports/nfl/forecast-view.mjs");
+  assert.match(view, /const atdPublished = board\?\.families\?\.anytime_td\?\.state === "PUBLISHED";/, "anytime TD renders only via its family state");
+  assert.match(view, /key: "passingTd"[^\n]*source: null, withheld: "/, "passing TDs are a typed absence with a reason");
+  assert.match(view, /key: "firstTd"[^\n]*source: null, withheld: "/, "first TD is a typed absence with a reason");
+  assert.match(read("src/components/nfl/forecast/family-tabs.tsx"), /fam\.withheld \? \(/, "and the absence renders as text, never a number");
 });
 
 test("the NFL hub carries ONE canonical week table — the events lead as cards, never as a second table", () => {

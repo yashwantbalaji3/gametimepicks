@@ -57,9 +57,11 @@ test("absence stays absent — no zero fabricated by a fallback, and one precisi
   assert.equal(p.model.unit, "yds", "and a numeric forecast always carries its unit");
 });
 
-test("the scoring outlook labels its shortlist size and points at the full list", () => {
-  assert.match(page, /top \{top\.length\} of \{eligible\.length\} by TD chance/, "the cap is declared, never silent");
-  assert.match(page, /full list in the board/, "the full population is one tab away and says so");
+test("the touchdown list is the full population, never a silent cap (2026-10-08: the shortlist became the TD tab)", () => {
+  const view = fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/forecast-view.mjs"), "utf8");
+  const gameTabsSrc = view.slice(view.indexOf("export function gameTabs"), view.indexOf("export function boardTabs"));
+  assert.ok(gameTabsSrc.length > 100 && !/\.slice\(/.test(gameTabsSrc), "the game page lists every player with the family");
+  assert.match(page, /<FamilyTabs \{\.\.\.gameTabs\(view\)\}/, "rendered from the shared view");
 });
 
 test("the dead preseason player-simulations section stayed dead — removed, not resurrected", () => {
@@ -70,4 +72,10 @@ test("the dead preseason player-simulations section stayed dead — removed, not
 test("player-family model provenance renders from the artifact's own basis lines", () => {
   assert.match(page, /Player-family model provenance/, "the provenance disclosure exists");
   assert.match(page, /x\.basis \?\? "evaluation basis not recorded on the artifact"/, "basis is artifact-backed with an honest absence state");
+});
+
+// Legacy branch (games without a World Model V2 simulation keep their original scorecard and board):
+test("the scoring outlook labels its shortlist size and points at the full list", () => {
+  assert.match(page, /top \{top\.length\} of \{eligible\.length\} by TD chance/, "the cap is declared, never silent");
+  assert.match(page, /full list in the board/, "the full population is one tab away and says so");
 });
