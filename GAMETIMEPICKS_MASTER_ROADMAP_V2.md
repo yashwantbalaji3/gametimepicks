@@ -79,7 +79,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 
 | Rank | Task ID | Department | Task | Status | Dependency | Production-bound? |
 |---:|---|---|---|---|---|---|
-| 0 | `CI-001` | Release Engineering / CI | Main-wide `quality` failure: adapters.test.mjs MLB 8 rolling-window `ready` precondition + vacuous per-player check | IN_PROGRESS — root cause proven; deterministic fix locally verified; PR → exact-head CI → merge → Production verification | None — P0 blocker for #1020 and all PRs | Test/fixture only (1 Production build on merge) |
+| 0 | `CI-001` | Release Engineering / CI | Main-wide `quality` failure: adapters.test.mjs MLB 8 rolling-window `ready` precondition + vacuous per-player check | DONE 2026-10-08 — #1021 merged `d03691c4`; exact-head CI green; Production READY, build-info = merge SHA | None — P0 blocker for #1020 and all PRs | Test/fixture only (1 Production build on merge) |
 | 1 | `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — Phase 1 verified 2026-10-08; awaiting founder spend-alert confirmation | None — do first | Process/config, no app release expected |
 | 2 | `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | IN_PROGRESS — fix merged (#1019 → `f65e7656`, 2026-10-08 04:03Z); first bot data commit attributed `github-actions[bot]`, READY, live; **7-day observation running from cutover 2026-10-08T05:56:44Z** (earliest DONE ≈ 2026-10-15T05:57Z) | None | Workflow/identity config; Production freshness |
 | 3 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED — unblocked (deploy gate verified 2026-10-08) | COST-001 deployment gate verified ✓ | Yes |
@@ -863,12 +863,12 @@ Limit: while the repo is public Vercel runs no team-access check, so the 7 days 
 
 ## `CI-001` — MLB live-adapter test MLB 8: main-wide CI blocker (rolling-window precondition + vacuous subject)
 **Priority:** P0 — main-wide `quality` failure blocking PR #1020 and every later integration  
-**Status:** IN_PROGRESS — root cause proven, fix locally verified; awaiting exact-head CI → merge → Production verification  
+**Status:** DONE (2026-10-08). Founder-approved merge, exact-head CI green, Production acceptance PASS  
 **Owner/session:** Claude Code session 2026-10-08 (CI-001)  
 **Branch:** `claude/mlb-ci-001-adapter-test-determinism` (from `origin/main` `60e05879cb4a4f47646958e9ba2555b5f78aee02`)  
-**PR / exact head / merge:** recorded in the Session Log  
+**PR / exact head / merge:** [#1021](https://github.com/yashwantbalaji3/gametimepicks/pull/1021) · exact head `f842d15d47ee1f815231cda38615b637065d7cd1` · merge `d03691c445b39e03f79561e1099491a3783cce90` (2026-10-08T13:50:01Z, `--match-head-commit`)  
 **Evidence:** `app/src/lib/live/adapters/adapters.test.mjs` (MLB 8, 8a, 8b, 8c); fixture `app/src/lib/live/fixtures/mlb-full-game-sims.json`  
-**Production acceptance:** PENDING (test + fixture only; no rendered code or data change)
+**Production acceptance:** PASS. `dpl_Bk1ZAgxsAvZCUHTk77hrzJ9Gdyo8` READY 13:53:52Z; `/data/build-info.json` = `d03691c4` (built 13:51:27Z); key routes 200; smoke 8/9 (same pre-existing failure as COST-001 §9)
 
 ### Reproduction (current main)
 - `origin/main` `60e05879` locally: `npx tsx --test src/lib/live/adapters/adapters.test.mjs` → `not ok — MLB 8 … 'no ready simulation in the last 14 slates'`. Same failure in CI on PR #1020 (run 37780742736, `quality`).
@@ -894,6 +894,20 @@ Limit: while the repo is public Vercel runs no team-access check, so the 7 days 
 ### Acceptance
 - MLB 8–8c pass on current main data. They also pass with 40 synthetic future degraded-only slates (the exact failure mode). Mutation probes caught: fixture edit (8a), odds field on a corpus player row (8c), players on an `unavailable` game (8c), filler given a real name (8c), old `Array.isArray` predicate restored (8b, 8c), live adapter emitting `playerStats` (MLB 8).
 - CI unit phase locally; exact-head CI green on the PR; merge with `--match-head-commit`; one Production build; Production build-info advances to the merge SHA; key routes 200.
+
+### Completion record (2026-10-08)
+- Status: DONE
+- Exact tested head: `f842d15d47ee1f815231cda38615b637065d7cd1`. quality-gate run 37783964588: `quality` success, `python` success. CI log: MLB 8, 8a, 8b, 8c ok; unit phase 9,043 pass, 0 fail.
+- Scope at merge: 3 files (`adapters.test.mjs`, `fixtures/mlb-full-game-sims.json`, this roadmap). No producer, simulation, UI or data change.
+- Merge SHA: `d03691c445b39e03f79561e1099491a3783cce90`
+- Production build SHA: `d03691c4` (`dpl_Bk1ZAgxsAvZCUHTk77hrzJ9Gdyo8`; building 13:50:07Z → READY 13:53:52Z; aliases `gametime-picks.vercel.app`, `gametimepicks.yashwantbalaji.com`)
+- Local acceptance: PASS
+- Vercel Preview build count: **0** (two branch pushes; 0 Preview deployments project-wide since the COST-001 gate went live at 01:53Z)
+- Vercel Production build count: **1**. It was the only deployment created 13:00Z → 13:55Z. Billed `cpuTimeForBilling` 40.0 CPU-min ≈ **$0.14** (Enhanced, $0.0035/CPU-min).
+- Production acceptance: PASS. Before the merge, build-info was `60e05879` (the pre-merge main head); after, `d03691c4`. HTTP 200: `/`, `/mlb/`, `/nfl/`, `/results/`, `/today/`, `/markets/`, `/live/`, `/bank-builder/`, `/simulate/`. `/ops/` 404 with `X-Robots-Tag: noindex, nofollow, noarchive`, unchanged. `smoke-test-production.mjs`: 8/9; the one failure ("home does not reflect canonical money") is the pre-existing stale check recorded in COST-001 §9.
+- COST-001 protections intact: `app/vercel.json` `git.deploymentEnabled` = `main` + `preview/**` only (unchanged); build queue `WAIT_FOR_NAMESPACE_QUEUE` (unchanged); machine `enhanced` (unchanged); no Vercel setting touched.
+- Evidence path: this section; PR #1021; `adapters.test.mjs` MLB 8–8c.
+- Close-out: this documentation-only update sits on `claude/ci-001-closeout` and is to be **batched** with the next integration rather than merged alone (a docs-only main push is an ignored build that still bills ≈ 16 CPU-min).
 
 ### Follow-ups
 - Replacement-level batter rows are not disclosed per row in the simulated box score. Folded into **`TRUTH-001`** (provenance of visible numbers) and **`MLB-003`** (structural cause: projections exist only where a book posts a line, so `ready` is rare, 8/860). `LIVE-001` carries the dependency. No separate task, to avoid duplicate ownership.
@@ -1162,6 +1176,23 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Production acceptance: PENDING. Merge build READY; build-info = merge SHA; key routes 200.
 - Roadmap tasks updated: `CI-001` (new); the replacement-level disclosure finding is recorded under `TRUTH-001` (disclosure), `MLB-003` (coverage) and `LIVE-001` (dependency), with no new task ID; priority table; change log.
 - Remaining blockers / recommended next task: after merge, rebase/re-run PR #1020 (OPS-002 follow-up). Then `TRUTH-001`. The `TRUTH-001` box-score item comes before any `LIVE-001` MLB player join.
+
+## 2026-10-08 — Claude Code (CI-001 session, close-out) — `CI-001`
+- Starting main SHA: `60e05879cb` → merged `d03691c445`
+- Branch: `claude/mlb-ci-001-adapter-test-determinism` (merged); close-out docs: `claude/ci-001-closeout` (not merged; batch with the next integration)
+- Goal: founder-approved merge of #1021 with exact-head verification, then controlled Production acceptance.
+- Reproduced current issue/state: exact head `f842d15d47` green on both checks (run 37783964588); scope 3 files; mergeable CLEAN.
+- Decisions made: merged with `--match-head-commit`. DONE record kept off `main` until the next batch, per founder instruction.
+- Files/contracts changed: this roadmap only (CI-001 → DONE).
+- Local tests/build/UX checks run: none needed (no code change in the close-out).
+- Result: CI-001 DONE.
+- PR / exact head: #1021 · `f842d15d47` → merge `d03691c445`
+- Vercel Preview / Production build counts: 0 / 1
+- Remote-only exception: none.
+- Build CPU/cost evidence: merge build 40.0 billed CPU-min ≈ $0.14. Cycle to date $329.89, projected $340.12 (`vercel-cost-report.mjs --days 1`).
+- Production acceptance: PASS (see CI-001 completion record).
+- Roadmap tasks updated: CI-001 (DONE), priority table.
+- Remaining blockers / recommended next task: re-run CI on #1020 (OPS-002 follow-up) on top of `d03691c4`. Next roadmap task: `TRUTH-001`, which now includes the MLB box-score replacement-level disclosure item.
 
 ---
 
