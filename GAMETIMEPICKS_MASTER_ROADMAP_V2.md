@@ -509,6 +509,7 @@ One coherent football world should connect game script, score, team opportunity,
 
 ## `NFL-002` — Benchmark ladder
 **Status:** NOT_STARTED
+**Status (2026-10-08):** IN_PROGRESS — rungs 1, 2, 3, 6 scored once on held-out 2006–2021 under a committed registration; rung 4 reviewed (Sim V2); rung 5 not started. **Incumbent retained.**
 1. Existing MOV/Elo champion.
 2. Opponent-adjusted EPA/success-rate temporal baseline.
 3. Dynamic hierarchical offense/defense strength.
@@ -517,6 +518,14 @@ One coherent football world should connect game script, score, team opportunity,
 6. Calibrated ensemble if superior.
 
 Features: QB scenario/availability, OL, skill-player availability, pace, PROE/pass rate, EPA/success/explosiveness, field position, weather, home field, rest/travel, coaching, opponent matchup, game state, rule era.
+
+### Progress (2026-10-08, NFL World Model V2 session)
+- Registration `data/internal/research/nfl/reports/nfl-002-team-ladder-preregistration.json` (committed before any score; same windows as P297 + a forward guard refit on 2006–15, scored 2016–21). Code `app/src/lib/sports/nfl/team-ladder-v2.mjs`, replay `scripts/research/nfl/replay-team-ladder.mjs`; implementation checks reproduce the incumbent receipts exactly (win 0.62907, margin 10.78546, totals 10.87108).
+- Held-out 2006–21 (4,292 games): incumbent win LL **0.62907** · L2 EPA-adj 0.63227 · L3 dynamic O/D points 0.62815 · **L6 coherent stack 0.62632** · market 0.61012. Margin MAE incumbent 10.785 → L6 **10.624** (CRPS 7.757 → 7.629). Totals: L6 10.794 vs v3 10.801 (NLL tie).
+- Verdicts (`nfl-002-team-ladder-evaluation.json`): L6 **win REJECTED** (Δ −0.00276 < 0.003 bar; bootstrap hi95 +0.00073; forward guard tie) · **margin ELIGIBLE** · **totals REJECTED** · coherent pair REJECTED. Not retried.
+- Rung 4: Sim V2 drive process does not beat the incumbent (see NFL-001). Rung 5: NOT_STARTED. QB scenario feature: blocked by the absence of pregame-timestamped historical depth charts (`pregame-availability-margin-refusal.json`).
+- Forward shadow: L6 receipts for all 15 Week 5 games captured pre-kickoff (`data/internal/research/nfl/team-ladder-forward/`), to be graded after finals.
+- Next: grade Week 5+ forward receipts; founder decision on proposing the ELIGIBLE L6 margin head; rung 5; a pregame-knowable QB term only with archived pregame evidence.
 
 ## `NFL-003` — Player opportunity allocation
 **Status:** NOT_STARTED
@@ -530,13 +539,24 @@ Candidates: hierarchical shares, Dirichlet-multinomial allocation, beta-binomial
 
 Hard invariants: allocated opportunities reconcile; catches ≤ targets; receiving totals reconcile with QB passing under documented exceptions; legal scoring/clock/OT; negative-yard plays preserved.
 
+### Findings (2026-10-08) — status remains NOT_STARTED (no allocation model built)
+- Public boards merge two marginal engines on one row (props-v1 rush/rec yds; share-level receptions/pass yds/ATD); no shared world. Receiving vs passing does not reconcile across engines (Week 5 Σ visible receiving ÷ passer: TB 1.74 before the guard below, MIN 1.17). Share-level shares never fade (retired QBs carry shares); an Out player's volume is not redistributed; normalisation can leave `OTHER` at 0.
+- Week 5 truth guard shipped instead of a model change: `applyPasserShareFloor` (board-roster-integrity.mjs) withholds a published passer whose share is a relief appearance's (< 0.75; every Week 5 starter ≥ 0.806) — Jalon Daniels (TB, 0.58), Keenum/Bagent (CHI, 0.46/0.52).
+
 ## `NFL-004` — TD model
 **Status:** NOT_STARTED
 Hierarchical Bernoulli baseline → team scoring opportunities → red-zone/goal-line role → TD attribution within drives. Evaluate rare-event log loss/calibration separately.
 
+### Findings (2026-10-08) — status remains NOT_STARTED
+- Three different public ATD numbers for one player (board `nfl-anytime-td-opportunity-v1`, Vault `nfl-anytime-td-v1-calibration`, Sim V2), e.g. Javonte Williams 0.725 / 0.625 / 0.563. ATD forward 782/1000, level 1.104 (bar [0.90, 1.10]); replay top bins over-predict (0.83 → 0.53, n=36). Passing-TD joint v3 log loss 0.676 vs baseline 0.593. Week 1 joint-v2 forward cohort never graded (no grader).
+
 ## `NFL-005` — Shared worlds + forward promotion
 **Status:** NOT_STARTED
 Winner/score/spread/total/player outputs reconcile. If worlds are reweighted to a validated winner head, measure effective sample size and downstream distortion. Promote family by family.
+
+### Findings (2026-10-08) — status remains NOT_STARTED
+- Production win % (MOV-Elo head) and the 10,000 sampled scores (margin head) come from different ratings; Week 5 gaps up to 0.134 (PHI@JAX). The margin-implied win probability is worse (0.63759 held-out), so counting draws is not the fix; NFL-002 L6 is the first single-distribution candidate (win not yet eligible).
+- Sim V2 is jointly coherent (receipt checks Σrec = pass yds, Σtargets = attempts) but has zero player-level validation and no forward grades on main.
 
 ### Existing references
 - `claude/arch-nfl-ns1-ns2-e2-87uth3`
@@ -549,6 +569,8 @@ Founder-approved, time-sensitive milestone **inside** the NFL program (not a new
 - Rules: unvalidated challengers stay in shadow (the incumbent is retained wherever a challenger has not shown adequate held-out performance); no QUESTIONABLE/OUT/ineligible players in public ranked recommendations; preliminary vs frozen pregame forecasts are distinguished; frozen forecasts are never revised after kickoff; no Elo-derived probability is presented as an observed simulation count; model-vs-market comparisons match exact selection, direction, line and settlement rules; a known `TRUTH-001`-class defect touching NFL is fixed within NFL scope or the claim is suppressed (the cross-sport `TRUTH-001` task stays intact).
 - Release: local-first; one focused PR of validated changes; exact-head CI green; **founder approval before the Production merge**; `COST-001` protections apply.
 - Status: IN_PROGRESS (2026-10-08).
+- Delivered for Week 5 (PR pending founder approval; producers + copy only): TB@DAL and CHI@GB disclose that the team model cannot see the QB1 absence and withhold the model-vs-market comparison (no false "lean"); PHI vs JAX (London) is a neutral site; relief-share passers withheld; win-chance copy no longer claims a simulation count; revisable forecasts no longer called frozen. Verified locally: 1/15 forecast summaries change (PHI vs JAX), 3 player rows change. Evidence `docs/NFL_WORLD_MODEL_V2_2026-10-08.md`.
+- Coverage: all 15 Week 5 games forecast (CAR, KC bye); spread/total probabilities are not yet published per game (the forecast artifact carries medians/ranges only) — open item.
 
 ---
 
@@ -1242,6 +1264,21 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Vercel Preview / Production build counts this step: 0 / 0.
 - Production acceptance: unchanged. The OPS-002 seven-day observation continues from cutover 2026-10-08T05:56:44Z; status IN_PROGRESS, not DONE.
 
+## 2026-10-08 — Claude Code (NFL World Model V2 session) — `NFL-001` → `NFL-005` (founder priority override)
+- Starting main SHA: `629cfbf494bb2ca2809af5e379abaa56901e49f9` (fetched 15:33Z; isolated worktree `.claude/worktrees/nfl-world-model-v2-priority-79e413`, branch `claude/nfl-world-model-v2-priority-79e413`)
+- Goal: founder-approved override — NFL-001..005 ahead of TRUTH-001; strongest defensible Week 5 forecasts, TB @ DAL first.
+- Roadmap: §2 reordered per the founder (NFL-001..005, TRUTH-001, CONTRACT-001, MLB-001..005, then the remaining queue); COST-001/OPS-002/NCAAF-001 kept as standing parallel lanes; Week 5 milestone added in §8. No task ID, acceptance criterion or prior record changed.
+- Reproduced current state (NFL-001): champion = MOV-Elo win head + HFA-Elo margin head + v3 totals; published win % is analytic and disagrees with its own 10,000 draws (PHI@JAX 0.659 vs 0.524); Sim V2 does not beat the incumbent (winner LL worse, CRPS tied) and is anchored to the champion; team heads are blind to availability (TB@DAL: Mayfield Out → a 16.6pp "lean" toward TB); London PHI vs JAX given JAX home field; Daniels 116 pass yds from a relief share; "won in 10,000 simulations" copy on an analytic number.
+- Decisions: NFL-002 ladder preregistered and scored once (L6 win REJECTED, margin ELIGIBLE, totals REJECTED → incumbent retained, nothing promoted); Week 5 ships truth fixes only (disclose/withhold, venue identity, passer floor, copy) — no model change; spread/total probabilities per game not published while win and margin come from different ratings.
+- Files/contracts: `app/src/lib/sports/nfl/{team-ladder-v2,team-input-coherence}.mjs` (+tests); `board-roster-integrity.mjs` (applyPasserShareFloor, coverage); `output-state.mjs` (withheld comparison ⇒ no lean); `win-margin-heads.mjs` (neutralSiteOf); `game-sim.mjs` (opt-in neutral); `build-nfl-public-forecasts.mjs`, `build-nfl-player-board.mjs`, `ops/forecast-input-state.mjs`; NFL game/hub/week pages, `player-board.tsx`, `simulate/presentation/nfl.ts`; research `scripts/research/nfl/{replay-team-ladder,capture-team-ladder-forward}.mjs`; receipts under `data/internal/research/nfl/reports/nfl-002-*` and `team-ladder-forward/`. No forecast contract redesign (CONTRACT-001 untouched): new fields are additive (`teamInputs`, `withheldPassers`, `integrity.passerShareFloor`, `marketComparison.state = WITHHELD_TEAM_INPUTS`).
+- Local tests/build/UX: unit suite 9,068/9,072 (2 failures = `rls-live` needs a local Postgres binary; environment); typecheck clean; new tests 22 + 8/8 mutation probes caught; scratch e2e at one clock vs `origin/main` producers: 1/15 forecast summaries changed (PHI vs JAX), 3 player rows changed, board audit 0, roster audit 0. Local production build + post-build suite: see PR.
+- Result: READY_FOR_REVIEW (Week 5 truth package); NFL-002 IN_PROGRESS; NFL-003/004/005 NOT_STARTED with findings recorded.
+- PR / exact head: (filled at push)
+- Vercel Preview / Production build counts: 0 / 0 so far (branch `claude/*` is not deployed by `git.deploymentEnabled`). Expected on merge: 1 Production build.
+- Production acceptance: pending founder approval + merge; the forecast changes reach `/nfl` on the next event-window run before kickoff (or a free manual `nfl-event-window` dispatch with `skip_odds=true`).
+- Roadmap tasks updated: §2, NFL-001..005, Week 5 milestone, policy change log.
+- Remaining blockers / next: founder approval; post-kickoff grading of L6 forward receipts; NFL-003 allocation model; NFL-004 single ATD number; NFL-005 single-distribution win/margin.
+
 ---
 
 # 26. Immediate execution waves
@@ -1282,6 +1319,7 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 
 ## Roadmap policy change log
 
+- **2026-10-08 — Founder priority override (NFL World Model V2):** `NFL-001` → `NFL-005` move to the top of the queue, then `TRUTH-001`, `CONTRACT-001`, `MLB-001` → `MLB-005`; this replaces the earlier "NFL-001 only, then TRUTH-001" instruction. Time-sensitive Week 5 readiness milestone (2026-10-08 → 10-12) inside the NFL program. Unvalidated models stay in shadow; `COST-001` protections, `OPS-002` observation and DP's `NCAAF-001` are unaffected. Wave lists in §26 are historical; §2 is the execution order.
 - **2026-10-08 — CI-001:** main's `quality` gate was red because adapters.test.mjs MLB 8 required a `ready` MLB simulation in the newest 14 slates. `ready` (input completeness) has been rare by design since 2026-09-25, while the simulations themselves are healthy. The test's per-player check had been vacuous since it was written. It is replaced by hash-verified fixtures and a status-agnostic corpus contract. Rule: **tests must not take a precondition from rolling committed data; use pinned, self-verifying evidence or whole-history invariants.** The replacement-level batter disclosure finding is folded into `TRUTH-001` and `MLB-003`.
 - **2026-10-07 — Founder infrastructure-cost directive:** Added `COST-001` as the first priority after reviewing the previous Vercel billing cycle. Localhost-first implementation, local build/test/UX acceptance, batched changes, controlled automatic deployment triggers, founder review where requested, limited remote builds, budget/Build CPU measurement, and explicit remote-build exceptions are now mandatory. **This is a roadmap policy update only; `COST-001` implementation and Vercel configuration audit have not yet been performed.**
 - **2026-10-08 — OPS-002 merged and verified:** #1019 → `f65e7656`. The first bot data commit (`851ecc75`, 05:56:44Z) was attributed to `github-actions[bot]` and went READY and live. The seven-day acceptance now needs positive evidence (daily bot deployments + verified freshness) and cannot pass on zero failures alone; earliest DONE 2026-10-15.

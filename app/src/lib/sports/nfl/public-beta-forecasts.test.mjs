@@ -112,7 +112,10 @@ test("MARKET INDEPENDENCE · odds are carried for comparison and are not an inpu
    * inputs, and the code that chooses `heads` never reads a price. A mutant that slips a line or a market
    * row into the call must fail it, so the check cannot pass by matching nothing.
    */
-  const ALLOWED_SIM_ARGS = new Set(["fit: rsFit", "strengthState: wrapped", "event: ev", "artifactDate: DATE", "runs: RUNS", "heads"]);
+  /* Week 5 (2026-10-08): `simEvent` is the schedule event plus the venue fact (neutral site, from ESPN's
+     "VS" form or the nflverse list — neutralSiteOf); it is built inside the scanned head-choosing region,
+     so a price read there still fails the identifier scan below. */
+  const ALLOWED_SIM_ARGS = new Set(["fit: rsFit", "strengthState: wrapped", "event: ev", "event: simEvent", "artifactDate: DATE", "runs: RUNS", "heads"]);
   const regularSimCallIsModelOnly = (source) => {
     const calls = [...source.matchAll(/simulateNflGame\(\{([^}]*)\}\)/g)].map((m) => m[1]).filter((args) => /fit: rsFit/.test(args));
     if (calls.length !== 1) return false;

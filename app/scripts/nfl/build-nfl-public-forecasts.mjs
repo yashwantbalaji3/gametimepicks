@@ -507,7 +507,8 @@ for (const ev of events) {
 
     /* Week 5: the venue fact reaches the fallback pair too — a neutral site carries no home term in either path. */
     const neutralSite = neutralSiteOf(ev, winMargin.neutralEspnIds) === true;
-    const sim = simulateNflGame({ fit: rsFit, strengthState: wrapped, event: neutralSite ? { ...ev, neutral: true } : ev, artifactDate: DATE, runs: RUNS, heads });
+    const simEvent = neutralSite ? { ...ev, neutral: true } : ev;
+    const sim = simulateNflGame({ fit: rsFit, strengthState: wrapped, event: simEvent, artifactDate: DATE, runs: RUNS, heads });
     if (sim.state !== "SIMULATED") {
       refused.push({ providerEventId: ev.providerEventId, state: "SIM_ABSTAINED", reason: sim.reason ?? "the simulation abstained" });
       continue;
