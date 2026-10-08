@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-002-team-ladder-dev",
+  "dataClass": "PRIVATE_RESEARCH",
+  "preregistration": "data/internal/research/nfl/reports/nfl-002-team-ladder-preregistration.json",
+  "generatedBy": "scripts/research/nfl/replay-team-ladder.mjs --validate",
+  "scriptSha256": "d5d7d24016cbd32d9609ebeae700fd55556ec3d2ddb9d95e8b0e6b17307da4f8",
+  "devSeasons": [
+    2022,
+    2025
+  ],
+  "selected": {
+    "gE": 0.12,
+    "carryE": 0.8,
+    "gP": 0.08,
+    "carryP": 0.5
+  },
+  "eloFixed": {
+    "eloK": 20,
+    "eloHome": 36
+  },
+  "fits": {
+    "nfl-epa-adj-v1": {
+      "edgeKey": "epaEdge",
+      "a": 35.44633876960378,
+      "b": 2.283623741200811,
+      "sigma": 12.903750901965676
+    },
+    "nfl-dyn-od-points-v1": {
+      "edgeKey": "ptsEdge",
+      "a": 0.9794962611972157,
+      "b": 2.246508226921536,
+      "sigma": 12.851662679672591
+    },
+    "nfl-team-stack-v1": {
+      "modelId": "nfl-team-stack-v1",
+      "margin": {
+        "features": [
+          "hInd",
+          "eloD",
+          "epaEdge",
+          "ptsEdge",
+          "restDiff"
+        ],
+        "coef": [
+          2.233767186219975,
+          0.27937790316309485,
+          4.885984880618592,
+          0.5888936670694943,
+          1.9841583832018215
+        ],
+        "sigma": 12.837956538520416
+      },
+      "total": {
+        "features": [
+          "one",
+          "ptsTotal",
+          "epaSum"
+        ],
+        "coef": [
+          27.30577871117264,
+          0.38716203358310103,
+          13.121849909133267
+        ],
+        "sigma": 13.287949261307466
+      },
+      "rho": 0.02105385798685149,
+      "n": 1139
+    }
+  },
+  "gridTraces": {
+    "L2": [
+      {
+        "gE": 0.03,
+        "carryE": 0.5,
+        "devWinLogLoss": 0.64216
+      },
+      {
+        "gE": 0.03,
+        "carryE": 0.67,
+        "devWinLogLoss": 0.64568
+      },
+      {
+        "gE": 0.03,
+        "carryE": 0.8,
+        "devWinLogLoss": 0.64888
+      },
+      {
+        "gE": 0.05,
+        "carryE": 0.5,
+        "devWinLogLoss": 0.63917
+      },
+      {
+        "gE": 0.05,
+        "carryE": 0.67,
+        "devWinLogLoss": 0.64103
+      },
+      {
+        "gE": 0.05,
+        "carryE": 0.8,
+        "devWinLogLoss": 0.64309
+      },
+      {
+        "gE": 0.08,
+        "carryE": 0.5,
+        "devWinLogLoss": 0.63728
+      },
+      {
+        "gE": 0.08,
+        "carryE": 0.67,
+        "devWinLogLoss": 0.63747
+      },
+      {
+        "gE": 0.08,
+        "carryE": 0.8,
+        "devWinLogLoss": 0.63826
+      },
+      {
+        "gE": 0.12,
+        "carryE": 0.5,
+        "devWinLogLoss": 0.63779
+      },
+      {
+        "gE": 0.12,
+        "carryE": 0.67,
+        "devWinLogLoss": 0.63684
+      },
+      {
+        "gE": 0.12,
+        "carryE": 0.8,
+        "devWinLogLoss": 0.63666
+      }
+    ],
+    "L3": [
+      {
+        "gP": 0.03,
+        "carryP": 0.5,
+        "devWinLogLoss": 0.63998
+      },
+      {
+        "gP": 0.03,
+        "carryP": 0.67,
+        "devWinLogLoss": 0.6438
+      },
+      {
+        "gP": 0.03,
+        "carryP": 0.8,
+        "devWinLogLoss": 0.64724
+      },
+      {
+        "gP": 0.05,
+        "carryP": 0.5,
+        "devWinLogLoss": 0.63707
+      },
+      {
+        "gP": 0.05,
+        "carryP": 0.67,
+        "devWinLogLoss": 0.63918
+      },
+      {
+        "gP": 0.05,
+        "carryP": 0.8,
+        "devWinLogLoss": 0.64145
+      },
+      {
+        "gP": 0.08,
+        "carryP": 0.5,
+        "devWinLogLoss": 0.63544
+      },
+      {
+        "gP": 0.08,
+        "carryP": 0.67,
+        "devWinLogLoss": 0.6358
+      },
+      {
+        "gP": 0.08,
+        "carryP": 0.8,
+        "devWinLogLoss": 0.63674
+      },
+      {
+        "gP": 0.12,
+        "carryP": 0.5,
+        "devWinLogLoss": 0.63644
+      },
+      {
+        "gP": 0.12,
+        "carryP": 0.67,
+        "devWinLogLoss": 0.63558
+      },
+      {
+        "gP": 0.12,
+        "carryP": 0.8,
+        "devWinLogLoss": 0.63551
+      }
+    ]
+  },
+  "devMetricsInSample": {
+    "games": 1139,
+    "win": {
+      "L6": {
+        "decisive": 1136,
+        "logLoss": 0.63317,
+        "brier": 0.22177,
+        "ece": 0.0296
+      },
+      "L2": {
+        "decisive": 1136,
+        "logLoss": 0.63666,
+        "brier": 0.22316,
+        "ece": 0.03541
+      },
+      "L3": {
+        "decisive": 1136,
+        "logLoss": 0.63544,
+        "brier": 0.2228,
+        "ece": 0.03627
+      },
+      "incumbent": {
+        "decisive": 1136,
+        "logLoss": 0.63463,
+        "brier": 0.22201,
+        "ece": 0.03088
+      },
+      "incumbentMarginImplied": {
+        "decisive": 1136,
+        "logLoss": 0.64333,
+        "brier": 0.22601,
+        "ece": 0.03101
+      },
+      "L6OnPriced": {
+        "decisive": 1136,
+        "logLoss": 0.63317,
+        "brier": 0.22177,
+        "ece": 0.0296
+      },
+      "marketOnPriced": {
+        "decisive": 1136,
+        "logLoss": 0.60704,
+        "brier": 0.20995,
+        "ece": 0.0198
+      }
+    },
+    "margin": {
+      "L6": {
+        "n": 1139,
+        "mae": 9.95017,
+        "rmse": 12.80975,
+        "bias": -0.03127,
+        "crps": 7.17198,
+        "nll": 3.96915,
+        "coverage80": 0.79719
+      },
+      "L2": {
+        "n": 1139,
+        "mae": 9.98458,
+        "rmse": 12.89242,
+        "bias": -0.02941,
+        "crps": 7.21442,
+        "nll": 3.97558,
+        "coverage80": 0.79807
+      },
+      "L3": {
+        "n": 1139,
+        "mae": 9.96787,
+        "rmse": 12.84037,
+        "bias": -0.02807,
+        "crps": 7.19105,
+        "nll": 3.97153,
+        "coverage80": 0.80246
+      },
+      "incumbent": {
+        "n": 1139,
+        "mae": 10.09414,
+        "rmse": 13.02604,
+        "bias": -0.12161,
+        "crps": 7.29628,
+        "nll": 3.98589,
+        "coverage80": 0.79543
+      }
+    },
+    "totals": {
+      "comparedGames": 1139,
+      "L6": {
+        "n": 1139,
+        "mae": 10.42214,
+        "rmse": 13.27044,
+        "bias": 0,
+        "crps": 7.44727,
+        "nll": 4.00448,
+        "coverage80": 0.81299
+      },
+      "v3": {
+        "n": 1139,
+        "mae": 10.48816,
+        "rmse": 13.30921,
+        "bias": 0.14671,
+        "crps": 7.47569,
+        "nll": 4.0074,
+        "coverage80": 0.81299
+      }
+    }
+  },
+  "incumbentSideDisagreementsOnDev": 106,
+  "implementationChecks": {
+    "incumbentWinLogLoss": {
+      "expected": 0.62907,
+      "observed": 0.62907,
+      "pass": true
+    },
+    "incumbentMarginMae": {
+      "expected": 10.78546,
+      "observed": 10.78546,
+      "pass": true
+    },
+    "v3TotalsMae": {
+      "expected": 10.87108,
+      "observed": 10.87108,
+      "pass": true
+    }
+  }
+}
