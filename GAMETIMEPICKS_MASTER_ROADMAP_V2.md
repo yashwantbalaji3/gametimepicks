@@ -584,6 +584,15 @@ Hierarchical Bernoulli baseline → team scoring opportunities → red-zone/goal
 - Passing TDs: credited to a passer in every world; no evaluated distribution → withheld with a reason (no placeholder).
 - First TD scorer: needs scoring-event ORDER, which the worlds do not generate → withheld. Research plan: settlement rule (first TD of the game by any player; no-TD games settle 'no scorer'), sequential competing-risks model over drives (team first-possession, scoring hazard by team strength and pace, opportunity-weighted scorer at the event). New preregistration before any look.
 
+### Progress (2026-10-08 late; master completion directive; branch `claude/nfl-wm2-grading`)
+- **Passing TDs (A), development look 2022–25** (one look; seed `nfl004-ptd`; 2,208 starter QB-games; 4.56M team-worlds, 0 invariant failures). Preregistration `90dd95ed8b`, receipt `1da0c98f65` on branch `claude/nfl-004-passing-td`:
+  - The world's own distribution: **DO_NOT_PROCEED.** RPS 0.11909 vs baseline 0.11891; P(≥2) ECE 0.0306 > 0.03; P(≥3) log loss +0.0025 over the 0.002 allowance.
+  - 50/50 hybrid of world and per-QB rate baseline: **PROCEED_TO_FORWARD_SHADOW.** RPS 0.11832; every line's ECE ≤ 0.026.
+  - Cause: starter credit spread too thin (0.943 vs 0.965 of team passing TDs; pass-attempt kappa 5); no QB-skill term (level 1.022 → 0.963 by QB tier). Team TD level is fine (1.009).
+  - Several world inputs were fit on 2022–25, which favours the world. Not published; the hybrid needs ≥ 400 forward starter rows on the same bars. World v2 (kappa 20 + QB rate tilt) is drafted, not registered.
+- **Anytime TD (B):** world TD scorer v2 preregistered FORWARD-ONLY (`reports/nfl-004-world-td-v2-preregistration.json`, research branch `98a0a929a8`): opportunity-weighted scorer, no renormalising gate, other-TD term. Needs ≥ 1,000 forward rows and log loss ≤ min(rzTdV1, incumbent), ECE ≤ 0.03, level 0.95–1.05. The published anytime-TD source stays the player board's touchdown model until then.
+- **First TD (C):** still withheld; the worlds generate no scoring order (see the earlier plan).
+
 ## `NFL-005` — Shared worlds + forward promotion
 **Status:** NOT_STARTED
 Winner/score/spread/total/player outputs reconcile. If worlds are reweighted to a validated winner head, measure effective sample size and downstream distortion. Promote family by family.
@@ -630,6 +639,21 @@ Mirror `scripts/research/nfl/forward-player-props-share-level.mjs` (P300's forwa
   - Forward grading of World Model V2 runs (immutable records exist; grader to port).
   - TD families.
   - Promotion.
+
+### Progress (2026-10-08 late; master completion directive; branch `claude/nfl-wm2-grading`)
+- **#1026 merged** at exact head `0095da9657` (CI run 37851962553 `python` ✓ `quality` ✓; MERGEABLE/CLEAN; in scope) → `ccc4fb624974229fbe7c3748db09f643c6832eba` 22:37:14Z. Vercel Production `Duj7uEM9DgeQBPdppWGnGUmRYPWr` READY 22:43:30Z (~6 min); build-info = `ccc4fb62`. Preview 0; odds credits 0. Exact CPU charge: dashboard (not readable from this session).
+- **Production acceptance:**
+  - 15/15 game pages carry the hero, simulation, players, explorer and model status.
+  - All 50 board rows (5 published families × 10) match the forecast view computed from the merge commit; passing TD and first TD are withheld with reasons.
+  - 30/30 depth-chart passers render; the results-coverage disclosure is live; the `/nfl/world-model/*` redirect works.
+  - 375 px: no horizontal scroll. Forecast heads (22:17Z) are identical to the simulation inputs for 15/15 games.
+- **Grading:** `grade-nfl-world-model-v2.mjs` + `world-model-v2/grade.mjs` grade the LAST run before each kickoff against the official box scores.
+  - States: GRADED / PENDING / NO_LINE (never losses). Per-family MAE, bias, 80/50% coverage and ladder Brier; no combined accuracy.
+  - Runs in the settlement phase (`data/internal`, no build).
+- **Automated weekly inputs:**
+  - The event window folds 2026 finals (`build-player-games-2026.mjs`) and exports the packet for the week of the next game (`--week auto`). A packet is written only when its model content changes; on main's data it reproduced the manual Week 5 packet exactly ("unchanged").
+  - The committed gsis→ESPN id map replaces the local raw players.csv.
+  - Re-simulation is keyed per game (its own teams' slice), with legacy-key compatibility so existing runs are not re-simulated.
 
 ## Milestone — NFL Week 5 readiness (2026-10-08 → 2026-10-12)
 Founder-approved, time-sensitive milestone **inside** the NFL program (not a new task). Work items belong to `NFL-001` → `NFL-005` above.
