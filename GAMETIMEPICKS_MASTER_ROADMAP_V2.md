@@ -77,30 +77,50 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 
 # 2. Current priority queue
 
+**Founder-approved priority override (2026-10-08) — NFL World Model V2, time-sensitive.** The founder moved `NFL-001` → `NFL-005` to the top of the execution order, ahead of `TRUTH-001`. This replaces the earlier instruction to finish only `NFL-001` before returning to `TRUTH-001`. Immediate objective: the strongest *defensible* NFL Week 5 forecasts, starting with Thursday TB @ DAL (2026-10-08, 8:15 PM ET); see the Week 5 readiness milestone in §8. No task IDs, acceptance criteria or history were changed. Unvalidated models stay in shadow; no model is promoted to meet a kickoff.
+
 | Rank | Task ID | Department | Task | Status | Dependency | Production-bound? |
 |---:|---|---|---|---|---|---|
 | 0 | `CI-001` | Release Engineering / CI | Main-wide `quality` failure: adapters.test.mjs MLB 8 rolling-window `ready` precondition + vacuous per-player check | DONE 2026-10-08 — #1021 merged `d03691c4`; exact-head CI green; Production READY, build-info = merge SHA | None — P0 blocker for #1020 and all PRs | Test/fixture only (1 Production build on merge) |
-| 1 | `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — Phase 1 verified 2026-10-08; awaiting founder spend-alert confirmation | None — do first | Process/config, no app release expected |
-| 2 | `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | IN_PROGRESS — fix merged (#1019 → `f65e7656`, 2026-10-08 04:03Z); first bot data commit attributed `github-actions[bot]`, READY, live; **7-day observation running from cutover 2026-10-08T05:56:44Z** (earliest DONE ≈ 2026-10-15T05:57Z) | None | Workflow/identity config; Production freshness |
-| 3 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED — unblocked (deploy gate verified 2026-10-08) | COST-001 deployment gate verified ✓ | Yes |
-| 4 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | NOT_STARTED | Founder rules below | Foundation |
-| 5 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | NOT_STARTED | CONTRACT-001 | Yes |
-| 6 | `TEMPORAL-001` | Data Platform | Point-in-time temporal data/identity foundation for MLB/NFL critical fields | NOT_STARTED | CONTRACT-001 | Foundation |
-| 7 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 | NOT_STARTED | CONTRACT-001 view contracts | Yes |
-| 8 | `RESULTS-001` | Results | Prop-family Results V2 + time filters + drill-down | NOT_STARTED | LEDGER-001 | Yes |
-| 9 | `MLB-001` | MLB Modeling | World Model V2 research, rules, feature audit, benchmark ladder | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
-| 10 | `NFL-001` | NFL Modeling | World Model V2 research, team/player world architecture | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
-| 11 | `PRODUCT-001` | Product Engine | Canonical multi-sport candidate/eligibility/selection engine | NOT_STARTED | CONTRACT-001, LEDGER-001 | Shadow → Yes |
-| 12 | `PRODUCT-002` | Bank Builder / Moonshot | Migrate to canonical multi-sport forecast candidates | NOT_STARTED | PRODUCT-001 + passing family gates | Yes |
-| 13 | `PARLAY-001` | Parlay Lab | Same-world joint probability / dependency architecture | NOT_STARTED | PRODUCT-001 + world receipts | Shadow → Yes |
-| 14 | `LIVE-001` | Live | MLB factual prop tracking + event timeline | NOT_STARTED | Live data/ID capability | Yes |
-| 15 | `LIVE-002` | Live | MLB visual Game Center / pitch & field graphics | NOT_STARTED | LIVE-001 | Yes |
-| 16 | `LIVE-003` | Live Modeling | Conditional live forecasts from captured state | NOT_STARTED | LIVE-001/002 replay archive | Shadow |
-| 17 | `LIVE-004` | Live Products | Validated live straight opportunities | NOT_STARTED | LIVE-003 + fresh market identity | Shadow → Yes |
-| 18 | `LIVE-005` | Live Products | Supported live parlays | NOT_STARTED | LIVE-004 + dependence validation | Last |
-| 19 | `OPS-001` | Operations | Freshness, dependency receipts, retries, alerts, cost controls | NOT_STARTED | Parallel | Yes |
-| 20 | `TRUTHDOC-001` | Documentation | Generated “what runs now” inventory | NOT_STARTED | CONTRACT-001 | Yes |
-| 21 | `COST-002` | Release Engineering / FinOps | Reduce build memory so the export fits Vercel Standard (free first build slot); profile `/simulate/d/*` and last-quarter routes | NOT_STARTED | COST-001 Phase 1 | Build config/data loading; Production only after founder approval |
+| 1 | `NFL-001` | NFL Modeling | World Model V2 research, team/player world architecture — champion/control audit (preserve V1 control, reproduce analytic-winner vs sampled-score disagreement and the historical V2 evaluation) | IN_PROGRESS — 2026-10-08 (NFL World Model V2 session) | None (TEMPORAL-001 can progress in parallel) | Shadow (audit); Week 5 truth fixes may ship |
+| 2 | `NFL-002` | NFL Modeling | Benchmark ladder: MOV/Elo champion → opponent-adjusted EPA → dynamic hierarchical → drive process → distributional ML → calibrated ensemble | NOT_STARTED | NFL-001 | Shadow → family-by-family promotion |
+| 3 | `NFL-003` | NFL Modeling | Player opportunity allocation (plays → pass/rush → attempts/carries → targets → catches → yards → TDs, with `OTHER`) | NOT_STARTED | NFL-002 team volume | Shadow → family-by-family promotion |
+| 4 | `NFL-004` | NFL Modeling | TD model: hierarchical Bernoulli → team scoring opportunities → red-zone role → drive attribution | NOT_STARTED | NFL-003 | Shadow → family-by-family promotion |
+| 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | NOT_STARTED | NFL-002, NFL-003, NFL-004 | Yes, family by family |
+| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED — unblocked (deploy gate verified 2026-10-08) | COST-001 deployment gate verified ✓ | Yes |
+| 7 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | NOT_STARTED | Founder rules below | Foundation |
+| 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
+| 9 | `MLB-002` | MLB Modeling | Benchmark ladder (PA control → Poisson → hierarchical → NB → bivariate → enhanced PA → boosting → ensemble) | NOT_STARTED | MLB-001 | Shadow |
+| 10 | `MLB-003` | MLB Modeling | Batter markets from shared PA/base-state worlds; project every confirmed starter | NOT_STARTED | MLB-002 | Shadow → family-by-family |
+| 11 | `MLB-004` | MLB Modeling | Pitcher markets (workload survival, BF, K/contact/BB, bullpen transition) | NOT_STARTED | MLB-002 | Shadow → family-by-family |
+| 12 | `MLB-005` | MLB Modeling | Shared WorldReceipt + forward shadow | NOT_STARTED | MLB-003, MLB-004 | Family-by-family |
+| 13 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | NOT_STARTED | CONTRACT-001 | Yes |
+| 14 | `TEMPORAL-001` | Data Platform | Point-in-time temporal data/identity foundation for MLB/NFL critical fields | NOT_STARTED | CONTRACT-001 | Foundation |
+| 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 | NOT_STARTED | CONTRACT-001 view contracts | Yes |
+| 16 | `RESULTS-001` | Results | Prop-family Results V2 + time filters + drill-down | NOT_STARTED | LEDGER-001 | Yes |
+| 17 | `PRODUCT-001` | Product Engine | Canonical multi-sport candidate/eligibility/selection engine | NOT_STARTED | CONTRACT-001, LEDGER-001 | Shadow → Yes |
+| 18 | `PRODUCT-002` | Bank Builder / Moonshot | Migrate to canonical multi-sport forecast candidates | NOT_STARTED | PRODUCT-001 + passing family gates | Yes |
+| 19 | `PARLAY-001` | Parlay Lab | Same-world joint probability / dependency architecture | NOT_STARTED | PRODUCT-001 + world receipts | Shadow → Yes |
+| 20 | `LIVE-001` | Live | MLB factual prop tracking + event timeline | NOT_STARTED | Live data/ID capability | Yes |
+| 21 | `LIVE-002` | Live | MLB visual Game Center / pitch & field graphics | NOT_STARTED | LIVE-001 | Yes |
+| 22 | `LIVE-003` | Live Modeling | Conditional live forecasts from captured state | NOT_STARTED | LIVE-001/002 replay archive | Shadow |
+| 23 | `LIVE-004` | Live Products | Validated live straight opportunities | NOT_STARTED | LIVE-003 + fresh market identity | Shadow → Yes |
+| 24 | `LIVE-005` | Live Products | Supported live parlays | NOT_STARTED | LIVE-004 + dependence validation | Last |
+| 25 | `OPS-001` | Operations | Freshness, dependency receipts, retries, alerts, cost controls | NOT_STARTED | Parallel | Yes |
+| 26 | `TRUTHDOC-001` | Documentation | Generated “what runs now” inventory | NOT_STARTED | CONTRACT-001 | Yes |
+| 27 | `COST-002` | Release Engineering / FinOps | Reduce build memory so the export fits Vercel Standard (free first build slot); profile `/simulate/d/*` and last-quarter routes | NOT_STARTED | COST-001 Phase 1 | Build config/data loading; Production only after founder approval |
+
+**Standing / parallel workstreams (not ranked against the queue above):**
+
+| Task ID | Department | Task | Status | Dependency | Production-bound? |
+|---|---|---|---|---|---|
+| `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — Phase 1 verified 2026-10-08; awaiting founder spend-alert confirmation | None — do first | Process/config, no app release expected |
+| `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | IN_PROGRESS — fix merged (#1019 → `f65e7656`, 2026-10-08 04:03Z); first bot data commit attributed `github-actions[bot]`, READY, live; **7-day observation running from cutover 2026-10-08T05:56:44Z** (earliest DONE ≈ 2026-10-15T05:57Z) | None | Workflow/identity config; Production freshness |
+| `NCAAF-001` | NCAAF Modeling (DP) | Point-in-time data foundation — DP-owned, independent lane | Owned by DP (status in §12) | None | Foundation |
+
+- `COST-001` protections remain mandatory for every task above: localhost-first, `claude/*` branches create no Vercel deployment, one controlled Production build per approved merge, and no documentation-only Production deployment.
+- `OPS-002` observation and DP's `NCAAF-001` continue in parallel and are not paused or re-scoped by the NFL override.
+- Previous order (2026-10-07/08, before the override): CI-001, COST-001, OPS-002, TRUTH-001, CONTRACT-001, LEDGER-001, TEMPORAL-001, UX-001, RESULTS-001, MLB-001, NFL-001, PRODUCT-001, … (see git history of this file).
 
 ---
 
@@ -474,8 +494,14 @@ Hard invariants: `K ≤ BF`; correct outs/innings notation; earned runs separate
 One coherent football world should connect game script, score, team opportunity, player volume, efficiency, and scoring.
 
 ## `NFL-001` — Champion/control audit
-**Priority:** P1  
-**Status:** NOT_STARTED
+**Priority:** P1 → **P0 (founder priority override 2026-10-08)**  
+**Status:** IN_PROGRESS  
+**Owner/session:** Claude Code session 2026-10-08 (NFL World Model V2)  
+**Branch:** `claude/nfl-world-model-v2-priority-79e413` (worktree, from `origin/main` `629cfbf494bb2ca2809af5e379abaa56901e49f9`)  
+**PR:** —  
+**Exact head:** —  
+**Evidence:** — (audit in progress)  
+**Production acceptance:** —
 - Preserve canonical V1 as control.
 - Reproduce analytic winner vs sampled-score disagreement.
 - Reproduce historical V2 evaluation.
@@ -515,6 +541,14 @@ Winner/score/spread/total/player outputs reconcile. If worlds are reweighted to 
 ### Existing references
 - `claude/arch-nfl-ns1-ns2-e2-87uth3`
 - `claude/handoff-nfl-7-0-top-board-receipts`
+
+## Milestone — NFL Week 5 readiness (2026-10-08 → 2026-10-12)
+Founder-approved, time-sensitive milestone **inside** the NFL program (not a new task). Work items belong to `NFL-001` → `NFL-005` above.
+- Window: Thursday 2026-10-08 TB @ DAL (8:15 PM ET, first priority) → Sunday 2026-10-11 → Monday 2026-10-12.
+- Target per game: correct teams/kickoff/event identity; current QB and key roster assumptions; predicted winner and win probability; projected score and score distribution; expected margin and spread probabilities; expected total and total probabilities; supported player projections only where validated; model provenance and forecast timestamp; game-detail navigation.
+- Rules: unvalidated challengers stay in shadow (the incumbent is retained wherever a challenger has not shown adequate held-out performance); no QUESTIONABLE/OUT/ineligible players in public ranked recommendations; preliminary vs frozen pregame forecasts are distinguished; frozen forecasts are never revised after kickoff; no Elo-derived probability is presented as an observed simulation count; model-vs-market comparisons match exact selection, direction, line and settlement rules; a known `TRUTH-001`-class defect touching NFL is fixed within NFL scope or the claim is suppressed (the cross-sport `TRUTH-001` task stays intact).
+- Release: local-first; one focused PR of validated changes; exact-head CI green; **founder approval before the Production merge**; `COST-001` protections apply.
+- Status: IN_PROGRESS (2026-10-08).
 
 ---
 
