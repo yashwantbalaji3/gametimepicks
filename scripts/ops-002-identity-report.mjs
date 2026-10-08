@@ -15,21 +15,25 @@
  * Usage:
  *   node scripts/ops-002-identity-report.mjs --cli-auth [--days 7] [--since <ISO>] [--cutover <ISO>] [--json]
  *
- * Exit 2 when any deployment in the window is BLOCKED with TEAM_ACCESS_REQUIRED, or when an automated
- * data commit after --cutover is attributed to anything other than github-actions[bot] — so it can be run
- * daily through the seven-day OPS-002 acceptance window (docs/OPS_002_BOT_COMMIT_IDENTITY.md §6).
+ * The verdict (scripts/ops-002-acceptance.mjs) never passes on absence of evidence:
+ *   exit 0 PASS     ≥ 7 days since --cutover, a READY github-actions[bot] data deployment in every 24 h,
+ *                   no block or foreign identity, Production freshness positively verified;
+ *   exit 2 FAIL     TEAM_ACCESS_REQUIRED, or a post-cutover data commit under another identity;
+ *   exit 3 NOT_YET  no cutover / window incomplete / a day with no bot deployment to judge;
+ *   exit 4 STALE    live build-info is not the newest READY build, main head undeployed, or a build stuck.
+ * Run it daily through the OPS-002 window (docs/OPS_002_BOT_COMMIT_IDENTITY.md §6). --since defaults to
+ * --cutover when given.
  */
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { acceptanceVerdict, normalize, BOT_LOGIN, BOT_EMAIL } from "./ops-002-acceptance.mjs";
 
 const TEAM = "team_Apd3fTXpVls1DK5CwAt0Uzd5";
 const PROJECT = "prj_qaHS65v4G30tTy1s6MYbsLbKYvbh"; // gametime-picks (canonical)
 const PROD = "https://gametime-picks.vercel.app";
 const API = "https://api.vercel.com";
-const BOT_LOGIN = "github-actions[bot]";
-const BOT_EMAIL = "41898282+github-actions[bot]@users.noreply.github.com";
 
 const argv = process.argv.slice(2);
 const flag = (n) => argv.includes(n);
@@ -37,8 +41,14 @@ const opt = (n, d) => {
   const i = argv.indexOf(n);
   return i >= 0 && argv[i + 1] !== undefined ? argv[i + 1] : d;
 };
-const since = opt("--since", null) ? Date.parse(opt("--since")) : Date.now() - Number(opt("--days", "7")) * 86_400_000;
 const cutover = opt("--cutover", null) ? Date.parse(opt("--cutover")) : null;
+const since = opt("--since", null)
+  ? Date.parse(opt("--since"))
+  : cutover ?? Date.now() - Number(opt("--days", "7")) * 86_400_000;
+if (cutover !== null && since > cutover) {
+  console.error("--since must not be later than --cutover (the window must contain every post-cutover deployment)");
+  process.exit(1);
+}
 
 function token() {
   if (process.env.VERCEL_TOKEN) return process.env.VERCEL_TOKEN;
@@ -104,7 +114,18 @@ try {
 } catch {}
 const lastReady = deps.filter((d) => d.readyState === "READY").at(-1);
 
+const acceptance = acceptanceVerdict({
+  deployments: deps.map(normalize),
+  cutover,
+  now: Date.now(),
+  buildInfoSha: buildInfo?.commit?.sha ?? null,
+  mainSha,
+  requiredDays: Number(opt("--required-days", "7")),
+  maxLagMin: Number(opt("--max-lag-min", "30")),
+});
+
 const report = {
+  acceptance,
   window: { since: iso(since), until: iso(Date.now()), cutover: cutover && iso(cutover) },
   productionDeployments: deps.length,
   attribution: byWho,
@@ -146,6 +167,9 @@ if (flag("--json")) {
   }
   const f = report.freshness;
   console.log(`\nFreshness: origin/main ${f.originMain} · production built from ${f.productionBuiltFrom} at ${f.productionBuiltAt} · at main head: ${f.productionIsMainHead}`);
+  const a = acceptance;
+  console.log(`\nACCEPTANCE: ${a.verdict} — observed ${a.evidence.observedDays} d · ${a.evidence.postCutoverReadyAsBot} READY bot data deployments · per day ${JSON.stringify(a.evidence.readyAsBotPerDay)}`);
+  for (const [k, list] of Object.entries(a.reasons)) for (const r of list) console.log(`  ${k}: ${r}`);
 }
 
-process.exit(teamAccess.length > 0 || wrongIdentity.length > 0 ? 2 : 0);
+process.exit(acceptance.exit);
