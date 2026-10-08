@@ -823,6 +823,7 @@ Only after live straights and dependence/joint-world validation.
 | 2 | Founder approves merge; merge exact head (`--match-head-commit`); 1 Production build | DONE — approved 2026-10-08; merged `f65e7656`; 1 build (40 CPU-min ≈ $0.14) |
 | 3 | Cutover = first post-merge data commit authored `github-actions[bot]`; Vercel attributes it `github-actions[bot]/bot`, READY; build-info advances | DONE — `851ecc75` @ 05:56:44Z → `dpl_BjrG1yjNziJ91VNqAnRv3nKASiSS` READY, live |
 | 4 | ≥ 7 days after cutover: `node scripts/ops-002-identity-report.mjs --cli-auth --cutover <cutover>` returns **`PASS`** (exit 0). PASS requires all of: no `TEAM_ACCESS_REQUIRED`; every post-cutover `auto…` deployment attributed to `github-actions[bot]`/bot; ≥ 1 READY bot data deployment in **every** 24 h slot; live build-info = newest READY build; `main` head deployed; nothing errored, blocked or stuck. `NOT_YET` (3) and `STALE` (4) are never acceptance (founder requirement 2026-10-08; docs/OPS_002 §6) | after merge (read-only, $0) |
+| 4a | Acceptance monitor integrated on `main` | DONE — PR #1020 merged `b456c7a5bfcb3fb232cf3043eefdacff2ea8f3f0` (2026-10-08T15:02:17Z, exact head `f45aebd737c68d0f0160e74253bf2ee46cecf844`, CI run 37793687297 green). `dpl_4uNZTwdJoEgDNvqnyzuazkesHMhq` READY 15:07:12Z; build-info = `b456c7a5`; billed 48 CPU-min ≈ $0.17; 0 Previews; COST-001 config unchanged. Carried the CI-001 `DONE` records |
 | 5 | Record evidence → `DONE` | NOT_STARTED — earliest 2026-10-15T05:57Z. If the report is not run, the seven days are not accepted |
 
 Daily check (read-only, $0): `node scripts/ops-002-identity-report.mjs --cli-auth --cutover 2026-10-08T05:56:44Z`. Any `FAIL` reopens the investigation; `STALE` means a freshness incident (OPS-001 territory) and must be explained before acceptance.
@@ -1207,6 +1208,30 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Result: #1020 ready for exact-head CI → founder approval of the final head → merge (≈ 1 Production build).
 - Vercel Preview / Production build counts this step: 0 / 0.
 - Production acceptance: unchanged. The OPS-002 seven-day observation continues from cutover 2026-10-08T05:56:44Z; status IN_PROGRESS, not DONE.
+
+## 2026-10-08 — Claude Code (OPS-002 session, final) — `OPS-002` PR #1020 integration
+- Starting main SHA: `f08ddfd1f4` (PR base after refresh)
+- Branch: `claude/ops-002-acceptance-monitor` (PR #1020, merged). This record sits on `claude/ops-002-closeout`, which is **not merged on its own**: it ships with the OPS-002 `DONE` update, so there is no docs-only deployment.
+- Goal: founder-approved exact-head merge of #1020; Production verification.
+- Decisions made: re-verified before merging that the head was unchanged (`f45aebd7`) and both checks green. Merged with `--match-head-commit`.
+- Files/contracts changed: none beyond #1020 (5 files).
+- Result: **merged `b456c7a5bfcb3fb232cf3043eefdacff2ea8f3f0`** (15:02:17Z).
+  - `dpl_4uNZTwdJoEgDNvqnyzuazkesHMhq` READY 15:07:12Z (4m48s); Production build-info = `b456c7a5` (built 15:04:06Z).
+  - Routes `/`, `/mlb/`, `/nfl/`, `/nba/`, `/ufc/`, `/epl/`, `/soccer/ligue-1/`, `/results/`, `/today/`, `/markets/`, `/live/`, `/bank-builder/`, `/world-cup/` all return 200. (`/soccer/` and `/soccer/epl/` 404 by design since 09-29: `/soccer/[league]` builds registry leagues only, and EPL lives at `/epl/`.)
+  - Roadmap on `main` contains the CI-001 `DONE` record and the OPS-002 monitoring evidence.
+- PR / exact head: #1020 / `f45aebd737c68d0f0160e74253bf2ee46cecf844` (CI run 37793687297: `python` ✓ 14:36:56Z, `quality` ✓ 14:55:51Z)
+- Vercel Preview / Production build counts: **0 / 1**.
+  - Only one deployment was created between the branch push (14:35Z) and READY.
+  - COST-001 controls unchanged: `app/vercel.json` and `vercel-ignore-build.sh` identical to main; project `buildQueue: WAIT_FOR_NAMESPACE_QUEUE`, machine `enhanced`, as recorded by COST-001.
+- Build CPU/cost evidence: `cpuTimeForBilling` 2,880,000 ms = **48 CPU-min ≈ $0.17**.
+- Production acceptance: **PASS** for the #1020 integration.
+- OPS-002 seven-day acceptance: report from `main` at 15:08Z gave NOT_YET (exit 3, 0.38 d). Details: 14/14 post-cutover data deployments as `github-actions[bot]`, 0 blocks, Production at main head.
+- Status: OPS-002 stays **IN_PROGRESS**. Earliest `PASS` 2026-10-15T05:57Z.
+- Roadmap tasks updated: OPS-002 remaining-acceptance row 4a (on this branch).
+- Remaining blockers / recommended next task:
+  - Daily `node scripts/ops-002-identity-report.mjs --cli-auth --cutover 2026-10-08T05:56:44Z` (docs/OPS_002 §6). On `PASS`, add its output here, set OPS-002 `DONE`, and merge this branch with that update.
+  - Founder follow-ups F1 (`gtp-ops` identity ownership) and F2 (10-07 visibility change) are still open.
+  - Next: TRUTH-001, in a fresh session.
 
 ---
 
