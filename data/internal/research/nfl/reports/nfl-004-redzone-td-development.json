@@ -1,0 +1,1382 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-004-redzone-td-development",
+ "dataClass": "PRIVATE_RESEARCH",
+ "evidenceTier": "SECOND_LOOK_DEVELOPMENT — 2014-2021 was scored blind by P301; not a blind result. Only the 2026 forward test can make the model eligible.",
+ "generatedAt": "2026-10-08T17:51:56Z",
+ "preregistration": {
+  "path": "data/internal/research/nfl/reports/nfl-004-redzone-td-preregistration.json",
+  "commit": "7ee4f0d915f74ed6fecba5582057b46932389ee3 2026-10-08T13:45:13-04:00"
+ },
+ "scriptSha256": "d97428b4320946cb5f57fac2bc4718a71eebb39a5f9d32804c638d338aae3528",
+ "implementationChecks": {
+  "incumbentLogLoss": {
+   "expected": 0.50435,
+   "observed": 0.50435,
+   "n": [
+    35128,
+    35128
+   ],
+   "pass": true
+  }
+ },
+ "devSelection": {
+  "selected": {
+   "combo": "10|40",
+   "N": 10,
+   "k": 40,
+   "rho": 0,
+   "devLogLoss": 0.48577
+  },
+  "bestWithoutRealloc": {
+   "combo": "10|40",
+   "N": 10,
+   "k": 40,
+   "rho": 0,
+   "devLogLoss": 0.48577
+  },
+  "grid": [
+   {
+    "combo": "20|2",
+    "N": 20,
+    "k": 2,
+    "rho": 0,
+    "devLogLoss": 0.49708
+   },
+   {
+    "combo": "20|2",
+    "N": 20,
+    "k": 2,
+    "rho": 0.25,
+    "devLogLoss": 0.49739
+   },
+   {
+    "combo": "20|2",
+    "N": 20,
+    "k": 2,
+    "rho": 0.5,
+    "devLogLoss": 0.4975
+   },
+   {
+    "combo": "20|2",
+    "N": 20,
+    "k": 2,
+    "rho": 0.75,
+    "devLogLoss": 0.4975
+   },
+   {
+    "combo": "20|2",
+    "N": 20,
+    "k": 2,
+    "rho": 1,
+    "devLogLoss": 0.4975
+   },
+   {
+    "combo": "20|5",
+    "N": 20,
+    "k": 5,
+    "rho": 0,
+    "devLogLoss": 0.49237
+   },
+   {
+    "combo": "20|5",
+    "N": 20,
+    "k": 5,
+    "rho": 0.25,
+    "devLogLoss": 0.4928
+   },
+   {
+    "combo": "20|5",
+    "N": 20,
+    "k": 5,
+    "rho": 0.5,
+    "devLogLoss": 0.4929
+   },
+   {
+    "combo": "20|5",
+    "N": 20,
+    "k": 5,
+    "rho": 0.75,
+    "devLogLoss": 0.4929
+   },
+   {
+    "combo": "20|5",
+    "N": 20,
+    "k": 5,
+    "rho": 1,
+    "devLogLoss": 0.4929
+   },
+   {
+    "combo": "20|10",
+    "N": 20,
+    "k": 10,
+    "rho": 0,
+    "devLogLoss": 0.48926
+   },
+   {
+    "combo": "20|10",
+    "N": 20,
+    "k": 10,
+    "rho": 0.25,
+    "devLogLoss": 0.48982
+   },
+   {
+    "combo": "20|10",
+    "N": 20,
+    "k": 10,
+    "rho": 0.5,
+    "devLogLoss": 0.48991
+   },
+   {
+    "combo": "20|10",
+    "N": 20,
+    "k": 10,
+    "rho": 0.75,
+    "devLogLoss": 0.48991
+   },
+   {
+    "combo": "20|10",
+    "N": 20,
+    "k": 10,
+    "rho": 1,
+    "devLogLoss": 0.48991
+   },
+   {
+    "combo": "20|20",
+    "N": 20,
+    "k": 20,
+    "rho": 0,
+    "devLogLoss": 0.48712
+   },
+   {
+    "combo": "20|20",
+    "N": 20,
+    "k": 20,
+    "rho": 0.25,
+    "devLogLoss": 0.48778
+   },
+   {
+    "combo": "20|20",
+    "N": 20,
+    "k": 20,
+    "rho": 0.5,
+    "devLogLoss": 0.48787
+   },
+   {
+    "combo": "20|20",
+    "N": 20,
+    "k": 20,
+    "rho": 0.75,
+    "devLogLoss": 0.48787
+   },
+   {
+    "combo": "20|20",
+    "N": 20,
+    "k": 20,
+    "rho": 1,
+    "devLogLoss": 0.48787
+   },
+   {
+    "combo": "20|40",
+    "N": 20,
+    "k": 40,
+    "rho": 0,
+    "devLogLoss": 0.48608
+   },
+   {
+    "combo": "20|40",
+    "N": 20,
+    "k": 40,
+    "rho": 0.25,
+    "devLogLoss": 0.48685
+   },
+   {
+    "combo": "20|40",
+    "N": 20,
+    "k": 40,
+    "rho": 0.5,
+    "devLogLoss": 0.48693
+   },
+   {
+    "combo": "20|40",
+    "N": 20,
+    "k": 40,
+    "rho": 0.75,
+    "devLogLoss": 0.48693
+   },
+   {
+    "combo": "20|40",
+    "N": 20,
+    "k": 40,
+    "rho": 1,
+    "devLogLoss": 0.48693
+   },
+   {
+    "combo": "10|2",
+    "N": 10,
+    "k": 2,
+    "rho": 0,
+    "devLogLoss": 0.50344
+   },
+   {
+    "combo": "10|2",
+    "N": 10,
+    "k": 2,
+    "rho": 0.25,
+    "devLogLoss": 0.50357
+   },
+   {
+    "combo": "10|2",
+    "N": 10,
+    "k": 2,
+    "rho": 0.5,
+    "devLogLoss": 0.50372
+   },
+   {
+    "combo": "10|2",
+    "N": 10,
+    "k": 2,
+    "rho": 0.75,
+    "devLogLoss": 0.50373
+   },
+   {
+    "combo": "10|2",
+    "N": 10,
+    "k": 2,
+    "rho": 1,
+    "devLogLoss": 0.50373
+   },
+   {
+    "combo": "10|5",
+    "N": 10,
+    "k": 5,
+    "rho": 0,
+    "devLogLoss": 0.49378
+   },
+   {
+    "combo": "10|5",
+    "N": 10,
+    "k": 5,
+    "rho": 0.25,
+    "devLogLoss": 0.49418
+   },
+   {
+    "combo": "10|5",
+    "N": 10,
+    "k": 5,
+    "rho": 0.5,
+    "devLogLoss": 0.49431
+   },
+   {
+    "combo": "10|5",
+    "N": 10,
+    "k": 5,
+    "rho": 0.75,
+    "devLogLoss": 0.49431
+   },
+   {
+    "combo": "10|5",
+    "N": 10,
+    "k": 5,
+    "rho": 1,
+    "devLogLoss": 0.49431
+   },
+   {
+    "combo": "10|10",
+    "N": 10,
+    "k": 10,
+    "rho": 0,
+    "devLogLoss": 0.48896
+   },
+   {
+    "combo": "10|10",
+    "N": 10,
+    "k": 10,
+    "rho": 0.25,
+    "devLogLoss": 0.48954
+   },
+   {
+    "combo": "10|10",
+    "N": 10,
+    "k": 10,
+    "rho": 0.5,
+    "devLogLoss": 0.48965
+   },
+   {
+    "combo": "10|10",
+    "N": 10,
+    "k": 10,
+    "rho": 0.75,
+    "devLogLoss": 0.48965
+   },
+   {
+    "combo": "10|10",
+    "N": 10,
+    "k": 10,
+    "rho": 1,
+    "devLogLoss": 0.48965
+   },
+   {
+    "combo": "10|20",
+    "N": 10,
+    "k": 20,
+    "rho": 0,
+    "devLogLoss": 0.48652
+   },
+   {
+    "combo": "10|20",
+    "N": 10,
+    "k": 20,
+    "rho": 0.25,
+    "devLogLoss": 0.48724
+   },
+   {
+    "combo": "10|20",
+    "N": 10,
+    "k": 20,
+    "rho": 0.5,
+    "devLogLoss": 0.48733
+   },
+   {
+    "combo": "10|20",
+    "N": 10,
+    "k": 20,
+    "rho": 0.75,
+    "devLogLoss": 0.48733
+   },
+   {
+    "combo": "10|20",
+    "N": 10,
+    "k": 20,
+    "rho": 1,
+    "devLogLoss": 0.48733
+   },
+   {
+    "combo": "10|40",
+    "N": 10,
+    "k": 40,
+    "rho": 0,
+    "devLogLoss": 0.48577
+   },
+   {
+    "combo": "10|40",
+    "N": 10,
+    "k": 40,
+    "rho": 0.25,
+    "devLogLoss": 0.48659
+   },
+   {
+    "combo": "10|40",
+    "N": 10,
+    "k": 40,
+    "rho": 0.5,
+    "devLogLoss": 0.48667
+   },
+   {
+    "combo": "10|40",
+    "N": 10,
+    "k": 40,
+    "rho": 0.75,
+    "devLogLoss": 0.48667
+   },
+   {
+    "combo": "10|40",
+    "N": 10,
+    "k": 40,
+    "rho": 1,
+    "devLogLoss": 0.48667
+   },
+   {
+    "combo": "5|2",
+    "N": 5,
+    "k": 2,
+    "rho": 0,
+    "devLogLoss": 0.50686
+   },
+   {
+    "combo": "5|2",
+    "N": 5,
+    "k": 2,
+    "rho": 0.25,
+    "devLogLoss": 0.50664
+   },
+   {
+    "combo": "5|2",
+    "N": 5,
+    "k": 2,
+    "rho": 0.5,
+    "devLogLoss": 0.50678
+   },
+   {
+    "combo": "5|2",
+    "N": 5,
+    "k": 2,
+    "rho": 0.75,
+    "devLogLoss": 0.50678
+   },
+   {
+    "combo": "5|2",
+    "N": 5,
+    "k": 2,
+    "rho": 1,
+    "devLogLoss": 0.50678
+   },
+   {
+    "combo": "5|5",
+    "N": 5,
+    "k": 5,
+    "rho": 0,
+    "devLogLoss": 0.49357
+   },
+   {
+    "combo": "5|5",
+    "N": 5,
+    "k": 5,
+    "rho": 0.25,
+    "devLogLoss": 0.49389
+   },
+   {
+    "combo": "5|5",
+    "N": 5,
+    "k": 5,
+    "rho": 0.5,
+    "devLogLoss": 0.49401
+   },
+   {
+    "combo": "5|5",
+    "N": 5,
+    "k": 5,
+    "rho": 0.75,
+    "devLogLoss": 0.49401
+   },
+   {
+    "combo": "5|5",
+    "N": 5,
+    "k": 5,
+    "rho": 1,
+    "devLogLoss": 0.49401
+   },
+   {
+    "combo": "5|10",
+    "N": 5,
+    "k": 10,
+    "rho": 0,
+    "devLogLoss": 0.48844
+   },
+   {
+    "combo": "5|10",
+    "N": 5,
+    "k": 10,
+    "rho": 0.25,
+    "devLogLoss": 0.48903
+   },
+   {
+    "combo": "5|10",
+    "N": 5,
+    "k": 10,
+    "rho": 0.5,
+    "devLogLoss": 0.48913
+   },
+   {
+    "combo": "5|10",
+    "N": 5,
+    "k": 10,
+    "rho": 0.75,
+    "devLogLoss": 0.48913
+   },
+   {
+    "combo": "5|10",
+    "N": 5,
+    "k": 10,
+    "rho": 1,
+    "devLogLoss": 0.48913
+   },
+   {
+    "combo": "5|20",
+    "N": 5,
+    "k": 20,
+    "rho": 0,
+    "devLogLoss": 0.48639
+   },
+   {
+    "combo": "5|20",
+    "N": 5,
+    "k": 20,
+    "rho": 0.25,
+    "devLogLoss": 0.48713
+   },
+   {
+    "combo": "5|20",
+    "N": 5,
+    "k": 20,
+    "rho": 0.5,
+    "devLogLoss": 0.48722
+   },
+   {
+    "combo": "5|20",
+    "N": 5,
+    "k": 20,
+    "rho": 0.75,
+    "devLogLoss": 0.48722
+   },
+   {
+    "combo": "5|20",
+    "N": 5,
+    "k": 20,
+    "rho": 1,
+    "devLogLoss": 0.48722
+   },
+   {
+    "combo": "5|40",
+    "N": 5,
+    "k": 40,
+    "rho": 0,
+    "devLogLoss": 0.48593
+   },
+   {
+    "combo": "5|40",
+    "N": 5,
+    "k": 40,
+    "rho": 0.25,
+    "devLogLoss": 0.48676
+   },
+   {
+    "combo": "5|40",
+    "N": 5,
+    "k": 40,
+    "rho": 0.5,
+    "devLogLoss": 0.48684
+   },
+   {
+    "combo": "5|40",
+    "N": 5,
+    "k": 40,
+    "rho": 0.75,
+    "devLogLoss": 0.48684
+   },
+   {
+    "combo": "5|40",
+    "N": 5,
+    "k": 40,
+    "rho": 1,
+    "devLogLoss": 0.48684
+   }
+  ],
+  "incumbentReallocTrace": [
+   {
+    "rho": 0,
+    "devLogLoss": 0.48664
+   },
+   {
+    "rho": 0.25,
+    "devLogLoss": 0.48789
+   },
+   {
+    "rho": 0.5,
+    "devLogLoss": 0.48797
+   },
+   {
+    "rho": 0.75,
+    "devLogLoss": 0.48797
+   },
+   {
+    "rho": 1,
+    "devLogLoss": 0.48797
+   }
+  ]
+ },
+ "population": {
+  "development": [
+   2014,
+   2021
+  ],
+  "scored": 35128,
+  "positives": 7931
+ },
+ "results": {
+  "incumbent": {
+   "overall": {
+    "n": 35128,
+    "logLoss": 0.50435,
+    "brier": 0.1644,
+    "meanPredicted": 0.23366,
+    "actualRate": 0.22577,
+    "level": 1.03493,
+    "ece": 0.0203,
+    "topDecile": {
+     "n": 3512,
+     "meanPredicted": 0.52687,
+     "actualRate": 0.44021
+    },
+    "reliability": [
+     {
+      "n": 5261,
+      "meanPredicted": 0.07544,
+      "actualRate": 0.09333
+     },
+     {
+      "n": 11884,
+      "meanPredicted": 0.14707,
+      "actualRate": 0.15433
+     },
+     {
+      "n": 8531,
+      "meanPredicted": 0.24691,
+      "actualRate": 0.25132
+     },
+     {
+      "n": 5112,
+      "meanPredicted": 0.3453,
+      "actualRate": 0.31318
+     },
+     {
+      "n": 2494,
+      "meanPredicted": 0.44339,
+      "actualRate": 0.38813
+     },
+     {
+      "n": 1220,
+      "meanPredicted": 0.54256,
+      "actualRate": 0.44426
+     },
+     {
+      "n": 433,
+      "meanPredicted": 0.64311,
+      "actualRate": 0.54734
+     },
+     {
+      "n": 157,
+      "meanPredicted": 0.73755,
+      "actualRate": 0.6051
+     },
+     {
+      "n": 36,
+      "meanPredicted": 0.829,
+      "actualRate": 0.52778
+     }
+    ]
+   },
+   "eras": {
+    "2014-2017": {
+     "n": 17383,
+     "logLoss": 0.49749,
+     "brier": 0.16188,
+     "meanPredicted": 0.22767,
+     "actualRate": 0.21947,
+     "level": 1.03738,
+     "ece": 0.0189,
+     "topDecile": {
+      "n": 1738,
+      "meanPredicted": 0.50668,
+      "actualRate": 0.41024
+     },
+     "reliability": [
+      {
+       "n": 2746,
+       "meanPredicted": 0.07434,
+       "actualRate": 0.08886
+      },
+      {
+       "n": 5884,
+       "meanPredicted": 0.14653,
+       "actualRate": 0.14922
+      },
+      {
+       "n": 4302,
+       "meanPredicted": 0.24679,
+       "actualRate": 0.25546
+      },
+      {
+       "n": 2493,
+       "meanPredicted": 0.34481,
+       "actualRate": 0.31689
+      },
+      {
+       "n": 1179,
+       "meanPredicted": 0.44219,
+       "actualRate": 0.38168
+      },
+      {
+       "n": 561,
+       "meanPredicted": 0.54211,
+       "actualRate": 0.44029
+      },
+      {
+       "n": 168,
+       "meanPredicted": 0.64065,
+       "actualRate": 0.48214
+      },
+      {
+       "n": 49,
+       "meanPredicted": 0.7352,
+       "actualRate": 0.53061
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.8633,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2018-2021": {
+     "n": 17745,
+     "logLoss": 0.51108,
+     "brier": 0.16687,
+     "meanPredicted": 0.23953,
+     "actualRate": 0.23195,
+     "level": 1.03267,
+     "ece": 0.02166,
+     "topDecile": {
+      "n": 1774,
+      "meanPredicted": 0.54526,
+      "actualRate": 0.46505
+     },
+     "reliability": [
+      {
+       "n": 2515,
+       "meanPredicted": 0.07665,
+       "actualRate": 0.09821
+      },
+      {
+       "n": 6000,
+       "meanPredicted": 0.1476,
+       "actualRate": 0.15933
+      },
+      {
+       "n": 4229,
+       "meanPredicted": 0.24702,
+       "actualRate": 0.2471
+      },
+      {
+       "n": 2619,
+       "meanPredicted": 0.34577,
+       "actualRate": 0.30966
+      },
+      {
+       "n": 1315,
+       "meanPredicted": 0.44446,
+       "actualRate": 0.39392
+      },
+      {
+       "n": 659,
+       "meanPredicted": 0.54294,
+       "actualRate": 0.44765
+      },
+      {
+       "n": 265,
+       "meanPredicted": 0.64467,
+       "actualRate": 0.58868
+      },
+      {
+       "n": 108,
+       "meanPredicted": 0.73862,
+       "actualRate": 0.63889
+      },
+      {
+       "n": 35,
+       "meanPredicted": 0.82802,
+       "actualRate": 0.54286
+      }
+     ]
+    }
+   }
+  },
+  "rzTdV1": {
+   "overall": {
+    "n": 35128,
+    "logLoss": 0.50295,
+    "brier": 0.16357,
+    "meanPredicted": 0.21876,
+    "actualRate": 0.22577,
+    "level": 0.96892,
+    "ece": 0.0142,
+    "topDecile": {
+     "n": 3512,
+     "meanPredicted": 0.46936,
+     "actualRate": 0.44391
+    },
+    "reliability": [
+     {
+      "n": 5836,
+      "meanPredicted": 0.0738,
+      "actualRate": 0.10093
+     },
+     {
+      "n": 12009,
+      "meanPredicted": 0.14744,
+      "actualRate": 0.15722
+     },
+     {
+      "n": 9050,
+      "meanPredicted": 0.24631,
+      "actualRate": 0.2568
+     },
+     {
+      "n": 5120,
+      "meanPredicted": 0.34437,
+      "actualRate": 0.33613
+     },
+     {
+      "n": 2118,
+      "meanPredicted": 0.44162,
+      "actualRate": 0.42398
+     },
+     {
+      "n": 809,
+      "meanPredicted": 0.5405,
+      "actualRate": 0.48702
+     },
+     {
+      "n": 177,
+      "meanPredicted": 0.63202,
+      "actualRate": 0.64407
+     },
+     {
+      "n": 9,
+      "meanPredicted": 0.71209,
+      "actualRate": 0.33333
+     }
+    ]
+   },
+   "eras": {
+    "2014-2017": {
+     "n": 17383,
+     "logLoss": 0.49604,
+     "brier": 0.1611,
+     "meanPredicted": 0.21565,
+     "actualRate": 0.21947,
+     "level": 0.98262,
+     "ece": 0.01551,
+     "topDecile": {
+      "n": 1738,
+      "meanPredicted": 0.45937,
+      "actualRate": 0.40852
+     },
+     "reliability": [
+      {
+       "n": 3022,
+       "meanPredicted": 0.07268,
+       "actualRate": 0.09298
+      },
+      {
+       "n": 5890,
+       "meanPredicted": 0.14765,
+       "actualRate": 0.1528
+      },
+      {
+       "n": 4534,
+       "meanPredicted": 0.24636,
+       "actualRate": 0.26312
+      },
+      {
+       "n": 2499,
+       "meanPredicted": 0.34478,
+       "actualRate": 0.33533
+      },
+      {
+       "n": 1026,
+       "meanPredicted": 0.44132,
+       "actualRate": 0.39864
+      },
+      {
+       "n": 357,
+       "meanPredicted": 0.54206,
+       "actualRate": 0.44818
+      },
+      {
+       "n": 54,
+       "meanPredicted": 0.62521,
+       "actualRate": 0.62963
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.74301,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2018-2021": {
+     "n": 17745,
+     "logLoss": 0.50973,
+     "brier": 0.166,
+     "meanPredicted": 0.2218,
+     "actualRate": 0.23195,
+     "level": 0.95623,
+     "ece": 0.01365,
+     "topDecile": {
+      "n": 1774,
+      "meanPredicted": 0.47882,
+      "actualRate": 0.47914
+     },
+     "reliability": [
+      {
+       "n": 2814,
+       "meanPredicted": 0.07501,
+       "actualRate": 0.10945
+      },
+      {
+       "n": 6119,
+       "meanPredicted": 0.14725,
+       "actualRate": 0.16146
+      },
+      {
+       "n": 4516,
+       "meanPredicted": 0.24626,
+       "actualRate": 0.25044
+      },
+      {
+       "n": 2621,
+       "meanPredicted": 0.34398,
+       "actualRate": 0.33689
+      },
+      {
+       "n": 1092,
+       "meanPredicted": 0.44191,
+       "actualRate": 0.4478
+      },
+      {
+       "n": 452,
+       "meanPredicted": 0.53927,
+       "actualRate": 0.5177
+      },
+      {
+       "n": 123,
+       "meanPredicted": 0.63501,
+       "actualRate": 0.65041
+      },
+      {
+       "n": 8,
+       "meanPredicted": 0.70823,
+       "actualRate": 0.375
+      }
+     ]
+    }
+   }
+  },
+  "rzNoRealloc": {
+   "overall": {
+    "n": 35128,
+    "logLoss": 0.50295,
+    "brier": 0.16357,
+    "meanPredicted": 0.21876,
+    "actualRate": 0.22577,
+    "level": 0.96892,
+    "ece": 0.0142,
+    "topDecile": {
+     "n": 3512,
+     "meanPredicted": 0.46936,
+     "actualRate": 0.44391
+    },
+    "reliability": [
+     {
+      "n": 5836,
+      "meanPredicted": 0.0738,
+      "actualRate": 0.10093
+     },
+     {
+      "n": 12009,
+      "meanPredicted": 0.14744,
+      "actualRate": 0.15722
+     },
+     {
+      "n": 9050,
+      "meanPredicted": 0.24631,
+      "actualRate": 0.2568
+     },
+     {
+      "n": 5120,
+      "meanPredicted": 0.34437,
+      "actualRate": 0.33613
+     },
+     {
+      "n": 2118,
+      "meanPredicted": 0.44162,
+      "actualRate": 0.42398
+     },
+     {
+      "n": 809,
+      "meanPredicted": 0.5405,
+      "actualRate": 0.48702
+     },
+     {
+      "n": 177,
+      "meanPredicted": 0.63202,
+      "actualRate": 0.64407
+     },
+     {
+      "n": 9,
+      "meanPredicted": 0.71209,
+      "actualRate": 0.33333
+     }
+    ]
+   },
+   "eras": {
+    "2014-2017": {
+     "n": 17383,
+     "logLoss": 0.49604,
+     "brier": 0.1611,
+     "meanPredicted": 0.21565,
+     "actualRate": 0.21947,
+     "level": 0.98262,
+     "ece": 0.01551,
+     "topDecile": {
+      "n": 1738,
+      "meanPredicted": 0.45937,
+      "actualRate": 0.40852
+     },
+     "reliability": [
+      {
+       "n": 3022,
+       "meanPredicted": 0.07268,
+       "actualRate": 0.09298
+      },
+      {
+       "n": 5890,
+       "meanPredicted": 0.14765,
+       "actualRate": 0.1528
+      },
+      {
+       "n": 4534,
+       "meanPredicted": 0.24636,
+       "actualRate": 0.26312
+      },
+      {
+       "n": 2499,
+       "meanPredicted": 0.34478,
+       "actualRate": 0.33533
+      },
+      {
+       "n": 1026,
+       "meanPredicted": 0.44132,
+       "actualRate": 0.39864
+      },
+      {
+       "n": 357,
+       "meanPredicted": 0.54206,
+       "actualRate": 0.44818
+      },
+      {
+       "n": 54,
+       "meanPredicted": 0.62521,
+       "actualRate": 0.62963
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.74301,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2018-2021": {
+     "n": 17745,
+     "logLoss": 0.50973,
+     "brier": 0.166,
+     "meanPredicted": 0.2218,
+     "actualRate": 0.23195,
+     "level": 0.95623,
+     "ece": 0.01365,
+     "topDecile": {
+      "n": 1774,
+      "meanPredicted": 0.47882,
+      "actualRate": 0.47914
+     },
+     "reliability": [
+      {
+       "n": 2814,
+       "meanPredicted": 0.07501,
+       "actualRate": 0.10945
+      },
+      {
+       "n": 6119,
+       "meanPredicted": 0.14725,
+       "actualRate": 0.16146
+      },
+      {
+       "n": 4516,
+       "meanPredicted": 0.24626,
+       "actualRate": 0.25044
+      },
+      {
+       "n": 2621,
+       "meanPredicted": 0.34398,
+       "actualRate": 0.33689
+      },
+      {
+       "n": 1092,
+       "meanPredicted": 0.44191,
+       "actualRate": 0.4478
+      },
+      {
+       "n": 452,
+       "meanPredicted": 0.53927,
+       "actualRate": 0.5177
+      },
+      {
+       "n": 123,
+       "meanPredicted": 0.63501,
+       "actualRate": 0.65041
+      },
+      {
+       "n": 8,
+       "meanPredicted": 0.70823,
+       "actualRate": 0.375
+      }
+     ]
+    }
+   }
+  },
+  "opportunityTdRealloc": {
+   "overall": {
+    "n": 35128,
+    "logLoss": 0.50292,
+    "brier": 0.16372,
+    "meanPredicted": 0.2245,
+    "actualRate": 0.22577,
+    "level": 0.99437,
+    "ece": 0.01975,
+    "topDecile": {
+     "n": 3512,
+     "meanPredicted": 0.50888,
+     "actualRate": 0.43992
+    },
+    "reliability": [
+     {
+      "n": 5855,
+      "meanPredicted": 0.07439,
+      "actualRate": 0.09804
+     },
+     {
+      "n": 12148,
+      "meanPredicted": 0.14701,
+      "actualRate": 0.15682
+     },
+     {
+      "n": 8507,
+      "meanPredicted": 0.24666,
+      "actualRate": 0.25979
+     },
+     {
+      "n": 4833,
+      "meanPredicted": 0.34533,
+      "actualRate": 0.32899
+     },
+     {
+      "n": 2240,
+      "meanPredicted": 0.44276,
+      "actualRate": 0.39509
+     },
+     {
+      "n": 1034,
+      "meanPredicted": 0.54226,
+      "actualRate": 0.46809
+     },
+     {
+      "n": 366,
+      "meanPredicted": 0.64485,
+      "actualRate": 0.54372
+     },
+     {
+      "n": 125,
+      "meanPredicted": 0.73972,
+      "actualRate": 0.592
+     },
+     {
+      "n": 20,
+      "meanPredicted": 0.83348,
+      "actualRate": 0.5
+     }
+    ]
+   },
+   "eras": {
+    "2014-2017": {
+     "n": 17383,
+     "logLoss": 0.49606,
+     "brier": 0.16126,
+     "meanPredicted": 0.21877,
+     "actualRate": 0.21947,
+     "level": 0.99685,
+     "ece": 0.01893,
+     "topDecile": {
+      "n": 1738,
+      "meanPredicted": 0.48943,
+      "actualRate": 0.41254
+     },
+     "reliability": [
+      {
+       "n": 3068,
+       "meanPredicted": 0.07348,
+       "actualRate": 0.09126
+      },
+      {
+       "n": 5979,
+       "meanPredicted": 0.14663,
+       "actualRate": 0.1537
+      },
+      {
+       "n": 4289,
+       "meanPredicted": 0.2463,
+       "actualRate": 0.26346
+      },
+      {
+       "n": 2360,
+       "meanPredicted": 0.34499,
+       "actualRate": 0.33517
+      },
+      {
+       "n": 1041,
+       "meanPredicted": 0.44167,
+       "actualRate": 0.38232
+      },
+      {
+       "n": 475,
+       "meanPredicted": 0.54284,
+       "actualRate": 0.45263
+      },
+      {
+       "n": 137,
+       "meanPredicted": 0.64118,
+       "actualRate": 0.45985
+      },
+      {
+       "n": 33,
+       "meanPredicted": 0.72645,
+       "actualRate": 0.57576
+      },
+      {
+       "n": 1,
+       "meanPredicted": 0.85014,
+       "actualRate": 0
+      }
+     ]
+    },
+    "2018-2021": {
+     "n": 17745,
+     "logLoss": 0.50963,
+     "brier": 0.16613,
+     "meanPredicted": 0.23011,
+     "actualRate": 0.23195,
+     "level": 0.99207,
+     "ece": 0.02056,
+     "topDecile": {
+      "n": 1774,
+      "meanPredicted": 0.52678,
+      "actualRate": 0.46787
+     },
+     "reliability": [
+      {
+       "n": 2787,
+       "meanPredicted": 0.07539,
+       "actualRate": 0.10549
+      },
+      {
+       "n": 6169,
+       "meanPredicted": 0.14738,
+       "actualRate": 0.15983
+      },
+      {
+       "n": 4218,
+       "meanPredicted": 0.24703,
+       "actualRate": 0.25605
+      },
+      {
+       "n": 2473,
+       "meanPredicted": 0.34565,
+       "actualRate": 0.32309
+      },
+      {
+       "n": 1199,
+       "meanPredicted": 0.4437,
+       "actualRate": 0.40617
+      },
+      {
+       "n": 559,
+       "meanPredicted": 0.54176,
+       "actualRate": 0.48122
+      },
+      {
+       "n": 229,
+       "meanPredicted": 0.64705,
+       "actualRate": 0.59389
+      },
+      {
+       "n": 92,
+       "meanPredicted": 0.74448,
+       "actualRate": 0.59783
+      },
+      {
+       "n": 19,
+       "meanPredicted": 0.83261,
+       "actualRate": 0.52632
+      }
+     ]
+    }
+   }
+  }
+ },
+ "bars": {
+  "logLossBelowIncumbent": {
+   "pass": true,
+   "observed": {
+    "overall": [
+     0.50295,
+     0.50435
+    ],
+    "eras": {
+     "2014-2017": [
+      0.49604,
+      0.49749
+     ],
+     "2018-2021": [
+      0.50973,
+      0.51108
+     ]
+    }
+   }
+  },
+  "notNoise": {
+   "pass": true,
+   "observed": {
+    "point": -0.0014,
+    "lo95": -0.00223,
+    "hi95": -0.00036
+   }
+  },
+  "calibration": {
+   "pass": true,
+   "observed": {
+    "overall": 0.0142,
+    "eras": {
+     "2014-2017": 0.01551,
+     "2018-2021": 0.01365
+    }
+   }
+  },
+  "level": {
+   "pass": true,
+   "observed": {
+    "overall": 0.96892,
+    "eras": {
+     "2014-2017": 0.98262,
+     "2018-2021": 0.95623
+    }
+   }
+  },
+  "topDecile": {
+   "pass": true,
+   "observed": {
+    "rzTdV1": {
+     "n": 3512,
+     "meanPredicted": 0.46936,
+     "actualRate": 0.44391
+    },
+    "incumbent": {
+     "n": 3512,
+     "meanPredicted": 0.52687,
+     "actualRate": 0.44021
+    }
+   }
+  }
+ },
+ "outcome": "PROCEED_TO_FORWARD",
+ "consequence": "Nothing publishes from this receipt. PROCEED_TO_FORWARD earns a blind 2026 forward capture under the ATD forward protocol; only a forward pass supports a founder-approved promotion PR."
+}
