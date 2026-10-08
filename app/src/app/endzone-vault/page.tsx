@@ -53,9 +53,9 @@ export default function EndzoneVaultPage() {
           Who our model thinks is most likely to score
         </h1>
         <p className="m-0 max-w-[68ch]" style={{ color: "var(--vault-text-mute)", fontSize: 14, lineHeight: 1.6 }}>
-          The same anytime-touchdown probability each game&apos;s player board publishes — one number per player across
-          the site — from the player&apos;s share of his team&apos;s carries and targets and the team&apos;s recent touchdown
-          rate, assuming he plays. Each name settles on its own.
+          The same anytime-touchdown probability each game&apos;s player board publishes: the player&apos;s share of his
+          team&apos;s carries and targets, his own touchdown rate per carry and per target, and the team&apos;s recent
+          touchdown rate, assuming he plays. Each name settles on its own.
         </p>
       </header>
 
