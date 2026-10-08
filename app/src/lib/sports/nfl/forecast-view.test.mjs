@@ -133,7 +133,8 @@ test("a game without a simulation falls back to the player board's families, lab
 
 test("RESULTS INTEGRITY · every surface that shows World Model V2 player numbers says the existing results do not grade them", () => {
   const note = fs.readFileSync(path.join(APP, "src/lib/sports/nfl/results-coverage.mjs"), "utf8");
-  assert.match(note, /not graded yet, so none of these results describe them/);
+  assert.match(note, /not graded in these results, so none of these results describe them/);
+  assert.doesNotMatch(note, /were on each page/, "from Week 5 the board's ranges are not what the game pages show");
   for (const rel of ["src/app/results/nfl/page.tsx", "src/components/nfl/forecast/methodology.tsx", "src/components/nfl/forecast/model-status.tsx"]) {
     assert.match(fs.readFileSync(path.join(APP, rel), "utf8"), /\{NFL_RESULTS_COVERAGE_NOTE\}/, `${rel} renders the shared results-coverage note`);
   }

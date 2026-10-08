@@ -710,6 +710,9 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/nfl/build-nfl-week-reconciliation.mjs --now "${{ steps.window.outputs.now }}"
+          # NFL-005 / LEDGER-001 hook: grade World Model V2's frozen pregame player forecasts (the last run before each
+          # kickoff, never a later one) against the same official lines. PRIVATE, derived, rewritten only on change.
+          node scripts/nfl/grade-nfl-world-model-v2.mjs --now "${{ steps.window.outputs.now }}"
 
       - name: Commit settlement receipts
         if: ${{ !cancelled() }}
@@ -731,6 +734,7 @@ jobs:
           # three days of an archive to exactly that shape of omission.
           if [ -d data/internal/nfl/prop-settlement ]; then git add data/internal/nfl/prop-settlement/; fi
           if [ -d app/public/data/nfl/live-props ]; then git add app/public/data/nfl/live-props/; fi
+          if [ -d data/internal/nfl/world-model-v2/grades ]; then git add data/internal/nfl/world-model-v2/grades/; fi
           if git diff --cached --quiet; then echo "no settlement change"; exit 0; fi
           git commit -m "auto: nfl settlement receipts [skip ci]"
           git pull --rebase --autostash origin main
