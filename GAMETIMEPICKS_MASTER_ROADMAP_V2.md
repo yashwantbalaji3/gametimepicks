@@ -79,9 +79,9 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 
 | Rank | Task ID | Department | Task | Status | Dependency | Production-bound? |
 |---:|---|---|---|---|---|---|
-| 1 | `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — Phase 1 approved 2026-10-07; executing | None — do first | Process/config, no app release expected |
+| 1 | `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — Phase 1 verified 2026-10-08; awaiting founder spend-alert confirmation | None — do first | Process/config, no app release expected |
 | 2 | `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | NOT_STARTED — HIGH, promptly after COST-001 Phase 1 | None | Workflow/identity config; Production freshness |
-| 3 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED | COST-001 deployment gate verified | Yes |
+| 3 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED — unblocked (deploy gate verified 2026-10-08) | COST-001 deployment gate verified ✓ | Yes |
 | 4 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | NOT_STARTED | Founder rules below | Foundation |
 | 5 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | NOT_STARTED | CONTRACT-001 | Yes |
 | 6 | `TEMPORAL-001` | Data Platform | Point-in-time temporal data/identity foundation for MLB/NFL critical fields | NOT_STARTED | CONTRACT-001 | Foundation |
@@ -99,6 +99,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 18 | `LIVE-005` | Live Products | Supported live parlays | NOT_STARTED | LIVE-004 + dependence validation | Last |
 | 19 | `OPS-001` | Operations | Freshness, dependency receipts, retries, alerts, cost controls | NOT_STARTED | Parallel | Yes |
 | 20 | `TRUTHDOC-001` | Documentation | Generated “what runs now” inventory | NOT_STARTED | CONTRACT-001 | Yes |
+| 21 | `COST-002` | Release Engineering / FinOps | Reduce build memory so the export fits Vercel Standard (free first build slot); profile `/simulate/d/*` and last-quarter routes | NOT_STARTED | COST-001 Phase 1 | Build config/data loading; Production only after founder approval |
 
 ---
 
@@ -159,13 +160,13 @@ Event/player IDs, source sequence/event ID, source time when available, ingestio
 
 ## `COST-001` — Localhost-first development and controlled deployments
 **Priority:** P0 / immediate — **do before normal roadmap bootstrap or the next application PR**  
-**Status:** IN_PROGRESS — Phase 1 approved by founder 2026-10-07; executing (push → gating proof → PR/CI → queue setting → merge → Production acceptance)  
+**Status:** IN_PROGRESS — Phase 1 executed and verified 2026-10-08; **last acceptance item: founder confirms Spend Management notify-only alerts** (dashboard-only) → then DONE  
 **Owner/session:** Claude Code session 2026-10-07 (COST-001)  
-**Branch:** `claude/cost-001-vercel-cost-control` (local only)  
-**PR:** —  
-**Exact head:** see Session Log (local commit)  
+**Branch:** `claude/cost-001-vercel-cost-control` (merged) · closeout docs: `claude/cost-001-phase1-closeout`  
+**PR:** [#1017](https://github.com/yashwantbalaji3/gametimepicks/pull/1017) (merged)  
+**Exact head:** `5b8a5bff717e0dd0f086a6515ecd80d1b95f50d4` → merge `f1f46556903b4add02c654f39c3a4fc1dbb8156d`  
 **Evidence:** `docs/COST_001_VERCEL_COST_CONTROL.md`; `scripts/vercel-cost-report.mjs`  
-**Production acceptance:** —  
+**Production acceptance:** PASS — Production serves `f1f46556` (built 2026-10-08T01:53:53Z); key routes 200; smoke 8/9 with 1 pre-existing unrelated failure (docs/COST_001 §9)  
 
 ### Progress (2026-10-07/08)
 - Status: IN_PROGRESS
@@ -176,8 +177,14 @@ Event/player IDs, source sequence/event ID, source time when available, ingestio
 - **Trigger inventory:** every push to any branch created a Vercel deployment (main → Production, others → Preview); no deploy hooks; Vercel crons are not builds; `[skip ci]` is ignored by Vercel; duplicate project dormant since 07-31.
 - **Implemented locally (Phase 1A):** `app/vercel.json` `git.deploymentEnabled` = `main` + `preview/**` only; guard test `app/src/lib/vercel-preview-gating.test.mjs` (mutation-probed); read-only `scripts/vercel-cost-report.mjs`; strategy + local-first gate in `docs/COST_001_VERCEL_COST_CONTROL.md`.
 - Local tests: preview-gating + canonical-project guards 11/11 pass; 4 mutations all caught; cost report run live.
-- Vercel Preview builds triggered: 0 · Production builds triggered: 0 · Vercel settings changed: none.
-- **Awaiting founder approval:** (1) push branch + merge (expected: 0 preview, 1 production build); (2) project setting "one build per branch"; (3) Spend Management notify-only thresholds.
+- Vercel Preview builds triggered: **0** (branch push proven gated) · Production builds triggered: **1** (merge `f1f46556`, 48 CPU-min ≈ $0.17) · Vercel settings changed: **1** (build queue, below).
+- **Phase 1 executed (founder approval 2026-10-07):**
+  - Branch push `5b8a5bff` (01:27:46Z) → **0 Vercel deployments** in 184 s; control branch without the rule (`claude/mlb-playoff-slate-receipts`) did create a Preview in the same window.
+  - PR #1017 exact-head CI run 37713335118: `python` pass, `quality` pass (20m8s).
+  - Build queue on `gametime-picks` (`prj_qaHS65v4G30tTy1s6MYbsLbKYvbh`) set 01:31:41Z: `buildQueue` none (run all immediately) → `WAIT_FOR_NAMESPACE_QUEUE` (one build per branch). Re-read confirmed nothing else changed (machine stays `enhanced`). Rollback in docs §9.
+  - Merged 01:52:28Z with `--match-head-commit`; exactly one Production deployment `dpl_FTMcpA7YhM77nrSHTde2h3X6yhxj`, READY 01:57:05Z.
+  - Spend alerts: Vercel supports one budget at 50/75/100%; founder steps in docs §10 (budget $150 → $75 / $112.50 / $150; **Pause Production Deployments must be OFF** — Vercel defaults it on and this cycle already exceeds $150). Exact $100 check via `vercel-cost-report.mjs --budget 100`.
+- **Phase 2 (local, no Vercel):** Docker 4 CPU / 7.6 GiB, no swap, Node 24: both the default build and `experimental.cpus: 2` hit the memory ceiling and had static workers **OOM-killed** (1 and 2), restarting `/simulate/d/<date>` pages. **Standard remains unsafe; worker capping does not fix it.** Follow-up `COST-002`.
 - Follow-ups: Phase 2 local Standard-machine (8 GB) feasibility test; separate task for the bot commit identity that caused 21 BLOCKED production deploys on 10-07.
 - Expected effect (to be observed, not claimed): Phase 1 ≈ $585 → ≈ $300/month; Phase 2 (if proven) ≈ $10–40/month.
 
@@ -228,13 +235,19 @@ Inspect current Vercel deployment history, billing usage, Git integration, repos
 ### Remaining tasks (COST-001)
 | # | Task | Needs | Status |
 |---|---|---|---|
-| 1 | Push branch; confirm via Vercel API it creates **zero** deployments (proves `git.deploymentEnabled` is read from `app/vercel.json`) | founder OK to push | NOT_STARTED |
-| 2 | PR → CI green → merge; confirm exactly **1** production build and production `build-info` advances | founder OK to merge | NOT_STARTED |
-| 3 | On-demand concurrency → "Run up to one build per branch" on `gametime-picks` | founder approval (Production setting) | NOT_STARTED |
-| 4 | Spend Management notifications (notify-only, no pause) | founder, dashboard | NOT_STARTED |
-| 5 | Phase 2: local Docker 4 CPU / 8 GB build-memory test (± Next worker cap) → decide Standard + on-demand off | local work, then founder approval | NOT_STARTED |
-| 6 | Re-run `scripts/vercel-cost-report.mjs` after 7 days of the 2026-10-09 cycle; record observed vs baseline | — | NOT_STARTED |
-| 7 | Phase 3 only if Phase 2 fails: founder data-freshness SLO → publisher cadence or runtime data delivery | founder decision | DEFERRED |
+| 1 | Push branch; confirm via Vercel API it creates **zero** deployments | founder OK to push | DONE — 0 deployments (2026-10-08 01:27Z) |
+| 2 | PR → exact-head CI → merge; exactly **1** production build; `build-info` advances | founder OK to merge | DONE — #1017, 1 build, prod `f1f46556` |
+| 3 | On-demand concurrency → "Run up to one build per branch" | founder approval | DONE — 01:31:41Z; post-merge data deploys monitored |
+| 4 | Spend Management notifications (notify-only, **no pause**) | founder, dashboard (docs §10) | WAITING ON FOUNDER |
+| 5 | Phase 2 local memory test | local | DONE (finding: Standard unsafe) → continues as `COST-002` |
+| 6 | Re-run `scripts/vercel-cost-report.mjs` after 7 days of the 2026-10-09 cycle; record observed vs baseline | — | NOT_STARTED (due ≈ 2026-10-16) |
+| 7 | Phase 3 only if `COST-002` cannot reach Standard: founder data-freshness SLO → publisher cadence or runtime data delivery | founder decision | DEFERRED |
+
+## `COST-002` — Build memory reduction (path back to the free Standard build slot)
+**Priority:** P1 (cost) · **Status:** NOT_STARTED · **Depends on:** COST-001 Phase 1
+- Evidence: docs/COST_001_VERCEL_COST_CONTROL.md §11 — constrained builds OOM at the 8 GB ceiling with or without a worker cap; restarted pages `/simulate/d/<date>` (candidate, not proven).
+- Do: profile per-route render memory locally (Docker 4 CPU / 8 GB harness); reduce the heaviest routes' build-time data loads without changing published content; re-run ≥ 3 constrained builds.
+- Acceptance: ≥ 3 consecutive constrained builds with **0 OOM kills and ≥ 1.5 GiB headroom**; byte-identical public export (excluding build stamps) vs. baseline. Only then propose Standard + on-demand off (founder approval; Enhanced is the one-click rollback). Expected ≈ $10–40/month if achieved — not claimed until observed.
 
 ### Cost metrics to track
 `monthly_total`, `Build CPU Minutes charge`, `build count`, `preview count`, `Production count`, `median/p95 build minutes`, `top trigger categories`, `avoided builds`, `Vercel-specific incidents`, `projected month-end cost` (if measurable). Set alerts with founder-agreed thresholds; **do not claim a saving until observed**.
@@ -964,6 +977,22 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Roadmap tasks updated: COST-001 (status, progress, remaining tasks), §22.5, change log
 - Remaining blockers / recommended next task: founder approvals (COST-001 remaining tasks 1–4); then Phase 2 local memory test; separate task for gtp-bot commit identity (21 BLOCKED production deploys 2026-10-07 17:40–23:58Z). TRUTH-001 stays NOT_STARTED until COST-001 task 1–2 verify the deploy gate.
 
+## 2026-10-08 — Claude Code (COST-001 session, continued) — `COST-001` Phase 1 execution
+- Starting main SHA: `6f913e67eb` (PR base) → merged at `f1f46556`
+- Branch: `claude/cost-001-vercel-cost-control` (PR #1017, merged); closeout docs `claude/cost-001-phase1-closeout`
+- Goal: execute founder-approved Phase 1 with safeguards; continue Phase 2 locally; open OPS-002.
+- Decisions made: keep Enhanced (Phase 2 shows Standard unsafe); spend alerts are a founder dashboard action with pause OFF; post-merge roadmap updates batched into one docs-only PR.
+- Files/contracts changed: roadmap (OPS-002, COST-002, COST-001 progress); docs/COST_001 §9–§11. No app code.
+- Local tests/build/UX checks run: guard tests 11/11; two Docker 4 CPU / 7.6 GiB constrained production builds (both OOM-killed a static worker → Standard unsafe).
+- Result: preview gating proven (0 deployments on branch push; control branch did deploy); exact-head CI green (run 37713335118); queue set to one build per branch (01:31:41Z); merged 01:52:28Z; post-merge main quality-gate green (run 37715075260).
+- PR / exact head: #1017 / `5b8a5bff717e0dd0f086a6515ecd80d1b95f50d4` → merge `f1f46556903b4add02c654f39c3a4fc1dbb8156d`
+- Vercel Preview / Production build counts: **0 / 1** (merge build `dpl_FTMcpA7YhM77nrSHTde2h3X6yhxj`, 48 CPU-min ≈ $0.17). The closeout docs PR merge is expected to create one **ignored** production deployment (no app build, ≈ 16 CPU-min).
+- Remote-only exception: none.
+- Build CPU/cost evidence: baseline 7-day $19.41/day, cycle projection $339.62 (docs §7); first comparison due ≈ 2026-10-16.
+- Production acceptance: PASS — prod `f1f46556` then `784ab15b` (first post-merge bot data commit, READY 3m47s, no queue wait); key routes 200; `/ops/` pruned with noindex; smoke 8/9 — the failing "home reflects canonical money" check fails identically on every prod build back to 10-06 (pre-existing, unrelated; follow-up).
+- Roadmap tasks updated: COST-001, OPS-002 (new), COST-002 (new), TRUTH-001 unblocked.
+- Remaining blockers / recommended next task: founder sets Spend Management (docs §10) → COST-001 DONE. Then OPS-002 (bot identity, HIGH) and TRUTH-001 can proceed; TRUTH-001 is not blocked by cost controls. Follow-up: update or retire the stale smoke "home money" check.
+
 ---
 
 # 26. Immediate execution waves
@@ -1005,6 +1034,7 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 ## Roadmap policy change log
 
 - **2026-10-07 — Founder infrastructure-cost directive:** Added `COST-001` as the first priority after reviewing the previous Vercel billing cycle. Localhost-first implementation, local build/test/UX acceptance, batched changes, controlled automatic deployment triggers, founder review where requested, limited remote builds, budget/Build CPU measurement, and explicit remote-build exceptions are now mandatory. **This is a roadmap policy update only; `COST-001` implementation and Vercel configuration audit have not yet been performed.**
+- **2026-10-08 — COST-001 Phase 1 executed:** previews gated (proven), build queue one-per-branch, PR #1017 merged with one Production build; Phase 2 local test shows Standard unsafe → `COST-002`; `OPS-002` opened for blocked bot deploys.
 - **2026-10-07 — COST-001 audit:** roadmap adopted into the repository. Measured Build CPU as 99.9% of the bill, driven by the 09-24 Enhanced machine (no free slot) × ~130 builds/day, 37% of them unconsumed previews. Previews made opt-in (`preview/**`) in `app/vercel.json` pending approval; full evidence in `docs/COST_001_VERCEL_COST_CONTROL.md`.
 
 ---

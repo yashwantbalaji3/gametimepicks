@@ -206,3 +206,72 @@ is observed in that report.**
 Directory `app`) for branch pushes. The first push of this branch is the proof: it should create
 **zero** deployments. If it creates one preview, the rule is not being read and the cost of finding
 out is one build (~$0.15).
+
+---
+
+## 9. Phase 1 execution record (founder-approved 2026-10-07)
+
+| Step | Evidence | Result |
+|---|---|---|
+| Push `claude/cost-001-vercel-cost-control` @ `5b8a5bff` (01:27:46Z) | Vercel API polled 184 s for any deployment of that ref/SHA | **0 deployments.** Control: `claude/mlb-playoff-slate-receipts`, pushed in the same window without the rule, **did** create a Preview. `git.deploymentEnabled` in `app/vercel.json` is honoured with Root Directory `app`. |
+| PR [#1017](https://github.com/yashwantbalaji3/gametimepicks/pull/1017) exact-head CI | run 37713335118 on `5b8a5bff` | `python` pass (1m28s), `quality` pass (20m8s) |
+| Queue setting (01:31:41Z) | before/after `resourceConfig` re-read via API | only `buildQueue` changed: none (= run all immediately) → `{"configuration":"WAIT_FOR_NAMESPACE_QUEUE"}`; `buildMachineType: enhanced`, `elasticConcurrencyEnabled: true`, regions, fluid unchanged |
+| Merge (01:52:28Z) `gh pr merge --merge --match-head-commit 5b8a5bff…` | merge commit `f1f46556` | **exactly 1** Production deployment `dpl_FTMcpA7YhM77nrSHTde2h3X6yhxj`, READY 01:57:05Z (4m33s), billed 6 min × 8 cores = **48 CPU-min ≈ $0.17** |
+| Production acceptance | `/data/build-info.json` | serves `f1f46556`, built 01:53:53Z; `/`, `/mlb/`, `/nfl/`, `/results/`, `/today/`, `/markets/`, `/live/`, `/bank-builder/` all 200; `/ops/` still pruned (404) with `X-Robots-Tag: noindex` from `vercel.json` |
+| Smoke test (`app/scripts/smoke-test-production.mjs`, run from the exact merged tree) | 8/9 pass | ✗ "home does not reflect canonical money" — **pre-existing**: the same check fails on every Production build sampled back to `53a05d95` (10-06), and the merged build's home HTML is the same size (241,533 B) as the build before it. The check appears stale against the current homepage; follow-up, not a COST-001 regression. |
+
+### Rollback procedures
+- **Preview gating:** revert `git` block in `app/vercel.json` (or set a branch key to `true`); takes effect for the next push that carries the file.
+- **Queue mode:** Vercel → `gametime-picks` → Settings → Build and Deployment → On-Demand Concurrent Builds → **Run all builds immediately**; or `PATCH /v9/projects/prj_qaHS65v4G30tTy1s6MYbsLbKYvbh` with `resourceConfig.buildQueue.configuration = SKIP_NAMESPACE_QUEUE` (send the full existing `resourceConfig` so no other field resets). Original value recorded above.
+
+## 10. Spend notifications — founder dashboard steps (not configurable via API from here)
+
+Vercel's Spend Management uses **one** "On-Demand Budget" per billing cycle and notifies at fixed
+**50% / 75% / 100%** of it; arbitrary dollar thresholds are not supported. It counts metered usage
+beyond the Pro monthly credit. ⚠ Vercel now enables **Pause Production Deployments by default**, and
+a budget set **below current cycle spend triggers its actions on the next check (minutes)** — this
+cycle is already ≈ $315, so a $150 budget with pause on would take the site offline (503).
+
+1. Vercel dashboard → team **yashwantbalaji33-7164's projects** → **Settings** → **Billing** → **Spend Management**.
+2. Toggle Spend Management **on**; set **On-Demand Budget = $150** → notifications at **$75 (50%)**, **$112.50 (75%)**, **$150 (100%)**.
+3. **Before saving, confirm "Pause Production Deployments" is OFF.** If the toggle is on, switch it off. Leave the webhook empty.
+4. Settings → **My Notifications** → Team → **Spend Management**: enable Web + Email for 50/75/100% (SMS optional, 100% only).
+5. Expect immediate notifications this cycle (spend > $150). Cycle resets **2026-10-09 07:00 UTC**; setting it after the reset avoids that noise.
+6. For an exact **$100** checkpoint, run `node scripts/vercel-cost-report.mjs --cli-auth --budget 100` (exits 2 when the projected cycle total exceeds $100).
+7. Afterwards, check **Activity** (team sidebar) shows the spend-amount creation, and send a screenshot of the Spend Management panel so COST-001 can record it as configured.
+
+## 11. Phase 2 — local memory-constrained build test (2026-10-08)
+
+**Question:** can the build run on Vercel **Standard** (4 vCPU / 8 GB), whose first build slot is
+free on Pro? **Method:** Docker Desktop Linux VM (4 CPUs, 7.67 GiB), container `--cpus=4
+--memory=7600m --memory-swap=7600m` (no swap), `node:24-bookworm-slim` (Vercel uses Node 24.x), clean
+`git archive` of `origin/main` @ `9d1db18468`, `npm install`, `npm run build` with
+`CI=1 VERCEL=1 VERCEL_ENV=production`; cgroup `memory.current`, `memory.stat anon` and
+`memory.events oom_kill` sampled every 2 s. The VM is ~0.3 GiB smaller than Standard, so this is a
+slightly **stricter** test.
+
+| Run | Config | Result | Wall | Peak anon | OOM kills | Restarted page |
+|---|---|---|---|---|---|---|
+| A | default (Next picks workers from 4 CPUs) | rc 0 after recovery | 362 s | **7.36 GiB (ceiling)** | **1** | `/simulate/d/2026-10-12` |
+| B | `experimental.cpus: 2` | rc 0 after recovery | 344 s | **7.36 GiB (ceiling)** | **2** | `/simulate/d/2026-10-15` |
+
+Both runs hit the memory ceiling during static generation (~2,070–2,550 of 2,760 pages), had a
+static worker **OOM-killed**, stalled ~60–90 s, then Next SIGTERMed and restarted one page — the
+same last-quarter signature as the September wedges. They completed here; on Vercel the same event
+has historically wedged to the 45-minute ceiling.
+
+**Conclusions:**
+- **Do not move to Standard.** Peak demand is at the 8 GB ceiling, not near it.
+- **Capping static workers does not help** (B was no better than A), so the memory is driven by
+  what certain pages load, not by parallelism.
+- **Candidate (not proven):** `/simulate/d/<date>` pages were the restarted page in both runs. Each
+  exported page is small (~168 KB), so the cost is likely in what they load during render; the
+  restart list can also name a victim rather than the culprit
+  (docs/P0_VERCEL_WEDGE_CONCURRENCY_2026-09-24.md §4). Next step: profile per-route render memory
+  for `/simulate/d/*` and the other last-quarter routes, then reduce it (tracked as `COST-002`).
+- Only when repeated constrained builds show **no OOM kill and ≥ 1.5 GiB headroom** should a
+  Standard + on-demand-off trial be proposed.
+
+Harness note: copying a macOS tree into Linux with `tar` adds `._*` AppleDouble files (109,084 here)
+that break `.gz` readers — use `COPYFILE_DISABLE=1 tar …` or `git archive` piped straight into the
+container.
