@@ -36,26 +36,15 @@ test("BUILT · the NFL hub's ranked boards can be filtered", { skip: !exists("nf
 });
 
 test("BUILT · filtering narrows the view and never re-ranks it", () => {
-  const src = fs.readFileSync(path.join(process.cwd(), "src/components/nfl/weekly-boards.tsx"), "utf8");
-  /*
-   * The rank a reader sees must be the row's place in the PUBLISHED board. Renumbering a filtered
-   * view would invent a ranking the owner never produced — the same rule that keeps a top-N table
-   * a maximum rather than a quota.
-   */
-  /*
-   * The expression moved when the five boards adopted the shared prediction grammar; the CLAIM did
-   * not. The published order is still derived from the board's own rows, and the rank still reads
-   * that order rather than the filtered list's index.
-   */
-  assert.match(src, /published: \(b\.rows \?\? \[\]\)\.map\(\(r\) => r\.playerId\)/,
-    "the published order comes from the board's own rows");
-  assert.match(src, /rankOf=\{\(p: PredictionPresentation\) => published\.indexOf\(p\.player\.playerId\) \+ 1\}/,
-    "rank comes from the published board, not the filtered rows");
-  assert.ok(!/rankOf=\{[^}]*\brows\b/.test(src), "the rank must never be read off the filtered rows");
-  /* The chip list is sorted (it is an alphabetical index of clubs); the ROWS never are. */
-  assert.ok(!/rows[^\n]*\.sort\(/.test(src), "the rows must not be re-sorted — ranking has one owner");
-  assert.ok(!/filtered[^\n]*\.sort\(/.test(src), "the filtered view must not be re-sorted either");
-  assert.match(src, /No .*player is in this board/, "a board with no matching row says so rather than vanishing");
+  /* 2026-10-08: the hub boards moved to the shared FamilyTabs. Same claim: the rank a reader sees is the row's place on
+     the PUBLISHED board (ranked once, in forecast-view.mjs topBoards); a filter only hides rows. */
+  const src = fs.readFileSync(path.join(process.cwd(), "src/components/nfl/forecast/family-tabs.tsx"), "utf8");
+  assert.match(src, /rank=\{r\.rank\}/, "rank comes from the published board, carried on the row");
+  assert.ok(!/rank=\{[^}]*(index|idx|\bi\b)/.test(src), "the rank must never be read off the filtered list position");
+  assert.ok(!/rows[^\n]*\.sort\(/.test(src) && !/all[^\n]*\.sort\(/.test(src), "the rows must not be re-sorted — ranking has one owner");
+  assert.match(src, /No published row matches this filter\./, "a filter with no matching row says so rather than vanishing");
+  const view = fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/forecast-view.mjs"), "utf8");
+  assert.match(view, /rank: i \+ 1/, "the one ranking owner");
 });
 
 test("BUILT · an EPL match page offers its slate-mates", { skip: !fs.existsSync(path.join(OUT, "epl", "match")) && "no export" }, () => {
@@ -88,7 +77,11 @@ test("BUILT · the client boundary ships only what it renders", () => {
   const page = fs.readFileSync(path.join(process.cwd(), "src/app/nfl/page.tsx"), "utf8");
   assert.ok(!/boards=\{weeklyBoards\.boards( as never)?\}/.test(page),
     "the whole artifact object must not cross the boundary — project the rendered fields");
-  assert.match(page, /playerId: String\(r\.playerId\)/, "the projection names the fields it ships");
+  // 2026-10-08: the hub boards cross as boardTabs(...) — the shared view's slim projection, which names its fields.
+  assert.match(page, /\{\.\.\.boardTabs\(unifiedBoards\.boards\)\}/);
+  const view = fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/forecast-view.mjs"), "utf8");
+  assert.match(view, /const slim = \(p\) => \(\{ playerId: p\.playerId, name: p\.name,/, "the projection names the fields it ships");
+  assert.match(view, /const slimEntry = \(e\) => \(\{ value: e\.value, p10: e\.p10 \?\? null, p90: e\.p90 \?\? null, mean: e\.mean \?\? null \}\)/, "and no basis or model id");
   const f = path.join(OUT, "nfl", "index.html");
   if (!fs.existsSync(f)) return;
   const html = fs.readFileSync(f, "utf8");

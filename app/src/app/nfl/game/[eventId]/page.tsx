@@ -27,10 +27,9 @@ import { hrefsFor } from "@/lib/research-pages/projection-store";
 import { nflTeamRefByAbbr } from "@/lib/follow/entity-registry";
 import SectionHeader from "@/components/section-header";
 import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/player-board";
-import NotInTheseNumbers from "@/components/nfl/not-in-these-numbers";
 import LivePanel from "@/components/live/live-panel";
-import { KickoffSlot } from "@/components/live/kickoff-aware";
 import { participationLabel } from "@/components/prediction/prediction-board";
+import { PUBLIC_BOARD_CLEARED } from "@/lib/sports/nfl/board-ranking.mjs";
 
 /*
  * ⚠ THIS PRINTED "available role uncertain" AND THE PHRASE APPEARS NOWHERE IN THE SOURCE.
@@ -49,6 +48,8 @@ const availMark = (p: { participation: string }) => {
   const label = participationLabel(p.participation);
   return label && p.participation !== "ACTIVE_PROJECTED" ? ` · ${label}` : "";
 };
+import { KickoffSlot } from "@/components/live/kickoff-aware";
+
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
@@ -60,9 +61,17 @@ import { reportCardContext } from "@/lib/command-center/report-card";
 import { archivedEventFrom, archivedEventIds, archivedForecastFor, reconciledGames } from "@/lib/sports/nfl/archived-forecast";
 import { buildNflPresentation } from "@/lib/simulate/presentation/nfl";
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
-import { PUBLIC_BOARD_CLEARED } from "@/lib/sports/nfl/board-ranking.mjs";
 import SimulationV2Link from "@/components/nfl/simulation-v2-link";
-import WorldModelV2Link from "@/components/nfl/world-model-v2-link";
+import ForecastStyles from "@/components/nfl/forecast/styles";
+import NotInTheseNumbers from "@/components/nfl/not-in-these-numbers";
+import GameHero from "@/components/nfl/forecast/game-hero";
+import SimulationPanel from "@/components/nfl/forecast/simulation-panel";
+import FamilyTabs from "@/components/nfl/forecast/family-tabs";
+import GameExplorer from "@/components/nfl/forecast/game-explorer";
+import Methodology from "@/components/nfl/forecast/methodology";
+import { gameTabs } from "@/lib/sports/nfl/forecast-view.mjs";
+import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
+import { STATUS as WORLD_MODEL_STATUS } from "@/lib/sports/nfl/world-model-v2/artifact.mjs";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -133,7 +142,7 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   const f = (forecastArtifact()?.forecasts ?? []).find((x: Forecast) => x.providerEventId === params.eventId) ?? (archivedFor(params.eventId)?.forecast as unknown as Forecast | undefined);
   if (!f) return withRouteMetadata(`/nfl/game/${params.eventId}/`, { title: "NFL game · GameTime Picks" });
   return withRouteMetadata(`/nfl/game/${params.eventId}/`, {
-    title: `${f.matchup} — experimental simulation · GameTime Picks`,
+    title: `${f.matchup} — NFL game forecast and simulated games · GameTime Picks`,
     description: `A ${Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? `${f.model.simulations.toLocaleString()}-run ` : ""}simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. Experimental model; educational and paper-only.`,
     alternates: { canonical: `/nfl/game/${f.providerEventId}` },
   });
@@ -184,6 +193,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
     } catch { return null; }
   })();
   const hasShape = !!shape?.finalScores?.length;
+  /* Founder directive 2026-10-08: the ONE forecast view the hub boards read too (lib/sports/nfl/forecast-view.mjs). */
+  const view: any = loadForecastView(path.join(process.cwd(), "public"), params.eventId);
 
   const idx = indexArtifact();
   const idxEvent = (idx?.events ?? []).find((e: { providerEventId: string }) => e.providerEventId === params.eventId);
@@ -247,7 +258,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
     />
   );
   return (
-    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
+    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden nf">
+      <ForecastStyles />
       <p style={{ margin: 0, fontSize: 11.5 }}>
         <Link href="/nfl" style={{ color: "var(--vault-gold)" }}>← NFL hub</Link>
       </p>
@@ -257,15 +269,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           {f.seasonType === 1 ? "Preseason" : "Regular season"} · week {f.week} · {etTime(f.kickoffUtc)}
           <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={started} when="after">{" · started"}</KickoffSlot>
         </p>
-        <h1 style={{ margin: "8px 0 0", fontSize: 26, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <TeamLogo team={f.away.abbr} sport="nfl" size="sm" ariaLabel={`${f.away.name} logo`} />
-          {f.away.name}
-          <span style={{ color: "var(--vault-text-faint)", fontSize: 16 }}>at</span>
-          <TeamLogo team={f.home.abbr} sport="nfl" size="sm" ariaLabel={`${f.home.name} logo`} />
-          {f.home.name}
-          <span style={{ fontSize: 11, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-gold)", border: "1px solid var(--vault-border)", borderRadius: 6, padding: "2px 6px" }}>EXPERIMENTAL</span>
+        <h1 style={{ margin: "8px 0 0", fontSize: 26 }}>
+          {f.away.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 16 }}>at</span> {f.home.name}
         </h1>
-        {f.venue ? <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{f.venue}</p> : null}
         {/* v1.1.2: follow either club by its ESPN team id, from the game the reader is already on. */}
         <div style={{ marginTop: 10 }}>
           <TeamFollowRow away={nflTeamRefByAbbr(f.away.abbr)} home={nflTeamRefByAbbr(f.home.abbr)} researchHrefs={hrefsFor([nflTeamRefByAbbr(f.away.abbr)?.id, nflTeamRefByAbbr(f.home.abbr)?.id])} />
@@ -303,22 +309,15 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         </div>
       ) : null}
 
-      {/* P308: the inline simulation story, from the same eligibility verdict the lobby uses; a started game is told
-          in the past tense by the adapter, and a refusal states its reason. */}
-      <div style={{ marginTop: 22 }}>
-        <SimulationStorySection manifest={buildNflPresentation(nflSimulateEligibility(storyNowIso).events.find((e) => e.providerEventId === params.eventId) ?? (archived ? archivedEventFrom(archived) : null), { indexGeneratedAt: nflSimulateEligibility(storyNowIso).indexGeneratedAt, runCount: Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? f.model.simulations : null, modelVersion: f.model?.id ?? null, nowIso: storyNowIso })} />
-      </div>
-
       <section aria-labelledby="sim-summary" style={{ marginTop: 26 }}>
         {/* P179-A0: the report states its OWN readiness before showing a number. A page that leads
             with "19-18" and mentions the limitation three sections later has already made the
             claim. `teamSignal` is written by the significance gate, so this cannot drift from the
             engine that produced the distribution. */}
-        <SectionHeader
-          eyebrow={f.teamSignal?.state === "APPLIED" ? "Simulation" : "Simulation · BASELINE ONLY"}
-          title={f.teamSignal?.state === "APPLIED" ? "What our model expects" : f.seasonType === 1 ? "What a league-average preseason game looks like" : "What a league-average game looks like"}
-          sub={`${f.model.simulations.toLocaleString()} simulated games · model ${f.model.id}`}
-        />
+        {/* Founder directive 2026-10-08: the forecast of record leads as the game hero — projected score as the
+            centrepiece, win chance, margin and total with their ranges (components/nfl/forecast/game-hero.tsx). */}
+        {f.teamSignal && f.teamSignal.state !== "APPLIED" ? <p className="nf-eyebrow" style={{ marginBottom: 8 }}>Simulation · BASELINE ONLY</p> : null}
+        <GameHero away={f.away} home={f.home} kickoffLabel={`${f.seasonType === 1 ? "Preseason" : "Regular season"} · week ${f.week} · ${etTime(f.kickoffUtc)}`} venue={f.venue} record={{ ...(view?.record ?? { favourite: s.winProbability.home >= s.winProbability.away ? f.home.abbr : f.away.abbr, generatedAt: f.generatedAt }), winProbability: s.winProbability, projectedScore: s.projectedScore, margin: s.margin, total: s.total }} likeliest={hasShape ? shape!.finalScores[0] : null} started={started} />
         {f.teamSignal && f.teamSignal.state !== "APPLIED" ? (
           <p style={{ margin: "0 0 12px", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 720, borderLeft: "2px solid var(--vault-gold)", paddingLeft: 12 }}>
             <strong style={{ color: "var(--vault-text)" }}>Read the range, not the score.</strong> {f.teamSignal.note} The numbers below are a
@@ -326,14 +325,6 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             treat the projected scoreline as the middle of a wide range rather than a prediction.
           </p>
         ) : null}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 10, marginTop: 12 }}>
-          {/* P295 · labels a first-time bettor can read without a glossary: what each number is, which
-              team a signed number favours, and what the range means in simulations rather than "p10". */}
-          <Stat label="Projected score" value={`${f.away.abbr} ${s.projectedScore.away} — ${s.projectedScore.home} ${f.home.abbr}`} sub="the middle of our simulated outcomes, not a call on the exact final" />
-          <Stat label="Win chance" value={`${f.away.abbr} ${pct(s.winProbability.away)} · ${f.home.abbr} ${pct(s.winProbability.home)}`} sub={`the model's chance for each side, from its team rating — not a count of the ${f.model.simulations.toLocaleString()} simulations · level after 60 minutes in ${pct(s.winProbability.tieMass)} of them (overtime is not simulated)`} />
-          <Stat label="Total points (both teams)" value={`${s.total.median}`} sub={`8 in 10 simulations landed between ${s.total.p10} and ${s.total.p90}`} />
-          <Stat label={`${f.home.abbr} winning margin`} value={`${s.margin.median > 0 ? "+" : ""}${s.margin.median}`} sub={`a minus means ${f.away.abbr} wins by that much · 8 in 10 between ${s.margin.p10} and ${s.margin.p90}`} />
-        </div>
 
         {/* NFL World Model V2 · Week 5: the team heads take no availability input. When a team's depth-chart QB1 is
             unavailable the number above cannot know it, and the reader is told so beside the number — not in a footnote. */}
@@ -363,16 +354,23 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           */}
         <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="before">{livePanel}</KickoffSlot>
 
-        {/* P246 (founder): the calibration paragraph left the browsing path — it lives in an
-            optional disclosure here and in the artifact itself, not beside every number. */}
-        <details style={{ marginTop: 12, maxWidth: 760 }}>
-          <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-faint)", minHeight: 32 }}>Model details</summary>
-          <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", lineHeight: 1.6 }}>
-            {s.winProbability.calibration} Generated {f.generatedAt} under model {String((f as { model?: { id?: string } }).model?.id ?? "nfl-regular-season-public-v1")}. {started ? "This is the last version published before kickoff, frozen exactly as it was." : "Until kickoff a later run may revise it (every revision is kept); at kickoff the last pre-kickoff version is frozen."} Every forecast is settled against the official result.
-          </p>
-        </details>
       </section>
 
+      {/* P308: the inline simulation story (under the hero, as on every report page), from the same eligibility verdict the lobby uses; a started game is told
+          in the past tense by the adapter, and a refusal states its reason. */}
+      <div style={{ marginTop: 22 }}>
+        <SimulationStorySection manifest={buildNflPresentation(nflSimulateEligibility(storyNowIso).events.find((e) => e.providerEventId === params.eventId) ?? (archived ? archivedEventFrom(archived) : null), { indexGeneratedAt: nflSimulateEligibility(storyNowIso).indexGeneratedAt, runCount: Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? f.model.simulations : null, modelVersion: f.model?.id ?? null, nowIso: storyNowIso })} />
+      </div>
+
+      {/* Founder directive 2026-10-08 — ONE NFL forecast experience. The projected scorecard (expected statistical
+          summaries from the board) and the separate World Model V2 page are replaced by three sections read from the
+          shared forecast view (lib/sports/nfl/forecast-view.mjs): simulated outcomes, player projections, and real
+          sampled games. Every number names its source in Model details below. */}
+      {/* HISTORY IS NOT RE-PRESENTED: a game without a World Model V2 simulation (every week before 5, and any game
+          whose simulation is not built yet) keeps the scorecard and player board it was published with — same
+          numbers, same prices, same settlement. The unified sections below apply only where a simulation exists. */}
+      {!view?.simulation ? (
+        <>
       {/* P250-GD — THE PROJECTED SCORECARD. One box-score-shaped unit per game: score line,
           win chance, total, the likely touchdown scorers and receiving leaders per team — and the
           families that carry NO number stated inside the same frame with the exact bar each failed,
@@ -534,38 +532,29 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           </section>
         );
       })()}
-      <SimulationV2Link eventId={f.providerEventId} />
-      <WorldModelV2Link eventId={f.providerEventId} />
+        </>
+      ) : null}
+      {view?.simulation ? <SimulationPanel sim={view.simulation} away={f.away.abbr} home={f.home.abbr} recordWinHome={s.winProbability.home} /> : null}
+      {view?.simulation ? (
+        <section id="players" className="nf-section" aria-labelledby="nf-players-h">
+          <p className="nf-eyebrow">Player projections · expected statistical summaries · not one simulated game</p>
+          <h2 id="nf-players-h" className="nf-h2">What each player is projected to do</h2>
+          <p className="nf-sub">Passing, rushing and receiving from the simulated games; anytime touchdown from the touchdown model. Players listed as Questionable or Doubtful are marked; players ruled out are not projected.</p>
+          {/* Live: the factual in-game stat joins each row through the single live poller (the retired player board's
+              per-prop live lines now live here, once per player and family). */}
+          <FamilyTabs {...gameTabs(view)} label={`players-${f.providerEventId}`} emptyText="No player in this game has a projection for this statistic." live={{ eventId: f.providerEventId, kickoffUtc: f.kickoffUtc }} />
+          {/* Who is NOT in these numbers — the board's coverage receipt, one component for every surface. */}
+          <NotInTheseNumbers coverage={playerBoard?.coverage} arrivals={playerBoard?.newArrivals} teams={[f.away.abbr, f.home.abbr]} style={{ marginTop: 14 }} />
+        </section>
+      ) : null}
+      {view?.simulation?.sampledWorlds?.length ? (
+        <section id="sampled-games" className="nf-section" aria-labelledby="nf-explorer-h">
+          <p className="nf-eyebrow">Simulated game explorer</p>
+          <h2 id="nf-explorer-h" className="nf-h2">Five of the simulated games, as they were generated</h2>
+          <GameExplorer worlds={view.simulation.sampledWorlds} away={f.away.abbr} home={f.home.abbr} runs={view.simulation.runs} />
+        </section>
+      ) : null}
 
-      <section aria-labelledby="score-range" style={{ marginTop: 26 }}>
-        <SectionHeader eyebrow="Range" title="How wide the outcomes are" sub="the 10th to 90th percentile of each team's simulated score" />
-        <div style={{ overflowX: "auto", marginTop: 12 }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 420 }}>
-            <thead>
-              <tr>{["Team", "Low (10th)", "Projected", "High (90th)"].map((h) => (
-                <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
-              ))}</tr>
-            </thead>
-            <tbody>
-              {[
-                { t: f.away, lo: s.scoreRange.awayP10, mid: s.projectedScore.away, hi: s.scoreRange.awayP90 },
-                { t: f.home, lo: s.scoreRange.homeP10, mid: s.projectedScore.home, hi: s.scoreRange.homeP90 },
-              ].map((r) => (
-                <tr key={r.t.abbr}>
-                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 13 }}>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                      <TeamLogo team={r.t.abbr} sport="nfl" size="sm" ariaLabel={`${r.t.name} logo`} />{r.t.name}
-                    </span>
-                  </td>
-                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontFamily: "var(--font-mono, monospace)", fontSize: 12.5 }}>{r.lo}</td>
-                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontFamily: "var(--font-mono, monospace)", fontSize: 12.5, fontWeight: 700 }}>{r.mid}</td>
-                  <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontFamily: "var(--font-mono, monospace)", fontSize: 12.5 }}>{r.hi}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
 
       {/*
         ── THE LUMPY HALF (P251 · F6) ──────────────────────────────────────────────────────────
@@ -687,6 +676,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         )}
       </section>
 
+      {!view?.simulation ? (
+        <>
       {/* P245 · the promotion-gated player projection board (rush yards + calibrated anytime TD;
           every withheld family named with its failed bar). Renders only when the public artifact
           exists for this event — absence is the honest pre-generation state. */}
@@ -741,23 +732,33 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           })()}
         </section>
       ) : null}
+        </>
+      ) : null}
+      {/* Founder directive 2026-10-08 (unified NFL experience): for a simulated game the separate player board left this page. Player
+          projections now render once, in #players above, from the shared forecast view — passing / rushing / receiving
+          yards and receptions from World Model V2, anytime touchdown from the touchdown model — the same rows the Top
+          boards rank. The board artifact itself is unchanged and still settled. */}
 
       {/* P250 · A15: the preseason "player simulations" section was removed as dead code — it keyed
           on `providerEventId` in the retired game-simulations artifact (whose games carry `gameId`,
           frozen 2026-08-29), so it could never render against the committed data. The regular-season
           player projections above are the real player surface. */}
+      {view ? <Methodology view={view} status={WORLD_MODEL_STATUS} started={started} calibration={s.winProbability.calibration} /> : null}
+      {/* Simulation V2 (the drive-level research engine) stays reachable, as research, not as a second forecast. */}
+      <SimulationV2Link eventId={f.providerEventId} />
+
       <section aria-labelledby="how-read" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Reading key" title="What these numbers mean" />
         <dl style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10, fontSize: 12.5 }}>
           {[
             ["Projected score", "The middle outcome across every simulated game — not a prediction of the exact final."],
-            ["Win chance", "The model's chance for each side to win, from its team-strength rating. The simulations supply the projected score and the ranges; this percentage is not a count of simulated wins."],
+            ["Win chance", "The model's chance for each side to win, from its team-strength rating — not a count of simulated wins. The simulated games show their own win share, and the difference, in Simulated game outcomes."],
             ["80% range", "Eight in ten simulated games landed inside this band. Real games land outside it too."],
             ["pp (percentage points)", "The plain difference between two percentages. A gap is a difference, not an advantage."],
             /* P250-W2: a reading key defines the LABEL. Restating the market non-claim here made it
                the third time this page said it — the model's own measured limit says it once, in
                Provenance below. */
-            ["Experimental", "Published while its out-of-sample record is still accumulating. Every forecast is frozen before kickoff and graded against the official result."],
+            ["Under forward evaluation", "Published while its record on games played after each forecast was frozen is still accumulating. Every forecast is frozen before kickoff and graded against the official result."],
           ].map(([t, d]) => (
             <div key={t}>
               <dt style={{ fontWeight: 600 }}>{t}</dt>

@@ -73,16 +73,19 @@ export function reallocate(share, a, v, rho, floor) {
 
 /**
  * One team's simulation side. `pool` comes from the input packet; `isActive(member)` is the build-time availability
- * decision. Returns active members, allocated shares per family (OTHER last), and the expected volume.
+ * decision. `isActiveFor(member, family)` (optional) narrows one family further: an active backup quarterback is
+ * active for carries but not for pass attempts, so his historical passing share counts as vacated, exactly as a
+ * player with no row did in the development history the reallocation was fit on. Returns active members, allocated
+ * shares per family (OTHER last), and the expected volume.
  */
-export function prepareSide({ pool, isActive, volumeBase, marginTeam, teamTdForm, params }) {
+export function prepareSide({ pool, isActive, isActiveFor = (p) => isActive(p), volumeBase, marginTeam, teamTdForm, params }) {
   const active = pool.filter((p) => isActive(p));
-  const inactive = pool.filter((p) => !isActive(p));
   const shares = {};
   for (const fam of FAMILIES) {
-    const a = active.reduce((s, p) => s + p.shares[fam], 0);
-    const v = inactive.reduce((s, p) => s + p.shares[fam], 0);
-    const s = active.map((p) => reallocate(p.shares[fam], a, v, params.rho[fam], params.otherFloor));
+    const on = (p) => isActive(p) && isActiveFor(p, fam);
+    const a = pool.filter(on).reduce((s, p) => s + p.shares[fam], 0);
+    const v = pool.filter((p) => !on(p)).reduce((s, p) => s + p.shares[fam], 0);
+    const s = active.map((p) => (on(p) ? reallocate(p.shares[fam], a, v, params.rho[fam], params.otherFloor) : 0));
     shares[fam] = [...s, Math.max(0, 1 - s.reduce((x, y) => x + y, 0))];
   }
   const V = {};

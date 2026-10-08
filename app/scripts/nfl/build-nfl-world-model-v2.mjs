@@ -29,6 +29,9 @@ import { fileURLToPath } from "node:url";
 import { WORLD_MODEL_V2_ENGINE, prepareSide, simulateGame, distribution, LADDERS, representativeWorldIndices } from "../../src/lib/sports/nfl/world-model-v2/engine.mjs";
 import { WORLD_MODEL_V2, STATUS, UNSUPPORTED, LIMITATIONS } from "../../src/lib/sports/nfl/world-model-v2/artifact.mjs";
 import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
+import { indexDepthCharts, depthChartAsOf } from "../../src/lib/sports/nfl/depth-chart.mjs";
+import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mjs";
+import { QB_CHART_MAX_AGE_MS } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const argOf = (n, d = null) => { const i = process.argv.indexOf(n); return i >= 0 ? process.argv[i + 1] : d; };
@@ -38,6 +41,7 @@ if (!NOW || !Number.isFinite(Date.parse(NOW))) refuse("--now <ISO> required");
 if (Date.parse(NOW) > Date.now() + 60_000) refuse("--now is in the future; simulations use the real clock");
 const RUNS = Number(argOf("--runs", "10000"));
 const ONLY = argOf("--only");
+const FORCE = process.argv.includes("--force");
 const DATA = path.resolve(argOf("--data-root", ROOT));
 const readJson = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 const sha256 = (buf) => crypto.createHash("sha256").update(buf).digest("hex");
@@ -55,6 +59,18 @@ const published = new Map((forecasts.forecasts ?? []).map((f) => [f.providerEven
 const rosterOf = new Map(rosters.teams.map((t) => [t.teamAbbr, new Map(t.players.filter((p) => p.status?.type === "active").map((p) => [String(p.id), p]))]));
 const injuryOf = new Map((injuries.entries ?? []).filter((e) => e?.athleteId).map((e) => [String(e.athleteId), e]));
 
+/* QUARTERBACK: the depth chart decides who throws. The highest-ranked quarterback who is simulated (not Out) holds the
+   passing share; every other passer's historical share is vacated. Without it, an active backup kept the share he
+   earned in his own starts and split attempts with the starter (Week 5 build: Burrow 0.65 / Flacco 0.33). Same chart
+   reader and staleness bound as the published forecast's QB1 disclosure. No readable chart: every passer below the
+   board's starter share floor is withheld from the player list (team volume is still simulated). */
+const qbIndex = (() => {
+  const dir = path.join(DATA, "data/internal/research/nfl/depth-charts");
+  const caps = (fs.existsSync(dir) ? fs.readdirSync(dir) : []).filter((f) => f.endsWith(".json")).map((file) => ({ file, doc: readJson(path.join(dir, file)) })).filter((c) => c.doc?.snapshots?.length);
+  const picked = pickNewestCapture(caps);
+  return picked ? { index: indexDepthCharts(picked.doc), file: picked.file } : null;
+})();
+const PASSER_FLOOR = 0.75;
 const OUT_DIR = path.join(ROOT, "app/public/data/nfl/world-model-v2");
 const RUNS_DIR = path.join(ROOT, "data/internal/nfl/world-model-v2/runs");
 fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -62,6 +78,23 @@ fs.mkdirSync(RUNS_DIR, { recursive: true });
 const r2 = (x) => Number(x.toFixed(2));
 const r4 = (x) => Number(x.toFixed(4));
 const SIGMA_80 = 2 * 1.2815515655446004;
+
+/**
+ * Shares of the worlds in fixed-width bins between `lo` and `hi`; the first and last bins also hold everything below
+ * / above (labelled as tails). Counted, never smoothed: the chart is the simulation, not a picture of it.
+ */
+function histogram(arr, lo, hi, width) {
+  const n = Math.round((hi - lo) / width);
+  const counts = new Array(n).fill(0);
+  for (let i = 0; i < arr.length; i += 1) counts[Math.min(n - 1, Math.max(0, Math.floor((arr[i] - lo) / width)))] += 1;
+  return { from: lo, width, bins: n, tails: true, shares: counts.map((c) => r4(c / arr.length)) };
+}
+/** The most frequent exact final scores across the worlds (each a real simulated final, counted). */
+function commonScores(game, k) {
+  const m = new Map();
+  for (let r = 0; r < game.home.length; r += 1) { const key = `${game.away[r]}-${game.home[r]}`; m.set(key, (m.get(key) ?? 0) + 1); }
+  return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, k).map(([key, c]) => { const [away, home] = key.split("-").map(Number); return { away, home, share: r4(c / game.home.length) }; });
+}
 
 /** Availability of one pool member at build time. */
 function availabilityOf(p, teamAbbr, excluded) {
@@ -78,7 +111,7 @@ function availabilityOf(p, teamAbbr, excluded) {
 
 const index = fs.existsSync(path.join(OUT_DIR, "index.json")) ? readJson(path.join(OUT_DIR, "index.json")) : { games: [] };
 const kept = new Map(index.games.map((g) => [g.providerEventId, g]));
-const written = []; const skipped = [];
+const written = []; const skipped = []; const unchanged = [];
 for (const ev of packet.games) {
   if (ONLY && ev.providerEventId !== ONLY) continue;
   if (Date.parse(ev.kickoffUtc) <= Date.parse(NOW)) { skipped.push(`${ev.matchup}: kicked off — last pregame artifact kept`); continue; }
@@ -90,13 +123,30 @@ for (const ev of packet.games) {
   const excluded = new Map((part?.excludedIneligible ?? []).map((x) => [String(x.playerId).replace(/^nfl-athlete-/, ""), x.status]));
   const heads = { mMean: fs0.margin.median, mSigma: (fs0.margin.p90 - fs0.margin.p10) / SIGMA_80, tMean: fs0.total.median, tSigma: (fs0.total.p90 - fs0.total.p10) / SIGMA_80 };
   const avail = new Map();
+  const quarterbacks = {};
   const sides = [ev.away, ev.home].map((abbr, si) => {
     const t = packet.teams[abbr];
     for (const p of t.pool) avail.set(p.playerId, { ...availabilityOf(p, abbr, excluded), team: abbr });
-    return prepareSide({ pool: t.pool, isActive: (p) => avail.get(p.playerId).simulated, volumeBase: ev.volumeBase[abbr], marginTeam: si === 1 ? heads.mMean : -heads.mMean, teamTdForm: t.teamTdForm, params: packet.params });
+    const chart = qbIndex ? depthChartAsOf(qbIndex.index, abbr, NOW, QB_CHART_MAX_AGE_MS) : null;
+    const simulatedIds = new Set(t.pool.filter((p) => avail.get(p.playerId).simulated).map((p) => p.espnId));
+    const passer = chart?.state === "RESOLVED" ? (chart.order ?? []).find((q) => simulatedIds.has(String(q.playerId))) ?? null : null;
+    quarterbacks[abbr] = { chartState: chart?.state ?? "NO_CHART", snapshotAt: chart?.snapshotAt ?? null, chartQb1: chart?.starter?.name ?? null, passer: passer ? { playerId: `nfl-athlete-${passer.playerId}`, name: passer.name } : null, rule: passer ? "depth-chart order, first quarterback not ruled out" : `no usable chart: passers below ${PASSER_FLOOR} of attempts withheld` };
+    return prepareSide({
+      pool: t.pool, isActive: (p) => avail.get(p.playerId).simulated,
+      isActiveFor: (p, fam) => fam !== "passAttempts" || !passer || p.espnId === String(passer.playerId),
+      volumeBase: ev.volumeBase[abbr], marginTeam: si === 1 ? heads.mMean : -heads.mMean, teamTdForm: t.teamTdForm, params: packet.params,
+    });
   });
-  const statusKey = [...avail.entries()].filter(([, a]) => a.simulated).map(([id, a]) => `${id}:${a.state}`).sort().join(",");
-  const seed = `${ev.providerEventId}|${packetSha.slice(0, 16)}|${pub.model?.inputHash ?? "none"}|${sha256(statusKey).slice(0, 16)}`;
+  const statusKey = `${[...avail.entries()].filter(([, a]) => a.simulated).map(([id, a]) => `${id}:${a.state}`).sort().join(",")}|qb:${Object.values(quarterbacks).map((q) => q.passer?.playerId ?? "none").join(",")}`;
+  /* FRESHNESS: the simulation is a function of these inputs and nothing else. A refresh that leaves them unchanged (a
+     new forecast inputHash from an unrelated feed, the same heads, the same availability) keeps the existing run: no
+     new version, no new file, no build. */
+  const headsKey = Object.values(heads).map((v) => r4(v)).join(",");
+  const inputsKey = sha256(`${WORLD_MODEL_V2.version}|${WORLD_MODEL_V2_ENGINE}|${RUNS}|${packetSha}|${headsKey}|${statusKey}`).slice(0, 16);
+  const existingPath = path.join(OUT_DIR, `${ev.providerEventId}.json`);
+  const existing = fs.existsSync(existingPath) ? readJson(existingPath) : null;
+  if (!FORCE && existing?.run?.inputsKey === inputsKey) { unchanged.push(`${ev.matchup}: inputs unchanged since ${existing.run.generatedAt}`); continue; }
+  const seed = `${ev.providerEventId}|${inputsKey}`;
   const sim = simulateGame({ sides, heads, params: packet.params, tables: packet.tables, runs: RUNS, seed });
   const { game } = sim;
   let hw = 0; let aw = 0; let tie = 0;
@@ -124,7 +174,8 @@ for (const ev of packet.games) {
       fam.receivingYards = distribution(w.recYds, LADDERS.receivingYards);
     }
     if (mean(w.carries) >= 1.5) { fam.carries = distribution(w.carries); fam.rushingYards = distribution(w.rushYds, LADDERS.rushingYards); }
-    if (mean(w.passAtt) >= 8) { fam.passAttempts = distribution(w.passAtt); fam.completions = distribution(w.completions); fam.passingYards = distribution(w.passYds, LADDERS.passingYards); }
+    const qb = quarterbacks[si === 1 ? ev.home : ev.away];
+    if (mean(w.passAtt) >= 8 && (qb.passer || sd.shares.passAttempts[i] >= PASSER_FLOOR)) { fam.passAttempts = distribution(w.passAtt); fam.completions = distribution(w.completions); fam.passingYards = distribution(w.passYds, LADDERS.passingYards); }
     if (!Object.keys(fam).length) return;
     players.push({ playerId: `nfl-athlete-${m.espnId}`, name: ros?.fullName ?? m.name, position: ros?.position?.abbreviation ?? null, team: si === 1 ? ev.home : ev.away, availability: a.state, injuryStatus: a.status ?? null, allocatedShares: Object.fromEntries(Object.entries(sd.shares).map(([f, s]) => [f, r4(s[i])])), families: fam });
   }));
@@ -152,13 +203,13 @@ for (const ev of packet.games) {
   const wp = fs0.winProbability;
   const projected = { home: distribution(game.home).median, away: distribution(game.away).median };
   const body = {
-    schemaVersion: 1, artifact: "nfl-world-model-v2-simulation", dataClass: "PUBLIC_EXPERIMENTAL",
+    schemaVersion: 2, artifact: "nfl-world-model-v2-simulation", dataClass: "PUBLIC_EXPERIMENTAL",
     identity: { providerEventId: ev.providerEventId, matchup: ev.matchup, away: ev.away, home: ev.home, kickoffUtc: ev.kickoffUtc, season: packet.season, week: packet.week },
     model: { ...WORLD_MODEL_V2, engine: WORLD_MODEL_V2_ENGINE },
     status: STATUS,
     run: {
-      generatedAt: NOW, runs: RUNS, seed,
-      inputs: { packet: path.relative(ROOT, packetPath), packetSha256: packetSha, packetExportedAt: packet.exportedAt, forecastModel: pub.model?.id ?? null, forecastInputHash: pub.model?.inputHash ?? null, forecastGeneratedAt: pub.generatedAt ?? null, injuriesAsOf: injuries.generatedAt ?? null, rostersGeneratedAt: rosters.generatedAt ?? null, participationAsOf: part?.injuriesAsOf ?? null, heads: Object.fromEntries(Object.entries(heads).map(([k, v]) => [k, r4(v)])) },
+      generatedAt: NOW, runs: RUNS, seed, inputsKey, supersedes: existing && Date.parse(existing.identity?.kickoffUtc) === Date.parse(ev.kickoffUtc) ? existing.simulationId ?? null : null,
+      inputs: { packet: path.relative(ROOT, packetPath), packetSha256: packetSha, packetExportedAt: packet.exportedAt, forecastModel: pub.model?.id ?? null, forecastInputHash: pub.model?.inputHash ?? null, forecastGeneratedAt: pub.generatedAt ?? null, injuriesAsOf: injuries.generatedAt ?? null, depthChart: qbIndex?.file ?? null, rostersGeneratedAt: rosters.generatedAt ?? null, participationAsOf: part?.injuriesAsOf ?? null, heads: Object.fromEntries(Object.entries(heads).map(([k, v]) => [k, r4(v)])) },
     },
     forecastOfRecord: {
       modelVersion: pub.model?.id ?? null, winProbability: { home: wp.home, away: wp.away, tie: wp.tieMass ?? null }, projectedScore: fs0.projectedScore ? { home: fs0.projectedScore.home, away: fs0.projectedScore.away } : null,
@@ -170,17 +221,20 @@ for (const ev of packet.games) {
       overtime: { levelAfterRegulation: r4(sim.diag.levelAfterRegulation / RUNS), levelAfterOvertime: r4(sim.diag.levelAfterOvertime / RUNS), homeWinsOvertime: r4(sim.pHomeOt) },
       projectedScore: { ...projected, basis: "median points of each team across the simulated games (each median on its own; not one simulated game)" },
       margin: distribution(margin), total: distribution(total),
+      histograms: { margin: histogram(margin, -30, 30, 3), total: histogram(total, 20, 80, 5) },
+      commonFinalScores: commonScores(game, 8),
       away: teamOut(0), home: teamOut(1),
       disagreement: { winProbabilityHome: { worlds: r4(hw / RUNS), forecastOfRecord: wp.home, difference: r4(hw / RUNS - wp.home) }, marginMedianHome: { worlds: distribution(margin).median, forecastOfRecord: fs0.margin.median }, totalMedian: { worlds: distribution(total).median, forecastOfRecord: fs0.total.median } },
     },
     players,
+    quarterbacks,
     availability: [...avail.entries()].filter(([, a]) => a.state === "OUT" || a.state === "QUESTIONABLE" || a.state === "DOUBTFUL").map(([id, a]) => { const p = packet.teams[a.team].pool.find((x) => x.playerId === id); return { playerId: `nfl-athlete-${p.espnId}`, name: rosterOf.get(a.team)?.get(p.espnId)?.fullName ?? p.name, team: a.team, state: a.state, status: a.status ?? null, simulated: a.simulated }; }),
     sampledWorlds,
     unsupported: UNSUPPORTED,
     limitations: LIMITATIONS,
     diagnostics: { ...sim.diag, invariantViolations: 0, playersSimulated: { [ev.away]: sides[0].members.length, [ev.home]: sides[1].members.length } },
   };
-  body.simulationId = sha256(JSON.stringify({ engine: WORLD_MODEL_V2_ENGINE, seed, runs: RUNS, model: WORLD_MODEL_V2.version })).slice(0, 16);
+  body.simulationId = inputsKey;
   body.contentSha256 = sha256(JSON.stringify(body));
   const text = `${JSON.stringify(body)}\n`;
   const runFile = path.join(RUNS_DIR, `${ev.providerEventId}-${NOW.replace(/[-:]/g, "").slice(0, 13)}Z.json`);
@@ -191,7 +245,12 @@ for (const ev of packet.games) {
   written.push(`${ev.matchup}: home ${body.game.winProbability.home} (record ${wp.home}) · ${projected.away}-${projected.home} · ${players.length} players · ${sim.diag.teamWorldsChecked} team-worlds checked`);
 }
 const games = [...kept.values()].sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc) || a.providerEventId.localeCompare(b.providerEventId));
-fs.writeFileSync(path.join(OUT_DIR, "index.json"), `${JSON.stringify({ schemaVersion: 1, artifact: "nfl-world-model-v2-index", generatedAt: NOW, model: WORLD_MODEL_V2.id, version: WORLD_MODEL_V2.version, games }, null, 1)}\n`);
+/* Written only when its content changes: a run that simulated nothing must not produce a diff (and so no data commit
+   and no build) just because the timestamp moved. */
+if (written.length || JSON.stringify(index.games) !== JSON.stringify(games) || index.version !== WORLD_MODEL_V2.version) {
+  fs.writeFileSync(path.join(OUT_DIR, "index.json"), `${JSON.stringify({ schemaVersion: 1, artifact: "nfl-world-model-v2-index", generatedAt: NOW, model: WORLD_MODEL_V2.id, version: WORLD_MODEL_V2.version, games }, null, 1)}\n`);
+}
 for (const w of written) console.log(`  ${w}`);
 for (const s of skipped) console.log(`  skipped ${s}`);
-console.log(`world model v2: ${written.length} simulated, ${skipped.length} skipped · packet ${path.basename(packetPath)} ${packetSha.slice(0, 12)}`);
+for (const s of unchanged) console.log(`  unchanged ${s}`);
+console.log(`world model v2: ${written.length} simulated, ${unchanged.length} unchanged, ${skipped.length} skipped · packet ${path.basename(packetPath)} ${packetSha.slice(0, 12)}`);

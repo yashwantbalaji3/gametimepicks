@@ -124,3 +124,29 @@ Every team-world is checked: scoring equals points, completions equal receptions
 ```
 node app/scripts/nfl/build-nfl-world-model-v2.mjs --now <ISO>
 ```
+
+## 7. One NFL forecast experience (2026-10-08, night; founder directive)
+
+**One consumption layer.** `app/src/lib/sports/nfl/forecast-view.mjs` builds the view behind the hub's Weekly leaders and every game page. Each family has exactly one source, named on every list:
+
+| Number | Source |
+|---|---|
+| Win chance, projected score, margin, total | Game Time Forecast (forecast of record, unchanged) |
+| Simulated outcomes, sampled games | World Model V2 (scores drawn from the forecast's own margin and total) |
+| Passing yards, rushing yards, receiving yards, receptions | World Model V2 (one coherent game per world) |
+| Anytime touchdown | Opportunity touchdown model (player board) |
+| Passing touchdowns, first touchdown scorer | Not published, with the reason shown |
+
+A game without a simulation falls back to the player board's families, labelled. All NFL outputs remain PUBLIC_EXPERIMENTAL ("Model status: Under forward evaluation"). Nothing is promoted and product eligibility is unchanged.
+
+**World Model V2 2.1.0 — QB fix.** An active backup kept the passing share he earned in his own starts, splitting attempts with the starter. Example: Burrow 0.65, Flacco 0.33, giving Burrow a 152-yard median. Now the depth-chart QB1 who is not ruled out holds the passing share, and every other passer's share is vacated. That matches how the development fit defined who was active: the players who actually played. Week 5: one passer per team at 0.98 of attempts.
+
+**Freshness.** The NFL event window re-simulates a game only when its inputs key changes: published heads, availability, passer or model version. With no change nothing is written. Started games are never touched. Every run is kept write-once.
+
+**Parity.** `forecast-view.test.mjs` checks the following:
+- Every board row equals the game-page row: same value, run and rounding.
+- One source per family.
+- Out, Questionable and Doubtful players never rank.
+- Started games drop off.
+- Unsupported families carry reasons, never numbers.
+- The view is deterministic.

@@ -83,7 +83,7 @@ test("the strip only ever offers a destination that exists", () => {
 
 test("⚠ follows key on CANONICAL IDS derived from published artifacts — no invented space, no hand-typed roster", () => {
   // The P251 purpose, preserved: no hand-typed league roster anywhere a follow is resolved.
-  for (const rel of ["src/lib/follow/entity-registry.ts", "src/components/nfl/weekly-boards.tsx"]) {
+  for (const rel of ["src/lib/follow/entity-registry.ts", "src/components/nfl/forecast/family-tabs.tsx"]) {
     assert.ok(!/const (NFL|MLB)_TEAMS\s*=|TEAM_NAMES\s*=\s*\{/.test(read(rel)), `${rel} must not hand-type a roster`);
   }
   // The registry DERIVES ids from artifacts the site ships.
@@ -92,11 +92,12 @@ test("⚠ follows key on CANONICAL IDS derived from published artifacts — no i
   assert.match(registry, /nfl\/rosters\/latest\.json/, "NFL team ids come from the ESPN roster capture");
 
   // The board hands the star a REF, never a name.
-  const boards = read("src/components/nfl/weekly-boards.tsx");
-  assert.match(boards, /<FollowToggle entity=\{teamRefs\[t\] \?\? null\}/, "the board passes a canonical ref");
+  // (2026-10-08: the hub's boards are the shared FamilyTabs; the star moved with the team filter.)
+  const boards = read("src/components/nfl/forecast/family-tabs.tsx");
+  assert.match(boards, /<FollowToggle entity=\{filters\.teamRefs\?\.\[t\] \?\? null\}/, "the board passes a canonical ref");
   assert.equal(/<FollowToggle team=/.test(boards), false, "the P251 name prop is gone");
   // The page resolves those refs on the server.
-  assert.match(read("src/app/nfl/page.tsx"), /teamRefs=\{nflTeamRefsByAbbr\(/);
+  assert.match(read("src/app/nfl/page.tsx"), /teamRefs: nflTeamRefsByAbbr\(/);
 });
 
 test("the toggle is a real, labelled, toggleable control", () => {

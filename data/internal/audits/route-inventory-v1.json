@@ -2,12 +2,12 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-10-08T20:19:54Z",
+ "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
   "routes": 93,
-  "public": 65,
+  "public": 63,
   "internal": 9,
-  "redirects": 15,
+  "redirects": 17,
   "archive": 2,
   "findings": 0,
   "p0": 0
@@ -463,21 +463,19 @@
   },
   {
    "route": "/nfl/world-model",
-   "classification": "public",
+   "classification": "redirect",
    "owner": "product",
-   "purpose": "NFL World Model V2 Top boards, EXPERIMENTAL (founder P0 2026-10-08): passing / rushing / receiving yards and receptions ranked from the per-game World Model V2 artifacts (same numbers as each game page); Questionable/Doubtful/Out and started games excluded; fewer than 10 rather than fill; no TD board",
-   "dataOwner": "app/public/data/nfl/world-model-v2 (build-nfl-world-model-v2) via world-model-v2/read.mjs + artifact.mjs topBoards",
-   "freshness": "each artifact generatedAt (before kickoff); board computed at build time",
+   "purpose": "World Model V2 Top boards (PR 1024) folded into the hub's Weekly leaders (founder directive 2026-10-08: one NFL forecast experience)",
+   "redirectTo": "/nfl",
    "built": true
   },
   {
    "route": "/nfl/world-model/[eventId]",
-   "classification": "public",
+   "classification": "redirect",
    "owner": "product",
    "family": true,
-   "purpose": "NFL World Model V2, EXPERIMENTAL (founder P0 2026-10-08): 10,000 coherent simulated games per matchup (win chance counted from worlds incl. overtime, scoring composition, team volume, player distributions, five real sampled games, unsupported families), separate from the Game Time Forecast of record; only artifacts generated before kickoff with >= 10,000 worlds and 0 inconsistent worlds, dynamicParams=false",
-   "dataOwner": "app/public/data/nfl/world-model-v2 (build-nfl-world-model-v2) via world-model-v2/read.mjs",
-   "freshness": "the artifact generatedAt, always before kickoff",
+   "purpose": "World Model V2 game pages (PR 1024) folded into the game page's simulated outcomes, player projections and sampled games (founder directive 2026-10-08)",
+   "redirectTo": "/nfl/game/[eventId]",
    "built": "FAMILY (15 generated page(s))"
   },
   {

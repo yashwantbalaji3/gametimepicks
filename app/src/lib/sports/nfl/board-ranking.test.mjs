@@ -84,6 +84,10 @@ test("every public top list reads the ONE allowlist (no INACTIVE-only filter sur
     assert.match(s, /PUBLIC_BOARD_CLEARED\.includes\(p\.participation\)/, `${rel} must filter with the shared allowlist`);
     assert.doesNotMatch(s, /participation !== "INACTIVE"/, `${rel} still filters INACTIVE only`);
   }
+  // 2026-10-08: the game page and the hub boards rank through the shared forecast view, which extends the SAME
+  // allowlist with World Model V2's own ACTIVE state — never a second list.
+  assert.match(src("src/lib/sports/nfl/forecast-view.mjs"), /CLEARED = Object\.freeze\(\[\.\.\.PUBLIC_BOARD_CLEARED, "ACTIVE"\]\)/);
+  assert.doesNotMatch(src("src/lib/sports/nfl/forecast-view.mjs"), /!== "INACTIVE"/);
   const producer = src("scripts/nfl/build-nfl-player-board.mjs");
   assert.match(producer, /availability: \{\s*injuriesCapturedAt: injuriesArtifact\.generatedAt/, "the per-game board records its availability read");
   assert.match(src("scripts/nfl/build-end-zone-vault.mjs"), /role\?\.state === "QUESTIONABLE"\) \{\s*withheld\.push/, "the Vault withholds a questionable player");

@@ -9,7 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { prepareSide, simulateGame, scoringTables, composeRegulation, composeOvertime, distribution, mulberry32 } from "./engine.mjs";
-import { topBoards, BOARD_FAMILIES, UNSUPPORTED } from "./artifact.mjs";
+import { UNSUPPORTED } from "./artifact.mjs";
 import { readWorldModelArtifacts, isShowable } from "./read.mjs";
 
 const APP = process.cwd();
@@ -118,40 +118,30 @@ test("committed artifacts are showable, frozen before kickoff and publish no uns
   }
 });
 
-test("Top boards are the per-game artifact numbers, cleared players only, at most ten rows", () => {
-  const now = artifacts.length ? new Date(Date.parse(artifacts[0].identity.kickoffUtc) - 60_000).toISOString() : new Date().toISOString();
-  const { boards } = topBoards(artifacts, { now });
-  for (const { key } of BOARD_FAMILIES) {
-    const rows = boards[key];
-    assert.ok(rows.length <= 10);
-    rows.forEach((r, i) => {
-      assert.equal(r.rank, i + 1);
-      if (i) assert.ok(rows[i - 1].mean >= r.mean, "ranked by simulated average");
-      const a = artifacts.find((x) => x.identity.providerEventId === r.providerEventId);
-      const p = a.players.find((x) => x.playerId === r.playerId);
-      assert.equal(p.availability, "ACTIVE", `${r.name} on a board while ${p.availability}`);
-      assert.deepEqual({ mean: r.mean, median: r.median, p10: r.p10, p90: r.p90 }, { mean: p.families[key].mean, median: p.families[key].median, p10: p.families[key].p10, p90: p.families[key].p90 }, "board number = game-page number");
-      assert.equal(r.simulationId, a.simulationId);
-    });
+test("every team has exactly one passer: the depth-chart QB1 who is not ruled out (backup share vacated)", () => {
+  for (const a of artifacts) {
+    for (const team of [a.identity.away, a.identity.home]) {
+      const q = a.quarterbacks?.[team];
+      assert.ok(q, `${a.identity.matchup} ${team}: quarterback decision recorded`);
+      const passers = a.players.filter((p) => p.team === team && p.families.passingYards);
+      if (q.passer) {
+        assert.equal(passers.length, 1, `${a.identity.matchup} ${team}: one passer, got ${passers.map((p) => p.name).join(", ")}`);
+        assert.equal(passers[0].playerId, q.passer.playerId, "the passer is the depth-chart choice");
+        assert.ok(passers[0].allocatedShares.passAttempts >= 0.9, `${passers[0].name} holds the passing share (${passers[0].allocatedShares.passAttempts})`);
+      } else {
+        for (const p of passers) assert.ok(p.allocatedShares.passAttempts >= 0.75, "without a chart only a starter-level share publishes");
+      }
+    }
   }
-  // a started game drops off every board
-  if (artifacts.length) {
-    const first = artifacts[0];
-    const after = topBoards(artifacts, { now: new Date(Date.parse(first.identity.kickoffUtc) + 1000).toISOString() });
-    for (const { key } of BOARD_FAMILIES) assert.ok(!after.boards[key].some((r) => r.providerEventId === first.identity.providerEventId));
-  }
-  // fewer than ten rather than fill
-  const one = artifacts.slice(0, 1);
-  const small = topBoards(one, { now: "2000-01-01T00:00:00Z" });
-  for (const { key } of BOARD_FAMILIES) assert.equal(small.boards[key].length, Math.min(10, one[0]?.players.filter((p) => p.availability === "ACTIVE" && p.families[key]).length ?? 0));
 });
 
-test("the forecast of record keeps its label; the world model page is linked, never substituted", () => {
-  const game = fs.readFileSync(path.join(APP, "src/app/nfl/game/[eventId]/page.tsx"), "utf8");
-  assert.ok(game.includes("<WorldModelV2Link eventId={f.providerEventId} />"));
-  const link = fs.readFileSync(path.join(APP, "src/components/nfl/world-model-v2-link.tsx"), "utf8");
-  assert.ok(/experimental · separate from this forecast/.test(link));
-  const report = fs.readFileSync(path.join(APP, "src/components/nfl/world-model-v2-report.tsx"), "utf8");
-  assert.ok(report.includes("not the forecast of record") && report.includes("forecast of record"));
-  assert.ok(!/anytime_td\b.*probability\s*\}/.test(report));
+test("the World Model V2 routes fold into the game page and the hub (redirects, never a second forecast surface)", () => {
+  const game = fs.readFileSync(path.join(APP, "src/app/nfl/world-model/[eventId]/page.tsx"), "utf8");
+  assert.match(game, /<ClientRedirect to=\{`\/nfl\/game\/\$\{params\.eventId\}\/#simulation`\}/);
+  assert.match(fs.readFileSync(path.join(APP, "src/app/nfl/world-model/page.tsx"), "utf8"), /<ClientRedirect to="\/nfl\/#nfl-boards"/);
+  for (const gone of ["src/components/nfl/world-model-v2-report.tsx", "src/components/nfl/world-model-v2-link.tsx", "src/components/nfl/world-model-v2-hub-card.tsx"]) assert.ok(!fs.existsSync(path.join(APP, gone)), `${gone} retired`);
+  const page = fs.readFileSync(path.join(APP, "src/app/nfl/game/[eventId]/page.tsx"), "utf8");
+  for (const c of ["<GameHero", "<SimulationPanel", "<FamilyTabs {...gameTabs(view)}", "<GameExplorer", "<Methodology"]) assert.ok(page.includes(c), `game page renders ${c}`);
+  const hub = fs.readFileSync(path.join(APP, "src/app/nfl/page.tsx"), "utf8");
+  assert.ok(hub.includes("<ModelStatus />") && /\{\.\.\.boardTabs\(unifiedBoards\.boards\)\}/.test(hub), "the hub states the model status once and ranks from the shared view");
 });

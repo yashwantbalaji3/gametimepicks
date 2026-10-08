@@ -117,8 +117,13 @@ test("🔴 the frozen daily Top-5 refuses a family any board withheld for a team
   assert.match(doc.ineligible.find((x) => x.propFamily === "player_rush_yds").reason, /AAA/);
 });
 
-test("the /nfl hub carries the reconciliation statement to the weekly boards (its field list is hand-copied)", () => {
+test("the /nfl hub shows ONE set of boards, whose rows conserve opportunity by construction (2026-10-08)", () => {
+  /* The weekly-boards artifact (and its nfl-share-conservation-v1 reconciliation) is still produced and settled; the
+     hub no longer renders it as a second public board. The hub's boards rank World Model V2 rows, where every team's
+     targets / carries / attempts are allocated once per simulated game, so a team's named shares cannot exceed 1. */
   const hub = fs.readFileSync(path.join(process.cwd(), "src/app/nfl/page.tsx"), "utf8");
-  assert.match(hub, /conservation: b\.conservation \? \{ version: String\(b\.conservation\.version\), teamsReconciled: Number\(b\.conservation\.teamsReconciled\) \}/);
-  assert.match(fs.readFileSync(path.join(process.cwd(), "src/components/nfl/weekly-boards.tsx"), "utf8"), /b\.conservation\?\.teamsReconciled \?/);
+  assert.match(hub, /<FamilyTabs\s+\{\.\.\.boardTabs\(unifiedBoards\.boards\)\}/);
+  assert.doesNotMatch(hub, /<NflWeeklyBoards/);
+  assert.ok(!fs.existsSync(path.join(process.cwd(), "src/components/nfl/weekly-boards.tsx")), "the retired second board is gone, not hidden");
+  assert.match(fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/world-model-v2/engine.mjs"), "utf8"), /shares\[fam\] = \[\.\.\.s, Math\.max\(0, 1 - s\.reduce/, "OTHER takes exactly the remainder of each family");
 });

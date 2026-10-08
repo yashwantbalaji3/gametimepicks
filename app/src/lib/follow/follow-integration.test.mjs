@@ -66,7 +66,8 @@ test("S1 · MLB game pages follow BOTH clubs by StatsAPI id", () => {
 
 test("S2 · NFL game pages follow both clubs; NFL boards pass refs, never names", () => {
   assert.match(code("src/app/nfl/game/[eventId]/page.tsx"), /<TeamFollowRow away=\{nflTeamRefByAbbr\(f\.away\.abbr\)\}/);
-  assert.match(code("src/components/nfl/weekly-boards.tsx"), /entity=\{teamRefs\[t\] \?\? null\}/);
+  // 2026-10-08: the hub boards are the shared FamilyTabs; the team star rides on its team filter.
+  assert.match(code("src/components/nfl/forecast/family-tabs.tsx"), /entity=\{filters\.teamRefs\?\.\[t\] \?\? null\}/);
 });
 
 test("S3 · ⚠ NFL player follows use nfl-athlete-<id> and have NO name fallback", () => {
