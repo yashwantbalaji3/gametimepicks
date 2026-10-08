@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-004-passing-td-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "NFL-004 A — quarterback PASSING TOUCHDOWN count distributions (World Model V2 passer credit vs an incumbent-style shrunk-rate baseline)",
+  "registeredAt": "2026-10-08T22:00:00Z",
+  "whyThisExists": "The production World Model V2 engine (app/src/lib/sports/nfl/world-model-v2/engine.mjs, origin/claude/nfl-unified-experience) credits each receiving TD to ONE passer chosen in proportion to that passer's not-yet-credited completions (passBy[]), so every world carries a passing-TD count for every QB. That distribution has never been evaluated. The world's TD SCORER failed (nfl-005-game-worlds-td-diagnosis.json: scorer-eligibility gate double-counts opportunity); passing-TD credit is a different mechanism (team receiving-TD count x passer share of completions) and must be judged on its own, before any passing-TD marginal is shown anywhere.",
+  "evidenceTier": "DEVELOPMENT. Window 2022-2025 only. Several WORLD inputs were fit on these same seasons (see inSampleDisclosure), so a pass here is NOT blind evidence; only a forward (2026, frozen pregame) look can make the family eligible for anything public. Outcome only PROCEED_TO_FORWARD_SHADOW or DO_NOT_PROCEED. Nothing public changes either way.",
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "All committed NFL-003/004/005 development receipts, including nfl-005-game-worlds-development.json (2019-2021) and nfl-005-game-worlds-td-diagnosis.json (2022-2025 ATD diagnosis: world team offensive TD mean 2.32 vs actual 2.36, dispersion 0.83 vs 0.82; QB anytime-TD level 0.73 world / 0.81 rzTdV1).",
+    "No passing-TD number from either candidate on any season. No per-QB passing-TD aggregate from the 2022-2025 outcome data. The outcome side table is built by a separate script that prints only join accounting."
+  ],
+  "window": {
+    "seasons": [2022, 2025],
+    "seasonTypes": "REG and POST (every game in player-games-v1/v2 for those seasons)",
+    "forbidden": "2019-2021 (spent test window, already looked at for ATD) and 2026 (forward) are never scored by this script. Seasons 2013-2021 are used only as walk-forward history (player shares, rates, team form)."
+  },
+  "population": {
+    "teamGames": "Every 2022-2025 team-game whose game has BOTH sides with an allocation pool in the registered replay walk (replay-game-worlds.mjs walk(), P300 estimators) AND a walk-forward published margin-head mean and v3 totals mean (same availability rule as nfl-game-worlds-v1).",
+    "starterRule": "PRE-GAME KNOWABLE: among the team-game's active members (players with a row for this team-game in player-games-v1 who were on the team's walk-forward roster set before the game, i.e. the replay's 'members' list — the active set is the replay's proxy for the inactive list published ~90 minutes before kickoff), the starter is the member with the HIGHEST decayed passAttempts share (P300 decayedShare, halfLife 4 games, boundaryDecay 0.25, shrinkK 0) computed from games strictly before this one. Ties by lower playerId string. If no active member has a positive share the team-game has no starter and is excluded (counted in the receipt). Position is NOT used.",
+    "rowFilter": "A starter row is scored iff the starter recorded >= 1 pass attempt in the game (player-games-v1 passAtt >= 1). Starters with 0 attempts are excluded and counted (this filter is the task's definition; it conditions on an in-game fact, identically for every candidate).",
+    "outcome": "The starter's official passing touchdowns in that game: nflverse stats_player_week_YYYY passing_tds joined on (game_id, player_id) into data/internal/research/nfl/replay/qb-passing-td-v1.json.gz (built by scripts/research/nfl/build-qb-passing-td-v1.mjs from the same raw files whose sha256 are pinned in player-games-v2 'sources'; the build prints only join accounting). 2-point conversions are not passing TDs."
+  },
+  "candidates": {
+    "WORLD": {
+      "id": "nfl-game-worlds-v1 + production passer credit",
+      "definition": "Per game, 2000 worlds of the registered nfl-game-worlds-v1 construction (replay-game-worlds.mjs, unchanged inputs): score from the walk-forward published margin head (sigma from its gate) and v3 totals head; team offensive TDs | points from the empirical TD-given-points pool (sim-v2 team-games-v1 seasons 2015-2018 and 2022-2025, +-1..3 pooling to >= 30 obs); rushing/receiving split ~ Binomial(TD, lambdaRush/(lambdaRush+lambdaRec)) with P301 team TD form walked forward through 2022-2025; game-script pass attempts / carries; Dirichlet-multinomial targets (kappa 20), pass attempts (kappa 5), carries (kappa 10) over reallocated shares + OTHER; binomial catches; completions ~ Multinomial(team receptions, passer attempt shares in that world).",
+      "touchdownRulesFromProductionEngine": [
+        "off = min(off, floor(points/6)) when 6*off > points (engine step 3 clip).",
+        "Receiving-TD loop exactly as engine step 8: for each receiving TD pick a receiver i with prob proportional to rzTargetShare among slots (members + OTHER) with an uncredited catch (rec[i] - recBy[i] > 0); then a passer j with prob proportional to uncredited completions (cmp[j] - passBy[j]); if no receiver or no passer qualifies, that TD becomes a rushing TD (recTD -= 1, rushTD += 1).",
+        "Rushing TDs picked as the engine does (rzCarryShare among slots with an uncredited carry, else OTHER); they do not affect passing TDs except through the RNG stream."
+      ],
+      "notReproducedFromProductionEngine": "Overtime scoring and the non-offensive/XP/2pt/FG composition step (regulation score from the heads is used directly, as in nfl-game-worlds-v1). These change points by small amounts in a minority of worlds; the passing-TD mechanism (TD count x completion-weighted passer credit) is identical.",
+      "predictiveDistribution": "Empirical pmf of the starter's passBy count over the 2000 worlds (categories 0,1,2,3,4,5+). Mean = average raw count."
+    },
+    "BASELINE": {
+      "id": "shrunk-rate-poisson-nb-v1",
+      "definition": "Count ~ countDist(mean, variance) (P300 verbatim: Poisson if variance <= mean, else negative binomial with size mean^2/(variance-mean)).",
+      "expectedAttempts": "a = reallocate(decayed passAttempts share, pool, rho_pass=0.5, otherFloor 0.02) x allocV1 expected team pass attempts (NFL-003 volume: intercept + bT(teamForm-int) + bO(oppForm-int) + g*m). This is the same expected starter volume the WORLD uses, so the comparison isolates the TD mechanism. (A starter's per-attempt rate times FULL team attempts would credit him with backup attempts; the share is applied.) Attempt variance = a + share^2 * volumeSigmaPass^2 (P300 opp()).",
+      "rate": "r = (sum_w w*passTd + n0 * prior) / (sum_w w*passAtt + n0), over the player's prior games (all teams; history is NOT reset on a team change, unlike shares), weights w = 0.5^((gamesNow - idx)/16) * 0.5^(seasonsAgo).",
+      "shrinkagePrior": {
+        "priorMean": "League passing TDs / pass attempts over ALL player-game rows of the PREVIOUS season (season - 1) in qb-passing-td-v1 (for 2022: the 2021 rate). Pre-game knowable.",
+        "priorTrials_n0": 400,
+        "halfLifeGames": 16,
+        "boundaryDecay": 0.5,
+        "rationale": "Fixed before any look. Between-QB sd of TD% is ~1 percentage point around ~4.5%, so a beta prior with p(1-p)/sd^2 ~ 400 attempt-equivalents; TD rate is noisy (~1.5 TD per game) so memory is longer than P300's yardage rates (8 games, 0.25)."
+      },
+      "moments": "mean = a*r; variance = a*r*(1-r) + r^2 * Var(attempts) (P300 thin()).",
+      "noTeamEnvironment": "The baseline deliberately ignores opponent, total and margin (incumbent style)."
+    },
+    "HYBRID": {
+      "id": "mix50-v1",
+      "definition": "pmf = 0.5 * WORLD pmf + 0.5 * BASELINE pmf per category 0..5+ (BASELINE 5+ = 1 - CDF(4)); mean = 0.5*(mean_W + mean_B). No fitted parameter.",
+      "role": "Scored with the same bars; can proceed independently. Defined in full here; no other hybrid may be added after the look."
+    }
+  },
+  "inSampleDisclosure": "WORLD inputs fit on 2022-2025: TD|points table (includes 2022-2025 team-games), game-script beta/sigma, Dirichlet kappas, NFL-003 volume coefficients and rho (the volume coefficients and rho are ALSO used by BASELINE). Only the BASELINE per-QB rate and prior are fully walk-forward. These favour WORLD; a WORLD pass is therefore weaker evidence than a BASELINE pass, and neither is blind.",
+  "metrics": {
+    "unit": "one starter row (QB-game)",
+    "rps": "Ranked probability score over 6 ordered categories {0,1,2,3,4,5+}: RPS = (1/5) * sum_{k=0..4} (P(X<=k) - 1[y<=k])^2; reported as the mean over rows (lower is better).",
+    "lines": "P(>=1), P(>=2), P(>=3) from each candidate's pmf.",
+    "logLoss": "Mean binary log loss per line with p clipped to [1e-4, 1-1e-4].",
+    "ece": "Per line: 10 equal-width bins on [0,1] (bin = min(9, floor(10p))), ECE = sum_b (n_b/N) |mean p_b - mean y_b|.",
+    "level": "mean predicted count / mean actual count (WORLD: mean of raw world counts, not truncated).",
+    "bootstrapInformational": "Game-clustered bootstrap of RPS_WORLD/RPS_BASELINE and RPS_HYBRID/RPS_BASELINE: 1000 resamples of games, seed 20261008. Informational only; does not change the decision."
+  },
+  "decisionRule": {
+    "WORLD": "PROCEED_TO_FORWARD_SHADOW iff ALL: (1) RPS_W <= RPS_B * 1.01; (2) for each line P(>=1), P(>=2), P(>=3): ECE_W <= 0.03; (3) for each line: logLoss_W <= logLoss_B + 0.002; (4) level_W in [0.95, 1.05]. Otherwise DO_NOT_PROCEED.",
+    "HYBRID": "Same four conditions with HYBRID in place of WORLD (BASELINE stays the comparator).",
+    "BASELINE": "Bars (2) and (4) reported for information (is the comparator itself calibrated?); it is the incumbent-style reference, not a candidate for publication by this protocol.",
+    "minimumN": "If fewer than 1500 starter rows qualify, outcome INSUFFICIENT_DATA for every candidate.",
+    "consequence": "Nothing publishes on any outcome. PROCEED_TO_FORWARD_SHADOW = may be captured blind on 2026 games via a separate forward protocol; passing-TD marginals must not be shown publicly until that forward look exists and passes."
+  },
+  "diagnosticsPrespecified": {
+    "alwaysReported": [
+      "Mean predicted pmf vs empirical frequency for 0..5+ for each candidate.",
+      "Level by QB tier: terciles of the BASELINE shrunk rate r over the scored rows (cut points from the scored rows).",
+      "Level by team TD environment: terciles of pregame expected team points ((muT + m_team)/2) over the scored rows.",
+      "Level by season 2022..2025.",
+      "Mechanism decomposition for WORLD: (a) team passing-TD level = mean world team receiving TDs / mean actual team receiving TDs (player-games-v2 teamTotals recTd) over the scored team-games; (b) starter credit share = sum of world starter passTd means / sum of world team recTD means vs sum of actual starter passTd / sum of actual team recTd; (c) mean world starter attempt share vs actual starter attempt share; (d) share of receiving TDs converted to rushing for lack of a qualifying receiver/passer."
+    ],
+    "ifWorldFails": "Report WHY from the above; write (do NOT evaluate) a candidate fix as a separate preregistration DRAFT for forward testing only. No refit, no second look at 2022-2025."
+  },
+  "frozen": {
+    "devSeasons": [2022, 2025],
+    "runs": 2000,
+    "seed": "nfl004-ptd",
+    "rngRule": "mulberry32(seedOf(seed + '|' + gameId)) per game; seedOf = first 8 hex of sha256",
+    "rpsCategories": [0, 1, 2, 3, 4, "5+"],
+    "lines": [1, 2, 3],
+    "probabilityClip": 0.0001,
+    "eceBins": 10,
+    "rpsRatioMax": 1.01,
+    "eceMax": 0.03,
+    "logLossSlack": 0.002,
+    "levelBand": [0.95, 1.05],
+    "minimumN": 1500,
+    "baselineRate": { "priorTrials": 400, "halfLifeGames": 16, "boundaryDecay": 0.5, "priorMean": "previous-season league passTd/passAtt" },
+    "hybridWeight": 0.5,
+    "bootstrap": { "unit": "game", "resamples": 1000, "seed": 20261008 },
+    "inheritedFrom": {
+      "gameWorlds": "data/internal/research/nfl/reports/nfl-005-game-worlds-preregistration.json (frozen: tdTableSeasons, tdTableMinObs 30, rzK 40)",
+      "kappa": "data/internal/research/nfl/reports/nfl-005-allocation-worlds-development.json devFit.kappa",
+      "volumeRho": "data/internal/research/nfl/reports/nfl-003-opportunity-allocation-development.json devFits",
+      "p300": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json frozen",
+      "p301": "data/internal/research/nfl/reports/anytime-td-historical-replay-preregistration.json frozen"
+    }
+  },
+  "implementation": {
+    "script": "scripts/research/nfl/replay-passing-td.mjs (one look: refuses if the receipt exists or this file is uncommitted/dirty; records this file's commit)",
+    "outcomeBuilder": "scripts/research/nfl/build-qb-passing-td-v1.mjs",
+    "receipt": "data/internal/research/nfl/reports/nfl-004-passing-td-development.json"
+  }
+}
