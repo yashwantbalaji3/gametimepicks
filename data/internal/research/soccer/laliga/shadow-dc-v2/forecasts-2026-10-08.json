@@ -1,0 +1,577 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "laliga",
+ "season": "2026-27",
+ "date": "2026-10-08",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-08T16:58:48.000Z",
+ "runs": [
+  {
+   "at": "2026-10-08T16:58:48.000Z",
+   "added": 8
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Malaga|Espanol",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882851",
+   "providerEventId": "401882851",
+   "kickoffUtc": "2026-10-09T19:00:00.000Z",
+   "matchup": "Málaga v Espanyol",
+   "homeClub": "Málaga",
+   "awayClub": "Espanyol",
+   "historyNames": {
+    "home": "Malaga",
+    "away": "Espanol"
+   },
+   "espnTeamIds": {
+    "home": "99",
+    "away": "88"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-08T16:58:48.000Z",
+   "probs": {
+    "home": 0.265662,
+    "draw": 0.311767,
+    "away": 0.422571
+   },
+   "over25": 0.301262,
+   "under25": 0.698738,
+   "expectedGoals": {
+    "home": 0.8113,
+    "away": 1.1071
+   },
+   "lambdas": {
+    "home": 0.8113,
+    "away": 1.1071
+   },
+   "rho": -0.001116,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 7,
+    "away": 120
+   },
+   "fit": {
+    "cutoffIso": "2026-10-08T16:58:48.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 0
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.20761,
+     "draw": 0.284185,
+     "away": 0.508205
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Vallecano|Ath Bilbao",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882849",
+   "providerEventId": "401882849",
+   "kickoffUtc": "2026-10-10T12:00:00.000Z",
+   "matchup": "Rayo Vallecano v Athletic Club",
+   "homeClub": "Rayo Vallecano",
+   "awayClub": "Athletic Club",
+   "historyNames": {
+    "home": "Vallecano",
+    "away": "Ath Bilbao"
+   },
+   "espnTeamIds": {
+    "home": "101",
+    "away": "93"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-08T16:58:48.000Z",
+   "probs": {
+    "home": 0.373077,
+    "draw": 0.293644,
+    "away": 0.333279
+   },
+   "over25": 0.369482,
+   "under25": 0.630518,
+   "expectedGoals": {
+    "home": 1.1248,
+    "away": 1.0461
+   },
+   "lambdas": {
+    "home": 1.1248,
+    "away": 1.0461
+   },
+   "rho": -0.001116,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 158,
+    "away": 157
+   },
+   "fit": {
+    "cutoffIso": "2026-10-08T16:58:48.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 0
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.338477,
+     "draw": 0.28222,
+     "away": 0.379303
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Alaves|Ath Madrid",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882856",
+   "providerEventId": "401882856",
+   "kickoffUtc": "2026-10-10T14:15:00.000Z",
+   "matchup": "Alavés v Atlético Madrid",
+   "homeClub": "Alavés",
+   "awayClub": "Atlético Madrid",
+   "historyNames": {
+    "home": "Alaves",
+    "away": "Ath Madrid"
+   },
+   "espnTeamIds": {
+    "home": "96",
+    "away": "1068"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-08T16:58:48.000Z",
+   "probs": {
+    "home": 0.279698,
+    "draw": 0.262572,
+    "away": 0.45773
+   },
+   "over25": 0.464271,
+   "under25": 0.535729,
+   "expectedGoals": {
+    "home": 1.0769,
+    "away": 1.4548
+   },
+   "lambdas": {
+    "home": 1.0769,
+    "away": 1.4548
+   },
+   "rho": -0.001116,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 120,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-10-08T16:58:48.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 0
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.246075,
+     "draw": 0.287762,
+     "away": 0.466163
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Barcelona|Getafe",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882853",
+   "providerEventId": "401882853",
+   "kickoffUtc": "2026-10-10T16:30:00.000Z",
+   "matchup": "Barcelona v Getafe",
+   "homeClub": "Barcelona",
+   "awayClub": "Getafe",
+   "historyNames": {
+    "home": "Barcelona",
+    "away": "Getafe"
+   },
+   "espnTeamIds": {
+    "home": "83",
+    "away": "2922"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-08T16:58:48.000Z",
+   "probs": {
+    "home": 0.771263,
+    "draw": 0.156862,
+    "away": 0.071876
+   },
+   "over25": 0.545722,
+   "under25": 0.454278,
+   "expectedGoals": {
+    "home": 2.3115,
+    "away": 0.5525
+   },
+   "lambdas": {
+    "home": 2.3118,
+    "away": 0.5525
+   },
+   "rho": -0.001116,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 158,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-10-08T16:58:48.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 0
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.758505,
+     "draw": 0.163813,
+     "away": 0.077683
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Real Madrid|Villarreal",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882848",
+   "providerEventId": "401882848",
+   "kickoffUtc": "2026-10-10T19:00:00.000Z",
+   "matchup": "Real Madrid v Villarreal",
+   "homeClub": "Real Madrid",
+   "awayClub": "Villarreal",
+   "historyNames": {
+    "home": "Real Madrid",
+    "away": "Villarreal"
+   },
+   "espnTeamIds": {
+    "home": "86",
+    "away": "102"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-08T16:58:48.000Z",
+   "probs": {
+    "home": 0.658606,
+    "draw": 0.179365,
+    "away": 0.162029
+   },
+   "over25": 0.695632,
+   "under25": 0.304368,
+   "expectedGoals": {
+    "home": 2.4438,
+    "away": 1.1467
+   },
+   "lambdas": {
+    "home": 2.4442,
+    "away": 1.1467
+   },
+   "rho": -0.001116,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 158,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-10-08T16:58:48.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 0
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.670537,
+     "draw": 0.18415,
+     "away": 0.145313
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Elche|Celta",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882854",
+   "providerEventId": "401882854",
+   "kickoffUtc": "2026-10-11T12:00:00.000Z",
+   "matchup": "Elche v Celta Vigo",
+   "homeClub": "Elche",
+   "awayClub": "Celta Vigo",
+   "historyNames": {
+    "home": "Elche",
+    "away": "Celta"
+   },
+   "espnTeamIds": {
+    "home": "3751",
+    "away": "85"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-08T16:58:48.000Z",
+   "probs": {
+    "home": 0.396797,
+    "draw": 0.248628,
+    "away": 0.354575
+   },
+   "over25": 0.549702,
+   "under25": 0.450298,
+   "expectedGoals": {
+    "home": 1.4878,
+    "away": 1.3935
+   },
+   "lambdas": {
+    "home": 1.4878,
+    "away": 1.3935
+   },
+   "rho": -0.001116,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 83,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-10-08T16:58:48.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 0
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.335001,
+     "draw": 0.250808,
+     "away": 0.41419
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Sociedad|La Coruna",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882847",
+   "providerEventId": "401882847",
+   "kickoffUtc": "2026-10-11T14:15:00.000Z",
+   "matchup": "Real Sociedad v Deportivo",
+   "homeClub": "Real Sociedad",
+   "awayClub": "Deportivo",
+   "historyNames": {
+    "home": "Sociedad",
+    "away": "La Coruna"
+   },
+   "espnTeamIds": {
+    "home": "89",
+    "away": "90"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-08T16:58:48.000Z",
+   "probs": {
+    "home": 0.452661,
+    "draw": 0.250208,
+    "away": 0.297131
+   },
+   "over25": 0.52423,
+   "under25": 0.47577,
+   "expectedGoals": {
+    "home": 1.5584,
+    "away": 1.2152
+   },
+   "lambdas": {
+    "home": 1.5584,
+    "away": 1.2152
+   },
+   "rho": -0.001116,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 158,
+    "away": 7
+   },
+   "fit": {
+    "cutoffIso": "2026-10-08T16:58:48.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 0
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.28243,
+     "draw": 0.239207,
+     "away": 0.478363
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Betis|Osasuna",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882855",
+   "providerEventId": "401882855",
+   "kickoffUtc": "2026-10-11T16:30:00.000Z",
+   "matchup": "Real Betis v Osasuna",
+   "homeClub": "Real Betis",
+   "awayClub": "Osasuna",
+   "historyNames": {
+    "home": "Betis",
+    "away": "Osasuna"
+   },
+   "espnTeamIds": {
+    "home": "244",
+    "away": "97"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-08T16:58:48.000Z",
+   "probs": {
+    "home": 0.581745,
+    "draw": 0.230899,
+    "away": 0.187356
+   },
+   "over25": 0.503102,
+   "under25": 0.496898,
+   "expectedGoals": {
+    "home": 1.7843,
+    "away": 0.9024
+   },
+   "lambdas": {
+    "home": 1.7843,
+    "away": 0.9024
+   },
+   "rho": -0.001116,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 158,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-10-08T16:58:48.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 0
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.551813,
+     "draw": 0.258931,
+     "away": 0.189256
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 8
+ }
+}
