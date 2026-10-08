@@ -321,7 +321,7 @@ test("MLB 8 · ⚠ MLB carries NO live player stats — no join exists yet that 
    *     On a confirmed order, a batter with no posted line keeps his real name but is simulated at
    *     REPLACEMENT-LEVEL rates, and the row does not say which batters those are (only the game-level
    *     notes do). A live join would put a generic rate beside a real player's live line as if it
-   *     were his forecast. Per-row disclosure is tracked separately (roadmap MLB-SIMTRUTH-001). Live
+   *     were his forecast. Per-row disclosure is roadmap TRUTH-001; coverage is MLB-003. Live
    *     player tracking belongs to LIVE-001.
    */
   const [live] = normalizeMlbSchedule(fixture("mlb-schedule.json"), FETCHED);
