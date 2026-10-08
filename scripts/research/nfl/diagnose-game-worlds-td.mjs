@@ -18,8 +18,8 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { winMarginGate, rowsFromTable, replayWinMarginHeads, WIN_MARGIN_RECEIPT, WIN_MARGIN_PREREG, GAMES_HISTORY_V2 } from "/Users/yashwantbalaji/Downloads/gametimepicks/.claude/worktrees/nfl-world-model-v2-priority-79e413/app/src/lib/sports/nfl/win-margin-heads.mjs";
-import { totalsV3Gate, gamesFromTable, foldTotalsV3 } from "/Users/yashwantbalaji/Downloads/gametimepicks/.claude/worktrees/nfl-world-model-v2-priority-79e413/app/src/lib/sports/nfl/totals-play-efficiency.mjs";
+import { winMarginGate, rowsFromTable, replayWinMarginHeads, WIN_MARGIN_RECEIPT, WIN_MARGIN_PREREG, GAMES_HISTORY_V2 } from "../../../app/src/lib/sports/nfl/win-margin-heads.mjs";
+import { totalsV3Gate, gamesFromTable, foldTotalsV3 } from "../../../app/src/lib/sports/nfl/totals-play-efficiency.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const rel = (p) => path.join(ROOT, p);
