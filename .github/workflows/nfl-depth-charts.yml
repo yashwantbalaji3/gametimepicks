@@ -64,8 +64,8 @@ jobs:
       - name: Commit the snapshot if the source changed
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Path-scoped to exactly what this job produces. A writer whose output is outside its
           # job's allowlist is an artifact that is built and never published.
           git add data/internal/research/nfl/depth-charts/

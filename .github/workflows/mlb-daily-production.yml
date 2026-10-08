@@ -287,8 +287,8 @@ jobs:
         if: steps.board.outputs.have_board == 'true' && steps.cfg.outputs.dry != 'true'
         run: |
           set -u
-          git config user.name "gtp-mlb-production-bot"
-          git config user.email "noreply@anthropic.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # PATH-SCOPE: ONLY the 4 public MLB slate artifact dirs + the internal health status.
           # Every artifact a step above GENERATES must be staged here, or the run silently discards it.
           # full-game-simulations/ (step 5b) and predictions/ (step 5c) were missing from this list: they

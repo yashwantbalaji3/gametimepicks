@@ -130,8 +130,8 @@ jobs:
         if: github.event.inputs.dry_run != 'true'
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Path-scoped: the live artifacts this run rewrote, and the ledger they were folded into.
           # Path-scoped: the live artifacts, the settlement ledger, and Phase H's probe verdict,
           # credit ledger and current-market artifact. A writer whose output is outside its job's

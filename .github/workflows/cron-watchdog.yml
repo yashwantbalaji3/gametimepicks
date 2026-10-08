@@ -481,8 +481,8 @@ jobs:
       - name: Commit the coverage report
         run: |
           set -euo pipefail
-          git config user.name  "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Allowlisted single file. An artifact that is generated and never committed is the
           # 62-hour-outage shape, and this repo has hit it twice.
           git add app/public/data/ops/cron-slot-watchdog.json app/public/data/ops/lane-staleness.json \

@@ -387,8 +387,8 @@ jobs:
         if: github.event.inputs.dry_run != 'true'
         run: |
           set -euo pipefail
-          git config user.name "gtp-bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # ONE PATH PER `git add` (docs/V17_WORKFLOW_AUDIT.md W3). `git add a/ b/` stages NOTHING when any one
           # pathspec matches no file (fatal: pathspec did not match), so a single absent directory would have
           # silently dropped every sibling on the same line — including the shadow day — with `|| true` hiding it.

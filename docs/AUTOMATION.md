@@ -154,7 +154,7 @@ To verify it worked:
    - "Run automation refresh" step prints `recent10 attachment completed` and shows player counts
    - "Run automation refresh" step ends with `Odds API credits used: 0`
    - "Commit and push if data changed" step either says `No data changes` OR pushes a commit with a `[skip ci]` tag
-3. If it pushed: check the repo's commit history — the new commit's author is `GametimePicks Bot`, message starts with `auto: Phase 10 daily refresh`
+3. If it pushed: check the repo's commit history — the new commit's author is `github-actions[bot]` (OPS-002; before 2026-10-08 it was `GametimePicks Bot`), message starts with `auto: Phase 10 daily refresh`
 4. Check Vercel deployments — a new deploy should be in progress
 5. Once Vercel finishes, open the live `/board` and click "Show last 10 trends" on a player card — sparklines should now show real game-log values for matched players
 
