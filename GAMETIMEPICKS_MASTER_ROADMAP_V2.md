@@ -79,6 +79,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 
 | Rank | Task ID | Department | Task | Status | Dependency | Production-bound? |
 |---:|---|---|---|---|---|---|
+| 0 | `CI-001` | Release Engineering / CI | Main-wide `quality` failure: adapters.test.mjs MLB 8 rolling-window `ready` precondition + vacuous per-player check | IN_PROGRESS — root cause proven; deterministic fix locally verified; PR → exact-head CI → merge → Production verification | None — P0 blocker for #1020 and all PRs | Test/fixture only (1 Production build on merge) |
 | 1 | `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — Phase 1 verified 2026-10-08; awaiting founder spend-alert confirmation | None — do first | Process/config, no app release expected |
 | 2 | `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | IN_PROGRESS — root cause proven (private-repo team-access check × `bot` identity); fix locally verified; PR awaiting founder merge approval, then 7-day observation | None | Workflow/identity config; Production freshness |
 | 3 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED — unblocked (deploy gate verified 2026-10-08) | COST-001 deployment gate verified ✓ | Yes |
@@ -100,6 +101,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 19 | `OPS-001` | Operations | Freshness, dependency receipts, retries, alerts, cost controls | NOT_STARTED | Parallel | Yes |
 | 20 | `TRUTHDOC-001` | Documentation | Generated “what runs now” inventory | NOT_STARTED | CONTRACT-001 | Yes |
 | 21 | `COST-002` | Release Engineering / FinOps | Reduce build memory so the export fits Vercel Standard (free first build slot); profile `/simulate/d/*` and last-quarter routes | NOT_STARTED | COST-001 Phase 1 | Build config/data loading; Production only after founder approval |
+| 22 | `MLB-SIMTRUTH-001` | MLB / Truth | Per-row disclosure of replacement-rated batters in the simulated box score (opened by CI-001) | NOT_STARTED | None | Yes (UI + new artifacts only) |
 
 ---
 
@@ -464,6 +466,15 @@ Hard invariants: `K ≤ BF`; correct outs/innings notation; earned runs separate
 
 ---
 
+## `MLB-SIMTRUTH-001` — Per-row disclosure of replacement-rated batters in the simulated box score
+**Priority:** P1 (truth) · **Status:** NOT_STARTED · **Opened by:** `CI-001` (2026-10-08)
+- Finding: with a confirmed batting order, a batter with no posted prop line keeps his real name and slot but is simulated at **replacement-level rates** (board-adapter.ts `FALLBACK_BATTER` rates). The box score (`mlb-full-game-report.tsx` `BoxScore`) shows his row like any projected batter. Only the game-level notes say "3 of 9 have no posted prop line…", and they never name which three. Example: 2026-10-07 TB@NYY (849838), with 3 TB and 2 NYY rows.
+- Risk: a reader, or a future live join (LIVE-001), takes a generic replacement rate as that player's GameTime forecast. That is an unsupported player forecast.
+- Do: add a per-row input-provenance flag (e.g. `rated: boolean`, or `rateSource: "projection" | "replacement"`) to `SimBatterLine` for **new** artifacts only. Mark or suppress those rows in the box score. Extend the `adapters.test.mjs` MLB 8c contract so it requires the flag on artifacts that carry it. Never rewrite published artifacts; old games keep their hash and get a "not stated per row" display.
+- Acceptance: localhost desktop/mobile screenshots of a confirmed-order degraded game; the flag reconciles with `*RatedCount` on every new artifact; founder review before release.
+
+---
+
 # 8. NFL World Model V2
 
 ## Vision
@@ -824,6 +835,44 @@ Limit: while the repo is public Vercel runs no team-access check, so the 7 days 
 - Production `build-info` keeps pace with bot data commits (lag measured with `scripts/vercel-cost-report.mjs` + build-info).
 
 
+## `CI-001` — MLB live-adapter test MLB 8: main-wide CI blocker (rolling-window precondition + vacuous subject)
+**Priority:** P0 — main-wide `quality` failure blocking PR #1020 and every later integration  
+**Status:** IN_PROGRESS — root cause proven, fix locally verified; awaiting exact-head CI → merge → Production verification  
+**Owner/session:** Claude Code session 2026-10-08 (CI-001)  
+**Branch:** `claude/mlb-ci-001-adapter-test-determinism` (from `origin/main` `60e05879cb4a4f47646958e9ba2555b5f78aee02`)  
+**PR / exact head / merge:** recorded in the Session Log  
+**Evidence:** `app/src/lib/live/adapters/adapters.test.mjs` (MLB 8, 8a, 8b, 8c); fixture `app/src/lib/live/fixtures/mlb-full-game-sims.json`  
+**Production acceptance:** PENDING (test + fixture only; no rendered code or data change)
+
+### Reproduction (current main)
+- `origin/main` `60e05879` locally: `npx tsx --test src/lib/live/adapters/adapters.test.mjs` → `not ok — MLB 8 … 'no ready simulation in the last 14 slates'`. Same failure in CI on PR #1020 (run 37780742736, `quality`).
+
+### Root cause (proven from committed artifacts)
+1. **The failing line was a precondition on rolling data, not the test's subject.** MLB 8 required ≥ 1 `ready` full-game simulation among the newest 14 slate files. The newest `ready` label is 2026-09-24. The 2026-10-08 slate pushed it out of the window.
+2. **`ready` became rare by design on 2026-09-25** (`80f619ce71`, board-adapter.ts). It now requires 9 batters per side with a posted-line GTP projection plus both probable starters. Under that predicate only **8 of 245** historical `ready` games qualify, and the newest is **2026-09-07**. The 09-24 `ready` labels predate the correction, and published levels are immutable by design. In the postseason, books post 6–8 batter lines per side at board time, so every game is `degraded`.
+3. **The subject assertion was vacuous from the commit that introduced it** (`a790ce4810`, 2026-09-15). It claimed "the simulation emits no per-player output (`players` undefined on gamePk 824307)". In fact every simulated game since 2026-07-24, 824307 included, carries `players: { batters[18], pitchers[≤2] }`, which is an **object**. The check `Array.isArray(g.players) && g.players.length > 0` can never see that shape, so it passed on all 583 simulated games without checking anything.
+
+### Actual simulation health (not the same thing as `ready`)
+- **Full-game simulations:** 860 committed games. All re-verify against their `artifactHash`. Every `ready` or `degraded` game (583) has 10,000 runs, full winner / score / total / run-line / team-total distributions and per-player means. Since 2026-10-04: **0 `unavailable`**, all `degraded` (input completeness, not failure).
+- **`ready` is an input-completeness label, not product eligibility.** It only drives the "Complete inputs" / "Degraded inputs" chip. Product gating (`simReady`, featured, daily brief) reads `gameLabSimulation.status` from `mlb/game-simulations`, which is **100% `ready` on every slate 09-22 → 10-08**.
+- **Historical, already fixed:** 2026-09-04 → 10-02 end-of-day files show most games `unavailable` (e.g. 09-13 and 09-20: 15/15). Earlier same-day revisions held the pregame forecasts (09-13: 9 ready / 5 degraded). A post-first-pitch refresh erased them. Fixed by `f96e91fc94` (2026-10-03, frozen-pregame carry). Append-only prediction snapshots kept every run, so grading is intact. Not rewritten here, because historical artifacts are immutable.
+- **Per-player rows are GTP simulation output, never bookmaker prices.** Inputs are the board's `projection` (e.g. 1.11 hits from a 150-game sample), not the `line` or odds. The market block is game-level and display-only.
+
+### Implementation
+- MLB 8: the live MLB adapter emits `playerStats: null` for every fixture event. Its comment now gives the real reason a live join is deferred: a bookmaker price list on one side, and per-player means that do not mark replacement-rated rows on the other.
+- MLB 8a (new): a deterministic fixture of 5 verbatim games covering `ready` (current predicate) / `degraded` (no starter, confirmed with replacement-rated batters, prop-derived with filler rows) / `unavailable`. Each game must re-hash to its producer `artifactHash`, so an edited fixture cannot pass. Provenance (path, commit, hash) is in the file.
+- MLB 8b (new): a shape-correct predicate with positive and negative controls. It pins that the old predicate is blind. Player rows must exactly match the `SimBatterLine` / `SimPitcherLine` keys and carry no market field (odds/price/implied/book/provider/line/point/market…). Values must be finite non-negative means. A filler row (`playerId < 0`) must be named "Lineup fallback" and nothing else may be. Every simulated level has full distributions.
+- MLB 8c (new): the same contract over **every** committed slate, whatever the level. `unavailable` must carry no players and no win probability. Confirmed orders contain no fillers. Prop-derived filler count = 9 − rated. No rolling window and no dependence on any level being common.
+- No `ready` status fabricated, no eligibility relaxed, no sportsbook lines inserted, no historical artifact modified.
+
+### Acceptance
+- MLB 8–8c pass on current main data. They also pass with 40 synthetic future degraded-only slates (the exact failure mode). Mutation probes caught: fixture edit (8a), odds field on a corpus player row (8c), players on an `unavailable` game (8c), filler given a real name (8c), old `Array.isArray` predicate restored (8b, 8c), live adapter emitting `playerStats` (MLB 8).
+- CI unit phase locally; exact-head CI green on the PR; merge with `--match-head-commit`; one Production build; Production build-info advances to the merge SHA; key routes 200.
+
+### Follow-ups
+- `MLB-SIMTRUTH-001` (new, P1): per-row disclosure of replacement-rated batters in the simulated box score.
+- MLB-001/MLB-003: batter projections exist only where a book posts a line, so `ready` is structurally rare (8/860). Batter projection coverage independent of posted lines is World Model V2 scope, not a pipeline defect.
+
 ## `OPS-001`
 **Priority:** P1/P2  
 **Status:** NOT_STARTED
@@ -1038,6 +1087,23 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Roadmap tasks updated: OPS-002 (status, progress, remaining acceptance), priority table, change log.
 - Remaining blockers / recommended next task: founder merge approval for OPS-002. Founder follow-ups F1 (local `gtp-ops` identity ownership) and F2 (why the repo went private on 10-07). Next roadmap task: **TRUTH-001** (P0, unblocked). The OPS-002 observation does not block it.
 
+## 2026-10-08 — Claude Code (CI-001 session) — `CI-001`
+- Starting main SHA: `60e05879cb4a4f47646958e9ba2555b5f78aee02` (fetched; branch created from `origin/main`)
+- Branch: `claude/mlb-ci-001-adapter-test-determinism`
+- Goal: find the real cause of the main-wide MLB 8 failure blocking PR #1020 and fix it without fabricating readiness, relaxing eligibility or touching historical forecasts.
+- Reproduced current issue/state: MLB 8 fails on `60e05879` locally and in CI (run 37780742736) with "no ready simulation in the last 14 slates". The newest `ready` label is 2026-09-24; the newest `ready` under today's predicate is 2026-09-07 (8 of 245).
+- Decisions made: (1) The red line was a rolling-data precondition. The subject check had been vacuous since `a790ce4810`, because the predicate looked for an array while `players` is an object, present on all 583 simulated games. (2) Do not chase `ready`. It is an input-completeness label; product gating reads `gameLabSimulation`, which is 100% ready. (3) Replace with hash-verified verbatim fixtures (8a/8b) plus a status-agnostic whole-corpus contract (8c). (4) The pre-10-03 `unavailable` erasures were already fixed by `f96e91fc94`; documented, not rewritten. (5) The per-row replacement-rate disclosure gap is out of scope → `MLB-SIMTRUTH-001`.
+- Files/contracts changed: `app/src/lib/live/adapters/adapters.test.mjs` (MLB 8 rewritten; 8a/8b/8c new); `app/src/lib/live/fixtures/mlb-full-game-sims.json` (new, 5 verbatim games with provenance); this roadmap. No producer, UI or data change.
+- Local tests/build/UX checks run: adapters.test.mjs 27/27. MLB + full-game-sim + live suites 726/727; the 1 is a `BUILT EXPORT` post-build test that needs `out/`. CI unit phase (`run-suite.mjs --phase unit`): 9,043 / 9,047 pass, 1 skipped, 3 failures that are local-only and in untouched files (2 `rls-live` need a live DB; `ask-official-cards` reads a stale git-ignored local file; all documented by the OPS-002 session). `tsc --noEmit` 0. Mutation probes 6/6 caught; the failure scenario (40 future degraded-only slates) passes. No app build: no rendered code changed.
+- Result: fix ready; PR → exact-head CI → merge → Production verification.
+- PR / exact head: reported in the session hand-off; recorded in the next batched roadmap update
+- Vercel Preview / Production build counts: 0 Preview (branch gated by `git.deploymentEnabled`); merge expected = 1 Production build (test file under `app/src/` is a build input).
+- Remote-only exception: none.
+- Build CPU/cost evidence: ≈ $0.14–0.17 for the one merge build (COST-001 measured rate).
+- Production acceptance: PENDING. Merge build READY; build-info = merge SHA; key routes 200.
+- Roadmap tasks updated: `CI-001` (new), `MLB-SIMTRUTH-001` (new), priority table, change log.
+- Remaining blockers / recommended next task: after merge, rebase/re-run PR #1020 (OPS-002 follow-up). Then `TRUTH-001`. `MLB-SIMTRUTH-001` before any LIVE-001 MLB player join.
+
 ---
 
 # 26. Immediate execution waves
@@ -1078,6 +1144,7 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 
 ## Roadmap policy change log
 
+- **2026-10-08 — CI-001:** main's `quality` gate was red because adapters.test.mjs MLB 8 required a `ready` MLB simulation in the newest 14 slates. `ready` (input completeness) has been rare by design since 2026-09-25, while the simulations themselves are healthy. The test's per-player check had been vacuous since it was written. It is replaced by hash-verified fixtures and a status-agnostic corpus contract. Rule: **tests must not take a precondition from rolling committed data; use pinned, self-verifying evidence or whole-history invariants.** Opened `MLB-SIMTRUTH-001`.
 - **2026-10-07 — Founder infrastructure-cost directive:** Added `COST-001` as the first priority after reviewing the previous Vercel billing cycle. Localhost-first implementation, local build/test/UX acceptance, batched changes, controlled automatic deployment triggers, founder review where requested, limited remote builds, budget/Build CPU measurement, and explicit remote-build exceptions are now mandatory. **This is a roadmap policy update only; `COST-001` implementation and Vercel configuration audit have not yet been performed.**
 - **2026-10-08 — OPS-002 root cause:** the 21 blocked bot deploys were Vercel's private-repo team-access check applied to `gtp-bot`'s stranger identity (`bot`) while the repo was briefly private. They were not intermittent. All workflow commits now author as `github-actions[bot]`, guarded by `bot-commit-identity.test.mjs`. Seven-day attribution observation follows the merge.
 - **2026-10-08 — COST-001 Phase 1 executed:** previews gated (proven), build queue one-per-branch, PR #1017 merged with one Production build; Phase 2 local test shows Standard unsafe → `COST-002`; `OPS-002` opened for blocked bot deploys.
