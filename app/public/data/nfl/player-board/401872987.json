@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-08T20:04:11Z",
- "sourceGeneratedAt": "2026-10-08T20:04:11Z",
+ "generatedAt": "2026-10-08T20:37:47Z",
+ "sourceGeneratedAt": "2026-10-08T20:37:47Z",
  "providerEventId": "401872987",
  "matchup": "MIN @ NO",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-08T20:04:11Z",
-  "roleEvidenceAt": "2026-10-08T20:04:11Z",
+  "injuriesCapturedAt": "2026-10-08T20:37:47Z",
+  "roleEvidenceAt": "2026-10-08T20:37:47Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -265,7 +265,7 @@
       "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4426339",
@@ -305,7 +305,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4599739",
@@ -470,6 +470,19 @@
   ],
   "pools": [
    {
+    "team": "NO",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9894,
+    "originalSum": 0.9894,
+    "residualOther": 0.0106,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "MIN",
     "pool": "passAttempts",
     "markets": [
@@ -488,12 +501,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.7546,
-    "originalSum": 0.7546,
-    "residualOther": 0.2454,
-    "joined": 5,
+    "sum": 0.466,
+    "originalSum": 0.466,
+    "residualOther": 0.534,
+    "joined": 4,
     "missed": 0,
-    "state": "CONSERVED"
+    "state": "UNDER_ALLOCATED"
    },
    {
     "team": "MIN",
@@ -594,7 +607,7 @@
    "playerId": "nfl-athlete-4361370",
    "name": "Chris Olave",
    "team": "NO",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 67.78,
@@ -846,7 +859,7 @@
    "playerId": "nfl-athlete-4360689",
    "name": "Tyler Shough",
    "team": "NO",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 12.848,
