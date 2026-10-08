@@ -1337,6 +1337,14 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Vercel Preview / Production build counts: 0 / 0.
 - Remaining: blind 2026 forward capture (spec in NFL-005 above); couple world volume to the team score worlds; TD scorer inside the worlds; one public ATD number.
 
+## 2026-10-08 — Claude Code (NFL World Model V2 session, Week 5 full-priority directive) — `NFL-002` → `NFL-005`, Week 5 milestone
+- Founder directive (≈18:10Z): full engineering focus on Week 5 before TNF; no TRUTH-001/CONTRACT-001/MLB work; no unnecessary deployments.
+- Built and registered before scoring: `nfl-game-worlds-v1` (score from the published heads, TD | points, game-script volume, opportunity-gated scorers) → players PROCEED_TO_FORWARD_SHADOW ×4, world TD scorer DO_NOT_PROCEED. 2026 player-games from committed sources; prospective capture tool + grader.
+- Week 5 prospective captures (private, immutable, pushed): #1 18:21Z (allocV1, rzTdV1, allocation worlds), #2 18:27Z (+ game worlds). #3 after TNF inactives (pending).
+- Release decision (evidence-based): **no model release** — every V2 candidate is development-tier; the "expected statistical summaries" disclosure stays. One truth fix shipped instead:
+  - [#1023](https://github.com/yashwantbalaji3/gametimepicks/pull/1023) End Zone Vault shows / selects / ranks from the board's published anytime-TD family (was a second "our model" number: Javonte Williams 62.5% vs 72.5%). Founder truth review found two genuine issues on head `45794c242b` (pool still from the role-share roster — 25 eligible players missing, count 147 vs 172; inaccurate "simulated scoring distribution" / "one number across the site" copy); fixed on head `ce1bd46a5c` (172 candidates = 172 eligible board players, 0/12 differ, 0 questionable). Founder approved merge at that exact head conditional on green CI.
+- Vercel: 0 Preview; Production builds so far today from this session: #1022 merge (40 CPU-min) + one dispatched data commit (48 CPU-min); #1023 merge pending.
+
 ---
 
 # 26. Immediate execution waves
