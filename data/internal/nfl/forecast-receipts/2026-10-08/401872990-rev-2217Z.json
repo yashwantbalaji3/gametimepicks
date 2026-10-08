@@ -1,0 +1,129 @@
+{
+ "providerEventId": "401872990",
+ "canonicalEventId": "nfl-401872990",
+ "matchup": "CHI @ GB",
+ "home": {
+  "abbr": "GB",
+  "name": "Green Bay Packers"
+ },
+ "away": {
+  "abbr": "CHI",
+  "name": "Chicago Bears"
+ },
+ "kickoffUtc": "2026-10-11T17:00Z",
+ "seasonType": 2,
+ "week": 5,
+ "venue": "Lambeau Field",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 2,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "4ca0737d2fca1de1",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-win-elo-mov-v1@v1",
+   "nfl-margin-elo-hfa-v1@v1",
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v3-play-efficiency",
+   "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
+   "gamesFolded": 7340,
+   "foldedThrough": "2026-10-05",
+   "sigma": 13.32677
+  },
+  "winHead": {
+   "id": "nfl-model-v1-elo-analytic",
+   "fallbackFrom": "nfl-win-elo-mov-v1",
+   "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+  },
+  "marginHead": {
+   "id": "nfl-model-v1-elo-analytic",
+   "fallbackFrom": "nfl-margin-elo-hfa-v1",
+   "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the Elo-logistic win head over a 871-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-10-08T22:17:03Z",
+ "evidence": {
+  "schedule": "2026-10-07T16:20:52Z",
+  "strengthCutoff": "2026-10-08T22:17:03Z",
+  "strengthGamesFolded": 871,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 26,
+   "away": 22,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.5509,
+   "away": 0.42,
+   "tieMass": 0.0291,
+   "homeUnrounded": 0.550932831449308,
+   "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+  },
+  "margin": {
+   "median": 3,
+   "p10": -14,
+   "p90": 21
+  },
+  "total": {
+   "median": 48,
+   "p10": 31,
+   "p90": 65,
+   "head": "matchup-totals-v3-play-efficiency"
+  },
+  "scoreRange": {
+   "homeP10": 14,
+   "homeP90": 38,
+   "awayP10": 10,
+   "awayP90": 34
+  }
+ },
+ "marketComparison": {
+  "state": "WITHHELD_TEAM_INPUTS",
+  "capturedAt": "2026-10-08T22:17:03Z",
+  "books": 4,
+  "note": "This forecast does not account for Caleb Williams (CHI, Out). Our team model rates teams from past results and does not adjust for who plays quarterback, so it is not compared with the sportsbooks for this game — their price already reflects the absence."
+ },
+ "teamInputs": {
+  "version": 1,
+  "consumedByModel": false,
+  "participationAsOf": "2026-10-08T22:17:03Z",
+  "state": "BLIND_TO_STARTING_QB_ABSENCE",
+  "absences": [
+   {
+    "playerId": "nfl-athlete-4431611",
+    "name": "Caleb Williams",
+    "team": "CHI",
+    "status": "Out",
+    "statedAt": "2026-10-08T14:28Z",
+    "depthChartAt": "2026-10-07T14:25:15Z"
+   }
+  ],
+  "comparisonWithheld": true,
+  "note": "This forecast does not account for Caleb Williams (CHI, Out). Our team model rates teams from past results and does not adjust for who plays quarterback, so it is not compared with the sportsbooks for this game — their price already reflects the absence."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401872990",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "sideDecision": {
+  "schemaVersion": "side-decision@1",
+  "publishedSide": "HOME",
+  "rule": "MODEL_FAVORED_V1",
+  "abstention": null,
+  "frozenAt": "2026-10-08T22:17:03Z"
+ },
+ "revisionOf": "401872990.json",
+ "priorInputHash": "8befafed3a9d3b84"
+}
