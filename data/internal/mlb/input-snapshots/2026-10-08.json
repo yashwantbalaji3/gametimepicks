@@ -1,0 +1,78 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-input-snapshot",
+ "dataClass": "PRIVATE_RESEARCH",
+ "what": "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+ "date": "2026-10-08",
+ "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+ "simulationVersion": 1,
+ "sourceBoardHash": "bef5762395be447d23561c0dc8405e606a70dc7e85ae0c1cb003a6fd9ca88d85",
+ "updatedAt": "2026-10-08T09:28:24.000Z",
+ "games": [
+  {
+   "gamePk": 849832,
+   "date": "2026-10-08",
+   "slug": "cle-vs-cws-2026-10-08",
+   "awayTeam": "CLE",
+   "homeTeam": "CWS",
+   "firstPitch": "2026-10-09T00:00:00Z",
+   "artifactHash": "615a65f80934cd0ebaf82e6a11540c703d1e4baffefd6e5a92b5c01937f2c476",
+   "completenessLevel": "degraded",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     680757,
+     800050,
+     666176,
+     663993,
+     677587,
+     683953,
+     672275,
+     -8,
+     -9
+    ],
+    "realCount": 7,
+    "ratedCount": 7,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     805367,
+     678246,
+     545341,
+     695731,
+     808959,
+     695657,
+     691019,
+     686668,
+     502054
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "awayStarter": {
+    "playerId": 800048,
+    "name": "Parker Messick",
+    "hasStrikeoutProjection": true
+   },
+   "homeStarter": {
+    "playerId": 696146,
+    "name": "Hagen Smith",
+    "hasStrikeoutProjection": true
+   },
+   "missingFamilies": [
+    "confirmed_batting_order",
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  }
+ ]
+}
