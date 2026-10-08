@@ -531,6 +531,7 @@ Features: QB scenario/availability, OL, skill-player availability, pace, PROE/pa
 - Rung 4: Sim V2 drive process does not beat the incumbent (see NFL-001). Rung 5: NOT_STARTED. QB scenario feature: blocked by the absence of pregame-timestamped historical depth charts (`pregame-availability-margin-refusal.json`).
 - Forward shadow: L6 receipts for all 15 Week 5 games captured pre-kickoff (`data/internal/research/nfl/team-ladder-forward/`), to be graded after finals.
 - Next: grade Week 5+ forward receipts; founder decision on proposing the ELIGIBLE L6 margin head; rung 5; a pregame-knowable QB term only with archived pregame evidence.
+- **Founder decision (2026-10-08):** do NOT promote the L6 margin head yet; keep collecting forward evidence; the incumbent remains champion.
 
 ## `NFL-003` — Player opportunity allocation
 **Status:** NOT_STARTED
@@ -573,7 +574,12 @@ Founder-approved, time-sensitive milestone **inside** the NFL program (not a new
 - Target per game: correct teams/kickoff/event identity; current QB and key roster assumptions; predicted winner and win probability; projected score and score distribution; expected margin and spread probabilities; expected total and total probabilities; supported player projections only where validated; model provenance and forecast timestamp; game-detail navigation.
 - Rules: unvalidated challengers stay in shadow (the incumbent is retained wherever a challenger has not shown adequate held-out performance); no QUESTIONABLE/OUT/ineligible players in public ranked recommendations; preliminary vs frozen pregame forecasts are distinguished; frozen forecasts are never revised after kickoff; no Elo-derived probability is presented as an observed simulation count; model-vs-market comparisons match exact selection, direction, line and settlement rules; a known `TRUTH-001`-class defect touching NFL is fixed within NFL scope or the claim is suppressed (the cross-sport `TRUTH-001` task stays intact).
 - Release: local-first; one focused PR of validated changes; exact-head CI green; **founder approval before the Production merge**; `COST-001` protections apply.
-- Status: IN_PROGRESS (2026-10-08).
+- Status: IN_PROGRESS — Thursday TB @ DAL release DONE (2026-10-08 17:25Z); Sunday/Monday games ride the same producers; milestone closes after MNF (2026-10-12).
+- **Production release (founder-approved 2026-10-08 as a Week 5 correctness release, not the V2 launch):** [#1022](https://github.com/yashwantbalaji3/gametimepicks/pull/1022) exact head `0e01d413cb2f4b71ec96ab0287f1c138e0af737a` (CI run 37809110362: `python` ✓, `quality` ✓, built that SHA) → merge `902583b101831d634e7dc0605d2ad0c952cf5962` at 17:08:37Z with `--match-head-commit`. Merge deployment `dpl_8HVn1D2T18UGRKLRawW7J2ogXkCt` READY 17:12:48Z; its own `build-info` = `90258…`; 40 CPU-min billed ≈ $0.14. Preview deployments: 0.
+- **Regeneration:** one zero-credit `nfl-event-window` dispatch (`skip_odds=true`, run 37815894943, 17:21Z; reason: verify before TNF rather than rely on schedulers measured 1h40m–4h55m late) → commit `54ad287c6f` (15 forecasts, 15 boards, weekly boards; roster audit 0 violations) → Production `build-info` `54ad287c` built 17:24:50Z.
+- **Live verification (17:30Z, gametime-picks.vercel.app):** TB @ DAL — "Not in this number: … Baker Mayfield (TB, Out)", comparison withheld, no lean, win-chance copy corrected, Daniels' passing line withheld with its reason (Prescott kept); CHI @ GB — Caleb Williams disclosure, Keenum/Bagent passing withheld; PHI vs JAX — "PHI 22 — 21 JAX", PHI 48.8% / JAX 48.4%, at Tottenham Hotspur Stadium; `/nfl` — no lean, corrected "Likely winner" copy, no Out player (Pittman) on boards.
+- **Freeze:** `frozen-carry` selection run against `main`'s 11 TB @ DAL receipts at 00:16Z selects the 17:22:25Z receipt (`864b496f65e7aa74`, DAL 0.6181, `WITHHELD_TEAM_INPUTS`, side HOME); 0 receipts at/after kickoff. Later pre-kickoff refreshes add revisions under the same producers.
+- Follow-ups (minor): CHI @ GB disclosure says "their price already reflects the absence" while no price is captured yet; the page `<title>` keeps the source matchup "PHI @ JAX" (body states the neutral venue).
 - Delivered for Week 5 (PR pending founder approval; producers + copy only): TB@DAL and CHI@GB disclose that the team model cannot see the QB1 absence and withhold the model-vs-market comparison (no false "lean"); PHI vs JAX (London) is a neutral site; relief-share passers withheld; win-chance copy no longer claims a simulation count; revisable forecasts no longer called frozen. Verified locally: 1/15 forecast summaries change (PHI vs JAX), 3 player rows change. Evidence `docs/NFL_WORLD_MODEL_V2_2026-10-08.md`.
 - Coverage: all 15 Week 5 games forecast (CAR, KC bye); spread/total probabilities are not yet published per game (the forecast artifact carries medians/ranges only) — open item.
 
@@ -1283,6 +1289,17 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Production acceptance: pending founder approval + merge; the forecast changes reach `/nfl` on the next event-window run before kickoff (or a free manual `nfl-event-window` dispatch with `skip_odds=true`).
 - Roadmap tasks updated: §2, NFL-001..005, Week 5 milestone, policy change log.
 - Remaining blockers / next: founder approval; post-kickoff grading of L6 forward receipts; NFL-003 allocation model; NFL-004 single ATD number; NFL-005 single-distribution win/margin.
+
+## 2026-10-08 — Claude Code (NFL World Model V2 session, close-out) — Week 5 release of `NFL-001`/`NFL-002` findings
+- Starting main SHA: `684506ba25` at PR open; merge `902583b101831d634e7dc0605d2ad0c952cf5962`; close-out branch `claude/nfl-world-model-v2-closeout` from `c990ac0ddc` (records only — not merged on its own; reconciles with the next NFL implementation PR, as CI-001's close-out did).
+- Goal: founder-approved integration of #1022 as a Week 5 correctness release; Production verification before TNF.
+- Pre-merge re-check (17:07Z): PR head unchanged `0e01d413cb`; CI run 37809110362 `python` ✓ `quality` ✓ on that SHA; MERGEABLE/CLEAN; diff vs main = the 27 files of this session; disclosure, neutral-site and passer safeguards present at the exact head.
+- PR / exact head: [#1022](https://github.com/yashwantbalaji3/gametimepicks/pull/1022) / `0e01d413cb2f4b71ec96ab0287f1c138e0af737a` → merge `902583b101` (17:08:37Z, `--match-head-commit`).
+- Vercel Preview / Production build counts: Preview **0** (no deployment from the branch, none on any branch 15:30Z→17:30Z). Production: **1** for the merge (`dpl_8HVn1D2T18UGRKLRawW7J2ogXkCt`, 40 CPU-min ≈ $0.14) + the data commit from the one zero-credit event-window dispatch (`54ad287c6f`, `dpl_7ppq1cBe8DoH7Ast5gW5FiN2BKgy`, billing pending at read time).
+- Remote-only exception: the manual zero-credit `nfl-event-window` dispatch (run 37815894943) — justified to verify the regenerated Week 5 artifacts before TNF; no odds credits; the scheduled refreshes would have regenerated the same artifacts ~22:15Z.
+- Production acceptance: PASS — see the Week 5 milestone record in §8 (live TB @ DAL, CHI @ GB, PHI vs JAX, `/nfl`; freeze selection).
+- Roadmap tasks updated: Week 5 milestone; NFL-002 founder decision; this entry.
+- Remaining / next: grade L6 forward receipts after finals; `NFL-003` → `NFL-005` local-first under their acceptance criteria; any further release is its own tested PR + founder approval.
 
 ---
 
