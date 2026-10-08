@@ -549,12 +549,22 @@ Hard invariants: allocated opportunities reconcile; catches ≤ targets; receivi
 - Public boards merge two marginal engines on one row (props-v1 rush/rec yds; share-level receptions/pass yds/ATD); no shared world. Receiving vs passing does not reconcile across engines (Week 5 Σ visible receiving ÷ passer: TB 1.74 before the guard below, MIN 1.17). Share-level shares never fade (retired QBs carry shares); an Out player's volume is not redistributed; normalisation can leave `OTHER` at 0.
 - Week 5 truth guard shipped instead of a model change: `applyPasserShareFloor` (board-roster-integrity.mjs) withholds a published passer whose share is a relief appearance's (< 0.75; every Week 5 starter ≥ 0.806) — Jalon Daniels (TB, 0.58), Keenum/Bagent (CHI, 0.46/0.52).
 
+### Progress (2026-10-08, local; branch `claude/nfl-003-005-world-model`) — status IN_PROGRESS
+- Candidate `nfl-opportunity-allocation-v1` (allocV1): active-set reallocation of vacated share (rho per family) with a conserved `OTHER` floor 0.02, plus team volume from team form + opponent allowed + expected margin (fit on dev). Registration `reports/nfl-003-opportunity-allocation-preregistration.json` committed before any number; engine = P300's code (incumbent reproduced exactly).
+- Development look (THIRD look at 2014–21, disclosed; cannot confer eligibility), identical rows to P300: pass yds MAE **66.97 → 62.44** (bootstrap [−5.43, −3.73]; ECE 0.055 → 0.048), rush yds 18.58 → 18.27, rec yds 21.43 → 21.34, receptions 1.571 → 1.565 (level 1.035 → 1.006); better in both eras for every family → **PROCEED_TO_FORWARD ×4** (`reports/nfl-003-opportunity-allocation-development.json`).
+- Remaining for acceptance: blind 2026 forward test from Week 6 (capture tool not yet built); Dirichlet-multinomial allocation worlds (in progress under NFL-005); hard invariants on published boards.
+
 ## `NFL-004` — TD model
 **Status:** NOT_STARTED
 Hierarchical Bernoulli baseline → team scoring opportunities → red-zone/goal-line role → TD attribution within drives. Evaluate rare-event log loss/calibration separately.
 
 ### Findings (2026-10-08) — status remains NOT_STARTED
 - Three different public ATD numbers for one player (board `nfl-anytime-td-opportunity-v1`, Vault `nfl-anytime-td-v1-calibration`, Sim V2), e.g. Javonte Williams 0.725 / 0.625 / 0.563. ATD forward 782/1000, level 1.104 (bar [0.90, 1.10]); replay top bins over-predict (0.83 → 0.53, n=36). Passing-TD joint v3 log loss 0.676 vs baseline 0.593. Week 1 joint-v2 forward cohort never graded (no grader).
+
+### Progress (2026-10-08, local) — status IN_PROGRESS
+- New table `replay/player-redzone-v1.json.gz` (inside-20/10/5 carries and targets per player-game, nflverse pbp 2013–2025; 99.8% join, carries exact 98.6%, targets 99.9%), builder `scripts/research/nfl/build-player-redzone-v1.mjs`.
+- Candidate `nfl-anytime-td-redzone-v1` (rzTdV1): inside-N carry/target share shrunk to the overall share (dev chose N=10, k=40, rho=0). Development look (second look at 2014–21, disclosed), identical rows to P301: log loss **0.50435 → 0.50295** (bootstrap hi95 −0.00036), ECE 0.020 → 0.014, top decile 0.527 vs 0.440 → **0.469 vs 0.444** → **PROCEED_TO_FORWARD**. Ablation: capping the incumbent's named pool alone reaches 0.50292 log loss but keeps the top-bin over-prediction.
+- Remaining: blind 2026 forward test (ATD protocol); one public ATD number per player (board / Vault / Sim V2) once a model is promoted.
 
 ## `NFL-005` — Shared worlds + forward promotion
 **Status:** NOT_STARTED
@@ -563,6 +573,10 @@ Winner/score/spread/total/player outputs reconcile. If worlds are reweighted to 
 ### Findings (2026-10-08) — status remains NOT_STARTED
 - Production win % (MOV-Elo head) and the 10,000 sampled scores (margin head) come from different ratings; Week 5 gaps up to 0.134 (PHI@JAX). The margin-implied win probability is worse (0.63759 held-out), so counting draws is not the fix; NFL-002 L6 is the first single-distribution candidate (win not yet eligible).
 - Sim V2 is jointly coherent (receipt checks Σrec = pass yds, Σtargets = attempts) but has zero player-level validation and no forward grades on main.
+
+### Progress (2026-10-08, local) — status IN_PROGRESS
+- First player-level validation of Sim V2 (`reports/nfl-005-shared-worlds-preregistration.json` → `-development.json`): Sim V2 fed allocV1 inputs, protocol A games 2019–21 (821 games, 821,000 runs, 0 failed, Σ receiving = passing in every run) vs allocV1 analytic on identical rows → **DO_NOT_PROCEED ×4**: MAE receptions 1.590 vs 1.573, rec yds 21.53 vs 21.19, rush yds 18.82 vs 18.43, pass yds 66.44 vs 62.74; levels off (rec 0.889, rush 1.113). The drive engine's yardage biases carry into players.
+- Analytic allocV1 is incoherent in 8.2% of team-games (Σ named receiving mean > 1.1 × passer). Next candidate: allocation worlds generated around allocV1's marginals (Dirichlet-multinomial, exact Σ receiving = passing), registered separately.
 
 ### Existing references
 - `claude/arch-nfl-ns1-ns2-e2-87uth3`
