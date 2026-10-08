@@ -17,6 +17,7 @@ import Link from "next/link";
 import path from "node:path";
 import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import SectionHeader from "@/components/section-header";
+import { NFL_RESULTS_COVERAGE_NOTE } from "@/lib/sports/nfl/results-coverage.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { readAllNflWeekReports, readNflWeekReports, pct, unitFigure, type Outcome, type WeekGame } from "@/lib/sports/nfl/week-report-data";
 import { nflFamilyRecord } from "@/lib/results/v2/nfl-family-record.mjs";
@@ -157,6 +158,7 @@ export default function NflWeekReportPage() {
           <li>{latest.howGraded.voids}</li>
           <li>{latest.howGraded.estimates}</li>
           {latest.howGraded.sharpness ? <li>{latest.howGraded.sharpness}</li> : null}
+          <li data-results-coverage="world-model-v2">{NFL_RESULTS_COVERAGE_NOTE}</li>
         </ul>
       </section>
 

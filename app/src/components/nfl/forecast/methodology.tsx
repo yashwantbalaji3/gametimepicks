@@ -3,6 +3,8 @@
  * produced which number, versions, timestamps, input cutoffs, simulation count, evaluation status, unsupported
  * markets and limitations. The dashboard above reads without it.
  */
+import { NFL_RESULTS_COVERAGE_NOTE } from "@/lib/sports/nfl/results-coverage.mjs";
+
 const ts = (iso: string | null | undefined) => (iso ? `${iso.slice(0, 16).replace("T", " ")} UTC` : "—");
 
 const LADDER: Array<[string, string]> = [["developmentTested", "Tested on past seasons"], ["prospectivelyCaptured", "Frozen before kickoff and recorded"], ["forwardEvaluated", "Graded on games played since"], ["productEligible", "Eligible for picks products"], ["productionPromoted", "Promoted as the official forecast"]];
@@ -42,6 +44,7 @@ export default function Methodology({ view, status, started, calibration }: { vi
                 </tbody>
               </table>
             </div>
+            <p className="nf-sub" data-results-coverage="world-model-v2"><strong style={{ color: "var(--vault-text)" }}>Results:</strong> {NFL_RESULTS_COVERAGE_NOTE}</p>
             <p className="nf-sub"><strong style={{ color: "var(--vault-text)" }}>Not published:</strong></p>
             <ul className="nf-sub" style={{ paddingLeft: 18 }}>
               {sim.unsupported.map((u: any) => <li key={u.family}>{u.family.replace(/_/g, " ")}: {u.reason}</li>)}

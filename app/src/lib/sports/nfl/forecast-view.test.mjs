@@ -130,3 +130,13 @@ test("a game without a simulation falls back to the player board's families, lab
   const tabs = gameTabs(v);
   assert.match(tabs.families.find((x) => x.key === "rushingYards").sourceLabel, /Player board model/, "the list names its fallback source");
 });
+
+test("RESULTS INTEGRITY · every surface that shows World Model V2 player numbers says the existing results do not grade them", () => {
+  const note = fs.readFileSync(path.join(APP, "src/lib/sports/nfl/results-coverage.mjs"), "utf8");
+  assert.match(note, /not graded yet, so none of these results describe them/);
+  for (const rel of ["src/app/results/nfl/page.tsx", "src/components/nfl/forecast/methodology.tsx", "src/components/nfl/forecast/model-status.tsx"]) {
+    assert.match(fs.readFileSync(path.join(APP, rel), "utf8"), /\{NFL_RESULTS_COVERAGE_NOTE\}/, `${rel} renders the shared results-coverage note`);
+  }
+  // and the historical grades are untouched: the results page still grades the player board's own published ranges
+  assert.match(fs.readFileSync(path.join(APP, "src/app/results/nfl/page.tsx"), "utf8"), /each graded exactly as we published it before kickoff/);
+});
