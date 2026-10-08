@@ -82,6 +82,26 @@ const mapping = loadScoringBridgeMapping({ fs, path, cwd: APP });
 const calibration = loadTdCalibrationReceipt({ fs, path, cwd: APP });
 const currentDir = path.join(ROOT, "data/internal/nfl/current", DATE);
 
+/*
+ * ONE TOUCHDOWN NUMBER PER PLAYER (NFL Week 5, 2026-10-08).
+ *
+ * The Vault titled its list "who our model thinks is most likely to score" and printed td-engine's probability,
+ * while the game page and the weekly boards printed the board's published anytime-TD family for the SAME player
+ * in the SAME game: Javonte Williams 62.5% here, 72.5% there — two "our model" answers. The board's family is
+ * the published one (its own replay + forward protocol), so the Vault now SHOWS that number. td-engine still
+ * builds the team TD distribution the watchlist gate requires and still decides who is a candidate; it no longer
+ * supplies a second public probability. A candidate the board does not publish is withheld with that reason —
+ * never shown with a different number.
+ */
+const boardAtd = (providerEventId) => {
+  const b = read(path.join(APP, "public/data/nfl/player-board", `${providerEventId}.json`));
+  const fam = b?.families?.anytime_td;
+  if (!b || fam?.state !== "PUBLISHED") return { state: "NOT_PUBLISHED", model: fam?.model ?? null, by: new Map() };
+  return { state: "PUBLISHED", model: fam.model ?? null, by: new Map((b.players ?? []).filter((p) => Number.isFinite(p.markets?.anytime_td?.probability)).map((p) => [p.playerId, p.markets.anytime_td.probability])) };
+};
+const boardAtdCache = new Map();
+const boardAtdFor = (id) => { if (!boardAtdCache.has(id)) boardAtdCache.set(id, boardAtd(id)); return boardAtdCache.get(id); };
+
 // ---------------------------------------------------------------- inputs → outcome
 const missing = [];
 if (!forecasts?.forecasts?.length) missing.push("no current team forecasts");
@@ -156,7 +176,11 @@ for (const f of upcoming) {
     fam.players.forEach((p, i) => {
       const prob = anytimeTdProbability({ teamTd, perTdShare: flat[i] });
       if (prob.state !== "OK") return;
-      if (prob.probability < VAULT_PRODUCT_CARD.minCandidateProbability) return;
+      /* The published number, from the board (see ONE TOUCHDOWN NUMBER PER PLAYER above). It decides the candidate
+         threshold when it exists; td-engine's own probability is used only to decide who to look at otherwise. */
+      const board = boardAtdFor(f.providerEventId);
+      const published = board.by.get(p.playerId);
+      if ((Number.isFinite(published) ? published : prob.probability) < VAULT_PRODUCT_CARD.minCandidateProbability) return;
       /* The designation is a fact about THIS player — see roleByPlayer above. */
       const role = roleByPlayer.get(`${teamAbbr}:${p.playerId}`) ?? null;
       if (role && OUT_STATES.has(role.state)) {
@@ -167,6 +191,10 @@ for (const f of upcoming) {
          either — withheld with his designation named, the same rule as the boards (board-ranking.mjs). */
       if (role?.state === "QUESTIONABLE") {
         withheld.push({ event: f.matchup, team: teamAbbr, player: p.name, reason: `designated ${role.injuryStatus ?? "questionable"} — only players with no designation are listed` });
+        return;
+      }
+      if (!Number.isFinite(published)) {
+        withheld.push({ event: f.matchup, team: teamAbbr, player: p.name, reason: board.state === "PUBLISHED" ? "no published anytime-touchdown probability for this player on the game's board — the Vault never shows a second number" : "the game's board does not publish the anytime-touchdown family" });
         return;
       }
       const questionable = role?.state === "QUESTIONABLE";
@@ -184,7 +212,8 @@ for (const f of upcoming) {
         playerId: p.playerId, name: p.name, position: p.position ?? null,
         team: teamAbbr, opponent: f[side === "home" ? "away" : "home"].abbr,
         event: f.matchup, providerEventId: f.providerEventId, kickoffUtc: f.kickoffUtc,
-        tdProbability: prob.probability,
+        tdProbability: published,
+        probabilitySource: "the game's player board — the published anytime-touchdown family",
         probabilityRange: { note: "derived from the team's simulated scoring distribution; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual" },
         roleState: questionable ? "QUESTIONABLE" : available ? "ACTIVE_EXPECTED" : "ROLE_UNCERTAIN",
         // The uncertain-role sentence names the actual gap, not a hardcoded phase (P240): this
@@ -215,7 +244,7 @@ for (const f of upcoming) {
            true. Null when a price IS held; the two never coexist. */
         pricingState: propPrices.pricingStateFor(f.providerEventId, p.playerId, "anytime_td", p.name),
         shareBasis: p.shareBasis,
-        modelVersion: calibration?.receipt ?? null,
+        modelVersion: board.model ?? null,
       });
     });
   }
