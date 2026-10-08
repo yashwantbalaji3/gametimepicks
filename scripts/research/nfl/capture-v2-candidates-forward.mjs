@@ -41,6 +41,8 @@ const INPUTS = {
   nfl003Dev: "data/internal/research/nfl/reports/nfl-003-opportunity-allocation-development.json",
   nfl004Dev: "data/internal/research/nfl/reports/nfl-004-redzone-td-development.json",
   nfl005AwDev: "data/internal/research/nfl/reports/nfl-005-allocation-worlds-development.json",
+  nfl005GwDev: "data/internal/research/nfl/reports/nfl-005-game-worlds-development.json",
+  teamGames: "data/internal/research/nfl/sim-v2/team-games-v1.json.gz",
   participation2026: "data/internal/research/nfl/nflverse/participation-2026.jsonl",
   schedule: "app/public/data/nfl/schedule/latest.json",
   rosters: "app/public/data/nfl/rosters/latest.json",
@@ -398,6 +400,53 @@ function worldsFor(key, members, shares, V) {
 }
 const qs = (v) => { const s = Float64Array.from(v).sort(); const at = (p) => s[Math.floor(p * (s.length - 1))]; return { mean: Number((v.reduce((a, b) => a + b, 0) / v.length).toFixed(3)), p10: Number(at(0.1).toFixed(2)), p50: Number(at(0.5).toFixed(2)), p90: Number(at(0.9).toFixed(2)) }; };
 
+// ════ NFL-005 game worlds (same construction as replay-game-worlds.mjs) ══════════════════════════
+const GW = read(INPUTS.nfl005GwDev);
+const SCRIPT = GW.devFits.gameScript;
+const GWPRE = read("data/internal/research/nfl/reports/nfl-005-game-worlds-preregistration.json").frozen;
+const tdByPts = new Map();
+for (const t of gz(INPUTS.teamGames)) if (GWPRE.tdTableSeasons.some((w) => inSeasons(t.s, w))) (tdByPts.get(t.pts) ?? tdByPts.set(t.pts, []).get(t.pts)).push(t.passTd + t.rushTd);
+const tdPool = (pts) => { let pool = tdByPts.get(pts) ?? []; for (let w = 1; pool.length < GWPRE.tdTableMinObs && w <= 3; w += 1) pool = [...pool, ...(tdByPts.get(pts - w) ?? []), ...(tdByPts.get(pts + w) ?? [])]; return pool.length ? pool : [Math.floor(pts / 7)]; };
+const snapPts = (x) => { const v = Math.max(0, Math.round(x)); return v === 1 ? 0 : v; };
+function pick(rng, w) { const t = w.reduce((a, b) => a + b, 0); if (!(t > 0)) return -1; let u = rng() * t; for (let i = 0; i < w.length; i += 1) { u -= w[i]; if (u <= 0) return i; } return w.length - 1; }
+/** sides: [{team, sign (+1 home), members, shares, V, mTeam, lam, rzc[], rzt[]}]; heads: {mMean, mSigma, tMean, tSigma} */
+function gameWorlds(key, sides, heads) {
+  const rng = mulberry32(seedOf(`v2cap-gw|${key}`));
+  const out = sides.map((sd) => ({ rec: sd.members.map(() => new Float64Array(RUNS)), recYds: sd.members.map(() => new Float64Array(RUNS)), rushYds: sd.members.map(() => new Float64Array(RUNS)), passYds: sd.members.map(() => new Float64Array(RUNS)), td: sd.members.map(() => new Uint8Array(RUNS)), pts: new Int16Array(RUNS) }));
+  let homeWins = 0; let ties = 0;
+  for (let r = 0; r < RUNS; r += 1) {
+    const M = heads.mMean + heads.mSigma * normal(rng); const Tt = Math.max(2, heads.tMean + heads.tSigma * normal(rng));
+    const home = snapPts((Tt + M) / 2); const away = snapPts((Tt - M) / 2);
+    if (home > away) homeWins += 1; else if (home === away) ties += 1;
+    sides.forEach((sd, si) => {
+      const n = sd.members.length; const o = out[si];
+      const pts = sd.sign === 1 ? home : away; o.pts[r] = pts;
+      const real = sd.sign * (home - away);
+      const pool = tdPool(pts); const TD = pts >= 6 ? pool[Math.floor(rng() * pool.length)] : 0;
+      const rushTD = binomial(rng, TD, sd.lam.rush / (sd.lam.rush + sd.lam.rec)); const recTD = TD - rushTD;
+      const A = Math.max(0, Math.round(sd.V.passAtt + SCRIPT.passAtt.beta * (real - sd.mTeam) + SCRIPT.passAtt.sigma * normal(rng)));
+      const K = Math.max(0, Math.round(sd.V.carries + SCRIPT.carries.beta * (real - sd.mTeam) + SCRIPT.carries.sigma * normal(rng)));
+      const Tg = sd.V.passAtt > 0 ? Math.round(A * sd.V.targets / sd.V.passAtt) : 0;
+      const tgt = multinomial(rng, Tg, dirichlet(rng, sd.shares.targets.map((x) => x * KAPPA.t)));
+      const rec = new Array(n + 1).fill(0); let teamRec = 0; let teamRecYds = 0;
+      for (let i = 0; i <= n; i += 1) { rec[i] = binomial(rng, tgt[i], i < n ? sd.members[i].rates.catch : L.catchRate); const y = rec[i] > 0 ? gammaDraw(rng, rec[i] * D.receivingShape) * ((i < n ? sd.members[i].rates.ypr : L.yardsPerReception) / D.receivingShape) : 0; teamRec += rec[i]; teamRecYds += y; if (i < n) { o.rec[i][r] = rec[i]; o.recYds[i][r] = y; } }
+      const att = multinomial(rng, A, dirichlet(rng, sd.shares.passAttempts.map((x) => x * KAPPA.p)));
+      const cmp = A > 0 ? multinomial(rng, teamRec, att.map((x) => x / A)) : att.map(() => 0);
+      if (A === 0 && teamRec > 0) cmp[cmp.length - 1] = teamRec;
+      let passSum = 0; for (let i = 0; i <= n; i += 1) { const y = teamRec > 0 ? teamRecYds * cmp[i] / teamRec : 0; passSum += y; if (i < n) o.passYds[i][r] = y; }
+      if (Math.abs(passSum - teamRecYds) > 1e-6) refuse(`invariant: passing != receiving in ${key}`);
+      const car = multinomial(rng, K, dirichlet(rng, sd.shares.rushAttempts.map((x) => x * KAPPA.c)));
+      for (let i = 0; i < n; i += 1) o.rushYds[i][r] = car[i] > 0 ? gammaDraw(rng, car[i] * D.rushingShape) * (sd.members[i].rates.ypc / D.rushingShape) : 0;
+      const tdc = new Array(n + 1).fill(0); const recBy = new Array(n + 1).fill(0);
+      for (let k = 0; k < rushTD; k += 1) { const i = pick(rng, sd.rzc.map((w, ix) => (car[ix] > 0 ? w : 0))); tdc[i < 0 ? n : i] += 1; }
+      for (let k = 0; k < recTD; k += 1) { let i = pick(rng, sd.rzt.map((w, ix) => (rec[ix] - recBy[ix] > 0 ? w : 0))); if (i < 0) { i = n; rec[n] += 1; } recBy[i] += 1; tdc[i] += 1; if (recBy[i] > rec[i]) refuse("invariant: receiving TDs exceed receptions"); }
+      if (tdc.reduce((a, b) => a + b, 0) !== TD) refuse("invariant: scorer TDs != team TDs");
+      for (let i = 0; i < n; i += 1) o.td[i][r] = tdc[i] > 0 ? 1 : 0;
+    });
+  }
+  return { out, homeWinShare: homeWins / RUNS, tieShare: ties / RUNS };
+}
+
 // ════ the capture ═════════════════════════════════════════════════════════════════════════════════
 const ESPN_TO_NV = { WSH: "WAS", LAR: "LA" };
 const nv = (t) => ESPN_TO_NV[t] ?? t;
@@ -430,6 +479,7 @@ for (const ev of events) {
   const pub = published.get(ev.providerEventId);
   const marginHome = pub?.forecastSummary?.margin?.median ?? 0;
   const out = { providerEventId: ev.providerEventId, matchup: ev.shortName, kickoffUtc: ev.dateUtc, participationAsOf: part.injuriesAsOf ?? null, participationSha256: sha(partPath), publishedForecast: pub ? { inputHash: pub.model?.inputHash, generatedAt: pub.generatedAt, marginMedianHome: marginHome } : null, teams: {} };
+  const gwSides = [];
   for (const [abbr, isHome] of [[ev.away.abbr, false], [ev.home.abbr, true]]) {
     const team = nv(abbr);
     const roster = activeRoster.get(team) ?? new Set();
@@ -476,7 +526,24 @@ for (const ev of events) {
       }
       return row;
     });
+    const mem = TD.byTeam.get(team) ?? new Set();
+    const rzc = active.map((p) => { const st = TD.players.get(p.id); return st && mem.has(p.id) ? TD.rzShare(st, "c", SEL4.k, TD.share(st, "rush", SEASON), SEASON) : 0; });
+    const rzt = active.map((p) => { const st = TD.players.get(p.id); return st && mem.has(p.id) ? TD.rzShare(st, "t", SEL4.k, TD.share(st, "targets", SEASON), SEASON) : 0; });
+    gwSides.push({ team, sign: isHome ? 1 : -1, members: active, shares: shareSets, V: vol, mTeam: isHome ? marginHome : -marginHome, lam, rzc: [...rzc, Math.max(0, 1 - rzc.reduce((a, b) => a + b, 0))], rzt: [...rzt, Math.max(0, 1 - rzt.reduce((a, b) => a + b, 0))], players });
     out.teams[team] = { volume: Object.fromEntries(Object.entries(vol).map(([k, v]) => [k, Number(v.toFixed(2))])), teamTdForm: { rush: Number(lam.rush.toFixed(3)), rec: Number(lam.rec.toFixed(3)) }, pool: pool.map((p) => ({ playerId: p.id, name: nameOf.get(p.id) ?? null, espnId: p.espn, status: p.status })), players };
+  }
+  // game worlds need the published heads' distributions (normal margin/total, mean = median, sigma from the 80% band)
+  const fsum = pub?.forecastSummary;
+  if (fsum?.margin && fsum?.total && gwSides.length === 2) {
+    const heads = { mMean: fsum.margin.median, mSigma: (fsum.margin.p90 - fsum.margin.p10) / (2 * 1.2815515655446004), tMean: fsum.total.median, tSigma: (fsum.total.p90 - fsum.total.p10) / (2 * 1.2815515655446004) };
+    const G2 = gameWorlds(ev.providerEventId, gwSides, heads);
+    out.gameWorlds = { heads, worldHomeWinShare: Number(G2.homeWinShare.toFixed(4)), worldTieShare: Number(G2.tieShare.toFixed(4)), publishedWinProbabilityHome: fsum.winProbability?.home ?? null, note: "world win share follows the published MARGIN head; the published win % is the separate MOV-Elo win head (NFL-001 incoherence, recorded not hidden)", score: Object.fromEntries(gwSides.map((sd, si) => [sd.team, qs(G2.out[si].pts)])) };
+    gwSides.forEach((sd, si) => sd.players.forEach((row) => {
+      const i = sd.members.findIndex((m) => m.id === row.playerId);
+      row.gameWorlds = {};
+      for (const [mkt, k] of [["player_receptions", "rec"], ["player_reception_yds", "recYds"], ["player_rush_yds", "rushYds"], ["player_pass_yds", "passYds"]]) if (row.allocV1[mkt]) row.gameWorlds[mkt] = qs(G2.out[si][k][i]);
+      row.gameWorlds.anytimeTd_NOT_VALIDATED = Number((G2.out[si].td[i].reduce((a, b) => a + b, 0) / RUNS).toFixed(4));
+    }));
   }
   games.push(out);
 }
@@ -487,6 +554,7 @@ const doc = {
     "nfl-opportunity-allocation-v1": { rho: DEV3.rho, volume: DEV3.volume, dispersionScales: DEV3.dispersionScales, evidence: "development look PROCEED_TO_FORWARD x4" },
     "nfl-anytime-td-redzone-v1": { selected: SEL4, evidence: "development look PROCEED_TO_FORWARD", limitation: "no 2026 play-by-play on file: red-zone history ends 2025" },
     "nfl-allocation-worlds-v1": { kappa: KAPPA, runs: RUNS, evidence: "development look PROCEED_TO_FORWARD_SHADOW x4" },
+    "nfl-game-worlds-v1": { gameScript: SCRIPT, runs: RUNS, evidence: "development look: players PROCEED_TO_FORWARD_SHADOW x4; world anytime-TD DO_NOT_PROCEED (captured, labelled NOT_VALIDATED)" },
   },
   activeSetRule: "pool member ACTIVE iff on the current active roster and not excluded by the event's committed participation artifact; Questionable/Doubtful stay active; unmapped ids are not active",
   inputs: { hashes: inputHashes, playersCsvSha256: playersCsvSha, scheduleGeneratedAt: schedule.generatedAt, rostersGeneratedAt: rosters.generatedAt },
