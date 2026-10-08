@@ -1,0 +1,1059 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-003-opportunity-allocation-development",
+ "dataClass": "PRIVATE_RESEARCH",
+ "evidenceTier": "THIRD_LOOK_DEVELOPMENT — 2014-2021 was scored by P299 (blind) and P300 (second look); not a blind result. Only the 2026 forward test can make a family eligible.",
+ "generatedAt": "2026-10-08T17:48:59Z",
+ "preregistration": {
+  "path": "data/internal/research/nfl/reports/nfl-003-opportunity-allocation-preregistration.json",
+  "commit": "7ee4f0d915f74ed6fecba5582057b46932389ee3 2026-10-08T13:45:13-04:00"
+ },
+ "scriptSha256": "99ecab9514ce9e4b9cbd8a120498756d7bf0250eb6ab9e324552c73986625d51",
+ "implementationChecks": {
+  "player_receptions": {
+   "expected": 1.57054,
+   "observed": 1.57054,
+   "pass": true
+  },
+  "player_reception_yds": {
+   "expected": 21.42766,
+   "observed": 21.42766,
+   "pass": true
+  },
+  "player_rush_yds": {
+   "expected": 18.5768,
+   "observed": 18.5768,
+   "pass": true
+  },
+  "player_pass_yds": {
+   "expected": 66.97181,
+   "observed": 66.97181,
+   "pass": true
+  }
+ },
+ "devFits": {
+  "volume": {
+   "passAttempts": {
+    "bT": 1.05178,
+    "bO": 0.49539,
+    "g": 0.01952,
+    "devTeamGames": 2278
+   },
+   "rushAttempts": {
+    "bT": 0.89346,
+    "bO": 0.4989,
+    "g": 0.08905,
+    "devTeamGames": 2278
+   },
+   "targets": {
+    "bT": 1.09859,
+    "bO": 0.558,
+    "g": 0.0296,
+    "devTeamGames": 2278
+   }
+  },
+  "rho": {
+   "passAttempts": 0.5,
+   "rushAttempts": 0.25,
+   "targets": 0
+  },
+  "rhoTrace": {
+   "passAttempts": [
+    {
+     "rho": 0,
+     "scale": 1.25,
+     "devMae": 63.1335
+    },
+    {
+     "rho": 0.25,
+     "scale": 1,
+     "devMae": 59.58276
+    },
+    {
+     "rho": 0.5,
+     "scale": 1,
+     "devMae": 59.51075
+    },
+    {
+     "rho": 0.75,
+     "scale": 1,
+     "devMae": 59.52986
+    },
+    {
+     "rho": 1,
+     "scale": 1,
+     "devMae": 59.53021
+    }
+   ],
+   "rushAttempts": [
+    {
+     "rho": 0,
+     "scale": 2.5,
+     "devMae": 18.62538
+    },
+    {
+     "rho": 0.25,
+     "scale": 2.5,
+     "devMae": 18.39455
+    },
+    {
+     "rho": 0.5,
+     "scale": 2.5,
+     "devMae": 18.41693
+    },
+    {
+     "rho": 0.75,
+     "scale": 2.5,
+     "devMae": 18.41693
+    },
+    {
+     "rho": 1,
+     "scale": 2.5,
+     "devMae": 18.41693
+    }
+   ],
+   "targets": [
+    {
+     "rho": 0,
+     "scale": 4,
+     "devMae": 1.51625
+    },
+    {
+     "rho": 0.25,
+     "scale": 4,
+     "devMae": 1.53271
+    },
+    {
+     "rho": 0.5,
+     "scale": 4,
+     "devMae": 1.53264
+    },
+    {
+     "rho": 0.75,
+     "scale": 4,
+     "devMae": 1.53264
+    },
+    {
+     "rho": 1,
+     "scale": 4,
+     "devMae": 1.53264
+    }
+   ]
+  },
+  "dispersionScales": {
+   "player_receptions|incumbent": 4,
+   "player_receptions|allocV1": 4,
+   "player_receptions|allocRedistributeOnly": 4,
+   "player_receptions|allocVolumeOnly": 4,
+   "player_reception_yds|incumbent": 1,
+   "player_reception_yds|allocV1": 1,
+   "player_reception_yds|allocRedistributeOnly": 1,
+   "player_reception_yds|allocVolumeOnly": 1,
+   "player_rush_yds|incumbent": 2.5,
+   "player_rush_yds|allocV1": 2.5,
+   "player_rush_yds|allocRedistributeOnly": 2.5,
+   "player_rush_yds|allocVolumeOnly": 2.5,
+   "player_pass_yds|incumbent": 1.25,
+   "player_pass_yds|allocV1": 1,
+   "player_pass_yds|allocRedistributeOnly": 1,
+   "player_pass_yds|allocVolumeOnly": 1.25
+  }
+ },
+ "population": {
+  "player_receptions": 27134,
+  "player_reception_yds": 27134,
+  "player_rush_yds": 14502,
+  "player_pass_yds": 4388
+ },
+ "results": {
+  "player_receptions": {
+   "incumbent": {
+    "dispersionScale": 4,
+    "overall": {
+     "n": 27134,
+     "mae": 1.57054,
+     "rolling4Mae": 1.69172,
+     "shareVolMae": 1.61774,
+     "coverage80": 0.79201,
+     "ece": 0.0113,
+     "eceN": 27081,
+     "meanForecast": 3.12182,
+     "meanActual": 3.01489,
+     "level": 1.03547
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 13423,
+      "mae": 1.56083,
+      "rolling4Mae": 1.68779,
+      "shareVolMae": 1.60898,
+      "coverage80": 0.79278,
+      "ece": 0.01274,
+      "eceN": 13391,
+      "meanForecast": 3.12668,
+      "meanActual": 3.00447,
+      "level": 1.04068
+     },
+     "2018-2021": {
+      "n": 13711,
+      "mae": 1.58005,
+      "rolling4Mae": 1.69558,
+      "shareVolMae": 1.62631,
+      "coverage80": 0.79126,
+      "ece": 0.01005,
+      "eceN": 13690,
+      "meanForecast": 3.11707,
+      "meanActual": 3.02509,
+      "level": 1.0304
+     }
+    }
+   },
+   "allocV1": {
+    "dispersionScale": 4,
+    "overall": {
+     "n": 27134,
+     "mae": 1.56464,
+     "rolling4Mae": 1.69172,
+     "shareVolMae": 1.61774,
+     "coverage80": 0.78781,
+     "ece": 0.01308,
+     "eceN": 27081,
+     "meanForecast": 3.03314,
+     "meanActual": 3.01489,
+     "level": 1.00605
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 13423,
+      "mae": 1.55271,
+      "rolling4Mae": 1.68779,
+      "shareVolMae": 1.60898,
+      "coverage80": 0.78835,
+      "ece": 0.00502,
+      "eceN": 13391,
+      "meanForecast": 3.05475,
+      "meanActual": 3.00447,
+      "level": 1.01674
+     },
+     "2018-2021": {
+      "n": 13711,
+      "mae": 1.57633,
+      "rolling4Mae": 1.69558,
+      "shareVolMae": 1.62631,
+      "coverage80": 0.78729,
+      "ece": 0.02096,
+      "eceN": 13690,
+      "meanForecast": 3.01198,
+      "meanActual": 3.02509,
+      "level": 0.99567
+     }
+    }
+   },
+   "allocRedistributeOnly": {
+    "dispersionScale": 4,
+    "overall": {
+     "n": 27134,
+     "mae": 1.56564,
+     "rolling4Mae": 1.69172,
+     "shareVolMae": 1.61774,
+     "coverage80": 0.78802,
+     "ece": 0.01778,
+     "eceN": 27081,
+     "meanForecast": 2.99733,
+     "meanActual": 3.01489,
+     "level": 0.99418
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 13423,
+      "mae": 1.5539,
+      "rolling4Mae": 1.68779,
+      "shareVolMae": 1.60898,
+      "coverage80": 0.78868,
+      "ece": 0.01368,
+      "eceN": 13391,
+      "meanForecast": 3.00184,
+      "meanActual": 3.00447,
+      "level": 0.99912
+     },
+     "2018-2021": {
+      "n": 13711,
+      "mae": 1.57713,
+      "rolling4Mae": 1.69558,
+      "shareVolMae": 1.62631,
+      "coverage80": 0.78736,
+      "ece": 0.0218,
+      "eceN": 13690,
+      "meanForecast": 2.99291,
+      "meanActual": 3.02509,
+      "level": 0.98936
+     }
+    }
+   },
+   "allocVolumeOnly": {
+    "dispersionScale": 4,
+    "overall": {
+     "n": 27134,
+     "mae": 1.5729,
+     "rolling4Mae": 1.69172,
+     "shareVolMae": 1.61774,
+     "coverage80": 0.79166,
+     "ece": 0.01647,
+     "eceN": 27081,
+     "meanForecast": 3.15912,
+     "meanActual": 3.01489,
+     "level": 1.04784
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 13423,
+      "mae": 1.56463,
+      "rolling4Mae": 1.68779,
+      "shareVolMae": 1.60898,
+      "coverage80": 0.79196,
+      "ece": 0.02029,
+      "eceN": 13391,
+      "meanForecast": 3.18185,
+      "meanActual": 3.00447,
+      "level": 1.05904
+     },
+     "2018-2021": {
+      "n": 13711,
+      "mae": 1.58099,
+      "rolling4Mae": 1.69558,
+      "shareVolMae": 1.62631,
+      "coverage80": 0.79137,
+      "ece": 0.01463,
+      "eceN": 13690,
+      "meanForecast": 3.13687,
+      "meanActual": 3.02509,
+      "level": 1.03695
+     }
+    }
+   }
+  },
+  "player_reception_yds": {
+   "incumbent": {
+    "dispersionScale": 1,
+    "overall": {
+     "n": 27134,
+     "mae": 21.42766,
+     "rolling4Mae": 23.22141,
+     "shareVolMae": 21.96263,
+     "coverage80": 0.79399,
+     "ece": 0.02974,
+     "eceN": 27064,
+     "meanForecast": 35.40394,
+     "meanActual": 34.74567,
+     "level": 1.01895
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 13423,
+      "mae": 21.52377,
+      "rolling4Mae": 23.31796,
+      "shareVolMae": 22.01614,
+      "coverage80": 0.79468,
+      "ece": 0.0288,
+      "eceN": 13387,
+      "meanForecast": 35.60534,
+      "meanActual": 34.97102,
+      "level": 1.01814
+     },
+     "2018-2021": {
+      "n": 13711,
+      "mae": 21.33357,
+      "rolling4Mae": 23.12689,
+      "shareVolMae": 21.91024,
+      "coverage80": 0.7933,
+      "ece": 0.03067,
+      "eceN": 13677,
+      "meanForecast": 35.20677,
+      "meanActual": 34.52505,
+      "level": 1.01975
+     }
+    }
+   },
+   "allocV1": {
+    "dispersionScale": 1,
+    "overall": {
+     "n": 27134,
+     "mae": 21.33801,
+     "rolling4Mae": 23.22141,
+     "shareVolMae": 21.96263,
+     "coverage80": 0.7966,
+     "ece": 0.02915,
+     "eceN": 27064,
+     "meanForecast": 34.40401,
+     "meanActual": 34.74567,
+     "level": 0.99017
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 13423,
+      "mae": 21.41967,
+      "rolling4Mae": 23.31796,
+      "shareVolMae": 22.01614,
+      "coverage80": 0.79654,
+      "ece": 0.02762,
+      "eceN": 13387,
+      "meanForecast": 34.7921,
+      "meanActual": 34.97102,
+      "level": 0.99488
+     },
+     "2018-2021": {
+      "n": 13711,
+      "mae": 21.25806,
+      "rolling4Mae": 23.12689,
+      "shareVolMae": 21.91024,
+      "coverage80": 0.79666,
+      "ece": 0.03531,
+      "eceN": 13677,
+      "meanForecast": 34.02407,
+      "meanActual": 34.52505,
+      "level": 0.98549
+     }
+    }
+   },
+   "allocRedistributeOnly": {
+    "dispersionScale": 1,
+    "overall": {
+     "n": 27134,
+     "mae": 21.34259,
+     "rolling4Mae": 23.22141,
+     "shareVolMae": 21.96263,
+     "coverage80": 0.79671,
+     "ece": 0.03041,
+     "eceN": 27064,
+     "meanForecast": 33.99517,
+     "meanActual": 34.74567,
+     "level": 0.9784
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 13423,
+      "mae": 21.42259,
+      "rolling4Mae": 23.31796,
+      "shareVolMae": 22.01614,
+      "coverage80": 0.79811,
+      "ece": 0.02752,
+      "eceN": 13387,
+      "meanForecast": 34.18595,
+      "meanActual": 34.97102,
+      "level": 0.97755
+     },
+     "2018-2021": {
+      "n": 13711,
+      "mae": 21.26428,
+      "rolling4Mae": 23.12689,
+      "shareVolMae": 21.91024,
+      "coverage80": 0.79535,
+      "ece": 0.03585,
+      "eceN": 13677,
+      "meanForecast": 33.80839,
+      "meanActual": 34.52505,
+      "level": 0.97924
+     }
+    }
+   },
+   "allocVolumeOnly": {
+    "dispersionScale": 1,
+    "overall": {
+     "n": 27134,
+     "mae": 21.43898,
+     "rolling4Mae": 23.22141,
+     "shareVolMae": 21.96263,
+     "coverage80": 0.79413,
+     "ece": 0.03279,
+     "eceN": 27064,
+     "meanForecast": 35.82967,
+     "meanActual": 34.74567,
+     "level": 1.0312
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 13423,
+      "mae": 21.54511,
+      "rolling4Mae": 23.31796,
+      "shareVolMae": 22.01614,
+      "coverage80": 0.79394,
+      "ece": 0.03397,
+      "eceN": 13387,
+      "meanForecast": 36.23724,
+      "meanActual": 34.97102,
+      "level": 1.03621
+     },
+     "2018-2021": {
+      "n": 13711,
+      "mae": 21.33508,
+      "rolling4Mae": 23.12689,
+      "shareVolMae": 21.91024,
+      "coverage80": 0.79433,
+      "ece": 0.03178,
+      "eceN": 13677,
+      "meanForecast": 35.43066,
+      "meanActual": 34.52505,
+      "level": 1.02623
+     }
+    }
+   }
+  },
+  "player_rush_yds": {
+   "incumbent": {
+    "dispersionScale": 2.5,
+    "overall": {
+     "n": 14502,
+     "mae": 18.5768,
+     "rolling4Mae": 19.85182,
+     "shareVolMae": 19.008,
+     "coverage80": 0.78858,
+     "ece": 0.03937,
+     "eceN": 14223,
+     "meanForecast": 31.33863,
+     "meanActual": 30.46897,
+     "level": 1.02854
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 7182,
+      "mae": 18.36515,
+      "rolling4Mae": 19.66243,
+      "shareVolMae": 18.77624,
+      "coverage80": 0.78349,
+      "ece": 0.04063,
+      "eceN": 7030,
+      "meanForecast": 31.10404,
+      "meanActual": 29.95684,
+      "level": 1.0383
+     },
+     "2018-2021": {
+      "n": 7320,
+      "mae": 18.78446,
+      "rolling4Mae": 20.03764,
+      "shareVolMae": 19.23539,
+      "coverage80": 0.79358,
+      "ece": 0.03984,
+      "eceN": 7193,
+      "meanForecast": 31.5688,
+      "meanActual": 30.97145,
+      "level": 1.01929
+     }
+    }
+   },
+   "allocV1": {
+    "dispersionScale": 2.5,
+    "overall": {
+     "n": 14502,
+     "mae": 18.27252,
+     "rolling4Mae": 19.85182,
+     "shareVolMae": 19.008,
+     "coverage80": 0.79417,
+     "ece": 0.03667,
+     "eceN": 14223,
+     "meanForecast": 31.36941,
+     "meanActual": 30.46897,
+     "level": 1.02955
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 7182,
+      "mae": 17.99272,
+      "rolling4Mae": 19.66243,
+      "shareVolMae": 18.77624,
+      "coverage80": 0.78933,
+      "ece": 0.03549,
+      "eceN": 7030,
+      "meanForecast": 30.94669,
+      "meanActual": 29.95684,
+      "level": 1.03304
+     },
+     "2018-2021": {
+      "n": 7320,
+      "mae": 18.54705,
+      "rolling4Mae": 20.03764,
+      "shareVolMae": 19.23539,
+      "coverage80": 0.79891,
+      "ece": 0.03852,
+      "eceN": 7193,
+      "meanForecast": 31.78417,
+      "meanActual": 30.97145,
+      "level": 1.02624
+     }
+    }
+   },
+   "allocRedistributeOnly": {
+    "dispersionScale": 2.5,
+    "overall": {
+     "n": 14502,
+     "mae": 18.30639,
+     "rolling4Mae": 19.85182,
+     "shareVolMae": 19.008,
+     "coverage80": 0.7941,
+     "ece": 0.03687,
+     "eceN": 14223,
+     "meanForecast": 31.56458,
+     "meanActual": 30.46897,
+     "level": 1.03596
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 7182,
+      "mae": 18.03844,
+      "rolling4Mae": 19.66243,
+      "shareVolMae": 18.77624,
+      "coverage80": 0.78961,
+      "ece": 0.03452,
+      "eceN": 7030,
+      "meanForecast": 31.12675,
+      "meanActual": 29.95684,
+      "level": 1.03905
+     },
+     "2018-2021": {
+      "n": 7320,
+      "mae": 18.56929,
+      "rolling4Mae": 20.03764,
+      "shareVolMae": 19.23539,
+      "coverage80": 0.7985,
+      "ece": 0.03916,
+      "eceN": 7193,
+      "meanForecast": 31.99415,
+      "meanActual": 30.97145,
+      "level": 1.03302
+     }
+    }
+   },
+   "allocVolumeOnly": {
+    "dispersionScale": 2.5,
+    "overall": {
+     "n": 14502,
+     "mae": 18.53056,
+     "rolling4Mae": 19.85182,
+     "shareVolMae": 19.008,
+     "coverage80": 0.79065,
+     "ece": 0.04024,
+     "eceN": 14223,
+     "meanForecast": 31.13826,
+     "meanActual": 30.46897,
+     "level": 1.02197
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 7182,
+      "mae": 18.31497,
+      "rolling4Mae": 19.66243,
+      "shareVolMae": 18.77624,
+      "coverage80": 0.78516,
+      "ece": 0.04153,
+      "eceN": 7030,
+      "meanForecast": 30.91663,
+      "meanActual": 29.95684,
+      "level": 1.03204
+     },
+     "2018-2021": {
+      "n": 7320,
+      "mae": 18.74209,
+      "rolling4Mae": 20.03764,
+      "shareVolMae": 19.23539,
+      "coverage80": 0.79604,
+      "ece": 0.04135,
+      "eceN": 7193,
+      "meanForecast": 31.35571,
+      "meanActual": 30.97145,
+      "level": 1.01241
+     }
+    }
+   }
+  },
+  "player_pass_yds": {
+   "incumbent": {
+    "dispersionScale": 1.25,
+    "overall": {
+     "n": 4388,
+     "mae": 66.97181,
+     "rolling4Mae": 70.01077,
+     "shareVolMae": 76.84455,
+     "coverage80": 0.82521,
+     "ece": 0.05524,
+     "eceN": 4388,
+     "meanForecast": 231.04263,
+     "meanActual": 233.87489,
+     "level": 0.98789
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 2179,
+      "mae": 65.33727,
+      "rolling4Mae": 68.68521,
+      "shareVolMae": 75.52637,
+      "coverage80": 0.83662,
+      "ece": 0.05542,
+      "eceN": 2179,
+      "meanForecast": 230.72954,
+      "meanActual": 235.13447,
+      "level": 0.98127
+     },
+     "2018-2021": {
+      "n": 2209,
+      "mae": 68.58415,
+      "rolling4Mae": 71.31832,
+      "shareVolMae": 78.14482,
+      "coverage80": 0.81394,
+      "ece": 0.05744,
+      "eceN": 2209,
+      "meanForecast": 231.35147,
+      "meanActual": 232.63241,
+      "level": 0.99449
+     }
+    }
+   },
+   "allocV1": {
+    "dispersionScale": 1,
+    "overall": {
+     "n": 4388,
+     "mae": 62.44061,
+     "rolling4Mae": 70.01077,
+     "shareVolMae": 76.84455,
+     "coverage80": 0.80629,
+     "ece": 0.04751,
+     "eceN": 4388,
+     "meanForecast": 232.00552,
+     "meanActual": 233.87489,
+     "level": 0.99201
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 2179,
+      "mae": 61.34643,
+      "rolling4Mae": 68.68521,
+      "shareVolMae": 75.52637,
+      "coverage80": 0.80909,
+      "ece": 0.04733,
+      "eceN": 2179,
+      "meanForecast": 231.98558,
+      "meanActual": 235.13447,
+      "level": 0.98661
+     },
+     "2018-2021": {
+      "n": 2209,
+      "mae": 63.51993,
+      "rolling4Mae": 71.31832,
+      "shareVolMae": 78.14482,
+      "coverage80": 0.80353,
+      "ece": 0.04768,
+      "eceN": 2209,
+      "meanForecast": 232.02519,
+      "meanActual": 232.63241,
+      "level": 0.99739
+     }
+    }
+   },
+   "allocRedistributeOnly": {
+    "dispersionScale": 1,
+    "overall": {
+     "n": 4388,
+     "mae": 62.79471,
+     "rolling4Mae": 70.01077,
+     "shareVolMae": 76.84455,
+     "coverage80": 0.80697,
+     "ece": 0.062,
+     "eceN": 4388,
+     "meanForecast": 227.96593,
+     "meanActual": 233.87489,
+     "level": 0.97473
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 2179,
+      "mae": 61.67923,
+      "rolling4Mae": 68.68521,
+      "shareVolMae": 75.52637,
+      "coverage80": 0.81046,
+      "ece": 0.06498,
+      "eceN": 2179,
+      "meanForecast": 227.6024,
+      "meanActual": 235.13447,
+      "level": 0.96797
+     },
+     "2018-2021": {
+      "n": 2209,
+      "mae": 63.89503,
+      "rolling4Mae": 71.31832,
+      "shareVolMae": 78.14482,
+      "coverage80": 0.80353,
+      "ece": 0.05925,
+      "eceN": 2209,
+      "meanForecast": 228.32453,
+      "meanActual": 232.63241,
+      "level": 0.98148
+     }
+    }
+   },
+   "allocVolumeOnly": {
+    "dispersionScale": 1.25,
+    "overall": {
+     "n": 4388,
+     "mae": 66.64069,
+     "rolling4Mae": 70.01077,
+     "shareVolMae": 76.84455,
+     "coverage80": 0.82748,
+     "ece": 0.04043,
+     "eceN": 4388,
+     "meanForecast": 235.17789,
+     "meanActual": 233.87489,
+     "level": 1.00557
+    },
+    "eras": {
+     "2014-2017": {
+      "n": 2179,
+      "mae": 64.9673,
+      "rolling4Mae": 68.68521,
+      "shareVolMae": 75.52637,
+      "coverage80": 0.83938,
+      "ece": 0.03883,
+      "eceN": 2179,
+      "meanForecast": 235.19197,
+      "meanActual": 235.13447,
+      "level": 1.00024
+     },
+     "2018-2021": {
+      "n": 2209,
+      "mae": 68.29134,
+      "rolling4Mae": 71.31832,
+      "shareVolMae": 78.14482,
+      "coverage80": 0.81575,
+      "ece": 0.0428,
+      "eceN": 2209,
+      "meanForecast": 235.16401,
+      "meanActual": 232.63241,
+      "level": 1.01088
+     }
+    }
+   }
+  }
+ },
+ "bars": {
+  "player_receptions": {
+   "maeBelowIncumbent": {
+    "pass": true,
+    "observed": {
+     "overall": [
+      1.56464,
+      1.57054
+     ],
+     "eras": {
+      "2014-2017": [
+       1.55271,
+       1.56083
+      ],
+      "2018-2021": [
+       1.57633,
+       1.58005
+      ]
+     }
+    }
+   },
+   "notNoise": {
+    "pass": true,
+    "observed": {
+     "point": -0.0059,
+     "lo95": -0.01029,
+     "hi95": -0.00239
+    }
+   },
+   "coverage80": {
+    "pass": true,
+    "observed": 0.78781
+   },
+   "calibration": {
+    "pass": true,
+    "observed": {
+     "overall": 0.01308,
+     "incumbent": 0.0113,
+     "eras": {
+      "2014-2017": 0.00502,
+      "2018-2021": 0.02096
+     }
+    }
+   },
+   "level": {
+    "pass": true,
+    "observed": {
+     "overall": 1.00605,
+     "eras": {
+      "2014-2017": 1.01674,
+      "2018-2021": 0.99567
+     }
+    }
+   }
+  },
+  "player_reception_yds": {
+   "maeBelowIncumbent": {
+    "pass": true,
+    "observed": {
+     "overall": [
+      21.33801,
+      21.42766
+     ],
+     "eras": {
+      "2014-2017": [
+       21.41967,
+       21.52377
+      ],
+      "2018-2021": [
+       21.25806,
+       21.33357
+      ]
+     }
+    }
+   },
+   "notNoise": {
+    "pass": true,
+    "observed": {
+     "point": -0.08965,
+     "lo95": -0.12069,
+     "hi95": -0.05776
+    }
+   },
+   "coverage80": {
+    "pass": true,
+    "observed": 0.7966
+   },
+   "calibration": {
+    "pass": true,
+    "observed": {
+     "overall": 0.02915,
+     "incumbent": 0.02974,
+     "eras": {
+      "2014-2017": 0.02762,
+      "2018-2021": 0.03531
+     }
+    }
+   },
+   "level": {
+    "pass": true,
+    "observed": {
+     "overall": 0.99017,
+     "eras": {
+      "2014-2017": 0.99488,
+      "2018-2021": 0.98549
+     }
+    }
+   }
+  },
+  "player_rush_yds": {
+   "maeBelowIncumbent": {
+    "pass": true,
+    "observed": {
+     "overall": [
+      18.27252,
+      18.5768
+     ],
+     "eras": {
+      "2014-2017": [
+       17.99272,
+       18.36515
+      ],
+      "2018-2021": [
+       18.54705,
+       18.78446
+      ]
+     }
+    }
+   },
+   "notNoise": {
+    "pass": true,
+    "observed": {
+     "point": -0.30428,
+     "lo95": -0.43641,
+     "hi95": -0.1675
+    }
+   },
+   "coverage80": {
+    "pass": true,
+    "observed": 0.79417
+   },
+   "calibration": {
+    "pass": true,
+    "observed": {
+     "overall": 0.03667,
+     "incumbent": 0.03937,
+     "eras": {
+      "2014-2017": 0.03549,
+      "2018-2021": 0.03852
+     }
+    }
+   },
+   "level": {
+    "pass": true,
+    "observed": {
+     "overall": 1.02955,
+     "eras": {
+      "2014-2017": 1.03304,
+      "2018-2021": 1.02624
+     }
+    }
+   }
+  },
+  "player_pass_yds": {
+   "maeBelowIncumbent": {
+    "pass": true,
+    "observed": {
+     "overall": [
+      62.44061,
+      66.97181
+     ],
+     "eras": {
+      "2014-2017": [
+       61.34643,
+       65.33727
+      ],
+      "2018-2021": [
+       63.51993,
+       68.58415
+      ]
+     }
+    }
+   },
+   "notNoise": {
+    "pass": true,
+    "observed": {
+     "point": -4.5312,
+     "lo95": -5.42596,
+     "hi95": -3.7336
+    }
+   },
+   "coverage80": {
+    "pass": true,
+    "observed": 0.80629
+   },
+   "calibration": {
+    "pass": true,
+    "observed": {
+     "overall": 0.04751,
+     "incumbent": 0.05524,
+     "eras": {
+      "2014-2017": 0.04733,
+      "2018-2021": 0.04768
+     }
+    }
+   },
+   "level": {
+    "pass": true,
+    "observed": {
+     "overall": 0.99201,
+     "eras": {
+      "2014-2017": 0.98661,
+      "2018-2021": 0.99739
+     }
+    }
+   }
+  }
+ },
+ "outcome": {
+  "player_receptions": "PROCEED_TO_FORWARD",
+  "player_reception_yds": "PROCEED_TO_FORWARD",
+  "player_rush_yds": "PROCEED_TO_FORWARD",
+  "player_pass_yds": "PROCEED_TO_FORWARD"
+ },
+ "consequence": "Nothing publishes from this receipt. A PROCEED_TO_FORWARD family gets a blind 2026 forward capture; only a forward pass supports a founder-approved promotion PR."
+}
