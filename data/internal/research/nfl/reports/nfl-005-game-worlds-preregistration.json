@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-005-game-worlds-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "NFL-005 (shared worlds) — third candidate: allocation worlds coupled to the game score and touchdowns",
+  "registeredAt": "2026-10-08T18:25:00Z",
+  "whyThisExists": "nfl-allocation-worlds-v1 made player volume, catches, receiving and passing coherent and non-inferior, but its worlds carry no score and no touchdowns: a world's player lines are not tied to who won or how many TDs were scored. This candidate couples them: each world draws the game score from the PUBLISHED margin and totals heads (so its win chance, margin and total are the public forecast's, not a second rating), maps each team's points to a TD count with the empirical TD-given-points distribution, shifts each team's pass/rush volume with the world's realised margin (game script), and gives every TD to a player who has a carry (rushing TD) or a catch (receiving TD) in that same world, weighted by NFL-004's inside-10 shares.",
+  "evidenceTier": "DEVELOPMENT. Same rows and window as nfl-005-allocation-worlds (2019-2021, spent). Outcome only PROCEED_TO_FORWARD_SHADOW or DO_NOT_PROCEED per family; nothing public changes.",
+  "whatTheAuthorHasSeenBeforeRegistering": ["All NFL-003/004/005 development receipts (committed). No number from this candidate."],
+  "candidate": {
+    "id": "nfl-game-worlds-v1",
+    "score": "Per game and world: M ~ Normal(published margin-head mean, sigma), T ~ Normal(published v3 totals mean, sigma), home = max(0, round((T + M) / 2)), away = max(0, round((T - M) / 2)), 1 snapped to 0 — the published game-sim's construction, walk-forward heads as in validate-drive-sim-v2.mjs protocol A.",
+    "touchdowns": "Team offensive TDs | team points ~ the empirical distribution of (rushTd + passTd) given points, from sim-v2 team-games-v1 seasons 2015-2018 and 2022-2025 only (never the 2019-2021 test seasons); points pooled +-1, +-2, +-3 until >= 30 observations. Rushing vs receiving split ~ Binomial(TD, lambdaRush / (lambdaRush + lambdaRec)) with P301's team TD form.",
+    "gameScript": "Team pass attempts ~ Normal(V_pass + betaPass * (M_world_team - m_team), sigmaPassResid), carries ~ Normal(V_carries + betaRush * (M_world_team - m_team), sigmaRushResid), where V are allocV1's volumes, m the pregame expected team margin and M_world_team the world's realised team margin; beta and the residual sigmas by least squares on dev (2022-2025) team-games.",
+    "players": "nfl-allocation-worlds-v1 unchanged (Dirichlet-multinomial targets/carries/attempts with its dev kappas, binomial catches, gamma yards, passing = sum of receiving).",
+    "scorers": "Each rushing TD goes to a player with >= 1 carry in that world with probability proportional to rzCarryShare (NFL-004 inside-10, k = 40); each receiving TD to a player with an unused catch in that world, proportional to rzTargetShare, and is credited to the passer of that completion's team share. If no player qualifies the TD goes to OTHER. P(anytime TD) for a player = share of worlds in which he scores.",
+    "runs": 2000
+  },
+  "comparators": {
+    "players": "nfl-allocation-worlds-v1 and allocV1 analytic on identical P300 rows (2019-2021)",
+    "anytimeTd": "rzTdV1 analytic (P = 1 - exp(-(rzCarry * lambdaRush + rzTarget * lambdaRec + other))) recomputed walk-forward in the same run on identical rows (P301 gate, 2019-2021)"
+  },
+  "invariants": "Every world, every game, any violation aborts: sum of scorer TDs = team TDs; every rushing-TD scorer has >= 1 carry and every receiving-TD scorer has receiving TDs <= receptions; team receiving TDs = team passing TDs; points >= 6 * TDs is NOT required (the TD-given-points table is empirical) but TDs > 0 only when points >= 6; plus all nfl-allocation-worlds-v1 invariants.",
+  "frozenBars": {
+    "players_perFamily": ["MAE <= allocV1 analytic MAE x 1.01", "coverage80 within [0.72, 0.88]", "ECE <= 0.05", "level within [0.92, 1.08]"],
+    "anytimeTd": ["log loss <= rzTdV1 analytic log loss + 0.002", "ECE <= 0.03", "level within [0.92, 1.08]"],
+    "invariants": "0 violations",
+    "outcome": "PROCEED_TO_FORWARD_SHADOW per family (four yardage/reception families + anytime TD). Nothing public changes."
+  },
+  "frozen": {
+    "testSeasons": [2019, 2021],
+    "devSeasons": [2022, 2025],
+    "tdTableSeasons": [[2015, 2018], [2022, 2025]],
+    "tdTableMinObs": 30,
+    "runs": 2000,
+    "rzK": 40,
+    "nonInferiorityRatio": 1.01,
+    "atdLogLossSlack": 0.002,
+    "seed": "nfl005-gw"
+  },
+  "output": "data/internal/research/nfl/reports/nfl-005-game-worlds-development.json"
+}
