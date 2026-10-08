@@ -3,7 +3,7 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-research-benchmark",
-  "settledObservations": 767,
+  "settledObservations": 726,
   "distinctDates": 3,
   "gate": {
     "minSettledEligibleObs": 500,
@@ -12,17 +12,17 @@
   "gateMet": false,
   "baselines": {
     "sportsbook_implied": {
-      "n": 767,
+      "n": 726,
       "brier": 0.25,
       "logLoss": 0.693147,
-      "accuracy": 0.4355
+      "accuracy": 0.4339
     },
     "market_devig": {
-      "n": 767,
-      "brier": 0.225718,
-      "logLoss": 0.64235,
-      "accuracy": 0.5489
+      "n": 726,
+      "brier": 0.229816,
+      "logLoss": 0.651134,
+      "accuracy": 0.5358
     }
   },
-  "status": "INSUFFICIENT — 767/500 settled observations across 3/30 dates; benchmarks are blocked (no model may be called predictive until it beats the de-vig baseline out of sample)"
+  "status": "INSUFFICIENT — 726/500 settled observations across 3/30 dates; benchmarks are blocked (no model may be called predictive until it beats the de-vig baseline out of sample)"
 }
