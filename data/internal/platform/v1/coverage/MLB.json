@@ -1,11 +1,11 @@
 {
  "aliases": {
   "byProvider": {
-   "mlb_statsapi:game": 8973,
+   "mlb_statsapi:game": 8970,
    "mlb_statsapi:player": 751,
-   "mlb_statsapi:team": 34
+   "mlb_statsapi:team": 31
   },
-  "total": 9758
+  "total": 9752
  },
  "conflicts": 16,
  "declaredSlices": [
@@ -41,35 +41,35 @@
   }
  ],
  "diagnostics": {
-  "EXCLUDED_BY_SCOPE": 1446,
+  "EXCLUDED_BY_SCOPE": 1447,
   "NAME_VARIANT": 1,
   "UNRESOLVED_TEAM": 145
  },
  "entities": {
-  "games": 8973,
+  "games": 8970,
   "players": 751,
   "playersWithGameRows": 748,
-  "teams": 34
+  "teams": 31
  },
  "families": [
   {
    "coverageNote": "2023–2025 regular-season finals archive; 2026 from the committed nightly linescores (2026-07-04 onward).",
    "family": "mlb.final-score",
    "level": "team",
-   "rows": 16598,
+   "rows": 16606,
    "status": "AVAILABLE"
   },
   {
    "coverageNote": "PARTIAL BY CONSTRUCTION: only players and categories that carried a priced market that day (2026-05-16 onward). Absence is not zero and not 'did not play'.",
    "family": "mlb.prop-actuals",
    "level": "player",
-   "rows": 22224,
+   "rows": 22289,
    "status": "PARTIAL"
   }
  ],
  "rows": {
-  "playerGame": 22224,
-  "teamGame": 16598
+  "playerGame": 22289,
+  "teamGame": 16606
  },
  "schemaVersion": 1,
  "seasons": {
@@ -116,28 +116,28 @@
    }
   },
   "MLB-2026": {
-   "finalGames": 1132,
+   "finalGames": 1136,
    "finalGamesWithoutTeamRows": 122,
    "firstEventDate": "2026-05-16",
-   "games": 1684,
+   "games": 1681,
    "gamesMissingAnyDate": 0,
    "gamesMissingStartUtc": 122,
    "gamesMissingTeamIds": 122,
-   "lastEventDate": "2026-10-13",
+   "lastEventDate": "2026-10-14",
    "playerGameRows": {
-    "mlb.prop-actuals": 22224
+    "mlb.prop-actuals": 22289
    },
    "teamGameRows": {
-    "mlb.final-score": 2020
+    "mlb.final-score": 2028
    }
   }
  },
  "sourceRowsRead": {
-  "mlb.boards": 1567,
+  "mlb.boards": 1568,
   "mlb.finals-history": 7289,
-  "mlb.linescores": 1132,
-  "mlb.settled-leans": 52308,
-  "mlb.statsapi-schedule": 395
+  "mlb.linescores": 1136,
+  "mlb.settled-leans": 52452,
+  "mlb.statsapi-schedule": 392
  },
  "sportId": "MLB"
 }

@@ -2,15 +2,15 @@
  "artifact": "compare-readiness",
  "entities": {
   "players/EPL": 414,
-  "players/MLB": 271,
-  "players/NFL": 734,
+  "players/MLB": 272,
+  "players/NFL": 736,
   "teams/MLB": 30,
   "teams/NFL": 32
  },
  "headToHead": {
   "MLB": {
    "inconsistentRowsExcluded": 0,
-   "meetingRefs": 8299,
+   "meetingRefs": 8303,
    "pairs": 435,
    "pairsWithMeetings": 435,
    "storage": "derived from the two team entities; no per-pair file",
@@ -26,7 +26,7 @@
   }
  },
  "matchupPageBudget": 600,
- "matchupPages": 262,
+ "matchupPages": 265,
  "matchups": {
   "EPL": {
    "blocker": "TEAM_RESULTS_UNSUPPORTED",
@@ -34,22 +34,23 @@
   },
   "MLB": {
    "excluded": {
-    "OUTSIDE_WINDOW": 1379
+    "OUTSIDE_WINDOW": 1379,
+    "TEAM_NOT_PUBLISHED": 2
    },
-   "generated": 182,
+   "generated": 185,
    "indexable": 0,
-   "noindex": 182,
-   "removedFromSchedule": 3,
+   "noindex": 185,
+   "removedFromSchedule": 7,
    "startRange": [
     "2026-09-17T00:05:00Z",
-    "2026-10-11T00:00:00Z"
+    "2026-10-14T07:33:00Z"
    ],
    "window": {
     "fromUtc": "2026-09-17T00:00:00Z",
     "seasonId": "MLB-2026"
    },
-   "withFinal": 168,
-   "withPriorMeetings": 182
+   "withFinal": 172,
+   "withPriorMeetings": 185
   },
   "NFL": {
    "excluded": {
@@ -112,16 +113,16 @@
     "MLB.totalBases",
     "MLB.hitsRunsRbis"
    ],
-   "eligible": 271,
+   "eligible": 272,
    "excluded": 0,
    "excludedReasons": {},
    "families": {
-    "MLB.hits": 271,
-    "MLB.hitsRunsRbis": 271,
+    "MLB.hits": 272,
+    "MLB.hitsRunsRbis": 272,
     "MLB.pitcherStrikeouts": 1,
-    "MLB.totalBases": 248
+    "MLB.totalBases": 249
    },
-   "researchPages": 271,
+   "researchPages": 272,
    "shipped": true
   },
   "NFL": {
@@ -140,10 +141,10 @@
     "NFL.passingTds",
     "NFL.interceptionsThrown"
    ],
-   "eligible": 734,
-   "excluded": 24,
+   "eligible": 736,
+   "excluded": 25,
    "excludedReasons": {
-    "NO_COMPARABLE_STAT_FAMILY": 24
+    "NO_COMPARABLE_STAT_FAMILY": 25
    },
    "families": {
     "NFL.interceptionsThrown": 150,
@@ -151,15 +152,15 @@
     "NFL.passCompletions": 176,
     "NFL.passingTds": 150,
     "NFL.passingYards": 176,
-    "NFL.receivingTds": 641,
-    "NFL.receivingYards": 641,
-    "NFL.receptions": 641,
-    "NFL.rushingAttempts": 517,
-    "NFL.rushingTds": 517,
-    "NFL.rushingYards": 517,
-    "NFL.targets": 641
+    "NFL.receivingTds": 643,
+    "NFL.receivingYards": 643,
+    "NFL.receptions": 643,
+    "NFL.rushingAttempts": 519,
+    "NFL.rushingTds": 519,
+    "NFL.rushingYards": 519,
+    "NFL.targets": 643
    },
-   "researchPages": 758,
+   "researchPages": 761,
    "shipped": true
   },
   "UFC": {
@@ -175,7 +176,7 @@
    "shipped": false
   }
  },
- "researchContentSha256": "ad0a5c23d09db1d5485b71c7534a7f37ede9bb80f3eac3ac5f1663bc5223343a",
+ "researchContentSha256": "d8e893af6242bfe8f34f4f3aab3a6351ee26a247e40cea4cff072ac352427a1d",
  "schemaVersion": 1,
  "teams": {
   "EPL": {

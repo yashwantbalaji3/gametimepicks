@@ -1,0 +1,79 @@
+{
+ "schema": "sp-shadow-day@1",
+ "artifact": "suggested-parlays-v2-shadow",
+ "dataClass": "internal-research",
+ "status": "SHADOW — not published, not counted in any public record",
+ "date": "2026-10-08",
+ "asOf": "2026-10-08T09:35:00Z",
+ "generatedAt": "2026-10-08T09:35:02.231Z",
+ "policy": "SP-V2@c0526c1512ed",
+ "legFloor": "leg-floor@2",
+ "universeHash": "388435f1a3b1",
+ "eligibleLegs": 6,
+ "tiers": [
+  {
+   "tier": "low",
+   "label": "Low Risk",
+   "band": {
+    "minAmerican": -200,
+    "maxAmerican": 100
+   },
+   "objective": "maxJointProbability",
+   "maxLegs": 2,
+   "minLegProbability": null,
+   "state": "NO_QUALIFYING_CARD",
+   "reasonCode": "TOO_FEW_EVENTS",
+   "card": null,
+   "alternatives": [],
+   "graded": null
+  },
+  {
+   "tier": "medium",
+   "label": "Medium Risk",
+   "band": {
+    "minAmerican": 100,
+    "maxAmerican": 300
+   },
+   "objective": "maxFairRatio",
+   "maxLegs": 3,
+   "minLegProbability": 0.4,
+   "state": "NO_QUALIFYING_CARD",
+   "reasonCode": "TOO_FEW_EVENTS",
+   "card": null,
+   "alternatives": [],
+   "graded": null
+  },
+  {
+   "tier": "high",
+   "label": "High Risk",
+   "band": {
+    "minAmerican": 300,
+    "maxAmerican": 600
+   },
+   "objective": "maxFairRatio",
+   "maxLegs": 4,
+   "minLegProbability": 0.35,
+   "state": "NO_QUALIFYING_CARD",
+   "reasonCode": "TOO_FEW_EVENTS",
+   "card": null,
+   "alternatives": [],
+   "graded": null
+  },
+  {
+   "tier": "longshot",
+   "label": "Longshot",
+   "band": {
+    "minAmerican": 600,
+    "maxAmerican": null
+   },
+   "objective": "maxFairRatio",
+   "maxLegs": 5,
+   "minLegProbability": 0.25,
+   "state": "NO_QUALIFYING_CARD",
+   "reasonCode": "TOO_FEW_EVENTS",
+   "card": null,
+   "alternatives": [],
+   "graded": null
+  }
+ ]
+}
