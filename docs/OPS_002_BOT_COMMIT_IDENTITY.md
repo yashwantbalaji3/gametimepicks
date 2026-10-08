@@ -116,7 +116,7 @@ Production verification in §6, and it uses real scheduled data commits, not syn
 ## 5. Vercel cost
 
 The change sits in `.github/` (not a build input) plus one test under `app/src/` (a build input), so the
-merge commit is **one normal Production build, ≈ 42–48 CPU-min ≈ $0.15–0.17**. Bot data commits build
+merge commit is **one normal Production build** (estimated ≈ $0.15–0.17; **actual: 40 CPU-min ≈ $0.14**, §8). Bot data commits build
 every few minutes anyway, and the queue skips intermediate commits, so the marginal cost is about $0.
 Branch pushes create no deployment (COST-001 gating). No Preview was requested.
 
@@ -126,19 +126,30 @@ Branch pushes create no deployment (COST-001 gating). No Preview was requested.
 `gtp-bot`. Take the cutover as the first data commit after the merge that is authored by
 `github-actions[bot]`.
 
-Daily, read-only, no builds:
+Run daily. It is read-only and triggers no builds:
 
 ```bash
-node scripts/ops-002-identity-report.mjs --cli-auth --since <merge ISO> --cutover <first bot-identity data commit ISO>
+node scripts/ops-002-identity-report.mjs --cli-auth --cutover <first bot-identity data commit ISO>
 ```
 
-**OPS-002 is DONE when all of these hold for ≥ 7 days after the cutover:**
-1. 0 `TEAM_ACCESS_REQUIRED` (exit code 0).
-2. Every `auto…` data deployment is attributed to `github-actions[bot]` / `type: bot`.
-3. Production `build-info` keeps up with `main`. Lag is bounded by the build queue, as in COST-001
-   (median about +4 min).
-4. Data lanes keep publishing (MLB lineup/slate, NFL event window/settlement, NBA, EPL, UFC appear in the
-   report).
+**The verdict never passes on absence of evidence** (founder requirement, 2026-10-08). "Zero
+`TEAM_ACCESS_REQUIRED`" also describes a window with no bot deployments, or a Production that stopped
+updating. The verdict therefore needs positive evidence on every axis (`scripts/ops-002-acceptance.mjs`,
+pinned by `app/src/lib/ops/ops-002-acceptance.test.mjs`):
+
+| Verdict | Exit | Meaning |
+|---|---:|---|
+| `FAIL` | 2 | A `TEAM_ACCESS_REQUIRED` block after the cutover, or a post-cutover `auto…` data deployment not attributed `github-actions[bot]` / `type: bot` / id-bound email |
+| `STALE` | 4 | Production freshness not positively verified: live `build-info` ≠ newest READY deployment; `main` head has no Vercel deployment; an ERROR/BLOCKED after the newest READY; a build pending > 30 min; or build-info or `main` unreadable |
+| `NOT_YET` | 3 | No cutover; < 7 days observed; or any 24 h slot since the cutover with **no READY `github-actions[bot]` data deployment** |
+| `PASS` | 0 | None of the above |
+
+Ignored-build skips, and builds in flight for less than 30 min, count as fresh. Pre-cutover `gtp-bot`
+commits (runs that started before the merge) are excluded.
+
+**OPS-002 is DONE when the report returns `PASS` at ≥ 7 days after the cutover**, and the report shows the
+data lanes still publishing (MLB lineup/slate, NFL event window/settlement, NBA, EPL, UFC subjects in the
+window).
 
 **Honest limit:** while the repo is public, Vercel runs no team-access check at all, so seven clean days
 prove **attribution**, not behaviour under private visibility. For that case the evidence is the one
@@ -162,3 +173,20 @@ private again for any reason, run the report that day.
 - **F3 — contact address in HTTP User-Agents.** `app/src/lib/sports/weather/nws.mjs` and
   `app/scripts/ops/feed-health.mjs` send `bot@users.noreply.github.com` as the NWS contact. It is not a
   reachable mailbox. This is cosmetic, has no deployment impact, and belongs to OPS-001.
+
+## 8. Merge and Production verification (2026-10-08)
+
+| Step | Evidence |
+|---|---|
+| Exact-head CI | quality-gate run 37723793669 on `f4cc4b88`: `python` ✓, `quality` ✓ (03:59:44Z) |
+| Merge | `gh pr merge 1019 --merge --match-head-commit f4cc4b88…` → `f65e7656` at 04:03:07Z (founder-approved) |
+| Merge deployment | `dpl_9N2jR3QXtGTXKP1NobMRy6vR4ERu` READY 04:06:50Z; billed 40 CPU-min ≈ $0.14; build-info `f65e7656`; key routes 200; post-merge main CI ✓ |
+| Vercel deployments from OPS-002 | Preview **0** (branch push verified by API) · Production **1** |
+| **Cutover** | `851ecc754e` `auto: nba results capture 2026-10-08T05:56:43Z`, committed 2026-10-08T05:56:44Z by the scheduled `nba-results-refresh` (first scheduled run after GitHub's overnight 02:50Z → 05:56Z gap, which started before the merge) |
+| Attribution | git author = committer = `github-actions[bot] <41898282+…>`. GitHub `author.login: github-actions[bot]` (Bot). Vercel `dpl_BjrG1yjNziJ91VNqAnRv3nKASiSS`: `gitUser {id 41898282, login github-actions[bot], type bot}`, **no `seatBlock`**, READY 06:00:34Z |
+| Freshness | Production build-info = `851ecc75` (built 05:58:04Z) = `main` head |
+| Data integrity | The commit changed only `app/public/data/nba/results/{finals-2026-27,latest}.json` (that producer's own files) |
+| Acceptance report at cutover | `FAIL` none · 1/1 data deployments as the bot · fresh · verdict **NOT_YET** (0 of 7 days) |
+
+The seven-day window runs from **2026-10-08T05:56:44Z**; the earliest possible `PASS` is
+**2026-10-15T05:57Z**. OPS-002 stays `IN_PROGRESS` until the report returns `PASS`.
