@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-005-shared-worlds-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "NFL-005 (shared worlds + forward promotion), NFL World Model V2",
+  "registeredAt": "2026-10-08T18:00:00Z",
+  "whyThisExists": "Production publishes the team forecast from analytic heads, the player boards from two marginal engines, and Sim V2 (drive-level, jointly coherent: Σ receiving = passing, team = Σ players, scorers from scoring events) as a separate experimental page whose PLAYER outputs have never been validated. NFL-005 needs the reverse order of evidence: shared worlds earn their place only if their player marginals are not worse than the best validated marginal engine on identical rows. This registers that comparison, feeding Sim V2 the NFL-003 allocV1 point-in-time player inputs (no new player model), so the only difference measured is marginal-vs-joint generation.",
+  "evidenceTier": "DEVELOPMENT. Test window 2019-2021 = Sim V2 protocol A: its drive tables were fit on 2015-2018 only (leak-free for drives); the team anchors come from the published heads whose few parameters were fit on 2022-2025 (backward, disclosed); the player rows 2019-2021 lie inside the spent P299/P300 window and NFL-003's development look. Outcome can only be PROCEED_TO_FORWARD_SHADOW or DO_NOT_PROCEED per family.",
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "Sim V2 protocol A team-level receipt (reproduced exactly this session).",
+    "NFL-003 development receipt (allocV1 vs incumbent, 2014-2021, incl. 2019-2021 seasons inside it).",
+    "No Sim V2 player-level number on any season."
+  ],
+  "candidates": {
+    "allocV1_analytic": "NFL-003 allocV1 exactly as scored in nfl-003-opportunity-allocation-development.json (its dev-fitted rho, volume coefficients and dispersion scales), recomputed on the 2019-2021 rows.",
+    "simV2_allocV1": {
+      "id": "nfl-drive-sim-v2 (2.0.0-shadow) + nfl-opportunity-allocation-v1 inputs",
+      "declaredPrimary": true,
+      "definition": "Per test game: thetas calibrated to the published heads' anchors exactly as validate-drive-sim-v2.mjs protocol A does (calibrate 800 runs, home = (muT + mu_margin)/2, away = (muT - mu_margin)/2, drive params drive-params-2015-2018.json, pinned). Players per team = the ACTIVE pool members (row in the game) with any positive no-pull share, with passShare/targetShare/carryShare = allocV1's reallocated shares (rho from the NFL-003 dev fit: pass 0.5, rush 0.25, targets 0; OTHER floor 0.02), catchRate = shrunk catch rate, ypr = shrunk yards per reception, ypc = shrunk yards per carry (P300 estimators). runBatch 1,000 runs with the coherence contract checked on every run. A player's predictive distribution is the empirical distribution of his 1,000 simulated values; p10/p50/p90 are sample quantiles, P(over line) the share of runs above the rolling-4 line."
+    }
+  },
+  "population": "P300's scored rows (the incumbent gate) whose game is in Sim V2's protocol A test set (2019-2021 games with both anchors), and whose player is in the simulated active pool. Rows are identical for both candidates; counts reported.",
+  "frozenBars": {
+    "proceedToForwardShadow_perFamily": [
+      "non-inferiority: simV2_allocV1 MAE <= allocV1_analytic MAE x 1.01",
+      "coverage80 within [0.72, 0.88]",
+      "threshold ECE <= 0.05",
+      "level within [0.92, 1.08]",
+      "coherence: 0 failed runs over all games (engine contract), and simulated team receiving yards = team passing yards in every run (by construction; checked)"
+    ],
+    "reportedNotBarred": ["team-level margin/total CRPS (should match protocol A)", "analytic cross-family gap: Σ named receiving-yard means vs the team's passer passing-yard mean under allocV1 (the incoherence the joint path removes)", "anytime-TD log loss of the simulated scorer (diagnostic; NFL-004's model is not inside Sim V2)"],
+    "outcome": "PROCEED_TO_FORWARD_SHADOW when every bar passes for a family: Sim V2 + allocV1 then becomes the registered forward shadow generator for that family (blind 2026 captures), compared against allocV1 analytic and the incumbent. Nothing public changes."
+  },
+  "frozen": {
+    "testSeasons": [2019, 2021],
+    "runs": 1000,
+    "calibrateRuns": 800,
+    "nonInferiorityRatio": 1.01,
+    "bars": { "coverageBand": [0.72, 0.88], "eceMax": 0.05, "levelBand": [0.92, 1.08] },
+    "inputs": {
+      "nfl003DevelopmentSha256": "ff32d9303bf8af219d90451df842da9d6ff0075da8d2c00223b614e169c15c4c",
+      "simEngineSha256": "816c348ad99ccdb9908e11cf14f5294cc9abc5f5844a88e05388514b24736fc5",
+      "simBatchSha256": "61c944ddd7904ce1ac3c96afeefa254208dd640686e6c17c54ef0e41609ad148",
+      "driveParamsSha256": "cc43bd5869745c3b6d3ce222cf60ec429cd5df23339531a5012b4d22534ec5cc",
+      "playerGamesSha256": "81279aecfcc2fa4a26f93ebac764e075075ecf30a8375c92fe367fc3634d2f63"
+    }
+  },
+  "output": "data/internal/research/nfl/reports/nfl-005-shared-worlds-development.json"
+}
