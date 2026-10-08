@@ -1,0 +1,985 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-004-passing-td-development",
+ "dataClass": "PRIVATE_RESEARCH",
+ "evidenceTier": "DEVELOPMENT — 2022-2025, the WORLD's TD|points table, game script, kappas and (shared with BASELINE) NFL-003 volume/rho were fit on these seasons; not blind. Nothing publishes.",
+ "generatedAt": "2026-10-08T22:28:58Z",
+ "preregistration": {
+  "path": "data/internal/research/nfl/reports/nfl-004-passing-td-preregistration.json",
+  "commit": "90dd95ed8b9f2a8441e6e02265e72c7a26918dfd 2026-10-08T18:25:06-04:00"
+ },
+ "scriptSha256": "c9450d634e4a82fca1d8a3a377a6ec49fd3e39e0c0b7add2dea97f9330810a88",
+ "scriptCommitAtRun": "5deb38170e6a55c506cd55a81a18656511c68622",
+ "inputs": {
+  "qbPassingTd": {
+   "path": "data/internal/research/nfl/replay/qb-passing-td-v1.json.gz",
+   "sha256": "4c98cef14376cc5e30af169960cc7f130d9b6026ccfd0f771e7c79d1e1610cbe",
+   "accounting": {
+    "rows": 8553,
+    "v1RowsWithPassAtt": 8420,
+    "matched": 8420,
+    "passAttAgree": 8420,
+    "teamAgree": 8420
+   }
+  },
+  "playerGamesV1Sha256": "81279aecfcc2fa4a26f93ebac764e075075ecf30a8375c92fe367fc3634d2f63",
+  "playerGamesV2Sha256": "a93c56c430c61a915a8be972c91698a33e2a897d4ca93fd19281fe066ef2230d",
+  "teamGamesSha256": "f01873c0309375436566a9d0136c798743296cf558bd0eb75f3e186e8ede0a2c"
+ },
+ "frozen": {
+  "devSeasons": [
+   2022,
+   2025
+  ],
+  "runs": 2000,
+  "seed": "nfl004-ptd",
+  "rngRule": "mulberry32(seedOf(seed + '|' + gameId)) per game; seedOf = first 8 hex of sha256",
+  "rpsCategories": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   "5+"
+  ],
+  "lines": [
+   1,
+   2,
+   3
+  ],
+  "probabilityClip": 0.0001,
+  "eceBins": 10,
+  "rpsRatioMax": 1.01,
+  "eceMax": 0.03,
+  "logLossSlack": 0.002,
+  "levelBand": [
+   0.95,
+   1.05
+  ],
+  "minimumN": 1500,
+  "baselineRate": {
+   "priorTrials": 400,
+   "halfLifeGames": 16,
+   "boundaryDecay": 0.5,
+   "priorMean": "previous-season league passTd/passAtt"
+  },
+  "hybridWeight": 0.5,
+  "bootstrap": {
+   "unit": "game",
+   "resamples": 1000,
+   "seed": 20261008
+  },
+  "inheritedFrom": {
+   "gameWorlds": "data/internal/research/nfl/reports/nfl-005-game-worlds-preregistration.json (frozen: tdTableSeasons, tdTableMinObs 30, rzK 40)",
+   "kappa": "data/internal/research/nfl/reports/nfl-005-allocation-worlds-development.json devFit.kappa",
+   "volumeRho": "data/internal/research/nfl/reports/nfl-003-opportunity-allocation-development.json devFits",
+   "p300": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json frozen",
+   "p301": "data/internal/research/nfl/reports/anytime-td-historical-replay-preregistration.json frozen"
+  }
+ },
+ "devFits": {
+  "gameScript": {
+   "passAtt": {
+    "beta": -0.14738,
+    "sigma": 7.4211,
+    "n": 2278
+   },
+   "carries": {
+    "beta": 0.27985,
+    "sigma": 6.28444,
+    "n": 2278
+   }
+  },
+  "kappa": {
+   "t": 20,
+   "c": 10,
+   "p": 5
+  },
+  "rho": {
+   "passAttempts": 0.5,
+   "rushAttempts": 0.25,
+   "targets": 0
+  },
+  "sigmaMargin": 13.03176,
+  "sigmaTotal": 13.32677,
+  "leaguePriorBySeason": {
+   "2022": 0.04523,
+   "2023": 0.04172,
+   "2024": 0.0415,
+   "2025": 0.04548
+  }
+ },
+ "population": {
+  "starterRows": 2208,
+  "games": 1136,
+  "exclusions": {
+   "gamesConsidered": 1139,
+   "gamesNoHeads": 0,
+   "gamesNotTwoSides": 0,
+   "teamGamesSimulated": 2278,
+   "teamGamesNoStarter": 26,
+   "startersZeroAttempts": 44
+  }
+ },
+ "results": {
+  "n": 2208,
+  "actualMean": 1.40263,
+  "WORLD": {
+   "rps": 0.11909,
+   "predictedMean": 1.38362,
+   "level": 0.98645,
+   "lines": {
+    "ge1": {
+     "n": 2208,
+     "logLoss": 0.5287,
+     "ece": 0.01723,
+     "meanP": 0.75198,
+     "rate": 0.76766,
+     "reliability": [
+      {
+       "bin": "0.3-0.4",
+       "n": 4,
+       "meanP": 0.38187,
+       "rate": 0.5
+      },
+      {
+       "bin": "0.4-0.5",
+       "n": 42,
+       "meanP": 0.46051,
+       "rate": 0.64286
+      },
+      {
+       "bin": "0.5-0.6",
+       "n": 110,
+       "meanP": 0.55974,
+       "rate": 0.6
+      },
+      {
+       "bin": "0.6-0.7",
+       "n": 365,
+       "meanP": 0.65955,
+       "rate": 0.70411
+      },
+      {
+       "bin": "0.7-0.8",
+       "n": 947,
+       "meanP": 0.75259,
+       "rate": 0.75079
+      },
+      {
+       "bin": "0.8-0.9",
+       "n": 700,
+       "meanP": 0.83983,
+       "rate": 0.84857
+      },
+      {
+       "bin": "0.9-1",
+       "n": 40,
+       "meanP": 0.91524,
+       "rate": 0.95
+      }
+     ]
+    },
+    "ge2": {
+     "n": 2208,
+     "logLoss": 0.67157,
+     "ece": 0.03057,
+     "meanP": 0.41312,
+     "rate": 0.42255,
+     "reliability": [
+      {
+       "bin": "0-0.1",
+       "n": 3,
+       "meanP": 0.09183,
+       "rate": 0.33333
+      },
+      {
+       "bin": "0.1-0.2",
+       "n": 87,
+       "meanP": 0.16305,
+       "rate": 0.1954
+      },
+      {
+       "bin": "0.2-0.3",
+       "n": 269,
+       "meanP": 0.2614,
+       "rate": 0.37175
+      },
+      {
+       "bin": "0.3-0.4",
+       "n": 646,
+       "meanP": 0.35639,
+       "rate": 0.36842
+      },
+      {
+       "bin": "0.4-0.5",
+       "n": 688,
+       "meanP": 0.4466,
+       "rate": 0.44913
+      },
+      {
+       "bin": "0.5-0.6",
+       "n": 406,
+       "meanP": 0.54153,
+       "rate": 0.50739
+      },
+      {
+       "bin": "0.6-0.7",
+       "n": 100,
+       "meanP": 0.63479,
+       "rate": 0.54
+      },
+      {
+       "bin": "0.7-0.8",
+       "n": 9,
+       "meanP": 0.73022,
+       "rate": 0.88889
+      }
+     ]
+    },
+    "ge3": {
+     "n": 2208,
+     "logLoss": 0.42874,
+     "ece": 0.01423,
+     "meanP": 0.16231,
+     "rate": 0.15806,
+     "reliability": [
+      {
+       "bin": "0-0.1",
+       "n": 445,
+       "meanP": 0.06971,
+       "rate": 0.09438
+      },
+      {
+       "bin": "0.1-0.2",
+       "n": 1145,
+       "meanP": 0.14702,
+       "rate": 0.14236
+      },
+      {
+       "bin": "0.2-0.3",
+       "n": 510,
+       "meanP": 0.23932,
+       "rate": 0.22353
+      },
+      {
+       "bin": "0.3-0.4",
+       "n": 99,
+       "meanP": 0.33346,
+       "rate": 0.26263
+      },
+      {
+       "bin": "0.4-0.5",
+       "n": 9,
+       "meanP": 0.43994,
+       "rate": 0.44444
+      }
+     ]
+    }
+   }
+  },
+  "BASELINE": {
+   "rps": 0.11891,
+   "predictedMean": 1.38814,
+   "level": 0.98967,
+   "lines": {
+    "ge1": {
+     "n": 2208,
+     "logLoss": 0.52947,
+     "ece": 0.03768,
+     "meanP": 0.73041,
+     "rate": 0.76766,
+     "reliability": [
+      {
+       "bin": "0.4-0.5",
+       "n": 29,
+       "meanP": 0.46438,
+       "rate": 0.44828
+      },
+      {
+       "bin": "0.5-0.6",
+       "n": 85,
+       "meanP": 0.55076,
+       "rate": 0.62353
+      },
+      {
+       "bin": "0.6-0.7",
+       "n": 423,
+       "meanP": 0.66837,
+       "rate": 0.69031
+      },
+      {
+       "bin": "0.7-0.8",
+       "n": 1407,
+       "meanP": 0.74819,
+       "rate": 0.77754
+      },
+      {
+       "bin": "0.8-0.9",
+       "n": 264,
+       "meanP": 0.82207,
+       "rate": 0.92045
+      }
+     ]
+    },
+    "ge2": {
+     "n": 2208,
+     "logLoss": 0.66958,
+     "ece": 0.02765,
+     "meanP": 0.39667,
+     "rate": 0.42255,
+     "reliability": [
+      {
+       "bin": "0.1-0.2",
+       "n": 73,
+       "meanP": 0.16394,
+       "rate": 0.17808
+      },
+      {
+       "bin": "0.2-0.3",
+       "n": 160,
+       "meanP": 0.26333,
+       "rate": 0.35
+      },
+      {
+       "bin": "0.3-0.4",
+       "n": 839,
+       "meanP": 0.3593,
+       "rate": 0.36353
+      },
+      {
+       "bin": "0.4-0.5",
+       "n": 923,
+       "meanP": 0.44017,
+       "rate": 0.46696
+      },
+      {
+       "bin": "0.5-0.6",
+       "n": 200,
+       "meanP": 0.53036,
+       "rate": 0.61
+      },
+      {
+       "bin": "0.6-0.7",
+       "n": 13,
+       "meanP": 0.61131,
+       "rate": 0.46154
+      }
+     ]
+    },
+    "ge3": {
+     "n": 2208,
+     "logLoss": 0.4262,
+     "ece": 0.01765,
+     "meanP": 0.17153,
+     "rate": 0.15806,
+     "reliability": [
+      {
+       "bin": "0-0.1",
+       "n": 193,
+       "meanP": 0.06468,
+       "rate": 0.08808
+      },
+      {
+       "bin": "0.1-0.2",
+       "n": 1410,
+       "meanP": 0.15657,
+       "rate": 0.13475
+      },
+      {
+       "bin": "0.2-0.3",
+       "n": 556,
+       "meanP": 0.23307,
+       "rate": 0.22662
+      },
+      {
+       "bin": "0.3-0.4",
+       "n": 49,
+       "meanP": 0.32452,
+       "rate": 0.32653
+      }
+     ]
+    }
+   }
+  },
+  "HYBRID": {
+   "rps": 0.11832,
+   "predictedMean": 1.38588,
+   "level": 0.98806,
+   "lines": {
+    "ge1": {
+     "n": 2208,
+     "logLoss": 0.52647,
+     "ece": 0.02647,
+     "meanP": 0.74119,
+     "rate": 0.76766,
+     "reliability": [
+      {
+       "bin": "0.4-0.5",
+       "n": 40,
+       "meanP": 0.46965,
+       "rate": 0.55
+      },
+      {
+       "bin": "0.5-0.6",
+       "n": 77,
+       "meanP": 0.55355,
+       "rate": 0.57143
+      },
+      {
+       "bin": "0.6-0.7",
+       "n": 389,
+       "meanP": 0.66703,
+       "rate": 0.7018
+      },
+      {
+       "bin": "0.7-0.8",
+       "n": 1238,
+       "meanP": 0.75224,
+       "rate": 0.76817
+      },
+      {
+       "bin": "0.8-0.9",
+       "n": 462,
+       "meanP": 0.8281,
+       "rate": 0.87229
+      },
+      {
+       "bin": "0.9-1",
+       "n": 2,
+       "meanP": 0.90422,
+       "rate": 1
+      }
+     ]
+    },
+    "ge2": {
+     "n": 2208,
+     "logLoss": 0.66735,
+     "ece": 0.01976,
+     "meanP": 0.4049,
+     "rate": 0.42255,
+     "reliability": [
+      {
+       "bin": "0.1-0.2",
+       "n": 68,
+       "meanP": 0.15979,
+       "rate": 0.17647
+      },
+      {
+       "bin": "0.2-0.3",
+       "n": 181,
+       "meanP": 0.26197,
+       "rate": 0.37017
+      },
+      {
+       "bin": "0.3-0.4",
+       "n": 782,
+       "meanP": 0.35711,
+       "rate": 0.36829
+      },
+      {
+       "bin": "0.4-0.5",
+       "n": 858,
+       "meanP": 0.44607,
+       "rate": 0.44406
+      },
+      {
+       "bin": "0.5-0.6",
+       "n": 291,
+       "meanP": 0.53656,
+       "rate": 0.57732
+      },
+      {
+       "bin": "0.6-0.7",
+       "n": 28,
+       "meanP": 0.62844,
+       "rate": 0.60714
+      }
+     ]
+    },
+    "ge3": {
+     "n": 2208,
+     "logLoss": 0.4251,
+     "ece": 0.0172,
+     "meanP": 0.16692,
+     "rate": 0.15806,
+     "reliability": [
+      {
+       "bin": "0-0.1",
+       "n": 254,
+       "meanP": 0.06975,
+       "rate": 0.10236
+      },
+      {
+       "bin": "0.1-0.2",
+       "n": 1361,
+       "meanP": 0.15136,
+       "rate": 0.13079
+      },
+      {
+       "bin": "0.2-0.3",
+       "n": 538,
+       "meanP": 0.23541,
+       "rate": 0.23606
+      },
+      {
+       "bin": "0.3-0.4",
+       "n": 54,
+       "meanP": 0.32907,
+       "rate": 0.31481
+      },
+      {
+       "bin": "0.4-0.5",
+       "n": 1,
+       "meanP": 0.41727,
+       "rate": 1
+      }
+     ]
+    }
+   }
+  }
+ },
+ "bars": {
+  "WORLD": {
+   "rps": {
+    "pass": true,
+    "observed": [
+     0.11909,
+     0.11891
+    ],
+    "ratio": 1.00151
+   },
+   "ece": {
+    "ge1": {
+     "pass": true,
+     "observed": 0.01723
+    },
+    "ge2": {
+     "pass": false,
+     "observed": 0.03057
+    },
+    "ge3": {
+     "pass": true,
+     "observed": 0.01423
+    }
+   },
+   "logLoss": {
+    "ge1": {
+     "pass": true,
+     "observed": [
+      0.5287,
+      0.52947
+     ]
+    },
+    "ge2": {
+     "pass": true,
+     "observed": [
+      0.67157,
+      0.66958
+     ]
+    },
+    "ge3": {
+     "pass": false,
+     "observed": [
+      0.42874,
+      0.4262
+     ]
+    }
+   },
+   "level": {
+    "pass": true,
+    "observed": 0.98645
+   }
+  },
+  "HYBRID": {
+   "rps": {
+    "pass": true,
+    "observed": [
+     0.11832,
+     0.11891
+    ],
+    "ratio": 0.99505
+   },
+   "ece": {
+    "ge1": {
+     "pass": true,
+     "observed": 0.02647
+    },
+    "ge2": {
+     "pass": true,
+     "observed": 0.01976
+    },
+    "ge3": {
+     "pass": true,
+     "observed": 0.0172
+    }
+   },
+   "logLoss": {
+    "ge1": {
+     "pass": true,
+     "observed": [
+      0.52647,
+      0.52947
+     ]
+    },
+    "ge2": {
+     "pass": true,
+     "observed": [
+      0.66735,
+      0.66958
+     ]
+    },
+    "ge3": {
+     "pass": true,
+     "observed": [
+      0.4251,
+      0.4262
+     ]
+    }
+   },
+   "level": {
+    "pass": true,
+    "observed": 0.98806
+   }
+  },
+  "BASELINE_informational": {
+   "ece": {
+    "ge1": {
+     "pass": false,
+     "observed": 0.03768
+    },
+    "ge2": {
+     "pass": true,
+     "observed": 0.02765
+    },
+    "ge3": {
+     "pass": true,
+     "observed": 0.01765
+    }
+   },
+   "level": {
+    "pass": true,
+    "observed": 0.98967
+   }
+  }
+ },
+ "outcome": {
+  "WORLD": "DO_NOT_PROCEED",
+  "HYBRID": "PROCEED_TO_FORWARD_SHADOW"
+ },
+ "bootstrapInformational": {
+  "WORLD_over_BASELINE_rps": {
+   "median": 1.00127,
+   "ci95": [
+    0.99268,
+    1.0104
+   ],
+   "shareAtOrBelow1_01": 0.97
+  },
+  "HYBRID_over_BASELINE_rps": {
+   "median": 0.99497,
+   "ci95": [
+    0.99064,
+    0.99941
+   ],
+   "shareAtOrBelow1_01": 1
+  }
+ },
+ "diagnostics": {
+  "pmfTable": {
+   "categories": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5+"
+   ],
+   "actual": [
+    0.23234,
+    0.34511,
+    0.26449,
+    0.11187,
+    0.0385,
+    0.0077
+   ],
+   "WORLD": [
+    0.24802,
+    0.33885,
+    0.25081,
+    0.11609,
+    0.03742,
+    0.0088
+   ],
+   "BASELINE": [
+    0.26959,
+    0.33374,
+    0.22514,
+    0.10923,
+    0.04256,
+    0.01974
+   ],
+   "HYBRID": [
+    0.25881,
+    0.3363,
+    0.23798,
+    0.11266,
+    0.03999,
+    0.01427
+   ]
+  },
+  "byQbTier_baselineRateTerciles": {
+   "cuts": [
+    0.04176,
+    0.04643
+   ],
+   "groups": {
+    "low": {
+     "n": 736,
+     "actualMean": 1.19837,
+     "WORLD": {
+      "predictedMean": 1.22494,
+      "level": 1.02217,
+      "rps": 0.11194
+     },
+     "BASELINE": {
+      "predictedMean": 1.21093,
+      "level": 1.01048,
+      "rps": 0.10953
+     },
+     "HYBRID": {
+      "predictedMean": 1.21793,
+      "level": 1.01632,
+      "rps": 0.11007
+     }
+    },
+    "mid": {
+     "n": 736,
+     "actualMean": 1.37908,
+     "WORLD": {
+      "predictedMean": 1.35512,
+      "level": 0.98263,
+      "rps": 0.12036
+     },
+     "BASELINE": {
+      "predictedMean": 1.37503,
+      "level": 0.99707,
+      "rps": 0.12027
+     },
+     "HYBRID": {
+      "predictedMean": 1.36507,
+      "level": 0.98985,
+      "rps": 0.11965
+     }
+    },
+    "high": {
+     "n": 736,
+     "actualMean": 1.63043,
+     "WORLD": {
+      "predictedMean": 1.5708,
+      "level": 0.96342,
+      "rps": 0.12497
+     },
+     "BASELINE": {
+      "predictedMean": 1.57848,
+      "level": 0.96813,
+      "rps": 0.12693
+     },
+     "HYBRID": {
+      "predictedMean": 1.57464,
+      "level": 0.96578,
+      "rps": 0.12526
+     }
+    }
+   }
+  },
+  "byTeamTdEnvironment_expectedTeamPointsTerciles": {
+   "cuts": [
+    21.17398,
+    23.93932
+   ],
+   "groups": {
+    "low": {
+     "n": 736,
+     "actualMean": 1.15489,
+     "WORLD": {
+      "predictedMean": 1.12813,
+      "level": 0.97683,
+      "rps": 0.10984
+     },
+     "BASELINE": {
+      "predictedMean": 1.27998,
+      "level": 1.10831,
+      "rps": 0.10957
+     },
+     "HYBRID": {
+      "predictedMean": 1.20406,
+      "level": 1.04257,
+      "rps": 0.10907
+     }
+    },
+    "mid": {
+     "n": 736,
+     "actualMean": 1.37772,
+     "WORLD": {
+      "predictedMean": 1.38045,
+      "level": 1.00199,
+      "rps": 0.1188
+     },
+     "BASELINE": {
+      "predictedMean": 1.38198,
+      "level": 1.00309,
+      "rps": 0.11737
+     },
+     "HYBRID": {
+      "predictedMean": 1.38122,
+      "level": 1.00254,
+      "rps": 0.11762
+     }
+    },
+    "high": {
+     "n": 736,
+     "actualMean": 1.67527,
+     "WORLD": {
+      "predictedMean": 1.64227,
+      "level": 0.9803,
+      "rps": 0.12864
+     },
+     "BASELINE": {
+      "predictedMean": 1.50247,
+      "level": 0.89685,
+      "rps": 0.1298
+     },
+     "HYBRID": {
+      "predictedMean": 1.57237,
+      "level": 0.93858,
+      "rps": 0.12828
+     }
+    }
+   }
+  },
+  "bySeason": {
+   "2022": {
+    "n": 550,
+    "actualMean": 1.36545,
+    "WORLD": {
+     "predictedMean": 1.39715,
+     "level": 1.02321,
+     "rps": 0.11638
+    },
+    "BASELINE": {
+     "predictedMean": 1.44154,
+     "level": 1.05572,
+     "rps": 0.11562
+    },
+    "HYBRID": {
+     "predictedMean": 1.41934,
+     "level": 1.03947,
+     "rps": 0.11537
+    }
+   },
+   "2023": {
+    "n": 552,
+    "actualMean": 1.34601,
+    "WORLD": {
+     "predictedMean": 1.35316,
+     "level": 1.00531,
+     "rps": 0.11236
+    },
+    "BASELINE": {
+     "predictedMean": 1.35069,
+     "level": 1.00348,
+     "rps": 0.11279
+    },
+    "HYBRID": {
+     "predictedMean": 1.35193,
+     "level": 1.00439,
+     "rps": 0.11194
+    }
+   },
+   "2024": {
+    "n": 552,
+    "actualMean": 1.45471,
+    "WORLD": {
+     "predictedMean": 1.35298,
+     "level": 0.93007,
+     "rps": 0.12543
+    },
+    "BASELINE": {
+     "predictedMean": 1.32802,
+     "level": 0.91291,
+     "rps": 0.12471
+    },
+    "HYBRID": {
+     "predictedMean": 1.3405,
+     "level": 0.92149,
+     "rps": 0.12435
+    }
+   },
+   "2025": {
+    "n": 554,
+    "actualMean": 1.44404,
+    "WORLD": {
+     "predictedMean": 1.43106,
+     "level": 0.99101,
+     "rps": 0.12217
+    },
+    "BASELINE": {
+     "predictedMean": 1.43236,
+     "level": 0.99191,
+     "rps": 0.12249
+    },
+    "HYBRID": {
+     "predictedMean": 1.43171,
+     "level": 0.99146,
+     "rps": 0.12161
+    }
+   }
+  },
+  "worldMechanism": {
+   "teamPassingTdLevel": {
+    "worldMeanTeamRecTd": 1.46736,
+    "actualMeanTeamRecTd": 1.4538,
+    "level": 1.00933
+   },
+   "teamOffensiveTdLevel": {
+    "worldMean": 2.3214,
+    "actualMean": 2.37319,
+    "level": 0.97818
+   },
+   "worldRecShareOfOffTd": 0.6321,
+   "actualRecShareOfOffTd": 0.6126,
+   "starterCreditShare": {
+    "world": 0.94293,
+    "actual": 0.9648
+   },
+   "starterAttemptShare": {
+    "world": 0.94173,
+    "actual": 0.95636,
+    "baselineExpectedShare": 0.94181
+   },
+   "receivingTdConvertedToRushing": {
+    "converted": 932,
+    "drawn": 6674595,
+    "rate": 0.00014
+   },
+   "tdCountClippedTeamWorlds": 1627,
+   "otherPasserTds": 212838,
+   "teamWorlds": 4556000,
+   "baselineExpectedAttempts": 31.26994
+  },
+  "baselineDistKinds": {
+   "poisson": 0,
+   "nb": 2208
+  }
+ },
+ "runtime": {
+  "runs": 2000,
+  "seed": "nfl004-ptd",
+  "teamWorldsChecked": 4556000,
+  "invariantViolations": 0,
+  "wallSeconds": 48,
+  "node": "v22.23.3"
+ },
+ "consequence": "Nothing publishes on any outcome. Passing-TD marginals stay unpublished until a blind forward (2026) look exists and passes."
+}
