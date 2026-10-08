@@ -577,6 +577,11 @@ Winner/score/spread/total/player outputs reconcile. If worlds are reweighted to 
 ### Progress (2026-10-08, local) — status IN_PROGRESS
 - First player-level validation of Sim V2 (`reports/nfl-005-shared-worlds-preregistration.json` → `-development.json`): Sim V2 fed allocV1 inputs, protocol A games 2019–21 (821 games, 821,000 runs, 0 failed, Σ receiving = passing in every run) vs allocV1 analytic on identical rows → **DO_NOT_PROCEED ×4**: MAE receptions 1.590 vs 1.573, rec yds 21.53 vs 21.19, rush yds 18.82 vs 18.43, pass yds 66.44 vs 62.74; levels off (rec 0.889, rush 1.113). The drive engine's yardage biases carry into players.
 - Analytic allocV1 is incoherent in 8.2% of team-games (Σ named receiving mean > 1.1 × passer). Next candidate: allocation worlds generated around allocV1's marginals (Dirichlet-multinomial, exact Σ receiving = passing), registered separately.
+- Second candidate `nfl-allocation-worlds-v1` (`reports/nfl-005-allocation-worlds-preregistration.json` → `-development.json`): per team-game worlds around allocV1's inputs — team volume draw, Dirichlet-multinomial allocation over active players + `OTHER` (kappa fit on dev: targets 20, carries 10, passes 5), binomial catches, gamma yards per opportunity, passing = Σ receiving and completions = Σ receptions by construction. 2019–21 identical rows, 3,284,000 worlds, **0 invariant violations**; MAE vs allocV1 analytic: receptions 1.587 vs 1.573, rec yds 21.27 vs 21.19 (coverage 0.879, at the band edge), rush yds **18.23 vs 18.43**, pass yds **62.59 vs 62.74** → **PROCEED_TO_FORWARD_SHADOW ×4** (development tier).
+- Not yet in the worlds: team-game outcome (score/margin/total) coupling to player volume, and the NFL-004 TD scorer; both are the next registered extensions. Winner/score still come from the incumbent heads (NFL-002 L6 margin ELIGIBLE, win REJECTED).
+
+### Next step for NFL-003 / NFL-004 / NFL-005 — blind 2026 forward capture (not started)
+Mirror `scripts/research/nfl/forward-player-props-share-level.mjs` (P300's forward test): each week, before the first kickoff, fold the historical tables plus 2026 nflverse finals (player stats, snap sheets, play-by-play for red-zone shares), take the board's pregame availability as the active set (ESPN ↔ gsis join), and write one immutable private file per week with allocV1, rzTdV1 and allocation-world quantiles beside the incumbent's; grade after finals under the P300 / ATD forward protocols. Needs: the 2026 play-by-play download in the existing `nfl-props-forward-shadow` workflow (a workflow change → its own tested PR + founder approval). Target: first capture before Week 6 (TNF 2026-10-15).
 
 ### Existing references
 - `claude/arch-nfl-ns1-ns2-e2-87uth3`
@@ -1314,6 +1319,15 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Production acceptance: PASS — see the Week 5 milestone record in §8 (live TB @ DAL, CHI @ GB, PHI vs JAX, `/nfl`; freeze selection).
 - Roadmap tasks updated: Week 5 milestone; NFL-002 founder decision; this entry.
 - Remaining / next: grade L6 forward receipts after finals; `NFL-003` → `NFL-005` local-first under their acceptance criteria; any further release is its own tested PR + founder approval.
+
+## 2026-10-08 — Claude Code (NFL World Model V2 session, continued) — `NFL-003`, `NFL-004`, `NFL-005` development
+- Branch: `claude/nfl-003-005-world-model` (local-first; stacked on `claude/nfl-world-model-v2-closeout`); no PR, no deployment.
+- Goal: founder direction after the #1022 release — substantial, validated progress on coherent player distributions, TD modelling and shared worlds; no promotion.
+- Protocol: no unspent historical window exists for player families (2014–21 spent by P299/P300/P301; 2022–25 dev), so every candidate was registered before computation as a DEVELOPMENT look on identical incumbent rows, able only to earn PROCEED_TO_FORWARD; eligibility requires the blind 2026 forward test.
+- Results (all committed receipts under `data/internal/research/nfl/reports/`): NFL-003 allocV1 PROCEED ×4 (pass yds MAE 66.97 → 62.44); NFL-004 rzTdV1 PROCEED (log loss 0.50435 → 0.50295; top decile fixed); NFL-005 Sim V2 + allocV1 DO_NOT_PROCEED ×4 (coherent, less accurate); NFL-005 allocation worlds PROCEED_TO_FORWARD_SHADOW ×4 (coherent, non-inferior). Incumbent engines reproduced their receipts exactly in every run.
+- Files: `scripts/research/nfl/{build-player-redzone-v1,replay-opportunity-allocation,replay-redzone-td,replay-shared-worlds,replay-allocation-worlds}.mjs`; `data/internal/research/nfl/replay/player-redzone-v1.json.gz`; five registrations + five receipts. No `app/` change.
+- Vercel Preview / Production build counts: 0 / 0.
+- Remaining: blind 2026 forward capture (spec in NFL-005 above); couple world volume to the team score worlds; TD scorer inside the worlds; one public ATD number.
 
 ---
 
