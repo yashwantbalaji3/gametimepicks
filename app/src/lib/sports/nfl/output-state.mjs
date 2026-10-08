@@ -70,6 +70,16 @@ export function classifyTeamOutput({ forecast, market, result, settlement, nowIs
     return reason("VALIDATED_PICK", `qualified under ${forecast.validated.modelVersion}`, { validated: forecast.validated });
   }
 
+  /* NFL World Model V2 · Week 5: a forecast blind to its own QB1's absence is not compared with a price
+     that knows it (team-input-coherence.mjs). The gap would be the missing input, not a lean. */
+  if (forecast.teamInputs?.comparisonWithheld === true || forecast.marketComparison?.state === "WITHHELD_TEAM_INPUTS") {
+    return reason("PUBLIC_EXPERIMENTAL", "current experimental forecast; the market comparison is withheld because the team model cannot see a starting quarterback's absence", {
+      comparisonWithheld: true,
+      withheldReason: forecast.teamInputs?.note ?? forecast.marketComparison?.note ?? null,
+      hasMarket: Boolean(market),
+    });
+  }
+
   const modelHome = forecast.forecastSummary?.winProbability?.home;
   const marketHome = market?.consensus?.homeWinProbNoVig ?? forecast.marketComparison?.marketHomeWinPct;
   if (typeof modelHome === "number" && typeof marketHome === "number") {

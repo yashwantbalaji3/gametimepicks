@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-002-team-ladder-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "NFL-002 (NFL World Model V2 — benchmark ladder), founder priority override 2026-10-08",
+  "registeredAt": "2026-10-08T15:45:00Z",
+  "whyThisExists": "The published NFL win head (margin-of-victory Elo, nfl-win-elo-mov-v1) and margin head (refit-home-advantage Elo, nfl-margin-elo-hfa-v1) run on two different ratings. The win probability a reader sees is therefore not the probability the published margin distribution implies, and when the two favour different sides the builder falls back to the older single-rating pair. Neither head uses play efficiency, although per-game offensive EPA for 1999-2025 is committed. NFL-002 asks whether ONE coherent margin distribution, built from opponent-adjusted efficiency and scoring ratings plus the incumbent's own rating, beats the incumbent on the incumbent's own held-out population, and whether a team-level totals head built the same way beats the published v3 play-efficiency totals head.",
+  "relationToTheFrozenContract": "Same protocol shape as P297 (win-margin-historical-replay-preregistration.json) and P295 (matchup-totals-historical-replay-preregistration.json): dev 2022-2025, warm-up 1999-2005, ONE look at held-out 2006-2021, season-unit bootstrap. An ELIGIBLE verdict authorises proposing publication to the founder; it does not publish anything by itself. Labels stay PUBLIC_EXPERIMENTAL under the frozen regular-season contract.",
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "The P297 evaluation receipt's aggregate numbers: incumbent / eloMov / market / marketBlend win log loss, Brier and ECE overall, by era and by season on 2006-2021; eloHfaRefit and incumbent margin MAE and 80% coverage overall and by era.",
+    "The P295 totals receipt's aggregate numbers for incumbentV1, leagueLevelBaseline and v3 on 2000-2021 overall and by era.",
+    "Column layouts and first rows of games-history-v1/v2, team-game-efficiency-v1, current-season.json and games.csv.",
+    "NO candidate defined below has been computed on any season, dev or held-out, before this file was written.",
+    "A read-only audit reproduction of the published 2026 Week 5 forecasts showing the win head and the 10,000-draw margin distribution disagree (e.g. PHI@JAX published P(JAX) 0.6586 vs 0.5242 of draws). No candidate number."
+  ],
+  "data": {
+    "games": "data/internal/research/nfl/replay/games-history-v2.json (1999-2025, 7,276 games, scores + neutral flag) — the population P297 scored",
+    "efficiency": "data/internal/research/nfl/replay/team-game-efficiency-v1.json (per team-game offensive plays/EPA and the opponent's, nflverse play-by-play, same play filter as P295)",
+    "market": "data/internal/research/nfl/raw/nflverse/games.csv (sha256 cf8632c85fdc82c8915c7866d0bd16465a88946052bccfbf83b44bee87d5d65e, gitignored) — moneylines for the labelled market reference only; never an input to any candidate",
+    "rest": "games.csv away_rest/home_rest (schedule-derived, known before kickoff)",
+    "excluded": "Starting-QB identity (games.csv *_qb_id) is retrospective and is NOT used: the pregame-availability study was refused for want of capture instants (pregame-availability-margin-refusal.json)."
+  },
+  "replayMechanics": {
+    "ordering": "Games are processed by date (ET game day), then gameId. Every game on a date is predicted from the state after all strictly earlier dates; the date's results are folded afterwards. No candidate ever sees a game on or after its own date.",
+    "franchiseMap": {
+      "STL": "LA",
+      "SD": "LAC",
+      "OAK": "LV",
+      "JAC": "JAX",
+      "LAR": "LA"
+    },
+    "neutral": "Home terms are 0 at neutral sites (games-history-v2 neutral flag).",
+    "seasonBoundary": "Before the first date of a new season every candidate's team ratings are multiplied by its carry parameter (shrinkage toward the league mean)."
+  },
+  "candidates": {
+    "L0_incumbent": {
+      "id": "nfl-win-elo-mov-v1 + nfl-margin-elo-hfa-v1 (published pair)",
+      "definition": "Reproduced with app/src/lib/sports/nfl/win-margin-heads.mjs replayWinMarginHeads and the P297 receipt's devFits. Implementation check: must reproduce the receipt's held-out eloMov win log loss 0.62907 and eloHfaRefit margin MAE 10.78546 within 1e-4, else the run refuses."
+    },
+    "L2_epa_adj": {
+      "id": "nfl-epa-adj-v1",
+      "rung": "Opponent-adjusted EPA temporal baseline",
+      "definition": "Online opponent-adjusted offense/defense ratings on offensive EPA per play. Prediction for team t's offense against u: e(t,u) = mu_e + O_t - D_u + h_e*home. After each game, residual r = observed EPA/play - e(t,u); O_t += g_e*r; D_u -= g_e*r; mu_e += g_mu*r; h_e += g_h*r*home. Season boundary: O, D *= carry_e. Margin mean = a_e*(e(home,away) - e(away,home)) + b_e*homeIndicator; win = Phi(mean/sigma).",
+      "grid": {
+        "g_e": [
+          0.03,
+          0.05,
+          0.08,
+          0.12
+        ],
+        "carry_e": [
+          0.5,
+          0.67,
+          0.8
+        ],
+        "g_mu": 0.002,
+        "g_h": 0.002
+      },
+      "selection": "Grid point with the lowest dev (2022-2025) win log loss; a_e, b_e, sigma fit by least squares on dev predictions."
+    },
+    "L3_dyn_od_points": {
+      "id": "nfl-dyn-od-points-v1",
+      "rung": "Dynamic offense/defense strength (scoring)",
+      "definition": "The same online filter on points scored: p(t,u) = mu_p + Op_t - Dp_u + h_p*home, gains g_p, carry_p. Margin mean = a_p*(p(home,away) - p(away,home)) + b_p*homeIndicator; win = Phi(mean/sigma). Its total mean (p(home,away) + p(away,home)) feeds the totals stack.",
+      "grid": {
+        "g_p": [
+          0.03,
+          0.05,
+          0.08,
+          0.12
+        ],
+        "carry_p": [
+          0.5,
+          0.67,
+          0.8
+        ],
+        "g_mu": 0.002,
+        "g_h": 0.002
+      },
+      "selection": "Grid point with the lowest dev win log loss."
+    },
+    "L6_team_stack": {
+      "id": "nfl-team-stack-v1",
+      "rung": "Calibrated ensemble — DECLARED PRIMARY CHALLENGER",
+      "definition": "ONE margin distribution: M ~ Normal(mu_m, sigma_m), mu_m = c0*homeIndicator + c1*(eloMov rating difference without home term)/25 + c2*(L2 net EPA edge) + c3*(L3 net points edge) + c4*(home_rest - away_rest, capped at +/-7)/7. Coefficients by OLS on dev predictions, sigma_m = dev residual SD. P(home win) = Phi(mu_m/sigma_m) — win, margin, spread probabilities and the projected score come from the same distribution, so they cannot disagree. Totals: T ~ Normal(mu_t, sigma_t), mu_t = d0 + d1*(L3 predicted total) + d2*(L2 summed offensive EPA edge), OLS on dev; sigma_t = dev residual SD. The (M,T) correlation is estimated on dev residuals and reported (used only for the joint score sampler).",
+      "fixedInputs": "The eloMov rating uses the P297 receipt's K=20 and its own MOV multiplier; L2/L3 use their own dev-selected grid points."
+    },
+    "market_reference": {
+      "id": "no-vig closing moneyline (games.csv)",
+      "definition": "Labelled market reference ONLY — never a GTP forecast and never an input."
+    }
+  },
+  "heldOutSet": {
+    "seasons": [
+      2006,
+      2021
+    ],
+    "eras": [
+      [
+        2006,
+        2011
+      ],
+      [
+        2012,
+        2016
+      ],
+      [
+        2017,
+        2021
+      ]
+    ],
+    "population": "Exactly P297's: every regular- and post-season game 2006-2021 in games-history-v2 (4,292 games, 11 ties). Ties are excluded from win scoring and included in margin/total scoring.",
+    "totalsComparator": "The published v3 play-efficiency totals head is replayed on the same 2006-2021 games with app/src/lib/sports/nfl/totals-play-efficiency.mjs and the P295 receipt's frozen fit; games where v3 has no prediction are excluded from the totals comparison for every candidate and the count is reported."
+  },
+  "frozenBars": {
+    "win": {
+      "logLossImprovement": "candidate held-out log loss at least 0.003 below the incumbent eloMov head",
+      "notNoise": "season-unit bootstrap (2,000 resamples, seed 20261008) 95% upper bound of the paired per-game log-loss difference < 0",
+      "eras": "lower than the incumbent in at least 2 of 3 eras and never worse by more than 0.005 in any era",
+      "calibration": "ECE (10 equal-width bins) <= incumbent ECE + 0.01",
+      "marketHardStop": "candidate log loss < market log loss + 0.02 on games with both moneylines"
+    },
+    "margin": {
+      "eligible": "MAE below the incumbent eloHfaRefit head with season-bootstrap 95% upper bound of the paired absolute-error difference < 0, AND 80% central-interval coverage within [0.75, 0.85] overall and in every era",
+      "noninferior": "MAE <= incumbent + 0.05 AND the coverage band holds overall and in every era",
+      "reported": "CRPS (closed-form Normal) for both"
+    },
+    "totals": {
+      "eligible": "MAE AND mean Normal NLL both below v3, season-bootstrap 95% upper bound of the paired NLL difference < 0, 80% coverage within [0.75, 0.85] overall and in every era, and |bias| <= 1.0 point in every era",
+      "reported": "CRPS, RMSE"
+    },
+    "forwardGuard": {
+      "why": "The primary look mirrors P297 (parameters from 2022-2025 applied backward to 2006-2021). Parameters chosen on later seasons are a backward holdout, not a forward one. This guard re-fits EVERY L6 choice (L2/L3 grid points, stack and totals coefficients, sigmas) on 2006-2015 only and scores 2016-2021 chronologically; the incumbent keeps its receipt parameters (which, if anything, favours the incumbent).",
+      "bar": "On 2016-2021 the forward-refit L6 win log loss must be <= the incumbent eloMov's and its margin MAE <= incumbent eloHfaRefit + 0.05; for totals, forward-refit L6 MAE <= v3's. Failing the guard makes the corresponding head NOT ELIGIBLE regardless of the primary look.",
+      "lookCount": "Computed in the same single scoring run as the primary look."
+    }
+  },
+  "decisionRule": "The coherent pair (win + margin from ONE distribution) is ELIGIBLE only if its win head is ELIGIBLE and its margin head is ELIGIBLE or NONINFERIOR. The totals head is judged on its own bars. Only L6 is a promotion candidate; L2 and L3 are reported as ladder rungs and are not promotable from this look. An ELIGIBLE verdict authorises a promotion PR for founder approval and forward shadow receipts; any failing bar keeps the incumbent, and the run is then reported as such, not retried.",
+  "whatIsNotAllowed": [
+    "Scoring held-out 2006-2021 more than once; the scorer refuses if the evaluation file exists.",
+    "Changing any grid, bar, feature or the primary-candidate choice after this file is committed; a change is a new version in a new file.",
+    "Using market prices, starting-QB identity, or any same-game statistic as a candidate input.",
+    "Dropping held-out games to improve a number."
+  ],
+  "forwardEvidence": "Independent of the verdict, L6 forecasts for every 2026 Week 5+ regular-season game are captured as private shadow receipts strictly before kickoff and graded after official finals; 2026 Weeks 1-4 (64 games) are scored report-only with the same frozen parameters.",
+  "reportedDiagnostics": [
+    "per-season metrics",
+    "calibration bins",
+    "incumbent side-disagreement count",
+    "L6 vs incumbent win-probability difference distribution",
+    "market comparison",
+    "dev grid traces"
+  ],
+  "frozen": {
+    "seasons": {
+      "warmup": [
+        1999,
+        2005
+      ],
+      "heldOut": [
+        2006,
+        2021
+      ],
+      "dev": [
+        2022,
+        2025
+      ],
+      "forwardGuard": {
+        "fit": [
+          2006,
+          2015
+        ],
+        "score": [
+          2016,
+          2021
+        ]
+      }
+    },
+    "eceBins": 10,
+    "z80": 1.2815515655446004,
+    "probabilityClamp": 1e-06,
+    "bootstrap": {
+      "unit": "season",
+      "resamples": 2000,
+      "seed": 20261008
+    },
+    "restCap": 7,
+    "inputs": {
+      "gamesCsvSha256": "cf8632c85fdc82c8915c7866d0bd16465a88946052bccfbf83b44bee87d5d65e"
+    }
+  },
+  "output": "data/internal/research/nfl/reports/nfl-002-team-ladder-evaluation.json (held-out, written once) and nfl-002-team-ladder-dev.json (dev fits and traces)"
+}

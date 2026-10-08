@@ -627,7 +627,7 @@ export default function NflHubPage() {
         <div style={{ margin: "10px 0 0", fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)", maxWidth: 760 }}>
           <p style={{ margin: 0 }}>
             <strong style={{ color: "var(--vault-text-mute)" }}>How to read this table.</strong>{" "}
-            <strong>Likely winner</strong> is the team that won more of our {uniformRuns ? `${uniformRuns.toLocaleString()} ` : ""}simulated games, and how often.{" "}
+            <strong>Likely winner</strong> is the team our model gives the higher win chance, and that chance. It comes from the model's team rating, not from counting wins in the {uniformRuns ? `${uniformRuns.toLocaleString()} ` : ""}simulated games.{" "}
             <strong>Projected score</strong> is the middle of our simulated outcomes, not a call on the exact final; it adds up to our total and always leans toward the favourite, even by one point.{" "}
             <strong>Our total</strong> is the points we expect both teams to score combined, with the range where 8 in 10 simulations landed.
             {slateMarketRows.length ? (

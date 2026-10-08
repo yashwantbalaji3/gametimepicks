@@ -50,6 +50,26 @@ export function winMarginGate(receipt, prereg) {
   return { win, margin, frozen };
 }
 
+/**
+ * IS THIS GAME AT A NEUTRAL SITE? (NFL World Model V2 · Week 5, 2026-10-08.)
+ *
+ * The heads read the nflverse season capture's neutral list. On 2026-10-08 that list omitted PHI vs JAX
+ * (Week 5, Tottenham Hotspur Stadium, London) while ESPN's schedule names it "PHI VS JAX" — ESPN's own
+ * neutral-site form, used on every 2026 international game it lists (SF VS LAR Melbourne, BAL VS DAL Rio,
+ * IND VS WSH London) and on no home game among 80 regular-season rows. So Jacksonville was given home
+ * advantage in London. Either source naming the game neutral makes it neutral; a missing nflverse list
+ * still means UNKNOWN (null), never a guessed home game.
+ *
+ * @param {{providerEventId: string|number, shortName?: string|null}} ev
+ * @param {Set<string>|null} nflverseNeutralIds
+ * @returns {boolean|null}
+ */
+export function neutralSiteOf(ev, nflverseNeutralIds) {
+  if (/\sVS\s/.test(String(ev?.shortName ?? ""))) return true;
+  if (!nflverseNeutralIds) return null;
+  return nflverseNeutralIds.has(String(ev.providerEventId));
+}
+
 /** Rows of a committed games table ({columns, games: [[...]]}) as objects. */
 export function rowsFromTable(table) {
   const cols = table?.columns ?? [];

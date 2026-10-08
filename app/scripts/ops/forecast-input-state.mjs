@@ -77,9 +77,14 @@ function exclusionsByEvent() {
 const MATERIAL_FAMILIES = new Set(["passAttempts"]);
 const isMaterial = (p) => p.families.some((f) => MATERIAL_FAMILIES.has(f));
 
-const teamBlind = consumesAvailability("scripts/nfl/build-nfl-public-forecasts.mjs") === false;
-const boardsAware = consumesAvailability("scripts/nfl/build-nfl-player-board.mjs") === true;
 const forecasts = read(path.join(APP, "public/data/nfl/forecasts/latest.json"));
+/* The forecast builder now READS participation to disclose a QB1 absence it cannot model (Week 5,
+   team-input-coherence.mjs), so a source scan would wrongly report it as consuming availability. The
+   forecast's own declaration wins when present: `teamInputs.consumedByModel` is false on every forecast
+   until a head with an evaluated availability term exists. Absent the declaration, the scan stands. */
+const declared = (forecasts?.forecasts ?? []).map((f) => f.teamInputs?.consumedByModel).filter((v) => typeof v === "boolean");
+const teamBlind = declared.length ? declared.every((v) => v === false) : consumesAvailability("scripts/nfl/build-nfl-public-forecasts.mjs") === false;
+const boardsAware = consumesAvailability("scripts/nfl/build-nfl-player-board.mjs") === true;
 const excl = exclusionsByEvent();
 
 const events = [];

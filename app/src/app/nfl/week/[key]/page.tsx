@@ -54,7 +54,7 @@ const weekTitle = (key: string) => {
 export function generateMetadata({ params }: { params: { key: string } }): Metadata {
   return withRouteMetadata(`/nfl/week/${params.key}/`, {
     title: `NFL ${weekTitle(params.key)} — Simulations & Top Boards · GameTime Picks`,
-    description: `Frozen pre-kickoff simulations, projected scores and the weekly player boards for NFL ${weekTitle(params.key)}. Educational and paper-only.`,
+    description: `Pre-kickoff forecasts (each frozen at kickoff), projected scores and the weekly player boards for NFL ${weekTitle(params.key)}. Educational and paper-only.`,
   });
 }
 
@@ -94,7 +94,7 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
 
       {forecasts.length ? (
         <section aria-labelledby="week-games">
-          <SectionHeader eyebrow="Games" title={`${forecasts.length} games`} sub="Frozen pre-kickoff simulations. Scores derive from the median total and margin, so they always add up." />
+          <SectionHeader eyebrow="Games" title={`${forecasts.length} games`} sub="Pre-kickoff forecasts, each frozen at its kickoff. Scores derive from the median total and margin, so they always add up." />
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 680 }}>
               <thead>

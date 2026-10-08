@@ -89,6 +89,8 @@ type Forecast = {
     modelVsMarketTotal?: number | null; note: string;
   };
   disclaimer: string;
+  /** NFL World Model V2 · Week 5 (team-input-coherence.mjs): whether the team heads could see a QB1 absence. */
+  teamInputs?: { state: string; consumedByModel: boolean; comparisonWithheld: boolean; note: string | null; absences: { name: string; team: string; status: string }[] } | null;
 };
 
 const readPublic = (rel: string) => {
@@ -327,10 +329,18 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           {/* P295 · labels a first-time bettor can read without a glossary: what each number is, which
               team a signed number favours, and what the range means in simulations rather than "p10". */}
           <Stat label="Projected score" value={`${f.away.abbr} ${s.projectedScore.away} — ${s.projectedScore.home} ${f.home.abbr}`} sub="the middle of our simulated outcomes, not a call on the exact final" />
-          <Stat label="Win chance" value={`${f.away.abbr} ${pct(s.winProbability.away)} · ${f.home.abbr} ${pct(s.winProbability.home)}`} sub={`how often each side won in ${f.model.simulations.toLocaleString()} simulations · ties ${pct(s.winProbability.tieMass)}`} />
+          <Stat label="Win chance" value={`${f.away.abbr} ${pct(s.winProbability.away)} · ${f.home.abbr} ${pct(s.winProbability.home)}`} sub={`the model's chance for each side, from its team rating — not a count of the ${f.model.simulations.toLocaleString()} simulations · level after 60 minutes in ${pct(s.winProbability.tieMass)} of them (overtime is not simulated)`} />
           <Stat label="Total points (both teams)" value={`${s.total.median}`} sub={`8 in 10 simulations landed between ${s.total.p10} and ${s.total.p90}`} />
           <Stat label={`${f.home.abbr} winning margin`} value={`${s.margin.median > 0 ? "+" : ""}${s.margin.median}`} sub={`a minus means ${f.away.abbr} wins by that much · 8 in 10 between ${s.margin.p10} and ${s.margin.p90}`} />
         </div>
+
+        {/* NFL World Model V2 · Week 5: the team heads take no availability input. When a team's depth-chart QB1 is
+            unavailable the number above cannot know it, and the reader is told so beside the number — not in a footnote. */}
+        {f.teamInputs?.state === "BLIND_TO_STARTING_QB_ABSENCE" && f.teamInputs.note ? (
+          <p data-team-inputs="blind-to-qb1" style={{ margin: "12px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 720, borderLeft: "2px solid var(--vault-gold)", paddingLeft: 12 }}>
+            <strong style={{ color: "var(--vault-text)" }}>Not in this number:</strong> {f.teamInputs.note}
+          </p>
+        ) : null}
 
         {/*
           * LIVE GAME STATE, BESIDE THE FROZEN GAME FORECAST (Phase G).
@@ -357,7 +367,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         <details style={{ marginTop: 12, maxWidth: 760 }}>
           <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-faint)", minHeight: 32 }}>Model details</summary>
           <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", lineHeight: 1.6 }}>
-            {s.winProbability.calibration} Generated {f.generatedAt} under model {String((f as { model?: { id?: string } }).model?.id ?? "nfl-regular-season-public-v1")} and frozen pre-kickoff; every forecast is settled against the official result.
+            {s.winProbability.calibration} Generated {f.generatedAt} under model {String((f as { model?: { id?: string } }).model?.id ?? "nfl-regular-season-public-v1")}. {started ? "This is the last version published before kickoff, frozen exactly as it was." : "Until kickoff a later run may revise it (every revision is kept); at kickoff the last pre-kickoff version is frozen."} Every forecast is settled against the official result.
           </p>
         </details>
       </section>
@@ -739,7 +749,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         <dl style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10, fontSize: 12.5 }}>
           {[
             ["Projected score", "The middle outcome across every simulated game — not a prediction of the exact final."],
-            ["Win chance", "How often each side won across the simulations, after the calibration described above."],
+            ["Win chance", "The model's chance for each side to win, from its team-strength rating. The simulations supply the projected score and the ranges; this percentage is not a count of simulated wins."],
             ["80% range", "Eight in ten simulated games landed inside this band. Real games land outside it too."],
             ["pp (percentage points)", "The plain difference between two percentages. A gap is a difference, not an advantage."],
             /* P250-W2: a reading key defines the LABEL. Restating the market non-claim here made it

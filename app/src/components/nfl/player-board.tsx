@@ -79,7 +79,7 @@ export interface PlayerBoardArtifact {
   newArrivals?: Record<string, NewArrival[]>;
   /* Session 4 — the pregame roster/usage receipt (board-roster-integrity.mjs). */
   coverage?: BoardCoverage;
-  families: Record<string, { label: string; state: string; basis?: string; reason?: string; caveat?: string; withheldTeams?: { team: string; sum: number; reason: string }[]; conservation?: { version: string; pools: { team: string; pool: string; originalSum: number; factor: number }[] } }>;
+  families: Record<string, { label: string; state: string; basis?: string; reason?: string; caveat?: string; withheldTeams?: { team: string; sum: number; reason: string }[]; withheldPassers?: { team: string; playerId: string; name: string; share: number; reason: string }[]; conservation?: { version: string; pools: { team: string; pool: string; originalSum: number; factor: number }[] } }>;
   players: PlayerBoardRow[];
   disclaimer: string;
   /* The three fields the SHARED presentation contract needs and this artifact already carries. The
@@ -297,6 +297,14 @@ export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { b
       {!isCombined && family && board.families[family]?.withheldTeams?.length ? (
         <p className="mt-2" data-pool-withheld={family} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
           {board.families[family]!.withheldTeams!.map((w) => w.reason.replace(/^withheld/, `${board.families[family]!.label} withheld`)).join(" · ")}
+        </p>
+      ) : null}
+
+      {/* NFL World Model V2 (Week 5) — a passer whose modelled share is a relief appearance's, not a starter's,
+          carries no passing projection; the withholding is named here rather than left as a silent gap. */}
+      {!isCombined && family && board.families[family]?.withheldPassers?.length ? (
+        <p className="mt-2" data-passer-withheld={family} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)", maxWidth: 720 }}>
+          {board.families[family]!.withheldPassers!.map((w) => w.reason.replace(/^withheld/, `${board.families[family]!.label} withheld`)).join(" · ")}
         </p>
       ) : null}
 

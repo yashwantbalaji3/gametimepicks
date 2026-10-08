@@ -85,12 +85,12 @@ export function buildNflPresentation(
   const favourite = wp.home >= wp.away ? e.home.abbr : e.away.abbr;
   chapters.push({
     id: "outcome", kind: "outcome",
-    title: archived ? "What was forecast" : baseline ? "The baseline read" : "Who the simulation favours",
+    title: archived ? "What was forecast" : baseline ? "The baseline read" : "Who the model favours",
     line: archived
       ? `Before kickoff the model had ${favourite} at ${pctOf(Math.max(wp.home, wp.away))}%. The result is on the report; this frame shows only what was said in advance.`
       : baseline
         ? `${favourite} at ${pctOf(Math.max(wp.home, wp.away))}% — and because this is a shared prior, that number says more about the model's default than about this matchup.`
-        : `The simulation favours ${favourite} at ${pctOf(Math.max(wp.home, wp.away))}%; ${favourite === e.home.abbr ? e.away.abbr : e.home.abbr} wins the other ${pctOf(Math.min(wp.home, wp.away))}% of runs.`,
+        : `The model favours ${favourite} at ${pctOf(Math.max(wp.home, wp.away))}%; ${favourite === e.home.abbr ? e.away.abbr : e.home.abbr}'s chance is ${pctOf(Math.min(wp.home, wp.away))}%. These come from the team rating, not from counting simulated wins.`,
     stats: [
       { label: `${e.away.abbr} win`, value: wp.away, format: "probability" },
       { label: `${e.home.abbr} win`, value: wp.home, format: "probability" },
