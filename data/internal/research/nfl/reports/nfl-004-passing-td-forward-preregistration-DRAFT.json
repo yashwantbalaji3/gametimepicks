@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-004-passing-td-forward-preregistration-DRAFT",
+  "dataClass": "PRIVATE_RESEARCH",
+  "status": "DRAFT — NOT REGISTERED, NOT EVALUATED. Needs review/sign-off and a commit that flips status to REGISTERED before any 2026 capture is graded. No 2022-2025 re-look is allowed for these candidates (that window is spent for passing TDs).",
+  "draftedAt": "2026-10-08T22:45:00Z",
+  "followsFrom": {
+    "preregistration": "data/internal/research/nfl/reports/nfl-004-passing-td-preregistration.json (commit 90dd95ed8b9f2a8441e6e02265e72c7a26918dfd)",
+    "receipt": "data/internal/research/nfl/reports/nfl-004-passing-td-development.json (commit 1da0c98f653c2f15e8b8327c4a99d725fb0c9117)"
+  },
+  "whyTheWorldFailed": {
+    "barsMissed": "ECE of P(>=2) 0.0306 > 0.03, and log loss of P(>=3) 0.42874 > baseline 0.42620 + 0.002. RPS (ratio 1.0015, bar 1.01), P(>=1) bars and level (0.986) passed. P(>=2) log loss passed by 0.00001.",
+    "diagnosis": [
+      "Not the team TD count: world team receiving-TD level 1.009 (1.467 vs 1.454 per team-game); world receiving share of offensive TDs 0.632 vs 0.613 actual.",
+      "Starter credit too diffuse: world starter credit share 0.943 vs actual 0.965 of team passing TDs; world starter attempt share 0.942 vs 0.956 actual (pass-attempt Dirichlet kappa_p = 5 spreads attempts to backups/OTHER; OTHER passer took ~3.2% of credited receiving TDs). Effect: too many zeros (P(0) 0.248 vs 0.232 actual) and too few 2s (0.251 vs 0.264).",
+      "No QB-skill term: passer credit depends only on completions, so every QB inherits the team-environment TD rate. Level by QB tier (baseline-rate terciles): low 1.022, mid 0.983, high 0.963 — the world under-differentiates QBs; the baseline (1.010/0.997/0.968) is flatter at the low end.",
+      "Over-resolution from the environment: P(>=2) reliability is too sharp (pred 0.63 -> 0.54 actual in the 0.6-0.7 bin; pred 0.26 -> 0.37 in the 0.2-0.3 bin) and P(>=3) over-predicts in the 0.3-0.4 bin (0.33 vs 0.26). Level by expected-team-points tercile is flat for the world (0.977/1.002/0.980) while the baseline, which ignores environment, drifts 1.108/1.003/0.897 — the world's environment signal is right on level but too strong in the tails.",
+      "Why the hybrid works: the world carries the game environment, the baseline carries QB skill and a less extreme shape; mixing cancels the world's over-resolution and the baseline's environment blindness (HYBRID RPS ratio 0.995, game-bootstrap 95% CI [0.991, 0.999])."
+    ],
+    "caveat": "Diagnosis is from the same development look; the fixes below are NOT tuned on it beyond their structural form, and must be judged forward only."
+  },
+  "candidatesForForward": {
+    "HYBRID_mix50": "Unchanged from the registered development candidate (0.5 WORLD pmf + 0.5 BASELINE pmf). It passed every development bar; the forward look decides.",
+    "WORLD_v2_passerCredit": {
+      "changes": [
+        "Starter-concentrated attempts: pass-attempt Dirichlet kappa_p = 20 (the receiving kappa; not fit) instead of 5.",
+        "QB-skill tilt of the rushing/receiving split: P(receiving) = lambdaRec*q / (lambdaRush + lambdaRec*q), q = clamp(r_starter / r_league_prev, 0.75, 1.33), r_starter = the registered BASELINE shrunk passing-TD rate (n0 400, half-life 16, boundary 0.5), so team offensive TDs are unchanged and only their pass/rush split follows the starter.",
+        "Shrink world tails toward the team mean: none added (no free parameter); the hybrid is the registered remedy for over-resolution."
+      ],
+      "unchanged": "Everything else in the registered WORLD (heads, TD|points table, game script, receiver pick by rzTargetShare with uncredited catch, passer pick by uncredited completions, conversion to rushing when nobody qualifies)."
+    },
+    "comparator": "BASELINE shrunk-rate-poisson-nb-v1 as registered."
+  },
+  "forwardProtocol": {
+    "window": "2026 REG+POST games whose kickoff is after this draft is REGISTERED (commit time), graded from frozen pregame captures only.",
+    "captureLocation": "A NEW directory (e.g. data/internal/research/nfl/passing-td-forward/), never data/internal/research/nfl/v2-candidates-forward/.",
+    "starterRule": "As registered (highest decayed passAttempts share among the published active set; ties lower playerId); scored iff >= 1 pass attempt.",
+    "metrics": "As registered: RPS over 0..5+, log loss and 10-bin ECE for P(>=1), P(>=2), P(>=3), level.",
+    "decisionRule": "Same four bars per candidate vs BASELINE (RPS <= 1.01x; ECE <= 0.03 each line; log loss <= baseline + 0.002 each line; level in [0.95, 1.05]); evaluated once at >= 400 starter rows (~13 weeks), with an interim read at 200 rows that can only STOP for a level outside [0.85, 1.15].",
+    "consequence": "Pass = eligible to be shown as 'under forward evaluation' with the live record beside it. Fail = stays internal. Until then passing-TD marginals are NOT published anywhere."
+  }
+}
