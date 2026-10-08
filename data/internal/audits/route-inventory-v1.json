@@ -2,10 +2,10 @@
  "schemaVersion": 1,
  "artifact": "route-inventory",
  "dataClass": "PRIVATE_AUDIT",
- "generatedAt": "2026-10-05T20:00:30Z",
+ "generatedAt": "2026-10-08T20:19:54Z",
  "totals": {
-  "routes": 91,
-  "public": 63,
+  "routes": 93,
+  "public": 65,
   "internal": 9,
   "redirects": 15,
   "archive": 2,
@@ -333,7 +333,7 @@
    "family": true,
    "dataOwner": "boards",
    "freshness": "route param date",
-   "built": "FAMILY (136 generated page(s))"
+   "built": "FAMILY (139 generated page(s))"
   },
   {
    "route": "/mlb/parlays",
@@ -439,7 +439,7 @@
    "purpose": "NFL per-game experimental simulation report (P177-A): projected score, win chance, total and margin distributions with percentiles, the market read side by side, a reading key and the full provenance receipt — statically generated from the committed forecast artifact, dynamicParams=false",
    "dataOwner": "nfl/forecasts/latest.json + nfl/index.json + nfl/player-board/<eventId>.json + nfl/score-shape/latest.json (build-time reads)",
    "freshness": "each report carries its own generatedAt, kickoff and lifecycle",
-   "built": "FAMILY (64 generated page(s))"
+   "built": "FAMILY (79 generated page(s))"
   },
   {
    "route": "/nfl/simulation/[eventId]",
@@ -449,7 +449,7 @@
    "purpose": "NFL Simulation V2, EXPERIMENTAL (founder P0 2026-10-05): one frozen pre-kickoff receipt of coherent simulated games (outcomes, quarters, team and player lines, TD scorers, representative runs, provenance), separate from the canonical Game Time Forecast; only games whose receipt of record has 0 incoherent runs and >= 10,000 runs, dynamicParams=false",
    "dataOwner": "data/internal/research/nfl/sim-v2/shadow (build-nfl-sim-v2-shadow) via sim-v2/public-receipt.mjs + nfl/forecasts (canonical card only)",
    "freshness": "the receipt's generatedAt, always before kickoff",
-   "built": "FAMILY (1 generated page(s))"
+   "built": "FAMILY (16 generated page(s))"
   },
   {
    "route": "/nfl/week/[key]",
@@ -459,7 +459,26 @@
    "purpose": "NFL shareable week route (P248 Release C): one page per official (seasonType, week) period that has committed data — frozen pre-kickoff game table plus the period's weekly top boards, prev/next only when the neighbor exists, never an invented future week; dynamicParams=false from the weekly-boards register",
    "dataOwner": "nfl/weekly-boards/<key>.json + nfl/forecasts/latest.json (build-time reads)",
    "freshness": "board stamp rendered on the page; forecasts carry their own generatedAt",
-   "built": "FAMILY (4 generated page(s))"
+   "built": "FAMILY (5 generated page(s))"
+  },
+  {
+   "route": "/nfl/world-model",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "NFL World Model V2 Top boards, EXPERIMENTAL (founder P0 2026-10-08): passing / rushing / receiving yards and receptions ranked from the per-game World Model V2 artifacts (same numbers as each game page); Questionable/Doubtful/Out and started games excluded; fewer than 10 rather than fill; no TD board",
+   "dataOwner": "app/public/data/nfl/world-model-v2 (build-nfl-world-model-v2) via world-model-v2/read.mjs + artifact.mjs topBoards",
+   "freshness": "each artifact generatedAt (before kickoff); board computed at build time",
+   "built": true
+  },
+  {
+   "route": "/nfl/world-model/[eventId]",
+   "classification": "public",
+   "owner": "product",
+   "family": true,
+   "purpose": "NFL World Model V2, EXPERIMENTAL (founder P0 2026-10-08): 10,000 coherent simulated games per matchup (win chance counted from worlds incl. overtime, scoring composition, team volume, player distributions, five real sampled games, unsupported families), separate from the Game Time Forecast of record; only artifacts generated before kickoff with >= 10,000 worlds and 0 inconsistent worlds, dynamicParams=false",
+   "dataOwner": "app/public/data/nfl/world-model-v2 (build-nfl-world-model-v2) via world-model-v2/read.mjs",
+   "freshness": "the artifact generatedAt, always before kickoff",
+   "built": "FAMILY (15 generated page(s))"
   },
   {
    "route": "/nhl",
@@ -618,7 +637,7 @@
    "family": true,
    "dataOwner": "settlement artifacts",
    "freshness": "route param date",
-   "built": "FAMILY (122 generated page(s))"
+   "built": "FAMILY (125 generated page(s))"
   },
   {
    "route": "/results/forecasts",

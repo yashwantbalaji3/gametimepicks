@@ -68,3 +68,59 @@ node scripts/research/nfl/capture-team-ladder-forward.mjs --now <ISO> --week 6
 node scripts/research/nfl/validate-drive-sim-v2.mjs --protocol A --runs 2000   # Sim V2 rerun
 ```
 `games.csv` (sha256 `cf8632c8…`) is gitignored under `data/internal/research/nfl/raw/nflverse/`.
+
+## 6. World Model V2 simulation engine — experimental game pages and Top boards (2026-10-08, evening)
+
+**What it is.** `app/src/lib/sports/nfl/world-model-v2/engine.mjs` simulates 10,000 worlds per game. Each world is one consistent game:
+
+- **Score:** regulation margin and total drawn from the published margin and total heads.
+- **Overtime:** worlds level after regulation go to overtime. (winner, loser) overtime points are drawn from the 2017–25 10-minute-OT record: 132 games, 6 of them still level after OT. The overtime winner is set by the same margin head.
+- **Scoring composition:** offensive TDs come from the validated TD-given-points table. The rest of the score (defensive/special-teams TDs, extra points, two-point conversions, field goals, safeties) is drawn from historical team-games whose scoring added up exactly; that holds for 4,338 of 4,414 rows. When there is no exact match, a breakdown is constructed and counted in diagnostics.
+- **Team volume:** comes from allocV1's volume fit plus the game-script slope.
+- **Players:** Dirichlet-multinomial allocation over the active set (allocV1 reallocation), binomial catches, gamma yards. Passing yards equal the receiving yards of the passer's completions.
+- **Touchdowns:**
+  - Rushing TDs go to a player with an unused carry; receiving TDs go to a player with an unused reception.
+  - Each receiving TD credits exactly one passing TD to a passer with a completion.
+  - A thrown TD is never an anytime-TD event for the passer.
+
+Every team-world is checked: scoring equals points, completions equal receptions, passing yards equal receiving yards, and TDs never exceed the opportunities behind them. A violation throws. Week 5: 15 games, 300,000 team-worlds checked, 0 violations.
+
+**Win chance.** It is counted from the worlds, overtime included; the incumbent's win% is not copied. The published win head remains the forecast of record, and every artifact states the difference. The worlds sit higher for the home side in 14 of 15 games: TB@DAL 64.6% vs 61.8%; DEN@LAC 44.3% vs 33.1%. This is the same margin-head vs win-head split documented in §1.
+
+**Touchdowns: not published.**
+
+- The world ATD failed its evaluation. Correction: those numbers (0.5138 vs 0.5109, ECE 0.034) come from the 2019–21 test window.
+- Root cause, from development seasons 2022–25 only (`reports/nfl-005-game-worlds-td-diagnosis.json`; no refit):
+  - **Main cause:** the scorer-eligibility gate. A TD can only go to a player who touched the ball in that world, while red-zone shares are unconditional averages. This double-counts opportunity and moves TDs from part-time to every-down players.
+  - **Contributors:** Dirichlet touch rates are too low; the other-TD term is missing; the OTHER bucket takes too many TDs.
+  - **Ruled out:** team TD-count dispersion.
+- A fix needs a new preregistration and forward evaluation. World TD and passing-TD marginals are listed as unsupported. Sampled worlds still show who scored in that one game, labelled as such.
+
+**Artifacts.**
+
+- `app/public/data/nfl/world-model-v2/<eventId>.json` is the latest per-game file; `data/internal/nfl/world-model-v2/runs/<eventId>-<ts>.json` is a write-once copy.
+- Each artifact carries: identity, model version, seed, runs, inputs with hashes, the evidence ladder, game, team and player distributions with line ladders, five real sampled worlds (at the 10/30/50/70/90th margin percentiles), unsupported families, limitations and diagnostics.
+- Input packet: `data/internal/nfl/world-model-v2/inputs/2026-week05-20261008T2009Z.json`, exported by `scripts/research/nfl/export-world-model-v2-inputs.mjs` on the research branch from the same state as the Week 5 captures. Availability (injuries, active roster, participation) is applied at build time.
+- Started games are never re-simulated.
+
+**Pages.**
+
+- `/nfl/world-model/[eventId]`: the experimental game page, linked from each Game Time Forecast page as separate from the forecast.
+- `/nfl/world-model/`: Top 10 boards for passing, rushing and receiving yards and receptions, computed from the same artifacts so board number = game-page number (tested).
+- Questionable, Doubtful and Out players are excluded; started games drop off; a board shows fewer than 10 rather than fill. There is no TD board.
+
+**Status:**
+
+- Development tested: yes, for player families. Prospectively captured: yes, Week 5 captures. Forward evaluated: no. Product eligible: no. Production promoted: no.
+- Release path A (experimental display) needs founder approval. Path B (authoritative promotion) needs the forward gates.
+
+**Not yet:**
+
+- The event window does not rebuild these artifacts. They are built at merge time from the frozen packet and the injuries feed of that moment.
+- Wiring the builder into the window is the next step: free, but it adds about 5 s and one data path.
+
+**Reproduce:**
+
+```
+node app/scripts/nfl/build-nfl-world-model-v2.mjs --now <ISO>
+```
