@@ -155,3 +155,12 @@ test("the forecast of record keeps its label; the world model page is linked, ne
   assert.ok(report.includes("not the forecast of record") && report.includes("forecast of record"));
   assert.ok(!/anytime_td\b.*probability\s*\}/.test(report));
 });
+
+test("the NFL hub leads to World Model V2, worded as experimental and not the forecast of record", () => {
+  const hub = fs.readFileSync(path.join(APP, "src/app/nfl/page.tsx"), "utf8");
+  assert.ok(hub.includes("<WorldModelV2HubCard />"), "hub renders the World Model V2 entry");
+  const card = fs.readFileSync(path.join(APP, "src/components/nfl/world-model-v2-hub-card.tsx"), "utf8");
+  assert.ok(card.includes("experimental · not the forecast of record") && card.includes("the Game Time Forecast stays the forecast of record"));
+  assert.ok(card.includes('href="/nfl/world-model/"') && card.includes("readWorldModelArtifacts"), "links the boards built from the same artifacts");
+  assert.ok(/kickoffUtc\) > now/.test(card) && card.includes("return null"), "renders nothing when no upcoming game has a simulation");
+});

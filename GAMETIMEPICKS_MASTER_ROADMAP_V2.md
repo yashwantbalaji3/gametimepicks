@@ -1350,6 +1350,14 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Vault data: the live page briefly carried the new copy over the old data (a false "same as the board" claim), so ONE zero-credit `nfl-event-window` dispatch was run at 19:36Z (run 37833227448; no other window was running) → `e9ac36125` (Vault 172 candidates, ledger entry unchanged, roster audit 0) → Production 19:40:00Z. Live `/endzone-vault`: "172 players cleared the minimum … the 12 above are the highest", Javonte Williams 72.5% = game page; deployed artifact 12/12 rows equal the boards, ranked by the displayed number, 0 Questionable/Out listed (Swift, Bowers withheld with designation); no new accuracy/calibration claim.
 - Vercel today from this session: Preview **0**; Production builds: #1022 merge 40 CPU-min, 17:21Z dispatch data commit 48 CPU-min, #1023 merge 64 CPU-min, 19:36Z dispatch data commit (billing pending at 19:44Z).
 - **World Model V2 full simulation engine directive (≈19:55Z):** built the coherent game-world engine, per-game artifacts, experimental game pages and simulation-derived Top boards on `claude/nfl-world-model-v2-sim` from `main` `907a698e4f`. Research-side input exporter and TD diagnosis committed on `claude/nfl-003-005-world-model` (`8be895d99d`, `6f32bfa7f5`). The TB@DAL post-inactives watcher was left running; the frozen captures are untouched. Release path A (experimental display) awaits founder approval; path B (promotion) is not proposed.
+- **#1024 launched (founder launch decision, experimental public integration):**
+  - Pre-merge checks at exact head `6af3b00a51`: CI run 37838853725 `python` ✓ `quality` ✓; MERGEABLE/CLEAN; 46 in-scope files with no forecast, board, Vault, injury or capture file.
+  - All 15 artifacts rebuilt from the engine with their recorded seeds came out identical. TD marginals are absent. The frozen captures are unchanged: one commit each, sha `2f269a14…` and `a1078a7c…`.
+  - Merged with `--match-head-commit` → `aed2872f85edccd7f8b579608b8fbea94d54946b` at 20:52:50Z.
+  - Vercel Production `dpl_3FC4ruwLRf9zTWbrYvZvjwbYf21S` READY at 20:58Z. Preview **0**; odds credits **0**.
+  - Production parity: 15/15 `/nfl/world-model/[eventId]` pages match their artifacts (win chances, simulation id, version, disclosures, players, game-page link); 40/40 `/nfl/world-model/` board rows equal `topBoards` over the committed artifacts.
+  - Mobile 375 px: no page-level horizontal scroll.
+  - Gap found: the `/nfl` hub had no entry point. Fixed by a separate discovery PR (one hub card, tested) awaiting approval.
 
 ---
 

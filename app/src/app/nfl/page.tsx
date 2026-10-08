@@ -55,6 +55,7 @@ import DeferUntilVisible from "@/components/defer-until-visible";
 import { legacyNameMap, nflTeamRefsByAbbr } from "@/lib/follow/entity-registry";
 import { hasStarted } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { availableWeekKeys, weekKeyOf } from "@/lib/sports/nfl/week-keys";
+import WorldModelV2HubCard from "@/components/nfl/world-model-v2-hub-card";
 
 export const metadata: Metadata = withRouteMetadata("/nfl/", {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
@@ -408,6 +409,8 @@ export default function NflHubPage() {
           "nfl-results", "nfl-coverage",
         ]}
       />
+      {/* Founder launch decision 2026-10-08: World Model V2 (experimental) is found from the hub. */}
+      <WorldModelV2HubCard />
       {/* P250-W1: the canonical weekly table (projected scores + totals, permalinked, guard-tested)
           renders a few sections below — the hub's generic list was a second 16-row copy of the same
           games directly above it, so it collapses to a counts line with the quick list one click
