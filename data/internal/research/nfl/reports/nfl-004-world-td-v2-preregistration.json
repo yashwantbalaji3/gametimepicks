@@ -1,0 +1,25 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-004-world-td-v2-preregistration",
+ "dataClass": "PRIVATE_RESEARCH",
+ "registeredAt": "2026-10-08T22:25Z",
+ "task": "NFL-004 B — anytime-touchdown scorer inside the coherent game worlds (World Model V2)",
+ "why": "nfl-game-worlds-v1's world ATD failed (test window 2019-21: log loss 0.5138 vs rzTdV1 0.5109, ECE 0.034). Diagnosis on development seasons 2022-25 (reports/nfl-005-game-worlds-td-diagnosis.json, no refit): the scorer-eligibility gate double-counts opportunity; touch rates from the Dirichlet allocation are too low; the non-offensive 'other' TD term is missing; the OTHER bucket takes too many TDs.",
+ "evaluationWindow": "FORWARD ONLY. Both historical windows (development 2022-25 and test 2019-21) have now been examined for the world TD scorer, so no historical look can confer eligibility. Evidence comes from 2026 regular-season games kicking off AFTER this registration, captured before kickoff by the World Model V2 pipeline and graded against official box scores.",
+ "candidate": {
+  "id": "nfl-world-td-v2",
+  "scorerSelection": "For each offensive TD in a world, the scorer is drawn with weight proportional to the player's opportunities IN THAT WORLD times his shrunk touchdown rate per opportunity: rushing TD weight = carries_w(i) x rzCarryRate(i); receiving TD weight = receptions_w(i) x rzRecRate(i), where rzCarryRate = (rz carry share / overall carry share) shrunk toward 1 with k = 40 (the NFL-004 development selection), rzRecRate likewise for targets. A player with zero world opportunities has zero weight because his weight is zero, not because of a separate gate; shares are NOT renormalised over eligible players.",
+  "touchRates": "unchanged Dirichlet kappas (allocation is NFL-003/005's, frozen); the candidate does not retune allocation.",
+  "otherTd": "add the non-offensive per-player-game term otherTdPerPlayerGame from the P301 warm-up (0.003) as an independent Bernoulli per active skill player, outside the team TD count (it is a defensive/special-teams score of the player's own team only when nonOffTd > 0 in that world; otherwise not credited).",
+  "probability": "P(anytime TD) = share of worlds in which the player is credited >= 1 rushing or receiving TD (thrown TDs never count)."
+ },
+ "comparators": ["rzTdV1 (nfl-anytime-td-redzone-v1, analytic)", "the published opportunity touchdown model (player board) — the incumbent public ATD"],
+ "metrics": ["log loss", "Brier", "ECE (10 equal-width bins)", "level = mean predicted / actual rate", "reliability by decile"],
+ "rows": "every player-game the candidate publishes with P(anytime) on a game whose kickoff is after its capture; void if the player has no box-score line (did not play); the same rows for every model",
+ "decisionRule": {
+  "minimumSample": 1000,
+  "eligibleForDisplayUnderForwardEvaluation": "only after n >= 1000 forward rows AND log loss <= min(rzTdV1, incumbent) + 0.000 AND ECE <= 0.03 AND level in [0.95, 1.05]",
+  "otherwise": "stays private; world TD marginals remain unpublished"
+ },
+ "notChanged": ["published anytime-TD source (player board) stays the public source until this rule is met", "no historical refit"]
+}
