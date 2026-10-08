@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-10-08",
-  "checkedAt": "2026-10-08T09:32:37.479Z",
-  "treeHead": "ec54dd8b4",
+  "checkedAt": "2026-10-08T12:07:28.400Z",
+  "treeHead": "ede7dc962",
   "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 1,
@@ -46,20 +46,21 @@
     },
     {
       "id": "risk-ladder",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-08T23:15:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-10-08T23:15:00.000Z",
+      "receiptAt": "2026-10-08T12:04:59Z",
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
         "mlb-markets"
       ],
-      "receiptPath": null
+      "receiptPath": "parlays/risk-ladder/2026-10-08.json"
     },
     {
       "id": "settlement",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-08T12:00:00.000Z",
+      "state": "DUE",
+      "reason": "past 2026-10-08T12:00:00.000Z, inside grace",
       "dueAtIso": "2026-10-08T12:00:00.000Z",
       "label": "Nightly settlement (previous day)",
       "workflow": "nightly-settle",
@@ -128,7 +129,7 @@
     {
       "id": "epl-lane",
       "state": "STALE",
-      "reason": "receipt is 57.3h old against a 30h bound",
+      "reason": "receipt is 59.9h old against a 30h bound",
       "dueAtIso": "2026-10-08T21:00:00.000Z",
       "receiptAt": "2026-10-06T00:15:11Z",
       "label": "EPL lane status",
@@ -152,7 +153,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-10-08T12:00:00.000Z",
-      "receiptAt": "2026-10-08T09:24:13Z",
+      "receiptAt": "2026-10-08T12:06:59Z",
       "label": "Offered-window matrix (all sports)",
       "workflow": "nightly-settle",
       "dependsOn": [],
