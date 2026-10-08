@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-08T16:25:09Z",
- "sourceGeneratedAt": "2026-10-08T16:25:09Z",
+ "generatedAt": "2026-10-08T17:22:25Z",
+ "sourceGeneratedAt": "2026-10-08T17:22:25Z",
  "providerEventId": "401872980",
  "matchup": "TB @ DAL",
  "kickoffUtc": "2026-10-09T00:15Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-08T16:25:09Z",
-  "roleEvidenceAt": "2026-10-08T16:25:09Z",
+  "injuriesCapturedAt": "2026-10-08T17:22:25Z",
+  "roleEvidenceAt": "2026-10-08T17:22:25Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,6 +23,15 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "TB",
+     "playerId": "nfl-athlete-4596472",
+     "name": "Jalon Daniels",
+     "share": 0.58,
+     "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.58, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -92,7 +101,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 53,
+  "absent": 52,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -124,10 +133,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.58, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4567750",
@@ -349,6 +364,34 @@
     "removed": []
    }
   ],
+  "passerShareFloor": [
+   {
+    "team": "TB",
+    "floor": 0.75,
+    "passers": [
+     "nfl-athlete-4596472"
+    ],
+    "withheld": [
+     {
+      "team": "TB",
+      "playerId": "nfl-athlete-4596472",
+      "name": "Jalon Daniels",
+      "share": 0.58,
+      "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.58, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
+    "unjoined": []
+   },
+   {
+    "team": "DAL",
+    "floor": 0.75,
+    "passers": [
+     "nfl-athlete-2577417"
+    ],
+    "withheld": [],
+    "unjoined": []
+   }
+  ],
   "pools": [
    {
     "team": "DAL",
@@ -388,19 +431,6 @@
     "joined": 5,
     "missed": 0,
     "state": "CONSERVED"
-   },
-   {
-    "team": "TB",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.5803,
-    "originalSum": 0.5803,
-    "residualOther": 0.4197,
-    "joined": 1,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -890,15 +920,6 @@
      "median": 9.81,
      "p75": 23.11,
      "p90": 39.02,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 116.3514,
-     "p10": 50.7152,
-     "p25": 73.7232,
-     "median": 106.8062,
-     "p75": 148.6417,
-     "p90": 194.3804,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
