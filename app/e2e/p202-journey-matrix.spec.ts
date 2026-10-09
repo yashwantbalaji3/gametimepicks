@@ -49,7 +49,9 @@ test("mobile 390: the five-primary bar measures, and the duplicate top strip sta
     expect(box!.height, `bar item ${i} touch target`).toBeGreaterThanOrEqual(44);
   }
   const hrefs = await links.evaluateAll((as) => as.map((a) => a.getAttribute("href")?.replace(/\/$/, "") || "/"));
-  expect(hrefs).toEqual(["/", "/sports", "/simulate", "/build", "/results"]);
+  // Founder UX decision 2026-10-08 (#1028): Live took Parlays' slot — Home · Sports · Live · Simulations · Results.
+  // Parlays (/build) stays in the Menu sheet, on the rail and in the footer (asserted below).
+  expect(hrefs).toEqual(["/", "/sports", "/live", "/simulate", "/results"]);
   const menuButton = bar.getByRole("button", { name: /^Menu/ });
   await expect(menuButton).toBeVisible();
   const menuBox = await menuButton.boundingBox();
@@ -60,6 +62,7 @@ test("mobile 390: the five-primary bar measures, and the duplicate top strip sta
   await expect(sheet).toBeVisible();
   await expect(sheet.locator('a[href="/today"], a[href="/today/"]').first()).toBeVisible();
   await expect(sheet.locator('a[href="/markets"], a[href="/markets/"]').first()).toBeVisible();
+  await expect(sheet.locator('a[href="/build"], a[href="/build/"]').first()).toBeVisible();
   await sheet.getByRole("button", { name: /Close/ }).click();
   await expect(sheet).not.toBeVisible();
   // The complement strip is empty by construction — one mobile nav, not two.

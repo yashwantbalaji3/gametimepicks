@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { createPortal } from "react-dom";
+import { activeHref } from "@/lib/nav-active-route";
+import { MenuSheet } from "./mobile-bottom-nav";
 import BrandMark from "./brand-mark";
 import SportsbookLightRail from "./sportsbook-light-rail";
 import SiteSearch from "@/components/search/site-search";
@@ -39,14 +43,6 @@ const NAV_ITEMS = destinationsFor("top").map((d, i, list) => ({
 // archive (from /results / methodology), never a primary nav item or an active sport. /world-cup-specials
 // is a retired World-Cup-only product landing, likewise out of nav.
 
-// Routes that light up the MLB nav item. The retired aliases (/board, /projections) redirect into the
-// MLB board, so they highlight the destination they land on rather than flashing no active item.
-const SPORT_RE = /^\/(mlb|board|projections)(\/|$)/;
-const NFL_RE = /^\/nfl(\/|$)/;
-const EPL_RE = /^\/epl(\/|$)/;
-const UFC_RE = /^\/ufc(\/|$)/;
-const SPORT_HREFS = new Set(["/mlb"]);
-
 /*
  * P208: the mobile complement strip is GONE, structurally. It existed to guarantee that a top-band
  * destination missing from the bottom bar stayed reachable on a phone — and when Results + Sports
@@ -56,6 +52,9 @@ const SPORT_HREFS = new Set(["/mlb"]);
  * destination is on the rail, so nothing can be stranded. One mobile nav, by construction.
  */
 
+/** What the tablet Menu opens: every rail destination the header does not carry (the phone sheet's rule, P208). */
+const SHEET_HREFS = destinationsFor("rail").map((d) => d.href).filter((h) => !NAV_ITEMS.some((i) => i.href === h));
+
 /** The four clusters, in the order a reader needs them: what's on now, which sport, which product,
  *  and how it has done. Rendered as a quiet label at each boundary. */
 const GROUP_LABEL = NAV_GROUP_LABEL;
@@ -63,35 +62,11 @@ const GROUP_LABEL = NAV_GROUP_LABEL;
 export default function Nav() {
   const pathname = usePathname() || "/";
 
-  const isActive = (href: string) => {
-    // P208: Home is a destination of its own — exact match only, or every route would light it.
-    if (href === "/") return pathname === "/" || pathname === "";
-    if (href === "/today") return pathname === "/today" || pathname.startsWith("/today/");
-    // Parlay Lab is the canonical /picks; /parlays + /parlay-lab redirect there, so they highlight it.
-    // Build = the custom paper-card builder only.
-    if (href === "/build") {
-      // /build now owns the suggested-card lobby, so the retired Parlay Lab aliases highlight HERE.
-      // Without this they would bounce to /build with no active nav item during the redirect.
-      return (
-        pathname === "/build" || pathname.startsWith("/build/") ||
-        pathname === "/picks" || pathname.startsWith("/picks/") ||
-        pathname === "/parlays" || pathname.startsWith("/parlays/") ||
-        pathname === "/parlay-lab" || pathname.startsWith("/parlay-lab/")
-      );
-    }
-    // MLB lights up on the hub, its boards, and the retired aliases that redirect into them.
-    if (href === "/mlb") return SPORT_RE.test(pathname);
-    if (href === "/nfl") return NFL_RE.test(pathname);
-    if (href === "/epl") return EPL_RE.test(pathname);
-    if (href === "/ufc") return UFC_RE.test(pathname);
-    // Results, but not the model-audit surface (that lives under Learn).
-    if (href === "/results") return pathname === "/results" || (pathname.startsWith("/results/") && !pathname.startsWith("/results/model-audit"));
-    // Learn = the education hub + methodology + responsible-use + model audit.
-    if (href === "/learn") {
-      return pathname === "/learn" || pathname.startsWith("/learn/") || pathname === "/methodology" || pathname.startsWith("/methodology/") || pathname === "/responsible-use" || pathname.startsWith("/responsible-use/") || pathname === "/results/model-audit" || pathname.startsWith("/results/model-audit/");
-    }
-    return pathname === href || pathname.startsWith(`${href}/`);
-  };
+  /* UX-001 phase 2: the one shared resolver (lib/nav-active-route.ts), the same answer the rail, the phone bar and the
+     Menu sheet give. */
+  const activeItem = activeHref(pathname, NAV_ITEMS.map((i) => i.href));
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuActive = activeItem == null && activeHref(pathname, SHEET_HREFS) != null;
 
   return (
     <header
@@ -109,7 +84,9 @@ export default function Nav() {
 
       {/* Mobile (< sm): row 1 = centered brand. P213 R-A: lockup size — the hero-size mark spent
           ~13% of a phone viewport on brand before any content; the launchpad gets it back. */}
-      <div className="sm:hidden px-4 pt-2 pb-1.5 flex items-center gap-2">
+      {/* UX-001 phase 2: the phone row covers everything below md — exactly where the bottom bar shows — so 640–767px no
+          longer paints the five primaries twice (header links AND bar). */}
+      <div className="md:hidden px-4 pt-2 pb-1.5 flex items-center gap-2">
         <Link
           href="/"
           aria-label="GameTimePicks home"
@@ -122,7 +99,7 @@ export default function Nav() {
       </div>
 
       {/* Desktop (sm+): single row — brand left, links centered */}
-      <div className="hidden sm:flex mx-auto max-w-[1440px] px-6 lg:px-8 py-2 items-center gap-6">
+      <div className="hidden md:flex mx-auto max-w-[1440px] px-6 lg:px-8 py-2 items-center gap-6">
         <Link
           href="/"
           aria-label="GameTimePicks home"
@@ -135,8 +112,7 @@ export default function Nav() {
           className="flex-1 flex items-center justify-start lg:justify-center gap-0 min-w-0 overflow-x-auto"
         >
           {NAV_ITEMS.map((item, idx) => {
-            const active = isActive(item.href);
-            const isSport = SPORT_HREFS.has(item.href);
+            const active = item.href === activeItem;
             return (
               <span key={item.href} className="inline-flex items-center">
                 {idx > 0 && NAV_ITEMS[idx - 1]?.group !== item.group && item.group && (
@@ -171,10 +147,6 @@ export default function Nav() {
                     border: active
                       ? "1px solid color-mix(in srgb, var(--vault-accent) 32%, transparent)"
                       : "1px solid transparent",
-                    textShadow:
-                      active && isSport
-                        ? "0 0 14px color-mix(in srgb, var(--vault-accent) 48%, transparent)"
-                        : "none",
                   }}
                 >
                   {item.label}
@@ -183,14 +155,34 @@ export default function Nav() {
             );
           })}
         </nav>
-        {/* Right spacer — keeps the nav links visually centered. */}
-        <span aria-hidden className="shrink-0" style={{ width: 80 }} />
+        {/* UX-001 phase 2 · THE TABLET GAP. From 768 to 1023px there is no bottom bar (md:hidden) and no rail (lg only),
+            so everything outside the five primaries — the sport hubs, Parlays, Today, Picks, the products, search — was
+            reachable only through the footer. The same Menu sheet the phone bar opens closes it; it carries search here. */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen(true)}
+          aria-expanded={menuOpen}
+          aria-haspopup="dialog"
+          aria-label={`Menu — search, sports, Parlays and more${menuActive ? " (current section)" : ""}`}
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-[6px] px-3 font-mono uppercase tracking-[0.12em]"
+          style={{
+            minHeight: 36, fontSize: 11,
+            color: menuActive ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
+            border: `1px solid ${menuActive ? "color-mix(in srgb, var(--vault-accent) 32%, transparent)" : "var(--vault-border)"}`,
+          }}
+        >
+          <span aria-hidden>☰</span> Menu
+        </button>
       </div>
 
 
       {/* Sportsbook LED rail underneath the chrome — pure presentation,
           respects prefers-reduced-motion. */}
       <SportsbookLightRail />
+      {/* PORTALED TO <body>, not rendered here: the header's backdrop blur makes it the containing block of any fixed
+          descendant, so a sheet inside it was measured 81px tall, squeezed into the header (the trap the phone bar's
+          sheet comment records). It mounts only after a click, so the server HTML is unaffected. */}
+      {menuOpen ? createPortal(<MenuSheet onClose={() => setMenuOpen(false)} pathname={pathname} withSearch />, document.body) : null}
     </header>
   );
 }

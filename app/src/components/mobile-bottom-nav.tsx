@@ -1,9 +1,9 @@
 /**
  * Mobile bottom navigation.
  *
- * Sticky fixed-bottom strip with 4 buckets (Home / Picks / Lab /
- * Results). Mobile-only — hidden at `md+` so the existing desktop
- * top nav remains the primary surface on wider viewports.
+ * Sticky fixed-bottom strip: the five primaries (Home / Sports / Live / Simulations / Results) and a Menu. Mobile-only
+ * — hidden at `md+`, where the header carries the five primaries and its own Menu button (UX-001 phase 2), and the
+ * rail takes over at `lg+`.
  *
  * Honesty / accessibility:
  *   - 44px+ tap targets, vertically centered, safe-area-inset padded.
@@ -24,9 +24,11 @@ import { useEffect, useRef, useState } from "react";
 
 import {
   MOBILE_NAV_ITEMS,
+  activeHref,
   resolveMobileNavBucket,
   type MobileNavBucket,
 } from "@/lib/nav-active-route";
+import SiteSearch from "@/components/search/site-search";
 import { destinationsFor, NAV_GROUP_LABEL, groupChangedAt } from "@/lib/navigation";
 import { useSavedForecasts } from "@/lib/saved/saved-store";
 import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
@@ -84,16 +86,6 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <rect x="14" y="14" width="7" height="7" rx="1.5" />
         </svg>
       );
-    case "picks":
-      // Chart/bars motif — projections live here.
-      return (
-        <svg {...props}>
-          <path d="M4 20V8" />
-          <path d="M10 20V4" />
-          <path d="M16 20v-9" />
-          <path d="M22 20H2" />
-        </svg>
-      );
     case "lab":
       // Beaker — parlay lab.
       return (
@@ -101,32 +93,6 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <path d="M9 3h6" />
           <path d="M10 3v6L4.5 18.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3" />
           <path d="M7.5 14h9" />
-        </svg>
-      );
-    case "bank":
-      // Stacked coins — the paper-bankroll Bank Builder ladder.
-      return (
-        <svg {...props}>
-          <ellipse cx="12" cy="6" rx="7" ry="2.5" />
-          <path d="M5 6v5c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6" />
-          <path d="M5 11v5c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-5" />
-        </svg>
-      );
-    case "moonshot":
-      // Crescent moon — the high-volatility Moonshot ladder (mirrors the 🌙 rail glyph).
-      return (
-        <svg {...props}>
-          <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" />
-        </svg>
-      );
-    case "mrdub":
-      // Lab flask — Mr. Dub's paper portfolio (scientist/ledger identity).
-      return (
-        <svg {...props}>
-          <path d="M9 3h6" />
-          <path d="M10 3v5l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3" />
-          <circle cx="10.5" cy="16" r="1" />
-          <circle cx="13.5" cy="18" r="1" />
         </svg>
       );
     case "markets":
@@ -168,7 +134,12 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
  * the same canonical list as every other surface: the sheet is "the rail minus the bar", grouped
  * under the same headings, so a destination can never exist on desktop and be unreachable here.
  */
-function MenuSheet({ onClose, pathname }: { onClose: () => void; pathname: string }) {
+export function MenuSheet({ onClose, pathname, withSearch = false }: {
+  onClose: () => void;
+  pathname: string;
+  /** UX-001 phase 2: the tablet header opens this sheet too, and has no search box of its own (the phone header does). */
+  withSearch?: boolean;
+}) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   /* Phase 5O: the Saved row carries the reader's own count, read from the browser-local store only (no account). */
@@ -176,6 +147,8 @@ function MenuSheet({ onClose, pathname }: { onClose: () => void; pathname: strin
   const savedCount = saved.ready ? saved.items.length : 0;
   const barHrefs = new Set(MOBILE_NAV_ITEMS.map((i) => i.href));
   const items = destinationsFor("rail").filter((d) => !barHrefs.has(d.href));
+  /* UX-001 phase 2: the shared resolver, asked over the whole rail — so /mlb/board lights MLB here, as on the rail. */
+  const activeRail = activeHref(pathname, destinationsFor("rail").map((d) => d.href));
   /*
    * FOCUS GOES IN, IS CONTAINED, AND COMES BACK — all three now, from one primitive.
    *
@@ -187,7 +160,7 @@ function MenuSheet({ onClose, pathname }: { onClose: () => void; pathname: strin
    */
   useDialogFocus(sheetRef, { onClose, initialFocus: closeRef });
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end md:hidden" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 60%, transparent)" }} onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex flex-col justify-end lg:hidden" style={{ background: "color-mix(in srgb, var(--vault-ink-black) 60%, transparent)" }} onClick={onClose}>
       <div
         ref={sheetRef}
         role="dialog" aria-modal="true" aria-label="Menu"
@@ -201,10 +174,11 @@ function MenuSheet({ onClose, pathname }: { onClose: () => void; pathname: strin
             Close ✕
           </button>
         </div>
+        {withSearch ? <div className="mt-2 mb-1"><SiteSearch /></div> : null}
         <ul className="list-none m-0 p-0 flex flex-col">
           {items.map((d, i) => {
             const groupStart = groupChangedAt(items, i);
-            const active = pathname === d.href || (d.href !== "/" && pathname.startsWith(`${d.href}/`));
+            const active = d.href === activeRail;
             return (
               <li key={d.href}>
                 {groupStart && NAV_GROUP_LABEL[groupStart] ? (
@@ -240,7 +214,8 @@ export default function MobileBottomNav() {
   const barBuckets = new Set(MOBILE_NAV_ITEMS.map((i) => i.bucket));
   // The Menu lights up when the reader is ON a destination the sheet owns (e.g. /results, /sports)
   // — the same "highlight where you are" rule the bar items follow.
-  const menuActive = activeBucket != null && !barBuckets.has(activeBucket);
+  const menuActive = (activeBucket == null || !barBuckets.has(activeBucket))
+    && activeHref(pathname, destinationsFor("rail").map((d) => d.href).filter((h) => !MOBILE_NAV_ITEMS.some((i) => i.href === h))) != null;
 
   return (
     <>

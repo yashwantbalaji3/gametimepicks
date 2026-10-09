@@ -1,14 +1,21 @@
-import { destinationsFor } from "./navigation";
+import { destinationsFor, NAV_DESTINATIONS } from "./navigation";
+import { COMPETITIONS } from "./sports/catalog";
 /**
- * Active-route resolver for the mobile bottom nav.
+ * THE ACTIVE-ROUTE RESOLVER — one answer to "where is the reader?" for every navigation surface (UX-001 phase 2).
  *
- * The bottom nav has 4 buckets (Home / Picks / Lab / Results) but the
- * app has many more routes. This helper maps a pathname to the
- * correct bucket so the highlighted item matches what the user is
- * actually looking at.
+ * The top nav, the desktop rail, the phone bar and the Menu sheet each kept their own matcher, and they had drifted:
+ * /simulate/* lit Simulations in the top nav but nothing in the rail, /board lit MLB on desktop and Simulations on a
+ * phone, /methodology lit Learn in one and Methodology in the other, the Menu sheet used a plain prefix rule. Now every
+ * surface asks `activeHref(pathname, theHrefsItCarries)`.
  *
- * Lives separate from the component so it can be unit tested without
- * a React tree.
+ * HOW IT DECIDES. `ownersOf(pathname)` lists the destinations that own a path, most specific first; a surface lights
+ * the first owner it actually carries. So /mlb/board lights MLB on the rail (which carries /mlb) and Sports on the phone
+ * bar (which does not), and /results/nba lights the footer's NBA archive and the rail's Results — each surface honest
+ * about the closest thing it has. An owner chain is:
+ *   1. an explicit entry below (retired aliases mid-redirect, pages that belong to another destination), else
+ *   2. every canonical destination whose path is a segment-prefix of this one, longest first, then
+ *   3. Sports, for anything inside a sport hub (the catalog's competitions).
+ * Home owns "/" only, never everything.
  */
 
 export type MobileNavBucket =
@@ -16,14 +23,11 @@ export type MobileNavBucket =
   | "today"
   | "games"
   | "markets"
-  | "picks"
   | "lab"
-  | "bank"
-  | "moonshot"
-  | "mrdub"
   | "results"
   | "live"
-  | "sports";
+  | "sports"
+  | "account";
 
 export interface MobileNavItem {
   bucket: MobileNavBucket;
@@ -35,26 +39,8 @@ export interface MobileNavItem {
 }
 
 /**
- * Canonical list rendered by the mobile bottom nav. Order is
- * preserved by the consumer (the component renders these in order).
- *
- * Honesty / scope notes:
- *   - The two paper-bankroll ladders — Bank Builder AND Moonshot — both earn
- *     a bottom-nav slot: they are the flagship money journeys and the user
- *     reaches each one-handed. Moonshot is a first-class product, not a
- *     sub-tab of Bank, so it carries its own bucket (was folded into "bank").
- *   - SIX items, and they must FIT. P185 measured the bar at 390px: it overflowed by 75px with
- *     "MR. DUB'S PORTFOLIO" rendering 132px against a 58px basis, so the trailing label sat
- *     permanently half-cut behind a hidden scrollbar. The old hand-written list abbreviated
- *     "Bank" for exactly this reason; deriving from the canonical list in P196 took `label`
- *     verbatim and silently undid it. `shortLabel` carries that intent in the registry now.
- *   - The bucket ids are route-resolution keys; only the visible labels are user-facing, and the
- *     ACCESSIBLE name stays the full label.
- */
-/**
- * P196: derived from the canonical destination list. Every mobile destination also appears on the
- * top nav and the rail, so a phone is never the ONLY route to a page — which it used to be for
- * /build. Bucket ids remain the route-resolution keys.
+ * The phone bar's items, from the canonical list (P196). Every bar destination is also on the rail and in the footer, so
+ * a phone is never the only route to a page. `shortLabel` keeps each item near its 58px basis at 390px (P185).
  */
 export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = destinationsFor("mobile").map((d) => ({
   bucket: d.bucket as MobileNavItem["bucket"],
@@ -64,93 +50,63 @@ export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = destinationsFor("m
 }));
 
 /**
- * Returns the bottom-nav bucket that should be highlighted for the
- * given pathname. Returns null when the pathname doesn't map to any
- * bucket — caller renders no highlight in that case (e.g. /about).
- *
- * Mapping rules (intentionally explicit, not regex-driven):
- *   - "/"                          → home
- *   - "/projections"               → picks
- *   - "/projections/anything"      → picks
- *   - "/parlay-lab"                → lab
- *   - "/parlay-lab/anything"       → lab
- *   - "/results"                   → results
- *   - "/results/nba"               → results
- *   - "/results/mlb"               → results
- *   - "/results/date/2026-05-27"   → results
- *   - any /results/* descendant    → results
- *   - "/nba/*"                     → picks (sport boards are picks-adjacent)
- *   - "/mlb/*"                     → picks
- *   - "/nhl/*"                     → picks
- *   - "/about"                     → null (lives only in top nav)
- *   - "/responsible-use"           → null
- *   - "/trends"                    → null
- *   - "/world-cup/*"               → null (deferred sport)
- *
- * Anything not listed → null. Defensive: avoid mismatched
- * highlighting that would mislead the user about where they are.
+ * Paths whose owner is not simply the destination they sit under. Matched by segment prefix, longest first.
+ *   - Retired aliases light the destination they redirect to, so the bounce never flashes "nowhere"
+ *     (lib/audits/route-inventory.mjs holds the redirect table; nav-resolver.test.mjs keeps the two in step).
+ *     /board and /projections land on the MLB board: MLB where a surface carries it, else Simulations (the phone
+ *     bar's game surfaces, P201). /events and /games are the old cross-sport game hubs: Simulations.
+ *   - Learn owns the reader-education pages that are not destinations of their own on a surface; Methodology and the
+ *     deep audit light themselves where a surface carries them.
+ *   - Retired league routes (NHL, IPL, the completed World Cup) are league history: Sports.
+ *   - /trends redirects to Results but is retired analysis, not the record: nothing.
  */
-export function resolveMobileNavBucket(
-  pathname: string | null | undefined,
-): MobileNavBucket | null {
+const OWNERS: ReadonlyArray<readonly [string, readonly string[]]> = [
+  ["/picks", ["/build"]], ["/parlays", ["/build"]], ["/parlay-lab", ["/build"]],
+  ["/mlb/parlays", ["/build"]], ["/nba/parlays", ["/build"]],
+  ["/games", ["/simulate"]], ["/events", ["/simulate"]],
+  ["/board", ["/mlb", "/simulate"]], ["/projections", ["/mlb", "/simulate"]],
+  ["/methodology", ["/methodology", "/learn"]],
+  ["/responsible-use", ["/responsible-use", "/learn"]],
+  ["/results/model-audit", ["/results/model-audit", "/learn", "/results"]],
+  ["/nhl", ["/sports"]], ["/ipl", ["/sports"]], ["/world-cup", ["/sports"]], ["/world-cup-specials", ["/sports"]],
+  ["/trends", []],
+];
+
+const HREFS = [...new Set(NAV_DESTINATIONS.map((d) => d.href))];
+const HUBS = new Set(COMPETITIONS.map((c) => c.href));
+
+/** "/a/b/" → "/a/b"; "" and non-strings → null. */
+function normalize(pathname: unknown): string | null {
   if (!pathname || typeof pathname !== "string") return null;
-  // Strip trailing slash for consistent matching.
-  const p = pathname.length > 1 && pathname.endsWith("/")
-    ? pathname.slice(0, -1)
-    : pathname;
-  // P208: Home is a real destination — the root highlights it; Today owns its own bucket.
-  if (p === "" || p === "/") return "home";
-  if (p === "/today" || p.startsWith("/today/")) return "today";
-  // v1.1.1: the Live hub owns its own slot. It is a destination about NOW, distinct from Today
-  // (the slate) and from Simulations (the reports), so folding it into either would mis-highlight.
-  if (p === "/live" || p.startsWith("/live/")) return "live";
-  // Picks Lab is retired (Program 143): /picks and the older /parlays + /parlay-lab aliases all
-  // redirect to /build#suggested-cards, so they highlight the Build (lab) bucket mid-redirect
-  // rather than leaving no active item. The "picks" bucket no longer has a nav item.
-  if (
-    p === "/build" || p.startsWith("/build/") ||
-    p === "/picks" || p.startsWith("/picks/") ||
-    p === "/parlays" || p.startsWith("/parlays/") ||
-    p === "/parlay-lab" || p.startsWith("/parlay-lab/")
-  ) return "lab";
-  // P201 (charter F1): the bar carries the SIX PRIMARY destinations, so the paper products no
-  // longer own slots — Bank Builder / Moonshot / Mr. Dub highlight nothing, like /about. Their
-  // buckets stay in the type for any surface that still keys on them, but no route resolves there.
-  // Better silent than misleading. (Homer Nukes retired 2026-06-30 — still no bucket.)
-  if (
-    p === "/bank-builder" || p.startsWith("/bank-builder/") ||
-    p === "/moonshot" || p.startsWith("/moonshot/") ||
-    p === "/mr-dub" || p.startsWith("/mr-dub/")
-  ) return null;
-  // Market Center owns its own slot (P201).
-  if (p === "/markets" || p.startsWith("/markets/")) return "markets";
-  // Results returned to the bar with the six-primary swap: every record surface highlights it.
-  if (p === "/results" || p.startsWith("/results/")) return "results";
-  // Simulate owns the cross-sport GAME surfaces: the lobby, game reports, and the legacy
-  // board/projections aliases that redirect into them.
-  if (
-    p === "/simulate" || p.startsWith("/simulate/") ||
-    p === "/games" || p.startsWith("/games/") ||
-    p === "/events" || p.startsWith("/events/") ||
-    p === "/projections" || p.startsWith("/projections/") ||
-    p === "/board" || p.startsWith("/board/")
-  ) return "games";
-  // Sports owns the LEAGUE surfaces (P201): the schedules directory and every sport hub — a
-  // reader inside /mlb is inside a league, and the bar item that promises "enter a league"
-  // should say so. World Cup archives ride here too (they are league history, not live games).
-  if (
-    p === "/sports" || p.startsWith("/sports/") ||
-    p === "/mlb" || p.startsWith("/mlb/") ||
-    p === "/nba" || p.startsWith("/nba/") ||
-    p === "/ufc" || p.startsWith("/ufc/") ||
-    p === "/epl" || p.startsWith("/epl/") ||
-    p === "/nfl" || p.startsWith("/nfl/") ||
-    p === "/nhl" || p.startsWith("/nhl/") ||
-    p === "/ipl" || p.startsWith("/ipl/") ||
-    p === "/world-cup" || p.startsWith("/world-cup/") ||
-    p === "/world-cup-specials" || p.startsWith("/world-cup-specials/")
-  ) return "sports";
-  // Everything else (/about, /methodology, /responsible-use, /trends) returns null so the bottom
-  // nav shows nothing highlighted — those live in the rail / footer. Better silent than misleading.
-  return null;
+  return pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+}
+const under = (p: string, href: string) => p === href || p.startsWith(`${href}/`);
+
+/** The destinations that own a path, most specific first. */
+export function ownersOf(pathname: string | null | undefined): readonly string[] {
+  const p = normalize(pathname);
+  if (!p) return [];
+  if (p === "/") return ["/"];
+  const explicit = OWNERS.filter(([prefix]) => under(p, prefix)).sort((a, b) => b[0].length - a[0].length)[0];
+  if (explicit) return explicit[1];
+  const chain = HREFS.filter((h) => h !== "/" && under(p, h)).sort((a, b) => b.length - a.length);
+  if (chain.some((h) => HUBS.has(h))) chain.push("/sports");
+  return chain;
+}
+
+/** The one href, among those a surface carries, that marks where the reader is — or null. */
+export function activeHref(pathname: string | null | undefined, hrefs: Iterable<string>): string | null {
+  const carried = new Set(hrefs);
+  return ownersOf(pathname).find((h) => carried.has(h)) ?? null;
+}
+
+const BUCKET_OF = new Map(NAV_DESTINATIONS.filter((d) => d.bucket).map((d) => [d.href, d.bucket as MobileNavBucket]));
+
+/**
+ * The phone-bar bucket for a pathname: the bucket of the first owner that has one, or null (better silent than a
+ * highlight on a slot that does not hold the page — /about, the paper products, retired /homer-nukes).
+ */
+export function resolveMobileNavBucket(pathname: string | null | undefined): MobileNavBucket | null {
+  const href = activeHref(pathname, BUCKET_OF.keys());
+  return href ? BUCKET_OF.get(href) ?? null : null;
 }

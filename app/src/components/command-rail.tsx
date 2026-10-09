@@ -12,6 +12,7 @@
  * active-route logic (including legacy sport/parlay/about routes) so the
  * highlighted item matches the top nav exactly. No data/logic changes.
  */
+import { activeHref } from "@/lib/nav-active-route";
 import Link from "next/link";
 import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
 import { usePathname } from "next/navigation";
@@ -51,46 +52,12 @@ const ITEMS: RailItem[] = destinationsFor("rail").map((d, i, list) => ({
   group: i === 0 || list[i - 1]!.group !== d.group ? NAV_GROUP_LABEL[d.group] : undefined,
 }));
 
+/** UX-001 phase 2: the one shared resolver (lib/nav-active-route.ts) — the rail lights exactly what the top nav, the
+ *  phone bar and the Menu sheet light, including retired aliases mid-redirect. */
 function useIsActive() {
   const pathname = usePathname() || "/";
-  // Mirrors components/nav.tsx isActive so the rail highlight matches the
-  // top nav on every route, including legacy entry points.
-  return (item: RailItem): boolean => {
-    const { href } = item;
-    if (href === "/") return pathname === "/" || pathname === "";
-    if (href === "/simulate") return pathname === "/simulate";
-    if (href === "/today") return pathname === "/today" || pathname.startsWith("/today/");
-    if (href === "/mlb") {
-      // The retired /board + /projections aliases redirect into the MLB board, so they highlight MLB
-      // rather than leaving no active item during the bounce.
-      return (
-        pathname === "/mlb" || pathname.startsWith("/mlb/") ||
-        pathname === "/board" || pathname.startsWith("/board/") ||
-        pathname === "/projections" || pathname.startsWith("/projections/")
-      );
-    }
-    if (href === "/build") {
-      // /build now owns the suggested-card lobby, so the retired Parlay Lab aliases highlight HERE.
-      // Without this they would bounce to /build with no active nav item during the redirect.
-      return (
-        pathname === "/build" || pathname.startsWith("/build/") ||
-        pathname === "/picks" || pathname.startsWith("/picks/") ||
-        pathname === "/parlays" || pathname.startsWith("/parlays/") ||
-        pathname === "/parlay-lab" || pathname.startsWith("/parlay-lab/")
-      );
-    }
-    if (href === "/results") {
-      return pathname === "/results" || (pathname.startsWith("/results/") && !pathname.startsWith("/results/model-audit"));
-    }
-    if (href === "/learn") {
-      return (
-        pathname === "/learn" || pathname.startsWith("/learn/") ||
-        pathname === "/responsible-use" || pathname.startsWith("/responsible-use/") ||
-        pathname === "/results/model-audit" || pathname.startsWith("/results/model-audit/")
-      );
-    }
-    return pathname === href || pathname.startsWith(`${href}/`);
-  };
+  const active = activeHref(pathname, ITEMS.map((i) => i.href));
+  return (item: RailItem): boolean => item.href === active;
 }
 
 export default function CommandRail() {
