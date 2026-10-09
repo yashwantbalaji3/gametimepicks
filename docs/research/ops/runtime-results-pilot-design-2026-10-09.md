@@ -5,7 +5,19 @@
 - **Tasks:** LEDGER-001, RESULTS-001, OPS-001, COST-001 (Stage B).
 - **Builds on:** `zero-build-settlement-assessment-2026-10-09.md`.
 
-## Existing infrastructure reused (nothing new introduced)
+## Hosting under `output: "export"`: verified, not assumed (founder decision 4)
+The Next app is a static export (`app/next.config.mjs`: `output: "export"`), so a Next.js API route (`src/app/api/...`) **would not work** and is not proposed.
+- **What is proposed:** `app/api/results.mjs` is a **project-root Vercel Function**. Vercel deploys `/api/*.mjs` at the project root independently of the Next build: the Next app lives under `src/`, so this directory belongs to Vercel.
+- **The same mechanism already runs in Production:**
+  - `/api/live` (the live gateway);
+  - `/api/collect` (analytics, which already writes to Blob with `BLOB_READ_WRITE_TOKEN`);
+  - two Vercel crons in `app/vercel.json` (`/api/analytics-retention/`, `/api/morning-trigger/`).
+- **Evidence:**
+  - `app/api/live.mjs`'s header records the Production check of 2026-09-15: `/api/collect/` → 204 while `/api/zzz-not-real/` → 404.
+  - Re-checked 2026-10-09: `HEAD /api/live/?sport=nfl` → **405** from the function (`server: Vercel`, `x-vercel-cache: MISS`), not a static 200/404.
+- **What adding it costs:** one Production deploy, to add the function file. After that, writes (from GitHub Actions) and reads (through the function) need no deploys.
+- **Write permission:** the read-write token lives today only in the Vercel Production environment. **The pilot needs the founder to add `BLOB_READ_WRITE_TOKEN` as a GitHub Actions secret**, or a separate narrowly-scoped store and token. The function reads with the server-side token; the browser never sees a token, and the store stays private.
+
 - **SDK:** `@vercel/blob` 2.8.0, already a dependency and already in Production through `api/collect.mjs`. It writes with `access: "private"` and `BLOB_READ_WRITE_TOKEN`.
 - **Store features:**
   - **Write-once by default:** `put` throws if the pathname exists unless `allowOverwrite`. Immutability is enforced by the store itself, not by convention.
