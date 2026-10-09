@@ -901,7 +901,10 @@ Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parla
   - Vercel Build CPU: not readable without a dashboard login.
 - **Pre-existing defect (recorded here, not a new task):** React hydration errors #425/#418/#423 on `/nfl/` (7) and on NFL game pages (9, e.g. `/nfl/game/401872981/`). The text the server renders differs from the client's.
   - Identical counts on Production before and after #1028; Home, MLB, Live, Results, Sports and Parlays have 0.
-  - To fix inside UX-001 (likely time-dependent text rendered at build time).
+  - **Root cause (2026-10-09):** `components/nfl/forecast/styles.tsx` rendered its CSS as a React text child (`<style>{CSS}</style>`). The server HTML escaped `>` as `&gt;` (`.nf-split &gt; div`, a broken rule in the static page) while the browser kept `>`. React threw #425 → #418 → #423 and re-rendered each NFL page on the client.
+  - **Fix (branch `claude/ux-001-nfl-hydration`):** `dangerouslySetInnerHTML`, as `simulation-v2-report` and `results/nfl` already do. The two other `<style>{…}</style>` uses (Mr. Dub ledger, internal /launch) are converted too.
+  - `uiux/style-element-hydration.test.mjs` forbids the pattern and checks that the built NFL pages carry no entity inside `<style>`. It fails on main's code.
+  - Local result: 0 page errors on /nfl/ and every NFL game page checked (Production: 7 and 9).
 
 ### Progress (2026-10-09; UX-001 phase 2 · navigation and sport switcher; branch `claude/ux-001-sport-nav`)
 - **One sport catalog** (`lib/sports/catalog.ts`): Football (NFL) · Basketball (NBA) · Baseball (MLB) · Soccer (Premier League, Ligue 1) · MMA (UFC), in the founder's naming and order.

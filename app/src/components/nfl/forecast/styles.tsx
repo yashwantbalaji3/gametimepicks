@@ -70,6 +70,10 @@ const CSS = `
 }
 `;
 
+/* UX-001 (2026-10-09): the CSS goes in as raw HTML, never as a React text child. As a text child the server HTML escaped
+   ">" to "&gt;" (".nf-split &gt; div" — a broken rule in the static page) while the browser kept ">", so every NFL hub
+   and game page failed hydration (React #425 → #418 → #423) and re-rendered from scratch. Same pattern as
+   simulation-v2-report.tsx and results/nfl. Guarded by style-element-hydration.test.mjs. */
 export default function ForecastStyles() {
-  return <style>{CSS}</style>;
+  return <style dangerouslySetInnerHTML={{ __html: CSS }} />;
 }
