@@ -8,8 +8,8 @@ the main engineering owner reconciles anything here into `GAMETIMEPICKS_MASTER_R
 | ID | Phase status | Maturity / evidence | Next action |
 |---|---|---|---|
 | NCAAF-001 | **DONE** (research) | TESTED_LOCAL: corpus v1 (14,988 games, 2016–25) reproduces byte-for-byte; 24 tests | Forward capture design moves to NCAAF-005 |
-| NCAAF-002 | IN_PROGRESS | Protocol preregistered (`MODEL_EVALUATION_PROTOCOL.md`) before any fit | Implement B0/B1/C1/C2/C3 + evaluator; tune on dev only |
-| NCAAF-003 | PLANNED | — | World spec once champions are frozen |
+| NCAAF-002 | **DONE** (research) · Gate 002 bars **FAIL (b) calibration** | TESTED_LOCAL: holdout receipt write-once, reproduced; C1 Elo research champion (LL 0.564 vs B1 0.677), C2 score champion | Failure carried into NCAAF-004 challengers |
+| NCAAF-003 | IN_PROGRESS | — | World spec from C2 joint scores + 2021+ OT rules |
 | NCAAF-004 | PLANNED | — | — |
 | NCAAF-005 | PLANNED | — | — |
 | NCAAF-006 | PLANNED | — | — |
@@ -64,3 +64,18 @@ point-in-time for pregame use.
 - **Approval needed?** NO for continuing locally.
 - **Next authorized task:** NCAAF-002 implementation under the preregistered protocol.
 - **Roadmap sync note:** NCAAF-001 → DONE (research, local), evidence above. Not yet pushed.
+
+### NCAAF-002 — Phase checkpoint — 2026-10-09
+- **Branch / commits:** `dp/ncaaf-v1` · protocol `57ab65e` → amendment 1 `c48b860` → freeze `a51670819b` →
+  freeze sha `b162a0644` → report (the commit adding this entry). Base main `92dce6f0d4`.
+- **Deliverables:** `app/src/lib/sports/ncaaf/{metrics,models,walk-forward}.mjs` + `models.test.mjs` (18
+  tests); `app/scripts/ncaaf/evaluate-baselines.mjs`; receipts `experiments/002-*.json`;
+  `docs/ncaaf/NCAAF-002_REPORT.md`.
+- **Tests:** 42/42 NCAAF tests (Node 20.4.0); leakage guard for all 5 candidates (future outcomes rewritten,
+  earlier forecasts byte-identical); same-day peeking probe goes red; eslint clean.
+- **Evaluation:** dev 2021–22 → validation 2023 → freeze → holdout 2024–25 once. Winner champion C1
+  (holdout LL 0.5642, ECE 0.040); score champion C2. Bars: (a) PASS, (b) **FAIL**, (c) PASS.
+- **Model maturity:** research champion, failed bar (b). Not qualified. No market baseline (no timestamped
+  prices).
+- **Approval needed?** NO.
+- **Next:** NCAAF-003 world engine from C2. NCAAF-004 challengers registered in the report.
