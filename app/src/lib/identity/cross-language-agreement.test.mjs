@@ -210,3 +210,50 @@ print(json.dumps(sorted(OFFICIAL_SETTLEMENT_SOURCES)))`,
     "an allowlist that drifts between languages means one side settles from a source the other forbids",
   );
 });
+
+// ── CONTRACT-001 · KNOWN, LATENT DIVERGENCE — pinned, not fixed (founder decision 2026-10-09) ─────────────
+
+/*
+ * The two derivations agree on every `HH:MM:SS(.fff)Z` start (the cases above) but NOT on two other ISO forms:
+ *
+ *   start                         TypeScript          Python (regex strips ":SS[.fff][Z]" from the END only)
+ *   2026-10-08T19:00:00Z          …:20261008t1900     …:20261008t1900
+ *   2026-10-08T19:00Z             …:20261008t1900     …:20261008t19         ← strips ":00Z" (the MINUTES)
+ *   2026-10-08T19:00:00+00:00     …:20261008t1900     …:20261008t190000+00  ← offset defeats the regex
+ *
+ * Latent today: every committed MLB board row's commenceTime is `HH:MM:SSZ` (pinned below), which is the form the
+ * Python settlement path receives. The founder's rule: document and test it, do NOT migrate existing event ids,
+ * preserve every historical reference. This test fails the moment EITHER side changes behaviour on these forms,
+ * or the moment a committed board row arrives in a form on which the two sides disagree — either way a deliberate
+ * CONTRACT-001 change, never a silent one.
+ */
+const DIVERGENT_FORMS = ["2026-10-08T19:00Z", "2026-10-08T19:00:00+00:00"];
+
+test("CONTRACT-001 · the known event-id divergence on non-`HH:MM:SSZ` starts is exactly as documented", () => {
+  const names = ["Cleveland Guardians", "Chicago White Sox"];
+  const ts = (start) => deriveEventId({ sport: "mlb", league: "MLB", participants: names.map((name) => ({ name })), scheduledStart: start });
+  const py = python(`
+import json
+from pipeline.mlb.settlement_lineage import derive_event_id
+print(json.dumps([derive_event_id(sport="mlb", league="MLB", participant_names=${JSON.stringify(names)}, scheduled_start=s)
+                  for s in ${JSON.stringify(["2026-10-08T19:00:00Z", ...DIVERGENT_FORMS])}]))`);
+  const base = "mlb:chicago-white-sox-v-cleveland-guardians:";
+  assert.deepEqual(["2026-10-08T19:00:00Z", ...DIVERGENT_FORMS].map(ts), [`${base}20261008t1900`, `${base}20261008t1900`, `${base}20261008t1900`]);
+  assert.deepEqual(py, [`${base}20261008t1900`, `${base}20261008t19`, `${base}20261008t190000+00`]);
+});
+
+test("CONTRACT-001 · the divergence is latent: every committed MLB board start is in the agreed `HH:MM:SS(.fff)Z` form", async () => {
+  const fs = await import("node:fs");
+  const dir = path.join(process.cwd(), "public/data/mlb/boards");
+  const AGREED = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
+  let n = 0;
+  for (const f of fs.readdirSync(dir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x))) {
+    const board = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+    for (const l of board.leans ?? []) {
+      if (l.commenceTime == null) continue;
+      n++;
+      assert.match(l.commenceTime, AGREED, `${f} ${l.id}: a start in a form the two derivations disagree on`);
+    }
+  }
+  assert.ok(n > 1000, `checked ${n}`);
+});
