@@ -215,7 +215,9 @@ export default function GameSummary({
         {counts.started ? ` · ${counts.started} started or final` : ""}
       </p>
       {/* Founder UX decision 2026-10-08: games in play lead the list (the live strip above updates them in real time). */}
-      {live.length ? <Rows list={live} heading="In progress" /> : null}
+      {/* "at last update": the status is the schedule owner's at the page's last data refresh — a game may have ended
+          since. The Live now strip above reads the live feed for the current state. */}
+      {live.length ? <Rows list={live} heading="In progress at last update" /> : null}
       {upcoming.length ? <Rows list={upcoming} heading={live.length ? "Upcoming" : undefined} /> : null}
       {played.length ? <Rows list={played} heading="Started or final" /> : null}
     </div>

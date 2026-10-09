@@ -55,3 +55,16 @@ test("Home and the NFL and MLB hubs mount Live Now ahead of their other content"
   const mlb = read("src/app/mlb/page.tsx");
   assert.ok(mlb.indexOf("<LiveNow sports={[\"mlb\"]} />") > 0 && mlb.indexOf("<LiveNow") < mlb.indexOf("<SportHubNav"), "MLB hub: under the title");
 });
+
+test("a failed later check stops the cards claiming to be live and says the feed is unavailable (founder condition 5)", () => {
+  const src = read("src/components/live/live-now-strip.tsx");
+  assert.match(src, /if \(results\.some\(\(r\) => r === null\)\) \{ setStale\(true\); return; \}/, "any unreadable sport marks the strip stale");
+  assert.match(src, /stale \? "last known" : g\.state === "DELAYED"/, "a stale card says 'last known', never 'live'");
+  assert.match(src, /Live feed unavailable — scores last read/, "the status line says so, with the last read time");
+  assert.match(src, /setStale\(false\);/, "a successful read clears it");
+  assert.match(src, /\.then\(\(p\) => \(p \? inPlayEvents\(s, p\) : null\)\)/, "an unreadable response stays unreadable (null), never an empty \"nothing is live\" list");
+});
+
+test("the hub's build-time in-progress group says it is as of the last update (founder condition 4)", () => {
+  assert.match(read("src/components/sport-hub/game-summary.tsx"), /heading="In progress at last update"/);
+});

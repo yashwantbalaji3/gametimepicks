@@ -6,8 +6,10 @@
  * Read at view time from the live gateway's list endpoint — the same factual source /live uses — because a static page
  * cannot know which games are live after it was built. Shows ONLY games the gateway reports as in play (LIVE or
  * DELAYED): score, period and clock as the source states them, nothing derived and no live probability. When nothing
- * is live, or live data is off for the sport, or the gateway cannot be read, it renders nothing — the page's own
- * build-time content stands. Polls on a slow clock and only while the tab is visible.
+ * is live, or live data is off for the sport, or the gateway cannot be read on the first check, it renders nothing — the
+ * page's own build-time content stands. If a LATER check fails, the cards already shown stop claiming to be live: each
+ * reads "Last known", and the status line says the feed is unavailable and when it was last read. Polls on a slow
+ * clock and only while the tab is visible.
  */
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -42,6 +44,7 @@ export default function LiveNowStrip({ sports, hrefs }: { sports: Sport[]; hrefs
   const enabled = sports.filter((s) => liveReadyFor(s));
   const [games, setGames] = useState<LiveEvent[]>([]);
   const [readAt, setReadAt] = useState<number | null>(null);
+  const [stale, setStale] = useState(false);
 
   useEffect(() => {
     if (!enabled.length) return undefined;
@@ -49,11 +52,12 @@ export default function LiveNowStrip({ sports, hrefs }: { sports: Sport[]; hrefs
     const read = async () => {
       if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
       const results = await Promise.all(enabled.map((s) =>
-        fetch(liveUrl({ sport: s }), { headers: { accept: "application/json" } }).then((r) => (r.ok ? r.json() : null)).then((p) => inPlayEvents(s, p)).catch(() => null)));
+        fetch(liveUrl({ sport: s }), { headers: { accept: "application/json" } }).then((r) => (r.ok ? r.json() : null)).then((p) => (p ? inPlayEvents(s, p) : null)).catch(() => null)));
       if (cancelled) return;
-      if (results.every((r) => r === null)) return; // unreadable: keep what was shown, never invent
+      if (results.some((r) => r === null)) { setStale(true); return; } // unreadable: never invent, never claim "live"
       setGames(results.flatMap((r) => r ?? []));
       setReadAt(Date.now());
+      setStale(false);
     };
     read();
     const id = setInterval(read, POLL_MS);
@@ -79,7 +83,7 @@ export default function LiveNowStrip({ sports, hrefs }: { sports: Sport[]; hrefs
           return (
             <li key={`${g.sport}-${g.providerEventId}`} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px", display: "grid", gap: 6 }}>
               <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
-                {SPORT_LABEL[g.sport]} · {g.state === "DELAYED" ? "delayed" : "live"}{g.label ? ` · ${g.label}` : ""}
+                {SPORT_LABEL[g.sport]} · {stale ? "last known" : g.state === "DELAYED" ? "delayed" : "live"}{g.label ? ` · ${g.label}` : ""}
               </p>
               {[g.away, g.home].map((t) => (
                 <p key={t.abbr} style={{ margin: 0, display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "var(--vault-text)" }}>
@@ -96,8 +100,10 @@ export default function LiveNowStrip({ sports, hrefs }: { sports: Sport[]; hrefs
           );
         })}
       </ul>
-      <p role="status" style={{ margin: "6px 0 0", fontSize: 11, color: "var(--vault-text-faint)" }}>
-        Scores from the live feed{readAt ? `, checked ${new Date(readAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}` : ""}. Forecasts were frozen before kickoff and do not change during the game.
+      <p role="status" data-stale={stale ? "1" : "0"} style={{ margin: "6px 0 0", fontSize: 11, color: stale ? "var(--vault-warn)" : "var(--vault-text-faint)" }}>
+        {stale
+          ? `Live feed unavailable — scores last read ${readAt ? new Date(readAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "earlier"} and may be out of date.`
+          : `Scores from the live feed${readAt ? `, checked ${new Date(readAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}` : ""}. Forecasts were frozen before kickoff and do not change during the game.`}
       </p>
     </section>
   );
