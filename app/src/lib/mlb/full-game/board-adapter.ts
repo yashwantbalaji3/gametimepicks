@@ -22,6 +22,7 @@ const FALLBACK_BATTER = (slot: number): BatterInput => ({
   expHits: 0.7,
   expTotalBases: 1.1,
   expHrr: 1.5,
+  rateSource: "replacement",
 });
 
 const LINEUP_SIZE = 9;
@@ -97,7 +98,7 @@ function buildLineup(
       const r = ratesFor(leans, b.playerId);
       // No posted line for this batter: keep him, keep his slot, price him as replacement level.
       if (r.expHits == null) return { ...FALLBACK_BATTER(i + 1), team, playerId: b.playerId, name: b.name };
-      return { playerId: b.playerId, name: b.name, team, ...r };
+      return { playerId: b.playerId, name: b.name, team, ...r, rateSource: "projection" };
     });
     const ratedCount = confirmed.batters.filter((b) => ratesFor(leans, b.playerId).expHits != null).length;
     return { lineup, realCount: LINEUP_SIZE, source: "confirmed", ratedCount };
@@ -110,6 +111,7 @@ function buildLineup(
     team,
     ...ratesFor(leans, h.playerId),
     expHits: h.projection,
+    rateSource: "projection",
   }));
   const lineup = real.slice(0, LINEUP_SIZE);
   for (let s = lineup.length; s < LINEUP_SIZE; s += 1) lineup.push({ ...FALLBACK_BATTER(s + 1), team });
@@ -147,7 +149,7 @@ export function gameInputFromBoard(
       // The real nine, in their real slots. Some may still lack a posted line and be priced at
       // replacement level — said plainly, because it is a different and smaller gap than padding.
       notes.push(side.ratedCount < LINEUP_SIZE
-        ? `${abbr} confirmed batting order used; ${LINEUP_SIZE - side.ratedCount} of 9 have no posted prop line and are priced at replacement level.`
+        ? `${abbr} confirmed batting order used; ${LINEUP_SIZE - side.ratedCount} of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one.`
         : `${abbr} confirmed batting order used, all 9 with posted prop lines.`);
     } else if (side.realCount < LINEUP_SIZE) {
       /*

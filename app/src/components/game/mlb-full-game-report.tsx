@@ -22,6 +22,7 @@ import { formatEtTime } from "@/lib/mlb/public-provenance";
 import { medianRunsCopy, MEDIAN_RUNS_LABEL } from "@/lib/mlb/prediction/median-runs-copy.mjs";
 import { modelImpliedTotal, modelTotalCopy, type ModelImpliedTotal } from "@/lib/mlb/full-game/model-total";
 import { runLineOverviewRow } from "@/lib/mlb/full-game/market-overview";
+import { rowRateLabel, teamRateNote } from "@/lib/mlb/full-game/box-score-rates";
 
 const int0 = (n: number): string => Math.round(n).toLocaleString("en-US");
 
@@ -545,6 +546,10 @@ function BoxScore({ g }: { g: FullGameSimGame }) {
                         <span style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{b.battingOrder}.</span>
                         {b.playerId > 0 ? <PlayerAvatar playerId={b.playerId} playerName={b.name} team={b.team} sport="mlb" size="xs" flat /> : null}
                         <span>{b.name}</span>
+                        {/* TRUTH-001: a replacement-rated row is marked, never passed off as a projection. */}
+                        {rowRateLabel(b) === "replacement" && b.playerId > 0 ? (
+                          <span className="font-mono uppercase" style={{ fontSize: 8, color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", borderRadius: 999, padding: "0 5px", whiteSpace: "nowrap" }}>replacement rates</span>
+                        ) : null}
                       </span>
                     </td>
                     {[b.plateAppearances, b.hits, b.totalBases, b.homeRuns, b.runs, b.rbi, b.walks, b.strikeouts].map((v, i) => (
@@ -555,6 +560,9 @@ function BoxScore({ g }: { g: FullGameSimGame }) {
               </tbody>
             </table>
           </div>
+          {teamRateNote(g, team) ? (
+            <p className="text-[10.5px] m-0 mt-1" style={{ color: "var(--vault-text-faint)" }}>{teamRateNote(g, team)}</p>
+          ) : null}
         </section>
       ))}
       {g.players.pitchers.length ? (

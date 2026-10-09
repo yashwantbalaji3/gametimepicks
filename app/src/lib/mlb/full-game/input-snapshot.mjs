@@ -64,7 +64,9 @@ function sideOf(lineup, confirmedSide, source, realCount, ratedCount) {
     ratedCount,
     /* A padded slot is a replacement-level batter standing in for one nobody posted. Counted rather
        than named, because the count is the claim and the identity is in the capture. */
-    paddedSlots: (lineup ?? []).filter((b) => !Number.isFinite(b?.playerId)).length,
+    // A filler carries a NEGATIVE sentinel id (board-adapter FALLBACK_BATTER), which is finite — counting
+    // only non-finite ids recorded 0 padded slots on every snapshot (TRUTH-001 audit, 2026-10-09).
+    paddedSlots: (lineup ?? []).filter((b) => !Number.isFinite(b?.playerId) || b.playerId < 0).length,
   };
 }
 
