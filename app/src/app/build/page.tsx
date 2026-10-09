@@ -28,7 +28,7 @@ import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
 import LegRecordList from "@/components/parlays/lab/leg-record-list";
 import { picksSurfaceStatus } from "@/lib/products/surface-status.mjs";
-import { loadRiskLadder, loadLabLedger, loadTierGrid, loadLabSettled, loadGradedLegRecord, inSeasonLadder, loadMlbSeasonState } from "@/lib/parlays/risk-ladder";
+import { loadRiskLadder, riskLadderProducerRan, loadLabLedger, loadTierGrid, loadLabSettled, loadGradedLegRecord, inSeasonLadder, loadMlbSeasonState } from "@/lib/parlays/risk-ladder";
 import { buildTierReplay } from "@/lib/parlays/lab/style-replay.mjs";
 import { loadMlbPropsBoard, toSwapCandidate } from "@/lib/mlb/mlb-props";
 import path from "node:path";
@@ -53,7 +53,7 @@ export default function ParlayCenterSuggestedPage() {
   const ladderCardCount = riskLadder?.cards?.length ?? 0;
   /* TRUTH-001: the ladder producer ran for this date (its artifact exists, even with zero cards) or the season is
      over — either way nothing is "pending". */
-  const ladderProducerRan = loadRiskLadder(dataRoot, ladderDate) != null || !!offSeasonReason;
+  const ladderProducerRan = riskLadderProducerRan(dataRoot, ladderDate) || !!offSeasonReason;
   /* The precomputed 4x4 tier grid — server-resolved, so every reader with the same bankroll sees
      the same set and the mapping is auditable rather than re-derived per browser. */
   const tierGrid = loadTierGrid(dataRoot, "mlb");
