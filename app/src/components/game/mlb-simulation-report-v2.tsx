@@ -414,7 +414,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           <p className="mt-2 font-mono text-[10px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
             Model-predicted markets: <span style={{ color: "var(--vault-text-mute)" }}>{modeledMarkets.join(" · ") || "—"}</span>.
             The book also posts Home runs · RBIs · Runs · Pitcher outs · Earned runs for some players — the model does not price those yet
-            (<span style={{ color: "var(--vault-text-mute)" }}>market context only</span>, not simulated, not product-eligible). See the coverage audit for why.
+            (<span style={{ color: "var(--vault-text-mute)" }}>market context only</span>, no prop-model probability, not product-eligible; the Box Score tab shows the full-game simulation's averages for HR, R and RBI, which are not priced picks). See the coverage audit for why.
           </p>
         ) : null}
       </Section>
