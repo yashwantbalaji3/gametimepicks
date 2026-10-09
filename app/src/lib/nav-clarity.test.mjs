@@ -24,12 +24,15 @@ test("🔴 no nav note makes a claim that a static list cannot keep true (which 
   }
 });
 
-test("🔴 the Sports primary leads with the four hubs, each with an ABSOLUTE fact — never 'today' or 'live'", () => {
+test("🔴 the Sports primary leads with every catalog hub, each with an ABSOLUTE fact — never 'today' or 'live'", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "src/app/sports/page.tsx"), "utf8");
   const chooser = src.indexOf("<SportChooser />"); const coverage = src.indexOf("Schedules and coverage status</h2>");
   assert.ok(chooser > 0 && chooser < coverage, "the chooser renders before the schedule/coverage section");
   const comp = fs.readFileSync(path.join(process.cwd(), "src/components/sports/sport-chooser.tsx"), "utf8");
-  for (const href of ["/nfl/", "/mlb/", "/epl/", "/ufc/"]) assert.ok(comp.includes(`href: "${href}"`), `chooser links ${href}`);
+  // UX-001 phase 2: the hubs are the sport catalog's competitions (NFL, NBA, MLB, Premier League, Ligue 1, UFC), not a local list.
+  assert.match(comp, /import \{ COMPETITIONS \} from "@\/lib\/sports\/catalog"/, "the chooser reads the one sport catalog");
+  assert.match(comp, /\{COMPETITIONS\.map\(/, "one tile per catalog competition");
+  assert.doesNotMatch(comp, /href: "\/(nfl|mlb|epl|ufc|nba)\/"/, "no hand-kept hub list beside the catalog");
   const fn = comp.slice(comp.indexOf("export default function SportChooser"));
   assert.match(fn, /crossSportToday\(/, "the dated count comes from the cross-sport owner");
   assert.match(fn, /nextEventUtc/, "the next event comes from the product day");

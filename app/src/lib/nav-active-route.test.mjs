@@ -19,7 +19,8 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
   // P194: every nav item now carries a `group` so the thirteen destinations render as four clusters.
   // These assertions match on href+label and stay group-agnostic — they are about WHICH destinations
   // lead the spine, not about the shape of the object that describes them.
-  const nav = fs.readFileSync("src/components/nav.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
+  // UX-001 phase 2: the sport hubs' entries live in lib/sports/catalog.ts, which the registry's Sports group derives from.
+  const nav = fs.readFileSync("src/components/nav.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8") + fs.readFileSync("src/lib/sports/catalog.ts", "utf8");
   // P243 · E: the destination is named "Simulations" (the charter's five primaries); the old
   // "Game Lab"/"Games" labels stay gone.
   assert.match(nav, /\{ href: "\/simulate", label: "Simulations"/, "Simulations is a nav item");

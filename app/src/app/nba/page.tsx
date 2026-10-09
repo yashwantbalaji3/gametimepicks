@@ -11,6 +11,7 @@
  */
 import Link from "next/link";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
+import SportSwitcher from "@/components/sports/sport-switcher";
 import { nbaHub } from "@/lib/sport-hub/nba-hub";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -25,6 +26,8 @@ export default function NbaHubPage() {
   const finals = model.rows.filter((r) => r.status === "final").length;
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
+      {/* UX-001 phase 2: the shared sport switcher — every hub links to every other sport. */}
+      <SportSwitcher current="nba" />
       <HubTitle model={model} />
       <p className="m-0 max-w-2xl text-[13.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
         <span className="font-semibold" style={{ color: "var(--vault-text)" }}>Schedule only — no public forecast.</span>{" "}

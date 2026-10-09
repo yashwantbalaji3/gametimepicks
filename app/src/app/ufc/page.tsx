@@ -16,6 +16,7 @@
 import fs from "node:fs";
 import { formatUpdatedEt } from "@/lib/format";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
+import SportSwitcher from "@/components/sports/sport-switcher";
 import { ufcHub } from "@/lib/sport-hub/adapters";
 import Explain from "@/components/ui/explain";
 import TopReadsPanel from "@/components/top-reads-panel";
@@ -143,6 +144,8 @@ export default function UfcArchivePage() {
       {/* Program 237: the events come first on every sport page. */}
 
       {/* P208 · Release C — shared section nav; every hub capability one action from here. */}
+      {/* UX-001 phase 2: the shared sport switcher — every hub links to every other sport. */}
+      <SportSwitcher current="ufc" />
       <HubTitle model={__hubModel} />
       <SportHubNav sport="ufc" />
       <section id="ufc-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>

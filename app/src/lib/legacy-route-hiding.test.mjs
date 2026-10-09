@@ -22,7 +22,8 @@ const footer = read("src/components/footer.tsx");
  * where the answer lives, and where possible they read the BUILT page rather than any source at
  * all, which is strictly stronger: it proves what a visitor is actually served.
  */
-const registry = read("src/lib/navigation.ts");
+// UX-001 phase 2: the sport hubs' entries live in the sport catalog the registry derives its Sports group from.
+const registry = read("src/lib/navigation.ts") + read("src/lib/sports/catalog.ts");
 const builtFooter = (() => {
   const f = path.join(app, "out", "today", "index.html");
   if (!fs.existsSync(f)) return null;                       // source-only run

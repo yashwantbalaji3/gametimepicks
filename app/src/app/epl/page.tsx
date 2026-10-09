@@ -25,6 +25,7 @@
 import type { Metadata } from "next";
 import { formatUpdatedEt } from "@/lib/format";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
+import SportSwitcher from "@/components/sports/sport-switcher";
 import { eplHub } from "@/lib/sport-hub/adapters";
 import Link from "next/link";
 
@@ -216,6 +217,8 @@ export default function EplPage() {
 
       {/* P208 · Release C — shared section nav; every hub capability one action from here. */}
       <div className="mb-4">
+        {/* UX-001 phase 2: the shared sport switcher — every hub links to every other sport. */}
+        <SportSwitcher current="epl" />
         <HubTitle model={__hubModel} />
       <SportHubNav
           sport="epl"

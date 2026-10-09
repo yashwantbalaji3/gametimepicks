@@ -38,6 +38,8 @@
  * destination from the canonical list.
  */
 
+import { COMPETITIONS } from "./sports/catalog";
+
 export type NavGroup = "now" | "sports" | "products" | "record";
 
 /** Which surfaces carry a destination. A destination must appear on at least one. */
@@ -169,34 +171,14 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     surfaces: ["rail", "footer"] },
 
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
-  /* #797 PR B: "live" was a claim about the season (it read "live" the day after the regular season ended).
-     The note states what the hub is, which does not change with the calendar. */
-  { href: "/mlb", label: "MLB", note: "simulation center", group: "sports", glyph: "⚾", desc: "Baseball hub",
-    surfaces: ["rail", "footer"] },
-  { href: "/nfl", label: "NFL", note: "experimental sims", group: "sports", glyph: "🏈", desc: "Football hub",
-    surfaces: ["rail", "footer"] },
-  { href: "/ufc", label: "UFC", note: "fight card + archive", group: "sports", glyph: "🥊", desc: "Fight card",
-    surfaces: ["rail", "footer"] },
-  /*
-   * P185 published EPL forecasts on 2026-08-20; this entry still said "simulation pending" and
-   * rendered ON /epl itself, in the rail directly above that page's own heading "Schedule + model
-   * forecasts — not validated out of sample". Two contradictory claims about one page, in one
-   * viewport. The state that is still true is the VALIDATION gap, not the absence of a model, so
-   * that is what the note and descriptor now carry.
-   */
-  { href: "/epl", label: "Premier League", note: "forecasts · not validated", group: "sports", glyph: "⚽",
-    /* P213 R-A: the limitation lives ONCE per surface — the note carries "not validated" (the P185
-       contract, guard-pinned within the entry) and /epl states it in full; the desc repeating the
-       whole sentence made the rail sublabel a methodology line. */
-    desc: "Soccer hub",
-    surfaces: ["rail", "footer"] },
-  /* Session 6 (founder decision 3, 2026-10-02): NBA is a FACTUAL hub — schedule and official finals, no forecast
-     while every NBA model is shadow/withheld. The note says exactly that, so the rail never implies a model; the
-     page states it again ("Schedule only — no public forecast"), and product-reset-phase-a pins both. */
-  { href: "/nba", label: "NBA", note: "schedule + final scores · no forecast", group: "sports", glyph: "🏀", desc: "Basketball hub",
-    surfaces: ["rail", "footer"] },
-  /* No `note`: the label already ends in "Schedules", and "Sports · Schedules · schedules" is
-     what a note that repeats its own label looks like. */
+  /* UX-001 phase 2 (2026-10-09): the sport hubs come from the one sport catalog (lib/sports/catalog.ts), in the founder's
+     order — Football, Basketball, Baseball, Soccer, MMA — each competition labelled by its league and described by its
+     sport. Ligue 1, a public page no menu linked, arrives through the catalog's publishing gate. The coverage notes
+     (P185 "forecasts · not validated", Session 6 NBA "no forecast", #797 PR B "simulation center") live there now. */
+  ...COMPETITIONS.map((c): NavDestination => ({
+    href: c.href, label: c.label, note: c.note, group: "sports", glyph: c.sport.glyph, desc: `${c.sport.label} hub`,
+    surfaces: ["rail", "footer"],
+  })),
 
   // ── PRODUCTS ───────────────────────────────────────────────────────────────────────────────────
   { href: "/bank-builder", label: "Bank Builder", group: "products", glyph: "▰", desc: "Paper card",
