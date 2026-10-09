@@ -19,8 +19,9 @@
 # tick in the shared writer group would cancel a pending daily-products / settle run). It writes only
 # app/public/data/nba/results/**; a lost push race re-captures on the new main, up to 3 times.
 #
-# COMMITS ONLY ON CONTENT. Rows carry capturedAt stamps; a stamp-only change to latest.json is dropped, and a new
-# final in finals-<season>.json is never discarded with it (the rule sport-schedules used).
+# COMMITS ONLY ON PUBLISHABLE CONTENT. Rows carry capturedAt stamps and in-progress status; a change to latest.json in
+# only those is dropped (results-publishable.mjs, COST-001 2026-10-09), and a new final in finals-<season>.json is
+# never discarded with it (the rule sport-schedules used).
 #
 # FREE: no secrets, no paid provider, no npm install (the scripts are dependency-free .mjs). A commit under
 # app/public/data triggers the Vercel build (scripts/vercel-ignore-build.sh), so a new final deploys on its own.
@@ -82,17 +83,14 @@ jobs:
             (cd app && node scripts/nba/build-nba-finals-record.mjs --now "$NOW") || { echo "::error::NBA finals record refused"; exit 1; }
             git add "$RESULTS/"
             if git diff --cached --quiet; then echo "no change"; exit 0; fi
-            if node -e "
-              const { execSync } = require('child_process');
-              const strip = (j) => { const o = JSON.parse(j); delete o.generatedAt; delete o.sourceAsOf;
-                o.rows = (o.rows||[]).map(r => { const { capturedAt, ...rest } = r; return rest; }); return JSON.stringify(o); };
-              const f = '$RESULTS/latest.json';
-              let head; try { head = execSync('git show HEAD:' + f, { encoding: 'utf8' }); } catch { process.exit(1); }
-              process.exit(strip(head) === strip(require('fs').readFileSync(f, 'utf8')) ? 0 : 1);
-            "; then
-              # Only latest.json's stamps moved: put THAT file back, but keep anything else staged — a new final
-              # in finals-<season>.json must never be discarded with a stamp-only window refresh.
-              echo "only capture stamps moved in latest.json — keeping the committed window"
+            # COST-001 Stage A (2026-10-09): commit latest.json only when it changes something a reader can see — a
+            # final, a corrected final, a postponement, a schedule change or the window state
+            # (app/src/lib/sports/nba/results-publishable.mjs). Capture stamps AND in-progress status/live scores no
+            # longer commit: no reader uses them, and each commit was a full Vercel build (25 in the week to 10-09).
+            if node app/scripts/nba/results-publishable.mjs "$RESULTS/latest.json"; then
+              # Nothing publishable moved in latest.json: put THAT file back, but keep anything else staged — a new
+              # final in finals-<season>.json must never be discarded with a window refresh.
+              echo "only stamps / in-progress state moved in latest.json — keeping the committed window"
               git reset -q -- "$RESULTS/latest.json"
               git checkout -q -- "$RESULTS/latest.json"
             fi

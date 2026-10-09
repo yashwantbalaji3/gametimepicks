@@ -598,8 +598,9 @@ jobs:
             exit 0
           fi
           git commit -m "auto: nfl event window ${{ steps.window.outputs.now }} [skip ci]"
-          git pull --rebase --autostash origin main
-          git push origin HEAD:main
+          # COST-001 Stage A (2026-10-09): committed, NOT pushed here. The settlement receipts below commit on top and
+          # "Publish this run's commits" pushes both at once. One push is one Vercel deployment; two pushes minutes
+          # apart were two full Production builds (35 such pairs in the week to 2026-10-09).
 
       # Settlement is INDEPENDENT of the window gate: last night's finals settle even when
       # tonight has no events. It is idempotent (exactly-once by canonicalEventId) and free.
@@ -744,8 +745,27 @@ jobs:
           if [ -d data/internal/nfl/world-model-v2/grades ]; then git add data/internal/nfl/world-model-v2/grades/; fi
           if git diff --cached --quiet; then echo "no settlement change"; exit 0; fi
           git commit -m "auto: nfl settlement receipts [skip ci]"
-          git pull --rebase --autostash origin main
-          git push origin HEAD:main
+          # Pushed with the window's commit by the next step (COST-001 Stage A: one push per run).
+
+      # COST-001 Stage A (2026-10-09) · ONE PUSH PER RUN. Runs whatever happened above (`always()`, cancellation included),
+      # so a commit made earlier in the run is never stranded by a later failure. It is a no-op when nothing was
+      # committed. The rebase and the retry are the ones each commit step used to do on its own.
+      - name: Publish this run's commits (one push, one deployment)
+        if: ${{ always() }}
+        run: |
+          set -euo pipefail
+          git fetch -q origin main
+          AHEAD="$(git rev-list --count origin/main..HEAD)"
+          if [ "$AHEAD" = "0" ]; then echo "nothing committed this run — no push"; exit 0; fi
+          echo "publishing $AHEAD commit(s) in one push"
+          for ATTEMPT in 1 2 3; do
+            git pull --rebase --autostash origin main
+            if git push origin HEAD:main; then echo "pushed on attempt $ATTEMPT"; exit 0; fi
+            echo "::warning::push lost a race (attempt $ATTEMPT) — rebasing again"
+            sleep $((ATTEMPT * 10))
+          done
+          echo "::error::could not push after 3 attempts"
+          exit 1
 
       # Was a hand-rolled curl posting its own payload straight to the webhook. It worked, but it
       # sat OUTSIDE docs/OPS_ALERTING_CONTRACT.md: no redaction pass, a different message shape, and
