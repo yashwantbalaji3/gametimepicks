@@ -23,9 +23,17 @@ test("🔴 nflverse finals are captured BEFORE the player events that read them,
   assert.equal(wf.split("node scripts/nfl/capture-nflverse-season.mjs").length - 1, 1, "captured once per run");
 });
 
-test("a failed nflverse download cannot skip the player-event capture or the role shares", () => {
-  for (const name of ["Capture current-season player events", "Rebuild NFL role shares against the fresh roster"]) {
-    const step = wf.slice(at(name), at(name) + 200);
-    assert.match(step, /if: \$\{\{ !cancelled\(\) && steps\.window\.outputs\.events != '0' \}\}/, `${name} runs after a failed predecessor`);
+test("🔴 a failed nflverse download cannot skip ANY later pregame step (injuries included)", () => {
+  // Every step from the nflverse capture up to the forecasts must run after a failed predecessor: `!cancelled()` or
+  // `always()` in its condition. A bare `if:` means success() — one free download failing would skip, e.g., the
+  // fresh injury capture the whole pregame chain conditions on.
+  const from = at("Capture this season's nflverse finals and play-by-play (free)");
+  const to = at("Generate public-beta NFL forecasts");
+  const steps = wf.slice(from, to).split(/\n      - name: /).slice(1);
+  assert.ok(steps.length >= 6, `checked ${steps.length} steps`);
+  for (const st of steps) {
+    const name = st.split("\n")[0];
+    const cond = /\n        if: (.+)/.exec(st)?.[1] ?? "(none: success())";
+    assert.match(cond, /!cancelled\(\)|always\(\)/, `${name} → if: ${cond}`);
   }
 });

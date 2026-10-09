@@ -248,7 +248,9 @@ jobs:
       # continue-on-error so a provider blip degrades to the previous capture with its real
       # timestamp — which the freshness bound then reports honestly — rather than failing the window.
       - name: Capture NFL injury designations (freshness input for the whole chain)
-        if: steps.window.outputs.events != '0'
+        # NFL-005 (2026-10-09): `!cancelled()` because the nflverse capture now runs before this step. A failed
+        # download must never skip the fresh injury capture the whole pregame chain conditions on.
+        if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
         continue-on-error: true
         working-directory: app
         run: |
