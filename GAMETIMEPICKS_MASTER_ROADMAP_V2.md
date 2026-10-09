@@ -850,6 +850,21 @@ Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parla
 ### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
 - NFL is the first sport on the shared presentation pieces: `components/nfl/forecast/` (one model-status explainer, hero, histogram panels, tabbed player rows with ESPN portraits + team logos, sampled-game explorer, collapsible methodology). Remaining UX-001 scope: generalise these into the Sport Hub components for every sport (not started); NFL week selector beyond the existing `/nfl/week/[key]` permalinks.
 
+### Progress (2026-10-09; founder UX decisions; branch `claude/ux-live-first`)
+- **Audit:** read-only audit of Production published as an artifact (https://claude.ai/artifact/Nifv8hDm5fuy4XaX8v5LNw), with phone screenshots, page lengths (NFL hub 25,505 px / 4,641 words; Results 17,576 px; Today 11,908 px), click depth, ten evidenced problems and a 10-PR sequence.
+- **Founder decisions (2026-10-08):**
+  - No global Simple/Analyst switch. Collapsible detail sitewide; Simple/Analyst only inside Results (RESULTS-001).
+  - Live replaces Parlays in the primaries; Parlays stays in the Menu sheet, rail and footer.
+  - Today folds into Home only after every Today function, filter, deep link and nav dependency is verified; no redirect before that.
+  - Proceed with the phased sequence.
+- **PR 1 · Live first:**
+  - `components/live/live-now-strip.tsx` + `live-now.tsx`: a view-time read of the live gateway list. It shows only games stated LIVE/DELAYED, links only to built pages, and renders nothing otherwise.
+  - The strip sits on Home (before the hero) and the NFL and MLB hubs (under the title).
+  - The five primaries are Home · Sports · Live · Simulations · Results, on every surface.
+  - Hub lists lead with rows the schedule owner states are in progress.
+  - The `#player-board` alias anchor on simulated NFL game pages keeps /live and saved links landing on the player projections.
+  - Verified locally against the real gateway during TB @ DAL and CLE @ CWS at 390 px and 1280 px: the strip is at the top, both games show, links resolve, no overflow.
+
 ## Universal order
 1. Sport header + period selector
 2. Slate summary
@@ -907,6 +922,21 @@ MLB player rows from `full-game-simulations` are not a usable pregame projection
 Graph cumulative observed stat as steps, threshold as horizontal line, pregame projection/reference separately.
 
 Use `Threshold reached — awaiting official settlement`, not premature `WIN`. Under bets generally cannot clear before period end.
+
+### NFL live readiness, TB @ DAL (2026-10-08/09), and the World Model V2 integration plan
+- **Working (Production):**
+  - The /live and game-page panels: score, period, clock and down-and-distance from the ESPN public feed (gateway TTL 25 s, client poll 30 s; stale shows "Last known", unavailable is stated).
+  - Factual live receiving yards, receptions and rushing yards beside the frozen projections.
+  - Sportsbook lines with book and capture time on /live and, since #1027, on game pages.
+  - Frozen pregame forecasts untouched after kickoff.
+- **Not tracked live, by design:**
+  - Passing yards: the gateway map leaves `passing:YDS` out (ESTIMATE family at the time).
+  - Anytime TD: no box-score field names the scorer by id. The only producer is the manual live-props capture. Since #1027 the TD card says "Not tracked live · settled from the official box score after the game".
+- **Integration plan (founder decision 5; LIVE tasks):**
+  - /live tracks the same World Model V2 rows the game pages show once WM2 grading runs, through `forecast-view.mjs` instead of the board.
+  - Add `passing:YDS` to the gateway map now that passing yards is a published WM2 family.
+  - TD events need an id-bearing source (play-by-play athlete ids); until then they stay untracked.
+  - Live tracking stays factual and separate from any live re-simulation (LIVE-003, shadow).
 
 ## `LIVE-002` — L2 visual Game Center
 **Status:** NOT_STARTED
@@ -1413,6 +1443,14 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Vault data: the live page briefly carried the new copy over the old data (a false "same as the board" claim), so ONE zero-credit `nfl-event-window` dispatch was run at 19:36Z (run 37833227448; no other window was running) → `e9ac36125` (Vault 172 candidates, ledger entry unchanged, roster audit 0) → Production 19:40:00Z. Live `/endzone-vault`: "172 players cleared the minimum … the 12 above are the highest", Javonte Williams 72.5% = game page; deployed artifact 12/12 rows equal the boards, ranked by the displayed number, 0 Questionable/Out listed (Swift, Bowers withheld with designation); no new accuracy/calibration claim.
 - Vercel today from this session: Preview **0**; Production builds: #1022 merge 40 CPU-min, 17:21Z dispatch data commit 48 CPU-min, #1023 merge 64 CPU-min, 19:36Z dispatch data commit (billing pending at 19:44Z).
 - **World Model V2 full simulation engine directive (≈19:55Z):** built the coherent game-world engine, per-game artifacts, experimental game pages and simulation-derived Top boards on `claude/nfl-world-model-v2-sim` from `main` `907a698e4f`. Research-side input exporter and TD diagnosis committed on `claude/nfl-003-005-world-model` (`8be895d99d`, `6f32bfa7f5`). The TB@DAL post-inactives watcher was left running; the frozen captures are untouched. Release path A (experimental display) awaits founder approval; path B (promotion) is not proposed.
+- **#1027 merged** at exact head `71dba8c4c8` (CI run 37864467401 `python` ✓ `quality` ✓; MERGEABLE/CLEAN; 33 in-scope files) → `a4b200c4a2` 00:48:24Z; Vercel Production `ELLXQ612w2vqZGwqQNfsMowpGqpp` READY 00:52Z (~4 min); build-info `a4b200c4`.
+  - Live during TB @ DAL: 48 priced rows on the game page, the precise results note, the /live source note and the TD wording.
+  - Exact CPU charge needs the dashboard login.
+- **Week 5 capture #3:** `v2-candidates-forward/2026-week05-20261008T2324Z.json`, 23:24:01Z, after the 23:21Z post-inactives refresh; 15 games, 0 refused; research branch `12650411a1`. Captures #1/#2 unchanged.
+- **Refresh note:** the 01:00Z window re-simulated 14 unstarted games although availability was unchanged.
+  - Cause 1, one-time: the first automated packet dropped the started TB @ DAL, so the whole-packet legacy key no longer matched. New runs carry per-game keys.
+  - Cause 2, recurring: the margin sigma is derived from the forecast's simulated p10/p90, which jitters by about 0.4 between regenerations.
+  - Fix in its own PR: a tolerance on head sigmas. TB @ DAL was untouched (frozen at kickoff).
 - **#1024 launched (founder launch decision, experimental public integration):**
   - Pre-merge checks at exact head `6af3b00a51`: CI run 37838853725 `python` ✓ `quality` ✓; MERGEABLE/CLEAN; 46 in-scope files with no forecast, board, Vault, injury or capture file.
   - All 15 artifacts rebuilt from the engine with their recorded seeds came out identical. TD marginals are absent. The frozen captures are unchanged: one commit each, sha `2f269a14…` and `a1078a7c…`.

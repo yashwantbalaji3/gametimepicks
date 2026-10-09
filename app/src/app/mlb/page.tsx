@@ -7,6 +7,7 @@
  * (every lean) stays at /mlb/board — this hub surfaces the top projections + a CTA. No fabricated
  * data; lean/game counts come from the live board summary.
  */
+import LiveNow from "@/components/live/live-now";
 import fs from "node:fs";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import { mlbHub } from "@/lib/sport-hub/adapters";
@@ -405,6 +406,8 @@ export default function MlbLandingPage() {
           Conditional sections pass through only when they rendered, so no strip item is dead. */}
       <div className="mb-4">
         <HubTitle model={__hubModel} />
+        {/* Founder UX decision 2026-10-08: a game in play leads the hub (client-read; nothing when none is live). */}
+        <LiveNow sports={["mlb"]} />
       <SportHubNav
           sport="mlb"
           anchors={[

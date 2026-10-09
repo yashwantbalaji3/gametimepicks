@@ -149,7 +149,11 @@ test("ROLLOUT 10 · the Live nav entry exists, is truthful about scope, and reso
    * same set on every surface; making Live a sixth is a founder product decision, not a side effect
    * of shipping the route. Phones still reach it — the Menu sheet derives rail-minus-bar.
    */
-  assert.match(entry[0], /surfaces: \["rail", "footer"\]/, "Live must not silently become a sixth primary");
+  /* FOUNDER DECISION 2026-10-08: Live became a primary by REPLACING Parlays — still five, still one set on every
+     surface. The guard changed with the decision: Live is on every surface, and the primaries stay exactly five. */
+  assert.match(entry[0], /surfaces: \["top", "rail", "mobile", "footer"\]/, "Live is a primary on every surface (founder decision 2026-10-08)");
+  const primaries = [...nav.matchAll(/\{ href: "([^"]+)"[^}]*surfaces: \["top", "rail", "mobile", "footer"\]/g)].map((m) => m[1]);
+  assert.equal(primaries.length, 5, `exactly five primaries, never a silent sixth: ${primaries.join(", ")}`);
 
   // It points at a route that actually exists in source.
   assert.ok(fs.existsSync(path.join(APP, "src/app/live/page.tsx")), "/live has a real page");

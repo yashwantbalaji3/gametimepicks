@@ -56,6 +56,7 @@ import { hasStarted } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { availableWeekKeys, weekKeyOf } from "@/lib/sports/nfl/week-keys";
 import ForecastStyles from "@/components/nfl/forecast/styles";
 import ModelStatus from "@/components/nfl/forecast/model-status";
+import LiveNow from "@/components/live/live-now";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import { boardTabs, topBoards } from "@/lib/sports/nfl/forecast-view.mjs";
 import { loadForecastViews } from "@/lib/sports/nfl/forecast-view-load.mjs";
@@ -401,6 +402,8 @@ export default function NflHubPage() {
       {/* P208 · Release C — shared section nav; conditional sections pass through only when they
           rendered, so no strip item is dead. */}
       <HubTitle model={__hubModel} />
+      {/* Founder UX decision 2026-10-08: a game in play leads the hub (client-read; nothing when none is live). */}
+      <LiveNow sports={["nfl"]} />
       <SportHubNav
         sport="nfl"
         anchors={[
