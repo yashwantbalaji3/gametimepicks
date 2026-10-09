@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-09T11:58:32.583Z",
+  "generatedAt": "2026-10-09T12:04:49.956Z",
   "canonical": {
     "record": "46-49",
     "bankroll": 14390.4,
@@ -215,16 +215,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-09T11:58:31.843Z",
+    "lastRunAt": "2026-10-09T12:04:49.415Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
-    "phase": "nightly-settle"
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-09",
-    "etTime": "07:58",
+    "etTime": "08:04",
     "stages": [
       {
         "stage": "schedule",
@@ -243,14 +243,14 @@
       {
         "stage": "teamMarkets",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "playerProps",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
@@ -271,9 +271,9 @@
     ],
     "readyCount": 4,
     "totalStages": 6,
-    "lateCount": 0,
-    "signal": "YELLOW",
-    "summary": "4/6 produced; the rest are not due yet"
+    "lateCount": 2,
+    "signal": "RED",
+    "summary": "2 stage(s) overdue: teamMarkets (due 07:17 ET via mlb-daily-production), playerProps (due 07:17 ET via mlb-daily-production)"
   },
   "learningLoop": {
     "signal": "GREEN",
