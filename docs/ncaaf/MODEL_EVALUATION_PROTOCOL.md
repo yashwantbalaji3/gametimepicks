@@ -120,4 +120,18 @@ is not model qualification: qualification needs forward evidence (NCAAF-005/006)
 
 ## 9. Amendments
 
-_None._
+### Amendment 1 — 2026-10-09, before any model fit (no window contaminated)
+
+**Change:** C2/C3 residual scale. §4 said "(home, away) residuals ~ bivariate Normal(σ, ρ) from the same
+weighted fit". It now reads: **σ and ρ are estimated from the candidate's own earlier out-of-sample forecast
+errors** (the home and away point errors of every forecast it issued before slate day D, burn-in included,
+weighted by the same half-life H). Until 200 such errors exist, the expanding B0 SDs are used.
+
+**Reason:** in-sample ridge residuals understate predictive spread by construction (the fit has already absorbed
+part of each game's noise). That would bias the §8(c) interval-coverage bar toward failing for a known
+mechanical reason rather than a modelling one. Out-of-sample errors are leakage-safe because they only use
+forecasts issued before D. C1's margin β/σ_m was already out-of-sample (pregame Δ against the realised margin)
+and is unchanged.
+
+**Disclosure:** this was noticed while designing the implementation. No candidate had been fitted and no window
+scored.
