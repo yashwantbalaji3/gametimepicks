@@ -27,6 +27,7 @@ import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
 import LegRecordList from "@/components/parlays/lab/leg-record-list";
+import { picksSurfaceStatus } from "@/lib/products/surface-status.mjs";
 import { loadRiskLadder, loadLabLedger, loadTierGrid, loadLabSettled, loadGradedLegRecord, inSeasonLadder, loadMlbSeasonState } from "@/lib/parlays/risk-ladder";
 import { buildTierReplay } from "@/lib/parlays/lab/style-replay.mjs";
 import { loadMlbPropsBoard, toSwapCandidate } from "@/lib/mlb/mlb-props";
@@ -50,6 +51,9 @@ export default function ParlayCenterSuggestedPage() {
   const { ladder: riskLadder, offSeasonReason } = inSeasonLadder(loadRiskLadder(dataRoot, ladderDate), loadMlbSeasonState(dataRoot));
   /* What the page can actually show today, independent of the builder's own pool. */
   const ladderCardCount = riskLadder?.cards?.length ?? 0;
+  /* TRUTH-001: the ladder producer ran for this date (its artifact exists, even with zero cards) or the season is
+     over — either way nothing is "pending". */
+  const ladderProducerRan = loadRiskLadder(dataRoot, ladderDate) != null || !!offSeasonReason;
   /* The precomputed 4x4 tier grid — server-resolved, so every reader with the same bankroll sees
      the same set and the mapping is auditable rather than re-derived per browser. */
   const tierGrid = loadTierGrid(dataRoot, "mlb");
@@ -79,7 +83,7 @@ export default function ParlayCenterSuggestedPage() {
            card COUNT alone, so yesterday's cards wore it all morning while today's board was
            still unpublished. A behind-today slate reads as the review of the latest slate, and
            the date renders beside it either way. */
-        status={ladderDate >= currentEtDate() && (ladderCardCount > 0 || suggestedCards.length > 0) ? "pregame" : ladderCardCount > 0 || suggestedCards.length > 0 ? "review" : "data_pending"}
+        status={picksSurfaceStatus({ shownCount: ladderCardCount + suggestedCards.length, slateDate: ladderDate, today: currentEtDate(), producerRan: ladderProducerRan })}
         slateDate={ladderDate}
         counts={{ suggestedCards: ladderCardCount }}
         primaryAction={{ label: "Build your own card", href: "/build/custom" }}

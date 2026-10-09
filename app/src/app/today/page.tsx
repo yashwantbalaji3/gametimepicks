@@ -199,7 +199,10 @@ export default function TodayPage() {
   const bbHasActiveCard = dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active");
   const bbNoPlay = !bbProposal.available && !bbHasActiveCard;
   const bbStepPhrase = awaitingRung != null ? `awaiting Step ${awaitingRung}` : "awaiting next card";
-  const bbStatusValue = bbNoPlay ? "No-play" : bbHasActiveCard ? "Active card" : "Awaiting card";
+  /* TRUTH-001 (B6): a day with no games is not a no-play CALL — /bank-builder says so explicitly. "No-play" means
+     the ladder looked at a slate and held; with no events anywhere there was nothing to look at. */
+  const noGamesToday = todayAcross.state !== "UNKNOWN" && todayAcross.eventsToday === 0;
+  const bbStatusValue = bbNoPlay ? (noGamesToday ? "No games today" : "No-play") : bbHasActiveCard ? "Active card" : "Awaiting card";
   /* Session 7: the lane's OWN reason (activationEligibility.reason) — "a postseason off day" or "no priced slate yet"
      is not "no card reaches this step's price". The generic sentence is only the fallback when no reason is published. */
   const sentence = (r: string | null | undefined) => (r ? `${r.charAt(0).toUpperCase()}${r.slice(1).replace(/\.\s*$/, "")}.` : null);
@@ -214,7 +217,7 @@ export default function TodayPage() {
   // ── Longshot / Moonshot status — no active Moonshot card today ⇒ honest no-play (code label stays
   //    `product: "moonshot"` and the /moonshot href; the visible label is "Longshot Lab"). ──
   const moonshotActive = dailyPortfolio.cards.some((c) => c.product === "moonshot" && c.status === "active");
-  const longshotStatusValue = moonshotActive ? "Active" : "No-play";
+  const longshotStatusValue = moonshotActive ? "Active" : noGamesToday ? "No games today" : "No-play";
   const longshotReason = moonshotActive
     ? "A Moonshot ladder card is live today — both legs must win to carry the balance to the next day's rung."
     : msLaneReason ?? "No Moonshot card today: nothing on the slate reaches the rung's price with two legs, and the ladder waits rather than force one.";
@@ -246,7 +249,7 @@ export default function TodayPage() {
     },
     {
       label: "Top model reads",
-      value: topPicks.length > 0 ? `${topPicks.length} ranked` : "No-play",
+      value: topPicks.length > 0 ? `${topPicks.length} ranked` : noGamesToday ? "No games today" : "No-play",
       sub: topPicks.length > 0 ? "strongest reads of the day" : "no qualified reads today",
       href: "#top-model-picks",
       tone: topPicks.length > 0 ? "gold" : "mute",

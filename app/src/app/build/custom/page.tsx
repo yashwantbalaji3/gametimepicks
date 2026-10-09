@@ -21,7 +21,8 @@ import { currentEtDate } from "@/lib/freshness";
 import PicksSurfaceHeader from "@/components/picks-surface-header";
 import ParlayCenterTabs from "@/components/parlays/parlay-center-tabs";
 import { buildSeedableCards } from "@/lib/parlays/seedable-cards";
-import { loadPublishedBandRecord, loadGradedLegRecord, loadCardShapeRecord } from "@/lib/parlays/risk-ladder";
+import { loadPublishedBandRecord, loadGradedLegRecord, loadCardShapeRecord, loadRiskLadder } from "@/lib/parlays/risk-ladder";
+import { picksSurfaceStatus } from "@/lib/products/surface-status.mjs";
 import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -74,7 +75,8 @@ export default function ParlayCenterCustomPage() {
       <PicksSurfaceHeader
         eyebrow="Parlay Center"
         title="Build Your Own"
-        status={pool.length > 0 ? "pregame" : "data_pending"}
+        status={picksSurfaceStatus({ shownCount: pool.length, slateDate: ladderDate, today: currentEtDate(), producerRan: loadRiskLadder(dataRoot, ladderDate) != null })}
+        statusLabel={pool.length === 0 && loadRiskLadder(dataRoot, ladderDate) != null ? "No qualifying legs" : undefined}
         counts={{ builderLegs: pool.length }}
         primaryAction={{ label: "Browse suggested parlays", href: "/build" }}
         secondaryAction={{ label: "How it works", href: "/methodology" }}
