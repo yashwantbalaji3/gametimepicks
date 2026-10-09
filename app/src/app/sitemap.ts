@@ -3,6 +3,7 @@ import { ROUTE_TABLE } from "@/lib/audits/route-inventory.mjs";
 import { PLAYER_COMPARE_SPORTS, TEAM_COMPARE_SPORTS, comparePath } from "@/lib/compare/contract.mjs";
 import { matchupEntries } from "@/lib/compare/compare-store";
 import { researchIndex } from "@/lib/research-pages/projection-store";
+import { COMPETITIONS } from "@/lib/sports/catalog";
 
 /**
  * sitemap.xml (P208 · Release H) — DERIVED from the route inventory, the same table the route
@@ -43,5 +44,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     .flatMap((s) => matchupEntries(s))
     .filter((e) => e.indexable)
     .map((e) => ({ url: `${BASE}${e.path}`, changeFrequency: "weekly" as const }));
-  return [...routes, ...research, ...compare, ...matchups];
+  /* UX-001 phase 2: every sport hub in the catalog. A competition served by a FAMILY route (Ligue 1 at /soccer/[league])
+     is skipped by the family filter above, so it was linked from every menu and absent here. Added once, by URL. */
+  const listed = new Set(routes.map((r) => r.url));
+  const hubs = COMPETITIONS.map((c) => `${BASE}${c.href}/`).filter((u) => !listed.has(u))
+    .map((url) => ({ url, changeFrequency: "weekly" as const }));
+  return [...routes, ...hubs, ...research, ...compare, ...matchups];
 }

@@ -914,6 +914,13 @@ Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parla
 - **Guards:** new `catalog.test.mjs`. Source guards now read the catalog beside the registry, with no assertion weakened.
 - **Next in phase 2:** one active-route resolver (nav.tsx, the rail and the Menu sheet each keep their own); removing unused navigation components and dead mobile buckets; correcting stale route-inventory entries; the 768–1023 px gap with no rail or bar.
 
+- **Navigation cleanup (branch `claude/ux-001-nav-cleanup`):**
+  - Deleted 11 navigation components that nothing imports: projections-experience (its own sport nav), home-sports-coverage, homepage-sports-rail, sports-coverage-board, sport-lobby-actions, board-with-tabs, slate-tabs, homepage-trending-tabs, date-status-header, sport-section-tabs (it returned null) and mlb-section-tabs.
+  - Removed the latter's four MLB mounts and their empty spacer divs, the slate-tabs-only CSS, and two token-registry rows. The date-sport-controls exception list is now empty, with the cap tightened from 1 to 0.
+  - Route table: `/nba` is a public hub (it had been missing from sitemap.xml); the `/nhl`, `/ipl` → `/today` and `/trends` → `/mlb/board` targets now match their pages.
+  - The sitemap now lists every catalog hub, so Ligue 1's family route no longer hides it.
+  - New `audits/route-inventory-drift.test.mjs`: every redirect row's target matches its page's ClientRedirect, and every catalog hub is public and in the built sitemap.
+
 ## Universal order
 1. Sport header + period selector
 2. Slate summary
