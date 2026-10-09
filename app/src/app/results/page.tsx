@@ -168,7 +168,9 @@ export default function ResultsPage() {
   // fabricated.
   const nbaLeg = getLifetimeSummary();
   const mlbLeg = getMlbLifetimeSummary();
-  const marketInsights = getMarketReliabilityInsights();
+  // Withheld unless the research artifact is as current as the settled record it describes (TRUTH-001).
+  const newestSettled = [mlbLeg?.newestDate, nbaLeg?.newestDate].filter((d): d is string => typeof d === "string").sort().at(-1) ?? null;
+  const marketInsights = getMarketReliabilityInsights(newestSettled);
   const toProj = (
     s: { wins: number; losses: number; decisive: number; hitRate: number | null } | null,
   ) =>
@@ -462,6 +464,10 @@ export default function ResultsPage() {
             mlb={mlbProj}
             nba={nbaProj}
             eraStart={PUBLIC_PARLAY_RESULTS_START_DATE}
+            windows={[
+              { label: "MLB", from: mlbLeg?.oldestDate ?? null, to: mlbLeg?.newestDate ?? null },
+              { label: "NBA", from: nbaLeg?.oldestDate ?? null, to: nbaLeg?.newestDate ?? null },
+            ]}
           />
         </div>
       )}
