@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-10-09",
- "generatedAt": "2026-10-09T19:40:14Z",
+ "generatedAt": "2026-10-09T20:03:58Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "162 model candidates · the Vault stays a watchlist until the card is authorized — the model and price gates are met",
+ "reason": "164 model candidates · the Vault stays a watchlist until the card is authorized — the model and price gates are met",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -240,6 +240,31 @@
    "modelVersion": "nfl-anytime-td-opportunity-v1"
   },
   {
+   "playerId": "nfl-athlete-4259545",
+   "name": "D'Andre Swift",
+   "position": "RB",
+   "team": "CHI",
+   "opponent": "GB",
+   "event": "CHI @ GB",
+   "providerEventId": "401872990",
+   "kickoffUtc": "2026-10-11T17:00Z",
+   "tdProbability": 0.5209,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": {
+    "yesOdds": -160,
+    "sportsbook": "draftkings",
+    "capturedAt": "2026-10-09T18:36:32Z"
+   },
+   "pricingState": null,
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
+  {
    "playerId": "nfl-athlete-4374302",
    "name": "Amon-Ra St. Brown",
    "position": "WR",
@@ -288,34 +313,9 @@
    "pricingState": null,
    "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
    "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
-   "playerId": "nfl-athlete-4432665",
-   "name": "Brock Bowers",
-   "position": "TE",
-   "team": "LV",
-   "opponent": "NE",
-   "event": "LV @ NE",
-   "providerEventId": "401872986",
-   "kickoffUtc": "2026-10-11T17:00Z",
-   "tdProbability": 0.4856,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": {
-    "yesOdds": 130,
-    "sportsbook": "draftkings",
-    "capturedAt": "2026-10-09T18:36:32Z"
-   },
-   "pricingState": null,
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 162,
+ "candidateCount": 164,
  "withheld": [
   {
    "event": "PHI @ JAX",
@@ -345,13 +345,19 @@
    "event": "CHI @ GB",
    "team": "GB",
    "player": "Chris Brooks",
-   "reason": "designated Questionable — only players with no designation are listed"
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
   },
   {
    "event": "CHI @ GB",
    "team": "CHI",
-   "player": "D'Andre Swift",
-   "reason": "designated questionable on the game's board — only players with no designation are listed"
+   "player": "Caleb Williams",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "HOU @ TEN",
+   "team": "TEN",
+   "player": "Carnell Tate",
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "CIN @ MIA",
@@ -396,28 +402,10 @@
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
-   "event": "LV @ NE",
-   "team": "LV",
-   "player": "Cody White",
-   "reason": "designated questionable on the game's board — only players with no designation are listed"
-  },
-  {
-   "event": "LV @ NE",
-   "team": "LV",
-   "player": "Jalen Nailor",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
-  },
-  {
    "event": "MIN @ NO",
    "team": "NO",
    "player": "Alvin Kamara",
    "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "MIN @ NO",
-   "team": "NO",
-   "player": "Noah Fant",
-   "reason": "designated questionable on the game's board — only players with no designation are listed"
   },
   {
    "event": "MIN @ NO",
@@ -442,12 +430,6 @@
    "team": "IND",
    "player": "Keenan Allen",
    "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "NYG @ WSH",
-   "team": "WSH",
-   "player": "Stefon Diggs",
-   "reason": "designated Out — a player who is not playing is not a scorer candidate"
   },
   {
    "event": "NYG @ WSH",
@@ -513,7 +495,7 @@
    "event": "DEN @ LAC",
    "team": "DEN",
    "player": "Pat Bryant",
-   "reason": "designated Doubtful — only players with no designation are listed"
+   "reason": "designated Out — a player who is not playing is not a scorer candidate"
   },
   {
    "event": "DET @ ARI",
@@ -561,8 +543,8 @@
    "compatibility check"
   ],
   "tdMarketOffered": true,
-  "pricedCandidates": 148,
-  "roleReadyCandidates": 162,
+  "pricedCandidates": 150,
+  "roleReadyCandidates": 164,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."

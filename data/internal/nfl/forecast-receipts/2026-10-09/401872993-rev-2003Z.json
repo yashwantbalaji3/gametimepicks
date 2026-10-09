@@ -1,0 +1,138 @@
+{
+ "providerEventId": "401872993",
+ "canonicalEventId": "nfl-401872993",
+ "matchup": "BAL @ ATL",
+ "home": {
+  "abbr": "ATL",
+  "name": "Atlanta Falcons"
+ },
+ "away": {
+  "abbr": "BAL",
+  "name": "Baltimore Ravens"
+ },
+ "kickoffUtc": "2026-10-12T00:20Z",
+ "seasonType": 2,
+ "week": 5,
+ "venue": "Mercedes-Benz Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 2,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "e1cacb28184306b0",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-win-elo-mov-v1@v1",
+   "nfl-margin-elo-hfa-v1@v1",
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v3-play-efficiency",
+   "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
+   "gamesFolded": 7341,
+   "foldedThrough": "2026-10-08",
+   "sigma": 13.32677
+  },
+  "winHead": {
+   "id": "nfl-win-elo-mov-v1",
+   "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+   "gamesFolded": 7326,
+   "foldedThrough": "2026-10-08"
+  },
+  "marginHead": {
+   "id": "nfl-margin-elo-hfa-v1",
+   "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+   "gamesFolded": 7326,
+   "sigma": 13.03176
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-10-09T20:03:58Z",
+ "evidence": {
+  "schedule": "2026-10-09T16:06:15Z",
+  "strengthCutoff": "2026-10-09T20:03:58Z",
+  "strengthGamesFolded": 871,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 23,
+   "away": 24,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.4482,
+   "away": 0.5212,
+   "tieMass": 0.0306,
+   "homeUnrounded": 0.44819376789795573,
+   "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+  },
+  "margin": {
+   "median": -1,
+   "p10": -17,
+   "p90": 16
+  },
+  "total": {
+   "median": 47,
+   "p10": 30,
+   "p90": 64,
+   "head": "matchup-totals-v3-play-efficiency"
+  },
+  "scoreRange": {
+   "homeP10": 11,
+   "homeP90": 35,
+   "awayP10": 12,
+   "awayP90": 36
+  },
+  "distribution": {
+   "marginMean": -0.69,
+   "marginSigma": 13.03,
+   "totalMean": 47.1743,
+   "totalSigma": 13.33,
+   "source": "nfl-gamesim-v1-joint-normal"
+  }
+ },
+ "marketComparison": {
+  "state": "WITHHELD_TEAM_INPUTS",
+  "capturedAt": "2026-10-09T18:36:32Z",
+  "books": 7,
+  "note": "This forecast does not account for Lamar Jackson (BAL, Out). Our team model rates teams from past results and does not adjust for who plays quarterback, so it is not compared with the sportsbooks for this game — their price already reflects the absence."
+ },
+ "teamInputs": {
+  "version": 1,
+  "consumedByModel": false,
+  "participationAsOf": "2026-10-09T20:03:58Z",
+  "state": "BLIND_TO_STARTING_QB_ABSENCE",
+  "absences": [
+   {
+    "playerId": "nfl-athlete-3916387",
+    "name": "Lamar Jackson",
+    "team": "BAL",
+    "status": "Out",
+    "statedAt": "2026-10-09T17:34Z",
+    "depthChartAt": "2026-10-07T14:25:15Z"
+   }
+  ],
+  "comparisonWithheld": true,
+  "note": "This forecast does not account for Lamar Jackson (BAL, Out). Our team model rates teams from past results and does not adjust for who plays quarterback, so it is not compared with the sportsbooks for this game — their price already reflects the absence."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401872993",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "sideDecision": {
+  "schemaVersion": "side-decision@1",
+  "publishedSide": "AWAY",
+  "rule": "MODEL_FAVORED_V1",
+  "abstention": null,
+  "frozenAt": "2026-10-09T20:03:58Z"
+ },
+ "revisionOf": "401872993.json",
+ "priorInputHash": "6514ba42ed552d94"
+}
