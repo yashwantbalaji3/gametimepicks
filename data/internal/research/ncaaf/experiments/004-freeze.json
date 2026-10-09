@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-10-09T21:38:48Z",
+  "incumbents": {
+    "C1": {
+      "id": "C1",
+      "K": 30,
+      "HFA": 40,
+      "c": 0.8,
+      "dFcs": 200
+    },
+    "C2": {
+      "id": "C2",
+      "lambda": 2,
+      "H": 240
+    },
+    "W1": {
+      "engine": "ncaaf-worlds@1",
+      "inner": {
+        "id": "C2",
+        "lambda": 2,
+        "H": 240
+      }
+    }
+  },
+  "challengers": {
+    "H1": {
+      "id": "C1",
+      "K": 30,
+      "HFA": 55,
+      "c": 0.8,
+      "dFcs": 200
+    },
+    "H2": {
+      "id": "C1r",
+      "inner": {
+        "id": "C1",
+        "K": 30,
+        "HFA": 40,
+        "c": 0.8,
+        "dFcs": 200
+      },
+      "firstSeason": 2017
+    },
+    "H3": {
+      "id": "C2d",
+      "lambda": 2,
+      "H": 240,
+      "lambdaDiv": 1
+    },
+    "H4": {
+      "id": "W2",
+      "K": 300,
+      "inner": {
+        "id": "C2",
+        "lambda": 2,
+        "H": 240
+      }
+    }
+  },
+  "e26": {
+    "corpus": "corpus/e26",
+    "season": 2026,
+    "throughSlateDate": "2026-10-05"
+  },
+  "corpusManifestSha256": "cc3ee9e3fe9ccabc8e1f3ef2d0886e565462b62cfb3c9503fbac829f82407873",
+  "overtimeTableSha256": "8eaf5e94be61b0a8ca8256e045f3a8a7de0c8ebd2c9dc917c385aee497518e99",
+  "codeFiles": [
+    "app/src/lib/sports/ncaaf/challengers.mjs",
+    "app/src/lib/sports/ncaaf/models.mjs",
+    "app/src/lib/sports/ncaaf/game-worlds.mjs",
+    "app/src/lib/sports/ncaaf/overtime.mjs",
+    "app/src/lib/sports/ncaaf/walk-forward.mjs",
+    "app/src/lib/sports/ncaaf/metrics.mjs",
+    "app/scripts/ncaaf/evaluate-challengers.mjs"
+  ],
+  "codeCommit": "TO_BE_SET_BY_FREEZE_COMMIT"
+}
