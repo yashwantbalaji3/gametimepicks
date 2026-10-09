@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-08T23:21:10Z",
+ "generatedAt": "2026-10-09T01:00:16Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 16,
+  "scheduledUpcoming": 15,
   "forecastsTotal": 15,
-  "forecastsUpcoming": 15,
-  "forecastsStarted": 0,
+  "forecastsUpcoming": 14,
+  "forecastsStarted": 1,
   "marketEvents": 15,
   "settled": 0
  },
- "nextKickoffUtc": "2026-10-09T00:15Z",
- "nextMatchup": "TB @ DAL",
- "nextForecastUtc": "2026-10-09T00:15Z",
- "nextForecastMatchup": "TB @ DAL",
+ "nextKickoffUtc": "2026-10-11T13:30Z",
+ "nextMatchup": "PHI VS JAX",
+ "nextForecastUtc": "2026-10-11T13:30Z",
+ "nextForecastMatchup": "PHI @ JAX",
  "marketCapturedAt": "2026-10-08T22:17:03Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-08T22:17:03Z",
+  "generatedAt": "2026-10-08T23:21:10Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -71,47 +71,6 @@
  },
  "events": [
   {
-   "providerEventId": "401872980",
-   "canonicalEventId": "nfl-401872980",
-   "matchup": "TB @ DAL",
-   "home": {
-    "abbr": "DAL",
-    "name": "Dallas Cowboys"
-   },
-   "away": {
-    "abbr": "TB",
-    "name": "Tampa Bay Buccaneers"
-   },
-   "kickoffUtc": "2026-10-09T00:15Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 29,
-    "away": 23,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6181,
-    "away": 0.355
-   },
-   "total": {
-    "median": 52,
-    "p10": 35,
-    "p90": 69,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "c28bedb69382637a",
-    "generatedAt": "2026-10-08T23:21:10Z"
-   }
-  },
-  {
    "providerEventId": "401872981",
    "canonicalEventId": "nfl-401872981",
    "matchup": "PHI @ JAX",
@@ -129,7 +88,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -27.2,
+    "gapPp": -27.1,
     "leansTo": "PHI",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -139,8 +98,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.4838,
-    "away": 0.488
+    "home": 0.4844,
+    "away": 0.4885
    },
    "total": {
     "median": 43,
@@ -152,8 +111,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "0f356e9d493f23d5",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "81a1d916d295db97",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -180,8 +139,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.5509,
-    "away": 0.42
+    "home": 0.5521,
+    "away": 0.4208
    },
    "total": {
     "median": 48,
@@ -193,8 +152,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "10f9841ab01d44aa",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "bcf3377e8726eebd",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -221,12 +180,12 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.2692,
-    "away": 0.6974
+    "home": 0.2703,
+    "away": 0.7004
    },
    "total": {
     "median": 43,
-    "p10": 25,
+    "p10": 26,
     "p90": 60,
     "head": "matchup-totals-v3-play-efficiency"
    },
@@ -234,8 +193,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "9de18e2a5d9aed43",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "183e1f6127468ed7",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -256,7 +215,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": 29.1,
+    "gapPp": 29,
     "leansTo": "MIA",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -266,12 +225,12 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.5638,
-    "away": 0.4104
+    "home": 0.5625,
+    "away": 0.4095
    },
    "total": {
     "median": 46,
-    "p10": 30,
+    "p10": 29,
     "p90": 63,
     "head": "matchup-totals-v3-play-efficiency"
    },
@@ -279,8 +238,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "9a15d47152155aab",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "d15779ca2fc48afc",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -301,21 +260,21 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": 9.8,
+    "gapPp": 9.5,
     "leansTo": "NE",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
    "projectedScore": {
-    "home": 25,
+    "home": 24,
     "away": 16,
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.7311,
-    "away": 0.2459
+    "home": 0.7283,
+    "away": 0.245
    },
    "total": {
-    "median": 41,
+    "median": 40,
     "p10": 24,
     "p90": 57,
     "head": "matchup-totals-v3-play-efficiency"
@@ -324,8 +283,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "cfd4f1acb545def5",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "726115eeebb034c8",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -346,7 +305,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -17.6,
+    "gapPp": -17.5,
     "leansTo": "MIN",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -356,8 +315,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.2641,
-    "away": 0.7088
+    "home": 0.2644,
+    "away": 0.7097
    },
    "total": {
     "median": 40,
@@ -369,8 +328,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "3a1ee7ad38b00068",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "6744df76bcfa4436",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -391,31 +350,31 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -14.4,
+    "gapPp": -14.6,
     "leansTo": "CLE",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
    "projectedScore": {
-    "home": 20,
+    "home": 19,
     "away": 21,
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.405,
-    "away": 0.5691
+    "home": 0.4029,
+    "away": 0.5662
    },
    "total": {
-    "median": 41,
-    "p10": 24,
-    "p90": 58,
+    "median": 40,
+    "p10": 23,
+    "p90": 57,
     "head": "matchup-totals-v3-play-efficiency"
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "279830797af5e90f",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "76621655823ffa2a",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -442,8 +401,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.5729,
-    "away": 0.394
+    "home": 0.575,
+    "away": 0.3955
    },
    "total": {
     "median": 46,
@@ -455,8 +414,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "7c547545dcfd8711",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "233f33c82f1c84be",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -479,16 +438,16 @@
    "lean": null,
    "projectedScore": {
     "home": 27,
-    "away": 21,
+    "away": 22,
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.5938,
-    "away": 0.3809
+    "home": 0.5899,
+    "away": 0.3784
    },
    "total": {
-    "median": 48,
-    "p10": 32,
+    "median": 49,
+    "p10": 31,
     "p90": 66,
     "head": "matchup-totals-v3-play-efficiency"
    },
@@ -496,8 +455,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "53052bfb813285fc",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "2238dcdad4455623",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -524,21 +483,21 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.331,
-    "away": 0.6387
+    "home": 0.3309,
+    "away": 0.6385
    },
    "total": {
     "median": 41,
-    "p10": 24,
-    "p90": 58,
+    "p10": 23,
+    "p90": 57,
     "head": "matchup-totals-v3-play-efficiency"
    },
    "hasMarket": true,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "ccd35ce40d28ca59",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "393ba407bcfbd8c9",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -565,7 +524,7 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.3526,
+    "home": 0.3525,
     "away": 0.6197
    },
    "total": {
@@ -578,8 +537,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "ce111c640fd7cd7b",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "55cec8a4e970782f",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -606,8 +565,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.6034,
-    "away": 0.3688
+    "home": 0.6021,
+    "away": 0.3681
    },
    "total": {
     "median": 46,
@@ -619,8 +578,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "9e2a7b514c4782a9",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "3bcf357e08133073",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -641,7 +600,7 @@
    "state": "EXPERIMENTAL_LEAN",
    "stateMeaning": "The direction our experimental model leans, with its uncertainty and record.",
    "lean": {
-    "gapPp": -16.1,
+    "gapPp": -16.2,
     "leansTo": "BAL",
     "notAnEdge": "A difference is a difference. This model has not been shown to beat the market."
    },
@@ -651,8 +610,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.4488,
-    "away": 0.5219
+    "home": 0.4484,
+    "away": 0.5214
    },
    "total": {
     "median": 47,
@@ -664,8 +623,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "6327ed4ebfd4ad96",
-    "generatedAt": "2026-10-08T23:21:10Z"
+    "inputHash": "6514ba42ed552d94",
+    "generatedAt": "2026-10-09T01:00:16Z"
    }
   },
   {
@@ -692,8 +651,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.5744,
-    "away": 0.3985
+    "home": 0.5737,
+    "away": 0.398
    },
    "total": {
     "median": 53,
@@ -705,7 +664,48 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "5ecbb074a65aba85",
+    "inputHash": "359b7c574ad284b5",
+    "generatedAt": "2026-10-09T01:00:16Z"
+   }
+  },
+  {
+   "providerEventId": "401872980",
+   "canonicalEventId": "nfl-401872980",
+   "matchup": "TB @ DAL",
+   "home": {
+    "abbr": "DAL",
+    "name": "Dallas Cowboys"
+   },
+   "away": {
+    "abbr": "TB",
+    "name": "Tampa Bay Buccaneers"
+   },
+   "kickoffUtc": "2026-10-09T00:15Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 29,
+    "away": 23,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.6181,
+    "away": 0.355
+   },
+   "total": {
+    "median": 52,
+    "p10": 35,
+    "p90": 69,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": true,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "c28bedb69382637a",
     "generatedAt": "2026-10-08T23:21:10Z"
    }
   }
