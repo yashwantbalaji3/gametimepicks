@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-09T18:36:32Z",
- "sourceGeneratedAt": "2026-10-09T18:36:32Z",
+ "generatedAt": "2026-10-09T19:40:14Z",
+ "sourceGeneratedAt": "2026-10-09T19:40:14Z",
  "providerEventId": "401872986",
  "matchup": "LV @ NE",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-09T18:36:32Z",
-  "roleEvidenceAt": "2026-10-09T18:36:32Z",
+  "injuriesCapturedAt": "2026-10-09T19:40:14Z",
+  "roleEvidenceAt": "2026-10-09T19:40:14Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -86,14 +86,14 @@
  "marketCoverage": {
   "probed": true,
   "priced": 40,
-  "absent": 14,
+  "absent": 11,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "LV": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -167,17 +167,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4382466",
-     "name": "Jalen Nailor",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-4241983",
      "name": "Cody White",
      "state": "PROJECTED",
@@ -186,7 +175,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4260394",
@@ -212,6 +201,12 @@
       "anytime_td"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4382466",
+     "name": "Jalen Nailor",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4603186",
@@ -443,6 +438,19 @@
     "state": "CONSERVED"
    },
    {
+    "team": "LV",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.7081,
+    "originalSum": 0.7081,
+    "residualOther": 0.2919,
+    "joined": 4,
+    "missed": 0,
+    "state": "UNDER_ALLOCATED"
+   },
+   {
     "team": "NE",
     "pool": "targets",
     "markets": [
@@ -452,19 +460,6 @@
     "originalSum": 0.635,
     "residualOther": 0.365,
     "joined": 6,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
-   },
-   {
-    "team": "LV",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.6328,
-    "originalSum": 0.6328,
-    "residualOther": 0.3672,
-    "joined": 3,
     "missed": 0,
     "state": "UNDER_ALLOCATED"
    }
@@ -795,7 +790,7 @@
    "playerId": "nfl-athlete-4241983",
    "name": "Cody White",
    "team": "LV",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 13.656,
@@ -951,36 +946,6 @@
       "sportsbook": "draftkings",
       "capturedAt": "2026-10-09T18:36:32Z"
      }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4382466",
-   "name": "Jalen Nailor",
-   "team": "LV",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 20.341,
-     "p10": 0,
-     "p25": 2.54,
-     "median": 14.41,
-     "p75": 30.66,
-     "p90": 49.39,
-     "pricingState": "NOT_OFFERED"
-    },
-    "player_receptions": {
-     "mean": 1.6673,
-     "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 2,
-     "p90": 4,
-     "pricingState": "NOT_OFFERED"
-    },
-    "anytime_td": {
-     "probability": 0.1388,
-     "pricingState": "NOT_OFFERED"
     }
    }
   },
