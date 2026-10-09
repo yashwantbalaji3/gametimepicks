@@ -2,36 +2,36 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-10-09T01:09:15Z",
+  "generatedAt": "2026-10-09T21:55:57Z",
   "nextCluster": {
     "kickoffUtc": "2026-10-10T11:30:00.000Z",
     "fixtures": 1,
-    "hoursAway": 34.35
+    "hoursAway": 13.57
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
       "stampedAt": "2026-10-09T01:08:54Z",
-      "ageHours": 0.01
+      "ageHours": 20.78
     },
     "odds": {
       "state": "READ",
-      "stampedAt": "2026-09-19T22:35:26Z",
-      "ageHours": 458.56
+      "stampedAt": "2026-10-09T21:55:38Z",
+      "ageHours": 0.01
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-10-09T01:09:06Z",
+      "stampedAt": "2026-10-09T21:55:48Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-10-09T01:09:13Z",
+      "stampedAt": "2026-10-09T21:55:55Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-10-09T01:08:56Z",
+      "stampedAt": "2026-10-09T21:55:38Z",
       "ageHours": 0.01
     }
   },
@@ -45,25 +45,25 @@
     },
     "budget": {
       "state": "WITHIN_CEILING",
-      "spent": 102,
-      "projectedRemaining": 350,
-      "projectedTotal": 452,
+      "spent": 104,
+      "projectedRemaining": 344,
+      "projectedTotal": 448,
       "ceiling": 500,
-      "headroom": 48,
+      "headroom": 52,
       "kickoffWindowHours": 30,
-      "spendingFirings": 175,
+      "spendingFirings": 172,
       "skippedFirings": 433
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-10-09T01:09:06Z",
+    "generatedAt": "2026-10-09T21:55:48Z",
     "counts": {
-      "READY_EXCEPT_ODDS": 10
+      "CURRENT_PRE_EVENT": 10
     },
     "rows": 10
   },
   "playerSet": {
-    "generatedAt": "2026-10-09T01:09:13Z",
+    "generatedAt": "2026-10-09T21:55:55Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
       "fixtures": 10,
@@ -103,19 +103,14 @@
     "all": true
   },
   "productLane": {
-    "live": false,
-    "blocked": "the last price capture is 19.1 days old"
+    "live": true,
+    "blocked": null
   },
   "blockers": [
     {
       "id": "calibration-backtest",
       "state": "ENGINEERING",
       "detail": "39 matches are now paired with a market baseline, past the 30 the stopping rule needs. The sample no longer blocks this: the preregistered backtest has not been run."
-    },
-    {
-      "id": "product-lane-closed",
-      "state": "REALITY_GATED",
-      "detail": "the Lab gate has closed this lane: the last price capture is 19.1 days old. It reopens by itself when the evidence returns."
     }
   ]
 }
