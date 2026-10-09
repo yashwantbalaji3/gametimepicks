@@ -127,8 +127,10 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    */
   /* #797 PR B (2026-09-29): the note said "MLB · beta" while Live carried NFL (Monday night) and MLB's regular
      season had ended. A static note cannot track which sports are live, so it states only what is always true. */
+  /* Founder UX decision 2026-10-08: LIVE IS A PRIMARY, year-round, on every surface — it takes the slot Parlays held,
+     so the five primaries stay one set everywhere (charter E): Home · Sports · Live · Simulations · Results. */
   { href: "/live", label: "Live", note: "beta", group: "now", glyph: "◉", desc: "Scores now, beside frozen forecasts",
-    surfaces: ["rail", "footer"], bucket: "live" },
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "live" },
   { href: "/today", label: "Today", group: "now", glyph: "▤", desc: "Tonight's slate",
     surfaces: ["rail", "footer"], bucket: "today" },
   /* shortLabel: the bar's 9-char budget rejects "Simulations" (11) and WCAG 2.5.3 requires the
@@ -144,8 +146,10 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   /* #797 PR B: "Picks & Parlays" sat beside "Picks" — two destinations sharing one word. /build is the parlay
      destination (H1 "Suggested Parlays", Home's "Open Parlay Center", already "Parlays" on the phone bar), so
      it is named that on every surface; "Picks" stays the one picks destination. */
+  /* Founder UX decision 2026-10-08: Parlays leaves the primaries for Live and stays one tap from the phone Menu
+     (rail-minus-bar), on the desktop rail and in the footer — never orphaned. */
   { href: "/build", label: "Parlays", group: "now", glyph: "✎", desc: "Cards, picks, or build your own",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "lab" },
+    surfaces: ["rail", "footer"], bucket: "lab" },
   /* Sixth primary. Off the `mobile` bar by the charter's own bar spec (Home/Today/Simulate/Picks/
      Parlay + Menu); the mobile Menu sheet renders every rail destination the bar lacks. */
   { href: "/results", label: "Results", group: "now", glyph: "≡", desc: "Settled record",

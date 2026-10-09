@@ -1,6 +1,6 @@
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
-import { orderRows, hubCounts, drawableSplit, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
+import { orderRows, isInProgress, hubCounts, drawableSplit, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
 
 /**
  * The first thing on every sport page: what is on, what we think, and where to read it.
@@ -155,8 +155,9 @@ export default function GameSummary({
 }: { rows: HubGameRow[]; unitLabel: string; emptyReason?: string; emptyCounts?: string; emptyLink?: { href: string; label: string }; compact?: boolean }) {
   const ordered = orderRows(rows);
   const counts = hubCounts(rows);
+  const live = ordered.filter(isInProgress);
   const upcoming = ordered.filter((r) => !r.started);
-  const played = ordered.filter((r) => r.started);
+  const played = ordered.filter((r) => r.started && !isInProgress(r));
 
   /*
    * AN EMPTY PERIOD STILL COUNTS TO ZERO.
@@ -213,7 +214,9 @@ export default function GameSummary({
         {counts.scheduled} scheduled · {counts.withReport} with a report · {counts.withRead} with a supported read
         {counts.started ? ` · ${counts.started} started or final` : ""}
       </p>
-      {upcoming.length ? <Rows list={upcoming} /> : null}
+      {/* Founder UX decision 2026-10-08: games in play lead the list (the live strip above updates them in real time). */}
+      {live.length ? <Rows list={live} heading="In progress" /> : null}
+      {upcoming.length ? <Rows list={upcoming} heading={live.length ? "Upcoming" : undefined} /> : null}
       {played.length ? <Rows list={played} heading="Started or final" /> : null}
     </div>
   );

@@ -135,12 +135,22 @@ export interface SportHubModel {
   identityReconciliation?: { unidentifiedScheduleRows: number; laterPeriodRows: number };
 }
 
-/** Pre-event rows sorted by start time; started/settled rows after them, most recent first. */
+/** A started row whose schedule owner states the game is in play right now (never inferred from the clock). */
+export function isInProgress(r: HubGameRow): boolean {
+  return r.started && String(r.status).toLowerCase() === "in progress";
+}
+
+/**
+ * Founder UX decision 2026-10-08 — LIVE FIRST: rows the schedule owner states are in progress lead (earliest start
+ * first), then pre-event rows by start time, then the rest of the started/settled rows, most recent first. Live and
+ * pre-event rows are still separate groups, so an outcome is never sorted in among forecasts.
+ */
 export function orderRows(rows: HubGameRow[]): HubGameRow[] {
   const t = (r: HubGameRow) => (r.startUtc ? Date.parse(r.startUtc) : Number.MAX_SAFE_INTEGER);
+  const live = rows.filter(isInProgress).sort((a, b) => t(a) - t(b));
   const upcoming = rows.filter((r) => !r.started).sort((a, b) => t(a) - t(b));
-  const done = rows.filter((r) => r.started).sort((a, b) => t(b) - t(a));
-  return [...upcoming, ...done];
+  const done = rows.filter((r) => r.started && !isInProgress(r)).sort((a, b) => t(b) - t(a));
+  return [...live, ...upcoming, ...done];
 }
 
 /** Counts a reader can check against the rows in front of them. Scheduled and reportable are

@@ -537,6 +537,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       {view?.simulation ? <SimulationPanel sim={view.simulation} away={f.away.abbr} home={f.home.abbr} recordWinHome={s.winProbability.home} /> : null}
       {view?.simulation ? (
         <section id="players" className="nf-section" aria-labelledby="nf-players-h">
+          {/* Alias anchor: /live and saved links point at #player-board (the pre-2026-10-08 section id), which must keep
+              landing on the player projections for a simulated game too. */}
+          <span id="player-board" aria-hidden="true" style={{ display: "block", position: "relative", top: -72 }} />
           <p className="nf-eyebrow">Player projections · expected statistical summaries · not one simulated game</p>
           <h2 id="nf-players-h" className="nf-h2">What each player is projected to do</h2>
           <p className="nf-sub">Passing, rushing and receiving from the simulated games; anytime touchdown from the touchdown model. Players listed as Questionable or Doubtful are marked; players ruled out are not projected.</p>

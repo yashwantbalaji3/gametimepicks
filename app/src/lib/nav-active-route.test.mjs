@@ -66,13 +66,13 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
 });
 
 test("MOBILE_NAV_ITEMS is the FIVE primary destinations in canonical order (P243 charter E)", () => {
-  // P243 · E: the five primaries are the SAME set on every surface — Home / Sports / Simulations /
-  // Picks & Parlays / Results. Today and Picks stay first-class rail/footer routes reached from
-  // Home and the parlay destination; the Menu sheet still derives rail-minus-bar.
+  // P243 · E: the five primaries are the SAME set on every surface. Founder decision 2026-10-08: Live replaced
+  // Parlays — Home / Sports / Live / Simulations / Results. Today, Picks and Parlays stay first-class rail/footer
+  // routes; the Menu sheet still derives rail-minus-bar, so each is one tap away on a phone.
   assert.equal(MOBILE_NAV_ITEMS.length, 5);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "sports", "games", "lab", "results"],
+    ["home", "sports", "live", "games", "results"],
   );
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/diamond-specials"), "no Diamond Specials nav item");
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/homer-nukes"), "no retired Homer Nukes nav item");
@@ -91,7 +91,8 @@ test("MOBILE_NAV_ITEMS labels are the UNIFIED five-primary set, matching every o
   assert.equal(byHref["/"], "Home");
   assert.equal(byHref["/sports"], "Sports");
   assert.equal(byHref["/simulate"], "Simulations");
-  assert.equal(byHref["/build"], "Parlays");
+  assert.equal(byHref["/live"], "Live");
+  assert.equal(byHref["/build"], undefined, "Parlays left the bar for Live (founder decision 2026-10-08) — Menu sheet, rail and footer keep it");
   assert.equal(byHref["/results"], "Results");
   // P243 · E: Today and the ranked-picks board left the bar for the rail/Menu sheet — still one
   // tap away, never phone-unreachable.
@@ -105,7 +106,7 @@ test("MOBILE_NAV_ITEMS labels are the UNIFIED five-primary set, matching every o
   assert.equal(byHref["/homer-nukes"], undefined, "Homer Nukes retired — no nav tab");
   // The thumb-width shortLabels stay prefix-or-subset of the real label (WCAG 2.5.3).
   const short = Object.fromEntries(MOBILE_NAV_ITEMS.map((i) => [i.href, i.shortLabel]));
-  assert.equal(short["/build"], "Parlays");
+  assert.equal(short["/live"], "Live");
   for (const i of MOBILE_NAV_ITEMS) {
     assert.ok(i.label.includes(i.shortLabel), `${i.href}: shortLabel "${i.shortLabel}" must appear within "${i.label}"`);
   }

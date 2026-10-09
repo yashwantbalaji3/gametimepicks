@@ -41,6 +41,7 @@ import { buildPublicDualLadder } from "@/lib/bank-builder/public-dual-ladder";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 
 import LandingHero from "@/components/home/landing-hero";
+import LiveNow from "@/components/live/live-now";
 import RecentResultsStrip from "@/components/home/recent-results-strip";
 import { getOptimizerSettledDates } from "@/lib/parlay-results";
 import HomeTodayMlb from "@/components/home/home-today-mlb";
@@ -331,6 +332,10 @@ export default function HomePage() {
         archiveLabel="See the most recent slate"
         includeMlbNote
       />
+
+      {/* 0b — Founder UX decision 2026-10-08: games being played right now come first. Client-read from the live
+              gateway at view time; renders nothing when no game is in play. */}
+      <LiveNow sports={["nfl", "mlb"]} />
 
       {/* 1 — Simulation-first hero. It carries no money figure: a paper bankroll beside a paper record
           on the front door reads as a return, and the ONE claim above it is that we are behind the

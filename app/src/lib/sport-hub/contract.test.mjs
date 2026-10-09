@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { orderRows, hubCounts, HUB_SECTIONS, DEFAULT_LABELS } from "./contract.ts";
+import { orderRows, isInProgress, hubCounts, HUB_SECTIONS, DEFAULT_LABELS } from "./contract.ts";
 
 const row = (o) => ({
   id: o.id, startUtc: o.startUtc ?? null, startLabel: o.startLabel ?? "", matchup: o.matchup ?? o.id,
@@ -149,4 +149,13 @@ test("BUILT · a period with nothing scheduled still prints its zero", () => {
     assert.match(text, /\d+ scheduled · \d+ with a report · \d+ with a supported read/,
       `${sport}: no counts line — an empty period must still say zero`);
   }
+});
+
+test("LIVE FIRST · a game the schedule owner states is in progress leads; finals stay last (founder decision 2026-10-08)", () => {
+  const rows = [row({ id: "final", startUtc: "2026-09-06T17:00:00Z", started: true, status: "final" }),
+                row({ id: "upcoming", startUtc: "2026-09-06T23:00:00Z" }),
+                row({ id: "live", startUtc: "2026-09-06T20:00:00Z", started: true, status: "in progress" }),
+                row({ id: "unknown-started", startUtc: "2026-09-06T21:00:00Z", started: true, status: "started or final" })];
+  assert.deepEqual(orderRows(rows).map((r) => r.id), ["live", "upcoming", "unknown-started", "final"]);
+  assert.equal(isInProgress(rows[3]), false, "'started or final' is not a claim of live play");
 });
