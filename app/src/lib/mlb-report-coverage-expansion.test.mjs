@@ -54,7 +54,9 @@ test("3 · market agreement has a by-STAT breakdown (gap + n per modeled market)
 test("4 · an honest coverage note names market-context-only markets as NOT simulated / NOT product-eligible", () => {
   assert.match(report, /Model-predicted markets:/, "the coverage note lists model-predicted markets");
   assert.match(report, /market context only/, "market-context framing is present");
-  assert.match(report, /not simulated, not product-eligible/, "unmodeled markets are explicitly not product-eligible");
+  assert.match(report, /no prop-model probability, not product-eligible/, "unmodeled markets are explicitly not product-eligible");
+  // TRUTH-001: they ARE in the full-game box score, so the copy may not call them "not simulated".
+  assert.doesNotMatch(report, /not simulated, not product-eligible/);
   // The unmodeled provider markets are named honestly.
   for (const m of ["Home runs", "RBIs", "Runs", "Pitcher outs", "Earned runs"]) {
     assert.ok(report.includes(m), `coverage note names ${m}`);

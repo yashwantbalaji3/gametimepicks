@@ -62,10 +62,11 @@ test("every beat restates a canonical value — nothing is invented", () => {
   const by = (k) => beats.find((b) => b.kind === k)?.text;
 
   assert.equal(by("winner"), "SF wins 58% of simulations.", "58% is winProbability.home, SF is the favored side");
-  assert.equal(by("outcome"), "Most common outcome: LAA 3 – SF 4 (370 / 10,000 simulations).", "0.037 × 10,000");
+  assert.equal(by("outcome"), "Most common outcome: LAA 3 – SF 4 (≈ 370 / 10,000 simulations).", "0.037 × 10,000, approximate (TRUTH-001)");
   // 0.12 + 0.0 + 0.19 = 31% — the EXACT bins only; the two 10% range bins are excluded.
   assert.equal(by("closeness"), "31% of simulations finish within one run.");
-  assert.equal(by("player"), "Biggest player factor: Logan Webb UNDER 5.5 Strikeouts — 8,400 / 10,000 simulations.");
+  // TRUTH-001: a player-prop engine pick is not a count of THIS game's full-game simulations.
+  assert.equal(by("player"), "Biggest player factor: Logan Webb UNDER 5.5 Strikeouts — 84% in the player-prop simulation.");
 });
 
 test("range bins are never counted as an exact margin", () => {

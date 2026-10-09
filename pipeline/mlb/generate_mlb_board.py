@@ -22,6 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .. import config as C
+from ..player_resolver import normalize_name
 from . import mlb_odds, mlb_stats, mlb_model
 from .settlement_lineage import derive_event_id
 
@@ -231,6 +232,124 @@ def _resolve_team_ctx(
         return abs(t - target) if t is not None else float("inf")
 
     return min(candidates, key=distance)
+
+
+# ── TRUTH-001 · PLAYER IDENTITY ─────────────────────────────────────────────────────────────────
+
+
+def _identity_entry(
+    player_id: int, full_name: str, role: str, team_abbr: str | None, team_name: str | None, *, probable: bool = False
+) -> dict:
+    """One person a market row may name: a roster player or a game's probable pitcher."""
+    return {
+        "id": player_id,
+        "fullName": full_name,
+        "role": role,
+        "teamAbbr": team_abbr,
+        "teamName": team_name,
+        "probable": probable,
+    }
+
+
+def resolve_player_identity(name: str, pool: list[dict], *, role: str) -> tuple[dict | None, str]:
+    """Resolve a sportsbook player NAME to exactly one MLB person, or refuse.
+
+    Returns `(entry, how)`, `how` ∈ exact | normalized | ambiguous | unresolved; entry is None unless
+    exact/normalized.
+
+    TRUTH-001 (2026-10-09) — the board used to look the provider's name up EXACTLY in one slate-wide
+    roster dict:
+      - Accents: the provider writes "Jose Ramirez", "Ronald Acuna Jr.", "Yandy Diaz"; StatsAPI's
+        fullName is "José Ramírez". The lookup missed, so the row carried no playerId and no
+        projection, the full-game simulation priced a real starter at replacement level, and its note
+        called him a batter with "no posted prop line". Since 2026-09-01: 1,286 batter rows and 40
+        pitcher rows (Cristopher Sánchez, Carlos Rodón…).
+      - Same name, two players: the dict was last-write-wins across EVERY club on the slate, so on days
+        the A's played, "Max Muncy" in a Dodgers game resolved to the A's Max Muncy (691777) and was
+        projected from the wrong man's game logs (38 rows).
+
+    Rules, in order:
+      1. The pool is the two clubs in the row's own game (the caller passes only those people), so a
+         namesake on another club can never be chosen.
+      2. Candidates are the people of the market's role (pitcher markets: probable starters + roster
+         pitchers; batter markets: everyone else), whose `normalize_name` (accents stripped, case and
+         punctuation folded, Jr./II suffixes KEPT) equals the row's.
+      3. Exactly one distinct id → resolved. More than one → refused as ambiguous: a wrong player is
+         strictly worse than a missing one (pipeline/player_resolver.py). None → unresolved.
+    No fuzzy matching beyond normalization, and no guess from partial names.
+    """
+    key = normalize_name(name or "")
+    if not key:
+        return None, "unresolved"
+    matches = [p for p in pool if p.get("role") == role and normalize_name(p.get("fullName") or "") == key]
+    ids = {p["id"] for p in matches}
+    if not ids:
+        return None, "unresolved"
+    if len(ids) > 1:
+        return None, "ambiguous"
+    # One person, possibly listed twice (probable pitcher + roster row): the probable entry is the
+    # definitive team attribution for that game.
+    best = sorted(matches, key=lambda p: (not p.get("probable"), p.get("fullName") != name))[0]
+    return best, ("exact" if any(p.get("fullName") == name for p in matches) else "normalized")
+
+
+def build_identity_pool(
+    games: list[dict], rosters: dict[str, tuple[str | None, list[dict]]]
+) -> dict[str, list[dict]]:
+    """team name → the people who may appear for that club today.
+
+    `rosters` is team name → (abbr, StatsAPI active-roster entries). Probable pitchers come from the
+    schedule and are definitive for their game; roster entries are typed pitcher / batter by
+    `position.type` (a two-way player is a batter here, as before).
+    """
+    people: dict[str, list[dict]] = {}
+    for g in games:
+        for side in ("away", "home"):
+            team_name = g.get(f"{side}TeamName")
+            pid, pname = g.get(f"{side}ProbablePitcherId"), g.get(f"{side}ProbablePitcherName")
+            if team_name and pid and pname:
+                people.setdefault(team_name, []).append(
+                    _identity_entry(pid, pname, "pitcher", g.get(f"{side}TeamAbbr"), team_name, probable=True)
+                )
+    for team_name, (team_abbr, roster) in rosters.items():
+        for entry in roster or []:
+            person = entry.get("person", {}) or {}
+            full, pid = person.get("fullName"), person.get("id")
+            if not full or pid is None:
+                continue
+            pos = (entry.get("position", {}) or {}).get("type") or ""
+            people.setdefault(team_name, []).append(
+                _identity_entry(pid, full, "pitcher" if pos == "Pitcher" else "batter", team_abbr, team_name)
+            )
+    return people
+
+
+def resolve_row_identities(
+    rows: list[dict], people_by_team: dict[str, list[dict]]
+) -> tuple[list[dict | None], dict]:
+    """Resolve every player-market row against the two clubs in ITS OWN game.
+
+    Returns (one entry-or-None per row, aligned with `rows`; counts + the ambiguous names). Rows for
+    other markets get None and are not counted.
+    """
+    counts = {"exact": 0, "normalized": 0, "ambiguous": 0, "unresolved": 0}
+    ambiguous: set[str] = set()
+    out: list[dict | None] = []
+    for row in rows:
+        market = row.get("marketKey")
+        if market not in PITCHER_MARKETS and market not in BATTER_MARKETS:
+            out.append(None)
+            continue
+        pool = (people_by_team.get(row.get("awayTeam") or "") or []) + (
+            people_by_team.get(row.get("homeTeam") or "") or []
+        )
+        role = "pitcher" if market in PITCHER_MARKETS else "batter"
+        entry, how = resolve_player_identity(row.get("playerName") or "", pool, role=role)
+        counts[how] += 1
+        if how == "ambiguous":
+            ambiguous.add(row.get("playerName") or "")
+        out.append(entry)
+    return out, {**counts, "ambiguousNames": sorted(ambiguous)}
 
 
 # ── SPRINT 043 · PUBLICATION SAFETY GATE ────────────────────────────────────────────────────────
@@ -721,62 +840,40 @@ def run(
     # ------------------------------------------------------------------
     # 4) Game logs (FREE) — only for players who appear in prop rows
     # ------------------------------------------------------------------
-    pitcher_id_by_name: dict[str, int] = {}
-    # Per-player team attribution: which team a player suits up for today.
-    # The Odds API never tags this; we resolve from probable-pitcher data
-    # (definitive) and team rosters (best-effort for batters).
-    player_team_by_name: dict[str, tuple[str | None, str | None]] = {}
-    for g in games:
-        if g.get("awayProbablePitcherName") and g.get("awayProbablePitcherId"):
-            pitcher_id_by_name[g["awayProbablePitcherName"]] = g["awayProbablePitcherId"]
-            player_team_by_name[g["awayProbablePitcherName"]] = (g.get("awayTeamAbbr"), g.get("awayTeamName"))
-        if g.get("homeProbablePitcherName") and g.get("homeProbablePitcherId"):
-            pitcher_id_by_name[g["homeProbablePitcherName"]] = g["homeProbablePitcherId"]
-            player_team_by_name[g["homeProbablePitcherName"]] = (g.get("homeTeamAbbr"), g.get("homeTeamName"))
-
-    # Batter IDs: resolve from rosters of teams playing today
-    # (Odds API only gives us player names; MLB API gives us names + ids per roster).
+    # Rosters of the clubs playing today (Odds API gives only player NAMES; StatsAPI gives names + ids).
     print(f"[stats] fetching rosters for {len(team_ctx)} teams")
-    batter_id_by_name: dict[str, int] = {}
+    rosters: dict[str, tuple[str | None, list[dict]]] = {}
     for team_name, ctxs in team_ctx.items():
         club = _club_identity(ctxs)
         if club is None:
             continue
         team_id, team_abbr = club
         try:
-            roster = mlb_stats.fetch_team_roster(int(team_id))
+            rosters[team_name] = (team_abbr, mlb_stats.fetch_team_roster(int(team_id)))
         except mlb_stats.MlbStatsError as err:
             summary["warnings"].append(f"roster fetch failed for {team_name}: {err}")
             continue
-        for entry in roster:
-            person = entry.get("person", {}) or {}
-            pos = (entry.get("position", {}) or {}).get("type") or ""
-            full = person.get("fullName")
-            if not full:
-                continue
-            if pos == "Pitcher":
-                # still index in case pitcher is referenced in batter logs (rare)
-                pitcher_id_by_name.setdefault(full, person.get("id"))
-            else:
-                batter_id_by_name[full] = person.get("id")
-            # Record team attribution — first roster wins (players occasionally
-            # appear on multiple rosters around trade deadlines; we accept the
-            # first hit rather than guess. Probable-pitcher hits above are
-            # definitive and overwrite roster fallback below.)
-            player_team_by_name.setdefault(full, (team_abbr, team_name))
         time.sleep(0.05)
 
-    pitcher_names_in_props = {r["playerName"] for r in all_rows if r["marketKey"] in PITCHER_MARKETS}
-    batter_names_in_props = {r["playerName"] for r in all_rows if r["marketKey"] in BATTER_MARKETS}
+    people_by_team = build_identity_pool(games, rosters)
+    resolved_by_row, identity = resolve_row_identities(all_rows, people_by_team)
+    ambiguous_names = identity["ambiguousNames"]
+    identity_counts = {k: identity[k] for k in ("exact", "normalized", "ambiguous", "unresolved")}
+    summary["playerIdentity"] = identity
+    if ambiguous_names:
+        summary["warnings"].append(
+            f"{len(ambiguous_names)} player name(s) match more than one player in their game and were left unresolved: "
+            + ", ".join(sorted(ambiguous_names))
+        )
 
-    pitcher_ids_to_fetch = {pitcher_id_by_name[n] for n in pitcher_names_in_props if n in pitcher_id_by_name}
-    batter_ids_to_fetch = {batter_id_by_name[n] for n in batter_names_in_props if n in batter_id_by_name}
-    print(
-        f"[stats] pitchers in props: {len(pitcher_names_in_props)} resolved → {len(pitcher_ids_to_fetch)}"
-    )
-    print(
-        f"[stats] batters in props: {len(batter_names_in_props)} resolved → {len(batter_ids_to_fetch)}"
-    )
+    pitcher_ids_to_fetch = {
+        e["id"] for r, e in zip(all_rows, resolved_by_row) if e and r["marketKey"] in PITCHER_MARKETS
+    }
+    batter_ids_to_fetch = {
+        e["id"] for r, e in zip(all_rows, resolved_by_row) if e and r["marketKey"] in BATTER_MARKETS
+    }
+    print(f"[stats] player identity: {identity_counts}")
+    print(f"[stats] pitchers resolved → {len(pitcher_ids_to_fetch)} · batters resolved → {len(batter_ids_to_fetch)}")
 
     pitcher_logs = mlb_stats.fetch_player_game_logs_bulk(pitcher_ids_to_fetch, SEASON, "pitching")
     batter_logs = mlb_stats.fetch_player_game_logs_bulk(batter_ids_to_fetch, SEASON, "hitting")
@@ -785,21 +882,20 @@ def run(
     # 5) Project + grade
     # ------------------------------------------------------------------
     leans: list[dict] = []
-    for row in all_rows:
+    for row, who in zip(all_rows, resolved_by_row):
         market = row["marketKey"]
+        pid = who["id"] if who else None
         if market in PITCHER_MARKETS:
-            pid = pitcher_id_by_name.get(row["playerName"])
             logs = pitcher_logs.get(pid, []) if pid else []
             proj = mlb_model.project_pitcher_strikeouts(logs)
             is_pitcher = True
         elif market in BATTER_MARKETS:
-            pid = batter_id_by_name.get(row["playerName"])
             logs = batter_logs.get(pid, []) if pid else []
             proj = mlb_model.project_batter_market(logs, market)
             is_pitcher = False
         else:
             continue
-        team_abbr, team_name = player_team_by_name.get(row["playerName"], (None, None))
+        team_abbr, team_name = (who["teamAbbr"], who["teamName"]) if who else (None, None)
         lean = _build_lean(
             row,
             team_ctx,

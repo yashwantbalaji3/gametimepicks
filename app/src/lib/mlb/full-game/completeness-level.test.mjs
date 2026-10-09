@@ -99,7 +99,7 @@ test("824706 · a confirmed order with NO posted line on either side is not `rea
 
   // The notes must say it in the artifact's own words, not only in the level.
   assert.ok(
-    c.notes.some((n) => n.includes("9 of 9 have no posted prop line")),
+    c.notes.some((n) => n.includes("9 of 9 have no GTP projection")),
     `the artifact must state the gap: ${JSON.stringify(c.notes)}`,
   );
 });
