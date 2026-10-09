@@ -13,11 +13,26 @@
  *      forecast carried forward from before the 00:00Z first pitch, and the footer said "produced" at
  *      that time. The report header already used simProvenance; the story now uses the same rule.
  */
-import { test, mock } from "node:test";
+import { test } from "node:test";
 import assert from "node:assert/strict";
 
+/**
+ * The clock, pinned with a plain Date subclass (CI runs Node 20.4, whose MockTimers cannot mock Date).
+ * Only argument-less `new Date()` and `Date.now()` move; every parse/format path is the real Date.
+ */
+function pinClock(iso) {
+  const Real = globalThis.Date;
+  const fixed = Real.parse(iso);
+  class Pinned extends Real {
+    constructor(...args) { super(...(args.length ? args : [fixed])); }
+    static now() { return fixed; }
+  }
+  globalThis.Date = Pinned;
+  return () => { globalThis.Date = Real; };
+}
+
 test("2026-10-08 CLE @ CWS: prop-engine chapter labelled; carried forecast gets no post-first-pitch clock", async () => {
-  mock.timers.enable({ apis: ["Date"], now: Date.parse("2026-10-08T16:00:00Z") });
+  const restore = pinClock("2026-10-08T16:00:00Z");
   try {
     const { buildAllGameDetails } = await import("../../game-detail.ts");
     const { buildMlbPresentation } = await import("./mlb.ts");
@@ -44,6 +59,6 @@ test("2026-10-08 CLE @ CWS: prop-engine chapter labelled; carried forecast gets 
     assert.equal(generated.detail, "Pregame · carried forward from an earlier run");
     assert.equal(r.provenance.generatedAt, null, "the footer prints no clock that is not this forecast's");
   } finally {
-    mock.timers.reset();
+    restore();
   }
 });
