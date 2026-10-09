@@ -29,6 +29,7 @@ import { fileURLToPath } from "node:url";
 import { WORLD_MODEL_V2_ENGINE, prepareSide, simulateGame, distribution, LADDERS, representativeWorldIndices } from "../../src/lib/sports/nfl/world-model-v2/engine.mjs";
 import { WORLD_MODEL_V2, STATUS, UNSUPPORTED, LIMITATIONS } from "../../src/lib/sports/nfl/world-model-v2/artifact.mjs";
 import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
+import { stableHeads } from "../../src/lib/sports/nfl/world-model-v2/freshness.mjs";
 import { indexDepthCharts, depthChartAsOf } from "../../src/lib/sports/nfl/depth-chart.mjs";
 import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mjs";
 import { QB_CHART_MAX_AGE_MS } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
@@ -126,7 +127,12 @@ for (const ev of packet.games) {
   const partPath = path.join(DATA, `data/internal/nfl/participation/${ev.kickoffUtc.slice(0, 10)}/${ev.providerEventId}.json`);
   const part = fs.existsSync(partPath) ? readJson(partPath) : null;
   const excluded = new Map((part?.excludedIneligible ?? []).map((x) => [String(x.playerId).replace(/^nfl-athlete-/, ""), x.status]));
-  const heads = { mMean: fs0.margin.median, mSigma: (fs0.margin.p90 - fs0.margin.p10) / SIGMA_80, tMean: fs0.total.median, tSigma: (fs0.total.p90 - fs0.total.p10) / SIGMA_80 };
+  const existingPath = path.join(OUT_DIR, `${ev.providerEventId}.json`);
+  const existing = fs.existsSync(existingPath) ? readJson(existingPath) : null;
+  /* Spreads within sampling noise of the previous run's are the same input (world-model-v2/freshness.mjs): the previous
+     heads are kept, so a run's recorded heads, its key and its simulation always agree. */
+  const r4h = (h) => Object.fromEntries(Object.entries(h).map(([k, v]) => [k, r4(v)]));
+  const { heads } = stableHeads(existing?.run?.inputs?.heads ?? null, r4h({ mMean: fs0.margin.median, mSigma: (fs0.margin.p90 - fs0.margin.p10) / SIGMA_80, tMean: fs0.total.median, tSigma: (fs0.total.p90 - fs0.total.p10) / SIGMA_80 }));
   const avail = new Map();
   const quarterbacks = {};
   const sides = [ev.away, ev.home].map((abbr, si) => {
@@ -148,8 +154,6 @@ for (const ev of packet.games) {
      new version, no new file, no build. */
   const headsKey = Object.values(heads).map((v) => r4(v)).join(",");
   const inputsKey = sha256(`${WORLD_MODEL_V2.version}|${WORLD_MODEL_V2_ENGINE}|${RUNS}|${gameSliceSha(ev)}|${headsKey}|${statusKey}`).slice(0, 16);
-  const existingPath = path.join(OUT_DIR, `${ev.providerEventId}.json`);
-  const existing = fs.existsSync(existingPath) ? readJson(existingPath) : null;
   /* A run made under the earlier whole-packet key (2.1.0, before the per-game key) with the SAME packet, heads and
      availability is the same simulation — never re-run it just because the key's formula changed. */
   const legacyKey = sha256(`${WORLD_MODEL_V2.version}|${WORLD_MODEL_V2_ENGINE}|${RUNS}|${packetSha}|${headsKey}|${statusKey}`).slice(0, 16);
