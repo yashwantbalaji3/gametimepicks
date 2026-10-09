@@ -317,6 +317,13 @@ Bot data commits are 386 of the 480 (80%).
 1. **`nfl-event-window`:** one push per run. The window commit and the receipts commit go out in one push from an `always()` step. Saves about 1 build per run (about 35 a week).
 2. **`nba-results-refresh`:** commit `latest.json` only when something a reader can see changed: a final, a corrected final, a postponement, a schedule change or the window state (`lib/sports/nba/results-publishable.mjs`). Replayed over the last 7 days, 12 of 30 commits would have been dropped. The saving grows in the regular season.
 
+**#1035 merged** at exact head `a524b8b7e4` (founder approval; `python` ✓ `quality` ✓; MERGEABLE/CLEAN) → `cd9a6a7e880be48ba95870c6cffe0e8eedcf06d0` at 16:23:13Z.
+- Production build-info = `cd9a6a7e`, built 16:25:15Z; Vercel success 16:29:20Z. Preview deployments: 0.
+- The merge commit was checked against the approved head: the reviewed files are identical, and the 30 differing roadmap/report lines all come from main.
+- **Behaviour check pending:** the first post-merge `nfl-event-window` run (one push) and `nba-results-refresh` run (in-progress-only changes not committed).
+- **Baseline for the measurement:** Oct 3–8, ignore-step replay: 70.2 builds a day (55.7 automated, 14.5 merges).
+- **Decision recorded:** the founder REJECTED the commit-message deferral marker (2026-10-09). The ignore step's "never read the commit message" guard stays.
+
 **Proposed, needing a founder decision (not implemented):**
 - **A `[deploy:defer <N>m]` commit marker** that the ignore step honours. It would skip only when every build-input commit since the last build carries a valid marker and the oldest is younger than its window, plus a scheduled backstop that publishes expired deferrals. It would coalesce the chained MLB/daily workflows (about 60 more builds a week).
   - It **reverses a pinned policy**: `vercel-ignore-build.behavior.test.mjs` asserts the script "must not read the commit message at all" (the 2026-09-22 audit). That decision belongs to the founder.
@@ -436,6 +443,8 @@ Use only after current-main reproduction.
 - NFL hooks ready for the ledger: every World Model V2 run is an immutable record. Each carries event id, per-player family distributions with percentiles and ladders, model version, simulationId = inputsKey, generatedAt, input as-of timestamps (forecast, injuries, rosters, depth chart, packet sha) and availability state per player. Still to do: a grader and ledger rows (settle against official box scores; pending/void/no-play never counted as a loss). The player board's existing settlement is unchanged.
 
 ### Observation (2026-10-09): final → grade latency
+**Step-order cause (2026-10-09, #1036):** inside `nfl-event-window` the player-event capture ran before the nflverse capture it reads, so a final was graded one window late. The 16:07Z run left TB @ DAL ungraded for this reason. #1036 moves the free nflverse capture first, with `!cancelled()` on the dependent steps and an order guard test.
+
 **Founder decision (2026-10-09): recorded as an operational limitation under OPS-001, LEDGER-001, RESULTS-001 and NFL-005.** The future Results architecture must settle promptly and reliably without website builds, keep finality, and not create a competing settlement system.
 
 **Freshness targets** (founder; these are targets, not claims about current infrastructure — measure what providers deliver):
@@ -773,6 +782,14 @@ Mirror `scripts/research/nfl/forward-player-props-share-level.mjs` (P300's forwa
   - Production build-info = `e3368f00`, built 02:43:20Z; Vercel success 02:45:45Z.
   - Vercel Build CPU: not readable without a dashboard login.
 - **Pending:** the one-time 2.2.0 regeneration of the unstarted Week 5 games runs at the next event window (Fri 13:00Z sweep).
+  - **Done 2026-10-09:** run `37956745466`, 16:07:01 → 16:09:22Z, success.
+    - It was dispatched by `sport-schedules` when the Friday NFL injury facts changed. That is existing automation, not a manual duplicate; the scheduled 13:00Z slot had not been delivered by 16:18Z.
+    - **14/14** unstarted Week 5 games regenerated on **2.2.0** at 16:08:16Z with `headsSource: DISTRIBUTION`, each with `supersedes` set to its 01:00Z run. 14 new run files.
+    - Injuries are as of 16:08:16Z; the QBs are consistent (CHI Bagent, with Caleb Williams Out).
+    - **TB @ DAL** is byte-identical to its pregame record (`00c260b8…`), with no new run.
+    - All 14 forecasts carry `forecastSummary.distribution`. Five boards × 10 rows; the 50 V2 board rows equal their game pages; no Q/D/OUT player on a board.
+    - Production served the 2.2.0 pages from build `6e3f6cb8` (16:13:24Z). TB @ DAL's page still shows its frozen 2.1.0 run.
+  - **Grading gap found in that run:** TB @ DAL stayed ungraded. The player-event capture (16:08:32Z) read the nflverse game list before the nflverse capture refreshed it (16:08:50Z), a documented one-window lag. Fixed by #1036 (nflverse first); see the LEDGER-001 observation.
   - **Settlement delay (founder decision 2026-10-09):** the first V2 game was not graded promptly after it ended. This is recorded as an operational limitation here and under OPS-001, LEDGER-001 and RESULTS-001. See the LEDGER-001 observation.
   - Until then Production shows the 2.1.0 runs (PHI vs JAX `076bd90906ca28d4`, 01:00:16Z).
   - The new simulation timestamps will be recorded here when it runs.
@@ -1040,6 +1057,19 @@ Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parla
   - The Safari (WebKit) Menu focus trap holds on Production: 25 Tabs, all inside.
   - Legacy redirects and deep links return 200.
   - Billed Build CPU needs the dashboard.
+
+- **#1034 merged** at exact head `34d0a95250` → `646c75b3aeea136b13f7875790865d113cf128ba` at 15:15:22Z. Production build `646c75b3` at 15:17:07Z; Vercel success 15:20:27Z.
+  - 0 hydration errors in Chromium, Firefox and WebKit, and in a de-DE browser, on the NFL hub, game and week pages, `/ufc/`, `/results/model-audit/`, `/simulate/d`, `/saved`, `/my` and the main pages.
+  - 95-page sitemap scan: 0 errors in three engines.
+  - The e2e accessibility suite against Production: 468 passed, 0 failed (9 data-dependent skips).
+  - A first verification pass ran during a local network outage and was discarded.
+- **#1033 merged** at exact head `26920ece4b` (after #1034 was verified) → `627eea577bc83068397fff27f43d72cb5c063e52` at 15:59:52Z. Production build `627eea57` at 16:01:25Z; Vercel success 16:03:48Z.
+  - The sitemap lists `/nba/` and `/soccer/ligue-1/`.
+  - 7 redirects land where the table now says (`/nhl`, `/ipl` → `/today/`; `/trends` → `/mlb/board/`; …).
+  - The MLB pages without the null tab strip render with 0 errors.
+  - The active-state matrix is identical to the post-#1032 baseline on 50 route×viewport checks.
+  - The tablet Menu and the WebKit trap hold.
+  - 95-page scan: 0 errors in three engines. Accessibility suite: 468 passed, 0 failed.
 
 ### Progress (2026-10-09; UX-001 phase 2 · navigation and sport switcher; branch `claude/ux-001-sport-nav`)
 - **One sport catalog** (`lib/sports/catalog.ts`): Football (NFL) · Basketball (NBA) · Baseball (MLB) · Soccer (Premier League, Ligue 1) · MMA (UFC), in the founder's naming and order.
@@ -1712,6 +1742,17 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - The deferral marker and the MLB lineup idempotency fix are proposed, pending founder decisions.
 - **Runtime Results:** the pilot direction is approved (Vercel Blob, NFL World Model V2 grades first). It is local design and validation only until separately approved.
 - **This documentation** (the TB @ DAL review, the settlement assessment, the status reconciliation) reaches `main` with the Stage A PR. No documentation-only build.
+
+### 2026-10-09 (late afternoon) — #1034, #1033 and #1035 merged; Friday refresh verified
+- **Merges, one at a time, each verified in Production before the next:**
+  - #1034 → `646c75b3ae`
+  - #1033 → `627eea577b`
+  - #1035 → `cd9a6a7e88`
+
+  The records are in UX-001 and COST-001.
+- **Friday NFL refresh:** run `37956745466`, dispatched by sport-schedules on the injury change. 2.2.0 regenerated the 14 unstarted games; TB @ DAL is frozen; boards match their game pages. Details are under NFL-005.
+- **Grading-order defect:** found and fixed in #1036 (awaiting approval). TB @ DAL will be graded by the next window run either way.
+- **Cost:** Preview 0. Production deployments from these merges: one each. The #1035 effect is measured from its first post-merge runs, against the 70.2/day baseline.
 
 ---
 
