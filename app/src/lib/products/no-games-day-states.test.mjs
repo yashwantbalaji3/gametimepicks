@@ -66,3 +66,9 @@ test("/today: a no-games day is not a no-play call", () => {
   assert.match(page, /<TodayTopModelPicks picks=\{topPicks\} noGamesToday=\{noGamesToday\} \/>/);
   assert.match(src("src/components/today/top-model-picks.tsx"), /No games are scheduled today, so there are no picks to rank\./);
 });
+
+test("/today top picks by category: prop-engine picks carry no full-game simulation count", () => {
+  const src = fs.readFileSync(path.join(APP, "src/components/today/top-picks-by-category.tsx"), "utf8");
+  assert.match(src, /simulationCount=\{null\}/);
+  assert.doesNotMatch(src, /simulationCount=\{pick\.simulationCount\}/);
+});
