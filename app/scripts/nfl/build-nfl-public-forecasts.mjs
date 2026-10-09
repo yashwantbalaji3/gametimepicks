@@ -626,6 +626,13 @@ for (const ev of events) {
         })(),
         total: { median: sim.totalQuantiles.p50, p10: sim.totalQuantiles.p10, p90: sim.totalQuantiles.p90, head: totalsHeadId },
         scoreRange: { homeP10: sim.scores.home.quantiles.p10, homeP90: sim.scores.home.quantiles.p90, awayP10: sim.scores.away.quantiles.p10, awayP90: sim.scores.away.quantiles.p90 },
+        /* NFL-005 (2026-10-09): the simulation's own normal inputs, published so a consumer that re-simulates this game
+           (World Model V2) keys on the exact distribution rather than re-deriving it from the sampled percentiles above,
+           which move by a point between regenerations of an unchanged game. Additive: no published number changes. */
+        distribution: {
+          marginMean: sim.features.marginMean, marginSigma: sim.features.sigmaMargin,
+          totalMean: Number(Number(sim.features.muTotal).toFixed(4)), totalSigma: sim.features.sigmaTotal, source: sim.simId,
+        },
       },
       marketComparison: marketFresh && teamInputs.comparisonWithheld
         ? { state: "WITHHELD_TEAM_INPUTS", capturedAt: marketCapturedAt, books: market.books.length, note: teamInputs.note }

@@ -6,7 +6,7 @@
 
 export const WORLD_MODEL_V2 = Object.freeze({
   id: "nfl-world-model-v2",
-  version: "2.1.0",
+  version: "2.2.0",
   label: "World Model V2",
   components: Object.freeze({
     score: "published margin and total heads of nfl-regular-season-public-v1 (normal draws, snapped)",

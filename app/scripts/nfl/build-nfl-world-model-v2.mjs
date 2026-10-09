@@ -4,6 +4,7 @@
  *
  *   node app/scripts/nfl/build-nfl-world-model-v2.mjs --now <ISO> [--packet <inputs json>] [--runs 10000] [--only <eventId>]
  *        [--data-root <dir>]   (read forecasts / rosters / injuries / participation from a snapshot of the repo tree)
+ *        [--out-root <dir>]    (write artifacts and runs under another root; tests)  [--only <id>[,<id>…]]
  *
  * For every game in the input packet (data/internal/nfl/world-model-v2/inputs/, newest by default) that has NOT
  * kicked off at --now, runs the coherent game-world simulator (app/src/lib/sports/nfl/world-model-v2/engine.mjs)
@@ -29,6 +30,7 @@ import { fileURLToPath } from "node:url";
 import { WORLD_MODEL_V2_ENGINE, prepareSide, simulateGame, distribution, LADDERS, representativeWorldIndices } from "../../src/lib/sports/nfl/world-model-v2/engine.mjs";
 import { WORLD_MODEL_V2, STATUS, UNSUPPORTED, LIMITATIONS } from "../../src/lib/sports/nfl/world-model-v2/artifact.mjs";
 import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
+import { headsFromForecast } from "../../src/lib/sports/nfl/world-model-v2/heads.mjs";
 import { indexDepthCharts, depthChartAsOf } from "../../src/lib/sports/nfl/depth-chart.mjs";
 import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mjs";
 import { QB_CHART_MAX_AGE_MS } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
@@ -40,7 +42,7 @@ const NOW = argOf("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) refuse("--now <ISO> required");
 if (Date.parse(NOW) > Date.now() + 60_000) refuse("--now is in the future; simulations use the real clock");
 const RUNS = Number(argOf("--runs", "10000"));
-const ONLY = argOf("--only");
+const ONLY = argOf("--only") ? new Set(argOf("--only").split(",")) : null;
 const FORCE = process.argv.includes("--force");
 const DATA = path.resolve(argOf("--data-root", ROOT));
 const readJson = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
@@ -76,13 +78,15 @@ const qbIndex = (() => {
   return picked ? { index: indexDepthCharts(picked.doc), file: picked.file } : null;
 })();
 const PASSER_FLOOR = 0.75;
-const OUT_DIR = path.join(ROOT, "app/public/data/nfl/world-model-v2");
-const RUNS_DIR = path.join(ROOT, "data/internal/nfl/world-model-v2/runs");
+/* --out-root: where the artifacts and runs are written (default: the repository). The refresh regression tests point it
+   at a temporary directory so they exercise this exact script without touching committed data. */
+const OUT_ROOT = path.resolve(argOf("--out-root", ROOT));
+const OUT_DIR = path.join(OUT_ROOT, "app/public/data/nfl/world-model-v2");
+const RUNS_DIR = path.join(OUT_ROOT, "data/internal/nfl/world-model-v2/runs");
 fs.mkdirSync(OUT_DIR, { recursive: true });
 fs.mkdirSync(RUNS_DIR, { recursive: true });
 const r2 = (x) => Number(x.toFixed(2));
 const r4 = (x) => Number(x.toFixed(4));
-const SIGMA_80 = 2 * 1.2815515655446004;
 
 /**
  * Shares of the worlds in fixed-width bins between `lo` and `hi`; the first and last bins also hold everything below
@@ -118,7 +122,7 @@ const index = fs.existsSync(path.join(OUT_DIR, "index.json")) ? readJson(path.jo
 const kept = new Map(index.games.map((g) => [g.providerEventId, g]));
 const written = []; const skipped = []; const unchanged = [];
 for (const ev of packet.games) {
-  if (ONLY && ev.providerEventId !== ONLY) continue;
+  if (ONLY && !ONLY.has(ev.providerEventId)) continue;
   if (Date.parse(ev.kickoffUtc) <= Date.parse(NOW)) { skipped.push(`${ev.matchup}: kicked off — last pregame artifact kept`); continue; }
   const pub = published.get(ev.providerEventId);
   const fs0 = pub?.forecastSummary;
@@ -126,7 +130,11 @@ for (const ev of packet.games) {
   const partPath = path.join(DATA, `data/internal/nfl/participation/${ev.kickoffUtc.slice(0, 10)}/${ev.providerEventId}.json`);
   const part = fs.existsSync(partPath) ? readJson(partPath) : null;
   const excluded = new Map((part?.excludedIneligible ?? []).map((x) => [String(x.playerId).replace(/^nfl-athlete-/, ""), x.status]));
-  const heads = { mMean: fs0.margin.median, mSigma: (fs0.margin.p90 - fs0.margin.p10) / SIGMA_80, tMean: fs0.total.median, tSigma: (fs0.total.p90 - fs0.total.p10) / SIGMA_80 };
+  const existingPath = path.join(OUT_DIR, `${ev.providerEventId}.json`);
+  const existing = fs.existsSync(existingPath) ? readJson(existingPath) : null;
+  /* The score inputs are the forecast's own exact distribution (world-model-v2/heads.mjs): deterministic per game, so an
+     unchanged game has identical inputs on every refresh and no threshold is needed. */
+  const { heads, source: headsSource } = headsFromForecast(fs0);
   const avail = new Map();
   const quarterbacks = {};
   const sides = [ev.away, ev.home].map((abbr, si) => {
@@ -148,8 +156,6 @@ for (const ev of packet.games) {
      new version, no new file, no build. */
   const headsKey = Object.values(heads).map((v) => r4(v)).join(",");
   const inputsKey = sha256(`${WORLD_MODEL_V2.version}|${WORLD_MODEL_V2_ENGINE}|${RUNS}|${gameSliceSha(ev)}|${headsKey}|${statusKey}`).slice(0, 16);
-  const existingPath = path.join(OUT_DIR, `${ev.providerEventId}.json`);
-  const existing = fs.existsSync(existingPath) ? readJson(existingPath) : null;
   /* A run made under the earlier whole-packet key (2.1.0, before the per-game key) with the SAME packet, heads and
      availability is the same simulation — never re-run it just because the key's formula changed. */
   const legacyKey = sha256(`${WORLD_MODEL_V2.version}|${WORLD_MODEL_V2_ENGINE}|${RUNS}|${packetSha}|${headsKey}|${statusKey}`).slice(0, 16);
@@ -218,7 +224,7 @@ for (const ev of packet.games) {
     status: STATUS,
     run: {
       generatedAt: NOW, runs: RUNS, seed, inputsKey, supersedes: existing && Date.parse(existing.identity?.kickoffUtc) === Date.parse(ev.kickoffUtc) ? existing.simulationId ?? null : null,
-      inputs: { packet: path.relative(ROOT, packetPath), packetSha256: packetSha, gameInputsSha256: gameSliceSha(ev), packetExportedAt: packet.exportedAt, forecastModel: pub.model?.id ?? null, forecastInputHash: pub.model?.inputHash ?? null, forecastGeneratedAt: pub.generatedAt ?? null, injuriesAsOf: injuries.generatedAt ?? null, depthChart: qbIndex?.file ?? null, rostersGeneratedAt: rosters.generatedAt ?? null, participationAsOf: part?.injuriesAsOf ?? null, heads: Object.fromEntries(Object.entries(heads).map(([k, v]) => [k, r4(v)])) },
+      inputs: { packet: path.relative(ROOT, packetPath), packetSha256: packetSha, gameInputsSha256: gameSliceSha(ev), packetExportedAt: packet.exportedAt, forecastModel: pub.model?.id ?? null, forecastInputHash: pub.model?.inputHash ?? null, forecastGeneratedAt: pub.generatedAt ?? null, injuriesAsOf: injuries.generatedAt ?? null, depthChart: qbIndex?.file ?? null, rostersGeneratedAt: rosters.generatedAt ?? null, participationAsOf: part?.injuriesAsOf ?? null, heads: Object.fromEntries(Object.entries(heads).map(([k, v]) => [k, r4(v)])), headsSource },
     },
     forecastOfRecord: {
       modelVersion: pub.model?.id ?? null, winProbability: { home: wp.home, away: wp.away, tie: wp.tieMass ?? null }, projectedScore: fs0.projectedScore ? { home: fs0.projectedScore.home, away: fs0.projectedScore.away } : null,
