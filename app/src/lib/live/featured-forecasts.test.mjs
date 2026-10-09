@@ -396,3 +396,8 @@ test("🔴 the rendered TD row's final words come from tdFinal — a missing rea
   assert.match(q2, />No TD at last measurement</);
   assert.match(html(lr(0, "2026-10-02T03:31:00Z", 0)), />No TD recorded</);
 });
+
+test("an anytime-TD card with no live record says it is not tracked live — never 'temporarily unavailable' (2026-10-08)", () => {
+  assert.equal(statusFor({ rail: null, binary: true, gamePhase: "LIVE", feed: FEED.UNAVAILABLE, value: null, line: null, stale: false }), "Not tracked live · settled from the official box score after the game");
+  assert.equal(statusFor({ rail: null, binary: false, gamePhase: "LIVE", feed: FEED.UNAVAILABLE, value: null, line: null, stale: false }), "Live tracking temporarily unavailable", "a volume row keeps the outage wording");
+});
