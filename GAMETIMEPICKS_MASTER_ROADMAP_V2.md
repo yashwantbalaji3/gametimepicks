@@ -99,7 +99,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 3 | `NFL-003` | NFL Modeling | Player opportunity allocation (plays → pass/rush → attempts/carries → targets → catches → yards → TDs, with `OTHER`) | IN_PROGRESS — allocV1 PRODUCTION DEPLOYED inside World Model V2 (experimental, labelled); not FORWARD EVALUATED; first-game review: rushing-efficiency tail hypothesis (§NFL-005) | NFL-002 team volume | Shadow → family-by-family promotion |
 | 4 | `NFL-004` | NFL Modeling | TD model: hierarchical Bernoulli → team scoring opportunities → red-zone role → drive attribution | IN_PROGRESS — RESEARCH (passing-TD pure-sim candidate failed preregistered dev bars; 50/50 blend passed dev, forward shadow only; world TD v2 preregistered, forward-only). Not qualified; passing TD and first TD withheld publicly; anytime TD stays on the existing published model | NFL-003 | Shadow → family-by-family promotion |
 | 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | IN_PROGRESS — PRODUCTION DEPLOYED (World Model V2, experimental: #1024, #1026, #1027, #1029 → 2.2.0); FORWARD EVALUATION begun (1 game reviewed, 2026-10-08 TB @ DAL); not STATISTICALLY QUALIFIED; not PRODUCT ELIGIBLE | NFL-002, NFL-003, NFL-004 | Yes, family by family |
-| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED — unblocked (deploy gate verified 2026-10-08) | COST-001 deployment gate verified ✓ | Yes |
+| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — baseline audit done (2026-10-09); MLB truth package IMPLEMENTED LOCALLY on `claude/truth-001-mlb-truth` (awaiting PR + founder approval); product-state / bankroll / Results items next; 2 founder decisions open | COST-001 deployment gate verified ✓ | Yes |
 | 7 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | NOT_STARTED | Founder rules below | Foundation |
 | 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
 | 9 | `MLB-002` | MLB Modeling | Benchmark ladder (PA control → Poisson → hierarchical → NB → bivariate → enhanced PA → boosting → ensemble) | NOT_STARTED | MLB-001 | Shadow |
@@ -358,13 +358,13 @@ Bot data commits are 386 of the 480 (80%).
 # 4. Truth, market identity and product semantics
 
 ## `TRUTH-001` — P0 truth correction package
-**Status:** NOT_STARTED  
-**Owner/session:** —  
-**Branch:** —  
-**PR:** —  
-**Exact head:** —  
-**Evidence:** —  
-**Production acceptance:** —
+**Status:** IN_PROGRESS — stage IMPLEMENTED LOCALLY (MLB truth package, PR 1 of the task); product-state, bankroll and Results items not started  
+**Owner/session:** Claude Code, Lane A (Core Intelligence), 2026-10-09  
+**Branch:** `claude/truth-001-mlb-truth` (from `origin/main` `3e8aa34d71`)  
+**PR:** opened from this branch after local validation (number recorded at push)  
+**Exact head:** last code commit `09496a3c33`; the PR's exact head (including this roadmap commit) is recorded at push  
+**Evidence:** commits on the branch; tests named below; audit record in this section  
+**Production acceptance:** — (not merged; founder approval required)
 
 ### Reproduce on current main
 - Signed run-line/model-vs-market mismatch.
@@ -391,6 +391,54 @@ Bot data commits are 386 of the 480 (80%).
 - `claude/handoff-pe-stage4-package`
 Use only after current-main reproduction.
 
+### Baseline audit on current main (2026-10-09, `3e8aa34d71`, read-only)
+Six audits (game/market, player identity, product state and copy, MLB simulation story, results, historical immutability) against committed artifacts. Classes: (1) confirmed defect · (2) previously resolved · (3) data limitation · (5) contract dependency · (6) future enhancement · (7) unsupported claim.
+
+| # | Finding (evidence) | Class | Disposition |
+|---|---|---|---|
+| A1 | **MLB Overview run line compares opposite signs.** Row "HOME −1.5 cover" paired P(home by 2+) with the book's no-vig cover at the line it POSTED, which is signed for home. 372 of 816 committed market blocks have home +1.5. 2026-10-06 LAD @ ATL: "ATL −1.5 cover 26% · market 65%"; at +1.5 the sim says 55%. `/markets` and the Model vs Market tab were already correct (`homeCoverProbability`) | (1) | Fixed, PR 1 |
+| A2 | **MLB player identity.** `generate_mlb_board.py` looked the provider name up exactly in one slate-wide roster dict. Accents ("Jose Ramirez" ≠ "José Ramírez"): since 09-01, 1,286 batter + 40 pitcher rows with a posted line got no playerId/projection and were simulated at replacement level, with a note saying "no posted prop line". Namesakes: "Max Muncy" in Dodgers games resolved to the A's Max Muncy (691777) on 38 rows | (1) | Fixed, PR 1 |
+| A3 | **"Aligned · model ≈ market" on missing or large gaps** (v2 board). Null edge (Jose Ramirez hits) and +25.3 pts Low confidence (Brenton Doyle) both read "Aligned" | (1) | Fixed, PR 1 |
+| A4 | **Replacement-rated batters unmarked per row** in the simulated box score (the item below). 977 of 4,248 confirmed batter rows; 2026-10-07 849838: 3 TB, 2 NYY | (1) + (5) | Disclosure fixed on new artifacts, PR 1; coverage is `MLB-003` |
+| A5 | **MLB story mixes engines and clocks.** Chapter 6 lists player-prop-engine picks inside the full-game story, unlabelled, claiming "furthest from the posted line" (ranked by probability). The close stamped the slate clock (after first pitch) on carried pregame forecasts: all 9 postseason games 10-05..10-08 | (1) | Fixed, PR 1 |
+| A6 | **Rounded probabilities shown as exact "N / 10,000".** 849832: "5,310 of 10,000" vs persisted counts 5,307. Prop-engine picks counted as full-game simulations. Three tests pinned the unmarked strings. NFL already fixed (6bef3033a7) | (1) | Fixed, PR 1 |
+| A7 | Props tab said HR/RBI/Runs "not simulated" while the Box Score shows them | (1) minor | Fixed, PR 1 |
+| A8 | **MLB run-line PICK ignores the posted sign.** `decision.ts` picks ±1.5 off the simulated favourite: `mlb/predictions/2026-10-05` 849839 publishes "NYY +1.5" (STRONG) while the book posted NYY −1.5; 218 of 579 committed run-line picks are at the opposite sign to the book line for that team (re-counted 2026-10-09) | (1) + (5) | **Founder decision** (below) |
+| B1 | `/build` and `/build/custom` say "Data pending" when the producers ran and found no card (today: 0 MLB games); `build-header-scope.test.mjs` pins the ternary | (1) | Next PR |
+| B2 | `/homer-nukes` says "not published yet" on a no-games day (producer writes no file by design) | (1) | Next PR |
+| B3 | `/moonshot` header pill reads the retired legacy lane (`moonshot-lane/active.json`, 2026-08-17) → "Not published today · stale" on a no-games day | (1) | Next PR |
+| B4 | **Moonshot bankroll contradiction.** `mr-dub/portfolio.json`: `separateFromCore:false`, Moonshot results move the core bankroll since 2026-08-15; /moonshot's "Open decision" text says the record "never touches the protected bankroll"; Results explorer says "each with its own bankroll… never added together"; ladder copy says flat stake vs "whole balance rides" | (1) | Next PR (copy follows the artifact) |
+| B5 | **Bank Builder / Moonshot "at risk".** `product-lanes-ladder.tsx` prints the step STAKE as "at risk · open exposure" (e.g. $400.22) while the ledger's exposure is the lane seed ($25); exposure scope (lane / day / both lanes) unstated | (1) | Next PR |
+| B6 | `/today` shows "No-play" on a no-games day; `/bank-builder` says it is not a no-play call | (1) minor | Next PR |
+| B7 | State vocabulary: `product-state.mjs` has NOT_RUN / GENERATION_FAILED / NO_EVENTS / INPUTS_MISSING / INPUTS_STALE / COMPLETED_NO_QUALIFIED_CARD, used only by /bank-builder and /mr-dub; no PAUSED/PIPELINE_FAILURE equivalents for other producers | (5) | `CONTRACT-001` (one product-state vocabulary) |
+| C1 | `/results` "What the model is learning" panel reads `audit/market-reliability.json`, last written 2026-06-07 by a script nothing runs; lists NBA Points as "Working" at 53.7% while the ledger and `/results/model-audit` say 47.3% | (1) | Next PR |
+| C2 | `/results/model-audit` gold "Cross-sport" tile pools frozen NBA + live MLB (50.2%, 52,928 decisive), the blend eb3590fead removed from /results | (1) | Next PR |
+| C3 | `/results` accuracy footnote says "since 2026-05-27" over lifetime figures (NBA from 05-15: 49.1% shown vs 47.7% since 05-27) | (1) | Next PR |
+| C4 | Pending/void/no-play counted as losses | — | Not reproduced: every public denominator is decisive-only (artifact recomputation, 41 projection files) |
+| C5 | Forecast Record page / CSV / Ask parity | (2) | Verified for 24 sport/family pairs |
+| D1 | Historical rewrites: MLB full-game "unavailable" erasures after first pitch (09-20, 09-25, 10-01, 10-03) and board pruning of started games (08-27 → 09-09) | (2) | Both stopped (`f96e91fc94`, paid-run gate `19261185b7`); damaged public files were never restored (internal snapshots hold the forecasts). Restoration = historical data change → founder decision. Latent: a `--forced` morning-projections run would still prune; immutability test pins only `boards/2026-08-03` → `LEDGER-001` |
+| D2 | Missing odds default to −110 in model-vs-market code | (7) | Not reproduced; only `accounts/guardrails.mjs` / `bet-insights.mjs` default a user's own won-slip price (personal P&L, low) |
+| D3 | NFL spread/total comparison sign | (2) | Not reproduced (NFL compares win % and total only) |
+
+### PR 1 — MLB truth package (`claude/truth-001-mlb-truth`, stage IMPLEMENTED LOCALLY)
+Commits (all forward-only; no published artifact rewritten):
+1. `d0d67679fd` player identity (A2): resolve against the two clubs in the row's own game, by role, with the existing suffix-preserving `normalize_name`; exactly one id or refuse; counts in `summary.playerIdentity`. Test `pipeline/mlb/generate_mlb_board_player_identity_test.py` (verbatim 849832 names; 4/4 mutations caught), registered in `scripts/run_all_tests.sh`. Replay on committed boards since 09-01 (confirmed lineups as roster): 5,094 rows same id, 378 newly resolved (42 players), 2 WSH@LAD Muncy rows 691777 → 571970, 0 regressions.
+2. `3baa9444a6` run line (A1): `lib/mlb/full-game/market-overview.ts` uses the shared `homeCoverProbability`; alternate lines the sim did not publish are withheld; the market column names book + capture time. Test checks the model cell against each game's exact run-differential counts on every committed market block (mutation caught).
+3. `1f052d1ba6` Aligned (A3): `mlbBoardSignalDisplay` → Unavailable / Low confidence / Aligned (0 < gap < 5) / Model lead / Watchlist; classification thresholds unchanged.
+4. `0028a80992` per-row rate source (A4): optional `rateSource` on new `SimBatterLine`s; box score marks "replacement rates" and states the per-team count on older artifacts without guessing rows; note now says "no GTP projection" rather than "no posted prop line"; `adapters.test.mjs` MLB 8c accepts the key and checks it against `9 − ratedCount`; `input-snapshot` `paddedSlots` counts negative sentinel ids.
+5. `661556a9cd` story (A5): "Player markets · prop engine"; time via `simProvenance` (moved verbatim to `lib/mlb/full-game/sim-provenance.ts`, one owner for header + story).
+6. `5934eb7818` counts (A6): `lib/sim-frequency.ts` exact win tallies from persisted counts (583/583 reconcile), "≈" otherwise; prop-engine picks state their own percentage.
+7. `6c7f81e2ea` copy (A7).
+8. explorer source guard: `simulation-explorer.test.mjs` pinned the old in-card formula; it now asserts the exact/≈ rule.
+
+**Local validation (final head):** CI unit phase 9,150 pass / 2 fail / 1 skipped (the 2 are `rls-live`, which need a local Postgres; pre-existing, documented by OPS-002/CI-001); local production build `npm run build` PASS (2,784 pages, 2m40s, 16 GB machine; build-generated `data/ask-projection` changes discarded, not committed); post-build phase 689 pass / 0 fail / 3 skipped; Python CI script (`scripts/ci/run-python-tests.sh`) 90/90; `tsc --noEmit` clean; server render of the real report on 849819 / 849832 / 849838: "ATL +1.5 cover 55% · market 65%", "CWS +1.5 cover 61% · market 62%", "CLE wins 5,307 of 10,000", book + capture time shown. Today's MLB slate has 0 games, so no MLB game page is currently built: every A-item is latent until the next postseason slate and reaches pages on the first build after merge plus the next MLB run (identity: next board generation).
+
+**Expected deployment impact:** one Production build on merge (app source changed). Data effect only on newly generated MLB boards / simulations: more batters and pitchers resolved (projected instead of replacement-rated; more leans with a model probability), `rateSource` on new simulated rows. No change to any NFL, soccer, NBA or UFC producer or page.
+
+### Founder decision required
+1. **A8, MLB run-line pick semantics.** Option A (recommended): evaluate the pick at the book's signed line when one is posted (pick the side with the higher cover probability at that line), keep ±1.5 off the simulated favourite only when no line is posted, and bump `DECISION_ENGINE_VERSION` so Results separate the two definitions. Option B: keep today's rule and label the hero card "simulated line (not the posted line)". A changes a graded family's definition forward-only; B is copy only.
+2. **D1 restoration.** Whether to restore the pregame forecasts erased from public MLB files on 09-20/09-25/10-01/10-03 (and pruned board leans 08-27 → 09-09) from the internal snapshots, as a labelled correction, or leave them with the existing corrections register.
+
 ---
 
 # 5. Canonical architecture, ledger and temporal data
@@ -412,6 +460,31 @@ Use only after current-main reproduction.
 - Explicit legacy adapters; no historical rewrites.
 - Live-vs-pregame boundary documented/tested.
 - Additive migration plan + rollback.
+
+### Progress (2026-10-09, Lane A; research only, nothing implemented)
+**Status:** NOT_STARTED → inventory RESEARCH COMPLETED (deliverables 1, 2, 5 drafted); implementation waits for TRUTH-001 PR 1 and the owner decisions below.
+- **Inventory:** every §3 entity has partial, sport-local implementations and no shared layer.
+  - Event: `identity/event-identity.ts` + `pipeline/mlb/settlement_lineage.py` + `data-platform/contract.mjs` + `sports/schedule-contract.mjs` + NFL `nfl-<providerEventId>`.
+  - ForecastVersion: `forecast-ledger/` (`forecast-ledger@1`, `fl1-` FNV id of sport|event|subject|family|kind; model version deliberately not in the id).
+  - WorldReceipt: MLB `artifactHash`, NFL World Model V2 `artifact.mjs` (2.2.0, STATUS evidence ladder), NFL `sim-v2/receipt.mjs` (`simulation-receipt@2`), NBA `forecast-receipt@1`.
+  - MarketSnapshot: `markets/`, `event-markets/` (no consumers outside its folder), ledger `marketBlock`.
+  - EligibilityDecision: 43 exported `*Eligib*` functions in 33 files; `products/product-eligible-leg.mjs` is the only closed reason set.
+  - ProductSelection: `products/selector/`, `recommendation-receipt.mjs`, per-product ledgers.
+  - SettlementEvent: ledger `SETTLEMENT_STATE`, `identity/settlement-lineage.ts`, NFL `prop-settlement-ledger.mjs` (a real correction chain).
+  - LiveObservation: `live/contract.mjs` (`LIVE_SCHEMA_VERSION 1`).
+- **Gaps (verified unless noted):**
+  - ForecastVersion has no `horizon` and no `predecessor`; the ledger is pregame-only by rule, so a live forecast has no identity.
+  - No shared signed-line type: the only signed-line rule is `markets/game-intelligence.ts` `homeCoverProbability` (now also used by the MLB Overview, TRUTH-001 A1). The ledger market block has no side, period, suspension or OT/void rule.
+  - Settlement words differ by owner (WIN/LOSS…, won/lost…, hit/miss…; MLB stores a push as `state VOID` + `finalCategory PUSH`, NFL as SETTLED); correction is a count except in the NFL prop ledger.
+  - Version strings follow at least six conventions (`x@1`, `x-1`, `x-v1`, dotted, calendar, semver, bare integers); sport lists differ (`data-platform` MLB/NFL/EPL/UFC vs ledger + LIGUE_1/NBA).
+  - **Event-id divergence (latent defect, verified):** for the same game, Python `derive_event_id` gives `…t19` for `19:00Z` and `…t190000+00` for `+00:00`, while TypeScript gives `…t1900` for all three forms; `cross-language-agreement.test.mjs` only uses `HH:MM:SSZ`. Every committed MLB board row (60,111) uses `HH:MM:SSZ`, so no live divergence today.
+  - Product-state vocabulary (TRUTH-001 B7) is used only by /bank-builder and /mr-dub; `PRODUCT_STATES` and `daily-state-machine.mjs` `LIFECYCLE_STATES` are two product state machines.
+  - Market identity: at least five key schemes that do not agree (`eligible-leg/contract.mjs` legId, `engine-v2/receipt.mjs` receiptId, `daily-portfolio/mlb-team-legs.ts` selection-string ids parsed back with a regex for the signed line, ledger `fl1-`, top-boards `providerEventId:playerId:family`); `mlb_total` vs `mlb_total_runs` for the same family; American-odds/de-vig maths re-implemented in 25+ TS/JS files and ~10 Python files; no suspension or OT/void rule on any market snapshot.
+  - Eligibility: at least eight reason vocabularies naming the same concept differently (MISSING_IDENTITY / IDENTITY_MISSING / IDENTITY_UNRESOLVED / INELIGIBLE_IDENTITY); price-staleness bound 12 h (`LEG_BOUNDS`) vs 3 days (`card-leg-eligibility`); "HOLDING" is healthy in model-health but blocks a leg in the eligibility modules; four `PROBABILITY_BASIS` vocabularies.
+  - Product selection: two policy registries (`selection-policy.mjs`, `selector/policies.mjs`), four hash algorithms (sha256, md5, sha1, FNV-1a), and no product stores one immutable activation receipt with policy hash + leg forecast refs + price refs (the engine-v2 receipt is shadow-only). Homer Nukes daily files are overwritten per run.
+- **Consumer matrix (import level):** MLB game page → identity, `mlb/full-game`, `mlb/prediction`, `markets`, live-record-gate; NFL game page / top boards → World Model V2 + `forecast-view`; MLB top board → `data-mlb` only; /markets → `markets/*`; Bank Builder → `product-state` + `daily-portfolio`; Moonshot → `moonshot-state` + retired `moonshot-lane`; End Zone Vault and Homer Nukes → raw files, no contract; Results → `results/v2` reading the emitted ledger. No route imports `data-platform`, `forecast-ledger` (only its outputs), `event-markets` or `bank-builder-eligibility.ts`.
+- **Recommended first implementation (additive, no migration, no NFL file edited):** a read-only `lib/contracts/` projection of `forecast-ledger@1` rows into versioned ForecastVersion/Settlement shapes (`horizon` derived as pregame from the existing `publishedAt < eventStart` rule; predecessor / receipt refs null with a reason; one settlement-word table), plus the signed market identity library generalising `homeCoverProbability` (MLB first). Tests: every committed row projects with identical `forecastId`/probability/decisive counts; pending/void can never map to WIN/LOSS; `+1.5` never fills `−1.5` across all committed market blocks.
+- **Owner decisions needed before integration (§22 rule 2):** who integrates market identity / forecast schema / settlement (the NFL owner's artifacts are consumers); canonical version-string style and sport list; any `forecast-ledger@1` identity change (would be a new `fl2` namespace, never a rewrite); the Python event-id fix (changes ids minted for future MLB settlement rows; MLB is Lane A, but the settlement path is shared).
 
 ### Acceptance
 - Current MLB/NFL sample forecasts project into the contract without changing historical meaning.
@@ -577,6 +650,8 @@ Derive hits, total bases, HR, runs, RBI, H+R+RBI from shared PA/base-state world
 Coverage requirement (from `CI-001`, 2026-10-08): today a batter has a GTP projection only if a book posted a line for him (board `leans`). Everyone else in a confirmed order is simulated at replacement level, and full-game `ready` is structurally rare (8 of 860 games). The V2 batter model must project every confirmed starter independently of market posting. The per-row disclosure in the meantime is `TRUTH-001`.
 
 Candidate approaches: binomial/beta-binomial opportunity baselines, hierarchical multinomial PA outcomes, appearance/role mixtures, GAM/boosting conditional rates. Shrink tiny BvP samples heavily.
+
+Input finding (TRUTH-001, 2026-10-09): about a third of the replacement-rated confirmed batters (302 of 977) DID have a posted line; the board failed to resolve their names (accents, namesakes). That identity defect is fixed in TRUTH-001 PR 1, forward-only. The remaining gap is genuine (no line or too little data) and is what MLB-003 must close. New simulated rows carry `rateSource`, so MLB-003 can measure it per row.
 
 ## `MLB-004` — Pitcher markets
 **Status:** NOT_STARTED
@@ -1161,6 +1236,7 @@ Capture player box/stat progression, event timeline, score/inning/out/base state
 Display frozen pregame projection, current observed stat, target line, opportunity count, source freshness.
 
 MLB player rows from `full-game-simulations` are not a usable pregame projection until the replacement-level rows are identifiable per row (`TRUTH-001`). A bookmaker `player-props` row is never one. See `adapters.test.mjs` MLB 8 (`CI-001`).
+- 2026-10-09 (TRUTH-001 PR 1, not merged): NEW artifacts carry `rateSource` per batter row (checked in MLB 8c). Older artifacts stay unflagged, so a live join must still exclude them or treat their rows as unflagged.
 
 Graph cumulative observed stat as steps, threshold as horizontal line, pregame projection/reference separately.
 
@@ -1753,6 +1829,22 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - **Friday NFL refresh:** run `37956745466`, dispatched by sport-schedules on the injury change. 2.2.0 regenerated the 14 unstarted games; TB @ DAL is frozen; boards match their game pages. Details are under NFL-005.
 - **Grading-order defect:** found and fixed in #1036 (awaiting approval). TB @ DAL will be graded by the next window run either way.
 - **Cost:** Preview 0. Production deployments from these merges: one each. The #1035 effect is measured from its first post-merge runs, against the 70.2/day baseline.
+
+### 2026-10-09 (evening) — Claude Code (Lane A, Core Intelligence) — `TRUTH-001`
+- Starting main SHA: `3e8aa34d71` (fetched; isolated worktree `.claude/worktrees/gametimepicks-core-intelligence-ebaedd`, branch `claude/truth-001-mlb-truth`; tree clean; main unchanged at the end of the session's local work).
+- Isolation: Lane B (NFL operations, UX-001, COST-001) and DP's NCAAF lane untouched. No NFL, UX, workflow or Vercel file changed.
+- Goal: founder directive (Core Intelligence mission) — TRUTH-001 first, then CONTRACT-001, then MLB-001 → MLB-005.
+- Reproduced current state: six read-only audits against committed artifacts; findings and classes in the TRUTH-001 section (A1–A8, B1–B7, C1–C5, D1–D3).
+- Decisions made: MLB first (highest public-correctness risk among confirmed defects, two of them producer-side); fix the producer or the shared rule rather than the display where possible (A2 producer, A1 shared `homeCoverProbability`, A5 shared `simProvenance`); never rewrite published artifacts (A4 flag forward-only, older games state the count without guessing rows); A8 and D1 go to the founder.
+- Files/contracts changed: `pipeline/mlb/generate_mlb_board.py` (+ new test, runner list); `app/src/lib/mlb/full-game/{types,board-adapter,simulate,input-snapshot}.ts|mjs`, new `market-overview.ts`, `box-score-rates.ts`, `sim-provenance.ts`; `app/src/lib/{sim-frequency.ts,game-lab/mlb-report.ts,home/game-answers.ts,mlb/prediction/{story,slate}.ts,simulate/presentation/mlb.ts}`; components `game/mlb-full-game-report.tsx`, `game/mlb-simulation-report-v2.tsx`, `entity/{index,simulation-card}.tsx`. Contract change: `SimBatterLine.rateSource` optional (additive), `adapters.test.mjs` MLB 8c accepts and checks it.
+- Local tests/build/UX checks run: see TRUTH-001 "Local validation" (unit 9,143/9,147 with the 2 known `rls-live` env failures; Python 90/90; tsc clean; mutation probes caught on every new rule; server render of real artifacts). Local production build: recorded below when complete.
+- Result: TRUTH-001 PR 1 ready for PR; TRUTH-001 stays IN_PROGRESS (B and C items, founder decisions A8 and D1).
+- PR / exact head: code head `6c7f81e2ea`; PR number at push.
+- Vercel Preview / Production build counts: 0 / 0 (nothing pushed yet; `claude/*` branches are not deployed).
+- Remote-only exception: none.
+- Production acceptance: n/a until approved and merged; MLB pages are latent (0 games today).
+- Roadmap tasks updated: TRUTH-001 (status, audit, PR 1, founder decisions), priority table, MLB-003 (identity share of the coverage gap), LIVE-001 (per-row flag).
+- Remaining blockers / recommended next task: founder approval of PR 1 and decisions A8/D1; next TRUTH-001 PR = product-state (B1–B6) and Results (C1–C3) truth; then CONTRACT-001 inventory (B7 is its first input).
 
 ---
 

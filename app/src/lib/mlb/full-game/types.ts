@@ -70,6 +70,12 @@ export interface SimBatterLine {
   rbi: number;
   walks: number;
   strikeouts: number;
+  /**
+   * Where this row's rates came from (TRUTH-001, 2026-10-09). Absent on artifacts generated before the
+   * field existed: for those the per-row source was not recorded (the game-level completeness counts
+   * still say how many). Published artifacts are never rewritten to add it.
+   */
+  rateSource?: BatterRateSource;
 }
 
 /** Simulated per-pitcher box-score aggregate (starter; bullpen is an aggregate, not named). */
@@ -90,7 +96,7 @@ export interface FullGameCompleteness {
   /** "confirmed" when the real posted batting order was used; "prop-derived" when it was not. */
   awayLineupSource?: "confirmed" | "prop-derived";
   homeLineupSource?: "confirmed" | "prop-derived";
-  /** How many of the nine carry a posted prop line; the rest are priced at replacement level. */
+  /** How many of the nine carry a GTP projection; the rest are simulated at replacement-level rates. */
   awayRatedCount?: number;
   homeRatedCount?: number;
   /** Overall floor: "ready" = both lineups + both starters present; degraded/unavailable otherwise. */
@@ -231,7 +237,16 @@ export interface BatterInput {
   expTotalBases: number | null;
   /** batter_hits_runs_rbis projection — kept for reference/parity, not a PA-model input. */
   expHrr: number | null;
+  /** Where this batter's rates came from (TRUTH-001): his own GTP projection, or replacement level. */
+  rateSource?: BatterRateSource;
 }
+
+/**
+ * `projection` — the batter's own GTP projection from the board. `replacement` — no projection existed
+ * (no posted prop line, or too little data), so the simulation used replacement-level rates; on a
+ * confirmed order the row still carries the real batter's name and slot.
+ */
+export type BatterRateSource = "projection" | "replacement";
 
 /** One starting pitcher's pregame projection inputs (from the public board). */
 export interface PitcherInput {

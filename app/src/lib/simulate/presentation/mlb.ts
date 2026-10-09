@@ -16,6 +16,7 @@
  */
 import { medianRunsCopy } from "../../mlb/prediction/median-runs-copy.mjs";
 import type { PublicGameDetail } from "@/lib/game-detail";
+import { simProvenance } from "@/lib/mlb/full-game/sim-provenance";
 import type {
   ChapterKind,
   PresentationChapter,
@@ -276,8 +277,14 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
     chapters.push({
       id: "players",
       kind: "players",
-      title: "Player markets",
-      line: "The player markets the simulation separated furthest from the posted line.",
+      /*
+       * TRUTH-001 (2026-10-09): these rows are the PLAYER-PROP engine's picks (game-detail.ts builds
+       * topPlayerPredictions from the game-simulations artifact), not the full-game simulation the
+       * chapters above narrate — a separate engine and a separate snapshot. The old line also said
+       * "separated furthest from the posted line"; the rows are ranked by simulated probability.
+       */
+      title: "Player markets · prop engine",
+      line: "From the separate player-prop simulation, not the full-game simulation above: its most likely player outcomes, ranked by its own probability.",
       stats: [],
       bars: [],
       rows: top.map((p) => ({
@@ -337,7 +344,14 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
    * each") and would arrive directly after chapters about the full game — true, and about a
    * different thing. It is still shown, labelled as what it is.
    */
-  const generatedLabel = etStamp(meta?.generatedAt);
+  // The slate's generatedAt is a LATER run's clock when this game's pregame forecast was carried
+  // forward (TRUTH-001): label time with the report header's rule, never the slate clock alone.
+  const provenanceKind = simProvenance(fg, meta ?? null);
+  const slateStamp = etStamp(meta?.generatedAt);
+  const generatedLabel = provenanceKind === "PREGAME_CARRIED"
+    ? "Pregame · carried forward from an earlier run"
+    : slateStamp && provenanceKind === "AFTER_FIRST_PITCH" ? `${slateStamp} · after first pitch`
+      : slateStamp && provenanceKind === "PREGAME" ? `${slateStamp} · pregame` : slateStamp;
   chapters.push({
     id: "closing",
     kind: "closing",
@@ -374,7 +388,8 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
       modelVersion: meta?.modelVersion ?? null,
       simulationVersion: meta?.simulationVersion ?? null,
       runCount,
-      generatedAt: meta?.generatedAt ?? null,
+      // Not this forecast's time when it was carried forward; the footer then prints no clock.
+      generatedAt: provenanceKind === "PREGAME_CARRIED" ? null : meta?.generatedAt ?? null,
       marketCapturedAt: pred.market?.capturedAt ?? null,
       bookmaker: bk ?? null,
     },

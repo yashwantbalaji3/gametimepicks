@@ -21,6 +21,10 @@ import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
 import { medianRunsCopy, MEDIAN_RUNS_LABEL } from "@/lib/mlb/prediction/median-runs-copy.mjs";
 import { modelImpliedTotal, modelTotalCopy, type ModelImpliedTotal } from "@/lib/mlb/full-game/model-total";
+import { runLineOverviewRow } from "@/lib/mlb/full-game/market-overview";
+import { rowRateLabel, teamRateNote } from "@/lib/mlb/full-game/box-score-rates";
+import { simProvenance } from "@/lib/mlb/full-game/sim-provenance";
+import { exactWinCounts } from "@/lib/sim-frequency";
 
 const int0 = (n: number): string => Math.round(n).toLocaleString("en-US");
 
@@ -245,17 +249,21 @@ function PredictionHero({ p, runCount , spreadLabel, g, modelVersion }: { p: Gam
 function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame; awayCode: string; homeCode: string }) {
   if (!g.winProbability || !g.runCount) return null;
   const N = g.runCount;
-  const awayWins = g.winProbability.away * N;
-  const homeWins = g.winProbability.home * N;
+  // Exact tallies from the persisted run-differential counts. Without them the count is rebuilt from a
+  // rounded probability and is shown as approximate (TRUTH-001).
+  const exact = exactWinCounts(g);
+  const approx = (p: number) => `≈ ${int0(p * N)}`;
+  const awayWins = exact ? int0(exact.away) : approx(g.winProbability.away);
+  const homeWins = exact ? int0(exact.home) : approx(g.winProbability.home);
   const V = g.vocabulary ?? BASEBALL_VOCAB;
-  const extras = g.extraInningsProbability != null ? Math.round(g.extraInningsProbability * N) : null;
+  const extras = g.extraInningsProbability != null ? approx(g.extraInningsProbability) : null;
   return (
     <section className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Simulation outcomes · {int0(N)} complete games</div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        <StatTile label={`${awayCode} wins`} value={int0(awayWins)} sub={`of ${int0(N)} games`} />
-        <StatTile label={`${homeCode} wins`} value={int0(homeWins)} sub={`of ${int0(N)} games`} />
-        {extras != null ? <StatTile label={V.overtimeLabel} value={int0(extras)} sub={V.overtimeClause.replace(/^of games /, "")} /> : null}
+        <StatTile label={`${awayCode} wins`} value={awayWins} sub={`of ${int0(N)} games`} />
+        <StatTile label={`${homeCode} wins`} value={homeWins} sub={`of ${int0(N)} games`} />
+        {extras != null ? <StatTile label={V.overtimeLabel} value={extras} sub={V.overtimeClause.replace(/^of games /, "")} /> : null}
       </div>
       {g.finalScores.length ? (
         <div>
@@ -278,6 +286,8 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
   const V = g.vocabulary ?? BASEBALL_VOCAB;
   if (!g.winProbability || !g.runs || !g.totalRuns) return null;
   const rl15 = g.runLine.find((r) => r.line === 1.5);
+  // The Overview comparison's run-line row: both cells at the book's SIGNED home line (TRUTH-001).
+  const runLineRow = runLineOverviewRow(g);
   const favHomeRL = (rl15?.homeCover ?? 0) >= (rl15?.awayCover ?? 0);
   return (
     <div className="flex flex-col gap-4">
@@ -419,12 +429,17 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
             </div>
             <div className="px-4 py-2" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", borderLeft: "1px solid var(--vault-border)" }}>
               <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-mute)", fontSize: 9 }}>Market snapshot (the book)</span>
+              {g.market.bookmaker || g.market.capturedAt ? (
+                <span className="font-mono block" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+                  {[g.market.bookmaker, g.market.capturedAt ? `captured ${formatEtTime(g.market.capturedAt)}` : null].filter(Boolean).join(" · ")}
+                </span>
+              ) : null}
             </div>
           </div>
           {[
             { label: `${homeCode} win`, ours: pct(g.winProbability.home), mkt: pct(g.market.moneyline?.home) },
             { label: `Total (median vs line)`, ours: String(g.totalRuns.median), mkt: g.market.total?.line != null ? String(g.market.total.line) : "—" },
-            { label: `${homeCode} −1.5 cover`, ours: pct(rl15?.homeCover), mkt: pct(g.market.runLine?.homeCover) },
+            { label: `${homeCode} ${runLineRow.lineLabel} cover`, ours: pct(runLineRow.ours), mkt: pct(runLineRow.market) },
           ].map((row) => (
             <div key={row.label} className="grid grid-cols-2" style={{ borderTop: "1px solid var(--vault-rule)" }}>
               <div className="px-4 py-2 flex items-center justify-between">
@@ -537,6 +552,10 @@ function BoxScore({ g }: { g: FullGameSimGame }) {
                         <span style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>{b.battingOrder}.</span>
                         {b.playerId > 0 ? <PlayerAvatar playerId={b.playerId} playerName={b.name} team={b.team} sport="mlb" size="xs" flat /> : null}
                         <span>{b.name}</span>
+                        {/* TRUTH-001: a replacement-rated row is marked, never passed off as a projection. */}
+                        {rowRateLabel(b) === "replacement" && b.playerId > 0 ? (
+                          <span className="font-mono uppercase" style={{ fontSize: 8, color: "var(--vault-text-faint)", border: "1px solid var(--vault-rule)", borderRadius: 999, padding: "0 5px", whiteSpace: "nowrap" }}>replacement rates</span>
+                        ) : null}
                       </span>
                     </td>
                     {[b.plateAppearances, b.hits, b.totalBases, b.homeRuns, b.runs, b.rbi, b.walks, b.strikeouts].map((v, i) => (
@@ -547,6 +566,9 @@ function BoxScore({ g }: { g: FullGameSimGame }) {
               </tbody>
             </table>
           </div>
+          {teamRateNote(g, team) ? (
+            <p className="text-[10.5px] m-0 mt-1" style={{ color: "var(--vault-text-faint)" }}>{teamRateNote(g, team)}</p>
+          ) : null}
         </section>
       ))}
       {g.players.pitchers.length ? (
@@ -580,35 +602,7 @@ function BoxScore({ g }: { g: FullGameSimGame }) {
   );
 }
 
-/**
- * The provenance of THIS game's simulation, from the artifact alone.
- *
- * 🔴 THE ARTIFACT'S TOP-LEVEL `generatedAt` IS NOT EVERY GAME'S GENERATION TIME, and the header
- * printed it as though it were. The producer carries a game's pregame forecast FORWARD verbatim
- * when a later run happens after its first pitch — "never regenerated and never destroyed" — and a
- * carried game keeps NO per-game timestamp. So on 2026-09-26 the slate's `generatedAt` is 21:24Z
- * while three games with 20:05–20:10Z first pitches are correctly `startedBeforeGeneration: false`,
- * and the header rendered "Simulated 5:24 PM · pregame" — a clock from after kickoff attached to a
- * forecast made before it. Each half is defensible; together they are the contradiction §7 names.
- *
- * ⚠ AND AN INSTANT COMPARISON HERE IS WORSE, NOT BETTER. My first cut fell back to
- * `generatedAt < firstPitch`, which labels exactly those three genuine pregame forecasts "after
- * first pitch". The producer's flag is the only field that knows, and re-deriving it in a component
- * makes this a second owner with strictly less information.
- */
-type SimProvenance = "PREGAME" | "PREGAME_CARRIED" | "AFTER_FIRST_PITCH" | "UNSTATED";
-
-export function simProvenance(g: FullGameSimGame, meta: FullGameArtifactMeta | null): SimProvenance {
-  const started = (g.completeness as { startedBeforeGeneration?: boolean } | null)?.startedBeforeGeneration;
-  if (started === true) return "AFTER_FIRST_PITCH";
-  /* An artifact written before the flag existed says nothing, so neither does this. */
-  if (started !== false) return "UNSTATED";
-  const gen = Date.parse(meta?.generatedAt ?? "");
-  const first = Date.parse(g.firstPitch ?? "");
-  if (!Number.isFinite(gen) || !Number.isFinite(first)) return "PREGAME";
-  /* Pregame, but the slate's clock is a LATER run's and is not this game's. */
-  return gen >= first ? "PREGAME_CARRIED" : "PREGAME";
-}
+export { simProvenance } from "@/lib/mlb/full-game/sim-provenance";
 
 function Methodology({ g, meta }: { g: FullGameSimGame; meta: FullGameArtifactMeta | null }) {
   return (

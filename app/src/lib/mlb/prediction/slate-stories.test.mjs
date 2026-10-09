@@ -71,11 +71,16 @@ test("each category picks the genuinely extreme game by its stated field", () =>
 
 test("frequency is the probability × that game's OWN run count", () => {
   const by = Object.fromEntries(buildSlateStories(SLATE).map((s) => [s.kind, s]));
-  assert.equal(by["most-decisive"].detail, "6,900 / 10,000 simulations");
-  assert.equal(by["biggest-player-impact"].detail, "8,400 / 10,000 simulations");
+  // TRUTH-001: rebuilt from a rounded probability → approximate; a prop-engine pick carries no count.
+  assert.equal(by["most-decisive"].detail, "≈ 6,900 / 10,000 simulations");
+  assert.equal(by["biggest-player-impact"].detail, "84% in the player-prop simulation");
   // A game with an unknown run count states the answer WITHOUT a fabricated denominator.
   const noCount = SLATE.map((g) => ({ ...g, simulationCount: null }));
-  for (const s of buildSlateStories(noCount)) assert.equal(s.detail, null, `${s.kind} must not invent a count`);
+  for (const s of buildSlateStories(noCount)) {
+    // The prop-engine detail is a percentage, never a count, so it does not depend on the run count.
+    if (s.kind === "biggest-player-impact") assert.doesNotMatch(s.detail ?? "", /\//, "no count, ever");
+    else assert.equal(s.detail, null, `${s.kind} must not invent a count`);
+  }
 });
 
 test("a game missing the needed field is excluded from THAT category only", () => {

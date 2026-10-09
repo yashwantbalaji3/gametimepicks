@@ -245,6 +245,7 @@ export function simulateFullGame(input: GameInput, opts: SimulateOptions): FullG
       rbi: round3(acc[i].rbi / n),
       walks: round3(acc[i].bb / n),
       strikeouts: round3(acc[i].k / n),
+      ...(b.rateSource ? { rateSource: b.rateSource } : {}),
     }));
 
   const pitLine = (starter: GameInput["awayStarter"], acc: typeof sums.awayPit): SimPitcherLine[] =>

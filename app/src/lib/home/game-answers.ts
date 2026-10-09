@@ -12,6 +12,7 @@
  * carries null fields, and the card falls back to what it showed before — never a fabricated answer.
  */
 import { buildSimulationStory, simulationFrequency } from "@/lib/mlb/prediction/story";
+import { exactFrequency, exactWinCounts } from "@/lib/sim-frequency";
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
 
@@ -44,13 +45,17 @@ export function buildHomeGameAnswer(source: AnswerSource): HomeGameAnswer {
 
   const ml = source.prediction?.moneyline ?? null;
   const top = sim.finalScores?.[0] ?? null;
+  const exact = exactWinCounts(sim);
   // The story layer is the ONE place a sentence about this game is composed; take its closeness beat.
   const closeness = buildSimulationStory(sim, source.prediction ?? null).find((b) => b.kind === "closeness");
 
   return {
     slug: source.slug,
     prediction: ml ? `${ml.team} wins ${Math.round(ml.simulationProbability * 100)}% of simulations` : null,
-    frequency: ml ? simulationFrequency(ml.simulationProbability, sim.runCount) : null,
+    // Exact tally from the persisted counts where available, else an explicitly approximate one (TRUTH-001).
+    frequency: ml
+      ? (exact ? exactFrequency(ml.side === "home" ? exact.home : exact.away, exact.runCount, "simulations") : simulationFrequency(ml.simulationProbability, sim.runCount))
+      : null,
     mostLikelyScore: top ? `${sim.awayTeam} ${top.away} – ${sim.homeTeam} ${top.home}` : null,
     story: closeness?.text ?? null,
   };

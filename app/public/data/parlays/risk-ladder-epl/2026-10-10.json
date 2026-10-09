@@ -5,9 +5,103 @@
  "moneyClass": "NON_MONEY",
  "sport": "epl",
  "date": "2026-10-10",
- "generatedAt": "2026-10-09T01:09:16Z",
- "state": "STALE_PRICES",
- "reason": "the newest EPL price capture (2026-09-19T22:35:26Z) is older than 3 days — a stale price is not one anyone can act on",
- "cards": [],
- "skipped": []
+ "generatedAt": "2026-10-09T21:55:58Z",
+ "state": "PUBLISHED",
+ "pricedFixtures": 6,
+ "eligibleLegs": 6,
+ "rejectedLegs": [],
+ "cards": [
+  {
+   "tier": "medium",
+   "slipId": "epl-medium-2026-10-10",
+   "combinedAmerican": 128,
+   "combinedDecimal": 2.281,
+   "legs": [
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:arsenal-v-leeds-united:20261010t1130",
+     "player": null,
+     "matchup": "Arsenal v Leeds United",
+     "kickoffUtc": "2026-10-10T11:30:00Z",
+     "team": "Arsenal",
+     "market": "match_result",
+     "marketLabel": "Match result",
+     "side": "home",
+     "line": null,
+     "odds": -250,
+     "decimal": 1.4,
+     "books": 11
+    },
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:bournemouth-v-chelsea:20261010t1400",
+     "player": null,
+     "matchup": "Chelsea v Bournemouth",
+     "kickoffUtc": "2026-10-10T14:00:00Z",
+     "team": null,
+     "market": "total_goals",
+     "marketLabel": "Total goals 3.5",
+     "side": "under",
+     "line": 3.5,
+     "odds": -159,
+     "decimal": 1.6289308176100628,
+     "books": 4
+    }
+   ],
+   "status": "pending",
+   "tierRecord": null
+  },
+  {
+   "tier": "high",
+   "slipId": "epl-high-2026-10-10",
+   "combinedAmerican": 375,
+   "combinedDecimal": 4.751,
+   "legs": [
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:manchester-united-v-tottenham-hotspur:20261010t1630",
+     "player": null,
+     "matchup": "Manchester United v Tottenham Hotspur",
+     "kickoffUtc": "2026-10-10T16:30:00Z",
+     "team": null,
+     "market": "total_goals",
+     "marketLabel": "Total goals 3.5",
+     "side": "over",
+     "line": 3.5,
+     "odds": 122,
+     "decimal": 2.2199999999999998,
+     "books": 4
+    },
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:aston-villa-v-brentford:20261010t1400",
+     "player": null,
+     "matchup": "Aston Villa v Brentford",
+     "kickoffUtc": "2026-10-10T14:00:00Z",
+     "team": null,
+     "market": "total_goals",
+     "marketLabel": "Total goals 3",
+     "side": "over",
+     "line": 3,
+     "odds": 114,
+     "decimal": 2.1399999999999997,
+     "books": 3
+    }
+   ],
+   "status": "pending",
+   "tierRecord": null
+  }
+ ],
+ "skipped": [
+  {
+   "tier": "low",
+   "reason": "no combination of today's prices lands in this band — 2 legs → +128 (medium) … +342 (high)"
+  },
+  {
+   "tier": "longshot",
+   "reason": "no combination of today's prices lands in this band — 2 legs → +211 (medium) … +475 (high)"
+  }
+ ],
+ "selection": "a market price on a settleable market — the three-way favourite, or an over/under at the book's own line. Never this model's read: the EPL model has cleared no bar and has never been scored against a no-vig line",
+ "note": "Prices are real, posted and de-vigged for display only; the side is THE MARKET'S OWN FAVOURITE, never this model's read — the EPL model has passed no preregistered bar and has never been compared against a no-vig price. Every leg settles from an official full-time score. Paper-only, educational."
 }

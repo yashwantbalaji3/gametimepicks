@@ -118,8 +118,9 @@ test("🔴 the producer's flag is authoritative — no instant comparison may ov
 });
 
 test("the label is read from the ARTIFACT, never from the reader's clock", () => {
-  const src = fs.readFileSync(path.join(APP, "src/components/game/mlb-full-game-report.tsx"), "utf8");
-  const fn = src.slice(src.indexOf("export function simProvenance"), src.indexOf("function Methodology"));
+  // TRUTH-001: the rule lives in the lib now, shared by the report header and the simulation story.
+  const fn = fs.readFileSync(path.join(APP, "src/lib/mlb/full-game/sim-provenance.ts"), "utf8");
+  assert.ok(fn.includes("export function simProvenance"));
   assert.equal(/Date\.now\(\)|new Date\(\)/.test(fn), false,
     "whether a file was written pregame is a fact about when it was written, not when it is read");
 });
