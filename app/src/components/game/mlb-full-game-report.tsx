@@ -21,6 +21,7 @@ import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
 import { medianRunsCopy, MEDIAN_RUNS_LABEL } from "@/lib/mlb/prediction/median-runs-copy.mjs";
 import { modelImpliedTotal, modelTotalCopy, type ModelImpliedTotal } from "@/lib/mlb/full-game/model-total";
+import { runLineOverviewRow } from "@/lib/mlb/full-game/market-overview";
 
 const int0 = (n: number): string => Math.round(n).toLocaleString("en-US");
 
@@ -278,6 +279,8 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
   const V = g.vocabulary ?? BASEBALL_VOCAB;
   if (!g.winProbability || !g.runs || !g.totalRuns) return null;
   const rl15 = g.runLine.find((r) => r.line === 1.5);
+  // The Overview comparison's run-line row: both cells at the book's SIGNED home line (TRUTH-001).
+  const runLineRow = runLineOverviewRow(g);
   const favHomeRL = (rl15?.homeCover ?? 0) >= (rl15?.awayCover ?? 0);
   return (
     <div className="flex flex-col gap-4">
@@ -419,12 +422,17 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
             </div>
             <div className="px-4 py-2" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", borderLeft: "1px solid var(--vault-border)" }}>
               <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-mute)", fontSize: 9 }}>Market snapshot (the book)</span>
+              {g.market.bookmaker || g.market.capturedAt ? (
+                <span className="font-mono block" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>
+                  {[g.market.bookmaker, g.market.capturedAt ? `captured ${formatEtTime(g.market.capturedAt)}` : null].filter(Boolean).join(" · ")}
+                </span>
+              ) : null}
             </div>
           </div>
           {[
             { label: `${homeCode} win`, ours: pct(g.winProbability.home), mkt: pct(g.market.moneyline?.home) },
             { label: `Total (median vs line)`, ours: String(g.totalRuns.median), mkt: g.market.total?.line != null ? String(g.market.total.line) : "—" },
-            { label: `${homeCode} −1.5 cover`, ours: pct(rl15?.homeCover), mkt: pct(g.market.runLine?.homeCover) },
+            { label: `${homeCode} ${runLineRow.lineLabel} cover`, ours: pct(runLineRow.ours), mkt: pct(runLineRow.market) },
           ].map((row) => (
             <div key={row.label} className="grid grid-cols-2" style={{ borderTop: "1px solid var(--vault-rule)" }}>
               <div className="px-4 py-2 flex items-center justify-between">
