@@ -1,0 +1,1331 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-10-09T01:00:16Z",
+ "sourceGeneratedAt": "2026-10-09T01:00:16Z",
+ "providerEventId": "401872981",
+ "matchup": "PHI @ JAX",
+ "kickoffUtc": "2026-10-11T13:30Z",
+ "seasonType": 2,
+ "week": 5,
+ "participationBasis": "Availability refreshes until kickoff.",
+ "availability": {
+  "injuriesCapturedAt": "2026-10-09T01:00:16Z",
+  "roleEvidenceAt": "2026-10-09T01:00:16Z",
+  "injuries": "FRESH",
+  "rosters": "FRESH"
+ },
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "ESTIMATE",
+   "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+   "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
+   "model": "nfl-player-share-level-v1",
+   "conservation": {
+    "version": "nfl-share-conservation-v1",
+    "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
+    "pools": []
+   }
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable."
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "PUBLISHED",
+   "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (586 graded player-games).",
+   "model": "nfl-player-share-level-v1",
+   "conservation": {
+    "version": "nfl-share-conservation-v1",
+    "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
+    "pools": []
+   }
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is still accumulating (782 graded player-games so far).",
+   "model": "nfl-anytime-td-opportunity-v1"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "newArrivals": {
+  "JAX": [
+   {
+    "playerId": "nfl-athlete-4889929",
+    "name": "Quinn Ewers",
+    "position": "QB",
+    "team": "JAX",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "MIA",
+     "games": 7,
+     "targetsPg": 0.1,
+     "receptionsPg": 0.1,
+     "recYdsPg": -0.9,
+     "rushAttPg": 1.3,
+     "rushYdsPg": 2.6,
+     "passAttPg": 18,
+     "passYdsPg": 127.9
+    },
+    "note": "no game for JAX yet this season, so his role there is not yet observed and he is not in this game's numbers; his MIA history is kept only as a historical prior"
+   }
+  ],
+  "PHI": [
+   {
+    "playerId": "nfl-athlete-4685279",
+    "name": "Jaydon Blue",
+    "position": "RB",
+    "team": "PHI",
+    "participation": "ACTIVE_UNCERTAIN",
+    "lastSeason": {
+     "club": "DAL",
+     "games": 6,
+     "targetsPg": 0.2,
+     "receptionsPg": 0.2,
+     "recYdsPg": 0.8,
+     "rushAttPg": 7.8,
+     "rushYdsPg": 25.7,
+     "passAttPg": 0,
+     "passYdsPg": 0
+    },
+    "note": "no game for PHI yet this season, so his role there is not yet observed and he is not in this game's numbers; his DAL history is kept only as a historical prior"
+   }
+  ]
+ },
+ "arrivalsShadowed": 0,
+ "departedFiltered": 0,
+ "practiceSquadFiltered": 1,
+ "practiceSquadFilteredPlayers": [
+  {
+   "playerId": "nfl-athlete-4244856",
+   "name": "Austin Trammell",
+   "team": "JAX"
+  }
+ ],
+ "shareLevel": {
+  "markets": [
+   "anytime_td",
+   "player_pass_yds",
+   "player_receptions"
+  ],
+  "rows": 74,
+  "rosterDropped": 51,
+  "withoutEspnId": 0
+ },
+ "marketCoverage": {
+  "probed": true,
+  "priced": 43,
+  "absent": 15,
+  "referenceBook": "draftkings"
+ },
+ "coverage": {
+  "PHI": {
+   "counts": {
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
+    "WITHHELD_POOL_OVER_ALLOCATED": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4040715",
+     "name": "Jalen Hurts",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3929630",
+     "name": "Saquon Barkley",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4241478",
+     "name": "DeVonta Smith",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4428850",
+     "name": "Dontayvion Wicks",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-3121023",
+     "name": "Dallas Goedert",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4870795",
+     "name": "Makai Lemon",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4431545",
+     "name": "Will Shipley",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-15835",
+     "name": "Zach Ertz",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4715355",
+     "name": "Darius Cooper",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4685201",
+     "name": "Tanner McKee",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4241372",
+     "name": "Marquise Brown",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4429013",
+     "name": "Tank Bigsby",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4685279",
+     "name": "Jaydon Blue",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for PHI yet this season — role at PHI not yet observed"
+    }
+   ]
+  },
+  "JAX": {
+   "counts": {
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 0,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
+    "WITHHELD_POOL_OVER_ALLOCATED": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-4360310",
+     "name": "Trevor Lawrence",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4882093",
+     "name": "Bhayshul Tuten",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4432620",
+     "name": "Parker Washington",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4362619",
+     "name": "Chris Rodriguez Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4430539",
+     "name": "Brenton Strange",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3916433",
+     "name": "Jakobi Meyers",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4432773",
+     "name": "Brian Thomas Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3059989",
+     "name": "Nick Mullens",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-2576336",
+     "name": "Ameer Abdullah",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4879194",
+     "name": "Josh Cameron",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4889929",
+     "name": "Quinn Ewers",
+     "state": "WITHHELD_ROLE_UNCERTAIN",
+     "reason": "no game for JAX yet this season — role at JAX not yet observed"
+    }
+   ]
+  }
+ },
+ "integrity": {
+  "qbStarter": [
+   {
+    "team": "PHI",
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4040715",
+     "name": "Jalen Hurts"
+    },
+    "snapshotAt": "2026-10-07T14:25:15Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4685201",
+      "name": "Tanner McKee"
+     }
+    ],
+    "passers": [
+     "nfl-athlete-4040715"
+    ]
+   },
+   {
+    "team": "JAX",
+    "state": "SINGLE_PASSER",
+    "passers": [
+     "nfl-athlete-4360310"
+    ],
+    "removed": []
+   }
+  ],
+  "passerShareFloor": [
+   {
+    "team": "PHI",
+    "floor": 0.75,
+    "passers": [
+     "nfl-athlete-4040715"
+    ],
+    "withheld": [],
+    "unjoined": []
+   },
+   {
+    "team": "JAX",
+    "floor": 0.75,
+    "passers": [
+     "nfl-athlete-4360310"
+    ],
+    "withheld": [],
+    "unjoined": []
+   }
+  ],
+  "pools": [
+   {
+    "team": "JAX",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9976,
+    "originalSum": 0.9976,
+    "residualOther": 0.0024,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "PHI",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9883,
+    "originalSum": 0.9883,
+    "residualOther": 0.0117,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "JAX",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.8701,
+    "originalSum": 0.8701,
+    "residualOther": 0.1299,
+    "joined": 6,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "PHI",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.4322,
+    "originalSum": 0.4322,
+    "residualOther": 0.5678,
+    "joined": 4,
+    "missed": 0,
+    "state": "UNDER_ALLOCATED"
+   }
+  ],
+  "violations": 0
+ },
+ "players": [
+  {
+   "playerId": "nfl-athlete-4882093",
+   "name": "Bhayshul Tuten",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 51.549,
+     "p10": 16.33,
+     "p25": 28.89,
+     "median": 46.53,
+     "p75": 68.84,
+     "p90": 94.07,
+     "market": {
+      "line": 67.5,
+      "overOdds": -110,
+      "underOdds": -114,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_reception_yds": {
+     "mean": 13.751,
+     "p10": 0,
+     "p25": 0,
+     "median": 7.68,
+     "p75": 21.23,
+     "p90": 36.87,
+     "market": {
+      "line": 9.5,
+      "overOdds": -115,
+      "underOdds": -109,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_receptions": {
+     "mean": 1.4214,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "market": {
+      "line": 1.5,
+      "overOdds": -107,
+      "underOdds": -119,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.4476,
+     "market": {
+      "yesOdds": -110,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4432620",
+   "name": "Parker Washington",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 56.499,
+     "p10": 12.65,
+     "p25": 27.62,
+     "median": 49.44,
+     "p75": 77.8,
+     "p90": 109.03,
+     "market": {
+      "line": 62.5,
+      "overOdds": -112,
+      "underOdds": -112,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_receptions": {
+     "mean": 4.7222,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 9,
+     "market": {
+      "line": 4.5,
+      "overOdds": -129,
+      "underOdds": 101,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.3932,
+     "market": {
+      "yesOdds": 140,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4241478",
+   "name": "DeVonta Smith",
+   "team": "PHI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 60.62,
+     "p10": 16.87,
+     "p25": 32.64,
+     "median": 54.43,
+     "p75": 82.7,
+     "p90": 112.06,
+     "pricingState": "NOT_OFFERED"
+    },
+    "player_receptions": {
+     "mean": 6.4013,
+     "p10": 2,
+     "p25": 3,
+     "median": 6,
+     "p75": 9,
+     "p90": 12,
+     "pricingState": "NOT_OFFERED"
+    },
+    "anytime_td": {
+     "probability": 0.3663,
+     "market": {
+      "yesOdds": 230,
+      "sportsbook": "betonlineag",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3121023",
+   "name": "Dallas Goedert",
+   "team": "PHI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 32.262,
+     "p10": 1.26,
+     "p25": 10.99,
+     "median": 26.28,
+     "p75": 47.06,
+     "p90": 69.5,
+     "pricingState": "NOT_OFFERED"
+    },
+    "player_receptions": {
+     "mean": 3.457,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
+     "pricingState": "NOT_OFFERED"
+    },
+    "anytime_td": {
+     "probability": 0.3212,
+     "market": {
+      "yesOdds": 330,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3929630",
+   "name": "Saquon Barkley",
+   "team": "PHI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 46.185,
+     "p10": 12.45,
+     "p25": 24.24,
+     "median": 41.07,
+     "p75": 62.12,
+     "p90": 86.85,
+     "pricingState": "NOT_OFFERED"
+    },
+    "player_reception_yds": {
+     "mean": 11.191,
+     "p10": 0,
+     "p25": 0,
+     "median": 5.6,
+     "p75": 17.03,
+     "p90": 31.12,
+     "pricingState": "NOT_OFFERED"
+    },
+    "player_receptions": {
+     "mean": 1.4732,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_OFFERED"
+    },
+    "anytime_td": {
+     "probability": 0.2993,
+     "market": {
+      "yesOdds": 100,
+      "sportsbook": "fanatics",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3916433",
+   "name": "Jakobi Meyers",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 41.126,
+     "p10": 6.14,
+     "p25": 17.04,
+     "median": 35.21,
+     "p75": 58.65,
+     "p90": 83.3,
+     "market": {
+      "line": 42.5,
+      "overOdds": -110,
+      "underOdds": -114,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_receptions": {
+     "mean": 3.7389,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
+     "market": {
+      "line": 3.5,
+      "overOdds": -119,
+      "underOdds": -107,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.296,
+     "market": {
+      "yesOdds": 275,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4430539",
+   "name": "Brenton Strange",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 46.256,
+     "p10": 8.24,
+     "p25": 21.11,
+     "median": 39.97,
+     "p75": 64.74,
+     "p90": 91.3,
+     "market": {
+      "line": 34.5,
+      "overOdds": -111,
+      "underOdds": -113,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_receptions": {
+     "mean": 4.2888,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
+     "market": {
+      "line": 3.5,
+      "overOdds": 107,
+      "underOdds": -137,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.2936,
+     "market": {
+      "yesOdds": 290,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4428850",
+   "name": "Dontayvion Wicks",
+   "team": "PHI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 37.897,
+     "p10": 3.05,
+     "p25": 13.65,
+     "median": 31.69,
+     "p75": 54.81,
+     "p90": 80.58,
+     "market": {
+      "line": 45.5,
+      "overOdds": -120,
+      "underOdds": -108,
+      "sportsbook": "betonlineag",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_receptions": {
+     "mean": 3.7717,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
+     "market": {
+      "line": 3.5,
+      "overOdds": -141,
+      "underOdds": 108,
+      "sportsbook": "betonlineag",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.2651,
+     "market": {
+      "yesOdds": 350,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4362619",
+   "name": "Chris Rodriguez Jr.",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 23.982,
+     "p10": 2.22,
+     "p25": 8.01,
+     "median": 18.75,
+     "p75": 34.27,
+     "p90": 52.78,
+     "market": {
+      "line": 28.5,
+      "overOdds": -109,
+      "underOdds": -115,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.2641,
+     "market": {
+      "yesOdds": 330,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4432773",
+   "name": "Brian Thomas Jr.",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 30.678,
+     "p10": 0,
+     "p25": 9.58,
+     "median": 24.37,
+     "p75": 44.9,
+     "p90": 67.44,
+     "market": {
+      "line": 23.5,
+      "overOdds": -116,
+      "underOdds": -108,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_receptions": {
+     "mean": 2.6788,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
+     "market": {
+      "line": 2.5,
+      "overOdds": 151,
+      "underOdds": -194,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.2278,
+     "market": {
+      "yesOdds": 370,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4870795",
+   "name": "Makai Lemon",
+   "team": "PHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 26.083,
+     "p10": 0,
+     "p25": 8.29,
+     "median": 20.9,
+     "p75": 37.81,
+     "p90": 57.64,
+     "market": {
+      "line": 37.5,
+      "overOdds": -114,
+      "underOdds": -114,
+      "sportsbook": "betonlineag",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_receptions": {
+     "mean": 3.2785,
+     "p10": 1,
+     "p25": 1,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
+     "market": {
+      "line": 3.5,
+      "overOdds": -135,
+      "underOdds": 105,
+      "sportsbook": "betonlineag",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.2072,
+     "market": {
+      "yesOdds": 400,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4715355",
+   "name": "Darius Cooper",
+   "team": "PHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 18.245,
+     "p10": 0,
+     "p25": 1.06,
+     "median": 12.51,
+     "p75": 27.74,
+     "p90": 46.55,
+     "pricingState": "NOT_OFFERED"
+    },
+    "player_receptions": {
+     "mean": 1.8905,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4,
+     "pricingState": "NOT_OFFERED"
+    },
+    "anytime_td": {
+     "probability": 0.2054,
+     "market": {
+      "yesOdds": 450,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-15835",
+   "name": "Zach Ertz",
+   "team": "PHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 18.893,
+     "p10": 0,
+     "p25": 2.32,
+     "median": 13.05,
+     "p75": 28.5,
+     "p90": 46.21,
+     "pricingState": "NOT_OFFERED"
+    },
+    "player_receptions": {
+     "mean": 2.4815,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
+     "pricingState": "NOT_OFFERED"
+    },
+    "anytime_td": {
+     "probability": 0.172,
+     "market": {
+      "yesOdds": 750,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4040715",
+   "name": "Jalen Hurts",
+   "team": "PHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 21.637,
+     "p10": 0.93,
+     "p25": 6.24,
+     "median": 16.52,
+     "p75": 31.25,
+     "p90": 49.33,
+     "market": {
+      "line": 26.5,
+      "overOdds": -113,
+      "underOdds": -111,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_pass_yds": {
+     "mean": 200.2247,
+     "p10": 99.9314,
+     "p25": 136.8323,
+     "median": 187.7796,
+     "p75": 250.114,
+     "p90": 316.6278,
+     "market": {
+      "line": 187.5,
+      "overOdds": -111,
+      "underOdds": -113,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.1658,
+     "market": {
+      "yesOdds": 210,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4431545",
+   "name": "Will Shipley",
+   "team": "PHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 10.664,
+     "p10": 0,
+     "p25": 0.56,
+     "median": 6.39,
+     "p75": 15.63,
+     "p90": 28,
+     "market": {
+      "line": 35.5,
+      "overOdds": -111,
+      "underOdds": -113,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_receptions": {
+     "mean": 1.0569,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "market": {
+      "line": 2.5,
+      "overOdds": -109,
+      "underOdds": -117,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.1423,
+     "market": {
+      "yesOdds": 265,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4879194",
+   "name": "Josh Cameron",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 15.338,
+     "p10": 0,
+     "p25": 0,
+     "median": 8.17,
+     "p75": 24.14,
+     "p90": 42.7,
+     "market": {
+      "line": 10.5,
+      "overOdds": -117,
+      "underOdds": -107,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_receptions": {
+     "mean": 1.411,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "market": {
+      "line": 1.5,
+      "overOdds": 135,
+      "underOdds": -172,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.1405,
+     "market": {
+      "yesOdds": 750,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360310",
+   "name": "Trevor Lawrence",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 12.046,
+     "p10": 0,
+     "p25": 0.82,
+     "median": 6.61,
+     "p75": 17.32,
+     "p90": 31.59,
+     "market": {
+      "line": 15.5,
+      "overOdds": -108,
+      "underOdds": -117,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "player_pass_yds": {
+     "mean": 237.9583,
+     "p10": 120.5105,
+     "p25": 163.9498,
+     "median": 223.6604,
+     "p75": 296.4507,
+     "p90": 373.9092,
+     "market": {
+      "line": 226.5,
+      "overOdds": -113,
+      "underOdds": -111,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    },
+    "anytime_td": {
+     "probability": 0.1172,
+     "market": {
+      "yesOdds": 295,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2576336",
+   "name": "Ameer Abdullah",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 7.842,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.64,
+     "p75": 11.14,
+     "p90": 22.74,
+     "pricingState": "NOT_OFFERED"
+    },
+    "anytime_td": {
+     "probability": 0.1094,
+     "market": {
+      "yesOdds": 1200,
+      "sportsbook": "draftkings",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3059989",
+   "name": "Nick Mullens",
+   "team": "JAX",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 7.193,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.98,
+     "p75": 10.57,
+     "p90": 20.4,
+     "pricingState": "NOT_OFFERED"
+    },
+    "anytime_td": {
+     "probability": 0.083,
+     "pricingState": "NOT_OFFERED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4685201",
+   "name": "Tanner McKee",
+   "team": "PHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.0544,
+     "pricingState": "NOT_OFFERED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4241372",
+   "name": "Marquise Brown",
+   "team": "PHI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.0475,
+     "market": {
+      "yesOdds": 600,
+      "sportsbook": "betonlineag",
+      "capturedAt": "2026-10-08T22:17:03Z"
+     }
+    }
+   }
+  }
+ ],
+ "disclaimer": "Model projections. Educational."
+}
