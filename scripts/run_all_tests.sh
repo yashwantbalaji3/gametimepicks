@@ -111,6 +111,7 @@ step "Python — pipeline/mlb test suites"
 MLB_TESTS=(
     settle_mlb_results_test
     generate_mlb_board_identity_test
+    generate_mlb_board_player_identity_test
     settlement_lineage_test
     export_mlb_results_test
     mlb_model_test
