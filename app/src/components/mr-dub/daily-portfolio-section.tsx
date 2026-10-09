@@ -20,6 +20,7 @@ import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-prop
 import type { StrongestPick } from "@/lib/world-cup/structured-moonshot";
 import type { BankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import type { DailyPortfolio, DailyPortfolioCard, DailyPortfolioLeg } from "@/lib/mr-dub/daily-portfolio";
+import { laneRiskLabel } from "@/lib/mr-dub/lane-risk";
 import ProbabilityBasisChip, { MarketConstructionLabel } from "@/components/products/probability-basis-chip";
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -104,7 +105,7 @@ function LaneCard({ card }: { card: DailyPortfolioCard }) {
             className="font-mono uppercase tracking-[0.1em]"
             style={{ color: card.status === "active" ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 8.5 }}
           >
-            {card.status === "active" ? `${money(card.stake)} at risk · open exposure` : "$0 placed · not activated"}
+            {laneRiskLabel(card)}
           </span>
           {card.legCount < card.targetLegs ? (
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-crown-warm)", fontSize: 8.5 }}>{card.legCount}/{card.targetLegs} legs</span>
