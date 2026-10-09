@@ -1,0 +1,230 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-005-game-worlds-development",
+ "dataClass": "PRIVATE_RESEARCH",
+ "evidenceTier": "DEVELOPMENT — rows 2019-2021 inside the spent window; not blind.",
+ "generatedAt": "2026-10-08T18:25:13Z",
+ "preregistration": {
+  "path": "data/internal/research/nfl/reports/nfl-005-game-worlds-preregistration.json",
+  "commit": "dbc9c652dd7c501ab4fe3ae973b1101decef1a3f 2026-10-08T14:23:00-04:00"
+ },
+ "scriptSha256": "7b50ea0012056380c8eef33b1ff3b002807893fed1ef85e577abe0db50fdfa94",
+ "devFits": {
+  "gameScript": {
+   "passAtt": {
+    "beta": -0.14738,
+    "sigma": 7.4211,
+    "n": 2278
+   },
+   "carries": {
+    "beta": 0.27985,
+    "sigma": 6.28444,
+    "n": 2278
+   }
+  },
+  "kappa": {
+   "t": 20,
+   "c": 10,
+   "p": 5
+  },
+  "rho": {
+   "passAttempts": 0.5,
+   "rushAttempts": 0.25,
+   "targets": 0
+  },
+  "sigmaMargin": 13.03176,
+  "sigmaTotal": 13.32677
+ },
+ "worldsChecked": 3284000,
+ "results": {
+  "player_receptions": {
+   "gameWorlds": {
+    "n": 10387,
+    "mae": 1.58352,
+    "coverage80": 0.82006,
+    "ece": 0.03229,
+    "level": 0.99496
+   },
+   "allocV1_analytic": {
+    "n": 10387,
+    "mae": 1.57254,
+    "coverage80": 0.78829,
+    "ece": 0.02559,
+    "level": 0.99504
+   }
+  },
+  "player_reception_yds": {
+   "gameWorlds": {
+    "n": 10387,
+    "mae": 21.27048,
+    "coverage80": 0.8785,
+    "ece": 0.02001,
+    "level": 0.98843
+   },
+   "allocV1_analytic": {
+    "n": 10387,
+    "mae": 21.188,
+    "coverage80": 0.79792,
+    "ece": 0.03492,
+    "level": 0.98863
+   }
+  },
+  "player_rush_yds": {
+   "gameWorlds": {
+    "n": 5536,
+    "mae": 18.24952,
+    "coverage80": 0.79823,
+    "ece": 0.03164,
+    "level": 1.02593
+   },
+   "allocV1_analytic": {
+    "n": 5536,
+    "mae": 18.42725,
+    "coverage80": 0.8022,
+    "ece": 0.03842,
+    "level": 1.02576
+   }
+  },
+  "player_pass_yds": {
+   "gameWorlds": {
+    "n": 1674,
+    "mae": 62.58861,
+    "coverage80": 0.7951,
+    "ece": 0.02836,
+    "level": 1.00542
+   },
+   "allocV1_analytic": {
+    "n": 1674,
+    "mae": 62.73749,
+    "coverage80": 0.80526,
+    "ece": 0.04787,
+    "level": 0.99629
+   }
+  },
+  "anytime_td": {
+   "gameWorlds": {
+    "n": 13476,
+    "logLoss": 0.51375,
+    "ece": 0.03405,
+    "level": 0.97629
+   },
+   "rzTdV1_analytic": {
+    "n": 13476,
+    "logLoss": 0.51085,
+    "ece": 0.01671,
+    "level": 0.99993
+   }
+  }
+ },
+ "bars": {
+  "player_receptions": {
+   "nonInferiorMae": {
+    "pass": true,
+    "observed": [
+     1.58352,
+     1.57254
+    ]
+   },
+   "coverage80": {
+    "pass": true,
+    "observed": 0.82006
+   },
+   "ece": {
+    "pass": true,
+    "observed": 0.03229
+   },
+   "level": {
+    "pass": true,
+    "observed": 0.99496
+   }
+  },
+  "player_reception_yds": {
+   "nonInferiorMae": {
+    "pass": true,
+    "observed": [
+     21.27048,
+     21.188
+    ]
+   },
+   "coverage80": {
+    "pass": true,
+    "observed": 0.8785
+   },
+   "ece": {
+    "pass": true,
+    "observed": 0.02001
+   },
+   "level": {
+    "pass": true,
+    "observed": 0.98843
+   }
+  },
+  "player_rush_yds": {
+   "nonInferiorMae": {
+    "pass": true,
+    "observed": [
+     18.24952,
+     18.42725
+    ]
+   },
+   "coverage80": {
+    "pass": true,
+    "observed": 0.79823
+   },
+   "ece": {
+    "pass": true,
+    "observed": 0.03164
+   },
+   "level": {
+    "pass": true,
+    "observed": 1.02593
+   }
+  },
+  "player_pass_yds": {
+   "nonInferiorMae": {
+    "pass": true,
+    "observed": [
+     62.58861,
+     62.73749
+    ]
+   },
+   "coverage80": {
+    "pass": true,
+    "observed": 0.7951
+   },
+   "ece": {
+    "pass": true,
+    "observed": 0.02836
+   },
+   "level": {
+    "pass": true,
+    "observed": 1.00542
+   }
+  },
+  "anytime_td": {
+   "logLoss": {
+    "pass": false,
+    "observed": [
+     0.51375,
+     0.51085
+    ]
+   },
+   "ece": {
+    "pass": false,
+    "observed": 0.03405
+   },
+   "level": {
+    "pass": true,
+    "observed": 0.97629
+   }
+  }
+ },
+ "outcome": {
+  "player_receptions": "PROCEED_TO_FORWARD_SHADOW",
+  "player_reception_yds": "PROCEED_TO_FORWARD_SHADOW",
+  "player_rush_yds": "PROCEED_TO_FORWARD_SHADOW",
+  "player_pass_yds": "PROCEED_TO_FORWARD_SHADOW",
+  "anytime_td": "DO_NOT_PROCEED"
+ },
+ "consequence": "Nothing publishes. PROCEED_TO_FORWARD_SHADOW families get the game worlds as their registered blind forward shadow generator."
+}

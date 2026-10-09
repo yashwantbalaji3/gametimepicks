@@ -81,7 +81,9 @@ test("BUILT · the client boundary ships only what it renders", () => {
   assert.match(page, /\{\.\.\.boardTabs\(unifiedBoards\.boards\)\}/);
   const view = fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/forecast-view.mjs"), "utf8");
   assert.match(view, /const slim = \(p\) => \(\{ playerId: p\.playerId, name: p\.name,/, "the projection names the fields it ships");
-  assert.match(view, /const slimEntry = \(e\) => \(\{ value: e\.value, p10: e\.p10 \?\? null, p90: e\.p90 \?\? null, mean: e\.mean \?\? null \}\)/, "and no basis or model id");
+  const slimEntry = view.slice(view.indexOf("const slimEntry"), view.indexOf("\n", view.indexOf("const slimEntry")));
+  assert.match(slimEntry, /value: e\.value, p10: e\.p10 \?\? null, p90: e\.p90 \?\? null, mean: e\.mean \?\? null, marketKey: e\.marketKey \?\? null, market: e\.market \?\? null/, "the projection names the fields it ships");
+  assert.doesNotMatch(slimEntry, /basis|modelBasis|modelId|simulationId|asOf/, "and no basis or model id");
   const f = path.join(OUT, "nfl", "index.html");
   if (!fs.existsSync(f)) return;
   const html = fs.readFileSync(f, "utf8");

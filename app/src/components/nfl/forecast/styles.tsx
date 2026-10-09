@@ -47,6 +47,7 @@ const CSS = `
 .nf-val{text-align:right;display:grid;gap:2px;justify-items:end}
 .nf-val b{font-size:20px;font-weight:800;color:var(--vault-text)}
 .nf-val span{font-size:11px;color:var(--vault-text-faint);white-space:nowrap}
+.nf-mkt{grid-column:1 / -1;font-size:11.5px;color:var(--vault-text-mute);font-family:var(--font-mono,ui-monospace,monospace);border-top:1px dashed var(--vault-border);padding-top:6px}
 .nf-flag{font-size:10.5px;border:1px solid var(--vault-warn);color:var(--vault-warn);border-radius:6px;padding:0 5px}
 .nf-withheld{border:1px dashed var(--vault-border-strong);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--vault-text-mute);margin-top:10px;line-height:1.5}
 .nf-details summary{cursor:pointer;min-height:32px;padding:6px 0;font-size:13px;color:var(--vault-text)}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-004-redzone-td-preregistration",
+  "dataClass": "PRIVATE_RESEARCH",
+  "program": "NFL-004 (TD model), NFL World Model V2",
+  "registeredAt": "2026-10-08T17:46:00Z",
+  "whyThisExists": "The published anytime-TD model (P301 opportunityTd) gives a player his overall carry and target shares of the team's TD expectation, scaled by his own shrunk TD rate per touch. Goal-line role enters only through that rate. Its forward test sits at level 1.104 (bar [0.90, 1.10]) and its top bins over-predict (P301: 0.543 predicted vs 0.444 actual; forward 0.83 -> 0.53). NFL-004's ladder step after a hierarchical Bernoulli baseline is 'team scoring opportunities -> red-zone/goal-line role'. This registers that step: TD share from inside-the-N carries and targets (play-by-play), shrunk toward the overall share, with the same active-set reallocation NFL-003 registers.",
+  "evidenceTier": "SECOND_LOOK_DEVELOPMENT. 2014-2021 was scored blind once by P301 and the author has read its aggregate figures. Outcome on 2014-2021 is only PROCEED_TO_FORWARD or DO_NOT_PROCEED; eligibility comes only from the blind 2026 forward test.",
+  "whatTheAuthorHasSeenBeforeRegistering": [
+    "P301's receipt aggregates (opportunityTd 0.50435 log loss, ECE 0.0203, level 1.035; reliability top bin 0.543 vs 0.444) and the 2026 ATD forward receipt through Week 4.",
+    "The red-zone table's join statistics (99.8% of touched player-games join; carries exact 98.6%, targets exact 99.9%). No candidate number."
+  ],
+  "data": {
+    "playerGames": "data/internal/research/nfl/replay/player-games-v2.json.gz (P301's table, sha pinned)",
+    "redZone": "data/internal/research/nfl/replay/player-redzone-v1.json.gz built by scripts/research/nfl/build-player-redzone-v1.mjs from nflverse play-by-play 2013-2025 (both shas pinned)"
+  },
+  "engine": "scripts/research/nfl/replay-redzone-td.mjs — a fork of P301's replay-anytime-td.mjs with the same walk-forward, gate, team TD form, league constants, clip and metrics; the incumbent opportunityTd is recomputed in the same run.",
+  "population": "EXACTLY P301's scored rows (no-pull carry share >= 0.05 or target share >= 0.05, a row in the game, not UNKNOWN). The candidate applies no gate of its own.",
+  "candidates": {
+    "incumbent": { "id": "opportunityTd (P301)", "implementationCheck": "must reproduce P301's held-out log loss 0.50435 within 1e-4, else the run refuses" },
+    "rzTdV1": {
+      "id": "nfl-anytime-td-redzone-v1",
+      "declaredPrimary": true,
+      "definition": "mu = rzCarryShare' * lambdaRush + rzTargetShare' * lambdaRec + otherTdPerPlayerGame; P = 1 - exp(-mu), clipped as P301. lambdaRush/lambdaRec = P301's team TD form. rzCarryShare = (sum_j w_j * c_N,ij + k * carryShare_i) / (sum_j w_j * C_N,j + k) over the player's games at this team (w = P301's share weights; c_N,ij his inside-N carries in game j; C_N,j the team's inside-N carries in game j); rzTargetShare likewise with targets. Primes denote the NFL-003 active-set reallocation (vacated inside-N share redistributed with rho, remainder to OTHER, named sum capped at 1 - 0.02).",
+      "grid": { "insideN": [20, 10, 5], "k": [2, 5, 10, 20, 40], "rho": [0, 0.25, 0.5, 0.75, 1.0] },
+      "selection": "The (insideN, k, rho) with the lowest dev (2022-2025) log loss."
+    },
+    "ablations_reportedNotPromotable": {
+      "rzNoRealloc": "rzTdV1 with rho = 0",
+      "opportunityTdRealloc": "the incumbent with the active-set reallocation of its overall shares"
+    }
+  },
+  "frozenBars": {
+    "proceedToForward": [
+      "rzTdV1 log loss below the incumbent's overall and in both eras",
+      "season-bootstrap (2,000 resamples, seed 20261010) 95% upper bound of the paired per-row log-loss difference < 0",
+      "ECE <= 0.03 overall and <= 0.04 per era (P301's bars)",
+      "level within [0.92, 1.08] overall and per era",
+      "top predicted decile: |mean predicted - actual rate| no larger than the incumbent's (reported for both)"
+    ],
+    "outcome": "PROCEED_TO_FORWARD when every bar passes; otherwise DO_NOT_PROCEED. Nothing public changes either way."
+  },
+  "forwardTest": "Blind 2026 forward from Week 6 under the existing ATD forward protocol (anytime-td-forward-protocol.json bars: ECE <= 0.04, level [0.90, 1.10], n >= 1000), captured pre-kickoff with pregame availability as the active set. The capture tool is a separate step.",
+  "whatIsNotAllowed": [
+    "Running --score more than once.",
+    "Changing grids, bars, the population rule or the primary candidate after this file is committed.",
+    "Any same-game input other than the declared active-set membership; any market price."
+  ],
+  "frozen": {
+    "seasons": { "warmup": [2013, 2013], "development": [2014, 2021], "dev": [2022, 2025] },
+    "eras": [[2014, 2017], [2018, 2021]],
+    "insideNGrid": [20, 10, 5],
+    "kGrid": [2, 5, 10, 20, 40],
+    "rhoGrid": [0, 0.25, 0.5, 0.75, 1.0],
+    "otherFloor": 0.02,
+    "bootstrap": { "unit": "season", "resamples": 2000, "seed": 20261010 },
+    "bars": { "eceMax": 0.03, "eceEraMax": 0.04, "eceBins": 10, "levelBand": [0.92, 1.08] },
+    "inputs": {
+      "playerGamesSha256": "a93c56c430c61a915a8be972c91698a33e2a897d4ca93fd19281fe066ef2230d",
+      "redZoneSha256": "6127d4f13d0a4fccb78346f08ff1203995fda0d1159d4093dcd301eb6fd86f91",
+      "redZoneBuilderSha256": "8abf8b03352816dcdb8b4d72f830f39f043d13e341ec19c4ac0faca726f1cc7d",
+      "p301EngineSha256": "a12bae75714116331ca73a3d863f40d54f0f26ae7b2945b0f457439ebee41aa9",
+      "p301Preregistration": "data/internal/research/nfl/reports/anytime-td-historical-replay-preregistration.json"
+    }
+  },
+  "output": "data/internal/research/nfl/reports/nfl-004-redzone-td-development.json"
+}

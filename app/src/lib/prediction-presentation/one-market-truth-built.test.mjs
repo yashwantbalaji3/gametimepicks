@@ -111,7 +111,7 @@ test("a priced row shows the SAME book, line and prices on every page that rende
      */
     for (const { f, main } of pages) {
       const rel = path.relative(OUT, f);
-      const rows = (main.match(/<li class="gtp-pred-row"[^>]*>[\s\S]*?<\/li>/g) ?? [])
+      const rows = (main.match(/<li class="gtp-pred-row[^"]*"[^>]*>[\s\S]*?<\/li>/g) ?? [])
         .filter((r) => r.includes(`data-family="${board.family}"`)
           && r.includes(`data-event="${row.providerEventId}"`)
           && r.includes(row.name));
@@ -185,7 +185,7 @@ test("a game report renders the prices its own producer artifact holds", () => {
      * family behind a tab is not missing, it is not yet rendered — a different claim, and one this
      * guard must not confuse with a dropped field.
      */
-    const rendered = main.match(/<li class="gtp-pred-row"[^>]*>[\s\S]*?<\/li>/g) ?? [];
+    const rendered = main.match(/<li class="gtp-pred-row[^"]*"[^>]*>[\s\S]*?<\/li>/g) ?? [];
     assert.ok(rendered.length > 0, `${rel}: prediction rows are claimed but none parsed — the row markup changed shape and this guard would measure nothing`);
 
     for (const [fam, priced] of pricedByFamily) {

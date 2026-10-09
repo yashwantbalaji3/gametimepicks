@@ -214,6 +214,9 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
               <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--vault-accent)", flexShrink: 0 }} />
               Featured GameTimePicks forecasts
             </p>
+            <p style={{ fontFamily: SANS, fontSize: 11.5, color: "var(--vault-text-mute)", margin: "0 0 4px", lineHeight: 1.5 }}>
+              Player cards track the player board&apos;s frozen pregame ranges (the record our Results grade). The game page shows World Model V2 projections, live stats beside each.
+            </p>
             {fresh ? (
               <p role="status" style={{
                 fontFamily: SANS, fontSize: 11.5, fontWeight: 600, margin: "0 0 4px", letterSpacing: "0.02em",

@@ -51,6 +51,11 @@ const packetPath = argOf("--packet") ? path.resolve(argOf("--packet")) : path.jo
 const packetBuf = fs.readFileSync(packetPath);
 const packet = JSON.parse(packetBuf);
 const packetSha = sha256(packetBuf);
+/* A game's simulation depends on the shared parameters and scoring tables and on ITS two teams' pools and volume — not
+   on the rest of the packet. Keying on the game's own slice means a new packet that changes other teams only (a
+   Thursday final folding into the history) re-simulates nobody else. */
+const sharedSha = sha256(JSON.stringify({ params: packet.params, tables: packet.tables, season: packet.season }));
+const gameSliceSha = (ev) => sha256(JSON.stringify({ shared: sharedSha, ev, away: packet.teams[ev.away], home: packet.teams[ev.home] }));
 
 const forecasts = readJson(path.join(DATA, "app/public/data/nfl/forecasts/latest.json"));
 const rosters = readJson(path.join(DATA, "app/public/data/nfl/rosters/latest.json"));
@@ -142,10 +147,14 @@ for (const ev of packet.games) {
      new forecast inputHash from an unrelated feed, the same heads, the same availability) keeps the existing run: no
      new version, no new file, no build. */
   const headsKey = Object.values(heads).map((v) => r4(v)).join(",");
-  const inputsKey = sha256(`${WORLD_MODEL_V2.version}|${WORLD_MODEL_V2_ENGINE}|${RUNS}|${packetSha}|${headsKey}|${statusKey}`).slice(0, 16);
+  const inputsKey = sha256(`${WORLD_MODEL_V2.version}|${WORLD_MODEL_V2_ENGINE}|${RUNS}|${gameSliceSha(ev)}|${headsKey}|${statusKey}`).slice(0, 16);
   const existingPath = path.join(OUT_DIR, `${ev.providerEventId}.json`);
   const existing = fs.existsSync(existingPath) ? readJson(existingPath) : null;
-  if (!FORCE && existing?.run?.inputsKey === inputsKey) { unchanged.push(`${ev.matchup}: inputs unchanged since ${existing.run.generatedAt}`); continue; }
+  /* A run made under the earlier whole-packet key (2.1.0, before the per-game key) with the SAME packet, heads and
+     availability is the same simulation — never re-run it just because the key's formula changed. */
+  const legacyKey = sha256(`${WORLD_MODEL_V2.version}|${WORLD_MODEL_V2_ENGINE}|${RUNS}|${packetSha}|${headsKey}|${statusKey}`).slice(0, 16);
+  const sameAsLegacy = !existing?.run?.inputs?.gameInputsSha256 && existing?.run?.inputs?.packetSha256 === packetSha && existing?.run?.inputsKey === legacyKey;
+  if (!FORCE && (existing?.run?.inputsKey === inputsKey || sameAsLegacy)) { unchanged.push(`${ev.matchup}: inputs unchanged since ${existing.run.generatedAt}`); continue; }
   const seed = `${ev.providerEventId}|${inputsKey}`;
   const sim = simulateGame({ sides, heads, params: packet.params, tables: packet.tables, runs: RUNS, seed });
   const { game } = sim;
@@ -209,7 +218,7 @@ for (const ev of packet.games) {
     status: STATUS,
     run: {
       generatedAt: NOW, runs: RUNS, seed, inputsKey, supersedes: existing && Date.parse(existing.identity?.kickoffUtc) === Date.parse(ev.kickoffUtc) ? existing.simulationId ?? null : null,
-      inputs: { packet: path.relative(ROOT, packetPath), packetSha256: packetSha, packetExportedAt: packet.exportedAt, forecastModel: pub.model?.id ?? null, forecastInputHash: pub.model?.inputHash ?? null, forecastGeneratedAt: pub.generatedAt ?? null, injuriesAsOf: injuries.generatedAt ?? null, depthChart: qbIndex?.file ?? null, rostersGeneratedAt: rosters.generatedAt ?? null, participationAsOf: part?.injuriesAsOf ?? null, heads: Object.fromEntries(Object.entries(heads).map(([k, v]) => [k, r4(v)])) },
+      inputs: { packet: path.relative(ROOT, packetPath), packetSha256: packetSha, gameInputsSha256: gameSliceSha(ev), packetExportedAt: packet.exportedAt, forecastModel: pub.model?.id ?? null, forecastInputHash: pub.model?.inputHash ?? null, forecastGeneratedAt: pub.generatedAt ?? null, injuriesAsOf: injuries.generatedAt ?? null, depthChart: qbIndex?.file ?? null, rostersGeneratedAt: rosters.generatedAt ?? null, participationAsOf: part?.injuriesAsOf ?? null, heads: Object.fromEntries(Object.entries(heads).map(([k, v]) => [k, r4(v)])) },
     },
     forecastOfRecord: {
       modelVersion: pub.model?.id ?? null, winProbability: { home: wp.home, away: wp.away, tie: wp.tieMass ?? null }, projectedScore: fs0.projectedScore ? { home: fs0.projectedScore.home, away: fs0.projectedScore.away } : null,

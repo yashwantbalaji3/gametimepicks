@@ -1,0 +1,659 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-005-game-worlds-td-diagnosis",
+ "dataClass": "PRIVATE_RESEARCH",
+ "createdAt": "2026-10-08T20:15Z",
+ "scope": "DIAGNOSIS ONLY on development seasons 2022–2025 (never the 2019–2021 test window). No parameter refit; registered world RNG stream unchanged; variants drawn in the same worlds with a separate RNG.",
+ "receiptCorrection": "The DO_NOT_PROCEED ATD numbers (world 0.5138 vs rzTdV1 0.5109, ECE 0.034) are from the TEST window 2019–2021 (preregistration frozen.testSeasons). On 2022–2025 the TD|points table and game-script fit include the scored seasons, which favours the world.",
+ "verdict": {
+  "primaryCause": "scorer eligibility gate: a TD can go only to a player with a carry/reception in that world; red-zone shares are unconditional averages, so gating + renormalising double-counts opportunity and moves TD mass from part-time to every-down players (eligible <80% of worlds: predicted 0.084 vs actual 0.107 vs 0.108 ungated; eligible >=95%: 0.385 vs 0.358). Dirichlet kappas under-produce touches (P>=1 carry 0.397 vs 0.435; P>=1 catch 0.643 vs 0.701; QB carry 0.79 vs 0.90).",
+  "secondary": [
+   "non-offensive other-TD term absent (0.003/player-game, ~0.0004 log loss)",
+   "active red-zone shares sum >1 in ~50% of team-games and are renormalised",
+   "OTHER bucket takes 5.5% of TDs vs 2.8% actual"
+  ],
+  "ruledOut": [
+   "team TD count dispersion (world mean 2.32 vs 2.36, dispersion 0.83 vs 0.82)",
+   "efficiency term (rzTdV1 has none either)"
+  ],
+  "shared": "QB under-predicted (level rzTdV1 0.81, world 0.73), RB over-predicted (1.12 / 1.10): needs a per-role efficiency term",
+  "limits": "On 2022–2025 the registered world misses rzTdV1 by only 0.0003 log loss and ECE 0.022 (< 0.03); the size of the test-window failure is not reproduced without the forbidden look.",
+  "fixRequires": "A NEW preregistration (opportunity-weighted scorer selection or eligibility-adjusted shares, realistic touch rates, other-TD term, QB rushing efficiency, share cap) and a fresh FORWARD evaluation: both development windows have now been examined. World TD marginals stay unpublished until then."
+ },
+ "results": {
+  "window": [
+   2022,
+   2025
+  ],
+  "runs": 2000,
+  "games": 1139,
+  "rows": 18614,
+  "otherTdPerPlayerGame": 0.00296,
+  "overall": {
+   "rzTdV1": {
+    "n": 18614,
+    "logLoss": 0.48654,
+    "brier": 0.15759,
+    "meanP": 0.22364,
+    "rate": 0.22048,
+    "level": 1.01432,
+    "ece": 0.01006
+   },
+   "rzTdV1_noOther": {
+    "n": 18614,
+    "logLoss": 0.48659,
+    "brier": 0.15759,
+    "meanP": 0.22133,
+    "rate": 0.22048,
+    "level": 1.00387,
+    "ece": 0.00909
+   },
+   "W0_registeredWorld": {
+    "n": 18614,
+    "logLoss": 0.48687,
+    "brier": 0.15748,
+    "meanP": 0.21878,
+    "rate": 0.22048,
+    "level": 0.99229,
+    "ece": 0.02226
+   },
+   "W0_plusOther": {
+    "n": 18614,
+    "logLoss": 0.48647,
+    "brier": 0.15746,
+    "meanP": 0.22109,
+    "rate": 0.22048,
+    "level": 1.00277,
+    "ece": 0.02089
+   },
+   "W1_noGate_empTD": {
+    "n": 18614,
+    "logLoss": 0.48569,
+    "brier": 0.15723,
+    "meanP": 0.21252,
+    "rate": 0.22048,
+    "level": 0.96391,
+    "ece": 0.01246
+   },
+   "W1_noGate_empTD_plusOther": {
+    "n": 18614,
+    "logLoss": 0.48551,
+    "brier": 0.15719,
+    "meanP": 0.21485,
+    "rate": 0.22048,
+    "level": 0.97448,
+    "ece": 0.01047
+   },
+   "W2_noGate_poissonTD": {
+    "n": 18614,
+    "logLoss": 0.48623,
+    "brier": 0.15744,
+    "meanP": 0.21414,
+    "rate": 0.22048,
+    "level": 0.97123,
+    "ece": 0.01045
+   },
+   "W2_plusOther": {
+    "n": 18614,
+    "logLoss": 0.48608,
+    "brier": 0.15741,
+    "meanP": 0.21646,
+    "rate": 0.22048,
+    "level": 0.98177,
+    "ece": 0.0086
+   },
+   "W3_gate_poissonTD": {
+    "n": 18614,
+    "logLoss": 0.48732,
+    "brier": 0.15764,
+    "meanP": 0.22001,
+    "rate": 0.22048,
+    "level": 0.99789,
+    "ece": 0.02019
+   },
+   "W3_plusOther": {
+    "n": 18614,
+    "logLoss": 0.48694,
+    "brier": 0.15762,
+    "meanP": 0.22232,
+    "rate": 0.22048,
+    "level": 1.00836,
+    "ece": 0.01927
+   },
+   "Wmean_poissonAtWorldMean_plusOther": {
+    "n": 18614,
+    "logLoss": 0.48602,
+    "brier": 0.15741,
+    "meanP": 0.21929,
+    "rate": 0.22048,
+    "level": 0.99462,
+    "ece": 0.00674
+   }
+  },
+  "reliability": {
+   "rzTdV1": [
+    {
+     "bin": "0-0.1",
+     "n": 3111,
+     "meanP": 0.07591,
+     "rate": 0.08357
+    },
+    {
+     "bin": "0.1-0.2",
+     "n": 6392,
+     "meanP": 0.14573,
+     "rate": 0.14158
+    },
+    {
+     "bin": "0.2-0.3",
+     "n": 4486,
+     "meanP": 0.24757,
+     "rate": 0.25658
+    },
+    {
+     "bin": "0.3-0.4",
+     "n": 2499,
+     "meanP": 0.34186,
+     "rate": 0.33013
+    },
+    {
+     "bin": "0.4-0.5",
+     "n": 1371,
+     "meanP": 0.44487,
+     "rate": 0.41211
+    },
+    {
+     "bin": "0.5-0.6",
+     "n": 640,
+     "meanP": 0.5409,
+     "rate": 0.51406
+    },
+    {
+     "bin": "0.6-0.7",
+     "n": 99,
+     "meanP": 0.63232,
+     "rate": 0.60606
+    },
+    {
+     "bin": "0.7-0.8",
+     "n": 16,
+     "meanP": 0.71955,
+     "rate": 0.5625
+    }
+   ],
+   "W0_registeredWorld": [
+    {
+     "bin": "0-0.1",
+     "n": 4972,
+     "meanP": 0.06217,
+     "rate": 0.08749
+    },
+    {
+     "bin": "0.1-0.2",
+     "n": 4869,
+     "meanP": 0.14602,
+     "rate": 0.1641
+    },
+    {
+     "bin": "0.2-0.3",
+     "n": 3643,
+     "meanP": 0.2473,
+     "rate": 0.24979
+    },
+    {
+     "bin": "0.3-0.4",
+     "n": 2574,
+     "meanP": 0.34601,
+     "rate": 0.3244
+    },
+    {
+     "bin": "0.4-0.5",
+     "n": 1567,
+     "meanP": 0.44539,
+     "rate": 0.39119
+    },
+    {
+     "bin": "0.5-0.6",
+     "n": 736,
+     "meanP": 0.54227,
+     "rate": 0.49321
+    },
+    {
+     "bin": "0.6-0.7",
+     "n": 225,
+     "meanP": 0.63735,
+     "rate": 0.57333
+    },
+    {
+     "bin": "0.7-0.8",
+     "n": 28,
+     "meanP": 0.72454,
+     "rate": 0.71429
+    }
+   ],
+   "W1_noGate_empTD_plusOther": [
+    {
+     "bin": "0-0.1",
+     "n": 3540,
+     "meanP": 0.07417,
+     "rate": 0.08164
+    },
+    {
+     "bin": "0.1-0.2",
+     "n": 6541,
+     "meanP": 0.1462,
+     "rate": 0.15533
+    },
+    {
+     "bin": "0.2-0.3",
+     "n": 4277,
+     "meanP": 0.2462,
+     "rate": 0.25883
+    },
+    {
+     "bin": "0.3-0.4",
+     "n": 2364,
+     "meanP": 0.34402,
+     "rate": 0.34729
+    },
+    {
+     "bin": "0.4-0.5",
+     "n": 1263,
+     "meanP": 0.44463,
+     "rate": 0.41884
+    },
+    {
+     "bin": "0.5-0.6",
+     "n": 500,
+     "meanP": 0.54039,
+     "rate": 0.52
+    },
+    {
+     "bin": "0.6-0.7",
+     "n": 123,
+     "meanP": 0.6348,
+     "rate": 0.65041
+    },
+    {
+     "bin": "0.7-0.8",
+     "n": 6,
+     "meanP": 0.72083,
+     "rate": 0.33333
+    }
+   ]
+  },
+  "byRole": {
+   "RB": {
+    "n": 5382,
+    "rate": 0.2696,
+    "rzTdV1": {
+     "meanP": 0.30254,
+     "level": 1.12218,
+     "logLoss": 0.52284
+    },
+    "W0_registeredWorld": {
+     "meanP": 0.29548,
+     "level": 1.09599,
+     "logLoss": 0.51732
+    },
+    "W1_noGate_empTD_plusOther": {
+     "meanP": 0.29163,
+     "level": 1.08172,
+     "logLoss": 0.51763
+    },
+    "W3_plusOther": {
+     "meanP": 0.29803,
+     "level": 1.10545,
+     "logLoss": 0.5199
+    },
+    "W2_plusOther": {
+     "meanP": 0.29233,
+     "level": 1.08431,
+     "logLoss": 0.52014
+    }
+   },
+   "WR": {
+    "n": 7628,
+    "rate": 0.22181,
+    "rzTdV1": {
+     "meanP": 0.21635,
+     "level": 0.97538,
+     "logLoss": 0.49951
+    },
+    "W0_registeredWorld": {
+     "meanP": 0.21637,
+     "level": 0.97544,
+     "logLoss": 0.50097
+    },
+    "W1_noGate_empTD_plusOther": {
+     "meanP": 0.20789,
+     "level": 0.93721,
+     "logLoss": 0.50014
+    },
+    "W3_plusOther": {
+     "meanP": 0.22023,
+     "level": 0.99287,
+     "logLoss": 0.49991
+    },
+    "W2_plusOther": {
+     "meanP": 0.20979,
+     "level": 0.94578,
+     "logLoss": 0.49994
+    }
+   },
+   "TE": {
+    "n": 3320,
+    "rate": 0.18283,
+    "rzTdV1": {
+     "meanP": 0.18043,
+     "level": 0.98687,
+     "logLoss": 0.45494
+    },
+    "W0_registeredWorld": {
+     "meanP": 0.17302,
+     "level": 0.94633,
+     "logLoss": 0.45729
+    },
+    "W1_noGate_empTD_plusOther": {
+     "meanP": 0.17326,
+     "level": 0.94763,
+     "logLoss": 0.45573
+    },
+    "W3_plusOther": {
+     "meanP": 0.17684,
+     "level": 0.96723,
+     "logLoss": 0.45617
+    },
+    "W2_plusOther": {
+     "meanP": 0.17511,
+     "level": 0.95777,
+     "logLoss": 0.4553
+    }
+   },
+   "QB": {
+    "n": 2284,
+    "rate": 0.15499,
+    "rzTdV1": {
+     "meanP": 0.12482,
+     "level": 0.80535,
+     "logLoss": 0.4036
+    },
+    "W0_registeredWorld": {
+     "meanP": 0.11262,
+     "level": 0.72659,
+     "logLoss": 0.41102
+    },
+    "W1_noGate_empTD_plusOther": {
+     "meanP": 0.11766,
+     "level": 0.75912,
+     "logLoss": 0.40425
+    },
+    "W3_plusOther": {
+     "meanP": 0.11701,
+     "level": 0.75494,
+     "logLoss": 0.41071
+    },
+    "W2_plusOther": {
+     "meanP": 0.12007,
+     "level": 0.7747,
+     "logLoss": 0.40426
+    }
+   }
+  },
+  "byRzWeightQuintile": [
+   {
+    "q": 1,
+    "n": 3722,
+    "rate": 0.08812,
+    "rzTdV1": 0.08048,
+    "W0_registeredWorld": 0.0582,
+    "W1_noGate_empTD_plusOther": 0.0782,
+    "W3_plusOther": 0.06073,
+    "W2_plusOther": 0.07797,
+    "pCarryWorld": 0.35109,
+    "pCarryActual": 0.41617,
+    "pRecWorld": 0.33641,
+    "pRecActual": 0.39092
+   },
+   {
+    "q": 2,
+    "n": 3723,
+    "rate": 0.12329,
+    "rzTdV1": 0.13348,
+    "W0_registeredWorld": 0.11351,
+    "W1_noGate_empTD_plusOther": 0.12908,
+    "W3_plusOther": 0.11601,
+    "W2_plusOther": 0.12921,
+    "pCarryWorld": 0.31705,
+    "pCarryActual": 0.35536,
+    "pRecWorld": 0.54912,
+    "pRecActual": 0.60945
+   },
+   {
+    "q": 3,
+    "n": 3723,
+    "rate": 0.20387,
+    "rzTdV1": 0.19652,
+    "W0_registeredWorld": 0.1891,
+    "W1_noGate_empTD_plusOther": 0.18785,
+    "W3_plusOther": 0.19297,
+    "W2_plusOther": 0.18988,
+    "pCarryWorld": 0.30483,
+    "pCarryActual": 0.34085,
+    "pRecWorld": 0.70619,
+    "pRecActual": 0.76954
+   },
+   {
+    "q": 4,
+    "n": 3723,
+    "rate": 0.28391,
+    "rzTdV1": 0.27706,
+    "W0_registeredWorld": 0.2884,
+    "W1_noGate_empTD_plusOther": 0.26644,
+    "W3_plusOther": 0.29151,
+    "W2_plusOther": 0.26839,
+    "pCarryWorld": 0.31463,
+    "pCarryActual": 0.34837,
+    "pRecWorld": 0.81128,
+    "pRecActual": 0.85334
+   },
+   {
+    "q": 5,
+    "n": 3723,
+    "rate": 0.40317,
+    "rzTdV1": 0.43059,
+    "W0_registeredWorld": 0.44464,
+    "W1_noGate_empTD_plusOther": 0.41266,
+    "W3_plusOther": 0.45035,
+    "W2_plusOther": 0.41682,
+    "pCarryWorld": 0.69681,
+    "pCarryActual": 0.71528,
+    "pRecWorld": 0.80987,
+    "pRecActual": 0.87967
+   }
+  ],
+  "participation": {
+   "nonQB_rzc_ge_0_05": {
+    "n": 5379,
+    "pCarryWorld": 0.90583,
+    "pCarryActual": 0.90798
+   },
+   "allRows": {
+    "pCarryWorld": 0.39689,
+    "pCarryActual": 0.43521,
+    "pRecWorld": 0.64259,
+    "pRecActual": 0.7006
+   },
+   "QB": {
+    "n": 2284,
+    "pCarryWorld": 0.79473,
+    "pCarryActual": 0.89536,
+    "rushTdRate": 0.1528
+   }
+  },
+  "teamTd": {
+   "n": 2278,
+   "actual": {
+    "mean": 2.35909,
+    "var": 1.93076,
+    "dispersionIndex": 0.81843
+   },
+   "world": {
+    "mean": 2.31989,
+    "varMarginal": 1.92698,
+    "varWithinGameMean": 1.78181,
+    "dispersionIndex": 0.83063
+   },
+   "p301TeamForm_lamSum": {
+    "mean": 2.37725,
+    "poissonMarginalVar": 2.52002
+   },
+   "corr_worldMean_actual": 0.30317,
+   "corr_lam_actual": 0.27337,
+   "sdOfPerGameMean": {
+    "world": 0.38101,
+    "lam": 0.37784
+   }
+  },
+  "otherBucket": {
+   "worldW0_otherTdPerTeamGame": 0.12864,
+   "worldW1_otherTdPerTeamGame": 0.16785,
+   "worldW0_otherShareOfTd": 0.05545,
+   "noQualifierTdPerTeamGame": 0.00027,
+   "rzcOtherWeight": 0.0825,
+   "rztOtherWeight": 0.06917,
+   "actual": {
+    "offensiveTd": 5362,
+    "byActivePool": 5214,
+    "otherShare": 0.0276
+   },
+   "actualPositivesOtherTdOnlyShare": 0.00731
+  },
+  "shareSums": {
+   "meanSumRzcActive": 0.96219,
+   "meanSumRztActive": 0.9639,
+   "fracSumRzcGt1": 0.50527,
+   "fracSumRztGt1": 0.46664
+  },
+  "gateByParticipation": [
+   {
+    "pEligibleBand": [
+     0,
+     0.5
+    ],
+    "n": 340,
+    "actual": 0.05,
+    "rzTdV1": 0.07046,
+    "W2_noGate": 0.06546,
+    "W3_gate": 0.03732,
+    "W0": 0.0339
+   },
+   {
+    "pEligibleBand": [
+     0.5,
+     0.8
+    ],
+    "n": 6014,
+    "actual": 0.10675,
+    "rzTdV1": 0.11251,
+    "W2_noGate": 0.10823,
+    "W3_gate": 0.08766,
+    "W0": 0.08373
+   },
+   {
+    "pEligibleBand": [
+     0.8,
+     0.95
+    ],
+    "n": 6189,
+    "actual": 0.20569,
+    "rzTdV1": 0.20409,
+    "W2_noGate": 0.19698,
+    "W3_gate": 0.20409,
+    "W0": 0.1997
+   },
+   {
+    "pEligibleBand": [
+     0.95,
+     1.01
+    ],
+    "n": 6071,
+    "actual": 0.35777,
+    "rzTdV1": 0.36222,
+    "W2_noGate": 0.35199,
+    "W3_gate": 0.38467,
+    "W0": 0.38237
+   }
+  ],
+  "bySeason": {
+   "2022": {
+    "rzTdV1": {
+     "logLoss": 0.48621,
+     "ece": 0.01704,
+     "level": 1.03953
+    },
+    "W0_registeredWorld": {
+     "logLoss": 0.49067,
+     "ece": 0.03256,
+     "level": 1.01959
+    },
+    "W1_noGate_empTD_plusOther": {
+     "logLoss": 0.48629,
+     "ece": 0.0148,
+     "level": 1.00462
+    }
+   },
+   "2023": {
+    "rzTdV1": {
+     "logLoss": 0.47603,
+     "ece": 0.01246,
+     "level": 1.02515
+    },
+    "W0_registeredWorld": {
+     "logLoss": 0.47535,
+     "ece": 0.01571,
+     "level": 1.0105
+    },
+    "W1_noGate_empTD_plusOther": {
+     "logLoss": 0.47567,
+     "ece": 0.00575,
+     "level": 0.98815
+    }
+   },
+   "2024": {
+    "rzTdV1": {
+     "logLoss": 0.49048,
+     "ece": 0.00689,
+     "level": 0.98114
+    },
+    "W0_registeredWorld": {
+     "logLoss": 0.49039,
+     "ece": 0.02802,
+     "level": 0.94815
+    },
+    "W1_noGate_empTD_plusOther": {
+     "logLoss": 0.49018,
+     "ece": 0.01803,
+     "level": 0.93078
+    }
+   },
+   "2025": {
+    "rzTdV1": {
+     "logLoss": 0.49335,
+     "ece": 0.01932,
+     "level": 1.01349
+    },
+    "W0_registeredWorld": {
+     "logLoss": 0.49091,
+     "ece": 0.02512,
+     "level": 0.99363
+    },
+    "W1_noGate_empTD_plusOther": {
+     "logLoss": 0.48979,
+     "ece": 0.01807,
+     "level": 0.97696
+    }
+   }
+  }
+ }
+}

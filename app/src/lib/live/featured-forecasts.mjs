@@ -397,7 +397,10 @@ export function statusFor({ rail, binary, gamePhase, feed, value, line, stale, h
     }
     return value === null ? "Final · grading pending · no measurement yet" : "Final · grading pending";
   }
-  if (feed === FEED.UNAVAILABLE && value === null) return "Live tracking temporarily unavailable";
+  /* An anytime-TD card has NO continuous live feed by design (espn-nfl.mjs: no box-score field states the scorer by
+     id) — its only source is the manual live-props capture. When that record is absent, "temporarily unavailable"
+     promises a feed that is not coming; say what is true instead. Volume rows keep the outage wording. */
+  if (feed === FEED.UNAVAILABLE && value === null) return binary ? "Not tracked live · settled from the official box score after the game" : "Live tracking temporarily unavailable";
   /* ⚠ "No TD yet" is a claim. It needs a record that actually carries this player's row — before any
      record has been read, or when the record omits the row, there is no evidence either way. */
   if (value === null && (feed !== FEED.OK || !hasRow)) return "Awaiting first measurement";
