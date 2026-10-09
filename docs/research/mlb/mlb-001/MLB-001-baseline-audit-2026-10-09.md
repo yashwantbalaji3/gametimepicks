@@ -42,8 +42,9 @@ So the erased public files (TRUTH-001 recovery, PR #1042) do not affect these sc
 | Market (de-vigged, paired) | 805 | **0.6684** | 0.2380 |
 | Model, postseason | 24 | 0.6793 | 0.2432 |
 
-- Model vs coin: +0.0061 log loss, 95% bootstrap [−0.006, +0.019], not distinguishable.
-- Model vs market: +0.031 [0.017, 0.045], **significantly worse**.
+- **Model vs coin: on this sample the model scored WORSE than a coin flip.** Lower log loss is better, and 0.6993 is above the coin's 0.6931 (+0.0061; Brier 0.2529 vs 0.2500, also worse). The 95% bootstrap interval of the difference, [−0.006, +0.019], includes 0, so the size of the shortfall is not established — but nothing here suggests the model is better than a coin. No significance claim is made.
+- *Correction (2026-10-09, founder review):* an earlier summary of this audit could be read as the model "beating a coin flip". It does not; the numbers above are unchanged, only the wording.
+- Model vs market: +0.031 [0.017, 0.045]: the market benchmark is better than the model, and the interval excludes 0 (paired bootstrap, 805 games).
 - Calibration is far too spread out: logistic intercept 0.152, slope **0.314**. The model's 0.3–0.4 bin won 47.4% and its 0.6–0.7 bin won 56.2%.
 - Home bias: mean P(home) 0.501, but home teams won 0.538 (2023–25: 0.5285). A symmetric simulation scores home 4.77 vs away 5.02 runs, against roughly equal actuals.
 
@@ -66,7 +67,7 @@ So the erased public files (TRUTH-001 recovery, PR #1042) do not affect these sc
 
 ## 3 · Ranked defects and what a new version would test (not implemented)
 
-1. **No run prevention.** Pitcher, bullpen and park move only strikeouts, and the inputs are noisy last-10 means with no opponent or park adjustment (`pipeline/mlb/mlb_model.py:18-22`, `:271-317`). This drives a winner score no better than a coin and a total with no signal. *Challenger:* per-PA rates from batter × pitcher (log5 / hierarchical) for hits, power, walks and strikeouts, plus park and team bullpen.
+1. **No run prevention.** Pitcher, bullpen and park move only strikeouts, and the inputs are noisy last-10 means with no opponent or park adjustment (`pipeline/mlb/mlb_model.py:18-22`, `:271-317`). This drives a winner score worse than a coin flip (not significantly so) and a total with no signal. *Challenger:* per-PA rates from batter × pitcher (log5 / hierarchical) for hits, power, walks and strikeouts, plus park and team bullpen.
 2. **Probabilities too spread out (slope 0.31).** Shrink the inputs with hierarchical priors, not the output.
 3. **No home-field effect** (≈ 3.7 points of P(home)).
 4. **Total level −0.89**, together with the offsetting 3.85 divisor.

@@ -58,6 +58,49 @@ export interface EngineParams {
     /** Runs allowed that pull the starter early (a blow-up). */
     chaseRuns: number;
   };
+  /** Game rules (MLB-001, founder decision 6 2026-10-09). Absent = the published v2 rules (LEGACY_RULES). */
+  rules?: EngineRules;
+}
+
+/**
+ * GAME RULES. The published engine (v2) used three simplifications the MLB-001 audit confirmed against the
+ * official rules; they stay available ONLY so every committed artifact hash reproduces byte for byte.
+ *
+ *   extrasAutomaticRunner  ALWAYS — a runner on 2nd in every extra half-inning, postseason included.
+ *                          Official (2023+): regular season only; NO automatic runner in the postseason.
+ *   walkOffScoring         ALL_RUNNERS_SCORE — every runner who crosses on the ending play counts.
+ *                          Official (Rule 9.06(f) / 5.08(b)): on a non-home-run, the game ends when the winning run
+ *                          scores; only the runs needed to win count. A home run counts every runner.
+ *   unresolvedAtCap        AWARD_HOME_RUN — a game still tied at the inning cap was given to the home team.
+ *                          Corrected: DISCARD — that game is not a legal result; the caller draws a fresh game and
+ *                          records how many were discarded. The cap still bounds the loop (no unbounded simulation).
+ */
+export interface EngineRules {
+  id: string;
+  extrasAutomaticRunner: "ALWAYS" | "REGULAR_SEASON_ONLY";
+  walkOffScoring: "ALL_RUNNERS_SCORE" | "WINNING_RUN_ONLY";
+  unresolvedAtCap: "AWARD_HOME_RUN" | "DISCARD";
+}
+
+export const LEGACY_RULES: EngineRules = Object.freeze({
+  id: "mlb-rules-legacy-v2",
+  extrasAutomaticRunner: "ALWAYS",
+  walkOffScoring: "ALL_RUNNERS_SCORE",
+  unresolvedAtCap: "AWARD_HOME_RUN",
+}) as EngineRules;
+
+/** The official 2026 MLB rules for the three corrected behaviours. */
+export const OFFICIAL_RULES_2026: EngineRules = Object.freeze({
+  id: "mlb-rules-official-2026",
+  extrasAutomaticRunner: "REGULAR_SEASON_ONLY",
+  walkOffScoring: "WINNING_RUN_ONLY",
+  unresolvedAtCap: "DISCARD",
+}) as EngineRules;
+
+/** Whether an extra half-inning starts with a runner on second under `rules` for this game. */
+export function automaticRunnerApplies(rules: EngineRules, ruleset: GameInput["ruleset"]): boolean {
+  if (rules.extrasAutomaticRunner === "ALWAYS") return true;
+  return ruleset !== "POSTSEASON";
 }
 
 /** The published engine's parameters — the literals it has carried since S008, unchanged. */
@@ -101,6 +144,10 @@ export interface GameResult {
   homeRuns: number;
   innings: number;
   extra: boolean;
+  /** True when the game was still tied at the inning cap under `unresolvedAtCap: DISCARD`: not a legal result. */
+  incomplete?: boolean;
+  /** How the game ended in the bottom of the 9th or later, when the home team walked off. */
+  walkOff?: "HOME_RUN" | "OTHER" | null;
   awayBatters: BatterGameLine[];
   homeBatters: BatterGameLine[];
   awayStarter: PitcherGameLine;
@@ -243,8 +290,13 @@ function simulateHalfInning(params: {
   isExtra: boolean;
   walkOff: { awayTotal: number; homeBefore: number } | null;
   engine: EngineParams;
-}): { runs: number; orderPtr: number } {
+  automaticRunner: boolean;
+}): { runs: number; orderPtr: number; endedOn: "HOME_RUN" | "OTHER" | null } {
   const { lineup, models, batterLines, mound, rng, isExtra, walkOff, engine } = params;
+  const rules = engine.rules ?? LEGACY_RULES;
+  // Official walk-off: on a non-home-run the game ends the moment the winning run scores — no later runner counts.
+  const winningRunOnly = !!walkOff && rules.walkOffScoring === "WINNING_RUN_ONLY";
+  const decided = (r: number) => !!walkOff && walkOff.homeBefore + r > walkOff.awayTotal;
   const adv = engine.advancement;
   const n = lineup.length;
   let orderPtr = params.orderPtr;
@@ -252,7 +304,8 @@ function simulateHalfInning(params: {
   let runs = 0;
   const bases: [number, number, number] = [-1, -1, -1];
   // Automatic runner on second in extras: the player who made the last out (slot before the leadoff batter).
-  if (isExtra) bases[1] = (orderPtr - 1 + n) % n;
+  if (isExtra && params.automaticRunner) bases[1] = (orderPtr - 1 + n) % n;
+  let endedOn: "HOME_RUN" | "OTHER" | null = null;
 
   while (outs < 3) {
     // Free advancement before the pitch (wild pitch / passed ball / balk). Research-only: at 0 it draws nothing.
@@ -266,7 +319,7 @@ function simulateHalfInning(params: {
       bases[2] = bases[1];
       bases[1] = bases[0];
       bases[0] = -1;
-      if (walkOff && walkOff.homeBefore + runs > walkOff.awayTotal) break;
+      if (walkOff && walkOff.homeBefore + runs > walkOff.awayTotal) { endedOn = "OTHER"; break; }
     }
     const slot = orderPtr % n;
     const model = models[slot];
@@ -307,6 +360,7 @@ function simulateHalfInning(params: {
       const scored = advanceReachingBase("walk", bases, slot, rng, adv);
       line.walks += 1;
       for (const s of scored) {
+        if (winningRunOnly && decided(runs)) break;
         runs += 1;
         batterLines[s].runs += 1;
         line.rbi += 1;
@@ -317,6 +371,7 @@ function simulateHalfInning(params: {
       // Reached on an error: no hit, no RBI — the runs are simply scored.
       const scored = advanceReachingBase("reachOnError", bases, slot, rng, adv);
       for (const s of scored) {
+        if (winningRunOnly && decided(runs)) break;
         runs += 1;
         batterLines[s].runs += 1;
         if (mound.usingStarter) mound.line.runsAllowed += 1;
@@ -331,6 +386,8 @@ function simulateHalfInning(params: {
       if (mound.usingStarter) mound.line.hitsAllowed += 1;
       const scored = advanceReachingBase(outcome, bases, slot, rng, adv);
       for (const s of scored) {
+        // A home run scores every runner even in a walk-off; any other hit stops at the winning run.
+        if (winningRunOnly && outcome !== "homeRun" && decided(runs)) break;
         runs += 1;
         batterLines[s].runs += 1;
         line.rbi += 1;
@@ -347,10 +404,13 @@ function simulateHalfInning(params: {
     }
 
     // Walk-off: the moment the home team leads in the bottom of the 9th+, the game ends.
-    if (walkOff && walkOff.homeBefore + runs > walkOff.awayTotal) break;
+    if (walkOff && walkOff.homeBefore + runs > walkOff.awayTotal) {
+      endedOn = outcome === "homeRun" ? "HOME_RUN" : "OTHER";
+      break;
+    }
   }
 
-  return { runs, orderPtr };
+  return { runs, orderPtr, endedOn };
 }
 
 /** Simulate ONE complete game. Deterministic given the injected RNG. */
@@ -370,6 +430,10 @@ export function simulateGame(game: GameInput, rng: SeededRng, params: EnginePara
   let homePtr = 0;
   let inning = 1;
   let extra = false;
+  let walkOff: GameResult["walkOff"] = null;
+  let incomplete = false;
+  const rules = params.rules ?? LEGACY_RULES;
+  const automaticRunner = automaticRunnerApplies(rules, game.ruleset);
 
   for (; ; inning += 1) {
     if (inning > 9) extra = true;
@@ -384,6 +448,7 @@ export function simulateGame(game: GameInput, rng: SeededRng, params: EnginePara
       isExtra: inning > 9,
       walkOff: null,
       engine: params,
+      automaticRunner,
     });
     awayRuns += top.runs;
     awayPtr = top.orderPtr;
@@ -402,14 +467,20 @@ export function simulateGame(game: GameInput, rng: SeededRng, params: EnginePara
       isExtra: inning > 9,
       walkOff: inning >= 9 ? { awayTotal: awayRuns, homeBefore: homeRuns } : null,
       engine: params,
+      automaticRunner,
     });
     homeRuns += bottom.runs;
     homePtr = bottom.orderPtr;
+    if (bottom.endedOn) walkOff = bottom.endedOn;
 
     if (inning >= 9 && homeRuns !== awayRuns) break;
     if (inning >= EXTRA_INNINGS_CAP) {
-      // Safety valve: award the home team a single run so the game always terminates (documented, ~never hit).
-      if (homeRuns === awayRuns) homeRuns += 1;
+      if (homeRuns === awayRuns) {
+        // LEGACY (v2): award the home team a run so the game terminates. Corrected: the game is not a legal
+        // result — it is reported incomplete and the caller discards it (no fabricated run, no unbounded loop).
+        if (rules.unresolvedAtCap === "AWARD_HOME_RUN") homeRuns += 1;
+        else incomplete = true;
+      }
       break;
     }
   }
@@ -419,6 +490,8 @@ export function simulateGame(game: GameInput, rng: SeededRng, params: EnginePara
     homeRuns,
     innings: inning,
     extra,
+    ...(incomplete ? { incomplete: true } : {}),
+    walkOff,
     awayBatters: awayLines,
     homeBatters: homeLines,
     awayStarter: awayMound.line,
