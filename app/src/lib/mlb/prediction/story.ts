@@ -19,6 +19,7 @@
  * must never appear here — see story.test.mjs, which asserts it against real slate data.
  */
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
+import { approxFrequency } from "@/lib/sim-frequency";
 import type { GamePredictionDecision } from "./types";
 
 /*
@@ -42,10 +43,13 @@ export interface StoryBeat {
   text: string;
 }
 
-/** Format probability × runCount as the honest simulated frequency ("8,400 / 10,000 simulations"). */
+/**
+ * Format probability × runCount as the simulated frequency, marked APPROXIMATE ("≈ 8,400 / 10,000
+ * simulations"): the probability is stored rounded, so the count rebuilt from it is not the exact
+ * tally (TRUTH-001). Exact win counts come from `exactWinCounts` (lib/sim-frequency) where persisted.
+ */
 export function simulationFrequency(probability: number, runCount: number): string | null {
-  if (!Number.isFinite(probability) || !Number.isFinite(runCount) || runCount <= 0) return null;
-  return `${Math.round(probability * runCount).toLocaleString("en-US")} / ${runCount.toLocaleString("en-US")} simulations`;
+  return approxFrequency(probability, runCount, "simulations");
 }
 
 /**
@@ -111,9 +115,12 @@ function closenessBeat(game: FullGameSimGame): StoryBeat | null {
 function playerBeat(game: FullGameSimGame, prediction: GamePredictionDecision | null): StoryBeat | null {
   const top = prediction?.topPlayerPredictions?.[0];
   if (!top) return null;
-  const freq = simulationFrequency(top.simulationProbability, game.runCount);
+  // The pick is the PLAYER-PROP engine's, not a count of this game's full-game simulations (TRUTH-001):
+  // state its own probability and say which engine it came from.
   const line = `${top.player} ${top.pick} ${top.line} ${top.marketLabel}`;
-  return { kind: "player", text: freq ? `Biggest player factor: ${line} — ${freq}.` : `Biggest player factor: ${line}.` };
+  return Number.isFinite(top.simulationProbability)
+    ? { kind: "player", text: `Biggest player factor: ${line} — ${Math.round(top.simulationProbability * 100)}% in the player-prop simulation.` }
+    : { kind: "player", text: `Biggest player factor: ${line}.` };
 }
 
 /**

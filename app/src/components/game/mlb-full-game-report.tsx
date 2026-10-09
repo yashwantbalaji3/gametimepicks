@@ -24,6 +24,7 @@ import { modelImpliedTotal, modelTotalCopy, type ModelImpliedTotal } from "@/lib
 import { runLineOverviewRow } from "@/lib/mlb/full-game/market-overview";
 import { rowRateLabel, teamRateNote } from "@/lib/mlb/full-game/box-score-rates";
 import { simProvenance } from "@/lib/mlb/full-game/sim-provenance";
+import { exactWinCounts } from "@/lib/sim-frequency";
 
 const int0 = (n: number): string => Math.round(n).toLocaleString("en-US");
 
@@ -248,17 +249,21 @@ function PredictionHero({ p, runCount , spreadLabel, g, modelVersion }: { p: Gam
 function SimulationOutcomeCenter({ g, awayCode, homeCode }: { g: FullGameSimGame; awayCode: string; homeCode: string }) {
   if (!g.winProbability || !g.runCount) return null;
   const N = g.runCount;
-  const awayWins = g.winProbability.away * N;
-  const homeWins = g.winProbability.home * N;
+  // Exact tallies from the persisted run-differential counts. Without them the count is rebuilt from a
+  // rounded probability and is shown as approximate (TRUTH-001).
+  const exact = exactWinCounts(g);
+  const approx = (p: number) => `≈ ${int0(p * N)}`;
+  const awayWins = exact ? int0(exact.away) : approx(g.winProbability.away);
+  const homeWins = exact ? int0(exact.home) : approx(g.winProbability.home);
   const V = g.vocabulary ?? BASEBALL_VOCAB;
-  const extras = g.extraInningsProbability != null ? Math.round(g.extraInningsProbability * N) : null;
+  const extras = g.extraInningsProbability != null ? approx(g.extraInningsProbability) : null;
   return (
     <section className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px solid var(--vault-border)" }}>
       <div className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Simulation outcomes · {int0(N)} complete games</div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        <StatTile label={`${awayCode} wins`} value={int0(awayWins)} sub={`of ${int0(N)} games`} />
-        <StatTile label={`${homeCode} wins`} value={int0(homeWins)} sub={`of ${int0(N)} games`} />
-        {extras != null ? <StatTile label={V.overtimeLabel} value={int0(extras)} sub={V.overtimeClause.replace(/^of games /, "")} /> : null}
+        <StatTile label={`${awayCode} wins`} value={awayWins} sub={`of ${int0(N)} games`} />
+        <StatTile label={`${homeCode} wins`} value={homeWins} sub={`of ${int0(N)} games`} />
+        {extras != null ? <StatTile label={V.overtimeLabel} value={extras} sub={V.overtimeClause.replace(/^of games /, "")} /> : null}
       </div>
       {g.finalScores.length ? (
         <div>

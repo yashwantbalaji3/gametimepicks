@@ -158,7 +158,7 @@ export function PlayerCard({
   // games it came from ("8,400 / 10,000 games"). Pure formatting — nothing is recomputed here.
   const frequency =
     probabilityPct != null && simulationCount != null && simulationCount > 0
-      ? `${Math.round((probabilityPct / 100) * simulationCount).toLocaleString("en-US")} / ${simulationCount.toLocaleString("en-US")} games`
+      ? `≈ ${Math.round((probabilityPct / 100) * simulationCount).toLocaleString("en-US")} / ${simulationCount.toLocaleString("en-US")} games`
       : null;
   const body = (
     <>

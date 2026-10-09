@@ -38,7 +38,9 @@ const SOURCE = { slug: "laa-vs-sf-2026-07-24", fullGameSim: SIM, prediction: PRE
 test("every field restates a canonical value", () => {
   const a = buildHomeGameAnswer(SOURCE);
   assert.equal(a.prediction, "SF wins 58% of simulations", "0.582 rounds to 58, team from the prediction");
-  assert.equal(a.frequency, "5,820 / 10,000 simulations", "0.582 × 10,000");
+  // TRUTH-001: the fixture's counts do not add up to runCount, so the tally is rebuilt from the rounded
+  // probability and must say so ("≈"). An exact tally needs persisted counts (sim-frequency.test.mjs).
+  assert.equal(a.frequency, "≈ 5,820 / 10,000 simulations", "0.582 × 10,000, approximate");
   assert.equal(a.mostLikelyScore, "LAA 3 – SF 4", "away-first, from finalScores[0]");
   // 0.12 + 0 + 0.19 = 31%, which clears CLOSE_GAME_THRESHOLD, so the story carries the qualifying lead.
   /* REPOINTED 2026-09-12: the "relatively close" lead is gone. Measured across 25 games on six
