@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-10-09T22:30:00Z",
+  "protocol": "docs/ncaaf/MODEL_EVALUATION_PROTOCOL.md (v1 + amendment 1)",
+  "corpusManifestSha256": "cc3ee9e3fe9ccabc8e1f3ef2d0886e565462b62cfb3c9503fbac829f82407873",
+  "winnerChampion": {
+    "id": "C1",
+    "spec": {
+      "id": "C1",
+      "K": 30,
+      "HFA": 40,
+      "c": 0.8,
+      "dFcs": 200
+    }
+  },
+  "scoreChampion": {
+    "id": "C2",
+    "spec": {
+      "id": "C2",
+      "lambda": 2,
+      "H": 240
+    }
+  },
+  "baselines": {
+    "B0": {
+      "id": "B0"
+    },
+    "B1": {
+      "id": "B1"
+    }
+  },
+  "allTuned": {
+    "B0": {
+      "id": "B0"
+    },
+    "B1": {
+      "id": "B1"
+    },
+    "C1": {
+      "id": "C1",
+      "K": 30,
+      "HFA": 40,
+      "c": 0.8,
+      "dFcs": 200
+    },
+    "C2": {
+      "id": "C2",
+      "lambda": 2,
+      "H": 240
+    },
+    "C3": {
+      "id": "C3",
+      "lambda": 2,
+      "H": 240,
+      "lambdaC": 1
+    }
+  },
+  "modelFiles": [
+    "app/src/lib/sports/ncaaf/models.mjs",
+    "app/src/lib/sports/ncaaf/walk-forward.mjs",
+    "app/src/lib/sports/ncaaf/metrics.mjs",
+    "app/scripts/ncaaf/evaluate-baselines.mjs"
+  ],
+  "codeCommit": "a51670819bb98a85d2cc33dec5b806bc0e677d16",
+  "note": "The holdout phase refuses to run until codeCommit names a commit containing this file and the model files are unchanged since it."
+}

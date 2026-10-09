@@ -1,0 +1,595 @@
+{
+  "schemaVersion": 1,
+  "register": "docs/ncaaf/CHALLENGER_REGISTER.md",
+  "generatedAt": "2026-10-09T21:38:48Z",
+  "corpusManifestSha256": "cc3ee9e3fe9ccabc8e1f3ef2d0886e565462b62cfb3c9503fbac829f82407873",
+  "tuning": {
+    "H1": {
+      "objective": "logLoss 2021-25",
+      "best": {
+        "spec": {
+          "id": "C1",
+          "K": 30,
+          "HFA": 55,
+          "c": 0.8,
+          "dFcs": 200
+        },
+        "logLoss": 0.564591308916295
+      },
+      "configs": 840,
+      "top5": [
+        {
+          "spec": {
+            "id": "C1",
+            "K": 30,
+            "HFA": 55,
+            "c": 0.8,
+            "dFcs": 200
+          },
+          "logLoss": 0.564591308916295
+        },
+        {
+          "spec": {
+            "id": "C1",
+            "K": 30,
+            "HFA": 55,
+            "c": 0.8,
+            "dFcs": 300
+          },
+          "logLoss": 0.564611433647846
+        },
+        {
+          "spec": {
+            "id": "C1",
+            "K": 30,
+            "HFA": 55,
+            "c": 0.8,
+            "dFcs": 400
+          },
+          "logLoss": 0.5649937921585845
+        },
+        {
+          "spec": {
+            "id": "C1",
+            "K": 40,
+            "HFA": 55,
+            "c": 0.7,
+            "dFcs": 300
+          },
+          "logLoss": 0.565124319021
+        },
+        {
+          "spec": {
+            "id": "C1",
+            "K": 30,
+            "HFA": 40,
+            "c": 0.8,
+            "dFcs": 300
+          },
+          "logLoss": 0.5651350906616186
+        }
+      ]
+    },
+    "H3": {
+      "objective": "margin CRPS + total CRPS 2021-25",
+      "best": {
+        "spec": {
+          "id": "C2d",
+          "lambda": 2,
+          "H": 240,
+          "lambdaDiv": 1
+        },
+        "scoreObjective": 18.358440151919503
+      },
+      "results": [
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 120,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 18.38133025458835
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 120,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 18.381561104588553
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 120,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 18.399188434988336
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 240,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 18.358733270680833
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 240,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 18.358440151919503
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 240,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 18.35939298175275
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 365,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 18.532427394004134
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 365,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 18.531835929087034
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 365,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 18.528302399363824
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 730,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 18.942579585365444
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 730,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 18.94169401802219
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 2,
+            "H": 730,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 18.934884749444898
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 120,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 18.688949760402487
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 120,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 18.689000049331295
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 120,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 18.704384435915376
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 240,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 18.543836604206458
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 240,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 18.54385533075271
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 240,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 18.547352465733336
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 365,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 18.635637381551753
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 365,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 18.635513074799533
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 365,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 18.635924220685315
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 730,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 18.96377360792227
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 730,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 18.963396328723675
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 5,
+            "H": 730,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 18.96094214834619
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 120,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 19.146705369231213
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 120,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 19.146438208119914
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 120,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 19.15821389893649
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 240,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 18.878515351133327
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 240,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 18.878521586580977
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 240,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 18.881750694253856
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 365,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 18.860244909322837
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 365,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 18.86022775673978
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 365,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 18.861514941812402
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 730,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 19.046070473289806
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 730,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 19.045912164211156
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 10,
+            "H": 730,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 19.045407403298338
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 120,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 19.692297936468663
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 120,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 19.691704553854795
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 120,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 19.699899876224336
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 240,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 19.370801792927278
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 240,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 19.370689477905557
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 240,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 19.372690778937695
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 365,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 19.249498689092075
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 365,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 19.249454122942375
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 365,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 19.250409564628196
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 730,
+            "lambdaDiv": 0.1
+          },
+          "scoreObjective": 19.247761116295674
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 730,
+            "lambdaDiv": 1
+          },
+          "scoreObjective": 19.247679509611135
+        },
+        {
+          "spec": {
+            "id": "C2d",
+            "lambda": 20,
+            "H": 730,
+            "lambdaDiv": 10
+          },
+          "scoreObjective": 19.247865405727648
+        }
+      ]
+    },
+    "H4": {
+      "objective": "exact discrete margin CRPS + total CRPS 2022-25",
+      "best": {
+        "spec": {
+          "id": "W2",
+          "K": 300,
+          "inner": {
+            "id": "C2",
+            "lambda": 2,
+            "H": 240
+          }
+        },
+        "n": 3174,
+        "scoreObjective": 18.37729838269269,
+        "logLoss": 0.5630890599117946
+      },
+      "results": [
+        {
+          "spec": {
+            "id": "W2",
+            "K": 100,
+            "inner": {
+              "id": "C2",
+              "lambda": 2,
+              "H": 240
+            }
+          },
+          "n": 3174,
+          "scoreObjective": 18.45198456206682,
+          "logLoss": 0.5664341770281964
+        },
+        {
+          "spec": {
+            "id": "W2",
+            "K": 200,
+            "inner": {
+              "id": "C2",
+              "lambda": 2,
+              "H": 240
+            }
+          },
+          "n": 3174,
+          "scoreObjective": 18.391075740390704,
+          "logLoss": 0.5636433688408089
+        },
+        {
+          "spec": {
+            "id": "W2",
+            "K": 300,
+            "inner": {
+              "id": "C2",
+              "lambda": 2,
+              "H": 240
+            }
+          },
+          "n": 3174,
+          "scoreObjective": 18.37729838269269,
+          "logLoss": 0.5630890599117946
+        },
+        {
+          "spec": {
+            "id": "W2",
+            "K": 500,
+            "inner": {
+              "id": "C2",
+              "lambda": 2,
+              "H": 240
+            }
+          },
+          "n": 3174,
+          "scoreObjective": 18.407703243856375,
+          "logLoss": 0.5657039794149153
+        }
+      ]
+    }
+  }
+}
