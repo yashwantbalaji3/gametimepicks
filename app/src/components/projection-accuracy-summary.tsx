@@ -150,7 +150,7 @@ function AccuracyCard({
             {pct.toFixed(1)}%
           </span>
           <span className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>
-            {record!.wins.toLocaleString()} of {record!.decisive.toLocaleString()} picks hit
+            {record!.wins.toLocaleString("en-US")} of {record!.decisive.toLocaleString("en-US")} picks hit
             {positive ? " · above 50%" : ""}
           </span>
           {/* Mini stat-bar — an honest visualization of the SAME hit rate (fill

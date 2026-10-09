@@ -101,7 +101,7 @@ export function decideEligibility(input: EligibilityInput): EligibilityDecision 
       treatment: "SHOW_WITH_WARNING",
       // Shown, not hidden. Hiding it would quietly improve every other number on the page.
       disclosure:
-        `Our record in this market is poor: ${pct(evidence.hitRate)} across ${evidence.n.toLocaleString()} settled results, ` +
+        `Our record in this market is poor: ${pct(evidence.hitRate)} across ${evidence.n.toLocaleString("en-US")} settled results, ` +
         `and the whole confidence range sits below break-even. We're showing it because hiding our worst market would ` +
         `make everything else look better than it is.`,
       reasons,
@@ -110,14 +110,14 @@ export function decideEligibility(input: EligibilityInput): EligibilityDecision 
   }
 
   if (evidence.status === "RECALIBRATE") {
-    reasons.push(`does not out-score the sportsbook on this market's ${evidence.n.toLocaleString()} settled results`);
+    reasons.push(`does not out-score the sportsbook on this market's ${evidence.n.toLocaleString("en-US")} settled results`);
     if (evidence.overconfidencePp != null && Math.abs(evidence.overconfidencePp) > 5) {
       reasons.push(`stated probabilities run ${Math.abs(evidence.overconfidencePp).toFixed(1)}pp ${evidence.overconfidencePp > 0 ? "high" : "low"}`);
     }
     return {
       treatment: "SHOW_WITH_WARNING",
       disclosure: calibrated
-        ? `Probabilities here are calibrated against ${evidence.n.toLocaleString()} settled results, so the number should be roughly true. On this market our model still doesn't score better than the sportsbook.`
+        ? `Probabilities here are calibrated against ${evidence.n.toLocaleString("en-US")} settled results, so the number should be roughly true. On this market our model still doesn't score better than the sportsbook.`
         : `This market's probabilities aren't calibrated yet and have run ${evidence.overconfidencePp != null ? `${Math.abs(evidence.overconfidencePp).toFixed(1)}pp too high` : "high"} historically. Read the number with that in mind.`,
       reasons,
       probabilityIsCalibrated: calibrated,
@@ -126,7 +126,7 @@ export function decideEligibility(input: EligibilityInput): EligibilityDecision 
 
   return {
     treatment: "SHOW",
-    disclosure: `Measured ${pct(evidence.hitRate)} across ${evidence.n.toLocaleString()} settled results in this market.`,
+    disclosure: `Measured ${pct(evidence.hitRate)} across ${evidence.n.toLocaleString("en-US")} settled results in this market.`,
     reasons: ["market meets the evidence bar on a sufficient sample"],
     probabilityIsCalibrated: calibrated,
   };

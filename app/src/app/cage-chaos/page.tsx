@@ -129,14 +129,14 @@ export default function CageChaosPage() {
                 e?.accuracy != null && e?.n != null ? (
                   <div key={label} className="font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)", lineHeight: 1.7 }}>
                     <strong style={{ color: "var(--vault-text)" }}>{label}</strong>{" "}
-                    {pct(e.accuracy)} accurate over {e.n.toLocaleString()} held-out fights
+                    {pct(e.accuracy)} accurate over {e.n.toLocaleString("en-US")} held-out fights
                     {e.baselineAccuracy != null ? ` · baseline ${pct(e.baselineAccuracy)}` : ""}
                   </div>
                 ) : null,
               )}
               {card.model?.corpus?.fights ? (
                 <p className="font-mono m-0" style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>
-                  corpus {card.model.corpus.fights.toLocaleString()} fights
+                  corpus {card.model.corpus.fights.toLocaleString("en-US")} fights
                   {card.model.corpus.from && card.model.corpus.to ? ` · ${card.model.corpus.from} to ${card.model.corpus.to}` : ""}
                   {card.model.id ? ` · model ${card.model.id}` : ""}
                 </p>

@@ -167,7 +167,10 @@ test("ROLLOUT 11 · the frozen-at stamp is rendered in ET, never as a raw ISO in
   // no caller can reintroduce it by forgetting.
   const panel = read("src/components/live/live-panel.tsx");
   assert.match(panel, /function frozenStamp/, "the panel owns the formatting");
-  assert.match(panel, /timeZone: "America\/New_York"/);
+  // UX-001 (2026-10-09): the ET formatting moved into the shared, engine-independent lib/et-stamp.mjs (WebKit joined
+  // date and time with " at ", a hydration mismatch). The panel must use it, and it must format in ET.
+  assert.match(panel, /etStamp\(/, "the panel formats through the shared ET stamp");
+  assert.match(read("src/lib/et-stamp.mjs"), /timeZone: "America\/New_York"/, "the shared stamp is Eastern Time");
   assert.match(panel, /frozenStamp\(forecastGeneratedAt\)/, "the note renders the formatted value");
 
   for (const rel of ["src/components/game/game-detail-page.tsx", "src/app/preview/live/page.tsx"]) {

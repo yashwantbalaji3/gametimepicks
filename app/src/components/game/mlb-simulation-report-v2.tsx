@@ -216,7 +216,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
   const topLead = watchlist[0] ?? null;
   const topExplanation = topLead ? buildExplanation(topLead, provenance, completenessStatus(simGameLike, topLead, provenance)) : null;
   const taggedCount = picks.filter((p) => tagFor(p) !== null).length;
-  const runsPill = allowsRunCountClaim && runCount ? `${runCount.toLocaleString()}-run` : runLabel;
+  const runsPill = allowsRunCountClaim && runCount ? `${runCount.toLocaleString("en-US")}-run` : runLabel;
 
   // Market agreement — a sanity check on how close the model sits to the book (NOT calibration, NOT a claim
   // to out-perform the market). Mean + widest |model − market| gap over priced picks, plus a per-market mean.
@@ -402,7 +402,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           <StatTile
             label="Full-game score"
             value={fullGameAvailable ? "Simulated" : "Not simulated"}
-            sub={fullGameAvailable ? `Overview tab${fullGame?.runCount ? ` · ${fullGame.runCount.toLocaleString()} runs` : ""}` : "no full-game run for this game"}
+            sub={fullGameAvailable ? `Overview tab${fullGame?.runCount ? ` · ${fullGame.runCount.toLocaleString("en-US")} runs` : ""}` : "no full-game run for this game"}
           />
         </div>
         {useLeanBoard ? (
@@ -622,7 +622,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                       Simulated range · median <strong style={{ color: "var(--vault-text)" }}>{band.median}</strong> · p10–p90 {band.p10}–{band.p90}
                     </span>
                   ) : null}
-                  {d.sampleCount != null ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{d.sampleCount.toLocaleString()} deterministic samples · simulated spread, not a validated confidence interval</span> : null}
+                  {d.sampleCount != null ? <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>{d.sampleCount.toLocaleString("en-US")} deterministic samples · simulated spread, not a validated confidence interval</span> : null}
                 </div>
               );
             })}
@@ -709,7 +709,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
               <p className="text-[13px] leading-relaxed m-0" style={{ color: "var(--vault-text-mute)" }}>
                 This tab is the <strong>player-prop</strong> simulation. The projected score, win probability and
                 run / total distributions in the <strong>Overview tab</strong> come from a separate independent
-                full-game Monte Carlo{fullGame?.runCount ? <> ({fullGame.runCount.toLocaleString()} simulated games)</> : null}
+                full-game Monte Carlo{fullGame?.runCount ? <> ({fullGame.runCount.toLocaleString("en-US")} simulated games)</> : null}
                 {fullGame?.modelVersion ? <> · model <span className="font-mono">{fullGame.modelVersion}</span></> : null}, built
                 from the same pregame board projections — not from the sportsbook market.
               </p>

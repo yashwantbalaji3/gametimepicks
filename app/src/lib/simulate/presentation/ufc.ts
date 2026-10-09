@@ -144,7 +144,7 @@ export function buildUfcPresentation(card: UfcCardArtifact | null | undefined): 
   if (ev && Number.isFinite(ev.accuracy) && Number.isFinite(ev.n)) {
     limits.push({
       label: "Held-out record",
-      detail: `Winner calls were right ${pctOf(ev.accuracy as number)}% of the time on ${(ev.n as number).toLocaleString()} fights the model never trained on, against a ${pctOf(ev.baselineAccuracy ?? 0.5)}% coin flip.`,
+      detail: `Winner calls were right ${pctOf(ev.accuracy as number)}% of the time on ${(ev.n as number).toLocaleString("en-US")} fights the model never trained on, against a ${pctOf(ev.baselineAccuracy ?? 0.5)}% coin flip.`,
     });
   }
   chapters.push({
@@ -254,7 +254,7 @@ export function buildUfcBoutPresentation(bout: UfcBout | null | undefined, card:
   limits.push({ label: "No market here", detail: "This frame shows the model's own probability with no price beside it. The posted fight-winner prices, and how the model has scored against the de-vigged line, are on the UFC page." });
   const ev = card.model?.evidence?.winner;
   if (ev && Number.isFinite(ev.accuracy) && Number.isFinite(ev.n)) {
-    limits.push({ label: "Held-out record", detail: `Winner calls were right ${pctOf(ev.accuracy as number)}% of the time on ${(ev.n as number).toLocaleString()} fights the model never trained on${Number.isFinite(ev.baselineAccuracy) ? `, against a ${pctOf(ev.baselineAccuracy as number)}% baseline` : ""}.` });
+    limits.push({ label: "Held-out record", detail: `Winner calls were right ${pctOf(ev.accuracy as number)}% of the time on ${(ev.n as number).toLocaleString("en-US")} fights the model never trained on${Number.isFinite(ev.baselineAccuracy) ? `, against a ${pctOf(ev.baselineAccuracy as number)}% baseline` : ""}.` });
   }
   chapters.push({ id: "limits", kind: "limits", title: "What this does not know", line: "A fight read is a probability, not a prediction of what will happen.", stats: [], bars: [], rows: limits.slice(0, 5), holdMs: HOLD.dense });
   chapters.push({ id: "closing", kind: "closing", title, line: "No sequence of the fight is simulated and none is shown — the model publishes probabilities for the winner, the method and the round, and nothing beyond them.", stats: [], bars: [], rows: card.model?.id ? [{ label: "Model", detail: card.model.id }] : [], holdMs: HOLD.normal });

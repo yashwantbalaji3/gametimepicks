@@ -10,6 +10,7 @@
  * Reduced motion: no auto-advance and no growth animation; the reader steps through by hand. Every chart also has
  * its sentence (describeBars), so nothing is carried by a drawn shape alone.
  */
+import { etStamp } from "@/lib/et-stamp.mjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { apply, createPlayer } from "@/lib/simulate/presentation/player-machine.mjs";
 import { describeBars, holdFor, narrationFor, revealDuration } from "@/lib/simulate/presentation/story-controls.mjs";
@@ -202,9 +203,10 @@ export default function SimulationStory({ manifest, skipHref = "#simulation-stor
 
       <footer className="font-mono flex flex-wrap gap-x-3 gap-y-1" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
         {manifest.provenance.modelVersion ? <span>model {manifest.provenance.modelVersion}</span> : null}
-        {runs ? <span>{runs.toLocaleString()} simulated games</span> : <span>no run count recorded</span>}
-        {manifest.provenance.generatedAt ? <span>produced {new Date(manifest.provenance.generatedAt).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} ET</span> : null}
-        {manifest.provenance.marketCapturedAt ? <span>prices captured {new Date(manifest.provenance.marketCapturedAt).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })} ET</span> : null}
+        {runs ? <span>{runs.toLocaleString("en-US")} simulated games</span> : <span>no run count recorded</span>}
+        {/* etStamp, not toLocaleString: WebKit joins date and time with " at ", so the server text and Safari's differed (UX-001). */}
+        {etStamp(manifest.provenance.generatedAt ?? null) ? <span>produced {etStamp(manifest.provenance.generatedAt ?? null)}</span> : null}
+        {etStamp(manifest.provenance.marketCapturedAt ?? null) ? <span>prices captured {etStamp(manifest.provenance.marketCapturedAt ?? null)}</span> : null}
       </footer>
     </section>
   );

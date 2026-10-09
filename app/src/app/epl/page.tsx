@@ -509,8 +509,8 @@ export default function EplPage() {
               Player model · not validated ({players.model.id}) — the holdout test
             </summary>
             <p className="mt-1.5" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
-              Fitted on {players.model.fittedAppearances.toLocaleString()} appearances,
-              then tested on a season it had never seen — {players.validation.holdout.n.toLocaleString()} player-matches,
+              Fitted on {players.model.fittedAppearances.toLocaleString("en-US")} appearances,
+              then tested on a season it had never seen — {players.validation.holdout.n.toLocaleString("en-US")} player-matches,
               log loss {players.validation.holdout.logLoss} against {players.validation.holdout.positionalBaseline} for a
               position-only baseline, and it predicted {Math.round(players.validation.holdout.predictedScorers)} scorers
               where {players.validation.holdout.observedScorers} actually scored. Once an eleven is named, a side&rsquo;s

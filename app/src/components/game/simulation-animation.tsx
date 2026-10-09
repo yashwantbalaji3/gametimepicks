@@ -150,7 +150,7 @@ function StageChecklist({ stage }: { stage: number }) {
 /** The honest run-count label — a real "N-run" claim ONLY behind `allowsRunCountClaim`. */
 function runLabel(view: GameSimulationView): string {
   return view.allowsRunCountClaim && view.runCount != null
-    ? `${view.runCount.toLocaleString()}-run simulation`
+    ? `${view.runCount.toLocaleString("en-US")}-run simulation`
     : "model simulation";
 }
 

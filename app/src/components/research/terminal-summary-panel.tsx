@@ -73,7 +73,7 @@ export default function TerminalSummaryPanel({ terminal }: { terminal: TerminalV
               {formatRate(mu.hitRate)}
             </dd>
             <dd className="text-[12px] leading-snug text-[var(--text-mute)]">
-              {mu.decisiveRows.toLocaleString()} settled results
+              {mu.decisiveRows.toLocaleString("en-US")} settled results
               {mu.dateRange ? `, ${mu.dateRange[0]} → ${mu.dateRange[1]}` : ""}
             </dd>
           </div>
@@ -90,7 +90,7 @@ export default function TerminalSummaryPanel({ terminal }: { terminal: TerminalV
             </dd>
             <dd className="text-[12px] leading-snug text-[var(--text-mute)]">
               Their no-vig price scored {cal.marketBrier.toFixed(4)}; ours {cal.calibratedBrier.toFixed(4)}
-              {" "}on the same {cal.heldOutWindow.rows.toLocaleString()} held-out results. Lower is better.
+              {" "}on the same {cal.heldOutWindow.rows.toLocaleString("en-US")} held-out results. Lower is better.
             </dd>
           </div>
         ) : null}

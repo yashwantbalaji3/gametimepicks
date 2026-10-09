@@ -68,7 +68,7 @@ export default function MlbSimulationsSection({ set, hrefFor, isTodaysSlate = tr
       <p className="mt-3" style={{ fontSize: 12, color: "var(--vault-text-faint)", lineHeight: 1.6 }}>
         {/* The run count is quoted only when the whole set agrees on one — never one game's figure
             standing in for the rest. */}
-        {set.runCount ? `${set.runCount.toLocaleString()} complete games simulated per matchup. ` : ""}
+        {set.runCount ? `${set.runCount.toLocaleString("en-US")} complete games simulated per matchup. ` : ""}
         {set.readyCount} of {set.cards.length} are built on both confirmed batting orders; the rest use the
         batters who had posted lines{isTodaysSlate ? " so far and refresh as the orders arrive" : " at generation time — this slate is closed, so nothing refreshes"}.
       </p>

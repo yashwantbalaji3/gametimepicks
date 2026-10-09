@@ -100,7 +100,7 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
 
   /* The run count is a CLAIM, and it is the artifact's to make. */
   const runCount = sim?.allowsRunCountClaim && typeof fg.runCount === "number" && fg.runCount > 0 ? fg.runCount : null;
-  const runsPhrase = runCount ? `${runCount.toLocaleString()} simulated games` : "the simulation";
+  const runsPhrase = runCount ? `${runCount.toLocaleString("en-US")} simulated games` : "the simulation";
 
   const chapters: PresentationChapter[] = [];
 
@@ -342,7 +342,7 @@ export function buildMlbPresentation(detail: PublicGameDetail): PresentationResu
     id: "closing",
     kind: "closing",
     title: `${awayAbbr} at ${homeAbbr}`,
-    line: `${runCount ? `${runCount.toLocaleString()} simulated games` : "This simulation"}, one artifact revision. The full report carries every market, distribution and definition behind it.`,
+    line: `${runCount ? `${runCount.toLocaleString("en-US")} simulated games` : "This simulation"}, one artifact revision. The full report carries every market, distribution and definition behind it.`,
     stats: [],
     bars: [],
     rows: [

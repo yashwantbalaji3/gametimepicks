@@ -109,7 +109,7 @@ function SimulationOutputPanel({ output, label }: { output: MultiSportGameReport
   return (
     <Card>
       <div className="mb-2 flex items-center justify-between gap-2">
-        <SectionHead n={2} title="Simulation Output" hint={output.runCount != null ? `${output.runCount.toLocaleString()} runs` : undefined} />
+        <SectionHead n={2} title="Simulation Output" hint={output.runCount != null ? `${output.runCount.toLocaleString("en-US")} runs` : undefined} />
         <SourceModeBadge mode={output.sourceMode} label={label} />
       </div>
       <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>{output.headline}</p>

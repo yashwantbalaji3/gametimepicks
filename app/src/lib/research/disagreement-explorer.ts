@@ -103,7 +103,7 @@ export function marketPolicy(marketKey: string, registryStatus: string): MarketP
   const note = disabled
     ? "Predictions are switched off for this market: across the full settled corpus its hit-rate interval sits entirely below 50%. History stays visible; the row is never placed in a difference-ordered list."
     : cal
-      ? `Measured on ${cal.sampleSize.toLocaleString()} settled rows, this market's simulated probability scores worse than the sportsbook price on both Brier and log loss. It is shown as market context, not as a better estimate.`
+      ? `Measured on ${cal.sampleSize.toLocaleString("en-US")} settled rows, this market's simulated probability scores worse than the sportsbook price on both Brier and log loss. It is shown as market context, not as a better estimate.`
       : "This market has no published calibration record yet, so nothing is claimed about how its simulated probability has performed.";
   return { marketKey, registryStatus, predictionDisabled: disabled, note };
 }
@@ -175,7 +175,7 @@ export function bucketSentence(summary: GapBucketSummary | null): string {
   const range = ci ? ` (95% interval ${pct(ci.low)}–${pct(ci.high)})` : "";
   const brier = summary.brier == null ? "" : ` Brier ${summary.brier.toFixed(3)}.`;
   const window = summary.window ? ` between ${summary.window.from} and ${summary.window.to}` : "";
-  return `Rows ${summary.bucket.label} have come in ${pct(summary.observedRate)} of the time across ${summary.n.toLocaleString()} settled rows${window}${range}.${brier}`;
+  return `Rows ${summary.bucket.label} have come in ${pct(summary.observedRate)} of the time across ${summary.n.toLocaleString("en-US")} settled rows${window}${range}.${brier}`;
 }
 
 export interface BuildExplorerInput {

@@ -3,6 +3,7 @@
  * SavedList (P310) — the reader's saved forecasts, grouped by what happened, joined to the graded ledgers on the
  * client. Every result comes from a canonical ledger row or is stated as pending; a saved snapshot is never rewritten.
  */
+import { etStamp as sharedEtStamp } from "@/lib/et-stamp.mjs";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSavedForecasts, type SavedForecast } from "@/lib/saved/saved-store";
@@ -17,7 +18,8 @@ type Ledgers = { mlbGames: object[]; nfl: object[]; epl: object[]; ufc: object[]
 type Resolved = { state: "UPCOMING" | "PENDING" | "FINAL"; outcome: "HIT" | "MISS" | "VOID" | null; actual: string | null; gradedAt: string | null };
 
 const SPORT_LABEL: Record<string, string> = { mlb: "MLB", nfl: "NFL", epl: "Premier League", ufc: "UFC" };
-const etStamp = (iso: string | null) => (iso && Number.isFinite(Date.parse(iso)) ? new Date(iso).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + " ET" : null);
+/* UX-001: the shared, engine-independent stamp (lib/et-stamp.mjs) — Safari joins date and time with " at ". */
+const etStamp = (iso: string | null) => sharedEtStamp(iso);
 
 function Row({ s, r, onRemove, routes }: { s: SavedForecast; r: Resolved; onRemove: () => void; routes: SavedRouteManifest }) {
   // v1.1.4.1: the link is derived from this deploy's exported routes, never the href stored at save time.

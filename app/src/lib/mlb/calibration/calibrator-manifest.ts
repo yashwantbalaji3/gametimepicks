@@ -126,7 +126,7 @@ export function checkCompatibility(input: {
   }
   return {
     compatible: true, code: "OK",
-    reason: `fitted on ${manifest.fitWindow.rows.toLocaleString()} rows through ${manifest.fitWindow.to}, ${age} day(s) before this slate`,
+    reason: `fitted on ${manifest.fitWindow.rows.toLocaleString("en-US")} rows through ${manifest.fitWindow.to}, ${age} day(s) before this slate`,
   };
 }
 
@@ -141,7 +141,7 @@ export function manifestInterpretation(m: CalibratorManifest): string {
   const gain = m.heldOutEvaluation.brierImprovementVsRaw;
   const gap = m.heldOutEvaluation.brierGapToMarket;
   const better = gain > 0
-    ? `On ${m.heldOutWindow.rows.toLocaleString()} results it never saw, calibration improved the accuracy of our stated probabilities (Brier ${m.heldOutEvaluation.rawModelBrier.toFixed(4)} → ${m.heldOutEvaluation.calibratedBrier.toFixed(4)}).`
+    ? `On ${m.heldOutWindow.rows.toLocaleString("en-US")} results it never saw, calibration improved the accuracy of our stated probabilities (Brier ${m.heldOutEvaluation.rawModelBrier.toFixed(4)} → ${m.heldOutEvaluation.calibratedBrier.toFixed(4)}).`
     : `On held-out results calibration did not improve our stated probabilities.`;
   const limit = m.heldOutEvaluation.stillBehindMarket
     ? ` On those same results the sportsbook's own no-vig probability still scored more accurately (${m.heldOutEvaluation.marketBrier.toFixed(4)}, a gap of ${gap.toFixed(4)}). Our numbers are more honest than before; they do not out-predict the sportsbook.`

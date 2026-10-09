@@ -88,7 +88,7 @@ function buildGameStory(g: {
   // The tier words describe how DECIDED this simulation is — never how it compares to a sportsbook.
   // "edge"/"value" are banned public-copy terms (see public-beta-safety.test.mjs); "lean" is the house term.
   story.push(
-    `Across ${g.runCount.toLocaleString()} simulated games, ${favTeam} won ${favProb}% of the time — ${
+    `Across ${g.runCount.toLocaleString("en-US")} simulated games, ${favTeam} won ${favProb}% of the time — ${
       favProb >= 60 ? "a clear lean in the simulation" : favProb >= 54 ? "a modest lean" : "essentially a coin flip"
     }.`,
   );

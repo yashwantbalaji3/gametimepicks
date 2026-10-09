@@ -76,7 +76,7 @@ function LeanRow({ p, lead }: { p: SummaryPick; lead?: boolean }) {
 export default function MlbSimulationResultSummary({ headline, picks, runCount, allowsRunCountClaim, isPreviousSlate, slateDate, fullGameAvailable = false, spreadLabel = "run line" }: MlbSimulationResultSummaryProps) {
   const ranked = [...picks].filter((p) => typeof p.edgePct === "number").sort((a, b) => (b.edgePct ?? 0) - (a.edgePct ?? 0));
   const top = ranked.slice(0, 3);
-  const runLabel = allowsRunCountClaim && runCount != null && runCount > 0 ? `${runCount.toLocaleString()}-run` : "deterministic";
+  const runLabel = allowsRunCountClaim && runCount != null && runCount > 0 ? `${runCount.toLocaleString("en-US")}-run` : "deterministic";
 
   return (
     <section aria-label="Simulation result" className="rounded-[14px] px-4 sm:px-5 py-4 flex flex-col gap-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 50%, transparent)", border: "1px solid var(--vault-border-strong)", borderTop: "2px solid var(--vault-gold-bright)" }}>

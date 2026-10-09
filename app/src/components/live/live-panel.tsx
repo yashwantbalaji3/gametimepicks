@@ -14,6 +14,7 @@
  * The panel renders nothing when the flag is off: no markup, no request, no cost.
  */
 import { etDateOf, liveReadyFor } from "@/lib/live/client";
+import { etStamp } from "@/lib/et-stamp.mjs";
 import { comparisonSentence, joinNflPlayerBoard } from "@/lib/live/forecast-join.mjs";
 import { derivePresentationState, postgameRunComparison } from "@/lib/live/lifecycle.mjs";
 import { useLiveEvent } from "./use-live-event";
@@ -31,14 +32,11 @@ const MONO = "var(--font-mono)";
  * string. An unparseable instant returns null and the panel falls back to the timeless sentence —
  * never a half-rendered date.
  */
+/* UX-001 (2026-10-09): assembled from formatToParts values by the shared lib/et-stamp.mjs. Intl's format() joins a date
+   and a time differently per engine — Node writes "Oct 8, 9:00 PM", Safari/WebKit "Oct 8 at 9:00 PM" — so this
+   server-rendered client text failed hydration on every NFL game page in WebKit (#425 → #418 → #423). */
 function frozenStamp(iso: string | null | undefined): string | null {
-  if (!iso) return null;
-  const t = Date.parse(iso);
-  if (!Number.isFinite(t)) return null;
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York", month: "short", day: "numeric",
-    hour: "numeric", minute: "2-digit", hour12: true,
-  }).format(new Date(t)) + " ET";
+  return etStamp(iso ?? null);
 }
 
 function Region({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {

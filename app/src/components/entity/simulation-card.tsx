@@ -21,7 +21,7 @@ import SimulationStory from "@/components/entity/simulation-story";
 /** Format a probability + a run count as the honest "N / 10,000 games" frequency. Pure formatting. */
 function frequency(probability: number | null | undefined, runCount: number | null | undefined): string | null {
   if (probability == null || runCount == null || runCount <= 0) return null;
-  return `${Math.round(probability * runCount).toLocaleString()} / ${runCount.toLocaleString()} games`;
+  return `${Math.round(probability * runCount).toLocaleString("en-US")} / ${runCount.toLocaleString("en-US")} games`;
 }
 
 export interface SimulationCardInput {
@@ -54,7 +54,7 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
         status={
           <span className="font-mono uppercase tracking-[0.1em] rounded-full px-2.5 py-1 whitespace-nowrap"
             style={{ fontSize: 8.5, color: g.status === "ready" ? "var(--vault-success)" : "var(--vault-warn)", border: "1px solid var(--vault-rule)" }}>
-            {g.runCount ? `${g.runCount.toLocaleString()} sims` : "No sim"}
+            {g.runCount ? `${g.runCount.toLocaleString("en-US")} sims` : "No sim"}
           </span>
         }
       />
@@ -103,7 +103,7 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
           <div className="flex items-center justify-between gap-2 rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Win counts</span>
             <span className="font-mono" style={{ color: "var(--vault-text)", fontSize: 11.5 }}>
-              {g.awayTeam} {Math.round(g.winProbability!.away * g.runCount).toLocaleString()} · {g.homeTeam} {Math.round(g.winProbability!.home * g.runCount).toLocaleString()}
+              {g.awayTeam} {Math.round(g.winProbability!.away * g.runCount).toLocaleString("en-US")} · {g.homeTeam} {Math.round(g.winProbability!.home * g.runCount).toLocaleString("en-US")}
             </span>
           </div>
 

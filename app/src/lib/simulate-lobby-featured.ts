@@ -105,7 +105,7 @@ export function strongestEdgePct(sim: FeaturedSimView): number {
 
 export function runCountLabel(sim: Pick<FeaturedSimView, "allowsRunCountClaim" | "runCount">): string | null {
   if (sim.allowsRunCountClaim && sim.runCount != null && Number.isInteger(sim.runCount) && sim.runCount > 0) {
-    return `${sim.runCount.toLocaleString()}-run model simulation`;
+    return `${sim.runCount.toLocaleString("en-US")}-run model simulation`;
   }
   return null;
 }

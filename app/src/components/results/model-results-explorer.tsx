@@ -152,7 +152,7 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
         {/* NAMED, because the cross-sport block above this one reports a DIFFERENT population —
             41,593 decisive across MLB and NBA, of which these are the MLB 37,958. Two correct
             numbers on one page need labels, or a reader is left to assume one of them is wrong. */}
-        All {coverage.rows.toLocaleString()} graded MLB picks across {coverage.dates} settled days,
+        All {coverage.rows.toLocaleString("en-US")} graded MLB picks across {coverage.dates} settled days,
         {" "}{coverage.firstDate} to {coverage.lastDate} — not a sample of them. Pushes are neither a win
         nor a loss and are in no rate below. Every row carries both the model's probability and the
         market's, so the two are compared on the same picks.
@@ -209,14 +209,14 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
             ) : (
               <>
                 <span style={{ fontSize: 22, fontWeight: 800 }}>{rate.toFixed(1)}%</span>
-                <span style={{ fontFamily: "monospace", fontSize: 13 }}>{pooled.wins.toLocaleString()}-{pooled.losses.toLocaleString()}</span>
+                <span style={{ fontFamily: "monospace", fontSize: 13 }}>{pooled.wins.toLocaleString("en-US")}-{pooled.losses.toLocaleString("en-US")}</span>
               </>
             )}
             <span style={{ fontSize: 11.5, color: "var(--vault-text-mute)", fontFamily: "monospace" }}>
-              {pooled.decisive.toLocaleString()} decisive
-              {pooled.pushes ? ` · ${pooled.pushes.toLocaleString()} push` : ""}
-              {pooled.voids ? ` · ${pooled.voids.toLocaleString()} void` : ""}
-              {pooled.games ? ` · ${pooled.games.toLocaleString()} games` : ""}
+              {pooled.decisive.toLocaleString("en-US")} decisive
+              {pooled.pushes ? ` · ${pooled.pushes.toLocaleString("en-US")} push` : ""}
+              {pooled.voids ? ` · ${pooled.voids.toLocaleString("en-US")} void` : ""}
+              {pooled.games ? ` · ${pooled.games.toLocaleString("en-US")} games` : ""}
               {` · ${selected.length} day${selected.length === 1 ? "" : "s"}`}
             </span>
           </div>

@@ -262,7 +262,7 @@ export function buildRecap(view: GameSimulationView): string {
   lines.push(matchup);
   lines.push(`Model ${dash(view.modelVersion)}`);
   if (view.allowsRunCountClaim && view.runCount != null) {
-    lines.push(`${view.runCount.toLocaleString()}-run simulation`);
+    lines.push(`${view.runCount.toLocaleString("en-US")}-run simulation`);
   }
 
   const lean = view.generatedPicks[0];
@@ -332,7 +332,7 @@ export default function GameSimulationRunner({
   // Copy that is only honest when a run count is actually claimable.
   const runCopy =
     view.allowsRunCountClaim && view.runCount != null
-      ? `${view.runCount.toLocaleString()}-run simulation`
+      ? `${view.runCount.toLocaleString("en-US")}-run simulation`
       : "model simulation";
   const versionNote = view.modelVersion ? `model ${view.modelVersion}` : "current model";
 
@@ -389,7 +389,7 @@ export default function GameSimulationRunner({
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono" style={{ fontSize: 10 }}>
               <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Model</span> {dash(view.modelVersion)}</span>
               {view.allowsRunCountClaim && view.runCount != null ? (
-                <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Runs</span> {view.runCount.toLocaleString()}</span>
+                <span style={{ color: "var(--vault-text-faint)" }}><span style={{ color: "var(--vault-text-mute)" }}>Runs</span> {view.runCount.toLocaleString("en-US")}</span>
               ) : null}
               {generatedLabel(view.generatedAt) ? <span style={{ color: "var(--vault-text-faint)" }}>{generatedLabel(view.generatedAt)}</span> : null}
             </div>

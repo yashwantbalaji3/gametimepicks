@@ -27,6 +27,7 @@
  * (lib/my/since.mjs). It adds no Live request (it reads the slate the Live module already fetched) and no player
  * request; its only request is the saved-settlement projection, made only when a forecast is saved.
  */
+import { etStamp as sharedEtStamp, etDayLabel } from "@/lib/et-stamp.mjs";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -60,7 +61,9 @@ const etDateTime = (iso: string | null) => {
   if (!iso) return null;
   const t = Date.parse(iso);
   if (!Number.isFinite(t)) return null;
-  return new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(t)) + " ET";
+  /* UX-001: assembled from the shared engine-independent pieces — Safari's format() joins date and time with " at ". */
+  const day = etDayLabel(iso); const stamp = sharedEtStamp(iso);
+  return day && stamp ? `${day}, ${stamp.replace(/^[A-Z][a-z]{2} \d{1,2}, /, "")}` : null;
 };
 const etDate = (iso: string | null) => {
   if (!iso) return null;

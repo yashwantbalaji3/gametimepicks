@@ -45,7 +45,7 @@ export interface StoryBeat {
 /** Format probability × runCount as the honest simulated frequency ("8,400 / 10,000 simulations"). */
 export function simulationFrequency(probability: number, runCount: number): string | null {
   if (!Number.isFinite(probability) || !Number.isFinite(runCount) || runCount <= 0) return null;
-  return `${Math.round(probability * runCount).toLocaleString()} / ${runCount.toLocaleString()} simulations`;
+  return `${Math.round(probability * runCount).toLocaleString("en-US")} / ${runCount.toLocaleString("en-US")} simulations`;
 }
 
 /**

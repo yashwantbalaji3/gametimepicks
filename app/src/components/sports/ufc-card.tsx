@@ -239,8 +239,8 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
           <>
             <p className="font-mono m-0" style={{ fontSize: 10.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
               Three markets publish — winner, method and ending round — each tested separately by walking forward through
-              {" "}{m.evidence?.heldOutFights?.toLocaleString() ?? "—"} held-out fights from a corpus of
-              {" "}{m.corpus?.fights?.toLocaleString() ?? "—"} bouts ({m.corpus?.from ?? "?"} to {m.corpus?.to ?? "?"}).
+              {" "}{m.evidence?.heldOutFights?.toLocaleString("en-US") ?? "—"} held-out fights from a corpus of
+              {" "}{m.corpus?.fights?.toLocaleString("en-US") ?? "—"} bouts ({m.corpus?.from ?? "?"} to {m.corpus?.to ?? "?"}).
               A head that fails its bar is withheld while the others still publish.
             </p>
             <div className="overflow-x-auto">

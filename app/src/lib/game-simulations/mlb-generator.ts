@@ -660,7 +660,7 @@ function buildGame(
     slateDate: date,
     sourceCapturedAt: capturedAt,
     generatedAt,
-    note: `Player-prop props only (deterministic seeded simulation, ${RUN_COUNT.toLocaleString()} iterations per prop).`,
+    note: `Player-prop props only (deterministic seeded simulation, ${RUN_COUNT.toLocaleString("en-US")} iterations per prop).`,
   };
 
   const marketSnapshot = buildMarketSnapshot(leans, board.bookmaker || first.bookmaker, capturedAt);
