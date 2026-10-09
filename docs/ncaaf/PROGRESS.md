@@ -9,8 +9,8 @@ the main engineering owner reconciles anything here into `GAMETIMEPICKS_MASTER_R
 |---|---|---|---|
 | NCAAF-001 | **DONE** (research) | TESTED_LOCAL: corpus v1 (14,988 games, 2016–25) reproduces byte-for-byte; 24 tests | Forward capture design moves to NCAAF-005 |
 | NCAAF-002 | **DONE** (research) · Gate 002 bars **FAIL (b) calibration** | TESTED_LOCAL: holdout receipt write-once, reproduced; C1 Elo research champion (LL 0.564 vs B1 0.677), C2 score champion | Failure carried into NCAAF-004 challengers |
-| NCAAF-003 | IN_PROGRESS | — | World spec from C2 joint scores + 2021+ OT rules |
-| NCAAF-004 | PLANNED | — | — |
+| NCAAF-003 | **DONE** (research) · Gate 003 structural PASS | TESTED_LOCAL: `ncaaf-worlds@1`, 0 incoherent worlds, reproducible; totals good, **key margins 3/7 + OT under-produced** | Not for spread pricing; W2 challenger in 004 |
+| NCAAF-004 | IN_PROGRESS | — | Register hypotheses before any 2026 evaluation |
 | NCAAF-005 | PLANNED | — | — |
 | NCAAF-006 | PLANNED | — | — |
 | NCAAF-007 | PLANNED | — | — |
@@ -79,3 +79,17 @@ point-in-time for pregame use.
   prices).
 - **Approval needed?** NO.
 - **Next:** NCAAF-003 world engine from C2. NCAAF-004 challengers registered in the report.
+
+### NCAAF-003 — Phase checkpoint — 2026-10-10
+- **Commits:** spec + engine `a81a795` → dev diagnostics + freeze `231f474c1e` → freeze sha `58f21955b` →
+  report (the commit adding this entry).
+- **Deliverables:** `app/src/lib/sports/ncaaf/{game-worlds,overtime}.mjs` + `game-worlds.test.mjs` (9);
+  `app/scripts/ncaaf/{espn-cache,build-overtime-table,evaluate-worlds}.mjs`; `corpus/v1/overtime-periods.json`;
+  `experiments/003-*.json`; `docs/ncaaf/{WORLD_MODEL_SPEC,NCAAF-003_REPORT}.md`.
+- **Tests:** 51/51 NCAAF tests; OT-rule mutation probe red, then green; future-tampering leakage guard for the
+  world wrapper.
+- **OT rules:** the 2021 regime is verified against 2021–25 line scores (OT2 ⊂ {0,3,6,8}, OT3+ ⊂ {0,2}).
+  Seasons before 2021 are refused.
+- **Result:** structural gate PASS. Totals good. Margin key numbers and OT under-produced, so not fit for
+  spread pricing.
+- **Approval needed?** NO.
