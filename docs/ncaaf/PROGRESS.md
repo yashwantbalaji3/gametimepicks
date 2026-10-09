@@ -10,13 +10,17 @@ the main engineering owner reconciles anything here into `GAMETIMEPICKS_MASTER_R
 | NCAAF-001 | **DONE** (research) | TESTED_LOCAL: corpus v1 (14,988 games, 2016–25) reproduces byte-for-byte; 24 tests | Forward capture design moves to NCAAF-005 |
 | NCAAF-002 | **DONE** (research) · Gate 002 bars **FAIL (b) calibration** | TESTED_LOCAL: holdout receipt write-once, reproduced; C1 Elo research champion (LL 0.564 vs B1 0.677), C2 score champion | Failure carried into NCAAF-004 challengers |
 | NCAAF-003 | **DONE** (research) · Gate 003 structural PASS | TESTED_LOCAL: `ncaaf-worlds@1`, 0 incoherent worlds, reproducible; totals good, **key margins 3/7 + OT under-produced** | Not for spread pricing; W2 challenger in 004 |
-| NCAAF-004 | IN_PROGRESS | — | Register hypotheses before any 2026 evaluation |
-| NCAAF-005 | PLANNED | — | — |
-| NCAAF-006 | PLANNED | — | — |
-| NCAAF-007 | PLANNED | — | — |
-| NCAAF-008 | PLANNED | — | — |
-| NCAAF-009 | PLANNED | — | — |
+| NCAAF-004 | **DONE** (research) | E26 (271 games) scored once; H1/H2 met the bar but are **held** (5 clusters, unregistered tie-break); H3 fixes FBS–FCS calibration (descriptive) | Register H1 vs H2 vs H1+H2 and an FBS–FCS H3 test on forward data |
+| NCAAF-005 | IN_PROGRESS · FORWARD_EVALUATING | First real forward capture: **51 week-6 receipts, 2026-10-09T21:42:09Z, before every kickoff** (committed `3724cd2`) | Capture each week before kickoff (runbook); push needs founder check for third-party timestamps |
+| NCAAF-006 | IN_PROGRESS | Grader + append-only log tested (6 tests); ledger proposal proves only blocker = sport allowlist | Run `grade-shadow.mjs` after week-6 finals |
+| NCAAF-007 | IN_PROGRESS | Family matrix: winner/total SHADOW; spread, team total, props UNSUPPORTED; no family eligible | Model-vs-captured-market evaluation needs graded forward weeks |
+| NCAAF-008 | IN_PROGRESS | Internal `/preview/ncaaf` in the shared hub shell (HubTitle/HubHeader/SportSwitcher), 375px no overflow, 3 tests | Founder walkthrough; public route/nav only after a founder gate |
+| NCAAF-009 | IN_PROGRESS (docs) | Manual runbook + automation proposal; nothing scheduled | Founder/ops decision on a workflow |
 | NCAAF-010 | PLANNED | — | Founder gate |
+
+**Provenance note (2026-10-09):** several research receipts carry a pinned `--now` label a few hours ahead of the
+wall clock at which they were made (e.g. `003` freeze "2026-10-10T00:00Z", made ≈ 21:3xZ on 10-09). They are
+labels, not capture times, and no as-of decision depended on them. Forward receipts and E26 use the real clock.
 
 ## Stage 1 acceptance receipt — 2026-10-09
 
