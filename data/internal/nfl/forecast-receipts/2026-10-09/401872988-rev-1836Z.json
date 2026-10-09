@@ -1,0 +1,131 @@
+{
+ "providerEventId": "401872988",
+ "canonicalEventId": "nfl-401872988",
+ "matchup": "NYG @ WSH",
+ "home": {
+  "abbr": "WSH",
+  "name": "Washington Commanders"
+ },
+ "away": {
+  "abbr": "NYG",
+  "name": "New York Giants"
+ },
+ "kickoffUtc": "2026-10-11T17:00Z",
+ "seasonType": 2,
+ "week": 5,
+ "venue": "Northwest Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 2,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "d7c53a70088a3921",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-win-elo-mov-v1@v1",
+   "nfl-margin-elo-hfa-v1@v1",
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v3-play-efficiency",
+   "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
+   "gamesFolded": 7341,
+   "foldedThrough": "2026-10-08",
+   "sigma": 13.32677
+  },
+  "winHead": {
+   "id": "nfl-model-v1-elo-analytic",
+   "fallbackFrom": "nfl-win-elo-mov-v1",
+   "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+  },
+  "marginHead": {
+   "id": "nfl-model-v1-elo-analytic",
+   "fallbackFrom": "nfl-margin-elo-hfa-v1",
+   "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the Elo-logistic win head over a 871-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-10-09T18:36:32Z",
+ "evidence": {
+  "schedule": "2026-10-09T16:06:15Z",
+  "strengthCutoff": "2026-10-09T18:36:32Z",
+  "strengthGamesFolded": 871,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 27,
+   "away": 22,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.5899,
+   "away": 0.3783,
+   "tieMass": 0.0318,
+   "homeUnrounded": 0.5898709378474665,
+   "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+  },
+  "margin": {
+   "median": 5,
+   "p10": -12,
+   "p90": 23
+  },
+  "total": {
+   "median": 49,
+   "p10": 31,
+   "p90": 66,
+   "head": "matchup-totals-v3-play-efficiency"
+  },
+  "scoreRange": {
+   "homeP10": 15,
+   "homeP90": 39,
+   "awayP10": 9,
+   "awayP90": 34
+  },
+  "distribution": {
+   "marginMean": 5.35,
+   "marginSigma": 13.7,
+   "totalMean": 48.5528,
+   "totalSigma": 13.33,
+   "source": "nfl-gamesim-v1-joint-normal"
+  }
+ },
+ "marketComparison": {
+  "state": "MARKET_VIEW",
+  "capturedAt": "2026-10-09T18:36:32Z",
+  "books": 7,
+  "marketHomeWinPct": 0.638554,
+  "marketSpreadHome": -4,
+  "marketTotal": 41.5,
+  "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
+  "modelVsMarketTotal": 7.5
+ },
+ "teamInputs": {
+  "version": 1,
+  "consumedByModel": false,
+  "participationAsOf": "2026-10-09T18:36:32Z",
+  "state": "NO_STARTING_QB_ABSENCE",
+  "absences": [],
+  "comparisonWithheld": false,
+  "note": null
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401872988",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "sideDecision": {
+  "schemaVersion": "side-decision@1",
+  "publishedSide": "HOME",
+  "rule": "MODEL_FAVORED_V1",
+  "abstention": null,
+  "frozenAt": "2026-10-09T18:36:32Z"
+ },
+ "revisionOf": "401872988.json",
+ "priorInputHash": "2238dcdad4455623"
+}
