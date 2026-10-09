@@ -4,20 +4,116 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-10-08",
- "generatedAt": "2026-10-09T01:00:16Z",
+ "generatedAt": "2026-10-09T16:08:16Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401872980",
+   "providerEventId": "401872980",
    "matchup": "TB @ DAL",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-10-09T00:15Z",
-   "observed": "no result row"
+   "seasonType": 2,
+   "week": 5,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-08/401872980-rev-2321Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "c28bedb69382637a",
+    "forecastGeneratedAt": "2026-10-08T23:21:10Z",
+    "revisionChain": [
+     {
+      "file": "401872980.json",
+      "generatedAt": "2026-10-08T00:43:59Z",
+      "inputHash": "d4a14919bc3c98a3"
+     },
+     {
+      "file": "401872980-rev-1625Z.json",
+      "generatedAt": "2026-10-08T16:25:09Z",
+      "inputHash": "cf13edd4e767cffc"
+     },
+     {
+      "file": "401872980-rev-1722Z.json",
+      "generatedAt": "2026-10-08T17:22:25Z",
+      "inputHash": "864b496f65e7aa74"
+     },
+     {
+      "file": "401872980-rev-1937Z.json",
+      "generatedAt": "2026-10-08T19:37:44Z",
+      "inputHash": "bcbee1e6c8adcd12"
+     },
+     {
+      "file": "401872980-rev-2004Z.json",
+      "generatedAt": "2026-10-08T20:04:11Z",
+      "inputHash": "e70f39444c060a3c"
+     },
+     {
+      "file": "401872980-rev-2037Z.json",
+      "generatedAt": "2026-10-08T20:37:47Z",
+      "inputHash": "ac5723a53547206a"
+     },
+     {
+      "file": "401872980-rev-2217Z.json",
+      "generatedAt": "2026-10-08T22:17:03Z",
+      "inputHash": "2ef9870b05f6500f"
+     },
+     {
+      "file": "401872980-rev-2321Z.json",
+      "generatedAt": "2026-10-08T23:21:10Z",
+      "inputHash": "c28bedb69382637a"
+     }
+    ],
+    "marketCapturedAt": "2026-10-08T22:17:03Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-10-09T16:06:21Z",
+    "settledAt": "2026-10-09T16:08:16Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 16,
+     "away": 24,
+     "margin": -8,
+     "total": 40,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 5,
+     "actual": -8,
+     "absError": 13,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 52,
+     "actual": 40,
+     "absError": 12,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 29,
+      "away": 23,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 14
+    },
+    "probabilistic": {
+     "brier": 0.382048,
+     "logLoss": 0.962596
+    }
+   },
+   "marketBenchmark": null
   }
  ],
+ "pending": [],
  "quarantined": [],
  "recordElsewhere": [
   {
@@ -93,24 +189,24 @@
  ],
  "accounting": {
   "receipts": 15,
-  "settled": 0,
-  "pending": 1,
+  "settled": 1,
+  "pending": 0,
   "quarantined": 0,
   "recordElsewhere": 14,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 1,
+  "decisive": 1,
   "ties": 0,
   "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerAccuracy": 0,
+  "marginMAE": 13,
+  "totalMAE": 12,
+  "marginInterval80Coverage": 1,
+  "totalInterval80Coverage": 1,
+  "brier": 0.382,
+  "logLoss": 0.9626
  },
  "marketBenchmark": null,
  "comparison": null

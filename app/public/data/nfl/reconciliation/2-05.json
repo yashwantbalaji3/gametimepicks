@@ -20,92 +20,114 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 0,
-  "gamesPending": 15,
+  "gamesFinal": 1,
+  "gamesPending": 14,
   "overall": {
-   "checks": 0,
-   "hits": 0,
-   "rate": null
+   "checks": 33,
+   "hits": 25,
+   "rate": 0.7575757575757576
   },
   "props": [
    {
     "id": "winner",
     "label": "Model-favored team won",
     "group": "team",
-    "checks": 0,
+    "checks": 1,
     "hits": 0,
     "voids": 0,
-    "rate": null,
-    "expectedHits": 0
+    "rate": 0,
+    "expectedHits": 0.6
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 0,
-    "hits": 0,
+    "checks": 1,
+    "hits": 1,
     "voids": 0,
-    "rate": null
+    "rate": 1,
+    "typicalMiss": 12,
+    "rangeWidth": 34,
+    "lean": 12
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 0,
-    "hits": 0,
+    "checks": 1,
+    "hits": 1,
     "voids": 0,
-    "rate": null
+    "rate": 1,
+    "typicalMiss": 13,
+    "rangeWidth": 33,
+    "lean": 13
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 0,
-    "hits": 0,
-    "voids": 0,
-    "rate": null
+    "checks": 11,
+    "hits": 9,
+    "voids": 1,
+    "rate": 0.8181818181818182,
+    "status": "PUBLISHED",
+    "typicalMiss": 1.5,
+    "rangeWidth": 6.2,
+    "lean": -0.3
    },
    {
     "id": "player_reception_yds",
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 0,
-    "hits": 0,
-    "voids": 0,
-    "rate": null
+    "checks": 11,
+    "hits": 7,
+    "voids": 1,
+    "rate": 0.6363636363636364,
+    "status": "PUBLISHED",
+    "typicalMiss": 28.1,
+    "rangeWidth": 65.8,
+    "lean": -12.3
    },
    {
     "id": "player_rush_yds",
     "label": "Rushing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 0,
-    "hits": 0,
-    "voids": 0,
-    "rate": null
+    "checks": 6,
+    "hits": 5,
+    "voids": 2,
+    "rate": 0.8333333333333334,
+    "status": "ESTIMATE",
+    "typicalMiss": 28.5,
+    "rangeWidth": 47.5,
+    "lean": -22.5
    },
    {
     "id": "player_pass_yds",
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 0,
-    "hits": 0,
+    "checks": 1,
+    "hits": 1,
     "voids": 0,
-    "rate": null
+    "rate": 1,
+    "status": "ESTIMATE",
+    "typicalMiss": 78,
+    "rangeWidth": 245,
+    "lean": -78
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 0,
-    "hits": 0,
+    "checks": 1,
+    "hits": 1,
     "voids": 0,
-    "rate": null
+    "rate": 1
    }
   ],
   "context": {
@@ -113,12 +135,12 @@
     "oursCloser": 0,
     "booksCloser": 0,
     "even": 0,
-    "noLine": 0
+    "noLine": 1
    },
    "touchdowns": {
-    "playersGraded": 0,
-    "expectedScorers": 0,
-    "actualScorers": 0
+    "playersGraded": 14,
+    "expectedScorers": 3.5,
+    "actualScorers": 4
    }
   }
  },
@@ -157,11 +179,505 @@
     },
     "sportsbookTotal": null
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 24,
+    "home": 16,
+    "total": 40,
+    "margin": -8
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "MISS"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "HIT",
+     "actual": 40
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "HIT",
+     "actual": -8
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "NO_LINE",
+     "oursOff": 12,
+     "booksOff": null
+    }
+   ],
+   "players": [
+    {
+     "name": "Javonte Williams",
+     "team": "DAL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 6,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Javonte Williams",
+     "team": "DAL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 0,
+     "high": 47,
+     "actual": 17,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Javonte Williams",
+     "team": "DAL",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 56,
+     "low": 23,
+     "high": 103,
+     "actual": 45,
+     "outcome": "HIT"
+    },
+    {
+     "name": "CeeDee Lamb",
+     "team": "DAL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 3,
+     "high": 14,
+     "actual": 2,
+     "outcome": "MISS"
+    },
+    {
+     "name": "CeeDee Lamb",
+     "team": "DAL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 77,
+     "low": 26,
+     "high": 148,
+     "actual": 9,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Bucky Irving",
+     "team": "TB",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Bucky Irving",
+     "team": "TB",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 0,
+     "high": 48,
+     "actual": 10,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Bucky Irving",
+     "team": "TB",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 48,
+     "low": 18,
+     "high": 92,
+     "actual": 165,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Malik Davis",
+     "team": "DAL",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 14,
+     "low": 0,
+     "high": 45,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "George Pickens",
+     "team": "DAL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 8,
+     "actual": 9,
+     "outcome": "MISS"
+    },
+    {
+     "name": "George Pickens",
+     "team": "DAL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 41,
+     "low": 8,
+     "high": 96,
+     "actual": 130,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Jake Ferguson",
+     "team": "DAL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jake Ferguson",
+     "team": "DAL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 0,
+     "high": 49,
+     "actual": 19,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Emeka Egbuka",
+     "team": "TB",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 7,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Emeka Egbuka",
+     "team": "TB",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 34,
+     "low": 6,
+     "high": 82,
+     "actual": 38,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kenny Gainwell",
+     "team": "TB",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kenny Gainwell",
+     "team": "TB",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 13,
+     "low": 0,
+     "high": 44,
+     "actual": 10,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kenny Gainwell",
+     "team": "TB",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 6,
+     "low": 0,
+     "high": 27,
+     "actual": 18,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Ryan Flournoy",
+     "team": "DAL",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 7,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Ryan Flournoy",
+     "team": "DAL",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 24,
+     "low": 2,
+     "high": 64,
+     "actual": 90,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Cade Otton",
+     "team": "TB",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 8,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Cade Otton",
+     "team": "TB",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 35,
+     "low": 7,
+     "high": 82,
+     "actual": 25,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Chris Godwin Jr.",
+     "team": "TB",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 8,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Chris Godwin Jr.",
+     "team": "TB",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 33,
+     "low": 5,
+     "high": 76,
+     "actual": 37,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Goodson",
+     "team": "DAL",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 9,
+     "low": 0,
+     "high": 35,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Ted Hurst III",
+     "team": "TB",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Ted Hurst III",
+     "team": "TB",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 23,
+     "low": 0,
+     "high": 66,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Dak Prescott",
+     "team": "DAL",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 7,
+     "low": 0,
+     "high": 33,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Dak Prescott",
+     "team": "DAL",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 238,
+     "low": 136,
+     "high": 381,
+     "actual": 316,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Sean Tucker",
+     "team": "TB",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 7,
+     "low": 0,
+     "high": 32,
+     "actual": 18,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jalon Daniels",
+     "team": "TB",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 10,
+     "low": 0,
+     "high": 39,
+     "actual": 23,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tez Johnson",
+     "team": "TB",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tez Johnson",
+     "team": "TB",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 9,
+     "low": 0,
+     "high": 42,
+     "actual": 64,
+     "outcome": "MISS"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "Javonte Williams",
+     "team": "DAL",
+     "probability": 0.725,
+     "outcome": "SCORED",
+     "likeliest": true
+    },
+    {
+     "name": "CeeDee Lamb",
+     "team": "DAL",
+     "probability": 0.4678,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Bucky Irving",
+     "team": "TB",
+     "probability": 0.3783,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Malik Davis",
+     "team": "DAL",
+     "probability": 0.2516,
+     "outcome": "VOID"
+    },
+    {
+     "name": "George Pickens",
+     "team": "DAL",
+     "probability": 0.245,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Jake Ferguson",
+     "team": "DAL",
+     "probability": 0.2311,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Emeka Egbuka",
+     "team": "TB",
+     "probability": 0.2264,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Kenny Gainwell",
+     "team": "TB",
+     "probability": 0.2118,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Ryan Flournoy",
+     "team": "DAL",
+     "probability": 0.2075,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Cade Otton",
+     "team": "TB",
+     "probability": 0.1895,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Chris Godwin Jr.",
+     "team": "TB",
+     "probability": 0.1874,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tyler Goodson",
+     "team": "DAL",
+     "probability": 0.1771,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Ted Hurst III",
+     "team": "TB",
+     "probability": 0.167,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Dak Prescott",
+     "team": "DAL",
+     "probability": 0.1136,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Sean Tucker",
+     "team": "TB",
+     "probability": 0.1135,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jalon Daniels",
+     "team": "TB",
+     "probability": 0.1113,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tez Johnson",
+     "team": "TB",
+     "probability": 0.1053,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
    "boardNote": null
   },
   {
@@ -177,14 +693,14 @@
     "name": "Jacksonville Jaguars"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 22,
      "home": 21
     },
     "pick": {
      "abbr": "PHI",
-     "probability": 0.4885
+     "probability": 0.5004
     },
     "total": {
      "median": 43,
@@ -192,9 +708,9 @@
      "high": 60
     },
     "margin": {
-     "median": 0,
-     "low": -17,
-     "high": 18
+     "median": -1,
+     "low": -18,
+     "high": 17
     },
     "sportsbookTotal": 42
    },
@@ -218,14 +734,14 @@
     "name": "Miami Dolphins"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 21,
      "home": 25
     },
     "pick": {
      "abbr": "MIA",
-     "probability": 0.5625
+     "probability": 0.5621
     },
     "total": {
      "median": 46,
@@ -259,14 +775,14 @@
     "name": "New York Jets"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 21,
      "home": 19
     },
     "pick": {
      "abbr": "CLE",
-     "probability": 0.5662
+     "probability": 0.5661
     },
     "total": {
      "median": 40,
@@ -300,14 +816,14 @@
     "name": "Tennessee Titans"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 24,
      "home": 19
     },
     "pick": {
      "abbr": "HOU",
-     "probability": 0.7004
+     "probability": 0.7003
     },
     "total": {
      "median": 43,
@@ -341,14 +857,14 @@
     "name": "Pittsburgh Steelers"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 21,
      "home": 25
     },
     "pick": {
      "abbr": "PIT",
-     "probability": 0.575
+     "probability": 0.5752
     },
     "total": {
      "median": 46,
@@ -358,7 +874,7 @@
     "margin": {
      "median": 4,
      "low": -13,
-     "high": 20
+     "high": 21
     },
     "sportsbookTotal": 44
    },
@@ -382,14 +898,14 @@
     "name": "New England Patriots"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 16,
      "home": 24
     },
     "pick": {
      "abbr": "NE",
-     "probability": 0.7283
+     "probability": 0.7282
     },
     "total": {
      "median": 40,
@@ -423,14 +939,14 @@
     "name": "New Orleans Saints"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 22,
      "home": 18
     },
     "pick": {
      "abbr": "MIN",
-     "probability": 0.7097
+     "probability": 0.7095
     },
     "total": {
      "median": 40,
@@ -464,7 +980,7 @@
     "name": "Washington Commanders"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 22,
      "home": 27
@@ -505,14 +1021,14 @@
     "name": "Green Bay Packers"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 22,
      "home": 26
     },
     "pick": {
      "abbr": "GB",
-     "probability": 0.5521
+     "probability": 0.5662
     },
     "total": {
      "median": 48,
@@ -520,7 +1036,7 @@
      "high": 65
     },
     "margin": {
-     "median": 3,
+     "median": 4,
      "low": -14,
      "high": 21
     },
@@ -546,14 +1062,14 @@
     "name": "Los Angeles Chargers"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 21,
      "home": 20
     },
     "pick": {
      "abbr": "DEN",
-     "probability": 0.6385
+     "probability": 0.6388
     },
     "total": {
      "median": 41,
@@ -587,7 +1103,7 @@
     "name": "Arizona Cardinals"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 29,
      "home": 25
@@ -628,14 +1144,14 @@
     "name": "Seattle Seahawks"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 21,
      "home": 25
     },
     "pick": {
      "abbr": "SEA",
-     "probability": 0.6021
+     "probability": 0.6022
     },
     "total": {
      "median": 46,
@@ -669,14 +1185,14 @@
     "name": "Atlanta Falcons"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 24,
      "home": 23
     },
     "pick": {
      "abbr": "BAL",
-     "probability": 0.5214
+     "probability": 0.5212
     },
     "total": {
      "median": 47,
@@ -710,17 +1226,17 @@
     "name": "Los Angeles Rams"
    },
    "published": {
-    "generatedAt": "2026-10-09T01:00:16Z",
+    "generatedAt": "2026-10-09T16:08:16Z",
     "projectedScore": {
      "away": 24,
-     "home": 29
+     "home": 28
     },
     "pick": {
      "abbr": "LAR",
-     "probability": 0.5737
+     "probability": 0.5743
     },
     "total": {
-     "median": 53,
+     "median": 52,
      "low": 35,
      "high": 70
     },
@@ -740,5 +1256,5 @@
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-10-09T01:00:16Z"
+ "generatedAt": "2026-10-09T16:08:16Z"
 }
