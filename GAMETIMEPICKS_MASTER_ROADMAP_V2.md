@@ -386,7 +386,16 @@ Use only after current-main reproduction.
 ### Observation (2026-10-09): final → grade latency
 TB @ DAL went final at about 03:30Z on Oct 9. It is settled and graded only by `nfl-event-window`, whose next delivery was the Friday 13:00Z slot. That slot had not started by 13:41Z; measured delivery latency is 1h40m–4h55m.
 
-So a Thursday night final waits about 14 hours or more for its grades. That is input to the zero-build settlement assessment (with OPS-001 and COST-001). Grading itself writes only `data/internal/` (not a build input). The window's other writes do build.
+So a Thursday night final waits about 14 hours or more for its grades. That is input to the zero-build settlement assessment (with OPS-001 and COST-001).
+
+The World Model V2 grader alone writes only `data/internal/` (not a build input). The same window's settlement-receipts commit also stages `app/public/data/nfl/{interval-calibration.json,reconciliation/,live-props/}`, which are build inputs.
+
+**Assessment, 2026-10-09:** `docs/research/ops/zero-build-settlement-assessment-2026-10-09.md`. Nothing has been implemented. The recommendation:
+1. Coalesced publication windows (COST-001 option E) for high-churn families.
+2. Then a runtime results store on Vercel Blob, piloted on NFL World Model V2 grades (option F).
+3. A Supabase table only when LEDGER-001 needs queries across events.
+
+Founder decisions are needed on per-family freshness targets and on a runtime read path for public Results.
 
 ## `TEMPORAL-001` — Temporal Data & Identity Platform
 **Priority:** P1  
@@ -1033,6 +1042,7 @@ Use `Threshold reached — awaiting official settlement`, not premature `WIN`. U
   - /live tracks the same World Model V2 rows the game pages show once WM2 grading runs, through `forecast-view.mjs` instead of the board.
   - Add `passing:YDS` to the gateway map now that passing yards is a published WM2 family.
   - TD events need an id-bearing source (play-by-play athlete ids); until then they stay untracked.
+  - **Order (2026-10-09):** `passing:YDS` is mapped only AFTER /live reads the World Model V2 rows. The gateway guard (`live-slot.test.mjs`) keeps passing yards out while /live compares against the player board, whose passing-yards family is ESTIMATE (rejected at its own bar). Mapping it first would put a live number beside a rejected forecast.
   - Live tracking stays factual and separate from any live re-simulation (LIVE-003, shadow).
 
 ## `LIVE-002` — L2 visual Game Center
