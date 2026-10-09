@@ -13,7 +13,6 @@ import { mlbMarketLabel } from "@/lib/format-mlb";
 import { isPredictionDisabled, MLB_CALIBRATION_DISCLOSURE } from "@/lib/mlb/model-calibration-status";
 import { currentEtDate } from "@/lib/freshness";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
-import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import MlbTopLeansStrip from "@/components/mlb/mlb-top-leans-strip";
 import MlbBoardClient from "@/components/mlb/mlb-board-client";
 import NeonStatPanel from "@/components/neon-stat-panel";
@@ -97,9 +96,6 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
-      <div className="mb-6">
-        <MlbSectionTabs />
-      </div>
 
       {/* Slate liveness (real ET clock) — only on the latest-view route (not dated archives). */}
       {liveness ? <div className="mb-4">{liveness}</div> : null}

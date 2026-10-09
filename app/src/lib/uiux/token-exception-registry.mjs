@@ -86,7 +86,6 @@ export const TOKEN_EXCEPTIONS = Object.freeze([
     removal: "shrink to zero as components are touched (shrink-only maxima enforce the direction)",
     files: {
       "src/components/parlays/bank-builder-preview-panel.tsx": 6,
-      "src/components/date-status-header.tsx": 5,
       "src/components/sport-overview-hero.tsx": 4,
       "src/components/custom-parlay-grade-card.tsx": 3,
       "src/components/bank-builder/cross-lane-correlation-badge.tsx": 2,
@@ -101,7 +100,6 @@ export const TOKEN_EXCEPTIONS = Object.freeze([
       "src/components/odds-ticker-rail.tsx": 1,
       "src/components/player-avatar.tsx": 1,
       "src/components/power-board-shell.tsx": 1,
-      "src/components/projections-experience.tsx": 1,
       "src/components/simulation-coverage-matrix.tsx": 1,
       "src/components/today/status-modules.tsx": 1,
       "src/components/ui/team-mark.tsx": 1,

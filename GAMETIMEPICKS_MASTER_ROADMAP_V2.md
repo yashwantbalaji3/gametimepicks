@@ -936,6 +936,13 @@ Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parla
   - Stale assertions corrected: `mr-dub-ui` asserted the dead `"mrdub"` string and now asserts the behaviour; `nav-three-click` checked retired `/picks` and now checks `/build`; e2e `p202` and `p243-journeys` still expected Parlays on the bar from before #1028.
 - **Remaining phase 2:** remove the unused navigation components; correct the stale route-inventory entries (`/nba` is a hub, not a redirect; `/nhl` and `/ipl` targets).
 
+- **Navigation cleanup (branch `claude/ux-001-nav-cleanup`):**
+  - Deleted 11 navigation components that nothing imports: projections-experience (its own sport nav), home-sports-coverage, homepage-sports-rail, sports-coverage-board, sport-lobby-actions, board-with-tabs, slate-tabs, homepage-trending-tabs, date-status-header, sport-section-tabs (it returned null) and mlb-section-tabs.
+  - Removed the latter's four MLB mounts and their empty spacer divs, the slate-tabs-only CSS, and two token-registry rows. The date-sport-controls exception list is now empty, with the cap tightened from 1 to 0.
+  - Route table: `/nba` is a public hub (it had been missing from sitemap.xml); the `/nhl`, `/ipl` → `/today` and `/trends` → `/mlb/board` targets now match their pages.
+  - The sitemap now lists every catalog hub, so Ligue 1's family route no longer hides it.
+  - New `audits/route-inventory-drift.test.mjs`: every redirect row's target matches its page's ClientRedirect, and every catalog hub is public and in the built sitemap.
+
 ## Universal order
 1. Sport header + period selector
 2. Slate summary

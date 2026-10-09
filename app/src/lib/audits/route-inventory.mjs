@@ -132,11 +132,15 @@ export const ROUTE_TABLE = Object.freeze({
   "/board": { classification: "redirect", owner: "product", purpose: "legacy board alias", redirectTo: "/mlb/board" },
   "/projections": { classification: "redirect", owner: "product", purpose: "legacy projections alias", redirectTo: "/mlb/board" },
   "/events": { classification: "redirect", owner: "product", purpose: "retired event hub", redirectTo: "/today" },
-  "/trends": { classification: "redirect", owner: "product", purpose: "retired trends", redirectTo: "/results" },
-  "/nba": { classification: "redirect", owner: "product", purpose: "retired NBA hub", redirectTo: "/results/nba" },
+  /* UX-001 phase 2 (2026-10-09): four rows had drifted from their pages, the P240 failure class below. /trends redirects
+     to the MLB board (its ClientRedirect), not Results. /nba has been a real FACTUAL hub since Session 6 — schedule and
+     official finals, no forecast — so as a "redirect" it was left out of sitemap.xml while serving index,follow and
+     linked from every nav surface. /nhl and /ipl send readers to /today/, not the homepage. */
+  "/trends": { classification: "redirect", owner: "product", purpose: "retired trends", redirectTo: "/mlb/board" },
+  "/nba": { classification: "public", owner: "product", purpose: "NBA hub (Session 6, founder decision 3): schedule and official final scores only — no forecast while every NBA model is shadow/withheld; the page and its nav note both say so", dataOwner: "lib/sport-hub nbaHub over the committed NBA schedule + finals captures", freshness: "the hub's own updated stamp (HubTitle)" },
   "/nba/results": { classification: "redirect", owner: "settlement", purpose: "alias", redirectTo: "/results/nba" },
-  "/nhl": { classification: "redirect", owner: "product", purpose: "retired NHL hub", redirectTo: "/" },
-  "/ipl": { classification: "redirect", owner: "product", purpose: "retired IPL hub", redirectTo: "/" },
+  "/nhl": { classification: "redirect", owner: "product", purpose: "retired NHL hub", redirectTo: "/today" },
+  "/ipl": { classification: "redirect", owner: "product", purpose: "retired IPL hub", redirectTo: "/today" },
   "/goal-rush": { classification: "product", owner: "product", purpose: "Goal Rush (Premier League signature product) — NAMED AND UNBUILT. Publishes no pick: states what is captured today and which of the twelve gate stages remain, both derived from lib/products/product-readiness. Flips on its own when the stages go green", dataOwner: "derived from sport-assessments + the committed EPL fixture capture", freshness: "no freshness claim — the page makes no time-sensitive claim to be stale" },
   "/bucket-blitz": { classification: "product", owner: "product", purpose: "Bucket Blitz (NBA signature product) — NAMED AND UNBUILT. Same contract as /goal-rush: derived gate stages, captured-schedule facts, no pick", dataOwner: "derived from sport-assessments + the committed NBA schedule capture", freshness: "no freshness claim — the page makes no time-sensitive claim to be stale" },
   /*

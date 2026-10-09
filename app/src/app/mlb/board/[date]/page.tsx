@@ -4,7 +4,6 @@ import {
   getMlbBoardForDate,
 } from "@/lib/data-mlb";
 import MlbBoardBody from "@/components/mlb/mlb-board-body";
-import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 /**
@@ -64,9 +63,6 @@ function DateNotFound({ date }: { date: string }) {
     dates.find((d) => d >= date) ?? dates[dates.length - 1] ?? null;
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
-      <div className="mb-6">
-        <MlbSectionTabs />
-      </div>
       <section className="reveal">
         <div
           className="font-mono uppercase tracking-[0.16em]"

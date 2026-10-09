@@ -7,7 +7,6 @@ import {
 } from "@/lib/data-mlb-results";
 import { getLifetimeSummary } from "@/lib/settlement-data";
 import { mlbMarketLabel } from "@/lib/format-mlb";
-import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import ResultsSportTabs from "@/components/results-sport-tabs";
 import MlbResultsSummary from "@/components/mlb/mlb-results-summary";
 import MlbResultsBreakdown from "@/components/mlb/mlb-results-breakdown";
@@ -51,9 +50,6 @@ export default function MlbResultsPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
-      <div className="mb-4">
-        <MlbSectionTabs />
-      </div>
       <div className="mb-6">
         <ResultsSportTabs
           activeSport="mlb"
@@ -421,9 +417,6 @@ function MlbResultsEmptyShell({
 }) {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
-      <div className="mb-4">
-        <MlbSectionTabs />
-      </div>
       <div className="mb-6">
         <ResultsSportTabs
           activeSport="mlb"

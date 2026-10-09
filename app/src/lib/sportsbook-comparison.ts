@@ -45,9 +45,7 @@ export interface BookComparisonInput {
   }>;
 }
 
-/** Map of canonical lowercase keys → human-friendly display labels.
- *  Keep this aligned with `_humanBook` in `projections-experience.tsx`
- *  — both call this helper now, so the canonical map lives here. */
+/** Map of canonical lowercase keys → human-friendly display labels — the one canonical map. */
 const _BOOK_LABELS: Record<string, string> = {
   draftkings: "DraftKings",
   fanduel: "FanDuel",

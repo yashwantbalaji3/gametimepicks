@@ -89,7 +89,9 @@ test("NO SECOND CONTROL FAMILY · no surface rolls its own date bar or sport chi
    * Removal condition: WS1 adds `dateMode: "query"` to lib/nav/date-sport-route, registers
    * `projections`, and migrates the component; then this entry goes and the count drops to zero.
    */
-  const SANCTIONED = new Set(["components/projections-experience.tsx"]);
+  /* UX-001 phase 2 (2026-10-09): the one sanctioned exception, components/projections-experience.tsx, was imported by
+     nothing and is deleted — its removal condition met by removal. The list is empty and stays empty. */
+  const SANCTIONED = new Set();
   const offenders = [];
   const walk = (dir) => {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -114,7 +116,7 @@ test("NO SECOND CONTROL FAMILY · no surface rolls its own date bar or sport chi
 
   // The exception list may only shrink. A new entry here is a new second family, which is the
   // thing this guard exists to stop.
-  assert.ok(SANCTIONED.size <= 1, `sanctioned exceptions must shrink, found ${SANCTIONED.size}`);
+  assert.equal(SANCTIONED.size, 0, `sanctioned exceptions must shrink, found ${SANCTIONED.size}`);
 });
 
 test("THE COUNT COMES FROM THE OWNER, not from the control's own arithmetic", () => {

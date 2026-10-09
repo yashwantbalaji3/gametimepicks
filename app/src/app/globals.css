@@ -876,28 +876,6 @@ table,
   .vault-glow-hover:hover { transform: none; }
 }
 
-/* Selected tab — adds a gold glow underline (Phase 15 polish on slate-tabs) */
-.vault-tab-active {
-  position: relative;
-}
-.vault-tab-active::after {
-  content: "";
-  position: absolute;
-  left: 12%;
-  right: 12%;
-  bottom: -2px;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--vault-gold) 30%,
-    var(--vault-gold-bright) 50%,
-    var(--vault-gold) 70%,
-    transparent
-  );
-  filter: blur(0.4px);
-  pointer-events: none;
-}
 
 /* Card reveal — subtle fade + lift on first paint. Matches the existing
    .reveal* utilities; this one applies once and respects reduced motion. */
@@ -1786,7 +1764,7 @@ body {
   box-shadow: 0 0 14px -4px rgba(240, 199, 94, 0.42);
 }
 
-/* Date-tab state dots — used by slate-tabs.tsx to indicate populated
+/* Date-tab state dots — used by the freshness and status badges to indicate populated
    vs. empty slates without inventing a status word. */
 .gtp-slate-dot {
   display: inline-block;

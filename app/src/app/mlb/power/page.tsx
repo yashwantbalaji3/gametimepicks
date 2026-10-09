@@ -1,6 +1,5 @@
 import { activeMlbDate, getMlbPowerForDate, getMlbBoardForDate } from "@/lib/data-mlb";
 import { currentEtDate } from "@/lib/freshness";
-import MlbSectionTabs from "@/components/mlb/mlb-section-tabs";
 import PowerBoardShell from "@/components/power-board-shell";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
 import { publicationDeadlineUtc } from "@/lib/ops/read-publication-slo";
@@ -22,9 +21,6 @@ export default function MlbPowerBoardPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
-      <div className="mb-6">
-        <MlbSectionTabs />
-      </div>
 
       {/* Slate liveness (real ET clock) — no stale "today" on a no-games day. */}
       <div className="mb-4">
