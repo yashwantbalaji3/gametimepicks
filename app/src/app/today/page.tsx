@@ -280,12 +280,15 @@ export default function TodayPage() {
 
   // ── Section 8 · No-play / unavailable notes — honest, discipline-framed. Built from the real states. ──
   const noPlayNotes: string[] = [];
-  if (bbNoPlay) noPlayNotes.push(`Bank Builder is no-play today (${bbStepPhrase}, ${openExposureLabel} open exposure) — the ladder never forces a card to keep a streak alive.`);
+  /* TRUTH-001 (B6): with no games anywhere there was no slate to hold back from — no no-play call, and no simulation
+     "not ready yet". One true sentence replaces those three. */
+  if (noGamesToday) noPlayNotes.push("No games are scheduled today, so no card is made and nothing is simulated. This is not a no-play call: the ladders resume on the next game day.");
+  if (bbNoPlay && !noGamesToday) noPlayNotes.push(`Bank Builder is no-play today (${bbStepPhrase}, ${openExposureLabel} open exposure) — the ladder never forces a card to keep a streak alive.`);
   /* Session 5 — the reason is the lane's OWN (the producer's shortfallNote), never a fixed sentence: on 2026-10-01 this
      said "no two-leg card reaches its rung's price" while the lanes said "fewer than two eligible legs on the slate". */
   const moonshotReason = (dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.laneReason)?.laneReason ?? dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.shortfallNote)?.shortfallNote)?.replace(/\.\s*$/, "") ?? null;
-  if (!moonshotActive) noPlayNotes.push(`Moonshot is no-play${moonshotReason ? ` — ${moonshotReason.charAt(0).toLowerCase()}${moonshotReason.slice(1)}` : ""}. The ladder waits rather than force a card.`);
-  if (slateReadyCount === 0) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
+  if (!moonshotActive && !noGamesToday) noPlayNotes.push(`Moonshot is no-play${moonshotReason ? ` — ${moonshotReason.charAt(0).toLowerCase()}${moonshotReason.slice(1)}` : ""}. The ladder waits rather than force a card.`);
+  if (slateReadyCount === 0 && !noGamesToday) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
   noPlayNotes.push("Pending is not a loss: a card settles only against the official final, and unsettled cards are never counted against the record.");
 
   // ── Section 10 · Secondary links — compact link cards out (no large widgets duplicated here). ──
@@ -370,7 +373,7 @@ export default function TodayPage() {
       <TodayGamePredictions rows={predictionRows} nowMs={nowMs} />
 
       {/* 3 — Top model picks: BY CATEGORY when the MLB slate supports it, else the cross-sport list */}
-      {picksByCategory.length > 0 ? <TodayTopPicksByCategory categories={picksByCategory} /> : <TodayTopModelPicks picks={topPicks} />}
+      {picksByCategory.length > 0 ? <TodayTopPicksByCategory categories={picksByCategory} /> : <TodayTopModelPicks picks={topPicks} noGamesToday={noGamesToday} />}
 
       {/* 3b — TOP 10 BY SPORT (P201 · charter C): the per-sport view over the SAME ranked owner the
           homepage's strongest-reads panel uses — grouping is presentation, never a second ranking.

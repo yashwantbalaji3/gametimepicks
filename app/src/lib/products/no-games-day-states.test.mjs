@@ -59,4 +59,10 @@ test("/today: a no-games day is not a no-play call", () => {
   assert.match(page, /const noGamesToday = todayAcross\.state !== "UNKNOWN" && todayAcross\.eventsToday === 0;/);
   assert.match(page, /bbNoPlay \? \(noGamesToday \? "No games today" : "No-play"\)/);
   assert.match(page, /moonshotActive \? "Active" : noGamesToday \? "No games today" : "No-play"/);
+  // The discipline notes and the top-picks empty state follow the same fact (rendered check found both).
+  assert.match(page, /if \(noGamesToday\) noPlayNotes\.push\("No games are scheduled today/);
+  assert.match(page, /if \(bbNoPlay && !noGamesToday\)/);
+  assert.match(page, /if \(slateReadyCount === 0 && !noGamesToday\)/);
+  assert.match(page, /<TodayTopModelPicks picks=\{topPicks\} noGamesToday=\{noGamesToday\} \/>/);
+  assert.match(src("src/components/today/top-model-picks.tsx"), /No games are scheduled today, so there are no picks to rank\./);
 });
