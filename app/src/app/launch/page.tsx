@@ -349,7 +349,7 @@ export default function LaunchCommandCenter() {
     <>
       {/* Shell styles: media queries and :focus-visible cannot be inline styles. Classes only —
           no global tag rules — so nothing outside /launch is touched. */}
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .lc-shell { max-width: 1420px; margin: 0 auto; padding: 0 20px 72px; }
         .lc-sidebar { display: none; }
         .lc-tabs { position: sticky; top: 0; z-index: 5; background: var(--vault-bg); border-bottom: 1px solid var(--vault-border); margin: 0 -20px; padding: 8px 20px; display: flex; gap: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -367,7 +367,7 @@ export default function LaunchCommandCenter() {
           .lc-sidebar nav { display: grid; gap: 7px; padding-right: 14px; }
           .lc-topbar, .lc-content { grid-column: 2; }
         }
-      `}</style>
+      ` }} />
 
       <div className="lc-shell">
         <a href="#lc-content" className="lc-skip">Skip to console content</a>

@@ -164,7 +164,7 @@ function DayDrawer({ day, onClose }: { day: LedgerDay; onClose: () => void }) {
           Every leg is graded from the official box score / final result. Paper-only educational tracking — not a sportsbook, not financial advice.
         </p>
       </div>
-      <style>{`@keyframes slideup{from{transform:translateY(14px);opacity:.6}to{transform:translateY(0);opacity:1}}`}</style>
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes slideup{from{transform:translateY(14px);opacity:.6}to{transform:translateY(0);opacity:1}}` }} />
     </div>
   );
 }
