@@ -42,6 +42,18 @@ This file is the durable execution control plane for GameTimePicks. Fresh Claude
 ## Status values
 `NOT_STARTED` · `IN_PROGRESS` · `BLOCKED` · `READY_FOR_REVIEW` · `READY_FOR_PRODUCTION` · `DONE` · `DEFERRED` · `SUPERSEDED`
 
+**Stage annotations (founder directive 2026-10-09).** A status says where the WORK is. A stage says how far its EVIDENCE has got, and stages are never interchangeable. Each status may carry the highest stage reached, in this order:
+1. RESEARCH COMPLETED
+2. IMPLEMENTED LOCALLY
+3. CI VALIDATED
+4. PRODUCTION DEPLOYED
+5. FORWARD EVALUATED
+6. STATISTICALLY QUALIFIED
+7. PRODUCT ELIGIBLE
+8. FULLY ACCEPTED
+
+For example, a model can be PRODUCTION DEPLOYED (visible, labelled experimental) without being FORWARD EVALUATED, and FORWARD EVALUATED without being STATISTICALLY QUALIFIED. `DONE` means FULLY ACCEPTED against the task's own acceptance list.
+
 ---
 
 # 1. Product north star
@@ -84,9 +96,9 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 0 | `CI-001` | Release Engineering / CI | Main-wide `quality` failure: adapters.test.mjs MLB 8 rolling-window `ready` precondition + vacuous per-player check | DONE 2026-10-08 — #1021 merged `d03691c4`; exact-head CI green; Production READY, build-info = merge SHA | None — P0 blocker for #1020 and all PRs | Test/fixture only (1 Production build on merge) |
 | 1 | `NFL-001` | NFL Modeling | World Model V2 research, team/player world architecture — champion/control audit (preserve V1 control, reproduce analytic-winner vs sampled-score disagreement and the historical V2 evaluation) | DONE 2026-10-08 (research audit; evidence `docs/NFL_WORLD_MODEL_V2_2026-10-08.md`) | None (TEMPORAL-001 can progress in parallel) | Shadow (audit); Week 5 truth fixes may ship |
 | 2 | `NFL-002` | NFL Modeling | Benchmark ladder: MOV/Elo champion → opponent-adjusted EPA → dynamic hierarchical → drive process → distributional ML → calibrated ensemble | IN_PROGRESS — L6 win REJECTED / margin ELIGIBLE / totals REJECTED; incumbent retained; Week 5 forward shadow captured | NFL-001 | Shadow → family-by-family promotion |
-| 3 | `NFL-003` | NFL Modeling | Player opportunity allocation (plays → pass/rush → attempts/carries → targets → catches → yards → TDs, with `OTHER`) | NOT_STARTED | NFL-002 team volume | Shadow → family-by-family promotion |
-| 4 | `NFL-004` | NFL Modeling | TD model: hierarchical Bernoulli → team scoring opportunities → red-zone role → drive attribution | NOT_STARTED | NFL-003 | Shadow → family-by-family promotion |
-| 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | NOT_STARTED | NFL-002, NFL-003, NFL-004 | Yes, family by family |
+| 3 | `NFL-003` | NFL Modeling | Player opportunity allocation (plays → pass/rush → attempts/carries → targets → catches → yards → TDs, with `OTHER`) | IN_PROGRESS — allocV1 PRODUCTION DEPLOYED inside World Model V2 (experimental, labelled); not FORWARD EVALUATED; first-game review: rushing-efficiency tail hypothesis (§NFL-005) | NFL-002 team volume | Shadow → family-by-family promotion |
+| 4 | `NFL-004` | NFL Modeling | TD model: hierarchical Bernoulli → team scoring opportunities → red-zone role → drive attribution | IN_PROGRESS — RESEARCH (passing-TD pure-sim candidate failed preregistered dev bars; 50/50 blend passed dev, forward shadow only; world TD v2 preregistered, forward-only). Not qualified; passing TD and first TD withheld publicly; anytime TD stays on the existing published model | NFL-003 | Shadow → family-by-family promotion |
+| 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | IN_PROGRESS — PRODUCTION DEPLOYED (World Model V2, experimental: #1024, #1026, #1027, #1029 → 2.2.0); FORWARD EVALUATION begun (1 game reviewed, 2026-10-08 TB @ DAL); not STATISTICALLY QUALIFIED; not PRODUCT ELIGIBLE | NFL-002, NFL-003, NFL-004 | Yes, family by family |
 | 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | NOT_STARTED — unblocked (deploy gate verified 2026-10-08) | COST-001 deployment gate verified ✓ | Yes |
 | 7 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | NOT_STARTED | Founder rules below | Foundation |
 | 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
@@ -94,14 +106,14 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 10 | `MLB-003` | MLB Modeling | Batter markets from shared PA/base-state worlds; project every confirmed starter | NOT_STARTED | MLB-002 | Shadow → family-by-family |
 | 11 | `MLB-004` | MLB Modeling | Pitcher markets (workload survival, BF, K/contact/BB, bullpen transition) | NOT_STARTED | MLB-002 | Shadow → family-by-family |
 | 12 | `MLB-005` | MLB Modeling | Shared WorldReceipt + forward shadow | NOT_STARTED | MLB-003, MLB-004 | Family-by-family |
-| 13 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | NOT_STARTED | CONTRACT-001 | Yes |
+| 13 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | IN_PROGRESS — NFL hook only: World Model V2 grader (private, #1027). Ledger hardening itself not started; zero-build settlement assessment open | CONTRACT-001 | Yes |
 | 14 | `TEMPORAL-001` | Data Platform | Point-in-time temporal data/identity foundation for MLB/NFL critical fields | NOT_STARTED | CONTRACT-001 | Foundation |
-| 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 | NOT_STARTED | CONTRACT-001 view contracts | Yes |
-| 16 | `RESULTS-001` | Results | Prop-family Results V2 + time filters + drill-down | NOT_STARTED | LEDGER-001 | Yes |
+| 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 | IN_PROGRESS — PRODUCTION DEPLOYED in part (#1026 NFL unified, #1028 Live first, #1030 sport catalog + switcher); #1031 hydration, #1032 resolver + tablet Menu, #1033 nav cleanup READY_FOR_REVIEW; Home/Today, sport-hub layouts not started | CONTRACT-001 view contracts | Yes |
+| 16 | `RESULTS-001` | Results | Prop-family Results V2 + time filters + drill-down | IN_PROGRESS — NFL World Model V2 per-family grading (private, #1027) and the public coverage note; Results V2 pages not started | LEDGER-001 | Yes |
 | 17 | `PRODUCT-001` | Product Engine | Canonical multi-sport candidate/eligibility/selection engine | NOT_STARTED | CONTRACT-001, LEDGER-001 | Shadow → Yes |
 | 18 | `PRODUCT-002` | Bank Builder / Moonshot | Migrate to canonical multi-sport forecast candidates | NOT_STARTED | PRODUCT-001 + passing family gates | Yes |
 | 19 | `PARLAY-001` | Parlay Lab | Same-world joint probability / dependency architecture | NOT_STARTED | PRODUCT-001 + world receipts | Shadow → Yes |
-| 20 | `LIVE-001` | Live | MLB factual prop tracking + event timeline | NOT_STARTED | Live data/ID capability | Yes |
+| 20 | `LIVE-001` | Live | MLB factual prop tracking + event timeline | IN_PROGRESS — factual NFL/MLB score tracking and NFL rush/rec/receptions beside frozen projections PRODUCTION DEPLOYED (/live, game pages, #1028 Live Now). MLB player join waits on TRUTH-001; WM2 rows on /live and `passing:YDS` planned | Live data/ID capability | Yes |
 | 21 | `LIVE-002` | Live | MLB visual Game Center / pitch & field graphics | NOT_STARTED | LIVE-001 | Yes |
 | 22 | `LIVE-003` | Live Modeling | Conditional live forecasts from captured state | NOT_STARTED | LIVE-001/002 replay archive | Shadow |
 | 23 | `LIVE-004` | Live Products | Validated live straight opportunities | NOT_STARTED | LIVE-003 + fresh market identity | Shadow → Yes |
@@ -253,6 +265,15 @@ Inspect current Vercel deployment history, billing usage, Git integration, repos
 - Exact build/deploy counts and reasons are captured in future Production-task Session Logs.
 - No service interruption, stale production artifact, dropped data refresh, or weakened release gate from cost optimizations.
 
+### Finding (2026-10-09): data commits are the bulk of Production builds
+- **21:00Z on Oct 8 → 13:15Z on Oct 9:** 39 Production deployments. 5 were PR merges (#1026–#1030); **34 came from automated data commits**: hourly `mlb lineup refresh`, `nba results capture`, NFL/EPL settlement receipts, daily products, nightly settle and others.
+- **Why they build:** each touches `app/public/data/**` or another BUILD_INPUT in `vercel-ignore-build.sh`, so each is a full build. That is correct for freshness, but the volume dominates Build CPU.
+- **Options, assessment only (not implemented):**
+  - coalesce data commits into a few scheduled publication windows;
+  - move high-churn, low-value families (for example NBA results during the preseason) off the build path;
+  - serve settlement and results from a runtime store (the LEDGER-001 / OPS-001 zero-build settlement assessment).
+- **Billed CPU per build still needs the dashboard login.** Savings will not be claimed until measured.
+
 ### Remaining tasks (COST-001)
 | # | Task | Needs | Status |
 |---|---|---|---|
@@ -341,7 +362,7 @@ Use only after current-main reproduction.
 
 ## `LEDGER-001` — Forecast ledger hardening
 **Priority:** P1  
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — NFL World Model V2 grader hook only (private); ledger hardening not started.
 
 ### Deliverables
 - Probability bounds/class-mass validation.
@@ -361,6 +382,11 @@ Use only after current-main reproduction.
 
 ### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
 - NFL hooks ready for the ledger: every World Model V2 run is an immutable record. Each carries event id, per-player family distributions with percentiles and ladders, model version, simulationId = inputsKey, generatedAt, input as-of timestamps (forecast, injuries, rosters, depth chart, packet sha) and availability state per player. Still to do: a grader and ledger rows (settle against official box scores; pending/void/no-play never counted as a loss). The player board's existing settlement is unchanged.
+
+### Observation (2026-10-09): final → grade latency
+TB @ DAL went final at about 03:30Z on Oct 9. It is settled and graded only by `nfl-event-window`, whose next delivery was the Friday 13:00Z slot. That slot had not started by 13:41Z; measured delivery latency is 1h40m–4h55m.
+
+So a Thursday night final waits about 14 hours or more for its grades. That is input to the zero-build settlement assessment (with OPS-001 and COST-001). Grading itself writes only `data/internal/` (not a build input). The window's other writes do build.
 
 ## `TEMPORAL-001` — Temporal Data & Identity Platform
 **Priority:** P1  
@@ -519,7 +545,7 @@ One coherent football world should connect game script, score, team opportunity,
 - Also found and fixed under the Week 5 milestone: team heads blind to QB1 absence (false TB lean), London PHI vs JAX given home field, relief-share passer projections, simulation-count copy.
 
 ## `NFL-002` — Benchmark ladder
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — RESEARCH (L6 win REJECTED / margin ELIGIBLE / totals REJECTED; incumbent retained); Week 5 forward shadow captured. Not qualified.
 **Status (2026-10-08):** IN_PROGRESS — rungs 1, 2, 3, 6 scored once on held-out 2006–2021 under a committed registration; rung 4 reviewed (Sim V2); rung 5 not started. **Incumbent retained.**
 1. Existing MOV/Elo champion.
 2. Opponent-adjusted EPA/success-rate temporal baseline.
@@ -543,7 +569,7 @@ Features: QB scenario/availability, OL, skill-player availability, pace, PROE/pa
 - Still open: there is no single-distribution win head (L6 win REJECTED). The game page therefore shows the forecast of record's win chance, and the simulated games' own counted win share sits in the simulation section with the difference stated once. Week 5 home share is higher in 14 of 15 games. Score-model validation remains: the score draw has no key-number clustering, and exact-score frequencies are not published.
 
 ## `NFL-003` — Player opportunity allocation
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — allocV1 PRODUCTION DEPLOYED inside World Model V2 (experimental); not FORWARD EVALUATED.
 
 World sequence:
 `plays → pass/rush → attempts/carries → targets → catches → yards → TDs`
@@ -568,7 +594,7 @@ Hard invariants: allocated opportunities reconcile; catches ≤ targets; receivi
 - Player yardage/receptions on every public NFL surface now come from one source of record, World Model V2 (`lib/sports/nfl/forecast-view.mjs`), pending founder confirmation at Checkpoint B. A game without a simulation falls back to the player board's families, labelled. Still open: forward evaluation (n ≥ 300 per family).
 
 ## `NFL-004` — TD model
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — RESEARCH; candidates in forward shadow only; nothing qualified or published from this task.
 Hierarchical Bernoulli baseline → team scoring opportunities → red-zone/goal-line role → TD attribution within drives. Evaluate rare-event log loss/calibration separately.
 
 ### Findings (2026-10-08) — status remains NOT_STARTED
@@ -594,7 +620,7 @@ Hierarchical Bernoulli baseline → team scoring opportunities → red-zone/goal
 - **First TD (C):** still withheld; the worlds generate no scoring order (see the earlier plan).
 
 ## `NFL-005` — Shared worlds + forward promotion
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — PRODUCTION DEPLOYED (experimental World Model V2); FORWARD EVALUATION begun; not STATISTICALLY QUALIFIED; not PRODUCT ELIGIBLE.
 Winner/score/spread/total/player outputs reconcile. If worlds are reweighted to a validated winner head, measure effective sample size and downstream distortion. Promote family by family.
 
 ### Findings (2026-10-08) — status remains NOT_STARTED
@@ -679,6 +705,28 @@ Mirror `scripts/research/nfl/forward-player-props-share-level.mjs` (P300's forwa
 - **Pending:** the one-time 2.2.0 regeneration of the unstarted Week 5 games runs at the next event window (Fri 13:00Z sweep).
   - Until then Production shows the 2.1.0 runs (PHI vs JAX `076bd90906ca28d4`, 01:00:16Z).
   - The new simulation timestamps will be recorded here when it runs.
+
+### First game performance review — TB @ DAL, 2026-10-08 (branch `claude/nfl-wm2-review-tb-dal`; evidence only, not on `main` yet)
+**Report:** `docs/research/nfl/world-model-v2-reviews/2026-10-08-tb-at-dal.md`, with its evidence JSON. This is the review structure for future games. It is not a roadmap.
+
+**Primary record:** the last pregame run `8ca1b01a873fdcda` (2.1.0, 23:21:10Z), live in Production at 23:25:40Z. Re-running the builder at the producing commit `d84a1aee4d` reproduced it exactly.
+
+**Findings (n = 1, no significance claimed, no model change):**
+- **Winner:** a miss on a 35% event (V2 DAL 64.4%; incumbent 61.8%; market about 80.5%).
+- **Score:** TB 24 at its median; DAL 16 at the 8.9th percentile.
+- **Players:** 80% intervals covered 28 of 36 graded player forecasts.
+- **Volume** given the score state was represented.
+- **Per-carry yardage tail** is about 10 times thinner than 2013–2025 history (0.17% vs 1.79%): a SUPPORTED HYPOTHESIS for NFL-003.
+- **Turnovers:** there is no turnover process (structural).
+- **Pickens/Lamb:** the inversion is not an allocation defect.
+- **Sportsbook lines:** there was no V2 pregame selection, so line outcomes are descriptive only.
+- **Anytime TD** (existing model, not V2): 4 scorers vs 3.51 expected (n = 14 settled).
+
+**Grading:**
+- **Not yet run in the repository:** the event-window settle and grade steps had not been delivered by 13:41Z.
+- **Pipeline verified:** main's pipeline grades the game correctly in a scratch copy (36 GRADED, 6 NO_LINE).
+
+**Next:** a preregistered rushing-tail calibration study (NFL-003). Turnover and independent score heads become NFL-002 challengers, preregistered before any data look.
 
 ## Milestone — NFL Week 5 readiness (2026-10-08 → 2026-10-12)
 Founder-approved, time-sensitive milestone **inside** the NFL program (not a new task). Work items belong to `NFL-001` → `NFL-005` above.
@@ -832,7 +880,7 @@ Audit bounded selector search/top-30 truncation with exact small-universe solver
 
 ## `RESULTS-001` — Prop-family performance center
 **Priority:** P1  
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — NFL World Model V2 per-family grading (private); Results V2 not started.
 
 ### Sport tabs
 MLB / NFL / Soccer / NBA / UFC / NCAAF / NHL as supported.
@@ -870,7 +918,7 @@ Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parla
 
 ## `UX-001` — Shared Sport Hub
 **Priority:** P1  
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — partly PRODUCTION DEPLOYED (#1026, #1028, #1030); #1031–#1033 READY_FOR_REVIEW; website-wide restructuring not complete.
 
 ### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
 - NFL is the first sport on the shared presentation pieces: `components/nfl/forecast/` (one model-status explainer, hero, histogram panels, tabbed player rows with ESPN portraits + team logos, sampled-game explorer, collapsible methodology). Remaining UX-001 scope: generalise these into the Sport Hub components for every sport (not started); NFL week selector beyond the existing `/nfl/week/[key]` permalinks.
@@ -960,7 +1008,7 @@ Keyboard navigation; screen-reader names/tab semantics; non-color status encodin
 
 ## `LIVE-001` — L1 factual MLB tracking
 **Priority:** P2  
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — factual NFL/MLB score + NFL player-stat tracking PRODUCTION DEPLOYED; MLB player join waits on TRUTH-001.
 
 Capture player box/stat progression, event timeline, score/inning/out/base state, current batter/pitcher, source age, correction identity.
 
@@ -1508,6 +1556,36 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - Production parity: 15/15 `/nfl/world-model/[eventId]` pages match their artifacts (win chances, simulation id, version, disclosures, players, game-page link); 40/40 `/nfl/world-model/` board rows equal `topBoards` over the committed artifacts.
   - Mobile 375 px: no page-level horizontal scroll.
   - Gap found: the `/nfl` hub had no entry point. Fixed by a separate discovery PR (one hub card, tested) awaiting approval.
+
+### 2026-10-09 — Friday master directive (P0 NFL verification and first V2 review, P1 UX and roadmap)
+- **Clock:** started 13:28Z. `origin/main` = `0afbdc78d3`.
+- **Friday 13:00Z event window: IN PROGRESS (not yet delivered).**
+  - At 13:41Z there was no run after `37867518729` (01:00Z).
+  - The scheduler's measured latency is a median of 2h52m.
+  - No duplicate was dispatched.
+  - 2.2.0 is deployed (`e3368f0043`). Its one-time regeneration of the 14 unstarted games will happen in that run.
+- **TB @ DAL review (NFL-005; branch `claude/nfl-wm2-review-tb-dal` `002707290e`):**
+  - Final TB 24–16 (FINAL_PROVISIONAL).
+  - The primary record was reproduced exactly.
+  - Findings and classifications are in §NFL-005.
+  - Grading is not yet in the repository (latency); it is verified correct in scratch.
+- **Sunday readiness (main's data at 13:11Z):**
+  - 14/14 upcoming games are simulated (2.1.0, 01:00Z).
+  - QB assumptions are consistent with injuries (CHI Bagent with Caleb Williams Out at 14:28Z on Oct 8).
+  - 5 boards × 10 rows, with 50/50 board rows matching their game pages.
+  - No Q/D/OUT player on any board; passing TD and first TD are withheld.
+  - Injuries are as of 01:00Z, and Friday reports arrive with today's windows.
+  - The 13:30Z Sunday London game relies on the Saturday sweep plus `nfl-kickoff-refresh`, which runs every 30 minutes from 09:00Z Sunday.
+- **UX-001:** #1031 `920faf4a9a`, #1032 `529c6f0720` and #1033 `26920ece4b`: all CI green on their exact heads, MERGEABLE/CLEAN, and they merge cleanly in sequence. The combined tree (all three on main) builds and passes 9,802 unit tests; the only 2 failures need a local Postgres. Each awaits founder approval.
+- **Roadmap:**
+  - Stage annotations were added.
+  - Statuses reconciled with evidence: NFL-002 (section line), NFL-003, NFL-004, NFL-005, LEDGER-001, RESULTS-001, UX-001 and LIVE-001 are now IN_PROGRESS, with stages.
+  - OPS-002 is unchanged: IN_PROGRESS until its acceptance on or after 2026-10-15.
+- **Cost:**
+  - Preview 0.
+  - Production deployments from this session: #1028, #1029 and #1030 merges (Oct 9, earlier) only.
+  - COST-001 finding: 34 of 39 recent Production deployments were automated data commits.
+  - Odds credits 0.
 
 ---
 
