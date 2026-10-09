@@ -8,6 +8,7 @@
 
 import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import { strengthLabel, type StrengthLabel } from "./strength";
+import { homeCoverProbability } from "../../markets/game-intelligence";
 import type {
   GamePredictionDecision,
   MarketAgreement,
@@ -16,7 +17,13 @@ import type {
   TeamTotalPrediction,
 } from "./types";
 
-export const DECISION_ENGINE_VERSION = "mlb-prediction-2026.08-v1";
+/**
+ * v2 (TRUTH-001, founder decision 2026-10-09): the run-line pick is evaluated at the sportsbook's POSTED signed
+ * line. v1 picked ±1.5 off the simulated favourite whatever the book posted, so 218 of 579 v1 picks sat on the
+ * opposite sign to the book's line for that team. v1 picks stay as published and graded under `run_line`; v2
+ * picks grade under `run_line_posted`, so the two definitions never share a record.
+ */
+export const DECISION_ENGINE_VERSION = "mlb-prediction-2026.10-v2";
 
 /** Agreement is ALIGNED within this band (in probability points); descriptive only — never "edge". */
 const AGREEMENT_EPSILON = 0.03;
@@ -97,6 +104,64 @@ export function buildPlayerPrediction(
     source: "legacy_prop_engine",
     playerId: enrich?.playerId ?? null,
     opponent: enrich?.opponent ?? null,
+  };
+}
+
+const signed = (line: number): string => (line > 0 ? `+${line}` : `${line}`);
+
+/**
+ * The run-line call at the book's posted line (TRUTH-001 / founder decision 2026-10-09, Option A).
+ *
+ * `market.runLine.line` is the HOME side's signed line as captured (−1.5 home lays, +1.5 home receives; an
+ * alternate such as +2.5 is possible) and `market.runLine.homeCover` is the book's no-vig probability that home
+ * covers at that line. The model side is `homeCoverProbability` — the one sign rule shared with /markets and the
+ * report Overview. The pick is whichever side the simulation gives the higher cover probability AT THAT LINE.
+ *
+ * Refused (null, with a reason) when: no market or no posted run line; the line is not a half-run (an integer
+ * line can push and the push is not modelled here); the simulation published no cover entry at that magnitude.
+ */
+export function postedRunLine(
+  game: Pick<FullGameSimGame, "gamePk" | "runLine" | "market">,
+  teamName: (side: Side) => string,
+): { prediction: GamePredictionDecision["runLine"]; unavailableReason: string | null } {
+  const posted = game.market?.runLine ?? null;
+  const homeLine = posted?.line;
+  if (typeof homeLine !== "number" || !Number.isFinite(homeLine) || homeLine === 0) {
+    return { prediction: null, unavailableReason: "Run line: no posted market line." };
+  }
+  if (Math.abs(homeLine % 1) !== 0.5) {
+    return { prediction: null, unavailableReason: `Run line: the posted line ${signed(homeLine)} can push; push is not modelled, so no pick.` };
+  }
+  const model = homeCoverProbability({ gamePk: game.gamePk, runLine: game.runLine ?? [] }, homeLine);
+  if (!model) {
+    return { prediction: null, unavailableReason: `Run line: the simulation did not publish a ${Math.abs(homeLine)}-run margin, so the posted ${signed(homeLine)} cannot be evaluated.` };
+  }
+  const homeP = model.prob;
+  const awayP = 1 - homeP; // a half-run line cannot push
+  const pickSide: Side = homeP >= awayP ? "home" : "away";
+  const pickLine = pickSide === "home" ? homeLine : -homeLine;
+  const pickP = pickSide === "home" ? homeP : awayP;
+  const marketHome = typeof posted?.homeCover === "number" && Number.isFinite(posted.homeCover) ? posted.homeCover : null;
+  const marketPick = marketHome == null ? null : pickSide === "home" ? marketHome : 1 - marketHome;
+  return {
+    unavailableReason: null,
+    prediction: {
+      basis: "POSTED_LINE",
+      // The book's favourite: the side laying the runs at the posted line.
+      favorite: homeLine < 0 ? "home" : "away",
+      line: Math.abs(homeLine),
+      homeLine,
+      pick: `${teamName(pickSide)} ${signed(pickLine)}`,
+      pickSide,
+      pickLine,
+      coverProbability: round3(pickP),
+      opposingCoverProbability: round3(1 - pickP),
+      pushProbability: 0,
+      marketImpliedProbability: marketPick == null ? null : Math.round(marketPick * 10000) / 10000,
+      bookmaker: game.market?.bookmaker ?? null,
+      capturedAt: game.market?.capturedAt ?? null,
+      strengthLabel: strengthLabel(pickP),
+    },
   };
 }
 
@@ -194,30 +259,11 @@ export function buildGamePredictionDecision(
     };
   }
 
-  // ── Run line — cover from the simulated margin at the standard ±1.5; favorite lays −1.5. ──
-  const rl15 = game.runLine.find((r) => r.line === 1.5);
-  let runLine: GamePredictionDecision["runLine"] = null;
-  if (rl15) {
-    const favSide = winnerSide; // the higher-win-prob team is the run-line favorite
-    const dogSide: Side = favSide === "home" ? "away" : "home";
-    const favCover = favSide === "home" ? rl15.homeCover : rl15.awayCover; // P(fav wins by ≥ 2)
-    const dogCover = round3(Math.max(0, 1 - favCover)); // dog +1.5 covers when fav does NOT win by ≥ 2
-    const favCovers = favCover >= dogCover;
-    const coverProbability = favCovers ? favCover : dogCover;
-    runLine = {
-      favorite: favSide,
-      line: 1.5,
-      pick: favCovers ? `${teamName(favSide)} -1.5` : `${teamName(dogSide)} +1.5`,
-      pickSide: favCovers ? favSide : dogSide,
-      pickLine: favCovers ? -1.5 : 1.5,
-      coverProbability: round3(coverProbability),
-      opposingCoverProbability: round3(favCovers ? dogCover : favCover),
-      pushProbability: 0, // a ±1.5 line cannot push
-      strengthLabel: strengthLabel(coverProbability),
-    };
-  } else {
-    unavailableReasons.push("Run line: simulated 1.5-margin coverage unavailable.");
-  }
+  // ── Run line — evaluated at the sportsbook's POSTED signed line (v2). No posted line → no pick: a line is
+  //    never inferred from the simulated favourite or from the ±1.5 convention. ──
+  const runLineDecision = postedRunLine(game, teamName);
+  const runLine: GamePredictionDecision["runLine"] = runLineDecision.prediction;
+  if (runLineDecision.unavailableReason) unavailableReasons.push(runLineDecision.unavailableReason);
 
   // ── Team totals — only where a real market team-total line exists. None is ingested today, so these are
   // UNAVAILABLE with the simulated team-run median shown as evidence (never a fabricated pick). ──

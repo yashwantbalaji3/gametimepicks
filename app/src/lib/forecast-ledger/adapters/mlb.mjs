@@ -25,7 +25,9 @@ import { FORECAST_KIND, RECOVERABILITY } from "../contract.mjs";
 import { measureBinary, measureContinuous, withDirectional } from "../measure.mjs";
 import { makeRow, marketBlock } from "../row.mjs";
 
-const FAMILY = { moneyline: "mlb_moneyline", run_line: "mlb_run_line", total: "mlb_total" };
+// run_line = decision engine v1 (±1.5 off the simulated favourite); run_line_posted = v2 (the sportsbook's posted
+// line, TRUTH-001). Two families, never one record.
+const FAMILY = { moneyline: "mlb_moneyline", run_line: "mlb_run_line", run_line_posted: "mlb_run_line_posted", total: "mlb_total" };
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 
 /**

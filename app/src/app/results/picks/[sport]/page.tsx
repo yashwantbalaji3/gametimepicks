@@ -43,7 +43,14 @@ export function generateMetadata({ params }: { params: { sport: string } }): Met
   });
 }
 
-const FAMILY_LABEL: Record<string, string> = { moneyline: "Winner (moneyline)", total: "Total (over/under)", run_line: "Run line" };
+const FAMILY_LABEL: Record<string, string> = {
+  moneyline: "Winner (moneyline)",
+  total: "Total (over/under)",
+  // Two run-line definitions, two records (TRUTH-001): v1 picked ±1.5 off the simulated favourite; v2 picks at
+  // the sportsbook's posted line.
+  run_line: "Run line (simulated ±1.5, retired)",
+  run_line_posted: "Run line (posted line)",
+};
 
 export default function GradedPicksPage({ params }: { params: { sport: string } }) {
   const lane = HUBS[params.sport];

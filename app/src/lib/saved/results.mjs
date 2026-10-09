@@ -30,7 +30,9 @@ export function resolveResult(saved, ledgers, nowIso) {
        not a pick, so they join nothing (P319) — before this they matched the first row of any market for the game. */
     const market = k.family === "Winner" ? "moneyline" : k.family === "Total" ? "total" : k.family === "Run line" ? "run_line" : null;
     if (!market) return none;
-    const row = (ledgers.mlbGames ?? []).find((r) => r.gamePk === k.gamePk && r.market === market);
+    // The saved run-line call settles against the game's one run-line row, v1 or v2 (TRUTH-001 posted line).
+    const markets = market === "run_line" ? ["run_line", "run_line_posted"] : [market];
+    const row = (ledgers.mlbGames ?? []).find((r) => r.gamePk === k.gamePk && markets.includes(r.market));
     if (!row) return none;
     const actual = row.actual ? `${row.actual.awayRuns}–${row.actual.homeRuns}` : null;
     if (row.outcome === "WIN") return final("HIT", actual, row.gradedAt);

@@ -40,10 +40,13 @@ test("a BREACHED MLB family the gate pauses is PAUSED; WATCH stays WATCH; too fe
   write(root, "admin/model-health.json", { generatedAt: "2026-09-15T02:00:00Z", families: [
     { id: "mlb_total", sport: "mlb", state: "BREACHED", n: 576, context: { hitRate: 0.488, meanPickProbability: 0.587 } },
     { id: "mlb_moneyline", sport: "mlb", state: "WATCH", n: 605, context: { hitRate: 0.499, meanPickProbability: 0.572 } },
-    { id: "mlb_run_line", sport: "mlb", state: "INSUFFICIENT_SAMPLE", n: 12 },
+    // TRUTH-001: the retired v1 run-line record (±1.5 off the simulated favourite) is NOT the current call's record.
+    { id: "mlb_run_line", sport: "mlb", state: "HOLDING", n: 810 },
+    { id: "mlb_run_line_posted", sport: "mlb", state: "INSUFFICIENT_SAMPLE", n: 12 },
   ] });
   const items = modelStatusFor("mlb", { dataRoot: root, repoRoot: root, nowIso: NOW });
-  assert.deepEqual(items.map((i) => [i.family, i.state]), [["Winner calls", "WATCH"], ["Game totals", "PAUSED"], ["Run line calls", "TOO_EARLY"]]);
+  assert.deepEqual(items.map((i) => [i.family, i.state]), [["Winner calls", "WATCH"], ["Game totals", "PAUSED"], ["Run line calls (posted line)", "TOO_EARLY"]]);
+  assert.equal(items[2].n, 12, "the posted-line call shows its own record, never v1's 810");
   assert.match(items[1].detail, /worse than a coin flip/);
   assert.match(items[1].detail, /49% of the time while showing about 59%/, "the evidence is the scorecard's own figures");
   assert.equal(items[1].n, 576);

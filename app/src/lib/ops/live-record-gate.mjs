@@ -19,8 +19,13 @@
 export const MLB_TOTAL_FAMILY = "mlb_total";
 export const MLB_MONEYLINE_FAMILY = "mlb_moneyline";
 export const MLB_RUN_LINE_FAMILY = "mlb_run_line";
+/**
+ * Decision engine v2's run line (TRUTH-001): picked at the sportsbook's posted line. It has its OWN record, so
+ * its own gate: a v2 call is paused only by the v2 record, never by the retired v1 definition's record.
+ */
+export const MLB_RUN_LINE_POSTED_FAMILY = "mlb_run_line_posted";
 /** The families a pause is WIRED for. A BREACHED family outside this set is an alarm on /ops, never a pause. */
-export const GATED_FAMILIES = Object.freeze(new Set([MLB_TOTAL_FAMILY, MLB_MONEYLINE_FAMILY, MLB_RUN_LINE_FAMILY]));
+export const GATED_FAMILIES = Object.freeze(new Set([MLB_TOTAL_FAMILY, MLB_MONEYLINE_FAMILY, MLB_RUN_LINE_FAMILY, MLB_RUN_LINE_POSTED_FAMILY]));
 export const PAUSED_TOTAL_SHORT = "Paused · its live record is below a coin flip";
 export const PAUSED_MONEYLINE_SHORT = PAUSED_TOTAL_SHORT;
 export const PAUSED_RUN_LINE_SHORT = PAUSED_TOTAL_SHORT;
@@ -81,7 +86,8 @@ export function pauseMlbMoneyline(decision, paused) {
  * @returns {T}
  */
 export function pauseMlbRunLine(decision, paused) {
-  if (!decision?.runLine || !paused?.has(MLB_RUN_LINE_FAMILY)) return decision;
+  const family = decision?.runLine?.basis === "POSTED_LINE" ? MLB_RUN_LINE_POSTED_FAMILY : MLB_RUN_LINE_FAMILY;
+  if (!decision?.runLine || !paused?.has(family)) return decision;
   return {
     ...decision,
     runLine: null,

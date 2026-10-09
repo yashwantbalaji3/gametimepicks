@@ -61,7 +61,9 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
   const HEALTH = "admin/model-health.json";
 
   if (sport === "mlb") {
-    const rows: Array<[string, string, string]> = [["mlb_moneyline", "Winner calls", "a coin flip"], ["mlb_total", "Game totals", "a coin flip"], ["mlb_run_line", "Run line calls", "a coin flip"]];
+    const rows: Array<[string, string, string]> = [["mlb_moneyline", "Winner calls", "a coin flip"], ["mlb_total", "Game totals", "a coin flip"], ["mlb_run_line_posted", "Run line calls (posted line)", "a coin flip"]];
+    // TRUTH-001: run-line calls are now made at the sportsbook's posted line (decision engine v2), a new family
+    // with its own record. The retired v1 record (`mlb_run_line`) is not this call's record and is not shown here.
     return rows.map(([id, family, floor]) => {
       const f = fam(id);
       const state = healthState(f, paused);

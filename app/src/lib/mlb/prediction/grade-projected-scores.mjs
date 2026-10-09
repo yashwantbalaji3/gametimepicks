@@ -25,7 +25,7 @@ const r4 = (v) => (v == null || !Number.isFinite(v) ? null : Number(v.toFixed(4)
 function ownerProbability(pred, market) {
   if (market === "moneyline") return r4(pred?.moneyline?.simulationProbability);
   if (market === "total") return r4(pred?.total?.pick === "OVER" ? pred.total.overProbability : pred?.total?.underProbability);
-  if (market === "run_line") return r4(pred?.runLine?.coverProbability);
+  if (market === "run_line" || market === "run_line_posted") return r4(pred?.runLine?.coverProbability);
   return undefined;
 }
 

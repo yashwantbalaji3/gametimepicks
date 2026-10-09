@@ -30,7 +30,19 @@ export const GAME_GRADING_VERSION = 1;
 
 /** Markets graded from a prediction row. Team totals are deliberately absent: no public surface
  *  publishes them as calls, and grading what was never published would inflate the denominator. */
-export const GAME_MARKETS = Object.freeze(["moneyline", "total", "run_line"]);
+export const GAME_MARKETS = Object.freeze(["moneyline", "total", "run_line", "run_line_posted"]);
+
+/**
+ * TWO RUN-LINE DEFINITIONS, NEVER ONE RECORD (TRUTH-001, founder decision 2026-10-09).
+ *   run_line         decision engine v1 (mlb-prediction-2026.08-v1): ±1.5 off the simulated favourite, whatever
+ *                    the book posted. Graded rows stay exactly as written.
+ *   run_line_posted  decision engine v2 (`runLine.basis === "POSTED_LINE"`): the side the simulation favours AT
+ *                    the sportsbook's captured signed line, with the book, capture time and no-vig price carried.
+ * A separate market key fails closed: a consumer that does not know the new key shows nothing rather than
+ * pooling the two definitions into one hit rate.
+ */
+export const RUN_LINE_MARKET_V1 = "run_line";
+export const RUN_LINE_MARKET_POSTED = "run_line_posted";
 
 /**
  * The forecast of record: the NEWEST revision that still pre-dates first pitch. Revisions at or
@@ -74,6 +86,8 @@ export function gradeGameFamilies({ row, final: fin, revision, firstPitchUtc }) 
     firstPitchUtc: firstPitchUtc ?? null,
     forecastGeneratedAt: revision.generatedAt,
     forecastSource: revision.source,
+    // Which decision engine made the calls (absent on revisions written before the field existed).
+    decisionEngineVersion: typeof row.decisionEngineVersion === "string" ? row.decisionEngineVersion : null,
     actual: { homeRuns: fin.homeRuns, awayRuns: fin.awayRuns, winner: margin > 0 ? "home" : "away" },
   };
 
@@ -114,13 +128,17 @@ export function gradeGameFamilies({ row, final: fin, revision, firstPitchUtc }) 
     const pickMargin = rl.pickSide === "home" ? margin : -margin;
     const adjusted = pickMargin + rl.pickLine;
     const outcome = adjusted === 0 ? "PUSH" : adjusted > 0 ? "WIN" : "LOSS";
+    const posted = rl.basis === "POSTED_LINE";
     out.push({
       ...base,
-      market: "run_line",
+      market: posted ? RUN_LINE_MARKET_POSTED : RUN_LINE_MARKET_V1,
       pick: rl.pick ?? `${rl.pickSide} ${rl.pickLine}`,
       line: rl.pickLine,
       modelProbability: r4(rl.coverProbability),
-      marketImpliedProbability: null, // the revision does not carry a run-line market probability; absent, never faked
+      // v1 revisions carry no run-line market probability: absent, never faked. v2 carries the book's no-vig
+      // price for the picked side at the same posted line.
+      marketImpliedProbability: posted ? r4(rl.marketImpliedProbability) : null,
+      ...(posted ? { homeLine: rl.homeLine ?? null, bookmaker: rl.bookmaker ?? null, marketCapturedAt: rl.capturedAt ?? null } : {}),
       outcome,
     });
   }
