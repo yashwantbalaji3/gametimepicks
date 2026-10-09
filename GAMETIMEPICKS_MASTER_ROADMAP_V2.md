@@ -1030,6 +1030,17 @@ Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parla
   - **0 hydration errors in Chromium and Firefox** on the NFL hub, 4 game pages and the week page, and across an 80-page sitemap scan; the NFL CSS now ships unescaped.
   - Residual: WebKit-only errors on NFL game pages and `/ufc/` (date-and-time joined with " at "), and non-US-locale errors (numbers formatted with no locale). Fixed in #1034 (`claude/ux-001-webkit-date-hydration`), awaiting approval.
 
+- **#1032 merged** at exact head `529c6f0720` (founder decision 1, afternoon; `python` ✓ `quality` ✓; no other deploy in progress) → `9ad3b8e5b159019f596dd88379b3133be9675e89` at 14:48:42Z.
+  - Production build-info = `9ad3b8e5`, built 14:50:24Z; Vercel success 14:53:07Z.
+  - One nav system per width:
+    - 390–767 px: bar plus Menu.
+    - 768–1023 px: the five primaries plus a header Menu (full-height sheet with search; Tab and Shift+Tab contained, Escape closes, focus returns).
+    - 1024 px and up: rail.
+  - Active state matches the shared resolver on 25 routes at 1280 and 390 px.
+  - The Safari (WebKit) Menu focus trap holds on Production: 25 Tabs, all inside.
+  - Legacy redirects and deep links return 200.
+  - Billed Build CPU needs the dashboard.
+
 ### Progress (2026-10-09; UX-001 phase 2 · navigation and sport switcher; branch `claude/ux-001-sport-nav`)
 - **One sport catalog** (`lib/sports/catalog.ts`): Football (NFL) · Basketball (NBA) · Baseball (MLB) · Soccer (Premier League, Ligue 1) · MMA (UFC), in the founder's naming and order.
   - Soccer competitions beyond the Premier League come only through the league registry's publishing gate (`soccerLeaguePages`), so there is no placeholder for a planned, held or rejected league.
