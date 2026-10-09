@@ -30,7 +30,8 @@ import Explain from "@/components/ui/explain";
 import PlayerAvatar from "@/components/player-avatar";
 import type { SimGeneratedPick, SimDistributions } from "@/lib/game-simulations/types";
 import type { MlbGameCenter } from "@/lib/mlb-team-markets";
-import type { MlbGameLabView, MlbLeanRow } from "@/lib/game-lab/mlb-report";
+import type { MlbGameLabView, MlbLeanRow, MlbBoardSignalDisplay } from "@/lib/game-lab/mlb-report";
+import { mlbBoardSignalDisplay } from "@/lib/game-lab/mlb-report";
 import type { ProductTag } from "@/lib/game-detail-product-tags";
 import { productTagFor } from "@/lib/game-detail-product-tags";
 import { MLB_CALIBRATION_DISCLOSURE, isCalibrationFailed, anyModeledMarketBeatsMarket } from "@/lib/mlb/model-calibration-status";
@@ -130,16 +131,19 @@ function ProductChip({ tag }: { tag: ProductTag | null }) {
   );
 }
 
-/** Board-lean signal → the honest public legend (model lead / aligned / watchlist). We deliberately avoid
- *  "supported / opposed" (reads like betting advice). "Model lead" = model above market; "Watchlist" = model
- *  fades the posted line or the read is high-variance. */
-const SIGNAL_DISPLAY: Record<string, { label: string; color: string; bg: string }> = {
-  supported: { label: "Model lead", color: "var(--gtp-success-on-dark)", bg: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)" },
-  neutral: { label: "Aligned", color: "var(--vault-text-mute)", bg: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)" },
-  opposed: { label: "Watchlist", color: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)" },
+/** Board-lean signal → the honest public legend. We deliberately avoid "supported / opposed" (reads like
+ *  betting advice). The label comes from `mlbBoardSignalDisplay`: "Aligned" only when a model probability
+ *  exists and sits within 5 pts of the market; a missing probability is "Unavailable" and a large
+ *  Low-confidence gap is "Low confidence", never "Aligned" (TRUTH-001). */
+const SIGNAL_DISPLAY: Record<MlbBoardSignalDisplay, { label: string; color: string; bg: string }> = {
+  model_lead: { label: "Model lead", color: "var(--gtp-success-on-dark)", bg: "color-mix(in srgb, var(--vault-accent-deep) 14%, transparent)" },
+  aligned: { label: "Aligned", color: "var(--vault-text-mute)", bg: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)" },
+  low_confidence_gap: { label: "Low confidence", color: "var(--vault-text-mute)", bg: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)" },
+  watchlist: { label: "Watchlist", color: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)" },
+  unavailable: { label: "Unavailable", color: "var(--vault-text-faint)", bg: "transparent" },
 };
-function SignalCell({ signal }: { signal: string }) {
-  const s = SIGNAL_DISPLAY[signal] ?? SIGNAL_DISPLAY.neutral;
+function SignalCell({ signal, gap, confidence }: { signal: string; gap: number | null; confidence: string | null }) {
+  const s = SIGNAL_DISPLAY[mlbBoardSignalDisplay(signal, gap, confidence)];
   return (
     <span className="inline-flex items-center font-mono uppercase tracking-[0.04em] rounded-full px-1.5 py-0.5" style={{ fontSize: 8.5, color: s.color, background: s.bg, whiteSpace: "nowrap" }}>{s.label}</span>
   );
@@ -148,10 +152,11 @@ function SignalCell({ signal }: { signal: string }) {
 function SignalLegend() {
   const items: Array<[string, string, string]> = [
     ["Model lead", "model above market", "var(--gtp-success-on-dark)"],
-    ["Aligned", "model ≈ market", "var(--vault-text-mute)"],
+    ["Aligned", "model within 5 pts of market", "var(--vault-text-mute)"],
+    ["Low confidence", "model above market, low-confidence read", "var(--vault-text-mute)"],
     ["Watchlist", "model fades the line / high variance", "var(--vault-gold-bright)"],
     ["Product card", "used in a paper card ($0)", "var(--vault-gold-bright)"],
-    ["Unavailable", "not modeled / provider not ready", "var(--vault-text-faint)"],
+    ["Unavailable", "no model probability for this line", "var(--vault-text-faint)"],
   ];
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -409,7 +414,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
           <p className="mt-2 font-mono text-[10px] leading-relaxed m-0" style={{ color: "var(--vault-text-faint)" }}>
             Model-predicted markets: <span style={{ color: "var(--vault-text-mute)" }}>{modeledMarkets.join(" · ") || "—"}</span>.
             The book also posts Home runs · RBIs · Runs · Pitcher outs · Earned runs for some players — the model does not price those yet
-            (<span style={{ color: "var(--vault-text-mute)" }}>market context only</span>, not simulated, not product-eligible). See the coverage audit for why.
+            (<span style={{ color: "var(--vault-text-mute)" }}>market context only</span>, no prop-model probability, not product-eligible; the Box Score tab shows the full-game simulation's averages for HR, R and RBI, which are not priced picks). See the coverage audit for why.
           </p>
         ) : null}
       </Section>
@@ -453,7 +458,7 @@ export default function MlbSimulationReportV2(props: MlbSimulationReportV2Props)
                         <td className="py-1.5 px-1.5 font-mono tabular text-right" style={{ color: "var(--vault-text)", fontWeight: 700 }}>{pct(r.modelProb)}</td>
                         <td className="py-1.5 px-1.5 font-mono tabular text-right hidden sm:table-cell" style={{ color: "var(--vault-text-faint)" }}>{pct(r.marketProb)}</td>
                         <td className="py-1.5 px-1.5 font-mono tabular text-right" style={{ color: (r.gap ?? 0) > 0 ? "var(--vault-gold)" : "var(--vault-text-faint)", fontWeight: 700 }}>{(r.gap ?? 0) > 0 ? "+" : ""}{r.gap != null ? r.gap.toFixed(0) : "—"}</td>
-                        <td className="py-1.5 px-1.5"><SignalCell signal={r.signal} /></td>
+                        <td className="py-1.5 px-1.5"><SignalCell signal={r.signal} gap={r.gap} confidence={r.confidence} /></td>
                         <td className="py-1.5 px-1.5 hidden sm:table-cell">{r.tag ? <ProductChip tag={r.tag} /> : <span style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>—</span>}</td>
                       </tr>
                     ))}

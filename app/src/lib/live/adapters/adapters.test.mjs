@@ -265,6 +265,13 @@ const SIM_FIXTURE = fixture("mlb-full-game-sims.json");
 const SIM_DIR = path.join(APP_PUBLIC, "mlb/full-game-simulations");
 const BATTER_KEYS = ["playerId", "name", "team", "battingOrder", "plateAppearances", "hits", "totalBases", "homeRuns", "runs", "rbi", "walks", "strikeouts"];
 const PITCHER_KEYS = ["playerId", "name", "team", "role", "battersFaced", "strikeouts", "hitsAllowed", "runsAllowed", "outsRecorded"];
+/**
+ * TRUTH-001 (2026-10-09): a batter row MAY carry `rateSource` ("projection" | "replacement") — new
+ * artifacts only; published ones are never rewritten. When a game carries it, every batter row must,
+ * and it must agree with the game's own completeness counts (checked below).
+ */
+const OPTIONAL_BATTER_KEYS = ["rateSource"];
+const RATE_SOURCES = new Set(["projection", "replacement"]);
 /** Any key a sportsbook row carries. One of these on a simulation player row means a price is posing as a projection. */
 const MARKET_KEY = /odds|price|implied|book|provider|vig|juice|selection|^line$|^point$|market/i;
 const emitsPlayers = (g) => g.players != null && typeof g.players === "object" && (g.players.batters?.length > 0 || g.players.pitchers?.length > 0);
@@ -285,7 +292,10 @@ function playerContractViolations(g) {
     for (const r of rows) {
       const leaked = marketKeysOf(r);
       if (leaked.length) out.push(`${where}: ${kind} ${r.name} carries market field(s) ${leaked.join(",")}`);
-      if (JSON.stringify(Object.keys(r).sort()) !== JSON.stringify([...keys].sort())) out.push(`${where}: ${kind} ${r.name} keys ${Object.keys(r).join(",")}`);
+      const optional = kind === "batter" ? OPTIONAL_BATTER_KEYS : [];
+      const required = Object.keys(r).filter((k) => !optional.includes(k));
+      if (JSON.stringify(required.sort()) !== JSON.stringify([...keys].sort())) out.push(`${where}: ${kind} ${r.name} keys ${Object.keys(r).join(",")}`);
+      if ("rateSource" in r && !RATE_SOURCES.has(r.rateSource)) out.push(`${where}: batter ${r.name} rateSource=${r.rateSource}`);
       for (const k of keys.filter((k) => !["playerId", "name", "team", "role"].includes(k))) {
         if (!Number.isFinite(r[k]) || r[k] < 0) out.push(`${where}: ${kind} ${r.name} ${k}=${r[k]} is not a simulated non-negative mean`);
       }
@@ -302,6 +312,15 @@ function playerContractViolations(g) {
     const fillers = batters.filter((b) => b.playerId < 0).length;
     if (source === "confirmed" && fillers) out.push(`${where}: ${team} confirmed order contains ${fillers} filler row(s)`);
     if (source === "prop-derived" && fillers !== Math.max(0, 9 - rated)) out.push(`${where}: ${team} ${fillers} filler row(s) vs ${rated} rated`);
+    // Per-row rate source, where recorded: all or none, a filler is always replacement, and the
+    // replacement count is exactly the game's own 9 − rated (a confirmed real batter can be one).
+    const flagged = batters.filter((b) => "rateSource" in b).length;
+    if (flagged && flagged !== batters.length) out.push(`${where}: ${team} rateSource on ${flagged} of ${batters.length} rows`);
+    if (flagged) {
+      const replacement = batters.filter((b) => b.rateSource === "replacement").length;
+      if (batters.some((b) => b.playerId < 0 && b.rateSource !== "replacement")) out.push(`${where}: ${team} filler not marked replacement`);
+      if (replacement !== Math.max(0, 9 - rated)) out.push(`${where}: ${team} ${replacement} replacement row(s) vs ${rated} rated`);
+    }
   }
   return out;
 }

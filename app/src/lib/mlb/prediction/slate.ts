@@ -278,7 +278,8 @@ export function buildSlateStories(games: SlatePredictionGame[]): SlateStory[] {
       label: "Biggest player impact",
       ...identity(g),
       headline: `${p.player} ${p.pick} ${p.line} ${p.marketLabel}`,
-      detail: g.simulationCount != null ? simulationFrequency(p.simulationProbability, g.simulationCount) : null,
+      // A player-prop engine pick: its own probability, never a count of the full-game simulations.
+      detail: Number.isFinite(p.simulationProbability) ? `${Math.round(p.simulationProbability * 100)}% in the player-prop simulation` : null,
       player: { name: p.player, playerId: p.playerId ?? null, team: p.team, opponent: p.opponent ?? null },
     });
   }

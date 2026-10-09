@@ -150,6 +150,34 @@ export function classifyMlbLeanSignal(
   return "neutral";
 }
 
+/**
+ * What a board row may CLAIM about model vs market, for the public legend (TRUTH-001, 2026-10-09).
+ *
+ * `neutral` above means "neither supported nor opposed". It is NOT a claim that model and market agree,
+ * yet the v2 board rendered every neutral row as "Aligned · model ≈ market", including:
+ *   - rows with no model probability at all (edgePct null: no projection, e.g. an unresolved player) —
+ *     2026-10-08 849832 Jose Ramirez batter_hits: "Pass", edge null → shown "Aligned";
+ *   - Low-confidence rows with a large gap — Brenton Doyle H+R+RBI: +25.3 pts → "Aligned" beside "+25".
+ * Missing is not aligned, and a 25-point gap is not agreement.
+ */
+export type MlbBoardSignalDisplay = "model_lead" | "aligned" | "low_confidence_gap" | "watchlist" | "unavailable";
+
+export function mlbBoardSignalDisplay(
+  signal: MlbLeanSignal | string | null | undefined,
+  edgePct: number | null | undefined,
+  confidence?: string | null,
+): MlbBoardSignalDisplay {
+  if (typeof edgePct !== "number" || !Number.isFinite(edgePct)) return "unavailable";
+  if (signal === "supported") return "model_lead";
+  if (signal === "opposed") return "watchlist";
+  if (signal === "neutral") {
+    // Positive and under the supported bar → within 5 pts. At/over the bar it is neutral only because
+    // the read is Low confidence: a gap, not agreement.
+    return edgePct >= SUPPORTED_EDGE_MIN ? "low_confidence_gap" : "aligned";
+  }
+  return "unavailable";
+}
+
 /** Round to one decimal for copy; guards null. */
 function edge1(v: number | null): string {
   if (v == null) return "—";

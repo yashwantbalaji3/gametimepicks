@@ -82,6 +82,17 @@ test("a padded slot is counted, and a prop-derived side records no capture insta
   assert.deepEqual(r.away.batterIds, [600001, null, null], "and the padding is visible in the order");
 });
 
+test("TRUTH-001 · a real filler (NEGATIVE sentinel id from board-adapter) is a padded slot", () => {
+  // FALLBACK_BATTER uses playerId = −slot, which is finite: counting only non-finite ids recorded
+  // 0 padded slots on every committed snapshot.
+  const padded = input({
+    awayLineup: [{ playerId: 600001 }, { playerId: -2 }, { playerId: -3 }],
+    completeness: { ...input().completeness, awayLineupSource: "prop-derived", awayLineupCount: 1 },
+  });
+  const r = snapshotRowFor({ input: padded, game: game(), confirmed: { away: null, home: confirmed.home } });
+  assert.equal(r.away.paddedSlots, 2);
+});
+
 /* ── THE REPRODUCIBILITY CLAIM ─────────────────────────────────────────────────────────────────── */
 
 test("⚠ EVERY PUBLISHED FORECAST MUST POINT TO A ROW THAT DESCRIBES IT", () => {

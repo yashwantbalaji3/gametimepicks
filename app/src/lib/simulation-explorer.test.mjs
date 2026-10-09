@@ -29,9 +29,13 @@ test("it renders the canonical entity primitives (shared visual identity)", () =
   assert.match(card, /<PlayerCard/, "player impact via PlayerCard");
 });
 
-test("frequency is probability × runCount — a rendering of canonical values, not a new number", () => {
-  assert.match(card, /Math\.round\(probability \* runCount\)/, "frequency = probability × simulations");
-  assert.match(card, /if \(probability == null \|\| runCount == null \|\| runCount <= 0\) return null/, "fails closed");
+test("frequency is a rendering of canonical values: exact where the counts persisted, else marked ≈", () => {
+  // TRUTH-001: round(probability × runCount) from a 3-decimal probability is not the exact tally, so the
+  // card reads exact win counts from the persisted run-differential counts and marks every other
+  // rebuilt count "≈" (lib/sim-frequency.ts, which also fails closed on bad input — sim-frequency.test.mjs).
+  assert.match(card, /exactWinCounts\(g\)/, "exact win tallies from persisted counts");
+  assert.match(card, /approxFrequency\(probability, runCount, "games"\)/, "everything else is approximate");
+  assert.doesNotMatch(card, /Math\.round\(probability \* runCount\)\.toLocaleString/, "no unmarked rebuilt count");
 });
 
 test("missing data fails closed — no fabricated grid, no fabricated outcome", () => {

@@ -3,13 +3,14 @@
  * simulation actually tells it:
  *
  *   Identity      → team logos + names + venue + first pitch
- *   Prediction    → winner, probability, and the FREQUENCY behind it ("5,820 / 10,000 games")
+ *   Prediction    → winner, probability, and the FREQUENCY behind it ("5,307 / 10,000 games" when the
+ *                   artifact persisted the count, "≈ 5,310 / 10,000 games" when rebuilt from a rounded probability)
  *   Outcomes      → most-likely scorelines with their frequencies, total-runs median + p10–p90, extras
- *   Player impact → top player predictions with portraits, opponent context, and their own frequencies
+ *   Player impact → top player-prop-engine predictions with portraits and opponent context (percentages only)
  *
  * Presentational ONLY. Every value arrives already computed on the canonical objects (the Sprint 008
  * full-game artifact + the Sprint 009 prediction decision); this component performs no simulation, no
- * prediction logic, and no probability maths beyond formatting probability × runCount into a count.
+ * prediction logic, and no probability maths beyond formatting counts (lib/sim-frequency).
  * Missing data fails closed — an absent section simply does not render, never a fabricated number.
  */
 import Link from "next/link";
@@ -17,11 +18,11 @@ import type { FullGameSimGame } from "@/lib/mlb/full-game/types";
 import type { GamePredictionDecision } from "@/lib/mlb/prediction/types";
 import { GameHeader, PlayerCard } from "@/components/entity";
 import SimulationStory from "@/components/entity/simulation-story";
+import { approxFrequency, exactFrequency, exactWinCounts } from "@/lib/sim-frequency";
 
-/** Format a probability + a run count as the honest "N / 10,000 games" frequency. Pure formatting. */
+/** A probability with no persisted count, as an APPROXIMATE "≈ N / 10,000 games" (TRUTH-001). */
 function frequency(probability: number | null | undefined, runCount: number | null | undefined): string | null {
-  if (probability == null || runCount == null || runCount <= 0) return null;
-  return `${Math.round(probability * runCount).toLocaleString("en-US")} / ${runCount.toLocaleString("en-US")} games`;
+  return approxFrequency(probability, runCount, "games");
 }
 
 export interface SimulationCardInput {
@@ -37,7 +38,12 @@ export interface SimulationCardInput {
 export default function SimulationCard({ card }: { card: SimulationCardInput }) {
   const { game: g, prediction: p } = card;
   const ready = g.status !== "unavailable" && !!g.winProbability;
-  const winnerFreq = p?.moneyline ? frequency(p.moneyline.simulationProbability, g.runCount) : null;
+  const exactWins = exactWinCounts(g);
+  const winnerFreq = p?.moneyline
+    ? exactWins
+      ? exactFrequency(p.moneyline.side === "home" ? exactWins.home : exactWins.away, exactWins.runCount, "games")
+      : frequency(p.moneyline.simulationProbability, g.runCount)
+    : null;
 
   return (
     <article className="rounded-[14px] px-4 py-4 flex flex-col gap-3" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
@@ -103,7 +109,10 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
           <div className="flex items-center justify-between gap-2 rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-faint)", border: "1px solid var(--vault-rule)" }}>
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Win counts</span>
             <span className="font-mono" style={{ color: "var(--vault-text)", fontSize: 11.5 }}>
-              {g.awayTeam} {Math.round(g.winProbability!.away * g.runCount).toLocaleString("en-US")} · {g.homeTeam} {Math.round(g.winProbability!.home * g.runCount).toLocaleString("en-US")}
+              {/* Exact tallies from the persisted run-differential counts; "≈" only when none were persisted. */}
+              {exactWins
+                ? `${g.awayTeam} ${exactWins.away.toLocaleString("en-US")} · ${g.homeTeam} ${exactWins.home.toLocaleString("en-US")}`
+                : `${g.awayTeam} ≈ ${Math.round(g.winProbability!.away * g.runCount).toLocaleString("en-US")} · ${g.homeTeam} ≈ ${Math.round(g.winProbability!.home * g.runCount).toLocaleString("en-US")}`}
             </span>
           </div>
 
@@ -151,7 +160,8 @@ export default function SimulationCard({ card }: { card: SimulationCardInput }) 
                   pick={pp.pick}
                   line={pp.line}
                   probabilityPct={pp.simulationProbability * 100}
-                  simulationCount={g.runCount}
+                  /* A player-prop engine pick: no count of THESE full-game simulations (TRUTH-001). */
+                  simulationCount={null}
                 />
               ))}
             </div>
