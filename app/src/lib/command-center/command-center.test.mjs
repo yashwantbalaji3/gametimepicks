@@ -52,6 +52,24 @@ test("a BREACHED MLB family the gate pauses is PAUSED; WATCH stays WATCH; too fe
   assert.equal(items[1].n, 576);
 });
 
+test("FOUNDER SAFEGUARD · posted-line run line: 0 graded is 'too early' (not unknown), and a v1 pause is shown as a hold", () => {
+  const root = tmp();
+  write(root, "admin/model-health.json", { generatedAt: "2026-09-15T02:00:00Z", families: [
+    { id: "mlb_run_line", sport: "mlb", state: "BREACHED", n: 810, context: { hitRate: 0.45, meanPickProbability: 0.6 } },
+  ] });
+  const rl = modelStatusFor("mlb", { dataRoot: root, repoRoot: root, nowIso: NOW }).find((i) => i.id === "mlb_run_line_posted");
+  assert.equal(rl.state, "PAUSED", "the retired record's pause holds the new definition");
+  assert.match(rl.headline, /held by the earlier run-line record/);
+  assert.equal(rl.n, 0, "its own record — never v1's 810");
+  assert.match(rl.detail, /0 graded so far/);
+
+  const root2 = tmp();
+  write(root2, "admin/model-health.json", { generatedAt: "2026-09-15T02:00:00Z", families: [{ id: "mlb_run_line", sport: "mlb", state: "HOLDING", n: 810 }] });
+  const rl2 = modelStatusFor("mlb", { dataRoot: root2, repoRoot: root2, nowIso: NOW }).find((i) => i.id === "mlb_run_line_posted");
+  assert.equal(rl2.state, "TOO_EARLY", "v1 HOLDING lends v2 no 'holding' status");
+  assert.equal(rl2.n, 0);
+});
+
 test("a stale scorecard pauses nothing: BREACHED reads as WATCH, never PAUSED, when the gate would not act", () => {
   const root = tmp();
   write(root, "admin/model-health.json", { generatedAt: "2026-09-01T02:00:00Z", families: [{ id: "mlb_total", sport: "mlb", state: "BREACHED", n: 576 }] });

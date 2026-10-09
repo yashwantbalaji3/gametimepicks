@@ -15,7 +15,7 @@ import path from "node:path";
 
 import { buildGamePredictionDecision, postedRunLine, DECISION_ENGINE_VERSION } from "./decision.ts";
 import { gradeGameFamilies, summariseGameLedger, GAME_MARKETS } from "./grade-games.mjs";
-import { pauseMlbRunLine, MLB_RUN_LINE_FAMILY, MLB_RUN_LINE_POSTED_FAMILY, GATED_FAMILIES } from "../../ops/live-record-gate.mjs";
+import { pauseMlbRunLine, MLB_RUN_LINE_FAMILY, MLB_RUN_LINE_POSTED_FAMILY, GATED_FAMILIES, POSTED_RUN_LINE_INHERITS_V1_RESTRICTIONS } from "../../ops/live-record-gate.mjs";
 
 const APP = process.cwd();
 const team = (side) => (side === "home" ? "HOME" : "AWAY");
@@ -166,12 +166,40 @@ test("EVERY committed graded row stays v1 run_line: nothing published is re-labe
 
 /* ── the live-record gate: each definition is paused only by its own record ──────────────────── */
 
-test("a v2 call is paused only by the posted-line record; v1's record never pauses it", () => {
+test("FOUNDER SAFEGUARD · a v2 call inherits every v1 restriction, and is paused by its own record too", () => {
   const v2 = { runLine: { basis: "POSTED_LINE", pick: "HOME +1.5" }, unavailableReasons: [] };
   const v1 = { runLine: { pick: "HOME +1.5" }, unavailableReasons: [] };
   assert.ok(GATED_FAMILIES.has(MLB_RUN_LINE_POSTED_FAMILY));
-  assert.ok(pauseMlbRunLine(v2, new Set([MLB_RUN_LINE_FAMILY])).runLine, "v1 BREACHED does not pause v2");
-  assert.equal(pauseMlbRunLine(v2, new Set([MLB_RUN_LINE_POSTED_FAMILY])).runLine, null);
-  assert.equal(pauseMlbRunLine(v1, new Set([MLB_RUN_LINE_FAMILY])).runLine, null, "v1 keeps its own gate");
+  assert.equal(POSTED_RUN_LINE_INHERITS_V1_RESTRICTIONS, true, "ending the inheritance is a founder decision, not a default");
+  // The rename cannot bypass a v1 pause: v1 BREACHED holds the v2 call.
+  const held = pauseMlbRunLine(v2, new Set([MLB_RUN_LINE_FAMILY]));
+  assert.equal(held.runLine, null, "a v1 pause holds v2 calls");
+  assert.ok(held.pausedReasons.runLine, "the reason is on the record");
+  assert.equal(pauseMlbRunLine(v2, new Set([MLB_RUN_LINE_POSTED_FAMILY])).runLine, null, "and v2's own record can pause it");
+  assert.ok(pauseMlbRunLine(v2, new Set()).runLine, "nothing BREACHED → the call shows, as v1 calls do today");
+  // v1 keeps its own gate; a v2 record never pauses (or lifts) a v1 call.
+  assert.equal(pauseMlbRunLine(v1, new Set([MLB_RUN_LINE_FAMILY])).runLine, null);
   assert.ok(pauseMlbRunLine(v1, new Set([MLB_RUN_LINE_POSTED_FAMILY])).runLine);
+});
+
+test("FOUNDER SAFEGUARD · a zero-pick v2 family borrows no performance and qualifies for nothing", async () => {
+  const { pausedFamiliesFrom } = await import("../../ops/live-record-gate.mjs");
+  const now = Date.parse("2026-10-10T12:00:00Z");
+  // A scorecard where v1 is BREACHED and v2 has no rows at all (the day v2 ships).
+  const card = { generatedAt: "2026-10-10T06:00:00Z", families: [{ id: "mlb_run_line", state: "BREACHED", n: 810 }] };
+  const paused = pausedFamiliesFrom(card, now);
+  assert.ok(paused.has("mlb_run_line"));
+  assert.equal(paused.has("mlb_run_line_posted"), false, "no record is not a verdict");
+  assert.equal(pauseMlbRunLine({ runLine: { basis: "POSTED_LINE" }, unavailableReasons: [] }, paused).runLine, null,
+    "yet the v2 call is held, through inheritance — an empty record cannot clear it");
+  // No product reads the decision engine's run-line call: product legs come from the sportsbook team markets
+  // under their own eligibility gates. Pin that, so a future consumer has to be a deliberate change.
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const roots = ["src/lib/products", "src/lib/daily-portfolio", "src/lib/parlays", "src/lib/top10", "src/lib/multi-sport"];
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+  for (const f of roots.flatMap((r) => walk(path.join(APP, r))).filter((f) => /\.(m?js|ts)$/.test(f) && !/\.test\./.test(f))) {
+    const code = fs.readFileSync(f, "utf8");
+    assert.doesNotMatch(code, /mlb_run_line_posted|POSTED_LINE|prediction\??\.runLine|decision\??\.runLine/, `${path.relative(APP, f)} consumes the decision run line`);
+  }
 });
