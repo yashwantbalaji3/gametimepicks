@@ -14,7 +14,7 @@
  * `Under 7.5`, or `France -1 cover 46.5%`. No probability, price, or lean ever crosses this boundary.
  *
  * Sport honesty:
- *   • MLB carries a real sampled simulation → a `${runCount.toLocaleString()}-run` chip is allowed
+ *   • MLB carries a real sampled simulation → a `${runCount.toLocaleString("en-US")}-run` chip is allowed
  *     ONLY when the artifact sets `allowsRunCountClaim` on a positive integer run count.
  *   • Soccer / World Cup is a de-vigged, market-implied 90' dashboard — NEVER a run count. Its lead
  *     chip is `Market-implied`; there is no `10,000-run` soccer chip anywhere in this file.
@@ -97,7 +97,7 @@ export function mlbAvailabilityBadges(detail: MlbAvailabilityInput): GameAvailab
     Number.isInteger(sim.runCount) &&
     sim.runCount > 0
   ) {
-    out.push({ key: "mlb_runs", label: `${sim.runCount.toLocaleString()}-run`, kind: "simulation", source: "mlb_simulation" });
+    out.push({ key: "mlb_runs", label: `${sim.runCount.toLocaleString("en-US")}-run`, kind: "simulation", source: "mlb_simulation" });
   }
 
   const gc = detail.gameCenter;

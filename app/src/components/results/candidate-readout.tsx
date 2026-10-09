@@ -64,7 +64,7 @@ export default function CandidateReadout({ rows, auditRange }: { rows: ReadoutRo
               </span>
             </div>
             <div className="font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
-              {r.cohort[0] ?? "—"} → {r.cohort[1] ?? "—"} · n={r.n.toLocaleString()}
+              {r.cohort[0] ?? "—"} → {r.cohort[1] ?? "—"} · n={r.n.toLocaleString("en-US")}
               {r.coverage != null ? ` · coverage ${(r.coverage * 100).toFixed(1)}%` : ""}
               {/* The delta is printed only where one was computed — a refused evaluation has none,
                   and inventing a zero would read as "no difference" rather than "not measured". */}

@@ -38,7 +38,7 @@ export function generateMetadata({ params }: { params: { sport: string } }): Met
   return withRouteMetadata(`/results/picks/${params.sport}/`, {
     title: `${lane.label} — Picks vs Outcomes · GameTime Picks`,
     description: rec
-      ? `${rec.counts.counted.toLocaleString()} ${lane.label} predictions graded against official results. Paper-only and educational — nothing here is a pick or a recommendation to wager.`
+      ? `${rec.counts.counted.toLocaleString("en-US")} ${lane.label} predictions graded against official results. Paper-only and educational — nothing here is a pick or a recommendation to wager.`
       : `${lane.label} predictions graded against official results. Nothing has been graded yet.`,
   });
 }
@@ -109,7 +109,7 @@ export default function GradedPicksPage({ params }: { params: { sport: string } 
                 {Object.entries(gameRecord.families).map(([market, f]) => (
                   <tr key={market} style={{ borderTop: "1px solid var(--vault-rule)" }}>
                     <td className="py-2 pr-3" style={{ fontWeight: 600 }}>{FAMILY_LABEL[market] ?? market}</td>
-                    <td className="font-mono py-2 pr-3">{f.n.toLocaleString()}</td>
+                    <td className="font-mono py-2 pr-3">{f.n.toLocaleString("en-US")}</td>
                     <td className="font-mono py-2 pr-3">{f.wins}–{f.losses}{f.pushes ? `–${f.pushes} pushes` : ""}</td>
                     <td className="font-mono py-2" style={{ color: "var(--vault-text-mute)" }}>
                       {f.hitRate != null ? `${(f.hitRate * 100).toFixed(1)}%` : "no decisive sample"}
@@ -126,7 +126,7 @@ export default function GradedPicksPage({ params }: { params: { sport: string } 
           ) : null}
           <p className="mt-2" style={{ fontSize: 12, lineHeight: 1.7, color: "var(--vault-text-faint)", maxWidth: 720 }}>
             {gameRecord.caveat} Each row is graded from the newest prediction revision generated
-            <em> before that game&apos;s first pitch</em>; {gameRecord.counts.missingPreEventFinals.toLocaleString()} earlier
+            <em> before that game&apos;s first pitch</em>; {gameRecord.counts.missingPreEventFinals.toLocaleString("en-US")} earlier
             game finals have no such pre-event artifact and are named as gaps rather than reconstructed.
           </p>
         </section>

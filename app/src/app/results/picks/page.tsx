@@ -66,9 +66,9 @@ export default function AllGradedPicksPage() {
                     <td className="py-2 pr-3" style={{ fontWeight: 600 }}>
                       <Link href={`/results/picks/${r.sport}`} style={{ color: "var(--gtp-bank-heat)" }}>{r.label}</Link>
                     </td>
-                    <td className="font-mono py-2 pr-3">{r.counts.counted.toLocaleString()}</td>
-                    <td className="font-mono py-2 pr-3">{r.counts.hits.toLocaleString()}</td>
-                    <td className="font-mono py-2 pr-3">{r.counts.misses.toLocaleString()}</td>
+                    <td className="font-mono py-2 pr-3">{r.counts.counted.toLocaleString("en-US")}</td>
+                    <td className="font-mono py-2 pr-3">{r.counts.hits.toLocaleString("en-US")}</td>
+                    <td className="font-mono py-2 pr-3">{r.counts.misses.toLocaleString("en-US")}</td>
                     <td className="font-mono py-2 pr-3" style={{ color: "var(--vault-text-mute)" }}>
                       {/* A rate only where the sample can carry one. Below that the count IS the answer. */}
                       {r.hitRate != null && SHOW_RATE.has(r.sampleState) ? pct(r.hitRate) : "too few to say"}

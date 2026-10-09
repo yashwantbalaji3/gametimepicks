@@ -53,10 +53,10 @@ function PopulationCard({ p, w, today }: { p: OverviewPopulation; w: WindowKey; 
         <>
           <div className="flex items-baseline gap-3 flex-wrap">
             <span className={research ? "text-[20px] font-bold" : "text-[26px] font-bold"} style={{ color: "var(--vault-text)" }}>{record(c)}</span>
-            {pct(c.hitRate) ? <span className="text-[15px]" style={{ color: "var(--vault-text-mute)" }}>{pct(c.hitRate)} of {c.decisive.toLocaleString()} decided</span> : null}
+            {pct(c.hitRate) ? <span className="text-[15px]" style={{ color: "var(--vault-text-mute)" }}>{pct(c.hitRate)} of {c.decisive.toLocaleString("en-US")} decided</span> : null}
           </div>
           <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-            {c.push ? `${c.push} push · ` : ""}{c.void ? `${c.void.toLocaleString()} void · ` : ""}{w === "season" && p.seasonLabel ? p.seasonLabel : WINDOWS.find((x) => x.key === w)!.label}
+            {c.push ? `${c.push} push · ` : ""}{c.void ? `${c.void.toLocaleString("en-US")} void · ` : ""}{w === "season" && p.seasonLabel ? p.seasonLabel : WINDOWS.find((x) => x.key === w)!.label}
           </span>
         </>
       )}

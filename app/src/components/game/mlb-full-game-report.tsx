@@ -22,7 +22,7 @@ import { formatEtTime } from "@/lib/mlb/public-provenance";
 import { medianRunsCopy, MEDIAN_RUNS_LABEL } from "@/lib/mlb/prediction/median-runs-copy.mjs";
 import { modelImpliedTotal, modelTotalCopy, type ModelImpliedTotal } from "@/lib/mlb/full-game/model-total";
 
-const int0 = (n: number): string => Math.round(n).toLocaleString();
+const int0 = (n: number): string => Math.round(n).toLocaleString("en-US");
 
 type TabKey = "overview" | "box" | "market" | "players" | "methodology";
 
@@ -171,7 +171,7 @@ function PredictionHero({ p, runCount , spreadLabel, g, modelVersion }: { p: Gam
     <section className="rounded-[16px] px-4 py-4 flex flex-col gap-3" style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--vault-crown) 10%, transparent), color-mix(in srgb, var(--vault-crown) 3%, transparent))", border: "1px solid color-mix(in srgb, var(--vault-crown) 35%, transparent)" }}>
       <div className="flex items-baseline justify-between gap-2 flex-wrap">
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold)", fontSize: 10 }}>GameTimePicks simulation read</span>
-        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>from {runCount && runCount > 0 ? `${runCount.toLocaleString()} ` : ""}simulated games · not validated to out-predict the market</span>
+        <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>from {runCount && runCount > 0 ? `${runCount.toLocaleString("en-US")} ` : ""}simulated games · not validated to out-predict the market</span>
       </div>
       <div className="flex items-end justify-between gap-3 flex-wrap">
         <span className="font-display" style={{ color: p.predictedWinner ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: p.predictedWinner ? 26 : 18, fontWeight: 800, lineHeight: 1.05 }}>{winnerName}</span>
@@ -234,7 +234,7 @@ function PredictionHero({ p, runCount , spreadLabel, g, modelVersion }: { p: Gam
               />
             ))}
           </div>
-          <span className="font-mono block mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Direction from simulated probability across {runCount && runCount > 0 ? `${runCount.toLocaleString()} ` : "the simulated "}games · legacy prop engine · not a bet</span>
+          <span className="font-mono block mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 8.5 }}>Direction from simulated probability across {runCount && runCount > 0 ? `${runCount.toLocaleString("en-US")} ` : "the simulated "}games · legacy prop engine · not a bet</span>
         </div>
       ) : null}
     </section>
@@ -313,7 +313,7 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
           verdict={{
             label: `Expected ${V.scoreUnit}`,
             value: `${awayCode} ${one(g.runs.away.mean)} – ${one(g.runs.home.mean)} ${homeCode}`,
-            sub: `${g.winProbability.home >= g.winProbability.away ? homeCode : awayCode} ${Math.round(Math.max(g.winProbability.away, g.winProbability.home) * 100)}% · from ${g.runCount.toLocaleString()} simulated games`,
+            sub: `${g.winProbability.home >= g.winProbability.away ? homeCode : awayCode} ${Math.round(Math.max(g.winProbability.away, g.winProbability.home) * 100)}% · from ${g.runCount.toLocaleString("en-US")} simulated games`,
           }}
           rows={[
             { label: "Win chance",
@@ -369,7 +369,7 @@ function Overview({ g, prediction, awayCode, homeCode, awayLogo, homeLogo, story
 
       {/* Win probability */}
       <section className="rounded-[14px] px-4 py-4" style={{ background: "color-mix(in srgb, var(--vault-crown) 5%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 25%, transparent)" }}>
-        <div className="font-mono uppercase tracking-[0.12em] mb-2.5" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Win probability · {g.runCount > 0 ? `${g.runCount.toLocaleString()} ` : ""}simulated games</div>
+        <div className="font-mono uppercase tracking-[0.12em] mb-2.5" style={{ color: "var(--vault-gold)", fontSize: 9.5 }}>Win probability · {g.runCount > 0 ? `${g.runCount.toLocaleString("en-US")} ` : ""}simulated games</div>
         <WinBar awayCode={awayCode} homeCode={homeCode} away={g.winProbability.away} home={g.winProbability.home} />
       </section>
 
@@ -467,7 +467,7 @@ function FootballBoxScore({ g }: { g: FullGameSimGame }) {
   return (
     <div className="flex flex-col gap-4">
       <p className="text-[11px] m-0" style={{ color: "var(--vault-text-faint)" }}>
-        Average per-game stat line across the {g.runCount.toLocaleString()} simulated games — the same games that produced the score above. Preseason snap counts are not published in advance, so playing time comes from a measured rotation model and the ranges behind these means are wide.
+        Average per-game stat line across the {g.runCount.toLocaleString("en-US")} simulated games — the same games that produced the score above. Preseason snap counts are not published in advance, so playing time comes from a measured rotation model and the ranges behind these means are wide.
       </p>
       {teams.map((team) => (
         <div key={team}>
@@ -509,7 +509,7 @@ function BoxScore({ g }: { g: FullGameSimGame }) {
   return (
     <div className="flex flex-col gap-4">
       <p className="text-[11px] m-0" style={{ color: "var(--vault-text-faint)" }}>
-        Average per-game stat line across the {g.runCount > 0 ? `${g.runCount.toLocaleString()} ` : ""}simulated games (same games that produced the score above).{" "}
+        Average per-game stat line across the {g.runCount > 0 ? `${g.runCount.toLocaleString("en-US")} ` : ""}simulated games (same games that produced the score above).{" "}
         {/* Lineup provenance for THIS run, read from the artifact — never a blanket claim about pregame lineups. */}
         {g.completeness.awayLineupSource === "confirmed" && g.completeness.homeLineupSource === "confirmed"
           ? "Both clubs' confirmed batting orders were used for this run."
@@ -614,7 +614,7 @@ function Methodology({ g, meta }: { g: FullGameSimGame; meta: FullGameArtifactMe
   return (
     <div className="flex flex-col gap-3 text-[12px]" style={{ color: "var(--vault-text-mute)", lineHeight: 1.6 }}>
       <p className="m-0">
-        <strong style={{ color: "var(--vault-text)" }}>How it works.</strong> Each of the {g.runCount.toLocaleString()} runs simulates a complete game — every plate appearance from the first pitch to the final out — advancing base/out state and scoring runs. Win probability, the score and total distributions, and the run line are all read off those {g.runCount.toLocaleString()} simulated final scores.
+        <strong style={{ color: "var(--vault-text)" }}>How it works.</strong> Each of the {g.runCount.toLocaleString("en-US")} runs simulates a complete game — every plate appearance from the first pitch to the final out — advancing base/out state and scoring runs. Win probability, the score and total distributions, and the run line are all read off those {g.runCount.toLocaleString("en-US")} simulated final scores.
       </p>
       <p className="m-0">
         <strong style={{ color: "var(--vault-text)" }}>Inputs (all pregame, leakage-safe).</strong> Plate-appearance rates are derived from the public board&apos;s per-player projections: a batter&apos;s expected hits and total bases set the hit rate and extra-base split; the starting pitcher&apos;s strikeout projection sets the strikeout rate; walks use a league prior. Nothing is read from the sportsbook market or from any post-first-pitch source.
@@ -637,7 +637,7 @@ function Methodology({ g, meta }: { g: FullGameSimGame; meta: FullGameArtifactMe
         </div>
       ) : null}
       <p className="font-mono m-0" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>
-        Model {meta?.modelVersion ?? g.status} · {g.runCount.toLocaleString()} complete games · deterministic (same board → same result){meta?.generatedAt ? ` · generated ${formatEtTime(meta.generatedAt)}` : ""}.
+        Model {meta?.modelVersion ?? g.status} · {g.runCount.toLocaleString("en-US")} complete games · deterministic (same board → same result){meta?.generatedAt ? ` · generated ${formatEtTime(meta.generatedAt)}` : ""}.
       </p>
     </div>
   );
@@ -696,7 +696,7 @@ export default function MlbFullGameReport({
       {/* Header strip: status + run count + completeness */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
-          <Chip tone="ok">{g.runCount ? `${g.runCount.toLocaleString()} game simulations` : "Full-game sim"}</Chip>
+          <Chip tone="ok">{g.runCount ? `${g.runCount.toLocaleString("en-US")} game simulations` : "Full-game sim"}</Chip>
           {g.status === "degraded" ? <Chip tone="warn">Degraded inputs</Chip> : g.status === "ready" ? <Chip tone="ok">Complete inputs</Chip> : <Chip tone="warn">Unavailable</Chip>}
         </div>
         {/*

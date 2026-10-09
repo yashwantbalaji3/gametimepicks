@@ -229,7 +229,7 @@ function LaneLadder({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B" }) 
       <div className="mt-1.5 flex flex-wrap gap-1.5">
         <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "color-mix(in srgb, var(--vault-accent-muted) 18%, transparent)", color: "var(--vault-success)" }}>Step 1 cleared</span>
         {hasSoccer && <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "color-mix(in srgb, var(--vault-accent-muted) 18%, transparent)", color: "var(--vault-success)" }}>⚽ soccer leg</span>}
-        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>target ${CROWN_TARGET.toLocaleString()}</span>
+        <span className="rounded px-1.5 py-0.5 font-mono text-[10.5px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)", color: "var(--vault-text-faint)" }}>target ${CROWN_TARGET.toLocaleString("en-US")}</span>
       </div>
 
       <div className="mt-2.5"><StepPips steps={steps} currentStep={lane.currentStep} /></div>
@@ -238,7 +238,7 @@ function LaneLadder({ lane, laneId }: { lane: LaneDisplay; laneId: "A" | "B" }) 
 
       {comingSoon.length > 0 && (
         <div className="mt-2 rounded-lg px-2.5 py-2 font-mono text-[10.5px]" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)", color: "var(--vault-text-faint)" }}>
-          Step{comingSoon.length > 1 ? "s" : ""} {comingSoon.map((s) => s.step).join("–")} · coming soon · ride the bank toward ${CROWN_TARGET.toLocaleString()}
+          Step{comingSoon.length > 1 ? "s" : ""} {comingSoon.map((s) => s.step).join("–")} · coming soon · ride the bank toward ${CROWN_TARGET.toLocaleString("en-US")}
         </div>
       )}
 
@@ -324,7 +324,7 @@ export default function BankBuilderPreviewPanel({ preview }: { preview: DualBank
       </div>
       <p className="mt-1 text-[12.5px]" style={{ color: "var(--vault-text-faint)" }}>
         {isLadder
-          ? `Each lane runs its own survival-first card — one World Cup leg + one MLB leg — riding the bank toward $${CROWN_TARGET.toLocaleString()}.${laneALive && laneBLive ? ` Lane A on Step ${laneALive.step}, Lane B on Step ${laneBLive.step}.` : ""} Paper stakes only; protected completed-ladder history untouched.`
+          ? `Each lane runs its own survival-first card — one World Cup leg + one MLB leg — riding the bank toward $${CROWN_TARGET.toLocaleString("en-US")}.${laneALive && laneBLive ? ` Lane A on Step ${laneALive.step}, Lane B on Step ${laneBLive.step}.` : ""} Paper stakes only; protected completed-ladder history untouched.`
           : live
           ? "Launched dual run from the methodology engine — survival-first, one World Cup leg per lane. Paper stakes only; protected completed-ladder history untouched."
           : "Dry-run preview from the methodology engine — survival-first, pre-event, odds-backed, correlation-aware. Not launched; nothing is published or active. Paper stakes only."}

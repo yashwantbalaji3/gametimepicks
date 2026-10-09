@@ -44,7 +44,7 @@ export function narrationFor(manifest) {
   const runs = Number.isInteger(manifest?.provenance?.runCount) && manifest.provenance.runCount > 0 ? manifest.provenance.runCount : null;
   return [
     "Loading the matchup model",
-    runs ? `Reading the outcome distribution from ${runs.toLocaleString()} simulated games` : "Reading the outcome distribution",
+    runs ? `Reading the outcome distribution from ${runs.toLocaleString("en-US")} simulated games` : "Reading the outcome distribution",
     "Preparing the score scenarios",
   ];
 }

@@ -89,7 +89,7 @@ export default function EndzoneVaultPage() {
               </div>
               {vault.candidateCount && vault.candidateCount > rows.length ? (
                 <p className="m-0 mt-2" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>
-                  {vault.candidateCount.toLocaleString()} players cleared the minimum probability across the slate; the {rows.length} above are the highest.
+                  {vault.candidateCount.toLocaleString("en-US")} players cleared the minimum probability across the slate; the {rows.length} above are the highest.
                 </p>
               ) : null}
             </section>

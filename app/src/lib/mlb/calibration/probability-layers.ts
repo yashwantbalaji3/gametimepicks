@@ -131,5 +131,5 @@ export function calibrationDisclosure(p: CalibratorProvenance): string {
   const limit = p.stillBehindMarket
     ? "It makes the stated probability more accurate. It does not mean the model out-predicts the sportsbook — measured on the same rows, it does not."
     : "It makes the stated probability more accurate.";
-  return `${gainText} using a calibrator fitted on results through ${p.trainedThrough ?? "an earlier period"} (${p.trainRows.toLocaleString()} rows). ${limit}`;
+  return `${gainText} using a calibrator fitted on results through ${p.trainedThrough ?? "an earlier period"} (${p.trainRows.toLocaleString("en-US")} rows). ${limit}`;
 }

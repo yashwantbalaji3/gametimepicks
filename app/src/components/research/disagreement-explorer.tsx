@@ -377,8 +377,8 @@ function HistoryTable({
       </div>
       <p style={{ fontSize: 12, color: "var(--vault-text-mute)", lineHeight: 1.7, marginBottom: 12 }}>
         Every settled row from {from ?? "the start of the record"} to {to ?? "the latest settled slate"}, grouped by how
-        far the simulation sat from the sportsbook price. {total.toLocaleString()} rows are counted.{" "}
-        {excluded.toLocaleString()} were refused by an integrity check and appear in no figure here. Ranges with no
+        far the simulation sat from the sportsbook price. {total.toLocaleString("en-US")} rows are counted.{" "}
+        {excluded.toLocaleString("en-US")} were refused by an integrity check and appear in no figure here. Ranges with no
         observations show no rate rather than a zero.
       </p>
       <div style={{ overflowX: "auto" }}>
@@ -401,7 +401,7 @@ function HistoryTable({
               <tr key={b.id} style={{ borderTop: "1px solid var(--vault-rule)" }}>
                 <td style={{ padding: "8px 10px 8px 0", color: "var(--vault-text)" }}>{b.label}</td>
                 <td className="font-mono" style={{ padding: "8px 10px 8px 0", color: "var(--vault-text-mute)" }}>
-                  {b.n.toLocaleString()}
+                  {b.n.toLocaleString("en-US")}
                 </td>
                 <td className="font-mono" style={{ padding: "8px 10px 8px 0", color: "var(--vault-text)" }}>
                   {b.observedRate == null ? "—" : pct(b.observedRate)}

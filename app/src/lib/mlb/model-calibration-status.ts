@@ -67,7 +67,7 @@ export function anyModeledMarketBeatsMarket(): boolean {
 
 /** The honest, plain-English disclosure shown wherever model probabilities are surfaced. */
 export const MLB_CALIBRATION_DISCLOSURE =
-  `Calibration notice (audit ${CALIBRATION_AUDIT_ASOF}): across ${CALIBRATION_AUDIT_TOTAL_LEANS.toLocaleString()} settled leans, ` +
+  `Calibration notice (audit ${CALIBRATION_AUDIT_ASOF}): across ${CALIBRATION_AUDIT_TOTAL_LEANS.toLocaleString("en-US")} settled leans, ` +
   `none of these markets' model probabilities out-predict the market on Brier or log loss — the model is overconfident ` +
   `(its high-confidence reads under-perform). Treat the model number as a market-anchored research signal, not a ` +
   `proven advantage; the market price is the better probability. Paper / review / educational only — never a bet.`;

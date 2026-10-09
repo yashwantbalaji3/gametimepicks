@@ -43,7 +43,7 @@ export default function GradedPicksSection({ record, rows = 6, href }: { record:
   return (
     <section className="mt-8">
       <SectionHeader
-        eyebrow={`Picks vs outcomes · ${c.counted.toLocaleString()} graded`}
+        eyebrow={`Picks vs outcomes · ${c.counted.toLocaleString("en-US")} graded`}
         title="How the model's picks actually turned out"
         sub={record.what}
         rightSlot={
@@ -54,9 +54,9 @@ export default function GradedPicksSection({ record, rows = 6, href }: { record:
       />
       <div className="mt-3 flex flex-wrap gap-4 font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
         {record.recordBasis === "MIXED" && record.byBasis
-          ? record.byBasis.map((b) => <span key={b.basis}>{BASIS_LABEL[b.basis] ?? b.basis}: {b.hits.toLocaleString()} hit · {b.misses.toLocaleString()} missed</span>)
-          : <span>{c.hits.toLocaleString()} hit · {c.misses.toLocaleString()} missed</span>}
-        {c.voided > 0 ? <span>{c.voided.toLocaleString()} void — a condition that did not hold is never scored as a miss</span> : null}
+          ? record.byBasis.map((b) => <span key={b.basis}>{BASIS_LABEL[b.basis] ?? b.basis}: {b.hits.toLocaleString("en-US")} hit · {b.misses.toLocaleString("en-US")} missed</span>)
+          : <span>{c.hits.toLocaleString("en-US")} hit · {c.misses.toLocaleString("en-US")} missed</span>}
+        {c.voided > 0 ? <span>{c.voided.toLocaleString("en-US")} void — a condition that did not hold is never scored as a miss</span> : null}
         {record.hitRate != null && SHOW_RATE.has(record.sampleState) ? <span>{pct(record.hitRate)} hit rate</span> : null}
       </div>
       <p className="mt-2" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)", margin: "8px 0 0" }}>
@@ -108,7 +108,7 @@ export default function GradedPicksSection({ record, rows = 6, href }: { record:
       {c.total > rows ? (
         <p className="mt-2 font-mono" style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>
           {/* The list is not the record: counts are over every graded pick, the rows are a slice. */}
-          Showing the {rows} most recent of {c.counted.toLocaleString()} graded.
+          Showing the {rows} most recent of {c.counted.toLocaleString("en-US")} graded.
         </p>
       ) : null}
     </section>

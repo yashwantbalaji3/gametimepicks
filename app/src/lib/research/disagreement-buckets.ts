@@ -299,9 +299,9 @@ export function largestGapCaution(table: GapBucketTable): string | null {
 
   return (
     `Ordering by the size of the difference finds disagreement; it ranks nothing. Across settled history ` +
-    `(${window}), rows ${widest.bucket.label} came in ${rate(widest)} of the time over ${widest.n.toLocaleString()} rows ` +
+    `(${window}), rows ${widest.bucket.label} came in ${rate(widest)} of the time over ${widest.n.toLocaleString("en-US")} rows ` +
     `with a Brier score of ${brier(widest)}, while rows ${narrowest.bucket.label} came in ${rate(narrowest)} over ` +
-    `${narrowest.n.toLocaleString()} rows with a Brier score of ${brier(narrowest)}. A higher Brier score is a worse one, ` +
+    `${narrowest.n.toLocaleString("en-US")} rows with a Brier score of ${brier(narrowest)}. A higher Brier score is a worse one, ` +
     `so on that measure the largest disagreements have been the ${widestIsWorse ? "least" : "most"} accurate rows on the board, ` +
     `${widestIsWorse ? "not the most" : "not the least"}.`
   );

@@ -143,7 +143,7 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   if (!f) return withRouteMetadata(`/nfl/game/${params.eventId}/`, { title: "NFL game · GameTime Picks" });
   return withRouteMetadata(`/nfl/game/${params.eventId}/`, {
     title: `${f.matchup} — NFL game forecast and simulated games · GameTime Picks`,
-    description: `A ${Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? `${f.model.simulations.toLocaleString()}-run ` : ""}simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. Experimental model; educational and paper-only.`,
+    description: `A ${Number.isInteger(f.model?.simulations) && f.model.simulations > 0 ? `${f.model.simulations.toLocaleString("en-US")}-run ` : ""}simulation of ${f.matchup}: projected score, win chance and total range, beside the sportsbook consensus. Experimental model; educational and paper-only.`,
     alternates: { canonical: `/nfl/game/${f.providerEventId}` },
   });
 }
@@ -636,7 +636,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                  exact, and a reader is told which way it misses rather than left to assume a
                  calibration nobody measured. */
               <p style={{ margin: "8px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)", maxWidth: 760, lineHeight: 1.6 }}>
-                The right-hand column is what actually happened across {shape!.keyNumberAccuracy.sampleGames.toLocaleString()} regular-season
+                The right-hand column is what actually happened across {shape!.keyNumberAccuracy.sampleGames.toLocaleString("en-US")} regular-season
                 games ({shape!.keyNumberAccuracy.seasons}) — the same finals this engine was fitted to. It gets the shape right,
                 with 3 the most common margin by a distance, and it is not calibrated to the number: it puts less weight on 3
                 and more on 10 than those seasons did.
@@ -775,7 +775,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         <SectionHeader eyebrow="Provenance" title="Where this came from" />
         <dl style={{ marginTop: 12, fontSize: 12, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)", display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px" }}>
           <dt>model</dt><dd style={{ margin: 0 }}>{f.model.id} v{f.model.version}</dd>
-          <dt>simulations</dt><dd style={{ margin: 0 }}>{f.model.simulations.toLocaleString()}</dd>
+          <dt>simulations</dt><dd style={{ margin: 0 }}>{f.model.simulations.toLocaleString("en-US")}</dd>
           <dt>input hash</dt><dd style={{ margin: 0 }}>{f.model.inputHash}</dd>
           <dt>generated</dt><dd style={{ margin: 0 }}>{f.generatedAt}</dd>
           <dt>kickoff</dt><dd style={{ margin: 0 }}>{f.kickoffUtc}</dd>

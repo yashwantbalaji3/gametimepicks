@@ -147,7 +147,7 @@ export default function SiteSearch() {
                 <p style={{ margin: 0, padding: "18px 16px", fontSize: 13, color: "var(--vault-text-mute)" }}>Loading the index…</p>
               ) : q.trim().length < 2 ? (
                 <p style={{ margin: 0, padding: "18px 16px", fontSize: 13, color: "var(--vault-text-mute)" }}>
-                  Type at least two letters. {index ? `${index.rows.length.toLocaleString()} players, teams, games and pages are indexed.` : ""}
+                  Type at least two letters. {index ? `${index.rows.length.toLocaleString("en-US")} players, teams, games and pages are indexed.` : ""}
                 </p>
               ) : results.length === 0 ? (
                 /* An empty result says what was searched, so a reader can tell "not here" from

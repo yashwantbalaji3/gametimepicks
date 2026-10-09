@@ -121,7 +121,7 @@ function Row({ a, showMeaning }: { a: DateAccounting; showMeaning: boolean }) {
 
       {withheld ? (
         <p className="mt-3 text-[14px] leading-relaxed text-[var(--text-mute)]">
-          {a.generated.toLocaleString()} rows were generated for this slate. None were graded, so there
+          {a.generated.toLocaleString("en-US")} rows were generated for this slate. None were graded, so there
           is <strong className="text-[var(--text)]">no win/loss record</strong> for it and it is excluded
           from every rate on this site.
         </p>
@@ -130,7 +130,7 @@ function Row({ a, showMeaning }: { a: DateAccounting; showMeaning: boolean }) {
           <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3">
             <div className="col-span-2 sm:col-span-3 flex justify-between border-b border-[var(--vault-rule)] pb-1">
               <dt className="text-[13px] font-semibold text-[var(--text)]">Generated</dt>
-              <dd className="text-[13px] font-semibold text-[var(--text)]">{a.generated.toLocaleString()}</dd>
+              <dd className="text-[13px] font-semibold text-[var(--text)]">{a.generated.toLocaleString("en-US")}</dd>
             </div>
             {BUCKETS.map((b) => (
               <div key={b.state} className="flex justify-between">
@@ -138,7 +138,7 @@ function Row({ a, showMeaning }: { a: DateAccounting; showMeaning: boolean }) {
                   {OUTCOME_LABEL[b.state]}
                 </dt>
                 <dd className="text-[13px] tabular-nums text-[var(--text)]">
-                  {(a[b.key] as number).toLocaleString()}
+                  {(a[b.key] as number).toLocaleString("en-US")}
                 </dd>
               </div>
             ))}

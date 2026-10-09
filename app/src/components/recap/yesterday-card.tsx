@@ -54,7 +54,7 @@ export default function YesterdayCard({ recap }: { recap: Recap | null }) {
 
         {model ? (
           <span style={{ fontSize: 13.5, color: "var(--vault-text-mute)" }}>
-            <strong style={{ color: "var(--vault-text)" }}>{`${rate!.toFixed(1)}%`}</strong>{` of ${model.decisive.toLocaleString()} decisive projections cleared · ${model.games} MLB games`}
+            <strong style={{ color: "var(--vault-text)" }}>{`${rate!.toFixed(1)}%`}</strong>{` of ${model.decisive.toLocaleString("en-US")} decisive projections cleared · ${model.games} MLB games`}
           </span>
         ) : null}
 

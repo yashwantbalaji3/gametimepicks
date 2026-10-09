@@ -80,7 +80,7 @@ function EvidenceRow({ label, e }: { label: string; e?: { accuracy?: number; bas
   return (
     <div className="font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-mute)", lineHeight: 1.7 }}>
       <strong style={{ color: "var(--vault-text)" }}>{label}</strong>{" "}
-      {pct(e.accuracy)} accurate over {e.n.toLocaleString()} held-out fights
+      {pct(e.accuracy)} accurate over {e.n.toLocaleString("en-US")} held-out fights
       {e.baselineAccuracy != null ? ` · baseline ${pct(e.baselineAccuracy)}` : ""}
       {e.logLoss != null && e.baselineLogLoss != null
         ? ` · log loss ${e.logLoss.toFixed(4)} against ${e.baselineLogLoss.toFixed(4)}`
@@ -301,7 +301,7 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
             {card.model?.id ? <div>model {card.model.id}</div> : null}
             {card.model?.corpus?.fights ? (
               <div>
-                corpus {card.model.corpus.fights.toLocaleString()} fights
+                corpus {card.model.corpus.fights.toLocaleString("en-US")} fights
                 {card.model.corpus.from && card.model.corpus.to ? ` · ${card.model.corpus.from} to ${card.model.corpus.to}` : ""}
                 {card.model.corpus.source ? ` · ${card.model.corpus.source}` : ""}
               </div>

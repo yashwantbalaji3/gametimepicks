@@ -74,7 +74,7 @@ export default function HowToReadThis({ terminal }: { terminal: TerminalView }) 
           {mu ? (
             <p>
               Because the raw model is systematically overconfident. Across{" "}
-              {mu.decisiveRows.toLocaleString()} settled results it stated about{" "}
+              {mu.decisiveRows.toLocaleString("en-US")} settled results it stated about{" "}
               {formatRate(mu.hitRate == null || mu.overconfidencePp == null ? null : mu.hitRate + mu.overconfidencePp / 100, 0)}{" "}
               on average and was right {formatRate(mu.hitRate, 0)} of the time — about{" "}
               {mu.overconfidencePp?.toFixed(1)} percentage points too confident.
@@ -96,7 +96,7 @@ export default function HowToReadThis({ terminal }: { terminal: TerminalView }) 
           <p className="text-[var(--text)]">No.</p>
           {cal ? (
             <p>
-              On {cal.heldOutWindow.rows.toLocaleString()} results the calibrator never saw, calibration
+              On {cal.heldOutWindow.rows.toLocaleString("en-US")} results the calibrator never saw, calibration
               improved our score (Brier {cal.rawBrier.toFixed(4)} → {cal.calibratedBrier.toFixed(4)};
               lower is better). On those same rows the sportsbook&rsquo;s own no-vig price scored{" "}
               {cal.marketBrier.toFixed(4)} — still better than ours.
@@ -165,7 +165,7 @@ export default function HowToReadThis({ terminal }: { terminal: TerminalView }) 
             The <strong className="text-[var(--text)]">paper record</strong> is a small, hand-picked
             set of paper selections — a few cards a day at most. The{" "}
             <strong className="text-[var(--text)]">model history</strong> is every prediction the model
-            generated — {mu ? mu.decisiveRows.toLocaleString() : "tens of thousands of"} settled rows.
+            generated — {mu ? mu.decisiveRows.toLocaleString("en-US") : "tens of thousands of"} settled rows.
             Neither is evidence about the other.
           </p>
         </QA>

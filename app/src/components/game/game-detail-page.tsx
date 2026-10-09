@@ -670,7 +670,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
     />
   ) : null;
   const mlbRunLabel = detail.gameLabSimulation?.allowsRunCountClaim && detail.gameLabSimulation?.runCount
-    ? `${detail.gameLabSimulation.runCount.toLocaleString()}-run`
+    ? `${detail.gameLabSimulation.runCount.toLocaleString("en-US")}-run`
     : "deterministic";
   // The old dense report + spotlight + legacy tabs — demoted into V2's collapsed "Full report" block.
   const mlbAdvanced = (
@@ -906,7 +906,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <div className="relative mt-4 flex flex-wrap items-center gap-2">
             {[
               { k: "Model simulation", v: "precomputed" },
-              ...(sim.allowsRunCountClaim && sim.runCount != null ? [{ k: "Runs", v: sim.runCount.toLocaleString() }] : []),
+              ...(sim.allowsRunCountClaim && sim.runCount != null ? [{ k: "Runs", v: sim.runCount.toLocaleString("en-US") }] : []),
               { k: "Generated picks", v: String(sim.generatedPicks.length) },
             ].map((m) => (
               <span key={m.k} className="inline-flex items-baseline gap-1.5 rounded-full px-3 py-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-neutral) 50%, transparent)", border: "1px solid var(--vault-rule)" }}>
