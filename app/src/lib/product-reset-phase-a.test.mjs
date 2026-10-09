@@ -64,7 +64,8 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
   // strip on the homepage is the deliberate, restrained discovery path.
   // Program 158 IA decision: ONE "Sports · Schedules" nav item exists (secondary group), never
   // four league links — the label carries "Schedules" so it cannot read as a second model hub.
-  const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
+  // UX-001 phase 2: the sport hubs' entries live in lib/sports/catalog.ts, which the registry's Sports group derives from.
+  const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts") + read("src/lib/sports/catalog.ts");
   const sportsItems = nav.match(/href: "\/sports"/g) ?? [];
   assert.equal(sportsItems.length, 1, "exactly ONE /sports nav item — the canonical discovery path");
   /* P243 · E: "Sports" is one of the charter's five primaries, so the label is the bare word now.

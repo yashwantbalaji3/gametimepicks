@@ -24,6 +24,7 @@
  */
 import type { Metadata } from "next";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
+import SportSwitcher from "@/components/sports/sport-switcher";
 import { nflHub } from "@/lib/sport-hub/adapters";
 import { totalsSpread } from "@/lib/sports/nfl/totals-spread.mjs";
 import Explain from "@/components/ui/explain";
@@ -401,6 +402,8 @@ export default function NflHubPage() {
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden flex flex-col gap-10">
       {/* P208 · Release C — shared section nav; conditional sections pass through only when they
           rendered, so no strip item is dead. */}
+      {/* UX-001 phase 2: the shared sport switcher — every hub links to every other sport. */}
+      <SportSwitcher current="nfl" />
       <HubTitle model={__hubModel} />
       {/* Founder UX decision 2026-10-08: a game in play leads the hub (client-read; nothing when none is live). */}
       <LiveNow sports={["nfl"]} />

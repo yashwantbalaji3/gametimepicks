@@ -10,6 +10,7 @@
 import LiveNow from "@/components/live/live-now";
 import fs from "node:fs";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
+import SportSwitcher from "@/components/sports/sport-switcher";
 import { mlbHub } from "@/lib/sport-hub/adapters";
 import Link from "next/link";
 import CompetitionBadge from "@/components/ui/competition-badge";
@@ -405,6 +406,8 @@ export default function MlbLandingPage() {
       {/* P208 · Release C — the shared section nav: every hub capability one action from here.
           Conditional sections pass through only when they rendered, so no strip item is dead. */}
       <div className="mb-4">
+        {/* UX-001 phase 2: the shared sport switcher — every hub links to every other sport. */}
+        <SportSwitcher current="mlb" />
         <HubTitle model={__hubModel} />
         {/* Founder UX decision 2026-10-08: a game in play leads the hub (client-read; nothing when none is live). */}
         <LiveNow sports={["mlb"]} />

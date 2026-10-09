@@ -6,6 +6,7 @@
  * tested on a season it had never seen — including that the sportsbook closing line and a plain Elo
  * rating were both more accurate. Model-only forecasts; not betting advice.
  */
+import SportSwitcher from "@/components/sports/sport-switcher";
 import TeamLogo from "@/components/team-logo";
 import { loadLeagueForecasts, loadLeagueGraded, type LeagueForecastRow } from "@/lib/sports/soccer/forecast-view";
 import { gradedCaption } from "@/lib/sports/soccer/grading.mjs";
@@ -89,6 +90,7 @@ export default function LeagueForecastPage({ leagueKey }: { leagueKey: string })
   const OUTCOME = { H: "home win", D: "draw", A: "away win" } as const;
   return (
     <div data-sport="soccer" className="mx-auto w-full max-w-[1100px] px-4 py-6">
+      <SportSwitcher current={leagueKey} />
       <header className="mb-5">
         <p className="font-mono uppercase" style={{ margin: 0, fontSize: 11, letterSpacing: "0.08em", color: "var(--vault-text-faint)" }}>Soccer · model-only forecasts</p>
         <h1 style={{ margin: "6px 0 0", fontSize: 28, lineHeight: 1.15, color: "var(--vault-text)", textWrap: "balance" }}>{name} match forecasts</h1>

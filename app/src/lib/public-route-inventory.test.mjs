@@ -143,6 +143,7 @@ const APPROVED_DESTINATIONS = new Set([
   "/nfl", // P169-J: the NFL honesty hub — footer-linked; guarded by the rendered-text rules above
   "/epl", // P186: Premier League schedule hub — schedule only, guarded by the rendered-text rules above
   "/ufc", // P186: UFC settled archive + upcoming schedule — schedule only, same rendered-text guard
+  "/soccer/ligue-1", // UX-001 phase 2: Ligue 1 forecasts (ACCEPTED_V1 publishing stage) — listed through lib/sports/catalog.ts
   "/learn",
   "/methodology",
   "/market-guide",

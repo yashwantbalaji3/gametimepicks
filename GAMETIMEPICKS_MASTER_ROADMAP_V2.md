@@ -655,6 +655,31 @@ Mirror `scripts/research/nfl/forward-player-props-share-level.mjs` (P300's forwa
   - The committed gsis→ESPN id map replaces the local raw players.csv.
   - Re-simulation is keyed per game (its own teams' slice), with legacy-key compatibility so existing runs are not re-simulated.
 
+### Progress (2026-10-09; founder decisions for #1028/#1029; branch `claude/nfl-wm2-refresh-noise`)
+- **Problem:** the 01:00Z event window re-simulated 14 unchanged games. The World Model V2 spreads were derived from the forecast's sampled 80% range, which moves by about a point on every regeneration.
+- **Fix (#1029):** the first head added a 0.75-point tolerance. The founder asked for deterministic fingerprints instead, so it was replaced with no threshold:
+  - The forecast publishes its simulation's exact inputs (`forecastSummary.distribution`). This is additive, with 0 other field changes across 14 forecasts.
+  - World Model V2 keys on those inputs (`world-model-v2/heads.mjs`). Older records fall back to `headsSource: "RANGE"`.
+  - Version is now 2.2.0.
+- **Tests:** `refresh.test.mjs` runs the real builder on a committed two-game Week 5 sample. It covers:
+  - Unchanged inputs, and percentile noise of 1–3 points.
+  - Questionable and Out designations; a depth-chart QB swap (Hurts → McKee); QB1 ruled Out (Jones → Richardson).
+  - An opportunity change, model parameters, and a ±0.01 distribution change.
+  - A started game.
+  - Top Board = game page parity after a refresh.
+- **2.1.0 vs 2.2.0 on the 14 unstarted Week 5 games** (main data, 2.2.0 range-input control run to measure noise):
+  - Home win probability: mean |Δ| 0.89 pp, max 2.31 pp (SF @ SEA). Noise alone: mean 0.39 pp, max 1.00 pp.
+  - Player medians move about as much as noise: passing mean 1.03 yd, rushing 0.26, receiving 0.31, receptions 0.03.
+  - Projected scores: 3 of 14 move by one point per team.
+  - Unchanged: status, eligibility and promotion flags, every forecast of record, and the withheld families.
+  - Invariant violations: 0. TB @ DAL is byte-identical; no earlier run file is removed.
+- **#1029 merged** at exact head `72aa8fa30d` (`python` ✓ `quality` ✓, MERGEABLE/CLEAN) → `e3368f004333e3e8aabfde045853813f4d8c1798` at 02:42:00Z.
+  - Production build-info = `e3368f00`, built 02:43:20Z; Vercel success 02:45:45Z.
+  - Vercel Build CPU: not readable without a dashboard login.
+- **Pending:** the one-time 2.2.0 regeneration of the unstarted Week 5 games runs at the next event window (Fri 13:00Z sweep).
+  - Until then Production shows the 2.1.0 runs (PHI vs JAX `076bd90906ca28d4`, 01:00:16Z).
+  - The new simulation timestamps will be recorded here when it runs.
+
 ## Milestone — NFL Week 5 readiness (2026-10-08 → 2026-10-12)
 Founder-approved, time-sensitive milestone **inside** the NFL program (not a new task). Work items belong to `NFL-001` → `NFL-005` above.
 - Window: Thursday 2026-10-08 TB @ DAL (8:15 PM ET, first priority) → Sunday 2026-10-11 → Monday 2026-10-12.
@@ -864,6 +889,30 @@ Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parla
   - Hub lists lead with rows the schedule owner states are in progress.
   - The `#player-board` alias anchor on simulated NFL game pages keeps /live and saved links landing on the player projections.
   - Verified locally against the real gateway during TB @ DAL and CLE @ CWS at 390 px and 1280 px: the strip is at the top, both games show, links resolve, no overflow.
+
+- **#1028 merged** at exact head `c4d8f43241` → `71c82da625c26f4697650ae7bfd715d2c227659e` at 02:34:03Z.
+  - CI: `python` ✓. `quality` failed once: the Firefox scroll-box check on `/results/` found 6 boxes. It did not reproduce locally (head, or head merged with main, 13/13 routes) or on Production, and passed on the single permitted re-run. No test was changed.
+  - Production build-info = `71c82da6`, built 02:37:53Z; Vercel success 02:40:28Z.
+  - Verified in Production during TB @ DAL (4th quarter) and CLE @ CWS:
+    - Live Now shows both games with working links.
+    - A feed failure after load shows "last known"; a feed down from the first load shows no strip.
+    - In-progress games come first.
+    - The five primaries and Parlays (Menu sheet) are intact.
+  - Vercel Build CPU: not readable without a dashboard login.
+- **Pre-existing defect (recorded here, not a new task):** React hydration errors #425/#418/#423 on `/nfl/` (7) and on NFL game pages (9, e.g. `/nfl/game/401872981/`). The text the server renders differs from the client's.
+  - Identical counts on Production before and after #1028; Home, MLB, Live, Results, Sports and Parlays have 0.
+  - To fix inside UX-001 (likely time-dependent text rendered at build time).
+
+### Progress (2026-10-09; UX-001 phase 2 · navigation and sport switcher; branch `claude/ux-001-sport-nav`)
+- **One sport catalog** (`lib/sports/catalog.ts`): Football (NFL) · Basketball (NBA) · Baseball (MLB) · Soccer (Premier League, Ligue 1) · MMA (UFC), in the founder's naming and order.
+  - Soccer competitions beyond the Premier League come only through the league registry's publishing gate (`soccerLeaguePages`), so there is no placeholder for a planned, held or rejected league.
+  - Ligue 1's note is "model-only forecasts · backtest only", matching its page and the capability registry.
+- **Everything that lists sports reads it:**
+  - The registry's Sports group (rail, footer, phone Menu). Ligue 1 was public with no link before.
+  - The new shared `SportSwitcher` on every hub (NFL, NBA, MLB, Premier League, Ligue 1, UFC). It is server-rendered from the hub's key and wraps rather than scrolling sideways.
+  - The `/sports` chooser, which previously had no NBA or Ligue 1.
+- **Guards:** new `catalog.test.mjs`. Source guards now read the catalog beside the registry, with no assertion weakened.
+- **Next in phase 2:** one active-route resolver (nav.tsx, the rail and the Menu sheet each keep their own); removing unused navigation components and dead mobile buckets; correcting stale route-inventory entries; the 768–1023 px gap with no rail or bar.
 
 ## Universal order
 1. Sport header + period selector
