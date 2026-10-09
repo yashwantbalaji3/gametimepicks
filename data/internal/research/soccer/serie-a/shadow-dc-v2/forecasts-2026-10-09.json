@@ -1,0 +1,163 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "serie-a",
+ "season": "2026-27",
+ "date": "2026-10-09",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-09T16:37:28.000Z",
+ "runs": [
+  {
+   "at": "2026-10-09T16:37:28.000Z",
+   "added": 2
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Cagliari|Juventus",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874764",
+   "providerEventId": "401874764",
+   "kickoffUtc": "2026-10-11T18:45:00.000Z",
+   "matchup": "Cagliari v Juventus",
+   "homeClub": "Cagliari",
+   "awayClub": "Juventus",
+   "historyNames": {
+    "home": "Cagliari",
+    "away": "Juventus"
+   },
+   "espnTeamIds": {
+    "home": "2925",
+    "away": "111"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-09T16:37:28.000Z",
+   "probs": {
+    "home": 0.203436,
+    "draw": 0.26468,
+    "away": 0.531885
+   },
+   "over25": 0.410697,
+   "under25": 0.589303,
+   "expectedGoals": {
+    "home": 0.8216,
+    "away": 1.5038
+   },
+   "lambdas": {
+    "home": 0.8216,
+    "away": 1.5038
+   },
+   "rho": -0.013803,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 118,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-10-09T16:37:28.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 0
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.225099,
+     "draw": 0.255134,
+     "away": 0.519767
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Atalanta|Venezia",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401875005",
+   "providerEventId": "401875005",
+   "kickoffUtc": "2026-10-12T16:30:00.000Z",
+   "matchup": "Atalanta v Venezia",
+   "homeClub": "Atalanta",
+   "awayClub": "Venezia",
+   "historyNames": {
+    "home": "Atalanta",
+    "away": "Venezia"
+   },
+   "espnTeamIds": {
+    "home": "105",
+    "away": "17530"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-09T16:37:28.000Z",
+   "probs": {
+    "home": 0.73198,
+    "draw": 0.174772,
+    "away": 0.093247
+   },
+   "over25": 0.551707,
+   "under25": 0.448293,
+   "expectedGoals": {
+    "home": 2.2319,
+    "away": 0.6579
+   },
+   "lambdas": {
+    "home": 2.2321,
+    "away": 0.6579
+   },
+   "rho": -0.013803,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 156,
+    "away": 42
+   },
+   "fit": {
+    "cutoffIso": "2026-10-09T16:37:28.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 0
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.761049,
+     "draw": 0.152462,
+     "away": 0.08649
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 2
+ }
+}
