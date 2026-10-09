@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-09T17:20:11.641Z",
+  "generatedAt": "2026-10-09T17:34:02.897Z",
   "canonical": {
     "record": "46-49",
     "bankroll": 14390.4,
@@ -105,7 +105,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-09",
-      "generatedAt": "2026-10-09T15:29:08Z",
+      "generatedAt": "2026-10-09T17:20:17Z",
       "sports": [
         {
           "sport": "epl",
@@ -137,14 +137,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 15,
-            "priced": 15,
+            "scheduled": 16,
+            "priced": 16,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:15 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:16 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -215,16 +215,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-09T17:17:49.157Z",
+    "lastRunAt": "2026-10-09T17:34:02.099Z",
     "ageHours": 0,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-09",
-    "etTime": "13:20",
+    "etTime": "13:34",
     "stages": [
       {
         "stage": "schedule",
