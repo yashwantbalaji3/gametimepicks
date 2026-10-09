@@ -197,11 +197,27 @@ jobs:
       # projection, and the scorecard carried a "recent signings — last season's usage" strip instead.
       # This captures each 2026 final listed in the committed nflverse current-season file through the
       # same ESPN summary path and reconciliation rules as 2023–2025, reusing games already captured.
-      # It reads the file the PREVIOUS run committed (the nflverse capture below runs later), so a
-      # newly final game enters one run later. Free, keyless; a failure keeps the committed partition
+      # NFL-005 / LEDGER-001 (2026-10-09): MOVED AHEAD of the player-event capture. That capture reads this file, and
+      # with the nflverse capture running later a newly final game reached the grader one window late — TB @ DAL (final
+      # ~03:30Z Oct 9) was still ungraded after the 16:07Z run because its stat lines were captured from the stale list.
+      # The forecast builder below reads the same capture either way.
+      #
+      # P295: the v3 totals head learns game by game from this season's nflverse finals and play-by-play
+      # (free, CC BY 4.0, no key, no credits). This step never fails the window: a failed download keeps
+      # the last good capture and records the attempt, and the forecast builder falls back to the
+      # incumbent totals head — naming why — whenever an official final is missing from what it folded.
+      - name: Capture this season's nflverse finals and play-by-play (free)
+        if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/capture-nflverse-season.mjs --now "${{ steps.window.outputs.now }}"
+
+      # It reads the nflverse current-season file captured just above, so a game final on nflverse is captured, folded
+      # and graded in the same run. Free, keyless; a failure keeps the committed partition
       # and never fails the window — the pool then folds the games it already has.
       - name: Capture current-season player events
-        if: steps.window.outputs.events != '0'
+        if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
         working-directory: app
         run: |
           set -euo pipefail
@@ -211,7 +227,7 @@ jobs:
           fi
 
       - name: Rebuild NFL role shares against the fresh roster
-        if: steps.window.outputs.events != '0'
+        if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
         working-directory: app
         run: |
           set -euo pipefail
@@ -346,17 +362,6 @@ jobs:
           # forecasts, so any player output downstream consumes one versioned playing-time answer
           # rather than each surface assuming its own.
           node scripts/nfl/build-nfl-participation.mjs --now "${{ steps.window.outputs.now }}" --lookahead-hours 48
-
-      # P295: the v3 totals head learns game by game from this season's nflverse finals and play-by-play
-      # (free, CC BY 4.0, no key, no credits). This step never fails the window: a failed download keeps
-      # the last good capture and records the attempt, and the forecast builder falls back to the
-      # incumbent totals head — naming why — whenever an official final is missing from what it folded.
-      - name: Capture this season's nflverse finals and play-by-play (free)
-        if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
-        working-directory: app
-        run: |
-          set -euo pipefail
-          node scripts/nfl/capture-nflverse-season.mjs --now "${{ steps.window.outputs.now }}"
 
       - name: Generate public-beta NFL forecasts
         id: generate
