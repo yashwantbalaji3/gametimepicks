@@ -8,14 +8,18 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const rail = fs.readFileSync("src/components/command-rail.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
-const nav = fs.readFileSync("src/components/nav.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8");
+// UX-001 phase 2: the sport hubs' entries live in lib/sports/catalog.ts, which the registry's Sports group derives from.
+const CATALOG = fs.readFileSync("src/lib/sports/catalog.ts", "utf8");
+const rail = fs.readFileSync("src/components/command-rail.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8") + CATALOG;
+const nav = fs.readFileSync("src/components/nav.tsx", "utf8") + fs.readFileSync("src/lib/navigation.ts", "utf8") + CATALOG;
 const mobileRoute = fs.readFileSync("src/lib/nav-active-route.ts", "utf8");
 
 // The 2026 World Cup is complete — /world-cup and /world-cup-specials are NOT active rail destinations
 // anymore (archive only, reachable from results/methodology), so they are not key destinations.
+// UX-001 phase 2: "/picks" was retired to a redirect into /build (Program 143). It kept passing only because the rail's
+// old hand-written matcher named the alias; the rail links /build, the destination a reader actually reaches.
 const KEY_DESTINATIONS = [
-  "/today", "/picks", "/bank-builder", "/moonshot",
+  "/today", "/build", "/bank-builder", "/moonshot",
   "/mlb", "/mr-dub", "/results",
 ];
 

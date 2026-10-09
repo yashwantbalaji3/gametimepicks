@@ -915,7 +915,26 @@ Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parla
   - The new shared `SportSwitcher` on every hub (NFL, NBA, MLB, Premier League, Ligue 1, UFC). It is server-rendered from the hub's key and wraps rather than scrolling sideways.
   - The `/sports` chooser, which previously had no NBA or Ligue 1.
 - **Guards:** new `catalog.test.mjs`. Source guards now read the catalog beside the registry, with no assertion weakened.
-- **Next in phase 2:** one active-route resolver (nav.tsx, the rail and the Menu sheet each keep their own); removing unused navigation components and dead mobile buckets; correcting stale route-inventory entries; the 768–1023 px gap with no rail or bar.
+- **#1030 merged** at exact head `cdcc524d65` (`python` ✓ `quality` ✓) → `63be71c62003201cf7a5ae7886b637086fb7eb59` at 03:44:39Z.
+  - Production build-info = `63be71c6`, built 03:45:55Z; Vercel success 03:48:14Z.
+  - Verified at 390 and 1280 px: all six hubs show the switcher with the correct current page and no overflow; Menu, rail and /sports list the same six hubs; aliases and deep links return 200.
+- **Shared active-route resolver (branch `claude/ux-001-nav-resolver`):** `lib/nav-active-route.ts` `ownersOf` / `activeHref`. Each path has an ordered owner chain:
+  - an explicit alias entry, else
+  - its destination ancestors, longest first, else
+  - Sports, for anything inside a hub.
+
+  Each surface lights the first owner it carries:
+  - Top nav, rail and Menu sheet replace their three hand-written matchers. The Menu sheet's bare prefix rule is gone.
+  - The phone bar's bucket comes from the same chain; every existing pinned mapping is unchanged.
+  - Dead `picks`, `bank`, `moonshot` and `mrdub` buckets and their glyphs are removed.
+- **Tablet gap closed:**
+  - 768–1023 px: the header carries the five primaries plus a Menu button that opens the same sheet (portaled out of the blurred header) with search.
+  - Below 768 px: the phone header and bar only. The 640–767 px band no longer paints the primaries twice.
+- **Shared focus trap (`useDialogFocus`):** it now moves focus itself on every Tab. WebKit's default Tab order skips links, so Tab left the open Menu every other press; this reproduced on Production in WebKit.
+- **Tests:**
+  - New `nav-resolver.test.mjs`.
+  - Stale assertions corrected: `mr-dub-ui` asserted the dead `"mrdub"` string and now asserts the behaviour; `nav-three-click` checked retired `/picks` and now checks `/build`; e2e `p202` and `p243-journeys` still expected Parlays on the bar from before #1028.
+- **Remaining phase 2:** remove the unused navigation components; correct the stale route-inventory entries (`/nba` is a hub, not a redirect; `/nhl` and `/ipl` targets).
 
 ## Universal order
 1. Sport header + period selector

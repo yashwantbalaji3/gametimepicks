@@ -128,7 +128,8 @@ test.describe("P243 · charter journeys", () => {
     await page.goto("/");
     const desktop = page.locator('nav[aria-label="Primary (desktop)"] a');
     const hrefs = await desktop.evaluateAll((as) => as.map((a) => a.getAttribute("href")));
-    expect(hrefs).toEqual(["/", "/sports/", "/simulate/", "/build/", "/results/"]);
+    // Founder UX decision 2026-10-08 (#1028): Live took Parlays' slot among the five primaries.
+    expect(hrefs).toEqual(["/", "/sports/", "/live/", "/simulate/", "/results/"]);
     const mobile = page.locator('nav[aria-label="Mobile bottom navigation"] a');
     const mHrefs = await mobile.evaluateAll((as) => as.map((a) => a.getAttribute("href")));
     expect(mHrefs).toEqual(hrefs);

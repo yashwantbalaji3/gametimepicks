@@ -86,8 +86,16 @@ export function useDialogFocus(
       /* ⚠ ALSO CATCHES FOCUS THAT IS OUTSIDE ALREADY. Checking only `activeEl === first/last`
          leaves a gap: if focus somehow sits outside the dialog, every Tab keeps it outside. */
       if (!ref.current?.contains(activeEl)) { e.preventDefault(); first.focus(); return; }
-      if (e.shiftKey && activeEl === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && activeEl === last) { e.preventDefault(); first.focus(); }
+      /* ⚠ THE TRAP MOVES FOCUS ITSELF, ON EVERY TAB (UX-001, 2026-10-09). It used to step in only at the two ends and let
+         the browser move focus in between — but Safari/WebKit's default Tab order SKIPS LINKS, so from the Menu's Close
+         button (its only button) WebKit's next stop was outside the sheet, and every other Tab press left the open Menu
+         (reproduced on Production in WebKit). Cycling through the dialog's own list is the same order in every browser. */
+      e.preventDefault();
+      const at = nodes.indexOf(activeEl as HTMLElement);
+      const next = e.shiftKey
+        ? (at <= 0 ? last : nodes[at - 1])
+        : (at < 0 || at === nodes.length - 1 ? first : nodes[at + 1]);
+      next.focus();
     };
 
     document.addEventListener("keydown", onKey);

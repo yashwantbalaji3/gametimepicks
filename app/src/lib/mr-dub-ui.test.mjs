@@ -9,7 +9,7 @@ const r = (p) => fs.readFileSync(p, "utf8");
 // record — instead of a hand-picked lead order maintained separately on three surfaces. What these
 // guards exist to protect is that the SIMULATION product leads and the paper-bankroll products
 // never do. That still holds, and is asserted against the canonical list below.
-test("Mr. Dub is a first-class rail/footer destination (P201 took products off the mobile bar)", () => {
+test("Mr. Dub is a first-class rail/footer destination (P201 took products off the mobile bar)", async () => {
   /*
    * The old third assertion required /mr-dub on the `mobile` surface — which has not been true
    * since P201 removed products from the bar. It passed VACUOUSLY: the forward-scanning regex
@@ -23,8 +23,13 @@ test("Mr. Dub is a first-class rail/footer destination (P201 took products off t
   const body = decl.slice(0, decl.indexOf("},"));
   assert.match(body, /label: "Mr\. Dub's Portfolio"/, "keeps the founder-renamed label");
   assert.match(body, /surfaces: \["rail", "footer"\]/, "rail + footer (the Menu sheet derives from the rail)");
-  const navRoute = r("src/lib/nav-active-route.ts");
-  assert.ok(navRoute.includes('"/mr-dub"') && navRoute.includes('"mrdub"'), "bucket mapping preserved");
+  /* UX-001 phase 2: this asserted the "mrdub" bucket string survived in the resolver — a bucket no destination carries and
+     no surface renders since P201. The contract it stood for is behaviour, asserted as such: on a phone, /mr-dub lights no
+     bar slot (it holds none) and lights itself in the Menu sheet and on the rail. */
+  const route = await import("./nav-active-route.ts");
+  assert.equal(route.resolveMobileNavBucket("/mr-dub"), null, "no bar slot claims Mr. Dub");
+  const rail = (await import("./navigation.ts")).destinationsFor("rail").map((d) => d.href);
+  assert.equal(route.activeHref("/mr-dub/ledger", rail), "/mr-dub", "the rail and the Menu sheet light Mr. Dub on its pages");
 });
 
 test("Bank Builder public copy is natural — no awkward lifecycle terms on the marketing surface", () => {
