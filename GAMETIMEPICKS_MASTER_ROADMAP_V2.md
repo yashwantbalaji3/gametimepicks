@@ -362,7 +362,7 @@ Bot data commits are 386 of the 480 (80%).
 **Owner/session:** Claude Code, Lane A (Core Intelligence), 2026-10-09  
 **Branch:** `claude/truth-001-mlb-truth` (from `origin/main` `3e8aa34d71`)  
 **PR:** opened from this branch after local validation (number recorded at push)  
-**Exact head:** code head `6c7f81e2ea` (this roadmap commit sits on top)  
+**Exact head:** last code commit `09496a3c33`; the PR's exact head (including this roadmap commit) is recorded at push  
 **Evidence:** commits on the branch; tests named below; audit record in this section  
 **Production acceptance:** — (not merged; founder approval required)
 
@@ -429,8 +429,9 @@ Commits (all forward-only; no published artifact rewritten):
 5. `661556a9cd` story (A5): "Player markets · prop engine"; time via `simProvenance` (moved verbatim to `lib/mlb/full-game/sim-provenance.ts`, one owner for header + story).
 6. `5934eb7818` counts (A6): `lib/sim-frequency.ts` exact win tallies from persisted counts (583/583 reconcile), "≈" otherwise; prop-engine picks state their own percentage.
 7. `6c7f81e2ea` copy (A7).
+8. explorer source guard: `simulation-explorer.test.mjs` pinned the old in-card formula; it now asserts the exact/≈ rule.
 
-**Local validation:** CI unit phase 9,143 pass / 2 fail (the 2 `rls-live` tests need a local Postgres; pre-existing, documented by OPS-002/CI-001); targeted suites 300+ pass; Python CI script 90/90; `tsc --noEmit` clean; server render of the real report on 849819 / 849832 / 849838: "ATL +1.5 cover 55% · market 65%", "CWS +1.5 cover 61% · market 62%", "CLE wins 5,307 of 10,000", book + capture time shown. Today's MLB slate has 0 games, so no MLB game page is currently built: every A-item is latent until the next postseason slate and reaches pages on the first build after merge plus the next MLB run (identity: next board generation).
+**Local validation (final head):** CI unit phase 9,150 pass / 2 fail / 1 skipped (the 2 are `rls-live`, which need a local Postgres; pre-existing, documented by OPS-002/CI-001); local production build `npm run build` PASS (2,784 pages, 2m40s, 16 GB machine; build-generated `data/ask-projection` changes discarded, not committed); post-build phase 689 pass / 0 fail / 3 skipped; Python CI script (`scripts/ci/run-python-tests.sh`) 90/90; `tsc --noEmit` clean; server render of the real report on 849819 / 849832 / 849838: "ATL +1.5 cover 55% · market 65%", "CWS +1.5 cover 61% · market 62%", "CLE wins 5,307 of 10,000", book + capture time shown. Today's MLB slate has 0 games, so no MLB game page is currently built: every A-item is latent until the next postseason slate and reaches pages on the first build after merge plus the next MLB run (identity: next board generation).
 
 **Expected deployment impact:** one Production build on merge (app source changed). Data effect only on newly generated MLB boards / simulations: more batters and pitchers resolved (projected instead of replacement-rated; more leans with a model probability), `rateSource` on new simulated rows. No change to any NFL, soccer, NBA or UFC producer or page.
 
@@ -459,6 +460,31 @@ Commits (all forward-only; no published artifact rewritten):
 - Explicit legacy adapters; no historical rewrites.
 - Live-vs-pregame boundary documented/tested.
 - Additive migration plan + rollback.
+
+### Progress (2026-10-09, Lane A; research only, nothing implemented)
+**Status:** NOT_STARTED → inventory RESEARCH COMPLETED (deliverables 1, 2, 5 drafted); implementation waits for TRUTH-001 PR 1 and the owner decisions below.
+- **Inventory:** every §3 entity has partial, sport-local implementations and no shared layer.
+  - Event: `identity/event-identity.ts` + `pipeline/mlb/settlement_lineage.py` + `data-platform/contract.mjs` + `sports/schedule-contract.mjs` + NFL `nfl-<providerEventId>`.
+  - ForecastVersion: `forecast-ledger/` (`forecast-ledger@1`, `fl1-` FNV id of sport|event|subject|family|kind; model version deliberately not in the id).
+  - WorldReceipt: MLB `artifactHash`, NFL World Model V2 `artifact.mjs` (2.2.0, STATUS evidence ladder), NFL `sim-v2/receipt.mjs` (`simulation-receipt@2`), NBA `forecast-receipt@1`.
+  - MarketSnapshot: `markets/`, `event-markets/` (no consumers outside its folder), ledger `marketBlock`.
+  - EligibilityDecision: 43 exported `*Eligib*` functions in 33 files; `products/product-eligible-leg.mjs` is the only closed reason set.
+  - ProductSelection: `products/selector/`, `recommendation-receipt.mjs`, per-product ledgers.
+  - SettlementEvent: ledger `SETTLEMENT_STATE`, `identity/settlement-lineage.ts`, NFL `prop-settlement-ledger.mjs` (a real correction chain).
+  - LiveObservation: `live/contract.mjs` (`LIVE_SCHEMA_VERSION 1`).
+- **Gaps (verified unless noted):**
+  - ForecastVersion has no `horizon` and no `predecessor`; the ledger is pregame-only by rule, so a live forecast has no identity.
+  - No shared signed-line type: the only signed-line rule is `markets/game-intelligence.ts` `homeCoverProbability` (now also used by the MLB Overview, TRUTH-001 A1). The ledger market block has no side, period, suspension or OT/void rule.
+  - Settlement words differ by owner (WIN/LOSS…, won/lost…, hit/miss…; MLB stores a push as `state VOID` + `finalCategory PUSH`, NFL as SETTLED); correction is a count except in the NFL prop ledger.
+  - Version strings follow at least six conventions (`x@1`, `x-1`, `x-v1`, dotted, calendar, semver, bare integers); sport lists differ (`data-platform` MLB/NFL/EPL/UFC vs ledger + LIGUE_1/NBA).
+  - **Event-id divergence (latent defect, verified):** for the same game, Python `derive_event_id` gives `…t19` for `19:00Z` and `…t190000+00` for `+00:00`, while TypeScript gives `…t1900` for all three forms; `cross-language-agreement.test.mjs` only uses `HH:MM:SSZ`. Every committed MLB board row (60,111) uses `HH:MM:SSZ`, so no live divergence today.
+  - Product-state vocabulary (TRUTH-001 B7) is used only by /bank-builder and /mr-dub; `PRODUCT_STATES` and `daily-state-machine.mjs` `LIFECYCLE_STATES` are two product state machines.
+  - Market identity: at least five key schemes that do not agree (`eligible-leg/contract.mjs` legId, `engine-v2/receipt.mjs` receiptId, `daily-portfolio/mlb-team-legs.ts` selection-string ids parsed back with a regex for the signed line, ledger `fl1-`, top-boards `providerEventId:playerId:family`); `mlb_total` vs `mlb_total_runs` for the same family; American-odds/de-vig maths re-implemented in 25+ TS/JS files and ~10 Python files; no suspension or OT/void rule on any market snapshot.
+  - Eligibility: at least eight reason vocabularies naming the same concept differently (MISSING_IDENTITY / IDENTITY_MISSING / IDENTITY_UNRESOLVED / INELIGIBLE_IDENTITY); price-staleness bound 12 h (`LEG_BOUNDS`) vs 3 days (`card-leg-eligibility`); "HOLDING" is healthy in model-health but blocks a leg in the eligibility modules; four `PROBABILITY_BASIS` vocabularies.
+  - Product selection: two policy registries (`selection-policy.mjs`, `selector/policies.mjs`), four hash algorithms (sha256, md5, sha1, FNV-1a), and no product stores one immutable activation receipt with policy hash + leg forecast refs + price refs (the engine-v2 receipt is shadow-only). Homer Nukes daily files are overwritten per run.
+- **Consumer matrix (import level):** MLB game page → identity, `mlb/full-game`, `mlb/prediction`, `markets`, live-record-gate; NFL game page / top boards → World Model V2 + `forecast-view`; MLB top board → `data-mlb` only; /markets → `markets/*`; Bank Builder → `product-state` + `daily-portfolio`; Moonshot → `moonshot-state` + retired `moonshot-lane`; End Zone Vault and Homer Nukes → raw files, no contract; Results → `results/v2` reading the emitted ledger. No route imports `data-platform`, `forecast-ledger` (only its outputs), `event-markets` or `bank-builder-eligibility.ts`.
+- **Recommended first implementation (additive, no migration, no NFL file edited):** a read-only `lib/contracts/` projection of `forecast-ledger@1` rows into versioned ForecastVersion/Settlement shapes (`horizon` derived as pregame from the existing `publishedAt < eventStart` rule; predecessor / receipt refs null with a reason; one settlement-word table), plus the signed market identity library generalising `homeCoverProbability` (MLB first). Tests: every committed row projects with identical `forecastId`/probability/decisive counts; pending/void can never map to WIN/LOSS; `+1.5` never fills `−1.5` across all committed market blocks.
+- **Owner decisions needed before integration (§22 rule 2):** who integrates market identity / forecast schema / settlement (the NFL owner's artifacts are consumers); canonical version-string style and sport list; any `forecast-ledger@1` identity change (would be a new `fl2` namespace, never a rewrite); the Python event-id fix (changes ids minted for future MLB settlement rows; MLB is Lane A, but the settlement path is shared).
 
 ### Acceptance
 - Current MLB/NFL sample forecasts project into the contract without changing historical meaning.
