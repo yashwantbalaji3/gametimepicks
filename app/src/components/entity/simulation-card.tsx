@@ -3,13 +3,14 @@
  * simulation actually tells it:
  *
  *   Identity      → team logos + names + venue + first pitch
- *   Prediction    → winner, probability, and the FREQUENCY behind it ("5,820 / 10,000 games")
+ *   Prediction    → winner, probability, and the FREQUENCY behind it ("5,307 / 10,000 games" when the
+ *                   artifact persisted the count, "≈ 5,310 / 10,000 games" when rebuilt from a rounded probability)
  *   Outcomes      → most-likely scorelines with their frequencies, total-runs median + p10–p90, extras
- *   Player impact → top player predictions with portraits, opponent context, and their own frequencies
+ *   Player impact → top player-prop-engine predictions with portraits and opponent context (percentages only)
  *
  * Presentational ONLY. Every value arrives already computed on the canonical objects (the Sprint 008
  * full-game artifact + the Sprint 009 prediction decision); this component performs no simulation, no
- * prediction logic, and no probability maths beyond formatting probability × runCount into a count.
+ * prediction logic, and no probability maths beyond formatting counts (lib/sim-frequency).
  * Missing data fails closed — an absent section simply does not render, never a fabricated number.
  */
 import Link from "next/link";
