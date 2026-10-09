@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-10-09",
-  "checkedAt": "2026-10-09T09:26:02.715Z",
-  "treeHead": "525c52a59",
+  "checkedAt": "2026-10-09T09:32:57.380Z",
+  "treeHead": "b993bfb4f",
   "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 0,
@@ -15,7 +15,7 @@
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "mlb/boards/2026-10-09.json"
     },
     {
       "id": "mlb-markets",
@@ -39,7 +39,7 @@
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/game-simulations/2026-10-09.json"
     },
     {
       "id": "risk-ladder",
@@ -66,7 +66,7 @@
     {
       "id": "schedules",
       "state": "STALE",
-      "reason": "receipt is 41.1h old against a 24h bound",
+      "reason": "receipt is 41.2h old against a 24h bound",
       "dueAtIso": "2026-10-09T13:00:00.000Z",
       "receiptAt": "2026-10-07T16:20:52Z",
       "label": "Schedule capture (NFL) + injury capture",
