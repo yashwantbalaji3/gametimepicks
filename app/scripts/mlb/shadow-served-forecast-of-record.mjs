@@ -24,13 +24,45 @@ const ROOT = path.resolve(APP, "..");
 const arg = (f) => { const i = process.argv.indexOf(f); return i >= 0 ? process.argv[i + 1] : null; };
 const DEPLOY_FILE = arg("--deployments");
 const MARGIN_MS = Number(arg("--margin-sec") ?? 60) * 1000;
+/* The record's clock: a READY time can be up to EARLY before and LATE after the truth (defaults: the symmetric margin). */
+const EARLY_MS = arg("--early-sec") != null ? Number(arg("--early-sec")) * 1000 : MARGIN_MS;
+const LATE_MS = arg("--late-sec") != null ? Number(arg("--late-sec")) * 1000 : MARGIN_MS;
+/* States the record may be wrong about (GitHub: FAILURE, no status), and how late such a record can appear. */
+const UNTRUSTED = (arg("--untrusted") ?? "").split(",").filter(Boolean);
+const UNTRUSTED_LAG_MS = Number(arg("--untrusted-lag-sec") ?? 3600) * 1000;
+/* Actual first pitch (an interval), from capture-mlb-actual-first-pitch.mjs; absent → scheduled start only. */
+const FIRST_PITCH_FILE = arg("--first-pitch");
+const actualByPk = new Map();
+if (FIRST_PITCH_FILE) {
+  const fpDoc = JSON.parse(fs.readFileSync(path.resolve(FIRST_PITCH_FILE), "utf8"));
+  // The interval the true first pitch lies in: the cutoff is its start, and the whole interval is uncertain.
+  for (const g of fpDoc.games ?? []) {
+    const iv = g.startInterval;
+    if (iv?.from && iv?.to) actualByPk.set(g.gamePk, { at: iv.from, precisionMs: Date.parse(iv.to) - Date.parse(iv.from), basis: iv.basis });
+  }
+}
 const OUT = arg("--write");
 if (!DEPLOY_FILE) { console.error("REFUSED: --deployments <file> required"); process.exit(2); }
 const git = (...a) => execFileSync("git", a, { cwd: ROOT, maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }).toString();
 const tryJson = (f) => { try { return JSON.parse(f()); } catch { return null; } };
 
-const evidence = JSON.parse(fs.readFileSync(path.resolve(DEPLOY_FILE), "utf8"));
-const deployments = evidence.deployments.map((d) => ({ id: d.id, sha: d.sha, readyAt: d.readyAt, state: d.state }));
+const raw = JSON.parse(fs.readFileSync(path.resolve(DEPLOY_FILE), "utf8"));
+/*
+ * Two record formats: ours (capture-github-production-deployments.mjs) and the Vercel API capture of #1042
+ * (scripts/capture-vercel-production-deployments.mjs: uid / commitSha / created / ready). The Vercel capture's window
+ * is the span of deployments it listed — complete between its first and last `created`, not its nominal dates.
+ */
+const isVercel = Array.isArray(raw.deployments) && raw.deployments.some((d) => "uid" in d);
+const evidence = isVercel
+  ? (() => {
+    const created = raw.deployments.map((d) => d.created).filter(Boolean).sort();
+    return {
+      window: { from: created[0], to: created[created.length - 1] },
+      deployments: raw.deployments.map((d) => ({ id: d.uid, sha: d.commitSha, readyAt: d.state === "READY" ? d.ready ?? null : null, state: d.state, createdAt: d.created ?? null })),
+    };
+  })()
+  : raw;
+const deployments = evidence.deployments.map((d) => ({ id: d.id, sha: d.sha, readyAt: d.readyAt, state: d.state, createdAt: d.createdAt ?? null }));
 const graded = fs.readFileSync(path.join(APP, "public/data/mlb/results/game-predictions-graded.jsonl"), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
 const games = new Map();
 for (const r of graded) if (!games.has(`${r.date}|${r.gamePk}`)) games.set(`${r.date}|${r.gamePk}`, r);
@@ -73,7 +105,7 @@ for (const g of games.values()) {
     if (!byHash.has(x.p.artifactHash)) byHash.set(x.p.artifactHash, { id: x.r.id, generatedAt: x.r.artifact.generatedAt, contentHash: x.p.artifactHash, forecastVersion: x.p.decisionEngineVersion ?? null });
   }
   const res = servedForecastOfRecord({
-    start: { scheduledStarts: [g.firstPitchUtc] },
+    start: { scheduledStarts: [g.firstPitchUtc], actualStartTime: actualByPk.get(g.gamePk)?.at ?? null, actualStartPrecisionMs: actualByPk.get(g.gamePk)?.precisionMs ?? 0 },
     deployments,
     evidenceWindow: evidence.window,
     servedAt: (sha) => {
@@ -85,14 +117,15 @@ for (const g of games.values()) {
     },
     candidates: [...byHash.values()],
     hashOf: (p) => p.artifactHash ?? null,
-    readyUncertaintyMs: MARGIN_MS,
+    recordClock: { earlyMs: EARLY_MS, lateMs: LATE_MS },
+    ...(UNTRUSTED.length ? { untrustedStates: { states: UNTRUSTED, lagMs: UNTRUSTED_LAG_MS } } : {}),
   });
   // What the grader graded: the revision named by the graded row.
   const gradedRev = candidates(g.date).find((r) => r.id === g.forecastSource || (g.forecastSource.startsWith("git:") && r.id === `git:${g.forecastSource.slice(4, 16)}`));
   const gradedHash = gradedRev ? (gradedRev.artifact.predictions ?? []).find((x) => x.gamePk === g.gamePk)?.artifactHash ?? null : null;
   rows.push({
     gamePk: g.gamePk, date: g.date, firstPitchUtc: g.firstPitchUtc,
-    status: res.status, reason: res.reason ?? null,
+    status: res.status, reason: res.reason ?? null, cutoff: res.cutoff ?? null, cutoffBasis: res.cutoffBasis ?? null,
     servedHash: res.forecastOfRecord?.contentHash ?? null, gradedHash, gradedSource: g.forecastSource,
     agrees: res.status === STATUS.SERVED ? res.forecastOfRecord.contentHash === gradedHash : null,
     publishedAt: res.forecastOfRecord?.publishedAt ?? null, deployment: res.deployment ?? null,
@@ -105,7 +138,9 @@ const summary = {
   schema: "gtp.mlb.served-forecast-of-record-shadow@1",
   deployments: path.relative(ROOT, path.resolve(DEPLOY_FILE)),
   window: evidence.window,
-  readyUncertaintySec: MARGIN_MS / 1000,
+  recordClockSec: { early: EARLY_MS / 1000, late: LATE_MS / 1000 },
+  untrustedStates: UNTRUSTED.length ? { states: UNTRUSTED, lagSec: UNTRUSTED_LAG_MS / 1000 } : null,
+  startBasis: FIRST_PITCH_FILE ? `actual first pitch interval (play-by-play pitch event, 10 s) from ${path.relative(ROOT, path.resolve(FIRST_PITCH_FILE))}` : "scheduled first pitch only",
   games: rows.length,
   byStatus,
   servedAndAgreesWithGrader: count((r) => r.agrees === true),

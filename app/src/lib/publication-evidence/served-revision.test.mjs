@@ -88,8 +88,8 @@ test("a rollback (a probe saw a different build after the serving deployment wen
 });
 
 test("revised start: an EARLIER revised schedule is the cutoff; a delay uses the actual start", () => {
-  assert.deepEqual(eventCutoff({ scheduledStarts: ["2026-09-27T19:10:00Z", "2026-09-27T17:05:00Z"] }), { cutoff: "2026-09-27T17:05:00.000Z", basis: "EARLIEST_SCHEDULED_START" });
-  assert.deepEqual(eventCutoff({ actualStartTime: "2026-09-27T20:41:00Z", scheduledStarts: ["2026-09-27T19:10:00Z"] }), { cutoff: "2026-09-27T20:41:00.000Z", basis: "ACTUAL_START" });
+  assert.deepEqual(eventCutoff({ scheduledStarts: ["2026-09-27T19:10:00Z", "2026-09-27T17:05:00Z"] }), { cutoff: "2026-09-27T17:05:00.000Z", basis: "EARLIEST_SCHEDULED_START", precisionMs: 0 });
+  assert.deepEqual(eventCutoff({ actualStartTime: "2026-09-27T20:41:00Z", scheduledStarts: ["2026-09-27T19:10:00Z"] }), { cutoff: "2026-09-27T20:41:00.000Z", basis: "ACTUAL_START", precisionMs: 0 });
   assert.equal(eventCutoff({ scheduledStarts: [null, "nonsense"] }), null);
   // Moved earlier: the deployment READY at 17:00 is now after the cutoff, so A (READY 15:25) is of record.
   const r = run({
@@ -135,6 +135,64 @@ test("a READY time within the record's uncertainty of the cutoff is ambiguous, e
   }
   // Outside the margin it resolves normally.
   const r = run({ deployments: [dep("d1", "s1", "2026-09-27T15:25:00Z"), dep("d2", "s2", "2026-09-27T19:12:00Z")], servedAt: builds({ s1: game("A"), s2: game("B") }), readyUncertaintyMs: 60_000 });
+  assert.equal(r.forecastOfRecord.revisionId, "A");
+});
+
+test("a minute-precision actual start: the whole minute is uncertain, and the cutoff is its earliest instant", () => {
+  const start = { actualStartTime: "2026-09-27T19:11:00Z", actualStartPrecisionMs: 60_000, scheduledStarts: [START] };
+  const base = { deployments: [dep("d1", "s1", "2026-09-27T15:25:00Z"), dep("d2", "s2", "2026-09-27T19:11:30Z")], servedAt: builds({ s1: game("A"), s2: game("B") }) };
+  // READY inside the start's minute: it may have served before the first pitch or not.
+  assert.equal(run({ ...base, start }).status, STATUS.AMBIGUOUS_NEAR_CUTOFF);
+  // Scheduled 19:10, actually 19:11: a deployment READY at 19:10:20 served before the real start.
+  const r = run({ start, deployments: [dep("d1", "s1", "2026-09-27T15:25:00Z"), dep("d2", "s2", "2026-09-27T19:10:20Z")], servedAt: builds({ s1: game("A"), s2: game("B") }), candidates: [rev("A", "2026-09-27T15:10:00Z"), rev("B", "2026-09-27T19:05:00Z")] });
+  assert.equal(r.status, STATUS.SERVED);
+  assert.equal(r.forecastOfRecord.revisionId, "B");
+  assert.equal(r.cutoffBasis, "ACTUAL_START");
+  assert.equal(r.cutoffPrecisionSec, 60);
+});
+
+test("asymmetric record clock: a READY recorded up to `lateMs` after the start may really have been before it", () => {
+  const deployments = [dep("d1", "s1", "2026-09-27T15:25:00Z"), dep("d2", "s2", "2026-09-27T19:15:00Z")];
+  const servedAt = builds({ s1: game("A"), s2: game("B") });
+  assert.equal(run({ deployments, servedAt, recordClock: { earlyMs: 60_000, lateMs: 600_000 } }).status, STATUS.AMBIGUOUS_NEAR_CUTOFF, "recorded 5 min after the start, record can be 10 min late");
+  assert.equal(run({ deployments, servedAt, recordClock: { earlyMs: 60_000, lateMs: 60_000 } }).forecastOfRecord.revisionId, "A", "with a tight clock it is clearly after");
+});
+
+test("an untrusted deployment state near the start (GitHub FAILURE / no status) fails closed", () => {
+  const deployments = [dep("d1", "s1", "2026-09-27T15:25:00Z"), { id: "d2", sha: "s2", readyAt: null, state: "FAILURE", createdAt: "2026-09-27T19:30:00Z" }];
+  const servedAt = builds({ s1: game("A"), s2: game("B") });
+  const untrustedStates = { states: ["FAILURE", "ABANDONED"], lagMs: 3_600_000 };
+  assert.equal(run({ deployments, servedAt, untrustedStates }).status, STATUS.AMBIGUOUS_DEPLOYMENT_STATE);
+  // A failure recorded long after the start (beyond the lag), or before the serving deployment, does not matter.
+  const far = [dep("d1", "s1", "2026-09-27T15:25:00Z"), { id: "d2", sha: "s2", readyAt: null, state: "FAILURE", createdAt: "2026-09-27T22:00:00Z" }, { id: "d0", sha: "s0", readyAt: null, state: "FAILURE", createdAt: "2026-09-27T14:00:00Z" }];
+  assert.equal(run({ deployments: far, servedAt, untrustedStates }).forecastOfRecord.revisionId, "A");
+  // Canceled builds (GitHub INACTIVE only) are trusted: Vercel confirms they served nothing.
+  const canceled = [dep("d1", "s1", "2026-09-27T15:25:00Z"), { id: "d2", sha: "s2", readyAt: null, state: "INACTIVE", createdAt: "2026-09-27T19:00:00Z" }];
+  assert.equal(run({ deployments: canceled, servedAt, untrustedStates }).forecastOfRecord.revisionId, "A");
+});
+
+test("already frozen forecast: the carried copy (same bytes, later file) maps to the original pregame revision", () => {
+  // Order in the candidate list must not matter: the post-start carried copy is listed first.
+  const r = run({
+    deployments: [dep("d1", "s1", "2026-09-27T15:25:00Z")],
+    servedAt: builds({ s1: game("A") }),
+    candidates: [
+      { id: "carried", generatedAt: "2026-09-27T21:00:00Z", contentHash: "h-A", frozenAt: "2026-09-27T15:10:00Z" },
+      rev("A", "2026-09-27T15:10:00Z"),
+    ],
+  });
+  assert.equal(r.status, STATUS.SERVED);
+  assert.equal(r.forecastOfRecord.revisionId, "A");
+  assert.equal(r.forecastOfRecord.generatedAt, "2026-09-27T15:10:00Z");
+});
+
+test("late forecast revision: generated before the start but deployed after it is never the forecast of record", () => {
+  const r = run({
+    start: { actualStartTime: "2026-09-27T19:11:02Z", actualStartPrecisionMs: 10_000, scheduledStarts: [START] },
+    deployments: [dep("d1", "s1", "2026-09-27T15:25:00Z"), dep("d2", "s2", "2026-09-27T19:12:30Z")],
+    servedAt: builds({ s1: game("A"), s2: game("B") }),
+    candidates: [rev("A", "2026-09-27T15:10:00Z"), rev("B", "2026-09-27T19:08:06Z")],
+  });
   assert.equal(r.forecastOfRecord.revisionId, "A");
 });
 
