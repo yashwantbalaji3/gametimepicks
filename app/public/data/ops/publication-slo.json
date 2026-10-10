@@ -1,18 +1,19 @@
 {
   "kind": "publication-slo",
-  "date": "2026-10-09",
+  "date": "2026-10-10",
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "NO_EVENT",
-      "reason": "no events in this sport's forward horizon",
-      "deadlineUtc": null,
+      "state": "PUBLISHING",
+      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-10-10T22:30:00.000Z",
       "counts": {
-        "scheduled": 0,
+        "scheduled": 1,
         "published": 0,
         "missedCoverage": 0,
-        "awaiting": 0
-      }
+        "awaiting": 1
+      },
+      "missed": []
     },
     "nfl": {
       "state": "PUBLISHING",
@@ -50,22 +51,29 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-10-10T02:38:26.723Z",
+  "checkedAt": "2026-10-10T05:10:21.375Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "NO_EVENT",
-  "reason": "no games are scheduled for this date",
-  "publishDeadlineUtc": null,
-  "scheduledGames": 0,
-  "pregameRemaining": 0,
+  "state": "PUBLISHING",
+  "reason": "today's slate is not published yet and is not late — the deadline is 2026-10-10T22:30:00.000Z",
+  "publishDeadlineUtc": "2026-10-10T22:30:00.000Z",
+  "scheduledGames": 1,
+  "pregameRemaining": 1,
   "alreadyStarted": 0,
   "board": {
-    "present": true,
+    "present": false,
     "leans": 0,
-    "pendingReason": "no_events",
-    "generatedAt": "2026-10-09T09:28:11.737619+00:00",
-    "scheduledGames": 0,
-    "startedBeforeGeneration": 0
+    "pendingReason": null,
+    "generatedAt": null
   },
-  "games": []
+  "games": [
+    {
+      "gamePk": 849831,
+      "startUtc": "2026-10-11T00:00:00Z",
+      "away": "Chicago White Sox",
+      "home": "Cleveland Guardians",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    }
+  ]
 }
