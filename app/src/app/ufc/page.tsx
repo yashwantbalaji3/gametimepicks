@@ -183,8 +183,8 @@ export default function UfcArchivePage() {
           rather than forming an opinion. What publishes now is a fight model trained on 8,642
           decisive bouts, with each of its three markets tested separately against a base-rate
           baseline. Posted fight-winner prices are captured, but no paper cards are shown here while UFC
-          is not cleared for forward-looking model cards — and since 2026-08-22 the model IS scored
-          against the de-vigged line, bout by bout, in the graded record below: both probabilities recorded before each
+          is not cleared for forward-looking model cards — and since 2026-08-22 the model
+          IS scored against the de-vigged line, bout by bout, in the graded record below: both probabilities recorded before each
           card, graded on the official result. The sample is far too small to support any claim in
           either direction, and the cumulative comparison currently favours the market. The settled
           record from the retired era is kept below, behind its own label.
