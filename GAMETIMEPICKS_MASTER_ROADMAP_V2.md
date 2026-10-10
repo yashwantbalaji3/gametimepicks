@@ -99,13 +99,13 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 3 | `NFL-003` | NFL Modeling | Player opportunity allocation (plays → pass/rush → attempts/carries → targets → catches → yards → TDs, with `OTHER`) | IN_PROGRESS — allocV1 PRODUCTION DEPLOYED inside World Model V2 (experimental, labelled); not FORWARD EVALUATED; first-game review: rushing-efficiency tail hypothesis (§NFL-005) | NFL-002 team volume | Shadow → family-by-family promotion |
 | 4 | `NFL-004` | NFL Modeling | TD model: hierarchical Bernoulli → team scoring opportunities → red-zone role → drive attribution | IN_PROGRESS — RESEARCH (passing-TD pure-sim candidate failed preregistered dev bars; 50/50 blend passed dev, forward shadow only; world TD v2 preregistered, forward-only). Not qualified; passing TD and first TD withheld publicly; anytime TD stays on the existing published model | NFL-003 | Shadow → family-by-family promotion |
 | 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | IN_PROGRESS — PRODUCTION DEPLOYED (World Model V2, experimental: #1024, #1026, #1027, #1029 → 2.2.0); FORWARD EVALUATION begun (1 game reviewed, 2026-10-08 TB @ DAL); not STATISTICALLY QUALIFIED; not PRODUCT ELIGIBLE | NFL-002, NFL-003, NFL-004 | Yes, family by family |
-| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 #1039 product/Results truth PRODUCTION DEPLOYED (merge `f15a51f9`, 2026-10-10); PR 4 #1042 recovery evidence PRODUCTION DEPLOYED (merge `c71a7f5a`, 2026-10-10); served-forecast evidence #1046 READY_FOR_REVIEW; Stage B restatement #1045 and timing amendment #1049 DRAFT (local, not applied) | COST-001 deployment gate verified ✓ | Yes |
+| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 #1039 product/Results truth PRODUCTION DEPLOYED (merge `f15a51f9`, 2026-10-10); PR 4 #1042 recovery evidence PRODUCTION DEPLOYED (merge `c71a7f5a`, 2026-10-10); served-forecast evidence #1046 PRODUCTION DEPLOYED (merge `66ddbc8a`, 2026-10-10; no grader switch, no corrections); Stage B restatement #1045 and timing amendment #1049 DRAFT (local, not applied) | COST-001 deployment gate verified ✓ | Yes |
 | 7 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | IN_PROGRESS — RESEARCH COMPLETED (inventory, gaps, consumer matrix); foundation PRODUCTION DEPLOYED (#1040: read-only ForecastVersion/Settlement projection; no consumer, no migration); engineering lead: Lane A (founder, 2026-10-09) | Founder rules below | Foundation |
-| 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
-| 9 | `MLB-002` | MLB Modeling | Benchmark ladder (PA control → Poisson → hierarchical → NB → bivariate → enhanced PA → boosting → ensemble) | NOT_STARTED | MLB-001 | Shadow |
-| 10 | `MLB-003` | MLB Modeling | Batter markets from shared PA/base-state worlds; project every confirmed starter | NOT_STARTED | MLB-002 | Shadow → family-by-family |
-| 11 | `MLB-004` | MLB Modeling | Pitcher markets (workload survival, BF, K/contact/BB, bullpen transition) | NOT_STARTED | MLB-002 | Shadow → family-by-family |
-| 12 | `MLB-005` | MLB Modeling | Shared WorldReceipt + forward shadow | NOT_STARTED | MLB-003, MLB-004 | Family-by-family |
+| 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | IN_PROGRESS — baseline audit done; rule corrections pa-v3 READY_FOR_REVIEW (not promoted) | TEMPORAL-001 can progress in parallel | Shadow |
+| 9 | `MLB-002` | MLB Modeling | Benchmark ladder (PA control → Poisson → hierarchical → NB → bivariate → enhanced PA → boosting → ensemble) | IN_PROGRESS — `mlb-pa-matchup-v1` NOT QUALIFIED; private forward shadow (#1047 + #1048 as one integration) READY_FOR_FOUNDER_REVIEW; P317 league-rates forward shadow accumulating | MLB-001 | Shadow |
+| 10 | `MLB-003` | MLB Modeling | Batter markets from shared PA/base-state worlds; project every confirmed starter | IN_PROGRESS — RESEARCH: v2 retrospective count support (HR fails); coherent-worlds read-outs non-inferior in 7/7 count markets (2024 dev); exploratory 2026 posted lines: beat the published model, **worse than the market**; preregistered forward replays B/B2 frozen (not live records); live pregame capture (Option A) in development; NOT QUALIFIED | MLB-002 | Shadow → family-by-family |
+| 11 | `MLB-004` | MLB Modeling | Pitcher markets (workload survival, BF, K/contact/BB, bullpen transition) | IN_PROGRESS — RESEARCH: v2; `mlb-k-workload-v3` (situation-aware workload) 2024 dev −0.0138 [−0.0185, −0.0089], no posted-line gain; coherent-engine K better than analytic; worse than the market; NOT QUALIFIED | MLB-002 | Shadow → family-by-family |
+| 12 | `MLB-005` | MLB Modeling | Shared WorldReceipt + forward shadow | IN_PROGRESS — RESEARCH COMPLETED (prototype): coherent worlds on the existing engine (research hooks, invariant checker; ≈ 32 M simulated games, 0 violations); home-field v3 DO_NOT_PROCEED; Option A live capture in development; no activation | MLB-003, MLB-004 | Family-by-family |
 | 13 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | IN_PROGRESS — NFL hook only: World Model V2 grader (private, #1027). Ledger hardening itself not started; zero-build settlement assessment open | CONTRACT-001 | Yes |
 | 14 | `TEMPORAL-001` | Data Platform | Point-in-time temporal data/identity foundation for MLB/NFL critical fields | NOT_STARTED | CONTRACT-001 | Foundation |
 | 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 | IN_PROGRESS — PRODUCTION DEPLOYED in part (#1026 NFL unified, #1028 Live first, #1030 sport catalog + switcher); #1031 hydration, #1032 resolver + tablet Menu, #1033 nav cleanup READY_FOR_REVIEW; Home/Today, sport-hub layouts not started | CONTRACT-001 view contracts | Yes |
@@ -358,7 +358,7 @@ Bot data commits are 386 of the 480 (80%).
 # 4. Truth, market identity and product semantics
 
 ## `TRUTH-001` — P0 truth correction package
-**Status:** IN_PROGRESS — PR 1 (#1037) PRODUCTION DEPLOYED; PR 2 (#1038, posted-line run line) PRODUCTION DEPLOYED; product-truth PR 3 (#1039) PRODUCTION DEPLOYED; historical recovery PR 4 (#1042) PRODUCTION DEPLOYED; served-forecast evidence (#1046) READY_FOR_REVIEW; Stage B (#1045) and the timing amendment (#1049) DRAFT  
+**Status:** IN_PROGRESS — PR 1 (#1037) PRODUCTION DEPLOYED; PR 2 (#1038, posted-line run line) PRODUCTION DEPLOYED; product-truth PR 3 (#1039) PRODUCTION DEPLOYED; historical recovery PR 4 (#1042) PRODUCTION DEPLOYED; served-forecast evidence (#1046) PRODUCTION DEPLOYED; Stage B (#1045) and the timing amendment (#1049) DRAFT  
 **Owner/session:** Claude Code, Lane A (Core Intelligence), 2026-10-09  
 **Branches:** `claude/truth-001-mlb-truth` (merged) · `claude/truth-001-runline-posted` (#1038, merged) · `claude/truth-001-product-truth` (#1039, merged)  
 **PR:** [#1037](https://github.com/yashwantbalaji3/gametimepicks/pull/1037) merged · [#1038](https://github.com/yashwantbalaji3/gametimepicks/pull/1038) merged · [#1039](https://github.com/yashwantbalaji3/gametimepicks/pull/1039) merged · [#1042](https://github.com/yashwantbalaji3/gametimepicks/pull/1042) · [#1045](https://github.com/yashwantbalaji3/gametimepicks/pull/1045) · [#1046](https://github.com/yashwantbalaji3/gametimepicks/pull/1046)  
@@ -530,7 +530,15 @@ Commits (all forward-only; no published artifact rewritten):
   - **Routes:** `/`, `/mlb/`, `/results/`, `/results/forecasts/`, `/results/model-audit/`, `/results/picks/mlb/`, `/markets/`, `/live/`, `/nfl/` and `/today/` all returned 200.
   - **Recovery URLs:** `/data/mlb/corrections/pregame-forecast-recoveries.jsonl`, `…/forecast-of-record-corrections.jsonl` and the folder itself all return **404**.
   - **Results:** 13,741 published / 10,933 measured, unchanged. Model audit, MLB picks and `/mlb/` show identical figures. On `/results/`, the 7-day MLB window moved 21–21–3 → 15–15–3 because the local day rolled from Fri Oct 9 to Sat Oct 10, as the page states. #1042 changed no reader.
-- **Served-forecast evidence (#1046, READY_FOR_REVIEW).** Per-game classification of all 810 graded games (`data/internal/ops/forecast-of-record-shadow/classification.json`):
+- **Served-forecast evidence (#1046) release (2026-10-10).**
+  - **Approval:** founder approval at exact head `9cdc9ed92f84c36d0430437da6d336aaa9ccdc51`, after 10 checks. Stage B corrections are explicitly **not** covered.
+  - **Merge:** `--match-head-commit`, as `66ddbc8a5e4c4eb3bcb188ede57c097eccc8d221` at 05:13:09Z.
+  - **Production:** `build-info` reported that commit, built 05:14:27Z, checked live 05:17:26Z. One Production deployment; Preview 0.
+  - **Routes:** `/mlb/`, `/results/`, `/results/forecasts/`, `/results/model-audit/` and `/results/picks/mlb/` all returned 200. Their visible text is identical to snapshots taken just before the merge, apart from the "last build" stamp.
+  - **Results:** 13,741 published / 10,933 measured, unchanged.
+  - **Research evidence not served:** `classification.json`, the actual-first-pitch capture, the GitHub deployment record and `/data/mlb/corrections/` return **404**, and no research term appears on any page.
+  - **Scope:** evidence and tooling only. There is no grader switch, no Results correction, and no reader change.
+- **Served-forecast evidence (#1046).** Per-game classification of all 810 graded games (`data/internal/ops/forecast-of-record-shadow/classification.json`):
 
 | Class | Games |
 |---|---|
@@ -736,7 +744,7 @@ One coherent baseball model should generate winner, score, run line, total, and 
 
 ## `MLB-001` — Rules + baseline audit
 **Priority:** P1  
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — baseline audit RESEARCH COMPLETED; rule corrections (items 1–2 + walk-off) IMPLEMENTED AND VALIDATED LOCALLY in pa-v3, READY_FOR_REVIEW (not promoted); items 3–8 open (MLB-002 challengers)
 
 Reproduce/fix in a new version where confirmed:
 - postseason extra-innings automatic-runner logic;
@@ -747,6 +755,11 @@ Reproduce/fix in a new version where confirmed:
 - bullpen quality/availability;
 - double-play/free-advancement assumptions;
 - lineup/batting-order opportunities.
+
+### Progress (2026-10-09, Lane A)
+- **Baseline audit** (`docs/research/mlb/mlb-001/MLB-001-baseline-audit-2026-10-09.md`, receipts archived; nothing tuned): 810 graded games, forecast of record verified 810/810. Winner log loss **0.6993 vs coin 0.6931**: lower is better, so the model scored *worse* than a coin flip on this sample (95% bootstrap of the difference [−0.006, +0.019] includes 0; no significance claim). The **market benchmark (0.6684) is better than the model** (paired difference excludes 0). Calibration slope 0.31; no home-field effect; total has no signal (already BREACHED/paused); the run-line 63% is the +1.5 base rate, not skill. Wording corrected per founder review; numbers unchanged.
+- **Rule corrections** (founder decision 6: implement and validate locally; promotion is a separate decision): `OFFICIAL_RULES_2026` = no automatic runner in the postseason (StatsAPI `gameType`, else the season calendar; an unresolved phase is refused, never assumed), walk-offs end on the winning run (a home run counts all), a game tied at the inning cap is discarded and re-drawn with a count, and a hopeless one is refused (bounded; no fabricated run). Opt-in only (`--rules official-2026` → `mlb-fullgame-2026.10-pa-v3`); the generator's default output stays pa-v2 and was verified byte-identical to main. `LEGACY_RULES` reproduces every pa-v1/pa-v2 artifact byte for byte. Carried pa-v2 forecasts keep their version on the transition day. Fixtures: `app/src/lib/mlb/full-game/rules.test.mjs`. Old vs corrected on 406 reproduced forecasts of record (`docs/research/mlb/mlb-001/rule-corrections/`): regular season P(home) unchanged, total −0.007; postseason total −0.08 (max 0.14), P(home) max ±0.013; 0 cap discards. 404 Aug–Sep pa-v2 forecasts could not be reproduced (consumed lineup captures not in the repository) and are excluded, not approximated.
+- **Not done:** items 3–8 (starter removal, pitcher-dependent hit/BB/HBP rates, PA conversion and slot double-count, bullpen, DP/advancement, lineup inputs) are MLB-002 challengers and need preregistered out-of-sample evidence. No historical prediction changed; no family unpaused; nothing promoted.
 
 ## `MLB-002` — Benchmark ladder
 **Status:** IN_PROGRESS — first challenger `mlb-pa-matchup-v1` NOT QUALIFIED (founder decision 3, 2026-10-10); prospective forward shadow approved to prepare
@@ -766,6 +779,14 @@ Reproduce/fix in a new version where confirmed:
   - **Verdict:** the primary bar fails (the interval includes 0), and the challenger remains worse than the market. **NOT QUALIFIED. Not promoted; no recommendations published from it; no betting-value claim; this holdout is not re-tuned against.**
   - **Next:** a fresh preregistration for a prospective forward shadow, new games only.
 - **P317 league-rates candidate** (`mlb-fullgame-engine-league-rates-v1`): forward shadow still ACCUMULATING (196/200 at 2026-10-09).
+- **Forward shadow integration (2026-10-10; #1047 + #1048 as one integration; READY_FOR_FOUNDER_REVIEW, not merged):**
+  - **Scope:** #1048 contains #1047. It was reconciled with `main` and gives one Production build. The forward test registered at `7330c16fd0` is unchanged.
+  - **Isolation:** the matchup path runs only when `EngineParams.matchup` is set, and no published caller sets it. The shadow writes only `data/internal/research/mlb/engine-level-shadow/matchup-v1/<date>.json`. No page, product, Results or ledger code reads it.
+  - **Byte identity:** the `main` generator and the integration generator were run on the same slate and clock (2026-09-15, 15 games; 10-07 pregame; 10-07 after first pitch; 10-08). Every public and internal file was sha256-identical except the new shadow file. Shadow rows are written only for games not yet started.
+  - **Fault injection, 6 cases:** the feature builder throws; the shadow throws; the challenger is unusable; the write fails; no captures; budget exhausted. In every case public output was identical and the generator exited 0.
+  - **Overhead:** about 0.27 s per pregame game (15 games: +3.5 s wall time, +7 MB RSS). There is a 60 s budget for the whole shadow.
+  - **Unchanged:** no workflow change, no new build input, no odds credits.
+  - **Not done:** no activation, eligibility or promotion. The forward test needs n ≥ 300 regular-season games, so 2027.
 
 ### Team/game candidates
 1. Existing PA engine control.
@@ -788,7 +809,7 @@ Team attack/defense, batting order, projected PA, batter/pitcher talent, handedn
 - regular/postseason subgroup checks.
 
 ## `MLB-003` — Batter markets
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — RESEARCH (research branch `claude/mlb-003-004-baseline-audit`); nothing implemented in Production, nothing qualified
 
 Generative PA state candidate:
 `K / BB / HBP / 1B / 2B / 3B / HR / other out / error`
@@ -801,6 +822,66 @@ Candidate approaches: binomial/beta-binomial opportunity baselines, hierarchical
 
 Input finding (TRUTH-001, 2026-10-09): about a third of the replacement-rated confirmed batters (302 of 977) DID have a posted line; the board failed to resolve their names (accents, namesakes). That identity defect is fixed in TRUTH-001 PR 1, forward-only. The remaining gap is genuine (no line or too little data) and is what MLB-003 must close. New simulated rows carry `rateSource`, so MLB-003 can measure it per row.
 
+### Progress (2026-10-10, Lane A; MLB-003 and MLB-004 share the data and the replay)
+- **Baseline audit (2026 settled lines):** the published player-market models are worse than the market in every market. Against the posted line, strikeouts and total bases carry almost no information (AUC of (mean − line) ≈ 0.51).
+- **Diagnosis:** both the means and the distribution shape are wrong. The published model is a last-N/season mean with a normal CDF.
+- **v1 challengers on 2026** (preregistered, exploratory because 2026 was already examined):
+  - hits −0.010 and total bases −0.033 log loss against the current model, both still **worse than the market**;
+  - H+R+RBI shows no gain;
+  - matchup inputs reached only about 2% of rows under the capture-before-board rule.
+- **Data (StatsAPI, free, internal, not a build input):**
+  - box scores: 2026 2,483 games; 2024 **2,472** and 2025 **2,477**, exactly the official completed-game totals, 0 duplicates, 0 missing;
+  - a handedness reference for 2,074 players.
+
+  Every game is captured once, on its completion date; postponed and cancelled games are never fetched. The files are compact per-player lines, with no raw payloads.
+- **2025 exposure audit:**
+  - 2025 per-game player outcomes were never examined before the capture.
+  - But 2025 final scores were seen, and 2025 season splits fed 2026 inputs.
+  - So 2025 is **`RETROSPECTIVE_HOLDOUT`**: read once, not prospective, **not sufficient for qualification**.
+- **Chronological replay:** the protocol was registered at `2f9c067b68` before any 2024 or 2025 read.
+  - 2024 is development, with no 2024-informed change.
+  - v2 and v2h were frozen at `d170c425d1`.
+  - 2025 was read once.
+  - Scored on actual counts, because no historical lines exist, so there is **no market comparison**.
+- **2025 result:** count log loss, v2 minus current (95% interval, resampling whole dates):
+
+  | Market | v2 minus current |
+  |---|---|
+  | Pitcher K | −0.085 [−0.112, −0.058] |
+  | Hits | −0.024 [−0.026, −0.021] |
+  | Total bases | −0.154 [−0.163, −0.146] |
+  | H+R+RBI | −0.109 [−0.118, −0.100] |
+
+  - **Against v1:** v2 is better for K (marginal: upper end −0.00002), hits, TB, H+R+RBI, runs and RBI. **HR fails.**
+  - **Handedness variants:** not supported (the 2024 strikeout gain did not replicate).
+  - **Calibration slope:** v2 ≈ 0.94–1.13, against about 0.4 for the published model, which is overconfident.
+  - **Ranking:** threshold AUC rises by only 0.005–0.02.
+- **Not shown:** any gain against posted lines or the market, any qualification, or any betting value.
+- **Qualification:** the forward test against posted lines, de-vigged market and current model (rest of the 2026 postseason, then 2027).
+
+### Progress (2026-10-10 overnight → morning, Lane A; research branches `claude/mlb-005-coherent-worlds`, `claude/mlb-003-004-baseline-audit`)
+- **Data quality:**
+  - Opposing pitchers' runs = the official linescore final in 4,859 / 4,859 cross-checked 2024–2025 games.
+  - One capture limitation: 0-PA pinch runners are dropped, so team runs always come from pitching runs.
+- **Point-in-time availability** (2026-07-22 → 10-10):
+  - confirmed lineups posted before the start for 81% of games, a median 115 min pregame;
+  - the per-batter splits families cover 47% of games, because they follow the board, not the lineup.
+- **2026 posted lines, exploratory** (examined repeatedly; no claim):
+
+  | Family | Coherent engine − published | Coherent engine − market |
+  |---|---|---|
+  | K | −0.047 [−0.062, −0.032] | +0.019 [+0.010, +0.029] |
+  | Hits | −0.013 | +0.0035 [+0.0015, +0.0056] |
+  | TB | −0.033 | +0.0048 |
+  | H+R+RBI | −0.026 | +0.0042 |
+
+  **Worse than the market in every family.**
+- **Decomposition:** opportunity is the largest remaining error. A known BF would cut K count log loss by 0.116; a known PA would cut hits by 0.045.
+- **Forward tests B / B2 / B-GAMES:**
+  - B registered `e273bf4e2c` (06:53Z), B2 `2d83693e14`, B-GAMES `b716996414`, each before any included game; amendments 1–3.
+  - **Founder classification (2026-10-10 morning):** their rows are materialised **after** the games from timestamped pregame inputs, so they are **preregistered replays**, not verified live forward forecasts. They do not count toward live qualification until the registered live-evidence requirements are met.
+  - **Live pregame capture (Option A)** is approved for development and local validation; merge needs exact-head approval.
+
 ## `MLB-004` — Pitcher markets
 **Status:** NOT_STARTED
 
@@ -808,8 +889,42 @@ Model starter workload/removal survival + BF + per-PA K/contact/walk/HBP + oppon
 
 Hard invariants: `K ≤ BF`; correct outs/innings notation; earned runs separate from total runs.
 
+**Status (2026-10-10):** IN_PROGRESS — RESEARCH.
+- **v1 on 2026** (preregistered `mlb-k-workload-v1`, exploratory): log loss 0.7500 → 0.7085 against the current model, [−0.057, −0.026]. That is still **worse than the market (+0.024) and a coin flip**.
+- **v2:**
+  - Batters faced is a distribution, built from earlier starts' residuals.
+  - Strikeouts given BF are beta-binomial, with walk-forward dispersion.
+  - Retrospective 2025 count support is listed under MLB-003. Its margin over v1 is marginal.
+- **Not qualified.**
+- **`mlb-k-workload-v3`** (registered `dd406d91d8`; exploratory, because 2024 was exposed by the residual analysis that motivated it):
+  - The mean BF is shifted by the start's situation: relief-to-start, opener history, short rest, first starts, long layoff.
+  - 2024 dev **−0.0138 [−0.0185, −0.0089]** against v2. Relief-to-start −0.234, openers −0.238.
+  - No posted-line gain on 2026 (0.7079 vs 0.7074): those starts rarely have lines.
+  - In the coherent engine (exploratory, after its freeze): K −0.0153 [−0.0217, −0.0087]. Not qualified.
+
 ## `MLB-005` — Shared WorldReceipt + forward shadow
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — RESEARCH.
+- **Architecture note** (`docs/research/mlb/mlb-005/ARCHITECTURE.md`, research branch):
+  - Today the game engine and the prop model are separate.
+  - The full-game engine's per-PA simulation becomes the one source, and player props are read out of the same simulated games.
+  - Improved MLB-003 and MLB-004 components plug in as engine inputs.
+  - Per-player distributions are an additive artifact field, which is a CONTRACT-001 decision.
+- **Not done:** no implementation, no activation.
+- **Prototype** (2026-10-10, research branch `claude/mlb-005-coherent-worlds`, built on #1043's pa-v3 rules).
+  - **Engine research hooks** (absent = published engine byte for byte): event log, explicit PA distributions, per-game starter workload draw, in-game substitution.
+  - **`world-invariants.mjs`:** score, runs, RBI, scorers, outs, lineup order, batter and starter lines, ending, extras, workload, substitution, Rule 9.06(f). Mutation-probed.
+- **2024 development results** (counts; no historical market):
+
+  | Version | Registration | Result |
+  |---|---|---|
+  | v1 | `431072c9ae` | Read-outs non-inferior to the separate per-player model in 6/7 markets, K better (−0.0090); TB fails (4.33 vs 4.01 PA) |
+  | v2, substitution | `cb9a52e95e`, a disclosed second look | Non-inferior in **7/7** |
+  | v3, home field | `3b5f5cd7b9`, a third look | **DO_NOT_PROCEED**: winner −0.0015 [−0.0036, +0.0004]; P(home) 0.500 → 0.518 (actual 0.527) |
+
+  - Game level, v1 against league baselines: winner −0.0089 [−0.0160, −0.0018]; total log score −0.0238 [−0.0442, −0.0041].
+  - Totals run about 0.25 low (no double plays, errors or wild pitches).
+- **2026 game level, exploratory:** coherent engine winner log loss 0.6816, against published 0.6995 and market 0.6684; still worse than the market.
+- **Designs:** `docs/research/mlb/mlb-005/{WORLD-CONTRACT-DRAFT,EVALUATION-AND-PROMOTION-DESIGN}.md`.
 - One coherent world population.
 - Persist exact counts and reusable joint representation.
 - Winner/score/total/run line/player outputs derive from those worlds.
@@ -2001,6 +2116,50 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - PR 3 product truth: 5 commits local on `claude/truth-001-product-truth` (`2a6a1c2ef9`, `4e278490fb`, `ae531656fe`, `d8b919b08f`, + no-games-day states); unit phase on Node 20.4.0 9,136 pass / 2 known env failures (before the no-games-day commit).
 - Recovery: investigation complete (231 / 8 / 4, 27 tight); BAL @ NYY 823491 publication-timing case verified.
 - Next: finish PR 3 (B3, B6, validation) → open; build PR 4 (recovery + 823491 correction) as append-only, quarantining tight cases; CONTRACT-001 event-id test.
+
+### 2026-10-10 — Claude Code (Lane A) — `TRUTH-001` releases, `MLB-001` → `MLB-005` research, MLB-002 integration
+- **Releases, one at a time, each verified in Production first:**
+
+  | PR | Approved head | Merge |
+  |---|---|---|
+  | #1038 | `b7de8a4a` | `80a6a3fe` |
+  | #1039 | `defb18c5` | `f15a51f9` |
+  | #1042 | `e8e861d5` (renewed after the supersession record) | `c71a7f5a` |
+  | #1046 | `9cdc9ed9` | `66ddbc8a` |
+
+  Records are under TRUTH-001. Preview 0; one Production build each.
+- **Research, not merged; branch `claude/mlb-003-004-baseline-audit`:**
+  - MLB-003/004 baseline, diagnosis and v1;
+  - the 2024–2025 box-score capture, approved by the founder (free StatsAPI);
+  - the 2025 exposure audit;
+  - the chronological replay with the single 2025 `RETROSPECTIVE_HOLDOUT` read;
+  - the MLB-005 architecture.
+
+  Results are under MLB-003, MLB-004 and MLB-005.
+- **Open and gated:**
+  - #1043 (MLB-001 pa-v3, opt-in) READY_FOR_REVIEW;
+  - #1044 (run-line research, docs);
+  - #1045 / #1049 (Stage B, timing) DRAFT, not applied;
+  - #1047 + #1048 combined READY_FOR_FOUNDER_REVIEW at this head.
+- **This roadmap update** rides the #1048 integration head, so it causes no documentation-only build.
+
+### 2026-10-10 (overnight 02:08–03:43 EDT, then morning) — Claude Code (Lane A) — `MLB-001` → `MLB-005`, `TRUTH-001`, `LEDGER-001`
+- **Starting `main`:** `fbfa10a64b`. Overnight directive executed; journal and morning report on `claude/mlb-003-004-baseline-audit` (`docs/research/mlb/OVERNIGHT-JOURNAL-2026-10-10.md`, `MORNING-REPORT-2026-10-10.md`).
+- **Prepared, not merged:**
+  - #1048 (with #1047), this head;
+  - #1043 `be19ba7002`, adding official Rule 9.06(f) walk-off hit bases;
+  - #1049 `6dc4a51182`, draft: contradictory deployment evidence no longer verifies, plus edge-case tests;
+  - #1045 retargeted to `main`; restatements match #1046's classification; not applied; 824424 HELD.
+- **Research:** MLB-003/004/005 as recorded above. The forward tests are preregistered replays (founder classification).
+- **Builds:** Preview 0, Production 0. Odds credits 0. Paid APIs 0.
+- **Founder decisions (2026-10-10 morning):**
+  - overnight research accepted as research evidence, with its limitations;
+  - #1048 is the next integration candidate (exact-head package requested; not merged);
+  - B / B2 / B-GAMES accepted as preregistered research evaluations, **not** live forward forecasts;
+  - **Option A** live pregame capture approved for development and local validation;
+  - #1043 continues as the next separate candidate;
+  - MLB-005 continues as research;
+  - #1045 / #1049 stay gated.
 
 ---
 
