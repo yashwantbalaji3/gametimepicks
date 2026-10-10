@@ -1,3 +1,4 @@
+import type { PaOutcomeProbs } from "./plate-appearance";
 /**
  * UNIFIED FULL-GAME MLB SIMULATION — the canonical contract (Sprint 008 · Phase 1).
  *
@@ -244,6 +245,11 @@ export interface BatterInput {
   expHrr: number | null;
   /** Where this batter's rates came from (TRUTH-001): his own GTP projection, or replacement level. */
   rateSource?: BatterRateSource;
+  /**
+   * MLB-005 RESEARCH ONLY: explicit per-PA outcome distributions vs the opposing starter and vs the bullpen. Read only
+   * when `EngineParams.research.explicitPa` is set; the published engine never reads it.
+   */
+  pa?: { vsStarter: PaOutcomeProbs; vsBullpen: PaOutcomeProbs };
 }
 
 /**
@@ -260,6 +266,11 @@ export interface PitcherInput {
   team: string;
   /** pitcher_strikeouts projection — expected strikeouts for the start. Null → league K rate. */
   expStrikeouts: number | null;
+  /**
+   * MLB-005 RESEARCH ONLY: the starter's batters-faced limit as a distribution (index = BF, value = probability). One
+   * limit is drawn per simulated game when `EngineParams.research.workloadPmf` is set; otherwise the fixed cap applies.
+   */
+  bfLimitPmf?: number[];
 }
 
 /** All leakage-safe pregame inputs the engine needs for one game. */

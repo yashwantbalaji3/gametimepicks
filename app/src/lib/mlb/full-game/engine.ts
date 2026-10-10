@@ -60,7 +60,25 @@ export interface EngineParams {
   };
   /** Game rules (MLB-001, founder decision 6 2026-10-09). Absent = the published v2 rules (LEGACY_RULES). */
   rules?: EngineRules;
+  /**
+   * MLB-005 RESEARCH ONLY (coherent worlds). Absent = the published engine, byte for byte: no extra random draw, no
+   * changed rate. `explicitPa` reads each batter's `pa` distributions instead of deriving them from the board's
+   * projections; `workloadPmf` draws each starter's batters-faced limit from his `bfLimitPmf` once per game.
+   */
+  research?: { explicitPa?: boolean; workloadPmf?: boolean };
 }
+
+/** One recorded event of a simulated game (MLB-005 world log). Emitted only when an observer is passed. */
+export type WorldEvent =
+  | {
+    kind: "PA"; inning: number; half: "TOP" | "BOTTOM"; outsBefore: number; basesBefore: [number, number, number];
+    batterSlot: number; pitcher: "STARTER" | "BULLPEN"; outcome: string; scored: number[]; rbi: number; outsAfter: number;
+  }
+  | { kind: "HALF_START"; inning: number; half: "TOP" | "BOTTOM"; bases: [number, number, number] }
+  | { kind: "FREE_ADVANCE"; inning: number; half: "TOP" | "BOTTOM"; scored: number[] }
+  | { kind: "STARTER_REMOVED"; inning: number; half: "TOP" | "BOTTOM"; battersFaced: number; limit: number }
+  | { kind: "HALF_END"; inning: number; half: "TOP" | "BOTTOM"; runs: number; outs: number; endedOn: "HOME_RUN" | "OTHER" | null };
+export type WorldObserver = (e: WorldEvent) => void;
 
 /**
  * GAME RULES. The published engine (v2) used three simplifications the MLB-001 audit confirmed against the
@@ -183,10 +201,18 @@ interface MoundState {
   usingStarter: boolean;
   line: PitcherGameLine; // the STARTER's line (frozen once the bullpen enters)
   bullpenRuns: number; // runs the bullpen has allowed (not reported per-pitcher)
+  /** MLB-005 research: this game's drawn batters-faced limit (absent = the fixed cap). */
+  bfLimit?: number;
 }
 
-function buildBatterModels(lineup: BatterInput[], opposingStarter: PitcherInput | null, league: LeagueParams): BatterModel[] {
+function buildBatterModels(lineup: BatterInput[], opposingStarter: PitcherInput | null, league: LeagueParams, explicitPa = false): BatterModel[] {
   const starterK = pitcherStrikeoutRate(opposingStarter?.expStrikeouts ?? null, true, league);
+  if (explicitPa) {
+    // MLB-005 research: every batter must carry explicit distributions; a missing one fails closed (no silent mix).
+    const missing = lineup.filter((b) => !b.pa).map((b) => b.playerId);
+    if (missing.length) throw new Error(`explicitPa: no PA distribution for ${missing.join(",")}`);
+    return lineup.map((b) => ({ vsStarter: b.pa!.vsStarter, vsBullpen: b.pa!.vsBullpen }));
+  }
   return lineup.map((b) => ({
     vsStarter: buildPaOutcome({ expHits: b.expHits, expTotalBases: b.expTotalBases, pitcherKRate: starterK }, league),
     vsBullpen: buildPaOutcome({ expHits: b.expHits, expTotalBases: b.expTotalBases, pitcherKRate: league.BULLPEN_K_RATE }, league),
@@ -291,8 +317,13 @@ function simulateHalfInning(params: {
   walkOff: { awayTotal: number; homeBefore: number } | null;
   engine: EngineParams;
   automaticRunner: boolean;
+  observer?: WorldObserver;
+  inning?: number;
+  half?: "TOP" | "BOTTOM";
 }): { runs: number; orderPtr: number; endedOn: "HOME_RUN" | "OTHER" | null } {
-  const { lineup, models, batterLines, mound, rng, isExtra, walkOff, engine } = params;
+  const { lineup, models, batterLines, mound, rng, isExtra, walkOff, engine, observer } = params;
+  const inning = params.inning ?? 0;
+  const half = params.half ?? "TOP";
   const rules = engine.rules ?? LEGACY_RULES;
   // Official walk-off: on a non-home-run the game ends the moment the winning run scores — no later runner counts.
   const winningRunOnly = !!walkOff && rules.walkOffScoring === "WINNING_RUN_ONLY";
@@ -306,19 +337,23 @@ function simulateHalfInning(params: {
   // Automatic runner on second in extras: the player who made the last out (slot before the leadoff batter).
   if (isExtra && params.automaticRunner) bases[1] = (orderPtr - 1 + n) % n;
   let endedOn: "HOME_RUN" | "OTHER" | null = null;
+  observer?.({ kind: "HALF_START", inning, half, bases: [bases[0], bases[1], bases[2]] });
 
   while (outs < 3) {
     // Free advancement before the pitch (wild pitch / passed ball / balk). Research-only: at 0 it draws nothing.
     if (adv.freeAdvance > 0 && (bases[0] >= 0 || bases[1] >= 0 || bases[2] >= 0) && rng.next() < adv.freeAdvance) {
+      const faScored: number[] = [];
       if (bases[2] >= 0) {
         runs += 1;
         batterLines[bases[2]].runs += 1;
+        faScored.push(bases[2]);
         if (mound.usingStarter) mound.line.runsAllowed += 1;
         else mound.bullpenRuns += 1;
       }
       bases[2] = bases[1];
       bases[1] = bases[0];
       bases[0] = -1;
+      observer?.({ kind: "FREE_ADVANCE", inning, half, scored: faScored });
       if (walkOff && walkOff.homeBefore + runs > walkOff.awayTotal) { endedOn = "OTHER"; break; }
     }
     const slot = orderPtr % n;
@@ -329,6 +364,12 @@ function simulateHalfInning(params: {
     const line = batterLines[slot];
     line.pa += 1;
     if (mound.usingStarter) mound.line.battersFaced += 1;
+    // MLB-005 world log (observer only; no random draw, no state change).
+    const paPitcher: "STARTER" | "BULLPEN" = mound.usingStarter ? "STARTER" : "BULLPEN";
+    const outsBefore = outs;
+    const basesBefore: [number, number, number] | null = observer ? [bases[0], bases[1], bases[2]] : null;
+    const rbiBefore = line.rbi;
+    const paScored: number[] = [];
 
     if (outcome === "strikeout") {
       outs += 1;
@@ -349,6 +390,7 @@ function simulateHalfInning(params: {
       if (outs < 2 && bases[2] >= 0 && rng.next() < adv.productiveOutScoresFromThird) {
         runs += 1;
         batterLines[bases[2]].runs += 1;
+        paScored.push(bases[2]);
         line.rbi += 1;
         bases[2] = -1;
         if (mound.usingStarter) mound.line.runsAllowed += 1;
@@ -363,6 +405,7 @@ function simulateHalfInning(params: {
         if (winningRunOnly && decided(runs)) break;
         runs += 1;
         batterLines[s].runs += 1;
+        paScored.push(s);
         line.rbi += 1;
         if (mound.usingStarter) mound.line.runsAllowed += 1;
         else mound.bullpenRuns += 1;
@@ -374,6 +417,7 @@ function simulateHalfInning(params: {
         if (winningRunOnly && decided(runs)) break;
         runs += 1;
         batterLines[s].runs += 1;
+        paScored.push(s);
         if (mound.usingStarter) mound.line.runsAllowed += 1;
         else mound.bullpenRuns += 1;
       }
@@ -390,17 +434,21 @@ function simulateHalfInning(params: {
         if (winningRunOnly && outcome !== "homeRun" && decided(runs)) break;
         runs += 1;
         batterLines[s].runs += 1;
+        paScored.push(s);
         line.rbi += 1;
         if (mound.usingStarter) mound.line.runsAllowed += 1;
         else mound.bullpenRuns += 1;
       }
     }
 
+    observer?.({ kind: "PA", inning, half, outsBefore, basesBefore: basesBefore!, batterSlot: slot, pitcher: paPitcher, outcome, scored: paScored, rbi: line.rbi - rbiBefore, outsAfter: outs });
     orderPtr += 1;
 
-    // Starter removal: pulled after a batters-faced cap or a blow-up run total.
-    if (mound.usingStarter && (mound.line.battersFaced >= engine.starter.maxBattersFaced || mound.line.runsAllowed >= engine.starter.chaseRuns)) {
+    // Starter removal: pulled after a batters-faced cap (or this game's drawn limit, research) or a blow-up run total.
+    const bfLimit = mound.bfLimit ?? engine.starter.maxBattersFaced;
+    if (mound.usingStarter && (mound.line.battersFaced >= bfLimit || mound.line.runsAllowed >= engine.starter.chaseRuns)) {
       mound.usingStarter = false;
+      observer?.({ kind: "STARTER_REMOVED", inning, half, battersFaced: mound.line.battersFaced, limit: bfLimit });
     }
 
     // Walk-off: the moment the home team leads in the bottom of the 9th+, the game ends.
@@ -410,19 +458,37 @@ function simulateHalfInning(params: {
     }
   }
 
+  observer?.({ kind: "HALF_END", inning, half, runs, outs, endedOn });
   return { runs, orderPtr, endedOn };
 }
 
+/** Draw one batters-faced limit from a pmf (index = BF). One uniform draw. */
+function drawLimit(pmf: number[], u: number): number {
+  let acc = 0;
+  for (let i = 0; i < pmf.length; i += 1) { acc += pmf[i]; if (u < acc) return i; }
+  return pmf.length - 1;
+}
+
 /** Simulate ONE complete game. Deterministic given the injected RNG. */
-export function simulateGame(game: GameInput, rng: SeededRng, params: EngineParams = DEFAULT_ENGINE_PARAMS): GameResult {
-  const awayModels = buildBatterModels(game.awayLineup, game.homeStarter, params.league);
-  const homeModels = buildBatterModels(game.homeLineup, game.awayStarter, params.league);
+export function simulateGame(game: GameInput, rng: SeededRng, params: EngineParams = DEFAULT_ENGINE_PARAMS, observer?: WorldObserver): GameResult {
+  const explicitPa = params.research?.explicitPa === true;
+  const awayModels = buildBatterModels(game.awayLineup, game.homeStarter, params.league, explicitPa);
+  const homeModels = buildBatterModels(game.homeLineup, game.awayStarter, params.league, explicitPa);
   const awayLines = game.awayLineup.map(emptyBatterLine);
   const homeLines = game.homeLineup.map(emptyBatterLine);
 
   // The home team's pitcher faces the away lineup; the away team's pitcher faces the home lineup.
   const homeMound: MoundState = { usingStarter: !!game.homeStarter, line: emptyPitcherLine(), bullpenRuns: 0 };
   const awayMound: MoundState = { usingStarter: !!game.awayStarter, line: emptyPitcherLine(), bullpenRuns: 0 };
+  if (params.research?.workloadPmf) {
+    // MLB-005 research: each starter's batters-faced limit for THIS game, one draw each (home, then away). A starter
+    // without a distribution fails closed rather than silently keeping the fixed cap.
+    for (const [starter, mound] of [[game.homeStarter, homeMound], [game.awayStarter, awayMound]] as const) {
+      if (!starter) continue;
+      if (!starter.bfLimitPmf?.length) throw new Error(`workloadPmf: no batters-faced distribution for ${starter.playerId}`);
+      mound.bfLimit = Math.max(1, drawLimit(starter.bfLimitPmf, rng.next()));
+    }
+  }
 
   let awayRuns = 0;
   let homeRuns = 0;
@@ -449,6 +515,9 @@ export function simulateGame(game: GameInput, rng: SeededRng, params: EnginePara
       walkOff: null,
       engine: params,
       automaticRunner,
+      observer,
+      inning,
+      half: "TOP",
     });
     awayRuns += top.runs;
     awayPtr = top.orderPtr;
@@ -468,6 +537,9 @@ export function simulateGame(game: GameInput, rng: SeededRng, params: EnginePara
       walkOff: inning >= 9 ? { awayTotal: awayRuns, homeBefore: homeRuns } : null,
       engine: params,
       automaticRunner,
+      observer,
+      inning,
+      half: "BOTTOM",
     });
     homeRuns += bottom.runs;
     homePtr = bottom.orderPtr;
