@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 import { SeededRng } from "../../../../../app/src/lib/game-simulations/rng.ts";
 import { DEFAULT_ENGINE_PARAMS, OFFICIAL_RULES_2026, automaticRunnerApplies, simulateGame } from "../../../../../app/src/lib/mlb/full-game/engine.ts";
 import { checkWorld } from "../../../../../app/src/lib/mlb/full-game/world-invariants.mjs";
+import { mlbFirstPitches, mlbLeansOfRecord } from "../../../../../app/src/lib/results/mlb-leans-of-record.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../../..");
@@ -27,7 +28,11 @@ const HOLDOUT = false;
 if (!/^\d{4}$/.test(SEASON ?? "")) { console.error("REFUSED: --season YYYY required"); process.exit(2); }
 if (SEASON === "2025") { console.error("REFUSED: 2025 is the spent RETROSPECTIVE_HOLDOUT; it is not reused for development"); process.exit(2); }
 const ENG_WORLDS = Number(arg("--worlds") ?? 2000);
-const SUBST = process.argv.includes("--substitution"); // mlb-coherent-worlds-v2 (PREREGISTRATION-V2-SUBSTITUTION.md)
+const SUBST = process.argv.includes("--substitution");
+// Exploratory analyses (labelled in the output): posted-line comparison where settled leans exist (2026 only), and an
+// error decomposition (opportunity vs rate vs distribution). Neither changes any registered result.
+const LINES = process.argv.includes("--lines");
+const DECOMPOSE = process.argv.includes("--decompose"); // mlb-coherent-worlds-v2 (PREREGISTRATION-V2-SUBSTITUTION.md)
 const DIR = SEASON === "2026" ? path.join(REPO, "data/internal/mlb/boxscore-outcomes") : path.join(REPO, "data/internal/mlb/boxscore-outcomes-history", SEASON);
 const HANDS_FILE = path.join(REPO, "data/internal/mlb/boxscore-outcomes-history/people-handedness.json");
 const SCORE_FROM = `${SEASON}-05-01`;
@@ -419,7 +424,8 @@ for (const day of days) {
     }
     const v1 = P.v1r != null ? fit(Array.from({ length: SUPPORT.k + 30 }, (_, i) => nbPmf(i, f.eBF * f.p, P.v1r)), SUPPORT.k) : null;
     const ek = eng.get(`${r.gamePk}|P|${r.playerId}`); const eks = engSub.get(`${r.gamePk}|P|${r.playerId}`);
-    if (D >= SCORE_FROM && cur && v1 && v2) kRows.push({ date: D, y: k, models: { current: cur.pmf, v1, v2, ...(v2h ? { v2h } : {}), ...(ek ? { engine: ek, v2inf: kMixture(bf, f.p, Infinity) } : {}), ...(eks ? { engineSub: eks } : {}) }, handKnown: v2h != null, engine: !!ek, engineSub: !!eks });
+    if (D >= SCORE_FROM && cur && v1 && v2) kRows.push({ date: D, y: k, models: { current: cur.pmf, v1, v2, ...(v2h ? { v2h } : {}), ...(ek ? { engine: ek, v2inf: kMixture(bf, f.p, Infinity) } : {}), ...(eks ? { engineSub: eks } : {}) }, handKnown: v2h != null, engine: !!ek, engineSub: !!eks, pid: r.playerId,
+      ...(DECOMPOSE && P.v2kKappa != null ? { dec: { bfAct: r.pitching.bf ?? 0, eBF: f.eBF, p: f.p, kappa: P.v2kKappa, oracleBF: betaBinom(Math.max(0, r.pitching.bf ?? 0), f.p, P.v2kKappa), oracleBFbinom: betaBinom(Math.max(0, r.pitching.bf ?? 0), f.p, Infinity) } } : {}) });
   }
 
   // Batter starts on D.
@@ -465,7 +471,8 @@ for (const day of days) {
     if (D >= SCORE_FROM && curH && curT && curR && v2) {
       const cur = { hits: normalCountPmf(curH.mu, curH.sigma, SUPPORT.hits), tb: normalCountPmf(curT.mu, curT.sigma, SUPPORT.tb), hrr: normalCountPmf(curR.mu, curR.sigma, SUPPORT.hrr) };
       const eb = eng.get(`${r.gamePk}|${r.playerId}`); const ebs = engSub.get(`${r.gamePk}|${r.playerId}`);
-      bRows.push({ date: D, y, models: { current: cur, v1, v2, ...(v2h ? { v2h } : {}), ...(eb ? { engine: eb, v2inf: v2Batter(b, ctx, Infinity, P.runs, false) } : {}), ...(ebs ? { engineSub: ebs } : {}) }, handKnown: v2h != null, engine: !!eb, engineSub: !!ebs });
+      bRows.push({ date: D, y, models: { current: cur, v1, v2, ...(v2h ? { v2h } : {}), ...(eb ? { engine: eb, v2inf: v2Batter(b, ctx, Infinity, P.runs, false) } : {}), ...(ebs ? { engineSub: ebs } : {}) }, handKnown: v2h != null, engine: !!eb, engineSub: !!ebs, pid: r.playerId,
+        ...(DECOMPOSE ? (() => { const pa = Math.max(0, x.pa ?? 0); const delta = new Array(Math.max(pa + 1, 1)).fill(0); delta[pa] = 1; return { dec: { paAct: pa, ePA: ePAOf(b), oraclePA: v2Batter(b, { ...ctx, paDist: delta }, P.v2hitKappa, P.runs, false) } }; })() : {}) });
     }
   }
 
@@ -631,13 +638,66 @@ if (SUBST) {
   subReport.audit = { ...engineAuditSub, meanPaSimulated: engineAuditSub.paSim / engineAuditSub.nBat, meanPaActual: engineAuditSub.paAct / engineAuditSub.nBat, leagueHazardFinal: leagueHazard() };
   subReport.gameLevel = gameRowsSub.length ? { n: gameRowsSub.length, winnerLogLoss: mean(gameRowsSub.map((g) => llBin(g.engine.pHome, g.yHome))), totalRunsLogScore: mean(gameRowsSub.map((g) => nll(g.engine.total, g.total))), totalRunsCrps: mean(gameRowsSub.map((g) => crps(g.engine.total, g.total))), meanTotal: mean(gameRowsSub.map((g) => g.engine.total.reduce((a, p, k) => a + p * k, 0))) } : null;
 }
+// ── exploratory: posted lines (settled leans of record) ──
+let lines = null;
+if (LINES) {
+  const jsonl = (rel) => fs.readFileSync(path.join(REPO, rel), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+  const graded = jsonl("app/public/data/mlb/results/game-predictions-graded.jsonl");
+  const MK = { pitcher_strikeouts: "k", batter_hits: "hits", batter_total_bases: "tb", batter_hits_runs_rbis: "hrr" };
+  const leans = mlbLeansOfRecord(jsonl("pipeline/validation/mlb_settled_leans.jsonl"), { firstPitches: mlbFirstPitches(graded) }).record
+    .filter((l) => MK[l.marketKey] && Number.isFinite(l.actual) && Number.isFinite(l.line) && l.actual !== l.line && Number.isFinite(l.modelProbOver) && l.playerId != null && l.date?.startsWith(SEASON));
+  const boards = new Map();
+  const boardRow = (date, id) => { if (!boards.has(date)) { let b = null; try { b = JSON.parse(fs.readFileSync(path.join(REPO, `app/public/data/mlb/boards/${date}.json`), "utf8")); } catch { b = null; } boards.set(date, b ? new Map((b.leans ?? []).map((x) => [x.id, x])) : null); } return boards.get(date)?.get(id) ?? null; };
+  const implied = (o) => (o < 0 ? -o / (-o + 100) : 100 / (o + 100));
+  const byKey = { k: new Map(kRows.filter((r) => r.engine).map((r) => [`${r.date}|${r.pid}`, r])), b: new Map(bRows.filter((r) => r.engine).map((r) => [`${r.date}|${r.pid}`, r])) };
+  const llb = (p, y) => -Math.log(y ? Math.min(1 - 1e-6, Math.max(1e-6, p)) : 1 - Math.min(1 - 1e-6, Math.max(1e-6, p)));
+  lines = { label: "EXPLORATORY — 2026 settled leans were examined repeatedly (baseline audit, v1 dev); no claim follows", byMarket: {} };
+  for (const [mkKey, mk] of Object.entries(MK)) {
+    const rows = [];
+    for (const l of leans.filter((x) => x.marketKey === mkKey)) {
+      const r = (mk === "k" ? byKey.k : byKey.b).get(`${l.date}|${l.playerId}`); if (!r) continue;
+      const pmf = (m) => (mk === "k" ? r.models[m] : r.models[m]?.[mk]);
+      const br = boardRow(l.date, l.id);
+      const market = br && Number.isFinite(br.oddsOver) && Number.isFinite(br.oddsUnder) && br.projection === l.projection ? implied(br.oddsOver) / (implied(br.oddsOver) + implied(br.oddsUnder)) : null;
+      const y = l.actual > l.line ? 1 : 0;
+      const pr = { current: l.modelProbOver, v2: pOver(pmf("v2"), l.line), engine: pOver(pmf("engine"), l.line), ...(pmf("engineSub") ? { engineSub: pOver(pmf("engineSub"), l.line) } : {}), market };
+      rows.push({ date: l.date, y, pr });
+    }
+    const models = ["current", "v2", "engine", ...(rows.some((r) => r.pr.engineSub != null) ? ["engineSub"] : [])];
+    const res = { n: rows.length, overRate: mean(rows.map((r) => r.y)), models: {}, vsCurrent: {}, vsMarket: {} };
+    for (const m of models) { const ps = rows.map((r) => r.pr[m]); res.models[m] = { logLoss: mean(rows.map((r) => llb(r.pr[m], r.y))), auc: auc(ps, rows.map((r) => r.y)), calibration: logistic(ps.map((p) => Math.log(clamp(p) / (1 - clamp(p)))), rows.map((r) => r.y)) }; }
+    for (const m of models.filter((x) => x !== "current")) { const d = rows.map((r) => llb(r.pr[m], r.y) - llb(r.pr.current, r.y)); res.vsCurrent[m] = { mean: mean(d), ci95: bootByDate(rows, d) }; }
+    const mrows = rows.filter((r) => r.pr.market != null);
+    res.marketN = mrows.length;
+    if (mrows.length) { res.models.market = { logLoss: mean(mrows.map((r) => llb(r.pr.market, r.y))), auc: auc(mrows.map((r) => r.pr.market), mrows.map((r) => r.y)) }; for (const m of models) { const d = mrows.map((r) => llb(r.pr[m], r.y) - llb(r.pr.market, r.y)); res.vsMarket[m] = { mean: mean(d), ci95: bootByDate(mrows, d) }; } }
+    lines.byMarket[mk] = res;
+  }
+}
+// ── exploratory: error decomposition (opportunity vs rate vs distribution) ──
+let decomposition = null;
+if (DECOMPOSE) {
+  const kr = kRows.filter((r) => r.dec);
+  const br = bRows.filter((r) => r.dec);
+  const nl = (p, y) => -Math.log(Math.max(1e-12, p[Math.min(y, p.length - 1)]));
+  decomposition = {
+    label: "EXPLORATORY — development season; what a perfectly known opportunity (actual BF / PA) would be worth",
+    k: kr.length ? {
+      n: kr.length,
+      bf: { meanExpected: mean(kr.map((r) => r.dec.eBF)), meanActual: mean(kr.map((r) => r.dec.bfAct)), mae: mean(kr.map((r) => Math.abs(r.dec.eBF - r.dec.bfAct))) },
+      kPerBf: { meanPredicted: mean(kr.map((r) => r.dec.p)), meanActual: kr.reduce((a, r) => a + r.y, 0) / Math.max(1, kr.reduce((a, r) => a + r.dec.bfAct, 0)) },
+      countLogLoss: { v2: mean(kr.map((r) => nl(r.models.v2, r.y))), v2WithActualBF: mean(kr.map((r) => nl(r.dec.oracleBF, r.y))), binomialWithActualBF: mean(kr.map((r) => nl(r.dec.oracleBFbinom, r.y))) },
+    } : null,
+    batters: br.length ? Object.fromEntries(["hits", "tb", "hrr", "r", "rbi", "hr"].map((mk) => [mk, { n: br.length, v2: mean(br.map((r) => nl(r.models.v2[mk], r.y[mk]))), v2WithActualPA: mean(br.map((r) => nl(r.dec.oraclePA[mk], r.y[mk]))) }])) : null,
+    pa: br.length ? { meanExpected: mean(br.map((r) => r.dec.ePA)), meanActual: mean(br.map((r) => r.dec.paAct)), mae: mean(br.map((r) => Math.abs(r.dec.ePA - r.dec.paAct))) } : null,
+  };
+}
 const out = {
-  experiment: "mlb-coherent-worlds-v1", ...(SUBST ? { v2Substitution: subReport } : {}), label: SEASON === "2026" ? "EXPOSED (debugging only)" : "DEVELOPMENT (exploratory; can only earn PROCEED_TO_FORWARD_SHADOW)",
+  experiment: "mlb-coherent-worlds-v1", ...(lines ? { exploratoryPostedLines: lines } : {}), ...(decomposition ? { exploratoryDecomposition: decomposition } : {}), ...(SUBST ? { v2Substitution: subReport } : {}), label: SEASON === "2026" ? "EXPOSED (debugging only)" : "DEVELOPMENT (exploratory; can only earn PROCEED_TO_FORWARD_SHADOW)",
   season: Number(SEASON), worldsPerGame: ENG_WORLDS, gitHead: report.gitHead, fidelity,
   engineAudit: { ...engineAudit, meanPaSimulated: engineAudit.paSim / engineAudit.nBat, meanPaActual: engineAudit.paAct / engineAudit.nBat },
   readouts: engineReport, gameLevel,
 };
-const OUT = path.join(HERE, `coherence-${SEASON}-${SEASON === "2026" ? "exposed" : "dev"}${SUBST ? "-v2-substitution" : ""}.json`);
+const OUT = path.join(HERE, `coherence-${SEASON}-${SEASON === "2026" ? "exposed" : "dev"}${SUBST ? "-v2-substitution" : ""}${LINES || DECOMPOSE ? "-exploratory" : ""}.json`);
 fs.writeFileSync(OUT, JSON.stringify(out, null, 1) + "\n");
 const f4 = (x) => (x == null ? "—" : x.toFixed(4));
 console.log(`engine: ${engineAudit.games} games, ${engineAudit.worlds} worlds, ${engineAudit.violations} invariant violations, ${engineAudit.discarded} discarded at cap, skipped ${JSON.stringify(engineAudit.skipped)}, ${(engineAudit.ms / 1000).toFixed(0)} s; mean PA simulated ${f4(out.engineAudit.meanPaSimulated)} vs actual ${f4(out.engineAudit.meanPaActual)}`);
@@ -649,4 +709,6 @@ if (SUBST) {
   for (const mk of ["k", "hits", "tb", "hrr", "hr", "r", "rbi"]) { const o = subReport[mk]; console.log(`${mk.padEnd(5)} n=${o.n} ` + Object.entries(o.models).map(([k, v]) => `${k} ${f4(v.countLogLoss)}`).join(" | ") + " || " + Object.entries(o.vs).map(([k, v]) => `${k} ${f4(v.countLogLoss)} [${f4(v.ci95[0])}, ${f4(v.ci95[1])}]`).join(" · ") + ` → ${o.decision}`); }
   if (subReport.gameLevel) console.log(`game (v2) n=${subReport.gameLevel.n}: winner LL ${f4(subReport.gameLevel.winnerLogLoss)} total log score ${f4(subReport.gameLevel.totalRunsLogScore)} CRPS ${f4(subReport.gameLevel.totalRunsCrps)} mean total ${f4(subReport.gameLevel.meanTotal)}`);
 }
+if (lines) for (const [mk, o] of Object.entries(lines.byMarket)) console.log(`LINES ${mk.padEnd(5)} n=${o.n} (market ${o.marketN}) ` + Object.entries(o.models).map(([k, v]) => `${k} LL ${f4(v.logLoss)} AUC ${f4(v.auc)}`).join(" | ") + " || vs current " + Object.entries(o.vsCurrent).map(([k, v]) => `${k} ${f4(v.mean)} [${f4(v.ci95[0])}, ${f4(v.ci95[1])}]`).join(" · ") + " || vs market " + Object.entries(o.vsMarket).map(([k, v]) => `${k} ${f4(v.mean)} [${f4(v.ci95[0])}, ${f4(v.ci95[1])}]`).join(" · "));
+if (decomposition) console.log("DECOMPOSE " + JSON.stringify(decomposition));
 console.log(`→ ${path.relative(REPO, OUT)}`);
