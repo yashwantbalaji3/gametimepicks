@@ -1103,8 +1103,14 @@ Hard invariants: player minutes = 240 regulation + 25 per OT; five players on co
 # 11. UFC roadmap
 
 ## `UFC-001` — Near-term truthful operations
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS (founder directive 2026-10-10: primary priority for the Oct 10 card)
 Use existing Saturday/U1/U2 work only after current-main refresh.
+
+Slices (state on `main` 5ed6f6bc51, 2026-10-10):
+- **U2 odds join:** on `main` (`62c5a7dd19`, `fe38220e45`). Do not redo it. The remaining U2 items (plain labels; athlete ids on model-vs-market rows) are not on `main`.
+- **U3 claims copy (D2 HONEST):** rebuilt on fresh `main` as branch `claude/ufc-001-u3-claims-copy`; not merged. The department bundle was not cherry-picked.
+- **U1 grader retirement and readiness split (D1 YES):** not on `main`. It must land apart from Product Engine 4D.
+- **U4 Gall v Dumas:** D3 is still open; no correction is made.
 
 ## `UFC-002` — World/process model
 **Status:** NOT_STARTED
@@ -2001,6 +2007,27 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - PR 3 product truth: 5 commits local on `claude/truth-001-product-truth` (`2a6a1c2ef9`, `4e278490fb`, `ae531656fe`, `d8b919b08f`, + no-games-day states); unit phase on Node 20.4.0 9,136 pass / 2 known env failures (before the no-games-day commit).
 - Recovery: investigation complete (231 / 8 / 4, 27 tight); BAL @ NYY 823491 publication-timing case verified.
 - Next: finish PR 3 (B3, B6, validation) → open; build PR 4 (recovery + 823491 correction) as append-only, quarantining tight cases; CONTRACT-001 event-id test.
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — `UFC-001` U3
+- Starting main SHA: `5ed6f6bc51`.
+- Branch: `claude/ufc-001-u3-claims-copy`.
+- Goal: founder directive (Oct 10): remove the unsupported UFC superiority claims (D2 HONEST, approved 2026-10-07) before the Oct 10 card.
+- Reproduced:
+  - Production says the UFC model "beat its baseline on every head", that all three heads "cleared theirs, which no other model here has done", and that it is "the one model on the site" to do so (`/cage-chaos`, `/ufc/bout/*`, and the Cage Chaos product basis shown on `/mr-dub`, `/goal-rush` and `/bucket-blitz`);
+  - the live graded winner record (`model-health` `ufc_winner`, n = 60) is WATCH / BELOW_BAR, and the market leads it.
+- Decisions made: none new; D2's wording is applied as approved.
+- Files and contracts changed:
+  - `app/src/app/cage-chaos/page.tsx`, `app/src/app/ufc/bout/[boutId]/page.tsx`, `app/src/lib/products/signature-products.ts` (copy only);
+  - new guard `app/src/lib/uiux/ufc-claims-copy.test.mjs`;
+  - this roadmap.
+  - No probability, model, version, receipt, eligibility, Results, odds or accounting change. The Ask projection does not carry the removed wording, so no regeneration is needed.
+- Local checks:
+  - the guard passes on the fix and fails on `main`'s copy (mutation);
+  - claims contract, sport-lab cards, the soccer claim guard, the UFC library and every test naming the product or routes: 188 / 188;
+  - `tsc` clean;
+  - build and rendered guards: see the PR.
+- Result: a PR is ready for exact-head approval; not merged.
+- Vercel: Preview 0; Production 0 (one on merge).
 
 ---
 
