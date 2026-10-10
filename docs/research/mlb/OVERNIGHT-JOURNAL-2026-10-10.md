@@ -107,7 +107,7 @@ Working log for the founder's overnight directive. **Not a roadmap.** The author
 - **Byte identity of the default path against `main`:**
   - pregame (10-07, 09-15): **IDENTICAL**.
   - **after first pitch (10-07 23:59Z): DIFFERS by one additive field.** Carried `frozenPregame` entries gain `"modelVersion": "mlb-fullgame-2026.08-pa-v2"` (#1043's frozen-carry change). Game objects and `artifactHash` are unchanged, and the only other reader (`build-mlb-social-content.mjs`) checks only that the entry exists.
-  - So #1043's "default output byte-identical" holds **pregame only**. This is disclosed in the review package.
+  - #1043's PR body **already disclosed** this as its one intended exception ("carried `frozenPregame` entries gain `modelVersion`"), so it is not a new finding. It is reconfirmed here at the reconciled head.
 
 ### 06:40Z · TRUTH-001 · #1045 / #1049
 - Both merge cleanly with `main` (dry merge).
