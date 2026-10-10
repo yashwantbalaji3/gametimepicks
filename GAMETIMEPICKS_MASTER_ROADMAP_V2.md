@@ -1123,6 +1123,20 @@ Slices (state on `main` 5ed6f6bc51, 2026-10-10):
   - #1052: U3 claims copy.
   - Both are Production-verified (see the session logs). UFC-001 stays **IN_PROGRESS**.
 
+#### UFC experience (UX phases; founder directive 2026-10-10; plan in `docs/ufc/UFC-001-UX-PLAN.md`)
+- **Phase A, prediction board:** implemented on `claude/ufc-001-ux-phase-a`, awaiting exact-head approval; not merged.
+  - It is now `/ufc`'s events section: every bout once, main event first, with portraits, the pick, the published win chance and the experimental method lean (label only; fight-level, not "pick wins that way"), each row linking to its bout page.
+  - It meets the shared hub contract: `hubCounts` counts line and the standard unmodelled phrase.
+- **Phase B, bout pages; Phase C, evidence-based strengths and risks:** NOT_STARTED.
+  - Data available honestly today: tale of the tape (ESPN, static) and corpus outcomes as of 2026-08-08.
+  - Per-minute striking and grappling stats need a free point-in-time ingest of `ufc_fight_stats.csv`. That is a founder decision.
+- **Phase D, model explanation:** NOT_STARTED. Exact calibrated logit contributions are possible for the winner head, but need the builder to emit its coefficients. The current `reason` sentence is NOT a model attribution and must be relabelled or replaced.
+- **Producer copy defects found** (to fix in Phase B):
+  - `profileFor` says "Too few tracked losses" for fighters with 13–14 losses;
+  - the "Durable" wording;
+  - "mostly by submission" when the KO share is 40–60%;
+  - a `basisNote` saying "no UFC history" for fighters with 1 bout.
+
 #### UFC live tracking: capability gap (recorded 2026-10-10)
 - **Today there is no live UFC surface.**
   - The gateway `app/api/_live-core.mjs` supports only `["nfl","mlb"]`, and only `mlb` is public by default (`LIVE_PUBLIC_SPORTS`).
@@ -2183,6 +2197,21 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - the results capture reads ESPN (19 completed in the 9-day window);
   - the grader reports 72 snapshot bouts: 60 graded, and 12 awaiting results (tonight's 11 plus the Gall pairing).
 - **Vercel:** 1 Production build for the merge; Preview 0.
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — `UFC-001` UX Phase A (prediction board)
+- **Starting point:** main `1dc036b020`; branch `claude/ufc-001-ux-phase-a`.
+- **What changed:**
+  - `components/ufc/prediction-board.tsx` and `lib/sports/ufc/prediction-board.mjs` (+ test);
+  - `/ufc` `#ufc-games` renders the board (falls back to the shared `HubHeader` without a card);
+  - `docs/ufc/UFC-001-UX-PLAN.md`.
+  - Rows come only from `card-latest.json`. No forecast, model, eligibility, Results, odds, workflow or data change.
+- **Checks:**
+  - board tests (every bout once; forecasts equal the artifact; unmodelled stays unavailable; hrefs; no method number);
+  - `tsc` clean; unit phase (only the 2 local `live RLS`); build ✓;
+  - rendered guards 690 / 693 (3 skipped). The first build failed 4 guards: banned "win probability" wording, the shared counts line, and the unmodelled phrase. All were fixed.
+  - Preview at 375 / 768 / 1024 / 1440: no horizontal overflow; 12 unique bout links; tap targets ≥ 149 px; no console errors; a click opens `/ufc/bout/401916276/`.
+- **Result:** PR ready for exact-head approval; not merged.
+- **Vercel:** Preview 0; Production 0 (one on merge).
 
 ---
 
