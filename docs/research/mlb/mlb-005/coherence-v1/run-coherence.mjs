@@ -27,6 +27,7 @@ const HOLDOUT = false;
 if (!/^\d{4}$/.test(SEASON ?? "")) { console.error("REFUSED: --season YYYY required"); process.exit(2); }
 if (SEASON === "2025") { console.error("REFUSED: 2025 is the spent RETROSPECTIVE_HOLDOUT; it is not reused for development"); process.exit(2); }
 const ENG_WORLDS = Number(arg("--worlds") ?? 2000);
+const SUBST = process.argv.includes("--substitution"); // mlb-coherent-worlds-v2 (PREREGISTRATION-V2-SUBSTITUTION.md)
 const DIR = SEASON === "2026" ? path.join(REPO, "data/internal/mlb/boxscore-outcomes") : path.join(REPO, "data/internal/mlb/boxscore-outcomes-history", SEASON);
 const HANDS_FILE = path.join(REPO, "data/internal/mlb/boxscore-outcomes-history/people-handedness.json");
 const SCORE_FROM = `${SEASON}-05-01`;
@@ -233,16 +234,57 @@ function v2Batter(b, ctx, kappa, runs, useHand, markets = ["hits", "tb", "hr", "
 }
 
 // ── MLB-005: engine read-outs (the only addition to the frozen replay) ──────────────────────────────────────────────
+// v2 (substitution) state, from earlier games only: league replacement hazard by trip, each batter's own record, and the
+// league's non-starter batting rates.
+const hz = { risk: new Array(10).fill(0), event: new Array(10).fill(0) };
+const slotRecords = new Map(); // batter id -> [{ nStart, nSlot }]
+const bench = { pa: 0, h: 0, d: 0, t: 0, hr: 0, k: 0, bb: 0 };
+function updateSubstitutionState(day) {
+  const slots = new Map(); // `${gamePk}|${team}|${digit}` -> { starter: row|null, nSlot }
+  for (const r of day.rows) {
+    if (!r.batting || typeof r.battingOrder !== "string" || !r.team) continue;
+    const key = `${r.gamePk}|${r.team}|${r.battingOrder[0]}`;
+    const sl = slots.get(key) ?? { starter: null, nSlot: 0 };
+    sl.nSlot += r.batting.pa ?? 0;
+    if (r.battingOrder.endsWith("00")) sl.starter = r;
+    else { const x = r.batting; bench.pa += x.pa ?? 0; bench.h += x.h ?? 0; bench.d += x.d ?? 0; bench.t += x.t ?? 0; bench.hr += x.hr ?? 0; bench.k += x.so ?? 0; bench.bb += (x.bb ?? 0) + (x.hbp ?? 0); }
+    slots.set(key, sl);
+  }
+  for (const sl of slots.values()) {
+    if (!sl.starter) continue;
+    const nStart = sl.starter.batting.pa ?? 0;
+    for (let j = 1; j <= nStart && j < hz.risk.length; j += 1) if (sl.nSlot > j) { hz.risk[j] += 1; if (j === nStart) hz.event[j] += 1; }
+    const a = slotRecords.get(sl.starter.playerId) ?? []; a.push({ nStart, nSlot: sl.nSlot }); slotRecords.set(sl.starter.playerId, a);
+  }
+}
+const leagueHazard = () => hz.risk.map((r, j) => (j === 0 || !r ? 0 : hz.event[j] / r));
+function hazardFor(playerId, h) {
+  let obs = 0; let exp = 0;
+  for (const { nStart, nSlot } of slotRecords.get(playerId) ?? []) {
+    if (nStart < nSlot) obs += 1;
+    for (let j = 1; j <= nStart && j < h.length; j += 1) if (nSlot > j) exp += h[j];
+  }
+  const mult = (obs + 5) / (exp + 5);
+  return h.map((x) => Math.min(0.95, x * mult));
+}
+
 const engineAudit = { games: 0, skipped: {}, worlds: 0, discarded: 0, violations: 0, samples: [], paSim: 0, paAct: 0, nBat: 0, ms: 0 };
 const gameRows = [];
 const lgGame = { n: 0, homeWins: 0, totals: new Array(31).fill(0) };
 let pendingGames = [];
 const ENGINE_PARAMS = { ...DEFAULT_ENGINE_PARAMS, rules: OFFICIAL_RULES_2026, research: { explicitPa: true, workloadPmf: true } };
-function engineReadouts(day, teamsOf, starterOf) {
+const ENGINE_PARAMS_SUB = { ...DEFAULT_ENGINE_PARAMS, rules: OFFICIAL_RULES_2026, research: { explicitPa: true, workloadPmf: true, substitution: true } };
+const engineAuditSub = { games: 0, skipped: {}, worlds: 0, discarded: 0, violations: 0, samples: [], paSim: 0, paAct: 0, nBat: 0, ms: 0 };
+const gameRowsSub = [];
+function engineReadouts(day, teamsOf, starterOf, mode = "v1") {
   const out = new Map();
+  const audit = mode === "v1" ? engineAudit : engineAuditSub;
+  const params = mode === "v1" ? ENGINE_PARAMS : ENGINE_PARAMS_SUB;
+  const lgH = mode === "sub" ? leagueHazard() : null;
   const t0 = Date.now();
   const meta = new Map((day.games ?? []).map((g) => [g.gamePk, g]));
-  const skip = (why) => { engineAudit.skipped[why] = (engineAudit.skipped[why] ?? 0) + 1; };
+  const skip = (why) => { audit.skipped[why] = (audit.skipped[why] ?? 0) + 1; };
+  if (mode === "sub" && bench.pa < 500) { for (const _ of teamsOf.keys()) skip("burn-in-bench"); return out; }
   const Lr = { k: lr("k"), bb: lr("bb"), hr: lr("hr") };
   const pitcherCtx = (pid, team) => {
     const sp = pitchers.get(pid) ?? { startsBF: [], bf: 0, k: 0, bb: 0, hr: 0 };
@@ -272,8 +314,12 @@ function engineReadouts(day, teamsOf, starterOf) {
     const ctx = { away: pitcherCtx(sp.home, team.home), home: pitcherCtx(sp.away, team.away) };
     const batIn = (r, side) => {
       const own = batterRates(batters.get(r.playerId) ?? emptyBatter()); const c = ctx[side];
-      return { playerId: r.playerId, name: String(r.playerId), team: r.team, expHits: null, expTotalBases: null, expHrr: null,
+      const base = { playerId: r.playerId, name: String(r.playerId), team: r.team, expHits: null, expTotalBases: null, expHrr: null,
         pa: { vsStarter: mkPa(own, log5(own.k, c.st.k, Lr.k), log5(own.bb, c.st.bb, Lr.bb), log5(own.hr, c.st.hr, Lr.hr)), vsBullpen: mkPa(own, log5(own.k, c.pen.k, Lr.k), log5(own.bb, c.pen.bb, Lr.bb), log5(own.hr, c.pen.hr, Lr.hr)) } };
+      if (mode !== "sub") return base;
+      const bo = { h: bench.h / bench.pa, d: bench.d / bench.pa, t: bench.t / bench.pa, hr: bench.hr / bench.pa, k: bench.k / bench.pa, bb: bench.bb / bench.pa };
+      return { ...base, subHazard: hazardFor(r.playerId, lgH),
+        subPa: { vsStarter: mkPa(bo, log5(bo.k, c.st.k, Lr.k), log5(bo.bb, c.st.bb, Lr.bb), log5(bo.hr, c.st.hr, Lr.hr)), vsBullpen: mkPa(bo, log5(bo.k, c.pen.k, Lr.k), log5(bo.bb, c.pen.bb, Lr.bb), log5(bo.hr, c.pen.hr, Lr.hr)) } };
     };
     const pIn = (pid, tm, side) => ({ playerId: pid, name: String(pid), team: tm, expStrikeouts: null, bfLimitPmf: bfPmf(ctx[side === "away" ? "home" : "away"].eBF) });
     const game = {
@@ -292,25 +338,25 @@ function engineReadouts(day, teamsOf, starterOf) {
     const put = (h, x) => { h[Math.min(Math.max(0, x), h.length - 1)] += 1; };
     while (done < ENG_WORLDS) {
       const events = [];
-      const res = simulateGame(game, rng, ENGINE_PARAMS, (e) => events.push(e));
+      const res = simulateGame(game, rng, params, (e) => events.push(e));
       if (res.incomplete) { discarded += 1; if (discarded > ENG_WORLDS) break; continue; }
       const v = checkWorld({ game, result: res, events, rules: OFFICIAL_RULES_2026, automaticRunner: auto });
-      engineAudit.worlds += 1;
-      if (v.length) { engineAudit.violations += 1; if (engineAudit.samples.length < 5) engineAudit.samples.push({ gamePk, v: v.slice(0, 3) }); }
-      for (const [side, lines] of [["away", res.awayBatters], ["home", res.homeBatters]]) lines.forEach((l, i) => { const a = bat[side][i]; put(a.hits, l.hits); put(a.tb, l.totalBases); put(a.hr, l.homeRuns); put(a.r, l.runs); put(a.rbi, l.rbi); put(a.hrr, l.hits + l.runs + l.rbi); a.pa += l.pa; });
+      audit.worlds += 1;
+      if (v.length) { audit.violations += 1; if (audit.samples.length < 5) audit.samples.push({ gamePk, v: v.slice(0, 3) }); }
+      for (const [side, lines] of [["away", res.awayStarterBatters ?? res.awayBatters], ["home", res.homeStarterBatters ?? res.homeBatters]]) lines.forEach((l, i) => { const a = bat[side][i]; put(a.hits, l.hits); put(a.tb, l.totalBases); put(a.hr, l.homeRuns); put(a.r, l.runs); put(a.rbi, l.rbi); put(a.hrr, l.hits + l.runs + l.rbi); a.pa += l.pa; });
       put(kH.away, res.awayStarter.strikeouts); put(kH.home, res.homeStarter.strikeouts);
       if (res.homeRuns > res.awayRuns) homeWins += 1;
       put(totH, res.awayRuns + res.homeRuns);
       done += 1;
     }
-    engineAudit.discarded += discarded;
+    audit.discarded += discarded;
     if (done < ENG_WORLDS) { skip("unresolved"); continue; }
-    engineAudit.games += 1;
+    audit.games += 1;
     const sm = (h) => h.map((c) => (c + 0.5 / h.length) / (done + 0.5));
     for (const side of ["away", "home"]) L[side].forEach((r, i) => {
       const a = bat[side][i];
       out.set(`${gamePk}|${r.playerId}`, { hits: sm(a.hits), tb: sm(a.tb), hr: sm(a.hr), r: sm(a.r), rbi: sm(a.rbi), hrr: sm(a.hrr), meanPa: a.pa / done });
-      engineAudit.paSim += a.pa / done; engineAudit.paAct += r.batting.pa ?? 0; engineAudit.nBat += 1;
+      audit.paSim += a.pa / done; audit.paAct += r.batting.pa ?? 0; audit.nBat += 1;
     });
     out.set(`${gamePk}|P|${sp.away}`, sm(kH.away)); out.set(`${gamePk}|P|${sp.home}`, sm(kH.home));
     // Game level, scored against the actual final (outcome only) with league-to-date baselines.
@@ -318,11 +364,11 @@ function engineReadouts(day, teamsOf, starterOf) {
     const yAway = runsOf("away"); const yHome = runsOf("home");
     if (yAway !== yHome) {
       const base = lgGame.n >= 50 ? { pHome: lgGame.homeWins / lgGame.n, total: lgGame.totals.map((c) => (c + 0.5 / 31) / (lgGame.n + 0.5)) } : null;
-      if (base) gameRows.push({ date: day.date, yHome: yHome > yAway ? 1 : 0, total: yAway + yHome, engine: { pHome: homeWins / done, total: sm(totH) }, base });
-      pendingGames.push({ home: yHome > yAway ? 1 : 0, total: yAway + yHome });
+      if (base) (mode === "v1" ? gameRows : gameRowsSub).push({ date: day.date, yHome: yHome > yAway ? 1 : 0, total: yAway + yHome, engine: { pHome: homeWins / done, total: sm(totH) }, base });
+      if (mode === "v1") pendingGames.push({ home: yHome > yAway ? 1 : 0, total: yAway + yHome });
     }
   }
-  engineAudit.ms += Date.now() - t0;
+  audit.ms += Date.now() - t0;
   return out;
 }
 
@@ -344,6 +390,7 @@ for (const day of days) {
   for (const g of pendingGames) { lgGame.n += 1; lgGame.homeWins += g.home; lgGame.totals[Math.min(30, g.total)] += 1; }
   pendingGames = [];
   const eng = D >= SCORE_FROM ? engineReadouts(day, teamsOf, starterOf) : new Map();
+  const engSub = SUBST && D >= SCORE_FROM ? engineReadouts(day, teamsOf, starterOf, "sub") : new Map();
 
   // Pitcher starts on D.
   for (const r of day.rows) {
@@ -368,8 +415,8 @@ for (const day of days) {
       }
     }
     const v1 = P.v1r != null ? fit(Array.from({ length: SUPPORT.k + 30 }, (_, i) => nbPmf(i, f.eBF * f.p, P.v1r)), SUPPORT.k) : null;
-    const ek = eng.get(`${r.gamePk}|P|${r.playerId}`);
-    if (D >= SCORE_FROM && cur && v1 && v2) kRows.push({ date: D, y: k, models: { current: cur.pmf, v1, v2, ...(v2h ? { v2h } : {}), ...(ek ? { engine: ek, v2inf: kMixture(bf, f.p, Infinity) } : {}) }, handKnown: v2h != null, engine: !!ek });
+    const ek = eng.get(`${r.gamePk}|P|${r.playerId}`); const eks = engSub.get(`${r.gamePk}|P|${r.playerId}`);
+    if (D >= SCORE_FROM && cur && v1 && v2) kRows.push({ date: D, y: k, models: { current: cur.pmf, v1, v2, ...(v2h ? { v2h } : {}), ...(ek ? { engine: ek, v2inf: kMixture(bf, f.p, Infinity) } : {}), ...(eks ? { engineSub: eks } : {}) }, handKnown: v2h != null, engine: !!ek, engineSub: !!eks });
   }
 
   // Batter starts on D.
@@ -414,12 +461,13 @@ for (const day of days) {
     }
     if (D >= SCORE_FROM && curH && curT && curR && v2) {
       const cur = { hits: normalCountPmf(curH.mu, curH.sigma, SUPPORT.hits), tb: normalCountPmf(curT.mu, curT.sigma, SUPPORT.tb), hrr: normalCountPmf(curR.mu, curR.sigma, SUPPORT.hrr) };
-      const eb = eng.get(`${r.gamePk}|${r.playerId}`);
-      bRows.push({ date: D, y, models: { current: cur, v1, v2, ...(v2h ? { v2h } : {}), ...(eb ? { engine: eb, v2inf: v2Batter(b, ctx, Infinity, P.runs, false) } : {}) }, handKnown: v2h != null, engine: !!eb });
+      const eb = eng.get(`${r.gamePk}|${r.playerId}`); const ebs = engSub.get(`${r.gamePk}|${r.playerId}`);
+      bRows.push({ date: D, y, models: { current: cur, v1, v2, ...(v2h ? { v2h } : {}), ...(eb ? { engine: eb, v2inf: v2Batter(b, ctx, Infinity, P.runs, false) } : {}), ...(ebs ? { engineSub: ebs } : {}) }, handKnown: v2h != null, engine: !!eb, engineSub: !!ebs });
     }
   }
 
   // ── update the state with D's games (after every prediction for D) ──
+  updateSubstitutionState(day);
   const teamGame = new Map();
   for (const r of day.rows) {
     if (r.pitching) {
@@ -566,16 +614,36 @@ const gameLevel = gameRows.length ? {
   meanTotal: { engine: mean(gameRows.map((g) => g.engine.total.reduce((a, p, k) => a + p * k, 0))), actual: mean(gameRows.map((g) => g.total)) },
   homeWinRate: { engine: mean(gameRows.map((g) => g.engine.pHome)), actual: mean(gameRows.map((g) => g.yHome)) },
 } : null;
+const subReport = {};
+if (SUBST) {
+  const decideSub = (o) => (engineAuditSub.violations === 0 && o.vs["engineSub-minus-v2"].ci95[1] <= 0.005 ? "PROCEED_TO_FORWARD_SHADOW" : "DO_NOT_PROCEED");
+  const kr = kRows.filter((r) => r.engine && r.engineSub);
+  { const o = scoreMarket(kr, "k", (r, m) => r.models[m], (r) => r.y, ["v2", "engine", "engineSub"], "v2"); o.vs["engineSub-minus-engine"] = diffCi(kr.map((r) => ({ date: r.date, a: nll(r.models.engineSub, r.y), b: nll(r.models.engine, r.y) })), "a", "b"); o.decision = decideSub(o); subReport.k = o; }
+  const br = bRows.filter((r) => r.engine && r.engineSub);
+  for (const mk of ["hits", "tb", "hrr", "hr", "r", "rbi"]) {
+    const o = scoreMarket(br, mk, (r, m) => r.models[m][mk], (r) => r.y[mk], ["v2", "engine", "engineSub"], "v2");
+    o.vs["engineSub-minus-engine"] = diffCi(br.map((r) => ({ date: r.date, a: nll(r.models.engineSub[mk], r.y[mk]), b: nll(r.models.engine[mk], r.y[mk]) })), "a", "b");
+    o.decision = decideSub(o); subReport[mk] = o;
+  }
+  subReport.audit = { ...engineAuditSub, meanPaSimulated: engineAuditSub.paSim / engineAuditSub.nBat, meanPaActual: engineAuditSub.paAct / engineAuditSub.nBat, leagueHazardFinal: leagueHazard() };
+  subReport.gameLevel = gameRowsSub.length ? { n: gameRowsSub.length, winnerLogLoss: mean(gameRowsSub.map((g) => llBin(g.engine.pHome, g.yHome))), totalRunsLogScore: mean(gameRowsSub.map((g) => nll(g.engine.total, g.total))), totalRunsCrps: mean(gameRowsSub.map((g) => crps(g.engine.total, g.total))), meanTotal: mean(gameRowsSub.map((g) => g.engine.total.reduce((a, p, k) => a + p * k, 0))) } : null;
+}
 const out = {
-  experiment: "mlb-coherent-worlds-v1", label: SEASON === "2026" ? "EXPOSED (debugging only)" : "DEVELOPMENT (exploratory; can only earn PROCEED_TO_FORWARD_SHADOW)",
+  experiment: "mlb-coherent-worlds-v1", ...(SUBST ? { v2Substitution: subReport } : {}), label: SEASON === "2026" ? "EXPOSED (debugging only)" : "DEVELOPMENT (exploratory; can only earn PROCEED_TO_FORWARD_SHADOW)",
   season: Number(SEASON), worldsPerGame: ENG_WORLDS, gitHead: report.gitHead, fidelity,
   engineAudit: { ...engineAudit, meanPaSimulated: engineAudit.paSim / engineAudit.nBat, meanPaActual: engineAudit.paAct / engineAudit.nBat },
   readouts: engineReport, gameLevel,
 };
-const OUT = path.join(HERE, `coherence-${SEASON}-${SEASON === "2026" ? "exposed" : "dev"}.json`);
+const OUT = path.join(HERE, `coherence-${SEASON}-${SEASON === "2026" ? "exposed" : "dev"}${SUBST ? "-v2-substitution" : ""}.json`);
 fs.writeFileSync(OUT, JSON.stringify(out, null, 1) + "\n");
 const f4 = (x) => (x == null ? "—" : x.toFixed(4));
 console.log(`engine: ${engineAudit.games} games, ${engineAudit.worlds} worlds, ${engineAudit.violations} invariant violations, ${engineAudit.discarded} discarded at cap, skipped ${JSON.stringify(engineAudit.skipped)}, ${(engineAudit.ms / 1000).toFixed(0)} s; mean PA simulated ${f4(out.engineAudit.meanPaSimulated)} vs actual ${f4(out.engineAudit.meanPaActual)}`);
 for (const [mk, o] of Object.entries(engineReport)) console.log(`${mk.padEnd(5)} n=${o.n} ` + Object.entries(o.models).map(([k, v]) => `${k} ${f4(v.countLogLoss)}`).join(" | ") + " || " + Object.entries(o.vs).map(([k, v]) => `${k} ${f4(v.countLogLoss)} [${f4(v.ci95[0])}, ${f4(v.ci95[1])}]`).join(" · ") + ` → ${o.decision}`);
 if (gameLevel) console.log(`game n=${gameLevel.n}: winner LL engine ${f4(gameLevel.winnerLogLoss.engine)} vs league ${f4(gameLevel.winnerLogLoss.leagueHomeRate)}; total log score ${f4(gameLevel.totalRunsLogScore.engine)} vs ${f4(gameLevel.totalRunsLogScore.leagueEmpirical)}; CRPS ${f4(gameLevel.totalRunsCrps.engine)} vs ${f4(gameLevel.totalRunsCrps.leagueEmpirical)}; mean total ${f4(gameLevel.meanTotal.engine)} vs ${f4(gameLevel.meanTotal.actual)}`);
+if (SUBST) {
+  const a = subReport.audit;
+  console.log(`v2 substitution: ${a.games} games, ${a.worlds} worlds, ${a.violations} invariant violations; mean PA simulated ${f4(a.meanPaSimulated)} vs actual ${f4(a.meanPaActual)}; hazard ${a.leagueHazardFinal.map((x) => x.toFixed(3)).join(" ")}`);
+  for (const mk of ["k", "hits", "tb", "hrr", "hr", "r", "rbi"]) { const o = subReport[mk]; console.log(`${mk.padEnd(5)} n=${o.n} ` + Object.entries(o.models).map(([k, v]) => `${k} ${f4(v.countLogLoss)}`).join(" | ") + " || " + Object.entries(o.vs).map(([k, v]) => `${k} ${f4(v.countLogLoss)} [${f4(v.ci95[0])}, ${f4(v.ci95[1])}]`).join(" · ") + ` → ${o.decision}`); }
+  if (subReport.gameLevel) console.log(`game (v2) n=${subReport.gameLevel.n}: winner LL ${f4(subReport.gameLevel.winnerLogLoss)} total log score ${f4(subReport.gameLevel.totalRunsLogScore)} CRPS ${f4(subReport.gameLevel.totalRunsCrps)} mean total ${f4(subReport.gameLevel.meanTotal)}`);
+}
 console.log(`→ ${path.relative(REPO, OUT)}`);
