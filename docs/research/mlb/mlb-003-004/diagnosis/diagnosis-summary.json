@@ -1,0 +1,102 @@
+{
+ "schema": "gtp.mlb.player-market-diagnosis@1",
+ "exploratory": true,
+ "out": {
+  "batter_hits": {
+   "n": 18210,
+   "logLoss": {
+    "A_published": 0.6802584962962033,
+    "B_continuity": 0.6802584962962033,
+    "C_poisson": 0.6785217566638267,
+    "D_negbin_walkforward": 0.6785759792299256,
+    "M_market": 0.6639518895572117
+   },
+   "coin": 0.6931471805599453,
+   "discrimination": {
+    "aucMeanMinusLine": 0.5892370972615173,
+    "aucMarket": 0.6076323999019444
+   },
+   "nbDispersionByMonth": {
+    "2026-05": null,
+    "2026-06": 128,
+    "2026-07": 128,
+    "2026-08": 128,
+    "2026-09": 128,
+    "2026-10": 128
+   },
+   "note": "first month excluded for every arm (no earlier data to fit D); market restricted to the same-projection board row"
+  },
+  "batter_hits_runs_rbis": {
+   "n": 17460,
+   "logLoss": {
+    "A_published": 0.7214540000378534,
+    "B_continuity": 0.7214540000378534,
+    "C_poisson": 0.7372779655757893,
+    "D_negbin_walkforward": 0.7036395039153437,
+    "M_market": 0.6874383069687336
+   },
+   "coin": 0.6931471805599453,
+   "discrimination": {
+    "aucMeanMinusLine": 0.5350375548385995,
+    "aucMarket": 0.560283374893146
+   },
+   "nbDispersionByMonth": {
+    "2026-05": null,
+    "2026-06": 1.5,
+    "2026-07": 1.5,
+    "2026-08": 1.5,
+    "2026-09": 1.5,
+    "2026-10": 1.5
+   },
+   "note": "first month excluded for every arm (no earlier data to fit D); market restricted to the same-projection board row"
+  },
+  "batter_total_bases": {
+   "n": 7926,
+   "logLoss": {
+    "A_published": 0.7137631258114632,
+    "B_continuity": 0.7137631258114631,
+    "C_poisson": 0.7116152966267424,
+    "D_negbin_walkforward": 0.686566150321122,
+    "M_market": 0.6745184731999737
+   },
+   "coin": 0.6931471805599453,
+   "discrimination": {
+    "aucMeanMinusLine": 0.5122516807147384,
+    "aucMarket": 0.5389986215116058
+   },
+   "nbDispersionByMonth": {
+    "2026-05": null,
+    "2026-06": 1.5,
+    "2026-07": 1.5,
+    "2026-08": 1.5,
+    "2026-09": 1.5,
+    "2026-10": 1.5
+   },
+   "note": "first month excluded for every arm (no earlier data to fit D); market restricted to the same-projection board row"
+  },
+  "pitcher_strikeouts": {
+   "n": 2234,
+   "logLoss": {
+    "A_published": 0.7513835329016944,
+    "B_continuity": 0.7513835329016945,
+    "C_poisson": 0.745623275362131,
+    "D_negbin_walkforward": 0.7397215002476936,
+    "M_market": 0.6849939514090437
+   },
+   "coin": 0.6931471805599453,
+   "discrimination": {
+    "aucMeanMinusLine": 0.5078470824949698,
+    "aucMarket": 0.5733297991542067
+   },
+   "nbDispersionByMonth": {
+    "2026-05": null,
+    "2026-06": 64,
+    "2026-07": 32,
+    "2026-08": 32,
+    "2026-09": 32,
+    "2026-10": 32
+   },
+   "note": "first month excluded for every arm (no earlier data to fit D); market restricted to the same-projection board row"
+  }
+ }
+}
