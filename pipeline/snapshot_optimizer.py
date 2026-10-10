@@ -21,6 +21,26 @@ Honest behavior:
     - If the eligible pool is empty for a (profile, sport) the bucket
       stays empty. We never invent slips.
     - Same-date reruns are idempotent — slipIds are content-hashed.
+
+Generation receipt (``generationReceipt``, receiptVersion 1):
+    An empty snapshot used to be indistinguishable from a broken one:
+    `load_*_leans` return [] for a missing OR unreadable board, and a
+    0-slip file looks the same whether the slate had no games, the
+    eligibility rules rejected every combination, or the inputs never
+    arrived. The receipt records, from the producer, what it read
+    (per-sport board presence / parse / date / generatedAt / games /
+    leans), the leg pool it built, and per public section the counts the
+    section's own filters left and the combinations its search found. It
+    classifies the run into one `outcome` and, when nothing was built,
+    gives every public section an `emptyReason`. Consumers (the Ask
+    projection and its published-artifact guard) accept an empty day
+    ONLY on this evidence. The receipt is observability: it never
+    changes a slip.
+
+    The snapshot is written atomically (temp file + rename), so a crash
+    cannot leave a truncated file that reads as a real day. A run that
+    raises writes `run-failures/<date>.json` instead of a snapshot and
+    exits non-zero; a later successful run for the date removes it.
 """
 from __future__ import annotations
 
@@ -45,10 +65,60 @@ from .parlay_optimizer import (
     normalize_lean,
     optimize,
 )
+from .parlay_optimizer import _PUBLIC_SECTION_MAX_LEGS_PER_GAME
 from .snapshot_parlays import load_nba_leans, load_mlb_leans
 
 
 OUT_DIR = os.path.join("app", "public", "data", "parlays", "optimizer")
+FAILURE_DIR = os.path.join(OUT_DIR, "run-failures")
+
+#: Where the lean loaders read each sport's board (snapshot_parlays). Kept
+#: here verbatim so the receipt describes the SAME files the loaders opened.
+BOARD_PATHS = {
+    "nba": lambda date: os.path.join("app", "public", "data", "boards", f"{date}.json"),
+    "mlb": lambda date: os.path.join("app", "public", "data", "mlb", "boards", f"{date}.json"),
+}
+
+RECEIPT_VERSION = 1
+
+#: The closed outcome vocabulary of a completed run.
+#:   SLIPS_BUILT          at least one public-section slip exists.
+#:   NO_QUALIFYING_GAMES  every board read parsed and none lists a game.
+#:   NO_ELIGIBLE_SLIPS    games and leans existed; the eligibility rules
+#:                        (leg gate, section filters, leg counts, same-game
+#:                        cap, price bands) left no slip. Each section says
+#:                        which rule emptied it.
+#:   INPUTS_WITHOUT_PROPS a board lists games but carries no leans — the
+#:                        props/odds input never arrived. NOT a product
+#:                        decision; consumers must not read it as one.
+#:   INPUTS_UNREADABLE    a board file exists but does not parse.
+#:   INPUTS_MISSING       no board exists for any sport.
+OUTCOMES = (
+    "SLIPS_BUILT",
+    "NO_QUALIFYING_GAMES",
+    "NO_ELIGIBLE_SLIPS",
+    "INPUTS_WITHOUT_PROPS",
+    "INPUTS_UNREADABLE",
+    "INPUTS_MISSING",
+)
+
+#: Why one public section is empty, most structural first.
+#:   no_leg_pool                    the leg pool is empty.
+#:   structurally_infeasible        minLegs > distinct games x maxLegsPerGame —
+#:                                  no slip can satisfy the same-game cap.
+#:   insufficient_eligible_legs     fewer legs survive the section's filters
+#:                                  than its minimum leg count.
+#:   no_priced_compatible_combination  enough legs, but no priced combination
+#:                                  passes compatibility + the price band.
+#:   selector_dropped_all           combinations existed and the diversity
+#:                                  selector kept none — an anomaly.
+SECTION_EMPTY_REASONS = (
+    "no_leg_pool",
+    "structurally_infeasible",
+    "insufficient_eligible_legs",
+    "no_priced_compatible_combination",
+    "selector_dropped_all",
+)
 
 
 _PROFILES = ("conservative", "balanced", "aggressive", "star_power")
@@ -172,11 +242,121 @@ def _build_leg_pool(
     return pool
 
 
+def _board_evidence(sport: str, date: str, leans_loaded: int) -> dict[str, Any]:
+    """What the producer can say about one sport's board input, read from
+    the same path its loader opened. Never infers a value it did not read."""
+    path = BOARD_PATHS[sport](date)
+    ev: dict[str, Any] = {
+        "board": path.replace(os.sep, "/"),
+        "present": os.path.exists(path),
+        "parsed": False,
+        "date": None,
+        "generatedAt": None,
+        "scheduleAvailable": None,
+        "propsAvailable": None,
+        "pendingReason": None,
+        "games": None,
+        "leans": None,
+        "leansLoaded": leans_loaded,
+    }
+    if not ev["present"]:
+        return ev
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            doc = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return ev
+    if not isinstance(doc, dict):
+        return ev
+    ev["parsed"] = True
+    ev["date"] = doc.get("generatedFor") or doc.get("date")
+    ev["generatedAt"] = doc.get("generatedAt")
+    ev["scheduleAvailable"] = doc.get("scheduleAvailable")
+    ev["propsAvailable"] = doc.get("propsAvailable")
+    ev["pendingReason"] = doc.get("pendingReason")
+    games = doc.get("games")
+    ev["games"] = len(games) if isinstance(games, list) else None
+    leans = doc.get("leans")
+    ev["leans"] = len(leans) if isinstance(leans, list) else None
+    return ev
+
+
+def _section_empty_reason(diag: dict[str, Any], distinct_games: int, total_legs: int) -> str:
+    if total_legs == 0:
+        return "no_leg_pool"
+    if diag["minLegs"] > distinct_games * diag["maxLegsPerGame"]:
+        return "structurally_infeasible"
+    if diag["eligibleLegs"]["all"] < diag["minLegs"]:
+        return "insufficient_eligible_legs"
+    if diag["candidates"]["all"] == 0:
+        return "no_priced_compatible_combination"
+    return "selector_dropped_all"
+
+
+def build_generation_receipt(
+    *,
+    date: str,
+    generated_at: str,
+    inputs: dict[str, dict[str, Any]],
+    leg_pool: list[dict[str, Any]],
+    public_sections: dict[str, dict[str, list[Any]]],
+    diagnostics: dict[str, Any],
+) -> dict[str, Any]:
+    """Pure: classify a completed run from what it read and what it built."""
+    distinct_games = len({l.get("gameId") for l in leg_pool if l.get("gameId")})
+    sections: dict[str, Any] = {}
+    public_slips = 0
+    for key, by_sport in public_sections.items():
+        # "all" is a view over the sport cuts (it repeats their slips), so the
+        # count is over the sport cuts only — the same rule the consumers use.
+        n = sum(len(v) for sport, v in by_sport.items() if sport != "all")
+        public_slips += n
+        diag = diagnostics.get(key) or {
+            "minLegs": None, "maxLegs": None, "maxLegsPerGame": _PUBLIC_SECTION_MAX_LEGS_PER_GAME,
+            "eligibleLegs": {"all": 0, "nba": 0, "mlb": 0}, "candidates": {"all": 0, "nba": 0, "mlb": 0},
+        }
+        sections[key] = {
+            **diag,
+            "slips": n,
+            "emptyReason": None if n else _section_empty_reason(diag, distinct_games, len(leg_pool)),
+        }
+
+    present = [ev for ev in inputs.values() if ev["present"]]
+    games = sum(ev["games"] or 0 for ev in present if ev["parsed"])
+    leans = sum(ev["leansLoaded"] for ev in inputs.values())
+    if public_slips > 0:
+        outcome = "SLIPS_BUILT"
+    elif not present:
+        outcome = "INPUTS_MISSING"
+    elif any(not ev["parsed"] for ev in present):
+        outcome = "INPUTS_UNREADABLE"
+    elif games == 0 and leans == 0:
+        outcome = "NO_QUALIFYING_GAMES"
+    elif leans == 0:
+        outcome = "INPUTS_WITHOUT_PROPS"
+    else:
+        outcome = "NO_ELIGIBLE_SLIPS"
+
+    return {
+        "receiptVersion": RECEIPT_VERSION,
+        "producer": "pipeline.snapshot_optimizer",
+        "status": "completed",
+        "date": date,
+        "generatedAt": generated_at,
+        "outcome": outcome,
+        "inputs": inputs,
+        "legPool": {"totalLegs": len(leg_pool), "distinctGames": distinct_games},
+        "publicSlips": public_slips,
+        "publicSections": sections,
+    }
+
+
 def build_optimizer_snapshot(
     date: str,
     *,
     num_candidates: int = 8,
 ) -> dict[str, Any]:
+    generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     nba = load_nba_leans(date)
     mlb = load_mlb_leans(date)
     combined = nba + mlb
@@ -273,7 +453,7 @@ def build_optimizer_snapshot(
             "data — buckets are empty when the eligible pool is too small."
         ),
         "date": date,
-        "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generatedAt": generated_at,
         "totalSlips": total,
         "buckets": buckets,
         "sourcePools": {
@@ -298,9 +478,11 @@ def build_optimizer_snapshot(
     # the user-spec'd sections without retro-fitting the internal
     # profile buckets above (those keep producing slips for the
     # internal optimizer record; this layer sits on top of them).
+    section_diagnostics: dict[str, Any] = {}
     public_sections = generate_public_risk_sections(
         leg_pool,
         date=date,
+        diagnostics=section_diagnostics,
     )
     payload["publicRiskSections"] = {
         section_key: {
@@ -317,14 +499,55 @@ def build_optimizer_snapshot(
         payload["learningPolicy"] = selection_policy_metadata()
     except Exception:
         payload["learningPolicy"] = {"learningPolicyLoaded": False, "learningPolicyApplied": False}
+    # Written LAST, from what this run actually read and built: its presence
+    # is the claim that the run completed.
+    payload["generationReceipt"] = build_generation_receipt(
+        date=date,
+        generated_at=generated_at,
+        inputs={
+            "nba": _board_evidence("nba", date, len(nba)),
+            "mlb": _board_evidence("mlb", date, len(mlb)),
+        },
+        leg_pool=leg_pool,
+        public_sections=payload["publicRiskSections"],
+        diagnostics=section_diagnostics,
+    )
     return payload
+
+
+def _write_json_atomic(path: str, payload: dict[str, Any]) -> None:
+    tmp = f"{path}.tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2, default=str)
+    os.replace(tmp, path)
 
 
 def write_snapshot(date: str, payload: dict[str, Any]) -> str:
     os.makedirs(OUT_DIR, exist_ok=True)
     path = os.path.join(OUT_DIR, f"{date}.json")
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, default=str)
+    _write_json_atomic(path, payload)
+    # A completed run supersedes an earlier failed attempt for the same date.
+    failure = os.path.join(FAILURE_DIR, f"{date}.json")
+    if os.path.exists(failure):
+        os.remove(failure)
+    return path
+
+
+def write_failure(date: str, exc: BaseException) -> str:
+    """Record a run that raised. It is NOT a snapshot (consumers that read
+    `optimizer/<date>.json` never see it); it lets the Ask guard tell a failed
+    run from one that never happened."""
+    os.makedirs(FAILURE_DIR, exist_ok=True)
+    path = os.path.join(FAILURE_DIR, f"{date}.json")
+    _write_json_atomic(path, {
+        "receiptVersion": RECEIPT_VERSION,
+        "producer": "pipeline.snapshot_optimizer",
+        "status": "failed",
+        "date": date,
+        "attemptedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "errorType": type(exc).__name__,
+        "message": str(exc)[:200],
+    })
     return path
 
 
@@ -335,13 +558,20 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args(argv)
 
-    payload = build_optimizer_snapshot(args.date, num_candidates=args.num_candidates)
+    try:
+        payload = build_optimizer_snapshot(args.date, num_candidates=args.num_candidates)
+    except Exception as exc:  # noqa: BLE001 — recorded, then surfaced as a non-zero exit
+        if not args.dry_run:
+            path = write_failure(args.date, exc)
+            print(f"[snapshot_optimizer] {args.date} FAILED ({type(exc).__name__}) → {path}", file=sys.stderr)
+        raise
     total = payload["totalSlips"]
+    outcome = payload["generationReceipt"]["outcome"]
     if args.dry_run:
-        print(f"[snapshot_optimizer] {args.date} dry-run · {total} slips would be written")
+        print(f"[snapshot_optimizer] {args.date} dry-run · {total} slips would be written · {outcome}")
         return 0
     path = write_snapshot(args.date, payload)
-    print(f"[snapshot_optimizer] {args.date} · {total} slips → {path}")
+    print(f"[snapshot_optimizer] {args.date} · {total} slips · {outcome} → {path}")
     return 0
 
 
