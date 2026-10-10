@@ -11,6 +11,7 @@
  *   · "goes the distance" is the method head's decision probability, not a separate model.
  */
 import { roundPhrase } from "@/lib/sports/ufc/round-phrase.mjs";
+import Link from "next/link";
 import HeadToHead from "@/components/ui/head-to-head";
 import { Histogram, ProbabilityBar } from "@/components/distribution-chart";
 
@@ -132,7 +133,23 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
           ];
           return (
             // The anchor the hub's bout rows deep-link to (P241 · A08).
-            <div key={b.boutId} id={`bout-${b.boutId}`} className="flex flex-col gap-2 scroll-mt-24">
+            <details key={b.boutId} id={`bout-${b.boutId}`} className="scroll-mt-24 rounded-[12px]" style={{ border: "1px solid var(--vault-rule)", background: "var(--vault-panel)" }}>
+              {/* UFC-001 · UX Phase A2: a compact preview row; the full matchup analysis opens underneath. */}
+              <summary className="cursor-pointer px-3 py-2.5 flex items-center justify-between gap-3 flex-wrap" style={{ minHeight: 44 }}>
+                <span className="flex flex-col min-w-0">
+                  <span className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 9, color: i < 2 ? "var(--sport-ufc)" : "var(--vault-text-faint)" }}>
+                    {i === 0 ? "Main event" : i === 1 ? "Co-main event" : `Bout ${i + 1} of ${bouts.length}`} · {b.weightClass} · {b.scheduledRounds} rounds
+                  </span>
+                  <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--vault-text)" }}>{b.red.name} vs {b.blue.name}</span>
+                </span>
+                <span className="font-mono" style={{ fontSize: 11, color: "var(--vault-text-mute)" }}>
+                  {b.prediction?.winner
+                    ? <>Pick <strong style={{ color: "var(--vault-text)" }}>{b.prediction.winner.name} · {Math.round(b.prediction.winner.probability * 100)}%</strong>{b.prediction.method?.most ? ` · ${METHOD_LABEL[b.prediction.method.most] ?? b.prediction.method.most} (experimental lean)` : ""}</>
+                    : "not modelled — no tracked history"}
+                </span>
+              </summary>
+              <div className="flex flex-col gap-2 px-3 pb-3">
+              <Link href={`/ufc/bout/${b.boutId}/`} className="self-end font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10, color: "var(--vault-text)", minHeight: 32, display: "inline-flex", alignItems: "center" }}>Full analysis →</Link>
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <span className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 9, color: i === 0 ? "var(--sport-ufc)" : "var(--vault-text-faint)" }}>
                   {i === 0 ? "Main event · " : ""}{b.weightClass} · {b.scheduledRounds} rounds
@@ -229,6 +246,7 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
                 </div>
               ) : null}
             </div>
+            </details>
           );
         })}
       </div>
