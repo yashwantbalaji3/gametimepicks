@@ -2,7 +2,7 @@
  * Row construction — the one place a ledger row is shaped, so every adapter emits the same canonical field order
  * and every unknown is an explicit `null` (missing stays missing; nothing defaults to 0).
  */
-import { LEDGER_SCHEMA_VERSION, ROW_FIELDS } from "./contract.mjs";
+import { LEDGER_SCHEMA_VERSION, OPTIONAL_ROW_FIELDS, ROW_FIELDS } from "./contract.mjs";
 import { forecastIdFor } from "./identity.mjs";
 import { EMPTY_MEASUREMENT } from "./measure.mjs";
 
@@ -43,5 +43,7 @@ export function makeRow(fields) {
   // Canonical order: rebuild in ROW_FIELDS order so serialisation is deterministic.
   const ordered = {};
   for (const k of ROW_FIELDS) ordered[k] = row[k] === undefined ? null : row[k];
+  // Amendment 2: optional fields are appended only when present, so every existing row serialises byte-identically.
+  for (const k of OPTIONAL_ROW_FIELDS) if (fields[k] != null) ordered[k] = fields[k];
   return ordered;
 }

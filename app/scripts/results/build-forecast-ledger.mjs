@@ -30,7 +30,7 @@ import { eplDerivedRows, eplEventIndex, eplMatchRows, eplPlayerRows, ligue1Rows 
 import { ufcWinnerRows } from "../../src/lib/forecast-ledger/adapters/ufc.mjs";
 import { compareLedgers, pairRekeys } from "../../src/lib/forecast-ledger/append-only.mjs";
 import { buildManifest, composeLedger, serializeRow } from "../../src/lib/forecast-ledger/compose.mjs";
-import { CONTRACT_AMENDMENTS, IMMUTABLE_FIELDS, LEDGER_SCHEMA_VERSION } from "../../src/lib/forecast-ledger/contract.mjs";
+import { CONTRACT_AMENDMENTS, IMMUTABLE_FIELDS, LEDGER_SCHEMA_VERSION, OPTIONAL_IMMUTABLE_FIELDS } from "../../src/lib/forecast-ledger/contract.mjs";
 import { readMlbGradesOfRecord, readRestatementLogs, RESTATEMENTS_DIR_REL } from "../../src/lib/mlb/results/grades-of-record-io.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -252,7 +252,7 @@ function main() {
       const b = stored.get(r.forecastId);
       if (!b) continue;
       const fields = {};
-      for (const f of [...IMMUTABLE_FIELDS, "publicationStatus"]) if (JSON.stringify(b[f]) !== JSON.stringify(r[f])) fields[f] = { before: b[f], after: r[f] };
+      for (const f of [...IMMUTABLE_FIELDS, ...OPTIONAL_IMMUTABLE_FIELDS, "publicationStatus"]) if (JSON.stringify(b[f]) !== JSON.stringify(r[f])) fields[f] = { before: b[f], after: r[f] };
       if (Object.keys(fields).length) {
         restatements.set(r.forecastId, { fields, restatementId: restateId });
         restatedPairs.push({ forecastId: r.forecastId, family: r.family, eventId: r.eventId, fields, before: b, after: r });
