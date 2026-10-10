@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "product-eligible-legs/manifest",
  "date": "2026-10-10",
- "asOf": "2026-10-10T11:24:56Z",
+ "asOf": "2026-10-10T13:21:25Z",
  "sports": {
   "mlb": {
    "registryState": "FULL_MODEL",
@@ -73,11 +73,12 @@
    "rejectedByReason": {
     "SPORT_NOT_ELIGIBLE": 36,
     "FORECAST_EXPERIMENTAL": 36,
-    "EVENT_INSIDE_CUTOFF": 5,
+    "STALE": 35,
+    "EVENT_STARTED": 5,
     "PRICE_OUT_OF_RANGE": 1,
     "PRICE_UNAVAILABLE": 1
    },
-   "staleCount": 0,
+   "staleCount": 35,
    "noPriceCount": 1,
    "marketPricedNoForecastCount": 0,
    "ownerNote": "registry EXPERIMENTAL_PUBLIC (binding); artifact validation VALIDATED_OUT_OF_SAMPLE_HISTORY; lane calibration UNPROVEN; odds capture is public:false and joined by eventId",
