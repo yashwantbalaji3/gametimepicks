@@ -446,7 +446,10 @@ function simulateHalfInning(params: {
       line.totalBases += basesForHit;
       if (outcome === "homeRun") line.homeRuns += 1;
       if (mound.usingStarter) mound.line.hitsAllowed += 1;
+      // Where each runner started (1st = 1, 2nd = 2, 3rd = 3), for the walk-off hit rule below. No random draw.
+      const startBase = winningRunOnly && outcome !== "homeRun" ? new Map(bases.map((s, i) => [s, i + 1] as [number, number]).filter(([s]) => s >= 0)) : null;
       const scored = advanceReachingBase(outcome, bases, slot, rng, adv);
+      let lastScorer = -1;
       for (const s of scored) {
         // A home run scores every runner even in a walk-off; any other hit stops at the winning run.
         if (winningRunOnly && outcome !== "homeRun" && decided(runs)) break;
@@ -454,8 +457,15 @@ function simulateHalfInning(params: {
         batterLines[s].runs += 1;
         paScored.push(s);
         line.rbi += 1;
+        lastScorer = s;
         if (mound.usingStarter) mound.line.runsAllowed += 1;
         else mound.bullpenRuns += 1;
+      }
+      // Official Rule 9.06(f): a game-ending hit other than a home run credits the batter with only as many bases as the
+      // winning runner advanced (runner from 3rd → a single; from 2nd → at most a double). Total bases follow.
+      if (startBase && decided(runs) && lastScorer >= 0) {
+        const advanced = 4 - (startBase.get(lastScorer) ?? 0);
+        if (advanced >= 1 && advanced < basesForHit) line.totalBases -= basesForHit - advanced;
       }
     }
 

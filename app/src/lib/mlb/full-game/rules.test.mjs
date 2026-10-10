@@ -201,3 +201,22 @@ test("resolveRuleset: StatsAPI gameType first, then the season calendar, else UN
   assert.deepEqual(resolveRuleset({ date: "2026-03-01" }, cal), { ruleset: null, rulesetBasis: "UNRESOLVED" });
   assert.deepEqual(resolveRuleset({ date: "2026-07-01" }, null), { ruleset: null, rulesetBasis: "UNRESOLVED" });
 });
+
+test("walk-off hit bases (Rule 9.06(f)): only the bases the winning runner advanced are credited; legacy kept every base", () => {
+  // Same seed, same game until the last play: official and legacy differ only on the walk-off play itself.
+  const strongHome = fixture({ ruleset: "REGULAR_SEASON", homeLineup: lineup(200, "BBB", 1.4, 2.6) });
+  let capped = 0; let otherWalkOffs = 0;
+  for (let i = 0; i < 4000; i += 1) {
+    const off = simulateGame(strongHome, new SeededRng(`tb|${i}`), OFFICIAL);
+    const leg = simulateGame(strongHome, new SeededRng(`tb|${i}`), LEGACY);
+    const tbOff = sum(off.homeBatters, "totalBases"); const tbLeg = sum(leg.homeBatters, "totalBases");
+    assert.equal(sum(off.awayBatters, "totalBases"), sum(leg.awayBatters, "totalBases"));
+    if (off.walkOff === "OTHER") {
+      otherWalkOffs += 1;
+      assert.ok(tbOff <= tbLeg && tbLeg - tbOff <= 2, `game ${i}: official TB ${tbOff} vs legacy ${tbLeg}`);
+      if (tbOff < tbLeg) capped += 1;
+    } else assert.equal(tbOff, tbLeg, `game ${i}: no walk-off hit, so no TB difference`);
+    assert.equal(sum(off.homeBatters, "hits"), sum(leg.homeBatters, "hits")); // the hit itself still counts
+  }
+  assert.ok(otherWalkOffs > 100 && capped > 5, `premise: ${otherWalkOffs} non-homer walk-offs, ${capped} capped`);
+});
