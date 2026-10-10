@@ -64,6 +64,13 @@ function earliestRevisionWith(date, gamePk, hash) {
 
 const games = [];
 const problems = [];
+/*
+ * HELD (fail closed): a served revision generated AFTER the scheduled start but before the actual first pitch is the
+ * forecast of record under Option B (actual start), but the ledger contract requires publishedAt < eventStart, and
+ * eventStart is the SCHEDULED start (immutable). Restating it would need a contract decision on eventStart, so the game
+ * is held out of the log, listed with the reason, and keeps its stored grade.
+ */
+const held = [];
 const ungradedPublicCalls = [];
 for (const c of classification.games) {
   if (c.class !== "VERIFIED_DIFFERENT_REVISION" && c.class !== "VERIFIED_NEVER_PUBLIC") continue;
@@ -87,6 +94,10 @@ for (const c of classification.games) {
   if (!served || served.artifactHash !== c.servedHash) { problems.push(`${c.date} ${c.gamePk}: the serving build's entry does not carry the served hash`); continue; }
   const rev = earliestRevisionWith(c.date, c.gamePk, c.servedHash);
   if (!rev || !(ms(rev.generatedAt) < ms(c.cutoff))) { problems.push(`${c.date} ${c.gamePk}: no revision generated before the cutoff carries the served bytes`); continue; }
+  if (!(ms(rev.generatedAt) < ms(stored[0].firstPitchUtc))) {
+    held.push({ gamePk: c.gamePk, date: c.date, reason: "SERVED_REVISION_GENERATED_AFTER_SCHEDULED_START", servedGeneratedAt: rev.generatedAt, scheduledStart: stored[0].firstPitchUtc, cutoff: c.cutoff, cutoffBasis: c.cutoffBasis, note: "forecast of record under the actual-start rule; restating needs a founder decision on the ledger's eventStart" });
+    continue;
+  }
   const fin = { isFinal: true, homeRuns: stored[0].actual.homeRuns, awayRuns: stored[0].actual.awayRuns };
   const regraded = gradeGameFamilies({ row: served, final: fin, revision: { generatedAt: rev.generatedAt, source: rev.source }, firstPitchUtc: stored[0].firstPitchUtc });
   const rows = [];
@@ -122,6 +133,7 @@ const doc = {
   basis: "Forecast of record = the revision a READY Production deployment demonstrably served before the actual first pitch (Option B).",
   source: { classification: CLASSIFICATION, classificationCommit },
   games: split,
+  held,
   ungradedPublicCalls,
 };
 
@@ -137,6 +149,7 @@ const summary = {
   notServed: split.filter((g) => g.kind === RESTATEMENT_KIND.NOT_SERVED).length,
   rows: split.reduce((s, g) => s + g.rows.length, 0),
   ungradedPublicCalls: ungradedPublicCalls.length,
+  held: held.map((h) => `${h.date} ${h.gamePk} ${h.reason}`),
   problems,
 };
 if (problems.length) { console.error(JSON.stringify(summary, null, 2)); console.error("REFUSED: problems above — nothing written"); process.exit(1); }
