@@ -161,3 +161,20 @@ Working log for the founder's overnight directive. **Not a roadmap.** The author
   2. Capture that date's box scores (`capture-mlb-boxscore-outcomes.mjs --from D --to D --write`).
   3. Run `run-forward-b.mjs --date D --write`.
 - Not wired into any workflow; no Production change.
+
+### 06:55Z–07:10Z · exploratory 2026 posted lines; MLB-004 v3; MLB-005 v3 (home field)
+- **2026 posted lines, exploratory (exposed).** Every challenger beats the published model; engineSub is best.
+
+  | Family | engineSub − published | engineSub − market |
+  |---|---|---|
+  | K | −0.047 | +0.019 [+0.010, +0.029] |
+  | Hits | −0.013 | +0.0035 [+0.0015, +0.0056] |
+  | TB | −0.033 | +0.0048 |
+  | H+R+RBI | −0.026 | +0.0042 |
+
+  **Worse than the market in all four.** No edge.
+- **Decomposition:** a known BF would cut K count log loss by 0.116; a known PA would cut hits by 0.045. Opportunity is the largest error.
+- **MLB-004 BF residual exploration (2024):** relief-to-start −6.5 BF, < 4 days rest −10.6, opener −7.1, first start −5.7.
+- **`mlb-k-workload-v3`:** registered `dd406d91d8`. 2024 dev **−0.0138 [−0.0185, −0.0089]** (relief-to-start −0.234, openers −0.238); 2026 debug −0.0223; no 2026 posted-line gain (0.7079 vs 0.7074). Result `0091b6067d`.
+- **`mlb-coherent-worlds-v3` (home field):** registered `3b5f5cd7b9`. 2024 run in progress.
+- **Forward test B2** (v3 workload + engine next version): code generated and dry-run OK (10-07: 3 games, 6,000 worlds, 0 violations). It will be registered before tonight's first pitch, after the home-field result decides whether `engineB2` includes home field.
