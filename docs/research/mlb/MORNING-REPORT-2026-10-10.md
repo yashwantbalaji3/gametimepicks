@@ -1,6 +1,6 @@
 # Morning report: Lane A (Core Intelligence), overnight 2026-10-10
 
-**Window worked:** 06:08Z → 07:50Z (02:08 → 03:50 EDT), continuously; nothing interrupted it. I stopped at 03:50 EDT, not 08:00, because the remaining work either needs a founder decision (section F) or would be another look at the already thrice-used 2024 season. The next evidence comes from tonight's forward games, not from more replays. No busywork was added to fill the window.
+**Window worked:** 06:08Z → 07:43Z (02:08 → 03:43 EDT), continuously; nothing interrupted it. I stopped at 03:43 EDT, not 08:00, because the remaining work either needs a founder decision (section F) or would be another look at the already thrice-used 2024 season. The next evidence comes from tonight's forward games, not from more replays. No busywork was added to fill the window.
 
 The detailed log is `OVERNIGHT-JOURNAL-2026-10-10.md`. This report is not a roadmap: the roadmap update for the next integration is drafted in section B and in #1048's head.
 
