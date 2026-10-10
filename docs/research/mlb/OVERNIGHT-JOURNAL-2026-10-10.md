@@ -218,3 +218,9 @@ Working log for the founder's overnight directive. **Not a roadmap.** The author
   - found and fixed a duplicate-import merge defect in the generator, plus a parse guard.
 - **#1043:** `modelVersion` investigation posted (confined to `frozenPregame`; no hash, grade or reader impact). Walk-off fix verified.
 - **MLB-005:** next-milestone plan v4 (`7f4ebc57b2`).
+
+## 13:40Z checkpoint (founder decisions 1–5)
+- #1051 NOT merged: quality red main-wide (ask-published.test.mjs:56 parlay vacuity guard, data-driven; owner Ask/parlays). All other #1051 conditions verified.
+- #1050 replaced by Option A minimal 60900eb617 (engine-level #1043 subset only, disclosed); old head kept at claude/mlb-option-a-live-capture-with-1043. Equivalence 192/192; byte identity 4/4 incl. after first pitch; unit 9,246/9,251.
+- MLB-005 extra capture DEFERRED (55e8232074).
+- Handoff: CHECKPOINT-AND-UFC-001-HANDOFF-2026-10-10.md. UFC deadline 21:00Z today.
