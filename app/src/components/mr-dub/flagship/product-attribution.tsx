@@ -13,7 +13,7 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 const md = (iso: string) => { const [, m, d] = iso.split("-").map(Number); return `${MONTHS[m - 1]} ${d}`; };
 const outcomeTone = (o: string) => o === "won" ? "var(--vault-success)" : o === "lost" ? "var(--gtp-bank-heat)" : "var(--vault-text-faint)";
 
-export default function ProductAttribution({ wagers }: { wagers: WagerRow[] }) {
+export default function ProductAttribution({ wagers, coreNote }: { wagers: WagerRow[]; coreNote: string }) {
   const products = useMemo(() => {
     const map = new Map<string, { id: string; label: string; glyph: string; w: number; l: number }>();
     for (const r of wagers) {
@@ -47,7 +47,7 @@ export default function ProductAttribution({ wagers }: { wagers: WagerRow[] }) {
           </div>
         ))}
       </div>
-      <p className="mt-2 font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>Bank Builder is the canonical bankroll (won steps roll — $0 realized until a ladder banks or stops). Moonshot &amp; World Cup Specials are separate flat-stake paper lanes, settled from official results.</p>
+      <p className="mt-2 font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>Won steps roll — $0 realized until a ladder banks or stops. {coreNote}</p>
     </div>
   );
 }

@@ -79,6 +79,11 @@ export default function HomerNukesPage() {
   const settled = settledDays(path.join(dataRoot, "mlb", "homer-nukes"));
   /* The live record the honest-limits sentence is derived from — see lib/mlb/homer-nukes-honesty.mjs. */
   const homerNukesRecord = (() => { try { return JSON.parse(fs.readFileSync(path.join(dataRoot, "mlb", "homer-nukes", "record.json"), "utf8")); } catch { return null; } })();
+  /* TRUTH-001: the producer writes NO file on a day with no games (mlb-daily-production prints NO_SLATE by
+     design), so "no board" must not read as "not published yet" when the day's own MLB board says 0 games. */
+  const mlbSlateGames = (() => {
+    try { const b = JSON.parse(fs.readFileSync(path.join(dataRoot, "mlb", "boards", `${date}.json`), "utf8")); return Array.isArray(b?.games) ? b.games.length : null; } catch { return null; }
+  })();
   const gradedPicks = settled.reduce((n, d) => n + d.picks, 0);
   const gradedHits = settled.reduce((n, d) => n + d.hits, 0);
 
@@ -111,6 +116,11 @@ export default function HomerNukesPage() {
 
       {board ? (
         <HomerNukesBoardSection board={board} record={homerNukesRecord} />
+      ) : mlbSlateGames === 0 ? (
+        <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 14 }}>
+          No MLB games are scheduled today, so there is no home-run board. The next one is built the
+          morning of the next game day.
+        </p>
       ) : (
         <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 14 }}>
           Today&rsquo;s home-run board has not been published yet. It is built each morning from the

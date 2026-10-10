@@ -71,7 +71,14 @@ export interface DailyPortfolioCard {
   step: number;
   clearedSteps: number;
   status: "candidate" | "active" | "pending" | "won" | "lost" | "void" | "awaiting";
+  /** The card's paper stake: the ladder's ROLLED balance at this step (the seed plus every rolled win). */
   stake: number;
+  /**
+   * What a loss actually costs the core bankroll (TRUTH-001): the lane's SEED — Bank Builder $100, Moonshot $25
+   * (Rule S: rolled winnings were never credited, so they cannot be lost from it). Null when the lane did not
+   * publish it; a page then states the stake only and claims no at-risk figure.
+   */
+  exposure: number | null;
   targetReturn: number | null;
   combinedOdds: number;
   potentialReturn: number;
@@ -108,7 +115,8 @@ const PRODUCT_LABEL: Record<string, string> = { "bank-builder": "Bank Builder", 
 function toCard(l: LaneCandidate): DailyPortfolioCard {
   return {
     id: l.id, product: l.product, productLabel: PRODUCT_LABEL[l.product] ?? l.product, lane: l.lane, step: 1, clearedSteps: 0,
-    status: l.status, stake: l.stake, targetReturn: null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
+    status: l.status, stake: l.stake, exposure: null, // a candidate places nothing
+    targetReturn: null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
     legs: l.legs.map((p) => ({ id: (p as { id?: string }).id ?? null, selection: p.selection, marketLabel: p.marketLabel, matchup: p.matchup, odds: p.odds, player: p.player ?? null, probabilityBasis: probabilityBasisOf(p.probabilitySource) })),
     correlationNote: l.correlationNote, shortfallNote: l.shortfallNote, narrative: moonNarr(l),
@@ -127,7 +135,8 @@ function fromPersisted(root: string, date: string): DailyPortfolio | null {
   if (!p || p.date !== date || !Array.isArray(p.lanes)) return null;
   const cards: DailyPortfolioCard[] = p.lanes.map((l: any) => ({
     id: l.id, product: l.product, productLabel: l.productLabel, lane: l.lane, step: l.step ?? 1, clearedSteps: l.clearedSteps ?? 0,
-    status: l.status, stake: l.stake, targetReturn: l.targetReturn ?? null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
+    status: l.status, stake: l.stake, exposure: typeof l.exposure === "number" ? l.exposure : null,
+    targetReturn: l.targetReturn ?? null, combinedOdds: l.combinedOdds, potentialReturn: l.potentialReturn,
     legCount: l.legCount, targetLegs: l.targetLegs,
     legs: (l.legs ?? []).map((g: any) => ({ id: g.id ?? null, selection: g.selection, marketLabel: g.market ?? g.marketLabel, matchup: g.matchup, odds: g.odds, player: g.player ?? null, photoUrl: g.photoUrl ?? null, teamLogo: g.teamLogo ?? null, kickoffEt: g.kickoffEt ?? null, probabilityBasis: legBasis(g) })),
     correlationNote: l.correlationNote ?? null, shortfallNote: l.shortfallNote ?? null, narrative: l.narrative ?? null,

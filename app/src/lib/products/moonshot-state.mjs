@@ -167,6 +167,13 @@ function openCardsOf(lane, settledCardIds = new Set()) {
  *
  * A card with no legs is not a card.
  */
+/**
+ * How Moonshot's settled results move money, as implemented (Rule S, founder 2026-09-10; completion banking C1,
+ * founder 2026-10-02; lib/mr-dub/protected-fold.mjs). One sentence, shared by every surface that explains it.
+ */
+export const MOONSHOT_BANKROLL_RULE =
+  "Since the 2026-09-10 reconciliation its settled results move the core paper bankroll: a lost run costs the lane its $25 seed, a won step rolls without moving the bankroll, and a completed run banks its final value minus the seed. Its record is kept on its own line.";
+
 export function isPublishedCard(card) {
   return Array.isArray(card?.legs) && card.legs.length > 0;
 }
@@ -454,7 +461,14 @@ export function deriveMoonshotState({
       !hasScheduledGenerator || lifecycle === "ABANDONED"
         ? "Settling is resolved: the lane's cards are graded nightly from the official box score. Publishing still needs multi-lane exposure accounting in the paper ledger, because the Mr. Dub ledger models a single active card and two concurrent lanes would mis-account the money. Whether to build that, formally pause the product, or retire it is a product decision."
         : founderGateOpen
-          ? "The daily ladder is live on the paper portfolio: its cards are graded nightly from the official box score, and each lane's rung comes from those receipts. What stays paused is the protected Mr. Dub ledger, which models a single active Moonshot card — folding two concurrent lanes into it needs multi-lane exposure accounting there. Until that exists the ladder's record is kept separately and never touches the protected bankroll. Whether to build it is a product decision."
+          /*
+           * TRUTH-001 (2026-10-09): this said the ladder's record "never touches the protected bankroll". Since the
+           * founder's 2026-09-10 reconciliation (Rule S, lib/mr-dub/protected-fold.mjs) it does: portfolio.json
+           * `moonshot.separateFromCore: false`, and the fold's −$4,675 is exactly 35 lost Bank Builder steps × $100
+           * + 47 lost Moonshot steps × $25. The sentence now states the implemented rule; the open question is
+           * only the multi-lane exposure accounting in the single-card protected ledger.
+           */
+          ? `The daily ladder is live on the paper portfolio: its cards are graded nightly from the official box score, and each lane's rung comes from those receipts. ${MOONSHOT_BANKROLL_RULE} What is still open is multi-lane exposure accounting in the protected Mr. Dub ledger, which models a single active Moonshot card. Whether to build it is a product decision.`
           : null,
     /** The answer token. PROTECTED-CONSOLE ONLY — never rendered on a public route. */
     founderGateToken:

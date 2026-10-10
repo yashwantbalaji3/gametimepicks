@@ -25,13 +25,15 @@ const custom = strip(fs.readFileSync(path.join(APP, "src/app/build/custom/page.t
 test("each mode's status is decided by what that mode shows", () => {
   // P241 · A14: the badge still derives ONLY from this page's own cards — and now also from the
   // slate's own date, so yesterday's cards read "Review", never "Pregame slate".
-  assert.match(suggested, /status=\{ladderDate >= currentEtDate\(\) && \(ladderCardCount > 0 \|\| suggestedCards\.length > 0\) \? "pregame" : ladderCardCount > 0 \|\| suggestedCards\.length > 0 \? "review" : "data_pending"\}/,
-    "the Suggested page badges from its own cards and the slate's own date");
+  // TRUTH-001: still from the page's own cards and the slate's own date — and an empty page whose producer RAN is
+  // "No qualifying card", never "Data pending" (lib/products/surface-status.mjs).
+  assert.match(suggested, /status=\{picksSurfaceStatus\(\{ shownCount: ladderCardCount \+ suggestedCards\.length, slateDate: ladderDate, today: currentEtDate\(\), producerRan: ladderProducerRan \}\)\}/,
+    "the Suggested page badges from its own cards, the slate's own date and whether its producer ran");
   assert.match(suggested, /slateDate=\{ladderDate\}/,
     "the slate's date renders beside the badge — a chip without its date is how Pregame lied");
   assert.doesNotMatch(suggested, /builderLegs/,
     "the builder's pool no longer speaks on the Suggested page at all");
-  assert.match(custom, /status=\{pool\.length > 0 \? "pregame" : "data_pending"\}/,
+  assert.match(custom, /status=\{picksSurfaceStatus\(\{ shownCount: pool\.length,/,
     "the Build Your Own page badges from the pool it renders");
 });
 
