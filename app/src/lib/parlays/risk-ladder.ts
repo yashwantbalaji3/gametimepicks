@@ -189,6 +189,15 @@ export function isOffSeasonFor(cardDate: string | null, season: MlbSeasonStateDo
 }
 
 /** The ladder for `date`, or null when none was published for it. */
+/**
+ * Whether the risk-ladder producer ran for `date` (its artifact exists for that date, with or without cards).
+ * A yes/no about the PRODUCER, not a card source: pages that must not compose a second seed map (/build/custom)
+ * use this to tell "no qualifying card" from "data pending" (TRUTH-001) without loading ladder cards themselves.
+ */
+export function riskLadderProducerRan(root: string, date: string): boolean {
+  return loadRiskLadder(root, date) != null;
+}
+
 export function loadRiskLadder(root: string, date: string): RiskLadder | null {
   try {
     const doc = JSON.parse(fs.readFileSync(path.join(root, "parlays", "risk-ladder", `${date}.json`), "utf8")) as RiskLadder;

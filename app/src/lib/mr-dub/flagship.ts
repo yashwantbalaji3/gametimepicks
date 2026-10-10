@@ -16,6 +16,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { buildMasterLedger } from "./master-ledger";
 import { computeOpenExposure } from "./open-exposure";
+import { SEED } from "./protected-fold.mjs";
+
+const MOONSHOT_SEED = SEED.moonshot;
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 const round4 = (n: number) => Math.round(n * 10000) / 10000;
@@ -46,7 +49,7 @@ export interface PortfolioDoc {
   record?: { wins: number; losses: number; voids?: number; pending?: number };
   highWaterMark?: number; drawdown?: number; drawdownPct?: number; generatedAt?: string;
   /** The money owner's fold (Rule S): `foldedThrough` is the last settled day the bankroll includes. */
-  protectedFold?: { foldedThrough?: string | null };
+  protectedFold?: { foldedThrough?: string | null; days?: Array<{ date: string; bankBuilder?: { won: number; lost: number }; moonshot?: { won: number; lost: number }; delta?: number }> };
   intelligence?: { longestWinStreak?: number; longestLossStreak?: number; winRate?: number; avgStake?: number; profitFactor?: number | null };
   moonshot?: any;
 }
@@ -99,7 +102,33 @@ export interface JourneyActiveLane { lane: string; kind: string; label: string; 
 export interface BankBuilderJourney { crownTotal: number; ladders: JourneyLadder[]; activeLanes: JourneyActiveLane[]; activeAsOf: string | null }
 export interface WagerRow { date: string; productId: string; productLabel: string; glyph: string; outcome: "won" | "lost" | "void"; stake: number; payout: number; profit: number; canonical: boolean; detail: string | null }
 
+/**
+ * Moonshot INSIDE the core bankroll (TRUTH-001, 2026-10-09). Under Rule S (founder 2026-09-10,
+ * lib/mr-dub/protected-fold.mjs) a lost Moonshot run costs the core bankroll its $25 seed and a won step rolls,
+ * so the bankroll this page calls canonical is Bank Builder AND Moonshot. Before this, the page labelled it
+ * "Bank Builder", called Moonshot "separate flat-stake paper", and showed only the retired Jun–Jul single-card
+ * lane (0–7) as Moonshot — while the fold had taken 47 Moonshot seeds (−$1,175) into the "Bank Builder" figure.
+ * Counted from the money owner's own fold days; null when the portfolio carries no fold.
+ */
+export interface MoonshotInCore { since: string; won: number; lost: number; seedCost: number; foldedThrough: string | null }
+
+export function moonshotInCore(portfolio: PortfolioDoc): MoonshotInCore | null {
+  const days = portfolio?.protectedFold?.days;
+  if (!Array.isArray(days) || days.length === 0) return null;
+  let won = 0;
+  let lost = 0;
+  for (const d of days) { won += Number(d.moonshot?.won ?? 0); lost += Number(d.moonshot?.lost ?? 0); }
+  return { since: "2026-09-10", won, lost, seedCost: round2(lost * MOONSHOT_SEED), foldedThrough: portfolio.protectedFold?.foldedThrough ?? null };
+}
+
+/** The one explanation of what the canonical bankroll contains, shared by every note on the page. */
+export function coreBankrollNote(m: MoonshotInCore | null): string {
+  if (!m) return "Bank Builder is the canonical bankroll; the other product rows are their own paper records.";
+  return `The canonical bankroll is the core paper bankroll: Bank Builder and, since the ${fmtDate(m.since)} reconciliation, Moonshot — a lost Moonshot run costs it the $25 seed (${m.lost} so far, −$${m.seedCost.toLocaleString("en-US")}), a won step rolls. The Moonshot row below is the earlier single-card lane; World Cup Specials is separate flat-stake paper.`;
+}
+
 export interface Flagship {
+  moonshotInCore: MoonshotInCore | null;
   kpis: FlagshipKpis;
   timeline: TimelineDay[];          // newest first
   charts: FlagshipCharts;
@@ -256,6 +285,20 @@ function laneLabel(laneId?: string): string | null {
 }
 function money(n: number): string { return `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`; }
 
+/**
+ * The attribution label for a master-ledger product row. The canonical row is the CORE bankroll (Bank Builder +
+ * Moonshot under Rule S), and the master ledger's Moonshot row is the retired single-card lane's own history,
+ * named by its dates so it cannot be read as the live ladder's record (TRUTH-001).
+ */
+export function productLabelOf(p: { productId?: string; label?: string; canonical?: boolean; history?: Array<{ date?: string }> }): string {
+  if (p.canonical) return "Core bankroll (Bank Builder + Moonshot)";
+  if (p.productId === "moonshot") {
+    const dates = (p.history ?? []).map((h) => h.date).filter((d): d is string => typeof d === "string").sort();
+    return dates.length ? `Moonshot single-card lane (${fmtDate(dates[0])} – ${fmtDate(dates[dates.length - 1])})` : "Moonshot single-card lane";
+  }
+  return p.label ?? String(p.productId ?? "");
+}
+
 /** Chart series — PURE, from the timeline (money) + master ledger (product attribution). */
 export function buildCharts(timelineNewestFirst: TimelineDay[], masterLedger: any): FlagshipCharts {
   const chron = [...timelineNewestFirst].sort((a, b) => a.date.localeCompare(b.date));
@@ -268,7 +311,7 @@ export function buildCharts(timelineNewestFirst: TimelineDay[], masterLedger: an
     const profit = round2(Number(p.profit ?? 0));
     const meta = PRODUCT_META[p.productId] ?? { glyph: "•", label: p.label };
     return {
-      productId: p.productId, label: p.label, glyph: meta.glyph,
+      productId: p.productId, label: productLabelOf(p), glyph: meta.glyph,
       wins, losses, bets: wins + losses, profit,
       winRate: wins + losses > 0 ? round2((wins / (wins + losses)) * 100) : 0,
       net: profit > 0.009 ? "positive" : profit < -0.009 ? "negative" : "flat", canonical: !!p.canonical,
@@ -324,10 +367,11 @@ export function buildWagerLog(days: DailyDay[], masterLedger: any): WagerRow[] {
   for (const p of masterLedger?.products ?? []) {
     if (p.productId === "bank-builder") continue;
     const meta = PRODUCT_META[p.productId] ?? { glyph: "•", label: p.label };
+    const label = productLabelOf(p);
     for (const h of p.history ?? []) {
       const outcome: WagerRow["outcome"] = h.outcome === "won" ? "won" : h.outcome === "lost" ? "lost" : "void";
       rows.push({
-        date: h.date, productId: p.productId, productLabel: p.label, glyph: meta.glyph,
+        date: h.date, productId: p.productId, productLabel: label, glyph: meta.glyph,
         outcome, stake: round2(h.stake ?? 0), payout: round2(h.payout ?? 0), profit: round2((h.payout ?? 0) - (h.stake ?? 0)),
         canonical: false, detail: null,
       });
@@ -377,7 +421,7 @@ export function buildFlagship(root: string, nowIso: string, today: string): Flag
     products, activeBankBuilder: journey.activeLanes,
   };
 
-  return { kpis, timeline, charts, journey, wagers, todayStatus };
+  return { moonshotInCore: moonshotInCore(portfolio), kpis, timeline, charts, journey, wagers, todayStatus };
 }
 
 function fmtDate(iso: string): string {

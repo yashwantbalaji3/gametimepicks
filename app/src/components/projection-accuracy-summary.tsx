@@ -24,6 +24,11 @@ export interface ProjAccuracyRecord {
 
 const MIN_DECISIVE = 30; // below this we say "not enough settled data"
 
+/** "MLB 2026-05-16 → 2026-10-08 · NBA 2026-05-15 → 2026-06-13", from each record's own dates; "" when none. */
+export function windowsText(windows: ReadonlyArray<{ label: string; from: string | null; to: string | null }> | undefined): string {
+  return (windows ?? []).filter((w) => w.from && w.to).map((w) => `${w.label} ${w.from} → ${w.to}`).join(" · ");
+}
+
 function ratePct(r: ProjAccuracyRecord | null): number | null {
   if (!r || r.decisive < MIN_DECISIVE) return null;
   if (r.hitRate != null) return r.hitRate * 100;
@@ -36,6 +41,12 @@ export interface ProjectionAccuracySummaryProps {
   nba: ProjAccuracyRecord | null;
   /** Public-tracking era start, for the honesty footnote. */
   eraStart?: string;
+  /**
+   * The settled window each card actually covers (TRUTH-001, 2026-10-09). The footnote used to say "since
+   * <eraStart>" (the parlay results era, 2026-05-27) above LIFETIME figures that start May 15 (NBA) and May 16
+   * (MLB): 1,460 of NBA's decisive leans predate it. The footnote now states the windows the numbers cover.
+   */
+  windows?: ReadonlyArray<{ label: string; from: string | null; to: string | null }>;
 }
 
 export default function ProjectionAccuracySummary({
@@ -43,6 +54,7 @@ export default function ProjectionAccuracySummary({
   mlb,
   nba,
   eraStart,
+  windows,
 }: ProjectionAccuracySummaryProps) {
   const mlbPct = ratePct(mlb);
   const nbaPct = ratePct(nba);
@@ -97,7 +109,8 @@ export default function ProjectionAccuracySummary({
         className="font-mono leading-snug m-0"
         style={{ color: "var(--vault-text-faint)", fontSize: 11, maxWidth: 620 }}
       >
-        Leg-level accuracy across settled slates{eraStart ? ` since ${eraStart}` : ""}.
+        Leg-level accuracy across every settled slate
+        {windowsText(windows) ? `: ${windowsText(windows)}` : eraStart ? ` since ${eraStart}` : ""}.
         Pushes and voids are excluded from the denominator. Not a profit or
         guarantee claim.
       </p>

@@ -1,7 +1,7 @@
 /**
  * /results/model-audit — every cut of the settled record.
  *
- * Renders the settled-data audit: cross-sport and per-sport summaries, per-market and per-side
+ * Renders the settled-data audit: per-sport summaries (never pooled across sports), per-market and per-side
  * records, confidence tiers, model–market difference bands and quartiles, per-game dispersion, and
  * the per-date timeline. Every cell cites its sample size and every percentage comes from settled
  * rows; nothing here is a projection, a target or a claim about future accuracy.
@@ -103,7 +103,6 @@ export default function ModelAuditPage() {
     );
   }
 
-  const cross = audit.sports.cross;
   const nba = audit.sports.nba;
   const mlb = audit.sports.mlb;
 
@@ -218,23 +217,22 @@ function PageHero({ artifact }: { artifact: ModelAuditArtifact }) {
 // Cross-sport summary
 // ---------------------------------------------------------------------------
 
+/*
+ * TRUTH-001 (2026-10-09): this row led with a gold "Cross-sport" tile — frozen NBA leans (May 15 → Jun 13) added
+ * to live MLB leans, one 50.2% over 52,928 decisive. That is the blend eb3590fead removed from /results ("stop
+ * blending frozen NBA into a live overall figure"); this page was never updated. Each sport keeps its own record.
+ * `audit.sports.cross` stays in the artifact; no public surface renders it.
+ */
 function CrossSportRow({ audit }: { audit: ModelAuditArtifact }) {
-  const cross = audit.sports.cross;
   const nba = audit.sports.nba;
   const mlb = audit.sports.mlb;
   return (
     <section
-      aria-label="Cross-sport summary"
-      className="mb-10 grid grid-cols-1 sm:grid-cols-3 gap-3"
+      aria-label="Per-sport summary"
+      className="mb-10 grid grid-cols-1 sm:grid-cols-2 gap-3"
     >
       <SummaryTile
-        label="Cross-sport"
-        value={fmtPct(cross.hitRate)}
-        sub={`${cross.wins}–${cross.losses} on ${cross.decisive} decisive`}
-        accent="gold"
-      />
-      <SummaryTile
-        label="NBA"
+        label={`NBA · ${nba.sampleSize.oldestDate ?? "?"} → ${nba.sampleSize.newestDate ?? "?"} (frozen)`}
         value={fmtPct(nba.lifetime.hitRate)}
         sub={`${nba.lifetime.wins}–${nba.lifetime.losses} on ${nba.sampleSize.decisive} · ${nba.sampleSize.dates} dates`}
         accent="nba"

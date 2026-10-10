@@ -44,7 +44,7 @@ function Row({ p, rank }: { p: Top10Pick; rank: number }) {
   );
 }
 
-export default function TodayTopModelPicks({ picks }: { picks: Top10Pick[] }) {
+export default function TodayTopModelPicks({ picks, noGamesToday = false }: { picks: Top10Pick[]; noGamesToday?: boolean }) {
   return (
     <section id="top-model-picks" aria-label="Top model picks" className="flex flex-col gap-2.5 scroll-mt-20">
       <div className="flex items-baseline justify-between">
@@ -57,7 +57,10 @@ export default function TodayTopModelPicks({ picks }: { picks: Top10Pick[] }) {
         </div>
       ) : (
         <p className="rounded-lg px-3 py-3 text-[11.5px]" style={{ border: "1px dashed var(--vault-border)", color: "var(--vault-text-mute)" }}>
-          No qualified picks today — reads appear only when pregame markets clear the model&rsquo;s quality bar. No-play over forcing a card.
+          {/* TRUTH-001: with no games there was nothing to qualify — not a no-play call. */}
+          {noGamesToday
+            ? "No games are scheduled today, so there are no picks to rank."
+            : "No qualified picks today — reads appear only when pregame markets clear the model’s quality bar. No-play over forcing a card."}
         </p>
       )}
       <p className="font-mono text-[9px]" style={{ color: "var(--vault-text-faint)" }}>

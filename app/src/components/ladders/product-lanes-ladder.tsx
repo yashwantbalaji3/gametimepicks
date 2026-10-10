@@ -12,7 +12,7 @@
  * because it was one; since 2026-09-10 its rung comes from the official receipts like Bank Builder's.
  *
  * Both share one shape and two accents (gold / violet). Honest by construction — active lanes read
- * "$X at risk · open exposure"; candidates read "$0 placed · not activated". Pure presentational; all
+ * what a loss costs the core bankroll (the lane seed, lib/mr-dub/lane-risk); candidates read "$0 placed · not activated". Pure presentational; all
  * derivation lives in lib/mr-dub/daily-portfolio. Server component (no client state). No horizontal
  * overflow at 375px.
  */
@@ -23,6 +23,7 @@ import FlagBadge from "@/components/flag-badge";
 import PlayerAvatar from "@/components/ui/player-avatar";
 import { wcTeamCodeFromName } from "@/lib/data-world-cup";
 import type { DailyPortfolioCard, DailyPortfolioLeg } from "@/lib/mr-dub/daily-portfolio";
+import { laneRiskLabel } from "@/lib/mr-dub/lane-risk";
 import ProbabilityBasisChip, { MarketConstructionLabel } from "@/components/products/probability-basis-chip";
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -209,7 +210,7 @@ function LaneCard({ card, accent, accentColor }: { card: DailyPortfolioCard; acc
         ) : null}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-mono uppercase tracking-[0.1em]" style={{ color: active ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 8.5 }}>
-            {active ? `${money(card.stake)} at risk · open exposure` : "$0 placed · not activated"}
+            {laneRiskLabel(card)}
           </span>
           {card.legCount < card.targetLegs ? (
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-crown-warm)", fontSize: 8.5 }}>{card.legCount}/{card.targetLegs} legs</span>
