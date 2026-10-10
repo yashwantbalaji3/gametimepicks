@@ -1124,7 +1124,9 @@ Slices (state on `main` 5ed6f6bc51, 2026-10-10):
   - Both are Production-verified (see the session logs). UFC-001 stays **IN_PROGRESS**.
 
 #### UFC experience (UX phases; founder directive 2026-10-10; plan in `docs/ufc/UFC-001-UX-PLAN.md`)
-- **Phase A, prediction board:** implemented on `claude/ufc-001-ux-phase-a`, awaiting exact-head approval; not merged.
+- **Phase A, prediction board, plus A2, page order:** one combined release in PR #1057 (A2 was consolidated from #1058); awaiting exact-head approval, to deploy after the Oct 10 card. Not merged.
+  - A2 order: board → honest live-status line (UFC live tracking not available yet) → compact matchup previews (closed `<details>`, who and where only; full analysis inside plus a bout-page link) → the card story on request → methodology → results.
+  - Nothing removed; `bout-N` anchors kept. `/ufc` at 1024 px: 15,106 px → 5,713 px.
   - It is now `/ufc`'s events section: every bout once, main event first, with portraits, the pick, the published win chance and the experimental method lean (label only; fight-level, not "pick wins that way"), each row linking to its bout page.
   - It meets the shared hub contract: `hubCounts` counts line and the standard unmodelled phrase.
 - **Phase B, bout pages; Phase C, evidence-based strengths and risks:** NOT_STARTED.
@@ -2210,6 +2212,7 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - `tsc` clean; unit phase (only the 2 local `live RLS`); build ✓;
   - rendered guards 690 / 693 (3 skipped). The first build failed 4 guards: banned "win probability" wording, the shared counts line, and the unmodelled phrase. All were fixed.
   - Preview at 375 / 768 / 1024 / 1440: no horizontal overflow; 12 unique bout links; tap targets ≥ 149 px; no console errors; a click opens `/ufc/bout/401916276/`.
+- **A2 (page order)** was consolidated into the same PR: #1058 was fast-forwarded into #1057's branch, so nothing reached `main`. Rendered guards 690 / 693, 0 failing. Preview at 375 / 1024 px: no overflow; 12 closed previews; expansion verified.
 - **Result:** PR ready for exact-head approval; not merged.
 - **Vercel:** Preview 0; Production 0 (one on merge).
 
