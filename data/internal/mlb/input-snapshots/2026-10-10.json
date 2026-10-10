@@ -1,0 +1,78 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-input-snapshot",
+ "dataClass": "PRIVATE_RESEARCH",
+ "what": "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+ "date": "2026-10-10",
+ "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+ "simulationVersion": 1,
+ "sourceBoardHash": "9fe7f2bb562349f42cbc7e762d27560430fcc8bf59da03405777eaa76204b372",
+ "updatedAt": "2026-10-10T09:29:13.000Z",
+ "games": [
+  {
+   "gamePk": 849831,
+   "date": "2026-10-10",
+   "slug": "cws-vs-cle-2026-10-10",
+   "awayTeam": "CWS",
+   "homeTeam": "CLE",
+   "firstPitch": "2026-10-11T00:00:00Z",
+   "artifactHash": "0964fb051cf4ab92729988d2fb2873a06979dac2dd0421efa4c249deb701ffe8",
+   "completenessLevel": "ready",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     803011,
+     678246,
+     671976,
+     805367,
+     691019,
+     695731,
+     808959,
+     643217,
+     695657
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     680757,
+     800050,
+     608070,
+     666176,
+     682657,
+     677587,
+     663993,
+     683953,
+     672275
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "awayStarter": {
+    "playerId": 680732,
+    "name": "Sean Burke",
+    "hasStrikeoutProjection": true
+   },
+   "homeStarter": {
+    "playerId": 668909,
+    "name": "Gavin Williams",
+    "hasStrikeoutProjection": true
+   },
+   "missingFamilies": [
+    "confirmed_batting_order",
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  }
+ ]
+}
