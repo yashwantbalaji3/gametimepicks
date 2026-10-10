@@ -199,7 +199,10 @@ export default function TodayPage() {
   const bbHasActiveCard = dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active");
   const bbNoPlay = !bbProposal.available && !bbHasActiveCard;
   const bbStepPhrase = awaitingRung != null ? `awaiting Step ${awaitingRung}` : "awaiting next card";
-  const bbStatusValue = bbNoPlay ? "No-play" : bbHasActiveCard ? "Active card" : "Awaiting card";
+  /* TRUTH-001 (B6): a day with no games is not a no-play CALL — /bank-builder says so explicitly. "No-play" means
+     the ladder looked at a slate and held; with no events anywhere there was nothing to look at. */
+  const noGamesToday = todayAcross.state !== "UNKNOWN" && todayAcross.eventsToday === 0;
+  const bbStatusValue = bbNoPlay ? (noGamesToday ? "No games today" : "No-play") : bbHasActiveCard ? "Active card" : "Awaiting card";
   /* Session 7: the lane's OWN reason (activationEligibility.reason) — "a postseason off day" or "no priced slate yet"
      is not "no card reaches this step's price". The generic sentence is only the fallback when no reason is published. */
   const sentence = (r: string | null | undefined) => (r ? `${r.charAt(0).toUpperCase()}${r.slice(1).replace(/\.\s*$/, "")}.` : null);
@@ -214,7 +217,7 @@ export default function TodayPage() {
   // ── Longshot / Moonshot status — no active Moonshot card today ⇒ honest no-play (code label stays
   //    `product: "moonshot"` and the /moonshot href; the visible label is "Longshot Lab"). ──
   const moonshotActive = dailyPortfolio.cards.some((c) => c.product === "moonshot" && c.status === "active");
-  const longshotStatusValue = moonshotActive ? "Active" : "No-play";
+  const longshotStatusValue = moonshotActive ? "Active" : noGamesToday ? "No games today" : "No-play";
   const longshotReason = moonshotActive
     ? "A Moonshot ladder card is live today — both legs must win to carry the balance to the next day's rung."
     : msLaneReason ?? "No Moonshot card today: nothing on the slate reaches the rung's price with two legs, and the ladder waits rather than force one.";
@@ -246,7 +249,7 @@ export default function TodayPage() {
     },
     {
       label: "Top model reads",
-      value: topPicks.length > 0 ? `${topPicks.length} ranked` : "No-play",
+      value: topPicks.length > 0 ? `${topPicks.length} ranked` : noGamesToday ? "No games today" : "No-play",
       sub: topPicks.length > 0 ? "strongest reads of the day" : "no qualified reads today",
       href: "#top-model-picks",
       tone: topPicks.length > 0 ? "gold" : "mute",
@@ -277,12 +280,15 @@ export default function TodayPage() {
 
   // ── Section 8 · No-play / unavailable notes — honest, discipline-framed. Built from the real states. ──
   const noPlayNotes: string[] = [];
-  if (bbNoPlay) noPlayNotes.push(`Bank Builder is no-play today (${bbStepPhrase}, ${openExposureLabel} open exposure) — the ladder never forces a card to keep a streak alive.`);
+  /* TRUTH-001 (B6): with no games anywhere there was no slate to hold back from — no no-play call, and no simulation
+     "not ready yet". One true sentence replaces those three. */
+  if (noGamesToday) noPlayNotes.push("No games are scheduled today, so no card is made and nothing is simulated. This is not a no-play call: the ladders resume on the next game day.");
+  if (bbNoPlay && !noGamesToday) noPlayNotes.push(`Bank Builder is no-play today (${bbStepPhrase}, ${openExposureLabel} open exposure) — the ladder never forces a card to keep a streak alive.`);
   /* Session 5 — the reason is the lane's OWN (the producer's shortfallNote), never a fixed sentence: on 2026-10-01 this
      said "no two-leg card reaches its rung's price" while the lanes said "fewer than two eligible legs on the slate". */
   const moonshotReason = (dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.laneReason)?.laneReason ?? dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.shortfallNote)?.shortfallNote)?.replace(/\.\s*$/, "") ?? null;
-  if (!moonshotActive) noPlayNotes.push(`Moonshot is no-play${moonshotReason ? ` — ${moonshotReason.charAt(0).toLowerCase()}${moonshotReason.slice(1)}` : ""}. The ladder waits rather than force a card.`);
-  if (slateReadyCount === 0) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
+  if (!moonshotActive && !noGamesToday) noPlayNotes.push(`Moonshot is no-play${moonshotReason ? ` — ${moonshotReason.charAt(0).toLowerCase()}${moonshotReason.slice(1)}` : ""}. The ladder waits rather than force a card.`);
+  if (slateReadyCount === 0 && !noGamesToday) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
   noPlayNotes.push("Pending is not a loss: a card settles only against the official final, and unsettled cards are never counted against the record.");
 
   // ── Section 10 · Secondary links — compact link cards out (no large widgets duplicated here). ──
@@ -367,7 +373,7 @@ export default function TodayPage() {
       <TodayGamePredictions rows={predictionRows} nowMs={nowMs} />
 
       {/* 3 — Top model picks: BY CATEGORY when the MLB slate supports it, else the cross-sport list */}
-      {picksByCategory.length > 0 ? <TodayTopPicksByCategory categories={picksByCategory} /> : <TodayTopModelPicks picks={topPicks} />}
+      {picksByCategory.length > 0 ? <TodayTopPicksByCategory categories={picksByCategory} /> : <TodayTopModelPicks picks={topPicks} noGamesToday={noGamesToday} />}
 
       {/* 3b — TOP 10 BY SPORT (P201 · charter C): the per-sport view over the SAME ranked owner the
           homepage's strongest-reads panel uses — grouping is presentation, never a second ranking.

@@ -209,7 +209,9 @@ export default function ClimbHero({
           {([
             ["Current paper bankroll", money(currentBankroll), "var(--risk-low)"],
             ["Peak paper bankroll", money(peakBankroll), "var(--vault-gold-bright)"],
-            ["Open exposure (at risk)", money(openExposure), "var(--gtp-bank-heat)"],
+            // TRUTH-001: the scope is today's Bank Builder lanes, and the amount is their seeds — a loss costs the
+            // core bankroll the seed, not the rolled stake (lib/mr-dub/lane-risk.ts).
+            ["At risk today (Bank Builder lane seeds)", money(openExposure), "var(--gtp-bank-heat)"],
           ] as Array<[string, string, string]>).map(([label, value, accent]) => (
             <div
               key={label}

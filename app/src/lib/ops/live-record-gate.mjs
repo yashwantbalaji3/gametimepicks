@@ -19,8 +19,22 @@
 export const MLB_TOTAL_FAMILY = "mlb_total";
 export const MLB_MONEYLINE_FAMILY = "mlb_moneyline";
 export const MLB_RUN_LINE_FAMILY = "mlb_run_line";
+/**
+ * Decision engine v2's run line (TRUTH-001): picked at the sportsbook's posted line. It has its OWN record, so
+ * its own gate: a v2 call is paused only by the v2 record, never by the retired v1 definition's record.
+ */
+export const MLB_RUN_LINE_POSTED_FAMILY = "mlb_run_line_posted";
+/**
+ * FOUNDER SAFEGUARD (2026-10-09, #1038 review): a corrected MARKET DEFINITION is not a qualified MODEL. The
+ * posted-line family starts with no graded picks, so on its own record it could never be paused — a v1 pause
+ * would simply vanish with the rename. So a v2 call INHERITS every v1 restriction (paused while either record
+ * is BREACHED) and never v1's performance (its record, state and denominators are its own). Ending the
+ * inheritance is a founder decision taken on v2's own evidence, made by changing this constant in a reviewed PR
+ * — never by the scorecard, never by a zero-pick record.
+ */
+export const POSTED_RUN_LINE_INHERITS_V1_RESTRICTIONS = true;
 /** The families a pause is WIRED for. A BREACHED family outside this set is an alarm on /ops, never a pause. */
-export const GATED_FAMILIES = Object.freeze(new Set([MLB_TOTAL_FAMILY, MLB_MONEYLINE_FAMILY, MLB_RUN_LINE_FAMILY]));
+export const GATED_FAMILIES = Object.freeze(new Set([MLB_TOTAL_FAMILY, MLB_MONEYLINE_FAMILY, MLB_RUN_LINE_FAMILY, MLB_RUN_LINE_POSTED_FAMILY]));
 export const PAUSED_TOTAL_SHORT = "Paused · its live record is below a coin flip";
 export const PAUSED_MONEYLINE_SHORT = PAUSED_TOTAL_SHORT;
 export const PAUSED_RUN_LINE_SHORT = PAUSED_TOTAL_SHORT;
@@ -80,8 +94,17 @@ export function pauseMlbMoneyline(decision, paused) {
  * @param {Set<string>} paused
  * @returns {T}
  */
+/** Whether a run-line call is paused, by definition: v1 by its own record; v2 by its own OR (inherited) v1's. */
+export function runLinePaused(runLine, paused) {
+  if (!runLine || !paused) return false;
+  if (runLine.basis === "POSTED_LINE") {
+    return paused.has(MLB_RUN_LINE_POSTED_FAMILY) || (POSTED_RUN_LINE_INHERITS_V1_RESTRICTIONS && paused.has(MLB_RUN_LINE_FAMILY));
+  }
+  return paused.has(MLB_RUN_LINE_FAMILY);
+}
+
 export function pauseMlbRunLine(decision, paused) {
-  if (!decision?.runLine || !paused?.has(MLB_RUN_LINE_FAMILY)) return decision;
+  if (!decision?.runLine || !runLinePaused(decision.runLine, paused)) return decision;
   return {
     ...decision,
     runLine: null,

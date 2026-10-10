@@ -78,7 +78,7 @@ function DrawdownChart({ data }: { data: { date: string; drawdown: number }[] })
   );
 }
 
-function ProductBars({ data }: { data: FlagshipCharts["productPerformance"] }) {
+function ProductBars({ data, coreNote }: { data: FlagshipCharts["productPerformance"]; coreNote: string }) {
   const maxAbs = Math.max(1, ...data.map((p) => Math.abs(p.profit)));
   const scale = (v: number) => Math.sign(v) * Math.sqrt(Math.abs(v) / maxAbs) * 100; // symsqrt so side lanes are visible next to BB
   return (
@@ -94,7 +94,7 @@ function ProductBars({ data }: { data: FlagshipCharts["productPerformance"] }) {
           <span className="w-[52px] shrink-0 text-right font-mono text-[10px]" style={{ color: FAINT }}>{p.wins}-{p.losses}</span>
         </div>
       ))}
-      <p className="mt-1 font-mono text-[9.5px]" style={{ color: FAINT }}>Bar length is √-scaled so the side lanes stay visible beside Bank Builder. Bank Builder P/L is the canonical cumulative-crown bankroll growth; the side lanes are flat-stake paper.</p>
+      <p className="mt-1 font-mono text-[9.5px]" style={{ color: FAINT }}>Bar length is √-scaled so the smaller rows stay visible beside the core bankroll. {coreNote}</p>
     </div>
   );
 }
@@ -125,7 +125,7 @@ const TABS = [
   { id: "heatmap", label: "Heatmap" },
 ] as const;
 
-export default function AnalyticsCharts({ charts }: { charts: FlagshipCharts }) {
+export default function AnalyticsCharts({ charts, coreNote }: { charts: FlagshipCharts; coreNote: string }) {
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("bankroll");
   const first = charts.bankroll[0]?.date, last = charts.bankroll[charts.bankroll.length - 1]?.date;
   return (
@@ -139,7 +139,7 @@ export default function AnalyticsCharts({ charts }: { charts: FlagshipCharts }) 
         {tab === "bankroll" ? <BankrollChart data={charts.bankroll} /> : null}
         {tab === "daily" ? <BarsChart data={charts.dailyRoi.map((d) => ({ date: d.date, v: d.pl }))} /> : null}
         {tab === "drawdown" ? <DrawdownChart data={charts.drawdown} /> : null}
-        {tab === "product" ? <ProductBars data={charts.productPerformance} /> : null}
+        {tab === "product" ? <ProductBars data={charts.productPerformance} coreNote={coreNote} /> : null}
         {tab === "heatmap" ? <Heatmap data={charts.heatmap} /> : null}
       </div>
       {tab !== "product" && tab !== "heatmap" && first && last ? (
