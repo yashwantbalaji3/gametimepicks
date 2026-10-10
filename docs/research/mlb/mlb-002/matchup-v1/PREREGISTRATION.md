@@ -109,3 +109,19 @@ Nothing else changes. This amendment is committed before the harness first runs.
 3. **Opposing hand.** The starter's `pitchHand` from the `matchup` capture. With no hand, the batter's splits are pooled over both hands.
 4. **Bullpen rates for a batter:** his splits pooled over both hands, because the reliever's hand is unknown.
 5. **Dev is run first, with the holdout excluded by the harness.** The holdout is run once, after any dev bug fixes are committed.
+
+## Amendment 3 (2026-10-10, after dev run 1, BEFORE any holdout result)
+
+**What dev run 1 showed:** low coverage. Only 19.7% of batters had matchup splits and 14% a known slot; 92.9% of starters had a season line.
+
+**Cause:** timing, not a defect. 82% of dev forecasts of record used prop-derived lineups and were generated early (for example 14Z on 2026-08-15). Most `batter-splits` and `matchup` captures for the same game came later, so the registered rule (latest same-game capture ≤ the forecast time) correctly excluded them.
+
+**Change:** a batter's season splits are point-in-time information as of their capture. A capture from an **earlier date**, taken before the forecast time, is valid pregame evidence (stats through that day). So the lookup becomes:
+1. the latest same-game capture with `capturedAt` ≤ the forecast time;
+2. else the latest capture of that player from the previous 10 days, also before the forecast time.
+
+The slot rule is unchanged: a slot unknown at forecast time stays unknown (3.85 PA).
+
+**Why this is not result-driven:** the change targets coverage, a mechanical property, not a metric, and the holdout has not been read. The dev run 1 numbers are kept as recorded in `dev-run-1/` (winner log loss −0.0070 [−0.0195, +0.0051]; total level −0.01 vs control +0.62). They are reported alongside, not replaced.
+
+**Next:** dev is re-run once to check the code, then the holdout once.

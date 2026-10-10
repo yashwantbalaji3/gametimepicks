@@ -237,6 +237,12 @@ const main = async () => {
     const mu = latestBefore(await featuresFor("matchup", G.date), (d) => d.gamePk === G.gamePk, cutoff);
     const pw = latestBefore(await featuresFor("pitcher-workload", G.date), (d) => d.gamePk === G.gamePk, cutoff);
     const splits = await featuresFor("batter-splits", G.date);
+    const priorSplits = [];
+    for (let back = 1; back <= 10; back += 1) {
+      const d = new Date(Date.parse(`${G.date}T12:00:00Z`) - back * 86400e3).toISOString().slice(0, 10);
+      if (d < "2026-07-22") break;
+      priorSplits.push(...(await featuresFor("batter-splits", d)));
+    }
     const hand = { home: mu?.homeStartingPitcher?.pitchHand ?? null, away: mu?.awayStartingPitcher?.pitchHand ?? null };
     const slotOf = new Map();
     for (const side of ["homeBatters", "awayBatters"]) for (const b of mu?.[side] ?? []) if (b.playerId && b.battingOrderSlot) slotOf.set(b.playerId, b.battingOrderSlot);
@@ -244,7 +250,10 @@ const main = async () => {
     const withBatter = (lineup, confirmedSide, oppHand) => lineup.map((b, i) => {
       cov.batters += 1;
       if (!Number.isFinite(b.playerId) || b.playerId < 0) return b; // replacement-level filler: published model
-      const doc = latestBefore(splits, (d) => d.playerId === b.playerId && d.gamePk === G.gamePk, cutoff);
+      // Amendment 3: same-game capture first; else the player's latest capture from the previous 10 days (both ≤ cutoff).
+      const doc = latestBefore(splits, (d) => d.playerId === b.playerId && d.gamePk === G.gamePk, cutoff)
+        ?? priorSplits.filter((v) => v.doc.playerId === b.playerId && ms(v.doc.capturedAt) <= cutoff)
+          .sort((x, y) => ms(y.doc.capturedAt) - ms(x.doc.capturedAt))[0]?.doc ?? null;
       const slot = confirmedSide ? i + 1 : slotOf.get(b.playerId) ?? null;
       if (slot) cov.battersWithSlot += 1;
       const slotPa = slot ? PA_BY_SLOT[slot] : DEFAULT_ENGINE_PARAMS.league.PA_PER_GAME;
