@@ -149,7 +149,7 @@ Working log for the founder's overnight directive. **Not a roadmap.** The author
 
 ### 06:50Z–06:55Z · MLB-003/004/005 · FORWARD TEST B registered and frozen (genuinely prospective from here)
 - **Registration and code freeze:** `e273bf4e2c`, committed 06:53:26Z and pushed to `claude/mlb-005-coherent-worlds`.
-  - Amendment 1 (wording only): `2c3…`, pushed.
+  - Amendment 1 (wording only): `4ac4c50778`. Amendment 2 (the `materialize.sh` frozen-code guard): pushed.
   - Grader: `df30f710a2` (06:54:54Z).
   - All three before any included game.
 - **Window:** games with first pitch after the registration. **The first included game is 849831 (2026-10-11 00:00Z).**
