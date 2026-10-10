@@ -3,7 +3,7 @@
  "artifact": "epl-learning-report",
  "dataClass": "INTERNAL_RESEARCH",
  "public": false,
- "generatedAt": "2026-10-10T02:05:29Z",
+ "generatedAt": "2026-10-10T16:08:44Z",
  "corpus": {
   "historical": 1520,
   "currentSeason": 50,
@@ -11,29 +11,29 @@
   "season": "2026-27"
  },
  "sample": {
-  "graded": 46,
-  "pairedWithMarket": 39,
+  "graded": 51,
+  "pairedWithMarket": 43,
   "minSampleForComparison": 30,
   "scope": "ALL_MODELS"
  },
  "liveModel": {
   "modelId": "epl-model-v2-elo-poisson",
-  "n": 10,
-  "logLoss": 1.027692,
-  "brier": 0.607026,
-  "pairedWithMarket": 9,
+  "n": 15,
+  "logLoss": 0.982831,
+  "brier": 0.578161,
+  "pairedWithMarket": 13,
   "comparison": {
    "state": "SAMPLE_TOO_SMALL",
    "onPairedMatches": {
     "model": {
-     "logLoss": 0.988019,
-     "brier": 0.576863
+     "logLoss": 0.967135,
+     "brier": 0.56532
     },
     "market": {
-     "logLoss": 1.022415,
-     "brier": 0.61043
+     "logLoss": 0.964683,
+     "brier": 0.568344
     },
-    "logLossDelta": -0.034396
+    "logLossDelta": 0.002452
    }
   }
  },
@@ -61,33 +61,33 @@
   },
   "epl-model-v2-elo-poisson": {
    "modelId": "epl-model-v2-elo-poisson",
-   "n": 10,
-   "logLoss": 1.027692,
-   "brier": 0.607026,
-   "pairedWithMarket": 9,
+   "n": 15,
+   "logLoss": 0.982831,
+   "brier": 0.578161,
+   "pairedWithMarket": 13,
    "comparison": {
     "state": "SAMPLE_TOO_SMALL",
     "onPairedMatches": {
      "model": {
-      "logLoss": 0.988019,
-      "brier": 0.576863
+      "logLoss": 0.967135,
+      "brier": 0.56532
      },
      "market": {
-      "logLoss": 1.022415,
-      "brier": 0.61043
+      "logLoss": 0.964683,
+      "brier": 0.568344
      },
-     "logLossDelta": -0.034396
+     "logLossDelta": 0.002452
     }
    }
   }
  },
  "coverage": {
-  "paired": 39,
+  "paired": 43,
   "unpaired": {
-   "total": 7,
+   "total": 8,
    "byCause": {
     "UNRECORDED_CAUSE_PRE_P196": 5,
-    "UNPLACEABLE_OUTCOME_NAME": 2
+    "UNPLACEABLE_OUTCOME_NAME": 3
    }
   },
   "engineeringOwnedCauses": [
@@ -95,28 +95,28 @@
   ]
  },
  "model": {
-  "n": 46,
-  "logLoss": 1.051843,
-  "brier": 0.644266
+  "n": 51,
+  "logLoss": 1.036281,
+  "brier": 0.632125
  },
  "comparison": {
   "state": "MODEL_AHEAD",
-  "detail": "the model's mean log loss is 0.013628 lower than the market's over 39 matches.",
+  "detail": "the model's mean log loss is 0.004419 lower than the market's over 43 matches.",
   "onPairedMatches": {
    "model": {
-    "logLoss": 1.05241,
-    "brier": 0.647273
+    "logLoss": 1.040107,
+    "brier": 0.637234
    },
    "market": {
-    "logLoss": 1.066038,
-    "brier": 0.646642
+    "logLoss": 1.044526,
+    "brier": 0.63055
    },
-   "logLossDelta": -0.013628,
-   "brierDelta": 0.000631
+   "logLossDelta": -0.004419,
+   "brierDelta": 0.006684
   }
  },
  "stoppingRule": {
-  "state": "CONTINUE",
-  "detail": "the model is ahead of the market by more than the noise floor. Continue, and re-examine at every doubling of the sample."
+  "state": "NO_MEASURABLE_ADVANTAGE",
+  "detail": "the model tracks the market without beating it. Publishing the distribution stays honest; claiming it adds information does not."
  }
 }

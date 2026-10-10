@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-10T14:42:38.875Z",
+  "generatedAt": "2026-10-10T16:12:36.422Z",
   "canonical": {
     "record": "46-49",
     "bankroll": 14390.4,
@@ -105,15 +105,15 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-10",
-      "generatedAt": "2026-10-10T13:21:30Z",
+      "generatedAt": "2026-10-10T15:50:46Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 19,
-            "priced": 19,
-            "generated": 9,
+            "scheduled": 15,
+            "priced": 15,
+            "generated": 5,
             "frozen": 0,
             "started": 0
           },
@@ -137,14 +137,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 16,
-            "priced": 16,
+            "scheduled": 27,
+            "priced": 27,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:16 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:27 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -166,7 +166,7 @@
     "dailyLifecycle": {
       "receiptDate": "2026-10-10",
       "present": true,
-      "generatedAt": "2026-10-10T13:21:29Z",
+      "generatedAt": "2026-10-10T15:50:45Z",
       "watchdog": [
         {
           "product": "epl-cards",
@@ -215,8 +215,8 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-10T14:39:44.876Z",
-    "ageHours": 0,
+    "lastRunAt": "2026-10-10T16:09:09.153Z",
+    "ageHours": 0.1,
     "ok": false,
     "status": "fail",
     "phase": "daily-owner-slo"
@@ -224,7 +224,7 @@
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-10",
-    "etTime": "10:42",
+    "etTime": "12:12",
     "stages": [
       {
         "stage": "schedule",
