@@ -20,6 +20,7 @@ import BankBuilderProposalCard from "@/components/bank-builder/bank-builder-prop
 import type { StrongestPick } from "@/lib/world-cup/structured-moonshot";
 import type { BankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal";
 import type { DailyPortfolio, DailyPortfolioCard, DailyPortfolioLeg } from "@/lib/mr-dub/daily-portfolio";
+import { laneRiskLabel } from "@/lib/mr-dub/lane-risk";
 import ProbabilityBasisChip, { MarketConstructionLabel } from "@/components/products/probability-basis-chip";
 
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -104,7 +105,7 @@ function LaneCard({ card }: { card: DailyPortfolioCard }) {
             className="font-mono uppercase tracking-[0.1em]"
             style={{ color: card.status === "active" ? "var(--vault-success)" : "var(--vault-text-faint)", fontSize: 8.5 }}
           >
-            {card.status === "active" ? `${money(card.stake)} at risk · open exposure` : "$0 placed · not activated"}
+            {laneRiskLabel(card)}
           </span>
           {card.legCount < card.targetLegs ? (
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-crown-warm)", fontSize: 8.5 }}>{card.legCount}/{card.targetLegs} legs</span>
@@ -205,7 +206,7 @@ export default function DailyPortfolioSection({ portfolio, bankBuilderAlternativ
       {/* Summary stat chips — active bankroll + exposure unchanged while candidates; Crown separate. */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
         <StatChip label="Current paper bankroll" value={money(portfolio.activeBankroll)} accent="var(--vault-gold-bright)" />
-        <StatChip label="Open exposure (at risk)" value={money(portfolio.openExposure)} />
+        <StatChip label="At risk today (lane seeds)" value={money(portfolio.openExposure)} />
         <StatChip label="Available" value={money(portfolio.availableBankroll)} />
         <StatChip label="Potential return" value={money(portfolio.potentialReturn)} accent="var(--vault-success)" />
         <StatChip label="Peak paper bankroll" value={money(portfolio.peakBankroll)} faint />

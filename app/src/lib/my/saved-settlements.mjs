@@ -32,10 +32,13 @@ export const SAVED_SETTLEMENTS_ARTIFACT = "my-saved-settlements";
 export function compactLedgers({ mlbGames = [], nfl = [], epl = [], ufc = [] } = {}) {
   const byGame = new Map();
   for (const r of mlbGames) {
-    if (!Number.isInteger(r?.gamePk) || !MLB_MARKETS.includes(r.market)) continue;
+    // A game has ONE published run-line call, made by v1 (`run_line`) or v2 (`run_line_posted`); a saved card
+    // settles against whichever it was. The slot is per saved call, never a pooled record.
+    const market = r?.market === "run_line_posted" ? "run_line" : r?.market;
+    if (!Number.isInteger(r?.gamePk) || !MLB_MARKETS.includes(market)) continue;
     const g = byGame.get(r.gamePk) ?? {};
     // resolveResult takes the FIRST row for (gamePk, market); keep the first here too.
-    if (!(r.market in g)) g[r.market] = MLB_CODE[r.outcome] ?? "P"; // resolveResult: neither WIN nor LOSS ⇒ VOID
+    if (!(market in g)) g[market] = MLB_CODE[r.outcome] ?? "P"; // resolveResult: neither WIN nor LOSS ⇒ VOID
     byGame.set(r.gamePk, g);
   }
   const mlb = {};

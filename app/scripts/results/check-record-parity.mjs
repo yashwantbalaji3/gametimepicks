@@ -70,7 +70,7 @@ const groups = [
     { name: "research terminal-summary", win: terminal?.modelUniverse?.wins ?? null,
       loss: Number.isInteger(terminal?.modelUniverse?.decisiveRows) && Number.isInteger(terminal?.modelUniverse?.wins) ? terminal.modelUniverse.decisiveRows - terminal.modelUniverse.wins : null },
   ] },
-  ...[["moneyline", "mlb_moneyline"], ["run_line", "mlb_run_line"], ["total", "mlb_total"]].map(([fam, ledgerFam]) => ({
+  ...[["moneyline", "mlb_moneyline"], ["run_line", "mlb_run_line"], ["run_line_posted", "mlb_run_line_posted"], ["total", "mlb_total"]].map(([fam, ledgerFam]) => ({
     record: `MLB game calls · ${fam}`, readers: [
       { name: "game-predictions-record", ...counts(gameRecord?.families?.[fam]) },
       { name: "forecast-ledger", ...ledgerDirectional(mlbLedger, ledgerFam) },

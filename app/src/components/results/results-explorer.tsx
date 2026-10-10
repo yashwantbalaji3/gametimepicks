@@ -47,7 +47,9 @@ const TYPE_NOTE: Record<string, string> = {
   [RECORD_TYPES.MODEL_PICK]:
     "Single model selections, graded one at a time against the official result. No stake is recorded for these.",
   [RECORD_TYPES.SIGNATURE_PRODUCT]:
-    "The money ladders, each with its own bankroll and its own history. These are never added together.",
+    // TRUTH-001: Bank Builder and Moonshot share the core paper bankroll since the 2026-09-10 reconciliation
+    // (Rule S); their RECORDS stay separate and are never added together.
+    "The money ladders. Each keeps its own record, and the records are never added together. Since the Sep 10 reconciliation Bank Builder and Moonshot share the core paper bankroll: a lost Moonshot run costs it the $25 seed.",
 };
 
 const SPORT_LABEL: Record<string, string> = {

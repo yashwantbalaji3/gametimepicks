@@ -9,7 +9,7 @@
  */
 import Link from "next/link";
 
-export type PicksSurfaceStatus = "pregame" | "live" | "settled" | "review" | "data_pending";
+export type PicksSurfaceStatus = "pregame" | "live" | "settled" | "review" | "data_pending" | "no_qualifying";
 
 export interface PicksSurfaceHeaderProps {
   title: string;
@@ -44,6 +44,8 @@ const STATUS_META: Record<PicksSurfaceStatus, { label: string; color: string; bg
   settled: { label: "Slate settled", color: "var(--vault-success)", bg: "color-mix(in srgb, var(--gtp-success-on-dark) 12%, transparent)" },
   review: { label: "Review", color: "var(--vault-success)", bg: "color-mix(in srgb, var(--gtp-success-on-dark) 10%, transparent)" },
   data_pending: { label: "Data pending", color: "var(--vault-text-faint)", bg: "var(--vault-wash-soft)" },
+  // TRUTH-001: the producer ran for this date and nothing qualified — a result, not a delay.
+  no_qualifying: { label: "No qualifying card", color: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)" },
 };
 
 const COUNT_LABELS: Array<[keyof NonNullable<PicksSurfaceHeaderProps["counts"]>, string]> = [

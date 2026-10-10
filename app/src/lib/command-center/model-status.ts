@@ -12,7 +12,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { pausedFamiliesFrom } from "@/lib/ops/live-record-gate.mjs";
+import { pausedFamiliesFrom, runLinePaused, MLB_RUN_LINE_POSTED_FAMILY } from "@/lib/ops/live-record-gate.mjs";
 import type { CardSport, ModelStatusItem, PublicModelState } from "./contract";
 
 type HealthFamily = { id: string; sport: string; state: string; n: number; judgement?: { receiptState?: string; needed?: number | null; watch?: boolean | null } | null; context?: { hitRate?: number | null; meanPickProbability?: number | null } | null };
@@ -61,12 +61,21 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
   const HEALTH = "admin/model-health.json";
 
   if (sport === "mlb") {
-    const rows: Array<[string, string, string]> = [["mlb_moneyline", "Winner calls", "a coin flip"], ["mlb_total", "Game totals", "a coin flip"], ["mlb_run_line", "Run line calls", "a coin flip"]];
+    const rows: Array<[string, string, string]> = [["mlb_moneyline", "Winner calls", "a coin flip"], ["mlb_total", "Game totals", "a coin flip"], ["mlb_run_line_posted", "Run line calls (posted line)", "a coin flip"]];
+    // TRUTH-001: run-line calls are now made at the sportsbook's posted line (decision engine v2), a new family
+    // with its own record. The retired v1 record (`mlb_run_line`) is not this call's record and is not shown here.
     return rows.map(([id, family, floor]) => {
-      const f = fam(id);
-      const state = healthState(f, paused);
-      const headline = state === "PAUSED" ? "Paused · below a coin flip" : state === "WATCH" ? "Watch · slightly behind" : state === "HOLDING" ? "Holding its record" : state === "TOO_EARLY" ? "Too early to judge" : "Status unknown";
-      return item(id, family, state, headline, liveRecordDetail(f, floor), f?.n ?? null, HEALTH);
+      // The posted-line family has no scorecard row until its first graded call: that is "0 graded", not an
+      // unreadable scorecard. It never borrows the retired v1 record's numbers.
+      const f = fam(id) ?? (id === MLB_RUN_LINE_POSTED_FAMILY && health ? { id, state: "INSUFFICIENT_SAMPLE", n: 0 } as HealthFamily : undefined);
+      // …but it DOES inherit v1's restrictions (live-record-gate POSTED_RUN_LINE_INHERITS_V1_RESTRICTIONS).
+      const inheritedHold = id === MLB_RUN_LINE_POSTED_FAMILY && runLinePaused({ basis: "POSTED_LINE" }, paused) && !paused.has(id);
+      const state = inheritedHold ? "PAUSED" : healthState(f, paused);
+      const headline = inheritedHold ? "Paused · held by the earlier run-line record" : state === "PAUSED" ? "Paused · below a coin flip" : state === "WATCH" ? "Watch · slightly behind" : state === "HOLDING" ? "Holding its record" : state === "TOO_EARLY" ? "Too early to judge" : "Status unknown";
+      const detail = inheritedHold
+        ? `The earlier run-line call's record is below ${floor}, and posted-line calls stay held with it until their own record justifies showing them. ${liveRecordDetail(f, floor)}`
+        : liveRecordDetail(f, floor);
+      return item(id, family, state, headline, detail, f?.n ?? null, HEALTH);
     });
   }
 

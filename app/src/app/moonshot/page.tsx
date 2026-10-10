@@ -104,7 +104,13 @@ export default function MoonshotPage() {
     artifactDate: moonshotLanes.length > 0 ? (dailyPortfolio.date ?? etToday) : laneDate,
     artifactStatus: moonshotLanes.length > 0 ? "active" : (lane?.status ?? null),
   });
-  const status = signature.surfaceStatus as PicksSurfaceStatus;
+  /* TRUTH-001 (B3): with no Moonshot card published today the badge fell back to the RETIRED legacy lane
+     (moonshot-lane/active.json, 2026-08-17) and read "stale · Not published today" — on a day the daily portfolio
+     ran and said why there is no card (2026-10-09: "the slate holds no games"). Today's producer output decides. */
+  const todayRanWithoutCard = moonshotLanes.length === 0 && dailyPortfolio.date === today
+    && dailyPortfolio.cards.some((c) => c.product === "moonshot");
+  const status = (todayRanWithoutCard ? "no_qualifying" : signature.surfaceStatus) as PicksSurfaceStatus;
+  const noCardLabel = todayAcross.eventsToday === 0 ? "No games today" : "No qualifying card";
   const moonshot = deriveMoonshotState({
     /* Cards the lifecycle ledger has graded. The settler never rewrites the lane artifact — it
        feeds the protected bankroll — so without this a settled card reads as pending for ever. */
@@ -147,7 +153,7 @@ export default function MoonshotPage() {
         eyebrow="Moonshot Lane"
         title="Moonshot Lane"
         status={status}
-        statusLabel={moonshot.running ? signature.label : "Not running"}
+        statusLabel={!moonshot.running ? "Not running" : todayRanWithoutCard ? noCardLabel : signature.label}
         /* NO counts chips. They render a settled/pending pair, and neither number can be stated as a
            single figure here: two ledgers disagree on how many cards are settled, and the open cards
            are not "pending" because nothing will ever grade them. The reconciliation below shows both
