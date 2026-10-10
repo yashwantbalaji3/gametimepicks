@@ -565,3 +565,34 @@ test("UFC-UI 5 · RENDERED: every state says only what it knows", () => {
     assert.equal((html.match(/\d+% /g) || []).every((m) => m === "61% "), true, "no other percentage appears");
   }
 });
+
+test("UFC-UI 6 · RENDERED tabs: no UFC tab by default, none with an empty roster, one only when enabled AND rostered", async () => {
+  const { default: LiveSportTabs } = await import("../../components/live/live-sport-tabs.tsx");
+  const roster = buildUfcRosterFrom({ card: CARD, graded: null, etDate: CARD.event.slateDate });
+  assert.ok(roster.bouts.length > 0, "a real roster — otherwise the enabled case proves nothing");
+  const empty = { ...roster, bouts: [] };
+  const nfl = { etDate: CARD.event.slateDate, games: [], boardsPresent: false };
+  const mlb = { etDate: CARD.event.slateDate, games: [], slateArtifactPresent: false };
+  const html = (ufc) => renderToStaticMarkup(React.createElement(LiveSportTabs, { nfl, mlb, ufc, quietDay: React.createElement("p", null, "QUIET") }));
+  const saved = process.env.NEXT_PUBLIC_LIVE_SPORTS;
+  try {
+    for (const v of [undefined, "mlb", "mlb,nfl"]) {
+      if (v === undefined) delete process.env.NEXT_PUBLIC_LIVE_SPORTS; else process.env.NEXT_PUBLIC_LIVE_SPORTS = v;
+      const out = html(roster);
+      assert.equal(/aria-label="UFC"|>UFC</.test(out), false, `NEXT_PUBLIC_LIVE_SPORTS=${v}: no UFC tab or section`);
+      assert.match(out, /QUIET/, "the quiet day still renders");
+    }
+    process.env.NEXT_PUBLIC_LIVE_SPORTS = "mlb,nfl,ufc";
+    for (const r of [empty, null]) {
+      const out = html(r);
+      assert.equal(/aria-label="UFC"|>UFC</.test(out), false, "enabled but no roster: no tab onto nothing");
+    }
+    const on = html(roster);
+    assert.match(on, /role="tab"[^>]*>UFC</, "enabled and rostered: the tab exists");
+    assert.match(on, /<section aria-label="UFC"/);
+    assert.ok(on.includes(roster.bouts[0].red.name), "the main event renders");
+    assert.equal(/QUIET/.test(on), false);
+  } finally {
+    if (saved === undefined) delete process.env.NEXT_PUBLIC_LIVE_SPORTS; else process.env.NEXT_PUBLIC_LIVE_SPORTS = saved;
+  }
+});

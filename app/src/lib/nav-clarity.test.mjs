@@ -44,7 +44,8 @@ test("🔴 the Sports primary leads with every catalog hub, each with an ABSOLUT
 test("🔴 /live on a quiet day is not a dead end and makes no schedule claim it cannot keep", () => {
   const tabs = fs.readFileSync(path.join(process.cwd(), "src/components/live/live-sport-tabs.tsx"), "utf8");
   assert.doesNotMatch(tabs, /No games are scheduled/, "the roster holds forecast games only — it cannot say nothing is scheduled");
-  assert.match(tabs, /!showNfl && !showMlb \? \(quietDay \?\?/, "the page's quiet-day state renders when neither sport has a card");
+  // UFC-001: a (default-hidden) UFC section joins the condition; the quiet day still renders when no sport shows a card.
+  assert.match(tabs, /!showNfl && !showMlb(?: && !showUfc)? \? \(quietDay \?\?/, "the page's quiet-day state renders when no sport has a card");
   const page = fs.readFileSync(path.join(process.cwd(), "src/app/live/page.tsx"), "utf8");
   const quiet = page.slice(page.indexOf("quietDay={"), page.indexOf("/>", page.indexOf("</div>", page.indexOf("quietDay={"))));
   assert.match(quiet, /<SportChooser /, "the four hubs, each with its dated count or next event");

@@ -2,9 +2,9 @@
 /**
  * /live SPORT CONTROLS.
  *
- * ⚠ ONLY SPORTS THAT ACTUALLY HAVE A ROSTER GET A TAB. §4 names five; UFC and EPL have no hub roster
- *   yet, and a tab that opens onto nothing is a claim the product cannot keep — the same defect class
- *   as an empty "NFL Live" promise. They appear here the day their roster does, not before.
+ * ⚠ ONLY SPORTS THAT ACTUALLY HAVE A ROSTER GET A TAB. §4 names five; EPL has no hub roster yet, and
+ *   a tab that opens onto nothing is a claim the product cannot keep — the same defect class as an
+ *   empty "NFL Live" promise. A sport appears here the day its roster does, not before.
  *
  * Defaults to NFL on a day the NFL slate exists, because that is the slate a reader came for.
  *
