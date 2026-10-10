@@ -69,3 +69,26 @@ test("the fight-week commit publishes only UFC's own artifacts, through the conf
   assert.match(step, /commit-generated\.sh/, "the push retries and resolves inside its own generated paths");
   assert.ok(!/git pull --rebase --autostash origin main\n\s+git push origin HEAD:main/.test(step), "the bare rebase-and-hope is gone");
 });
+
+/**
+ * OPS-001 · run 38065746333 (2026-10-10): `restore --worktree` reverts tracked grids only. The multi-/epl-
+ * grids this run created for a day its checkout had not seen stayed UNTRACKED; epl-matchweek committed the
+ * same paths first, the helper's rebase refused to overwrite them, and the paid capture was lost. The step
+ * must also drop untracked side-effect grids — after UFC's own are staged, and scoped to the grid directory.
+ */
+test("the fight-week commit removes untracked side-effect grids, after staging UFC's own, scoped to the grid dir", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const wf = fs.readFileSync(path.join(process.cwd(), "..", ".github/workflows/ufc-fight-week.yml"), "utf8");
+  const step = wf.slice(wf.indexOf("- name: Commit if anything changed"));
+  const lines = step.split("\n").map((l) => l.trim()).filter((l) => !l.startsWith("#"));
+  const at = (re) => lines.findIndex((l) => re.test(l));
+  const stage = at(/^git add "app\/public\/data\/parlays\/tier-grid\/ufc-"\*\.json/);
+  const restore = at(/^git restore --worktree -- app\/public\/data\/parlays\/tier-grid/);
+  const clean = at(/^git clean -fdq -- app\/public\/data\/parlays\/tier-grid\s*$/);
+  const push = at(/commit-generated\.sh/);
+  assert.ok(clean > -1, "untracked side-effect grids are removed");
+  assert.ok(stage > -1 && stage < clean, "UFC's own grid is staged BEFORE the clean (the index protects it)");
+  assert.ok(restore < clean && clean < push, "clean runs after the restore and before the push");
+  assert.ok(!lines.some((l) => /^git clean\b/.test(l) && !/--\s+app\/public\/data\/parlays\/tier-grid\s*$/.test(l)), "no git clean outside the grid directory");
+});
