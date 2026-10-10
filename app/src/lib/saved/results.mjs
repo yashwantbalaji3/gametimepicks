@@ -57,7 +57,8 @@ export function resolveResult(saved, ledgers, nowIso) {
 
 /** The ledger URLs the /saved page fetches — string literals on purpose: the export prune keeps any /data path a shipped file names. */
 export const LEDGER_URLS = Object.freeze({
-  mlbGames: "/data/mlb/results/game-predictions-graded.jsonl",
+  // The public rows OF RECORD (TRUTH-001 Stage B), emitted at build time by scripts/results/emit-mlb-grades-of-record.mjs.
+  mlbGames: "/data/mlb/results/game-predictions-of-record.jsonl",
   nfl: "/data/nfl/graded-picks.json",
   epl: "/data/epl/graded-picks.json",
   ufc: "/data/ufc/graded-picks.json",

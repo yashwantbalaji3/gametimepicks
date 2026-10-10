@@ -11,7 +11,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { indexRestatements, rowsOfRecord } from "./restatements.mjs";
+import { countsAsPublicForecast, indexRestatements, rowsOfRecord } from "./restatements.mjs";
 
 export const RESTATEMENTS_DIR_REL = "data/internal/mlb/forecast-of-record-restatements";
 export const APPROVED = "APPROVED";
@@ -30,6 +30,8 @@ export function readRestatementLogs(rootDir, { includeProposed = includeProposed
 
 /**
  * @param {string} rootDir  repository root
+ * @param {{ includeProposed?: boolean, publicOnly?: boolean }} [opts]  publicOnly drops NOT_SERVED rows (every public
+ *        performance / settlement reader); the ledger builder keeps them (it records them as NOT_SERVED)
  * @returns {{ graded: object[], projected: object[], logs: string[] }}
  */
 export function readMlbGradesOfRecord(rootDir, opts = {}) {
@@ -39,9 +41,14 @@ export function readMlbGradesOfRecord(rootDir, opts = {}) {
   const logs = readRestatementLogs(rootDir, opts);
   if (!logs.length) return { graded, projected, logs: [] };
   const index = indexRestatements(logs);
+  const g = rowsOfRecord("game-predictions-graded", graded, index);
+  const p = rowsOfRecord("game-projected-scores-graded", projected, index);
   return {
-    graded: rowsOfRecord("game-predictions-graded", graded, index),
-    projected: rowsOfRecord("game-projected-scores-graded", projected, index),
+    graded: opts.publicOnly ? g.filter(countsAsPublicForecast) : g,
+    projected: opts.publicOnly ? p.filter(countsAsPublicForecast) : p,
     logs: logs.map((l) => l.file),
   };
 }
+
+/** Public MLB game-grade rows of record, from an app/ directory (the Results / live / My readers). */
+export const publicMlbGradedRows = (appDir) => readMlbGradesOfRecord(path.resolve(appDir, ".."), { publicOnly: true }).graded;

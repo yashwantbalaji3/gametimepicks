@@ -127,7 +127,7 @@ export function validateRow(row) {
   if (typeof row.eventId !== "string" || !row.eventId) p.push("eventId");
   if (typeof row.subjectId !== "string" || !row.subjectId) p.push("subjectId");
   if (typeof row.family !== "string" || !row.family) p.push("family");
-  if (!LEDGER_FILE_STATUSES.includes(row.publicationStatus)) p.push(`publicationStatus ${row.publicationStatus} is not a ledger state`);
+  if (!LEDGER_FILE_STATUSES.includes(row.publicationStatus)) p.push(`publicationStatus ${row.publicationStatus} is not a public-ledger state`);
   if (!Object.values(RECOVERABILITY).includes(row.recoverability)) p.push("recoverability");
   if (row.eventStart != null && !isIso(row.eventStart)) p.push("eventStart");
   if (row.publishedAt != null && !isIso(row.publishedAt)) p.push("publishedAt");

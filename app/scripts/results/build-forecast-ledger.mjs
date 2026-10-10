@@ -98,7 +98,10 @@ export function readSources(now) {
   const mlbGraded = mlbOfRecord.graded;
   const mlbProjected = mlbOfRecord.projected;
   const sourceModels = new Map();
-  for (const src of new Set(mlbGraded.map((g) => g.forecastSource))) {
+  // Every source either the stored log or the rows of record name (a restated row names its served revision), so the
+  // stored-vs-of-record comparison in --restate sees the same model ids the committed ledger has.
+  const storedGradedSources = readJsonl(path.join(PUB, "mlb/results/game-predictions-graded.jsonl")).map((g) => g.forecastSource);
+  for (const src of new Set([...storedGradedSources, ...mlbGraded.map((g) => g.forecastSource)])) {
     const m = /^snapshot:(\d{4}-\d{2}-\d{2}\/snapshot-\d+\.json)$/.exec(String(src ?? ""));
     if (!m) continue;
     const p = path.join(INT, "mlb/prediction-snapshots", m[1]);
