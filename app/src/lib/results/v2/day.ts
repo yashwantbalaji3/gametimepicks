@@ -35,7 +35,7 @@ const readJsonl = (p: string): Record<string, any>[] => {
 const readJson = (p: string): any => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 const ET_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
 const etDay = (iso: unknown) => { const t = Date.parse(String(iso ?? "")); return Number.isFinite(t) ? ET_DAY.format(new Date(t)) : null; };
-const MARKET: Record<string, string> = { moneyline: "Winner", run_line: "Run line", total: "Total runs" };
+const MARKET: Record<string, string> = { moneyline: "Winner", run_line: "Run line (simulated ±1.5)", run_line_posted: "Run line (posted line)", total: "Total runs" };
 const FAMILY: Record<string, string> = { player_receptions: "Receptions", player_reception_yds: "Receiving yards", player_rush_yds: "Rushing yards", player_pass_yds: "Passing yards" };
 
 let cache: { mlbGames: Record<string, any>[]; mlbProps: Record<string, any>[]; picks: { nfl: any[]; epl: any[]; ufc: any[] } } | null = null;
