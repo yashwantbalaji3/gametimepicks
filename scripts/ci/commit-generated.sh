@@ -25,6 +25,7 @@ PROTECTED_RE='(^|/)mr-dub/(portfolio|ledger|daily-summary|banked-ladders)\.json$
 if git diff --cached --quiet; then echo "commit-generated: nothing staged"; exit 0; fi
 git commit -q -m "$MSG"
 
+rebasing() { [ -d "$(git rev-parse --git-path rebase-merge)" ] || [ -d "$(git rev-parse --git-path rebase-apply)" ]; }
 allowed() { local f="$1"; [[ "$f" =~ $PROTECTED_RE ]] && return 1; for p in $GENERATED_PATHS; do [[ "$f" == "$p"* ]] && return 0; done; return 1; }
 
 for attempt in 1 2 3 4 5; do
@@ -35,7 +36,16 @@ for attempt in 1 2 3 4 5; do
   # MODIFIED in the worktree, and `git rebase` refuses a dirty tree ("cannot rebase: You have unstaged
   # changes") — silently, behind the redirect. Run 35630279965 (2026-09-21 17:10Z) rebased five times
   # without moving and failed. The autostash carries the unstaged edits across the rebase.
-  if git rebase -q --autostash origin/main >/dev/null 2>&1; then continue; fi
+  if rebase_out=$(git rebase -q --autostash origin/main 2>&1); then continue; fi
+  # OPS-001 (ufc-fight-week run 38065746333, 2026-10-10 16:02Z): a rebase can also fail WITHOUT starting —
+  # e.g. "untracked working tree files would be overwritten" when the caller left a side-effect file that the
+  # other writer has since committed. --autostash does not stash untracked files, nothing is unmerged, and the
+  # old loop pushed the same unrebased commit five times, discarding a paid capture. Say what git said and stop.
+  if ! rebasing && [ -z "$(git diff --name-only --diff-filter=U)" ]; then
+    echo "::error::commit-generated: rebase onto origin/main could not start — not retrying an unchanged commit"
+    printf '%s\n' "$rebase_out" | sed 's/^/  git: /'
+    exit 1
+  fi
   # A content conflict. During a rebase, "theirs" is the commit being replayed — this run's version.
   while true; do
     conflicted=$(git diff --name-only --diff-filter=U)
@@ -53,8 +63,14 @@ for attempt in 1 2 3 4 5; do
       [ -n "$(git diff --name-only --diff-filter=U)" ] && continue
       git rebase --skip >/dev/null 2>&1 || true   # our commit became empty: the other run already published it
     fi
-    [ -d "$(git rev-parse --git-path rebase-merge)" ] || [ -d "$(git rev-parse --git-path rebase-apply)" ] || break
+    rebasing || break
   done
+  # Whatever happened above, only push again if this commit now sits on the fetched main; re-pushing a
+  # commit that did not move can only be rejected again.
+  if ! git merge-base --is-ancestor origin/main HEAD; then
+    echo "::error::commit-generated: HEAD is still not on origin/main after the rebase — not retrying an unchanged commit"
+    exit 1
+  fi
   sleep $((attempt * 3))
 done
 echo "::error::commit-generated: push never landed after 5 attempts"; exit 1
