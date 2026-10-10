@@ -189,6 +189,89 @@ export function buildPaOutcome(params: {
   };
 }
 
+/** Per-PA strikeout / walk (excl. HBP) / home-run rates. */
+export interface MatchupRates {
+  k: number;
+  bb: number;
+  hr: number;
+}
+/** League per-PA constants the log5 combination is anchored to (frozen per research registration). */
+export interface MatchupLeague extends MatchupRates {
+  hbp: number;
+}
+
+/** log5 (Bill James): the rate when a batter at `b` meets a pitcher at `p` in a league at `l`. Pure, in (0, 1). */
+export function log5(b: number, p: number, l: number): number {
+  const c = (x: number) => clamp(x, 1e-4, 1 - 1e-4);
+  const B = c(b);
+  const P = c(p);
+  const L = c(l);
+  const num = (B * P) / L;
+  return num / (num + ((1 - B) * (1 - P)) / (1 - L));
+}
+
+/**
+ * MLB-002 RESEARCH (challenger mlb-pa-matchup-v1; docs/research/mlb/mlb-002/matchup-v1/PREREGISTRATION.md).
+ * DIPS-style: strikeouts, walks and home runs come from log5(batter vs hand, pitcher, league); hits on balls in play
+ * keep the batter's board projection, converted per PA with his SLOT's league PA (not a flat 3.85). Never used by the
+ * published engine — only when EngineParams.matchup is set and the inputs carry matchup rates.
+ */
+export function buildMatchupPaOutcome(params: {
+  expHits: number | null;
+  expTotalBases: number | null;
+  slotPa: number;
+  batter: MatchupRates;
+  pitcher: MatchupRates;
+  matchupLeague: MatchupLeague;
+}, league: LeagueParams = LEAGUE): PaOutcomeProbs {
+  const { expHits, expTotalBases, slotPa, batter, pitcher, matchupLeague: ml } = params;
+  const rawHit = expHits != null && Number.isFinite(expHits) && expHits > 0 ? expHits / slotPa : league.HIT_RATE_FALLBACK;
+  const pHit = clamp(rawHit, league.MIN_HIT_RATE, league.MAX_HIT_RATE);
+  const basesPerHit =
+    expTotalBases != null && expHits != null && expHits > 0 ? expTotalBases / expHits : league.BASES_PER_HIT_FALLBACK;
+  const split = hitTypeSplit(basesPerHit, league.TRIPLE_SHARE);
+  // Balls-in-play hits = the projection's non-HR hits; the HR rate is the matchup's.
+  const bipHit = pHit * (1 - split.homeRun);
+  const nonHr = 1 - split.homeRun;
+  let k = log5(batter.k, pitcher.k, ml.k);
+  const bb = log5(batter.bb, pitcher.bb, ml.bb) + ml.hbp;
+  let hr = log5(batter.hr, pitcher.hr, ml.hr);
+  let bip = bipHit;
+  const roe = league.REACH_ON_ERROR_RATE;
+  let field = 1 - k - bb - hr - bip - roe;
+  if (field < 0.02) {
+    // Same rule as the published builder: scale hits and strikeouts down, keep walks, leave a field-out floor.
+    const room = 1 - bb - roe - 0.02;
+    const scale = room / (k + hr + bip);
+    k *= scale;
+    hr *= scale;
+    bip *= scale;
+    field = 0.02;
+  }
+  const probs: PaOutcomeProbs = {
+    strikeout: k,
+    walk: bb,
+    single: bip * (split.single / nonHr),
+    double: bip * (split.double / nonHr),
+    triple: bip * (split.triple / nonHr),
+    homeRun: hr,
+    reachOnError: roe,
+    fieldOut: field,
+  };
+  const total = probs.strikeout + probs.walk + probs.single + probs.double + probs.triple + probs.homeRun + probs.reachOnError + probs.fieldOut;
+  const inv = total > 0 ? 1 / total : 0;
+  return {
+    strikeout: probs.strikeout * inv,
+    walk: probs.walk * inv,
+    single: probs.single * inv,
+    double: probs.double * inv,
+    triple: probs.triple * inv,
+    homeRun: probs.homeRun * inv,
+    reachOnError: probs.reachOnError * inv,
+    fieldOut: probs.fieldOut * inv,
+  };
+}
+
 /** The outcome kinds, in the fixed cumulative order used by the sampler (stable across versions). */
 export const PA_OUTCOME_ORDER: (keyof PaOutcomeProbs)[] = [
   "strikeout",

@@ -97,3 +97,15 @@ Re-measuring now would give a fixture-dependent table: an average-offense fixtur
 The challenger therefore uses the repository's documented league reference `PA_BY_SLOT`. It was fixed before this registration, and its commit history shows it predates this file.
 
 Nothing else changes. This amendment is committed before the harness first runs.
+
+## Amendment 2 (2026-10-10, before the harness first runs): unspecified details, fixed now
+
+1. **Batting slot.**
+   - **Confirmed batting order:** the order is the slot.
+   - **Prop-derived lineup:** the board's order is prop-listing order, not batting order. The slot comes from the pregame `matchup` capture's `battingOrderSlot` for that player when present. Otherwise the batter keeps the published flat 3.85 PA, so no slot effect is invented.
+2. **Which capture.**
+   - For each family and key, the **latest** capture with `capturedAt` ≤ the forecast's `generatedAt` and < first pitch.
+   - `batter-splits` and `pitcher-workload` are keyed by player and game; `matchup` by game.
+3. **Opposing hand.** The starter's `pitchHand` from the `matchup` capture. With no hand, the batter's splits are pooled over both hands.
+4. **Bullpen rates for a batter:** his splits pooled over both hands, because the reliever's hand is unknown.
+5. **Dev is run first, with the holdout excluded by the harness.** The holdout is run once, after any dev bug fixes are committed.
