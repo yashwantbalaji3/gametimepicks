@@ -1588,6 +1588,24 @@ Add dependency completion receipts, idempotent jobs, retry budgets, missing-arti
 
 Do not conflate build freshness, capture freshness, provider observation age, market age, or model age.
 
+### `OPS-001a` — lost push of a paid capture (prepared by the OPS-002 session on OPS-001's behalf, 2026-10-10)
+**Status:** READY_FOR_REVIEW. Founder approved *preparing* it (relayed by the Core Intelligence session); **merge needs a separate founder exact-head approval.** OPS-001 as a whole stays NOT_STARTED.
+**Branch:** `claude/ops-001-commit-generated-untracked` · kept separate from the UFC PRs #1052/#1053
+- **Incident:** `ufc-fight-week` run 38065746333 (2026-10-10 15:58Z). The paid odds call (1 credit, 12/12 bouts), the card refresh and the model-vs-market snapshot all succeeded. The push then failed: "push never landed after 5 attempts".
+- **Root cause (reproduced with the real helper):** not a busy `main` — `main` did not move during the retries.
+  1. The run's checkout predated `0909f510` (epl matchweek).
+  2. Its tier-grid step rebuilt `multi-`/`epl-2026-10-10.json` as a side effect. They were new on that checkout, so `git restore --worktree` (tracked files only) left them untracked.
+  3. `0909f510` had already added the same paths, so `commit-generated.sh`'s rebase refused ("untracked working tree files would be overwritten"). That error went to `/dev/null`, nothing was unmerged, and the loop pushed the same unrebased commit 5 times.
+  4. It was the only "push never landed" failure among the 5 helper users in the 7 days before.
+- **Fix:**
+  - **(A)** `ufc-fight-week.yml` runs `git clean -fdq -- app/public/data/parlays/tier-grid` after the restore. The staged UFC grid is in the index and survives; untracked side-effect grids are removed.
+  - **(B)** `scripts/ci/commit-generated.sh`: a rebase that fails *without starting* (no rebase in progress, nothing unmerged) prints git's own error and exits 1 on that attempt. Before any retry it also refuses to re-push unless HEAD contains `origin/main`.
+  - **(C)** Tests:
+    - `commit-generated.test.mjs` +2 bare-origin races: an untracked collision fails at attempt 1 with git's reason and leaves origin untouched; the cleaned variant lands and keeps both lanes' files.
+    - `fightday-watch.test.mjs` +1: the clean is present, scoped to the grid directory, after the UFC stage and the restore, and before the push.
+- **Local tests:** new and affected 15/15; related workflow guards 98/98; 4/4 mutation probes caught (old helper; clean removed; clean before the stage; unscoped clean). Full unit phase: see the PR.
+- **Not changed:** no other workflow, no data, no identity, no Vercel config. The re-run of the lost capture (+1 credit) stays a founder decision.
+
 ---
 
 # 19. Generated Product Truth Documentation
@@ -2044,6 +2062,21 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - The guard accepts them only through `RECONSTRUCTED_RECEIPT_ALLOWLIST` (those three dates, bound by snapshot sha256, only where no genuine receipt exists). `pipeline/optimizer_reconstruction_test.py` re-runs the replay in the `python` job.
 - **Not changed:** NFL settlement, NFL projection producers, optimizer slip selection, workflows, `vercel.json`. No paid APIs.
 - **Rule (`CI-001`, restated):** an empty rolling window is accepted only on producer evidence. Historical reconstruction is a founder decision, scoped by an explicit allowlist and never a general bypass.
+
+## 2026-10-10 — Claude Code (OPS-002 session, on OPS-001's behalf) — `OPS-001a`
+- Starting main SHA: `5c6629a31e`
+- Branch: `claude/ops-001-commit-generated-untracked`
+- Goal: prepare (not merge) the founder-approved fixes (A)/(B)/(C) for the lost `ufc-fight-week` push, as requested through the Core Intelligence session; ownership is OPS-001.
+- Reproduced current issue/state:
+  - bare-origin reproduction with the real helper gives "push never landed after 5 attempts";
+  - the suppressed error is "untracked working tree files would be overwritten";
+  - the control, without the untracked file, lands.
+- Decisions made: fix both the workflow (smallest, local) and the helper (class fix: fail fast with git's reason). No change to the retry count or backoff, since timing was not the cause.
+- Files/contracts changed: `.github/workflows/ufc-fight-week.yml` (+1 command, comment); `scripts/ci/commit-generated.sh`; `app/src/lib/ops/commit-generated.test.mjs`; `app/src/lib/sports/ufc/fightday-watch.test.mjs`; this roadmap.
+- Local tests: see OPS-001a.
+- Result: READY_FOR_REVIEW; PR from this branch. No merge without a separate founder exact-head approval.
+- Vercel Preview / Production build counts: 0 / 0. The branch push is gated. A merge would be one Production build (tests under `app/src/`).
+- Remaining: founder review; the founder decides the UFC re-run (+1 credit). OPS-002's seven-day observation continues unaffected.
 
 ---
 

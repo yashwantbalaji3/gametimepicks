@@ -242,6 +242,12 @@ jobs:
           # files are untouched and the other sports' copies go back to HEAD.
           git add "app/public/data/parlays/tier-grid/ufc-"*.json 2>/dev/null || true
           git restore --worktree -- app/public/data/parlays/tier-grid 2>/dev/null || true
+          # …and `restore` only reverts TRACKED files. A grid this run created for a day its checkout had not
+          # seen yet (multi-/epl-<today>.json) stays untracked; when another lane commits that same file first,
+          # the push helper's rebase refuses to overwrite it and the paid capture is lost (run 38065746333,
+          # 2026-10-10). Remove the untracked side-effect grids too — the staged UFC files are in the index, so
+          # `git clean` leaves them alone.
+          git clean -fdq -- app/public/data/parlays/tier-grid
           git add app/public/data/ufc/schedule app/public/data/ufc/card-latest.json \
                   app/public/data/ufc/schedule-latest.json app/public/data/ufc/graded-moneylines-latest.json \
                   app/public/data/ufc/odds-latest.json \
