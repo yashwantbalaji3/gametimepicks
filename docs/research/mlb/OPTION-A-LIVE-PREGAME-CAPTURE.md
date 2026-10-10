@@ -36,27 +36,37 @@ The step that already commits writes the receipt, so its **git commit, pushed be
 | `v3k` | `mlb-k-workload-v3` analytic | — |
 | `engineB2` | Coherent worlds with substitution + v3 workload; 2,000 worlds | `mlb005-fwd-b2|<gamePk>` |
 
-**Equivalence:** on 2026-10-07 (three games), the live script's predictions equal the frozen B and B2 rows **192 / 192, exactly**.
+**Equivalence:** see Validation.
 
-## Validation on `claude/mlb-option-a-live-capture`
+## Validation (Option A minimal, branch `claude/mlb-option-a-live-capture`)
 
+- **Equivalence:** 192 / 192 predictions identical to the frozen B and B2 rows (2026-10-07, three games).
 - **Tests:**
   - `forward-player-live.test.mjs` 4/4 on Node 20.4: before-start receipts and hashes, write-once (bytes unchanged on the second run), refusal at the start, a fixed clock cannot write. The mutation probe "remove the started check" is caught.
-  - Full-game tests 139/139.
-  - Workflow guard tests 578/579 (1 skip).
-  - Unit phase and `tsc`: see the PR.
+  - `rules-engine.test.mjs` 8/8: the engine-level subset of #1043's rules tests, including "legacy rules ARE the published engine". The mutation probe "official walk-off under legacy" is caught.
+  - All full-game and research tests 145/145.
+  - `tsc` clean. Unit phase: see the PR.
+- **Byte identity of the published generator vs main:** identical on 2026-09-15, on 2026-10-07 before and after first pitch, and on today's slate. The only additions are #1048's private matchup-v1 shadow files.
 - **Today:** a dry run at 12:53Z gave 849831 → `NO_CONFIRMED_LINEUP` (correct: lineups post about 2 h before the start).
+
+## Dependency on #1043 (founder decision 2, 2026-10-10)
+
+Option A does **not** need #1043 as a whole. It needs only the **engine-level** rules, because the preregistered models (B / B2) were frozen under the official rules. This branch carries that subset **explicitly, opt-in and disclosed**:
+
+| From #1043 | In Option A minimal? |
+|---|---|
+| `EngineParams.rules`, `LEGACY_RULES` / `OFFICIAL_RULES_2026`, `automaticRunnerApplies`; walk-off winning-run-only; discard flag at the cap | **Yes**, in `engine.ts`. Absent `rules` = the published engine, byte for byte |
+| Rule 9.06(f) walk-off hit bases | **Yes**, in `engine.ts`, under the official rules only |
+| `GameInput.ruleset` / `rulesetBasis`; `board-adapter` `gameType` + `resolveRuleset` | **Yes** (type fields; one additive pure function) |
+| Generator `--rules` flag; `simulate.ts` discard / refusal and the `engineRules` output; frozen-carry `modelVersion`; `pipeline/mlb/mlb_stats.py` gameType; MLB-001 docs and comparison receipts | **No.** These stay in #1043 for its own approval |
+
+**Nothing public changes:** the published generator never passes `rules`, so pa-v3 stays opt-in. The full #1043 merge into the earlier draft is preserved at `claude/mlb-option-a-live-capture-with-1043` (`a0cb366a74`).
 
 ## Integration order and timing
 
-The branch contains **#1048 + #1043** (the `engine.ts` conflict is resolved; both fields kept) plus Option A, because the models need pa-v3 and the hooks. The options:
-
-| Option | Integrations | Notes |
-|---|---|---|
-| (a) | #1048 → #1043 (reconciled with this resolution) → Option A | Three approvals and three Production builds |
-| (b) | #1048 → Option A **including** #1043 | Two approvals. #1043's scope rides inside, as #1047 rides inside #1048 |
+The order is #1051 → #1048 → this branch (Option A minimal) → #1043, each with its own exact-head approval. #1043 then rebases onto this branch: its engine-level part becomes a no-op, and its remaining scope is the generator, simulate, frozen-carry and pipeline changes.
 
 **Tonight:**
 - 849831 starts 00:00Z (8 PM ET). Lineups usually post about 2 h earlier, and the workflow runs at 22:30Z and 23:30Z.
-- A capture tonight therefore needs Option A merged before about 23:15Z, which means every approval in the chosen chain today.
+- A capture tonight therefore needs #1048 and then this branch merged before about 23:15Z.
 - If that does not happen, the first live receipts come from the next slate. **Nothing is backfilled.**
