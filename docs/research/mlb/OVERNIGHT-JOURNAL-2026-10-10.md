@@ -178,3 +178,17 @@ Working log for the founder's overnight directive. **Not a roadmap.** The author
 - **`mlb-k-workload-v3`:** registered `dd406d91d8`. 2024 dev **−0.0138 [−0.0185, −0.0089]** (relief-to-start −0.234, openers −0.238); 2026 debug −0.0223; no 2026 posted-line gain (0.7079 vs 0.7074). Result `0091b6067d`.
 - **`mlb-coherent-worlds-v3` (home field):** registered `3b5f5cd7b9`. 2024 run in progress.
 - **Forward test B2** (v3 workload + engine next version): code generated and dry-run OK (10-07: 3 games, 6,000 worlds, 0 violations). It will be registered before tonight's first pitch, after the home-field result decides whether `engineB2` includes home field.
+
+### 07:10Z–07:25Z · home field result; forward test B2; #1049 hardening; #1043 CI
+- **`mlb-coherent-worlds-v3` (home field): DO_NOT_PROCEED.** Winner −0.0015 [−0.0036, +0.0004]. P(home) 0.500 → 0.518 (actual 0.527). TB at the margin (+0.0038 [+0.0026, +0.0050]).
+- **Forward test B2:** registered and frozen at **`2d83693e14`** (07:16:58Z), pushed.
+  - **Models:** `v3k` (k-workload-v3) and `engineB2` (substitution + v3 workload, **no** home field).
+  - **Guard:** `materialize-b2.sh` refuses code drift. B's guard still passes (`df30f710a2` model code unchanged).
+- **#1049** (draft, gated), head **`6dc4a51182`**:
+  - contradictory deployment evidence (READY at or after the actual start) no longer verifies; it is reported;
+  - 6 edge-case tests (early start, ms precision, cancelled, removal, whole committed history);
+  - mutation probe caught;
+  - Node-20.4 path fix;
+  - forecast-ledger 37/37; unit 9,231 / 9,236 before the fix (2 RLS + the fixed test).
+- **#1043** `be19ba7002`: CI **green** (`quality` ✓, `python` ✓), **CLEAN**. Now fully READY_FOR_FOUNDER_REVIEW.
+- **Option A** live-capture proposal written (design only).
