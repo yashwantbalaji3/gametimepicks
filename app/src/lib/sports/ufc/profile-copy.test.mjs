@@ -29,51 +29,87 @@ const R = {
 };
 const last = (...rs) => rs.map((result) => ({ result }));
 
-// ── (a) the weakness fallback ────────────────────────────────────────────────────────────────────
-test("(a) 'too few tracked losses' is never said of a fighter with 2+ tracked losses — Meerschaert (14) and Fili (13)", () => {
-  for (const [who, r, L] of [["Meerschaert", R.meerschaert, 14], ["Fili", R.fili, 13]]) {
-    const { weaknesses } = profileCopy(r, last("L", "L", "W", "L", "W"));
-    assert.equal(weaknesses.length, 1, `${who}: only the fallback fires`);
-    assert.doesNotMatch(weaknesses[0], /too few/i, `${who} has ${L} tracked losses`);
-    assert.match(weaknesses[0], new RegExp(`^No loss pattern clears our thresholds across ${L} tracked losses`));
+// ── (a) fallbacks say "too few" only when the sample is too few — and sit under unknowns ──────────────
+test("(a) 'too few' is never said of Meerschaert (14 losses) or Fili (13); with no edge, the line says so with n", () => {
+  for (const [who, r, line] of [
+    ["Meerschaert", R.meerschaert, "Neither a strength nor a weakness: 46% win rate across 26 tracked bouts (12-14)"],
+    ["Fili", R.fili, "Neither a strength nor a weakness: 50% win rate across 26 tracked bouts (13-13)"],
+  ]) {
+    const p = profileCopy(r, last("L", "L", "W", "L", "W"));
+    const all = [...p.strengths, ...p.weaknesses, ...p.tendencies, ...p.unknowns];
+    assert.ok(all.every((x) => !/too few/i.test(x)), `${who}: ${all.join(" | ")}`);
+    assert.deepEqual(p.unknowns, [line]);
+    assert.deepEqual(p.strengths, []);
+    assert.deepEqual(p.weaknesses, []);
   }
-  const m = profileCopy(R.meerschaert, []).weaknesses[0];
-  assert.match(m, /\(5 KO\/TKO, 3 submission, 6 decision\)/, "the loss split is printed, and sums to the loss count");
 });
 
-test("(a) 'too few' IS said below the 2-loss floor, with the count", () => {
-  assert.match(profileCopy(R.duncan, []).weaknesses[0], /Losses|No loss pattern/, "Duncan has exactly 2 losses: not 'too few'");
-  assert.doesNotMatch(profileCopy(R.duncan, []).weaknesses[0], /too few/i);
-  assert.match(profileCopy(R.harris, last("W")).weaknesses[0], /^No tracked losses — too few to name a pattern/);
-  assert.match(profileCopy(R.camilo, []).weaknesses[0], /^Only 1 tracked loss — too few to name a pattern/);
+test("(a) 'too few' IS said below each threshold, with the count, under unknowns — never as a strength", () => {
+  assert.deepEqual(profileCopy(R.shahbazyan, last("L")).unknowns, ["Only 1 tracked bout — too few to name a strength, weakness or tendency"]);
+  assert.deepEqual(profileCopy(R.camilo, []).unknowns, [
+    "Only 3 tracked bouts — too few to call a strength or weakness (needs 5)",
+    "Only 1 tracked loss — too few to say how fights are lost; absence of data, not absence of weakness",
+  ]);
+  assert.match(profileCopy(R.duncan, []).unknowns.join(" | "), /Only 2 tracked losses — too few to say how fights are lost/);
+  assert.match(profileCopy(R.harris, last("W")).unknowns[0], /^Only 1 tracked bout/);
+  for (const r of Object.values(R)) {
+    const p = profileCopy(r, []);
+    assert.ok([...p.strengths, ...p.weaknesses].every((x) => !/too few|neither/i.test(x)), "a fallback is never a strength or weakness");
+  }
 });
 
-test("the strengths fallback says 'too few' only when no strength rule could have fired", () => {
-  assert.match(profileCopy(R.shahbazyan, last("L")).strengths[0], /^Only 1 tracked bout — too few/, "singular, and too few is true");
-  assert.match(profileCopy(R.herbert, []).strengths[0], /^No strength pattern clears our thresholds across 9 tracked bouts$/);
+// ── strengths and weaknesses are outcome rates only ─────────────────────────────────────────────
+test("strengths and weaknesses measure winning or losing, nothing else", () => {
+  assert.deepEqual(profileCopy(R.allen, []).strengths, ["79% win rate across 19 tracked bouts (15-4)"]);
+  assert.deepEqual(profileCopy(R.bonfim, []).weaknesses, ["67% of tracked bouts are losses (4 of 6)"]);
+  for (const r of Object.values(R)) {
+    const p = profileCopy(r, []);
+    for (const x of p.strengths) assert.match(x, /^\d+% win rate across \d+ tracked bouts/);
+    for (const x of p.weaknesses) assert.match(x, /^\d+% of tracked bouts are losses/);
+  }
 });
 
-// ── (b) distance rate is not durability ──────────────────────────────────────────────────────────
-test("(b) a 1-5 fighter whose losses all went to the cards is not called durable — the line says what it measures", () => {
-  const s = profileCopy(R.prado, []).strengths;
-  assert.ok(s.every((x) => !/durable/i.test(x)), s.join(" | "));
-  assert.ok(s.includes("Often goes the distance — 5 of 6 tracked fights reached the judges"), s.join(" | "));
-  assert.ok(profileCopy(R.godinez, []).strengths.includes("Often goes the distance — 12 of 15 tracked fights reached the judges"));
+// ── (b) distance rate is not durability, and it is not a strength ───────────────────────────────
+test("(b) the distance line never appears in strengths — it is a tendency, with counts, and never 'durable'", () => {
+  for (const [r, line] of [[R.prado, "Often goes the distance — 5 of 6 tracked fights reached the judges"],
+                           [R.godinez, "Often goes the distance — 12 of 15 tracked fights reached the judges"]]) {
+    const p = profileCopy(r, []);
+    assert.ok(p.strengths.every((x) => !/distance|judges|durab/i.test(x)), p.strengths.join(" | "));
+    assert.ok(p.tendencies.includes(line), p.tendencies.join(" | "));
+    assert.ok([...p.strengths, ...p.weaknesses, ...p.tendencies, ...p.unknowns].every((x) => !/durab|tough|chin|defen/i.test(x)));
+  }
+});
+
+test("(b) tendencies require their sample threshold (3 in the denominator; 5 bouts for the distance line)", () => {
+  // 4 bouts, all decisions: distance rate 100%, but under 5 bouts — no distance tendency.
+  assert.deepEqual(profileCopy(rec({ n: 4, w: 2, decW: 2, decL: 2, dist: 4 }), []).tendencies, []);
+  // 2 wins, both finishes: finish rate 100%, but under 3 wins — no finish tendency.
+  assert.deepEqual(profileCopy(rec({ n: 4, w: 2, koW: 2, decL: 2, dist: 2 }), []).tendencies, []);
+  // 2 losses, both finishes: under 3 losses — no loss tendency (this used to fire at 2).
+  assert.ok(profileCopy(rec({ n: 6, w: 4, decW: 4, koL: 2, dist: 4 }), []).tendencies.every((x) => !/losses/i.test(x)));
+  // At the threshold, each fires.
+  assert.ok(profileCopy(rec({ n: 5, w: 3, koW: 3, decL: 2, dist: 2 }), []).tendencies[0].startsWith("Most wins come inside the distance — 3 of 3"));
+  assert.ok(profileCopy(rec({ n: 5, w: 2, decW: 2, koL: 3, dist: 2 }), []).tendencies.includes("Most losses come inside the distance — 3 of 3 (3 KO/TKO, 0 submission)"));
+  assert.ok(profileCopy(rec({ n: 5, w: 2, decW: 2, decL: 3, dist: 5 }), []).tendencies.includes("Often goes the distance — 5 of 5 tracked fights reached the judges"));
+  for (const r of Object.values(R)) if (r.n < 3) assert.deepEqual(profileCopy(r, []).tendencies, [], "under 3 bouts, no tendency at all");
 });
 
 // ── (c) the KO / submission split ────────────────────────────────────────────────────────────────
 test("(c) an even KO/submission split is not 'mostly by submission'", () => {
   const even = rec({ n: 8, w: 6, koW: 3, subW: 3, decL: 2, dist: 2 });
-  const f = profileCopy(even, []).strengths[0];
+  const f = profileCopy(even, []).tendencies[0];
   assert.doesNotMatch(f, /mostly/);
-  assert.equal(f, "Finishes fights — 6 of 6 wins inside the distance, by KO/TKO and submission alike (3 KO/TKO, 3 submission)");
+  assert.equal(f, "Most wins come inside the distance — 6 of 6, by KO/TKO and submission alike (3 KO/TKO, 3 submission)");
   const fiftyfive = rec({ n: 12, w: 9, koW: 5, subW: 4, decL: 3, dist: 3 });   // KO share 0.56
-  assert.match(profileCopy(fiftyfive, []).strengths[0], /alike \(5 KO\/TKO, 4 submission\)/);
+  assert.match(profileCopy(fiftyfive, []).tendencies[0], /alike \(5 KO\/TKO, 4 submission\)/);
 });
 
-test("(c) a lopsided split still says which way, with counts that agree", () => {
-  assert.match(profileCopy(R.allen, []).strengths[0], /9 of 15 wins inside the distance, mostly by submission \(2 KO\/TKO, 7 submission\)/);
-  assert.match(profileCopy(R.duncan, []).strengths[0], /5 of 8 wins inside the distance, mostly by KO\/TKO \(5 KO\/TKO, 0 submission\)/);
+test("(c) a lopsided split still says which way, with counts that agree — as a tendency, not a strength", () => {
+  const allen = profileCopy(R.allen, []);
+  assert.equal(allen.tendencies[0], "Most wins come inside the distance — 9 of 15, mostly by submission (2 KO/TKO, 7 submission)");
+  assert.ok(allen.tendencies.every((x) => !/^7 submission wins/.test(x)), "the method count is not repeated beside the split that already carries it");
+  assert.equal(profileCopy(R.duncan, []).tendencies[0], "Most wins come inside the distance — 5 of 8, mostly by KO/TKO (5 KO/TKO, 0 submission)");
+  assert.deepEqual(profileCopy(R.fili, []).tendencies, ["4 KO/TKO wins across 26 tracked bouts"], "15 of 26 (58%) is under the 60% distance bar");
 });
 
 test("summary: a winless fighter is not '0% of wins by finish', and counts sit beside every percentage", () => {
@@ -82,10 +118,9 @@ test("summary: a winless fighter is not '0% of wins by finish', and counts sit b
   assert.match(profileCopy(R.allen, last("W", "W", "L", "W", "W")).summary, /^4-1 in the last 5 tracked bouts\. 9 of 15 wins came by finish \(60%\); 8 of 19 tracked fights reached the judges \(42%\)\.$/);
 });
 
-test("weakness lines carry the counts their percentages rest on", () => {
-  const w = profileCopy(R.bonfim, []).weaknesses;
-  assert.ok(w.includes("Losses tend to come by finish — 4 of 4 tracked losses (3 KO/TKO, 1 submission)"), w.join(" | "));
-  assert.ok(w.includes("67% of tracked bouts are losses (4 of 6)"), w.join(" | "));
+test("loss tendencies carry the counts their percentages rest on, and say nothing about a chin", () => {
+  assert.ok(profileCopy(R.bonfim, []).tendencies.includes("Most losses come inside the distance — 4 of 4 (3 KO/TKO, 1 submission)"));
+  assert.ok(profileCopy(rec({ n: 19, w: 8, koW: 4, subW: 2, decW: 2, koL: 6, subL: 3, decL: 2, dist: 4 }), []).tendencies.includes("Most losses come inside the distance — 9 of 11 (6 KO/TKO, 3 submission)"));
 });
 
 test("second mentions use the surname, never a generational suffix", async () => {

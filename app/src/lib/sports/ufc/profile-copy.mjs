@@ -2,15 +2,15 @@
  * THE WORDS THE UFC CARD PRINTS ABOUT A FIGHTER'S TRACKED RECORD (UFC-001, 2026-10-10).
  *
  * Pure copy rules, imported by `scripts/ufc/build-ufc-card.mjs`. Nothing here touches a probability, a feature, a
- * threshold that selects a bout for modelling, or a grade: every rule fires on exactly the thresholds the builder used
- * before this file existed. What changed is that each sentence now says only what its counts support.
+ * threshold that selects a bout for modelling, or a grade. Each sentence says only what its counts support, and sits in
+ * the category it belongs to.
  *
  * Defects this replaced, each found on the 2026-10-10 card (UFC Fight Night: Allen vs. Duncan):
  *  - The empty-weakness fallback said "Too few tracked losses to name a pattern" for Meerschaert (14 tracked losses)
- *    and Fili (13). "Too few" is now said only when there are fewer losses than the loss rules need (2); otherwise the
- *    line says no rule cleared its threshold, with the loss count and how the losses came.
+ *    and Fili (13). "Too few" is now said only below the sample a rule needs, and it sits under `unknowns`.
  *  - "Durable — most tracked fights reach the judges" fired on distance rate >= 60%, which measures how often a
- *    fighter goes the distance, not durability; Francisco Prado (1-5, five decision losses) was called durable.
+ *    fighter goes the distance, not durability; Francisco Prado (1-5, five decision losses) was called durable. It is
+ *    now a neutral TENDENCY, not a strength (founder decision on PR #1059; see the categories below).
  *  - "Finishes fights — mostly by submission" printed whenever the KO share of finishes was under 60%, so a 50/50 split
  *    read as "mostly by submission". The split now has three states and prints the counts.
  *  - The basis note said a fighter "has no UFC history in our corpus" when that fighter had 1 tracked bout (the
@@ -35,61 +35,82 @@ export const lastName = (name) => {
 /** The label every tracked-record summary carries, so no renderer can present it as the model's reasoning. */
 export const RECORD_SUMMARY_LABEL = "From the tracked records (a summary, not the model's reasoning):";
 
-/** Losses below this count cannot trigger the loss-pattern rule, so "too few losses" is true only below it. */
-export const MIN_LOSSES_FOR_PATTERN = 2;
+/**
+ * FOUR CATEGORIES, KEPT APART (founder decision on PR #1059, 2026-10-10). A fighter profile carries:
+ *  - verified historical facts — `summary` (record, finishes, decisions, with counts) and the builder's `last5`;
+ *  - `strengths` / `weaknesses` — ONLY rules that measure an outcome advantage or disadvantage: winning or losing;
+ *  - `tendencies` — neutral descriptions of HOW a fighter's bouts go (finish split, decision frequency, how losses
+ *    came). A tendency is not an advantage: going the distance says nothing about durability, defence or toughness,
+ *    and being finished in losses says nothing about a chin. Each needs a minimum sample (below);
+ *  - `unknowns` — what the record is too thin to establish, said in so many words.
+ * There is no fifth category for model reasoning: none exists yet, and the per-bout line is a tracked-record summary.
+ */
+
+/** Every tendency rests on at least this many bouts in its own denominator (wins, losses, or all bouts). */
+export const TENDENCY_MIN_SAMPLE = 3;
+/** The decision-frequency tendency, and both outcome rules, need this many tracked bouts. */
+export const MIN_BOUTS_FOR_RATE = 5;
 
 /**
- * Strengths, weaknesses and the one-line summary for a fighter's tracked record.
+ * Profile copy for a fighter's tracked record.
  *
  * @param {{ n: number, w: number, koW: number, subW: number, decW: number, koL: number, subL: number, decL: number, dist: number }} r
  * @param {Array<{ result: "W" | "L" }>} last5 most recent first, at most five
+ * @returns {{ strengths: string[], weaknesses: string[], tendencies: string[], unknowns: string[], summary: string }}
  */
 export function profileCopy(r, last5) {
   const pct = (num, den) => (den > 0 ? num / den : 0);
   const L = r.n - r.w;
   const fin = r.koW + r.subW;
+  const finL = r.koL + r.subL;
   const finishRate = pct(fin, r.w);
   const koShare = pct(r.koW, fin);
-  const finishedRate = pct(r.koL + r.subL, L);
+  const finishedRate = pct(finL, L);
   const distanceRate = pct(r.dist, r.n);
   const winRate = pct(r.w, r.n);
+  const enoughBouts = r.n >= MIN_BOUTS_FOR_RATE;
 
   /* Neutral, evidence-specific phrasing (P241 · A23): no gendered pronouns, and a fallback never reads as a verdict. */
   const strengths = [];
-  if (r.w >= 3 && finishRate >= 0.6) {
-    const how = koShare >= 0.6 ? "mostly by KO/TKO" : koShare <= 0.4 ? "mostly by submission" : "by KO/TKO and submission alike";
-    strengths.push(`Finishes fights — ${fin} of ${r.w} wins inside the distance, ${how} (${r.koW} KO/TKO, ${r.subW} submission)`);
-  }
-  if (r.subW >= 3) strengths.push(`${r.subW} submission wins across ${countOf(r.n, "tracked bout")}`);
-  if (r.koW >= 3) strengths.push(`${r.koW} KO/TKO wins across ${countOf(r.n, "tracked bout")}`);
-  if (winRate >= 0.7 && r.n >= 5) strengths.push(`${Math.round(winRate * 100)}% win rate across ${r.n} tracked bouts (${r.w}-${L})`);
-  // Distance rate measures how often a fighter goes to the scorecards — wins and losses alike — not durability.
-  if (distanceRate >= 0.6 && r.n >= 5) strengths.push(`Often goes the distance — ${r.dist} of ${r.n} tracked fights reached the judges`);
+  if (enoughBouts && winRate >= 0.7) strengths.push(`${Math.round(winRate * 100)}% win rate across ${r.n} tracked bouts (${r.w}-${L})`);
 
   const weaknesses = [];
-  if (L >= MIN_LOSSES_FOR_PATTERN && finishedRate >= 0.6) {
-    weaknesses.push(`Losses tend to come by finish — ${r.koL + r.subL} of ${L} tracked losses (${r.koL} KO/TKO, ${r.subL} submission)`);
-  }
-  if (r.n >= 5 && winRate <= 0.45) weaknesses.push(`${Math.round((1 - winRate) * 100)}% of tracked bouts are losses (${L} of ${r.n})`);
-  if (r.w >= 3 && finishRate <= 0.2) weaknesses.push(`Rarely finishes — ${fin} of ${r.w} wins inside the distance`);
+  if (enoughBouts && winRate <= 0.45) weaknesses.push(`${Math.round((1 - winRate) * 100)}% of tracked bouts are losses (${L} of ${r.n})`);
 
-  /* Every strength rule needs 5+ bouts or 3+ wins; below both, "too few" is the truth. Above, no rule fired. */
-  if (!strengths.length) {
-    strengths.push(r.n < 5 && r.w < 3
-      ? `Only ${countOf(r.n, "tracked bout")} — too few to name a strength`
-      : `No strength pattern clears our thresholds across ${r.n} tracked bouts`);
+  const tendencies = [];
+  let splitShown = false;
+  if (r.w >= TENDENCY_MIN_SAMPLE && finishRate >= 0.6) {
+    const how = koShare >= 0.6 ? "mostly by KO/TKO" : koShare <= 0.4 ? "mostly by submission" : "by KO/TKO and submission alike";
+    tendencies.push(`Most wins come inside the distance — ${fin} of ${r.w}, ${how} (${r.koW} KO/TKO, ${r.subW} submission)`);
+    splitShown = true;
   }
-  if (!weaknesses.length) {
-    weaknesses.push(L < MIN_LOSSES_FOR_PATTERN
-      ? `${L === 0 ? "No tracked losses" : "Only 1 tracked loss"} — too few to name a pattern; absence of data, not absence of weakness`
-      : `No loss pattern clears our thresholds across ${L} tracked losses (${r.koL} KO/TKO, ${r.subL} submission, ${r.decL} decision)`);
+  if (r.w >= TENDENCY_MIN_SAMPLE && finishRate <= 0.2) tendencies.push(`Wins rarely come inside the distance — ${fin} of ${r.w}`);
+  if (L >= TENDENCY_MIN_SAMPLE && finishedRate >= 0.6) tendencies.push(`Most losses come inside the distance — ${finL} of ${L} (${r.koL} KO/TKO, ${r.subL} submission)`);
+  // Decision frequency, wins and losses alike. It describes how bouts end; it is NOT durability.
+  if (enoughBouts && distanceRate >= 0.6) tendencies.push(`Often goes the distance — ${r.dist} of ${r.n} tracked fights reached the judges`);
+  // Method counts; already inside the finish-split line when that line shows.
+  if (!splitShown && r.subW >= TENDENCY_MIN_SAMPLE) tendencies.push(`${r.subW} submission wins across ${countOf(r.n, "tracked bout")}`);
+  if (!splitShown && r.koW >= TENDENCY_MIN_SAMPLE) tendencies.push(`${r.koW} KO/TKO wins across ${countOf(r.n, "tracked bout")}`);
+
+  const unknowns = [];
+  if (r.n < TENDENCY_MIN_SAMPLE) {
+    unknowns.push(`Only ${countOf(r.n, "tracked bout")} — too few to name a strength, weakness or tendency`);
+  } else if (!enoughBouts) {
+    unknowns.push(`Only ${r.n} tracked bouts — too few to call a strength or weakness (needs ${MIN_BOUTS_FOR_RATE})`);
+  } else if (!strengths.length && !weaknesses.length) {
+    unknowns.push(`Neither a strength nor a weakness: ${Math.round(winRate * 100)}% win rate across ${r.n} tracked bouts (${r.w}-${L})`);
+  }
+  if (r.n >= TENDENCY_MIN_SAMPLE && L < TENDENCY_MIN_SAMPLE) {
+    unknowns.push(`${L === 0 ? "No tracked losses" : `Only ${countOf(L, "tracked loss", "tracked losses")}`} — too few to say how fights are lost; absence of data, not absence of weakness`);
   }
 
   const recent = last5.filter((b) => b.result === "W").length;
   const wins = r.w > 0 ? `${fin} of ${countOf(r.w, "win")} came by finish (${Math.round(finishRate * 100)}%)` : "No tracked wins";
   return {
-    strengths: strengths.slice(0, 3),
-    weaknesses: weaknesses.slice(0, 2),
+    strengths,
+    weaknesses,
+    tendencies: tendencies.slice(0, 3),
+    unknowns,
     summary: `${recent}-${last5.length - recent} in the last ${countOf(last5.length, "tracked bout")}. ${wins}; ${r.dist} of ${countOf(r.n, "tracked fight")} reached the judges (${Math.round(distanceRate * 100)}%).`,
   };
 }

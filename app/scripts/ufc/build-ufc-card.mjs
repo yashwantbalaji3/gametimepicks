@@ -245,14 +245,16 @@ function profileFor(name) {
   const key = nameKey(name);
   const log = logByKey.get(key) ?? [];
   const r = recByKey.get(key);
-  if (!r || r.n === 0) return { bouts: 0, last5: [], strengths: [], weaknesses: [], summary: null };
+  if (!r || r.n === 0) return { bouts: 0, last5: [], strengths: [], weaknesses: [], tendencies: [], unknowns: ["No tracked UFC bouts in our corpus"], summary: null };
 
   const last5 = log.slice(-5).reverse().map((b) => ({
     date: b.date, opponent: b.opponent, result: b.won ? "W" : "L",
     method: b.method, round: b.round, weightClass: b.weightClass,
   }));
-  const { strengths, weaknesses, summary } = profileCopy(r, last5);
-  return { bouts: r.n, record: { wins: r.w, losses: r.n - r.w }, last5, strengths, weaknesses, summary };
+  // Four categories, kept apart: facts (record, last5, summary), strengths/weaknesses (outcome rates only),
+  // neutral tendencies, and unknowns. See profile-copy.mjs.
+  const { strengths, weaknesses, tendencies, unknowns, summary } = profileCopy(r, last5);
+  return { bouts: r.n, record: { wins: r.w, losses: r.n - r.w }, last5, strengths, weaknesses, tendencies, unknowns, summary };
 }
 
 /**
