@@ -102,6 +102,57 @@ This is the **first audited change to immutable forecast fields**. The NFL prece
 
 Source: `data/internal/ops/forecast-of-record-shadow/classification.json`, with real first-pitch times and the exact deployment record. This report will be regenerated from that classification before any approval request.
 
+
+## Local implementation (founder decision 2, 2026-10-10) — built and validated, NOT applied
+
+**Scope:**
+- **21** games graded against a revision the site did not serve are restated to the served revision.
+- **4** never-public forecasts are marked `NOT_SERVED`: 824226, 824381, 824546, 823653.
+- **1** game is **held**: 824424. Its served revision was generated after the *scheduled* start but before the actual first pitch. The ledger's `eventStart` is the scheduled start and is immutable, so restating it needs your decision on the ledger's start time.
+- **211 unverified** games are untouched and keep their distinct classification.
+- Grade rows restated: 100. Ledger rows changed: 150, of which 24 become `NOT_SERVED`.
+
+**Report:** `reconciliation-v2-2026-10-10.{md,json}`. It holds every original and corrected forecast, probability and grade, the served-revision evidence, the ledger family of every changed row, before/after W–L–P, hit rate, log loss, Brier and calibration, published counts and denominators, model-health states, and the verification tests.
+
+**Headline (public rows):**
+- Moneyline 416–394 → 415–391, log loss 0.6993 → 0.6978. **Still worse than a coin flip (0.6931); WATCH stays WATCH.**
+- Run line 510–300 → 508–298 (HOLDING).
+- Total 376–391–38 → 374–390–37 (BREACHED).
+- **No model-health state changes. Nothing is unpaused.**
+- MLB public ledger forecasts 5,105 → 5,081 (24 never-public rows excluded and disclosed).
+
+| Piece | Where |
+|---|---|
+| Restatement log (`PROPOSED_NOT_APPLIED`, write-once, `--check` reproduces it byte for byte) | `data/internal/mlb/forecast-of-record-restatements/2026-10-10-truth-001.json`, from `app/scripts/mlb/build-forecast-of-record-restatements.mjs` |
+| Fail-closed rows-of-record reader (exact before-state assertion; unmatched, double or drifted entries refuse) | `app/src/lib/mlb/results/restatements.mjs` |
+| The one loader, approval-gated: **a log applies only when its status is `APPROVED`**, so committing a proposal changes nothing | `app/src/lib/mlb/results/grades-of-record-io.mjs` |
+| `forecast-ledger@1` amendment 1 (dated): `NOT_SERVED` is a ledger-file state, never a public-forecast state | `app/src/lib/forecast-ledger/contract.mjs` (`CONTRACT_AMENDMENTS`) |
+| Exact per-row, per-field guard (`RESTATEMENT_MISMATCH`; PUBLISHED → NOT_SERVED only when listed) | `app/src/lib/forecast-ledger/append-only.mjs` |
+| Audited migration `--restate <id>` (committed log required; forgiveness map derived, never typed; write-once receipt with complete old and new rows; refuses unless the whole run is clean) | `app/scripts/results/build-forecast-ledger.mjs` |
+| Readers that fail closed on `NOT_SERVED` | Forecast Record (counts, metrics, KPIs disclose `notServed`), Ask (state and words), family and history pages ("never publicly served — not counted") |
+| MLB readers on the one loader | Results day, Results overview, model-health scorecard, the ledger. Readers of official finals or first pitches only (live hub, My, leans-of-record, research contract, parity) are unaffected by a restatement |
+| Tests | `app/src/lib/mlb/results/restatements.test.mjs` (8). Unit suite 9,221/9,224 (2 Postgres-only failures); build OK; post-build 690/693 |
+
+**Local validation:**
+- `GTP_INCLUDE_PROPOSED_RESTATEMENTS=1 node app/scripts/results/build-forecast-ledger.mjs --restate 2026-10-10-truth-001 --dry-run` gives **150 rows restated, 0 violations**.
+- Without the opt-in, the MLB ledger and every Results surface are **unchanged**.
+
+## The approval PR (separate founder approval required) — exactly what it would do
+
+1. Set the log's `status` to `APPROVED`. That is the only change to the log; it remains write-once in content.
+2. Run `node app/scripts/results/build-forecast-ledger.mjs --now <ISO> --restate 2026-10-10-truth-001`. Commit the ledger and the write-once receipt `data/internal/forecast-ledger/v1/migrations/2026-10-10-truth-001.json`.
+3. Switch the `/saved` page's MLB ledger URL to the build-emitted `game-predictions-of-record.jsonl`. **Decide whether the stored grade log stays public:** today it is served only because that page names it.
+4. Regenerate the reconciliation report on the approved state and verify it in Production:
+   - Results day and overview W–L;
+   - the Forecast Record KPIs and the `notServed` disclosure;
+   - family pages;
+   - model-health states, which should stay unchanged.
+
+## Open decisions
+
+- **824424:** use the actual first pitch for the ledger's start in such cases (an immutable-field change, which needs its own amendment), or keep it held.
+- **The 211 unverified games:** they stay as graded and flagged until better publication evidence exists (#1046), and are never assumed unpublished.
+
 ## Approvals requested
 
 1. The mechanism: **Option A** with the ledger owner's conditions, plus the `NOT_SERVED` contract amendment.

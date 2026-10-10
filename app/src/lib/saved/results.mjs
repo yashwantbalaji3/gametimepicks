@@ -57,8 +57,11 @@ export function resolveResult(saved, ledgers, nowIso) {
 
 /** The ledger URLs the /saved page fetches — string literals on purpose: the export prune keeps any /data path a shipped file names. */
 export const LEDGER_URLS = Object.freeze({
-  // The public rows OF RECORD (TRUTH-001 Stage B), emitted at build time by scripts/results/emit-mlb-grades-of-record.mjs.
-  mlbGames: "/data/mlb/results/game-predictions-of-record.jsonl",
+  /* TRUTH-001 Stage B: until a restatement log is APPROVED the rows of record ARE the stored rows, so the browser keeps
+     the stored log (no public URL changes in the local implementation). The approval PR switches this to
+     "/data/mlb/results/game-predictions-of-record.jsonl" (emitted at build time) and decides whether the stored log
+     stays public — it is served today only because this literal names it. */
+  mlbGames: "/data/mlb/results/game-predictions-graded.jsonl",
   nfl: "/data/nfl/graded-picks.json",
   epl: "/data/epl/graded-picks.json",
   ufc: "/data/ufc/graded-picks.json",
