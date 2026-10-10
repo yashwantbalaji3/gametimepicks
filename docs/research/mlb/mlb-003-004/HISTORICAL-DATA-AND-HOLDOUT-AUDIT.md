@@ -48,3 +48,26 @@
 - per-PA handedness splits.
 
 **Scoring targets:** the actual counts, scored by log score and CRPS, plus threshold probabilities at fixed thresholds stated in each preregistration, since there are no posted lines.
+
+## Data-quality validation (2026-10-10; `validate-boxscore-history.mjs` → `boxscore-validation.json`)
+
+**What checks out:**
+
+| Check | 2024 | 2025 | 2026 |
+|---|---|---|---|
+| Games | 2,472 | 2,477 | 2,482 |
+| Opposing pitchers' runs = official linescore final | **2,429 / 2,429** | **2,430 / 2,430** | — |
+| Missing player ids, duplicate players, K > BF, IP ≠ outs | 0 | 0 | 0 |
+| Batting PA, K, H, BB and HR against opposing pitching | 0 mismatches | 0 mismatches | 0 mismatches |
+
+**Known capture limitation: pinch runners.**
+- The capture keeps a batting line only with PA > 0. A pinch runner who scores without a plate appearance is dropped.
+- So team **batting** runs undercount the final in about 9% of games: 215 in 2024, 203 in 2025, 217 opposing-runs mismatches in 2026. They also show 72–85 apparent "ties" per season.
+- **Rule:** team runs always come from the **opposing pitchers' runs allowed**, which are complete. Starting batters' own lines (the evaluation targets) are unaffected, because every starter has PA > 0.
+- **Effect on the frozen replay:** it used batting runs for its run-environment input (`teamRunsAllowed`, league runs per game). That input is slightly understated, consistently across teams. It is recorded here as a limitation of a frozen design and is not changed.
+
+**Other anomalies:**
+- 2 games in 2024 with other than one starter per team.
+- 1 game per season with fewer than 24 defensive outs that is not marked Completed Early (suspended or resumed games).
+
+They are kept as captured.
