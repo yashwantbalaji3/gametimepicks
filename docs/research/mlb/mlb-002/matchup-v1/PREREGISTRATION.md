@@ -37,7 +37,7 @@ The approach is DIPS-style: pitchers control strikeouts, walks and home runs, an
 - **Starter:** season to date, with BF ≈ 4.25 × IP (no hits-allowed data is captured), shrunk with **K 70, BB 170, HR 500 BF**.
 - **Starter K rate:** the board's `pitcher_strikeouts` projection ÷ 25 BF when present (the engine's existing source), else season to date.
 - **League constants** (K%, BB%, HR/PA): pooled from the 2026 batter-splits captures dated **in the dev window only**, frozen before the holdout is read.
-- **Slot PA:** the PA-by-slot table measured on the published engine (4.69 … 3.81), as recorded in the MLB-001 audit receipts.
+- **Slot PA:** the league PA-by-slot reference already in the repository: `PA_BY_SLOT` in `app/scripts/capture-mlb-pregame-pa-opportunity.mjs` (1: 4.65, 2: 4.55, 3: 4.45, 4: 4.35, 5: 4.25, 6: 4.10, 7: 4.00, 8: 3.90, 9: 3.75). See amendment 1.
 
 **Missing data (never invented):**
 - A batter with no split, or no captured hand, uses league rates for the matchup terms and keeps his board projection.
@@ -87,3 +87,13 @@ The base inputs (board, team markets, confirmed lineups) are rebuilt from the co
 - Any feature captured after the forecast time or after first pitch.
 - Holdout results read before this file was committed, or settings changed after reading them.
 - Arms run on different inputs or seeds.
+
+## Amendment 1 (2026-10-10, before any challenger result was computed)
+
+The registered text named "the PA-by-slot table measured on the published engine (4.69 … 3.81), as recorded in the MLB-001 audit receipts". The audit recorded only the two endpoints, not the table.
+
+Re-measuring now would give a fixture-dependent table: an average-offense fixture gives 4.89 … 4.00. More importantly, it would be the wrong quantity. A batter's per-game projection reflects his **real-world** plate appearances for his slot, so it should be divided by the **league's** expected PA for that slot, not by the engine's simulated PA.
+
+The challenger therefore uses the repository's documented league reference `PA_BY_SLOT`. It was fixed before this registration, and its commit history shows it predates this file.
+
+Nothing else changes. This amendment is committed before the harness first runs.
