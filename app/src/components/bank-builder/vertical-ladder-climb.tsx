@@ -239,7 +239,8 @@ export default function VerticalLadderClimb({ lane }: { lane: ClimbLane }) {
               ["Stake", money(lane.stake), "var(--vault-text)"],
               ["To win", money(lane.potentialReturn), "var(--vault-gold-bright)"],
               ["Profit", profit != null ? `+${money(profit)}` : "—", "var(--vault-success)"],
-              ["Seed", money0(isActive ? 100 : null), "var(--gtp-bank-heat)"],
+              // TRUTH-001: the seed is what a loss costs the core bankroll; the stake above includes rolled wins.
+              ["At risk (seed)", money0(isActive ? 100 : null), "var(--gtp-bank-heat)"],
             ] as Array<[string, string, string]>).map(([k, v, c]) => (
               <div key={k} className="rounded-lg px-2 py-1.5 text-center" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 4%, transparent)", border: "1px solid var(--vault-rule)" }}>
                 <div className="font-mono tabular font-bold leading-tight" style={{ color: c, fontSize: 12.5 }}>{v}</div>

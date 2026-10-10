@@ -17,9 +17,16 @@ import { GAME_MARKETS } from "../mlb/prediction/grade-games.mjs";
 const APP = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 
-test("the committed record reconciles: family counts sum to the ledger row count, families are exactly the three", () => {
+test("the committed record reconciles: family counts sum to the ledger row count, families are the known markets", () => {
   const rec = JSON.parse(read("public/data/mlb/results/game-predictions-record.json"));
-  assert.deepEqual(Object.keys(rec.families).sort(), [...GAME_MARKETS].sort());
+  // TRUTH-001: GAME_MARKETS gained `run_line_posted` (decision engine v2). A record written before that carries
+  // the three v1 markets; the next grading run writes all four. Either way every family in the record is a
+  // known market, and a known market the record lacks has no ledger row (nothing graded goes uncounted).
+  const families = Object.keys(rec.families);
+  for (const f of families) assert.ok(GAME_MARKETS.includes(f), `unknown family ${f}`);
+  for (const m of ["moneyline", "total", "run_line"]) assert.ok(families.includes(m), m);
+  const ledgerMarkets = new Set(read("public/data/mlb/results/game-predictions-graded.jsonl").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l).market));
+  for (const m of GAME_MARKETS.filter((x) => !families.includes(x))) assert.equal(ledgerMarkets.has(m), false, `${m} graded but not in the record`);
   const familySum = Object.values(rec.families).reduce((s, f) => s + f.n, 0);
   assert.equal(familySum, rec.counts.rows, "families must recount to the ledger — a drifted summary is a hand-written number");
   for (const f of Object.values(rec.families)) {
