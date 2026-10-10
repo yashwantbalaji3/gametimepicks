@@ -107,3 +107,22 @@ How much would be gained if the opportunity were known?
 | H+R+RBI (actual PA) | 1.799 | 1.745 | −0.054 |
 
 Opportunity (workload and plate appearances) is the largest remaining error, which motivated `mlb-k-workload-v3` (`docs/research/mlb/mlb-004/k-workload-v3/`).
+
+## v3: home field (`PREREGISTRATION-V3-HOME-FIELD.md`; a disclosed third look at 2024) → **`DO_NOT_PROCEED`**
+
+`coherence-2024-dev-v3-hfa.json`. 4,014,000 more worlds, 0 violations. Final league multipliers:
+- home batters: K ×0.985, BB ×1.023, HR ×1.022;
+- away batters: K ×1.015, BB ×0.978, HR ×0.979.
+
+| | Engine v3 (home field) | Engine v2 | League baseline |
+|---|---|---|---|
+| Winner log loss (1,956 games) | 0.6837 | 0.6852 | 0.6927 |
+| Mean P(home) (actual 0.527) | **0.518** | 0.500 | — |
+
+- **Primary, winner v3 − v2:** −0.0015 [−0.0036, +0.0004]. The interval includes 0, so **DO_NOT_PROCEED**.
+- **Total-runs log score v3 − v2:** −0.0001 [−0.0100, +0.0099].
+- **Players against v2 analytic:** K −0.0082, hits +0.0005, HR +0.0001, runs −0.0012, RBI −0.0001, H+R+RBI +0.0018. **TB +0.0038 [+0.0026, +0.0050] sits at the margin, so it is reported as failing.**
+
+**Reading:**
+- The home-field term corrects the bias in P(home) (0.500 → 0.518), but the gain in winner log loss is not established on one development season.
+- It is not carried into forward test B2.
