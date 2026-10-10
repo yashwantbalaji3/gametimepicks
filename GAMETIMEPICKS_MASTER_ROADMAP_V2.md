@@ -2027,6 +2027,24 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - The 7-day comparison against 70.2 builds/day continues. Billed CPU needs the Vercel dashboard (founder).
 - **Sunday (P0):** 14/14 Week 5 games are on 2.2.0. The kickoff refresh runs every 30 minutes from 09:00Z. PHI @ JAX (London) kicks off at 13:30Z. CHI's Caleb Williams is QUESTIONABLE.
 
+### 2026-10-10 — Claude Code (CI stabilization) — `CI-001` class; `PARLAY-001`, `RESULTS-001` / `NFL-005` — combined stabilization of #1051 + #1054
+- **Why combined:** #1051 failed only the published-parlays guard (phase 2) and #1054 failed only Results parity §1b (phase 1), so each was red on the other's fix. One branch, `claude/ci-stabilization-1051-1054`, from `origin/main` `78bd32c530`. It supersedes both; neither is closed here.
+- **§1b (from #1051, `RESULTS-001` / `NFL-005`):** `a712611079` cherry-picked with `-x`, unchanged. It includes the 2026-10-10 Lane B entry above.
+- **Published-parlays guard (from #1054, `PARLAY-001`):**
+  - The window 10-08 / 10-09 / 10-10 was genuinely empty. 10-09 had no MLB game (`no_events`). 10-08 and 10-10 were single-game CWS/CLE slates: Low got 1 and 0 eligible legs (it needs 2), and Medium+ need 3+ legs at most 2 per game.
+  - The guard could not tell this from a silently stopped optimizer. The producer now writes a `generationReceipt` (`receiptKind: PRODUCER`). The judge (`lib/ask/parlay-window-evidence.mjs`) accepts an empty window only on verified evidence; missing, failed, stale, invalid and unexplained cases fail.
+- **Decision B′ (founder, 2026-10-10):**
+  - The three pre-receipt snapshots stay byte-identical.
+  - `pipeline/optimizer_reconstruction.py` wrote RECONSTRUCTED receipts (`data/internal/parlays/optimizer-reconstruction/`). Each records:
+    - the actual creation time, with `genuineProducerReceipt: false`;
+    - the snapshot's path, git commit and sha256;
+    - each board's path, commit and sha256;
+    - the as-of selection policy and market reliability, each with path, parent commit and sha256, stored verbatim.
+  - Replay reproduces the sections, leg pool, buckets, totalSlips and sourcePools exactly for all three dates.
+  - The guard accepts them only through `RECONSTRUCTED_RECEIPT_ALLOWLIST` (those three dates, bound by snapshot sha256, only where no genuine receipt exists). `pipeline/optimizer_reconstruction_test.py` re-runs the replay in the `python` job.
+- **Not changed:** NFL settlement, NFL projection producers, optimizer slip selection, workflows, `vercel.json`. No paid APIs.
+- **Rule (`CI-001`, restated):** an empty rolling window is accepted only on producer evidence. Historical reconstruction is a founder decision, scoped by an explicit allowlist and never a general bypass.
+
 ---
 
 # 26. Immediate execution waves
