@@ -70,6 +70,7 @@ import { PLAYER_ROW, WINDOWS } from "../../src/lib/research-pages/player-read-mo
 import { legIsMarketContext, marketContextFamilies } from "../../src/lib/parlays/card-leg-eligibility.mjs";
 import { getRiskBucketForCombinedOdds, PUBLIC_RISK_LABELS } from "../../src/lib/parlays/risk-odds-bands.mjs";
 import { publishedBandRecord } from "../../src/lib/parlays/published-band-record.mjs";
+import { snapshotEvidence, windowAudit } from "../../src/lib/ask/parlay-window-evidence.mjs";
 import { resultsDay, resultsDayDates } from "../../src/lib/results/v2/day.ts";
 import { productReceiptDates, productReceiptsFor } from "../../src/lib/results/v2/product-receipts.ts";
 import { forecastRecordView, familyHref, readForecastLedger } from "../../src/lib/results/v2/forecast-ledger-reader.ts";
@@ -481,7 +482,22 @@ function buildParlays(days = 3) {
   /* F-1: the card-leg rule at WRITE time too (the tool applies it again at read). The coverage document is the
      same one this script publishes as coverage.json, from lib/market-coverage.ts. */
   const marketContext = marketContextFamilies(buildCoverage());
-  const files = (fs.existsSync(dir) ? fs.readdirSync(dir) : []).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().slice(-days);
+  const datedIn = (d) => (fs.existsSync(d) ? fs.readdirSync(d) : []).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
+  const allFiles = datedIn(dir);
+  const files = allFiles.slice(-days);
+  /*
+   * THE EVIDENCE CONTRACT (lib/ask/parlay-window-evidence.mjs). The boards each sport's lean loader reads
+   * (pipeline/snapshot_parlays.py), so the projection can say whether the run's inputs are still the inputs
+   * on disk, and which upstream dates have no snapshot at all.
+   */
+  const BOARD_DIRS = { nba: path.join(APP, "public/data/boards"), mlb: path.join(APP, "public/data/mlb/boards") };
+  const boardNow = (sport, date) => {
+    const p = path.join(BOARD_DIRS[sport], `${date}.json`);
+    if (!fs.existsSync(p)) return null;
+    try { const b = JSON.parse(fs.readFileSync(p, "utf8")); return { generatedAt: b?.generatedAt ?? null }; } catch { return { generatedAt: "unreadable" }; }
+  };
+  const failureDir = path.join(dir, "run-failures");
+  const failures = Object.fromEntries(datedIn(failureDir).map((f) => [f.replace(".json", ""), JSON.parse(fs.readFileSync(path.join(failureDir, f), "utf8"))]));
 
   const byDate = {};
   for (const file of files) {
@@ -580,15 +596,28 @@ function buildParlays(days = 3) {
       /* Session 5 · B4: candidates with an unpriced leg — no combined price, so no risk band. */
       unbanded,
       bandedBy: "combined price, canonical bands (risk-odds-bands.ts)",
+      /* The producer's generation receipt, cross-checked against this snapshot and the boards on disk. An empty
+         day is accepted by the published-artifact guard ONLY on this — never because the array is empty. */
+      evidence: snapshotEvidence(date, doc, Object.fromEntries(Object.keys(BOARD_DIRS).map((sp) => [sp, boardNow(sp, date)]))),
     };
-    notes.push(`parlays ${date} ${Object.entries(profiles).map(([k, v]) => `${k}:${v.length}`).join(" ")}`);
+    notes.push(`parlays ${date} ${Object.entries(profiles).map(([k, v]) => `${k}:${v.length}`).join(" ")} · receipt ${byDate[date].evidence.receipt}${byDate[date].evidence.outcome ? ` ${byDate[date].evidence.outcome}` : ""}`);
   }
+  const audit = windowAudit({
+    windowDates: Object.keys(byDate).sort(),
+    snapshotDates: allFiles.map((f) => f.replace(".json", "")),
+    boardDates: [...new Set(Object.values(BOARD_DIRS).flatMap((d) => datedIn(d).map((f) => f.replace(".json", ""))))],
+    failures,
+  });
+  if (audit.missingSnapshots.length) notes.push(`parlays: NO optimizer snapshot for board date(s) ${audit.missingSnapshots.join(", ")}`);
+  if (audit.failedRuns.length) notes.push(`parlays: optimizer FAILED for ${audit.failedRuns.map((f) => f.date).join(", ")}`);
 
   return {
     schemaVersion: ASK_PROJECTION_SCHEMA_VERSION,
     artifact: "ask-parlays",
     dates: Object.keys(byDate).sort(),
     byDate,
+    /* What the projection can see beyond the snapshots it read: upstream dates with no snapshot, failed runs. */
+    windowAudit: audit,
     /*
      * NO APPROVED PRICE-AWARE EV OWNER EXISTS. Stated in the artifact, not only in a comment, so the
      * tool layer and its tests read the same fact from the same place (§36).
