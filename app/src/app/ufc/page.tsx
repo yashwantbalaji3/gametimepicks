@@ -22,6 +22,7 @@ import Explain from "@/components/ui/explain";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, sportPanelReads } from "@/lib/top-reads";
 import UfcCard, { type UfcCardArtifact } from "@/components/sports/ufc-card";
+import UfcPredictionBoard from "@/components/ufc/prediction-board";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import path from "node:path";
@@ -148,7 +149,26 @@ export default function UfcArchivePage() {
       <SportSwitcher current="ufc" />
       <HubTitle model={__hubModel} />
       <SportHubNav sport="ufc" />
-      <section id="ufc-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
+      {/* UFC-001 · UX Phase A: the prediction board IS this hub's events section — every bout once, main event first,
+          the published winner probability and the experimental method lean, each row opening its bout report. It reads
+          the same card artifact as /ufc/bout/[boutId]. Without a card, the shared hub header renders as before. */}
+      <section id="ufc-games" className="scroll-mt-24 flex flex-col gap-2">
+        {card?.bouts?.length ? (
+          <>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 20, fontWeight: 800 }}>
+                Fight card &amp; predictions
+              </h2>
+              <span className="font-mono" style={{ fontSize: 11, color: "var(--vault-text-mute)" }}>
+                {card.bouts.length} bouts · {card.bouts.filter((b) => b.prediction?.winner).length} with a model pick · experimental
+              </span>
+            </div>
+            <UfcPredictionBoard card={card} />
+          </>
+        ) : (
+          <HubHeader model={__hubModel} />
+        )}
+      </section>
       <header id="ufc-overview" className="flex flex-col gap-2 scroll-mt-24">
         <div className="flex flex-wrap items-center gap-2">
           {/* P246 a11y: HubTitle above already carries the page's one <h1>; this local title was a
