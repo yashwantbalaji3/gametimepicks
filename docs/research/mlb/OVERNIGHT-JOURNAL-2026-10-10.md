@@ -203,3 +203,18 @@ Working log for the founder's overnight directive. **Not a roadmap.** The author
 - **Amendment 3:** the window is the scheduled start, as the frozen code does. No game affected. Code review found no defect.
 - **Safety sweep:** since 06:00Z the only `main` commit is a bot data commit. Vercel shows no Preview, and no deployment from any branch of mine.
 - **Stopped at 07:43Z (03:43 EDT).** The remaining items need founder decisions, or would be further looks at 2024 (overfitting risk). The next evidence is tonight's forward games.
+
+### 2026-10-10 morning (12:44Z–13:30Z) · founder morning review → checkpoint
+- **#1048:**
+  - merged `main` `59dae7317a` (bot data only), roadmap reconciliation added; exact head **`6a4a620d830c86900f51266bf3b94b531e942d28`**;
+  - byte identity ×4, including today's live 10-10 slate; fault injection 6/6; scope 19 files, none in forbidden paths;
+  - CI: `python` ✓, `quality` ✗ only on `projection-parity §1b`, **which fails on `main` too** (NFL `graded-picks.json` → `recordBasis: MIXED` at the 07:14 ET settle);
+  - NFL owner messaged. Not merged.
+- **Forward tests:** B / B2 / B-GAMES classified `PREREGISTERED_REPLAY` (evidence audit `8db78131c6`); not live forecasts.
+- **Option A (draft PR #1050)**, branch `claude/mlb-option-a-live-capture` `a0cb366a74`, stacked on #1048, with #1043 merged:
+  - live capture + verifier + workflow steps + research state;
+  - equivalence 192/192 against the frozen replays;
+  - tests 4/4 (mutation-probed); unit 9,249 / 9,254 (2 RLS + the main-wide parity failure); `tsc` clean;
+  - found and fixed a duplicate-import merge defect in the generator, plus a parse guard.
+- **#1043:** `modelVersion` investigation posted (confined to `frozenPregame`; no hash, grade or reader impact). Walk-off fix verified.
+- **MLB-005:** next-milestone plan v4 (`7f4ebc57b2`).
