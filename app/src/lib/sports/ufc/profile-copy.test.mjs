@@ -197,6 +197,8 @@ test("3. the no-clause fallback keeps its coin-flip discipline (P213 R-C3)", () 
 test("SOURCE PIN · the builder imports the copy rules and no longer carries the misleading strings or comment", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "scripts/ufc/build-ufc-card.mjs"), "utf8");
   assert.match(src, /from "\.\.\/\.\.\/src\/lib\/sports\/ufc\/profile-copy\.mjs"/);
+  assert.match(src, /const \{ strengths, weaknesses, tendencies, unknowns, summary \} = profileCopy\(r, last5\);/);
+  assert.match(src, /last5, strengths, weaknesses, tendencies, unknowns, summary \};/, "the builder publishes each category in its own field");
   for (const bad of [
     /Too few tracked losses to name a pattern/,
     /Durable — /,
