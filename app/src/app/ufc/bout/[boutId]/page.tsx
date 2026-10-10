@@ -159,7 +159,7 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
 
       {/*
         ── What this read rests on, ABOVE the first number ─────────────────────────────────────
-        The artifact types the BASIS of every bout — both fighters known, one debut, or refused —
+        The artifact types the BASIS of every bout — both fighters known, one with fewer than 2 tracked bouts, or refused —
         and the note is the producer's own sentence. A reader who stops after the headline
         probability has still been told how much history is behind it.
       */}

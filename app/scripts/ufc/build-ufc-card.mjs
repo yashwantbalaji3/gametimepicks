@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, fitPlatt, applyPlatt, nameKey, tottFeat } from "./lib/fight-model.mjs";
 import { titleFightFromProvider } from "../../src/lib/sports/ufc/title-fight.mjs";
 import { pregameCardFreeze } from "../../src/lib/sports/ufc/fight-day-freeze.mjs";
+import { profileCopy, basisNoteFor, recordSummary } from "../../src/lib/sports/ufc/profile-copy.mjs";
 
 
 /*
@@ -237,7 +238,8 @@ function featuresFor(nameA, nameB, weightClass, scheduled, whenMs) {
 /**
  * The reader-facing profile for one fighter: recent form, a short read on how they win and how they
  * lose, all derived from the corpus. Nothing here is written by hand — a claim like "dangerous early"
- * has to fall out of that fighter's own finish distribution or it does not appear.
+ * has to fall out of that fighter's own finish distribution or it does not appear. The wording rules
+ * live in src/lib/sports/ufc/profile-copy.mjs, where each one is tested against its counts.
  */
 function profileFor(name) {
   const key = nameKey(name);
@@ -249,66 +251,22 @@ function profileFor(name) {
     date: b.date, opponent: b.opponent, result: b.won ? "W" : "L",
     method: b.method, round: b.round, weightClass: b.weightClass,
   }));
-
-  const pct = (num, den) => (den > 0 ? num / den : 0);
-  const finishRate = pct(r.koW + r.subW, r.w);
-  const koShare = pct(r.koW, r.koW + r.subW);
-  const finishedRate = pct(r.koL + r.subL, r.n - r.w);
-  const distanceRate = pct(r.dist, r.n);
-  const winRate = pct(r.w, r.n);
-
-  /* Neutral, evidence-specific phrasing (P241 · A23): these templates used generic male pronouns
-     on every profile — including women's bouts — and the empty-weakness fallback claimed "no
-     consistent weakness", which reads as a scouting verdict when it only means the data ran out. */
-  const strengths = [];
-  if (r.w >= 3 && finishRate >= 0.6) strengths.push(koShare >= 0.6 ? "Finishes fights — mostly by knockout" : "Finishes fights — mostly by submission");
-  if (r.subW >= 3) strengths.push(`${r.subW} career submission wins in this corpus`);
-  if (r.koW >= 3) strengths.push(`${r.koW} career knockouts in this corpus`);
-  if (winRate >= 0.7 && r.n >= 5) strengths.push(`${Math.round(winRate * 100)}% win rate across ${r.n} tracked bouts`);
-  if (distanceRate >= 0.6 && r.n >= 5) strengths.push("Durable — most tracked fights reach the judges");
-
-  const weaknesses = [];
-  if (r.n - r.w >= 2 && finishedRate >= 0.6) weaknesses.push("Losses tend to come by finish rather than decision");
-  if (r.n >= 5 && winRate <= 0.45) weaknesses.push(`${Math.round((1 - winRate) * 100)}% of tracked bouts are losses`);
-  if (r.w >= 3 && finishRate <= 0.2) weaknesses.push("Rarely finishes — needs the judges");
-  if (!strengths.length) strengths.push(`${r.n} tracked bouts — too few clear tendencies to call out`);
-  if (!weaknesses.length) weaknesses.push("Too few tracked losses to name a pattern — absence of data, not absence of weakness");
-
-  const recent = last5.filter((b) => b.result === "W").length;
-  return {
-    bouts: r.n, record: { wins: r.w, losses: r.n - r.w },
-    last5, strengths: strengths.slice(0, 3), weaknesses: weaknesses.slice(0, 2),
-    summary: `${recent}-${last5.length - recent} in the last ${last5.length}. ${Math.round(finishRate * 100)}% of wins come by finish; ${Math.round(distanceRate * 100)}% of fights reach the judges.`,
-  };
+  const { strengths, weaknesses, summary } = profileCopy(r, last5);
+  return { bouts: r.n, record: { wins: r.w, losses: r.n - r.w }, last5, strengths, weaknesses, summary };
 }
 
 /**
- * WHY this fighter, in one line — assembled from the features that actually moved the prediction,
- * never from a template. If nothing separates them, it says that instead of inventing a reason.
+ * A ONE-LINE SUMMARY OF THE TWO TRACKED RECORDS beside the pick — NOT the model's reason for it. The
+ * clauses come from raw tracked rates against fixed thresholds; the winner head also weighs the
+ * tale of the tape (age, reach, height, stance), which this line never reads, and its largest
+ * contribution is often one of those. The sentence labels itself accordingly (profile-copy.mjs).
  */
-function reasonFor(pickName, otherName, pWin, method, rounds) {
-  const A = recByKey.get(nameKey(pickName)), B = recByKey.get(nameKey(otherName));
-  if (!A || !B) return null;
-  const rate = (num, den, fallback) => (den > 0 ? num / den : fallback);
-  const bits = [];
-  const winA = rate(A.w, A.n, 0.5), winB = rate(B.w, B.n, 0.5);
-  if (winA - winB >= 0.12) bits.push(`wins ${Math.round(winA * 100)}% of tracked bouts to ${otherName.split(" ").pop()}'s ${Math.round(winB * 100)}%`);
-  const finA = rate(A.koW + A.subW, A.w, 0), finishedB = rate(B.koL + B.subL, B.n - B.w, 0);
-  if (finA >= 0.55 && finishedB >= 0.5) bits.push(`finishes ${Math.round(finA * 100)}% of wins, and ${otherName.split(" ").pop()} has been finished in ${Math.round(finishedB * 100)}% of losses`);
-  else if (finA >= 0.6) bits.push(`${Math.round(finA * 100)}% of wins come by finish`);
-  const expEdge = A.n - B.n;
-  if (Math.abs(expEdge) >= 8) bits.push(expEdge > 0 ? `${A.n} tracked bouts against ${B.n}` : `the shorter record is ${pickName.split(" ").pop()}'s (${A.n} vs ${B.n}), so the read leans on the opponent's history`);
-  if (!bits.length) {
-    /* P213 R-C3: this fallback claimed "close to a coin flip" at ANY probability — it rendered
-       "70% is close to a coin flip" on a real bout. Coin-flip language is earned only near 50%;
-       otherwise the honest sentence is that the number rests on inputs beyond the headline stats. */
-    const pct = Math.round(pWin * 100);
-    return pct >= 45 && pct <= 55
-      ? `The model separates these two by very little — ${pct}% is close to a coin flip, and nothing in either record breaks the tie cleanly.`
-      : `The model reads it ${pct}% — nothing in either tracked record separates them cleanly, so the number rests on the model's wider inputs rather than a headline stat.`;
-  }
-  const tail = method === "DEC" ? "and the matchup profiles as one that reaches the judges" : `and the finish profile points to a ${method === "KO" ? "knockout" : "submission"}`;
-  return `${pickName} ${bits.slice(0, 2).join(", ")} — ${tail}.`;
+function summaryFor(pickName, otherName, pWin, method) {
+  return recordSummary({
+    pick: pickName, other: otherName,
+    A: recByKey.get(nameKey(pickName)), B: recByKey.get(nameKey(otherName)),
+    pWin, method,
+  });
 }
 
 // ── Card ────────────────────────────────────────────────────────────────────────────────────────
@@ -388,17 +346,16 @@ for (const c of event.competitions ?? []) {
       } : null,
       priorFights,
       basis: bothKnown ? "BOTH_FIGHTERS" : "ONE_FIGHTER_DEBUT",
-      basisNote: bothKnown
-        ? null
-        : "One fighter has no UFC history in our corpus, so this read leans on the established fighter's record and league-average priors for the newcomer. Treat it as weaker than a bout where both sides are known.",
+      basisNote: bothKnown ? null : basisNoteFor(priorFights, nameA, nameB),
     };
   }
 
   const redProfile = profileFor(red.name);
   const blueProfile = profileFor(blue.name);
+  // `reason` keeps its field name for every consumer; its content is a tracked-record summary (see summaryFor).
   const reason = prediction?.winner
-    ? reasonFor(prediction.winner.name, prediction.winner.name === red.name ? blue.name : red.name,
-                prediction.winner.probability, prediction.method?.most ?? "DEC", prediction.rounds?.endsIn ?? "3+")
+    ? summaryFor(prediction.winner.name, prediction.winner.name === red.name ? blue.name : red.name,
+                 prediction.winner.probability, prediction.method)
     : null;
 
   card.push({

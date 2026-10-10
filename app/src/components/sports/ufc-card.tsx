@@ -45,7 +45,10 @@ export type UfcBout = {
     method: { most: string; probabilities: { ko: number; submission: number; decision: number } } | null;
     rounds: { endsIn: string; probabilities: { round1: number; round2: number; round3plus: number }; goesTheDistance: number } | null;
     priorFights: { a: number; b: number };
-    /** One line on WHY this fighter, assembled from the features that moved the prediction. */
+    /**
+     * A one-line summary of the two TRACKED RECORDS beside the pick, labelled as such in its own text. It is not the
+     * model's reason: it reads raw tracked rates and none of the tale-of-the-tape inputs the winner head also uses.
+     */
     reason?: string | null;
     basis?: string;
     basisNote?: string | null;
