@@ -494,14 +494,25 @@ function buildParlays(days = 3) {
   const boardNow = (sport, date) => {
     const p = path.join(BOARD_DIRS[sport], `${date}.json`);
     if (!fs.existsSync(p)) return null;
-    try { const b = JSON.parse(fs.readFileSync(p, "utf8")); return { generatedAt: b?.generatedAt ?? null }; } catch { return { generatedAt: "unreadable" }; }
+    const raw = fs.readFileSync(p);
+    const sha256 = crypto.createHash("sha256").update(raw).digest("hex");
+    try { const b = JSON.parse(raw.toString("utf8")); return { generatedAt: b?.generatedAt ?? null, sha256 }; } catch { return { generatedAt: "unreadable", sha256 }; }
+  };
+  /* Decision B′: RECONSTRUCTED receipts for the pre-receipt period (pipeline/optimizer_reconstruction.py). Read
+     only for the snapshot dates in the window; the judge accepts one only on its explicit allowlist. */
+  const reconDir = path.join(REPO, "data/internal/parlays/optimizer-reconstruction/receipts");
+  const reconstructionFor = (date) => {
+    const p = path.join(reconDir, `${date}.json`);
+    return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, "utf8")) : null;
   };
   const failureDir = path.join(dir, "run-failures");
   const failures = Object.fromEntries(datedIn(failureDir).map((f) => [f.replace(".json", ""), JSON.parse(fs.readFileSync(path.join(failureDir, f), "utf8"))]));
 
   const byDate = {};
   for (const file of files) {
-    const doc = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+    const rawSnapshot = fs.readFileSync(path.join(dir, file));
+    const snapshotSha256 = crypto.createHash("sha256").update(rawSnapshot).digest("hex");
+    const doc = JSON.parse(rawSnapshot.toString("utf8"));
     const date = String(doc.date ?? file.replace(".json", ""));
     const profiles = {};
     const bandSlips = {};
@@ -598,7 +609,10 @@ function buildParlays(days = 3) {
       bandedBy: "combined price, canonical bands (risk-odds-bands.ts)",
       /* The producer's generation receipt, cross-checked against this snapshot and the boards on disk. An empty
          day is accepted by the published-artifact guard ONLY on this — never because the array is empty. */
-      evidence: snapshotEvidence(date, doc, Object.fromEntries(Object.keys(BOARD_DIRS).map((sp) => [sp, boardNow(sp, date)]))),
+      evidence: snapshotEvidence(date, doc, Object.fromEntries(Object.keys(BOARD_DIRS).map((sp) => [sp, boardNow(sp, date)])), {
+        snapshotSha256,
+        reconstruction: reconstructionFor(file.replace(".json", "")),
+      }),
     };
     notes.push(`parlays ${date} ${Object.entries(profiles).map(([k, v]) => `${k}:${v.length}`).join(" ")} · receipt ${byDate[date].evidence.receipt}${byDate[date].evidence.outcome ? ` ${byDate[date].evidence.outcome}` : ""}`);
   }

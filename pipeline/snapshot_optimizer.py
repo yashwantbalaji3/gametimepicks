@@ -339,6 +339,10 @@ def build_generation_receipt(
 
     return {
         "receiptVersion": RECEIPT_VERSION,
+        # Provenance: written by the producer during the run it describes. A
+        # receipt reconstructed later by replay is RECONSTRUCTED and never
+        # lives here (see pipeline/optimizer_reconstruction.py).
+        "receiptKind": "PRODUCER",
         "producer": "pipeline.snapshot_optimizer",
         "status": "completed",
         "date": date,

@@ -57,6 +57,7 @@ class ReceiptClassification(unittest.TestCase):
         r = _receipt(inputs={"nba": _ev(present=False, parsed=False, games=0, leans=0), "mlb": _ev(games=1, leans=41)},
                      legs=_legs(37, 1), diagnostics=diag)
         self.assertEqual(r["status"], "completed")
+        self.assertEqual((r["receiptKind"], r["producer"]), ("PRODUCER", "pipeline.snapshot_optimizer"))
         self.assertEqual(r["outcome"], "NO_ELIGIBLE_SLIPS")
         self.assertEqual(r["legPool"], {"totalLegs": 37, "distinctGames": 1})
         self.assertEqual(r["publicSections"]["low"]["emptyReason"], "insufficient_eligible_legs")

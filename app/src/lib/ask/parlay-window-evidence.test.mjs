@@ -11,7 +11,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { judgeParlayWindow, snapshotEvidence, windowAudit, PARLAY_DAY_VERDICT as V } from "./parlay-window-evidence.mjs";
+import { judgeParlayWindow, snapshotEvidence, windowAudit, PARLAY_DAY_VERDICT as V, RECONSTRUCTED_RECEIPT_ALLOWLIST as ALLOW } from "./parlay-window-evidence.mjs";
 
 const SECTIONS = { low: 2, medium: 3, high: 4, longshot: 5 };
 const clone = (x) => JSON.parse(JSON.stringify(x));
@@ -39,7 +39,7 @@ function snapshot({ date, games = 1, legs = 37, eligible = { low: 1, medium: 1, 
   const doc = { date, generatedAt: gen, totalSlips: publicSlips, legPool, publicRiskSections };
   if (receipt) {
     doc.generationReceipt = {
-      receiptVersion: 1, producer: "pipeline.snapshot_optimizer", status: "completed", date, generatedAt: gen,
+      receiptVersion: 1, receiptKind: "PRODUCER", producer: "pipeline.snapshot_optimizer", status: "completed", date, generatedAt: gen,
       outcome: publicSlips ? "SLIPS_BUILT" : b.games === 0 && b.leans === 0 ? "NO_QUALIFYING_GAMES" : "NO_ELIGIBLE_SLIPS",
       inputs: {
         nba: { present: false, parsed: false, games: null, leansLoaded: 0, generatedAt: null, pendingReason: null },
@@ -59,14 +59,17 @@ function snapshot({ date, games = 1, legs = 37, eligible = { low: 1, medium: 1, 
 }
 
 /** Assemble the projection's parlays.json the way buildParlays does: one day per snapshot + the window audit. */
-function project(snaps, boards, { failures = {}, extraBoardDates = [], askSlips = {}, withheld = {} } = {}) {
+function project(snaps, boards, { failures = {}, extraBoardDates = [], askSlips = {}, withheld = {}, recons = {}, shas = {} } = {}) {
   const byDate = {};
   for (const [date, doc] of Object.entries(snaps)) {
     byDate[date] = {
       date, generatedAt: doc.generatedAt,
       profiles: askSlips[date] ? { LOW: Array.from({ length: askSlips[date] }, () => ({ sport: "MLB" })) } : {},
       withheldMarketContext: withheld[date] ?? 0,
-      evidence: snapshotEvidence(date, doc, { mlb: boards[date] ? { generatedAt: boards[date].generatedAt } : null, nba: null }),
+      evidence: snapshotEvidence(date, doc, { mlb: boards[date] ? { generatedAt: boards[date].generatedAt, sha256: boards[date].sha256 ?? null } : null, nba: null }, {
+        snapshotSha256: shas[date] ?? ALLOW[date] ?? `sha-of-${date}`,
+        reconstruction: recons[date] ?? null,
+      }),
     };
   }
   const dates = Object.keys(byDate).sort();
@@ -193,8 +196,6 @@ test("MUTATION incomplete / self-contradicting receipts each fail", () => {
   const mutations = {
     "status not completed": (d) => { d.generationReceipt.status = "partial"; },
     "receipt from another run": (d) => { d.generationReceipt.generatedAt = "2026-10-09T09:00:00+00:00"; },
-    "receipt slip count disagrees": (d) => { d.generationReceipt.publicSlips = 3; },
-    "receipt leg count disagrees": (d) => { d.generationReceipt.legPool.totalLegs = 99; },
     "receipt for another date": (d) => { d.generationReceipt.date = "2026-10-09"; },
     "unknown receipt version": (d) => { d.generationReceipt.receiptVersion = 2; },
     "section missing from the snapshot": (d) => { delete d.publicRiskSections.high; },
@@ -206,6 +207,26 @@ test("MUTATION incomplete / self-contradicting receipts each fail", () => {
     mutate(snaps["2026-10-10"]);
     const j = judgeParlayWindow(project(snaps, boards));
     assert.ok(j.fatal.some((f) => f.startsWith(V.STALE_OR_INCOMPLETE)), `${name}: expected STALE_OR_INCOMPLETE, got ${JSON.stringify(j.fatal)}`);
+  }
+});
+
+test("MUTATION mismatched counts: a receipt whose slip or leg count contradicts its snapshot is invalid evidence", () => {
+  for (const mutate of [(r) => { r.publicSlips = 3; }, (r) => { r.legPool.totalLegs = 99; }]) {
+    const { boards, snaps } = realWindow();
+    mutate(snaps["2026-10-10"].generationReceipt);
+    fails(judgeParlayWindow(project(snaps, boards)), V.INVALID_EVIDENCE);
+  }
+});
+
+test("MUTATION fabricated: a genuine-looking receipt without producer provenance is rejected", () => {
+  for (const mutate of [
+    (r) => { delete r.receiptKind; },
+    (r) => { r.producer = "hand-edited"; },
+    (r) => { r.receiptKind = "RECONSTRUCTED"; r.genuineProducerReceipt = false; }, // a reconstruction smuggled into the snapshot
+  ]) {
+    const { boards, snaps } = realWindow();
+    mutate(snaps["2026-10-10"].generationReceipt);
+    fails(judgeParlayWindow(project(snaps, boards)), V.INVALID_EVIDENCE, /producer provenance/);
   }
 });
 
@@ -266,4 +287,101 @@ test("a day built by an older projection (no evidence block) is incomplete, not 
   const old = clone(doc);
   delete old.byDate["2026-10-10"].evidence;
   fails(judgeParlayWindow(old), V.STALE_OR_INCOMPLETE, /no evidence block/);
+});
+
+/* ─────────────────────────────  DECISION B′: RECONSTRUCTED RECEIPTS  ───────────────────────────── */
+
+/** Turn the fixture window into the pre-receipt shape: no genuine receipt, one RECONSTRUCTED receipt per date. */
+function reconstructedWindow() {
+  const { boards, snaps } = realWindow();
+  const recons = {};
+  for (const [date, doc] of Object.entries(snaps)) {
+    boards[date].sha256 = `board-sha-${date}`;
+    const g = doc.generationReceipt;
+    delete doc.generationReceipt;
+    const { generatedAt, receiptKind, producer, status, date: _d, ...classification } = g;
+    recons[date] = {
+      receiptKind: "RECONSTRUCTED", genuineProducerReceipt: false, receiptVersion: 1,
+      reconstructor: "pipeline.optimizer_reconstruction", reconstructedAt: "2026-10-10T14:29:52+00:00", date,
+      snapshot: { path: `app/public/data/parlays/optimizer/${date}.json`, gitCommit: "c0ffee", sha256: ALLOW[date], generatedAt: doc.generatedAt },
+      inputs: { boards: { mlb: { present: true, sha256: boards[date].sha256 }, nba: { present: false } } },
+      reproduction: { publicRiskSectionsEqual: true, legPoolLegsEqual: true, bucketsEqual: true, totalSlipsEqual: true, sourcePoolsEqual: true, reproduced: true },
+      classification,
+    };
+  }
+  return { boards, snaps, recons };
+}
+
+test("B′: the allowlist names exactly the three pre-receipt dates, each bound to a sha256", () => {
+  assert.deepEqual(Object.keys(ALLOW).sort(), ["2026-10-08", "2026-10-09", "2026-10-10"]);
+  for (const h of Object.values(ALLOW)) assert.match(h, /^[0-9a-f]{64}$/);
+});
+
+test("B′: verified RECONSTRUCTED receipts for the allowlisted snapshots pass, and say they are reconstructed", () => {
+  const { boards, snaps, recons } = reconstructedWindow();
+  const j = judgeParlayWindow(project(snaps, boards, { recons }));
+  assert.deepEqual(j.fatal, []);
+  assert.deepEqual(j.days.map((d) => d.verdict), [V.EMPTY_EVIDENCED, V.NO_QUALIFYING_GAMES, V.EMPTY_EVIDENCED]);
+  assert.ok(j.days.every((d) => d.evidenceKind === "reconstructed" && /RECONSTRUCTED receipt/.test(d.detail)));
+});
+
+const reconFails = (mutate, verdict = V.INVALID_EVIDENCE, re) => {
+  const w = reconstructedWindow();
+  const opts = mutate(w) ?? {};
+  fails(judgeParlayWindow(project(w.snaps, w.boards, { recons: w.recons, ...opts })), verdict, re);
+};
+
+test("B′ MUTATION fabricated: a RECONSTRUCTED receipt claiming to be genuine is rejected", () => {
+  reconFails((w) => { w.recons["2026-10-10"].genuineProducerReceipt = true; }, V.INVALID_EVIDENCE, /declare itself RECONSTRUCTED/);
+  reconFails((w) => { w.recons["2026-10-10"].receiptKind = "PRODUCER"; }, V.INVALID_EVIDENCE, /declare itself RECONSTRUCTED/);
+});
+
+test("B′ MUTATION fabricated: a reconstruction backdated to the original run is rejected", () => {
+  reconFails((w) => { w.recons["2026-10-10"].reconstructedAt = w.snaps["2026-10-10"].generatedAt; }, V.INVALID_EVIDENCE, /contemporaneous/);
+});
+
+test("B′ MUTATION mismatched: snapshot hash, board hash, counts, reason and reproduction", () => {
+  reconFails(() => ({ shas: { "2026-10-10": "f".repeat(64) } }), V.INVALID_EVIDENCE, /not the allowlisted one/); // committed snapshot changed
+  reconFails((w) => { w.recons["2026-10-10"].snapshot.sha256 = "e".repeat(64); }, V.INVALID_EVIDENCE, /different snapshot/);
+  reconFails((w) => { w.boards["2026-10-10"].sha256 = "changed"; }, V.INVALID_EVIDENCE, /board sha256/);
+  reconFails((w) => { w.recons["2026-10-10"].classification.legPool.totalLegs = 99; }, V.INVALID_EVIDENCE, /legs/);
+  reconFails((w) => { w.recons["2026-10-10"].classification.publicSlips = 2; }, V.INVALID_EVIDENCE, /public slips/);
+  reconFails((w) => { w.recons["2026-10-10"].classification.legPool.distinctGames = 3; }, V.MISSING_EVIDENCE, /not explained/);
+  reconFails((w) => { w.recons["2026-10-10"].reproduction.legPoolLegsEqual = false; }, V.INVALID_EVIDENCE, /did not reproduce/);
+  reconFails((w) => { delete w.recons["2026-10-10"].reproduction; }, V.INVALID_EVIDENCE, /did not reproduce/);
+  reconFails((w) => { w.recons["2026-10-10"].snapshot.generatedAt = "2026-10-10T00:00:00+00:00"; }, V.INVALID_EVIDENCE, /original generatedAt/);
+});
+
+test("B′ MUTATION a reconstruction for a date outside the allowlist is rejected", () => {
+  const w = reconstructedWindow();
+  const date = "2026-10-07";
+  w.boards[date] = board({ date, games: 4, leans: 163 });
+  w.boards[date].sha256 = "board-sha-07";
+  w.snaps[date] = snapshot({ date, legs: 35, eligible: { low: 1, medium: 2, high: 3, longshot: 3 }, games: 1, b: w.boards[date] });
+  const { generatedAt, receiptKind, producer, status, date: _d, ...classification } = w.snaps[date].generationReceipt;
+  delete w.snaps[date].generationReceipt;
+  w.recons[date] = { ...clone(w.recons["2026-10-10"]), date, classification,
+    snapshot: { sha256: `sha-of-${date}`, generatedAt: w.snaps[date].generatedAt }, inputs: { boards: { mlb: { present: true, sha256: "board-sha-07" } } } };
+  fails(judgeParlayWindow(project(w.snaps, w.boards, { recons: w.recons })), V.INVALID_EVIDENCE, /outside the pre-receipt allowlist/);
+});
+
+test("B′ MUTATION a reconstruction where a genuine receipt exists, or after the first genuine receipt, is rejected", () => {
+  // both kinds for one date
+  const a = reconstructedWindow();
+  const real = realWindow();
+  a.snaps["2026-10-10"] = real.snaps["2026-10-10"];
+  a.boards["2026-10-10"] = { ...real.boards["2026-10-10"], sha256: a.boards["2026-10-10"].sha256 };
+  fails(judgeParlayWindow(project(a.snaps, a.boards, { recons: a.recons })), V.INVALID_EVIDENCE, /has a genuine receipt/);
+  // genuine on 10-08, reconstruction on 10-10 → the pre-receipt period is over
+  const b = reconstructedWindow();
+  b.snaps["2026-10-08"] = real.snaps["2026-10-08"];
+  delete b.recons["2026-10-08"];
+  fails(judgeParlayWindow(project(b.snaps, b.boards, { recons: b.recons })), V.INVALID_EVIDENCE, /already records genuine ones/);
+});
+
+test("B′ MUTATION stale, missing and failed still fail with reconstructions present", () => {
+  reconFails((w) => { w.boards["2026-10-10"].generatedAt = "2026-10-10T13:00:00+00:00"; }, V.STALE_OR_INCOMPLETE, /regenerated/);
+  reconFails((w) => { delete w.recons["2026-10-09"]; }, V.MISSING_EVIDENCE, /no generation receipt/);
+  reconFails(() => ({ extraBoardDates: ["2026-10-11"] }), V.MISSING_OUTPUT);
+  reconFails(() => ({ failures: { "2026-10-10": { attemptedAt: "2026-10-10T15:00:00+00:00", errorType: "KeyError" } } }), V.FAILED_RUN);
 });
