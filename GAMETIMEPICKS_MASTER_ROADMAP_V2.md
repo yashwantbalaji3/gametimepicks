@@ -1110,8 +1110,14 @@ Hard invariants: player minutes = 240 regulation + 25 per OT; five players on co
 # 11. UFC roadmap
 
 ## `UFC-001` — Near-term truthful operations
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS (founder directive 2026-10-10: primary priority for the Oct 10 card)
 Use existing Saturday/U1/U2 work only after current-main refresh.
+
+Slices (state on `main` 5ed6f6bc51, 2026-10-10):
+- **U2 odds join:** on `main` (`62c5a7dd19`, `fe38220e45`). Do not redo it. The remaining U2 items (plain labels; athlete ids on model-vs-market rows) are not on `main`.
+- **U3 claims copy (D2 HONEST):** rebuilt on fresh `main` as branch `claude/ufc-001-u3-claims-copy`; not merged. The department bundle was not cherry-picked.
+- **U1 grader retirement and readiness split (D1 YES):** not on `main`. It must land apart from Product Engine 4D.
+- **U4 Gall v Dumas:** D3 is still open; no correction is made.
 
 ## `UFC-002` — World/process model
 **Status:** NOT_STARTED
@@ -1225,6 +1231,12 @@ Every metric links to all underlying forecasts with date/event/subject/target/li
 
 ### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
 - Needed from RESULTS-001 for NFL: per-family metrics for World Model V2 records (MAE / CRPS / 80% coverage for yards and receptions; Brier / log loss / calibration bands for TD families), and champion/challenger tables (old version, new version, period, n, metrics, reason, rollback rule). No combined accuracy % across incompatible families.
+
+### Open follow-up (recorded 2026-10-10, founder directive): Ask's NFL accuracy answer under a MIXED record
+- **What happens:** since the NFL graded-picks owner became `recordBasis: MIXED`, there is no pooled NFL cell. Ask GameTime answers "How accurate is the NFL model?" with "no graded forecast record is designated" and states no accuracy.
+- **Why it matters:** per-basis NFL records do exist. The answer may fail to explain them.
+- **Context:** #1055 changed only the Ask eval expectation (`res-06`), deriving it from the artifact. Ask's answer was not changed.
+- **Next step:** a separately reviewed product-truth correction, owned by Lane B (NFL / Results) with Ask. Not started.
 
 ## `RESULTS-002` — Product results
 **Status:** NOT_STARTED
@@ -2044,6 +2056,77 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - The guard accepts them only through `RECONSTRUCTED_RECEIPT_ALLOWLIST` (those three dates, bound by snapshot sha256, only where no genuine receipt exists). `pipeline/optimizer_reconstruction_test.py` re-runs the replay in the `python` job.
 - **Not changed:** NFL settlement, NFL projection producers, optimizer slip selection, workflows, `vercel.json`. No paid APIs.
 - **Rule (`CI-001`, restated):** an empty rolling window is accepted only on producer evidence. Historical reconstruction is a founder decision, scoped by an explicit allowlist and never a general bypass.
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — #1055 release record (`CI-001` class, `PARLAY-001`, `RESULTS-001` / `NFL-005`)
+- **What merged:** #1055 (CI stabilization, superseding #1051 and #1054), at founder-approved exact head `24a0781bff9ffcf7887f4e99f8d70930c9d49ea3`, with `--match-head-commit`.
+  - Merge commit `4d7163eab72836e915103e7d89de637c99c2ee46`, 15:34:52Z.
+  - All 10 pre-merge conditions were re-checked at that head:
+    - CI green and CLEAN; scope 18 files;
+    - optimizer snapshots 10-08/09/10 byte-identical;
+    - receipts `RECONSTRUCTED` / `genuineProducerReceipt: false` with the three-date hash allowlist;
+    - evidence and parity tests 41 / 41; Python receipt tests 14 / 14;
+    - the NFL MIXED mutation fails as intended;
+    - the only `parlay_optimizer.py` change is additive diagnostics;
+    - no deployment in flight.
+- **Production:**
+  - Vercel's deployment for the merge was superseded by the next data commit. The live build `38e61bd2c2` (built 15:40:47Z) contains the merge.
+  - Routes `/`, `/results/`, `/results/picks/`, `/nfl/`, `/ufc/`, `/cage-chaos/`, `/mr-dub/`, `/mlb/` and `/ask/` return 200.
+  - Live `nfl/graded-picks.json` is byte-identical to before the merge.
+  - No `app/public/data` change under parlays, bank-builder or NFL between pre-merge `main` and the deployed commit (#1055 changed no public data).
+  - `quality` ✓ and `python` ✓ on the merge commit: **shared CI is restored**.
+- **Closed:** #1051 and #1054, as superseded, with their evidence linked.
+- **Pending confirmation:** the next morning-projections run should write a genuine `PRODUCER` receipt. This is to be confirmed on the 10-11 snapshot.
+- **Follow-ups (founder):**
+  - remove the reconstruction allowlist after 10-10 leaves the window (about 10-13);
+  - the Ask NFL accuracy answer (recorded under `RESULTS-001`).
+- **Vercel:** 1 Production build for the merge (superseded by the next data build); Preview 0.
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — #1053 release record (`UFC-001`)
+- **What merged:** #1053 (title fight only on provider evidence; fight-day freeze for the card build and odds capture), at founder-approved exact head `a0e2eab703f7e36bdff00cf6ee62a8e6d16a1fe7`, with `--match-head-commit`.
+  - Merge commit `c95658c1856c4608abc39e2fea0b8dcceb77ea14`, 16:14:11Z.
+  - The 10 pre-merge conditions were re-checked at that head:
+    - CI ✓✓ and CLEAN; scope 7 files;
+    - 12/12 bouts match live ESPN (athlete ids, rounds, times, status); 1 five-round bout and 0 title flags;
+    - title and freeze tests 8 / 8;
+    - the card differs from `main`'s only in `titleFight` and `generatedAt`;
+    - the odds change is only the start-time refusal;
+    - no PR integration in flight.
+- **Production:** the live build `c95658c185` (16:19:33Z) contains the merge.
+  - `/ufc`, `/ufc/bout/401916276`, `/ufc/bout/401927415`, `/cage-chaos` and `/mr-dub` return 200, and "title fight" appears on none of them.
+  - The hub shows "updated Oct 10, 10:05 AM ET", 12 scheduled bouts (7 at 5 PM ET, 5 at 8 PM ET) and "MAIN EVENT · MIDDLEWEIGHT · 5 ROUNDS".
+  - All 11 forecasts are identical to before the merge (Duncan 50.2%, …). Frye vs. Harris is still shown as not modelled.
+  - Mobile (375 px): no horizontal scroll, no console errors.
+  - `odds-latest.json` (captured 2026-10-08 17:39Z), the model-vs-market snapshots and `graded-picks.json` are unchanged by #1053.
+- **Freeze:** verified on the merged code before the merge. A rebuild at 21:40Z keeps the pregame card; the odds capture after the start exits 3 before any call.
+- **Fight-week run 38065746333** (15:58Z, before the merge):
+  - 1 credit spent; the push failed, so nothing landed.
+  - Root cause (OPS-002): an untracked tier-grid collision with a hidden rebase error.
+  - Fix prepared as #1056 (OPS-001a), not merged.
+  - The Oct 8 prices are kept with their original timestamp (founder decision); no re-run.
+- **Vercel:** 1 Production build for the merge; Preview 0.
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — `UFC-001` U3
+- Starting main SHA: `5ed6f6bc51`.
+- Branch: `claude/ufc-001-u3-claims-copy`.
+- Goal: founder directive (Oct 10): remove the unsupported UFC superiority claims (D2 HONEST, approved 2026-10-07) before the Oct 10 card.
+- Reproduced:
+  - Production says the UFC model "beat its baseline on every head", that all three heads "cleared theirs, which no other model here has done", and that it is "the one model on the site" to do so (`/cage-chaos`, `/ufc/bout/*`, and the Cage Chaos product basis shown on `/mr-dub`, `/goal-rush` and `/bucket-blitz`);
+  - the live graded winner record (`model-health` `ufc_winner`, n = 60) is WATCH / BELOW_BAR, and the market leads it.
+- Decisions made: none new; D2's wording is applied as approved.
+- Files and contracts changed:
+  - `app/src/app/cage-chaos/page.tsx`, `app/src/app/ufc/bout/[boutId]/page.tsx`, `app/src/lib/products/signature-products.ts` (copy only);
+  - `app/src/app/ufc/page.tsx`: the claim that prices "ARE shown on the paper cards below" was false, because the ladder is refused by the capability registry and no paper card renders. It now says so (copy only);
+  - new guard `app/src/lib/uiux/ufc-claims-copy.test.mjs`;
+  - this roadmap.
+  - No probability, model, version, receipt, eligibility, Results, odds or accounting change. The Ask projection does not carry the removed wording, so no regeneration is needed.
+- Local checks:
+  - the guard passes on the fix and fails on `main`'s copy (mutation);
+  - every `uiux` guard, sport-lab cards, the UFC library and every test naming the product or routes: 282 / 282;
+  - `tsc` clean; `ask:check` up to date;
+  - local `npm run build` succeeded, and the built `/cage-chaos`, `/mr-dub` and `/ufc/bout/*` carry the new wording and none of the old;
+  - rendered guards 689 / 693 (3 skipped). The 1 failure is the main-wide parlay vacuity guard (`ask-published.test.mjs:56`), which is not caused by this change.
+- Result: a PR is ready for exact-head approval; not merged.
+- Vercel: Preview 0; Production 0 (one on merge).
 
 ---
 

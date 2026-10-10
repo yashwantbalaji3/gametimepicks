@@ -1,8 +1,8 @@
 /**
  * /cage-chaos — the UFC signature product's own page (P251 · F4).
  *
- * Cage Chaos is the only model on this site that beat its baseline on every head it was tested on,
- * and it had no home: /mr-dub's "Open →" dropped a reader at the top of the UFC hub. This is the
+ * Cage Chaos is the UFC model's product view (an experimental model: tested on past fights, winner
+ * forecasts graded on every new card — founder decision D2, 2026-10-07), and it had no home: /mr-dub's "Open →" dropped a reader at the top of the UFC hub. This is the
  * product view — the whole card ranked by how decisively the model reads each bout, with the three
  * heads' held-out evidence, and every row opening its own bout report.
  */
@@ -49,9 +49,10 @@ export default function CageChaosPage() {
           How each fight ends — and in which round
         </h1>
         <p className="m-0 max-w-[68ch]" style={{ color: "var(--vault-text-mute)", fontSize: 14, lineHeight: 1.6 }}>
-          Three heads, evaluated separately: who wins, how it ends, and how far it goes. Each publishes only on its own
-          PASS verdict against a bar frozen before it was fitted — and all three cleared theirs, which no other model
-          here has done.
+          Three heads, evaluated separately: who wins, how it ends, and how far it goes. Each was tested on past
+          fights it never trained on before it was published. This is an experimental model: winner forecasts are
+          graded on every new card, method and round are not yet graded, and it has not been shown to have an edge
+          over the market.
         </p>
       </header>
 
