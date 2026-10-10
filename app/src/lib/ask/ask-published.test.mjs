@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 
 import { ASK_ASSET_PREFIX, ASK_BUDGET, ASK_EXPECTED_PARLAY_SPORTS } from "./contract.mjs";
 import { canEnterPredictionProducts, canShowLiveProjections, capabilityOf } from "../sport-capability-registry.ts";
+import { judgeParlayWindow } from "./parlay-window-evidence.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const PUB = path.join(APP, "out", ASK_ASSET_PREFIX.replace(/^\//, ""));
@@ -53,7 +54,20 @@ test("no published parlay candidate belongs to a sport barred from prediction pr
      non-vacuous if the projection RECORDS what it withheld (proof the pipeline ran and judged real slips). */
   const withheld = Object.values(parlays.byDate ?? {}).reduce((n, d) => n + (d.withheldMarketContext ?? 0), 0);
   if (checked === 0) console.log(`# no published candidate to check; ${withheld} withheld under the card-leg rule`);
-  assert.ok(checked > 0 || withheld > 0, "no candidates were checked AND none were withheld — this guard would pass vacuously");
+  /*
+   * AN EMPTY WINDOW IS ACCEPTED ONLY ON PRODUCER EVIDENCE (lib/ask/parlay-window-evidence.mjs). On 2026-10-10 the
+   * window was 10-08 / 10-09 / 10-10: an off day and two single-game slates on which the optimizer's own rules admit
+   * no slip — correct, and indistinguishable here from an optimizer that had silently stopped. The judge accepts an
+   * empty window only when every day carries the optimizer's generation receipt and that receipt's own counts
+   * explain the emptiness (NO_QUALIFYING_GAMES, or NO_ELIGIBLE_SLIPS with a verifiable reason per section). Missing
+   * output, a failed run, a stale or self-contradicting receipt, or an empty day without a receipt still fail —
+   * and the window checks (missing / failed / stale) fail even when other days carry candidates.
+   */
+  const judged = judgeParlayWindow(parlays);
+  for (const d of judged.days) console.log(`# parlay window ${d.date}: ${d.verdict}${d.legacy ? " (pre-receipt)" : ""} — ${d.detail}`);
+  assert.equal(judged.checked, checked, "the judge and this guard counted different candidates");
+  assert.equal(judged.withheld, withheld, "the judge and this guard counted different withholdings");
+  assert.deepEqual(judged.fatal, [], `the published parlay window is not trustworthy:\n  ${judged.fatal.join("\n  ")}`);
 });
 
 test("the published eligible-sport list is exactly what the capability registry permits", () => {

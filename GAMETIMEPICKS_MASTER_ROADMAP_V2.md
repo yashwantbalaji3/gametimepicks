@@ -1013,6 +1013,13 @@ Mirror `scripts/research/nfl/forward-player-props-share-level.mjs` (P300's forwa
     - All 14 forecasts carry `forecastSummary.distribution`. Five boards × 10 rows; the 50 V2 board rows equal their game pages; no Q/D/OUT player on a board.
     - Production served the 2.2.0 pages from build `6e3f6cb8` (16:13:24Z). TB @ DAL's page still shows its frozen 2.1.0 run.
   - **Grading gap found in that run:** TB @ DAL stayed ungraded. The player-event capture (16:08:32Z) read the nflverse game list before the nflverse capture refreshed it (16:08:50Z), a documented one-window lag. Fixed by #1036 (nflverse first); see the LEDGER-001 observation.
+  - **TB @ DAL graded 2026-10-09** by the next window (run `37974332405`, 18:36:32Z, before #1036): final, 42 rows, against its frozen 2.1.0 run `8ca1b01a873fdcda`. Later runs left the grade unchanged.
+  - **#1036 released 2026-10-09:**
+    - Merge `9ff2763030` at 19:12:39Z; build-info `9ff27630` at 19:14:11Z; Vercel READY at 19:17:25Z; 0 hydration errors; 0 Preview.
+    - First run after it, `37981662094` (19:39Z): nflverse captured at 19:40:29Z, then player events at 19:40:30Z. One push of 2 commits, one deployment (`7ac70c67a0`).
+    - Four legitimate re-simulations from injury changes: LV @ NE (Nailor OUT), MIN @ NO (Fant cleared), NYG @ WSH (Diggs OUT), CHI @ GB (Caleb Williams OUT → QUESTIONABLE, now the passer). TB @ DAL untouched.
+    - Runs `37984332498` (20:02Z) and `38009261827` (00:29Z) also made one deployment each (`4c7272077e`, `1ada44a2fc`).
+    - Same-run grading of a **new** final is not yet demonstrated. It is first possible when Sunday's games finish.
   - **Settlement delay (founder decision 2026-10-09):** the first V2 game was not graded promptly after it ended. This is recorded as an operational limitation here and under OPS-001, LEDGER-001 and RESULTS-001. See the LEDGER-001 observation.
   - Until then Production shows the 2.1.0 runs (PHI vs JAX `076bd90906ca28d4`, 01:00:16Z).
   - The new simulation timestamps will be recorded here when it runs.
@@ -2007,6 +2014,42 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - PR 3 product truth: 5 commits local on `claude/truth-001-product-truth` (`2a6a1c2ef9`, `4e278490fb`, `ae531656fe`, `d8b919b08f`, + no-games-day states); unit phase on Node 20.4.0 9,136 pass / 2 known env failures (before the no-games-day commit).
 - Recovery: investigation complete (231 / 8 / 4, 27 tight); BAL @ NYY 823491 publication-timing case verified.
 - Next: finish PR 3 (B3, B6, validation) → open; build PR 4 (recovery + 823491 correction) as append-only, quarantining tight cases; CONTRACT-001 event-id test.
+
+### 2026-10-10 — Claude Code (Lane B, NFL operations) — #1036 release record; Results parity §1b fix
+- **#1036:** merged and verified in Production. The release record and the post-merge window runs are under NFL-005.
+- **First post-#1035 window** (run `37974332405`, 18:35Z):
+  - one push and one deployment (`8e88377c70`);
+  - TB @ DAL graded one window late, as #1036 predicted;
+  - BAL passer Huntley, with Lamar Jackson OUT.
+- **Single push confirmed** on all four post-#1035 window runs: one Production deployment each, 0 Preview.
+- **Main-wide CI failure** (reported by Lane A; it blocked #1048):
+  - The NFL graded-picks record became `recordBasis: "MIXED"` in the nightly settle at 09:25Z (`78758d6f46`). Its bases: 105 historical model-favored picks plus TB @ DAL, the first pick on the frozen published side.
+  - Stage 3D deliberately emits no pooled projection cell for a mixed record. Parity test §1b still demanded a cell.
+  - Fix: the test asserts the rule itself. A MIXED owner gets no pooled cell, has no top-level hit rate, and its `byBasis` rows sum exactly to its counts. Every other owner keeps the exact count match.
+  - A mutation that re-enables the pooled cell fails the test.
+  - The producer is unchanged. Splitting the bases is the intended Stage 3D behaviour.
+- **Cost:** 41 Production deployment events from 19:17Z Oct 9 to 11:30Z Oct 10, including Lane A's merges.
+  - These are events, not builds. Ignored deployments are not yet replayed out, so this is not a build count and no saving is claimed.
+  - The 7-day comparison against 70.2 builds/day continues. Billed CPU needs the Vercel dashboard (founder).
+- **Sunday (P0):** 14/14 Week 5 games are on 2.2.0. The kickoff refresh runs every 30 minutes from 09:00Z. PHI @ JAX (London) kicks off at 13:30Z. CHI's Caleb Williams is QUESTIONABLE.
+
+### 2026-10-10 — Claude Code (CI stabilization) — `CI-001` class; `PARLAY-001`, `RESULTS-001` / `NFL-005` — combined stabilization of #1051 + #1054
+- **Why combined:** #1051 failed only the published-parlays guard (phase 2) and #1054 failed only Results parity §1b (phase 1), so each was red on the other's fix. One branch, `claude/ci-stabilization-1051-1054`, from `origin/main` `78bd32c530`. It supersedes both; neither is closed here.
+- **§1b (from #1051, `RESULTS-001` / `NFL-005`):** `a712611079` cherry-picked with `-x`, unchanged. It includes the 2026-10-10 Lane B entry above.
+- **Published-parlays guard (from #1054, `PARLAY-001`):**
+  - The window 10-08 / 10-09 / 10-10 was genuinely empty. 10-09 had no MLB game (`no_events`). 10-08 and 10-10 were single-game CWS/CLE slates: Low got 1 and 0 eligible legs (it needs 2), and Medium+ need 3+ legs at most 2 per game.
+  - The guard could not tell this from a silently stopped optimizer. The producer now writes a `generationReceipt` (`receiptKind: PRODUCER`). The judge (`lib/ask/parlay-window-evidence.mjs`) accepts an empty window only on verified evidence; missing, failed, stale, invalid and unexplained cases fail.
+- **Decision B′ (founder, 2026-10-10):**
+  - The three pre-receipt snapshots stay byte-identical.
+  - `pipeline/optimizer_reconstruction.py` wrote RECONSTRUCTED receipts (`data/internal/parlays/optimizer-reconstruction/`). Each records:
+    - the actual creation time, with `genuineProducerReceipt: false`;
+    - the snapshot's path, git commit and sha256;
+    - each board's path, commit and sha256;
+    - the as-of selection policy and market reliability, each with path, parent commit and sha256, stored verbatim.
+  - Replay reproduces the sections, leg pool, buckets, totalSlips and sourcePools exactly for all three dates.
+  - The guard accepts them only through `RECONSTRUCTED_RECEIPT_ALLOWLIST` (those three dates, bound by snapshot sha256, only where no genuine receipt exists). `pipeline/optimizer_reconstruction_test.py` re-runs the replay in the `python` job.
+- **Not changed:** NFL settlement, NFL projection producers, optimizer slip selection, workflows, `vercel.json`. No paid APIs.
+- **Rule (`CI-001`, restated):** an empty rolling window is accepted only on producer evidence. Historical reconstruction is a founder decision, scoped by an explicit allowlist and never a general bypass.
 
 ## 2026-10-10 — Claude Code (Core Intelligence session) — `UFC-001` U3
 - Starting main SHA: `5ed6f6bc51`.
