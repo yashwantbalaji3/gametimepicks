@@ -42,14 +42,27 @@ export interface TotalPrediction {
 }
 
 export interface RunLinePrediction {
-  /** Which team is the run-line favorite (lays −1.5), from the simulation win probability. */
+  /**
+   * How the line was chosen. "POSTED_LINE" (decision engine v2, from 2026-10): evaluated at the sportsbook's
+   * captured signed line. Absent on v1 records (mlb-prediction-2026.08-v1), which picked ±1.5 off the
+   * simulated favourite regardless of the posted line; those stay as published and grade as `run_line`.
+   */
+  basis?: "POSTED_LINE";
+  /** v2: the book's favourite (the side laying runs at the posted line). v1: the simulated favourite. */
   favorite: Side;
-  /** The standard MLB run-line magnitude (1.5). */
+  /** The run-line magnitude (1.5, or the posted alternate). */
   line: number;
+  /** v2: the HOME side's signed posted line, exactly as captured. */
+  homeLine?: number;
   /** Human pick, e.g. "SF -1.5" or "LAA +1.5". */
   pick: string;
   pickSide: Side;
-  pickLine: number; // −1.5 or +1.5
+  pickLine: number; // the picked side's signed line
+  /** v2: the book's no-vig probability for the picked side at the posted line, or null when not captured. */
+  marketImpliedProbability?: number | null;
+  /** v2: sportsbook and capture instant of the posted line. */
+  bookmaker?: string | null;
+  capturedAt?: string | null;
   coverProbability: number;
   opposingCoverProbability: number;
   pushProbability: number;

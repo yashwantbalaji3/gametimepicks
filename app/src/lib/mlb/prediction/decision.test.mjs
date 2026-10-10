@@ -145,7 +145,12 @@ test("the market never changes the DECISION — same picks with the market remov
   const noMkt = buildGamePredictionDecision(fixtureGame({ market: { total: { line: 8.5, over: null }, moneyline: null, runLine: null } }), null);
   assert.equal(withMkt.predictedWinner.team, noMkt.predictedWinner.team);
   assert.equal(withMkt.total.pick, noMkt.total.pick);
-  assert.equal(withMkt.runLine.pick, noMkt.runLine.pick);
+  // TRUTH-001 (engine v2): the run line, like the total, is evaluated AT the posted line, so with no posted line
+  // there is no run-line call at all — never one at an inferred ±1.5. The direction at a posted line is still the
+  // simulation's (run-line-posted.test.mjs).
+  assert.ok(withMkt.runLine);
+  assert.equal(noMkt.runLine, null);
+  assert.ok(noMkt.unavailableReasons.includes("Run line: no posted market line."));
   // only the comparison fields differ.
   assert.equal(noMkt.moneyline.marketAgreement, "NO MARKET");
 });

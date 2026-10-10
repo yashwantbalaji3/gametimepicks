@@ -92,7 +92,8 @@ export const MODEL_QUALITY_BARS = Object.freeze({
   },
   mlb_moneyline: { sport: "mlb", label: "MLB moneyline call", bar: null, noBarReason: "no preregistered live bar exists for MLB game calls — judged against the coin floor and the founder-approved live-record gate" },
   mlb_total: { sport: "mlb", label: "MLB total call", bar: null, noBarReason: "no preregistered live bar exists for MLB game calls — judged against the coin floor and the founder-approved live-record gate" },
-  mlb_run_line: { sport: "mlb", label: "MLB run-line call", bar: null, noBarReason: "no preregistered live bar exists for MLB game calls — judged against the coin floor and the founder-approved live-record gate" },
+  mlb_run_line: { sport: "mlb", label: "MLB run-line call (v1, simulated ±1.5, retired)", bar: null, noBarReason: "no preregistered live bar exists for MLB game calls — judged against the coin floor and the founder-approved live-record gate" },
+  mlb_run_line_posted: { sport: "mlb", label: "MLB run-line call (posted line)", bar: null, noBarReason: "no preregistered live bar exists for MLB game calls — judged against the coin floor and the founder-approved live-record gate" },
 });
 
 /** Forward-receipt families are judged by their own preregistered receipts; they need no bar here. */

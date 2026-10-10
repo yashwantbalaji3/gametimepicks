@@ -18,7 +18,7 @@ import SignatureProductsBand from "@/components/products/signature-products-band
 import SectionHeader from "@/components/section-header";
 import MrDubAvatar from "@/components/mr-dub/mr-dub-avatar";
 import AchievementBanner from "@/components/achievement-banner";
-import { buildFlagship } from "@/lib/mr-dub/flagship";
+import { buildFlagship, coreBankrollNote } from "@/lib/mr-dub/flagship";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import { deriveProductState, productStateLabel, isLive } from "@/lib/products/product-state.mjs";
@@ -165,7 +165,7 @@ export default function MrDubPage() {
       {/* 5 — Performance analytics (charts, all derived from settled history). Phase 5. */}
       <section>
         <SectionHeader eyebrow="Performance analytics" title="How the bankroll moved" sub="Bankroll over time, daily P/L, drawdown, product attribution and a calendar heatmap — every series derived from official settlements. No fabricated metrics." />
-        <div className="mt-2"><AnalyticsCharts charts={f.charts} /></div>
+        <div className="mt-2"><AnalyticsCharts charts={f.charts} coreNote={coreBankrollNote(f.moonshotInCore)} /></div>
       </section>
 
       {/* 6 — Interactive day-by-day timeline (expandable to every wager). Phase 3. */}
@@ -176,8 +176,8 @@ export default function MrDubPage() {
 
       {/* 7 — Product attribution (every wager tagged to its flagship, filterable). Phase 6. */}
       <section>
-        <SectionHeader eyebrow="Attribution" title="Every wager, by product" sub="Which flagship generated each settled paper wager — filter by product. Bank Builder is the canonical bankroll; the side lanes are separate flat-stake paper." />
-        <div className="mt-2"><ProductAttribution wagers={f.wagers} /></div>
+        <SectionHeader eyebrow="Attribution" title="Every wager, by product" sub="Which flagship generated each settled paper wager — filter by product. The canonical bankroll is the core paper bankroll: Bank Builder and, since the Sep 10 reconciliation, Moonshot." />
+        <div className="mt-2"><ProductAttribution wagers={f.wagers} coreNote={coreBankrollNote(f.moonshotInCore)} /></div>
       </section>
 
       {/* 8 — Wider platform appendix: today's full four-product plan + the separate Moonshot side lane.

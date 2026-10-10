@@ -22,7 +22,9 @@ function PickRow({ rank, pick }: { rank: number; pick: CategoryDashboard["picks"
       pick={pick.pick}
       line={pick.line}
       probabilityPct={pick.simulationProbability * 100}
-      simulationCount={pick.simulationCount}
+      /* TRUTH-001: these are player-PROP engine picks; the slate's simulationCount counts the FULL-GAME simulations,
+         so a "≈ N / 10,000 games" here described the wrong engine. Percentage only. */
+      simulationCount={null}
       href={pick.href}
     />
   );
