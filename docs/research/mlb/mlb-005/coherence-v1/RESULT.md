@@ -126,3 +126,19 @@ Opportunity (workload and plate appearances) is the largest remaining error, whi
 **Reading:**
 - The home-field term corrects the bias in P(home) (0.500 → 0.518), but the gain in winner log loss is not established on one development season.
 - It is not carried into forward test B2.
+
+## Exploratory: the forward-B2 engine combination (2024; run after B2 was frozen, so it cannot change B2)
+
+`coherence-2024-dev-v2-substitution-kv3-b2check.json`. 4,014,000 worlds, 0 violations. Engine B2 = substitution + the v3 situation-aware workload. Count log loss, engine B2 minus engine v2 (substitution only):
+
+| Market | Engine B2 − engine v2 |
+|---|---|
+| Pitcher K | **−0.0153 [−0.0217, −0.0087]** |
+| HR | −0.0008 [−0.0014, −0.0001] |
+| Hits | −0.0002 [−0.0010, +0.0005] |
+| TB | −0.0007 [−0.0020, +0.0008] |
+| H+R+RBI | −0.0006 [−0.0019, +0.0008] |
+| Runs | −0.0001 |
+| RBI | −0.0006 |
+
+The workload fix carries into the coherent engine's strikeouts, and batter markets do not get worse.
