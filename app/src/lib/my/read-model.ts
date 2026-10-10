@@ -30,6 +30,7 @@ import { loadCurrentNflResults } from "@/lib/sports/nfl/current-results.mjs";
 import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
 import { LEDGER_URLS, parseLedger } from "@/lib/saved/results.mjs";
+import { publicMlbGradedRows } from "@/lib/mlb/results/grades-of-record-io.mjs";
 import { compactLedgers } from "@/lib/my/saved-settlements.mjs";
 import { buildSavedRouteManifest, type SavedRouteManifest } from "@/lib/saved/saved-routes";
 import { researchHref } from "@/lib/research-pages/projection-store";
@@ -306,6 +307,8 @@ export function buildMyPlayerRows(): MyPlayerRow[] {
 export function buildMySavedSettlements() {
   const read = (kind: keyof typeof LEDGER_URLS) => {
     try {
+      // MLB: the public rows of record directly (the browser reads the same rows from the build-time emitted file).
+      if (kind === "mlbGames") return publicMlbGradedRows(process.cwd()) as any[];
       return parseLedger(kind, fs.readFileSync(path.join(process.cwd(), "public", LEDGER_URLS[kind]), "utf8")) as any[];
     } catch {
       return [];

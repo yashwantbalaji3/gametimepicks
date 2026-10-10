@@ -27,6 +27,7 @@ function said(r: any): string {
 function happened(r: any): string {
   const s = r.settlement ?? {};
   if (r.publicationStatus === "WITHDRAWN") return "Withdrawn before kickoff — not a miss";
+  if (r.publicationStatus === "NOT_SERVED") return "Never publicly served before first pitch — not counted";
   if (s.state === "PENDING") return "Not final yet";
   if (s.state === "VOID") return s.reason === "DID_NOT_PLAY" ? "Did not play — void" : "Void";
   if (s.state === "NO_MEASUREMENT") return "No official line — not measured";

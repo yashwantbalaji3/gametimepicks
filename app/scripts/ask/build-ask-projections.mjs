@@ -957,7 +957,7 @@ function buildForecastRecord() {
         r.matchup ? index(2, r.matchup, r.matchup) : null,
         ASK_FORECAST_KINDS.indexOf(r.forecastKind),
         r3(r.projection), r3(r.rangeLow), r3(r.rangeHigh), r3(r.probability),
-        r.publicationStatus === "WITHDRAWN" ? "WITHDRAWN" : r.settlement?.state ?? null,
+        r.publicationStatus === "WITHDRAWN" ? "WITHDRAWN" : r.publicationStatus === "NOT_SERVED" ? "NOT_SERVED" : r.settlement?.state ?? null,
         r3(r.settlement?.finalValue), r.settlement?.finalCategory ?? null,
         r.measurement?.observed ?? null, r3(r.measurement?.absoluteError), r3(r.measurement?.brier),
         r.measurement?.directionalBasis ? r.measurement.directionalResult : null,

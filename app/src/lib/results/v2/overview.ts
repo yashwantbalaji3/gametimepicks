@@ -14,6 +14,7 @@ import path from "node:path";
 
 import { makeGradedPickOwners } from "@/lib/sports/graded-pick-owners.mjs";
 import { population, outcomeOfPick, outcomeFromWord } from "./populations.mjs";
+import { publicMlbGradedRows } from "@/lib/mlb/results/grades-of-record-io.mjs";
 
 export interface V2Counts { won: number; lost: number; push: number; void: number; decisive: number; n: number; hitRate: number | null }
 export interface V2Day { date: string; won: number; lost: number; push: number; void: number }
@@ -55,7 +56,8 @@ export function resultsV2Populations(today: string): V2Population[] {
 
   const pops: V2Population[] = [];
 
-  const mlbGames = readJsonl(path.join(appDir, "public/data/mlb/results/game-predictions-graded.jsonl"));
+  // TRUTH-001 Stage B: the public MLB grade rows OF RECORD (approved restatements applied; never-public rows dropped).
+  const mlbGames = fs.existsSync(path.join(appDir, "public/data/mlb/results/game-predictions-graded.jsonl")) ? (publicMlbGradedRows(appDir) as Record<string, unknown>[]) : null;
   if (mlbGames) pops.push(population({
     id: "mlb-games", sport: "mlb", label: "MLB game calls", klass: "PUBLIC", kind: "GAME",
     owner: "public/data/mlb/results/game-predictions-graded.jsonl",
