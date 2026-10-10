@@ -516,6 +516,11 @@ Commits (all forward-only; no published artifact rewritten):
     - **No accounting or denominator change.**
 
 ### Historical MLB forecast recovery (founder decision 3: approved to develop, PR 4)
+- **Supersession of the 14 proposals (2026-10-10):** recorded append-only in `data/internal/mlb/corrections/forecast-of-record-proposals-supersession-2026-10-10.json`; the proposals file itself is unchanged.
+  - **11 CORROBORATED:** #1046's evidence (actual first pitch plus the exact deployment record) verifies the same served revision, with an identical hash.
+  - **3 SUPERSEDED_UNVERIFIABLE:** 823084, 823650, 824542. They must not be applied.
+  - Nothing is applied. Stage B (#1045) applies only verified rows, after separate approval.
+- **Future hardening (founder note):** move the non-public recovery and proposal artifacts out of `app/public/` to `data/internal/`. Today they are kept out of the export only by the prune step plus the post-build guard `recovery-not-public.test.mjs`, which is mutation-checked: a planted file or reference fails it.
 Investigation (read-only):
 - 243 MLB games marked `unavailable` 2026-09-01 → 10-08:
   - **231 PUBLISHED_RECOVERABLE:** public pre-first-pitch commit on `main`; hash recomputes (also 5,014/5,014 game entries across every scanned revision); a matching prediction snapshot; model `mlb-fullgame-2026.08-pa-v2`, engine v1.
