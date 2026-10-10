@@ -78,3 +78,32 @@ The engine has **no home-field term** (mean P(home) 0.500 against 0.527 actual) 
 - anything about the published engine's own inputs. This used the v2 replay inputs, not the board's projections.
 
 Forward evaluation (see `docs/research/mlb/mlb-003-004/FORWARD-VALIDATION-DESIGN.md`) is required before any product use.
+
+## Exploratory: 2026 posted lines (2026 was examined repeatedly; no claim follows)
+
+`coherence-2026-exposed-v2-substitution-exploratory.json`. Log loss of P(over the posted line) on the settled leans of record:
+
+| Family | n | Published model | v2 | Engine v1 | Engine v2 (sub) | Market | Engine v2 − published | Engine v2 − market |
+|---|---|---|---|---|---|---|---|---|
+| Pitcher K | 2,405 | 0.7505 | 0.7074 | 0.7038 | **0.7037** | 0.6844 | −0.047 [−0.062, −0.032] | **+0.019 [+0.010, +0.029]** |
+| Hits | 19,165 | 0.6764 | 0.6640 | 0.6670 | **0.6639** | 0.6604 | −0.013 [−0.015, −0.010] | **+0.0035 [+0.0015, +0.0056]** |
+| Total bases | 8,395 | 0.7153 | 0.6838 | 0.6824 | **0.6820** | 0.6771 | −0.033 [−0.040, −0.027] | **+0.0048 [+0.0019, +0.0078]** |
+| H+R+RBI | 17,412 | 0.7181 | 0.6931 | 0.6945 | **0.6919** | 0.6877 | −0.026 [−0.031, −0.022] | **+0.0042 [+0.0021, +0.0062]** |
+
+**Reading:**
+- The coherent read-out is the best of the GTP models in every family, and it beats the published model.
+- **It is still worse than the market in every family**, with every interval above 0. No market edge and no betting value.
+- This is consistent with the 2025 retrospective and 2024 development results, and is still not a qualification.
+
+## Exploratory decomposition (2026)
+
+How much would be gained if the opportunity were known?
+
+| Market | v2 count log loss | With actual opportunity | Gain |
+|---|---|---|---|
+| Strikeouts (actual BF) | 2.223 | 2.107 | −0.116 |
+| Hits (actual PA) | 1.190 | 1.144 | −0.045 |
+| TB (actual PA) | 1.626 | 1.589 | −0.037 |
+| H+R+RBI (actual PA) | 1.799 | 1.745 | −0.054 |
+
+Opportunity (workload and plate appearances) is the largest remaining error, which motivated `mlb-k-workload-v3` (`docs/research/mlb/mlb-004/k-workload-v3/`).
