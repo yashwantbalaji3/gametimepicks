@@ -2081,6 +2081,30 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - the Ask NFL accuracy answer (recorded under `RESULTS-001`).
 - **Vercel:** 1 Production build for the merge (superseded by the next data build); Preview 0.
 
+## 2026-10-10 — Claude Code (Core Intelligence session) — #1053 release record (`UFC-001`)
+- **What merged:** #1053 (title fight only on provider evidence; fight-day freeze for the card build and odds capture), at founder-approved exact head `a0e2eab703f7e36bdff00cf6ee62a8e6d16a1fe7`, with `--match-head-commit`.
+  - Merge commit `c95658c1856c4608abc39e2fea0b8dcceb77ea14`, 16:14:11Z.
+  - The 10 pre-merge conditions were re-checked at that head:
+    - CI ✓✓ and CLEAN; scope 7 files;
+    - 12/12 bouts match live ESPN (athlete ids, rounds, times, status); 1 five-round bout and 0 title flags;
+    - title and freeze tests 8 / 8;
+    - the card differs from `main`'s only in `titleFight` and `generatedAt`;
+    - the odds change is only the start-time refusal;
+    - no PR integration in flight.
+- **Production:** the live build `c95658c185` (16:19:33Z) contains the merge.
+  - `/ufc`, `/ufc/bout/401916276`, `/ufc/bout/401927415`, `/cage-chaos` and `/mr-dub` return 200, and "title fight" appears on none of them.
+  - The hub shows "updated Oct 10, 10:05 AM ET", 12 scheduled bouts (7 at 5 PM ET, 5 at 8 PM ET) and "MAIN EVENT · MIDDLEWEIGHT · 5 ROUNDS".
+  - All 11 forecasts are identical to before the merge (Duncan 50.2%, …). Frye vs. Harris is still shown as not modelled.
+  - Mobile (375 px): no horizontal scroll, no console errors.
+  - `odds-latest.json` (captured 2026-10-08 17:39Z), the model-vs-market snapshots and `graded-picks.json` are unchanged by #1053.
+- **Freeze:** verified on the merged code before the merge. A rebuild at 21:40Z keeps the pregame card; the odds capture after the start exits 3 before any call.
+- **Fight-week run 38065746333** (15:58Z, before the merge):
+  - 1 credit spent; the push failed, so nothing landed.
+  - Root cause (OPS-002): an untracked tier-grid collision with a hidden rebase error.
+  - Fix prepared as #1056 (OPS-001a), not merged.
+  - The Oct 8 prices are kept with their original timestamp (founder decision); no re-run.
+- **Vercel:** 1 Production build for the merge; Preview 0.
+
 ## 2026-10-10 — Claude Code (Core Intelligence session) — `UFC-001` U3
 - Starting main SHA: `5ed6f6bc51`.
 - Branch: `claude/ufc-001-u3-claims-copy`.
