@@ -77,6 +77,19 @@ function nflHeadlineRecord() {
   return recordWL(RESULTS_DOC.headline?.bySport?.nfl);
 }
 
+/*
+ * NFL IS A MIXED-BASIS OWNER (Stage 3D; the same rule results/projection-parity.test.mjs §1b asserts). Since the
+ * 2026-10-10 nightly settle, the NFL graded-picks record holds two bases: the historical model-favored picks and
+ * the frozen published side (TB @ DAL). projection-core deliberately emits NO pooled cell for a mixed record, so
+ * `headline.bySport.nfl` is null and no single NFL W–L exists to state. The case is derived from the artifact:
+ * with a pooled cell the answer must state its W–L; without one it must say no record is designated, and it is
+ * then an honest refusal rather than a grounded record (the verifier falls back deterministically).
+ */
+const NFL_HEADLINE_CELL = RESULTS_DOC.headline?.bySport?.nfl ?? null;
+const nflAccuracyCase = () => (NFL_HEADLINE_CELL
+  ? { expectGrounded: true, mustMention: [nflHeadlineRecord()] }
+  : { mustMention: ["no graded forecast record is designated for nfl"], mustNotMention: ["% accurate", "the nfl model is"] });
+
 const help = (id, q, mustMention, expectLink = "/") => ({
   id, category: "site help", q, expectIntent: undefined, expectTools: ["searchGameTimeHelp"], expectGrounded: true, mustMention, expectLink,
 });
@@ -407,8 +420,8 @@ export const GOLDEN = [
   },
   {
     id: "res-06", category: "results", q: "How accurate is the NFL model?",
-    expectIntent: "RESULTS_FORECAST_RECORD", expectTools: ["getForecastRecord"], expectGrounded: true,
-    mustMention: [nflHeadlineRecord()],
+    expectIntent: "RESULTS_FORECAST_RECORD", expectTools: ["getForecastRecord"],
+    ...nflAccuracyCase(),
   },
   {
     id: "res-07", category: "results", q: "Show me the settled NFL forecasts from 2026-09-14 to 2026-09-16",

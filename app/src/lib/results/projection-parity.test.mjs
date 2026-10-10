@@ -124,6 +124,18 @@ test("§1b · loadGradedPicks(sport).counts (graded-picks-loader.ts:39) == the f
     const g = loadGradedPicks(sport);
     const cell = byId(`forecast:${sport}:-:LIVE_LEDGER:graded-picks`);
     if (!g) { assert.equal(cell, null, `${sport}: no owner ⇒ no cell`); continue; }
+    /* Stage 3D: a record pooling two side bases is two records, never one cell (projection-core skips it). The owner
+       must still account for every graded pick: no top-level rate, and its byBasis rows sum exactly to its counts. */
+    if (g.recordBasis === "MIXED") {
+      assert.equal(cell, null, `${sport}: MIXED owner ⇒ no pooled cell`);
+      assert.equal(g.hitRate, null, `${sport}: MIXED owner publishes no pooled hit rate`);
+      assert.ok(Array.isArray(g.byBasis) && g.byBasis.length >= 2, `${sport}: MIXED owner carries ≥2 byBasis rows`);
+      const sum = (k) => g.byBasis.reduce((n, b) => n + b[k], 0);
+      assert.deepEqual([sum("counted"), sum("hits"), sum("misses")], [g.counts.counted, g.counts.hits, g.counts.misses],
+        `${sport}: byBasis sums to the owner's counts`);
+      checked += 1;
+      continue;
+    }
     assert.ok(cell, `${sport}: cell present`);
     assert.deepEqual([cell.counts.won, cell.counts.lost, cell.counts.void], [g.counts.hits, g.counts.misses, g.counts.voided]);
     assert.equal(cell.hitRate, g.hitRate);
