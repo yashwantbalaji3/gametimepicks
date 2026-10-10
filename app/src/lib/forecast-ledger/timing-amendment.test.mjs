@@ -122,8 +122,8 @@ test("unauthorised revision: removing timing once present is an immutable change
 });
 
 test("old rows, whole committed history: the amendment changes no of-record decision for any row without timing", async () => {
-  const fs = await import("node:fs"); const path = await import("node:path");
-  const dir = path.resolve(import.meta.dirname, "../../../../data/internal/forecast-ledger/v1");
+  const fs = await import("node:fs"); const path = await import("node:path"); const { fileURLToPath } = await import("node:url");
+  const dir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../data/internal/forecast-ledger/v1");
   let n = 0;
   for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".jsonl"))) {
     for (const line of fs.readFileSync(path.join(dir, f), "utf8").split("\n")) {
