@@ -91,7 +91,7 @@ const gammaPoints = (kappa) => { if (!Number.isFinite(kappa)) return [1]; const 
 if (!fs.existsSync(DIR)) { console.error(`REFUSED: no box scores at ${path.relative(REPO, DIR)}`); process.exit(2); }
 const days = fs.readdirSync(DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().map((f) => JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8")));
 const hands = fs.existsSync(HANDS_FILE) ? JSON.parse(fs.readFileSync(HANDS_FILE, "utf8")).people ?? {} : {};
-const handOf = (id) => hands[id]?.pitchHand ?? null;
+const handOf = (id) => { const h = hands[id]?.pitchHand; return h === "L" || h === "R" ? h : null; }; // switch pitchers ("S") have no single hand
 
 // ── running state (only games dated before the current date) ───────────────────────────────────────────────────────
 const pitchers = new Map(); // id -> { appsK: [], startsBF: [], bf, k, bb, hr }
