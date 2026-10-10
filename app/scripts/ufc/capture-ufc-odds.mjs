@@ -36,6 +36,7 @@ import { classifyCardCoverage, coverageReconciles, providerEventIdOf } from "../
 import { findLooseMatch, resolveOutcomeNames } from "../../src/lib/sports/ufc/fighter-alias.mjs";
 import { writeAcquisition, readAcquisition } from "../../src/lib/sports/odds/acquisition-cache.mjs";
 import { buildUfcOddsSnapshot } from "../../src/lib/sports/ufc/odds-snapshot.mjs";
+import { cardHasStarted } from "../../src/lib/sports/ufc/fight-day-freeze.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -86,6 +87,12 @@ if (card?.state !== "SCHEDULED_CARD") {
   console.error(`ufc odds: no scheduled card to price (state ${card?.state ?? "absent"}) — nothing to buy.`);
   /* 3 = an honest "nothing to do": between events there is no card, and that is not a failure. Every
      other non-zero exit is a real fault, and the caller must not swallow it. */
+  process.exit(3);
+}
+/* FIGHT-DAY FREEZE: pregame prices only. A drifted cron landing after the first bout would buy IN-PLAY prices and
+   overwrite the pregame odds-latest.json with them. 3 = the honest "nothing to price". */
+if (cardHasStarted(card.event?.startUtc, NOW)) {
+  console.error(`ufc odds: ${card.event?.name ?? "the card"} started at ${card.event?.startUtc}; pregame prices only — nothing to buy.`);
   process.exit(3);
 }
 console.log(`card: ${card.event.name} · ${card.event.boutCount} bouts · ${card.event.slateDate}`);
