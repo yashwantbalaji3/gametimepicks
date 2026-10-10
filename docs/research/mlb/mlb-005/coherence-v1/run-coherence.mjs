@@ -400,7 +400,7 @@ function engineReadouts(day, teamsOf, starterOf, mode = "v1") {
     const yAway = runsOf("away"); const yHome = runsOf("home");
     if (yAway !== yHome) {
       const base = lgGame.n >= 50 ? { pHome: lgGame.homeWins / lgGame.n, total: lgGame.totals.map((c) => (c + 0.5 / 31) / (lgGame.n + 0.5)) } : null;
-      if (base) (mode === "v1" ? gameRows : mode === "sub" ? gameRowsSub : gameRowsHfa).push({ date: day.date, yHome: yHome > yAway ? 1 : 0, total: yAway + yHome, engine: { pHome: homeWins / done, total: sm(totH) }, base });
+      if (base) (mode === "v1" ? gameRows : mode === "sub" ? gameRowsSub : gameRowsHfa).push({ gamePk, date: day.date, yHome: yHome > yAway ? 1 : 0, total: yAway + yHome, engine: { pHome: homeWins / done, total: sm(totH) }, base });
       if (mode === "v1") pendingGames.push({ home: yHome > yAway ? 1 : 0, total: yAway + yHome });
     }
   }
@@ -762,12 +762,13 @@ if (KV3) {
   kv3 = { label: "mlb-k-workload-v3 — exploratory development (2024 exposed by the residual exploration)", ...o, bySituation: bySit, deltas: v3Delta };
 }
 const out = {
-  experiment: "mlb-coherent-worlds-v1", ...(kv3 ? { kWorkloadV3: kv3 } : {}), ...(hfaReport ? { v3HomeField: hfaReport } : {}), ...(lines ? { exploratoryPostedLines: lines } : {}), ...(decomposition ? { exploratoryDecomposition: decomposition } : {}), ...(SUBST ? { v2Substitution: subReport } : {}), label: SEASON === "2026" ? "EXPOSED (debugging only)" : "DEVELOPMENT (exploratory; can only earn PROCEED_TO_FORWARD_SHADOW)",
+  experiment: "mlb-coherent-worlds-v1", ...(kv3 ? { kWorkloadV3: kv3 } : {}),
+  ...(process.argv.includes("--game-rows") ? { gameRowsDump: gameRows.map((g) => ({ gamePk: g.gamePk, date: g.date, yHome: g.yHome, total: g.total, pHomeV1: Number(g.engine.pHome.toFixed(4)), pHomeV2: Number((gameRowsSub.find((x) => x.gamePk === g.gamePk)?.engine.pHome ?? NaN).toFixed(4)) })) } : {}), ...(hfaReport ? { v3HomeField: hfaReport } : {}), ...(lines ? { exploratoryPostedLines: lines } : {}), ...(decomposition ? { exploratoryDecomposition: decomposition } : {}), ...(SUBST ? { v2Substitution: subReport } : {}), label: SEASON === "2026" ? "EXPOSED (debugging only)" : "DEVELOPMENT (exploratory; can only earn PROCEED_TO_FORWARD_SHADOW)",
   season: Number(SEASON), worldsPerGame: ENG_WORLDS, gitHead: report.gitHead, fidelity,
   engineAudit: { ...engineAudit, meanPaSimulated: engineAudit.paSim / engineAudit.nBat, meanPaActual: engineAudit.paAct / engineAudit.nBat },
   readouts: engineReport, gameLevel,
 };
-const OUT = path.join(HERE, `coherence-${SEASON}-${SEASON === "2026" ? "exposed" : "dev"}${SUBST ? "-v2-substitution" : ""}${LINES || DECOMPOSE ? "-exploratory" : ""}${KV3 ? "-kv3" : ""}${HFA ? "-v3-hfa" : ""}.json`);
+const OUT = path.join(HERE, `coherence-${SEASON}-${SEASON === "2026" ? "exposed" : "dev"}${SUBST ? "-v2-substitution" : ""}${LINES || DECOMPOSE ? "-exploratory" : ""}${KV3 ? "-kv3" : ""}${HFA ? "-v3-hfa" : ""}${process.argv.includes("--game-rows") ? "-gamerows" : ""}.json`);
 fs.writeFileSync(OUT, JSON.stringify(out, null, 1) + "\n");
 const f4 = (x) => (x == null ? "—" : x.toFixed(4));
 console.log(`engine: ${engineAudit.games} games, ${engineAudit.worlds} worlds, ${engineAudit.violations} invariant violations, ${engineAudit.discarded} discarded at cap, skipped ${JSON.stringify(engineAudit.skipped)}, ${(engineAudit.ms / 1000).toFixed(0)} s; mean PA simulated ${f4(out.engineAudit.meanPaSimulated)} vs actual ${f4(out.engineAudit.meanPaActual)}`);
