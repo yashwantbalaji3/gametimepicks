@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-10T14:42:38.875Z",
+  "generatedAt": "2026-10-10T15:39:02.448Z",
   "canonical": {
     "record": "46-49",
     "bankroll": 14390.4,
@@ -105,15 +105,15 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-10",
-      "generatedAt": "2026-10-10T13:21:30Z",
+      "generatedAt": "2026-10-10T14:42:45Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 19,
-            "priced": 19,
-            "generated": 9,
+            "scheduled": 15,
+            "priced": 15,
+            "generated": 5,
             "frozen": 0,
             "started": 0
           },
@@ -166,7 +166,7 @@
     "dailyLifecycle": {
       "receiptDate": "2026-10-10",
       "present": true,
-      "generatedAt": "2026-10-10T13:21:29Z",
+      "generatedAt": "2026-10-10T14:42:44Z",
       "watchdog": [
         {
           "product": "epl-cards",
@@ -215,16 +215,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-10T14:39:44.876Z",
+    "lastRunAt": "2026-10-10T15:39:01.686Z",
     "ageHours": 0,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "ok": true,
+    "status": "pass",
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-10",
-    "etTime": "10:42",
+    "etTime": "11:39",
     "stages": [
       {
         "stage": "schedule",
