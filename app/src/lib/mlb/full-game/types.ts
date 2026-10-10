@@ -255,6 +255,13 @@ export interface BatterInput {
    * when `EngineParams.research.explicitPa` is set; the published engine never reads it.
    */
   pa?: { vsStarter: PaOutcomeProbs; vsBullpen: PaOutcomeProbs };
+  /**
+   * MLB-005 RESEARCH ONLY (substitution): `subHazard[j]` = probability the starter is replaced before his (j+1)-th trip,
+   * given he has batted j times; `subPa` = the replacement's PA distributions. Read only when
+   * `EngineParams.research.substitution` is set.
+   */
+  subHazard?: number[];
+  subPa?: { vsStarter: PaOutcomeProbs; vsBullpen: PaOutcomeProbs };
 }
 
 /**
