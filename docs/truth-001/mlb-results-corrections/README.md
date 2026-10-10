@@ -63,9 +63,48 @@ These are shared Results/OPS surfaces, so the implementation is coordinated with
 
 **Expected gate effect:** the deltas above are small. Moneyline log loss 0.6993 → 0.6991 stays worse than the coin's 0.6931. The run-line hit rate stays far above its old floor. The total stays BREACHED. **No family is expected to change state, and nothing is unpaused.** The implementation PR has to verify this rather than assume it.
 
+## Ledger-owner review (2026-10-10) and the minimum contract extension
+
+**Who reviewed:** the NFL World Model V2 / UX / COST session, which wrote the ledger's World Model V2 hook. It read `contract.mjs`, `append-only.mjs` and `build-forecast-ledger.mjs` on main. The NFL winner-corrections precedent is Stage 3C (`892e57bde1`, `bd450fc503`).
+
+**Option A is accepted** (restate in place under the same `forecastId`, not a new namespace). The reason: the served revision is what the ledger should always have recorded. The row was **mis-recorded, not superseded**, so a new namespace would leave a false "published" row behind.
+
+This is the **first audited change to immutable forecast fields**. The NFL precedent only forgives a restated settled outcome (`DIRECTIONAL_REWRITTEN`), never an `IMMUTABLE_FIELDS` value, so this is presented as the larger step it is.
+
+**Conditions accepted:**
+1. **Exact forgiveness, per row and per field.** Each log entry names every field it restates with before and after values. Any other differing immutable field still refuses.
+2. **All or nothing.** Any violation the log does not explain refuses the whole run, so no partial write is possible.
+3. **Write-once receipts.** `migrations/<id>.json` holds the complete old row for every restated id plus the deployment evidence reference, and refuses to overwrite.
+4. **Restatement is recorded on the row** in `provenance` (already mutable, so no schema change) and by incrementing `settlement.corrections`.
+5. **Grades are re-derived** from the restated values in the same run. The original graded files stay untouched.
+6. **Check mode:** exit 1 while unrestated mismatches exist, like `nfl-winner-corrections.mjs`.
+7. **Guard test:** the restate path cannot run without a committed log file.
+
+**Never-public forecasts need a contract change, not a flag.**
+- Under `forecast-ledger@1` an extra field is not additive: `validateRow` rejects unknown top-level fields, public rows must be PUBLISHED or WITHDRAWN, and `compareLedgers` allows only PUBLISHED → WITHDRAWN.
+- A flag would also fail open, because any reader unaware of it keeps counting the forecast.
+- **The minimum extension:** add **`NOT_SERVED`** to the publication-status vocabulary, and allow **PUBLISHED → NOT_SERVED only when a restate log lists that `forecastId`**. Every reader that counts PUBLISHED rows then excludes it automatically, which fails closed.
+- The internal record is kept, and WITHDRAWN would be false.
+- **Version:** recorded as a dated contract amendment in `contract.mjs` plus the ledger manifest (or `forecast-ledger@1.1`, with readers accepting both), never as a silent addition.
+
+**Coordination:**
+- There are no collisions with the ledger owner's work. Their `claude/results-runtime-pilot-local` branch is a separate, local-only Results store.
+- Roadmap LEDGER-001 entries are **appended to**, never rewritten.
+- **One founder approval should cover the contract amendment, the log and the reader consolidation together.**
+
+## Scope after #1046 (supersedes the 14)
+
+| Class | Count |
+|---|---|
+| Verified different revision | 22 (11 of these 14 plus 11 new) |
+| Verified never public | 4 (824226, 824381, 824546, 823653) |
+| Stage A proposals now **unverifiable** | 3 (823084, 823650, 824542): dropped from what would be applied; fail closed |
+
+Source: `data/internal/ops/forecast-of-record-shadow/classification.json`, with real first-pitch times and the exact deployment record. This report will be regenerated from that classification before any approval request.
+
 ## Approvals requested
 
-1. The mechanism: **Option A** (or another).
+1. The mechanism: **Option A** with the ledger owner's conditions, plus the `NOT_SERVED` contract amendment.
 2. Applying the 14 corrections exactly as the report states them.
 3. Coordination: the shared Results/OPS owner reviews the reader consolidation before integration.
 
