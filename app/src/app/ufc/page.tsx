@@ -16,12 +16,14 @@
 import fs from "node:fs";
 import { formatUpdatedEt } from "@/lib/format";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
+import { hubCounts } from "@/lib/sport-hub/contract";
 import SportSwitcher from "@/components/sports/sport-switcher";
 import { ufcHub } from "@/lib/sport-hub/adapters";
 import Explain from "@/components/ui/explain";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, sportPanelReads } from "@/lib/top-reads";
 import UfcCard, { type UfcCardArtifact } from "@/components/sports/ufc-card";
+import UfcPredictionBoard from "@/components/ufc/prediction-board";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
 import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import path from "node:path";
@@ -148,57 +150,38 @@ export default function UfcArchivePage() {
       <SportSwitcher current="ufc" />
       <HubTitle model={__hubModel} />
       <SportHubNav sport="ufc" />
-      <section id="ufc-games" className="scroll-mt-24"><HubHeader model={__hubModel} /></section>
-      <header id="ufc-overview" className="flex flex-col gap-2 scroll-mt-24">
-        <div className="flex flex-wrap items-center gap-2">
-          {/* P246 a11y: HubTitle above already carries the page's one <h1>; this local title was a
-              second identical <h1> (heading-one-unique). Same text, subordinate level. */}
-          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 24, fontWeight: 700, margin: 0 }}>
-            UFC
-          </h2>
-          <span
-            className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
-            style={{ color: "var(--sport-ufc)", border: "1px solid var(--sport-ufc)", background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)" }}
-          >
-            Predictions · experimental
-          </span>
-        </div>
-        <p className="max-w-2xl font-mono text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-          Winner, method and finishing round for every bout with enough tracked history — the rest say so. Paper and educational.
-        </p>
-        {/*
-          THIS PARAGRAPH WAS ASSERTING THE OPPOSITE OF THE PAGE.
-          It read "No sportsbook price is shown or compared — our odds authorisation covers NFL only".
-          Both halves had expired. A dedicated UFC receipt exists (500 credits, fight-winner prices,
-          bulk endpoint), prices have been captured under it since, and the paper cards below now
-          show a posted price on every leg. The sentence was true when written and became a
-          contradiction sitting directly above the numbers it denied — the same shape as a nav entry
-          reading "simulation pending" while rendering on a page full of simulations.
-          What is STILL true is the part that matters, and it is kept: the model's probabilities have
-          never been set against a no-vig line. Showing a price and being measured against one are
-          different things, and only the first has changed.
-        */}
-        <Explain label="What changed, and what is still refused">
-          The de-vigged-price read that ran until 2026-07-23 was retired: it restated the sportsbook
-          rather than forming an opinion. What publishes now is a fight model trained on 8,642
-          decisive bouts, with each of its three markets tested separately against a base-rate
-          baseline. Posted fight-winner prices are captured, but no paper cards are shown here while UFC
-          is not cleared for forward-looking model cards — and since 2026-08-22 the model
-          IS scored against the de-vigged line, bout by bout, in the graded record below: both probabilities recorded before each
-          card, graded on the official result. The sample is far too small to support any claim in
-          either direction, and the cumulative comparison currently favours the market. The settled
-          record from the retired era is kept below, behind its own label.
-        </Explain>
-        <nav className="flex flex-wrap gap-3 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
-          <Link href="/today" style={{ color: "var(--gtp-bank-heat)" }}>Live action → Today</Link>
-          <Link href="/results" style={{ color: "var(--vault-text-mute)" }}>Track record → Results</Link>
-          <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
-        </nav>
-      </header>
+      {/* UFC-001 · UX Phase A: the prediction board IS this hub's events section — every bout once, main event first,
+          the published winner probability and the experimental method lean, each row opening its bout report. It reads
+          the same card artifact as /ufc/bout/[boutId]. Without a card, the shared hub header renders as before. */}
+      <section id="ufc-games" className="scroll-mt-24 flex flex-col gap-2">
+        {card?.bouts?.length ? (
+          <>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 20, fontWeight: 800 }}>
+                Fight card &amp; predictions
+              </h2>
+              {/* The shared hub counts line, from the shared hub rows (`hubCounts`): scheduled, with a report and
+                  with a supported read stay three separate numbers, exactly as every other hub prints them. */}
+              <span className="font-mono" style={{ fontSize: 11, color: "var(--vault-text-mute)" }}>
+                {(() => { const c = hubCounts(__hubModel.rows); return `${c.scheduled} scheduled · ${c.withReport} with a report · ${c.withRead} with a supported read`; })()}
+                {" · experimental"}
+              </span>
+            </div>
+            <UfcPredictionBoard card={card} />
+          </>
+        ) : (
+          <HubHeader model={__hubModel} />
+        )}
+      </section>
 
-      {/* P308: the card's simulation story — the main event's winner, method and round chapters, from the same
-          artifact the card below renders. */}
-      <SimulationStorySection manifest={buildUfcPresentation(card)} />
+      {/* UFC-001 · UX Phase A2: where the live event tracker will sit. Until UFC live tracking is validated and
+          released, this says plainly what the page does NOT do: it is static between builds and never shows a fight as
+          live. No clock, round or in-fight number is shown anywhere on this page. */}
+      <p id="ufc-live-status" className="m-0 font-mono rounded-[10px] px-3 py-2" style={{ fontSize: 11, lineHeight: 1.6, color: "var(--vault-text-mute)", border: "1px dashed var(--vault-rule)" }}>
+        Live fight tracking for UFC is not available yet. This page shows the pregame card and forecasts; results and
+        grading appear after the card is officially settled.
+      </p>
+
 
       {/* P309: backtest verdicts beside the live record, in the public status vocabulary. */}
 
@@ -262,6 +245,64 @@ export default function UfcArchivePage() {
           Schedule source: {feed?.sourceVerdict?.sourceId ?? "ESPN"}
         </p>
       </section>
+
+      {/* P308 → UFC-001 · UX Phase A2: the card's simulation story is kept whole but made secondary — the board and the
+          matchup previews come first, and the story opens on request. Same component, same artifact. */}
+      <details className="rounded-[12px] px-3 py-2" style={{ border: "1px solid var(--vault-rule)" }}>
+        <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ fontSize: 11, color: "var(--vault-text)", minHeight: 32, display: "flex", alignItems: "center" }}>
+          Play the card story — the main event, step by step
+        </summary>
+        <div className="mt-2">
+          <SimulationStorySection manifest={buildUfcPresentation(card)} />
+        </div>
+      </details>
+
+      <header id="ufc-overview" className="flex flex-col gap-2 scroll-mt-24">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* P246 a11y: HubTitle above already carries the page's one <h1>; this local title was a
+              second identical <h1> (heading-one-unique). Same text, subordinate level. */}
+          <h2 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 24, fontWeight: 700, margin: 0 }}>
+            UFC
+          </h2>
+          <span
+            className="rounded-full px-2 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.1em]"
+            style={{ color: "var(--sport-ufc)", border: "1px solid var(--sport-ufc)", background: "color-mix(in srgb, var(--vault-crown) 8%, transparent)" }}
+          >
+            Predictions · experimental
+          </span>
+        </div>
+        <p className="max-w-2xl font-mono text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+          Winner, method and finishing round for every bout with enough tracked history — the rest say so. Paper and educational.
+        </p>
+        {/*
+          THIS PARAGRAPH WAS ASSERTING THE OPPOSITE OF THE PAGE.
+          It read "No sportsbook price is shown or compared — our odds authorisation covers NFL only".
+          Both halves had expired. A dedicated UFC receipt exists (500 credits, fight-winner prices,
+          bulk endpoint), prices have been captured under it since, and the paper cards below now
+          show a posted price on every leg. The sentence was true when written and became a
+          contradiction sitting directly above the numbers it denied — the same shape as a nav entry
+          reading "simulation pending" while rendering on a page full of simulations.
+          What is STILL true is the part that matters, and it is kept: the model's probabilities have
+          never been set against a no-vig line. Showing a price and being measured against one are
+          different things, and only the first has changed.
+        */}
+        <Explain label="What changed, and what is still refused">
+          The de-vigged-price read that ran until 2026-07-23 was retired: it restated the sportsbook
+          rather than forming an opinion. What publishes now is a fight model trained on 8,642
+          decisive bouts, with each of its three markets tested separately against a base-rate
+          baseline. Posted fight-winner prices are captured, but no paper cards are shown here while UFC
+          is not cleared for forward-looking model cards — and since 2026-08-22 the model
+          IS scored against the de-vigged line, bout by bout, in the graded record below: both probabilities recorded before each
+          card, graded on the official result. The sample is far too small to support any claim in
+          either direction, and the cumulative comparison currently favours the market. The settled
+          record from the retired era is kept below, behind its own label.
+        </Explain>
+        <nav className="flex flex-wrap gap-3 font-mono text-[11px]" style={{ color: "var(--vault-text-faint)" }}>
+          <Link href="/today" style={{ color: "var(--gtp-bank-heat)" }}>Live action → Today</Link>
+          <Link href="/results" style={{ color: "var(--vault-text-mute)" }}>Track record → Results</Link>
+          <Link href="/methodology" style={{ color: "var(--vault-text-mute)" }}>How everything is graded → Methodology</Link>
+        </nav>
+      </header>
 
       {labLadder ? <SportLabCards ladder={labLadder} nameEvent={false} tierRecords={loadSportLabStreamRecord("ufc")?.byTier} /> : null}
 

@@ -1118,6 +1118,58 @@ Slices (state on `main` 5ed6f6bc51, 2026-10-10):
 - **U3 claims copy (D2 HONEST):** rebuilt on fresh `main` as branch `claude/ufc-001-u3-claims-copy`; not merged. The department bundle was not cherry-picked.
 - **U1 grader retirement and readiness split (D1 YES):** not on `main`. It must land apart from Product Engine 4D.
 - **U4 Gall v Dumas:** D3 is still open; no correction is made.
+- **Shipped 2026-10-10:**
+  - #1053: title fight only on provider evidence, plus a fight-day freeze for the card build and odds capture;
+  - #1052: U3 claims copy.
+  - Both are Production-verified (see the session logs). UFC-001 stays **IN_PROGRESS**.
+
+#### UFC experience (UX phases; founder directive 2026-10-10; plan in `docs/ufc/UFC-001-UX-PLAN.md`)
+- **Phase A, prediction board, plus A2, page order:** one combined release in PR #1057 (A2 was consolidated from #1058); awaiting exact-head approval, to deploy after the Oct 10 card. Not merged.
+  - A2 order: board → honest live-status line (UFC live tracking not available yet) → compact matchup previews (closed `<details>`, who and where only; full analysis inside plus a bout-page link) → the card story on request → methodology → results.
+  - Nothing removed; `bout-N` anchors kept. `/ufc` at 1024 px: 15,106 px → 5,713 px.
+  - It is now `/ufc`'s events section: every bout once, main event first, with portraits, the pick, the published win chance and the experimental method lean (label only; fight-level, not "pick wins that way"), each row linking to its bout page.
+  - It meets the shared hub contract: `hubCounts` counts line and the standard unmodelled phrase.
+- **Phase B, bout pages; Phase C, evidence-based strengths and risks:** NOT_STARTED.
+  - Data available honestly today: tale of the tape (ESPN, static) and corpus outcomes as of 2026-08-08.
+  - Per-minute striking and grappling stats need a free point-in-time ingest of `ufc_fight_stats.csv`. That is a founder decision.
+- **Phase D, model explanation:** NOT_STARTED. Exact calibrated logit contributions are possible for the winner head, but need the builder to emit its coefficients. The current `reason` sentence is NOT a model attribution and must be relabelled or replaced.
+- **Producer copy defects found** (to fix in Phase B):
+  - `profileFor` says "Too few tracked losses" for fighters with 13–14 losses;
+  - the "Durable" wording;
+  - "mostly by submission" when the KO share is 40–60%;
+  - a `basisNote` saying "no UFC history" for fighters with 1 bout.
+
+#### UFC live tracking: capability gap (recorded 2026-10-10)
+- **Today there is no live UFC surface.**
+  - The gateway `app/api/_live-core.mjs` supports only `["nfl","mlb"]`, and only `mlb` is public by default (`LIVE_PUBLIC_SPORTS`).
+  - The client gate `lib/live/client.ts` is typed `"nfl" | "mlb"`.
+  - `/live` deliberately has no UFC tab.
+  - `/ufc` and the bout pages are static between builds: bout status changes only when Production rebuilds. Nothing on them claims to be live.
+- **Already built but not wired in** (imported only by tests):
+  - `lib/live/adapters/espn-mma.mjs` (ESPN MMA scoreboard: pre / in / post; round, with no R0; clock, with "-" as null; fighters by `competitor.id`; winner only when final);
+  - `lib/live/adapters/ufc-tracked.mjs` (the TERMINAL-market tracked-prediction contract: winner settleable; rounds measurable but not graded; method unsupported, because the scoreboard states no KO/SUB/DEC; ESPN `post` gives `FINAL_PROVISIONAL`, never canonical);
+  - fixtures for pre / live / in-round / final / settled.
+- **Known provider limits:**
+  - no method of victory or decision type on the scoreboard; the summary endpoint errors for these ids;
+  - replaced bouts disappear rather than showing as cancelled;
+  - `order` is the corner, not the fight sequence.
+- **Plan (future; not before a validated, approved release):**
+  1. Add `ufc` to `SUPPORTED_SPORTS` with an ESPN MMA request plan, reusing `espn-mma.mjs` and the existing `s-maxage` CDN cache and freshness thresholds. Keep it public-gated (`LIVE_PUBLIC_SPORTS` / `NEXT_PUBLIC_LIVE_SPORTS`) and default closed.
+  2. Add a UFC roster builder (the card's bouts in ufc.com order) and a `/live` UFC tab only once a roster exists, using the shared Live shell rather than a separate UX.
+  3. Row semantics from `ufc-tracked.mjs`:
+     - PREGAME forecast · LIVE (round / clock, unresolved) · FINAL_PROVISIONAL;
+     - FINAL_CANONICAL only from the settlement record (graded ledger);
+     - method shown as "not reported live".
+  4. Tests: fixture-driven contract tests plus a rendered stale-feed test. Verify on a real card in a preview before enabling publicly.
+  5. Dependencies: a bout-order source (ufc.com order, or the card artifact) and the cancellation / replacement rule (U4 / D3).
+
+#### U4 Gall v Dumas: preserved evidence for a general "withdrawn pairing" rule (founder decision pending; nothing applied)
+- **Frozen in snapshots** `snapshot-202609221527`, `snapshot-202609231748` and `snapshot-202609241534`: bout `2026-09-26:mickey gall|sedriques dumas`, providerBoutId 401923433, pick Gall at 0.5115 (market 0.5635).
+- **Replaced:** Gall was replaced. The final pre-card snapshot `snapshot-202609261455` holds `luis hernandez|sedriques dumas` instead, and that bout was graded (`graded.jsonl` row 49).
+- **Today:** `summary.json` reconciliation for 2026-09-26 reads frozen 9, graded 8, pending 1, with `pendingBoutIds` = the Gall pairing. It is pending indefinitely, because nothing closes a superseded pairing.
+- **Options:** (a) VOID this bout; (b) a general rule: a pairing absent from the final pre-start snapshot is WITHDRAWN (never graded, never void, excluded from the denominator); (c) leave it pending.
+- **Recommendation:** (b). No historical rewrite until the founder decides.
+- **Related diagnostic (P2):** the grader prints "12 bout(s) from 2026-09-26 … -7 day(s)". It labels all pending bouts with the oldest pending date (the Gall pairing). Grading is unaffected.
 
 ## `UFC-002` — World/process model
 **Status:** NOT_STARTED
@@ -2127,6 +2179,42 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - rendered guards 689 / 693 (3 skipped). The 1 failure is the main-wide parlay vacuity guard (`ask-published.test.mjs:56`), which is not caused by this change.
 - Result: a PR is ready for exact-head approval; not merged.
 - Vercel: Preview 0; Production 0 (one on merge).
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — #1052 release record (`UFC-001` U3)
+- **What merged:** #1052 (U3 claims copy, D2 HONEST), at founder-approved exact head `7a7b466971765e816e99a83bffd6f3cba5da1a08`, with `--match-head-commit`.
+  - Merge commit `86891b0530a41227615ba5231d72977d99414267`, 17:26:55Z.
+  - The pre-merge checks at that head:
+    - CI `quality` ✓ and `python` ✓; CLEAN; no PR integration in flight;
+    - scope 6 files (4 copy files, the guard and this roadmap), with no protected paths;
+    - the roadmap removes only the old UFC-001 status line;
+    - the guard passes 5 / 5 and fails 4 / 5 on `main`'s pre-#1052 copy.
+- **Production:** the live build `86891b0530` (17:28:32Z) contains the merge.
+  - `/ufc`, `/cage-chaos`, `/ufc/bout/401916276`, `/401927415`, `/401927418`, `/mr-dub`, `/goal-rush` and `/bucket-blitz` all return 200, with 0 of the removed claims and 0 "title fight".
+  - The D2 wording renders on `/ufc`, `/cage-chaos`, the bout pages and `/mr-dub`. `/goal-rush` and `/bucket-blitz` only link to Cage Chaos.
+  - The hub still shows 12 scheduled bouts and 11 identical forecasts (Walker 61%, Prado 63%, Shahbazyan 52%, Franco 70%, Pereira 71%, Gatto 54%, Duncan 50%, Camilo 74%, Godínez 55%, Fili 52%, Wellmaker 51%), plus "Predictions · Experimental".
+  - Mobile 375 px: no overflow and no console errors.
+  - No data files changed.
+- **Unrelated:** an automated data build failed at 16:24Z (`d023289584`). The next build (`da6025d138`, 16:27Z) succeeded and contains it.
+- **Grading check (dry, nothing written):**
+  - the results capture reads ESPN (19 completed in the 9-day window);
+  - the grader reports 72 snapshot bouts: 60 graded, and 12 awaiting results (tonight's 11 plus the Gall pairing).
+- **Vercel:** 1 Production build for the merge; Preview 0.
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — `UFC-001` UX Phase A (prediction board)
+- **Starting point:** main `1dc036b020`; branch `claude/ufc-001-ux-phase-a`.
+- **What changed:**
+  - `components/ufc/prediction-board.tsx` and `lib/sports/ufc/prediction-board.mjs` (+ test);
+  - `/ufc` `#ufc-games` renders the board (falls back to the shared `HubHeader` without a card);
+  - `docs/ufc/UFC-001-UX-PLAN.md`.
+  - Rows come only from `card-latest.json`. No forecast, model, eligibility, Results, odds, workflow or data change.
+- **Checks:**
+  - board tests (every bout once; forecasts equal the artifact; unmodelled stays unavailable; hrefs; no method number);
+  - `tsc` clean; unit phase (only the 2 local `live RLS`); build ✓;
+  - rendered guards 690 / 693 (3 skipped). The first build failed 4 guards: banned "win probability" wording, the shared counts line, and the unmodelled phrase. All were fixed.
+  - Preview at 375 / 768 / 1024 / 1440: no horizontal overflow; 12 unique bout links; tap targets ≥ 149 px; no console errors; a click opens `/ufc/bout/401916276/`.
+- **A2 (page order)** was consolidated into the same PR: #1058 was fast-forwarded into #1057's branch, so nothing reached `main`. Rendered guards 690 / 693, 0 failing. Preview at 375 / 1024 px: no overflow; 12 closed previews; expansion verified.
+- **Result:** PR ready for exact-head approval; not merged.
+- **Vercel:** Preview 0; Production 0 (one on merge).
 
 ---
 
