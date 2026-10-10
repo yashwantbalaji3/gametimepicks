@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-09T17:41:14.307Z",
+  "generatedAt": "2026-10-10T09:25:38.152Z",
   "canonical": {
     "record": "46-49",
     "bankroll": 14390.4,
@@ -8,7 +8,7 @@
     "drawdown": 6075,
     "profit": 14290.4,
     "roiMultiple": 142.9,
-    "portfolioMd5": "d20473a606504e9a020e5acdafa6b273"
+    "portfolioMd5": "483e409aaa418be5c19b4c00637a0d61"
   },
   "moneyGate": {
     "crownMinusDrawdownEqualsBankroll": true,
@@ -17,7 +17,7 @@
   },
   "slate": {
     "date": "2026-10-09",
-    "dailyPortfolioDate": "2026-10-09",
+    "dailyPortfolioDate": "2026-10-10",
     "activeBankroll": 14390.4,
     "openExposure": 0,
     "worldCupGames": 0,
@@ -32,14 +32,14 @@
         "state": "STALE",
         "artifactDate": "2026-10-08",
         "generatedAt": "2026-10-08T09:28:23.024Z",
-        "ageDays": 1
+        "ageDays": 2
       },
       {
         "source": "mlb/player-props",
         "state": "STALE",
         "artifactDate": "2026-10-07",
         "generatedAt": "2026-10-07T09:27:52.726Z",
-        "ageDays": 2
+        "ageDays": 3
       }
     ]
   },
@@ -105,7 +105,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-09",
-      "generatedAt": "2026-10-09T17:20:17Z",
+      "generatedAt": "2026-10-09T17:41:21Z",
       "sports": [
         {
           "sport": "epl",
@@ -215,65 +215,65 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-09T17:34:03.683Z",
-    "ageHours": 0.1,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "lastRunAt": "2026-10-10T09:25:37.409Z",
+    "ageHours": 0,
+    "ok": true,
+    "status": "pass",
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
-    "etDate": "2026-10-09",
-    "etTime": "13:41",
+    "etDate": "2026-10-10",
+    "etTime": "05:25",
     "stages": [
       {
         "stage": "schedule",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "06:47",
         "producedBy": "morning-projections"
       },
       {
         "stage": "board",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "06:47",
         "producedBy": "morning-projections"
       },
       {
         "stage": "teamMarkets",
         "present": false,
-        "state": "late",
+        "state": "pending",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "playerProps",
         "present": false,
-        "state": "late",
+        "state": "pending",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "simulations",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "predictions",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       }
     ],
-    "readyCount": 4,
+    "readyCount": 0,
     "totalStages": 6,
-    "lateCount": 2,
-    "signal": "RED",
-    "summary": "2 stage(s) overdue: teamMarkets (due 07:17 ET via mlb-daily-production), playerProps (due 07:17 ET via mlb-daily-production)"
+    "lateCount": 0,
+    "signal": "YELLOW",
+    "summary": "0/6 produced; the rest are not due yet"
   },
   "learningLoop": {
     "signal": "GREEN",
@@ -304,9 +304,10 @@
   },
   "warnings": [
     "World Cup board is empty (dormant or needs a refresh).",
-    "Sportsbook source mlb/team-markets is STALE (1d old).",
-    "Sportsbook source mlb/player-props is STALE (2d old).",
-    "MLB board is empty (dormant or needs a refresh)."
+    "Sportsbook source mlb/team-markets is STALE (2d old).",
+    "Sportsbook source mlb/player-props is STALE (3d old).",
+    "MLB board is empty (dormant or needs a refresh).",
+    "Slate (2026-10-09) is behind today (2026-10-10) — refresh/roll forward."
   ],
   "dailyChecklist": [
     {
@@ -315,7 +316,7 @@
     },
     {
       "step": "Slate is current",
-      "done": true
+      "done": false
     },
     {
       "step": "Products generated (WC or MLB)",
@@ -334,9 +335,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-10-09",
-  "nextRefreshDate": "2026-10-10",
-  "nextAction": "No active Bank Builder lane for 2026-10-09 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-10-10",
+  "nextRefreshDate": "2026-10-11",
+  "nextAction": "No active Bank Builder lane for 2026-10-10 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
