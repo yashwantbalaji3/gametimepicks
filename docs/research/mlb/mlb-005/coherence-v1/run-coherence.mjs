@@ -360,7 +360,10 @@ function engineReadouts(day, teamsOf, starterOf, mode = "v1") {
     });
     out.set(`${gamePk}|P|${sp.away}`, sm(kH.away)); out.set(`${gamePk}|P|${sp.home}`, sm(kH.home));
     // Game level, scored against the actual final (outcome only) with league-to-date baselines.
-    const runsOf = (side) => rowsG.filter((r) => r.side === side && r.batting).reduce((a, r) => a + (r.batting.r ?? 0), 0);
+    // A team's runs = the runs its OPPONENT's pitchers allowed. Batting lines miss pinch runners who scored without a PA
+    // (the capture keeps PA > 0 lines), so batting runs undercount ~9% of games; pitching runs match the official final
+    // in every 2024–2025 game (validate-boxscore-history.mjs).
+    const runsOf = (side) => rowsG.filter((r) => r.side !== side && r.pitching).reduce((a, r) => a + (r.pitching.r ?? 0), 0);
     const yAway = runsOf("away"); const yHome = runsOf("home");
     if (yAway !== yHome) {
       const base = lgGame.n >= 50 ? { pHome: lgGame.homeWins / lgGame.n, total: lgGame.totals.map((c) => (c + 0.5 / 31) / (lgGame.n + 0.5)) } : null;
