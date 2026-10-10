@@ -11,7 +11,7 @@ The detailed log is `OVERNIGHT-JOURNAL-2026-10-10.md`. This report is not a road
    - Public output sha256-identical on 4 slates. 6 fault injections all safe.
    - Overhead about 0.27 s per game. No workflow, odds or build-input change.
    - The batched roadmap update is in this head. **Not merged.**
-2. **#1043 MLB-001 pa-v3: `READY_FOR_FOUNDER_REVIEW` at `be19ba7002`.**
+2. **#1043 MLB-001 pa-v3: `READY_FOR_FOUNDER_REVIEW` at `be19ba7002`** (CI ✓ ✓, CLEAN).
    - Rule review found and fixed one more rule defect: **official Rule 9.06(f) walk-off hit bases**.
    - Reconciled with `main`; unit 9,223 / 9,227 (2 known RLS failures).
    - The default path is identical to `main`, apart from the already-disclosed `frozenPregame.modelVersion`.
@@ -23,7 +23,8 @@ The detailed log is `OVERNIGHT-JOURNAL-2026-10-10.md`. This report is not a road
 4. **Two genuine forward tests are registered and frozen** (option B, no Production change).
    - **B:** v2 and the coherent read-out; registered `e273bf4e2c` at 06:53Z.
    - **B2:** `mlb-k-workload-v3` and the coherent engine with the v3 workload; registered `2d83693e14` at 07:16Z.
-   - The first included game for both is 849831 tonight.
+   - **B-GAMES:** the coherent engine as a **game model**, graded from B's frozen game rows against the published game prediction of record; registered `b716996414` at 07:28Z; n ≥ 300 regular-season games.
+   - The first included game for all three is 849831 tonight.
    - Commit `e273bf4e2c` at 06:53Z; first included game 849831 tonight.
    - Pregame captures only; write-once rows.
    - The grader hides performance until each family's n.
@@ -80,6 +81,7 @@ On `main`, the roadmap still lists MLB-001 and MLB-003/004/005 as NOT_STARTED. #
 | Invariants | `world-invariants.mjs` | 8,028,000 worlds + tests | **0 violations**; 7 mutation probes caught |
 | #1044 run line vs market | `mlb-runline-market-eval@1` | 2026 graded | Model worse than market: +0.029 [+0.012, +0.045]; verified-served subset +0.032 [+0.013, +0.051] |
 | 2026 posted lines (exploratory) | harness `19584755bd` | 2026, examined many times | All challengers beat the published model on posted lines: engineSub − current K −0.047 [−0.062, −0.032], hits −0.013, TB −0.033, H+R+RBI −0.026. **All remain worse than the market**: engineSub − market K +0.019 [+0.010, +0.029], hits +0.0035 [+0.0015, +0.0056], TB +0.0048, H+R+RBI +0.0042. Decomposition: known BF would cut K count log loss by 0.116; known PA would cut hits by 0.045 |
+| Coherent engine as game model (exploratory) | `2881be0569` | 2026 (exposed; MLB-002 holdout overlap) | Winner log loss: engine 0.6816, **published 0.6995** (worse than coin), market 0.6684. Engine − published −0.018 [−0.033, −0.003] (verified-served subset −0.015 [−0.035, +0.003]); engine − market **+0.013 [+0.003, +0.023]** → forward test B-GAMES |
 | MLB-005 coherent worlds v3 (home field) | `3b5f5cd7b9` (a third, disclosed 2024 look) | 2024 dev | **DO_NOT_PROCEED**: winner −0.0015 [−0.0036, +0.0004]; P(home) 0.518 (actual 0.527); TB at the margin |
 | MLB-004 BF residual signals (exploratory) | `46bf23596b` | 2024 dev | Relief-to-start −6.5 BF; < 4 days rest −10.6; opener −7.1; first start −5.7 → `mlb-k-workload-v3` registered (`dd406d91d8`). **v3 2024 dev: −0.0138 [−0.0185, −0.0089]** against v2 (relief-to-start −0.234, openers −0.238); **no posted-line gain** on 2026 (0.7079 vs 0.7074), because those starts rarely have lines |
 
@@ -101,19 +103,21 @@ On `main`, the roadmap still lists MLB-001 and MLB-003/004/005 as NOT_STARTED. #
 | PR | Head | Base | CI | Mergeable | Behaviour impact | Readiness | Suggested order |
 |---|---|---|---|---|---|---|---|
 | #1048 (+#1047) | `793588ff3b` | main | ✓ ✓ | CLEAN | Private shadow file; public output byte-identical | **READY_FOR_FOUNDER_REVIEW** | 1 |
-| #1043 | `be19ba7002` | main | python ✓, quality (pending at last check) | — | None by default (pa-v2); opt-in pa-v3 | READY_FOR_FOUNDER_REVIEW once CI is green | 2 (could carry #1044's docs) |
+| #1043 | `be19ba7002` | main | ✓ ✓ | CLEAN | None by default (pa-v2); opt-in pa-v3 | READY_FOR_FOUNDER_REVIEW once CI is green | 2 (could carry #1044's docs) |
 | #1044 | `53f53c6814` | main | — | CLEAN | Docs only | Ride an approved integration | with 2 |
 | #1045 | `a4cd3b030a` | **main** (retargeted) | ✓ ✓ | — | Stage B restatements, **not applied** | DRAFT; founder gate | later |
-| #1049 | `5b1601225f` | #1045 | — | CLEAN | Timing amendment; 824424 HELD | DRAFT; founder gate | after #1045 |
+| #1049 | `6dc4a51182` | #1045 | (new run) | CLEAN at last check | Timing amendment, hardened tonight (contradictory evidence); 824424 HELD | DRAFT; founder gate | after #1045 |
 
 **No automatic multi-merge.** Each needs its own exact-head approval, one at a time.
 
 ## F. Founder decisions (gated)
 
 1. **#1048** (MLB-002 private forward shadow, #1047 + #1048 combined): approve merge at `793588ff3b`?
-2. **#1043** (MLB-001 pa-v3 opt-in plus Rule 9.06(f)): approve merge at the exact head once its CI is green? (Default output unchanged.) Bundle #1044's docs into it?
-3. **Forward test B:** confirm option B, the frozen-code forward replay, as the forward path for MLB-003/004/005 player families until a live workflow capture (option A) is proposed. Its rows are materialised after each slate with `materialize.sh`.
-4. **Stage B (#1045/#1049):** no action requested tonight; still gated.
+2. **#1043** (MLB-001 pa-v3 opt-in plus Rule 9.06(f)): approve merge at `be19ba7002` (CI ✓ ✓, CLEAN; default output unchanged)? Bundle #1044's docs into it?
+3. **Forward tests B, B2 and B-GAMES:** confirm option B, the frozen-code forward replay, as the forward path for MLB-003/004/005 player families until a live workflow capture (option A) is proposed. Its rows are materialised after each slate with `materialize.sh`.
+4. **Option A** (live pregame capture in `mlb-lineup-refresh`; design `docs/research/mlb/mlb-003-004/OPTION-A-LIVE-CAPTURE-PROPOSAL.md`): approve preparing it as its own PR after #1048?
+5. **Capture of extra box-score fields** (GIDP, errors, wild pitches) for 2024–2026: a free StatsAPI re-fetch of about 7,400 games (about 1 h at the same pacing). Needed for the next coherent-world mechanisms (double plays and advancement).
+6. **Stage B (#1045/#1049):** no action requested tonight; still gated.
 
 ## G. Next three engineering priorities
 
