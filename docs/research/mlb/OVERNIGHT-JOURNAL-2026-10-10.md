@@ -113,3 +113,51 @@ Working log for the founder's overnight directive. **Not a roadmap.** The author
 - Both merge cleanly with `main` (dry merge).
 - #1045's restatement log matches `main`'s committed classification exactly (22 = 21 + 824424 held; 4 NOT_SERVED; none outside). Status `PROPOSED_NOT_APPLIED`.
 - #1045 retargeted from the merged #1042 branch to `main`; still a draft. #1049 stays stacked on #1045. Nothing applied.
+
+### 06:40Z–06:50Z · MLB-001 · #1043 pushed
+- **Head `be19ba7002`:** the Rule 9.06(f) fix plus the `main` reconciliation.
+- **Tests:** unit 9,223 / 9,227 (2 known RLS failures, 2 skips); `tsc` clean.
+- **PR body:** updated with the walk-off rule, the re-verification and the MLB-005 coherence evidence.
+- **State:** **`READY_FOR_FOUNDER_REVIEW`**. CI was pending at the last check.
+
+### 06:40Z · MLB-002 #1044 · consistency check
+- On the 568 `VERIFIED_AGREES` games: model − market log loss **+0.032 [+0.013, +0.051]**, against +0.029 on all 805.
+- Conclusion unchanged; posted as a PR comment. Docs only; it should ride an approved integration.
+
+### 06:35Z–06:50Z · MLB-003/004 · data validation
+- Opposing pitchers' runs = the official linescore final in **4,859 / 4,859** cross-checked 2024–2025 games.
+- 0 identity, K/BF, IP/outs or PA-BF errors.
+- **Capture limitation:** 0-PA pinch runners are dropped, so team batting runs undercount about 9% of games. Rule: team runs come from pitching runs. Recorded in the holdout audit doc.
+
+### 06:20Z–06:45Z · MLB-005 · coherent worlds v2 (substitution) and corrected game level
+- **`mlb-coherent-worlds-v2`:** preregistered (`cb9a52e95e`). 4,014,000 worlds, 0 violations. PA 4.16 against 4.01 actual (v1 4.33).
+- **Engine v2 minus v2 analytic, count log loss:**
+
+  | Market | Engine v2 − v2 |
+  |---|---|
+  | K | −0.0068 |
+  | Hits | +0.0003 |
+  | **TB** | **+0.0036 [+0.0023, +0.0049]**, now PROCEED |
+  | H+R+RBI | +0.0012 |
+  | HR | +0.0008 |
+  | Runs | −0.0007 |
+  | RBI | −0.0002 |
+
+  All 7 markets PROCEED_TO_FORWARD_SHADOW. Against engine v1: hits −0.0027, H+R+RBI −0.0020.
+- **Corrected game level** (pitching-runs finals, n 1,956): winner −0.0089 [−0.0160, −0.0018], total log score −0.0238 [−0.0442, −0.0041] against league baselines.
+- **Structural gaps:** no home-field term (mean P(home) 0.500 against 0.527 actual); totals about 0.25 low.
+
+### 06:50Z–06:55Z · MLB-003/004/005 · FORWARD TEST B registered and frozen (genuinely prospective from here)
+- **Registration and code freeze:** `e273bf4e2c`, committed 06:53:26Z and pushed to `claude/mlb-005-coherent-worlds`.
+  - Amendment 1 (wording only): `2c3…`, pushed.
+  - Grader: `df30f710a2` (06:54:54Z).
+  - All three before any included game.
+- **Window:** games with first pitch after the registration. **The first included game is 849831 (2026-10-11 00:00Z).**
+- **Models:** `v2` analytic, and `engineSub` (coherent worlds with substitution plus Rule 9.06(f)); `current` and `market` from the board.
+- **Inputs:** pregame lineup and matchup captures and earlier box scores only.
+- **Rows:** write-once per date. The grader shows counts only until each family reaches its n (hits 2,000 / TB 1,000 / H+R+RBI 1,000 / K 300); `--look` is single-use.
+- **Materialising a date:** after its games.
+  1. Merge `main`, for the captures.
+  2. Capture that date's box scores (`capture-mlb-boxscore-outcomes.mjs --from D --to D --write`).
+  3. Run `run-forward-b.mjs --date D --write`.
+- Not wired into any workflow; no Production change.
