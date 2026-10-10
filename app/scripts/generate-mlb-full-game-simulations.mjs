@@ -22,7 +22,6 @@ import { stableHash } from "../src/lib/game-simulations/rng.ts";
 import { ENGINE_LEVEL_CANDIDATE_V1, engineParamsFor } from "../src/lib/mlb/full-game/engine-candidates.ts";
 import { INPUT_SNAPSHOT_VERSION, foldSnapshot, snapshotRowFor } from "../src/lib/mlb/full-game/input-snapshot.mjs";
 import { carryFrozenPregame } from "../src/lib/mlb/full-game/frozen-carry.mjs";
-import { DEFAULT_ENGINE_PARAMS } from "../src/lib/mlb/full-game/engine.ts";
 import { MATCHUP_V1_ID, MATCHUP_V1_LEAGUE, MATCHUP_V1_PA_BY_SLOT, MATCHUP_V1_PRIORS, matchupInputFor } from "../src/lib/mlb/full-game/matchup-features.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
