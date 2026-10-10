@@ -20,7 +20,10 @@ The detailed log is `OVERNIGHT-JOURNAL-2026-10-10.md`. This report is not a road
    - The invariant checker covers score, runs, RBI, scorers, outs, order, lines, ending, extras, workload, substitution and 9.06(f).
    - **8 million simulated 2024 games, 0 invariant violations.**
    - With substitution, player read-outs from the same simulated games are **non-inferior to the separate per-player model in all 7 count markets**, and strikeouts improve over v2. Development tier only.
-4. **A genuine forward test is registered and frozen** (option B, no Production change).
+4. **Two genuine forward tests are registered and frozen** (option B, no Production change).
+   - **B:** v2 and the coherent read-out; registered `e273bf4e2c` at 06:53Z.
+   - **B2:** `mlb-k-workload-v3` and the coherent engine with the v3 workload; registered `2d83693e14` at 07:16Z.
+   - The first included game for both is 849831 tonight.
    - Commit `e273bf4e2c` at 06:53Z; first included game 849831 tonight.
    - Pregame captures only; write-once rows.
    - The grader hides performance until each family's n.
@@ -30,9 +33,12 @@ The detailed log is `OVERNIGHT-JOURNAL-2026-10-10.md`. This report is not a road
    - **Forward validation design.**
    - **Box-score validation:** pitching runs = official finals 4,859 / 4,859. One capture limitation: pinch runners.
    - **Exploratory 2026 posted-line comparison:** section C.
-6. **TRUTH-001:**
+6. **New mechanisms tonight:**
+   - **`mlb-k-workload-v3`:** 2024 dev **−0.0138 [−0.0185, −0.0089]** against v2. The fix targets relief-to-start starts and openers. **No posted-line gain** on 2026: those starts rarely have lines.
+   - **Coherent-worlds v3 (home field):** P(home) 0.500 → 0.518 (actual 0.527), but the winner gain was not established (−0.0015 [−0.0036, +0.0004]). **DO_NOT_PROCEED**; not carried forward.
+7. **TRUTH-001:**
    - #1045 retargeted to `main` and verified against #1046's shipped classification (22 = 21 + 824424 held; 4 NOT_SERVED). Still a draft, **not applied**.
-   - #1049 unchanged (stacked).
+   - **#1049 hardened** (draft): contradictory deployment evidence, meaning a deployment marked READY at or after the actual start, can no longer unlock the actual-start rule; it is reported instead. 6 edge-case tests were added (early start, ms precision, cancelled, removal, whole committed history unchanged), and a mutation probe is caught. Still gated; 824424 still HELD.
    - #1044 consistency check posted.
 
 **Not done:**
@@ -74,6 +80,7 @@ On `main`, the roadmap still lists MLB-001 and MLB-003/004/005 as NOT_STARTED. #
 | Invariants | `world-invariants.mjs` | 8,028,000 worlds + tests | **0 violations**; 7 mutation probes caught |
 | #1044 run line vs market | `mlb-runline-market-eval@1` | 2026 graded | Model worse than market: +0.029 [+0.012, +0.045]; verified-served subset +0.032 [+0.013, +0.051] |
 | 2026 posted lines (exploratory) | harness `19584755bd` | 2026, examined many times | All challengers beat the published model on posted lines: engineSub − current K −0.047 [−0.062, −0.032], hits −0.013, TB −0.033, H+R+RBI −0.026. **All remain worse than the market**: engineSub − market K +0.019 [+0.010, +0.029], hits +0.0035 [+0.0015, +0.0056], TB +0.0048, H+R+RBI +0.0042. Decomposition: known BF would cut K count log loss by 0.116; known PA would cut hits by 0.045 |
+| MLB-005 coherent worlds v3 (home field) | `3b5f5cd7b9` (a third, disclosed 2024 look) | 2024 dev | **DO_NOT_PROCEED**: winner −0.0015 [−0.0036, +0.0004]; P(home) 0.518 (actual 0.527); TB at the margin |
 | MLB-004 BF residual signals (exploratory) | `46bf23596b` | 2024 dev | Relief-to-start −6.5 BF; < 4 days rest −10.6; opener −7.1; first start −5.7 → `mlb-k-workload-v3` registered (`dd406d91d8`). **v3 2024 dev: −0.0138 [−0.0185, −0.0089]** against v2 (relief-to-start −0.234, openers −0.238); **no posted-line gain** on 2026 (0.7079 vs 0.7074), because those starts rarely have lines |
 
 **What remains NOT QUALIFIED:** every MLB player family (hits, TB, H+R+RBI, runs, RBI, HR, K), `mlb-pa-matchup-v1`, pa-v3 (a rules change, not a model), and the coherent-worlds read-outs. The only qualifying path is forward test B (window open from tonight), or a later live capture, against posted lines.
@@ -110,8 +117,11 @@ On `main`, the roadmap still lists MLB-001 and MLB-003/004/005 as NOT_STARTED. #
 
 ## G. Next three engineering priorities
 
-1. **Materialise forward test B** after each slate: 849831 tonight, then the remaining postseason. Low cost, no approval needed; it's research data collection.
-2. **MLB-004 v3 → a forward registration B2** if its development result supports it; then MLB-005 game-model mechanisms (home field, double plays and errors), registered before they're evaluated.
+1. **Materialise forward tests B and B2** after each slate (`materialize.sh` / `materialize-b2.sh`): 849831 tonight, then the remaining postseason and 2027. Low cost, no approval needed; it's research data collection.
+2. **The remaining coherent-world gaps, each a registered version:**
+   - home field: needs a stronger design, since the per-PA multipliers were not enough;
+   - double plays, errors and wild pitches: totals 0.25 low;
+   - this needs those fields captured (GIDP, errors) for 2024–2026, a free StatsAPI re-capture to propose.
 3. **Integrate #1048 after approval,** then propose option A (live capture) for player families as its own PR.
 
 ## H. Cost and safety
