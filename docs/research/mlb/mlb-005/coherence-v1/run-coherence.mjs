@@ -32,7 +32,11 @@ const SUBST = process.argv.includes("--substitution");
 // Exploratory analyses (labelled in the output): posted-line comparison where settled leans exist (2026 only), and an
 // error decomposition (opportunity vs rate vs distribution). Neither changes any registered result.
 const LINES = process.argv.includes("--lines");
-const KV3 = process.argv.includes("--k-v3"); // mlb-k-workload-v3 (docs/research/mlb/mlb-004/k-workload-v3/PREREGISTRATION.md)
+const KV3 = process.argv.includes("--k-v3");
+const HFA = process.argv.includes("--hfa"); // mlb-coherent-worlds-v3 (PREREGISTRATION-V3-HOME-FIELD.md); implies the v2 substitution engine
+const hfaTot = { home: { pa: 0, k: 0, bb: 0, hr: 0, h: 0 }, away: { pa: 0, k: 0, bb: 0, hr: 0, h: 0 } };
+const hfaMult = (side) => { const a = hfaTot[side]; const o = hfaTot[side === "home" ? "away" : "home"]; const all = { pa: a.pa + o.pa }; const out = {}; for (const k of ["k", "bb", "hr", "h"]) { const rAll = all.pa ? (a[k] + o[k]) / all.pa : 0; out[k] = rAll > 0 ? ((a[k] + 20000 * rAll) / (a.pa + 20000)) / rAll : 1; } return out; };
+const applyMult = (q, m) => { const x = { strikeout: q.strikeout * m.k, walk: q.walk * m.bb, homeRun: q.homeRun * m.hr, single: q.single * m.h, double: q.double * m.h, triple: q.triple * m.h, reachOnError: 0 }; const tot = Object.values(x).reduce((a, b) => a + b, 0); return { ...x, fieldOut: Math.max(0, 1 - tot) }; }; // mlb-k-workload-v3 (docs/research/mlb/mlb-004/k-workload-v3/PREREGISTRATION.md)
 const V3 = { prior: 30, minFloor: 3 };
 const residuals3 = []; // actual BF − E_v3[BF], every earlier start (v3)
 const v3Train = []; // { month, sit, resid2 } — resid2 = actual BF − E_v2[BF]
@@ -299,15 +303,18 @@ const ENGINE_PARAMS = { ...DEFAULT_ENGINE_PARAMS, rules: OFFICIAL_RULES_2026, re
 const ENGINE_PARAMS_SUB = { ...DEFAULT_ENGINE_PARAMS, rules: OFFICIAL_RULES_2026, research: { explicitPa: true, workloadPmf: true, substitution: true } };
 const engineAuditSub = { games: 0, skipped: {}, worlds: 0, discarded: 0, violations: 0, samples: [], paSim: 0, paAct: 0, nBat: 0, ms: 0 };
 const gameRowsSub = [];
+const engineAuditHfa = { games: 0, skipped: {}, worlds: 0, discarded: 0, violations: 0, samples: [], paSim: 0, paAct: 0, nBat: 0, ms: 0 };
+const gameRowsHfa = [];
 function engineReadouts(day, teamsOf, starterOf, mode = "v1") {
   const out = new Map();
-  const audit = mode === "v1" ? engineAudit : engineAuditSub;
+  const audit = mode === "v1" ? engineAudit : mode === "sub" ? engineAuditSub : engineAuditHfa;
   const params = mode === "v1" ? ENGINE_PARAMS : ENGINE_PARAMS_SUB;
-  const lgH = mode === "sub" ? leagueHazard() : null;
+  const lgH = mode !== "v1" ? leagueHazard() : null;
+  const mH = mode === "hfa" ? { home: hfaMult("home"), away: hfaMult("away") } : null;
   const t0 = Date.now();
   const meta = new Map((day.games ?? []).map((g) => [g.gamePk, g]));
   const skip = (why) => { audit.skipped[why] = (audit.skipped[why] ?? 0) + 1; };
-  if (mode === "sub" && bench.pa < 500) { for (const _ of teamsOf.keys()) skip("burn-in-bench"); return out; }
+  if (mode !== "v1" && bench.pa < 500) { for (const _ of teamsOf.keys()) skip("burn-in-bench"); return out; }
   const Lr = { k: lr("k"), bb: lr("bb"), hr: lr("hr") };
   const pitcherCtx = (pid, team) => {
     const sp = pitchers.get(pid) ?? { startsBF: [], bf: 0, k: 0, bb: 0, hr: 0 };
@@ -339,10 +346,13 @@ function engineReadouts(day, teamsOf, starterOf, mode = "v1") {
       const own = batterRates(batters.get(r.playerId) ?? emptyBatter()); const c = ctx[side];
       const base = { playerId: r.playerId, name: String(r.playerId), team: r.team, expHits: null, expTotalBases: null, expHrr: null,
         pa: { vsStarter: mkPa(own, log5(own.k, c.st.k, Lr.k), log5(own.bb, c.st.bb, Lr.bb), log5(own.hr, c.st.hr, Lr.hr)), vsBullpen: mkPa(own, log5(own.k, c.pen.k, Lr.k), log5(own.bb, c.pen.bb, Lr.bb), log5(own.hr, c.pen.hr, Lr.hr)) } };
-      if (mode !== "sub") return base;
+      if (mode === "v1") return base;
       const bo = { h: bench.h / bench.pa, d: bench.d / bench.pa, t: bench.t / bench.pa, hr: bench.hr / bench.pa, k: bench.k / bench.pa, bb: bench.bb / bench.pa };
-      return { ...base, subHazard: hazardFor(r.playerId, lgH),
+      const withSub = { ...base, subHazard: hazardFor(r.playerId, lgH),
         subPa: { vsStarter: mkPa(bo, log5(bo.k, c.st.k, Lr.k), log5(bo.bb, c.st.bb, Lr.bb), log5(bo.hr, c.st.hr, Lr.hr)), vsBullpen: mkPa(bo, log5(bo.k, c.pen.k, Lr.k), log5(bo.bb, c.pen.bb, Lr.bb), log5(bo.hr, c.pen.hr, Lr.hr)) } };
+      if (mode !== "hfa") return withSub;
+      const m = mH[side];
+      return { ...withSub, pa: { vsStarter: applyMult(withSub.pa.vsStarter, m), vsBullpen: applyMult(withSub.pa.vsBullpen, m) }, subPa: { vsStarter: applyMult(withSub.subPa.vsStarter, m), vsBullpen: applyMult(withSub.subPa.vsBullpen, m) } };
     };
     const pIn = (pid, tm, side) => ({ playerId: pid, name: String(pid), team: tm, expStrikeouts: null, bfLimitPmf: bfPmf(ctx[side === "away" ? "home" : "away"].eBF) });
     const game = {
@@ -390,7 +400,7 @@ function engineReadouts(day, teamsOf, starterOf, mode = "v1") {
     const yAway = runsOf("away"); const yHome = runsOf("home");
     if (yAway !== yHome) {
       const base = lgGame.n >= 50 ? { pHome: lgGame.homeWins / lgGame.n, total: lgGame.totals.map((c) => (c + 0.5 / 31) / (lgGame.n + 0.5)) } : null;
-      if (base) (mode === "v1" ? gameRows : gameRowsSub).push({ date: day.date, yHome: yHome > yAway ? 1 : 0, total: yAway + yHome, engine: { pHome: homeWins / done, total: sm(totH) }, base });
+      if (base) (mode === "v1" ? gameRows : mode === "sub" ? gameRowsSub : gameRowsHfa).push({ date: day.date, yHome: yHome > yAway ? 1 : 0, total: yAway + yHome, engine: { pHome: homeWins / done, total: sm(totH) }, base });
       if (mode === "v1") pendingGames.push({ home: yHome > yAway ? 1 : 0, total: yAway + yHome });
     }
   }
@@ -417,7 +427,8 @@ for (const day of days) {
   for (const g of pendingGames) { lgGame.n += 1; lgGame.homeWins += g.home; lgGame.totals[Math.min(30, g.total)] += 1; }
   pendingGames = [];
   const eng = D >= SCORE_FROM ? engineReadouts(day, teamsOf, starterOf) : new Map();
-  const engSub = SUBST && D >= SCORE_FROM ? engineReadouts(day, teamsOf, starterOf, "sub") : new Map();
+  const engSub = (SUBST || HFA) && D >= SCORE_FROM ? engineReadouts(day, teamsOf, starterOf, "sub") : new Map();
+  const engHfa = HFA && D >= SCORE_FROM ? engineReadouts(day, teamsOf, starterOf, "hfa") : new Map();
 
   // Pitcher starts on D.
   for (const r of day.rows) {
@@ -442,7 +453,7 @@ for (const day of days) {
       }
     }
     const v1 = P.v1r != null ? fit(Array.from({ length: SUPPORT.k + 30 }, (_, i) => nbPmf(i, f.eBF * f.p, P.v1r)), SUPPORT.k) : null;
-    const ek = eng.get(`${r.gamePk}|P|${r.playerId}`); const eks = engSub.get(`${r.gamePk}|P|${r.playerId}`);
+    const ek = eng.get(`${r.gamePk}|P|${r.playerId}`); const eks = engSub.get(`${r.gamePk}|P|${r.playerId}`); const ekh = engHfa.get(`${r.gamePk}|P|${r.playerId}`);
     let v3 = null; let sit = null;
     if (KV3) {
       sit = situationOf(pitchers.get(r.playerId)?.appsMeta ?? [], D);
@@ -451,7 +462,7 @@ for (const day of days) {
       const bf3 = bfPmf3(e3);
       if (bf3 && P.v2kKappa != null) v3 = kMixture(bf3, f.p, P.v2kKappa);
     }
-    if (D >= SCORE_FROM && cur && v1 && v2) kRows.push({ date: D, y: k, models: { current: cur.pmf, v1, v2, ...(v2h ? { v2h } : {}), ...(ek ? { engine: ek, v2inf: kMixture(bf, f.p, Infinity) } : {}), ...(eks ? { engineSub: eks } : {}), ...(v3 ? { v3 } : {}) }, handKnown: v2h != null, engine: !!ek, engineSub: !!eks, pid: r.playerId, sit,
+    if (D >= SCORE_FROM && cur && v1 && v2) kRows.push({ date: D, y: k, models: { current: cur.pmf, v1, v2, ...(v2h ? { v2h } : {}), ...(ek ? { engine: ek, v2inf: kMixture(bf, f.p, Infinity) } : {}), ...(eks ? { engineSub: eks } : {}), ...(ekh ? { engineHfa: ekh } : {}), ...(v3 ? { v3 } : {}) }, handKnown: v2h != null, engine: !!ek, engineSub: !!eks, pid: r.playerId, sit,
       ...(DECOMPOSE && P.v2kKappa != null ? { dec: { bfAct: r.pitching.bf ?? 0, eBF: f.eBF, p: f.p, kappa: P.v2kKappa, oracleBF: betaBinom(Math.max(0, r.pitching.bf ?? 0), f.p, P.v2kKappa), oracleBFbinom: betaBinom(Math.max(0, r.pitching.bf ?? 0), f.p, Infinity) } } : {}) });
   }
 
@@ -497,14 +508,15 @@ for (const day of days) {
     }
     if (D >= SCORE_FROM && curH && curT && curR && v2) {
       const cur = { hits: normalCountPmf(curH.mu, curH.sigma, SUPPORT.hits), tb: normalCountPmf(curT.mu, curT.sigma, SUPPORT.tb), hrr: normalCountPmf(curR.mu, curR.sigma, SUPPORT.hrr) };
-      const eb = eng.get(`${r.gamePk}|${r.playerId}`); const ebs = engSub.get(`${r.gamePk}|${r.playerId}`);
-      bRows.push({ date: D, y, models: { current: cur, v1, v2, ...(v2h ? { v2h } : {}), ...(eb ? { engine: eb, v2inf: v2Batter(b, ctx, Infinity, P.runs, false) } : {}), ...(ebs ? { engineSub: ebs } : {}) }, handKnown: v2h != null, engine: !!eb, engineSub: !!ebs, pid: r.playerId,
+      const eb = eng.get(`${r.gamePk}|${r.playerId}`); const ebs = engSub.get(`${r.gamePk}|${r.playerId}`); const ebh = engHfa.get(`${r.gamePk}|${r.playerId}`);
+      bRows.push({ date: D, y, models: { current: cur, v1, v2, ...(v2h ? { v2h } : {}), ...(eb ? { engine: eb, v2inf: v2Batter(b, ctx, Infinity, P.runs, false) } : {}), ...(ebs ? { engineSub: ebs } : {}), ...(ebh ? { engineHfa: ebh } : {}) }, handKnown: v2h != null, engine: !!eb, engineSub: !!ebs, pid: r.playerId,
         ...(DECOMPOSE ? (() => { const pa = Math.max(0, x.pa ?? 0); const delta = new Array(Math.max(pa + 1, 1)).fill(0); delta[pa] = 1; return { dec: { paAct: pa, ePA: ePAOf(b), oraclePA: v2Batter(b, { ...ctx, paDist: delta }, P.v2hitKappa, P.runs, false) } }; })() : {}) });
     }
   }
 
   // ── update the state with D's games (after every prediction for D) ──
   updateSubstitutionState(day);
+  for (const r of day.rows) if (r.batting && (r.side === "home" || r.side === "away")) { const t = hfaTot[r.side]; const x = r.batting; t.pa += x.pa ?? 0; t.k += x.so ?? 0; t.bb += (x.bb ?? 0) + (x.hbp ?? 0); t.hr += x.hr ?? 0; t.h += (x.h ?? 0) - (x.hr ?? 0); }
   const teamGame = new Map();
   for (const r of day.rows) {
     if (r.pitching) {
@@ -720,6 +732,25 @@ if (DECOMPOSE) {
     pa: br.length ? { meanExpected: mean(br.map((r) => r.dec.ePA)), meanActual: mean(br.map((r) => r.dec.paAct)), mae: mean(br.map((r) => Math.abs(r.dec.ePA - r.dec.paAct))) } : null,
   };
 }
+let hfaReport = null;
+if (HFA) {
+  const pairs = gameRowsSub.map((g, i) => [g, gameRowsHfa[i]]).filter(([a, b]) => b && a.date === b.date && a.total === b.total && a.yHome === b.yHome);
+  const ll = (p, y) => -Math.log(y ? Math.min(1 - 1e-6, Math.max(1e-6, p)) : 1 - Math.min(1 - 1e-6, Math.max(1e-6, p)));
+  const nlT = (p, y) => -Math.log(Math.max(1e-12, p[Math.min(y, p.length - 1)]));
+  const d = pairs.map(([a, b]) => ({ date: a.date, w: ll(b.engine.pHome, a.yHome) - ll(a.engine.pHome, a.yHome), t: nlT(b.engine.total, a.total) - nlT(a.engine.total, a.total) }));
+  const winner = { mean: mean(d.map((x) => x.w)), ci95: bootByDate(d, d.map((x) => x.w)) };
+  const players = {};
+  for (const mk of ["k", "hits", "tb", "hrr", "hr", "r", "rbi"]) {
+    const rows = (mk === "k" ? kRows : bRows).filter((r) => r.models.engineHfa && r.models.engineSub);
+    const o = scoreMarket(rows, mk, (r, m) => (mk === "k" ? r.models[m] : r.models[m][mk]), (r) => (mk === "k" ? r.y : r.y[mk]), ["v2", "engineSub", "engineHfa"], "v2");
+    o.decision = engineAuditHfa.violations === 0 && o.vs["engineHfa-minus-v2"].ci95[1] <= 0.005 ? "PROCEED_TO_FORWARD_SHADOW" : "DO_NOT_PROCEED";
+    players[mk] = o;
+  }
+  hfaReport = { n: pairs.length, winnerMinusV2engine: winner, decision: winner.ci95[1] < 0 && engineAuditHfa.violations === 0 ? "PROCEED_TO_FORWARD_SHADOW" : "DO_NOT_PROCEED", totalLogScoreMinusV2engine: { mean: mean(d.map((x) => x.t)), ci95: bootByDate(d, d.map((x) => x.t)) },
+    meanPHome: { v3: mean(pairs.map(([, b]) => b.engine.pHome)), v2: mean(pairs.map(([a]) => a.engine.pHome)), actual: mean(pairs.map(([a]) => a.yHome)) },
+    winnerLogLoss: { v3: mean(pairs.map(([a, b]) => ll(b.engine.pHome, a.yHome))), v2: mean(pairs.map(([a]) => ll(a.engine.pHome, a.yHome))), league: mean(pairs.map(([a]) => ll(a.base.pHome, a.yHome))) },
+    multipliersFinal: { home: hfaMult("home"), away: hfaMult("away") }, audit: engineAuditHfa, players };
+}
 let kv3 = null;
 if (KV3) {
   const rs = kRows.filter((r) => r.models.v3);
@@ -731,12 +762,12 @@ if (KV3) {
   kv3 = { label: "mlb-k-workload-v3 — exploratory development (2024 exposed by the residual exploration)", ...o, bySituation: bySit, deltas: v3Delta };
 }
 const out = {
-  experiment: "mlb-coherent-worlds-v1", ...(kv3 ? { kWorkloadV3: kv3 } : {}), ...(lines ? { exploratoryPostedLines: lines } : {}), ...(decomposition ? { exploratoryDecomposition: decomposition } : {}), ...(SUBST ? { v2Substitution: subReport } : {}), label: SEASON === "2026" ? "EXPOSED (debugging only)" : "DEVELOPMENT (exploratory; can only earn PROCEED_TO_FORWARD_SHADOW)",
+  experiment: "mlb-coherent-worlds-v1", ...(kv3 ? { kWorkloadV3: kv3 } : {}), ...(hfaReport ? { v3HomeField: hfaReport } : {}), ...(lines ? { exploratoryPostedLines: lines } : {}), ...(decomposition ? { exploratoryDecomposition: decomposition } : {}), ...(SUBST ? { v2Substitution: subReport } : {}), label: SEASON === "2026" ? "EXPOSED (debugging only)" : "DEVELOPMENT (exploratory; can only earn PROCEED_TO_FORWARD_SHADOW)",
   season: Number(SEASON), worldsPerGame: ENG_WORLDS, gitHead: report.gitHead, fidelity,
   engineAudit: { ...engineAudit, meanPaSimulated: engineAudit.paSim / engineAudit.nBat, meanPaActual: engineAudit.paAct / engineAudit.nBat },
   readouts: engineReport, gameLevel,
 };
-const OUT = path.join(HERE, `coherence-${SEASON}-${SEASON === "2026" ? "exposed" : "dev"}${SUBST ? "-v2-substitution" : ""}${LINES || DECOMPOSE ? "-exploratory" : ""}${KV3 ? "-kv3" : ""}.json`);
+const OUT = path.join(HERE, `coherence-${SEASON}-${SEASON === "2026" ? "exposed" : "dev"}${SUBST ? "-v2-substitution" : ""}${LINES || DECOMPOSE ? "-exploratory" : ""}${KV3 ? "-kv3" : ""}${HFA ? "-v3-hfa" : ""}.json`);
 fs.writeFileSync(OUT, JSON.stringify(out, null, 1) + "\n");
 const f4 = (x) => (x == null ? "—" : x.toFixed(4));
 console.log(`engine: ${engineAudit.games} games, ${engineAudit.worlds} worlds, ${engineAudit.violations} invariant violations, ${engineAudit.discarded} discarded at cap, skipped ${JSON.stringify(engineAudit.skipped)}, ${(engineAudit.ms / 1000).toFixed(0)} s; mean PA simulated ${f4(out.engineAudit.meanPaSimulated)} vs actual ${f4(out.engineAudit.meanPaActual)}`);
@@ -750,5 +781,6 @@ if (SUBST) {
 }
 if (lines) for (const [mk, o] of Object.entries(lines.byMarket)) console.log(`LINES ${mk.padEnd(5)} n=${o.n} (market ${o.marketN}) ` + Object.entries(o.models).map(([k, v]) => `${k} LL ${f4(v.logLoss)} AUC ${f4(v.auc)}`).join(" | ") + " || vs current " + Object.entries(o.vsCurrent).map(([k, v]) => `${k} ${f4(v.mean)} [${f4(v.ci95[0])}, ${f4(v.ci95[1])}]`).join(" · ") + " || vs market " + Object.entries(o.vsMarket).map(([k, v]) => `${k} ${f4(v.mean)} [${f4(v.ci95[0])}, ${f4(v.ci95[1])}]`).join(" · "));
 if (decomposition) console.log("DECOMPOSE " + JSON.stringify(decomposition));
+if (hfaReport) { const h = hfaReport; console.log(`HFA n=${h.n}: winner LL v3 ${f4(h.winnerLogLoss.v3)} v2 ${f4(h.winnerLogLoss.v2)} league ${f4(h.winnerLogLoss.league)}; v3−v2 ${f4(h.winnerMinusV2engine.mean)} [${f4(h.winnerMinusV2engine.ci95[0])}, ${f4(h.winnerMinusV2engine.ci95[1])}] → ${h.decision}; total LS v3−v2 ${f4(h.totalLogScoreMinusV2engine.mean)} [${f4(h.totalLogScoreMinusV2engine.ci95[0])}, ${f4(h.totalLogScoreMinusV2engine.ci95[1])}]; P(home) v3 ${f4(h.meanPHome.v3)} v2 ${f4(h.meanPHome.v2)} actual ${f4(h.meanPHome.actual)}; violations ${h.audit.violations}; mult ${JSON.stringify(h.multipliersFinal)}`); for (const [mk, o] of Object.entries(h.players)) console.log(`  ${mk.padEnd(5)} engineHfa−v2 ${f4(o.vs["engineHfa-minus-v2"].countLogLoss)} [${f4(o.vs["engineHfa-minus-v2"].ci95[0])}, ${f4(o.vs["engineHfa-minus-v2"].ci95[1])}] engineSub−v2 ${f4(o.vs["engineSub-minus-v2"].countLogLoss)} → ${o.decision}`); }
 if (kv3) { console.log(`K v3 n=${kv3.n} v2 ${f4(kv3.models.v2.countLogLoss)} v3 ${f4(kv3.models.v3.countLogLoss)} v3-minus-v2 ${f4(kv3.vs["v3-minus-v2"].countLogLoss)} [${f4(kv3.vs["v3-minus-v2"].ci95[0])}, ${f4(kv3.vs["v3-minus-v2"].ci95[1])}] → ${kv3.decision}; slope v3 ${f4(kv3.models.v3.calibrationAtMain.slope)}`); for (const [k, v] of Object.entries(kv3.bySituation)) console.log(`   ${k.padEnd(16)} n=${v.n} ${f4(v.v3MinusV2)} ${v.ci95 ? `[${f4(v.ci95[0])}, ${f4(v.ci95[1])}]` : ""}`); }
 console.log(`→ ${path.relative(REPO, OUT)}`);
