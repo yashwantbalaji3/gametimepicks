@@ -204,6 +204,11 @@ export interface FullGameSimGame {
   extraInningsProbability: number | null;
   /** Simulated box-score aggregates from the SAME games. */
   players: { batters: SimBatterLine[]; pitchers: SimPitcherLine[] } | null;
+  /**
+   * MLB-001: present only on artifacts simulated under non-legacy rules — the rule set, the game's ruleset and
+   * its basis, and how many unresolved-at-cap games were discarded and re-drawn. Absent on every v2 artifact.
+   */
+  engineRules?: { id: string; ruleset: "REGULAR_SEASON" | "POSTSEASON" | null; rulesetBasis: string; discardedIncomplete: number };
   /** A 2–4 sentence factual story generated ONLY from the fields above. */
   gameStory: string[];
   /** Sportsbook comparison layer — display-only, never an input. */
@@ -281,4 +286,10 @@ export interface GameInput {
   homeStarter: PitcherInput | null;
   completeness: FullGameCompleteness;
   market: MarketComparison | null;
+  /**
+   * MLB-001: which rule set the game is played under, from StatsAPI's own `gameType` (R → REGULAR_SEASON;
+   * F/D/L/W → POSTSEASON) or, when the board predates that field, StatsAPI's season calendar. Null = unresolved.
+   */
+  ruleset?: "REGULAR_SEASON" | "POSTSEASON" | null;
+  rulesetBasis?: "GAME_TYPE" | "SEASON_CALENDAR" | "UNRESOLVED";
 }
