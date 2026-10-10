@@ -1,57 +1,61 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-10-10",
-  "checkedAt": "2026-10-10T05:10:21.763Z",
-  "treeHead": "c71a7f5a7",
+  "checkedAt": "2026-10-10T11:21:57.777Z",
+  "treeHead": "10046bfbc",
   "state": "NOT_DUE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 1,
   "owners": [
     {
       "id": "mlb-board",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-10T22:30:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-10-10T22:30:00.000Z",
+      "receiptAt": "2026-10-10T09:27:37.543853+00:00",
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "mlb/boards/2026-10-10.json"
     },
     {
       "id": "mlb-markets",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-10T23:00:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-10-10T23:00:00.000Z",
+      "receiptAt": "2026-10-10T09:29:11.836Z",
       "label": "MLB team markets + player props",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/team-markets/2026-10-10.json"
     },
     {
       "id": "mlb-simulations",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-10T23:00:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-10-10T23:00:00.000Z",
+      "receiptAt": "2026-10-10T11:16:47.000Z",
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/game-simulations/2026-10-10.json"
     },
     {
       "id": "risk-ladder",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-10T23:15:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-10-10T23:15:00.000Z",
+      "receiptAt": "2026-10-10T11:13:14Z",
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
         "mlb-markets"
       ],
-      "receiptPath": null
+      "receiptPath": "parlays/risk-ladder/2026-10-10.json"
     },
     {
       "id": "settlement",
@@ -149,7 +153,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-10-10T12:00:00.000Z",
-      "receiptAt": "2026-10-09T15:18:46Z",
+      "receiptAt": "2026-10-10T11:13:49Z",
       "label": "Offered-window matrix (all sports)",
       "workflow": "nightly-settle",
       "dependsOn": [],

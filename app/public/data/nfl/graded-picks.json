@@ -3,21 +3,21 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-10-09T15:18:11Z",
+ "generatedAt": "2026-10-10T11:13:13Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 105,
+  "counted": 106,
   "hits": 61,
-  "misses": 44,
+  "misses": 45,
   "voided": 2,
   "shown": 60,
-  "total": 107
+  "total": 108
  },
- "hitRate": 0.581,
- "recordBasis": "HISTORICAL_MODEL_FAVORED",
+ "hitRate": null,
+ "recordBasis": "MIXED",
  "byBasis": [
   {
    "basis": "HISTORICAL_MODEL_FAVORED",
@@ -25,11 +25,33 @@
    "hits": 61,
    "misses": 44,
    "hitRate": 0.581
+  },
+  {
+   "basis": "PUBLISHED",
+   "counted": 1,
+   "hits": 0,
+   "misses": 1,
+   "hitRate": 0
   }
  ],
  "sampleState": "EMERGING",
- "sampleNote": "105 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "106 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
+  {
+   "eventId": "nfl-401872980",
+   "when": "2026-10-08",
+   "eventName": null,
+   "subject": "TB @ DAL",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "HOME",
+   "actual": "AWAY",
+   "modelProbability": null,
+   "probabilityOfActual": 0.3819,
+   "marketProbabilityOfActual": null,
+   "hit": false
+  },
   {
    "eventId": "nfl-401872979",
    "when": "2026-10-05",
@@ -914,21 +936,6 @@
    "probabilityOfActual": 0.5734,
    "marketProbabilityOfActual": null,
    "hit": true
-  },
-  {
-   "eventId": "nfl-401872928",
-   "when": "2026-09-13",
-   "eventName": null,
-   "subject": "MIA @ LV",
-   "market": "Winner",
-   "basis": "HISTORICAL_MODEL_FAVORED",
-   "noPick": false,
-   "predicted": "AWAY",
-   "actual": "HOME",
-   "modelProbability": null,
-   "probabilityOfActual": 0.4647,
-   "marketProbabilityOfActual": null,
-   "hit": false
   }
  ]
 }
