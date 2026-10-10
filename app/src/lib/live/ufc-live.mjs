@@ -170,10 +170,22 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
   const endRound = matched?.state === "FINAL" && typeof matched?.period?.number === "number" && matched.period.number > 0
     ? matched.period.number : null;
   /* Elapsed at the finish, provider-reported and UNOFFICIAL (it has been corrected after the fact). */
-  const endClock = matched?.state === "FINAL" && matched?.period?.clockMeaning === "ELAPSED_AT_FINISH_UNOFFICIAL"
+  const providerEndClock = matched?.state === "FINAL" && matched?.period?.clockMeaning === "ELAPSED_AT_FINISH_UNOFFICIAL"
     ? str(matched?.period?.clock) : null;
+  /*
+   * ⚠ A STOPPAGE'S FIRST FINAL TIME IS OFTEN THE TIME *REMAINING* — corrected to elapsed minutes later.
+   *   Observed on every early stoppage of 2026-10-10 that ended mid-round between polls:
+   *     Frye–Harris   FINAL 2:01 (22:09:14Z) → 2:59 (22:10:45Z)
+   *     Ribeiro–Franco FINAL 3:11 (22:25:55Z) → 1:49 (22:28:59Z)
+   *     Bonfim–Prado  FINAL 0:37 (23:12:49Z) → 4:23 (23:15:50Z)
+   *   A single snapshot cannot tell which of the two it is holding, so a mid-round finish time is
+   *   WITHHELD on a provider final. Only "5:00" is unambiguous — remaining time at a finish can never be
+   *   5:00 — and it is shown, labelled unofficial (a distance bout, or a stoppage at the end of a round).
+   */
+  const endClock = providerEndClock === "5:00" ? providerEndClock : null;
+  const finishTimeWithheld = providerEndClock !== null && endClock === null;
 
-  /** @type {{ source: "PROVIDER"|"SETTLEMENT", winnerAthleteId: string|null, winnerName: string|null, round: number|null, clock: string|null, clockUnofficial: boolean } | null} */
+  /** @type {{ source: "PROVIDER"|"SETTLEMENT", winnerAthleteId: string|null, winnerName: string|null, round: number|null, clock: string|null, clockUnofficial: boolean, finishTimeWithheld: boolean } | null} */
   let result = null;
   if (state === UFC_LIVE_STATE.FINAL_PROVISIONAL) {
     const winnerAthleteId = str(matched?.winnerAthleteId);
@@ -184,6 +196,7 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
       round: endRound,
       clock: endClock,
       clockUnofficial: endClock !== null,
+      finishTimeWithheld,
     };
   } else if (state === UFC_LIVE_STATE.FINAL_CANONICAL) {
     const winnerName = str(settlement?.winnerName);
@@ -194,6 +207,7 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
       round: endRound,
       clock: endClock,
       clockUnofficial: endClock !== null,
+      finishTimeWithheld,
     };
   }
 

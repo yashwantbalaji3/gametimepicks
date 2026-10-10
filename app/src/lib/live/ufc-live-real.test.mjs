@@ -186,20 +186,26 @@ test("REAL 6 · ⚠ FINAL WITHOUT A WINNER → result pending: no winner, no out
   assert.equal(v.result.clockUnofficial, true);
 });
 
-test("REAL 7 · final WITH a winner, and the unofficial finish time (elapsed) — including the 2:01 → 2:59 correction", () => {
+test("REAL 7 · final WITH a winner; 5:00 shown as unofficial; a mid-round finish time WITHHELD (ESPN corrects it: 2:01 → 2:59)", () => {
   const p = view("2026-10-10T21:51:07Z", PEREIRA);
   assert.equal(p.state, UFC_LIVE_STATE.FINAL_PROVISIONAL);
   assert.equal(p.label, "Final · awaiting official result");
   assert.equal(p.result.winnerName, "Alice Pereira");
-  assert.deepEqual([p.result.round, p.result.clock, p.result.clockUnofficial], [1, "5:00", true], "stopped at the end of R1");
+  assert.deepEqual([p.result.round, p.result.clock, p.result.clockUnofficial, p.result.finishTimeWithheld], [1, "5:00", true, false], "stopped at the end of R1: 5:00 is unambiguous");
   assert.equal(p.outcome, null, "a provider winner is not a graded pick");
 
   const firstFinal = view("2026-10-10T22:09:14Z", FRYE);
   const corrected = view("2026-10-10T22:10:45Z", FRYE);
   assert.equal(firstFinal.result.winnerName, "Allen Frye Jr.");
-  assert.equal(firstFinal.result.clock, "2:01", "ESPN's first FINAL carried the remaining-time value");
-  assert.equal(corrected.result.clock, "2:59", "and was corrected to elapsed one poll later — which is why it is labelled unofficial");
-  assert.equal(corrected.result.clockUnofficial, true);
+  // What ESPN said: the remaining-time value first, elapsed one poll later.
+  assert.equal(envAt("2026-10-10T22:09:14Z", FRYE).period.clock, "2:01");
+  assert.equal(envAt("2026-10-10T22:10:45Z", FRYE).period.clock, "2:59");
+  // What we show: neither — one snapshot cannot tell which of the two it holds.
+  for (const v of [firstFinal, corrected]) {
+    assert.equal(v.result.clock, null);
+    assert.equal(v.result.finishTimeWithheld, true);
+    assert.equal(v.result.round, 1, "the finish round is still reported");
+  }
 });
 
 test("REAL 8 · deterministic replay: every bout only moves forward, and nothing is graded without a settlement", () => {
@@ -261,7 +267,8 @@ test("REAL 10 · RENDERED on real snapshots: clocks are labelled with what they 
   assert.match(pending, /ended R3 at 5:00, unofficial time/);
   assert.equal(/Reported winner|>Winner</.test(pending), false, "no winner is shown or inferred");
   const won = render("2026-10-10T22:10:45Z", FRYE);
-  assert.match(won, /ESPN reports Allen Frye Jr\. won \(ended R1 at 2:59, unofficial time\)/);
+  assert.match(won, /ESPN reports Allen Frye Jr\. won \(ended in R1; finish time not yet confirmed\)/);
+  assert.equal(/2:59|2:01/.test(won), false, "a mid-round provider finish time is not shown");
   assert.match(won, /Reported winner/);
   assert.equal(/Pick correct|Pick missed/.test(won), false);
 });

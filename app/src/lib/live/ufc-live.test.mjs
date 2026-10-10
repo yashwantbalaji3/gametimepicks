@@ -299,7 +299,8 @@ test("UFC-ST 4 · ⚠ a provider FINAL is FINAL_PROVISIONAL: winner REPORTED, pi
   const v = deriveUfcBoutState({ bout: bout(), envelope: envOf(FIX.providerFinal), feed: "OK", nowMs: NOW_FRESH });
   assert.equal(v.state, UFC_LIVE_STATE.FINAL_PROVISIONAL);
   assert.equal(v.group, "AWAITING_OFFICIAL_RESULT");
-  assert.deepEqual(v.result, { source: "PROVIDER", winnerAthleteId: "5063403", winnerName: "Yazmin Jauregui", round: 1, clock: "1:02", clockUnofficial: true });
+  // The mid-round finish time (1:02) is withheld on a provider final: see ufc-live-real.test.mjs REAL 7.
+  assert.deepEqual(v.result, { source: "PROVIDER", winnerAthleteId: "5063403", winnerName: "Yazmin Jauregui", round: 1, clock: null, clockUnofficial: false, finishTimeWithheld: true });
   assert.equal(v.outcome, null, "the pick matched the reported winner, and is still not marked correct");
   assert.equal(v.round, null, "a live round is not shown on a finished bout");
 });
@@ -552,12 +553,12 @@ test("UFC-UI 5 · RENDERED: every state says only what it knows", () => {
   assert.match(walk, /Scheduled/);
 
   const prov = render(bout(), envOf(FIX.providerFinal), "OK", NOW_FRESH);
-  assert.match(prov, /ESPN reports Yazmin Jauregui won \(ended R1 at 1:02, unofficial time\)\. Official result pending — the pick is not graded yet\./);
+  assert.match(prov, /ESPN reports Yazmin Jauregui won \(ended in R1; finish time not yet confirmed\)\. Official result pending — the pick is not graded yet\./);
   assert.match(prov, /Reported winner/);
   assert.match(prov, /Method of victory is not reported by the live feed\./);
 
   const canon = render(bout({ winnerName: "Yazmin Jauregui", hit: true, asOf: null }), envOf(FIX.providerFinal), "OK", NOW_FRESH);
-  assert.match(canon, /Official result: Yazmin Jauregui won \(provider: ended R1 at 1:02, unofficial time\)\./);
+  assert.match(canon, /Official result: Yazmin Jauregui won \(provider: ended in R1; finish time not yet confirmed\)\./);
   assert.match(canon, /Pick correct/);
 
   for (const html of [stale, walk, prov]) {

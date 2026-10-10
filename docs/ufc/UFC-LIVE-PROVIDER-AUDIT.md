@@ -42,7 +42,7 @@ This document records what the provider states. Nothing below was inferred from 
 | Winner | `competitors[].winner` against `competitors[].id` | Pereira (`5261515`) flagged at her first FINAL (21:51:07Z). Frye Jr. (`5327626`) flagged at his first FINAL (22:09:14Z). **Gatto–Kareckaite: FINAL with no winner flag** from 21:34:30Z through at least 22:22:53Z (48+ min) | **VERIFIED_LIVE**, with a **winner-lag / no-winner case**. A final without a flag is shown as "result pending" |
 | Winning method | none (no official field) | `competitions[].details[].type.text` is provider play-by-play: "Fight Open", "Walkout", "Tale of the tape", "Staredown", "Round Start", "Takedown Attempt", "Takedown", "Submission Attempt", "Knockdown", "Round End", "Round Unpause", "Fight Over", "Results", and **"Unofficial Winner Kotko"** (exactly that text, for both Pereira's and Frye's stoppages). For Gatto's distance bout the details end "Round End", "Fight Over", "Results" | **UNAVAILABLE as an official field.** "Kotko" is ambiguous (plausibly "KO/TKO" with the slash dropped), names nobody, and is labelled unofficial by the provider itself. Not read |
 | Official finish round | `status.period` at `post` | Gatto 3, Pereira 1, Frye 1 | **VERIFIED_LIVE**, provider-reported |
-| Official finish time | `status.displayClock` at `post` | **Elapsed**, unlike in-round: Gatto R3 `5:00` / 300; Pereira R1 `5:00` / 300 (an end-of-round stoppage); Frye **R1 `2:01` at the first FINAL (22:09:14Z), corrected to `2:59` / 179 one poll later (22:10:45Z)** | **VERIFIED_LIVE**, but **unofficial**: it has been revised after FINAL. Always labelled "unofficial time" |
+| Official finish time | `status.displayClock` at `post` | **Elapsed**, unlike in-round: Gatto R3 `5:00` / 300; Pereira R1 `5:00` / 300 (an end-of-round stoppage). **For every mid-round stoppage, the first FINAL carried the time *remaining*, corrected to elapsed 1–3 min later:** Frye–Harris `2:01` (22:09:14Z) → `2:59` (22:10:45Z); Ribeiro–Franco `3:11` (22:25:55Z) → `1:49` (22:28:59Z); Bonfim–Prado `0:37` (23:12:49Z) → `4:23` (23:15:50Z). Price–Shahbazyan went straight to `1:58` (End R1 `3:02` → FINAL `1:58`) | **VERIFIED_LIVE**, but **unofficial and unreliable mid-round**. One snapshot cannot tell whether it holds the remaining or the elapsed value, so a mid-round finish time is **withheld** ("ended in R1; finish time not yet confirmed"). Only `5:00` is unambiguous, and it is shown as "unofficial time" |
 | Judges' scores | `competitors[].linescores[0].linescores[]` | Absent until FINAL. Gatto–Kareckaite at 21:34:30Z: Gatto 28/27/28 (83), Kareckaite 28/29/28 (85) | **VERIFIED_LIVE** (distance bouts only). **Not used**: it is not a method or result field, and with no winner flag nothing is inferred from it (these scores could read as a split, a majority draw or anything else; that is the official result's job) |
 | Live stats | `competitors[].statistics` | Key present, **empty on every capture** | **UNAVAILABLE** |
 
@@ -56,7 +56,7 @@ This document records what the provider states. Nothing below was inferred from 
 | IN_ROUND | `STATUS_IN_PROGRESS`, `STATUS_IN_PROGRESS_2` | yes, "R2 · 2:45 remaining" | time **remaining** in the round |
 | ROUND_ENDED | `STATUS_END_OF_ROUND` | no, "End of R2" | `"-"`, or the remaining time at a stoppage. Never shown |
 | IN_PLAY_OTHER | any other `in` name with a round | round only | direction not observed, so not shown |
-| FINAL | `STATUS_FINAL` (post) | yes, "ended R1 at 2:59, unofficial time" | time **elapsed** at the finish. Provider-reported; can be revised |
+| FINAL | `STATUS_FINAL` (post) | `5:00` only: "ended R3 at 5:00, unofficial time"; otherwise "ended in R1; finish time not yet confirmed" | time **elapsed** at the finish. But a stoppage's first FINAL value is often the remaining time, corrected minutes later |
 
 ## Replaced and cancelled bouts
 
@@ -73,7 +73,7 @@ This document records what the provider states. Nothing below was inferred from 
 ## What the integration does with this
 
 - **Gateway:** one dated scoreboard call; public only if `LIVE_PUBLIC_SPORTS` names `ufc`, and closed by default.
-- **`espn-mma.mjs`:** adds `phase` and `clockMeaning` to each bout. The clock is carried only in IN_ROUND (remaining) and FINAL (elapsed, unofficial).
+- **`espn-mma.mjs`:** adds `phase` and `clockMeaning` to each bout. The clock is carried only in IN_ROUND (remaining) and FINAL (elapsed, unofficial). `ufc-live.mjs` shows a FINAL clock only when it is `5:00`.
 - **`ufc-live.mjs`:**
   - **UPCOMING:** Scheduled, Pre-fight or Walkouts.
   - **LIVE:** "R2 · 2:45 remaining", or "End of R2" with no clock.

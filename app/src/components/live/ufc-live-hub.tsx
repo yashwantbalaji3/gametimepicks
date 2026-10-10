@@ -56,10 +56,15 @@ function liveLine(view: View): string | null {
   return view.clock ? `R${view.round} · ${view.clock} remaining` : `R${view.round}`;
 }
 
-/** "ended R1 · 2:59, unofficial" — the finish as ESPN reported it. Elapsed time, and never official. */
+/**
+ * "ended R3 at 5:00, unofficial time" — the finish as ESPN reported it, elapsed and never official.
+ * A mid-round finish time is withheld on a provider final (ESPN's first value is often the time
+ * remaining, corrected minutes later), and the line says so rather than showing a number.
+ */
 function finishLine(result: View["result"]): string | null {
   if (!result || result.round === null) return null;
-  return result.clock ? `ended R${result.round} at ${result.clock}, unofficial time` : `ended in R${result.round}`;
+  if (result.clock) return `ended R${result.round} at ${result.clock}, unofficial time`;
+  return result.finishTimeWithheld ? `ended in R${result.round}; finish time not yet confirmed` : `ended in R${result.round}`;
 }
 
 type View = ReturnType<typeof deriveUfcBoutState>;
