@@ -192,3 +192,14 @@ Working log for the founder's overnight directive. **Not a roadmap.** The author
   - forecast-ledger 37/37; unit 9,231 / 9,236 before the fix (2 RLS + the fixed test).
 - **#1043** `be19ba7002`: CI **green** (`quality` ✓, `python` ✓), **CLEAN**. Now fully READY_FOR_FOUNDER_REVIEW.
 - **Option A** live-capture proposal written (design only).
+
+### 07:25Z–07:50Z · game-level exploratory, B-GAMES, B2 combination check, MLB-005 promotion design, wrap-up
+- **Coherent engine as a game model (2026, exploratory):** winner log loss 0.6816, against published 0.6995 and market 0.6684.
+  - Engine − published −0.018 [−0.033, −0.003]; the verified-served subset includes 0.
+  - Engine − market +0.013 [+0.003, +0.023].
+- **Forward test B-GAMES:** registered `b716996414` (07:28Z). Grades B's frozen game rows against the published prediction of record; n ≥ 300 regular-season games.
+- **B2 engine combination (2024, exploratory, after its freeze):** K −0.0153 [−0.0217, −0.0087] against engineSub; batters unchanged; 0 violations.
+- **MLB-005 evaluation and promotion design** written.
+- **Amendment 3:** the window is the scheduled start, as the frozen code does. No game affected. Code review found no defect.
+- **Safety sweep:** since 06:00Z the only `main` commit is a bot data commit. Vercel shows no Preview, and no deployment from any branch of mine.
+- **Stopped at 07:50Z (03:50 EDT).** The remaining items need founder decisions, or would be further looks at 2024 (overfitting risk). The next evidence is tonight's forward games.

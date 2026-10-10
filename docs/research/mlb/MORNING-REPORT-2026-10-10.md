@@ -1,6 +1,6 @@
 # Morning report: Lane A (Core Intelligence), overnight 2026-10-10
 
-**Window worked:** 06:08Z → (end time at the bottom), i.e. 02:08 EDT onwards, continuously; nothing stopped it early.
+**Window worked:** 06:08Z → 07:50Z (02:08 → 03:50 EDT), continuously; nothing interrupted it. I stopped at 03:50 EDT, not 08:00, because the remaining work either needs a founder decision (section F) or would be another look at the already thrice-used 2024 season. The next evidence comes from tonight's forward games, not from more replays. No busywork was added to fill the window.
 
 The detailed log is `OVERNIGHT-JOURNAL-2026-10-10.md`. This report is not a roadmap: the roadmap update for the next integration is drafted in section B and in #1048's head.
 
@@ -25,7 +25,6 @@ The detailed log is `OVERNIGHT-JOURNAL-2026-10-10.md`. This report is not a road
    - **B2:** `mlb-k-workload-v3` and the coherent engine with the v3 workload; registered `2d83693e14` at 07:16Z.
    - **B-GAMES:** the coherent engine as a **game model**, graded from B's frozen game rows against the published game prediction of record; registered `b716996414` at 07:28Z; n ≥ 300 regular-season games.
    - The first included game for all three is 849831 tonight.
-   - Commit `e273bf4e2c` at 06:53Z; first included game 849831 tonight.
    - Pregame captures only; write-once rows.
    - The grader hides performance until each family's n.
    - A materialisation guard refuses any code drift.
@@ -59,12 +58,12 @@ The detailed log is `OVERNIGHT-JOURNAL-2026-10-10.md`. This report is not a road
 | `MLB-005` | Architecture; contract draft; **coherence v1/v2 results** | Engine research hooks + invariants (research branch) | Not proposed | Forward test B (`engineSub`) | None |
 | `TRUTH-001` | — | #1045/#1049 drafts | #1045 retargeted to `main` | — | #1046 DEPLOYED (yesterday); Stage B not applied |
 | `CONTRACT-001` | World contract draft: additive fields only | — | — | — | — |
-| `LEDGER-001` | Timing amendment (#1049) unchanged | — | Gated | — | — |
+| `LEDGER-001` | Timing amendment (#1049) hardened: contradictory evidence; edge tests | Draft `6dc4a51182` | Gated | — | — |
 | `RESULTS-001` | — | — | — | — | Unchanged |
 | `EVAL-001` | Forward protocol with single-look grader, written before any look | — | — | — | — |
 | `COST-001` | 0 Preview, 0 Production deployments tonight; no workflow change | — | — | — | — |
 
-On `main`, the roadmap still lists MLB-001 and MLB-003/004/005 as NOT_STARTED. #1048's head corrects that to the state as of 06:10Z. Tonight's later results (MLB-005 v2, forward test B, the #1043 rule fix, data validation) go into the next integration after #1048. The draft text is section C of this report plus the journal.
+On `main`, the roadmap still lists MLB-001 and MLB-003/004/005 as NOT_STARTED. #1048's head corrects that to the state as of 06:10Z. Tonight's later results (MLB-005 v2, forward test B, the #1043 rule fix, data validation) go into the next integration after #1048. The draft text is `ROADMAP-UPDATE-DRAFT-2026-10-10-overnight.md`.
 
 ## C. Statistical evidence
 
@@ -94,8 +93,9 @@ On `main`, the roadmap still lists MLB-001 and MLB-003/004/005 as NOT_STARTED. #
 |---|---|---|---|
 | `claude/mlb-002-matchup-forward-shadow` (#1048) | `793588ff3b` | Integration: #1047 + #1048 + budget/provenance hardening + roadmap | Unit 9,218 / 9,222 (2 RLS); tsc clean; byte identity ×4; fault injection ×6; CI ✓ |
 | `claude/mlb-001-rule-corrections` (#1043) | `be19ba7002` | pa-v3 + Rule 9.06(f) + main merge | Unit 9,223 / 9,227 (2 RLS); tsc; rules/engine/simulate 30/30; default byte identity |
-| `claude/mlb-005-coherent-worlds` (research, no PR) | (latest pushed) | Engine research hooks; invariants; coherence harness and results; forward test B (frozen code, grader, materialise guard); world contract draft; k-workload-v3 registration | world-invariants 11/11 + engine/rules/simulate (41 total) |
-| `claude/mlb-003-004-baseline-audit` (research, no PR) | (latest pushed) | Availability matrix; forward design; box-score validation; BF residual exploration; journal; this report | Read-only scripts |
+| `claude/mlb-005-coherent-worlds` (research, no PR) | `6b2737da42` | Engine research hooks; invariants; coherence harness and results; forward test B (frozen code, grader, materialise guard); world contract draft; k-workload-v3 registration | world-invariants 11/11 + engine/rules/simulate (41 total) |
+| `claude/truth-001-ledger-timing-amendment` (#1049, draft) | `6dc4a51182` | Contradictory-evidence rule + 6 edge-case tests | forecast-ledger 37/37; unit (Node 20.4) 2 RLS failures + 1 path issue fixed and re-run |
+| `claude/mlb-003-004-baseline-audit` (research, no PR) | (this commit) | Availability matrix; forward design; box-score validation; BF residual exploration; journal; this report | Read-only scripts |
 
 **Known local failures:** only the 2 `live RLS` tests (they need Postgres). No new regressions.
 
@@ -104,7 +104,7 @@ On `main`, the roadmap still lists MLB-001 and MLB-003/004/005 as NOT_STARTED. #
 | PR | Head | Base | CI | Mergeable | Behaviour impact | Readiness | Suggested order |
 |---|---|---|---|---|---|---|---|
 | #1048 (+#1047) | `793588ff3b` | main | ✓ ✓ | CLEAN | Private shadow file; public output byte-identical | **READY_FOR_FOUNDER_REVIEW** | 1 |
-| #1043 | `be19ba7002` | main | ✓ ✓ | CLEAN | None by default (pa-v2); opt-in pa-v3 | READY_FOR_FOUNDER_REVIEW once CI is green | 2 (could carry #1044's docs) |
+| #1043 | `be19ba7002` | main | ✓ ✓ | CLEAN | None by default (pa-v2); opt-in pa-v3 | **READY_FOR_FOUNDER_REVIEW** | 2 (could carry #1044's docs) |
 | #1044 | `53f53c6814` | main | — | CLEAN | Docs only | Ride an approved integration | with 2 |
 | #1045 | `a4cd3b030a` | **main** (retargeted) | ✓ ✓ | — | Stage B restatements, **not applied** | DRAFT; founder gate | later |
 | #1049 | `6dc4a51182` | #1045 | (new run) | CLEAN at last check | Timing amendment, hardened tonight (contradictory evidence); 824424 HELD | DRAFT; founder gate | after #1045 |
@@ -122,7 +122,7 @@ On `main`, the roadmap still lists MLB-001 and MLB-003/004/005 as NOT_STARTED. #
 
 ## G. Next three engineering priorities
 
-1. **Materialise forward tests B and B2** after each slate (`materialize.sh` / `materialize-b2.sh`): 849831 tonight, then the remaining postseason and 2027. Low cost, no approval needed; it's research data collection.
+1. **Materialise forward tests B and B2** (B-GAMES reads B's rows) after each slate (`materialize.sh` / `materialize-b2.sh`): 849831 tonight, then the remaining postseason and 2027. Low cost, no approval needed; it's research data collection.
 2. **The remaining coherent-world gaps, each a registered version:**
    - home field: needs a stronger design, since the per-PA multipliers were not enough;
    - double plays, errors and wild pitches: totals 0.25 low;
@@ -133,8 +133,8 @@ On `main`, the roadmap still lists MLB-001 and MLB-003/004/005 as NOT_STARTED. #
 
 - **API:** free StatsAPI only. Box scores for 10-07 → 10-09 (0 new games), plus the handedness reference yesterday. **0 odds credits.**
 - **Vercel:** **0 Preview, 0 Production deployments** tonight. Branch pushes to `claude/*` do not deploy, and no workflow, Vercel or ignore-build file was changed.
-- **CI:** GitHub Actions on #1048, #1043 and #1045 (retargets and pushes): 3 quality-gate runs.
-- **Local compute:** about 25 min of engine simulation (≈ 16 M simulated games in total), plus unit suites.
+- **CI:** GitHub Actions on #1048, #1043, #1045 and #1049 (retargets and pushes): about 5 quality-gate runs.
+- **Local compute:** about 40 min of engine simulation (≈ 60 M simulated games in total), plus 4 unit-suite runs.
 - **Repository data:** research outputs of about 2–5 MB under `docs/research/mlb/`, all internal, none a build input. A public repository makes them readable, and they contain only derived statistics, no raw provider payloads.
 
 ## I. Integrity declaration
