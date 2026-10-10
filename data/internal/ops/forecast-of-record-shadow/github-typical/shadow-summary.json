@@ -1,0 +1,1336 @@
+{
+  "schema": "gtp.mlb.served-forecast-of-record-shadow@1",
+  "deployments": "data/internal/ops/production-deployments/github-2026-07-20_2026-10-10T00-21-19Z.json",
+  "window": {
+    "from": "2026-07-20T00:00:00.000Z",
+    "to": "2026-10-10T00:21:19.264Z"
+  },
+  "recordClockSec": {
+    "early": 60,
+    "late": 60
+  },
+  "untrustedStates": {
+    "states": [
+      "FAILURE",
+      "ABANDONED"
+    ],
+    "lagSec": 3600
+  },
+  "startBasis": "actual first pitch interval (play-by-play pitch event, 10 s) from data/internal/mlb/actual-first-pitch/2026-10-10T01-49-36Z.json",
+  "games": 810,
+  "byStatus": {
+    "SERVED": 612,
+    "EVIDENCE_GAP": 79,
+    "BUILD_UNREADABLE": 5,
+    "NOT_SERVED": 3,
+    "AMBIGUOUS_NEAR_CUTOFF": 71,
+    "AMBIGUOUS_DEPLOYMENT_STATE": 40
+  },
+  "servedAndAgreesWithGrader": 593,
+  "servedButGraderGradedADifferentRevision": [
+    {
+      "gamePk": 822771,
+      "date": "2026-08-27",
+      "gradedSource": "snapshot:2026-08-27/snapshot-202608272305.json",
+      "publishedAt": "2026-08-27T18:20:53Z"
+    },
+    {
+      "gamePk": 823581,
+      "date": "2026-08-27",
+      "gradedSource": "snapshot:2026-08-27/snapshot-202608272305.json",
+      "publishedAt": "2026-08-27T18:20:53Z"
+    },
+    {
+      "gamePk": 823744,
+      "date": "2026-08-28",
+      "gradedSource": "snapshot:2026-08-28/snapshot-202608282334.json",
+      "publishedAt": "2026-08-28T23:23:31Z"
+    },
+    {
+      "gamePk": 823662,
+      "date": "2026-08-30",
+      "gradedSource": "snapshot:2026-08-30/snapshot-202608301805.json",
+      "publishedAt": "2026-08-30T17:57:09Z"
+    },
+    {
+      "gamePk": 824424,
+      "date": "2026-09-04",
+      "gradedSource": "snapshot:2026-09-04/snapshot-202609041738.json",
+      "publishedAt": "2026-09-04T18:40:03Z"
+    },
+    {
+      "gamePk": 824471,
+      "date": "2026-09-04",
+      "gradedSource": "snapshot:2026-09-04/snapshot-202609042136.json",
+      "publishedAt": "2026-09-04T22:34:28Z"
+    },
+    {
+      "gamePk": 823579,
+      "date": "2026-09-04",
+      "gradedSource": "snapshot:2026-09-04/snapshot-202609042309.json",
+      "publishedAt": "2026-09-04T21:04:13Z"
+    },
+    {
+      "gamePk": 823824,
+      "date": "2026-09-04",
+      "gradedSource": "snapshot:2026-09-04/snapshot-202609042309.json",
+      "publishedAt": "2026-09-04T21:04:13Z"
+    },
+    {
+      "gamePk": 823417,
+      "date": "2026-09-06",
+      "gradedSource": "snapshot:2026-09-06/snapshot-202609061705.json",
+      "publishedAt": "2026-09-06T16:40:22Z"
+    },
+    {
+      "gamePk": 824385,
+      "date": "2026-09-06",
+      "gradedSource": "snapshot:2026-09-06/snapshot-202609061738.json",
+      "publishedAt": "2026-09-06T17:18:27Z"
+    },
+    {
+      "gamePk": 823578,
+      "date": "2026-09-06",
+      "gradedSource": "snapshot:2026-09-06/snapshot-202609061738.json",
+      "publishedAt": "2026-09-06T17:18:27Z"
+    },
+    {
+      "gamePk": 823822,
+      "date": "2026-09-06",
+      "gradedSource": "snapshot:2026-09-06/snapshot-202609061738.json",
+      "publishedAt": "2026-09-06T17:18:27Z"
+    },
+    {
+      "gamePk": 823413,
+      "date": "2026-09-10",
+      "gradedSource": "snapshot:2026-09-10/snapshot-202609101704.json",
+      "publishedAt": "2026-09-10T15:25:14Z"
+    },
+    {
+      "gamePk": 824628,
+      "date": "2026-09-13",
+      "gradedSource": "snapshot:2026-09-13/snapshot-202609131817.json",
+      "publishedAt": "2026-09-13T10:41:46Z"
+    },
+    {
+      "gamePk": 825030,
+      "date": "2026-09-15",
+      "gradedSource": "snapshot:2026-09-15/snapshot-202609160135.json",
+      "publishedAt": "2026-09-15T22:34:39Z"
+    },
+    {
+      "gamePk": 824305,
+      "date": "2026-09-17",
+      "gradedSource": "snapshot:2026-09-17/snapshot-202609171909.json",
+      "publishedAt": "2026-09-17T10:29:48Z"
+    },
+    {
+      "gamePk": 824545,
+      "date": "2026-09-19",
+      "gradedSource": "snapshot:2026-09-19/snapshot-202609191808.json",
+      "publishedAt": "2026-09-19T09:52:13Z"
+    },
+    {
+      "gamePk": 824055,
+      "date": "2026-09-27",
+      "gradedSource": "snapshot:2026-09-27/snapshot-202609271908.json",
+      "publishedAt": "2026-09-27T10:46:57Z"
+    },
+    {
+      "gamePk": 823814,
+      "date": "2026-09-27",
+      "gradedSource": "snapshot:2026-09-27/snapshot-202609271908.json",
+      "publishedAt": "2026-09-27T10:46:57Z"
+    }
+  ],
+  "undecided": [
+    {
+      "gamePk": 823759,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824248,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823352,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822707,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823434,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824812,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823601,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822952,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823843,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824733,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824573,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822872,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823680,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823031,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823196,
+      "date": "2026-07-24",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824244,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822704,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823197,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824734,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823841,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823435,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822948,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823355,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824811,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823679,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824571,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823758,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823600,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823027,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822869,
+      "date": "2026-07-25",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822950,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822706,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823354,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824730,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824810,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824246,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823599,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823840,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823678,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824572,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823755,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822870,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823194,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823433,
+      "date": "2026-07-26",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822868,
+      "date": "2026-07-27",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824245,
+      "date": "2026-07-27",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823353,
+      "date": "2026-07-27",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823839,
+      "date": "2026-07-27",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822705,
+      "date": "2026-07-27",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823597,
+      "date": "2026-07-27",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824570,
+      "date": "2026-07-27",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823025,
+      "date": "2026-07-27",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824001,
+      "date": "2026-07-27",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824977,
+      "date": "2026-07-27",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823195,
+      "date": "2026-07-27",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824489,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824243,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823350,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822949,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823838,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822703,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823676,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824569,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823026,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824003,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824976,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823275,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823193,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823923,
+      "date": "2026-07-28",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 822946,
+      "date": "2026-07-30",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823674,
+      "date": "2026-07-30",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824568,
+      "date": "2026-07-30",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824488,
+      "date": "2026-07-30",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823595,
+      "date": "2026-07-30",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824894,
+      "date": "2026-07-30",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824974,
+      "date": "2026-07-30",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823271,
+      "date": "2026-07-30",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 823921,
+      "date": "2026-07-30",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824651,
+      "date": "2026-07-31",
+      "status": "EVIDENCE_GAP",
+      "reason": "no Production deployment inside the evidence window was READY before the cutoff; one before the window may have been serving"
+    },
+    {
+      "gamePk": 824158,
+      "date": "2026-08-05",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-5766924534 was recorded READY at 2026-08-05T18:10:27Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822701,
+      "date": "2026-08-08",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-5813441124 was recorded READY at 2026-08-08T22:47:44Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823186,
+      "date": "2026-08-11",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-5861681004 was recorded READY at 2026-08-12T01:44:39Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824968,
+      "date": "2026-08-14",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-5915985467 was recorded READY at 2026-08-15T01:41:19Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823427,
+      "date": "2026-08-17",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-5952687211 was recorded READY at 2026-08-17T22:43:53Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824723,
+      "date": "2026-08-18",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-5972929554 was recorded READY at 2026-08-18T23:11:16Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823586,
+      "date": "2026-08-18",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-5972929554 was recorded READY at 2026-08-18T23:11:16Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824154,
+      "date": "2026-08-18",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-5973531086 was recorded READY at 2026-08-19T00:10:56Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824800,
+      "date": "2026-08-21",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6030794699 was recorded READY at 2026-08-21T23:15:28Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822857,
+      "date": "2026-08-21",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6031335446 was recorded READY at 2026-08-22T00:16:07Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824317,
+      "date": "2026-08-21",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6031549405 was recorded READY at 2026-08-22T00:42:13Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 825045,
+      "date": "2026-08-21",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6031982887 was recorded READY at 2026-08-22T01:40:49Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823262,
+      "date": "2026-08-21",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6031982887 was recorded READY at 2026-08-22T01:40:49Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823507,
+      "date": "2026-08-23",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6050819055 was recorded READY at 2026-08-23T17:39:56Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823827,
+      "date": "2026-08-23",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6050841413 was recorded READY at 2026-08-23T17:42:26Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822695,
+      "date": "2026-08-24",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6072883153 was recorded READY at 2026-08-24T22:47:44Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823183,
+      "date": "2026-08-24",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6074783999 was recorded READY at 2026-08-25T01:44:33Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822693,
+      "date": "2026-08-25",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6093526835 was recorded READY at 2026-08-25T22:46:29Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824234,
+      "date": "2026-08-26",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6108225287 was recorded READY at 2026-08-26T17:11:26Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823096,
+      "date": "2026-08-26",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6111179349 was recorded READY at 2026-08-26T20:12:51Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823503,
+      "date": "2026-08-27",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6132665382 was recorded READY at 2026-08-27T23:16:26Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824879,
+      "date": "2026-08-27",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6132665382 was recorded READY at 2026-08-27T23:16:26Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822769,
+      "date": "2026-08-28",
+      "status": "BUILD_UNREADABLE",
+      "reason": "could not read what gh-6149942001 served"
+    },
+    {
+      "gamePk": 824877,
+      "date": "2026-08-28",
+      "status": "BUILD_UNREADABLE",
+      "reason": "could not read what gh-6149942001 served"
+    },
+    {
+      "gamePk": 823504,
+      "date": "2026-08-28",
+      "status": "BUILD_UNREADABLE",
+      "reason": "could not read what gh-6149942001 served"
+    },
+    {
+      "gamePk": 823666,
+      "date": "2026-08-28",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6150529159 was recorded READY at 2026-08-29T00:11:19Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823740,
+      "date": "2026-08-30",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6169696490 was recorded READY at 2026-08-30T18:13:26Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823010,
+      "date": "2026-08-30",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6169719361 was recorded READY at 2026-08-30T18:15:58Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824911,
+      "date": "2026-08-31",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6190464036 was recorded READY at 2026-08-31T22:06:01Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824148,
+      "date": "2026-09-01",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6212776748 was recorded READY at 2026-09-02T00:12:10Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822851,
+      "date": "2026-09-02",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6229311538 was recorded READY at 2026-09-02T18:38:17Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824067,
+      "date": "2026-09-04",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6275007521 was recorded READY at 2026-09-05T00:09:45Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824062,
+      "date": "2026-09-07",
+      "status": "BUILD_UNREADABLE",
+      "reason": "could not read what gh-6313962915 served"
+    },
+    {
+      "gamePk": 823742,
+      "date": "2026-09-07",
+      "status": "BUILD_UNREADABLE",
+      "reason": "could not read what gh-6313962915 served"
+    },
+    {
+      "gamePk": 824228,
+      "date": "2026-09-08",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6338613189 was recorded READY at 2026-09-08T22:40:45Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823414,
+      "date": "2026-09-08",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6338613189 was recorded READY at 2026-09-08T22:40:45Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823821,
+      "date": "2026-09-08",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6338613189 was recorded READY at 2026-09-08T22:40:45Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824063,
+      "date": "2026-09-08",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6339356243 was recorded READY at 2026-09-08T23:40:46Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823738,
+      "date": "2026-09-08",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6339356243 was recorded READY at 2026-09-08T23:40:46Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824226,
+      "date": "2026-09-09",
+      "status": "NOT_SERVED",
+      "reason": "the serving build carried no forecast for this game"
+    },
+    {
+      "gamePk": 824713,
+      "date": "2026-09-09",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6360807420 was recorded READY at 2026-09-09T22:46:42Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824064,
+      "date": "2026-09-09",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6362024330 was recorded READY at 2026-09-10T00:30:51Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823498,
+      "date": "2026-09-11",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6403276751 was recorded READY at 2026-09-11T23:09:03Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822767,
+      "date": "2026-09-11",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6403268031 was recorded READY at 2026-09-11T23:08:12Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822930,
+      "date": "2026-09-11",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6403289249 was recorded READY at 2026-09-11T23:10:16Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824873,
+      "date": "2026-09-11",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6403800457 was recorded READY at 2026-09-12T00:03:33Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823170,
+      "date": "2026-09-12",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6413840028 was recorded READY at 2026-09-12T20:05:14Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824870,
+      "date": "2026-09-12",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6415467570 was recorded READY at 2026-09-12T23:17:14Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822928,
+      "date": "2026-09-13",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6424464532 was recorded READY at 2026-09-13T17:40:10Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823815,
+      "date": "2026-09-13",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6424479529 was recorded READY at 2026-09-13T17:41:47Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823734,
+      "date": "2026-09-13",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6424758512 was recorded READY at 2026-09-13T18:10:58Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823574,
+      "date": "2026-09-15",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6470271573 was recorded READY at 2026-09-15T23:11:10Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823004,
+      "date": "2026-09-16",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6486442682 was recorded READY at 2026-09-16T17:16:09Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822763,
+      "date": "2026-09-16",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6488404262 was recorded READY at 2026-09-16T19:06:49Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824790,
+      "date": "2026-09-18",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6534818230 (FAILURE, recorded 2026-09-18T23:49:06Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824383,
+      "date": "2026-09-18",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6534410083 was recorded READY at 2026-09-18T23:09:42Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822923,
+      "date": "2026-09-18",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6534408264 was recorded READY at 2026-09-18T23:09:31Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823572,
+      "date": "2026-09-18",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6534818230 (FAILURE, recorded 2026-09-18T23:49:06Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824547,
+      "date": "2026-09-18",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6534818230 (FAILURE, recorded 2026-09-18T23:49:06Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 822847,
+      "date": "2026-09-18",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6534818230 (FAILURE, recorded 2026-09-18T23:49:06Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824303,
+      "date": "2026-09-18",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6534818230 (FAILURE, recorded 2026-09-18T23:49:06Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824138,
+      "date": "2026-09-18",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6534818230 (FAILURE, recorded 2026-09-18T23:49:06Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823005,
+      "date": "2026-09-18",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6534818230 (FAILURE, recorded 2026-09-18T23:49:06Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824461,
+      "date": "2026-09-19",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6546539397 was recorded READY at 2026-09-19T22:42:31Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823330,
+      "date": "2026-09-19",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6546539397 was recorded READY at 2026-09-19T22:42:31Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822843,
+      "date": "2026-09-19",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6547164506 (FAILURE, recorded 2026-09-20T00:05:19Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824137,
+      "date": "2026-09-19",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6547164506 (FAILURE, recorded 2026-09-20T00:05:19Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823003,
+      "date": "2026-09-19",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6547164506 (FAILURE, recorded 2026-09-20T00:05:19Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824304,
+      "date": "2026-09-19",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6547164506 (FAILURE, recorded 2026-09-20T00:05:19Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823570,
+      "date": "2026-09-20",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6555426434 (FAILURE, recorded 2026-09-20T17:11:28Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823329,
+      "date": "2026-09-20",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6555426434 (FAILURE, recorded 2026-09-20T17:11:28Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824462,
+      "date": "2026-09-20",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6555723212 was recorded READY at 2026-09-20T17:41:40Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824381,
+      "date": "2026-09-20",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6556930428 was recorded READY at 2026-09-20T19:45:14Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822922,
+      "date": "2026-09-20",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6555426434 (FAILURE, recorded 2026-09-20T17:11:28Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824546,
+      "date": "2026-09-20",
+      "status": "NOT_SERVED",
+      "reason": "the serving build carried no forecast for this game"
+    },
+    {
+      "gamePk": 823001,
+      "date": "2026-09-20",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6556065382 was recorded READY at 2026-09-20T18:17:04Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822844,
+      "date": "2026-09-20",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6556839140 (FAILURE, recorded 2026-09-20T19:35:44Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824300,
+      "date": "2026-09-20",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6556839140 (FAILURE, recorded 2026-09-20T19:35:44Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824787,
+      "date": "2026-09-21",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6580609425 (FAILURE, recorded 2026-09-22T00:05:05Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824221,
+      "date": "2026-09-21",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6579763742 (FAILURE, recorded 2026-09-21T22:54:45Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823494,
+      "date": "2026-09-22",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6602605036 was recorded READY at 2026-09-22T23:08:11Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824222,
+      "date": "2026-09-22",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6602604403 (ABANDONED, recorded 2026-09-22T23:08:06Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823328,
+      "date": "2026-09-22",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6602604403 (ABANDONED, recorded 2026-09-22T23:08:06Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823412,
+      "date": "2026-09-22",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6602604403 (ABANDONED, recorded 2026-09-22T23:08:06Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824709,
+      "date": "2026-09-22",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6602604403 (ABANDONED, recorded 2026-09-22T23:08:06Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824223,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6620133398 (FAILURE, recorded 2026-09-23T17:23:04Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824785,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6620133398 (FAILURE, recorded 2026-09-23T17:23:04Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823168,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6623791531 (FAILURE, recorded 2026-09-23T20:31:25Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823327,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6626807853 (FAILURE, recorded 2026-09-23T23:41:07Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823410,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6626807853 (FAILURE, recorded 2026-09-23T23:41:07Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823492,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6626807853 (FAILURE, recorded 2026-09-23T23:41:07Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824710,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6626807853 (FAILURE, recorded 2026-09-23T23:41:07Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824868,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6626807853 (FAILURE, recorded 2026-09-23T23:41:07Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824060,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6626807853 (FAILURE, recorded 2026-09-23T23:41:07Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824625,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6626807853 (FAILURE, recorded 2026-09-23T23:41:07Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 822841,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6627215149 (FAILURE, recorded 2026-09-24T00:13:37Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824301,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6627499844 (FAILURE, recorded 2026-09-24T00:37:05Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824951,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6628524409 (FAILURE, recorded 2026-09-24T02:02:11Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823894,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6628524409 (FAILURE, recorded 2026-09-24T02:02:11Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 823086,
+      "date": "2026-09-23",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6628524409 (FAILURE, recorded 2026-09-24T02:02:11Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 824866,
+      "date": "2026-09-24",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6650113708 was recorded READY at 2026-09-24T23:15:10Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824703,
+      "date": "2026-09-25",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6666045927 was recorded READY at 2026-09-25T17:07:32Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823491,
+      "date": "2026-09-25",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6669210836 was recorded READY at 2026-09-25T20:09:26Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823409,
+      "date": "2026-09-25",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6671497242 was recorded READY at 2026-09-25T22:43:09Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 822681,
+      "date": "2026-09-25",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6671543722 was recorded READY at 2026-09-25T22:47:10Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823165,
+      "date": "2026-09-26",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6683640523 was recorded READY at 2026-09-26T20:06:27Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823653,
+      "date": "2026-09-26",
+      "status": "NOT_SERVED",
+      "reason": "the serving build carried no forecast for this game"
+    },
+    {
+      "gamePk": 822679,
+      "date": "2026-09-27",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6695851609 was recorded READY at 2026-09-27T18:05:03Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824217,
+      "date": "2026-09-27",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6696611940 was recorded READY at 2026-09-27T19:11:40Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823246,
+      "date": "2026-09-27",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6696611940 was recorded READY at 2026-09-27T19:11:40Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823084,
+      "date": "2026-09-27",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6696611940 was recorded READY at 2026-09-27T19:11:40Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823650,
+      "date": "2026-09-27",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6696611940 was recorded READY at 2026-09-27T19:11:40Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 824542,
+      "date": "2026-09-27",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6696611940 was recorded READY at 2026-09-27T19:11:40Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 823731,
+      "date": "2026-09-27",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6696611940 was recorded READY at 2026-09-27T19:11:40Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 849825,
+      "date": "2026-10-04",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6846067882 was recorded READY at 2026-10-04T20:08:19Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    },
+    {
+      "gamePk": 849833,
+      "date": "2026-10-07",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6918720808 (FAILURE, recorded 2026-10-07T19:20:15Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 849822,
+      "date": "2026-10-07",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6920233072 (FAILURE, recorded 2026-10-07T20:33:18Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 849838,
+      "date": "2026-10-07",
+      "status": "AMBIGUOUS_DEPLOYMENT_STATE",
+      "reason": "gh-6923155762 (FAILURE, recorded 2026-10-07T23:17:05Z) may have been a deployment that served before the start"
+    },
+    {
+      "gamePk": 849832,
+      "date": "2026-10-08",
+      "status": "AMBIGUOUS_NEAR_CUTOFF",
+      "reason": "gh-6949655826 was recorded READY at 2026-10-09T00:08:30Z; within the record's clock uncertainty (−60s/+60s) and the start's precision it may have served before the start or not"
+    }
+  ]
+}

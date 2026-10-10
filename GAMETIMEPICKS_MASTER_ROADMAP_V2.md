@@ -99,7 +99,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 3 | `NFL-003` | NFL Modeling | Player opportunity allocation (plays → pass/rush → attempts/carries → targets → catches → yards → TDs, with `OTHER`) | IN_PROGRESS — allocV1 PRODUCTION DEPLOYED inside World Model V2 (experimental, labelled); not FORWARD EVALUATED; first-game review: rushing-efficiency tail hypothesis (§NFL-005) | NFL-002 team volume | Shadow → family-by-family promotion |
 | 4 | `NFL-004` | NFL Modeling | TD model: hierarchical Bernoulli → team scoring opportunities → red-zone role → drive attribution | IN_PROGRESS — RESEARCH (passing-TD pure-sim candidate failed preregistered dev bars; 50/50 blend passed dev, forward shadow only; world TD v2 preregistered, forward-only). Not qualified; passing TD and first TD withheld publicly; anytime TD stays on the existing published model | NFL-003 | Shadow → family-by-family promotion |
 | 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | IN_PROGRESS — PRODUCTION DEPLOYED (World Model V2, experimental: #1024, #1026, #1027, #1029 → 2.2.0); FORWARD EVALUATION begun (1 game reviewed, 2026-10-08 TB @ DAL); not STATISTICALLY QUALIFIED; not PRODUCT ELIGIBLE | NFL-002, NFL-003, NFL-004 | Yes, family by family |
-| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 #1039 product/Results truth PRODUCTION DEPLOYED (merge `f15a51f9`, 2026-10-10); PR 4 #1042 recovery READY_FOR_REVIEW; Stage B restatement (#1045) + served-forecast evidence (#1046) approved to develop locally | COST-001 deployment gate verified ✓ | Yes |
+| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 #1039 product/Results truth PRODUCTION DEPLOYED (merge `f15a51f9`, 2026-10-10); PR 4 #1042 recovery evidence PRODUCTION DEPLOYED (merge `c71a7f5a`, 2026-10-10); served-forecast evidence #1046 READY_FOR_REVIEW; Stage B restatement #1045 and timing amendment #1049 DRAFT (local, not applied) | COST-001 deployment gate verified ✓ | Yes |
 | 7 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | IN_PROGRESS — RESEARCH COMPLETED (inventory, gaps, consumer matrix); foundation PRODUCTION DEPLOYED (#1040: read-only ForecastVersion/Settlement projection; no consumer, no migration); engineering lead: Lane A (founder, 2026-10-09) | Founder rules below | Foundation |
 | 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | IN_PROGRESS — baseline audit done; rule corrections pa-v3 READY_FOR_REVIEW (not promoted) | TEMPORAL-001 can progress in parallel | Shadow |
 | 9 | `MLB-002` | MLB Modeling | Benchmark ladder (PA control → Poisson → hierarchical → NB → bivariate → enhanced PA → boosting → ensemble) | NOT_STARTED | MLB-001 | Shadow |
@@ -358,7 +358,7 @@ Bot data commits are 386 of the 480 (80%).
 # 4. Truth, market identity and product semantics
 
 ## `TRUTH-001` — P0 truth correction package
-**Status:** IN_PROGRESS — PR 1 (#1037) PRODUCTION DEPLOYED; PR 2 (#1038, posted-line run line) PRODUCTION DEPLOYED; product-truth PR 3 (#1039) PRODUCTION DEPLOYED; historical recovery PR 4 (#1042) READY_FOR_REVIEW; Stage B (#1045, draft) and served-forecast evidence (#1046) in development  
+**Status:** IN_PROGRESS — PR 1 (#1037) PRODUCTION DEPLOYED; PR 2 (#1038, posted-line run line) PRODUCTION DEPLOYED; product-truth PR 3 (#1039) PRODUCTION DEPLOYED; historical recovery PR 4 (#1042) PRODUCTION DEPLOYED; served-forecast evidence (#1046) READY_FOR_REVIEW; Stage B (#1045) and the timing amendment (#1049) DRAFT  
 **Owner/session:** Claude Code, Lane A (Core Intelligence), 2026-10-09  
 **Branches:** `claude/truth-001-mlb-truth` (merged) · `claude/truth-001-runline-posted` (#1038, merged) · `claude/truth-001-product-truth` (#1039, merged)  
 **PR:** [#1037](https://github.com/yashwantbalaji3/gametimepicks/pull/1037) merged · [#1038](https://github.com/yashwantbalaji3/gametimepicks/pull/1038) merged · [#1039](https://github.com/yashwantbalaji3/gametimepicks/pull/1039) merged · [#1042](https://github.com/yashwantbalaji3/gametimepicks/pull/1042) · [#1045](https://github.com/yashwantbalaji3/gametimepicks/pull/1045) · [#1046](https://github.com/yashwantbalaji3/gametimepicks/pull/1046)  
@@ -516,6 +516,33 @@ Commits (all forward-only; no published artifact rewritten):
     - **No accounting or denominator change.**
 
 ### Historical MLB forecast recovery (founder decision 3: approved to develop, PR 4)
+- **Release (2026-10-10).**
+  - **Approval:** founder approval at exact head `e8e861d5ce1eaec9f5e90baf73d67ad785da583e` (renewed after the supersession record was added).
+  - **Pre-merge checks:**
+    - head unchanged; quality and python green; `CLEAN` against main;
+    - no other integration or deploy in flight;
+    - files added only, plus the roadmap; no Results reader uses them;
+    - content scan clean;
+    - supersession record shows 11 corroborated and 3 superseded;
+    - export guard re-probed: passes on the clean site, fails on a planted file.
+  - **Merge:** `--match-head-commit`, as `c71a7f5a74d7416aebd4b73a92ae82c19a4dfba9` at 04:17:15Z.
+  - **Production:** `build-info` reported that commit, built 04:18:51Z, checked live 04:22:35Z. One Production deployment, READY.
+  - **Routes:** `/`, `/mlb/`, `/results/`, `/results/forecasts/`, `/results/model-audit/`, `/results/picks/mlb/`, `/markets/`, `/live/`, `/nfl/` and `/today/` all returned 200.
+  - **Recovery URLs:** `/data/mlb/corrections/pregame-forecast-recoveries.jsonl`, `…/forecast-of-record-corrections.jsonl` and the folder itself all return **404**.
+  - **Results:** 13,741 published / 10,933 measured, unchanged. Model audit, MLB picks and `/mlb/` show identical figures. On `/results/`, the 7-day MLB window moved 21–21–3 → 15–15–3 because the local day rolled from Fri Oct 9 to Sat Oct 10, as the page states. #1042 changed no reader.
+- **Served-forecast evidence (#1046, READY_FOR_REVIEW).** Per-game classification of all 810 graded games (`data/internal/ops/forecast-of-record-shadow/classification.json`):
+
+| Class | Games |
+|---|---|
+| `VERIFIED_AGREES` (served = graded) | 573 |
+| `VERIFIED_DIFFERENT_REVISION` | 22 |
+| `VERIFIED_NEVER_PUBLIC` | 4 |
+| `UNVERIFIED_*` (fail closed) | 211 |
+
+  - **Basis:** the exact Vercel record inside its window, GitHub's conservative clock elsewhere, and the actual first pitch from the StatsAPI play-by-play.
+  - **Consistency:** GitHub never contradicts Vercel where both resolve (139/139 identical).
+  - Reproducible from committed files only.
+
 - **Supersession of the 14 proposals (2026-10-10):** recorded append-only in `data/internal/mlb/corrections/forecast-of-record-proposals-supersession-2026-10-10.json`; the proposals file itself is unchanged.
   - **11 CORROBORATED:** #1046's evidence (actual first pitch plus the exact deployment record) verifies the same served revision, with an identical hash.
   - **3 SUPERSEDED_UNVERIFIABLE:** 823084, 823650, 824542. They must not be applied.
