@@ -99,7 +99,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 3 | `NFL-003` | NFL Modeling | Player opportunity allocation (plays → pass/rush → attempts/carries → targets → catches → yards → TDs, with `OTHER`) | IN_PROGRESS — allocV1 PRODUCTION DEPLOYED inside World Model V2 (experimental, labelled); not FORWARD EVALUATED; first-game review: rushing-efficiency tail hypothesis (§NFL-005) | NFL-002 team volume | Shadow → family-by-family promotion |
 | 4 | `NFL-004` | NFL Modeling | TD model: hierarchical Bernoulli → team scoring opportunities → red-zone role → drive attribution | IN_PROGRESS — RESEARCH (passing-TD pure-sim candidate failed preregistered dev bars; 50/50 blend passed dev, forward shadow only; world TD v2 preregistered, forward-only). Not qualified; passing TD and first TD withheld publicly; anytime TD stays on the existing published model | NFL-003 | Shadow → family-by-family promotion |
 | 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | IN_PROGRESS — PRODUCTION DEPLOYED (World Model V2, experimental: #1024, #1026, #1027, #1029 → 2.2.0); FORWARD EVALUATION begun (1 game reviewed, 2026-10-08 TB @ DAL); not STATISTICALLY QUALIFIED; not PRODUCT ELIGIBLE | NFL-002, NFL-003, NFL-004 | Yes, family by family |
-| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line READY_FOR_REVIEW; PR 3 product/Results truth IMPLEMENTED LOCALLY; PR 4 historical recovery + forecast-of-record correction approved to develop | COST-001 deployment gate verified ✓ | Yes |
+| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 product/Results truth IMPLEMENTED LOCALLY; PR 4 historical recovery + forecast-of-record correction approved to develop | COST-001 deployment gate verified ✓ | Yes |
 | 7 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | IN_PROGRESS — RESEARCH COMPLETED (inventory, gaps, consumer matrix); foundation PRODUCTION DEPLOYED (#1040: read-only ForecastVersion/Settlement projection; no consumer, no migration); engineering lead: Lane A (founder, 2026-10-09) | Founder rules below | Foundation |
 | 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
 | 9 | `MLB-002` | MLB Modeling | Benchmark ladder (PA control → Poisson → hierarchical → NB → bivariate → enhanced PA → boosting → ensemble) | NOT_STARTED | MLB-001 | Shadow |
@@ -358,10 +358,10 @@ Bot data commits are 386 of the 480 (80%).
 # 4. Truth, market identity and product semantics
 
 ## `TRUTH-001` — P0 truth correction package
-**Status:** IN_PROGRESS — PR 1 (#1037) PRODUCTION DEPLOYED; PR 2 (#1038, posted-line run line) READY_FOR_REVIEW; product-truth PR 3 IMPLEMENTED LOCALLY; historical recovery PR 4 investigated, approved to develop  
+**Status:** IN_PROGRESS — PR 1 (#1037) PRODUCTION DEPLOYED; PR 2 (#1038, posted-line run line) PRODUCTION DEPLOYED; product-truth PR 3 IMPLEMENTED LOCALLY; historical recovery PR 4 investigated, approved to develop  
 **Owner/session:** Claude Code, Lane A (Core Intelligence), 2026-10-09  
-**Branches:** `claude/truth-001-mlb-truth` (merged) · `claude/truth-001-runline-posted` (#1038) · `claude/truth-001-product-truth` (local)  
-**PR:** [#1037](https://github.com/yashwantbalaji3/gametimepicks/pull/1037) merged · [#1038](https://github.com/yashwantbalaji3/gametimepicks/pull/1038) open  
+**Branches:** `claude/truth-001-mlb-truth` (merged) · `claude/truth-001-runline-posted` (#1038, merged) · `claude/truth-001-product-truth` (local)  
+**PR:** [#1037](https://github.com/yashwantbalaji3/gametimepicks/pull/1037) merged · [#1038](https://github.com/yashwantbalaji3/gametimepicks/pull/1038) merged  
 **Exact head (#1037):** `dbe65178c21bf21431326f62c47b37c37475f4dd` → merge `20910052555031e4790c8336116f4d0c6e3cde76` (2026-10-09T22:05:39Z, `--match-head-commit`)  
 **Evidence:** this section; tests named below  
 **Production acceptance (#1037):** PASS (record below)
@@ -470,6 +470,20 @@ Commits (all forward-only; no published artifact rewritten):
   - a dry run of the producer from the repo root picks the posted sides (ATL +1.5 10-06, CWS +1.5 10-08);
   - `workflow-script-cwd.test.mjs` caught an `@/` import that would have failed `mlb-daily-production` at runtime (fixed: relative import).
 - **Status:** READY_FOR_REVIEW. Do not merge without explicit founder approval.
+
+- **Release (2026-10-10).**
+  - **Approval:** founder approval at exact head `b7de8a4acdfff6933eeb10786d9e0d1a5419d7d5`.
+  - **Pre-merge checks:**
+    - head unchanged; quality and python green;
+    - `CLEAN` against main (only bot data commits after it);
+    - scope = the reviewed head plus the main merge and roadmap;
+    - inheritance constant `true` and wired;
+    - no eligibility, odds or workflow file touched;
+    - no other integration or deployment in flight.
+  - **Merge:** `--match-head-commit`, as `80a6a3fe9c6358b72860d3c74c49a478975c15e3` at 01:14:55Z.
+  - **Production:** `build-info` reported that commit, built 01:16:24Z, checked live 01:19:55Z. `/`, `/mlb/`, `/results/`, `/results/forecasts/`, `/results/model-audit/`, `/results/picks/mlb/`, `/today/`, `/methodology/`, `/system-status/`, `/markets/` and `/live/` all returned 200.
+  - **Command centre:** `/mlb/` model status shows "Run line calls (posted line) · Too early to judge · 0 graded". v1 `mlb_run_line` is HOLDING (not paused), so there is no restriction to inherit today; the hold engages automatically if v1 is BREACHED.
+  - **Results:** unchanged at 13,741 published and 10,933 measured, equal to the ledger row count. The MLB graded log is unchanged.
 
 ### Founder policy — public forecast of record (decision 2026-10-09, Option B)
 - Going forward, an official PUBLIC forecast of record needs verifiable publication evidence from before the event's actual start; generation time alone is not sufficient.
