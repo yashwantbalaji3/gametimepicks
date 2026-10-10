@@ -239,6 +239,11 @@ export interface BatterInput {
   expHrr: number | null;
   /** Where this batter's rates came from (TRUTH-001): his own GTP projection, or replacement level. */
   rateSource?: BatterRateSource;
+  /**
+   * MLB-002 research only (challenger mlb-pa-matchup-v1): shrunk per-PA K / BB / HR rates vs the opposing starter's
+   * hand and vs the bullpen, and this slot's league PA. Read only when EngineParams.matchup is set; never published.
+   */
+  matchup?: { slotPa: number; vsStarter: { k: number; bb: number; hr: number }; vsBullpen: { k: number; bb: number; hr: number } };
 }
 
 /**
@@ -255,6 +260,8 @@ export interface PitcherInput {
   team: string;
   /** pitcher_strikeouts projection — expected strikeouts for the start. Null → league K rate. */
   expStrikeouts: number | null;
+  /** MLB-002 research only: the starter's shrunk per-BF K / BB / HR rates. Read only when EngineParams.matchup is set. */
+  matchup?: { k: number; bb: number; hr: number };
 }
 
 /** All leakage-safe pregame inputs the engine needs for one game. */

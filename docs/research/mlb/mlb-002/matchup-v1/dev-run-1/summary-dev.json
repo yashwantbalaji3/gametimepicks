@@ -1,0 +1,169 @@
+{
+  "challenger": "mlb-pa-matchup-v1",
+  "split": "dev",
+  "window": [
+    "2026-07-24",
+    "2026-08-31"
+  ],
+  "runs": 10000,
+  "league": {
+    "k": 0.2174465920651068,
+    "bb": 0.0909861586362095,
+    "hr": 0.030934985665402755,
+    "hbp": 0.011,
+    "basis": {
+      "players": 429,
+      "pa": 129756,
+      "window": [
+        "2026-07-24",
+        "2026-08-31"
+      ],
+      "frozenAt": "2026-10-10T02:14:12.649Z"
+    }
+  },
+  "priors": {
+    "batter": {
+      "k": 60,
+      "bb": 120,
+      "hr": 170
+    },
+    "pitcher": {
+      "k": 70,
+      "bb": 170,
+      "hr": 500
+    },
+    "prevSeasonWeight": 0.5,
+    "bfPerIp": 4.25,
+    "hbp": 0.011,
+    "starterProjectionBf": 25
+  },
+  "tally": {
+    "games": 439,
+    "noForecast": 0,
+    "noInputs": 2,
+    "run": 437
+  },
+  "all": {
+    "games": 437,
+    "control": {
+      "winnerLogLoss": 0.7027045872446827,
+      "winnerBrier": 0.2545893501144164,
+      "calibration": {
+        "intercept": 0.18895004819235758,
+        "slope": 0.237358755357939
+      },
+      "totalCRPS": 2.5337794347139586,
+      "totalLogScore": 2.8833160976411727,
+      "totalLevel": 0.6200686498855834,
+      "total80Coverage": 0.7917620137299771,
+      "runLineLogLoss": 0.6845881850059217,
+      "meanSdPHome": 0.09287606465999562
+    },
+    "challenger": {
+      "winnerLogLoss": 0.695738203253783,
+      "winnerBrier": 0.251239652173913,
+      "calibration": {
+        "intercept": 0.18391016606394592,
+        "slope": 0.38088097791212616
+      },
+      "totalCRPS": 2.4948865018764317,
+      "totalLogScore": 2.857922853592833,
+      "totalLevel": -0.013020594965675158,
+      "total80Coverage": 0.8237986270022883,
+      "runLineLogLoss": 0.6847973326392146,
+      "meanSdPHome": 0.08044111793963067
+    },
+    "winnerLogLossDiff": {
+      "mean": -0.00696638399089949,
+      "ci95": [
+        -0.019463802286947388,
+        0.00507315234159534
+      ],
+      "note": "challenger − control; below 0 = challenger better"
+    },
+    "totalCRPSDiff": {
+      "mean": -0.03889293283752854,
+      "ci95": [
+        -0.08896509709382133,
+        0.010904483272311237
+      ]
+    },
+    "vsMarket": {
+      "games": 437,
+      "market": 0.6709220259196295,
+      "control": 0.7027045872446827,
+      "challenger": 0.695738203253783,
+      "challengerMinusMarket95": [
+        0.008882369462613709,
+        0.040702829924578555
+      ]
+    },
+    "coverage": {
+      "battersWithSplits": 0.19666920925502143,
+      "battersWithSlot": 0.13958810068649885,
+      "startersWithLine": 0.9290617848970252
+    }
+  },
+  "regularSeason": {
+    "games": 437,
+    "control": {
+      "winnerLogLoss": 0.7027045872446827,
+      "winnerBrier": 0.2545893501144164,
+      "calibration": {
+        "intercept": 0.18895004819235758,
+        "slope": 0.237358755357939
+      },
+      "totalCRPS": 2.5337794347139586,
+      "totalLogScore": 2.8833160976411727,
+      "totalLevel": 0.6200686498855834,
+      "total80Coverage": 0.7917620137299771,
+      "runLineLogLoss": 0.6845881850059217,
+      "meanSdPHome": 0.09287606465999562
+    },
+    "challenger": {
+      "winnerLogLoss": 0.695738203253783,
+      "winnerBrier": 0.251239652173913,
+      "calibration": {
+        "intercept": 0.18391016606394592,
+        "slope": 0.38088097791212616
+      },
+      "totalCRPS": 2.4948865018764317,
+      "totalLogScore": 2.857922853592833,
+      "totalLevel": -0.013020594965675158,
+      "total80Coverage": 0.8237986270022883,
+      "runLineLogLoss": 0.6847973326392146,
+      "meanSdPHome": 0.08044111793963067
+    },
+    "winnerLogLossDiff": {
+      "mean": -0.00696638399089949,
+      "ci95": [
+        -0.019463802286947388,
+        0.00507315234159534
+      ],
+      "note": "challenger − control; below 0 = challenger better"
+    },
+    "totalCRPSDiff": {
+      "mean": -0.03889293283752854,
+      "ci95": [
+        -0.08896509709382133,
+        0.010904483272311237
+      ]
+    },
+    "vsMarket": {
+      "games": 437,
+      "market": 0.6709220259196295,
+      "control": 0.7027045872446827,
+      "challenger": 0.695738203253783,
+      "challengerMinusMarket95": [
+        0.008882369462613709,
+        0.040702829924578555
+      ]
+    },
+    "coverage": {
+      "battersWithSplits": 0.19666920925502143,
+      "battersWithSlot": 0.13958810068649885,
+      "startersWithLine": 0.9290617848970252
+    }
+  },
+  "postseason": null
+}
