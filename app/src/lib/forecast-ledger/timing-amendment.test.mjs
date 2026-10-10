@@ -83,3 +83,58 @@ test("append-only: timing can be added to an existing row only by a restatement 
   const changed = base({ timing: { ...TIMING_824424, servedAt: "2026-09-04T18:50:00Z" } });
   assert.ok(compareLedgers([next], [changed]).some((v) => v.kind === "IMMUTABLE_CHANGED"));
 });
+
+// ── edge cases (overnight 2026-10-10 hardening) ─────────────────────────────────────────────────────────────────────
+test("early start: verified timing is STRICTER when the game starts before its scheduled time", () => {
+  // Scheduled 18:10Z, actually started 18:00Z; served 18:05Z (after the real start, before the scheduled one).
+  const early = { ...TIMING_824424, actualStart: { from: "2026-09-04T18:00:00Z", to: "2026-09-04T18:00:10Z", basis: "PITCH_EVENT", source: "x" }, generatedAt: "2026-09-04T17:55:00Z", servedAt: "2026-09-04T18:05:00Z", publicationEvidence: { ...TIMING_824424.publicationEvidence, readyAt: "2026-09-04T17:59:00Z" } };
+  assert.deepEqual(validateRow(base({ publishedAt: "2026-09-04T17:55:00Z", timing: early })), ["not generated and served before the verified actual start"]);
+  // Without verified timing the original rule would have accepted it: that is the limitation the amendment closes.
+  assert.deepEqual(validateRow(base({ publishedAt: "2026-09-04T18:05:00Z" })), []);
+});
+
+test("clock precision: one millisecond before the earliest actual-start instant is of record; at it, not", () => {
+  const ms = (iso, d) => new Date(Date.parse(iso) + d).toISOString();
+  const from = TIMING_824424.actualStart.from;
+  assert.equal(ofRecordBeforeStart(base({ publishedAt: "2026-09-04T18:31:58.000Z", timing: { ...TIMING_824424, servedAt: ms(from, -1) } })), true);
+  assert.equal(ofRecordBeforeStart(base({ publishedAt: "2026-09-04T18:31:58.000Z", timing: { ...TIMING_824424, servedAt: from } })), false);
+  assert.equal(ofRecordBeforeStart(base({ publishedAt: ms(from, 0), timing: { ...TIMING_824424, generatedAt: ms(from, 0) } })), false);
+});
+
+test("contradictory deployment evidence (READY at/after the actual start) is reported and never unlocks the rule", () => {
+  const bad = { ...TIMING_824424, publicationEvidence: { ...TIMING_824424.publicationEvidence, readyAt: "2026-09-04T19:20:00Z" } };
+  const r = base({ publishedAt: "2026-09-04T18:31:58.000Z", timing: bad });
+  const v = validateRow(r);
+  assert.ok(v.includes("timing.publicationEvidence.readyAt not before the actual start"), JSON.stringify(v));
+  assert.ok(v.includes("publishedAt is not before eventStart"), "falls back to the scheduled-start rule");
+  assert.equal(ofRecordBeforeStart(r), false);
+});
+
+test("cancelled / postponed: no actual start means the original scheduled-start rule, never a relaxation", () => {
+  const none = { ...TIMING_824424, actualStart: null };
+  assert.deepEqual(validateRow(base({ publishedAt: "2026-09-04T17:00:00Z", timing: none })), []);
+  assert.deepEqual(validateRow(base({ publishedAt: "2026-09-04T18:31:58Z", timing: none })), ["publishedAt is not before eventStart"]);
+});
+
+test("unauthorised revision: removing timing once present is an immutable change (needs a listed restatement)", () => {
+  const withT = base({ timing: TIMING_824424 }); const without = base();
+  assert.ok(compareLedgers([withT], [without]).some((x) => x.kind === "IMMUTABLE_CHANGED" && /timing/.test(x.detail)));
+});
+
+test("old rows, whole committed history: the amendment changes no of-record decision for any row without timing", async () => {
+  const fs = await import("node:fs"); const path = await import("node:path");
+  const dir = path.resolve(import.meta.dirname, "../../../../data/internal/forecast-ledger/v1");
+  let n = 0;
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".jsonl"))) {
+    for (const line of fs.readFileSync(path.join(dir, f), "utf8").split("\n")) {
+      if (!line) continue;
+      const row = JSON.parse(line);
+      if ("timing" in row) continue;
+      n += 1;
+      const original = !(typeof row.publishedAt === "string" && typeof row.eventStart === "string") || Date.parse(row.publishedAt) < Date.parse(row.eventStart);
+      assert.equal(ofRecordBeforeStart(row), original, `${f} ${row.forecastId}`);
+      assert.equal(JSON.stringify(row).includes('"timing"'), false);
+    }
+  }
+  assert.ok(n > 10000, `rows checked ${n}`);
+});

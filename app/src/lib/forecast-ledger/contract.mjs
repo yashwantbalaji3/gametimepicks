@@ -82,6 +82,9 @@ export function validateTiming(t, row) {
   if (t.servedAt != null) {
     const e = t.publicationEvidence;
     if (!e || typeof e.kind !== "string" || !isIso(e.readyAt)) p.push("timing.servedAt without publication evidence");
+    // publicationEvidence.readyAt is when the deployment serving at the start became READY: it cannot be at/after the
+    // verified actual start (contradictory evidence is reported, and never unlocks the actual-start rule).
+    else if (a != null && isIso(a.from) && !(Date.parse(e.readyAt) < Date.parse(a.from))) p.push("timing.publicationEvidence.readyAt not before the actual start");
   }
   return p;
 }
@@ -94,7 +97,9 @@ export function validateTiming(t, row) {
 /** Whether a row carries the VERIFIED timing the actual-start rule needs: an actual start, a served time AND its evidence. */
 export const hasVerifiedTiming = (row) => {
   const t = row?.timing;
-  return !!(t?.actualStart && isIso(t.actualStart.from) && isIso(t.servedAt) && isIso(t.publicationEvidence?.readyAt) && isIso(t.generatedAt ?? row.publishedAt));
+  return !!(t?.actualStart && isIso(t.actualStart.from) && isIso(t.servedAt) && isIso(t.publicationEvidence?.readyAt) && isIso(t.generatedAt ?? row.publishedAt)
+    // Contradictory evidence verifies nothing: the deployment named as serving at the start must have been READY before it.
+    && Date.parse(t.publicationEvidence.readyAt) < Date.parse(t.actualStart.from));
 };
 
 export function ofRecordBeforeStart(row) {
