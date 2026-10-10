@@ -36,6 +36,7 @@ const CLAIMS = [
   /\bone\s+model\s+on\s+the\s+site\b/i,
   /\bno\s+other\s+model\b/i,
   /\bproven\s+edge\b/i,
+  /\bprices\s+ARE\s+shown\s+on\s+the\s+paper\s+cards\b/i,
 ];
 
 function claimHits(text) {
@@ -95,6 +96,11 @@ test("the D2 wording is what renders on /cage-chaos and the bout report", () => 
     const flat = stripComments(read(rel)).replace(/\s+/g, " ");
     assert.match(flat, /This is an experimental model: winner forecasts are graded on every new card, method and round are not yet graded, and it has not been shown to have an edge over the market\./, `${rel} carries the D2 wording`);
   }
+});
+
+test("/ufc never says paper cards with prices render while the ladder is refused", () => {
+  const flat = stripComments(read("src/app/ufc/page.tsx")).replace(/\s+/g, " ");
+  assert.match(flat, /Posted fight-winner prices are captured, but no paper cards are shown here while UFC is not cleared for forward-looking model cards/);
 });
 
 test("Ask help corpus: UFC chunks make no superiority claim (source and committed projection)", () => {

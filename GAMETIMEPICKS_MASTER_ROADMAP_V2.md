@@ -2018,14 +2018,16 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Decisions made: none new; D2's wording is applied as approved.
 - Files and contracts changed:
   - `app/src/app/cage-chaos/page.tsx`, `app/src/app/ufc/bout/[boutId]/page.tsx`, `app/src/lib/products/signature-products.ts` (copy only);
+  - `app/src/app/ufc/page.tsx`: the claim that prices "ARE shown on the paper cards below" was false, because the ladder is refused by the capability registry and no paper card renders. It now says so (copy only);
   - new guard `app/src/lib/uiux/ufc-claims-copy.test.mjs`;
   - this roadmap.
   - No probability, model, version, receipt, eligibility, Results, odds or accounting change. The Ask projection does not carry the removed wording, so no regeneration is needed.
 - Local checks:
   - the guard passes on the fix and fails on `main`'s copy (mutation);
-  - claims contract, sport-lab cards, the soccer claim guard, the UFC library and every test naming the product or routes: 188 / 188;
-  - `tsc` clean;
-  - build and rendered guards: see the PR.
+  - every `uiux` guard, sport-lab cards, the UFC library and every test naming the product or routes: 282 / 282;
+  - `tsc` clean; `ask:check` up to date;
+  - local `npm run build` succeeded, and the built `/cage-chaos`, `/mr-dub` and `/ufc/bout/*` carry the new wording and none of the old;
+  - rendered guards 689 / 693 (3 skipped). The 1 failure is the main-wide parlay vacuity guard (`ask-published.test.mjs:56`), which is not caused by this change.
 - Result: a PR is ready for exact-head approval; not merged.
 - Vercel: Preview 0; Production 0 (one on merge).
 
