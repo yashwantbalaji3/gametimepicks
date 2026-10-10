@@ -2,36 +2,36 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-10-10T17:58:20Z",
+  "generatedAt": "2026-10-10T19:27:03Z",
   "nextCluster": {
     "kickoffUtc": "2026-10-11T13:00:00.000Z",
     "fixtures": 2,
-    "hoursAway": 19.03
+    "hoursAway": 17.55
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-10-10T17:58:01Z",
-      "ageHours": 0.01
+      "stampedAt": "2026-10-10T19:26:48Z",
+      "ageHours": 0
     },
     "odds": {
       "state": "READ",
-      "stampedAt": "2026-10-10T17:32:37Z",
-      "ageHours": 0.43
+      "stampedAt": "2026-10-10T19:26:50Z",
+      "ageHours": 0
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-10-10T17:58:12Z",
+      "stampedAt": "2026-10-10T19:27:00Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-10-10T17:58:18Z",
+      "stampedAt": "2026-10-10T19:27:01Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-10-10T17:58:03Z",
+      "stampedAt": "2026-10-10T19:26:50Z",
       "ageHours": 0
     }
   },
@@ -45,25 +45,25 @@
     },
     "budget": {
       "state": "WITHIN_CEILING",
-      "spent": 112,
+      "spent": 114,
       "projectedRemaining": 338,
-      "projectedTotal": 450,
+      "projectedTotal": 452,
       "ceiling": 500,
-      "headroom": 50,
+      "headroom": 48,
       "kickoffWindowHours": 30,
       "spendingFirings": 169,
       "skippedFirings": 430
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-10-10T17:58:12Z",
+    "generatedAt": "2026-10-10T19:27:00Z",
     "counts": {
       "CURRENT_PRE_EVENT": 4
     },
     "rows": 4
   },
   "playerSet": {
-    "generatedAt": "2026-10-10T17:58:18Z",
+    "generatedAt": "2026-10-10T19:27:01Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
       "fixtures": 4,
@@ -77,11 +77,11 @@
   },
   "record": {
     "sampleState": "ACCUMULATING",
-    "matches": 51,
+    "matches": 52,
     "hits": 23,
-    "meanLogLoss": 1.0362808431372548,
-    "playerRows": 2644,
-    "playerVoided": 2462
+    "meanLogLoss": 1.0470301346153845,
+    "playerRows": 2708,
+    "playerVoided": 2478
   },
   "gate": {
     "maturity": "SCAFFOLDED",
@@ -110,7 +110,7 @@
     {
       "id": "calibration-backtest",
       "state": "ENGINEERING",
-      "detail": "43 matches are now paired with a market baseline, past the 30 the stopping rule needs. The sample no longer blocks this: the preregistered backtest has not been run."
+      "detail": "44 matches are now paired with a market baseline, past the 30 the stopping rule needs. The sample no longer blocks this: the preregistered backtest has not been run."
     }
   ]
 }
