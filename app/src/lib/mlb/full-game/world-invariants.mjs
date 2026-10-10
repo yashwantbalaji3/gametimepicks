@@ -16,6 +16,7 @@
  *   ORDER      each team's batters come up in strict lineup rotation across the whole game.
  *   LINES      every batter line equals the count of its own events (PA, H, TB, HR, K, BB, R, RBI); every starter line
  *              equals its events (BF, K, H allowed, outs, runs allowed); K ≤ BF; no negative counts.
+ *   WALK-OFF   (official) a game-ending non-homer hit credits only the bases the winning runner advanced (9.06(f)).
  *   ENDING     no tie (unless the engine reports the game incomplete); at least 8½ innings; no bottom half once the
  *              home team leads after the top of the 9th or later; under WINNING_RUN_ONLY a non-homer walk-off wins
  *              by exactly one.
@@ -49,6 +50,17 @@ export function checkWorld({ game, result, events, rules, automaticRunner = fals
     };
   }
 
+  // Rule 9.06(f) (WINNING_RUN_ONLY): a game-ending non-homer hit credits only the bases the winning runner advanced.
+  const credited = new Map(); // PA event -> credited bases
+  if (rules?.walkOffScoring === "WINNING_RUN_ONLY") {
+    const lastEnd = [...events].reverse().find((e) => e.kind === "HALF_END");
+    const lastPa = [...events].reverse().find((e) => e.kind === "PA");
+    if (lastEnd?.endedOn === "OTHER" && lastPa && HIT_BASES[lastPa.outcome] && lastPa.outcome !== "homeRun" && lastPa.scored.length) {
+      const winner = lastPa.scored[lastPa.scored.length - 1];
+      const from = lastPa.basesBefore.indexOf(winner) + 1; // 1st = 1, 2nd = 2, 3rd = 3
+      if (from >= 1) credited.set(lastPa, Math.min(HIT_BASES[lastPa.outcome], 4 - from));
+    }
+  }
   let half = null; // the half-inning in progress
   const halves = [];
   for (const e of events) {
@@ -117,7 +129,7 @@ export function checkWorld({ game, result, events, rules, automaticRunner = fals
       if (!e.sub) {
         const sb = t.starterBat[e.batterSlot];
         sb.pa += 1; sb.rbi += e.rbi;
-        if (HIT_BASES[e.outcome]) { sb.hits += 1; sb.totalBases += HIT_BASES[e.outcome]; if (e.outcome === "homeRun") sb.homeRuns += 1; }
+        if (HIT_BASES[e.outcome]) { sb.hits += 1; sb.totalBases += credited.get(e) ?? HIT_BASES[e.outcome]; if (e.outcome === "homeRun") sb.homeRuns += 1; }
         if (e.outcome === "strikeout") sb.strikeouts += 1;
         if (e.outcome === "walk") sb.walks += 1;
       }
@@ -126,7 +138,7 @@ export function checkWorld({ game, result, events, rules, automaticRunner = fals
     // line tallies
     const b = t.bat[e.batterSlot];
     b.pa += 1; b.rbi += e.rbi;
-    if (HIT_BASES[e.outcome]) { b.hits += 1; b.totalBases += HIT_BASES[e.outcome]; if (e.outcome === "homeRun") b.homeRuns += 1; }
+    if (HIT_BASES[e.outcome]) { b.hits += 1; b.totalBases += credited.get(e) ?? HIT_BASES[e.outcome]; if (e.outcome === "homeRun") b.homeRuns += 1; }
     if (e.outcome === "strikeout") b.strikeouts += 1;
     if (e.outcome === "walk") b.walks += 1;
     for (const s of e.scored) { t.bat[s].runs += 1; t.eventRuns += 1; half.runs += 1; }
