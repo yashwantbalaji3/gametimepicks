@@ -268,21 +268,26 @@ test("🔴 §3 · a bout ESPN calls `in` with period 0 has NOT started — walko
   assert.equal(railStateOf(r), R.PRE, "not LIVE_UNRESOLVED — nothing is unresolved yet");
 });
 
-test("🔴 §9 · the SAME bout, once a round begins, is LIVE with a real round and a ticking clock", () => {
+test("🔴 §9 · the SAME bout, once a round begins, is LIVE in a real round — and END OF ROUND shows no clock", () => {
   /*
    * The pair is the point. `mma-scoreboard-live.json` and this fixture are the SAME bout eight
-   * minutes apart — period 0 during walkouts, then period 1 with a clock counting down. Captured
-   * live on 2026-09-26, because neither shape exists once a card is over.
+   * minutes apart — period 0 during walkouts, then period 1. Captured live on 2026-09-26.
    *
-   * It also proves the walkout rule costs nothing: the feed DOES publish a live round, and the
-   * adapter reads it the moment there is one.
+   * ⚠ CORRECTED BY TONIGHT'S EVIDENCE (UFC-001, 2026-10-10). This fixture was described as "a ticking
+   *   clock in round 1", and this test asserted a clock on it. Its status is in fact STATUS_END_OF_ROUND
+   *   ("End R1") with "3:58" — and the same bout's final reads R1 · 1:02, i.e. 5:00 − 3:58. The real
+   *   card of 2026-10-10 showed the same shape at Frye–Harris's stoppage ("End R1" · "2:01", final
+   *   2:59): at end of round ESPN's number is the time REMAINING when it stopped, not a running clock.
+   *   So the round travels and the clock does not. A real in-round clock is pinned on real data in
+   *   `ufc-live-real.test.mjs` (STATUS_IN_PROGRESS / _2, counting down).
    */
   assert.equal(inRoundBouts.length, 1);
   const b = inRoundBouts[0];
   assert.equal(b.boutId, liveBouts[0].boutId, "the fixtures must be the same bout, or the pair proves nothing");
   assert.equal(b.state, "LIVE");
+  assert.equal(b.phase, "ROUND_ENDED");
   assert.equal(b.round, 1);
-  assert.match(b.clock, /^\d+:\d{2}$/, "a real clock, not a placeholder");
+  assert.equal(b.clock, null, "an end-of-round number is not a running clock");
   assert.equal(b.winnerAthleteId, null, "a bout in progress has no winner");
 
   const card2 = card({ bouts: [{
@@ -314,11 +319,20 @@ test("the error direction is deliberate — an unknown period reads as not-start
 
 test("a real round and clock still travel — the guard rejects placeholders, not values", () => {
   const withRound = normalizeMmaBout(
-    { id: "1", status: { period: 2, displayClock: "3:41", type: { state: "in" } },
+    { id: "1", status: { period: 2, displayClock: "3:41", type: { state: "in", name: "STATUS_IN_PROGRESS" } },
       competitors: [{ id: "a", athlete: { displayName: "A" } }, { id: "b", athlete: { displayName: "B" } }] },
     { id: "e" }, AT);
   assert.equal(withRound.round, 2);
   assert.equal(withRound.clock, "3:41");
+  assert.equal(withRound.clockMeaning, "REMAINING_IN_ROUND");
+  // An in-play status name never observed keeps its round but shows no clock: its direction is unknown.
+  const unknownName = normalizeMmaBout(
+    { id: "1", status: { period: 2, displayClock: "3:41", type: { state: "in", name: "STATUS_SOMETHING_NEW" } },
+      competitors: [{ id: "a", athlete: { displayName: "A" } }, { id: "b", athlete: { displayName: "B" } }] },
+    { id: "e" }, AT);
+  assert.equal(unknownName.state, "LIVE");
+  assert.equal(unknownName.round, 2);
+  assert.equal(unknownName.clock, null);
 });
 
 test("🔴 §9 · ONE REAL BOUT, whole lifecycle — walkouts → round 1 → final → settled", () => {

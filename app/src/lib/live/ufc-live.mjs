@@ -6,9 +6,12 @@
  *
  * ── THE CANONICAL LIVE-STATE CONTRACT FOR A BOUT ────────────────────────────────────────────────
  *
- *   UPCOMING           no evidence the bout has begun (scheduled, walkouts, or not in the feed)
+ *   UPCOMING           no evidence the bout has begun: scheduled, PRE-FIGHT or WALKOUTS (ESPN says
+ *                      `state: "in"` for both, with period 0 — nobody is fighting), or not in the feed
  *   LIVE               the provider states the bout is in a round. Round and clock are carried
- *                      ONLY when the provider stated them — never a default round, never "0:00"
+ *                      ONLY when the provider stated them — never a default round, never "0:00".
+ *                      The in-round clock is time REMAINING in the round (it counts down, observed
+ *                      2026-10-10). Between rounds ("End R2") there is a round and NO clock.
  *   FINAL_PROVISIONAL  the provider says the bout is over. Its winner is shown as REPORTED; the
  *                      pick is NOT marked right or wrong, because a provider final is not a
  *                      settlement (a decision can be overturned, a no-contest declared later)
@@ -122,7 +125,11 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
       state = UFC_LIVE_STATE.FINAL_CANONICAL; group = "FINAL"; label = "Final · official";
       break;
     case "FINAL_PENDING_SETTLEMENT":
-      state = UFC_LIVE_STATE.FINAL_PROVISIONAL; group = "AWAITING_OFFICIAL_RESULT"; label = "Final · awaiting official result";
+      state = UFC_LIVE_STATE.FINAL_PROVISIONAL; group = "AWAITING_OFFICIAL_RESULT";
+      /* ⚠ A FINAL WITH NO WINNER FLAG IS REAL (Gatto–Kareckaite, 2026-10-10: STATUS_FINAL, completed,
+         neither corner flagged — for at least 45 minutes). It is "result pending", never a draw and
+         never a winner inferred from anything else. */
+      label = str(matched?.winnerAthleteId) ? "Final · awaiting official result" : "Final · result pending";
       break;
     case "LIVE":
     case "DELAYED":
@@ -136,7 +143,8 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
       state = UFC_LIVE_STATE.UPCOMING; group = "UPCOMING"; label = "Status unknown";
       break;
     default: // PRE
-      state = UFC_LIVE_STATE.UPCOMING; group = "UPCOMING"; label = "Scheduled";
+      state = UFC_LIVE_STATE.UPCOMING; group = "UPCOMING";
+      label = matched?.phase === "WALKOUTS" ? "Walkouts" : matched?.phase === "PRE_FIGHT" ? "Pre-fight" : "Scheduled";
   }
 
   /* A bout the feed should have listed and did not. Said as an observation, never as "cancelled". */
@@ -150,17 +158,22 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
     : { level: "NOT_APPLICABLE", ageMs: null };
   const stale = fresh.level === "STALE";
 
-  /* Round and clock: LIVE only, and only what the provider stated. */
+  /* Round and clock: LIVE only, and only what the provider stated. The clock only while IN a round,
+     where it is time remaining; between rounds the bout has a round and no clock. */
   const round = state === UFC_LIVE_STATE.LIVE && typeof matched?.period?.number === "number" && matched.period.number > 0
     ? matched.period.number : null;
-  const clock = state === UFC_LIVE_STATE.LIVE ? str(matched?.period?.clock) : null;
+  const betweenRounds = state === UFC_LIVE_STATE.LIVE && matched?.phase === "ROUND_ENDED";
+  const clock = state === UFC_LIVE_STATE.LIVE && matched?.period?.clockMeaning === "REMAINING_IN_ROUND"
+    ? str(matched?.period?.clock) : null;
 
   /* The provider's end-of-bout round and time, as REPORTED (a final bout's period/clock). */
   const endRound = matched?.state === "FINAL" && typeof matched?.period?.number === "number" && matched.period.number > 0
     ? matched.period.number : null;
-  const endClock = matched?.state === "FINAL" ? str(matched?.period?.clock) : null;
+  /* Elapsed at the finish, provider-reported and UNOFFICIAL (it has been corrected after the fact). */
+  const endClock = matched?.state === "FINAL" && matched?.period?.clockMeaning === "ELAPSED_AT_FINISH_UNOFFICIAL"
+    ? str(matched?.period?.clock) : null;
 
-  /** @type {{ source: "PROVIDER"|"SETTLEMENT", winnerAthleteId: string|null, winnerName: string|null, round: number|null, clock: string|null } | null} */
+  /** @type {{ source: "PROVIDER"|"SETTLEMENT", winnerAthleteId: string|null, winnerName: string|null, round: number|null, clock: string|null, clockUnofficial: boolean } | null} */
   let result = null;
   if (state === UFC_LIVE_STATE.FINAL_PROVISIONAL) {
     const winnerAthleteId = str(matched?.winnerAthleteId);
@@ -170,6 +183,7 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
       winnerName: nameForAthlete(bout, winnerAthleteId),
       round: endRound,
       clock: endClock,
+      clockUnofficial: endClock !== null,
     };
   } else if (state === UFC_LIVE_STATE.FINAL_CANONICAL) {
     const winnerName = str(settlement?.winnerName);
@@ -179,6 +193,7 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
       winnerName,
       round: endRound,
       clock: endClock,
+      clockUnofficial: endClock !== null,
     };
   }
 
@@ -195,6 +210,8 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
     lifecycleState: life.state,
     providerState: matched?.state ?? null,
     providerDetail: str(matched?.stateDetail),
+    phase: matched?.phase ?? null,
+    betweenRounds,
     round,
     clock,
     freshness: fresh,

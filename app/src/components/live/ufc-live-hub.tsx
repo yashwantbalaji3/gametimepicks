@@ -44,10 +44,22 @@ const etTime = (iso: string | null) => {
 
 const pct = (p: number) => `${Math.round(p * 100)}%`;
 
-/** `R2 · 3:10` from whichever of the two the provider stated; null when it stated neither. */
-function roundClock(round: number | null, clock: string | null): string | null {
-  const parts = [round !== null ? `R${round}` : null, clock].filter(Boolean);
-  return parts.length ? parts.join(" · ") : null;
+/**
+ * The live line, from the facts the provider stated — and labelled with what the clock MEANS.
+ *
+ * In a round ESPN's clock counts DOWN (observed 2026-10-10), so it is "remaining". Between rounds there
+ * is no clock. A clock is never shown without its meaning beside it.
+ */
+function liveLine(view: View): string | null {
+  if (view.round === null) return null;
+  if (view.betweenRounds) return `End of R${view.round}`;
+  return view.clock ? `R${view.round} · ${view.clock} remaining` : `R${view.round}`;
+}
+
+/** "ended R1 · 2:59, unofficial" — the finish as ESPN reported it. Elapsed time, and never official. */
+function finishLine(result: View["result"]): string | null {
+  if (!result || result.round === null) return null;
+  return result.clock ? `ended R${result.round} at ${result.clock}, unofficial time` : `ended in R${result.round}`;
 }
 
 type View = ReturnType<typeof deriveUfcBoutState>;
@@ -74,7 +86,7 @@ function FighterRow({ f, mark }: { f: UfcRosterFighter; mark: string | null }) {
 export function UfcBoutCard({ bout, view }: { bout: UfcRosterBout; view: View }) {
   const start = etTime(bout.startUtc);
   const live = view.state === "LIVE";
-  const rc = live ? roundClock(view.round, view.clock) : null;
+  const rc = live ? liveLine(view) : null;
   const ageSecs = ageSeconds(view.freshness?.ageMs ?? null);
   const winnerName = view.result?.winnerName ?? null;
   const markFor = (f: UfcRosterFighter) =>
@@ -83,13 +95,14 @@ export function UfcBoutCard({ bout, view }: { bout: UfcRosterBout; view: View })
       : null;
 
   const chipLabel = live && view.stale ? "Live · feed delayed" : view.label;
+  const finish = finishLine(view.result);
   const resultLine =
     view.state === "FINAL_PROVISIONAL"
       ? winnerName
-        ? `ESPN reports ${winnerName} won${roundClock(view.result?.round ?? null, view.result?.clock ?? null) ? ` (${roundClock(view.result?.round ?? null, view.result?.clock ?? null)})` : ""}. Official result pending — the pick is not graded yet.`
-        : "ESPN reports this bout is over without naming a winner. Official result pending — the pick is not graded yet."
+        ? `ESPN reports ${winnerName} won${finish ? ` (${finish})` : ""}. Official result pending — the pick is not graded yet.`
+        : `ESPN lists this bout as final${finish ? ` (${finish})` : ""} but names no winner yet. No winner is shown until the official result — the pick is not graded yet.`
       : view.state === "FINAL_CANONICAL"
-        ? winnerName ? `Official result: ${winnerName} won.` : "Official result recorded, with no winner to show."
+        ? winnerName ? `Official result: ${winnerName} won${finish ? ` (provider: ${finish})` : ""}.` : "Official result recorded, with no winner to show."
         : view.state === "NOT_TRACKABLE"
           ? `ESPN lists this bout as ${view.label.toLowerCase()}.`
           : null;

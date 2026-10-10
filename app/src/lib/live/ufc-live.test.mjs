@@ -274,12 +274,15 @@ test("UFC-ST 2 · ⚠ walkouts (ESPN state `in`, period 0, clock '-') are NOT li
   assert.equal(v.clock, null);
 });
 
-test("UFC-ST 3 · in a round → LIVE, with exactly the round and clock the provider stated", () => {
+test("UFC-ST 3 · end of a round → LIVE in that round, with NO clock (the number there is not a running clock)", () => {
+  // The Sep 26 "inround" fixture is STATUS_END_OF_ROUND · "End R1" · "3:58" — the remaining time at the
+  // stoppage (its final reads 1:02 = 5:00 − 3:58). Real in-round clocks are pinned in ufc-live-real.test.mjs.
   const v = deriveUfcBoutState({ bout: bout(), envelope: envOf(FIX.inround), feed: "OK", nowMs: NOW_FRESH });
   assert.equal(v.state, UFC_LIVE_STATE.LIVE);
   assert.equal(v.group, "LIVE");
   assert.equal(v.round, 1);
-  assert.equal(v.clock, "3:58");
+  assert.equal(v.clock, null);
+  assert.equal(v.betweenRounds, true);
   assert.equal(v.providerDetail, "End R1", "the provider's own words travel verbatim");
   assert.equal(v.stale, false);
   assert.equal(v.freshness.level, "FRESH");
@@ -296,7 +299,7 @@ test("UFC-ST 4 · ⚠ a provider FINAL is FINAL_PROVISIONAL: winner REPORTED, pi
   const v = deriveUfcBoutState({ bout: bout(), envelope: envOf(FIX.providerFinal), feed: "OK", nowMs: NOW_FRESH });
   assert.equal(v.state, UFC_LIVE_STATE.FINAL_PROVISIONAL);
   assert.equal(v.group, "AWAITING_OFFICIAL_RESULT");
-  assert.deepEqual(v.result, { source: "PROVIDER", winnerAthleteId: "5063403", winnerName: "Yazmin Jauregui", round: 1, clock: "1:02" });
+  assert.deepEqual(v.result, { source: "PROVIDER", winnerAthleteId: "5063403", winnerName: "Yazmin Jauregui", round: 1, clock: "1:02", clockUnofficial: true });
   assert.equal(v.outcome, null, "the pick matched the reported winner, and is still not marked correct");
   assert.equal(v.round, null, "a live round is not shown on a finished bout");
 });
@@ -541,7 +544,7 @@ const render = (b, envelope, feed, nowMs) =>
 test("UFC-UI 5 · RENDERED: every state says only what it knows", () => {
   const stale = render(bout(), envOf(FIX.inround, new Date(NOW_FRESH - 200_000).toISOString()), "REFUSED", NOW_FRESH);
   assert.match(stale, /Live · feed delayed/);
-  assert.match(stale, /last confirmed R1 · 3:58/);
+  assert.match(stale, /last confirmed End of R1/);
   assert.match(stale, /showing the last confirmed state from 200 sec ago/);
 
   const walk = render(bout(), envOf(FIX.walkouts), "OK", NOW_FRESH);
@@ -549,12 +552,12 @@ test("UFC-UI 5 · RENDERED: every state says only what it knows", () => {
   assert.match(walk, /Scheduled/);
 
   const prov = render(bout(), envOf(FIX.providerFinal), "OK", NOW_FRESH);
-  assert.match(prov, /ESPN reports Yazmin Jauregui won \(R1 · 1:02\)\. Official result pending — the pick is not graded yet\./);
+  assert.match(prov, /ESPN reports Yazmin Jauregui won \(ended R1 at 1:02, unofficial time\)\. Official result pending — the pick is not graded yet\./);
   assert.match(prov, /Reported winner/);
   assert.match(prov, /Method of victory is not reported by the live feed\./);
 
   const canon = render(bout({ winnerName: "Yazmin Jauregui", hit: true, asOf: null }), envOf(FIX.providerFinal), "OK", NOW_FRESH);
-  assert.match(canon, /Official result: Yazmin Jauregui won\./);
+  assert.match(canon, /Official result: Yazmin Jauregui won \(provider: ended R1 at 1:02, unofficial time\)\./);
   assert.match(canon, /Pick correct/);
 
   for (const html of [stale, walk, prov]) {
