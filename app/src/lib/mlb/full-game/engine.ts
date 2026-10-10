@@ -59,7 +59,8 @@ export interface EngineParams {
     maxBattersFaced: number;
     /** Runs allowed that pull the starter early (a blow-up). */
     chaseRuns: number;
-  };  /**
+  };
+  /**
    * MLB-002 RESEARCH: the matchup PA model (challenger mlb-pa-matchup-v1). Absent = the published model. When set,
    * batters carrying `matchup` rates are modelled by buildMatchupPaOutcome; anyone without them keeps the published one.
    */

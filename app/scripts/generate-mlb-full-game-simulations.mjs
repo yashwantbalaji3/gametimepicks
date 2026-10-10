@@ -249,7 +249,11 @@ const FEATURES_DIR = path.join(APP, "..", "data/internal/mlb/pregame-archive/pre
  */
 const matchupRows = [];
 let matchupShadowFailures = 0;
+let matchupShadowOverBudget = 0;
 const matchupStarted = Date.now();
+// A wall-clock budget for the whole shadow (a game takes about 0.3 s; a 15-game slate about 4 s). Past it, the remaining
+// games are skipped and counted, so a slow shadow can never hold up the official run's write and commit.
+const MATCHUP_SHADOW_BUDGET_MS = 60_000;
 try {
   const readDocs = (family, d) => {
     const dir = path.join(FEATURES_DIR, family, d);
@@ -268,6 +272,7 @@ try {
   const challengerEngine = { ...championEngine, matchup: { league: MATCHUP_V1_LEAGUE } };
   for (const g of artifact.games) {
     if (g.status === "unavailable" || startedByNow.has(g.gamePk)) continue;
+    if (Date.now() - matchupStarted > MATCHUP_SHADOW_BUDGET_MS) { matchupShadowOverBudget += 1; continue; }
     try {
       const input = lastInputs.find((i) => i.gamePk === g.gamePk);
       if (!input) continue;
@@ -279,7 +284,8 @@ try {
       const arm = (x) => ({ pHome: x.winProbability.home, totalRuns: dist(x.totalRuns), homeMinus15: at15(x), runsHome: x.runs.home.mean, runsAway: x.runs.away.mean });
       matchupRows.push({
         gamePk: g.gamePk, slug: g.slug, date, firstPitch: g.firstPitch, generatedAt: artifact.generatedAt, status: g.status,
-        candidateId: MATCHUP_V1_ID, championModelVersion: MODEL_VERSION, championArtifactHash: g.artifactHash,
+        candidateId: MATCHUP_V1_ID, championModelVersion: MODEL_VERSION, simulationVersion: SIMULATION_VERSION, championArtifactHash: g.artifactHash,
+        codeCommit: process.env.GITHUB_SHA ?? null, // the workflow's checkout; null on a local run
         challengerInputFingerprint: stableHash(m.input),
         marketHome: g.market?.moneyline?.home ?? null, marketTotalLine: g.market?.total?.line ?? null,
         coverage: m.coverage, featureCaptures: m.captures,
@@ -294,7 +300,7 @@ try {
   matchupShadowFailures += 1;
   console.warn(`::warning::matchup-v1 shadow skipped for this run: ${String(e?.message ?? e).slice(0, 160)}`);
 }
-console.log(`[matchup-v1 shadow] ${matchupRows.length} row(s), ${matchupShadowFailures} failure(s), ${Date.now() - matchupStarted} ms`);
+console.log(`[matchup-v1 shadow] ${matchupRows.length} row(s), ${matchupShadowFailures} failure(s), ${matchupShadowOverBudget} over budget, ${Date.now() - matchupStarted} ms`);
 
 /*
  * ── THE INPUT SNAPSHOT (lineage) ───────────────────────────────────────────────────────────────
