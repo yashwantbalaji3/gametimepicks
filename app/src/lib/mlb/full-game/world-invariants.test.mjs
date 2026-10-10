@@ -135,3 +135,33 @@ test("legacy rules are detectably incoherent at the inning cap: the awarded run 
   const off = world(g, NO_OFFENSE(OFFICIAL_RULES_2026), "cap|1");
   assert.equal(off.result.incomplete, true); // reported, never awarded
 });
+
+test("substitution (research): worlds stay coherent; starters lose later trips; the starter-only line is checked", () => {
+  const pa = (eh, k) => ({ vsStarter: buildPaOutcome({ expHits: eh, expTotalBases: eh * 1.6, pitcherKRate: k }), vsBullpen: buildPaOutcome({ expHits: eh, expTotalBases: eh * 1.6, pitcherKRate: 0.24 }) });
+  const bench = pa(0.7, 0.25);
+  const hazard = [0, 0, 0.05, 0.25, 0.4, 0.5, 0.5]; // replaced before the 3rd trip 5%, before the 4th 25%, ...
+  const withSub = (l) => l.map((b, i) => ({ ...b, pa: pa(0.8 + (i % 3) * 0.15, 0.2), subHazard: hazard, subPa: bench }));
+  const g = fixture({ awayLineup: withSub(lineup(100, "AAA")), homeLineup: withSub(lineup(200, "BBB")) });
+  const params = { ...OFFICIAL, research: { explicitPa: true, substitution: true } };
+  const r = sweep(g, params, 2000, "sub");
+  assert.deepEqual(r.bad, []);
+  let starterPa = 0; let slotPa = 0; let subbedSlots = 0;
+  for (let i = 0; i < 300; i += 1) {
+    const { result } = world(g, params, `subpa|${i}`);
+    for (const [s, l] of [[result.awayStarterBatters, result.awayBatters], [result.homeStarterBatters, result.homeBatters]]) s.forEach((x, j) => { starterPa += x.pa; slotPa += l[j].pa; if (x.pa < l[j].pa) subbedSlots += 1; });
+  }
+  assert.ok(starterPa < slotPa && subbedSlots > 300, `${starterPa} / ${slotPa}, ${subbedSlots} slots subbed`);
+  // fail closed without inputs
+  assert.throws(() => simulateGame(fixture(), new SeededRng("x"), { ...OFFICIAL, research: { substitution: true } }), /substitution/);
+  // mutation: a starter-only line that keeps a replaced starter's later PA is caught
+  let w = null;
+  for (let i = 0; i < 300 && !w; i += 1) { const x = world(g, params, `submut|${i}`); if (x.result.awayStarterBatters.some((l, j) => l.pa < x.result.awayBatters[j].pa)) w = x; }
+  const j = w.result.awayStarterBatters.findIndex((l, k) => l.pa < w.result.awayBatters[k].pa);
+  w.result.awayStarterBatters[j].pa += 1;
+  assert.ok(checkWorld({ game: g, result: w.result, events: w.events, rules: OFFICIAL.rules, automaticRunner: true }).some((x) => /starter-only pa/.test(x)));
+});
+
+test("substitution off: the research hook draws nothing (identical worlds with or without hazard inputs present)", () => {
+  const g = fixture({ awayLineup: lineup(100, "AAA").map((b) => ({ ...b, subHazard: [0, 0.5], subPa: undefined })) });
+  for (let i = 0; i < 100; i += 1) assert.deepEqual(simulateGame(g, new SeededRng(`off|${i}`), OFFICIAL), simulateGame(fixture(), new SeededRng(`off|${i}`), OFFICIAL));
+});

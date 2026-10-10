@@ -65,7 +65,7 @@ export interface EngineParams {
    * changed rate. `explicitPa` reads each batter's `pa` distributions instead of deriving them from the board's
    * projections; `workloadPmf` draws each starter's batters-faced limit from his `bfLimitPmf` once per game.
    */
-  research?: { explicitPa?: boolean; workloadPmf?: boolean };
+  research?: { explicitPa?: boolean; workloadPmf?: boolean; substitution?: boolean };
 }
 
 /** One recorded event of a simulated game (MLB-005 world log). Emitted only when an observer is passed. */
@@ -73,6 +73,8 @@ export type WorldEvent =
   | {
     kind: "PA"; inning: number; half: "TOP" | "BOTTOM"; outsBefore: number; basesBefore: [number, number, number];
     batterSlot: number; pitcher: "STARTER" | "BULLPEN"; outcome: string; scored: number[]; rbi: number; outsAfter: number;
+    /** Research (substitution): the PA was taken by the slot's replacement, not its starter. */
+    sub?: boolean;
   }
   | { kind: "HALF_START"; inning: number; half: "TOP" | "BOTTOM"; bases: [number, number, number] }
   | { kind: "FREE_ADVANCE"; inning: number; half: "TOP" | "BOTTOM"; scored: number[] }
@@ -166,6 +168,9 @@ export interface GameResult {
   incomplete?: boolean;
   /** How the game ended in the bottom of the 9th or later, when the home team walked off. */
   walkOff?: "HOME_RUN" | "OTHER" | null;
+  /** Research (substitution): each STARTING batter's own line, which stops when he is replaced. Slot lines include both. */
+  awayStarterBatters?: BatterGameLine[];
+  homeStarterBatters?: BatterGameLine[];
   awayBatters: BatterGameLine[];
   homeBatters: BatterGameLine[];
   awayStarter: PitcherGameLine;
@@ -306,6 +311,9 @@ function advanceReachingBase(
  * `walkOff` (bottom of the 9th+) carries the away total to beat so the inning ends the instant the home
  * team takes the lead. Returns runs scored and the new order pointer.
  */
+/** Research (substitution) state of one batting team. */
+interface SubState { subbed: boolean[]; starterLines: BatterGameLine[]; subModels: BatterModel[]; hazards: number[][] }
+
 function simulateHalfInning(params: {
   lineup: BatterInput[];
   models: BatterModel[];
@@ -320,8 +328,9 @@ function simulateHalfInning(params: {
   observer?: WorldObserver;
   inning?: number;
   half?: "TOP" | "BOTTOM";
+  sub?: SubState;
 }): { runs: number; orderPtr: number; endedOn: "HOME_RUN" | "OTHER" | null } {
-  const { lineup, models, batterLines, mound, rng, isExtra, walkOff, engine, observer } = params;
+  const { lineup, models, batterLines, mound, rng, isExtra, walkOff, engine, observer, sub } = params;
   const inning = params.inning ?? 0;
   const half = params.half ?? "TOP";
   const rules = engine.rules ?? LEGACY_RULES;
@@ -353,15 +362,24 @@ function simulateHalfInning(params: {
       bases[2] = bases[1];
       bases[1] = bases[0];
       bases[0] = -1;
+      if (sub) for (const s of faScored) if (!sub.subbed[s]) sub.starterLines[s].runs += 1;
       observer?.({ kind: "FREE_ADVANCE", inning, half, scored: faScored });
       if (walkOff && walkOff.homeBefore + runs > walkOff.awayTotal) { endedOn = "OTHER"; break; }
     }
     const slot = orderPtr % n;
-    const model = models[slot];
+    // Research (substitution): before each later trip, the starter may be replaced for the rest of the game.
+    if (sub && !sub.subbed[slot] && sub.starterLines[slot].pa >= 1) {
+      const hz = sub.hazards[slot];
+      const h = hz[Math.min(sub.starterLines[slot].pa, hz.length - 1)] ?? 0;
+      if (h > 0 && rng.next() < h) sub.subbed[slot] = true;
+    }
+    const isSub = !!sub && sub.subbed[slot];
+    const model = isSub ? sub!.subModels[slot] : models[slot];
     const probs = mound.usingStarter ? model.vsStarter : model.vsBullpen;
     const outcome = samplePaOutcome(probs, rng.next());
 
     const line = batterLines[slot];
+    const lineBefore = sub && !isSub ? { ...line } : null;
     line.pa += 1;
     if (mound.usingStarter) mound.line.battersFaced += 1;
     // MLB-005 world log (observer only; no random draw, no state change).
@@ -441,7 +459,12 @@ function simulateHalfInning(params: {
       }
     }
 
-    observer?.({ kind: "PA", inning, half, outsBefore, basesBefore: basesBefore!, batterSlot: slot, pitcher: paPitcher, outcome, scored: paScored, rbi: line.rbi - rbiBefore, outsAfter: outs });
+    if (sub) {
+      // The starter's own line: his PA's batting stats while he is in the game, and every run he scores himself.
+      if (lineBefore) { const sl = sub.starterLines[slot]; for (const k of ["pa", "hits", "totalBases", "homeRuns", "rbi", "walks", "strikeouts"] as const) sl[k] += line[k] - lineBefore[k]; }
+      for (const s of paScored) if (s === slot ? !isSub : !sub.subbed[s]) sub.starterLines[s].runs += 1;
+    }
+    observer?.({ kind: "PA", inning, half, outsBefore, basesBefore: basesBefore!, batterSlot: slot, pitcher: paPitcher, outcome, scored: paScored, rbi: line.rbi - rbiBefore, outsAfter: outs, ...(sub ? { sub: isSub } : {}) });
     orderPtr += 1;
 
     // Starter removal: pulled after a batters-faced cap (or this game's drawn limit, research) or a blow-up run total.
@@ -476,6 +499,15 @@ export function simulateGame(game: GameInput, rng: SeededRng, params: EnginePara
   const homeModels = buildBatterModels(game.homeLineup, game.awayStarter, params.league, explicitPa);
   const awayLines = game.awayLineup.map(emptyBatterLine);
   const homeLines = game.homeLineup.map(emptyBatterLine);
+  // Research (substitution): each batting team's replacement models and starter-only lines. Fails closed without inputs.
+  const subState = (lineup: BatterInput[]): SubState | undefined => {
+    if (!params.research?.substitution) return undefined;
+    const missing = lineup.filter((b) => !b.subHazard?.length || !b.subPa).map((b) => b.playerId);
+    if (missing.length) throw new Error(`substitution: no hazard or replacement for ${missing.join(",")}`);
+    return { subbed: lineup.map(() => false), starterLines: lineup.map(emptyBatterLine), subModels: lineup.map((b) => ({ vsStarter: b.subPa!.vsStarter, vsBullpen: b.subPa!.vsBullpen })), hazards: lineup.map((b) => b.subHazard!) };
+  };
+  const awaySub = subState(game.awayLineup);
+  const homeSub = subState(game.homeLineup);
 
   // The home team's pitcher faces the away lineup; the away team's pitcher faces the home lineup.
   const homeMound: MoundState = { usingStarter: !!game.homeStarter, line: emptyPitcherLine(), bullpenRuns: 0 };
@@ -518,6 +550,7 @@ export function simulateGame(game: GameInput, rng: SeededRng, params: EnginePara
       observer,
       inning,
       half: "TOP",
+      sub: awaySub,
     });
     awayRuns += top.runs;
     awayPtr = top.orderPtr;
@@ -540,6 +573,7 @@ export function simulateGame(game: GameInput, rng: SeededRng, params: EnginePara
       observer,
       inning,
       half: "BOTTOM",
+      sub: homeSub,
     });
     homeRuns += bottom.runs;
     homePtr = bottom.orderPtr;
@@ -568,5 +602,6 @@ export function simulateGame(game: GameInput, rng: SeededRng, params: EnginePara
     homeBatters: homeLines,
     awayStarter: awayMound.line,
     homeStarter: homeMound.line,
+    ...(awaySub && homeSub ? { awayStarterBatters: awaySub.starterLines, homeStarterBatters: homeSub.starterLines } : {}),
   };
 }
