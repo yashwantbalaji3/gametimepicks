@@ -99,7 +99,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 3 | `NFL-003` | NFL Modeling | Player opportunity allocation (plays → pass/rush → attempts/carries → targets → catches → yards → TDs, with `OTHER`) | IN_PROGRESS — allocV1 PRODUCTION DEPLOYED inside World Model V2 (experimental, labelled); not FORWARD EVALUATED; first-game review: rushing-efficiency tail hypothesis (§NFL-005) | NFL-002 team volume | Shadow → family-by-family promotion |
 | 4 | `NFL-004` | NFL Modeling | TD model: hierarchical Bernoulli → team scoring opportunities → red-zone role → drive attribution | IN_PROGRESS — RESEARCH (passing-TD pure-sim candidate failed preregistered dev bars; 50/50 blend passed dev, forward shadow only; world TD v2 preregistered, forward-only). Not qualified; passing TD and first TD withheld publicly; anytime TD stays on the existing published model | NFL-003 | Shadow → family-by-family promotion |
 | 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | IN_PROGRESS — PRODUCTION DEPLOYED (World Model V2, experimental: #1024, #1026, #1027, #1029 → 2.2.0); FORWARD EVALUATION begun (1 game reviewed, 2026-10-08 TB @ DAL); not STATISTICALLY QUALIFIED; not PRODUCT ELIGIBLE | NFL-002, NFL-003, NFL-004 | Yes, family by family |
-| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 product/Results truth IMPLEMENTED LOCALLY; PR 4 historical recovery + forecast-of-record correction approved to develop | COST-001 deployment gate verified ✓ | Yes |
+| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 #1039 product/Results truth PRODUCTION DEPLOYED (merge `f15a51f9`, 2026-10-10); PR 4 #1042 recovery READY_FOR_REVIEW; Stage B restatement (#1045) + served-forecast evidence (#1046) approved to develop locally | COST-001 deployment gate verified ✓ | Yes |
 | 7 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | IN_PROGRESS — RESEARCH COMPLETED (inventory, gaps, consumer matrix); foundation PRODUCTION DEPLOYED (#1040: read-only ForecastVersion/Settlement projection; no consumer, no migration); engineering lead: Lane A (founder, 2026-10-09) | Founder rules below | Foundation |
 | 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
 | 9 | `MLB-002` | MLB Modeling | Benchmark ladder (PA control → Poisson → hierarchical → NB → bivariate → enhanced PA → boosting → ensemble) | NOT_STARTED | MLB-001 | Shadow |
@@ -358,10 +358,10 @@ Bot data commits are 386 of the 480 (80%).
 # 4. Truth, market identity and product semantics
 
 ## `TRUTH-001` — P0 truth correction package
-**Status:** IN_PROGRESS — PR 1 (#1037) PRODUCTION DEPLOYED; PR 2 (#1038, posted-line run line) PRODUCTION DEPLOYED; product-truth PR 3 IMPLEMENTED LOCALLY; historical recovery PR 4 investigated, approved to develop  
+**Status:** IN_PROGRESS — PR 1 (#1037) PRODUCTION DEPLOYED; PR 2 (#1038, posted-line run line) PRODUCTION DEPLOYED; product-truth PR 3 (#1039) PRODUCTION DEPLOYED; historical recovery PR 4 (#1042) READY_FOR_REVIEW; Stage B (#1045, draft) and served-forecast evidence (#1046) in development  
 **Owner/session:** Claude Code, Lane A (Core Intelligence), 2026-10-09  
-**Branches:** `claude/truth-001-mlb-truth` (merged) · `claude/truth-001-runline-posted` (#1038, merged) · `claude/truth-001-product-truth` (local)  
-**PR:** [#1037](https://github.com/yashwantbalaji3/gametimepicks/pull/1037) merged · [#1038](https://github.com/yashwantbalaji3/gametimepicks/pull/1038) merged  
+**Branches:** `claude/truth-001-mlb-truth` (merged) · `claude/truth-001-runline-posted` (#1038, merged) · `claude/truth-001-product-truth` (#1039, merged)  
+**PR:** [#1037](https://github.com/yashwantbalaji3/gametimepicks/pull/1037) merged · [#1038](https://github.com/yashwantbalaji3/gametimepicks/pull/1038) merged · [#1039](https://github.com/yashwantbalaji3/gametimepicks/pull/1039) merged · [#1042](https://github.com/yashwantbalaji3/gametimepicks/pull/1042) · [#1045](https://github.com/yashwantbalaji3/gametimepicks/pull/1045) · [#1046](https://github.com/yashwantbalaji3/gametimepicks/pull/1046)  
 **Exact head (#1037):** `dbe65178c21bf21431326f62c47b37c37475f4dd` → merge `20910052555031e4790c8336116f4d0c6e3cde76` (2026-10-09T22:05:39Z, `--match-head-commit`)  
 **Evidence:** this section; tests named below  
 **Production acceptance (#1037):** PASS (record below)
@@ -498,7 +498,29 @@ Commits (all forward-only; no published artifact rewritten):
 - **No-games-day states (B1, B2):** /build and /build/custom say "No qualifying card / legs" when the day's producer ran with nothing to show ("Data pending" only when no producer output exists). /homer-nukes says no MLB games are scheduled instead of "not published yet".
 - Remaining in PR 3: the /moonshot status pill (B3) and /today "No-play" on a no-games day (B6); then validation (unit, build, post-build, rendered check) and the PR.
 
+- **Release (2026-10-10).**
+  - **Approval:** founder approval at exact head `defb18c591da7ba8210302a120a38d4928494487`.
+  - **Pre-merge checks:**
+    - head unchanged; quality and python green;
+    - `CLEAN` against main (only bot commits after it);
+    - scope = the reviewed product/Results truth files and the roadmap; no data, workflow, odds or ledger file;
+    - no other integration or deploy in flight.
+  - **Merge:** `--match-head-commit`, as `f15a51f971cb4d39a1efb9792f2702a78b74bb7e` at 02:38:32Z.
+  - **Production:** `build-info` reported that commit, built 02:43:35Z, checked live 02:46:56Z.
+  - **Routes:** `/`, `/today/`, `/moonshot/`, `/bank-builder/`, `/build/`, `/mr-dub/`, `/results/`, `/results/forecasts/`, `/results/model-audit/`, `/mlb/`, `/nfl/`, `/homer-nukes/`, `/markets/` and `/live/` all returned 200.
+  - **Accounting, compared with a pre-merge snapshot of the same pages:**
+    - Bank Builder, Build, Results and Results/forecasts show identical figures (13,741 published).
+    - Moonshot and Mr. Dub show identical balances ($14,390.40 / $20,465.40) plus the new bankroll-rule disclosure ("47 lost runs so far, −$1,175").
+    - Model audit loses only the removed cross-sport tile.
+    - Today says "No games today" instead of "No-play" on a no-games day.
+    - **No accounting or denominator change.**
+
 ### Historical MLB forecast recovery (founder decision 3: approved to develop, PR 4)
+- **Supersession of the 14 proposals (2026-10-10):** recorded append-only in `data/internal/mlb/corrections/forecast-of-record-proposals-supersession-2026-10-10.json`; the proposals file itself is unchanged.
+  - **11 CORROBORATED:** #1046's evidence (actual first pitch plus the exact deployment record) verifies the same served revision, with an identical hash.
+  - **3 SUPERSEDED_UNVERIFIABLE:** 823084, 823650, 824542. They must not be applied.
+  - Nothing is applied. Stage B (#1045) applies only verified rows, after separate approval.
+- **Future hardening (founder note):** move the non-public recovery and proposal artifacts out of `app/public/` to `data/internal/`. Today they are kept out of the export only by the prune step plus the post-build guard `recovery-not-public.test.mjs`, which is mutation-checked: a planted file or reference fails it.
 Investigation (read-only):
 - 243 MLB games marked `unavailable` 2026-09-01 → 10-08:
   - **231 PUBLISHED_RECOVERABLE:** public pre-first-pitch commit on `main`; hash recomputes (also 5,014/5,014 game entries across every scanned revision); a matching prediction snapshot; model `mlb-fullgame-2026.08-pa-v2`, engine v1.
@@ -700,7 +722,23 @@ Reproduce/fix in a new version where confirmed:
 - lineup/batting-order opportunities.
 
 ## `MLB-002` — Benchmark ladder
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — first challenger `mlb-pa-matchup-v1` NOT QUALIFIED (founder decision 3, 2026-10-10); prospective forward shadow approved to prepare
+
+### Progress (2026-10-10, Lane A)
+- **Challenger `mlb-pa-matchup-v1`** (#1047, research only; the published engine path is byte-identical).
+  - **Mechanism:** DIPS-style matchup. K, BB and HR come from log5(batter vs hand, starter, league) with fixed priors; balls-in-play hits from the board projection with the slot's league PA.
+  - **Registration:** preregistered at `6620ac4e75`, with three dated amendments, all before the holdout.
+  - **Holdout** (359 games, read once):
+
+| Metric | Control | Challenger | Difference, 95% |
+|---|---|---|---|
+| Winner log loss | 0.7026 | 0.6896 | −0.0129 [−0.0272, +0.0012] |
+| Totals CRPS | 2.510 | 2.449 | −0.061 [−0.114, −0.007] |
+| Calibration slope | 0.21 | 0.65 | — |
+
+  - **Verdict:** the primary bar fails (the interval includes 0), and the challenger remains worse than the market. **NOT QUALIFIED. Not promoted; no recommendations published from it; no betting-value claim; this holdout is not re-tuned against.**
+  - **Next:** a fresh preregistration for a prospective forward shadow, new games only.
+- **P317 league-rates candidate** (`mlb-fullgame-engine-league-rates-v1`): forward shadow still ACCUMULATING (196/200 at 2026-10-09).
 
 ### Team/game candidates
 1. Existing PA engine control.
