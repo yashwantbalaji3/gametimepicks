@@ -16,6 +16,7 @@
 import fs from "node:fs";
 import { formatUpdatedEt } from "@/lib/format";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
+import { hubCounts } from "@/lib/sport-hub/contract";
 import SportSwitcher from "@/components/sports/sport-switcher";
 import { ufcHub } from "@/lib/sport-hub/adapters";
 import Explain from "@/components/ui/explain";
@@ -159,8 +160,11 @@ export default function UfcArchivePage() {
               <h2 className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 20, fontWeight: 800 }}>
                 Fight card &amp; predictions
               </h2>
+              {/* The shared hub counts line, from the shared hub rows (`hubCounts`): scheduled, with a report and
+                  with a supported read stay three separate numbers, exactly as every other hub prints them. */}
               <span className="font-mono" style={{ fontSize: 11, color: "var(--vault-text-mute)" }}>
-                {card.bouts.length} bouts · {card.bouts.filter((b) => b.prediction?.winner).length} with a model pick · experimental
+                {(() => { const c = hubCounts(__hubModel.rows); return `${c.scheduled} scheduled · ${c.withReport} with a report · ${c.withRead} with a supported read`; })()}
+                {" · experimental"}
               </span>
             </div>
             <UfcPredictionBoard card={card} />

@@ -95,13 +95,13 @@ export default function UfcPredictionBoard({ card }: { card: UfcCardArtifact }) 
       {/* ── Desktop and tablet: one comparison table ─────────────────────────────────────────── */}
       <div className="hidden xl:block" style={{ ...PANEL, overflowX: "auto" }}>
         <table className="w-full" style={{ borderCollapse: "collapse" }}>
-          <caption className="sr-only">UFC prediction board: every bout on the card with the model&apos;s pick, win probability and experimental method lean</caption>
+          <caption className="sr-only">UFC prediction board: every bout on the card with the model&apos;s pick, win chance and experimental method lean</caption>
           <thead>
             <tr className="font-mono uppercase tracking-[0.1em] text-left" style={{ ...LABEL, borderBottom: "1px solid var(--vault-rule)" }}>
               <th scope="col" className="px-3 py-2 font-normal">Fight</th>
               <th scope="col" className="px-3 py-2 font-normal">Matchup</th>
               <th scope="col" className="px-3 py-2 font-normal hidden 2xl:table-cell">Weight class</th>
-              <th scope="col" className="px-3 py-2 font-normal">Model pick · win prob.</th>
+              <th scope="col" className="px-3 py-2 font-normal">Model pick · win chance</th>
               <th scope="col" className="px-3 py-2 font-normal">Method lean</th>
               <th scope="col" className="px-3 py-2 font-normal"><span className="sr-only">Analysis</span></th>
             </tr>
@@ -128,7 +128,7 @@ export default function UfcPredictionBoard({ card }: { card: UfcCardArtifact }) 
                       <ProbabilityCell row={row} />
                     </span>
                   ) : (
-                    <span className="font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }} title={row.unmodelledReason ?? undefined}>Not modelled</span>
+                    <span className="font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }} title={row.unmodelledReason ?? undefined}>not modelled — no tracked history</span>
                   )}
                 </td>
                 <td className="px-3 py-2.5 align-middle"><MethodCell row={row} /></td>
@@ -154,7 +154,7 @@ export default function UfcPredictionBoard({ card }: { card: UfcCardArtifact }) 
           <li key={row.boutId}>
             <Link
               href={row.href}
-              aria-label={`${row.position}: ${row.red.name} vs ${row.blue.name}. ${row.pick ? `Model pick ${row.pick.name}, ${pct(row.pick.probability)}${row.methodLean ? `, experimental method lean ${row.methodLean.label}` : ""}.` : "Not modelled."} Open the analysis.`}
+              aria-label={`${row.position}: ${row.red.name} vs ${row.blue.name}. ${row.pick ? `Model pick ${row.pick.name}, ${pct(row.pick.probability)} win chance${row.methodLean ? `, experimental method lean ${row.methodLean.label}` : ""}.` : "Not modelled: no tracked history."} Open the analysis.`}
               className="block h-full px-3 py-2.5"
               style={{ ...PANEL, textDecoration: "none", color: "inherit" }}
             >
@@ -177,7 +177,7 @@ export default function UfcPredictionBoard({ card }: { card: UfcCardArtifact }) 
                     <MethodCell row={row} />
                   </>
                 ) : (
-                  <span className="font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>Not modelled — {row.unmodelledReason}</span>
+                  <span className="font-mono" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }} title={row.unmodelledReason ?? undefined}>not modelled — no tracked history</span>
                 )}
                 <span aria-hidden className="font-mono shrink-0" style={{ fontSize: 11, color: "var(--vault-text-mute)" }}>→</span>
               </span>
@@ -187,7 +187,7 @@ export default function UfcPredictionBoard({ card }: { card: UfcCardArtifact }) 
       </ul>
 
       <p className="m-0 font-mono max-w-3xl" style={{ fontSize: 10.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
-        Win prob. is the experimental fight model&apos;s published winner probability
+        Win chance is the experimental fight model&apos;s published winner probability
         {board.modelId ? ` (${board.modelId})` : ""} — not a sportsbook price. Method lean is the most likely way the fight
         ends, for either fighter, from the experimental method head; it is not the chance that the pick wins that way, and
         method and round are not yet graded. Not modelled means too little tracked history to read. Paper and educational.
