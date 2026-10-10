@@ -62,3 +62,54 @@ Working log for the founder's overnight directive. **Not a roadmap.** The author
   | Budget exhausted | 0 | 4 over budget |
 
 - **Tests:** targeted tests 12/12 (matchup, matchup-features, engine-level separation, commit scope) on Node 20.4.0. The full unit phase is running.
+- **Unit phase on the integration head:** 9,218 / 9,222 pass. The 2 failures are the known `live RLS` tests (Postgres); the other 2 are skips. `tsc --noEmit` clean.
+- **Batched roadmap update**, committed in the same head:
+  - the #1046 release record;
+  - MLB-001's text, verbatim from #1043, so the two branches merge cleanly;
+  - MLB-002 integration;
+  - MLB-003/004/005 research status;
+  - the Lane A session log.
+- **Pushed** to #1048's branch, a fast-forward: head **`793588ff3b`**. #1048 retargeted to `main`; the PR body is the approval package. #1047 has a comment saying it is merged through #1048 if approved.
+- **CI:** the first runs were cancelled by the retarget; a new run is pending. One later check, no polling.
+- **State:** **`READY_FOR_FOUNDER_REVIEW`. Not merged.**
+
+### 06:15Z–06:35Z · MLB-005 · coherent worlds prototype (branch `claude/mlb-005-coherent-worlds`, from #1043's pa-v3 head; pushed; no PR)
+- **Engine, research hooks only** (`EngineParams.research`; absent means the published engine byte for byte, pinned by the existing hash tests, 36/36):
+  - a world event observer;
+  - explicit per-batter PA distributions;
+  - a per-game starter batters-faced draw;
+  - in-game substitution (per-trip replacement hazard, replacement PA model, starter-only lines).
+- **Invariant checker** `world-invariants.mjs`: score, runs, RBI, scorers, outs, lineup order, batter and starter lines, ending, extras, workload, substitution.
+  - Tests 11/11, including 6 mutation probes, a substitution mutation, and legacy's cap-awarded run detected as incoherent.
+- **`mlb-coherent-worlds-v1`:** preregistered (`431072c9ae`) before any read-out. Harness `c26156bf3f`. 2024 development read:
+  - **Integrity:** fidelity check 18/18 exact against the frozen replay. **4,014,000 worlds, 0 invariant violations.**
+  - **Engine read-out minus v2 analytic**, count log loss:
+
+    | Market | Engine − v2 | Decision |
+    |---|---|---|
+    | K | **−0.0090 [−0.0161, −0.0007]** (better) | PROCEED |
+    | Hits | +0.0031 | PROCEED |
+    | **TB** | **+0.0053 [+0.0037, +0.0069]** | **DO_NOT_PROCEED** |
+    | H+R+RBI | +0.0032 | PROCEED |
+    | HR, R, RBI | within ±0.0022 | PROCEED |
+
+  - **Game level:** beats league baselines (winner −0.009 [−0.016, −0.002]; total log score −0.028 [−0.048, −0.008]).
+  - **Cause of the TB failure:** there is no in-game substitution, so starters take 4.33 PA against 4.01 actual.
+- **`mlb-coherent-worlds-v2` (substitution):** preregistered (`cb9a52e95e`) as a disclosed second look at 2024. Running.
+
+### 06:35Z– · MLB-001 · #1043 review
+- **Rules reconfirmed:**
+  - no automatic runner in the postseason;
+  - a non-homer walk-off ends at the winning run;
+  - a cap tie is discarded and redrawn, with a bounded refusal. No fabricated run.
+- **Defect found and fixed** (local `be19ba7002`, not pushed yet): Rule 9.06(f) walk-off hit bases. A game-ending non-homer now credits only the bases the winning runner advanced. Test: official and legacy are identical except the walk-off play; official TB is never higher, and at most 2 lower. rules / engine / simulate 30/30.
+- **Reconciled** with `main` cleanly.
+- **Byte identity of the default path against `main`:**
+  - pregame (10-07, 09-15): **IDENTICAL**.
+  - **after first pitch (10-07 23:59Z): DIFFERS by one additive field.** Carried `frozenPregame` entries gain `"modelVersion": "mlb-fullgame-2026.08-pa-v2"` (#1043's frozen-carry change). Game objects and `artifactHash` are unchanged, and the only other reader (`build-mlb-social-content.mjs`) checks only that the entry exists.
+  - So #1043's "default output byte-identical" holds **pregame only**. This is disclosed in the review package.
+
+### 06:40Z · TRUTH-001 · #1045 / #1049
+- Both merge cleanly with `main` (dry merge).
+- #1045's restatement log matches `main`'s committed classification exactly (22 = 21 + 824424 held; 4 NOT_SERVED; none outside). Status `PROPOSED_NOT_APPLIED`.
+- #1045 retargeted from the merged #1042 branch to `main`; still a draft. #1049 stays stacked on #1045. Nothing applied.
