@@ -30,7 +30,8 @@ import { eplDerivedRows, eplEventIndex, eplMatchRows, eplPlayerRows, ligue1Rows 
 import { ufcWinnerRows } from "../../src/lib/forecast-ledger/adapters/ufc.mjs";
 import { compareLedgers, pairRekeys } from "../../src/lib/forecast-ledger/append-only.mjs";
 import { buildManifest, composeLedger, serializeRow } from "../../src/lib/forecast-ledger/compose.mjs";
-import { LEDGER_SCHEMA_VERSION } from "../../src/lib/forecast-ledger/contract.mjs";
+import { CONTRACT_AMENDMENTS, IMMUTABLE_FIELDS, LEDGER_SCHEMA_VERSION } from "../../src/lib/forecast-ledger/contract.mjs";
+import { readMlbGradesOfRecord, readRestatementLogs, RESTATEMENTS_DIR_REL } from "../../src/lib/mlb/results/grades-of-record-io.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const APP = path.join(ROOT, "app");
@@ -92,8 +93,10 @@ export function readSources(now) {
 
   // MLB game grades + the model id of each SNAPSHOT source (git sources stay null: a shallow checkout could not
   // reproduce them, and a value that depends on clone depth would break append-only).
-  const mlbGraded = readJsonl(path.join(PUB, "mlb/results/game-predictions-graded.jsonl"));
-  const mlbProjected = readJsonl(path.join(PUB, "mlb/results/game-projected-scores-graded.jsonl"));
+  // TRUTH-001 Stage B: the MLB grade rows OF RECORD (approved restatement logs applied; proposals never).
+  const mlbOfRecord = readMlbGradesOfRecord(ROOT);
+  const mlbGraded = mlbOfRecord.graded;
+  const mlbProjected = mlbOfRecord.projected;
   const sourceModels = new Map();
   for (const src of new Set(mlbGraded.map((g) => g.forecastSource))) {
     const m = /^snapshot:(\d{4}-\d{2}-\d{2}\/snapshot-\d+\.json)$/.exec(String(src ?? ""));
@@ -175,7 +178,10 @@ export function renderFiles(rows) {
     const rs = rows.filter((r) => r.sport === sport);
     files[file] = rs.map(serializeRow).join("\n") + (rs.length ? "\n" : "");
   }
-  files["manifest.json"] = JSON.stringify(buildManifest(rows, { schemaVersion: LEDGER_SCHEMA_VERSION, sportFiles: SPORT_FILES }), null, 2) + "\n";
+  const manifest = buildManifest(rows, { schemaVersion: LEDGER_SCHEMA_VERSION, sportFiles: SPORT_FILES });
+  // Dated contract amendments are part of the manifest only once a row uses them (no change to existing manifests).
+  if (rows.some((r) => r.publicationStatus === "NOT_SERVED")) manifest.contractAmendments = CONTRACT_AMENDMENTS.map((a) => a.id);
+  files["manifest.json"] = JSON.stringify(manifest, null, 2) + "\n";
   return files;
 }
 
@@ -220,7 +226,37 @@ function main() {
   /* Stage 3C: a directional W/L may change on a settled row only when a committed correction log restates it. */
   const restatedEvents = readNflWinnerCorrections(ROOT);
   const directionalRestated = new Set(rows.filter((r) => r.sport === "NFL" && r.family === "nfl_game_winner" && restatedEvents.has(r.eventId)).map((r) => r.forecastId));
-  let violations = compareLedgers(prev, rows, { directionalRestated });
+  /*
+   * --restate <restatementId>: the one audited path for a TRUTH-001 Stage B restatement (forecast-ledger@1 amendment
+   * 1). The forgiveness map is DERIVED, never typed: the ledger built from the stored grade logs vs the ledger built
+   * from the rows of record differ exactly where the log restates, and only those (forecastId, field) pairs are
+   * forgiven — with exact before/after values. The log must be committed. A write-once receipt records every old and
+   * new row. Any other difference still refuses, and nothing is written unless the whole run is clean.
+   */
+  const restateId = arg("--restate");
+  let restatements = new Map();
+  let restatedPairs = [];
+  if (restateId) {
+    const logRel = `${RESTATEMENTS_DIR_REL}/${restateId}.json`;
+    const tracked = execFileSync("git", ["ls-files", "--error-unmatch", logRel], { cwd: ROOT, stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
+    if (!tracked) { console.error(`REFUSED: ${logRel} is not committed`); process.exit(2); }
+    if (!readRestatementLogs(ROOT).some((l) => l.file === logRel)) { console.error(`REFUSED: ${logRel} does not apply (status not APPROVED; local validation needs GTP_INCLUDE_PROPOSED_RESTATEMENTS=1)`); process.exit(2); }
+    const storedSrc = readSources(now);
+    storedSrc.mlbGraded = readJsonl(path.join(PUB, "mlb/results/game-predictions-graded.jsonl"));
+    storedSrc.mlbProjected = readJsonl(path.join(PUB, "mlb/results/game-projected-scores-graded.jsonl"));
+    const stored = new Map(buildRows(storedSrc).map((r) => [r.forecastId, r]));
+    for (const r of rows) {
+      const b = stored.get(r.forecastId);
+      if (!b) continue;
+      const fields = {};
+      for (const f of [...IMMUTABLE_FIELDS, "publicationStatus"]) if (JSON.stringify(b[f]) !== JSON.stringify(r[f])) fields[f] = { before: b[f], after: r[f] };
+      if (Object.keys(fields).length) {
+        restatements.set(r.forecastId, { fields, restatementId: restateId });
+        restatedPairs.push({ forecastId: r.forecastId, family: r.family, eventId: r.eventId, fields, before: b, after: r });
+      }
+    }
+  }
+  let violations = compareLedgers(prev, rows, { directionalRestated, restatements });
   /*
    * --rekey <migrationId>: the one audited path for an identity change (Session 13: subject ids moved to the
    * platform's canonical ids — mlbam-N → mlb-player-N, epl-player-N → epl-athlete-N, nfl-team-<ABBR> → nfl-team-<ESPN
@@ -248,6 +284,22 @@ function main() {
         rule: "subject ids moved to the platform's canonical ids; every other immutable field identical (pairRekeys)",
         count: pairs.length, pairs,
       }, null, 1) + "\n");
+    }
+  }
+  if (restateId) {
+    console.log(`RESTATE ${restateId}: ${restatedPairs.length} ledger row(s) restated · ${violations.length} violation(s)`);
+    if (!violations.length && !has("--dry-run")) {
+      const mDir = path.join(OUT, "migrations");
+      const mFile = path.join(mDir, `${restateId}.json`);
+      const text = JSON.stringify({
+        schemaVersion: "forecast-ledger-migration@1", migration: restateId, kind: "RESTATEMENT", verifiedAgainst: ref,
+        amendment: CONTRACT_AMENDMENTS[0].id,
+        rule: "rows of record from an APPROVED MLB restatement log; only the listed (forecastId, field) changes, exactly as listed; complete old and new rows kept",
+        count: restatedPairs.length, pairs: restatedPairs,
+      }, null, 1) + "\n";
+      if (fs.existsSync(mFile) && fs.readFileSync(mFile, "utf8") !== text) { console.error(`REFUSED: ${path.relative(ROOT, mFile)} exists and differs (write-once)`); process.exit(3); }
+      fs.mkdirSync(mDir, { recursive: true });
+      fs.writeFileSync(mFile, text);
     }
   }
   console.log(`forecast ledger: ${rows.length} rows (${prev.length} at ${ref}) · ${JSON.stringify(manifest.totals.settlement)}`);

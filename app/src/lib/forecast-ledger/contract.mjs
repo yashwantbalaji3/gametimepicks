@@ -25,10 +25,29 @@
 
 export const LEDGER_SCHEMA_VERSION = "forecast-ledger@1";
 
-/** Publication states (B4). Only PUBLISHED and WITHDRAWN rows are in the public ledger at all. */
-export const PUBLICATION_STATUS = Object.freeze(["PUBLISHED", "WITHDRAWN", "WITHHELD", "UNAVAILABLE", "SHADOW", "RESEARCH_ONLY"]);
-/** The states a public ledger row may carry. WITHHELD / UNAVAILABLE / SHADOW / RESEARCH_ONLY never enter. */
+/** Publication states (B4). Only PUBLISHED and WITHDRAWN rows are public forecasts. */
+export const PUBLICATION_STATUS = Object.freeze(["PUBLISHED", "WITHDRAWN", "WITHHELD", "UNAVAILABLE", "SHADOW", "RESEARCH_ONLY", "NOT_SERVED"]);
+/** The states a PUBLIC forecast carries. WITHHELD / UNAVAILABLE / SHADOW / RESEARCH_ONLY / NOT_SERVED are not public forecasts. */
 export const PUBLIC_LEDGER_STATUSES = Object.freeze(["PUBLISHED", "WITHDRAWN"]);
+/**
+ * The states a row in the ledger FILE may carry: the public states, plus NOT_SERVED (amendment 1). A NOT_SERVED row is
+ * kept as the internal record of a forecast that was graded but never publicly served; because it is not PUBLISHED,
+ * every reader that counts published forecasts excludes it (fail closed).
+ */
+export const LEDGER_FILE_STATUSES = Object.freeze(["PUBLISHED", "WITHDRAWN", "NOT_SERVED"]);
+
+/**
+ * DATED CONTRACT AMENDMENTS to forecast-ledger@1. The schema string is unchanged (every existing row stays valid); each
+ * amendment is additive, listed here and in the ledger manifest, never a silent addition.
+ */
+export const CONTRACT_AMENDMENTS = Object.freeze([
+  Object.freeze({
+    id: "forecast-ledger@1/amendment-1",
+    date: "2026-10-10",
+    authority: "Founder decision 2 (2026-10-10, TRUTH-001 Stage B); ledger-owner review 2026-10-10",
+    change: "Publication status NOT_SERVED: a graded forecast whose revision no Production deployment served before the start. Allowed only as PUBLISHED → NOT_SERVED, only for a forecastId a committed, approved restatement log lists. Not a public forecast: excluded from published counts and verified performance; never a loss.",
+  }),
+]);
 
 /** What kind of claim the forecast made — decides how it is measured. */
 export const FORECAST_KIND = Object.freeze({
@@ -108,7 +127,7 @@ export function validateRow(row) {
   if (typeof row.eventId !== "string" || !row.eventId) p.push("eventId");
   if (typeof row.subjectId !== "string" || !row.subjectId) p.push("subjectId");
   if (typeof row.family !== "string" || !row.family) p.push("family");
-  if (!PUBLIC_LEDGER_STATUSES.includes(row.publicationStatus)) p.push(`publicationStatus ${row.publicationStatus} is not a public-ledger state`);
+  if (!LEDGER_FILE_STATUSES.includes(row.publicationStatus)) p.push(`publicationStatus ${row.publicationStatus} is not a ledger state`);
   if (!Object.values(RECOVERABILITY).includes(row.recoverability)) p.push("recoverability");
   if (row.eventStart != null && !isIso(row.eventStart)) p.push("eventStart");
   if (row.publishedAt != null && !isIso(row.publishedAt)) p.push("publishedAt");
