@@ -1232,6 +1232,12 @@ Every metric links to all underlying forecasts with date/event/subject/target/li
 ### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
 - Needed from RESULTS-001 for NFL: per-family metrics for World Model V2 records (MAE / CRPS / 80% coverage for yards and receptions; Brier / log loss / calibration bands for TD families), and champion/challenger tables (old version, new version, period, n, metrics, reason, rollback rule). No combined accuracy % across incompatible families.
 
+### Open follow-up (recorded 2026-10-10, founder directive): Ask's NFL accuracy answer under a MIXED record
+- **What happens:** since the NFL graded-picks owner became `recordBasis: MIXED`, there is no pooled NFL cell. Ask GameTime answers "How accurate is the NFL model?" with "no graded forecast record is designated" and states no accuracy.
+- **Why it matters:** per-basis NFL records do exist. The answer may fail to explain them.
+- **Context:** #1055 changed only the Ask eval expectation (`res-06`), deriving it from the artifact. Ask's answer was not changed.
+- **Next step:** a separately reviewed product-truth correction, owned by Lane B (NFL / Results) with Ask. Not started.
+
 ## `RESULTS-002` — Product results
 **Status:** NOT_STARTED
 Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parlay Lab, and live recommendations. Grade exact frozen/public product receipts, never reconstructed current logic.
@@ -2050,6 +2056,30 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - The guard accepts them only through `RECONSTRUCTED_RECEIPT_ALLOWLIST` (those three dates, bound by snapshot sha256, only where no genuine receipt exists). `pipeline/optimizer_reconstruction_test.py` re-runs the replay in the `python` job.
 - **Not changed:** NFL settlement, NFL projection producers, optimizer slip selection, workflows, `vercel.json`. No paid APIs.
 - **Rule (`CI-001`, restated):** an empty rolling window is accepted only on producer evidence. Historical reconstruction is a founder decision, scoped by an explicit allowlist and never a general bypass.
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — #1055 release record (`CI-001` class, `PARLAY-001`, `RESULTS-001` / `NFL-005`)
+- **What merged:** #1055 (CI stabilization, superseding #1051 and #1054), at founder-approved exact head `24a0781bff9ffcf7887f4e99f8d70930c9d49ea3`, with `--match-head-commit`.
+  - Merge commit `4d7163eab72836e915103e7d89de637c99c2ee46`, 15:34:52Z.
+  - All 10 pre-merge conditions were re-checked at that head:
+    - CI green and CLEAN; scope 18 files;
+    - optimizer snapshots 10-08/09/10 byte-identical;
+    - receipts `RECONSTRUCTED` / `genuineProducerReceipt: false` with the three-date hash allowlist;
+    - evidence and parity tests 41 / 41; Python receipt tests 14 / 14;
+    - the NFL MIXED mutation fails as intended;
+    - the only `parlay_optimizer.py` change is additive diagnostics;
+    - no deployment in flight.
+- **Production:**
+  - Vercel's deployment for the merge was superseded by the next data commit. The live build `38e61bd2c2` (built 15:40:47Z) contains the merge.
+  - Routes `/`, `/results/`, `/results/picks/`, `/nfl/`, `/ufc/`, `/cage-chaos/`, `/mr-dub/`, `/mlb/` and `/ask/` return 200.
+  - Live `nfl/graded-picks.json` is byte-identical to before the merge.
+  - No `app/public/data` change under parlays, bank-builder or NFL between pre-merge `main` and the deployed commit (#1055 changed no public data).
+  - `quality` ✓ and `python` ✓ on the merge commit: **shared CI is restored**.
+- **Closed:** #1051 and #1054, as superseded, with their evidence linked.
+- **Pending confirmation:** the next morning-projections run should write a genuine `PRODUCER` receipt. This is to be confirmed on the 10-11 snapshot.
+- **Follow-ups (founder):**
+  - remove the reconstruction allowlist after 10-10 leaves the window (about 10-13);
+  - the Ask NFL accuracy answer (recorded under `RESULTS-001`).
+- **Vercel:** 1 Production build for the merge (superseded by the next data build); Preview 0.
 
 ## 2026-10-10 — Claude Code (Core Intelligence session) — `UFC-001` U3
 - Starting main SHA: `5ed6f6bc51`.
