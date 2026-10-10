@@ -82,10 +82,26 @@ The earlier "29 discrepancies / 2 never public" figures are **superseded** by th
 
 ## Proposed workflow (approval needed; nothing is wired)
 
-1. **Deployment record:** run `capture-github-production-deployments.mjs` on a schedule with the repository's GitHub token (no new secret). Append-only into `data/internal/ops/production-deployments/`, which is internal and not a Vercel build input.
+1. **Deployment record:** run `capture-github-production-deployments.mjs` with the repository's GitHub token (`deployments: read`, no new secret), staged in the host's existing commit (see the OPS-002 constraints below).
 2. **Live probes:** each refresh run fetches Production `build-info.json` and the dated predictions file, recording probe time, served commit and each game's served `artifactHash`. This is direct evidence of what the public saw. It is the only defence against rollbacks and alias changes, and it resolves near-start ambiguity: a probe just before the start that shows the serving build settles it.
 3. **Actual start:** run `capture-mlb-actual-first-pitch.mjs` after each final (StatsAPI, free).
 4. **Grader switch:** the MLB grader asks the resolver and **refuses to grade** on any non-SERVED status. The game is listed with its reason, never counted as a loss or a zero. This changes what Results grades: it is a Results/OPS-owner change plus a founder decision, and it is not made here.
+
+## OPS-002 review (2026-10-10): constraints on wiring
+
+The OPS-002 owner found no collisions and no objection in principle. These constraints bind any implementation:
+
+1. **No standalone commits.** Every push to main creates a Production deployment. Even when the Ignored Build Step skips the build, the clone bills about 16 CPU-min (≈ $0.056); hourly standalone commits would cost about $40/month. Evidence files must be **staged in the host workflow's existing commit**. If nothing else is being pushed, keep them as an Actions artifact and commit at most once a day inside an existing commit. *(This corrects the earlier "causes no builds" wording: `data/internal/ops/` avoids the build, not the deployment cost.)*
+2. **Identity and subject guards.** Workflow commits must use `github-actions[bot]` (`bot-commit-identity.test.mjs`), and subjects must match `^auto[:\- ]` (`ops-002-acceptance.test.mjs`). The OPS-002 seven-day acceptance runs through 2026-10-15.
+3. **`deployments: read` must be granted explicitly** on the host job, which already declares `permissions:`. The capture now **exits 3 with `EVIDENCE_GAP` and writes nothing** on any read failure, rather than recording an empty list.
+4. **Scheduler gaps.** Overnight there were no scheduled runs from 02:50Z to 05:56Z on 10-08, and crons slip 10–60+ min. Late postseason first pitches sit next to that window, so a pre-start probe can be missing. Missing probes are `EVIDENCE_GAP`, and **a probe is never backfilled after the start.**
+
+**Recommended hosts:**
+- **Live probes and the deployment capture:** `mlb-pregame-capture.yml` (11, 15, 17, 19, 21, 23Z, plus 22:30Z and 01:00Z, in its own concurrency group). Its commit step is path-asserted to `data/internal/mlb/pregame-archive/` (`mlb-pregame-commit-persistence-guards.test.mjs`). So either write probe records under that tree, or extend the assert and the guard deliberately in the same PR. Never loosen it to `data/internal/**`.
+- **Actual first pitch:** the nightly window, riding the existing commit.
+- **Not suitable as hosts:** `mlb-daily-production` (money-safe path scope) and `publication-watchdog` (read-only).
+
+**Monitoring:** report the daily rate of each non-SERVED reason (`AMBIGUOUS_*`, `EVIDENCE_GAP`, …), so a silent capture failure shows up as a rising rate rather than quiet ungraded games.
 
 ## If a read-only Vercel credential is wanted (not requested yet)
 

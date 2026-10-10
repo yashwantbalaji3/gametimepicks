@@ -36,7 +36,15 @@ const capturedAt = new Date().toISOString();
 const deployments = [];
 let after = null;
 for (;;) {
-  const conn = page(after).data.repository.deployments;
+  // FAIL LOUDLY (OPS-002 review): a 403/404, a GraphQL error or a missing repository is an EVIDENCE GAP, never an
+  // empty "no deployments" record. A workflow job must grant `deployments: read`; the repo was briefly private on 10-07.
+  let resp;
+  try { resp = page(after); } catch (e) { console.error(`EVIDENCE_GAP: deployment read failed (${String(e.message ?? e).split("\n")[0]}) — nothing written`); process.exit(3); }
+  if (resp.errors?.length || !resp.data?.repository?.deployments) {
+    console.error(`EVIDENCE_GAP: deployment read returned no record (${JSON.stringify(resp.errors ?? null).slice(0, 200)}) — nothing written`);
+    process.exit(3);
+  }
+  const conn = resp.data.repository.deployments;
   let older = false;
   for (const n of conn.nodes) {
     if (Date.parse(n.createdAt) < Date.parse(SINCE)) { older = true; continue; }
