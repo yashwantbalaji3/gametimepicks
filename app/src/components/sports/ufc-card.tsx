@@ -13,14 +13,20 @@
 import { roundPhrase } from "@/lib/sports/ufc/round-phrase.mjs";
 import HeadToHead from "@/components/ui/head-to-head";
 import { Histogram, ProbabilityBar } from "@/components/distribution-chart";
+import UfcProfileLines from "@/components/sports/ufc-profile-lines";
 
 type Bout = { date: string; opponent: string; result: "W" | "L"; method: string; round: number };
 type Profile = {
   bouts: number;
   record?: { wins: number; losses: number };
   last5: Bout[];
+  /** Outcome rates only (win / loss rate). */
   strengths: string[];
   weaknesses: string[];
+  /** Neutral descriptions of how bouts go — never a strength or weakness. Absent on artifacts built before PR #1059. */
+  tendencies?: string[];
+  /** What the tracked record is too thin to establish. Absent on artifacts built before PR #1059. */
+  unknowns?: string[];
   summary: string | null;
 };
 type Fighter = {
@@ -45,7 +51,10 @@ export type UfcBout = {
     method: { most: string; probabilities: { ko: number; submission: number; decision: number } } | null;
     rounds: { endsIn: string; probabilities: { round1: number; round2: number; round3plus: number }; goesTheDistance: number } | null;
     priorFights: { a: number; b: number };
-    /** One line on WHY this fighter, assembled from the features that moved the prediction. */
+    /**
+     * A one-line summary of the two TRACKED RECORDS beside the pick, labelled as such in its own text. It is not the
+     * model's reason: it reads raw tracked rates and none of the tale-of-the-tape inputs the winner head also uses.
+     */
     reason?: string | null;
     basis?: string;
     basisNote?: string | null;
@@ -205,14 +214,12 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
                 </div>
               ) : null}
 
-              {(rp?.strengths?.length || bp?.strengths?.length) ? (
+              {(rp?.bouts || bp?.bouts) ? (
                 <div className="grid gap-1.5" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))" }}>
                   {[["red", b.red, rp] as const, ["blue", b.blue, bp] as const].map(([k, f, p]) => p?.bouts ? (
                     <div key={k} className="rounded-[10px] px-2.5 py-2" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-ink-black) 18%, transparent)" }}>
                       <div className="font-mono uppercase tracking-[0.1em] mb-1" style={{ fontSize: 8.5, color: "var(--vault-text-faint)" }}>{f.name}</div>
-                      {p.summary ? <p className="m-0 mb-1" style={{ fontSize: 10.5, lineHeight: 1.5, color: "var(--vault-text-mute)" }}>{p.summary}</p> : null}
-                      {p.strengths.map((x) => <div key={x} style={{ fontSize: 10.5, color: "var(--vault-success)" }}>+ {x}</div>)}
-                      {p.weaknesses.map((x) => <div key={x} style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>− {x}</div>)}
+                      <UfcProfileLines profile={p} size="compact" />
                       {p.last5.length ? (
                         <div className="mt-1.5 flex flex-col gap-0.5">
                           {p.last5.map((f2) => (
