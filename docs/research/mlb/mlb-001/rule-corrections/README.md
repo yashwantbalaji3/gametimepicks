@@ -41,7 +41,7 @@ Confirmed lineups come from the immutable capture archive, restricted to capture
 
 ### Results (run 2026-10-09; 10,000 games per forecast per rule set)
 
-**Reproduction:** 406 of 810 graded forecasts reproduced on every simulated number: 321 pa-v1 and 85 pa-v2. Of those, 395 used lineups from the archive and 11 used lineups from the input snapshot. None reproduced byte for byte, because all predate #1037's `rateSource` label. **404 are excluded**, all pa-v2: 398 regular-season games from August and September, and 6 postseason games. In every excluded game the published forecast used confirmed batting orders the repository no longer holds, either because the captures were never committed or because they predate the input snapshot (2026-09-26). This matches the boundary `input-snapshot.test.mjs` already states: forecasts published before the first snapshot are not reconstructible. Every reproduced game resolved its season phase from the calendar, because no historical board carried `gameType`.
+**Reproduction:** 406 of 810 graded forecasts reproduced on every simulated number: 321 pa-v1 and 85 pa-v2. Of those, 395 used lineups from the archive and 11 used lineups from the input snapshot. None reproduced byte for byte, because all predate #1037's `rateSource` label. **404 are excluded**, all pa-v2: 398 regular-season games from August and September, and 6 postseason games. In every excluded game the published forecast used confirmed batting orders the repository no longer holds, either because the captures were never committed or because they predate the input snapshot (2026-09-26). This matches the boundary `input-snapshot.test.mjs` already states: forecasts published before the first snapshot are not reconstructible. **The 404 excluded games are not tests:** they are neither passes nor failures, and no number in the table below includes them. They are listed with the fields that differed in `not-reproduced.jsonl`. Every reproduced game resolved its season phase from the calendar, because no historical board carried `gameType`.
 
 | Same inputs, same seed | Regular season (388) | Postseason (18) |
 |---|---|---|
@@ -61,6 +61,10 @@ What the numbers show, mechanically:
 - 18 postseason games cannot say anything about accuracy. The log-loss and Brier moves above are noise-sized and are not a claim.
 
 **Reading this correctly.** This is an in-sample, descriptive comparison on already-graded games. It is not out-of-sample evidence, not a significance test, and not a basis for promotion. The corrections are made because the official rules say so, not because they score better. The winner model is still worse than a coin flip on log loss (see the baseline audit), and the market benchmark is better than the model. These rule corrections do not change that.
+
+## Promotion
+
+See `PROMOTION-RECOMMENDATION.md`: correctness and operational-safety confirmations, risks, and the conditions under which activating pa-v3 is recommended. Activation requires explicit founder approval.
 
 ## Files
 
