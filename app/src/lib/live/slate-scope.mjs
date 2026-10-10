@@ -48,7 +48,8 @@ export function slateRequestPlan({ sport, roster, nowMs, activeDate = null }) {
   if (roster) {
     const rosterIsToday = roster.rosterDate === today;
     if (roster.rosterIds.length === 0) return { fetch: false, date: roster.rosterDate, rosterIsToday };
-    return { fetch: true, date: sport === "mlb" ? roster.rosterDate : undefined, rosterIsToday };
+    /* UFC, like MLB, names its card's date (the gateway pins an undated UFC request to today too). */
+    return { fetch: true, date: sport === "mlb" || sport === "ufc" ? roster.rosterDate : undefined, rosterIsToday };
   }
   return { fetch: true, date: sport === "mlb" ? activeDate ?? initialUnrosteredDate(nowMs) : undefined, rosterIsToday: null };
 }

@@ -6,6 +6,13 @@
  * browser and the feature silently never turns on. Both reads below are literal on purpose.
  */
 
+/**
+ * Every sport the live client can be BUILT for. Being typed here is a capability, not a permission:
+ * `liveSportEnabled` below is the permission, and it stays MLB-only by default. UFC was added for
+ * UFC-001 and is closed unless `NEXT_PUBLIC_LIVE_SPORTS` names it.
+ */
+export type LiveSport = "nfl" | "mlb" | "ufc";
+
 /** Is the live UI allowed to render and poll at all? Off unless the build explicitly enabled it. */
 export function liveEnabled(): boolean {
   return process.env.NEXT_PUBLIC_LIVE_ENABLED === "1";
@@ -21,14 +28,14 @@ export function liveEnabled(): boolean {
  * ⚠ Read as a LITERAL member expression — Next inlines only literal `process.env.NEXT_PUBLIC_*`.
  * A computed read compiles to `undefined` in the browser and would silently disable every sport.
  */
-export function liveSportEnabled(sport: "nfl" | "mlb"): boolean {
+export function liveSportEnabled(sport: LiveSport): boolean {
   const raw = process.env.NEXT_PUBLIC_LIVE_SPORTS;
   const allowed = raw === undefined || raw === "" ? ["mlb"] : raw.split(",").map((s) => s.trim().toLowerCase());
   return allowed.includes(sport);
 }
 
 /** The single predicate every live surface asks before rendering or fetching anything. */
-export function liveReadyFor(sport: "nfl" | "mlb"): boolean {
+export function liveReadyFor(sport: LiveSport): boolean {
   return liveEnabled() && liveSportEnabled(sport);
 }
 
@@ -56,7 +63,7 @@ export function etDateOf(iso: string | null | undefined): string | undefined {
 }
 
 /** Build a gateway URL. Only these parameters exist; nothing from a page can add another. */
-export function liveUrl(params: { sport: "nfl" | "mlb"; event?: string; players?: boolean; date?: string }): string {
+export function liveUrl(params: { sport: LiveSport; event?: string; players?: boolean; date?: string }): string {
   const q = new URLSearchParams({ sport: params.sport });
   if (params.event) q.set("event", params.event);
   if (params.players) q.set("players", "1");

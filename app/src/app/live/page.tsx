@@ -14,9 +14,13 @@
  * field to assert with.
  *
  * SCOPE. NFL and MLB. Each sport has its OWN roster builder and its own hub, and each asks the
- * gateway for its own sport — so one sport's outage or empty slate cannot blank the other. UFC and
- * EPL have no hub roster yet and deliberately get no tab: a tab onto nothing is a claim we cannot
- * keep.
+ * gateway for its own sport — so one sport's outage or empty slate cannot blank the other. EPL has
+ * no hub roster and deliberately gets no tab: a tab onto nothing is a claim we cannot keep.
+ *
+ * UFC (UFC-001) has a roster builder and a hub, and is HIDDEN BY DEFAULT: its roster is built only
+ * when this build enables UFC live (`liveSportEnabled("ufc")`, closed unless NEXT_PUBLIC_LIVE_SPORTS
+ * names it), so a default build ships neither the tab nor the roster data. The metadata below keeps
+ * naming NFL and MLB only, because that is what a default build serves.
  *
  * A /live failure degrades Live, never the product — this route is a leaf. Nothing on /, /today,
  * /mlb, results or any forecast page depends on it.
@@ -26,7 +30,9 @@ import Link from "next/link";
 import LiveSportTabs from "@/components/live/live-sport-tabs";
 import SportChooser, { etDayLabel } from "@/components/sports/sport-chooser";
 import { buildHubRoster } from "@/lib/live/hub-data";
+import { liveSportEnabled } from "@/lib/live/client";
 import { buildNflHubRoster } from "@/lib/live/nfl-hub-data";
+import { buildUfcHubRoster } from "@/lib/live/ufc-hub-data";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata = withRouteMetadata("/live/", {
@@ -43,6 +49,8 @@ const MONO = "var(--font-mono)";
 export default function LivePage() {
   const mlb = buildHubRoster();
   const nfl = buildNflHubRoster();
+  /* Default closed: no UFC roster is even built — let alone shipped — unless this build enables it. */
+  const ufc = liveSportEnabled("ufc") ? buildUfcHubRoster() : null;
 
   return (
     <div className="mx-auto px-4 py-8 sm:py-10" style={{ maxWidth: 1040 }}>
@@ -68,6 +76,7 @@ export default function LivePage() {
       <LiveSportTabs
         nfl={nfl}
         mlb={mlb}
+        ufc={ufc}
         quietDay={
           <div>
             <p style={{ fontSize: 14, color: "var(--vault-text)", lineHeight: 1.6, margin: 0, maxWidth: 680 }}>

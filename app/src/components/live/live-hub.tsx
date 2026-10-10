@@ -45,7 +45,7 @@ const CHIP: Record<string, { fg: string; border: string; bg: string }> = {
   UNKNOWN: { fg: "var(--vault-text-mute)", border: "var(--vault-border)", bg: "transparent" },
 };
 
-function StateChip({ state, label }: { state: string; label: string }) {
+export function StateChip({ state, label }: { state: string; label: string }) {
   const c = CHIP[state] ?? CHIP.UNKNOWN;
   return (
     <span

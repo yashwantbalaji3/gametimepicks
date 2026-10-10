@@ -31,7 +31,7 @@
  * of a scheduled bout is the provider's default, not a draw — so a winner is read only from a
  * completed bout.
  */
-import { LIVE_STATES } from "../contract.mjs";
+import { LIVE_STATES, makeEnvelope } from "../contract.mjs";
 
 /** ESPN's three bout states → the shared vocabulary. Anything else is UNKNOWN, never a guess. */
 export function mapMmaState(status) {
@@ -142,4 +142,57 @@ export function normalizeMmaScoreboard(payload, fetchedAt) {
     }
   }
   return out;
+}
+
+/**
+ * One normalised bout → the shared LiveEventEnvelope the gateway serves (UFC-001 live hub).
+ *
+ * ⚠ THE BOUT IS THE ENVELOPE'S `eventId`, NEVER THE CARD. Every reader of the gateway (the slate
+ * hook, `scopeSlate`, the lifecycle) keys on `eventId`, and the unit a UFC pick attaches to is the
+ * bout (`ufc-tracked.mjs` says the same). The card id travels beside it as `cardEventId`.
+ *
+ * ROUND AND CLOCK ARE CARRIED ONLY WHEN THE PROVIDER STATED THEM, AND ONLY ONCE THE BOUT HAS BEGUN.
+ * `normalizeMmaBout` already turns ESPN's `period: 0` and `displayClock: "-"` into null; on top of
+ * that a PRE bout carries no period at all, because ESPN's scheduled payload says `period: 0` and a
+ * walkout says `state: "in"` with period 0 — neither is a round anyone fought.
+ *
+ * NOTHING PROBABILISTIC CAN ENTER HERE: the envelope is the provider-owned middle row of the
+ * contract, and `makeEnvelope` has no field a forecast could ride in on.
+ */
+export function mmaBoutEnvelope(bout) {
+  const begun = bout?.state === "LIVE" || bout?.state === "DELAYED" || bout?.state === "FINAL";
+  const envelope = makeEnvelope({
+    eventId: bout?.boutId ?? null,
+    sport: "ufc",
+    provider: "espn_scoreboard",
+    providerEventId: bout?.boutId ?? null,
+    startTime: bout?.startTime ?? null,
+    state: bout?.state,
+    stateDetail: bout?.stateDetail ?? null,
+    sourceUpdatedAt: null, // ESPN's scoreboard publishes no source timestamp; age is fetch age.
+    fetchedAt: bout?.fetchedAt ?? null,
+    period: begun && (bout?.round != null || bout?.clock != null)
+      ? { number: bout?.round ?? null, clock: bout?.clock ?? null, label: null }
+      : null,
+    competitors: { fighters: (bout?.fighters ?? []).map((f) => ({ ...f })) },
+  });
+  return {
+    ...envelope,
+    cardEventId: bout?.eventId ?? null,
+    cardName: bout?.eventName ?? null,
+    /* The provider's word on the winner, by athlete id, and only once the bout is FINAL. This is
+       NOT a settlement: a consumer may show it as "reported", never as a graded outcome. */
+    winnerAthleteId: bout?.winnerAthleteId ?? null,
+    method: null,
+    methodAbsentReason: bout?.methodAbsentReason ?? null,
+  };
+}
+
+/** Every bout on a scoreboard payload as a gateway envelope. */
+export function normalizeMmaEnvelopes(payload, fetchedAt) {
+  if (!payload || typeof payload !== "object" || !Array.isArray(payload.events)) {
+    // A body with no `events` array is not "an empty card" — it is a payload we cannot read.
+    throw new Error("PROVIDER_MALFORMED");
+  }
+  return normalizeMmaScoreboard(payload, fetchedAt).map(mmaBoutEnvelope);
 }

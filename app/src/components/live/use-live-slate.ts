@@ -19,7 +19,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { liveReadyFor, liveUrl } from "@/lib/live/client";
+import { type LiveSport, liveReadyFor, liveUrl } from "@/lib/live/client";
 import { isUnavailable } from "@/lib/live/contract.mjs";
 import { freshnessOf } from "@/lib/live/freshness.mjs";
 import { acceptSlateBody, etDateAt, nextSlatePollMs, nextUnrosteredDate, scopeSlate, slateRequestPlan } from "@/lib/live/slate-scope.mjs";
@@ -58,7 +58,7 @@ export interface LiveSlateScope {
   rosterDate: string;
 }
 
-export function useLiveSlate(sport: "nfl" | "mlb" = "mlb", scope?: LiveSlateScope): LiveSlateResult {
+export function useLiveSlate(sport: LiveSport = "mlb", scope?: LiveSlateScope): LiveSlateResult {
   const [byGamePk, setByGamePk] = useState<Record<string, Envelope>>({});
   const [unavailable, setUnavailable] = useState<{ reason: string } | null>(null);
   const [loading, setLoading] = useState(true);

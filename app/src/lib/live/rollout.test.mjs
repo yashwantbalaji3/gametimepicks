@@ -31,7 +31,9 @@ test("ROLLOUT 1 · the default allowlist is MLB ONLY — an unset variable canno
   assert.deepEqual(publicSports({}), ["mlb"]);
   assert.deepEqual(publicSports({ LIVE_PUBLIC_SPORTS: "" }), ["mlb"]);
   // A capability list is not a permission list. NFL has an adapter and no permission.
-  assert.deepEqual([...SUPPORTED_SPORTS].sort(), ["mlb", "nfl"]);
+  // UFC-001 (2026-10-10) added a UFC adapter to the CAPABILITY list only; the defaults above are unchanged,
+  // and ufc-live.test.mjs (UFC-GW 1, 2) proves every default — and Production's mlb,nfl — still refuses it.
+  assert.deepEqual([...SUPPORTED_SPORTS].sort(), ["mlb", "nfl", "ufc"]);
 });
 
 test("ROLLOUT 2 · ⚠ a direct request for NFL is refused in a default (production) environment", () => {

@@ -14,7 +14,7 @@ import { TTL_SECONDS } from "../src/lib/live/freshness.mjs";
 import { capTtlForDate, etDateAt } from "../src/lib/live/slate-scope.mjs";
 
 /** Sports an adapter EXISTS for. Being here is a capability, not a permission — see PUBLIC_SPORTS. */
-export const SUPPORTED_SPORTS = Object.freeze(["nfl", "mlb"]);
+export const SUPPORTED_SPORTS = Object.freeze(["nfl", "mlb", "ufc"]);
 
 /**
  * Sports this deployment may actually call upstream for. **Default: MLB only.**
@@ -31,6 +31,11 @@ export const SUPPORTED_SPORTS = Object.freeze(["nfl", "mlb"]);
  * no reader, and no page we did not write, can reach the ESPN-backed surface.
  *
  * To enable NFL later: set `LIVE_PUBLIC_SPORTS=mlb,nfl`. Nothing else changes.
+ *
+ * UFC (UFC-001, 2026-10-10) is a CAPABILITY ONLY. It is in SUPPORTED_SPORTS so a deployment that
+ * deliberately lists it can serve it; it is in no default, and Production's `mlb,nfl` does not name
+ * it, so `/api/live?sport=ufc` is refused there exactly as NFL once was. Enabling it is a founder
+ * decision taken after a validated release, not a side effect of this list.
  */
 export function publicSports(env = process.env) {
   const raw = env.LIVE_PUBLIC_SPORTS;
@@ -88,6 +93,13 @@ export function planRequest(query, allowed = publicSports(), nowMs = Date.now())
    * server, so even an old client that never sends one gets today.
    */
   if (sport === "mlb" && !date) date = etDateAt(nowMs);
+  /*
+   * UFC IS NEVER ASKED WITHOUT A DATE EITHER. ESPN's undated MMA scoreboard answers with whatever
+   * card it considers current, which on a fight night after midnight ET can already be next week's.
+   * The recorder that captured the Oct 10 card asked `dates=20261010`, the shape verified to return
+   * that card; an undated request is pinned to today's ET date here, as MLB's is.
+   */
+  if (sport === "ufc" && !date) date = etDateAt(nowMs);
 
   if (eventRaw) {
     if (!EVENT_ID.test(eventRaw)) return { ok: false, reason: "EVENT_NOT_FOUND" };
@@ -116,6 +128,18 @@ export function upstreamUrls(plan) {
     const date = plan.date ? `&date=${plan.date}` : "";
     return {
       scoreboard: `https://statsapi.mlb.com/api/v1/schedule?sportId=1&hydrate=linescore,team${date}`,
+      summary: null,
+    };
+  }
+  if (plan.sport === "ufc") {
+    /*
+     * ONE call per card date, in both modes: a bout is selected from the batch, never fetched alone.
+     * `limit` is the recorder's verified request shape. No `summary`: for the Oct 10 card ESPN's MMA
+     * summary answered HTTP 404 (code/message body) for the event id, so there is nothing to ask it.
+     */
+    // `plan.date` is always set for UFC: `planRequest` pins an undated request to today's ET date.
+    return {
+      scoreboard: `https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=${plan.date.replace(/-/g, "")}&limit=1000`,
       summary: null,
     };
   }
@@ -183,7 +207,9 @@ export function selectMlbDateGroup(payload, date) {
  * (LV-3): a slate that reads final now may still change today, and the CDN must not pin it.
  */
 export function ttlForPlan(plan, ttlSeconds, nowMs = Date.now()) {
-  return plan.sport === "mlb" ? capTtlForDate(ttlSeconds, plan.date, nowMs) : ttlSeconds;
+  /* UFC takes the same cap: a card that reads all-final tonight can still have a provider correction,
+     and an hour-old CDN answer would hide it. */
+  return plan.sport === "mlb" || plan.sport === "ufc" ? capTtlForDate(ttlSeconds, plan.date, nowMs) : ttlSeconds;
 }
 
 /** The TTL for a whole scoreboard: the shortest any of its events wants. */
