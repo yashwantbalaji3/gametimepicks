@@ -2407,6 +2407,18 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - **Not yet visible (by design):** the committed card artifact (10-10, fought) predates #1059's producer. Its own strings ("Durable", "Too few tracked losses", and an unlabelled `reason` such as "so the read leans on the opponent's history") remain until the next card build: the Sunday fight-week run rolling to the 10-17 card. No historical forecast or receipt is rewritten to force it. Phase B adds a page-level label for older cards.
 - **Vercel:** 1 Production build; Preview 0.
 
+## 2026-10-11 — Claude Code (Core Intelligence session) — #1060 release record (`TRUTH-001`, CI restoration)
+- **Cause:** main's `quality` failed from 09:36Z on the guard "EVERY committed graded row stays v1 run_line". It asserted zero `run_line_posted` rows. The 05:25 ET nightly settle had graded the first genuine v2 posted-line call (game 849831, engine `mlb-prediction-2026.10-v2`, forecast 23:41:51Z before the 00:00Z first pitch).
+  - No pre-existing row changed: 2,425 → 2,428 rows; v1 `run_line` stays 810.
+- **Fix:** the guard checks the claim itself:
+  - the v1 record never shrinks and carries no v2 engine;
+  - every v2 row has the v2 engine and a pregame forecast;
+  - no game is graded under both definitions.
+  - Five mutation probes; 15 / 15; also run against `main`'s live data at merge time.
+- **What merged:** PR #1060 at `4b1b5595c9ea03242fbfa8be5cb11a48b2efeeb3` (founder conditional approval), merge `6d5a4822cd3fcbec267f536ac8edacda810512e0`, 13:50:34Z. The live build is the merge itself (13:55:36Z); a test-only change.
+- **After merge:** the run-line failure is gone. Main's `quality` then failed on a separate, new NFL game-day data check (`market-matrix.test.mjs`: BUF @ LAR NOT_PROBED after a 13 / 14 sweep). It was escalated to the NFL owner, not changed here.
+- **Vercel:** 1 Production build; Preview 0.
+
 ---
 
 # 26. Immediate execution waves
