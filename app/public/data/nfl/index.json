@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-11T19:54:49Z",
+ "generatedAt": "2026-10-11T22:36:21Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 19,
+  "scheduledUpcoming": 16,
   "forecastsTotal": 15,
-  "forecastsUpcoming": 5,
-  "forecastsStarted": 10,
+  "forecastsUpcoming": 2,
+  "forecastsStarted": 13,
   "marketEvents": 14,
   "settled": 2
  },
- "nextKickoffUtc": "2026-10-11T20:05Z",
- "nextMatchup": "DEN @ LAC",
- "nextForecastUtc": "2026-10-11T20:05Z",
- "nextForecastMatchup": "DEN @ LAC",
+ "nextKickoffUtc": "2026-10-12T00:20Z",
+ "nextMatchup": "BAL @ ATL",
+ "nextForecastUtc": "2026-10-12T00:20Z",
+ "nextForecastMatchup": "BAL @ ATL",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-11T19:43:06Z",
+  "generatedAt": "2026-10-11T19:54:49Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -71,129 +71,6 @@
  },
  "events": [
   {
-   "providerEventId": "401872989",
-   "canonicalEventId": "nfl-401872989",
-   "matchup": "DEN @ LAC",
-   "home": {
-    "abbr": "LAC",
-    "name": "Los Angeles Chargers"
-   },
-   "away": {
-    "abbr": "DEN",
-    "name": "Denver Broncos"
-   },
-   "kickoffUtc": "2026-10-11T20:05Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 20,
-    "away": 21,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.3322,
-    "away": 0.6411
-   },
-   "total": {
-    "median": 41,
-    "p10": 24,
-    "p90": 58,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "fe3c901f1fcf683d",
-    "generatedAt": "2026-10-11T19:54:49Z"
-   }
-  },
-  {
-   "providerEventId": "401872991",
-   "canonicalEventId": "nfl-401872991",
-   "matchup": "DET @ ARI",
-   "home": {
-    "abbr": "ARI",
-    "name": "Arizona Cardinals"
-   },
-   "away": {
-    "abbr": "DET",
-    "name": "Detroit Lions"
-   },
-   "kickoffUtc": "2026-10-11T20:25Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 25,
-    "away": 29,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.3526,
-    "away": 0.6197
-   },
-   "total": {
-    "median": 54,
-    "p10": 37,
-    "p90": 71,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "84187d62aba3bd47",
-    "generatedAt": "2026-10-11T19:54:49Z"
-   }
-  },
-  {
-   "providerEventId": "401872992",
-   "canonicalEventId": "nfl-401872992",
-   "matchup": "SF @ SEA",
-   "home": {
-    "abbr": "SEA",
-    "name": "Seattle Seahawks"
-   },
-   "away": {
-    "abbr": "SF",
-    "name": "San Francisco 49ers"
-   },
-   "kickoffUtc": "2026-10-11T20:25Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 25,
-    "away": 21,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6033,
-    "away": 0.3688
-   },
-   "total": {
-    "median": 46,
-    "p10": 29,
-    "p90": 63,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": true,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "46a0149be58d1519",
-    "generatedAt": "2026-10-11T19:54:49Z"
-   }
-  },
-  {
    "providerEventId": "401872993",
    "canonicalEventId": "nfl-401872993",
    "matchup": "BAL @ ATL",
@@ -230,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "329a909f1bd02256",
-    "generatedAt": "2026-10-11T19:54:49Z"
+    "inputHash": "e91c8930a64f2cca",
+    "generatedAt": "2026-10-11T22:36:21Z"
    }
   },
   {
@@ -271,8 +148,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "b1eb184227ae0d5c",
-    "generatedAt": "2026-10-11T19:54:49Z"
+    "inputHash": "66049a6551f650fe",
+    "generatedAt": "2026-10-11T22:36:21Z"
    }
   },
   {
@@ -683,6 +560,129 @@
     "version": 2,
     "inputHash": "6cbf78c4b8ddda86",
     "generatedAt": "2026-10-11T16:53:08Z"
+   }
+  },
+  {
+   "providerEventId": "401872989",
+   "canonicalEventId": "nfl-401872989",
+   "matchup": "DEN @ LAC",
+   "home": {
+    "abbr": "LAC",
+    "name": "Los Angeles Chargers"
+   },
+   "away": {
+    "abbr": "DEN",
+    "name": "Denver Broncos"
+   },
+   "kickoffUtc": "2026-10-11T20:05Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 20,
+    "away": 21,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.3322,
+    "away": 0.6411
+   },
+   "total": {
+    "median": 41,
+    "p10": 24,
+    "p90": 58,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": true,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "fe3c901f1fcf683d",
+    "generatedAt": "2026-10-11T19:54:49Z"
+   }
+  },
+  {
+   "providerEventId": "401872991",
+   "canonicalEventId": "nfl-401872991",
+   "matchup": "DET @ ARI",
+   "home": {
+    "abbr": "ARI",
+    "name": "Arizona Cardinals"
+   },
+   "away": {
+    "abbr": "DET",
+    "name": "Detroit Lions"
+   },
+   "kickoffUtc": "2026-10-11T20:25Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 25,
+    "away": 29,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.3526,
+    "away": 0.6197
+   },
+   "total": {
+    "median": 54,
+    "p10": 37,
+    "p90": 71,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": true,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "84187d62aba3bd47",
+    "generatedAt": "2026-10-11T19:54:49Z"
+   }
+  },
+  {
+   "providerEventId": "401872992",
+   "canonicalEventId": "nfl-401872992",
+   "matchup": "SF @ SEA",
+   "home": {
+    "abbr": "SEA",
+    "name": "Seattle Seahawks"
+   },
+   "away": {
+    "abbr": "SF",
+    "name": "San Francisco 49ers"
+   },
+   "kickoffUtc": "2026-10-11T20:25Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 25,
+    "away": 21,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.6033,
+    "away": 0.3688
+   },
+   "total": {
+    "median": 46,
+    "p10": 29,
+    "p90": 63,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": true,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "46a0149be58d1519",
+    "generatedAt": "2026-10-11T19:54:49Z"
    }
   }
  ],
