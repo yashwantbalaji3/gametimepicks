@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-10-11",
-  "checkedAt": "2026-10-11T09:34:07.275Z",
-  "treeHead": "e3bf06491",
+  "checkedAt": "2026-10-11T11:29:10.392Z",
+  "treeHead": "7422b87c9",
   "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 1,
@@ -46,15 +46,16 @@
     },
     {
       "id": "risk-ladder",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-11T23:15:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-10-11T23:15:00.000Z",
+      "receiptAt": "2026-10-11T11:28:01Z",
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
         "mlb-markets"
       ],
-      "receiptPath": null
+      "receiptPath": "parlays/risk-ladder/2026-10-11.json"
     },
     {
       "id": "settlement",
@@ -116,7 +117,7 @@
     {
       "id": "ufc-lane",
       "state": "STALE",
-      "reason": "receipt is 38.8h old against a 30h bound",
+      "reason": "receipt is 40.7h old against a 30h bound",
       "dueAtIso": "2026-10-11T13:00:00.000Z",
       "receiptAt": "2026-10-09T18:45:00Z",
       "label": "UFC lane status",
@@ -153,7 +154,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-10-11T12:00:00.000Z",
-      "receiptAt": "2026-10-11T09:24:55Z",
+      "receiptAt": "2026-10-11T11:28:57Z",
       "label": "Offered-window matrix (all sports)",
       "workflow": "nightly-settle",
       "dependsOn": [],
