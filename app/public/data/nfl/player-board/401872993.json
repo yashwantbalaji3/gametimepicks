@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-11T22:40:19Z",
- "sourceGeneratedAt": "2026-10-11T22:40:19Z",
+ "generatedAt": "2026-10-11T23:22:00Z",
+ "sourceGeneratedAt": "2026-10-11T23:22:00Z",
  "providerEventId": "401872993",
  "matchup": "BAL @ ATL",
  "kickoffUtc": "2026-10-12T00:20Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-11T22:40:19Z",
-  "roleEvidenceAt": "2026-10-11T22:40:19Z",
+  "injuriesCapturedAt": "2026-10-11T23:22:00Z",
+  "roleEvidenceAt": "2026-10-11T23:22:00Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -116,15 +116,15 @@
  },
  "marketCoverage": {
   "probed": true,
-  "priced": 49,
-  "absent": 8,
+  "priced": 48,
+  "absent": 6,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "BAL": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -169,7 +169,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-3116365",
@@ -218,7 +218,7 @@
     },
     {
      "playerId": "nfl-athlete-4432260",
-     "name": "Matthew Hibner",
+     "name": "Matt Hibner",
      "state": "PROJECTED",
      "families": [
       "anytime_td",
@@ -238,16 +238,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-5088338",
-     "name": "Elijah Sarratt",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-3916387",
      "name": "Lamar Jackson",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -258,16 +248,22 @@
      "name": "Ja'Kobi Lane",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-5088338",
+     "name": "Elijah Sarratt",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   },
   "ATL": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -371,39 +367,22 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-2972515",
+     "name": "Cooper Rush",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-5344782",
      "name": "Jack Strand",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4241479",
      "name": "Tua Tagovailoa",
      "state": "WITHHELD_ROLE_UNCERTAIN",
      "reason": "no game for ATL yet this season — role at ATL not yet observed"
-    },
-    {
-     "playerId": "nfl-athlete-2972515",
-     "name": "Cooper Rush",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
     }
    ]
   }
@@ -420,25 +399,11 @@
    },
    {
     "team": "ATL",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4360423",
-     "name": "Michael Penix Jr."
-    },
-    "snapshotAt": "2026-10-10T13:32:40Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-2972515",
-      "name": "Cooper Rush"
-     },
-     {
-      "playerId": "nfl-athlete-5344782",
-      "name": "Jack Strand"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
      "nfl-athlete-4360423"
-    ]
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -471,6 +436,19 @@
   ],
   "pools": [
    {
+    "team": "BAL",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9726,
+    "originalSum": 0.9726,
+    "residualOther": 0.0274,
+    "joined": 8,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "ATL",
     "pool": "passAttempts",
     "markets": [
@@ -495,19 +473,6 @@
     "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
-   },
-   {
-    "team": "BAL",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.737,
-    "originalSum": 0.737,
-    "residualOther": 0.263,
-    "joined": 8,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -670,7 +635,7 @@
    "playerId": "nfl-athlete-4429615",
    "name": "Zay Flowers",
    "team": "BAL",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 88.828,
@@ -1069,33 +1034,8 @@
    }
   },
   {
-   "playerId": "nfl-athlete-5088338",
-   "name": "Elijah Sarratt",
-   "team": "BAL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_receptions": {
-     "mean": 1.3563,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_OFFERED"
-    },
-    "anytime_td": {
-     "probability": 0.1006,
-     "market": {
-      "yesOdds": 2200,
-      "sportsbook": "draftkings",
-      "capturedAt": "2026-10-11T11:41:55Z"
-     }
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4432260",
-   "name": "Matthew Hibner",
+   "name": "Matt Hibner",
    "team": "BAL",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
@@ -1281,18 +1221,6 @@
       "sportsbook": "draftkings",
       "capturedAt": "2026-10-11T11:41:55Z"
      }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-5344782",
-   "name": "Jack Strand",
-   "team": "ATL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.0758,
-     "pricingState": "NOT_OFFERED"
     }
    }
   },

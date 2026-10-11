@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-11T22:40:19Z",
+  "generatedAt": "2026-10-11T23:22:00Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
@@ -21,22 +21,42 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "bafed6444f7a22b2",
+        "inputHash": "beb4b5575823cf91",
         "simulations": 10000,
-        "generatedAt": "2026-10-11T22:40:19Z"
+        "generatedAt": "2026-10-11T23:22:00Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-11T22:40:19Z",
-        "participationInputHash": "95dd73d5c2fd0c01",
-        "excludedCount": 3,
+        "snapshotAsOf": "2026-10-11T23:22:00Z",
+        "participationInputHash": "7c0bd15b067375f5",
+        "excludedCount": 6,
         "materialExclusions": [
+          {
+            "name": "Cooper Rush",
+            "team": "ATL",
+            "state": "Out",
+            "statedAt": "2026-10-11T23:08Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Jack Strand",
+            "team": "ATL",
+            "state": "Out",
+            "statedAt": "2026-10-11T23:08Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Lamar Jackson",
             "team": "BAL",
             "state": "Out",
-            "statedAt": "2026-10-11T12:34Z",
+            "statedAt": "2026-10-11T23:05Z",
             "families": [
               "passAttempts",
               "rushAttempts"
@@ -44,6 +64,24 @@
           }
         ],
         "excluded": [
+          {
+            "name": "Cooper Rush",
+            "team": "ATL",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Jack Strand",
+            "team": "ATL",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Lamar Jackson",
             "team": "BAL",
@@ -57,6 +95,14 @@
             "name": "Ja'Kobi Lane",
             "team": "BAL",
             "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Elijah Sarratt",
+            "team": "BAL",
+            "state": "Out",
             "families": [
               "targets"
             ]
@@ -81,15 +127,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "73f2b068421b72a6",
+        "inputHash": "a7a98529213cdd33",
         "simulations": 10000,
-        "generatedAt": "2026-10-11T22:40:19Z"
+        "generatedAt": "2026-10-11T23:22:00Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-11T22:40:19Z",
-        "participationInputHash": "ef119ebb8cd02193",
+        "snapshotAsOf": "2026-10-11T23:22:00Z",
+        "participationInputHash": "c62a5a7dd4982bfa",
         "excludedCount": 2,
         "materialExclusions": [],
         "excluded": [
