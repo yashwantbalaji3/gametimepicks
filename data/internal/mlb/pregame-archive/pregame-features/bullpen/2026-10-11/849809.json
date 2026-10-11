@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849809,
+  "date": "2026-10-11",
+  "capturedAt": "2026-10-11T00:00:31.397Z",
+  "availableAt": "2026-10-11T00:00:31.397Z",
+  "eventStartTime": "2026-10-12T00:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-10-08",
+    "2026-10-09",
+    "2026-10-10"
+  ],
+  "home": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 119,
+    "teamName": "Los Angeles Dodgers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-10-08,2026-10-09,2026-10-10) + feed/live box scores",
+    "capturedAt": "2026-10-11T00:00:31.397Z"
+  },
+  "recordHash": "ffe363ddcce56ea20277d778b1c013b340aaba71159c50b790df6e62c50a08f8"
+}
