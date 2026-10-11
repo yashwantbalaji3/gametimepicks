@@ -21,12 +21,29 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { classifyPairings, PAIRING_STATUS, PAIRING_FLAG, EXCLUDED_STATUS } from "./pairing-status.mjs";
+import * as MODULE from "./pairing-status.mjs";
+import { classifyPairings, PAIRING_STATUS, PAIRING_FLAG, EXCLUDED_STATUS, PROVIDER_OUTCOME } from "./pairing-status.mjs";
 import { boutKey } from "./model-vs-market.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REAL = JSON.parse(fs.readFileSync(path.join(HERE, "fixtures/pairing-status-2026-09-26.json"), "utf8"));
 const GALL = "2026-09-26:mickey gall|sedriques dumas";
+/* Fight night 2026-10-10: sanitized ESPN competitions from the recorder, the pregame card records, and the final snapshot. */
+const LIVE = JSON.parse(fs.readFileSync(path.join(HERE, "fixtures/espn-competitions-2026-10-10.json"), "utf8"));
+const comp = (id, label) => clone(LIVE.captures.find((c) => c.competition.id === id && c.label === label).competition);
+const pregameOf = (id) => clone(LIVE.pregame.find((b) => b.boutId === id));
+const PREGAME_CARD = { event: { slateDate: "2026-10-10" }, bouts: LIVE.pregame };
+const GATTO = "2026-10-10:ernesta kareckaite|melissa gatto";
+const GODINEZ = "2026-10-10:ketlen souza|loopy godinez";
+const AFTER_1010 = "2026-10-11T08:00:00Z";
+/** A synthetic decision: three judge cards for A and B, A or B (or nobody) flagged winner. */
+const decision = (id, a, b, cardsA, cardsB, winner, recs = ["10-2-0", "9-3-0"]) => ({
+  id, status: { type: { name: "STATUS_FINAL", state: "post", completed: true } },
+  competitors: [
+    { winner: winner === a, athlete: { displayName: a }, linescores: cardsA ? [{ value: cardsA.reduce((x, y) => x + y, 0), linescores: cardsA.map((value) => ({ value })) }] : [], records: [{ name: "overall", type: "total", summary: recs[0] }] },
+    { winner: winner === b, athlete: { displayName: b }, linescores: cardsB ? [{ value: cardsB.reduce((x, y) => x + y, 0), linescores: cardsB.map((value) => ({ value })) }] : [], records: [{ name: "overall", type: "total", summary: recs[1] }] },
+  ],
+});
 const HERNANDEZ = "2026-09-26:luis hernandez|sedriques dumas";
 
 /* ── synthetic card builders ───────────────────────────────────────────────────────────────── */
@@ -125,16 +142,17 @@ const CHECKS = [
     },
   },
   {
-    name: "DRAW, NO CONTEST, and a winner-only no-winner each VOID by the source's own word, never a loss",
+    name: "DRAW and NO CONTEST only by the source's own word; a winner-only no-winner is UNVERIFIED, never a loss",
     run(classify) {
       const snaps = card(snap("s1", "2030-01-04T12:00Z", [AB, CD, EF, GH]));
       const out = classify({ snapshots: snaps, results: [noWinner("Al A", "Bo B", "draw"), noWinner("Cy C", "Di D", "no_contest"), noWinner("Ed E", "Fe F", undefined), won("Gus G", "Hal H", "Hal H")], now: AFTER });
-      assert.equal(one(out, AB.boutId).status, PAIRING_STATUS.VOID_DRAW);
-      assert.equal(one(out, CD.boutId).status, PAIRING_STATUS.VOID_NO_CONTEST);
-      assert.equal(one(out, EF.boutId).status, PAIRING_STATUS.VOID_NO_WINNER_UNSPECIFIED);
+      assert.equal(one(out, AB.boutId).status, PAIRING_STATUS.OFFICIAL_DRAW);
+      assert.equal(one(out, CD.boutId).status, PAIRING_STATUS.NO_CONTEST);
+      assert.equal(one(out, EF.boutId).status, PAIRING_STATUS.FINAL_NO_WINNER_UNVERIFIED);
       assert.equal(one(out, GH.boutId).status, PAIRING_STATUS.GRADED_LOSS);
       const c = counts(out);
-      assert.deepEqual([c.void, c.graded, c.hitRateDenominator, c.withdrawn, c.pending], [3, 1, 1, 0, 0]);
+      assert.deepEqual([c.void, c.officialDraw, c.noContest, c.unverified, c.graded, c.hitRateDenominator, c.withdrawn, c.pending], [2, 1, 1, 1, 1, 1, 0, 0]);
+      assert.equal(out.cards[0].reconciles, true);
     },
   },
   {
@@ -216,7 +234,7 @@ const CHECKS = [
       assert.deepEqual([c.frozen, c.graded, c.hitRateDenominator], [2, 2, 2]);
       // a duplicate that names the void kind upgrades an unspecified no-winner, it does not conflict
       const v = classify({ snapshots: snaps, results: [noWinner("Al A", "Bo B", undefined), noWinner("Al A", "Bo B", "draw")], now: AFTER });
-      assert.equal(one(v, AB.boutId).status, PAIRING_STATUS.VOID_DRAW);
+      assert.equal(one(v, AB.boutId).status, PAIRING_STATUS.OFFICIAL_DRAW);
       assert.ok(one(v, AB.boutId).flags.includes(PAIRING_FLAG.DUPLICATE_RESULT));
     },
   },
@@ -326,13 +344,159 @@ const CHECKS = [
         for (const p of c.pairings) assert.ok(all.has(p.status), p.status);
       }
       assert.deepEqual(a.cards[0].pairings.map((p) => p.status), [
-        PAIRING_STATUS.WITHDRAWN_BEFORE_START, PAIRING_STATUS.GRADED_WIN, PAIRING_STATUS.WITHDRAWN_BEFORE_START, PAIRING_STATUS.VOID_DRAW,
+        PAIRING_STATUS.WITHDRAWN_BEFORE_START, PAIRING_STATUS.GRADED_WIN, PAIRING_STATUS.WITHDRAWN_BEFORE_START, PAIRING_STATUS.OFFICIAL_DRAW,
       ]);
+    },
+  },
+  /* ── provider evidence: decided, official draw, unverified, inconsistent, awaiting ───────────── */
+  {
+    name: "REAL DRAW 401924511 (Gatto v Kareckaite, majority draw): OFFICIAL_DRAW on both signals, evidence recorded",
+    run(classify, mod) {
+      const po = mod.classifyProviderOutcome(comp("401924511", "final_both_records_updated"), pregameOf("401924511"));
+      assert.equal(po.outcome, PROVIDER_OUTCOME.OFFICIAL_DRAW);
+      // judge by judge: 28-28 even, 27-29 Kareckaite, 28-28 even — the 83 v 85 totals are never used
+      assert.deepEqual(po.signals.judgeCards.perJudge, ["EVEN", "Ernesta Kareckaite", "EVEN"]);
+      assert.equal(po.signals.judgeCards.majority, null);
+      assert.equal(po.signals.judgeCards.isDraw, true);
+      assert.equal(po.signals.records.recordsDrawPlusOne, true);
+      assert.deepEqual(po.signals.records.deltas.map((d) => [d.name, d.delta]), [["Melissa Gatto", { w: 0, l: 0, d: 1 }], ["Ernesta Kareckaite", { w: 0, l: 0, d: 1 }]]);
+      // at the pairing level: an official draw, void for winner grading, never in the denominator
+      const loaderVoid = { boutId: GATTO, eventDate: "2026-10-10", winner: null, loser: null, void: true, source: "espn_mma_scoreboard" };
+      const out = classify({ snapshots: [clone(LIVE.snapshot)], results: [loaderVoid], providerCompetitions: [comp("401924511", "final_both_records_updated")], pregameCards: [PREGAME_CARD], now: AFTER_1010 });
+      const p = one(out, GATTO);
+      assert.equal(p.status, PAIRING_STATUS.OFFICIAL_DRAW);
+      assert.equal(p.providerOutcome.outcome, PROVIDER_OUTCOME.OFFICIAL_DRAW);
+      assert.equal(p.result.resultStatus, "draw");
+      const c = counts(out, "2026-10-10");
+      assert.deepEqual([c.officialDraw, c.void, c.graded, c.hitRateDenominator, c.unverified], [1, 1, 0, 0, 0]);
+      assert.equal(out.cards[0].reconciles, true);
+      assert.equal(p.forecast.pick, "Melissa Gatto");   // the forecast is untouched
+    },
+  },
+  {
+    name: "ONE DRAW SIGNAL IS NOT ENOUGH: the real early finals and mutated copies are FINAL_NO_WINNER_UNVERIFIED",
+    run(classify, mod) {
+      const pg = pregameOf("401924511");
+      // real: STATUS_FINAL before either record updated, then with only Gatto's updated
+      for (const label of ["final_no_records_updated", "final_one_record_updated"]) {
+        const po = mod.classifyProviderOutcome(comp("401924511", label), pg);
+        assert.equal(po.outcome, PROVIDER_OUTCOME.FINAL_NO_WINNER_UNVERIFIED, label);
+        assert.equal(po.signals.judgeCards.isDraw, true);
+        assert.equal(po.signals.records.recordsDrawPlusOne, false);
+      }
+      // mutated: cards removed, records still +1 (a no-winner stoppage looks like this — it may be an NC)
+      const noCards = comp("401924511", "final_both_records_updated");
+      for (const x of noCards.competitors) x.linescores = [];
+      assert.equal(mod.classifyProviderOutcome(noCards, pg).outcome, PROVIDER_OUTCOME.FINAL_NO_WINNER_UNVERIFIED);
+      // mutated: third judge 28-29 → Kareckaite wins two cards, so the cards are not a draw
+      const majority = comp("401924511", "final_both_records_updated");
+      majority.competitors[1].linescores[0].linescores[2].value = 29;
+      assert.equal(mod.classifyProviderOutcome(majority, pg).outcome, PROVIDER_OUTCOME.FINAL_NO_WINNER_UNVERIFIED);
+      // mutated: a draw added but a win too — that is not a draw record
+      assert.equal(mod.classifyProviderOutcome(comp("401924511", "final_both_records_updated"), { red: { ...pg.red, record: "8-3-2" }, blue: pg.blue }).outcome, PROVIDER_OUTCOME.FINAL_NO_WINNER_UNVERIFIED);
+      // no pregame card at all: signal (b) cannot hold
+      assert.equal(mod.classifyProviderOutcome(comp("401924511", "final_both_records_updated"), null).outcome, PROVIDER_OUTCOME.FINAL_NO_WINNER_UNVERIFIED);
+      // pairing level: not graded, not pending, not in a denominator
+      const out = classify({ snapshots: [clone(LIVE.snapshot)], results: [], providerCompetitions: [comp("401924511", "final_no_records_updated")], pregameCards: [PREGAME_CARD], now: AFTER_1010 });
+      const p = one(out, GATTO);
+      assert.equal(p.status, PAIRING_STATUS.FINAL_NO_WINNER_UNVERIFIED);
+      const c = counts(out, "2026-10-10");
+      assert.deepEqual([c.unverified, c.void, c.graded, c.hitRateDenominator], [1, 0, 0, 0]);
+      assert.equal(out.cards[0].reconciles, true);
+    },
+  },
+  {
+    name: "REAL DECISION 401924510 (Godínez): DECIDED, judge-card majority agrees with the winner flag",
+    run(classify, mod) {
+      const po = mod.classifyProviderOutcome(comp("401924510", "decision_with_cards"), pregameOf("401924510"));
+      assert.equal(po.outcome, PROVIDER_OUTCOME.DECIDED);
+      assert.equal(po.winner, "Loopy Godínez");
+      assert.equal(po.signals.judgeCards.majority, "Loopy Godínez");
+      const out = classify({ snapshots: [clone(LIVE.snapshot)], results: [], providerCompetitions: [comp("401924510", "decision_with_cards")], pregameCards: [PREGAME_CARD], now: AFTER_1010 });
+      assert.equal(one(out, GODINEZ).status, PAIRING_STATUS.GRADED_WIN);   // the pick was Loopy Godínez
+    },
+  },
+  {
+    name: "CARDS CONTRADICT THE FLAG: RESULT_INCONSISTENT, never graded (synthetic and a swapped copy of 401924510)",
+    run(classify, mod) {
+      const swapped = comp("401924510", "decision_with_cards");
+      for (const x of swapped.competitors) x.winner = !x.winner;
+      assert.equal(mod.classifyProviderOutcome(swapped, pregameOf("401924510")).outcome, PROVIDER_OUTCOME.RESULT_INCONSISTENT);
+      assert.equal(mod.classifyProviderOutcome(decision("9", "Al A", "Bo B", [29, 29, 28], [28, 28, 29], "Bo B"), null).outcome, PROVIDER_OUTCOME.RESULT_INCONSISTENT);
+      assert.equal(mod.classifyProviderOutcome(decision("9", "Al A", "Bo B", [29, 28], [28, 29], "Al A"), null).outcome, PROVIDER_OUTCOME.RESULT_INCONSISTENT, "partial cards");
+      const both = decision("9", "Al A", "Bo B", null, null, "Al A");
+      both.competitors[1].winner = true;
+      assert.equal(mod.classifyProviderOutcome(both, null).outcome, PROVIDER_OUTCOME.RESULT_INCONSISTENT, "two winners");
+      // pairing level: an inconsistent provider record is never graded, even beside a winner-only row
+      const loaderWin = { boutId: GODINEZ, eventDate: "2026-10-10", winner: "Ketlen Souza", loser: "Loopy Godínez", void: false };
+      const out = classify({ snapshots: [clone(LIVE.snapshot)], results: [loaderWin], providerCompetitions: [swapped], pregameCards: [PREGAME_CARD], now: AFTER_1010 });
+      const p = one(out, GODINEZ);
+      assert.equal(p.status, PAIRING_STATUS.RESULT_INCONSISTENT);
+      assert.ok(p.flags.includes(PAIRING_FLAG.RESULT_INCONSISTENT));
+      assert.deepEqual([counts(out, "2026-10-10").graded, counts(out, "2026-10-10").inconsistent], [0, 1]);
+    },
+  },
+  {
+    name: "REAL STOPPAGES 401927418 and 401924512: DECIDED with no judge cards",
+    run(classify, mod) {
+      const a = mod.classifyProviderOutcome(comp("401927418", "stoppage_no_cards"), pregameOf("401927418"));
+      const b = mod.classifyProviderOutcome(comp("401924512", "stoppage_no_cards"), pregameOf("401924512"));
+      assert.deepEqual([a.outcome, a.winner, a.signals.judgeCards.present], [PROVIDER_OUTCOME.DECIDED, "Allen Frye Jr.", false]);
+      assert.deepEqual([b.outcome, b.winner, b.signals.judgeCards.present], [PROVIDER_OUTCOME.DECIDED, "Alice Pereira", false]);
+      const out = classify({ snapshots: [clone(LIVE.snapshot)], results: [], providerCompetitions: [comp("401924512", "stoppage_no_cards"), comp("401927418", "stoppage_no_cards")], pregameCards: [PREGAME_CARD], now: AFTER_1010 });
+      assert.equal(one(out, "2026-10-10:alice pereira|daria zhelezniakova").status, PAIRING_STATUS.GRADED_WIN);
+      // Frye v Harris was never frozen (no model read): it stays outside the frozen population
+      assert.ok(out.cards[0].excluded.some((e) => e.providerBoutId === "401927418" && e.status === EXCLUDED_STATUS.NO_READ_EXCLUDED));
+    },
+  },
+  {
+    name: "SPLIT DECISION is DECIDED for the two-card winner; a SPLIT DRAW with both signals is OFFICIAL_DRAW",
+    run(classify, mod) {
+      const split = mod.classifyProviderOutcome(decision("9", "Al A", "Bo B", [29, 28, 29], [28, 29, 28], "Al A"), null);
+      assert.deepEqual([split.outcome, split.winner, split.signals.judgeCards.perJudge], [PROVIDER_OUTCOME.DECIDED, "Al A", ["Al A", "Bo B", "Al A"]]);
+      const pg = { red: { name: "Al A", record: "10-2-0" }, blue: { name: "Bo B", record: "9-3-0" } };
+      const draw = mod.classifyProviderOutcome(decision("9", "Al A", "Bo B", [29, 28, 28], [28, 29, 28], null, ["10-2-1", "9-3-1"]), pg);
+      assert.equal(draw.outcome, PROVIDER_OUTCOME.OFFICIAL_DRAW);
+      assert.deepEqual(draw.signals.judgeCards.perJudge, ["Al A", "Bo B", "EVEN"]);
+    },
+  },
+  {
+    name: "A FALSE WINNER FLAG IS NOT EVIDENCE: in progress, END_OF_FIGHT and not-completed finals are AWAITING_RESULT",
+    run(classify, mod) {
+      for (const [id, label] of [["401924511", "in_progress"], ["401927417", "end_of_fight"]]) {
+        const c = comp(id, label);
+        assert.ok(c.competitors.every((x) => x.winner === false));
+        assert.equal(mod.classifyProviderOutcome(c, pregameOf(id)).outcome, PROVIDER_OUTCOME.AWAITING_RESULT, label);
+      }
+      const notCompleted = comp("401924511", "final_both_records_updated");
+      notCompleted.status.type.completed = false;
+      assert.equal(mod.classifyProviderOutcome(notCompleted, pregameOf("401924511")).outcome, PROVIDER_OUTCOME.AWAITING_RESULT);
+      const out = classify({ snapshots: [clone(LIVE.snapshot)], results: [], providerCompetitions: [comp("401927417", "end_of_fight"), comp("401924511", "in_progress")], pregameCards: [PREGAME_CARD], now: AFTER_1010 });
+      assert.equal(one(out, "2026-10-10:gerald meerschaert|julius walker").status, PAIRING_STATUS.AWAITING_RESULT);
+      assert.equal(one(out, GATTO).status, PAIRING_STATUS.AWAITING_RESULT);
+      // the newest capture known at `now` wins; a later capture is not yet known
+      const seq = [{ competition: comp("401924511", "final_no_records_updated"), capturedAt: "2026-10-10T21:34:30Z" }, { competition: comp("401924511", "final_both_records_updated"), capturedAt: "2026-10-10T21:46:35Z" }];
+      const early = classify({ snapshots: [clone(LIVE.snapshot)], results: [], providerCompetitions: seq, pregameCards: [PREGAME_CARD], now: "2026-10-10T21:40:00Z" });
+      const late = classify({ snapshots: [clone(LIVE.snapshot)], results: [], providerCompetitions: [...seq].reverse(), pregameCards: [PREGAME_CARD], now: AFTER_1010 });
+      assert.equal(one(early, GATTO).status, PAIRING_STATUS.FINAL_NO_WINNER_UNVERIFIED);
+      assert.equal(one(late, GATTO).status, PAIRING_STATUS.OFFICIAL_DRAW);
+    },
+  },
+  {
+    name: "A PROVIDER COMPETITION NAMING OTHER FIGHTERS under the same id is not this pairing's result",
+    run(classify, mod) {
+      const other = comp("401924510", "decision_with_cards");
+      other.competitors[0].athlete.displayName = "Zed Z";
+      const out = classify({ snapshots: [clone(LIVE.snapshot)], results: [], providerCompetitions: [other], pregameCards: [PREGAME_CARD], now: AFTER_1010 });
+      const p = one(out, GODINEZ);
+      assert.equal(p.status, PAIRING_STATUS.AWAITING_RESULT);
+      assert.ok(p.flags.includes(PAIRING_FLAG.PROVIDER_PAIRING_MISMATCH));
+      assert.equal(p.providerOutcome, null);
     },
   },
 ];
 
-for (const c of CHECKS) test(c.name, () => c.run(classifyPairings));
+for (const c of CHECKS) test(c.name, () => c.run(classifyPairings, MODULE));
 
 test("`now` is required — no clock is read inside the module", () => {
   assert.throws(() => classifyPairings({ snapshots: [], results: [] }), /now/);
@@ -360,6 +524,16 @@ const PROBES = [
   ["join results on the corpus's raw (unfolded) boutId", "const key = canonicalBoutId(r.boutId);", "const key = r.boutId;"],
   ["no loose-name fallback", "if (records?.length) flags.push(PAIRING_FLAG.RESULT_JOINED_BY_LOOSE_NAME);", "records = null;"],
   ["exact fold for the hit", "status = looseName(base.winner) === looseName(f.row.pick)", "status = foldName(base.winner) === foldName(f.row.pick)"],
+  ["use the top-level card totals", "const judgeScores = (c) => (c?.linescores?.[0]?.linescores ?? []).map((j) => j?.value);", "const judgeScores = (c) => (c?.linescores ?? []).length ? [0, 1, 2].map(() => c.linescores[0].value) : [];"],
+  ["a draw on one signal", "if (judgeCards.isDraw && recordsDrawPlusOne) {", "if (judgeCards.isDraw || recordsDrawPlusOne) {"],
+  ["ignore the judge-card majority", "if (completeCards && cardMajority !== w) {", "if (false) {"],
+  ["no cards counts as a draw on the cards", "isDraw: completeCards && cardMajority == null,", "isDraw: cardMajority == null,"],
+  ["final without completed", "if (!(statusName === \"STATUS_FINAL\" && st.completed === true)) {", "if (!(statusName === \"STATUS_FINAL\")) {"],
+  ["draw record allows a win change", "r.delta && r.delta.w === 0 && r.delta.l === 0 && r.delta.d === 1", "r.delta && r.delta.d === 1"],
+  ["inconsistency ignored at pairing level", "      if (inconsistent) {", "      if (false) {"],
+  ["provider names not checked", "if (names.length === 2 && mine.every((n) => names.includes(n))) {", "if (true) {"],
+  ["two winners not refused", "if (winners.length > 1) return", "if (false) return"],
+  ["oldest provider capture wins", "if (!prev || (t ?? -Infinity) > (prev.t ?? -Infinity)", "if (!prev || (t ?? -Infinity) < (prev.t ?? -Infinity)"],
   ["withdrawn counted as pending in the reconciliation", "withdrawn = n(PAIRING_STATUS.WITHDRAWN_BEFORE_START), pending = n(PAIRING_STATUS.AWAITING_RESULT);", "withdrawn = 0, pending = n(PAIRING_STATUS.AWAITING_RESULT) + n(PAIRING_STATUS.WITHDRAWN_BEFORE_START);"],
 ];
 
@@ -374,9 +548,9 @@ test("MUTATION PROBES: every probe is killed by at least one check", async (t) =
       const mutant = src.replace(from, to).replace('from "./model-vs-market.mjs"', `from "${mvm}"`);
       const file = path.join(dir, `mutant-${i}.mjs`);
       fs.writeFileSync(file, mutant);
-      const { classifyPairings: m } = await import(pathToFileURL(file).href);
+      const m = await import(pathToFileURL(file).href);
       const killedBy = [];
-      for (const c of CHECKS) { try { c.run(m); } catch { killedBy.push(c.name.slice(0, 40)); } }
+      for (const c of CHECKS) { try { c.run(m.classifyPairings, m); } catch { killedBy.push(c.name.slice(0, 40)); } }
       if (killedBy.length === 0) survivors.push(label);
       t.diagnostic(`probe ${i + 1}/${PROBES.length} "${label}": ${killedBy.length ? `KILLED by ${killedBy.length} check(s)` : "SURVIVED"}`);
     }

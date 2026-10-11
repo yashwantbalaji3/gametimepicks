@@ -4,6 +4,12 @@
  * every card in the committed model-vs-market snapshots. READ-ONLY. It writes nothing, anywhere.
  *
  *   npx tsx app/scripts/ufc/report-pairing-status.mjs --now <iso> [--json] [--espn-file <path>]
+ *        [--scoreboard-file <raw ESPN scoreboard json>]... [--card-file <pregame card json>]
+ *
+ * --scoreboard-file (repeatable) supplies RAW provider competitions — judge cards and records — so a
+ * no-winner final can be told apart: OFFICIAL_DRAW (both draw signals), FINAL_NO_WINNER_UNVERIFIED,
+ * RESULT_INCONSISTENT. Pregame records come from app/public/data/ufc/card-latest.json unless
+ * --card-file names another. Every input is read; nothing is written.
  *
  * Reads:  data/internal/research/ufc/model-vs-market/snapshot-*.json   (frozen pre-start snapshots)
  *         data/internal/research/ufc/model-vs-market/graded.jsonl      (cross-check only)
@@ -65,7 +71,19 @@ for (const l of ledger) {
 }
 const today = new Map((read(path.join(DIR, "summary.json"))?.reconciliation ?? []).map((r) => [r.slateDate, r]));
 
-const out = classifyPairings({ snapshots, results, now: NOW });
+/* Raw provider competitions (optional) and the pregame card records they are checked against. */
+const argAll = (n) => process.argv.flatMap((a, i) => (a === n && process.argv[i + 1] ? [process.argv[i + 1]] : []));
+const providerCompetitions = [];
+for (const f of argAll("--scoreboard-file")) {
+  const doc = read(f);
+  if (!doc) { console.error(`  could not read scoreboard ${f}`); continue; }
+  const stamp = /(\d{8}T\d{6}Z)/.exec(path.basename(f))?.[1];
+  const capturedAt = stamp ? `${stamp.slice(0, 4)}-${stamp.slice(4, 6)}-${stamp.slice(6, 8)}T${stamp.slice(9, 11)}:${stamp.slice(11, 13)}:${stamp.slice(13, 15)}Z` : null;
+  for (const e of doc.events ?? []) for (const c of e.competitions ?? []) providerCompetitions.push({ competition: c, capturedAt });
+}
+const pregameCards = [read(arg("--card-file") ?? path.join(APP, "public/data/ufc/card-latest.json"))].filter(Boolean);
+
+const out = classifyPairings({ snapshots, results, providerCompetitions, pregameCards, now: NOW });
 
 /* Cross-check: the rule must not move a single graded bout. */
 const mismatches = [];
@@ -88,15 +106,15 @@ if (JSON_OUT) {
 }
 
 console.log(`UFC pairing-status DRY RUN (proposal U4/D3 — nothing applied, nothing written) · now ${NOW}`);
-console.log(`snapshots ${snapshots.length} · official results ${results.length} · ledger rows ${ledger.length} · source conflicts ${conflicts.length}`);
+console.log(`snapshots ${snapshots.length} · official results ${results.length} · ledger rows ${ledger.length} · source conflicts ${conflicts.length} · provider competitions ${providerCompetitions.length} · pregame cards ${pregameCards.map((c) => c.event?.slateDate).join(",") || "none"}`);
 console.log("");
 const pad = (v, n) => String(v).padEnd(n);
-console.log(`${pad("card", 11)}${pad("event", 42)}${pad("frozen", 7)}${pad("W", 4)}${pad("L", 4)}${pad("void", 5)}${pad("wdrn", 5)}${pad("pend", 5)}${pad("unpr", 5)}${pad("noRd", 5)}today (summary.json)`);
+console.log(`${pad("card", 11)}${pad("event", 42)}${pad("frozen", 7)}${pad("W", 4)}${pad("L", 4)}${pad("draw", 5)}${pad("NC", 4)}${pad("unvf", 5)}${pad("incn", 5)}${pad("wdrn", 5)}${pad("pend", 5)}${pad("unpr", 5)}${pad("noRd", 5)}today (summary.json)`);
 for (const c of out.cards) {
   const k = c.counts;
   const t = today.get(c.slateDate);
   const was = t ? `frozen ${t.frozen} graded ${t.graded} void ${t.void} pending ${t.pending}` : "not in summary";
-  console.log(`${pad(c.slateDate, 11)}${pad(String(c.eventName ?? "").slice(0, 40), 42)}${pad(k.frozen, 7)}${pad(k.wins, 4)}${pad(k.losses, 4)}${pad(k.void, 5)}${pad(k.withdrawn, 5)}${pad(k.pending, 5)}${pad(k.unpricedExcluded, 5)}${pad(k.noReadExcluded, 5)}${was}${c.reconciles ? "" : "  RECONCILIATION BROKEN"}${c.started ? "" : "  (card not started — provisional)"}`);
+  console.log(`${pad(c.slateDate, 11)}${pad(String(c.eventName ?? "").slice(0, 40), 42)}${pad(k.frozen, 7)}${pad(k.wins, 4)}${pad(k.losses, 4)}${pad(k.officialDraw, 5)}${pad(k.noContest, 4)}${pad(k.unverified, 5)}${pad(k.inconsistent, 5)}${pad(k.withdrawn, 5)}${pad(k.pending, 5)}${pad(k.unpricedExcluded, 5)}${pad(k.noReadExcluded, 5)}${was}${c.reconciles ? "" : "  RECONCILIATION BROKEN"}${c.started ? "" : "  (card not started — provisional)"}`);
 }
 
 console.log("");
@@ -116,6 +134,14 @@ for (const c of out.cards) {
     console.log(`      forecast of record: pick ${p.forecast.pick} @ ${p.forecast.modelProbability} (market ${p.forecast.marketProbability}) from ${p.forecast.sourceFile}`);
     console.log(`      frozen in ${p.evidence.snapshotsContaining} snapshot(s): first ${p.evidence.firstSnapshot.file}, last ${p.evidence.lastSnapshot.file}; final ${p.evidence.finalSnapshot?.file ?? "none"} ${p.evidence.inFinalSnapshot ? "holds it" : "does NOT hold it"}`);
     if (p.evidence.replacement) console.log(`      replacement: ${p.evidence.replacement.boutId}${p.evidence.replacement.providerBoutId ? ` (providerBoutId ${p.evidence.replacement.providerBoutId})` : ""} shares ${p.evidence.replacement.sharedFighters.join(", ") || "the provider bout id"} — from ${p.evidence.replacement.source}`);
+    if (p.providerOutcome) {
+      const po = p.providerOutcome;
+      console.log(`      provider ${po.statusName}: ${po.outcome} — ${po.reason}`);
+      if (po.signals?.judgeCards?.complete) console.log(`      judge cards ${JSON.stringify(po.signals.judgeCards.scores)} → per judge ${po.signals.judgeCards.perJudge.join(" / ")}`);
+      if (po.signals?.records) console.log(`      records ${po.signals.records.deltas.map((d) => `${d.name} ${d.pregame ? `${d.pregame.w}-${d.pregame.l}-${d.pregame.d}` : "?"} → ${d.post ? `${d.post.w}-${d.post.l}-${d.post.d}` : "?"}`).join(", ")} · draws +1 on both: ${po.signals.records.recordsDrawPlusOne}`);
+    } else if (p.result && p.status === PAIRING_STATUS.OFFICIAL_DRAW) {
+      console.log(`      official source word: ${p.result.resultStatus} (${p.result.source ?? "?"})`);
+    }
     if (p.flags.length) console.log(`      flags: ${p.flags.join(", ")}`);
   }
 }
@@ -127,8 +153,11 @@ for (const [d, n] of routine.waiting) {
 
 console.log("");
 for (const x of conflicts) console.log(`  SOURCE CONFLICT ${x.boutId}: corpus ${x.corpus} vs ESPN ${x.espn} — refused by the shared reader`);
-console.log(mismatches.length === 0
-  ? "ledger cross-check: every GRADED pairing matches graded.jsonl (bout, hit, probability, source snapshot) — no graded denominator moves"
-  : `ledger cross-check: ${mismatches.length} difference(s)`);
-for (const m of mismatches) console.log(`  ${m.boutId}: ${m.issue}`);
+const toAppend = mismatches.filter((m) => /not in the ledger yet/.test(m.issue));
+const disagreements = mismatches.filter((m) => !toAppend.includes(m));
+console.log(disagreements.length === 0
+  ? "ledger cross-check: every GRADED pairing already in graded.jsonl matches it (bout, hit, probability, source snapshot) — no graded denominator moves"
+  : `ledger cross-check: ${disagreements.length} DISAGREEMENT(S) with graded.jsonl`);
+for (const m of disagreements) console.log(`  ${m.boutId}: ${m.issue}`);
+if (toAppend.length) console.log(`  ${toAppend.length} newly decided pairing(s) not in the ledger yet — the grader's next --write run would append them: ${toAppend.map((m) => m.boutId.slice(11)).join("; ")}`);
 console.log("dry run — this script has no write path.");

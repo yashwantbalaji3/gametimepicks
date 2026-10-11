@@ -10,11 +10,22 @@
  * This module is the general rule, as a pure classification. Every frozen pairing of a card lands in
  * EXACTLY ONE status:
  *
- *   GRADED_WIN / GRADED_LOSS   the pairing fought and an official result names a winner.
- *   VOID_DRAW / VOID_NO_CONTEST the pairing fought and produced no winner; the source said which.
- *   VOID_NO_WINNER_UNSPECIFIED the pairing fought, no winner, and the source cannot say draw vs NC
- *                               (the ESPN capture is winner-only — settlement-contract.mjs refuses
- *                               to guess between them, and so does this).
+ *   GRADED_WIN / GRADED_LOSS   DECIDED: the pairing fought and an official result names a winner. When the
+ *                               provider's per-judge cards exist, their majority must agree with the winner
+ *                               flag, or the bout is RESULT_INCONSISTENT instead.
+ *   OFFICIAL_DRAW              the pairing fought to a draw, on EVIDENCE: the provider's three judge cards
+ *                               give no fighter two cards AND both fighters' post-fight records show draws
+ *                               +1 over the pregame card (W and L unchanged) — or an official source says
+ *                               "draw" in its own words (the ufcstats corpus resultStatus). Void for winner
+ *                               grading: never a hit, never a miss. Its evidence is recorded.
+ *   NO_CONTEST                 only on an official source's explicit "no_contest". The provider's NC shape
+ *                               has not been observed, so it is NOT inferred from the provider (see below).
+ *   FINAL_NO_WINNER_UNVERIFIED final, no winner, and less than the full draw evidence (one signal, none, a
+ *                               winner-only capture row, or a no-winner stoppage that may be an NC). Not
+ *                               missing data and not pending: awaiting verification by a human or an
+ *                               official source. Never graded, never in a denominator.
+ *   RESULT_INCONSISTENT        the provider contradicts itself (judge-card majority vs winner flag, two
+ *                               winners, partial cards on a decided bout). Never graded; review.
  *   WITHDRAWN_BEFORE_START     the pairing is in an EARLIER pre-start snapshot, is NOT in the card's
  *                               FINAL pre-start snapshot (neither as a row nor as a skipped provider
  *                               bout id), the card has started, the provider has reported the card,
@@ -40,8 +51,16 @@
  * earliest official record is kept: corrections need lineage (settlement-contract.mjs) and are out of
  * scope here.
  *
- * Inputs: snapshots (parsed snapshot-*.json docs, optionally with `file`), official results (an
- * array of { boutId, winner, loser, void, resultStatus?, source?, recordedAt?, overturned? }), now.
+ * A FALSE WINNER FLAG IS NOT EVIDENCE. ESPN carries `winner: false` for BOTH sides in every state —
+ * scheduled, in progress, end of round, end of fight, and a final draw alike. Only `winner: true` says
+ * anything. A final with no winner is a draw only when the judges and the records both say so; on
+ * 2026-10-10 the records of the Gatto v Kareckaite majority draw updated one fighter at a time over
+ * twelve minutes after STATUS_FINAL, so an early capture is UNVERIFIED and a later one is a DRAW.
+ *
+ * Inputs (all pure data): snapshots (parsed snapshot-*.json docs, optionally with `file`); official
+ * results (an array of { boutId, winner, loser, void, resultStatus?, source?, recordedAt?, overturned? });
+ * providerCompetitions (raw ESPN scoreboard competition objects, or { competition, capturedAt }); pregame
+ * cards (card docs whose bouts carry red/blue { name, record "W-L-D" }, keyed by provider bout id); now.
  */
 
 import { foldName } from "./model-vs-market.mjs";
@@ -49,9 +68,10 @@ import { foldName } from "./model-vs-market.mjs";
 export const PAIRING_STATUS = Object.freeze({
   GRADED_WIN: "GRADED_WIN",
   GRADED_LOSS: "GRADED_LOSS",
-  VOID_DRAW: "VOID_DRAW",
-  VOID_NO_CONTEST: "VOID_NO_CONTEST",
-  VOID_NO_WINNER_UNSPECIFIED: "VOID_NO_WINNER_UNSPECIFIED",
+  OFFICIAL_DRAW: "OFFICIAL_DRAW",
+  NO_CONTEST: "NO_CONTEST",
+  FINAL_NO_WINNER_UNVERIFIED: "FINAL_NO_WINNER_UNVERIFIED",
+  RESULT_INCONSISTENT: "RESULT_INCONSISTENT",
   WITHDRAWN_BEFORE_START: "WITHDRAWN_BEFORE_START",
   AWAITING_RESULT: "AWAITING_RESULT",
 });
@@ -81,6 +101,10 @@ export const PAIRING_FLAG = Object.freeze({
   NO_BASE_RESULT: "NO_BASE_RESULT",
   /** No result under the exact key; one joined on the looser name identity (see looseName). */
   RESULT_JOINED_BY_LOOSE_NAME: "RESULT_JOINED_BY_LOOSE_NAME",
+  /** The provider contradicts itself (see RESULT_INCONSISTENT). */
+  RESULT_INCONSISTENT: "RESULT_INCONSISTENT",
+  /** The provider competition under this pairing's provider bout id names different fighters. */
+  PROVIDER_PAIRING_MISMATCH: "PROVIDER_PAIRING_MISMATCH",
   /** The result's winner is neither fighter in the pairing key. */
   RESULT_NAMES_MISMATCH: "RESULT_NAMES_MISMATCH",
 });
@@ -162,12 +186,109 @@ function resolveResult(records) {
     // An agreeing duplicate may be the more specific one (draw vs unspecified); take its words.
     if (isVoid(base) && voidKind(base) === "UNSPECIFIED") {
       const specific = agreeing.find((r) => voidKind(r) !== "UNSPECIFIED");
-      if (specific) base = { ...base, resultStatus: specific.resultStatus };
+      if (specific) base = { ...base, resultStatus: specific.resultStatus, evidence: specific.evidence ?? base.evidence ?? null };
     }
   }
   if (notApplied.length > 0) flags.push(PAIRING_FLAG.RESULT_CHANGED_NOT_APPLIED);
   return { base, flags, notApplied: notApplied.map(frozenCopy) };
 }
+
+/* ── PROVIDER OUTCOME: what one ESPN competition object proves, and nothing more ─────────────────── */
+
+export const PROVIDER_OUTCOME = Object.freeze({
+  DECIDED: "DECIDED",
+  OFFICIAL_DRAW: "OFFICIAL_DRAW",
+  FINAL_NO_WINNER_UNVERIFIED: "FINAL_NO_WINNER_UNVERIFIED",
+  RESULT_INCONSISTENT: "RESULT_INCONSISTENT",
+  AWAITING_RESULT: "AWAITING_RESULT",
+});
+
+/** "W-L-D" (anything after the three numbers is ignored, never guessed at). */
+export function parseRecord(s) {
+  const m = /^\s*(\d+)-(\d+)-(\d+)/.exec(String(s ?? ""));
+  return m ? { w: Number(m[1]), l: Number(m[2]), d: Number(m[3]) } : null;
+}
+const overallRecord = (c) => {
+  const recs = c?.records ?? [];
+  return (recs.find((r) => r?.type === "total" || r?.name === "overall") ?? recs[0])?.summary ?? null;
+};
+/** Per-judge scores: competitors[].linescores[0].linescores[].value. The top-level total is never used. */
+const judgeScores = (c) => (c?.linescores?.[0]?.linescores ?? []).map((j) => j?.value);
+
+/**
+ * Classify one provider competition. Pure and total.
+ *
+ * @param {object} competition  raw ESPN competition ({ status.type, competitors[] })
+ * @param {object|null} pregame { red:{name,record}, blue:{name,record} } from the pregame card, or null
+ */
+export function classifyProviderOutcome(competition, pregame = null) {
+  const st = competition?.status?.type ?? {};
+  const statusName = st.name ?? null;
+  const base = { providerBoutId: competition?.id != null ? String(competition.id) : null, statusName, completed: st.completed === true };
+  if (!(statusName === "STATUS_FINAL" && st.completed === true)) {
+    // Scheduled, pre-fight, walking, in progress, END_OF_ROUND, END_OF_FIGHT, …: not a result yet.
+    return { ...base, outcome: PROVIDER_OUTCOME.AWAITING_RESULT, reason: `not final (${statusName ?? "no status"}, completed ${st.completed === true})` };
+  }
+  const sides = (competition?.competitors ?? []).map((c) => ({
+    name: c?.athlete?.displayName ?? c?.athlete?.fullName ?? null,
+    winner: c?.winner === true,
+    cards: judgeScores(c),
+    record: overallRecord(c),
+  }));
+  if (sides.length !== 2 || !sides.every((x) => x.name)) {
+    return { ...base, outcome: PROVIDER_OUTCOME.RESULT_INCONSISTENT, reason: "a final without exactly two named competitors" };
+  }
+
+  /* Signal (a): the judge cards, judge by judge. */
+  const anyCards = sides.some((x) => x.cards.length > 0);
+  const completeCards = sides.every((x) => x.cards.length === 3 && x.cards.every((v) => typeof v === "number" && Number.isFinite(v)));
+  const perJudge = completeCards ? [0, 1, 2].map((i) => (sides[0].cards[i] > sides[1].cards[i] ? 0 : sides[1].cards[i] > sides[0].cards[i] ? 1 : null)) : null;
+  const cardsWon = perJudge ? [perJudge.filter((x) => x === 0).length, perJudge.filter((x) => x === 1).length] : null;
+  const cardMajority = cardsWon ? (cardsWon[0] >= 2 ? 0 : cardsWon[1] >= 2 ? 1 : null) : null;
+  const judgeCards = {
+    present: anyCards,
+    complete: completeCards,
+    scores: Object.fromEntries(sides.map((x) => [x.name, x.cards])),
+    perJudge: perJudge ? perJudge.map((x) => (x == null ? "EVEN" : sides[x].name)) : null,
+    majority: cardMajority == null ? null : sides[cardMajority].name,
+    isDraw: completeCards && cardMajority == null,
+  };
+
+  /* Signal (b): records versus the pregame card — draws +1, wins and losses unchanged. */
+  const pre = (name) => {
+    const k = looseName(name);
+    const hit = [pregame?.red, pregame?.blue].find((x) => x && looseName(x.name) === k);
+    return hit ? parseRecord(hit.record) : null;
+  };
+  const recordDeltas = sides.map((x) => {
+    const before = pre(x.name), after = parseRecord(x.record);
+    return { name: x.name, pregame: before, post: after, delta: before && after ? { w: after.w - before.w, l: after.l - before.l, d: after.d - before.d } : null };
+  });
+  const recordsDrawPlusOne = recordDeltas.every((r) => r.delta && r.delta.w === 0 && r.delta.l === 0 && r.delta.d === 1);
+  const signals = { judgeCards, records: { recordsDrawPlusOne, deltas: recordDeltas } };
+
+  const winners = sides.map((x, i) => (x.winner ? i : null)).filter((i) => i != null);
+  if (winners.length > 1) return { ...base, outcome: PROVIDER_OUTCOME.RESULT_INCONSISTENT, reason: "both competitors flagged winner", signals };
+  if (winners.length === 1) {
+    const w = winners[0];
+    if (anyCards && !completeCards) return { ...base, outcome: PROVIDER_OUTCOME.RESULT_INCONSISTENT, reason: "judge cards present but not three per side", signals };
+    if (completeCards && cardMajority !== w) {
+      return { ...base, outcome: PROVIDER_OUTCOME.RESULT_INCONSISTENT, reason: `winner flag ${sides[w].name}, judge-card majority ${judgeCards.majority ?? "none (a draw on the cards)"}`, signals };
+    }
+    return { ...base, outcome: PROVIDER_OUTCOME.DECIDED, winner: sides[w].name, loser: sides[1 - w].name, reason: completeCards ? "winner flag, judge-card majority agrees" : "winner flag (no judge cards: a stoppage)", signals };
+  }
+  if (judgeCards.isDraw && recordsDrawPlusOne) {
+    return { ...base, outcome: PROVIDER_OUTCOME.OFFICIAL_DRAW, reason: "no winner flag; three judge cards with no fighter winning two; both records draws +1 over the pregame card", signals };
+  }
+  const missing = [
+    !judgeCards.isDraw ? (completeCards ? `judge cards name a majority (${judgeCards.majority})` : "no complete judge cards") : null,
+    !recordsDrawPlusOne ? "records do not both show draws +1 over the pregame card" : null,
+  ].filter(Boolean);
+  // A no-winner stoppage lands here too: it may be a no-contest, whose provider shape is unobserved.
+  return { ...base, outcome: PROVIDER_OUTCOME.FINAL_NO_WINNER_UNVERIFIED, reason: `final without a winner flag; unverified: ${missing.join("; ")}`, signals };
+}
+
+const frozen0Ids = (snaps) => snaps.flatMap((s) => (s.rows ?? []).map((r) => String(r.providerBoutId)));
 
 function snapshotRef(s) {
   return { file: s.file ?? null, capturedAt: s.capturedAt ?? null };
@@ -179,11 +300,26 @@ function snapshotRef(s) {
  * @param {object} o
  * @param {Array<object>} o.snapshots  parsed snapshot docs ({ capturedAt, event:{slateDate,name,startUtc}, rows, skipped, file? })
  * @param {Array<object>} o.results    official result records (see header)
+ * @param {Array<object>} [o.providerCompetitions] raw ESPN competitions, or { competition, capturedAt }
+ * @param {Array<object>} [o.pregameCards]         card docs ({ bouts:[{ boutId, red:{name,record}, blue:{name,record} }] })
  * @param {string} o.now               ISO instant; snapshots captured after it are not yet known
  */
-export function classifyPairings({ snapshots = [], results = [], now } = {}) {
+export function classifyPairings({ snapshots = [], results = [], providerCompetitions = [], pregameCards = [], now } = {}) {
   const nowMs = ms(now);
   if (nowMs == null) throw new Error("classifyPairings: `now` must be an ISO instant");
+
+  /* The newest capture of each provider competition known at `now`. */
+  const compById = new Map();
+  for (const [i, x] of (providerCompetitions ?? []).entries()) {
+    const comp = x?.competition ?? x;
+    if (comp?.id == null) continue;
+    const t = ms(x?.capturedAt);
+    if (t != null && t > nowMs) continue;
+    const prev = compById.get(String(comp.id));
+    if (!prev || (t ?? -Infinity) > (prev.t ?? -Infinity) || ((t ?? -Infinity) === (prev.t ?? -Infinity) && i > prev.i)) compById.set(String(comp.id), { comp, t, i });
+  }
+  const pregameById = new Map();
+  for (const card of pregameCards ?? []) for (const b of card?.bouts ?? []) if (b?.boutId != null) pregameById.set(String(b.boutId), { red: b.red ?? null, blue: b.blue ?? null });
 
   const resultsByBout = new Map();
   const resultsByLoose = new Map();
@@ -233,7 +369,9 @@ export function classifyPairings({ snapshots = [], results = [], now } = {}) {
     /* Official results on this card's date: has the provider reported the card at all? */
     const cardResults = [];
     for (const [id, recs] of resultsByBout) if (dateOf(id) === slateDate) cardResults.push({ boutId: id, recs, names: resultNames(recs[0]) });
-    const cardReported = cardResults.length > 0;
+    const providerFinalOnCard = [...frozen0Ids(eligible), ...(finalSnap?.skipped ?? []).map((k) => String(k.boutId))]
+      .some((id) => compById.get(id)?.comp?.status?.type?.completed === true);
+    const cardReported = cardResults.length > 0 || providerFinalOnCard;
 
     /* The frozen population: every pairing any eligible snapshot held. Latest row wins as the record. */
     const frozen = new Map();
@@ -293,17 +431,44 @@ export function classifyPairings({ snapshots = [], results = [], now } = {}) {
         records = resultsByLoose.get(looseKey(slateDate, rowNames(f.row)));
         if (records?.length) flags.push(PAIRING_FLAG.RESULT_JOINED_BY_LOOSE_NAME);
       }
+      /* The provider's own competition, by provider bout id — used only if it names THIS pairing. */
+      let providerOutcome = null;
+      const pc = compById.get(String(f.row.providerBoutId));
+      if (pc) {
+        const names = (pc.comp.competitors ?? []).map((c) => looseName(c?.athlete?.displayName ?? c?.athlete?.fullName));
+        const mine = rowNames(f.row).map(looseName);
+        if (names.length === 2 && mine.every((n) => names.includes(n))) {
+          providerOutcome = classifyProviderOutcome(pc.comp, pregameById.get(String(f.row.providerBoutId)) ?? null);
+        } else {
+          flags.push(PAIRING_FLAG.PROVIDER_PAIRING_MISMATCH);
+        }
+      }
+      const providerRecord = !providerOutcome ? null
+        : providerOutcome.outcome === PROVIDER_OUTCOME.DECIDED
+          ? { boutId, winner: providerOutcome.winner, loser: providerOutcome.loser, void: false, source: "espn_competition", evidence: providerOutcome }
+          : providerOutcome.outcome === PROVIDER_OUTCOME.OFFICIAL_DRAW
+            ? { boutId, winner: null, loser: null, void: true, resultStatus: "draw", source: "espn_competition", evidence: providerOutcome }
+            : providerOutcome.outcome === PROVIDER_OUTCOME.FINAL_NO_WINNER_UNVERIFIED
+              ? { boutId, winner: null, loser: null, void: true, resultStatus: null, source: "espn_competition", evidence: providerOutcome }
+              : null;
+      const inconsistent = providerOutcome?.outcome === PROVIDER_OUTCOME.RESULT_INCONSISTENT;
+      if (providerRecord) records = [...(records ?? []), providerRecord];
+
       const { base, flags: rFlags, notApplied } = resolveResult(records);
       flags.push(...rFlags);
       let status;
       let result = null;
 
-      if (base) {
+      if (inconsistent) {
+        flags.push(PAIRING_FLAG.RESULT_INCONSISTENT);
+        status = PAIRING_STATUS.RESULT_INCONSISTENT;
+        result = base ? frozenCopy(base) : null;
+      } else if (base) {
         result = frozenCopy(base);
         if (!inFinal) flags.push(PAIRING_FLAG.FOUGHT_THOUGH_ABSENT_FROM_FINAL);
         if (isVoid(base)) {
           const k = voidKind(base);
-          status = k === "DRAW" ? PAIRING_STATUS.VOID_DRAW : k === "NO_CONTEST" ? PAIRING_STATUS.VOID_NO_CONTEST : PAIRING_STATUS.VOID_NO_WINNER_UNSPECIFIED;
+          status = k === "DRAW" ? PAIRING_STATUS.OFFICIAL_DRAW : k === "NO_CONTEST" ? PAIRING_STATUS.NO_CONTEST : PAIRING_STATUS.FINAL_NO_WINNER_UNVERIFIED;
         } else if (![...rowNames(f.row), ...fightersOf(boutId)].map(looseName).includes(looseName(base.winner))) {
           flags.push(PAIRING_FLAG.RESULT_NAMES_MISMATCH);
           status = PAIRING_STATUS.AWAITING_RESULT;
@@ -338,6 +503,7 @@ export function classifyPairings({ snapshots = [], results = [], now } = {}) {
         status,
         forecast,
         result,
+        providerOutcome: providerOutcome ? frozenCopy(providerOutcome) : null,
         resultsNotApplied: notApplied,
         evidence,
         flags: [...new Set(flags)],
@@ -358,12 +524,14 @@ export function classifyPairings({ snapshots = [], results = [], now } = {}) {
 
     const n = (st) => pairings.filter((p) => p.status === st).length;
     const wins = n(PAIRING_STATUS.GRADED_WIN), losses = n(PAIRING_STATUS.GRADED_LOSS);
-    const voids = n(PAIRING_STATUS.VOID_DRAW) + n(PAIRING_STATUS.VOID_NO_CONTEST) + n(PAIRING_STATUS.VOID_NO_WINNER_UNSPECIFIED);
+    const officialDraw = n(PAIRING_STATUS.OFFICIAL_DRAW), noContest = n(PAIRING_STATUS.NO_CONTEST);
+    const voids = officialDraw + noContest;
+    const unverified = n(PAIRING_STATUS.FINAL_NO_WINNER_UNVERIFIED), inconsistentN = n(PAIRING_STATUS.RESULT_INCONSISTENT);
     const withdrawn = n(PAIRING_STATUS.WITHDRAWN_BEFORE_START), pending = n(PAIRING_STATUS.AWAITING_RESULT);
     const counts = {
       frozen: pairings.length,
       graded: wins + losses, wins, losses,
-      void: voids, withdrawn, pending,
+      void: voids, officialDraw, noContest, unverified, inconsistent: inconsistentN, withdrawn, pending,
       hitRateDenominator: wins + losses,
       unpricedExcluded: excluded.filter((e) => e.status === EXCLUDED_STATUS.UNPRICED_EXCLUDED).length,
       noReadExcluded: excluded.filter((e) => e.status === EXCLUDED_STATUS.NO_READ_EXCLUDED).length,
@@ -380,7 +548,7 @@ export function classifyPairings({ snapshots = [], results = [], now } = {}) {
       ignoredSnapshots,
       cardReported,
       counts,
-      reconciles: counts.frozen === counts.graded + counts.void + counts.withdrawn + counts.pending,
+      reconciles: counts.frozen === counts.graded + counts.void + counts.unverified + counts.inconsistent + counts.withdrawn + counts.pending,
       pairings,
       excluded,
     }));
