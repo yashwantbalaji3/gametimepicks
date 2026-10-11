@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-10-11",
-  "generatedAt": "2026-10-11T19:38:39.000Z",
+  "generatedAt": "2026-10-11T20:27:23.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
   "sourceArtifact": "full-game-simulations/2026-10-11.json",
   "notBettingAdvice": true,
@@ -15,22 +15,24 @@
       "homeTeam": "MIL",
       "awayTeamName": "Los Angeles Dodgers",
       "homeTeamName": "Milwaukee Brewers",
-      "artifactHash": "3e82b4cc49943148afbd93299a237c466df5dfed469ffc34ec5cc3fe56496785",
+      "artifactHash": "089cf0af7cd0ba59dd09a8bcd728bd330046808faf407fad9aafd01cefaa4e7b",
       "decisionEngineVersion": "mlb-prediction-2026.10-v2",
       "completeness": {
-        "level": "ready",
-        "notes": [],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "level": "degraded",
+        "notes": [
+          "LAD confirmed batting order used, all 9 with posted prop lines.",
+          "MIL confirmed batting order used; 1 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one."
+        ],
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 9,
-        "homeRatedCount": 9,
+        "homeRatedCount": 8,
         "awayLineupCount": 9,
         "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "startedBeforeGeneration": false,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -52,7 +54,7 @@
           "homeCover": 0.6377
         }
       },
-      "status": "ready",
+      "status": "degraded",
       "predictedWinner": {
         "side": "away",
         "team": "LAD"
@@ -65,7 +67,7 @@
       "moneyline": {
         "side": "away",
         "team": "LAD",
-        "simulationProbability": 0.572,
+        "simulationProbability": 0.577,
         "marketImpliedProbability": 0.494,
         "marketAgreement": "MODEL HIGHER",
         "strengthLabel": "MODERATE SIMULATION"
@@ -74,8 +76,8 @@
         "line": 6,
         "pick": "OVER",
         "overProbability": 0.766,
-        "underProbability": 0.174,
-        "pushProbability": 0.06,
+        "underProbability": 0.172,
+        "pushProbability": 0.062,
         "simulationMedian": 9,
         "marketImpliedOver": 0.504,
         "strengthLabel": "VERY STRONG SIMULATION"
@@ -88,8 +90,8 @@
         "pick": "MIL +1.5",
         "pickSide": "home",
         "pickLine": 1.5,
-        "coverProbability": 0.536,
-        "opposingCoverProbability": 0.464,
+        "coverProbability": 0.541,
+        "opposingCoverProbability": 0.459,
         "pushProbability": 0,
         "marketImpliedProbability": 0.6377,
         "bookmaker": "draftkings",
