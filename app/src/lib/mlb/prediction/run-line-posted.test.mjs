@@ -158,10 +158,45 @@ test("a v2 pick grades under run_line_posted with its book evidence; a v1 pick s
   assert.deepEqual([summary.run_line.n, summary.run_line_posted.n], [1, 1], "never one pooled record");
 });
 
+/*
+ * "Nothing published is re-labelled". This asserted ZERO `run_line_posted` rows, a proxy that held only until the first
+ * genuine v2 posted-line call was graded (nightly settle 2026-10-11: game 849831, engine mlb-prediction-2026.10-v2,
+ * forecast 23:41:51Z before the 00:00Z first pitch). The claim itself is checked directly instead:
+ *   - the v1 record is intact: it never shrinks and no v1 row carries a v2 engine version (no v2 call graded as v1);
+ *   - every v2 row is a genuine v2 call: v2 engine version, forecast made before first pitch;
+ *   - no game is graded under both definitions, so the two never share or swap a record.
+ */
+const V1_RUN_LINE_FLOOR = 810;
+const isV2Engine = (r) => /-v2$/.test(String(r?.decisionEngineVersion ?? ""));
+function assertRunLineRecordsUnrelabelled(rows) {
+  const v1 = rows.filter((r) => r.market === "run_line");
+  const v2 = rows.filter((r) => r.market === "run_line_posted");
+  assert.ok(v1.length >= V1_RUN_LINE_FLOOR, `the v1 run_line record shrank to ${v1.length}`);
+  assert.equal(v1.filter(isV2Engine).length, 0, "a v2 call was graded under the v1 run_line record");
+  for (const r of v2) {
+    assert.ok(isV2Engine(r), `${r.gamePk}: a run_line_posted row without the v2 engine version (a re-labelled v1 row)`);
+    assert.ok(Date.parse(r.forecastGeneratedAt) < Date.parse(r.firstPitchUtc), `${r.gamePk}: a v2 row whose forecast is not pregame`);
+  }
+  const both = new Set(v1.map((r) => r.gamePk).filter((g) => v2.some((r) => r.gamePk === g)));
+  assert.equal(both.size, 0, `game(s) graded under both definitions: ${[...both].join(", ")}`);
+}
+
 test("EVERY committed graded row stays v1 run_line: nothing published is re-labelled", () => {
   const rows = fs.readFileSync(path.join(APP, "public/data/mlb/results/game-predictions-graded.jsonl"), "utf8").trim().split("\n").map((l) => JSON.parse(l));
-  assert.equal(rows.filter((r) => r.market === "run_line_posted").length, 0);
-  assert.ok(rows.filter((r) => r.market === "run_line").length >= 810);
+  assertRunLineRecordsUnrelabelled(rows);
+});
+
+test("…and the re-labelling guard catches every way a published row could be re-labelled (mutations)", () => {
+  const v1row = (g) => ({ gamePk: g, market: "run_line", decisionEngineVersion: undefined, forecastGeneratedAt: "2026-09-01T22:00:00Z", firstPitchUtc: "2026-09-01T23:05:00Z" });
+  const v2row = (g) => ({ gamePk: g, market: "run_line_posted", decisionEngineVersion: "mlb-prediction-2026.10-v2", forecastGeneratedAt: "2026-10-10T23:41:51Z", firstPitchUtc: "2026-10-11T00:00:00Z" });
+  const base = [...Array.from({ length: V1_RUN_LINE_FLOOR }, (_, i) => v1row(i + 1)), v2row(999999)];
+  assert.doesNotThrow(() => assertRunLineRecordsUnrelabelled(base), "the honest record passes");
+  const mutate = (fn) => { const rows = base.map((r) => ({ ...r })); fn(rows); return rows; };
+  assert.throws(() => assertRunLineRecordsUnrelabelled(mutate((r) => { r.push(v1row(777777)); r[0].market = "run_line_posted"; })), /re-labelled v1 row/, "a v1 row re-labelled as v2 (with the floor still met)");
+  assert.throws(() => assertRunLineRecordsUnrelabelled(mutate((r) => { r[r.length - 1].market = "run_line"; })), /graded under the v1 run_line record/, "a v2 call graded as v1");
+  assert.throws(() => assertRunLineRecordsUnrelabelled(mutate((r) => { r.splice(0, 1); })), /record shrank/, "a v1 row removed");
+  assert.throws(() => assertRunLineRecordsUnrelabelled(mutate((r) => { r.push({ ...v2row(5) }); })), /both definitions/, "one game under both definitions");
+  assert.throws(() => assertRunLineRecordsUnrelabelled(mutate((r) => { r[r.length - 1].forecastGeneratedAt = "2026-10-11T00:05:00Z"; })), /not pregame/, "a v2 row made after first pitch");
 });
 
 /* ── the live-record gate: each definition is paused only by its own record ──────────────────── */

@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "parlay-risk-ladder",
  "dataClass": "PUBLIC_DERIVED",
- "date": "2026-10-10",
- "generatedAt": "2026-10-10T15:38:01Z",
+ "date": "2026-10-11",
+ "generatedAt": "2026-10-11T13:36:57Z",
  "moneyClass": "PAPER_TRACKED_NOT_BANKROLL",
  "note": "Tracked paper cards with their own ledger. These never touch the Bank Builder / Moonshot bankroll or the settled product record.",
  "cards": [],
@@ -14,7 +14,8 @@
   },
   {
    "tier": "medium",
-   "reason": "no priced card in this tier on today's slate"
+   "reason": "every candidate on today's slate uses a market-context family (Hits) — the model behind it was demoted and is not a published GameTime projection, so no card is offered",
+   "withheldMarketContext": 1
   },
   {
    "tier": "high",
@@ -28,8 +29,10 @@
  "eligibility": {
   "rule": "a card with any leg from a family the coverage registry demotes to market context is withheld",
   "source": "data/ask-projection/v1/coverage.json (lib/market-coverage.ts)",
-  "withheldMarketContext": 0,
-  "withheldFamilies": []
+  "withheldMarketContext": 1,
+  "withheldFamilies": [
+   "Hits"
+  ]
  },
  "bettorTiers": [
   {
@@ -120,9 +123,9 @@
   }
  ],
  "record": {
-  "gradedDays": 103,
+  "gradedDays": 104,
   "firstDay": "2026-05-25",
-  "lastDay": "2026-10-10",
+  "lastDay": "2026-10-11",
   "byTier": {
    "low": {
     "wins": 8,
@@ -139,7 +142,7 @@
     "wins": 197,
     "losses": 304,
     "pushes": 1,
-    "pending": 17,
+    "pending": 18,
     "staked": 501,
     "returned": 487.43,
     "decisive": 501,

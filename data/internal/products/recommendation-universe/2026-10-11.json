@@ -1,0 +1,867 @@
+{
+ "schema": "recommendation-universe@1",
+ "artifact": "recommendation-universe",
+ "dataClass": "internal",
+ "date": "2026-10-11",
+ "asOf": "2026-10-11T09:36:15Z",
+ "floor": {
+  "version": "leg-floor@2",
+  "oddsMin": -650,
+  "oddsMax": 400,
+  "maxPriceAgeMs": 43200000,
+  "activationCutoffMs": 1800000,
+  "requireSettlement": "PROVEN",
+  "admitsMarketImplied": true,
+  "marketPricedLegPolicy": {
+   "state": "ADMITTED_PENDING_FOUNDER_DECISION",
+   "gate": "F1",
+   "since": "2026-09-21"
+  }
+ },
+ "note": "Every candidate leg judged by one floor. Zero eligible is a result, not a failure. Probabilities: MODEL = a GameTimePicks model number (usable only when MODEL_PUBLISHED); MARKET_IMPLIED = the book's de-vigged price, never ours.",
+ "counts": {
+  "candidates": 854,
+  "eligible": 6,
+  "universeHash": "e11b1967d3c9"
+ },
+ "bySport": {
+  "mlb": {
+   "registryState": "FULL_MODEL",
+   "candidates": 45,
+   "eligible": 6,
+   "events": 2,
+   "exclusions": {
+    "AVAILABILITY_BLOCKED": 39,
+    "MARKET_MISSING": 39,
+    "MODEL_DEMOTED": 39
+   }
+  },
+  "nfl": {
+   "registryState": "EXPERIMENTAL_PUBLIC",
+   "candidates": 790,
+   "eligible": 0,
+   "events": 13,
+   "exclusions": {
+    "SPORT_GATED": 790,
+    "ROLE_UNCERTAIN": 658,
+    "ODDS_STALE": 544,
+    "NO_PROBABILITY": 516,
+    "FAMILY_NOT_CLEARED": 176,
+    "MARKET_MISSING": 168,
+    "ODDS_OUT_OF_RANGE": 84,
+    "AVAILABILITY_BLOCKED": 54,
+    "MODEL_NOT_PUBLIC": 26
+   }
+  },
+  "epl": {
+   "registryState": "EXPERIMENTAL_PUBLIC",
+   "candidates": 19,
+   "eligible": 0,
+   "events": 3,
+   "exclusions": {
+    "SPORT_GATED": 19,
+    "MODEL_NOT_PUBLIC": 17
+   }
+  },
+  "ufc": {
+   "registryState": "SCAFFOLD_ONLY",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  },
+  "nba": {
+   "registryState": "HISTORICAL_ONLY",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  }
+ },
+ "coverage": [
+  {
+   "sport": "epl",
+   "family": "team_result",
+   "candidates": 9,
+   "gtpProbabilityAny": 9,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 9,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "epl",
+   "family": "team_total",
+   "candidates": 10,
+   "gtpProbabilityAny": 8,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 2,
+   "noProbability": 0,
+   "priced": 10,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "mlb",
+   "family": "batter_hits",
+   "candidates": 18,
+   "gtpProbabilityAny": 18,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 18,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "batter_hits_runs_rbis",
+   "candidates": 18,
+   "gtpProbabilityAny": 18,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 18,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "batter_total_bases",
+   "candidates": 2,
+   "gtpProbabilityAny": 2,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 2,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "pitcher_strikeouts",
+   "candidates": 1,
+   "gtpProbabilityAny": 1,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 1,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "team_result",
+   "candidates": 2,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 2,
+   "noProbability": 0,
+   "priced": 2,
+   "eligible": 2,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "team_spread",
+   "candidates": 2,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 2,
+   "noProbability": 0,
+   "priced": 2,
+   "eligible": 2,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "team_total",
+   "candidates": 2,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 2,
+   "noProbability": 0,
+   "priced": 2,
+   "eligible": 2,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "nfl",
+   "family": "anytime_td",
+   "candidates": 248,
+   "gtpProbabilityAny": 248,
+   "gtpProbabilityUsable": 248,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 211,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_pass_yds",
+   "candidates": 25,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 25,
+   "priced": 24,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_reception_yds",
+   "candidates": 160,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 160,
+   "priced": 118,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_receptions",
+   "candidates": 180,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 180,
+   "priced": 124,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_rush_yds",
+   "candidates": 99,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 99,
+   "priced": 67,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "team_result",
+   "candidates": 26,
+   "gtpProbabilityAny": 26,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 26,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "team_spread",
+   "candidates": 26,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 26,
+   "priced": 26,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "team_total",
+   "candidates": 26,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 26,
+   "priced": 26,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  }
+ ],
+ "exclusions": {
+  "SPORT_GATED": 809,
+  "ROLE_UNCERTAIN": 658,
+  "ODDS_STALE": 544,
+  "NO_PROBABILITY": 516,
+  "MARKET_MISSING": 207,
+  "FAMILY_NOT_CLEARED": 176,
+  "AVAILABILITY_BLOCKED": 93,
+  "ODDS_OUT_OF_RANGE": 84,
+  "MODEL_NOT_PUBLIC": 43,
+  "MODEL_DEMOTED": 39
+ },
+ "nflUnknownFamilies": [],
+ "grantedFamilies": [],
+ "nflFamilyGate": [
+  {
+   "sport": "nfl",
+   "family": "anytime_td",
+   "modelVersion": "nfl-anytime-td-opportunity-v1",
+   "publicationState": "PUBLISHED",
+   "state": "GATED",
+   "blockers": [
+    "MODEL_FORWARD_ACCUMULATING",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": {
+     "state": "ACCUMULATING",
+     "n": 782,
+     "needed": 1000,
+     "metrics": {
+      "n": 782,
+      "logLoss": 0.4905,
+      "constantRateLogLoss": 0.517,
+      "meanPredicted": 0.2344,
+      "actualRate": 0.2123,
+      "level": 1.1042,
+      "ece": 0.0279
+     }
+    },
+    "slate": {
+     "candidates": 248,
+     "modelProbability": 248,
+     "roleConfirmed": 0,
+     "priced": 211,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_pass_yds",
+   "modelVersion": "nfl-player-share-level-v1",
+   "publicationState": "ESTIMATE_BELOW_BAR",
+   "state": "GATED",
+   "blockers": [
+    "FAMILY_NOT_PUBLISHED",
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_ACCUMULATING",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": {
+     "state": "ACCUMULATING",
+     "n": 98,
+     "needed": 300,
+     "metrics": {
+      "n": 98,
+      "mae": 67.2617,
+      "rolling4Mae": 67.9821,
+      "shareVolMae": 73.481,
+      "coverage80": 0.8265,
+      "ece": 0.0923,
+      "level": 1.0037
+     }
+    },
+    "slate": {
+     "candidates": 25,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 24,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_reception_yds",
+   "modelVersion": "props-v1",
+   "publicationState": "PUBLISHED",
+   "state": "GATED",
+   "blockers": [
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_UNREGISTERED",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": null,
+    "slate": {
+     "candidates": 160,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 118,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_receptions",
+   "modelVersion": "nfl-player-share-level-v1",
+   "publicationState": "PUBLISHED",
+   "state": "GATED",
+   "blockers": [
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_ACCUMULATING",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": {
+     "state": "FORWARD_HOLDING",
+     "n": 586,
+     "needed": null,
+     "metrics": {
+      "n": 586,
+      "mae": 1.6724,
+      "rolling4Mae": 1.7476,
+      "shareVolMae": 1.6773,
+      "coverage80": 0.7773,
+      "ece": 0.0413,
+      "level": 1.0494
+     }
+    },
+    "slate": {
+     "candidates": 180,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 124,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_rush_yds",
+   "modelVersion": null,
+   "publicationState": "ESTIMATE_NEAR_BAR",
+   "state": "GATED",
+   "blockers": [
+    "FAMILY_NOT_PUBLISHED",
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_UNREGISTERED",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": null,
+    "slate": {
+     "candidates": 99,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 67,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  }
+ ],
+ "eligibleReceipts": [
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849809:mlb_moneyline:-:home:",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849809",
+    "eventStartUtc": "2026-10-12T00:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-158",
+    "opponentId": "mlb-team-119",
+    "matchup": "Los Angeles Dodgers @ Milwaukee Brewers"
+   },
+   "market": {
+    "family": "team_result",
+    "marketKey": "mlb_moneyline",
+    "side": "home",
+    "line": null,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -113,
+    "marketCapturedAt": "2026-10-11T09:29:05.231Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.5065,
+    "selectionLabel": "Milwaukee Brewers to win"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-11T09:29:05.231Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-11.json",
+     "mlb/statsapi-schedule/2026-10-11.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849809",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849809",
+     "family:team_result",
+     "team:mlb:mlb-team-158",
+     "opponent:mlb:mlb-team-119"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849809:mlb_moneyline:-:away:",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849809",
+    "eventStartUtc": "2026-10-12T00:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-119",
+    "opponentId": "mlb-team-158",
+    "matchup": "Los Angeles Dodgers @ Milwaukee Brewers"
+   },
+   "market": {
+    "family": "team_result",
+    "marketKey": "mlb_moneyline",
+    "side": "away",
+    "line": null,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -107,
+    "marketCapturedAt": "2026-10-11T09:29:05.231Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.4935,
+    "selectionLabel": "Los Angeles Dodgers to win"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-11T09:29:05.231Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-11.json",
+     "mlb/statsapi-schedule/2026-10-11.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849809",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849809",
+     "family:team_result",
+     "team:mlb:mlb-team-119",
+     "opponent:mlb:mlb-team-158"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849809:mlb_run_line:-:home:1.5",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849809",
+    "eventStartUtc": "2026-10-12T00:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-158",
+    "opponentId": "mlb-team-119",
+    "matchup": "Los Angeles Dodgers @ Milwaukee Brewers"
+   },
+   "market": {
+    "family": "team_spread",
+    "marketKey": "mlb_run_line",
+    "side": "home",
+    "line": 1.5,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -200,
+    "marketCapturedAt": "2026-10-11T09:29:05.231Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.6377,
+    "selectionLabel": "Milwaukee Brewers +1.5"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-11T09:29:05.231Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-11.json",
+     "mlb/statsapi-schedule/2026-10-11.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849809",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849809",
+     "family:team_spread",
+     "team:mlb:mlb-team-158",
+     "opponent:mlb:mlb-team-119"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849809:mlb_run_line:-:away:-1.5",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849809",
+    "eventStartUtc": "2026-10-12T00:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-119",
+    "opponentId": "mlb-team-158",
+    "matchup": "Los Angeles Dodgers @ Milwaukee Brewers"
+   },
+   "market": {
+    "family": "team_spread",
+    "marketKey": "mlb_run_line",
+    "side": "away",
+    "line": -1.5,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": 164,
+    "marketCapturedAt": "2026-10-11T09:29:05.231Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.3623,
+    "selectionLabel": "Los Angeles Dodgers -1.5"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-11T09:29:05.231Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-11.json",
+     "mlb/statsapi-schedule/2026-10-11.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849809",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849809",
+     "family:team_spread",
+     "team:mlb:mlb-team-119",
+     "opponent:mlb:mlb-team-158"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849809:mlb_total_runs:-:over:6",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849809",
+    "eventStartUtc": "2026-10-12T00:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-158",
+    "opponentId": "mlb-team-119",
+    "matchup": "Los Angeles Dodgers @ Milwaukee Brewers"
+   },
+   "market": {
+    "family": "team_total",
+    "marketKey": "mlb_total_runs",
+    "side": "over",
+    "line": 6,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -112,
+    "marketCapturedAt": "2026-10-11T09:29:05.231Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.5043,
+    "selectionLabel": "Over 6"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-11T09:29:05.231Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-11.json",
+     "mlb/statsapi-schedule/2026-10-11.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849809",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849809",
+     "family:team_total",
+     "team:mlb:mlb-team-158",
+     "opponent:mlb:mlb-team-119"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849809:mlb_total_runs:-:under:6",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849809",
+    "eventStartUtc": "2026-10-12T00:00:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-158",
+    "opponentId": "mlb-team-119",
+    "matchup": "Los Angeles Dodgers @ Milwaukee Brewers"
+   },
+   "market": {
+    "family": "team_total",
+    "marketKey": "mlb_total_runs",
+    "side": "under",
+    "line": 6,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -108,
+    "marketCapturedAt": "2026-10-11T09:29:05.231Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.4957,
+    "selectionLabel": "Under 6"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-11T09:29:05.231Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-11.json",
+     "mlb/statsapi-schedule/2026-10-11.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849809",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849809",
+     "family:team_total",
+     "team:mlb:mlb-team-158",
+     "opponent:mlb:mlb-team-119"
+    ]
+   }
+  }
+ ]
+}
