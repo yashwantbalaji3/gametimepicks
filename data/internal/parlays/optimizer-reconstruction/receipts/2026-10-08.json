@@ -1,0 +1,156 @@
+{
+  "classification": {
+    "inputs": {
+      "mlb": {
+        "board": "app/public/data/mlb/boards/2026-10-08.json",
+        "date": "2026-10-08",
+        "games": 1,
+        "generatedAt": "2026-10-08T09:26:35.942217+00:00",
+        "leans": 43,
+        "leansLoaded": 43,
+        "parsed": true,
+        "pendingReason": null,
+        "present": true,
+        "propsAvailable": true,
+        "scheduleAvailable": true
+      },
+      "nba": {
+        "board": "app/public/data/boards/2026-10-08.json",
+        "date": null,
+        "games": null,
+        "generatedAt": null,
+        "leans": null,
+        "leansLoaded": 0,
+        "parsed": false,
+        "pendingReason": null,
+        "present": false,
+        "propsAvailable": null,
+        "scheduleAvailable": null
+      }
+    },
+    "legPool": {
+      "distinctGames": 1,
+      "totalLegs": 35
+    },
+    "outcome": "NO_ELIGIBLE_SLIPS",
+    "publicSections": {
+      "high": {
+        "candidates": {
+          "all": 0,
+          "mlb": 0,
+          "nba": 0
+        },
+        "eligibleLegs": {
+          "all": 3,
+          "mlb": 3,
+          "nba": 0
+        },
+        "emptyReason": "structurally_infeasible",
+        "maxLegs": 5,
+        "maxLegsPerGame": 2,
+        "minLegs": 4,
+        "slips": 0
+      },
+      "longshot": {
+        "candidates": {
+          "all": 0,
+          "mlb": 0,
+          "nba": 0
+        },
+        "eligibleLegs": {
+          "all": 3,
+          "mlb": 3,
+          "nba": 0
+        },
+        "emptyReason": "structurally_infeasible",
+        "maxLegs": 6,
+        "maxLegsPerGame": 2,
+        "minLegs": 5,
+        "slips": 0
+      },
+      "low": {
+        "candidates": {
+          "all": 0,
+          "mlb": 0,
+          "nba": 0
+        },
+        "eligibleLegs": {
+          "all": 1,
+          "mlb": 1,
+          "nba": 0
+        },
+        "emptyReason": "insufficient_eligible_legs",
+        "maxLegs": 2,
+        "maxLegsPerGame": 2,
+        "minLegs": 2,
+        "slips": 0
+      },
+      "medium": {
+        "candidates": {
+          "all": 0,
+          "mlb": 0,
+          "nba": 0
+        },
+        "eligibleLegs": {
+          "all": 2,
+          "mlb": 2,
+          "nba": 0
+        },
+        "emptyReason": "structurally_infeasible",
+        "maxLegs": 4,
+        "maxLegsPerGame": 2,
+        "minLegs": 3,
+        "slips": 0
+      }
+    },
+    "publicSlips": 0,
+    "receiptVersion": 1
+  },
+  "date": "2026-10-08",
+  "genuineProducerReceipt": false,
+  "inputs": {
+    "boards": {
+      "mlb": {
+        "gitCommit": "ec54dd8b4fbaad42c7a556cda3656a3d2bc1f7c2",
+        "path": "app/public/data/mlb/boards/2026-10-08.json",
+        "present": true,
+        "sha256": "95bc4d5228861512e890e35e3f89f126efda4ff49b4235048a31f13b55306bbc"
+      },
+      "nba": {
+        "path": "app/public/data/boards/2026-10-08.json",
+        "present": false
+      }
+    },
+    "marketReliability": {
+      "gitCommit": "7e9942d9873283b2651532394d8c90111710f2be",
+      "path": "app/public/data/audit/market-reliability.json",
+      "sha256": "608dbfd16e6b355ea7cb9c2901dc0c3efabbbf173b3c2d0cf72dc8bf8a1b36a1",
+      "storedCopy": "data/internal/parlays/optimizer-reconstruction/inputs/market-reliability@608dbfd16e6b.json"
+    },
+    "selectionPolicy": {
+      "gitCommit": "7e9942d9873283b2651532394d8c90111710f2be",
+      "path": "app/public/data/learning/selection-policy-latest.json",
+      "sha256": "0f17b8fc805848dbcb6c2f76631af08d16e00e2ad70a56211be4f626464186b7",
+      "storedCopy": "data/internal/parlays/optimizer-reconstruction/inputs/selection-policy-latest@0f17b8fc8058.json"
+    }
+  },
+  "notice": "RECONSTRUCTED after the fact by replaying pipeline.snapshot_optimizer on its as-of inputs. NOT emitted by the producer on 2026-10-08, and not proof of what the producer recorded at the time. The committed snapshot is unchanged and bound here by sha256.",
+  "receiptKind": "RECONSTRUCTED",
+  "receiptVersion": 1,
+  "reconstructedAt": "2026-10-10T14:29:52+00:00",
+  "reconstructor": "pipeline.optimizer_reconstruction",
+  "reproduction": {
+    "bucketsEqual": true,
+    "legPoolLegsEqual": true,
+    "publicRiskSectionsEqual": true,
+    "reproduced": true,
+    "sourcePoolsEqual": true,
+    "totalSlipsEqual": true
+  },
+  "snapshot": {
+    "generatedAt": "2026-10-08T09:26:41+00:00",
+    "gitCommit": "ec54dd8b4fbaad42c7a556cda3656a3d2bc1f7c2",
+    "path": "app/public/data/parlays/optimizer/2026-10-08.json",
+    "sha256": "d0fab7bbd88dc4f153b2d423070589f804a4cfa89889396b418b004927670bb1"
+  }
+}

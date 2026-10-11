@@ -81,8 +81,8 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
     state: "live",
     question: "How does this fight end — and in which round?",
     basis:
-      "Three heads over 3,557 held-out fights: winner, method and round. The only model here that " +
-      "beat its baseline on every head it was tested on.",
+      "Experimental model with three heads (winner, method and round), each tested on past fights. " +
+      "Winner forecasts are graded on every new card; method and round are not yet graded.",
   },
   {
     sport: "soccer",

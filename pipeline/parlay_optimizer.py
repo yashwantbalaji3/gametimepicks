@@ -2744,6 +2744,7 @@ def generate_public_risk_sections(
     date: str,
     target_per_bucket: int = PUBLIC_RISK_SECTION_TARGET_PER_BUCKET,
     candidate_ceiling: int = _PUBLIC_SECTION_CANDIDATE_CEILING,
+    diagnostics: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, list[OptimizedSlip]]]:
     """Build the public-section buckets from the already-qualified
     legPool. Returns a `{section: {sport: [OptimizedSlip]}}` mapping
@@ -2753,6 +2754,15 @@ def generate_public_risk_sections(
     slips and applies the PR #150 diversity selector pattern to spread
     player exposure. The slips are tagged with ``profile = section_key``
     + ``singleGame = True`` when NBA-only and all legs share one game.
+
+    ``diagnostics`` (optional, observability only): when a dict is passed it
+    is filled with ``{section: {minLegs, maxLegs, maxLegsPerGame,
+    eligibleLegs: {all, nba, mlb}, candidates: {all, nba, mlb}}}`` — the
+    counts the section actually saw AFTER its own filters (low-risk gate,
+    market quarantine, edge cap) and how many priced, compatible
+    combinations the search found before the diversity selector. It never
+    changes the slips; it lets the snapshot receipt say WHY a section is
+    empty instead of leaving an empty array to speak for itself.
     """
     # Normalize input. Three accepted shapes:
     #   1. ``OptimizerLean`` instances (tests pass these directly).
@@ -2827,6 +2837,17 @@ def generate_public_risk_sections(
             sec_nba = [l for l in nba_pool if _mkt_ok(l) and _edge_ok(l)]
             sec_mlb = [l for l in mlb_pool if _mkt_ok(l) and _edge_ok(l)]
 
+        section_diag: dict[str, Any] | None = None
+        if diagnostics is not None:
+            section_diag = {
+                "minLegs": spec["min_legs"],
+                "maxLegs": spec["max_legs"],
+                "maxLegsPerGame": _PUBLIC_SECTION_MAX_LEGS_PER_GAME,
+                "eligibleLegs": {"all": len(sec_all), "nba": len(sec_nba), "mlb": len(sec_mlb)},
+                "candidates": {"all": 0, "nba": 0, "mlb": 0},
+            }
+            diagnostics[section_key] = section_diag
+
         # Combined pool → feeds the "all" tab and surfaces the natural
         # mix of sport-pure and cross-sport slips.
         combined_candidates = _build_section_slips_for_pool(
@@ -2837,6 +2858,8 @@ def generate_public_risk_sections(
             candidate_ceiling=candidate_ceiling,
         )
         combined_candidates.sort(key=lambda s: s.score, reverse=True)
+        if section_diag is not None:
+            section_diag["candidates"]["all"] = len(combined_candidates)
         by_sport["all"] = _select_diverse_sgp(
             combined_candidates,
             target_per_bucket,
@@ -2872,6 +2895,8 @@ def generate_public_risk_sections(
                 candidate_ceiling=candidate_ceiling,
             )
             nba_cands.sort(key=lambda s: s.score, reverse=True)
+            if section_diag is not None:
+                section_diag["candidates"]["nba"] = len(nba_cands)
             by_sport["nba"] = _select_diverse_sgp(
                 nba_cands,
                 target_per_bucket,
@@ -2891,6 +2916,8 @@ def generate_public_risk_sections(
                 candidate_ceiling=candidate_ceiling,
             )
             mlb_cands.sort(key=lambda s: s.score, reverse=True)
+            if section_diag is not None:
+                section_diag["candidates"]["mlb"] = len(mlb_cands)
             by_sport["mlb"] = _select_diverse_sgp(
                 mlb_cands,
                 target_per_bucket,

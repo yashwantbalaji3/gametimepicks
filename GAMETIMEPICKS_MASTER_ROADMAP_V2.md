@@ -99,7 +99,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 3 | `NFL-003` | NFL Modeling | Player opportunity allocation (plays → pass/rush → attempts/carries → targets → catches → yards → TDs, with `OTHER`) | IN_PROGRESS — allocV1 PRODUCTION DEPLOYED inside World Model V2 (experimental, labelled); not FORWARD EVALUATED; first-game review: rushing-efficiency tail hypothesis (§NFL-005) | NFL-002 team volume | Shadow → family-by-family promotion |
 | 4 | `NFL-004` | NFL Modeling | TD model: hierarchical Bernoulli → team scoring opportunities → red-zone role → drive attribution | IN_PROGRESS — RESEARCH (passing-TD pure-sim candidate failed preregistered dev bars; 50/50 blend passed dev, forward shadow only; world TD v2 preregistered, forward-only). Not qualified; passing TD and first TD withheld publicly; anytime TD stays on the existing published model | NFL-003 | Shadow → family-by-family promotion |
 | 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | IN_PROGRESS — PRODUCTION DEPLOYED (World Model V2, experimental: #1024, #1026, #1027, #1029 → 2.2.0); FORWARD EVALUATION begun (1 game reviewed, 2026-10-08 TB @ DAL); not STATISTICALLY QUALIFIED; not PRODUCT ELIGIBLE | NFL-002, NFL-003, NFL-004 | Yes, family by family |
-| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 #1039 product/Results truth PRODUCTION DEPLOYED (merge `f15a51f9`, 2026-10-10); PR 4 #1042 recovery READY_FOR_REVIEW; Stage B restatement (#1045) + served-forecast evidence (#1046) approved to develop locally | COST-001 deployment gate verified ✓ | Yes |
+| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 #1039 product/Results truth PRODUCTION DEPLOYED (merge `f15a51f9`, 2026-10-10); PR 4 #1042 recovery evidence PRODUCTION DEPLOYED (merge `c71a7f5a`, 2026-10-10); served-forecast evidence #1046 READY_FOR_REVIEW; Stage B restatement #1045 and timing amendment #1049 DRAFT (local, not applied) | COST-001 deployment gate verified ✓ | Yes |
 | 7 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | IN_PROGRESS — RESEARCH COMPLETED (inventory, gaps, consumer matrix); foundation PRODUCTION DEPLOYED (#1040: read-only ForecastVersion/Settlement projection; no consumer, no migration); engineering lead: Lane A (founder, 2026-10-09) | Founder rules below | Foundation |
 | 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
 | 9 | `MLB-002` | MLB Modeling | Benchmark ladder (PA control → Poisson → hierarchical → NB → bivariate → enhanced PA → boosting → ensemble) | NOT_STARTED | MLB-001 | Shadow |
@@ -358,7 +358,7 @@ Bot data commits are 386 of the 480 (80%).
 # 4. Truth, market identity and product semantics
 
 ## `TRUTH-001` — P0 truth correction package
-**Status:** IN_PROGRESS — PR 1 (#1037) PRODUCTION DEPLOYED; PR 2 (#1038, posted-line run line) PRODUCTION DEPLOYED; product-truth PR 3 (#1039) PRODUCTION DEPLOYED; historical recovery PR 4 (#1042) READY_FOR_REVIEW; Stage B (#1045, draft) and served-forecast evidence (#1046) in development  
+**Status:** IN_PROGRESS — PR 1 (#1037) PRODUCTION DEPLOYED; PR 2 (#1038, posted-line run line) PRODUCTION DEPLOYED; product-truth PR 3 (#1039) PRODUCTION DEPLOYED; historical recovery PR 4 (#1042) PRODUCTION DEPLOYED; served-forecast evidence (#1046) READY_FOR_REVIEW; Stage B (#1045) and the timing amendment (#1049) DRAFT  
 **Owner/session:** Claude Code, Lane A (Core Intelligence), 2026-10-09  
 **Branches:** `claude/truth-001-mlb-truth` (merged) · `claude/truth-001-runline-posted` (#1038, merged) · `claude/truth-001-product-truth` (#1039, merged)  
 **PR:** [#1037](https://github.com/yashwantbalaji3/gametimepicks/pull/1037) merged · [#1038](https://github.com/yashwantbalaji3/gametimepicks/pull/1038) merged · [#1039](https://github.com/yashwantbalaji3/gametimepicks/pull/1039) merged · [#1042](https://github.com/yashwantbalaji3/gametimepicks/pull/1042) · [#1045](https://github.com/yashwantbalaji3/gametimepicks/pull/1045) · [#1046](https://github.com/yashwantbalaji3/gametimepicks/pull/1046)  
@@ -516,6 +516,38 @@ Commits (all forward-only; no published artifact rewritten):
     - **No accounting or denominator change.**
 
 ### Historical MLB forecast recovery (founder decision 3: approved to develop, PR 4)
+- **Release (2026-10-10).**
+  - **Approval:** founder approval at exact head `e8e861d5ce1eaec9f5e90baf73d67ad785da583e` (renewed after the supersession record was added).
+  - **Pre-merge checks:**
+    - head unchanged; quality and python green; `CLEAN` against main;
+    - no other integration or deploy in flight;
+    - files added only, plus the roadmap; no Results reader uses them;
+    - content scan clean;
+    - supersession record shows 11 corroborated and 3 superseded;
+    - export guard re-probed: passes on the clean site, fails on a planted file.
+  - **Merge:** `--match-head-commit`, as `c71a7f5a74d7416aebd4b73a92ae82c19a4dfba9` at 04:17:15Z.
+  - **Production:** `build-info` reported that commit, built 04:18:51Z, checked live 04:22:35Z. One Production deployment, READY.
+  - **Routes:** `/`, `/mlb/`, `/results/`, `/results/forecasts/`, `/results/model-audit/`, `/results/picks/mlb/`, `/markets/`, `/live/`, `/nfl/` and `/today/` all returned 200.
+  - **Recovery URLs:** `/data/mlb/corrections/pregame-forecast-recoveries.jsonl`, `…/forecast-of-record-corrections.jsonl` and the folder itself all return **404**.
+  - **Results:** 13,741 published / 10,933 measured, unchanged. Model audit, MLB picks and `/mlb/` show identical figures. On `/results/`, the 7-day MLB window moved 21–21–3 → 15–15–3 because the local day rolled from Fri Oct 9 to Sat Oct 10, as the page states. #1042 changed no reader.
+- **Served-forecast evidence (#1046, READY_FOR_REVIEW).** Per-game classification of all 810 graded games (`data/internal/ops/forecast-of-record-shadow/classification.json`):
+
+| Class | Games |
+|---|---|
+| `VERIFIED_AGREES` (served = graded) | 573 |
+| `VERIFIED_DIFFERENT_REVISION` | 22 |
+| `VERIFIED_NEVER_PUBLIC` | 4 |
+| `UNVERIFIED_*` (fail closed) | 211 |
+
+  - **Basis:** the exact Vercel record inside its window, GitHub's conservative clock elsewhere, and the actual first pitch from the StatsAPI play-by-play.
+  - **Consistency:** GitHub never contradicts Vercel where both resolve (139/139 identical).
+  - Reproducible from committed files only.
+
+- **Supersession of the 14 proposals (2026-10-10):** recorded append-only in `data/internal/mlb/corrections/forecast-of-record-proposals-supersession-2026-10-10.json`; the proposals file itself is unchanged.
+  - **11 CORROBORATED:** #1046's evidence (actual first pitch plus the exact deployment record) verifies the same served revision, with an identical hash.
+  - **3 SUPERSEDED_UNVERIFIABLE:** 823084, 823650, 824542. They must not be applied.
+  - Nothing is applied. Stage B (#1045) applies only verified rows, after separate approval.
+- **Future hardening (founder note):** move the non-public recovery and proposal artifacts out of `app/public/` to `data/internal/`. Today they are kept out of the export only by the prune step plus the post-build guard `recovery-not-public.test.mjs`, which is mutation-checked: a planted file or reference fails it.
 Investigation (read-only):
 - 243 MLB games marked `unavailable` 2026-09-01 → 10-08:
   - **231 PUBLISHED_RECOVERABLE:** public pre-first-pitch commit on `main`; hash recomputes (also 5,014/5,014 game entries across every scanned revision); a matching prediction snapshot; model `mlb-fullgame-2026.08-pa-v2`, engine v1.
@@ -981,6 +1013,13 @@ Mirror `scripts/research/nfl/forward-player-props-share-level.mjs` (P300's forwa
     - All 14 forecasts carry `forecastSummary.distribution`. Five boards × 10 rows; the 50 V2 board rows equal their game pages; no Q/D/OUT player on a board.
     - Production served the 2.2.0 pages from build `6e3f6cb8` (16:13:24Z). TB @ DAL's page still shows its frozen 2.1.0 run.
   - **Grading gap found in that run:** TB @ DAL stayed ungraded. The player-event capture (16:08:32Z) read the nflverse game list before the nflverse capture refreshed it (16:08:50Z), a documented one-window lag. Fixed by #1036 (nflverse first); see the LEDGER-001 observation.
+  - **TB @ DAL graded 2026-10-09** by the next window (run `37974332405`, 18:36:32Z, before #1036): final, 42 rows, against its frozen 2.1.0 run `8ca1b01a873fdcda`. Later runs left the grade unchanged.
+  - **#1036 released 2026-10-09:**
+    - Merge `9ff2763030` at 19:12:39Z; build-info `9ff27630` at 19:14:11Z; Vercel READY at 19:17:25Z; 0 hydration errors; 0 Preview.
+    - First run after it, `37981662094` (19:39Z): nflverse captured at 19:40:29Z, then player events at 19:40:30Z. One push of 2 commits, one deployment (`7ac70c67a0`).
+    - Four legitimate re-simulations from injury changes: LV @ NE (Nailor OUT), MIN @ NO (Fant cleared), NYG @ WSH (Diggs OUT), CHI @ GB (Caleb Williams OUT → QUESTIONABLE, now the passer). TB @ DAL untouched.
+    - Runs `37984332498` (20:02Z) and `38009261827` (00:29Z) also made one deployment each (`4c7272077e`, `1ada44a2fc`).
+    - Same-run grading of a **new** final is not yet demonstrated. It is first possible when Sunday's games finish.
   - **Settlement delay (founder decision 2026-10-09):** the first V2 game was not graded promptly after it ended. This is recorded as an operational limitation here and under OPS-001, LEDGER-001 and RESULTS-001. See the LEDGER-001 observation.
   - Until then Production shows the 2.1.0 runs (PHI vs JAX `076bd90906ca28d4`, 01:00:16Z).
   - The new simulation timestamps will be recorded here when it runs.
@@ -1071,8 +1110,71 @@ Hard invariants: player minutes = 240 regulation + 25 per OT; five players on co
 # 11. UFC roadmap
 
 ## `UFC-001` — Near-term truthful operations
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS (founder directive 2026-10-10: primary priority for the Oct 10 card)
 Use existing Saturday/U1/U2 work only after current-main refresh.
+
+Slices (state on `main` 5ed6f6bc51, 2026-10-10):
+- **U2 odds join:** on `main` (`62c5a7dd19`, `fe38220e45`). Do not redo it. The remaining U2 items (plain labels; athlete ids on model-vs-market rows) are not on `main`.
+- **U3 claims copy (D2 HONEST):** rebuilt on fresh `main` as branch `claude/ufc-001-u3-claims-copy`; not merged. The department bundle was not cherry-picked.
+- **U1 grader retirement and readiness split (D1 YES):** not on `main`. It must land apart from Product Engine 4D.
+- **U4 Gall v Dumas:** D3 is still open; no correction is made.
+- **Shipped 2026-10-10:**
+  - #1053: title fight only on provider evidence, plus a fight-day freeze for the card build and odds capture;
+  - #1052: U3 claims copy.
+  - Both are Production-verified (see the session logs). UFC-001 stays **IN_PROGRESS**.
+
+#### UFC experience (UX phases; founder directive 2026-10-10; plan in `docs/ufc/UFC-001-UX-PLAN.md`)
+- **Phase A, prediction board, plus A2, page order:** **MERGED and PRODUCTION_VERIFIED.** PR #1057 at `df2d1ee3f4`, merge `5dc31a98f7`, 2026-10-11 09:05Z; A2 was consolidated from #1058. After the card, the board reads "Last card · pregame predictions".
+- **Fighter profile truth (#1059):** ships with this entry.
+  - Profiles are split into tracked record / strengths · weaknesses (win or loss rates only) / tendencies (neutral; "Often goes the distance" moved here, founder decision) / not established.
+  - The `reason` line is labelled as a tracked-record summary, not the model's reasoning.
+  - No forecast change.
+  - The text reaches the live card at the next card build (the Sunday 13:00Z fight-week run rolls to the next card).
+  - A2 order: board → honest live-status line (UFC live tracking not available yet) → compact matchup previews (closed `<details>`, who and where only; full analysis inside plus a bout-page link) → the card story on request → methodology → results.
+  - Nothing removed; `bout-N` anchors kept. `/ufc` at 1024 px: 15,106 px → 5,713 px.
+  - It is now `/ufc`'s events section: every bout once, main event first, with portraits, the pick, the published win chance and the experimental method lean (label only; fight-level, not "pick wins that way"), each row linking to its bout page.
+  - It meets the shared hub contract: `hubCounts` counts line and the standard unmodelled phrase.
+- **Phase B, bout pages; Phase C, evidence-based strengths and risks:** NOT_STARTED.
+  - Data available honestly today: tale of the tape (ESPN, static) and corpus outcomes as of 2026-08-08.
+  - Per-minute striking and grappling stats need a free point-in-time ingest of `ufc_fight_stats.csv`. That is a founder decision.
+- **Phase D, model explanation:** NOT_STARTED. Exact calibrated logit contributions are possible for the winner head, but need the builder to emit its coefficients. The current `reason` sentence is NOT a model attribution and must be relabelled or replaced.
+- **Producer copy defects found** (to fix in Phase B):
+  - `profileFor` says "Too few tracked losses" for fighters with 13–14 losses;
+  - the "Durable" wording;
+  - "mostly by submission" when the KO share is 40–60%;
+  - a `basisNote` saying "no UFC history" for fighters with 1 bout.
+
+#### UFC live tracking: capability gap (recorded 2026-10-10)
+- **Today there is no live UFC surface.**
+  - The gateway `app/api/_live-core.mjs` supports only `["nfl","mlb"]`, and only `mlb` is public by default (`LIVE_PUBLIC_SPORTS`).
+  - The client gate `lib/live/client.ts` is typed `"nfl" | "mlb"`.
+  - `/live` deliberately has no UFC tab.
+  - `/ufc` and the bout pages are static between builds: bout status changes only when Production rebuilds. Nothing on them claims to be live.
+- **Already built but not wired in** (imported only by tests):
+  - `lib/live/adapters/espn-mma.mjs` (ESPN MMA scoreboard: pre / in / post; round, with no R0; clock, with "-" as null; fighters by `competitor.id`; winner only when final);
+  - `lib/live/adapters/ufc-tracked.mjs` (the TERMINAL-market tracked-prediction contract: winner settleable; rounds measurable but not graded; method unsupported, because the scoreboard states no KO/SUB/DEC; ESPN `post` gives `FINAL_PROVISIONAL`, never canonical);
+  - fixtures for pre / live / in-round / final / settled.
+- **Known provider limits:**
+  - no method of victory or decision type on the scoreboard; the summary endpoint errors for these ids;
+  - replaced bouts disappear rather than showing as cancelled;
+  - `order` is the corner, not the fight sequence.
+- **Plan (future; not before a validated, approved release):**
+  1. Add `ufc` to `SUPPORTED_SPORTS` with an ESPN MMA request plan, reusing `espn-mma.mjs` and the existing `s-maxage` CDN cache and freshness thresholds. Keep it public-gated (`LIVE_PUBLIC_SPORTS` / `NEXT_PUBLIC_LIVE_SPORTS`) and default closed.
+  2. Add a UFC roster builder (the card's bouts in ufc.com order) and a `/live` UFC tab only once a roster exists, using the shared Live shell rather than a separate UX.
+  3. Row semantics from `ufc-tracked.mjs`:
+     - PREGAME forecast · LIVE (round / clock, unresolved) · FINAL_PROVISIONAL;
+     - FINAL_CANONICAL only from the settlement record (graded ledger);
+     - method shown as "not reported live".
+  4. Tests: fixture-driven contract tests plus a rendered stale-feed test. Verify on a real card in a preview before enabling publicly.
+  5. Dependencies: a bout-order source (ufc.com order, or the card artifact) and the cancellation / replacement rule (U4 / D3).
+
+#### U4 Gall v Dumas: preserved evidence for a general "withdrawn pairing" rule (founder decision pending; nothing applied)
+- **Frozen in snapshots** `snapshot-202609221527`, `snapshot-202609231748` and `snapshot-202609241534`: bout `2026-09-26:mickey gall|sedriques dumas`, providerBoutId 401923433, pick Gall at 0.5115 (market 0.5635).
+- **Replaced:** Gall was replaced. The final pre-card snapshot `snapshot-202609261455` holds `luis hernandez|sedriques dumas` instead, and that bout was graded (`graded.jsonl` row 49).
+- **Today:** `summary.json` reconciliation for 2026-09-26 reads frozen 9, graded 8, pending 1, with `pendingBoutIds` = the Gall pairing. It is pending indefinitely, because nothing closes a superseded pairing.
+- **Options:** (a) VOID this bout; (b) a general rule: a pairing absent from the final pre-start snapshot is WITHDRAWN (never graded, never void, excluded from the denominator); (c) leave it pending.
+- **Recommendation:** (b). No historical rewrite until the founder decides.
+- **Related diagnostic (P2):** the grader prints "12 bout(s) from 2026-09-26 … -7 day(s)". It labels all pending bouts with the oldest pending date (the Gall pairing). Grading is unaffected.
 
 ## `UFC-002` — World/process model
 **Status:** NOT_STARTED
@@ -1186,6 +1288,12 @@ Every metric links to all underlying forecasts with date/event/subject/target/li
 
 ### Progress (2026-10-08 night, unified NFL experience directive; branch `claude/nfl-unified-experience`)
 - Needed from RESULTS-001 for NFL: per-family metrics for World Model V2 records (MAE / CRPS / 80% coverage for yards and receptions; Brier / log loss / calibration bands for TD families), and champion/challenger tables (old version, new version, period, n, metrics, reason, rollback rule). No combined accuracy % across incompatible families.
+
+### Open follow-up (recorded 2026-10-10, founder directive): Ask's NFL accuracy answer under a MIXED record
+- **What happens:** since the NFL graded-picks owner became `recordBasis: MIXED`, there is no pooled NFL cell. Ask GameTime answers "How accurate is the NFL model?" with "no graded forecast record is designated" and states no accuracy.
+- **Why it matters:** per-basis NFL records do exist. The answer may fail to explain them.
+- **Context:** #1055 changed only the Ask eval expectation (`res-06`), deriving it from the artifact. Ask's answer was not changed.
+- **Next step:** a separately reviewed product-truth correction, owned by Lane B (NFL / Results) with Ask. Not started.
 
 ## `RESULTS-002` — Product results
 **Status:** NOT_STARTED
@@ -1969,6 +2077,162 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - PR 3 product truth: 5 commits local on `claude/truth-001-product-truth` (`2a6a1c2ef9`, `4e278490fb`, `ae531656fe`, `d8b919b08f`, + no-games-day states); unit phase on Node 20.4.0 9,136 pass / 2 known env failures (before the no-games-day commit).
 - Recovery: investigation complete (231 / 8 / 4, 27 tight); BAL @ NYY 823491 publication-timing case verified.
 - Next: finish PR 3 (B3, B6, validation) → open; build PR 4 (recovery + 823491 correction) as append-only, quarantining tight cases; CONTRACT-001 event-id test.
+
+### 2026-10-10 — Claude Code (Lane B, NFL operations) — #1036 release record; Results parity §1b fix
+- **#1036:** merged and verified in Production. The release record and the post-merge window runs are under NFL-005.
+- **First post-#1035 window** (run `37974332405`, 18:35Z):
+  - one push and one deployment (`8e88377c70`);
+  - TB @ DAL graded one window late, as #1036 predicted;
+  - BAL passer Huntley, with Lamar Jackson OUT.
+- **Single push confirmed** on all four post-#1035 window runs: one Production deployment each, 0 Preview.
+- **Main-wide CI failure** (reported by Lane A; it blocked #1048):
+  - The NFL graded-picks record became `recordBasis: "MIXED"` in the nightly settle at 09:25Z (`78758d6f46`). Its bases: 105 historical model-favored picks plus TB @ DAL, the first pick on the frozen published side.
+  - Stage 3D deliberately emits no pooled projection cell for a mixed record. Parity test §1b still demanded a cell.
+  - Fix: the test asserts the rule itself. A MIXED owner gets no pooled cell, has no top-level hit rate, and its `byBasis` rows sum exactly to its counts. Every other owner keeps the exact count match.
+  - A mutation that re-enables the pooled cell fails the test.
+  - The producer is unchanged. Splitting the bases is the intended Stage 3D behaviour.
+- **Cost:** 41 Production deployment events from 19:17Z Oct 9 to 11:30Z Oct 10, including Lane A's merges.
+  - These are events, not builds. Ignored deployments are not yet replayed out, so this is not a build count and no saving is claimed.
+  - The 7-day comparison against 70.2 builds/day continues. Billed CPU needs the Vercel dashboard (founder).
+- **Sunday (P0):** 14/14 Week 5 games are on 2.2.0. The kickoff refresh runs every 30 minutes from 09:00Z. PHI @ JAX (London) kicks off at 13:30Z. CHI's Caleb Williams is QUESTIONABLE.
+
+### 2026-10-10 — Claude Code (CI stabilization) — `CI-001` class; `PARLAY-001`, `RESULTS-001` / `NFL-005` — combined stabilization of #1051 + #1054
+- **Why combined:** #1051 failed only the published-parlays guard (phase 2) and #1054 failed only Results parity §1b (phase 1), so each was red on the other's fix. One branch, `claude/ci-stabilization-1051-1054`, from `origin/main` `78bd32c530`. It supersedes both; neither is closed here.
+- **§1b (from #1051, `RESULTS-001` / `NFL-005`):** `a712611079` cherry-picked with `-x`, unchanged. It includes the 2026-10-10 Lane B entry above.
+- **Published-parlays guard (from #1054, `PARLAY-001`):**
+  - The window 10-08 / 10-09 / 10-10 was genuinely empty. 10-09 had no MLB game (`no_events`). 10-08 and 10-10 were single-game CWS/CLE slates: Low got 1 and 0 eligible legs (it needs 2), and Medium+ need 3+ legs at most 2 per game.
+  - The guard could not tell this from a silently stopped optimizer. The producer now writes a `generationReceipt` (`receiptKind: PRODUCER`). The judge (`lib/ask/parlay-window-evidence.mjs`) accepts an empty window only on verified evidence; missing, failed, stale, invalid and unexplained cases fail.
+- **Decision B′ (founder, 2026-10-10):**
+  - The three pre-receipt snapshots stay byte-identical.
+  - `pipeline/optimizer_reconstruction.py` wrote RECONSTRUCTED receipts (`data/internal/parlays/optimizer-reconstruction/`). Each records:
+    - the actual creation time, with `genuineProducerReceipt: false`;
+    - the snapshot's path, git commit and sha256;
+    - each board's path, commit and sha256;
+    - the as-of selection policy and market reliability, each with path, parent commit and sha256, stored verbatim.
+  - Replay reproduces the sections, leg pool, buckets, totalSlips and sourcePools exactly for all three dates.
+  - The guard accepts them only through `RECONSTRUCTED_RECEIPT_ALLOWLIST` (those three dates, bound by snapshot sha256, only where no genuine receipt exists). `pipeline/optimizer_reconstruction_test.py` re-runs the replay in the `python` job.
+- **Not changed:** NFL settlement, NFL projection producers, optimizer slip selection, workflows, `vercel.json`. No paid APIs.
+- **Rule (`CI-001`, restated):** an empty rolling window is accepted only on producer evidence. Historical reconstruction is a founder decision, scoped by an explicit allowlist and never a general bypass.
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — #1055 release record (`CI-001` class, `PARLAY-001`, `RESULTS-001` / `NFL-005`)
+- **What merged:** #1055 (CI stabilization, superseding #1051 and #1054), at founder-approved exact head `24a0781bff9ffcf7887f4e99f8d70930c9d49ea3`, with `--match-head-commit`.
+  - Merge commit `4d7163eab72836e915103e7d89de637c99c2ee46`, 15:34:52Z.
+  - All 10 pre-merge conditions were re-checked at that head:
+    - CI green and CLEAN; scope 18 files;
+    - optimizer snapshots 10-08/09/10 byte-identical;
+    - receipts `RECONSTRUCTED` / `genuineProducerReceipt: false` with the three-date hash allowlist;
+    - evidence and parity tests 41 / 41; Python receipt tests 14 / 14;
+    - the NFL MIXED mutation fails as intended;
+    - the only `parlay_optimizer.py` change is additive diagnostics;
+    - no deployment in flight.
+- **Production:**
+  - Vercel's deployment for the merge was superseded by the next data commit. The live build `38e61bd2c2` (built 15:40:47Z) contains the merge.
+  - Routes `/`, `/results/`, `/results/picks/`, `/nfl/`, `/ufc/`, `/cage-chaos/`, `/mr-dub/`, `/mlb/` and `/ask/` return 200.
+  - Live `nfl/graded-picks.json` is byte-identical to before the merge.
+  - No `app/public/data` change under parlays, bank-builder or NFL between pre-merge `main` and the deployed commit (#1055 changed no public data).
+  - `quality` ✓ and `python` ✓ on the merge commit: **shared CI is restored**.
+- **Closed:** #1051 and #1054, as superseded, with their evidence linked.
+- **Pending confirmation:** the next morning-projections run should write a genuine `PRODUCER` receipt. This is to be confirmed on the 10-11 snapshot.
+- **Follow-ups (founder):**
+  - remove the reconstruction allowlist after 10-10 leaves the window (about 10-13);
+  - the Ask NFL accuracy answer (recorded under `RESULTS-001`).
+- **Vercel:** 1 Production build for the merge (superseded by the next data build); Preview 0.
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — #1053 release record (`UFC-001`)
+- **What merged:** #1053 (title fight only on provider evidence; fight-day freeze for the card build and odds capture), at founder-approved exact head `a0e2eab703f7e36bdff00cf6ee62a8e6d16a1fe7`, with `--match-head-commit`.
+  - Merge commit `c95658c1856c4608abc39e2fea0b8dcceb77ea14`, 16:14:11Z.
+  - The 10 pre-merge conditions were re-checked at that head:
+    - CI ✓✓ and CLEAN; scope 7 files;
+    - 12/12 bouts match live ESPN (athlete ids, rounds, times, status); 1 five-round bout and 0 title flags;
+    - title and freeze tests 8 / 8;
+    - the card differs from `main`'s only in `titleFight` and `generatedAt`;
+    - the odds change is only the start-time refusal;
+    - no PR integration in flight.
+- **Production:** the live build `c95658c185` (16:19:33Z) contains the merge.
+  - `/ufc`, `/ufc/bout/401916276`, `/ufc/bout/401927415`, `/cage-chaos` and `/mr-dub` return 200, and "title fight" appears on none of them.
+  - The hub shows "updated Oct 10, 10:05 AM ET", 12 scheduled bouts (7 at 5 PM ET, 5 at 8 PM ET) and "MAIN EVENT · MIDDLEWEIGHT · 5 ROUNDS".
+  - All 11 forecasts are identical to before the merge (Duncan 50.2%, …). Frye vs. Harris is still shown as not modelled.
+  - Mobile (375 px): no horizontal scroll, no console errors.
+  - `odds-latest.json` (captured 2026-10-08 17:39Z), the model-vs-market snapshots and `graded-picks.json` are unchanged by #1053.
+- **Freeze:** verified on the merged code before the merge. A rebuild at 21:40Z keeps the pregame card; the odds capture after the start exits 3 before any call.
+- **Fight-week run 38065746333** (15:58Z, before the merge):
+  - 1 credit spent; the push failed, so nothing landed.
+  - Root cause (OPS-002): an untracked tier-grid collision with a hidden rebase error.
+  - Fix prepared as #1056 (OPS-001a), not merged.
+  - The Oct 8 prices are kept with their original timestamp (founder decision); no re-run.
+- **Vercel:** 1 Production build for the merge; Preview 0.
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — `UFC-001` U3
+- Starting main SHA: `5ed6f6bc51`.
+- Branch: `claude/ufc-001-u3-claims-copy`.
+- Goal: founder directive (Oct 10): remove the unsupported UFC superiority claims (D2 HONEST, approved 2026-10-07) before the Oct 10 card.
+- Reproduced:
+  - Production says the UFC model "beat its baseline on every head", that all three heads "cleared theirs, which no other model here has done", and that it is "the one model on the site" to do so (`/cage-chaos`, `/ufc/bout/*`, and the Cage Chaos product basis shown on `/mr-dub`, `/goal-rush` and `/bucket-blitz`);
+  - the live graded winner record (`model-health` `ufc_winner`, n = 60) is WATCH / BELOW_BAR, and the market leads it.
+- Decisions made: none new; D2's wording is applied as approved.
+- Files and contracts changed:
+  - `app/src/app/cage-chaos/page.tsx`, `app/src/app/ufc/bout/[boutId]/page.tsx`, `app/src/lib/products/signature-products.ts` (copy only);
+  - `app/src/app/ufc/page.tsx`: the claim that prices "ARE shown on the paper cards below" was false, because the ladder is refused by the capability registry and no paper card renders. It now says so (copy only);
+  - new guard `app/src/lib/uiux/ufc-claims-copy.test.mjs`;
+  - this roadmap.
+  - No probability, model, version, receipt, eligibility, Results, odds or accounting change. The Ask projection does not carry the removed wording, so no regeneration is needed.
+- Local checks:
+  - the guard passes on the fix and fails on `main`'s copy (mutation);
+  - every `uiux` guard, sport-lab cards, the UFC library and every test naming the product or routes: 282 / 282;
+  - `tsc` clean; `ask:check` up to date;
+  - local `npm run build` succeeded, and the built `/cage-chaos`, `/mr-dub` and `/ufc/bout/*` carry the new wording and none of the old;
+  - rendered guards 689 / 693 (3 skipped). The 1 failure is the main-wide parlay vacuity guard (`ask-published.test.mjs:56`), which is not caused by this change.
+- Result: a PR is ready for exact-head approval; not merged.
+- Vercel: Preview 0; Production 0 (one on merge).
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — #1052 release record (`UFC-001` U3)
+- **What merged:** #1052 (U3 claims copy, D2 HONEST), at founder-approved exact head `7a7b466971765e816e99a83bffd6f3cba5da1a08`, with `--match-head-commit`.
+  - Merge commit `86891b0530a41227615ba5231d72977d99414267`, 17:26:55Z.
+  - The pre-merge checks at that head:
+    - CI `quality` ✓ and `python` ✓; CLEAN; no PR integration in flight;
+    - scope 6 files (4 copy files, the guard and this roadmap), with no protected paths;
+    - the roadmap removes only the old UFC-001 status line;
+    - the guard passes 5 / 5 and fails 4 / 5 on `main`'s pre-#1052 copy.
+- **Production:** the live build `86891b0530` (17:28:32Z) contains the merge.
+  - `/ufc`, `/cage-chaos`, `/ufc/bout/401916276`, `/401927415`, `/401927418`, `/mr-dub`, `/goal-rush` and `/bucket-blitz` all return 200, with 0 of the removed claims and 0 "title fight".
+  - The D2 wording renders on `/ufc`, `/cage-chaos`, the bout pages and `/mr-dub`. `/goal-rush` and `/bucket-blitz` only link to Cage Chaos.
+  - The hub still shows 12 scheduled bouts and 11 identical forecasts (Walker 61%, Prado 63%, Shahbazyan 52%, Franco 70%, Pereira 71%, Gatto 54%, Duncan 50%, Camilo 74%, Godínez 55%, Fili 52%, Wellmaker 51%), plus "Predictions · Experimental".
+  - Mobile 375 px: no overflow and no console errors.
+  - No data files changed.
+- **Unrelated:** an automated data build failed at 16:24Z (`d023289584`). The next build (`da6025d138`, 16:27Z) succeeded and contains it.
+- **Grading check (dry, nothing written):**
+  - the results capture reads ESPN (19 completed in the 9-day window);
+  - the grader reports 72 snapshot bouts: 60 graded, and 12 awaiting results (tonight's 11 plus the Gall pairing).
+- **Vercel:** 1 Production build for the merge; Preview 0.
+
+## 2026-10-10 — Claude Code (Core Intelligence session) — `UFC-001` UX Phase A (prediction board)
+- **Starting point:** main `1dc036b020`; branch `claude/ufc-001-ux-phase-a`.
+- **What changed:**
+  - `components/ufc/prediction-board.tsx` and `lib/sports/ufc/prediction-board.mjs` (+ test);
+  - `/ufc` `#ufc-games` renders the board (falls back to the shared `HubHeader` without a card);
+  - `docs/ufc/UFC-001-UX-PLAN.md`.
+  - Rows come only from `card-latest.json`. No forecast, model, eligibility, Results, odds, workflow or data change.
+- **Checks:**
+  - board tests (every bout once; forecasts equal the artifact; unmodelled stays unavailable; hrefs; no method number);
+  - `tsc` clean; unit phase (only the 2 local `live RLS`); build ✓;
+  - rendered guards 690 / 693 (3 skipped). The first build failed 4 guards: banned "win probability" wording, the shared counts line, and the unmodelled phrase. All were fixed.
+  - Preview at 375 / 768 / 1024 / 1440: no horizontal overflow; 12 unique bout links; tap targets ≥ 149 px; no console errors; a click opens `/ufc/bout/401916276/`.
+- **A2 (page order)** was consolidated into the same PR: #1058 was fast-forwarded into #1057's branch, so nothing reached `main`. Rendered guards 690 / 693, 0 failing. Preview at 375 / 1024 px: no overflow; 12 closed previews; expansion verified.
+- **Result:** PR ready for exact-head approval; not merged.
+- **Vercel:** Preview 0; Production 0 (one on merge).
+
+## 2026-10-11 — Claude Code (Core Intelligence session) — #1057 release record (`UFC-001` UX Phase A + A2)
+- **What merged:** #1057 at the reviewed head after post-card reconciliation, `df2d1ee3f414ae28cade5d4ea20bd764f5797c33` (founder conditional authorization, 2026-10-11). Merge `5dc31a98f77f2892a79b371fe3fa26bb34d256e5`, 09:05:30Z, with `--match-head-commit`.
+  - The only change since review: a merge of `main`, plus the completed-card heading the founder required.
+- **Pre-merge checks:**
+  - CI `quality` ✓ and `python` ✓ on that head; CLEAN; 7 files, nothing protected;
+  - local: build ✓; rendered guards 690 / 693 (0 failing); UFC and uiux 291 / 291; unit (2 local `live RLS`, plus 1 data-dependent Ask parity test that passes in isolation and in CI);
+  - no deployment in flight.
+- **Production:** the live build is the merge itself (09:06:51Z).
+  - Card, frozen snapshot and `graded-picks.json` are byte-identical to before the merge.
+  - 13 routes return 200 (including the NFL / MLB / EPL / NBA hubs, `/live` and Results).
+  - Playwright on the live `/ufc` at 1440 and 375 px: 12 board rows; 24 / 24 portraits loaded; 12 unique bout links; no table; no overflow; 0 console or page errors; heading "Last card · pregame predictions".
+- **Vercel:** 1 Production build; Preview 0.
 
 ---
 
