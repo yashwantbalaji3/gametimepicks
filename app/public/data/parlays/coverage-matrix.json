@@ -2,11 +2,11 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-10T09:35:23Z",
+ "generatedAt": "2026-10-10T16:12:44Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 2,
-  "NO_PLAY": 6,
+  "PUBLISHED": 1,
+  "NO_PLAY": 7,
   "LANE_CLOSED": 12,
   "MISSING": 0
  },
@@ -37,25 +37,25 @@
   },
   {
    "lane": "epl",
-   "date": "2026-10-10",
+   "date": "2026-10-11",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
     "low": {
      "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +128 (medium) … +338 (high)"
+     "reason": "no combination of today's prices lands in this band — 2 legs → +188 (medium) … +389 (high)"
     },
     "medium": {
      "state": "PUBLISHED",
-     "slipId": "epl-medium-2026-10-10"
+     "slipId": "epl-medium-2026-10-11"
     },
     "high": {
-     "state": "PUBLISHED",
-     "slipId": "epl-high-2026-10-10"
+     "state": "NO_PLAY",
+     "reason": "not enough eligible priced fixtures to build a card"
     },
     "longshot": {
      "state": "NO_PLAY",
-     "reason": "no combination of today's prices lands in this band — 2 legs → +211 (medium) … +475 (high)"
+     "reason": "not enough eligible priced fixtures to build a card"
     }
    }
   },
@@ -109,25 +109,25 @@
   },
   {
    "lane": "multi",
-   "date": "2026-10-09",
+   "date": "2026-10-10",
    "laneState": "LIVE",
    "laneReason": null,
    "tiers": {
     "low": {
      "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
     },
     "medium": {
      "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
     },
     "high": {
      "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
     },
     "longshot": {
      "state": "NO_PLAY",
-     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 0"
+     "reason": "a cross-sport card needs legs from at least 2 sports; these come from 1"
     }
    }
   }
