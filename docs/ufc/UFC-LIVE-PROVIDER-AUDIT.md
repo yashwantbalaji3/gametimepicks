@@ -8,7 +8,7 @@
 **Passes:**
 - **Pre-card pass:** 18:40Z.
 - **First live pass:** 22:20Z.
-- **Final pass:** 03:00Z, covering **169 changed scoreboard snapshots from 18:40:20Z to 02:56:18Z, the whole card**.
+- **Final pass:** 03:00Z, covering **all 170 changed scoreboard snapshots from 18:40:20Z to 03:02:21Z (the recorder ran to 05:00Z; nothing changed after 03:02:21Z)**.
 
 This document records what the provider states. Nothing below was inferred from prose, and no live state was simulated. All timestamps are recorder capture times. The recorder polls every ~90 s, so a transition happened at or before the stated time.
 
@@ -16,8 +16,8 @@ This document records what the provider states. Nothing below was inferred from 
 
 | Source | What it is |
 |---|---|
-| **Tonight, real.** `scratchpad/ufc-live-capture/scoreboard-*.json` | Read-only recorder output; only changed snapshots are kept. Sanitized and delta-encoded as `app/src/lib/live/fixtures/mma-live-20261010-timeline.json` (169 snapshots, ~185 KB). It keeps status, competitors (id, winner, name, records, linescores) and play-by-play text at `post` |
-| **Tonight, real.** `summary-*-404.json` | 119 summary polls, **all HTTP 404** |
+| **Tonight, real.** `scratchpad/ufc-live-capture/scoreboard-*.json` | Read-only recorder output; only changed snapshots are kept. Sanitized and delta-encoded as `app/src/lib/live/fixtures/mma-live-20261010-timeline.json` (170 snapshots, ~185 KB; reproduces every raw snapshot's bout states, pinned by digest in REAL 18). It keeps status, competitors (id, winner, name, records, linescores) and play-by-play text at `post` |
+| **Tonight, real.** `summary-*-404.json` | 136 summary polls, **all HTTP 404** |
 | Sep 26 / Sep 19 fixtures, historical raw payloads | Earlier real captures; 1,716 historical completed bouts |
 
 Marks: **VERIFIED_LIVE** = seen tonight (timestamp given). **FIXTURE_ONLY** = seen only earlier. **UNAVAILABLE** = not in any payload.
@@ -26,7 +26,7 @@ Marks: **VERIFIED_LIVE** = seen tonight (timestamp given). **FIXTURE_ONLY** = se
 
 | Field | JSON path | Observed tonight | Mark |
 |---|---|---|---|
-| Event status | `events[].status.type` | `STATUS_SCHEDULED` at **21:01:03Z** while bout 1 was already `STATUS_PRE_FIGHT`, then `STATUS_IN_PROGRESS` by 21:07:05Z. **It reverted to `STATUS_SCHEDULED` / `pre` at 02:51:46Z**, after the last bout went final | **VERIFIED_LIVE, unusable.** It lags at the start and is wrong after the card. Never used for bout state (tests REAL 1, REAL 17) |
+| Event status | `events[].status.type` | `STATUS_SCHEDULED` at **21:01:03Z** while bout 1 was already `STATUS_PRE_FIGHT`, then `STATUS_IN_PROGRESS` by 21:07:05Z. **It reverted to `STATUS_SCHEDULED` / `pre` at 02:51:46Z and 02:56:18Z**, after the last bout went final, and reached `STATUS_FINAL` only at 03:02:21Z | **VERIFIED_LIVE, unusable.** It lags at the start and was wrong for ~10 min after the card. Never used for bout state (tests REAL 1, REAL 17) |
 | Bout status | `competitions[].status.type.{state,name,detail,completed}` | Names seen: `STATUS_SCHEDULED` (pre); `STATUS_PRE_FIGHT` ("Pre-fight", in, period 0); `STATUS_FIGHTERS_WALKING` ("Walkouts", in, 0); `STATUS_FIGHTERS_INTRODUCTION` ("Intros", in, 0; main event only, 02:15:33Z); `STATUS_IN_PROGRESS` and `STATUS_IN_PROGRESS_2` ("R1, 3:47"; they **alternate within one bout**); `STATUS_END_OF_ROUND` ("End R2"); **`STATUS_END_OF_FIGHT`** (in, detail "Final", no winner; Meerschaert–Walker 23:50:35Z); `STATUS_FINAL` (post, completed) | **VERIFIED_LIVE** |
 | Scheduled start | `competitions[].date` | 21:00Z ×7, 00:00Z ×5. Segment starts only: each bout went to Pre-fight when the previous one ended (21:01, 21:34, 21:51, 22:09Z …; main event 02:00:27Z) | **VERIFIED_LIVE**, segment start, not a per-bout time |
 | Current round | `status.period` | `0` until the fight starts (Pre-fight, Walkouts, Intros); `1`–`5` afterwards (the main event reached R5) | **VERIFIED_LIVE**. `in` with period 0 is not a round |
@@ -39,7 +39,7 @@ Marks: **VERIFIED_LIVE** = seen tonight (timestamp given). **FIXTURE_ONLY** = se
 | Finish round | `status.period` at `post` | 1 ×5, 2 ×3, 3 ×3, 5 ×1 | **VERIFIED_LIVE**, provider-reported |
 | Finish time | `status.displayClock` at `post` | Elapsed when correct, but **unreliable mid-round**. Stoppages: Frye 2:01 → 2:59, Ribeiro 3:11 → 1:49, Prado 0:37 → 4:23, Walker 1:25 → 3:35, Tanzilovi 2:21 → 2:39, Fili 4:38 → 0:22. **Main event 2:46 → 2:14 → 2:46** (it flip-flopped). Decisions: `"-"` first, then `5:00` (Godínez 01:27:12Z → 01:30:15Z; Herbert) | **VERIFIED_LIVE, unofficial.** A mid-round final time is **withheld** ("ended in R5; finish time not yet confirmed"). Only `5:00` is shown, as "unofficial time" |
 | Judges' scores | `competitors[].linescores` | Present at FINAL for the 3 distance bouts only | **VERIFIED_LIVE**. Used only for the two-signal draw check; never to pick a winner |
-| Live stats | `competitors[].statistics` | Key present, **empty in all 169 snapshots** | **UNAVAILABLE** |
+| Live stats | `competitors[].statistics` | Key present, **empty in all 170 snapshots** | **UNAVAILABLE** |
 
 ## Clock semantics by phase (adapter `MMA_PHASE`)
 
@@ -62,7 +62,7 @@ Marks: **VERIFIED_LIVE** = seen tonight (timestamp given). **FIXTURE_ONLY** = se
 
 ## Summary endpoint
 
-`summary?event=600061541` returned **HTTP 404 on all 119 polls**, from 18:40Z to 02:59Z. The gateway never calls it.
+`summary?event=600061541` returned **HTTP 404 on all 136 polls**, from 18:40Z to 04:54Z. The gateway never calls it.
 
 ## What the integration does
 

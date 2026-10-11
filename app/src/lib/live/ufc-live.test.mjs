@@ -607,3 +607,16 @@ test("UFC-UI 6 · RENDERED tabs: no UFC tab by default, none with an empty roste
     if (saved === undefined) delete process.env.NEXT_PUBLIC_LIVE_SPORTS; else process.env.NEXT_PUBLIC_LIVE_SPORTS = saved;
   }
 });
+
+test("UFC-UI 7 · the local replay harness is not part of the public build: no route mounts the board directly, the harness lives in scripts/dev", () => {
+  const harness = read("scripts/dev/ufc-live-preview.mjs");
+  assert.match(harness, /REFUSED: --out <dir> is required/, "it writes only where it is told to");
+  assert.match(harness, /not a public page/, "every replay page says what it is");
+  const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(path.join(dir, d.name)) : [path.join(dir, d.name)]));
+  const appFiles = walk(path.join(APP, "src/app")).filter((f) => /\.(tsx?|mjs)$/.test(f));
+  assert.ok(appFiles.length > 50, "the route tree was read");
+  for (const f of appFiles) {
+    const src = fs.readFileSync(f, "utf8");
+    assert.equal(/UfcLiveBoard|ufc-live-preview|mma-live-20261010-timeline/.test(src), false, `${path.relative(APP, f)} must not mount the replay`);
+  }
+});

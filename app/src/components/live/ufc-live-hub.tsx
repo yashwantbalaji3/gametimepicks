@@ -184,14 +184,39 @@ export function UfcBoutCard({ bout, view }: { bout: UfcRosterBout; view: View })
   );
 }
 
+/** Everything the board needs from the feed — exactly the slate hook's own outputs, plus the clock. */
+export interface UfcFeedState {
+  byGamePk: Record<string, any>;
+  unavailable: { reason: string } | null;
+  loading: boolean;
+  freshness: { level: string; ageMs: number | null };
+  matched: number;
+  settled: boolean;
+  rosterIsToday: boolean | null;
+  lastObservedAt: string | null;
+  enabled: boolean;
+  nowMs: number | null;
+}
+
+/**
+ * The live hub: ONE slate hook feeding the board. Nothing else lives here, so the board below is the
+ * whole of what a reader sees and can be rendered from recorded feed state (the local preview harness
+ * and the tests do exactly that) without a second implementation of it.
+ */
 export default function UfcLiveHub({ roster }: { roster: UfcHubRoster }) {
   const scope = useMemo(
     () => ({ rosterIds: roster.bouts.map((b) => b.boutId), rosterDate: roster.etDate }),
     [roster.bouts, roster.etDate],
   );
-  const { byGamePk, unavailable, loading, freshness, matched, settled, rosterIsToday, lastObservedAt } = useLiveSlate("ufc", scope);
+  const slate = useLiveSlate("ufc", scope);
   const enabled = liveReadyFor("ufc");
   const nowMs = useNowMs(5_000);
+  return <UfcLiveBoard roster={roster} feedState={{ ...slate, enabled, nowMs }} />;
+}
+
+/** The UFC board — grouping, cards and the one feed line — from a roster and a feed state. Pure render. */
+export function UfcLiveBoard({ roster, feedState }: { roster: UfcHubRoster; feedState: UfcFeedState }) {
+  const { byGamePk, unavailable, loading, freshness, matched, settled, rosterIsToday, lastObservedAt, enabled, nowMs } = feedState;
 
   const feed: "NOT_ASKED" | "OK" | "REFUSED" = unavailable ? "REFUSED" : lastObservedAt ? "OK" : "NOT_ASKED";
   const grouped = useMemo(

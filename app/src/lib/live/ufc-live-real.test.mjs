@@ -416,12 +416,19 @@ test("REAL 16 · ⚠ the main event's final time flip-flopped (2:46 → 2:14 →
   assert.deepEqual([later.result.round, later.result.clock, later.result.clockUnofficial], [3, "5:00", true]);
 });
 
-test("REAL 17 · ⚠ after the card the EVENT status reverted to SCHEDULED — every bout stays final; the end-of-card board is honest", () => {
+test("REAL 17 · ⚠ after the card the EVENT status flipped back to SCHEDULED for ~10 min — every bout stays final; the end-of-card board is honest", () => {
+  // 02:51:46Z and 02:56:18Z: event STATUS_SCHEDULED / pre with all twelve bouts STATUS_FINAL; 03:02:21Z: STATUS_FINAL.
+  for (const iso of ["2026-10-11T02:51:46Z", "2026-10-11T02:56:18Z"]) {
+    const s = at(iso);
+    assert.equal(s.payload.events[0].status.type.name, "STATUS_SCHEDULED", `${iso}: ESPN's event status read scheduled after the card`);
+    assert.ok(normalizeMmaEnvelopes(s.payload, iso).every((e) => e.state === "FINAL"), "every bout is final regardless of the event status");
+  }
   const last = SNAPS.at(-1);
-  assert.equal(last.payload.events[0].status.type.name, "STATUS_SCHEDULED", "ESPN's event status went back to scheduled after the card");
+  assert.equal(last.capturedAt, "2026-10-11T03:02:21Z");
+  assert.equal(last.payload.events[0].status.type.name, "STATUS_FINAL");
   const envs = normalizeMmaEnvelopes(last.payload, last.capturedAt);
   assert.equal(envs.length, 12);
-  assert.ok(envs.every((e) => e.state === "FINAL"), "every bout is final regardless of the event status");
+  assert.ok(envs.every((e) => e.state === "FINAL"));
   if (CARD.event.providerEventId !== "600061541") return;
   const roster = buildUfcRosterFrom({ card: CARD, graded: null, etDate: CARD.event.slateDate });
   const byId = Object.fromEntries(envs.map((e) => [e.eventId, e]));
@@ -432,4 +439,91 @@ test("REAL 17 · ⚠ after the card the EVENT status reverted to SCHEDULED — e
   assert.equal(labels.filter((l) => l === "Final · awaiting official result").length, 11);
   assert.equal(labels.filter((l) => l === "Draw (provider-reported, unofficial)").length, 1);
   for (const { view: v } of g.AWAITING_OFFICIAL_RESULT) assert.equal(v.outcome, null, "nothing graded before the ledger");
+});
+
+test("REAL 18 · ⚠ the committed timeline reproduces EVERY raw snapshot's bout state (170 × 12), pinned by digest", async () => {
+  /*
+   * The raw capture (170 scoreboards, 136 summaries, ~7.2 MB) is archived PRIVATELY with SHA256SUMS —
+   * this repository is public and never carries raw provider payloads. This digest was computed by the
+   * read-only verifier over the RAW files (state, name, detail, completed, period, displayClock, clock,
+   * and per competitor: id, winner, record summaries, per-judge scores) and matched 170/170 snapshots
+   * against this fixture on 2026-10-11. Any edit to the fixture that changes a single bout state fails here.
+   */
+  const { createHash } = await import("node:crypto");
+  const tup = (c) => [c.id, c.status.type.state, c.status.type.name, c.status.type.detail, c.status.type.completed, c.status.period, c.status.displayClock, c.status.clock,
+    c.competitors.map((x) => [x.id, Boolean(x.winner), (x.records ?? []).map((r) => r.summary ?? null),
+      x.linescores?.length ? (x.linescores[0].linescores ?? []).map((j) => j.value ?? null) : null])];
+  const states = SNAPS.map((s) => { const ev = s.payload.events[0]; return [ev.id, ev.status.type.name, ev.competitions.map(tup)]; });
+  assert.equal(states.length, 170);
+  assert.ok(states.every((s) => s[2].length === 12));
+  const digest = createHash("sha256").update(JSON.stringify(states)).digest("hex");
+  assert.equal(digest, "d67e724f63af04d8af4bdeb131bef602fd86246bc6fe4a9ecd35076f2ecb376d");
+
+  // And the fixture is sanitized: no provider URLs, broadcasts, venues, uids, links or headshot hrefs.
+  const raw = fs.readFileSync(path.join(here, "fixtures", "mma-live-20261010-timeline.json"), "utf8");
+  for (const k of ['"uid"', '"links"', '"broadcasts"', '"geoBroadcasts"', '"venue"', '"href"', '"flag"', '"headshot"', "https://"]) {
+    assert.equal(raw.includes(k), false, `the fixture must not carry ${k}`);
+  }
+});
+
+test("REAL 19 · a REPLACED bout (synthetic, on a real snapshot): the old pairing reads 'not in the live feed', the new one is never joined", () => {
+  if (CARD.event.providerEventId !== "600061541") return;
+  const roster = buildUfcRosterFrom({ card: CARD, graded: null, etDate: CARD.event.slateDate });
+  const s = structuredClone(at("2026-10-10T21:14:39Z"));
+  const comps = s.payload.events[0].competitions;
+  const i = comps.findIndex((c) => c.id === PEREIRA);
+  // ESPN's observed replacement shape (Gall v Dumas → Hernandez v Dumas): a NEW id, one new athlete, old pairing gone.
+  comps[i] = { ...comps[i], id: "401999999", competitors: [{ ...comps[i].competitors[0], id: "9999999", athlete: { displayName: "Replacement Fighter" } }, comps[i].competitors[1]] };
+  const byId = Object.fromEntries(normalizeMmaEnvelopes(s.payload, s.capturedAt).map((e) => [e.eventId, e]));
+  const g = groupUfcBouts(roster.bouts, byId, { feed: "OK", nowMs: Date.parse(s.capturedAt) + 5_000 });
+  const old = Object.values(g).flat().find(({ bout }) => bout.boutId === PEREIRA);
+  assert.equal(old.view.label, "Not in the live feed");
+  assert.equal(/cancel/i.test(old.view.label), false);
+  assert.equal(old.view.pregame, old.bout.pregame, "the frozen pick stays on the card, unchanged");
+  assert.equal(Object.values(g).flat().some(({ bout }) => bout.boutId === "401999999"), false, "a bout not on the card is never shown");
+  // Same id, different athlete: identity mismatch, never attached.
+  const same = structuredClone(at("2026-10-10T21:51:07Z"));
+  const c2 = same.payload.events[0].competitions.find((c) => c.id === PEREIRA);
+  c2.competitors[0].id = "9999999";
+  const v = deriveUfcBoutState({ bout: roster.bouts.find((b) => b.boutId === PEREIRA), envelope: normalizeMmaEnvelopes(same.payload, same.capturedAt).find((e) => e.eventId === PEREIRA), feed: "OK" });
+  assert.equal(v.identityMismatch, true);
+  assert.equal(v.result, null, "Pereira's reported win is not attached to a pairing that changed");
+});
+
+test("REAL 20 · request rate and scope: one dated ESPN scoreboard call serves a burst of readers; no sportsbook, no summary, no writes", async () => {
+  const { default: handler } = await import("../../../api/live.mjs");
+  const saved = { en: process.env.LIVE_GATEWAY_ENABLED, sp: process.env.LIVE_PUBLIC_SPORTS };
+  const prevFetch = globalThis.fetch;
+  process.env.LIVE_GATEWAY_ENABLED = "1";
+  process.env.LIVE_PUBLIC_SPORTS = "mlb,nfl,ufc";
+  memoReset();
+  const asked = [];
+  const body = JSON.stringify(at("2026-10-11T02:24:36Z").payload); // main event live, R2
+  globalThis.fetch = async (u) => { asked.push(String(u)); return { ok: true, text: async () => body }; };
+  const headers = [];
+  try {
+    // Twenty readers (slate and single-bout requests) inside one memo window.
+    for (let i = 0; i < 20; i++) {
+      const h = {};
+      const res = { setHeader(k, v) { h[k] = v; }, status() { return this; }, json() { return this; }, end() { return this; } };
+      await handler({ method: "GET", query: i % 2 ? { sport: "ufc", date: "2026-10-10" } : { sport: "ufc", date: "2026-10-10", event: MAIN } }, res);
+      headers.push(h["Cache-Control"]);
+    }
+  } finally {
+    globalThis.fetch = prevFetch;
+    memoReset();
+    if (saved.en === undefined) delete process.env.LIVE_GATEWAY_ENABLED; else process.env.LIVE_GATEWAY_ENABLED = saved.en;
+    if (saved.sp === undefined) delete process.env.LIVE_PUBLIC_SPORTS; else process.env.LIVE_PUBLIC_SPORTS = saved.sp;
+  }
+  assert.equal(asked.length, 1, "one upstream call for twenty readers");
+  assert.equal(asked[0], "https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard?dates=20261010&limit=1000");
+  // While a bout is live the CDN keeps a response 25 s; with ~90 s between ESPN changes that is ≤ 2.4 calls/min per card.
+  assert.ok(headers.every((h) => /s-maxage=25\b/.test(h)), `live responses are cached 25 s at the edge: ${headers[0]}`);
+
+  // Scope: the UFC live sources name no sportsbook / odds source and never write a file.
+  for (const rel of ["src/lib/live/ufc-live.mjs", "src/lib/live/ufc-hub-data.ts", "src/components/live/ufc-live-hub.tsx", "src/lib/live/adapters/espn-mma.mjs"]) {
+    const src = fs.readFileSync(path.join(APP, rel), "utf8");
+    assert.equal(/odds-api|the-odds|draftkings|fanduel|betmgm|sportsbook|\/odds/i.test(src), false, `${rel} reaches for a price source`);
+    assert.equal(/writeFile|appendFile|createWriteStream|fs\.write/.test(src), false, `${rel} writes a file`);
+  }
 });
