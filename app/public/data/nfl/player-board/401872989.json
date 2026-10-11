@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-10T19:12:42Z",
- "sourceGeneratedAt": "2026-10-10T19:12:42Z",
+ "generatedAt": "2026-10-11T00:06:39Z",
+ "sourceGeneratedAt": "2026-10-11T00:06:39Z",
  "providerEventId": "401872989",
  "matchup": "DEN @ LAC",
  "kickoffUtc": "2026-10-11T20:05Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-10T19:12:42Z",
-  "roleEvidenceAt": "2026-10-10T19:12:42Z",
+  "injuriesCapturedAt": "2026-10-11T00:06:39Z",
+  "roleEvidenceAt": "2026-10-11T00:06:39Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -114,7 +114,7 @@
  "marketCoverage": {
   "probed": true,
   "priced": 36,
-  "absent": 21,
+  "absent": 19,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -266,8 +266,8 @@
   },
   "LAC": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -295,23 +295,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4383351",
-     "name": "Trey Lance",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
     },
     {
      "playerId": "nfl-athlete-4596334",
@@ -392,6 +375,12 @@
      "participation": "QUESTIONABLE"
     },
     {
+     "playerId": "nfl-athlete-4383351",
+     "name": "Trey Lance",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
      "playerId": "nfl-athlete-4429025",
      "name": "Quentin Johnston",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -434,21 +423,11 @@
    },
    {
     "team": "LAC",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4038941",
-     "name": "Justin Herbert"
-    },
-    "snapshotAt": "2026-10-10T06:02:29Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4383351",
-      "name": "Trey Lance"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
      "nfl-athlete-4038941"
-    ]
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -535,12 +514,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 43.349,
-     "p10": 12.9,
-     "p25": 23.38,
-     "median": 39.12,
-     "p75": 58.13,
-     "p90": 80.47,
+     "mean": 43.435,
+     "p10": 12.6,
+     "p25": 23.06,
+     "median": 38.86,
+     "p75": 59.14,
+     "p90": 80.96,
      "market": {
       "line": 39.5,
       "overOdds": -110,
@@ -575,12 +554,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 21.437,
-     "p10": 1.72,
-     "p25": 6.85,
-     "median": 16.99,
-     "p75": 30.99,
-     "p90": 46.54,
+     "mean": 21.329,
+     "p10": 1.67,
+     "p25": 7,
+     "median": 16.69,
+     "p75": 30.55,
+     "p90": 47.2,
      "market": {
       "line": 25.5,
       "overOdds": -112,
@@ -590,12 +569,12 @@
      }
     },
     "player_reception_yds": {
-     "mean": 33.658,
-     "p10": 5,
-     "p25": 14.59,
-     "median": 29.54,
-     "p75": 47.47,
-     "p90": 67.02,
+     "mean": 35.337,
+     "p10": 5.87,
+     "p25": 15.65,
+     "median": 30.15,
+     "p75": 49.88,
+     "p90": 70.67,
      "market": {
       "line": 28.5,
       "overOdds": -111,
@@ -636,12 +615,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 44.585,
-     "p10": 13.24,
-     "p25": 24.77,
-     "median": 40.47,
-     "p75": 59.7,
-     "p90": 81.97,
+     "mean": 44.888,
+     "p10": 13.22,
+     "p25": 24.29,
+     "median": 40.43,
+     "p75": 60.3,
+     "p90": 82.62,
      "market": {
       "line": 52.5,
       "overOdds": -111,
@@ -667,12 +646,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 36.836,
-     "p10": 4.21,
-     "p25": 14.8,
-     "median": 31.6,
-     "p75": 52.83,
-     "p90": 75.32,
+     "mean": 37.156,
+     "p10": 4.28,
+     "p25": 14.58,
+     "median": 31.74,
+     "p75": 53.24,
+     "p90": 77.07,
      "market": {
       "line": 56.5,
       "overOdds": -112,
@@ -713,12 +692,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 22.97,
-     "p10": 1.44,
-     "p25": 7.13,
-     "median": 17.8,
-     "p75": 33.42,
-     "p90": 51.57,
+     "mean": 22.719,
+     "p10": 1.31,
+     "p25": 6.92,
+     "median": 17.38,
+     "p75": 32.98,
+     "p90": 50.44,
      "market": {
       "line": 31.5,
       "overOdds": -112,
@@ -728,12 +707,12 @@
      }
     },
     "player_reception_yds": {
-     "mean": 15.056,
+     "mean": 15.227,
      "p10": 0,
-     "p25": 0.79,
-     "median": 10.15,
-     "p75": 23.44,
-     "p90": 38.13,
+     "p25": 0,
+     "median": 9.92,
+     "p75": 23.31,
+     "p90": 39,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
@@ -762,12 +741,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 28.873,
-     "p10": 0.11,
-     "p25": 8.82,
-     "median": 23.1,
-     "p75": 42.67,
-     "p90": 64.96,
+     "mean": 28.68,
+     "p10": 0,
+     "p25": 8.88,
+     "median": 23.01,
+     "p75": 41.94,
+     "p90": 62.98,
      "market": {
       "line": 37.5,
       "overOdds": -109,
@@ -808,12 +787,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 29.806,
+     "mean": 29.467,
      "p10": 0,
-     "p25": 8.45,
-     "median": 23.29,
-     "p75": 43.18,
-     "p90": 66.66,
+     "p25": 7.99,
+     "median": 22.77,
+     "p75": 43.21,
+     "p90": 68.02,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
@@ -842,12 +821,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 25.039,
+     "mean": 24.64,
      "p10": 0,
-     "p25": 6.04,
-     "median": 19.03,
-     "p75": 37.54,
-     "p90": 57.3,
+     "p25": 5.9,
+     "median": 18.46,
+     "p75": 36.71,
+     "p90": 57.04,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
@@ -872,12 +851,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 24.282,
+     "mean": 24.12,
      "p10": 0,
-     "p25": 6.29,
-     "median": 19.11,
-     "p75": 36.2,
-     "p90": 55.12,
+     "p25": 5.93,
+     "median": 18.23,
+     "p75": 35.78,
+     "p90": 55.29,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
@@ -906,12 +885,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 33.357,
-     "p10": 0,
-     "p25": 10.8,
-     "median": 27.13,
-     "p75": 48.24,
-     "p90": 72.77,
+     "mean": 33.161,
+     "p10": 0.55,
+     "p25": 10.99,
+     "median": 27.34,
+     "p75": 48.19,
+     "p90": 72.57,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
@@ -940,12 +919,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 13.351,
+     "mean": 13.555,
      "p10": 0,
-     "p25": 1.53,
-     "median": 8.26,
-     "p75": 19.86,
-     "p90": 34.13,
+     "p25": 1.42,
+     "median": 8.55,
+     "p75": 19.91,
+     "p90": 34.33,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
@@ -974,12 +953,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 16.954,
+     "mean": 16.852,
      "p10": 0,
      "p25": 0,
-     "median": 11.16,
-     "p75": 26.05,
-     "p90": 42.81,
+     "median": 10.62,
+     "p75": 25.79,
+     "p90": 43.61,
      "market": {
       "line": 17.5,
       "overOdds": -113,
@@ -1014,39 +993,18 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4383351",
-   "name": "Trey Lance",
-   "team": "LAC",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 13.878,
-     "p10": 0,
-     "p25": 1.34,
-     "median": 8.47,
-     "p75": 21.01,
-     "p90": 36.09,
-     "pricingState": "NOT_OFFERED"
-    },
-    "anytime_td": {
-     "probability": 0.1443,
-     "pricingState": "NOT_OFFERED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4426338",
    "name": "Bo Nix",
    "team": "DEN",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 13.145,
+     "mean": 12.856,
      "p10": 0,
      "p25": 1.97,
-     "median": 8.59,
-     "p75": 19.47,
-     "p90": 32.79,
+     "median": 8.53,
+     "p75": 19.1,
+     "p90": 31.72,
      "market": {
       "line": 15.5,
       "overOdds": -107,
@@ -1087,12 +1045,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 18.623,
+     "mean": 17.535,
      "p10": 0,
-     "p25": 3.46,
-     "median": 12.94,
-     "p75": 27.29,
-     "p90": 45.41,
+     "p25": 3.01,
+     "median": 11.88,
+     "p75": 26.31,
+     "p90": 42.75,
      "market": {
       "line": 25.5,
       "overOdds": -115,
@@ -1133,12 +1091,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 13.677,
+     "mean": 12.999,
      "p10": 0,
      "p25": 0,
-     "median": 7.32,
-     "p75": 21.34,
-     "p90": 37.25,
+     "median": 7.05,
+     "p75": 20.28,
+     "p90": 36.09,
      "market": {
       "line": 12.5,
       "overOdds": -116,
@@ -1229,12 +1187,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 15.729,
+     "mean": 15.564,
      "p10": 0,
      "p25": 0,
-     "median": 9.71,
-     "p75": 24.04,
-     "p90": 40.57,
+     "median": 9.9,
+     "p75": 23.7,
+     "p90": 41.09,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
@@ -1275,12 +1233,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 13.313,
+     "mean": 13.598,
      "p10": 0,
      "p25": 0,
-     "median": 6.23,
-     "p75": 20.08,
-     "p90": 38.31,
+     "median": 6.62,
+     "p75": 21.57,
+     "p90": 38.2,
      "market": {
       "line": 18.5,
       "overOdds": -110,
