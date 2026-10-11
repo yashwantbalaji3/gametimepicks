@@ -16,6 +16,8 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadCorpus, METHODS, WIN_F, WIN_F_TOTT, CLS_F, fitBinary, predBinary, fitSoftmax, predSoftmax, fitPlatt, applyPlatt, nameKey, tottFeat } from "./lib/fight-model.mjs";
+import { titleFightFromProvider } from "../../src/lib/sports/ufc/title-fight.mjs";
+import { pregameCardFreeze } from "../../src/lib/sports/ufc/fight-day-freeze.mjs";
 
 
 /*
@@ -146,6 +148,17 @@ if (!event) {
   event = candidates[0];
   skippedForCoverage.length = 0;   // nothing was skipped in favour of something better
   console.log("no card in the window clears the coverage floor — building the next one as-is");
+}
+
+/* FIGHT-DAY FREEZE: a drifted run that lands after the first bout must not rebuild the pregame card mid-event. */
+{
+  let existing = null;
+  try { existing = JSON.parse(fs.readFileSync(path.join(OUT, "card-latest.json"), "utf8")); } catch { /* no card yet */ }
+  const freeze = pregameCardFreeze({ existing, eventId: event.id, nowIso: NOW });
+  if (freeze.frozen) {
+    console.log(`ufc card: ${freeze.reason}`);
+    process.exit(0);
+  }
 }
 if (skippedForCoverage.length) {
   for (const s of skippedForCoverage) console.log(`  skipped ${s.name} (${s.dateUtc.slice(0, 10)}) — ${s.reason}`);
@@ -393,7 +406,8 @@ for (const c of event.competitions ?? []) {
     weightClass: wc,
     scheduledRounds: scheduled,
     startUtc: c.date ?? event.date,
-    titleFight: scheduled === 5,
+    // Only on provider evidence (a belt holder in this division, 5 rounds) — five rounds alone is every main event.
+    titleFight: titleFightFromProvider(c).titleFight,
     red: { ...red, profile: redProfile },
     blue: { ...blue, profile: blueProfile },
     prediction: prediction ? { ...prediction, reason } : null,
