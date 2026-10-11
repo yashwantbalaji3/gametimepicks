@@ -72,3 +72,57 @@ export function carryPropsForward(prior, propProbe) {
   if (prior?.propMarkets?.state !== "PROBED") return null;   // nothing worth carrying
   return { propMarkets: prior.propMarkets, propPrices: prior.propPrices ?? null };
 }
+
+/**
+ * AND ONE CASE FURTHER: a sweep that was CUT SHORT must not erase the answer for the events it never reached.
+ *
+ * ⚠ FOUND 2026-10-11 (Week 5, the morning of the slate). The 11:41Z sweep requested 14 events and the credit gate
+ * refused the 14th — BUF @ LAR, Monday night — once the season ceiling was reached. `carryPropsForward` stands down
+ * whenever a run PROBED at all, so the 13-event answer was written wholesale and BUF @ LAR's Saturday prices (65 rows,
+ * captured 2026-10-10T17:32:23Z, pre-kickoff) vanished. The game went back to "not checked" — a negative nobody had
+ * measured — and the market-matrix coverage guard correctly called it a partial sweep.
+ *
+ * The rule is DEFENCE 4's, per event: an event this run TARGETED and did not reach keeps the prior capture's answer
+ * for it. Only those events — never one this run reached (its fresh answer wins, including a fresh NOT_OFFERED), and
+ * never one the prior run had not probed either (that stays NOT_PROBED, which is the truth). Every carried price keeps
+ * ITS OWN `capturedAt`, so freshness downstream judges it as the Saturday price it is; a row without a stamp is not a
+ * price and is not carried. Each carried event is marked `carriedForward` with the stamp of the run that probed it.
+ *
+ * @param prior      the committed public capture, or null
+ * @param fresh      `{ propMarkets, propPrices }` this run built (state PROBED)
+ * @param unreached  canonical event ids this run targeted and did not reach (empty when the sweep completed)
+ * @returns {{ propMarkets, propPrices, carriedEventIds: string[] }}
+ */
+export function carryUnreachedProps(prior, fresh, unreached) {
+  const pm = fresh?.propMarkets;
+  const pp = fresh?.propPrices;
+  const none = { propMarkets: pm, propPrices: pp, carriedEventIds: [] };
+  if (pm?.state !== "PROBED" || !Array.isArray(unreached) || unreached.length === 0) return none;
+  if (prior?.propMarkets?.state !== "PROBED") return none;
+  const priorProbed = new Set(prior.propMarkets.probedEventIds ?? []);
+  const freshProbed = new Set(pm.probedEventIds ?? []);
+  const ids = [...new Set(unreached)].filter((id) => priorProbed.has(id) && !freshProbed.has(id));
+  if (!ids.length) return none;
+
+  const priorStamp = prior.propPrices?.capturedAt ?? prior.capturedAt ?? null;
+  const want = new Set(ids);
+  const carriedEvents = (prior.propMarkets.perEvent ?? [])
+    .filter((e) => want.has(e.canonicalEventId))
+    .map((e) => ({ ...e, carriedForward: true, probedAt: e.probedAt ?? priorStamp }));
+  const carriedRows = (prior.propPrices?.rows ?? [])
+    .filter((r) => r && want.has(r.canonicalEventId) && r.capturedAt)
+    .map((r) => ({ ...r, carriedForward: true }));
+
+  const probedEventIds = [...(pm.probedEventIds ?? []), ...ids];
+  return {
+    propMarkets: {
+      ...pm,
+      probedEventIds,
+      eventsProbed: probedEventIds.length,
+      perEvent: [...(pm.perEvent ?? []), ...carriedEvents],
+      carriedEventIds: ids,
+    },
+    propPrices: pp ? { ...pp, probedEventIds: [...(pp.probedEventIds ?? []), ...ids], rows: [...(pp.rows ?? []), ...carriedRows] } : pp,
+    carriedEventIds: ids,
+  };
+}
