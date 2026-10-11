@@ -80,7 +80,7 @@ test("REAL 0 · the fixture is the real card, in capture order, with the transit
   assert.equal(SNAPS[0].payload.events[0].id, "600061541");
   assert.equal(SNAPS[0].payload.events[0].competitions.length, 12);
   const names = new Set(SNAPS.flatMap((s) => s.payload.events[0].competitions.map((c) => c.status.type.name)));
-  for (const n of ["STATUS_SCHEDULED", "STATUS_PRE_FIGHT", "STATUS_FIGHTERS_WALKING", "STATUS_IN_PROGRESS", "STATUS_IN_PROGRESS_2", "STATUS_END_OF_ROUND", "STATUS_FINAL"]) {
+  for (const n of ["STATUS_SCHEDULED", "STATUS_PRE_FIGHT", "STATUS_FIGHTERS_WALKING", "STATUS_FIGHTERS_INTRODUCTION", "STATUS_IN_PROGRESS", "STATUS_IN_PROGRESS_2", "STATUS_END_OF_ROUND", "STATUS_END_OF_FIGHT", "STATUS_FINAL"]) {
     assert.ok(names.has(n), `${n} occurs in the real data`);
   }
 });
@@ -379,4 +379,57 @@ test("REAL 14 · the draw rule reads judges one by one, never the totals; and ne
   // Records unchanged → not enough on cards alone.
   const stale = { ...base, competitors: { fighters: base.competitors.fighters.map((f, i) => ({ ...f, record: i === 0 ? "9-3-2" : "6-2-1" })) } };
   assert.equal(providerDrawEvidence(b, stale), false);
+});
+
+const MAIN = "401916276"; // Allen vs Duncan — 5 rounds, main event
+
+test("REAL 15 · main event: INTRODUCTIONS is upcoming; an END_OF_ROUND flicker mid-round shows no clock and does not break the replay", () => {
+  const intro = view("2026-10-11T02:15:33Z", MAIN);
+  assert.equal(intro.phase, "INTRODUCTIONS");
+  assert.equal(intro.state, UFC_LIVE_STATE.UPCOMING);
+  assert.equal(intro.label, "Introductions");
+  assert.equal(intro.round, null);
+  // 02:30:38Z / 02:32:09Z: "End R3" with 3:15 / 2:12 on the clock, then back to "R3, 0:08" at 02:33:40Z.
+  for (const iso of ["2026-10-11T02:30:38Z", "2026-10-11T02:32:09Z"]) {
+    const v = view(iso, MAIN);
+    assert.deepEqual([v.state, v.betweenRounds, v.round, v.clock], [UFC_LIVE_STATE.LIVE, true, 3, null]);
+  }
+  const back = view("2026-10-11T02:33:40Z", MAIN);
+  assert.deepEqual([back.phase, back.round, back.clock], ["IN_ROUND", 3, "0:08"]);
+  // R5 exists and is read like any other round.
+  assert.deepEqual([view("2026-10-11T02:42:43Z", MAIN).round, view("2026-10-11T02:42:43Z", MAIN).clock], [5, "3:48"]);
+});
+
+test("REAL 16 · ⚠ the main event's final time flip-flopped (2:46 → 2:14 → 2:46): never shown; a decision's '-' then '5:00' is", () => {
+  const times = ["2026-10-11T02:48:45Z", "2026-10-11T02:50:16Z", "2026-10-11T02:51:46Z"].map((iso) => envAt(iso, MAIN).period.clock);
+  assert.deepEqual(times, ["2:46", "2:14", "2:46"], "what ESPN said, in order");
+  for (const iso of ["2026-10-11T02:48:45Z", "2026-10-11T02:50:16Z", "2026-10-11T02:51:46Z"]) {
+    const v = view(iso, MAIN);
+    assert.equal(v.result.winnerName, "Brendan Allen");
+    assert.deepEqual([v.result.round, v.result.clock, v.result.finishTimeWithheld], [5, null, true]);
+  }
+  // Godínez decision: FINAL first with "-", then "5:00".
+  const GODINEZ = "401924510";
+  const first = view("2026-10-11T01:27:12Z", GODINEZ);
+  const later = view("2026-10-11T01:30:15Z", GODINEZ);
+  assert.deepEqual([first.result.clock, first.result.finishTimeWithheld], [null, false], "an absent clock is not a withheld one");
+  assert.deepEqual([later.result.round, later.result.clock, later.result.clockUnofficial], [3, "5:00", true]);
+});
+
+test("REAL 17 · ⚠ after the card the EVENT status reverted to SCHEDULED — every bout stays final; the end-of-card board is honest", () => {
+  const last = SNAPS.at(-1);
+  assert.equal(last.payload.events[0].status.type.name, "STATUS_SCHEDULED", "ESPN's event status went back to scheduled after the card");
+  const envs = normalizeMmaEnvelopes(last.payload, last.capturedAt);
+  assert.equal(envs.length, 12);
+  assert.ok(envs.every((e) => e.state === "FINAL"), "every bout is final regardless of the event status");
+  if (CARD.event.providerEventId !== "600061541") return;
+  const roster = buildUfcRosterFrom({ card: CARD, graded: null, etDate: CARD.event.slateDate });
+  const byId = Object.fromEntries(envs.map((e) => [e.eventId, e]));
+  const g = groupUfcBouts(roster.bouts, byId, { feed: "OK", nowMs: Date.parse(last.capturedAt) + 5_000 });
+  assert.equal(g.AWAITING_OFFICIAL_RESULT.length, 12, "all twelve wait for the official result");
+  assert.equal(g.FINAL.length + g.LIVE.length + g.UPCOMING.length, 0);
+  const labels = g.AWAITING_OFFICIAL_RESULT.map(({ view: v }) => v.label);
+  assert.equal(labels.filter((l) => l === "Final · awaiting official result").length, 11);
+  assert.equal(labels.filter((l) => l === "Draw (provider-reported, unofficial)").length, 1);
+  for (const { view: v } of g.AWAITING_OFFICIAL_RESULT) assert.equal(v.outcome, null, "nothing graded before the ledger");
 });

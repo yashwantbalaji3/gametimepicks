@@ -195,7 +195,11 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
       break;
     default: // PRE
       state = UFC_LIVE_STATE.UPCOMING; group = "UPCOMING";
-      label = matched?.phase === "WALKOUTS" ? "Walkouts" : matched?.phase === "PRE_FIGHT" ? "Pre-fight" : "Scheduled";
+      label = matched?.phase === "WALKOUTS" ? "Walkouts"
+        : matched?.phase === "INTRODUCTIONS" ? "Introductions"
+          : matched?.phase === "PRE_FIGHT" ? "Pre-fight"
+            : matched?.phase === "PRE_START_OTHER" ? "Before the fight"
+              : "Scheduled";
   }
 
   /* A bout the feed should have listed and did not. Said as an observation, never as "cancelled". */

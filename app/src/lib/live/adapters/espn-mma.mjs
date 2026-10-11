@@ -77,6 +77,8 @@ export function mapMmaState(status) {
  *   STATUS_SCHEDULED        pre · period 0 · "-"                         → SCHEDULED
  *   STATUS_PRE_FIGHT        in  · period 0 · "-"  · "Pre-fight"          → PRE_FIGHT   (state PRE)
  *   STATUS_FIGHTERS_WALKING in  · period 0 · "-"  · "Walkouts"           → WALKOUTS    (state PRE)
+ *   STATUS_FIGHTERS_INTRODUCTION in · period 0 · "-" · "Intros"          → INTRODUCTIONS (state PRE;
+ *                                                                          main event only, 02:15:33Z)
  *   STATUS_IN_PROGRESS_2 /  in  · period n · "3:47" · "R1, 3:47"         → IN_ROUND    (both names
  *   STATUS_IN_PROGRESS                                                     alternate within one bout)
  *   STATUS_END_OF_ROUND     in  · period n · "-" · "End R2"              → ROUND_ENDED
@@ -102,6 +104,9 @@ export const MMA_PHASE = Object.freeze({
   SCHEDULED: "SCHEDULED",
   PRE_FIGHT: "PRE_FIGHT",
   WALKOUTS: "WALKOUTS",
+  INTRODUCTIONS: "INTRODUCTIONS",
+  /* any other `in` name with period 0: before the fight, by the structural rule */
+  PRE_START_OTHER: "PRE_START_OTHER",
   IN_ROUND: "IN_ROUND",
   ROUND_ENDED: "ROUND_ENDED",
   FIGHT_OVER: "FIGHT_OVER",
@@ -130,7 +135,9 @@ export function mmaPhase(status) {
   }
   if (state === "PRE") {
     if (t.state !== "in") return MMA_PHASE.SCHEDULED;
-    return t.name === "STATUS_FIGHTERS_WALKING" ? MMA_PHASE.WALKOUTS : MMA_PHASE.PRE_FIGHT;
+    if (t.name === "STATUS_FIGHTERS_WALKING") return MMA_PHASE.WALKOUTS;
+    if (t.name === "STATUS_FIGHTERS_INTRODUCTION") return MMA_PHASE.INTRODUCTIONS;
+    return t.name === "STATUS_PRE_FIGHT" ? MMA_PHASE.PRE_FIGHT : MMA_PHASE.PRE_START_OTHER;
   }
   return MMA_PHASE.OTHER;
 }
