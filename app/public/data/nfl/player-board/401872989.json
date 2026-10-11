@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-11T18:46:08Z",
- "sourceGeneratedAt": "2026-10-11T18:46:08Z",
+ "generatedAt": "2026-10-11T19:06:03Z",
+ "sourceGeneratedAt": "2026-10-11T19:06:03Z",
  "providerEventId": "401872989",
  "matchup": "DEN @ LAC",
  "kickoffUtc": "2026-10-11T20:05Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-11T18:46:08Z",
-  "roleEvidenceAt": "2026-10-11T18:46:08Z",
+  "injuriesCapturedAt": "2026-10-11T19:06:03Z",
+  "roleEvidenceAt": "2026-10-11T19:06:03Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -114,14 +114,14 @@
  "marketCoverage": {
   "probed": true,
   "priced": 42,
-  "absent": 13,
+  "absent": 16,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "DEN": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -180,6 +180,17 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4702555",
+     "name": "Jonah Coleman",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_receptions",
+      "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -249,12 +260,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4702555",
-     "name": "Jonah Coleman",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
     },
     {
      "playerId": "nfl-athlete-4600981",
@@ -339,7 +344,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4595342",
@@ -372,7 +377,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4383351",
@@ -483,10 +488,10 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.8845,
-    "originalSum": 0.8845,
-    "residualOther": 0.1155,
-    "joined": 7,
+    "sum": 0.9407,
+    "originalSum": 0.9407,
+    "residualOther": 0.0593,
+    "joined": 8,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -496,12 +501,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.6524,
-    "originalSum": 0.6524,
-    "residualOther": 0.3476,
-    "joined": 6,
+    "sum": 0.8596,
+    "originalSum": 0.8596,
+    "residualOther": 0.1404,
+    "joined": 8,
     "missed": 0,
-    "state": "UNDER_ALLOCATED"
+    "state": "CONSERVED"
    }
   ],
   "violations": 0
@@ -747,6 +752,36 @@
    }
   },
   {
+   "playerId": "nfl-athlete-4702555",
+   "name": "Jonah Coleman",
+   "team": "DEN",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 14.962,
+     "p10": 0,
+     "p25": 2.36,
+     "median": 9.99,
+     "p75": 21.61,
+     "p90": 37.15,
+     "pricingState": "NOT_OFFERED"
+    },
+    "player_receptions": {
+     "mean": 1.3204,
+     "p10": 0,
+     "p25": 0,
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
+     "pricingState": "NOT_OFFERED"
+    },
+    "anytime_td": {
+     "probability": 0.2228,
+     "pricingState": "NOT_OFFERED"
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-3128429",
    "name": "Courtland Sutton",
    "team": "DEN",
@@ -796,7 +831,7 @@
    "playerId": "nfl-athlete-4612826",
    "name": "Ladd McConkey",
    "team": "LAC",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 29.467,
@@ -1220,7 +1255,7 @@
    "playerId": "nfl-athlete-4241263",
    "name": "Charlie Kolar",
    "team": "LAC",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 15.564,
