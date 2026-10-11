@@ -1,0 +1,165 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "849809-6db8844066a5cd238e2fedcce9c1b52b",
+  "snapshotCreatedAt": "2026-10-11T01:11:52.384Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-10-11",
+  "eventId": "849809",
+  "gamePk": 849809,
+  "eventStartTime": "2026-10-12T00:00:00Z",
+  "homeTeam": "MIL",
+  "awayTeam": "LAD",
+  "venue": "American Family Field",
+  "statusState": "Scheduled",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "pitcher_status",
+      "environment"
+    ]
+  },
+  "rawPayloadHash": "f7ebd5b2e84fd32e30177afa0658a8a1",
+  "normalizedPayloadHash": "4708c3b0c96781b2bb6f5e884723e3ca",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": false,
+      "value": {
+        "status": "PROJECTED_OR_UNPOSTED"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-10-11T01:11:52.384Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-11T01:11:52.384Z",
+      "timestampProven": true,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849809/feed/live",
+        "requestedAt": "2026-10-11T01:11:52.384Z",
+        "receivedAt": "2026-10-11T01:11:52.384Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Jacob Misiorowski",
+        "awayProbable": "Tarik Skubal",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-10-11T01:11:52.384Z",
+      "availableAt": "2026-10-11T01:11:52.384Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-11T01:11:52.384Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849809/feed/live",
+        "requestedAt": "2026-10-11T01:11:52.384Z",
+        "receivedAt": "2026-10-11T01:11:52.384Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "roofType": "Retractable",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-10-11T01:11:52.384Z",
+      "availableAt": "2026-10-11T01:11:52.384Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-11T01:11:52.384Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849809/feed/live",
+        "requestedAt": "2026-10-11T01:11:52.384Z",
+        "receivedAt": "2026-10-11T01:11:52.384Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": false,
+      "value": null,
+      "status": "MISSING",
+      "observedAt": "2026-10-11T01:11:52.384Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-11T01:11:52.384Z",
+      "timestampProven": true,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849809/feed/live",
+        "requestedAt": "2026-10-11T01:11:52.384Z",
+        "receivedAt": "2026-10-11T01:11:52.384Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

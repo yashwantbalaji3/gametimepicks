@@ -1,0 +1,94 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "serie-a",
+ "season": "2026-27",
+ "date": "2026-10-10",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-10T15:35:38.000Z",
+ "runs": [
+  {
+   "at": "2026-10-10T15:35:38.000Z",
+   "added": 1
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Torino|Udinese",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874763",
+   "providerEventId": "401874763",
+   "kickoffUtc": "2026-10-12T18:45:00.000Z",
+   "matchup": "Torino v Udinese",
+   "homeClub": "Torino",
+   "awayClub": "Udinese",
+   "historyNames": {
+    "home": "Torino",
+    "away": "Udinese"
+   },
+   "espnTeamIds": {
+    "home": "239",
+    "away": "118"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-10T15:35:38.000Z",
+   "probs": {
+    "home": 0.376311,
+    "draw": 0.274941,
+    "away": 0.348748
+   },
+   "over25": 0.450244,
+   "under25": 0.549756,
+   "expectedGoals": {
+    "home": 1.2672,
+    "away": 1.2096
+   },
+   "lambdas": {
+    "home": 1.2672,
+    "away": 1.2096
+   },
+   "rho": -0.013801,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 156,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-10-10T15:35:38.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 1
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.390011,
+     "draw": 0.305665,
+     "away": 0.304324
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 1
+ }
+}
