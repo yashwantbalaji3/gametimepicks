@@ -2,68 +2,76 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-10-10T19:43:03Z",
+  "generatedAt": "2026-10-11T00:01:02Z",
   "nextCluster": {
     "kickoffUtc": "2026-10-11T13:00:00.000Z",
     "fixtures": 2,
-    "hoursAway": 17.28
+    "hoursAway": 12.98
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
-      "stampedAt": "2026-10-10T19:42:49Z",
+      "stampedAt": "2026-10-11T00:00:45Z",
       "ageHours": 0
     },
     "odds": {
       "state": "READ",
-      "stampedAt": "2026-10-10T19:26:50Z",
-      "ageHours": 0.27
+      "stampedAt": "2026-10-11T00:00:47Z",
+      "ageHours": 0
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-10-10T19:43:00Z",
+      "stampedAt": "2026-10-11T00:00:59Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-10-10T19:43:01Z",
+      "stampedAt": "2026-10-11T00:01:00Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-10-10T19:42:51Z",
+      "stampedAt": "2026-10-11T00:00:47Z",
       "ageHours": 0
     }
   },
   "cadence": {
     "lineupCoverage": {
-      "state": "EVERY_CLUSTER_SERVED",
-      "clusters": 18,
+      "state": "GAP",
+      "clusters": 19,
       "covered": 18,
-      "uncoveredMatches": 0,
-      "uncovered": []
+      "uncoveredMatches": 1,
+      "uncovered": [
+        {
+          "kickoffIso": "2026-10-31T20:00:00.000Z",
+          "fixtures": 1,
+          "nearestLeadHours": 4,
+          "nearestSlotIso": "2026-10-31T16:00:00.000Z",
+          "covered": false
+        }
+      ]
     },
     "budget": {
       "state": "WITHIN_CEILING",
-      "spent": 114,
-      "projectedRemaining": 338,
+      "spent": 116,
+      "projectedRemaining": 336,
       "projectedTotal": 452,
       "ceiling": 500,
       "headroom": 48,
       "kickoffWindowHours": 30,
-      "spendingFirings": 169,
+      "spendingFirings": 168,
       "skippedFirings": 430
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-10-10T19:43:00Z",
+    "generatedAt": "2026-10-11T00:00:59Z",
     "counts": {
       "CURRENT_PRE_EVENT": 4
     },
     "rows": 4
   },
   "playerSet": {
-    "generatedAt": "2026-10-10T19:43:01Z",
+    "generatedAt": "2026-10-11T00:01:00Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
       "fixtures": 4,
