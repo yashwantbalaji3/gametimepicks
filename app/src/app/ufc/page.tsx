@@ -157,8 +157,14 @@ export default function UfcArchivePage() {
         {card?.bouts?.length ? (
           <>
             <div className="flex flex-wrap items-baseline justify-between gap-2">
+              {/* The board never presents a fought card as upcoming: its heading follows the same clock-derived event
+                  state the rest of the page uses (eventState), so after the card it reads as the pregame record. */}
               <h2 className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 20, fontWeight: 800 }}>
-                Fight card &amp; predictions
+                {cardState === EVENT_STATE.COMPLETE
+                  ? "Last card · pregame predictions"
+                  : cardState === EVENT_STATE.IN_PROGRESS
+                    ? "Card in progress · pregame predictions"
+                    : "Fight card & predictions"}
               </h2>
               {/* The shared hub counts line, from the shared hub rows (`hubCounts`): scheduled, with a report and
                   with a supported read stay three separate numbers, exactly as every other hub prints them. */}
@@ -167,6 +173,14 @@ export default function UfcArchivePage() {
                 {" · experimental"}
               </span>
             </div>
+            {cardState !== EVENT_STATE.UPCOMING ? (
+              <p className="m-0 font-mono" style={{ fontSize: 11, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
+                {cardState === EVENT_STATE.COMPLETE
+                  ? "This card has been fought. These are the frozen pregame forecasts, unchanged; graded results appear under "
+                  : "Bouts are under way. This page is static and shows the frozen pregame forecasts only; graded results appear under "}
+                <Link href="/results/picks/ufc/" style={{ color: "var(--vault-text)" }}>Results</Link> once the card is officially settled.
+              </p>
+            ) : null}
             <UfcPredictionBoard card={card} />
           </>
         ) : (
