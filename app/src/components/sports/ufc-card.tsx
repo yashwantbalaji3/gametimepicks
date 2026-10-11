@@ -11,16 +11,23 @@
  *   · "goes the distance" is the method head's decision probability, not a separate model.
  */
 import { roundPhrase } from "@/lib/sports/ufc/round-phrase.mjs";
+import Link from "next/link";
 import HeadToHead from "@/components/ui/head-to-head";
 import { Histogram, ProbabilityBar } from "@/components/distribution-chart";
+import UfcProfileLines from "@/components/sports/ufc-profile-lines";
 
 type Bout = { date: string; opponent: string; result: "W" | "L"; method: string; round: number };
 type Profile = {
   bouts: number;
   record?: { wins: number; losses: number };
   last5: Bout[];
+  /** Outcome rates only (win / loss rate). */
   strengths: string[];
   weaknesses: string[];
+  /** Neutral descriptions of how bouts go — never a strength or weakness. Absent on artifacts built before PR #1059. */
+  tendencies?: string[];
+  /** What the tracked record is too thin to establish. Absent on artifacts built before PR #1059. */
+  unknowns?: string[];
   summary: string | null;
 };
 type Fighter = {
@@ -45,7 +52,10 @@ export type UfcBout = {
     method: { most: string; probabilities: { ko: number; submission: number; decision: number } } | null;
     rounds: { endsIn: string; probabilities: { round1: number; round2: number; round3plus: number }; goesTheDistance: number } | null;
     priorFights: { a: number; b: number };
-    /** One line on WHY this fighter, assembled from the features that moved the prediction. */
+    /**
+     * A one-line summary of the two TRACKED RECORDS beside the pick, labelled as such in its own text. It is not the
+     * model's reason: it reads raw tracked rates and none of the tale-of-the-tape inputs the winner head also uses.
+     */
     reason?: string | null;
     basis?: string;
     basisNote?: string | null;
@@ -132,7 +142,20 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
           ];
           return (
             // The anchor the hub's bout rows deep-link to (P241 · A08).
-            <div key={b.boutId} id={`bout-${b.boutId}`} className="flex flex-col gap-2 scroll-mt-24">
+            <details key={b.boutId} id={`bout-${b.boutId}`} className="scroll-mt-24 rounded-[12px]" style={{ border: "1px solid var(--vault-rule)", background: "var(--vault-panel)" }}>
+              {/* UFC-001 · UX Phase A2: a compact preview row — who and where only; the pick lives on the board above, so it is
+                  not repeated here. The full matchup analysis (pick, distributions, fighter profiles) opens underneath. */}
+              <summary className="cursor-pointer px-3 py-2.5 flex items-center justify-between gap-3 flex-wrap" style={{ minHeight: 44 }}>
+                <span className="flex flex-col min-w-0">
+                  <span className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 9, color: i < 2 ? "var(--sport-ufc)" : "var(--vault-text-faint)" }}>
+                    {i === 0 ? "Main event" : i === 1 ? "Co-main event" : `Bout ${i + 1} of ${bouts.length}`} · {b.weightClass} · {b.scheduledRounds} rounds
+                  </span>
+                  <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--vault-text)" }}>{b.red.name} vs {b.blue.name}</span>
+                </span>
+                <span className="font-mono uppercase tracking-[0.1em] shrink-0" style={{ fontSize: 10, color: "var(--vault-text-mute)" }}>Full preview ▾</span>
+              </summary>
+              <div className="flex flex-col gap-2 px-3 pb-3">
+              <Link href={`/ufc/bout/${b.boutId}/`} className="self-end font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10, color: "var(--vault-text)", minHeight: 32, display: "inline-flex", alignItems: "center" }}>Full analysis →</Link>
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <span className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 9, color: i === 0 ? "var(--sport-ufc)" : "var(--vault-text-faint)" }}>
                   {i === 0 ? "Main event · " : ""}{b.weightClass} · {b.scheduledRounds} rounds
@@ -205,14 +228,12 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
                 </div>
               ) : null}
 
-              {(rp?.strengths?.length || bp?.strengths?.length) ? (
+              {(rp?.bouts || bp?.bouts) ? (
                 <div className="grid gap-1.5" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))" }}>
                   {[["red", b.red, rp] as const, ["blue", b.blue, bp] as const].map(([k, f, p]) => p?.bouts ? (
                     <div key={k} className="rounded-[10px] px-2.5 py-2" style={{ border: "1px solid var(--vault-rule)", background: "color-mix(in srgb, var(--vault-ink-black) 18%, transparent)" }}>
                       <div className="font-mono uppercase tracking-[0.1em] mb-1" style={{ fontSize: 8.5, color: "var(--vault-text-faint)" }}>{f.name}</div>
-                      {p.summary ? <p className="m-0 mb-1" style={{ fontSize: 10.5, lineHeight: 1.5, color: "var(--vault-text-mute)" }}>{p.summary}</p> : null}
-                      {p.strengths.map((x) => <div key={x} style={{ fontSize: 10.5, color: "var(--vault-success)" }}>+ {x}</div>)}
-                      {p.weaknesses.map((x) => <div key={x} style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>− {x}</div>)}
+                      <UfcProfileLines profile={p} size="compact" />
                       {p.last5.length ? (
                         <div className="mt-1.5 flex flex-col gap-0.5">
                           {p.last5.map((f2) => (
@@ -229,6 +250,7 @@ export default function UfcCard({ card }: { card: UfcCardArtifact }) {
                 </div>
               ) : null}
             </div>
+            </details>
           );
         })}
       </div>
