@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-11T15:36:28Z",
- "sourceGeneratedAt": "2026-10-11T15:36:28Z",
+ "generatedAt": "2026-10-11T16:11:58Z",
+ "sourceGeneratedAt": "2026-10-11T16:11:58Z",
  "providerEventId": "401872986",
  "matchup": "LV @ NE",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-11T15:36:28Z",
-  "roleEvidenceAt": "2026-10-11T15:36:28Z",
+  "injuriesCapturedAt": "2026-10-11T16:11:58Z",
+  "roleEvidenceAt": "2026-10-11T16:11:58Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -86,14 +86,14 @@
  "marketCoverage": {
   "probed": true,
   "priced": 42,
-  "absent": 9,
+  "absent": 8,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "LV": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 4,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -121,7 +121,7 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4432665",
@@ -178,22 +178,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4260394",
-     "name": "Aidan O'Connell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
-    },
-    {
      "playerId": "nfl-athlete-4698191",
      "name": "Chris Collier",
      "state": "PROJECTED",
@@ -201,6 +185,12 @@
       "anytime_td"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4260394",
+     "name": "Aidan O'Connell",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4382466",
@@ -263,7 +253,7 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4361432",
@@ -365,21 +355,11 @@
   "qbStarter": [
    {
     "team": "LV",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-14880",
-     "name": "Kirk Cousins"
-    },
-    "snapshotAt": "2026-10-10T13:32:40Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4260394",
-      "name": "Aidan O'Connell"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
      "nfl-athlete-14880"
-    ]
+    ],
+    "removed": []
    },
    {
     "team": "NE",
@@ -443,12 +423,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.7081,
-    "originalSum": 0.7081,
-    "residualOther": 0.2919,
-    "joined": 4,
+    "sum": 0.8794,
+    "originalSum": 0.8794,
+    "residualOther": 0.1206,
+    "joined": 5,
     "missed": 0,
-    "state": "UNDER_ALLOCATED"
+    "state": "CONSERVED"
    },
    {
     "team": "NE",
@@ -456,12 +436,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.635,
-    "originalSum": 0.635,
-    "residualOther": 0.365,
-    "joined": 6,
+    "sum": 0.7618,
+    "originalSum": 0.7618,
+    "residualOther": 0.2382,
+    "joined": 7,
     "missed": 0,
-    "state": "UNDER_ALLOCATED"
+    "state": "CONSERVED"
    }
   ],
   "violations": 0
@@ -517,7 +497,7 @@
    "playerId": "nfl-athlete-4890973",
    "name": "Ashton Jeanty",
    "team": "LV",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 51.611,
@@ -560,7 +540,7 @@
    "playerId": "nfl-athlete-4569173",
    "name": "Rhamondre Stevenson",
    "team": "NE",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 38.829,
@@ -1142,18 +1122,6 @@
       "sportsbook": "draftkings",
       "capturedAt": "2026-10-11T11:41:55Z"
      }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4260394",
-   "name": "Aidan O'Connell",
-   "team": "LV",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.0537,
-     "pricingState": "NOT_OFFERED"
     }
    }
   },

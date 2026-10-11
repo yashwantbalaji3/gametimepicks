@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-11T15:36:28Z",
- "sourceGeneratedAt": "2026-10-11T15:36:28Z",
+ "generatedAt": "2026-10-11T16:11:58Z",
+ "sourceGeneratedAt": "2026-10-11T16:11:58Z",
  "providerEventId": "401872982",
  "matchup": "CIN @ MIA",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-11T15:36:28Z",
-  "roleEvidenceAt": "2026-10-11T15:36:28Z",
+  "injuriesCapturedAt": "2026-10-11T16:11:58Z",
+  "roleEvidenceAt": "2026-10-11T16:11:58Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -160,7 +160,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4362628",
@@ -171,7 +171,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-3116389",
@@ -312,7 +312,7 @@
       "anytime_td",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4367209",
@@ -433,6 +433,19 @@
   ],
   "pools": [
    {
+    "team": "CIN",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 1.0015,
+    "originalSum": 1.0015,
+    "residualOther": 0,
+    "joined": 8,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "MIA",
     "pool": "passAttempts",
     "markets": [
@@ -467,19 +480,6 @@
     "sum": 0.7132,
     "originalSum": 0.7132,
     "residualOther": 0.2868,
-    "joined": 6,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
-   },
-   {
-    "team": "CIN",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.5452,
-    "originalSum": 0.5452,
-    "residualOther": 0.4548,
     "joined": 6,
     "missed": 0,
     "state": "UNDER_ALLOCATED"
@@ -553,7 +553,7 @@
    "playerId": "nfl-athlete-4362628",
    "name": "Ja'Marr Chase",
    "team": "CIN",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 45.039,
@@ -599,7 +599,7 @@
    "playerId": "nfl-athlete-4239993",
    "name": "Tee Higgins",
    "team": "CIN",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 57.74,
@@ -903,7 +903,7 @@
    "playerId": "nfl-athlete-4682745",
    "name": "Jaylen Wright",
    "team": "MIA",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 15.332,
