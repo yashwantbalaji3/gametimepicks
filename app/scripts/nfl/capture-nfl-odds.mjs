@@ -36,7 +36,7 @@ import { joinOddsBatch } from "../../src/lib/sports/odds/event-join.mjs";
 import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, recordRequest, assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, P171_LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { buildPlayerRegistry, resolvePlayerRef } from "../../src/lib/sports/nfl/player-identity.mjs";
 import { twoWayConsensus, medianOf } from "../../src/lib/sports/odds/consensus.mjs";
-import { mergeCaptureRows, carryPropsForward, carryUnreachedProps } from "../../src/lib/sports/odds/capture-merge.mjs";
+import { mergeCaptureRows, carryPropsForward, carryUnreachedProps, unreachedTargets } from "../../src/lib/sports/odds/capture-merge.mjs";
 import { REFERENCE_BOOK, FALLBACK_ORDER, selectPropPrices } from "../../src/lib/sports/odds/prop-display-selection.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -470,10 +470,7 @@ if (PROBE) {
        eventsRequested: targets.length,
        ...(refusal ? { stoppedEarly: refusal } : {}),
        /* The targets this sweep never reached (a refusal stopped it) — their prior answers are carried below. */
-       unreachedEventIds: targets
-         .filter((t) => !perEvent.some((e) => e.oddsEventId === t.providerEventId))
-         .map((t) => joinedByOddsId.get(t.providerEventId)?.canonicalEventId)
-         .filter(Boolean),
+       unreachedEventIds: unreachedTargets(targets, perEvent, (id) => joinedByOddsId.get(id)?.canonicalEventId),
        marketsSeen: Object.fromEntries([...seenUnion.entries()].map(([k, v]) => [k, { bookmakers: v }])),
        absentMarkets: PROP_PROBE_MARKETS.filter((k) => !seenUnion.has(k)),
        anytimeTd: atdAll,
@@ -688,7 +685,7 @@ if (propProbe?.stoppedEarly) console.log(`::warning::prop sweep stopped early af
   if (kept.carriedEventIds.length) {
     publicArtifact.propMarkets = kept.propMarkets;
     publicArtifact.propPrices = kept.propPrices;
-    console.log(`carried forward the prior prop answer for ${kept.carriedEventIds.length} unreached event(s): ${kept.carriedEventIds.join(", ")} — each price keeps its own capturedAt`);
+    console.log(`props: ${kept.propMarkets.freshlyProbedEventIds.length} event(s) freshly probed at ${NOW}; ${kept.carriedEventIds.length} carried forward from ${kept.propMarkets.carriedFrom}: ${kept.carriedEventIds.join(", ")} — each carried price keeps its own capturedAt`);
   }
 }
 

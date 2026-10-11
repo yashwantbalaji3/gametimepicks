@@ -104,7 +104,9 @@ export function carryUnreachedProps(prior, fresh, unreached) {
   const ids = [...new Set(unreached)].filter((id) => priorProbed.has(id) && !freshProbed.has(id));
   if (!ids.length) return none;
 
+  /* An answer with no time is not an answer: without the prior run's stamp nothing can say WHEN it was asked. */
   const priorStamp = prior.propPrices?.capturedAt ?? prior.capturedAt ?? null;
+  if (!priorStamp) return none;
   const want = new Set(ids);
   const carriedEvents = (prior.propMarkets.perEvent ?? [])
     .filter((e) => want.has(e.canonicalEventId))
@@ -120,9 +122,29 @@ export function carryUnreachedProps(prior, fresh, unreached) {
       probedEventIds,
       eventsProbed: probedEventIds.length,
       perEvent: [...(pm.perEvent ?? []), ...carriedEvents],
+      /* The two populations, kept apart: probed by THIS run vs carried from the run that probed them. */
+      freshlyProbedEventIds: [...(pm.probedEventIds ?? [])],
       carriedEventIds: ids,
+      carriedFrom: priorStamp,
     },
     propPrices: pp ? { ...pp, probedEventIds: [...(pp.probedEventIds ?? []), ...ids], rows: [...(pp.rows ?? []), ...carriedRows] } : pp,
     carriedEventIds: ids,
   };
+}
+
+/**
+ * The events a sweep TARGETED and never reached: a refusal (credit gate) stopped it before them. A target that was
+ * queried — priced, or answered with no markets (422 / NOT_OFFERED) — was reached, and its fresh answer stands.
+ *
+ * @param targets         the sweep's targets, `{ providerEventId }` (odds-provider ids), in request order
+ * @param perEvent        the events the sweep actually queried, `{ oddsEventId }`
+ * @param canonicalOf     odds-provider id → canonical event id
+ * @returns canonical ids, in request order
+ */
+export function unreachedTargets(targets, perEvent, canonicalOf) {
+  const reached = new Set((perEvent ?? []).map((e) => e.oddsEventId));
+  return (targets ?? [])
+    .filter((t) => !reached.has(t.providerEventId))
+    .map((t) => canonicalOf(t.providerEventId))
+    .filter(Boolean);
 }
