@@ -35,6 +35,38 @@ credits would fund nothing publishable. "Lavish" sets the ceiling at roughly thr
 | Expiry | the ceiling |
 | Discipline | cumulative private credit ledger per response; failed charged calls count; do not retry blindly; stop before any call whose worst-case cost breaches the ceiling; redact + self-scan every receipt |
 
+## AMENDMENT 4 — 2026-10-11 · ONE-TIME bounded capture (founder) — operative ceiling
+
+> **Placed here, ahead of the earlier amendments, on purpose.** `parseAuthorizationReceipt` reads the
+> FIRST `Effective cumulative ceiling` line, so the current operative number must come first. Every
+> earlier amendment below, including its 1,160 line, is kept verbatim as the historical record.
+
+### Authorization (founder, 2026-10-11, in session — summarized)
+- One additional, bounded NFL sportsbook capture, using **at most 68** already-prepaid provider
+  credits and **$0** additional cash (no purchase, plan upgrade or overage).
+- Separate from, and not a change to, the season authorization: **not a permanent budget increase**.
+- The capture runs only after PR #1062 (the partial-sweep safeguard and the BUF @ LAR repair) is
+  merged and verified in Production. It covers only games that have not kicked off. No duplicate
+  or additional paid refresh, and no retroactive pregame prices.
+- **Time fallback (founder):** if the full refresh cannot finish safely before the 1 PM ET kickoffs,
+  cover only the remaining afternoon, Sunday-night and Monday games, using only the credits they
+  genuinely require.
+
+### The operative number (sized to that fallback)
+The remaining games after 17:00Z are DEN @ LAC, DET @ ARI, SF @ SEA, BAL @ ATL and BUF @ LAR: 5 prop
+calls × 5 credits, plus one 3-credit team bulk, = **28 credits**, below the 68 maximum.
+
+**Effective cumulative ceiling: 1,188 credits** — the season's 1,160, all spent, plus exactly 28 for
+this one capture.
+
+| Term | Value |
+|---|---|
+| Purpose | ONE capture: `nfl-event-window` dispatched on `main` with `probe_props=all week_window=true lookahead_hours=18`, after 17:00Z and before 20:05Z, so exactly the 5 games above are unstarted |
+| Credits | at most 28 (1,160 → 1,188); the gate refuses anything beyond |
+| Cash | $0 |
+| Expiry | this one capture. Credits it does not use (for example a 422 is not charged) lapse and are not authorized for any later run; the follow-up record sets this line to the cumulative actually spent |
+| Season authorization | unchanged: 1,160, exhausted. Every later paid request needs a new founder decision |
+
 ## Ledger continuity
 
 The capture keeps one cumulative ledger (`data/internal/research/odds/nfl/p171-ledger.json`), which

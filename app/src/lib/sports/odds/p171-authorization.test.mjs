@@ -237,12 +237,12 @@ test("an amended ceiling is read by BOTH parsers, not just the one someone edite
   const a = m.parseAuthorizationReceipt(md);
   const b = m.parseSportAuthorizationReceipt(md, "nfl");
   assert.equal(a.ok, true, a.errors?.join("; "));
-  assert.equal(a.ceiling, 1160, "the NFL capture's parser must read the amended ceiling");
+  assert.equal(a.ceiling, 1188, "the NFL capture's parser must read the operative ceiling (Amendment 4, the one-time 2026-10-11 capture; the season 1,160 stays recorded below it)");
   if (b.ok) assert.equal(b.ceiling, a.ceiling, "both parsers must agree on the operative ceiling");
 
   /* The control is the REAL receipt with its effective line struck out: the original 500 must still
      govern, which proves the new branch supersedes rather than simply hardcoding a bigger number. */
-  const unamended = md.replace(/\*\*Effective cumulative ceiling[^\n]*/i, "(struck)");
+  const unamended = md.replace(/\*\*Effective cumulative ceiling[^\n]*/gi, "(struck)");
   const c = m.parseAuthorizationReceipt(unamended);
   assert.equal(c.ok, true, c.errors?.join("; "));
   assert.equal(c.ceiling, 500, "without an effective line the ORIGINAL term still governs");
