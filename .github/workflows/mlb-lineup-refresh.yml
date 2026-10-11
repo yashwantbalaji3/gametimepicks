@@ -128,6 +128,31 @@ jobs:
           npx tsx scripts/generate-mlb-full-game-simulations.mjs --write --date "${{ steps.d.outputs.date }}" --now "$NOW"
           npx tsx scripts/generate-mlb-predictions.mjs --write --date "${{ steps.d.outputs.date }}" --now "$NOW"
 
+      # ── RESEARCH: OPTION A LIVE PREGAME CAPTURE (MLB-003/004/005; founder decision 4, 2026-10-10) ──────────
+      # Private research receipts, never read by any public page. The state is the official box scores of
+      # EARLIER dates (append-only by date, free StatsAPI, about 15 requests a day). Each receipt is written once,
+      # only for a game that has not started, from captures that exist now; the commit below (pushed before
+      # first pitch) is its external timestamp. Both steps are isolated: a failure never blocks the forecasts.
+      - name: Research state — yesterday's official box scores (free StatsAPI, append-only)
+        if: steps.board.outputs.have == 'true'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          set -uo pipefail
+          Y="$(date -u -d "${{ steps.d.outputs.date }} -1 day" +%F)"
+          node app/scripts/mlb/capture-mlb-boxscore-outcomes.mjs --from "$Y" --to "$Y" --write || \
+            echo "::warning::box-score capture refused — research receipts will refuse STATE_STALE if the state is too old"
+
+      - name: Research — live pregame capture of research forecasts (private; before first pitch)
+        if: steps.board.outputs.have == 'true'
+        continue-on-error: true
+        timeout-minutes: 6
+        working-directory: app
+        run: |
+          set -uo pipefail
+          npx tsx scripts/mlb/capture-mlb-forward-player-live.mjs --date "${{ steps.d.outputs.date }}" --write || \
+            echo "::warning::research forward capture failed — no receipt this run (fail closed; forecasts unaffected)"
+
       # ── PUBLICATION SLO ─────────────────────────────────────────────────────────────────────────
       # Detection deliberately rides here rather than on its own cron. See
       # .github/actions/publication-slo/action.yml for the Aug-27 reason: the one watchdog that
@@ -153,6 +178,11 @@ jobs:
           # forecast. A writer whose output is outside its job's allowlist is an artifact that is built
           # and never published, and a forecast whose lineage is uncommitted is the defect this closes.
           git add app/public/data/mlb/full-game-simulations app/public/data/mlb/predictions app/public/data/ops data/internal/mlb/prediction-snapshots data/internal/research/mlb/engine-level-shadow data/internal/mlb/input-snapshots 2>/dev/null || true
+          # Research (Option A): a new pregame receipt is time-critical — its commit, pushed before first pitch, is its
+          # external timestamp — so it is staged always. The research box-score state is not time-critical: it rides a
+          # commit that happens anyway and never causes one on its own (COST-001: no standalone ignored build for it).
+          git add data/internal/research/mlb/forward-player-live 2>/dev/null || true
+          if ! git diff --cached --quiet; then git add data/internal/mlb/boxscore-outcomes 2>/dev/null || true; fi
           if git diff --cached --quiet; then
             echo "no lineup has changed the simulation since the last run"
             exit 0

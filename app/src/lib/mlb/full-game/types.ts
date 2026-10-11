@@ -1,3 +1,4 @@
+import type { PaOutcomeProbs } from "./plate-appearance";
 /**
  * UNIFIED FULL-GAME MLB SIMULATION — the canonical contract (Sprint 008 · Phase 1).
  *
@@ -244,6 +245,18 @@ export interface BatterInput {
    * hand and vs the bullpen, and this slot's league PA. Read only when EngineParams.matchup is set; never published.
    */
   matchup?: { slotPa: number; vsStarter: { k: number; bb: number; hr: number }; vsBullpen: { k: number; bb: number; hr: number } };
+  /**
+   * MLB-005 RESEARCH ONLY: explicit per-PA outcome distributions vs the opposing starter and vs the bullpen. Read only
+   * when `EngineParams.research.explicitPa` is set; the published engine never reads it.
+   */
+  pa?: { vsStarter: PaOutcomeProbs; vsBullpen: PaOutcomeProbs };
+  /**
+   * MLB-005 RESEARCH ONLY (substitution): `subHazard[j]` = probability the starter is replaced before his (j+1)-th trip,
+   * given he has batted j times; `subPa` = the replacement's PA distributions. Read only when
+   * `EngineParams.research.substitution` is set.
+   */
+  subHazard?: number[];
+  subPa?: { vsStarter: PaOutcomeProbs; vsBullpen: PaOutcomeProbs };
 }
 
 /**
@@ -262,6 +275,11 @@ export interface PitcherInput {
   expStrikeouts: number | null;
   /** MLB-002 research only: the starter's shrunk per-BF K / BB / HR rates. Read only when EngineParams.matchup is set. */
   matchup?: { k: number; bb: number; hr: number };
+  /**
+   * MLB-005 RESEARCH ONLY: the starter's batters-faced limit as a distribution (index = BF, value = probability). One
+   * limit is drawn per simulated game when `EngineParams.research.workloadPmf` is set; otherwise the fixed cap applies.
+   */
+  bfLimitPmf?: number[];
 }
 
 /** All leakage-safe pregame inputs the engine needs for one game. */
@@ -281,4 +299,10 @@ export interface GameInput {
   homeStarter: PitcherInput | null;
   completeness: FullGameCompleteness;
   market: MarketComparison | null;
+  /**
+   * MLB-001: which rule set the game is played under, from StatsAPI's own `gameType` (R → REGULAR_SEASON;
+   * F/D/L/W → POSTSEASON) or, when the board predates that field, StatsAPI's season calendar. Null = unresolved.
+   */
+  ruleset?: "REGULAR_SEASON" | "POSTSEASON" | null;
+  rulesetBasis?: "GAME_TYPE" | "SEASON_CALENDAR" | "UNRESOLVED";
 }
