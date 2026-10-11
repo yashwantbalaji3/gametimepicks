@@ -1124,7 +1124,12 @@ Slices (state on `main` 5ed6f6bc51, 2026-10-10):
   - Both are Production-verified (see the session logs). UFC-001 stays **IN_PROGRESS**.
 
 #### UFC experience (UX phases; founder directive 2026-10-10; plan in `docs/ufc/UFC-001-UX-PLAN.md`)
-- **Phase A, prediction board, plus A2, page order:** one combined release in PR #1057 (A2 was consolidated from #1058); awaiting exact-head approval, to deploy after the Oct 10 card. Not merged.
+- **Phase A, prediction board, plus A2, page order:** **MERGED and PRODUCTION_VERIFIED.** PR #1057 at `df2d1ee3f4`, merge `5dc31a98f7`, 2026-10-11 09:05Z; A2 was consolidated from #1058. After the card, the board reads "Last card · pregame predictions".
+- **Fighter profile truth (#1059):** ships with this entry.
+  - Profiles are split into tracked record / strengths · weaknesses (win or loss rates only) / tendencies (neutral; "Often goes the distance" moved here, founder decision) / not established.
+  - The `reason` line is labelled as a tracked-record summary, not the model's reasoning.
+  - No forecast change.
+  - The text reaches the live card at the next card build (the Sunday 13:00Z fight-week run rolls to the next card).
   - A2 order: board → honest live-status line (UFC live tracking not available yet) → compact matchup previews (closed `<details>`, who and where only; full analysis inside plus a bout-page link) → the card story on request → methodology → results.
   - Nothing removed; `bout-N` anchors kept. `/ufc` at 1024 px: 15,106 px → 5,713 px.
   - It is now `/ufc`'s events section: every bout once, main event first, with portraits, the pick, the published win chance and the experimental method lean (label only; fight-level, not "pick wins that way"), each row linking to its bout page.
@@ -2215,6 +2220,19 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - **A2 (page order)** was consolidated into the same PR: #1058 was fast-forwarded into #1057's branch, so nothing reached `main`. Rendered guards 690 / 693, 0 failing. Preview at 375 / 1024 px: no overflow; 12 closed previews; expansion verified.
 - **Result:** PR ready for exact-head approval; not merged.
 - **Vercel:** Preview 0; Production 0 (one on merge).
+
+## 2026-10-11 — Claude Code (Core Intelligence session) — #1057 release record (`UFC-001` UX Phase A + A2)
+- **What merged:** #1057 at the reviewed head after post-card reconciliation, `df2d1ee3f414ae28cade5d4ea20bd764f5797c33` (founder conditional authorization, 2026-10-11). Merge `5dc31a98f77f2892a79b371fe3fa26bb34d256e5`, 09:05:30Z, with `--match-head-commit`.
+  - The only change since review: a merge of `main`, plus the completed-card heading the founder required.
+- **Pre-merge checks:**
+  - CI `quality` ✓ and `python` ✓ on that head; CLEAN; 7 files, nothing protected;
+  - local: build ✓; rendered guards 690 / 693 (0 failing); UFC and uiux 291 / 291; unit (2 local `live RLS`, plus 1 data-dependent Ask parity test that passes in isolation and in CI);
+  - no deployment in flight.
+- **Production:** the live build is the merge itself (09:06:51Z).
+  - Card, frozen snapshot and `graded-picks.json` are byte-identical to before the merge.
+  - 13 routes return 200 (including the NFL / MLB / EPL / NBA hubs, `/live` and Results).
+  - Playwright on the live `/ufc` at 1440 and 375 px: 12 board rows; 24 / 24 portraits loaded; 12 unique bout links; no table; no overflow; 0 console or page errors; heading "Last card · pregame predictions".
+- **Vercel:** 1 Production build; Preview 0.
 
 ---
 

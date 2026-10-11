@@ -106,7 +106,7 @@ export interface PredictionCardModel {
   forecast: { label: string; value: string; sub: string | null };
   /** SIGNAL */
   signal: ConfidenceSignal;
-  /** WHY — one model-derived line or nothing. */
+  /** WHY — one pipeline-derived line or nothing. It must say what it is: UFC's is a tracked-record summary, labelled so in its text. */
   why: string | null;
   /** RISKS — caveats that change how to read the number. */
   risks: string[];
