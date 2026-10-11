@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "mlb-pregame-travel-rest-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "travel_rest",
+  "gamePk": 849831,
+  "teamId": 145,
+  "name": "Chicago White Sox",
+  "side": "away",
+  "date": "2026-10-10",
+  "capturedAt": "2026-10-10T16:07:15.413Z",
+  "availableAt": "2026-10-10T16:07:15.413Z",
+  "eventStartTime": "2026-10-11T00:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; only games strictly earlier than the slate + static venue coordinates used",
+  "daysRest": 2,
+  "gamesLast7": 4,
+  "gamesLast10": 5,
+  "travelDistanceKm": 495.5,
+  "previousGameDate": "2026-10-08",
+  "previousVenueId": 4,
+  "leakageRule": "only the team's games with officialDate < slate date are counted; venue coordinates are static; captured pregame",
+  "travelNote": "great-circle km between previous and today's venue coordinates",
+  "provenance": {
+    "teamSchedule": "https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=145&startDate=2026-09-26&endDate=2026-10-09",
+    "venueCoords": "https://statsapi.mlb.com/api/v1/venues/{id}?hydrate=location",
+    "capturedAt": "2026-10-10T16:07:15.413Z"
+  },
+  "recordHash": "698dcd9e03e22ee24113727d94ba54f4b9eaf9d784d70216f1a8fe5e2996b4a5"
+}

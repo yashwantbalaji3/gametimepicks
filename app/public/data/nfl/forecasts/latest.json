@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-forecasts",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-10T00:30:27Z",
- "date": "2026-10-10",
+ "generatedAt": "2026-10-11T00:06:39Z",
+ "date": "2026-10-11",
  "model": {
   "id": "nfl-regular-season-public-v1",
   "version": 2,
@@ -38,7 +38,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "f9ada15611c9e989",
+    "inputHash": "8bd608671f444ec7",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -68,10 +68,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the Elo-logistic win head over a 871-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
@@ -82,10 +82,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.4699,
-     "away": 0.5007,
-     "tieMass": 0.0294,
-     "homeUnrounded": 0.46990259651594013,
+     "home": 0.4695,
+     "away": 0.5002,
+     "tieMass": 0.0303,
+     "homeUnrounded": 0.4694668739352021,
      "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -96,12 +96,12 @@
     "total": {
      "median": 43,
      "p10": 26,
-     "p90": 61,
+     "p90": 60,
      "head": "matchup-totals-v3-play-efficiency"
     },
     "scoreRange": {
      "homeP10": 9,
-     "homeP90": 34,
+     "homeP90": 33,
      "awayP10": 10,
      "awayP90": 34
     },
@@ -115,9 +115,9 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-10T00:30:27Z",
-    "books": 4,
-    "marketHomeWinPct": 0.755786,
+    "capturedAt": "2026-10-11T00:06:39Z",
+    "books": 7,
+    "marketHomeWinPct": 0.759494,
     "marketSpreadHome": -7.5,
     "marketTotal": 42,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
@@ -126,7 +126,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -143,7 +143,7 @@
     "publishedSide": "AWAY",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -167,7 +167,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "f6d184b579728456",
+    "inputHash": "71f7603ba38bdbec",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -197,10 +197,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the Elo-logistic win head over a 871-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
@@ -211,16 +211,16 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.565,
-     "away": 0.4075,
-     "tieMass": 0.0275,
-     "homeUnrounded": 0.5649597721948386,
+     "home": 0.5652,
+     "away": 0.4077,
+     "tieMass": 0.0271,
+     "homeUnrounded": 0.565192146394199,
      "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
      "median": 4,
      "p10": -14,
-     "p90": 21
+     "p90": 22
     },
     "total": {
      "median": 48,
@@ -231,7 +231,7 @@
     "scoreRange": {
      "homeP10": 14,
      "homeP90": 38,
-     "awayP10": 10,
+     "awayP10": 9,
      "awayP90": 34
     },
     "distribution": {
@@ -244,18 +244,18 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
-    "marketHomeWinPct": 0.478261,
-    "marketSpreadHome": 1,
-    "marketTotal": 45.5,
+    "marketHomeWinPct": 0.467532,
+    "marketSpreadHome": 1.5,
+    "marketTotal": 46.5,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
-    "modelVsMarketTotal": 2.5
+    "modelVsMarketTotal": 1.5
    },
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -272,7 +272,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -296,7 +296,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "876dd398e707652d",
+    "inputHash": "d0f5865059da4033",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -328,10 +328,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
@@ -342,10 +342,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.2703,
-     "away": 0.7002,
-     "tieMass": 0.0295,
-     "homeUnrounded": 0.2702746765542599,
+     "home": 0.2711,
+     "away": 0.7025,
+     "tieMass": 0.0264,
+     "homeUnrounded": 0.2711379959744744,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -375,10 +375,10 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
-    "marketHomeWinPct": 0.236805,
-    "marketSpreadHome": 7.5,
+    "marketHomeWinPct": 0.246781,
+    "marketSpreadHome": 7,
     "marketTotal": 38,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
     "modelVsMarketTotal": 5
@@ -386,7 +386,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -403,7 +403,7 @@
     "publishedSide": "AWAY",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -427,7 +427,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "e02d4a427a608e91",
+    "inputHash": "07e674c6739e3eb9",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -457,10 +457,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the Elo-logistic win head over a 871-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
@@ -471,10 +471,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.5628,
-     "away": 0.4097,
-     "tieMass": 0.0275,
-     "homeUnrounded": 0.5627870186008489,
+     "home": 0.561,
+     "away": 0.4084,
+     "tieMass": 0.0306,
+     "homeUnrounded": 0.5609930445569798,
      "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -485,14 +485,14 @@
     "total": {
      "median": 46,
      "p10": 29,
-     "p90": 64,
+     "p90": 63,
      "head": "matchup-totals-v3-play-efficiency"
     },
     "scoreRange": {
      "homeP10": 13,
-     "homeP90": 38,
+     "homeP90": 37,
      "awayP10": 9,
-     "awayP90": 34
+     "awayP90": 33
     },
     "distribution": {
      "marginMean": 3.82,
@@ -504,10 +504,10 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
-    "marketHomeWinPct": 0.267176,
-    "marketSpreadHome": 6.5,
+    "marketHomeWinPct": 0.261267,
+    "marketSpreadHome": 7,
     "marketTotal": 43.5,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
     "modelVsMarketTotal": 2.5
@@ -515,7 +515,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -532,7 +532,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -556,7 +556,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "2d4400808612005c",
+    "inputHash": "6b9a266c1d0b5933",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -588,10 +588,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
@@ -602,21 +602,21 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.7288,
-     "away": 0.2452,
-     "tieMass": 0.026,
-     "homeUnrounded": 0.728833194673908,
+     "home": 0.7303,
+     "away": 0.2457,
+     "tieMass": 0.024,
+     "homeUnrounded": 0.7303297720757024,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
      "median": 8,
-     "p10": -8,
+     "p10": -9,
      "p90": 25
     },
     "total": {
      "median": 40,
-     "p10": 23,
-     "p90": 58,
+     "p10": 24,
+     "p90": 57,
      "head": "matchup-totals-v3-play-efficiency"
     },
     "scoreRange": {
@@ -635,9 +635,9 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
-    "marketHomeWinPct": 0.635036,
+    "marketHomeWinPct": 0.6283,
     "marketSpreadHome": -3.5,
     "marketTotal": 45,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
@@ -646,7 +646,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -663,7 +663,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -687,7 +687,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "e8d1aa00c4493557",
+    "inputHash": "fdf3a6f90395f170",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -719,42 +719,42 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
    "forecastSummary": {
     "projectedScore": {
-     "home": 18,
-     "away": 22,
+     "home": 17,
+     "away": 23,
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.2639,
-     "away": 0.7081,
-     "tieMass": 0.028,
-     "homeUnrounded": 0.26386050550986073,
+     "home": 0.2635,
+     "away": 0.7071,
+     "tieMass": 0.0294,
+     "homeUnrounded": 0.2634804595142704,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
-     "median": -5,
+     "median": -6,
      "p10": -22,
      "p90": 11
     },
     "total": {
      "median": 40,
      "p10": 24,
-     "p90": 57,
+     "p90": 58,
      "head": "matchup-totals-v3-play-efficiency"
     },
     "scoreRange": {
-     "homeP10": 5,
+     "homeP10": 6,
      "homeP90": 29,
      "awayP10": 11,
-     "awayP90": 34
+     "awayP90": 35
     },
     "distribution": {
      "marginMean": -5.46,
@@ -766,18 +766,18 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
-    "marketHomeWinPct": 0.439175,
+    "marketHomeWinPct": 0.443623,
     "marketSpreadHome": 2.5,
-    "marketTotal": 42,
+    "marketTotal": 41.5,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
-    "modelVsMarketTotal": -2
+    "modelVsMarketTotal": -1.5
    },
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -794,7 +794,7 @@
     "publishedSide": "AWAY",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -818,7 +818,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "ae8f6d23becafb27",
+    "inputHash": "83883730861e35a2",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -850,24 +850,24 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
    "forecastSummary": {
     "projectedScore": {
-     "home": 19,
+     "home": 20,
      "away": 21,
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.4028,
-     "away": 0.566,
-     "tieMass": 0.0312,
-     "homeUnrounded": 0.40276603612682205,
+     "home": 0.4027,
+     "away": 0.5659,
+     "tieMass": 0.0314,
+     "homeUnrounded": 0.40268288872052005,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -876,13 +876,13 @@
      "p90": 15
     },
     "total": {
-     "median": 40,
-     "p10": 23,
-     "p90": 57,
+     "median": 41,
+     "p10": 24,
+     "p90": 58,
      "head": "matchup-totals-v3-play-efficiency"
     },
     "scoreRange": {
-     "homeP10": 7,
+     "homeP10": 8,
      "homeP90": 31,
      "awayP10": 9,
      "awayP90": 33
@@ -897,18 +897,18 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
     "marketHomeWinPct": 0.556377,
     "marketSpreadHome": -2.5,
     "marketTotal": 39.5,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
-    "modelVsMarketTotal": 0.5
+    "modelVsMarketTotal": 1.5
    },
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -925,7 +925,7 @@
     "publishedSide": "AWAY",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -949,7 +949,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "d0935f3e0d228520",
+    "inputHash": "9a4c19ee481cb9ba",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -981,10 +981,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
@@ -995,10 +995,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.5768,
-     "away": 0.3967,
-     "tieMass": 0.0265,
-     "homeUnrounded": 0.5767827453839429,
+     "home": 0.5748,
+     "away": 0.3953,
+     "tieMass": 0.0299,
+     "homeUnrounded": 0.5747683012809071,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -1028,18 +1028,18 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
-    "marketHomeWinPct": 0.57206,
+    "marketHomeWinPct": 0.574468,
     "marketSpreadHome": -2.5,
-    "marketTotal": 44,
+    "marketTotal": 43.5,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
-    "modelVsMarketTotal": 2
+    "modelVsMarketTotal": 2.5
    },
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1056,7 +1056,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -1080,7 +1080,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "1bedae95f8d67ad8",
+    "inputHash": "8888b2631ceb140f",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -1110,28 +1110,28 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the Elo-logistic win head over a 871-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
    "forecastSummary": {
     "projectedScore": {
-     "home": 28,
-     "away": 21,
+     "home": 27,
+     "away": 22,
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.5933,
-     "away": 0.3806,
-     "tieMass": 0.0261,
-     "homeUnrounded": 0.5933436339285764,
+     "home": 0.5926,
+     "away": 0.3801,
+     "tieMass": 0.0273,
+     "homeUnrounded": 0.5926125400167638,
      "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
-     "median": 6,
+     "median": 5,
      "p10": -12,
      "p90": 23
     },
@@ -1143,8 +1143,8 @@
     },
     "scoreRange": {
      "homeP10": 15,
-     "homeP90": 40,
-     "awayP10": 10,
+     "homeP90": 39,
+     "awayP10": 9,
      "awayP90": 34
     },
     "distribution": {
@@ -1157,10 +1157,10 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
-    "marketHomeWinPct": 0.638554,
-    "marketSpreadHome": -4,
+    "marketHomeWinPct": 0.62111,
+    "marketSpreadHome": -3.5,
     "marketTotal": 41.5,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
     "modelVsMarketTotal": 7.5
@@ -1168,7 +1168,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1185,7 +1185,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -1209,7 +1209,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "8d0c353a32407b9d",
+    "inputHash": "01672ddfe2a7dcba",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -1241,10 +1241,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
@@ -1255,10 +1255,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.3304,
-     "away": 0.6376,
-     "tieMass": 0.032,
-     "homeUnrounded": 0.33040015179959237,
+     "home": 0.3322,
+     "away": 0.6411,
+     "tieMass": 0.0267,
+     "homeUnrounded": 0.33220916089518937,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -1275,8 +1275,8 @@
     "scoreRange": {
      "homeP10": 7,
      "homeP90": 31,
-     "awayP10": 10,
-     "awayP90": 34
+     "awayP10": 9,
+     "awayP90": 33
     },
     "distribution": {
      "marginMean": -2.32,
@@ -1288,9 +1288,9 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
-    "marketHomeWinPct": 0.380826,
+    "marketHomeWinPct": 0.374435,
     "marketSpreadHome": 3.5,
     "marketTotal": 42,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
@@ -1299,7 +1299,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1316,7 +1316,7 @@
     "publishedSide": "AWAY",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -1340,7 +1340,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "33fceabb9733869b",
+    "inputHash": "1bf2ef238ade7258",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -1372,10 +1372,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
@@ -1386,15 +1386,15 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.352,
-     "away": 0.6186,
-     "tieMass": 0.0294,
-     "homeUnrounded": 0.35196871150969977,
+     "home": 0.3526,
+     "away": 0.6197,
+     "tieMass": 0.0277,
+     "homeUnrounded": 0.35258518256839183,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
      "median": -5,
-     "p10": -21,
+     "p10": -22,
      "p90": 12
     },
     "total": {
@@ -1406,7 +1406,7 @@
     "scoreRange": {
      "homeP10": 13,
      "homeP90": 37,
-     "awayP10": 18,
+     "awayP10": 17,
      "awayP90": 41
     },
     "distribution": {
@@ -1419,9 +1419,9 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
-    "marketHomeWinPct": 0.314607,
+    "marketHomeWinPct": 0.318182,
     "marketSpreadHome": 5.5,
     "marketTotal": 54.5,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
@@ -1430,7 +1430,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1447,7 +1447,7 @@
     "publishedSide": "AWAY",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -1471,7 +1471,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "49f949521d325d62",
+    "inputHash": "706a12915ff16651",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -1503,10 +1503,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
@@ -1517,16 +1517,16 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.6013,
-     "away": 0.3675,
-     "tieMass": 0.0312,
-     "homeUnrounded": 0.6012681024377802,
+     "home": 0.6033,
+     "away": 0.3688,
+     "tieMass": 0.0279,
+     "homeUnrounded": 0.6033161874275043,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
      "median": 4,
      "p10": -13,
-     "p90": 21
+     "p90": 20
     },
     "total": {
      "median": 46,
@@ -1550,9 +1550,9 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
-    "marketHomeWinPct": 0.602766,
+    "marketHomeWinPct": 0.597735,
     "marketSpreadHome": -3,
     "marketTotal": 46,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
@@ -1561,7 +1561,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1578,7 +1578,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -1602,7 +1602,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "524bac9e1d64fb27",
+    "inputHash": "fb2e7b9e2179cf03",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -1634,10 +1634,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
@@ -1648,15 +1648,15 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.4465,
-     "away": 0.5192,
-     "tieMass": 0.0343,
-     "homeUnrounded": 0.446483104661704,
+     "home": 0.4486,
+     "away": 0.5217,
+     "tieMass": 0.0297,
+     "homeUnrounded": 0.4486098751716386,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
      "median": -1,
-     "p10": -17,
+     "p10": -18,
      "p90": 16
     },
     "total": {
@@ -1681,14 +1681,14 @@
    },
    "marketComparison": {
     "state": "WITHHELD_TEAM_INPUTS",
-    "capturedAt": "2026-10-09T18:36:32Z",
+    "capturedAt": "2026-10-11T00:06:39Z",
     "books": 7,
     "note": "This forecast does not account for Lamar Jackson (BAL, Out). Our team model rates teams from past results and does not adjust for who plays quarterback, so it is not compared with the sportsbooks for this game — their price already reflects the absence."
    },
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "BLIND_TO_STARTING_QB_ABSENCE",
     "absences": [
      {
@@ -1697,7 +1697,7 @@
       "team": "BAL",
       "status": "Out",
       "statedAt": "2026-10-09T17:34Z",
-      "depthChartAt": "2026-10-07T14:25:15Z"
+      "depthChartAt": "2026-10-10T13:32:40Z"
      }
     ],
     "comparisonWithheld": true,
@@ -1714,7 +1714,7 @@
     "publishedSide": "AWAY",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   },
   {
@@ -1738,7 +1738,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "7d3e523e075ca713",
+    "inputHash": "67ad95eb088e1e3a",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -1768,10 +1768,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the Elo-logistic win head over a 871-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-10T00:30:27Z",
+   "generatedAt": "2026-10-11T00:06:39Z",
    "evidence": {
-    "schedule": "2026-10-09T16:06:15Z",
-    "strengthCutoff": "2026-10-10T00:30:27Z",
+    "schedule": "2026-10-10T15:14:37Z",
+    "strengthCutoff": "2026-10-11T00:06:39Z",
     "strengthGamesFolded": 871,
     "regressedToSeason": null
    },
@@ -1803,7 +1803,7 @@
      "homeP10": 16,
      "homeP90": 41,
      "awayP10": 12,
-     "awayP90": 37
+     "awayP90": 36
     },
     "distribution": {
      "marginMean": 4.42,
@@ -1815,9 +1815,9 @@
    },
    "marketComparison": {
     "state": "MARKET_VIEW",
-    "capturedAt": "2026-10-09T18:36:32Z",
-    "books": 7,
-    "marketHomeWinPct": 0.609236,
+    "capturedAt": "2026-10-10T17:32:23Z",
+    "books": 4,
+    "marketHomeWinPct": 0.613507,
     "marketSpreadHome": -3,
     "marketTotal": 54.5,
     "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
@@ -1826,7 +1826,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-10T00:30:27Z",
+    "participationAsOf": "2026-10-11T00:06:39Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1843,7 +1843,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-10T00:30:27Z"
+    "frozenAt": "2026-10-11T00:06:39Z"
    }
   }
  ],
