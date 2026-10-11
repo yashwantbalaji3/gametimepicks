@@ -5,14 +5,14 @@
  "public": true,
  "league": "ligue-1",
  "competition": "Ligue 1",
- "generatedAt": "2026-10-10T15:24:29Z",
+ "generatedAt": "2026-10-11T15:43:33Z",
  "rule": "each match graded once, against the last forecast published before kickoff, from the official final score",
  "summary": {
-  "matches": 19,
-  "logLoss": 0.9478,
-  "brier": 0.5551,
+  "matches": 25,
+  "logLoss": 0.8953,
+  "brier": 0.5182,
   "uniformLogLoss": 1.0986,
-  "sampleState": "TOO_SMALL_TO_ASSESS"
+  "sampleState": "ACCUMULATING"
  },
  "matches": [
   {
@@ -413,6 +413,132 @@
    "probabilityOfResult": 0.4939,
    "logLoss": 0.7055,
    "brier": 0.3843
+  },
+  {
+   "eventId": "soccer:ligue-1:401876446",
+   "matchup": "Lille v Le Havre AC",
+   "homeClub": "Lille",
+   "awayClub": "Le Havre AC",
+   "kickoffUtc": "2026-10-10T15:15:00.000Z",
+   "forecastAt": "2026-10-10T14:51:27Z",
+   "probs": {
+    "home": 0.630635,
+    "draw": 0.211515,
+    "away": 0.15785
+   },
+   "final": {
+    "home": 1,
+    "away": 0
+   },
+   "result": "H",
+   "probabilityOfResult": 0.6306,
+   "logLoss": 0.461,
+   "brier": 0.2061
+  },
+  {
+   "eventId": "soccer:ligue-1:401876444",
+   "matchup": "AS Monaco v Toulouse",
+   "homeClub": "AS Monaco",
+   "awayClub": "Toulouse",
+   "kickoffUtc": "2026-10-10T18:45:00.000Z",
+   "forecastAt": "2026-10-10T15:24:29Z",
+   "probs": {
+    "home": 0.498607,
+    "draw": 0.232846,
+    "away": 0.268546
+   },
+   "final": {
+    "home": 2,
+    "away": 2
+   },
+   "result": "D",
+   "probabilityOfResult": 0.2328,
+   "logLoss": 1.4574,
+   "brier": 0.9093
+  },
+  {
+   "eventId": "soccer:ligue-1:401876448",
+   "matchup": "Brest v Angers",
+   "homeClub": "Brest",
+   "awayClub": "Angers",
+   "kickoffUtc": "2026-10-10T18:45:00.000Z",
+   "forecastAt": "2026-10-10T15:24:29Z",
+   "probs": {
+    "home": 0.616973,
+    "draw": 0.234552,
+    "away": 0.148475
+   },
+   "final": {
+    "home": 5,
+    "away": 1
+   },
+   "result": "H",
+   "probabilityOfResult": 0.617,
+   "logLoss": 0.4829,
+   "brier": 0.2238
+  },
+  {
+   "eventId": "soccer:ligue-1:401876445",
+   "matchup": "Lorient v Paris FC",
+   "homeClub": "Lorient",
+   "awayClub": "Paris FC",
+   "kickoffUtc": "2026-10-10T18:45:00.000Z",
+   "forecastAt": "2026-10-10T15:24:29Z",
+   "probs": {
+    "home": 0.3797,
+    "draw": 0.261351,
+    "away": 0.358949
+   },
+   "final": {
+    "home": 1,
+    "away": 0
+   },
+   "result": "H",
+   "probabilityOfResult": 0.3797,
+   "logLoss": 0.9684,
+   "brier": 0.5819
+  },
+  {
+   "eventId": "soccer:ligue-1:401876442",
+   "matchup": "Paris Saint-Germain v Le Mans",
+   "homeClub": "Paris Saint-Germain",
+   "awayClub": "Le Mans",
+   "kickoffUtc": "2026-10-10T18:45:00.000Z",
+   "forecastAt": "2026-10-10T15:24:29Z",
+   "probs": {
+    "home": 0.753883,
+    "draw": 0.132241,
+    "away": 0.113877
+   },
+   "final": {
+    "home": 3,
+    "away": 1
+   },
+   "result": "H",
+   "probabilityOfResult": 0.7539,
+   "logLoss": 0.2825,
+   "brier": 0.091
+  },
+  {
+   "eventId": "soccer:ligue-1:401876443",
+   "matchup": "Nice v Strasbourg",
+   "homeClub": "Nice",
+   "awayClub": "Strasbourg",
+   "kickoffUtc": "2026-10-11T13:00:00.000Z",
+   "forecastAt": "2026-10-10T15:24:29Z",
+   "probs": {
+    "home": 0.485744,
+    "draw": 0.254638,
+    "away": 0.259619
+   },
+   "final": {
+    "home": 2,
+    "away": 1
+   },
+   "result": "H",
+   "probabilityOfResult": 0.4857,
+   "logLoss": 0.7221,
+   "brier": 0.3967
   }
  ]
 }

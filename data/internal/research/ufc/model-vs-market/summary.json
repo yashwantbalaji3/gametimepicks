@@ -3,31 +3,31 @@
  "artifact": "ufc-model-vs-market-summary",
  "dataClass": "INTERNAL_RESEARCH",
  "public": false,
- "generatedAt": "2026-10-04T13:49:31Z",
- "gradedTotal": 60,
+ "generatedAt": "2026-10-11T14:46:22Z",
+ "gradedTotal": 70,
  "note": "Model and market scored on identical bouts, both recorded before the card. Not a calibration verdict — that needs preregistered bars and a sample.",
  "latestRun": {
-  "n": 11,
+  "n": 10,
   "model": {
-   "logLoss": 0.927415,
-   "brier": 0.289158,
-   "accuracy": 0.636364
+   "logLoss": 0.726115,
+   "brier": 0.2634,
+   "accuracy": 0.5
   },
   "market": {
-   "logLoss": 0.425224,
-   "brier": 0.129617
+   "logLoss": 0.744536,
+   "brier": 0.273039
   }
  },
  "cumulative": {
-  "n": 60,
+  "n": 70,
   "model": {
-   "logLoss": 0.717831,
-   "brier": 0.244089,
-   "accuracy": 0.65
+   "logLoss": 0.719014,
+   "brier": 0.246848,
+   "accuracy": 0.628571
   },
   "market": {
-   "logLoss": 0.609837,
-   "brier": 0.212989
+   "logLoss": 0.62908,
+   "brier": 0.221568
   }
  },
  "reconciliation": [
@@ -101,6 +101,18 @@
    "void": 0,
    "pending": 0,
    "pendingBoutIds": [],
+   "reconciles": true
+  },
+  {
+   "slateDate": "2026-10-10",
+   "event": "UFC Fight Night: Allen vs. Duncan",
+   "frozen": 11,
+   "graded": 10,
+   "void": 0,
+   "pending": 1,
+   "pendingBoutIds": [
+    "2026-10-10:ernesta kareckaite|melissa gatto"
+   ],
    "reconciles": true
   }
  ]

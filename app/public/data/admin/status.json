@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-11T13:49:08.693Z",
+  "generatedAt": "2026-10-11T16:02:07.435Z",
   "canonical": {
     "record": "46-49",
     "bankroll": 14390.4,
@@ -105,15 +105,15 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-11",
-      "generatedAt": "2026-10-11T11:40:00Z",
+      "generatedAt": "2026-10-11T15:10:39Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 14,
-            "priced": 14,
-            "generated": 4,
+            "scheduled": 12,
+            "priced": 12,
+            "generated": 2,
             "frozen": 0,
             "started": 0
           },
@@ -139,14 +139,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 27,
-            "priced": 27,
+            "scheduled": 26,
+            "priced": 26,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:27 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:26 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -168,8 +168,14 @@
     "dailyLifecycle": {
       "receiptDate": "2026-10-11",
       "present": true,
-      "generatedAt": "2026-10-11T11:40:00Z",
-      "watchdog": [],
+      "generatedAt": "2026-10-11T15:10:38Z",
+      "watchdog": [
+        {
+          "product": "epl-cards",
+          "kind": "STALE_ACTIVE_CARD",
+          "detail": "locked 2026-10-11T00:01:04Z, still ACTIVE"
+        }
+      ],
       "states": {
         "bank-builder": {
           "state": "NO_PLAY",
@@ -211,16 +217,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-11T13:46:06.944Z",
-    "ageHours": 0.1,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "lastRunAt": "2026-10-11T16:02:06.686Z",
+    "ageHours": 0,
+    "ok": true,
+    "status": "pass",
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-11",
-    "etTime": "09:49",
+    "etTime": "12:02",
     "stages": [
       {
         "stage": "schedule",
