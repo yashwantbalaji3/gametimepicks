@@ -74,6 +74,8 @@ export function mlbGameRows(graded = [], sourceModels = new Map()) {
     out.push(makeRow({
       ...(rs?.publicationStatus ? { publicationStatus: rs.publicationStatus } : {}),
       ...(rs ? { provenance: { notes: rs.notes } } : {}),
+      // Amendment 2: verified timing travels with a grade row that carries it (only restated rows can, today).
+      ...(g.timing ? { timing: g.timing } : {}),
       sport: "MLB",
       competition: "MLB",
       season: typeof g.date === "string" ? g.date.slice(0, 4) : null,
@@ -166,6 +168,7 @@ export function mlbProjectedRows(graded = [], teamIds = new Map()) {
     const base = {
       ...(rs?.publicationStatus ? { publicationStatus: rs.publicationStatus } : {}),
       ...(rs ? { provenance: { notes: rs.notes } } : {}),
+      ...(g.timing ? { timing: g.timing } : {}),
       sport: "MLB",
       competition: "MLB",
       season: typeof g.date === "string" ? g.date.slice(0, 4) : null,

@@ -15,7 +15,9 @@
  * that comes with a larger `settlement.corrections` count (the owner's own correction log); measurement fields that
  * follow an allowed settlement change.
  */
-import { IMMUTABLE_FIELDS } from "./contract.mjs";
+import { IMMUTABLE_FIELDS, OPTIONAL_IMMUTABLE_FIELDS } from "./contract.mjs";
+
+const PROTECTED_FIELDS = [...IMMUTABLE_FIELDS, ...OPTIONAL_IMMUTABLE_FIELDS];
 
 const stable = (v) => JSON.stringify(v, (_k, x) => (x && typeof x === "object" && !Array.isArray(x) ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => (a < b ? -1 : 1))) : x));
 
@@ -40,7 +42,7 @@ export function compareLedgers(prevRows, nextRows, { directionalRestated = new S
     }
     const rs = restatements.get(p.forecastId) ?? null;
     const listed = rs?.fields ?? {};
-    for (const f of IMMUTABLE_FIELDS) {
+    for (const f of PROTECTED_FIELDS) {
       const changed = stable(p[f]) !== stable(n[f]);
       const l = listed[f];
       if (l) {
@@ -54,7 +56,7 @@ export function compareLedgers(prevRows, nextRows, { directionalRestated = new S
     }
     if (rs) {
       for (const f of Object.keys(listed)) {
-        if (f !== "publicationStatus" && !IMMUTABLE_FIELDS.includes(f)) violations.push({ forecastId: p.forecastId, kind: "RESTATEMENT_MISMATCH", detail: `${f} is not a restatable field (${rs.restatementId})` });
+        if (f !== "publicationStatus" && !PROTECTED_FIELDS.includes(f)) violations.push({ forecastId: p.forecastId, kind: "RESTATEMENT_MISMATCH", detail: `${f} is not a restatable field (${rs.restatementId})` });
       }
     }
     const pub = listed.publicationStatus;

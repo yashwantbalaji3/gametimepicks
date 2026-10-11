@@ -47,7 +47,69 @@ export const CONTRACT_AMENDMENTS = Object.freeze([
     authority: "Founder decision 2 (2026-10-10, TRUTH-001 Stage B); ledger-owner review 2026-10-10",
     change: "Publication status NOT_SERVED: a graded forecast whose revision no Production deployment served before the start. Allowed only as PUBLISHED → NOT_SERVED, only for a forecastId a committed, approved restatement log lists. Not a public forecast: excluded from published counts and verified performance; never a loss.",
   }),
+  Object.freeze({
+    id: "forecast-ledger@1/amendment-2",
+    date: "2026-10-10",
+    authority: "Founder decision 2 (2026-10-10, game 824424): a reusable, versioned distinction between scheduled start, verified actual first pitch, generation, freeze and verified public publication time",
+    change: "Optional row field `timing` (schema forecast-ledger-timing@1). Absent on every existing row (missing stays missing). When it carries a VERIFIED actual start and a VERIFIED served time, the of-record rule is: generated and served before the earliest instant of the actual start — instead of publishedAt < eventStart (the scheduled start). eventStart and every identity are unchanged; `timing` is immutable once present and can be added to an existing row only by an approved restatement that lists it.",
+  }),
 ]);
+
+/**
+ * AMENDMENT 2 · TIMING. Optional; validated when present. Five instants, never conflated:
+ *   scheduledStart   the event's scheduled start (equals eventStart, which stays the identity's start)
+ *   actualStart      the VERIFIED actual first pitch / kickoff as an interval { from, to, basis, source } — the true
+ *                    start lies in [from, to] (a recorded pitch event is later than the pitch, so `from` precedes it)
+ *   generatedAt      when the model produced the forecast
+ *   frozenAt         when the forecast was frozen, if it was
+ *   servedAt         VERIFIED public publication: when a READY Production deployment first served these bytes
+ *   publicationEvidence { kind, deploymentId, commitSha, readyAt, servedHash, source }
+ */
+export const TIMING_SCHEMA = "forecast-ledger-timing@1";
+export const OPTIONAL_ROW_FIELDS = Object.freeze(["timing"]);
+
+export function validateTiming(t, row) {
+  const p = [];
+  if (t == null) return p;
+  if (t.schema !== TIMING_SCHEMA) p.push("timing.schema");
+  for (const k of ["scheduledStart", "generatedAt", "frozenAt", "servedAt"]) if (t[k] != null && !isIso(t[k])) p.push(`timing.${k}`);
+  if (t.scheduledStart != null && row?.eventStart != null && t.scheduledStart !== row.eventStart) p.push("timing.scheduledStart differs from eventStart");
+  const a = t.actualStart;
+  if (a != null) {
+    if (!isIso(a.from) || !isIso(a.to) || Date.parse(a.from) > Date.parse(a.to)) p.push("timing.actualStart interval");
+    if (typeof a.basis !== "string" || !a.basis) p.push("timing.actualStart.basis");
+  }
+  if (t.servedAt != null) {
+    const e = t.publicationEvidence;
+    if (!e || typeof e.kind !== "string" || !isIso(e.readyAt)) p.push("timing.servedAt without publication evidence");
+    // publicationEvidence.readyAt is when the deployment serving at the start became READY: it cannot be at/after the
+    // verified actual start (contradictory evidence is reported, and never unlocks the actual-start rule).
+    else if (a != null && isIso(a.from) && !(Date.parse(e.readyAt) < Date.parse(a.from))) p.push("timing.publicationEvidence.readyAt not before the actual start");
+  }
+  return p;
+}
+
+/**
+ * The of-record rule. With a verified actual start AND a verified served time, the forecast is of record when it was
+ * generated and served before the earliest instant of the actual start. Otherwise the original rule: published before
+ * the scheduled start. Never both, never a special case.
+ */
+/** Whether a row carries the VERIFIED timing the actual-start rule needs: an actual start, a served time AND its evidence. */
+export const hasVerifiedTiming = (row) => {
+  const t = row?.timing;
+  return !!(t?.actualStart && isIso(t.actualStart.from) && isIso(t.servedAt) && isIso(t.publicationEvidence?.readyAt) && isIso(t.generatedAt ?? row.publishedAt)
+    // Contradictory evidence verifies nothing: the deployment named as serving at the start must have been READY before it.
+    && Date.parse(t.publicationEvidence.readyAt) < Date.parse(t.actualStart.from));
+};
+
+export function ofRecordBeforeStart(row) {
+  const t = row?.timing;
+  if (hasVerifiedTiming(row)) {
+    const start = Date.parse(t.actualStart.from);
+    return Date.parse(t.servedAt) < start && Date.parse(t.generatedAt ?? row.publishedAt) < start;
+  }
+  return !(isIso(row?.publishedAt) && isIso(row?.eventStart)) || Date.parse(row.publishedAt) < Date.parse(row.eventStart);
+}
 
 /** What kind of claim the forecast made — decides how it is measured. */
 export const FORECAST_KIND = Object.freeze({
@@ -87,6 +149,12 @@ export const IMMUTABLE_FIELDS = Object.freeze([
   "probability", "probabilityType", "classProbabilities",
   "market", "direction", "categoryPrediction", "recoverability",
 ]);
+/**
+ * Amendment 2: OPTIONAL fields that are immutable once present (absent on rows that predate them). Adding one to an
+ * existing row, or changing it, needs an approved restatement that lists it. Enforced by append-only.mjs beside
+ * IMMUTABLE_FIELDS.
+ */
+export const OPTIONAL_IMMUTABLE_FIELDS = Object.freeze(["timing"]);
 
 /** Every top-level field a row carries, in canonical order (serialisation order is part of determinism). */
 export const ROW_FIELDS = Object.freeze([
@@ -119,7 +187,8 @@ export function validateRow(row) {
   const p = [];
   if (!row || typeof row !== "object") return ["row is not an object"];
   for (const k of ROW_FIELDS) if (!(k in row)) p.push(`missing field ${k}`);
-  for (const k of Object.keys(row)) if (!ROW_FIELDS.includes(k)) p.push(`unknown field ${k}`);
+  for (const k of Object.keys(row)) if (!ROW_FIELDS.includes(k) && !OPTIONAL_ROW_FIELDS.includes(k)) p.push(`unknown field ${k}`);
+  p.push(...validateTiming(row.timing, row));
   if (row.schemaVersion !== LEDGER_SCHEMA_VERSION) p.push("schemaVersion");
   if (typeof row.forecastId !== "string" || !/^fl1-[0-9a-f]{16}$/.test(row.forecastId)) p.push("forecastId shape");
   if (!SPORTS.includes(row.sport)) p.push(`sport ${row.sport}`);
@@ -131,10 +200,9 @@ export function validateRow(row) {
   if (!Object.values(RECOVERABILITY).includes(row.recoverability)) p.push("recoverability");
   if (row.eventStart != null && !isIso(row.eventStart)) p.push("eventStart");
   if (row.publishedAt != null && !isIso(row.publishedAt)) p.push("publishedAt");
-  // A forecast stamped at/after the event start is never of record.
-  if (isIso(row.publishedAt) && isIso(row.eventStart) && !(Date.parse(row.publishedAt) < Date.parse(row.eventStart))) {
-    p.push("publishedAt is not before eventStart");
-  }
+  // A forecast stamped at/after the event start is never of record (amendment 2: the verified actual start, when the
+  // row carries verified timing).
+  if (!ofRecordBeforeStart(row)) p.push(hasVerifiedTiming(row) ? "not generated and served before the verified actual start" : "publishedAt is not before eventStart");
   switch (row.forecastKind) {
     case FORECAST_KIND.CONTINUOUS:
       if (!isNum(row.projection)) p.push("continuous row without a numeric projection");
