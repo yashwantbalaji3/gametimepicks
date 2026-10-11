@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-11T15:36:28Z",
- "sourceGeneratedAt": "2026-10-11T15:36:28Z",
+ "generatedAt": "2026-10-11T16:11:58Z",
+ "sourceGeneratedAt": "2026-10-11T16:11:58Z",
  "providerEventId": "401872988",
  "matchup": "NYG @ WSH",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-11T15:36:28Z",
-  "roleEvidenceAt": "2026-10-11T15:36:28Z",
+  "injuriesCapturedAt": "2026-10-11T16:11:58Z",
+  "roleEvidenceAt": "2026-10-11T16:11:58Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -52,9 +52,9 @@
      {
       "team": "NYG",
       "pool": "targets",
-      "originalSum": 1.079,
+      "originalSum": 1.0085,
       "normalizedSum": 1,
-      "factor": 0.9268,
+      "factor": 0.9916,
       "playerIds": [
        "nfl-athlete-4361050",
        "nfl-athlete-4595348",
@@ -62,7 +62,6 @@
        "nfl-athlete-4696981",
        "nfl-athlete-4040655",
        "nfl-athlete-4429148",
-       "nfl-athlete-4040761",
        "nfl-athlete-4424106"
       ]
      }
@@ -171,15 +170,15 @@
  },
  "marketCoverage": {
   "probed": true,
-  "priced": 43,
-  "absent": 17,
+  "priced": 42,
+  "absent": 14,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "NYG": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 2,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -226,18 +225,6 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4040761",
-     "name": "Devin Singletary",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions",
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
@@ -311,6 +298,12 @@
      "reason": "designation: Injured Reserve"
     },
     {
+     "playerId": "nfl-athlete-4040761",
+     "name": "Devin Singletary",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4243389",
      "name": "Calvin Austin III",
      "state": "WITHHELD_ROLE_UNCERTAIN",
@@ -381,7 +374,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4697815",
@@ -549,9 +542,9 @@
      "player_receptions"
     ],
     "sum": 1,
-    "originalSum": 1.079,
+    "originalSum": 1.0085,
     "residualOther": 0,
-    "joined": 8,
+    "joined": 7,
     "missed": 0,
     "state": "NORMALIZED"
    },
@@ -570,6 +563,19 @@
    },
    {
     "team": "WSH",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.8471,
+    "originalSum": 0.8471,
+    "residualOther": 0.1529,
+    "joined": 7,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "WSH",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
@@ -580,19 +586,6 @@
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
-   },
-   {
-    "team": "WSH",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.6038,
-    "originalSum": 0.6038,
-    "residualOther": 0.3962,
-    "joined": 6,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -620,15 +613,15 @@
      }
     },
     "player_receptions": {
-     "mean": 5.9599,
-     "p10": 1.8536,
-     "p25": 2.7804,
-     "median": 5.5607,
-     "p75": 8.3411,
-     "p90": 11.1214,
+     "mean": 6.3765,
+     "p10": 1.9831,
+     "p25": 2.9747,
+     "median": 5.9494,
+     "p75": 8.9241,
+     "p90": 11.8989,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9268
+      "factor": 0.9916
      },
      "market": {
       "line": 4.5,
@@ -685,15 +678,15 @@
      }
     },
     "player_receptions": {
-     "mean": 2.0205,
+     "mean": 2.1617,
      "p10": 0,
-     "p25": 0.9268,
-     "median": 1.8536,
-     "p75": 2.7804,
-     "p90": 4.6339,
+     "p25": 0.9916,
+     "median": 1.9831,
+     "p75": 2.9747,
+     "p90": 4.9579,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9268
+      "factor": 0.9916
      },
      "market": {
       "line": 1.5,
@@ -717,7 +710,7 @@
    "playerId": "nfl-athlete-3121422",
    "name": "Terry McLaurin",
    "team": "WSH",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 40.172,
@@ -781,15 +774,15 @@
      }
     },
     "player_receptions": {
-     "mean": 4.7142,
-     "p10": 0.9268,
-     "p25": 2.7804,
-     "median": 4.6339,
-     "p75": 6.4875,
-     "p90": 9.2678,
+     "mean": 5.0437,
+     "p10": 0.9916,
+     "p25": 2.9747,
+     "median": 4.9579,
+     "p75": 6.941,
+     "p90": 9.9157,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9268
+      "factor": 0.9916
      },
      "market": {
       "line": 4.5,
@@ -936,53 +929,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4040761",
-   "name": "Devin Singletary",
-   "team": "NYG",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 14.277,
-     "p10": 0.02,
-     "p25": 2.61,
-     "median": 9.87,
-     "p75": 21.05,
-     "p90": 34.35,
-     "pricingState": "NOT_OFFERED"
-    },
-    "player_reception_yds": {
-     "mean": 13.348,
-     "p10": 0,
-     "p25": 0,
-     "median": 7.53,
-     "p75": 20.59,
-     "p90": 36.36,
-     "pricingState": "NOT_OFFERED"
-    },
-    "player_receptions": {
-     "mean": 1.4548,
-     "p10": 0,
-     "p25": 0,
-     "median": 0.9268,
-     "p75": 1.8536,
-     "p90": 3.7071,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9268
-     },
-     "pricingState": "NOT_OFFERED"
-    },
-    "anytime_td": {
-     "probability": 0.2326,
-     "market": {
-      "yesOdds": 1000,
-      "sportsbook": "draftkings",
-      "capturedAt": "2026-10-11T11:41:55Z"
-     }
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-5081432",
    "name": "Antonio Williams",
    "team": "WSH",
@@ -1050,15 +996,15 @@
      }
     },
     "player_receptions": {
-     "mean": 2.305,
+     "mean": 2.4661,
      "p10": 0,
-     "p25": 0.9268,
-     "median": 1.8536,
-     "p75": 3.7071,
-     "p90": 4.6339,
+     "p25": 0.9916,
+     "median": 1.9831,
+     "p75": 3.9663,
+     "p90": 4.9579,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9268
+      "factor": 0.9916
      },
      "market": {
       "line": 2.5,
@@ -1291,15 +1237,15 @@
      }
     },
     "player_receptions": {
-     "mean": 1.6729,
+     "mean": 1.7899,
      "p10": 0,
-     "p25": 0.9268,
-     "median": 0.9268,
-     "p75": 2.7804,
-     "p90": 3.7071,
+     "p25": 0.9916,
+     "median": 0.9916,
+     "p75": 2.9747,
+     "p90": 3.9663,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9268
+      "factor": 0.9916
      },
      "market": {
       "line": 1.5,
@@ -1335,15 +1281,15 @@
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
-     "mean": 1.2612,
+     "mean": 1.3493,
      "p10": 0,
      "p25": 0,
-     "median": 0.9268,
-     "p75": 1.8536,
-     "p90": 2.7804,
+     "median": 0.9916,
+     "p75": 1.9831,
+     "p90": 2.9747,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9268
+      "factor": 0.9916
      },
      "pricingState": "NOT_OFFERED"
     },
@@ -1410,15 +1356,15 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_receptions": {
-     "mean": 1.151,
+     "mean": 1.2314,
      "p10": 0,
      "p25": 0,
-     "median": 0.9268,
-     "p75": 1.8536,
-     "p90": 2.7804,
+     "median": 0.9916,
+     "p75": 1.9831,
+     "p90": 2.9747,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9268
+      "factor": 0.9916
      },
      "pricingState": "NOT_OFFERED"
     },

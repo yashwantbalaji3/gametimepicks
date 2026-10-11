@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-11T15:36:28Z",
- "sourceGeneratedAt": "2026-10-11T15:36:28Z",
+ "generatedAt": "2026-10-11T16:11:58Z",
+ "sourceGeneratedAt": "2026-10-11T16:11:58Z",
  "providerEventId": "401872990",
  "matchup": "CHI @ GB",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-11T15:36:28Z",
-  "roleEvidenceAt": "2026-10-11T15:36:28Z",
+  "injuriesCapturedAt": "2026-10-11T16:11:58Z",
+  "roleEvidenceAt": "2026-10-11T16:11:58Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,6 +23,22 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "CHI",
+     "playerId": "nfl-athlete-15168",
+     "name": "Case Keenum",
+     "share": 0.457,
+     "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    },
+    {
+     "team": "CHI",
+     "playerId": "nfl-athlete-4434153",
+     "name": "Tyson Bagent",
+     "share": 0.522,
+     "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -114,31 +130,20 @@
  "marketCoverage": {
   "probed": true,
   "priced": 41,
-  "absent": 14,
+  "absent": 11,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "CHI": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
-    {
-     "playerId": "nfl-athlete-4431611",
-     "name": "Caleb Williams",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
     {
      "playerId": "nfl-athlete-4259545",
      "name": "D'Andre Swift",
@@ -164,7 +169,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     },
@@ -233,6 +238,12 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4431611",
+     "name": "Caleb Williams",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4608686",
      "name": "Kyle Monangai",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -242,12 +253,12 @@
      "playerId": "nfl-athlete-4434153",
      "name": "Tyson Bagent",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     }
@@ -398,25 +409,14 @@
   "qbStarter": [
    {
     "team": "CHI",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4431611",
-     "name": "Caleb Williams"
-    },
-    "snapshotAt": "2026-10-10T13:32:40Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-15168",
-      "name": "Case Keenum"
-     },
-     {
-      "playerId": "nfl-athlete-4434153",
-      "name": "Tyson Bagent"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth-chart QB1 Caleb Williams is not in the board's passing pool",
     "passers": [
-     "nfl-athlete-4431611"
-    ]
+     "nfl-athlete-15168",
+     "nfl-athlete-4434153"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-10T13:32:40Z"
    },
    {
     "team": "GB",
@@ -432,9 +432,25 @@
     "team": "CHI",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4431611"
+     "nfl-athlete-15168",
+     "nfl-athlete-4434153"
     ],
-    "withheld": [],
+    "withheld": [
+     {
+      "team": "CHI",
+      "playerId": "nfl-athlete-15168",
+      "name": "Case Keenum",
+      "share": 0.457,
+      "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     },
+     {
+      "team": "CHI",
+      "playerId": "nfl-athlete-4434153",
+      "name": "Tyson Bagent",
+      "share": 0.522,
+      "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
     "unjoined": []
    },
    {
@@ -833,36 +849,6 @@
       "sportsbook": "draftkings",
       "capturedAt": "2026-10-11T11:41:55Z"
      }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4431611",
-   "name": "Caleb Williams",
-   "team": "CHI",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 20.347,
-     "p10": 0.01,
-     "p25": 3.73,
-     "median": 14.12,
-     "p75": 29.66,
-     "p90": 49.79,
-     "pricingState": "NOT_OFFERED"
-    },
-    "player_pass_yds": {
-     "mean": 214.7564,
-     "p10": 108.807,
-     "p25": 147.9996,
-     "median": 201.8657,
-     "p75": 267.5242,
-     "p90": 337.3879,
-     "pricingState": "NOT_OFFERED"
-    },
-    "anytime_td": {
-     "probability": 0.261,
-     "pricingState": "NOT_OFFERED"
     }
    }
   },

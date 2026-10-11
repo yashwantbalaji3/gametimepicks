@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-11T15:36:28Z",
- "sourceGeneratedAt": "2026-10-11T15:36:28Z",
+ "generatedAt": "2026-10-11T16:11:58Z",
+ "sourceGeneratedAt": "2026-10-11T16:11:58Z",
  "providerEventId": "401872984",
  "matchup": "HOU @ TEN",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-11T15:36:28Z",
-  "roleEvidenceAt": "2026-10-11T15:36:28Z",
+  "injuriesCapturedAt": "2026-10-11T16:11:58Z",
+  "roleEvidenceAt": "2026-10-11T16:11:58Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -66,6 +66,23 @@
        "nfl-athlete-3843945",
        "nfl-athlete-4429059"
       ]
+     },
+     {
+      "team": "TEN",
+      "pool": "targets",
+      "originalSum": 1.0183,
+      "normalizedSum": 1,
+      "factor": 0.982,
+      "playerIds": [
+       "nfl-athlete-4871023",
+       "nfl-athlete-4569587",
+       "nfl-athlete-4883647",
+       "nfl-athlete-4686728",
+       "nfl-athlete-3916148",
+       "nfl-athlete-4428557",
+       "nfl-athlete-3925357",
+       "nfl-athlete-4431268"
+      ]
      }
     ]
    }
@@ -87,29 +104,7 @@
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
  },
- "newArrivals": {
-  "TEN": [
-   {
-    "playerId": "nfl-athlete-4240657",
-    "name": "Michael Carter",
-    "position": "RB",
-    "team": "TEN",
-    "participation": "ACTIVE_UNCERTAIN",
-    "lastSeason": {
-     "club": "ARI",
-     "games": 16,
-     "targetsPg": 3.3,
-     "receptionsPg": 2.4,
-     "recYdsPg": 17.5,
-     "rushAttPg": 7,
-     "rushYdsPg": 25.6,
-     "passAttPg": 0,
-     "passYdsPg": 0
-    },
-    "note": "no game for TEN yet this season, so his role there is not yet observed and he is not in this game's numbers; his ARI history is kept only as a historical prior"
-   }
-  ]
- },
+ "newArrivals": {},
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "practiceSquadFiltered": 3,
@@ -137,8 +132,8 @@
  },
  "marketCoverage": {
   "probed": true,
-  "priced": 53,
-  "absent": 9,
+  "priced": 52,
+  "absent": 8,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -297,10 +292,10 @@
   },
   "TEN": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
-    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
@@ -337,7 +332,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4569587",
@@ -358,16 +353,6 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4685555",
-     "name": "Nicholas Singleton",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
@@ -416,10 +401,10 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4240657",
-     "name": "Michael Carter",
-     "state": "WITHHELD_ROLE_UNCERTAIN",
-     "reason": "no game for TEN yet this season — role at TEN not yet observed"
+     "playerId": "nfl-athlete-4685555",
+     "name": "Nicholas Singleton",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   }
@@ -488,6 +473,19 @@
     "state": "NORMALIZED"
    },
    {
+    "team": "TEN",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 1,
+    "originalSum": 1.0183,
+    "residualOther": 0,
+    "joined": 8,
+    "missed": 0,
+    "state": "NORMALIZED"
+   },
+   {
     "team": "HOU",
     "pool": "passAttempts",
     "markets": [
@@ -512,19 +510,6 @@
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
-   },
-   {
-    "team": "TEN",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.7064,
-    "originalSum": 0.7064,
-    "residualOther": 0.2936,
-    "joined": 7,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -648,12 +633,16 @@
      }
     },
     "player_receptions": {
-     "mean": 2.1035,
+     "mean": 2.0657,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
+     "p25": 0.982,
+     "median": 1.9641,
+     "p75": 2.9461,
+     "p90": 3.9281,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 1.5,
       "overOdds": -129,
@@ -726,7 +715,7 @@
    "playerId": "nfl-athlete-4871023",
    "name": "Carnell Tate",
    "team": "TEN",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 73.058,
@@ -744,12 +733,16 @@
      }
     },
     "player_receptions": {
-     "mean": 6.6663,
-     "p10": 2,
-     "p25": 4,
-     "median": 6,
-     "p75": 9,
-     "p90": 12,
+     "mean": 6.5465,
+     "p10": 1.9641,
+     "p25": 3.9281,
+     "median": 5.8922,
+     "p75": 8.8383,
+     "p90": 11.7843,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 4.5,
       "overOdds": 103,
@@ -790,12 +783,16 @@
      }
     },
     "player_receptions": {
-     "mean": 4.1016,
-     "p10": 1,
-     "p25": 2,
-     "median": 4,
-     "p75": 6,
-     "p90": 8,
+     "mean": 4.0279,
+     "p10": 0.982,
+     "p25": 1.9641,
+     "median": 3.9281,
+     "p75": 5.8922,
+     "p90": 7.8562,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 3.5,
       "overOdds": -144,
@@ -935,12 +932,16 @@
      }
     },
     "player_receptions": {
-     "mean": 1.7618,
+     "mean": 1.7301,
      "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 3,
-     "p90": 4,
+     "p25": 0.982,
+     "median": 0.982,
+     "p75": 2.9461,
+     "p90": 3.9281,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 1.5,
       "overOdds": -187,
@@ -1077,12 +1078,16 @@
      }
     },
     "player_receptions": {
-     "mean": 2.0711,
+     "mean": 2.0339,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
+     "p25": 0.982,
+     "median": 1.9641,
+     "p75": 2.9461,
+     "p90": 3.9281,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 1.5,
       "overOdds": -108,
@@ -1252,12 +1257,16 @@
      }
     },
     "player_receptions": {
-     "mean": 2.3063,
+     "mean": 2.2649,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5,
+     "p25": 0.982,
+     "median": 1.9641,
+     "p75": 2.9461,
+     "p90": 4.9101,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 2.5,
       "overOdds": 121,
@@ -1315,31 +1324,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4685555",
-   "name": "Nicholas Singleton",
-   "team": "TEN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 9.7,
-     "p10": 0,
-     "p25": 0.2,
-     "median": 5.19,
-     "p75": 14.57,
-     "p90": 25.81,
-     "pricingState": "NOT_OFFERED"
-    },
-    "anytime_td": {
-     "probability": 0.0892,
-     "market": {
-      "yesOdds": 2000,
-      "sportsbook": "draftkings",
-      "capturedAt": "2026-10-11T11:41:55Z"
-     }
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-3925357",
    "name": "Calvin Ridley",
    "team": "TEN",
@@ -1361,12 +1345,16 @@
      }
     },
     "player_receptions": {
-     "mean": 1.4193,
+     "mean": 1.3938,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
+     "median": 0.982,
+     "p75": 1.9641,
+     "p90": 2.9461,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 0.5,
       "overOdds": -199,
@@ -1438,12 +1426,16 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_receptions": {
-     "mean": 1.1145,
+     "mean": 1.0945,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
+     "median": 0.982,
+     "p75": 1.9641,
+     "p90": 2.9461,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "pricingState": "NOT_OFFERED"
     },
     "anytime_td": {
