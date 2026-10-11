@@ -2,43 +2,43 @@
   "schemaVersion": 1,
   "artifact": "ufc-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-10-09T18:45:00Z",
+  "generatedAt": "2026-10-11T18:00:13Z",
   "nextCard": {
-    "name": "UFC Fight Night: Allen vs. Duncan",
-    "slateDate": "2026-10-10",
-    "bouts": 12,
-    "hoursAway": 26.25
+    "name": "UFC Fight Night: Buckley vs. Malott",
+    "slateDate": "2026-10-17",
+    "bouts": 13,
+    "hoursAway": 147
   },
   "freshness": {
     "card": {
       "state": "READ",
-      "stampedAt": "2026-10-09T18:44:18Z",
+      "stampedAt": "2026-10-11T17:59:22Z",
       "ageHours": 0.01
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-10-08T17:39:40Z",
-      "ageHours": 25.09
+      "ageHours": 72.34
     },
     "ladder": {
       "state": "READ",
-      "stampedAt": "2026-10-09T18:44:58Z",
+      "stampedAt": "2026-10-11T18:00:12Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-10-09T15:05:39+00:00",
-      "ageHours": 3.66
+      "stampedAt": "2026-10-11T14:46:19+00:00",
+      "ageHours": 3.23
     },
     "settled": {
       "state": "READ",
       "stampedAt": "2026-06-15T13:55:00Z",
-      "ageHours": 2788.83
+      "ageHours": 2836.09
     }
   },
   "cards": {
     "state": "NO_CARDS_FOR_THIS_CARD",
-    "date": "2026-10-10",
+    "date": "2026-10-17",
     "carded": 0,
     "skipped": [],
     "ladderState": "CAPABILITY_GATED",
@@ -57,18 +57,18 @@
     "requests": 35
   },
   "productLane": {
-    "live": true,
-    "blocked": null
+    "live": false,
+    "blocked": "the last price capture is 3.0 days old; only 0 priced games — the ladder needs 4"
   },
   "population": {
     "state": "POPULATION_EXACT",
-    "generatedAt": "2026-10-09T18:44:26Z",
+    "generatedAt": "2026-10-11T17:59:33Z",
     "counts": {
-      "expected": 12,
-      "captured": 12,
+      "expected": 13,
+      "captured": 13,
       "read": 11,
-      "unmodelled": 1,
-      "priced": 11,
+      "unmodelled": 2,
+      "priced": 0,
       "missing": 0,
       "phantom": 0
     }
@@ -76,18 +76,18 @@
   "modelVsMarket": {
     "state": "RECONCILED",
     "cumulative": {
-      "n": 60,
+      "n": 70,
       "model": {
-        "logLoss": 0.717831,
-        "brier": 0.244089,
-        "accuracy": 0.65
+        "logLoss": 0.719014,
+        "brier": 0.246848,
+        "accuracy": 0.628571
       },
       "market": {
-        "logLoss": 0.609837,
-        "brier": 0.212989
+        "logLoss": 0.62908,
+        "brier": 0.221568
       }
     },
-    "gradedTotal": 60,
+    "gradedTotal": 70,
     "reconciliation": [
       {
         "slateDate": "2026-08-22",
@@ -144,10 +144,20 @@
         "void": 0,
         "pending": 0,
         "reconciles": true
+      },
+      {
+        "slateDate": "2026-10-10",
+        "frozen": 11,
+        "graded": 10,
+        "void": 0,
+        "pending": 1,
+        "reconciles": true
       }
     ],
     "postCardLag": {
-      "state": "CLEAR"
+      "state": "PENDING_RESULTS",
+      "slateDate": "2026-10-10",
+      "pending": 1
     }
   },
   "gate": {
@@ -172,6 +182,11 @@
       "id": "calibration-sample",
       "state": "REALITY_GATED",
       "detail": "the model has never been scored against a no-vig UFC line, and one card has been settled from official results. Cards have to be fought."
+    },
+    {
+      "id": "product-lane-closed",
+      "state": "REALITY_GATED",
+      "detail": "the Lab gate has closed this lane: the last price capture is 3.0 days old; only 0 priced games — the ladder needs 4. It reopens by itself when the evidence returns."
     }
   ]
 }
