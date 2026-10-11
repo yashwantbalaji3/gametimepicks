@@ -52,6 +52,7 @@ const pct = (p: number) => `${Math.round(p * 100)}%`;
  */
 function liveLine(view: View): string | null {
   if (view.round === null) return null;
+  if (view.fightOver) return `Fight over in R${view.round}`;
   if (view.betweenRounds) return `End of R${view.round}`;
   return view.clock ? `R${view.round} · ${view.clock} remaining` : `R${view.round}`;
 }
@@ -105,13 +106,17 @@ export function UfcBoutCard({ bout, view }: { bout: UfcRosterBout; view: View })
     view.state === "FINAL_PROVISIONAL"
       ? winnerName
         ? `ESPN reports ${winnerName} won${finish ? ` (${finish})` : ""}. Official result pending — the pick is not graded yet.`
-        : `ESPN lists this bout as final${finish ? ` (${finish})` : ""} but names no winner yet. No winner is shown until the official result — the pick is not graded yet.`
+        : view.result?.draw
+          ? `ESPN's judges' cards and both fighters' records indicate a draw${finish ? ` (${finish})` : ""} — provider-reported, unofficial. The official result decides; the pick is not graded yet.`
+          : `ESPN lists this bout as final${finish ? ` (${finish})` : ""} but reports no winner. Awaiting the official result — the pick is not graded yet.`
+      : view.fightOver
+        ? "The fight is over; ESPN has not reported a result yet."
       : view.state === "FINAL_CANONICAL"
-        ? winnerName ? `Official result: ${winnerName} won${finish ? ` (provider: ${finish})` : ""}.` : "Official result recorded, with no winner to show."
+        ? winnerName ? `Official result: ${winnerName} won${finish ? ` (provider: ${finish})` : ""}.` : "Official result: no winner (a draw or a no contest)."
         : view.state === "NOT_TRACKABLE"
           ? `ESPN lists this bout as ${view.label.toLowerCase()}.`
           : null;
-  const outcomeLine = view.outcome === "HIT" ? "Pick correct" : view.outcome === "MISS" ? "Pick missed" : null;
+  const outcomeLine = view.outcome === "HIT" ? "Pick correct" : view.outcome === "MISS" ? "Pick missed" : view.outcome === "VOID" ? "Pick void — no winner" : null;
 
   const spoken =
     `${bout.red.name} versus ${bout.blue.name}. ${bout.position}. ${chipLabel}.` +

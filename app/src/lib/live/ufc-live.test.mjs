@@ -300,7 +300,7 @@ test("UFC-ST 4 · ⚠ a provider FINAL is FINAL_PROVISIONAL: winner REPORTED, pi
   assert.equal(v.state, UFC_LIVE_STATE.FINAL_PROVISIONAL);
   assert.equal(v.group, "AWAITING_OFFICIAL_RESULT");
   // The mid-round finish time (1:02) is withheld on a provider final: see ufc-live-real.test.mjs REAL 7.
-  assert.deepEqual(v.result, { source: "PROVIDER", winnerAthleteId: "5063403", winnerName: "Yazmin Jauregui", round: 1, clock: null, clockUnofficial: false, finishTimeWithheld: true });
+  assert.deepEqual(v.result, { source: "PROVIDER", winnerAthleteId: "5063403", winnerName: "Yazmin Jauregui", round: 1, clock: null, clockUnofficial: false, finishTimeWithheld: true, draw: false });
   assert.equal(v.outcome, null, "the pick matched the reported winner, and is still not marked correct");
   assert.equal(v.round, null, "a live round is not shown on a finished bout");
 });
@@ -462,11 +462,18 @@ test("UFC-RO 4 · a card for another day yields NO bouts (so no tab); a settleme
     picks: [{ eventId: b.canonicalBoutKey, when: date, market, predicted, actual: other, hit: false }],
   });
   const ok = buildUfcRosterFrom({ card: CARD, graded: graded(b.pregame.pickName), etDate: date }).bouts.find((x) => x.boutId === b.boutId);
-  assert.deepEqual(ok.settlement, { winnerName: other, hit: false, asOf: "2026-10-11T13:00:00Z" });
+  assert.deepEqual(ok.settlement, { winnerName: other, hit: false, asOf: "2026-10-11T13:00:00Z", void: false });
   const wrongPick = buildUfcRosterFrom({ card: CARD, graded: graded(other), etDate: date }).bouts.find((x) => x.boutId === b.boutId);
   assert.equal(wrongPick.settlement, null, "a ledger row about a different pick is not our settlement");
   const wrongMarket = buildUfcRosterFrom({ card: CARD, graded: graded(b.pregame.pickName, "Method"), etDate: date }).bouts.find((x) => x.boutId === b.boutId);
   assert.equal(wrongMarket.settlement, null);
+
+  // A graded row with no winner and no hit (draw / no contest) voids the pick; a null hit beside a winner is UNKNOWN, not void.
+  const row = (extra) => ({ generatedAt: "g", picks: [{ eventId: b.canonicalBoutKey, when: date, market: "Fight winner", predicted: b.pregame.pickName, ...extra }] });
+  const drawn = buildUfcRosterFrom({ card: CARD, graded: row({ actual: null, hit: null }), etDate: date }).bouts.find((x) => x.boutId === b.boutId);
+  assert.deepEqual(drawn.settlement, { winnerName: null, hit: null, asOf: "g", void: true });
+  const unknown = buildUfcRosterFrom({ card: CARD, graded: row({ actual: other, hit: null, unknown: true }), etDate: date }).bouts.find((x) => x.boutId === b.boutId);
+  assert.equal(unknown.settlement.void, false);
 });
 
 /* ───────────────────────── 6 · the hidden /live tab ───────────────────────── */

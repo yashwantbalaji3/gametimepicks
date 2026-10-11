@@ -80,6 +80,8 @@ export function mapMmaState(status) {
  *   STATUS_IN_PROGRESS_2 /  in  · period n · "3:47" · "R1, 3:47"         → IN_ROUND    (both names
  *   STATUS_IN_PROGRESS                                                     alternate within one bout)
  *   STATUS_END_OF_ROUND     in  · period n · "-" · "End R2"              → ROUND_ENDED
+ *   STATUS_END_OF_FIGHT     in  · period n · "1:24" · "Final"            → FIGHT_OVER  (fight is over,
+ *                                                                          no winner yet; 23:50:35Z)
  *   STATUS_FINAL            post· period n · "5:00" · "Final"            → FINAL
  *
  * ⚠ THE CLOCK MEANS DIFFERENT THINGS IN DIFFERENT PHASES — and that is the whole reason this exists.
@@ -102,6 +104,7 @@ export const MMA_PHASE = Object.freeze({
   WALKOUTS: "WALKOUTS",
   IN_ROUND: "IN_ROUND",
   ROUND_ENDED: "ROUND_ENDED",
+  FIGHT_OVER: "FIGHT_OVER",
   IN_PLAY_OTHER: "IN_PLAY_OTHER",
   FINAL: "FINAL",
   OTHER: "OTHER",
@@ -121,6 +124,8 @@ export function mmaPhase(status) {
   if (state === "FINAL") return MMA_PHASE.FINAL;
   if (state === "LIVE") {
     if (t.name === "STATUS_END_OF_ROUND") return MMA_PHASE.ROUND_ENDED;
+    /* "Final" in the detail, state still `in`, no winner yet: the fight is over, the result is not. */
+    if (t.name === "STATUS_END_OF_FIGHT") return MMA_PHASE.FIGHT_OVER;
     return IN_ROUND_NAMES.has(t.name) ? MMA_PHASE.IN_ROUND : MMA_PHASE.IN_PLAY_OTHER;
   }
   if (state === "PRE") {
@@ -137,6 +142,19 @@ function cleanClock(x) {
   const v = str(x);
   return v === null || v === "-" || v === "--" ? null : v;
 }
+function overallRecord(c) {
+  const recs = Array.isArray(c?.records) ? c.records : [];
+  const r = recs.find((x) => x?.type === "total" || x?.name === "overall");
+  return str(r?.summary);
+}
+
+function judgeScoresOf(c) {
+  const cards = c?.linescores?.[0]?.linescores;
+  if (!Array.isArray(cards) || cards.length === 0) return null;
+  const vals = cards.map((x) => Number(x?.value));
+  return vals.every((v) => Number.isFinite(v)) ? vals : null;
+}
+
 const int = (x) => (Number.isFinite(Number(x)) && x !== null && x !== "" ? Number(x) : null);
 
 /**
@@ -163,6 +181,15 @@ export function normalizeMmaBout(competition, event, fetchedAt) {
     name: str(c?.athlete?.displayName),
     order: int(c?.order),
     winner: final ? c?.winner === true : null,
+    /* The fighter's overall record as ESPN states it NOW ("9-3-3"). After a bout ESPN updates it —
+       observed: a draw added to BOTH records of Gatto–Kareckaite within minutes of STATUS_FINAL. */
+    record: overallRecord(c),
+    /*
+     * Per-judge scores, at FINAL only: `linescores[0].linescores[].value`, one per judge, in judge
+     * order. Present only for bouts that reached the judges. ⚠ The top-level total (83 vs 85) is a sum
+     * across judges and decides NOTHING — a bout is won on judges, not on points.
+     */
+    judgeScores: final ? judgeScoresOf(c) : null,
   }));
 
   return {

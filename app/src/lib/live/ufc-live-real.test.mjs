@@ -61,8 +61,9 @@ function rosterBoutFor(boutId, pregame = null, settlement = null) {
   return {
     boutId, canonicalBoutKey: "", href: `/ufc/bout/${boutId}/`, position: "Bout", startUtc: e.startTime,
     weightClass: null, scheduledRounds: 3, titleFight: false,
-    red: { athleteId: r.athleteId, name: r.name, record: null, photoUrl: null },
-    blue: { athleteId: b.athleteId, name: b.name, record: null, photoUrl: null },
+    // Pre-fight records exactly as the card carries them (the card's records are ESPN's pre-card ones).
+    red: { athleteId: r.athleteId, name: r.name, record: r.record, photoUrl: null },
+    blue: { athleteId: b.athleteId, name: b.name, record: b.record, photoUrl: null },
     pregame, unmodelledReason: null, settlement,
   };
 }
@@ -177,7 +178,7 @@ test("REAL 6 · ⚠ FINAL WITHOUT A WINNER → result pending: no winner, no out
   const v = view(first.capturedAt, GATTO, { pickName: raw.competitors[0].athlete.displayName, pickAthleteId: raw.competitors[0].id, opponentName: null, winChance: 0.5443, modelId: "m", publishedAt: null });
   assert.equal(v.state, UFC_LIVE_STATE.FINAL_PROVISIONAL);
   assert.equal(v.group, "AWAITING_OFFICIAL_RESULT");
-  assert.equal(v.label, "Final · result pending");
+  assert.equal(v.label, "Final — no winner reported; awaiting official result");
   assert.equal(v.result.winnerName, null);
   assert.equal(v.result.winnerAthleteId, null);
   assert.equal(v.outcome, null);
@@ -227,7 +228,9 @@ test("REAL 8 · deterministic replay: every bout only moves forward, and nothing
   }
   // The full real lifecycle of the first bout, exactly.
   assert.deepEqual(seqs[GATTO], [
-    "UPCOMING:Scheduled", "UPCOMING:Pre-fight", "UPCOMING:Walkouts", "LIVE:Live", "FINAL_PROVISIONAL:Final · result pending",
+    "UPCOMING:Scheduled", "UPCOMING:Pre-fight", "UPCOMING:Walkouts", "LIVE:Live",
+    "FINAL_PROVISIONAL:Final — no winner reported; awaiting official result",
+    "FINAL_PROVISIONAL:Draw (provider-reported, unofficial)",
   ]);
   assert.deepEqual(seqs[PEREIRA].slice(0, 5), [
     "UPCOMING:Scheduled", "UPCOMING:Pre-fight", "UPCOMING:Walkouts", "LIVE:Live", "FINAL_PROVISIONAL:Final · awaiting official result",
@@ -262,8 +265,8 @@ test("REAL 10 · RENDERED on real snapshots: clocks are labelled with what they 
   assert.match(walk, /Walkouts/);
   assert.equal(/\bR[0-9]\b/.test(walk), false, "walkouts render no round");
   const pending = render("2026-10-10T21:34:30Z", GATTO);
-  assert.match(pending, /Final · result pending/);
-  assert.match(pending, /names no winner yet/);
+  assert.match(pending, /Final — no winner reported; awaiting official result/);
+  assert.match(pending, /reports no winner/);
   assert.match(pending, /ended R3 at 5:00, unofficial time/);
   assert.equal(/Reported winner|>Winner</.test(pending), false, "no winner is shown or inferred");
   const won = render("2026-10-10T22:10:45Z", FRYE);
@@ -298,4 +301,82 @@ test("REAL 11 · the gateway serves a real in-round snapshot with phase and cloc
   assert.deepEqual(g.period, { number: 1, clock: "3:47", clockMeaning: "REMAINING_IN_ROUND", label: null });
   const walking = payload.events.filter((e) => e.phase === "SCHEDULED").length;
   assert.equal(walking, 11, "the other eleven bouts are still scheduled");
+});
+
+const MEERSCHAERT = "401927417"; // Meerschaert vs Walker — passed through STATUS_END_OF_FIGHT before STATUS_FINAL
+
+test("REAL 12 · ⚠ STATUS_END_OF_FIGHT is 'fight over, result coming' — never live-fighting, never final, no winner", () => {
+  const raw = at("2026-10-10T23:50:35Z").payload.events[0].competitions.find((c) => c.id === MEERSCHAERT).status;
+  assert.deepEqual([raw.type.name, raw.type.state, raw.type.detail, raw.period, raw.displayClock], ["STATUS_END_OF_FIGHT", "in", "Final", 2, "1:24"]);
+  const v = view("2026-10-10T23:50:35Z", MEERSCHAERT);
+  assert.equal(v.phase, "FIGHT_OVER");
+  assert.equal(v.fightOver, true);
+  assert.equal(v.group, "AWAITING_OFFICIAL_RESULT");
+  assert.equal(v.label, "Fight over · result coming");
+  assert.equal(v.clock, null, "the 1:24 there is not a running clock");
+  assert.equal(v.result, null, "no winner, no result");
+  assert.equal(v.outcome, null);
+  const html = render("2026-10-10T23:50:35Z", MEERSCHAERT);
+  assert.match(html, /Fight over in R2/);
+  assert.match(html, /The fight is over; ESPN has not reported a result yet\./);
+  assert.equal(/remaining|Winner|1:24/.test(html), false);
+
+  // Then STATUS_FINAL with a winner; the mid-round time is withheld (ESPN: 1:25 → 3:35).
+  const f = view("2026-10-10T23:53:36Z", MEERSCHAERT);
+  assert.equal(f.state, UFC_LIVE_STATE.FINAL_PROVISIONAL);
+  assert.equal(f.result.winnerName, "Julius Walker");
+  assert.equal(f.result.clock, null);
+  assert.equal(f.result.finishTimeWithheld, true);
+});
+
+test("REAL 13 · ⚠ a REAL DRAW: shown as a draw only once BOTH provider signals agree; never a winner; void only after settlement", () => {
+  const raw = (iso) => at(iso).payload.events[0].competitions.find((c) => c.id === GATTO);
+  // Every state carries winner:false on both sides — a false flag alone means nothing.
+  for (const s of SNAPS) assert.equal(s.payload.events[0].competitions.find((c) => c.id === GATTO).competitors.some((c) => c.winner === true), false);
+  const fin = raw("2026-10-10T21:34:30Z");
+  assert.deepEqual(fin.competitors.map((c) => c.linescores[0].linescores.map((j) => j.value)), [[28, 27, 28], [28, 29, 28]]);
+  assert.deepEqual(fin.competitors.map((c) => c.linescores[0].value), [83, 85], "the totals differ — and decide nothing");
+
+  // 21:34:30 cards say draw, records not yet updated → no winner reported.
+  assert.equal(view("2026-10-10T21:34:30Z", GATTO).label, "Final — no winner reported; awaiting official result");
+  // 21:37:31 one record updated (9-3-2 → 9-3-3) → still not enough.
+  assert.deepEqual(raw("2026-10-10T21:37:31Z").competitors.map((c) => c.records[0].summary), ["9-3-3", "6-2-1"]);
+  assert.equal(view("2026-10-10T21:37:31Z", GATTO).result.draw, false);
+  // 21:46:35 both records +1 draw → both signals → provider-reported draw.
+  assert.deepEqual(raw("2026-10-10T21:46:35Z").competitors.map((c) => c.records[0].summary), ["9-3-3", "6-2-2"]);
+  const pick = { pickName: "Melissa Gatto", pickAthleteId: "4420893", opponentName: "Ernesta Kareckaite", winChance: 0.5443, modelId: "m", publishedAt: null };
+  const d = view("2026-10-10T21:46:35Z", GATTO, pick);
+  assert.equal(d.label, "Draw (provider-reported, unofficial)");
+  assert.equal(d.result.draw, true);
+  assert.equal(d.result.winnerName, null);
+  assert.equal(d.outcome, null, "a provider draw grades nothing — not even void");
+  const html = render("2026-10-10T21:46:35Z", GATTO, pick);
+  assert.match(html, /indicate a draw .*provider-reported, unofficial/);
+  assert.equal(/Reported winner|>Winner<|Pick void|Pick correct|Pick missed/.test(html), false);
+
+  // Only the settlement can void the pick.
+  const b = rosterBoutFor(GATTO, pick, { winnerName: null, hit: null, asOf: "2026-10-11T13:00:00Z", void: true });
+  const settled = deriveUfcBoutState({ bout: b, envelope: envAt("2026-10-10T21:46:35Z", GATTO), feed: "OK" });
+  assert.equal(settled.state, UFC_LIVE_STATE.FINAL_CANONICAL);
+  assert.equal(settled.outcome, "VOID");
+  const sh = renderToStaticMarkup(React.createElement(UfcBoutCard, { bout: b, view: settled }));
+  assert.match(sh, /Official result: no winner \(a draw or a no contest\)\./);
+  assert.match(sh, /Pick void — no winner/);
+});
+
+test("REAL 14 · the draw rule reads judges one by one, never the totals; and needs the record signal too", async () => {
+  const { providerDrawEvidence } = await import("./ufc-live.mjs");
+  const base = envAt("2026-10-10T21:46:35Z", GATTO);
+  const b = rosterBoutFor(GATTO);
+  const withCards = (ja, jb) => ({ ...base, competitors: { fighters: [{ ...base.competitors.fighters[0], judgeScores: ja }, { ...base.competitors.fighters[1], judgeScores: jb }] } });
+  assert.equal(providerDrawEvidence(b, base), true);
+  // Equal totals, but two judges for one side → a split decision, not a draw.
+  assert.equal(providerDrawEvidence(b, withCards([29, 29, 27], [28, 28, 30])), false);
+  // Unequal totals, but a majority of judges even → still a draw.
+  assert.equal(providerDrawEvidence(b, withCards([30, 28, 28], [27, 28, 28])), true);
+  // No cards (a stoppage) → never a draw.
+  assert.equal(providerDrawEvidence(b, withCards(null, null)), false);
+  // Records unchanged → not enough on cards alone.
+  const stale = { ...base, competitors: { fighters: base.competitors.fighters.map((f, i) => ({ ...f, record: i === 0 ? "9-3-2" : "6-2-1" })) } };
+  assert.equal(providerDrawEvidence(b, stale), false);
 });

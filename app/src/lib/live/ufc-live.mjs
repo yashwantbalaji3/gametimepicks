@@ -91,6 +91,52 @@ function athleteForName(bout, name) {
 
 const str = (x) => (typeof x === "string" && x.length ? x : null);
 
+/** "9-3-2" → { w, l, d }, or null. Only the three-part W-L-D form is read. */
+function parseRecord(x) {
+  const m = /^(\d+)-(\d+)-(\d+)/.exec(String(x ?? "").trim());
+  return m ? { w: Number(m[1]), l: Number(m[2]), d: Number(m[3]) } : null;
+}
+
+/**
+ * DRAW EVIDENCE — the same TWO independent provider signals the U4 rule relies on, both required:
+ *
+ *   1. the judges' cards compute to a draw: per judge, compare the two fighters' scores; neither
+ *      fighter has a MAJORITY of judges (majority draw 28-28 / 27-29 / 28-28, split draw, unanimous
+ *      draw). ⚠ Never the top-level totals (83 vs 85): a bout is decided judge by judge.
+ *   2. BOTH fighters' records gained exactly one draw versus the card's pre-fight records, with wins
+ *      and losses unchanged.
+ *
+ * Observed 2026-10-10, Gatto–Kareckaite (an official majority draw): STATUS_FINAL with no winner flag;
+ * cards 28/27/28 vs 28/29/28; records 9-3-2 → 9-3-3 (21:37:31Z) and 6-2-1 → 6-2-2 (21:46:35Z).
+ * With either signal missing the bout stays "no winner reported" — the official result decides.
+ */
+export function providerDrawEvidence(bout, envelope) {
+  const fs = envelope?.competitors?.fighters ?? [];
+  if (fs.length !== 2) return false;
+  const [a, b] = fs;
+  const ja = a?.judgeScores;
+  const jb = b?.judgeScores;
+  if (!Array.isArray(ja) || !Array.isArray(jb) || ja.length === 0 || ja.length !== jb.length) return false;
+  let winsA = 0;
+  let winsB = 0;
+  for (let i = 0; i < ja.length; i++) {
+    if (ja[i] > jb[i]) winsA++;
+    else if (jb[i] > ja[i]) winsB++;
+  }
+  const majority = Math.floor(ja.length / 2) + 1;
+  const judgesDraw = winsA < majority && winsB < majority;
+  if (!judgesDraw) return false;
+  const before = (athleteId) => {
+    for (const corner of ["red", "blue"]) if (String(bout?.[corner]?.athleteId ?? "") === String(athleteId ?? "")) return parseRecord(bout[corner].record);
+    return null;
+  };
+  return fs.every((f) => {
+    const was = before(f.athleteId);
+    const now = parseRecord(f.record);
+    return Boolean(was && now && now.w === was.w && now.l === was.l && now.d === was.d + 1);
+  });
+}
+
 /**
  * Derive what one bout card may present.
  *
@@ -129,11 +175,16 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
       /* ⚠ A FINAL WITH NO WINNER FLAG IS REAL (Gatto–Kareckaite, 2026-10-10: STATUS_FINAL, completed,
          neither corner flagged — for at least 45 minutes). It is "result pending", never a draw and
          never a winner inferred from anything else. */
-      label = str(matched?.winnerAthleteId) ? "Final · awaiting official result" : "Final · result pending";
+      label = str(matched?.winnerAthleteId)
+        ? "Final · awaiting official result"
+        : providerDrawEvidence(bout, matched) ? "Draw (provider-reported, unofficial)" : "Final — no winner reported; awaiting official result";
       break;
     case "LIVE":
     case "DELAYED":
       state = UFC_LIVE_STATE.LIVE; group = "LIVE"; label = "Live";
+      /* STATUS_END_OF_FIGHT: the fight is over and no result is stated yet. Still in play for the
+         feed (polling continues), but never presented as fighting, and never with a winner. */
+      if (matched?.phase === "FIGHT_OVER") { group = "AWAITING_OFFICIAL_RESULT"; label = "Fight over · result coming"; }
       break;
     case "POSTPONED":
     case "CANCELLED":
@@ -163,6 +214,7 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
   const round = state === UFC_LIVE_STATE.LIVE && typeof matched?.period?.number === "number" && matched.period.number > 0
     ? matched.period.number : null;
   const betweenRounds = state === UFC_LIVE_STATE.LIVE && matched?.phase === "ROUND_ENDED";
+  const fightOver = state === UFC_LIVE_STATE.LIVE && matched?.phase === "FIGHT_OVER";
   const clock = state === UFC_LIVE_STATE.LIVE && matched?.period?.clockMeaning === "REMAINING_IN_ROUND"
     ? str(matched?.period?.clock) : null;
 
@@ -185,7 +237,7 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
   const endClock = providerEndClock === "5:00" ? providerEndClock : null;
   const finishTimeWithheld = providerEndClock !== null && endClock === null;
 
-  /** @type {{ source: "PROVIDER"|"SETTLEMENT", winnerAthleteId: string|null, winnerName: string|null, round: number|null, clock: string|null, clockUnofficial: boolean, finishTimeWithheld: boolean } | null} */
+  /** @type {{ source: "PROVIDER"|"SETTLEMENT", winnerAthleteId: string|null, winnerName: string|null, round: number|null, clock: string|null, clockUnofficial: boolean, finishTimeWithheld: boolean, draw: boolean } | null} */
   let result = null;
   if (state === UFC_LIVE_STATE.FINAL_PROVISIONAL) {
     const winnerAthleteId = str(matched?.winnerAthleteId);
@@ -197,6 +249,8 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
       clock: endClock,
       clockUnofficial: endClock !== null,
       finishTimeWithheld,
+      /* Provider-reported and unofficial; only with BOTH draw signals, and never with a winner. */
+      draw: !winnerAthleteId && providerDrawEvidence(bout, matched),
     };
   } else if (state === UFC_LIVE_STATE.FINAL_CANONICAL) {
     const winnerName = str(settlement?.winnerName);
@@ -208,12 +262,14 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
       clock: endClock,
       clockUnofficial: endClock !== null,
       finishTimeWithheld,
+      draw: false,
     };
   }
 
   /* The prediction outcome exists ONLY on a canonical settlement that states one. */
-  const outcome = state === UFC_LIVE_STATE.FINAL_CANONICAL && bout?.pregame && typeof settlement?.hit === "boolean"
-    ? (settlement.hit ? "HIT" : "MISS")
+  /* VOID (a draw or no contest) also comes only from the settlement — never from a provider draw. */
+  const outcome = state === UFC_LIVE_STATE.FINAL_CANONICAL && bout?.pregame
+    ? typeof settlement?.hit === "boolean" ? (settlement.hit ? "HIT" : "MISS") : settlement?.void === true ? "VOID" : null
     : null;
 
   return {
@@ -226,6 +282,7 @@ export function deriveUfcBoutState({ bout, envelope = null, feed = "NOT_ASKED", 
     providerDetail: str(matched?.stateDetail),
     phase: matched?.phase ?? null,
     betweenRounds,
+    fightOver,
     round,
     clock,
     freshness: fresh,

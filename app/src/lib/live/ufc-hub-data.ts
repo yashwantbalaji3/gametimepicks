@@ -54,6 +54,8 @@ export interface UfcRosterSettlement {
   hit: boolean | null;
   /** The graded record's own generation instant. */
   asOf: string | null;
+  /** True for a graded row with no winner (draw / no contest): the pick is void. */
+  void: boolean;
 }
 
 export interface UfcRosterBout {
@@ -154,6 +156,8 @@ export function buildUfcRosterFrom({ card, graded, etDate }: { card: any; graded
         winnerName: row.actual === red.name || row.actual === blue.name ? row.actual : null,
         hit: typeof row.hit === "boolean" ? row.hit : null,
         asOf: gradedAsOf,
+        /* graded-pick-owners: a null hit with no winner is a draw / no contest; with a winner it is UNKNOWN. */
+        void: typeof row.hit !== "boolean" && !row.actual && row.unknown !== true,
       }
       : null;
 
