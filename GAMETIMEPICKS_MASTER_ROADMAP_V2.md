@@ -1240,7 +1240,7 @@ Slices (state on `main` 5ed6f6bc51, 2026-10-10):
 
 #### UFC experience (UX phases; founder directive 2026-10-10; plan in `docs/ufc/UFC-001-UX-PLAN.md`)
 - **Phase A, prediction board, plus A2, page order:** **MERGED and PRODUCTION_VERIFIED.** PR #1057 at `df2d1ee3f4`, merge `5dc31a98f7`, 2026-10-11 09:05Z; A2 was consolidated from #1058. After the card, the board reads "Last card · pregame predictions".
-- **Fighter profile truth (#1059):** ships with this entry.
+- **Fighter profile truth (#1059):** **MERGED and PRODUCTION_VERIFIED (code)**: merge `e2eb54a17c`, 2026-10-11 09:36Z.
   - Profiles are split into tracked record / strengths · weaknesses (win or loss rates only) / tendencies (neutral; "Often goes the distance" moved here, founder decision) / not established.
   - The `reason` line is labelled as a tracked-record summary, not the model's reasoning.
   - No forecast change.
@@ -2392,6 +2392,20 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - #1043 continues as the next separate candidate;
   - MLB-005 continues as research;
   - #1045 / #1049 stay gated.
+
+## 2026-10-11 — Claude Code (Core Intelligence session) — #1059 release record (`UFC-001` profile truth)
+- **What merged:** #1059 at `eb8ee5857b443856f686e0af17738e123c09f0ad` (founder conditional authorization), merge `e2eb54a17c22f2dc068e2ea4eefd1a982e61f655`, 09:36:32Z.
+  - Since review: a merge of `main` (after #1057) plus the roadmap records.
+- **Pre-merge checks:**
+  - CI ✓✓ on that head; CLEAN; 10 files, nothing protected; no deployment in flight;
+  - local: unit (2 local `live RLS` only), `tsc` ✓, build ✓, rendered guards 690 / 693 (0 failing), UFC / profile / uiux tests 315 / 315;
+  - the builder diff touches only the `reason` text call, no model logic.
+- **Production:** the live build `7422b87c9b` (09:39Z) contains the merge.
+  - Card, frozen snapshot and `graded-picks.json` are byte-identical to before the merge.
+  - The UFC routes, `/cage-chaos`, `/mr-dub` and Results return 200.
+  - The new profile categories render ("Tracked record", "Tendencies").
+- **Not yet visible (by design):** the committed card artifact (10-10, fought) predates #1059's producer. Its own strings ("Durable", "Too few tracked losses", and an unlabelled `reason` such as "so the read leans on the opponent's history") remain until the next card build: the Sunday fight-week run rolling to the 10-17 card. No historical forecast or receipt is rewritten to force it. Phase B adds a page-level label for older cards.
+- **Vercel:** 1 Production build; Preview 0.
 
 ---
 
