@@ -21,7 +21,7 @@ const loadUfc = (n) => JSON.parse(fs.readFileSync(path.join(process.cwd(), "publ
  * passed only because it and the odds were equally stale, which made every join below vacuous. The
  * card is rebuilt every fight-week run and is the same artifact the odds capture prices.
  */
-import { oddsCoverCard, ODDS_COVER } from "../sports/ufc/odds-cover-card.mjs";
+import { oddsCoverCard, oddsUsableForCard, ODDS_COVER } from "../sports/ufc/odds-cover-card.mjs";
 
 const card = loadUfc("card-latest.json");
 const fights = eventFightsFromCard(card.bouts);
@@ -78,6 +78,20 @@ const rows = buildUfcCardPredictions(fights, oddsIndex, fighterByName);
  * event. `oddsCoverCard` names the difference: a mismatched EVENT id is NOT_YET, and only two
  * artifacts claiming the SAME event while sharing no bout are the defect this guard exists to catch.
  */
+/*
+ * UFC-001 · 2026-10-11 — P238 SPLIT THE STATE, BUT NOT THE ASSERTION.
+ *
+ * NOT_YET has two causes and this test asserted one sentence for both. "oddsReady must be false" is
+ * true of the EMPTY capture (same event, nothing posted yet) and was written for it. It is not true of
+ * the STALE POINTER: odds-latest then describes ANOTHER, finished event, and its `oddsReady: true` is an
+ * honest statement about that event. On 2026-10-11 the Sunday fight-week run rolled the card to Oct 17
+ * (600060773) while the odds pointer still held the finished Oct 10 card (600061541, 12/12 priced), and
+ * this test went red on a correct state.
+ *
+ * The stale pointer is not waved through. What must hold is what P238 said the danger was — "a price
+ * from a completed event on a page about an upcoming one" — so that is what is asserted: the odds are
+ * unusable for this card, not one of its bouts appears in them, and not one row is market-backed.
+ */
 const cover = oddsCoverCard(card, odds);
 const schedBoutIds = new Set(fights.map((f) => String(f.boutId ?? "")).filter(Boolean));
 const oddsBoutIds = new Set((odds.bouts ?? []).map((b) => String(b.boutId ?? "")).filter(Boolean));
@@ -86,6 +100,14 @@ const oddsNotOfferedYet = cover.state === ODDS_COVER.NOT_YET;
 const sameCard = cover.state !== ODDS_COVER.DRIFT;
 
 test("0 · the schedule and the odds describe the same card", () => {
+  if (oddsNotOfferedYet && cover.oddsEventId && cover.cardEventId && cover.oddsEventId !== cover.cardEventId) {
+    // A stale pointer to another event: its readiness is its own; none of its prices may reach this card.
+    assert.equal(oddsUsableForCard(card, odds), false, "odds for another event must never be usable for this card");
+    assert.deepEqual(pricedOverlap, [], `odds for event ${cover.oddsEventId} carry bout(s) of card ${cover.cardEventId}: ${pricedOverlap.join(", ")}`);
+    const backed = rows.filter((r) => r.moneyline.source === "market_implied").map((r) => r.fightId);
+    assert.deepEqual(backed, [], `a price from event ${cover.oddsEventId} reached a bout on card ${cover.cardEventId}`);
+    return;
+  }
   if (oddsNotOfferedYet) {
     // The fail-closed path must still be honest about WHY there is nothing to join.
     assert.equal(odds.oddsReady, false, "an odds artifact with no priced bout must not claim it is ready");
