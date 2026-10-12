@@ -109,8 +109,8 @@ export const SIGNATURE_PRODUCTS: readonly SignatureProduct[] = [
     state: "coming-soon",
     question: "Who is filling it up tonight?",
     basis:
-      "Not built. The NBA surface is a settled archive — the league is out of season and no live " +
-      "board or player model is running.",
+      "Not built. The NBA hub carries the 2026-27 schedule and official finals only — no forecast, no live " +
+      "board, and no validated player model.",
   },
 ];
 
