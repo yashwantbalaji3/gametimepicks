@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "availability-audit",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-12T20:06:36Z",
+  "generatedAt": "2026-10-12T22:16:25Z",
   "question": "Can a participant who cannot or is not expected to play still enter the active simulation population?",
   "sports": {
     "nfl": {
@@ -52,7 +52,7 @@
       "hardExclusionReachable": true,
       "state": "ACTIVE",
       "slate": "2026-10-12.json",
-      "confirmedLineups": 0,
+      "confirmedLineups": 2,
       "totalSimulated": 2,
       "events": [
         {
@@ -60,45 +60,47 @@
           "matchup": "LAD @ MIL",
           "startUtc": "2026-10-12T21:00:00Z",
           "lineupSource": {
-            "away": "prop-derived",
-            "home": "prop-derived"
+            "away": "confirmed",
+            "home": "confirmed"
           },
-          "confirmed": false,
+          "confirmed": true,
           "includedBatters": 18,
           "startersKnown": true,
-          "level": "ready",
+          "level": "degraded",
           "missingFamilies": [
-            "confirmed_batting_order",
             "park_run_factors",
             "weather",
             "batter_handedness_splits"
           ],
-          "notes": []
+          "notes": [
+            "LAD confirmed batting order used; 1 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one.",
+            "MIL confirmed batting order used; 1 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one."
+          ]
         },
         {
           "eventId": "849820",
           "matchup": "CLE @ TB",
           "startUtc": "2026-10-13T00:00:00Z",
           "lineupSource": {
-            "away": "prop-derived",
-            "home": "prop-derived"
+            "away": "confirmed",
+            "home": "confirmed"
           },
-          "confirmed": false,
+          "confirmed": true,
           "includedBatters": 18,
           "startersKnown": true,
-          "level": "ready",
+          "level": "degraded",
           "missingFamilies": [
-            "confirmed_batting_order",
             "park_run_factors",
             "weather",
             "batter_handedness_splits"
           ],
-          "notes": []
+          "notes": [
+            "CLE confirmed batting order used; 1 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one.",
+            "TB confirmed batting order used; 2 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one."
+          ]
         }
       ],
-      "gaps": [
-        "2 of 2 simulated games ran on a PROP-DERIVED lineup because no batting order had been posted yet. A batter enters that lineup because a sportsbook posted a line for him, so a player scratched AFTER the lines were posted can still be simulated. The artifact records this as level \"degraded\" with lineupSource \"prop-derived\" and the hourly lineup refresh replaces it once the order lands — it is a labelled weaker state, not a silent one."
-      ]
+      "gaps": []
     },
     "epl": {
       "owner": "epl player-projections (ESPN squads + per-player rates) — TEAM forecasts are a separate owner",
@@ -128,8 +130,8 @@
       "owner": "track-ufc-card-lineage.mjs · classifyUfcLineage over consecutive schedule captures",
       "hardExclusionReachable": true,
       "state": "NO_CHANGE",
-      "receipt": "2026-10-11.json",
-      "generatedAt": "2026-10-11T17:59:35Z",
+      "receipt": "2026-10-12.json",
+      "generatedAt": "2026-10-12T21:40:37Z",
       "boutClasses": {
         "UNCHANGED": 73
       },
