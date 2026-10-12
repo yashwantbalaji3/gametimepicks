@@ -2,123 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-12T00:15:15Z",
+  "generatedAt": "2026-10-12T18:57:10Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 2,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
-    "eventsWithAMaterialExclusion": 1,
+    "upcomingEvents": 1,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
+    "eventsWithAMaterialExclusion": 0,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401872993",
-      "matchup": "BAL @ ATL",
-      "kickoffUtc": "2026-10-12T00:20Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "d789cda14ebdcf3d",
-        "simulations": 10000,
-        "generatedAt": "2026-10-12T00:15:15Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-12T00:15:15Z",
-        "participationInputHash": "152701f880986423",
-        "excludedCount": 6,
-        "materialExclusions": [
-          {
-            "name": "Cooper Rush",
-            "team": "ATL",
-            "state": "Out",
-            "statedAt": "2026-10-11T23:16Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Jack Strand",
-            "team": "ATL",
-            "state": "Out",
-            "statedAt": "2026-10-11T23:08Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Lamar Jackson",
-            "team": "BAL",
-            "state": "Out",
-            "statedAt": "2026-10-11T23:05Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Cooper Rush",
-            "team": "ATL",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Jack Strand",
-            "team": "ATL",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Lamar Jackson",
-            "team": "BAL",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Ja'Kobi Lane",
-            "team": "BAL",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Elijah Sarratt",
-            "team": "BAL",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Durham Smythe",
-            "team": "BAL",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401872994",
@@ -127,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "a4eb8e4bdfdeec78",
+        "inputHash": "c5e521c7a882f64d",
         "simulations": 10000,
-        "generatedAt": "2026-10-12T00:15:15Z"
+        "generatedAt": "2026-10-12T18:57:10Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-12T00:15:15Z",
-        "participationInputHash": "eb2060b8e28e03a1",
+        "snapshotAsOf": "2026-10-12T18:57:10Z",
+        "participationInputHash": "cfc3a13a0c29ce87",
         "excludedCount": 2,
         "materialExclusions": [],
         "excluded": [
