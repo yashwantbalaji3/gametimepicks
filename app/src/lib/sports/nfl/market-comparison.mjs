@@ -75,3 +75,10 @@ export const MARKET_ABSENT_SHORT = Object.freeze({
   IDENTITY_UNRESOLVED: "No sportsbook line: the market could not be matched to this player",
   NOT_AUTHORIZED: "No sportsbook line: market unavailable",
 });
+
+/**
+ * A row the producer holds no market state for at all (a player or family outside the priced artifact, or a week
+ * before markets were captured). The only thing known is that no line was captured, so that is all it says — never
+ * why, and never that the books declined.
+ */
+export const MARKET_NONE_CAPTURED = "No sportsbook line captured for this player";

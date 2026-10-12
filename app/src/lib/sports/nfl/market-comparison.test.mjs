@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { impliedFromAmerican, compareModelToMarket, capturedLabel, signed, displayedModelValue, MARKET_ABSENT_SHORT } from "./market-comparison.mjs";
+import { impliedFromAmerican, compareModelToMarket, capturedLabel, signed, displayedModelValue, MARKET_ABSENT_SHORT, MARKET_NONE_CAPTURED } from "./market-comparison.mjs";
 
 test("implied probability from an American price, margin included; never from a non-price", () => {
   assert.equal(Math.round(impliedFromAmerican(-120) * 10000) / 10000, 0.5455);
@@ -56,4 +56,10 @@ test("the gap is taken from the number the row displays, so a reader's subtracti
   assert.equal(displayedModelValue("count", 1.7213), 1.7);
   assert.equal(displayedModelValue("probability", 0.68194), 0.682);
   assert.ok(Number.isNaN(displayedModelValue("yards", null)));
+});
+
+test("a row with no stated reason still says plainly that no line was captured — and nothing more", () => {
+  assert.equal(MARKET_NONE_CAPTURED, "No sportsbook line captured for this player");
+  assert.ok(!Object.values(MARKET_ABSENT_SHORT).includes(MARKET_NONE_CAPTURED), "distinct from every typed reason");
+  assert.ok(!/offered|declined|unavailable|draftkings/i.test(MARKET_NONE_CAPTURED), "claims no cause");
 });

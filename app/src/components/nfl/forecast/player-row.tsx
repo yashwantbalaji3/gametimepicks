@@ -8,7 +8,7 @@ import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
 import { formatValue } from "@/lib/sports/nfl/forecast-view.mjs";
-import { capturedLabel, compareModelToMarket, displayedModelValue, signed, MARKET_ABSENT_SHORT } from "@/lib/sports/nfl/market-comparison.mjs";
+import { capturedLabel, compareModelToMarket, displayedModelValue, signed, MARKET_ABSENT_SHORT, MARKET_NONE_CAPTURED } from "@/lib/sports/nfl/market-comparison.mjs";
 import { bookmakerLabel } from "@/lib/sportsbook-comparison";
 
 export interface RowFamily { key: string; kind: string; unit: string; title: string }
@@ -48,8 +48,8 @@ export default function PlayerRow({ player: p, entry: e, family: f, rank, linkTo
       {/*
         * The market half (founder directive 2026-10-12). Book, line and prices as captured; WHEN, in words a reader sees
         * (a hover title is invisible on a phone, and an undated price reads as a live one); and how far the displayed
-        * projection sits from the line — a comparison, never a side. No market → the producer's stated reason, or nothing
-        * when it states none (a row is never told "no line" on a guess).
+        * projection sits from the line — a comparison, never a side. No market → the producer's stated reason, or, when it states
+        * none, only the fact that no line was captured (never a guessed cause).
         */}
       {e.market ? (
         <span className="nf-mkt" data-market={e.market.sportsbook} data-captured-at={e.market.capturedAt ?? undefined}>
@@ -66,7 +66,9 @@ export default function PlayerRow({ player: p, entry: e, family: f, rank, linkTo
         </span>
       ) : e.marketState && MARKET_ABSENT_SHORT[e.marketState as keyof typeof MARKET_ABSENT_SHORT] ? (
         <span className="nf-mkt nf-mkt-absent" data-market-state={e.marketState}>{MARKET_ABSENT_SHORT[e.marketState as keyof typeof MARKET_ABSENT_SHORT]}</span>
-      ) : null}
+      ) : (
+        <span className="nf-mkt nf-mkt-absent" data-market-state="NONE_CAPTURED">{MARKET_NONE_CAPTURED}</span>
+      )}
     </li>
   );
 }
