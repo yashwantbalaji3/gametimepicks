@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-12T18:57:10Z",
+ "generatedAt": "2026-10-12T22:13:16Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -22,7 +22,7 @@
   "forecastsUpcoming": 1,
   "forecastsStarted": 14,
   "marketEvents": 14,
-  "settled": 13
+  "settled": 14
  },
  "nextKickoffUtc": "2026-10-13T00:15Z",
  "nextMatchup": "BUF @ LAR",
@@ -33,17 +33,17 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-12T00:15:15Z",
+  "generatedAt": "2026-10-12T18:57:10Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 77,
-  "decisive": 76,
-  "winnerAccuracy": 0.6053,
-  "marginMAE": 10.1039,
-  "totalMAE": 11.2987,
-  "marginInterval80Coverage": 0.7922,
-  "totalInterval80Coverage": 0.8442,
+  "settledForecasts": 78,
+  "decisive": 77,
+  "winnerAccuracy": 0.6104,
+  "marginMAE": 10.0513,
+  "totalMAE": 11.2308,
+  "marginInterval80Coverage": 0.7949,
+  "totalInterval80Coverage": 0.8462,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,13 +57,13 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 77,
-    "decisive": 76,
-    "winnerAccuracy": 0.6053,
-    "marginMAE": 10.1039,
-    "totalMAE": 11.2987,
-    "marginInterval80Coverage": 0.7922,
-    "totalInterval80Coverage": 0.8442
+    "settledForecasts": 78,
+    "decisive": 77,
+    "winnerAccuracy": 0.6104,
+    "marginMAE": 10.0513,
+    "totalMAE": 11.2308,
+    "marginInterval80Coverage": 0.7949,
+    "totalInterval80Coverage": 0.8462
    }
   },
   "unknownSeasonTypeRows": 0,
@@ -107,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "c5e521c7a882f64d",
-    "generatedAt": "2026-10-12T18:57:10Z"
+    "inputHash": "ac361b4bfb7723d9",
+    "generatedAt": "2026-10-12T22:13:16Z"
    }
   },
   {
@@ -657,10 +657,10 @@
     "name": "Baltimore Ravens"
    },
    "kickoffUtc": "2026-10-12T00:20Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 23,
