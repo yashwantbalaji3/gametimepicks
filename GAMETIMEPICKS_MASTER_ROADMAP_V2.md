@@ -2266,8 +2266,12 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - **NFL Week 5 artifact audit: 10/10 PASS.** Forecasts immutable after kickoff (455 receipts); boards exclude Out/Doubtful/Questionable; 1,348 board and 609 player-board prices match their source captures; 451 graded stat values match ESPN (0 mismatches). BAL @ ATL was final but ungraded because no window has run since 00:14Z; existing Monday automation covers it.
   - **P0 public-truth defect:** `/nfl` said 11 Sunday games "kicked off before a forecast was published — missed coverage". This is P295 recurring in `lib/events/read-model.ts`. Fix in #1065.
   - **NBA:** Oct 20 = schedule and official finals only. No public forecast before ≈300 graded regular-season games (prereg). v0.2 shadow is not graded. `/bucket-blitz` copy says "out of season".
-- **Vercel:** Production 1 (the #1064 merge); Preview 0.
-- **Next:** #1065 (`/nfl` coverage truth) → #1066 (NFL prop market display) → #1061 (UFC bout pages; rehearsed green on main + #1064) → #1048 (MLB-002, research only). Close #1062 and #1063 with evidence.
+- **#1065 (`UX-001` P0, `/nfl` coverage truth)** merged at founder-approved exact head `8b7595772f1bdd0fb800d67186e8d5ce1db8644b` with `--match-head-commit` → `c1b43b149d051e08b9eba19f6c95c36801e1c820`, 17:36:43Z.
+  - CI `python` ✓ `quality` ✓ (23m30s), CLEAN; 2 files.
+  - `loadNflEvents` now reads the same-run union of `forecasts/latest.json` + `frozen-latest.json`, graded `picks[].eventId`, and FINAL for graded games. 3 pinned-fixture regressions; 2 fail with the fix reverted.
+  - **Production acceptance:** live build `c1b43b149d` (17:38:39Z). `/nfl` "missed coverage" 11 → 0; "13 with a report"; finals read "final" with "View record"; BUF @ LAR "scheduled" with "Open report". Live `graded-picks.json` sha256 unchanged; no forecast or receipt file changed.
+- **Vercel:** Production 2 (the #1064 and #1065 merges); Preview 0.
+- **Next:** #1066 (NFL prop market display) → #1061 (UFC bout pages; rehearsed green on main + #1064) → #1048 (MLB-002, research only). Close #1062 and #1063 with evidence.
 
 ---
 
