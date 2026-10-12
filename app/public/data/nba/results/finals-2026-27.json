@@ -5,15 +5,15 @@
  "contract": "nba-finals-record-v1",
  "season": "2026-27",
  "note": "Write-once official NBA finals (ESPN scoreboard, accepted by the current-results adapter). A recorded final is never rewritten; disagreeing later observations go to `conflicts`. Holds finals only — a game absent here is pending, never a loss.",
- "updatedAt": "2026-10-12T05:50:33Z",
+ "updatedAt": "2026-10-12T22:28:18Z",
  "counts": {
-  "finals": 36,
-  "preseason": 36,
+  "finals": 37,
+  "preseason": 37,
   "regular": 0,
   "postseason": 0,
   "playIn": 0,
   "other": 0,
-  "exhibition": 0,
+  "exhibition": 1,
   "conflicts": 0,
   "refused": 0
  },
@@ -1132,6 +1132,37 @@
    "winnerSide": "home",
    "statusRaw": "STATUS_FINAL",
    "firstRecordedAt": "2026-10-12T05:50:33Z",
+   "source": "espn_scoreboard"
+  },
+  {
+   "canonicalEventId": "nba:nba:2026-10-12:401914130",
+   "providerEventId": "401914130",
+   "dateUtc": "2026-10-12T20:00Z",
+   "dateEt": "2026-10-12",
+   "season": "2026-27",
+   "seasonType": 1,
+   "phase": "PRESEASON",
+   "neutralSite": false,
+   "exhibition": true,
+   "home": {
+    "tricode": "POR",
+    "providerTeamId": "22",
+    "espnAbbr": "POR",
+    "name": "Portland Trail Blazers",
+    "exhibition": false
+   },
+   "away": {
+    "tricode": null,
+    "providerTeamId": "134478",
+    "espnAbbr": "LON",
+    "name": "London Lions",
+    "exhibition": true
+   },
+   "ftHome": 119,
+   "ftAway": 66,
+   "winnerSide": "home",
+   "statusRaw": "STATUS_FINAL",
+   "firstRecordedAt": "2026-10-12T22:28:18Z",
    "source": "espn_scoreboard"
   }
  ],
