@@ -1,18 +1,19 @@
 {
   "kind": "publication-slo",
-  "date": "2026-10-11",
+  "date": "2026-10-12",
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "PUBLISHED",
-      "reason": "all 1 event(s) in the horizon carry a forecast",
-      "deadlineUtc": null,
+      "state": "PUBLISHING",
+      "reason": "2 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-10-12T19:30:00.000Z",
       "counts": {
-        "scheduled": 1,
-        "published": 1,
+        "scheduled": 2,
+        "published": 0,
         "missedCoverage": 0,
-        "awaiting": 0
-      }
+        "awaiting": 2
+      },
+      "missed": []
     },
     "nfl": {
       "state": "PUBLISHING",
@@ -51,31 +52,37 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-10-12T02:36:50.119Z",
+  "checkedAt": "2026-10-12T08:55:04.462Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHED",
-  "reason": "board published with 40 rows",
-  "publishDeadlineUtc": null,
-  "scheduledGames": 1,
-  "pregameRemaining": 0,
-  "alreadyStarted": 1,
+  "state": "PUBLISHING",
+  "reason": "today's slate is not published yet and is not late — the deadline is 2026-10-12T19:30:00.000Z",
+  "publishDeadlineUtc": "2026-10-12T19:30:00.000Z",
+  "scheduledGames": 2,
+  "pregameRemaining": 2,
+  "alreadyStarted": 0,
   "board": {
-    "present": true,
-    "leans": 40,
+    "present": false,
+    "leans": 0,
     "pendingReason": null,
-    "generatedAt": "2026-10-11T09:27:17.731743+00:00",
-    "scheduledGames": 1,
-    "startedBeforeGeneration": 0
+    "generatedAt": null
   },
   "games": [
     {
-      "gamePk": 849809,
-      "startUtc": "2026-10-12T00:00:00Z",
+      "gamePk": 849812,
+      "startUtc": "2026-10-12T21:00:00Z",
       "away": "Los Angeles Dodgers",
       "home": "Milwaukee Brewers",
-      "detailedState": "In Progress",
-      "pregameAtCheck": false
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 849820,
+      "startUtc": "2026-10-13T00:00:00Z",
+      "away": "Cleveland Guardians",
+      "home": "Tampa Bay Rays",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
     }
   ]
 }
