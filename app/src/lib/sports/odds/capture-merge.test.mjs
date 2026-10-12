@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mergeCaptureRows, rowCapturedAt, carryPropsForward } from "./capture-merge.mjs";
+import { mergeCaptureRows, rowCapturedAt, carryPropsForward, carryUnreachedProps, unreachedTargets } from "./capture-merge.mjs";
 
 const row = (id, kickoff, capturedAt) => ({ providerEventId: id, kickoffUtc: kickoff, capturedAt });
 const EARLY = "2026-09-13T17:00Z";
@@ -90,4 +90,150 @@ test("nothing worth carrying is not carried", () => {
   assert.equal(carryPropsForward({}, null), null);
   assert.equal(carryPropsForward({ propMarkets: { state: "NOT_PROBED", probedEventIds: [] } }, null), null,
     "a prior that never probed carries nothing — an empty block must not be laundered into evidence");
+});
+
+/* ── a sweep cut short (2026-10-11: the credit gate refused BUF @ LAR, the 14th of 14) ───────────────────────── */
+const SAT_SWEEP = "2026-10-10T17:32:23Z";
+const SUN_SWEEP = "2026-10-11T11:41:55Z";
+const pev = (id) => ({ canonicalEventId: id, matchup: id, offeredMarkets: ["player_anytime_td"], absentMarkets: [] });
+const prow = (id, at, odds = -110) => ({ canonicalEventId: id, playerId: `p-${id}`, family: "anytime_td", yesOdds: odds, sportsbook: "draftkings", capturedAt: at });
+const capture = (at, ids, rows) => ({
+  capturedAt: at,
+  propMarkets: { state: "PROBED", probedEventIds: ids, eventsProbed: ids.length, offeredMarkets: ["player_anytime_td"], absentMarkets: [], perEvent: ids.map(pev) },
+  propPrices: { referenceBook: "draftkings", probedEventIds: ids, capturedAt: at, rows },
+});
+const SAT_CAP = capture(SAT_SWEEP, ["sun-1", "mnf"], [prow("sun-1", SAT_SWEEP, -120), prow("mnf", SAT_SWEEP, 105)]);
+const SUN_CAP = capture(SUN_SWEEP, ["sun-1"], [prow("sun-1", SUN_SWEEP, -130)]);
+
+test("an event the sweep targeted and never reached keeps the prior sweep's answer, at the prior sweep's time", () => {
+  const out = carryUnreachedProps(SAT_CAP, SUN_CAP, ["mnf"]);
+  assert.deepEqual(out.carriedEventIds, ["mnf"]);
+  assert.deepEqual(out.propMarkets.probedEventIds, ["sun-1", "mnf"], "it reads PROBED (by the run that probed it), not NOT_PROBED");
+  assert.equal(out.propMarkets.eventsProbed, 2);
+  const mnfEvent = out.propMarkets.perEvent.find((e) => e.canonicalEventId === "mnf");
+  assert.equal(mnfEvent.carriedForward, true);
+  assert.equal(mnfEvent.probedAt, SAT_SWEEP, "the carried answer names WHEN it was asked");
+  const mnfRow = out.propPrices.rows.find((r) => r.canonicalEventId === "mnf");
+  assert.equal(mnfRow.capturedAt, SAT_SWEEP, "a carried price keeps its OWN stamp — never re-dated to this run");
+  assert.equal(mnfRow.yesOdds, 105);
+  assert.equal(mnfRow.carriedForward, true);
+  assert.deepEqual(out.propPrices.probedEventIds, ["sun-1", "mnf"]);
+});
+
+test("an event the sweep DID reach keeps only its fresh answer — the prior price is never mixed back in", () => {
+  const out = carryUnreachedProps(SAT_CAP, SUN_CAP, ["mnf"]);
+  const sun1 = out.propPrices.rows.filter((r) => r.canonicalEventId === "sun-1");
+  assert.equal(sun1.length, 1);
+  assert.equal(sun1[0].capturedAt, SUN_SWEEP);
+  assert.equal(sun1[0].yesOdds, -130);
+  /* Even if the caller wrongly lists a reached event as unreached, the fresh answer wins. */
+  const wrong = carryUnreachedProps(SAT_CAP, SUN_CAP, ["sun-1", "mnf"]);
+  assert.deepEqual(wrong.carriedEventIds, ["mnf"]);
+  assert.equal(wrong.propPrices.rows.filter((r) => r.canonicalEventId === "sun-1").length, 1);
+});
+
+test("an unreached event the prior run never probed stays NOT_PROBED — nothing is invented", () => {
+  const out = carryUnreachedProps(SAT_CAP, SUN_CAP, ["never-asked"]);
+  assert.deepEqual(out.carriedEventIds, []);
+  assert.deepEqual(out.propMarkets.probedEventIds, ["sun-1"]);
+  assert.equal(out.propMarkets, SUN_CAP.propMarkets, "returns this run's own block untouched");
+});
+
+test("a completed sweep, a prior that never probed, or a run that did not probe carries nothing", () => {
+  assert.deepEqual(carryUnreachedProps(SAT_CAP, SUN_CAP, []).carriedEventIds, []);
+  assert.deepEqual(carryUnreachedProps(null, SUN_CAP, ["mnf"]).carriedEventIds, []);
+  assert.deepEqual(carryUnreachedProps({ propMarkets: { state: "NOT_PROBED", probedEventIds: [] } }, SUN_CAP, ["mnf"]).carriedEventIds, []);
+  assert.deepEqual(carryUnreachedProps(SAT_CAP, { propMarkets: { state: "REFUSED_BUDGET" }, propPrices: null }, ["mnf"]).carriedEventIds, [],
+    "a run with no answer of its own is carryPropsForward's case, not this one");
+});
+
+test("a prior row without its own capture stamp is not a price and is not carried", () => {
+  const prior = capture(SAT_SWEEP, ["sun-1", "mnf"], [prow("mnf", SAT_SWEEP), { ...prow("mnf", SAT_SWEEP), playerId: "unstamped", capturedAt: null }]);
+  const out = carryUnreachedProps(prior, SUN_CAP, ["mnf"]);
+  assert.deepEqual(out.propPrices.rows.filter((r) => r.canonicalEventId === "mnf").map((r) => r.playerId), ["p-mnf"]);
+});
+
+test("the capture script records the unreached targets and applies the carry before it writes", async () => {
+  const fs = await import("node:fs");
+  const src = fs.readFileSync(new URL("../../../../scripts/nfl/capture-nfl-odds.mjs", import.meta.url), "utf8");
+  assert.match(src, /unreachedEventIds:\s*unreachedTargets\(targets, perEvent/, "a cut-short sweep names the events it never reached");
+  assert.match(src, /carryUnreachedProps\(priorPublic, publicArtifact, propProbe\?\.unreachedEventIds/, "and the write carries their prior answer");
+  assert.ok(src.indexOf("carryUnreachedProps(priorPublic") < src.indexOf("// leak-guard every artifact, then write"), "before the artifact is written");
+  assert.match(src, /::warning::prop sweep stopped early/, "a truncated sweep is loud, not a quiet green job");
+});
+
+/* ── the eight cases (founder D2, 2026-10-11). Invariant: a partial capture never destroys valid earlier data for an
+   unreached event, and a freshly reached event is never overwritten with stale data. ─────────────────────────── */
+const T = (id) => ({ providerEventId: `odds-${id}` });
+const canon = (oddsId) => oddsId.replace(/^odds-/, "");
+const sweep = (reachedIds) => reachedIds.map((id) => ({ oddsEventId: `odds-${id}` }));
+
+test("(a) every requested event reached: nothing is unreached and nothing is carried", () => {
+  const un = unreachedTargets([T("sun-1"), T("mnf")], sweep(["sun-1", "mnf"]), canon);
+  assert.deepEqual(un, []);
+  const fresh = capture(SUN_SWEEP, ["sun-1", "mnf"], [prow("sun-1", SUN_SWEEP), prow("mnf", SUN_SWEEP, 120)]);
+  const out = carryUnreachedProps(SAT_CAP, fresh, un);
+  assert.deepEqual(out.carriedEventIds, []);
+  assert.ok(out.propPrices.rows.every((r) => r.capturedAt === SUN_SWEEP), "only this run's prices");
+});
+
+test("(b) the sweep ends early: exactly the targets after the stop are unreached, in request order", () => {
+  assert.deepEqual(unreachedTargets([T("a"), T("b"), T("c"), T("d")], sweep(["a", "b"]), canon), ["c", "d"]);
+});
+
+test("(c) the credit ceiling is exhausted: before the first event the whole prior answer stands; mid-sweep, the unreached keep theirs", () => {
+  /* Refused before any event: the run has no answer of its own — carryPropsForward keeps the prior block whole. */
+  const kept = carryPropsForward(SAT_CAP, { state: "REFUSED_BUDGET", reason: "ceiling" });
+  assert.equal(kept.propMarkets, SAT_CAP.propMarkets);
+  assert.equal(kept.propPrices, SAT_CAP.propPrices);
+  /* Refused on the 14th of 14 (the 2026-10-11 shape): 13 fresh, 1 carried, and the two are reported apart. */
+  const un = unreachedTargets([T("sun-1"), T("mnf")], sweep(["sun-1"]), canon);
+  const out = carryUnreachedProps(SAT_CAP, SUN_CAP, un);
+  assert.deepEqual(out.propMarkets.freshlyProbedEventIds, ["sun-1"]);
+  assert.deepEqual(out.propMarkets.carriedEventIds, ["mnf"]);
+  assert.equal(out.propMarkets.carriedFrom, SAT_SWEEP);
+});
+
+test("(d) an event never probed before stays NOT_PROBED — the carry invents nothing", () => {
+  const out = carryUnreachedProps(SAT_CAP, SUN_CAP, ["new-game"]);
+  assert.deepEqual(out.carriedEventIds, []);
+  assert.ok(!out.propMarkets.probedEventIds.includes("new-game"));
+});
+
+test("(e) a fresh capture that legitimately reports NO offers wins — the stale prices are not brought back", () => {
+  /* The provider answered 422 / no markets for mnf this run: it was REACHED, so it is not unreached. */
+  const fresh = capture(SUN_SWEEP, ["sun-1", "mnf"], [prow("sun-1", SUN_SWEEP)]);
+  fresh.propMarkets.perEvent = [pev("sun-1"), { canonicalEventId: "mnf", offeredMarkets: [], absentMarkets: ["player_anytime_td"] }];
+  const un = unreachedTargets([T("sun-1"), T("mnf")], sweep(["sun-1", "mnf"]), canon);
+  assert.deepEqual(un, []);
+  const out = carryUnreachedProps(SAT_CAP, fresh, un);
+  assert.equal(out.propPrices.rows.filter((r) => r.canonicalEventId === "mnf").length, 0, "NOT_OFFERED now — Saturday's price is not resurrected");
+  /* Even if a caller listed it as unreached, the fresh NOT_OFFERED answer wins. */
+  assert.deepEqual(carryUnreachedProps(SAT_CAP, fresh, ["mnf"]).carriedEventIds, []);
+});
+
+test("(f) previously captured prices for an unreached event are carried, unchanged, with their own provenance", () => {
+  const out = carryUnreachedProps(SAT_CAP, SUN_CAP, ["mnf"]);
+  const before = SAT_CAP.propPrices.rows.filter((r) => r.canonicalEventId === "mnf");
+  const after = out.propPrices.rows.filter((r) => r.canonicalEventId === "mnf");
+  assert.deepEqual(after.map(({ carriedForward, ...r }) => r), before, "values, identities and capturedAt identical; only the carried mark is added");
+  assert.ok(after.every((r) => r.carriedForward === true));
+});
+
+test("(g) a previous capture with missing timestamps: unstamped rows are not carried, and an unstamped answer is not carried at all", () => {
+  const noRowStamp = capture(SAT_SWEEP, ["sun-1", "mnf"], [{ ...prow("mnf", SAT_SWEEP), capturedAt: null }]);
+  const a = carryUnreachedProps(noRowStamp, SUN_CAP, ["mnf"]);
+  assert.equal(a.propPrices.rows.filter((r) => r.canonicalEventId === "mnf").length, 0, "an unstamped row is not a price");
+  const noStampAtAll = capture(SAT_SWEEP, ["sun-1", "mnf"], [prow("mnf", SAT_SWEEP)]);
+  noStampAtAll.capturedAt = null; noStampAtAll.propPrices.capturedAt = null;
+  assert.deepEqual(carryUnreachedProps(noStampAtAll, SUN_CAP, ["mnf"]).carriedEventIds, [], "no time ⇒ no claim that it was asked");
+});
+
+test("(h) the previous artifact is unavailable: nothing is carried and this run's answer is written as-is", () => {
+  for (const prior of [null, undefined, {}]) {
+    const out = carryUnreachedProps(prior, SUN_CAP, ["mnf"]);
+    assert.deepEqual(out.carriedEventIds, []);
+    assert.equal(out.propMarkets, SUN_CAP.propMarkets);
+  }
+  assert.equal(carryPropsForward(null, { state: "REFUSED_BUDGET" }), null);
 });
