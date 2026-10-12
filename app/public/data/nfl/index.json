@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-11T23:27:14Z",
+ "generatedAt": "2026-10-12T00:10:05Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -22,7 +22,7 @@
   "forecastsUpcoming": 2,
   "forecastsStarted": 13,
   "marketEvents": 14,
-  "settled": 10
+  "settled": 11
  },
  "nextKickoffUtc": "2026-10-12T00:20Z",
  "nextMatchup": "BAL @ ATL",
@@ -33,17 +33,17 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-11T23:22:00Z",
+  "generatedAt": "2026-10-11T23:27:14Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 74,
-  "decisive": 73,
-  "winnerAccuracy": 0.6027,
-  "marginMAE": 10.1081,
-  "totalMAE": 11.3784,
-  "marginInterval80Coverage": 0.7973,
-  "totalInterval80Coverage": 0.8378,
+  "settledForecasts": 75,
+  "decisive": 74,
+  "winnerAccuracy": 0.6081,
+  "marginMAE": 10.0267,
+  "totalMAE": 11.24,
+  "marginInterval80Coverage": 0.8,
+  "totalInterval80Coverage": 0.84,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,13 +57,13 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 74,
-    "decisive": 73,
-    "winnerAccuracy": 0.6027,
-    "marginMAE": 10.1081,
-    "totalMAE": 11.3784,
-    "marginInterval80Coverage": 0.7973,
-    "totalInterval80Coverage": 0.8378
+    "settledForecasts": 75,
+    "decisive": 74,
+    "winnerAccuracy": 0.6081,
+    "marginMAE": 10.0267,
+    "totalMAE": 11.24,
+    "marginInterval80Coverage": 0.8,
+    "totalInterval80Coverage": 0.84
    }
   },
   "unknownSeasonTypeRows": 0,
@@ -94,8 +94,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.4486,
-    "away": 0.5217
+    "home": 0.4507,
+    "away": 0.5241
    },
    "total": {
     "median": 47,
@@ -107,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "c508688d239627fd",
-    "generatedAt": "2026-10-11T23:27:14Z"
+    "inputHash": "0c5b4151bba98d08",
+    "generatedAt": "2026-10-12T00:10:05Z"
    }
   },
   {
@@ -135,12 +135,12 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.5747,
-    "away": 0.398
+    "home": 0.5754,
+    "away": 0.3986
    },
    "total": {
     "median": 53,
-    "p10": 35,
+    "p10": 36,
     "p90": 70,
     "head": "matchup-totals-v3-play-efficiency"
    },
@@ -148,8 +148,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "5cd257b549499416",
-    "generatedAt": "2026-10-11T23:27:14Z"
+    "inputHash": "0f1c88be295faeda",
+    "generatedAt": "2026-10-12T00:10:05Z"
    }
   },
   {
@@ -575,10 +575,10 @@
     "name": "Denver Broncos"
    },
    "kickoffUtc": "2026-10-11T20:05Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 20,
