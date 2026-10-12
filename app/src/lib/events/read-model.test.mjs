@@ -162,3 +162,51 @@ test("periodCounts never counts a missed or unsupported event as published", () 
   const c = periodCounts([mk("PUBLISHED"), mk("MISSED_PREEVENT"), mk("UNSUPPORTED"), mk("NOT_PUBLISHED", "PRICED")]);
   assert.deepEqual(c, { scheduled: 4, modelPublished: 1, missedPreEvent: 1, unsupported: 1, pricedNow: 1, settled: 0 });
 });
+
+// ── P295 recurrence (2026-10-12): /nfl said 11 Sunday games "kicked off before a forecast was published" ──
+// Pinned fixture (not rolling committed data): one started game whose pre-kickoff forecast now lives only in
+// frozen-latest.json, graded on a final; one unstarted game in latest.json; one started game with no forecast.
+
+function withNflFixture({ frozenGeneratedAt = "2026-10-12T00:15:15Z" } = {}, fn) {
+  const root = fs.mkdtempSync(path.join(fs.realpathSync(process.env.TMPDIR ?? "/tmp"), "rm-nfl-"));
+  const put = (rel, obj) => {
+    const p = path.join(root, "public/data/nfl", rel);
+    fs.mkdirSync(path.dirname(p), { recursive: true });
+    fs.writeFileSync(p, JSON.stringify(obj));
+  };
+  const row = (id, dateUtc) => ({ providerEventId: id, dateUtc, week: 5, seasonType: 2, statusRaw: "STATUS_SCHEDULED", awayTeam: "AAA", homeTeam: "BBB" });
+  put("schedule/latest.json", { rows: [row("901", "2026-10-11T17:00Z"), row("902", "2026-10-13T00:15Z"), row("903", "2026-10-11T17:00Z")] });
+  put("forecasts/latest.json", { generatedAt: "2026-10-12T00:15:15Z", forecasts: [{ providerEventId: "902" }] });
+  put("forecasts/frozen-latest.json", { generatedAt: frozenGeneratedAt, forecasts: [{ providerEventId: "901" }] });
+  put("graded-picks.json", { picks: [{ eventId: "nfl-901" }] });
+  const cwd = process.cwd();
+  process.chdir(root);
+  try { return fn(); } finally { process.chdir(cwd); fs.rmSync(root, { recursive: true, force: true }); }
+}
+
+test("P295 · a started game whose forecast froze at kickoff reads PUBLISHED, never MISSED_PREEVENT", () => {
+  withNflFixture({}, () => {
+    const byId = Object.fromEntries(loadNflEvents("2026-10-12T16:00:00Z").map((e) => [e.eventId, e]));
+    assert.equal(byId["nfl:901"].dimensions.model, "PUBLISHED", "frozen pre-kickoff forecast is a published forecast");
+    assert.equal(byId["nfl:901"].reportHref, "/nfl/game/901/");
+    assert.equal(byId["nfl:902"].dimensions.model, "PUBLISHED");
+    assert.equal(byId["nfl:903"].dimensions.model, "MISSED_PREEVENT", "a started game with no forecast anywhere is still a miss");
+  });
+});
+
+test("P295 · graded-picks `picks[].eventId` settles the event and makes it FINAL despite a stale schedule status", () => {
+  withNflFixture({}, () => {
+    const byId = Object.fromEntries(loadNflEvents("2026-10-12T16:00:00Z").map((e) => [e.eventId, e]));
+    assert.equal(byId["nfl:901"].dimensions.settlement, "SETTLED");
+    assert.equal(byId["nfl:901"].status, "FINAL");
+    assert.equal(byId["nfl:903"].status, "IN_PROGRESS", "ungraded started game keeps the schedule-derived status");
+    assert.equal(byId["nfl:902"].dimensions.settlement, "NOT_APPLICABLE");
+  });
+});
+
+test("P295 · a frozen file from ANOTHER run is not honoured (no resurrected games)", () => {
+  withNflFixture({ frozenGeneratedAt: "2026-10-05T00:00:00Z" }, () => {
+    const byId = Object.fromEntries(loadNflEvents("2026-10-12T16:00:00Z").map((e) => [e.eventId, e]));
+    assert.equal(byId["nfl:901"].dimensions.model, "MISSED_PREEVENT");
+  });
+});

@@ -26,6 +26,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { unionFrozenForecasts } from "../sports/nfl/public-forecast-union.mjs";
 
 export type EventSport = "mlb" | "nfl" | "epl" | "ufc";
 export type PeriodKind = "day" | "week" | "matchweek" | "card";
@@ -99,15 +100,25 @@ const NFL_PHASE: Record<number, "preseason" | "regular" | "postseason"> = { 1: "
 
 export function loadNflEvents(nowIso: string): CanonicalEvent[] {
   const sched = readJson("nfl", "schedule", "latest.json") as { rows?: Array<Record<string, unknown>> } | null;
-  const forecasts = readJson("nfl", "forecasts", "latest.json") as { forecasts?: Array<{ providerEventId: string }> } | null;
-  const graded = readJson("nfl", "graded-picks.json") as { rows?: Array<{ providerEventId?: string }> } | null;
+  /* P295 again (2026-10-12): kicked-off games leave forecasts/latest.json for frozen-latest.json. Read
+     only the first and every started game reads "kicked off before a forecast was published" on /nfl,
+     though its pre-kickoff forecast is on record. The pages already read the union; so does this. */
+  const forecasts = unionFrozenForecasts(
+    readJson("nfl", "forecasts", "latest.json") as { generatedAt?: string; forecasts?: Array<{ providerEventId: string }> } | null,
+    readJson("nfl", "forecasts", "frozen-latest.json") as { generatedAt?: string; forecasts?: Array<{ providerEventId: string }> } | null,
+  );
+  /* graded-picks.json lists `picks[].eventId` ("nfl-<espn id>"); `rows[].providerEventId` is the older shape. */
+  const graded = readJson("nfl", "graded-picks.json") as { rows?: Array<{ providerEventId?: string }>; picks?: Array<{ eventId?: string }> } | null;
   const markets = readJson("nfl", "markets", "latest.json") as { rows?: Array<{ providerEventId?: string; kickoffUtc?: string; capturedAt?: string }>; capturedAt?: string } | null;
   /* A row carries the capture that produced IT — rows outlive a single capture, so the document's
      stamp is not a claim about every price in it. */
   const capturedAtOf = (r: { capturedAt?: string }) => r.capturedAt ?? markets?.capturedAt ?? "";
   const nowMs = Date.parse(nowIso);
   const forecastIds = new Set((forecasts?.forecasts ?? []).map((f) => String(f.providerEventId)));
-  const settledIds = new Set((graded?.rows ?? []).map((r) => String(r.providerEventId ?? "")));
+  const settledIds = new Set([
+    ...(graded?.rows ?? []).map((r) => String(r.providerEventId ?? "")),
+    ...(graded?.picks ?? []).map((p) => String(p.eventId ?? "").replace(/^nfl-/, "")),
+  ].filter(Boolean));
   const pricedNow = new Set(
     (markets?.rows ?? [])
       .filter((r) => r.kickoffUtc && Date.parse(String(r.kickoffUtc)) > nowMs && capturedAtOf(r) < String(r.kickoffUtc))
@@ -127,8 +138,9 @@ export function loadNflEvents(nowIso: string): CanonicalEvent[] {
     const season = dateUtc ? String(new Date(Date.parse(dateUtc)).getUTCFullYear()) : null;
     const started = startedBy(dateUtc, nowMs);
     const raw = String(r.statusRaw ?? "");
-    const status: EventStatus =
-      raw === "STATUS_SCHEDULED" ? (started ? "IN_PROGRESS" : "SCHEDULED")
+    /* The schedule capture's statusRaw is its morning value; a game graded on a FINAL result is final. */
+    const status: EventStatus = settledIds.has(id) ? "FINAL"
+      : raw === "STATUS_SCHEDULED" ? (started ? "IN_PROGRESS" : "SCHEDULED")
         : /FINAL/i.test(raw) ? "FINAL"
           : /POSTPONED|CANCEL/i.test(raw) ? "POSTPONED"
             : "UNKNOWN";
