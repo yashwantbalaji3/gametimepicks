@@ -2267,6 +2267,21 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Vercel Preview / Production build counts: 0 / 0. The branch push is gated. A merge would be one Production build (tests under `app/src/`).
 - Remaining: founder review; the founder decides the UFC re-run (+1 credit). OPS-002's seven-day observation continues unaffected.
 
+### 2026-10-13 — Claude Code (Lane B, NFL operations) — `NFL-005` Week 6 Vault truth fix; same-run grading evidence
+- **Same-run grading (#1036) is demonstrated.** Every Week 5 Sunday final was graded by the first event window after it ended, with no extra window:
+  - 8 of the 1 PM finals at the 22:37Z window (`c6295624a4`);
+  - CHI @ GB at 23:28Z;
+  - DEN @ LAC, DET @ ARI and SF @ SEA at 00:10Z.
+- **Main went red at the Week 5 → 6 rollover** (`end-zone-vault-product` #2 and #8; `product-receipts` "NO_PLAY is over-determined"). The 02:26Z window (`2e112d9a05`) published Vault `NO_VAULT` with "the evaluator ran over a real pool and no player cleared 0.12". That sentence was false:
+  - `build-end-zone-vault` ran before `build-nfl-player-board`, so it read the previous window's boards;
+  - on the first Week 6 window no Week 6 board existed, so all 28 team slots were withheld and the empty pool was labelled as evaluated.
+- **Fix (branch `claude/nfl-005-vault-week6-truth`):**
+  - the workflow runs the Vault after the player and weekly boards; eligibility and receipts are re-derived in the later `always()` steps;
+  - the builder separates an absent board (`NO_BOARD`) from an unpublished family. No board anywhere is `INCIDENT` ("we could not look"). An empty or failed pool is `NO_VAULT`, with a reason that names the blocker;
+  - guards in `event-window-order` and `end-zone-vault-product`; 4 mutation probes caught.
+- **Honest Week 6 pre-capture state** (re-derived at 2026-10-13T02:26:06Z, Week 6 files only): `WATCHLIST_ONLY`, 117 model candidates, "no current comparable touchdown price is available". The ledger entry for 2026-10-13 is unchanged (append-only).
+- **Separate finding, not fixed here:** `build-nfl-product-receipts.mjs` (since Aug 14) labels unpriced players "the provider offers no NFL player market in this window". With the odds budget exhausted we did not ask, which is the P250-W1 distinction ("unavailable price authorization is not an absent market").
+
 ---
 
 # 26. Immediate execution waves

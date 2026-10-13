@@ -14,19 +14,25 @@ import { orderRows, isInProgress, hubCounts, drawableSplit, type HubGameRow, typ
  * and middle-click both do what they should.
  */
 
-const READ_TONE: Record<HubRead["kind"], { label: string; color: string }> = {
-  MODEL_FORECAST: { label: "model forecast", color: "var(--vault-text)" },
-  MODEL_PICK: { label: "model pick", color: "var(--vault-text)" },
-  MARKET_PRICE: { label: "market price", color: "var(--vault-text-mute)" },
-  BASELINE_ONLY: { label: "baseline only", color: "var(--vault-text-mute)" },
+/*
+ * WEIGHT (2026-10-13): this card renders once per event on every hub, and a static export ships its markup
+ * twice (server HTML + RSC flight). The repeated declarations live as classes in globals.css (.gtp-ev*,
+ * .gtp-c-*), byte-for-byte what was inlined here — /epl had gone over its ceiling on one published
+ * matchweek. Only per-instance values (a bar width) stay inline.
+ */
+const READ_TONE: Record<HubRead["kind"], { label: string; cls: string }> = {
+  MODEL_FORECAST: { label: "model forecast", cls: "gtp-c-text" },
+  MODEL_PICK: { label: "model pick", cls: "gtp-c-text" },
+  MARKET_PRICE: { label: "market price", cls: "gtp-c-mute" },
+  BASELINE_ONLY: { label: "baseline only", cls: "gtp-c-mute" },
 };
 
 function Action({ row }: { row: HubGameRow }) {
   if (row.reportState === "NONE" || !row.reportHref) {
-    return <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{row.reportNote ?? "No report"}</span>;
+    return <span className="text-[12px] gtp-c-mute">{row.reportNote ?? "No report"}</span>;
   }
   return (
-    <Link href={row.reportHref} className="vault-press inline-flex items-center gap-1 rounded-full px-4 text-[13px] font-semibold no-underline" style={{ minHeight: 44, color: "var(--vault-text)", border: "1px solid var(--vault-border-strong)" }}>
+    <Link href={row.reportHref} className="vault-press gtp-ev-cta inline-flex items-center gap-1 rounded-full px-4 text-[13px] font-semibold no-underline">
       {row.reportState === "ARCHIVE" ? "View record" : "Open report"} <span aria-hidden>→</span>
       <span className="sr-only"> for {row.matchup}</span>
     </Link>
@@ -51,8 +57,7 @@ function Side({ p, favored, dim }: { p: HubParticipant; favored: boolean; dim: b
             {initials(p.name)}
           </span>
         )}
-      <span className="line-clamp-2 break-words text-[15px] font-semibold leading-tight"
-        style={{ color: dim ? "var(--vault-text-mute)" : "var(--vault-text)" }}>
+      <span className={`line-clamp-2 break-words text-[15px] font-semibold leading-tight ${dim ? "gtp-c-mute" : "gtp-c-text"}`}>
         {p.name}
       </span>
       {favored ? <span className="sr-only">(model favourite)</span> : null}
@@ -68,19 +73,15 @@ const pct = (p: number) => `${Math.round(p * 100)}%`;
 function SplitBar({ split, favored, sides }: { split: Array<{ label: string; p: number }>; favored?: string; sides: string[] }) {
   return (
     <div>
-      <div className="flex h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--vault-wash-soft)" }} aria-hidden>
+      {/* Colour, opacity and the 2px gap come from .gtp-ev-bar (favoured segment: data-fav); the width is the owner's number. */}
+      <div className="gtp-ev-bar flex h-1.5 w-full overflow-hidden rounded-full" aria-hidden>
         {split.map((s, i) => (
-          <span key={`${s.label}-${i}`} style={{
-            width: `${Math.round(s.p * 10000) / 100}%`,
-            background: s.label === favored ? "var(--vault-accent)" : "var(--vault-text-faint)",
-            opacity: s.label === favored ? 1 : 0.45,
-            marginLeft: i ? 2 : 0,
-          }} />
+          <span key={`${s.label}-${i}`} data-fav={s.label === favored ? "" : undefined} style={{ width: `${Math.round(s.p * 10000) / 100}%` }} />
         ))}
       </div>
-      <div className="mt-1.5 flex justify-between gap-2 text-[12px] tabular-nums" style={{ color: "var(--vault-text-mute)" }}>
+      <div className="mt-1.5 flex justify-between gap-2 text-[12px] tabular-nums gtp-c-mute">
         {split.map((s, i) => (
-          <span key={`${s.label}-${i}`} style={s.label === favored ? { color: "var(--vault-text)", fontWeight: 600 } : undefined}>
+          <span key={`${s.label}-${i}`} className={s.label === favored ? "gtp-ev-fav" : undefined}>
             {/* Sides sit directly above, in the same order, so a side's share prints as a number; an
                 outcome that is not a side (a draw) keeps its word. */}
             {sides.includes(s.label) ? <span className="sr-only">{s.label} </span> : `${s.label} `}{pct(s.p)}
@@ -99,30 +100,30 @@ function EventCard({ row: r, unitLabel }: { row: HubGameRow; unitLabel: string }
   const favoredIsSide = Boolean(favored && r.participants?.some((p) => p.name === favored));
   const split = isModel ? drawableSplit(r.read) : null;
   return (
-    <li className="rounded-2xl p-4 sm:p-5 flex flex-col gap-4" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-border)" }}>
+    <li className="gtp-ev rounded-2xl p-4 sm:p-5 flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[12.5px] font-medium" style={{ color: "var(--vault-text-mute)" }}>{r.startLabel}</span>
-        <span className="rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)", border: "1px solid var(--vault-border)" }}>{r.status}</span>
+        <span className="text-[12.5px] font-medium gtp-c-mute">{r.startLabel}</span>
+        <span className="gtp-ev-status rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em]">{r.status}</span>
       </div>
       {hasSides ? (
         <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2" aria-label={r.matchup}>
           <Side p={r.participants![0]} favored={favoredIsSide && r.participants![0].name === favored} dim={favoredIsSide && r.participants![0].name !== favored} />
-          <span className="pt-5 text-[12px] font-medium" style={{ color: "var(--vault-text-mute)" }}>{r.separator ?? "vs"}</span>
+          <span className="pt-5 text-[12px] font-medium gtp-c-mute">{r.separator ?? "vs"}</span>
           <Side p={r.participants![1]} favored={favoredIsSide && r.participants![1].name === favored} dim={favoredIsSide && r.participants![1].name !== favored} />
         </div>
       ) : (
-        <div className="text-[16px] font-semibold" style={{ color: "var(--vault-text)" }}>{r.matchup}</div>
+        <div className="text-[16px] font-semibold gtp-c-text">{r.matchup}</div>
       )}
-      <div className="rounded-xl px-3.5 py-3" style={{ background: "var(--vault-wash-faint)" }}>
+      <div className="gtp-ev-read rounded-xl px-3.5 py-3">
         {r.read ? (
           <>
             {/* A model read is the card's headline; a market price is shown, muted, and labelled as the market's. */}
-            <div className={isModel ? "text-[18px] font-bold leading-snug" : "text-[14px]"} style={{ color: tone!.color }}>{r.read.label}</div>
-            <div className="mt-0.5 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{tone!.label}{r.read.detail ? ` · ${r.read.detail}` : ""}</div>
+            <div className={`${isModel ? "text-[18px] font-bold leading-snug" : "text-[14px]"} ${tone!.cls}`}>{r.read.label}</div>
+            <div className="mt-0.5 text-[12px] gtp-c-mute">{tone!.label}{r.read.detail ? ` · ${r.read.detail}` : ""}</div>
             {split ? <div className="mt-3"><SplitBar split={split} favored={favored} sides={(r.participants ?? []).map((p) => p.name)} /></div> : null}
           </>
         ) : (
-          <div className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No supported read for this {unitLabel.toLowerCase().replace(/s$/, "")}</div>
+          <div className="text-[13px] gtp-c-mute">No supported read for this {unitLabel.toLowerCase().replace(/s$/, "")}</div>
         )}
       </div>
       <div className="mt-auto"><Action row={r} /></div>
@@ -144,7 +145,7 @@ function CompactRow({ row: r }: { row: HubGameRow }) {
       <span className="text-[12px]" style={{ color: "var(--vault-text-mute)", minWidth: 150 }}>{r.startLabel}</span>
       <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{r.matchup}</span>
       <span className="text-[11px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)" }}>{r.status}</span>
-      {r.read ? <span style={{ color: tone!.color }}>{r.read.label} <span style={{ color: "var(--vault-text-mute)" }}>· {tone!.label}</span></span> : null}
+      {r.read ? <span className={tone!.cls}>{r.read.label} <span className="gtp-c-mute">· {tone!.label}</span></span> : null}
       <span className="text-[12px]"><Action row={r} /></span>
     </li>
   );

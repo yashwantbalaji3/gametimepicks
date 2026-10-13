@@ -4,24 +4,24 @@
  "dataClass": "PUBLIC_MODEL_RECORD",
  "moneyClass": "NEVER_MONEY",
  "sport": "mlb",
- "generatedAt": "2026-10-12T19:23:13Z",
+ "generatedAt": "2026-10-13T14:48:54Z",
  "gradingVersion": 1,
  "what": "Game-level predictions — winner, total and run line from the full-game simulation — graded against official StatsAPI finals, from the newest artifact revision that pre-dates each game's first pitch.",
  "caveat": "A model-performance record, separate from the 32,227-row player-prop record and from the settled money record: different questions, different denominators, never combined.",
  "families": {
   "moneyline": {
-   "n": 812,
-   "wins": 417,
-   "losses": 395,
+   "n": 814,
+   "wins": 418,
+   "losses": 396,
    "pushes": 0,
    "hitRate": 0.5135
   },
   "total": {
-   "n": 807,
-   "wins": 376,
+   "n": 809,
+   "wins": 378,
    "losses": 393,
    "pushes": 38,
-   "hitRate": 0.4889
+   "hitRate": 0.4903
   },
   "run_line": {
    "n": 810,
@@ -36,18 +36,168 @@
    "note": "92% of graded run-line picks took the +1.5 side, whose base cover rate is close to this hit rate — and no market price is recorded for this family, so the percentage supports no claim against the market."
   },
   "run_line_posted": {
-   "n": 2,
-   "wins": 1,
-   "losses": 1,
+   "n": 4,
+   "wins": 2,
+   "losses": 2,
    "pushes": 0,
    "hitRate": 0.5
   }
  },
  "counts": {
-  "rows": 2431,
+  "rows": 2437,
   "missingPreEventFinals": 327
  },
  "recent": [
+  {
+   "schemaVersion": 1,
+   "gradingVersion": 1,
+   "gamePk": 849820,
+   "date": "2026-10-12",
+   "matchup": "CLE @ TB",
+   "firstPitchUtc": "2026-10-13T00:00:00Z",
+   "forecastGeneratedAt": "2026-10-12T23:42:37.000Z",
+   "forecastSource": "snapshot:2026-10-12/snapshot-202610122342.json",
+   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
+   "actual": {
+    "homeRuns": 3,
+    "awayRuns": 7,
+    "winner": "away"
+   },
+   "market": "moneyline",
+   "pick": "CLE (away)",
+   "line": null,
+   "modelProbability": 0.551,
+   "marketImpliedProbability": 0.395,
+   "outcome": "WIN",
+   "resultSource": "statsapi-linescore",
+   "gradedAt": "2026-10-13T09:29:38Z"
+  },
+  {
+   "schemaVersion": 1,
+   "gradingVersion": 1,
+   "gamePk": 849820,
+   "date": "2026-10-12",
+   "matchup": "CLE @ TB",
+   "firstPitchUtc": "2026-10-13T00:00:00Z",
+   "forecastGeneratedAt": "2026-10-12T23:42:37.000Z",
+   "forecastSource": "snapshot:2026-10-12/snapshot-202610122342.json",
+   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
+   "actual": {
+    "homeRuns": 3,
+    "awayRuns": 7,
+    "winner": "away"
+   },
+   "market": "total",
+   "pick": "OVER 6.5",
+   "line": 6.5,
+   "modelProbability": 0.588,
+   "marketImpliedProbability": 0.525,
+   "outcome": "WIN",
+   "resultSource": "statsapi-linescore",
+   "gradedAt": "2026-10-13T09:29:38Z"
+  },
+  {
+   "schemaVersion": 1,
+   "gradingVersion": 1,
+   "gamePk": 849820,
+   "date": "2026-10-12",
+   "matchup": "CLE @ TB",
+   "firstPitchUtc": "2026-10-13T00:00:00Z",
+   "forecastGeneratedAt": "2026-10-12T23:42:37.000Z",
+   "forecastSource": "snapshot:2026-10-12/snapshot-202610122342.json",
+   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
+   "actual": {
+    "homeRuns": 3,
+    "awayRuns": 7,
+    "winner": "away"
+   },
+   "market": "run_line_posted",
+   "pick": "CLE +1.5",
+   "line": 1.5,
+   "modelProbability": 0.722,
+   "marketImpliedProbability": 0.5842,
+   "homeLine": -1.5,
+   "bookmaker": "draftkings",
+   "marketCapturedAt": "2026-10-12T09:29:26.636Z",
+   "outcome": "WIN",
+   "resultSource": "statsapi-linescore",
+   "gradedAt": "2026-10-13T09:29:38Z"
+  },
+  {
+   "schemaVersion": 1,
+   "gradingVersion": 1,
+   "gamePk": 849812,
+   "date": "2026-10-12",
+   "matchup": "LAD @ MIL",
+   "firstPitchUtc": "2026-10-12T21:00:00Z",
+   "forecastGeneratedAt": "2026-10-12T20:20:41.000Z",
+   "forecastSource": "snapshot:2026-10-12/snapshot-202610122020.json",
+   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
+   "actual": {
+    "homeRuns": 7,
+    "awayRuns": 4,
+    "winner": "home"
+   },
+   "market": "moneyline",
+   "pick": "LAD (away)",
+   "line": null,
+   "modelProbability": 0.618,
+   "marketImpliedProbability": 0.563,
+   "outcome": "LOSS",
+   "resultSource": "statsapi-linescore",
+   "gradedAt": "2026-10-13T09:29:38Z"
+  },
+  {
+   "schemaVersion": 1,
+   "gradingVersion": 1,
+   "gamePk": 849812,
+   "date": "2026-10-12",
+   "matchup": "LAD @ MIL",
+   "firstPitchUtc": "2026-10-12T21:00:00Z",
+   "forecastGeneratedAt": "2026-10-12T20:20:41.000Z",
+   "forecastSource": "snapshot:2026-10-12/snapshot-202610122020.json",
+   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
+   "actual": {
+    "homeRuns": 7,
+    "awayRuns": 4,
+    "winner": "home"
+   },
+   "market": "total",
+   "pick": "OVER 7",
+   "line": 7,
+   "modelProbability": 0.64,
+   "marketImpliedProbability": 0.471,
+   "outcome": "WIN",
+   "resultSource": "statsapi-linescore",
+   "gradedAt": "2026-10-13T09:29:38Z"
+  },
+  {
+   "schemaVersion": 1,
+   "gradingVersion": 1,
+   "gamePk": 849812,
+   "date": "2026-10-12",
+   "matchup": "LAD @ MIL",
+   "firstPitchUtc": "2026-10-12T21:00:00Z",
+   "forecastGeneratedAt": "2026-10-12T20:20:41.000Z",
+   "forecastSource": "snapshot:2026-10-12/snapshot-202610122020.json",
+   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
+   "actual": {
+    "homeRuns": 7,
+    "awayRuns": 4,
+    "winner": "home"
+   },
+   "market": "run_line_posted",
+   "pick": "LAD -1.5",
+   "line": -1.5,
+   "modelProbability": 0.501,
+   "marketImpliedProbability": 0.4109,
+   "homeLine": 1.5,
+   "bookmaker": "draftkings",
+   "marketCapturedAt": "2026-10-12T09:29:26.636Z",
+   "outcome": "LOSS",
+   "resultSource": "statsapi-linescore",
+   "gradedAt": "2026-10-13T09:29:38Z"
+  },
   {
    "schemaVersion": 1,
    "gradingVersion": 1,
@@ -1301,144 +1451,6 @@
    "outcome": "LOSS",
    "resultSource": "statsapi-linescore",
    "gradedAt": "2026-10-02T11:08:08Z"
-  },
-  {
-   "schemaVersion": 1,
-   "gradingVersion": 1,
-   "gamePk": 849848,
-   "date": "2026-09-30",
-   "matchup": "BOS @ NYY",
-   "firstPitchUtc": "2026-10-01T00:00:00Z",
-   "forecastGeneratedAt": "2026-09-30T23:07:00.000Z",
-   "forecastSource": "snapshot:2026-09-30/snapshot-202609302307.json",
-   "actual": {
-    "homeRuns": 9,
-    "awayRuns": 2,
-    "winner": "home"
-   },
-   "market": "moneyline",
-   "pick": "NYY (home)",
-   "line": null,
-   "modelProbability": 0.546,
-   "marketImpliedProbability": 0.561,
-   "outcome": "WIN",
-   "resultSource": "statsapi-linescore",
-   "gradedAt": "2026-10-01T11:38:24Z"
-  },
-  {
-   "schemaVersion": 1,
-   "gradingVersion": 1,
-   "gamePk": 849848,
-   "date": "2026-09-30",
-   "matchup": "BOS @ NYY",
-   "firstPitchUtc": "2026-10-01T00:00:00Z",
-   "forecastGeneratedAt": "2026-09-30T23:07:00.000Z",
-   "forecastSource": "snapshot:2026-09-30/snapshot-202609302307.json",
-   "actual": {
-    "homeRuns": 9,
-    "awayRuns": 2,
-    "winner": "home"
-   },
-   "market": "total",
-   "pick": "OVER 6.5",
-   "line": 6.5,
-   "modelProbability": 0.509,
-   "marketImpliedProbability": 0.522,
-   "outcome": "WIN",
-   "resultSource": "statsapi-linescore",
-   "gradedAt": "2026-10-01T11:38:24Z"
-  },
-  {
-   "schemaVersion": 1,
-   "gradingVersion": 1,
-   "gamePk": 849848,
-   "date": "2026-09-30",
-   "matchup": "BOS @ NYY",
-   "firstPitchUtc": "2026-10-01T00:00:00Z",
-   "forecastGeneratedAt": "2026-09-30T23:07:00.000Z",
-   "forecastSource": "snapshot:2026-09-30/snapshot-202609302307.json",
-   "actual": {
-    "homeRuns": 9,
-    "awayRuns": 2,
-    "winner": "home"
-   },
-   "market": "run_line",
-   "pick": "BOS +1.5",
-   "line": 1.5,
-   "modelProbability": 0.654,
-   "marketImpliedProbability": null,
-   "outcome": "LOSS",
-   "resultSource": "statsapi-linescore",
-   "gradedAt": "2026-10-01T11:38:24Z"
-  },
-  {
-   "schemaVersion": 1,
-   "gradingVersion": 1,
-   "gamePk": 849846,
-   "date": "2026-09-30",
-   "matchup": "CWS @ HOU",
-   "firstPitchUtc": "2026-09-30T21:00:00Z",
-   "forecastGeneratedAt": "2026-09-30T20:54:50.000Z",
-   "forecastSource": "snapshot:2026-09-30/snapshot-202609302054.json",
-   "actual": {
-    "homeRuns": 3,
-    "awayRuns": 7,
-    "winner": "away"
-   },
-   "market": "moneyline",
-   "pick": "HOU (home)",
-   "line": null,
-   "modelProbability": 0.619,
-   "marketImpliedProbability": 0.568,
-   "outcome": "LOSS",
-   "resultSource": "statsapi-linescore",
-   "gradedAt": "2026-10-01T11:38:24Z"
-  },
-  {
-   "schemaVersion": 1,
-   "gradingVersion": 1,
-   "gamePk": 849846,
-   "date": "2026-09-30",
-   "matchup": "CWS @ HOU",
-   "firstPitchUtc": "2026-09-30T21:00:00Z",
-   "forecastGeneratedAt": "2026-09-30T20:54:50.000Z",
-   "forecastSource": "snapshot:2026-09-30/snapshot-202609302054.json",
-   "actual": {
-    "homeRuns": 3,
-    "awayRuns": 7,
-    "winner": "away"
-   },
-   "market": "total",
-   "pick": "OVER 7.5",
-   "line": 7.5,
-   "modelProbability": 0.564,
-   "marketImpliedProbability": 0.5,
-   "outcome": "WIN",
-   "resultSource": "statsapi-linescore",
-   "gradedAt": "2026-10-01T11:38:24Z"
-  },
-  {
-   "schemaVersion": 1,
-   "gradingVersion": 1,
-   "gamePk": 849846,
-   "date": "2026-09-30",
-   "matchup": "CWS @ HOU",
-   "firstPitchUtc": "2026-09-30T21:00:00Z",
-   "forecastGeneratedAt": "2026-09-30T20:54:50.000Z",
-   "forecastSource": "snapshot:2026-09-30/snapshot-202609302054.json",
-   "actual": {
-    "homeRuns": 3,
-    "awayRuns": 7,
-    "winner": "away"
-   },
-   "market": "run_line",
-   "pick": "CWS +1.5",
-   "line": 1.5,
-   "modelProbability": 0.563,
-   "marketImpliedProbability": null,
-   "outcome": "WIN",
-   "resultSource": "statsapi-linescore",
-   "gradedAt": "2026-10-01T11:38:24Z"
   }
  ]
 }

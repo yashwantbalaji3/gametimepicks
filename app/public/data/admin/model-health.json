@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-10-12T19:23:45Z",
+ "generatedAt": "2026-10-13T12:46:57Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 8,
@@ -22,20 +22,20 @@
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 769,
+   "n": 771,
    "judgement": {
     "state": "BREACHED",
-    "n": 769,
+    "n": 771,
     "needed": 200,
-    "meanDiff": 0.0356,
-    "lo95": 0.0181,
-    "hi95": 0.0537
+    "meanDiff": 0.035,
+    "lo95": 0.018,
+    "hi95": 0.0532
    },
    "context": {
-    "hitRate": 0.4889,
-    "meanPickProbability": 0.5869,
-    "modelMinusMarket": 0.035,
-    "pairedWithMarket": 769
+    "hitRate": 0.4903,
+    "meanPickProbability": 0.587,
+    "modelMinusMarket": 0.0343,
+    "pairedWithMarket": 771
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -157,20 +157,20 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 812,
+   "n": 814,
    "judgement": {
     "state": "WATCH",
-    "n": 812,
+    "n": 814,
     "needed": 200,
-    "meanDiff": 0.0061,
-    "lo95": -0.0058,
-    "hi95": 0.0188
+    "meanDiff": 0.0063,
+    "lo95": -0.0056,
+    "hi95": 0.0192
    },
    "context": {
     "hitRate": 0.5135,
     "meanPickProbability": 0.5719,
-    "modelMinusMarket": 0.031,
-    "pairedWithMarket": 807
+    "modelMinusMarket": 0.0307,
+    "pairedWithMarket": 809
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -564,16 +564,16 @@
    "label": "EPL blind forward test · match model vs the one it replaced",
    "baseline": "the previous model (epl-model-v1-split-poisson), paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 19,
+   "n": 20,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "watch": false,
     "needed": 60,
-    "meanDiff": -0.2007,
+    "meanDiff": -0.4384,
     "lo95": null,
     "hi95": null,
-    "modelLogLoss": 1.024,
-    "controlLogLoss": 1.2247,
+    "modelLogLoss": 1.0392,
+    "controlLogLoss": 1.4776,
     "modelId": "epl-model-v2-elo-poisson"
    },
    "context": null,
@@ -590,28 +590,28 @@
    "label": "EPL match result (home/draw/away)",
    "baseline": "even odds (log loss 1.0986)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 55,
+   "n": 56,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 55,
+    "n": 56,
     "needed": 60,
-    "meanDiff": -0.052,
+    "meanDiff": -0.047,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "modelLogLoss": 1.0466,
+    "modelLogLoss": 1.0516,
     "market": {
      "model": {
-      "logLoss": 1.05189,
-      "brier": 0.645825
+      "logLoss": 1.057609,
+      "brier": 0.649864
      },
      "market": {
-      "logLoss": 1.055182,
-      "brier": 0.638532
+      "logLoss": 1.058192,
+      "brier": 0.640766
      },
-     "logLossDelta": -0.003292,
-     "brierDelta": 0.007293
+     "logLossDelta": -0.000583,
+     "brierDelta": 0.009098
     },
     "marketComparisonState": "MODEL_AHEAD",
     "stoppingRule": "NO_MEASURABLE_ADVANTAGE"
@@ -632,11 +632,11 @@
    "label": "EPL totals SHADOW (research, not public) · club-specific total vs live P304",
    "baseline": "live P304 constant total, paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 19,
+   "n": 20,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "needed": 60,
-    "meanDiff": 0.0163,
+    "meanDiff": 0.0143,
     "lo95": null,
     "hi95": null,
     "failedBars": null,
@@ -687,20 +687,20 @@
    "label": "MLB run line posted picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 2,
+   "n": 4,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 2,
+    "n": 4,
     "needed": 200,
-    "meanDiff": 0.0785,
+    "meanDiff": -0.0521,
     "lo95": null,
     "hi95": null
    },
    "context": {
     "hitRate": 0.5,
-    "meanPickProbability": 0.573,
-    "modelMinusMarket": 0.0501,
-    "pairedWithMarket": 2
+    "meanPickProbability": 0.5922,
+    "modelMinusMarket": 0.0136,
+    "pairedWithMarket": 4
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -853,14 +853,6 @@
    "from": "INSUFFICIENT_SAMPLE",
    "to": "HOLDING",
    "at": "2026-09-30T11:12:35Z"
-  },
-  {
-   "id": "nfl_player_rush_yds",
-   "sport": "nfl",
-   "label": "NFL rushing yards 80% range",
-   "from": "HOLDING",
-   "to": "WATCH",
-   "at": "2026-09-29T11:23:48Z"
   }
  ]
 }
