@@ -88,24 +88,28 @@ function PredictionRow({ r }: { r: EplForecastRow }) {
     <>
       <div className="flex items-center gap-2 min-w-0">
         <TeamLogo team={home} sport="soccer" size="sm" ariaLabel={`${home} crest`} />
-        <span className="truncate" style={{ fontWeight: 600 }}>{home}</span>
-        <span style={{ color: "var(--vault-text-faint)" }}>v</span>
-        <span className="truncate" style={{ fontWeight: 600 }}>{away}</span>
+        <span className="truncate font-semibold">{home}</span>
+        <span className="gtp-c-faint">v</span>
+        <span className="truncate font-semibold">{away}</span>
         <TeamLogo team={away} sport="soccer" size="sm" ariaLabel={`${away} crest`} />
       </div>
-      <div className="flex items-center gap-3 font-mono shrink-0" style={{ fontSize: 12.5 }}>
-        <span title={`${home} win`} style={{ color: "var(--vault-accent)" }}>{pct(r.probs!.home)}</span>
-        <span title="Draw" style={{ color: "var(--vault-text-mute)" }}>{pct(r.probs!.draw)}</span>
-        <span title={`${away} win`} style={{ color: "var(--sport-soccer)" }}>{pct(r.probs!.away)}</span>
-        <span style={{ color: "var(--vault-text-faint)" }}>·</span>
-        <span title="Expected total goals" style={{ color: "var(--vault-text-mute)" }}>{r.expectedGoals?.toFixed(2) ?? "—"} xG</span>
+      <div className="flex items-center gap-3 font-mono shrink-0 text-[12.5px]">
+        <span title={`${home} win`} className="gtp-c-accent">{pct(r.probs!.home)}</span>
+        <span title="Draw" className="gtp-c-mute">{pct(r.probs!.draw)}</span>
+        <span title={`${away} win`} className="gtp-c-soccer">{pct(r.probs!.away)}</span>
+        <span className="gtp-c-faint">·</span>
+        <span title="Expected total goals" className="gtp-c-mute">{r.expectedGoals?.toFixed(2) ?? "—"} xG</span>
       </div>
     </>
   );
+  /* WEIGHT (2026-10-13): this row, the simulation card, the archive row and the record table render once per
+     fixture, and the export ships each twice (HTML + RSC flight). Their repeated declarations are classes in
+     globals.css (.gtp-c-*, .gtp-rule-top, .gtp-epl-*), byte-for-byte what was inlined — nothing renders
+     differently. MW7's publication had put this page 17KB over its 500KB ceiling. */
   return (
-    <li style={{ borderTop: "1px solid var(--vault-rule)" }}>
+    <li className="gtp-rule-top">
       {r.slug ? (
-        <Link href={eplMatchHref(r.slug)} className="flex items-center justify-between gap-4 px-3 py-3" style={{ color: "var(--vault-text)" }}>
+        <Link href={eplMatchHref(r.slug)} className="flex items-center justify-between gap-4 px-3 py-3 gtp-c-text">
           {body}
         </Link>
       ) : (
@@ -128,22 +132,22 @@ function SimulationCard({ r }: { r: EplForecastRow }) {
   return (
     <Link
       href={eplMatchHref(r.slug as string)}
-      className="block rounded-[12px] p-4"
-      style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)", color: "var(--vault-text)" }}
+      className="gtp-epl-sim block rounded-[12px] p-4"
     >
       <div className="flex items-center gap-2 mb-2">
         <TeamLogo team={home} sport="soccer" size="sm" ariaLabel={`${home} crest`} />
         <TeamLogo team={away} sport="soccer" size="sm" ariaLabel={`${away} crest`} />
-        <span className="font-mono ml-auto" style={{ fontSize: 10, color: "var(--vault-text-faint)" }}>
+        <span className="font-mono ml-auto text-[10px] gtp-c-faint">
           {ET_TIME.format(new Date(r.kickoffUtc))} ET
         </span>
       </div>
-      <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700 }}>{home} v {away}</p>
-      <p className="font-mono mt-1" style={{ margin: 0, fontSize: 11.5, color: "var(--vault-text-mute)" }}>
+      {/* The inline margin:0 these carried overrode their mt-1/mt-2, so the rendered margin was 0; m-0 keeps it 0. */}
+      <p className="m-0 text-[13.5px] font-bold">{home} v {away}</p>
+      <p className="font-mono m-0 text-[11.5px] gtp-c-mute">
         {top ? `likeliest ${top.score.replace("-", "–")} at ${pct(top.p)}` : "distribution published"}
         {r.totals ? ` · over 2.5 ${pct(r.totals.over25)}` : ""}
       </p>
-      <p className="font-mono mt-2" style={{ margin: 0, fontSize: 10.5, color: "var(--vault-accent)" }}>Open the simulation →</p>
+      <p className="font-mono m-0 text-[10.5px] gtp-c-accent">Open the simulation →</p>
     </Link>
   );
 }
@@ -393,18 +397,16 @@ export default function EplPage() {
           <ul className="mt-4 flex flex-col gap-2 m-0 p-0" style={{ listStyle: "none" }}>
             {archived.map((r) => (
               <li key={r.slug as string}>
-                <Link
-                  href={eplMatchHref(r.slug as string)}
-                  className="vault-glow-hover flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-[10px] px-3 py-2.5 no-underline"
-                  style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", color: "inherit" }}
-                >
-                  <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 650 }}>{r.matchup}</span>
-                  <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 10.5 }}>
+                {/* .gtp-epl-arc = this row's flex/gap/radius/padding utilities + its inline declarations,
+                    byte-for-byte (globals.css). One row per played fixture, so this is the weight that grows. */}
+                <Link href={eplMatchHref(r.slug as string)} className="vault-glow-hover gtp-epl-arc">
+                  <span className="gtp-epl-arc-m">{r.matchup}</span>
+                  <span className="font-mono gtp-epl-arc-d">
                     {/* Session 5 · B8: the ET day, never the UTC instant's date (a 3 PM ET kickoff is fine; an evening one is not). */}
                     {r.kickoffUtc ? ET_KEY.format(new Date(r.kickoffUtc)) : ""}
                     {r.matchweek ? ` · matchweek ${r.matchweek}` : ""}
                   </span>
-                  <span className="ml-auto font-mono uppercase tracking-[0.12em]" style={{ color: "var(--sport-soccer)", fontSize: 10 }}>
+                  <span className="font-mono gtp-epl-arc-cta">
                     Open forecast →
                   </span>
                 </Link>
@@ -562,7 +564,7 @@ export default function EplPage() {
             }
           />
           <div className="mt-3 overflow-x-auto">
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <table className="gtp-epl-rec" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ textAlign: "left", color: "var(--vault-text-mute)" }}>
                   <th style={{ padding: "6px 10px", fontWeight: 600 }}>Match</th>
@@ -572,12 +574,13 @@ export default function EplPage() {
               </thead>
               <tbody>
                 {gradedRecord.team.matchesList.map((m) => (
-                  <tr key={m.eventId} style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                    <td style={{ padding: "8px 10px" }}>{m.matchup}</td>
-                    <td style={{ padding: "8px 10px" }}>
+                  /* Row rule and cell padding: .gtp-epl-rec (globals.css), byte-for-byte what each row inlined. */
+                  <tr key={m.eventId}>
+                    <td>{m.matchup}</td>
+                    <td>
                       {m.actual ? `${m.actual.homeGoalsFT}-${m.actual.awayGoalsFT}` : "—"}
                     </td>
-                    <td style={{ padding: "8px 10px" }}>
+                    <td>
                       {typeof m.probabilityOfActual === "number" ? `${(m.probabilityOfActual * 100).toFixed(1)}%` : "—"}
                     </td>
                   </tr>
