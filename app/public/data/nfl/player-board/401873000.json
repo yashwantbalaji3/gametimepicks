@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-13T02:26:06Z",
- "sourceGeneratedAt": "2026-10-13T02:26:06Z",
+ "generatedAt": "2026-10-13T16:56:14Z",
+ "sourceGeneratedAt": "2026-10-13T16:56:14Z",
  "providerEventId": "401873000",
  "matchup": "NO @ NYG",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-13T02:26:06Z",
-  "roleEvidenceAt": "2026-10-13T02:26:06Z",
+  "injuriesCapturedAt": "2026-10-13T16:56:14Z",
+  "roleEvidenceAt": "2026-10-13T16:56:14Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -107,7 +107,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 38,
+  "absent": 39,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -136,16 +136,10 @@
      "name": "Spencer Rattler",
      "state": "PROJECTED",
      "families": [
+      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4599739",
@@ -369,21 +363,14 @@
   "qbStarter": [
    {
     "team": "NO",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4360689",
-     "name": "Tyler Shough"
-    },
-    "snapshotAt": "2026-10-10T13:32:40Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4426339",
-      "name": "Spencer Rattler"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-4360689"
-    ]
+     "nfl-athlete-4360689",
+     "nfl-athlete-4426339"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-10T13:32:40Z"
    },
    {
     "team": "NYG",
@@ -399,11 +386,13 @@
     "team": "NO",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4360689"
+     "nfl-athlete-4360689",
+     "nfl-athlete-4426339"
     ],
     "withheld": [],
     "unjoined": [
-     "nfl-athlete-4360689"
+     "nfl-athlete-4360689",
+     "nfl-athlete-4426339"
     ]
    },
    {
@@ -627,6 +616,15 @@
    "team": "NO",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_pass_yds": {
+     "mean": 81.92,
+     "p10": 0,
+     "p25": 18.76,
+     "median": 63.89,
+     "p75": 127.28,
+     "p90": 189.51,
+     "pricingState": "NOT_PROBED"
+    },
     "player_rush_yds": {
      "mean": 8.93,
      "p10": 0,
