@@ -242,3 +242,15 @@ test("ONE TOUCHDOWN NUMBER PER PLAYER: the Vault shows the board's published any
   const page = fs.readFileSync(path.join(APP, "src/app/endzone-vault/page.tsx"), "utf8");
   assert.ok(!/historically been shared across its roster/.test(page), "the page must not describe td-engine's method for the board's number");
 });
+
+test("NFL-005 · the Vault never claims it ran over a pool it did not see", () => {
+  /* 2026-10-13: with no Week 6 board on disk, every team was withheld and the Vault published "the evaluator ran
+     over a real pool and no player cleared 0.12". An absent board is "we could not look" (INCIDENT); a board that
+     does not publish the family, or a pool where nobody clears the bar, is NO_VAULT with the blocker named. */
+  const builder = fs.readFileSync(path.join(APP, "scripts/nfl/build-end-zone-vault.mjs"), "utf8");
+  assert.ok(!/ran over a real pool and no player cleared/.test(builder.replace(/\/\*[\s\S]*?\*\//g, "")), "the unconditional false sentence is gone");
+  assert.match(builder, /if \(!b\) return \{ state: "NO_BOARD"/, "an absent board is distinguished from an unpublished family");
+  assert.match(builder, /state === "NO_BOARD"\)\) \{\s*(\/\*[\s\S]*?\*\/\s*)?state = "INCIDENT"/, "no board anywhere is an INCIDENT, never a quiet NO_VAULT");
+  assert.match(builder, /evaluatedRows === 0\s*\?\s*`no published anytime-touchdown board to evaluate/, "an empty pool says there was nothing to evaluate");
+  assert.match(builder, /`no candidate to evaluate: none of the \$\{evaluatedRows\} published/, "a real pool with no candidate says how many rows it read");
+});

@@ -5206,6 +5206,49 @@ body {
 .gtp-leg-compact { font-size: 11.5px; line-height: 1.5; color: var(--vault-text); }
 .gtp-leg-compact-dim { color: var(--vault-text-faint); }
 
+/* ── THE SAME RULE, PER FIXTURE (2026-10-13 · /epl over its 500KB ceiling) ─────────────────────
+ *
+ * Publishing matchweek 7 took /epl from 394KB to 517KB. Nothing was wrong with the content — each
+ * fixture legitimately renders as a hub event card, a prediction row and a simulation card — but
+ * every one of those rows carried its declarations inline, and a static export ships each of them
+ * TWICE: once in the server HTML and once, JSON-escaped, in the RSC flight. The archive and graded
+ * record rows (one per played fixture, ~10 more every matchweek) had the same shape.
+ *
+ * As in P251 · F10 above, the declarations are BYTE-FOR-BYTE the ones the components inlined (and
+ * the layout rules are Tailwind's own definitions for the utilities they replace); only their
+ * location changed. Per-instance values (a bar width) stay inline. Nothing renders differently.
+ */
+.gtp-c-text { color: var(--vault-text); }
+.gtp-c-mute { color: var(--vault-text-mute); }
+.gtp-c-faint { color: var(--vault-text-faint); }
+.gtp-c-accent { color: var(--vault-accent); }
+.gtp-c-soccer { color: var(--sport-soccer); }
+.gtp-rule-top { border-top: 1px solid var(--vault-rule); }
+/* components/sport-hub/game-summary.tsx — the hub event card (every sport hub renders it). */
+.gtp-ev { background: var(--vault-panel); border: 1px solid var(--vault-border); }
+.gtp-ev-status { color: var(--vault-text-mute); border: 1px solid var(--vault-border); }
+.gtp-ev-read { background: var(--vault-wash-faint); }
+.gtp-ev-bar { background: var(--vault-wash-soft); }
+.gtp-ev-bar > span { background: var(--vault-text-faint); opacity: 0.45; margin-left: 2px; }
+.gtp-ev-bar > span:first-child { margin-left: 0; }
+.gtp-ev-bar > span[data-fav] { background: var(--vault-accent); opacity: 1; }
+.gtp-ev-fav { color: var(--vault-text); font-weight: 600; }
+.gtp-ev-cta { min-height: 44px; color: var(--vault-text); border: 1px solid var(--vault-border-strong); }
+/* app/epl/page.tsx — the simulation card, the archive row and the graded-record table. */
+.gtp-epl-sim { background: var(--vault-panel); border: 1px solid var(--vault-rule); color: var(--vault-text); }
+.gtp-epl-arc {
+  display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 0.75rem; row-gap: 0.25rem;
+  border-radius: 10px; padding: 0.625rem 0.75rem; text-decoration-line: none;
+  border: 1px solid var(--vault-border);
+  background: color-mix(in srgb, var(--vault-scrim-base) 55%, transparent);
+  color: inherit;
+}
+.gtp-epl-arc-m { color: var(--vault-text); font-size: 13.5px; font-weight: 650; }
+.gtp-epl-arc-d { color: var(--vault-text-faint); font-size: 10.5px; }
+.gtp-epl-arc-cta { margin-left: auto; text-transform: uppercase; letter-spacing: 0.12em; color: var(--sport-soccer); font-size: 10px; }
+.gtp-epl-rec tbody tr { border-top: 1px solid var(--vault-rule); }
+.gtp-epl-rec tbody td { padding: 8px 10px; }
+
 /* Visually hidden, still announced — the standard clip-rect pattern (P251 · F11). Used where a
  * section's visible label is a control (a tab strip) but the region still needs a heading. */
 .sr-only {

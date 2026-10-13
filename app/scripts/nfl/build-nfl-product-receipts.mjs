@@ -14,7 +14,7 @@
  * it on their own:
  *   1. the team model is BASELINE_ONLY (P181 challenger rejected on frozen bars);
  *   2. all four player families were rejected on their own frozen bars (P183 Release B);
- *   3. the provider offers no NFL player market at all in this window.
+ *   3. no NFL player-market price exists for this window (not checked, or not offered — the capture says which).
  * Any one of those is sufficient. The receipt says so rather than reporting a single reason and
  * leaving a reader to think a small change would open the lane.
  *
@@ -49,6 +49,20 @@ if (!index || !eligibility) {
 
 const upcoming = (index.events ?? []).filter((e) => e.lifecycle === "UPCOMING");
 const playerMarketOffered = (markets?.propMarkets?.offeredMarkets ?? []).length > 0;
+/*
+ * WHAT THE CAPTURE ACTUALLY SAYS ABOUT THIS WINDOW (2026-10-13). This used to state, unconditionally, that "the
+ * provider offers no NFL player market in this window" — and printed it beside "offeredMarkets: present". With the
+ * Week 6 budget exhausted no Week 6 game was probed at all, so the true sentence is "not checked", not "not offered"
+ * (P250-W1: "we never asked" and "we asked and the book does not offer it" are different facts). The capture's
+ * probed-event list decides which one this window gets.
+ */
+const probedIds = new Set(markets?.propMarkets?.probedEventIds ?? []);
+const windowProbed = upcoming.filter((e) => probedIds.has(e.canonicalEventId ?? `nfl-${e.providerEventId}`)).length;
+const NO_PRICE_LABEL = windowProbed === 0
+  ? "no NFL player-market price was captured for these games — the market was not checked in this window"
+  : playerMarketOffered
+    ? `no captured NFL player-market price joins a candidate in this window (${windowProbed} of ${upcoming.length} games probed)`
+    : "the provider offers no NFL player market in this window";
 const rejectedFamilies = Object.entries(families?.verdictByFamily ?? {}).filter(([, v]) => v !== "VALIDATED").map(([k]) => k);
 
 /**
@@ -67,7 +81,7 @@ const PLAYER_REASONS = {
     detail: `all ${rejectedFamilies.length || 4} families (${(rejectedFamilies.length ? rejectedFamilies : ["passing", "rushing", "receiving", "touchdowns"]).join(", ")}) were rejected on bars frozen before fitting, so no per-player projection exists to select from.`,
   },
   NO_PRICED_MARKET: {
-    label: "the provider offers no NFL player market in this window",
+    label: NO_PRICE_LABEL,
     detail: "an unpriced leg can never enter a paper product — there is nothing to settle it against.",
   },
 };
@@ -151,7 +165,7 @@ const receipt = {
     gates: [
       "the team model is BASELINE_ONLY (the P181 challenger was rejected on bars frozen before it was built)",
       "all four player families were rejected on their own frozen bars (P183 Release B)",
-      `the provider offers no NFL player market in this window (offeredMarkets: ${playerMarketOffered ? "present" : "[]"})`,
+      `${NO_PRICE_LABEL} (games probed in this window: ${windowProbed} of ${upcoming.length})`,
     ],
   },
   recordSeparation:
