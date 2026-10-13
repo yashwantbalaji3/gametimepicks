@@ -1,0 +1,77 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-input-snapshot",
+ "dataClass": "PRIVATE_RESEARCH",
+ "what": "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+ "date": "2026-10-11",
+ "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+ "simulationVersion": 1,
+ "sourceBoardHash": "607e95e8b4ccba99f0ed057c4a2e9014a0021a697120967f36394b418ef640a8",
+ "updatedAt": "2026-10-12T02:36:47.000Z",
+ "games": [
+  {
+   "gamePk": 849809,
+   "date": "2026-10-11",
+   "slug": "lad-vs-mil-2026-10-11",
+   "awayTeam": "LAD",
+   "homeTeam": "MIL",
+   "firstPitch": "2026-10-12T00:00:00Z",
+   "artifactHash": "089cf0af7cd0ba59dd09a8bcd728bd330046808faf407fad9aafd01cefaa4e7b",
+   "completenessLevel": "degraded",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "confirmed",
+    "capturedAt": "2026-10-11T20:27:22.965Z",
+    "minutesToFirstPitch": 213,
+    "batterIds": [
+     605141,
+     518692,
+     669257,
+     660271,
+     606192,
+     571970,
+     681624,
+     663656,
+     571771
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "confirmed",
+    "capturedAt": "2026-10-11T20:27:22.965Z",
+    "minutesToFirstPitch": 213,
+    "batterIds": [
+     694192,
+     668930,
+     661388,
+     641343,
+     683734,
+     669003,
+     806198,
+     800325,
+     687401
+    ],
+    "realCount": 9,
+    "ratedCount": 8,
+    "paddedSlots": 0
+   },
+   "awayStarter": {
+    "playerId": 669373,
+    "name": "Tarik Skubal",
+    "hasStrikeoutProjection": true
+   },
+   "homeStarter": {
+    "playerId": 694819,
+    "name": "Jacob Misiorowski",
+    "hasStrikeoutProjection": true
+   },
+   "missingFamilies": [
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  }
+ ]
+}

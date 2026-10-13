@@ -2,35 +2,442 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-10T17:32:23Z",
+  "generatedAt": "2026-10-13T02:26:06Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
     "upcomingEvents": 14,
     "eventsWhereTeamForecastIsBlindToAnExclusion": 14,
-    "eventsWithAMaterialExclusion": 3,
+    "eventsWithAMaterialExclusion": 6,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
     {
       "sport": "nfl",
-      "eventId": "401872981",
-      "matchup": "PHI @ JAX",
-      "kickoffUtc": "2026-10-11T13:30Z",
+      "eventId": "401872995",
+      "matchup": "SEA @ DEN",
+      "kickoffUtc": "2026-10-16T00:15Z",
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "1367c7ee24b9374d",
+        "inputHash": "e52125078945e8e3",
         "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
+        "generatedAt": "2026-10-13T02:26:06Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "ae2fbcfd8c22202b",
-        "excludedCount": 4,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "bec9416d907c4c28",
+        "excludedCount": 3,
+        "materialExclusions": [],
+        "excluded": [
+          {
+            "name": "Pat Bryant",
+            "team": "DEN",
+            "state": "Injured Reserve",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Jadarian Price",
+            "team": "SEA",
+            "state": "Injured Reserve",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Zach Charbonnet",
+            "team": "SEA",
+            "state": "Out",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          }
+        ]
+      },
+      "coherent": false
+    },
+    {
+      "sport": "nfl",
+      "eventId": "401872996",
+      "matchup": "HOU @ JAX",
+      "kickoffUtc": "2026-10-18T13:30Z",
+      "forecastSnapshot": {
+        "model": "nfl-regular-season-public-v1",
+        "version": 2,
+        "inputHash": "d2dffb26b068661a",
+        "simulations": 10000,
+        "generatedAt": "2026-10-13T02:26:06Z"
+      },
+      "availability": {
+        "consumedByTeamForecast": false,
+        "consumedByPlayerBoards": true,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "7f8fb822047e43ba",
+        "excludedCount": 2,
+        "materialExclusions": [],
+        "excluded": [
+          {
+            "name": "British Brooks",
+            "team": "HOU",
+            "state": "Injured Reserve",
+            "families": [
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Tank Dell",
+            "team": "HOU",
+            "state": "Injured Reserve",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          }
+        ]
+      },
+      "coherent": false
+    },
+    {
+      "sport": "nfl",
+      "eventId": "401872999",
+      "matchup": "CHI @ ATL",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "forecastSnapshot": {
+        "model": "nfl-regular-season-public-v1",
+        "version": 2,
+        "inputHash": "ed17a56237776bb6",
+        "simulations": 10000,
+        "generatedAt": "2026-10-13T02:26:06Z"
+      },
+      "availability": {
+        "consumedByTeamForecast": false,
+        "consumedByPlayerBoards": true,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "44c23ecb74f835b1",
+        "excludedCount": 2,
+        "materialExclusions": [
+          {
+            "name": "Caleb Williams",
+            "team": "CHI",
+            "state": "Out",
+            "statedAt": "2026-10-11T21:05Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
+        "excluded": [
+          {
+            "name": "Caleb Williams",
+            "team": "CHI",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Kyle Monangai",
+            "team": "CHI",
+            "state": "Out",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          }
+        ]
+      },
+      "coherent": false
+    },
+    {
+      "sport": "nfl",
+      "eventId": "401872997",
+      "matchup": "BAL @ CLE",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "forecastSnapshot": {
+        "model": "nfl-regular-season-public-v1",
+        "version": 2,
+        "inputHash": "d80bf95f98695090",
+        "simulations": 10000,
+        "generatedAt": "2026-10-13T02:26:06Z"
+      },
+      "availability": {
+        "consumedByTeamForecast": false,
+        "consumedByPlayerBoards": true,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "d8b7f05f88f1c154",
+        "excludedCount": 5,
+        "materialExclusions": [
+          {
+            "name": "Dillon Gabriel",
+            "team": "CLE",
+            "state": "Injured Reserve",
+            "statedAt": "2026-10-10T00:37Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Lamar Jackson",
+            "team": "BAL",
+            "state": "Out",
+            "statedAt": "2026-10-12T19:13Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
+        "excluded": [
+          {
+            "name": "Dillon Gabriel",
+            "team": "CLE",
+            "state": "Injured Reserve",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Dylan Sampson",
+            "team": "CLE",
+            "state": "Injured Reserve",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Lamar Jackson",
+            "team": "BAL",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Ja'Kobi Lane",
+            "team": "BAL",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Durham Smythe",
+            "team": "BAL",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          }
+        ]
+      },
+      "coherent": false
+    },
+    {
+      "sport": "nfl",
+      "eventId": "401873003",
+      "matchup": "TEN @ IND",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "forecastSnapshot": {
+        "model": "nfl-regular-season-public-v1",
+        "version": 2,
+        "inputHash": "ea40ead89cf31a22",
+        "simulations": 10000,
+        "generatedAt": "2026-10-13T02:26:06Z"
+      },
+      "availability": {
+        "consumedByTeamForecast": false,
+        "consumedByPlayerBoards": true,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "6f1e5272c935630e",
+        "excludedCount": 3,
+        "materialExclusions": [],
+        "excluded": [
+          {
+            "name": "Ashton Dulin",
+            "team": "IND",
+            "state": "Out",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Will Mallory",
+            "team": "IND",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "David Martin-Robinson",
+            "team": "TEN",
+            "state": "Out",
+            "families": [
+              "targets"
+            ]
+          }
+        ]
+      },
+      "coherent": false
+    },
+    {
+      "sport": "nfl",
+      "eventId": "401873001",
+      "matchup": "NYJ @ NE",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "forecastSnapshot": {
+        "model": "nfl-regular-season-public-v1",
+        "version": 2,
+        "inputHash": "cbb567b0ff3046e0",
+        "simulations": 10000,
+        "generatedAt": "2026-10-13T02:26:06Z"
+      },
+      "availability": {
+        "consumedByTeamForecast": false,
+        "consumedByPlayerBoards": true,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "784c389c59f0c1e7",
+        "excludedCount": 5,
+        "materialExclusions": [],
+        "excluded": [
+          {
+            "name": "Mack Hollins",
+            "team": "NE",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "A.J. Brown",
+            "team": "NE",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Reggie Gilliam",
+            "team": "NE",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Breece Hall",
+            "team": "NYJ",
+            "state": "Out",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Adonai Mitchell",
+            "team": "NYJ",
+            "state": "Out",
+            "families": [
+              "targets"
+            ]
+          }
+        ]
+      },
+      "coherent": false
+    },
+    {
+      "sport": "nfl",
+      "eventId": "401873000",
+      "matchup": "NO @ NYG",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "forecastSnapshot": {
+        "model": "nfl-regular-season-public-v1",
+        "version": 2,
+        "inputHash": "878642e567010423",
+        "simulations": 10000,
+        "generatedAt": "2026-10-13T02:26:06Z"
+      },
+      "availability": {
+        "consumedByTeamForecast": false,
+        "consumedByPlayerBoards": true,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "59e5e012b1e5b850",
+        "excludedCount": 3,
+        "materialExclusions": [
+          {
+            "name": "Jaxson Dart",
+            "team": "NYG",
+            "state": "Injured Reserve",
+            "statedAt": "2026-09-30T20:35Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
+        "excluded": [
+          {
+            "name": "Jaxson Dart",
+            "team": "NYG",
+            "state": "Injured Reserve",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Braxton Berrios",
+            "team": "NYG",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Travis Etienne Jr.",
+            "team": "NO",
+            "state": "Injured Reserve",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          }
+        ]
+      },
+      "coherent": false
+    },
+    {
+      "sport": "nfl",
+      "eventId": "401872998",
+      "matchup": "CAR @ PHI",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "forecastSnapshot": {
+        "model": "nfl-regular-season-public-v1",
+        "version": 2,
+        "inputHash": "07ef508b4d527d02",
+        "simulations": 10000,
+        "generatedAt": "2026-10-13T02:26:06Z"
+      },
+      "availability": {
+        "consumedByTeamForecast": false,
+        "consumedByPlayerBoards": true,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "94377fbc0d11b7c8",
+        "excludedCount": 6,
         "materialExclusions": [],
         "excluded": [
           {
@@ -66,152 +473,18 @@
             "families": [
               "targets"
             ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872990",
-      "matchup": "CHI @ GB",
-      "kickoffUtc": "2026-10-11T17:00Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "32669cd0d2d66934",
-        "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "6ba9112bcac7161c",
-        "excludedCount": 4,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Chris Brooks",
-            "team": "GB",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
           },
           {
-            "name": "Savion Williams",
-            "team": "GB",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Jayden Reed",
-            "team": "GB",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Kyle Monangai",
-            "team": "CHI",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872984",
-      "matchup": "HOU @ TEN",
-      "kickoffUtc": "2026-10-11T17:00Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "31715baec366fa0e",
-        "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "b3e822451aa8dc99",
-        "excludedCount": 2,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "British Brooks",
-            "team": "HOU",
+            "name": "Trevor Etienne",
+            "team": "CAR",
             "state": "Injured Reserve",
             "families": [
               "rushAttempts"
             ]
           },
           {
-            "name": "Tank Dell",
-            "team": "HOU",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872982",
-      "matchup": "CIN @ MIA",
-      "kickoffUtc": "2026-10-11T17:00Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "20651e3efc0f2232",
-        "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "c49fd79cc63740d4",
-        "excludedCount": 3,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "De'Von Achane",
-            "team": "MIA",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Caleb Douglas",
-            "team": "MIA",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Andrei Iosivas",
-            "team": "CIN",
+            "name": "Xavier Legette",
+            "team": "CAR",
             "state": "Injured Reserve",
             "families": [
               "targets"
@@ -223,48 +496,226 @@
     },
     {
       "sport": "nfl",
-      "eventId": "401872986",
-      "matchup": "LV @ NE",
-      "kickoffUtc": "2026-10-11T17:00Z",
+      "eventId": "401873002",
+      "matchup": "PIT @ TB",
+      "kickoffUtc": "2026-10-18T17:00Z",
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "b5e67075f7808581",
+        "inputHash": "4557663c2904c3f4",
         "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
+        "generatedAt": "2026-10-13T02:26:06Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "064a810f5b7752d8",
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "71e651666d59b655",
         "excludedCount": 6,
-        "materialExclusions": [],
+        "materialExclusions": [
+          {
+            "name": "Baker Mayfield",
+            "team": "TB",
+            "state": "Out",
+            "statedAt": "2026-10-12T19:43Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
         "excluded": [
           {
-            "name": "Mack Hollins",
-            "team": "NE",
+            "name": "Baker Mayfield",
+            "team": "TB",
             "state": "Out",
             "families": [
-              "targets"
+              "passAttempts",
+              "rushAttempts"
             ]
           },
           {
-            "name": "A.J. Brown",
-            "team": "NE",
+            "name": "Jalen McMillan",
+            "team": "TB",
             "state": "Injured Reserve",
             "families": [
               "targets"
             ]
           },
           {
-            "name": "Reggie Gilliam",
-            "team": "NE",
+            "name": "Rico Dowdle",
+            "team": "PIT",
+            "state": "Out",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Roman Wilson",
+            "team": "PIT",
             "state": "Out",
             "families": [
               "targets"
             ]
           },
+          {
+            "name": "Michael Pittman Jr.",
+            "team": "PIT",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Ben Skowronek",
+            "team": "PIT",
+            "state": "Out",
+            "families": [
+              "targets"
+            ]
+          }
+        ]
+      },
+      "coherent": false
+    },
+    {
+      "sport": "nfl",
+      "eventId": "401873004",
+      "matchup": "ARI @ LAR",
+      "kickoffUtc": "2026-10-18T20:05Z",
+      "forecastSnapshot": {
+        "model": "nfl-regular-season-public-v1",
+        "version": 2,
+        "inputHash": "182e72c4e291e358",
+        "simulations": 10000,
+        "generatedAt": "2026-10-13T02:26:06Z"
+      },
+      "availability": {
+        "consumedByTeamForecast": false,
+        "consumedByPlayerBoards": true,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "0c81e48c55f0d9bd",
+        "excludedCount": 2,
+        "materialExclusions": [],
+        "excluded": [
+          {
+            "name": "Terrance Ferguson",
+            "team": "LAR",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Hunter Long",
+            "team": "ARI",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          }
+        ]
+      },
+      "coherent": false
+    },
+    {
+      "sport": "nfl",
+      "eventId": "401873006",
+      "matchup": "LAC @ KC",
+      "kickoffUtc": "2026-10-18T20:25Z",
+      "forecastSnapshot": {
+        "model": "nfl-regular-season-public-v1",
+        "version": 2,
+        "inputHash": "c65be6bcfcec3ccb",
+        "simulations": 10000,
+        "generatedAt": "2026-10-13T02:26:06Z"
+      },
+      "availability": {
+        "consumedByTeamForecast": false,
+        "consumedByPlayerBoards": true,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "e83af93c14769073",
+        "excludedCount": 5,
+        "materialExclusions": [
+          {
+            "name": "Trey Lance",
+            "team": "LAC",
+            "state": "Injured Reserve",
+            "statedAt": "2026-10-11T00:57Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
+        "excluded": [
+          {
+            "name": "Tyquan Thornton",
+            "team": "KC",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Trey Lance",
+            "team": "LAC",
+            "state": "Injured Reserve",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Quentin Johnston",
+            "team": "LAC",
+            "state": "Out",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Brenen Thompson",
+            "team": "LAC",
+            "state": "Out",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Trevor Penning",
+            "team": "LAC",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          }
+        ]
+      },
+      "coherent": false
+    },
+    {
+      "sport": "nfl",
+      "eventId": "401873005",
+      "matchup": "BUF @ LV",
+      "kickoffUtc": "2026-10-18T20:25Z",
+      "forecastSnapshot": {
+        "model": "nfl-regular-season-public-v1",
+        "version": 2,
+        "inputHash": "6a20a0c142372f38",
+        "simulations": 10000,
+        "generatedAt": "2026-10-13T02:26:06Z"
+      },
+      "availability": {
+        "consumedByTeamForecast": false,
+        "consumedByPlayerBoards": true,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "9b8979310b83b42c",
+        "excludedCount": 5,
+        "materialExclusions": [],
+        "excluded": [
           {
             "name": "Jalen Nailor",
             "team": "LV",
@@ -288,94 +739,10 @@
             "families": [
               "targets"
             ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872987",
-      "matchup": "MIN @ NO",
-      "kickoffUtc": "2026-10-11T17:00Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "ee8b7fae21f7343a",
-        "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "f69e471cba5e70b3",
-        "excludedCount": 3,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Travis Etienne Jr.",
-            "team": "NO",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
           },
           {
-            "name": "Josh Oliver",
-            "team": "MIN",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Ben Yurosek",
-            "team": "MIN",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872983",
-      "matchup": "CLE @ NYJ",
-      "kickoffUtc": "2026-10-11T17:00Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "06c6b10f4a8097bf",
-        "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "1ce240b27bc482ec",
-        "excludedCount": 3,
-        "materialExclusions": [
-          {
-            "name": "Dillon Gabriel",
-            "team": "CLE",
-            "state": "Injured Reserve",
-            "statedAt": "2026-10-10T00:37Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Breece Hall",
-            "team": "NYJ",
+            "name": "DJ Moore",
+            "team": "BUF",
             "state": "Out",
             "families": [
               "rushAttempts",
@@ -383,20 +750,11 @@
             ]
           },
           {
-            "name": "Adonai Mitchell",
-            "team": "NYJ",
+            "name": "Joshua Palmer",
+            "team": "BUF",
             "state": "Out",
             "families": [
               "targets"
-            ]
-          },
-          {
-            "name": "Dillon Gabriel",
-            "team": "CLE",
-            "state": "Injured Reserve",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
             ]
           }
         ]
@@ -405,53 +763,48 @@
     },
     {
       "sport": "nfl",
-      "eventId": "401872985",
-      "matchup": "IND @ PIT",
-      "kickoffUtc": "2026-10-11T17:00Z",
+      "eventId": "401873007",
+      "matchup": "DAL @ GB",
+      "kickoffUtc": "2026-10-19T00:20Z",
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "2e8744c71ba9af0b",
+        "inputHash": "2f6ef575b8df97ec",
         "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
+        "generatedAt": "2026-10-13T02:26:06Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "d90e3c03fd8a2e73",
-        "excludedCount": 4,
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "3649ec13dd15919c",
+        "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [
           {
-            "name": "Michael Pittman Jr.",
-            "team": "PIT",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Alec Pierce",
-            "team": "IND",
+            "name": "Chris Brooks",
+            "team": "GB",
             "state": "Injured Reserve",
             "families": [
+              "rushAttempts",
               "targets"
             ]
           },
           {
-            "name": "Ashton Dulin",
-            "team": "IND",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Will Mallory",
-            "team": "IND",
+            "name": "Savion Williams",
+            "team": "GB",
             "state": "Injured Reserve",
             "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Jayden Reed",
+            "team": "GB",
+            "state": "Injured Reserve",
+            "families": [
+              "rushAttempts",
               "targets"
             ]
           }
@@ -461,38 +814,28 @@
     },
     {
       "sport": "nfl",
-      "eventId": "401872988",
-      "matchup": "NYG @ WSH",
-      "kickoffUtc": "2026-10-11T17:00Z",
+      "eventId": "401873008",
+      "matchup": "WSH @ SF",
+      "kickoffUtc": "2026-10-20T00:15Z",
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "422953f8bac206af",
+        "inputHash": "a847a1d50976ea66",
         "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
+        "generatedAt": "2026-10-13T02:26:06Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "b3feb6fb3e5c6ae6",
+        "snapshotAsOf": "2026-10-13T02:26:06Z",
+        "participationInputHash": "952fd924831fd8a5",
         "excludedCount": 6,
         "materialExclusions": [
           {
             "name": "Marcus Mariota",
             "team": "WSH",
             "state": "Out",
-            "statedAt": "2026-10-09T21:35Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Jaxson Dart",
-            "team": "NYG",
-            "state": "Injured Reserve",
-            "statedAt": "2026-09-30T20:35Z",
+            "statedAt": "2026-10-12T19:48Z",
             "families": [
               "passAttempts",
               "rushAttempts"
@@ -500,6 +843,23 @@
           }
         ],
         "excluded": [
+          {
+            "name": "Deebo Samuel Sr.",
+            "team": "SF",
+            "state": "Out",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Kyle Juszczyk",
+            "team": "SF",
+            "state": "Out",
+            "families": [
+              "targets"
+            ]
+          },
           {
             "name": "Marcus Mariota",
             "team": "WSH",
@@ -529,288 +889,6 @@
           {
             "name": "Jaylin Lane",
             "team": "WSH",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jaxson Dart",
-            "team": "NYG",
-            "state": "Injured Reserve",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Braxton Berrios",
-            "team": "NYG",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872989",
-      "matchup": "DEN @ LAC",
-      "kickoffUtc": "2026-10-11T20:05Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "e2909f3dbd6872d1",
-        "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "4d95eb133760646e",
-        "excludedCount": 6,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Quentin Johnston",
-            "team": "LAC",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Brenen Thompson",
-            "team": "LAC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Scott Matlock",
-            "team": "LAC",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Trevor Penning",
-            "team": "LAC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jonah Coleman",
-            "team": "DEN",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Pat Bryant",
-            "team": "DEN",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872991",
-      "matchup": "DET @ ARI",
-      "kickoffUtc": "2026-10-11T20:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "edbacc159a26e4ee",
-        "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "f01e773e8ea6ae25",
-        "excludedCount": 2,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Marvin Harrison Jr.",
-            "team": "ARI",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Hunter Long",
-            "team": "ARI",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872992",
-      "matchup": "SF @ SEA",
-      "kickoffUtc": "2026-10-11T20:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "974ce3463f85a05f",
-        "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "2e0ff47b363e8335",
-        "excludedCount": 4,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Jadarian Price",
-            "team": "SEA",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Zach Charbonnet",
-            "team": "SEA",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Demarcus Robinson",
-            "team": "SF",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Kyle Juszczyk",
-            "team": "SF",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872993",
-      "matchup": "BAL @ ATL",
-      "kickoffUtc": "2026-10-12T00:20Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "2bda4e7c1f8279a1",
-        "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "d03287a4ab7530cd",
-        "excludedCount": 3,
-        "materialExclusions": [
-          {
-            "name": "Lamar Jackson",
-            "team": "BAL",
-            "state": "Out",
-            "statedAt": "2026-10-09T17:34Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Lamar Jackson",
-            "team": "BAL",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Ja'Kobi Lane",
-            "team": "BAL",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Durham Smythe",
-            "team": "BAL",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401872994",
-      "matchup": "BUF @ LAR",
-      "kickoffUtc": "2026-10-13T00:15Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "74dc1cd6d2ef6489",
-        "simulations": 10000,
-        "generatedAt": "2026-10-10T17:32:23Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-10T17:32:23Z",
-        "participationInputHash": "de5a08b7a5347032",
-        "excludedCount": 1,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Terrance Ferguson",
-            "team": "LAR",
             "state": "Injured Reserve",
             "families": [
               "targets"

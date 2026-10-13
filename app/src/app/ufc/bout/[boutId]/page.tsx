@@ -23,6 +23,7 @@ import { notFound } from "next/navigation";
 
 import { Histogram, ProbabilityBar } from "@/components/distribution-chart";
 import HeadToHead from "@/components/ui/head-to-head";
+import UfcProfileLines from "@/components/sports/ufc-profile-lines";
 import SectionHeader from "@/components/section-header";
 import { findUfcBout, ufcBoutIds, boutPositionLabel } from "@/lib/sports/ufc/bout";
 import SaveForecastButton from "@/components/saved/save-forecast-button";
@@ -159,7 +160,7 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
 
       {/*
         ── What this read rests on, ABOVE the first number ─────────────────────────────────────
-        The artifact types the BASIS of every bout — both fighters known, one debut, or refused —
+        The artifact types the BASIS of every bout — both fighters known, one with fewer than 2 tracked bouts, or refused —
         and the note is the producer's own sentence. A reader who stops after the headline
         probability has still been told how much history is behind it.
       */}
@@ -252,13 +253,9 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
                     <div style={{ fontSize: 15, fontWeight: 700, color: "var(--vault-text)" }}>{f.name}</div>
                     <div className="font-mono" style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>{f.record ?? "—"}</div>
                   </div>
-                  {prof?.summary ? (
-                    <p className="m-0 mt-2" style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>{prof.summary}</p>
-                  ) : null}
-                  {prof?.strengths?.length ? (
-                    <div className="mt-2 flex flex-col gap-1">
-                      {prof.strengths.map((x) => <div key={x} style={{ fontSize: 12, color: "var(--vault-success)" }}>+ {x}</div>)}
-                      {prof.weaknesses.map((x) => <div key={x} style={{ fontSize: 12, color: "var(--vault-text-faint)" }}>− {x}</div>)}
+                  {prof?.bouts ? (
+                    <div className="mt-2">
+                      <UfcProfileLines profile={prof} size="full" />
                     </div>
                   ) : null}
                   {prof?.last5?.length ? (

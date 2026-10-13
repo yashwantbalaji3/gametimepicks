@@ -2,7 +2,7 @@
   "generatedFor": null,
   "nextEventDate": null,
   "scheduleReady": true,
-  "oddsReady": true,
+  "oddsReady": false,
   "fighterStatsReady": false,
   "gradingReady": false,
   "backtestReady": false,
@@ -18,15 +18,16 @@
   },
   "projectionsReady": false,
   "parlayReady": false,
-  "publicLevel": "odds-internal",
+  "publicLevel": "schedule-only",
   "blockers": [
+    "odds provider not connected (Odds API MMA)",
     "fighter-stat provider not connected",
     "results grading not implemented",
     "no historical backtest yet"
   ],
   "providerStatus": {
     "schedule": "espn_mma",
-    "odds": "the_odds_api_mma",
+    "odds": "not_connected",
     "fighterStats": "not_connected",
     "grading": "not_connected",
     "oddsapi": {
@@ -34,8 +35,10 @@
       "lastFetchAt": "2026-10-08T17:39:40Z",
       "eventCount": 12,
       "marketCount": 12,
-      "oddsReady": true,
-      "warnings": []
+      "oddsReady": false,
+      "warnings": [
+        "odds stale (96h)"
+      ]
     },
     "greco1899_ufcstats_csv": {
       "configured": true,
@@ -50,8 +53,8 @@
     "greco1899_results": {
       "configured": true,
       "eventCount": 127,
-      "finalBoutCount": 1552,
-      "latestEventDate": "2026-10-03",
+      "finalBoutCount": 1553,
+      "latestEventDate": "2026-10-10",
       "gradingReady": false,
       "warnings": [
         "grader produced no decisive grades to validate"
@@ -68,6 +71,6 @@
       ]
     }
   },
-  "publicMessage": "UFC odds, fighter stats, and results grading are being connected. Model picks publish only after a backtest passes.",
-  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['fighter-stat provider not connected', 'results grading not implemented', 'no historical backtest yet']"
+  "publicMessage": "UFC coverage is being built \u2014 schedule available; predictions publish only after odds, fighter stats, results grading, and backtesting are connected.",
+  "internalMessage": "fail-closed: projectionsReady=False parlayReady=False; blockers=['odds provider not connected (Odds API MMA)', 'fighter-stat provider not connected', 'results grading not implemented', 'no historical backtest yet']"
 }

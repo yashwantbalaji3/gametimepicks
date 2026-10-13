@@ -196,6 +196,7 @@ export function cardFromUfcBout(main: UfcBout, card: UfcCardDoc, ctx: CardContex
     away: { name: main.red.name, code: null, favoured: w.name === main.red.name }, home: { name: main.blue.name, code: null, favoured: w.name === main.blue.name },
     forecast: { label: "Winner", value: `${w.name} ${pct(w.probability)}`, sub: method ? `Most likely by ${method === "DEC" ? "decision" : method === "KO" ? "knockout" : method === "SUB" ? "submission" : method.toLowerCase()}${main.prediction!.rounds?.endsIn ? ` · round ${main.prediction!.rounds.endsIn}` : ""}` : null },
     signal: { kind: "PROBABILITY", probability: w.probability, of: `${w.name} to win` },
+    // UFC's line is the producer's tracked-record summary, not a model attribution; its text says so itself.
     why: main.prediction!.reason ?? null, risks,
     status: ctx.status, freshness: ctx.freshness, result: null,
     settlement: { kind: "ufc-bout", date: String(start ?? "").slice(0, 10), red: main.red.name, blue: main.blue.name },

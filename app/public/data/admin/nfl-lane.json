@@ -2,38 +2,40 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-10-10T17:32:23Z",
+ "generatedAt": "2026-10-13T02:26:06Z",
  "program": "P171",
  "nextWindow": {
-  "matchup": "PHI @ JAX",
-  "kickoffUtc": "2026-10-11T13:30Z",
+  "matchup": "SEA @ DEN",
+  "kickoffUtc": "2026-10-16T00:15Z",
   "seasonType": 2,
-  "week": 5,
-  "hoursToKickoff": 19.96,
-  "eventsInWindow": 27
+  "week": 6,
+  "hoursToKickoff": 69.81,
+  "eventsInWindow": 14
  },
  "freshness": {
   "schedule": {
    "state": "FRESH",
-   "detail": "as of 2026-10-10T15:14:37Z (FRESH)"
+   "detail": "as of 2026-10-12T18:55:09Z (FRESH)"
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-10-10T17:32:23Z (FRESH)"
+   "detail": "as of 2026-10-13T02:26:06Z (FRESH)"
   },
   "injuries": {
    "state": "FRESH",
-   "detail": "as of 2026-10-10T17:32:42Z (FRESH)"
+   "detail": "as of 2026-10-13T02:26:27Z (FRESH)"
   },
   "odds": {
-   "state": "FRESH",
-   "detail": "as of 2026-10-10T17:32:23Z (FRESH)"
+   "state": "STALE",
+   "detail": "as of 2026-10-11T11:41:55Z (STALE)"
   }
  },
  "regularSeason": {
   "verdict": {
-   "state": "READY_WITH_DESIGN_CAPS",
-   "operationalGaps": [],
+   "state": "OPERATIONAL_GAPS",
+   "operationalGaps": [
+    "prices:STALE"
+   ],
    "designCaps": [
     "activesInactives",
     "depthCharts",
@@ -44,7 +46,7 @@
    {
     "id": "schedule",
     "state": "AVAILABLE",
-    "detail": "schedule as of 2026-10-10T15:14:37Z"
+    "detail": "schedule as of 2026-10-12T18:55:09Z"
    },
    {
     "id": "teamStrength",
@@ -54,12 +56,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-10-10T17:32:42Z"
+    "detail": "injuries as of 2026-10-13T02:26:27Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-10-10T17:32:23Z"
+    "detail": "rosters as of 2026-10-13T02:26:06Z"
    },
    {
     "id": "participationRoles",
@@ -88,8 +90,8 @@
    },
    {
     "id": "prices",
-    "state": "AVAILABLE",
-    "detail": "prices as of 2026-10-10T17:32:23Z"
+    "state": "STALE",
+    "detail": "prices as of 2026-10-11T11:41:55Z"
    }
   ]
  },
@@ -97,7 +99,7 @@
   "state": "CAPTURED",
   "events": 77,
   "books": 11,
-  "capturedAt": "2026-10-10T17:32:23Z",
+  "capturedAt": "2026-10-11T11:41:55Z",
   "propMarkets": {
    "state": "PROBED",
    "probedEventIds": [
@@ -265,6 +267,12 @@
        ]
       },
       {
+       "name": "Jamaal Pritchett",
+       "families": [
+        "anytime_td"
+       ]
+      },
+      {
        "name": "New York Jets D/ST",
        "families": [
         "anytime_td"
@@ -404,6 +412,12 @@
      ],
      "absentMarkets": [],
      "unresolvedIdentities": [
+      {
+       "name": "Kevin Austin",
+       "families": [
+        "anytime_td"
+       ]
+      },
       {
        "name": "Minnesota Vikings D/ST",
        "families": [
@@ -674,24 +688,45 @@
         "anytime_td"
        ]
       }
-     ]
+     ],
+     "carriedForward": true,
+     "probedAt": "2026-10-10T17:32:23Z"
     }
-   ]
+   ],
+   "freshlyProbedEventIds": [
+    "nfl-401872981",
+    "nfl-401872990",
+    "nfl-401872982",
+    "nfl-401872983",
+    "nfl-401872984",
+    "nfl-401872985",
+    "nfl-401872986",
+    "nfl-401872987",
+    "nfl-401872988",
+    "nfl-401872989",
+    "nfl-401872991",
+    "nfl-401872992",
+    "nfl-401872993"
+   ],
+   "carriedEventIds": [
+    "nfl-401872994"
+   ],
+   "carriedFrom": "2026-10-10T17:32:23Z"
   }
  },
  "credits": {
   "state": "UNKNOWN",
-  "programSpend": 1086,
+  "programSpend": 1160,
   "ceiling": null,
   "remainingProgram": null,
-  "providerRemaining": 18771,
+  "providerRemaining": 18590,
   "openingBalance": {
    "capturedAt": "2026-08-13T08:57:07Z",
    "providerRequestsUsed": 4342,
    "providerRequestsRemaining": 15658,
    "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
   },
-  "requests": 507,
+  "requests": 589,
   "detail": "authorization receipt did not parse — no paid call may run"
  },
  "models": {
@@ -724,16 +759,16 @@
   }
  },
  "currentArtifacts": {
-  "total": 2304,
-  "contractValid": 2304,
-  "preStart": 336,
-  "settlementReady": 947,
-  "detail": "2304/2304 pass the current-event contract; 947 carry pinned settlement targets"
+  "total": 2552,
+  "contractValid": 2552,
+  "preStart": 14,
+  "settlementReady": 1181,
+  "detail": "2552/2552 pass the current-event contract; 1181 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",
-  "date": "2026-10-10",
-  "entries": 48,
+  "date": "2026-10-13",
+  "entries": 51,
   "corrections": 0
  },
  "gate": {

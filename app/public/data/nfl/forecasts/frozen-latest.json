@@ -2,36 +2,36 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-forecasts-frozen",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-10T17:32:23Z",
+ "generatedAt": "2026-10-13T02:26:06Z",
  "period": {
   "seasonType": 2,
-  "week": 5
+  "week": 6
  },
  "note": "This week's games that have kicked off — and an earlier week's game still in progress when the week rolls over — each shown exactly as its last pre-kickoff forecast was published. Frozen at kickoff and never regenerated.",
  "eventCount": 1,
  "forecasts": [
   {
-   "providerEventId": "401872980",
-   "canonicalEventId": "nfl-401872980",
-   "matchup": "TB @ DAL",
+   "providerEventId": "401872994",
+   "canonicalEventId": "nfl-401872994",
+   "matchup": "BUF @ LAR",
    "home": {
-    "abbr": "DAL",
-    "name": "Dallas Cowboys"
+    "abbr": "LAR",
+    "name": "Los Angeles Rams"
    },
    "away": {
-    "abbr": "TB",
-    "name": "Tampa Bay Buccaneers"
+    "abbr": "BUF",
+    "name": "Buffalo Bills"
    },
-   "kickoffUtc": "2026-10-09T00:15Z",
+   "kickoffUtc": "2026-10-13T00:15Z",
    "seasonType": 2,
    "week": 5,
-   "venue": "AT&T Stadium",
+   "venue": "SoFi Stadium",
    "state": "PUBLIC_EXPERIMENTAL",
    "model": {
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "c28bedb69382637a",
+    "inputHash": "87b9e87c9d598dcb",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -42,91 +42,91 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7340,
-     "foldedThrough": "2026-10-05",
+     "gamesFolded": 7354,
+     "foldedThrough": "2026-10-11",
      "sigma": 13.32677
     },
     "winHead": {
-     "id": "nfl-win-elo-mov-v1",
-     "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7325,
-     "foldedThrough": "2026-10-05"
+     "id": "nfl-model-v1-elo-analytic",
+     "fallbackFrom": "nfl-win-elo-mov-v1",
+     "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
     },
     "marginHead": {
-     "id": "nfl-margin-elo-hfa-v1",
-     "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7325,
-     "sigma": 13.03176
+     "id": "nfl-model-v1-elo-analytic",
+     "fallbackFrom": "nfl-margin-elo-hfa-v1",
+     "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
     }
    },
    "teamSignal": {
     "state": "APPLIED",
-    "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
+    "note": "Team strength moves this forecast: the Elo-logistic win head over a 882-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-10-08T23:21:10Z",
+   "generatedAt": "2026-10-12T23:59:52Z",
    "evidence": {
-    "schedule": "2026-10-07T16:20:52Z",
-    "strengthCutoff": "2026-10-08T23:21:10Z",
-    "strengthGamesFolded": 871,
+    "schedule": "2026-10-12T18:55:09Z",
+    "strengthCutoff": "2026-10-12T23:59:52Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
     "projectedScore": {
      "home": 29,
-     "away": 23,
+     "away": 24,
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.6181,
-     "away": 0.355,
-     "tieMass": 0.0269,
-     "homeUnrounded": 0.6181159544044471,
-     "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+     "home": 0.5744,
+     "away": 0.3978,
+     "tieMass": 0.0278,
+     "homeUnrounded": 0.5743764884231695,
+     "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
      "median": 5,
-     "p10": -12,
-     "p90": 21
+     "p10": -13,
+     "p90": 22
     },
     "total": {
-     "median": 52,
-     "p10": 35,
-     "p90": 69,
+     "median": 53,
+     "p10": 36,
+     "p90": 70,
      "head": "matchup-totals-v3-play-efficiency"
     },
     "scoreRange": {
      "homeP10": 16,
-     "homeP90": 40,
+     "homeP90": 41,
      "awayP10": 12,
      "awayP90": 36
+    },
+    "distribution": {
+     "marginMean": 4.42,
+     "marginSigma": 13.7,
+     "totalMean": 52.7489,
+     "totalSigma": 13.33,
+     "source": "nfl-gamesim-v1-joint-normal"
     }
    },
    "marketComparison": {
-    "state": "WITHHELD_TEAM_INPUTS",
-    "capturedAt": "2026-10-08T22:17:03Z",
-    "books": 4,
-    "note": "This forecast does not account for Baker Mayfield (TB, Out). Our team model rates teams from past results and does not adjust for who plays quarterback, so it is not compared with the sportsbooks for this game — their price already reflects the absence."
+    "state": "MARKET_VIEW",
+    "capturedAt": "2026-10-11T11:41:55Z",
+    "books": 7,
+    "marketHomeWinPct": 0.615491,
+    "marketSpreadHome": -3.5,
+    "marketTotal": 54.5,
+    "note": "The sportsbook numbers are the books' own, shown for context. A difference is a difference — this model is not validated to out-predict the sportsbook market.",
+    "modelVsMarketTotal": -1.5
    },
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-10-08T23:21:10Z",
-    "state": "BLIND_TO_STARTING_QB_ABSENCE",
-    "absences": [
-     {
-      "playerId": "nfl-athlete-3052587",
-      "name": "Baker Mayfield",
-      "team": "TB",
-      "status": "Out",
-      "statedAt": "2026-10-08T22:48Z",
-      "depthChartAt": "2026-10-07T14:25:15Z"
-     }
-    ],
-    "comparisonWithheld": true,
-    "note": "This forecast does not account for Baker Mayfield (TB, Out). Our team model rates teams from past results and does not adjust for who plays quarterback, so it is not compared with the sportsbooks for this game — their price already reflects the absence."
+    "participationAsOf": "2026-10-12T23:59:52Z",
+    "state": "NO_STARTING_QB_ABSENCE",
+    "absences": [],
+    "comparisonWithheld": false,
+    "note": null
    },
    "settlementKey": {
-    "canonicalEventId": "nfl-401872980",
+    "canonicalEventId": "nfl-401872994",
     "settlesAgainst": "official final score",
     "ledger": "experimental-forecast"
    },
@@ -136,7 +136,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-10-08T23:21:10Z"
+    "frozenAt": "2026-10-12T23:59:52Z"
    }
   }
  ]

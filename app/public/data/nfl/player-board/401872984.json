@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-10T17:32:23Z",
- "sourceGeneratedAt": "2026-10-10T17:32:23Z",
+ "generatedAt": "2026-10-11T16:53:08Z",
+ "sourceGeneratedAt": "2026-10-11T16:53:08Z",
  "providerEventId": "401872984",
  "matchup": "HOU @ TEN",
  "kickoffUtc": "2026-10-11T17:00Z",
@@ -11,8 +11,8 @@
  "week": 5,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-10T17:32:23Z",
-  "roleEvidenceAt": "2026-10-10T17:32:23Z",
+  "injuriesCapturedAt": "2026-10-11T16:53:08Z",
+  "roleEvidenceAt": "2026-10-11T16:53:08Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -66,6 +66,23 @@
        "nfl-athlete-3843945",
        "nfl-athlete-4429059"
       ]
+     },
+     {
+      "team": "TEN",
+      "pool": "targets",
+      "originalSum": 1.0183,
+      "normalizedSum": 1,
+      "factor": 0.982,
+      "playerIds": [
+       "nfl-athlete-4871023",
+       "nfl-athlete-4569587",
+       "nfl-athlete-4883647",
+       "nfl-athlete-4686728",
+       "nfl-athlete-3916148",
+       "nfl-athlete-4428557",
+       "nfl-athlete-3925357",
+       "nfl-athlete-4431268"
+      ]
      }
     ]
    }
@@ -87,29 +104,7 @@
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
  },
- "newArrivals": {
-  "TEN": [
-   {
-    "playerId": "nfl-athlete-4240657",
-    "name": "Michael Carter",
-    "position": "RB",
-    "team": "TEN",
-    "participation": "ACTIVE_UNCERTAIN",
-    "lastSeason": {
-     "club": "ARI",
-     "games": 16,
-     "targetsPg": 3.3,
-     "receptionsPg": 2.4,
-     "recYdsPg": 17.5,
-     "rushAttPg": 7,
-     "rushYdsPg": 25.6,
-     "passAttPg": 0,
-     "passYdsPg": 0
-    },
-    "note": "no game for TEN yet this season, so his role there is not yet observed and he is not in this game's numbers; his ARI history is kept only as a historical prior"
-   }
-  ]
- },
+ "newArrivals": {},
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "practiceSquadFiltered": 3,
@@ -137,8 +132,8 @@
  },
  "marketCoverage": {
   "probed": true,
-  "priced": 53,
-  "absent": 9,
+  "priced": 52,
+  "absent": 8,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -297,10 +292,10 @@
   },
   "TEN": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
-    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
@@ -337,7 +332,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4569587",
@@ -358,16 +353,6 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4685555",
-     "name": "Nicholas Singleton",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
@@ -416,10 +401,10 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4240657",
-     "name": "Michael Carter",
-     "state": "WITHHELD_ROLE_UNCERTAIN",
-     "reason": "no game for TEN yet this season — role at TEN not yet observed"
+     "playerId": "nfl-athlete-4685555",
+     "name": "Nicholas Singleton",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   }
@@ -488,6 +473,19 @@
     "state": "NORMALIZED"
    },
    {
+    "team": "TEN",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 1,
+    "originalSum": 1.0183,
+    "residualOther": 0,
+    "joined": 8,
+    "missed": 0,
+    "state": "NORMALIZED"
+   },
+   {
     "team": "HOU",
     "pool": "passAttempts",
     "markets": [
@@ -512,19 +510,6 @@
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
-   },
-   {
-    "team": "TEN",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.7064,
-    "originalSum": 0.7064,
-    "residualOther": 0.2936,
-    "joined": 7,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -537,18 +522,18 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 33.38,
-     "p10": 9.06,
-     "p25": 17.08,
-     "median": 29.76,
-     "p75": 46.07,
-     "p90": 62.35,
+     "mean": 33.752,
+     "p10": 9.43,
+     "p25": 17.47,
+     "median": 30.17,
+     "p75": 45.74,
+     "p90": 63.79,
      "market": {
       "line": 43.5,
       "overOdds": -110,
       "underOdds": -114,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
@@ -556,7 +541,7 @@
      "market": {
       "yesOdds": 130,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -568,18 +553,18 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 48.997,
-     "p10": 8.02,
-     "p25": 22.05,
-     "median": 42.75,
-     "p75": 68.43,
-     "p90": 97.97,
+     "mean": 48.373,
+     "p10": 8.2,
+     "p25": 21.44,
+     "median": 41.43,
+     "p75": 68.57,
+     "p90": 97.64,
      "market": {
       "line": 77.5,
-      "overOdds": -110,
-      "underOdds": -114,
+      "overOdds": -113,
+      "underOdds": -111,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
@@ -595,18 +580,18 @@
      },
      "market": {
       "line": 5.5,
-      "overOdds": -124,
-      "underOdds": -103,
+      "overOdds": -117,
+      "underOdds": -109,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.4151,
      "market": {
-      "yesOdds": 120,
+      "yesOdds": 135,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -618,56 +603,60 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 59.895,
-     "p10": 22.77,
-     "p25": 35.84,
-     "median": 54.52,
-     "p75": 79.62,
-     "p90": 104.71,
+     "mean": 59.702,
+     "p10": 21.52,
+     "p25": 36.05,
+     "median": 55.37,
+     "p75": 78.7,
+     "p90": 102.14,
      "market": {
       "line": 48.5,
-      "overOdds": -111,
-      "underOdds": -113,
+      "overOdds": -114,
+      "underOdds": -110,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_reception_yds": {
-     "mean": 17.605,
+     "mean": 18.109,
      "p10": 0,
-     "p25": 2.87,
-     "median": 12.74,
-     "p75": 26.45,
-     "p90": 42.31,
+     "p25": 3.29,
+     "median": 13.06,
+     "p75": 27.51,
+     "p90": 43.67,
      "market": {
       "line": 8.5,
-      "overOdds": -112,
-      "underOdds": -112,
+      "overOdds": -105,
+      "underOdds": -119,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
-     "mean": 2.1035,
+     "mean": 2.0657,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
+     "p25": 0.982,
+     "median": 1.9641,
+     "p75": 2.9461,
+     "p90": 3.9281,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 1.5,
-      "overOdds": -128,
-      "underOdds": 100,
+      "overOdds": -129,
+      "underOdds": 101,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.4065,
      "market": {
-      "yesOdds": 210,
+      "yesOdds": 220,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -679,18 +668,18 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 27.917,
-     "p10": 4.72,
-     "p25": 11.82,
-     "median": 24,
-     "p75": 39.17,
-     "p90": 56.04,
+     "mean": 26.992,
+     "p10": 4.71,
+     "p25": 11.6,
+     "median": 22.94,
+     "p75": 37.75,
+     "p90": 54.62,
      "market": {
-      "line": 36.5,
+      "line": 35.5,
       "overOdds": -113,
       "underOdds": -111,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
@@ -706,18 +695,18 @@
      },
      "market": {
       "line": 1.5,
-      "overOdds": -113,
+      "overOdds": -114,
       "underOdds": -112,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.3467,
      "market": {
-      "yesOdds": 205,
+      "yesOdds": 210,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -726,44 +715,48 @@
    "playerId": "nfl-athlete-4871023",
    "name": "Carnell Tate",
    "team": "TEN",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 73.52,
-     "p10": 23.61,
-     "p25": 41.3,
-     "median": 67.58,
-     "p75": 98.16,
-     "p90": 132.51,
+     "mean": 73.058,
+     "p10": 23.71,
+     "p25": 40.97,
+     "median": 67.04,
+     "p75": 97.97,
+     "p90": 129.43,
      "market": {
-      "line": 48.5,
+      "line": 47.5,
       "overOdds": -109,
       "underOdds": -115,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
-     "mean": 6.6663,
-     "p10": 2,
-     "p25": 4,
-     "median": 6,
-     "p75": 9,
-     "p90": 12,
+     "mean": 6.5465,
+     "p10": 1.9641,
+     "p25": 3.9281,
+     "median": 5.8922,
+     "p75": 8.8383,
+     "p90": 11.7843,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 4.5,
-      "overOdds": -103,
-      "underOdds": -124,
+      "overOdds": 103,
+      "underOdds": -131,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.2635,
      "market": {
-      "yesOdds": 400,
+      "yesOdds": 380,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -775,41 +768,45 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 37.922,
-     "p10": 6.12,
-     "p25": 16.46,
-     "median": 32.57,
-     "p75": 53.67,
-     "p90": 75.71,
+     "mean": 37.797,
+     "p10": 6.06,
+     "p25": 16.68,
+     "median": 32.37,
+     "p75": 53.41,
+     "p90": 75.97,
      "market": {
-      "line": 32.5,
+      "line": 33.5,
       "overOdds": -113,
       "underOdds": -111,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
-     "mean": 4.1016,
-     "p10": 1,
-     "p25": 2,
-     "median": 4,
-     "p75": 6,
-     "p90": 8,
+     "mean": 4.0279,
+     "p10": 0.982,
+     "p25": 1.9641,
+     "median": 3.9281,
+     "p75": 5.8922,
+     "p90": 7.8562,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 3.5,
-      "overOdds": -154,
-      "underOdds": 121,
+      "overOdds": -144,
+      "underOdds": 113,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.2474,
      "market": {
-      "yesOdds": 425,
+      "yesOdds": 475,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -821,18 +818,18 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 27.479,
+     "mean": 27.365,
      "p10": 0,
-     "p25": 6.81,
-     "median": 21.75,
-     "p75": 40.75,
-     "p90": 62.27,
+     "p25": 7.04,
+     "median": 21.22,
+     "p75": 40.62,
+     "p90": 62.69,
      "market": {
-      "line": 14.5,
-      "overOdds": -107,
-      "underOdds": -117,
+      "line": 15.5,
+      "overOdds": -110,
+      "underOdds": -114,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
@@ -848,18 +845,18 @@
      },
      "market": {
       "line": 1.5,
-      "overOdds": 144,
-      "underOdds": -184,
+      "overOdds": 119,
+      "underOdds": -152,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.2097,
      "market": {
-      "yesOdds": 600,
+      "yesOdds": 550,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -871,12 +868,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 20.929,
+     "mean": 20.797,
      "p10": 0,
-     "p25": 2.36,
-     "median": 14.68,
-     "p75": 31.95,
-     "p90": 51.68,
+     "p25": 2.72,
+     "median": 14.73,
+     "p75": 31.53,
+     "p90": 50.52,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
@@ -905,56 +902,60 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 15.897,
-     "p10": 0.04,
-     "p25": 3.15,
-     "median": 11.18,
-     "p75": 23.39,
-     "p90": 38.26,
+     "mean": 15.81,
+     "p10": 0,
+     "p25": 3.22,
+     "median": 10.88,
+     "p75": 23.38,
+     "p90": 37.97,
      "market": {
-      "line": 15.5,
-      "overOdds": -106,
-      "underOdds": -118,
+      "line": 14.5,
+      "overOdds": -107,
+      "underOdds": -117,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_reception_yds": {
-     "mean": 16.219,
+     "mean": 16.422,
      "p10": 0,
-     "p25": 0.72,
-     "median": 11.02,
-     "p75": 24.75,
-     "p90": 40.73,
+     "p25": 0.73,
+     "median": 10.67,
+     "p75": 25.21,
+     "p90": 41.75,
      "market": {
       "line": 10.5,
-      "overOdds": -105,
-      "underOdds": -119,
+      "overOdds": -108,
+      "underOdds": -116,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
-     "mean": 1.7618,
+     "mean": 1.7301,
      "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 3,
-     "p90": 4,
+     "p25": 0.982,
+     "median": 0.982,
+     "p75": 2.9461,
+     "p90": 3.9281,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 1.5,
-      "overOdds": -192,
-      "underOdds": 149,
+      "overOdds": -187,
+      "underOdds": 145,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.1877,
      "market": {
-      "yesOdds": 650,
+      "yesOdds": 700,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -966,18 +967,18 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 27.336,
+     "mean": 27.072,
      "p10": 0,
-     "p25": 7.84,
-     "median": 21.81,
-     "p75": 40.52,
-     "p90": 61.47,
+     "p25": 8.06,
+     "median": 21.39,
+     "p75": 40.32,
+     "p90": 60.81,
      "market": {
-      "line": 33.5,
-      "overOdds": -109,
-      "underOdds": -115,
+      "line": 32.5,
+      "overOdds": -115,
+      "underOdds": -109,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
@@ -993,18 +994,18 @@
      },
      "market": {
       "line": 4.5,
-      "overOdds": 116,
-      "underOdds": -148,
+      "overOdds": 122,
+      "underOdds": -156,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.1722,
      "market": {
-      "yesOdds": 310,
+      "yesOdds": 300,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -1016,18 +1017,18 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 13.075,
+     "mean": 13.469,
      "p10": 0,
      "p25": 1.31,
-     "median": 8.05,
-     "p75": 19.37,
-     "p90": 33,
+     "median": 8.22,
+     "p75": 19.81,
+     "p90": 34.96,
      "market": {
-      "line": 10.5,
-      "overOdds": -120,
-      "underOdds": -104,
+      "line": 11.5,
+      "overOdds": -107,
+      "underOdds": -117,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_pass_yds": {
@@ -1038,11 +1039,11 @@
      "p75": 245.2702,
      "p90": 309.1255,
      "market": {
-      "line": 189.5,
-      "overOdds": -113,
-      "underOdds": -111,
+      "line": 190.5,
+      "overOdds": -111,
+      "underOdds": -113,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
@@ -1050,7 +1051,7 @@
      "market": {
       "yesOdds": 700,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -1062,33 +1063,37 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 25.494,
+     "mean": 25.354,
      "p10": 0,
-     "p25": 5.21,
-     "median": 18.93,
-     "p75": 38.59,
-     "p90": 60.14,
+     "p25": 5.39,
+     "median": 18.92,
+     "p75": 37.8,
+     "p90": 59.47,
      "market": {
-      "line": 16.5,
-      "overOdds": -109,
-      "underOdds": -115,
+      "line": 15.5,
+      "overOdds": -111,
+      "underOdds": -113,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
-     "mean": 2.0711,
+     "mean": 2.0339,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
+     "p25": 0.982,
+     "median": 1.9641,
+     "p75": 2.9461,
+     "p90": 3.9281,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 1.5,
-      "overOdds": -112,
-      "underOdds": -114,
+      "overOdds": -108,
+      "underOdds": -118,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
@@ -1096,7 +1101,7 @@
      "market": {
       "yesOdds": 800,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -1108,18 +1113,18 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 16.685,
+     "mean": 17.633,
      "p10": 0,
      "p25": 0,
-     "median": 10.68,
-     "p75": 25.06,
-     "p90": 43.74,
+     "median": 11.01,
+     "p75": 26.94,
+     "p90": 45.99,
      "market": {
       "line": 24.5,
       "overOdds": -110,
       "underOdds": -114,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
@@ -1135,18 +1140,18 @@
      },
      "market": {
       "line": 2.5,
-      "overOdds": 134,
-      "underOdds": -171,
+      "overOdds": 129,
+      "underOdds": -166,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.1345,
      "market": {
-      "yesOdds": 500,
+      "yesOdds": 475,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -1158,18 +1163,18 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 16.923,
+     "mean": 17.156,
      "p10": 0,
      "p25": 0,
-     "median": 8.64,
-     "p75": 26.51,
-     "p90": 47.32,
+     "median": 9.08,
+     "p75": 27.32,
+     "p90": 46.8,
      "market": {
-      "line": 19.5,
-      "overOdds": -113,
-      "underOdds": -111,
+      "line": 20.5,
+      "overOdds": -111,
+      "underOdds": -113,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
@@ -1185,18 +1190,18 @@
      },
      "market": {
       "line": 1.5,
-      "overOdds": -162,
-      "underOdds": 127,
+      "overOdds": -147,
+      "underOdds": 115,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.1309,
      "market": {
-      "yesOdds": 500,
+      "yesOdds": 600,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -1225,7 +1230,7 @@
      "market": {
       "yesOdds": 900,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -1237,33 +1242,37 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 21.268,
+     "mean": 21.934,
      "p10": 0,
-     "p25": 4.84,
-     "median": 16.13,
-     "p75": 31.36,
-     "p90": 49.9,
+     "p25": 5.56,
+     "median": 16.84,
+     "p75": 32.57,
+     "p90": 50.46,
      "market": {
-      "line": 15.5,
+      "line": 14.5,
       "overOdds": -112,
       "underOdds": -112,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
-     "mean": 2.3063,
+     "mean": 2.2649,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5,
+     "p25": 0.982,
+     "median": 1.9641,
+     "p75": 2.9461,
+     "p90": 4.9101,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 2.5,
-      "overOdds": 117,
-      "underOdds": -149,
+      "overOdds": 121,
+      "underOdds": -155,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
@@ -1271,7 +1280,7 @@
      "market": {
       "yesOdds": 600,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -1283,12 +1292,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 15.8,
+     "mean": 15.557,
      "p10": 0,
      "p25": 0,
-     "median": 9.7,
-     "p75": 24.79,
-     "p90": 42.24,
+     "median": 8.85,
+     "p75": 24.38,
+     "p90": 42.49,
      "pricingState": "NOT_OFFERED"
     },
     "player_receptions": {
@@ -1309,32 +1318,7 @@
      "market": {
       "yesOdds": 1700,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4685555",
-   "name": "Nicholas Singleton",
-   "team": "TEN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 9.528,
-     "p10": 0,
-     "p25": 0.19,
-     "median": 5.14,
-     "p75": 13.98,
-     "p90": 25.4,
-     "pricingState": "NOT_OFFERED"
-    },
-    "anytime_td": {
-     "probability": 0.0892,
-     "market": {
-      "yesOdds": 2000,
-      "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -1346,41 +1330,45 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 19.67,
+     "mean": 19.809,
      "p10": 0,
-     "p25": 0,
-     "median": 12.94,
-     "p75": 29.76,
-     "p90": 49.54,
+     "p25": 0.86,
+     "median": 13.58,
+     "p75": 30.34,
+     "p90": 48.59,
      "market": {
       "line": 8.5,
-      "overOdds": -115,
-      "underOdds": -109,
+      "overOdds": -111,
+      "underOdds": -113,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_receptions": {
-     "mean": 1.4193,
+     "mean": 1.3938,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
+     "median": 0.982,
+     "p75": 1.9641,
+     "p90": 2.9461,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "market": {
       "line": 0.5,
       "overOdds": -199,
       "underOdds": 155,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.0816,
      "market": {
-      "yesOdds": 1300,
+      "yesOdds": 1400,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -1392,18 +1380,18 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 10.479,
+     "mean": 10.5,
      "p10": 0,
      "p25": 0,
-     "median": 4.43,
-     "p75": 15.16,
-     "p90": 29.29,
+     "median": 4.29,
+     "p75": 15.37,
+     "p90": 30.36,
      "market": {
-      "line": 9.5,
-      "overOdds": -120,
-      "underOdds": -105,
+      "line": 10.5,
+      "overOdds": -104,
+      "underOdds": -120,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "player_pass_yds": {
@@ -1414,19 +1402,19 @@
      "p75": 310.4421,
      "p90": 387.3184,
      "market": {
-      "line": 239.5,
-      "overOdds": -113,
-      "underOdds": -111,
+      "line": 237.5,
+      "overOdds": -112,
+      "underOdds": -112,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     },
     "anytime_td": {
      "probability": 0.0804,
      "market": {
-      "yesOdds": 850,
+      "yesOdds": 800,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }
@@ -1438,20 +1426,24 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_receptions": {
-     "mean": 1.1145,
+     "mean": 1.0945,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
+     "median": 0.982,
+     "p75": 1.9641,
+     "p90": 2.9461,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.982
+     },
      "pricingState": "NOT_OFFERED"
     },
     "anytime_td": {
      "probability": 0.0676,
      "market": {
-      "yesOdds": 1600,
+      "yesOdds": 1500,
       "sportsbook": "draftkings",
-      "capturedAt": "2026-10-10T17:32:23Z"
+      "capturedAt": "2026-10-11T11:41:55Z"
      }
     }
    }

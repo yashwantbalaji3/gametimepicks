@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 849812,
+  "date": "2026-10-12",
+  "capturedAt": "2026-10-12T06:58:45.364Z",
+  "availableAt": "2026-10-12T06:58:45.364Z",
+  "eventStartTime": "2026-10-12T21:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 701656,
+      "name": "Logan Henderson",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 18,
+      "restDays": 19,
+      "lastStartDate": "2026-09-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 29,
+        "ipAvg": 5.8,
+        "kAvg": 6.2,
+        "bbAvg": 1,
+        "erAvg": 1.4,
+        "hrAvg": 0.8,
+        "kPer9": 9.62,
+        "workloadIpLast5": 29
+      },
+      "seasonToDate": {
+        "starts": 18,
+        "ip": 98.33,
+        "k": 110,
+        "bb": 19,
+        "er": 27,
+        "hr": 14
+      }
+    },
+    "away": {
+      "id": 808967,
+      "name": "Yoshinobu Yamamoto",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 28,
+      "restDays": 19,
+      "lastStartDate": "2026-09-23",
+      "last5": {
+        "starts": 5,
+        "ipSum": 33.33,
+        "ipAvg": 6.67,
+        "kAvg": 7.4,
+        "bbAvg": 1.4,
+        "erAvg": 1.6,
+        "hrAvg": 1,
+        "kPer9": 9.99,
+        "workloadIpLast5": 33.33
+      },
+      "seasonToDate": {
+        "starts": 28,
+        "ip": 185,
+        "k": 182,
+        "bb": 42,
+        "er": 52,
+        "hr": 20
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-10-12&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-10-12T06:58:45.364Z"
+  },
+  "recordHash": "8099caca39ad1684237723eb5c68d65a81d3eb6d048c140516bef7ee3817b662"
+}
