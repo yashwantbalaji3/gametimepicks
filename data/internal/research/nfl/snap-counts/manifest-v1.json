@@ -10,7 +10,7 @@
   "project": "https://github.com/nflverse/nflverse-data",
   "upstream": "snap counts are sourced by nflverse from Pro-Football-Reference"
  },
- "capturedAt": "2026-10-06T17:20:34Z",
+ "capturedAt": "2026-10-13T18:26:45Z",
  "script": "app/scripts/nfl/capture-nfl-snap-counts.mjs",
  "consumers": "research only — no model, board, promotion or public page reads these files",
  "seasons": {
@@ -65,14 +65,14 @@
   "2026": {
    "file": "snap-counts-2026.json",
    "published": true,
-   "rowCount": 5970,
-   "offenseRows": 2365,
-   "teamGames": 128,
+   "rowCount": 7370,
+   "offenseRows": 2915,
+   "teamGames": 158,
    "weekRange": [
     1,
-    4
+    5
    ],
-   "contentSha256": "9662a9132747fdc114c66c1b7010198704dddd7f58d3619bf5d745b842030921"
+   "contentSha256": "a045fa3271ea956eebb40de1b0153372a2090b25e4227a4778a0e0ed0ed7c9cd"
   }
  },
  "tablesOnDisk": [
@@ -84,10 +84,10 @@
  ],
  "bridge": {
   "file": "id-bridge-v1.json",
-  "pfrIdsInTables": 3768,
-  "inPlayersFile": 3754,
-  "withGsisId": 3754,
-  "withEspnId": 3746,
+  "pfrIdsInTables": 3788,
+  "inPlayersFile": 3774,
+  "withGsisId": 3774,
+  "withEspnId": 3765,
   "espnCollisions": 0
  },
  "joinAudit": {
@@ -438,22 +438,22 @@
    "season": 2026,
    "method": "id join pfr_player_id → nflverse players.csv (pfr_id → espn_id); names are audited, never used to join",
    "forward": {
-    "offenseRows": 2365,
-    "withEspnId": 2354,
-    "rate": 0.9953,
-    "skillOffenseRows": 1560,
-    "skillWithEspnId": 1556,
+    "offenseRows": 2915,
+    "withEspnId": 2901,
+    "rate": 0.9952,
+    "skillOffenseRows": 1925,
+    "skillWithEspnId": 1920,
     "skillRate": 0.9974,
     "rowsWithoutPfrId": 0
    },
    "reverse": {
-    "playerGames": 1243,
-    "matched": 1239,
-    "unbridged": 4,
+    "playerGames": 1559,
+    "matched": 1554,
+    "unbridged": 5,
     "ambiguous": 0,
     "noSnapRow": 0,
-    "teamAgree": 1239,
-    "nameAgree": 1228,
+    "teamAgree": 1554,
+    "nameAgree": 1540,
     "examplesUnmatched": [
      {
       "playerId": "nfl-athlete-4241983",
@@ -477,6 +477,12 @@
       "playerId": "nfl-athlete-4241983",
       "name": "Cody White",
       "week": 4,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4241983",
+      "name": "Cody White",
+      "week": 5,
       "why": "UNBRIDGED"
      }
     ],
@@ -524,11 +530,15 @@
      {
       "espn": "Joshua Palmer",
       "nflverse": "Josh Palmer"
+     },
+     {
+      "espn": "Kenny Gainwell",
+      "nflverse": "Kenneth Gainwell"
      }
     ],
     "rate": 0.9968,
     "teamAgreeRate": 1,
-    "nameAgreeRate": 0.9911
+    "nameAgreeRate": 0.991
    }
   }
  }
