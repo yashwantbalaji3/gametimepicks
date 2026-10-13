@@ -21,6 +21,8 @@ import { stableHash } from "../src/lib/game-simulations/rng.ts";
 import { ENGINE_LEVEL_CANDIDATE_V1, engineParamsFor } from "../src/lib/mlb/full-game/engine-candidates.ts";
 import { INPUT_SNAPSHOT_VERSION, foldSnapshot, snapshotRowFor } from "../src/lib/mlb/full-game/input-snapshot.mjs";
 import { carryFrozenPregame } from "../src/lib/mlb/full-game/frozen-carry.mjs";
+import { DEFAULT_ENGINE_PARAMS } from "../src/lib/mlb/full-game/engine.ts";
+import { MATCHUP_V1_ID, MATCHUP_V1_LEAGUE, MATCHUP_V1_PA_BY_SLOT, MATCHUP_V1_PRIORS, matchupInputFor } from "../src/lib/mlb/full-game/matchup-features.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(APP, "public", "data");
@@ -230,6 +232,77 @@ for (const g of artifact.games) {
 }
 
 /*
+ * ── MLB-002 FORWARD SHADOW: challenger mlb-pa-matchup-v1 (private research, never public) ───────────
+ *
+ * docs/research/mlb/mlb-002/matchup-v1/FORWARD-PREREGISTRATION.md (7330c16fd0). The SAME rule as the P317 shadow
+ * above: the challenger runs on exactly this run's inputs and seed, for pregame games regenerated in this run only, and
+ * a carried-forward game keeps the row that paired with its frozen public forecast. Its matchup rates come only from
+ * pregame captures at or before this run's clock (matchup-features.mjs). Nothing public is touched; the rows ride the
+ * same commit as the P317 shadow (a subfolder of its path), so no workflow or build input changes.
+ */
+const MATCHUP_DIR = path.join(SHADOW_DIR, "matchup-v1");
+const FEATURES_DIR = path.join(APP, "..", "data/internal/mlb/pregame-archive/pregame-features");
+/*
+ * ISOLATION: the shadow can never block or alter the official forecast. Everything it does is inside try/catch, per
+ * game and overall; a failure is logged and counted (`matchupShadowFailures`) and the official run continues. It reads
+ * only private capture files, writes only under MATCHUP_DIR, and runs after the public artifact is final.
+ */
+const matchupRows = [];
+let matchupShadowFailures = 0;
+let matchupShadowOverBudget = 0;
+const matchupStarted = Date.now();
+// A wall-clock budget for the whole shadow (a game takes about 0.3 s; a 15-game slate about 4 s). Past it, the remaining
+// games are skipped and counted, so a slow shadow can never hold up the official run's write and commit.
+const MATCHUP_SHADOW_BUDGET_MS = 60_000;
+try {
+  const readDocs = (family, d) => {
+    const dir = path.join(FEATURES_DIR, family, d);
+    try {
+      return fs.readdirSync(dir).filter((f) => f.endsWith(".json")).map((f) => { try { return JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")); } catch { return null; } }).filter(Boolean);
+    } catch { return []; }
+  };
+  const priorDates = Array.from({ length: MATCHUP_V1_PRIORS.priorSplitsDays }, (_, i) => new Date(Date.parse(`${date}T12:00:00Z`) - (i + 1) * 86400e3).toISOString().slice(0, 10));
+  const matchupCaptures = {
+    splitsSameGame: readDocs("batter-splits", date),
+    splitsPrior: priorDates.flatMap((d) => readDocs("batter-splits", d)),
+    workload: readDocs("pitcher-workload", date),
+    matchup: readDocs("matchup", date),
+  };
+  const championEngine = opts.engine ?? DEFAULT_ENGINE_PARAMS;
+  const challengerEngine = { ...championEngine, matchup: { league: MATCHUP_V1_LEAGUE } };
+  for (const g of artifact.games) {
+    if (g.status === "unavailable" || startedByNow.has(g.gamePk)) continue;
+    if (Date.now() - matchupStarted > MATCHUP_SHADOW_BUDGET_MS) { matchupShadowOverBudget += 1; continue; }
+    try {
+      const input = lastInputs.find((i) => i.gamePk === g.gamePk);
+      if (!input) continue;
+      const cutoffMs = Math.min(Date.parse(artifact.generatedAt), Date.parse(g.firstPitch ?? artifact.generatedAt));
+      const m = matchupInputFor({ input, cutoffMs, league: MATCHUP_V1_LEAGUE, paBySlot: MATCHUP_V1_PA_BY_SLOT, captures: matchupCaptures });
+      const ch = simulateFullGame(m.input, { ...opts, generatedAt: artifact.generatedAt, engine: challengerEngine });
+      if (ch.status === "unavailable") continue;
+      const at15 = (x) => x.runLine.find((r) => r.line === 1.5)?.homeCover ?? null;
+      const arm = (x) => ({ pHome: x.winProbability.home, totalRuns: dist(x.totalRuns), homeMinus15: at15(x), runsHome: x.runs.home.mean, runsAway: x.runs.away.mean });
+      matchupRows.push({
+        gamePk: g.gamePk, slug: g.slug, date, firstPitch: g.firstPitch, generatedAt: artifact.generatedAt, status: g.status,
+        candidateId: MATCHUP_V1_ID, championModelVersion: MODEL_VERSION, simulationVersion: SIMULATION_VERSION, championArtifactHash: g.artifactHash,
+        codeCommit: process.env.GITHUB_SHA ?? null, // the workflow's checkout; null on a local run
+        challengerInputFingerprint: stableHash(m.input),
+        marketHome: g.market?.moneyline?.home ?? null, marketTotalLine: g.market?.total?.line ?? null,
+        coverage: m.coverage, featureCaptures: m.captures,
+        champion: arm(g), challenger: arm(ch),
+      });
+    } catch (e) {
+      matchupShadowFailures += 1;
+      console.warn(`::warning::matchup-v1 shadow skipped ${g.gamePk}: ${String(e?.message ?? e).slice(0, 160)}`);
+    }
+  }
+} catch (e) {
+  matchupShadowFailures += 1;
+  console.warn(`::warning::matchup-v1 shadow skipped for this run: ${String(e?.message ?? e).slice(0, 160)}`);
+}
+console.log(`[matchup-v1 shadow] ${matchupRows.length} row(s), ${matchupShadowFailures} failure(s), ${matchupShadowOverBudget} over budget, ${Date.now() - matchupStarted} ms`);
+
+/*
  * ── THE INPUT SNAPSHOT (lineage) ───────────────────────────────────────────────────────────────
  *
  * A committed simulation says `awayLineupSource: "confirmed"` and never says WHICH confirmed
@@ -296,6 +369,19 @@ if (write) {
     const rows = [...kept, ...shadowRows].sort((a, b) => a.gamePk - b.gamePk);
     fs.writeFileSync(shadowFile, JSON.stringify({ schemaVersion: 1, artifact: "mlb-engine-level-shadow-rows", dataClass: "PRIVATE_RESEARCH", program: "317", protocol: ENGINE_LEVEL_CANDIDATE_V1.protocol, date, updatedAt: artifact.generatedAt, runCount: RUN_COUNT, rows }, null, 2));
     console.log(`✓ shadow: ${shadowRows.length} pregame game(s) paired with the candidate (${kept.length} kept from earlier runs) → data/internal/research/mlb/engine-level-shadow/${date}.json`);
+  }
+  if (matchupRows.length) try {
+    fs.mkdirSync(MATCHUP_DIR, { recursive: true });
+    const mFile = path.join(MATCHUP_DIR, `${date}.json`);
+    let prior = { rows: [] };
+    try { prior = JSON.parse(fs.readFileSync(mFile, "utf8")); } catch { /* first write of the day */ }
+    const regenerated = new Set(matchupRows.map((r) => r.gamePk));
+    const kept = (prior.rows ?? []).filter((r) => !regenerated.has(r.gamePk));
+    const rows = [...kept, ...matchupRows].sort((a, b) => a.gamePk - b.gamePk);
+    fs.writeFileSync(mFile, JSON.stringify({ schemaVersion: 1, artifact: "mlb-matchup-v1-forward-shadow-rows", dataClass: "PRIVATE_RESEARCH", program: "MLB-002", registration: "docs/research/mlb/mlb-002/matchup-v1/FORWARD-PREREGISTRATION.md", date, updatedAt: artifact.generatedAt, runCount: RUN_COUNT, rows }, null, 2));
+    console.log(`✓ matchup-v1 shadow: ${matchupRows.length} pregame game(s) (${kept.length} kept) → data/internal/research/mlb/engine-level-shadow/matchup-v1/${date}.json`);
+  } catch (e) {
+    console.warn(`::warning::matchup-v1 shadow rows not written: ${String(e?.message ?? e).slice(0, 160)}`);
   }
 } else {
   console.log(`\n(dry run — pass --write to persist)`);

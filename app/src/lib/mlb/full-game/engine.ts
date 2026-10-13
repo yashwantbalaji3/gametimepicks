@@ -18,10 +18,12 @@
 import { SeededRng } from "../../game-simulations/rng";
 import {
   LEAGUE,
+  buildMatchupPaOutcome,
   buildPaOutcome,
   pitcherStrikeoutRate,
   samplePaOutcome,
   type LeagueParams,
+  type MatchupLeague,
   type PaOutcomeProbs,
 } from "./plate-appearance";
 import type { BatterInput, GameInput, PitcherInput } from "./types";
@@ -58,6 +60,11 @@ export interface EngineParams {
     /** Runs allowed that pull the starter early (a blow-up). */
     chaseRuns: number;
   };
+  /**
+   * MLB-002 RESEARCH: the matchup PA model (challenger mlb-pa-matchup-v1). Absent = the published model. When set,
+   * batters carrying `matchup` rates are modelled by buildMatchupPaOutcome; anyone without them keeps the published one.
+   */
+  matchup?: { league: MatchupLeague };
 }
 
 /** The published engine's parameters — the literals it has carried since S008, unchanged. */
@@ -138,8 +145,22 @@ interface MoundState {
   bullpenRuns: number; // runs the bullpen has allowed (not reported per-pitcher)
 }
 
-function buildBatterModels(lineup: BatterInput[], opposingStarter: PitcherInput | null, league: LeagueParams): BatterModel[] {
+function buildBatterModels(lineup: BatterInput[], opposingStarter: PitcherInput | null, league: LeagueParams, matchup?: EngineParams["matchup"]): BatterModel[] {
   const starterK = pitcherStrikeoutRate(opposingStarter?.expStrikeouts ?? null, true, league);
+  if (matchup) {
+    const ml = matchup.league;
+    const starter = opposingStarter?.matchup ?? { k: starterK, bb: ml.bb, hr: ml.hr };
+    const bullpen = { k: league.BULLPEN_K_RATE, bb: ml.bb, hr: ml.hr };
+    return lineup.map((b) => (b.matchup
+      ? {
+        vsStarter: buildMatchupPaOutcome({ expHits: b.expHits, expTotalBases: b.expTotalBases, slotPa: b.matchup.slotPa, batter: b.matchup.vsStarter, pitcher: starter, matchupLeague: ml }, league),
+        vsBullpen: buildMatchupPaOutcome({ expHits: b.expHits, expTotalBases: b.expTotalBases, slotPa: b.matchup.slotPa, batter: b.matchup.vsBullpen, pitcher: bullpen, matchupLeague: ml }, league),
+      }
+      : {
+        vsStarter: buildPaOutcome({ expHits: b.expHits, expTotalBases: b.expTotalBases, pitcherKRate: starterK }, league),
+        vsBullpen: buildPaOutcome({ expHits: b.expHits, expTotalBases: b.expTotalBases, pitcherKRate: league.BULLPEN_K_RATE }, league),
+      }));
+  }
   return lineup.map((b) => ({
     vsStarter: buildPaOutcome({ expHits: b.expHits, expTotalBases: b.expTotalBases, pitcherKRate: starterK }, league),
     vsBullpen: buildPaOutcome({ expHits: b.expHits, expTotalBases: b.expTotalBases, pitcherKRate: league.BULLPEN_K_RATE }, league),
@@ -355,8 +376,8 @@ function simulateHalfInning(params: {
 
 /** Simulate ONE complete game. Deterministic given the injected RNG. */
 export function simulateGame(game: GameInput, rng: SeededRng, params: EngineParams = DEFAULT_ENGINE_PARAMS): GameResult {
-  const awayModels = buildBatterModels(game.awayLineup, game.homeStarter, params.league);
-  const homeModels = buildBatterModels(game.homeLineup, game.awayStarter, params.league);
+  const awayModels = buildBatterModels(game.awayLineup, game.homeStarter, params.league, params.matchup);
+  const homeModels = buildBatterModels(game.homeLineup, game.awayStarter, params.league, params.matchup);
   const awayLines = game.awayLineup.map(emptyBatterLine);
   const homeLines = game.homeLineup.map(emptyBatterLine);
 
