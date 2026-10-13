@@ -20,6 +20,19 @@ const EVENTS = [
   { id: "g2", commence_time: "2026-06-22T23:05:00Z", home_team: "LA Dodgers", away_team: "SF Giants" }, // different day → dropped
 ];
 
+test("normalizeMlbSchedule: the slate is an ET day — a first pitch at 8 PM ET or later (next UTC day) stays on its own slate", () => {
+  /* 2026-10-13: CLE @ TB at 8:00 PM ET = 2026-10-14T00:00:00Z was dropped by a UTC-date filter → "No MLB games today". */
+  const evening = [
+    { id: "e1", commence_time: "2026-10-14T00:00:00Z", home_team: "Tampa Bay Rays", away_team: "Cleveland Guardians" },  // 8:00 PM ET 10-13
+    { id: "e2", commence_time: "2026-10-14T02:10:00Z", home_team: "LA Dodgers", away_team: "SF Giants" },               // 10:10 PM ET 10-13
+    { id: "e3", commence_time: "2026-10-13T03:40:00Z", home_team: "Seattle Mariners", away_team: "Houston Astros" },    // 11:40 PM ET 10-12 → not 10-13
+    { id: "e4", commence_time: "2026-10-14T16:05:00Z", home_team: "New York Yankees", away_team: "Boston Red Sox" },    // 12:05 PM ET 10-14 → not 10-13
+  ];
+  assert.deepEqual(normalizeMlbSchedule(evening, "2026-10-13", GEN).games.map((g) => g.gameId), ["e1", "e2"]);
+  const odds = evening.map((e) => ({ ...e, bookmakers: [{ key: "draftkings", title: "DraftKings", markets: [{ key: "batter_hits", outcomes: [{ name: "Over", description: `P-${e.id}`, price: -120, point: 0.5 }] }] }] }));
+  assert.deepEqual([...new Set(normalizeMlbProps(odds, "2026-10-13", GEN).props.map((p) => p.player))].sort(), ["P-e1", "P-e2"]);
+});
+
 test("normalizeMlbSchedule: filters to the date, builds matchups; empty in → empty out", () => {
   const s = normalizeMlbSchedule(EVENTS, DATE, GEN);
   assert.equal(s.games.length, 1, "only the same-day game");
