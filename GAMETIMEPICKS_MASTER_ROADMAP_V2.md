@@ -2282,6 +2282,55 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - **Honest Week 6 pre-capture state** (re-derived at 2026-10-13T02:26:06Z, Week 6 files only): `WATCHLIST_ONLY`, 117 model candidates, "no current comparable touchdown price is available". The ledger entry for 2026-10-13 is unchanged (append-only).
 - **Separate finding, not fixed here:** `build-nfl-product-receipts.mjs` (since Aug 14) labels unpriced players "the provider offers no NFL player market in this window". With the odds budget exhausted we did not ask, which is the P250-W1 distinction ("unavailable price authorization is not an absent market").
 
+## 2026-10-13 — Claude Code (single primary engineering session, founder reset) — #1069 release record; launch audit; `TRUTH-001` MLB slate-date and run-line fixes
+**Operating model change (founder, 2026-10-13):** one primary Claude Code session owns engineering, integration and Production verification until the Oct 20 launch. It works in the main checkout on ordinary feature branches. It creates no new worktrees or parallel implementation sessions without founder approval. One Production integration at a time; exact-head founder approval before every merge. About 27 legacy worktrees and the unpushed refresh branches (`int4-1061`, `int-1048b`) are preserved untouched.
+
+**#1069 release record (CI recovery: NFL Vault order + receipt wording + MLB cross-surface clock + `/epl` weight):**
+- **Approved head:** `ca620de3661dcd18971b31df414ac245e750cc7e`. Founder approval 2026-10-13.
+- **CI on that exact head:** run 38345445904, `python` ✓ and `quality` ✓. MERGEABLE/CLEAN, re-checked immediately before merge. The 12 `main` commits since its base touch none of its 15 files.
+- **Local validation:**
+  - targeted tests 20/20;
+  - full unit phase 9,314 = 9,309 pass + 4 fail + 1 opt-in skip;
+  - all 4 failures are environment-only. 2 RLS tests need a local `postgres` binary. 2 Ask tests read a stale ignored `public/data/ask/v1` build from Oct 5, and both pass, 15/15, after `emit-ask-assets`;
+  - browser check of the exact-head export.
+- **Merged** with `--match-head-commit` → merge `1d857cfdaefeffaaa0e7cf485afa24b8263064e2` at 14:58:00Z. The merge tree is byte-identical to the approved head on all 15 files.
+- **Production acceptance (15:10Z): PASS.**
+  - Production serves `3672dac411` (built 15:05:29Z). That is one bot data commit on top of the merge, so the merge's own build was superseded by the next push and its content is live.
+  - `/endzone-vault/` reads "117 model candidates · no current comparable touchdown price is available"; the false "ran over a real pool" sentence is gone.
+  - The `/nfl` receipt reads "no NFL player-market price was captured for these games — the market was not checked in this window".
+  - `/epl` is 450,957 B, down from 533,717 B (ceiling 500 KB).
+  - 10 key routes return 200.
+- **`main` CI after merge: RED, not caused by #1069.** quality-gate run 38417940378 has 1 failure: `mlb-results-cohort` §6, a data-dependent false positive.
+  - The 10:49 ET nightly settle (`3737678a6c`, after #1069's CI) produced game bucket 849812 (15–21, 36 decisive picks).
+  - The test banned "36 dec", `batter_hits`' bucket total, page-wide. Every market row was correct.
+  - Fixed on `claude/mlb-et-date-runline-fix` (below).
+- **Vercel:** Preview 0. Production: the merge was coalesced into the next data commit's build.
+
+**Launch audit findings verified on Production (2026-10-13):**
+- **P0 — MLB evening games dropped from their slate.** `normalizeMlbSchedule`/`normalizeMlbProps` filtered `commence_time` by its UTC date. Every first pitch at 8 PM ET or later fell onto the next day.
+  - `schedule/2026-10-13.json` had 0 games and no `player-props/2026-10-13.json` was written for CLE @ TB (8:00 PM ET).
+  - `/mlb` said "No MLB games today" beside "1 scheduled".
+- **P0 — `/mlb` team-markets card ran the run line backwards.** It showed "CLE −1.5 · TB +1.5" while the book had TB −1.5 (+159), CLE +1.5 (−194). The card treated the likelier-cover side as the side laying the runs.
+- **P0 — `/results` "82.2% of our NFL predictions came true".** This blends 80%-range coverage (378/451, target ≈ 80%), the winner record (8–5, ≈ 7.9 expected) and the likeliest scorer (7/14) into one accuracy-sounding number. Next task after the MLB PR.
+- **P0 — silent data loss** in automated publishing (run 38065746333: a paid UFC capture rejected non-fast-forward; run 38150059664: an NFL window discarded on conflict). The NFL budget refusal fails 30 of 43 event-window runs, which masks real failures. `OPS-001` #1068.
+- **P0 — `/privacy` and `/terms` return 404 while accounts are live.** `/responsible-use` says 18+; the accounts setup doc requires 21+. Founder decision requested.
+- **P1:**
+  - no security headers beyond HSTS;
+  - Ask has only a per-instance rate limit (no global cap);
+  - NBA "Season opens Oct 12" (it opens Oct 20);
+  - #1066 shows a model-vs-line gap for unqualified families;
+  - two UFC withdrawn pairings pending indefinitely.
+- **Cost:** ignore-step replay over the last 72h gives ≈ 69 builds/day, unchanged from the Oct 3–8 baseline (70.2), so Stage A shows no measurable reduction yet.
+
+**`claude/mlb-et-date-runline-fix` (IMPLEMENTED LOCALLY):**
+- ET-day bucketing (`etSlateDateOf`) in the ingest normalizer, and an ET default date in `ingest-mlb-slate.mjs`.
+- The `/mlb` liveness banner reads the page's own `gameCount`.
+- New pure `runLineLayer()` reads the signed line, and `/mlb` feeds the card from it.
+- `mlb-results-cohort` §6 is scoped to each market's own row.
+- Every new guard was mutation-checked against the old code.
+- Local export at `1b61f4fcdd` shows "Run line TB − 1.5 · CLE + 1.5" and no "No MLB games today".
+- **Limit:** today's props stay empty after merge, because the workflow's once-per-ET-day paid gate already ran. A forced recovery run is paid and is a founder decision.
+
 ---
 
 # 26. Immediate execution waves

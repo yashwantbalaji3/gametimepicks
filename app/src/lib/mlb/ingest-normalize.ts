@@ -52,10 +52,22 @@ export interface NormalizedProps { date: string; generatedAt: string; source: st
 
 const round = (n: number) => Math.round(n);
 
+/**
+ * The ET slate day an Odds API `commence_time` belongs to. The slate `date` is an ET calendar day
+ * (the workflow resolves it with TZ=America/New_York), but `commence_time` is UTC — so the UTC date
+ * prefix put every first pitch from 8 PM ET onward on the NEXT day, and the game silently left its own
+ * slate (2026-10-13: CLE @ TB, 8:00 PM ET = 00:00Z, gave an empty schedule and "No MLB games today").
+ */
+export function etSlateDateOf(commenceTime: string | null | undefined): string | null {
+  const ms = Date.parse(commenceTime ?? "");
+  if (Number.isNaN(ms)) return null;
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(ms);
+}
+
 /** Odds API events → committed schedule artifact. Empty in → empty games out. */
 export function normalizeMlbSchedule(events: OddsApiEvent[], date: string, generatedAt: string): NormalizedSchedule {
   const games: NormalizedGame[] = (events ?? [])
-    .filter((e) => e?.id && e.home_team && e.away_team && (e.commence_time ?? "").slice(0, 10) === date)
+    .filter((e) => e?.id && e.home_team && e.away_team && etSlateDateOf(e.commence_time) === date)
     .map((e) => ({ gameId: String(e.id), home: e.home_team, away: e.away_team, commenceTime: e.commence_time, matchup: `${e.away_team} @ ${e.home_team}` }));
   return { sport: "MLB", date, generatedAt, source: "the-odds-api/baseball_mlb/events", games };
 }
@@ -65,7 +77,7 @@ export function normalizeMlbSchedule(events: OddsApiEvent[], date: string, gener
 export function normalizeMlbProps(eventsOdds: OddsApiEventOdds[], date: string, generatedAt: string): NormalizedProps {
   const props: NormalizedProp[] = [];
   for (const ev of eventsOdds ?? []) {
-    if ((ev.commence_time ?? "").slice(0, 10) !== date) continue;
+    if (etSlateDateOf(ev.commence_time) !== date) continue;
     const matchup = `${ev.away_team} @ ${ev.home_team}`;
     // best price per (player|market|point|side=Over)
     const best = new Map<string, NormalizedProp>();
