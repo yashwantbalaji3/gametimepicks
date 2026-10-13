@@ -80,3 +80,54 @@ test("W2: a selector-shadow day file is never auto-resolved to the later copy �
   assert.match(r.stdout + r.stderr, /not a regenerable path/);
   assert.equal(originFile(origin, root, "data/internal/products/selector-shadow/2026-09-22.json"), '{"v":"A"}\n', "the first publication is untouched");
 });
+
+// ── OPS-001 · ufc-fight-week run 38065746333 (2026-10-10 16:02Z): a rebase that cannot START ───────────
+// The run rebuilt multi-/epl-<today>.json grids as a side effect; they were new on its checkout, so
+// `restore --worktree` left them untracked. epl-matchweek committed the same paths first; the rebase refused
+// ("untracked working tree files would be overwritten") behind a redirect, nothing was unmerged, and the loop
+// pushed the same unrebased commit five times. The paid capture was discarded.
+function untrackedCollision({ clean = false } = {}) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "cg-"));
+  const origin = path.join(root, "origin.git");
+  git(root, "init", "-q", "--bare", "-b", "main", origin);
+  const a = path.join(root, "a"), b = path.join(root, "b");
+  git(root, "clone", "-q", origin, a);
+  fs.mkdirSync(path.join(a, "grid"), { recursive: true });
+  fs.writeFileSync(path.join(a, "grid/mlb-old.json"), '{"v":0}\n');
+  git(a, "add", "."); git(a, "commit", "-q", "-m", "seed"); git(a, "push", "-q", "origin", "HEAD:main");
+  git(root, "clone", "-q", origin, b);
+  // the other lane publishes a NEW same-day grid first
+  fs.writeFileSync(path.join(a, "grid/multi-2026-10-10.json"), '{"from":"epl"}\n');
+  git(a, "add", "."); git(a, "commit", "-q", "-m", "epl"); git(a, "push", "-q", "origin", "HEAD:main");
+  // the UFC run, on the older checkout: its own grid + a side-effect copy of the same new file + a tracked side effect
+  fs.writeFileSync(path.join(b, "grid/ufc-2026-10-10.json"), '{"ufc":1}\n');
+  fs.writeFileSync(path.join(b, "grid/multi-2026-10-10.json"), '{"from":"ufc side effect"}\n');
+  fs.writeFileSync(path.join(b, "grid/mlb-old.json"), '{"v":"side effect"}\n');
+  git(b, "add", "grid/ufc-2026-10-10.json");
+  git(b, "restore", "--worktree", "--", "grid");
+  if (clean) git(b, "clean", "-fdq", "--", "grid");
+  const r = spawnSync("bash", [HELPER, "auto: ufc fight-week refresh [skip ci]"], { cwd: b, encoding: "utf8", env: { ...process.env, GENERATED_PATHS: "grid/ufc-", GIT_AUTHOR_NAME: "t", GIT_AUTHOR_EMAIL: "t@t", GIT_COMMITTER_NAME: "t", GIT_COMMITTER_EMAIL: "t@t" } });
+  return { r, origin, root, b };
+}
+
+test("OPS-001: a rebase that cannot start fails at once, says what git said, and never re-pushes the unchanged commit", () => {
+  const t0 = Date.now();
+  const { r, origin, root } = untrackedCollision();
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  const out = r.stdout + r.stderr;
+  assert.match(out, /rebase onto origin\/main could not start/);
+  assert.match(out, /git: .*untracked working tree files would be overwritten/, "git's own reason is surfaced, not swallowed");
+  assert.match(out, /push rejected \(attempt 1\)/);
+  assert.doesNotMatch(out, /attempt 2|never landed after 5 attempts/, "no retry of a commit that did not move");
+  assert.ok(Date.now() - t0 < 15_000, "fails in one attempt, not after the 30 s backoff ladder");
+  assert.equal(originFile(origin, root, "grid/multi-2026-10-10.json"), '{"from":"epl"}\n', "the other lane's publication is untouched");
+});
+
+test("OPS-001: with the untracked side-effect grids cleaned (the ufc-fight-week fix), the same race lands and keeps both lanes' files", () => {
+  const { r, origin, root } = untrackedCollision({ clean: true });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.match(r.stdout, /pushed \(attempt 2\)/, "rejected once, rebased, landed");
+  assert.equal(originFile(origin, root, "grid/ufc-2026-10-10.json"), '{"ufc":1}\n', "UFC's own grid is published");
+  assert.equal(fs.readFileSync(path.join(root, "check", "grid/multi-2026-10-10.json"), "utf8"), '{"from":"epl"}\n', "the other lane's grid survives");
+  assert.equal(fs.readFileSync(path.join(root, "check", "grid/mlb-old.json"), "utf8"), '{"v":0}\n', "a tracked side effect is never published");
+});
