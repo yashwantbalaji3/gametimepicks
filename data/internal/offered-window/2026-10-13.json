@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "offered-window-matrix",
   "dataClass": "INTERNAL_DERIVED",
-  "generatedAt": "2026-10-13T09:30:04Z",
+  "generatedAt": "2026-10-13T12:46:54Z",
   "date": "2026-10-13",
   "state": "FINDINGS",
   "sports": [
@@ -17,33 +17,17 @@
         "SETTLED": 0,
         "STARTED": 0,
         "REFUSED": 0,
-        "PUBLISHED": 0,
+        "PUBLISHED": 1,
         "FORECAST_READY": 0,
         "OFFERED_PRICED": 0,
         "OFFERED_UNPRICED": 0,
-        "NOT_YET_CAPTURED": 1,
+        "NOT_YET_CAPTURED": 0,
         "ACQUISITION_UNSCHEDULED": 0,
         "ACQUISITION_UNAUTHORIZED": 0,
         "NOT_OFFERED": 0
       },
       "owed": [],
-      "awaited": [
-        {
-          "sport": "mlb",
-          "providerEventId": "849813",
-          "canonicalId": "mlb-849813",
-          "startUtc": "2026-10-14T00:00:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": null,
-          "forecastRevision": null,
-          "publicRoute": "/games/mlb/gua-vs-ray-2026-10-13/",
-          "settlementId": "849813",
-          "sourceAgeHours": null,
-          "nextDeadlineUtc": "2026-10-13T22:30:00.000Z",
-          "state": "NOT_YET_CAPTURED",
-          "reason": "scheduled 2026-10-14T00:00:00Z; the board is built ~90 minutes before first pitch"
-        }
-      ],
+      "awaited": [],
       "findings": [],
       "rows": [
         {
@@ -51,19 +35,22 @@
           "providerEventId": "849813",
           "canonicalId": "mlb-849813",
           "startUtc": "2026-10-14T00:00:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": null,
+          "marketFamilies": [
+            "team",
+            "player"
+          ],
+          "acquisitionAt": "2026-10-13T09:32:24.380192+00:00",
           "forecastRevision": null,
           "publicRoute": "/games/mlb/gua-vs-ray-2026-10-13/",
           "settlementId": "849813",
-          "sourceAgeHours": null,
+          "sourceAgeHours": 3.241561111111111,
           "nextDeadlineUtc": "2026-10-13T22:30:00.000Z",
-          "state": "NOT_YET_CAPTURED",
-          "reason": "scheduled 2026-10-14T00:00:00Z; the board is built ~90 minutes before first pitch"
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         }
       ],
       "conserved": true,
-      "windowDate": "2026-10-12"
+      "windowDate": "2026-10-13"
     },
     {
       "sport": "nfl",
@@ -100,10 +87,10 @@
           "forecastRevision": "87b9e87c9d598dcb",
           "publicRoute": "/nfl/game/401872994/",
           "settlementId": "401872994",
-          "sourceAgeHours": 45.8025,
+          "sourceAgeHours": 49.08305555555555,
           "nextDeadlineUtc": null,
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 45.8h old against a 36h bound"
+          "reason": "newest capture is 49.1h old against a 36h bound"
         }
       ],
       "rows": [
@@ -119,10 +106,10 @@
           "forecastRevision": "87b9e87c9d598dcb",
           "publicRoute": "/nfl/game/401872994/",
           "settlementId": "401872994",
-          "sourceAgeHours": 45.8025,
+          "sourceAgeHours": 49.08305555555555,
           "nextDeadlineUtc": null,
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 45.8h old against a 36h bound"
+          "reason": "newest capture is 49.1h old against a 36h bound"
         },
         {
           "sport": "nfl",
@@ -371,10 +358,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401897388",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -386,10 +373,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401897729",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -401,10 +388,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401923630",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -416,10 +403,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401908372",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -431,10 +418,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401909783",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -446,10 +433,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401905374",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -461,10 +448,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401908371",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -476,10 +463,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401911807",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -491,10 +478,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401929676",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -506,10 +493,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401929675",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -521,10 +508,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401914039",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -536,10 +523,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401908373",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -551,10 +538,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401919643",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         }
       ],
       "rows": [
@@ -568,10 +555,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401897388",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -583,10 +570,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401897729",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -598,10 +585,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401923630",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -613,10 +600,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401908372",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -628,10 +615,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401909783",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -643,10 +630,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401905374",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -658,10 +645,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401908371",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -673,10 +660,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401911807",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -688,10 +675,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401929676",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -703,10 +690,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401929675",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -718,10 +705,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401914039",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -733,10 +720,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401908373",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -748,10 +735,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401919643",
-          "sourceAgeHours": 111.84,
+          "sourceAgeHours": 115.12055555555555,
           "nextDeadlineUtc": "2026-10-13T13:00:00.000Z",
           "state": "SOURCE_STALE",
-          "reason": "newest capture is 111.8h old against a 72h bound"
+          "reason": "newest capture is 115.1h old against a 72h bound"
         }
       ],
       "conserved": true,
@@ -794,7 +781,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#everton-v-chelsea-2026-10-17",
           "settlementId": "soccer:epl:chelsea-v-everton:20261017t1130",
-          "sourceAgeHours": 33.08305555555555,
+          "sourceAgeHours": 36.36361111111111,
           "nextDeadlineUtc": "2026-10-15T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -812,7 +799,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#fulham-v-hull-city-2026-10-17",
           "settlementId": "soccer:epl:fulham-v-hull-city:20261017t1400",
-          "sourceAgeHours": 33.08305555555555,
+          "sourceAgeHours": 36.36361111111111,
           "nextDeadlineUtc": "2026-10-15T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -830,7 +817,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#manchester-city-v-ipswich-town-2026-10-17",
           "settlementId": "soccer:epl:ipswich-town-v-manchester-city:20261017t1400",
-          "sourceAgeHours": 33.08305555555555,
+          "sourceAgeHours": 36.36361111111111,
           "nextDeadlineUtc": "2026-10-15T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -848,7 +835,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#brentford-v-liverpool-2026-10-17",
           "settlementId": "soccer:epl:brentford-v-liverpool:20261017t1400",
-          "sourceAgeHours": 33.08305555555555,
+          "sourceAgeHours": 36.36361111111111,
           "nextDeadlineUtc": "2026-10-15T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -866,7 +853,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#newcastle-united-v-aston-villa-2026-10-17",
           "settlementId": "soccer:epl:aston-villa-v-newcastle-united:20261017t1630",
-          "sourceAgeHours": 33.08305555555555,
+          "sourceAgeHours": 36.36361111111111,
           "nextDeadlineUtc": "2026-10-15T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -884,7 +871,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#bournemouth-v-sunderland-2026-10-18",
           "settlementId": "soccer:epl:bournemouth-v-sunderland:20261018t1300",
-          "sourceAgeHours": 33.08305555555555,
+          "sourceAgeHours": 36.36361111111111,
           "nextDeadlineUtc": "2026-10-15T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -902,7 +889,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#leeds-united-v-manchester-united-2026-10-18",
           "settlementId": "soccer:epl:leeds-united-v-manchester-united:20261018t1300",
-          "sourceAgeHours": 33.08305555555555,
+          "sourceAgeHours": 36.36361111111111,
           "nextDeadlineUtc": "2026-10-15T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -920,7 +907,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#brighton-and-hove-albion-v-crystal-palace-2026-10-18",
           "settlementId": "soccer:epl:brighton-hove-albion-v-crystal-palace:20261018t1300",
-          "sourceAgeHours": 33.08305555555555,
+          "sourceAgeHours": 36.36361111111111,
           "nextDeadlineUtc": "2026-10-15T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -938,7 +925,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#nottingham-forest-v-arsenal-2026-10-18",
           "settlementId": "soccer:epl:arsenal-v-nottingham-forest:20261018t1530",
-          "sourceAgeHours": 33.08305555555555,
+          "sourceAgeHours": 36.36361111111111,
           "nextDeadlineUtc": "2026-10-15T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -956,7 +943,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#tottenham-hotspur-v-coventry-city-2026-10-19",
           "settlementId": "soccer:epl:coventry-city-v-tottenham-hotspur:20261019t1900",
-          "sourceAgeHours": 33.08305555555555,
+          "sourceAgeHours": 36.36361111111111,
           "nextDeadlineUtc": "2026-10-15T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"

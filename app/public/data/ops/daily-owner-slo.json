@@ -1,9 +1,9 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-10-13",
-  "checkedAt": "2026-10-13T11:36:10.439Z",
-  "treeHead": "9889dd9a5",
-  "state": "NOT_DUE",
+  "checkedAt": "2026-10-13T12:47:05.267Z",
+  "treeHead": "1b53d66a4",
+  "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 1,
   "owners": [
@@ -49,7 +49,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-10-13T23:15:00.000Z",
-      "receiptAt": "2026-10-13T09:41:53Z",
+      "receiptAt": "2026-10-13T12:46:06Z",
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
@@ -59,8 +59,8 @@
     },
     {
       "id": "settlement",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-13T12:00:00.000Z",
+      "state": "DUE",
+      "reason": "past 2026-10-13T12:00:00.000Z, inside grace",
       "dueAtIso": "2026-10-13T12:00:00.000Z",
       "label": "Nightly settlement (previous day)",
       "workflow": "nightly-settle",
@@ -138,8 +138,8 @@
     },
     {
       "id": "nfl-markets",
-      "state": "HEALTHY",
-      "reason": "receipt present",
+      "state": "STALE",
+      "reason": "receipt is 49.1h old against a 48h bound",
       "dueAtIso": "2026-10-13T15:00:00.000Z",
       "receiptAt": "2026-10-11T11:41:55Z",
       "label": "NFL market capture",
@@ -152,7 +152,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-10-13T12:00:00.000Z",
-      "receiptAt": "2026-10-13T09:30:04Z",
+      "receiptAt": "2026-10-13T12:46:54Z",
       "label": "Offered-window matrix (all sports)",
       "workflow": "nightly-settle",
       "dependsOn": [],
