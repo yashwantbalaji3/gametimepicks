@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-13T02:26:06Z",
- "sourceGeneratedAt": "2026-10-13T02:26:06Z",
+ "generatedAt": "2026-10-13T16:56:14Z",
+ "sourceGeneratedAt": "2026-10-13T16:56:14Z",
  "providerEventId": "401872999",
  "matchup": "CHI @ ATL",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-13T02:26:06Z",
-  "roleEvidenceAt": "2026-10-13T02:26:06Z",
+  "injuriesCapturedAt": "2026-10-13T16:56:14Z",
+  "roleEvidenceAt": "2026-10-13T16:56:14Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -64,7 +64,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 48,
+  "absent": 49,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -207,11 +207,11 @@
   },
   "ATL": {
    "counts": {
-    "PROJECTED": 8,
+    "PROJECTED": 9,
     "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -237,6 +237,15 @@
       "player_rush_yds"
      ],
      "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-2972515",
+     "name": "Cooper Rush",
+     "state": "PROJECTED",
+     "families": [
+      "player_pass_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4241474",
@@ -301,19 +310,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-2972515",
-     "name": "Cooper Rush",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
     }
    ]
   }
@@ -330,21 +326,14 @@
    },
    {
     "team": "ATL",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4360423",
-     "name": "Michael Penix Jr."
-    },
-    "snapshotAt": "2026-10-10T13:32:40Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-2972515",
-      "name": "Cooper Rush"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-4360423"
-    ]
+     "nfl-athlete-4360423",
+     "nfl-athlete-2972515"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-10T13:32:40Z"
    }
   ],
   "passerShareFloor": [
@@ -363,11 +352,13 @@
     "team": "ATL",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4360423"
+     "nfl-athlete-4360423",
+     "nfl-athlete-2972515"
     ],
     "withheld": [],
     "unjoined": [
-     "nfl-athlete-4360423"
+     "nfl-athlete-4360423",
+     "nfl-athlete-2972515"
     ]
    }
   ],
@@ -799,6 +790,23 @@
      "median": 0.32,
      "p75": 6.79,
      "p90": 16.84,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-2972515",
+   "name": "Cooper Rush",
+   "team": "ATL",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 69.417,
+     "p10": 0,
+     "p25": 11.68,
+     "median": 50,
+     "p75": 108.41,
+     "p90": 170.85,
      "pricingState": "NOT_PROBED"
     }
    }

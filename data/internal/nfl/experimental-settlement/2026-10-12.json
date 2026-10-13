@@ -4,7 +4,7 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-10-12",
- "generatedAt": "2026-10-13T02:26:06Z",
+ "generatedAt": "2026-10-13T16:56:14Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
@@ -81,40 +81,175 @@
     }
    },
    "marketBenchmark": null
-  }
- ],
- "pending": [
+  },
   {
    "canonicalEventId": "nfl-401872994",
+   "providerEventId": "401872994",
    "matchup": "BUF @ LAR",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-10-13T00:15Z",
-   "observed": "no result row"
+   "seasonType": 2,
+   "week": 5,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-12/401872994-rev-2359Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "87b9e87c9d598dcb",
+    "forecastGeneratedAt": "2026-10-12T23:59:52Z",
+    "revisionChain": [
+     {
+      "file": "401872994.json",
+      "generatedAt": "2026-10-12T00:10:05Z",
+      "inputHash": "0f1c88be295faeda"
+     },
+     {
+      "file": "401872994-rev-0015Z.json",
+      "generatedAt": "2026-10-12T00:15:15Z",
+      "inputHash": "a4eb8e4bdfdeec78"
+     },
+     {
+      "file": "401872994-rev-1857Z.json",
+      "generatedAt": "2026-10-12T18:57:10Z",
+      "inputHash": "c5e521c7a882f64d"
+     },
+     {
+      "file": "401872994-rev-2213Z.json",
+      "generatedAt": "2026-10-12T22:13:16Z",
+      "inputHash": "ac361b4bfb7723d9"
+     },
+     {
+      "file": "401872994-rev-2227Z.json",
+      "generatedAt": "2026-10-12T22:27:53Z",
+      "inputHash": "26eddef550b8868e"
+     },
+     {
+      "file": "401872994-rev-2236Z.json",
+      "generatedAt": "2026-10-12T22:36:40Z",
+      "inputHash": "b18e7df7f569f69f"
+     },
+     {
+      "file": "401872994-rev-2244Z.json",
+      "generatedAt": "2026-10-12T22:44:54Z",
+      "inputHash": "498784f6232d57c8"
+     },
+     {
+      "file": "401872994-rev-2309Z.json",
+      "generatedAt": "2026-10-12T23:09:42Z",
+      "inputHash": "d18794878432f398"
+     },
+     {
+      "file": "401872994-rev-2321Z.json",
+      "generatedAt": "2026-10-12T23:21:07Z",
+      "inputHash": "0b6a4d85e95aa039"
+     },
+     {
+      "file": "401872994-rev-2328Z.json",
+      "generatedAt": "2026-10-12T23:28:16Z",
+      "inputHash": "eaeacf762b6a68a2"
+     },
+     {
+      "file": "401872994-rev-2333Z.json",
+      "generatedAt": "2026-10-12T23:33:04Z",
+      "inputHash": "3c814184f6bc35c4"
+     },
+     {
+      "file": "401872994-rev-2343Z.json",
+      "generatedAt": "2026-10-12T23:43:26Z",
+      "inputHash": "7eaa710a4d5c5841"
+     },
+     {
+      "file": "401872994-rev-2359Z.json",
+      "generatedAt": "2026-10-12T23:59:52Z",
+      "inputHash": "87b9e87c9d598dcb"
+     }
+    ],
+    "marketCapturedAt": "2026-10-11T11:41:55Z",
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-10-13T16:54:18Z",
+    "settledAt": "2026-10-13T16:56:14Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 34,
+     "away": 37,
+     "margin": -3,
+     "total": 71,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 5,
+     "actual": -3,
+     "absError": 8,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 53,
+     "actual": 71,
+     "absError": 18,
+     "insideInterval80": false
+    },
+    "score": {
+     "projected": {
+      "home": 29,
+      "away": 24,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 18
+    },
+    "probabilistic": {
+     "brier": 0.329935,
+     "logLoss": 0.854255
+    }
+   },
+   "marketBenchmark": {
+    "homeWinPct": 0.615491,
+    "brier": 0.378829,
+    "logLoss": 0.955788,
+    "totalAbsError": 16.5,
+    "note": "the sportsbooks' own numbers graded the same way — a benchmark, kept in its own lane and never merged into the model's record"
+   }
   }
  ],
+ "pending": [],
  "quarantined": [],
  "recordElsewhere": [],
  "accounting": {
   "receipts": 2,
-  "settled": 1,
-  "pending": 1,
+  "settled": 2,
+  "pending": 0,
   "quarantined": 0,
   "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 1,
-  "decisive": 1,
+  "settledForecasts": 2,
+  "decisive": 2,
   "ties": 0,
   "winnerCorrect": 1,
-  "winnerAccuracy": 1,
-  "marginMAE": 6,
-  "totalMAE": 6,
+  "winnerAccuracy": 0.5,
+  "marginMAE": 7,
+  "totalMAE": 12,
   "marginInterval80Coverage": 1,
-  "totalInterval80Coverage": 1,
-  "brier": 0.2031,
-  "logLoss": 0.5991
+  "totalInterval80Coverage": 0.5,
+  "brier": 0.2665,
+  "logLoss": 0.7267
  },
- "marketBenchmark": null,
- "comparison": null
+ "marketBenchmark": {
+  "n": 1,
+  "brier": 0.3788,
+  "logLoss": 0.9558,
+  "totalMAE": 16.5
+ },
+ "comparison": {
+  "modelBrier": 0.2665,
+  "marketBrier": 0.3788,
+  "note": "shown side by side because the founder asked for transparency; a single slate cannot establish which is better and this is not a claim that it does"
+ }
 }

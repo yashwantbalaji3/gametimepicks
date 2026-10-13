@@ -113,6 +113,18 @@ export interface GameCenterRunLine {
   favorite: "home" | "away";
   favoriteCoverProb: number;
 }
+
+/**
+ * The side that LAYS the runs (the book's −1.5), read from the signed line — never from the cover
+ * probability. `GameCenterRunLine.favorite` is the side more likely to COVER, which on a ±1.5 run line is
+ * usually the +1.5 underdog; a reader printing that side with "−" inverted the line (2026-10-13 /mlb:
+ * "CLE −1.5 · TB +1.5" while the book had TB −1.5, CLE +1.5). Null when the line is unsigned.
+ */
+export function runLineLayer(rl: GameCenterRunLine | null | undefined): "home" | "away" | null {
+  if (!rl || !Number.isFinite(rl.line) || rl.line === 0) return null;
+  if (rl.line < 0) return rl.favorite;
+  return rl.favorite === "home" ? "away" : "home";
+}
 export interface MlbGameCenter {
   method: "market_implied";
   source: string;

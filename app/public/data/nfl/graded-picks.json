@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-10-13T15:59:06Z",
+ "generatedAt": "2026-10-13T17:11:15Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 118,
+  "counted": 119,
   "hits": 69,
-  "misses": 49,
+  "misses": 50,
   "voided": 3,
   "shown": 60,
-  "total": 121
+  "total": 122
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,14 +28,14 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 13,
+   "counted": 14,
    "hits": 8,
-   "misses": 5,
-   "hitRate": 0.6154
+   "misses": 6,
+   "hitRate": 0.5714
   }
  ],
  "sampleState": "EMERGING",
- "sampleNote": "118 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "119 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
   {
    "eventId": "nfl-401872993",
@@ -51,6 +51,21 @@
    "probabilityOfActual": 0.5493,
    "marketProbabilityOfActual": null,
    "hit": true
+  },
+  {
+   "eventId": "nfl-401872994",
+   "when": "2026-10-12",
+   "eventName": null,
+   "subject": "BUF @ LAR",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "HOME",
+   "actual": "AWAY",
+   "modelProbability": null,
+   "probabilityOfActual": 0.4256,
+   "marketProbabilityOfActual": null,
+   "hit": false
   },
   {
    "eventId": "nfl-401872981",
@@ -919,21 +934,6 @@
    "actual": "HOME",
    "modelProbability": null,
    "probabilityOfActual": 0.51,
-   "marketProbabilityOfActual": null,
-   "hit": true
-  },
-  {
-   "eventId": "nfl-401872945",
-   "when": "2026-09-20",
-   "eventName": null,
-   "subject": "IND @ KC",
-   "market": "Winner",
-   "basis": "HISTORICAL_MODEL_FAVORED",
-   "noPick": false,
-   "predicted": "HOME",
-   "actual": "HOME",
-   "modelProbability": null,
-   "probabilityOfActual": 0.6525,
    "marketProbabilityOfActual": null,
    "hit": true
   }
