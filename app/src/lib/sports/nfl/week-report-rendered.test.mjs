@@ -39,16 +39,33 @@ test("a reconciled week exists, so the checks below are not vacuous", () => {
   assert.ok(fs.existsSync(REPORT_HTML), "the built export has no /results/nfl page");
 });
 
-test("the headline, every prop's rate and the overall line render exactly as graded", () => {
+/* The headline, recomputed here from the artifact (not from week-report-data.ts), so the page and this check
+   cannot share a mistake. 2026-10-13: the page led with "82.2% of our NFL predictions came true", a sum of range
+   checks (aim ≈ 8 in 10), the winner record and the likeliest scorer — an accuracy rate the model never earned. */
+const expectHeadline = (r) => {
+  const props = r.summary.props;
+  const winner = props.find((p) => p.id === "winner" && p.checks > 0);
+  const ranged = props.filter((p) => typeof p.target === "number" && p.checks > 0);
+  const hits = ranged.reduce((a, p) => a + p.hits, 0), checks = ranged.reduce((a, p) => a + p.checks, 0);
+  return { winner, ranges: checks ? { hits, checks, rate: hits / checks } : null };
+};
+const POOLED = /of our (?:NFL )?predictions came true/;
+
+test("the headline names the winner record, and the ranges against their own aim — never a pooled 'came true' rate", () => {
   const text = visibleText(fs.readFileSync(REPORT_HTML, "utf8"));
   const s = report.summary;
-  assert.ok(text.includes(`${report.period.label}: ${pct(s.overall.rate)} of our predictions came true`), "headline rate");
-  assert.ok(text.includes(`${s.overall.hits} of ${s.overall.checks} checks`), "headline count");
+  const h = expectHeadline(report);
+  if (h.winner) assert.ok(text.includes(`${report.period.label}: the team we favored won ${h.winner.hits} of ${h.winner.checks} games`), "headline = the winner record");
+  if (h.ranges) {
+    assert.ok(text.includes(`${h.ranges.hits} of ${h.ranges.checks} times (${pct(h.ranges.rate)})`), "range checks are stated as their own line");
+    assert.match(text, /the aim is about 8 in 10: far more means the ranges were too wide/, "a range rate is read against its aim, not as accuracy");
+  }
+  assert.doesNotMatch(text, POOLED, "no pooled 'predictions came true' rate");
+  assert.ok(!text.includes(`Overall ${pct(s.overall.rate)} ${s.overall.hits}/${s.overall.checks}`), "no 'Overall' row adding every kind of check together");
   for (const p of s.props) {
     const row = new RegExp(`${p.label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?: · estimate)? ${pct(p.rate).replace(".", "\\.")} ${p.hits}/${p.checks}`);
     assert.match(text, row, `${p.label}: rendered row must read ${pct(p.rate)} ${p.hits}/${p.checks}`);
   }
-  assert.match(text, new RegExp(`Overall ${pct(s.overall.rate).replace(".", "\\.")} ${s.overall.hits}/${s.overall.checks}`));
 });
 
 test("every game is listed, and a game that is not final says so rather than disappearing", () => {
@@ -63,6 +80,9 @@ test("the card on /results quotes the same week, the same rate, and links to the
   const html = fs.readFileSync(HUB_HTML, "utf8");
   const text = visibleText(html);
   assert.ok(text.includes(`NFL · ${report.period.label} report`), "card eyebrow");
-  assert.ok(text.includes(`${pct(report.summary.overall.rate)} of our NFL predictions came true`), "card rate must equal the report's");
+  const h = expectHeadline(report);
+  if (h.winner) assert.ok(text.includes(`NFL ${report.period.label}: the team we favored won ${h.winner.hits} of ${h.winner.checks} games`), "card headline = the report's winner record");
+  if (h.ranges) assert.ok(text.includes(`${h.ranges.hits} of ${h.ranges.checks} times (${pct(h.ranges.rate)})`), "card range line = the report's");
+  assert.doesNotMatch(text, POOLED, "the card quotes no pooled 'came true' rate");
   assert.match(html, /href="\/results\/nfl\/?"/, "card links to the report");
 });

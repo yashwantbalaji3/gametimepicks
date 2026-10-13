@@ -48,7 +48,7 @@ import {
   getLatestOptimizerSnapshot,
 } from "@/lib/data-parlays";
 import { currentEtDate } from "@/lib/freshness";
-import { readNflWeekReports, pct as pctRate } from "@/lib/sports/nfl/week-report-data";
+import { readNflWeekReports, weekHeadline, headlineTitle, headlineDetail } from "@/lib/sports/nfl/week-report-data";
 import { forecastRecordView } from "@/lib/results/v2/forecast-ledger-reader";
 import { resultsMode } from "@/lib/sport-capability-registry";
 import FreshnessBadge from "@/components/ui/freshness-badge";
@@ -350,10 +350,10 @@ export default function ResultsPage() {
               NFL · {nflWeek.latest.period.label} report
             </span>
             <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 16, lineHeight: 1.3 }}>
-              {pctRate(nflWeek.latest.summary.overall.rate)} of our NFL predictions came true
+              {headlineTitle(`NFL ${nflWeek.latest.period.label}`, weekHeadline(nflWeek.latest))}
             </span>
             <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
-              {nflWeek.latest.summary.overall.hits} of {nflWeek.latest.summary.overall.checks} checks across {nflWeek.latest.summary.gamesFinal} final games — every team and player prediction, graded against the official box score.
+              {headlineDetail(weekHeadline(nflWeek.latest))} {nflWeek.latest.summary.gamesFinal} final games, graded against the official box score.
             </span>
           </div>
           <Link
