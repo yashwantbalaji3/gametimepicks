@@ -1,45 +1,48 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-10-13",
-  "checkedAt": "2026-10-13T09:30:14.760Z",
-  "treeHead": "f72557b51",
+  "checkedAt": "2026-10-13T09:38:38.064Z",
+  "treeHead": "0a9ca9ac4",
   "state": "NOT_DUE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 1,
   "owners": [
     {
       "id": "mlb-board",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-13T22:30:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-10-13T22:30:00.000Z",
+      "receiptAt": "2026-10-13T09:32:24.380192+00:00",
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "mlb/boards/2026-10-13.json"
     },
     {
       "id": "mlb-markets",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-13T23:00:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-10-13T23:00:00.000Z",
+      "receiptAt": "2026-10-13T09:34:11.403Z",
       "label": "MLB team markets + player props",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/team-markets/2026-10-13.json"
     },
     {
       "id": "mlb-simulations",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-13T23:00:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-10-13T23:00:00.000Z",
+      "receiptAt": "2026-10-13T09:34:12.000Z",
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/game-simulations/2026-10-13.json"
     },
     {
       "id": "risk-ladder",
