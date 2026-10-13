@@ -28,6 +28,7 @@ export interface TeamMarketRow {
   readonly totalLine: number | null;
   readonly totalLean: "over" | "under" | "balanced" | null;
   readonly runLine: number | null;
+  /** The side that lays the runs (the book's −1.5) — see runLineLayer in lib/mlb-team-markets. */
   readonly runLineFavorite: "home" | "away" | null;
   readonly reportHref: string | null;
 }

@@ -94,3 +94,11 @@ test("the owner stays the single interpreter: no second product-day module exist
   assert.deepEqual(modules.sort(), ["product-day.ts", "qualified-leg.ts"],
     "new product-day-adjacent modules must be classified in this inventory first");
 });
+
+test("🔴 /mlb's banner reads the same game count the page shows — never the schedule file alone", () => {
+  /* 2026-10-13: the schedule ingest missed the 8 PM ET game, so /mlb said "No MLB games today" beside "1 scheduled". */
+  const src = fs.readFileSync(path.join(app, "src/app/mlb/page.tsx"), "utf8");
+  const mount = src.match(/<SlateLivenessBanner\b[\s\S]*?\/>/)?.[0] ?? "";
+  assert.match(mount, /latestSlateHasGames=\{gameCount > 0\}/, "the banner and \"Games today\" share one count");
+  assert.match(src, /const gameCount = summary\.scheduledGames \|\| games\.length/, "that count reads the model board before the schedule");
+});

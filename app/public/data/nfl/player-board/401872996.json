@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-13T02:26:06Z",
- "sourceGeneratedAt": "2026-10-13T02:26:06Z",
+ "generatedAt": "2026-10-13T16:56:14Z",
+ "sourceGeneratedAt": "2026-10-13T16:56:14Z",
  "providerEventId": "401872996",
  "matchup": "HOU @ JAX",
  "kickoffUtc": "2026-10-18T13:30Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-13T02:26:06Z",
-  "roleEvidenceAt": "2026-10-13T02:26:06Z",
+  "injuriesCapturedAt": "2026-10-13T16:56:14Z",
+  "roleEvidenceAt": "2026-10-13T16:56:14Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -113,17 +113,17 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 53,
+  "absent": 54,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "HOU": {
    "counts": {
-    "PROJECTED": 10,
+    "PROJECTED": 11,
     "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -137,6 +137,15 @@
       "player_rush_yds"
      ],
      "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4242546",
+     "name": "Davis Mills",
+     "state": "PROJECTED",
+     "families": [
+      "player_pass_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4035538",
@@ -245,19 +254,6 @@
      "name": "Marvin Harrison Jr.",
      "state": "WITHHELD_ROLE_UNCERTAIN",
      "reason": "no game for HOU yet this season — role at HOU not yet observed"
-    },
-    {
-     "playerId": "nfl-athlete-4242546",
-     "name": "Davis Mills",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
     }
    ]
   },
@@ -390,21 +386,14 @@
   "qbStarter": [
    {
     "team": "HOU",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4432577",
-     "name": "C.J. Stroud"
-    },
-    "snapshotAt": "2026-10-10T13:32:40Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4242546",
-      "name": "Davis Mills"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-4432577"
-    ]
+     "nfl-athlete-4432577",
+     "nfl-athlete-4242546"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-10-10T13:32:40Z"
    },
    {
     "team": "JAX",
@@ -420,11 +409,13 @@
     "team": "HOU",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4432577"
+     "nfl-athlete-4432577",
+     "nfl-athlete-4242546"
     ],
     "withheld": [],
     "unjoined": [
-     "nfl-athlete-4432577"
+     "nfl-athlete-4432577",
+     "nfl-athlete-4242546"
     ]
    },
    {
@@ -938,6 +929,23 @@
      "median": 0.49,
      "p75": 7.7,
      "p90": 18.89,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4242546",
+   "name": "Davis Mills",
+   "team": "HOU",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 75.503,
+     "p10": 0,
+     "p25": 14.95,
+     "median": 56.15,
+     "p75": 118.54,
+     "p90": 179.11,
      "pricingState": "NOT_PROBED"
     }
    }
