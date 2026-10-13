@@ -144,3 +144,35 @@ test("the MLB product day consults the official schedule before it can say 'No M
   const home = fs.readFileSync(path.join(process.cwd(), "src/app/page.tsx"), "utf8");
   assert.match(home, /\(mlbDay\?\.eligible \?\? 0\) > 0 \? `\$\{mlbLeans\} model leans`/, "Home prints a leans count only when today's board exists");
 });
+
+test("🔴 NBA counts toward today from its schedule — an 11 PM ET tip is today's, a postponed game is not, no forecast is claimed (2026-10-13)", () => {
+  /* The day count read four sports: on 2026-10-13 the header said "1 event" while /nba listed five games that night,
+     and on opening night every NBA game would have been missing from "N events today". */
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-nba-today-"));
+  const put = (rel, obj) => { fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true }); fs.writeFileSync(path.join(root, rel), JSON.stringify(obj)); };
+  put("nba/schedule/latest.json", { rows: [
+    { providerEventId: "n1", dateUtc: `${D}T00:30Z`, statusRaw: "STATUS_SCHEDULED" },          // 7:30 PM ET the DAY BEFORE → not today
+    { providerEventId: "n2", dateUtc: "2031-01-16T00:00Z", statusRaw: "STATUS_SCHEDULED" },     // 7:00 PM ET on D → today
+    { providerEventId: "n3", dateUtc: "2031-01-16T04:00Z", statusRaw: "STATUS_SCHEDULED" },     // 11:00 PM ET on D → today
+    { providerEventId: "n4", dateUtc: "2031-01-16T01:00Z", statusRaw: "STATUS_POSTPONED" },     // postponed → not counted
+  ] });
+  const nba = buildSportToday(root, { today: D, days: [] }).find((s) => s.sport === "nba");
+  assert.ok(nba, "NBA is part of the day count");
+  assert.equal(nba.eventsToday, 2, "the two ET-today games, not the postponed one or yesterday's");
+  assert.equal(nba.forecastsToday, 0, "no NBA forecast is public, so none is counted");
+  assert.equal(nba.known, true, "a readable schedule makes NBA's answer known");
+  const across = crossSportToday(D, buildSportToday(root, { today: D, days: [] }));
+  assert.ok(across.sportsWithEvents.includes("nba") && across.eventsToday >= 2, "the cross-sport headline includes NBA's games");
+});
+
+test("committed NBA schedule: the count for an ET day equals the rows that start that ET day", () => {
+  const root = path.join(process.cwd(), "public", "data");
+  const rows = JSON.parse(fs.readFileSync(path.join(root, "nba/schedule/latest.json"), "utf8")).rows ?? [];
+  const et = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(Date.parse(iso));
+  const opening = rows.filter((r) => r.seasonType === 2).map((r) => et(r.dateUtc)).sort()[0];
+  assert.ok(opening, "the committed schedule has regular-season rows");
+  const expected = rows.filter((r) => et(r.dateUtc) === opening && !/POSTPONED|CANCEL/i.test(r.statusRaw ?? "")).length;
+  const nba = buildSportToday(root, { today: opening }).find((s) => s.sport === "nba");
+  assert.equal(nba.eventsToday, expected, `opening night (${opening}) counts every NBA game on the slate`);
+  assert.ok(expected > 0);
+});

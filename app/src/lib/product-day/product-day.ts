@@ -342,11 +342,18 @@ export function productDayFor(sport: ProductDay["sport"], dataRoot: string, opts
  *   EPL  the newest soccer/epl/fixtures capture ∪ forecast rows (shared eventId)
  *   MLB  mlb/schedule/<today>.json, and the board's own count when the board is today's
  *   UFC  the published card, when its ET slate date is today
+ *   NBA  nba/schedule/latest.json (schedule-only: no public NBA forecast, so forecastsToday is always 0)
  * Dates are ET days, the site's established anchor.
+ *
+ * NBA (launch audit, 2026-10-13): the day count read four sports, so on 2026-10-13 the header said "1 event" while
+ * /nba listed five preseason games that night — and on opening night (2026-10-20) every NBA game would have been
+ * missing from "N events today". NBA joins the COUNT only; it is not a ProductDay (no product runs on it).
  */
+/** The sports a day count can speak for: every product day's sport, plus schedule-only NBA. */
+export type TodaySport = ProductDay["sport"] | "nba";
 export interface TodayItem { id: string; startUtc: string | null | undefined; status?: string | null }
 export interface SportToday {
-  sport: ProductDay["sport"];
+  sport: TodaySport;
   today: string;
   /** Scheduled events whose ET start date is today — with or without a forecast. */
   eventsToday: number;
@@ -362,7 +369,7 @@ export interface CrossSportToday {
   eventsToday: number;
   forecastsToday: number;
   /** Sports with at least one event today, in activation order. */
-  sportsWithEvents: ProductDay["sport"][];
+  sportsWithEvents: TodaySport[];
   bySport: SportToday[];
   /** Every known start time of today's events across sports, ascending. */
   startsUtc: string[];
@@ -378,7 +385,7 @@ export interface CrossSportToday {
 const NOT_PLAYED = /POSTPONED|CANCEL/i;
 
 /** Pure. Union of scheduled and forecast items by id, counted on the ET day `today`. */
-export function sportTodayFrom(sport: ProductDay["sport"], today: string, scheduled: TodayItem[], forecasts: TodayItem[], known = true): SportToday {
+export function sportTodayFrom(sport: TodaySport, today: string, scheduled: TodayItem[], forecasts: TodayItem[], known = true): SportToday {
   const onToday = (x: TodayItem) => typeof x?.startUtc === "string" && !Number.isNaN(Date.parse(x.startUtc)) && etDay(x.startUtc) === today && !NOT_PLAYED.test(x.status ?? "");
   const events = new Map<string, string>();
   for (const x of scheduled) if (onToday(x)) events.set(x.id, x.startUtc as string);
@@ -468,5 +475,11 @@ export function buildSportToday(dataRoot: string, opts?: { today?: string; days?
         startsUtc: ufcDayNow.nextEventUtc ? [ufcDayNow.nextEventUtc] : [] /* one card, one start */ }
     : { sport: "ufc", today, eventsToday: 0, forecastsToday: 0, known: ufcKnown };
 
-  return [mlb, epl, ufc, nfl];
+  // NBA — schedule only (nba/schedule/latest.json, the capture /nba renders). No forecast is public, so none is counted.
+  const nbaSchedule = readJson(dataRoot, "nba", "schedule", "latest.json");
+  const nba = sportTodayFrom("nba", today,
+    (nbaSchedule?.rows ?? []).map((r: { providerEventId: string; dateUtc: string; statusRaw?: string }) => ({ id: String(r.providerEventId), startUtc: r.dateUtc, status: r.statusRaw })),
+    [], Array.isArray(nbaSchedule?.rows));
+
+  return [mlb, epl, ufc, nfl, nba];
 }
