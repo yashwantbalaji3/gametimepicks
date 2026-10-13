@@ -278,6 +278,7 @@ if (missing.length) {
   reason = `the Vault could not evaluate: no player board exists yet for the ${upcoming.length} upcoming event(s) — "we could not look" is not "we found nothing"`;
 } else if (!candidates.length) {
   state = "NO_VAULT";
+  /* Reachable only once the evaluator ran over a real pool: every missing-input case returned INCIDENT above. */
   /* Both sentences say that nothing was published and name the blocker, in the contract's own words. */
   reason = evaluatedRows === 0
     ? `no published anytime-touchdown board to evaluate for the ${upcoming.length} upcoming event(s) — no card`
