@@ -58,11 +58,16 @@ const TERMS = {
     ] },
     { heading: "What the Site is, and what it is not", paragraphs: [
       "The Site publishes sports analysis for {{framing}}: simulations, model estimates, market context, and paper-only records of hypothetical positions. No real money is involved.",
-      "The Site does not accept wagers, hold funds, operate user accounts, or link to or partner with any sportsbook. Nothing on the Site is betting, financial, or investment advice, or a recommendation to place any wager.",
+      "The Site does not accept wagers, hold funds, or link to or partner with any sportsbook. Nothing on the Site is betting, financial, or investment advice, or a recommendation to place any wager.",
+    ] },
+    { heading: "Optional accounts", paragraphs: [
+      "You can use the Site without an account. If you choose to create one, you sign in with a one-time link sent to your email address. An account keeps your follows and saved forecasts across your devices and lets you keep a private record of bets you choose to enter.",
+      "Entering a bet records it for your own tracking only. The Site does not place, accept, verify, or settle real wagers with any sportsbook, and anything it shows about bets you entered is for your information, not advice. You are responsible for what you enter, and you can ask us to delete your account at any time, as described in the Privacy Notice.",
     ] },
     { heading: "Paper records and estimates", paragraphs: [
       "Records such as Bank Builder, Moonshot, and the published win–loss history track hypothetical paper positions settled against official results. They are not the results of real wagers and do not show that any approach is profitable.",
       "Model estimates and simulations are uncertain and can be wrong. Past results do not predict future results.",
+      "Ask GameTime answers are generated automatically from the Site's published data and can be incomplete or wrong. Check the linked source pages before relying on an answer.",
     ] },
     { heading: "Information from other sources", paragraphs: [
       "Schedules, scores, odds, injury designations, images, and other data come from third-party sources and may be delayed, incomplete, or wrong. Odds change constantly, and the figures on the Site reflect the moment they were captured. We do not guarantee that any content is accurate, complete, or current.",
@@ -97,7 +102,7 @@ const PRIVACY = {
   title: "Privacy Notice",
   sections: [
     { heading: "In short", paragraphs: [
-      "The Site has no user accounts, sets no cookies, shows no ads, and does not sell or share personal information.",
+      "You can use the Site without an account. It sets no cookies, shows no ads, and does not sell or share personal information. If you choose to create an optional account, we keep your email address and what you choose to save or enter, as described below.",
     ] },
     ...(ANALYTICS_LIVE ? [
       { heading: "What we collect", paragraphs: [
@@ -114,21 +119,32 @@ const PRIVACY = {
       ] },
     ]),
     { heading: "What is stored on your device", paragraphs: [
-      "To remember your reading preferences, the teams and players you follow, the picks in your slip, and the forecasts you save, the Site saves small settings in your browser's local storage. A saved forecast is a copy of a forecast card as it read when you saved it; it stays in your browser and is never sent to us. When you open My GameTime, it also keeps a short record of how far the games of the teams you follow, and your saved forecasts, had got (scheduled, live, final or graded), so the next visit can show what has changed since; it holds no scores, pages or browsing history, stays in your browser and is never sent to us. One session value records how you arrived, such as from a shared link. If you sign in to a friends-beta tester account, your follows and saved forecasts are also kept with that account so they appear on your other devices, and your browser keeps a short list of which ones were last synced, so that a follow or save you remove on one device is removed on the other; nothing is removed on your first sign-in.",
+      "To remember your reading preferences, the teams and players you follow, the picks in your slip, and the forecasts you save, the Site saves small settings in your browser's local storage. A saved forecast is a copy of a forecast card as it read when you saved it; it stays in your browser and is never sent to us. When you open My GameTime, it also keeps a short record of how far the games of the teams you follow, and your saved forecasts, had got (scheduled, live, final or graded), so the next visit can show what has changed since; it holds no scores, pages or browsing history, stays in your browser and is never sent to us. One session value records how you arrived, such as from a shared link. If you sign in to an account, your follows and saved forecasts are also kept with that account so they appear on your other devices, and your browser keeps a short list of which ones were last synced, so that a follow or save you remove on one device is removed on the other; nothing is removed on your first sign-in.",
       "These stay on your device, and you can clear them at any time in your browser's site-data settings. When analytics is on, the arrival value is sent as one of the fixed labels described above.",
+    ] },
+    { heading: "If you create an account", paragraphs: [
+      "Accounts are optional. To create one, you give us your email address, and we send a one-time sign-in link to it. We use your email address only to sign you in and to reply if you contact us.",
+      "With an account we store: your email address; any profile details you choose to add (a display name, a stated risk level, a bankroll and unit size, and personal limits); the teams, players, and forecasts you follow or save; and any bets you enter — the sportsbook, stake, price, legs, and status — together with any screenshot of a bet slip you upload. Screenshots are kept in private storage, with no public link.",
+      "This information is held by Supabase, our database and sign-in provider, under access rules that let only you read your own records. Your browser keeps your sign-in session in its local storage so you stay signed in.",
+      "Reading slip screenshots automatically is not currently switched on. Before it is, this notice will name the service that reads them and will carry a new effective date.",
+      "We keep account information until you delete it or ask us to delete your account. To delete your account and everything stored with it, including uploaded screenshots, contact us at {{contact}}; we will confirm when it is done.",
+    ] },
+    { heading: "Ask GameTime", paragraphs: [
+      "If you use Ask GameTime, your question and the earlier messages in that conversation are sent to Google's Gemini API to write an answer from the Site's own published data, under Google's terms for that service. Do not include personal information in your questions.",
+      "We do not store your questions or the answers. Our server logs record only technical details about each answer, such as which data tools it used and whether its checks passed.",
     ] },
     { heading: "Services your browser contacts", paragraphs: [
       "The Site is hosted by Vercel, which receives standard request information — such as your IP address and browser type — to deliver pages, and may keep it in its logs under its own privacy policy.",
       "Team logos and player photos load from image servers run by Major League Baseball (mlbstatic.com), ESPN (espncdn.com), and the NBA (nba.com), and your browser sends them the same standard request information. Support email is handled by Google (Gmail) under Google's privacy policy. Links to other websites are governed by those websites' own policies.",
     ] },
     { heading: "Email", paragraphs: [
-      "The Site has no newsletter or sign-up form and does not ask for your email address. If you write to us through the support link, we receive your message and your email address, use them only to reply, and keep them in our email account no longer than we need to.",
+      "The Site has no newsletter or mailing list. The only place it asks for your email address is the optional account sign-in described above. If you write to us through the support link, we receive your message and your email address, use them only to reply, and keep them in our email account no longer than we need to.",
     ] },
     { heading: "Children", paragraphs: [
       "The Site is not directed to anyone under {{minimumAge}}, and we do not knowingly collect information from them.",
     ] },
     { heading: "Your choices and rights", paragraphs: [
-      "Because the Site does not collect personal information, there is generally nothing held about you to access, correct, or delete. If you believe we hold information about you, contact us and we will respond as the law that applies to you requires.",
+      "If you use the Site without an account, it holds no personal information about you to access, correct, or delete. If you have an account, you can ask us for a copy of what it holds, or ask us to correct or delete it, at {{contact}}, and we will respond as the law that applies to you requires.",
     ] },
     { heading: "Changes", paragraphs: [
       "If this notice changes, the effective date below changes with it.",
