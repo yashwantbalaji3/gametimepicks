@@ -169,10 +169,14 @@ test("🔴 §6 · the RENDERED row shows the decisive denominator the rate divid
     const dec = b.wins + b.losses;
     if (b.total === dec) continue;           // nothing to distinguish on this row
     checked += 1;
-    assert.match(text, new RegExp(`${dec} dec`),
-      `${key}: the page must print "${dec} dec", the denominator of its own rate`);
-    assert.equal(new RegExp(`${b.total} dec`).test(text), false,
-      `${key}: the page printed "${b.total} dec" — that is the bucket total, not the decisive count`);
+    /* Scoped to THIS row ("W–L[–nP] · N dec"). A page-wide `${b.total} dec` check failed on 2026-10-13 because a
+       different bucket (game 849812, 15–21) legitimately has 36 decisive picks — the same number as batter_hits'
+       total — while every market row was correct. The row-scoped form still catches the original defect. */
+    const row = (n) => new RegExp(`\\b${b.wins}–${b.losses}(?:–\\d+P)? · ${n} dec\\b`);
+    assert.match(text, row(dec),
+      `${key}: the row must print "${b.wins}–${b.losses} · ${dec} dec", the denominator of its own rate`);
+    assert.equal(row(b.total).test(text), false,
+      `${key}: the row printed "${b.total} dec" — that is the bucket total, not the decisive count`);
   }
   assert.ok(checked > 0, "no market has voids today, so this assertion proved nothing — widen the fixture");
 });

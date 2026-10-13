@@ -18,6 +18,7 @@ import {
   getTeamMarketsForDate,
   buildMlbGameCenter,
   getMlbGameCenter,
+  runLineLayer,
 } from "./mlb-team-markets.ts";
 
 const app = process.cwd();
@@ -114,4 +115,33 @@ test("7 · ingest is credit-guarded and does not fabricate absent markets", () =
 test("8 · no banned copy in the deriver or ingest", () => {
   assert.doesNotMatch(stripSafeArea(deriverSrc), BANNED);
   assert.doesNotMatch(stripSafeArea(ingestSrc), BANNED);
+});
+
+test("RUN LINE DIRECTION · the side shown laying the runs is the side the book prices at −1.5, on every committed slate", () => {
+  /* 2026-10-13 /mlb printed "CLE −1.5 · TB +1.5" while the book had TB −1.5 (+159), CLE +1.5 (−194): the card took
+     `favorite` (the likelier COVER, usually the +1.5 dog) as the side laying the runs. */
+  assert.equal(runLineLayer({ line: 1.5, favorite: "away", favoriteCoverProb: 0.63 }), "home", "a +1.5 likelier-cover away side means home lays");
+  assert.equal(runLineLayer({ line: -1.5, favorite: "home", favoriteCoverProb: 0.55 }), "home");
+  assert.equal(runLineLayer({ line: 1.5, favorite: "home", favoriteCoverProb: 0.6 }), "away");
+  assert.equal(runLineLayer({ line: 0, favorite: "home", favoriteCoverProb: 0.5 }), null, "an unsigned line names no side");
+  assert.equal(runLineLayer(null), null);
+
+  const dir = path.join(app, "public/data/mlb/team-markets");
+  let checked = 0;
+  for (const f of fs.readdirSync(dir).filter((n) => /^\d{4}-\d{2}-\d{2}\.json$/.test(n))) {
+    for (const g of Object.values(JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).games ?? {})) {
+      const gc = buildMlbGameCenter(g);
+      const side = runLineLayer(gc?.runLine);
+      const homeLine = g?.runLine?.home?.line, awayLine = g?.runLine?.away?.line;
+      if (!side || !Number.isFinite(homeLine) || !Number.isFinite(awayLine) || homeLine === awayLine) continue;
+      assert.ok(g.runLine[side].line < 0, `${f} ${g.awayTeam} @ ${g.homeTeam}: ${side} is shown laying the runs but the book has it at ${g.runLine[side].line}`);
+      checked += 1;
+    }
+  }
+  assert.ok(checked > 0, "the check ran over real committed games");
+
+  /* The /mlb card reads the layer, never the likelier-cover side. */
+  const page = read("src/app/mlb/page.tsx");
+  assert.match(page, /runLineFavorite:\s*runLineLayer\(gc\?\.runLine\)/, "/mlb passes the side laying the runs to the card");
+  assert.doesNotMatch(page, /runLineFavorite:\s*gc\?\.runLine\?\.favorite/, "the likelier-cover side is not the side laying the runs");
 });
