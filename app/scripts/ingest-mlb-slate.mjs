@@ -30,7 +30,8 @@ import {
 const args = process.argv.slice(2);
 const getArg = (k, d) => { const i = args.indexOf(`--${k}`); return i >= 0 && args[i + 1] ? args[i + 1] : d; };
 const DRY = args.includes("--dry-run");
-const DATE = getArg("date", new Date().toISOString().slice(0, 10));
+// The slate day is an ET calendar day (as the workflow passes it) — never the UTC date, which is tomorrow after 8 PM ET.
+const DATE = getArg("date", new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()));
 const KEY = process.env.ODDS_API_KEY;
 const DATA = path.join(process.cwd(), process.cwd().endsWith("app") ? "" : "app", "public", "data", "mlb");
 const BASE = "https://api.the-odds-api.com/v4/sports/baseball_mlb";

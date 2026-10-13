@@ -38,7 +38,7 @@ import {
 import { gameHrefByMatchId, buildAllGameDetails } from "@/lib/game-detail";
 import { slateGames } from "@/lib/today/slate-games";
 import MlbSlateAvailability from "@/components/mlb/mlb-slate-availability";
-import { getTeamMarketsForDate, buildMlbGameCenter } from "@/lib/mlb-team-markets";
+import { getTeamMarketsForDate, buildMlbGameCenter, runLineLayer } from "@/lib/mlb-team-markets";
 import type { TeamMarketRow } from "@/components/mlb/team-markets-box";
 
 import path from "node:path";
@@ -154,7 +154,8 @@ export default function MlbLandingPage() {
       totalLine: gc?.total?.line ?? null,
       totalLean: gc?.total?.lean ?? null,
       runLine: gc?.runLine?.line ?? null,
-      runLineFavorite: gc?.runLine?.favorite ?? null,
+      /* The side LAYING the runs, from the signed line — `favorite` is the likelier cover (usually +1.5). */
+      runLineFavorite: runLineLayer(gc?.runLine),
       reportHref: gameHrefByMatchId("mlb", String(g.gameId ?? "")) ?? null,
     };
   }).sort((a, b) => String(a.firstPitch ?? "").localeCompare(String(b.firstPitch ?? "")));
@@ -432,7 +433,9 @@ export default function MlbLandingPage() {
           publishDeadlineUtc={publicationDeadlineUtc()}
           buildTimeToday={currentEtDate()}
           latestSlate={date}
-          latestSlateHasGames={games.length > 0}
+          /* The SAME count the rest of this page shows ("Games today"): the model board OR the schedule. The schedule
+             alone said "No MLB games today" beside "1 scheduled" when its ingest missed an evening game (2026-10-13). */
+          latestSlateHasGames={gameCount > 0}
           scope="MLB"
           archiveHref="/mlb/board"
           archiveLabel="Open the most recent MLB board"
