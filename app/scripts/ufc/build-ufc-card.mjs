@@ -273,9 +273,22 @@ function summaryFor(pickName, otherName, pWin, method) {
 
 // ── Card ────────────────────────────────────────────────────────────────────────────────────────
 const card = [];
+/*
+ * CANCELLED / POSTPONED BOUTS ARE NEVER ACTIVE PREDICTIONS (founder decision 2026-10-13, launch audit). The provider can
+ * keep a bout on the card while marking it STATUS_CANCELED or STATUS_POSTPONED; every bout this loop emits becomes a
+ * public prediction and a candidate product leg. Such a bout is recorded under `excludedBouts` with the provider's own
+ * status — never inferred from absence, never graded, never a loss — and published nowhere as active.
+ */
+const excludedBouts = [];
 for (const c of event.competitions ?? []) {
   const cs = c.competitors ?? [];
   if (cs.length !== 2) continue;
+  const boutStatus = String(c.status?.type?.name ?? "");
+  if (/CANCEL|POSTPON/i.test(boutStatus)) {
+    excludedBouts.push({ providerBoutId: String(c.id ?? ""), fighters: cs.map((x) => x.athlete?.displayName ?? ""), statusRaw: boutStatus,
+      reason: "the provider marks this bout cancelled or postponed — not published as an active prediction or product leg" });
+    continue;
+  }
   const side = (x) => ({
     athleteId: String(x.id ?? ""),
     name: x.athlete?.displayName ?? "",
@@ -441,6 +454,8 @@ const artifact = {
     },
   },
   bouts: card,
+  /* Bouts the provider still lists but marks cancelled/postponed — excluded from `bouts`, stated here. */
+  excludedBouts,
 };
 
 /*
