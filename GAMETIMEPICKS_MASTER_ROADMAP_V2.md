@@ -108,7 +108,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 12 | `MLB-005` | MLB Modeling | Shared WorldReceipt + forward shadow | NOT_STARTED | MLB-003, MLB-004 | Family-by-family |
 | 13 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | IN_PROGRESS — NFL hook only: World Model V2 grader (private, #1027). Ledger hardening itself not started; zero-build settlement assessment open | CONTRACT-001 | Yes |
 | 14 | `TEMPORAL-001` | Data Platform | Point-in-time temporal data/identity foundation for MLB/NFL critical fields | NOT_STARTED | CONTRACT-001 | Foundation |
-| 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 (expanded by founder directive 2026-10-13: substreams A nav/IA · B design system · C Home/Today · D sport/game pages · E Live/Results) | IN_PROGRESS — PRODUCTION DEPLOYED in part (#1026, #1028, #1030, #1031–#1034); UX System V2 Release 1 (rail clusters, label face, Home/Today order + fold) LOCALLY VALIDATED; see §16 "UX System V2" | CONTRACT-001 view contracts; never ahead of P0 truth fixes | Yes |
+| 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 (expanded by founder directive 2026-10-13: substreams A nav/IA · B design system · C Home/Today · D sport/game pages · E Live/Results) | IN_PROGRESS — UX System V2 Release 1 PRODUCTION DEPLOYED (#1072 → `ab9ad4059d`, 2026-10-13: rail clusters, label face, Home/Today order + fold, one h1); Release 2 post-launch | CONTRACT-001 view contracts; never ahead of P0 truth fixes | Yes |
 | 16 | `RESULTS-001` | Results | Prop-family Results V2 + time filters + drill-down | IN_PROGRESS — NFL World Model V2 per-family grading (private, #1027) and the public coverage note; Results V2 pages not started | LEDGER-001 | Yes |
 | 17 | `PRODUCT-001` | Product Engine | Canonical multi-sport candidate/eligibility/selection engine | NOT_STARTED | CONTRACT-001, LEDGER-001 | Shadow → Yes |
 | 18 | `PRODUCT-002` | Bank Builder / Moonshot | Migrate to canonical multi-sport forecast candidates | NOT_STARTED | PRODUCT-001 + passing family gates | Yes |
@@ -118,7 +118,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 22 | `LIVE-003` | Live Modeling | Conditional live forecasts from captured state | NOT_STARTED | LIVE-001/002 replay archive | Shadow |
 | 23 | `LIVE-004` | Live Products | Validated live straight opportunities | NOT_STARTED | LIVE-003 + fresh market identity | Shadow → Yes |
 | 24 | `LIVE-005` | Live Products | Supported live parlays | NOT_STARTED | LIVE-004 + dependence validation | Last |
-| 25 | `OPS-001` | Operations | Freshness, dependency receipts, retries, alerts, cost controls | NOT_STARTED | Parallel | Yes |
+| 25 | `OPS-001` | Operations | Freshness, dependency receipts, retries, alerts, cost controls | IN_PROGRESS — publish data-loss protection PRODUCTION DEPLOYED (#1068 → `5c0b1b6619`, 2026-10-13; first live window pushed once via the helper); extending the helper and bundle to the remaining workflows is post-launch | Parallel | Yes |
 | 26 | `TRUTHDOC-001` | Documentation | Generated “what runs now” inventory | NOT_STARTED | CONTRACT-001 | Yes |
 | 27 | `COST-002` | Release Engineering / FinOps | Reduce build memory so the export fits Vercel Standard (free first build slot); profile `/simulate/d/*` and last-quarter routes | NOT_STARTED | COST-001 Phase 1 | Build config/data loading; Production only after founder approval |
 
