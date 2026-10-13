@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-10-13",
-  "generatedAt": "2026-10-13T18:23:21.000Z",
+  "generatedAt": "2026-10-13T20:46:36.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
   "sourceArtifact": "full-game-simulations/2026-10-13.json",
   "notBettingAdvice": true,
@@ -15,22 +15,24 @@
       "homeTeam": "TB",
       "awayTeamName": "Cleveland Guardians",
       "homeTeamName": "Tampa Bay Rays",
-      "artifactHash": "0c86554b8027944a4eccf6caef6c706c23986dee4327bda592453547d4fdba21",
+      "artifactHash": "1e1b937dcedb36cd58bde7b4f7da5a79282928e0f736ec650d0b7c26a6bc5d53",
       "decisionEngineVersion": "mlb-prediction-2026.10-v2",
       "completeness": {
-        "level": "ready",
-        "notes": [],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
-        "awayRatedCount": 9,
-        "homeRatedCount": 9,
+        "level": "degraded",
+        "notes": [
+          "CLE confirmed batting order used; 1 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one.",
+          "TB confirmed batting order used; 2 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one."
+        ],
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
+        "awayRatedCount": 8,
+        "homeRatedCount": 7,
         "awayLineupCount": 9,
         "homeLineupCount": 9,
         "hasAwayStarter": true,
         "hasHomeStarter": true,
         "startedBeforeGeneration": false,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -52,7 +54,7 @@
           "homeCover": 0.3691
         }
       },
-      "status": "ready",
+      "status": "degraded",
       "predictedWinner": {
         "side": "away",
         "team": "CLE"
@@ -65,7 +67,7 @@
       "moneyline": {
         "side": "away",
         "team": "CLE",
-        "simulationProbability": 0.589,
+        "simulationProbability": 0.578,
         "marketImpliedProbability": 0.437,
         "marketAgreement": "MODEL HIGHER",
         "strengthLabel": "MODERATE SIMULATION"
@@ -73,10 +75,10 @@
       "total": {
         "line": 7,
         "pick": "OVER",
-        "overProbability": 0.469,
-        "underProbability": 0.415,
-        "pushProbability": 0.116,
-        "simulationMedian": 7,
+        "overProbability": 0.503,
+        "underProbability": 0.381,
+        "pushProbability": 0.115,
+        "simulationMedian": 8,
         "marketImpliedOver": 0.474,
         "strengthLabel": "LEAN"
       },
@@ -88,8 +90,8 @@
         "pick": "CLE +1.5",
         "pickSide": "away",
         "pickLine": 1.5,
-        "coverProbability": 0.755,
-        "opposingCoverProbability": 0.245,
+        "coverProbability": 0.739,
+        "opposingCoverProbability": 0.261,
         "pushProbability": 0,
         "marketImpliedProbability": 0.6309,
         "bookmaker": "draftkings",
