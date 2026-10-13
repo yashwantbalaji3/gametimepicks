@@ -5,10 +5,10 @@
   "program": "317",
   "protocol": "data/internal/research/mlb/reports/engine-level-shadow-protocol.json",
   "candidateId": "mlb-fullgame-engine-league-rates-v1",
-  "updatedAt": "2026-10-12T19:23:09Z",
+  "updatedAt": "2026-10-13T09:29:37Z",
   "rowsSeen": 202,
-  "pending": 4,
-  "graded": 198,
+  "pending": 2,
+  "graded": 200,
   "needed": 200,
   "dates": [
     "2026-09-15",
@@ -34,30 +34,59 @@
     "2026-10-07",
     "2026-10-08",
     "2026-10-10",
-    "2026-10-11"
+    "2026-10-11",
+    "2026-10-12"
   ],
   "control": {
-    "n": 198,
-    "level": 0.5416,
-    "coverageP10P90": 0.8232,
-    "meanWidthP10P90": 9.9192,
-    "pitTailMass": 0.202,
-    "fixedOverLogLoss": 0.7525,
-    "linedGames": 183
+    "n": 200,
+    "level": 0.5537,
+    "coverageP10P90": 0.825,
+    "meanWidthP10P90": 9.93,
+    "pitTailMass": 0.2,
+    "fixedOverLogLoss": 0.7496,
+    "linedGames": 185
   },
   "candidate": {
-    "n": 198,
-    "level": -0.0844,
-    "coverageP10P90": 0.8434,
-    "meanWidthP10P90": 10.5657,
-    "pitTailMass": 0.2172,
-    "fixedOverLogLoss": 0.7389,
-    "linedGames": 183
+    "n": 200,
+    "level": -0.0737,
+    "coverageP10P90": 0.845,
+    "meanWidthP10P90": 10.575,
+    "pitTailMass": 0.215,
+    "fixedOverLogLoss": 0.7351,
+    "linedGames": 185
   },
   "directions": "level = actual − simulated mean (0 is right); coverage targets 0.80; PIT tail mass 0.20 if well specified; log loss lower is better; width is the mean p10–p90 span",
-  "state": "ACCUMULATING",
-  "verdict": null,
-  "decidedAt": null,
-  "decidedOn": null,
+  "state": "DECIDED",
+  "verdict": "ENGINE_LEVEL_PASS",
+  "decidedAt": "2026-10-13T09:29:37Z",
+  "decidedOn": {
+    "graded": 200,
+    "control": {
+      "n": 200,
+      "level": 0.5537,
+      "coverageP10P90": 0.825,
+      "meanWidthP10P90": 9.93,
+      "pitTailMass": 0.2,
+      "fixedOverLogLoss": 0.7496,
+      "linedGames": 185
+    },
+    "candidate": {
+      "n": 200,
+      "level": -0.0737,
+      "coverageP10P90": 0.845,
+      "meanWidthP10P90": 10.575,
+      "pitTailMass": 0.215,
+      "fixedOverLogLoss": 0.7351,
+      "linedGames": 185
+    },
+    "checks": {
+      "levelAbsError": true,
+      "improvesLevel": true,
+      "coverageP10P90": true,
+      "pitTailMass": true,
+      "noWorseFixedOverLogLoss": true,
+      "widthGuard": true
+    }
+  },
   "consequence": "PASS proposes — it does not perform — a founder-approved adoption of the candidate parameters for the public simulation, with a paired forward test continuing after adoption. Neither verdict touches the over/under pause; the live-record gate alone lifts it."
 }
