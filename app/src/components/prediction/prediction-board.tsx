@@ -26,6 +26,7 @@ import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
 import type { MarketSnapshot, ModelForecast, PredictionPresentation } from "@/lib/prediction-presentation/contract";
 import { RAIL_STATE, railGeometry, railStateOf } from "@/lib/live/tracked-prediction.mjs";
+import { capturedLabel, compareModelToMarket, displayedModelValue, signed } from "@/lib/sports/nfl/market-comparison.mjs";
 
 /** ET, once, for every surface that renders a prediction. */
 export const etStart = (iso: string) =>
@@ -152,11 +153,8 @@ const odds = (v: number) => `${v > 0 ? "+" : ""}${v}`;
  * line, which is the single error the frozen-market shape exists to make impossible — so this never
  * degrades to nothing. An unparseable instant falls back to printing it verbatim.
  */
-const capturedAtLabel = (iso: string) => {
-  const t = Date.parse(iso);
-  if (!Number.isFinite(t)) return iso;
-  return new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" }).format(new Date(t)) + " ET";
-};
+/* 2026-10-12: with the date. "Sat 1:32 PM ET" could not tell this Saturday's price from last Saturday's. */
+const capturedAtLabel = (iso: string) => capturedLabel(iso) ?? iso;
 
 /**
  * The market cell. Numbers only from a real frozen capture; otherwise the owner's state, in words.
@@ -181,11 +179,30 @@ function MarketCell({ market }: { market: MarketSnapshot }) {
         {f.overOdds != null && f.underOdds != null ? (
           <span className="gtp-pred-sub">O {odds(f.overOdds)} · U {odds(f.underOdds)}</span>
         ) : null}
-        <span className="gtp-pred-sub">Captured {capturedAtLabel(f.capturedAt)}</span>
+        <span className="gtp-pred-sub">Last captured {capturedAtLabel(f.capturedAt)}</span>
       </>
     );
   }
   return <span className="gtp-pred-absent">{MARKET_SHORT[market.state] ?? MARKET_SHORT.NOT_PROBED}</span>;
+}
+
+/**
+ * Where the displayed number sits against the captured market — arithmetic, never a side (founder directive
+ * 2026-10-12). Only from a real frozen capture; only against the number this row displays; nothing when either is
+ * missing. The board's note says once that it is a comparison, not a recommendation.
+ */
+function ModelVsMarket({ model, market }: { model: ModelForecast; market: MarketSnapshot }) {
+  if (market.state !== "FROZEN_CAPTURE" || !market.frozen) return null;
+  /* The board prints a probability to a tenth of a percent and a numeric value exactly as published. */
+  const kind = model.kind === "PROBABILITY" ? "probability" : "count";
+  const value = model.kind === "PROBABILITY" ? displayedModelValue("probability", model.probability ?? NaN) : model.predictedValue ?? NaN;
+  const c = compareModelToMarket(kind, value, market.frozen);
+  if (!c) return null;
+  return (
+    <span className="gtp-pred-sub" data-compare={c.type}>
+      {c.type === "LINE" ? `vs line ${signed(c.diff, model.unit ?? "")}` : `vs price ${signed(c.diffPts, "pts")}`}
+    </span>
+  );
 }
 
 /**
@@ -485,6 +502,7 @@ export function PredictionBoard({
                 <span className="gtp-pred-book font-mono uppercase tracking-[0.08em]">GameTimePicks</span>
                 <span className="gtp-pred-v font-mono">{modelValue(p.model)}</span>
                 {p.model.status === "ESTIMATE" ? <span className="gtp-pred-sub">estimate</span> : null}
+                <ModelVsMarket model={p.model} market={p.market} />
               </span>
 
               {hasRange ? (
@@ -513,6 +531,11 @@ export function PredictionBoard({
         })}
       </ol>
       {sharedNote ? <p className="gtp-pred-note">{sharedNote}</p> : null}
+      {predictions.some((p) => p.market.state === "FROZEN_CAPTURE") ? (
+        <p className="gtp-pred-note" data-market-note>
+          Sportsbook prices are as last captured before kickoff, not live. &ldquo;vs line&rdquo; / &ldquo;vs price&rdquo; is the gap between our number and the book&rsquo;s (the price&rsquo;s implied chance includes the book&rsquo;s margin) &mdash; a comparison, not a betting recommendation.
+        </p>
+      ) : null}
     </div>
   );
 }

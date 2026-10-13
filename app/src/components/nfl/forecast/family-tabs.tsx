@@ -100,6 +100,12 @@ export default function FamilyTabs({ families, lists, linkToGame, label, emptyTe
                 <p className="nf-faint" style={{ margin: "8px 0 0" }}>
                   {narrowed ? `${rows.length} of ${total} shown · ` : ""}{f.metric}{f.sourceLabel ? ` · ${f.sourceLabel}` : ""}{f.asOf ? ` · as of ${fmtAsOf(f.asOf)}` : ""}
                 </p>
+                {/* Said once per list, not on every row: the model-vs-line figure is arithmetic, not advice. */}
+                {rows.some((r) => r.entry.market) ? (
+                  <p className="nf-faint" data-market-note={f.key} style={{ margin: "4px 0 0" }}>
+                    Sportsbook prices are as last captured before kickoff, not live. &ldquo;Model vs line&rdquo; is the gap between our projection and the posted number &mdash; a comparison, not a betting recommendation.
+                  </p>
+                ) : null}
               </>
             ) : (
               <p className="nf-withheld">{narrowed ? "No published row matches this filter." : emptyText}</p>

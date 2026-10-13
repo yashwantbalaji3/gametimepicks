@@ -56,6 +56,17 @@ const _BOOK_LABELS: Record<string, string> = {
   espnbet: "ESPN BET",
   fanatics: "Fanatics",
   hardrockbet: "Hard Rock Bet",
+  /* The NFL prop fallback ladder's other books, spelled as on the prediction board (prediction-board.tsx BOOK_NAME),
+     so one book reads the same on every page — "Betrivers" was the title-case fallback for BetRivers. */
+  betrivers: "BetRivers",
+  williamhill_us: "Caesars",
+  bovada: "Bovada",
+  betonlineag: "BetOnline",
+  lowvig: "LowVig",
+  mybookieag: "MyBookie",
+  ballybet: "Bally Bet",
+  betanysports: "BetAnySports",
+  windcreek: "Wind Creek",
 };
 
 /** Render-ready bookmaker label. Falls back to title-cased input

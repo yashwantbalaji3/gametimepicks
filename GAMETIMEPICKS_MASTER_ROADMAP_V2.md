@@ -2234,6 +2234,45 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - Playwright on the live `/ufc` at 1440 and 375 px: 12 board rows; 24 / 24 portraits loaded; 12 unique bout links; no table; no overflow; 0 console or page errors; heading "Last card · pregame predictions".
 - **Vercel:** 1 Production build; Preview 0.
 
+## 2026-10-12 — Claude Code (Integration & launch-readiness coordinator) — shared CI (`CI-001` class), `NFL-005`, `UFC-001`, `UX-001`
+- **Starting main SHA:** `37aacc444e`. Founder directive 2026-10-12: integration coordinator; one Production integration at a time; launch target 2026-10-20 (freeze 10-17) subject to acceptance evidence.
+- **Shared CI (reproduced on main, not only on PRs):** `quality` was red on main itself. Two data-dependent tests failed:
+  - NFL `market-matrix.test.mjs` "no eligible current-week event is left NOT_PROBED": BUF @ LAR (401872994) lost its prop prices when the 2026-10-11T11:41:55Z sweep was cut short by the credit ceiling;
+  - UFC `ufc-prediction-engine.test.mjs` test 0: the card rolled to Oct 17 (600060773) while `odds-latest` still pointed at the finished Oct 10 card.
+  - Every open PR's latest `quality` failure was one of these two.
+- **#1064 (combined; supersedes #1062 and #1063)**, branch `claude/ci-recovery-1062-1063`, built from `37aacc444e`:
+  - #1063 `25ddd7a326` cherry-picked with `-x`, unchanged;
+  - #1062 code verbatim from `a7a15e1c28` (`capture-merge.mjs` `carryUnreachedProps`/`unreachedTargets` + test, `capture-nfl-odds.mjs`, budget proposal doc);
+  - BUF @ LAR's 65 prop prices restored, each with its original `capturedAt` 2026-10-10T17:32:23Z and `carriedForward: true`;
+  - its boards re-derived (0 credits) at main's latest NFL window W = 2026-10-12T00:15:15Z, in workflow order.
+  - **Deliberately excluded:** #1062's Amendment 4 (receipt ceiling 1,160 → 1,188) and its p171 pin. That one-time authorization was bounded to the 2026-10-11 17:00–20:05Z window, which had passed. The season ceiling stays 1,160 (spent).
+  - Also excluded: #1062's 2026-10-11 board rebuilds, which conflicted with main.
+  - Diff vs main: price-only, BUF @ LAR-only.
+    - Weekly boards: 21 rows NOT_PROBED → priced; ranks and probabilities identical.
+    - Vault: `state`/`candidateCount`/`withheld`/`reason` byte-equal.
+  - Independent verification by the NFL owner session: all 6 data files byte-identical.
+  - Local CI-equivalent: phase 1 (only the 2 local-only `live RLS`), `ask:check`, build, phase 2 690/0/3. UFC mutation probe trips test 0.
+  - Exact-head CI `python` ✓ `quality` ✓ (22m46s), CLEAN.
+  - **Merged** at founder-approved exact head `aaf281dcb34e7c0c5cb7578353cf3749b1035e64` with `--match-head-commit` → merge `b014184d151a3307464bd2f81208f62b4b8c2860`, 17:07:35Z. The merge's 11 files are identical to the approved head.
+  - **Production acceptance:**
+    - live build-info = `b014184d15` (built 17:09:07Z);
+    - `/nfl/game/401872994/`: 46 DraftKings prices, 0 "Not checked";
+    - `/nfl/week/2-05/`: 21 BUF @ LAR rows priced, "Captured Sat 1:32 PM ET";
+    - live `graded-picks.json` sha256 identical before and after;
+    - p171 ledger unchanged (1,160 cumulative, 569 requests; 0 credits spent).
+  - **Defect found during acceptance:** the game page's player rows showed the price with its capture time only in a hover title. Fixed in #1066 (`claude/nfl-prop-market-display`): a visible dated "last captured", a model-vs-line gap computed from the displayed value (a comparison, not a pick), and the producer's typed reason on unpriced rows. UI only; this roadmap entry ships with it.
+- **Found in this session's audit (read-only), all evidence in the PR bodies:**
+  - **NFL credits exhausted.** Every `nfl-event-window` since 2026-10-11 15:08Z fails at the odds step (fail-closed refusal at 1,160/1,160); the free steps still publish. Week 6 needs a founder budget decision. No credits spent.
+  - **NFL Week 5 artifact audit: 10/10 PASS.** Forecasts immutable after kickoff (455 receipts); boards exclude Out/Doubtful/Questionable; 1,348 board and 609 player-board prices match their source captures; 451 graded stat values match ESPN (0 mismatches). BAL @ ATL was final but ungraded because no window has run since 00:14Z; existing Monday automation covers it.
+  - **P0 public-truth defect:** `/nfl` said 11 Sunday games "kicked off before a forecast was published — missed coverage". This is P295 recurring in `lib/events/read-model.ts`. Fix in #1065.
+  - **NBA:** Oct 20 = schedule and official finals only. No public forecast before ≈300 graded regular-season games (prereg). v0.2 shadow is not graded. `/bucket-blitz` copy says "out of season".
+- **#1065 (`UX-001` P0, `/nfl` coverage truth)** merged at founder-approved exact head `8b7595772f1bdd0fb800d67186e8d5ce1db8644b` with `--match-head-commit` → `c1b43b149d051e08b9eba19f6c95c36801e1c820`, 17:36:43Z.
+  - CI `python` ✓ `quality` ✓ (23m30s), CLEAN; 2 files.
+  - `loadNflEvents` now reads the same-run union of `forecasts/latest.json` + `frozen-latest.json`, graded `picks[].eventId`, and FINAL for graded games. 3 pinned-fixture regressions; 2 fail with the fix reverted.
+  - **Production acceptance:** live build `c1b43b149d` (17:38:39Z). `/nfl` "missed coverage" 11 → 0; "13 with a report"; finals read "final" with "View record"; BUF @ LAR "scheduled" with "Open report". Live `graded-picks.json` sha256 unchanged; no forecast or receipt file changed.
+- **Vercel:** Production 2 (the #1064 and #1065 merges); Preview 0.
+- **Next:** #1066 (NFL prop market display) → #1061 (UFC bout pages; rehearsed green on main + #1064) → #1048 (MLB-002, research only). Close #1062 and #1063 with evidence.
+
 ---
 
 # 26. Immediate execution waves

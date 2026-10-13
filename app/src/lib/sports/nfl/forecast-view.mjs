@@ -73,6 +73,12 @@ const capturedMarket = (board, playerId, fam) => {
   return m ? { sportsbook: m.sportsbook, line: m.line ?? null, overOdds: m.overOdds ?? null, underOdds: m.underOdds ?? null, yesOdds: m.yesOdds ?? null, capturedAt: m.capturedAt ?? null } : null;
 };
 
+/** The producer's typed reason a row has no captured price (NOT_OFFERED, NOT_PROBED, …), or null when it states none. */
+const capturedMarketState = (board, playerId, fam) => {
+  const d = board?.players?.find((p) => p.playerId === playerId)?.markets?.[MARKET_KEY[fam]];
+  return d && !d.market && typeof d.pricingState === "string" ? d.pricingState : null;
+};
+
 /**
  * The view of one game.
  * @param {{forecast: object, world?: object|null, board?: object|null}} docs
@@ -152,7 +158,7 @@ export function playerRows({ forecast: f, world, board }) {
     r.availability.push({ source: "opportunityTd", state: p.participation });
     r.families.anytimeTd = { source: "opportunityTd", value: pr, asOf: board.generatedAt, modelBasis: board.families.anytime_td.basis ?? null };
   }
-  for (const r of rows.values()) for (const [fam, e] of Object.entries(r.families)) { e.marketKey = MARKET_KEY[fam]; e.market = capturedMarket(board, r.playerId, fam); }
+  for (const r of rows.values()) for (const [fam, e] of Object.entries(r.families)) { e.marketKey = MARKET_KEY[fam]; e.market = capturedMarket(board, r.playerId, fam); e.marketState = e.market ? null : capturedMarketState(board, r.playerId, fam); }
   return [...rows.values()].map((r) => ({ ...r, cleared: r.availability.every((a) => CLEARED.includes(a.state)), availabilityLabel: availabilityLabel(r.availability) }));
 }
 
@@ -210,7 +216,7 @@ export function familyTabs(rowsByFamily, { asOfByFamily = {}, sourcesByFamily = 
 }
 
 const slim = (p) => ({ playerId: p.playerId, name: p.name, position: p.position, team: p.team, opponent: p.opponent, providerEventId: p.providerEventId, matchup: p.matchup, kickoffUtc: p.kickoffUtc, availabilityLabel: p.availabilityLabel });
-const slimEntry = (e) => ({ value: e.value, p10: e.p10 ?? null, p90: e.p90 ?? null, mean: e.mean ?? null, marketKey: e.marketKey ?? null, market: e.market ?? null });
+const slimEntry = (e) => ({ value: e.value, p10: e.p10 ?? null, p90: e.p90 ?? null, mean: e.mean ?? null, marketKey: e.marketKey ?? null, market: e.market ?? null, marketState: e.marketState ?? null });
 
 export function gameTabs(view) {
   const lists = {}; const asOf = {}; const src = {};
