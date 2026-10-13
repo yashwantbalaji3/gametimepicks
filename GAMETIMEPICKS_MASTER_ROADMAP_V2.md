@@ -108,7 +108,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 12 | `MLB-005` | MLB Modeling | Shared WorldReceipt + forward shadow | NOT_STARTED | MLB-003, MLB-004 | Family-by-family |
 | 13 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | IN_PROGRESS — NFL hook only: World Model V2 grader (private, #1027). Ledger hardening itself not started; zero-build settlement assessment open | CONTRACT-001 | Yes |
 | 14 | `TEMPORAL-001` | Data Platform | Point-in-time temporal data/identity foundation for MLB/NFL critical fields | NOT_STARTED | CONTRACT-001 | Foundation |
-| 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 | IN_PROGRESS — PRODUCTION DEPLOYED in part (#1026 NFL unified, #1028 Live first, #1030 sport catalog + switcher); #1031 hydration, #1032 resolver + tablet Menu, #1033 nav cleanup READY_FOR_REVIEW; Home/Today, sport-hub layouts not started | CONTRACT-001 view contracts | Yes |
+| 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 (expanded by founder directive 2026-10-13: substreams A nav/IA · B design system · C Home/Today · D sport/game pages · E Live/Results) | IN_PROGRESS — PRODUCTION DEPLOYED in part (#1026, #1028, #1030, #1031–#1034); UX System V2 Release 1 (rail clusters, label face, Home/Today order + fold) LOCALLY VALIDATED; see §16 "UX System V2" | CONTRACT-001 view contracts; never ahead of P0 truth fixes | Yes |
 | 16 | `RESULTS-001` | Results | Prop-family Results V2 + time filters + drill-down | IN_PROGRESS — NFL World Model V2 per-family grading (private, #1027) and the public coverage note; Results V2 pages not started | LEDGER-001 | Yes |
 | 17 | `PRODUCT-001` | Product Engine | Canonical multi-sport candidate/eligibility/selection engine | NOT_STARTED | CONTRACT-001, LEDGER-001 | Shadow → Yes |
 | 18 | `PRODUCT-002` | Bank Builder / Moonshot | Migrate to canonical multi-sport forecast candidates | NOT_STARTED | PRODUCT-001 + passing family gates | Yes |
@@ -1407,6 +1407,102 @@ Separate model-family performance from Bank Builder, Moonshot, Top Boards, Parla
   - The sitemap now lists every catalog hub, so Ligue 1's family route no longer hides it.
   - New `audits/route-inventory-drift.test.mjs`: every redirect row's target matches its page's ClientRedirect, and every catalog hub is public and in the built sitemap.
 
+### UX System V2 — founder directive 2026-10-13 (formal expansion of `UX-001`; Oct 20 launch priority)
+Source: `GameTimePicks_UX_System_V2_Engineering_Directive_2026-10-13.md` (founder). This expands `UX-001`; it does not replace launch-critical correctness work. IDs keep `UX-001` with substreams A–E.
+
+**Evidence stage vocabulary for this work:** Planned → In Progress → Locally Validated → CI Verified → Approved → Production Verified, or Deferred. Nothing is DONE on a local screenshot.
+
+**Baseline audit (2026-10-13, read-only Production at `c8996256`).** Playwright, 19 routes × phone 390 / tablet 820 / desktop 1440. Script and raw data are in the session scratchpad and were re-run against the local export for the after numbers.
+- No page has horizontal overflow at any width.
+- Every route returns 200.
+- Page length on a phone:
+
+| Route | Height (px) | Words |
+|---|---|---|
+| `/nfl` | 24,253 | 4,497 |
+| `/epl` | 21,947 | — |
+| `/results` | 17,355 | — |
+| `/today` | 11,826 | — |
+| `/mlb` | 11,536 | — |
+| `/` | 8,518 | — |
+
+- Monospace share of visible copy: Home 42%, Today 48%, UFC 44%, Bank Builder 43%, Moonshot 42%, Results 34%.
+- 40–60% of tap targets are under 32 px on every page.
+- `/parlay-lab` logs 5 console errors. They are Next prefetch aborts from its client redirect: benign, but noise.
+- The NFL game page has 2 `<h1>`.
+- Code inventory:
+  - the desktop rail lists **30 entries at equal weight** (Main alone 11);
+  - `/today` renders **21 stacked sections**, and Home 16;
+  - `font-mono` appears about 2,571 times in 389 files;
+  - there is no shared disclosure primitive (72 hand-rolled `<details>`).
+
+**Top 10 usability problems (ranked by user impact × frequency × launch importance; lower risk preferred):**
+1. Navigation overload: 30 equal rail rows, Main 11. → **UX-001A, Locally Validated (Release 1).**
+2. `/today` is a 21-section stack, with three overlapping ranking lists and four game lists. → **UX-001C, Locally Validated (Release 1, first pass).**
+3. Home's second element was a jargon parlay recap ("1 card published · 0 hit, 1 missed · 57.9% of 38 decisive projections"). → **UX-001C, Locally Validated.**
+4. Monospace used for labels and captions site-wide. → **UX-001B, Locally Validated (one label token).**
+5. Hub length: NFL 29 phone screens, EPL 26, with no in-page structure. → UX-001D, Planned (fold methodology and deep panels into `MoreDisclosure`; section jump links).
+6. Results density: 20 h2, 27 disclosures, 173 of 297 small targets; no Simple/Analyst split. → UX-001E with `RESULTS-001`, Planned (the Simple/Analyst view inside Results only, per the 2026-10-08 founder decision).
+7. Small touch targets (chips, inline links, rail group headers). → UX-001B, Planned (≥ 32 px chips and controls; WCAG 2.5.8 inline exception respected).
+8. Naming drift: Simulations / Sim / Simulation Hub / Game Reports; Parlays / Parlay Center / Suggested Parlays / Parlay Lab; Picks / strongest reads / top model picks. → UX-001A, **founder decision** (below).
+9. NFL game page has two `<h1>`. → **Locally Validated** (the hero's hidden duplicate is now an h2).
+10. `/parlay-lab` redirect stub and console noise. → UX-001A, Planned (a server redirect row, or the route made a real page).
+
+**Proposed information architecture (deliverable B).**
+- **Primaries stay the founder's five, the same on every surface (charter E; 2026-10-08):** Home · Sports · Live · Simulations · Results.
+- **Rail = five clusters:**
+  - **Main** (open): primaries, Today, Saved.
+  - **Sports** (open): 6 hubs.
+  - **Picks & parlays** (folds): Picks, Parlays, Bank Builder, Moonshot, Homer Nukes, Endzone Vault, Cage Chaos, Mr. Dub.
+  - **My GameTime** (folds): My GameTime, Following, Your bets.
+  - **Learn & record** (folds): How It Works, Methodology, System Status, Model Lab, About, Research Lab, Ask.
+  - A folded cluster opens by itself when it holds the current page.
+- Every destination still has a URL, a rail link and a footer link. Deep links are unchanged.
+- **Founder decision requested:** rename the "Simulations" primary to **"Forecasts"** (fits the phone bar's 9-character budget; WCAG 2.5.3 label-in-name) or **"Predictions"** (needs a phone short label). Separately, should Today become a primary in place of Sports on the phone bar? Not implemented without a decision: both reverse recorded founder decisions.
+
+**Design direction (deliverable C), shared primitives only, no rewrite:**
+- `--font-label` (Geist) for uppercase labels. `--font-mono` stays for numerals, odds and tables.
+- `MoreDisclosure` (`components/ui/more-disclosure.tsx`) is the single progressive-disclosure shape: native `<details>`, server-rendered contents, 48 px summary, visible focus, reduced-motion aware.
+- Card spacing and type scale are next, through the existing `--vault-*` and `--gtp-*` tokens.
+
+**UX System V2 Release 1 (branch `claude/ux-system-v2-foundation`, Locally Validated):**
+- `navigation.ts`: new `you` group. Picks and Parlays join the products group ("Picks & parlays"). Group labels changed. The stale six-primaries docstring is corrected.
+- `command-rail.tsx`: clusters, with three folding.
+- `footer.tsx`: still four columns; the My GameTime links stay listed under Main.
+- `globals.css`: label token, rail-group and disclosure styles.
+- Home: the yesterday recap moves to open the results section.
+- `/today`:
+  - Live Now first;
+  - predictions → top picks → full slate → suggested cards → recent finals;
+  - 8 deeper sections (stories, leans, change log, market coverage, builder, Bank Builder, longshot, no-play notes) fold into "More from today's slate".
+- The NFL hero's hidden h1 becomes an h2.
+- **Guards updated (intent kept or widened; none weakened):**
+  - `nav-clarity` "one destination per word" now covers every main-nav surface, not one group;
+  - `navigation` group order adds `you`;
+  - `product-reset-phase-a` asserts /build shares /markets' group (beside its tools, never its own pillar) and is non-vacuous;
+  - `reading-key-visibility` is scoped to `<main>`, because rail `<details>` precede it in document order.
+- **Before → after** (Production baseline → local export):
+
+| Measure | Before | After |
+|---|---|---|
+| Monospace share: Home | 42% | 29% |
+| Monospace share: Today | 48% | 35% |
+| Monospace share: MLB | 22% | 11% |
+| Monospace share: Results | 34% | 20% |
+| Monospace share: Simulate | 25% | 6% |
+| `/today` phone height | 11,826 px | 9,821 px (−17%) |
+| `/today` tablet / desktop height | — | −19% / −20% |
+| NFL game page `<h1>` count | 2 | 1 |
+| Desktop rail visible rows | 30 | 15 |
+
+  Overflow stays 0, and there are no new console errors.
+- **Local validation of the final build (exit 0):**
+  - post-build rendered guards: 690 pass, 0 fail;
+  - structural accessibility audit: 0 findings (was 1: the NFL double h1);
+  - targeted unit tests: 656/656.
+- **Oct 20 target:** Release 1 (this), then Release 2: NFL hub and Results folding (#5, #6), touch targets (#7), the `/parlay-lab` redirect (#10).
+- **Post-launch:** the universal sport hub shell (`SportHubShell`), Results Simple/Analyst (`RESULTS-001`), and the full card system.
+
 ## Universal order
 1. Sport header + period selector
 2. Slate summary
@@ -2330,6 +2426,32 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Every new guard was mutation-checked against the old code.
 - Local export at `1b61f4fcdd` shows "Run line TB − 1.5 · CLE + 1.5" and no "No MLB games today".
 - **Limit:** today's props stay empty after merge, because the workflow's once-per-ET-day paid gate already ran. A forced recovery run is paid and is a founder decision.
+
+**#1070 release record (MLB slate date and run-line direction, plus the `main` CI fix):**
+- **Approved head:** `285e4fb7ac13a23da63d420caab26968e06e6f23`. Founder approval 2026-10-13.
+- **CI on that exact head:** run 38419768898, `python` ✓ `quality` ✓. MERGEABLE/CLEAN.
+- **Merge:** the session's pinned merge was refused by the auto-mode permission classifier ("Merge Without Review"). The founder ran the pinned merge → `9a99b473415e2e11c9100a024a217a9ef816e08d` at 17:13:21Z. The merge tree is byte-identical to the approved head on all 10 files.
+- **Production acceptance (17:25Z): PASS.**
+  - Production build-info = `9a99b473`, built 17:19:44Z (the exact merge).
+  - `/mlb` no longer says "No MLB games today".
+  - The team-markets card reads "Run line TB − 1.5 · CLE + 1.5", matching the book (TB −1.5 +159, CLE +1.5 −194). The game card's "CLE +1.5" is unchanged and correct.
+  - 6 key routes return 200.
+  - `main` quality-gate on the merge: run 38436905650 ✓.
+  - No forecast, grade or data file changed (code only). No paid capture ran: no forced recovery, per the founder.
+- **Not yet observable:** the ET-day ingest fix runs with the next scheduled MLB daily-production ingest (2026-10-14).
+
+**#1071 release record (NFL Results headline):**
+- **Approved head:** `9ff33ea32d0436731b9903cecc9c8b98eb962f9e`. Approved by the founder after confirming the Week 5 record from existing data.
+  - 15 finals, of which NYG @ WSH ended 27–27 (official, `nfl/results/latest.json` `STATUS_FINAL` 27–27).
+  - The published rule is "a tie is void".
+  - That gives 14 decided: 8 hits (HOU, PIT, NE, MIN, GB, DEN, DET, BAL), 6 misses (DAL, PHI, MIA, CLE, SEA, LAR).
+  - Expected ≈ 8.49 is the sum of the 14 decided picks' published probabilities.
+- **CI on that exact head:** run 38437515064, `python` ✓ `quality` ✓. MERGEABLE/CLEAN.
+- **Local validation:**
+  - exact-head local build: rendered and headline tests 14/14;
+  - browser: "Week 5: the team we favored won 8 of 14 games"; ranges 404 of 483 (83.6%) against the 80% aim; likeliest scorer 8 of 15; no "came true"; no Overall row; 0 overflow.
+- **Merged by the founder** with the pinned command → `d5b67358e826fe7a95f32010ba679d5818ee20f1` at 17:56:24Z, byte-identical to the approved head on all 5 files.
+- **Production acceptance:** see the update below.
 
 ---
 

@@ -485,10 +485,13 @@ test.describe("disclosure widgets", () => {
   for (const route of ["/results/", "/bank-builder/"]) {
     test(`${route} — disclosures open by keyboard and reveal their content`, async ({ page }) => {
       await page.goto(route, { waitUntil: "domcontentloaded" });
-      const summary = page.locator("details > summary").first();
+      /* Scoped to <main> (UX System V2, 2026-10-13): the desktop rail now folds its groups into <details> rendered
+         before the page, and the group holding the current route starts OPEN by design. The rail gets its own test
+         below; this one keeps guarding the page's own disclosures. */
+      const summary = page.locator("main details > summary").first();
       await expect(summary).toBeVisible();
 
-      const details = page.locator("details").first();
+      const details = page.locator("main details").first();
       expect(await details.evaluate((d: HTMLDetailsElement) => d.open), "starts closed").toBe(false);
 
       await summary.focus();
@@ -508,6 +511,32 @@ test.describe("disclosure widgets", () => {
       expect(await details.evaluate((d: HTMLDetailsElement) => d.open), "Enter must close it again").toBe(false);
     });
   }
+});
+
+test.describe("desktop rail groups (UX System V2)", () => {
+  // The rail folds Picks & parlays, My GameTime and Learn & record into native <details>. A folded group must start
+  // closed, open by keyboard, expose its links, and close again; the group holding the current page starts open.
+  test.skip(({ browserName }) => browserName === "webkit", "WebKit excludes summary from Tab order by default");
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test("a folded rail group opens by keyboard and reveals its links; the active group starts open", async ({ page }) => {
+    await page.goto("/results/", { waitUntil: "domcontentloaded" });
+    const rail = page.locator('nav[aria-label="Primary (rail)"]');
+    const group = rail.locator("details").filter({ has: page.locator('a[href^="/bank-builder"]') });
+    expect(await group.evaluate((d: HTMLDetailsElement) => d.open), "a group without the current page starts closed").toBe(false);
+    const summary = group.locator("summary");
+    await summary.focus();
+    expect(await summary.evaluate((el) => el === document.activeElement), "the group summary is focusable").toBe(true);
+    await page.keyboard.press("Enter");
+    expect(await group.evaluate((d: HTMLDetailsElement) => d.open), "Enter opens the group").toBe(true);
+    await expect(group.locator('a[href^="/bank-builder"]')).toBeVisible();
+    await page.keyboard.press("Enter");
+    expect(await group.evaluate((d: HTMLDetailsElement) => d.open), "Enter closes it again").toBe(false);
+
+    await page.goto("/bank-builder/", { waitUntil: "domcontentloaded" });
+    const active = page.locator('nav[aria-label="Primary (rail)"] details').filter({ has: page.locator('a[aria-current="page"]') });
+    expect(await active.evaluate((d: HTMLDetailsElement) => d.open), "the group holding the current page starts open").toBe(true);
+  });
 });
 
 test.describe("reflow", () => {

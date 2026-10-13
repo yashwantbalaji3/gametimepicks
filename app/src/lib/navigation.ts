@@ -30,8 +30,9 @@
  *   PRODUCTS — the paper products and their bankroll
  *   RECORD   — how has any of this actually done
  *
- * ── The `top` band leads with the SIX primary destinations (P200, restated by P208) ─────────────
- * Home · Today · Simulate · Picks · Parlay Center · Results, then the Sports directory. The tablet header and the mobile
+ * ── The `top` band carries the FIVE primaries (charter E; founder decision 2026-10-08) ───────────
+ * Home · Sports · Live · Simulations · Results — the same five on every surface. (Before: P200/P208's six, Home ·
+ * Today · Simulate · Picks · Parlay Center · Results, then the Sports directory.) The tablet header and the mobile
  * top strip had grown to seventeen items — a menu nobody can scan is a menu nobody reads. Every
  * other destination stays fully reachable on the rail (desktop) and in the footer sitemap, and the
  * sport hubs/products are one hop away via Sports/Build. Trimming a surface never removes a
@@ -40,7 +41,7 @@
 
 import { COMPETITIONS } from "./sports/catalog";
 
-export type NavGroup = "now" | "sports" | "products" | "record";
+export type NavGroup = "now" | "sports" | "products" | "you" | "record";
 
 /** Which surfaces carry a destination. A destination must appear on at least one. */
 export type NavSurface = "top" | "rail" | "mobile" | "footer";
@@ -84,8 +85,12 @@ export const NAV_GROUP_LABEL: Record<NavGroup, string> = {
      "Main" — "Now" claimed a recency the sixth member (Results) does not have. */
   now: "Main",
   sports: "Sports",
-  products: "Products",
-  record: "Track record",
+  /* UX System V2: the group now opens with Picks and Parlays, so it is named for what a reader comes for. */
+  products: "Picks & parlays",
+  you: "My GameTime",
+  /* The rail's members are explainers and tools (How It Works, Methodology, Model Lab, Ask…); the footer adds the
+     deep record pages. Results itself is a primary in Main. */
+  record: "Learn & record",
 };
 
 /**
@@ -139,19 +144,6 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
      painted word to appear within the accessible name — "Sim" is the contiguous prefix that fits. */
   { href: "/simulate", label: "Simulations", group: "now", glyph: "▶", desc: "Open a game report",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "games", shortLabel: "Sim" },
-  /* "Picks" is the reader's word for this job; "Market Center" was ours. The route keeps its
-     canonical URL — the label changes everywhere at once because every surface derives from here. */
-  { href: "/markets", label: "Picks", group: "now", glyph: "◈", desc: "Model picks vs the price",
-    surfaces: ["rail", "footer"], bucket: "markets" },
-  /* One shared picks-and-parlays destination (charter E): /build keeps its two modes (suggested →
-     custom) and links the ranked picks board; /markets stays a first-class deep route. */
-  /* #797 PR B: "Picks & Parlays" sat beside "Picks" — two destinations sharing one word. /build is the parlay
-     destination (H1 "Suggested Parlays", Home's "Open Parlay Center", already "Parlays" on the phone bar), so
-     it is named that on every surface; "Picks" stays the one picks destination. */
-  /* Founder UX decision 2026-10-08: Parlays leaves the primaries for Live and stays one tap from the phone Menu
-     (rail-minus-bar), on the desktop rail and in the footer — never orphaned. */
-  { href: "/build", label: "Parlays", group: "now", glyph: "✎", desc: "Cards, picks, or build your own",
-    surfaces: ["rail", "footer"], bucket: "lab" },
   /* Sixth primary. Off the `mobile` bar by the charter's own bar spec (Home/Today/Simulate/Picks/
      Parlay + Menu); the mobile Menu sheet renders every rail destination the bar lacks. */
   { href: "/results", label: "Results", group: "now", glyph: "≡", desc: "Settled record",
@@ -160,14 +152,6 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
      the "now" block (it sat after the record group, so the rail and the phone Menu sheet painted a second "Main"
      heading at the very bottom); the Menu sheet now shows it near the top — two taps from any phone screen. */
   { href: "/saved", label: "Saved Forecasts", shortLabel: "Saved", group: "now", glyph: "☆", desc: "Your saved forecasts",
-    surfaces: ["rail", "footer"] },
-  /* v1.1.2: follows made on this device. A SECONDARY destination beside Saved — rail + footer, reachable
-     on phones through the Menu sheet (rail-minus-bar). Never a primary: P243 charter E fixes those at five. */
-  /* v1.1.3: the personal destination — what matters to THIS device now. Secondary (rail + footer, and the
-     phone Menu sheet via rail-minus-bar). Never a primary: P243 charter E fixes those at five. */
-  { href: "/my", label: "My GameTime", group: "now", glyph: "◎", desc: "What you follow, now",
-    surfaces: ["rail", "footer"] },
-  { href: "/following", label: "Following", group: "now", glyph: "★", desc: "Teams and players you follow",
     surfaces: ["rail", "footer"] },
 
   // ── SPORTS ─────────────────────────────────────────────────────────────────────────────────────
@@ -181,6 +165,22 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   })),
 
   // ── PRODUCTS ───────────────────────────────────────────────────────────────────────────────────
+  /* UX System V2 (2026-10-13): Picks and Parlays lead the products group ("Picks & parlays") instead of sitting
+     in Main, so Main is the primaries plus Today and Saved — seven rows, not eleven. Both stay on the rail, the
+     phone Menu sheet (rail-minus-bar) and the footer, with their labels and buckets unchanged. */
+  /* "Picks" is the reader's word for this job; "Market Center" was ours. The route keeps its
+     canonical URL — the label changes everywhere at once because every surface derives from here. */
+  { href: "/markets", label: "Picks", group: "products", glyph: "◈", desc: "Model picks vs the price",
+    surfaces: ["rail", "footer"], bucket: "markets" },
+  /* One shared picks-and-parlays destination (charter E): /build keeps its two modes (suggested →
+     custom) and links the ranked picks board; /markets stays a first-class deep route. */
+  /* #797 PR B: "Picks & Parlays" sat beside "Picks" — two destinations sharing one word. /build is the parlay
+     destination (H1 "Suggested Parlays", Home's "Open Parlay Center", already "Parlays" on the phone bar), so
+     it is named that on every surface; "Picks" stays the one picks destination. */
+  /* Founder UX decision 2026-10-08: Parlays leaves the primaries for Live and stays one tap from the phone Menu
+     (rail-minus-bar), on the desktop rail and in the footer — never orphaned. */
+  { href: "/build", label: "Parlays", group: "products", glyph: "✎", desc: "Cards, picks, or build your own",
+    surfaces: ["rail", "footer"], bucket: "lab" },
   { href: "/bank-builder", label: "Bank Builder", group: "products", glyph: "▰", desc: "Paper card",
     surfaces: ["rail", "footer"] },
   { href: "/moonshot", label: "Moonshot", group: "products", glyph: "🌙", desc: "Fast paper ladder",
@@ -229,6 +229,35 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   { href: "/cards/nfl", label: "NFL Paper Cards", note: "market favourites", group: "products", glyph: "🏈",
     desc: "NFL card ladder", surfaces: ["footer"] },
 
+  // ── YOU · My GameTime (UX System V2, 2026-10-13) ──────────────────────────────────────────────
+  /* The personal destinations get their own group instead of trailing Main. Saved Forecasts stays in Main: the
+     Menu-sheet guard keeps it within the first rows (two taps from any phone screen). */
+  /* v1.1.2: follows made on this device. A SECONDARY destination beside Saved — rail + footer, reachable
+     on phones through the Menu sheet (rail-minus-bar). Never a primary: P243 charter E fixes those at five. */
+  /* v1.1.3: the personal destination — what matters to THIS device now. Secondary (rail + footer, and the
+     phone Menu sheet via rail-minus-bar). Never a primary: P243 charter E fixes those at five. */
+  { href: "/my", label: "My GameTime", group: "you", glyph: "◎", desc: "What you follow, now",
+    surfaces: ["rail", "footer"] },
+  { href: "/following", label: "Following", group: "you", glyph: "★", desc: "Teams and players you follow",
+    surfaces: ["rail", "footer"] },
+  /*
+   * P266 · THE ACCOUNT DESTINATION EXISTS ONLY IN A BUILD THAT HAS A PROJECT.
+   *
+   * Until the Supabase keys are set, /account renders one paragraph saying accounts are not open —
+   * and a nav item pointing at that is an invitation to nothing. The build that first carries the
+   * keys carries the link with it, so switching accounts on takes no second code change.
+   *
+   * The env read is LITERAL because Next inlines `process.env.NEXT_PUBLIC_*` only where it appears
+   * literally; through a variable this would be undefined in the export and the link would never
+   * appear, however many keys were set.
+   */
+  ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+    ? [{
+        href: "/account", label: "Your bets", group: "you", glyph: "🧾",
+        desc: "The bets you placed, and how they have actually gone",
+        surfaces: ["rail", "footer"], bucket: "account",
+      } as NavDestination]
+    : []),
   // ── RECORD ─────────────────────────────────────────────────────────────────────────────────────
   /*
    * The Lab's OWN suggested cards, tracked separately from /results/parlays — which is saved slips,
@@ -299,24 +328,6 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     desc: "Ask about games, players, forecasts and the site", surfaces: ["rail", "footer"] },
   { href: "/responsible-use", label: "Responsible use", group: "record",
     desc: "Paper-only, educational, no stake is ever filled", surfaces: ["footer"] },
-  /*
-   * P266 · THE ACCOUNT DESTINATION EXISTS ONLY IN A BUILD THAT HAS A PROJECT.
-   *
-   * Until the Supabase keys are set, /account renders one paragraph saying accounts are not open —
-   * and a nav item pointing at that is an invitation to nothing. The build that first carries the
-   * keys carries the link with it, so switching accounts on takes no second code change.
-   *
-   * The env read is LITERAL because Next inlines `process.env.NEXT_PUBLIC_*` only where it appears
-   * literally; through a variable this would be undefined in the export and the link would never
-   * appear, however many keys were set.
-   */
-  ...(process.env.NEXT_PUBLIC_SUPABASE_URL
-    ? [{
-        href: "/account", label: "Your bets", group: "record", glyph: "🧾",
-        desc: "The bets you placed, and how they have actually gone",
-        surfaces: ["rail", "footer"], bucket: "account",
-      } as NavDestination]
-    : []),
 ];
 
 /** Destinations carried by one surface, in canonical order. */
