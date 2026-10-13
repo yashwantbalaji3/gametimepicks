@@ -106,11 +106,16 @@ function feedFacts(sport: string, root: string): FeedFact[] {
     const file = path.join(root, "nba", "schedule", "latest.json");
     const n = rowsIn(file);
     if (!n) return [];
-    const doc = JSON.parse(fs.readFileSync(file, "utf8")) as { rows?: Array<{ dateUtc?: string }> };
-    const next = (doc.rows ?? []).map((r) => r.dateUtc).filter((d): d is string => Boolean(d)).sort()[0];
+    const doc = JSON.parse(fs.readFileSync(file, "utf8")) as { rows?: Array<{ dateUtc?: string; seasonType?: number }> };
+    /* 2026-10-13: the first captured row is a PRESEASON game (seasonType 1, Oct 12), so this said "Season opens
+       October 12" while opening night is Oct 20. Only a regular-season row (ESPN seasonType 2) opens the season. */
+    const rows = doc.rows ?? [];
+    const regular = rows.filter((r) => r.seasonType === 2);
+    const preseason = rows.filter((r) => r.seasonType === 1).length;
+    const next = regular.map((r) => r.dateUtc).filter((d): d is string => Boolean(d)).sort()[0];
     return [
-      { label: "Games captured", detail: `${n} confirmed 2026-27 dates — the schedule is captured as the league releases it, never inferred` },
-      ...(next ? [{ label: "Season opens", detail: prettyDate(next) }] : []),
+      { label: "Games captured", detail: `${n} confirmed 2026-27 dates${preseason ? ` (${regular.length} regular season, ${preseason} preseason)` : ""} — the schedule is captured as the league releases it, never inferred` },
+      ...(next ? [{ label: "Regular season opens", detail: prettyDate(next) }] : []),
     ];
   }
   return [];

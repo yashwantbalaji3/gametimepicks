@@ -55,10 +55,11 @@ test("every surface is DERIVED, never hand-listed", () => {
 });
 
 test("groups are ordered by the question a reader is asking", () => {
-  const order = ["now", "sports", "products", "record"];
+  /* UX System V2 (2026-10-13): "you" (My GameTime) sits between the products and the record. */
+  const order = ["now", "sports", "products", "you", "record"];
   const seen = [];
   for (const d of NAV_DESTINATIONS) if (!seen.includes(d.group)) seen.push(d.group);
-  assert.deepEqual(seen, order, "groups must run Now → Sports → Products → Track record");
+  assert.deepEqual(seen, order, "groups must run Main → Sports → Picks & parlays → My GameTime → Learn & record");
   for (const g of order) assert.ok(NAV_GROUP_LABEL[g], `${g} has a rendered label`);
 });
 

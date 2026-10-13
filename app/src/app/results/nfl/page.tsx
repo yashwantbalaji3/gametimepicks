@@ -19,7 +19,7 @@ import { archivedEventIds } from "@/lib/sports/nfl/archived-forecast";
 import SectionHeader from "@/components/section-header";
 import { NFL_RESULTS_COVERAGE_NOTE } from "@/lib/sports/nfl/results-coverage.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import { readAllNflWeekReports, readNflWeekReports, pct, unitFigure, type Outcome, type WeekGame } from "@/lib/sports/nfl/week-report-data";
+import { readAllNflWeekReports, readNflWeekReports, pct, unitFigure, weekHeadline, headlineTitle, headlineDetail, type Outcome, type WeekGame } from "@/lib/sports/nfl/week-report-data";
 import { nflFamilyRecord } from "@/lib/results/v2/nfl-family-record.mjs";
 import NflFamilyDrilldown from "@/components/results/nfl-family-drilldown";
 
@@ -118,6 +118,12 @@ function GamePlayers({ game }: { game: WeekGame }) {
 export default function NflWeekReportPage() {
   const { latest, earlier } = readNflWeekReports();
   const season = nflFamilyRecord(readAllNflWeekReports());
+  /* Earlier weeks are named by their winner record — never a pooled "came true" rate (weekHeadline). */
+  const earlierWinner = (key: string) => {
+    const r = readAllNflWeekReports().find((w) => w.key === key)?.report;
+    const w = r ? weekHeadline(r).winner : null;
+    return w ? `favored team won ${w.hits} of ${w.checks}` : "graded";
+  };
   /* P320: a row links to its archived pregame read only when that page is generated (the frozen revision exists). */
   const archived = new Set(archivedEventIds(path.join(process.cwd(), "public", "data")));
 
@@ -134,6 +140,7 @@ export default function NflWeekReportPage() {
   const pendingGames = latest.games.filter((g) => g.state === "PENDING");
   const team = (g: WeekGame, prop: string) => g.team.find((t) => t.prop === prop);
   const c = s.context.closerThanSportsbook;
+  const headline = weekHeadline(latest);
 
   return (
     <div className="wr vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden flex flex-col gap-10">
@@ -141,10 +148,10 @@ export default function NflWeekReportPage() {
       <header style={{ maxWidth: 760 }}>
         <div className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 11, color: "var(--sport-nfl)" }}>NFL · {latest.period.label} report</div>
         <h1 className="font-display m-0 mt-2" style={{ color: "var(--vault-text)", fontSize: 28, lineHeight: 1.2, textWrap: "balance" }}>
-          {latest.period.label}: {pct(s.overall.rate)} of our predictions came true
+          {headlineTitle(latest.period.label, headline)}
         </h1>
         <p style={{ margin: "10px 0 0", fontSize: 14, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
-          {s.overall.hits} of {s.overall.checks} checks across {s.gamesFinal} final game{s.gamesFinal === 1 ? "" : "s"}, each graded exactly as we published it before kickoff against the official box score.
+          {headlineDetail(headline)} {s.gamesFinal} final game{s.gamesFinal === 1 ? "" : "s"}, each graded exactly as we published it before kickoff against the official box score.
           {pendingGames.length ? ` ${pendingGames.map((g) => `${g.away.abbr} at ${g.home.abbr}`).join(", ")} ${pendingGames.length === 1 ? "is" : "are"} not final yet and will be added when ${pendingGames.length === 1 ? "it finishes" : "they finish"}.` : ""}
         </p>
       </header>
@@ -163,10 +170,10 @@ export default function NflWeekReportPage() {
       </section>
 
       <section aria-labelledby="by-prop">
-        <SectionHeader eyebrow={latest.period.label} title="Success rate by prediction" sub={`${s.gamesFinal} final game${s.gamesFinal === 1 ? "" : "s"} · void predictions are not counted`} />
+        <SectionHeader eyebrow={latest.period.label} title="Each kind of prediction, on its own terms" sub={`${s.gamesFinal} final game${s.gamesFinal === 1 ? "" : "s"} · void predictions are not counted · a range aims for about 8 in 10, so a higher rate there is not better`} />
         <div className="scroll">
           <table style={{ minWidth: 800 }}>
-            <thead><tr><th scope="col">Prediction</th><th scope="col">Success rate</th><th scope="col">Hits</th><th scope="col">Void</th><th scope="col">Typical miss</th><th scope="col">Range width</th><th scope="col">What counts</th></tr></thead>
+            <thead><tr><th scope="col">Prediction</th><th scope="col">Rate</th><th scope="col">Hits</th><th scope="col">Void</th><th scope="col">Typical miss</th><th scope="col">Range width</th><th scope="col">What counts</th></tr></thead>
             <tbody>
               {s.props.map((p) => (
                 <tr key={p.id}>
@@ -187,15 +194,6 @@ export default function NflWeekReportPage() {
                   </td>
                 </tr>
               ))}
-              <tr>
-                <td style={{ fontWeight: 700, color: "var(--vault-text)" }}>Overall</td>
-                <td className="k" style={{ fontSize: 14, fontWeight: 700, color: "var(--vault-text)" }}>{pct(s.overall.rate)}</td>
-                <td className="k m">{s.overall.hits}/{s.overall.checks}</td>
-                <td />
-                <td />
-                <td />
-                <td className="m" style={{ fontSize: 12 }}>Every check above, added together.</td>
-              </tr>
             </tbody>
           </table>
         </div>
@@ -219,7 +217,7 @@ export default function NflWeekReportPage() {
           <SectionHeader eyebrow="Season to date" title="Every week, by prediction" sub={`${season.weeks.filter((w) => w.gamesFinal > 0).map((w) => w.label).join(", ")} graded${season.weeks.some((w) => w.gamesPending > 0) ? ` · ${season.weeks.filter((w) => w.gamesPending > 0).map((w) => `${w.label}: ${w.gamesPending} game${w.gamesPending === 1 ? "" : "s"} not final yet`).join(" · ")}` : ""} · void predictions are not counted`} />
           <div className="scroll">
             <table style={{ minWidth: 640 }}>
-              <thead><tr><th scope="col">Prediction</th><th scope="col">Success rate</th><th scope="col">Hits / decided</th><th scope="col">Void</th><th scope="col">By week</th></tr></thead>
+              <thead><tr><th scope="col">Prediction</th><th scope="col">Rate</th><th scope="col">Hits / decided</th><th scope="col">Void</th><th scope="col">By week</th></tr></thead>
               <tbody>
                 {season.families.map((f) => (
                   <tr key={f.id}>
@@ -271,7 +269,7 @@ export default function NflWeekReportPage() {
         <p style={{ margin: 0 }}>{latest.source} {latest.disclaimer}</p>
         <p style={{ margin: "6px 0 0" }}>
           Graded {etKickoff(latest.generatedAt).replace(" ET", "")} ET
-          {earlier.length ? ` · earlier weeks: ${earlier.map((w) => `${w.label} ${pct(w.overall.rate)}`).join(" · ")}` : ""}
+          {earlier.length ? ` · earlier weeks: ${earlier.map((w) => `${w.label} ${earlierWinner(w.key)}`).join(" · ")}` : ""}
           {" · "}<Link href="/nfl/" style={{ color: "var(--vault-gold-bright)" }}>This week&rsquo;s NFL predictions</Link>
           {" · "}<Link href="/results/picks/nfl/" style={{ color: "var(--vault-gold-bright)" }}>NFL model record</Link>
         </p>

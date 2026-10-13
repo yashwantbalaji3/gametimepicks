@@ -110,3 +110,56 @@ export const unitFigure = (id: string, v: number | undefined) => {
   const n = id === "player_receptions" ? (Math.round(v * 10) / 10).toString() : String(Math.round(v));
   return `${n} ${id === "player_receptions" ? "catches" : id === "total_range" || id === "margin_range" ? "pts" : "yds"}`;
 };
+
+/**
+ * THE WEEK'S HEADLINE (launch audit, 2026-10-13). /results and /results/nfl used to lead with
+ * "82.2% of our NFL predictions came true (393 of 478 checks)". That number added three different things:
+ *   · range checks (378 of 451) — whether a final number landed inside an 80% range. Their AIM is about 8 in 10;
+ *     a higher share means the ranges were too wide, not that the predictions were better;
+ *   · the winner record (8 of 13) — the only check that is "the team we picked won";
+ *   · the likeliest touchdown scorer (7 of 14).
+ * Summed, the ranges dominate and read as an accuracy rate the model never earned. The headline now names each
+ * kind on its own terms, from this one owner, so the card and the report cannot drift apart.
+ */
+export interface WeekHeadline {
+  winner: { hits: number; checks: number; expected: number | null } | null;
+  ranges: { hits: number; checks: number; rate: number | null; target: number } | null;
+  scorer: { hits: number; checks: number } | null;
+}
+
+export function weekHeadline(report: WeekReport): WeekHeadline {
+  const props = report.summary?.props ?? [];
+  const winnerProp = props.find((p) => p.id === "winner" && p.checks > 0);
+  const scorerProp = props.find((p) => p.id === "likeliest_scorer" && p.checks > 0);
+  const rangeProps = props.filter((p) => typeof p.target === "number" && p.checks > 0);
+  const targets = [...new Set(rangeProps.map((p) => p.target as number))];
+  const rangeHits = rangeProps.reduce((a, p) => a + p.hits, 0);
+  const rangeChecks = rangeProps.reduce((a, p) => a + p.checks, 0);
+  return {
+    winner: winnerProp ? { hits: winnerProp.hits, checks: winnerProp.checks, expected: winnerProp.expectedHits ?? null } : null,
+    /* One shared aim or no pooled line at all — ranges with different aims cannot be added up honestly. */
+    ranges: rangeChecks > 0 && targets.length === 1 ? { hits: rangeHits, checks: rangeChecks, rate: rangeHits / rangeChecks, target: targets[0] } : null,
+    scorer: scorerProp ? { hits: scorerProp.hits, checks: scorerProp.checks } : null,
+  };
+}
+
+const inTen = (target: number) => `${Math.round(target * 10)} in 10`;
+
+/** "Week 5: the team we favored won 8 of 13 games" — or, with no graded winner, just "Week 5 report". */
+export function headlineTitle(label: string, h: WeekHeadline): string {
+  return h.winner ? `${label}: the team we favored won ${h.winner.hits} of ${h.winner.checks} games` : `${label} report`;
+}
+
+/** The other two kinds of check, each against its own yardstick. Never one pooled "came true" rate. */
+export function headlineDetail(h: WeekHeadline): string {
+  const parts: string[] = [];
+  if (h.winner?.expected != null) parts.push(`Our win chances expected about ${h.winner.expected} of those ${h.winner.checks}.`);
+  if (h.ranges) {
+    parts.push(
+      `Final numbers landed inside our ${Math.round(h.ranges.target * 100)}% ranges ${h.ranges.hits} of ${h.ranges.checks} times (${pct(h.ranges.rate)}) — ` +
+        `the aim is about ${inTen(h.ranges.target)}: far more means the ranges were too wide, far fewer too narrow.`,
+    );
+  }
+  if (h.scorer) parts.push(`Our likeliest touchdown scorer scored in ${h.scorer.hits} of ${h.scorer.checks} games.`);
+  return parts.join(" ");
+}

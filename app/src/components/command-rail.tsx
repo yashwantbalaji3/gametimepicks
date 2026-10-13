@@ -14,7 +14,7 @@
  */
 import { activeHref } from "@/lib/nav-active-route";
 import Link from "next/link";
-import { destinationsFor, NAV_GROUP_LABEL } from "@/lib/navigation";
+import { destinationsFor, NAV_GROUP_LABEL, type NavGroup } from "@/lib/navigation";
 import { usePathname } from "next/navigation";
 import BrandMark from "./brand-mark";
 import SiteSearch from "@/components/search/site-search";
@@ -48,9 +48,25 @@ const ITEMS: RailItem[] = destinationsFor("rail").map((d, i, list) => ({
   label: d.label,
   glyph: d.glyph ?? "•",
   desc: d.desc,
-  // A group heading renders at each boundary, so the rail reads as four clusters not seventeen rows.
+  // A group heading renders at each boundary, so the rail reads as clusters, not thirty rows.
   group: i === 0 || list[i - 1]!.group !== d.group ? NAV_GROUP_LABEL[d.group] : undefined,
 }));
+
+/*
+ * UX System V2 (2026-10-13) · ONE RAIL, FIVE CLUSTERS, THREE OF THEM FOLDED. The audit counted 30 rail rows at equal
+ * weight — Main alone had eleven. Main (the primaries, Today, Saved) and Sports stay open; Picks & parlays,
+ * My GameTime and Learn fold into a native <details> that opens by itself when it holds the current page. Every
+ * destination is still a real link in the DOM (keyboard, search engines, the rendered-nav guards), one click away.
+ */
+type RailGroup = { key: NavGroup; label: string; items: RailItem[] };
+const ALWAYS_OPEN: readonly NavGroup[] = ["now", "sports"];
+const GROUPS: RailGroup[] = destinationsFor("rail").reduce<RailGroup[]>((acc, d) => {
+  const item = ITEMS.find((i) => i.href === d.href)!;
+  const last = acc.at(-1);
+  if (last && last.key === d.group) last.items.push(item);
+  else acc.push({ key: d.group, label: NAV_GROUP_LABEL[d.group], items: [item] });
+  return acc;
+}, []);
 
 /** UX-001 phase 2: the one shared resolver (lib/nav-active-route.ts) — the rail lights exactly what the top nav, the
  *  phone bar and the Menu sheet light, including retired aliases mid-redirect. */
@@ -89,49 +105,68 @@ export default function CommandRail() {
       </div>
 
       <nav aria-label="Primary (rail)" className="flex-1 px-3 py-2 flex flex-col gap-0.5 overflow-y-auto">
-        {ITEMS.map((item) => {
-          const active = isActive(item);
-          return (
-            <span key={item.href} className="flex flex-col">
-              {item.group && (
-                <span
-                  className="flex items-center gap-2 px-3 pt-4 pb-1 font-mono uppercase tracking-[0.18em]"
-                  style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+        {GROUPS.map((g) => {
+          const rows = g.items.map((item) => {
+            const active = isActive(item);
+            return (
+              <span key={item.href} className="flex flex-col">
+                <Link
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className="gtp-rail-link group flex items-center gap-3 px-3 py-2 rounded-[7px] transition-all"
+                  style={{
+                    color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
+                    background: active ? "var(--vault-gold-dim)" : "transparent",
+                    borderLeft: active
+                      ? "2px solid var(--vault-gold-bright)"
+                      : "2px solid transparent",
+                    // Handed to CSS as a custom property rather than set as an inline `boxShadow`.
+                    // An inline box-shadow BEATS the global `a:focus-visible` ring, so writing it
+                    // here directly left all 14 rail links — the primary desktop navigation — with
+                    // no visible keyboard focus at all. See .gtp-rail-link in globals.css.
+                    ["--rail-shadow" as string]: active
+                      ? "inset 0 0 0 1px var(--vault-border), 0 0 14px var(--vault-gold-glow)"
+                      : "none",
+                  }}
                 >
-                  <span aria-hidden style={{ width: 5, height: 5, borderRadius: 999, background: "var(--gtp-bank-heat)", opacity: 0.7 }} />
-                  {item.group}
+                  <span aria-hidden style={{ width: 18, textAlign: "center", fontSize: 13, alignSelf: "flex-start", marginTop: 1 }}>
+                    {item.glyph}
+                  </span>
+                  <span className="flex flex-col leading-tight">
+                    <span className={`text-[13px] tracking-tight ${active ? "font-semibold" : "font-medium"}`}>{item.label}</span>
+                    {item.desc && (
+                      <span className="text-[10.5px] tracking-tight" style={{ color: "var(--vault-text-faint)", marginTop: 1 }}>{item.desc}</span>
+                    )}
+                  </span>
+                </Link>
+              </span>
+            );
+          });
+          const headingDot = <span aria-hidden style={{ width: 5, height: 5, borderRadius: 999, background: "var(--gtp-bank-heat)", opacity: 0.7 }} />;
+          if (ALWAYS_OPEN.includes(g.key)) {
+            return (
+              <div key={g.key} className="flex flex-col gap-0.5">
+                <span className="flex items-center gap-2 px-3 pt-4 pb-1 font-mono uppercase tracking-[0.18em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+                  {headingDot}
+                  {g.label}
                 </span>
-              )}
-              <Link
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className="gtp-rail-link group flex items-center gap-3 px-3 py-2 rounded-[7px] transition-all"
-                style={{
-                  color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
-                  background: active ? "var(--vault-gold-dim)" : "transparent",
-                  borderLeft: active
-                    ? "2px solid var(--vault-gold-bright)"
-                    : "2px solid transparent",
-                  // Handed to CSS as a custom property rather than set as an inline `boxShadow`.
-                  // An inline box-shadow BEATS the global `a:focus-visible` ring, so writing it
-                  // here directly left all 14 rail links — the primary desktop navigation — with
-                  // no visible keyboard focus at all. See .gtp-rail-link in globals.css.
-                  ["--rail-shadow" as string]: active
-                    ? "inset 0 0 0 1px var(--vault-border), 0 0 14px var(--vault-gold-glow)"
-                    : "none",
-                }}
+                {rows}
+              </div>
+            );
+          }
+          const holdsActive = g.items.some((item) => isActive(item));
+          return (
+            <details key={`${g.key}:${holdsActive}`} open={holdsActive} className="gtp-rail-group flex flex-col">
+              <summary
+                className="gtp-rail-group-summary flex items-center gap-2 px-3 pt-4 pb-1 font-mono uppercase tracking-[0.18em] cursor-pointer select-none"
+                style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
               >
-                <span aria-hidden style={{ width: 18, textAlign: "center", fontSize: 13, alignSelf: "flex-start", marginTop: 1 }}>
-                  {item.glyph}
-                </span>
-                <span className="flex flex-col leading-tight">
-                  <span className={`text-[13px] tracking-tight ${active ? "font-semibold" : "font-medium"}`}>{item.label}</span>
-                  {item.desc && (
-                    <span className="text-[10.5px] tracking-tight" style={{ color: "var(--vault-text-faint)", marginTop: 1 }}>{item.desc}</span>
-                  )}
-                </span>
-              </Link>
-            </span>
+                {headingDot}
+                <span className="flex-1">{g.label}</span>
+                <span aria-hidden className="gtp-rail-group-caret">›</span>
+              </summary>
+              <div className="flex flex-col gap-0.5">{rows}</div>
+            </details>
           );
         })}
       </nav>

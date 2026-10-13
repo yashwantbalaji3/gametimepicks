@@ -603,7 +603,7 @@ jobs:
           # P295: the nflverse season capture the v3 totals head folded is committed with the forecasts built from it.
           # Session 4: the 2026 player-event partition and the role-share pool folded from it are committed
           # with the boards built from them (role-shares-v1/ was missing, so the committed pool stayed stale).
-          git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json data/internal/research/injuries/ data/internal/research/nfl/replay/ data/internal/research/nfl/player-events-v1/2026.json data/internal/research/nfl/role-shares-v1/
+          git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json data/internal/research/injuries/nfl/ data/internal/research/nfl/replay/ data/internal/research/nfl/player-events-v1/2026.json data/internal/research/nfl/role-shares-v1/
           if git diff --cached --quiet; then
             echo "nothing changed — no commit"
             exit 0
@@ -761,7 +761,16 @@ jobs:
       # COST-001 Stage A (2026-10-09) · ONE PUSH PER RUN. Runs whatever happened above (`always()`, cancellation included),
       # so a commit made earlier in the run is never stranded by a later failure. It is a no-op when nothing was
       # committed. The rebase and the retry are the ones each commit step used to do on its own.
+      #
+      # OPS-001 (2026-10-13) · A CONFLICT MUST NOT THROW THE RUN AWAY. This step used `git pull --rebase` under `set -e`.
+      # Run 38150059664 (2026-10-11 15:13Z) hit a content conflict on data/internal/research/injuries/nba/latest.json —
+      # another sport's snapshot, written here by the shared injury capture and by nba-forecast-window outside this
+      # concurrency group — and the step died before its retry: the window's two commits went away with the runner.
+      # Now (1) the capture above stages only injuries/nfl/, so this workflow no longer commits NBA's file, and (2) the
+      # rebase goes through scripts/ci/rebase-onto-main.sh: a regenerated injury snapshot resolves to this run's copy;
+      # any other conflict aborts the rebase LOUDLY with the commits intact on HEAD, and the next step keeps them.
       - name: Publish this run's commits (one push, one deployment)
+        id: publish
         if: ${{ always() }}
         run: |
           set -euo pipefail
@@ -770,13 +779,34 @@ jobs:
           if [ "$AHEAD" = "0" ]; then echo "nothing committed this run — no push"; exit 0; fi
           echo "publishing $AHEAD commit(s) in one push"
           for ATTEMPT in 1 2 3; do
-            git pull --rebase --autostash origin main
+            git fetch -q origin main
+            GENERATED_PATHS="data/internal/research/injuries/" LOG_PREFIX="nfl-event-window publish" bash scripts/ci/rebase-onto-main.sh
             if git push origin HEAD:main; then echo "pushed on attempt $ATTEMPT"; exit 0; fi
             echo "::warning::push lost a race (attempt $ATTEMPT) — rebasing again"
             sleep $((ATTEMPT * 10))
           done
           echo "::error::could not push after 3 attempts"
           exit 1
+
+      # OPS-001 · NEVER SILENTLY LOST. If the publish failed, this run's commits (window, settlement receipts, write-once
+      # WM2 runs) still exist only on this runner. Bundle them as an artifact so they can be inspected and replayed by
+      # hand (`git fetch <bundle> && git cherry-pick ...`) instead of disappearing; the failure alert below still fires.
+      - name: Keep unpublished commits recoverable
+        if: ${{ always() && steps.publish.outcome == 'failure' }}
+        run: |
+          set -euo pipefail
+          git rebase --abort 2>/dev/null || true
+          git bundle create unpublished-commits.bundle origin/main..HEAD
+          git log --oneline origin/main..HEAD | tee unpublished-commits.txt
+      - name: Upload unpublished commits
+        if: ${{ always() && steps.publish.outcome == 'failure' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: nfl-event-window-unpublished-${{ github.run_id }}
+          path: |
+            unpublished-commits.bundle
+            unpublished-commits.txt
+          retention-days: 30
 
       # Was a hand-rolled curl posting its own payload straight to the webhook. It worked, but it
       # sat OUTSIDE docs/OPS_ALERTING_CONTRACT.md: no redaction pass, a different message shape, and
