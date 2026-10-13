@@ -2395,6 +2395,32 @@ Append one entry per Claude Code session. Never rewrite prior entries.
 - Local export at `1b61f4fcdd` shows "Run line TB − 1.5 · CLE + 1.5" and no "No MLB games today".
 - **Limit:** today's props stay empty after merge, because the workflow's once-per-ET-day paid gate already ran. A forced recovery run is paid and is a founder decision.
 
+**#1070 release record (MLB slate date and run-line direction, plus the `main` CI fix):**
+- **Approved head:** `285e4fb7ac13a23da63d420caab26968e06e6f23`. Founder approval 2026-10-13.
+- **CI on that exact head:** run 38419768898, `python` ✓ `quality` ✓. MERGEABLE/CLEAN.
+- **Merge:** the session's pinned merge was refused by the auto-mode permission classifier ("Merge Without Review"). The founder ran the pinned merge → `9a99b473415e2e11c9100a024a217a9ef816e08d` at 17:13:21Z. The merge tree is byte-identical to the approved head on all 10 files.
+- **Production acceptance (17:25Z): PASS.**
+  - Production build-info = `9a99b473`, built 17:19:44Z (the exact merge).
+  - `/mlb` no longer says "No MLB games today".
+  - The team-markets card reads "Run line TB − 1.5 · CLE + 1.5", matching the book (TB −1.5 +159, CLE +1.5 −194). The game card's "CLE +1.5" is unchanged and correct.
+  - 6 key routes return 200.
+  - `main` quality-gate on the merge: run 38436905650 ✓.
+  - No forecast, grade or data file changed (code only). No paid capture ran: no forced recovery, per the founder.
+- **Not yet observable:** the ET-day ingest fix runs with the next scheduled MLB daily-production ingest (2026-10-14).
+
+**#1071 release record (NFL Results headline):**
+- **Approved head:** `9ff33ea32d0436731b9903cecc9c8b98eb962f9e`. Approved by the founder after confirming the Week 5 record from existing data.
+  - 15 finals, of which NYG @ WSH ended 27–27 (official, `nfl/results/latest.json` `STATUS_FINAL` 27–27).
+  - The published rule is "a tie is void".
+  - That gives 14 decided: 8 hits (HOU, PIT, NE, MIN, GB, DEN, DET, BAL), 6 misses (DAL, PHI, MIA, CLE, SEA, LAR).
+  - Expected ≈ 8.49 is the sum of the 14 decided picks' published probabilities.
+- **CI on that exact head:** run 38437515064, `python` ✓ `quality` ✓. MERGEABLE/CLEAN.
+- **Local validation:**
+  - exact-head local build: rendered and headline tests 14/14;
+  - browser: "Week 5: the team we favored won 8 of 14 games"; ranges 404 of 483 (83.6%) against the 80% aim; likeliest scorer 8 of 15; no "came true"; no Overall row; 0 overflow.
+- **Merged by the founder** with the pinned command → `d5b67358e826fe7a95f32010ba679d5818ee20f1` at 17:56:24Z, byte-identical to the approved head on all 5 files.
+- **Production acceptance:** see the update below.
+
 ---
 
 # 26. Immediate execution waves
