@@ -252,17 +252,17 @@ export default function AboutPage() {
               separation.
             </li>
             <li>
-              <strong style={{ color: "var(--vault-success)" }}>
-                Curated rail is outperforming parlays meaningfully
+              <strong style={{ color: "var(--vault-text)" }}>
+                Early tracking: curated picks vs saved parlays (2 days)
               </strong>{" "}
               — across the first 2 days of tracking, single-leg
               curated picks are <strong>8-4 (66.7% on 12)</strong>
               while multi-leg saved parlays are{" "}
               <strong>6-44 (12.0% on 50)</strong>. MLB-only curated
-              picks are 5-1 (83.3%). The honest read: selectivity
-              over volume is working; correlation risk is brutal on
-              4-5 leg slips. We surface both tracks but expect
-              users to weight the curated rail more heavily.
+              picks are 5-1 (83.3%). Two days and 62 settled picks
+              are far too few to say either track is better, and a
+              multi-leg slip loses more often by construction, since
+              every leg has to land. Both tracks stay visible.
             </li>
             <li>
               <strong style={{ color: "var(--vault-gold-bright)" }}>

@@ -94,7 +94,7 @@ export function buildModelLab({ dataRoot, repoRoot, nowIso }: { dataRoot: string
   const p304 = research("epl/reports/epl-history-replay-evaluation.json") as { generatedAt?: string; verdict?: string } | null;
   const p304Protocol = research("epl/reports/epl-elo-poisson-forward-protocol.json") as { frozen?: { adoptedAt?: string } } | null;
   if (p304?.verdict === "ELIGIBLE") decisions.push({ when: dateOf(p304Protocol?.frozen?.adoptedAt ?? p304.generatedAt), sport: "epl", outcome: "ADOPTED", what: "Premier League match model replaced by a rating model tested blind on nine past seasons",
-    detail: "It beat the previous model and a plain rating system on 3,420 matches it was never fit on, and now runs a blind forward test against the model it replaced." });
+    detail: "On 3,420 matches it was never fit on, its log loss was 0.974, against 0.983 for a plain rating system and 0.994 for the previous model; the gain held in a season bootstrap (95% interval −0.018 to −0.001 per match). It now runs a blind forward test against the model it replaced." });
   const p305 = research("epl/reports/epl-totals-replay-evaluation.json") as { generatedAt?: string; verdicts?: Record<string, { blind?: { verdict?: string }; secondLook?: { verdict?: string } }> } | null;
   if (p305?.verdicts) {
     const blind = Object.values(p305.verdicts).map((v) => v.blind?.verdict);

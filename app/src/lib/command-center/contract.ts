@@ -135,7 +135,9 @@ export const PUBLIC_STATE_LABEL: Record<PublicModelState, string> = {
 
 /** Rookie copy behind every "What does this mean?" — one sentence per state, the same everywhere. */
 export const PUBLIC_STATE_MEANING: Record<PublicModelState, string> = {
-  VALIDATED: "Before it went live, this model was scored on past seasons it had never seen and beat the simpler rules it replaced. That is a bar, not a promise.",
+  /* Launch audit (2026-10-13): "beat the simpler rules it replaced" was said of every VALIDATED model, including ones
+     whose evidence is a point estimate with no interval. The state means its preregistered bars were cleared. */
+  VALIDATED: "Before it went live, this model was scored on past seasons it had never seen and cleared bars set in advance against simpler baselines. That is a bar, not a promise, and not a claim that it beats sportsbook prices.",
   FORWARD_TEST: "The model is being graded on new games as they happen, against the model it replaced. If it falls significantly behind, the previous model comes back automatically.",
   HOLDING: "Over the games graded so far, this call has done at least as well as its floor (a coin flip, or the model it replaced).",
   WATCH: "Over the games graded so far, this call is slightly behind its floor, but not by enough to be sure it is worse. It keeps publishing while the record grows.",

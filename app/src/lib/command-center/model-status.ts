@@ -109,7 +109,9 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
     return [
       item("epl_match_model", "Match model", validated ? "VALIDATED" : "EXPERIMENTAL", validated ? "Tested blind on nine past seasons" : "Not validated out of sample",
         validated
-          ? "Scored on 3,420 Premier League matches from seasons it was never fit on, where it beat the previous model and a plain rating system. Its totals follow the league's recent scoring rate, so over-2.5 is the same for every match."
+          /* Numbers from data/internal/research/epl/reports/epl-history-replay-evaluation.json (P304, frozen); the claim
+             stands because its preregistered season-bootstrap interval excludes zero (pinned by claims-wording.test). */
+          ? "Scored on 3,420 Premier League matches from seasons it was never fit on: log loss 0.974, against 0.983 for a plain rating system and 0.994 for the previous model (lower is better). The gain over the rating system held in a season bootstrap (95% interval −0.018 to −0.001 per match). Its totals follow the league's recent scoring rate, so over-2.5 is the same for every match."
           : "The live model was fit and judged on recent seasons only; no blind historical test backs it.", null, "soccer/epl/forecasts/latest.json"),
       item("epl_forward", "Forward test", fwdState, !receipt ? "Status unknown" : fwdState === "FORWARD_TEST" ? `Forward test · ${receipt.n ?? 0} of ${receipt.needed ?? 60} matches` : fwdState === "PAUSED" ? "Previous model publishing again" : fwdState === "WATCH" ? "Watch · behind the model it replaced" : "Holding against the model it replaced",
         receipt ? `Every graded match scores the live model beside the one it replaced. A verdict needs ${receipt.needed ?? 60} matches; ${receipt.n ?? 0} are in.` : "The forward receipt could not be read at build time.", receipt?.n ?? null, "epl/forward/receipt.json"),
@@ -121,10 +123,22 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
   // ufc
   const verdicts = ctx.ufcVerdicts ?? null;
   const passed = verdicts ? Object.values(verdicts).every((v) => v === "PASS") : null;
+  /*
+   * Launch audit (2026-10-13, founder-approved wording fix): this said the heads "each beat their baseline". The card's
+   * own evidence is POINT estimates against simple baselines (a coin flip, method and round base rates) with no
+   * uncertainty interval — not a claim this site makes without one. The numbers are stated instead, read from the
+   * card's evidence block so they never drift from it.
+   */
+  type Head = { logLoss?: number; baselineLogLoss?: number };
+  const ev = (readJson(path.join(ctx.dataRoot, "ufc", "card-latest.json")) as { model?: { evidence?: { heldOutFights?: number; winner?: Head; method?: Head; round?: Head } } } | null)?.model?.evidence ?? null;
+  const ll = (h?: Head) => (h && Number.isFinite(h.logLoss) && Number.isFinite(h.baselineLogLoss) ? `${(h.logLoss as number).toFixed(3)} against ${(h.baselineLogLoss as number).toFixed(3)}` : null);
+  const ufcEvidence = ev && ll(ev.winner) && ll(ev.method) && ll(ev.round)
+    ? `On ${ev.heldOutFights?.toLocaleString("en-US") ?? "held-out"} fights held out of the fit, log loss (lower is better) was ${ll(ev.winner)} for a coin flip on the winner, ${ll(ev.method)} for the method base rate and ${ll(ev.round)} for the round base rate. These are point estimates against simple baselines, with no uncertainty interval, and they are not a comparison with sportsbook prices.`
+    : "Each head cleared its preregistered bar on fights held out of the fit. The bars are against simple baselines, not sportsbook prices.";
   const live = fam("ufc_winner");
   return [
     item("ufc_model", "Fight model", passed == null ? "UNKNOWN" : passed ? "VALIDATED" : "EXPERIMENTAL", passed == null ? "Status unknown" : passed ? "Backtest passed on held-out fights" : "Backtest did not clear its bars",
-      passed == null ? "The card artifact carries no model verdicts." : passed ? "Winner, method and round heads each beat their baseline on fights held out of the fit." : "One or more heads missed their preregistered bar; see the card for which.", null, "ufc/card-latest.json"),
+      passed == null ? "The card artifact carries no model verdicts." : passed ? ufcEvidence : "One or more heads missed their preregistered bar; see the card for which.", null, "ufc/card-latest.json"),
     item("ufc_winner", "Live record", healthState(live, paused), live ? (live.state === "INSUFFICIENT_SAMPLE" ? "Too early to judge" : live.state === "HOLDING" ? "Holding against a coin flip" : "Watch · behind a coin flip") : "Status unknown",
       live ? liveRecordDetail(live, "a coin flip") : "The health scorecard could not be read at build time.", live?.n ?? null, HEALTH),
   ];
