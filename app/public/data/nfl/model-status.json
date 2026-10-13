@@ -2,16 +2,16 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-model-status",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-12T23:59:52Z",
+ "generatedAt": "2026-10-13T02:26:06Z",
  "windowSeasonType": "MIXED_OR_REGULAR",
  "note": "Derived from committed evaluation receipts. Every state here is evidence-backed; a layer with no receipt reads UNKNOWN rather than green.",
  "teamSimulation": {
   "state": "PUBLIC_EXPERIMENTAL",
   "headline": "Experimental regular-season simulations are published",
-  "detail": "We publish a simulated score range and win chance for every game, clearly marked experimental (1 games forecast today under nfl-regular-season-public-v1). On a full held-out 2025 season the model behind it picked about 64% of winners (log loss 0.6478 against a coin's 0.6931), and it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.",
+  "detail": "We publish a simulated score range and win chance for every game, clearly marked experimental (14 games forecast today under nfl-regular-season-public-v1). The win chance comes from a team rating that weights margin of victory. Tested on 4,281 past games it had never seen (2006–2021), it scored 0.629 on log loss (lower is better) against 0.642 for our previous rating, 0.693 for a coin flip and 0.610 for the sportsbooks' own odds — so it makes no claim to beat the sportsbook market. Every forecast is frozen before kickoff and settled against the official result.",
   "nextGate": "A validated pick additionally needs the frozen 2026 walk-forward evaluation to pass its own bars — 64 decisive games and 4 completed weeks before any reading counts.",
   "checkable": {
-   "forecasts": 1,
+   "forecasts": 14,
    "model": "nfl-regular-season-public-v1",
    "heldOutWinnerLogLoss": 0.6478,
    "coinLogLoss": 0.6931
@@ -35,41 +35,40 @@
   }
  },
  "market": {
-  "state": "LIVE",
-  "headline": "Sportsbook prices are published for this slate",
-  "detail": "Captured before every kickoff shown, across up to 11 sportsbooks. These are the books' own numbers with attribution — not GameTimePicks predictions.",
+  "state": "ARCHIVED_CAPTURE",
+  "headline": "No current sportsbook prices — the last capture covered games now played",
+  "detail": "The most recent authorized capture (2026-10-11) priced 14 game(s) whose kickoffs have all passed. Those prices live with their games in the archive; no current price is shown and none is invented.",
   "capturedAt": "2026-10-11T11:41:55Z",
-  "events": 1
+  "events": 0,
+  "nextGate": "The next authorized market capture."
  },
  "window": {
   "seasonType": 2,
-  "week": 5
+  "week": 6
  },
  "playerFamilies": [
   {
    "key": "player_pass_yds",
    "label": "Passing yards",
    "publication": {
-    "boards": 15,
+    "boards": 14,
     "states": [
      "ESTIMATE"
     ],
-    "models": [
-     "nfl-player-share-level-v1"
-    ]
+    "models": []
    },
    "source": "boards",
    "nextGate": "Current role evidence, a current offered line, and settlement support.",
    "state": "ESTIMATE_BELOW_BAR",
-   "modelId": "nfl-player-share-level-v1",
+   "modelId": null,
    "headline": "Passing yards: displayed as an unvalidated estimate",
-   "detail": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss — the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance."
+   "detail": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk — on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
   },
   {
    "key": "player_rush_yds",
    "label": "Rushing yards",
    "publication": {
-    "boards": 15,
+    "boards": 14,
     "states": [
      "ESTIMATE"
     ],
@@ -86,7 +85,7 @@
    "key": "player_reception_yds",
    "label": "Receiving yards",
    "publication": {
-    "boards": 15,
+    "boards": 14,
     "states": [
      "PUBLISHED"
     ],
@@ -106,20 +105,21 @@
    "key": "player_receptions",
    "label": "Receptions",
    "publication": {
-    "boards": 15,
+    "boards": 14,
     "states": [
      "PUBLISHED"
     ],
-    "models": [
-     "nfl-player-share-level-v1"
+    "models": [],
+    "bases": [
+     "props-v1 evaluation: n=3575, all promotion bars pass"
     ]
    },
    "source": "boards",
    "nextGate": null,
    "state": "PUBLISHED",
-   "modelId": "nfl-player-share-level-v1",
-   "headline": "Receptions: published this week by nfl-player-share-level-v1",
-   "detail": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (586 graded player-games)."
+   "modelId": null,
+   "headline": "Receptions: published this week on every game",
+   "detail": "Every game on this week's slate publishes receptions from the same evaluated model. Each game page states its own range."
   }
  ],
  "anytimeTd": {
