@@ -1,0 +1,219 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "849820-9167bbb34a271699a2808fdb2ce0a94f",
+  "snapshotCreatedAt": "2026-10-12T20:07:36.414Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-10-12",
+  "eventId": "849820",
+  "gamePk": 849820,
+  "eventStartTime": "2026-10-13T00:00:00Z",
+  "homeTeam": "TB",
+  "awayTeam": "CLE",
+  "venue": "Tropicana Field",
+  "statusState": "Pre-Game",
+  "startedAtCapture": false,
+  "dataQuality": {
+    "anyEligible": true,
+    "eligibleFamilies": [
+      "confirmed_lineup",
+      "pitcher_status",
+      "environment",
+      "umpire"
+    ]
+  },
+  "rawPayloadHash": "709517e3e8eb17816726f36e1cee5d55",
+  "normalizedPayloadHash": "e6b43ba813e9c4c8d03efa0b7e5955da",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": true,
+      "value": {
+        "home": [
+          650490,
+          666018,
+          691406,
+          668723,
+          683748,
+          676356,
+          810938,
+          670764,
+          663743
+        ],
+        "away": [
+          680757,
+          608070,
+          800050,
+          666176,
+          663993,
+          683953,
+          672275,
+          690984,
+          677587
+        ],
+        "status": "CONFIRMED"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-10-12T20:07:36.414Z",
+      "availableAt": "2026-10-12T20:07:36.414Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-12T20:07:36.414Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849820/feed/live",
+        "requestedAt": "2026-10-12T20:07:36.414Z",
+        "receivedAt": "2026-10-12T20:07:36.414Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": true,
+      "value": {
+        "homeProbable": "Drew Rasmussen",
+        "awayProbable": "Foster Griffin",
+        "status": "PROBABLE"
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-10-12T20:07:36.414Z",
+      "availableAt": "2026-10-12T20:07:36.414Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-12T20:07:36.414Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849820/feed/live",
+        "requestedAt": "2026-10-12T20:07:36.414Z",
+        "receivedAt": "2026-10-12T20:07:36.414Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": true,
+      "value": {
+        "condition": "Dome",
+        "temp": "72",
+        "wind": "0 mph, None",
+        "roofType": "Dome",
+        "dayNight": "night",
+        "postgameOnly": false
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-10-12T20:07:36.414Z",
+      "availableAt": "2026-10-12T20:07:36.414Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-12T20:07:36.414Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849820/feed/live",
+        "requestedAt": "2026-10-12T20:07:36.414Z",
+        "receivedAt": "2026-10-12T20:07:36.414Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": true,
+      "value": {
+        "officials": [
+          {
+            "name": "Nestor Ceja",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Bill Miller",
+            "type": "First Base"
+          },
+          {
+            "name": "Mark Ripperger",
+            "type": "Second Base"
+          },
+          {
+            "name": "Jordan Baker",
+            "type": "Third Base"
+          },
+          {
+            "name": "Chad Fairchild",
+            "type": "Left Field"
+          },
+          {
+            "name": "Adam Hamari",
+            "type": "Right Field"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "observedAt": "2026-10-12T20:07:36.414Z",
+      "availableAt": "2026-10-12T20:07:36.414Z",
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-12T20:07:36.414Z",
+      "timestampProven": true,
+      "researchEligible": true,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849820/feed/live",
+        "requestedAt": "2026-10-12T20:07:36.414Z",
+        "receivedAt": "2026-10-12T20:07:36.414Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

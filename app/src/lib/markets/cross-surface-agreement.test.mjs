@@ -51,7 +51,16 @@ test("the Game Report and Market Center agree on every shared game", () => {
   const reportDates = [...new Set([...report.values()].map((r) => r.date).filter(Boolean))].sort();
   const date = [todayEt, ...reportDates.reverse()].find(hasMarkets) ?? latestMarketDate();
   assert.ok(date, "a slate must exist");
-  const center = loadMarketCenter(date, date, `${date}T17:00:00Z`);
+  /*
+   * THE SAME INSTANT ON BOTH SIDES (2026-10-13). The report side is built by getGameDetail on the REAL clock
+   * (`marketNow = new Date()`), exactly as /markets/page.tsx builds the center. This side was pinned to
+   * `${date}T17:00:00Z`, which disagreed with the report only once a time-dependent rule arrived: the live-record
+   * gate (lib/ops/live-record-gate.mjs) ignores a scorecard generated more than an hour AFTER `now`. On 2026-10-12
+   * the 15:24 ET nightly settle wrote model-health at 19:23Z, so at 17:00Z this side saw "no pause" while the report
+   * (and the real /markets page) paused mlb_total — a divergence of the two clocks, not of the two surfaces.
+   * Comparing two surfaces is only meaningful at one instant, so this side now reads the real clock too.
+   */
+  const center = loadMarketCenter(date, todayEt, new Date().toISOString());
 
   /*
    * A MID-FLIGHT DAY IS NOT A DEFECT (P233 · A). `gameDetailParams()` is today's games, and today's

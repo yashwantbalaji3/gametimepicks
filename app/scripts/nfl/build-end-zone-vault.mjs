@@ -10,7 +10,8 @@
  * OUTCOMES (exactly one per window):
  *   ACTIVE          every product gate passed AND current comparable TD prices exist
  *   WATCHLIST_ONLY  model candidates exist; price and/or role gates do not pass — no card
- *   NO_VAULT        the evaluator ran over a real pool and nothing qualified even as a candidate
+ *   NO_VAULT        nothing to evaluate (no upcoming event, or no board publishes the anytime-TD family), or the
+ *                   evaluator read a real pool and nothing qualified even as a candidate — the reason says which
  *   STALE           the evidence behind the candidates aged past its window
  *   INCIDENT        the pipeline contradicted itself or failed
  * A missing input is INCIDENT or STALE — never a quiet NO_VAULT, because "we found nothing" and
@@ -96,7 +97,9 @@ const currentDir = path.join(ROOT, "data/internal/nfl/current", DATE);
 const boardAtd = (providerEventId) => {
   const b = read(path.join(APP, "public/data/nfl/player-board", `${providerEventId}.json`));
   const fam = b?.families?.anytime_td;
-  if (!b || fam?.state !== "PUBLISHED") return { state: "NOT_PUBLISHED", model: fam?.model ?? null, rows: [] };
+  /* NFL-005 (2026-10-13): an ABSENT board is "we could not look", not "the board declines to publish". */
+  if (!b) return { state: "NO_BOARD", model: null, rows: [] };
+  if (fam?.state !== "PUBLISHED") return { state: "NOT_PUBLISHED", model: fam?.model ?? null, rows: [] };
   return { state: "PUBLISHED", model: fam.model ?? null, rows: (b.players ?? []).filter((p) => Number.isFinite(p.markets?.anytime_td?.probability)).map((p) => ({ playerId: p.playerId, name: p.name, team: p.team, participation: p.participation ?? null, probability: p.markets.anytime_td.probability })) };
 };
 const boardAtdCache = new Map();
@@ -159,6 +162,8 @@ function poolStatesFor(providerEventId, teamAbbr) {
 
 const candidates = [];
 const withheld = [];
+/* The published anytime-TD rows the evaluator actually read. Zero means there was no pool, and the outcome must say so. */
+let evaluatedRows = 0;
 for (const f of upcoming) {
   const board = boardAtdFor(f.providerEventId);
   for (const side of ["home", "away"]) {
@@ -167,7 +172,9 @@ for (const f of upcoming) {
     const expectedPoints = f.forecastSummary.projectedScore[side];
     const teamTd = teamTdDistribution({ expectedPoints, mapping });
     if (teamTd.state !== "OK") { withheld.push({ event: f.matchup, team: teamAbbr, reason: teamTd.reason }); continue; }
+    if (board.state === "NO_BOARD") { withheld.push({ event: f.matchup, team: teamAbbr, reason: "the game's player board is not built yet — the Vault could not look" }); continue; }
     if (board.state !== "PUBLISHED") { withheld.push({ event: f.matchup, team: teamAbbr, reason: "the game's board does not publish the anytime-touchdown family — the Vault never shows a second number" }); continue; }
+    evaluatedRows += board.rows.filter((r) => r.team === teamAbbr).length;
     const counts = poolStatesFor(f.providerEventId, teamAbbr);
     const roleEvidence = counts && (counts.ACTIVE_PROJECTED > 0 || counts.ACTIVE_CONFIRMED > 0);
 
@@ -259,9 +266,23 @@ if (missing.length) {
 } else if (!upcoming.length) {
   state = "NO_VAULT";
   reason = "no upcoming NFL event in this window to evaluate";
+} else if (upcoming.every((f) => boardAtdFor(f.providerEventId).state === "NO_BOARD")) {
+  /*
+   * ⚠ NFL-005 (2026-10-13, the Week 5 → 6 rollover). The first window of a new week ran this step BEFORE the
+   * week's player boards existed, so every team was withheld and the Vault published "the evaluator ran over a
+   * real pool and no player cleared 0.12" about a pool it never saw. A missing input is INCIDENT, never a quiet
+   * NO_VAULT (header). The workflow now runs this step after the boards; this branch keeps the answer honest if
+   * the boards are ever absent again.
+   */
+  state = "INCIDENT";
+  reason = `the Vault could not evaluate: no player board exists yet for the ${upcoming.length} upcoming event(s) — "we could not look" is not "we found nothing"`;
 } else if (!candidates.length) {
   state = "NO_VAULT";
-  reason = `the evaluator ran over a real pool and no player cleared the ${VAULT_PRODUCT_CARD.minCandidateProbability} candidate probability`;
+  /* Reachable only once the evaluator ran over a real pool: every missing-input case returned INCIDENT above. */
+  /* Both sentences say that nothing was published and name the blocker, in the contract's own words. */
+  reason = evaluatedRows === 0
+    ? `no published anytime-touchdown board to evaluate for the ${upcoming.length} upcoming event(s) — no card`
+    : `no candidate to evaluate: none of the ${evaluatedRows} published anytime-touchdown probabilities cleared ${VAULT_PRODUCT_CARD.minCandidateProbability} — no card`;
 } else if (CARD_ACTIVATION === "AUTHORIZED" && priced.length >= VAULT_PRODUCT_CARD.minSelectionsForCard && roleReady.length >= VAULT_PRODUCT_CARD.minSelectionsForCard) {
   state = "ACTIVE";
   selections = priced.filter((c) => c.roleState === "ACTIVE_EXPECTED").slice(0, VAULT_PRODUCT_CARD.maxSelections);

@@ -1,7 +1,7 @@
 {
   "kind": "public-research-terminal-summary",
   "schemaVersion": 1,
-  "asOfSettledDate": "2026-10-11",
+  "asOfSettledDate": "2026-10-12",
   "positioning": {
     "product": "sports research terminal",
     "posture": "paper-only, educational, public beta",
@@ -14,15 +14,15 @@
   },
   "modelUniverse": {
     "label": "model research universe",
-    "decisiveRows": 49368,
-    "wins": 24820,
-    "hitRate": 0.5027548209366391,
+    "decisiveRows": 49445,
+    "wins": 24859,
+    "hitRate": 0.5027606431388412,
     "dateRange": [
       "2026-05-16",
-      "2026-10-11"
+      "2026-10-12"
     ],
-    "meanStatedProbability": 0.5948893129152557,
-    "overconfidencePp": 9.213449197861657,
+    "meanStatedProbability": 0.5949652098291103,
+    "overconfidencePp": 9.22045666902691,
     "separateFromPaperRecord": "The paper-money record is a different product, over different dates, with a different denominator. The two are never combined.",
     "notOfRecord": {
       "rule": "forecast-of-record: each lean claim counts once, as its last version on a board before the game's canonical start; a later board replaces only the lean it revises (same side or same line), earlier-board copies stay in the raw ledger and are not counted, and a lean whose replacement is ambiguous is kept, disclosed and not counted",
@@ -181,7 +181,7 @@
       {
         "stage": "predictionHistory",
         "state": "READY",
-        "detail": "complete through 2026-10-11 (52571 rows, 0-day lag)"
+        "detail": "complete through 2026-10-12 (52654 rows, 0-day lag)"
       },
       {
         "stage": "calibrationArtifact",
@@ -196,62 +196,62 @@
       {
         "stage": "dailyResearchBrief",
         "state": "READY",
-        "detail": "newest settled date 2026-10-11"
+        "detail": "newest settled date 2026-10-12"
       },
       {
         "stage": "latestSettlement",
         "state": "READY",
-        "detail": "settled through 2026-10-11; 1 earlier date permanently withheld by the integrity gate (2026-07-28) and excluded from every rate"
+        "detail": "settled through 2026-10-12; 1 earlier date permanently withheld by the integrity gate (2026-07-28) and excluded from every rate"
       }
     ]
   },
   "dailyBrief": {
-    "date": "2026-10-11",
-    "decisiveRows": 38,
-    "wins": 22,
-    "decisiveHitRate": 0.5789473684210527,
-    "meanStatedProbability": 0.689078947368421,
-    "meanMarketProbability": 0.5215451713670938,
-    "calibrationErrorPp": 11.013157894736835,
+    "date": "2026-10-12",
+    "decisiveRows": 77,
+    "wins": 39,
+    "decisiveHitRate": 0.5064935064935064,
+    "meanStatedProbability": 0.643625974025974,
+    "meanMarketProbability": 0.5199370663596354,
+    "calibrationErrorPp": 13.713246753246755,
     "scoring": {
-      "modelBrier": 0.24828256210526314,
-      "marketBrier": 0.23633995930940657,
-      "rowsScored": 38
+      "modelBrier": 0.26649413558441554,
+      "marketBrier": 0.2454129807135052,
+      "rowsScored": 77
     },
     "byMarketFamily": [
       {
-        "market": "batter_hits_runs_rbis",
-        "n": 17,
-        "hitRate": 0.5882352941176471,
-        "calibrationErrorPp": 12.905294117647049,
-        "sufficientSample": false
-      },
-      {
         "market": "batter_total_bases",
-        "n": 2,
-        "hitRate": 0.5,
-        "calibrationErrorPp": 10.339999999999993,
-        "sufficientSample": false
-      },
-      {
-        "market": "batter_hits",
-        "n": 17,
-        "hitRate": 0.5882352941176471,
-        "calibrationErrorPp": 10.015294117647056,
+        "n": 7,
+        "hitRate": 0.14285714285714285,
+        "calibrationErrorPp": 37.71714285714285,
         "sufficientSample": false
       },
       {
         "market": "pitcher_strikeouts",
-        "n": 2,
-        "hitRate": 0.5,
-        "calibrationErrorPp": 4.085000000000005,
+        "n": 4,
+        "hitRate": 0.25,
+        "calibrationErrorPp": 36.77999999999999,
+        "sufficientSample": false
+      },
+      {
+        "market": "batter_hits_runs_rbis",
+        "n": 33,
+        "hitRate": 0.5151515151515151,
+        "calibrationErrorPp": 13.147878787878787,
+        "sufficientSample": false
+      },
+      {
+        "market": "batter_hits",
+        "n": 33,
+        "hitRate": 0.6060606060606061,
+        "calibrationErrorPp": 6.39090909090908,
         "sufficientSample": false
       }
     ],
     "observations": [
-      "Stated 68.9% on average and won 57.9% (22/38) — calibration error +11.0pp.",
-      "The de-vigged market stated 52.2% on the same rows.",
-      "Insufficient sample to read: `batter_hits_runs_rbis` (n=17), `batter_total_bases` (n=2), `batter_hits` (n=17), `pitcher_strikeouts` (n=2)."
+      "Stated 64.4% on average and won 50.6% (39/77) — calibration error +13.7pp.",
+      "The de-vigged market stated 52.0% on the same rows.",
+      "Insufficient sample to read: `batter_total_bases` (n=7), `pitcher_strikeouts` (n=4), `batter_hits_runs_rbis` (n=33), `batter_hits` (n=33)."
     ],
     "whatShouldNotBeConcluded": [
       "One settled date is not evidence of a change in model quality — day-to-day swings in this corpus are larger than most effects worth chasing.",

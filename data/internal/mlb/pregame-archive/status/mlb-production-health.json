@@ -3,15 +3,17 @@
   "approvedForProduction": false,
   "productEligible": false,
   "kind": "mlb-production-health",
-  "date": "2026-10-12",
-  "workflowRunId": "38276288634",
+  "date": "2026-10-13",
+  "workflowRunId": "38417036634",
   "boardGenerated": true,
   "teamMarketsGenerated": true,
-  "playerPropsGenerated": true,
+  "playerPropsGenerated": false,
   "simulationGenerated": true,
   "slateStatus": "READY",
-  "missingArtifacts": [],
-  "failureReason": null,
+  "missingArtifacts": [
+    "playerProps"
+  ],
+  "failureReason": "partial market data — missing playerProps",
   "creditsBefore": null,
   "creditsAfter": null,
   "creditsSpent": null,
@@ -20,31 +22,31 @@
   "readyToPublish": true,
   "publicLabel": "Slate ready",
   "artifactCounts": {
-    "boardGames": 2,
-    "teamMarketGames": 2,
-    "playerProps": 118,
-    "simGames": 2,
-    "simPicks": 16
+    "boardGames": 1,
+    "teamMarketGames": 1,
+    "playerProps": 0,
+    "simGames": 1,
+    "simPicks": 8
   },
   "artifacts": {
     "board": {
       "present": true,
-      "games": 2
+      "games": 1
     },
     "simulation": {
       "present": true,
-      "games": 2,
-      "picks": 16,
+      "games": 1,
+      "picks": 8,
       "runCount": 10000,
-      "artifactHash": "6b053d50fe5b6a6d5cd73234ee21067825b4bdd503c696ecb599caf4da58ad3f"
+      "artifactHash": "2ef260c5e641c9108d8c86ee7c14b0c87832f20b497da18e49d68db693871b66"
     },
     "teamMarkets": {
       "present": true,
-      "games": 2
+      "games": 1
     },
     "playerProps": {
-      "present": true,
-      "props": 118
+      "present": false,
+      "props": 0
     }
   },
   "credits": {

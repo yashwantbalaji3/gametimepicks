@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "event-identity-audit",
   "dataClass": "INTERNAL_DERIVED",
-  "generatedAt": "2026-10-12T17:54:02Z",
+  "generatedAt": "2026-10-13T14:49:13Z",
   "state": "FINDINGS",
   "note": "Identity and slug reconciliation across every sport's committed artifacts. NO_EVENTS means the checks were vacuous for that sport, which is a statement about the window rather than a pass.",
   "sports": [
     {
       "sport": "mlb",
       "verdict": "FINDINGS",
-      "rows": 3300,
+      "rows": 3303,
       "populations": [
         {
           "scope": "boards/2026-05-16",
@@ -1660,6 +1660,24 @@
           "rows": 2,
           "identified": 2,
           "findings": 0
+        },
+        {
+          "scope": "boards/2026-10-13",
+          "rows": 1,
+          "identified": 1,
+          "findings": 0
+        },
+        {
+          "scope": "full-game-simulations/2026-10-13",
+          "rows": 1,
+          "identified": 1,
+          "findings": 0
+        },
+        {
+          "scope": "predictions/2026-10-13",
+          "rows": 1,
+          "identified": 1,
+          "findings": 0
         }
       ],
       "findings": [
@@ -1717,12 +1735,12 @@
     {
       "sport": "nfl",
       "verdict": "OK",
-      "rows": 42,
+      "rows": 30,
       "populations": [
         {
           "scope": "schedule/latest",
-          "rows": 27,
-          "identified": 27,
+          "rows": 15,
+          "identified": 15,
           "findings": 0
         },
         {
@@ -1759,12 +1777,12 @@
     {
       "sport": "epl",
       "verdict": "OK",
-      "rows": 55,
+      "rows": 56,
       "populations": [
         {
           "scope": "graded-picks",
-          "rows": 55,
-          "identified": 55,
+          "rows": 56,
+          "identified": 56,
           "findings": 0
         }
       ],
@@ -1773,7 +1791,7 @@
     }
   ],
   "totals": {
-    "rows": 3422,
+    "rows": 3414,
     "findings": 8
   }
 }

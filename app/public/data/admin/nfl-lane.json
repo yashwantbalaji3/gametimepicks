@@ -2,28 +2,28 @@
  "schemaVersion": 1,
  "artifact": "nfl-lane-status",
  "dataClass": "INTERNAL_ADMIN",
- "generatedAt": "2026-10-11T22:36:21Z",
+ "generatedAt": "2026-10-13T02:26:06Z",
  "program": "P171",
  "nextWindow": {
-  "matchup": "BAL @ ATL",
-  "kickoffUtc": "2026-10-12T00:20Z",
+  "matchup": "SEA @ DEN",
+  "kickoffUtc": "2026-10-16T00:15Z",
   "seasonType": 2,
-  "week": 5,
-  "hoursToKickoff": 1.73,
-  "eventsInWindow": 16
+  "week": 6,
+  "hoursToKickoff": 69.81,
+  "eventsInWindow": 14
  },
  "freshness": {
   "schedule": {
    "state": "FRESH",
-   "detail": "as of 2026-10-11T15:34:33Z (FRESH)"
+   "detail": "as of 2026-10-12T18:55:09Z (FRESH)"
   },
   "rosters": {
    "state": "FRESH",
-   "detail": "as of 2026-10-11T22:36:21Z (FRESH)"
+   "detail": "as of 2026-10-13T02:26:06Z (FRESH)"
   },
   "injuries": {
    "state": "FRESH",
-   "detail": "as of 2026-10-11T22:36:44Z (FRESH)"
+   "detail": "as of 2026-10-13T02:26:27Z (FRESH)"
   },
   "odds": {
    "state": "STALE",
@@ -32,8 +32,10 @@
  },
  "regularSeason": {
   "verdict": {
-   "state": "READY_WITH_DESIGN_CAPS",
-   "operationalGaps": [],
+   "state": "OPERATIONAL_GAPS",
+   "operationalGaps": [
+    "prices:STALE"
+   ],
    "designCaps": [
     "activesInactives",
     "depthCharts",
@@ -44,7 +46,7 @@
    {
     "id": "schedule",
     "state": "AVAILABLE",
-    "detail": "schedule as of 2026-10-11T15:34:33Z"
+    "detail": "schedule as of 2026-10-12T18:55:09Z"
    },
    {
     "id": "teamStrength",
@@ -54,12 +56,12 @@
    {
     "id": "injuries",
     "state": "AVAILABLE",
-    "detail": "injuries as of 2026-10-11T22:36:44Z"
+    "detail": "injuries as of 2026-10-13T02:26:27Z"
    },
    {
     "id": "rosters",
     "state": "AVAILABLE",
-    "detail": "rosters as of 2026-10-11T22:36:21Z"
+    "detail": "rosters as of 2026-10-13T02:26:06Z"
    },
    {
     "id": "participationRoles",
@@ -88,7 +90,7 @@
    },
    {
     "id": "prices",
-    "state": "AVAILABLE",
+    "state": "STALE",
     "detail": "prices as of 2026-10-11T11:41:55Z"
    }
   ]
@@ -113,9 +115,10 @@
     "nfl-401872989",
     "nfl-401872991",
     "nfl-401872992",
-    "nfl-401872993"
+    "nfl-401872993",
+    "nfl-401872994"
    ],
-   "eventsProbed": 13,
+   "eventsProbed": 14,
    "offeredMarkets": [
     "player_anytime_td",
     "player_pass_yds",
@@ -642,8 +645,73 @@
        ]
       }
      ]
+    },
+    {
+     "canonicalEventId": "nfl-401872994",
+     "matchup": "Buffalo Bills @ Los Angeles Rams",
+     "offeredMarkets": [
+      "player_anytime_td",
+      "player_pass_yds",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "absentMarkets": [],
+     "unresolvedIdentities": [
+      {
+       "name": "Buffalo Bills D/ST",
+       "families": [
+        "anytime_td"
+       ]
+      },
+      {
+       "name": "Buffalo Bills Defense",
+       "families": [
+        "anytime_td"
+       ]
+      },
+      {
+       "name": "Los Angeles Rams D/ST",
+       "families": [
+        "anytime_td"
+       ]
+      },
+      {
+       "name": "Los Angeles Rams Defense",
+       "families": [
+        "anytime_td"
+       ]
+      },
+      {
+       "name": "No Scorer",
+       "families": [
+        "anytime_td"
+       ]
+      }
+     ],
+     "carriedForward": true,
+     "probedAt": "2026-10-10T17:32:23Z"
     }
-   ]
+   ],
+   "freshlyProbedEventIds": [
+    "nfl-401872981",
+    "nfl-401872990",
+    "nfl-401872982",
+    "nfl-401872983",
+    "nfl-401872984",
+    "nfl-401872985",
+    "nfl-401872986",
+    "nfl-401872987",
+    "nfl-401872988",
+    "nfl-401872989",
+    "nfl-401872991",
+    "nfl-401872992",
+    "nfl-401872993"
+   ],
+   "carriedEventIds": [
+    "nfl-401872994"
+   ],
+   "carriedFrom": "2026-10-10T17:32:23Z"
   }
  },
  "credits": {
@@ -651,14 +719,14 @@
   "programSpend": 1160,
   "ceiling": null,
   "remainingProgram": null,
-  "providerRemaining": 18654,
+  "providerRemaining": 18590,
   "openingBalance": {
    "capturedAt": "2026-08-13T08:57:07Z",
    "providerRequestsUsed": 4342,
    "providerRequestsRemaining": 15658,
    "note": "provider-verified via response headers on the free /events call — the screenshot claim is context, this is machine truth"
   },
-  "requests": 559,
+  "requests": 589,
   "detail": "authorization receipt did not parse — no paid call may run"
  },
  "models": {
@@ -691,16 +759,16 @@
   }
  },
  "currentArtifacts": {
-  "total": 2517,
-  "contractValid": 2517,
-  "preStart": 94,
-  "settlementReady": 1160,
-  "detail": "2517/2517 pass the current-event contract; 1160 carry pinned settlement targets"
+  "total": 2552,
+  "contractValid": 2552,
+  "preStart": 14,
+  "settlementReady": 1181,
+  "detail": "2552/2552 pass the current-event contract; 1181 carry pinned settlement targets"
  },
  "vault": {
   "state": "NO_PLAY",
-  "date": "2026-10-11",
-  "entries": 49,
+  "date": "2026-10-13",
+  "entries": 51,
   "corrections": 0
  },
  "gate": {

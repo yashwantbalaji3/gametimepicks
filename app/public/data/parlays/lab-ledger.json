@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-12T17:50:59Z",
+ "generatedAt": "2026-10-13T15:01:04Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -15,11 +15,11 @@
    "id": "mlb",
    "label": "MLB",
    "live": false,
-   "blocked": "only 1 priced game — the ladder needs 4",
+   "blocked": "no price capture for 2026-10-13 yet — the sport's own generation runs later in the day (newest capture 2026-10-12); only 0 priced games — the ladder needs 4",
    "evidence": {
-    "pricedGames": 1,
-    "pricesCapturedAt": "2026-10-12T09:29:27.506Z",
-    "priceAgeDays": 0.35,
+    "pricedGames": 0,
+    "pricesCapturedAt": null,
+    "priceAgeDays": null,
     "settlementSource": "MLB Stats API official box score",
     "settlementProven": true
    },
@@ -76,11 +76,11 @@
    "id": "nfl",
    "label": "NFL",
    "live": false,
-   "blocked": "only 1 priced game — the ladder needs 4",
+   "blocked": "only 0 priced games — the ladder needs 4",
    "evidence": {
-    "pricedGames": 1,
+    "pricedGames": 0,
     "pricesCapturedAt": "2026-10-11T11:41:55Z",
-    "priceAgeDays": 1.26,
+    "priceAgeDays": 2.14,
     "settlementSource": "official NFL final scores",
     "settlementProven": true
    },
@@ -137,11 +137,11 @@
    "id": "ufc",
    "label": "UFC",
    "live": false,
-   "blocked": "the last price capture is 4.0 days old; only 0 priced games — the ladder needs 4",
+   "blocked": "the last price capture is 4.9 days old; only 0 priced games — the ladder needs 4",
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-10-08T17:39:40Z",
-    "priceAgeDays": 4.01,
+    "priceAgeDays": 4.89,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true
    },
@@ -199,9 +199,9 @@
    "label": "Premier League",
    "live": true,
    "evidence": {
-    "pricedGames": 21,
+    "pricedGames": 20,
     "pricesCapturedAt": "2026-10-12T00:25:05Z",
-    "priceAgeDays": 0.73,
+    "priceAgeDays": 1.61,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true
    },

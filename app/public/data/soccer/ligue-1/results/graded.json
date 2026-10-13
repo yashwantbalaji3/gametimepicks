@@ -5,12 +5,12 @@
  "public": true,
  "league": "ligue-1",
  "competition": "Ligue 1",
- "generatedAt": "2026-10-11T15:43:33Z",
+ "generatedAt": "2026-10-12T19:05:27Z",
  "rule": "each match graded once, against the last forecast published before kickoff, from the official final score",
  "summary": {
-  "matches": 25,
-  "logLoss": 0.8953,
-  "brier": 0.5182,
+  "matches": 27,
+  "logLoss": 0.8594,
+  "brier": 0.4926,
   "uniformLogLoss": 1.0986,
   "sampleState": "ACCUMULATING"
  },
@@ -539,6 +539,48 @@
    "probabilityOfResult": 0.4857,
    "logLoss": 0.7221,
    "brier": 0.3967
+  },
+  {
+   "eventId": "soccer:ligue-1:401876441",
+   "matchup": "Stade Rennais v AJ Auxerre",
+   "homeClub": "Stade Rennais",
+   "awayClub": "AJ Auxerre",
+   "kickoffUtc": "2026-10-11T15:15:00.000Z",
+   "forecastAt": "2026-10-11T15:10:02Z",
+   "probs": {
+    "home": 0.694436,
+    "draw": 0.177143,
+    "away": 0.128421
+   },
+   "final": {
+    "home": 4,
+    "away": 1
+   },
+   "result": "H",
+   "probabilityOfResult": 0.6944,
+   "logLoss": 0.3647,
+   "brier": 0.1412
+  },
+  {
+   "eventId": "soccer:ligue-1:401876440",
+   "matchup": "Troyes v Marseille",
+   "homeClub": "Troyes",
+   "awayClub": "Marseille",
+   "kickoffUtc": "2026-10-11T18:45:00.000Z",
+   "forecastAt": "2026-10-11T15:43:33Z",
+   "probs": {
+    "home": 0.157267,
+    "draw": 0.209258,
+    "away": 0.633476
+   },
+   "final": {
+    "home": 0,
+    "away": 2
+   },
+   "result": "A",
+   "probabilityOfResult": 0.6335,
+   "logLoss": 0.4565,
+   "brier": 0.2029
   }
  ]
 }

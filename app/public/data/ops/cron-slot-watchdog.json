@@ -1,6 +1,6 @@
 {
   "kind": "cron-slot-watchdog",
-  "generatedAt": "2026-10-11T19:08:27Z",
+  "generatedAt": "2026-10-12T22:16:14Z",
   "lookbackHours": 168,
   "sports": {
     "mlb": {
@@ -8,7 +8,7 @@
       "crons": [
         "17 11 * * *"
       ],
-      "createdAt": "2026-09-23T22:24:43.000Z",
+      "createdAt": "2026-09-25T22:03:05.000Z",
       "expected": 7,
       "ran": 100,
       "missed": [],
@@ -24,11 +24,11 @@
         "0 11 * * 6",
         "0 13 * * 0,1,3,5"
       ],
-      "createdAt": "2026-09-23T22:24:43.000Z",
+      "createdAt": "2026-09-25T22:03:05.000Z",
       "expected": 7,
-      "ran": 69,
+      "ran": 70,
       "missed": [
-        "2026-10-05T13:00:00.000Z"
+        "2026-10-12T13:00:00.000Z"
       ],
       "lastConclusion": "success",
       "consecutiveFailures": 0,
@@ -44,12 +44,12 @@
         "0 13 * * 6",
         "0 13 * * 0"
       ],
-      "createdAt": "2026-09-23T22:24:43.000Z",
+      "createdAt": "2026-09-25T22:03:05.000Z",
       "expected": 24,
       "ran": 100,
       "missed": [],
       "lastConclusion": "failure",
-      "consecutiveFailures": 3,
+      "consecutiveFailures": 7,
       "state": "FAILING"
     },
     "epl": {
@@ -74,7 +74,7 @@
         "0 15 * * 0",
         "30 18 * * 1"
       ],
-      "createdAt": "2026-09-23T22:24:43.000Z",
+      "createdAt": "2026-09-25T22:03:05.000Z",
       "expected": 18,
       "ran": 100,
       "missed": [],
@@ -87,16 +87,18 @@
       "crons": [
         "7 9 * * *"
       ],
-      "createdAt": "2026-09-23T22:24:43.000Z",
+      "createdAt": "2026-09-25T22:03:05.000Z",
       "expected": 7,
-      "ran": 68,
-      "missed": [],
-      "lastConclusion": "success",
-      "consecutiveFailures": 0,
-      "state": "OK"
+      "ran": 69,
+      "missed": [
+        "2026-10-12T09:07:00.000Z"
+      ],
+      "lastConclusion": "failure",
+      "consecutiveFailures": 1,
+      "state": "MISSED"
     }
   },
-  "missedTotal": 1,
-  "failingTotal": 1,
+  "missedTotal": 2,
+  "failingTotal": 2,
   "unknown": []
 }
