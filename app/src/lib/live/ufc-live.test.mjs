@@ -32,7 +32,9 @@ const APP = path.join(here, "..", "..", "..");
 const REPO = path.join(APP, "..");
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 const fixture = (name) => JSON.parse(fs.readFileSync(path.join(here, "fixtures", name), "utf8"));
-const CARD = JSON.parse(read("public/data/ufc/card-latest.json"));
+/* Tonight's card of record (2026-10-10, committed pregame at a6c2df119c), pinned: card-latest.json rolls each fight week. */
+const CARD = fixture("ufc-card-20261010.json");
+const CURRENT_CARD = JSON.parse(read("public/data/ufc/card-latest.json"));
 const SNAPSHOT = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/ufc/model-vs-market/snapshot-202610091844.json"), "utf8"));
 const TONIGHT = fixture("mma-scoreboard-20261010-pre.json");
 
@@ -416,7 +418,7 @@ test("UFC-RO 1 · tonight's card → 12 bouts in card order, both portraits, 11 
 
 test("UFC-RO 2 · ⚠ every roster pick IS the frozen pre-card snapshot's pick, joined by bout id", () => {
   const r = buildUfcRosterFrom({ card: CARD, graded: null, etDate: CARD.event.slateDate });
-  if (CARD.event.providerEventId !== "600061541") return; // the card has moved on; this pins tonight's record only
+  assert.equal(CARD.event.providerEventId, "600061541", "the pinned card of record");
   const frozen = new Map(SNAPSHOT.rows.map((row) => [String(row.providerBoutId), row]));
   let joined = 0;
   for (const b of r.bouts) {
@@ -441,12 +443,25 @@ test("UFC-RO 2 · ⚠ every roster pick IS the frozen pre-card snapshot's pick, 
 
 test("UFC-RO 3 · ⚠ tonight's REAL feed joins all 12 bouts by bout id AND both athlete ids", () => {
   const r = buildUfcRosterFrom({ card: CARD, graded: null, etDate: CARD.event.slateDate });
-  if (CARD.event.providerEventId !== "600061541") return;
+  assert.equal(CARD.event.providerEventId, "600061541", "the pinned card of record");
   const byId = Object.fromEntries(normalizeMmaEnvelopes(TONIGHT, "2026-10-10T18:40:20Z").map((e) => [e.eventId, e]));
   for (const b of r.bouts) assert.equal(envelopeMatchesBout(byId[b.boutId], b), true, `${b.boutId} joins the real feed`);
   const g = groupUfcBouts(r.bouts, byId, { feed: "OK", nowMs: Date.parse("2026-10-10T18:41:00Z") });
   assert.equal(g.UPCOMING.length, 12);
   assert.ok(g.UPCOMING.every(({ view }) => view.label === "Scheduled"));
+});
+
+test("UFC-RO 1b · the CURRENT committed card builds honestly: a missing portrait is a monogram, never a broken image", () => {
+  const r = buildUfcRosterFrom({ card: CURRENT_CARD, graded: null, etDate: CURRENT_CARD.event.slateDate });
+  assert.equal(r.bouts.length, CURRENT_CARD.bouts.length, "every bout on whichever card is current");
+  for (const b of r.bouts) {
+    assert.ok(b.red.athleteId && b.blue.athleteId, `${b.boutId} carries both ESPN athlete ids`);
+    const html = renderToStaticMarkup(React.createElement(UfcBoutCard, { bout: b, view: deriveUfcBoutState({ bout: b, envelope: null, feed: "NOT_ASKED", nowMs: null }) }));
+    const imgs = (html.match(/<img\b[^>]*>/g) ?? []);
+    assert.ok(imgs.every((t) => /src="https?:\/\/[^"]+"/.test(t)), `${b.boutId}: every rendered image has a real source`);
+    assert.equal(imgs.length, [b.red, b.blue].filter((f) => f.photoUrl).length, `${b.boutId}: one image per fighter WITH a portrait, none otherwise`);
+    if (!b.pregame) assert.ok(b.unmodelledReason, `${b.boutId} states why it has no pick`);
+  }
 });
 
 test("UFC-RO 4 · a card for another day yields NO bouts (so no tab); a settlement attaches only to OUR pick", () => {

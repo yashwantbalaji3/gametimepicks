@@ -33,7 +33,9 @@ const { UfcBoutCard } = await import("../../components/live/ufc-live-hub.tsx");
 const here = path.dirname(new URL(import.meta.url).pathname);
 const APP = path.join(here, "..", "..", "..");
 const TIMELINE = JSON.parse(fs.readFileSync(path.join(here, "fixtures", "mma-live-20261010-timeline.json"), "utf8"));
-const CARD = JSON.parse(fs.readFileSync(path.join(APP, "public/data/ufc/card-latest.json"), "utf8"));
+/* The card of record for 2026-10-10 (committed pregame at a6c2df119c), pinned as a fixture: card-latest.json rolls to
+   the next event each fight week, and three tests below used to return early once it had — passing without checking. */
+const CARD = JSON.parse(fs.readFileSync(path.join(here, "fixtures", "ufc-card-20261010.json"), "utf8"));
 
 /** Rebuild every full scoreboard payload from the delta-encoded fixture, in capture order. */
 function expandTimeline(tl) {
@@ -238,7 +240,7 @@ test("REAL 8 · deterministic replay: every bout only moves forward, and nothing
 });
 
 test("REAL 9 · tonight's roster joined to a mid-card snapshot groups honestly", () => {
-  if (CARD.event.providerEventId !== "600061541") return; // the card has moved on
+  assert.equal(CARD.event.providerEventId, "600061541", "the pinned card of record");
   const roster = buildUfcRosterFrom({ card: CARD, graded: null, etDate: CARD.event.slateDate });
   const s = at("2026-10-10T22:10:45Z");
   const byId = Object.fromEntries(normalizeMmaEnvelopes(s.payload, s.capturedAt).map((e) => [e.eventId, e]));
@@ -429,7 +431,7 @@ test("REAL 17 · ⚠ after the card the EVENT status flipped back to SCHEDULED f
   const envs = normalizeMmaEnvelopes(last.payload, last.capturedAt);
   assert.equal(envs.length, 12);
   assert.ok(envs.every((e) => e.state === "FINAL"));
-  if (CARD.event.providerEventId !== "600061541") return;
+  assert.equal(CARD.event.providerEventId, "600061541", "the pinned card of record");
   const roster = buildUfcRosterFrom({ card: CARD, graded: null, etDate: CARD.event.slateDate });
   const byId = Object.fromEntries(envs.map((e) => [e.eventId, e]));
   const g = groupUfcBouts(roster.bouts, byId, { feed: "OK", nowMs: Date.parse(last.capturedAt) + 5_000 });
@@ -467,7 +469,7 @@ test("REAL 18 · ⚠ the committed timeline reproduces EVERY raw snapshot's bout
 });
 
 test("REAL 19 · a REPLACED bout (synthetic, on a real snapshot): the old pairing reads 'not in the live feed', the new one is never joined", () => {
-  if (CARD.event.providerEventId !== "600061541") return;
+  assert.equal(CARD.event.providerEventId, "600061541", "the pinned card of record");
   const roster = buildUfcRosterFrom({ card: CARD, graded: null, etDate: CARD.event.slateDate });
   const s = structuredClone(at("2026-10-10T21:14:39Z"));
   const comps = s.payload.events[0].competitions;
