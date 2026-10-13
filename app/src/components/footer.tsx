@@ -103,8 +103,10 @@ export default function Footer() {
           className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 mb-10 text-[13px]"
           style={{ color: "var(--vault-text-mute)" }}
         >
+          {/* UX System V2: the rail gives "you" (My GameTime) its own group; the sitemap keeps its four columns and lists
+              those links under Main, where they sat before — a fifth column only added a row on phones and tablets. */}
           {(["now", "sports", "products", "record"] as const).map((group) => {
-            const items = FOOTER_DESTINATIONS.filter((d) => d.group === group);
+            const items = FOOTER_DESTINATIONS.filter((d) => d.group === group || (group === "now" && d.group === "you"));
             if (!items.length) return null;
             return (
               <div key={group}>

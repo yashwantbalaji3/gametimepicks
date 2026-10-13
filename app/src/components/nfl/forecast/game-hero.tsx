@@ -35,9 +35,11 @@ export default function GameHero({ away, home, kickoffLabel, venue, record: r, l
   return (
     <section className="nf-card nf-hero" aria-labelledby="nf-hero-h" data-hero="record">
       <p className="nf-eyebrow">{kickoffLabel}{venue ? ` · ${venue}` : ""}</p>
-      <h1 id="nf-hero-h" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>
+      {/* h2, not h1 (UX System V2, 2026-10-13): the game page already carries the visible <h1> with the same
+          matchup, so a second, visually hidden h1 broke the one-h1 heading structure. It still names this section. */}
+      <h2 id="nf-hero-h" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>
         {away.name} at {home.name}
-      </h1>
+      </h2>
       <div className="nf-hero-teams">
         <div className="nf-team">
           <TeamLogo team={away.abbr} sport="nfl" size="xl" highlight={!favIsHome} ariaLabel={`${away.name} logo`} />

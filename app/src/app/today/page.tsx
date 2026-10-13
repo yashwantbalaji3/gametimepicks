@@ -69,6 +69,8 @@ import { buildYesterdayRecap } from "@/lib/recap/yesterday.mjs";
 import { legacyNameMap } from "@/lib/follow/entity-registry";
 import { currentProductRecord } from "@/lib/results/current-record";
 import { buildSimulateDay, simulationReadyCount } from "@/lib/simulate/day-view";
+import LiveNow from "@/components/live/live-now";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 
 export const metadata = withRouteMetadata("/today/", {
   title: "Today · GameTime Picks",
@@ -342,6 +344,9 @@ export default function TodayPage() {
         mlbGames={mlbGames}
         mlbLeans={mlbLeans}
       />
+      {/* UX System V2 (founder directive 2026-10-13): Today is the daily command center — LIVE FIRST. The same
+          view-time strip Home and the hubs use; it renders nothing when no game is in play. */}
+      <LiveNow sports={["nfl", "mlb"]} />
 
       {/* 1b — P251-F9: the payoff for following a club. Renders nothing until a reader has followed
               one, and only ever offers a destination the search index derived from a published
@@ -349,10 +354,6 @@ export default function TodayPage() {
       {/* v1.1.2: the strip is the main place P251 follows were READ, so it migrates them forward here. */}
       <YourTeams legacyMap={legacyNameMap()} />
 
-      {/* 1b2 — P251: the daily loop closes here. Everything settles overnight from official box
-              scores and that record lived only on /results; this puts it where a reader already
-              is, and it does not soften a losing day. */}
-      <YesterdayCard recap={buildYesterdayRecap(dataRoot)} />
 
       {/* 1c — Daily MLB intelligence brief: the executive digest (overview + spotlight + attention + links) */}
       <TodayMlbBrief brief={brief} recapHref={hasSettledResults ? "/results" : null} />
@@ -360,15 +361,7 @@ export default function TodayPage() {
       {/* 2 — Today at a glance (compact canonical status cards) */}
       <TodayAtAGlance cards={glanceCards} />
 
-      {/* 2a — The Parlay Lab's four risk evaluations per lane (P200): the SAME component + lib Home
-          renders, reading the day's risk-coverage matrix — one owner, two surfaces, no re-derivation.
-          The daily command center shows the daily product's evaluations, no-play chips included. */}
-      {parlayPreview ? (
-        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} todayEt={currentEtDate()} />
-      ) : null}
-
       {/* 2b — Game Predictions table: the model's answer for every game, canonical + first-glance */}
-      <TodaySimulationStories stories={slateStories} />
 
       <TodayGamePredictions rows={predictionRows} nowMs={nowMs} />
 
@@ -390,13 +383,36 @@ export default function TodayPage() {
         </Suspense>
       ) : null}
 
-      {/* 4 — Simulation-backed games (real ready artifacts only) */}
-      {/* Only current simulations belong on Today — the archive lives in /simulate (P241 · A12). */}
-      {allCurrent ? <TodaySimulationLeans featured={featured} readyCount={slateReadyCount} /> : null}
 
       {/* 4b — Every game on the slate: grouped by readiness, one honest per-game action, factual summary */}
       <TodayFullSlate groups={slate.groups} summary={slate.summary} readinessNote={slateReadiness} />
-
+      {/* 2a — The Parlay Lab's four risk evaluations per lane (P200): the SAME component + lib Home
+          renders, reading the day's risk-coverage matrix — one owner, two surfaces, no re-derivation.
+          The daily command center shows the daily product's evaluations, no-play chips included.
+          UX System V2: it follows the games and forecasts it is built from instead of preceding them. */}
+      {parlayPreview ? (
+        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} todayEt={currentEtDate()} />
+      ) : null}
+      {/* Recent finals follow what is on today (directive order: live → upcoming → forecasts → markets → finals). */}
+      {/* 1b2 — P251: the daily loop closes here. Everything settles overnight from official box
+              scores and that record lived only on /results; this puts it where a reader already
+              is, and it does not soften a losing day. */}
+      <YesterdayCard recap={buildYesterdayRecap(dataRoot)} />
+      {/*
+        UX System V2 · ONE FOLD FOR THE DEEPER LAYER. /today stacked 21 sections (11,800px on a phone). The story
+        and lean lists repeat the game predictions above; the change log, market-coverage provenance, the builder
+        and the product statuses are the trust and product layer. All of it is unchanged and still in the page's
+        HTML (find-in-page, the rendered guards) — it is folded, never removed.
+      */}
+      <MoreDisclosure
+        id="more-from-today"
+        title="More from today's slate"
+        summary="Simulation stories, what changed since the last run, sportsbook coverage, and the paper products' status."
+      >
+      <TodaySimulationStories stories={slateStories} />
+      {/* 4 — Simulation-backed games (real ready artifacts only) */}
+      {/* Only current simulations belong on Today — the archive lives in /simulate (P241 · A12). */}
+      {allCurrent ? <TodaySimulationLeans featured={featured} readyCount={slateReadyCount} /> : null}
       {/* S1 (2026-09-30): the change log and the market-coverage provenance follow the slate. Both are the
           trust layer — model-state transitions and capture availability — and led the page above every game,
           so the first thing on /today was a scorecard diff ("NFL blind forward test … → Watch"). Same owners,
@@ -434,6 +450,8 @@ export default function TodayPage() {
 
       {/* 8 — No-play / unavailable notes (discipline, not failure) */}
       <NoPlayNotes notes={noPlayNotes} />
+      </MoreDisclosure>
+
 
       {/* 9 — Results / settlement reminder */}
       <ResultsReminder recordLabel={recordLabel} pendingLine={pendingLabel} />

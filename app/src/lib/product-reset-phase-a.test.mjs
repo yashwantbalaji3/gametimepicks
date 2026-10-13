@@ -183,6 +183,12 @@ test("the raw builder never fronts the beginner: /build leads with Suggested Par
   assert.match(suggested, /\/build\/custom/, "the builder mode is one visible action away");
   assert.match(read("src/app/build/custom/page.tsx"), /Build Your Own/, "the builder is its own mode, not the beginner's first screen");
   const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
-  /* P243 · E: the destination is named "Picks & Parlays" — still the Now cluster, still suggested-first. */
-  assert.match(nav, /href: "\/build", label: "(Build|Parlay Center|Picks & Parlays|Parlays)", group: "now"/, "/build sits in the Now cluster beside the tools it belongs with, never as its own pillar");
+  /* P243 · E: the destination is named "Picks & Parlays" — still suggested-first.
+     UX System V2 (founder directive 2026-10-13: "Parlays — Parlay Lab, Bank Builder, Moonshot, related products"):
+     /build moved from Main into the "Picks & parlays" group with /markets and the paper products. The rule is
+     unchanged — it sits beside the tools it belongs with (it shares /markets' group), never as its own pillar. */
+  const groupOf = (href) => nav.match(new RegExp(`href: "${href.replace("/", "\\/")}", label: "[^"]+", group: "(\\w+)"`))?.[1];
+  assert.match(nav, /href: "\/build", label: "(Build|Parlay Center|Picks & Parlays|Parlays)", group: "(now|products)"/, "/build keeps its label and sits in Main or Picks & parlays");
+  assert.ok(groupOf("/build") && groupOf("/markets"), "both destinations are found in the registry");
+  assert.equal(groupOf("/build"), groupOf("/markets"), "/build sits beside the picks destination it belongs with, never as its own pillar");
 });

@@ -15,6 +15,11 @@
      geometric character; body stays on Geist for long-form readability. */
   --font-headline: "Space Grotesk", "Geist", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* UX System V2 (2026-10-13) · LABEL FACE. Small uppercase labels, eyebrows and captions read in the UI sans,
+     not the code face: the audit measured 42-48% of all visible copy on Home, Today, UFC and the products in
+     JetBrains Mono, almost all of it 9-12px uppercase labels. Mono stays where it earns its place — numerals,
+     odds, tickers, chips and anything tabular — via --font-mono. */
+  --font-label: "Geist", system-ui, sans-serif;
 
   /* Layout */
   --max-width: 1280px;
@@ -667,6 +672,14 @@ table,
   font-variant-numeric: tabular-nums;
 }
 
+/* UX System V2 · an UPPERCASE mono run is a label, not data: it reads in the label face. Numbers keep their
+   tabular figures (above), and `.tabular-nums` / numeric chips opt back into mono explicitly. One rule instead of
+   1,242 className edits; specificity (0,2,0) beats the Tailwind utility (0,1,0). */
+.font-mono.uppercase:not(.tabular-nums) {
+  font-family: var(--font-label);
+  font-weight: 500;
+}
+
 /* Utility: thin hairline divider */
 .hairline {
   border-color: var(--border);
@@ -687,7 +700,7 @@ table,
 
 /* Eyebrow label */
 .eyebrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1095,7 +1108,7 @@ body {
    places where the all-caps mono treatment feels too dense. The
    existing .eyebrow utility stays as-is for back-compat. */
 .vault-quiet-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--vault-text-faint);
@@ -1653,7 +1666,7 @@ body {
   .gtp-stat-panel:hover { transform: none; }
 }
 .gtp-stat-panel-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--vault-text-faint);
@@ -1910,7 +1923,7 @@ body {
   opacity: 0.6;
 }
 .gtp-reason-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1922,7 +1935,7 @@ body {
   opacity: 0.85;
 }
 .gtp-reason-eyebrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -2338,7 +2351,7 @@ body {
   border: 1px solid var(--vault-rule);
 }
 .gtp-anatomy-note .gtp-anatomy-eyebrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -2717,7 +2730,7 @@ body {
   border-radius: 999px;
   background: var(--vault-gold-dim);
   border: 1px solid var(--vault-border-strong);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -5846,3 +5859,22 @@ body {
 .gtp-day-table .m { color: var(--vault-text-mute); }
 .gtp-day-table .o { font-family: var(--font-mono, ui-monospace, monospace); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--vault-text-mute); }
 .gtp-day-table .o.w { color: var(--vault-text); font-weight: 600; }
+
+/* UX System V2 (2026-10-13) · folded rail groups (components/command-rail.tsx). A native <details>: keyboard and
+   screen readers get disclosure semantics for free; the caret turns when open; the summary keeps a visible focus
+   ring and a comfortable hit area. */
+.gtp-rail-group > summary { list-style: none; min-height: 32px; border-radius: 7px; }
+.gtp-rail-group > summary::-webkit-details-marker { display: none; }
+.gtp-rail-group > summary:hover { color: var(--vault-text-mute) !important; }
+.gtp-rail-group > summary:focus-visible { outline: 2px solid var(--vault-gold-bright); outline-offset: 2px; }
+.gtp-rail-group-caret { display: inline-block; font-size: 13px; line-height: 1; transition: transform 160ms ease; }
+.gtp-rail-group[open] .gtp-rail-group-caret { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .gtp-rail-group-caret { transition: none; } }
+
+/* UX System V2 · MoreDisclosure (components/ui/more-disclosure.tsx): one progressive-disclosure shape. */
+.gtp-more-disclosure > summary { list-style: none; min-height: 48px; }
+.gtp-more-disclosure > summary::-webkit-details-marker { display: none; }
+.gtp-more-disclosure > summary:focus-visible { outline: 2px solid var(--vault-gold-bright); outline-offset: 2px; border-radius: 12px; }
+.gtp-more-disclosure-caret { display: inline-block; transition: transform 160ms ease; }
+.gtp-more-disclosure[open] .gtp-more-disclosure-caret { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .gtp-more-disclosure-caret { transition: none; } }

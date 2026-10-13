@@ -350,10 +350,6 @@ export default function HomePage() {
         lastSettledDate={lastSettledDate}
       />
 
-      {/* 1b — P251: how the last settled day actually went, above everything the model is saying
-              about the next one. The record is the most credible thing here and it lived only on
-              /results; a reader who never opens that page now meets it on arrival. */}
-      <YesterdayCard recap={buildYesterdayRecap(dataRoot)} />
 
       {/* 2 — Simulation Hub: the per-sport simulation centers, directly under the hero (P200). This
           IS the live-sports strip — each card carries its sport's derived state, honest tier line and
@@ -421,6 +417,12 @@ export default function HomePage() {
         ariaLabel="Flagship products"
       />
 
+      {/* 5b — How the last settled day went (P251). UX System V2 (founder directive 2026-10-13, homepage order:
+              hero → live → today's predictions → sports → … → "Track our results"): it moved from directly under
+              the hero — where a first-time reader met "1 card published · 0 hit, 1 missed · 57.9% of 38 decisive
+              projections" before knowing what the site is — to here, opening the results section. Unchanged
+              content, same owner (buildYesterdayRecap); still on the homepage, still above the fold on /today. */}
+      <YesterdayCard recap={buildYesterdayRecap(dataRoot)} />
       {/* 6 — Recent results: the proof section (charter 5B order). Same owners as /results — the
           record label and pending line arrive from portfolio.json above; the last settled date from
           the optimizer's settled index. The homepage composes NOTHING. */}

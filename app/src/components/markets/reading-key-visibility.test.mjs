@@ -47,7 +47,12 @@ test("the built page shows the comparison without any interaction", () => {
    */
   const f = path.join(APP, "out", "markets", "index.html");
   if (!fs.existsSync(f)) return;
-  const html = fs.readFileSync(f, "utf8");
+  /* Scoped to <main>: the page's own content. UX System V2 (2026-10-13) folds desktop-rail groups into <details>,
+     and the rail renders before <main> — navigation chrome is neither the comparison nor a disclosure of it. */
+  const full = fs.readFileSync(f, "utf8");
+  const mainAt = full.indexOf("<main");
+  assert.ok(mainAt > -1, "the exported page has a <main> landmark");
+  const html = full.slice(mainAt);
   const example = html.indexOf("58.6%");
   const details = html.indexOf("<details");
   assert.ok(example > -1, "the worked example must be in the exported page");
