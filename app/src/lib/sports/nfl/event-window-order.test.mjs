@@ -37,3 +37,18 @@ test("🔴 a failed nflverse download cannot skip ANY later pregame step (injuri
     assert.match(cond, /!cancelled\(\)|always\(\)/, `${name} → if: ${cond}`);
   }
 });
+
+test("🔴 the End Zone Vault reads THIS window's player boards — it runs after them, before the receipts that read it", () => {
+  /* NFL-005 (2026-10-13). The Vault ran before build-nfl-player-board, so every window evaluated the previous window's
+     boards, and the first window of Week 6 found no Week 6 board at all and published "no player cleared 0.12". */
+  const step = wf.slice(at("Generate public-beta NFL forecasts"));
+  const pos = (cmd) => { const i = step.indexOf(`node scripts/nfl/${cmd}.mjs`); assert.ok(i > 0, `${cmd} runs in the pregame step`); return i; };
+  const vault = pos("build-end-zone-vault");
+  assert.ok(pos("build-nfl-player-board") < vault, "the per-game boards the Vault reads are built first");
+  assert.ok(pos("build-nfl-weekly-boards") < vault, "and the weekly boards");
+  assert.ok(vault < pos("build-nfl-product-receipts"), "the receipts that summarise the Vault come after it");
+  /* Product eligibility also reads the Vault. It runs earlier in this step, so it must be re-derived later in the run. */
+  const elig = [...wf.matchAll(/node scripts\/nfl\/build-nfl-product-eligibility\.mjs/g)].map((m) => m.index);
+  const vaultAbs = wf.indexOf("node scripts/nfl/build-end-zone-vault.mjs");
+  assert.ok(elig.some((i) => i > vaultAbs), "product eligibility is re-derived after the Vault in the same run");
+});

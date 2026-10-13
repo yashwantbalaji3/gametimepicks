@@ -73,10 +73,17 @@
     {
       "product": "end-zone-vault",
       "label": "End Zone Vault",
-      "state": "REFUSED",
-      "stateReason": "the evaluator ran over a real pool and no player cleared the 0.12 candidate probability",
-      "candidatesConsidered": 0,
-      "rejections": [],
+      "state": "NO_PLAY",
+      "stateReason": "117 model candidates · no current comparable touchdown price is available",
+      "candidatesConsidered": 117,
+      "rejections": [
+        {
+          "reason": "NO_PRICED_MARKET",
+          "label": "the provider offers no NFL player market in this window",
+          "detail": "an unpriced leg can never enter a paper product — there is nothing to settle it against.",
+          "count": 117
+        }
+      ],
       "alsoBlocking": [
         {
           "reason": "NO_VALIDATED_FAMILY",
