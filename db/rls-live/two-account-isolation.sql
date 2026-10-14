@@ -61,6 +61,21 @@ begin
   execute format('delete from %s where %I = $1', tbl, owner_col) using other;
   get diagnostics n = row_count;
   if n <> 0 then raise exception 'LEAK %: % deleted % row(s) owned by %', tbl, me, n, other; end if;
+  -- (2026-10-14) A BLANKET delete, like the blanket update above, consults only the DELETE policy's USING, so an
+  -- open delete policy that hides behind owner-only SELECT for every WHERE'd delete shows here. It must remove
+  -- exactly my rows, and my own delete must work (the "you can always delete your data" promise). Both run in a
+  -- sub-block that is rolled back by a marker exception, so the battery's later counts are unaffected.
+  execute format('select count(*) from %s where %I = $1', tbl, owner_col) into mine using me;
+  begin
+    execute format('delete from %s', tbl);
+    get diagnostics n = row_count;
+    if n <> mine then raise exception 'LEAK %: a blanket delete by % removed % row(s), they own %', tbl, me, n, mine; end if;
+    execute format('select count(*) from %s where %I = $1', tbl, owner_col) into n using me;
+    if n <> 0 then raise exception 'OWN-DELETE %: % could not delete their own row(s)', tbl, me; end if;
+    raise exception 'rls_test_rollback';
+  exception when raise_exception then
+    if sqlerrm <> 'rls_test_rollback' then raise; end if;
+  end;
   return tbl::text || ' isolated for ' || me;
 end $$;
 grant execute on function rls_test.isolation(regclass, text, uuid, uuid, text, text) to anon, authenticated;
@@ -134,6 +149,27 @@ do $$ begin
   if rls_test.n('select count(*) from public.beta_access') <> 0 then raise exception 'LEAK beta_access: the invite list is readable by a tester'; end if;
 end $$;
 select rls_test.refused($$insert into public.beta_access (email) values ('friend@example.test')$$, 'a tester invites someone');
+-- (2026-10-14) Writing AS another user is refused on every table, including the upsert path the app uses.
+select rls_test.refused($$insert into public.profiles (id) values ('00000000-0000-4000-8000-00000000000b') on conflict (id) do update set display_name = 'hijacked'$$, 'A upserts B''s profile');
+select rls_test.refused($$insert into public.user_preferences (user_id, favorite_sports) values ('00000000-0000-4000-8000-00000000000b', '{x}') on conflict (user_id) do update set favorite_sports = '{x}'$$, 'A upserts B''s preferences');
+select rls_test.refused($$insert into public.user_follows (user_id, kind, entity_id) values ('00000000-0000-4000-8000-00000000000b', 'sport', 'mlb') on conflict (user_id, kind, entity_id) do nothing$$, 'A follows as B');
+select rls_test.refused($$insert into public.saved_items (user_id, kind, ref) values ('00000000-0000-4000-8000-00000000000b', 'game', 'x') on conflict (user_id, kind, ref) do nothing$$, 'A saves as B');
+-- Storage: there is no UPDATE policy, so moving/renaming an object is refused outright; B's object can be
+-- neither renamed into A's folder nor deleted by A; and a blanket delete by A removes only A's object.
+do $$ declare n bigint; begin
+  update storage.objects set name = '00000000-0000-4000-8000-00000000000a/stolen.png' where name like '00000000-0000-4000-8000-00000000000b/%';
+  get diagnostics n = row_count; if n <> 0 then raise exception 'LEAK storage: A renamed % of B''s object(s)', n; end if;
+  update storage.objects set name = name;
+  get diagnostics n = row_count; if n <> 0 then raise exception 'LEAK storage: a blanket update by A touched % object(s) (no UPDATE policy exists)', n; end if;
+  delete from storage.objects where name like '00000000-0000-4000-8000-00000000000b/%';
+  get diagnostics n = row_count; if n <> 0 then raise exception 'LEAK storage: A deleted % of B''s object(s)', n; end if;
+  begin
+    delete from storage.objects;
+    get diagnostics n = row_count; if n <> 1 then raise exception 'LEAK storage: a blanket delete by A removed % object(s), they own 1', n; end if;
+    raise exception 'rls_test_rollback';
+  exception when raise_exception then if sqlerrm <> 'rls_test_rollback' then raise; end if;
+  end;
+end $$;
 reset role;
 
 select rls_test.act_as('0b');
@@ -171,6 +207,16 @@ end $$;
 -- anon has no EXECUTE on is_beta_member() on a correctly granted project, so the refusal may arrive as
 -- either a policy violation or a function-permission error: both are 42501, and both are a refusal.
 select rls_test.refused($$insert into public.bet_slips (user_id, source) values ('00000000-0000-4000-8000-00000000000a', 'manual')$$, 'anonymous writes a bet');
+select rls_test.refused($$insert into public.profiles (id) values ('00000000-0000-4000-8000-00000000000a')$$, 'anonymous creates a profile');
+select rls_test.refused($$insert into public.user_follows (user_id, kind, entity_id) values ('00000000-0000-4000-8000-00000000000a', 'sport', 'x')$$, 'anonymous follows');
+select rls_test.refused($$insert into public.saved_items (user_id, kind, ref) values ('00000000-0000-4000-8000-00000000000a', 'game', 'x')$$, 'anonymous saves');
+select rls_test.refused($$insert into storage.objects (bucket_id, name) values ('slips', 'anon/x.png')$$, 'anonymous uploads a slip image');
+do $$ declare t text; n bigint; begin
+  foreach t in array array['public.profiles','public.user_preferences','public.user_follows','public.saved_items','public.bet_slips','public.beta_feedback','storage.objects'] loop
+    execute 'delete from ' || t; get diagnostics n = row_count;
+    if n <> 0 then raise exception 'LEAK %: anonymous deleted % row(s)', t, n; end if;
+  end loop;
+end $$;
 reset role;
 
 -- ── Invite flow: an uninvited account cannot onboard; a revoked tester keeps read/delete, loses write ─
@@ -178,6 +224,10 @@ select rls_test.act_as('0c');
 select rls_test.refused($$insert into public.profiles (id) values ('00000000-0000-4000-8000-00000000000c')$$, 'an uninvited account creates a profile');
 select rls_test.refused($$insert into public.bet_slips (user_id, source) values ('00000000-0000-4000-8000-00000000000c', 'manual')$$, 'an uninvited account records a bet');
 select rls_test.refused($$insert into storage.objects (bucket_id, name) values ('slips', '00000000-0000-4000-8000-00000000000c/c.png')$$, 'an uninvited account uploads a slip image into its own folder');
+select rls_test.refused($$insert into public.user_preferences (user_id) values ('00000000-0000-4000-8000-00000000000c')$$, 'an uninvited account saves preferences');
+select rls_test.refused($$insert into public.user_follows (user_id, kind, entity_id) values ('00000000-0000-4000-8000-00000000000c', 'sport', 'nfl')$$, 'an uninvited account follows');
+select rls_test.refused($$insert into public.saved_items (user_id, kind, ref) values ('00000000-0000-4000-8000-00000000000c', 'game', 'x')$$, 'an uninvited account saves an item');
+select rls_test.refused($$insert into public.beta_feedback (user_id, route) values ('00000000-0000-4000-8000-00000000000c', '/')$$, 'an uninvited account files feedback');
 reset role;
 
 select rls_test.act_as('0d');
@@ -186,6 +236,9 @@ do $$ begin
 end $$;
 select rls_test.refused($$insert into public.bet_slips (user_id, source) values ('00000000-0000-4000-8000-00000000000d', 'manual')$$, 'a revoked tester records a new bet');
 select rls_test.refused($$insert into storage.objects (bucket_id, name) values ('slips', '00000000-0000-4000-8000-00000000000d/r.png')$$, 'a revoked tester uploads a slip image into their own folder');
+select rls_test.refused($$insert into public.user_follows (user_id, kind, entity_id) values ('00000000-0000-4000-8000-00000000000d', 'sport', 'nfl')$$, 'a revoked tester follows');
+select rls_test.refused($$insert into public.saved_items (user_id, kind, ref) values ('00000000-0000-4000-8000-00000000000d', 'game', 'x')$$, 'a revoked tester saves an item');
+select rls_test.refused($$update public.profiles set display_name = 'still here' where id = '00000000-0000-4000-8000-00000000000d'$$, 'a revoked tester edits their profile');
 delete from public.bet_slips where user_id = '00000000-0000-4000-8000-00000000000d';
 do $$ begin
   if rls_test.n('select count(*) from public.bet_slips') <> 0 then raise exception 'REVOKED: R cannot delete their own slip'; end if;
@@ -201,6 +254,33 @@ do $$ declare missing text; begin
    where s.nspname = 'public' and c.relkind = 'r'
      and c.relname not in ('profiles','user_preferences','user_follows','saved_items','bet_slips','beta_feedback','beta_access');
   if missing is not null then raise exception 'UNTESTED private table(s): % — add them to db/rls-live/two-account-isolation.sql', missing; end if;
+end $$;
+
+-- (2026-10-14) Views, materialized views and partitioned tables are relations too. A view in `public` that is not
+-- security_invoker runs as its owner and would read past every policy above; none may exist.
+do $$ declare missing text; begin
+  select string_agg(c.relname || '(' || c.relkind::text || ')', ', ') into missing from pg_class c join pg_namespace s on s.oid = c.relnamespace
+   where s.nspname = 'public' and (c.relkind = 'm' or (c.relkind = 'p' and not c.relrowsecurity)
+      or (c.relkind = 'v' and not coalesce((select bool_or(o = 'security_invoker=true' or o = 'security_invoker=on') from unnest(c.reloptions) o), false)));
+  if missing is not null then raise exception 'RLS BYPASS: % in public (definer view / matview / unprotected partitioned table)', missing; end if;
+end $$;
+
+-- (2026-10-14) Deleting an account removes every private row (on delete cascade). beta_access is keyed by email
+-- and storage objects are not linked to auth.users, so neither cascades — the manual deletion steps say so.
+do $$ declare t text; n bigint; begin
+  begin
+    delete from auth.users where id = '00000000-0000-4000-8000-00000000000a';
+    foreach t in array array['public.profiles','public.user_preferences','public.user_follows','public.saved_items','public.bet_slips','public.beta_feedback'] loop
+      execute format('select count(*) from %s where %I = $1', t, case when t = 'public.profiles' then 'id' else 'user_id' end) into n using '00000000-0000-4000-8000-00000000000a'::uuid;
+      if n <> 0 then raise exception 'CASCADE: deleting account A left % row(s) in %', n, t; end if;
+    end loop;
+    if (select count(*) from public.beta_access where email = 'tester-0a@example.test') <> 1
+       or (select count(*) from storage.objects where name like '00000000-0000-4000-8000-00000000000a/%') <> 1 then
+      raise exception 'CASCADE: beta_access/storage changed on account deletion — update docs/SUPABASE_BETA_SETUP.md deletion steps';
+    end if;
+    raise exception 'rls_test_rollback';
+  exception when raise_exception then if sqlerrm <> 'rls_test_rollback' then raise; end if;
+  end;
 end $$;
 
 select 'RLS LIVE ISOLATION: PASS' as result;

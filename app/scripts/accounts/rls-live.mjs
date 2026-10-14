@@ -45,6 +45,13 @@ export const MUTATIONS = Object.freeze({
   "storage-any-folder": "drop policy slips_read_own on storage.objects; create policy slips_read_any on storage.objects for select using (bucket_id = 'slips');",
   "storage-no-invite-check": "drop policy slips_write_own on storage.objects; create policy slips_write_any_member on storage.objects for insert with check (bucket_id = 'slips' and (storage.foldername(name))[1] = auth.uid()::text);",
   "unprotected-table": "create table public.user_notes (user_id uuid, body text);",
+  // 2026-10-14 coverage additions — each must be caught by a probe added the same day.
+  "open-delete-using": "drop policy saved_items_delete_own on public.saved_items; create policy saved_items_delete_any on public.saved_items for delete using (auth.role() = 'authenticated');",
+  "storage-open-update": "create policy slips_update_any on storage.objects for update using (bucket_id = 'slips') with check (bucket_id = 'slips');",
+  "follows-no-invite-check": "drop policy user_follows_insert_own on public.user_follows; create policy user_follows_insert_any on public.user_follows for insert with check (auth.uid() = user_id);",
+  "no-own-delete": "drop policy user_preferences_delete_own on public.user_preferences;",
+  "definer-view": "create view public.all_slips as select * from public.bet_slips;",
+  "no-cascade": "alter table public.saved_items drop constraint saved_items_user_id_fkey; alter table public.saved_items add constraint saved_items_user_id_fkey foreign key (user_id) references auth.users (id);",
 });
 
 const arg = (n) => { const i = process.argv.indexOf(n); return i >= 0 ? process.argv[i + 1] : null; };
