@@ -7,7 +7,10 @@
 #   Phase B  every 1800 s until SETTLE_UNTIL: the same, to catch the canonical settlement run.
 # Every request is logged to captures.jsonl with HTTP status and size — a failed or empty capture is RECORDED, never
 # skipped silently. report.mjs turns the folder into a pass/gap report. Mirrored to $HOME/gtp-evidence/<event> each pass.
-# Usage: sh capture.sh [interval=300] [until=2026-10-16T05:00:00Z] [settle_until=2026-10-16T16:00:00Z]
+#   Settlement: each pass records whether the event is in data/internal/nfl/settlement/<ET date>.json on origin/main and
+#            whether the deployed build contains that commit. Phase B ends one pass after the SETTLED state is served
+#            (last Thursday's game first settled on main at 16:09Z the next day), or at settle_until at the latest.
+# Usage: sh capture.sh [interval=300] [until=2026-10-16T05:00:00Z] [settle_until=2026-10-17T02:00:00Z]
 set -u
 B=https://gametimepicks.yashwantbalaji.com
 EV=401872995
@@ -15,7 +18,9 @@ REPO="${GTP_REPO:-$(cd "$(dirname "$0")/../../.." && pwd)}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="${CAPTURE_OUT:-$HOME/gtp-evidence/live-v2-$EV/captures}"
 MIRROR="${CAPTURE_MIRROR:-$HOME/gtp-evidence/live-v2-$EV}"
-INTERVAL="${1:-300}"; UNTIL="${2:-2026-10-16T05:00:00Z}"; SETTLE_UNTIL="${3:-2026-10-16T16:00:00Z}"
+INTERVAL="${1:-300}"; UNTIL="${2:-2026-10-16T05:00:00Z}"; SETTLE_UNTIL="${3:-2026-10-17T02:00:00Z}"
+SETTLE_DATE="${SETTLE_DATE:-2026-10-15}"  # ET date of the game — the settlement file key
+served_settled=0
 SHOT_EVERY="${SHOT_EVERY:-3}"
 mkdir -p "$OUT" "$MIRROR"
 ep() { date -j -u -f "%Y-%m-%dT%H:%M:%SZ" "$1" +%s 2>/dev/null || date -u -d "$1" +%s; }
@@ -42,12 +47,23 @@ while [ "$(date -u +%s)" -lt "$until_b" ]; do
     git -C "$REPO" ls-tree -r --name-only origin/main data/internal/nfl/forecast-receipts 2>/dev/null | grep "$EV" | sed 's/^/receipt /'
     echo "main $(git -C "$REPO" rev-parse --short origin/main)"
   } > "$OUT/$T-frozen.txt"
+  if ! git -C "$REPO" cat-file -e "origin/main:data/internal/nfl/settlement/$SETTLE_DATE.json" 2>/dev/null; then SET=no-file-yet; else
+  SET=$(git -C "$REPO" show "origin/main:data/internal/nfl/settlement/$SETTLE_DATE.json" 2>/dev/null \
+    | python3 -c "import json,sys;d=json.load(sys.stdin);print('settled' if any(x.get('providerEventId')=='$EV' for x in d.get('events',[])) else ('pending' if any(('$EV' in json.dumps(x)) for x in d.get('pending',[])) else 'absent'))" 2>/dev/null || echo unreadable); fi
+  SETSHA=""
+  [ "$SET" = settled ] && SETSHA=$(git -C "$REPO" log -1 --format=%H origin/main -- "data/internal/nfl/settlement/$SETTLE_DATE.json")
+  DEP=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['commit']['sha'])" "$OUT/$T-build-info.json" 2>/dev/null || echo "")
+  SERVED=no
+  [ -n "$SETSHA" ] && [ -n "$DEP" ] && git -C "$REPO" merge-base --is-ancestor "$SETSHA" "$DEP" 2>/dev/null && SERVED=yes
+  printf '{"t":"%s","name":"settlement","state":"%s","settlementCommit":"%s","deployed":"%s","served":"%s"}\n' "$T" "$SET" "$SETSHA" "$DEP" "$SERVED" >> "$OUT/captures.jsonl"
   now=$(date -u +%s)
   if [ "$now" -ge "$until_a" ] || [ $((n % SHOT_EVERY)) -eq 1 ] || [ "$SHOT_EVERY" -eq 1 ]; then
     ( cd "$REPO/app" && node "$HERE/shot.mjs" "$OUT" "$T" "$EV" >> "$OUT/captures.jsonl" 2>>"$OUT/shot-errors.log" ) \
       || printf '{"t":"%s","name":"screenshots","ok":false}\n' "$T" >> "$OUT/captures.jsonl"
   fi
   rsync -a "$OUT/" "$MIRROR/" 2>/dev/null
+  if [ "$SERVED" = yes ]; then served_settled=$((served_settled + 1)); fi
+  if [ "$served_settled" -ge 2 ]; then echo "{\"t\":\"$T\",\"name\":\"settled-and-served\"}" >> "$OUT/captures.jsonl"; break; fi
   if [ "$now" -ge "$until_a" ]; then sleep 1800; else sleep "$INTERVAL"; fi
 done
 echo "{\"t\":\"$(date -u +%FT%TZ)\",\"name\":\"finished\",\"captures\":$n}" >> "$OUT/captures.jsonl"

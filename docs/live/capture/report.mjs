@@ -42,6 +42,9 @@ for (let i = 1; i < stamps.length; i++) {
   if (d > expected * 2 + 120) gaps.push(`${toIso(stamps[i - 1])} → ${toIso(stamps[i])} (${Math.round(d / 60)} min; expected ${Math.round(expected / 60)})`);
 }
 const shots = lines.filter((l) => String(l.name).startsWith("shot-"));
+const sett = lines.filter((l) => l.name === "settlement");
+const firstSettled = sett.find((l) => l.state === "settled");
+const firstServed = sett.find((l) => l.served === "yes");
 const shotFails = shots.filter((s) => !s.ok).concat(lines.filter((l) => l.name === "screenshots" && l.ok === false));
 const overflow = shots.filter((s) => s.ok && s.horizontalOverflowPx > 0);
 const broken = shots.filter((s) => s.ok && s.images?.broken > 0);
@@ -53,12 +56,13 @@ out.push("## Lifecycle timeline (one row per change of state, period or score)",
 for (const r of timeline) out.push(`| ${r.at} | ${r.state} | ${r.phase ?? ""} | ${r.period ?? ""} | ${r.clock ?? ""} | ${r.score} | ${r.sourceUpdatedAt ?? ""} |`);
 out.push("", "## Checks", "",
   `- States observed: ${[...states].join(" → ") || "none"}${missingStates.length ? ` · **NOT OBSERVED: ${missingStates.join(", ")}**` : ""}`,
+  `- Canonical settlement on main: ${firstSettled ? `first seen ${toIso(firstSettled.t)} (commit ${firstSettled.settlementCommit.slice(0, 10)})` : "**NOT OBSERVED**"} · served by Production: ${firstServed ? `from ${toIso(firstServed.t)} (deploy ${firstServed.deployed.slice(0, 10)})` : "**NOT OBSERVED**"}`,
   `- Player stat rows: max ${maxPlayers}${playersSeenAt ? `, first at ${playersSeenAt}` : " · **NONE CAPTURED**"}`,
   `- Frozen forecast fingerprint: ${frozen0 == null ? "**never captured**" : frozenChanges.length ? `**CHANGED at ${frozenChanges.join(", ")}**` : "identical at every capture"}`,
   `- Horizontal overflow: ${overflow.length ? `**${overflow.map((s) => `${s.name}@${toIso(s.t)} ${s.horizontalOverflowPx}px`).join("; ")}**` : "none"}`,
   `- Broken visible images (logos/portraits): ${broken.length ? `**${broken.map((s) => `${s.name}@${toIso(s.t)} ×${s.images.broken}`).join("; ")}**` : "none"}`,
   `- Headshots/logos rendered (max per shot): ${Math.max(0, ...shots.map((s) => s.images?.headshots ?? 0))} headshots, ${Math.max(0, ...shots.map((s) => s.images?.logos ?? 0))} logos`,
   "", "## Missing or incomplete evidence", "");
-const all = [...problems, ...gaps.map((g) => `capture gap ${g}`), ...shotFails.map((s) => `${s.t ? toIso(s.t) : ""} ${s.name} failed ${s.err ?? ""}`), ...(lines.some((l) => l.name === "finished") ? [] : ["capture did not record a clean finish (still running, or interrupted)"])];
+const all = [...problems, ...gaps.map((g) => `capture gap ${g}`), ...shotFails.map((s) => `${s.t ? toIso(s.t) : ""} ${s.name} failed ${s.err ?? ""}`), ...(lines.some((l) => l.name === "finished") ? [] : ["capture did not record a clean finish (still running, or interrupted)"]), ...(firstSettled ? [] : ["canonical settlement never observed on main inside the window"]), ...(firstServed ? [] : ["the settled state was never observed in a Production deploy inside the window"]), ...(sett.some((l) => l.state === "unreadable") ? ["settlement file unreadable at some captures"] : [])];
 out.push(...(all.length ? all.map((p) => `- ${p}`) : ["- none"]));
 console.log(out.join("\n"));
