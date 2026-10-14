@@ -33,6 +33,7 @@ import SportOverviewHero from "@/components/sport-overview-hero";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, sportPanelReads } from "@/lib/top-reads";
 import SectionHeader from "@/components/section-header";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import SportHubNav from "@/components/sports/sport-hub-nav";
 import TeamLogo from "@/components/team-logo";
 import { ScheduleList } from "@/components/sports/sport-schedule-page";
@@ -388,6 +389,7 @@ export default function EplPage() {
            kickoff and then lost to a schema change is only genuinely recovered when a reader can
            get to it, and a route with no path to it is not a delivered feature. */}
       {archived.length > 0 ? (
+        <MoreDisclosure className="mt-8" title="Played fixtures" summary="The archive: each played fixture beside the forecast published before kickoff.">
         <section className="mt-8 scroll-mt-24" id="epl-archive">
           <SectionHeader
             eyebrow={`Archive · ${archived.length} played`}
@@ -414,10 +416,12 @@ export default function EplPage() {
             ))}
           </ul>
         </section>
+        </MoreDisclosure>
       ) : null}
 
       {/* ── 2 · SIMULATIONS ────────────────────────────────────────────────────────────────────── */}
       {reportable.length > 0 ? (
+        <MoreDisclosure className="mt-8" title="Every simulation report" summary="One full simulation report per fixture the model can price.">
         <section className="mt-8">
           <SectionHeader
             eyebrow={`Simulations · ${reportable.length} live`}
@@ -433,6 +437,7 @@ export default function EplPage() {
             returns the same numbers for every visitor, every time.
           </p>
         </section>
+        </MoreDisclosure>
       ) : null}
 
       {/* ── 3 · PLAYER PREDICTIONS ─────────────────────────────────────────────────────────────── */}
@@ -550,6 +555,7 @@ export default function EplPage() {
         not been run for this sport.
       */}
       {gradedRecord && gradedRecord.team.matches > 0 && (
+        <MoreDisclosure className="mt-8" title="Settled record" summary="How the published match forecasts have done, graded from official results.">
         <section className="mt-8 scroll-mt-24" id="record">
           <SectionHeader
             eyebrow="Settled"
@@ -597,6 +603,7 @@ export default function EplPage() {
             </p>
           )}
         </section>
+        </MoreDisclosure>
       )}
 
       {labLadder ? <SportLabCards ladder={labLadder} eyebrow={ladderDayLabel(labLadder.date)} tierRecords={loadSportLabStreamRecord("epl")?.byTier} /> : null}
@@ -629,6 +636,8 @@ export default function EplPage() {
       ) : null}
 
       {/* ── 4 · SCHEDULE — reference, deliberately last ────────────────────────────────────────── */}
+      {/* GTP-20: reference list, folded; #schedule still lands (MoreDisclosure opens on hash). */}
+      <MoreDisclosure className="mt-8" title="Full 2026-27 fixture list" summary="Every fixture, whether or not the model can price it.">
       <section className="mt-8 scroll-mt-24" id="schedule">
         <SectionHeader eyebrow="Schedule" title="2026-27 fixture list" sub="Every fixture, whether or not the model can price it." />
         <div className="mt-3">
@@ -646,6 +655,7 @@ export default function EplPage() {
           {feed?.totals?.upcoming ? ` · showing the next ${(feed.events ?? []).length} of ${feed.totals.upcoming}` : ""}
         </p>
       </section>
+      </MoreDisclosure>
 
       <p className="mt-6" style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
         Paper-only and educational. Not betting advice. Updated {formatUpdatedEt(set?.generatedAt)} from pregame inputs

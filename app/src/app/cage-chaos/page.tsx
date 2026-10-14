@@ -9,6 +9,7 @@
 import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
+import PlayerAvatar from "@/components/ui/player-avatar";
 import { loadUfcCard } from "@/lib/sports/ufc/bout";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -89,6 +90,12 @@ export default function CageChaosPage() {
                     <tr key={b.boutId}>
                       <td style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5 }}>
                         <Link href={`/ufc/bout/${b.boutId}/`} style={{ color: "var(--vault-text)", textDecoration: "none" }}>
+                          {/* GTP-16: each fighter's portrait from the card artifact (exact athleteId); initials otherwise.
+                              Decorative — the names follow in text. */}
+                          <span aria-hidden style={{ display: "inline-flex", gap: 4, verticalAlign: "middle", marginRight: 8 }}>
+                            <PlayerAvatar name={b.red.name} photo={b.red.photoUrl} size={28} decorative />
+                            <PlayerAvatar name={b.blue.name} photo={b.blue.photoUrl} size={28} decorative />
+                          </span>
                           {b.red.name} vs {b.blue.name}
                           <span style={{ display: "block", color: "var(--vault-text-faint)", fontSize: 11 }}>{b.weightClass}{b.titleFight ? " · title fight" : ""}</span>
                         </Link>

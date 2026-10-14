@@ -5878,3 +5878,8 @@ body {
 .gtp-more-disclosure-caret { display: inline-block; transition: transform 160ms ease; }
 .gtp-more-disclosure[open] .gtp-more-disclosure-caret { transform: rotate(90deg); }
 @media (prefers-reduced-motion: reduce) { .gtp-more-disclosure-caret { transition: none; } }
+
+/* GTP-12 (UX Release 2B) — the ONE 44×44 hit-area rule for small inline controls (DS-001 §6). The label keeps its
+   size; the control grows to a real touch target. Used where a table cell, chip or "Open →" link was 16–30px. */
+.gtp-hit-44 { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+summary.gtp-hit-44 { display: flex; justify-content: flex-start; }

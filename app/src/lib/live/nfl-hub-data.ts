@@ -25,6 +25,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { currentEtDate } from "@/lib/freshness";
+import { espnNflHeadshotUrl } from "@/lib/entity/identity-urls";
 import { PRODUCT_CLEARED_FAMILY_STATES } from "@/lib/products/candidate-universe.mjs";
 import { LIVE_TRACKABLE_MARKETS } from "./adapters/espn-nfl.mjs";
 import { type FollowRef, labelForRef, nflTeamRefByAbbr } from "@/lib/follow/entity-registry";
@@ -183,11 +184,7 @@ const etDateOf = (iso: string | null): string | null => {
  *   not the HTTP-200 generic silhouette that cdn.nba.com serves for ESPN ids — so `PlayerAvatar`'s
  *   onError lands on the initials-and-team-chip disc rather than rendering a stranger.
  */
-export function espnNflHeadshotUrl(playerId: string | null | undefined): string | null {
-  const m = /^nfl-athlete-(\d+)$/.exec(String(playerId ?? ""));
-  if (!m) return null;
-  return `https://a.espncdn.com/combiner/i?img=/i/headshots/nfl/players/full/${m[1]}.png&w=96&h=96`;
-}
+export { espnNflHeadshotUrl };
 
 /** ESPN's club logo CDN, the same path `TeamLogo` resolves. */
 const logoUrl = (abbr: string) => `https://a.espncdn.com/i/teamlogos/nfl/500/${abbr.toLowerCase()}.png`;

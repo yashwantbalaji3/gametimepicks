@@ -81,7 +81,7 @@ export default function TodayGamePredictions({ rows, nowMs }: { rows: GamePredic
                     {r.runLine ? <span><strong>{r.runLine.pick}</strong> <span style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>{pct(r.runLine.coverProbability)}</span></span> : r.runLinePaused ? <Paused /> : <span style={{ color: "var(--vault-text-faint)" }}>—</span>}
                   </Cell>
                   <Cell align="right">
-                    <Link href={r.href} className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>Open →</Link>
+                    <Link href={r.href} className="gtp-hit-44 font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Open report →</Link>
                   </Cell>
                 </tr>
               );

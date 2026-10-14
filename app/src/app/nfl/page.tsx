@@ -38,6 +38,7 @@ import PredictionBoard from "@/components/prediction/prediction-board";
 import { presentVaultCandidate } from "@/lib/prediction-presentation/nfl";
 import QuickActionRail from "@/components/quick-action-rail";
 import SectionHeader from "@/components/section-header";
+import MoreDisclosure from "@/components/ui/more-disclosure";
 import SportOverviewHero from "@/components/sport-overview-hero";
 import TeamLogo from "@/components/team-logo";
 import FreshnessBadge from "@/components/ui/freshness-badge";
@@ -621,7 +622,7 @@ export default function NflHubPage() {
                     </td>
                     <td className="gtp-nfl-cell gtp-nfl-nowrap">
                       {sim ? (
-                        <Link href={`/nfl/game/${g.providerEventId}/`} className="font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10.5, color: "var(--vault-gold-bright)" }}>
+                        <Link href={`/nfl/game/${g.providerEventId}/`} className="gtp-hit-44 font-mono uppercase tracking-[0.1em]" style={{ fontSize: 10.5, color: "var(--vault-gold-bright)" }}>
                           View game →
                         </Link>
                       ) : null}
@@ -708,6 +709,7 @@ export default function NflHubPage() {
            Each row states the game's OWN state, so a settled preseason report is offered as what it
            is: a frozen pre-event forecast beside a played game, never a current read. */}
       {(forecastArtifact?.forecasts ?? []).length ? (
+        <MoreDisclosure title="Every forecast we published" summary="The twelve most recent game reports, each labelled upcoming or played.">
         <section aria-labelledby="nfl-reports" id="nfl-reports" className="scroll-mt-24">
           <SectionHeader
             eyebrow="Per-game reports"
@@ -754,6 +756,7 @@ export default function NflHubPage() {
               })}
           </ul>
         </section>
+        </MoreDisclosure>
       ) : null}
 
       {laterGames.length ? (
@@ -903,6 +906,10 @@ export default function NflHubPage() {
       */}
       {nflGraded ? <GradedPicksSection record={nflGraded} href="/results/picks/nfl" /> : null}
       {/* The interval label's own track record, beside the record of the picks. */}
+      {/* GTP-19 (Release 2B): the model-detail sections — calibration, coverage, participation, the pregame audit,
+          differentiation, product receipts and eligibility — fold into one disclosure. Nothing is removed and every
+          anchor (#nfl-coverage from the hub nav and "Model details") still lands: MoreDisclosure opens on hash. */}
+      <MoreDisclosure title="Model details, coverage and audits" summary="Calibration, what the model covers, participation, the pregame audit and product receipts.">
       <IntervalCalibrationPanel cal={nflCalibration} />
 
       <section aria-labelledby="nfl-coverage" id="nfl-coverage" className="scroll-mt-24">
@@ -1110,6 +1117,7 @@ export default function NflHubPage() {
           </p>
         </section>
       ) : null}
+      </MoreDisclosure>
 
       {/* P177-A: the shared 4-card action rail /mlb ends on. Every href is a real route. */}
       <QuickActionRail
