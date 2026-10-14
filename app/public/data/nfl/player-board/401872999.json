@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-14T00:10:12Z",
- "sourceGeneratedAt": "2026-10-14T00:10:12Z",
+ "generatedAt": "2026-10-14T14:31:16Z",
+ "sourceGeneratedAt": "2026-10-14T14:31:16Z",
  "providerEventId": "401872999",
  "matchup": "CHI @ ATL",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-14T00:10:12Z",
-  "roleEvidenceAt": "2026-10-14T00:10:12Z",
+  "injuriesCapturedAt": "2026-10-14T14:31:16Z",
+  "roleEvidenceAt": "2026-10-14T14:31:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,36 +23,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "CHI",
-     "playerId": "nfl-athlete-15168",
-     "name": "Case Keenum",
-     "share": 0.464,
-     "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "CHI",
-     "playerId": "nfl-athlete-4434153",
-     "name": "Tyson Bagent",
-     "share": 0.523,
-     "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "ATL",
-     "playerId": "nfl-athlete-2972515",
-     "name": "Cooper Rush",
-     "share": 0.745,
-     "reason": "withheld for Cooper Rush (ATL): his modelled share of ATL's pass attempts is 0.75, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "ATL",
-     "playerId": "nfl-athlete-5344782",
-     "name": "Jack Strand",
-     "share": 0.469,
-     "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -165,7 +135,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -192,7 +162,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -392,7 +362,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -400,12 +370,12 @@
      "playerId": "nfl-athlete-2972515",
      "name": "Cooper Rush",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Cooper Rush (ATL): his modelled share of ATL's pass attempts is 0.75, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Cooper Rush (ATL): his modelled share of ATL's pass attempts is 0.75, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -416,27 +386,47 @@
   "qbStarter": [
    {
     "team": "CHI",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4431611",
-     "nfl-athlete-15168",
-     "nfl-athlete-4434153"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4431611",
+     "name": "Caleb Williams"
+    },
+    "snapshotAt": "2026-10-14T12:51:31Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-15168",
+      "name": "Case Keenum"
+     },
+     {
+      "playerId": "nfl-athlete-4434153",
+      "name": "Tyson Bagent"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-10T13:32:40Z"
+    "passers": [
+     "nfl-athlete-4431611"
+    ]
    },
    {
     "team": "ATL",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4360423",
-     "nfl-athlete-2972515",
-     "nfl-athlete-5344782"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4360423",
+     "name": "Michael Penix Jr."
+    },
+    "snapshotAt": "2026-10-14T12:51:31Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-2972515",
+      "name": "Cooper Rush"
+     },
+     {
+      "playerId": "nfl-athlete-5344782",
+      "name": "Jack Strand"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-10T13:32:40Z"
+    "passers": [
+     "nfl-athlete-4360423"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -444,52 +434,18 @@
     "team": "CHI",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4431611",
-     "nfl-athlete-15168",
-     "nfl-athlete-4434153"
+     "nfl-athlete-4431611"
     ],
-    "withheld": [
-     {
-      "team": "CHI",
-      "playerId": "nfl-athlete-15168",
-      "name": "Case Keenum",
-      "share": 0.464,
-      "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     },
-     {
-      "team": "CHI",
-      "playerId": "nfl-athlete-4434153",
-      "name": "Tyson Bagent",
-      "share": 0.523,
-      "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {
     "team": "ATL",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4360423",
-     "nfl-athlete-2972515",
-     "nfl-athlete-5344782"
+     "nfl-athlete-4360423"
     ],
-    "withheld": [
-     {
-      "team": "ATL",
-      "playerId": "nfl-athlete-2972515",
-      "name": "Cooper Rush",
-      "share": 0.745,
-      "reason": "withheld for Cooper Rush (ATL): his modelled share of ATL's pass attempts is 0.75, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     },
-     {
-      "team": "ATL",
-      "playerId": "nfl-athlete-5344782",
-      "name": "Jack Strand",
-      "share": 0.469,
-      "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],

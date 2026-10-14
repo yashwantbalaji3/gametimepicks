@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-14T00:10:12Z",
- "sourceGeneratedAt": "2026-10-14T00:10:12Z",
+ "generatedAt": "2026-10-14T14:31:16Z",
+ "sourceGeneratedAt": "2026-10-14T14:31:16Z",
  "providerEventId": "401872995",
  "matchup": "SEA @ DEN",
  "kickoffUtc": "2026-10-16T00:15Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-14T00:10:12Z",
-  "roleEvidenceAt": "2026-10-14T00:10:12Z",
+  "injuriesCapturedAt": "2026-10-14T14:31:16Z",
+  "roleEvidenceAt": "2026-10-14T14:31:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,22 +23,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "SEA",
-     "playerId": "nfl-athlete-3924327",
-     "name": "Drew Lock",
-     "share": 0.696,
-     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "DEN",
-     "playerId": "nfl-athlete-3892775",
-     "name": "Jarrett Stidham",
-     "share": 0.445,
-     "reason": "withheld for Jarrett Stidham (DEN): his modelled share of DEN's pass attempts is 0.44, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -225,12 +209,12 @@
      "playerId": "nfl-athlete-3924327",
      "name": "Drew Lock",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -368,7 +352,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Jarrett Stidham (DEN): his modelled share of DEN's pass attempts is 0.44, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -395,25 +379,39 @@
   "qbStarter": [
    {
     "team": "SEA",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3912547",
-     "nfl-athlete-3924327"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3912547",
+     "name": "Sam Darnold"
+    },
+    "snapshotAt": "2026-10-14T12:51:31Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-3924327",
+      "name": "Drew Lock"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-10T13:32:40Z"
+    "passers": [
+     "nfl-athlete-3912547"
+    ]
    },
    {
     "team": "DEN",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4426338",
-     "nfl-athlete-3892775"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4426338",
+     "name": "Bo Nix"
+    },
+    "snapshotAt": "2026-10-14T12:51:31Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-3892775",
+      "name": "Jarrett Stidham"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-10T13:32:40Z"
+    "passers": [
+     "nfl-athlete-4426338"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -421,36 +419,18 @@
     "team": "SEA",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3912547",
-     "nfl-athlete-3924327"
+     "nfl-athlete-3912547"
     ],
-    "withheld": [
-     {
-      "team": "SEA",
-      "playerId": "nfl-athlete-3924327",
-      "name": "Drew Lock",
-      "share": 0.696,
-      "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {
     "team": "DEN",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4426338",
-     "nfl-athlete-3892775"
+     "nfl-athlete-4426338"
     ],
-    "withheld": [
-     {
-      "team": "DEN",
-      "playerId": "nfl-athlete-3892775",
-      "name": "Jarrett Stidham",
-      "share": 0.445,
-      "reason": "withheld for Jarrett Stidham (DEN): his modelled share of DEN's pass attempts is 0.44, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],

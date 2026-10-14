@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-14T00:10:12Z",
- "sourceGeneratedAt": "2026-10-14T00:10:12Z",
+ "generatedAt": "2026-10-14T14:31:16Z",
+ "sourceGeneratedAt": "2026-10-14T14:31:16Z",
  "providerEventId": "401872996",
  "matchup": "HOU @ JAX",
  "kickoffUtc": "2026-10-18T13:30Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-14T00:10:12Z",
-  "roleEvidenceAt": "2026-10-14T00:10:12Z",
+  "injuriesCapturedAt": "2026-10-14T14:31:16Z",
+  "roleEvidenceAt": "2026-10-14T14:31:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,15 +23,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "HOU",
-     "playerId": "nfl-athlete-4242546",
-     "name": "Davis Mills",
-     "share": 0.672,
-     "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -303,7 +294,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -458,14 +449,21 @@
   "qbStarter": [
    {
     "team": "HOU",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4432577",
-     "nfl-athlete-4242546"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4432577",
+     "name": "C.J. Stroud"
+    },
+    "snapshotAt": "2026-10-14T12:51:31Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4242546",
+      "name": "Davis Mills"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-10T13:32:40Z"
+    "passers": [
+     "nfl-athlete-4432577"
+    ]
    },
    {
     "team": "JAX",
@@ -481,18 +479,9 @@
     "team": "HOU",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4432577",
-     "nfl-athlete-4242546"
+     "nfl-athlete-4432577"
     ],
-    "withheld": [
-     {
-      "team": "HOU",
-      "playerId": "nfl-athlete-4242546",
-      "name": "Davis Mills",
-      "share": 0.672,
-      "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {

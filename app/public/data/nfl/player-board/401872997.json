@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-14T00:10:12Z",
- "sourceGeneratedAt": "2026-10-14T00:10:12Z",
+ "generatedAt": "2026-10-14T14:31:16Z",
+ "sourceGeneratedAt": "2026-10-14T14:31:16Z",
  "providerEventId": "401872997",
  "matchup": "BAL @ CLE",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-14T00:10:12Z",
-  "roleEvidenceAt": "2026-10-14T00:10:12Z",
+  "injuriesCapturedAt": "2026-10-14T14:31:16Z",
+  "roleEvidenceAt": "2026-10-14T14:31:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,22 +23,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "BAL",
-     "playerId": "nfl-athlete-4035671",
-     "name": "Tyler Huntley",
-     "share": 0.666,
-     "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "CLE",
-     "playerId": "nfl-athlete-4432762",
-     "name": "Shedeur Sanders",
-     "share": 0.498,
-     "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.50, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -152,7 +136,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -345,7 +329,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.50, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -374,25 +358,39 @@
   "qbStarter": [
    {
     "team": "BAL",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3916387",
-     "nfl-athlete-4035671"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3916387",
+     "name": "Lamar Jackson"
+    },
+    "snapshotAt": "2026-10-14T12:51:31Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4035671",
+      "name": "Tyler Huntley"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-10T13:32:40Z"
+    "passers": [
+     "nfl-athlete-3916387"
+    ]
    },
    {
     "team": "CLE",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3122840",
-     "nfl-athlete-4432762"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3122840",
+     "name": "Deshaun Watson"
+    },
+    "snapshotAt": "2026-10-14T12:51:31Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4432762",
+      "name": "Shedeur Sanders"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-10T13:32:40Z"
+    "passers": [
+     "nfl-athlete-3122840"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -400,36 +398,18 @@
     "team": "BAL",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3916387",
-     "nfl-athlete-4035671"
+     "nfl-athlete-3916387"
     ],
-    "withheld": [
-     {
-      "team": "BAL",
-      "playerId": "nfl-athlete-4035671",
-      "name": "Tyler Huntley",
-      "share": 0.666,
-      "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {
     "team": "CLE",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3122840",
-     "nfl-athlete-4432762"
+     "nfl-athlete-3122840"
     ],
-    "withheld": [
-     {
-      "team": "CLE",
-      "playerId": "nfl-athlete-4432762",
-      "name": "Shedeur Sanders",
-      "share": 0.498,
-      "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.50, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],

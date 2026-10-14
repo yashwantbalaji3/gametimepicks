@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-14T00:10:12Z",
- "sourceGeneratedAt": "2026-10-14T00:10:12Z",
+ "generatedAt": "2026-10-14T14:31:16Z",
+ "sourceGeneratedAt": "2026-10-14T14:31:16Z",
  "providerEventId": "401873003",
  "matchup": "TEN @ IND",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-14T00:10:12Z",
-  "roleEvidenceAt": "2026-10-14T00:10:12Z",
+  "injuriesCapturedAt": "2026-10-14T14:31:16Z",
+  "roleEvidenceAt": "2026-10-14T14:31:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,22 +23,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "IND",
-     "playerId": "nfl-athlete-4429084",
-     "name": "Anthony Richardson Sr.",
-     "share": 0.348,
-     "reason": "withheld for Anthony Richardson Sr. (IND): his modelled share of IND's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "IND",
-     "playerId": "nfl-athlete-4683423",
-     "name": "Riley Leonard",
-     "share": 0.42,
-     "reason": "withheld for Riley Leonard (IND): his modelled share of IND's pass attempts is 0.42, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -380,7 +364,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Anthony Richardson Sr. (IND): his modelled share of IND's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -457,12 +441,12 @@
      "playerId": "nfl-athlete-4683423",
      "name": "Riley Leonard",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Riley Leonard (IND): his modelled share of IND's pass attempts is 0.42, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Riley Leonard (IND): his modelled share of IND's pass attempts is 0.42, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -481,15 +465,25 @@
    },
    {
     "team": "IND",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3917792",
-     "nfl-athlete-4429084",
-     "nfl-athlete-4683423"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3917792",
+     "name": "Daniel Jones"
+    },
+    "snapshotAt": "2026-10-14T12:51:31Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4429084",
+      "name": "Anthony Richardson Sr."
+     },
+     {
+      "playerId": "nfl-athlete-4683423",
+      "name": "Riley Leonard"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-10T13:32:40Z"
+    "passers": [
+     "nfl-athlete-3917792"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -506,26 +500,9 @@
     "team": "IND",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3917792",
-     "nfl-athlete-4429084",
-     "nfl-athlete-4683423"
+     "nfl-athlete-3917792"
     ],
-    "withheld": [
-     {
-      "team": "IND",
-      "playerId": "nfl-athlete-4429084",
-      "name": "Anthony Richardson Sr.",
-      "share": 0.348,
-      "reason": "withheld for Anthony Richardson Sr. (IND): his modelled share of IND's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     },
-     {
-      "team": "IND",
-      "playerId": "nfl-athlete-4683423",
-      "name": "Riley Leonard",
-      "share": 0.42,
-      "reason": "withheld for Riley Leonard (IND): his modelled share of IND's pass attempts is 0.42, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
