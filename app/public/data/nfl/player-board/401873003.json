@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-14T14:31:16Z",
- "sourceGeneratedAt": "2026-10-14T14:31:16Z",
+ "generatedAt": "2026-10-14T18:49:59Z",
+ "sourceGeneratedAt": "2026-10-14T18:49:59Z",
  "providerEventId": "401873003",
  "matchup": "TEN @ IND",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-14T14:31:16Z",
-  "roleEvidenceAt": "2026-10-14T14:31:16Z",
+  "injuriesCapturedAt": "2026-10-14T18:49:59Z",
+  "roleEvidenceAt": "2026-10-14T18:49:59Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -48,24 +48,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "IND",
-      "pool": "targets",
-      "originalSum": 1.109,
-      "normalizedSum": 1,
-      "factor": 0.9017,
-      "playerIds": [
-       "nfl-athlete-4431459",
-       "nfl-athlete-15818",
-       "nfl-athlete-4688813",
-       "nfl-athlete-4360078",
-       "nfl-athlete-4249030",
-       "nfl-athlete-4242335",
-       "nfl-athlete-3051889"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_pass_int": {
@@ -187,7 +170,7 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4871023",
@@ -338,7 +321,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4688813",
@@ -509,32 +492,6 @@
   "pools": [
    {
     "team": "IND",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 1,
-    "originalSum": 1.109,
-    "residualOther": 0,
-    "joined": 7,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
-    "team": "TEN",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.9877,
-    "originalSum": 0.9877,
-    "residualOther": 0.0123,
-    "joined": 8,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "IND",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
@@ -556,6 +513,32 @@
     "originalSum": 0.9776,
     "residualOther": 0.0224,
     "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "TEN",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9076,
+    "originalSum": 0.9076,
+    "residualOther": 0.0924,
+    "joined": 7,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "IND",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.8969,
+    "originalSum": 0.8969,
+    "residualOther": 0.1031,
+    "joined": 6,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -588,16 +571,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.3437,
+     "mean": 2.5992,
      "p10": 0,
-     "p25": 0.9017,
-     "median": 1.8034,
-     "p75": 3.6069,
-     "p90": 4.5086,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9017
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -610,7 +589,7 @@
    "playerId": "nfl-athlete-3916148",
    "name": "Tony Pollard",
    "team": "TEN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
      "mean": 60.756,
@@ -661,16 +640,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.8021,
-     "p10": 1.8034,
-     "p25": 2.7051,
-     "median": 4.5086,
-     "p75": 6.312,
-     "p90": 9.0171,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9017
-     },
+     "mean": 5.3255,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 7,
+     "p90": 10,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -743,7 +718,7 @@
    "playerId": "nfl-athlete-15818",
    "name": "Keenan Allen",
    "team": "IND",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 33.735,
@@ -755,16 +730,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.0562,
-     "p10": 0.9017,
-     "p25": 1.8034,
-     "median": 3.6069,
-     "p75": 5.4103,
-     "p90": 7.2137,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9017
-     },
+     "mean": 4.4983,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -828,16 +799,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.6821,
-     "p10": 0.9017,
-     "p25": 1.8034,
-     "median": 3.6069,
-     "p75": 5.4103,
-     "p90": 7.2137,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9017
-     },
+     "mean": 4.0835,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -904,16 +871,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.5961,
+     "mean": 2.8791,
      "p10": 0,
-     "p25": 0.9017,
-     "median": 2.7051,
-     "p75": 3.6069,
-     "p90": 5.4103,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9017
-     },
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -929,16 +892,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_receptions": {
-     "mean": 2.6278,
+     "mean": 2.9142,
      "p10": 0,
-     "p25": 0.9017,
-     "median": 2.7051,
-     "p75": 3.6069,
-     "p90": 5.4103,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9017
-     },
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1053,16 +1012,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.0642,
+     "mean": 2.2892,
      "p10": 0,
-     "p25": 0.9017,
-     "median": 1.8034,
-     "p75": 2.7051,
-     "p90": 4.5086,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9017
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

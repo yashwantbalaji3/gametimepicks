@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-14T14:31:16Z",
- "sourceGeneratedAt": "2026-10-14T14:31:16Z",
+ "generatedAt": "2026-10-14T18:49:59Z",
+ "sourceGeneratedAt": "2026-10-14T18:49:59Z",
  "providerEventId": "401873002",
  "matchup": "PIT @ TB",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-14T14:31:16Z",
-  "roleEvidenceAt": "2026-10-14T14:31:16Z",
+  "injuriesCapturedAt": "2026-10-14T18:49:59Z",
+  "roleEvidenceAt": "2026-10-14T18:49:59Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -108,7 +108,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 55,
+  "absent": 56,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -241,8 +241,8 @@
   },
   "TB": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -369,8 +369,11 @@
     {
      "playerId": "nfl-athlete-4430834",
      "name": "Jalen McMillan",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     }
    ]
   }
@@ -1016,6 +1019,23 @@
    "markets": {
     "anytime_td": {
      "probability": 0.0381,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4430834",
+   "name": "Jalen McMillan",
+   "team": "TB",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 13.758,
+     "p10": 0,
+     "p25": 0,
+     "median": 6.79,
+     "p75": 21.2,
+     "p90": 38.59,
      "pricingState": "NOT_PROBED"
     }
    }

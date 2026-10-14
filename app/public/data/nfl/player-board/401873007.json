@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-14T14:31:16Z",
- "sourceGeneratedAt": "2026-10-14T14:31:16Z",
+ "generatedAt": "2026-10-14T18:49:59Z",
+ "sourceGeneratedAt": "2026-10-14T18:49:59Z",
  "providerEventId": "401873007",
  "matchup": "DAL @ GB",
  "kickoffUtc": "2026-10-19T00:20Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-14T14:31:16Z",
-  "roleEvidenceAt": "2026-10-14T14:31:16Z",
+  "injuriesCapturedAt": "2026-10-14T18:49:59Z",
+  "roleEvidenceAt": "2026-10-14T18:49:59Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -52,14 +52,15 @@
      {
       "team": "GB",
       "pool": "targets",
-      "originalSum": 1.0271,
+      "originalSum": 1.1352,
       "normalizedSum": 1,
-      "factor": 0.9736,
+      "factor": 0.8809,
       "playerIds": [
        "nfl-athlete-4701936",
        "nfl-athlete-4248528",
        "nfl-athlete-4572680",
        "nfl-athlete-4249836",
+       "nfl-athlete-4362249",
        "nfl-athlete-4047365",
        "nfl-athlete-4429023",
        "nfl-athlete-4428085",
@@ -115,7 +116,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 57,
+  "absent": 60,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -230,8 +231,8 @@
   },
   "GB": {
    "counts": {
-    "PROJECTED": 12,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 13,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -317,6 +318,17 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4362249",
+     "name": "Jayden Reed",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
      "playerId": "nfl-athlete-4428085",
      "name": "Luke Musgrave",
      "state": "PROJECTED",
@@ -371,12 +383,6 @@
      "name": "Chris Brooks",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-4362249",
-     "name": "Jayden Reed",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
     }
    ]
   }
@@ -428,9 +434,9 @@
      "player_receptions"
     ],
     "sum": 1,
-    "originalSum": 1.0271,
+    "originalSum": 1.1352,
     "residualOther": 0,
-    "joined": 8,
+    "joined": 9,
     "missed": 0,
     "state": "NORMALIZED"
    },
@@ -532,15 +538,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.7011,
-     "p10": 0.9736,
-     "p25": 2.9208,
-     "median": 3.8945,
-     "p75": 6.8153,
-     "p90": 8.7625,
+     "mean": 4.2534,
+     "p10": 0.8809,
+     "p25": 2.6427,
+     "median": 3.5236,
+     "p75": 6.1663,
+     "p90": 7.9281,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9736
+      "factor": 0.8809
      },
      "pricingState": "NOT_PROBED"
     },
@@ -566,15 +572,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.8933,
+     "mean": 1.713,
      "p10": 0,
-     "p25": 0.9736,
-     "median": 1.9472,
-     "p75": 2.9208,
-     "p90": 3.8945,
+     "p25": 0.8809,
+     "median": 1.7618,
+     "p75": 2.6427,
+     "p90": 3.5236,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9736
+      "factor": 0.8809
      },
      "pricingState": "NOT_PROBED"
     },
@@ -639,15 +645,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.8962,
+     "mean": 1.7156,
      "p10": 0,
-     "p25": 0.9736,
-     "median": 1.9472,
-     "p75": 2.9208,
-     "p90": 3.8945,
+     "p25": 0.8809,
+     "median": 1.7618,
+     "p75": 2.6427,
+     "p90": 3.5236,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9736
+      "factor": 0.8809
      },
      "pricingState": "NOT_PROBED"
     },
@@ -673,15 +679,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.3723,
-     "p10": 0.9736,
-     "p25": 1.9472,
-     "median": 3.8945,
-     "p75": 5.8417,
-     "p90": 7.7889,
+     "mean": 3.956,
+     "p10": 0.8809,
+     "p25": 1.7618,
+     "median": 3.5236,
+     "p75": 5.2854,
+     "p90": 7.0472,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9736
+      "factor": 0.8809
      },
      "pricingState": "NOT_PROBED"
     },
@@ -716,15 +722,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.8861,
-     "p10": 0.9736,
-     "p25": 0.9736,
-     "median": 2.9208,
-     "p75": 3.8945,
-     "p90": 5.8417,
+     "mean": 2.6113,
+     "p10": 0.8809,
+     "p25": 0.8809,
+     "median": 2.6427,
+     "p75": 3.5236,
+     "p90": 5.2854,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9736
+      "factor": 0.8809
      },
      "pricingState": "NOT_PROBED"
     },
@@ -780,15 +786,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.819,
-     "p10": 0.9736,
-     "p25": 1.9472,
-     "median": 2.9208,
-     "p75": 4.8681,
-     "p90": 6.8153,
+     "mean": 3.4553,
+     "p10": 0.8809,
+     "p25": 1.7618,
+     "median": 2.6427,
+     "p75": 4.4045,
+     "p90": 6.1663,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9736
+      "factor": 0.8809
      },
      "pricingState": "NOT_PROBED"
     },
@@ -901,6 +907,40 @@
    }
   },
   {
+   "playerId": "nfl-athlete-4362249",
+   "name": "Jayden Reed",
+   "team": "GB",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 17.075,
+     "p10": 0,
+     "p25": 0,
+     "median": 11.55,
+     "p75": 26.21,
+     "p90": 43.82,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.0969,
+     "p10": 0,
+     "p25": 0.8809,
+     "median": 1.7618,
+     "p75": 2.6427,
+     "p90": 4.4045,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.8809
+     },
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1711,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-4362478",
    "name": "Emari Demercado",
    "team": "DAL",
@@ -958,15 +998,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.4809,
+     "mean": 1.3399,
      "p10": 0,
      "p25": 0,
-     "median": 0.9736,
-     "p75": 1.9472,
-     "p90": 2.9208,
+     "median": 0.8809,
+     "p75": 1.7618,
+     "p90": 2.6427,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9736
+      "factor": 0.8809
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1004,15 +1044,15 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_receptions": {
-     "mean": 1.1394,
+     "mean": 1.0309,
      "p10": 0,
      "p25": 0,
-     "median": 0.9736,
-     "p75": 1.9472,
-     "p90": 2.9208,
+     "median": 0.8809,
+     "p75": 1.7618,
+     "p90": 2.6427,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9736
+      "factor": 0.8809
      },
      "pricingState": "NOT_PROBED"
     },
