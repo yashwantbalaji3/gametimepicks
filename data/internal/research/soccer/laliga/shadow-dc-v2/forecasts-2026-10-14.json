@@ -1,0 +1,232 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "laliga",
+ "season": "2026-27",
+ "date": "2026-10-14",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-14T14:41:23.000Z",
+ "runs": [
+  {
+   "at": "2026-10-14T14:41:23.000Z",
+   "added": 3
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|La Coruna|Levante",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882844",
+   "providerEventId": "401882844",
+   "kickoffUtc": "2026-10-16T19:00:00.000Z",
+   "matchup": "Deportivo v Levante",
+   "homeClub": "Deportivo",
+   "awayClub": "Levante",
+   "historyNames": {
+    "home": "La Coruna",
+    "away": "Levante"
+   },
+   "espnTeamIds": {
+    "home": "90",
+    "away": "1538"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-14T14:41:23.000Z",
+   "probs": {
+    "home": 0.540122,
+    "draw": 0.230037,
+    "away": 0.229841
+   },
+   "over25": 0.55975,
+   "under25": 0.44025,
+   "expectedGoals": {
+    "home": 1.8182,
+    "away": 1.1066
+   },
+   "lambdas": {
+    "home": 1.8182,
+    "away": 1.1066
+   },
+   "rho": -0.001111,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 7,
+    "away": 44
+   },
+   "fit": {
+    "cutoffIso": "2026-10-14T14:41:23.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 9
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.503362,
+     "draw": 0.272199,
+     "away": 0.224439
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Espanol|Ath Madrid",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882843",
+   "providerEventId": "401882843",
+   "kickoffUtc": "2026-10-17T12:00:00.000Z",
+   "matchup": "Espanyol v Atlético Madrid",
+   "homeClub": "Espanyol",
+   "awayClub": "Atlético Madrid",
+   "historyNames": {
+    "home": "Espanol",
+    "away": "Ath Madrid"
+   },
+   "espnTeamIds": {
+    "home": "88",
+    "away": "1068"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-14T14:41:23.000Z",
+   "probs": {
+    "home": 0.256958,
+    "draw": 0.249372,
+    "away": 0.49367
+   },
+   "over25": 0.502214,
+   "under25": 0.497786,
+   "expectedGoals": {
+    "home": 1.0825,
+    "away": 1.6005
+   },
+   "lambdas": {
+    "home": 1.0825,
+    "away": 1.6005
+   },
+   "rho": -0.001111,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 120,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-10-14T14:41:23.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 9
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.195662,
+     "draw": 0.236497,
+     "away": 0.56784
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Villarreal|Elche",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882837",
+   "providerEventId": "401882837",
+   "kickoffUtc": "2026-10-17T14:15:00.000Z",
+   "matchup": "Villarreal v Elche",
+   "homeClub": "Villarreal",
+   "awayClub": "Elche",
+   "historyNames": {
+    "home": "Villarreal",
+    "away": "Elche"
+   },
+   "espnTeamIds": {
+    "home": "102",
+    "away": "3751"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-14T14:41:23.000Z",
+   "probs": {
+    "home": 0.671055,
+    "draw": 0.17361,
+    "away": 0.155335
+   },
+   "over25": 0.71063,
+   "under25": 0.28937,
+   "expectedGoals": {
+    "home": 2.5227,
+    "away": 1.1537
+   },
+   "lambdas": {
+    "home": 2.5233,
+    "away": 1.1537
+   },
+   "rho": -0.001111,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 158,
+    "away": 83
+   },
+   "fit": {
+    "cutoffIso": "2026-10-14T14:41:23.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 9
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.735439,
+     "draw": 0.1501,
+     "away": 0.11446
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 3
+ }
+}

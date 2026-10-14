@@ -1,0 +1,163 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "serie-a",
+ "season": "2026-27",
+ "date": "2026-10-14",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-14T14:41:23.000Z",
+ "runs": [
+  {
+   "at": "2026-10-14T14:41:23.000Z",
+   "added": 2
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Frosinone|Sassuolo",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874959",
+   "providerEventId": "401874959",
+   "kickoffUtc": "2026-10-16T18:45:00.000Z",
+   "matchup": "Frosinone v Sassuolo",
+   "homeClub": "Frosinone",
+   "awayClub": "Sassuolo",
+   "historyNames": {
+    "home": "Frosinone",
+    "away": "Sassuolo"
+   },
+   "espnTeamIds": {
+    "home": "4057",
+    "away": "3997"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-14T14:41:23.000Z",
+   "probs": {
+    "home": 0.474,
+    "draw": 0.239028,
+    "away": 0.286972
+   },
+   "over25": 0.581823,
+   "under25": 0.418177,
+   "expectedGoals": {
+    "home": 1.7261,
+    "away": 1.2964
+   },
+   "lambdas": {
+    "home": 1.7261,
+    "away": 1.2964
+   },
+   "rho": -0.013793,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 43,
+    "away": 119
+   },
+   "fit": {
+    "cutoffIso": "2026-10-14T14:41:23.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 10
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.484533,
+     "draw": 0.216616,
+     "away": 0.298851
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Venezia|Napoli",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874760",
+   "providerEventId": "401874760",
+   "kickoffUtc": "2026-10-17T13:00:00.000Z",
+   "matchup": "Venezia v Napoli",
+   "homeClub": "Venezia",
+   "awayClub": "Napoli",
+   "historyNames": {
+    "home": "Venezia",
+    "away": "Napoli"
+   },
+   "espnTeamIds": {
+    "home": "17530",
+    "away": "114"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-14T14:41:23.000Z",
+   "probs": {
+    "home": 0.121458,
+    "draw": 0.208745,
+    "away": 0.669797
+   },
+   "over25": 0.486347,
+   "under25": 0.513653,
+   "expectedGoals": {
+    "home": 0.6825,
+    "away": 1.9365
+   },
+   "lambdas": {
+    "home": 0.6825,
+    "away": 1.9366
+   },
+   "rho": -0.013793,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 42,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-10-14T14:41:23.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 10
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.106942,
+     "draw": 0.224315,
+     "away": 0.668743
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 2
+ }
+}
