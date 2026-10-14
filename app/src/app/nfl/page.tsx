@@ -511,6 +511,9 @@ export default function NflHubPage() {
 
       {/* ── THE SLATE ─────────────────────────────────────────────────────────
           One card per game, each carrying its own simulation and its own full report. */}
+      {/* GTP-19 (Release 2B): the slate table repeats the game list above it (the hub's #nfl-games), so it folds.
+          "See the slate" and other #nfl-slate links still open it (MoreDisclosure opens on hash). */}
+      <MoreDisclosure title="Forecast details for every game this week" summary="The full slate table: each game's simulation state, score range and report link.">
       <section aria-labelledby="nfl-slate" id="nfl-slate" className="scroll-mt-24">
         <SectionHeader
           eyebrow={weekLabel ? "This week" : slateDay ? `Slate · ${slateDay}` : "Slate"}
@@ -677,6 +680,7 @@ export default function NflHubPage() {
           </p>
         ) : null}
       </section>
+      </MoreDisclosure>
 
       {/* ── WEEKLY LEADERS · founder directive 2026-10-08 (one NFL forecast experience) ──────────────
           ONE set of Top boards, ranked by lib/sports/nfl/forecast-view.mjs topBoards from the SAME player rows each game

@@ -46,7 +46,8 @@ export default function UpcomingSportsPage() {
       <SportChooser />
       <h2 style={{ margin: "34px 0 0", fontSize: 18 }}>Schedules and coverage status</h2>
       <p style={{ margin: "12px 0 0", fontSize: 14, lineHeight: 1.6, color: "var(--text-dim, var(--text-mute))", maxWidth: 640 }}>
-        Four sports we track toward coverage. Each section says exactly what exists today — the
+        {/* GTP-29: no hard-coded count — the list below is the schedule owner's, and MLB is named separately. */}
+        The sports we track toward coverage. Each section says exactly what exists today — the
         schedule source, when it was captured, or the specific reason nothing is published yet.
         The{" "}
         <Link href="/mlb/" style={{ color: "var(--vault-gold)" }}>MLB Simulation Center</Link> is the
