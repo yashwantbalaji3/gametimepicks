@@ -26,8 +26,18 @@
  *
  * WHY THE PUBLICATION-SLO CLAUSE. app/public/data/ops/ is excluded from the build trigger, yet the
  * public pages read ops/publication-slo.json at build time (lib/ops/read-publication-slo.ts). Until
- * now its changes reached the site only by riding these stamp commits. If the verdict a reader can see
- * moved, the gated set publishes so the build carries it.
+ * now its changes reached the site only by riding these stamp commits. Two layers now cover it: the
+ * deploy trigger itself builds when those public fields move (scripts/ops/publication-slo-public-changed.mjs,
+ * called from vercel-ignore-build.sh — for EVERY workflow, not only these two), and this gate also
+ * publishes the gated set in that case, so the build carries consistent stamps.
+ *
+ * THREE CLOCKS, NEVER CONFUSED. (1) A forecast's `generatedAt` — "Simulated <time>" — is when the
+ * simulation shown was produced; under suppression it is the last run that changed it, which is literally
+ * true. (2) ops/heartbeat.json `lastRunAt` is the pipeline's dead-man's switch; it is a free file and
+ * commits on every run, so suppression never hides a stalled pipeline. (3) Input freshness (lineup
+ * capture times) lives in data/internal/mlb/input-snapshots, also free, also committed every run. The
+ * public copy that implied (1) moves hourly now says what happens instead ("re-simulated when it posts",
+ * "latest published").
  *
  * WHY A HEARTBEAT. Suppression keeps the last content-changing stamp ("Simulated 10:49 AM"), which is
  * true — the simulation has not changed since. No staleness verdict reads these stamps (the MLB

@@ -62,6 +62,15 @@ The allowlist was mined from 157 commits (`mine.py` → `paths.txt`).
 
 These are commit counts. Vercel coalesces pushes that land close together, so "before" over-counts real builds slightly.
 
+## Founder checks (2026-10-14 evening)
+| Check | Result |
+|---|---|
+| **Publication-SLO changes are never suppressed or left waiting** | Two layers. **(1)** `vercel-ignore-build.sh` now builds when the public fields of `ops/publication-slo.json` (date, state, platformState, publishDeadlineUtc, reason) move. This uses `scripts/ops/publication-slo-public-changed.mjs` and applies to every workflow; any error builds. **(2)** The gate also publishes the gated set in that case. History: over 10 days, 20 commits moved those fields; 8 of them previously waited for an unrelated deploy and now build on their own. The trigger is tested on a real git repo: a `checkedAt`-only change skips; a deadline, state or date change builds; unreadable JSON or a missing helper builds. A new guard proves `read-publication-slo.ts` is the only publicly reachable reader under `ops/` |
+| **Three clocks kept apart** | Forecast `generatedAt` ("Simulated <time>") = when the simulation shown was produced. Under suppression it is the last run that changed it, which is true. `ops/heartbeat.json` (dead-man's switch) and input-snapshot capture times are free files and commit on every run, so a stalled pipeline is never hidden. Two public strings that implied the simulation moves hourly now read "batting order not posted yet · re-simulated when it posts" and "MLB forecasts: first run A → latest published B". No staleness verdict reads the gated stamps |
+| **Pregame snapshot provenance** | `provenance.mjs`: the grader's rule (newest revision whose generatedAt pre-dates first pitch, over snapshots plus committed revisions) picks a **byte-identical prediction row for 21/21 games** (13 dates) with and without the gate's suppressions |
+| **Legitimate lineup changes** | All 30 full-game content changes in the replay published, as did the 2 necessary builds in the 24h audit. Tests pin lineup, probability and status-flip publishes |
+| **Official results and settlement** | No results, settlement, graded, ledger, board or linescore path matches a stamp rule. A test asserts this and that staging one publishes. Neither workflow writes those paths |
+
 ## Expected reductions and estimated savings
 COST-001 §2.4: an ignored build is **not free**. A skip still provisions and clones, at about 16 CPU-minutes ($0.056). The gate still commits the run records, so each suppressed run costs one ignored build instead of one full build.
 
@@ -71,6 +80,14 @@ COST-001 §2.4: an ignored build is **not free**. A skip still provisions and cl
 | 10-day replay (avg 6.11 build-min) | ≈ 9.5/day | ≈ 465 | ≈ 312 | **≈ $1.09/day** (≈ $33/30 days) |
 
 **Without the heartbeat:** about 1 more build avoided per day (≈ +$0.12/day).
+
+**Conservative estimate (the figure to plan on): ≈ $0.75/day (≈ $22/30 days).** It assumes:
+- 9.55 avoided build-triggering commits a day;
+- × 0.84 commit-to-build coalescing (19 MLB commits produced 16 builds in the audited 24h), giving 8.0 avoided builds a day;
+- × (median MLB build 5.9 min × 8 vCPU − a 16 CPU-min skip charge on **every** suppressed run) × $0.0035;
+- − 0.8 builds a day the SLO trigger adds back. Those are correct builds that previously waited.
+
+All of these are estimates, not billed figures.
 
 **Larger saving (not proposed):** skip the run-records commit too when nothing else changed. That would reach 100% of the build cost, but it stops the dead-man's-switch heartbeat (`ops/heartbeat.json`) and SLO verdicts from reaching `main`. Out of scope.
 

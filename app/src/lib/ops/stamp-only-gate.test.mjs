@@ -289,3 +289,72 @@ test("CLI: when it cannot judge it exits 2 and leaves the index alone", () => {
   assert.equal(JSON.parse(r.stdout).verdict, "ERROR");
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+/* ── Results, settlement and grading records are never gated ──────────────────────────────────────── */
+
+test("official results, settlement and graded records never match a stamp rule — they always publish", () => {
+  for (const f of [
+    "app/public/data/mlb/results/game-predictions-graded.jsonl",
+    "app/public/data/mlb/results/game-projected-scores-graded.jsonl",
+    "app/public/data/mlb/results/game-predictions-record.json",
+    `app/public/data/mlb/homer-nukes/settled-${D}.json`,
+    `app/public/data/parlays/lab-settled/${D}.json`,
+    `app/public/data/mlb/boards/${D}.json`,
+    "data/internal/forecast-ledger/v1/mlb.jsonl",
+    `data/internal/mlb/linescores/${D}.json`,
+  ]) {
+    assert.equal(ruleFor(f), null, `${f} must never be judged stamp-only`);
+    if (isBuildInput(f)) publishes([...stampOnlyRun(), mod(f, { generatedAt: T0 }, { generatedAt: T1 })], `${f} staged`);
+  }
+});
+
+/* ── The deploy trigger builds on its own when the publication verdict pages read moves ───────────── */
+
+function triggerRepo({ withHelper = true } = {}) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "slo-trigger-"));
+  const g = (...a) => execFileSync("git", a, { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  g("init", "-q"); g("config", "user.email", "t@example.invalid"); g("config", "user.name", "t"); g("config", "commit.gpgsign", "false");
+  const w = (rel, body) => { fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true }); fs.writeFileSync(path.join(dir, rel), typeof body === "string" ? body : J(body)); };
+  w("app/scripts/vercel-ignore-build.sh", fs.readFileSync(path.join(APP, "scripts/vercel-ignore-build.sh"), "utf8"));
+  if (withHelper) {
+    w("app/scripts/ops/publication-slo-public-changed.mjs", fs.readFileSync(path.join(APP, "scripts/ops/publication-slo-public-changed.mjs"), "utf8"));
+    w("app/src/lib/ops/stamp-only-gate.mjs", fs.readFileSync(path.join(APP, "src/lib/ops/stamp-only-gate.mjs"), "utf8"));
+  }
+  const slo = (o) => ({ kind: "publication-slo", date: D, state: "PUBLISHING", platformState: "PUBLISHING", publishDeadlineUtc: "2026-10-13T22:30:00.000Z", reason: "not late", checkedAt: T0, ...o });
+  w(PUBLICATION_SLO_PATH, slo({})); w("app/public/data/ops/heartbeat.json", { lastRunAt: T0 });
+  g("add", "-A"); g("commit", "-q", "-m", "deployed");
+  const base = g("rev-parse", "HEAD").trim();
+  const step = (files) => { for (const [rel, body] of Object.entries(files)) w(rel, body); g("add", "-A"); g("commit", "-q", "-m", "next"); };
+  const ignore = () => spawnSync("bash", [path.join(dir, "app/scripts/vercel-ignore-build.sh")], { cwd: path.join(dir, "app"), encoding: "utf8", env: { ...process.env, VERCEL_GIT_PREVIOUS_SHA: base, VERCEL_PROJECT_PRODUCTION_URL: "", VERCEL_FORCE_BUILD: "" } });
+  return { dir, slo, step, ignore };
+}
+
+test("deploy trigger: an ops-only commit that moves only checkedAt / the heartbeat still SKIPS", () => {
+  const t = triggerRepo();
+  t.step({ [PUBLICATION_SLO_PATH]: t.slo({ checkedAt: T1 }), "app/public/data/ops/heartbeat.json": { lastRunAt: T1 } });
+  const r = t.ignore();
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  fs.rmSync(t.dir, { recursive: true, force: true });
+});
+
+test("deploy trigger: an ops-only commit that moves the deadline, state or date BUILDS — it never waits for an unrelated deploy", () => {
+  for (const change of [{ publishDeadlineUtc: "2026-10-13T23:30:00.000Z" }, { state: "PUBLISHED", platformState: "PUBLISHED" }, { date: "2026-10-14" }]) {
+    const t = triggerRepo();
+    t.step({ [PUBLICATION_SLO_PATH]: t.slo({ checkedAt: T1, ...change }) });
+    const r = t.ignore();
+    assert.equal(r.status, 1, `${JSON.stringify(change)}: ${r.stdout}${r.stderr}`);
+    assert.match(r.stdout, /publication-SLO fields public pages read changed/);
+    fs.rmSync(t.dir, { recursive: true, force: true });
+  }
+});
+
+test("deploy trigger: an unreadable verdict, or a missing helper, BUILDS (fails toward building)", () => {
+  const bad = triggerRepo();
+  bad.step({ [PUBLICATION_SLO_PATH]: "{ not json" });
+  assert.equal(bad.ignore().status, 1);
+  fs.rmSync(bad.dir, { recursive: true, force: true });
+  const noHelper = triggerRepo({ withHelper: false });
+  noHelper.step({ [PUBLICATION_SLO_PATH]: noHelper.slo({ checkedAt: T1 }) });
+  assert.equal(noHelper.ignore().status, 1, "without the helper even a checkedAt-only change builds");
+  fs.rmSync(noHelper.dir, { recursive: true, force: true });
+});

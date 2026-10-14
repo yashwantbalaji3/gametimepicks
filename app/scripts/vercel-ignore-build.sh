@@ -162,6 +162,19 @@ for _g in "${NON_BUILD_GLOBS[@]}"; do
 done
 
 if git diff --quiet "$BASE" HEAD -- "${BUILD_INPUTS[@]}"; then
+    # ── The one ops/ file a public page reads (COST-001 Stage B, 2026-10-14) ────────────────────
+    # ops/ is a NON_BUILD_INPUT because the prune deletes it from the export — but
+    # lib/ops/read-publication-slo.ts reads ops/publication-slo.json at BUILD time and Home/MLB render
+    # its deadline. Its checkedAt moves on every run, so it stays out of the path rule; when a field a
+    # page reads moves, that is a reader-visible change and builds on its own instead of waiting for an
+    # unrelated deploy. Any error (no node, unreadable file, missing at either end) BUILDS.
+    if ! git diff --quiet "$BASE" HEAD -- ':(top)app/public/data/ops/publication-slo.json'; then
+        _top="$(git rev-parse --show-toplevel 2>/dev/null)"
+        if ! node "${_top}/app/scripts/ops/publication-slo-public-changed.mjs" "$BASE" HEAD; then
+            echo "[ignore-build] the publication-SLO fields public pages read changed (or could not be compared) since $BASE — building"
+            exit 1
+        fi
+    fi
     echo "[ignore-build] no build-input changes (app/ minus ${NON_BUILD_INPUTS[*]}, data/*-projection, read internal paths) since deployed $BASE — skipping build"
     exit 0
 fi
