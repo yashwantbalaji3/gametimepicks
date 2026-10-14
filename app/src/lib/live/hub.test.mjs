@@ -124,8 +124,10 @@ test("HUB 4 · ⚠ a postponed or cancelled game never becomes a fake score or a
     assert.equal(d.isCanonicallyGraded, false);
   }
   // The card renders an em dash for an absent score — never 0.
+  /* LIVE-F: the score row lives in the shared LiveEventCard, which the MLB hub renders. */
   const hub = read("src/components/live/live-hub.tsx");
-  assert.match(hub, /score === null \? "—"/, "an absent score renders as an em dash");
+  assert.match(hub, /<LiveEventCard/, "the MLB card is the shared live event card");
+  assert.match(read("src/components/live/live-event-card.tsx"), /score === null \? "—"/, "an absent score renders as an em dash");
 });
 
 /* ───────────── 3 · what the hub must not show ───────────── */
@@ -176,7 +178,7 @@ test("HUB 8 · the roster links only to canonical game URLs, resolved by id not 
   assert.match(roster, /gameHrefByMatchId\("mlb", gamePk\)/,
     "resolved through the route owner's own id lookup — slug parsing silently produced an empty hub");
   const hub = read("src/components/live/live-hub.tsx");
-  assert.match(hub, /href=\{game\.href\}/, "cards link to the roster's canonical href");
+  assert.match(hub, /reportHref=\{game\.href\}/, "cards link to the roster's canonical href");
   assert.equal(/href="\/games\//.test(hub), false, "no hand-built game URL");
 });
 
@@ -228,7 +230,9 @@ test("HUB 12 · the hub does not announce itself on a timer", () => {
   // documentation as the violation it forbids.
   const hub = codeOnly(read("src/components/live/live-hub.tsx"));
   assert.equal(/aria-live/.test(hub), false, "no aria-live region on a polling scoreboard");
-  assert.match(hub, /aria-label=\{label\}/, "state is carried in the card's accessible name");
+  /* LIVE-F: the state is carried in the card's spoken summary (one sr-only sentence per card, read on demand). */
+  assert.match(hub, /spoken=\{spoken\}/, "state is carried in the card's accessible summary");
+  assert.match(read("src/components/live/live-event-card.tsx"), /<span className="sr-only">\{spoken\}<\/span>/);
 });
 
 test("HUB 13 · ⚠ a frozen-at stamp never appears for a forecast that does not exist", () => {

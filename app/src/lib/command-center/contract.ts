@@ -21,6 +21,9 @@ export interface CardSide {
   code: string | null;
   /** Which of the two sides the model favours; null when the forecast names neither. */
   favoured: boolean;
+  /** GTP-16: a portrait the ARTIFACT carries for this exact participant (UFC: the card's photoUrl for the
+   *  fighter's own athleteId). Never looked up by name; absent ⇒ initials. */
+  imageUrl?: string | null;
 }
 
 /**

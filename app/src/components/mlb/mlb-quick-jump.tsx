@@ -43,7 +43,7 @@ export default function MlbQuickJump() {
           const on = active === s.id;
           return (
             <button key={s.id} onClick={() => go(s.id)} aria-current={on ? "true" : undefined}
-              className="rounded-full px-3 py-1.5 font-mono uppercase tracking-[0.08em] whitespace-nowrap transition-colors"
+              className="gtp-hit-44 rounded-full px-3 py-1.5 font-mono uppercase tracking-[0.08em] whitespace-nowrap transition-colors"
               style={{ fontSize: 10, cursor: "pointer", color: on ? "var(--vault-scrim-espresso)" : "var(--vault-text-mute)", background: on ? "var(--gtp-bank-heat)" : "color-mix(in srgb, var(--vault-wash-base) 4.5%, transparent)", border: "1px solid var(--vault-rule)" }}>
               {s.label}
             </button>

@@ -147,9 +147,10 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
           style={{ color: "var(--vault-text-mute)" }}
         >
           Projections for pitcher strikeouts and batter markets only. Home runs
-          live on the separate{" "}
-          <Link href="/mlb/power" style={{ color: "var(--vault-warn)" }}>
-            Power Board
+          live on{" "}
+          {/* GTP-25: the live home-run model is Homer Nukes; the Power Board is a placeholder. */}
+          <Link href="/homer-nukes" style={{ color: "var(--vault-warn)" }}>
+            Homer Nukes
           </Link>{" "}
           because the variance profile is different.
         </p>

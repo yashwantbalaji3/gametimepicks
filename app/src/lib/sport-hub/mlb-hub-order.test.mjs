@@ -21,7 +21,8 @@ test("the prediction line reads in words; an unknown segment keeps the model's o
 test("🔴 one nav strip: the route tabs are gone from the hub, their destinations are in the shared strip", () => {
   assert.doesNotMatch(code, /<MlbSectionTabs/);
   const targets = HUB_SECTIONS.mlb.map((s) => s.target);
-  for (const t of ["/mlb/board", "/mlb/power", "/build", "/results/picks/mlb"]) assert.ok(targets.includes(t), `strip offers ${t}`);
+  /* GTP-25: home runs are reached through Homer Nukes (the live HR model); /mlb/power is a placeholder that links there. */
+  for (const t of ["/mlb/board", "/homer-nukes", "/build", "/results/picks/mlb"]) assert.ok(targets.includes(t), `strip offers ${t}`);
 });
 
 test("🔴 events → forecasts (board) → Simulation Center strip → simulations → results → model health", () => {

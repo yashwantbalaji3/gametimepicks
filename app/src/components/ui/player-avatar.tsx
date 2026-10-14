@@ -27,10 +27,13 @@ export default function PlayerAvatar({
   name,
   photo,
   size = 34,
+  decorative = false,
 }: {
   name: string;
   photo?: string | null;
   size?: number;
+  /** DS-001 §5 / GTP-31: true when the name is printed beside the image, so it is not read twice. */
+  decorative?: boolean;
 }) {
   const [errored, setErrored] = useState(false);
 
@@ -39,7 +42,7 @@ export default function PlayerAvatar({
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={photo}
-        alt={name}
+        alt={decorative ? "" : name}
         width={size}
         height={size}
         loading="lazy"
@@ -53,6 +56,7 @@ export default function PlayerAvatar({
   }
   return (
     <div
+      aria-hidden={decorative || undefined}
       className="rounded-full shrink-0 flex items-center justify-center"
       style={{
         width: size,

@@ -15,7 +15,6 @@
  * users and §11 forbids it. The state is in each card's accessible name instead, so it is read on
  * demand rather than shouted on a timer.
  */
-import Link from "next/link";
 import { useMemo } from "react";
 
 import { liveReadyFor } from "@/lib/live/client";
@@ -29,36 +28,10 @@ import {
 } from "@/lib/live/lifecycle.mjs";
 import type { HubRoster, HubRosterGame } from "@/lib/live/hub-data";
 import { useLiveSlate } from "./use-live-slate";
+import LiveEventCard, { liveEtTime } from "./live-event-card";
 import FollowedMark from "@/components/today/followed-mark";
 
 const MONO = "var(--font-mono)";
-
-/** State → chip styling. The LABEL is the information; colour only reinforces it. */
-const CHIP: Record<string, { fg: string; border: string; bg: string }> = {
-  LIVE: { fg: "var(--vault-bg)", border: "var(--vault-success)", bg: "var(--vault-success)" },
-  DELAYED: { fg: "var(--vault-warn)", border: "var(--vault-warn)", bg: "transparent" },
-  PRE: { fg: "var(--vault-text-mute)", border: "var(--vault-border)", bg: "transparent" },
-  FINAL_PENDING_SETTLEMENT: { fg: "var(--vault-text-mute)", border: "var(--vault-border-strong)", bg: "transparent" },
-  SETTLED: { fg: "var(--vault-text-mute)", border: "var(--vault-border-strong)", bg: "transparent" },
-  POSTPONED: { fg: "var(--vault-warn)", border: "var(--vault-warn)", bg: "transparent" },
-  CANCELLED: { fg: "var(--vault-text-mute)", border: "var(--vault-border-strong)", bg: "transparent" },
-  UNKNOWN: { fg: "var(--vault-text-mute)", border: "var(--vault-border)", bg: "transparent" },
-};
-
-function StateChip({ state, label }: { state: string; label: string }) {
-  const c = CHIP[state] ?? CHIP.UNKNOWN;
-  return (
-    <span
-      style={{
-        fontFamily: MONO, fontSize: 9.5, letterSpacing: "0.1em", textTransform: "uppercase",
-        color: c.fg, background: c.bg, border: `1px solid ${c.border}`,
-        borderRadius: 3, padding: "2px 6px", whiteSpace: "nowrap",
-      }}
-    >
-      {label}
-    </span>
-  );
-}
 
 const etTime = (iso: string | null) => {
   if (!iso) return null;
@@ -80,66 +53,47 @@ function GameCard({ game, envelope }: { game: HubRosterGame; envelope: any }) {
     ? [envelope?.period?.label, typeof envelope?.situation?.outs === "number" ? `${envelope.situation.outs} out` : null]
       .filter(Boolean).join(" · ")
     : "";
-  const start = etTime(game.firstPitch);
+  const start = liveEtTime(game.firstPitch);
 
   /*
-   * The accessible name carries the whole card: status in words, the score if one exists, and an
-   * explicit statement of which half is a live fact and which is a frozen forecast. A sighted
-   * reader gets the same from the layout.
+   * The accessible summary carries the whole card: status in words, the score if one exists, and an
+   * explicit statement of which half is a live fact and which is a frozen forecast. A sighted reader gets
+   * the same from the layout. LIVE-F: the card is the shared LiveEventCard — logo + full name rows and a
+   * VISIBLE "Open game report →" (GTP-30), instead of one card-sized link with no visible action.
    */
   const scoreSpoken = away === null || home === null ? "no score reported" : `${game.awayAbbr} ${away}, ${game.homeAbbr} ${home}`;
-  const label =
+  const spoken =
     `${game.awayName} at ${game.homeName}. ${life.label}. ${scoreSpoken}.` +
     (period ? ` ${period}.` : "") +
     (life.state === "PRE" && start ? ` First pitch ${start}.` : "") +
     (game.forecast ? " A GameTime pregame forecast is available and is frozen." : " No GameTime pregame forecast.");
 
   return (
-    <li style={{ listStyle: "none" }}>
-      <Link
-        href={game.href}
-        aria-label={label}
-        style={{
-          display: "block", textDecoration: "none", padding: "12px 14px", minHeight: 44,
-          border: "1px solid var(--vault-border)", borderRadius: 8, background: "var(--vault-panel)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-          <StateChip state={life.state} label={life.label} />
-          {/* v1.1.2: a LOCAL marker for a club the reader follows. It never refetches the slate and never
-              reorders the hub — personalized ordering belongs to My GameTime, which does not exist yet. */}
-          <FollowedMark entities={[game.awayRef, game.homeRef].filter((r): r is NonNullable<typeof r> => r !== null)} />
-          {life.state === "PRE" && start ? (
-            <span style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)" }}>{start}</span>
-          ) : period ? (
-            <span style={{ fontFamily: MONO, fontSize: 10, color: "var(--vault-text-faint)" }}>{period}</span>
-          ) : null}
-        </div>
-
-        <div aria-hidden="true">
-          {([["away", game.awayAbbr, away], ["home", game.homeAbbr, home]] as const).map(([k, abbr, score]) => (
-            <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, padding: "2px 0" }}>
-              <span style={{ fontFamily: "var(--font-headline)", fontSize: 14, color: "var(--vault-text)" }}>{abbr}</span>
-              <span style={{ fontFamily: MONO, fontSize: 16, fontVariantNumeric: "tabular-nums", color: "var(--vault-text)" }}>
-                {/* An absent score is an em dash. A 0 here would be a score nobody reported. */}
-                {score === null ? "—" : score}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {game.forecast ? (
-          <p aria-hidden="true" style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", margin: "8px 0 0" }}>
-            Pregame GameTime · frozen · {game.awayAbbr} {game.forecast.runs.away.rangeLow}–{game.forecast.runs.away.rangeHigh}
-            {" · "}{game.homeAbbr} {game.forecast.runs.home.rangeLow}–{game.forecast.runs.home.rangeHigh} runs
-          </p>
-        ) : (
-          <p aria-hidden="true" style={{ fontFamily: MONO, fontSize: 9.5, color: "var(--vault-text-faint)", margin: "8px 0 0" }}>
-            No GameTime pregame forecast
-          </p>
-        )}
-      </Link>
-    </li>
+    <LiveEventCard
+      spoken={spoken}
+      state={life.state}
+      label={life.label}
+      when={life.state === "PRE" ? start : period || null}
+      started={life.state !== "PRE"}
+      sport="mlb"
+      away={{ abbr: game.awayAbbr, name: game.awayName, score: away }}
+      home={{ abbr: game.homeAbbr, name: game.homeName, score: home }}
+      /* v1.1.2: a LOCAL marker for a club the reader follows. It never refetches the slate and never
+         reorders the hub — personalized ordering belongs to My GameTime, which does not exist yet. */
+      marks={<FollowedMark entities={[game.awayRef, game.homeRef].filter((r): r is NonNullable<typeof r> => r !== null)} />}
+      reportHref={game.href}
+    >
+      {game.forecast ? (
+        <p aria-hidden="true" style={{ fontFamily: MONO, fontSize: 10.5, color: "var(--vault-text-mute)", margin: "10px 0 0" }}>
+          Forecast locked pregame · {game.awayAbbr} {game.forecast.runs.away.rangeLow}–{game.forecast.runs.away.rangeHigh}
+          {" · "}{game.homeAbbr} {game.forecast.runs.home.rangeLow}–{game.forecast.runs.home.rangeHigh} runs
+        </p>
+      ) : (
+        <p aria-hidden="true" style={{ fontFamily: MONO, fontSize: 10.5, color: "var(--vault-text-faint)", margin: "10px 0 0" }}>
+          No GameTime pregame forecast
+        </p>
+      )}
+    </LiveEventCard>
   );
 }
 
@@ -227,7 +181,7 @@ export default function LiveHub({ roster }: { roster: HubRoster }) {
               <h2 style={{ fontFamily: MONO, fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--vault-text-faint)", margin: "0 0 10px", fontWeight: 400 }}>
                 {groupLabel(group)} <span style={{ color: "var(--vault-text-faint)" }}>· {rows.length}</span>
               </h2>
-              <ul style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", margin: 0, padding: 0 }}>
+              <ul style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))", margin: 0, padding: 0 }}>
                 {rows.map(({ game, envelope }) => (
                   <GameCard key={game.gamePk} game={game} envelope={envelope} />
                 ))}

@@ -359,7 +359,7 @@ export default function MlbLandingPage() {
           { href: "/mlb/board", eyebrow: "Tonight", title: "Model board", sub: propsAvailable ? `${summary.leans} projections across ${gameCount} game${gameCount === 1 ? "" : "s"}.` : "Lines arriving soon — schedule live." },
           { href: "/results/mlb", eyebrow: "Results", title: "MLB results", sub: mlbLifetime?.hitRate != null ? `${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive} settled.` : "Pending first settlement." },
           { href: "/results/model-audit", eyebrow: "Performance", title: "Model performance", sub: "Per-market, per-edge, per-game dispersion." },
-          { href: "/mlb/power", eyebrow: "Power", title: "Power Board", sub: "Home runs tracked separately. High-variance watch." },
+          { href: "/homer-nukes", eyebrow: "Home runs", title: "Homer Nukes", sub: "Today's five most likely home runs, each with its own probability." }, // GTP-25
         ]}
       />
     </div>
@@ -371,7 +371,7 @@ export default function MlbLandingPage() {
       <OverviewFooterDisclosure
         inputsLabel="MVP projection method"
         inputsBody={<>Pitcher strikeouts: 0.55 · last-3 mean + 0.45 · season mean, normal approximation. Batters: 0.5 · last-10 mean + 0.5 · season mean, with a floor on sigma. The MLB R5 anomaly guardrail caps edges above 20pp to Low confidence.</>}
-        framingBody={<>Home runs live on a separate Power Board because they are higher-variance. Same responsible-use commitments across every sport.</>}
+        framingBody={<>Home runs live on Homer Nukes, a separate model, because they are higher-variance. Same responsible-use commitments across every sport.</>}
       />
       <p className="text-[12px]" style={{ color: "var(--vault-text-faint)" }}>
         Full framework: <Link href="/methodology" style={{ color: "var(--vault-gold-bright)" }}>methodology</Link>.

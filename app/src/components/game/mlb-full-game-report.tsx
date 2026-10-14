@@ -10,6 +10,7 @@
  */
 
 import { useId, useState, type ReactNode } from "react";
+import { useRovingTabs } from "@/components/a11y/use-roving-tabs";
 import { PAUSED_MONEYLINE_SHORT, PAUSED_RUN_LINE_SHORT } from "@/lib/ops/live-record-gate.mjs";
 import HeadToHead from "@/components/ui/head-to-head";
 import PlayerAvatar from "@/components/player-avatar";
@@ -687,6 +688,8 @@ export default function MlbFullGameReport({
     { key: "players", label: "Players & Props" },
     { key: "methodology", label: "Methodology" },
   ];
+  /* GTP-13: arrow keys, Home/End, one tab stop, and each tab names its panel (shared hook). */
+  const roving = useRovingTabs<TabKey>({ keys: tabs.map((t) => t.key), active: tab, onChange: setTab, idBase: tablistId.replace(/:/g, "") });
 
   return (
     <div className="flex flex-col gap-4">
@@ -736,18 +739,17 @@ export default function MlbFullGameReport({
       </div>
 
       {/* Tab bar */}
-      <div role="tablist" aria-label="Game report sections" id={tablistId} className="flex gap-1 flex-wrap" style={{ borderBottom: "1px solid var(--vault-border)" }}>
+      <div {...roving.listProps} aria-label="Game report sections" id={tablistId} className="flex gap-1 flex-wrap" style={{ borderBottom: "1px solid var(--vault-border)" }}>
         {tabs.map((t) => {
           const active = tab === t.key;
           return (
             <button
               key={t.key}
-              role="tab"
-              aria-selected={active}
-              type="button"
-              onClick={() => setTab(t.key)}
+              {...roving.tabProps(t.key)}
               className="font-mono uppercase tracking-[0.08em] px-3 py-2"
               style={{
+                /* GTP-12: a 44px hit area; the label size is unchanged. */
+                minHeight: 44,
                 fontSize: 10,
                 color: active ? "var(--vault-gold)" : "var(--vault-text-mute)",
                 borderBottom: `2px solid ${active ? "var(--vault-gold)" : "transparent"}`,
@@ -762,7 +764,7 @@ export default function MlbFullGameReport({
       </div>
 
       {/* Panels */}
-      <div role="tabpanel">
+      <div {...roving.panelProps(tab)}>
         {tab === "overview" && (available ? <Overview g={g} prediction={prediction} modelVersion={meta?.modelVersion ?? null} awayCode={awayCode} homeCode={homeCode} awayLogo={awayLogo} homeLogo={homeLogo} storySlot={storySlot} saveSlot={saveSlot} /> : <UnavailableNote g={g} />)}
         {tab === "box" && (available ? <BoxScore g={g} /> : <UnavailableNote g={g} />)}
         {tab === "market" && <div>{marketNode}</div>}

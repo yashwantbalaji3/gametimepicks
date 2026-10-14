@@ -85,7 +85,7 @@ export default function LearnPage() {
           {[
             { n: "1", t: "Today", d: "What's live now", href: "/today" },
             { n: "2", t: "Simulate", d: "Pick a game, any sport", href: "/simulate" },
-            { n: "3", t: "Parlay Center", d: "The model's cards, or build your own", href: "/build" },
+            { n: "3", t: "Parlays", d: "The model's cards, or build your own", href: "/build" },
             { n: "4", t: "Results", d: "How it all settled", href: "/results" },
           ].map((s) => (
             <Link key={s.n} href={s.href} className="vault-press flex flex-col gap-0.5" style={{ textDecoration: "none" }}>
@@ -158,8 +158,8 @@ export default function LearnPage() {
         <h2 className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>The three tools</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Concept term="Projections">Every market the model has a read on — shown with model %, market %, and the gap between them. A &ldquo;projection view&rdquo; is information; not every view is suggested as a card.</Concept>
-          <Concept term="Suggested cards">The model&apos;s actual paper picks for the day, bundled into cards by risk tier. Enter any stake to see the projected paper return. Browse them all in the <Link href="/build" style={{ color: "var(--vault-gold-bright)" }}>Parlay Center</Link>.</Concept>
-          <Concept term="Build Your Own">Make your own paper card from eligible legs across sports in the <Link href="/build/custom" style={{ color: "var(--vault-gold-bright)" }}>Parlay Center</Link> — add legs, set a stake, and see the combined odds + payout live.</Concept>
+          <Concept term="Suggested cards">The model&apos;s actual paper picks for the day, bundled into cards by risk tier. Enter any stake to see the projected paper return. Browse them all in <Link href="/build" style={{ color: "var(--vault-gold-bright)" }}>Parlays</Link>.</Concept>
+          <Concept term="Build Your Own">Make your own paper card from eligible legs across sports in <Link href="/build/custom" style={{ color: "var(--vault-gold-bright)" }}>Parlays</Link> — add legs, set a stake, and see the combined odds + payout live.</Concept>
         </div>
       </section>
 

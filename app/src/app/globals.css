@@ -5662,7 +5662,7 @@ body {
 }
 .gtp-pred-model .gtp-pred-book { color: var(--vault-text-faint); }
 
-.gtp-pred-link { font-size: 10px; color: var(--vault-gold-bright); }
+.gtp-pred-link { font-size: 10px; color: var(--vault-gold-bright); display: inline-flex; align-items: center; min-height: 44px; } /* GTP-12: 44px hit area */
 .gtp-pred-link:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); border-radius: 4px; }
 
 /*
@@ -5878,3 +5878,16 @@ body {
 .gtp-more-disclosure-caret { display: inline-block; transition: transform 160ms ease; }
 .gtp-more-disclosure[open] .gtp-more-disclosure-caret { transform: rotate(90deg); }
 @media (prefers-reduced-motion: reduce) { .gtp-more-disclosure-caret { transition: none; } }
+
+/* GTP-12 (UX Release 2B) — the ONE 44×44 hit-area rule for small inline controls (DS-001 §6). The label keeps its
+   size; the control grows to a real touch target. Used where a table cell, chip or "Open →" link was 16–30px. */
+.gtp-hit-44 { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+summary.gtp-hit-44 { display: flex; justify-content: flex-start; }
+
+/* GTP-12 residuals (2026-10-14, DS-001 §6/§9). A 4-breakpoint sweep found disclosures and standalone mono "→" links of
+   14–22px in page bodies (Home, Today, Results, UFC), and date-rail links with no visible keyboard focus. Every
+   disclosure in the page body is a 44px target, and so is a standalone mono CTA link — not one inside running text,
+   a list item or a table cell, where the inline-link exception applies and a 44px line box would break the text. */
+main summary { min-height: 44px; align-content: center; }
+main a.font-mono.uppercase:not(p a):not(li a):not(td a):not(dd a) { display: inline-flex; align-items: center; min-height: 44px; }
+.gtp-focus-ring:focus-visible { outline: 2px solid var(--vault-accent); outline-offset: 2px; }

@@ -22,6 +22,7 @@ export type MlbFilterMarket =
   | "all"
   | "pitcher_strikeouts"
   | "batter_hits"
+  | "batter_hits_runs_rbis"
   | "batter_total_bases";
 
 export type MlbFilterConfidence =
@@ -55,14 +56,17 @@ const MARKET_OPTIONS: { value: MlbFilterMarket; label: string }[] = [
   { value: "all", label: "All markets" },
   { value: "pitcher_strikeouts", label: "Pitcher Ks" },
   { value: "batter_hits", label: "Hits" },
-  { value: "batter_total_bases", label: "Total Bases" },
+  /* GTP-14: H+R+RBI rows are on the board and had no filter; Total Bases is prediction-disabled and never
+     listed (mlb-board-body drops it), so offering it filtered to an empty board. */
+  { value: "batter_hits_runs_rbis", label: "H+R+RBI" },
 ];
 
 const CONFIDENCE_OPTIONS: { value: MlbFilterConfidence; label: string }[] = [
-  { value: "all", label: "All tiers" },
-  { value: "High", label: "High" },
-  { value: "Medium", label: "Medium" },
-  { value: "Low", label: "Low" },
+  /* GTP-14/34: these tiers are model-vs-market GAP sizes (P2-A), not confidence — the same words as each row's chip. */
+  { value: "all", label: "Any gap" },
+  { value: "High", label: "Gap ≥ 5 pp" },
+  { value: "Medium", label: "Gap 2.5–5 pp" },
+  { value: "Low", label: "Small gap" },
   { value: "insufficient_data", label: "Sample too small" },
 ];
 
@@ -158,7 +162,7 @@ export default function MlbFilterConsole({
         ))}
       </FilterRow>
 
-      <FilterRow label="Confidence">
+      <FilterRow label="Gap size">
         {CONFIDENCE_OPTIONS.map((opt) => (
           <ChipButton
             key={opt.value}

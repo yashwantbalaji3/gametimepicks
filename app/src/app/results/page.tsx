@@ -767,9 +767,9 @@ export default function ResultsPage() {
               A wrapping flex row with `gap` is the fix and the house convention: let layout own the
               spacing instead of per-element margins.
             */}
-            <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1.5">
+            <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0">
               {dateSections.slice(3).map((s2) => (
-                <Link key={s2.date} href={surfaceHref("results", { date: s2.date }) ?? "/results/"} className="font-mono" style={{ color: "var(--gtp-bank-heat)", fontSize: 11.5, whiteSpace: "nowrap" }}>
+                <Link key={s2.date} href={surfaceHref("results", { date: s2.date }) ?? "/results/"} className="gtp-hit-44 font-mono" style={{ color: "var(--gtp-bank-heat)", fontSize: 11.5, whiteSpace: "nowrap" }}>
                   {s2.date}
                 </Link>
               ))}

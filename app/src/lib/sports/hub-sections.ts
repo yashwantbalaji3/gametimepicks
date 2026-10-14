@@ -50,7 +50,7 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     { kind: "link", target: "/build", label: "Parlay Center" },
     // Phase A-3: the MLB route tabs folded into this one strip.
     { kind: "link", target: "/mlb/board", label: "Full board" },
-    { kind: "link", target: "/mlb/power", label: "Power board" },
+    { kind: "link", target: "/homer-nukes", label: "Homer Nukes" }, // GTP-25: /mlb/power is a placeholder
     /* Session 5 · B8: the hub links the live hub for the sports /live covers, and Ask everywhere. */
     { kind: "link", target: "/live", label: "Live" },
     { kind: "link", target: "/ask", label: "Ask" },

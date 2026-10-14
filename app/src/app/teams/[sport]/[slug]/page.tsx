@@ -23,6 +23,8 @@ import { labHref } from "@/lib/lab/lab-store";
 import FollowToggle from "@/components/follow/follow-toggle";
 import ForecastHistorySection from "@/components/research-pages/forecast-history-section";
 import TeamLogo from "@/components/team-logo";
+import TeamMark from "@/components/ui/team-mark";
+import { eplCrestUrl } from "@/lib/entity/identity-urls";
 import { CoverageStrip, EntityLink, Eyebrow, MONO, PANEL, ResearchShell, ResultBadge, Section, StatTile } from "@/components/research-pages/research-primitives";
 import TeamSeasonLog from "@/components/research-pages/team-season-log";
 import UpcomingList, { type UpcomingItem } from "@/components/research-pages/upcoming-list";
@@ -99,6 +101,8 @@ export default function TeamResearchPage({ params }: { params: { sport: string; 
     <ResearchShell back={{ href: SPORT_HUB[sport], label: `${SPORT_NAME[sport]} hub` }}>
       <header style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
         {logoSport && t.abbreviation ? <TeamLogo team={t.abbreviation} sport={logoSport} size="lg" /> : null}
+        {/* GTP-18: the club crest by its exact ESPN team id (epl-team-<id>); initials if it fails to load. */}
+        {sport === "EPL" && eplCrestUrl(t.id) ? <TeamMark name={t.name} logoUrl={eplCrestUrl(t.id)} size="lg" /> : null}
         <div style={{ minWidth: 0, flex: "1 1 240px" }}>
           <Eyebrow>{SPORT_NAME[sport]} · Team research</Eyebrow>
           <h1 style={{ fontSize: "clamp(22px, 4vw, 32px)", fontWeight: 800, margin: "6px 0 0", overflowWrap: "anywhere" }}>{t.name}</h1>

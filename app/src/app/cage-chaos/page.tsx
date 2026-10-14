@@ -9,6 +9,7 @@
 import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
+import PlayerAvatar from "@/components/ui/player-avatar";
 import { loadUfcCard } from "@/lib/sports/ufc/bout";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -46,10 +47,11 @@ export default function CageChaosPage() {
           <span aria-hidden>🥊</span> Cage Chaos · UFC
         </span>
         <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: 30, fontWeight: 800, lineHeight: 1.1 }}>
-          How each fight ends — and in which round
+          {/* GTP-34: probability language — these are experimental estimates, not how fights WILL end. */}
+          How each fight might end: the model&apos;s chances by method and round
         </h1>
         <p className="m-0 max-w-[68ch]" style={{ color: "var(--vault-text-mute)", fontSize: 14, lineHeight: 1.6 }}>
-          Three heads, evaluated separately: who wins, how it ends, and how far it goes. Each was tested on past
+          Three separate estimates: who wins, the likeliest way the fight ends, and how far it is likely to go. Each was tested on past
           fights it never trained on before it was published. This is an experimental model: winner forecasts are
           graded on every new card, method and round are not yet graded, and it has not been shown to have an edge
           over the market.
@@ -80,7 +82,7 @@ export default function CageChaosPage() {
             <div style={{ overflowX: "auto", marginTop: 12 }}>
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 620 }}>
                 <thead>
-                  <tr>{["Bout", "Model pick", "Win chance", "How it ends", "How far"].map((h) => (
+                  <tr>{["Bout", "Model pick", "Win chance", "Likeliest ending", "Likeliest round"].map((h) => (
                     <th key={h} scope="col" style={{ textAlign: "left", padding: "7px 10px", fontSize: 10, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>{h}</th>
                   ))}</tr>
                 </thead>
@@ -89,6 +91,12 @@ export default function CageChaosPage() {
                     <tr key={b.boutId}>
                       <td style={{ padding: "8px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5 }}>
                         <Link href={`/ufc/bout/${b.boutId}/`} style={{ color: "var(--vault-text)", textDecoration: "none" }}>
+                          {/* GTP-16: each fighter's portrait from the card artifact (exact athleteId); initials otherwise.
+                              Decorative — the names follow in text. */}
+                          <span aria-hidden style={{ display: "inline-flex", gap: 4, verticalAlign: "middle", marginRight: 8 }}>
+                            <PlayerAvatar name={b.red.name} photo={b.red.photoUrl} size={28} decorative />
+                            <PlayerAvatar name={b.blue.name} photo={b.blue.photoUrl} size={28} decorative />
+                          </span>
                           {b.red.name} vs {b.blue.name}
                           <span style={{ display: "block", color: "var(--vault-text-faint)", fontSize: 11 }}>{b.weightClass}{b.titleFight ? " · title fight" : ""}</span>
                         </Link>

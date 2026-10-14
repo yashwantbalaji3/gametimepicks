@@ -70,6 +70,9 @@ export default function MlbPowerBoardPage() {
         }
         mainBoardHref="/mlb/board"
         mainBoardLabel="Open MLB Model Board"
+        liveHref="/homer-nukes"
+        liveLabel="Today's home runs: Homer Nukes"
+        liveNote="Looking for today's home-run probabilities? They are on Homer Nukes — a different model from the one planned here, publishing the five most likely home runs each day. This page stays a placeholder until its own inputs land."
       />
     </div>
   );

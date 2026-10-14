@@ -9,12 +9,15 @@
  */
 import type { ReactNode } from "react";
 
+import OpenOnHash from "./open-on-hash";
+
 export default function MoreDisclosure({
   title,
   summary,
   children,
   id,
   defaultOpen = false,
+  className = "",
 }: {
   /** What is inside, in the reader's words ("More from today's slate"). */
   title: string;
@@ -23,9 +26,11 @@ export default function MoreDisclosure({
   children: ReactNode;
   id?: string;
   defaultOpen?: boolean;
+  /** Spacing from the host page's own rhythm (e.g. "mt-8"); the disclosure itself adds none. */
+  className?: string;
 }) {
   return (
-    <details id={id} open={defaultOpen} className="gtp-more-disclosure rounded-[12px]" style={{ border: "1px solid var(--vault-border)" }}>
+    <details id={id} open={defaultOpen} className={`gtp-more-disclosure rounded-[12px] ${className}`.trim()} style={{ border: "1px solid var(--vault-border)" }}>
       <summary className="gtp-more-disclosure-summary flex items-center justify-between gap-3 px-4 py-3 cursor-pointer select-none">
         <span className="flex flex-col gap-0.5 min-w-0">
           <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 16, fontWeight: 600 }}>{title}</span>
@@ -33,6 +38,8 @@ export default function MoreDisclosure({
         </span>
         <span aria-hidden className="gtp-more-disclosure-caret" style={{ color: "var(--vault-text-faint)", fontSize: 18 }}>›</span>
       </summary>
+      {/* Deep links into folded content still land (open-on-hash.tsx). */}
+      <OpenOnHash />
       <div className="flex flex-col gap-7 px-4 pb-5 pt-2">{children}</div>
     </details>
   );

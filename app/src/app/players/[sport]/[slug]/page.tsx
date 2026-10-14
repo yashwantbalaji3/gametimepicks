@@ -14,6 +14,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import CompareCta from "@/components/compare/compare-cta";
+import PlayerAvatar from "@/components/player-avatar";
+import { espnNflHeadshotUrl, mlbPlayerIdFromResearchId } from "@/lib/entity/identity-urls";
 import { labHref } from "@/lib/lab/lab-store";
 import FollowToggle from "@/components/follow/follow-toggle";
 import PlayerResearchView from "@/components/research-pages/player-research-view";
@@ -84,6 +86,13 @@ export default function PlayerResearchPage({ params }: { params: { sport: string
   return (
     <ResearchShell back={{ href: SPORT_HUB[sport], label: `${SPORT_NAME[sport]} hub` }}>
       <header style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+        {/* GTP-17: an official headshot by the player's EXACT provider id (NFL ESPN athlete id, MLB MLBAM id);
+            EPL and UFC have no authorized portrait id here, so no image is shown rather than a guessed one. */}
+        {sport === "NFL" && espnNflHeadshotUrl(p.id) ? (
+          <PlayerAvatar photoUrl={espnNflHeadshotUrl(p.id)} playerName={p.name} sport="nfl" size="lg" />
+        ) : sport === "MLB" && mlbPlayerIdFromResearchId(p.id) ? (
+          <PlayerAvatar playerId={mlbPlayerIdFromResearchId(p.id)} playerName={p.name} sport="mlb" size="lg" />
+        ) : null}
         <div style={{ minWidth: 0, flex: "1 1 240px" }}>
           <Eyebrow>{SPORT_NAME[sport]} · Player research</Eyebrow>
           <h1 style={{ fontSize: "clamp(22px, 4vw, 32px)", fontWeight: 800, margin: "6px 0 0", overflowWrap: "anywhere" }}>{p.name}</h1>

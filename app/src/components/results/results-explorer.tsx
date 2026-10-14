@@ -538,7 +538,7 @@ export default function ResultsExplorer({
                               <span style={{ color: "var(--vault-text-faint)" }} title="no card in this cell for this period">—</span>
                             ) : (
                               /* EVERY POPULATED CELL LEADS TO ITS OWN SLIPS. */
-                              <button type="button"
+                              <button type="button" className="gtp-hit-44"
                                 onClick={() => { setSport(sp); setTier(t); sync({ sport: sp, tier: t }); }}
                                 style={{ color: "var(--vault-gold-bright)", background: "none", border: "none", padding: 0, font: "inherit", cursor: "pointer", textDecoration: "underline" }}
                                 aria-label={`Show the ${c.n} ${sp} ${t} card${c.n === 1 ? "" : "s"} for ${rangeLabel}`}>

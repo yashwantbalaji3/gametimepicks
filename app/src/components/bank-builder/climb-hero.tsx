@@ -190,7 +190,7 @@ export default function ClimbHero({
           legs, far too small a sample to conclude anything repeats.
         </p>
         <details className="mt-1.5">
-          <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
+          <summary className="gtp-hit-44 cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-text-faint)", fontSize: 10 }}>
             How the ladder works
           </summary>
           <p className="mt-1 font-mono text-[11px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
@@ -304,7 +304,7 @@ export default function ClimbHero({
 
       {/* 6 · How to read this — COLLAPSED by default (keeps the page simple; expand for the honesty notes) */}
       <details className="mt-3 rounded-2xl px-5 py-4 group" style={{ border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)" }}>
-        <summary className="flex cursor-pointer items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", listStyle: "none" }}>
+        <summary className="gtp-hit-44 flex cursor-pointer items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", listStyle: "none" }}>
           <span className="transition-transform group-open:rotate-90" aria-hidden>▸</span> How to read this
         </summary>
         <ul className="mt-2 flex flex-col gap-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
