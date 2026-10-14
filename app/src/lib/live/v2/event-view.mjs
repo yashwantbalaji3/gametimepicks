@@ -111,7 +111,7 @@ export function progressLine(sport, p, status) {
     }
     case "mlb": {
       const i = posInt(p.inning);
-      const h = p.half === "top" ? "Top" : p.half === "bottom" ? "Bottom" : null;
+      const h = p.half === "top" ? "Top" : p.half === "bottom" ? "Bottom" : p.half === "middle" ? "Middle" : p.half === "end" ? "End" : null;
       if (!i || !h) return null;
       const outs = Number.isInteger(p.outs) && p.outs >= 0 && p.outs <= 3 ? ` · ${p.outs} out${p.outs === 1 ? "" : "s"}` : "";
       return `${h} ${ordinal(i)}${outs}`;
