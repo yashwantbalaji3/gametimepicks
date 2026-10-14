@@ -13,6 +13,7 @@
  *             blank. With NFL live off the hook fetches nothing and no live text renders.
  */
 import { useMemo, useState } from "react";
+import { useRovingTabs } from "@/components/a11y/use-roving-tabs";
 
 import FollowToggle from "@/components/follow/follow-toggle";
 import type { FollowRef } from "@/lib/follow/follow-store";
@@ -54,6 +55,8 @@ export default function FamilyTabs({ families, lists, linkToGame, label, emptyTe
   const query = q.trim().toLowerCase();
   const narrowed = !!filters && (team !== "All" || query !== "");
 
+  /* GTP-13 follow-up: keyboard model from the shared hook; this component's own tab/panel ids are kept. */
+  const famTabs = useRovingTabs<string>({ keys: families.map((f) => f.key), active: fam.key, onChange: setActive, idBase: `fam-${label}` });
   return (
     <div>
       {filters ? (
@@ -72,9 +75,9 @@ export default function FamilyTabs({ families, lists, linkToGame, label, emptyTe
             style={{ minHeight: 36, padding: "0 10px", borderRadius: 8, fontSize: 13, border: "1px solid var(--vault-border-strong)", background: "transparent", color: "var(--vault-text)", minWidth: 160 }} />
         </div>
       ) : null}
-      <div className="nf-tabs" role="tablist" aria-label={label}>
+      <div className="nf-tabs" {...famTabs.listProps} aria-label={label}>
         {families.map((f) => (
-          <button key={f.key} type="button" role="tab" id={`tab-${label}-${f.key}`} aria-selected={f.key === fam.key} aria-controls={`panel-${label}-${f.key}`} className="nf-tab" onClick={() => setActive(f.key)}>
+          <button key={f.key} {...famTabs.tabProps(f.key)} id={`tab-${label}-${f.key}`} aria-controls={`panel-${label}-${f.key}`} className="nf-tab">
             {f.title}
           </button>
         ))}

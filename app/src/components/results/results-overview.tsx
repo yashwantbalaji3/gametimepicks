@@ -10,7 +10,8 @@
  * - Windows (Today / 7 days / 30 days / Season / All time) are recomputed on the READER's day from the daily
  *   series, so a static page does not freeze "today" at build time.
  */
-import { useState } from "react";
+import { useId, useState } from "react";
+import { useRovingTabs } from "@/components/a11y/use-roving-tabs";
 
 import { windowsFrom } from "@/lib/results/v2/populations.mjs";
 import { useReaderEtDate } from "@/lib/use-reader-et-date";
@@ -108,15 +109,17 @@ function DailyTracker({ pops, today }: { pops: OverviewPopulation[]; today: stri
 export default function ResultsOverview({ populations, products, seedToday }: { populations: OverviewPopulation[]; products: OverviewProduct[]; seedToday: string }) {
   const today = useReaderEtDate(seedToday);
   const [w, setW] = useState<WindowKey>("d7");
+  /* GTP-13 follow-up: arrow keys / Home / End and one tab stop (shared hook). No separate panels here, so no aria-controls. */
+  const windowTabs = useRovingTabs<WindowKey>({ keys: WINDOWS.map((x) => x.key), active: w, onChange: setW, idBase: useId().replace(/:/g, "") });
   const pub = populations.filter((p) => p.class === "PUBLIC");
   const research = populations.filter((p) => p.class === "RESEARCH");
   return (
     <section aria-labelledby="results-overview-h" className="flex flex-col gap-5 mb-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="results-overview-h" className="m-0 font-display text-[22px]" style={{ color: "var(--vault-text)" }}>How GameTimePicks did</h2>
-        <div role="tablist" aria-label="Window" className="flex flex-wrap gap-1.5">
+        <div {...windowTabs.listProps} aria-label="Window" className="flex flex-wrap gap-1.5">
           {WINDOWS.map((x) => (
-            <button key={x.key} role="tab" type="button" aria-selected={w === x.key} onClick={() => setW(x.key)}
+            <button key={x.key} {...windowTabs.tabProps(x.key)} aria-controls={undefined}
               className="rounded-full px-3.5 font-mono text-[11.5px] uppercase tracking-[0.1em]"
               style={{ minHeight: 44, color: w === x.key ? "var(--vault-bg)" : "var(--vault-text-mute)", background: w === x.key ? "var(--vault-text)" : "transparent", border: `1px solid ${w === x.key ? "var(--vault-text)" : "var(--vault-border)"}` }}>
               {x.label}

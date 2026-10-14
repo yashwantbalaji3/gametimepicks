@@ -13,7 +13,8 @@
  * states surface verbatim. When a selected sport has no simulation-ready games, an honest note shows —
  * never a fake sim module.
  */
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
+import { useRovingTabs } from "@/components/a11y/use-roving-tabs";
 
 import GamesExperience, { type GameRow } from "@/components/games-experience";
 import { getSportIdentity } from "@/lib/sport-identity";
@@ -67,6 +68,8 @@ function toneChip(tone: SportStateTone, selected: boolean): { color: string; bac
 
 export default function SportSelector({ sports, rows }: { sports: SportState[]; rows: GameRow[] }) {
   const [active, setActive] = useState<SportState["key"]>("today");
+  /* GTP-13 follow-up: keyboard model from the shared hook (the lists below are not separate panels). */
+  const sportTabs = useRovingTabs<string>({ keys: sports.map((s) => s.key), active, onChange: (k) => setActive(k as SportState["key"]), idBase: useId().replace(/:/g, "") });
   const selected = useMemo(() => sports.find((s) => s.key === active) ?? sports[0], [sports, active]);
   const filtered = useMemo(
     // Compare as strings so an NHL tab (no GameRow ever has sport "nhl") yields an empty grid cleanly.
@@ -80,7 +83,7 @@ export default function SportSelector({ sports, rows }: { sports: SportState[]; 
           honest state chip. The active sport is elevated with an ember spine; unavailable sports stay
           muted-but-readable. Horizontal-scroll on mobile, no clipped text. */}
       <div
-        role="tablist"
+        {...sportTabs.listProps}
         aria-label="Choose a sport to simulate"
         className="flex items-stretch gap-2.5 overflow-x-auto pb-1.5 -mx-1 px-1"
         data-testid="sport-selector"
@@ -92,10 +95,8 @@ export default function SportSelector({ sports, rows }: { sports: SportState[]; 
           return (
             <button
               key={s.key}
-              type="button"
-              role="tab"
-              aria-selected={on}
-              onClick={() => setActive(s.key)}
+              {...sportTabs.tabProps(s.key)}
+              aria-controls={undefined}
               className="gtp-pressable relative flex flex-col gap-2 rounded-[14px] px-4 py-3 text-left transition-colors shrink-0"
               style={{
                 minWidth: 132,
