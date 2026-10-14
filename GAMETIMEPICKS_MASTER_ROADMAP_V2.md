@@ -1504,7 +1504,86 @@ Source: `GameTimePicks_UX_System_V2_Engineering_Directive_2026-10-13.md` (founde
 - **Post-launch:** the universal sport hub shell (`SportHubShell`), Results Simple/Analyst (`RESULTS-001`), and the full card system.
 - **Status update (2026-10-14):** Release 1 shipped as #1072 (PRODUCTION VERIFIED, see the session log). The "Release 2" scope above is superseded by the audit-driven plan below.
 
-### UX System V2 — independent audit reconciliation and implementation plan (2026-10-14; PROPOSED, awaiting founder approval)
+### UX System V2 — independent audit reconciliation and implementation plan (2026-10-14; APPROVED by the founder with adjustments)
+**Founder approval (2026-10-14), with adjustments that override the tables below where they differ:**
+1. **P0 first; no concealment.**
+   - GTP-08 and GTP-23 are not fixed by display changes that hide a data or provenance problem.
+   - Fix the visible contradiction, investigate the producing logic and add regression tests.
+   - The producer fix ships before launch if it can be made safely. Otherwise the display fails closed: it states the limitation and does not show a value it can't support. The remaining limitation is recorded here.
+   - Never modify historical forecasts, frozen predictions, settlement records or established provenance to make the interface look right.
+2. **Release 2A approved.**
+   - Every public status must match the underlying data.
+   - Remove misleading labels, jargon, contradictory statuses, wrong dates, confusing probabilities and unnecessary text.
+   - Technical detail is kept, but moved into disclosures, methodology pages or clearly labelled research views; it is not deleted.
+3. **Release 2B approved, with cross-sport consistency as the goal.**
+   - Standardize portraits, logos, fighter images, image fallbacks, typography, spacing, buttons and status labels.
+   - Most-visited pages first.
+   - Mobile responsive, with accessible controls.
+   - No isolated cosmetic fix that conflicts with the shared standards (item 5).
+4. **New: pre-launch Live Hub foundation (LIVE-F, below).** The existing /live surface becomes visually consistent across supported sports. Live Hub V2 (prop progress rails, detailed interactive tracking) stays P2.
+5. **New: shared design standards (DS-001, below).**
+   - A short written standard, applied by every 2A/2B/LIVE-F change.
+   - It covers cards, portraits and logos, sport navigation and filters, buttons, badges, status indicators, probability displays, responsive layout and a11y.
+   - It is not a full design-system migration before Oct 20.
+6. **Engineering and cost controls are unchanged:**
+   - localhost first, batched releases, no preview builds and no paid API calls;
+   - exact-head CI, Production acceptance and rollback;
+   - forecast and grading integrity;
+   - founder approval before every Production merge.
+7. **Acceptance package per release:**
+   - the findings addressed and the routes affected;
+   - before-and-after behavior;
+   - automated test results;
+   - desktop and mobile browser verification;
+   - unresolved issues or regressions;
+   - the expected Vercel impact.
+8. **The freeze stays meaningful.** Correctness and reliability come before visual completeness. A redesign that can't be safely built and tested before Oct 17 is deferred.
+
+#### P0 adjustment — GTP-08 and GTP-23 (root cause, then producer or fail-closed)
+**GTP-08 (Parlay Lab "Publishing today: yes" for UFC):**
+- Investigate why `lab-eligibility` / `sport-lab-cards` reports UFC as publishing while the card capability refuses.
+- If the producer can derive the flag from the same capability check that `/cards/ufc` uses, fix the producer and re-emit. This is display-only data: no forecast, grade or ledger changes.
+- Otherwise the page reads the capability refusal and shows "Not publishing — <reason>" (fail closed).
+- Multi-sport availability is recomputed from the same source.
+- Regression test: no sport can be "publishing" while its card capability refuses.
+
+**GTP-23 (frozen stamp after first pitch):**
+- Investigate which writes rewrite the file-level `generatedAt`: lineup refresh, re-emit, or something else.
+- Find whether a trustworthy per-game freeze time already exists, such as a receipt or ledger `createdAt` / hash time.
+- If it exists, display it. If not, the frozen stamp is omitted and the report says "Forecast locked before first pitch (hash <id>); exact lock time not recorded for this artifact".
+- Never back-fill or rewrite a time on an existing artifact. A producer `frozenAt` applies only to new artifacts, if it can be shipped safely.
+- Regression test: no displayed freeze time is later than the event start.
+
+#### LIVE-F — pre-launch Live Hub foundation (P1, display-only; Release 2B)
+**Routes:** `/live`, Home and Today live strips, game-page live panels.
+
+**Standardize across MLB, NFL and the other supported sports:**
+- sport tabs and filters with one control pattern;
+- one event-card layout with team identity (logo plus full name; abbreviation fallback);
+- score presentation;
+- one status-badge vocabulary: **LIVE**, **UPCOMING**, **FINAL** (plus "grading pending" when relevant), and **Live tracking unavailable** for sports without validated live adapters;
+- one frozen-prediction indicator ("Forecast locked pregame");
+- a visible "Open game report →" action (GTP-30).
+
+**Rules:**
+- Progress and period lines show only where the live feed supplies verified data. The period is hidden once final (NEW-2).
+- No invented statistics or progress. A sport without validated live tracking (UFC; NBA until validated; soccer) is never presented as tracked live.
+- Absorbs GTP-15 (/live part), GTP-30 and NEW-2.
+
+**Not included (stays P2, Live Hub V2):** prop progress rails, interactive tracking and Live/Upcoming/Final regrouping beyond the badge.
+
+#### DS-001 — shared design standards (P1; written first, then applied)
+**Deliverable:** `docs/UX_DESIGN_STANDARDS.md`, written from the components and tokens already in use (no new design language). It covers:
+- card surface, padding, radius and type scale;
+- player portrait and team-logo treatment: sizes, exact-ID sourcing, initials or abbreviation fallback, decorative vs named alt text;
+- sport navigation and filters;
+- buttons and CTAs with 44 px hit areas;
+- badges and status vocabulary;
+- probability display: "x% of simulated games", model vs market labelled separately, validation status adjacent;
+- responsive breakpoints (320/390/768/1440) and a11y rules.
+
+**Enforcement:** each 2A/2B/LIVE-F change cites the rule it applies. Existing ratchet tests stay in force. New lint or ratchet guards are added only where cheap and non-flaky; the token and radius ratchet migration stays P2.
+
 **Source:** `GameTimePicks-UX-System-V2-Audit.pdf` (ChatGPT Work, independent, read-only; snapshot `e344bfc9`, 2026-10-13). It contains 34 findings (GTP-01…34), 12 work packages (CC-01…12) and 15 plates. The audit is the primary UX reference; this roadmap remains the planning authority.
 
 **Reconciliation method:**
@@ -1539,8 +1618,8 @@ Source: `GameTimePicks_UX_System_V2_Engineering_Directive_2026-10-13.md` (founde
 | ID | Routes | Current (verified) | Fix | Owner(s) | Cx | Dep |
 |---|---|---|---|---|---|---|
 | GTP-01 | /account, /privacy, /terms | Email sign-in live; policies 404 | Founder Option A: accurate drafts (#1077), then founder + counsel inputs, then gate opens. Never bypass the gate or invent parameters | `lib/legal/texts.mjs`, `content-manifest.mjs` | S (eng) | **Founder/counsel** |
-| GTP-08 | /results/parlay-lab | "UFC … Publishing today: yes" (and Multi-sport yes) while `/cards/ufc` refuses | Display guard via `sportLadderCapabilityRefusal()`; recompute Multi | `app/results/parlay-lab/page.tsx:85`, `lib/parlays/sport-lab-cards.ts:38` | S | — |
-| GTP-23 | MLB game report, /saved | "Forecast frozen at Oct 13, 10:06 PM ET", after the 8:00 PM first pitch: the file-level `generatedAt` was rewritten by lineup refreshes; the per-game hash is unchanged | Never show a frozen stamp later than first pitch (use the per-game receipt time, or omit). Saved time relabelled "board updated" | `game/game-detail-page.tsx:787`, `live/live-panel.tsx:179`, `saved/saved-list.tsx:47` | S | PRODUCER per-game `frozenAt` → P2 |
+| GTP-08 | /results/parlay-lab | "UFC … Publishing today: yes" (and Multi-sport yes) while `/cards/ufc` refuses | Root cause + producer fix if safe, else fail-closed via `sportLadderCapabilityRefusal()`; recompute Multi (see adjustment) | `app/results/parlay-lab/page.tsx:85`, `lib/parlays/sport-lab-cards.ts:38` | S | — |
+| GTP-23 | MLB game report, /saved | "Forecast frozen at Oct 13, 10:06 PM ET", after the 8:00 PM first pitch: the file-level `generatedAt` was rewritten by lineup refreshes; the per-game hash is unchanged | Root cause; show a trustworthy per-game lock time or state the limitation (never later than first pitch; never rewrite artifacts). Saved time relabelled "board updated" (see adjustment) | `game/game-detail-page.tsx:787`, `live/live-panel.tsx:179`, `saved/saved-list.tsx:47` | S–M | PRODUCER `frozenAt` (new artifacts only) pre-launch if safe |
 | GTP-02 | / (Simulation Hub EPL) | "Every forecast fixture has kicked off" beside 10 future fixtures | Use `forecastRows()` and the PREGAME filter; "kicked off" only when none is pregame | `lib/command-center/featured.ts:170-181` | S | test `command-center.test.mjs:142` |
 | GTP-10 | / (UFC card) | Prelim bout labelled "· main card" (picks the last modelled bout; label hard-coded) | Feature the title fight or the first modelled bout; segment from `buildPredictionBoard` | `featured.ts:195,208-209`, `ufc/prediction-board.mjs:21-36` | S | — |
 | GTP-11 | /simulate, /simulate/d/* | "NBA 0 · off season" in preseason; date list skips Oct 20–22 (12-row display cap feeds the date list) | Date list from uncapped rows; "No NBA games on this date" when the capture has rows; keep started games for today | `lib/simulate/day-view.ts:474-515`, `sports/upcoming/adapters.mjs:216,232,243` | S–M | NBA opening night Oct 20 |
@@ -1591,7 +1670,7 @@ Source: `GameTimePicks_UX_System_V2_Engineering_Directive_2026-10-13.md` (founde
 - **GTP-16:** fighter CDN for non-card fighters (HEAD-verified first).
 - **GTP-17:** EPL player portraits (only with authorized exact IDs).
 - **GTP-24:** "all batters rated" wording.
-- **PRODUCER fixes:** a capability check in `lab-eligibility.mjs` (GTP-08); a per-game `frozenAt` (GTP-23).
+- **PRODUCER fixes:** whatever part of GTP-08/23 could not ship safely before launch (documented limitation recorded at release time).
 - **Live Hub V2 (CC-10):** Live / Upcoming / Final grouping; three orthogonal states (lifecycle × freshness × eligibility); frozen-forecast progress rows (range vs posted threshold); top-five-as-maximum. Only after lifecycle evidence; MLB first, then NFL; UFC, NBA and soccer only after their adapters and finality are validated.
 - **Design-system consolidation (CC-07/08/09):**
   - spacing tokens `--gtp-space-1..6`;
@@ -1615,15 +1694,16 @@ Source: `GameTimePicks_UX_System_V2_Engineering_Directive_2026-10-13.md` (founde
 #### Schedule, cost and release control
 | Day | Work | Release |
 |---|---|---|
-| Oct 14 | P0 (GTP-02, 08, 10, 11, 23) + Release 2A locally; exact-head local build; before/after 19-route audit; PR; CI | Founder approval → 1 build |
-| Oct 15 | Release 2B locally (identity, tabs, 44 px, NFL/EPL folds); local a11y e2e (470-case suite) + 137-page probe; PR | Founder approval → 1 build; Thu NFL live observation |
+| Oct 14 | DS-001 standards doc; P0 (GTP-02, 08, 10, 11, 23 with root cause) + Release 2A locally; exact-head local build; before/after 19-route audit (desktop + phone); PR; CI; acceptance package | Founder approval → 1 build |
+| Oct 15 | Release 2B + LIVE-F locally (identity, live consistency, tabs, 44 px; NFL/EPL folds last); local a11y e2e + 137-page probe; PR; acceptance package | Founder approval → 1 build; Thu NFL live observation on the new /live |
 | Oct 16 | Merge 2B; Production verification; fix-forward only for regressions | — |
 | Oct 17 | **Feature freeze.** UFC card day: observe card, settlement and grading | — |
 | Oct 18–19 | Final UAT: phone and desktop, live NFL Sunday, legal gate status, rollback rehearsal (revert-merge plan) | Controlled exceptions only |
 | Oct 20 | Launch; NBA opening night | — |
 
 - **Cost:** about 2 Production builds (≈ $0.28) plus roadmap-only PRs (0 builds). No preview deployments; no paid API calls.
-- **Effort:** Release 2A ≈ 1 day; Release 2B ≈ 1.5 days. If time runs short, GTP-19/20 folds drop to post-launch first; the truth labels never drop.
+- **Effort:** Release 2A ≈ 1 day; Release 2B + LIVE-F ≈ 1.5 days.
+- **Deferral order if time runs short:** GTP-19/20 folds go first, then GTP-17/18 research-page identity, then GTP-25. P0, the truth labels and LIVE-F status correctness never drop.
 
 ## Universal order
 1. Sport header + period selector
