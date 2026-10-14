@@ -106,7 +106,7 @@ export default function BoardDateRail({
               key={e.date}
               href={e.href}
               prefetch={false}
-              className="shrink-0 flex flex-col gap-1.5 rounded-[8px] px-3.5 py-2.5 transition-all hover:-translate-y-0.5"
+              className="gtp-focus-ring shrink-0 flex flex-col gap-1.5 rounded-[8px] px-3.5 py-2.5 transition-all hover:-translate-y-0.5"
               style={{
                 background: isActive
                   ? "linear-gradient(155deg, color-mix(in srgb, var(--vault-accent) 18%, transparent), color-mix(in srgb, var(--vault-accent) 4%, transparent))"

@@ -185,9 +185,9 @@ export function UpcomingSportsSections({ sports }: { sports: SportSchedule[] }) 
  */
 export function UpcomingSportsStrip({ sports }: { sports: SportSchedule[] }) {
   return (
-    <nav aria-label="Upcoming sports schedules" style={{ display: "flex", flexWrap: "wrap", gap: "6px 18px", fontSize: 12.5 }}>
+    <nav aria-label="Upcoming sports schedules" style={{ display: "flex", flexWrap: "wrap", gap: "0 18px", fontSize: 12.5 }}>
       {sports.map((s) => (
-        <Link key={s.sport} href={`/sports/#${s.sport}`} style={{ color: "var(--text-mute)", textDecoration: "none", borderBottom: "1px dotted var(--vault-border-strong)" }}>
+        <Link key={s.sport} href={`/sports/#${s.sport}`} className="gtp-hit-44" style={{ color: "var(--text-mute)", textDecoration: "none", borderBottom: "1px dotted var(--vault-border-strong)" }}>
           {s.competitionLabel}: {(s.totals?.upcoming ?? s.events.length) > 0 ? `${s.totals?.upcoming ?? s.events.length} upcoming` : "schedule not yet published"}
         </Link>
       ))}
