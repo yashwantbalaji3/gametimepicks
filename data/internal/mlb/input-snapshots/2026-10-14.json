@@ -1,0 +1,78 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-input-snapshot",
+ "dataClass": "PRIVATE_RESEARCH",
+ "what": "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+ "date": "2026-10-14",
+ "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+ "simulationVersion": 1,
+ "sourceBoardHash": "a1b1b66f9cdbf7f4cddd46483e9f7b959df31a4f5b1d7ba81e89ecac5ca6f280",
+ "updatedAt": "2026-10-14T09:33:49.000Z",
+ "games": [
+  {
+   "gamePk": 849811,
+   "date": "2026-10-14",
+   "slug": "mil-vs-lad-2026-10-14",
+   "awayTeam": "MIL",
+   "homeTeam": "LAD",
+   "firstPitch": "2026-10-15T00:00:00Z",
+   "artifactHash": "7c87fed0f7d7f62738fa1772877590f463572b91b9315b844f63e80b24c19cfe",
+   "completenessLevel": "degraded",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     694192,
+     661388,
+     668930,
+     683734,
+     806198,
+     669003,
+     800325,
+     641343,
+     687401
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     605141,
+     606192,
+     518692,
+     669257,
+     681624,
+     660271,
+     663656,
+     571771,
+     -9
+    ],
+    "realCount": 8,
+    "ratedCount": 8,
+    "paddedSlots": 1
+   },
+   "awayStarter": {
+    "playerId": 688107,
+    "name": "Robert Gasser",
+    "hasStrikeoutProjection": true
+   },
+   "homeStarter": {
+    "playerId": 605483,
+    "name": "Blake Snell",
+    "hasStrikeoutProjection": true
+   },
+   "missingFamilies": [
+    "confirmed_batting_order",
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  }
+ ]
+}
