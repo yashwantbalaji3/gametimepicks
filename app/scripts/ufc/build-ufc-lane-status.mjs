@@ -204,7 +204,8 @@ const out = {
   modelVsMarket: (() => {
     const s = read(path.join(APP, "..", "data/internal/research/ufc/model-vs-market/summary.json"));
     if (!s) return { state: "UNKNOWN", detail: "no model-vs-market summary on disk" };
-    const rec = (s.reconciliation ?? []).map((r) => ({ slateDate: r.slateDate, frozen: r.frozen, graded: r.graded, void: r.void, pending: r.pending, reconciles: r.reconciles }));
+    /* 2026-10-14: `withdrawn` carried through — without it a card with a withdrawn bout reads frozen 9 / graded 8 / pending 0. */
+    const rec = (s.reconciliation ?? []).map((r) => ({ slateDate: r.slateDate, frozen: r.frozen, graded: r.graded, void: r.void, pending: r.pending, withdrawn: r.withdrawn ?? 0, reconciles: r.reconciles }));
     const lastFought = rec.filter((r) => Date.parse(`${r.slateDate}T23:59:59Z`) < Date.parse(NOW)).at(-1) ?? null;
     return {
       state: rec.every((r) => r.reconciles) ? "RECONCILED" : "DRIFT",

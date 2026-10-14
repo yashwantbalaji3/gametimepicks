@@ -43,7 +43,11 @@ function fromCorpus(doc) {
     if (!d) continue;
     const a = r.fighterA ?? r.winner, b = r.fighterB ?? r.loser;
     if (!a || !b) continue;
-    const key = r.boutId ?? boutKey(d, a, b);
+    /* 2026-10-14: ALWAYS the folded key snapshots and the ledger use. The corpus's own boutId is unfolded
+       ("raul rosas jr.", "casey o'neill", "abdul-malik"), so 70 of 1,574 corpus rows could never join a snapshot —
+       4 ledger bouts graded only because the ESPN capture happened to still hold them, and the two-source
+       agreement check never ran for them. */
+    const key = boutKey(d, a, b);
     if (r.winner && r.loser) {
       out.set(key, { boutId: key, eventDate: d, winner: r.winner, loser: r.loser, void: false, source: RESULT_SOURCE.CORPUS });
     } else {
