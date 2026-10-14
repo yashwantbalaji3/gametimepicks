@@ -1769,13 +1769,13 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-14 23:25Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-14 23:35Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
 | UX Release 2B + LIVE-F | #1081 → merge `5917475b53` (20:16:25Z) | Merged at the approved head `6e24b774f4`. Before the merge: unit run on main + head locally (only known local-env failures).<br>**Production READY serving `5917475b53`** (built 20:17:59Z). Main CI green.<br>Merge diff: 43 files, all `app/src`; 0 data, settlement or grading paths.<br>Forecast Record: 15,868/15,868 served rows match the ledger; 0 settlement mismatches.<br>36-view sweep at 1440/390 px clean (logos, portraits, `/live` tabs, coverage line) | **COMPLETED** (Production-verified) |
 | Live RLS battery in CI | #1084 → merge `46c7912271` (21:58:09Z) | Merged at the approved head `bfb1bd39e0`. **Production serves `46c7912271`** (built 22:02:00Z). Main CI green (run 38644263216) and **live RLS 82–84 PASS on main, not skipped**. Merge diff: 3 harness files only. No route, account code, migration or hosted-DB path; `--hosted` needs an explicit flag and URL, and no workflow supplies them. Forecast Record served = ledger, 15,868/15,868 | **COMPLETED** (Production-verified) |
-| UFC grader truth | #1085 → merge `411089bfe4` (22:27:49Z) | Merged at the approved head `68ab9225cf`. Main CI green (run 38647814525). Merge diff: 7 code/test files, 0 data. **All 199 UFC record files byte-identical** before and after. On main: 44/44 UFC/ledger checks (draw = VOID, withdrawn never a loss or in the ledger, pending excluded from n). Production record: 71 rows = 70 decided (44 W / 26 L) + 1 VOID (Gatto–Kareckaite, no result, no score). Withdrawn Gall–Dumas absent; 9 pending 10/17 bouts excluded. 10/17 chain ready (fight-week Sat 11Z, post-card daily) | **AWAITING PRODUCTION**: the merge build is wedged on Vercel (see below) |
+| UFC grader truth | #1085 → merge `411089bfe4` (22:27:49Z) | Merged at the approved head `68ab9225cf`. Main CI green (run 38647814525). Merge diff: 7 code/test files, 0 data. **All 199 UFC record files byte-identical** before and after. On main: 44/44 UFC/ledger checks (draw = VOID, withdrawn never a loss or in the ledger, pending excluded from n). Production record: 71 rows = 70 decided (44 W / 26 L) + 1 VOID (Gatto–Kareckaite, no result, no score). Withdrawn Gall–Dumas absent; 9 pending 10/17 bouts excluded. 10/17 chain ready (fight-week Sat 11Z, post-card daily) | **COMPLETED**: Production serves `b713c2c98c` (built 23:24:04Z), which contains the merge. Served record: 15,868/15,868 = ledger; UFC 71 rows unchanged |
 | Roving-tab a11y follow-up | #1087 · `152a4a35b5` | CI green. Revalidated on main `411089bfe4` + head: unit 9,395/0, build OK, post-build 692/0, e2e 515/0. Tab stops: `/results` 5 → 1, NFL game 12 → 2 | AWAITING FOUNDER APPROVAL (after #1085 is live) |
 | Live Hub V2 + Thursday plan | #1082 (draft, base main) · `420c5c3b9a` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
 | MLB stamp-only gate | #1088 (draft) · `39cdec11c9` | Deploy trigger now builds on publication-SLO public-field moves for every workflow (8 previously delayed in 10 days). Forecast of record identical for 21/21 games. Results and settlement never gated. **Conservative ≈ $0.75/day net (estimate).** | PROPOSAL (protected workflows) |
@@ -1784,11 +1784,18 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
 | MLB-001 simulation audit | #1086 · `4e7287913d` | Research (descriptive) | Docs only; AWAITING FOUNDER APPROVAL |
 | Parity test vs UFC VOID row | merged with #1081 | `main` green again (main CI on `5917475b53`) | **COMPLETED** |
 
-**Incident 23:25Z: Vercel wedge, head-of-line blocking (P0 runbook `docs/P0_VERCEL_WEDGE_CONCURRENCY_2026-09-24.md` §7).**
+**Incident 22:28–23:28Z (resolved): Vercel wedge, head-of-line blocking (P0 runbook `docs/P0_VERCEL_WEDGE_CONCURRENCY_2026-09-24.md` §7).**
 - The #1085 merge build has shown "deploying" since 22:27:53Z (over 55 minutes; the platform normally kills at about 46).
 - Two later bot pushes (23:09Z, 23:20Z) are queued behind it. Production is healthy but frozen at `fde6b71a75` (built 22:28Z).
 - The documented recovery, cancelling the wedged deployment so the queue drains, is a founder dashboard action. The Vercel token is expired.
 - If the build fails or is cancelled, the next build delivers #1085, because its diff spans everything since the last successful deploy.
+- **Resolution:**
+  - The merge build `411089bfe4` failed at 23:22:37Z, after about 55 minutes.
+  - `a20a2d30fe` was "Canceled from the Vercel Dashboard" at 23:28:47Z.
+  - `b713c2c98c`, which contains the merge, succeeded, and Production served it from 23:24Z.
+  - Production was frozen for about 56 minutes.
+  - The same code built in PR CI and then in `b713c2c98c`, so this was a platform wedge, not a code failure.
+  - Build logs for the failed deployment need a fresh Vercel token.
 
 **Findings logged 20:45Z:**
 - MLB game pages (`/games/mlb/<slug>/`) are generated only for the active slate, so the previous day's URLs 404 once the next board publishes. This predates #1081, and no public page links to them (checked). Decide before launch whether shared links to yesterday's games should resolve.
