@@ -108,7 +108,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 12 | `MLB-005` | MLB Modeling | Shared WorldReceipt + forward shadow | NOT_STARTED | MLB-003, MLB-004 | Family-by-family |
 | 13 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | IN_PROGRESS — NFL hook only: World Model V2 grader (private, #1027). Ledger hardening itself not started; zero-build settlement assessment open | CONTRACT-001 | Yes |
 | 14 | `TEMPORAL-001` | Data Platform | Point-in-time temporal data/identity foundation for MLB/NFL critical fields | NOT_STARTED | CONTRACT-001 | Foundation |
-| 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 (expanded by founder directive 2026-10-13: substreams A nav/IA · B design system · C Home/Today · D sport/game pages · E Live/Results) | IN_PROGRESS — PRODUCTION DEPLOYED in part (#1026, #1028, #1030, #1031–#1034); UX System V2 Release 1 (rail clusters, label face, Home/Today order + fold) LOCALLY VALIDATED; see §16 "UX System V2" | CONTRACT-001 view contracts; never ahead of P0 truth fixes | Yes |
+| 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 (expanded by founder directive 2026-10-13: substreams A nav/IA · B design system · C Home/Today · D sport/game pages · E Live/Results) | IN_PROGRESS — UX System V2 Release 1 PRODUCTION DEPLOYED (#1072 → `ab9ad4059d`, 2026-10-13: rail clusters, label face, Home/Today order + fold, one h1); Release 2 post-launch | CONTRACT-001 view contracts; never ahead of P0 truth fixes | Yes |
 | 16 | `RESULTS-001` | Results | Prop-family Results V2 + time filters + drill-down | IN_PROGRESS — NFL World Model V2 per-family grading (private, #1027) and the public coverage note; Results V2 pages not started | LEDGER-001 | Yes |
 | 17 | `PRODUCT-001` | Product Engine | Canonical multi-sport candidate/eligibility/selection engine | NOT_STARTED | CONTRACT-001, LEDGER-001 | Shadow → Yes |
 | 18 | `PRODUCT-002` | Bank Builder / Moonshot | Migrate to canonical multi-sport forecast candidates | NOT_STARTED | PRODUCT-001 + passing family gates | Yes |
@@ -118,7 +118,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 22 | `LIVE-003` | Live Modeling | Conditional live forecasts from captured state | NOT_STARTED | LIVE-001/002 replay archive | Shadow |
 | 23 | `LIVE-004` | Live Products | Validated live straight opportunities | NOT_STARTED | LIVE-003 + fresh market identity | Shadow → Yes |
 | 24 | `LIVE-005` | Live Products | Supported live parlays | NOT_STARTED | LIVE-004 + dependence validation | Last |
-| 25 | `OPS-001` | Operations | Freshness, dependency receipts, retries, alerts, cost controls | NOT_STARTED | Parallel | Yes |
+| 25 | `OPS-001` | Operations | Freshness, dependency receipts, retries, alerts, cost controls | IN_PROGRESS — publish data-loss protection PRODUCTION DEPLOYED (#1068 → `5c0b1b6619`, 2026-10-13; first live window pushed once via the helper); extending the helper and bundle to the remaining workflows is post-launch | Parallel | Yes |
 | 26 | `TRUTHDOC-001` | Documentation | Generated “what runs now” inventory | NOT_STARTED | CONTRACT-001 | Yes |
 | 27 | `COST-002` | Release Engineering / FinOps | Reduce build memory so the export fits Vercel Standard (free first build slot); profile `/simulate/d/*` and last-quarter routes | NOT_STARTED | COST-001 Phase 1 | Build config/data loading; Production only after founder approval |
 
@@ -2451,7 +2451,83 @@ Append one entry per Claude Code session. Never rewrite prior entries.
   - exact-head local build: rendered and headline tests 14/14;
   - browser: "Week 5: the team we favored won 8 of 14 games"; ranges 404 of 483 (83.6%) against the 80% aim; likeliest scorer 8 of 15; no "came true"; no Overall row; 0 overflow.
 - **Merged by the founder** with the pinned command → `d5b67358e826fe7a95f32010ba679d5818ee20f1` at 17:56:24Z, byte-identical to the approved head on all 5 files.
-- **Production acceptance:** see the update below.
+- **Production acceptance: PASS.**
+  - Production `338e862099` (built 18:03Z) contains the merge.
+  - `/results` and `/results/nfl` read "Week 5: the team we favored won 8 of 14 games"; no "came true" and no "82.2%".
+  - `main` quality-gate run 38442710710 ✓.
+
+## 2026-10-13 (evening) — release records #1068, #1067, #1072, #1073; launch-readiness assessment; founder decisions
+Founder merged each PR with the pinned exact-head command. This session's auto-mode classifier refuses `gh pr merge` ("Merge Without Review"), so merges are founder-executed.
+
+**#1068 (OPS-001: publishing can no longer silently lose commits):**
+- **Approved head:** `26912fc834`. CI run 38437398568 ✓/✓. Re-verified at approval: MERGEABLE/CLEAN, 0 main commits on its files.
+- **Merge:** `5c0b1b6619` (18:38:17Z), identical to the approved head.
+- **Production:** `5c0b1b6619` (18:43:07Z). Main CI run 38448367876 ✓.
+- **Protected workflow changes present on main:** helper, bundle, `injuries/nfl/` staging, UFC untracked clean.
+- **First live runs:**
+  - nfl-event-window 38463855330 published "2 commit(s) in one push" via the helper, pushed on attempt 1 (`e1e4d5524..57a5fe7eb`);
+  - 38461838213 succeeded;
+  - the bundle steps were correctly skipped.
+- **Residual (post-launch):** commit-generated users fail loud but carry no bundle; about 17 workflows keep their own `pull --rebase` loops (loud, not silent).
+
+**#1067 (NBA launch copy and opening night):**
+- **Approved head:** `daae3383a5`. CI run 38437579625 ✓/✓.
+- **Merge:** `164c0592c2` (21:09:19Z), identical.
+- **Production:** `164c0592c2` (21:12:07Z). Main CI run 38468427407 ✓.
+- `/bucket-blitz/` reads "Regular season opens October 20, 2026", has no "out of season", shows the "410 regular season, 26 preseason" split, and its `/nba/` link returns 200.
+
+**#1072 (UX System V2 Release 1):**
+- **Approved head:** `c10e69407d`. CI run 38443630810 ✓/✓, including the browser a11y suite.
+- **Merge:** `ab9ad4059d` (21:51:39Z). PR app files are identical; the roadmap gained #1068's section from main.
+- **Production:** `ab9ad4059d` (21:54:03Z). Main CI run 38473713636 ✓.
+- **Production audit (19 routes × 3 widths):**
+  - all 200, 0 overflow, exactly one h1 everywhere, 0 broken images;
+  - rail: 5 groups (7/6/8/3/7), folded groups closed on `/`, "Picks & parlays" open on `/bank-builder`;
+  - Today folds "More from today's slate", Live first;
+  - phone bar unchanged, Menu 26 links, 0 overflow;
+  - no data or workflow files changed.
+- **Correction recorded:** console errors were 15 before and 15 after. All are `/parlay-lab` prefetch aborts and pre-existing. The "15 → 0" in the approval package came from the local server and was wrong.
+
+**#1073 (NBA counts toward "N events today"):**
+- **Approved head:** `f2586b2335`. CI run 38474054036 ✓/✓.
+- **Merge:** `e344bfc9fe` (22:46:27Z), identical.
+- **Production:** `e344bfc9fe` (22:48:40Z). The header reads "Today · Oct 13 · 6 events" (1 MLB + 5 NBA; was "1 event").
+
+**Launch-readiness assessment (evidence sweep 22:05Z; spot-checked):**
+- **Must complete before freeze (Oct 17):**
+  1. Privacy and Terms — the drafts contradicted live accounts.
+  2. #1073 — done.
+  3. Unsupported performance claims.
+  4. Security headers.
+- **Final UAT (Oct 18–19):**
+  - NFL Thursday SEA@DEN: live tracking already enabled; Week 6 forecasts fresh; odds budget exhausted (D4) → "not checked".
+  - MLB postseason through Oct 31.
+  - UFC Oct 17 card: 13 bouts, all bout pages 200.
+  - Ask: kill switch `ASK_GAMETIME_ENABLED`; no global cap.
+  - Ops: alert webhook delivering; OPS-002 observation ends ≥ 2026-10-15T05:57Z.
+  - Rollback: revert merges, never a Vercel instant rollback (it would roll back bot data).
+- **Post-launch:**
+  - UX Release 2;
+  - publish helper and bundle for the remaining workflows;
+  - Ask distributed limiter;
+  - research PRs #1043/#1044/#1048/#1050/#1045/#1049/#1041;
+  - #1056 superseded by #1068;
+  - #1066 needs gap suppression and funded odds;
+  - #1061 deferred.
+
+**Founder decisions (2026-10-13 evening):**
+- **Wording:** remove unsupported performance claims, preserving the statistics → #1074.
+- **Security headers:** CSP report-only first, regression-tested → #1075.
+- **UFC:** confirmed withdrawn or cancelled bouts are never active predictions or product legs; snapshots immutable; correct void rules → #1076.
+  - Investigation found the 10-10 Kareckaite–Gatto bout was a DRAW, not a withdrawal; the grader never persisted voids.
+  - Gall–Dumas is WITHDRAWN under option (b) with results-side confirmation.
+- **Ask:** a provider-level spending cap, keeping the kill switch.
+  - Safest: a Google Cloud quota override on the Gemini key's project (Generative Language API requests per day). It is a hard ceiling, and Ask maps 429 `RESOURCE_EXHAUSTED` to its own RATE_LIMITED without retrying.
+  - Plus a billing budget alert, and restricting the key to that API. Founder console action; no code.
+- **#1061:** deferred until after launch.
+- **Privacy/Terms:** accurate drafts (#1077), no publication.
+  - Founder and counsel still need: operator legal entity, state, effective date, minimum age (18 vs 21), and counsel approval receipts (reviewer, role, date, content hash).
+  - Account deletion is manual until an in-site delete exists.
 
 ---
 
