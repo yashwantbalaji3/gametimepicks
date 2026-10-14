@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-14T14:58:04.041Z",
+  "generatedAt": "2026-10-14T15:39:31.727Z",
   "canonical": {
     "record": "46-51",
     "bankroll": 14165.4,
@@ -105,20 +105,20 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-14",
-      "generatedAt": "2026-10-14T13:58:08Z",
+      "generatedAt": "2026-10-14T14:58:10Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 12,
-            "priced": 12,
+            "scheduled": 14,
+            "priced": 14,
             "generated": 10,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "GENERATION_PENDING:2 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
+            "GENERATION_PENDING:4 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
           ]
         },
         {
@@ -139,14 +139,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 14,
-            "priced": 14,
+            "scheduled": 15,
+            "priced": 15,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:14 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:15 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -168,7 +168,7 @@
     "dailyLifecycle": {
       "receiptDate": "2026-10-14",
       "present": true,
-      "generatedAt": "2026-10-14T13:58:07Z",
+      "generatedAt": "2026-10-14T14:58:09Z",
       "watchdog": [],
       "states": {
         "bank-builder": {
@@ -211,16 +211,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-14T14:54:38.986Z",
-    "ageHours": 0.1,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "lastRunAt": "2026-10-14T15:39:31.077Z",
+    "ageHours": 0,
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-14",
-    "etTime": "10:58",
+    "etTime": "11:39",
     "stages": [
       {
         "stage": "schedule",
