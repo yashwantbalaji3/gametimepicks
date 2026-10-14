@@ -35,8 +35,11 @@ function SectionCard({ id, tag, title, sub, children }: { id: string; tag: strin
   );
 }
 
-const GATE_NOTE = "Today's MLB board has not been posted yet — waiting on the sportsbooks. This section fills in automatically the moment real MLB markets post; no fabricated picks in the meantime.";
-const GATE_NOTE_PAST = "This slate's board was never posted for this market — no fabricated picks fill the gap.";
+/* GTP-03 (2026-10-14): this said "waiting on the sportsbooks … fills in automatically", four times, beside a live
+   game board — and the promise was false after first pitch. It states the fact, once per slot, briefly: the PROP
+   capture is what is missing (the game board is a different source and may well be present). */
+const GATE_NOTE = "No sportsbook prop prices have been captured for this slate yet, so nothing is listed here.";
+const GATE_NOTE_PAST = "No sportsbook prop prices were captured for this slate, so nothing is listed here.";
 function GatedSlot({ label, isTodaysSlate = true }: { label: string; isTodaysSlate?: boolean }) {
   return (
     <div className="rounded-[10px] px-3.5 py-4 text-center" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-rule)" }}>

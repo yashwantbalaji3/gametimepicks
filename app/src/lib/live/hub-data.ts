@@ -21,6 +21,7 @@ import path from "node:path";
 import { currentEtDate } from "@/lib/freshness";
 import { gameHrefByMatchId } from "@/lib/game-detail";
 import { projectMlbForecast } from "./forecast-join.mjs";
+import { forecastFrozenAt } from "@/lib/mlb/full-game/sim-provenance";
 import { type FollowRef, mlbTeamRefByName } from "@/lib/follow/entity-registry";
 
 export interface HubRosterGame {
@@ -130,7 +131,8 @@ export function buildHubRoster(nowIso?: string): HubRoster {
       venue: g.venue ?? null,
       firstPitch: g.firstPitch ?? null,
       forecast: forecast ? { runs: forecast.runs } : null,
-      forecastGeneratedAt: slate?.generatedAt ?? null,
+      // GTP-23: the game's own freeze instant, never the slate clock a later refresh rewrote.
+      forecastGeneratedAt: forecastFrozenAt(g, slate ? { date: etDate, modelVersion: null, simulationVersion: null, runCount: null, generatedAt: slate.generatedAt ?? null, frozenPregame: slate.frozenPregame ?? null } : null),
       awayRef: mlbTeamRefByName(g.awayTeamName ?? null),
       homeRef: mlbTeamRefByName(g.homeTeamName ?? null),
       settlement: settlements.get(gamePk) ?? null,

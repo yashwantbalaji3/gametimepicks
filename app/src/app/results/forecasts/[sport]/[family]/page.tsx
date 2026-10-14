@@ -9,6 +9,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { etDayLabel, etStamp } from "@/lib/et-stamp.mjs";
 import { csvHref, familyFromSlug, familyRows, familySlug, ledgerFamilies, researchHrefFor, SPORT_SLUGS, sportFromSlug } from "@/lib/results/v2/forecast-ledger-reader";
 import { FAMILY_LABELS, familyMetrics, SPORT_LABELS } from "@/lib/results/v2/forecast-record.mjs";
 
@@ -171,13 +172,13 @@ export default async function ForecastFamilyPage({ params }: { params: Promise<P
             <tbody>
               {shown.map((r) => (
                 <tr key={r.forecastId}>
-                  <td className="nw"><span className="k">{String(r.eventStart ?? r.publishedAt ?? "").slice(0, 10) || "—"}</span><div className="f">{r.matchup ?? ""}</div></td>
+                  <td className="nw">{/* GTP-07: the ET day — an 8 PM ET game on Oct 12 is Oct 13 in UTC. The CSV keeps raw UTC instants. */}<span className="k">{etDayLabel(r.eventStart ?? r.publishedAt ?? null) ?? "—"}</span><div className="f">{r.matchup ?? ""}</div></td>
                   <td>{(() => {
                     const href = researchHrefFor(r.subjectId);
                     const label = r.subjectDisplay ?? r.subjectId;
                     return href ? <Link href={href} className="l">{label}</Link> : label;
                   })()}{r.teamId && r.subjectType === "PLAYER" ? <span className="f"> · {r.teamId}</span> : null}</td>
-                  <td><span className="k">{forecastText(r)}</span><div className="f">{r.publishedAt ? `published ${String(r.publishedAt).slice(0, 16).replace("T", " ")}Z` : "publication time not recorded"}</div></td>
+                  <td><span className="k">{forecastText(r)}</span><div className="f">{r.publishedAt ? `published ${etStamp(r.publishedAt) ?? String(r.publishedAt)}` : "publication time not recorded"}</div></td>
                   <td className="m">{r.market?.line != null ? `line ${r.market.line}` : r.market?.impliedProbability != null && typeof r.market.impliedProbability === "number" ? `book ${pct(r.market.impliedProbability)}` : "—"}</td>
                   <td>{outcomeText(r)}</td>
                   <td className="k nw">{scoreText(r)}</td>

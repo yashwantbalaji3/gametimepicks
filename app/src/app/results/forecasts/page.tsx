@@ -10,6 +10,7 @@
  * Everything renders from forecastRecordView() (one reader). Styling is one stylesheet keyed by short class names.
  */
 import Link from "next/link";
+import { etDayLabel } from "@/lib/et-stamp.mjs";
 
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { forecastRecordView, familyHref, csvHref } from "@/lib/results/v2/forecast-ledger-reader";
@@ -41,7 +42,8 @@ const CSS = `
 const n = (v: number | null | undefined) => (v == null ? "—" : v.toLocaleString("en-US"));
 const pct = (v: number | null | undefined) => (v == null ? "—" : `${(v * 100).toFixed(1)}%`);
 const num = (v: number | null | undefined, d = 3) => (v == null ? "—" : v.toFixed(d));
-const day = (iso: string | null) => (iso ? iso.slice(0, 10) : "—");
+/* GTP-07: an instant shown as its ET day, never its UTC date. */
+const day = (iso: string | null) => (iso ? etDayLabel(iso) ?? "—" : "—");
 
 const KIND_WORD: Record<string, string> = {
   CONTINUOUS_PROJECTION: "Projection",

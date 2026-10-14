@@ -90,9 +90,17 @@ export default function UfcEventResultsRecap({ s }: { s: UfcSettlement }) {
         ))}
       </div>
 
+      {/* GTP-27: the reader gets the source's name; the endpoint, event id and feed status code (STATUS_FINAL) stay
+          one click away instead of in the sentence. */}
       <p className="font-mono text-[9.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
-        Settled from {s.source}. {s.sourceNote} Expanded model-only props graded for calibration only — no betting P&L. Paper-only educational tracking.
+        Settled from the official {String(s.source ?? "").replace(/\s*\([^)]*\)\s*$/, "") || "results feed"}. {s.sourceNote} Expanded model-only props graded for calibration only — no betting P&L. Paper-only educational tracking.
       </p>
+      {/\(.*\)/.test(String(s.source ?? "")) ? (
+        <details className="font-mono text-[9.5px]" style={{ color: "var(--vault-text-faint)" }}>
+          <summary style={{ cursor: "pointer" }}>Source details</summary>
+          <span style={{ overflowWrap: "anywhere" }}>{s.source}</span>
+        </details>
+      ) : null}
     </div>
   );
 }

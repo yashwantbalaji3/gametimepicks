@@ -4,7 +4,8 @@
  */
 import StatusPill from "./status-pill";
 
-export type LegResult = "hit" | "miss" | "pending" | "void" | null | undefined;
+/** "graded": the CARD is graded but this leg's own result is not on the card record (GTP-26) — never "pending". */
+export type LegResult = "hit" | "miss" | "pending" | "void" | "graded" | null | undefined;
 
 /** Normalize the various result encodings used across artifacts ("won"/"lost"/"hit"/"miss"). */
 export function normalizeLegResult(result?: string | null, settlementStatus?: string | null): LegResult {

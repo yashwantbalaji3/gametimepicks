@@ -13,6 +13,12 @@ export interface FullGameArtifactMeta {
   simulationVersion: number | null;
   runCount: number | null;
   generatedAt: string | null;
+  /**
+   * The producer's per-game proof of WHEN a carried pregame forecast was made (frozen-carry.mjs):
+   * `{ [gamePk]: { forecastGeneratedAt, artifactHash } }`. Present only on slates where a game was
+   * carried past first pitch. Read by `forecastFrozenAt`, never re-derived.
+   */
+  frozenPregame?: Record<string, { forecastGeneratedAt: string; artifactHash: string | null }> | null;
 }
 
 export interface LoadedFullGameArtifact {
@@ -36,6 +42,7 @@ export function loadFullGameArtifact(root: string, date: string, sport: "mlb" | 
       simulationVersion?: number;
       runCount?: number;
       generatedAt?: string;
+      frozenPregame?: FullGameArtifactMeta["frozenPregame"];
       games?: FullGameSimGame[];
     };
     const byGamePk = new Map<string, FullGameSimGame>();
@@ -52,6 +59,7 @@ export function loadFullGameArtifact(root: string, date: string, sport: "mlb" | 
         simulationVersion: a.simulationVersion ?? null,
         runCount: a.runCount ?? null,
         generatedAt: a.generatedAt ?? null,
+        frozenPregame: a.frozenPregame ?? null,
       },
       byGamePk,
     };

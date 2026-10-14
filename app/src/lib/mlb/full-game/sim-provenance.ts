@@ -35,3 +35,33 @@ export function simProvenance(g: FullGameSimGame, meta: FullGameArtifactMeta | n
   /* Pregame, but the slate's clock is a LATER run's and is not this game's. */
   return gen >= first ? "PREGAME_CARRIED" : "PREGAME";
 }
+
+/**
+ * GTP-23 (2026-10-14) — WHEN THIS GAME'S PREGAME FORECAST WAS FROZEN, or null when that is not known.
+ *
+ * The live panel printed the slate's `generatedAt` as "Forecast frozen at …". Lineup refreshes rewrite
+ * that stamp after a game starts while carrying the game's bytes forward unchanged, so CLE @ TB
+ * (first pitch 8:00 PM ET, 2026-10-13) read "Forecast frozen at 10:06 PM ET" — a freeze two hours
+ * into the game, for a forecast whose hash never moved.
+ *
+ * The producer already records the real instant: `frozenPregame[gamePk]` is written the first time a
+ * game is carried and is bound to the game's `artifactHash`. This reads it, in order:
+ *   1. the ledger entry — only when its hash matches THIS game's bytes and it precedes first pitch;
+ *   2. the slate's own `generatedAt` — only when the producer says the game is PREGAME and the stamp
+ *      precedes first pitch (an uncarried game: the slate's clock IS this game's clock);
+ *   3. otherwise null, and the caller states no time at all. A missing time is said as missing; a
+ *      later run's clock is never offered in its place, and no artifact is rewritten to supply one.
+ */
+export function forecastFrozenAt(g: FullGameSimGame | null | undefined, meta: FullGameArtifactMeta | null | undefined): string | null {
+  if (!g || !meta) return null;
+  const first = Date.parse(g.firstPitch ?? "");
+  const before = (iso: string | null | undefined) => {
+    const t = Date.parse(iso ?? "");
+    return Number.isFinite(t) && (!Number.isFinite(first) || t <= first);
+  };
+  const hash = g.artifactHash ?? null;
+  const entry = g.gamePk != null ? meta.frozenPregame?.[String(g.gamePk)] : undefined;
+  if (entry && hash != null && entry.artifactHash === hash && before(entry.forecastGeneratedAt)) return entry.forecastGeneratedAt;
+  if (simProvenance(g, meta) === "PREGAME" && before(meta.generatedAt)) return meta.generatedAt;
+  return null;
+}

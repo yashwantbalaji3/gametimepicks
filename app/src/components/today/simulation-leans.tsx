@@ -37,7 +37,8 @@ function SimCard({ sim }: { sim: FeaturedSimulation }) {
         className="vault-press inline-flex w-fit items-center rounded-full px-3.5 font-mono uppercase tracking-[0.1em]"
         style={{ minHeight: 34, fontSize: 10, fontWeight: 700, textDecoration: "none", background: "var(--gtp-bank-lava-cta)", color: "var(--vault-on-accent-deep)" }}
       >
-        Generate Simulation →
+        {/* GTP-34: precomputed — opens the report. */}
+        Open report →
       </Link>
     </div>
   );

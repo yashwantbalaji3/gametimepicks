@@ -26,7 +26,7 @@ import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { buildAllGameDetails } from "@/lib/game-detail";
 import { featuredSimulations } from "@/lib/simulate-lobby-featured";
 import { buildSimulateDay, simulationReadyCount } from "@/lib/simulate/day-view";
-import { sportStateFromProductDay, stateLabel, partitionSports } from "@/lib/home/simulation-hub.mjs";
+import { sportStateFromProductDay, stateLabel, partitionSports, SPORT_STATES } from "@/lib/home/simulation-hub.mjs";
 import { buildHomeGameAnswers } from "@/lib/home/game-answers";
 import TopReadsPanel from "@/components/top-reads-panel";
 import { loadTopReads, topToday, topUpcoming, UPCOMING_READS_SHOWN } from "@/lib/top-reads";
@@ -357,7 +357,13 @@ export default function HomePage() {
       <CommandCenter
         lanes={primaryLanes}
         heading="Simulation Hub"
-        subtitle={`${simHubCards.length} sport${simHubCards.length === 1 ? "" : "s"} with activity on today's slate`}
+        /* GTP-33: the primary hub includes sports whose next event is later this WEEK, so "on today's slate" was
+           false for them. "This week" for the whole hub; "today" only for sports whose own state says LIVE_TODAY. */
+        subtitle={(() => {
+          const n = simHubCards.length;
+          const today = primarySports.filter((s) => s.state === SPORT_STATES.LIVE_TODAY).length;
+          return `${n} sport${n === 1 ? "" : "s"} active this week${today ? ` · ${today} with forecasts on today's slate` : ""}`;
+        })()}
       />
 
       {/*

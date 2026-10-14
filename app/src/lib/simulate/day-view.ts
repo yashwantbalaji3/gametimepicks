@@ -23,7 +23,7 @@ import { loadEplForecasts, reportableRows, eplMatchHref, type EplForecastRow } f
 import { nflSimulateEligibility } from "@/lib/sports/nfl/simulate-eligibility";
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
 import { postStartState, startedAt, POST_START_PHRASE } from "@/lib/simulate/lifecycle-state.mjs";
-import { allUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
+import { allUpcoming, nbaUpcoming, ufcUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
 import { getSportIdentity } from "@/lib/sport-identity";
 import fs from "node:fs";
 import path from "node:path";
@@ -183,10 +183,12 @@ interface UfcCard {
 interface UpcomingEvent {
   canonicalEventId?: string; providerEventId?: string; scheduledStartUtc?: string; status?: string;
   /** The schedule contract's shape: an OBJECT keyed home/away (id = abbreviation). */
-  competitors?: { home?: { id?: string; name?: string }; away?: { id?: string; name?: string } };
+  competitors?: { home?: { id?: string; name?: string }; away?: { id?: string; name?: string }; red?: { id?: string; name?: string }; blue?: { id?: string; name?: string } };
   venue?: string | null;
+  /** UFC bouts: "<card name> · <weight class>" (adapters.mjs). */
+  context?: string | null;
 }
-interface UpcomingSection { sport: string; events?: UpcomingEvent[] }
+interface UpcomingSection { sport: string; coverage?: string; events?: UpcomingEvent[] }
 
 /* ── per-sport composers ────────────────────────────────────────────────────────────────────── */
 
@@ -387,16 +389,31 @@ function ufcSection(date: string, today: string): SportDaySection {
       actionLabel: post ? STATE_ACTION[post] : predicted > 0 ? `View ${predicted} of ${bouts.length} bout reads` : STATE_ACTION.SCHEDULE_ONLY,
     });
   } else {
-    const up = (allUpcoming({ nowIso: new Date().toISOString() }) as UpcomingSection[]).find((s) => s.sport === "ufc");
+    /*
+     * GTP-09 (2026-10-14): the schedule's UFC events are BOUTS keyed red/blue, and this read them as home/away — so
+     * every bout rendered as an anonymous "UFC event" row, one per bout. And each promised "the modelled card is
+     * published closer to fight night", which is not true of a card we do not model (Dana White's Contender
+     * Series). Bouts are grouped into their card, the card is named, the card's name (which carries its headliners) is shown, and
+     * the row says only what is true: schedule only, no forecast for this card.
+     */
+    const up = ufcUpcoming({ nowIso: new Date().toISOString(), displayCap: Infinity }) as UpcomingSection;
+    const cards = new Map<string, UpcomingEvent[]>();
     for (const e of up?.events ?? []) {
       if (etDayOf(e.scheduledStartUtc) !== date) continue;
+      const name = (e.context ?? "").split(" · ")[0] || "UFC card";
+      cards.set(name, [...(cards.get(name) ?? []), e]);
+    }
+    for (const [name, bouts] of cards) {
+      const first = [...bouts].sort((a, b) => String(a.scheduledStartUtc ?? "").localeCompare(String(b.scheduledStartUtc ?? "")))[0];
+      /* The card's own name carries its headliners ("… Buckley vs. Malott"); the capture's bout order is not
+         documented as main-event-first, so no single bout is singled out by position. */
       events.push({
-        sport: "ufc", id: `ufc:${e.canonicalEventId ?? e.providerEventId}`,
-        matchup: [e.competitors?.away?.name, e.competitors?.home?.name].filter(Boolean).join(" vs ") || "UFC event",
+        sport: "ufc", id: `ufc:${name}:${date}`,
+        matchup: name,
         away: null, home: null,
-        startUtc: e.scheduledStartUtc ?? null, startLabel: e.scheduledStartUtc ? etTime(e.scheduledStartUtc) : "TBD",
-        venue: e.venue ?? null, state: "SCHEDULE_ONLY",
-        stateReason: "Scheduled event — the modelled card is published closer to fight night.",
+        startUtc: first.scheduledStartUtc ?? null, startLabel: first.scheduledStartUtc ? etTime(first.scheduledStartUtc) : "TBD",
+        venue: first.venue ?? null, state: "SCHEDULE_ONLY",
+        stateReason: `Schedule only — ${bouts.length} bout${bouts.length === 1 ? "" : "s"} listed; no GameTime forecast is published for this card.`,
         markets: [], href: "/ufc", actionLabel: STATE_ACTION.SCHEDULE_ONLY,
       });
     }
@@ -471,8 +488,19 @@ function nflSection(date: string, today: string): SportDaySection {
   };
 }
 
-function nbaSection(date: string): SportDaySection {
-  const up = (allUpcoming({ nowIso: new Date().toISOString() }) as UpcomingSection[]).find((s) => s.sport === "nba");
+/**
+ * GTP-11 — every captured NBA event, uncapped. The /sports list caps NBA at twelve rows; reading that
+ * capped list here meant /simulate's date list stopped at Oct 16 and skipped opening night. On TODAY the
+ * window opens a day back so a game that has already tipped stays on its own date instead of vanishing.
+ */
+function nbaCapturedEvents(date: string, today: string): UpcomingSection | undefined {
+  const now = Date.now();
+  const since = date === today ? new Date(now - 86_400_000).toISOString() : new Date(now).toISOString();
+  return nbaUpcoming({ nowIso: since, displayCap: Infinity }) as UpcomingSection;
+}
+
+function nbaSection(date: string, today: string): SportDaySection {
+  const up = nbaCapturedEvents(date, today);
   const events: SimDayEvent[] = [];
   for (const e of up?.events ?? []) {
     if (etDayOf(e.scheduledStartUtc) !== date) continue;
@@ -487,10 +515,21 @@ function nbaSection(date: string): SportDaySection {
       markets: [], href: "/sports", actionLabel: STATE_ACTION.SCHEDULE_ONLY,
     });
   }
+  /* GTP-11: "Off-season" only when there is no captured schedule at all. In preseason, a date with no
+     game names the next one instead. */
+  const nextDay = (up?.events ?? [])
+    .map((e) => etDayOf(e.scheduledStartUtc))
+    .filter((d): d is string => d != null && d > date)
+    .sort()[0] ?? null;
+  const offSeason = !(up?.events ?? []).length && up?.coverage !== "SCHEDULE_ONLY";
   return {
     sport: "nba", label: "NBA", icon: getSportIdentity("nba").icon,
-    emptyState: events.length ? null : "OFF_SEASON",
-    note: events.length ? "Schedule only — no NBA model is published." : "Off-season · schedules return with the new season.",
+    emptyState: events.length ? null : offSeason ? "OFF_SEASON" : "NO_CURRENT_EVENT",
+    note: events.length
+      ? "Schedule only — no NBA model is published."
+      : offSeason
+        ? "Off-season · schedules return with the new season."
+        : nextDay ? `No NBA games on this date — next game ${etDayLabel(nextDay) ?? nextDay}.` : "No NBA games on this date.",
     events,
   };
 }
@@ -511,8 +550,11 @@ export function availableSimulateDates(opts?: { today?: string }): string[] {
   const card = readJson<UfcCard>("ufc/card-latest.json");
   add(etDayOf(card?.event?.startUtc ?? card?.event?.date ?? card?.bouts?.[0]?.startUtc ?? null));
   for (const s of allUpcoming({ nowIso: new Date().toISOString() }) as UpcomingSection[]) {
+    if (s.sport === "nba" || s.sport === "ufc") continue; // capped for display — read uncapped below (GTP-09/11)
     for (const e of s.events ?? []) add(etDayOf(e.scheduledStartUtc));
   }
+  for (const e of nbaCapturedEvents(today, today)?.events ?? []) add(etDayOf(e.scheduledStartUtc));
+  for (const e of (ufcUpcoming({ nowIso: new Date().toISOString(), displayCap: Infinity }) as UpcomingSection).events ?? []) add(etDayOf(e.scheduledStartUtc));
   return [...dates].sort();
 }
 
@@ -531,7 +573,7 @@ export function buildSimulateDay(date?: string, opts?: { today?: string }): Simu
   const d = date ?? today;
   const availableDates = availableSimulateDates({ today });
   const idx = availableDates.indexOf(d);
-  const sections = [mlbSection(d, today), eplSection(d, today), ufcSection(d, today), nflSection(d, today), nbaSection(d)]
+  const sections = [mlbSection(d, today), eplSection(d, today), ufcSection(d, today), nflSection(d, today), nbaSection(d, today)]
     /*
      * FILL THE CRESTS THAT THE BRANCHES ABOVE LEAVE NULL.
      *

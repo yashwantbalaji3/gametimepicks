@@ -141,7 +141,9 @@ export const PUBLIC_STATE_MEANING: Record<PublicModelState, string> = {
   FORWARD_TEST: "The model is being graded on new games as they happen, against the model it replaced. If it falls significantly behind, the previous model comes back automatically.",
   HOLDING: "Over the games graded so far, this call has done at least as well as its floor (a coin flip, or the model it replaced).",
   WATCH: "Over the games graded so far, this call is slightly behind its floor, but not by enough to be sure it is worse. It keeps publishing while the record grows.",
-  PAUSED: "Over the games graded so far, this call has done worse than a coin flip by a clear margin. The public call is withdrawn; it is still made and graded every day and comes back when its record recovers.",
+  /* GTP-22: also shown for NFL player ranges, where a breached family hands back to the PREVIOUS rule against its
+     preregistered bars — "worse than a coin flip" did not describe that case. The floor is named generally. */
+  PAUSED: "Over the games graded so far, this call has fallen clearly below its floor — a coin flip, or the preregistered bars it is tested against. Its public call is withdrawn or handed back to the previous rule; it is still graded every day and comes back when its record recovers.",
   ESTIMATE: "This family did not clear its calibration bar in testing. It is shown as an estimate under a stated exception, not as a validated forecast.",
   TOO_EARLY: "Not enough games have been graded to judge this call either way. The number is published; the verdict on it is not.",
   EXPERIMENTAL: "Published and labelled experimental: tested on past seasons, but not validated to out-predict the sportsbook market.",

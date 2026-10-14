@@ -43,7 +43,7 @@ test("the lean save card carries no pipeline sentence, and the snapshot is built
   assert.equal(lean.status.family, "Winner calls");
   const s = at("2026-09-15T13:00:00Z");
   assert.equal(s.modelFamily, "Winner calls");
-  assert.equal(s.signal, "Simulation strength: lean");
+  assert.equal(s.signal, "58% of simulated games · unvalidated");
 });
 
 test("pending → final → void: the ledger row decides, and a missing ledger never grades", () => {

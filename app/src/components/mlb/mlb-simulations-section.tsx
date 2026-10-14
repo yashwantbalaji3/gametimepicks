@@ -69,8 +69,13 @@ export default function MlbSimulationsSection({ set, hrefFor, isTodaysSlate = tr
         {/* The run count is quoted only when the whole set agrees on one — never one game's figure
             standing in for the rest. */}
         {set.runCount ? `${set.runCount.toLocaleString("en-US")} complete games simulated per matchup. ` : ""}
-        {set.readyCount} of {set.cards.length} are built on both confirmed batting orders; the rest use the
-        batters who had posted lines{isTodaysSlate ? " so far and refresh as the orders arrive" : " at generation time — this slate is closed, so nothing refreshes"}.
+        {set.confirmedOrderCount} of {set.cards.length} {set.cards.length === 1 ? "is" : "are"} built on both confirmed batting orders
+        {set.confirmedOrderCount < set.cards.length
+          ? `; the rest use the batters who had posted lines${isTodaysSlate ? " so far and refresh as the orders arrive" : " at generation time — this slate is closed, so nothing refreshes"}`
+          : ""}.
+        {set.confirmedButUnratedCount > 0
+          ? ` In ${set.confirmedButUnratedCount} of them, some batters have no projection yet and are simulated at replacement level — each box score marks them.`
+          : ""}
       </p>
     </section>
   );

@@ -17,6 +17,7 @@ import MlbGameCenter from "@/components/game/mlb-game-center";
 import MlbSimulationResultSummary from "@/components/game/mlb-simulation-result-summary";
 import MlbSimulationReportV2 from "@/components/game/mlb-simulation-report-v2";
 import MlbFullGameReport from "@/components/game/mlb-full-game-report";
+import { forecastFrozenAt } from "@/lib/mlb/full-game/sim-provenance";
 import ModelMarketComparison from "@/components/game/model-market-comparison";
 import { loadProductTagMap } from "@/lib/game-detail-product-tags";
 import { reportWordsFor } from "@/lib/game-detail-vocabulary";
@@ -784,7 +785,9 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         sport="mlb"
         eventId={String(detail.fullGameSim.gamePk)}
         mlbForecast={mlbLiveForecast}
-        forecastGeneratedAt={detail.fullGameSimMeta?.generatedAt ?? null}
+        /* GTP-23: this game's own freeze instant (hash-bound ledger entry, or the slate clock only
+           when the game is uncarried pregame) — never a later lineup refresh's clock. */
+        forecastGeneratedAt={forecastFrozenAt(detail.fullGameSim, detail.fullGameSimMeta ?? null)}
         startTime={detail.fullGameSim.firstPitch ?? null}
         settlement={mlbSettlement}
         showBetaHeading

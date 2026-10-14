@@ -35,7 +35,8 @@ test("homepage has a first-class 'Simulate Today's Games' CTA + a real sim-ready
   assert.ok(!BANNED.test(hero), "no banned copy on the hero");
   // Real ready-artifact games are featured on the homepage with a Simulation Ready badge (never faked).
   assert.match(featured, /Simulation Ready/, "the featured section badges sim-ready games");
-  assert.match(featured, /Generate Simulation/, "each featured game links to Generate Simulation");
+  assert.match(featured, /Open report →/, "each featured game links to its precomputed report (GTP-34)");
+  assert.doesNotMatch(featured, /Generate Simulation →/, "nothing is generated on click");
   assert.ok(!BANNED.test(featured), "no banned copy on the featured section");
 });
 

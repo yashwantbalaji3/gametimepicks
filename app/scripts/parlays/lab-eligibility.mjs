@@ -204,6 +204,30 @@ const SOURCES = {
   },
 };
 
+/*
+ * THE CAPABILITY GATE, READ FROM THE SPORT'S OWN LADDER (GTP-08, 2026-10-14).
+ *
+ * Prices + settlement + depth was the whole gate, and nothing here asked whether the sport is
+ * cleared to show model cards at all. UFC is registered SCAFFOLD_ONLY, its ladder has written
+ * CAPABILITY_GATED with zero cards since #889, and this gate still reported it LIVE: the public
+ * record said "Publishing today: yes" for a lane that publishes nothing, the UFC tier grid said
+ * PUBLISHED over sixteen empty cells, and the cross-sport stream counted UFC as one of its two
+ * live sports.
+ *
+ * The registry is TypeScript and this file runs under bare node in five workflows, so it reads the
+ * decision where the ladder builder already recorded it — the ladder's own `state` — rather than
+ * importing the registry or keeping a second list. The ladder builders consult the registry on
+ * every run (ladder-capability-gate.test.mjs), so a registry change reaches here on the next
+ * ladder build; until then the lane stays closed, which is the safe direction.
+ */
+const LADDER_DIR = { mlb: "risk-ladder", nfl: "risk-ladder-nfl", ufc: "risk-ladder-ufc", epl: "risk-ladder-epl" };
+
+export function capabilityGateOf(root, id) {
+  const ladder = readJson(path.join(root, "parlays", LADDER_DIR[id] ?? `risk-ladder-${id}`, "latest.json"));
+  if (ladder?.state !== "CAPABILITY_GATED") return null;
+  return typeof ladder.reason === "string" && ladder.reason ? ladder.reason : "the capability registry does not clear this sport to show model cards";
+}
+
 /**
  * @returns per-sport eligibility, plus the multi-sport stream which opens only when two or more
  *          single-sport streams are live — a "multi-sport" card drawn from one sport is just a card.
@@ -216,6 +240,8 @@ export function labEligibility(root, date, now) {
     const ageDays = prices.at ? daysBetween(prices.at, now) : null;
 
     const reasons = [];
+    const gated = capabilityGateOf(root, id);
+    if (gated) reasons.push(`not cleared to publish model cards — ${gated}`);
     /*
      * P200: "no odds capture is ingested for this sport" was ONE sentence for two different facts,
      * and the nightly ledger rebuild runs at ~04:12 ET — the one hour of the day when TODAY's
@@ -252,6 +278,7 @@ export function labEligibility(root, date, now) {
         priceAgeDays: ageDays == null ? null : Number(ageDays.toFixed(2)),
         settlementSource: settle.source,
         settlementProven: settle.proven,
+        capabilityGated: gated != null,
       },
     });
   }

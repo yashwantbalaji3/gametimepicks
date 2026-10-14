@@ -38,7 +38,8 @@ test("/markets names its price-scoped population and points at the model-only sp
   const p = read("src/app/markets/page.tsx");
   /* P250-W2: the scope note was shortened to one line. Both halves still have to reach a reader —
      the population this page can price, and where the other sports' forecasts live. */
-  assert.match(p, /Prices shown for MLB today/, "the priced population is named");
+  /* GTP-06 (2026-10-14): the population is named WITH its snapshot date — "today" sat beside an older capture. */
+  assert.match(p, /MLB prices shown here are from the \{formatDate\(data\.date\)\} capture/, "the priced population is named, with its date");
   assert.match(p, /forecasts are on their own hubs/, "…and an unpriced sport's forecasts are pointed at, not implied absent");
   assert.match(p, /buildProductDays/, "the sport list derives from the product-day owner, not prose");
 });

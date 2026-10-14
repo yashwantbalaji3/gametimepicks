@@ -21,6 +21,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { sportLadderCapabilityRefusal } from "./sport-lab-cards";
+
 export interface LabTierRecord {
   tier: string;
   wins: number;
@@ -133,7 +135,7 @@ export function loadLabRecord(): LabRecord | null {
 
   return {
     generatedAt: ledger.generatedAt,
-    streams,
+    streams: applyCapabilityGate(streams, ledger.streams),
     cards,
     settledDays: days,
     sportsWithRecord: [...new Set(cards.map((c) => c.sport))].sort(),
@@ -164,4 +166,37 @@ export function labSampleCaption(rec: LabRecord | null): string {
       "Far too few, and from one sport, to say anything about how the Lab performs.";
   }
   return `${decisive} suggested cards settled across ${rec.sportsWithRecord.length} sports${pendingClause} — still a small sample.`;
+}
+
+/**
+ * GTP-08 — THE REGISTRY IS ASKED AT THE READ BOUNDARY, WHATEVER THE LEDGER SAYS.
+ *
+ * The ledger's `live` flag came from a gate that never consulted the capability registry, so the
+ * public record said "Publishing today: yes" for UFC (SCAFFOLD_ONLY) while its ladder refused every
+ * card. The producer now reads the gate too (lab-eligibility.mjs), but a ledger written before that
+ * fix stays on disk until the next run — so, as for the ladders themselves (sport-lab-cards.ts), the
+ * reader asks again. A refused sport is closed with the registry's own reason, and the cross-sport
+ * stream is recounted from the sports that remain open. Settled records are untouched: this changes
+ * what is said about TODAY, never what was graded.
+ */
+export function applyCapabilityGate(streams: LabStream[], raw: Array<Record<string, unknown>>): LabStream[] {
+  const gated = streams.map((s) => {
+    if (s.id === "multi" || !s.live) return s;
+    const refusal = sportLadderCapabilityRefusal(s.id);
+    return refusal ? { ...s, live: false, blocked: refusal } : s;
+  });
+  const open = new Set(gated.filter((s) => s.id !== "multi" && s.live).map((s) => s.id));
+  return gated.map((s) => {
+    if (s.id !== "multi" || !s.live) return s;
+    const rawMulti = raw.find((r) => r.id === "multi") as { evidence?: { liveSports?: string[] } } | undefined;
+    const claimed = rawMulti?.evidence?.liveSports ?? [...open];
+    const still = claimed.filter((id) => open.has(id));
+    if (still.length >= 2) return s;
+    const labels = gated.filter((x) => still.includes(x.id)).map((x) => x.label);
+    return {
+      ...s,
+      live: false,
+      blocked: `a cross-sport card needs two live sports; ${labels.length === 1 ? `only ${labels[0]} is` : "none is"} cleared`,
+    };
+  });
 }

@@ -14,7 +14,7 @@ import Link from "next/link";
 export interface LandingHeroProps {
   /** Count of sim-ready games today (from featuredSimulations). */
   readyCount: number;
-  /** Sports with activity on today's slate (the Simulation Hub's primary partition). */
+  /** Sports active this week (the Simulation Hub's primary partition; GTP-33). */
   activeSports: number;
   /** Events across those active sports today (product-day owner sums). */
   eventsToday: number;

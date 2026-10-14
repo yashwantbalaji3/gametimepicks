@@ -125,7 +125,8 @@ function SimCard({ s, answer, archival = false, showRunCount = true }: { s: Feat
         style={archival
           ? { background: "var(--vault-wash-soft)", border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)", fontSize: 9.5, fontWeight: 700 }
           : { background: "var(--gtp-bank-lava-cta)", color: "var(--vault-on-accent-deep)", fontSize: 9.5, fontWeight: 700 }}>
-        {archival ? "View archived report →" : "Generate Simulation →"}
+        {/* GTP-34: the simulation is already run; this opens its report. */}
+        {archival ? "View archived report →" : "Open report →"}
       </span>
     </Link>
   );

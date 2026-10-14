@@ -168,7 +168,7 @@ export default function MlbGameSection({
               className="font-mono uppercase tracking-[0.16em]"
               style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
             >
-              tipoff
+              first pitch
             </div>
             <div
               className="font-mono"

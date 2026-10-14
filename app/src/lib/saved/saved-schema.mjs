@@ -76,7 +76,8 @@ export function saveCardOf(card) {
 }
 /** Build the snapshot from a card (lib/command-center/contract PredictionCardModel) at save time. */
 export function snapshotFromCard(card, { savedAt, sourceRoute }) {
-  const signal = card.signal?.kind === "SIM_STRENGTH" ? `Simulation strength: ${String(card.signal.label).toLowerCase()}`
+  /* GTP-34: the same words the card shows. Snapshots saved before this keep their own stored text (never rewritten). */
+  const signal = card.signal?.kind === "SIM_STRENGTH" ? `${Math.round(card.signal.probability * 100)}% of simulated games · unvalidated`
     : card.signal?.kind === "PROBABILITY" ? `${Math.round(card.signal.probability * 100)}% chance · ${card.signal.of}`
       : card.signal?.kind === "RANGE" ? `${card.signal.low}–${card.signal.high} ${card.signal.unit} · ${card.signal.coverage}`
         : null;

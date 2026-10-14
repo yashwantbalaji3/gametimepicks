@@ -137,3 +137,25 @@ test("the population fallback never reaches into the past — a past day with no
     }
   }
 });
+
+/* GTP-11 (2026-10-14) — NBA dates come from the whole capture, not the /sports display cap. */
+test("GTP-11: every captured NBA date in the window is selectable, and a gameless preseason date is not 'off-season'", async () => {
+  const { availableSimulateDates, buildSimulateDay, WINDOW_FORWARD } = await import("./day-view.ts");
+  const { currentEtDate } = await import("../freshness.ts");
+  const fs = await import("node:fs");
+  const capture = JSON.parse(fs.readFileSync("public/data/nba/schedule/latest.json", "utf8"));
+  const today = currentEtDate();
+  const hi = new Date(Date.parse(`${today}T12:00:00Z`) + WINDOW_FORWARD * 86_400_000).toISOString().slice(0, 10);
+  const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+  const nbaDays = [...new Set(capture.rows.filter((r) => Date.parse(r.dateUtc) > Date.now()).map((r) => etDay(r.dateUtc)))].filter((d) => d >= today && d <= hi);
+  const dates = availableSimulateDates({ today });
+  for (const d of nbaDays) assert.ok(dates.includes(d), `NBA game date ${d} is missing from the simulate date list`);
+
+  // A date inside the captured season with no NBA game reads as a gap in the schedule, never the off-season.
+  const gap = dates.find((d) => d > today && !nbaDays.includes(d) && d < nbaDays.at(-1));
+  if (gap) {
+    const nba = buildSimulateDay(gap, { today }).sections.find((s) => s.sport === "nba");
+    assert.notEqual(nba.emptyState, "OFF_SEASON");
+    assert.match(nba.note, /^No NBA games on this date/);
+  }
+});

@@ -66,7 +66,7 @@ test("3 · sim-ready summary is sourced from featuredSimulations (real artifacts
   assert.match(todayPage, /buildAllGameDetails\(\)/, "details from the real builder");
   assert.match(todayPage, /<TodaySimulationLeans/, "renders the simulation-backed module");
   assert.match(simLeans, /Simulation Ready/, "sim-ready badge present");
-  assert.match(simLeans, /Generate Simulation/, "generate-simulation CTA present");
+  assert.match(simLeans, /Open report →/, "report CTA present (GTP-34: the simulation is precomputed)");
   assert.match(simLeans, /No simulation-ready games/i, "honest empty state exists");
 });
 

@@ -162,7 +162,8 @@ export default function MethodologyCard() {
               textUnderlineOffset: 3,
             }}
           >
-            MODEL_LEARNING_ROADMAP_2026-05-28.md
+            {/* GTP-27: a document title, not a file name. */}
+            the model-learning roadmap (on GitHub)
           </a>
           .
         </p>

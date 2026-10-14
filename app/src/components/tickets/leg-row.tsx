@@ -35,7 +35,7 @@ export interface TicketLeg {
 export default function LegRow({ leg }: { leg: TicketLeg }) {
   const r = leg.result ?? "pending";
   const settled = r === "hit" || r === "miss" || r === "void";
-  const status: TicketStatus = r === "hit" ? "hit" : r === "miss" ? "miss" : r === "void" ? "void" : "pending";
+  const status: TicketStatus = r === "hit" ? "hit" : r === "miss" ? "miss" : r === "void" ? "void" : r === "graded" ? "settled" : "pending";
   const hasFlag = !!(leg.flagHome || leg.flagAway);
   const sport = String(leg.sport ?? "").toUpperCase();
   // Sport-correct fallback chip + start-time word; soccer remains the default for legacy legs that

@@ -69,9 +69,10 @@ export function formatDateLong(iso: string): string {
 }
 
 export function formatTimestamp(iso: string): string {
-  // ISO → "Apr 30, 11:00 AM ET" (use UTC for stability)
+  // ISO → "Apr 30, 11:00 AM EDT". NEW-1 (2026-10-14): the DATE is ET too. It used the runtime's zone
+  // (UTC on the build machine), so every build after 8 PM ET printed tomorrow's date beside an ET time.
   const d = new Date(iso);
-  const date = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const date = d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" });
   const time = d.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
