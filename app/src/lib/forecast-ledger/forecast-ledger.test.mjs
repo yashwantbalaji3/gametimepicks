@@ -141,8 +141,9 @@ test("parity: ledger Brier / log loss equal every owner that publishes its own s
        Every scored row keeps the exact parity check below. */
     if (g.void) {
       assert.equal(r.settlement.state, "VOID", g.boutId);
-      assert.equal(r.measurement.brier, undefined, `${g.boutId}: a void bout is never scored`);
-      assert.notEqual(r.measurement.result, "LOSS", `${g.boutId}: a void bout is never a loss`);
+      assert.equal(r.measurement.brier, null, `${g.boutId}: a void bout is never scored`);
+      assert.equal(r.measurement.logLoss, null, `${g.boutId}: a void bout is never scored`);
+      assert.equal(r.measurement.directionalResult, null, `${g.boutId}: a void bout is never a win or a loss`);
       continue;
     }
     assert.ok(Math.abs(r.measurement.brier - g.model.brier) < 1e-5, g.boutId);
