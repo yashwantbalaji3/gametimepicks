@@ -92,3 +92,10 @@ test("top forecasts are never padded", () => {
   assert.deepEqual(topForecasts([{ ok: false }], { qualifies: (r) => r.ok }), []);
   assert.deepEqual(topForecasts(null), []);
 });
+
+test("effective status: an untracked sport's live/provisional states become DATA_UNAVAILABLE; schedule and official facts stand", async () => {
+  const { effectiveStatus } = await import("./event-view.mjs");
+  for (const s of [S.LIVE, S.DELAYED, S.FINAL_PROVISIONAL, S.DATA_UNAVAILABLE]) assert.equal(effectiveStatus(s, false), S.DATA_UNAVAILABLE, s);
+  for (const s of [S.PREGAME, S.POSTPONED, S.CANCELLED, S.FINAL_CANONICAL]) assert.equal(effectiveStatus(s, false), s, s);
+  for (const s of Object.values(S)) assert.equal(effectiveStatus(s, true), s);
+});

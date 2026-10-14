@@ -24,6 +24,8 @@ test("an untracked sport never reads as live and never shows invented progress",
   assert.doesNotMatch(h, /Q2 · 1:12|67'/, "no progress line for an untracked sport");
   assert.match(h, /Not tracked live/);
   assert.match(h, /Basketball · NBA/);
+  assert.doesNotMatch(h, /aria-label="Live now"/, "untracked events are not grouped under Live now");
+  assert.match(h, /aria-label="Live data unavailable"/);
 });
 
 test("a tracked live game shows its period, and its forecasts against the FROZEN line; unmeasured values say so", () => {

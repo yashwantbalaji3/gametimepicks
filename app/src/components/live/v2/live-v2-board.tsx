@@ -16,7 +16,7 @@ import { useId, useMemo, useState } from "react";
 import { useRovingTabs } from "@/components/a11y/use-roving-tabs";
 import LiveEventCard, { liveEtTime } from "@/components/live/live-event-card";
 import {
-  LIVE_V2_CAPABILITY, LIVE_V2_LABEL, LIVE_V2_STATUS, forecastProgress, groupEvents, isTracked, progressLine, topForecasts, ufcResultLine,
+  LIVE_V2_CAPABILITY, LIVE_V2_LABEL, LIVE_V2_STATUS, effectiveStatus, forecastProgress, groupEvents, isTracked, progressLine, topForecasts, ufcResultLine,
 } from "@/lib/live/v2/event-view.mjs";
 
 const SANS = "var(--font-display)";
@@ -97,7 +97,9 @@ export default function LiveV2Board({ events, nowMs, flags }: { events: LiveV2Ev
   const idBase = useId().replace(/:/g, "");
   const tabs = useRovingTabs<string>({ keys, active, onChange: setActive, idBase });
 
-  const shown = useMemo(() => (active === "all" ? events : events.filter((e) => e.sport === active)), [events, active]);
+  /* The reader-facing status first (an untracked sport cannot be "live"), so grouping and cards agree. */
+  const shown = useMemo(() => (active === "all" ? events : events.filter((e) => e.sport === active))
+    .map((e) => ({ ...e, status: effectiveStatus(e.status, isTracked(e.sport, flags[e.sport] === true)) })), [events, active, flags]);
   const groups = groupEvents(shown, nowMs);
   const untracked = ORDER.filter((s) => !isTracked(s, flags[s] === true));
 
@@ -128,9 +130,7 @@ export default function LiveV2Board({ events, nowMs, flags }: { events: LiveV2Ev
             </h2>
             <ul style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))", margin: 0, padding: 0 }}>
               {g.events.map((e) => {
-                const tracked = isTracked(e.sport, flags[e.sport] === true);
-                const status = tracked || e.status === LIVE_V2_STATUS.PREGAME || e.status === LIVE_V2_STATUS.POSTPONED || e.status === LIVE_V2_STATUS.CANCELLED || e.status === LIVE_V2_STATUS.FINAL_CANONICAL
-                  ? e.status : LIVE_V2_STATUS.DATA_UNAVAILABLE;
+                const status = e.status; // already effective (see `shown`)
                 const label = LIVE_V2_LABEL[status as keyof typeof LIVE_V2_LABEL] ?? "Status unknown";
                 const when = status === LIVE_V2_STATUS.PREGAME ? liveEtTime(e.startUtc) : progressLine(e.sport, e.progress ?? null, status);
                 const ufc = e.sport === "ufc" ? ufcResultLine(e.result) : null;

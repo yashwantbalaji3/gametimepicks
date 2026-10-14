@@ -75,6 +75,18 @@ export function isTracked(sport, flagOn) {
   return Boolean(LIVE_V2_CAPABILITY[sport]?.adapter) && flagOn === true;
 }
 
+/**
+ * The status a reader may be shown. An untracked sport cannot be LIVE, DELAYED or a provisional final on this
+ * site — we have no validated feed saying so — so those become DATA_UNAVAILABLE. Schedule facts (PREGAME),
+ * postponements/cancellations and canonical finals come from schedules and official results, not the live
+ * feed, so they stand. Grouping and the card both read this, so they cannot disagree.
+ */
+export function effectiveStatus(status, tracked) {
+  if (tracked) return status;
+  return status === LIVE_V2_STATUS.PREGAME || status === LIVE_V2_STATUS.POSTPONED || status === LIVE_V2_STATUS.CANCELLED || status === LIVE_V2_STATUS.FINAL_CANONICAL
+    ? status : LIVE_V2_STATUS.DATA_UNAVAILABLE;
+}
+
 const ordinal = (n) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
 const posInt = (v) => (typeof v === "number" && Number.isInteger(v) && v > 0 ? v : null);
 const str = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
