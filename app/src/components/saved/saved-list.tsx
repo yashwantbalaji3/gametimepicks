@@ -44,7 +44,10 @@ function Row({ s, r, onRemove, routes }: { s: SavedForecast; r: Resolved; onRemo
         <span className="font-mono" style={{ color: tone, fontSize: 10.5 }}>
           {r.state === "FINAL" ? `Final${r.actual ? ` ${r.actual}` : ""} · ${r.outcome === "HIT" ? "the forecast landed" : r.outcome === "MISS" ? "the forecast missed" : "no result (void)"}` : r.state === "PENDING" ? "Started · result not graded yet" : "Upcoming"}
         </span>
-        <span className="font-mono" style={{ color: savedAfterStart(s) ? "var(--vault-warn)" : "var(--vault-text-faint)", fontSize: 9.5 }}>saved {etStamp(s.savedAt)}{savedAfterStart(s) ? " · after the start, so not a pre-event pick" : ""}{s.updatedAt ? ` · numbers as of ${etStamp(s.updatedAt)}` : ""}</span>
+        {/* GTP-23: `updatedAt` is the sport board's source stamp at save time (report-card.ts), not
+            the forecast's freeze instant — "numbers as of" read as the latter and disagreed with the
+            report. Relabelled, never rewritten: the stored value is what was saved. */}
+        <span className="font-mono" style={{ color: savedAfterStart(s) ? "var(--vault-warn)" : "var(--vault-text-faint)", fontSize: 9.5 }}>saved {etStamp(s.savedAt)}{savedAfterStart(s) ? " · after the start, so not a pre-event pick" : ""}{s.updatedAt ? ` · board updated ${etStamp(s.updatedAt)}` : ""}</span>
       </div>
       <button type="button" onClick={onRemove} className="self-start font-mono uppercase tracking-[0.08em]" style={{ minHeight: 36, padding: "0 12px", borderRadius: 999, border: "1px solid var(--vault-rule)", background: "transparent", color: "var(--vault-text-faint)", fontSize: 9.5, cursor: "pointer" }}>Remove</button>
     </li>

@@ -160,7 +160,8 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
   const away = envelope?.competitors?.away?.score ?? null;
   const home = envelope?.competitors?.home?.score ?? null;
   const started = state !== "PRE";
-  const when = started ? periodLine(envelope) : etTime(game.kickoffUtc);
+  /* NEW-2: a period line is a fact about a game in progress; once final the chip says so alone. */
+  const when = !started ? etTime(game.kickoffUtc) : state === "LIVE" || state === "DELAYED" ? periodLine(envelope) : null;
   const phase = gamePhaseOf(state);
 
   const byId = useMemo(() => {

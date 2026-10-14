@@ -51,7 +51,8 @@ export function loadSuggestedParlaysPreview(dataRoot) {
   for (const row of matrix.rows) {
     const label = LANE_LABEL[row.lane] ?? row.lane;
     if (row.laneState === "CLOSED") {
-      closed.push({ lane: row.lane, label, reason: clip(row.laneReason ?? "closed by the eligibility gate") });
+      /* `fullReason` feeds the Home "details" disclosure (GTP-27), which promises the exact reason. */
+      closed.push({ lane: row.lane, label, reason: clip(row.laneReason ?? "closed by the eligibility gate"), fullReason: row.laneReason ?? "closed by the eligibility gate" });
       continue;
     }
     /*

@@ -198,7 +198,8 @@ export function nflUpcoming({ nowIso, capture: captureOverride } = {}) {
  * renders as partial, never as the season. The stale June market probe stopped being a display
  * source 2026-08-09 (the probe file stays on disk as research history).
  */
-export function nbaUpcoming({ nowIso, capture: captureOverride } = {}) {
+/** @param {{ nowIso?: string, capture?: any, displayCap?: number }} [opts] */
+export function nbaUpcoming({ nowIso, capture: captureOverride, displayCap = 12 } = {}) {
   const capture = captureOverride ?? readJson("nba", "schedule", "latest.json");
   if (!capture?.rows?.length) {
     return {
@@ -229,7 +230,10 @@ export function nbaUpcoming({ nowIso, capture: captureOverride } = {}) {
     .filter(Boolean)
     .filter((e) => e.status !== "UNKNOWN")
     .sort((a, b) => a.scheduledStartUtc.localeCompare(b.scheduledStartUtc));
-  const DISPLAY_CAP = 12;
+  /* GTP-11: the cap is a DISPLAY choice for the /sports list. The simulate date list and day view pass
+     `displayCap: Infinity` — reading the capped list there skipped NBA opening night (Oct 20) entirely,
+     because the first twelve upcoming rows were all preseason. */
+  const DISPLAY_CAP = displayCap;
   const firstDate = events[0] ? dateEtOf(events[0].scheduledStartUtc) : null;
   return {
     sport: "nba", competitionLabel: "NBA",
@@ -252,7 +256,8 @@ export function nbaUpcoming({ nowIso, capture: captureOverride } = {}) {
  * card's name as display context. The settled archive remains a separate RESULT store and is
  * never rendered as upcoming — that separation is guard-pinned.
  */
-export function ufcUpcoming({ nowIso, capture: captureOverride } = {}) {
+/** @param {{ nowIso?: string, capture?: any, displayCap?: number }} [opts] */
+export function ufcUpcoming({ nowIso, capture: captureOverride, displayCap = 12 } = {}) {
   const capture = captureOverride ?? readJson("ufc", "schedule", "latest.json");
   if (!capture?.bouts?.length) {
     const archive = readJson("ufc", "expanded-projections-latest.json");
@@ -287,7 +292,7 @@ export function ufcUpcoming({ nowIso, capture: captureOverride } = {}) {
     .filter(Boolean)
     .filter((e) => e.status !== "UNKNOWN")
     .sort((a, b) => a.scheduledStartUtc.localeCompare(b.scheduledStartUtc));
-  const DISPLAY_CAP = 12;
+  const DISPLAY_CAP = displayCap; // GTP-09/11: callers that need every captured bout pass Infinity
   return {
     sport: "ufc", competitionLabel: "UFC",
     seasonContext: `${(capture.events ?? []).length} cards captured in the ${capture.windowDays}-day window`,

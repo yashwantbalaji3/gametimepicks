@@ -93,7 +93,7 @@ test("4 · featured simulations come from featuredSimulations() (real artifact o
   assert.match(page, /buildAllGameDetails\(\)/, "details come from the real builder");
   assert.match(page, /<FeaturedSimulationsSection/, "renders the featured section");
   // The section renders each card's Generate Simulation CTA to the game's own href.
-  assert.match(featured, /Generate Simulation/, "card CTA is Generate Simulation");
+  assert.match(featured, /Open report →/, "card CTA opens the precomputed report (GTP-34)");
   assert.match(featured, /Simulation Ready/, "sim-ready badge present");
   assert.match(featured, /No simulation-ready games/i, "honest unavailable state exists");
 });

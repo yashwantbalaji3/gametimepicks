@@ -148,7 +148,9 @@ function overviewProducts(): OverviewProduct[] {
   const rows: Array<[string, string, string, string]> = [
     ["bank-builder", "Bank Builder", "/bank-builder/", "The protected paper record — shown with its era composition on the product page."],
     ["moonshot", "Moonshot", "/moonshot/", "Settled receipts since the product entered the protected bankroll."],
-    ["parlay-lab", "Suggested cards", "/results/parlay-lab/", "Whole-card results — a card wins only if every leg does. Not comparable to single forecasts."],
+    /* GTP-05: the headline is the lab ledger's MLB stream only (founder decision D1), so the label says so; the
+       other sports' cards keep their own records on the linked page and are never summed into this one. */
+    ["parlay-lab", "Suggested cards · MLB", "/results/parlay-lab/", "MLB's published cards only — each sport's cards are recorded separately on the full record. A card wins only if every leg does, so this is not comparable to single forecasts."],
   ];
   return rows.map(([id, label, href, note]) => {
     const r = currentProductRecord(id, projection);

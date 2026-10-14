@@ -82,7 +82,17 @@ export default function ParlayLabRecordPage() {
                     </td>
                     <td className="font-mono" style={{ padding: "8px 10px" }}>{s.record ? pctOrDash(s.record.roi) : "—"}</td>
                     <td style={{ padding: "8px 10px", color: "var(--vault-text-mute)" }}>
-                      {s.live ? "yes" : <span title={s.blocked ?? undefined}>no — {s.blocked ? `${s.blocked.slice(0, 60)}…` : "closed"}</span>}
+                      {/* GTP-08: `live` has passed the capability registry at the read boundary
+                          (applyCapabilityGate), so "Yes" cannot sit beside a lane that refuses its
+                          cards. The full reason is kept, folded, instead of cut at 60 characters. */}
+                      {s.live ? "Yes" : (
+                        <details>
+                          <summary style={{ cursor: "pointer" }}>No — why</summary>
+                          <span style={{ display: "block", marginTop: 4, fontSize: 12, lineHeight: 1.5, maxWidth: 360 }}>
+                            {s.blocked ?? "This lane is closed today."}
+                          </span>
+                        </details>
+                      )}
                     </td>
                   </tr>
                 ))}

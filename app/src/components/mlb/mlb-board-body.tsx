@@ -12,6 +12,7 @@ import {
 import { mlbMarketLabel } from "@/lib/format-mlb";
 import { isPredictionDisabled, MLB_CALIBRATION_DISCLOSURE } from "@/lib/mlb/model-calibration-status";
 import { currentEtDate } from "@/lib/freshness";
+import { isAnomalyLean } from "@/lib/mlb/lean-anomaly";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import MlbTopLeansStrip from "@/components/mlb/mlb-top-leans-strip";
 import MlbBoardClient from "@/components/mlb/mlb-board-client";
@@ -47,7 +48,9 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
      DISABLE_PREDICTION. Disabled markets leave the lean lists and counts (history stays on Results);
      the rest are framed as model-vs-market gaps — market context — never as "signals" or confidence. */
   const leans = (board.leans ?? []).filter((l) => !isPredictionDisabled(l.marketKey));
-  const tierCount = (t: string) => leans.filter((l) => l.confidence === t).length;
+  /* GTP-14: anomalies are counted on their own, never inside a gap-size tile. */
+  const tierCount = (t: string) => leans.filter((l) => l.confidence === t && !isAnomalyLean(l)).length;
+  const anomalyCount = leans.filter((l) => isAnomalyLean(l)).length;
   const hasLeans = leans.length > 0;
 
   // Team list for the filter console (only used in projection state).
@@ -185,7 +188,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
             <NeonStatPanel
               label="Small gap"
               value={String(tierCount("Low"))}
-              sub={`${summary.anomalies} R5 anomalies`}
+              sub={`${anomalyCount} ${anomalyCount === 1 ? "anomaly" : "anomalies"} shown separately`}
               valueAccent="mute"
               delay={3}
             />

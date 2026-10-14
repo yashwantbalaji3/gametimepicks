@@ -73,8 +73,13 @@ function GameCard({ game, envelope }: { game: HubRosterGame; envelope: any }) {
   const life = derivePresentationState({ envelope, settlement: game.settlement });
   const away = envelope?.competitors?.away?.score ?? null;
   const home = envelope?.competitors?.home?.score ?? null;
-  const period = [envelope?.period?.label, typeof envelope?.situation?.outs === "number" ? `${envelope.situation.outs} out` : null]
-    .filter(Boolean).join(" · ");
+  /* NEW-2 (2026-10-14): the period is a fact about a game IN PROGRESS. A final game kept the feed's last
+     "Top 9th" beside "FINAL · GRADING PENDING" — two states on one card. Shown only while live. */
+  const inProgress = life.state === "LIVE" || life.state === "DELAYED";
+  const period = inProgress
+    ? [envelope?.period?.label, typeof envelope?.situation?.outs === "number" ? `${envelope.situation.outs} out` : null]
+      .filter(Boolean).join(" · ")
+    : "";
   const start = etTime(game.firstPitch);
 
   /*

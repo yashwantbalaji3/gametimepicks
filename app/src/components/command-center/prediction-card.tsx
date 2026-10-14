@@ -37,7 +37,8 @@ function Side({ side, sport, compact }: { side: CardSide; sport: PredictionCardM
 
 function signalLine(card: PredictionCardModel): string | null {
   const s = card.signal;
-  if (s.kind === "SIM_STRENGTH") return `Simulation strength: ${s.label.toLowerCase()}`;
+  /* GTP-34: a share of simulated games, labelled unvalidated — not "very strong simulation". */
+  if (s.kind === "SIM_STRENGTH") return `${Math.round(s.probability * 100)}% of simulated games · unvalidated`;
   if (s.kind === "PROBABILITY") return `${Math.round(s.probability * 100)}% chance · ${s.of}`;
   if (s.kind === "RANGE") return `${s.low}–${s.high} ${s.unit} · ${s.coverage}`;
   return null;

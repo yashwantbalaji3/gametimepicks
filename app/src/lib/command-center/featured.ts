@@ -15,7 +15,8 @@ import path from "node:path";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
 import { pausedFamiliesFrom, pauseMlbMarkets } from "@/lib/ops/live-record-gate.mjs";
 import { medianRunsCopy } from "@/lib/mlb/prediction/median-runs-copy.mjs";
-import type { EplForecastRow, EplForecastSet } from "@/lib/sports/epl/forecast-view";
+import { forecastRows, type EplForecastRow, type EplForecastSet } from "@/lib/sports/epl/forecast-view";
+import { buildPredictionBoard } from "@/lib/sports/ufc/prediction-board.mjs";
 import type { CardSport, ConfidenceSignal, Freshness, ModelStatusItem, PredictionCardModel } from "./contract";
 
 const readJson = (p: string): unknown => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
@@ -140,7 +141,11 @@ export function featuredNfl(input: FeaturedInput & { weekLabel?: string | null }
     .filter((e) => e.winProbability && lifecycleOf(e.kickoffUtc, input.nowIso) === "PREGAME")
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
   const e = upcoming[0];
-  if (!e) return { card: null, reason: index.events.length ? "Every published game has kicked off; the next week's forecasts appear when they publish." : "No game forecast is published yet." };
+  if (!e) {
+    /* GTP-02 (same defect as EPL): "kicked off" only when nothing listed is still pregame. */
+    const pregame = index.events.some((x) => lifecycleOf(x.kickoffUtc, input.nowIso) === "PREGAME");
+    return { card: null, reason: !index.events.length ? "No game forecast is published yet." : pregame ? "No upcoming game carries a published win probability yet." : "Every published game has kicked off; the next week's forecasts appear when they publish." };
+  }
   return { card: cardFromNflEvent(e, input), reason: null };
 }
 
@@ -176,8 +181,30 @@ export function featuredEpl(input: FeaturedInput & { set: EplForecastSet | null 
     .filter((r) => r.probs && r.state === "CURRENT_PRE_EVENT" && lifecycleOf(r.kickoffUtc, input.nowIso) === "PREGAME")
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc));
   const r = rows[0];
-  if (!r || !r.probs || !r.homeClub || !r.awayClub) return { card: null, reason: set.rows.length ? "Every forecast fixture has kicked off; the next matchweek appears when its forecasts publish." : "No fixture carries a current forecast yet." };
+  if (!r || !r.probs || !r.homeClub || !r.awayClub) return { card: null, reason: eplEmptyReason(set, input.nowIso) };
   return { card: cardFromEplRow(r, input), reason: null };
+}
+
+/**
+ * GTP-02 — why no EPL card is featured, from the rows themselves.
+ *
+ * This said "Every forecast fixture has kicked off" whenever no row was CURRENT_PRE_EVENT, and on
+ * 2026-10-13 all ten Matchweek 8 rows were model-only (no sportsbook price yet) and four days away —
+ * so Home said every fixture had kicked off beside ten that had not. "Kicked off" is now said only
+ * when no forecast row is still pregame; a pregame forecast without a price is named as that.
+ */
+export function eplEmptyReason(set: EplForecastSet, nowIso: string): string {
+  if (!set.rows.length) return "No fixture carries a current forecast yet.";
+  /* Model-only rows only: a priced row that was skipped for another reason is not "no sportsbook price yet". */
+  const pregame = forecastRows(set).filter((r) => r.state === "READY_EXCEPT_ODDS" && r.modelOnly && lifecycleOf(r.kickoffUtc, nowIso) === "PREGAME");
+  if (pregame.length) {
+    const n = pregame.length;
+    return `${n} upcoming fixture${n === 1 ? " has" : "s have"} a model forecast but no sportsbook price yet, so none is featured here. ${n === 1 ? "It is" : "They are"} on the Premier League page.`;
+  }
+  const anyPregame = set.rows.some((r) => lifecycleOf(r.kickoffUtc, nowIso) === "PREGAME");
+  return anyPregame
+    ? "No upcoming fixture carries a current forecast yet."
+    : "Every forecast fixture has kicked off; the next matchweek appears when its forecasts publish.";
 }
 
 /* ── UFC: the card's main event with a model read ───────────────────────────────────────────────────────────── */
@@ -192,7 +219,7 @@ export function cardFromUfcBout(main: UfcBout, card: UfcCardDoc, ctx: CardContex
   if (main.unmodelledReason) risks.push(main.unmodelledReason);
   return {
     id: `ufc-${main.boutId}`, sport: "ufc", href: `/ufc/bout/${main.boutId}/`, lifecycle: lifecycleOf(start, ctx.nowIso), startUtc: start, startLabel: startLabelOf(start),
-    context: [card.event?.name ?? null, main.titleFight ? "title fight" : "main card"].filter(Boolean).join(" · ") || null,
+    context: [card.event?.name ?? null, ufcBoutPlacement(main, card)].filter(Boolean).join(" · ") || null,
     away: { name: main.red.name, code: null, favoured: w.name === main.red.name }, home: { name: main.blue.name, code: null, favoured: w.name === main.blue.name },
     forecast: { label: "Winner", value: `${w.name} ${pct(w.probability)}`, sub: method ? `Most likely by ${method === "DEC" ? "decision" : method === "KO" ? "knockout" : method === "SUB" ? "submission" : method.toLowerCase()}${main.prediction!.rounds?.endsIn ? ` · round ${main.prediction!.rounds.endsIn}` : ""}` : null },
     signal: { kind: "PROBABILITY", probability: w.probability, of: `${w.name} to win` },
@@ -202,11 +229,25 @@ export function cardFromUfcBout(main: UfcBout, card: UfcCardDoc, ctx: CardContex
     settlement: { kind: "ufc-bout", date: String(start ?? "").slice(0, 10), red: main.red.name, blue: main.blue.name },
   };
 }
+/**
+ * Where this bout sits on its card, in the board's own words — "Main event", "Co-main event", or the
+ * provider-derived "Main card" / "Prelims" segment. Never asserted: a bout the board cannot place
+ * gets no label rather than a guessed one.
+ */
+export function ufcBoutPlacement(bout: UfcBout, card: UfcCardDoc): string | null {
+  if (bout.titleFight) return "title fight";
+  const row = buildPredictionBoard(card as never).rows.find((x: { boutId: string }) => x.boutId === String(bout.boutId));
+  if (!row) return null;
+  if (row.index <= 1) return row.position.toLowerCase();
+  return row.segment ? row.segment.toLowerCase() : null;
+}
 export function featuredUfc(input: FeaturedInput & { card: UfcCardDoc | null }): Featured {
   const card = input.card;
   if (!card?.bouts) return { card: null, reason: "No UFC card is published." };
   const modelled = card.bouts.filter((b) => b.prediction?.winner);
-  const main = modelled.find((b) => b.titleFight) ?? modelled[modelled.length - 1];
+  /* GTP-10: the card lists the main event FIRST (prediction-board.mjs), so the headline bout is the first
+     modelled one. `modelled[length - 1]` featured the last prelim on 2026-10-13 and labelled it "main card". */
+  const main = modelled.find((b) => b.titleFight) ?? modelled[0];
   if (!main) return { card: null, reason: card.bouts.length ? "The card is published without a model read: no bout has enough fighter history." : "No bout is listed yet." };
   const start = main.startUtc ?? card.event?.startUtc ?? null;
   if (lifecycleOf(start, input.nowIso) !== "PREGAME") return { card: null, reason: "The card has started; each bout's pre-fight read is frozen on the card page." };

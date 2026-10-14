@@ -4,7 +4,7 @@
  */
 export type TicketStatus =
   | "active" | "pending" | "settled" | "hit" | "miss" | "void"
-  | "archived" | "data_pending" | "stopped" | "won" | "lost" | "candidate";
+  | "archived" | "data_pending" | "stopped" | "won" | "lost" | "candidate" | "card_decided";
 
 const META: Record<TicketStatus, { label: string; color: string; bg: string }> = {
   active: { label: "Active", color: "var(--gtp-bank-heat)", bg: "var(--gtp-bank-heat-dim)" },
@@ -18,6 +18,8 @@ const META: Record<TicketStatus, { label: string; color: string; bg: string }> =
   archived: { label: "Archived", color: "var(--vault-text-faint)", bg: "var(--vault-wash-soft)" },
   data_pending: { label: "Data pending", color: "var(--vault-text-faint)", bg: "var(--vault-wash-soft)" },
   stopped: { label: "Stopped", color: "var(--vault-text-mute)", bg: "var(--vault-wash)" },
+  /* GTP-26 review fix: the CARD is graded but this leg's own result is not recorded on it — not "Settled", not "Pending". */
+  card_decided: { label: "Card decided", color: "var(--vault-text-faint)", bg: "var(--vault-wash-soft)" },
   candidate: { label: "Candidate", color: "var(--vault-moonshot-bright)", bg: "color-mix(in srgb, var(--vault-moonshot) 14%, transparent)" },
 };
 

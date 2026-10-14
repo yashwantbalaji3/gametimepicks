@@ -664,7 +664,8 @@ export default function SimulateLobby() {
                       className="gtp-cta-lava vault-press mt-auto inline-flex items-center justify-center gap-1.5 rounded-[10px] py-2.5 font-mono uppercase tracking-[0.1em]"
                       style={{ fontSize: 11.5, fontWeight: 700, minHeight: 42 }}
                     >
-                      Generate Simulation →
+                      {/* GTP-34: precomputed — the CTA opens the report, it does not generate anything. */}
+                      Open report →
                     </span>
                   </div>
                 </Link>

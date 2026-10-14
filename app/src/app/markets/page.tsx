@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import MarketCenter from "@/components/market-center";
+import { formatDate } from "@/lib/format";
 import HowToReadMarkets from "@/components/markets/how-to-read-markets";
 import ModelRankedList from "@/components/markets/model-ranked-list";
 import { buildTop10Board } from "@/lib/top10/top10-picks";
@@ -91,7 +92,8 @@ export default function MarketsPage() {
         if (!modelOnly.length) return null;
         return (
           <p className="reveal" style={{ marginTop: 18, marginBottom: 0, fontSize: 12.5, lineHeight: 1.7, color: "var(--vault-text-mute)", maxWidth: 760 }}>
-            Prices shown for MLB today. {modelOnly.map((sp, i) => (
+            {/* GTP-06: name the snapshot's own date. "today" sat beside an Oct 12 capture on Oct 13. */}
+            MLB prices shown here are from the {formatDate(data.date)} capture. {modelOnly.map((sp, i) => (
               <span key={sp.href}>{i > 0 ? (i === modelOnly.length - 1 ? " and " : ", ") : ""}<a href={sp.href} style={{ color: "var(--vault-gold-bright)" }}>{sp.label}</a></span>
             ))} forecasts are on their own hubs.
           </p>

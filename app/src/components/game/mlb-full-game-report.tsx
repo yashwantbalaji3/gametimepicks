@@ -23,16 +23,19 @@ import { medianRunsCopy, MEDIAN_RUNS_LABEL } from "@/lib/mlb/prediction/median-r
 import { modelImpliedTotal, modelTotalCopy, type ModelImpliedTotal } from "@/lib/mlb/full-game/model-total";
 import { runLineOverviewRow } from "@/lib/mlb/full-game/market-overview";
 import { rowRateLabel, teamRateNote } from "@/lib/mlb/full-game/box-score-rates";
-import { simProvenance } from "@/lib/mlb/full-game/sim-provenance";
+import { forecastFrozenAt, simProvenance } from "@/lib/mlb/full-game/sim-provenance";
 import { exactWinCounts } from "@/lib/sim-frequency";
 
 const int0 = (n: number): string => Math.round(n).toLocaleString("en-US");
 
 type TabKey = "overview" | "box" | "market" | "players" | "methodology";
 
-/** A short, non-hype rendering of a simulation-strength label. */
-const shortStrength = (s: string | null | undefined): string =>
-  s ? s.replace(" SIMULATION", "") : "";
+/**
+ * GTP-34 (2026-10-14): the chip read "VERY STRONG" beside an unvalidated 74% cover — a word that sounds like
+ * confidence in the outcome, for a share of simulated games from a model with no validated record on this call.
+ * The share is already printed; the chip now says what the number is NOT. The artifact's label is untouched.
+ */
+const shortStrength = (s: string | null | undefined): string => (s ? "Share of simulations · unvalidated" : "");
 
 const pct = (p: number | null | undefined): string => (typeof p === "number" ? `${Math.round(p * 100)}%` : "—");
 const one = (n: number | null | undefined): string => (typeof n === "number" && Number.isFinite(n) ? n.toFixed(1) : "—");
@@ -193,7 +196,7 @@ function PredictionHero({ p, runCount , spreadLabel, g, modelVersion }: { p: Gam
       </div>
       <div className="grid grid-cols-3 gap-2">
         {ml ? (
-          <PredictionCard label="Moneyline" pick={ml.team} prob={`${Math.round(ml.simulationProbability * 100)}% simulations`} strength={shortStrength(ml.strengthLabel)} />
+          <PredictionCard label="Moneyline" pick={ml.team} prob={`${Math.round(ml.simulationProbability * 100)}% of simulated games`} strength={shortStrength(ml.strengthLabel)} />
         ) : (
           <PredictionCard label="Moneyline" pick="" prob="" strength="" unavailable={moneylinePaused ? PAUSED_MONEYLINE_SHORT : "No winner call"} />
         )}
@@ -213,7 +216,7 @@ function PredictionHero({ p, runCount , spreadLabel, g, modelVersion }: { p: Gam
           <PredictionCard label="Total" pick="" prob="" strength="" unavailable={total?.unavailableReason ?? "No line"} />
         )}
         {rl ? (
-          <PredictionCard label={spreadLabel} pick={rl.pick} prob={`${Math.round(rl.coverProbability * 100)}% cover`} strength={shortStrength(rl.strengthLabel)} />
+          <PredictionCard label={spreadLabel} pick={rl.pick} prob={`Covers in ${Math.round(rl.coverProbability * 100)}% of simulated games`} strength={shortStrength(rl.strengthLabel)} />
         ) : (
           <PredictionCard label={spreadLabel} pick="" prob="" strength="" unavailable={p.pausedReasons?.runLine ? PAUSED_RUN_LINE_SHORT : "Unavailable"} />
         )}
@@ -631,7 +634,7 @@ function Methodology({ g, meta }: { g: FullGameSimGame; meta: FullGameArtifactMe
         </div>
       ) : null}
       <p className="font-mono m-0" style={{ fontSize: 9.5, color: "var(--vault-text-faint)" }}>
-        Model {meta?.modelVersion ?? g.status} · {g.runCount.toLocaleString("en-US")} complete games · deterministic (same board → same result){meta?.generatedAt ? ` · generated ${formatEtTime(meta.generatedAt)}` : ""}.
+        Model {meta?.modelVersion ?? g.status} · {g.runCount.toLocaleString("en-US")} complete games · deterministic (same board → same result){((frozen) => (frozen ? ` · generated ${formatEtTime(frozen)}` : ""))(forecastFrozenAt(g, meta))}.
       </p>
     </div>
   );
@@ -714,9 +717,14 @@ export default function MlbFullGameReport({
               switch (simProvenance(g, meta)) {
                 case "AFTER_FIRST_PITCH":
                   return `Simulated ${formatEtTime(meta.generatedAt)} · after first pitch`;
-                /* No time: the slate's clock belongs to a later run, not to this forecast. */
-                case "PREGAME_CARRIED":
-                  return "Pregame · carried forward from an earlier run";
+                /* Never the slate's clock: it belongs to a later run. The producer's per-game
+                   ledger time when it exists (GTP-23), otherwise no time at all. */
+                case "PREGAME_CARRIED": {
+                  const frozen = forecastFrozenAt(g, meta);
+                  return frozen
+                    ? `Simulated ${formatEtTime(frozen)} · pregame · unchanged since`
+                    : "Pregame · carried forward from an earlier run";
+                }
                 case "PREGAME":
                   return `Simulated ${formatEtTime(meta.generatedAt)} · pregame`;
                 default:

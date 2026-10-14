@@ -42,6 +42,9 @@ export interface MlbSimSet {
   runCount: number | null;
   cards: MlbSimCard[];
   readyCount: number;
+  /** Cards built on BOTH confirmed batting orders (GTP-24), and those among them with an unrated batter. */
+  confirmedOrderCount: number;
+  confirmedButUnratedCount: number;
 }
 
 export function loadMlbSimCards(date: string | null): MlbSimSet | null {
@@ -97,5 +100,10 @@ export function loadMlbSimCards(date: string | null): MlbSimSet | null {
     })(),
     cards,
     readyCount: cards.filter((c) => c.completeness === "ready").length,
+    /* GTP-24: "built on both confirmed batting orders" is THIS count — the lineup source — not `readyCount`, which
+       also requires every batter to be rated. CLE @ TB (Oct 13) had both orders confirmed and 3 unrated batters,
+       and the hub said "0 of 1 built on both confirmed batting orders" beside a report saying the opposite. */
+    confirmedOrderCount: cards.filter((c) => !c.awaitingLineup).length,
+    confirmedButUnratedCount: cards.filter((c) => !c.awaitingLineup && c.completeness !== "ready").length,
   };
 }

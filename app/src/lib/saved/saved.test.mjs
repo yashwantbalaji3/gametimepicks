@@ -28,7 +28,7 @@ test("a snapshot carries the forecast, the model state and the artifact stamp as
   assert.equal(s.matchup, "Angels @ Giants");
   assert.equal(s.modelState, "WATCH");
   assert.equal(s.updatedAt, "2026-09-15T12:00:00Z");
-  assert.match(s.signal, /Simulation strength: strong simulation/);
+  assert.equal(s.signal, "61% of simulated games · unvalidated", "GTP-34: a share of simulations, never a strength word");
   let items = upsert([], s);
   const changed = snap({ forecast: { label: "Winner", value: "SF 70%", sub: null }, status: { ...card().status, state: "PAUSED" } });
   items = upsert(items, changed);

@@ -30,7 +30,9 @@ export default function EligibleUniverse({ availability, compact = false }: { av
       {availability.sports.map((s) => (
         <li key={s.sport} className="flex items-center justify-between gap-3 text-[12.5px]">
           <span className="font-semibold" style={{ color: s.eligibleLegs > 0 ? "var(--vault-text)" : "var(--vault-text-mute)" }}>{s.label}</span>
-          <span className="text-right" style={{ color: "var(--vault-text-mute)" }}>{s.eligibleLegs > 0 ? `${s.eligibleLegs} eligible legs · ${s.events} game${s.events === 1 ? "" : "s"}` : s.reason}</span>
+          {/* GTP-04: a card needs legs from two different games, so legs from ONE game are candidates that
+              cannot make a card on their own — said here, not left for the lane's "fewer than 2" to contradict. */}
+          <span className="text-right" style={{ color: "var(--vault-text-mute)" }}>{s.eligibleLegs > 0 ? `${s.eligibleLegs} eligible leg${s.eligibleLegs === 1 ? "" : "s"} · ${s.events} game${s.events === 1 ? "" : "s"}${s.events === 1 ? " — a card needs legs from 2+ games" : ""}` : s.reason}</span>
         </li>
       ))}
     </ul>
@@ -52,7 +54,8 @@ export default function EligibleUniverse({ availability, compact = false }: { av
             <h2 className="m-0 inline text-[13px] font-semibold">Eligible universe{day ? ` · evaluated ${day}` : ""}</h2>
             <span style={{ color: "var(--vault-text-mute)" }}>
               {availability.totalEligible} eligible leg{availability.totalEligible === 1 ? "" : "s"}
-              {contributing.length ? ` from ${contributing.map((s) => s.label).join(", ")}` : ""} · <span style={{ color: "var(--vault-accent)" }}>which sports qualify</span>
+              {contributing.length ? ` from ${contributing.map((s) => s.label).join(", ")}` : ""}
+              {contributing.length && contributing.reduce((n, s) => n + s.events, 0) === 1 ? " (1 game — a card needs 2+)" : ""} · <span style={{ color: "var(--vault-accent)" }}>which sports qualify</span>
             </span>
           </summary>
           {rows}

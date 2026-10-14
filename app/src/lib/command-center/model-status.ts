@@ -15,7 +15,7 @@ import path from "node:path";
 import { pausedFamiliesFrom, runLinePaused, MLB_RUN_LINE_POSTED_FAMILY } from "@/lib/ops/live-record-gate.mjs";
 import type { CardSport, ModelStatusItem, PublicModelState } from "./contract";
 
-type HealthFamily = { id: string; sport: string; state: string; n: number; judgement?: { receiptState?: string; needed?: number | null; watch?: boolean | null } | null; context?: { hitRate?: number | null; meanPickProbability?: number | null } | null };
+type HealthFamily = { id: string; sport: string; state: string; n: number; baseline?: string; judgement?: { receiptState?: string; needed?: number | null; watch?: boolean | null; meanDiff?: number | null; lo95?: number | null; hi95?: number | null } | null; context?: { hitRate?: number | null; meanPickProbability?: number | null } | null };
 type Health = { generatedAt: string; families: HealthFamily[] } | null;
 
 const readJson = (p: string): unknown => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
@@ -39,13 +39,48 @@ function healthState(f: HealthFamily | undefined, paused: Set<string>): PublicMo
   return "TOO_EARLY";
 }
 
+const signed = (v: number) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(3)}`;
+
+/**
+ * GTP-22 (2026-10-14) — THE MEASURE IS NAMED. "Watch · slightly behind a coin flip" left a reader to guess
+ * behind on WHAT, and the only number beside it was a hit rate, which is not what the verdict is judged on.
+ * Where the scorecard judges on log loss against a stated baseline with a 95% interval, the sentence says
+ * so with the numbers: model vs baseline, the difference, the interval, and — when the interval spans zero —
+ * that the two cannot yet be told apart. "Better than" is said only when the whole interval is below zero.
+ */
+export function logLossVerdict(f: HealthFamily | undefined, floor: string): string | null {
+  const j = f?.judgement;
+  const base = Number(/log loss ([0-9.]+)/.exec(f?.baseline ?? "")?.[1]);
+  if (!f || !j || !Number.isFinite(base) || ![j.meanDiff, j.lo95, j.hi95].every((v) => typeof v === "number" && Number.isFinite(v))) return null;
+  const d = j.meanDiff as number, lo = j.lo95 as number, hi = j.hi95 as number;
+  const interval = `95% interval ${signed(lo)} to ${signed(hi)}`;
+  const reading = lo <= 0 && hi >= 0
+    ? `The interval includes zero, so this call cannot yet be told apart from ${floor}.`
+    : d > 0 ? `The whole interval is above zero: worse than ${floor} on this measure.` : `The whole interval is below zero: better than ${floor} on this measure.`;
+  return `Measured by log loss (lower is better) over ${f.n} graded: ${(base + d).toFixed(3)} for this call against ${base.toFixed(3)} for ${floor}, a difference of ${signed(d)} (${interval}). ${reading}`;
+}
+
+/**
+ * GTP-22 review fix: a WATCH headline must agree with its own detail line. `healthState` reports a BREACHED
+ * family as WATCH whenever the gate is not pausing it (a stale scorecard, or a family the gate does not
+ * cover) — and "not yet distinguishable" above "the whole interval is above zero: worse" is a contradiction.
+ * The headline reads the same interval the detail does.
+ */
+export function watchHeadline(f: HealthFamily | undefined, floor: string): string {
+  const lo = f?.judgement?.lo95;
+  if (f?.state === "BREACHED" || (typeof lo === "number" && lo > 0)) return `Watch · clearly behind ${floor}, not paused`;
+  return `Watch · not yet distinguishable from ${floor}`;
+}
+
 function liveRecordDetail(f: HealthFamily | undefined, floor: string): string {
   if (!f) return "The health scorecard could not be read at build time.";
   const n = f.n ?? 0;
   const hit = pct(f.context?.hitRate);
   const shown = pct(f.context?.meanPickProbability);
-  const record = hit && shown ? ` It has landed ${hit} of the time while showing about ${shown}.` : "";
+  const record = hit && shown ? ` For context only (not the measure judged): its picks have landed ${hit} of the time while showing about ${shown}.` : "";
   if (f.state === "INSUFFICIENT_SAMPLE") return `${n} graded so far — not yet enough to judge against ${floor}.`;
+  const measured = logLossVerdict(f, floor);
+  if (measured) return `${measured}${record}`;
   if (f.state === "BREACHED") return `Over ${n} graded, this call has done worse than ${floor} by a clear margin.${record}`;
   if (f.state === "WATCH") return `Over ${n} graded, this call is slightly behind ${floor}, not yet by enough to be sure.${record}`;
   return `Over ${n} graded, this call has held up against ${floor}.${record}`;
@@ -71,7 +106,7 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
       // …but it DOES inherit v1's restrictions (live-record-gate POSTED_RUN_LINE_INHERITS_V1_RESTRICTIONS).
       const inheritedHold = id === MLB_RUN_LINE_POSTED_FAMILY && runLinePaused({ basis: "POSTED_LINE" }, paused) && !paused.has(id);
       const state = inheritedHold ? "PAUSED" : healthState(f, paused);
-      const headline = inheritedHold ? "Paused · held by the earlier run-line record" : state === "PAUSED" ? "Paused · below a coin flip" : state === "WATCH" ? "Watch · slightly behind" : state === "HOLDING" ? "Holding its record" : state === "TOO_EARLY" ? "Too early to judge" : "Status unknown";
+      const headline = inheritedHold ? "Paused · held by the earlier run-line record" : state === "PAUSED" ? "Paused · below a coin flip" : state === "WATCH" ? watchHeadline(f, "a coin flip") : state === "HOLDING" ? "Holding its record" : state === "TOO_EARLY" ? "Too early to judge" : "Status unknown";
       const detail = inheritedHold
         ? `The earlier run-line call's record is below ${floor}, and posted-line calls stay held with it until their own record justifies showing them. ${liveRecordDetail(f, floor)}`
         : liveRecordDetail(f, floor);
@@ -115,7 +150,7 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
           : "The live model was fit and judged on recent seasons only; no blind historical test backs it.", null, "soccer/epl/forecasts/latest.json"),
       item("epl_forward", "Forward test", fwdState, !receipt ? "Status unknown" : fwdState === "FORWARD_TEST" ? `Forward test · ${receipt.n ?? 0} of ${receipt.needed ?? 60} matches` : fwdState === "PAUSED" ? "Previous model publishing again" : fwdState === "WATCH" ? "Watch · behind the model it replaced" : "Holding against the model it replaced",
         receipt ? `Every graded match scores the live model beside the one it replaced. A verdict needs ${receipt.needed ?? 60} matches; ${receipt.n ?? 0} are in.` : "The forward receipt could not be read at build time.", receipt?.n ?? null, "epl/forward/receipt.json"),
-      item("epl_result", "Live record", healthState(live, paused), live ? (live.state === "INSUFFICIENT_SAMPLE" ? "Too early to judge" : live.state === "HOLDING" ? "Holding against even odds" : "Watch · behind even odds") : "Status unknown",
+      item("epl_result", "Live record", healthState(live, paused), live ? (live.state === "INSUFFICIENT_SAMPLE" ? "Too early to judge" : live.state === "HOLDING" ? "Holding against even odds" : watchHeadline(live, "even odds")) : "Status unknown",
         live ? liveRecordDetail(live, "even odds") : "The health scorecard could not be read at build time.", live?.n ?? null, HEALTH),
     ];
   }
@@ -139,7 +174,7 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
   return [
     item("ufc_model", "Fight model", passed == null ? "UNKNOWN" : passed ? "VALIDATED" : "EXPERIMENTAL", passed == null ? "Status unknown" : passed ? "Backtest passed on held-out fights" : "Backtest did not clear its bars",
       passed == null ? "The card artifact carries no model verdicts." : passed ? ufcEvidence : "One or more heads missed their preregistered bar; see the card for which.", null, "ufc/card-latest.json"),
-    item("ufc_winner", "Live record", healthState(live, paused), live ? (live.state === "INSUFFICIENT_SAMPLE" ? "Too early to judge" : live.state === "HOLDING" ? "Holding against a coin flip" : "Watch · behind a coin flip") : "Status unknown",
+    item("ufc_winner", "Live record", healthState(live, paused), live ? (live.state === "INSUFFICIENT_SAMPLE" ? "Too early to judge" : live.state === "HOLDING" ? "Holding against a coin flip" : watchHeadline(live, "a coin flip")) : "Status unknown",
       live ? liveRecordDetail(live, "a coin flip") : "The health scorecard could not be read at build time.", live?.n ?? null, HEALTH),
   ];
 }

@@ -15,6 +15,7 @@ import { normalizeLegResult } from "@/components/tickets/settlement-badge";
 import type { MoonshotLane, MoonshotCard, MoonshotCandidateLeg } from "@/lib/moonshot/moonshot-lane";
 import { publicMoonshotCandidates } from "@/lib/moonshot/moonshot-lane";
 import { candidateReadiness } from "@/lib/moonshot/activation-rules";
+import { etDayLabel } from "@/lib/et-stamp.mjs";
 
 const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -27,7 +28,9 @@ function legsSportLabel(legs?: ReadonlyArray<{ sport?: string }>): string {
   return only === "MLB" ? "MLB" : only === "SOCCER" || only === "WORLD_CUP" ? "World Cup" : only.charAt(0) + only.slice(1).toLowerCase();
 }
 
-function cardToLegs(card: MoonshotCard): TicketLeg[] {
+/** `cardGraded`: the lifecycle ledger has graded the whole card. A leg with no result of its own then reads
+ *  "Settled" (graded on the card receipt) — never "Pending" under a card that already lost (GTP-26). */
+function cardToLegs(card: MoonshotCard, cardGraded = false): TicketLeg[] {
   return (card.legs ?? []).map((l) => ({
     selection: l.participant,
     sport: (l as { sport?: string }).sport ?? undefined,
@@ -39,7 +42,7 @@ function cardToLegs(card: MoonshotCard): TicketLeg[] {
     photoUrl: l.photoUrl ?? undefined,
     kickoffEt: l.kickoffEt,
     odds: l.odds,
-    result: normalizeLegResult(l.settlement?.result, l.settlementStatus),
+    result: ((r) => (cardGraded && r === "pending" ? "graded" : r))(normalizeLegResult(l.settlement?.result, l.settlementStatus)),
     official: l.settlement?.official ?? undefined,
   }));
 }
@@ -56,14 +59,6 @@ function candidateLegToTicket(l: MoonshotCandidateLeg): TicketLeg {
     result: "pending",
     source: l.settlement?.source,
   };
-}
-
-function laneStatusPill(status: MoonshotLane["status"]): TicketStatus {
-  if (status === "stopped") return "stopped";
-  if (status === "active") return "active";
-  if (status === "awaiting") return "pending";
-  if (status === "completed") return "settled";
-  return "pending";
 }
 
 function cardStatusPill(result?: string): TicketStatus {
@@ -131,8 +126,14 @@ export default function MoonshotLaneTracker({
       <div className="rounded-2xl px-5 py-4" style={{ border: "1px solid var(--vault-moonshot)", background: "linear-gradient(135deg, color-mix(in srgb, var(--vault-moonshot) 10%, transparent), color-mix(in srgb, var(--vault-scrim-base) 42%, transparent))" }}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="font-mono uppercase tracking-[0.2em]" style={{ color: "var(--vault-moonshot-bright)", fontSize: 10 }}>🌙 Moonshot Lane · lane tracker</span>
-          <StatusPill status={running === false ? "stopped" : laneStatusPill(lane.status)} dot />
+          {/* GTP-26: this block reads the LEGACY lane store (see `summary` above), last written on its own
+              `generatedAt`. Its stored "active" status is that store's, not today's product — the live Moonshot is
+              the ladder above. So it is labelled as the archive it is, with its date. */}
+          <StatusPill status="archived" dot />
         </div>
+        <p className="mt-1 font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)" }}>
+          Legacy lane{etDayLabel(lane.generatedAt ?? null) ? ` · last updated ${etDayLabel(lane.generatedAt ?? null)}` : ""} · the current Moonshot is the ladder above
+        </p>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {summary.map(([k, v]) => (
             <div key={k} className="rounded-[10px] px-3 py-2" style={{ background: "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
@@ -148,7 +149,10 @@ export default function MoonshotLaneTracker({
       </div>
 
       <div className="flex flex-col gap-3">
-        {runs.length > 0 ? runs.map((r) => (
+        {runs.length > 0 ? runs.map((r) => {
+          const outcome = settledOutcomes?.get(r.card.cardId) ?? r.card.result;
+          const graded = outcome === "won" || outcome === "lost";
+          return (
           <TicketCard
             key={r.key}
             accent="violet"
@@ -156,16 +160,18 @@ export default function MoonshotLaneTracker({
             subtitle={r.card.cardId}
             sport={legsSportLabel(r.card.legs)}
             risk={r.card.risk}
-            status={cardStatusPill(settledOutcomes?.get(r.card.cardId) ?? r.card.result)}
+            status={cardStatusPill(outcome)}
             odds={r.card.combinedOdds}
             oddsTone="violet"
             stake={r.card.stake}
-            projectedReturn={r.card.projectedReturn}
+            /* A graded card has an outcome, not a projection. */
+            projectedReturn={graded ? undefined : r.card.projectedReturn}
             footer={r.note ? <span className="text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>{r.note}</span> : undefined}
           >
-            {cardToLegs(r.card).map((leg, j) => <LegRow key={j} leg={leg} />)}
+            {cardToLegs(r.card, graded).map((leg, j) => <LegRow key={j} leg={leg} />)}
           </TicketCard>
-        )) : (
+          );
+        }) : (
           <div className="rounded-xl px-4 py-6 text-center" style={{ border: "1px dashed var(--vault-border)", background: "var(--vault-wash-faint)" }}>
             <p style={{ color: "var(--vault-text)", fontSize: 13, fontWeight: 600 }}>No Moonshot card on record yet</p>
             <p className="mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>A qualified higher-volatility card will appear here once one clears the gates.</p>

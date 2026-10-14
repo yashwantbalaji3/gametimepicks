@@ -253,12 +253,19 @@ export default function BankBuilderPage() {
    * page and the generator cannot disagree about which kind of empty today is.
    */
   const bbPool = poolAvailability(path.join(process.cwd(), "public", "data"), currentEtDate());
+  /*
+   * GTP-04 (2026-10-14): the INPUT is what the generator reads — `poolAvailability` (team markets / boards for the
+   * day). The home-run props board above is a different file: on 2026-10-13 its newest day was Oct 12 while the
+   * day's team markets existed, so this banner said "no card has been assessed" beside an eligible universe the
+   * generator had evaluated that morning. The props-board date stays only as the fallback when the pool has nothing.
+   */
+  const bbPoolHasToday = bbPool.status === POOL_STATUS.PRICED || bbPool.status === POOL_STATUS.NO_EVENTS;
   const bbProductState = deriveProductState({
     productDate: currentEtDate(),
     artifactDate: bbArtifact.date,
     publishedCards: bbArtifact.cards,
-    inputsMissing: bbInputsDate == null,
-    inputsDate: bbInputsDate,
+    inputsMissing: !bbPoolHasToday && bbInputsDate == null,
+    inputsDate: bbPoolHasToday ? currentEtDate() : bbInputsDate,
     noEvents: bbPool.status === POOL_STATUS.NO_EVENTS,
   });
   // The real ET hour lets the label distinguish "the morning generator has not run YET" (expected

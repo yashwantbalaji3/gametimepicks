@@ -1,4 +1,5 @@
 import type { MlbBoardLean, MlbReasonBullet } from "@/lib/types-mlb";
+import { isAnomalyLean } from "@/lib/mlb/lean-anomaly";
 import {
   formatAmericanOdds,
   formatEdgePct,
@@ -106,8 +107,19 @@ function fallbackBulletsFromReason(reason: string): MlbReasonBullet[] {
     .map((text) => ({ label: "Note", text, tone: "default" as const }));
 }
 
+/* GTP-14 (2026-10-14): an R5 anomaly is a gap too LARGE to trust (the model is likely missing something), and
+   it was labelled by its downgraded tier — "Small gap" on a +23.2 pp row. The anomaly is now its own label, and
+   the internal rule code ("R5") is no longer shown beside it. */
+const ANOMALY_META = {
+  label: "Anomaly · gap too large to trust",
+  fg: "var(--vault-warn)",
+  bg: "color-mix(in srgb, var(--vault-warn) 8%, transparent)",
+  rim: "color-mix(in srgb, var(--vault-warn) 35%, transparent)",
+};
+
 export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
-  const meta = confidenceMeta(lean.confidence);
+  const isAnomaly = isAnomalyLean(lean);
+  const meta = isAnomaly ? ANOMALY_META : confidenceMeta(lean.confidence);
   const hasProj =
     lean.projection !== null && lean.confidence !== "insufficient_data";
   const directionalOdds =
@@ -116,7 +128,6 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
       : lean.lean === "Under"
         ? formatAmericanOdds(lean.oddsUnder)
         : "—";
-  const isAnomaly = (lean.riskFlags || []).includes("r5_model_anomaly");
   const isInsufficient = lean.confidence === "insufficient_data";
 
   /* P289: this was `playerTeamAbbr ?? "—"` / `opponentAbbr ?? "—"`, which rendered "— vs —" on 3,989
@@ -193,20 +204,6 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
           >
             {meta.label}
           </span>
-          {isAnomaly && (
-            <span
-              className="font-mono uppercase tracking-[0.12em] shrink-0 sm:hidden"
-              style={{
-                color: "var(--vault-warn)",
-                fontSize: 10,
-                padding: "1px 4px",
-                border: "1px solid color-mix(in srgb, var(--vault-accent) 30%, transparent)",
-                borderRadius: 2,
-              }}
-            >
-              R5
-            </span>
-          )}
         </div>
 
         {/* Market + LINE / proj / gap / EDGE — always visible */}
@@ -292,20 +289,6 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
           >
             {meta.label}
           </span>
-          {isAnomaly && (
-            <span
-              className="font-mono uppercase tracking-[0.12em] shrink-0 hidden sm:inline-block"
-              style={{
-                color: "var(--vault-warn)",
-                fontSize: 10,
-                padding: "1px 4px",
-                border: "1px solid color-mix(in srgb, var(--vault-accent) 30%, transparent)",
-                borderRadius: 2,
-              }}
-            >
-              R5
-            </span>
-          )}
         </div>
       </div>
     );
@@ -352,7 +335,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
                     border: "1px solid color-mix(in srgb, var(--vault-accent) 30%, transparent)",
                   }}
                 >
-                  R5 anomaly
+                  Model anomaly
                 </span>
               )}
             </div>
@@ -483,7 +466,8 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
                       : "var(--vault-text-mute)",
                 }}
               >
-                {b.text}
+                {/* GTP-14/27: the artifact's bullet names the internal rule ("R5"); the reader gets the meaning. */}
+                {b.text.replace(/\bR5 anomaly threshold\b/g, "anomaly threshold").replace(/\bR5\b ?/g, "")}
               </span>
             </li>
           ))}
