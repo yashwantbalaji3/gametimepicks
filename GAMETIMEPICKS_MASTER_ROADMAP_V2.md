@@ -1769,17 +1769,18 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-14 20:45Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-14 22:30Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
 | UX Release 2B + LIVE-F | #1081 → merge `5917475b53` (20:16:25Z) | Merged at the approved head `6e24b774f4`. Before the merge: unit run on main + head locally (only known local-env failures).<br>**Production READY serving `5917475b53`** (built 20:17:59Z). Main CI green.<br>Merge diff: 43 files, all `app/src`; 0 data, settlement or grading paths.<br>Forecast Record: 15,868/15,868 served rows match the ledger; 0 settlement mismatches.<br>36-view sweep at 1440/390 px clean (logos, portraits, `/live` tabs, coverage line) | **COMPLETED** (Production-verified) |
-| Live RLS battery in CI | #1084 · `bfb1bd39e0` (rebased on `5917475b53`) | Local: live RLS 83–84 PASS (Postgres 15.3, rolled back). On the previous head CI ran the battery (82–84 PASS, not skipped) | AWAITING CI → package |
-| UFC grader truth | #1085 · `68ab9225cf` (rebased) | Local unit 9,390 passed. Grader dry run and `--write` on today's data: 0 new, 0 changed files; ledger byte-identical (71 lines). Append-only preserved | AWAITING CI → package |
+| Live RLS battery in CI | #1084 → merge `46c7912271` (21:58:09Z) | Merged at the approved head `bfb1bd39e0`. **Production serves `46c7912271`** (built 22:02:00Z). Main CI green (run 38644263216) and **live RLS 82–84 PASS on main, not skipped**. Merge diff: 3 harness files only. No route, account code, migration or hosted-DB path; `--hosted` needs an explicit flag and URL, and no workflow supplies them. Forecast Record served = ledger, 15,868/15,868 | **COMPLETED** (Production-verified) |
+| UFC grader truth | #1085 · `68ab9225cf` | CI green (run 38632277368). Revalidated on main `46c7912271` + head: unit 9,393/0 locally (RLS included). Grader `--write` on today's data: 0 files changed; ledger byte-identical | **AWAITING FOUNDER APPROVAL** (merge before the 10/17 UFC card) |
 | Roving-tab a11y follow-up | #1087 · `152a4a35b5` (retargeted to main, rebased) | Production baseline: `/results` tablist 5 tab stops, NFL explorer 12. Local unit, build, post-build and e2e running | AWAITING CI + local → package |
-| Live Hub V2 + Thursday plan | #1082 (draft) · `a2cd96d4a7` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
-| MLB stamp-only gate | #1088 (draft) · `dc70be2dc9` | Deploy trigger now builds on publication-SLO public-field moves for every workflow (8 previously delayed in 10 days). Forecast of record identical for 21/21 games. Results and settlement never gated. **Conservative ≈ $0.75/day net (estimate).** | PROPOSAL (protected workflows) |
-| Data-contract checks | #1089 (draft) · `3764831178` | Scheduled main check (CI green) plus a phase-2 staged-path contract check in data lanes, about 7 s, never blocks data. Replay of today's VOID break: fails in 7.1 s naming the test. Wired into `ufc-post-card` only | PROPOSAL (protected workflows) |
+| Live Hub V2 + Thursday plan | #1082 (draft, base main) · `420c5c3b9a` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
+| MLB stamp-only gate | #1088 (draft) · `39cdec11c9` | Deploy trigger now builds on publication-SLO public-field moves for every workflow (8 previously delayed in 10 days). Forecast of record identical for 21/21 games. Results and settlement never gated. **Conservative ≈ $0.75/day net (estimate).** | PROPOSAL (protected workflows) |
+| Data-contract checks | #1089 (draft) · `b1495fda0f` | Scheduled main check (CI green) plus a phase-2 staged-path contract check in data lanes, about 7 s, never blocks data. Replay of today's VOID break: fails in 7.1 s naming the test. Wired into `ufc-post-card` only | PROPOSAL (protected workflows) |
+| 503 bodies name no config variables | #1090 · new | Production `/api/slip-read` 503 lists its missing variable names (names, not values). Generic public reason; names kept for tests and logs. 145/145 | AWAITING CI → founder approval |
 | MLB-001 simulation audit | #1086 · `4e7287913d` | Research (descriptive) | Docs only; AWAITING FOUNDER APPROVAL |
 | Parity test vs UFC VOID row | merged with #1081 | `main` green again (main CI on `5917475b53`) | **COMPLETED** |
 
@@ -1809,11 +1810,11 @@ The "10 bouts from 2026-09-26 awaiting results" line was a mislabel: 1 withdrawn
 
 **Slip reading:** off in Production (`/api/slip-read` returns 503: service key not configured). `ANTHROPIC_API_KEY` is evidently set, so adding the service key would switch on a paid path outside the Ask spending cap.
 
-#### October 20 launch-readiness matrix (2026-10-14 15:55Z; updated 20:45Z)
+#### October 20 launch-readiness matrix (2026-10-14 15:55Z; updated 22:30Z)
 | Area | Status | Blocks launch? |
 |---|---|---|
 | Legal publication (Privacy/Terms) | Drafts only (#1077, green). Operator, state, minimum age, effective date and counsel approval records are all missing | **YES**, while accounts are enabled |
-| Account security tests | Battery runs in CI on #1084 (tests 82–84 PASS); 15/15 injected defects caught locally. The hosted Supabase project is not verified | Recommended before launch: one hosted `--hosted` run (founder authorization) |
+| Account security tests | Live battery runs on every main CI (merged #1084; 82–84 PASS on main). The hosted Supabase project is still not verified | Recommended before launch: one hosted `--hosted` run (founder authorization) |
 | NFL live validation | Plan in #1082: 23 checks for SEA@DEN `401872995`, Thu Oct 15 8:15 PM ET = 2026-10-16T00:15Z, identity verified. Capture scheduled; not yet run | Required before freeze-exit UAT |
 | MLB feed / schedule freshness | 10/14 artifacts present; chain runs green; scheduled crons run 4–9h late | No |
 | UFC grading and bout identity | Void correct; withdrawn correct; message and key fixes in #1085 | No (#1085 recommended) |
