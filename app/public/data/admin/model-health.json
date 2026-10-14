@@ -2,11 +2,11 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-10-13T17:11:57Z",
+ "generatedAt": "2026-10-14T09:29:57Z",
  "worst": "BREACHED",
  "counts": {
-  "INSUFFICIENT_SAMPLE": 7,
-  "HOLDING": 8,
+  "INSUFFICIENT_SAMPLE": 6,
+  "HOLDING": 9,
   "WATCH": 3,
   "BREACHED": 4
  },
@@ -22,20 +22,20 @@
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 771,
+   "n": 772,
    "judgement": {
     "state": "BREACHED",
-    "n": 771,
+    "n": 772,
     "needed": 200,
     "meanDiff": 0.035,
-    "lo95": 0.018,
-    "hi95": 0.0532
+    "lo95": 0.0168,
+    "hi95": 0.0533
    },
    "context": {
-    "hitRate": 0.4903,
-    "meanPickProbability": 0.587,
-    "modelMinusMarket": 0.0343,
-    "pairedWithMarket": 771
+    "hitRate": 0.4896,
+    "meanPickProbability": 0.5869,
+    "modelMinusMarket": 0.0344,
+    "pairedWithMarket": 772
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -53,7 +53,7 @@
    "label": "NFL blind forward test · reception yds",
    "baseline": "its preregistered forward bars",
    "state": "BREACHED",
-   "n": 586,
+   "n": 769,
    "judgement": {
     "receiptState": "FORWARD_BREACHED",
     "bars": {
@@ -79,7 +79,7 @@
    "label": "NFL blind forward test · rush yds",
    "baseline": "its preregistered forward bars",
    "state": "BREACHED",
-   "n": 323,
+   "n": 419,
    "judgement": {
     "receiptState": "FORWARD_BREACHED",
     "bars": {
@@ -87,7 +87,7 @@
      "beatsShareVolume": true,
      "coverage80": true,
      "thresholdCalibration": false,
-     "level": false
+     "level": true
     },
     "needed": null
    },
@@ -157,20 +157,20 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 814,
+   "n": 815,
    "judgement": {
     "state": "WATCH",
-    "n": 814,
+    "n": 815,
     "needed": 200,
-    "meanDiff": 0.0063,
-    "lo95": -0.0056,
-    "hi95": 0.0192
+    "meanDiff": 0.0065,
+    "lo95": -0.0058,
+    "hi95": 0.0187
    },
    "context": {
-    "hitRate": 0.5135,
+    "hitRate": 0.5129,
     "meanPickProbability": 0.5719,
-    "modelMinusMarket": 0.0307,
-    "pairedWithMarket": 809
+    "modelMinusMarket": 0.031,
+    "pairedWithMarket": 810
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -364,12 +364,35 @@
    }
   },
   {
+   "id": "nfl_forward_anytime_td",
+   "sport": "nfl",
+   "label": "NFL blind forward test · anytime td",
+   "baseline": "its preregistered forward bars",
+   "state": "HOLDING",
+   "n": 1018,
+   "judgement": {
+    "receiptState": "FORWARD_HOLDING",
+    "bars": {
+     "calibration": true,
+     "level": true
+    },
+    "needed": null
+   },
+   "context": null,
+   "source": "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json",
+   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board.",
+   "bar": {
+    "verdict": "OWN_RECEIPT",
+    "reason": "judged by its own preregistered forward receipt (state above)"
+   }
+  },
+  {
    "id": "nfl_forward_player_receptions",
    "sport": "nfl",
    "label": "NFL blind forward test · receptions",
    "baseline": "its preregistered forward bars",
    "state": "HOLDING",
-   "n": 586,
+   "n": 769,
    "judgement": {
     "receiptState": "FORWARD_HOLDING",
     "bars": {
@@ -723,20 +746,20 @@
    "label": "MLB run line posted picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 4,
+   "n": 5,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 4,
+    "n": 5,
     "needed": 200,
-    "meanDiff": -0.0521,
+    "meanDiff": 0.0883,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "hitRate": 0.5,
-    "meanPickProbability": 0.5922,
-    "modelMinusMarket": 0.0136,
-    "pairedWithMarket": 4
+    "hitRate": 0.4,
+    "meanPickProbability": 0.6216,
+    "modelMinusMarket": 0.0802,
+    "pairedWithMarket": 5
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -749,32 +772,12 @@
    }
   },
   {
-   "id": "nfl_forward_anytime_td",
-   "sport": "nfl",
-   "label": "NFL blind forward test · anytime td",
-   "baseline": "its preregistered forward bars",
-   "state": "INSUFFICIENT_SAMPLE",
-   "n": 782,
-   "judgement": {
-    "receiptState": "ACCUMULATING",
-    "bars": null,
-    "needed": 1000
-   },
-   "context": null,
-   "source": "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json",
-   "note": "Preregistered: a FORWARD_BREACHED family already falls back automatically on the public board.",
-   "bar": {
-    "verdict": "OWN_RECEIPT",
-    "reason": "judged by its own preregistered forward receipt (state above)"
-   }
-  },
-  {
    "id": "nfl_forward_player_pass_yds",
    "sport": "nfl",
    "label": "NFL blind forward test · pass yds",
    "baseline": "its preregistered forward bars",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 98,
+   "n": 129,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "bars": null,
@@ -790,6 +793,14 @@
   }
  ],
  "changes": [
+  {
+   "id": "nfl_forward_anytime_td",
+   "sport": "nfl",
+   "label": "NFL blind forward test · anytime td",
+   "from": "INSUFFICIENT_SAMPLE",
+   "to": "HOLDING",
+   "at": "2026-10-14T09:29:57Z"
+  },
   {
    "id": "nfl_player_pass_yds",
    "sport": "nfl",
