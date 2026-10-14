@@ -3,15 +3,15 @@
  "artifact": "forward-coverage",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-10-14",
- "generatedAt": "2026-10-14T13:58:08Z",
+ "generatedAt": "2026-10-14T14:58:10Z",
  "sources": {
   "eplFixturesCapture": "capture-2026-27-2026-10-13T0055.json",
   "eplOddsCapturedAt": "2026-10-12T00:25:05Z",
   "eplForecastDays": 314,
   "ufcCardGeneratedAt": "2026-10-13T18:02:41Z",
-  "nflIndexGeneratedAt": "2026-10-14T00:10:12Z"
+  "nflIndexGeneratedAt": "2026-10-14T14:31:16Z"
  },
- "derivedAtMs": 1791986288000,
+ "derivedAtMs": 1791989890000,
  "sports": [
   {
    "sport": "epl",
@@ -136,17 +136,37 @@
      "refusalPublished": false,
      "frozen": false,
      "started": false
+    },
+    {
+     "eventId": "soccer:epl:arsenal-v-everton:20261024t1400",
+     "label": "Arsenal vs Everton",
+     "startUtc": "2026-10-24T14:00:00Z",
+     "priced": true,
+     "generated": false,
+     "refusalPublished": false,
+     "frozen": false,
+     "started": false
+    },
+    {
+     "eventId": "soccer:epl:coventry-city-v-fulham:20261024t1400",
+     "label": "Coventry City vs Fulham",
+     "startUtc": "2026-10-24T14:00:00Z",
+     "priced": true,
+     "generated": false,
+     "refusalPublished": false,
+     "frozen": false,
+     "started": false
     }
    ],
    "counts": {
-    "scheduled": 12,
-    "priced": 12,
+    "scheduled": 14,
+    "priced": 14,
     "generated": 10,
     "frozen": 0,
     "started": 0
    },
    "findings": [
-    "GENERATION_PENDING:2 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
+    "GENERATION_PENDING:4 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
    ]
   },
   {
@@ -425,17 +445,27 @@
      "frozen": false,
      "started": false,
      "seasonType": 2
+    },
+    {
+     "eventId": "401873010",
+     "label": "NE @ CHI",
+     "startUtc": "2026-10-23T00:15Z",
+     "priced": true,
+     "generated": false,
+     "frozen": false,
+     "started": false,
+     "seasonType": 2
     }
    ],
    "counts": {
-    "scheduled": 14,
-    "priced": 14,
+    "scheduled": 15,
+    "priced": 15,
     "generated": 0,
     "frozen": 0,
     "started": 0
    },
    "findings": [
-    "MODEL_ABSENT_BY_DECISION:14 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+    "MODEL_ABSENT_BY_DECISION:15 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
    ]
   },
   {
