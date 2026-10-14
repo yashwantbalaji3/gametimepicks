@@ -494,8 +494,9 @@ function nflSection(date: string, today: string): SportDaySection {
  * window opens a day back so a game that has already tipped stays on its own date instead of vanishing.
  */
 function nbaCapturedEvents(date: string, today: string): UpcomingSection | undefined {
-  const now = Date.now();
-  const since = date === today ? new Date(now - 86_400_000).toISOString() : new Date(now).toISOString();
+  /* Review fix: for today AND past dates in the window the read opens before the date itself (callers filter by ET
+     day), so a date whose games have tipped still lists them instead of reading "No NBA games on this date". */
+  const since = date <= today ? new Date(Date.parse(`${date}T00:00:00Z`) - 12 * 3_600_000).toISOString() : new Date().toISOString();
   return nbaUpcoming({ nowIso: since, displayCap: Infinity }) as UpcomingSection;
 }
 

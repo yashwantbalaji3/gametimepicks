@@ -159,3 +159,16 @@ test("GTP-11: every captured NBA date in the window is selectable, and a gameles
     assert.match(nba.note, /^No NBA games on this date/);
   }
 });
+
+test("GTP-11 review fix: a past date keeps its NBA games (it never reads 'No NBA games' for a played slate)", async () => {
+  const { buildSimulateDay } = await import("./day-view.ts");
+  const { currentEtDate } = await import("../freshness.ts");
+  const fs = await import("node:fs");
+  const capture = JSON.parse(fs.readFileSync("public/data/nba/schedule/latest.json", "utf8"));
+  const today = currentEtDate();
+  const etDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+  const past = [...new Set(capture.rows.map((r) => etDay(r.dateUtc)))].filter((d) => d < today).sort().at(-1);
+  if (!past) return;
+  const nba = buildSimulateDay(past, { today }).sections.find((s) => s.sport === "nba");
+  assert.ok(nba.events.length > 0, `${past} had NBA games in the capture`);
+});

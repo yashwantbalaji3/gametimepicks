@@ -60,6 +60,18 @@ export function logLossVerdict(f: HealthFamily | undefined, floor: string): stri
   return `Measured by log loss (lower is better) over ${f.n} graded: ${(base + d).toFixed(3)} for this call against ${base.toFixed(3)} for ${floor}, a difference of ${signed(d)} (${interval}). ${reading}`;
 }
 
+/**
+ * GTP-22 review fix: a WATCH headline must agree with its own detail line. `healthState` reports a BREACHED
+ * family as WATCH whenever the gate is not pausing it (a stale scorecard, or a family the gate does not
+ * cover) — and "not yet distinguishable" above "the whole interval is above zero: worse" is a contradiction.
+ * The headline reads the same interval the detail does.
+ */
+export function watchHeadline(f: HealthFamily | undefined, floor: string): string {
+  const lo = f?.judgement?.lo95;
+  if (f?.state === "BREACHED" || (typeof lo === "number" && lo > 0)) return `Watch · clearly behind ${floor}, not paused`;
+  return `Watch · not yet distinguishable from ${floor}`;
+}
+
 function liveRecordDetail(f: HealthFamily | undefined, floor: string): string {
   if (!f) return "The health scorecard could not be read at build time.";
   const n = f.n ?? 0;
@@ -94,7 +106,7 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
       // …but it DOES inherit v1's restrictions (live-record-gate POSTED_RUN_LINE_INHERITS_V1_RESTRICTIONS).
       const inheritedHold = id === MLB_RUN_LINE_POSTED_FAMILY && runLinePaused({ basis: "POSTED_LINE" }, paused) && !paused.has(id);
       const state = inheritedHold ? "PAUSED" : healthState(f, paused);
-      const headline = inheritedHold ? "Paused · held by the earlier run-line record" : state === "PAUSED" ? "Paused · below a coin flip" : state === "WATCH" ? "Watch · not yet distinguishable from a coin flip" : state === "HOLDING" ? "Holding its record" : state === "TOO_EARLY" ? "Too early to judge" : "Status unknown";
+      const headline = inheritedHold ? "Paused · held by the earlier run-line record" : state === "PAUSED" ? "Paused · below a coin flip" : state === "WATCH" ? watchHeadline(f, "a coin flip") : state === "HOLDING" ? "Holding its record" : state === "TOO_EARLY" ? "Too early to judge" : "Status unknown";
       const detail = inheritedHold
         ? `The earlier run-line call's record is below ${floor}, and posted-line calls stay held with it until their own record justifies showing them. ${liveRecordDetail(f, floor)}`
         : liveRecordDetail(f, floor);
@@ -138,7 +150,7 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
           : "The live model was fit and judged on recent seasons only; no blind historical test backs it.", null, "soccer/epl/forecasts/latest.json"),
       item("epl_forward", "Forward test", fwdState, !receipt ? "Status unknown" : fwdState === "FORWARD_TEST" ? `Forward test · ${receipt.n ?? 0} of ${receipt.needed ?? 60} matches` : fwdState === "PAUSED" ? "Previous model publishing again" : fwdState === "WATCH" ? "Watch · behind the model it replaced" : "Holding against the model it replaced",
         receipt ? `Every graded match scores the live model beside the one it replaced. A verdict needs ${receipt.needed ?? 60} matches; ${receipt.n ?? 0} are in.` : "The forward receipt could not be read at build time.", receipt?.n ?? null, "epl/forward/receipt.json"),
-      item("epl_result", "Live record", healthState(live, paused), live ? (live.state === "INSUFFICIENT_SAMPLE" ? "Too early to judge" : live.state === "HOLDING" ? "Holding against even odds" : "Watch · not yet distinguishable from even odds") : "Status unknown",
+      item("epl_result", "Live record", healthState(live, paused), live ? (live.state === "INSUFFICIENT_SAMPLE" ? "Too early to judge" : live.state === "HOLDING" ? "Holding against even odds" : watchHeadline(live, "even odds")) : "Status unknown",
         live ? liveRecordDetail(live, "even odds") : "The health scorecard could not be read at build time.", live?.n ?? null, HEALTH),
     ];
   }
@@ -162,7 +174,7 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
   return [
     item("ufc_model", "Fight model", passed == null ? "UNKNOWN" : passed ? "VALIDATED" : "EXPERIMENTAL", passed == null ? "Status unknown" : passed ? "Backtest passed on held-out fights" : "Backtest did not clear its bars",
       passed == null ? "The card artifact carries no model verdicts." : passed ? ufcEvidence : "One or more heads missed their preregistered bar; see the card for which.", null, "ufc/card-latest.json"),
-    item("ufc_winner", "Live record", healthState(live, paused), live ? (live.state === "INSUFFICIENT_SAMPLE" ? "Too early to judge" : live.state === "HOLDING" ? "Holding against a coin flip" : "Watch · not yet distinguishable from a coin flip") : "Status unknown",
+    item("ufc_winner", "Live record", healthState(live, paused), live ? (live.state === "INSUFFICIENT_SAMPLE" ? "Too early to judge" : live.state === "HOLDING" ? "Holding against a coin flip" : watchHeadline(live, "a coin flip")) : "Status unknown",
       live ? liveRecordDetail(live, "a coin flip") : "The health scorecard could not be read at build time.", live?.n ?? null, HEALTH),
   ];
 }

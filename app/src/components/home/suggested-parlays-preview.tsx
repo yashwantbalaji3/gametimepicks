@@ -16,11 +16,14 @@ import { etStamp } from "@/lib/et-stamp.mjs";
  * "lane evaluation of record refused (CAPABILITY_GATED) at 2026-10-13T18:03:34Z; …". The reader gets a
  * sentence; the exact reason stays one click away, with any instant shown in ET. Same fact, two depths.
  */
-export function plainLaneReason(reason: string): string {
+export function plainLaneReason(reason: string, lane?: string): string {
+  /* Review fix: the cross-sport lane's reason of record is often a bare "refused (NOT_ELIGIBLE)" — it is closed
+     because fewer than two sports are open, which is decided by the lane, not by the code. */
+  if (lane === "multi" || /two live sports|cross-sport card needs/.test(reason)) return "a mixed-sport card needs two sports open today";
   if (/CAPABILITY_GATED|not cleared to (publish|show)|SCAFFOLD_ONLY/.test(reason)) return "this sport isn't cleared to publish model cards yet";
-  if (/two live sports|cross-sport card needs/.test(reason)) return "a mixed-sport card needs two sports open today";
-  if (/NOT_ELIGIBLE|priced game|price capture|days old/.test(reason)) return "not enough current sportsbook prices to build a card today";
+  if (/priced game|price capture|days old/.test(reason)) return "not enough current sportsbook prices to build a card today";
   if (/grader|settle/i.test(reason)) return "no official grading path for this sport's cards yet";
+  if (/NOT_ELIGIBLE/.test(reason)) return "not eligible today";
   return "no card is offered today";
 }
 export const readableReason = (reason: string): string =>
@@ -44,6 +47,8 @@ export interface PreviewClosedLane {
   lane: string;
   label: string;
   reason: string;
+  /** The gate's unclipped reason, for the details disclosure. */
+  fullReason?: string;
 }
 
 export interface SuggestedParlaysPreviewProps {
@@ -169,7 +174,7 @@ export default function SuggestedParlaysPreview({ live, closed, tierIntent, toda
           {closed.map((c, i) => (
             <span key={c.lane}>
               {i > 0 ? " · " : ""}
-              <strong style={{ fontWeight: 600 }}>{c.label}</strong> closed — {plainLaneReason(c.reason)}
+              <strong style={{ fontWeight: 600 }}>{c.label}</strong> closed — {plainLaneReason(c.fullReason ?? c.reason, c.lane)}
             </span>
           ))}
         </p>
@@ -178,7 +183,7 @@ export default function SuggestedParlaysPreview({ live, closed, tierIntent, toda
         <details style={{ fontSize: 11.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
           <summary style={{ cursor: "pointer" }}>Why each lane is closed (details)</summary>
           <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
-            {closed.map((c) => <li key={c.lane}><strong style={{ fontWeight: 600 }}>{c.label}:</strong> {readableReason(c.reason)}</li>)}
+            {closed.map((c) => <li key={c.lane}><strong style={{ fontWeight: 600 }}>{c.label}:</strong> {readableReason(c.fullReason ?? c.reason)}</li>)}
           </ul>
         </details>
       ) : null}

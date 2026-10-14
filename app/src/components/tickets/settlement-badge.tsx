@@ -19,7 +19,7 @@ export function normalizeLegResult(result?: string | null, settlementStatus?: st
 export default function SettlementBadge({
   result, official, className = "",
 }: { result: LegResult; official?: string | null; className?: string }) {
-  const status = result === "hit" ? "hit" : result === "miss" ? "miss" : result === "void" ? "void" : "pending";
+  const status = result === "hit" ? "hit" : result === "miss" ? "miss" : result === "void" ? "void" : result === "graded" ? "card_decided" : "pending";
   return (
     <span className={`inline-flex flex-col items-end gap-0.5 ${className}`}>
       <StatusPill status={status} />

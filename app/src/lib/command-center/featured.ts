@@ -195,7 +195,8 @@ export function featuredEpl(input: FeaturedInput & { set: EplForecastSet | null 
  */
 export function eplEmptyReason(set: EplForecastSet, nowIso: string): string {
   if (!set.rows.length) return "No fixture carries a current forecast yet.";
-  const pregame = forecastRows(set).filter((r) => lifecycleOf(r.kickoffUtc, nowIso) === "PREGAME");
+  /* Model-only rows only: a priced row that was skipped for another reason is not "no sportsbook price yet". */
+  const pregame = forecastRows(set).filter((r) => r.state === "READY_EXCEPT_ODDS" && r.modelOnly && lifecycleOf(r.kickoffUtc, nowIso) === "PREGAME");
   if (pregame.length) {
     const n = pregame.length;
     return `${n} upcoming fixture${n === 1 ? " has" : "s have"} a model forecast but no sportsbook price yet, so none is featured here. ${n === 1 ? "It is" : "They are"} on the Premier League page.`;

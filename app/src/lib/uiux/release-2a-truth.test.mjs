@@ -10,7 +10,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-import { logLossVerdict } from "../command-center/model-status.ts";
+import { logLossVerdict, watchHeadline } from "../command-center/model-status.ts";
 import { PUBLIC_STATE_MEANING } from "../command-center/contract.ts";
 import { plainLaneReason, readableReason } from "../../components/home/suggested-parlays-preview.tsx";
 import { isAnomalyLean } from "../mlb/lean-anomaly.ts";
@@ -115,4 +115,24 @@ test("GTP-09: UFC schedule rows are named cards, never anonymous 'UFC event' row
       if (e.state === "SCHEDULE_ONLY") assert.doesNotMatch(e.stateReason ?? "", /published closer to fight night/);
     }
   }
+});
+
+/* ── Independent-review fixes (2026-10-14, before merge) ─────────────────────────────────────────── */
+
+test("review #1: a WATCH headline agrees with its own interval (stale scorecard ⇒ BREACHED shown as WATCH)", () => {
+  assert.equal(watchHeadline({ state: "BREACHED", judgement: { lo95: 0.018, hi95: 0.053 } }, "a coin flip"), "Watch · clearly behind a coin flip, not paused");
+  assert.equal(watchHeadline({ state: "WATCH", judgement: { lo95: -0.006, hi95: 0.019 } }, "a coin flip"), "Watch · not yet distinguishable from a coin flip");
+  assert.equal(watchHeadline({ state: "WATCH", judgement: { lo95: 0.002, hi95: 0.02 } }, "even odds"), "Watch · clearly behind even odds, not paused");
+});
+
+test("review #2: the cross-sport lane is never described as short of prices; a bare NOT_ELIGIBLE claims nothing specific", () => {
+  assert.equal(plainLaneReason("lane evaluation of record refused (NOT_ELIGIBLE) at 2026-10-13T00:56:17Z", "multi"), "a mixed-sport card needs two sports open today");
+  assert.equal(plainLaneReason("lane evaluation of record refused (NOT_ELIGIBLE) at 2026-10-13T00:56:17Z", "nfl"), "not eligible today");
+  assert.match(src("src/lib/home/suggested-parlays.mjs"), /fullReason: row\.laneReason/);
+});
+
+test("review #4: a leg under a graded card reads 'Card decided', never 'Settled' or 'Pending'", () => {
+  assert.match(src("src/components/tickets/status-pill.tsx"), /card_decided: \{ label: "Card decided"/);
+  assert.match(src("src/components/tickets/leg-row.tsx"), /r === "graded" \? "card_decided"/);
+  assert.match(src("src/components/tickets/settlement-badge.tsx"), /result === "graded" \? "card_decided"/);
 });
