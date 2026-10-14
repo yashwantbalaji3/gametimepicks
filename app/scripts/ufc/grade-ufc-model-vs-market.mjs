@@ -20,6 +20,7 @@ import { fileURLToPath } from "node:url";
 
 import { scorePreFightRows, boutKey, foldName } from "../../src/lib/sports/ufc/model-vs-market.mjs";
 import { loadOfficialUfcResults } from "../../src/lib/sports/ufc/official-results.mjs";
+import { reconcileCard } from "../../src/lib/sports/ufc/reconcile-card.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.join(APP, "..");
@@ -81,30 +82,28 @@ function decisiveLedgerRows() {
  * ledger is PENDING by name. A card where the three numbers do not add up is a broken join being
  * discovered, which is exactly when this block must not be quiet.
  */
+/* WITHDRAWN and the per-card reconciliation rule: src/lib/sports/ufc/reconcile-card.mjs (pure, unit-tested). */
 function reconcileEvents() {
   const frozenByEvent = new Map();
   for (const f of fs.readdirSync(DIR).filter((x) => /^snapshot-\d{12}\.json$/.test(x)).sort()) {
     let s; try { s = JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8")); } catch { continue; }
     const key = s?.event?.slateDate;
     if (!key) continue;
-    if (!frozenByEvent.has(key)) frozenByEvent.set(key, { name: s.event?.name ?? null, boutIds: new Set() });
-    for (const r of s.rows ?? []) if (r.boutId) frozenByEvent.get(key).boutIds.add(r.boutId);
+    if (!frozenByEvent.has(key)) frozenByEvent.set(key, { name: s.event?.name ?? null, boutIds: new Set(), startUtc: null, finalPreStart: null });
+    const ev = frozenByEvent.get(key);
+    for (const r of s.rows ?? []) if (r.boutId) ev.boutIds.add(r.boutId);
+    const start = Date.parse(s.event?.startUtc ?? "");
+    if (Number.isFinite(start)) ev.startUtc = s.event.startUtc;
+    // Snapshots are read oldest first, so the last pre-start one read is the final pre-start snapshot.
+    if (Number.isFinite(start) && Date.parse(s.capturedAt ?? "") < start) ev.finalPreStart = new Set((s.rows ?? []).map((r) => r.boutId).filter(Boolean));
   }
+  const nowMs = Date.parse(NOW);
   const ledger = fs.existsSync(LEDGER)
     ? fs.readFileSync(LEDGER, "utf8").split("\n").filter((l) => l.trim()).map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean)
     : [];
   const byId = new Map(ledger.map((r) => [r.boutId, r]));
-  return [...frozenByEvent.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([slateDate, ev]) => {
-    let graded = 0, voided = 0;
-    const pending = [];
-    for (const id of ev.boutIds) {
-      const row = byId.get(id);
-      if (!row) pending.push(id);
-      else if (row.void === true) voided += 1;
-      else graded += 1;
-    }
-    return { slateDate, event: ev.name, frozen: ev.boutIds.size, graded, void: voided, pending: pending.length, pendingBoutIds: pending, reconciles: ev.boutIds.size === graded + voided + pending.length };
-  });
+  return [...frozenByEvent.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([slateDate, ev]) =>
+    reconcileCard({ slateDate, name: ev.name, boutIds: ev.boutIds, startUtc: ev.startUtc, finalPreStart: ev.finalPreStart, ledgerById: byId, resultsByBout, nowMs }));
 }
 
 /*
@@ -118,7 +117,9 @@ function healSummaryCumulative() {
   const rows = decisiveLedgerRows();
   let existing = null;
   try { existing = JSON.parse(fs.readFileSync(path.join(DIR, "summary.json"), "utf8")); } catch { return; }
-  const shapeCurrent = existing?.cumulative?.n === rows.length && Array.isArray(existing?.reconciliation);
+  const freshReconciliation = reconcileEvents();
+  const shapeCurrent = existing?.cumulative?.n === rows.length && Array.isArray(existing?.reconciliation)
+    && JSON.stringify(existing.reconciliation) === JSON.stringify(freshReconciliation);
   if (rows.length === 0 || !existing || shapeCurrent) return;
   const mean = (f) => Number((rows.reduce((s, r) => s + f(r), 0) / rows.length).toFixed(6));
   existing.cumulative = {
@@ -126,7 +127,7 @@ function healSummaryCumulative() {
     model: { logLoss: mean((r) => r.model.logLoss), brier: mean((r) => r.model.brier), accuracy: mean((r) => (r.hit ? 1 : 0)) },
     market: { logLoss: mean((r) => r.market.logLoss), brier: mean((r) => r.market.brier) },
   };
-  existing.reconciliation = reconcileEvents();
+  existing.reconciliation = freshReconciliation;
   existing.generatedAt = NOW;
   fs.writeFileSync(path.join(DIR, "summary.json"), `${JSON.stringify(existing, null, 1)}\n`);
   console.log(`  summary cumulative healed: n=${rows.length} · model logLoss ${existing.cumulative.model.logLoss} vs market ${existing.cumulative.market.logLoss}`);
@@ -134,6 +135,20 @@ function healSummaryCumulative() {
 
 const pending = [...rowsByBout.values()].filter((r) => !already.has(r.boutId));
 const out = scorePreFightRows(pending, resultsByBout);
+
+/*
+ * A DRAW OR NO-CONTEST IS RECORDED AS VOID — EXACTLY ONCE (launch audit, 2026-10-13). scorePreFightRows always voided a
+ * no-winner bout, but only `out.graded` was ever appended, so a void was recomputed on every run and never recorded:
+ * the 2026-10-10 Kareckaite–Gatto draw stayed "pending" indefinitely. Void rows carry no score (no model/market log
+ * loss), so every decisive reader skips them; the Forecast Ledger adapter settles them VOID / NO_WINNER.
+ */
+if (out.voided.length) {
+  for (const v of out.voided) console.log(`  VOID ${v.boutId} — ${v.reason}`);
+  if (WRITE) {
+    fs.appendFileSync(LEDGER, out.voided.map(({ reason, ...v }) => JSON.stringify({ ...v, void: true, voidReason: reason, winner: null, hit: null, gradedAt: NOW })).join("\n") + "\n");
+    for (const v of out.voided) already.add(v.boutId);
+  }
+}
 
 console.log(`ufc model-vs-market grading: ${rowsByBout.size} snapshot bout(s) · ${already.size} already graded · ${out.n} newly graded · ${out.voided.length} void`);
 if (out.n === 0) {
