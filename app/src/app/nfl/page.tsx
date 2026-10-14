@@ -709,7 +709,7 @@ export default function NflHubPage() {
            Each row states the game's OWN state, so a settled preseason report is offered as what it
            is: a frozen pre-event forecast beside a played game, never a current read. */}
       {(forecastArtifact?.forecasts ?? []).length ? (
-        <MoreDisclosure title="Every forecast we published" summary="The twelve most recent game reports, each labelled upcoming or played.">
+        <MoreDisclosure title="Every forecast we published" summary="The twelve most recent game reports, each marked with where that game now stands.">
         <section aria-labelledby="nfl-reports" id="nfl-reports" className="scroll-mt-24">
           <SectionHeader
             eyebrow="Per-game reports"
