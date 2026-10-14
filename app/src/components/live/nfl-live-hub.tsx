@@ -24,10 +24,8 @@
  *   whether a touchdown has happened. "NO TD YET" is a statement about the present and is withheld
  *   rather than assumed.
  */
-import Link from "next/link";
 import { useMemo } from "react";
 
-import TeamLogo from "@/components/team-logo";
 import FollowedMark from "@/components/today/followed-mark";
 import { liveReadyFor } from "@/lib/live/client";
 import { derivePresentationState } from "@/lib/live/lifecycle.mjs";
@@ -38,6 +36,7 @@ import { liveRefreshPlan } from "@/lib/live/live-refresh-plan.mjs";
 import { rowFeedFor } from "@/lib/live/gateway-live-rows.mjs";
 import { NOT_ASKED, useLivePropsStore, useNowMs, type LivePropsState } from "./use-live-props";
 import { useLiveSlate } from "./use-live-slate";
+import LiveEventCard, { liveEtTime } from "./live-event-card";
 
 const SANS = "var(--font-display)";
 
@@ -63,38 +62,7 @@ function sectionFor(state: string): SectionKey {
   return "UPCOMING";
 }
 
-const CHIP: Record<string, { fg: string; border: string; bg: string }> = {
-  LIVE: { fg: "var(--vault-bg)", border: "var(--vault-success)", bg: "var(--vault-success)" },
-  DELAYED: { fg: "var(--vault-warn)", border: "var(--vault-warn)", bg: "transparent" },
-  PRE: { fg: "var(--vault-text-mute)", border: "var(--vault-border)", bg: "transparent" },
-  FINAL_PENDING_SETTLEMENT: { fg: "var(--vault-text-mute)", border: "var(--vault-border-strong)", bg: "transparent" },
-  SETTLED: { fg: "var(--vault-text-mute)", border: "var(--vault-border-strong)", bg: "transparent" },
-  POSTPONED: { fg: "var(--vault-warn)", border: "var(--vault-warn)", bg: "transparent" },
-  UNKNOWN: { fg: "var(--vault-text-mute)", border: "var(--vault-border)", bg: "transparent" },
-};
-
-function StateChip({ state, label }: { state: string; label: string }) {
-  const c = CHIP[state] ?? CHIP.UNKNOWN;
-  return (
-    <span style={{
-      fontFamily: SANS, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
-      color: c.fg, background: c.bg, border: `1px solid ${c.border}`,
-      borderRadius: 4, padding: "3px 8px", whiteSpace: "nowrap",
-    }}>{label}</span>
-  );
-}
-
-const etTime = (iso: string | null) => {
-  if (!iso) return null;
-  const t = Date.parse(iso);
-  if (!Number.isFinite(t)) return null;
-  /* Weekday + time in a FIXED zone from the schedule fact — identical on the server and in any reader's
-     browser, so it can never cause a hydration mismatch (no "tonight", which needs a reader clock). */
-  const d = new Date(t);
-  const day = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short" }).format(d);
-  const time = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit", hour12: true }).format(d);
-  return `${day} · ${time} ET`;
-};
+const etTime = liveEtTime;
 
 /**
  * `Q1 · 7:27`. Built from the STRUCTURED period fields, never by decorating the label.
@@ -122,22 +90,6 @@ const LIVE_SOURCE_LABEL: Record<string, string> = { "espn-nfl-summary": "ESPN pu
 
 /** The card's lifecycle state → the tracker's phase, through the owner's explicit table. */
 const gamePhaseOf = (state: string) => gamePhaseForLifecycle(state);
-
-function TeamRow({ abbr, name, score, sport = "nfl" as const }: { abbr: string; name: string; score: number | null; sport?: "nfl" }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "4px 0", minWidth: 0 }}>
-      <TeamLogo team={abbr} sport={sport} size="md" />
-      {/* The full club name wraps rather than truncating: "Washington Commanders" is the fact, "Washington Comm…" is not. */}
-      <span style={{ fontFamily: SANS, fontSize: 16, fontWeight: 600, lineHeight: 1.2, color: "var(--vault-text)", flex: 1, minWidth: 0, overflowWrap: "anywhere" }}>
-        {name}
-      </span>
-      <span style={{ fontFamily: SANS, fontSize: 26, fontWeight: 700, lineHeight: 1, fontVariantNumeric: "tabular-nums", color: score === null ? "var(--vault-text-faint)" : "var(--vault-text)", flexShrink: 0, minWidth: 28, textAlign: "right" }}>
-        {/* An absent score is an em dash. A 0 before kickoff would be a score nobody reported. */}
-        {score === null ? "—" : score}
-      </span>
-    </div>
-  );
-}
 
 /**
  * Exported so the internal state fixture renders the REAL card rather than a mock of it.
@@ -185,24 +137,24 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
     (when ? ` ${when}.` : "") +
     ` ${total} GameTimePicks forecasts, each frozen before kickoff.`;
 
+  /* LIVE-F: the shared LiveEventCard (one chip, one time string, logo + full-name rows, a visible report link)
+     — the same shell the MLB card uses. */
   return (
-    <li style={{ listStyle: "none" }}>
-      <div style={{
-        border: "1px solid var(--vault-border)", borderRadius: 12,
-        background: "var(--vault-panel)", padding: "16px 18px 12px",
-      }}>
-        <span className="sr-only">{spoken}</span>
-        {/* One lifecycle chip, one time string — never the provider's label AND a clock. */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-          <StateChip state={state} label={label} />
-          <FollowedMark entities={[game.awayRef, game.homeRef].filter((r): r is NonNullable<typeof r> => r !== null)} />
-          {when ? <span style={{ marginLeft: "auto", fontFamily: SANS, fontSize: 13, fontWeight: 600, fontVariantNumeric: "tabular-nums", color: started ? "var(--vault-text)" : "var(--vault-text-mute)" }}>{when}</span> : null}
-        </div>
-
-        <div aria-hidden="true">
-          <TeamRow abbr={game.awayAbbr} name={game.awayTeam} score={away} />
-          <TeamRow abbr={game.homeAbbr} name={game.homeTeam} score={home} />
-        </div>
+    <LiveEventCard
+      spoken={spoken}
+      state={state}
+      label={label}
+      when={when}
+      started={started}
+      sport="nfl"
+      away={{ abbr: game.awayAbbr, name: game.awayTeam, score: away }}
+      home={{ abbr: game.homeAbbr, name: game.homeTeam, score: home }}
+      marks={<FollowedMark entities={[game.awayRef, game.homeRef].filter((r): r is NonNullable<typeof r> => r !== null)} />}
+      /* V2D · View all = the game report's own player board, grouped by family. The anchor only when featured
+         rows exist: those imply a PUBLISHED family, which is exactly when the game page renders #player-board. */
+      reportHref={`/nfl/game/${game.providerEventId}/${shown.length > 0 ? "#player-board" : ""}`}
+      reportLabel={total > shown.length ? `View all ${total} forecasts` : "Open game report"}
+    >
 
         {shown.length === 0 ? (
           <p style={{ fontFamily: SANS, fontSize: 12, color: "var(--vault-text-faint)", margin: "14px 0 0" }}>
@@ -239,18 +191,7 @@ export function NflGameCard({ game, envelope, state, label, liveProps = NOT_ASKE
             </ul>
           </>
         )}
-
-        <p style={{ margin: "10px 0 0" }}>
-          {/* V2D · View all = the game report's own player board, grouped by family (Combined + one tab per
-              published family) — the existing detail mechanism, so a collapsed card carries no hidden rows. */}
-          {/* The anchor only when featured rows exist: those imply a PUBLISHED family, which is exactly when
-              the game page renders its #player-board section — an in-page anchor must resolve. */}
-          <Link href={`/nfl/game/${game.providerEventId}/${shown.length > 0 ? "#player-board" : ""}`} style={{ fontFamily: SANS, fontSize: 13, fontWeight: 600, color: "var(--vault-accent)", textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: 44 }}>
-            {total > shown.length ? `View all ${total} forecasts →` : "Game forecasts →"}
-          </Link>
-        </p>
-      </div>
-    </li>
+    </LiveEventCard>
   );
 }
 

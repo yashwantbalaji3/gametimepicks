@@ -45,6 +45,10 @@ export interface PowerBoardShellProps {
   mainBoardHref: string;
   /** Label inside the CTA. */
   mainBoardLabel: string;
+  /** GTP-25: where the CURRENT model for this market lives, when it is not this page. Shown first. */
+  liveHref?: string;
+  liveLabel?: string;
+  liveNote?: string;
 }
 
 const ACCENT_COLOR: Record<NonNullable<PowerBoardShellProps["accent"]>, string> = {
@@ -70,6 +74,9 @@ export default function PowerBoardShell({
   whySeparate,
   mainBoardHref,
   mainBoardLabel,
+  liveHref,
+  liveLabel,
+  liveNote,
 }: PowerBoardShellProps) {
   const c = ACCENT_COLOR[accent];
   const glow = ACCENT_GLOW[accent];
@@ -166,6 +173,18 @@ export default function PowerBoardShell({
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
+            {liveNote && liveHref ? (
+              <p className="m-0 text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", flexBasis: "100%" }}>{liveNote}</p>
+            ) : null}
+            {liveHref && liveLabel ? (
+              <Link
+                href={liveHref}
+                className="vault-glow-hover inline-flex items-center gap-2 rounded-[3px] font-mono"
+                style={{ minHeight: 44, padding: "10px 14px", border: `1px solid ${c}`, background: c, color: "var(--vault-on-accent-deep)", textDecoration: "none", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 700 }}
+              >
+                {liveLabel} →
+              </Link>
+            ) : null}
             <Link
               href={mainBoardHref}
               className="vault-glow-hover inline-flex items-center gap-2 rounded-[3px] font-mono"

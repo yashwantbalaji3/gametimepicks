@@ -356,10 +356,11 @@ export default function MlbResultsPage() {
           scratch, etc.) the row is marked <span style={{ color: "var(--vault-text)" }}>
             actual unavailable
           </span>{" "}
-          and excluded from the decisive denominator. Home-run markets
-          live on the separate{" "}
-          <Link href="/mlb/power" style={{ color: "var(--vault-warn)" }}>
-            Power Board
+          and excluded from the decisive denominator. Home-run probabilities
+          live on{" "}
+          {/* GTP-25: the Power Board is a placeholder; the live home-run model is Homer Nukes. */}
+          <Link href="/homer-nukes" style={{ color: "var(--vault-warn)" }}>
+            Homer Nukes
           </Link>
           .
         </div>

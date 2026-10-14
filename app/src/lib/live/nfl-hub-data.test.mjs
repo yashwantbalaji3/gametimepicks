@@ -147,7 +147,9 @@ test("the hub states no outcome before canonical settlement, and a touchdown onl
 });
 
 test("an absent score renders as an em dash, never as a zero", () => {
-  const src = code("src/components/live/nfl-live-hub.tsx");
+  /* LIVE-F: the score row is the shared LiveEventCard's; the NFL hub renders it. */
+  assert.match(code("src/components/live/nfl-live-hub.tsx"), /<LiveEventCard/);
+  const src = code("src/components/live/live-event-card.tsx");
   assert.match(src, /score === null \? "—" : score/, "a missing score is an em dash");
   /* And a missing measurement renders a dash, never a zero — the zero is reserved for a measured 0. */
   const row = code("src/components/live/featured-forecast-row.tsx");

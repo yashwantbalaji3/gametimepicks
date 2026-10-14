@@ -208,7 +208,7 @@ export function eplEmptyReason(set: EplForecastSet, nowIso: string): string {
 }
 
 /* ── UFC: the card's main event with a model read ───────────────────────────────────────────────────────────── */
-export type UfcBout = { boutId: string; titleFight?: boolean; startUtc?: string | null; weightClass?: string | null; red: { name: string }; blue: { name: string }; prediction: { winner: { name: string; probability: number } | null; method?: { most?: string; probabilities?: Record<string, number> } | null; rounds?: { endsIn?: string } | null; reason?: string | null } | null; unmodelledReason?: string | null };
+export type UfcBout = { boutId: string; titleFight?: boolean; startUtc?: string | null; weightClass?: string | null; red: { name: string; photoUrl?: string | null }; blue: { name: string; photoUrl?: string | null }; prediction: { winner: { name: string; probability: number } | null; method?: { most?: string; probabilities?: Record<string, number> } | null; rounds?: { endsIn?: string } | null; reason?: string | null } | null; unmodelledReason?: string | null };
 export type UfcCardDoc = { event?: { name?: string; startUtc?: string; boutCount?: number }; bouts?: UfcBout[] };
 /** The UFC card for one bout the model read, on the card it belongs to. */
 export function cardFromUfcBout(main: UfcBout, card: UfcCardDoc, ctx: CardContext): PredictionCardModel {
@@ -220,7 +220,8 @@ export function cardFromUfcBout(main: UfcBout, card: UfcCardDoc, ctx: CardContex
   return {
     id: `ufc-${main.boutId}`, sport: "ufc", href: `/ufc/bout/${main.boutId}/`, lifecycle: lifecycleOf(start, ctx.nowIso), startUtc: start, startLabel: startLabelOf(start),
     context: [card.event?.name ?? null, ufcBoutPlacement(main, card)].filter(Boolean).join(" · ") || null,
-    away: { name: main.red.name, code: null, favoured: w.name === main.red.name }, home: { name: main.blue.name, code: null, favoured: w.name === main.blue.name },
+    away: { name: main.red.name, code: null, favoured: w.name === main.red.name, imageUrl: main.red.photoUrl ?? null },
+    home: { name: main.blue.name, code: null, favoured: w.name === main.blue.name, imageUrl: main.blue.photoUrl ?? null },
     forecast: { label: "Winner", value: `${w.name} ${pct(w.probability)}`, sub: method ? `Most likely by ${method === "DEC" ? "decision" : method === "KO" ? "knockout" : method === "SUB" ? "submission" : method.toLowerCase()}${main.prediction!.rounds?.endsIn ? ` · round ${main.prediction!.rounds.endsIn}` : ""}` : null },
     signal: { kind: "PROBABILITY", probability: w.probability, of: `${w.name} to win` },
     // UFC's line is the producer's tracked-record summary, not a model attribution; its text says so itself.

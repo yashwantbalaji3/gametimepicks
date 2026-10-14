@@ -8,6 +8,7 @@
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
 import TeamMark from "@/components/ui/team-mark";
+import PlayerAvatar from "@/components/ui/player-avatar";
 import type { CardSide, PredictionCardModel } from "@/lib/command-center/contract";
 import { PUBLIC_STATE_LABEL } from "@/lib/command-center/contract";
 import ModelStatusChip from "./model-status-chip";
@@ -27,7 +28,10 @@ function Side({ side, sport, compact }: { side: CardSide; sport: PredictionCardM
   const short = compact && side.code ? side.code : null;
   return (
     <span className="inline-flex items-center gap-1.5 min-w-0" title={short ? side.name : undefined}>
-      {logoSport && side.code ? <TeamLogo team={side.code} sport={logoSport} size="sm" ariaLabel={`${side.name} logo`} /> : <TeamMark name={side.name} size="sm" />}
+      {logoSport && side.code
+        ? <TeamLogo team={side.code} sport={logoSport} size="sm" ariaLabel={`${side.name} logo`} />
+        /* GTP-16: a fighter's portrait from the card artifact (exact athleteId); initials when there is none. */
+        : side.imageUrl ? <PlayerAvatar name={side.name} photo={side.imageUrl} size={24} decorative /> : <TeamMark name={side.name} size="sm" />}
       <span className="break-words leading-tight" style={{ color: side.favoured ? "var(--vault-text)" : "var(--vault-text-mute)", fontWeight: side.favoured ? 700 : 500, fontSize: short ? 14 : 12.5 }}>
         {short ? <><span aria-hidden>{short}</span><span className="sr-only">{side.name}</span></> : side.name}
       </span>

@@ -143,7 +143,12 @@ function CompactRow({ row: r }: { row: HubGameRow }) {
   return (
     <li className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 py-2 text-[13px]" style={{ borderBottom: "1px solid var(--vault-rule)" }}>
       <span className="text-[12px]" style={{ color: "var(--vault-text-mute)", minWidth: 150 }}>{r.startLabel}</span>
-      <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{r.matchup}</span>
+      {/* GTP-15: each side's crest, small and decorative (alt="" — the matchup text names both teams). */}
+      <span className="inline-flex items-center gap-1.5 font-semibold" style={{ color: "var(--vault-text)" }}>
+        {(r.participants ?? []).slice(0, 1).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
+        {r.matchup}
+        {(r.participants ?? []).slice(1, 2).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
+      </span>
       <span className="text-[11px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)" }}>{r.status}</span>
       {r.read ? <span className={tone!.cls}>{r.read.label} <span className="gtp-c-mute">· {tone!.label}</span></span> : null}
       <span className="text-[12px]"><Action row={r} /></span>
