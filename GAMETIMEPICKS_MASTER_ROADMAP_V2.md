@@ -1769,19 +1769,23 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-14 17:15Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-14 20:45Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
-| UX Release 2B + LIVE-F | #1081 · `6e24b774f4` | CI green (run 38595731649). Exact-head local:<br>• build exit 0<br>• post-build 692/692<br>• unit 9,376 plus 2 local Postgres env failures<br>Earlier heads: e2e 515/515 in isolation; 4-breakpoint, 100-view sweep 0 issues; image identity 759/272/20/22 | **AWAITING FOUNDER APPROVAL** (exact-head package delivered) |
-| Live RLS battery in CI | #1084 · `963ff6149c` | CI green (run 38597866109). The live battery **ran on CI**: tests 82–84 PASS, not skipped. 15/15 injected defects caught locally | **AWAITING FOUNDER APPROVAL** |
-| UFC grader truth (VOID / WITHDRAWN / PENDING / DECIDED) | #1085 · `e4738b9beb` | CI green. UFC + ledger tests 241/241. Dry run on main data: ledger 71 (70 decided + 1 void); all cards reconcile | **AWAITING FOUNDER APPROVAL** |
-| Roving-tab a11y follow-up | #1087 · `22b982a4b0` (base 2B) | CI green. Local: unit 9,378 (2 env failures), post-build 692, e2e 515 | **AWAITING FOUNDER APPROVAL** (merges after #1081) |
-| Live Hub V2 foundation + Thursday plan | #1082 (draft) · `7027dc5b30` (base 2B) | Fixture tests. The 23-check SEA@DEN plan is committed. Read-only capture is scheduled for 2026-10-15T23:15Z → 10-16T05:00Z (this machine must stay awake) | **NOT promotable** until real-event evidence; AWAITING CI on the new head |
-| MLB stamp-only build gate (COST-001 Stage B) | #1088 (draft) · `69995ef2d2` | Replay of 157 real commits: build-triggering commits 157 → 52 over 10 days. Independent 24h audit: 16/16 agree (13/16 MLB builds avoided). About $1.1–1.5/day net (estimate). 20 tests; 9/9 mutations caught | **PROPOSAL** (protected workflows; AWAITING CI) |
-| Data-contract check on main | #1089 (draft) · `edc518e52d` | New scheduled workflow only: unit phase on main every 3h, one tracking issue. $0 GitHub, 0 Vercel builds | **PROPOSAL** (AWAITING CI) |
-| MLB-001 simulation audit | #1086 · `4e7287913d` | Research completed (descriptive, not a test) | Docs only, 0 builds; AWAITING FOUNDER APPROVAL |
-| Parity test vs UFC VOID row | in #1081/#1084/#1085/#1088/#1089 | Fixed and verified against real data | Main stays red until any one merges (data commits skip CI); #1089 detects this class going forward |
+| UX Release 2B + LIVE-F | #1081 → merge `5917475b53` (20:16:25Z) | Merged at the approved head `6e24b774f4`. Before the merge: unit run on main + head locally (only known local-env failures).<br>**Production READY serving `5917475b53`** (built 20:17:59Z). Main CI green.<br>Merge diff: 43 files, all `app/src`; 0 data, settlement or grading paths.<br>Forecast Record: 15,868/15,868 served rows match the ledger; 0 settlement mismatches.<br>36-view sweep at 1440/390 px clean (logos, portraits, `/live` tabs, coverage line) | **COMPLETED** (Production-verified) |
+| Live RLS battery in CI | #1084 · `bfb1bd39e0` (rebased on `5917475b53`) | Local: live RLS 83–84 PASS (Postgres 15.3, rolled back). On the previous head CI ran the battery (82–84 PASS, not skipped) | AWAITING CI → package |
+| UFC grader truth | #1085 · `68ab9225cf` (rebased) | Local unit 9,390 passed. Grader dry run and `--write` on today's data: 0 new, 0 changed files; ledger byte-identical (71 lines). Append-only preserved | AWAITING CI → package |
+| Roving-tab a11y follow-up | #1087 · `152a4a35b5` (retargeted to main, rebased) | Production baseline: `/results` tablist 5 tab stops, NFL explorer 12. Local unit, build, post-build and e2e running | AWAITING CI + local → package |
+| Live Hub V2 + Thursday plan | #1082 (draft) · `a2cd96d4a7` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
+| MLB stamp-only gate | #1088 (draft) · `dc70be2dc9` | Deploy trigger now builds on publication-SLO public-field moves for every workflow (8 previously delayed in 10 days). Forecast of record identical for 21/21 games. Results and settlement never gated. **Conservative ≈ $0.75/day net (estimate).** | PROPOSAL (protected workflows) |
+| Data-contract checks | #1089 (draft) · `3764831178` | Scheduled main check (CI green) plus a phase-2 staged-path contract check in data lanes, about 7 s, never blocks data. Replay of today's VOID break: fails in 7.1 s naming the test. Wired into `ufc-post-card` only | PROPOSAL (protected workflows) |
+| MLB-001 simulation audit | #1086 · `4e7287913d` | Research (descriptive) | Docs only; AWAITING FOUNDER APPROVAL |
+| Parity test vs UFC VOID row | merged with #1081 | `main` green again (main CI on `5917475b53`) | **COMPLETED** |
+
+**Findings logged 20:45Z:**
+- MLB game pages (`/games/mlb/<slug>/`) are generated only for the active slate, so the previous day's URLs 404 once the next board publishes. This predates #1081, and no public page links to them (checked). Decide before launch whether shared links to yesterday's games should resolve.
+- `ops/publication-slo.json` is read by public pages but excluded from the build trigger. Fixed for every workflow in #1088, pending review.
 
 **UFC grading after #1076** (scheduled run 38571656668, 13:25Z):
 - The Kareckaite–Gatto draw was appended once as VOID.
@@ -1805,7 +1809,7 @@ The "10 bouts from 2026-09-26 awaiting results" line was a mislabel: 1 withdrawn
 
 **Slip reading:** off in Production (`/api/slip-read` returns 503: service key not configured). `ANTHROPIC_API_KEY` is evidently set, so adding the service key would switch on a paid path outside the Ask spending cap.
 
-#### October 20 launch-readiness matrix (2026-10-14 15:55Z; updated 17:15Z)
+#### October 20 launch-readiness matrix (2026-10-14 15:55Z; updated 20:45Z)
 | Area | Status | Blocks launch? |
 |---|---|---|
 | Legal publication (Privacy/Terms) | Drafts only (#1077, green). Operator, state, minimum age, effective date and counsel approval records are all missing | **YES**, while accounts are enabled |
@@ -1816,12 +1820,12 @@ The "10 bouts from 2026-09-26 awaiting results" line was a mislabel: 1 withdrawn
 | NBA opening night | Schedule capture and /simulate dates include Oct 20 (GTP-11) | No |
 | Soccer coverage truth | Model-only state stated; untracked live stated | No |
 | Product capability (GTP-08) | Producer and reader both gated; two artifacts awaiting their next run | No |
-| Results accuracy | Main red on a test-only defect (fixed in the open PRs); no data error | No, once a fixed PR merges |
+| Results accuracy | Main green again since the #1081 merge; served Forecast Record = ledger (15,868/15,868) | No |
 | Live Hub coverage | LIVE-F in #1081; V2 not promoted | No |
 | Security headers | 5/5 present; CSP report-only, 0 violations on 91 pages | No |
 | Ask GameTime spending | Gemini prepaid with auto-reload off (per the doc); the `ANTHROPIC_API_KEY` exposure is noted above | Founder console check |
 | Vercel cost / reliability | 0 previews; data builds dominate; 1 wedge today. MLB stamp gate proposed (#1088), about 9.5 fewer build-triggering commits a day | No; #1088 / #1089 await review |
-| Desktop/mobile accessibility | 2B: 0 issues across 4 breakpoints; e2e 515/515 | No |
+| Desktop/mobile accessibility | 2B live in Production: sweep clean at 1440/390; roving-tab follow-up #1087 awaiting approval | No |
 | Rollback | Revert-merge of a single merge commit; one build | Rehearse during Oct 18–19 UAT |
 
 
