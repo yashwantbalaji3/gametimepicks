@@ -131,6 +131,8 @@ export function scorePreFightRows(rows, resultsByBout) {
     graded.push({
       ...r,
       winner: res.winner,
+      /* 2026-10-14: which official source supplied this outcome (new rows only; the ledger is append-only). */
+      resultSource: res.source ?? null,
       hit,
       model: { probabilityOfActual: Number(pModel.toFixed(6)), logLoss: Number((-Math.log(clip(pModel))).toFixed(6)), brier: Number(((pModel - 1) ** 2).toFixed(6)) },
       market: { probabilityOfActual: Number(pMarket.toFixed(6)), logLoss: Number((-Math.log(clip(pMarket))).toFixed(6)), brier: Number(((pMarket - 1) ** 2).toFixed(6)) },

@@ -21,6 +21,7 @@ import { fileURLToPath } from "node:url";
 import { scorePreFightRows, boutKey, foldName } from "../../src/lib/sports/ufc/model-vs-market.mjs";
 import { loadOfficialUfcResults } from "../../src/lib/sports/ufc/official-results.mjs";
 import { reconcileCard } from "../../src/lib/sports/ufc/reconcile-card.mjs";
+import { classifyUngraded, countByDate } from "../../src/lib/sports/ufc/ungraded-status.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.join(APP, "..");
@@ -35,10 +36,15 @@ const LEDGER = path.join(DIR, "graded.jsonl");
 
 /* Every pre-fight snapshot, newest LAST so the latest revision of a bout wins. */
 const rowsByBout = new Map();
+/* Each bout's card start (from its snapshot's event block) — so a bout not yet fought is never reported as lagging. */
+const startByBout = new Map();
 try {
   for (const f of fs.readdirSync(DIR).filter((x) => /^snapshot-\d{12}\.json$/.test(x)).sort()) {
     const snap = read(path.join(DIR, f));
-    for (const r of snap?.rows ?? []) rowsByBout.set(r.boutId, { ...r, capturedAt: snap.capturedAt, sourceFile: f });
+    for (const r of snap?.rows ?? []) {
+      rowsByBout.set(r.boutId, { ...r, capturedAt: snap.capturedAt, sourceFile: f });
+      if (snap?.event?.startUtc) startByBout.set(r.boutId, snap.event.startUtc);
+    }
   }
 } catch { /* no snapshots yet */ }
 if (rowsByBout.size === 0) { console.log("no pre-fight snapshots to grade."); process.exit(0); }
@@ -167,15 +173,25 @@ if (out.n === 0) {
    * like success indefinitely.
    */
   const corpusLatest = results?.latestEventDate ?? null;
-  const uncovered = pending.filter((r) => !resultsByBout.has(r.boutId));
-  if (uncovered.length > 0) {
-    const oldest = uncovered.map((r) => String(r.boutId).slice(0, 10)).sort()[0];
+  /* 2026-10-14: one honest bucket per ungraded bout (src/lib/sports/ufc/ungraded-status.mjs). A future card and a
+     withdrawn bout are not "lagging"; only a started, non-withdrawn bout without a result is. */
+  const withdrawnIds = new Set(reconcileEvents().flatMap((e) => e.withdrawnBoutIds ?? []));
+  const why = classifyUngraded({ rows: pending, resultsByBout, withdrawnIds, startByBout, nowIso: NOW });
+  if (why.notStarted.length) console.log(`  NOT_STARTED — ${why.notStarted.length} bout(s) not fought yet (${countByDate(why.notStarted)}).`);
+  if (why.withdrawn.length) console.log(`  WITHDRAWN — ${why.withdrawn.length} bout(s) never took place (${countByDate(why.withdrawn)}); never graded, never voided.`);
+  if (why.awaiting.length > 0) {
+    const oldest = why.awaiting.map((id) => String(id).slice(0, 10)).sort()[0];
     const lagDays = corpusLatest && oldest
       ? Math.round((Date.parse(`${oldest}T00:00:00Z`) - Date.parse(`${corpusLatest}T00:00:00Z`)) / 86_400_000)
       : null;
-    console.log(`  AWAITING_RESULTS — ${uncovered.length} bout(s) from ${oldest} have no official result yet.`);
-    console.log(`  The results corpus's newest event is ${corpusLatest ?? "unknown"}${lagDays != null ? `, ${lagDays} day(s) before that card` : ""}.`);
+    console.log(`  AWAITING_RESULTS — ${why.awaiting.length} fought bout(s) have no official result yet (${countByDate(why.awaiting)}).`);
+    console.log(`  The results corpus's newest event is ${corpusLatest ?? "unknown"}${lagDays != null && lagDays > 0 ? `, ${lagDays} day(s) before the oldest of them` : ""}.`);
     console.log("  This is the upstream source lagging, NOT a closed loop — the comparison grades itself once the card lands.");
+    healSummaryCumulative();
+    process.exit(0);
+  }
+  if (why.notStarted.length || why.withdrawn.length) {
+    console.log("  NOTHING_TO_GRADE — every fought, non-withdrawn snapshot bout is already in the ledger.");
     healSummaryCumulative();
     process.exit(0);
   }
