@@ -1705,6 +1705,122 @@ Source: `GameTimePicks_UX_System_V2_Engineering_Directive_2026-10-13.md` (founde
 - **Effort:** Release 2A ≈ 1 day; Release 2B + LIVE-F ≈ 1.5 days.
 - **Deferral order if time runs short:** GTP-19/20 folds go first, then GTP-17/18 research-page identity, then GTP-25. P0, the truth labels and LIVE-F status correctness never drop.
 
+#### Overnight execution log — 2026-10-14 (founder's limited overnight authorization)
+State is kept in four separate buckets: **confirmed Production behaviour**, **committed but undeployed**, **local work in progress** and **proposed future work**.
+
+**Confirmed in Production** (`d4bc2a1def`, built 06:50:39Z; 1 Production deployment):
+- #1079 (roadmap) was merged first as `adcc53f087`, producing 0 Vercel deployments.
+- #1080 (P0 + Release 2A) was merged as `d4bc2a1def` under the overnight gates:
+  - exact head `7d1c9a3ffd`;
+  - CI green on that head (run 38521500420);
+  - MERGEABLE/CLEAN with no file overlap with main;
+  - no data, workflow or Vercel changes;
+  - main CI green on the merge (run 38524452593).
+- **Production acceptance:**
+  - 18 affected routes at 1440 and 390 px, with every fix present and 0 console errors;
+  - a 91-page sweep at phone width showed 0 failed pages, 0 console errors, 0 broken images and 0 CSP report-only violations;
+  - all five security headers are present.
+- **Before merge, an independent read-only review of #1080** found 0 blockers and 2 should-fix items, both fixed in `7d1c9a3ffd`:
+  - a WATCH headline contradicting its own interval on a stale scorecard;
+  - the multi-sport lane mislabelled as "not enough prices".
+
+  Also fixed in the same commit: graded-leg wording ("Card decided"), past NBA dates on /simulate, and the EPL model-only reason.
+- **Documented limitation:** /bank-builder reads the pool's status on disk at build time, so before the morning generation the page correctly says today's card is not assessed. It does not yet read the status the generator itself recorded (review nit 5).
+- **GTP-08:** fixed at the producer and the reader, with no fail-closed fallback needed.
+  - From the next scheduled ledger and tier-grid runs, UFC and the multi-sport lane are written as closed.
+  - Settled records are unchanged.
+- **GTP-23:** no producer change was needed. The per-game, hash-bound `frozenPregame` time already existed and is now the one that is displayed (CLE@TB: 10:06 PM became 7:47 PM ET).
+
+**Committed, in review, not deployed:**
+- **#1081, Release 2B + LIVE-F:**
+  - exact-ID portraits and crests (NFL/MLB research pages, EPL crests, fighters on Home and Cage Chaos), and NBA crests;
+  - one shared `LiveEventCard` for NFL and MLB, with a visible report link;
+  - the shared `useRovingTabs` hook on the MLB report and /live;
+  - `.gtp-hit-44` touch targets;
+  - folds on the NFL and EPL hubs (`OpenOnHash` keeps deep links working);
+  - Power Board links to Homer Nukes;
+  - GTP-29 copy fixes.
+
+  Phone heights: /nfl 24,232 → 15,651 px; /epl 21,848 → 12,460 px. Final head `ef4a3d3448` also includes MLB board filters labelled by gap size rather than "confidence", an H+R+RBI filter, and Cage Chaos probability language. Locally on that exact head: unit 9,376 passed (2 RLS env failures), post-build 692, both CI e2e suites 515 passed with 0 failures, and 0 browser issues.
+- **#1082, Live Hub V2 foundation (draft, stacked on #1081):**
+  - a shared view model with eight statuses;
+  - per-sport capability: NFL and MLB tracked, NBA, soccer and UFC never;
+  - progress lines from verified fields only;
+  - frozen-line forecast progress;
+  - reading-order grouping;
+  - a guarded `/preview/live-v2` fixture.
+
+  It also adds pure mappers from the existing live contract and rosters (no new source). It is not wired into /live (head `0a19b9b42b`; unit 9,394 passed).
+
+**Deliberately not done (needs founder or counsel):**
+- GTP-01 legal inputs.
+- /responsible-use still describes a slip-comparison "Parlay Center" that /build does not offer; slip reading is an off account feature. This is legal-adjacent copy, so it is flagged rather than edited.
+- The `/results` accounting section stays unfolded: it is an integrity disclosure and is pinned by e2e.
+
+**Remaining after #1081 and #1082:**
+- **P2:**
+  - GTP-21/32 results paging;
+  - GTP-28 research shell;
+  - GTP-31 decorative alt text sitewide (done on new call sites);
+  - EPL player portraits (no authorized ID);
+  - small-target link lists on research squads.
+- **Live Hub V2:** adapters, wiring and real-event validation, Thursday NFL first.
+
+#### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
+Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
+
+| Work | PR / head | Highest evidence stage | Production |
+|---|---|---|---|
+| UX Release 2B + LIVE-F | #1081 · `2b5202570a` | Locally validated on `63010c7eda`:<br>• unit 9,376 · post-build 692<br>• both e2e suites 515/515 (in isolation)<br>• structural audit 0<br>• 100-view 4-breakpoint sweep 0 issues<br>• image identity: NFL 759/759, MLB 272/272, EPL crests 20/20, Cage Chaos 22/22<br>`2b5202570a` adds only the parity-test fix | Not merged; awaiting founder approval of the exact head |
+| Live Hub V2 foundation | #1082 (draft) | Implemented locally; fixture tests. Not real-event validated | Not wired to /live |
+| Live RLS battery + coverage | #1084 · `2e09c42aa2` | **First execution ever** (local EDB Postgres 15.3, private socket, rolled back):<br>• baseline PASS<br>• 15/15 injected defects caught<br>• account tests 86/86 | CI still skips (Postgres not on the runner's PATH; enabling it is a workflow change) |
+| UFC grader truth | #1085 · `635e28a94b` | Implemented; UFC tests 208/208; dry run correct; corpus agrees with 68/68 ledger winners | — |
+| MLB-001 simulation audit | #1086 | Research completed (descriptive, not a test) | Docs only |
+| Parity test vs UFC VOID row | in #1081/#1084/#1085 | Fixed and verified against real data | Main was red since the 13:27Z void append (data commits skip CI) |
+
+**UFC grading after #1076** (scheduled run 38571656668, 13:25Z):
+- The Kareckaite–Gatto draw was appended once as VOID.
+- The ledger grew from 70 to 71 lines; decided n = 70; model log loss 0.719 vs market 0.629, unchanged.
+- No loss was recorded.
+
+The "10 bouts from 2026-09-26 awaiting results" line was a mislabel: 1 withdrawn bout plus 9 bouts from the 10/17 card, which has not been fought. No result was missed; #1085 fixes the message.
+
+**GTP-08 in producer outputs:**
+- `lab-ledger.json` (14:58Z) and `coverage-matrix.json` (13:58Z) show UFC and the multi-sport lane closed.
+- `tier-grid/ufc-latest.json` and `admin/ufc-lane.json` predate the merge; they flip on the next scheduled `ufc-fight-week` run.
+
+**Operations (read-only review):**
+- **Production builds:** 61 in 24h (52 data, 9 merges) and 127 in 48h.
+- **Preview deployments:** 0 in 7 days.
+- **Redundant builds:** about 12 per 48h whose own commit had no build input (the Vercel previous-SHA lag).
+- **Failed Vercel build:** one today, `932a766f65`, about 52 minutes (likely a 45-minute wedge).
+- **Billing:** the cost tool returned 403 because the Vercel token has expired, so there are no billed dollar figures.
+- **OPS-002:** GitHub-side evidence is clean (565 post-cutover `auto*` commits by github-actions[bot]). It can only be judged from 2026-10-15T05:57Z and needs a fresh Vercel token.
+- **Paid Odds API spend:** about 40 credits in about 37 hours. `mlb-pregame-capture` logs "credits spent 0" while spending about 3 per run.
+
+**Slip reading:** off in Production (`/api/slip-read` returns 503: service key not configured). `ANTHROPIC_API_KEY` is evidently set, so adding the service key would switch on a paid path outside the Ask spending cap.
+
+#### October 20 launch-readiness matrix (2026-10-14 15:55Z)
+| Area | Status | Blocks launch? |
+|---|---|---|
+| Legal publication (Privacy/Terms) | Drafts only (#1077, green). Operator, state, minimum age, effective date and counsel approval records are all missing | **YES**, while accounts are enabled |
+| Account security tests | Battery passes locally (15/15 defects caught). CI skips it. The hosted Supabase project is not verified | Recommended before launch: one hosted `--hosted` run (founder authorization) |
+| NFL live validation | Plan written (Thursday SEA@DEN, 12 checks). Not yet run | Required before freeze-exit UAT |
+| MLB feed / schedule freshness | 10/14 artifacts present; chain runs green; scheduled crons run 4–9h late | No |
+| UFC grading and bout identity | Void correct; withdrawn correct; message and key fixes in #1085 | No (#1085 recommended) |
+| NBA opening night | Schedule capture and /simulate dates include Oct 20 (GTP-11) | No |
+| Soccer coverage truth | Model-only state stated; untracked live stated | No |
+| Product capability (GTP-08) | Producer and reader both gated; two artifacts awaiting their next run | No |
+| Results accuracy | Main red on a test-only defect (fixed in the open PRs); no data error | No, once a fixed PR merges |
+| Live Hub coverage | LIVE-F in #1081; V2 not promoted | No |
+| Security headers | 5/5 present; CSP report-only, 0 violations on 91 pages | No |
+| Ask GameTime spending | Gemini prepaid with auto-reload off (per the doc); the `ANTHROPIC_API_KEY` exposure is noted above | Founder console check |
+| Vercel cost / reliability | 0 previews; data builds dominate; 1 wedge today | No; COST-001 follow-ups |
+| Desktop/mobile accessibility | 2B: 0 issues across 4 breakpoints; e2e 515/515 | No |
+| Rollback | Revert-merge of a single merge commit; one build | Rehearse during Oct 18–19 UAT |
+
+
+
 ## Universal order
 1. Sport header + period selector
 2. Slate summary
