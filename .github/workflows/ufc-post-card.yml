@@ -71,6 +71,19 @@ jobs:
         run: |
           python -c "import json;d=json.load(open('app/public/data/ufc/backtest-summary-latest.json'));print('cleanRows',d['rowCount'],'brier',d.get('marketImpliedBrier'),'decision',d['launchDecision'])"
           python -c "import json;d=json.load(open('app/public/data/ufc/readiness-latest.json'));print('backtestReady',d['backtestReady'],'projectionsReady',d['projectionsReady'])"
+      # CI reliability (2026-10-14): the contract tests that READ the records this run is about to commit —
+      # about 7 s, chosen by app/scripts/ci/run-data-contracts.mjs from the staged paths. On 2026-10-14 this
+      # lane's first VOID row (a correct record) broke a forecast-ledger reader and main stayed red for hours
+      # because data commits skip CI; replayed against that state, this step fails in 7 s naming the test.
+      # It NEVER blocks the data: the commit below runs either way, and the last step fails the run (so the
+      # failure is visible and alerted) when a contract broke.
+      - name: Data contracts for the staged records
+        id: contracts
+        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.commit_artifacts != 'false' }}
+        continue-on-error: true
+        run: |
+          git add app/public/data/ufc/ data/internal/research/ufc/model-vs-market 2>/dev/null || true
+          node app/scripts/ci/run-data-contracts.mjs --staged
       - name: Commit derived UFC artifacts
         if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.commit_artifacts != 'false' }}
         run: |
@@ -80,4 +93,10 @@ jobs:
           git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "auto: UFC post-card grading + backtest [skip ci]"
           for a in 1 2 3 4 5; do git push origin HEAD:main && exit 0; git fetch origin main && git rebase origin/main || { git rebase --abort||true; exit 1; }; done
+          exit 1
+
+      - name: Fail the run if a data contract broke (the records above are already committed)
+        if: steps.contracts.outcome == 'failure'
+        run: |
+          echo "::error::a data contract failed for records this run committed — main is red until the reader is fixed (see 'Data contracts for the staged records')"
           exit 1

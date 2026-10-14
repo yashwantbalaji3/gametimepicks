@@ -1,0 +1,109 @@
+{
+  "_note": "Which contract tests a data commit runs, by the paths it stages (scripts/ci/run-data-contracts.mjs). Tests listed here READ committed records; they run in seconds. Add a test here when a producer gains a new record shape (docs/ops/DATA_CONTRACT_GUARD.md, layer 1).",
+  "core": [
+    "src/lib/forecast-ledger/forecast-ledger.test.mjs",
+    "src/lib/results/reader-parity.test.mjs",
+    "src/lib/results/projection-parity.test.mjs",
+    "src/lib/results/v2/forecast-record.test.mjs"
+  ],
+  "contracts": [
+    {
+      "id": "forecast-ledger",
+      "paths": [
+        "data/internal/forecast-ledger/"
+      ],
+      "tests": []
+    },
+    {
+      "id": "ufc-grading",
+      "paths": [
+        "data/internal/research/ufc/model-vs-market/",
+        "app/public/data/ufc/results-latest.json",
+        "app/public/data/ufc/graded-",
+        "app/public/data/ufc/official-"
+      ],
+      "tests": [
+        "src/lib/sports/ufc/withdrawn-and-void.test.mjs",
+        "src/lib/sports/ufc/settlement-contract.test.mjs",
+        "src/lib/sports/ufc/official-results.test.mjs",
+        "src/lib/sports/ufc/current-results.test.mjs",
+        "src/lib/parlays/ufc-leg-settlement.test.mjs"
+      ]
+    },
+    {
+      "id": "nfl-settlement",
+      "paths": [
+        "data/internal/nfl/settlement/",
+        "data/internal/nfl/experimental-settlement/",
+        "data/internal/nfl/prop-settlement/",
+        "data/internal/nfl/forecast-receipts/",
+        "data/internal/nfl/official-stats/",
+        "app/public/data/nfl/graded-picks.json",
+        "app/public/data/nfl/reconciliation/",
+        "app/public/data/nfl/product-receipts"
+      ],
+      "tests": [
+        "src/lib/sports/nfl/settlement-contract.test.mjs",
+        "src/lib/sports/nfl/current-settlement.test.mjs",
+        "src/lib/sports/nfl/experimental-record-durability.test.mjs",
+        "src/lib/sports/nfl/product-receipts.test.mjs",
+        "src/lib/results/v2/nfl-family-record.test.mjs"
+      ]
+    },
+    {
+      "id": "mlb-grading",
+      "paths": [
+        "app/public/data/mlb/results/",
+        "app/public/data/mlb/homer-nukes/settled-",
+        "app/public/data/mlb/graded-picks.json",
+        "data/internal/mlb/product-settlement/",
+        "data/internal/mlb/linescores/"
+      ],
+      "tests": [
+        "src/lib/mlb/prediction/grade-games.test.mjs",
+        "src/lib/mlb/prediction/grade-projected-scores.test.mjs",
+        "src/lib/results/mlb-leans-of-record.test.mjs"
+      ]
+    },
+    {
+      "id": "parlay-settlement",
+      "paths": [
+        "app/public/data/parlays/lab-settled/",
+        "app/public/data/parlays/lab-ledger.json",
+        "app/public/data/parlays/graded/",
+        "app/public/data/parlays/risk-ladder/",
+        "data/internal/product-cards/settlements/"
+      ],
+      "tests": [
+        "src/lib/parlays/lab-conservation.test.mjs",
+        "src/lib/parlays/lab-ledger.test.mjs",
+        "src/lib/parlays/lab-settlement-scope.test.mjs",
+        "src/lib/parlays/leg-settlement.test.mjs"
+      ]
+    },
+    {
+      "id": "epl-grading",
+      "paths": [
+        "app/public/data/soccer/epl/results",
+        "app/public/data/epl/graded-picks.json"
+      ],
+      "tests": [
+        "src/lib/sports/epl/settlement-contract.test.mjs",
+        "src/lib/sports/epl/graded-record.test.mjs",
+        "src/lib/sports/epl/results-monotonicity.test.mjs",
+        "src/lib/results/epl-matches-of-record.test.mjs"
+      ]
+    },
+    {
+      "id": "nba-results",
+      "paths": [
+        "app/public/data/nba/results/"
+      ],
+      "tests": [
+        "src/lib/sports/nba/settlement-contract.test.mjs",
+        "src/lib/sports/nba/finals-record.test.mjs",
+        "src/lib/sports/nba/current-results.test.mjs"
+      ]
+    }
+  ]
+}

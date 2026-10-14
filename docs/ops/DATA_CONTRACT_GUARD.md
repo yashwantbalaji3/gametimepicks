@@ -64,3 +64,26 @@ jobs:
 - Approve Layer 2 (one new workflow, no edits to existing ones).
 - Adopt Layer 1 as a rule: a producer PR that adds a record shape must add a synthetic fixture for each consumer.
 - Defer the phase-2 pre-commit subset for settlement lanes until after launch.
+
+## Phase 2: targeted contract check inside data workflows (prototype, 2026-10-14 evening)
+**Question:** can the data-commit workflows run a lightweight integrity check, so grading data cannot silently break `main`, without heavy suites or Vercel builds?
+
+**Answer: yes, at about 7 seconds per run.**
+
+| Piece | What it does |
+|---|---|
+| `app/scripts/ci/run-data-contracts.mjs` | Reads the **staged** paths and runs only the contract tests mapped to them in `app/scripts/ci/data-contracts.json`: a 4-test core (Forecast Ledger, results reader parity, projection parity, forecast record) plus the lane's own settlement and grading tests. If nothing maps, it runs nothing. A listed test that is missing exits 2, never a silent pass |
+| Lanes mapped | ufc-grading, nfl-settlement, mlb-grading, parlay-settlement, epl-grading, nba-results, forecast-ledger. Every path is one some workflow actually stages, and a test enforces that |
+| Cost | Measured 6.8–7.8 s per lane on today's data (52–84 tests). No build, no deploy, no extra install in lanes that already run `npm ci` |
+| **Proof** | Replayed against `main`'s state before the fix (the old parity test plus the real VOID row): the UFC check **fails in 7.1 s, naming `parity: ledger Brier / log loss equal every owner…`**. Today that break went unnoticed for hours |
+
+**Policy: never block the data.** A correct settlement must not be discarded because a reader cannot parse it.
+- The contract step is `continue-on-error`.
+- The lane commits as before.
+- A final step then fails the run (red run, GitHub notification) when a contract broke.
+
+**Wired in this PR:** `ufc-post-card` only, the lane that broke today, as the reviewed example.
+
+**Proposed next:** the same two steps in `ufc-results-refresh`, `nightly-settle`, `nfl-event-window` (settlement receipts), `epl-settle` and `nba-results-refresh`. Each is a protected-workflow edit for review. `nightly-settle` stages many paths, so it would run several contracts (about 15–20 s).
+
+**Rule (layer 1):** a producer PR that adds a record shape adds a synthetic fixture for each consumer, and lists the consumer test in `data-contracts.json`.
