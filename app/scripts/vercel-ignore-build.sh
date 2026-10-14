@@ -115,9 +115,14 @@ fi
 #
 # Direction of safety: an entry here can only ever cause LESS building. Every path not listed still
 # builds, and a malformed array makes `git diff` see the whole of app/ and build.
+# admin/status.json (COST-001 Stage B, 2026-10-14): rewritten by every mlb-daily-production run (run
+# stamps, workflow health) and read ONLY by the pruned /ops and /launch routes — guarded by
+# internal-route-exclusion.test.mjs ("NON_BUILD_INPUT files are read only by internal routes"). The rest
+# of admin/ stays a build input: model-health.json is read by public pages.
 # GTP-NON-BUILD-INPUTS-BEGIN
 NON_BUILD_INPUTS=(
     'app/public/data/ops/'
+    'app/public/data/admin/status.json'
 )
 # GTP-NON-BUILD-INPUTS-END
 

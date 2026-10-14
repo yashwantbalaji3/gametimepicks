@@ -82,11 +82,45 @@ test("every NON_BUILD_INPUT prefix is real in source and absent from the built e
     // reader ⇒ producer: the rule must skip something that actually exists, or it is a no-op.
     const src = path.join(APP, rel);
     assert.ok(fs.existsSync(src), `${prefix} is skipped by the deploy trigger but does not exist in source — the rule is a no-op`);
-    const files = fs.readdirSync(src, { recursive: true, withFileTypes: true }).filter((e) => e.isFile());
+    // A trailing slash names a tree; anything else names one file (COST-001 Stage B: admin/status.json).
+    const files = prefix.endsWith("/")
+      ? fs.readdirSync(src, { recursive: true, withFileTypes: true }).filter((e) => e.isFile())
+      : fs.statSync(src).isFile() ? [src] : [];
     assert.ok(files.length > 0, `${prefix} is skipped by the deploy trigger but is empty in source — the rule is a no-op`);
 
     // producer ⇒ reader: nothing under it may reach the export, or skipping its builds serves stale bytes.
     const exported = path.join(out, rel.replace(/^public\//, ""));
     assert.ok(!fs.existsSync(exported), `${prefix} reaches the export at ${path.relative(APP, exported)} — the deploy trigger must stop skipping builds for it`);
+  }
+});
+
+/**
+ * A FILE-LEVEL NON_BUILD_INPUT MUST HAVE NO PUBLIC READER (COST-001 Stage B, 2026-10-14).
+ *
+ * The export check above proves the file is not SERVED. It cannot prove the file is not READ at build
+ * time by a public page — a page that renders a field of it would then go stale while the deploy trigger
+ * skipped. (That is exactly the standing exception for the ops/ tree: public pages read
+ * ops/publication-slo.json through lib/ops/read-publication-slo.ts, which is why the MLB stamp gate
+ * publishes whenever that verdict's public fields move — lib/ops/stamp-only-gate.mjs.) So for every
+ * file-level entry, every source that names it must be an internal-only reader.
+ */
+const INTERNAL_READERS = /^src\/app\/(ops|launch|preview)\/|\.test\.m?[jt]sx?$/;
+const stripComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1");
+test("NON_BUILD_INPUT files are read only by internal routes", () => {
+  const sh = read("scripts/vercel-ignore-build.sh");
+  const block = /# GTP-NON-BUILD-INPUTS-BEGIN\s*\nNON_BUILD_INPUTS=\(([\s\S]*?)\)\s*\n# GTP-NON-BUILD-INPUTS-END/.exec(sh);
+  const fileEntries = [...block[1].matchAll(/'([^']+)'/g)].map((m) => m[1]).filter((p) => !p.endsWith("/"));
+  assert.ok(fileEntries.includes("app/public/data/admin/status.json"), "the admin status entry this guard was written for is gone — revisit the guard");
+  const srcFiles = fs.readdirSync(path.join(APP, "src"), { recursive: true }).filter((f) => /\.(m?[jt]sx?)$/.test(f)).map((f) => `src/${f.split(path.sep).join("/")}`);
+  for (const entry of fileEntries) {
+    const dir = path.posix.basename(path.posix.dirname(entry));
+    const base = path.posix.basename(entry).replace(".", "\\.");
+    // The two shapes a build-time read takes here: readJson("admin/status.json") — the path as a call's
+    // first argument — and path.join(…, "admin", "status.json"). A path named in a label or in prose
+    // (lib/launch's `source: "admin/status.json · slate"`, the runbook text) is not a read.
+    const reads = [new RegExp(`\\(\\s*["'][^"']*${dir}/${base}["']`), new RegExp(`["']${dir}["']\\s*,\\s*["']${base}["']`)];
+    const readers = srcFiles.filter((f) => reads.some((re) => re.test(stripComments(fs.readFileSync(path.join(APP, f), "utf8")))));
+    assert.ok(readers.length > 0, `${entry}: no reader found at all — the scan no longer matches how the file is read`);
+    assert.deepEqual(readers.filter((f) => !INTERNAL_READERS.test(f)), [], `${entry} is skipped by the deploy trigger but a public route reads it at build time`);
   }
 });
