@@ -1769,14 +1769,19 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-| Work | PR / head | Highest evidence stage | Production |
+**Status at 2026-10-14 17:15Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+
+| Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
-| UX Release 2B + LIVE-F | #1081 · `2b5202570a` | Locally validated on `63010c7eda`:<br>• unit 9,376 · post-build 692<br>• both e2e suites 515/515 (in isolation)<br>• structural audit 0<br>• 100-view 4-breakpoint sweep 0 issues<br>• image identity: NFL 759/759, MLB 272/272, EPL crests 20/20, Cage Chaos 22/22<br>`2b5202570a` adds only the parity-test fix | Not merged; awaiting founder approval of the exact head |
-| Live Hub V2 foundation | #1082 (draft) | Implemented locally; fixture tests. Not real-event validated | Not wired to /live |
-| Live RLS battery + coverage | #1084 · `2e09c42aa2` | **First execution ever** (local EDB Postgres 15.3, private socket, rolled back):<br>• baseline PASS<br>• 15/15 injected defects caught<br>• account tests 86/86 | CI still skips (Postgres not on the runner's PATH; enabling it is a workflow change) |
-| UFC grader truth | #1085 · `635e28a94b` | Implemented; UFC tests 208/208; dry run correct; corpus agrees with 68/68 ledger winners | — |
-| MLB-001 simulation audit | #1086 | Research completed (descriptive, not a test) | Docs only |
-| Parity test vs UFC VOID row | in #1081/#1084/#1085 | Fixed and verified against real data | Main was red since the 13:27Z void append (data commits skip CI) |
+| UX Release 2B + LIVE-F | #1081 · `6e24b774f4` | CI green (run 38595731649). Exact-head local:<br>• build exit 0<br>• post-build 692/692<br>• unit 9,376 plus 2 local Postgres env failures<br>Earlier heads: e2e 515/515 in isolation; 4-breakpoint, 100-view sweep 0 issues; image identity 759/272/20/22 | **AWAITING FOUNDER APPROVAL** (exact-head package delivered) |
+| Live RLS battery in CI | #1084 · `963ff6149c` | CI green (run 38597866109). The live battery **ran on CI**: tests 82–84 PASS, not skipped. 15/15 injected defects caught locally | **AWAITING FOUNDER APPROVAL** |
+| UFC grader truth (VOID / WITHDRAWN / PENDING / DECIDED) | #1085 · `e4738b9beb` | CI green. UFC + ledger tests 241/241. Dry run on main data: ledger 71 (70 decided + 1 void); all cards reconcile | **AWAITING FOUNDER APPROVAL** |
+| Roving-tab a11y follow-up | #1087 · `22b982a4b0` (base 2B) | CI green. Local: unit 9,378 (2 env failures), post-build 692, e2e 515 | **AWAITING FOUNDER APPROVAL** (merges after #1081) |
+| Live Hub V2 foundation + Thursday plan | #1082 (draft) · `7027dc5b30` (base 2B) | Fixture tests. The 23-check SEA@DEN plan is committed. Read-only capture is scheduled for 2026-10-15T23:15Z → 10-16T05:00Z (this machine must stay awake) | **NOT promotable** until real-event evidence; AWAITING CI on the new head |
+| MLB stamp-only build gate (COST-001 Stage B) | #1088 (draft) · `d76c3d5b82`+gate | Replay of 157 real commits: build-triggering commits 157 → 52 over 10 days. Independent 24h audit: 16/16 agree (13/16 MLB builds avoided). About $1.1–1.5/day net (estimate). 20 tests; 9/9 mutations caught | **PROPOSAL** (protected workflows; AWAITING CI) |
+| Data-contract check on main | #1089 (draft) | New scheduled workflow only: unit phase on main every 3h, one tracking issue. $0 GitHub, 0 Vercel builds | **PROPOSAL** (AWAITING CI) |
+| MLB-001 simulation audit | #1086 · `4e7287913d` | Research completed (descriptive, not a test) | Docs only, 0 builds; AWAITING FOUNDER APPROVAL |
+| Parity test vs UFC VOID row | in #1081/#1084/#1085/#1088/#1089 | Fixed and verified against real data | Main stays red until any one merges (data commits skip CI); #1089 detects this class going forward |
 
 **UFC grading after #1076** (scheduled run 38571656668, 13:25Z):
 - The Kareckaite–Gatto draw was appended once as VOID.
@@ -1800,12 +1805,12 @@ The "10 bouts from 2026-09-26 awaiting results" line was a mislabel: 1 withdrawn
 
 **Slip reading:** off in Production (`/api/slip-read` returns 503: service key not configured). `ANTHROPIC_API_KEY` is evidently set, so adding the service key would switch on a paid path outside the Ask spending cap.
 
-#### October 20 launch-readiness matrix (2026-10-14 15:55Z)
+#### October 20 launch-readiness matrix (2026-10-14 15:55Z; updated 17:15Z)
 | Area | Status | Blocks launch? |
 |---|---|---|
 | Legal publication (Privacy/Terms) | Drafts only (#1077, green). Operator, state, minimum age, effective date and counsel approval records are all missing | **YES**, while accounts are enabled |
-| Account security tests | Battery passes locally (15/15 defects caught). CI skips it. The hosted Supabase project is not verified | Recommended before launch: one hosted `--hosted` run (founder authorization) |
-| NFL live validation | Plan written (Thursday SEA@DEN, 12 checks). Not yet run | Required before freeze-exit UAT |
+| Account security tests | Battery runs in CI on #1084 (tests 82–84 PASS); 15/15 injected defects caught locally. The hosted Supabase project is not verified | Recommended before launch: one hosted `--hosted` run (founder authorization) |
+| NFL live validation | Plan in #1082: 23 checks for SEA@DEN `401872995`, Thu Oct 15 8:15 PM ET = 2026-10-16T00:15Z, identity verified. Capture scheduled; not yet run | Required before freeze-exit UAT |
 | MLB feed / schedule freshness | 10/14 artifacts present; chain runs green; scheduled crons run 4–9h late | No |
 | UFC grading and bout identity | Void correct; withdrawn correct; message and key fixes in #1085 | No (#1085 recommended) |
 | NBA opening night | Schedule capture and /simulate dates include Oct 20 (GTP-11) | No |
@@ -1815,7 +1820,7 @@ The "10 bouts from 2026-09-26 awaiting results" line was a mislabel: 1 withdrawn
 | Live Hub coverage | LIVE-F in #1081; V2 not promoted | No |
 | Security headers | 5/5 present; CSP report-only, 0 violations on 91 pages | No |
 | Ask GameTime spending | Gemini prepaid with auto-reload off (per the doc); the `ANTHROPIC_API_KEY` exposure is noted above | Founder console check |
-| Vercel cost / reliability | 0 previews; data builds dominate; 1 wedge today | No; COST-001 follow-ups |
+| Vercel cost / reliability | 0 previews; data builds dominate; 1 wedge today. MLB stamp gate proposed (#1088), about 9.5 fewer build-triggering commits a day | No; #1088 / #1089 await review |
 | Desktop/mobile accessibility | 2B: 0 issues across 4 breakpoints; e2e 515/515 | No |
 | Rollback | Revert-merge of a single merge commit; one build | Rehearse during Oct 18–19 UAT |
 
