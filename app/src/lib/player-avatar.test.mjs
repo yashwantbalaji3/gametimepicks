@@ -16,7 +16,9 @@ test("renders <img> only inside the `if (photo)` branch", () => {
   // monogram instead of the browser broken-image icon. Same honesty rule, wider coverage.
   const guardAt = src.indexOf("if (photo && !errored)");
   assert.ok(guardAt > 0 && imgAt > guardAt, "the <img> is gated behind a real photo URL");
-  assert.ok(src.includes("alt={name}"), "image carries alt text");
+  /* DS-001 §5 / GTP-31: alt is the name unless the caller prints the name beside it (decorative). */
+  assert.ok(src.includes('alt={decorative ? "" : name}'), "image carries alt text, empty only when decorative");
+  assert.match(src, /decorative = false/, "decorative is opt-in; the default keeps the name");
 });
 
 test("falls back to an initials monogram (no image) when photo is absent", () => {
