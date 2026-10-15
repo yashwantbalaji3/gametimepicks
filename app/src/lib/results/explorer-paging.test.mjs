@@ -17,7 +17,7 @@ test("the Results explorer pages its cards (step + show all), resets on a new se
   assert.match(s, /setCardLimit\(\(n\) => n \+ CARD_STEP\)/, "Show more");
   assert.match(s, /setCardLimit\(selectedCards\.length\)/, "Show all");
   assert.match(s, /useEffect\(\(\) => \{ setCardLimit\(CARD_STEP\); \}, \[recordType, sport, tier, from, to\]\)/, "resets with the selection");
-  assert.match(s, /role="status" aria-live="polite"[\s\S]{0,200}Showing the \{shownCards\.length\} most recent of \{selectedCards\.length\}/, "the count is announced");
+  assert.match(s, /role="status" aria-live="polite"[\s\S]{0,260}Showing the \$\{shownCards\.length\} most recent of \$\{selectedCards\.length\}[\s\S]{0,80}Showing all \$\{selectedCards\.length\}/, "the count is announced, and says 'all' once everything is shown");
   assert.match(s, /className="gtp-hit-44" onClick=\{\(\) => setCardLimit/, "44 px controls");
 });
 

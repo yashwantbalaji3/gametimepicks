@@ -303,7 +303,7 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
           {visibleDetail.length > DETAIL_STEP ? (
             <div className="flex flex-wrap items-center gap-3">
               <p role="status" aria-live="polite" className="m-0" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
-                Showing {Math.min(detailLimit, visibleDetail.length)} of {visibleDetail.length}. The counts above cover every one of them.
+                {detailLimit < visibleDetail.length ? `Showing ${detailLimit} of ${visibleDetail.length}.` : `Showing all ${visibleDetail.length}.`} The counts above cover every one of them.
               </p>
               {detailLimit < visibleDetail.length ? (
                 <>

@@ -637,7 +637,7 @@ export default function ResultsExplorer({
           {selectedCards.length > CARD_STEP ? (
             <div className="flex flex-wrap items-center gap-3">
               <p role="status" aria-live="polite" style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: 0 }}>
-                Showing the {shownCards.length} most recent of {selectedCards.length}. The totals above count every one of them.
+                {shownCards.length < selectedCards.length ? `Showing the ${shownCards.length} most recent of ${selectedCards.length}.` : `Showing all ${selectedCards.length}.`} The totals above count every one of them.
               </p>
               {shownCards.length < selectedCards.length ? (
                 <>
