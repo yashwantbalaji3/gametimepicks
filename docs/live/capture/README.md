@@ -42,3 +42,15 @@ Each pass records:
 - whether Production serves a build that contains that commit.
 
 The watch ends one pass after the settled state is served. A replay on last Thursday's game confirmed this early stop.
+
+## Vercel bot mitigation (added 2026-10-15)
+At 00:49Z on Oct 15, automated requests to Production began receiving `403` with `x-vercel-mitigated: challenge`. A real browser loaded the site normally.
+
+The likely trigger is this session's own frequent polling. As in the 2026-08-03 incident in `docs/VERCEL_BOT_CHALLENGE_VERIFICATION_CONTRACT.md`, that challenge is **absence of evidence, not an outage**.
+
+The capture now:
+- records each request's mitigation header and reports challenged requests separately, never as site failures;
+- saves ESPN's public summary for the event on every pass, as ground truth for scores and states. The report compares our envelope with ESPN at the same pass whenever ours is readable;
+- records the frozen-forecast fingerprint from `git` on every pass, so it is unaffected by the challenge.
+
+If the challenge persists into game time, the site-side checks fall back to real-browser spot checks. Nothing bypasses or spoofs the challenge.

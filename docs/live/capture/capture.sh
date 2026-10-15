@@ -25,9 +25,11 @@ SHOT_EVERY="${SHOT_EVERY:-3}"
 mkdir -p "$OUT" "$MIRROR"
 ep() { date -j -u -f "%Y-%m-%dT%H:%M:%SZ" "$1" +%s 2>/dev/null || date -u -d "$1" +%s; }
 until_a=$(ep "$UNTIL"); until_b=$(ep "$SETTLE_UNTIL")
-get() { # name url file
-  meta=$(curl -s -L --max-time 30 -o "$3" -w '%{http_code} %{size_download}' "$2" 2>/dev/null || echo "000 0")
-  printf '{"t":"%s","name":"%s","http":%s,"bytes":%s,"file":"%s"}\n' "$T" "$1" "${meta%% *}" "${meta##* }" "$(basename "$3")" >> "$OUT/captures.jsonl"
+get() { # name url file — records HTTP status, size, and whether Vercel bot mitigation answered (x-vercel-mitigated)
+  meta=$(curl -s -L --max-time 30 -A "gtp-acceptance-capture/1.0 (read-only)" -D "$3.headers" -o "$3" -w '%{http_code} %{size_download}' "$2" 2>/dev/null || echo "000 0")
+  mit=$(grep -i '^x-vercel-mitigated:' "$3.headers" 2>/dev/null | tail -1 | awk '{print $2}' | tr -d '\r')
+  rm -f "$3.headers"
+  printf '{"t":"%s","name":"%s","http":%s,"bytes":%s,"file":"%s","mitigated":"%s"}\n' "$T" "$1" "${meta%% *}" "${meta##* }" "$(basename "$3")" "${mit:-}" >> "$OUT/captures.jsonl"
 }
 n=0
 echo "{\"t\":\"$(date -u +%FT%TZ)\",\"name\":\"start\",\"interval\":$INTERVAL,\"until\":\"$UNTIL\",\"settleUntil\":\"$SETTLE_UNTIL\"}" >> "$OUT/captures.jsonl"
@@ -38,6 +40,9 @@ while [ "$(date -u +%s)" -lt "$until_b" ]; do
   get live-html "$B/live/" "$OUT/$T-live.html"
   get game-html "$B/nfl/game/$EV/" "$OUT/$T-game.html"
   get build-info "$B/data/build-info.json" "$OUT/$T-build-info.json"
+  # Ground truth from the gateway's own free public source, so scores and states can be checked even if our
+  # endpoints are challenged mid-game (VERCEL_BOT_CHALLENGE is absence of evidence, not a site failure).
+  get espn-summary "https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=$EV" "$OUT/$T-espn.json"
   git -C "$REPO" fetch -q origin 2>/dev/null
   {
     git -C "$REPO" show origin/main:app/public/data/nfl/forecasts/latest.json 2>/dev/null \
