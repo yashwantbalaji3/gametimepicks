@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 17:35Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 19:30Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1778,7 +1778,9 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
 | UFC grader truth | #1085 → merge `411089bfe4` (22:27:49Z) | Merged at the approved head `68ab9225cf`. Main CI green (run 38647814525). Merge diff: 7 code/test files, 0 data. **All 199 UFC record files byte-identical** before and after. On main: 44/44 UFC/ledger checks (draw = VOID, withdrawn never a loss or in the ledger, pending excluded from n). Production record: 71 rows = 70 decided (44 W / 26 L) + 1 VOID (Gatto–Kareckaite, no result, no score). Withdrawn Gall–Dumas absent; 9 pending 10/17 bouts excluded. 10/17 chain ready (fight-week Sat 11Z, post-card daily) | **COMPLETED**: Production serves `b713c2c98c` (built 23:24:04Z), which contains the merge. Served record: 15,868/15,868 = ledger; UFC 71 rows unchanged |
 | Roving-tab a11y follow-up | #1087 → merge `279098cf25` (2026-10-15 00:17:41Z) | Merged at the approved head `152a4a35b5`. Main CI green (run 38659199389). Merge diff: its 7 UI/test files. The merge's own build was killed at 46.2 min (wedge). It was delivered by `5195af77eb` (built 01:51:23Z). Real-browser check: `/results` 5 tabs → 1 tab stop, Arrow-Right works, all tabs paired; NFL game 2 tablists → 2 stops. 0 overflow, 0 broken images. All 25 Forecast Record files (15,868 rows: ids + settlement states) hash-identical to the ledger at `5195af77eb` | **COMPLETED** (Production-verified) |
 | Deploy-trigger non-inputs | #1091 → merge `39df089d02` (2026-10-15 16:34:05Z) | Merged at the approved head `dcfbf47fd2` (CI green, MERGEABLE CLEAN, 2 files). Built 16:34→16:40Z. **Production serves `39df089d02`**; main CI green (run 38770093761). Forecast Record 25/25 hash-identical to a local build of the same commit, 15,879 rows, 0 ledger mismatches. Next ops-only commit correctly ignored | **COMPLETED** (Production-verified) |
-| Static-gen workers 4 → 3 + memory split | #1094 (draft) · `e1bb1b33dc` | Local paired builds: identical output (7,516 files), 2,881 pages, 0 restarts; worker RSS −6% (not proportional); `next build` +6%. Heartbeat now reports anon/file/peak. Unit 10,103/0 fail; CI quality + python green; MERGEABLE CLEAN | **AWAITING FOUNDER APPROVAL** (exact-head package sent) |
+| Static-gen workers 4 → 3 | #1094 (draft) · `e1bb1b33dc` | Validated locally: worker RSS −6%, build +6%, identical output | **ON HOLD** (founder, 2026-10-15): modest gain; do not merge without further approval |
+| Build memory observability (anon/file/peak) | #1095 (draft) · `0f9d3eab81` | Split out of #1094; worker count unchanged; 14/14 observability tests; fails against old script | PROPOSAL: ride with next necessary release |
+| HTML reduction series | #1096 · #1097 · #1098 (drafts) | ≈ −20% generated HTML combined; rendering/computed styles verified identical | PROPOSAL (local only, 0 deploys) |
 | Live Hub V2 + Thursday plan | #1082 (draft, base main) · `659b6b9376` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
 | MLB stamp-only gate | #1088 (draft) · `26de79bfb8` (rebased; suppression-safety assessment added) | Deploy trigger now builds on publication-SLO public-field moves for every workflow (8 previously delayed in 10 days). Forecast of record identical for 21/21 games. Results and settlement never gated. **Conservative ≈ $0.75/day net (estimate).** | PROPOSAL (protected workflows) |
 | Data-contract checks | #1089 → merge `7c3f23722a` (02:11:09Z) | Marked ready, then merged at the approved head `9b19f082b1`. Main CI green (run 38669654780).<br>Workflow verified:<br>• active; `schedule` + dispatch only (no push trigger, so it never deploys);<br>• `contents: read`, `issues: write`; own concurrency group;<br>• no commit, push or build step.<br>`ufc-post-card` safeguards preserved (dry-run / `commit_artifacts` gating, `continue-on-error`, fails only after commit).<br>Manual verification run 38669700923: 9,401 tests, 0 failed, 7 min, no issue opened. The merge's own Vercel build was killed at about 46 min; it renders nothing, so Production is unaffected (`5195af77eb`, browser-verified) | **COMPLETED** in GitHub; awaiting the first scheduled run (03:47Z) and the next data build to carry it |
@@ -1867,6 +1869,39 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
       - 5 behaviour tests on a real depth-10 clone; 3 fail against the current script.
       - At ~11 gap attempts per 14 days, its 21 s cost roughly equals the one build it saves, so there is no net saving now.
       - Kept in `docs/research/ops/vercel-cost-2026-10-15/shallow-gap/` for when ignore rates rise.
+- **19:30Z update (founder decisions; #1088 prepared; HTML-reduction series):**
+  - **Founder decisions (2026-10-15 ~17:45Z):**
+    - **#1094 ON HOLD.** The −6% worker-memory reduction does not justify the change while 4 workers work. A comment on the PR says "do not merge without further approval".
+    - The memory observability was split into **#1095** (draft, `0f9d3eab81`, 2 files, worker count unchanged). It should ride with the next necessary release; merging it alone would cost one build (≈ $0.15–0.20).
+    - The shallow-clone fallback is closed unless new evidence shows it is financially significant.
+  - **#1088 (Friday-morning package):**
+    - Rebased on main, now on top of #1091: head **`e2dd976085`**, CI quality + python green, MERGEABLE CLEAN.
+    - Combined ignore-step tests (#1088 SLO trigger + #1091 globs, gate, route exclusion, publication SLO): 71/71.
+    - Full unit suite: 10,128 tests, 0 failures.
+    - Scope re-checked against injury, roster and live data:
+      - the gate can hide only 3 stamp paths in 7 MLB file patterns;
+      - lineups live inside gated simulation files, so any lineup change publishes;
+      - team markets, player props and HR props are never gated;
+      - injuries and rosters come from other workflows that never call the gate;
+      - live scores come from the runtime API, not committed files.
+    - Package to be sent Friday before the 14:15Z MLB run, re-verified on the exact head then.
+  - **HTML reduction (founder priority; local only, isolated draft PRs, 0 deployments):**
+
+    | PR | Change | Measured (paired local builds, same tree) | Equivalence evidence |
+    |---|---|---|---|
+    | #1096 (`54e1655016`) | MLB board client receives a projected lean (TS `Pick` of the 25 fields it reads) | MLB board HTML 482.8 → 414.2 MB (−14.2%); busiest page inline payload 1.50 → 0.58 MB | Rendered markup identical on all 2,863 pages; only board script payloads differ. 17 filter/sort/density states hash-identical in a real browser. Filter equivalence on every committed board (>1,000 states) |
+    | #1097 (stacked on #1096) | MLB lean-row inline styles → shared classes (values verbatim; tier colours as CSS vars) | MLB board 414.2 → 310.5 MB (−25.0%); busiest page 4.56 → 3.39 MB | All 459 computed properties identical on 28,214 (detailed) and 12,130 (scan) elements, and at 390 px. Every other export file unchanged |
+    | #1098 (`6f2b890bfa`) | Results graded-row table inline styles → shared classes | Results by date 198.8 → 142.9 MB (−28.1%); NBA results −26% | Computed styles identical on 3 pages (627 + 943 rows); exactly the 130 table-bearing pages differ |
+
+    - **Combined:** generated HTML ≈ 1,145 → ≈ 917 MB (**≈ −20%**); MLB board archive −36%.
+    - Unit suite on each: 10,101–10,106 tests, 0 failures.
+    - No data, forecast, settlement, results, provenance or timestamp change; historical pages stay fully accessible with identical content.
+    - **Cost effect is NOT yet measured.** Local `next build` time showed no reliable change (128–149 s, noisy laptop). Expected savings come from output bytes: build-cache creation/upload (39 s in the last Production log) and deploy upload, plus less memory held during page writes.
+    - To be quantified from the first Production build log after merge: cache-creation time, total container time, and the `mem` line. **No dollar claim until then.**
+    - Next candidates, measured:
+      - site chrome (command rail, mobile nav, footer) inline styles on all 2,863 pages, ≈ 45–70 MB;
+      - player-page table cells: inline styles ≈ 102 MB of markup across 1,810 player pages.
+    - The data archive (`data/internal`, clone 1m23s) remains P2.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
   - a CI memory early warning (peak > 12 G);
