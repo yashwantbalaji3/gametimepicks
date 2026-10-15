@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-15T14:09:36Z",
- "sourceGeneratedAt": "2026-10-15T14:09:36Z",
+ "generatedAt": "2026-10-15T18:34:10Z",
+ "sourceGeneratedAt": "2026-10-15T18:34:10Z",
  "providerEventId": "401872998",
  "matchup": "CAR @ PHI",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-15T14:09:36Z",
-  "roleEvidenceAt": "2026-10-15T14:09:36Z",
+  "injuriesCapturedAt": "2026-10-15T18:34:10Z",
+  "roleEvidenceAt": "2026-10-15T18:34:10Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,6 +23,15 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "PHI",
+     "playerId": "nfl-athlete-4685201",
+     "name": "Tanner McKee",
+     "share": 0.375,
+     "reason": "withheld for Tanner McKee (PHI): his modelled share of PHI's pass attempts is 0.38, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -108,7 +117,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 65,
+  "absent": 62,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -251,25 +260,14 @@
   },
   "PHI": {
    "counts": {
-    "PROJECTED": 12,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
-    {
-     "playerId": "nfl-athlete-4040715",
-     "name": "Jalen Hurts",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
     {
      "playerId": "nfl-athlete-4360238",
      "name": "Dameon Pierce",
@@ -383,7 +381,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "withheld for Tanner McKee (PHI): his modelled share of PHI's pass attempts is 0.38, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     },
@@ -395,6 +393,12 @@
       "anytime_td"
      ],
      "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4040715",
+     "name": "Jalen Hurts",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4429013",
@@ -423,21 +427,11 @@
    },
    {
     "team": "PHI",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4040715",
-     "name": "Jalen Hurts"
-    },
-    "snapshotAt": "2026-10-14T12:51:31Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4685201",
-      "name": "Tanner McKee"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
-     "nfl-athlete-4040715"
-    ]
+     "nfl-athlete-4685201"
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -454,9 +448,17 @@
     "team": "PHI",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4040715"
+     "nfl-athlete-4685201"
     ],
-    "withheld": [],
+    "withheld": [
+     {
+      "team": "PHI",
+      "playerId": "nfl-athlete-4685201",
+      "name": "Tanner McKee",
+      "share": 0.375,
+      "reason": "withheld for Tanner McKee (PHI): his modelled share of PHI's pass attempts is 0.38, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
     "unjoined": []
    }
   ],
@@ -470,19 +472,6 @@
     "sum": 0.994,
     "originalSum": 0.994,
     "residualOther": 0.006,
-    "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "PHI",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.991,
-    "originalSum": 0.991,
-    "residualOther": 0.009,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -951,36 +940,6 @@
     },
     "anytime_td": {
      "probability": 0.1555,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4040715",
-   "name": "Jalen Hurts",
-   "team": "PHI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 15.449,
-     "p10": 0,
-     "p25": 2.22,
-     "median": 9.98,
-     "p75": 22.67,
-     "p90": 39.41,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 199.6689,
-     "p10": 100.3,
-     "p25": 136.9457,
-     "median": 187.4418,
-     "p75": 249.1246,
-     "p90": 314.8636,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1503,
      "pricingState": "NOT_PROBED"
     }
    }
