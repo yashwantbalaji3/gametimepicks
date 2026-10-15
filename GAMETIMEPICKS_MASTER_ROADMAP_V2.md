@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 04:30Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 06:30Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1784,6 +1784,26 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
 | MLB-001 simulation audit | #1086 · `4e7287913d` | Research (descriptive) | Docs only; AWAITING FOUNDER APPROVAL |
 | Parity test vs UFC VOID row | merged with #1081 | `main` green again (main CI on `5917475b53`) | **COMPLETED** |
 
+#### COST-002: Vercel cost and build reliability (founder P0, 2026-10-15)
+Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `docs/research/ops/vercel-cost-2026-10-15/`.
+
+- **ROOT CAUSE CONFIRMED (Vercel build log):** the 46-minute kills are memory exhaustion during static generation.
+  - `mem 15.51G/16.00G` at 2155/2874 pages, then 44 minutes of silence.
+  - Default of 7 workers; the last quarter renders the 5 MB MLB board and Results archive pages.
+  - Fix proposed in **#1093**: `experimental.cpus: 4`. Locally: same time, swap-outs −94% to −99%, and the export is identical in 7,500/7,500 files apart from build-instant values.
+- **Volume (measured):** about 85–90 deployments/day and 61–72 full builds/day. Bots cause about 82% of build CPU. There is no duplicate project.
+- **Estimated build CPU:** about 2,400–2,800 CPU-min/day; 4,216 in the failure day.
+- **Plan:**
+  - **P0:** #1093, then #1091.
+  - **P1:** #1088 (MLB gate); archive slimming (export −51% locally); `nightly-settle` gate; per-run snapshot hygiene.
+  - **P2:** deploy coordinator; data decoupling; move `data/internal` out of the deploy repo (51 s clone).
+- **Target:** −30% to −40% of build CPU after P0+P1, and −50% to −65% with P2. Dollar figures await the founder's Usage breakdown and billing-cycle dates.
+- **Monitoring proposed:**
+  - a daily deploy-cost report workflow;
+  - a CI memory early warning (peak > 12 G);
+  - post-build size budgets;
+  - Vercel Spend Management alerts.
+
 #### Prioritized launch view (2026-10-15 04:30Z; freeze Oct 17, launch Oct 20)
 **COMPLETED (Production-verified unless noted):**
 - #1081 UX Release 2B + LIVE-F
@@ -1794,7 +1814,7 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
 
 **BLOCKED, needs founder action:**
 1. **Privacy/Terms (GTP-01):** operator, governing state, minimum age, effective date, counsel approval. This is the only open audit P0, and it blocks launch while accounts are enabled.
-2. **Vercel 46-min build kills:** 4 of 6 code merges and 2 data builds since 10-14 13:45Z. The cause is unconfirmed. Needed: the build logs for `dpl_Hr1uX94SiSo1aywSTxE6bfem8mMB`, `dpl_3un6p5zPPrVPdS8Jxf3ZvuQGQg3q`, `dpl_4TnKxbgyYpcZhqUb4sXZ2bijzbP1`, `dpl_8Hf6T4QSgdvUZcE7bGQsYgwTZUat`, `dpl_8LLRvH9ztE8Mc2PmLuyrUAUxUpB4`, plus one good build for comparison (`DxWAvEMF91urUnEWYvsTdwA9Eu6t`). Or a fresh token.
+2. **Vercel 46-min build kills:** cause CONFIRMED as static-generation memory exhaustion (COST-002). The fix awaits approval in #1093. Needed: the build logs for `dpl_Hr1uX94SiSo1aywSTxE6bfem8mMB`, `dpl_3un6p5zPPrVPdS8Jxf3ZvuQGQg3q`, `dpl_4TnKxbgyYpcZhqUb4sXZ2bijzbP1`, `dpl_8Hf6T4QSgdvUZcE7bGQsYgwTZUat`, `dpl_8LLRvH9ztE8Mc2PmLuyrUAUxUpB4`, plus one good build for comparison (`DxWAvEMF91urUnEWYvsTdwA9Eu6t`). Or a fresh token.
 3. **Hosted Supabase `--hosted` RLS run:** needs authorization.
 
 **READY, held for a consolidated release after Vercel stabilizes (founder approval each):**
