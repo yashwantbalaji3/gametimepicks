@@ -166,3 +166,39 @@ The founder performs this once, at a quiet time (not during a live NFL game or a
 5. **Undo Rollback**, promoting the newest `main` deployment (§9, step 4).
 6. Validate that `build-info.json` equals the newest `main` SHA.
 7. Post the times and SHAs from steps 1–6 on #780.
+
+## 11. October 2026 addendum (written 2026-10-15 for the Oct 18–19 UAT rehearsal)
+
+These add to §1–§10 with what the October incidents taught. Where they differ, the sections above still decide who does what (§0).
+
+### 11.1 A failed build is not a Production outage
+- **Signature of the Oct 13–15 failures:**
+  - the build log's heartbeat shows `[phase] ALIVE next-build … mem ≈15.5G/16.00G` during "Generating static pages (~2,150/2,874)";
+  - then silence until the build is killed at about 46 min;
+  - GitHub shows the commit's `Vercel` status as "Deployment has failed".
+- **Effect:** Production keeps serving the last READY build, so **no rollback is needed**. The next data push builds again.
+- **Root cause and fix:** static-generation memory exhaustion. #1093 caps workers at 4 (`experimental.cpus`); the first capped build peaked at 14.82G/16G. Since then: 0 failures (72-hour watch, `~/gtp-evidence/deploy-watch/`).
+- **Response:**
+  - don't retry repeatedly; one failed build is cheap to ignore and expensive to repeat;
+  - if two consecutive builds fail with this signature, open an incident (§1) and compare the newest successful log's `mem` line.
+  - #1095 adds an `anon/file/peak` split to that line once merged.
+
+### 11.2 Queue behaviour (not an incident)
+- Production builds run one at a time per branch.
+- A newer push supersedes queued ones. Superseded deployments show **"Canceled from the Vercel Dashboard"**; that is the queue, not a person or a failure.
+- **"Canceled by Ignored Build Step"** means `vercel-ignore-build.sh` found no build-input change: `ops/` only, tests/e2e/CI-only (#1091), docs. That is expected and costs about 16 CPU-min.
+
+### 11.3 Verifying without tripping Vercel's bot challenge
+- Scripted polling of Production can get `x-vercel-mitigated: challenge` (seen 2026-10-15). Follow `docs/VERCEL_BOT_CHALLENGE_VERIFICATION_CONTRACT.md`.
+  - Read deployment outcomes from GitHub commit statuses (context `Vercel`).
+  - Read the live SHA from `/data/build-info.json` in a **real browser**.
+- **Forecast Record integrity after any rollback or undo:** in the browser console on Production, hash each `/data/forecast-record/v1/*.csv` (sorted `forecastId|settlementState`). Compare with the ledger at the served SHA (`data/internal/forecast-ledger/v1/*.jsonl`). This is the check run after every October merge (25/25 files, 15,879 rows on 10-15).
+
+### 11.4 Fixing forward: timing
+- A `git revert -m 1 <merge>` of an `app/` change is a build input, so it builds. On the Enhanced machine with 4 workers that takes about **5–7 min end-to-end** (clone ≈1.5 min, `next build` ≈2–4 min, cache ≈40 s).
+- During a rollback it builds but does not go live until **Undo Rollback** (§9).
+
+### 11.5 UAT rehearsal window (Oct 18–19)
+- Not during a live NFL window (Sunday 13:00–23:30 ET) or the MLB slate. Not between the MLB daily production run (≈10:15 ET) and its board publication.
+- **Suggested:** Sunday 2026-10-18 08:00–09:00 ET, or Monday 2026-10-19 morning ET.
+- Run §10 exactly, then add the §11.3 Forecast Record check after both the rollback and the undo. Record the times and SHAs.
