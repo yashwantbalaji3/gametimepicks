@@ -136,6 +136,26 @@ for _nbi in "${NON_BUILD_INPUTS[@]}"; do
     BUILD_INPUTS+=( ":(top,exclude)${_nbi}" )
 done
 
+# ── FILES NO BUILD STEP READS (Vercel wedge investigation, 2026-10-15) ───────────────────────────
+# A merge that changes only tests, end-to-end specs or CI tooling cannot change one byte the site serves,
+# yet `:(top)app/` made each one a full Production build. #1089 (workflows + a CI script + a test) built
+# for 46 minutes and was killed; over 14 days 13 of 183 code-merge builds were of exactly this shape.
+# The build reads `npm run build`'s steps and everything they import (969 files on 2026-10-15). None of these
+# globs is in that closure. That is NOT taken on trust: build-trigger-non-inputs.test.mjs recomputes the closure
+# from the build script and the route tree, and fails if any file matching a glob below is ever read by it.
+# Type errors in tests/specs are still caught where they always were: the PR quality gate runs a full build.
+# Direction of safety: an entry here can only cause LESS building; a malformed array builds everything.
+# GTP-NON-BUILD-GLOBS-BEGIN
+NON_BUILD_GLOBS=(
+    'app/**/*.test.mjs'
+    'app/e2e/**'
+    'app/scripts/ci/**'
+)
+# GTP-NON-BUILD-GLOBS-END
+for _g in "${NON_BUILD_GLOBS[@]}"; do
+    BUILD_INPUTS+=( ":(top,exclude,glob)${_g}" )
+done
+
 if git diff --quiet "$BASE" HEAD -- "${BUILD_INPUTS[@]}"; then
     echo "[ignore-build] no build-input changes (app/ minus ${NON_BUILD_INPUTS[*]}, data/*-projection, read internal paths) since deployed $BASE — skipping build"
     exit 0
