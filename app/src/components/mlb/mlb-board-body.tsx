@@ -42,6 +42,18 @@ const MLB_PENDING_REASON: Record<string, string> = {
   odds_not_fetched: "Prop prices were not captured for this slate.",
 };
 
+/**
+ * One message per case (audit H4): the specific reason when the board records one, otherwise the generic state;
+ * a past slate never promises projections "once lines post", and "no games" never promises them at all.
+ */
+function pendingBannerText(hasLeans: boolean, isPast: boolean, pendingReason: string | null | undefined): string {
+  if (hasLeans) return "Posted prop lines are limited for this slate.";
+  const reason = pendingReason ? MLB_PENDING_REASON[pendingReason] : undefined;
+  const promise = !isPast && pendingReason !== "no_events" ? " Projections are listed once lines post." : "";
+  if (reason) return reason + promise;
+  return isPast ? "No prop lines were posted for this slate." : `No prop lines are posted for this slate yet.${promise}`;
+}
+
 export default function MlbBoardBody({ date, liveness }: { date: string; liveness?: ReactNode }) {
   const board = getMlbBoardForDate(date);
 
@@ -255,16 +267,9 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                   className="font-mono uppercase tracking-[0.14em] mb-1"
                   style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
                 >
-                  prop lines pending · projections coming soon
+                  {date < currentEtDate() ? "no prop lines for this slate" : "prop lines pending"}
                 </div>
-                {hasLeans
-                  ? "Posted prop lines are limited for this slate."
-                  : date < currentEtDate()
-                    ? "No prop lines were posted for this slate."
-                    : "No prop lines are posted for this slate yet. Projections are listed once lines post."}{" "}
-                {board.pendingReason && MLB_PENDING_REASON[board.pendingReason] ? (
-                  <span>{MLB_PENDING_REASON[board.pendingReason]}</span>
-                ) : null}
+                {pendingBannerText(hasLeans, date < currentEtDate(), board.pendingReason)}
               </div>
             </section>
           )}
@@ -296,7 +301,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                 className="font-mono uppercase tracking-[0.14em] mb-3"
                 style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
               >
-                Scheduled · {totalGames} {totalGames === 1 ? "game" : "games"}
+                {date < currentEtDate() ? "Slate" : "Scheduled"} · {totalGames} {totalGames === 1 ? "game" : "games"}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {board.games.map((g) => (
