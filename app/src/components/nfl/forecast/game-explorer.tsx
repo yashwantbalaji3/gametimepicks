@@ -5,7 +5,8 @@
  * player's line and who scored. Nothing here is generated in the browser; the buttons only choose which recorded game
  * to show. A touchdown scorer in one game is what happened in that game, not a touchdown probability.
  */
-import { useState } from "react";
+import { useId, useState } from "react";
+import { useRovingTabs } from "@/components/a11y/use-roving-tabs";
 
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
@@ -15,19 +16,22 @@ const LABEL: Record<string, string> = { "0.1": "Away-side outlier", "0.3": "Lean
 
 export default function GameExplorer({ worlds, away, home, runs }: { worlds: any[]; away: string; home: string; runs: number }) {
   const [i, setI] = useState(Math.floor(worlds.length / 2));
+  const exBase = useId().replace(/:/g, "");
+  /* GTP-13 follow-up: one tab stop + arrow keys; every tab controls the single shared panel below. */
+  const worldTabs = useRovingTabs<string>({ keys: worlds.map((_, k) => String(k)), active: String(i), onChange: (k) => setI(Number(k)), idBase: exBase });
   const w = worlds[i];
   if (!w) return null;
   const sides: Array<[string, any]> = [[away, w.away], [home, w.home]];
   return (
     <div className="nf-card" style={{ marginTop: 12 }}>
-      <div className="nf-tabs" role="tablist" aria-label="Choose a simulated game">
+      <div className="nf-tabs" {...worldTabs.listProps} aria-label="Choose a simulated game">
         {worlds.map((x, k) => (
-          <button key={x.worldIndex} type="button" role="tab" aria-selected={k === i} className="nf-tab" onClick={() => setI(k)}>
+          <button key={x.worldIndex} {...worldTabs.tabProps(String(k))} aria-controls={`${exBase}-panel`} className="nf-tab">
             {away} {x.away.points}–{x.home.points} {home}{x.overtime ? " OT" : ""}
           </button>
         ))}
       </div>
-      <div role="tabpanel" aria-live="polite" style={{ marginTop: 10 }}>
+      <div role="tabpanel" id={`${exBase}-panel`} aria-labelledby={`${exBase}-tab-${i}`} aria-live="polite" style={{ marginTop: 10 }}>
         <p className="nf-eyebrow">Game #{(w.worldIndex + 1).toLocaleString("en-US")} of {runs.toLocaleString("en-US")} · {LABEL[String(w.marginQuantile)] ?? "Sampled game"}</p>
         <p className="nf-num" style={{ margin: "6px 0 0", fontSize: 26, fontWeight: 800, color: "var(--vault-text)", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <TeamLogo team={away} sport="nfl" size="sm" ariaLabel={`${away} logo`} /> {away} {w.away.points}

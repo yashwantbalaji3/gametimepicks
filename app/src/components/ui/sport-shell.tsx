@@ -6,7 +6,8 @@
  * mount for shareable deep-links and keeps the URL in sync via history.replaceState (no router
  * dependency, no Suspense requirement). Reusable across World Cup / MLB / NBA / UFC.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
+import { useRovingTabs } from "@/components/a11y/use-roving-tabs";
 
 export interface ShellTab {
   key: string;
@@ -35,6 +36,10 @@ export default function SportShell({ tabs }: { tabs: ShellTab[] }) {
     }
   };
 
+  /* GTP-13 follow-up: the shared keyboard model, AND the tab↔panel pairing — the panels below named
+     `aria-labelledby={t.key}`, an id no tab carried, so a screen reader could not name a panel. */
+  const shellTabs = useRovingTabs<string>({ keys: tabs.map((t) => t.key), active, onChange: select, idBase: useId().replace(/:/g, "") });
+
   return (
     <div>
       <nav
@@ -42,17 +47,14 @@ export default function SportShell({ tabs }: { tabs: ShellTab[] }) {
         className="sticky top-0 z-20 -mx-4 sm:-mx-8 px-4 sm:px-8 py-2 mb-5 overflow-x-auto"
         style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 92%, transparent)", backdropFilter: "blur(8px)", borderBottom: "1px solid var(--vault-border)" }}
       >
-        <div className="flex items-center gap-1.5 min-w-max" role="tablist">
+        <div className="flex items-center gap-1.5 min-w-max" {...shellTabs.listProps}>
           {tabs.map((t) => {
             const on = t.key === active;
             return (
               <button
                 key={t.key}
-                type="button"
-                role="tab"
-                aria-selected={on}
-                onClick={() => select(t.key)}
-                className="flex items-center gap-1.5 rounded-full px-3.5 py-1.5 transition-colors"
+                {...shellTabs.tabProps(t.key)}
+                className="gtp-hit-44 flex items-center gap-1.5 rounded-full px-3.5 py-1.5 transition-colors"
                 style={{
                   background: on ? "var(--vault-gold-dim)" : "transparent",
                   border: `1px solid ${on ? "var(--vault-gold-bright)" : "var(--vault-rule)"}`,
@@ -76,7 +78,7 @@ export default function SportShell({ tabs }: { tabs: ShellTab[] }) {
       </nav>
       {/* All tabs rendered server-side; inactive ones hidden. Keeps content in static HTML. */}
       {tabs.map((t) => (
-        <div key={t.key} role="tabpanel" aria-labelledby={t.key} hidden={t.key !== active}>
+        <div key={t.key} {...shellTabs.panelProps(t.key)} hidden={t.key !== active}>
           {t.content}
         </div>
       ))}

@@ -45,7 +45,10 @@ export function useRovingTabs<K extends string>({ keys, active, onChange, idBase
   const panelId = (k: K) => `${idBase}-panel-${k}`;
 
   const onKeyDown = useCallback((e: KeyboardEvent<HTMLElement>) => {
-    const next = nextTabKey(keys, active, e.key);
+    /* Navigate from the tab that HAS focus (a click or script can focus a tab that is not selected), falling back
+       to the selected one. */
+    const focused = keys.find((k) => refs.current.get(k) === e.target) ?? active;
+    const next = nextTabKey(keys, focused, e.key);
     if (next == null) return;
     e.preventDefault();
     onChange(next);
