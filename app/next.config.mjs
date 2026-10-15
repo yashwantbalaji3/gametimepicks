@@ -51,10 +51,13 @@ const nextConfig = {
    */
   /*
    * 2026-10-15 follow-up: with 4 workers the first Production build (dpl_FpJSaweMcmUE2yoSzNiNbX8UAKBb, bc0ac8b)
-   * completed but peaked at 14.82G/16.00G (vs 15.51G stalled at 7) — 93%, too little margin. Memory rises ~8 G in
-   * the last quarter of static generation (≈2 G per worker on the heaviest pages). 3 workers: local swap-outs 0,
-   * next build 134 s (vs 121–139 s at 4–7). Estimated Vercel peak ≈ 12.8 G — an extrapolation, to be confirmed
-   * from the next build log.
+   * completed but peaked at 14.82G/16.00G (vs 15.51G stalled at 7) — 93%, too little margin. That reading is the
+   * cgroup's whole charge, page cache included, so run-phase now also prints anon/file/peak (see run-phase.mjs).
+   * Local, per process (2026-10-15, paired builds of the same tree): fewer workers each render more pages and
+   * grow larger (largest worker 3.20G at 3 vs 2.08G at 4), so total worker memory falls only modestly —
+   * 5.43G vs 5.76G simultaneous (−6%). Output identical (7,516 files; only build-info's commit differs);
+   * 2,881 pages both ways; next build 139 s vs 131 s mean (+6%). The Vercel effect is unmeasured until the next
+   * build log — expect a small reduction, not a proportional one. Revert to 4 if the anon peak does not fall.
    */
   experimental: { cpus: 3 },
 };
