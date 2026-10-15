@@ -64,16 +64,17 @@ function fmtOdds(n: number | null | undefined): string {
   return v > 0 ? `+${v}` : `${v}`;
 }
 
-function outcomeColor(o: SettledLeanRow["outcome"]): string {
+/** Outcome colour class (globals.css, "Settled game detail"): Win success, Loss warn, Push mute, else faint. */
+function outcomeClass(o: SettledLeanRow["outcome"]): string {
   switch (o) {
     case "Win":
-      return "var(--vault-success)";
+      return "sgd-win";
     case "Loss":
-      return "var(--vault-warn)";
+      return "sgd-loss";
     case "Push":
-      return "var(--vault-text-mute)";
+      return "sgd-push";
     default:
-      return "var(--vault-text-faint)";
+      return "sgd-other";
   }
 }
 
@@ -213,29 +214,24 @@ export default function SettledGameDetail({
               </tr>
             )}
             {rows.map((r) => (
-              <tr
-                key={r.id}
-                style={{
-                  borderTop: "1px solid var(--vault-rule)",
-                }}
-              >
+              <tr key={r.id} className="sgd-row">
                 <Td>
-                  <span style={{ color: "var(--vault-text)", fontWeight: 500 }}>
+                  <span className="sgd-name">
                     {r.playerName}
                   </span>
                 </Td>
                 <Td>{r.marketLabel}</Td>
                 <Td align="right">
-                  <span style={{ color: "var(--vault-gold-bright)" }}>
+                  <span className="sgd-goldb">
                     {r.side}
                   </span>{" "}
-                  <span style={{ color: "var(--vault-text)" }}>
+                  <span className="sgd-text">
                     {fmt(r.line, 1)}
                   </span>
                 </Td>
                 <Td align="right">{fmt(r.projection, 2)}</Td>
                 <Td align="right">
-                  <span style={{ color: "var(--vault-text)" }}>
+                  <span className="sgd-text">
                     {fmt(r.actual, 0)}
                   </span>
                 </Td>
@@ -246,19 +242,11 @@ export default function SettledGameDetail({
                 </Td>
                 <Td align="right">{r.confidence}</Td>
                 <Td align="right">
-                  <span
-                    style={{
-                      color: outcomeColor(r.outcome),
-                      fontWeight: 600,
-                    }}
-                  >
+                  <span className={`sgd-out ${outcomeClass(r.outcome)}`}>
                     {r.outcome}
                   </span>
                   {r.bookmaker && (
-                    <span
-                      className="ml-2"
-                      style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
-                    >
+                    <span className="ml-2 sgd-odds">
                       {fmtOdds(r.oddsForSide)} · {r.bookmaker}
                     </span>
                   )}
@@ -282,8 +270,7 @@ function Th({
   return (
     <th
       scope="col"
-      className="px-3 sm:px-4 py-2"
-      style={{ textAlign: align ?? "left", fontWeight: 600 }}
+      className={`px-3 sm:px-4 py-2 sgd-th${align === "right" ? " sgd-r" : ""}`}
     >
       {children}
     </th>
@@ -299,8 +286,7 @@ function Td({
 }) {
   return (
     <td
-      className="px-3 sm:px-4 py-2"
-      style={{ textAlign: align ?? "left", whiteSpace: "nowrap" }}
+      className={`px-3 sm:px-4 py-2 sgd-td${align === "right" ? " sgd-r" : ""}`}
     >
       {children}
     </td>

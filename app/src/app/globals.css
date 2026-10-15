@@ -5927,3 +5927,20 @@ main a.font-mono.uppercase:not(p a):not(li a):not(td a):not(dd a) { display: inl
 .lr-tile { padding: 8px 10px; border: 1px solid var(--vault-border); background: color-mix(in srgb, var(--vault-scrim-base) 55%, transparent); min-height: 56px; }
 .lr-tv { font-size: clamp(20px, 3vw, 26px); line-height: 1.05; margin-top: 2px; font-variant-numeric: tabular-nums; text-shadow: none; }
 .lr-tv.lr-glow { text-shadow: 0 0 12px color-mix(in srgb, var(--vault-accent) 30%, transparent); }
+/* ── Settled game detail (components/settled-game-detail.tsx) · COST-002 HTML reduction, 2026-10-15 ───────────
+   Per-row declarations of the graded-row table, formerly inline on every cell. On server-rendered results pages
+   each inline style was written twice (HTML + RSC payload), ≈41 MB of the Results-by-date archive. Values are
+   copied verbatim; unlayered after the utilities so ties resolve as the inline styles did. */
+.sgd-row { border-top: 1px solid var(--vault-rule); }
+.sgd-th { text-align: left; font-weight: 600; }
+.sgd-td { text-align: left; white-space: nowrap; }
+.sgd-th.sgd-r, .sgd-td.sgd-r { text-align: right; }
+.sgd-name { color: var(--vault-text); font-weight: 500; }
+.sgd-text { color: var(--vault-text); }
+.sgd-goldb { color: var(--vault-gold-bright); }
+.sgd-out { font-weight: 600; }
+.sgd-win { color: var(--vault-success); }
+.sgd-loss { color: var(--vault-warn); }
+.sgd-push { color: var(--vault-text-mute); }
+.sgd-other { color: var(--vault-text-faint); }
+.sgd-odds { color: var(--vault-text-faint); font-size: 10px; }
