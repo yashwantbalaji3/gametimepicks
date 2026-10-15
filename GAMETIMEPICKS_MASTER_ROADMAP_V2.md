@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 06:30Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 14:40Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1802,6 +1802,15 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
   - **P1:** #1088 (MLB gate); archive slimming (export −51% locally); `nightly-settle` gate; per-run snapshot hygiene.
   - **P2:** deploy coordinator; data decoupling; move `data/internal` out of the deploy repo (51 s clone).
 - **Target:** −30% to −40% of build CPU after P0+P1, and −50% to −65% with P2. Dollar figures await the founder's Usage breakdown and billing-cycle dates.
+- **14:40Z update:**
+  - **Billing reconciliation:**
+    - Dashboard: Build CPU $65.32, on-demand $45.65, included credit $20. On-demand ≈ total usage − $20 credit, so non-build usage is about $0.33 (inference; to be confirmed on the Usage page).
+    - Our model (COST-001 rate $0.0035/CPU-min) gives $62.51 from 10-09 and $71.06 from 10-08, so it matches a cycle starting about 10-08/09. **The model is calibrated** (the earlier "1.8×" compared 14 d with a ~6-day cycle).
+    - Baseline: about $9.9/day of build CPU on 7 days, ≈ **$280–320/month** before the $20 credit.
+  - **Production build health:** a **6th** 46-minute kill (daily products 10:09→10:59Z). 6 kills in about 21 h.
+  - **#1093:** exact head `1b8463c539`, CI green (run 38692616491), MERGEABLE CLEAN, 2 files. Approval package sent.
+  - **#1091** (`dcfbf47fd2`): **proven to affect no automated commit**. 0 workflow `git add` lines and 0 bot commits in 14 d touch its globs.
+  - **#1088** (`ca375282f3`): replay refreshed on current data: 160 → 50 MLB build-triggering commits (−69%). All 28 lineup-driven simulation changes, 10 new-day files and 1 prediction change published.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
   - a CI memory early warning (peak > 12 G);
