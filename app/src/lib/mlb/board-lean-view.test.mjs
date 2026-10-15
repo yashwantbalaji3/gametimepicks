@@ -16,9 +16,12 @@ import { applyMlbFilters } from "../../components/mlb/mlb-filter-console.tsx";
 
 const APP = process.cwd();
 const DIR = path.join(APP, "public/data/mlb/boards");
-const boards = fs.readdirSync(DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
-  .map((f) => JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8")))
-  .filter((b) => Array.isArray(b.leans) && b.leans.length > 0);
+// Committed boards only: other suites briefly write synthetic far-future fixtures (e.g. 2099-07-04) into this
+// directory, so a file may vanish between listing and reading, and a date past 2090 is never real data.
+const readIfPresent = (f) => { try { return JSON.parse(fs.readFileSync(path.join(DIR, f), "utf8")); } catch { return null; } };
+const boards = fs.readdirSync(DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) && f < "2090")
+  .map(readIfPresent)
+  .filter((b) => b && Array.isArray(b.leans) && b.leans.length > 0);
 
 test("POSITIVE CONTROL: real boards with leans are on disk", () => {
   assert.ok(boards.length >= 30, `only ${boards.length} boards with leans — the equivalence below would prove little`);
