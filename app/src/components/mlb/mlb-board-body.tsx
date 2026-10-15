@@ -36,20 +36,32 @@ import { surfaceHref } from "@/lib/nav/date-sport-route";
  *   2) games.length > 0 && no leans        → schedule-only "lines pending"
  *   3) games.length === 0                  → honest off-day shell
  */
-/** The board's `pendingReason` codes (no_events, odds_not_fetched) in reader words; an unknown code is not shown raw. */
+/**
+ * The board's `pendingReason` codes (pipeline/mlb/generate_mlb_board.py `_write_pending_board`) in reader words. They
+ * describe the PROP-PRICE capture, not the schedule: `no_events` means the odds provider listed no events, while the
+ * schedule may well hold games. An unknown code is never printed raw.
+ */
+const PRICES_NOT_CAPTURED = "Prop prices were not captured for this slate.";
 const MLB_PENDING_REASON: Record<string, string> = {
-  no_events: "No MLB games are scheduled on this date.",
-  odds_not_fetched: "Prop prices were not captured for this slate.",
+  no_events: "The odds provider listed no events for this slate.",
+  all_events_started: "Every game had started before prop prices were captured.",
+  odds_not_fetched: PRICES_NOT_CAPTURED,
+  odds_not_configured: PRICES_NOT_CAPTURED,
+  free_key_blocked: PRICES_NOT_CAPTURED,
+  cost_cap: PRICES_NOT_CAPTURED,
+  floor_guard: PRICES_NOT_CAPTURED,
+  dry_run: PRICES_NOT_CAPTURED,
 };
 
 /**
  * One message per case (audit H4): the specific reason when the board records one, otherwise the generic state;
- * a past slate never promises projections "once lines post", and "no games" never promises them at all.
+ * a past slate, or one where every game has started, never promises projections "once lines post".
  */
 function pendingBannerText(hasLeans: boolean, isPast: boolean, pendingReason: string | null | undefined): string {
   if (hasLeans) return "Posted prop lines are limited for this slate.";
   const reason = pendingReason ? MLB_PENDING_REASON[pendingReason] : undefined;
-  const promise = !isPast && pendingReason !== "no_events" ? " Projections are listed once lines post." : "";
+  // "once lines post" is only promised while it can still happen: not for a past slate, and not once every game started.
+  const promise = !isPast && pendingReason !== "all_events_started" ? " Projections are listed once lines post." : "";
   if (reason) return reason + promise;
   return isPast ? "No prop lines were posted for this slate." : `No prop lines are posted for this slate yet.${promise}`;
 }

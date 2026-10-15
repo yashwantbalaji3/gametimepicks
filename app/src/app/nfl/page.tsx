@@ -176,7 +176,7 @@ function lastCaptureLabel(capturedAt?: string | null): string {
 const NFL_LANE_STATE_LABEL: Record<string, string> = {
   ACTIVE: "Card published",
   NO_PLAY: "No qualified card",
-  REFUSED: "Not run — no eligible games",
+  REFUSED: "No eligible games to consider",
 };
 
 export default function NflHubPage() {

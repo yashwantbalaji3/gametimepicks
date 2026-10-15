@@ -23,11 +23,19 @@ test("every schedule status, shared and UFC bout extension, has reader words; no
 
 test("MLB board: every pendingReason in the committed boards has a sentence, and the code itself is never printed", () => {
   const body = src("src/components/mlb/mlb-board-body.tsx");
-  const map = Object.fromEntries([...body.matchAll(/^\s+([a-z_]+): "([^"]+)",$/gm)].map((m) => [m[1], m[2]]));
+  const PNC = (body.match(/const PRICES_NOT_CAPTURED = "([^"]+)"/) ?? [])[1];
+  const map = Object.fromEntries([...body.matchAll(/^\s+([a-z_]+): (?:"([^"]+)"|PRICES_NOT_CAPTURED),$/gm)].map((m) => [m[1], m[2] ?? PNC]));
   const dir = path.join(APP, "public/data/mlb/boards");
   const reasons = new Set(fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) && f < "2090")
     .map((f) => { try { return JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).pendingReason; } catch { return null; } }).filter(Boolean));
   assert.ok(reasons.size >= 1, "POSITIVE CONTROL: committed boards carry at least one pendingReason");
+  // …and every reason the generator CAN write, not only those in today's data.
+  const gen = fs.readFileSync(path.join(APP, "..", "pipeline/mlb/generate_mlb_board.py"), "utf8");
+  const produced = [...gen.matchAll(/_write_pending_board\([^)]*reason="([a-z_]+)"\)/g)].map((m) => m[1]);
+  assert.ok(produced.length >= 6, `found only ${produced.length} generator reasons`);
+  for (const r of produced) reasons.add(r);
+  assert.match(map.no_events, /odds provider/, "no_events is about the odds feed, not the schedule");
+  assert.doesNotMatch(map.no_events, /no .*games are scheduled/i);
   for (const r of reasons) assert.ok(map[r], `pendingReason "${r}" would be hidden or raw — add reader words`);
   assert.doesNotMatch(body, /Reason: \{board\.pendingReason\}/);
 });

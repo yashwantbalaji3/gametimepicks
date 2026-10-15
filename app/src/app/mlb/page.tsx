@@ -356,7 +356,7 @@ export default function MlbLandingPage() {
       <QuickActionRail
         heading="More on MLB"
         cards={[
-          { href: "/mlb/board", eyebrow: date === currentEtDate() ? "Today" : date > currentEtDate() ? "Next slate" : "Latest slate", title: "Model board", sub: propsAvailable ? `${summary.leans} projections across ${gameCount} game${gameCount === 1 ? "" : "s"}.` : "No prop lines posted for this slate yet." },
+          { href: "/mlb/board", eyebrow: date === currentEtDate() ? "Today" : date > currentEtDate() ? "Next slate" : "Latest slate", title: "Model board", sub: propsAvailable ? `${summary.leans} projections across ${gameCount} game${gameCount === 1 ? "" : "s"}.` : date < currentEtDate() ? "No prop lines were posted for this slate." : "No prop lines posted for this slate yet." },
           { href: "/results/mlb", eyebrow: "Results", title: "MLB results", sub: mlbLifetime?.hitRate != null ? `${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive} settled.` : "Pending first settlement." },
           { href: "/results/model-audit", eyebrow: "Performance", title: "Model performance", sub: "Per-market, per-edge, per-game dispersion." },
           { href: "/homer-nukes", eyebrow: "Home runs", title: "Homer Nukes", sub: "The five most likely home runs on the latest slate, each with its own probability." }, // GTP-25
