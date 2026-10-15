@@ -555,7 +555,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         <SectionHeader eyebrow={`Model player props · ${modelPicks.length}`} title="Model picks by market" sub="Up to 3 model-qualified picks per market — recommended side only, never the full both-sides inventory." />
         {marketLabels.length > 0 ? (
           <p className="text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
-            Markets posted for this fixture: {marketLabels.join(" · ")}. {limitedData ? "Limited-data — market-implied prices, no independent model edge yet. " : ""}Additional player markets (assists, shots, cards, …) appear here automatically when the books post odds — never shown without real prices.
+            Markets posted for this fixture: {marketLabels.join(" · ")}. {limitedData ? "Limited-data — market-implied prices, no independent model edge yet. " : ""}Other player markets (assists, shots, cards, …) are listed only when sportsbooks post real prices for them.
           </p>
         ) : null}
         {marketGroups.length > 0 ? (

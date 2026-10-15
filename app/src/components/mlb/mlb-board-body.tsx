@@ -36,6 +36,12 @@ import { surfaceHref } from "@/lib/nav/date-sport-route";
  *   2) games.length > 0 && no leans        → schedule-only "lines pending"
  *   3) games.length === 0                  → honest off-day shell
  */
+/** The board's `pendingReason` codes (no_events, odds_not_fetched) in reader words; an unknown code is not shown raw. */
+const MLB_PENDING_REASON: Record<string, string> = {
+  no_events: "No MLB games are scheduled on this date.",
+  odds_not_fetched: "Prop prices were not captured for this slate.",
+};
+
 export default function MlbBoardBody({ date, liveness }: { date: string; liveness?: ReactNode }) {
   const board = getMlbBoardForDate(date);
 
@@ -253,10 +259,12 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                 </div>
                 {hasLeans
                   ? "Posted prop lines are limited for this slate."
-                  : "Schedule is live but no posted prop lines yet. Projections appear here when lines post."}{" "}
-                {board.pendingReason && (
-                  <span>Reason: {board.pendingReason}.</span>
-                )}
+                  : date < currentEtDate()
+                    ? "No prop lines were posted for this slate."
+                    : "No prop lines are posted for this slate yet. Projections are listed once lines post."}{" "}
+                {board.pendingReason && MLB_PENDING_REASON[board.pendingReason] ? (
+                  <span>{MLB_PENDING_REASON[board.pendingReason]}</span>
+                ) : null}
               </div>
             </section>
           )}

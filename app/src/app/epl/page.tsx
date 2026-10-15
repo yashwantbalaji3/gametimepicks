@@ -374,7 +374,7 @@ export default function EplPage() {
           <SectionHeader
             eyebrow="Team predictions"
             title="No fixtures inside the forecast window"
-            sub="Between matchweeks the model publishes nothing, which is the honest state rather than a stale card left up."
+            sub="The model publishes team predictions only for fixtures inside its forecast window, and none are in it right now."
           />
         </section>
       )}

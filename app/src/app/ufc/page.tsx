@@ -356,8 +356,8 @@ export default function UfcArchivePage() {
           <GradedPicksSection record={ufcGraded} href="/results/picks/ufc" />
         ) : (
           <p className="font-mono text-[11px] leading-relaxed" style={{ color: "var(--vault-text-mute)", margin: 0 }}>
-            No bout has been graded under the current fight model yet. The record fills in from the
-            first official result; nothing renders here until then.
+            No bout has been graded under the current fight model yet. The record starts with the first
+            official result.
           </p>
         )}
 
@@ -390,7 +390,7 @@ export default function UfcArchivePage() {
               </>
             ) : (
               <p className="font-mono text-[11px] leading-relaxed" style={{ color: "var(--vault-text-mute)", margin: 0 }}>
-                No officially settled UFC record is available. Nothing renders here until an official settlement exists.
+                No officially settled UFC record is available yet.
               </p>
             )}
           </div>
