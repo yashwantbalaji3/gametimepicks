@@ -135,6 +135,11 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
     [detail, market],
   );
 
+  /* Paged in steps of 250 (it was capped at 250 with "narrow by market" as the only way to the rest); resets with the selection. */
+  const DETAIL_STEP = 250;
+  const [detailLimit, setDetailLimit] = useState(DETAIL_STEP);
+  useEffect(() => { setDetailLimit(DETAIL_STEP); }, [visibleDetail]);
+
   const control: React.CSSProperties = {
     minHeight: 44, borderRadius: 8, padding: "0 10px", fontSize: 13,
     background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)",
@@ -281,7 +286,7 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
                   </tr>
                 </thead>
                 <tbody>
-                  {visibleDetail.slice(0, 250).map((r) => (
+                  {visibleDetail.slice(0, detailLimit).map((r) => (
                     <tr key={r.id}>
                       <th scope="row" style={{ textAlign: "left", padding: "5px 12px 5px 0", fontWeight: 600 }}>{r.player ?? "—"}</th>
                       <td style={{ padding: "5px 12px 5px 0", color: "var(--vault-text-mute)" }}>{r.eventName ?? "—"}</td>
@@ -295,10 +300,24 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
               </table>
             </div>
           ) : null}
-          {visibleDetail.length > 250 ? (
-            <p className="m-0" style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>
-              Showing the first 250 of {visibleDetail.length}. Narrow by market to see the rest — the counts above cover every one of them.
-            </p>
+          {visibleDetail.length > DETAIL_STEP ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <p role="status" aria-live="polite" className="m-0" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
+                Showing {Math.min(detailLimit, visibleDetail.length)} of {visibleDetail.length}. The counts above cover every one of them.
+              </p>
+              {detailLimit < visibleDetail.length ? (
+                <>
+                  <button type="button" className="gtp-hit-44" onClick={() => setDetailLimit((n) => n + DETAIL_STEP)}
+                    style={{ padding: "0 14px", borderRadius: 999, border: "1px solid var(--vault-border)", background: "transparent", color: "var(--vault-text)", fontSize: 13, cursor: "pointer" }}>
+                    Show {Math.min(DETAIL_STEP, visibleDetail.length - detailLimit)} more
+                  </button>
+                  <button type="button" className="gtp-hit-44" onClick={() => setDetailLimit(visibleDetail.length)}
+                    style={{ padding: "0 14px", borderRadius: 999, border: "1px solid var(--vault-border)", background: "transparent", color: "var(--vault-text-mute)", fontSize: 13, cursor: "pointer" }}>
+                    Show all {visibleDetail.length}
+                  </button>
+                </>
+              ) : null}
+            </div>
           ) : null}
         </div>
       ) : null}

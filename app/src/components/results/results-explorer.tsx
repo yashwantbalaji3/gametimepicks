@@ -208,6 +208,17 @@ export default function ResultsExplorer({
     });
   }, [cards, dateFilterable, rangeError, from, to, sport, tier]);
 
+  /*
+   * GTP-21/32 (2026-10-15): the card list showed the newest 50 and told the reader to "narrow the range" for the
+   * rest — 137 cards on first load, so 87 were unreachable from this page. It now pages in steps of 50 (or all at
+   * once), newest first; the step resets whenever the selection changes. The totals above always count every card.
+   */
+  const CARD_STEP = 50;
+  const [cardLimit, setCardLimit] = useState(CARD_STEP);
+  useEffect(() => { setCardLimit(CARD_STEP); }, [recordType, sport, tier, from, to]);
+  const sortedCards = useMemo(() => [...selectedCards].sort((a, b) => b.date.localeCompare(a.date)), [selectedCards]);
+  const shownCards = sortedCards.slice(0, cardLimit);
+
   /** Pooled from SUMMED COUNTS. Nothing here averages a rate, and no decided card means no rate. */
   const cardPool = useMemo(() => {
     const wins = selectedCards.filter((c) => c.won).length;
@@ -478,7 +489,7 @@ export default function ResultsExplorer({
             <caption className="sr-only">Record for the selected population</caption>
             <thead>
               <tr>
-                {["Sport", tier === "all" ? "Record" : `Record (${tier})`, "Decisive", "Pending", "Source"].map((h) => (
+                {["Sport", tier === "all" ? "Record" : `Record (${tier})`, "Decisive", "Pending"].map((h) => (
                   <th key={h} scope="col" style={{ textAlign: "left", padding: "6px 12px 6px 0", borderBottom: "1px solid var(--vault-rule)", whiteSpace: "nowrap", fontSize: 11, color: "var(--vault-text-faint)" }}>{h}</th>
                 ))}
               </tr>
@@ -490,11 +501,21 @@ export default function ResultsExplorer({
                   <td style={{ padding: "7px 12px 7px 0" }}><Rate row={r} /></td>
                   <td style={{ padding: "7px 12px 7px 0", fontFamily: "monospace", fontSize: 12 }}>{r.decisive}</td>
                   <td style={{ padding: "7px 12px 7px 0", fontFamily: "monospace", fontSize: 12, color: "var(--vault-text-faint)" }}>{r.pending || "—"}</td>
-                  <td style={{ padding: "7px 12px 7px 0", fontFamily: "monospace", fontSize: 10.5, color: "var(--vault-text-faint)" }}>{r.source}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {/* Provenance kept, one tap away: which published file each row is read from. */}
+          <details style={{ marginTop: 6 }}>
+            <summary className="gtp-hit-44" style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)" }}>Where these records come from</summary>
+            <ul style={{ margin: "4px 0 0", paddingLeft: 18, fontSize: 12, color: "var(--vault-text-faint)" }}>
+              {visible.map((r) => (
+                <li key={`src:${r.recordType}:${r.sport}:${r.tier ?? "all"}`}>
+                  {SPORT_LABEL[r.sport] ?? r.sport}: <span style={{ fontFamily: "monospace" }}>{r.source}</span>
+                </li>
+              ))}
+            </ul>
+          </details>
         </div>
       )}
 
@@ -588,11 +609,11 @@ export default function ResultsExplorer({
                 </tr>
               </thead>
               <tbody>
-                {/* Newest first, capped — and the cap is STATED below rather than silently applied. */}
-                {[...selectedCards].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 50).map((c) => (
+                {/* Newest first, paged — the count is stated below and every card is reachable. */}
+                {shownCards.map((c) => (
                   <tr key={c.slipId}>
                     <td style={{ padding: "6px 12px 6px 0", fontFamily: "monospace", fontSize: 11.5, whiteSpace: "nowrap" }}>{c.date}</td>
-                    <td style={{ padding: "6px 12px 6px 0" }}>{c.sports.join(" + ")}</td>
+                    <td style={{ padding: "6px 12px 6px 0" }}>{c.sports.map((s) => SPORT_LABEL[s] ?? s).join(" + ")}</td>
                     <td style={{ padding: "6px 12px 6px 0", textTransform: "capitalize" }}>{c.tier ?? "—"}</td>
                     <td style={{ padding: "6px 12px 6px 0", fontFamily: "monospace", fontSize: 11.5 }}>{c.legCount}</td>
                     <td style={{ padding: "6px 12px 6px 0", fontFamily: "monospace", fontSize: 11.5 }}>
@@ -601,17 +622,36 @@ export default function ResultsExplorer({
                     <td style={{ padding: "6px 12px 6px 0", textTransform: "capitalize", color: c.won ? "var(--vault-success)" : c.lost ? "var(--vault-text-mute)" : "var(--vault-text-faint)" }}>
                       {c.result}
                     </td>
-                    <td style={{ padding: "6px 0", fontFamily: "monospace", fontSize: 10.5, color: "var(--vault-text-faint)", wordBreak: "break-all" }}>{c.slipId}</td>
+                    {/* The slip ID is provenance, not reading matter: kept, one tap away. */}
+                    <td style={{ padding: "6px 0" }}>
+                      <details>
+                        <summary className="gtp-hit-44" style={{ cursor: "pointer", fontSize: 11.5, color: "var(--vault-text-mute)" }}>ID</summary>
+                        <span style={{ fontFamily: "monospace", fontSize: 11, color: "var(--vault-text-faint)", wordBreak: "break-all" }}>{c.slipId}</span>
+                      </details>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          {selectedCards.length > 50 ? (
-            <p style={{ fontSize: 11, color: "var(--vault-text-faint)", margin: 0 }}>
-              Showing the 50 most recent of {selectedCards.length}. Narrow the range to see the rest —
-              the totals above count every one of them.
-            </p>
+          {selectedCards.length > CARD_STEP ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <p role="status" aria-live="polite" style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: 0 }}>
+                Showing the {shownCards.length} most recent of {selectedCards.length}. The totals above count every one of them.
+              </p>
+              {shownCards.length < selectedCards.length ? (
+                <>
+                  <button type="button" className="gtp-hit-44" onClick={() => setCardLimit((n) => n + CARD_STEP)}
+                    style={{ padding: "0 14px", borderRadius: 999, border: "1px solid var(--vault-border)", background: "transparent", color: "var(--vault-text)", fontSize: 13, cursor: "pointer" }}>
+                    Show {Math.min(CARD_STEP, selectedCards.length - shownCards.length)} more
+                  </button>
+                  <button type="button" className="gtp-hit-44" onClick={() => setCardLimit(selectedCards.length)}
+                    style={{ padding: "0 14px", borderRadius: 999, border: "1px solid var(--vault-border)", background: "transparent", color: "var(--vault-text-mute)", fontSize: 13, cursor: "pointer" }}>
+                    Show all {selectedCards.length}
+                  </button>
+                </>
+              ) : null}
+            </div>
           ) : null}
         </div>
       ) : null}
