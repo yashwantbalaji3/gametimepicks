@@ -546,7 +546,8 @@
    :focus-visible ring below can actually win — an inline box-shadow could not be
    overridden by any stylesheet rule, which is what silently disabled the focus ring
    on the whole desktop navigation. */
-.gtp-rail-link { box-shadow: var(--rail-shadow, none); }
+.gtp-rail-link { color: var(--vault-text-mute); background: transparent; border-left: 2px solid transparent; --rail-shadow: none; box-shadow: var(--rail-shadow); }
+.gtp-rail-link[aria-current="page"] { color: var(--vault-gold-bright); background: var(--vault-gold-dim); border-left: 2px solid var(--vault-gold-bright); --rail-shadow: inset 0 0 0 1px var(--vault-border), 0 0 14px var(--vault-gold-glow); }
 .gtp-rail-link:focus-visible { box-shadow: var(--vault-focus-ring); }
 
 /* Global keyboard-focus fallback — every interactive control shows the vault
@@ -5944,3 +5945,12 @@ main a.font-mono.uppercase:not(p a):not(li a):not(td a):not(dd a) { display: inl
 .sgd-push { color: var(--vault-text-mute); }
 .sgd-other { color: var(--vault-text-faint); }
 .sgd-odds { color: var(--vault-text-faint); font-size: 10px; }
+/* ── Site chrome: command rail + footer link lists · COST-002 HTML reduction, 2026-10-15 ─────────────────────
+   Formerly inline on every rail link and footer link of all ~2,900 exported pages. Values verbatim. The rail's
+   active state keys off aria-current="page", which the component sets exactly when the item is active. Footer
+   links use a.ft-link (+ [data-prose-link]) so the runtime prose-link underline still loses, as it did to the
+   inline text-decoration. The rail link's colour / background / rule / --rail-shadow sit on .gtp-rail-link above. */
+.gtp-rail-glyph { width: 18px; text-align: center; font-size: 13px; align-self: flex-start; margin-top: 1px; }
+.gtp-rail-desc { color: var(--vault-text-faint); margin-top: 1px; }
+a.ft-link, a.ft-link[data-prose-link] { color: var(--vault-text-mute); text-decoration: none; }
+.ft-note { color: var(--vault-text-faint); font-size: 11px; }

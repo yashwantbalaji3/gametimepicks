@@ -114,28 +114,18 @@ export default function CommandRail() {
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className="gtp-rail-link group flex items-center gap-3 px-3 py-2 rounded-[7px] transition-all"
-                  style={{
-                    color: active ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
-                    background: active ? "var(--vault-gold-dim)" : "transparent",
-                    borderLeft: active
-                      ? "2px solid var(--vault-gold-bright)"
-                      : "2px solid transparent",
-                    // Handed to CSS as a custom property rather than set as an inline `boxShadow`.
-                    // An inline box-shadow BEATS the global `a:focus-visible` ring, so writing it
-                    // here directly left all 14 rail links — the primary desktop navigation — with
-                    // no visible keyboard focus at all. See .gtp-rail-link in globals.css.
-                    ["--rail-shadow" as string]: active
-                      ? "inset 0 0 0 1px var(--vault-border), 0 0 14px var(--vault-gold-glow)"
-                      : "none",
-                  }}
+                  /* Colour, background, left rule and the --rail-shadow glow come from .gtp-rail-link and
+                     .gtp-rail-link[aria-current="page"] in globals.css (COST-002, 2026-10-15: these were
+                     inline on every rail link of every page). The glow stays a custom property, never an
+                     inline box-shadow, so the a:focus-visible ring still wins — see .gtp-rail-link. */
                 >
-                  <span aria-hidden style={{ width: 18, textAlign: "center", fontSize: 13, alignSelf: "flex-start", marginTop: 1 }}>
+                  <span aria-hidden className="gtp-rail-glyph">
                     {item.glyph}
                   </span>
                   <span className="flex flex-col leading-tight">
                     <span className={`text-[13px] tracking-tight ${active ? "font-semibold" : "font-medium"}`}>{item.label}</span>
                     {item.desc && (
-                      <span className="text-[10.5px] tracking-tight" style={{ color: "var(--vault-text-faint)", marginTop: 1 }}>{item.desc}</span>
+                      <span className="text-[10.5px] tracking-tight gtp-rail-desc">{item.desc}</span>
                     )}
                   </span>
                 </Link>
