@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 22:00Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 23:35Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1955,6 +1955,23 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
     - UFC sentences in the body face at 12.5 px (audit M10); the mono at 10–11.5 px is gone from those paragraphs. Checked at 375 px: no overflow.
     - 44 px "Per-product detail" disclosure on /nfl.
   - **Deferred, not dropped:** the M9 report type floor (≈90 sub-11 px sizes across the MLB/NFL game reports). DS-001 §4 classes it P2 ("migrated as touched"); a mass change this close to the freeze risks mobile layout.
+- **23:35Z update:**
+  - **#1109 (new finding, truthfulness plus churn):** `lab-eligibility` wrote "the last price capture is 3.9 days old", recomputed every run.
+    - The age is wrong once a static page is read.
+    - It made the Results projection restate itself r2 → r5 on 10-15 for nothing but the clock.
+    - It now names the capture's ET date and the rule ("(Oct 11) is more than 3 days old"), a fixed fact.
+    - Tested a day apart for byte-identical text; fails against the old script.
+  - **Build-trigger churn, measured (7 days, 424 consecutive built ranges, GitHub statuses plus local git):**
+    - **37 builds (9%, ≈ 5.3/day) changed nothing but stamps and derived ages** across their whole range;
+    - making admin/status.json a non-input (#1088) adds 0 on top;
+    - all admin files, an upper bound needing a reader trace, would add 5 more.
+    - The remaining lever is a build-input-level stamp/age normalisation (the #1088 pattern generalised): ≈ $0.8/day, ≈ $24/month, at the COST-001 rate.
+    - **Proposed, not built**; it needs per-file reader traces.
+  - **Production health since 16:00Z:** 10 builds completed, 7 correctly ignored, 0 failed, 0 slow (72 h watch).
+  - **SEA@DEN capture:** running since 23:15Z (daemon untouched).
+    - Passes every 5 min: all HTTP 200, 0 bot challenges, screenshots at 390/1440 with 0 overflow and 0 broken images.
+    - V2 replay (#1108) on the real pregame passes: 4 passes, 0 refusals, 0 disagreements.
+    - Kickoff 00:15Z; the acceptance report follows the game.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
   - a CI memory early warning (peak > 12 G);
