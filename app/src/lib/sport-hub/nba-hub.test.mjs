@@ -55,7 +55,8 @@ test("window: 3 days back to 7 days ahead; placeholder sides are counted, never 
 
 test("a final prints ONLY from the finals record, with canonical tricodes", () => {
   assert.equal(byId.played.status, "final");
-  assert.equal(byId.played.reportNote, "Final · MIA 104 – TOR 112");
+  // The chip beside the note already says "Final" (hubStatusDisplay); the note carries only the recorded score.
+  assert.equal(byId.played.reportNote, "MIA 104 – TOR 112");
   const u = byId["started-unrecorded"];
   assert.equal(u.status, "started or final", "a started game the record does not hold is not 'final'");
   assert.equal(u.reportNote, "Final not recorded yet");
