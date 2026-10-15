@@ -51,6 +51,17 @@ while [ "$(date -u +%s)" -lt "$until_b" ]; do
       echo "board $f $(git -C "$REPO" show "origin/main:$f" | shasum -a 256 | cut -c1-64)"; done
     git -C "$REPO" ls-tree -r --name-only origin/main data/internal/nfl/forecast-receipts 2>/dev/null | grep "$EV" | sed 's/^/receipt /'
     echo "main $(git -C "$REPO" rev-parse --short origin/main)"
+    # Player-prop progress from the committed live-props artifact (git, so unaffected by bot mitigation): phase,
+    # finality, counts, and a hash of ONLY the frozen parts — those must never change once the game starts.
+    git -C "$REPO" show "origin/main:app/public/data/nfl/live-props/$EV.json" 2>/dev/null | python3 -c "
+import json,sys,hashlib
+d=json.load(sys.stdin); rows=d.get('rows',[])
+fz=hashlib.sha256(json.dumps(sorted([[r.get('predictionId'),r.get('frozenIdentity'),r.get('frozen')] for r in rows]),sort_keys=True).encode()).hexdigest()[:16]
+live=sum(1 for r in rows if (r.get('live') or {}).get('statValue') is not None)
+st={}
+for r in rows: k=(r.get('settlement') or {}).get('state') or 'NONE'; st[k]=st.get(k,0)+1
+print('liveprops', json.dumps({'phase':d.get('phase'),'finality':d.get('finality'),'observedAt':d.get('observedAt'),'rows':len(rows),'withLive':live,'settlement':st,'frozenHash':fz,'refused':sum(1 for r in rows if r.get('frozenRefusal'))},separators=(',',':')))
+" 2>/dev/null || echo "liveprops none"
   } > "$OUT/$T-frozen.txt"
   if ! git -C "$REPO" cat-file -e "origin/main:data/internal/nfl/settlement/$SETTLE_DATE.json" 2>/dev/null; then SET=no-file-yet; else
   SET=$(git -C "$REPO" show "origin/main:data/internal/nfl/settlement/$SETTLE_DATE.json" 2>/dev/null \
