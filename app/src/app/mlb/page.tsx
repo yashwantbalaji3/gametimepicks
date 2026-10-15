@@ -226,21 +226,23 @@ export default function MlbLandingPage() {
         {games.map((g) => {
           const anchor = `game-${g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`;
           const tileKey = g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`;
-          const detailHref = gameHrefByMatchId("mlb", g.gamePk) ?? `/mlb/board#${anchor}`;
+          const gameHref = gameHrefByMatchId("mlb", g.gamePk);
+          const detailHref = gameHref ?? `/mlb/board#${anchor}`;
+          const away = g.awayTeamAbbr ?? "TBD", home = g.homeTeamAbbr ?? "TBD";
           return (
             <Link
               key={tileKey}
               href={detailHref}
               className="vault-glow-hover flex items-center justify-between gap-3 rounded-[6px]"
               style={{ padding: "12px 14px", border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", color: "inherit", textDecoration: "none" }}
-              aria-label={`View props for ${g.awayTeamAbbr ?? "?"} at ${g.homeTeamAbbr ?? "?"}`}
+              aria-label={`${gameHref ? "Open game report" : "Open on the model board"}: ${away} at ${home}`}
             >
               <span className="inline-flex items-center gap-1 shrink-0" aria-hidden>
                 <TeamMark name={g.awayTeamAbbr} logoUrl={mlbTeamLogoUrl(g.awayTeamId)} size="md" />
                 <TeamMark name={g.homeTeamAbbr} logoUrl={mlbTeamLogoUrl(g.homeTeamId)} size="md" />
               </span>
               <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                <span style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>{g.awayTeamAbbr ?? "?"} @ {g.homeTeamAbbr ?? "?"}</span>
+                <span style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>{away} @ {home}</span>
                 <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{g.venue ?? "MLB"}</span>
               </div>
               <div className="flex flex-col items-end gap-0.5 shrink-0">
