@@ -37,6 +37,19 @@ const nextConfig = {
     unoptimized: true,
   },
   trailingSlash: true,
+  /*
+   * STATIC-GENERATION WORKERS CAPPED AT 4 (Vercel incident 2026-10-14/15).
+   *
+   * Next 14 renders static pages with (cores − 1) workers — 7 on Vercel's 8-core / 16 GB Enhanced machine.
+   * The build log of dpl_8LLRvH9ztE8Mc2PmLuyrUAUxUpB4 (PR #1089) shows memory at 15.51 G of 16.00 G at
+   * "Generating static pages (2155/2874)", then no heartbeat for 44 minutes until the platform killed it at
+   * 46m10s; five builds died the same way between 10-14 13:45Z and 10-15 02:57Z.
+   * Measured locally on the same machine shape (8 cores, 16 GB), current main: swap-outs during the build fall
+   * from 49,960–179,820 (7 workers) to 10,872 (4 workers) at no time cost (next build 139 s vs 138 s);
+   * 2 workers removes swapping entirely but costs 19%. The export is byte-identical apart from build-instant
+   * values (7,500/7,500 files). Guarded by src/lib/build-workers-cap.test.mjs.
+   */
+  experimental: { cpus: 4 },
 };
 
 export default nextConfig;
