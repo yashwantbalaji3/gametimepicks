@@ -5,3 +5,14 @@ cpus2 cpus=2 archiveDays=0 exit=0 wall=174s nextbuild=164.6s pages=2874 peakRSS=
 arch21 cpus=- archiveDays=21 exit=0 wall=131s nextbuild=122.1s pages=2646 peakRSS=6398MB p95RSS=4517MB swapouts=116884 out=880MB html=483MB
 cpus4-arch21 cpus=4 archiveDays=21 exit=0 wall=136s nextbuild=127.2s pages=2646 peakRSS=6460MB p95RSS=4810MB swapouts=0 out=880MB html=483MB
 base2 cpus=- archiveDays=0 exit=0 wall=149s nextbuild=138.7s pages=2874 peakRSS=5851MB p95RSS=5362MB swapouts=49960 out=1811MB html=1087MB
+# bench2 (per-route attribution; peak = node RSS + compressor delta), main 37b0df9515
+base        nextbuild=125.2s peak=8.95GiB swapouts=128112 html=1087MB
+board21     nextbuild=118.2s peak=8.58GiB swapouts=89568  html=659MB
+results21   nextbuild=116.7s peak=8.76GiB swapouts=32000  html=911MB
+both21      nextbuild=110.8s peak=8.81GiB swapouts=44540  html=483MB
+base-b      nextbuild=123.3s peak=8.45GiB swapouts=86156  html=1087MB
+# bench3 (workers), main 37b0df9515
+cpus4       nextbuild=128.4s peak=9.29GiB swapouts=7940
+base        nextbuild=121.5s swapouts=65548 (peak sample file contaminated by bench2 base — ignore its peak)
+cpus4-b     nextbuild=124.2s peak=7.93GiB swapouts=0
+cpus3       nextbuild=134.1s peak=7.92GiB swapouts=0

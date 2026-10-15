@@ -1784,13 +1784,17 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
 | MLB-001 simulation audit | #1086 · `4e7287913d` | Research (descriptive) | Docs only; AWAITING FOUNDER APPROVAL |
 | Parity test vs UFC VOID row | merged with #1081 | `main` green again (main CI on `5917475b53`) | **COMPLETED** |
 
-#### COST-002: Vercel cost and build reliability (founder P0, 2026-10-15)
+#### COST-002 progress: Vercel cost and build reliability (founder P0, 2026-10-15; extends `COST-002` below, not a new task)
 Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `docs/research/ops/vercel-cost-2026-10-15/`.
 
 - **ROOT CAUSE CONFIRMED (Vercel build log):** the 46-minute kills are memory exhaustion during static generation.
   - `mem 15.51G/16.00G` at 2155/2874 pages, then 44 minutes of silence.
   - Default of 7 workers; the last quarter renders the 5 MB MLB board and Results archive pages.
   - Fix proposed in **#1093**: `experimental.cpus: 4`. Locally: same time, swap-outs −94% to −99%, and the export is identical in 7,500/7,500 files apart from build-instant values.
+- **Attribution (local):**
+  - limiting both archives to 21 days cuts HTML 56% and `next build` about 11%, but **does not lower peak memory** (8.81 vs 8.45–8.95 GiB);
+  - worker count does lower pressure: swap-outs 0–10.9k with 4 workers vs 50k–180k with 7, over 9 builds.
+  - The per-worker footprint is the remaining COST-002 profiling item, and the path to the cheaper Standard machine.
 - **Volume (measured):** about 85–90 deployments/day and 61–72 full builds/day. Bots cause about 82% of build CPU. There is no duplicate project.
 - **Estimated build CPU:** about 2,400–2,800 CPU-min/day; 4,216 in the failure day.
 - **Plan:**

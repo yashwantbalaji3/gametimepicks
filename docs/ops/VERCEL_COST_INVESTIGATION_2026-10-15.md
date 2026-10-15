@@ -1,4 +1,4 @@
-# Vercel cost and build-reliability investigation (2026-10-15)
+# COST-002 progress: Vercel cost and build-reliability investigation (2026-10-15)
 
 **Scope:** the founder's P0 directive. Read-only research and local benchmarks. No deployments, no infrastructure changes, no merges.
 
@@ -11,6 +11,19 @@ Appendices in `docs/research/ops/vercel-cost-2026-10-15/`:
 - `DEPLOYMENTS.md` (14-day statistics);
 - `WORKFLOWS.md` (build-trigger inventory);
 - the benchmark harness and the output-equivalence script.
+
+## 0. Relation to existing work (not duplicated)
+- **COST-001 Phase 1 (10-07/08):**
+  - previews off for `claude/*` branches;
+  - build queue set to `WAIT_FOR_NAMESPACE_QUEUE` (one build per branch; this is why queued intermediates get cancelled when a newer one finishes);
+  - Spend Management steps;
+  - `scripts/vercel-cost-report.mjs`, which uses billed `cpuTimeForBilling` but needs a valid Vercel token.
+- **That cycle's dashboard:** $339.09 Build CPU and $119.32 on-demand.
+- **COST-001 Stage A (NBA results gate)** and NON_BUILD_INPUTS `ops/` are in place.
+- **COST-001 §11 / COST-002:**
+  - a Standard-machine (4 CPU / 7.6 GiB, no swap) Docker test hit the memory ceiling and OOM-killed a static worker, with or without `cpus: 2`;
+  - COST-002 was opened to profile and reduce per-route build memory, as the path back to the cheaper Standard machine;
+  - **this investigation is COST-002 progress.**
 
 ## 1. Billing figures provided by the founder
 The founder reported **$65.32 "Build CPU Minutes"** and **$45.65 on-demand**. These likely overlap: on-demand is usage beyond the plan's included credit, and Build CPU is one usage line. Our 14-day model estimates about $118 of build CPU at the assumed rate. That is about 1.8× the dashboard figure, so the billing period, the effective rate or the included allowance differs from our assumption. **Savings below are therefore stated as % of build CPU-minutes, which carries over to dollars once the period is known.**
@@ -59,7 +72,21 @@ To reconcile, the founder should retrieve:
 | archives limited to 21 days | 122 s | 2,646 | 116,884 | **880 MB** | **483 MB** |
 | 4 workers + 21-day archives | 127 s | 2,646 | **0** | 880 MB | 483 MB |
 
+- **Repeat runs (9 builds, swap-outs = the consistent pressure signal on macOS):**
+  - 7 workers: 49,960–179,820 (5 runs);
+  - **4 workers: 0–10,872 (3 runs)**;
+  - 3 workers: 0;
+  - `next build` 121–139 s vs 124–139 s, so no time penalty.
+  - Peak RSS + compressor does not separate the configurations (7.9–9.3 GiB), because macOS reports compressed sizes. The Linux number to confirm after merge is the Vercel heartbeat `mem`.
 - **Output equivalence (4 vs 7 workers):** 7,500/7,500 export files are identical apart from build-identity and build-instant values.
+- **Attribution of peak memory (local, RSS + macOS compressor):**
+  - baseline 8.45–8.95 GiB;
+  - MLB board archive limited to 21 days: 8.58;
+  - Results archive limited: 8.76;
+  - both: 8.81 GiB.
+  - **The archives drive output size and build time, NOT peak memory.**
+  - Peak memory tracks the **number of workers × each worker's baseline footprint**, which matches COST-001 §11 ("memory driven by what pages load").
+  - The per-worker footprint is the open COST-002 profiling item.
 - **Archive growth:** each MLB game day adds a board page (3–5.5 MB) and a results-date page (1–5 MB), plus `.txt` navigation payloads. Over the season these two route groups grew to **about 680 MB of HTML (60% of the export)**. Removing all but the last 21 days cut **56% of HTML, 51% of the export and 12% of `next build` time**.
 
 ## 4. Largest sources of unnecessary spend (ranked)
@@ -78,7 +105,8 @@ To reconcile, the founder should retrieve:
 | P0-1 | **Cap static-gen workers at 4** (#1093) | Eliminates killed builds: 10% of the 7-day average; about 1,400 CPU-min/day at the recent failure rate | High | XS (1 line + guard) | None measured (same time; identical output) | Build config (approval) |
 | P0-2 | **Narrow the deploy trigger** (#1091): tests/e2e/CI | ~0.6% (~1 build/day), more on merge-heavy days | High | S | Closure-verified guard; cannot skip a real input | Ignore step (approval) |
 | P1-1 | **MLB stamp-only gate** (#1088) | 5–7% (≈8 builds/day avoided, net of the ignored-build charge) | High | M (done; tested) | Suppression-safety assessment; forecasts, settlement and live are never gated; 6 h heartbeat | 2 protected workflows + ignore step (approval) |
-| P1-2 | **Slim the historical archives**: static pages for the last N days; older dates via a lightweight archive page reading existing JSON; trim inline SVG/styles on board rows | ~10–15% of build CPU (local: export −51%, `next build` −12%; also shrinks the Vercel output upload and `.txt` payloads; the clone, install and prebuild steps are unchanged) | Medium (needs a Vercel-side measurement) | M | History stays accessible (same data, lighter page); no record changes; SEO on old dates slightly reduced | App code (approval) |
+| P1-2 | **Slim the historical archives**: static pages for the last N days; older dates via a lightweight archive page reading existing JSON; trim inline SVG/styles on board rows | ~10–15% of build CPU, from time and output size, not memory (local: export −51%, `next build` −11%; also shrinks the Vercel output upload and `.txt` payloads; the clone, install and prebuild steps are unchanged) | Medium (needs a Vercel-side measurement) | M | History stays accessible (same data, lighter page); no record changes; SEO on old dates slightly reduced | App code (approval) |
+| P1-2b | **Per-worker build memory (COST-002 proper)**: profile what each static worker loads (shared data modules, per-route loads); load per page instead of per worker where safe | Enables the **Standard build machine** (4 vCPU vs 8 vCPU; about half the CPU-minutes per minute), possibly 40–50% of build CPU. It also removes the residual wedge risk under the cap | Low–medium (profiling not done) | M–L | Byte-identical export required (§11 acceptance: 3 constrained builds, 0 OOM, ≥ 1.5 GiB headroom) | Machine change later (approval) |
 | P1-3 | **`nightly-settle` meaningful-change gate**: retries that change only stamps do not commit build inputs | ~2.5–3% (~4 builds/day) | Medium (needs a replay like #1088's) | M | Settlement correctness must be proven by replay; first runs and real grades always publish | Protected workflow (approval) |
 | P1-4 | **`daily-products` / `nfl-event-window` / EPL per-run snapshot hygiene**: stop committing per-run snapshots into build inputs; no relative-age text in committed JSON | ~2–3% | Medium | S–M | Provenance snapshots move to `data/internal` (not served) | Workflows (approval) |
 | P2-1 | **Deploy coordinator**: Git auto-deploy off for bot commits; one debounced deploy hook (e.g. ≤ 10 min, immediate within 2 h of any event start) | ~20–35% of builds (bursts coalesce) | Low–medium (needs a simulation) | L | Adds ≤ debounce delay to data publication. **Pregame forecast-of-record (Option B, served-by-deployment) needs an immediate path near start times** | Vercel Git settings + new workflow (approval) |
