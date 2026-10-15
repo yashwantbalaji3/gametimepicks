@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-10-15",
-  "generatedAt": "2026-10-15T20:27:42.000Z",
+  "generatedAt": "2026-10-15T21:40:35.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
   "sourceArtifact": "full-game-simulations/2026-10-15.json",
   "notBettingAdvice": true,
@@ -206,17 +206,19 @@
       "homeTeam": "LAD",
       "awayTeamName": "Milwaukee Brewers",
       "homeTeamName": "Los Angeles Dodgers",
-      "artifactHash": "cc831efcb57612ef364840542a06e5232001c0f457b7a57d37fbaad924f99796",
+      "artifactHash": "51311a936b6752603aab4b3d5740bc567e3f240a6db0df42fc844a89f83d5b34",
       "decisionEngineVersion": "mlb-prediction-2026.10-v2",
       "completeness": {
         "level": "degraded",
         "notes": [
+          "MIL confirmed batting order used, all 9 with posted prop lines.",
+          "LAD confirmed batting order used; 1 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one.",
           "MIL has no posted probable starter — simulated vs a league bullpen aggregate."
         ],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
         "awayRatedCount": 9,
-        "homeRatedCount": 9,
+        "homeRatedCount": 8,
         "awayLineupCount": 9,
         "homeLineupCount": 9,
         "hasAwayStarter": false,
@@ -224,7 +226,6 @@
         "startedBeforeGeneration": false,
         "missingFamilies": [
           "away_probable_starter",
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -259,16 +260,16 @@
       "moneyline": {
         "side": "home",
         "team": "LAD",
-        "simulationProbability": 0.607,
+        "simulationProbability": 0.596,
         "marketImpliedProbability": 0.584,
         "marketAgreement": "ALIGNED",
-        "strengthLabel": "STRONG SIMULATION"
+        "strengthLabel": "MODERATE SIMULATION"
       },
       "total": {
         "line": 7.5,
         "pick": "OVER",
-        "overProbability": 0.62,
-        "underProbability": 0.38,
+        "overProbability": 0.609,
+        "underProbability": 0.391,
         "pushProbability": 0,
         "simulationMedian": 9,
         "marketImpliedOver": 0.489,
@@ -282,8 +283,8 @@
         "pick": "MIL +1.5",
         "pickSide": "away",
         "pickLine": 1.5,
-        "coverProbability": 0.573,
-        "opposingCoverProbability": 0.427,
+        "coverProbability": 0.582,
+        "opposingCoverProbability": 0.418,
         "pushProbability": 0,
         "marketImpliedProbability": 0.5945,
         "bookmaker": "draftkings",
