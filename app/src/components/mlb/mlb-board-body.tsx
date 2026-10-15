@@ -15,6 +15,7 @@ import { currentEtDate } from "@/lib/freshness";
 import { isAnomalyLean } from "@/lib/mlb/lean-anomaly";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import MlbTopLeansStrip from "@/components/mlb/mlb-top-leans-strip";
+import { toBoardLeanView } from "@/lib/mlb/board-lean-view";
 import MlbBoardClient from "@/components/mlb/mlb-board-client";
 import NeonStatPanel from "@/components/neon-stat-panel";
 import BoardDateStatusBanner from "@/components/board-date-status-banner";
@@ -271,7 +272,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
               {/* Filter console + filtered game sections — client component
                   owns interactive state. */}
               <MlbBoardClient
-                leans={leans}
+                leans={leans.map(toBoardLeanView)}
                 games={board.games}
                 teamOptions={teamOptions}
                 gameStateByPk={gameStateByPk}

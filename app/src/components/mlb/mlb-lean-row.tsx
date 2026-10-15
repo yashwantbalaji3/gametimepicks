@@ -1,4 +1,5 @@
 import type { MlbBoardLean, MlbReasonBullet } from "@/lib/types-mlb";
+import type { MlbBoardLeanView } from "@/lib/mlb/board-lean-view";
 import { isAnomalyLean } from "@/lib/mlb/lean-anomaly";
 import {
   formatAmericanOdds,
@@ -28,7 +29,7 @@ import VaultSparkline from "../vault-sparkline";
  * gets its own small chip next to the player name.
  */
 interface Props {
-  lean: MlbBoardLean;
+  lean: MlbBoardLeanView;
   density?: "detailed" | "scan";
 }
 
