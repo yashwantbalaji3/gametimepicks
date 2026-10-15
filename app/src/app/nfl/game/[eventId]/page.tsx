@@ -418,12 +418,12 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           x.label && x.label !== key ? x.label : key.replace(/^player_/, "").replace(/_/g, " ").replace(/\bint\b/, "interceptions");
         const TeamCol = ({ t }: { t: { abbr: string; name: string } }) => (
           <div style={{ minWidth: 0 }}>
-            <p className="font-mono" style={{ margin: 0, fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+            <p className="font-mono" style={{ margin: 0, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
               <TeamLogo team={t.abbr} sport="nfl" size="sm" ariaLabel={`${t.name} logo`} /> {t.abbr}
             </p>
             {hasTd && tdTop(t.abbr).length ? (
               <div style={{ marginTop: 8 }}>
-                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Likely TD scorers</p>
+                <p className="font-mono" style={{ margin: 0, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Likely TD scorers</p>
                 {tdTop(t.abbr).map((p) => (
                   <p key={p.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
                     <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</span>{" "}
