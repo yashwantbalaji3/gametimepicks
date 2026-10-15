@@ -62,6 +62,7 @@ import LiveNow from "@/components/live/live-now";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import { boardTabs, topBoards } from "@/lib/sports/nfl/forecast-view.mjs";
 import { loadForecastViews } from "@/lib/sports/nfl/forecast-view-load.mjs";
+import { formatUpdatedEt } from "@/lib/format";
 
 export const metadata: Metadata = withRouteMetadata("/nfl/", {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
@@ -768,7 +769,7 @@ export default function NflHubPage() {
           <SectionHeader
             eyebrow="Schedule"
             title={laterTitle}
-            sub={schedule ? `From the committed schedule capture (${schedule.generatedAt}). Simulations publish inside each game's own event window, not weeks ahead.` : "No schedule capture is readable — shown as missing rather than guessed."}
+            sub={schedule ? `From the committed schedule capture (${formatUpdatedEt(schedule.generatedAt)}). Simulations publish inside each game's own event window, not weeks ahead.` : "No schedule capture is readable — shown as missing rather than guessed."}
           />
           {/*
            * P695 — SIXTEEN SCHEDULE CARDS MOUNT ON SCROLL.
@@ -1062,7 +1063,7 @@ export default function NflHubPage() {
       {productReceipts ? (
         <section aria-labelledby="nfl-product-receipts" id="nfl-product-receipts">
           <SectionHeader
-            eyebrow={`Products · run ${productReceipts.runId} · next ${productReceipts.nextRunUtc}`}
+            eyebrow={`Products · run ${productReceipts.runId} · next ${formatUpdatedEt(productReceipts.nextRunUtc)}`}
             title="All four NFL lanes ran today"
             sub={productReceipts.plainEnglish}
           />
@@ -1102,7 +1103,7 @@ export default function NflHubPage() {
       {productEligibility ? (
         <section aria-labelledby="nfl-products" id="nfl-products">
           <SectionHeader
-            eyebrow={`Evaluated ${productEligibility.generatedAt}`}
+            eyebrow={`Evaluated ${formatUpdatedEt(productEligibility.generatedAt)}`}
             title="Why NFL is not in the paper products"
             sub={productEligibility.plainEnglish}
           />

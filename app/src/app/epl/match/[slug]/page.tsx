@@ -37,6 +37,8 @@ import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
 import { reportCardContext } from "@/lib/command-center/report-card";
 import path from "node:path";
 import { buildEplPresentation } from "@/lib/simulate/presentation/epl";
+import EtTime from "@/components/ui/et-time";
+import type React from "react";
 
 /**
  * One page per fixture that EVER carried a distribution — enumerated from the dated archive, not
@@ -459,7 +461,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           <dl style={{ display: "grid", gap: 6, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", margin: 0 }}>
             <Meta k="Model" v={row.modelId ?? "epl-model-v1-split-poisson"} />
             {row.lambdas ? <Meta k="Scoring rates (λ)" v={`${home} ${dec(row.lambdas.home)} · ${away} ${dec(row.lambdas.away)}`} /> : null}
-            <Meta k="Generated" v={generatedLine} />
+            <Meta k="Generated" v={set?.generatedAt ? <EtTime iso={set.generatedAt} /> : generatedLine} />
             <Meta k="Validation" v={validationLine} />
           </dl>
         </div>
@@ -508,7 +510,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Meta({ k, v }: { k: string; v: string }) {
+function Meta({ k, v }: { k: string; v: React.ReactNode }) {
   return (
     <div>
       <dt className="font-mono" style={{ fontSize: 9.5, letterSpacing: "0.06em", color: "var(--vault-text-faint)", textTransform: "uppercase" }}>{k}</dt>
