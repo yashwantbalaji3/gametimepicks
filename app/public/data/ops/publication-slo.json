@@ -1,18 +1,19 @@
 {
   "kind": "publication-slo",
-  "date": "2026-10-14",
+  "date": "2026-10-15",
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "PUBLISHED",
-      "reason": "all 1 event(s) in the horizon carry a forecast",
-      "deadlineUtc": null,
+      "state": "PUBLISHING",
+      "reason": "2 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-10-15T15:30:00.000Z",
       "counts": {
-        "scheduled": 1,
-        "published": 1,
+        "scheduled": 2,
+        "published": 0,
         "missedCoverage": 0,
-        "awaiting": 0
-      }
+        "awaiting": 2
+      },
+      "missed": []
     },
     "nfl": {
       "state": "PUBLISHED",
@@ -50,31 +51,37 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-10-15T01:44:21.886Z",
+  "checkedAt": "2026-10-15T07:12:29.907Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHED",
-  "reason": "board published with 41 rows",
-  "publishDeadlineUtc": null,
-  "scheduledGames": 1,
-  "pregameRemaining": 0,
-  "alreadyStarted": 1,
+  "state": "PUBLISHING",
+  "reason": "today's slate is not published yet and is not late — the deadline is 2026-10-15T15:30:00.000Z",
+  "publishDeadlineUtc": "2026-10-15T15:30:00.000Z",
+  "scheduledGames": 2,
+  "pregameRemaining": 2,
+  "alreadyStarted": 0,
   "board": {
-    "present": true,
-    "leans": 41,
+    "present": false,
+    "leans": 0,
     "pendingReason": null,
-    "generatedAt": "2026-10-14T09:32:11.132657+00:00",
-    "scheduledGames": 1,
-    "startedBeforeGeneration": 0
+    "generatedAt": null
   },
   "games": [
     {
-      "gamePk": 849811,
-      "startUtc": "2026-10-15T00:00:00Z",
+      "gamePk": 849818,
+      "startUtc": "2026-10-15T17:00:00Z",
+      "away": "Tampa Bay Rays",
+      "home": "Cleveland Guardians",
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
+    },
+    {
+      "gamePk": 849810,
+      "startUtc": "2026-10-16T00:00:00Z",
       "away": "Milwaukee Brewers",
       "home": "Los Angeles Dodgers",
-      "detailedState": "In Progress",
-      "pregameAtCheck": false
+      "detailedState": "Scheduled",
+      "pregameAtCheck": true
     }
   ]
 }
