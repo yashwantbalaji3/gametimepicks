@@ -1,0 +1,199 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849818,
+  "date": "2026-10-15",
+  "capturedAt": "2026-10-15T00:46:29.017Z",
+  "availableAt": "2026-10-15T00:46:29.017Z",
+  "eventStartTime": "2026-10-15T17:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-10-12",
+    "2026-10-13",
+    "2026-10-14"
+  ],
+  "home": {
+    "teamId": 114,
+    "teamName": "Cleveland Guardians",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 106,
+      "relievers": [
+        {
+          "id": 542888,
+          "name": "Shawn Armstrong",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 5,
+          "dates": [
+            "2026-10-13"
+          ]
+        },
+        {
+          "id": 676282,
+          "name": "Joey Cantillo",
+          "appearances": 1,
+          "pitches": 17,
+          "outs": 3,
+          "dates": [
+            "2026-10-12"
+          ]
+        },
+        {
+          "id": 677944,
+          "name": "Slade Cecconi",
+          "appearances": 1,
+          "pitches": 16,
+          "outs": 3,
+          "dates": [
+            "2026-10-13"
+          ]
+        },
+        {
+          "id": 682982,
+          "name": "Daniel Espino",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-10-12"
+          ]
+        },
+        {
+          "id": 681870,
+          "name": "Erik Sabrowski",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 3,
+          "dates": [
+            "2026-10-12"
+          ]
+        },
+        {
+          "id": 683769,
+          "name": "Hunter Gaddis",
+          "appearances": 1,
+          "pitches": 13,
+          "outs": 3,
+          "dates": [
+            "2026-10-12"
+          ]
+        },
+        {
+          "id": 671922,
+          "name": "Cade Smith",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 3,
+          "dates": [
+            "2026-10-12"
+          ]
+        },
+        {
+          "id": 682120,
+          "name": "Tim Herrin",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-10-13"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 139,
+    "teamName": "Tampa Bay Rays",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 8,
+      "pitches": 95,
+      "relievers": [
+        {
+          "id": 642121,
+          "name": "Cole Sulser",
+          "appearances": 1,
+          "pitches": 27,
+          "outs": 2,
+          "dates": [
+            "2026-10-12"
+          ]
+        },
+        {
+          "id": 693855,
+          "name": "Ian Seymour",
+          "appearances": 2,
+          "pitches": 24,
+          "outs": 6,
+          "dates": [
+            "2026-10-12",
+            "2026-10-13"
+          ]
+        },
+        {
+          "id": 687330,
+          "name": "Kevin Kelly",
+          "appearances": 2,
+          "pitches": 22,
+          "outs": 3,
+          "dates": [
+            "2026-10-12",
+            "2026-10-13"
+          ]
+        },
+        {
+          "id": 592155,
+          "name": "Cam Booser",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-10-12"
+          ]
+        },
+        {
+          "id": 641329,
+          "name": "Bryan Baker",
+          "appearances": 1,
+          "pitches": 8,
+          "outs": 3,
+          "dates": [
+            "2026-10-13"
+          ]
+        },
+        {
+          "id": 669330,
+          "name": "Tyler Wells",
+          "appearances": 1,
+          "pitches": 6,
+          "outs": 1,
+          "dates": [
+            "2026-10-12"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-10-12,2026-10-13,2026-10-14) + feed/live box scores",
+    "capturedAt": "2026-10-15T00:46:29.017Z"
+  },
+  "recordHash": "01a95c4c59b52a7a997793b3fd717413cf99ae3533d99a5d7fe4c2321900792d"
+}
