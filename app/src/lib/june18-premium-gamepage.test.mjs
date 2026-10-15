@@ -27,7 +27,7 @@ test("soccer prop markets are honest + extensible: market label map covers futur
   assert.match(norm, /player_shots:\s*"Shots"/, "total shots mapped");
   assert.match(norm, /player_shots_on_target:\s*"Shots on target"/, "shots on target mapped");
   const page = read("src/components/game/game-detail-page.tsx");
-  assert.match(page, /Additional player markets .* appear here automatically when the books post odds/, "honest extensibility note");
+  assert.match(page, /Other player markets .* are listed only when sportsbooks post real prices/, "honest extensibility note (no 'appears automatically' promise, DS-001 §1.4)");
   // No fabricated markets are hardcoded into the page — markets are derived from the real props.
   assert.match(page, /marketLabels = \[\.\.\.new Set\(detail\.playerProps\.map/, "market tabs derived from real data");
 });
