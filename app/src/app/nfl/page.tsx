@@ -1075,7 +1075,7 @@ export default function NflHubPage() {
             sub={productReceipts.plainEnglish}
           />
           <details style={{ border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
-            <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 32 }}>Per-product detail</summary>
+            <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 44 }}>Per-product detail</summary>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
               <thead>
