@@ -1,3 +1,4 @@
+import { freshnessOf } from "../freshness.mjs";
 /**
  * LIVE HUB V2 — FOUNDATION (shared, sport-agnostic view model). PURE: no I/O, no clock unless passed in.
  *
@@ -202,3 +203,25 @@ export function forecastProgress({ line, side, current, status }) {
 export function topForecasts(rows, { max = 5, qualifies = () => true } = {}) {
   return (Array.isArray(rows) ? rows : []).filter(qualifies).slice(0, Math.max(0, max));
 }
+
+/**
+ * Checks 7 / 14 (2026-10-15): the V2 card says when its in-play data is no longer current, using the SAME bands the
+ * production live panel uses (lib/live/freshness.mjs: < 45 s fresh, < 120 s delayed, ≥ 120 s stale). Only an in-play
+ * event can be stale; a fresh one says nothing. Never announced on each poll (the card is read on demand).
+ * @param {{ status: string, fetchedAt?: string|null }} ev
+ * @param {number} nowMs
+ * @returns {{ level: "DELAYED"|"STALE", text: string } | null}
+ */
+export function freshnessLine(ev, nowMs) {
+  const inPlay = ev.status === LIVE_V2_STATUS.LIVE || ev.status === LIVE_V2_STATUS.DELAYED;
+  const f = freshnessOf({ state: inPlay ? "LIVE" : "PRE", fetchedAt: ev.fetchedAt ?? null }, nowMs);
+  if (f.level !== "DELAYED" && f.level !== "STALE") return null;
+  const t = Date.parse(ev.fetchedAt ?? "");
+  const at = Number.isFinite(t)
+    ? new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true }).format(new Date(t)) + " ET"
+    : "an unknown time";
+  return f.level === "DELAYED"
+    ? { level: "DELAYED", text: `Delayed · last confirmed ${at}` }
+    : { level: "STALE", text: `Feed stale · showing last known state from ${at}` };
+}
+
