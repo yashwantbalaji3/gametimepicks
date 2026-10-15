@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 16:30Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 17:35Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1777,6 +1777,8 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
 | Live RLS battery in CI | #1084 → merge `46c7912271` (21:58:09Z) | Merged at the approved head `bfb1bd39e0`. **Production serves `46c7912271`** (built 22:02:00Z). Main CI green (run 38644263216) and **live RLS 82–84 PASS on main, not skipped**. Merge diff: 3 harness files only. No route, account code, migration or hosted-DB path; `--hosted` needs an explicit flag and URL, and no workflow supplies them. Forecast Record served = ledger, 15,868/15,868 | **COMPLETED** (Production-verified) |
 | UFC grader truth | #1085 → merge `411089bfe4` (22:27:49Z) | Merged at the approved head `68ab9225cf`. Main CI green (run 38647814525). Merge diff: 7 code/test files, 0 data. **All 199 UFC record files byte-identical** before and after. On main: 44/44 UFC/ledger checks (draw = VOID, withdrawn never a loss or in the ledger, pending excluded from n). Production record: 71 rows = 70 decided (44 W / 26 L) + 1 VOID (Gatto–Kareckaite, no result, no score). Withdrawn Gall–Dumas absent; 9 pending 10/17 bouts excluded. 10/17 chain ready (fight-week Sat 11Z, post-card daily) | **COMPLETED**: Production serves `b713c2c98c` (built 23:24:04Z), which contains the merge. Served record: 15,868/15,868 = ledger; UFC 71 rows unchanged |
 | Roving-tab a11y follow-up | #1087 → merge `279098cf25` (2026-10-15 00:17:41Z) | Merged at the approved head `152a4a35b5`. Main CI green (run 38659199389). Merge diff: its 7 UI/test files. The merge's own build was killed at 46.2 min (wedge). It was delivered by `5195af77eb` (built 01:51:23Z). Real-browser check: `/results` 5 tabs → 1 tab stop, Arrow-Right works, all tabs paired; NFL game 2 tablists → 2 stops. 0 overflow, 0 broken images. All 25 Forecast Record files (15,868 rows: ids + settlement states) hash-identical to the ledger at `5195af77eb` | **COMPLETED** (Production-verified) |
+| Deploy-trigger non-inputs | #1091 → merge `39df089d02` (2026-10-15 16:34:05Z) | Merged at the approved head `dcfbf47fd2` (CI green, MERGEABLE CLEAN, 2 files). Built 16:34→16:40Z. **Production serves `39df089d02`**; main CI green (run 38770093761). Forecast Record 25/25 hash-identical to a local build of the same commit, 15,879 rows, 0 ledger mismatches. Next ops-only commit correctly ignored | **COMPLETED** (Production-verified) |
+| Static-gen workers 4 → 3 + memory split | #1094 (draft) · `e1bb1b33dc` | Local paired builds: identical output (7,516 files), 2,881 pages, 0 restarts; worker RSS −6% (not proportional); `next build` +6%. Heartbeat now reports anon/file/peak. Unit 10,103/0 fail; CI quality + python green; MERGEABLE CLEAN | **AWAITING FOUNDER APPROVAL** (exact-head package sent) |
 | Live Hub V2 + Thursday plan | #1082 (draft, base main) · `659b6b9376` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
 | MLB stamp-only gate | #1088 (draft) · `26de79bfb8` (rebased; suppression-safety assessment added) | Deploy trigger now builds on publication-SLO public-field moves for every workflow (8 previously delayed in 10 days). Forecast of record identical for 21/21 games. Results and settlement never gated. **Conservative ≈ $0.75/day net (estimate).** | PROPOSAL (protected workflows) |
 | Data-contract checks | #1089 → merge `7c3f23722a` (02:11:09Z) | Marked ready, then merged at the approved head `9b19f082b1`. Main CI green (run 38669654780).<br>Workflow verified:<br>• active; `schedule` + dispatch only (no push trigger, so it never deploys);<br>• `contents: read`, `issues: write`; own concurrency group;<br>• no commit, push or build step.<br>`ufc-post-card` safeguards preserved (dry-run / `commit_artifacts` gating, `continue-on-error`, fails only after commit).<br>Manual verification run 38669700923: 9,401 tests, 0 failed, 7 min, no issue opened. The merge's own Vercel build was killed at about 46 min; it renders nothing, so Production is unaffected (`5195af77eb`, browser-verified) | **COMPLETED** in GitHub; awaiting the first scheduled run (03:47Z) and the next data build to carry it |
@@ -1823,6 +1825,48 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
     - **Acceptance (≤ 13 G) NOT met:** it survived with a 7% margin. Follow-up **#1094** (3 workers, draft, founder decision).
   - The log also shows the ignore step falling back to BUILD because the previous deployed SHA was 14 commits back, beyond Vercel's shallow clone. This happens on 3.6% of attempts over 14 d (0 of them ignorable). It is fail-safe, but it caps the savings from any skip rule.
   - A 72-hour detached deploy watch runs until 10-18 14:30Z (`~/gtp-evidence/deploy-watch/`, GitHub API only). It flags every failure and any completed build over 30 min.
+- **17:30Z update (#1091 merged and verified; #1094 validated; shallow-clone fallback measured):**
+  - **#1091 MERGED** as `39df089d02` (16:34:05Z) at the approved head `dcfbf47fd2`. It was marked ready only after reconfirming the head, CI (python + quality green), MERGEABLE CLEAN and the 2-file scope. Merge diff: `app/scripts/vercel-ignore-build.sh` + `app/src/lib/build-trigger-non-inputs.test.mjs`.
+    - The merge built, as it should, since the ignore script is itself a build input: 16:34:10 → 16:40:06Z, about 6 min, `dpl_6geraKq2gFZ1KWADAZYPPJ4Nzb3k`.
+    - **Production serves `39df089d02`** (builtAt 16:35:38Z; read in the real browser).
+    - Main CI green (run 38770093761).
+    - **Forecast Record:** 25/25 served files hash-identical to a local build of the same commit (15,879 rows), and every row matches the ledger at `39df089d02` (0 missing, 0 settlement mismatches).
+    - **Genuine inputs still build.** The next commit, `cde42956e6`, touched only `ops/` and was "Canceled by Ignored Build Step", as before #1091. The 72-hour watch records each data commit's outcome.
+  - **#1094 (3 workers) local validation:** paired builds of the same tree against main (4 workers), on head `e1bb1b33dc` (rebased on `39df089d02`).
+
+    | | 3 workers | 4 workers |
+    |---|---|---|
+    | builds | 3 | 4 |
+    | completed | all | all |
+    | pages | 2,881 | 2,881 |
+    | worker restarts / OOM lines | 0 | 0 |
+    | `next build` mean | 139 s | 131 s (+6% at 3 workers) |
+    | output | identical | identical |
+    | simultaneous worker memory during static generation (per-process sampling) | 5.43 G | 5.76 G |
+    | largest single worker | 3.20 G | 2.08 G |
+
+    - Output check: 7,516 files compared; only `build-info.json`'s commit fields differ. 2,863 HTML both ways.
+    - Memory: fewer workers each render more pages and grow larger. **The local reduction is about 6%, not proportional.** The earlier "≈12.8 G on Vercel" extrapolation is withdrawn, and the config comment now carries the measured numbers.
+    - Local swap-outs were dominated by other processes on the 16 GB laptop (0–188k at both settings), so they are not used as evidence.
+    - **New instrumentation in #1094:** the build heartbeat now splits the cgroup charge into `anon` (process memory, the OOM risk), `file` (reclaimable page cache) and `peak`.
+      - The 14.82 G reading was `memory.current`, which includes page cache. How much of it was real risk is unknown until the next log.
+      - Tested on v2, v1 and no-stat fixture cgroups; the new test fails against the previous script.
+    - Regression: unit 10,103 tests (0 failures, 5 skipped); workers-cap guard; build-phase observability 14/14.
+    - Cost of 3 workers: about +8 s per build, i.e. about +1 CPU-min (~$0.004) per build, roughly $7/month at 60–70 builds/day.
+    - **Acceptance on the first Production build after merge:** the build completes; `anon` peak and `memory.peak` are recorded; revert to 4 if the anon peak does not fall.
+  - **Shallow-clone fallback (founder question: are skips silently becoming full builds?)** Vercel clones with `git clone --depth=10` (Vercel KB, Ignored Build Step).
+    - Real outcomes over 14 days, where BASE is the last *completed* deployment (as `VERCEL_GIT_PREVIOUS_SHA` is), with shallow-clone reachability modelled per commit graph:
+      - **11 of 1,235 attempts (0.9%)** had BASE outside the clone;
+      - 10 of those genuinely needed a build, and **1 was waste** (about $0.14 in 14 days);
+      - the result is the same under #1091 and under #1091 + #1088's 105 suppressions.
+    - Sequential replay with #1088: the longest run of consecutive ignored pushes is 6, below the depth of 10.
+    - The earlier "3.6%" counted commits by `rev-list`, which overcounts merged branch commits. 0.9% is the clone-accurate figure.
+    - **Verdict:** the fallback is not eroding the savings today.
+    - A fail-safe fix is built and tested, but **not proposed**: fetch the one missing commit (`--depth=1`, public repo URL, no credentials, 90 s timeout, any failure → build).
+      - Measured against GitHub: 21 s, about 38 MB for a commit 14 back.
+      - 5 behaviour tests on a real depth-10 clone; 3 fail against the current script.
+      - At ~11 gap attempts per 14 days, its 21 s cost roughly equals the one build it saves, so there is no net saving now.
+      - Kept in `docs/research/ops/vercel-cost-2026-10-15/shallow-gap/` for when ignore rates rise.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
   - a CI memory early warning (peak > 12 G);
