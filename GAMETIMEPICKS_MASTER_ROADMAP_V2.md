@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 23:35Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 23:45Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1972,6 +1972,18 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
     - Passes every 5 min: all HTTP 200, 0 bot challenges, screenshots at 390/1440 with 0 overflow and 0 broken images.
     - V2 replay (#1108) on the real pregame passes: 4 passes, 0 refusals, 0 disagreements.
     - Kickoff 00:15Z; the acceptance report follows the game.
+- **23:45Z — independent review of #1101–#1109 (read-only agent) and fixes:**
+  - **#1101:** a stamp appearing, disappearing or going null ↔ value was treated as "stamps only", so a backfilled `settledAt` would have been reverted. Now only string → string restamps are restored. Negative controls added; the real-commit replay still restores the 380+ restamps.
+  - **#1108:** missing ESPN truth was silently "agreement"; LAG could mask a gateway that was *ahead*, or a difference followed by a refusal; the clock would have flooded the report.
+    - Fixed: unverified passes are counted; LAG means behind + verified next pass; clock is drift.
+    - Tests 7/7; real pregame passes: 0 unverified, 0 disagreements.
+  - **#1103:** `no_events` means the odds provider listed no events, not "no games scheduled".
+    - All 8 generator reasons mapped, and the guard now reads them from the generator.
+    - No "once lines post" after every game started.
+    - NFL REFUSED = "No eligible games to consider".
+  - **#1102:** NBA dropped-final note nit fixed.
+  - **Reviewed correct:** #1104, #1105, #1106, #1107, #1109.
+  - **Open process lesson:** one commit (#1102 `c2c15eb43d`) landed before its test was updated; fixed in the next commit (`b22a14537f`). Going forward, commits are gated on the test result.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
   - a CI memory early warning (peak > 12 G);
