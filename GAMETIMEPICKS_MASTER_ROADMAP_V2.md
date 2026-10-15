@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 03:10Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 04:30Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1777,12 +1777,42 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
 | Live RLS battery in CI | #1084 → merge `46c7912271` (21:58:09Z) | Merged at the approved head `bfb1bd39e0`. **Production serves `46c7912271`** (built 22:02:00Z). Main CI green (run 38644263216) and **live RLS 82–84 PASS on main, not skipped**. Merge diff: 3 harness files only. No route, account code, migration or hosted-DB path; `--hosted` needs an explicit flag and URL, and no workflow supplies them. Forecast Record served = ledger, 15,868/15,868 | **COMPLETED** (Production-verified) |
 | UFC grader truth | #1085 → merge `411089bfe4` (22:27:49Z) | Merged at the approved head `68ab9225cf`. Main CI green (run 38647814525). Merge diff: 7 code/test files, 0 data. **All 199 UFC record files byte-identical** before and after. On main: 44/44 UFC/ledger checks (draw = VOID, withdrawn never a loss or in the ledger, pending excluded from n). Production record: 71 rows = 70 decided (44 W / 26 L) + 1 VOID (Gatto–Kareckaite, no result, no score). Withdrawn Gall–Dumas absent; 9 pending 10/17 bouts excluded. 10/17 chain ready (fight-week Sat 11Z, post-card daily) | **COMPLETED**: Production serves `b713c2c98c` (built 23:24:04Z), which contains the merge. Served record: 15,868/15,868 = ledger; UFC 71 rows unchanged |
 | Roving-tab a11y follow-up | #1087 → merge `279098cf25` (2026-10-15 00:17:41Z) | Merged at the approved head `152a4a35b5`. Main CI green (run 38659199389). Merge diff: its 7 UI/test files. The merge's own build was killed at 46.2 min (wedge). It was delivered by `5195af77eb` (built 01:51:23Z). Real-browser check: `/results` 5 tabs → 1 tab stop, Arrow-Right works, all tabs paired; NFL game 2 tablists → 2 stops. 0 overflow, 0 broken images. All 25 Forecast Record files (15,868 rows: ids + settlement states) hash-identical to the ledger at `5195af77eb` | **COMPLETED** (Production-verified) |
-| Live Hub V2 + Thursday plan | #1082 (draft, base main) · `a0a3c99837` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
+| Live Hub V2 + Thursday plan | #1082 (draft, base main) · `659b6b9376` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
 | MLB stamp-only gate | #1088 (draft) · `26de79bfb8` (rebased; suppression-safety assessment added) | Deploy trigger now builds on publication-SLO public-field moves for every workflow (8 previously delayed in 10 days). Forecast of record identical for 21/21 games. Results and settlement never gated. **Conservative ≈ $0.75/day net (estimate).** | PROPOSAL (protected workflows) |
 | Data-contract checks | #1089 → merge `7c3f23722a` (02:11:09Z) | Marked ready, then merged at the approved head `9b19f082b1`. Main CI green (run 38669654780).<br>Workflow verified:<br>• active; `schedule` + dispatch only (no push trigger, so it never deploys);<br>• `contents: read`, `issues: write`; own concurrency group;<br>• no commit, push or build step.<br>`ufc-post-card` safeguards preserved (dry-run / `commit_artifacts` gating, `continue-on-error`, fails only after commit).<br>Manual verification run 38669700923: 9,401 tests, 0 failed, 7 min, no issue opened. The merge's own Vercel build was killed at about 46 min; it renders nothing, so Production is unaffected (`5195af77eb`, browser-verified) | **COMPLETED** in GitHub; awaiting the first scheduled run (03:47Z) and the next data build to carry it |
 | 503 bodies name no config variables | #1090 · `8af11b4e31` | CI green (run 38660171623). Revalidated on main `7c3f23722a` + head: unit 9,399 passed. The one local failure is the gitignored build-output parity test, which skips without the artifact exactly as on CI | **AWAITING FOUNDER APPROVAL** |
 | MLB-001 simulation audit | #1086 · `4e7287913d` | Research (descriptive) | Docs only; AWAITING FOUNDER APPROVAL |
 | Parity test vs UFC VOID row | merged with #1081 | `main` green again (main CI on `5917475b53`) | **COMPLETED** |
+
+#### Prioritized launch view (2026-10-15 04:30Z; freeze Oct 17, launch Oct 20)
+**COMPLETED (Production-verified unless noted):**
+- #1081 UX Release 2B + LIVE-F
+- #1084 live RLS battery (runs on every main CI)
+- #1085 UFC grading integrity
+- #1087 roving tabs
+- #1089 data-contract monitoring: verified in GitHub (manual run 9,401/0). Its first scheduled run is delayed by GitHub's overnight scheduler gap. It renders nothing, so its failed merge build left Production unaffected.
+
+**BLOCKED, needs founder action:**
+1. **Privacy/Terms (GTP-01):** operator, governing state, minimum age, effective date, counsel approval. This is the only open audit P0, and it blocks launch while accounts are enabled.
+2. **Vercel 46-min build kills:** 4 of 6 code merges and 2 data builds since 10-14 13:45Z. The cause is unconfirmed. Needed: the build logs for `dpl_Hr1uX94SiSo1aywSTxE6bfem8mMB`, `dpl_3un6p5zPPrVPdS8Jxf3ZvuQGQg3q`, `dpl_4TnKxbgyYpcZhqUb4sXZ2bijzbP1`, `dpl_8Hf6T4QSgdvUZcE7bGQsYgwTZUat`, `dpl_8LLRvH9ztE8Mc2PmLuyrUAUxUpB4`, plus one good build for comparison (`DxWAvEMF91urUnEWYvsTdwA9Eu6t`). Or a fresh token.
+3. **Hosted Supabase `--hosted` RLS run:** needs authorization.
+
+**READY, held for a consolidated release after Vercel stabilizes (founder approval each):**
+- #1090: 503 bodies name no config variables. Head `8af11b4e31`, revalidated on `7c3f23722a`.
+- #1092 (draft): ET timestamps on every public page. 410+ raw UTC stamps → 0; post-build 694/0; unit 9,399/0.
+
+**PROPOSALS (founder review):**
+- #1091 (draft): the deploy trigger skips tests/e2e/CI-only commits. 13 of 183 code-merge builds in 14 days; closure-verified guard; mutation-checked.
+- #1088 (draft, deferred): MLB stamp-only gate.
+
+**IN PROGRESS:**
+- Thursday SEA@DEN real-event capture: armed and detached. See `docs/live/LIVE_V2_THURSDAY_READINESS.md` on #1082.
+- Live Hub V2 stays preview-only.
+
+**NEXT (localhost-first, after the freeze unless founder-approved):**
+- GTP-21/32 results paging;
+- the remaining codes on `/results/forecasts` (PRIVATE_RESEARCH), `/results/model-audit` (INSUFFICIENT_SAMPLE), `/nfl` (BASELINE_ONLY, "P181");
+- `/mlb/board` archive weight: 145 pages, 481 MB, 42% of the export. This is the structural build-cost driver, and B2 export reachability is the documented remedy.
 
 **Incident 2026-10-15 00:17Z–01:57Z (queue recovered; cause still open): repeated Vercel wedges. Evidence from GitHub's Vercel statuses only; the token is expired.**
 
@@ -1804,6 +1834,13 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
   - CI container memory rose from about 9 GB (Oct 13) to 12–14 GB (Oct 14–15) of 15.6 GB.
   - That cgroup figure includes file cache from writing the 1.5 GB export, so it is not proof of process memory growth.
 - A local build of current main succeeds in **137 s** (`next build` 126.7 s, 2,874 pages, largest process 2.46 GB RSS). The same code is killed on Vercel at 46 min, which points to a Vercel-environment hang rather than an intrinsically slow build.
+- **Phase evidence (CI, Linux 4 vCPU / 15.6 GB):** memory holds at 2–4 GB, then spikes during the last quarter of static generation (pages ≈2,154–2,820 of 2,873): 9.0 GB on Oct 13, 12–14 GB from Oct 14. This is cgroup memory, which includes file cache.
+- The export's two heaviest route groups are 60% of HTML:
+  - `/mlb/board/<date>`: 145 pages, 481 MB, up to 5.5 MB each;
+  - `/results/date/*`: 130 pages, 198 MB.
+- **Hypothesis, not confirmed:** memory pressure from rendering several multi-MB pages concurrently on Vercel's workers leads to a stall that is then killed at 46 min.
+- **Ruled out by local evidence:** #1080's code (peak node RSS 6.48 → 6.72 GB; same build time) and "slow code" (local build 2.3 min).
+- **Why #1089 built:** its files sit under `:(top)app/`. The narrow rule in #1091 would have skipped it.
 - The cause is unconfirmed. The build logs (`npx vercel inspect <dpl> --logs`; our heartbeat prints memory and load) need a fresh Vercel token.
 - Also tonight: automated requests to Production are being answered with the Vercel bot challenge (`x-vercel-mitigated: challenge`). Browsers are fine. This session's polling stopped at 00:50Z.
 
