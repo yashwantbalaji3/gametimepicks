@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "mlb-pregame-pitcher-workload-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "pitcher_workload",
+  "gamePk": 849818,
+  "date": "2026-10-15",
+  "capturedAt": "2026-10-15T15:31:03.294Z",
+  "availableAt": "2026-10-15T15:31:03.294Z",
+  "eventStartTime": "2026-10-15T17:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; all source starts strictly earlier than slate",
+  "pitchers": {
+    "home": {
+      "id": 668909,
+      "name": "Gavin Williams",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 32,
+      "restDays": 20,
+      "lastStartDate": "2026-09-25",
+      "last5": {
+        "starts": 5,
+        "ipSum": 28.33,
+        "ipAvg": 5.67,
+        "kAvg": 8.8,
+        "bbAvg": 2.4,
+        "erAvg": 1.6,
+        "hrAvg": 0.2,
+        "kPer9": 13.98,
+        "workloadIpLast5": 28.33
+      },
+      "seasonToDate": {
+        "starts": 32,
+        "ip": 184.33,
+        "k": 248,
+        "bb": 61,
+        "er": 77,
+        "hr": 28
+      }
+    },
+    "away": {
+      "id": 643377,
+      "name": "Griffin Jax",
+      "hasHistory": true,
+      "season": "2026",
+      "seasonStarts": 23,
+      "restDays": 19,
+      "lastStartDate": "2026-09-26",
+      "last5": {
+        "starts": 5,
+        "ipSum": 20.67,
+        "ipAvg": 4.13,
+        "kAvg": 3.2,
+        "bbAvg": 1,
+        "erAvg": 1.4,
+        "hrAvg": 0.2,
+        "kPer9": 6.97,
+        "workloadIpLast5": 20.67
+      },
+      "seasonToDate": {
+        "starts": 23,
+        "ip": 103.33,
+        "k": 106,
+        "bb": 28,
+        "er": 36,
+        "hr": 12
+      }
+    }
+  },
+  "leakageRule": "only game-log starts with date < boardDate are aggregated; capturedAt < eventStartTime",
+  "provenance": {
+    "schedule": "https://statsapi.mlb.com/api/v1/schedule?date=2026-10-15&hydrate=probablePitcher",
+    "gameLog": "https://statsapi.mlb.com/api/v1/people/<id>/stats?stats=gameLog&season=2026&group=pitching",
+    "capturedAt": "2026-10-15T15:31:03.294Z"
+  },
+  "recordHash": "22ea34ef1c1ba0fea85f911baa907e83305bb2f19569e8758315359ed4a301dd"
+}
