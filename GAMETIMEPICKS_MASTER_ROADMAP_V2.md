@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 21:55Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 22:00Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1940,6 +1940,21 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
     - Full unit **plus post-build** suite with the export present: **10,119 tests, 0 failures**.
     - Browser sweep at 1440 and 390 px over 13 routes: 0 removed phrases reappearing, 0 overflow, 0 broken images. EPL header crests 56 px and decorative.
   - **HTML-reduction series restacked** linearly (#1096 → #1097 → #1098 → #1099 → #1100), so it merges in order without conflicts. The only conflicts were appended `globals.css` blocks, each kept verbatim; CSS guards pass at the top of the stack.
+- **22:00Z update:**
+  - **OPS-002 seven-day window (cutover 10-08 05:56:44Z → 10-15 05:57Z), GitHub-side pre-check (read-only, GitHub API only).** The authoritative `ops-002-identity-report.mjs --cli-auth` still needs a Vercel token (expired) — **founder item**.
+    - 829 commits in the window.
+    - **607/607 `auto…` commits authored `github-actions[bot]`.**
+    - Every 24 h slot has READY bot data deployments: 60 / 52 / 56 / 73 / 62 / 47 / 34.
+    - No blocked or team-access status.
+    - 9 deployments failed. These are the 46-minute memory kills (COST-002 root cause, fixed by #1093), not identity failures. The acceptance code only treats an ERROR *after the newest READY* as STALE.
+    - **Expected verdict: PASS** once the script runs with a token; not recorded as DONE until then.
+  - **#1108** (stacked on #1082): `scripts/live/replay-v2-capture.mjs` replays the recorded SEA@DEN envelopes through the V2 view model.
+    - It compares score, status, quarter and clock against the gateway and ESPN, and classes one-pass transition lag separately from disagreement.
+    - This makes the promotion rule's "0 disagreements" a one-command check. Tests 4 new; V2 tests 22/22.
+  - **#1103 follow-ups:**
+    - UFC sentences in the body face at 12.5 px (audit M10); the mono at 10–11.5 px is gone from those paragraphs. Checked at 375 px: no overflow.
+    - 44 px "Per-product detail" disclosure on /nfl.
+  - **Deferred, not dropped:** the M9 report type floor (≈90 sub-11 px sizes across the MLB/NFL game reports). DS-001 §4 classes it P2 ("migrated as touched"); a mass change this close to the freeze risks mobile layout.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
   - a CI memory early warning (peak > 12 G);
