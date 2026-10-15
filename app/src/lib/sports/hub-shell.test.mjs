@@ -21,7 +21,7 @@ const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..
 const read = (p) => fs.readFileSync(path.join(APP, p), "utf8");
 const hasBuild = fs.existsSync(path.join(APP, "out", "mlb", "index.html"));
 
-const HUBS = ["mlb", "epl", "ufc", "nfl"];
+const HUBS = ["mlb", "epl", "ufc", "nfl", "nba"];
 
 test("every hub page mounts the shared SportHubNav with its own sport key", () => {
   for (const sport of HUBS) {
