@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 19:30Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 19:45Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1780,7 +1780,7 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
 | Deploy-trigger non-inputs | #1091 → merge `39df089d02` (2026-10-15 16:34:05Z) | Merged at the approved head `dcfbf47fd2` (CI green, MERGEABLE CLEAN, 2 files). Built 16:34→16:40Z. **Production serves `39df089d02`**; main CI green (run 38770093761). Forecast Record 25/25 hash-identical to a local build of the same commit, 15,879 rows, 0 ledger mismatches. Next ops-only commit correctly ignored | **COMPLETED** (Production-verified) |
 | Static-gen workers 4 → 3 | #1094 (draft) · `e1bb1b33dc` | Validated locally: worker RSS −6%, build +6%, identical output | **ON HOLD** (founder, 2026-10-15): modest gain; do not merge without further approval |
 | Build memory observability (anon/file/peak) | #1095 (draft) · `0f9d3eab81` | Split out of #1094; worker count unchanged; 14/14 observability tests; fails against old script | PROPOSAL: ride with next necessary release |
-| HTML reduction series | #1096 · #1097 · #1098 (drafts) | ≈ −20% generated HTML combined; rendering/computed styles verified identical | PROPOSAL (local only, 0 deploys) |
+| HTML reduction series | #1096 · #1097 · #1098 · #1099 · #1100 (drafts) | ≈ −27% generated HTML combined; rendering, visible text and computed styles verified identical | PROPOSAL (local only, 0 deploys) |
 | Live Hub V2 + Thursday plan | #1082 (draft, base main) · `659b6b9376` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
 | MLB stamp-only gate | #1088 (draft) · `26de79bfb8` (rebased; suppression-safety assessment added) | Deploy trigger now builds on publication-SLO public-field moves for every workflow (8 previously delayed in 10 days). Forecast of record identical for 21/21 games. Results and settlement never gated. **Conservative ≈ $0.75/day net (estimate).** | PROPOSAL (protected workflows) |
 | Data-contract checks | #1089 → merge `7c3f23722a` (02:11:09Z) | Marked ready, then merged at the approved head `9b19f082b1`. Main CI green (run 38669654780).<br>Workflow verified:<br>• active; `schedule` + dispatch only (no push trigger, so it never deploys);<br>• `contents: read`, `issues: write`; own concurrency group;<br>• no commit, push or build step.<br>`ufc-post-card` safeguards preserved (dry-run / `commit_artifacts` gating, `continue-on-error`, fails only after commit).<br>Manual verification run 38669700923: 9,401 tests, 0 failed, 7 min, no issue opened. The merge's own Vercel build was killed at about 46 min; it renders nothing, so Production is unaffected (`5195af77eb`, browser-verified) | **COMPLETED** in GitHub; awaiting the first scheduled run (03:47Z) and the next data build to carry it |
@@ -1893,7 +1893,11 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
     | #1097 (stacked on #1096) | MLB lean-row inline styles → shared classes (values verbatim; tier colours as CSS vars) | MLB board 414.2 → 310.5 MB (−25.0%); busiest page 4.56 → 3.39 MB | All 459 computed properties identical on 28,214 (detailed) and 12,130 (scan) elements, and at 390 px. Every other export file unchanged |
     | #1098 (`6f2b890bfa`) | Results graded-row table inline styles → shared classes | Results by date 198.8 → 142.9 MB (−28.1%); NBA results −26% | Computed styles identical on 3 pages (627 + 943 rows); exactly the 130 table-bearing pages differ |
 
-    - **Combined:** generated HTML ≈ 1,145 → ≈ 917 MB (**≈ −20%**); MLB board archive −36%.
+    | #1099 (`fec83668bd`) | Site chrome: command-rail + footer link styles → classes (active via `aria-current`) | Every page −11.3 KB; total −2.8% | Visible text identical on all 2,863 pages. Rail (both active states) and footer computed styles identical. Two CSS guards caught a first draft (duplicate class, dead fallback); the CSS was fixed, the guards untouched |
+    | #1100 (`1642e72188`) | Player game-log cells + `EntityLink` / `ResultBadge` → classes | Total −4.5%; MLB players −35%, EPL −18%, NFL −8.5% | Visible text identical on all 2,863 pages. Computed styles identical on 5 pages (MLB/EPL/NFL/UFC players, MLB matchup), including runtime prose-link anchors |
+
+    - **Combined (sum of independently measured deltas): ≈ 1,145 → ≈ 834 MB (≈ −27%) of generated HTML.** MLB board archive −36%; Results by date −28%; MLB player pages −35%.
+    - Each PR touches `globals.css` (appended blocks), so merging them in sequence needs trivial rebases. Each is independently revertible.
     - Unit suite on each: 10,101–10,106 tests, 0 failures.
     - No data, forecast, settlement, results, provenance or timestamp change; historical pages stay fully accessible with identical content.
     - **Cost effect is NOT yet measured.** Local `next build` time showed no reliable change (128–149 s, noisy laptop). Expected savings come from output bytes: build-cache creation/upload (39 s in the last Production log) and deploy upload, plus less memory held during page writes.
