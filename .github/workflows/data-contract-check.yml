@@ -1,0 +1,80 @@
+name: data-contract-check
+
+# IS MAIN STILL GREEN AFTER THE BOTS WROTE TO IT? (CI reliability, 2026-10-14)
+#
+# 33 data workflows commit to main with `[skip ci]`, and quality-gate's push trigger watches only code
+# paths — so a data commit that breaks a test is invisible until the next PR happens to merge with main.
+# On 2026-10-14 the first UFC VOID row (13:27Z, ufc-post-card) crashed a forecast-ledger parity test; main
+# was red for hours and the only symptom was three unrelated PRs failing CI.
+#
+# This runs the unit + contract phase on main HEAD every three hours and keeps ONE tracking issue open
+# while it fails. No build, no deploy, no secrets beyond the default token, no paid provider: standard
+# runner minutes on a public repository, and a workflow run never creates a Vercel deployment.
+# Proposal and alternatives: docs/ops/DATA_CONTRACT_GUARD.md.
+
+on:
+  schedule:
+    - cron: "47 */3 * * *"   # every 3h, off the minutes the data lanes cluster on
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: data-contract-check
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      # Same checkout as quality-gate: commit metadata for the history guards, no historical blobs.
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+          filter: blob:none
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20.4.0"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+
+      - name: Unit + contract suite on main HEAD
+        run: |
+          set -o pipefail
+          node scripts/ci/run-suite.mjs --phase unit 2>&1 | tee /tmp/suite.log
+          fails=$(grep -cE '^not ok' /tmp/suite.log || true)
+          echo "failing tests: ${fails:-0}"
+          [ "${fails:-0}" -eq 0 ]
+
+      - name: Open or update the tracking issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -u
+          {
+            echo "main HEAD $(git rev-parse --short HEAD) fails the unit + contract phase — $RUN_URL"
+            echo
+            echo '```'
+            grep -E '^not ok' /tmp/suite.log | head -20 || echo "(no TAP failures captured — the job failed before or outside the suite)"
+            echo '```'
+            echo
+            echo "Newest commits on main:"
+            echo '```'
+            git log -8 --format='%h %cI %s'
+            echo '```'
+          } > /tmp/body.md
+          n="$(gh issue list --state open --search 'main data-contract check failing in:title' --json number --jq '.[0].number // empty')"
+          if [ -n "$n" ]; then gh issue comment "$n" --body-file /tmp/body.md
+          else gh issue create --title "main data-contract check failing" --body-file /tmp/body.md; fi
