@@ -41,6 +41,25 @@ export function stripStamps(v) {
   return v;
 }
 
+/**
+ * A stamp counts as "only restamped" when BOTH sides hold a non-empty string for it. A stamp that appears, disappears
+ * or goes null ↔ value is content: readers branch on it (e.g. `!s.settledAt`), so a backfill that adds a missing
+ * settledAt/gradedAt must publish. Walks both values in parallel; structure is already known to match.
+ */
+function stampsOnlyRestamped(a, b) {
+  if (Array.isArray(a) && Array.isArray(b)) return a.every((x, i) => stampsOnlyRestamped(x, b[i]));
+  if (a && b && typeof a === "object" && typeof b === "object") {
+    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
+      if (STAMP.has(k)) {
+        if (a[k] === b[k]) continue;
+        const ok = (v) => typeof v === "string" && v.length > 0;
+        if (!ok(a[k]) || !ok(b[k])) return false;
+      } else if (!stampsOnlyRestamped(a[k], b[k])) return false;
+    }
+  }
+  return true;
+}
+
 function parse(text, file) {
   if (file.endsWith(".jsonl")) return text.split("\n").filter((l) => l.trim() !== "").map((l) => JSON.parse(l));
   return JSON.parse(text);
@@ -66,6 +85,6 @@ export function decide(file, status, head, staged, today) {
   let a, b;
   try { a = parse(head, file); b = parse(staged, file); } catch { return { restore: false, reason: "unparseable" }; }
   if (canon(a) === canon(b)) return { restore: true, reason: "re-serialised only" };
-  if (canon(stripStamps(a)) === canon(stripStamps(b))) return { restore: true, reason: "stamps only" };
+  if (canon(stripStamps(a)) === canon(stripStamps(b)) && stampsOnlyRestamped(a, b)) return { restore: true, reason: "stamps only" };
   return { restore: false, reason: "content changed" };
 }

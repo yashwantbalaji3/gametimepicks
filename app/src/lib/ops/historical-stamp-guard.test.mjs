@@ -48,6 +48,10 @@ test("NEGATIVE CONTROLS: any real change, or anything outside the rule, is publi
   assert.ok(keep("x/model-rows/2026-10-16.json", "M", J(base), J({ ...base, generatedAt: "b" })), "a future date");
   assert.ok(keep("x/report_2026-05-25.md", "M", "a", "b"), "not JSON");
   assert.ok(keep(f, "M", "{not json", J(base)), "unparseable → publish");
+  // A stamp appearing, disappearing or going null ↔ value is content (readers branch on it): publish.
+  assert.ok(keep(f, "M", J({ ...base, rows: [{ id: 1, outcome: "WIN", settledAt: null }] }), J({ ...base, rows: [{ id: 1, outcome: "WIN", settledAt: "2026-10-15T09:00:00Z" }] })), "a backfilled settledAt");
+  assert.ok(keep(f, "M", J({ ...base, rows: [{ id: 1, outcome: "WIN" }] }), J({ ...base, rows: [{ id: 1, outcome: "WIN", gradedAt: "x" }] })), "an added gradedAt");
+  assert.ok(keep(f, "M", J({ ...base, rows: [{ id: 1, outcome: "WIN", gradedAt: "x" }] }), J({ ...base, rows: [{ id: 1, outcome: "WIN" }] })), "a removed gradedAt");
   // Stamp names are matched exactly, never by suffix: a field merely ending in "At" is content.
   assert.ok(keep(f, "M", J({ ...base, kickoffAt: "x" }), J({ ...base, kickoffAt: "y" })), "kickoffAt is content");
   assert.deepEqual(STAMP_KEYS, ["gradedAt", "generatedAt", "settledAt", "checkedAt", "builtAt", "lastRunAt", "updatedAt"]);
