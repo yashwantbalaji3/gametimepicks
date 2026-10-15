@@ -1,0 +1,140 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-input-snapshot",
+ "dataClass": "PRIVATE_RESEARCH",
+ "what": "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+ "date": "2026-10-15",
+ "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+ "simulationVersion": 1,
+ "sourceBoardHash": "d12f6065a5dbf894962b6ca013a738e48da4ed42210b1bb549d919ce988f1b21",
+ "updatedAt": "2026-10-15T09:28:51.000Z",
+ "games": [
+  {
+   "gamePk": 849810,
+   "date": "2026-10-15",
+   "slug": "mil-vs-lad-2026-10-15",
+   "awayTeam": "MIL",
+   "homeTeam": "LAD",
+   "firstPitch": "2026-10-16T00:00:00Z",
+   "artifactHash": "cc831efcb57612ef364840542a06e5232001c0f457b7a57d37fbaad924f99796",
+   "completenessLevel": "degraded",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     694192,
+     661388,
+     668930,
+     686217,
+     592885,
+     806198,
+     641343,
+     669003,
+     666152
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     605141,
+     518692,
+     606192,
+     669257,
+     660271,
+     681624,
+     571970,
+     663656,
+     571771
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "awayStarter": null,
+   "homeStarter": {
+    "playerId": 607192,
+    "name": "Tyler Glasnow",
+    "hasStrikeoutProjection": true
+   },
+   "missingFamilies": [
+    "away_probable_starter",
+    "confirmed_batting_order",
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  },
+  {
+   "gamePk": 849818,
+   "date": "2026-10-15",
+   "slug": "tb-vs-cle-2026-10-15",
+   "awayTeam": "TB",
+   "homeTeam": "CLE",
+   "firstPitch": "2026-10-15T17:00:00Z",
+   "artifactHash": "db98301385ccba21a4b52d8bf2cdd4631d1258dae8788d3202ca9f6c837207c5",
+   "completenessLevel": "ready",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     802415,
+     650490,
+     691406,
+     676356,
+     689414,
+     683748,
+     666018,
+     680700,
+     670764
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     800050,
+     608070,
+     680757,
+     666176,
+     663993,
+     683953,
+     672275,
+     690984,
+     677587
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "awayStarter": {
+    "playerId": 643377,
+    "name": "Griffin Jax",
+    "hasStrikeoutProjection": true
+   },
+   "homeStarter": {
+    "playerId": 668909,
+    "name": "Gavin Williams",
+    "hasStrikeoutProjection": true
+   },
+   "missingFamilies": [
+    "confirmed_batting_order",
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  }
+ ]
+}
