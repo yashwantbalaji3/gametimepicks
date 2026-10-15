@@ -35,3 +35,13 @@ test("MLB board schedule-only grid shows crests by exact team ID, decorative, wi
   assert.match(b, /<span aria-hidden className="inline-flex"><TeamMark name=\{g\.homeTeamAbbr\} logoUrl=\{mlbTeamLogoUrl\(g\.homeTeamId\)\}/);
   assert.doesNotMatch(b, /awayTeamAbbr \?\? "\?"/);
 });
+
+test("a player/fighter avatar beside a printed name can be decorative (GTP-31); standalone avatars still name the player", () => {
+  const a = src("src/components/player-avatar.tsx");
+  assert.match(a, /role=\{decorative \? undefined : "img"\}/);
+  assert.match(a, /aria-label=\{decorative \? undefined : playerName\}/);
+  assert.match(a, /alt=\{decorative \? "" : playerName\}/);
+  assert.match(a, /decorative = false,/, "default keeps the accessible name");
+  assert.match(src("src/components/ufc/prediction-board.tsx"), /playerName=\{f\.name\} size="sm" flat decorative \/>/, "UFC board prints the fighter name beside the photo");
+});
+
