@@ -99,7 +99,8 @@ test("a final the schedule has already dropped is listed from the finals record 
   const row = h.rows.find((r) => r.id === played.providerEventId);
   assert.ok(row, "the recorded final appears even though the schedule no longer carries it");
   assert.equal(row.status, "final");
-  assert.match(row.reportNote, /^Final · .* 104 – .* 112/);
+  assert.match(row.reportNote, /^\S+ 104 – \S+ 112/, "the score from the finals record (the chip beside it says Final)");
+  assert.equal(row.status, "final");
   assert.equal(row.read, null, "a final row carries no forecast");
   // MUTATION PROBE · the old schedule-only hub: with no finals record nothing can print, and no row is invented
   const none = nbaHubFrom({ nowIso: NOW, schedule: realistic, finals: null });
