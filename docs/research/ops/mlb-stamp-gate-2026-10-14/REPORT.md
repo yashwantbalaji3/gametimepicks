@@ -135,3 +135,29 @@ Any one of these:
 No data is rewritten by any of these. Suppressed runs never committed stamp churn, so there is nothing to restore.
 
 The `admin/status.json` `NON_BUILD_INPUTS` entry reverts independently. Without it, daily-production simply builds as before.
+
+## Suppression-safety assessment (founder request, 2026-10-15)
+The question: **can the gate ever suppress a meaningful forecast, settlement, grading, live-data, freshness or publication change?** Each class below names the mechanism that prevents it and the evidence for it.
+
+| Class | Why it cannot be suppressed | Evidence |
+|---|---|---|
+| **Scope** | The gate can restore **only** files that match one of 7 exact MLB path patterns (full-game simulations, predictions, game simulations, homer-nukes, MLB tier grid, MLB schedule, prediction snapshots). Every other staged file is left alone. If an unruled build input is staged, the whole run publishes. The gate is called only from the two MLB workflows | `STAMP_RULES`; test "a new day's file, a deletion, or an unruled build input publishes" |
+| **Forecasts** | Inside a gated file, only exact JSON paths are ignored: top-level `generatedAt`, `games.*.freshness.generatedAt`, `evidence.priceAgeDays`. Any other byte (a probability, lineup, status, artifact hash, note, count) publishes **every** gated file, never a subset | Tests for a moved probability, a new lineup, a status flip, and a stamp-named key outside the allowlist; real committed artifacts re-stamped (suppress) and with one moved number (publish); 9/9 mutations caught |
+| **Pregame provenance** | A dropped snapshot is byte-identical (except `generatedAt`) to the newest snapshot already committed for its date. The first snapshot of a date, a differing one, and a rewritten one all publish | Grader rule replayed over 13 dates: forecast of record **byte-identical for 21/21 games** with and without suppression (`provenance.mjs`) |
+| **Settlement, grading, results** | No results, settled, graded, ledger, board or linescore path matches a rule; the two workflows do not write them; staging one publishes | Test "official results, settlement and graded records never match a stamp rule" |
+| **Live data** | Live scores come from the runtime gateway (`/api/live`), not from committed files, so the gate cannot touch them. NFL, NBA, UFC and soccer files are never gated | No rule outside `mlb/` and `parlays/tier-grid/mlb-*` |
+| **Freshness claims** | No public staleness verdict reads a gated stamp. Every reader was traced:<br>• "Sportsbook snapshot captured …" reads **team-markets** (never gated);<br>• market capture times read `sourceCapturedAt` / `marketSnapshot.capturedAt` (not allowlisted, so a newer capture publishes);<br>• the MLB product-day freshness reads the **board** (never gated);<br>• the footer reads the build time.<br>Gated stamps feed only "Simulated / Simulation generated at <time>", which remains literally true (the content shown was produced then and has not changed). The copy that implied an hourly visible refresh was fixed | Reader trace (`game-intelligence.ts` → `getTeamMarketsForDate`; `public-provenance.ts`; `product-day.ts`) |
+| **Publication (SLO) state** | The public fields of `ops/publication-slo.json` moving makes the gate publish. The deploy trigger also builds on such a move **for every workflow**, closing a pre-existing gap (8 commits in 10 days had waited for an unrelated deploy) | Trigger tests on a real git repo; reachability guard (`read-publication-slo.ts` is the only publicly reachable `ops/` reader) |
+| **Dead-man's switch** | `ops/heartbeat.json` and the SLO files are free files and commit on every run, so a stalled pipeline stays visible | Test "run records kept"; CLI test leaves only the heartbeat staged |
+| **Failure modes** | Unparseable JSON, a missing HEAD, no clock, a git error or an exception all publish. CLI exit 1/2 leave the index byte-identical | CLI tests (exit 1 untouched, exit 2 untouched, `--dry-run` touches nothing) |
+| **Staleness bound** | Even when nothing changes, a run publishes once the oldest committed gated stamp is more than 6h old | Heartbeat tests |
+
+**Residual risks, stated plainly:**
+1. A future generator could give a stamp field real meaning, for example make `generatedAt` drive a public "updated N minutes ago". The allowlist would then hide changes to it. Mitigations:
+   - the allowlist is 3 exact paths, written down;
+   - any new public reader of these fields should be reviewed against this table;
+   - the real-artifact test fails if the stamp paths disappear.
+2. "Simulated <time>" can show a time up to 6h older than the latest confirming run. It is true, but a reader could take it for staleness. The heartbeat bounds this.
+3. The added SLO trigger means about 0.8 extra (correct) builds a day.
+
+**Verdict:** no meaningful forecast, settlement, grading, live-data, freshness or publication change can be suppressed by this design. Everything outside the 3 stamp paths in 7 MLB file patterns publishes as before, and every error path publishes.
