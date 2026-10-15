@@ -39,6 +39,18 @@ test("NEGATIVE CONTROLS: a score before kickoff, a wrong score, a wrong quarter 
   assert.equal(comparePass("r", { state: "UNAVAILABLE", reason: "PROVIDER_ERROR" }, espn("STATUS_IN_PROGRESS")).refusal, "PROVIDER_ERROR");
 });
 
+test("no usable ESPN truth is UNVERIFIED, never agreement (missing, unparseable, or in play without scores)", () => {
+  assert.equal(comparePass("u1", env("LIVE", { away: 7, home: 3, number: 2, clock: "1:00" }), null).unverified, true);
+  assert.equal(comparePass("u2", env("LIVE", { away: 7, home: 3, number: 2, clock: "1:00" }), { not: "espn" }).unverified, true);
+  assert.equal(comparePass("u3", env("LIVE", { number: 2, clock: "1:00" }), espn("STATUS_IN_PROGRESS", { period: 2, clock: "1:00" })).unverified, true, "null vs null scores in play prove nothing");
+});
+
+test("a running clock is drift, not a disagreement; a quarter mismatch still is", () => {
+  const p = comparePass("c", env("LIVE", { away: 7, home: 3, number: 2, clock: "1:40" }), espn("STATUS_IN_PROGRESS", { away: 7, home: 3, period: 2, clock: "0:55" }));
+  assert.deepEqual(p.issues, []); assert.equal(p.clockDrift, true);
+});
+
+
 test("replayDir: a one-pass kickoff lag is LAG; a persisting difference is a DISAGREEMENT; files are only read", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "v2-replay-"));
   const put = (t, e, s) => { fs.writeFileSync(path.join(dir, `${t}-event.json`), JSON.stringify(e)); fs.writeFileSync(path.join(dir, `${t}-espn.json`), JSON.stringify(s)); };
@@ -57,3 +69,23 @@ test("replayDir: a one-pass kickoff lag is LAG; a persisting difference is a DIS
     assert.equal(fs.readdirSync(dir).map((f) => fs.readFileSync(path.join(dir, f), "utf8")).join("|"), before, "recorded files untouched");
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
+
+test("LAG needs the gateway BEHIND and a VERIFIED next pass that agrees", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "v2-replay2-"));
+  const put = (t, e, sm) => { fs.writeFileSync(path.join(dir, `${t}-event.json`), JSON.stringify(e)); fs.writeFileSync(path.join(dir, `${t}-espn.json`), JSON.stringify(sm)); };
+  try {
+    // gateway AHEAD: V2 says final while ESPN still in play; the next pass agrees → still a DISAGREEMENT
+    put("20261016T030000Z", env("FINAL", { away: 24, home: 20 }), espn("STATUS_IN_PROGRESS", { away: 24, home: 20, period: 4, clock: "0:10" }));
+    put("20261016T030500Z", env("FINAL", { away: 24, home: 20 }), espn("STATUS_FINAL", { away: 24, home: 20 }));
+    // gateway behind, but the next pass is a REFUSAL → cannot be cleared → DISAGREEMENT
+    put("20261016T031000Z", env("LIVE", { away: 24, home: 20, number: 4, clock: "0:01" }), espn("STATUS_FINAL", { away: 24, home: 20 }));
+    put("20261016T031500Z", { state: "UNAVAILABLE", reason: "PROVIDER_ERROR" }, espn("STATUS_FINAL", { away: 24, home: 20 }));
+    // an unverified pass is counted
+    put("20261016T032000Z", env("FINAL", { away: 24, home: 20 }), null);
+    const r = replayDir(dir);
+    assert.equal(r.lags.length, 0, "nothing here is a legitimate cache lag");
+    assert.deepEqual(r.disagreements.map((d) => [d.t, d.kind]), [["20261016T030000Z", "status"], ["20261016T031000Z", "status"]]);
+    assert.equal(r.refusals, 1); assert.equal(r.unverified, 1);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
