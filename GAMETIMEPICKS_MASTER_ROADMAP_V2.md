@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 14:40Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 15:50Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1811,6 +1811,13 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
   - **#1093:** exact head `1b8463c539`, CI green (run 38692616491), MERGEABLE CLEAN, 2 files. Approval package sent.
   - **#1091** (`dcfbf47fd2`): **proven to affect no automated commit**. 0 workflow `git add` lines and 0 bot commits in 14 d touch its globs.
   - **#1088** (`ca375282f3`): replay refreshed on current data: 160 → 50 MLB build-triggering commits (−69%). All 28 lineup-driven simulation changes, 10 new-day files and 1 prediction change published.
+- **#1093 MERGED** as `a4c8e26f03` (14:27:50Z). It was marked ready only after reconfirming the exact head `1b8463c539`, CI green, MERGEABLE CLEAN and the 2-file scope.
+  - Main CI green (run 38751623403).
+  - The merge's own deployment was superseded and cancelled at 15:06:43Z, the same second that `bc0ac8b0e3` completed.
+  - **Production serves `bc0ac8b0e3`** (contains #1093; builtAt 15:02:28Z, live 15:06:43Z; about 4 min from the first build step to live).
+  - **Forecast Record:** 25/25 files hash-identical to the ledger at `bc0ac8b0e3` (15,879 rows).
+  - Peak memory awaits the Vercel log of `dpl_FpJSaweMcmUE2yoSzNiNbX8UAKBb`.
+  - A 72-hour detached deploy watch runs until 10-18 14:30Z (`~/gtp-evidence/deploy-watch/`, GitHub API only). It flags every failure and any completed build over 30 min.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
   - a CI memory early warning (peak > 12 G);
@@ -1827,7 +1834,7 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
 
 **BLOCKED, needs founder action:**
 1. **Privacy/Terms (GTP-01):** operator, governing state, minimum age, effective date, counsel approval. This is the only open audit P0, and it blocks launch while accounts are enabled.
-2. **Vercel 46-min build kills:** cause CONFIRMED as static-generation memory exhaustion (COST-002). The fix awaits approval in #1093. Needed: the build logs for `dpl_Hr1uX94SiSo1aywSTxE6bfem8mMB`, `dpl_3un6p5zPPrVPdS8Jxf3ZvuQGQg3q`, `dpl_4TnKxbgyYpcZhqUb4sXZ2bijzbP1`, `dpl_8Hf6T4QSgdvUZcE7bGQsYgwTZUat`, `dpl_8LLRvH9ztE8Mc2PmLuyrUAUxUpB4`, plus one good build for comparison (`DxWAvEMF91urUnEWYvsTdwA9Eu6t`). Or a fresh token.
+2. **Vercel 46-min build kills:** cause CONFIRMED as static-generation memory exhaustion (COST-002). The fix, #1093, is MERGED and live in `bc0ac8b0e3`; 72 h monitoring is under way. Needed: the build logs for `dpl_Hr1uX94SiSo1aywSTxE6bfem8mMB`, `dpl_3un6p5zPPrVPdS8Jxf3ZvuQGQg3q`, `dpl_4TnKxbgyYpcZhqUb4sXZ2bijzbP1`, `dpl_8Hf6T4QSgdvUZcE7bGQsYgwTZUat`, `dpl_8LLRvH9ztE8Mc2PmLuyrUAUxUpB4`, plus one good build for comparison (`DxWAvEMF91urUnEWYvsTdwA9Eu6t`). Or a fresh token.
 3. **Hosted Supabase `--hosted` RLS run:** needs authorization.
 
 **READY, held for a consolidated release after Vercel stabilizes (founder approval each):**
