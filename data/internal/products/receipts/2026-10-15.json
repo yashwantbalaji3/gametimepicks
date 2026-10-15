@@ -1,0 +1,463 @@
+{
+ "schemaVersion": 1,
+ "artifact": "daily-product-receipt",
+ "dataClass": "PRIVATE_OPERATING_RECORD",
+ "date": "2026-10-15",
+ "generatedAt": "2026-10-15T09:37:45Z",
+ "states": [
+  "NOT_RUN",
+  "INPUTS_MISSING",
+  "STALE",
+  "INCIDENT",
+  "NO_PLAY",
+  "ACTIVE",
+  "PENDING_RESULT",
+  "SETTLED",
+  "VOID",
+  "OFF_SEASON"
+ ],
+ "lifecycleStates": [
+  "EVALUATING",
+  "ACTIVE",
+  "AWAITING_RESULT",
+  "SETTLED_WIN",
+  "SETTLED_LOSS",
+  "SETTLED_RECORDED",
+  "ADVANCED",
+  "RESTARTED",
+  "NO_PLAY",
+  "OFF_SEASON",
+  "INCIDENT"
+ ],
+ "inputs": {
+  "mlbBoard": {
+   "date": "2026-10-15",
+   "present": true,
+   "games": 2,
+   "leans": 84,
+   "hash": "88e2e13b0353"
+  },
+  "nflMarket": {
+   "present": true,
+   "capturedAt": "2026-10-11T11:41:55Z",
+   "events": 77
+  },
+  "nflModelEligible": false,
+  "portfolioSource": "published mr-dub/daily-portfolio.json",
+  "nflNote": "NFL contributes NO legs: PUBLIC_EXPERIMENTAL — sportsbook prices are not a GameTimePicks pick"
+ },
+ "products": [
+  {
+   "product": "bank-builder",
+   "label": "Bank Builder",
+   "state": "ACTIVE",
+   "reason": "2 lane(s) qualified under the live activation policy",
+   "candidatesEvaluated": 4,
+   "rejections": [],
+   "card": [
+    {
+     "id": "bank-builder-lane-a-step-1",
+     "lane": "A",
+     "step": 1,
+     "legCount": 2,
+     "combinedOdds": 141,
+     "exposure": 100,
+     "potentialReturn": 240.67
+    },
+    {
+     "id": "bank-builder-lane-b-step-1",
+     "lane": "B",
+     "step": 1,
+     "legCount": 2,
+     "combinedOdds": 200,
+     "exposure": 100,
+     "potentialReturn": 300.11
+    }
+   ],
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "bank-builder@1",
+    "evidence": {
+     "policyVersion": "bank-builder@1",
+     "cardRef": "bank-builder-lane-a-step-1+bank-builder-lane-b-step-1",
+     "lockAt": "2026-10-15T09:37:39.558Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:bank-builder:2026-10-15"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-10-15:88e2e13b0353"
+     }
+    ]
+   }
+  },
+  {
+   "product": "moonshot",
+   "label": "Moonshot",
+   "state": "ACTIVE",
+   "reason": "1 lane(s) qualified under the live activation policy",
+   "candidatesEvaluated": 2,
+   "rejections": [
+    {
+     "lane": "B",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 eligible legs — awaiting a full card"
+    }
+   ],
+   "card": [
+    {
+     "id": "moonshot-lane-a-step-1",
+     "lane": "A",
+     "step": 1,
+     "legCount": 2,
+     "combinedOdds": 302,
+     "exposure": 25,
+     "potentialReturn": 100.41
+    }
+   ],
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "moonshot@2",
+    "evidence": {
+     "policyVersion": "moonshot@2",
+     "cardRef": "moonshot-lane-a-step-1",
+     "lockAt": "2026-10-15T09:37:39.558Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:moonshot:2026-10-15"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-10-15:88e2e13b0353"
+     }
+    ]
+   }
+  },
+  {
+   "product": "end-zone-vault",
+   "label": "End Zone Vault",
+   "state": "NOT_RUN",
+   "reason": "the Vault ledger holds no entry for 2026-10-15",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "INCIDENT",
+    "policyVersion": "end-zone-vault@1",
+    "evidence": {
+     "policyVersion": "end-zone-vault@1",
+     "incidentRef": "NOT_RUN: the Vault ledger holds no entry for 2026-10-15"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:end-zone-vault:2026-10-15"
+     },
+     {
+      "to": "INCIDENT",
+      "runId": "eval:2026-10-15:NOT_RUN"
+     }
+    ]
+   }
+  },
+  {
+   "product": "homer-nukes",
+   "label": "Homer Nukes",
+   "state": "ACTIVE",
+   "reason": "5 model-qualified home-run picks published for the slate",
+   "candidatesEvaluated": 5,
+   "rejections": [],
+   "card": [
+    {
+     "playerId": 691406,
+     "player": "Junior Caminero",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "CLE",
+     "opponentTeamId": 114,
+     "matchup": "TB @ CLE",
+     "gamePk": 849818,
+     "gameDate": "2026-10-15T17:00:00Z",
+     "venue": "Progressive Field",
+     "opposingPitcher": "Gavin Williams",
+     "opposingPitcherId": 668909,
+     "probability": 0.2371,
+     "seasonHr": 42,
+     "seasonPa": 702,
+     "seasonRate": 0.05983,
+     "adjustedRate": 0.06232,
+     "pitcherHrAllowed": 28,
+     "pitcherBattersFaced": 746,
+     "pitcherMultiplier": 1.17,
+     "reason": "42 HR in 702 plate appearances (6.0% of trips, league 3.0%). Gavin Williams has been more homer-prone than average (28 allowed in 746 batters faced), lifting it to 23.7%."
+    },
+    {
+     "playerId": 683748,
+     "player": "Victor Mesa Jr.",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "CLE",
+     "opponentTeamId": 114,
+     "matchup": "TB @ CLE",
+     "gamePk": 849818,
+     "gameDate": "2026-10-15T17:00:00Z",
+     "venue": "Progressive Field",
+     "opposingPitcher": "Gavin Williams",
+     "opposingPitcherId": 668909,
+     "probability": 0.1968,
+     "seasonHr": 14,
+     "seasonPa": 262,
+     "seasonRate": 0.05344,
+     "adjustedRate": 0.05079,
+     "pitcherHrAllowed": 28,
+     "pitcherBattersFaced": 746,
+     "pitcherMultiplier": 1.17,
+     "reason": "14 HR in 262 plate appearances (5.3% of trips, league 3.0%). Gavin Williams has been more homer-prone than average (28 allowed in 746 batters faced), lifting it to 19.7%."
+    },
+    {
+     "playerId": 668723,
+     "player": "Ryan Vilade",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "CLE",
+     "opponentTeamId": 114,
+     "matchup": "TB @ CLE",
+     "gamePk": 849818,
+     "gameDate": "2026-10-15T17:00:00Z",
+     "venue": "Progressive Field",
+     "opposingPitcher": "Gavin Williams",
+     "opposingPitcherId": 668909,
+     "probability": 0.1642,
+     "seasonHr": 11,
+     "seasonPa": 278,
+     "seasonRate": 0.03957,
+     "adjustedRate": 0.04175,
+     "pitcherHrAllowed": 28,
+     "pitcherBattersFaced": 746,
+     "pitcherMultiplier": 1.17,
+     "reason": "11 HR in 278 plate appearances (4.0% of trips, league 3.0%). Gavin Williams has been more homer-prone than average (28 allowed in 746 batters faced), lifting it to 16.4%."
+    },
+    {
+     "playerId": 682657,
+     "player": "Angel Martínez",
+     "teamId": 114,
+     "teamAbbr": "CLE",
+     "teamName": "Cleveland Guardians",
+     "opponentAbbr": "TB",
+     "opponentTeamId": 139,
+     "matchup": "TB @ CLE",
+     "gamePk": 849818,
+     "gameDate": "2026-10-15T17:00:00Z",
+     "venue": "Progressive Field",
+     "opposingPitcher": "Griffin Jax",
+     "opposingPitcherId": 643377,
+     "probability": 0.1611,
+     "seasonHr": 18,
+     "seasonPa": 416,
+     "seasonRate": 0.04327,
+     "adjustedRate": 0.0409,
+     "pitcherHrAllowed": 15,
+     "pitcherBattersFaced": 459,
+     "pitcherMultiplier": 1.047,
+     "reason": "18 HR in 416 plate appearances (4.3% of trips, league 3.0%). Griffin Jax sits near league average for homers allowed (15 in 459), so the matchup barely moves it to 16.1%."
+    },
+    {
+     "playerId": 656555,
+     "player": "Rhys Hoskins",
+     "teamId": 114,
+     "teamAbbr": "CLE",
+     "teamName": "Cleveland Guardians",
+     "opponentAbbr": "TB",
+     "opponentTeamId": 139,
+     "matchup": "TB @ CLE",
+     "gamePk": 849818,
+     "gameDate": "2026-10-15T17:00:00Z",
+     "venue": "Progressive Field",
+     "opposingPitcher": "Griffin Jax",
+     "opposingPitcherId": 643377,
+     "probability": 0.1526,
+     "seasonHr": 13,
+     "seasonPa": 317,
+     "seasonRate": 0.04101,
+     "adjustedRate": 0.03861,
+     "pitcherHrAllowed": 15,
+     "pitcherBattersFaced": 459,
+     "pitcherMultiplier": 1.047,
+     "reason": "13 HR in 317 plate appearances (4.1% of trips, league 3.0%). Griffin Jax sits near league average for homers allowed (15 in 459), so the matchup barely moves it to 15.3%."
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "homer-nukes@1",
+    "evidence": {
+     "policyVersion": "homer-nukes@1",
+     "cardRef": "card+card+card+card+card",
+     "lockAt": "2026-10-15T09:28:54.000Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:homer-nukes:2026-10-15"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-10-15:88e2e13b0353"
+     }
+    ]
+   }
+  },
+  {
+   "product": "ufc-cards",
+   "label": "UFC paper cards",
+   "state": "NO_PLAY",
+   "reason": "no UFC event on 2026-10-15 — the ladder is published for 2026-10-17",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "ufc-cards@1",
+    "evidence": {
+     "policyVersion": "ufc-cards@1",
+     "reason": "no UFC event on 2026-10-15 — the ladder is published for 2026-10-17"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:ufc-cards:2026-10-15"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-15:88e2e13b0353"
+     }
+    ]
+   }
+  },
+  {
+   "product": "epl-cards",
+   "label": "EPL paper cards",
+   "state": "NO_PLAY",
+   "reason": "no EPL event on 2026-10-15 — the ladder is published for 2026-10-17",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "epl-cards@1",
+    "evidence": {
+     "policyVersion": "epl-cards@1",
+     "reason": "no EPL event on 2026-10-15 — the ladder is published for 2026-10-17"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:epl-cards:2026-10-15"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-15:88e2e13b0353"
+     }
+    ]
+   }
+  },
+  {
+   "product": "mlb-cards",
+   "label": "MLB suggested cards",
+   "state": "NO_PLAY",
+   "reason": "no priced card in this tier on today's slate · every candidate on today's slate uses a market-context family (Hits) — the model behind it was demoted and is not a published GameTime projection, so no card is offered · every candidate on today's slate uses a market-context family (Hits) — the model behind it was demoted and is not a published GameTime projection, so no card is offered · every candidate on today's slate uses a market-context family (Hits) — the model behind it was demoted and is not a published GameTime projection, so no card is offered",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "mlb-cards@1",
+    "evidence": {
+     "policyVersion": "mlb-cards@1",
+     "reason": "no priced card in this tier on today's slate · every candidate on today's slate uses a market-context family (Hits) — the model behind it was demoted and is not a published GameTime projection, so no card is offered · every candidate on today's slate uses a market-context family (Hits) — the model behind it was demoted and is not a published GameTime projection, so no card is offered · every candidate on today's slate uses a market-context family (Hits) — the model behind it was demoted and is not a published GameTime projection, so no card is offered"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:mlb-cards:2026-10-15"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-15:88e2e13b0353"
+     }
+    ]
+   }
+  },
+  {
+   "product": "multi-cards",
+   "label": "Multi-sport paper cards",
+   "state": "NO_PLAY",
+   "reason": "multi grid state NOT_ELIGIBLE — the stream opens only when two single-sport streams are live",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "multi-cards@1",
+    "evidence": {
+     "policyVersion": "multi-cards@1",
+     "reason": "multi grid state NOT_ELIGIBLE — the stream opens only when two single-sport streams are live"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:multi-cards:2026-10-15"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-15:88e2e13b0353"
+     }
+    ]
+   }
+  },
+  {
+   "product": "nba-lanes",
+   "label": "NBA (all lanes)",
+   "state": "NOT_RUN",
+   "reason": "NBA results capture did not report OFF_SEASON — investigate before assuming dormancy",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": false
+  }
+ ],
+ "watchdog": [
+  {
+   "product": "end-zone-vault",
+   "kind": "INCIDENT_OPEN",
+   "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-10-15"
+  }
+ ],
+ "authorities": {
+  "bankBuilder": "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
+  "moonshot": "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
+  "vault": "data/internal/nfl/end-zone-vault/ledger.json (append-only, owned by the Vault)",
+  "money": "NOT THIS SCRIPT — no money artifact is read for state or written at all"
+ },
+ "honesty": [
+  "INPUTS_MISSING is not NO_PLAY: a missing slate is an operational gap, and saying 'nothing qualified' would be a lie about a decision that never happened",
+  "every rejection reason is copied verbatim from the live activation policy — this receipt invents none",
+  "NFL contributes legs only when its MODEL layer is publishable; captured sportsbook prices never qualify a leg by themselves"
+ ]
+}

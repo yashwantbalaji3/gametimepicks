@@ -2,60 +2,60 @@
  "schemaVersion": 2,
  "artifact": "risk-coverage-matrix",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-14T15:42:04Z",
+ "generatedAt": "2026-10-15T09:37:47Z",
  "note": "Five lanes x four risk tiers, every cell typed. PUBLISHED carries its card; NO_PLAY carries the ladder's own skip reason; LANE_CLOSED carries the eligibility gate's reason; MISSING is a defect, never a quiet gap.",
  "counts": {
-  "PUBLISHED": 2,
-  "NO_PLAY": 2,
-  "LANE_CLOSED": 16,
+  "PUBLISHED": 0,
+  "NO_PLAY": 0,
+  "LANE_CLOSED": 20,
   "MISSING": 0
  },
  "rows": [
   {
    "lane": "mlb",
-   "date": "2026-10-14",
+   "date": "2026-10-15",
    "laneState": "CLOSED",
-   "laneReason": "only 1 priced game — the ladder needs 4",
+   "laneReason": "only 2 priced games — the ladder needs 4",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
+     "reason": "only 2 priced games — the ladder needs 4"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
+     "reason": "only 2 priced games — the ladder needs 4"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
+     "reason": "only 2 priced games — the ladder needs 4"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "only 1 priced game — the ladder needs 4"
+     "reason": "only 2 priced games — the ladder needs 4"
     }
    }
   },
   {
    "lane": "epl",
    "date": "2026-10-17",
-   "laneState": "LIVE",
-   "laneReason": null,
+   "laneState": "CLOSED",
+   "laneReason": "the last price capture is 3.4 days old",
    "tiers": {
     "low": {
-     "state": "PUBLISHED",
-     "slipId": "epl-low-2026-10-17"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.4 days old"
     },
     "medium": {
-     "state": "PUBLISHED",
-     "slipId": "epl-medium-2026-10-17"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.4 days old"
     },
     "high": {
-     "state": "NO_PLAY",
-     "reason": "not enough eligible priced fixtures to build a card"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.4 days old"
     },
     "longshot": {
-     "state": "NO_PLAY",
-     "reason": "not enough eligible priced fixtures to build a card"
+     "state": "LANE_CLOSED",
+     "reason": "the last price capture is 3.4 days old"
     }
    }
   },
@@ -87,23 +87,23 @@
    "lane": "nfl",
    "date": "2026-08-24",
    "laneState": "CLOSED",
-   "laneReason": "the last price capture is 3.2 days old; only 0 priced games — the ladder needs 4",
+   "laneReason": "the last price capture is 3.9 days old; only 0 priced games — the ladder needs 4",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.2 days old; only 0 priced games — the ladder needs 4"
+     "reason": "the last price capture is 3.9 days old; only 0 priced games — the ladder needs 4"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.2 days old; only 0 priced games — the ladder needs 4"
+     "reason": "the last price capture is 3.9 days old; only 0 priced games — the ladder needs 4"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.2 days old; only 0 priced games — the ladder needs 4"
+     "reason": "the last price capture is 3.9 days old; only 0 priced games — the ladder needs 4"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "the last price capture is 3.2 days old; only 0 priced games — the ladder needs 4"
+     "reason": "the last price capture is 3.9 days old; only 0 priced games — the ladder needs 4"
     }
    }
   },
@@ -111,23 +111,23 @@
    "lane": "multi",
    "date": "2026-10-12",
    "laneState": "CLOSED",
-   "laneReason": "a cross-sport card needs two live sports; only Premier League is cleared",
+   "laneReason": "a cross-sport card needs two live sports; none is cleared",
    "tiers": {
     "low": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two live sports; only Premier League is cleared"
+     "reason": "a cross-sport card needs two live sports; none is cleared"
     },
     "medium": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two live sports; only Premier League is cleared"
+     "reason": "a cross-sport card needs two live sports; none is cleared"
     },
     "high": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two live sports; only Premier League is cleared"
+     "reason": "a cross-sport card needs two live sports; none is cleared"
     },
     "longshot": {
      "state": "LANE_CLOSED",
-     "reason": "a cross-sport card needs two live sports; only Premier League is cleared"
+     "reason": "a cross-sport card needs two live sports; none is cleared"
     }
    }
   }
