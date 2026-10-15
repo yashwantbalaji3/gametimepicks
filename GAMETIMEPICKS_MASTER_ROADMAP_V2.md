@@ -1769,14 +1769,14 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 02:00Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 02:10Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
 | UX Release 2B + LIVE-F | #1081 → merge `5917475b53` (20:16:25Z) | Merged at the approved head `6e24b774f4`. Before the merge: unit run on main + head locally (only known local-env failures).<br>**Production READY serving `5917475b53`** (built 20:17:59Z). Main CI green.<br>Merge diff: 43 files, all `app/src`; 0 data, settlement or grading paths.<br>Forecast Record: 15,868/15,868 served rows match the ledger; 0 settlement mismatches.<br>36-view sweep at 1440/390 px clean (logos, portraits, `/live` tabs, coverage line) | **COMPLETED** (Production-verified) |
 | Live RLS battery in CI | #1084 → merge `46c7912271` (21:58:09Z) | Merged at the approved head `bfb1bd39e0`. **Production serves `46c7912271`** (built 22:02:00Z). Main CI green (run 38644263216) and **live RLS 82–84 PASS on main, not skipped**. Merge diff: 3 harness files only. No route, account code, migration or hosted-DB path; `--hosted` needs an explicit flag and URL, and no workflow supplies them. Forecast Record served = ledger, 15,868/15,868 | **COMPLETED** (Production-verified) |
 | UFC grader truth | #1085 → merge `411089bfe4` (22:27:49Z) | Merged at the approved head `68ab9225cf`. Main CI green (run 38647814525). Merge diff: 7 code/test files, 0 data. **All 199 UFC record files byte-identical** before and after. On main: 44/44 UFC/ledger checks (draw = VOID, withdrawn never a loss or in the ledger, pending excluded from n). Production record: 71 rows = 70 decided (44 W / 26 L) + 1 VOID (Gatto–Kareckaite, no result, no score). Withdrawn Gall–Dumas absent; 9 pending 10/17 bouts excluded. 10/17 chain ready (fight-week Sat 11Z, post-card daily) | **COMPLETED**: Production serves `b713c2c98c` (built 23:24:04Z), which contains the merge. Served record: 15,868/15,868 = ledger; UFC 71 rows unchanged |
-| Roving-tab a11y follow-up | #1087 → merge `279098cf25` (2026-10-15 00:17:41Z) | Merged at the approved head `152a4a35b5`. Main CI green (run 38659199389). Merge diff: its 7 UI/test files. The merge's Vercel build was **killed at 46.2 min** (wedge); not yet in Production | **AWAITING PRODUCTION** (Vercel queue stalled) |
+| Roving-tab a11y follow-up | #1087 → merge `279098cf25` (2026-10-15 00:17:41Z) | Merged at the approved head `152a4a35b5`. Main CI green (run 38659199389). Merge diff: its 7 UI/test files. The merge's own build was killed at 46.2 min (wedge). It was delivered by `5195af77eb` (built 01:51:23Z). Real-browser check: `/results` 5 tabs → 1 tab stop, Arrow-Right works, all tabs paired; NFL game 2 tablists → 2 stops. 0 overflow, 0 broken images. All 25 Forecast Record files (15,868 rows: ids + settlement states) hash-identical to the ledger at `5195af77eb` | **COMPLETED** (Production-verified) |
 | Live Hub V2 + Thursday plan | #1082 (draft, base main) · `a0a3c99837` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
 | MLB stamp-only gate | #1088 (draft) · `26de79bfb8` (rebased; suppression-safety assessment added) | Deploy trigger now builds on publication-SLO public-field moves for every workflow (8 previously delayed in 10 days). Forecast of record identical for 21/21 games. Results and settlement never gated. **Conservative ≈ $0.75/day net (estimate).** | PROPOSAL (protected workflows) |
 | Data-contract checks | #1089 (draft) · `9b19f082b1` (rebased) | Scheduled main check (CI green) plus a phase-2 staged-path contract check in data lanes, about 7 s, never blocks data. Replay of today's VOID break: fails in 7.1 s naming the test. Wired into `ufc-post-card` only | PROPOSAL (protected workflows) |
@@ -1784,7 +1784,7 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
 | MLB-001 simulation audit | #1086 · `4e7287913d` | Research (descriptive) | Docs only; AWAITING FOUNDER APPROVAL |
 | Parity test vs UFC VOID row | merged with #1081 | `main` green again (main CI on `5917475b53`) | **COMPLETED** |
 
-**Incident 2026-10-15 00:17Z onward (open): repeated Vercel wedges. Evidence from GitHub's Vercel statuses only; the token is expired.**
+**Incident 2026-10-15 00:17Z–01:57Z (queue recovered; cause still open): repeated Vercel wedges. Evidence from GitHub's Vercel statuses only; the token is expired.**
 
 | Deployment | Queued | Ended | Result |
 |---|---|---|---|
@@ -1793,10 +1793,11 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
 | `279098cf25` (#1087 merge) | 00:17:45Z | 01:03:57Z | failed at **46.2 min**, the documented platform kill (9/24: 45.6–46.2 min) |
 | `e9cb321800` (bot) | 00:54:47Z | 01:50:09Z | failed (≈46 min after the previous failure freed the queue) |
 
-- At 02:00Z Production still served `26dc66200e` (built 00:02Z; verified in a real browser), and 6 deployments were queued.
+- Production served `26dc66200e` (built 00:02Z) until `5195af77eb` completed at 01:57Z: about 1h55m with no successful deploy.
 - Live scores are unaffected: they come from the runtime gateway.
 - Build durations rose over 4 days (median queue+build 4.1 → 4.7 → 5.7 → 7.8 min).
 - The export grew since 9/24: **2,855 HTML pages** (≈2,493 then); 1.5 GB; 108 pages over 2 MB, mostly 5.3 MB MLB board archive pages.
+- A local build of current main succeeds in **137 s** (`next build` 126.7 s, 2,874 pages, largest process 2.46 GB RSS). The same code is killed on Vercel at 46 min, which points to a Vercel-environment hang rather than an intrinsically slow build.
 - The cause is unconfirmed. The build logs (`npx vercel inspect <dpl> --logs`; our heartbeat prints memory and load) need a fresh Vercel token.
 - Also tonight: automated requests to Production are being answered with the Vercel bot challenge (`x-vercel-mitigated: challenge`). Browsers are fine. This session's polling stopped at 00:50Z.
 
