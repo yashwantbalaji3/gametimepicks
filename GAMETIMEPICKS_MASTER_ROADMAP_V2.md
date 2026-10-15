@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 19:45Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 21:55Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1781,6 +1781,8 @@ Evidence stages as defined in §11 of that directive. Nothing below is Productio
 | Static-gen workers 4 → 3 | #1094 (draft) · `e1bb1b33dc` | Validated locally: worker RSS −6%, build +6%, identical output | **ON HOLD** (founder, 2026-10-15): modest gain; do not merge without further approval |
 | Build memory observability (anon/file/peak) | #1095 (draft) · `0f9d3eab81` | Split out of #1094; worker count unchanged; 14/14 observability tests; fails against old script | PROPOSAL: ride with next necessary release |
 | HTML reduction series | #1096 · #1097 · #1098 · #1099 · #1100 (drafts) | ≈ −27% generated HTML combined; rendering, visible text and computed styles verified identical | PROPOSAL (local only, 0 deploys) |
+| Settled-history stamp guard | #1101 (draft, protected workflow) · `99d435f7b4` | 380–386 past-dated files per settle run no longer restamped (16,823 gradedAt); replay on 4 real commits | **AWAITING FOUNDER APPROVAL** (protected workflow) |
+| UX consistency series | #1102–#1107 (drafts; #1103 on #1092) | Status vocabulary, plain copy, Results paging, team identity, NBA strip, labels/targets; combined build + 10,119 tests 0 fail + 26-page sweep | PROPOSAL (display-only, 0 deploys) |
 | Live Hub V2 + Thursday plan | #1082 (draft, base main) · `659b6b9376` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
 | MLB stamp-only gate | #1088 (draft) · `26de79bfb8` (rebased; suppression-safety assessment added) | Deploy trigger now builds on publication-SLO public-field moves for every workflow (8 previously delayed in 10 days). Forecast of record identical for 21/21 games. Results and settlement never gated. **Conservative ≈ $0.75/day net (estimate).** | PROPOSAL (protected workflows) |
 | Data-contract checks | #1089 → merge `7c3f23722a` (02:11:09Z) | Marked ready, then merged at the approved head `9b19f082b1`. Main CI green (run 38669654780).<br>Workflow verified:<br>• active; `schedule` + dispatch only (no push trigger, so it never deploys);<br>• `contents: read`, `issues: write`; own concurrency group;<br>• no commit, push or build step.<br>`ufc-post-card` safeguards preserved (dry-run / `commit_artifacts` gating, `continue-on-error`, fails only after commit).<br>Manual verification run 38669700923: 9,401 tests, 0 failed, 7 min, no issue opened. The merge's own Vercel build was killed at about 46 min; it renders nothing, so Production is unaffected (`5195af77eb`, browser-verified) | **COMPLETED** in GitHub; awaiting the first scheduled run (03:47Z) and the next data build to carry it |
@@ -1906,6 +1908,38 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
       - site chrome (command rail, mobile nav, footer) inline styles on all 2,863 pages, ≈ 45–70 MB;
       - player-page table cells: inline styles ≈ 102 MB of markup across 1,810 player pages.
     - The data archive (`data/internal`, clone 1m23s) remains P2.
+- **2026-10-15 evening (founder directive: continue development through the capture window; protect Production and the capture):**
+  - **Operating mode:**
+    - development moved to a dedicated worktree (`gametimepicks-wt/dev-1015`, `app/node_modules` symlinked) so the capture's checkout is never touched;
+    - no merges, deploys or paid calls;
+    - heavy builds only before 22:45Z and after the game's critical phase.
+  - **New finding (integrity): nightly-settle restamps settled history.**
+    - Each of the 5 settle runs on 10-15 rewrote 380–386 past-dated files (model-rows, optimizer-graded, row lineage): **16,823 `gradedAt` + 32 `settledAt`** values with no content change.
+    - **#1101** (protected workflow, approval required) adds a commit-step guard that restores past-dated JSON/JSONL whose only diff is exact stamp keys.
+    - Replay of the 4 real commits: 380–386 restored per run; changed app build-input files ~338 → ~30. latest/today/undated files still publish, and guard failure publishes everything.
+    - Tests 6 new; nightly-settle suites 344/344. It is not a build-count reduction by itself.
+  - **UX audit (independent, read-only, on main `ad78413337`):** 7 high, 10 medium and 7 low findings with file:line evidence. Shipped work (#1080/#1081) is excluded.
+  - **Drafts opened** (display-only, each with guard tests):
+
+    | PR | Audit items | Change |
+    |---|---|---|
+    | #1102 | H1, H2, M4, L1 | One game-state vocabulary: hub chips Upcoming/Live/Final/Started via a display map (internal values untouched); /live groups aligned; /simulate Started/Final/Report ready. The founder-conditioned "In progress at last update" heading is kept |
+    | #1103 (stacked on #1092) | H3, H4, H6, H7, L4 | Plain copy: /nfl lane codes mapped, run hash removed, no "today" claim; MLB board `pendingReason` → sentences, with one message per case and no promise on past slates; MLB/UFC/NFL/EPL/game-report jargon removed; `EVENT_STATUS_LABEL` (incl. UFC bout statuses) |
+    | #1104 | H5 (GTP-21/32) | Results explorers page (Show 50 more / Show all) instead of a silent 50 cap (87 of 137 cards were unreachable); model explorer the same at 250; sport names; slip IDs and sources behind disclosures. Browser-verified at 1440 and 375 |
+    | #1105 | M1, M2, M3, L3 | Team identity: EPL header crests lg; decorative crests beside names (incl. the TeamBadge fallback); MLB tiles name their real destination; board schedule grid gets ID crests |
+    | #1106 | M7, M8 (+ M6 for the founder) | /nba gets the shared section strip (Games / Model status / Results / Ask, no Live); mobile Menu label corrected. The M6 naming conflicts are listed for a founder decision |
+    | #1107 | L2, M5, L7 | "View archived report"; /today Upcoming/Started at 10.5 px; 44 px disclosures |
+
+  - **Deferred, with reason:**
+    - L5 (live badge): suspected, and the live panel is the capture's subject; waits for the evidence.
+    - M9/M10 type floor: broad, with layout risk; planned with build plus browser verification.
+    - `nfl/page.tsx:1070` 44 px: follows #1103.
+    - M6 names: founder decision.
+  - **Combined verification (21:35–21:50Z):** #1102–#1107 (plus #1092 via #1103) merge into a local-only integration branch without conflicts.
+    - `next build`: 151 s.
+    - Full unit **plus post-build** suite with the export present: **10,119 tests, 0 failures**.
+    - Browser sweep at 1440 and 390 px over 13 routes: 0 removed phrases reappearing, 0 overflow, 0 broken images. EPL header crests 56 px and decorative.
+  - **HTML-reduction series restacked** linearly (#1096 → #1097 → #1098 → #1099 → #1100), so it merges in order without conflicts. The only conflicts were appended `globals.css` blocks, each kept verbatim; CSS guards pass at the top of the stack.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
   - a CI memory early warning (peak > 12 G);
