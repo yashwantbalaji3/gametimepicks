@@ -49,7 +49,14 @@ const nextConfig = {
    * 2 workers removes swapping entirely but costs 19%. The export is byte-identical apart from build-instant
    * values (7,500/7,500 files). Guarded by src/lib/build-workers-cap.test.mjs.
    */
-  experimental: { cpus: 4 },
+  /*
+   * 2026-10-15 follow-up: with 4 workers the first Production build (dpl_FpJSaweMcmUE2yoSzNiNbX8UAKBb, bc0ac8b)
+   * completed but peaked at 14.82G/16.00G (vs 15.51G stalled at 7) — 93%, too little margin. Memory rises ~8 G in
+   * the last quarter of static generation (≈2 G per worker on the heaviest pages). 3 workers: local swap-outs 0,
+   * next build 134 s (vs 121–139 s at 4–7). Estimated Vercel peak ≈ 12.8 G — an extrapolation, to be confirmed
+   * from the next build log.
+   */
+  experimental: { cpus: 3 },
 };
 
 export default nextConfig;
