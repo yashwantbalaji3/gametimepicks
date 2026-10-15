@@ -121,7 +121,7 @@ export function nbaHubFrom({ nowIso, schedule, finals }: { nowIso: string; sched
       read: null,
       reportState: "NONE",
       reportHref: null,
-      reportNote: `Final · ${awayLabel} ${fin.ftAway} – ${homeLabel} ${fin.ftHome}${fin.state === "FINAL_UNDER_REVIEW" ? " (under review)" : ""}`,
+      reportNote: `${awayLabel} ${fin.ftAway} – ${homeLabel} ${fin.ftHome}${fin.state === "FINAL_UNDER_REVIEW" ? " (under review)" : ""}`,
       participants: [[awayLabel, awayTeam], [homeLabel, homeTeam]].map(([name, team]) => ({ name: name as string, logoTeam: team ? (team as any).espnAbbr : null, logoSport: team ? ("nba" as const) : null })),
       separator: "@",
     });
