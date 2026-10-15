@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 15:50Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-15 16:30Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1809,14 +1809,19 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
     - Baseline: about $9.9/day of build CPU on 7 days, ≈ **$280–320/month** before the $20 credit.
   - **Production build health:** a **6th** 46-minute kill (daily products 10:09→10:59Z). 6 kills in about 21 h.
   - **#1093:** exact head `1b8463c539`, CI green (run 38692616491), MERGEABLE CLEAN, 2 files. Approval package sent.
-  - **#1091** (`dcfbf47fd2`): **proven to affect no automated commit**. 0 workflow `git add` lines and 0 bot commits in 14 d touch its globs.
+  - **#1091** (`dcfbf47fd2`): CI run 38750597086 green; MERGEABLE CLEAN; revalidated on main + head (22/22, including #1093's guard). **Proven to affect no automated commit**. 0 workflow `git add` lines and 0 bot commits in 14 d touch its globs.
   - **#1088** (`ca375282f3`): replay refreshed on current data: 160 → 50 MLB build-triggering commits (−69%). All 28 lineup-driven simulation changes, 10 new-day files and 1 prediction change published.
 - **#1093 MERGED** as `a4c8e26f03` (14:27:50Z). It was marked ready only after reconfirming the exact head `1b8463c539`, CI green, MERGEABLE CLEAN and the 2-file scope.
   - Main CI green (run 38751623403).
   - The merge's own deployment was superseded and cancelled at 15:06:43Z, the same second that `bc0ac8b0e3` completed.
   - **Production serves `bc0ac8b0e3`** (contains #1093; builtAt 15:02:28Z, live 15:06:43Z; about 4 min from the first build step to live).
   - **Forecast Record:** 25/25 files hash-identical to the ledger at `bc0ac8b0e3` (15,879 rows).
-  - Peak memory awaits the Vercel log of `dpl_FpJSaweMcmUE2yoSzNiNbX8UAKBb`.
+  - **Vercel log `dpl_FpJSaweMcmUE2yoSzNiNbX8UAKBb` (bc0ac8b):**
+    - cap active ("Experiments: cpus"); completed;
+    - **peak `mem` 14.82G/16.00G** (vs 15.51G and a stall at 7 workers), with the wrapper's own memory at 50 → 36 MB;
+    - 2,881 pages; `next build` 221 s; container 6m36s, of which **clone 1m23s**, build-cache creation 39 s, deploy 7 s.
+    - **Acceptance (≤ 13 G) NOT met:** it survived with a 7% margin. Follow-up **#1094** (3 workers, draft, founder decision).
+  - The log also shows the ignore step falling back to BUILD because the previous deployed SHA was 14 commits back, beyond Vercel's shallow clone. This happens on 3.6% of attempts over 14 d (0 of them ignorable). It is fail-safe, but it caps the savings from any skip rule.
   - A 72-hour detached deploy watch runs until 10-18 14:30Z (`~/gtp-evidence/deploy-watch/`, GitHub API only). It flags every failure and any completed build over 30 min.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
