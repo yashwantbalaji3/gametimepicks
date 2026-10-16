@@ -319,13 +319,17 @@ export default function SportOverviewHero({
             {stats.slice(0, 3).map((s, i) => (
               <div
                 key={`${s.label}-${i}`}
-                className="gtp-stat-tile px-3 py-3 flex flex-col gap-0.5"
+                className="gtp-stat-tile px-3 py-3 flex flex-col gap-0.5 min-w-0"
               >
+                {/* UXR1-06 (DS-001 §9): three tiles on a 320 px phone leave ~74 px per label, and at 0.16em tracking
+                    "SIMULATED" / "SPORTSBOOK" were cut off by the tile's overflow:hidden. Tighter tracking below sm,
+                    and a long word may break rather than be clipped. */}
                 <span
-                  className="font-mono uppercase tracking-[0.16em]"
+                  className="font-mono uppercase tracking-[0.06em] sm:tracking-[0.16em]"
                   style={{
                     color: "var(--vault-text-mute)",
                     fontSize: 10,
+                    overflowWrap: "anywhere",
                   }}
                 >
                   {s.label}

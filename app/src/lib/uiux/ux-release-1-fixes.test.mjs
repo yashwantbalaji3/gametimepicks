@@ -52,3 +52,9 @@ test("UXR1-05 (DS-001 §9): EPL likeliest-scorer rows wrap instead of overlappin
   assert.match(s, /<li key=\{`\$\{p\.slug\}-\$\{p\.playerId\}`\} className="flex flex-wrap items-center justify-between/);
   assert.match(s, /<div className="min-w-0 flex items-center gap-2" style=\{\{ flex: "1 1 12rem" \}\}>\s*\{p\.teamName \? <TeamLogo/);
 });
+
+test("UXR1-06 (DS-001 §9): hub stat-tile labels are never clipped by the tile at 320 px", () => {
+  const s = src("src/components/sport-overview-hero.tsx");
+  assert.match(s, /className="gtp-stat-tile px-3 py-3 flex flex-col gap-0\.5 min-w-0"/);
+  assert.match(s, /className="font-mono uppercase tracking-\[0\.06em\] sm:tracking-\[0\.16em\]"[\s\S]{0,240}overflowWrap: "anywhere"/);
+});
