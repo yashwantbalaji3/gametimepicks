@@ -135,3 +135,27 @@ test("a sport with no grader is CLOSED, and says which half is missing", () => {
       "a sport whose results ARE captured must not be told it has none");
   }
 });
+
+test("a stale-capture reason is a fixed fact: re-running hours or days later does not change its text (2026-10-15)", () => {
+  /*
+   * The age used to be printed ("3.9 days old" → "4.0 days old"), so every re-run rewrote the reason and the Results
+   * projection restated itself for nothing but the clock. Evaluate twice, a day apart, both past the threshold:
+   * the blocked sentence must be byte-identical, name the capture's ET date, and still say it is stale.
+   */
+  const first = labEligibility(ROOT, NOW.slice(0, 10), NOW);
+  let compared = 0;
+  for (const s of first) {
+    const at = s.evidence?.pricesCapturedAt;
+    if (!at || !(s.evidence.priceAgeDays > 3)) continue;
+    const later = new Date(Date.parse(NOW) + 86_400_000).toISOString();
+    const again = labEligibility(ROOT, later.slice(0, 10), later).find((x) => x.id === s.id);
+    const reasonOf = (x) => (x.blocked ?? "").split("; ").find((r) => r.startsWith("the last price capture"));
+    assert.ok(reasonOf(s), `${s.id}: stale but no capture reason`);
+    assert.equal(reasonOf(again), reasonOf(s), `${s.id}: the stale-capture reason moved with the clock`);
+    assert.match(reasonOf(s), /^the last price capture \([A-Z][a-z]{2} \d{1,2}\) is more than 3 days old$/);
+    assert.doesNotMatch(reasonOf(s), /\d\.\d days/, "no decimal age prose");
+    compared++;
+  }
+  // POSITIVE CONTROL — only meaningful when committed data holds a stale capture; say so when it does not.
+  if (compared === 0) console.log("# note: no stale capture in the committed data at NOW; stability checked vacuously");
+});
