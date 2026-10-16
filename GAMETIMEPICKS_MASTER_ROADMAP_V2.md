@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-16 00:20Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-16 03:45Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1995,6 +1995,17 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
     - **#1105:** `PlayerAvatar` decorative option (GTP-31).
     - **#1107:** NFL report labels at 11 px.
     - **#1083:** build-churn proposal doc.
+- **03:45Z (10-16) — SEA@DEN game phase complete: DEN 17–14 (OT).** Report: `docs/live/LIVE_V2_SEA_DEN_ACCEPTANCE.md` (#1082 `c52d426125`).
+  - **Capture:** 52 passes, 312 requests, 0 non-200, 0 bot-challenged; 72 screenshots with 0 overflow and 0 broken images.
+  - **V2 replay:** 0 disagreements, 0 lags, 0 refusals; 3 clock-drift and 1 ESPN-omitted-period pass (informational).
+  - **PASS:** checks 1 (frozen across 40 post-kickoff passes; frozen at 8:09 PM ET), 2 (5-min resolution), 3, 4 (halftime, end of 4th, OT, Final/OT), 6, 8 (Final · grading pending, no WIN/LOSS), 10, 11, 12, 16, 18, 22–23.
+  - **Check 5:** PASS on screenshots vs ESPN's box.
+    - **Kit bug:** the kit requested `players=true`, but the gateway honours only `players=1`, so the envelopes carry no `playerStats`.
+    - Fixed on #1082 (`96ccf62ebb`) for Sunday.
+  - **Not observed live:** 7, 13–15, 19–21 (no delay or outage occurred).
+  - **Pending:** check 9 (canonical settlement; the capture keeps watching until it is served).
+  - **Cosmetic:** the game page's live panel eyebrow reads "LIVE NOW" above "Final/OT" (L5 family).
+  - **V2 stays unpublished.** Remaining windows: NFL Sunday 10/18 and one MLB postseason game.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
   - a CI memory early warning (peak > 12 G);
@@ -2105,7 +2116,7 @@ The "10 bouts from 2026-09-26 awaiting results" line was a mislabel: 1 withdrawn
 |---|---|---|
 | Legal publication (Privacy/Terms) | Drafts only (#1077, green). Operator, state, minimum age, effective date and counsel approval records are all missing | **YES**, while accounts are enabled |
 | Account security tests | Live battery runs on every main CI (merged #1084; 82–84 PASS on main). The hosted Supabase project is still not verified | Recommended before launch: one hosted `--hosted` run (founder authorization) |
-| NFL live validation | Plan in #1082: 23 checks for SEA@DEN `401872995`, Thu Oct 15 8:15 PM ET = 2026-10-16T00:15Z, identity verified. Capture scheduled; not yet run | Required before freeze-exit UAT |
+| NFL live validation | **SEA@DEN captured 10-15/16 (DEN 17–14 OT): game-phase checks pass (see `docs/live/LIVE_V2_SEA_DEN_ACCEPTANCE.md`); settlement (check 9) pending.** Second window: NFL Sunday 10/18 | Required before freeze-exit UAT |
 | MLB feed / schedule freshness | 10/14 artifacts present; chain runs green; scheduled crons run 4–9h late | No |
 | UFC grading and bout identity | Void correct; withdrawn correct; message and key fixes in #1085 | No (#1085 recommended) |
 | NBA opening night | Schedule capture and /simulate dates include Oct 20 (GTP-11) | No |
