@@ -5891,3 +5891,8 @@ summary.gtp-hit-44 { display: flex; justify-content: flex-start; }
 main summary { min-height: 44px; align-content: center; }
 main a.font-mono.uppercase:not(p a):not(li a):not(td a):not(dd a) { display: inline-flex; align-items: center; min-height: 44px; }
 .gtp-focus-ring:focus-visible { outline: 2px solid var(--vault-accent); outline-offset: 2px; }
+
+/* UXR1-16 (GTP-12, DS-001 §6): a list of standalone entity links whose container is a flex row (the team page's
+   recent-games opponents and player list) — the links are flex items, not running text, so the inline-link
+   exception does not apply. Each becomes a 44 px target; the label keeps its size. */
+.gtp-hit-44-links a { display: inline-flex; align-items: center; min-height: 44px; }

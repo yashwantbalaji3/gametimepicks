@@ -198,3 +198,37 @@ test("UXR1-15 (DS-001 §9): the hub strip clears its highlight at the top of the
   assert.match(nav, /rootMargin: "-20% 0px -65% 0px"/, "the computed band is the observer's band");
   assert.doesNotMatch(nav, /if \(visible\[0\]\) setCurrent/, "no set-only update");
 });
+
+test("UXR1-16 (GTP-12, DS-001 §6): in-body controls the sweep measured under 44 px are 44 px targets", () => {
+  // The ONE 44×44 rule (globals.css .gtp-hit-44) and its flex-row link-list form.
+  const css = src("src/app/globals.css");
+  assert.match(css, /\.gtp-hit-44 \{ display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; \}/);
+  assert.match(css, /\.gtp-hit-44-links a \{ display: inline-flex; align-items: center; min-height: 44px; \}/);
+
+  // MLB: /mlb market chips (25 px) + the same console's search/selects/"Show all"; /mlb/board filter chips and Reset (27 px).
+  const pb = src("src/components/mlb/props-board.tsx");
+  assert.match(pb, /<button key=\{m\.key\} onClick=\{\(\) => setMarket\(m\.key\)\} className="gtp-hit-44 rounded-full/);
+  assert.equal((pb.match(/className="min-h-\[44px\] rounded-\[8px\] px-2 py-1\.5 text-\[11\.5px\]"/g) ?? []).length, 4, "four filter selects");
+  assert.match(pb, /className="flex-1 min-w-\[150px\] min-h-\[44px\]/, "search field");
+  const fc = src("src/components/mlb/mlb-filter-console.tsx");
+  assert.match(fc, /aria-pressed=\{active\}\s*className="gtp-hit-44 font-mono/, "every board filter chip");
+  assert.match(fc, /className="gtp-hit-44 font-mono uppercase tracking-\[0\.14em\] rounded-\[3px\] px-2\.5 py-1"/, "Reset");
+
+  // Results: window pills (36 px) on /results and /results/model-audit; model-audit "Open N picks" (18 px); "Show all N wins" (30 px).
+  for (const p of ["src/components/results/results-explorer.tsx", "src/components/results/model-results-explorer.tsx"]) {
+    const s = src(p);
+    assert.doesNotMatch(s, /minHeight: 36/, `${p}: no 36 px pill`);
+  }
+  const mr = src("src/components/results/model-results-explorer.tsx");
+  assert.match(mr, /onClick=\{\(\) => setOpenDate\(openDate === d\.date \? null : d\.date\)\}\s*className="gtp-hit-44"/);
+  assert.match(src("src/components/parlay-results-date-section-v2.tsx"), /className="gtp-hit-44 self-start font-mono/);
+
+  // Team pages: recent-games opponents and the player list (21–23 px), the season log's "Game →" (32 px).
+  const team = src("src/app/teams/[sport]/[slug]/page.tsx");
+  assert.match(team, /<span className="gtp-hit-44-links" style=\{\{ display: "inline-flex"[^}]*\}\}>\s*<ResultBadge/);
+  assert.match(team, /<ul className="gtp-hit-44-links" style=\{\{[^}]*\}\}>\s*\{squad\.map/);
+  assert.doesNotMatch(src("src/components/research-pages/team-season-log.tsx"), /minHeight: 32/);
+
+  // "What the statuses mean →" (15 px) on every model-status panel (/epl, /models, hubs).
+  assert.match(src("src/components/command-center/model-status-panel.tsx"), /<Link href="\/methodology\/#model-status" className="gtp-hit-44 font-mono"/);
+});

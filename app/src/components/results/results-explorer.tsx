@@ -413,7 +413,7 @@ export default function ResultsExplorer({
               {PRESETS.map(([label, apply]) => (
                 <button key={label} type="button" onClick={apply}
                   className="vault-press rounded-full px-3 inline-flex items-center"
-                  style={{ minHeight: 36, fontSize: 11.5, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
+                  style={{ minHeight: 44, fontSize: 11.5, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
                   {label}
                 </button>
               ))}

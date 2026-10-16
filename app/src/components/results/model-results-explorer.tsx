@@ -195,13 +195,13 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
             <button key={label} type="button"
               onClick={() => { const t = etToday(); const f = shift(t, -back); setFrom(f); setTo(t); sync({ mfrom: f, mto: t }); }}
               className="vault-press rounded-full px-3 inline-flex items-center"
-              style={{ minHeight: 36, fontSize: 11.5, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
+              style={{ minHeight: 44, fontSize: 11.5, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
               {label}
             </button>
           ))}
           <button type="button" onClick={() => { setFrom(""); setTo(""); setMarket("all"); setOpenDate(null); sync({ mfrom: "", mto: "", market: "all" }); }}
             className="vault-press rounded-full px-3 inline-flex items-center"
-            style={{ minHeight: 36, fontSize: 11.5, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
+            style={{ minHeight: 44, fontSize: 11.5, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
             Reset
           </button>
         </div>
@@ -257,8 +257,11 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
                     </td>
                     <td style={{ padding: "6px 12px 6px 0", fontFamily: "monospace", fontSize: 11.5 }}>{m.wins + m.losses}</td>
                     <td style={{ padding: "6px 12px 6px 0", fontFamily: "monospace", fontSize: 11.5, color: "var(--vault-text-faint)" }}>{m.pushes || "—"}</td>
-                    <td style={{ padding: "6px 0" }}>
+                    <td style={{ padding: 0 }}>
+                      {/* UXR1-16 (GTP-12, DS-001 §6): an 18 px text button became a 44 px target; the cell drops its 6 px
+                          padding so the row grows to 44 px, not 56. */}
                       <button type="button" onClick={() => setOpenDate(openDate === d.date ? null : d.date)}
+                        className="gtp-hit-44"
                         style={{ color: "var(--vault-gold-bright)", background: "none", border: "none", padding: 0, font: "inherit", cursor: "pointer", textDecoration: "underline", fontSize: 11.5 }}
                         aria-expanded={openDate === d.date}>
                         {openDate === d.date ? "Hide picks" : `Open ${d.rows} picks`}
