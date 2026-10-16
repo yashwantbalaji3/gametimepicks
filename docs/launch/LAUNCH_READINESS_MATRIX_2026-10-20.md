@@ -245,18 +245,36 @@ These are exact questions. Each one unblocks the rows listed.
 | FD-9 | Do you approve the rollback rehearsal for **Mon 2026-10-19, 07:00–08:30 ET**, with you executing the Vercel steps? It moves off #1110's Sunday 08:00–09:00 ET slot, which overlaps the 9:30 AM ET London kickoff | O-07 |
 | FD-10 | Do you accept these as launch limitations? (a) 29 MLB historical games graded from unserved revisions, unrestated (#1045/#1049 drafts). (b) Yesterday's MLB game-page URLs 404 once the next board publishes. (c) CSP report-only. (d) The Results explorer caps at 50 rows until #1104 ships | D-02, P-08, O-09, P-11 |
 
-## 6. Hard-blocker list (current)
+## 6. Hard-blocker list (updated 2026-10-16 ~23:00Z)
 
-1. **Privacy and Terms are unpublished while accounts are enabled** (L-01, L-02, L-04, L-05, P-24, P-30). This needs FD-1 plus counsel, or FD-2's alternative.
-2. **The hosted Supabase RLS project is unverified while accounts are enabled** (O-10). This needs FD-3.
-3. **The Ask provider spending cap is unconfirmed** (P-23, O-12). This needs FD-4: confirm the cap, or turn Ask off.
-4. **`main` unit suite red on a data-dependent assertion** (O-03). Eng fix: replace `espn.size >= 28` with a whole-history or pinned check, per the CI-001 rule. Until then no exact-head CI can pass, including for a launch-day fix.
-5. **Rollback not rehearsed** (O-07). This needs FD-9, or a written waiver.
-6. **NFL Sunday 10/18 live window and UFC 10/17 card observed with no P0 defect.** This is a UAT gate: UAT D-07 and F-09.
+### 6a. Engineering blockers: work done, each waiting only on merge approval
+| # | Blocker | Status | What closes it |
+|---|---|---|---|
+| E-1 | **`main` unit suite red: bye-week team count** (O-03). `totals-play-efficiency` asserted ≥ 28 teams in one week's remaining schedule | **#1114**, exact head `c94eb076ee`; CI green (9,402/9,404 unit, 0 fail); approval package posted | Founder approves the merge |
+| E-2 | **`main` unit suite red: stale NFL next kickoff** (O-03). The product-day EQUIVALENCE check failed at 04:59Z and 11:54Z. It is also a **user-facing defect**: after a Thursday or Monday game, Home and `/today` said the next window "appears when its forecasts publish" while 13 forecasts were published. It recurs after MNF on launch night | **#1118**: fix plus regression fixture (fails without the fix); 128/128 product-day consumer tests; tsc clean | Founder approves the merge |
+| E-3 | **UAT live windows** (UFC 10/17 card; NFL Sunday 10/18). Both must pass with no P0 defect (UAT D-07, F-09) | NFL capture running (kit `ab2f28b88f`, pid 8301; 3 games). UFC is observed per the UAT plan | The windows themselves |
+
+### 6b. Founder or legal blockers: engineering cannot close these
+| # | Blocker | Needs |
+|---|---|---|
+| F-1 | **Privacy and Terms unpublished while accounts are enabled** (L-01, L-02, L-04, L-05, P-24, P-30). Verified: `/privacy/` and `/terms/` → 404, `/account/` → 200 | FD-1 plus qualified counsel, or FD-2's alternative |
+| F-2 | **Hosted Supabase RLS unverified while accounts are enabled** (O-10) | FD-3: one read-only verify run with your keys |
+| F-3 | **Ask provider spending cap unconfirmed** (P-23, O-12) | FD-4: confirm the cap, or turn Ask off |
+| F-4 | **Rollback not rehearsed** (O-07) | FD-9: you execute the Vercel steps, or waive in writing |
+
+### 6c. Ready releases that are not launch blockers (approval queue)
+- **#1101 and #1088:** protected workflows, proposed window Sat 10:30–11:00Z. Packages and independent post-merge verifiers are in `docs/launch/approvals/`.
+- **#1117, HTML Release 1:** −27.4% HTML with identical rendering. Merge **before** #1115; they overlap in `mlb-lean-row.tsx`.
+- **#1115, UX Release 1:** 9 audit PRs plus sweep fixes. Python check fixed (UXR1-12); final open-item pass in progress. It is reconciled onto `main` after #1117.
 
 ## 7. Evidence-based go/no-go assessment (as of 2026-10-16 20:45Z)
 
-**Current position: NO-GO for a full public launch with accounts enabled. CONDITIONAL GO is reachable by Oct 20 if the six hard blockers close.**
+**Current position: NO-GO for a full public launch with accounts enabled.**
+- **CONDITIONAL GO is reachable by Oct 20** if E-1 to E-3 and F-1 to F-4 close.
+- **Engineering's remaining part is merge approvals** (#1114, #1118) plus the live windows.
+- **The binding constraint is F-1** (legal publication).
+
+Update 2026-10-16 ~23:00Z: §6 now separates engineering blockers from founder and legal blockers. The text below is the 20:45Z assessment.
 
 **Strong:**
 - Production is current: it serves `main`, with 0 build failures since #1093.
