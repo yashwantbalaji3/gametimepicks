@@ -70,7 +70,10 @@ export function comparePass(t, eventResponse, summary) {
   }
   if (truth.cls === "IN_PLAY" && v2cls === "IN_PLAY") {
     const q = v2.progress?.quarter ?? null;
-    if (q !== truth.period) out.issues.push({ kind: "period", detail: `V2 Q${q} vs ESPN period ${truth.period}`, behind: q != null && truth.period != null && q < truth.period });
+    // ESPN's summary sometimes omits period/clock mid-play (seen in SEA@DEN overtime): nothing to compare, so the period
+    // check is unverified for this pass rather than a disagreement.
+    if (truth.period == null) out.periodUnverified = true;
+    else if (q !== truth.period) out.issues.push({ kind: "period", detail: `V2 Q${q} vs ESPN period ${truth.period}`, behind: q != null && truth.period != null && q < truth.period });
     // The gateway caches up to 120 s and ESPN is fetched at a different moment: a running clock differs by design.
     // Clock is reported as drift, never as a disagreement.
     else if ((v2.progress?.clock ?? null) !== truth.clock && truth.name === "STATUS_IN_PROGRESS") out.clockDrift = true;
@@ -101,6 +104,7 @@ export function replayDir(dir) {
     refusals: passes.filter((p) => p.refusal).length,
     unverified: passes.filter((p) => p.unverified).length,
     clockDrift: passes.filter((p) => p.clockDrift).length,
+    periodUnverified: passes.filter((p) => p.periodUnverified).length,
     disagreements: all.filter((i) => i.severity === "DISAGREEMENT"),
     lags: all.filter((i) => i.severity === "LAG"),
     timeline: passes.map((p) => ({ t: p.t, refusal: p.refusal ?? null, unverified: !!p.unverified, v2: p.v2 ?? null, espn: p.espn ? { name: p.espn.name, period: p.espn.period, clock: p.espn.clock, away: p.espn.away, home: p.espn.home } : null })),
@@ -112,7 +116,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (!dir || !fs.existsSync(dir)) { console.error("usage: replay-v2-capture.mjs <capture-dir> [--json]"); process.exit(2); }
   const r = replayDir(dir);
   if (process.argv.includes("--json")) { console.log(JSON.stringify(r, null, 1)); process.exit(0); }
-  console.log(`passes ${r.passes} · gateway refusals ${r.refusals} · unverified (no usable ESPN truth) ${r.unverified} · disagreements ${r.disagreements.length} · lags ${r.lags.length} · clock drift ${r.clockDrift}`);
+  console.log(`passes ${r.passes} · gateway refusals ${r.refusals} · unverified (no usable ESPN truth) ${r.unverified} · disagreements ${r.disagreements.length} · lags ${r.lags.length} · clock drift ${r.clockDrift} · period unverified ${r.periodUnverified}`);
   for (const d of r.disagreements) console.log(`  DISAGREEMENT ${d.t} ${d.kind}: ${d.detail}`);
   for (const d of r.lags) console.log(`  lag ${d.t} ${d.kind}: ${d.detail}`);
 }

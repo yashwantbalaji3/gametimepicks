@@ -89,3 +89,8 @@ test("LAG needs the gateway BEHIND and a VERIFIED next pass that agrees", () => 
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
+test("ESPN omitting period mid-play (SEA@DEN OT) is 'period unverified', not a disagreement", () => {
+  const p = comparePass("ot", env("LIVE", { away: 14, home: 17, number: 5, clock: "4:53" }), espn("STATUS_IN_PROGRESS", { away: 14, home: 17, period: null, clock: null }));
+  assert.deepEqual(p.issues, []); assert.equal(p.periodUnverified, true);
+});
+
