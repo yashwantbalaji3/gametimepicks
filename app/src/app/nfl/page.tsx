@@ -1038,7 +1038,7 @@ export default function NflHubPage() {
               wants it gets all of it; everyone else gets the model's answer and moves on. */}
           {(differentiation.whatWeFoundAndFixed || differentiation.weTriedToFixIt || differentiation.whatWouldChangeIt) ? (
             <details style={{ marginTop: 12, border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px", maxWidth: 760 }}>
-              <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 32 }}>
+              <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 44 }}>
                 How we tested this
               </summary>
               {differentiation.whatWeFoundAndFixed ? (
