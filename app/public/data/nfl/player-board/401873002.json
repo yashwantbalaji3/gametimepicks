@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-16T13:57:16Z",
- "sourceGeneratedAt": "2026-10-16T13:57:16Z",
+ "generatedAt": "2026-10-16T17:07:10Z",
+ "sourceGeneratedAt": "2026-10-16T17:07:10Z",
  "providerEventId": "401873002",
  "matchup": "PIT @ TB",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-16T13:57:16Z",
-  "roleEvidenceAt": "2026-10-16T13:57:16Z",
+  "injuriesCapturedAt": "2026-10-16T17:07:10Z",
+  "roleEvidenceAt": "2026-10-16T17:07:10Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,6 +23,15 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "TB",
+     "playerId": "nfl-athlete-4596472",
+     "name": "Jalon Daniels",
+     "share": 0.745,
+     "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.74, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -108,7 +117,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 56,
+  "absent": 53,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -241,25 +250,14 @@
   },
   "TB": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
-    {
-     "playerId": "nfl-athlete-3052587",
-     "name": "Baker Mayfield",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
     {
      "playerId": "nfl-athlete-4596448",
      "name": "Bucky Irving",
@@ -285,7 +283,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.74, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     },
@@ -374,6 +372,12 @@
       "player_reception_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3052587",
+     "name": "Baker Mayfield",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   }
@@ -390,21 +394,11 @@
    },
    {
     "team": "TB",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3052587",
-     "name": "Baker Mayfield"
-    },
-    "snapshotAt": "2026-10-14T12:51:31Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4596472",
-      "name": "Jalon Daniels"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
-     "nfl-athlete-3052587"
-    ]
+     "nfl-athlete-4596472"
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -421,9 +415,17 @@
     "team": "TB",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3052587"
+     "nfl-athlete-4596472"
     ],
-    "withheld": [],
+    "withheld": [
+     {
+      "team": "TB",
+      "playerId": "nfl-athlete-4596472",
+      "name": "Jalon Daniels",
+      "share": 0.745,
+      "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.74, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
     "unjoined": []
    }
   ],
@@ -833,36 +835,6 @@
     },
     "anytime_td": {
      "probability": 0.1609,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3052587",
-   "name": "Baker Mayfield",
-   "team": "TB",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 16.868,
-     "p10": 0,
-     "p25": 2.31,
-     "median": 10.96,
-     "p75": 24.73,
-     "p90": 42.7,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 206.9145,
-     "p10": 104.7601,
-     "p25": 142.5393,
-     "median": 194.4739,
-     "p75": 257.7892,
-     "p90": 325.1684,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1404,
      "pricingState": "NOT_PROBED"
     }
    }
