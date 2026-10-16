@@ -33,7 +33,7 @@ function Action({ row }: { row: HubGameRow }) {
   }
   return (
     <Link href={row.reportHref} className="vault-press gtp-ev-cta inline-flex items-center gap-1 rounded-full px-4 text-[13px] font-semibold no-underline">
-      {row.reportState === "ARCHIVE" ? "View record" : "Open report"} <span aria-hidden>→</span>
+      {row.reportState === "ARCHIVE" ? "View archived report" : "Open report"} <span aria-hidden>→</span>
       <span className="sr-only"> for {row.matchup}</span>
     </Link>
   );

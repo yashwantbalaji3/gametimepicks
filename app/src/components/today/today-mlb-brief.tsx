@@ -79,7 +79,7 @@ export default function TodayMlbBrief({ brief, recapHref }: { brief: DailyBrief;
           <div className="flex items-center gap-2">
             <span className="font-mono uppercase tracking-[0.1em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9 }}>Simulation spotlight</span>
             {spotlight.started ? (
-              <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 8, color: "var(--vault-text-mute)", background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" }}>{slateIsPast ? "Slate finished" : "In progress"}</span>
+              <span className="rounded-full px-2 py-0.5 font-mono uppercase tracking-[0.06em]" style={{ fontSize: 10.5, color: "var(--vault-text-mute)", background: "color-mix(in srgb, var(--vault-wash-base) 6%, transparent)" }}>{slateIsPast ? "Slate finished" : "Started"}</span>
             ) : null}
           </div>
           <div className="flex items-center justify-between gap-3">

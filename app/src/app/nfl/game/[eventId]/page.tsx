@@ -419,12 +419,12 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           x.label && x.label !== key ? x.label : key.replace(/^player_/, "").replace(/_/g, " ").replace(/\bint\b/, "interceptions");
         const TeamCol = ({ t }: { t: { abbr: string; name: string } }) => (
           <div style={{ minWidth: 0 }}>
-            <p className="font-mono" style={{ margin: 0, fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+            <p className="font-mono" style={{ margin: 0, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
               <TeamLogo team={t.abbr} sport="nfl" size="sm" ariaLabel={`${t.name} logo`} /> {t.abbr}
             </p>
             {hasTd && tdTop(t.abbr).length ? (
               <div style={{ marginTop: 8 }}>
-                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Likely TD scorers</p>
+                <p className="font-mono" style={{ margin: 0, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Likely TD scorers</p>
                 {tdTop(t.abbr).map((p) => (
                   <p key={p.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
                     <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</span>{" "}
@@ -514,7 +514,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                   artifact's exact failed bar, never a silent gap and never an invented number. */}
               {withheld.length ? (
                 <details style={{ marginTop: 14, borderTop: "1px solid var(--vault-rule)", paddingTop: 10 }}>
-                  <summary className="font-mono" style={{ cursor: "pointer", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--vault-text-faint)", minHeight: 32 }}>
+                  <summary className="font-mono" style={{ cursor: "pointer", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--vault-text-faint)", minHeight: 44 }}>
                     {withheld.map(([key, x]) => famLabel(key, x)).join(" · ")} — withheld, with the exact bar each failed
                   </summary>
                   <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
@@ -787,7 +787,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             family. Read verbatim from the artifact's per-family basis lines. */}
         {playerBoard ? (
           <details style={{ marginTop: 12, border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
-            <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 32 }}>
+            <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 44 }}>
               Player-family model provenance ({Object.values(playerBoard.families).filter((x) => x.state === "PUBLISHED").length} published)
             </summary>
             <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
