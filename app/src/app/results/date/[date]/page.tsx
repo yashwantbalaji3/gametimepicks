@@ -565,8 +565,10 @@ function NbaGameGroups({
   return (
     <section className="mt-10">
       <div className="flex items-center gap-3 mb-4">
+        {/* UXR1-02 (DS-001 §9): these eyebrows were shrink-0, so at 320 px the label kept its one-line width (315 px) and
+            pushed the page 11 px wide. They may wrap; the rule line beside them takes what is left. */}
         <span
-          className="font-mono text-[10px] uppercase tracking-[0.18em] shrink-0"
+          className="font-mono text-[10px] uppercase tracking-[0.18em] min-w-0"
           style={{ color: "var(--vault-gold)" }}
         >
           NBA settled games · projection vs actual
@@ -657,7 +659,7 @@ function MlbGameGroups({
     <section className="mt-10">
       <div className="flex items-center gap-3 mb-4">
         <span
-          className="font-mono text-[10px] uppercase tracking-[0.18em] shrink-0"
+          className="font-mono text-[10px] uppercase tracking-[0.18em] min-w-0"
           style={{ color: "var(--vault-success)" }}
         >
           MLB settled games · projection vs actual

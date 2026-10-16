@@ -114,3 +114,9 @@ test("UXR1-10 (DS-001 §2): the three status maps merged in this release agree o
   // DS-001 §2 lets live surfaces say "Scheduled" + a start time for pregame; nothing else may differ.
   assert.ok(["Upcoming", "Scheduled"].includes(LIFECYCLE_LABEL.PRE));
 });
+
+test("UXR1-02 (cont.): /results/date section eyebrows may wrap — a shrink-0 label held the page 11 px wide at 320 px", () => {
+  const s = src("src/app/results/date/[date]/page.tsx");
+  assert.equal((s.match(/className="font-mono text-\[10px\] uppercase tracking-\[0\.18em\] min-w-0"/g) ?? []).length, 2, "NBA and MLB eyebrows");
+  assert.doesNotMatch(s, /uppercase tracking-\[0\.18em\] shrink-0"/);
+});
