@@ -205,3 +205,30 @@ Kept in the measuring session's scratchpad and not committed:
 - per-file sizes (`*-sizes.json`) and the whole-export equivalence result (`equiv.json`);
 - Playwright results and screenshots (`pw/`) and interaction steps (`interact.json`);
 - test logs.
+
+## 7. Historical-data integrity
+- **No data file changes.** The release diff is 13 source files plus this document. It touches **0 files** under `data/`, `app/public/data/` or `pipeline/`. No forecast, result, settlement or ledger record is read differently, truncated or rewritten.
+- **Every historical page is still built and reachable:** 2,865 HTML pages before and after, and the same 7,656 files.
+- **Every record is still rendered:** row, cell and link counts are identical on every page (138,926 `tr`, 906,455 `td`, 401,030 links). Visible text is identical except the footer build stamp.
+- **Historical Results pages behave identically:** "Jump to a date" paging back to 05-15 and the `/results/` window and record-type filters give the same row counts in both builds (186 → 71 → 69 → 68).
+- **Nothing is hidden behind progressive loading:** the reduction comes from moving repeated inline styles into shared classes and sending the MLB client a projected lean, not from rendering less information.
+
+## 8. Expected versus measured cost effect
+| Effect | Expected mechanism | Measured | Status |
+|---|---|---|---|
+| Static export size | Fewer repeated inline styles | **−25.6% of `app/out`** (1,600 → 1,191 MB); HTML **−27.4%** | **Measured (local, reproducible)** |
+| Next.js static-generation time | Less HTML to render and serialise | Cold builds 195 s → 163 s, warm 134 s → 133 s, on a shared, loaded machine | **No difference demonstrated.** The cold gap is within noise |
+| Local build memory | Smaller page payloads in workers | Peak RSS differences in both directions | **No difference demonstrated** |
+| Vercel "deploying outputs" / upload phase | 410 MB less output to upload per build | — | **Not measured.** Needs Vercel build logs (`run-phase.mjs` phase timings) |
+| Vercel Build CPU minutes and billing | Follows from the two rows above | — | **Not measured.** Needs a Vercel token or the usage page. **No dollar saving is claimed** |
+| CDN storage and egress | Smaller pages to store and serve | — | **Not measured**; these meters were negligible on the 10-07 invoice (COST-001 §1) |
+
+**Post-merge measurement plan (no token needed for step 1):**
+1. Using `docs/cost/BUILD_BASELINE_2026-10-16.md`'s method (GitHub Production deployments + `Vercel` commit statuses), compare the median end-to-end minutes of completed builds over 24 h before and 24 h after the merge, split by trigger. Queue time and the volume of data commits confound this, so report it as indicative only.
+2. With a Vercel token: compare `cpuTimeForBilling` per completed build over the same windows, and the `run-phase.mjs` phase timings (`next-build`, `prune-internal-routes`, output upload).
+3. Billing: the next Vercel usage export for the same days.
+
+## 9. Release shape
+- **One release, one merge, one Production build.** This branch (`claude/html-series-measurement`) is the #1100 head plus this document, so it contains all five PRs' commits in order. Merging it closes #1096–#1100 as merged.
+- **Release order:** merge this **before** the consolidated UX release (#1115). The two overlap in `mlb-lean-row.tsx`, `mlb-board-body.tsx` and, depending on #1115's final touch-target work, `mlb-filter-console.tsx`. A trial merge conflicts in `mlb-lean-row.tsx`: #1115's UXR1-04 chip-wrapping and UXR1-06 stat-tile stacking edit inline style objects this release turns into classes. The equivalence evidence above is against `main`, so merging this first keeps it valid. #1115 is then reconciled onto the new `main` and re-tested.
+- **Rollback:** revert the release merge commit, which reverts all five together. Reverting a middle PR alone conflicts in `globals.css` (§6).
