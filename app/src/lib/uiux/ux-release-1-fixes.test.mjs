@@ -195,7 +195,9 @@ test("UXR1-15 (DS-001 §9): the hub strip clears its highlight at the top of the
   assert.equal(currentHubSection([], ...band), null);
   const nav = src("src/components/sports/sport-hub-nav.tsx");
   assert.match(nav, /setCurrent\(currentHubSection\(boxes, window\.innerHeight \* 0\.2, window\.innerHeight \* 0\.35\)\);/);
-  assert.match(nav, /rootMargin: "-20% 0px -65% 0px"/, "the computed band is the observer's band");
+  // Recomputed on every scroll frame, so a jump that crosses no band edge (Home/End) still updates the strip.
+  assert.match(nav, /window\.addEventListener\("scroll", schedule, \{ passive: true \}\);/);
+  assert.match(nav, /window\.removeEventListener\("scroll", schedule\);/);
   assert.doesNotMatch(nav, /if \(visible\[0\]\) setCurrent/, "no set-only update");
 });
 

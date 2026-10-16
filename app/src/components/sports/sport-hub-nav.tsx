@@ -7,8 +7,8 @@ import { HUB_SECTIONS, currentHubSection, type HubSport } from "@/lib/sports/hub
  * SPORT-HUB SECTION NAV (P208 · Release C) — the shared in-page wayfinding strip every hub mounts
  * under its hero. Sticky, horizontally scrollable at 390/768/1280/1440, one visual rhythm for all
  * four sports; anchors jump within the hub, links open the capability at its canonical owner. The
- * current anchor is tracked from the scroll position (IntersectionObserver) so the strip answers
- * "where am I on this page" — and under reduced data (no IO) it still works as plain links.
+ * current anchor is tracked from the scroll position (UXR1-15: `currentHubSection`, recomputed on scroll) so the
+ * strip answers "where am I on this page" — and without script it still works as plain links.
  */
 export default function SportHubNav({ sport, anchors }: {
   sport: HubSport;
@@ -24,24 +24,28 @@ export default function SportHubNav({ sport, anchors }: {
   const [current, setCurrent] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof IntersectionObserver === "undefined") return;
-    /* UXR1-15: recompute from every section's position whenever one crosses the band — the old callback only ever
-       SET a section, so after scrolling back to the top the last-visited one stayed highlighted over the hero. */
-    const io = new IntersectionObserver(
-      () => {
-        const boxes = anchorIds.flatMap((id) => {
-          const r = document.getElementById(id)?.getBoundingClientRect();
-          return r ? [{ id, top: r.top, bottom: r.bottom }] : [];
-        });
-        setCurrent(currentHubSection(boxes, window.innerHeight * 0.2, window.innerHeight * 0.35));
-      },
-      { rootMargin: "-20% 0px -65% 0px" },
-    );
-    for (const id of anchorIds) {
-      const el = document.getElementById(id);
-      if (el) io.observe(el);
-    }
-    return () => io.disconnect();
+    /* UXR1-15: the current section is recomputed from every section's position on scroll (one rAF per frame), not
+       remembered from the last IntersectionObserver entry. The observer only ever SET a section, so after scrolling
+       back to the top the last-visited one stayed highlighted over the hero; and a jump that crossed no band edge
+       (Home/End, a long anchor jump) never fired at all. Band: 20%–35% of the viewport, as before. */
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const boxes = anchorIds.flatMap((id) => {
+        const r = document.getElementById(id)?.getBoundingClientRect();
+        return r ? [{ id, top: r.top, bottom: r.bottom }] : [];
+      });
+      setCurrent(currentHubSection(boxes, window.innerHeight * 0.2, window.innerHeight * 0.35));
+    };
+    const schedule = () => { if (!frame) frame = window.requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
     // anchorIds derives from the static registry for this sport — stable per mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sport]);
