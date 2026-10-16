@@ -16,7 +16,7 @@ import { useId, useMemo, useState } from "react";
 import { useRovingTabs } from "@/components/a11y/use-roving-tabs";
 import LiveEventCard, { liveEtTime } from "@/components/live/live-event-card";
 import {
-  LIVE_V2_CAPABILITY, LIVE_V2_LABEL, LIVE_V2_STATUS, effectiveStatus, forecastProgress, groupEvents, isTracked, progressLine, topForecasts, ufcResultLine,
+  LIVE_V2_CAPABILITY, LIVE_V2_LABEL, LIVE_V2_STATUS, effectiveStatus, forecastProgress, freshnessLine, groupEvents, isTracked, progressLine, topForecasts, ufcResultLine,
 } from "@/lib/live/v2/event-view.mjs";
 
 const SANS = "var(--font-display)";
@@ -44,6 +44,8 @@ export interface LiveV2Event {
   away: { abbr: string; name: string; score: number | null; imageUrl?: string | null };
   home: { abbr: string; name: string; score: number | null; imageUrl?: string | null };
   progress?: Record<string, unknown> | null;
+  /** When the gateway fetched this event's envelope (drives the delayed/stale line). */
+  fetchedAt?: string | null;
   /** UFC only: the official result, when one exists. */
   result?: { winner?: string; method?: string; round?: number; official?: boolean } | null;
   reportHref: string;
@@ -150,6 +152,7 @@ export default function LiveV2Board({ events, nowMs, flags }: { events: LiveV2Ev
                     reportLabel={e.sport === "ufc" ? "Open bout report" : "Open game report"}
                   >
                     {ufc ? <p style={{ fontFamily: SANS, fontSize: 12.5, color: "var(--vault-text)", margin: "8px 0 0" }}>{ufc}</p> : null}
+                    {(() => { const fl = freshnessLine({ status, fetchedAt: e.fetchedAt }, Date.now()); return fl ? <p data-freshness={fl.level} style={{ fontFamily: SANS, fontSize: 12, color: "var(--vault-warn)", margin: "8px 0 0" }}>{fl.text}</p> : null; })()}
                     {e.forecastLocked ? <p style={{ fontFamily: SANS, fontSize: 11.5, color: "var(--vault-text-mute)", margin: "8px 0 0" }}>{e.forecastLocked}</p> : null}
                     <ForecastRows ev={{ ...e, status }} />
                   </LiveEventCard>
