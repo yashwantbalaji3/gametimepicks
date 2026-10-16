@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-15 23:45Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-16 00:20Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -1984,6 +1984,17 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
   - **#1102:** NBA dropped-final note nit fixed.
   - **Reviewed correct:** #1104, #1105, #1106, #1107, #1109.
   - **Open process lesson:** one commit (#1102 `c2c15eb43d`) landed before its test was updated; fixed in the next commit (`b22a14537f`). Going forward, commits are gated on the test result.
+- **00:20Z (10-16) — SEA@DEN kickoff observed (capture untouched, read-only analysis):**
+  - **First in-play pass** 00:17:11Z, two minutes after kickoff: V2 (#1108 replay) shows LIVE 0–0 Q1 14:56, exactly ESPN's STATUS_IN_PROGRESS 0–0, period 1, 14:56.
+  - **13 passes:** 78 requests, 0 non-200, 0 bot-challenged; 0 refusals, 0 unverified, 0 disagreements, 0 lags.
+  - **Check 1 so far:** 0 forecast, board or receipt changes after kickoff; 14 receipt revisions, none stamped at or after 00:15Z.
+  - **Screenshots:** 20 at 390/1440 with 0 overflow and 0 broken images.
+  - **Also since 23:45Z:**
+    - **#1110** (docs): runbook October addendum for the UAT rollback rehearsal.
+    - **#1111** (stacked on #1082): V2 delayed/stale line using the production freshness bands (checks 7/14); V2 tests 21/21.
+    - **#1105:** `PlayerAvatar` decorative option (GTP-31).
+    - **#1107:** NFL report labels at 11 px.
+    - **#1083:** build-churn proposal doc.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
   - a CI memory early warning (peak > 12 G);
