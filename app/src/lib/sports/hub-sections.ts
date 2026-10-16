@@ -12,7 +12,7 @@
  * anchor on the page fails the hub-shell guard.
  */
 
-export type HubSport = "mlb" | "epl" | "ufc" | "nfl";
+export type HubSport = "mlb" | "epl" | "ufc" | "nfl" | "nba";
 
 export interface HubSection {
   /** Anchor id on the hub page (kind "anchor") or the route (kind "link"). */
@@ -73,6 +73,15 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     { kind: "link", target: "/cards/ufc", label: "Products" },
     { kind: "link", target: "/results/picks/ufc", label: "Results" },
     { kind: "link", target: "/build/custom?sport=ufc", label: "Build your own" },
+    { kind: "link", target: "/ask", label: "Ask" },
+  ],
+  /* 2026-10-15 (UX audit M8): /nba was the one hub with no section strip. It is schedule-only, so it offers only
+     what the page holds — games, model status, results — plus Ask (every hub links it); no product, simulation or Live
+     entry it cannot back (/live has no NBA adapter). */
+  nba: [
+    { kind: "anchor", target: "nba-games", label: "Games" },
+    { kind: "anchor", target: "nba-model-status", label: "Model status" },
+    { kind: "anchor", target: "nba-results", label: "Results" },
     { kind: "link", target: "/ask", label: "Ask" },
   ],
   nfl: [
