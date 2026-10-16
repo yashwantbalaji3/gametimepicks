@@ -126,3 +126,9 @@ test("UXR1-11 (DS-001 §9): the board status banner's summary wraps below the ey
   assert.match(s, /className="min-w-0 text-\[12px\] leading-snug"\s*style=\{\{ color: "var\(--vault-text-mute\)", flex: "1 1 12rem" \}\}/);
   assert.match(s, /flex flex-wrap items-center gap-x-4 gap-y-2/, "the banner row still wraps");
 });
+
+test("UXR1-06 (cont.): the MLB lean card's LINE / PROJECTION / EDGE labels stay inside their tiles at 320 px", () => {
+  const s = src("src/components/mlb/mlb-lean-row.tsx");
+  assert.match(s, /className="rounded-\[5px\] flex flex-col items-start justify-center min-w-0"/);
+  assert.match(s, /className="font-mono uppercase tracking-\[0\.06em\] sm:tracking-\[0\.14em\]"\s*style=\{\{ color: labelColor, fontSize: 10, overflowWrap: "anywhere" \}\}/);
+});

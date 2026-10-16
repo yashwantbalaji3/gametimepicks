@@ -571,7 +571,7 @@ function StatTile({
       : "none";
   return (
     <div
-      className="rounded-[5px] flex flex-col items-start justify-center"
+      className="rounded-[5px] flex flex-col items-start justify-center min-w-0"
       style={{
         padding: "8px 10px",
         border: "1px solid var(--vault-border)",
@@ -579,9 +579,10 @@ function StatTile({
         minHeight: 56,
       }}
     >
+      {/* UXR1-06 (cont.): at 320 px "PROJECTION" at 0.14em ran out of its tile into "EDGE". */}
       <span
-        className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: labelColor, fontSize: 10 }}
+        className="font-mono uppercase tracking-[0.06em] sm:tracking-[0.14em]"
+        style={{ color: labelColor, fontSize: 10, overflowWrap: "anywhere" }}
       >
         {label}
       </span>
