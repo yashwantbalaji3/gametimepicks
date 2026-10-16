@@ -404,7 +404,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
                   projection-vs-line gap bar.
                   Three columns on every width; stat values are large so the
                   numbers pop. */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 min-[360px]:grid-cols-3 gap-2">
         <StatTile
           label={`${lean.lean === "Pass" || lean.lean === "No Play" ? "Line" : lean.lean.toUpperCase()}`}
           value={String(lean.line)}
@@ -571,12 +571,13 @@ function StatTile({
       : "none";
   return (
     <div
-      className="rounded-[5px] flex flex-col items-start justify-center min-w-0"
+      /* Below 360 px the trio stacks and each tile reads as one row (label · value), so a 10-letter label is
+         never broken mid-word; from 360 px it is the original three-column tile. */
+      className="rounded-[5px] flex flex-row items-baseline justify-between gap-2 min-h-[40px] min-[360px]:flex-col min-[360px]:items-start min-[360px]:justify-center min-[360px]:gap-0 min-[360px]:min-h-[56px] min-w-0"
       style={{
         padding: "8px 10px",
         border: "1px solid var(--vault-border)",
         background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
-        minHeight: 56,
       }}
     >
       {/* UXR1-06 (cont.): at 320 px "PROJECTION" at 0.14em ran out of its tile into "EDGE". */}

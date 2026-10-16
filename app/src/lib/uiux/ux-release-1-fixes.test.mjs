@@ -56,6 +56,7 @@ test("UXR1-05 (DS-001 §9): EPL likeliest-scorer rows wrap instead of overlappin
 test("UXR1-06 (DS-001 §9): hub stat-tile labels are never clipped by the tile at 320 px", () => {
   const s = src("src/components/sport-overview-hero.tsx");
   assert.match(s, /className="gtp-stat-tile px-3 py-3 flex flex-col gap-0\.5 min-w-0"/);
+  assert.match(s, /className="mt-6 grid grid-cols-1 min-\[360px\]:grid-cols-3 gap-2\.5/, "the tiles stack below 360 px");
   assert.match(s, /className="font-mono uppercase tracking-\[0\.06em\] sm:tracking-\[0\.16em\]"[\s\S]{0,240}overflowWrap: "anywhere"/);
 });
 
@@ -129,6 +130,7 @@ test("UXR1-11 (DS-001 §9): the board status banner's summary wraps below the ey
 
 test("UXR1-06 (cont.): the MLB lean card's LINE / PROJECTION / EDGE labels stay inside their tiles at 320 px", () => {
   const s = src("src/components/mlb/mlb-lean-row.tsx");
-  assert.match(s, /className="rounded-\[5px\] flex flex-col items-start justify-center min-w-0"/);
+  assert.match(s, /<div className="grid grid-cols-1 min-\[360px\]:grid-cols-3 gap-2">/, "the trio stacks below 360 px");
+  assert.match(s, /className="rounded-\[5px\] flex flex-row items-baseline justify-between[^"]*min-\[360px\]:flex-col[^"]*min-w-0"/);
   assert.match(s, /className="font-mono uppercase tracking-\[0\.06em\] sm:tracking-\[0\.14em\]"\s*style=\{\{ color: labelColor, fontSize: 10, overflowWrap: "anywhere" \}\}/);
 });
