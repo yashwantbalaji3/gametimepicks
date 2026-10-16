@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-16T00:09:05Z",
- "sourceGeneratedAt": "2026-10-16T00:09:05Z",
+ "generatedAt": "2026-10-16T13:57:16Z",
+ "sourceGeneratedAt": "2026-10-16T13:57:16Z",
  "providerEventId": "401873005",
  "matchup": "BUF @ LV",
  "kickoffUtc": "2026-10-18T20:25Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-16T00:09:05Z",
-  "roleEvidenceAt": "2026-10-16T00:09:05Z",
+  "injuriesCapturedAt": "2026-10-16T13:57:16Z",
+  "roleEvidenceAt": "2026-10-16T13:57:16Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -264,7 +264,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4686658",
@@ -458,6 +458,19 @@
    },
    {
     "team": "LV",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9645,
+    "originalSum": 0.9645,
+    "residualOther": 0.0355,
+    "joined": 7,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "LV",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
@@ -481,19 +494,6 @@
     "joined": 6,
     "missed": 0,
     "state": "CONSERVED"
-   },
-   {
-    "team": "LV",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.6767,
-    "originalSum": 0.6767,
-    "residualOther": 0.3233,
-    "joined": 6,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -572,7 +572,7 @@
    "playerId": "nfl-athlete-4432665",
    "name": "Brock Bowers",
    "team": "LV",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 59.862,
