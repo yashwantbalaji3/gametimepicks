@@ -1,0 +1,75 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-input-snapshot",
+ "dataClass": "PRIVATE_RESEARCH",
+ "what": "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+ "date": "2026-10-16",
+ "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+ "simulationVersion": 1,
+ "sourceBoardHash": "ebceec7325510d1dceff110aab232d3f5c600ab5a954acf0e333e608e051b4a1",
+ "updatedAt": "2026-10-16T09:30:31.000Z",
+ "games": [
+  {
+   "gamePk": 849817,
+   "date": "2026-10-16",
+   "slug": "tb-vs-cle-2026-10-16",
+   "awayTeam": "TB",
+   "homeTeam": "CLE",
+   "firstPitch": "2026-10-17T00:00:00Z",
+   "artifactHash": "2d9e39d476e80eb48518eb87108752494d71f70ceb8e1c6cb63b09944979c70f",
+   "completenessLevel": "degraded",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     650490,
+     802415,
+     691406,
+     689414,
+     666018,
+     683748,
+     676356,
+     680700,
+     670764
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     680757,
+     608070,
+     800050,
+     666176,
+     663993,
+     683953,
+     672275,
+     677587,
+     690984
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "awayStarter": {
+    "playerId": 607259,
+    "name": "Nick Martinez",
+    "hasStrikeoutProjection": true
+   },
+   "homeStarter": null,
+   "missingFamilies": [
+    "home_probable_starter",
+    "confirmed_batting_order",
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  }
+ ]
+}
