@@ -14,6 +14,7 @@
  *   - no liveness chips of any kind — there is no chip to date-gate, which is the structural fix.
  */
 import Link from "next/link";
+import { eventStatusLabel } from "@/lib/sports/schedule-contract.mjs";
 import { MatchupCrests } from "@/components/teams/matchup-crests";
 
 const ET_DATE = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" });
@@ -121,7 +122,7 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
                 <span style={{ fontSize: 14 }}>{competitorsLine(e)}</span>
               </span>
               <span style={{ fontSize: 12.5, color: "var(--text-mute)" }}>{etDateTime(e.scheduledStartUtc)}</span>
-              {e.status !== "SCHEDULED" ? <span style={{ fontSize: 11, color: "var(--text-mute)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{e.status.toLowerCase()}</span> : null}
+              {e.status !== "SCHEDULED" ? <span style={{ fontSize: 11, color: "var(--text-mute)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{eventStatusLabel(e.status)}</span> : null}
               {e.venue ? <span style={{ fontSize: 12, color: "var(--text-mute)" }}>{e.venue}</span> : null}
               {e.context ? <span style={{ fontSize: 11.5, color: "var(--text-mute)", fontStyle: "italic" }}>{e.context}</span> : null}
             </li>
