@@ -59,13 +59,16 @@ Those need the Vercel API (`cpuTimeForBilling`) or the usage page, and remain a 
 - An independent check found 91/91 suppressed gated changes stamp-only.
 - **Postseason only:** the value ends with the World Series.
 
-### 3b. NFL settlement receipts: new candidate (proposal only, not implemented)
-- 69 commits in 7 days. Every one changed a build input; **37 (54%) changed build inputs only in stamp keys** (upper bound, broad stamp set).
-- The latest two (`86e0c82e38` 18:19Z, `566b7e16d3` 18:44Z on 10-16) changed three public files only in `generatedAt`/`ledgerGeneratedAt`: `nfl/interval-calibration.json`, `nfl/reconciliation/<wk>.json` and `reconciliation/index.json`. The content changes were in `data/internal/nfl/world-model-v2/grades/latest.json`.
-- When content does move, it is in reconciliation, live-props and interval calibration. Those must keep publishing.
-- **Next step:** a #1088-style allowlist gate for the NFL receipts writer.
-  - It is a protected-workflow change and needs a reader trace for each stamp (especially live-props `observedAt`) and founder approval.
-  - Upper-bound effect: about 5 builds a day on NFL days.
+### 3b. NFL settlement receipts: candidate measured and parked (0 deployments avoidable as the workflow is today)
+- **Upper bound:** 69 commits in 7 days; 37 changed build inputs only in stamp-like keys under the broad key set.
+- **Prototype and replay** (branch `claude/nfl-receipts-stamp-gate`, head `1b3579a7e7`, built on #1088; evidence in `docs/research/ops/nfl-receipts-stamp-gate-2026-10-16/`). A reader trace narrowed the allowlist:
+  - reconciliation/<week>.json `generatedAt` is **rendered** ("Graded … ET" on /results/nfl), and its `published.generatedAt` selects the archived forecast revision;
+  - live-props `observedAt` drives the card's "Updated Ns ago" line and its fresh/stale state.
+  - Only `interval-calibration` and `reconciliation/index.json` stamps are reader-invisible.
+- **Result:** under that allowlist, 12 of 69 receipts commits are suppressible (16 with no heartbeat). An independent check confirmed 12/12 stamp-only.
+- **But 0 deployments are avoided.** The receipts commit is pushed in the same push as the run's `nfl event window` commit, and all 69 window commits changed build inputs (new roster and forecast-receipt files plus ~14 rewritten public NFL files).
+- **Verdict:** do not merge the receipts gate on its own. The real lever is the window commit itself, which needs #1088-style handling for new snapshot files, not a stamp rule. That is a separate, larger, protected-workflow investigation.
+- **Lesson:** stamp-only upper bounds per commit overstate savings when commits share a push. Measure per **push/deployment**, not per commit.
 
 ### 3c. Commits with no build input that still built: 49 of 461 completed (10.6%, ≈ 7/day)
 
