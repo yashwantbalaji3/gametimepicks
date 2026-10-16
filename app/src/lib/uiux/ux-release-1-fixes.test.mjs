@@ -89,3 +89,9 @@ test("UXR1-08 (GTP-27, DS-001 §1.7): /results/model-audit tables show market an
   assert.match(body, /\^\[a-z0-9\]\+\(\?:_\[a-z0-9\]\+\)\+\$/, "only snake_case keys are rewritten");
   assert.match(body, /mlbMarketLabel\(k\)/, "markets read the shared MLB market names");
 });
+
+test("UXR1-09 (GTP-12, DS-001 §6): every hub's section-strip link is a 44 px target", () => {
+  const s = src("src/components/sports/sport-hub-nav.tsx");
+  assert.match(s, /className: "shrink-0 inline-flex items-center rounded-full px-3 no-underline whitespace-nowrap",\s*style: \{\s*minHeight: 44,/);
+  assert.doesNotMatch(s, /minHeight: 32/);
+});

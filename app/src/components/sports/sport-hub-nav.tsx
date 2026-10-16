@@ -65,9 +65,11 @@ export default function SportHubNav({ sport, anchors }: {
           const isAnchor = it.kind === "anchor";
           const on = isAnchor && current === it.target;
           const common = {
-            className: "shrink-0 rounded-full px-3 py-1.5 no-underline whitespace-nowrap",
+            /* UXR1-09 (GTP-12, DS-001 §6): these section links were 33 px tall on every hub (and on /nba since #1106);
+               a tappable control gets a 44 px hit area. */
+            className: "shrink-0 inline-flex items-center rounded-full px-3 no-underline whitespace-nowrap",
             style: {
-              minHeight: 32,
+              minHeight: 44,
               fontSize: 12,
               fontWeight: 650,
               color: on ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",
