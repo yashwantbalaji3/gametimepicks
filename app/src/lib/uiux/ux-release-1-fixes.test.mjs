@@ -22,3 +22,13 @@ test("UXR1-01 (GTP-21/32 follow-up, DS-001 §9): revealing the last row moves fo
     assert.match(s, new RegExp(`${ref}\\.current\\?\\.focus\\(\\);(?:\\n\\s*//[^\\n]*)*\\n\\s*\\}, \\[${limit}\\]\\);`), `${p}: effect depends on the step only`);
   }
 });
+
+test("UXR1-02 (DS-001 §9): every results-day table scrolls inside its own container (no page scroll at 320 px)", () => {
+  for (const p of ["src/components/results/results-day.tsx", "src/components/results/suggested-receipts.tsx"]) {
+    const s = src(p);
+    const tables = (s.match(/<table className="gtp-day-table"/g) ?? []).length;
+    const wrapped = (s.match(/<div className="overflow-x-auto">\s*<table className="gtp-day-table"/g) ?? []).length;
+    assert.ok(tables > 0, `${p}: POSITIVE CONTROL — the day tables are still here`);
+    assert.equal(wrapped, tables, `${p}: ${tables - wrapped} day table(s) without a scroll container`);
+  }
+});
