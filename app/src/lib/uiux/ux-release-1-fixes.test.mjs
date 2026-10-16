@@ -75,3 +75,17 @@ test("UXR1-07 (GTP-27, DS-001 §1.7): source ids and the UFC model fingerprint a
   assert.doesNotMatch(board, /\{board\.modelId \? ` \(\$\{board\.modelId\}\)` : ""\}/, "no fingerprint inside the sentence");
   assert.match(board, /title=\{board\.modelId \? `Model: \$\{board\.modelId\}` : undefined\}/, "provenance kept, one hover away");
 });
+
+test("UXR1-08 (GTP-27, DS-001 §1.7): /results/model-audit tables show market and bucket names, keeping the key in a title", () => {
+  const s = src("src/app/results/model-audit/page.tsx");
+  for (const raw of ["<Td>{m.label}</Td>", "<Td>{r.market}</Td>", "<Td>{r.side}</Td>", "<Td>{r.label}</Td>", '<Td>{r.gameContext?.seasonPhase ?? "—"}</Td>']) {
+    assert.ok(!s.includes(raw), `still printed raw: ${raw}`);
+  }
+  assert.equal((s.match(/<KeyCell k=\{/g) ?? []).length, 5);
+  assert.match(s, /<span title=\{k\}>\{label\}<\/span>/, "the exact key stays one hover away");
+  // The translation rule itself, re-implemented from the page so a change to it is a visible decision.
+  const body = /function readableKey\(k: string\): string \{([\s\S]*?)\n\}/.exec(s)?.[1];
+  assert.ok(body, "readableKey exists");
+  assert.match(body, /\^\[a-z0-9\]\+\(\?:_\[a-z0-9\]\+\)\+\$/, "only snake_case keys are rewritten");
+  assert.match(body, /mlbMarketLabel\(k\)/, "markets read the shared MLB market names");
+});
