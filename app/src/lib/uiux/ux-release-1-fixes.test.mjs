@@ -95,3 +95,22 @@ test("UXR1-09 (GTP-12, DS-001 §6): every hub's section-strip link is a 44 px ta
   assert.match(s, /className: "shrink-0 inline-flex items-center rounded-full px-3 no-underline whitespace-nowrap",\s*style: \{\s*minHeight: 44,/);
   assert.doesNotMatch(s, /minHeight: 32/);
 });
+
+test("UXR1-10 (DS-001 §2): the three status maps merged in this release agree on every shared word", async () => {
+  // #1102 hub chip (hubStatusDisplay), #1103 schedule statuses (EVENT_STATUS_LABEL), and the live lifecycle owner.
+  // They translate different input vocabularies, so they stay three functions — but a reader must see one word set.
+  const { hubStatusDisplay } = await import("../sport-hub/contract.ts");
+  const { EVENT_STATUS_LABEL } = await import("../sports/schedule-contract.mjs");
+  const { LIFECYCLE_LABEL } = await import("../live/lifecycle.mjs");
+  assert.equal(hubStatusDisplay("scheduled"), EVENT_STATUS_LABEL.SCHEDULED, "pregame: Upcoming on hub cards and schedules");
+  assert.equal(hubStatusDisplay("in progress"), EVENT_STATUS_LABEL.LIVE);
+  assert.equal(EVENT_STATUS_LABEL.LIVE, LIFECYCLE_LABEL.LIVE, "Live");
+  assert.equal(hubStatusDisplay("final"), EVENT_STATUS_LABEL.FINAL);
+  assert.equal(EVENT_STATUS_LABEL.FINAL, LIFECYCLE_LABEL.SETTLED, "Final");
+  assert.equal(hubStatusDisplay("postponed"), EVENT_STATUS_LABEL.POSTPONED);
+  assert.equal(EVENT_STATUS_LABEL.POSTPONED, LIFECYCLE_LABEL.POSTPONED);
+  assert.equal(EVENT_STATUS_LABEL.CANCELLED, LIFECYCLE_LABEL.CANCELLED);
+  assert.equal(EVENT_STATUS_LABEL.UNKNOWN, LIFECYCLE_LABEL.UNKNOWN);
+  // DS-001 §2 lets live surfaces say "Scheduled" + a start time for pregame; nothing else may differ.
+  assert.ok(["Upcoming", "Scheduled"].includes(LIFECYCLE_LABEL.PRE));
+});
