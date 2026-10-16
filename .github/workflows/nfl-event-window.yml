@@ -755,7 +755,20 @@ jobs:
           if [ -d app/public/data/nfl/live-props ]; then git add app/public/data/nfl/live-props/; fi
           if [ -d data/internal/nfl/world-model-v2/grades ]; then git add data/internal/nfl/world-model-v2/grades/; fi
           if git diff --cached --quiet; then echo "no settlement change"; exit 0; fi
-          git commit -m "auto: nfl settlement receipts [skip ci]"
+          # COST-001 (2026-10-16): every one of the 69 receipts commits 10-09→10-16 touched a build input, and some
+          # moved nothing a reader can see — interval-calibration.json and reconciliation/index.json re-stamped
+          # (generatedAt, ledgerGeneratedAt, weeks[].generatedAt) over unchanged content. The gate restores those two
+          # files when they changed ONLY in those reader-traced stamps; a week report, a live-props record (live
+          # stats, observedAt, finality, settlement), a new file or any moved number publishes everything, untouched
+          # (app/src/lib/ops/stamp-only-gate.mjs NFL_RECEIPTS_STAMP_RULES). Exit 1 (publish) and 2 (could not judge)
+          # leave the index exactly as staged. The private ledgers (data/internal/nfl/...) still commit — none is a
+          # build input. A 6h heartbeat bounds how far a committed stamp can trail.
+          RECEIPTS_MSG="auto: nfl settlement receipts [skip ci]"
+          if node app/scripts/ops/stamp-only-gate.mjs --rules nfl-receipts; then
+            RECEIPTS_MSG="auto: nfl settlement receipts (private records only — no public change) [skip ci]"
+          fi
+          if git diff --cached --quiet; then echo "nothing left to persist after the stamp gate"; exit 0; fi
+          git commit -m "$RECEIPTS_MSG"
           # Pushed with the window's commit by the next step (COST-001 Stage A: one push per run).
 
       # COST-001 Stage A (2026-10-09) · ONE PUSH PER RUN. Runs whatever happened above (`always()`, cancellation included),

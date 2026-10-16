@@ -60,12 +60,38 @@ export const STAMP_RULES = Object.freeze([
   { id: "mlb-prediction-snapshot", pattern: /^data\/internal\/mlb\/prediction-snapshots\/\d{4}-\d{2}-\d{2}\/snapshot-\d{12}\.json$/, stamps: ["generatedAt"], snapshot: true },
 ]);
 
+/**
+ * NFL settlement receipts (COST-001, 2026-10-16) — the "Commit settlement receipts" step of nfl-event-window.yml.
+ * Its build inputs are three families: interval-calibration.json, reconciliation/<week>.json + index.json, and
+ * live-props/<event>.json. Every candidate stamp key was traced to its readers in app/src
+ * (docs/research/ops/nfl-receipts-stamp-gate-2026-10-16/REPORT.md); ONLY keys no reader renders and no logic
+ * reads are listed here. Deliberately NOT listed, so any change to them publishes:
+ *   - reconciliation/<week>.json — no rule at all. Its top-level `generatedAt` is rendered on /results/nfl
+ *     ("Graded <time> ET", app/results/nfl/page.tsx) and `games.*.published.generatedAt` names the forecast
+ *     revision that was graded (lib/sports/nfl/archived-forecast.ts looks the revision up by it).
+ *   - live-props/<event>.json — no rule at all. `observedAt` / `rows.*.live.observedAt` drive the card's
+ *     freshness line ("Updated 42s ago", lib/live/featured-forecasts.mjs cardFreshness) and are rendered as
+ *     "last observed <time>" (components/live/forecast-detail.tsx); `finality` and settlement are content.
+ */
+export const NFL_RECEIPTS_STAMP_RULES = Object.freeze([
+  // Read at build time by components/nfl/interval-calibration-panel.tsx, which renders cohorts/claims/action
+  // only. Neither stamp is rendered; the file is pruned from the export (not served raw).
+  { id: "nfl-interval-calibration", pattern: /^app\/public\/data\/nfl\/interval-calibration\.json$/, stamps: ["generatedAt", "ledgerGeneratedAt"] },
+  // Read by lib/sports/nfl/week-report-data.ts and lib/sports/nfl/archived-forecast.ts for weeks[].key/label/
+  // counts/overall (isGradedWeek). Neither stamp is rendered or compared. Served raw (nfl/reconciliation/ is an
+  // always-public data dir), so a raw fetch sees the last content-changing stamp until the heartbeat.
+  { id: "nfl-reconciliation-index", pattern: /^app\/public\/data\/nfl\/reconciliation\/index\.json$/, stamps: ["generatedAt", "weeks.*.generatedAt"] },
+]);
+
+/** Named rule sets: each workflow judges its staged files against its own allowlist only (`--rules <name>`). */
+export const RULE_SETS = Object.freeze({ mlb: STAMP_RULES, "nfl-receipts": NFL_RECEIPTS_STAMP_RULES });
+
 export const PUBLICATION_SLO_PATH = "app/public/data/ops/publication-slo.json";
 /** The fields lib/ops/read-publication-slo.ts hands to public pages. */
 export const PUBLICATION_SLO_PUBLIC_FIELDS = Object.freeze(["date", "state", "platformState", "publishDeadlineUtc", "reason"]);
 export const DEFAULT_HEARTBEAT_HOURS = 6;
 
-export const ruleFor = (file) => STAMP_RULES.find((r) => r.pattern.test(file)) ?? null;
+export const ruleFor = (file, rules = STAMP_RULES) => rules.find((r) => r.pattern.test(file)) ?? null;
 
 /** Stable serialisation: key order is not something a reader can see. */
 export function canonical(v) {
@@ -124,9 +150,10 @@ function headStamp(text) {
  *        only) the newest snapshot committed at HEAD for the same date, or null when there is none.
  * @param {number} o.nowMs
  * @param {number} [o.heartbeatHours]
+ * @param {readonly object[]} [o.rules] the stamp allowlist to judge against (default: the MLB STAMP_RULES)
  * @returns {{ verdict: "SUPPRESS"|"PUBLISH", reasons: string[], restore: string[], drop: string[], free: string[] }}
  */
-export function decide({ changes, nowMs, heartbeatHours = DEFAULT_HEARTBEAT_HOURS }) {
+export function decide({ changes, nowMs, heartbeatHours = DEFAULT_HEARTBEAT_HOURS, rules = STAMP_RULES }) {
   const reasons = [];
   const restore = [], drop = [], free = [];
   const stamps = [];
@@ -138,7 +165,7 @@ export function decide({ changes, nowMs, heartbeatHours = DEFAULT_HEARTBEAT_HOUR
       free.push(c.path);
       continue;
     }
-    const rule = ruleFor(c.path);
+    const rule = ruleFor(c.path, rules);
     if (!c.buildInput && !rule) { free.push(c.path); continue; }
     if (!rule) { reasons.push(`${c.path}: a build input with no stamp rule`); continue; }
     if (c.status === "D") { reasons.push(`${c.path}: deleted`); continue; }

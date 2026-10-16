@@ -1,0 +1,15 @@
+heartbeat=Infinityh since=2026-10-09T00:00:00Z receipts commits=69 (paired with a window commit: 69)
+receipts commit changes a build input: before=69 after=53 suppressed=16
+push (window+receipts) changes a build input: before=69 after=69 avoided=0
+suppressed receipts whose paired window commit still builds: 16
+PUBLISH, first reason: {
+ "reconciliation/<week>: a build input with no stamp rule": 28,
+ "interval-calibration: content changed beyond generatedAt, ledgerGeneratedAt": 9,
+ "live-props/<event>: a build input with no stamp rule": 16
+}
+PUBLISH, every reason (a commit counts once per category): {
+ "reconciliation/<week>: a build input with no stamp rule": 52,
+ "reconciliation/index: content changed beyond generatedAt, weeks.*.generatedAt": 10,
+ "interval-calibration: content changed beyond generatedAt, ledgerGeneratedAt": 9,
+ "live-props/<event>: a build input with no stamp rule": 25
+}
