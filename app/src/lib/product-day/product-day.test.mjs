@@ -20,6 +20,7 @@ import { forecastRows, loadEplForecasts } from "../sports/epl/forecast-view.ts";
 const app = process.cwd();
 const dataRoot = path.join(app, "public", "data");
 const readJson = (...seg) => JSON.parse(fs.readFileSync(path.join(dataRoot, ...seg), "utf8"));
+const etDayOf = (ms) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(ms));
 
 const STATES = ["LIVE", "EVENT_UPCOMING", "NO_EVENTS", "OFF_SEASON", "SOURCE_STALE", "BLOCKED", "INCIDENT"];
 
@@ -84,6 +85,21 @@ test("EQUIVALENCE · nfl day equals the index's own canonical counts; a PAST kic
       assert.match(nfl.note, /No NFL games today/, "the quiet day says so");
       assert.match(nfl.note, /forecasts published/, "…and names the week's coverage instead of a false no-simulation state");
       assert.doesNotMatch(nfl.note, /has been played/, "a live forecast week is never described by the retired preseason lane");
+    }
+  } else if (forecastsUpcoming > 0 && Number.isFinite(nextIndexKick) && etDayOf(nextIndexKick) < etDayOf(Date.now())) {
+    /* A STALE next kickoff from an EARLIER ET day (2026-10-16): after the Thursday game the index named SEA @ DEN
+       until the next event-window run, and main went red at 04:59Z and 11:54Z on Friday — a day with no NFL game,
+       where "live" is wrong. Friday is a quiet day before the week's remaining games; the next window comes from
+       the index's own events, never "appears when its forecasts publish" over published forecasts. */
+    const todayEt = etDayOf(Date.now());
+    const later = (index.events ?? []).filter((e) => typeof e.kickoffUtc === "string" && etDayOf(Date.parse(e.kickoffUtc)) > todayEt);
+    if (later.length > 0) {
+      assert.equal(nfl.state, "EVENT_UPCOMING", "published games on a later day make an upcoming window");
+      assert.equal(nfl.events, later.length, "the window counts the index's later games, not its stale upcoming count");
+      assert.match(nfl.note, /No NFL games today/);
+      assert.doesNotMatch(nfl.note, /appears when its forecasts publish/, "never deny forecasts that are published");
+    } else {
+      assert.ok(["NO_EVENTS", "LIVE"].includes(nfl.state));
     }
   } else if (forecastsUpcoming > 0) {
     /*
@@ -153,6 +169,61 @@ test("REGRESSION P250-W1 · a fully played regular-season week never resurrects 
   assert.match(played.note, /Week 1/, "the quiet day speaks in the week's own vocabulary");
   assert.match(played.note, /played games are in the record/);
   assert.doesNotMatch(played.note, /has been played;|2026-08-29/, "the preseason archive stays silent while regular-season forecasts exist");
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("REGRESSION 2026-10-16 · a stale next kickoff after a Thursday game never hides the week's published games", () => {
+  /*
+   * The index committed at 00:09Z on 2026-10-16 (main 34cbc04cf5) named SEA @ DEN (00:15Z, Thu Oct 15 ET) as its
+   * next forecast until the next event-window run at 13:56Z. On Friday ET this fell through to NO_EVENTS — "the next
+   * window appears when its forecasts publish" — while 13 Sunday forecasts were published in the same index, and
+   * main's data-contract check went red at 04:59Z and 11:54Z. Shape below is that index, trimmed to what the owner reads.
+   */
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-productday-stale-"));
+  const write = (rel, doc) => {
+    const full = path.join(root, rel);
+    fs.mkdirSync(path.dirname(full), { recursive: true });
+    fs.writeFileSync(full, JSON.stringify(doc));
+  };
+  const sunday = ["HOU @ JAX", "BAL @ CLE", "CAR @ PHI"];
+  write("nfl/index.json", {
+    generatedAt: "2026-10-16T00:09:05Z", nextForecastUtc: "2026-10-16T00:15Z", nextKickoffUtc: "2026-10-16T00:15Z",
+    nextForecastMatchup: "SEA @ DEN",
+    counts: { scheduledUpcoming: 4, forecastsTotal: 4, forecastsUpcoming: 4, forecastsStarted: 0 },
+    events: [
+      { providerEventId: "401872995", matchup: "SEA @ DEN", kickoffUtc: "2026-10-16T00:15Z" },
+      { providerEventId: "401872996", matchup: sunday[0], kickoffUtc: "2026-10-18T13:30Z" },
+      { providerEventId: "401872997", matchup: sunday[1], kickoffUtc: "2026-10-18T17:00Z" },
+      { providerEventId: "401872998", matchup: sunday[2], kickoffUtc: "2026-10-18T17:00Z" },
+    ],
+  });
+  write("nfl/schedule/latest.json", { generatedAt: "2026-10-15T23:30:00Z", windowDays: 7, rows: [
+    { providerEventId: "401872995", shortName: "SEA @ DEN", dateUtc: "2026-10-16T00:15Z", statusRaw: "STATUS_FINAL" },
+    { providerEventId: "401872996", shortName: sunday[0], dateUtc: "2026-10-18T13:30Z", statusRaw: "STATUS_SCHEDULED" },
+  ] });
+  write("nfl/weekly-boards/latest.json", { period: { seasonType: 2, week: 6 } });
+  write("nfl/game-simulations/latest.json", { date: "2026-08-29", generatedAt: "2026-08-29T18:16:23Z", games: [{ gameId: "old" }] });
+
+  // Friday ET: no game today; Sunday's three are published and must be named as the next window.
+  const friday = productDayFor("nfl", root, { today: "2026-10-16" });
+  assert.equal(friday.state, "EVENT_UPCOMING");
+  assert.equal(friday.events, 3, "the played Thursday game is not counted as upcoming");
+  assert.equal(friday.eligible, 3);
+  assert.equal(friday.productDate, "2026-10-18");
+  assert.equal(friday.nextEventUtc, "2026-10-18T13:30Z", "the next kickoff comes from the index's events, not its stale anchor");
+  assert.match(friday.note, /No NFL games today/);
+  assert.match(friday.note, /Week 6: 3 game forecasts published/);
+  assert.match(friday.note, /HOU @ JAX/);
+  assert.doesNotMatch(friday.note, /appears when its forecasts publish/, "never deny forecasts that are published");
+
+  // Control: Thursday ET, the game is today — unchanged LIVE behaviour.
+  const thursday = productDayFor("nfl", root, { today: "2026-10-15" });
+  assert.equal(thursday.state, "LIVE");
+
+  // Control: after the week's last game (Monday after Sunday, no later events) — still the quiet regular-season day.
+  const tuesday = productDayFor("nfl", root, { today: "2026-10-20" });
+  assert.equal(tuesday.state, "NO_EVENTS");
+  assert.match(tuesday.note, /played games are in the record/);
   fs.rmSync(root, { recursive: true, force: true });
 });
 

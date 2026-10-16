@@ -255,6 +255,25 @@ function nflDay(dataRoot: string, today: string): ProductDay {
         reason: null,
       });
     }
+    /*
+     * STALE NEXT KICKOFF (2026-10-16). `nextForecastUtc` is written when the index is generated and names a game
+     * that has since been played until the next event-window run. After the Thursday game (SEA @ DEN, 00:15Z) it
+     * stayed on that game for ~13 h, so on Friday this fell through to NO_EVENTS — "the next window appears when
+     * its forecasts publish" — over 13 Sunday forecasts that were already published. The index's own events carry
+     * every forecast's kickoff, so the next window is decidable from them: count only games on a later ET day.
+     */
+    const later = events
+      .filter((e): e is typeof e & { kickoffUtc: string } => typeof e.kickoffUtc === "string" && etDay(e.kickoffUtc) > today)
+      .sort((a, b) => Date.parse(a.kickoffUtc) - Date.parse(b.kickoffUtc));
+    if (later.length > 0) {
+      const nextDay = etDay(later[0].kickoffUtc);
+      return day("nfl", {
+        productDate: nextDay, state: "EVENT_UPCOMING", events: later.length, eligible: later.length,
+        sourceStamp: index.generatedAt ?? null, nextEventUtc: later[0].kickoffUtc,
+        note: `No NFL games today · ${weekLabel}: ${later.length} game forecast${later.length === 1 ? "" : "s"} published · next kickoff ${etDayLabel(nextDay) ?? nextDay}${typeof later[0].matchup === "string" ? ` (${later[0].matchup})` : ""}`,
+        reason: null,
+      });
+    }
     /* The week has kicked off (or fully settled) and the next window has not published yet — a
        quiet regular-season day, described in regular-season words. Never the preseason archive. */
     return day("nfl", {
