@@ -46,3 +46,9 @@ test("UXR1-04 (DS-001 §9): the MLB lean card header wraps instead of running th
   // The detailed card's confidence/anomaly chip may wrap inside the card; the compact row's chip is unchanged.
   assert.match(row, /padding: "4px 9px",\s*border: `1px solid \$\{meta\.rim\}`,\s*maxWidth: "100%",/);
 });
+
+test("UXR1-05 (DS-001 §9): EPL likeliest-scorer rows wrap instead of overlapping the figures at 320 px", () => {
+  const s = src("src/app/epl/page.tsx");
+  assert.match(s, /<li key=\{`\$\{p\.slug\}-\$\{p\.playerId\}`\} className="flex flex-wrap items-center justify-between/);
+  assert.match(s, /<div className="min-w-0 flex items-center gap-2" style=\{\{ flex: "1 1 12rem" \}\}>\s*\{p\.teamName \? <TeamLogo/);
+});
