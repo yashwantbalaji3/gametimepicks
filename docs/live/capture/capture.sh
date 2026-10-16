@@ -36,7 +36,9 @@ echo "{\"t\":\"$(date -u +%FT%TZ)\",\"name\":\"start\",\"interval\":$INTERVAL,\"
 while [ "$(date -u +%s)" -lt "$until_b" ]; do
   T=$(date -u +%Y%m%dT%H%M%SZ); n=$((n + 1))
   get slate "$B/api/live/?sport=nfl" "$OUT/$T-slate.json"
-  get event "$B/api/live/?sport=nfl&event=$EV&players=true" "$OUT/$T-event.json"
+  # players=1, exactly what the client sends (lib/live/client.ts liveUrl): the gateway enables the NFL box score only for
+  # players === "1" (api/_live-core.mjs). The 2026-10-15 SEA@DEN capture used players=true and so recorded no playerStats.
+  get event "$B/api/live/?sport=nfl&event=$EV&players=1" "$OUT/$T-event.json"
   get live-html "$B/live/" "$OUT/$T-live.html"
   get game-html "$B/nfl/game/$EV/" "$OUT/$T-game.html"
   get build-info "$B/data/build-info.json" "$OUT/$T-build-info.json"
