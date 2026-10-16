@@ -1,0 +1,163 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "laliga",
+ "season": "2026-27",
+ "date": "2026-10-16",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-16T14:17:51.000Z",
+ "runs": [
+  {
+   "at": "2026-10-16T14:17:51.000Z",
+   "added": 2
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Malaga|Sociedad",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882841",
+   "providerEventId": "401882841",
+   "kickoffUtc": "2026-10-18T16:30:00.000Z",
+   "matchup": "Málaga v Real Sociedad",
+   "homeClub": "Málaga",
+   "awayClub": "Real Sociedad",
+   "historyNames": {
+    "home": "Malaga",
+    "away": "Sociedad"
+   },
+   "espnTeamIds": {
+    "home": "99",
+    "away": "89"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-16T14:17:51.000Z",
+   "probs": {
+    "home": 0.232722,
+    "draw": 0.286511,
+    "away": 0.480767
+   },
+   "over25": 0.354675,
+   "under25": 0.645325,
+   "expectedGoals": {
+    "home": 0.8128,
+    "away": 1.3031
+   },
+   "lambdas": {
+    "home": 0.8128,
+    "away": 1.3031
+   },
+   "rho": -0.00111,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 7,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-10-16T14:17:51.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 9
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.150567,
+     "draw": 0.2752,
+     "away": 0.574234
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Real Madrid|Sevilla",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882839",
+   "providerEventId": "401882839",
+   "kickoffUtc": "2026-10-18T19:00:00.000Z",
+   "matchup": "Real Madrid v Sevilla",
+   "homeClub": "Real Madrid",
+   "awayClub": "Sevilla",
+   "historyNames": {
+    "home": "Real Madrid",
+    "away": "Sevilla"
+   },
+   "espnTeamIds": {
+    "home": "86",
+    "away": "243"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-16T14:17:51.000Z",
+   "probs": {
+    "home": 0.759253,
+    "draw": 0.150298,
+    "away": 0.090449
+   },
+   "over25": 0.64621,
+   "under25": 0.35379,
+   "expectedGoals": {
+    "home": 2.5561,
+    "away": 0.7716
+   },
+   "lambdas": {
+    "home": 2.5568,
+    "away": 0.7716
+   },
+   "rho": -0.00111,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 158,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-10-16T14:17:51.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 9
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.741355,
+     "draw": 0.156001,
+     "away": 0.102644
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 2
+ }
+}
