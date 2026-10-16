@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-16T18:43:47Z",
- "sourceGeneratedAt": "2026-10-16T18:43:47Z",
+ "generatedAt": "2026-10-16T23:16:21Z",
+ "sourceGeneratedAt": "2026-10-16T23:16:21Z",
  "providerEventId": "401873004",
  "matchup": "ARI @ LAR",
  "kickoffUtc": "2026-10-18T20:05Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-16T18:43:47Z",
-  "roleEvidenceAt": "2026-10-16T18:43:47Z",
+  "injuriesCapturedAt": "2026-10-16T23:16:21Z",
+  "roleEvidenceAt": "2026-10-16T23:16:21Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -86,14 +86,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 53,
+  "absent": 50,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "ARI": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -110,17 +110,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4870808",
-     "name": "Jeremiyah Love",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_receptions",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4361307",
@@ -198,6 +187,12 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4870808",
+     "name": "Jeremiyah Love",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-3045147",
@@ -319,7 +314,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4570037",
@@ -415,10 +410,10 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.8685,
-    "originalSum": 0.8685,
-    "residualOther": 0.1315,
-    "joined": 5,
+    "sum": 0.9317,
+    "originalSum": 0.9317,
+    "residualOther": 0.0683,
+    "joined": 6,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -551,36 +546,6 @@
     },
     "anytime_td": {
      "probability": 0.4125,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4870808",
-   "name": "Jeremiyah Love",
-   "team": "ARI",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 31.518,
-     "p10": 6.61,
-     "p25": 14.7,
-     "median": 27.21,
-     "p75": 43.89,
-     "p90": 62.24,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.6723,
-     "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 2,
-     "p90": 4,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.3552,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -820,7 +785,7 @@
    "playerId": "nfl-athlete-4242557",
    "name": "Colby Parkinson",
    "team": "LAR",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 11.399,
