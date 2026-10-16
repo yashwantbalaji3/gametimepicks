@@ -120,3 +120,9 @@ test("UXR1-02 (cont.): /results/date section eyebrows may wrap — a shrink-0 la
   assert.equal((s.match(/className="font-mono text-\[10px\] uppercase tracking-\[0\.18em\] min-w-0"/g) ?? []).length, 2, "NBA and MLB eyebrows");
   assert.doesNotMatch(s, /uppercase tracking-\[0\.18em\] shrink-0"/);
 });
+
+test("UXR1-11 (DS-001 §9): the board status banner's summary wraps below the eyebrow instead of being squeezed to one word a line", () => {
+  const s = src("src/components/board-date-status-banner.tsx");
+  assert.match(s, /className="min-w-0 text-\[12px\] leading-snug"\s*style=\{\{ color: "var\(--vault-text-mute\)", flex: "1 1 12rem" \}\}/);
+  assert.match(s, /flex flex-wrap items-center gap-x-4 gap-y-2/, "the banner row still wraps");
+});
