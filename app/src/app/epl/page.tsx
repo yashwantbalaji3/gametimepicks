@@ -28,6 +28,7 @@ import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import SportSwitcher from "@/components/sports/sport-switcher";
 import { eplHub } from "@/lib/sport-hub/adapters";
 import Link from "next/link";
+import { sourceDisplayName } from "@/lib/sports/source-registry.mjs";
 
 import SportOverviewHero from "@/components/sport-overview-hero";
 import TopReadsPanel from "@/components/top-reads-panel";
@@ -652,7 +653,7 @@ export default function EplPage() {
           />
         </div>
         <p className="font-mono mt-3" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-          Source: {feed?.sourceVerdict?.sourceId ?? "openfootball (public domain)"}
+          Source: {sourceDisplayName(feed?.sourceVerdict?.sourceId, "openfootball (public domain)")}
           {capturedAt ? ` · captured ${new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(capturedAt))} ET` : ""}
           {feed?.totals?.upcoming ? ` · showing the next ${(feed.events ?? []).length} of ${feed.totals.upcoming}` : ""}
         </p>

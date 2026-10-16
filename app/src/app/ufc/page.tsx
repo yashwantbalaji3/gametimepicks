@@ -40,6 +40,7 @@ import ModelStatusPanel from "@/components/command-center/model-status-panel";
 import { modelStatusFor } from "@/lib/command-center/model-status";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
 import { buildUfcPresentation } from "@/lib/simulate/presentation/ufc";
+import { sourceDisplayName } from "@/lib/sports/source-registry.mjs";
 
 export const metadata = withRouteMetadata("/ufc/", {
   /*
@@ -256,7 +257,7 @@ export default function UfcArchivePage() {
           ? <UfcCard card={card} />
           : <ScheduleList events={(feed?.events ?? []) as never[]} sides={["red", "blue"]} joiner="vs" />}
         <p className=" text-[12.5px]" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
-          Schedule source: {feed?.sourceVerdict?.sourceId ?? "ESPN"}
+          Schedule source: {sourceDisplayName(feed?.sourceVerdict?.sourceId, "ESPN")}
         </p>
       </section>
 

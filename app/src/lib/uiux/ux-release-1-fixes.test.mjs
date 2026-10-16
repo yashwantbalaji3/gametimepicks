@@ -58,3 +58,20 @@ test("UXR1-06 (DS-001 §9): hub stat-tile labels are never clipped by the tile a
   assert.match(s, /className="gtp-stat-tile px-3 py-3 flex flex-col gap-0\.5 min-w-0"/);
   assert.match(s, /className="font-mono uppercase tracking-\[0\.06em\] sm:tracking-\[0\.16em\]"[\s\S]{0,240}overflowWrap: "anywhere"/);
 });
+
+test("UXR1-07 (GTP-27, DS-001 §1.7): source ids and the UFC model fingerprint are not printed as reading matter", async () => {
+  const { sourceDisplayName, SOURCE_DISPLAY_NAME, SOURCES } = await import("../sports/source-registry.mjs");
+  assert.equal(sourceDisplayName("espn_scoreboard"), "ESPN public scoreboard");
+  assert.equal(sourceDisplayName("some_new_feed"), "some new feed", "an unmapped id never prints its underscores");
+  assert.equal(sourceDisplayName(null, "ESPN"), "ESPN");
+  for (const [id, name] of Object.entries(SOURCE_DISPLAY_NAME)) assert.doesNotMatch(name, /_/, `${id} → ${name}`);
+  // Every registry source that may render publicly has a reader name.
+  for (const [id, s] of Object.entries(SOURCES)) if (s.authorization === "PUBLIC_DISPLAY") assert.ok(sourceDisplayName(id) && !/_/.test(sourceDisplayName(id)), id);
+  // One map: the component no longer keeps its own copy, and the pages read the shared helper.
+  assert.doesNotMatch(src("src/components/sports/upcoming-sports.tsx"), /const SOURCE_DISPLAY\b/);
+  assert.match(src("src/app/ufc/page.tsx"), /Schedule source: \{sourceDisplayName\(feed\?\.sourceVerdict\?\.sourceId, "ESPN"\)\}/);
+  assert.match(src("src/app/epl/page.tsx"), /Source: \{sourceDisplayName\(feed\?\.sourceVerdict\?\.sourceId,/);
+  const board = src("src/components/ufc/prediction-board.tsx");
+  assert.doesNotMatch(board, /\{board\.modelId \? ` \(\$\{board\.modelId\}\)` : ""\}/, "no fingerprint inside the sentence");
+  assert.match(board, /title=\{board\.modelId \? `Model: \$\{board\.modelId\}` : undefined\}/, "provenance kept, one hover away");
+});
