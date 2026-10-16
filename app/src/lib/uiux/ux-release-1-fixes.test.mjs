@@ -146,3 +146,32 @@ test("UXR1-13 (GTP-13, DS-001 §9): the /results Window tabs name the panel they
   assert.ok(panel.indexOf("Public forecasts") > 0 && panel.indexOf("Public forecasts") < panel.indexOf("Day by day"), "the public window records are inside the panel");
   assert.ok(panel.indexOf("<PopulationCard key={p.id} p={p} w={w}") < panel.indexOf("Day by day"));
 });
+
+test("UXR1-14 (DS-001 §1.4, §5): an archived game page speaks in the past tense and shows registry crests, never guessed ones", async () => {
+  const s = src("src/components/game/game-detail-page.tsx");
+  assert.match(s, /const gameIsPast = !!detail\.date && detail\.date < currentEtDate\(\);/, "tense keys off the game's ET date");
+  // Every "yet" empty state on the page has a past-tense twin chosen by the game date.
+  const code = s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, ""); // reader text only, not comments
+  const yets = code.match(/"[^"\n]*\byet\b[^"\n]*"/g) ?? [];
+  assert.ok(yets.length >= 4, "POSITIVE CONTROL — the upcoming-game wording is still here");
+  for (const y of yets) {
+    // "no independent model edge yet" is about the MODEL's coverage of a market, not about this game happening.
+    if (/no independent model edge yet/.test(y)) continue;
+    const at = code.indexOf(y);
+    assert.match(code.slice(Math.max(0, at - 400), at), /gameIsPast\s*\?/, `${y} is chosen by gameIsPast`);
+  }
+  assert.match(s, /gameIsPast \? "No team projection was posted for this fixture\." : "No team projection posted for this fixture yet\."/);
+  // Crests follow the "away @ home" title.
+  assert.match(s, /detail\.title\.includes\(" @ "\) \? \(\s*<span[^>]*aria-label=\{`\$\{detail\.awayTeam\} at \$\{detail\.homeTeam\}`\}>\s*<TeamMark name=\{detail\.awayTeam\}/);
+
+  // NBA crests come from the ESPN NBA team registry (the /nba hub's source) — 30 teams, nothing invented.
+  const { espnNbaCrestUrl, ESPN_NBA_TEAMS } = await import("../sports/nba/roster-contract.mjs");
+  assert.equal(espnNbaCrestUrl("NY"), "https://a.espncdn.com/i/teamlogos/nba/500/ny.png");
+  assert.equal(espnNbaCrestUrl("sa"), "https://a.espncdn.com/i/teamlogos/nba/500/sa.png");
+  assert.equal(espnNbaCrestUrl("NYK"), null, "a non-registry abbreviation gets no URL (the monogram fallback draws)");
+  assert.equal(espnNbaCrestUrl(null), null);
+  assert.equal(ESPN_NBA_TEAMS.filter((t) => espnNbaCrestUrl(t.espnAbbr)).length, 30);
+  const gd = src("src/lib/game-detail.ts");
+  assert.match(gd, /homeLogo: sport === "mlb" \? mlbTeamLogoUrl\(g\.homeTeamId\) : espnNbaCrestUrl\(g\.homeTeamAbbr\),/);
+  assert.match(gd, /awayLogo: sport === "mlb" \? mlbTeamLogoUrl\(g\.awayTeamId\) : espnNbaCrestUrl\(g\.awayTeamAbbr\),/);
+});
