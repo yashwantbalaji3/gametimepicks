@@ -301,9 +301,13 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
       style={containerStyle}
       id={lean.id}
     >
-      {/* Row 1 — identity cluster + confidence chip */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+      {/* Row 1 — identity cluster + confidence chip.
+          UXR1-04 (DS-001 §9): the chip was nowrap and never shrank, so on a phone the anomaly label
+          ("Anomaly · gap too large to trust", ~255 px) squeezed the identity column to one word per line and ran
+          over it. The row now wraps: the identity keeps a 12rem basis and the chip drops below it when both
+          cannot fit, wrapping its own text inside the card if it must. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0" style={{ flex: "1 1 12rem" }}>
           <PlayerAvatar sport="mlb"
             playerId={lean.playerId}
             playerName={lean.playerName}
@@ -389,7 +393,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
             borderRadius: 2,
             padding: "4px 9px",
             border: `1px solid ${meta.rim}`,
-            whiteSpace: "nowrap",
+            maxWidth: "100%",
           }}
         >
           {meta.label}

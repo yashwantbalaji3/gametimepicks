@@ -39,3 +39,10 @@ test("UXR1-03 (DS-001 §9): the MLB line-vs-projection bar fills its row instead
   assert.match(row, /<MlbProjectionGap[\s\S]{0,160}width="100%"/, "the detailed card's bar fills the card");
   assert.match(src("src/components/mlb/mlb-projection-gap.tsx"), /width\?: number \| string;/);
 });
+
+test("UXR1-04 (DS-001 §9): the MLB lean card header wraps instead of running the anomaly chip over the identity", () => {
+  const row = src("src/components/mlb/mlb-lean-row.tsx");
+  assert.match(row, /<div className="flex flex-wrap items-center justify-between gap-3">\s*<div className="flex items-center gap-3 min-w-0" style=\{\{ flex: "1 1 12rem" \}\}>/);
+  // The detailed card's confidence/anomaly chip may wrap inside the card; the compact row's chip is unchanged.
+  assert.match(row, /padding: "4px 9px",\s*border: `1px solid \$\{meta\.rim\}`,\s*maxWidth: "100%",/);
+});
