@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-16T17:07:10Z",
- "sourceGeneratedAt": "2026-10-16T17:07:10Z",
+ "generatedAt": "2026-10-16T18:18:18Z",
+ "sourceGeneratedAt": "2026-10-16T18:18:18Z",
  "providerEventId": "401872997",
  "matchup": "BAL @ CLE",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-16T17:07:10Z",
-  "roleEvidenceAt": "2026-10-16T17:07:10Z",
+  "injuriesCapturedAt": "2026-10-16T18:18:18Z",
+  "roleEvidenceAt": "2026-10-16T18:18:18Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,6 +23,15 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "BAL",
+     "playerId": "nfl-athlete-4035671",
+     "name": "Tyler Huntley",
+     "share": 0.666,
+     "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -92,14 +101,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 50,
+  "absent": 47,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "BAL": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -119,17 +128,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-3916387",
-     "name": "Lamar Jackson",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-4035671",
      "name": "Tyler Huntley",
      "state": "PROJECTED",
@@ -142,7 +140,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     },
@@ -219,6 +217,12 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3916387",
+     "name": "Lamar Jackson",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4870847",
@@ -363,21 +367,11 @@
   "qbStarter": [
    {
     "team": "BAL",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3916387",
-     "name": "Lamar Jackson"
-    },
-    "snapshotAt": "2026-10-14T12:51:31Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4035671",
-      "name": "Tyler Huntley"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
-     "nfl-athlete-3916387"
-    ]
+     "nfl-athlete-4035671"
+    ],
+    "removed": []
    },
    {
     "team": "CLE",
@@ -403,9 +397,17 @@
     "team": "BAL",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3916387"
+     "nfl-athlete-4035671"
     ],
-    "withheld": [],
+    "withheld": [
+     {
+      "team": "BAL",
+      "playerId": "nfl-athlete-4035671",
+      "name": "Tyler Huntley",
+      "share": 0.666,
+      "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
     "unjoined": []
    },
    {
@@ -776,36 +778,6 @@
     },
     "anytime_td": {
      "probability": 0.1916,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3916387",
-   "name": "Lamar Jackson",
-   "team": "BAL",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 19.541,
-     "p10": 0,
-     "p25": 2.86,
-     "median": 13.17,
-     "p75": 29.45,
-     "p90": 47.98,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 244.6167,
-     "p10": 119.2282,
-     "p25": 164.9722,
-     "median": 228.5818,
-     "p75": 306.868,
-     "p90": 390.7712,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1737,
      "pricingState": "NOT_PROBED"
     }
    }
