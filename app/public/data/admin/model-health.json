@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-10-15T09:24:44Z",
+ "generatedAt": "2026-10-16T09:25:09Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 6,
@@ -22,20 +22,20 @@
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 773,
+   "n": 775,
    "judgement": {
     "state": "BREACHED",
-    "n": 773,
+    "n": 775,
     "needed": 200,
-    "meanDiff": 0.0346,
+    "meanDiff": 0.0348,
     "lo95": 0.016,
-    "hi95": 0.0535
+    "hi95": 0.0536
    },
    "context": {
     "hitRate": 0.4903,
-    "meanPickProbability": 0.587,
+    "meanPickProbability": 0.5871,
     "modelMinusMarket": 0.034,
-    "pairedWithMarket": 773
+    "pairedWithMarket": 775
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -157,20 +157,20 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 816,
+   "n": 818,
    "judgement": {
     "state": "WATCH",
-    "n": 816,
+    "n": 818,
     "needed": 200,
-    "meanDiff": 0.0066,
-    "lo95": -0.0054,
-    "hi95": 0.0196
+    "meanDiff": 0.0069,
+    "lo95": -0.0055,
+    "hi95": 0.0201
    },
    "context": {
-    "hitRate": 0.5123,
+    "hitRate": 0.511,
     "meanPickProbability": 0.5719,
-    "modelMinusMarket": 0.0308,
-    "pairedWithMarket": 811
+    "modelMinusMarket": 0.0309,
+    "pairedWithMarket": 813
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -746,20 +746,20 @@
    "label": "MLB run line posted picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 6,
+   "n": 8,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 6,
+    "n": 8,
     "needed": 200,
-    "meanDiff": 0.0386,
+    "meanDiff": -0.0267,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "hitRate": 0.5,
-    "meanPickProbability": 0.6208,
-    "modelMinusMarket": 0.0568,
-    "pairedWithMarket": 6
+    "hitRate": 0.625,
+    "meanPickProbability": 0.6221,
+    "modelMinusMarket": 0.0394,
+    "pairedWithMarket": 8
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {

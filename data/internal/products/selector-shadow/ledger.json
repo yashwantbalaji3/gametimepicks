@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "selector-shadow-ledger",
  "dataClass": "internal-research",
- "generatedAt": "2026-10-15T14:25:38.736Z",
+ "generatedAt": "2026-10-16T09:22:12.614Z",
  "days": 21,
  "firstDate": "2026-09-21",
  "lastDate": "2026-10-15",
@@ -12,16 +12,16 @@
    "metrics": {
     "laneDays": 42,
     "placed": 24,
-    "decided": 23,
-    "pending": 1,
-    "won": 12,
+    "decided": 24,
+    "pending": 0,
+    "won": 13,
     "lost": 11,
     "push": 0,
-    "survivalPerStep": 0.522,
-    "survivalSe": 0.104,
+    "survivalPerStep": 0.542,
+    "survivalSe": 0.102,
     "byStep": {
      "1": {
-      "won": 8,
+      "won": 9,
       "lost": 4,
       "push": 0
      },
@@ -49,8 +49,8 @@
      "MODEL_STATUS_INELIGIBLE": 5
     },
     "publicationRate": 0.571,
-    "expectedWinsUnderPublishedP": 7.94,
-    "meanJointP": 0.345
+    "expectedWinsUnderPublishedP": 8.32,
+    "meanJointP": 0.347
    }
   },
   "BB-C1": {
@@ -58,16 +58,16 @@
    "metrics": {
     "laneDays": 42,
     "placed": 21,
-    "decided": 19,
-    "pending": 2,
-    "won": 8,
+    "decided": 20,
+    "pending": 1,
+    "won": 9,
     "lost": 11,
     "push": 0,
-    "survivalPerStep": 0.421,
-    "survivalSe": 0.113,
+    "survivalPerStep": 0.45,
+    "survivalSe": 0.111,
     "byStep": {
      "1": {
-      "won": 5,
+      "won": 6,
       "lost": 6,
       "push": 0
      },
@@ -95,7 +95,7 @@
      "LANE_HELD": 14
     },
     "publicationRate": 0.5,
-    "expectedWinsUnderPublishedP": 7.21,
+    "expectedWinsUnderPublishedP": 7.59,
     "meanJointP": 0.38
    }
   },
@@ -151,16 +151,16 @@
    "metrics": {
     "laneDays": 42,
     "placed": 12,
-    "decided": 11,
-    "pending": 1,
-    "won": 2,
+    "decided": 12,
+    "pending": 0,
+    "won": 3,
     "lost": 9,
     "push": 0,
-    "survivalPerStep": 0.182,
-    "survivalSe": 0.116,
+    "survivalPerStep": 0.25,
+    "survivalSe": 0.125,
     "byStep": {
      "1": {
-      "won": 2,
+      "won": 3,
       "lost": 7,
       "push": 0
      },
@@ -179,7 +179,7 @@
      "MODEL_STATUS_INELIGIBLE": 5
     },
     "publicationRate": 0.286,
-    "expectedWinsUnderPublishedP": 2.47,
+    "expectedWinsUnderPublishedP": 2.7,
     "meanJointP": 0.225
    }
   },
@@ -188,16 +188,16 @@
    "metrics": {
     "laneDays": 42,
     "placed": 12,
-    "decided": 11,
-    "pending": 1,
-    "won": 2,
+    "decided": 12,
+    "pending": 0,
+    "won": 3,
     "lost": 9,
     "push": 0,
-    "survivalPerStep": 0.182,
-    "survivalSe": 0.116,
+    "survivalPerStep": 0.25,
+    "survivalSe": 0.125,
     "byStep": {
      "1": {
-      "won": 2,
+      "won": 3,
       "lost": 7,
       "push": 0
      },
@@ -216,7 +216,7 @@
      "MODEL_STATUS_INELIGIBLE": 5
     },
     "publicationRate": 0.286,
-    "expectedWinsUnderPublishedP": 2.47,
+    "expectedWinsUnderPublishedP": 2.7,
     "meanJointP": 0.225
    }
   },
@@ -225,13 +225,13 @@
    "metrics": {
     "laneDays": 42,
     "placed": 9,
-    "decided": 8,
-    "pending": 1,
+    "decided": 9,
+    "pending": 0,
     "won": 3,
-    "lost": 5,
+    "lost": 6,
     "push": 0,
-    "survivalPerStep": 0.375,
-    "survivalSe": 0.171,
+    "survivalPerStep": 0.333,
+    "survivalSe": 0.157,
     "byStep": {
      "1": {
       "won": 2,
@@ -240,6 +240,11 @@
      },
      "2": {
       "won": 1,
+      "lost": 1,
+      "push": 0
+     },
+     "3": {
+      "won": 0,
       "lost": 1,
       "push": 0
      }
@@ -254,8 +259,8 @@
      "MODEL_STATUS_INELIGIBLE": 3
     },
     "publicationRate": 0.214,
-    "expectedWinsUnderPublishedP": 1.82,
-    "meanJointP": 0.227
+    "expectedWinsUnderPublishedP": 2.14,
+    "meanJointP": 0.238
    }
   }
  },
@@ -265,13 +270,12 @@
    "control": "BB-LEGACY",
    "state": "NOT_YET",
    "reasons": [
-    "decided 19 < 20",
-    "survival 0.421 < control 0.522"
+    "survival 0.45 < control 0.542"
    ],
    "measured": {
-    "shadowDecided": 19,
-    "shadowSurvival": 0.421,
-    "controlSurvival": 0.522,
+    "shadowDecided": 20,
+    "shadowSurvival": 0.45,
+    "controlSurvival": 0.542,
     "shadowPlaced": 21,
     "controlPlaced": 24
    },
@@ -283,12 +287,12 @@
    "state": "NOT_YET",
    "reasons": [
     "decided 17 < 20",
-    "survival 0.412 < control 0.522"
+    "survival 0.412 < control 0.542"
    ],
    "measured": {
     "shadowDecided": 17,
     "shadowSurvival": 0.412,
-    "controlSurvival": 0.522,
+    "controlSurvival": 0.542,
     "shadowPlaced": 18,
     "controlPlaced": 24
    },
@@ -299,12 +303,12 @@
    "control": "MS-LEGACY",
    "state": "NOT_YET",
    "reasons": [
-    "decided 11 < 20"
+    "decided 12 < 20"
    ],
    "measured": {
-    "shadowDecided": 11,
-    "shadowSurvival": 0.182,
-    "controlSurvival": 0.182,
+    "shadowDecided": 12,
+    "shadowSurvival": 0.25,
+    "controlSurvival": 0.25,
     "shadowPlaced": 12,
     "controlPlaced": 12
    },
@@ -315,12 +319,12 @@
    "control": "MS-LEGACY",
    "state": "NOT_YET",
    "reasons": [
-    "decided 8 < 20"
+    "decided 9 < 20"
    ],
    "measured": {
-    "shadowDecided": 8,
-    "shadowSurvival": 0.375,
-    "controlSurvival": 0.182,
+    "shadowDecided": 9,
+    "shadowSurvival": 0.333,
+    "controlSurvival": 0.25,
     "shadowPlaced": 9,
     "controlPlaced": 12
    },
