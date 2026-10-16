@@ -32,3 +32,10 @@ test("UXR1-02 (DS-001 §9): every results-day table scrolls inside its own conta
     assert.equal(wrapped, tables, `${p}: ${tables - wrapped} day table(s) without a scroll container`);
   }
 });
+
+test("UXR1-03 (DS-001 §9): the MLB line-vs-projection bar fills its row instead of a 9,999 px track clipped to a blank strip", () => {
+  const row = src("src/components/mlb/mlb-lean-row.tsx");
+  assert.doesNotMatch(row, /width=\{9999\}/, "a 9,999 px track puts the centre tick (the line) ~5,000 px off-screen");
+  assert.match(row, /<MlbProjectionGap[\s\S]{0,160}width="100%"/, "the detailed card's bar fills the card");
+  assert.match(src("src/components/mlb/mlb-projection-gap.tsx"), /width\?: number \| string;/);
+});

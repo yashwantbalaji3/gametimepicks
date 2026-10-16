@@ -433,7 +433,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
         line={lean.line}
         projection={lean.projection}
         sigma={lean.sigma}
-        width={9999}
+        width="100%"
         height={8}
       />
 
