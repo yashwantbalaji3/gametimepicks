@@ -35,6 +35,7 @@ import { buildUfcBoutPresentation } from "@/lib/simulate/presentation/ufc";
 import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { researchHref } from "@/lib/research-pages/projection-store";
+import EtTime from "@/components/ui/et-time";
 
 export const dynamicParams = false;
 
@@ -304,7 +305,7 @@ export default function UfcBoutPage({ params }: { params: { boutId: string } }) 
                 {card.model.corpus.source ? ` · ${card.model.corpus.source}` : ""}
               </div>
             ) : null}
-            {card.generatedAt ? <div>generated {card.generatedAt}</div> : null}
+            {card.generatedAt ? <div>generated <EtTime iso={card.generatedAt} /></div> : null}
           </div>
           <p className="m-0" style={{ fontSize: 11.5, color: "var(--vault-text-faint)" }}>
             Educational and paper-only — not betting advice.
