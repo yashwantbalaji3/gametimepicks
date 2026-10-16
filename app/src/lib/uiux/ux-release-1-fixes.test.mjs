@@ -134,3 +134,15 @@ test("UXR1-06 (cont.): the MLB lean card's LINE / PROJECTION / EDGE labels stay 
   assert.match(s, /className="rounded-\[5px\] flex flex-row items-baseline justify-between[^"]*min-\[375px\]:flex-col[^"]*min-w-0"/);
   assert.match(s, /className="font-mono uppercase tracking-normal sm:tracking-\[0\.14em\]"\s*style=\{\{ color: labelColor, fontSize: 10, overflowWrap: "anywhere" \}\}/);
 });
+
+test("UXR1-13 (GTP-13, DS-001 §9): the /results Window tabs name the panel they control, via the shared roving-tabs model", () => {
+  const s = src("src/components/results/results-overview.tsx");
+  assert.match(s, /const windowTabs = useRovingTabs<WindowKey>\(/, "the shared hook drives the tablist");
+  assert.match(s, /<button key=\{x\.key\} \{\.\.\.windowTabs\.tabProps\(x\.key\)\}\n/, "tab props are used as the hook returns them");
+  assert.doesNotMatch(s, /aria-controls=\{undefined\}/, "no tab drops its aria-controls");
+  // One panel, named by the selected tab (the MLB game report / live-sport-tabs shape); the windowed records sit in it.
+  assert.equal((s.match(/\{\.\.\.windowTabs\.panelProps\(w\)\}/g) ?? []).length, 1);
+  const panel = s.slice(s.indexOf("{...windowTabs.panelProps(w)}"));
+  assert.ok(panel.indexOf("Public forecasts") > 0 && panel.indexOf("Public forecasts") < panel.indexOf("Day by day"), "the public window records are inside the panel");
+  assert.ok(panel.indexOf("<PopulationCard key={p.id} p={p} w={w}") < panel.indexOf("Day by day"));
+});

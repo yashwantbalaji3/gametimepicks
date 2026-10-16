@@ -109,7 +109,9 @@ function DailyTracker({ pops, today }: { pops: OverviewPopulation[]; today: stri
 export default function ResultsOverview({ populations, products, seedToday }: { populations: OverviewPopulation[]; products: OverviewProduct[]; seedToday: string }) {
   const today = useReaderEtDate(seedToday);
   const [w, setW] = useState<WindowKey>("d7");
-  /* GTP-13 follow-up: arrow keys / Home / End and one tab stop (shared hook). No separate panels here, so no aria-controls. */
+  /* GTP-13 follow-up: arrow keys / Home / End and one tab stop (shared hook). UXR1-13: the window-dependent records
+     (public forecasts, products, research) sit in ONE tabpanel named by the selected tab — the single-panel shape
+     the MLB game report and /live already use — so every tab carries aria-controls like the rest of the site. */
   const windowTabs = useRovingTabs<WindowKey>({ keys: WINDOWS.map((x) => x.key), active: w, onChange: setW, idBase: useId().replace(/:/g, "") });
   const pub = populations.filter((p) => p.class === "PUBLIC");
   const research = populations.filter((p) => p.class === "RESEARCH");
@@ -119,7 +121,7 @@ export default function ResultsOverview({ populations, products, seedToday }: { 
         <h2 id="results-overview-h" className="m-0 font-display text-[22px]" style={{ color: "var(--vault-text)" }}>How GameTimePicks did</h2>
         <div {...windowTabs.listProps} aria-label="Window" className="flex flex-wrap gap-1.5">
           {WINDOWS.map((x) => (
-            <button key={x.key} {...windowTabs.tabProps(x.key)} aria-controls={undefined}
+            <button key={x.key} {...windowTabs.tabProps(x.key)}
               className="rounded-full px-3.5 font-mono text-[11.5px] uppercase tracking-[0.1em]"
               style={{ minHeight: 44, color: w === x.key ? "var(--vault-bg)" : "var(--vault-text-mute)", background: w === x.key ? "var(--vault-text)" : "transparent", border: `1px solid ${w === x.key ? "var(--vault-text)" : "var(--vault-border)"}` }}>
               {x.label}
@@ -133,6 +135,7 @@ export default function ResultsOverview({ populations, products, seedToday }: { 
         losses. Windows use your day ({etDayLabel(today)}).
       </p>
 
+      <div {...windowTabs.panelProps(w)} className="flex flex-col gap-5">
       <div>
         <h3 className="m-0 mb-2 font-mono text-[11px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)" }}>Public forecasts</h3>
         <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
@@ -165,6 +168,7 @@ export default function ResultsOverview({ populations, products, seedToday }: { 
           </ul>
         </div>
       ) : null}
+      </div>
 
       <div>
         <h3 className="m-0 mb-2 font-display text-[17px]" style={{ color: "var(--vault-text)" }}>Day by day</h3>
