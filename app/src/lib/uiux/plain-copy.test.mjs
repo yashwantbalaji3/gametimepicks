@@ -34,7 +34,11 @@ test("MLB board: every pendingReason in the committed boards has a sentence, and
   const produced = [...gen.matchAll(/_write_pending_board\([^)]*reason="([a-z_]+)"\)/g)].map((m) => m[1]);
   assert.ok(produced.length >= 6, `found only ${produced.length} generator reasons`);
   for (const r of produced) reasons.add(r);
-  assert.match(map.no_events, /odds provider/, "no_events is about the odds feed, not the schedule");
+  // no_events is about the sportsbook feed at prop-price capture, not the schedule — in reader words: the public-copy
+  // guard (pipeline/public_copy_test.py) forbids the internal term "odds provider".
+  assert.match(map.no_events, /Sportsbooks/, "no_events is about the sportsbook feed, not the schedule");
+  assert.match(map.no_events, /prop prices were captured/, "…at the moment prop prices were captured");
+  assert.doesNotMatch(map.no_events, /odds provider/);
   assert.doesNotMatch(map.no_events, /no .*games are scheduled/i);
   for (const r of reasons) assert.ok(map[r], `pendingReason "${r}" would be hidden or raw — add reader words`);
   assert.doesNotMatch(body, /Reason: \{board\.pendingReason\}/);

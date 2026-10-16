@@ -45,7 +45,7 @@ import { surfaceHref } from "@/lib/nav/date-sport-route";
  */
 const PRICES_NOT_CAPTURED = "Prop prices were not captured for this slate.";
 const MLB_PENDING_REASON: Record<string, string> = {
-  no_events: "The odds provider listed no events for this slate.",
+  no_events: "Sportsbooks had not listed this slate's games when prop prices were captured.",
   all_events_started: "Every game had started before prop prices were captured.",
   odds_not_fetched: PRICES_NOT_CAPTURED,
   odds_not_configured: PRICES_NOT_CAPTURED,
