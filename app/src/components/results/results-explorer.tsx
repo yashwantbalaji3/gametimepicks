@@ -14,7 +14,7 @@
  * Filter state lives in the URL so a view can be shared, refreshed and navigated back to — the same
  * contract every dated surface here already honours.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { RECORD_TYPES, RISK_TIERS, filterRows, poolRows } from "@/lib/results/read-model.mjs";
 /* The PURE module. `dated-cards.mjs` reads node:fs, and importing from it here put fs in the
@@ -218,6 +218,15 @@ export default function ResultsExplorer({
   useEffect(() => { setCardLimit(CARD_STEP); }, [recordType, sport, tier, from, to]);
   const sortedCards = useMemo(() => [...selectedCards].sort((a, b) => b.date.localeCompare(a.date)), [selectedCards]);
   const shownCards = sortedCards.slice(0, cardLimit);
+  /* UXR1-01 (GTP-21/32 follow-up): the paging buttons unmount once every card is shown, which dropped keyboard
+     focus to <body> — back to the top of a 20,000 px page. When a click reveals the last card, focus moves to the
+     count ("Showing all N") that replaced them. A filter change resets the step to CARD_STEP and never moves focus. */
+  const cardStatusRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (cardLimit !== CARD_STEP && cardLimit >= selectedCards.length) cardStatusRef.current?.focus();
+    // Keyed on the step alone: a selection change must not pull focus away from the filter the reader is using.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cardLimit]);
 
   /** Pooled from SUMMED COUNTS. Nothing here averages a rate, and no decided card means no rate. */
   const cardPool = useMemo(() => {
@@ -636,7 +645,7 @@ export default function ResultsExplorer({
           </div>
           {selectedCards.length > CARD_STEP ? (
             <div className="flex flex-wrap items-center gap-3">
-              <p role="status" aria-live="polite" style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: 0 }}>
+              <p ref={cardStatusRef} tabIndex={-1} role="status" aria-live="polite" style={{ fontSize: 12, color: "var(--vault-text-mute)", margin: 0 }}>
                 {shownCards.length < selectedCards.length ? `Showing the ${shownCards.length} most recent of ${selectedCards.length}.` : `Showing all ${selectedCards.length}.`} The totals above count every one of them.
               </p>
               {shownCards.length < selectedCards.length ? (

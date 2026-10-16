@@ -20,7 +20,7 @@
  * WHAT IS NOT HERE. No edge, no confidence, no lean: those are internal selection signals this
  * project does not surface, and they are stripped in the producer rather than hidden here.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export interface ModelDay {
   date: string;
@@ -139,6 +139,12 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
   const DETAIL_STEP = 250;
   const [detailLimit, setDetailLimit] = useState(DETAIL_STEP);
   useEffect(() => { setDetailLimit(DETAIL_STEP); }, [visibleDetail]);
+  /* UXR1-01: when a click reveals the last pick the paging buttons unmount; focus moves to the count, not <body>. */
+  const detailStatusRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (detailLimit !== DETAIL_STEP && detailLimit >= visibleDetail.length) detailStatusRef.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detailLimit]);
 
   const control: React.CSSProperties = {
     minHeight: 44, borderRadius: 8, padding: "0 10px", fontSize: 13,
@@ -302,7 +308,7 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
           ) : null}
           {visibleDetail.length > DETAIL_STEP ? (
             <div className="flex flex-wrap items-center gap-3">
-              <p role="status" aria-live="polite" className="m-0" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
+              <p ref={detailStatusRef} tabIndex={-1} role="status" aria-live="polite" className="m-0" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
                 {detailLimit < visibleDetail.length ? `Showing ${detailLimit} of ${visibleDetail.length}.` : `Showing all ${visibleDetail.length}.`} The counts above cover every one of them.
               </p>
               {detailLimit < visibleDetail.length ? (
