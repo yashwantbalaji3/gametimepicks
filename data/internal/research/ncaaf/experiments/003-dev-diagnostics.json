@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "phase": "dev",
+  "window": [
+    2022,
+    2023
+  ],
+  "population": "FBS-FBS",
+  "engine": "ncaaf-worlds@1",
+  "worldsPerEvent": 10000,
+  "bankNeighbours": 400,
+  "inputs": {
+    "scoreChampion": {
+      "id": "C2",
+      "lambda": 2,
+      "H": 240
+    },
+    "winnerChampion": {
+      "id": "C1",
+      "K": 30,
+      "HFA": 40,
+      "c": 0.8,
+      "dFcs": 200
+    },
+    "corpusManifestSha256": "cc3ee9e3fe9ccabc8e1f3ef2d0886e565462b62cfb3c9503fbac829f82407873",
+    "overtimeTableSha256": "8eaf5e94be61b0a8ca8256e045f3a8a7de0c8ebd2c9dc917c385aee497518e99"
+  },
+  "games": 1568,
+  "simulated": 1568,
+  "refused": {},
+  "coherence": {
+    "incoherentWorlds": 0,
+    "note": "simulateEvent throws on any incoherent world; reaching this line means 0"
+  },
+  "receiptsSha256": "f345d9e18876a108b1cfe18f4143e9b3de54bb537318687780f7385b7e446843",
+  "winner": {
+    "worlds": {
+      "logLoss": 0.5713302146688979,
+      "brier": 0.19493281547831634,
+      "ece": 0.039180931122448956
+    },
+    "c2Analytic": {
+      "logLoss": 0.5679953176185168,
+      "ece": 0.04242485134953484
+    },
+    "c1Elo": {
+      "logLoss": 0.5712733910436939,
+      "ece": 0.020929175532839864
+    },
+    "absDiffWorldVsC1": {
+      "mean": 0.07905474753763439,
+      "p90": 0.16725579291080578
+    }
+  },
+  "margin": {
+    "crpsWorlds": 9.331136399789527,
+    "crpsC2Normal": 9.256551341640098,
+    "coverage80": 0.8182397959183674,
+    "bias": 1.444309119897958
+  },
+  "total": {
+    "crpsWorlds": 9.146326407034442,
+    "crpsC2Normal": 9.185456195959361,
+    "coverage80": 0.8227040816326531,
+    "bias": 0.3998202168367354
+  },
+  "structure": {
+    "overtimeRate": {
+      "predicted": 0.029590688775510163,
+      "actual": 0.047193877551020405
+    },
+    "absMargin3": {
+      "predicted": 0.05574113520408149,
+      "actual": 0.11479591836734694
+    },
+    "absMargin7": {
+      "predicted": 0.06171256377551024,
+      "actual": 0.09311224489795919
+    },
+    "absMargin10": {
+      "predicted": 0.0450429209183673,
+      "actual": 0.04528061224489796
+    },
+    "absMargin14": {
+      "predicted": 0.04690178571428568,
+      "actual": 0.04528061224489796
+    },
+    "oneScore": {
+      "predicted": 0.2947279336734692,
+      "actual": 0.36288265306122447
+    },
+    "blowout28plus": {
+      "predicted": 0.18127359693877562,
+      "actual": 0.19068877551020408
+    },
+    "total0to6": {
+      "predicted": 0.0006427295918367309,
+      "actual": 0.0006377551020408163
+    },
+    "total7to13": {
+      "predicted": 0.005852997448979595,
+      "actual": 0.001913265306122449
+    },
+    "total14to20": {
+      "predicted": 0.017024489795918384,
+      "actual": 0.01403061224489796
+    },
+    "total21to27": {
+      "predicted": 0.04354693877551015,
+      "actual": 0.04400510204081633
+    },
+    "total28to34": {
+      "predicted": 0.07494738520408167,
+      "actual": 0.07461734693877552
+    },
+    "total35to41": {
+      "predicted": 0.11568290816326544,
+      "actual": 0.12755102040816327
+    },
+    "total42to48": {
+      "predicted": 0.13797850765306138,
+      "actual": 0.13201530612244897
+    },
+    "total49to55": {
+      "predicted": 0.15307755102040815,
+      "actual": 0.15178571428571427
+    },
+    "total56to62": {
+      "predicted": 0.13826307397959195,
+      "actual": 0.13966836734693877
+    },
+    "total63to69": {
+      "predicted": 0.11693756377551019,
+      "actual": 0.13392857142857142
+    },
+    "total70to76": {
+      "predicted": 0.0827864795918367,
+      "actual": 0.09119897959183673
+    },
+    "total77to83": {
+      "predicted": 0.05449974489795915,
+      "actual": 0.04591836734693878
+    },
+    "total84to90": {
+      "predicted": 0.030530420918367385,
+      "actual": 0.02423469387755102
+    },
+    "total91to97": {
+      "predicted": 0.01624043367346938,
+      "actual": 0.009566326530612245
+    },
+    "total98to104": {
+      "predicted": 0.007242283163265288,
+      "actual": 0.00510204081632653
+    }
+  }
+}
