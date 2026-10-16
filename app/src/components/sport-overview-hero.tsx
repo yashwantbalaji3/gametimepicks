@@ -315,17 +315,18 @@ export default function SportOverviewHero({
 
         {/* Scoreboard stats */}
         {stats && stats.length > 0 && (
-          <div className="mt-6 grid grid-cols-1 min-[360px]:grid-cols-3 gap-2.5 gtp-cinematic-rise gtp-cinematic-rise-d2">
+          <div className="mt-6 grid grid-cols-1 min-[375px]:grid-cols-3 gap-2.5 gtp-cinematic-rise gtp-cinematic-rise-d2">
             {stats.slice(0, 3).map((s, i) => (
               <div
                 key={`${s.label}-${i}`}
-                className="gtp-stat-tile px-3 py-3 flex flex-col gap-0.5 min-w-0"
+                className="gtp-stat-tile px-2 sm:px-3 py-3 flex flex-col gap-0.5 min-w-0"
               >
-                {/* UXR1-06 (DS-001 §9): three tiles on a 320 px phone leave ~50 px of label width, and at 0.16em tracking
-                    "SIMULATED" / "SPORTSBOOK" were cut off by the tile's overflow:hidden. Below 360 px the tiles stack
-                    (one per row); tighter tracking below sm; a long word may still break rather than be clipped. */}
+                {/* UXR1-06 (DS-001 §9): at phone widths a third of the hero leaves 50-73 px of label width, and at 0.16em
+                    tracking "SIMULATED" / "SPORTSBOOK" (79 px) were cut off by the tile's overflow:hidden. Below sm the
+                    label has no extra tracking and the tile 8 px padding (SPORTSBOOK = 73 px fits from 375 px); below
+                    375 px the tiles stack one per row. A long word may still break rather than be clipped. */}
                 <span
-                  className="font-mono uppercase tracking-[0.06em] sm:tracking-[0.16em]"
+                  className="font-mono uppercase tracking-normal sm:tracking-[0.16em]"
                   style={{
                     color: "var(--vault-text-mute)",
                     fontSize: 10,
