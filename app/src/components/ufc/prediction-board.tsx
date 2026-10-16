@@ -39,7 +39,7 @@ function Fighter({ f, picked, align = "left" }: { f: Side; picked: boolean; alig
         className="shrink-0 rounded-full"
         style={{ boxShadow: picked ? "0 0 0 2px var(--sport-ufc)" : "none", lineHeight: 0 }}
       >
-        <PlayerAvatar photoUrl={f.photoUrl} playerName={f.name} size="sm" flat />
+        <PlayerAvatar photoUrl={f.photoUrl} playerName={f.name} size="sm" flat decorative />
       </span>
       <span className="min-w-0">
         <span className="block" style={{ fontSize: 13, lineHeight: 1.25, overflowWrap: "anywhere", fontWeight: picked ? 800 : 600, color: picked ? "var(--vault-text)" : "var(--vault-text-mute)" }}>

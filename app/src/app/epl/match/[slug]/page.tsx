@@ -127,11 +127,11 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
       {/* ── Identity ─────────────────────────────────────────────────────────────────────────── */}
       <header className="mt-4">
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          <TeamLogo team={home} sport="soccer" size="sm" ariaLabel={`${home} crest`} />
+          <TeamLogo team={home} sport="soccer" size="lg" ariaLabel="" />
           <h1 style={{ fontSize: "clamp(20px, 3.4vw, 30px)", fontWeight: 800, margin: 0 }}>
             {home} <span style={{ color: "var(--vault-text-faint)", fontWeight: 500 }}>v</span> {away}
           </h1>
-          <TeamLogo team={away} sport="soccer" size="sm" ariaLabel={`${away} crest`} />
+          <TeamLogo team={away} sport="soccer" size="lg" ariaLabel="" />
         </div>
         <p className="font-mono mt-2" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
           {ET(row.kickoffUtc)} ET{row.matchweek ? ` · Matchweek ${row.matchweek}` : ""} · Premier League
