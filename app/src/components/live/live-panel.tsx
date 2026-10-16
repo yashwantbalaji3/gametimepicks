@@ -114,7 +114,9 @@ export default function LivePanel({ sport, eventId, playerBoard, mlbForecast, nf
   const grid = (
     <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
       <Region
-        title="Live now"
+        /* 2026-10-15 SEA@DEN capture: "Live now" stood above a "Final/OT" score. After the feed's final the region
+           holds the final score, so it says so; the badge and the grading-pending line below keep their meaning. */
+        title={life.state === "FINAL_PENDING_SETTLEMENT" || life.state === "SETTLED" ? "Final score" : "Live now"}
         note={
           envelope?.provider === "mlb-statsapi"
             ? "Source: MLB StatsAPI"
