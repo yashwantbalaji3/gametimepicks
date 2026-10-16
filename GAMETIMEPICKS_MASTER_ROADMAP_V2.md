@@ -1769,7 +1769,7 @@ State is kept in four separate buckets: **confirmed Production behaviour**, **co
 #### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
 Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
 
-**Status at 2026-10-16 03:45Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+**Status at 2026-10-16 03:55Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
 
 | Work | PR · exact head | Evidence | Status |
 |---|---|---|---|
@@ -2006,6 +2006,17 @@ Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `do
   - **Pending:** check 9 (canonical settlement; the capture keeps watching until it is served).
   - **Cosmetic:** the game page's live panel eyebrow reads "LIVE NOW" above "Final/OT" (L5 family).
   - **V2 stays unpublished.** Remaining windows: NFL Sunday 10/18 and one MLB postseason game.
+- **03:55Z (10-16) — post-game:**
+  - **#1112:** the live panel region reads "Final score", not "Live now", after the final (from the capture).
+  - **Re-verification:** after the review fixes, #1102–#1107, #1109, #1112 and #1092 merge without conflicts into a local integration branch.
+    - Build 147 s (niced);
+    - **10,122 unit + post-build tests, 0 failures**;
+    - 14-check browser sweep clean, incl. `/nfl/game/401872995` after the final and the `no_events` board.
+  - **Next, in order:**
+    1. #1088 exact-head package Friday morning before the 14:15Z MLB run (draft in `~/gtp-evidence/session-notes-2026-10-15/pkg1088-draft.md`; re-verify head, CI and build health).
+    2. SEA@DEN check 9 when the settlement lands (the capture keeps watching).
+    3. Founder decisions: #1101 (protected workflow), M6 names, OPS-002 token, legal inputs.
+    4. UX/HTML drafts for review and batched release.
 - **Monitoring proposed:**
   - a daily deploy-cost report workflow;
   - a CI memory early warning (peak > 12 G);
