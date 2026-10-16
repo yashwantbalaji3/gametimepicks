@@ -100,3 +100,24 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     { kind: "link", target: "/ask", label: "Ask" },
   ],
 };
+
+/** A hub section's box, in viewport pixels (getBoundingClientRect), in document order. */
+export interface HubSectionBox { id: string; top: number; bottom: number }
+
+/**
+ * UXR1-15: which section the hub strip marks as current, from the sections' boxes and the "reading band" (the
+ * strip's IntersectionObserver band: 20%–35% of the viewport). The strip used to remember the LAST section that
+ * entered the band, so scrolling back to the top of a hub left e.g. "Results" highlighted over the hero.
+ *
+ * - The first section overlapping the band is current.
+ * - Above the first section (the hero, the page top) nothing is current.
+ * - In a gap between sections, or past the last one, the last section that began above the band stays current.
+ */
+export function currentHubSection(sections: readonly HubSectionBox[], bandTop: number, bandBottom: number): string | null {
+  const boxes = [...sections].sort((a, b) => a.top - b.top);
+  const hit = boxes.find((s) => s.top < bandBottom && s.bottom > bandTop);
+  if (hit) return hit.id;
+  if (boxes.length === 0 || boxes[0].top >= bandBottom) return null;
+  const above = boxes.filter((s) => s.top < bandTop);
+  return above.length ? above[above.length - 1].id : null;
+}

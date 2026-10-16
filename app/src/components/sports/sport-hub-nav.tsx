@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { HUB_SECTIONS, type HubSport } from "@/lib/sports/hub-sections";
+import { HUB_SECTIONS, currentHubSection, type HubSport } from "@/lib/sports/hub-sections";
 
 /**
  * SPORT-HUB SECTION NAV (P208 · Release C) — the shared in-page wayfinding strip every hub mounts
@@ -25,10 +25,15 @@ export default function SportHubNav({ sport, anchors }: {
 
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return;
+    /* UXR1-15: recompute from every section's position whenever one crosses the band — the old callback only ever
+       SET a section, so after scrolling back to the top the last-visited one stayed highlighted over the hero. */
     const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setCurrent(visible[0].target.id);
+      () => {
+        const boxes = anchorIds.flatMap((id) => {
+          const r = document.getElementById(id)?.getBoundingClientRect();
+          return r ? [{ id, top: r.top, bottom: r.bottom }] : [];
+        });
+        setCurrent(currentHubSection(boxes, window.innerHeight * 0.2, window.innerHeight * 0.35));
       },
       { rootMargin: "-20% 0px -65% 0px" },
     );

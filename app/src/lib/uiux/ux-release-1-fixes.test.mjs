@@ -175,3 +175,26 @@ test("UXR1-14 (DS-001 §1.4, §5): an archived game page speaks in the past tens
   assert.match(gd, /homeLogo: sport === "mlb" \? mlbTeamLogoUrl\(g\.homeTeamId\) : espnNbaCrestUrl\(g\.homeTeamAbbr\),/);
   assert.match(gd, /awayLogo: sport === "mlb" \? mlbTeamLogoUrl\(g\.awayTeamId\) : espnNbaCrestUrl\(g\.awayTeamAbbr\),/);
 });
+
+test("UXR1-15 (DS-001 §9): the hub strip clears its highlight at the top of the page instead of keeping the last-visited section", async () => {
+  const { currentHubSection } = await import("../sports/hub-sections.ts");
+  const band = [160, 280]; // 20%–35% of an 800 px viewport
+  const at = (offset) => [
+    { id: "slate", top: 600 - offset, bottom: 1400 - offset },
+    { id: "model", top: 1400 - offset, bottom: 2200 - offset },
+    { id: "results", top: 2600 - offset, bottom: 3300 - offset },
+  ];
+  assert.equal(currentHubSection(at(0), ...band), null, "page top: the hero is in the band, no section is current");
+  assert.equal(currentHubSection(at(400), ...band), "slate");
+  assert.equal(currentHubSection(at(1300), ...band), "model");
+  assert.equal(currentHubSection(at(2300), ...band), "model", "in the gap between sections the previous one stays current");
+  assert.equal(currentHubSection(at(2500), ...band), "results");
+  assert.equal(currentHubSection(at(3800), ...band), "results", "past the last section");
+  // The regression: back at the top after visiting Results — the old observer never cleared, so "results" stuck.
+  assert.equal(currentHubSection(at(0), ...band), null);
+  assert.equal(currentHubSection([], ...band), null);
+  const nav = src("src/components/sports/sport-hub-nav.tsx");
+  assert.match(nav, /setCurrent\(currentHubSection\(boxes, window\.innerHeight \* 0\.2, window\.innerHeight \* 0\.35\)\);/);
+  assert.match(nav, /rootMargin: "-20% 0px -65% 0px"/, "the computed band is the observer's band");
+  assert.doesNotMatch(nav, /if \(visible\[0\]\) setCurrent/, "no set-only update");
+});
