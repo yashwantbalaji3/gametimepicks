@@ -232,6 +232,12 @@ Release history behind these rows (all recorded):
 
 These are exact questions. Each one unblocks the rows listed.
 
+**Decision packages (2026-10-17, `docs/launch/decisions/`).** Each package holds the evidence, a step-by-step procedure and the refined questions. Where a package's questions are more specific than the row below, the package wins.
+- FD-1/FD-2: [PRIVACY_TERMS_DECISION.md](decisions/PRIVACY_TERMS_DECISION.md)
+- FD-3: [SUPABASE_SECURITY_VERIFICATION.md](decisions/SUPABASE_SECURITY_VERIFICATION.md)
+- FD-4: [ASK_GAMETIME_SPEND_CONTROLS.md](decisions/ASK_GAMETIME_SPEND_CONTROLS.md)
+- FD-9: [ROLLBACK_REHEARSAL.md](decisions/ROLLBACK_REHEARSAL.md)
+
 | # | Question | Unblocks |
 |---|---|---|
 | FD-1 | For the Terms and Privacy Notice, supply: (a) the operator's legal entity name (replacing the placeholder "GameTime Picks"); (b) the governing US state; (c) the minimum age, 18 or 21; (d) whether you will engage qualified counsel now to approve both texts. Approval is recorded per section: reviewer, role, date, content hash and effective date | L-01, L-02, L-03, L-05 |
@@ -257,10 +263,10 @@ These are exact questions. Each one unblocks the rows listed.
 ### 6b. Founder or legal blockers: engineering cannot close these
 | # | Blocker | Needs |
 |---|---|---|
-| F-1 | **Privacy and Terms unpublished while accounts are enabled** (L-01, L-02, L-04, L-05, P-24, P-30). Verified: `/privacy/` and `/terms/` → 404, `/account/` → 200 | FD-1 plus qualified counsel, or FD-2's alternative |
-| F-2 | **Hosted Supabase RLS unverified while accounts are enabled** (O-10) | FD-3: one read-only verify run with your keys |
-| F-3 | **Ask provider spending cap unconfirmed** (P-23, O-12) | FD-4: confirm the cap, or turn Ask off |
-| F-4 | **Rollback not rehearsed** (O-07) | FD-9: you execute the Vercel steps, or waive in writing |
+| F-1 | **Privacy and Terms unpublished while accounts are enabled** (L-01, L-02, L-04, L-05, P-24, P-30). Verified: `/privacy/` and `/terms/` → 404, `/account/` → 200 | FD-1 plus qualified counsel, or FD-2's alternative. **Package:** [PRIVACY_TERMS_DECISION.md](decisions/PRIVACY_TERMS_DECISION.md). It covers the gate procedure and 24 draft-vs-Production rows. New: analytics is ON in Production, and Google Fonts and Ask's bankroll/risk fields are undisclosed |
+| F-2 | **Hosted Supabase RLS unverified while accounts are enabled** (O-10) | FD-3. **Package:** [SUPABASE_SECURITY_VERIFICATION.md](decisions/SUPABASE_SECURITY_VERIFICATION.md): anon key + catalog SELECTs + two throwaway accounts; no service-role key. `accounts:verify` probes only 2 of 7 tables |
+| F-3 | **Ask provider spending cap unconfirmed** (P-23, O-12) | FD-4. **Package:** [ASK_GAMETIME_SPEND_CONTROLS.md](decisions/ASK_GAMETIME_SPEND_CONTROLS.md). Ask is ENABLED in Production (zero-cost 400 probe, 10-17 01:27Z). If disabled, entry points stay visible and the error shows on submit |
+| F-4 | **Rollback not rehearsed** (O-07) | FD-9. **Package:** [ROLLBACK_REHEARSAL.md](decisions/ROLLBACK_REHEARSAL.md): a dry run to the confirmation dialog, with an optional live switch at 07:00–07:30 ET. The Monday data chain now lands around 08:00 ET, not 10:15 |
 
 ### 6c. Ready releases that are not launch blockers (approval queue)
 - **#1101 and #1088:** protected workflows, proposed window Sat 10:30–11:00Z. Packages and independent post-merge verifiers are in `docs/launch/approvals/`.
