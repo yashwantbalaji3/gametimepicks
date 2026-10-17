@@ -76,15 +76,24 @@ fi
 #                                    the raw /data/ URLs the prune keep-set retains)
 #   data/*-projection/             — repo-root projections the emit steps and the research/compare/
 #                                    lab/ask pages + the search index read at build (v1.3–v1.6)
-#   data/internal/<four paths>     — the only repo-root internal files a PUBLIC route reads at build:
-#                                    /markets (calibrator manifest), /nfl/game + /results/nfl + /my
+#   data/internal/<listed paths>   — the repo-root internal files a PUBLIC route or a build step reads at
+#                                    build: /markets (calibrator manifest), /nfl/game + /results/nfl + /my
 #                                    (NFL forecast receipts), /today (MLB prediction snapshots), and
 #                                    (Session 13) the Forecast Ledger — /results/forecasts/**, /results,
 #                                    /models, player Research pages, the search index and the Ask
 #                                    projection. Its nightly commit touches ONLY this path; without it the
 #                                    public Forecast Record stayed on the previous build's rows.
+#                                    2026-10-17 coverage audit added the rest (the "four paths" claim was
+#                                    false): /nfl/simulation/[eventId] + /nfl/game (sim-v2 shadow receipts —
+#                                    they decide WHICH receipt is the pre-kickoff record), /models + / + /epl
+#                                    (Model Lab receipts/reports), /results + /results/date + Ask projection
+#                                    (NFL experimental settlement, UFC graded ledger, winner corrections, side
+#                                    cutover, parlay reconstruction receipts), /results/model-audit (readout).
 # Everything else under data/internal (85k files: pregame archive, linescores, research corpora) is
 # read only by pipeline scripts that are not build steps, so it stays skip-able.
+# THIS LIST IS NOT TAKEN ON TRUST: build-input-coverage.test.mjs walks the import graph of every non-internal
+# route and every `npm run build` step, extracts each data/internal path they name, and FAILS when one is not
+# covered below (or when an entry below is no longer read by anything public). Keep the marker lines.
 #
 # Note on `[skip ci]`: it is a GitHub Actions convention. Vercel never reads the commit message —
 # THIS diff is the only thing that decides. A bot commit that writes app/public/data always builds,
@@ -121,6 +130,7 @@ NON_BUILD_INPUTS=(
 )
 # GTP-NON-BUILD-INPUTS-END
 
+# GTP-BUILD-INPUTS-BEGIN
 BUILD_INPUTS=(
     ':(top)app/'
     ':(top)data/research-projection/'
@@ -131,7 +141,27 @@ BUILD_INPUTS=(
     ':(top)data/internal/nfl/forecast-receipts/'
     ':(top)data/internal/mlb/prediction-snapshots/'
     ':(top)data/internal/forecast-ledger/'
+    ':(top)data/internal/research/nfl/sim-v2/shadow/'
+    ':(top)data/internal/nfl/experimental-settlement/'
+    ':(top)data/internal/nfl/winner-corrections/'
+    ':(top)data/internal/nfl/side-decision-cutover.json'
+    ':(top)data/internal/research/ufc/model-vs-market/graded.jsonl'
+    ':(top)data/internal/parlays/optimizer-reconstruction/receipts/'
+    ':(top)data/internal/model-eval/latest-readout.json'
+    ':(top)data/internal/research/epl/forward/receipt.json'
+    ':(top)data/internal/research/epl/forward-totals/receipt.json'
+    ':(top)data/internal/research/epl/reports/epl-totals-shadow-forward-protocol.json'
+    ':(top)data/internal/research/epl/reports/epl-history-replay-evaluation.json'
+    ':(top)data/internal/research/epl/reports/epl-elo-poisson-forward-protocol.json'
+    ':(top)data/internal/research/epl/reports/epl-totals-replay-evaluation.json'
+    ':(top)data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json'
+    ':(top)data/internal/research/nfl/reports/player-props-share-level-second-look.json'
+    ':(top)data/internal/research/nfl/reports/player-props-share-level-estimate-adoption.json'
+    ':(top)data/internal/research/nfl/reports/anytime-td-historical-replay-evaluation.json'
+    ':(top)data/internal/research/nfl/reports/win-margin-historical-replay-evaluation.json'
+    ':(top)data/internal/research/nfl/reports/matchup-totals-historical-replay-evaluation.json'
 )
+# GTP-BUILD-INPUTS-END
 for _nbi in "${NON_BUILD_INPUTS[@]}"; do
     BUILD_INPUTS+=( ":(top,exclude)${_nbi}" )
 done
