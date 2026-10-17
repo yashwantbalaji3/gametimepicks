@@ -111,7 +111,11 @@ test("FACT · browser storage is exactly what the notice names (preferences, fol
 
 test("FACT · the email section is true: no newsletter or form collects addresses; support email is disclosed", () => {
   const p = renderLegal("privacy").text;
-  assert.match(p, /no newsletter or sign-up form/);
+  /* 2026-10-13: accounts are live, so the one email field on the Site is the optional account sign-in. The notice
+     must say exactly that — the old "no newsletter or sign-up form" sentence became false when sign-in shipped. */
+  assert.match(p, /no newsletter or mailing list/);
+  assert.match(p, /The only place it asks for your email address is the optional account sign-in/);
+  assert.doesNotMatch(p, /has no user accounts|does not ask for your email address/, "the notice never denies the accounts that exist");
   assert.match(p, /If you write to us through the support link, we receive your message and your email address/);
   assert.match(p, /Support email is handled by Google \(Gmail\)/);
   // The newsletter posts only when NEXT_PUBLIC_BUTTONDOWN_USERNAME is set. It is not set for the
