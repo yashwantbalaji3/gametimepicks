@@ -57,7 +57,7 @@ NFL times come from the committed `app/public/data/nfl/schedule/latest.json` (ca
 
 | When (ET) | Block | Tests | Who |
 |---|---|---|---|
-| **Fri 10-16** (rest of day) | Eng fixes the O-03 test defect locally (pinned or whole-history check). PR and CI. The founder answers FD-1…FD-10 where possible | — | Eng / Founder |
+| **Fri 10-16** (rest of day) | ~~Eng fixes the O-03 test defect~~ **Done:** #1114 merged 23:44:59Z; `data-contract-check` green on `main` at 23:53Z (run 38983736869) and 04:59Z 10-17 (run 39004608711). The founder answers FD-1…FD-10 where possible | — | Eng / Founder |
 | **Sat 10-17**, morning | **Feature freeze.** Baseline sweep on the served SHA: F-01…F-19 at 390 and 1440; V-01 at all four widths on the 12 launch routes | F, V | Eng (browser), Founder (real phone) |
 | Sat 10-17, from 07:00 | UFC fight-week run (Sat 11:00Z). Check the `/ufc` card state and every bout page | F-09 | Eng |
 | Sat 10-17, card time (per `/ufc`) | UFC card: no public live tracking claimed; results flow and the `ufc-post-card` grading the next day | F-09, D-03 | Eng |
@@ -68,7 +68,7 @@ NFL times come from the committed `app/public/data/nfl/schedule/latest.json` (ca
 | Sun 13:00–16:00 | Live window 1: `/live`, Home and Today live strips, game-page live panels at 390 and 1440. The capture kit (fixed `players=1`) runs every 5 min | D-07, V-03 | Live |
 | Sun 16:05–19:45 | Late window: ARI@LAR 16:05; LAC@KC and BUF@LV 16:25. First finals: "Final · grading pending", then the next event window grades them | D-06, D-07 | Live |
 | Sun 20:20–23:45 | SNF DAL @ GB. Low-intensity checks only | D-07 | Live |
-| **Mon 10-19**, 07:00–08:30 | **Rollback rehearsal** (O-05). Founder-executed; Eng validates. It must finish before the MLB daily production run (≈ 10:15 ET), per runbook §11.5 | O-05 | Founder + Eng |
+| **Mon 10-19**, 07:00–08:30 | **Rollback rehearsal** (O-05), a **dry run** to the confirmation dialog per `decisions/ROLLBACK_REHEARSAL.md` §3. Production is never switched unless the founder separately chooses the §6 live switch (07:00–07:30 only). Correction (10-17): the morning data chain lands around **08:00 ET**, not ≈ 10:15 (package 4 §4) | O-05 | Founder + Eng |
 | Mon 09:00–12:00 | Sunday settlement verification: Week 6 report, Forecast Record re-hash (D-05), denominators (D-03). Regression of any fix-forward | D-03, D-05, D-06 | Eng |
 | Mon 13:00–15:00 | Re-run of the T block for anything changed by FD answers. Final 320/768 visual pass | T, V | Eng / Founder |
 | **Mon 17:00** | **Go/no-go review** (§4) | — | Founder |
@@ -218,6 +218,63 @@ Each script gives the steps, then the expected result, then the evidence to capt
   - each stub lands on its `ROUTE_TABLE` `redirectTo`, never on a blank page;
   - internal routes are 404.
 
+**F-20 · Site search** (added 10-17) · Eng · `PRODUCTION-READ-ONLY`
+- **Where:** the search box in the desktop rail (`command-rail.tsx:104`), the phone header, and the tablet Menu sheet (`mobile-bottom-nav.tsx:177`). Index: `/data/search/index.json`, fetched on first open (`components/search/site-search.tsx`).
+- **Steps:**
+  1. At 1440, 768 and 390, open search.
+  2. Type a current NFL player, an MLB team, a UFC fighter and an EPL club.
+  3. Use the arrow keys and Enter, then Escape.
+- **Expected:**
+  - results are grouped "Games & fights / Players / Teams / Pages";
+  - **no probability or price** appears in a result row;
+  - each result opens a 200 page about that entity;
+  - the field says it is loading until the index arrives, never a silent empty list;
+  - focus returns to the trigger on Escape.
+- **Fail:** a dead result (404), a number in a result row, a keyboard trap, or no way to search at 390.
+
+**F-21 · Mobile navigation** (added 10-17) · Eng (Founder on a real phone) · `PRODUCTION-READ-ONLY`
+- **Steps:** at 320 and 390, use each bottom-bar item (Home, Sports, Live, Simulations, Results) and the Menu sheet. Open and close the sheet with the keyboard and by tapping outside it, then use browser Back.
+- **Expected:**
+  - the active item is marked;
+  - every Menu destination resolves with 200;
+  - the sheet traps focus while open and returns it on close;
+  - targets are 44 px or larger;
+  - the bar never covers the last content row;
+  - "Your bets" appears only while accounts are enabled (package 1 §9).
+- **Fail:** a dead link, a trapped or lost focus, overflow at 320, or the bar hiding primary content.
+
+**F-22 · Error handling** (added 10-17) · Eng · `PRODUCTION-READ-ONLY`
+- **Steps:**
+  1. Open a non-existent route such as `/nfl/game/0/` or `/does-not-exist/`.
+  2. Load `/account/` and `/feedback/` signed out.
+  3. With DevTools offline, submit a question on `/ask/`.
+  4. Open a game page whose live feed is idle.
+- **Expected:**
+  - the site's own 404 page (`app/not-found.tsx`) with a way home, **not** a Vercel error page;
+  - `/account/` shows the sign-in panel, or the "not open yet" notice if accounts are disabled;
+  - offline Ask shows "Ask GameTime is temporarily unavailable. The rest of the site still works." with a Retry button;
+  - no stack trace, configuration name or key in any visible text or response body.
+- **Fail:** a blank page, a framework error overlay, or a config or variable name visible. Before #1090 ships, a 503 body naming a config variable is a **known P0 item tracked by O-14**; record it, do not re-raise it.
+- **Covered elsewhere:** API refusal copy for Ask at limits is listed in `decisions/ASK_GAMETIME_SPEND_CONTROLS.md` §7. Live-feed failure is D-07 (observe; never induce on Production).
+
+**F-23 · Ask GameTime state, zero cost** (added 10-17) · Eng · `PRODUCTION-READ-ONLY`
+- **Steps:**
+  1. Load `/ask/` and its entry points: the rail and footer link, `/research`, and one sport hub section.
+  2. Send **one** `POST /api/ask/` with body `{"messages":[]}`. This cannot reach the model.
+- **Expected:**
+  - **Ask enabled:** 400 `MALFORMED_REQUEST`.
+  - **Ask disabled (FD-4 option B):** 503 `FEATURE_DISABLED` "Ask GameTime is not enabled". The entry points stay visible; that is the accepted caveat, so record it.
+  - **After #1121, provider unnamed:** 503 `PROVIDER_NOT_CONFIGURED`. That is a **fail**: #1121 must not merge before `ASK_MODEL_PROVIDER` is confirmed.
+- **Fail:** any 200 answer (it would mean a paid call happened), or an unexpected status.
+- **Paid check:** at most one question, run by the founder only (T-06).
+
+**F-24 · Accounts, signed out, as a stranger** (added 10-17) · Eng · `PRODUCTION-READ-ONLY`
+- **Steps:** in a clean profile, open `/account/` and `/feedback/`. Do **not** submit an email (Claude sessions never sign in).
+- **Expected:**
+  - **Invite-only or public:** the sign-in panel with "Email me a link", and "Feedback is for invited testers. Sign in first." on `/feedback/`.
+  - **Disabled:** "Accounts are not open yet…" on `/account/`; on `/feedback/` the same notice plus "The feedback form opens with tester accounts."; no "Your bets" link anywhere.
+- **Fail:** the account mode on screen does not match the founder's FD-2 decision.
+
 ### V: Visual (DS-001)
 
 **V-01 · Launch routes at 4W** · Eng; real phone by the Founder
@@ -333,17 +390,11 @@ Each script gives the steps, then the expected result, then the evidence to capt
 - **Steps:** trigger the documented safe test (`OPS_WEBHOOK_FOUNDER_SETUP.md`).
 - **Expected:** the alert arrives in the founder's channel. Record the time received.
 
-**O-05 · Rollback rehearsal** (Mon 07:00–08:30 ET) · Founder executes, Eng validates
-- **Sources:** runbook §10, and #1110 §11.
-- **Steps:**
-  1. Record `/data/build-info.json` in the browser (SHA A) and the time.
-  2. Founder: Vercel → gametime-picks → **Instant Rollback** to the previous Production deployment (§4). Record the time and SHA B.
-  3. Validate (§5): build-info = B; `/`, `/live`, `/results` and `/nfl` return 200. D-05 Forecast Record check on B, against the ledger at B.
-  4. Note that bot data builds keep building but do not go live (§4). Keep this step under 30 min.
-  5. Founder: **Undo Rollback**, promoting the newest `main` deployment (§9).
-  6. Validate that build-info = the newest `main` SHA. Run D-05 again.
-  7. Tabletop the revert-merge path. Identify the last code merge (`39df089d02`, #1091) and prepare `git revert -m 1 39df089d02` on a local branch. **Do not push it.** Estimated rebuild time is 5–7 min (§11.4).
-  8. Post the times and SHAs to `SESSION.md`. Steps 1–6 together must take at most 45 min.
+**O-05 · Rollback rehearsal** (Mon 07:00–08:30 ET) · Founder executes, Eng validates · `NEEDS-FOUNDER`
+- **Procedure (10-17):** the **dry run** in `decisions/ROLLBACK_REHEARSAL.md` §3. Record SHA A, identify last-known-good SHA K, verify K's build-info and Forecast Record against the ledger at K, run the append-only K→A comparison, then the founder walks the Vercel Instant Rollback dialogs and presses **Cancel**. Tabletop the revert locally (nothing pushed).
+- **Pass:** build-info = SHA A before and after; K's Forecast Record matches the ledger at K; append-only `violations: 0`; dialog screenshots show both production domains.
+- **Fail:** Production moved without the founder's §6 choice, or any integrity mismatch on K.
+- The previous steps 1–8 (a live switch and Undo) are now package 4 §6, **only** if the founder explicitly chooses it, 07:00–07:30 ET with Undo by 07:30.
 - **Why not Sunday 08:00–09:00 ET (#1110 §11.5):**
   - HOU @ JAX kicks off at 09:30 ET;
   - a rollback stops new pushes going live;
@@ -366,14 +417,11 @@ Each script gives the steps, then the expected result, then the evidence to capt
 - **Steps:** search the public pages (`/responsible-use`, `/about`, the footer, `/account`) for age and audience statements.
 - **Expected:** one minimum age everywhere (FD-1c) and "United States". Today `/responsible-use` says 18+ while `ACCOUNTS_SETUP.md` says 21+.
 
-**T-03 · Hosted RLS verification** (only if accounts are enabled; FD-3) · Founder
-- **Steps:** in the founder's shell, run `cd app && NEXT_PUBLIC_SUPABASE_URL=… NEXT_PUBLIC_SUPABASE_ANON_KEY=… SUPABASE_SERVICE_ROLE_KEY=… npm run accounts:verify`.
-- **Expected:**
-  - exit 0;
-  - an empty answer to cross-reader reads;
-  - the `slips` bucket is private;
-  - **STOP** = a P0.
-- **Evidence:** the redacted output, with no keys.
+**T-03 · Hosted RLS verification** (only if accounts are enabled; FD-3) · Founder · `NEEDS-FOUNDER`
+- **Superseded procedure (10-17):** do **not** use the service-role key. Run Tiers **A, A2, B and C** of `decisions/SUPABASE_SECURITY_VERIFICATION.md` §3 (summary table in §7): anon key in the shell, catalog SELECTs in the dashboard SQL editor, and two throwaway accounts UAT-A/UAT-B created and deleted the same day. Optional A3 (sign-up toggle) and D (full battery).
+- **Pass:** every line matches its expectation in package 2; `accounts:verify` `exit=2` (UNPROVEN) is the expected result without the service-role key.
+- **Fail:** any STOP line in A, A2, B or C. That is a **P0**: take the accounts-disable option until re-applied and re-run.
+- **Evidence:** the redacted files in package 2 §4, with no keys, tokens, passwords or real emails.
 
 **T-04 · Authenticated account flows** (only if enabled) · Founder, with own inbox
 - **Steps:**
@@ -408,6 +456,102 @@ Each script gives the steps, then the expected result, then the evidence to capt
   - nosniff, DENY, referrer, permissions and HSTS are present;
   - the CSP is **Report-Only**, so a violation is logged but not blocked. Record the violation count.
 
+### L: Local (no Production contact) (added 10-17)
+
+**L-01 · Release-candidate export** · Eng · `LOCAL`
+- **Steps:** full export build plus the post-build suite at each approved head before it merges (#1118, #1117 → #1119 → #1120, #1121).
+- **Expected:**
+  - build exit 0;
+  - post-build 0 failures, including #1120's internal-code guard;
+  - 0 missing internal link targets.
+- **Fail:** any failure. The head does not merge.
+
+**L-02 · Legal gate stays shut** · Eng · `LOCAL`
+- **Steps:** `node -e` with `legalReadiness('terms')` and `legalReadiness('privacy')` at `origin/main`.
+- **Expected:** `publishable: false`, with reasons naming:
+  - the placeholder operator;
+  - the null state;
+  - the null effective date;
+  - the missing approval.
+- **Fail:** `publishable: true` without a counsel receipt. That would be a P0.
+
+**L-03 · Accounts-disabled rendering** · Eng · `LOCAL`
+- **Steps:** a local export with `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` unset.
+- **Expected:**
+  - no "Your bets" link in the rail or footer;
+  - `/account/` shows "Accounts are not open yet…";
+  - `/feedback/` shows that notice plus "The feedback form opens with tester accounts.";
+  - follows and saves still work in the browser.
+- **Why:** this proves FD-2's disable option without touching Production.
+
+**L-04 · Ask kill switch and fail-closed** · Eng · `LOCAL`
+- **Steps:** #1121's unit tests (`ask-spend-fail-closed.test.mjs`), plus `decideAsk` with `ASK_GAMETIME_ENABLED` set to each of `0`, `false`, `off`, `no` and `disabled`.
+- **Expected:** every value gives 503 `FEATURE_DISABLED`. A production-mode call with no `ASK_MODEL_PROVIDER` gives 503 `PROVIDER_NOT_CONFIGURED`.
+
+**L-05 · Live replay** · Live · `LOCAL`
+- **Steps:** after each Sunday game, run the V2 replay (#1108) on the capture's saved envelopes.
+- **Expected:**
+  - 0 disagreements;
+  - a lag of 1 pass at most;
+  - V2-only checks 5, 6 and 13–18 evaluated from the envelopes (§2b).
+
+## 2a. Coverage map and tags (added Sat 2026-10-17 ~07:10Z)
+
+**Tags:**
+- **`LOCAL`:** a local checkout or build, or GitHub/git reads. Never touches Production.
+- **`PRODUCTION-READ-ONLY`:** real-browser reads of Production (UAT rule 2), or a single zero-cost request. No sign-in, no paid call, no state change.
+- **`NEEDS-FOUNDER`:** founder credentials, a console, a real device, a sign-in, or a Production action.
+
+**Tag per test:**
+
+| Tag | Tests |
+|---|---|
+| `LOCAL` | L-01, L-02, L-03, L-04, L-05, O-01, O-02, O-03 |
+| `PRODUCTION-READ-ONLY` | F-01 … F-24 (F-18 writes only to the tester's own browser storage), V-01, V-02, V-03, V-05, D-01 … D-08, O-06, T-01, T-02, T-05, T-07, T-08 |
+| `NEEDS-FOUNDER` | V-04, O-04, O-05, T-03, T-04, T-06; plus V-01 and F-21 on a real phone |
+
+**Area coverage.** Each area lists its expected experience, then what counts as a pass or a fail. Severity follows §0 rule 5.
+
+| Area | Tests | Expected experience | Pass | Fail |
+|---|---|---|---|---|
+| **Home** | F-01, V-01, T-07 | A truthful hero, featured simulations, a live strip, a results recap; footer with support and responsible use | Every link 200; one h1; no "today" beside a dated snapshot; no overflow at 320 | A dead link, an unsupported claim, overflow or clipping |
+| **Today** | F-02 | "Today · <date> · N events"; Live first when games are live; folded sections | The count equals the sum of sport schedules for the ET date; anchors open folds | Wrong count; stale "next window" text after a published slate (#1118 fixes it) |
+| **Sport hubs** (NFL, MLB, NBA, UFC, EPL, Ligue 1) | F-05, F-06, F-07, F-09, F-10, D-04, D-08 | Each hub states what is forecast, what is not, and why | Markets "not checked" when unpriced; NBA schedule only; EPL "not validated" above the first number | A fabricated price; forecast language on NBA; a withdrawn bout shown as active |
+| **Player and team research** | F-16, F-17 | Exact-ID portraits and crests, or an initials fallback; missing ≠ zero | 2 per sport open with 200; no wrong headshot | A wrong person's photo; missing shown as 0 |
+| **Simulations** | F-08 | Date-first selection; UFC grouped by card | Oct 20–22 dates present; started games kept for today | A missing date; an ungrouped card |
+| **Results** | F-11, D-03, D-05, D-06 | Metric names and directions; windows labelled; CSVs downloadable | Forecast Record = ledger at the served SHA; void, push, pending and withdrawn excluded from losses and n | Any mismatch (P0); a pooled "came true" figure |
+| **Parlay Lab and products** | F-12, F-13, F-14 | Redirects land on `/build/` in one hop; honest product states | No sport "publishing" while refused; "see receipt" on graded legs | A multi-hop or blank redirect; an empty pool described as run |
+| **Accounts** | F-24, T-03, T-04, L-03 | The mode the founder chose for FD-2, shown consistently | Package 2 tiers all as expected; own rows only; a clean sign-out | Any cross-user read (P0); the mode on screen ≠ FD-2 |
+| **Ask** | F-23, T-06, L-04 | Enabled with a confirmed cap, **or** disabled with the visible-entry caveat accepted | The zero-cost POST matches FD-4; the founder's one paid question cites site data and gives no betting advice | A 200 from the zero-cost probe; a config name visible; on without a cap |
+| **Live tracking** | F-03, F-04, D-01, D-06, D-07, V-03, L-05 | LIVE/UPCOMING/FINAL; "Forecast locked pregame"; untracked sports labelled | Frozen ≤ kickoff and unchanged after; scores equal ESPN; "Final · grading pending" until canonical | A forecast change after start (P0); a score contradicting ESPN twice (P0) |
+| **Mobile navigation** | F-21, V-01, V-02 | Bottom bar plus Menu sheet; 44 px targets | All destinations 200; focus managed; no overflow at 320 | A dead item; lost focus; the bar covering content |
+| **Search** | F-20 | Players, teams, games and pages; results are doors, never numbers | Every sampled result 200; keyboard works | A dead result; a number in a result row |
+| **Accessibility** | V-02, V-04, F-20, F-21; CI's browser a11y step on each release head | One h1, roving tabs, visible focus, VoiceOver order, 200% zoom | Founder's real-device pass; CI green | A keyboard trap; content lost at 200% |
+| **Error handling** | F-22, F-23, T-05 | The site's own 404; plain refusal copy; nothing internal shown | No config or variable names; no stack traces | A framework error page, or a config name (P0, rule 5) |
+| **Legal and trust** | T-01, T-02, T-07, T-08, L-02 | Gate shut until counsel approval; one age statement | `/privacy/` and `/terms/` 404 until the receipt exists, then 200 with the approved hash | A bypassed gate; contradicting age statements |
+
+## 2b. Sunday NFL capture alignment (Week 6, Sun 2026-10-18)
+
+The capture kit (`docs/live/capture/`, branch `claude/live-hub-sunday-kit` `ab2f28b88f`) reads only Production's gateway and pages and `origin/main`. Check numbers refer to `docs/live/LIVE_V2_THURSDAY_ACCEPTANCE.md` (23 checks).
+
+| Game | ESPN id | Kickoff | UAT tests in the window | Acceptance checks targeted |
+|---|---|---|---|---|
+| **HOU @ JAX** (London) | 401872996 | **13:30Z = 09:30 ET** | D-01 (freeze before kickoff and unchanged after), F-03 and F-04 through to final, V-03 at 390 and 1440 | 1, 2 (kickoff transition), 3, 4, 5 (player stats; envelope-level), 11, 13 (poll cadence), 14 (freshness bands), 15, 22, 23. Then 8 at final |
+| **NO @ NYG** | 401873000 | **17:00Z = 13:00 ET** | D-01, D-07 (ESPN agreement), F-03, D-02 (inactives) | 1–6, 12, 16 (rail landmarks), 17 (an **under** row; open since SEA@DEN), 18 (TD wording). 7 and 20 (delay and recovery) **if** a delay occurs naturally |
+| **BUF @ LV** | 401873005 | **20:25Z = 16:25 ET** | D-01, D-06 (canonical settlement, Mon), D-07 | 1–4, 8 (provisional final), 9 (canonical settlement, watched into Mon), 10 (pregame immutability, Option B) |
+
+**For all three games:**
+- **Checks 19–21 (provider failure)** are **observe-only; never induce on Production**. If none occurs, they stay "not observed live" (matrix O-15), as at SEA@DEN.
+- **Checks still open after SEA@DEN**, which Sunday should close:
+  - 5: envelope-level player stats;
+  - 7: delay and recovery;
+  - 13: client cadence;
+  - 14: freshness bands;
+  - 17: an under row;
+  - 19–21: provider failure, only if it occurs.
+- **Live Hub V2 promotion** still also needs one MLB postseason game (matrix P-04). Sunday does not promote V2.
+- **No Production actions on Sunday.** The rollback rehearsal is Monday (O-05). Merges approved for Sat 10:30–11:00Z must not slip into the 12:30Z–23:45Z capture span without the founder's explicit go-ahead.
+
 ## 3. Who runs what
 
 | Role | Runs | Never does |
@@ -427,7 +571,7 @@ Every one must be met, or explicitly accepted in writing by the founder where ma
 | H1 | **Legal:** Privacy and Terms published through the gate with counsel approval receipts, **or** the founder chooses the accounts-disable option (FD-2) and records counsel's guidance on the remaining flows (Ask, analytics) | `/privacy/` and `/terms/` 200 with the approved hash, or the FD-2 decision record | ✗ Gate locked; operator placeholder; state and effective date null; no counsel receipt |
 | H2 | **Accounts security** (if accounts are enabled): T-03 exit 0 and T-04 pass; the manual deletion procedure has an owner | T-03 and T-04 evidence | ✗ The hosted project has never been verified |
 | H3 | **Ask spend:** a provider cap is confirmed, or Ask is disabled | T-06 evidence | ✗ Unconfirmed |
-| H4 | **CI:** the `main` HEAD `data-contract-check` is green, and any release or fix head has green exact-head CI | Run IDs | ✗ 3 consecutive failures today (`totals-play-efficiency.test.mjs:109`, `espn.size >= 28`, 26 teams in a bye week) |
+| H4 | **CI:** the `main` HEAD `data-contract-check` is green, and any release or fix head has green exact-head CI | Run IDs | ✓ (10-17 06:30Z): #1114 merged; `data-contract-check` green at 10-16 23:53Z and 10-17 04:59Z. Re-check on any new merge |
 | H5 | **Rollback rehearsed** with Forecast Record checks after both the rollback and the undo, or a written founder waiver | O-05 record | ✗ Not performed |
 | H6 | **No open P0** from UAT: UFC Oct 17, NFL Sun Oct 18, MLB postseason | The UAT defect log | Pending. SEA@DEN was clean except for check 9 |
 | H7 | **Production = `main`** on launch morning; 0 failed deploys since the last check; D-05 passes | O-06, D-05 | ✓ today: `d6de0ceb47` served; 0 failed of 114 statuses |
