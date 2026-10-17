@@ -17,6 +17,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import TeamLogo from "@/components/team-logo";
+import PlayerAvatar from "@/components/ui/player-avatar";
 
 const SANS = "var(--font-display)";
 
@@ -30,6 +31,11 @@ const CHIP: Record<string, { fg: string; border: string; bg: string }> = {
   POSTPONED: { fg: "var(--vault-warn)", border: "var(--vault-warn)", bg: "transparent" },
   CANCELLED: { fg: "var(--vault-text-mute)", border: "var(--vault-border-strong)", bg: "transparent" },
   UNAVAILABLE: { fg: "var(--vault-text-faint)", border: "var(--vault-border)", bg: "transparent" },
+  /* Live Hub V2 status names (lib/live/v2/event-view.mjs) map onto the same palette. */
+  PREGAME: { fg: "var(--vault-text-mute)", border: "var(--vault-border)", bg: "transparent" },
+  FINAL_PROVISIONAL: { fg: "var(--vault-text-mute)", border: "var(--vault-border-strong)", bg: "transparent" },
+  FINAL_CANONICAL: { fg: "var(--vault-text-mute)", border: "var(--vault-border-strong)", bg: "transparent" },
+  DATA_UNAVAILABLE: { fg: "var(--vault-text-faint)", border: "var(--vault-border)", bg: "transparent" },
   UNKNOWN: { fg: "var(--vault-text-mute)", border: "var(--vault-border)", bg: "transparent" },
 };
 
@@ -57,10 +63,13 @@ export function liveEtTime(iso: string | null | undefined): string | null {
 
 export type LiveLogoSport = "nfl" | "mlb" | "nba" | "soccer";
 
-export function LiveTeamRow({ abbr, name, score, sport }: { abbr: string; name: string; score: number | null; sport: LiveLogoSport }) {
+export function LiveTeamRow({ abbr, name, score, sport, imageUrl, person = false }: { abbr: string; name: string; score: number | null; sport: LiveLogoSport | "ufc"; imageUrl?: string | null; person?: boolean }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "4px 0", minWidth: 0 }}>
-      <TeamLogo team={abbr} sport={sport} size="md" />
+      {/* A team gets its crest; a person (a fighter) gets the artifact's portrait for that exact id, or initials. */}
+      {person || sport === "ufc"
+        ? <PlayerAvatar name={name} photo={imageUrl ?? null} size={36} decorative />
+        : <TeamLogo team={abbr} sport={sport} size="md" ariaLabel="" />}
       {/* The full name wraps rather than truncating: "Washington Commanders" is the fact, "Washington Comm…" is not. */}
       <span style={{ fontFamily: SANS, fontSize: 16, fontWeight: 600, lineHeight: 1.2, color: "var(--vault-text)", flex: 1, minWidth: 0, overflowWrap: "anywhere" }}>
         {name}
@@ -81,9 +90,9 @@ export interface LiveEventCardProps {
   /** Start time before the event, the period line while live, nothing once final. */
   when: string | null;
   started: boolean;
-  sport: LiveLogoSport;
-  away: { abbr: string; name: string; score: number | null };
-  home: { abbr: string; name: string; score: number | null };
+  sport: LiveLogoSport | "ufc";
+  away: { abbr: string; name: string; score: number | null; imageUrl?: string | null };
+  home: { abbr: string; name: string; score: number | null; imageUrl?: string | null };
   /** Beside the chip (e.g. the followed-entity mark). */
   marks?: ReactNode;
   /** Sport-specific body: frozen forecast line, featured forecasts, freshness. */
