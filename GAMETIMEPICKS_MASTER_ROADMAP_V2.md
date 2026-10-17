@@ -2773,6 +2773,38 @@ Founder merged each PR with the pinned exact-head command. This session's auto-m
 - **Launch gates.** The engineering part is merge approvals plus the live windows. The founder and legal blockers remain open: Privacy/Terms (both still 404 while accounts are live; the drafts on `main` contradict accounts), hosted RLS verification, Ask provider cap (Ask is enabled with a provider key; no in-app daily cap), and the rollback rehearsal. **Status: NO-GO until those close or are accepted.**
 - **COMP-001 (PropDealer)** is homepage-only because its robots.txt disallows everything. The useful finding is that we already have real NFL sampled worlds and MLB score distributions but present them poorly. It is post-launch input, not a blocker.
 
+## 2026-10-17 (overnight) — Claude Code (single primary session) — CI repair, #1118 hardening, integrity, launch packets
+
+**Nothing merged or deployed. 0 Production builds and 0 paid calls from this session.**
+
+- **`main` red again (E-4) → #1122.** Two data/calendar-driven guards fail on `main`'s own build today:
+  - **Home word ceiling, 1,868 > 1,820.** At 3 AM ET, Home featured **five August preseason NFL reports**, ranked by pick count, under "No current slate has a simulation yet"; the fallback never sorted by recency, though its test promised the most-recent slate. A ten-bout UFC card added "model reads DEC" rows.
+  - **Join guard 16d.** gamePk 849817 was postponed 10-16 → 10-18, leaving a pending, non-grading join under the old date.
+  - **Fix:** the archive is most-recent-first, capped at 2; UFC finishes are in words; 16d judges only joins that grade, and the new 16f pins the interim state. Full gates are green; Home is at 1,809.
+- **#1118 hardened (head `46b23a4035`).** An edge-case review found the new filter **threw** on a malformed kickoff, which would have taken down Home and `/today`. Fixed, with a regression test. The 234-evaluation replay is unchanged (37 → 0).
+  - `nextEventUtc` on LIVE days: classified as cosmetic and latent, since no consumer renders a past value. Deferred.
+- **Saturday window.** #1101 and #1088 have unchanged heads and are CLEAN. Full gates pass on a trial merge of `main` + #1122 + #1118 + #1101 + #1088: unit 9,434/9,437, post-build 699/702, 0 fail. No merge without approval.
+- **HTML/UX trio.** No source change on `main` since verification. A simulated sequential merge on `main` is clean with 0 data files. There is one coordinated package: `docs/release/HTML_UX_RELEASE_PACKAGE_2026-10-17.md`.
+- **Results integrity (#1123 + review doc).** It fixes 5 presentation defects: small-sample notes, the MLB board banner counting leans of record, and labels. Five metric-changing items are founder decisions:
+  - NBA archive duplicates (4,592 rows / 2,830 unique);
+  - **EPL pooling v1 and v2 (time-sensitive)**;
+  - Homer Nukes scratched batters;
+  - "Edge" labels;
+  - a stale About claim.
+- **TRUTH-001 MLB restatement proposal** (`docs/research/truth/MLB_RESTATEMENT_PROPOSAL_2026-10-17.md`).
+  - Counts reconciled over 818 games: 22 + 4 + 9 + 2 = 37 implicated.
+  - 21 high-confidence corrections, 6 of them outcome changes.
+  - The "4 never public" games were in fact public and then withdrawn before a delayed start: R1 (void them) or R2 (keep them) is a policy reading.
+  - 823246 holds on an 8 s margin.
+  - No model-health state changes under any reading. F1–F9 decisions are listed.
+  - Selector tests on the proposal branch: `82a2dbffa3`.
+- **Cost.**
+  - **Writer batching:** the earlier "−4.2 builds/day" was overstated. What is safe now is about −0.25 completed builds/day and −2.12 skips/day, via an auto-refresh content gate prototyped on `claude/writer-batching-prototype`.
+  - **NFL sim-v2 shadow:** its builds are *not* redundant. The public `/nfl/simulation/[eventId]` page reads that directory at build time, but the ignore script doesn't list it as a build input. Founder decision: declare it an input (+0.4 builds/day).
+  - **NFL event-window spacing:** none before launch. After launch, only "120 min, never within T−3h, never deferring live-props", log-only first.
+- **Launch packets.** Privacy/Terms has 24 rows classified (1 incorrect, 5 missing, 6 legal decisions, 2 product clarifications, 10 resolved) plus 2 new findings. The account strategy recommends invite-only only if F-1 and F-2 close, otherwise disabled. The Supabase tier table and the Ask checklist are written. The UAT is tagged by verification level. The rollback packet gains stalled-deploy, auth and provider sections. The matrix uses the four-way taxonomy (38 VERIFIED / 15 PENDING / 18 BLOCKED / 5 DEFERRED).
+- **Sunday capture.** Healthy. The event ids were re-verified against the schedule and forecast index. The kit now flags "LIVE with no player stats" and has a read-only `check-live.mjs`.
+
 # 26. Immediate execution waves
 
 ## Wave A — start now
