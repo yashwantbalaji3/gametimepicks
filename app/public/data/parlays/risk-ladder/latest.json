@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "parlay-risk-ladder",
  "dataClass": "PUBLIC_DERIVED",
- "date": "2026-10-16",
- "generatedAt": "2026-10-16T14:16:10Z",
+ "date": "2026-10-17",
+ "generatedAt": "2026-10-17T14:11:22Z",
  "moneyClass": "PAPER_TRACKED_NOT_BANKROLL",
  "note": "Tracked paper cards with their own ledger. These never touch the Bank Builder / Moonshot bankroll or the settled product record.",
  "cards": [],
@@ -14,8 +14,7 @@
   },
   {
    "tier": "medium",
-   "reason": "every candidate on today's slate uses a market-context family (Hits) — the model behind it was demoted and is not a published GameTime projection, so no card is offered",
-   "withheldMarketContext": 1
+   "reason": "no priced card in this tier on today's slate"
   },
   {
    "tier": "high",
@@ -29,10 +28,8 @@
  "eligibility": {
   "rule": "a card with any leg from a family the coverage registry demotes to market context is withheld",
   "source": "data/ask-projection/v1/coverage.json (lib/market-coverage.ts)",
-  "withheldMarketContext": 1,
-  "withheldFamilies": [
-   "Hits"
-  ]
+  "withheldMarketContext": 0,
+  "withheldFamilies": []
  },
  "bettorTiers": [
   {
