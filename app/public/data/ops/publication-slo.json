@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-10-17",
-  "platformState": "INCIDENT",
+  "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
@@ -27,16 +27,22 @@
       "missed": []
     },
     "ufc": {
-      "state": "INCIDENT",
-      "reason": "2 event(s) have no forecast and the earliest one's deadline (2026-10-17T19:30:00.000Z, 90 min before its start) has passed",
-      "deadlineUtc": "2026-10-17T19:30:00.000Z",
+      "state": "PUBLISHING",
+      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-10-17T22:30:00.000Z",
       "counts": {
         "scheduled": 13,
         "published": 11,
-        "missedCoverage": 0,
-        "awaiting": 2
+        "missedCoverage": 1,
+        "awaiting": 1
       },
-      "missed": []
+      "missed": [
+        {
+          "id": "401929675",
+          "label": "Katlyn Cerminara vs Mackenzie Stiller",
+          "startUtc": "2026-10-17T21:00Z"
+        }
+      ]
     },
     "epl": {
       "state": "PUBLISHING",
@@ -51,7 +57,7 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-10-17T20:51:54.182Z",
+  "checkedAt": "2026-10-17T21:34:34.113Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
