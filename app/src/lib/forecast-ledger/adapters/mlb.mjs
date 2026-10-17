@@ -30,6 +30,24 @@ import { makeRow, marketBlock } from "../row.mjs";
 const FAMILY = { moneyline: "mlb_moneyline", run_line: "mlb_run_line", run_line_posted: "mlb_run_line_posted", total: "mlb_total" };
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 
+/*
+ * TRUTH-001 Stage B (forecast-ledger@1 amendment 1). Rows of record (lib/mlb/results/restatements.mjs) may carry:
+ *   restatement: { id, kind: SERVED_DIFFERENT_REVISION, replacedSource } → the row IS the served revision's forecast;
+ *     the settlement records the owner's correction (corrections: 1) and a provenance note names the restatement;
+ *   publication: "NOT_SERVED" → the graded forecast was never publicly served: publicationStatus NOT_SERVED (kept as the
+ *     internal record, excluded from every published count and verified-performance measure; never a loss).
+ * Without either field, a row maps exactly as before.
+ */
+function restatementFields(g) {
+  if (g.publication === "NOT_SERVED") {
+    return { publicationStatus: "NOT_SERVED", notes: [`NOT_SERVED · ${g.restatement?.id ?? "restatement"}: no Production deployment served this forecast before first pitch`] };
+  }
+  if (g.restatement?.kind === "SERVED_DIFFERENT_REVISION") {
+    return { corrections: 1, notes: [`RESTATED · ${g.restatement.id}: the forecast of record is the revision Production served before first pitch (replaced ${g.restatement.replacedSource})`] };
+  }
+  return null;
+}
+
 /**
  * @param graded         parsed jsonl rows
  * @param sourceModels   optional Map<forecastSource, {modelId, modelVersion}> read from the exact source the owner
@@ -51,7 +69,11 @@ export function mlbGameRows(graded = [], sourceModels = new Map()) {
       settlement = { state: "VOID", finalCategory: "PUSH", settledAt: g.gradedAt ?? null, finality: "CANONICAL", source: g.resultSource ?? null, reason: "PUSH" };
       measurement = withDirectional({}, { result: "PUSH", basis: "PUBLISHED_PICK" });
     }
+    const rs = restatementFields(g);
+    if (rs?.corrections) settlement = { ...settlement, corrections: rs.corrections };
     out.push(makeRow({
+      ...(rs?.publicationStatus ? { publicationStatus: rs.publicationStatus } : {}),
+      ...(rs ? { provenance: { notes: rs.notes } } : {}),
       sport: "MLB",
       competition: "MLB",
       season: typeof g.date === "string" ? g.date.slice(0, 4) : null,
@@ -140,7 +162,10 @@ export function mlbProjectedRows(graded = [], teamIds = new Map()) {
   for (const g of graded) {
     if (!Number.isInteger(g.gamePk)) continue;
     const fin = Number.isInteger(g.actual?.awayRuns) && Number.isInteger(g.actual?.homeRuns);
+    const rs = restatementFields(g);
     const base = {
+      ...(rs?.publicationStatus ? { publicationStatus: rs.publicationStatus } : {}),
+      ...(rs ? { provenance: { notes: rs.notes } } : {}),
       sport: "MLB",
       competition: "MLB",
       season: typeof g.date === "string" ? g.date.slice(0, 4) : null,
@@ -155,7 +180,7 @@ export function mlbProjectedRows(graded = [], teamIds = new Map()) {
       recoverability: RECOVERABILITY.OWNER_GRADED_LOG,
     };
     const settle = (finalValue, projection) => fin
-      ? { settlement: { state: "SETTLED", finalValue, settledAt: g.gradedAt ?? null, finality: "CANONICAL", source: g.resultSource ?? null }, measurement: measureContinuous({ projection, finalValue }) }
+      ? { settlement: { state: "SETTLED", finalValue, settledAt: g.gradedAt ?? null, finality: "CANONICAL", source: g.resultSource ?? null, ...(rs?.corrections ? { corrections: rs.corrections } : {}) }, measurement: measureContinuous({ projection, finalValue }) }
       : { settlement: { state: "PENDING" }, measurement: {} };
     for (const side of ["away", "home"]) {
       const projection = g.projectedScore?.[side];

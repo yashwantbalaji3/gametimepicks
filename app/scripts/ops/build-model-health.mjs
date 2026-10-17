@@ -25,6 +25,7 @@ import { fileURLToPath } from "node:url";
 import { comparePairedLoss, judgeCoverage, judgeLevel, worstHealth, logLossOf, HEALTH_SEVERITY } from "../../src/lib/ops/model-health.mjs";
 import { healthTransitions } from "../../src/lib/ops/health-changes.mjs";
 import { MODEL_QUALITY_BARS, JUDGED_BY_OWN_RECEIPT, barFor, barVerdict, coverageOf, ece10 } from "../../src/lib/ops/model-quality-bars.mjs";
+import { readMlbGradesOfRecord } from "../../src/lib/mlb/results/grades-of-record-io.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -89,7 +90,8 @@ const missing = (id, sport, label, source) => add({ id, sport, label, state: "IN
 // ── MLB ───────────────────────────────────────────────────────────────────────────────────────────
 {
   const source = "app/public/data/mlb/results/game-predictions-graded.jsonl";
-  const rows = readJsonl(path.join(ROOT, source));
+  // TRUTH-001 Stage B: the record is judged on public forecasts OF RECORD (approved restatements; NOT_SERVED excluded).
+  const rows = fs.existsSync(path.join(ROOT, source)) ? readMlbGradesOfRecord(ROOT, { publicOnly: true }).graded : null;
   if (!rows) missing("mlb_game_picks", "mlb", "MLB game picks", source);
   else {
     for (const market of [...new Set(rows.map((r) => r.market))].sort()) {

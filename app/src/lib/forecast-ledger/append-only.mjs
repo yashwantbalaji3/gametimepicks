@@ -22,9 +22,14 @@ const stable = (v) => JSON.stringify(v, (_k, x) => (x && typeof x === "object" &
 /**
  * @param {object[]} prevRows
  * @param {object[]} nextRows
- * @param {{ directionalRestated?: Set<string> }} [opts]  forecastIds a committed correction log restates
+ * @param {{ directionalRestated?: Set<string>, restatements?: Map<string, { fields: Record<string, { before: unknown, after: unknown }>, restatementId: string }> }} [opts]
+ *   directionalRestated  forecastIds a committed correction log restates (Stage 3C)
+ *   restatements         TRUTH-001 Stage B (amendment 1): per forecastId, the EXACT immutable fields (and/or
+ *                        publicationStatus PUBLISHED → NOT_SERVED) an approved restatement log changes, with before and
+ *                        after values. A change is forgiven only when it matches exactly; any listed change that does
+ *                        not happen, or happens differently, is itself a violation (RESTATEMENT_MISMATCH).
  */
-export function compareLedgers(prevRows, nextRows, { directionalRestated = new Set() } = {}) {
+export function compareLedgers(prevRows, nextRows, { directionalRestated = new Set(), restatements = new Map() } = {}) {
   const next = new Map(nextRows.map((r) => [r.forecastId, r]));
   const violations = [];
   for (const p of prevRows) {
@@ -33,12 +38,31 @@ export function compareLedgers(prevRows, nextRows, { directionalRestated = new S
       violations.push({ forecastId: p.forecastId, kind: "MISSING_ROW", detail: `${p.sport} ${p.eventId} ${p.subjectId} ${p.family}` });
       continue;
     }
+    const rs = restatements.get(p.forecastId) ?? null;
+    const listed = rs?.fields ?? {};
     for (const f of IMMUTABLE_FIELDS) {
-      if (stable(p[f]) !== stable(n[f])) {
-        violations.push({ forecastId: p.forecastId, kind: "IMMUTABLE_CHANGED", detail: `${f}: ${stable(p[f])} → ${stable(n[f])}` });
+      const changed = stable(p[f]) !== stable(n[f]);
+      const l = listed[f];
+      if (l) {
+        // Exactness both ways: the listed before must be what was there, the listed after must be what is there now.
+        if (stable(l.before) !== stable(p[f]) || stable(l.after) !== stable(n[f])) {
+          violations.push({ forecastId: p.forecastId, kind: "RESTATEMENT_MISMATCH", detail: `${f}: listed ${stable(l.before)} → ${stable(l.after)}, found ${stable(p[f])} → ${stable(n[f])} (${rs.restatementId})` });
+        }
+        continue;
+      }
+      if (changed) violations.push({ forecastId: p.forecastId, kind: "IMMUTABLE_CHANGED", detail: `${f}: ${stable(p[f])} → ${stable(n[f])}` });
+    }
+    if (rs) {
+      for (const f of Object.keys(listed)) {
+        if (f !== "publicationStatus" && !IMMUTABLE_FIELDS.includes(f)) violations.push({ forecastId: p.forecastId, kind: "RESTATEMENT_MISMATCH", detail: `${f} is not a restatable field (${rs.restatementId})` });
       }
     }
-    if (p.publicationStatus !== n.publicationStatus && !(p.publicationStatus === "PUBLISHED" && n.publicationStatus === "WITHDRAWN")) {
+    const pub = listed.publicationStatus;
+    if (pub) {
+      if (!(pub.before === "PUBLISHED" && pub.after === "NOT_SERVED" && p.publicationStatus === "PUBLISHED" && n.publicationStatus === "NOT_SERVED")) {
+        violations.push({ forecastId: p.forecastId, kind: "RESTATEMENT_MISMATCH", detail: `publicationStatus: listed ${pub.before} → ${pub.after}, found ${p.publicationStatus} → ${n.publicationStatus} (${rs.restatementId})` });
+      }
+    } else if (p.publicationStatus !== n.publicationStatus && !(p.publicationStatus === "PUBLISHED" && n.publicationStatus === "WITHDRAWN")) {
       violations.push({ forecastId: p.forecastId, kind: "PUBLICATION_CHANGED", detail: `${p.publicationStatus} → ${n.publicationStatus}` });
     }
     const ps = p.settlement;
@@ -56,7 +80,7 @@ export function compareLedgers(prevRows, nextRows, { directionalRestated = new S
     }
     const pd = p.measurement?.directionalResult ?? null;
     const nd = n.measurement?.directionalResult ?? null;
-    if (outcome(ps) === outcome(ns) && pd != null && pd !== nd && !directionalRestated.has(p.forecastId)) {
+    if (outcome(ps) === outcome(ns) && pd != null && pd !== nd && !directionalRestated.has(p.forecastId) && !rs) {
       violations.push({ forecastId: p.forecastId, kind: "DIRECTIONAL_REWRITTEN", detail: `${pd} → ${nd ?? "none"} with no committed restatement` });
     }
   }

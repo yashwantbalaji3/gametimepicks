@@ -480,6 +480,7 @@ export function buildEvidence(envelopes) {
               ? (typeof r.probability === "number" ? `GameTime gave it a ${Math.round(r.probability * 1000) / 10}% chance` : "GameTime's probability for it is not recorded")
               : "GameTime published match probabilities";
           const happened = r.state === "WITHDRAWN" ? "the forecast was withdrawn before kickoff, which is not a miss"
+            : r.state === "NOT_SERVED" ? "this forecast was never publicly served before first pitch, so it is not counted in GameTime's record"
             : r.state === "PENDING" ? "it is not final yet, which is not a miss"
               : r.state === "VOID" ? "it was void (did not play, push or tie), which is not a miss"
                 : r.state === "NO_MEASUREMENT" ? "the official result has no line for it, so it is not measured"

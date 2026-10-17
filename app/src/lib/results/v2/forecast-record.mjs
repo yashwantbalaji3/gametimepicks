@@ -26,10 +26,17 @@ const median = (xs) => {
 };
 const round = (v, d = 4) => (isNum(v) ? Number(v.toFixed(d)) : null);
 
+/**
+ * forecast-ledger@1 amendment 1: a NOT_SERVED row is the internal record of a graded forecast no deployment served. It
+ * is never a public forecast — excluded from every count and metric here, and disclosed as `notServed`.
+ */
+export const isPublicForecastRow = (r) => r?.publicationStatus !== "NOT_SERVED";
+
 /** Status counts for any set of rows — the denominators a reader sees beside every metric. */
 export function statusCounts(rows) {
-  const c = { published: 0, withdrawn: 0, measured: 0, pending: 0, void: 0, unmeasured: 0 };
+  const c = { published: 0, withdrawn: 0, measured: 0, pending: 0, void: 0, unmeasured: 0, notServed: 0 };
   for (const r of rows) {
+    if (!isPublicForecastRow(r)) { c.notServed += 1; continue; }
     if (r.publicationStatus === "WITHDRAWN") c.withdrawn += 1; else c.published += 1;
     const s = r.settlement?.state;
     if (r.measurement?.type) c.measured += 1;
@@ -90,7 +97,7 @@ export function reliabilityBins(pairs, bins = 10) {
 /** Metrics for ONE family (rows must share sport + family + forecastKind). */
 export function familyMetrics(rows) {
   const kind = rows[0]?.forecastKind ?? null;
-  const measured = rows.filter((r) => r.measurement?.type);
+  const measured = rows.filter((r) => r.measurement?.type && isPublicForecastRow(r));
   const base = { kind, counts: statusCounts(rows), directional: directional(rows) };
   if (kind === "CONTINUOUS_PROJECTION") {
     const ae = measured.map((r) => r.measurement.absoluteError).filter(isNum);
@@ -189,13 +196,16 @@ export const FAMILY_LABELS = Object.freeze({
 export const SPORT_LABELS = Object.freeze({ NFL: "NFL", MLB: "MLB", EPL: "Premier League", LIGUE_1: "Ligue 1", UFC: "UFC" });
 
 /** Group the whole ledger into the Forecast Record: sports → families → metrics, plus the KPI strip. */
-export function forecastRecord(rows, { declaredGaps = [] } = {}) {
+export function forecastRecord(allRows, { declaredGaps = [] } = {}) {
   // Exactly once: the ledger guarantees it; the reader refuses rather than counting a forecast twice.
   const ids = new Set();
-  for (const r of rows) {
+  for (const r of allRows) {
     if (ids.has(r.forecastId)) throw new Error(`forecast record: duplicate forecastId ${r.forecastId}`);
     ids.add(r.forecastId);
   }
+  // Never-public (NOT_SERVED) rows are disclosed, never counted (amendment 1).
+  const rows = allRows.filter(isPublicForecastRow);
+  const notServed = allRows.length - rows.length;
   const bySport = new Map();
   for (const r of rows) {
     const s = bySport.get(r.sport) ?? new Map();
@@ -224,6 +234,7 @@ export function forecastRecord(rows, { declaredGaps = [] } = {}) {
       voidCount: counts.void,
       unmeasured: counts.unmeasured,
       withdrawn: counts.withdrawn,
+      notServed,
       sports: sports.length,
       families: sports.reduce((a, s) => a + s.families.length, 0),
       lastSettledAt: settledAts.length ? settledAts[settledAts.length - 1] : null,
