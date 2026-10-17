@@ -22,6 +22,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { readAllNflWeekReports, readNflWeekReports, pct, unitFigure, weekHeadline, headlineTitle, headlineDetail, type Outcome, type WeekGame } from "@/lib/sports/nfl/week-report-data";
 import { nflFamilyRecord } from "@/lib/results/v2/nfl-family-record.mjs";
 import NflFamilyDrilldown from "@/components/results/nfl-family-drilldown";
+import { sampleStateFor, SAMPLE_STATE } from "@/lib/sports/graded-picks.mjs";
 
 export const metadata = withRouteMetadata("/results/nfl/", {
   title: "NFL Week Report — Every Prediction Graded · GameTime Picks",
@@ -181,7 +182,12 @@ export default function NflWeekReportPage() {
                     {p.label}{p.status === "ESTIMATE" ? <span className="f" style={{ fontWeight: 400 }}> · estimate</span> : null}
                   </td>
                   <td className="k" style={{ fontSize: 14, color: "var(--vault-text)" }}>{pct(p.rate)}</td>
-                  <td className="k m">{p.hits}/{p.checks}</td>
+                  <td className="k m">
+                    {p.hits}/{p.checks}
+                    {/* RESULTS INTEGRITY (2026-10-17): the shared small-sample floor, per row — "100.0%" on 1/1 said nothing.
+                        After the count, so the row still reads "<rate> <hits>/<checks>" (week-report-rendered.test.mjs). */}
+                    {p.rate != null && sampleStateFor(p.checks) === SAMPLE_STATE.TOO_SMALL ? <div className="f" data-sample="too-small">too few to judge</div> : null}
+                  </td>
                   <td className="k v">{p.voids || "—"}</td>
                   <td className="k m nw">
                     {p.typicalMiss != null ? unitFigure(p.id, p.typicalMiss) : "—"}

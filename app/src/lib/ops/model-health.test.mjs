@@ -73,3 +73,17 @@ test("SOURCE PIN · the scorecard builder reads both blind forward receipts, so 
   assert.match(src, /epl\/forward\/receipt\.json/, "EPL match-model forward receipt");
   assert.match(src, /FORWARD_BREACHED/, "its BREACHED state is mapped, not dropped");
 });
+
+test("G1 · the EPL live record is judged on the LIVE model's rows only, never the pooled ledger (2026-10-17)", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/ops/build-model-health.mjs"), "utf8");
+  assert.match(src, /const liveModelId = readJson\(path\.join\(ROOT, "app\/public\/data\/soccer\/epl\/forecasts\/latest\.json"\)\)\?\.gradedRecord\?\.modelId \?\? null;/);
+  assert.match(src, /const live = liveModelId \? rows\.filter\(\(r\) => r\.modelId === liveModelId\) : \[\];/, "no live model id ⇒ nothing attributable ⇒ nothing judged");
+  assert.match(src, /const losses = live\.map\(/, "the judgement reads the live rows, not the ledger");
+  // Consistency on committed data: the health gate's live rows are exactly what /epl prints as "graded under this model".
+  const fc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/soccer/epl/forecasts/latest.json"), "utf8"));
+  const ledger = fs.readFileSync(path.join(process.cwd(), "public/data/soccer/epl/results/graded-forecasts.jsonl"), "utf8").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
+  const live = ledger.filter((r) => r.modelId === fc.gradedRecord?.modelId);
+  assert.ok(fc.gradedRecord?.modelId, "the forecast builder publishes the live model id");
+  assert.equal(live.length, fc.gradedRecord.gradedUnderThisModel, "health and /epl count the same live rows");
+  assert.equal(ledger.length - live.length, (fc.gradedRecord.priorModels ?? []).reduce((s, p) => s + p.graded, 0) + (fc.gradedRecord.unattributed ?? 0));
+});

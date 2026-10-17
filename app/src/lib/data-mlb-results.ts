@@ -112,3 +112,22 @@ export function getMlbSettledLeans(): MlbSettledLean[] {
 export function getMlbSettledLeansForDate(date: string): MlbSettledLean[] {
   return getMlbSettledLeans().filter((l) => l.date === date);
 }
+
+/**
+ * RESULTS INTEGRITY (2026-10-17): one settled MLB day's record OF RECORD — the same rows the Results day page,
+ * /results/model-audit and lifetime_summary count. The per-date comparison report keeps every raw row, so on a
+ * rescheduled day it counts earlier board copies too (2026-09-22: report 283–266 on 549, of record 273–258 on
+ * 531 — 18 rows from the superseded 824785 fixture). Returns null when no row of record exists for the date.
+ */
+export function mlbDayRecordOfRecord(rows: Array<{ outcome?: unknown }>): { wins: number; losses: number; pushes: number; voids: number; decisive: number; hitRate: number | null } | null {
+  if (!rows.length) return null;
+  let wins = 0, losses = 0, pushes = 0, voids = 0;
+  for (const r of rows) {
+    if (r.outcome === "Win") wins += 1;
+    else if (r.outcome === "Loss") losses += 1;
+    else if (r.outcome === "Push") pushes += 1;
+    else if (r.outcome === "Void") voids += 1;
+  }
+  const decisive = wins + losses;
+  return { wins, losses, pushes, voids, decisive, hitRate: decisive > 0 ? wins / decisive : null };
+}

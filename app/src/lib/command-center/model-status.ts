@@ -121,6 +121,8 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
     const forward = (health?.families ?? []).filter((f) => f.id.startsWith("nfl_forward_"));
     const fwdBreached = forward.some((f) => f.state === "BREACHED");
     const fwdHolding = forward.length > 0 && forward.every((f) => f.state === "HOLDING");
+    /* RESULTS INTEGRITY (2026-10-17): a SUM over families — a player-game forecast in five families counts five
+       times — so it is labelled as forecasts, never as player-games (was "3104 player-games graded so far"). */
     const fwdN = forward.reduce((a, f) => a + (f.n ?? 0), 0);
     const td = fam("nfl_anytime_td");
     return [
@@ -129,7 +131,7 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
       item("nfl_player_forward", "Player ranges", forward.length ? (fwdBreached ? "PAUSED" : fwdHolding ? "HOLDING" : "FORWARD_TEST") : "UNKNOWN",
         forward.length ? (fwdBreached ? "A family fell back to the previous rule" : fwdHolding ? "Holding in the forward test" : "Blind forward test running") : "Status unknown",
         forward.length
-          ? `Receptions, yards and touchdown chances are graded week by week against preregistered bars; a family that breaches them falls back to the previous rule automatically. ${fwdN} player-games graded so far.`
+          ? `Receptions, yards and touchdown chances are graded week by week against preregistered bars; a family that breaches them falls back to the previous rule automatically. ${fwdN} forecasts graded so far across ${forward.length} families (one player-game is graded once in each family it was forecast in, so this is not a count of player-games).`
           : "The forward receipt could not be read at build time.", fwdN || null, HEALTH),
       item("nfl_anytime_td", "Touchdown chances", healthState(td, paused), td ? (td.state === "HOLDING" ? "Expected scorers match actual" : td.state === "INSUFFICIENT_SAMPLE" ? "Too early to judge" : "Watch · scorers off expectation") : "Status unknown",
         td ? liveRecordDetail(td, "its own expected-scorer count") : "The health scorecard could not be read at build time.", td?.n ?? null, HEALTH),
