@@ -46,3 +46,23 @@ test("a WC game with NO report (no wcGameCenter/gameLabWc) is not featured (neve
   const r = featuredSimulations(details, "2026-07-14");
   assert.equal(r.featured.length, 0, "no report ⇒ not featurable");
 });
+
+test("2026-10-17 · the archive fallback is the most RECENT reports first, capped at ARCHIVE_CAP — never August preseason by coverage", async () => {
+  const { ARCHIVE_CAP, FEATURED_CAP } = await import("./simulate-lobby-featured.ts");
+  assert.ok(ARCHIVE_CAP < FEATURED_CAP);
+  // Five August games with MANY picks, two recent ones with few — the 3 AM Saturday shape.
+  const details = [
+    mlbReady("aug-a-2026-08-15", "2026-08-15", 40), mlbReady("aug-b-2026-08-20", "2026-08-20", 38),
+    mlbReady("aug-c-2026-08-23", "2026-08-23", 36), mlbReady("aug-d-2026-08-28", "2026-08-28", 35),
+    mlbReady("recent-a-2026-10-15", "2026-10-15", 3), mlbReady("recent-b-2026-10-16", "2026-10-16", 2),
+  ];
+  const r = featuredSimulations(details, "2026-10-17");
+  assert.equal(r.allCurrent, false);
+  assert.equal(r.featured.length, ARCHIVE_CAP);
+  assert.deepEqual(r.featured.map((f) => f.date), ["2026-10-16", "2026-10-15"], "most recent first, regardless of pick count");
+  assert.equal(r.readyCount, 6, "the honest total is still reported");
+  // A current slate keeps the full cap and soonest-first order.
+  const cur = featuredSimulations([...details, mlbReady("today-2026-10-17", "2026-10-17", 1)], "2026-10-17");
+  assert.equal(cur.allCurrent, true);
+  assert.deepEqual(cur.featured.map((f) => f.date), ["2026-10-17"]);
+});
