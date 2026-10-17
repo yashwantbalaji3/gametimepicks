@@ -220,6 +220,34 @@ test("REGRESSION 2026-10-16 · a stale next kickoff after a Thursday game never 
   const thursday = productDayFor("nfl", root, { today: "2026-10-15" });
   assert.equal(thursday.state, "LIVE");
 
+  // A malformed or missing kickoff in the index is skipped, never thrown on (it previously crashed the owner).
+  write("nfl/index.json", {
+    generatedAt: "2026-10-16T00:09:05Z", nextForecastUtc: "2026-10-16T00:15Z", nextKickoffUtc: "2026-10-16T00:15Z",
+    counts: { scheduledUpcoming: 2, forecastsTotal: 3, forecastsUpcoming: 3, forecastsStarted: 0 },
+    events: [
+      { providerEventId: "401872995", matchup: "SEA @ DEN", kickoffUtc: "2026-10-16T00:15Z" },
+      { providerEventId: "bad1", matchup: "BAD @ ROW", kickoffUtc: "not-a-date" },
+      { providerEventId: "bad2", matchup: "NO @ KICKOFF" },
+      { providerEventId: "401872996", matchup: sunday[0], kickoffUtc: "2026-10-18T13:30Z" },
+    ],
+  });
+  const tolerant = productDayFor("nfl", root, { today: "2026-10-16" });
+  assert.equal(tolerant.state, "EVENT_UPCOMING");
+  assert.equal(tolerant.events, 1, "only the parseable later-day game counts");
+  assert.equal(tolerant.nextEventUtc, "2026-10-18T13:30Z");
+  // restore the main fixture for the controls below
+  write("nfl/index.json", {
+    generatedAt: "2026-10-16T00:09:05Z", nextForecastUtc: "2026-10-16T00:15Z", nextKickoffUtc: "2026-10-16T00:15Z",
+    nextForecastMatchup: "SEA @ DEN",
+    counts: { scheduledUpcoming: 4, forecastsTotal: 4, forecastsUpcoming: 4, forecastsStarted: 0 },
+    events: [
+      { providerEventId: "401872995", matchup: "SEA @ DEN", kickoffUtc: "2026-10-16T00:15Z" },
+      { providerEventId: "401872996", matchup: sunday[0], kickoffUtc: "2026-10-18T13:30Z" },
+      { providerEventId: "401872997", matchup: sunday[1], kickoffUtc: "2026-10-18T17:00Z" },
+      { providerEventId: "401872998", matchup: sunday[2], kickoffUtc: "2026-10-18T17:00Z" },
+    ],
+  });
+
   // Control: after the week's last game (Monday after Sunday, no later events) — still the quiet regular-season day.
   const tuesday = productDayFor("nfl", root, { today: "2026-10-20" });
   assert.equal(tuesday.state, "NO_EVENTS");

@@ -263,7 +263,8 @@ function nflDay(dataRoot: string, today: string): ProductDay {
      * every forecast's kickoff, so the next window is decidable from them: count only games on a later ET day.
      */
     const later = events
-      .filter((e): e is typeof e & { kickoffUtc: string } => typeof e.kickoffUtc === "string" && etDay(e.kickoffUtc) > today)
+      // A kickoff that does not parse is skipped, never thrown on: one malformed row must not take down the day.
+      .filter((e): e is typeof e & { kickoffUtc: string } => typeof e.kickoffUtc === "string" && Number.isFinite(Date.parse(e.kickoffUtc)) && etDay(e.kickoffUtc) > today)
       .sort((a, b) => Date.parse(a.kickoffUtc) - Date.parse(b.kickoffUtc));
     if (later.length > 0) {
       const nextDay = etDay(later[0].kickoffUtc);
