@@ -43,6 +43,8 @@ test("every public render point of a data-carried sentence goes through plainCod
   assert.match(nfl, /\{plainCodes\(c\.detail\)\}/);
   assert.match(nfl, /\{plainCodes\(modelStatus\.totals\.detail\)\}/);
   assert.match(src("src/app/results/forecasts/page.tsx"), /\{plainCodes\(g\.reason\)\}/);
+  assert.match(src("src/app/results/forecasts/page.tsx"), /\{g\.sport\} · \{familyLabel\(g\.family\)\}/, "a family named only by its key reads in words");
+  assert.match(src("src/app/results/forecasts/page.tsx"), /nfl_score_shape: "score shape/);
   assert.match(src("src/components/nfl/player-board.tsx"), /<\/strong> \{plainCodes\(f\.reason\)\}/);
   assert.match(nfl, /\{plainCodes\(productReceipts\.overDetermined\.gates\.join\("; "\)\)\}/);
   assert.match(src("src/app/results/parlay-lab/page.tsx"), /\{plainCodes\(s\.blocked\) \?\? "This lane is closed today\."\}/);

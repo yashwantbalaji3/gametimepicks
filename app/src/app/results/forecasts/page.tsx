@@ -16,6 +16,10 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { forecastRecordView, familyHref, csvHref } from "@/lib/results/v2/forecast-ledger-reader";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
+/* A family named only by its internal key (compose.mjs is the ledger's own manifest and is not edited) reads in words. */
+const FAMILY_WORDS: Record<string, string> = { nfl_score_shape: "score shape (key numbers, ties, overtime, exact scores)" };
+const familyLabel = (family: string): string => FAMILY_WORDS[family] ?? family;
+
 export const metadata = withRouteMetadata("/results/forecasts/", {
   title: "Forecast Record — Every Published Forecast, Measured · GameTime Picks",
   description: "Every forecast GameTimePicks published across NFL, MLB, Premier League, Ligue 1 and UFC, counted once and measured against the official result with the right yardstick for each kind of forecast.",
@@ -135,7 +139,7 @@ export default function ForecastRecordPage() {
             <h2 id="fr-gaps" className="font-display">Published but not in this record yet</h2>
             <ul className="note" style={{ paddingLeft: 18 }}>
               {rec.declaredGaps.map((g: any) => (
-                <li key={`${g.sport}-${g.family}`}><b style={{ color: "var(--vault-text)" }}>{g.sport} · {g.family}</b>: {plainCodes(g.reason)}</li>
+                <li key={`${g.sport}-${g.family}`}><b style={{ color: "var(--vault-text)" }}>{g.sport} · {familyLabel(g.family)}</b>: {plainCodes(g.reason)}</li>
               ))}
             </ul>
           </section>
