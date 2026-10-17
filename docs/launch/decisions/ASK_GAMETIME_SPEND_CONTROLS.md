@@ -106,3 +106,51 @@ Steps 1–5 close P-23. Steps 6–7 close O-12. None of them touches the reposit
 4. **FD-4(d):** Confirm `ASK_MODEL_PROVIDER=gemini` is set in Vercel Production. Will you remove `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`, or cap them (steps 6–7)?
 5. **FD-4(e):** If the cap is not in place by the go/no-go, should Ask be **off** for launch (option B), accepting that its entry points stay visible and show "Ask GameTime is not enabled" on submit?
 6. Do you want an engineering PR, after launch or before it with your approval, that hides the Ask entry points when the switch is off, and adds a shared limiter?
+
+---
+
+## 7. One-page founder checklist (added Sat 2026-10-17 ~06:50Z)
+
+**Re-read at** `origin/main` = `2c617c780c` (Ask code unchanged since `8433d82bd9`) and #1121 `abb72dff26`.
+
+**Hard rules for this checklist:**
+- No paid request was made.
+- No environment value was read.
+- Every row is answered in a console by the founder.
+- Record names, toggles and screenshots with values hidden.
+
+| # | Item | Where to look | What "done" looks like | Evidence |
+|---|---|---|---|---|
+| 1 | **Active provider** | Vercel → Project → Settings → Environment Variables → Production, **names only** | `ASK_MODEL_PROVIDER` is present and set to `gemini`. **Required before merging #1121**: after #1121, Production refuses Ask with 503 `PROVIDER_NOT_CONFIGURED` when it is unset | Screenshot of the names list, values hidden |
+| 2 | **Model config** | Same page | `ASK_MODEL_NAME` is present. The record says `gemini-3.5-flash-lite` (MIGRATION :276-277). Confirm the value matches in the dashboard; do not paste it anywhere | "matches record: yes/no" |
+| 3 | **Provider-side quota** (the only hard daily cap) | Google Cloud Console → IAM & Admin → Quotas & System Limits → Generative Language API → requests per day for the model in use | An override **below** the default, sized from your daily $ figure: requests/day ≈ ($/day ÷ $0.0026) × 4 | Override value + "approved" |
+| 3b | **Prepaid balance** (if still used) | AI Studio / Cloud Billing for that project | Auto-reload **OFF**, balance recorded. With auto-reload off this is also a hard ceiling | Balance + toggle |
+| 4 | **Budget alerts** | Cloud Console → Billing → Budgets & alerts | A budget scoped to that project, 50/90/100% thresholds, email to you. **Alerts warn; they do not stop spend** | Budget page |
+| 5 | **Key restrictions** | Cloud Console → APIs & Services → Credentials → the key whose last 4 characters match Vercel's `GOOGLE_API_KEY` | API restriction = Generative Language API only. No application restriction (Vercel has no fixed egress IP) | Restriction panel, key blurred |
+| 6 | **Disabled unused credentials** | Vercel Production env names; Anthropic and OpenAI consoles | Either remove `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` from Vercel Production, or keep them with a low monthly limit in each console. **Do not remove `ANTHROPIC_API_KEY` while slip reading might be enabled later without its own cap** (§3 risk 5). Any removed key needs a build to take effect | Names list after; each console's limit page |
+| 7 | **Kill-switch value** | Vercel Production env | `ASK_GAMETIME_ENABLED`: today only unset, empty, `0` or `false` turn Ask off. After #1121, `off`, `no` and `disabled` also do. Any change needs a forced build (§4) | Recorded value class: on/off |
+
+**Behaviour at limits** (what a user sees; from code at `2c617c780c`):
+
+| Situation | Code path | HTTP / event | What the user sees in `/ask` |
+|---|---|---|---|
+| Per-instance limiter: more than 12 turns per 60 s, or more than 2 concurrent, from one IP hash | `_ask-core.mjs:47-79`; `ask.mjs:63-66` | 429 JSON with `retryAfterSeconds` | Error bubble "too many questions just now — give it a moment" + **Retry** button (`ask-app.tsx:110-112, 236`) |
+| **Provider quota or prepaid balance exhausted** (Google returns 429) during **planning** | `provider-gemini.mjs:37-38, 189`: retried once after 700 ms, then `RATE_LIMITED` | Stream: an `error` event. Non-stream: 502 with `providerStatus: 429` and `providerType` (e.g. `RESOURCE_EXHAUSTED`); no upstream message in Production (`refusalPayload`) | "Too many questions just now — give it a moment." + Retry. **Misleading for a daily cap**: retrying will not help until the quota window resets. Each retry costs about 2 rejected upstream requests |
+| Provider 429 during **writing** (the plan succeeded) | `engine.mjs:513, 576-582` | 200 answer, `verified: false`, `fallbackReason: WRITER_PROVIDER_FAILED` | A **deterministic, data-only answer** built from the evidence, with no model prose |
+| Any other provider refusal (bad or restricted key, billing disabled, 5xx) | `provider-gemini.mjs:189`, `ask.mjs:225` | as above, `PROVIDER_ERROR` | "Ask GameTime is temporarily unavailable. The rest of the site is unaffected." + Retry |
+| Provider timeout (30 s per attempt) | `ask.mjs:227` | `PROVIDER_TIMEOUT` | "That took too long. Try asking again, or open Research Lab directly." |
+| Kill switch off | `_ask-core.mjs:90` | 503 `FEATURE_DISABLED` | "Ask GameTime is not enabled" + Retry |
+| After #1121, provider not named in Production | #1121 `provider.mjs` | 503 `PROVIDER_NOT_CONFIGURED` | A reason that **names a configuration variable** (`_ask-core.mjs:96`) until #1090 ships. That is a P0 by UAT rule 5 ("a secret or config name in a public response"), so item 1 must be confirmed before #1121 merges |
+| Network failure | `ask-app.tsx:129` | — | "Ask GameTime is temporarily unavailable. The rest of the site still works." |
+
+**Visible-entry-points caveat:**
+- With Ask off, `/ask` still renders its heading, starter questions and composer.
+- The rail and footer "Ask GameTime" links, `/research` and the sport-hub Ask sections stay visible (§4).
+- The off state appears only after a question is submitted.
+- Hiding them needs a code change and a build (not prepared).
+
+**Recommendation:**
+- **If the provider-side cap cannot be confirmed by the go/no-go (items 3 or 3b, plus item 1), keep Ask disabled for public launch:** `ASK_GAMETIME_ENABLED=0`, then one forced build, then the zero-cost 503 check (§4).
+- Accept the visible-entry-points caveat in writing, or approve a separate PR that hides the entry points when the switch is off.
+- Ask can be turned on after launch, once the cap is confirmed, with one more build.
+- The app has **no daily or global cap of its own** (§1). A cap that exists only as a budget alert (item 4) is a warning, not a cap, and **does not satisfy this condition**.
