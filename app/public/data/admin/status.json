@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-16T15:33:19.660Z",
+  "generatedAt": "2026-10-17T14:26:08.772Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -16,13 +16,13 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-10-16",
-    "dailyPortfolioDate": "2026-10-16",
+    "date": "2026-10-17",
+    "dailyPortfolioDate": "2026-10-17",
     "activeBankroll": 14065.4,
     "openExposure": 0,
     "worldCupGames": 0,
     "mlbGames": 1,
-    "mlbSlate": "2026-10-16"
+    "mlbSlate": "2026-10-17"
   },
   "sportsbook": {
     "note": "Artifact-level freshness only — the market feed carries no row-level timestamps, so no per-market recency can be claimed.",
@@ -30,15 +30,15 @@
       {
         "source": "mlb/team-markets",
         "state": "CURRENT",
-        "artifactDate": "2026-10-16",
-        "generatedAt": "2026-10-16T09:30:29.456Z",
+        "artifactDate": "2026-10-17",
+        "generatedAt": "2026-10-17T14:04:12.572Z",
         "ageDays": 0
       },
       {
         "source": "mlb/player-props",
         "state": "CURRENT",
-        "artifactDate": "2026-10-16",
-        "generatedAt": "2026-10-16T09:30:30.364Z",
+        "artifactDate": "2026-10-17",
+        "generatedAt": "2026-10-17T14:04:13.551Z",
         "ageDays": 0
       }
     ]
@@ -104,16 +104,16 @@
     },
     "forwardCoverage": {
       "present": true,
-      "date": "2026-10-16",
-      "generatedAt": "2026-10-16T15:14:10Z",
+      "date": "2026-10-17",
+      "generatedAt": "2026-10-17T14:11:29Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 20,
-            "priced": 20,
-            "generated": 10,
+            "scheduled": 16,
+            "priced": 16,
+            "generated": 6,
             "frozen": 0,
             "started": 0
           },
@@ -137,14 +137,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 15,
-            "priced": 15,
+            "scheduled": 26,
+            "priced": 26,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:15 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:26 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -164,9 +164,9 @@
       ]
     },
     "dailyLifecycle": {
-      "receiptDate": "2026-10-16",
+      "receiptDate": "2026-10-17",
       "present": true,
-      "generatedAt": "2026-10-16T15:14:09Z",
+      "generatedAt": "2026-10-17T14:11:28Z",
       "watchdog": [],
       "states": {
         "bank-builder": {
@@ -190,7 +190,7 @@
           "policyVersion": "ufc-cards@1"
         },
         "epl-cards": {
-          "state": "NO_PLAY",
+          "state": "ACTIVE",
           "policyVersion": "epl-cards@1"
         },
         "mlb-cards": {
@@ -209,7 +209,7 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-16T15:29:39.337Z",
+    "lastRunAt": "2026-10-17T14:22:20.294Z",
     "ageHours": 0.1,
     "ok": false,
     "status": "fail",
@@ -217,8 +217,8 @@
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
-    "etDate": "2026-10-16",
-    "etTime": "11:33",
+    "etDate": "2026-10-17",
+    "etTime": "10:26",
     "stages": [
       {
         "stage": "schedule",
@@ -325,9 +325,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-10-16",
-  "nextRefreshDate": "2026-10-17",
-  "nextAction": "No active Bank Builder lane for 2026-10-16 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-10-17",
+  "nextRefreshDate": "2026-10-18",
+  "nextAction": "No active Bank Builder lane for 2026-10-17 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }

@@ -281,6 +281,19 @@ test("16c · the writer marks a rescheduled fixture superseded, grades nothing, 
  * data has not been shown to detect anything — which is the exact failure mode this whole lane is
  * about, so neither of these ships without a positive control.
  */
+/** A join filed under its original date for a game rescheduled and not yet played: pending, nothing settled. */
+const awaitingReschedule = (j) => j.joinStatus === "pending" && !((j.counts?.marketSettledEligible ?? 0) > 0) && !((j.counts?.marketPush ?? 0) > 0);
+function scanAwaitingReschedule(root) {
+  const out = [];
+  if (!fs.existsSync(root)) return out;
+  for (const date of fs.readdirSync(root).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))) {
+    for (const f of fs.readdirSync(path.join(root, date)).filter((x) => x.endsWith(".json"))) {
+      const j = readJson(path.join(root, date, f));
+      if (j?.officialDate && j.officialDate !== date && j.joinStatus !== "superseded") out.push({ date, file: f, j });
+    }
+  }
+  return out;
+}
 function scanMisdated(root) {
   const out = [];
   if (!fs.existsSync(root)) return out;
@@ -288,7 +301,12 @@ function scanMisdated(root) {
     for (const f of fs.readdirSync(path.join(root, date)).filter((x) => x.endsWith(".json"))) {
       const j = readJson(path.join(root, date, f));
       if (!j?.officialDate) continue;   // written before the field existed — the builder refuses those by status
-      if (j.officialDate !== date && j.joinStatus !== "superseded") out.push(`${date}/${f}: officialDate ${j.officialDate}, joinStatus ${j.joinStatus}`);
+      if (j.officialDate === date || j.joinStatus === "superseded") continue;
+      // A postponed game's join waits under its original date until the rescheduled game is FINAL, when the builder
+      // supersedes it (join-mlb-pregame-settlements.mjs: supersededByReschedule needs isFinal). While it is pending and
+      // settles nothing it grades nothing under the wrong date; 16f pins that interim state. Anything that settles is caught.
+      if (awaitingReschedule(j)) continue;
+      out.push(`${date}/${f}: officialDate ${j.officialDate}, joinStatus ${j.joinStatus}`);
     }
   }
   return out;
@@ -335,6 +353,27 @@ test("16d · every committed join sits under the date its own officialDate names
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 
   assert.deepEqual(scanMisdated(JOIN_DIR), [], "a join graded under a date its game was not played on");
+});
+
+test("16f · a join awaiting a rescheduled game is pending and settles nothing until the game is final (2026-10-16 849817)", () => {
+  // POSITIVE CONTROL: a misdated join that settles rows is NOT treated as awaiting — 16d catches it.
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-join-"));
+  try {
+    const mk = (date, officialDate, settled, joinStatus) => {
+      fs.mkdirSync(path.join(tmp, date), { recursive: true });
+      fs.writeFileSync(path.join(tmp, date, "849817.json"), JSON.stringify({ gamePk: 849817, date, officialDate, joinStatus, counts: { marketSettledEligible: settled, marketPush: 0 } }));
+    };
+    mk("2026-10-16", "2026-10-18", 0, "pending");
+    assert.deepEqual(scanMisdated(tmp), [], "a pending, unsettled join awaiting its rescheduled game is not a misdated grade");
+    mk("2026-10-16", "2026-10-18", 7, "pending");
+    assert.equal(scanMisdated(tmp).length, 1, "the moment it settles anything under the wrong date, 16d catches it");
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+  // The committed archive: every misdated, non-superseded join is exactly that interim state.
+  for (const { date, file, j } of scanAwaitingReschedule(JOIN_DIR)) {
+    assert.equal(j.joinStatus, "pending", `${date}/${file}`);
+    assert.equal(j.counts?.marketSettledEligible ?? 0, 0, `${date}/${file} settles nothing under the wrong date`);
+    assert.ok(j.officialDate > date, `${date}/${file}: a rescheduled game is played LATER than the date it was filed under`);
+  }
 });
 
 test("16e · one gamePk never contributes a graded join under two dates", () => {
