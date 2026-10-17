@@ -2733,6 +2733,46 @@ Founder merged each PR with the pinned exact-head command. This session's auto-m
 
 ---
 
+## 2026-10-16 → 10-17 — Claude Code (single primary session) — reconciliation, release candidates, launch gates
+
+**Merged and verified in Production (founder-approved):**
+- **#1114** (test only), merged at 2026-10-16T23:44:59Z at the approved exact head `c94eb076ee` (merge `2cb1ba3920`).
+  - Root cause of the red `main` suite: a franchise-map test assumed one week's remaining schedule holds ≥ 28 teams.
+  - The new test checks all 32 franchises directly and is stricter; mutation controls hold on merged `main`.
+  - `main` CI on the merge: unit 9,402/9,404, 0 fail; post-build 696/699, 0 fail.
+  - Vercel skipped the build (Ignored Build Step), so it cost **0 builds**.
+
+**Release candidates (exact heads, approval packages on each PR; nothing else merged):**
+
+| PR | What | Head | State | Merge order / window |
+|---|---|---|---|---|
+| #1118 | NFL product day: a stale next kickoff never denies published forecasts (user-facing; recurs after every Thu/Mon game) | `76c9e3c699` | CI green; replayed across 78 real indexes since 10-08: **37** "forecasts not published" errors on `main` → **0**, 197 evaluations identical | Before Mon 10-19 evening |
+| #1101 | nightly-settle historical stamp guard (protected) | `22b0ac73bd` | CI green; 5-run replay restores 383–390 stamp-only files per run, 0 violations across 1,943 files; ledger byte-identical; local trial merge with #1088 on current `main`: unit 9,431/9,434, 0 fail | Sat 10:30–11:00Z |
+| #1088 | MLB stamp-only build gate (protected) | `e2dd976085` | CI green; replay 29 commits → 9 builds, 100/100 suppressed changes stamp-only; `priceAgeDays` review: never rendered, restored together with `generatedAt`, and eligibility state/reason always publish | Sat 10:30–11:00Z |
+| #1117 | HTML Release 1 (#1096–#1100 in one merge) | `4b4610366e` | −27.4% HTML, render-equivalent; a stale GitHub merge ref (pre-#1114) caused one red run, so CI was re-run on the recomputed ref | 1st of the UX/HTML trio |
+| #1119 | UX Release 1 reconciled onto #1117 (supersedes merging #1115 on its own) | `4465b08d40` (code `bb4f4a02be`) | CI green; render-equivalent to #1115 (0 differing elements on 10/12 pages × 4 widths, 0 pixel diff); HTML −26.6% vs #1115 | 2nd |
+| #1120 | Internal state codes in reader words, plus a post-build export guard | `f218d544c9` | Built on #1119; guard passes on a full build; 0 data change | 3rd |
+| #1121 | Ask spend control: Production must name its provider; kill switch accepts off/no/disabled | `abb72dff26` | Unit 9,405/9,408, 0 fail. ⚠ Can switch Ask off if `ASK_MODEL_PROVIDER` is unset | Before launch, after confirming the env |
+| #1116 | Docs: launch matrix, UAT plan, decision packages (Privacy/Terms, Supabase verification, Ask spend controls, rollback rehearsal), cost baseline and cost-reduction package, COMP-001, TRUTH MLB analysis, post-merge verifiers | branch head | Docs only | Any time |
+
+**Verified findings recorded this session:**
+- **TRUTH-001 (MLB served revision).** The "29 + 2" figure is superseded. Re-run with actual first-pitch times over 818 graded games: 22 graded from a different revision (6 change a win/loss), 4 never public, 9 ambiguous.
+  - Option B moves the moneyline from 418–400 to 417–397. Log loss goes 0.7000 → 0.6986; both are higher (worse) than a coin flip at 0.6931, and **no status changes**.
+  - #1045/#1049 are still valid but red: they need a merge of `main` and a new write-once log id.
+  - The grader-switch proposal is code only, on branch `claude/mlb-served-revision-proposal` (`bcac58a407`). It is opt-in and needs founder plus Results/OPS approval.
+  - Report: `docs/research/truth/TRUTH_MLB29_ANALYSIS_2026-10-17.md`.
+- **Cost (per-push replay, 10-09 → 10-17).**
+  - Completed builds: 58.7/day, of which 44.7 real content, ≤ 7.7 stamp-only and 6.3 with no build input. Plus 9.6 ignored pushes/day.
+  - Levers: #1088; batching writers that never touch a build input (−4.2 builds/day and −9.6 ignored/day, year-round); NFL window spacing (founder decision on freshness).
+  - The NFL receipts gate on its own saves **0** deployments (parked).
+  - The worker cap holds: 0 failures since it shipped, against 10 memory kills before. No dollar savings claimed without billing evidence.
+- **Live Hub V2, SEA@DEN.**
+  - Check 9: the canonical prop settlement was first served at 2026-10-16T17:12:52Z. Market paper record: NO_TARGETS, because the NFL odds credit ceiling has been exhausted since 10-11 (founder decision FD-8).
+  - The Sunday 10/18 capture is running from a Terminal tab with nohup + caffeinate (3 games, `players=1`, kit `ab2f28b88f`).
+  - Live Hub V2 stays unpublished.
+- **Launch gates.** The engineering part is merge approvals plus the live windows. The founder and legal blockers remain open: Privacy/Terms (both still 404 while accounts are live; the drafts on `main` contradict accounts), hosted RLS verification, Ask provider cap (Ask is enabled with a provider key; no in-app daily cap), and the rollback rehearsal. **Status: NO-GO until those close or are accepted.**
+- **COMP-001 (PropDealer)** is homepage-only because its robots.txt disallows everything. The useful finding is that we already have real NFL sampled worlds and MLB score distributions but present them poorly. It is post-launch input, not a blocker.
+
 # 26. Immediate execution waves
 
 ## Wave A — start now
