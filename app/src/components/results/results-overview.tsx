@@ -14,6 +14,7 @@ import { useId, useState } from "react";
 import { useRovingTabs } from "@/components/a11y/use-roving-tabs";
 
 import { windowsFrom } from "@/lib/results/v2/populations.mjs";
+import { sampleStateFor, SAMPLE_STATE } from "@/lib/sports/graded-picks.mjs";
 import { useReaderEtDate } from "@/lib/use-reader-et-date";
 import { etDayLabel } from "@/lib/et-stamp.mjs";
 import { surfaceHref } from "@/lib/nav/date-sport-route";
@@ -33,6 +34,15 @@ type WindowKey = (typeof WINDOWS)[number]["key"];
 
 type Counts = { won: number; lost: number; push: number; void: number; decisive: number; hitRate: number | null };
 const pct = (r: number | null) => (r == null ? null : `${Math.round(r * 1000) / 10}%`);
+/* RESULTS INTEGRITY (2026-10-17): a rate on these cards travels with the site's one small-sample rule
+   (sampleStateFor: under 30 decided says nothing; under 200 is still small). The hubs already gate the same
+   records this way; the cards printed "64.3% of 14 decided" bare. */
+const sampleCaveat = (decided: number): string | null => {
+  const s = sampleStateFor(decided);
+  if (s === SAMPLE_STATE.TOO_SMALL) return "Far too few decided to judge accuracy.";
+  if (s === SAMPLE_STATE.EMERGING) return "Still a small sample: a rate over this many has a wide margin of error.";
+  return null;
+};
 const record = (c: Counts) => `${c.won}–${c.lost}${c.push ? `–${c.push}` : ""}`;
 
 function PopulationCard({ p, w, today }: { p: OverviewPopulation; w: WindowKey; today: string }) {
@@ -59,6 +69,9 @@ function PopulationCard({ p, w, today }: { p: OverviewPopulation; w: WindowKey; 
           <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
             {c.push ? `${c.push} push · ` : ""}{c.void ? `${c.void.toLocaleString("en-US")} void · ` : ""}{w === "season" && p.seasonLabel ? p.seasonLabel : WINDOWS.find((x) => x.key === w)!.label}
           </span>
+          {pct(c.hitRate) && sampleCaveat(c.decisive) ? (
+            <span className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>{sampleCaveat(c.decisive)}</span>
+          ) : null}
         </>
       )}
       {p.note ? <p className="m-0 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{p.note}</p> : null}
