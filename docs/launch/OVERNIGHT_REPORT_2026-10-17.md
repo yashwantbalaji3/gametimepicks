@@ -1,7 +1,12 @@
 # Overnight engineering report, Sat 2026-10-17 (06:20Z → ~11:00Z / 2:20 → 7:00 AM EDT)
 
 ## 1. Executive summary
-- **Nothing was merged or deployed, no paid calls were made, and this session triggered 0 Production builds.** No founder approval arrived, so the 10:30–11:00Z window passed with #1101 and #1088 unchanged. _(Window outcome confirmed at hand-off; see §3.)_
+- **Nothing was merged or deployed, no paid calls were made, and this session triggered 0 Production builds.**
+- **Saturday window (10:30–11:00Z): no founder authorization was received.** #1101 (`22b0ac73bd`) and #1088 (`e2dd976085`) remain open and unchanged; verified at 10:37Z.
+- **New at ~10:30Z: today's nightly-settle publish was blocked** (run 39020673351, health gate `research-contract:stale`).
+  - Cause: the same postponement. All 41 props on 10-16 voided, the contract correctly stayed at 10-15 (it counts decisive rows only), and the gate counted voids.
+  - Fixed in **#1122** (head `29b133acd1`): the gate now uses the same decisive population. Reproduced: `main`'s gate fails with the CI's exact message; the fixed gate is HEALTHY.
+  - Until #1122 merges, settle runs today abort their publish. Nothing is lost; the settle recomputes from committed inputs.
 - **The biggest finding: `main` is red again since early 10-17, and every PR inherits it.** Two data- and calendar-driven guards fail on `main`'s own build:
   - **Home word ceiling:** 1,868 against 1,820.
   - **Join guard 16d:** tripped by gamePk 849817's postponement from 10-16 to 10-18.
@@ -47,7 +52,7 @@
 ## 3. Release queue
 | # | PR | Purpose | Exact head | CI | Mergeable | Depends on | Recommendation | Production impact |
 |---|---|---|---|---|---|---|---|---|
-| 1 | #1122 | `main` CI repair plus the Home archive trust fix | `3392628da7` | ✅ quality and python on the merge ref | CLEAN | — | **Approve first** | 1 build; Home archive shows 2 recent reports |
+| 1 | #1122 | Postponement fallout: **settle health gate** + `main` CI repair + Home archive trust fix | `29b133acd1` | ✅ on `3392628da7`; new head unit 9,408/9,410, 0 fail; Python 92/92 | CLEAN with every candidate | — | **Approve first** | 1 build; Home archive shows 2 recent reports |
 | 2 | #1118 | NFL product day: stale anchor never denies published forecasts | `46b23a4035` | red only on #1122's two tests; full gates green on the trial merge | CLEAN | after #1122 | Approve | 1 build |
 | 3 | #1101 | Stop restamping settled history (protected) | `22b0ac73bd` | green on head; trial gates green | CLEAN | — | Approve; the next window is any gap between settle runs | 1 build; ~362 fewer rewritten files per run |
 | 4 | #1088 | MLB stamp gate (protected) | `e2dd976085` | green on head; trial gates green | CLEAN | — | Approve; value lasts through the World Series | 1 build; about 7–10 fewer builds/day in the MLB postseason |
@@ -140,7 +145,7 @@ Expected deployments if all merge: about 11 Production builds (or fewer when que
 - The Ask provider cap is unconfirmed.
 - The rollback rehearsal hasn't run.
 - #1118 is not deployed; the defect recurs on launch morning.
-- `main` CI is red (#1122).
+- `main` CI is red, and today's settle publish is blocked (#1122).
 
 **CONDITIONAL GO is reachable** if, by the Mon 10-19 review:
 - these close, or you accept them in writing;
@@ -152,7 +157,7 @@ Matrix: 38 VERIFIED (4 real-event, 31 Production, 1 CI, 2 local), 15 PENDING, 18
 ## 10. Founder approval queue (in order)
 | # | Decision | Why | Time-sensitive | If deferred | Recommendation | Exact scope |
 |---|---|---|---|---|---|---|
-| 1 | Merge **#1122** | Unblocks every PR's CI; removes August reports from Home | Yes: `main` is red | Every PR stays red; Home shows stale archive cards at night | **Approve** | `--match-head-commit 3392628da7dda7fd95e41ce5ab2a6e5328c0f990` |
+| 1 | Merge **#1122** | **Unblocks today's settle publish**; unblocks every PR's CI; removes August reports from Home | **Yes, now**: settle aborts and `main` is red | Settle publish stays blocked today; every PR stays red | **Approve** | `--match-head-commit 29b133acd102b71cd3c6c6c4fef58a85eefc4762` |
 | 2 | Merge **#1118** | Home and `/today` must not deny published forecasts after Thu/Mon games | Yes: recurs Tue 10-20 morning | Wrong NFL message on launch morning | **Approve** | `46b23a4035f11540f324981aef828f0dbc152291` |
 | 3 | Merge **#1101** and **#1088** (protected) | History integrity; MLB build cost | Moderately: MLB value ends with the World Series | Restamping continues; ~7–10 avoidable builds/day | **Approve** in a gap between settle and lineup runs | `22b0ac73bd…`, `e2dd976085…` |
 | 4 | **Ask provider cap** (FD-4), then merge **#1121** | Spend control | Yes, before launch | Uncapped spend risk | Confirm the cap and `ASK_MODEL_PROVIDER=gemini`, then approve; otherwise keep Ask off | console checklist + `abb72dff26…` |
