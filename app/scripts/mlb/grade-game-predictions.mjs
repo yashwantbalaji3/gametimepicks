@@ -32,7 +32,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { gradeDate, summariseGameLedger, GAME_GRADING_VERSION } from "../../src/lib/mlb/prediction/grade-games.mjs";
-import { makeServedRevisionSelector, FORECAST_OF_RECORD_RULE } from "../../src/lib/mlb/prediction/served-forecast-selector.mjs";
+import { makeServedRevisionSelector, summariseRefusals, FORECAST_OF_RECORD_RULE } from "../../src/lib/mlb/prediction/served-forecast-selector.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.resolve(APP, "..");
@@ -197,7 +197,11 @@ for (const date of dates) {
 
 const all = [...existingRows, ...newRows];
 const families = summariseGameLedger(all);
-if (SERVED) console.log(`\n  not of record (refused by publication evidence, ungraded, never a loss): ${notOfRecordTotal.length}`);
+if (SERVED) {
+  const tally = summariseRefusals(notOfRecordTotal);
+  const nonZero = Object.entries(tally.byStatus).filter(([, n]) => n > 0).map(([s, n]) => `${s} ${n}`).join(" · ");
+  console.log(`\n  not of record (refused by publication evidence, ungraded, never a loss): ${tally.total}${nonZero ? ` — ${nonZero}` : ""}`);
+}
 console.log(`\n  ledger: ${existingRows.length} existing + ${newRows.length} new = ${all.length} rows · ${missingTotal} game-final(s) missing a pre-event artifact (named, not reconstructed)`);
 for (const [m, f] of Object.entries(families)) {
   console.log(`    ${m.padEnd(10)} n=${String(f.n).padStart(4)} W${f.wins}-L${f.losses}${f.pushes ? `-P${f.pushes}` : ""} hit ${f.hitRate == null ? "—" : (f.hitRate * 100).toFixed(1) + "%"}`);

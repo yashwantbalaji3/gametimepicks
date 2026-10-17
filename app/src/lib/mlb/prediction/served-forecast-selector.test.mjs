@@ -9,7 +9,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { gradeDate } from "./grade-games.mjs";
-import { makeServedRevisionSelector, candidatesForGame, SELECTOR_REFUSAL, FORECAST_OF_RECORD_RULE } from "./served-forecast-selector.mjs";
+import { makeServedRevisionSelector, candidatesForGame, summariseRefusals, SELECTOR_REFUSAL, FORECAST_OF_RECORD_RULE } from "./served-forecast-selector.mjs";
 import { STATUS } from "../../publication-evidence/served-revision.mjs";
 
 const PK = 823579;
@@ -142,4 +142,110 @@ test("an already-graded game is never re-selected or regraded (append-only), wha
   assert.equal(graded.length, 0);
   assert.equal(skipped.alreadyGraded, 1);
   assert.equal(FORECAST_OF_RECORD_RULE.SERVED, "SERVED_BEFORE_START");
+});
+
+/* ── Classification edges (added 2026-10-17 with the restatement proposal) ─────────────────────────────────────────
+ * Each one pins a refusal the restatement relies on: an unreadable build is never read as "not served", "never public"
+ * is never inferred across an ambiguous window, the ±60 s / −600 s clock bands refuse on both sides of the start,
+ * and content invariance (every possible build carried the same bytes) is NOT applied by the resolver as written. */
+
+const refusedAs = (res, status) => {
+  assert.equal(res.graded.length, 0, "a refused game writes no graded row");
+  assert.equal(res.skipped.notOfRecord.length, 1);
+  assert.equal(res.skipped.notOfRecord[0].status, status);
+  assert.equal(res.skipped.missingPreEvent.length, 0, "a refusal is not re-labelled as a missing artifact");
+};
+
+test("unreadable serving build → refused BUILD_UNREADABLE, never read as NOT_SERVED (the 2026-09-07 shape: the build had no dated file)", () => {
+  const res = run(selector({ servedGameAt: (sha) => builds({ s1: A, s2: "UNREADABLE" })(sha) }));
+  refusedAs(res, STATUS.BUILD_UNREADABLE);
+  assert.match(res.skipped.notOfRecord[0].reason, /d2/);
+});
+
+test("an unreadable EARLIER build only stops the publishedAt walk-back; the serving build still decides the grade", () => {
+  const sel = selector({ servedGameAt: (sha) => builds({ s1: "UNREADABLE", s2: A })(sha) });
+  const out = sel(PK, SCHED, REVS);
+  assert.equal(out.revision.source, "git:7942eb5dba66");
+  assert.equal(out.evidence.publishedAt, "2026-09-04T22:56:06.759Z", "publishedAt is never pushed earlier than evidence shows");
+  assert.equal(run(sel).graded.length, 3);
+});
+
+test("never public: the serving build carries no row at all for the game → refused NOT_SERVED", () => {
+  refusedAs(run(selector({ servedGameAt: (sha) => builds({ s1: A, s2: null })(sha) })), STATUS.NOT_SERVED);
+});
+
+test("never public is never inferred across an ambiguous window, in either direction", () => {
+  const near = [dep("d1", "s1", "2026-09-04T21:04:12Z"), dep("d3", "s3", "2026-09-04T23:10:25Z")];
+  const unavail = { gamePk: PK, status: "unavailable" };
+  // the build surely serving before the start showed it unavailable, a build READY inside the band carried A
+  refusedAs(run(selector({ deployments: near, servedGameAt: (sha) => builds({ s1: unavail, s3: A })(sha) })), STATUS.AMBIGUOUS_NEAR_CUTOFF);
+  // the mirror: A was serving, the build inside the band showed it unavailable
+  refusedAs(run(selector({ deployments: near, servedGameAt: (sha) => builds({ s1: A, s3: unavail })(sha) })), STATUS.AMBIGUOUS_NEAR_CUTOFF);
+});
+
+// A later actual start so a build can carry B (generated 23:09:50Z) and still be READY before it.
+const LATE = new Map([[PK, { from: "2026-09-04T23:12:00.000Z", to: "2026-09-04T23:12:10.000Z" }]]);
+const withBuild = (readyAt, clock) => selector({
+  deployments: [dep("d1", "s1", "2026-09-04T21:04:12Z"), dep("d3", "s3", readyAt)],
+  servedGameAt: (sha) => builds({ s1: A, s3: B })(sha),
+  actualStartByGamePk: LATE,
+  recordClock: clock,
+});
+const TYPICAL = { earlyMs: 60_000, lateMs: 60_000 }; // the ±60 s GitHub ambiguity margin
+const CONSERVATIVE = { earlyMs: 60_000, lateMs: 600_000 }; // GitHub's worst observed clock: up to 10 min late
+
+test("±60 s margin, early side: READY recorded 45 s before the start is ambiguous; 61 s before verifies that build", () => {
+  refusedAs(run(withBuild("2026-09-04T23:11:15Z", TYPICAL)), STATUS.AMBIGUOUS_NEAR_CUTOFF);
+  const ok = run(withBuild("2026-09-04T23:10:59Z", TYPICAL));
+  assert.equal(ok.graded.length, 3);
+  assert.equal(byMarket(ok.graded).moneyline.forecastSource, "snapshot:2026-09-04/snapshot-202609042309.json");
+});
+
+test("±60 s margin, late side: READY recorded 55 s after the latest possible start is ambiguous; 61 s after leaves the earlier build of record", () => {
+  refusedAs(run(withBuild("2026-09-04T23:13:05Z", TYPICAL)), STATUS.AMBIGUOUS_NEAR_CUTOFF);
+  const ok = run(withBuild("2026-09-04T23:13:11Z", TYPICAL));
+  assert.equal(byMarket(ok.graded).moneyline.forecastSource, "git:7942eb5dba66");
+});
+
+test("GitHub conservative band (−600 s): READY recorded 9 min after the start is still ambiguous; 10 min + 1 s after is not", () => {
+  refusedAs(run(withBuild("2026-09-04T23:21:10Z", CONSERVATIVE)), STATUS.AMBIGUOUS_NEAR_CUTOFF);
+  const ok = run(withBuild("2026-09-04T23:22:11Z", CONSERVATIVE));
+  assert.equal(byMarket(ok.graded).moneyline.forecastSource, "git:7942eb5dba66");
+});
+
+test("content invariance is NOT applied: ambiguous even when every possible serving build carried the same bytes (founder decision to change)", () => {
+  const res = run(selector({
+    deployments: [dep("d1", "s1", "2026-09-04T21:04:12Z"), dep("d3", "s3", "2026-09-04T23:10:25Z")],
+    servedGameAt: (sha) => builds({ s1: A, s3: A })(sha),
+  }));
+  refusedAs(res, STATUS.AMBIGUOUS_NEAR_CUTOFF);
+});
+
+test("served bytes matching no recorded revision → refused SERVED_UNMATCHED, never graded from the nearest revision", () => {
+  refusedAs(run(selector({ servedGameAt: (sha) => builds({ s1: A, s2: pred("hZ") })(sha) })), STATUS.SERVED_UNMATCHED);
+});
+
+test("a start before the deployment record begins (GitHub has none before 2026-07-31 22:07Z) → refused EVIDENCE_GAP", () => {
+  refusedAs(run(selector({ evidenceWindow: { from: "2026-09-05T00:00:00Z", to: WINDOW.to } })), STATUS.EVIDENCE_GAP);
+});
+
+test("refusal monitoring: a mixed slate grades the served game, refuses the other, and the tally counts it by status", () => {
+  const PK2 = 824226;
+  const other = { ...pred("hX"), gamePk: PK2, awayTeam: "MIN", homeTeam: "DET" };
+  const revs = [rev("git:7942eb5dba66", "2026-09-04T20:57:41.000Z", [A, other])];
+  const sel = selector({ servedGameAt: (sha, gamePk) => (gamePk === PK2 ? { ok: true, game: { gamePk: PK2, status: "unavailable" } } : { ok: true, game: A }) });
+  const { graded, skipped } = gradeDate({
+    revisions: revs,
+    finals: [FINAL, { gamePk: PK2, isFinal: true, homeRuns: 7, awayRuns: 2 }],
+    firstPitchByGamePk: new Map([[PK, SCHED], [PK2, SCHED]]),
+    selectRevision: sel,
+  });
+  assert.deepEqual([...new Set(graded.map((g) => g.gamePk))], [PK]);
+  const tally = summariseRefusals(skipped.notOfRecord);
+  assert.equal(tally.total, 1);
+  assert.equal(tally.byStatus.NOT_SERVED, 1);
+  assert.equal(tally.byStatus.AMBIGUOUS_NEAR_CUTOFF, 0, "every status is listed, zeros included, so a monitor can alert on any of them");
+  assert.equal(tally.byStatus.HELD_GENERATED_AFTER_SCHEDULED_START, 0);
+  assert.equal("SERVED" in tally.byStatus, false);
+  assert.deepEqual(summariseRefusals([]).total, 0);
 });

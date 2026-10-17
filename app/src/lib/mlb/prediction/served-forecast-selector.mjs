@@ -56,6 +56,22 @@ export function candidatesForGame(revisions, gamePk) {
 }
 
 /**
+ * Refusal monitoring: a nightly count of games the selector refused, by status, so an evidence failure (a capture
+ * that stopped, a clock band that swallows every start) shows up as a number instead of as silently ungraded games.
+ * Every status is listed, zeros included, so a dashboard can alert on a change in any one of them.
+ * @param {Array<{status: string}>} notOfRecord  gradeDate's skipped.notOfRecord (optionally concatenated over dates)
+ * @returns {{ total: number, byStatus: Record<string, number> }}
+ */
+export function summariseRefusals(notOfRecord) {
+  const byStatus = Object.fromEntries(Object.values(SELECTOR_REFUSAL).filter((s) => s !== STATUS.SERVED).map((s) => [s, 0]));
+  for (const r of notOfRecord ?? []) {
+    const s = r?.status ?? "NO_SELECTION";
+    byStatus[s] = (byStatus[s] ?? 0) + 1;
+  }
+  return { total: (notOfRecord ?? []).length, byStatus };
+}
+
+/**
  * Build the per-game selector the grader passes to gradeDate({ selectRevision }).
  *
  * @param {object} a
