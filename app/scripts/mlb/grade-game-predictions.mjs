@@ -4,6 +4,15 @@
  * to the official StatsAPI final (Program 196 · Release B1).
  *
  *   npx tsx scripts/mlb/grade-game-predictions.mjs --now <ISO> [--date YYYY-MM-DD] [--from-history] [--write]
+ *     [--forecast-of-record served --deployments <file> [--first-pitch <file>] [--clock-early-sec 60]
+ *      [--clock-late-sec 600] [--untrusted FAILURE,ABANDONED] [--untrusted-lag-sec 3600]]
+ *
+ * PROPOSAL (TRUTH-001, Option B — NOT the default; needs Results/OPS-owner review and founder approval):
+ * `--forecast-of-record served` grades each game from the revision a READY Production deployment SERVED before the
+ * actual start (lib/mlb/prediction/served-forecast-selector.mjs over lib/publication-evidence/served-revision.mjs),
+ * and refuses — ungraded, listed with its status — whenever the evidence cannot decide it. Candidates are every
+ * committed revision of the dated file plus the snapshots, so it needs full git history (refused on a shallow clone).
+ * Without the flag nothing changes: the default rule is still "newest generated before first pitch".
  *
  * TWO SOURCES OF PRE-EVENT TRUTH, ONE RULE. The dated predictions artifact regenerates through the
  * day, so the copy on disk is not evidence about what the model said before first pitch. Evidence
@@ -23,6 +32,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { gradeDate, summariseGameLedger, GAME_GRADING_VERSION } from "../../src/lib/mlb/prediction/grade-games.mjs";
+import { makeServedRevisionSelector, FORECAST_OF_RECORD_RULE } from "../../src/lib/mlb/prediction/served-forecast-selector.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.resolve(APP, "..");
@@ -39,6 +49,9 @@ const ONE_DATE = arg("--date");
 const FROM_HISTORY = process.argv.includes("--from-history");
 const WRITE = process.argv.includes("--write");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now <ISO> required"); process.exit(2); }
+const FOR_MODE = arg("--forecast-of-record") ?? "newest-generated";
+if (!["newest-generated", "served"].includes(FOR_MODE)) { console.error(`REFUSED: --forecast-of-record must be newest-generated or served (got ${FOR_MODE})`); process.exit(2); }
+const SERVED = FOR_MODE === "served";
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
@@ -93,6 +106,43 @@ function snapshotRevisions(date) {
   return revs;
 }
 
+/* ── Publication evidence (only with --forecast-of-record served) ─────────────────────────────── */
+
+let selectorFor = null;
+if (SERVED) {
+  const depFile = arg("--deployments");
+  if (!depFile) { console.error("REFUSED: --forecast-of-record served needs --deployments <file> (capture-github-production-deployments.mjs)"); process.exit(2); }
+  const depDoc = readJson(path.resolve(depFile));
+  if (!depDoc?.window?.from || !depDoc?.window?.to || !Array.isArray(depDoc.deployments)) { console.error(`REFUSED: ${depFile} is not a deployment record with a window`); process.exit(2); }
+  const deployments = depDoc.deployments.map((d) => ({ id: d.id, sha: d.sha, readyAt: d.readyAt ?? null, state: d.state, createdAt: d.createdAt ?? null }));
+  const actualStartByGamePk = new Map();
+  const fpFile = arg("--first-pitch");
+  if (fpFile) for (const g of readJson(path.resolve(fpFile))?.games ?? []) if (g.startInterval?.from && g.startInterval?.to) actualStartByGamePk.set(g.gamePk, g.startInterval);
+  const recordClock = { earlyMs: Number(arg("--clock-early-sec") ?? 60) * 1000, lateMs: Number(arg("--clock-late-sec") ?? 600) * 1000 };
+  const untrusted = (arg("--untrusted") ?? "FAILURE,ABANDONED").split(",").filter(Boolean);
+  const untrustedStates = { states: untrusted, lagMs: Number(arg("--untrusted-lag-sec") ?? 3600) * 1000 };
+  const builtCache = new Map();
+  selectorFor = (date) => makeServedRevisionSelector({
+    deployments,
+    evidenceWindow: depDoc.window,
+    actualStartByGamePk,
+    recordClock,
+    untrustedStates,
+    servedGameAt: (sha, gamePk) => {
+      const k = `${sha}|${date}`;
+      if (!builtCache.has(k)) {
+        let a = null;
+        try { a = JSON.parse(execFileSync("git", ["show", `${sha}:app/public/data/mlb/predictions/${date}.json`], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] }).toString()); } catch { a = null; }
+        builtCache.set(k, a);
+      }
+      const a = builtCache.get(k);
+      if (!a) return { ok: false };
+      return { ok: true, game: (a.predictions ?? []).find((x) => x.gamePk === gamePk || String(x.gamePk) === String(gamePk)) ?? null };
+    },
+  });
+  console.log(`forecast of record: ${FORECAST_OF_RECORD_RULE.SERVED} · deployment record ${path.basename(depFile)} [${depDoc.window.from} → ${depDoc.window.to}] · actual starts ${actualStartByGamePk.size} · clock −${recordClock.lateMs / 1000}s/+${recordClock.earlyMs / 1000}s`);
+}
+
 /* ── Inputs ──────────────────────────────────────────────────────────────────────────────────── */
 
 const dates = ONE_DATE
@@ -112,6 +162,7 @@ if (fs.existsSync(LEDGER)) {
 
 const newRows = [];
 let missingTotal = 0;
+const notOfRecordTotal = [];
 console.log(`\nMLB game-prediction grading v${GAME_GRADING_VERSION} · ${FROM_HISTORY ? "git-history backfill" : "snapshot mode"} · ${dates.length} date(s)`);
 
 for (const date of dates) {
@@ -121,7 +172,8 @@ for (const date of dates) {
   const board = readJson(path.join(BOARDS, `${date}.json`));
   const firstPitchByGamePk = new Map((board?.games ?? []).map((g) => [g.gamePk, g.gameDate]));
 
-  const revisions = FROM_HISTORY ? historyRevisions(date) : snapshotRevisions(date);
+  // Served mode reads every candidate (committed revisions AND snapshots): the served one is usually a commit.
+  const revisions = SERVED ? [...historyRevisions(date), ...snapshotRevisions(date)] : FROM_HISTORY ? historyRevisions(date) : snapshotRevisions(date);
   if (revisions.length === 0) {
     const finals = linescore.games.filter((g) => g.isFinal).length;
     if (finals > 0) console.log(`  ${date}: ${finals} final(s), 0 pre-event revision(s) — MISSING_PRE_EVENT_ARTIFACT for the whole date`);
@@ -129,10 +181,12 @@ for (const date of dates) {
     continue;
   }
 
-  const { graded, skipped } = gradeDate({ revisions, finals: linescore.games, firstPitchByGamePk, alreadyGraded });
+  const { graded, skipped } = gradeDate({ revisions, finals: linescore.games, firstPitchByGamePk, alreadyGraded, selectRevision: selectorFor ? selectorFor(date) : null });
+  notOfRecordTotal.push(...skipped.notOfRecord.map((x) => ({ date, ...x })));
   for (const g of graded) { alreadyGraded.add(`${g.gamePk}:${g.market}`); g.resultSource = "statsapi-linescore"; g.gradedAt = NOW; }
   newRows.push(...graded);
   missingTotal += skipped.missingPreEvent.length;
+  for (const m of skipped.notOfRecord.slice(0, 6)) console.log(`      NOT_OF_RECORD gamePk=${m.gamePk} ${m.status} — ${m.reason}`);
   if (graded.length || skipped.missingPreEvent.length) {
     console.log(`  ${date}: +${graded.length} graded row(s) from ${revisions.length} revision(s) · notFinal ${skipped.notFinal} · already ${skipped.alreadyGraded} · noPick ${skipped.noPick} · missingPreEvent ${skipped.missingPreEvent.length}`);
     for (const m of skipped.missingPreEvent.slice(0, 4)) console.log(`      MISSING_PRE_EVENT_ARTIFACT gamePk=${m.gamePk} — ${m.reason}`);
@@ -143,6 +197,7 @@ for (const date of dates) {
 
 const all = [...existingRows, ...newRows];
 const families = summariseGameLedger(all);
+if (SERVED) console.log(`\n  not of record (refused by publication evidence, ungraded, never a loss): ${notOfRecordTotal.length}`);
 console.log(`\n  ledger: ${existingRows.length} existing + ${newRows.length} new = ${all.length} rows · ${missingTotal} game-final(s) missing a pre-event artifact (named, not reconstructed)`);
 for (const [m, f] of Object.entries(families)) {
   console.log(`    ${m.padEnd(10)} n=${String(f.n).padStart(4)} W${f.wins}-L${f.losses}${f.pushes ? `-P${f.pushes}` : ""} hit ${f.hitRate == null ? "—" : (f.hitRate * 100).toFixed(1) + "%"}`);
@@ -161,7 +216,9 @@ if (WRITE) {
     sport: "mlb",
     generatedAt: NOW,
     gradingVersion: GAME_GRADING_VERSION,
-    what: "Game-level predictions — winner, total and run line from the full-game simulation — graded against official StatsAPI finals, from the newest artifact revision that pre-dates each game's first pitch.",
+    what: SERVED
+      ? "Game-level predictions — winner, total and run line from the full-game simulation — graded against official StatsAPI finals, from the revision the public site served before each game's actual start."
+      : "Game-level predictions — winner, total and run line from the full-game simulation — graded against official StatsAPI finals, from the newest artifact revision that pre-dates each game's first pitch.",
     caveat: "A model-performance record, separate from the 32,227-row player-prop record and from the settled money record: different questions, different denominators, never combined.",
     families,
     /*

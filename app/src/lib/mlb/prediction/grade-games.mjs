@@ -158,9 +158,11 @@ export function gradeGameFamilies({ row, final: fin, revision, firstPitchUtc }) 
  * @param {Map<string|number, string>} args.firstPitchByGamePk
  * @param {Set<string>} args.alreadyGraded       keys `${gamePk}:${market}`
  */
-export function gradeDate({ revisions, finals, firstPitchByGamePk, alreadyGraded = new Set() }) {
+export function gradeDate({ revisions, finals, firstPitchByGamePk, alreadyGraded = new Set(), selectRevision = null }) {
   const graded = [];
-  const skipped = { notFinal: 0, alreadyGraded: 0, missingPreEvent: [], noPick: 0 };
+  // notOfRecord: games refused by the publication-evidence selector (Option B) — never graded, never a loss, listed
+  // with the resolver's status so a silent evidence failure shows up as a count. Always empty under the default rule.
+  const skipped = { notFinal: 0, alreadyGraded: 0, missingPreEvent: [], noPick: 0, notOfRecord: [] };
 
   for (const fin of finals ?? []) {
     if (fin.isFinal !== true || !Number.isInteger(fin.homeRuns) || !Number.isInteger(fin.awayRuns)) {
@@ -179,7 +181,22 @@ export function gradeDate({ revisions, finals, firstPitchByGamePk, alreadyGraded
       continue;
     }
     const firstPitch = firstPitchByGamePk.get(fin.gamePk) ?? firstPitchByGamePk.get(String(fin.gamePk)) ?? null;
-    const rev = selectForecastOfRecord(revisions, firstPitch);
+    /*
+     * PROPOSAL (TRUTH-001, Option B; opt-in, the default is unchanged): given a `selectRevision`
+     * (served-forecast-selector.mjs) the forecast of record is the revision a READY Production deployment served
+     * before the start, not the newest one generated. A refusal leaves the game ungraded with its reason.
+     */
+    let rev;
+    if (selectRevision) {
+      const sel = selectRevision(fin.gamePk, firstPitch, revisions);
+      if (!sel || sel.refused) {
+        skipped.notOfRecord.push({ gamePk: fin.gamePk, status: sel?.refused?.status ?? "NO_SELECTION", reason: sel?.refused?.reason ?? "the selector returned nothing" });
+        continue;
+      }
+      rev = sel.revision;
+    } else {
+      rev = selectForecastOfRecord(revisions, firstPitch);
+    }
     const row = rev?.byGamePk.get(fin.gamePk) ?? rev?.byGamePk.get(String(fin.gamePk)) ?? null;
     if (!rev || !row) {
       skipped.missingPreEvent.push({ gamePk: fin.gamePk, reason: !firstPitch ? "no first-pitch time" : !rev ? "no committed revision pre-dates first pitch" : "game absent from the forecast-of-record revision" });
