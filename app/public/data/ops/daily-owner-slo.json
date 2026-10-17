@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-10-17",
-  "checkedAt": "2026-10-17T14:07:58.644Z",
-  "treeHead": "5966d140b",
+  "checkedAt": "2026-10-17T14:22:19.974Z",
+  "treeHead": "e2277786f",
   "state": "INCIDENT",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 1,
@@ -36,7 +36,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-10-17T23:08:00.000Z",
-      "receiptAt": "2026-10-17T14:04:14.000Z",
+      "receiptAt": "2026-10-17T14:16:25.000Z",
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
       "dependsOn": [
@@ -46,15 +46,16 @@
     },
     {
       "id": "risk-ladder",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-10-17T23:23:00.000Z",
+      "state": "HEALTHY",
+      "reason": "receipt present",
       "dueAtIso": "2026-10-17T23:23:00.000Z",
+      "receiptAt": "2026-10-17T14:11:22Z",
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
         "mlb-markets"
       ],
-      "receiptPath": null
+      "receiptPath": "parlays/risk-ladder/2026-10-17.json"
     },
     {
       "id": "settlement",
@@ -106,7 +107,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-10-17T13:00:00.000Z",
-      "receiptAt": "2026-10-16T17:17:03Z",
+      "receiptAt": "2026-10-17T14:02:10Z",
       "label": "UFC card + model read",
       "workflow": "ufc-fight-week",
       "dependsOn": [],
@@ -117,7 +118,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-10-17T13:00:00.000Z",
-      "receiptAt": "2026-10-16T17:17:51Z",
+      "receiptAt": "2026-10-17T14:03:04Z",
       "label": "UFC lane status",
       "workflow": "ufc-fight-week",
       "dependsOn": [
@@ -130,7 +131,7 @@
       "state": "HEALTHY",
       "reason": "receipt present",
       "dueAtIso": "2026-10-17T21:00:00.000Z",
-      "receiptAt": "2026-10-17T13:55:23Z",
+      "receiptAt": "2026-10-17T14:05:27Z",
       "label": "EPL lane status",
       "workflow": "epl-matchweek",
       "dependsOn": [],
@@ -139,7 +140,7 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 146.4h old against a 48h bound",
+      "reason": "receipt is 146.7h old against a 48h bound",
       "dueAtIso": "2026-10-17T15:00:00.000Z",
       "receiptAt": "2026-10-11T11:41:55Z",
       "label": "NFL market capture",
