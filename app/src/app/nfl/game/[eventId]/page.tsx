@@ -72,6 +72,7 @@ import Methodology from "@/components/nfl/forecast/methodology";
 import { gameTabs } from "@/lib/sports/nfl/forecast-view.mjs";
 import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
 import { STATUS as WORLD_MODEL_STATUS } from "@/lib/sports/nfl/world-model-v2/artifact.mjs";
+import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -519,7 +520,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                   <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
                     {withheld.map(([key, x]) => (
                       <li key={key} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)" }}>
-                        <strong style={{ color: "var(--vault-text-mute)" }}>{famLabel(key, x)}:</strong> {x.reason ?? "did not clear its evaluation bar"}
+                        <strong style={{ color: "var(--vault-text-mute)" }}>{famLabel(key, x)}:</strong> {plainCodes(x.reason) ?? "did not clear its evaluation bar"}
                       </li>
                     ))}
                   </ul>

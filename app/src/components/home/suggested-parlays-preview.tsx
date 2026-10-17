@@ -10,6 +10,7 @@
 import Link from "next/link";
 import { PUBLIC_RISK_LABELS } from "@/lib/parlays/risk-odds-bands.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
+import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
 /**
  * GTP-27 (2026-10-14) — A CLOSED LANE IN READER WORDS. The gate's reason is written for the pipeline:
@@ -27,7 +28,7 @@ export function plainLaneReason(reason: string, lane?: string): string {
   return "no card is offered today";
 }
 export const readableReason = (reason: string): string =>
-  reason.replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?Z/g, (iso) => etStamp(iso) ?? iso);
+  plainCodes(reason).replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?Z/g, (iso: string) => etStamp(iso) ?? iso);
 
 export interface PreviewTier {
   tier: string;

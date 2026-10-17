@@ -11,6 +11,7 @@
  * the number mean anything. Nothing on this page or behind it promotes a model.
  */
 import type { ReactNode } from "react";
+import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
 export interface ReadoutRow {
   id: string; sport: string; state: string;
@@ -71,11 +72,11 @@ export default function CandidateReadout({ rows, auditRange }: { rows: ReadoutRo
               {r.delta != null ? ` · ${r.metric} ${r.delta >= 0 ? "−" : "+"}${Math.abs(r.delta).toFixed(4)} vs incumbent` : ` · ${r.metric} not measured`}
             </div>
             {r.reasons.map((reason, i) => (
-              <p key={i} className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.55 }}>{reason}</p>
+              <p key={i} className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.55 }}>{plainCodes(reason)}</p>
             ))}
             {r.nextEvaluationCondition ? (
               <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 11.5, lineHeight: 1.55 }}>
-                <strong style={{ color: "var(--vault-text-mute)" }}>Next:</strong> {r.nextEvaluationCondition}
+                <strong style={{ color: "var(--vault-text-mute)" }}>Next:</strong> {plainCodes(r.nextEvaluationCondition)}
               </p>
             ) : null}
           </div>

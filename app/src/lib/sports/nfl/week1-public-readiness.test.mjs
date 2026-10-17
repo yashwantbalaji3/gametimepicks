@@ -61,7 +61,8 @@ test("LEGACY BRANCH · the projected scorecard composes ONLY page-loaded artifac
   assert.match(page, /Likely TD scorers/, "TD scorers render per team");
   assert.match(page, /Receiving leaders/, "receiving lines render per team");
   assert.match(page, /withheld, with the exact bar each failed/, "unearned families are stated inside the scorecard frame");
-  assert.match(page, /x\.reason \?\? "did not clear its evaluation bar"/, "the failed bar is read from the artifact, never typed");
+  // Read from the artifact, rendered through plainCodes (lib/uiux/plain-codes.mjs) so a code like RESEARCH_ONLY reads in words.
+  assert.match(page, /plainCodes\(x\.reason\) \?\? "did not clear its evaluation bar"/, "the failed bar is read from the artifact, never typed");
   // The scorecard can never source a number outside the two artifacts the page already loads.
   const section = page.slice(page.indexOf("P250-GD"), page.indexOf("{view?.simulation ? <SimulationPanel"));
   assert.ok(!/readPublic|fs\.readFileSync/.test(section), "no new data reads inside the scorecard");
