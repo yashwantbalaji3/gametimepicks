@@ -40,6 +40,7 @@ import ModelStatusPanel from "@/components/command-center/model-status-panel";
 import { modelStatusFor } from "@/lib/command-center/model-status";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
 import { buildUfcPresentation } from "@/lib/simulate/presentation/ufc";
+import { sourceDisplayName } from "@/lib/sports/source-registry.mjs";
 
 export const metadata = withRouteMetadata("/ufc/", {
   /*
@@ -174,7 +175,7 @@ export default function UfcArchivePage() {
               </span>
             </div>
             {cardState !== EVENT_STATE.UPCOMING ? (
-              <p className="m-0 font-mono" style={{ fontSize: 11, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
+              <p className="m-0" style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)" }}>
                 {cardState === EVENT_STATE.COMPLETE
                   ? "This card has been fought. These are the frozen pregame forecasts, unchanged; graded results appear under "
                   : "Bouts are under way. This page is static and shows the frozen pregame forecasts only; graded results appear under "}
@@ -191,7 +192,7 @@ export default function UfcArchivePage() {
       {/* UFC-001 · UX Phase A2: where the live event tracker will sit. Until UFC live tracking is validated and
           released, this says plainly what the page does NOT do: it is static between builds and never shows a fight as
           live. No clock, round or in-fight number is shown anywhere on this page. */}
-      <p id="ufc-live-status" className="m-0 font-mono rounded-[10px] px-3 py-2" style={{ fontSize: 11, lineHeight: 1.6, color: "var(--vault-text-mute)", border: "1px dashed var(--vault-rule)" }}>
+      <p id="ufc-live-status" className="m-0 rounded-[10px] px-3 py-2" style={{ fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", border: "1px dashed var(--vault-rule)" }}>
         Live fight tracking for UFC is not available yet. This page shows the pregame card and forecasts; results and
         grading appear after the card is officially settled.
       </p>
@@ -255,15 +256,15 @@ export default function UfcArchivePage() {
         {card?.bouts?.length
           ? <UfcCard card={card} />
           : <ScheduleList events={(feed?.events ?? []) as never[]} sides={["red", "blue"]} joiner="vs" />}
-        <p className="font-mono text-[10.5px]" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
-          Schedule source: {feed?.sourceVerdict?.sourceId ?? "ESPN"}
+        <p className=" text-[12.5px]" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
+          Schedule source: {sourceDisplayName(feed?.sourceVerdict?.sourceId, "ESPN")}
         </p>
       </section>
 
       {/* P308 → UFC-001 · UX Phase A2: the card's simulation story is kept whole but made secondary — the board and the
           matchup previews come first, and the story opens on request. Same component, same artifact. */}
       <details className="rounded-[12px] px-3 py-2" style={{ border: "1px solid var(--vault-rule)" }}>
-        <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ fontSize: 11, color: "var(--vault-text)", minHeight: 32, display: "flex", alignItems: "center" }}>
+        <summary className="cursor-pointer font-mono uppercase tracking-[0.1em]" style={{ fontSize: 11, color: "var(--vault-text)", minHeight: 44, display: "flex", alignItems: "center" }}>
           Play the card story — the main event, step by step
         </summary>
         <div className="mt-2">
@@ -285,7 +286,7 @@ export default function UfcArchivePage() {
             Predictions · experimental
           </span>
         </div>
-        <p className="max-w-2xl font-mono text-[11.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+        <p className="max-w-2xl text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
           Winner, method and finishing round for every bout with enough tracked history — the rest say so. Paper and educational.
         </p>
         {/*
@@ -355,9 +356,9 @@ export default function UfcArchivePage() {
         {ufcGraded ? (
           <GradedPicksSection record={ufcGraded} href="/results/picks/ufc" />
         ) : (
-          <p className="font-mono text-[11px] leading-relaxed" style={{ color: "var(--vault-text-mute)", margin: 0 }}>
-            No bout has been graded under the current fight model yet. The record fills in from the
-            first official result; nothing renders here until then.
+          <p className=" text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", margin: 0 }}>
+            No bout has been graded under the current fight model yet. The record starts with the first
+            official result.
           </p>
         )}
 
@@ -383,20 +384,20 @@ export default function UfcArchivePage() {
                   Officially settled {settledOn}
                 </span>
                 <UfcEventResultsRecap s={settled} />
-                <p className="font-mono text-[10px] leading-relaxed" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
+                <p className=" text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
                   This is one settled event ({settled.fights.length} graded fights). A single-card record is an outcome log,
                   not model validation — the moneyline model was retired unvalidated.
                 </p>
               </>
             ) : (
-              <p className="font-mono text-[11px] leading-relaxed" style={{ color: "var(--vault-text-mute)", margin: 0 }}>
-                No officially settled UFC record is available. Nothing renders here until an official settlement exists.
+              <p className=" text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)", margin: 0 }}>
+                No officially settled UFC record is available yet.
               </p>
             )}
           </div>
         </details>
 
-        <p className="font-mono text-[10px] leading-relaxed" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
+        <p className=" text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)", margin: 0 }}>
           The two eras never share a metric. The current record grades a three-head fight model against the de-vigged
           price recorded before each card; the archive is the retired read&apos;s outcome log from before any model was
           scored against anything. Adding them together would average two different questions.
@@ -406,7 +407,7 @@ export default function UfcArchivePage() {
       <ModelStatusPanel collapsed sportLabel="UFC" items={modelStatusFor("ufc", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: new Date().toISOString(), ufcVerdicts: card?.model?.verdicts ?? null })} />
 
       {unsettledLaterCard ? (
-        <p className="max-w-2xl font-mono text-[10.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
+        <p className="max-w-2xl text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-faint)" }}>
           {unsettledLaterCard.name}
           {unsettledLaterCard.day ? ` (${unsettledLaterCard.day})` : ""} was listed with market-implied reads only
           before the event; no model picks were published for it and no official settlement was ingested, so no record

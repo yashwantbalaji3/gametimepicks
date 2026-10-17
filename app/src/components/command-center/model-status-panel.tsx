@@ -41,7 +41,7 @@ export default function ModelStatusPanel({ items, sportLabel, id = "model-status
     <section id={id} aria-labelledby={`${id}-h`} className="scroll-mt-24 flex flex-col gap-2 rounded-[12px] px-4 py-3.5" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
       <div className="flex items-baseline justify-between gap-2 flex-wrap">
         <h2 id={`${id}-h`} className="font-mono uppercase tracking-[0.14em] m-0" style={{ color: "var(--vault-gold)", fontSize: 11 }}>Model status · {sportLabel}</h2>
-        <Link href="/methodology/#model-status" className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>What the statuses mean →</Link>
+        <Link href="/methodology/#model-status" className="gtp-hit-44 font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>What the statuses mean →</Link>
       </div>
       <ul className="m-0 p-0 list-none flex flex-col gap-2">
         {items.map((s) => (

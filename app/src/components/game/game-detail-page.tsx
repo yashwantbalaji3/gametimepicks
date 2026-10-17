@@ -349,6 +349,10 @@ const SIMULATION_SPORTS = new Set(["mlb", "nfl"]);
 
 export default function GameDetailPage({ detail, engineCards, multiGameCards, playerPropParlays, teamPropParlays }: { detail: PublicGameDetail; engineCards?: GameSpecificCards | null; multiGameCards?: GameSpecificCards | null; playerPropParlays?: GameSpecificCards | null; teamPropParlays?: GameSpecificCards | null }) {
   const identity = getSportIdentity(detail.sport);
+  /* UXR1-14: the empty states' tense follows the GAME's date, not the page's — an archived June game said "No team
+     projection posted for this fixture yet", promising something that can no longer happen. Same ET-day rule as
+     `mlbIsPreviousSlate` below. */
+  const gameIsPast = !!detail.date && detail.date < currentEtDate();
   const homeCode = detail.sport === "world_cup" && detail.homeTeam ? teamByName(detail.homeTeam)?.code ?? "" : "";
   const awayCode = detail.sport === "world_cup" && detail.awayTeam ? teamByName(detail.awayTeam)?.code ?? "" : "";
 
@@ -436,7 +440,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <SpotlightTile eyebrow={`Top team model pick · ${topProj.marketLabel}`} title={topProj.pickLabel}
             meta={`${american(topProj.americanOdds)} · model ${pct(topProj.modelProbability)} · market ${pct(topProj.marketProbability)} · edge ${(topProj.edgePct ?? 0) >= 0 ? "+" : ""}${(topProj.edgePct ?? 0).toFixed(1)}%`}
             accent="color-mix(in srgb, var(--vault-accent) 35%, transparent)" foot="Team & game props tab" />
-        ) : <EmptyTile eyebrow="Top team model pick" note="No team projection posted for this fixture yet." />}
+        ) : <EmptyTile eyebrow="Top team model pick" note={gameIsPast ? "No team projection was posted for this fixture." : "No team projection posted for this fixture yet."} />}
 
         {topPlayer ? (
           <div className="flex items-center gap-3 rounded-[12px] px-4 py-3.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 60%, transparent)", border: "1px solid color-mix(in srgb, var(--vault-crown) 35%, transparent)" }}>
@@ -525,8 +529,10 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         <TieredEditorialCards cards={(playerPropParlays?.cards ?? []) as EditorialCard[]} />
       ) : (
         <div className="rounded-xl px-4 py-4 flex flex-col gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)" }}>
-          <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>No quality parlay available yet</span>
-          <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>Not enough quality player props are posted to build a slip for this match yet — we never pad a parlay with weak legs. Soccer player props post near lineup time; check back closer to kickoff.</p>
+          <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>{gameIsPast ? "No quality parlay was available" : "No quality parlay available yet"}</span>
+          <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{gameIsPast
+            ? "Not enough quality player props were posted to build a slip for this match — we never pad a parlay with weak legs."
+            : "Not enough quality player props are posted to build a slip for this match yet — we never pad a parlay with weak legs. Soccer player props post near lineup time; check back closer to kickoff."}</p>
         </div>
       )}
     </div>
@@ -541,8 +547,8 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         <TieredEditorialCards cards={(teamPropParlays?.cards ?? []) as EditorialCard[]} />
       ) : (
         <div className="rounded-xl px-4 py-4 flex flex-col gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)" }}>
-          <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>No quality parlay available yet</span>
-          <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>Not enough sensible team markets are posted to build a same-game combo for this match yet. See the Team &amp; game props tab for the individual projections.</p>
+          <span style={{ color: "var(--vault-text)", fontSize: 13.5, fontWeight: 600 }}>{gameIsPast ? "No quality parlay was available" : "No quality parlay available yet"}</span>
+          <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>{gameIsPast ? "Not enough sensible team markets were posted to build a same-game combo for this match." : "Not enough sensible team markets are posted to build a same-game combo for this match yet."} See the Team &amp; game props tab for the individual projections.</p>
         </div>
       )}
     </div>
@@ -555,7 +561,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         <SectionHeader eyebrow={`Model player props · ${modelPicks.length}`} title="Model picks by market" sub="Up to 3 model-qualified picks per market — recommended side only, never the full both-sides inventory." />
         {marketLabels.length > 0 ? (
           <p className="text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>
-            Markets posted for this fixture: {marketLabels.join(" · ")}. {limitedData ? "Limited-data — market-implied prices, no independent model edge yet. " : ""}Additional player markets (assists, shots, cards, …) appear here automatically when the books post odds — never shown without real prices.
+            Markets posted for this fixture: {marketLabels.join(" · ")}. {limitedData ? "Limited-data — market-implied prices, no independent model edge yet. " : ""}Other player markets (assists, shots, cards, …) are listed only when sportsbooks post real prices for them.
           </p>
         ) : null}
         {marketGroups.length > 0 ? (
@@ -564,9 +570,9 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           </div>
         ) : (
           <div className="rounded-[10px] px-4 py-8 text-center flex flex-col items-center gap-1.5" style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}>
-            <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-warn)", fontSize: 9.5 }}>Player props pending</span>
-            <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>No model player picks yet</p>
-            <p className="max-w-md" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.5 }}>Player props appear as soon as a book posts real odds for this game. We never show a pick without a real posted price behind it.</p>
+            <span className="font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-warn)", fontSize: 9.5 }}>{gameIsPast ? "No player props" : "Player props pending"}</span>
+            <p style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>{gameIsPast ? "No model player picks for this game" : "No model player picks yet"}</p>
+            <p className="max-w-md" style={{ color: "var(--vault-text-mute)", fontSize: 12, lineHeight: 1.5 }}>{gameIsPast ? "No book posted real odds we could use for this game." : "Player props appear as soon as a book posts real odds for this game."} We never show a pick without a real posted price behind it.</p>
           </div>
         )}
       </div>
@@ -1043,7 +1049,14 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
           <CompetitionBadge sport={detail.sport} size="sm" />
         </span>
         <div className="mt-1.5 flex items-center gap-3 min-w-0">
-          {homeCode || awayCode || detail.homeLogo || detail.awayLogo ? (
+          {/* UXR1-14: crests read in the title's order — a board game titled "NY @ SA" drew SA first. */}
+          {(homeCode || awayCode || detail.homeLogo || detail.awayLogo) && detail.title.includes(" @ ") ? (
+            <span className="inline-flex items-center gap-1.5 shrink-0" aria-label={`${detail.awayTeam} at ${detail.homeTeam}`}>
+              <TeamMark name={detail.awayTeam} logoUrl={detail.awayLogo} flagCode={awayCode} size="lg" />
+              <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>@</span>
+              <TeamMark name={detail.homeTeam} logoUrl={detail.homeLogo} flagCode={homeCode} size="lg" />
+            </span>
+          ) : homeCode || awayCode || detail.homeLogo || detail.awayLogo ? (
             <span className="inline-flex items-center gap-1.5 shrink-0" aria-label={`${detail.homeTeam} versus ${detail.awayTeam}`}>
               <TeamMark name={detail.homeTeam} logoUrl={detail.homeLogo} flagCode={homeCode} size="lg" />
               <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>v</span>

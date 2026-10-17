@@ -60,6 +60,19 @@ export function espnTeamById(providerTeamId) {
   return TEAM_BY_ID.get(String(providerTeamId)) ?? null;
 }
 
+const TEAM_BY_ESPN_ABBR = new Map(ESPN_NBA_TEAMS.map((t) => [t.espnAbbr, t]));
+
+/**
+ * UXR1-14: the crest URL for a side named by ESPN's own NBA abbreviation (the board feed's `homeTeamAbbr`), or null
+ * when the abbreviation is not one of the 30 registry teams — never guessed. Same CDN and slug as `TeamLogo` with
+ * sport "nba" (the /nba hub's crests), so the archived game page and the hub draw the same mark; the page keeps
+ * its monogram fallback if the image fails.
+ */
+export function espnNbaCrestUrl(espnAbbr) {
+  const team = TEAM_BY_ESPN_ABBR.get(String(espnAbbr ?? "").trim().toUpperCase());
+  return team ? `https://a.espncdn.com/i/teamlogos/nba/500/${team.espnAbbr.toLowerCase()}.png` : null;
+}
+
 /** Numeric-aware, deterministic athlete-id ordering ("6475" < "3032977" < "5107157"). */
 export function compareAthleteIds(a, b) {
   const na = /^\d+$/.test(a) ? Number(a) : null;

@@ -1,0 +1,192 @@
+{
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "schemaVersion": "mlb-pregame-archive-1",
+  "snapshotId": "849818-f53dd7d2c75e2540b033111de6f4a692",
+  "snapshotCreatedAt": "2026-10-15T21:52:50.997Z",
+  "snapshotReason": "SCHEDULED_REFRESH",
+  "boardDateEt": "2026-10-15",
+  "eventId": "849818",
+  "gamePk": 849818,
+  "eventStartTime": "2026-10-15T17:00:00Z",
+  "homeTeam": "CLE",
+  "awayTeam": "TB",
+  "venue": "Progressive Field",
+  "statusState": "Final",
+  "startedAtCapture": true,
+  "dataQuality": {
+    "anyEligible": false,
+    "eligibleFamilies": []
+  },
+  "rawPayloadHash": "26557a54a6e97f5caddf0924b85fe663",
+  "normalizedPayloadHash": "12364268f2bdc800e266fce1f1bf57c0",
+  "parserVersion": "capture-v1",
+  "featureFamilies": [
+    {
+      "family": "confirmed_lineup",
+      "present": false,
+      "value": {
+        "status": "POST_START"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-10-15T21:52:50.997Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-15T21:52:50.997Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849818/feed/live",
+        "requestedAt": "2026-10-15T21:52:50.997Z",
+        "receivedAt": "2026-10-15T21:52:50.997Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "pitcher_status",
+      "present": false,
+      "value": {
+        "homeProbable": "Gavin Williams",
+        "awayProbable": "Griffin Jax",
+        "status": "POST_START"
+      },
+      "status": "MISSING",
+      "observedAt": "2026-10-15T21:52:50.997Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-15T21:52:50.997Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849818/feed/live",
+        "requestedAt": "2026-10-15T21:52:50.997Z",
+        "receivedAt": "2026-10-15T21:52:50.997Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "environment",
+      "present": false,
+      "value": {
+        "condition": "Sunny",
+        "temp": "62",
+        "wind": "7 mph, Out To CF",
+        "roofType": "Open",
+        "dayNight": "day",
+        "postgameOnly": true
+      },
+      "status": "MISSING",
+      "observedAt": "2026-10-15T21:52:50.997Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-15T21:52:50.997Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849818/feed/live",
+        "requestedAt": "2026-10-15T21:52:50.997Z",
+        "receivedAt": "2026-10-15T21:52:50.997Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "umpire",
+      "present": false,
+      "value": {
+        "officials": [
+          {
+            "name": "Bill Miller",
+            "type": "Home Plate"
+          },
+          {
+            "name": "Jordan Baker",
+            "type": "First Base"
+          },
+          {
+            "name": "Chad Fairchild",
+            "type": "Second Base"
+          },
+          {
+            "name": "Adam Hamari",
+            "type": "Third Base"
+          },
+          {
+            "name": "Nestor Ceja",
+            "type": "Left Field"
+          },
+          {
+            "name": "Carlos Torres",
+            "type": "Right Field"
+          }
+        ]
+      },
+      "status": "MISSING",
+      "observedAt": "2026-10-15T21:52:50.997Z",
+      "availableAt": null,
+      "sourceUpdatedAt": null,
+      "capturedAt": "2026-10-15T21:52:50.997Z",
+      "timestampProven": false,
+      "researchEligible": false,
+      "source": {
+        "sourceName": "StatsAPI",
+        "sourceType": "official_league",
+        "sourceUrlOrIdentifier": "statsapi/game/849818/feed/live",
+        "requestedAt": "2026-10-15T21:52:50.997Z",
+        "receivedAt": "2026-10-15T21:52:50.997Z",
+        "sourcePublishedAt": null
+      }
+    },
+    {
+      "family": "markets",
+      "present": false,
+      "value": {
+        "note": "requires ODDS_API_KEY + credits — capability defined, not fetched in the free capture"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "the-odds-api",
+        "sourceType": "licensed_provider",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "bullpen",
+      "present": false,
+      "value": {
+        "note": "derive from strictly-completed prior team games — builder pending"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    },
+    {
+      "family": "plate_appearance_opportunity",
+      "present": false,
+      "value": {
+        "note": "needs full-slate market context (team/game totals) — pending markets"
+      },
+      "status": "MISSING",
+      "researchEligible": false,
+      "timestampProven": false,
+      "source": {
+        "sourceName": "derived",
+        "sourceType": "internal_derivation",
+        "requestedAt": null
+      }
+    }
+  ]
+}

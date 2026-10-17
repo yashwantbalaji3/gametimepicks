@@ -1,0 +1,1275 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-week-reconciliation",
+ "dataClass": "PUBLIC_DERIVED",
+ "period": {
+  "key": "2-06",
+  "seasonType": 2,
+  "week": 6,
+  "label": "Week 6"
+ },
+ "source": "Official final box scores (ESPN). Predictions exactly as published before each kickoff.",
+ "howGraded": {
+  "source": "Every prediction is graded exactly as it was published before its kickoff, against the official final box score.",
+  "winner": "A hit when the team we gave the higher win chance won. A tie is void.",
+  "ranges": "Every total, margin and player number we publish comes with a range that 8 in 10 of our simulations landed inside. A hit is a final number inside that range, as it was shown on the page. About 8 in 10 should land inside: far more means our ranges were too wide, far fewer means too narrow.",
+  "likeliestScorer": "In each game, the player we gave the best chance to score a touchdown. A hit if the official record credits him with a rushing, receiving or return touchdown — throwing one does not count.",
+  "voids": "A player with no line at all in the official box score did not play, so his predictions are void, not misses. A game that is not final yet is pending.",
+  "estimates": "Rushing and passing yards were shown as unvalidated estimates. They are graded the same way and labelled.",
+  "sportsbook": "For context only, not part of any success rate: whether our projected total or the sportsbooks' total was closer to the final.",
+  "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
+ },
+ "summary": {
+  "gamesFinal": 1,
+  "gamesPending": 13,
+  "overall": {
+   "checks": 37,
+   "hits": 35,
+   "rate": 0.9459459459459459
+  },
+  "props": [
+   {
+    "id": "winner",
+    "label": "Model-favored team won",
+    "group": "team",
+    "checks": 1,
+    "hits": 1,
+    "voids": 0,
+    "rate": 1,
+    "expectedHits": 0.6
+   },
+   {
+    "id": "total_range",
+    "label": "Total points landed in our range",
+    "group": "team",
+    "target": 0.8,
+    "checks": 1,
+    "hits": 1,
+    "voids": 0,
+    "rate": 1,
+    "typicalMiss": 11,
+    "rangeWidth": 35,
+    "lean": 11
+   },
+   {
+    "id": "margin_range",
+    "label": "Winning margin landed in our range",
+    "group": "team",
+    "target": 0.8,
+    "checks": 1,
+    "hits": 1,
+    "voids": 0,
+    "rate": 1,
+    "typicalMiss": 1,
+    "rangeWidth": 35,
+    "lean": 1
+   },
+   {
+    "id": "player_receptions",
+    "label": "Receptions landed in our range",
+    "group": "player",
+    "target": 0.8,
+    "checks": 13,
+    "hits": 13,
+    "voids": 2,
+    "rate": 1,
+    "status": "PUBLISHED",
+    "typicalMiss": 1.3,
+    "rangeWidth": 5.4,
+    "lean": -0.7
+   },
+   {
+    "id": "player_reception_yds",
+    "label": "Receiving yards landed in our range",
+    "group": "player",
+    "target": 0.8,
+    "checks": 13,
+    "hits": 12,
+    "voids": 1,
+    "rate": 0.9230769230769231,
+    "status": "PUBLISHED",
+    "typicalMiss": 14.4,
+    "rangeWidth": 56.5,
+    "lean": -8.2
+   },
+   {
+    "id": "player_rush_yds",
+    "label": "Rushing yards landed in our range",
+    "group": "player",
+    "target": 0.8,
+    "checks": 5,
+    "hits": 5,
+    "voids": 1,
+    "rate": 1,
+    "status": "ESTIMATE",
+    "typicalMiss": 11.2,
+    "rangeWidth": 45.4,
+    "lean": -7.6
+   },
+   {
+    "id": "player_pass_yds",
+    "label": "Passing yards landed in our range",
+    "group": "player",
+    "target": 0.8,
+    "checks": 2,
+    "hits": 2,
+    "voids": 0,
+    "rate": 1,
+    "status": "ESTIMATE",
+    "typicalMiss": 87,
+    "rangeWidth": 219.5,
+    "lean": -1
+   },
+   {
+    "id": "likeliest_scorer",
+    "label": "Our likeliest touchdown scorer scored",
+    "group": "player",
+    "checks": 1,
+    "hits": 0,
+    "voids": 0,
+    "rate": 0
+   }
+  ],
+  "context": {
+   "closerThanSportsbook": {
+    "oursCloser": 0,
+    "booksCloser": 0,
+    "even": 0,
+    "noLine": 1
+   },
+   "touchdowns": {
+    "playersGraded": 16,
+    "expectedScorers": 3.7,
+    "actualScorers": 3
+   }
+  }
+ },
+ "games": [
+  {
+   "providerEventId": "401872995",
+   "matchup": "SEA @ DEN",
+   "kickoffUtc": "2026-10-16T00:15Z",
+   "away": {
+    "abbr": "SEA",
+    "name": "Seattle Seahawks"
+   },
+   "home": {
+    "abbr": "DEN",
+    "name": "Denver Broncos"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T00:09:05Z",
+    "projectedScore": {
+     "away": 19,
+     "home": 23
+    },
+    "pick": {
+     "abbr": "DEN",
+     "probability": 0.5518
+    },
+    "total": {
+     "median": 42,
+     "low": 25,
+     "high": 60
+    },
+    "margin": {
+     "median": 4,
+     "low": -14,
+     "high": 21
+    },
+    "sportsbookTotal": null
+   },
+   "state": "FINAL",
+   "final": {
+    "away": 14,
+    "home": 17,
+    "total": 31,
+    "margin": 3
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "HIT"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "HIT",
+     "actual": 31
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "HIT",
+     "actual": 3
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "NO_LINE",
+     "oursOff": 11,
+     "booksOff": null
+    }
+   ],
+   "players": [
+    {
+     "name": "Jaxon Smith-Njigba",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 2,
+     "high": 14,
+     "actual": 12,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaxon Smith-Njigba",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 84,
+     "low": 31,
+     "high": 159,
+     "actual": 134,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Emanuel Wilson",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 4,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Emanuel Wilson",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 9,
+     "low": 0,
+     "high": 39,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Emanuel Wilson",
+     "team": "SEA",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 30,
+     "low": 8,
+     "high": 64,
+     "actual": 52,
+     "outcome": "HIT"
+    },
+    {
+     "name": "J.K. Dobbins",
+     "team": "DEN",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 44,
+     "low": 15,
+     "high": 86,
+     "actual": 41,
+     "outcome": "HIT"
+    },
+    {
+     "name": "RJ Harvey",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 8,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "RJ Harvey",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 22,
+     "low": 2,
+     "high": 57,
+     "actual": 31,
+     "outcome": "HIT"
+    },
+    {
+     "name": "RJ Harvey",
+     "team": "DEN",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 14,
+     "low": 1,
+     "high": 41,
+     "actual": 25,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaylen Waddle",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 8,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaylen Waddle",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 30,
+     "low": 4,
+     "high": 74,
+     "actual": 24,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Courtland Sutton",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 6,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Courtland Sutton",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 21,
+     "low": 0,
+     "high": 59,
+     "actual": 19,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jonah Coleman",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Jonah Coleman",
+     "team": "DEN",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 10,
+     "low": 0,
+     "high": 38,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "George Holani",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 4,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "George Holani",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 10,
+     "low": 0,
+     "high": 40,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "George Holani",
+     "team": "SEA",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 6,
+     "low": 0,
+     "high": 28,
+     "actual": 20,
+     "outcome": "HIT"
+    },
+    {
+     "name": "AJ Barner",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 6,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "AJ Barner",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 21,
+     "low": 0,
+     "high": 59,
+     "actual": 16,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Rashid Shaheed",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Rashid Shaheed",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 19,
+     "low": 0,
+     "high": 57,
+     "actual": 66,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Cooper Kupp",
+     "team": "SEA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Cooper Kupp",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 18,
+     "low": 0,
+     "high": 57,
+     "actual": 50,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Evan Engram",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Evan Engram",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 15,
+     "low": 0,
+     "high": 52,
+     "actual": 13,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Bo Nix",
+     "team": "DEN",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 8,
+     "low": 0,
+     "high": 32,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Bo Nix",
+     "team": "DEN",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 193,
+     "low": 106,
+     "high": 318,
+     "actual": 107,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Marvin Mims Jr.",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 4,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Marvin Mims Jr.",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 8,
+     "low": 0,
+     "high": 36,
+     "actual": 13,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Badie",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Lil'Jordan Humphrey",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Lil'Jordan Humphrey",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 5,
+     "low": 0,
+     "high": 34,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Troy Franklin",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Troy Franklin",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 8,
+     "low": 0,
+     "high": 40,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Sam Darnold",
+     "team": "SEA",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 190,
+     "low": 99,
+     "high": 326,
+     "actual": 278,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tory Horton",
+     "team": "SEA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 9,
+     "low": 0,
+     "high": 42,
+     "actual": 13,
+     "outcome": "HIT"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "Jaxon Smith-Njigba",
+     "team": "SEA",
+     "probability": 0.6172,
+     "outcome": "DID_NOT_SCORE",
+     "likeliest": true
+    },
+    {
+     "name": "Emanuel Wilson",
+     "team": "SEA",
+     "probability": 0.4623,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "J.K. Dobbins",
+     "team": "DEN",
+     "probability": 0.34,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "RJ Harvey",
+     "team": "DEN",
+     "probability": 0.2964,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Jaylen Waddle",
+     "team": "DEN",
+     "probability": 0.2669,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Courtland Sutton",
+     "team": "DEN",
+     "probability": 0.2261,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jonah Coleman",
+     "team": "DEN",
+     "probability": 0.2254,
+     "outcome": "VOID"
+    },
+    {
+     "name": "George Holani",
+     "team": "SEA",
+     "probability": 0.2227,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "AJ Barner",
+     "team": "SEA",
+     "probability": 0.2054,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Rashid Shaheed",
+     "team": "SEA",
+     "probability": 0.2019,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Cooper Kupp",
+     "team": "SEA",
+     "probability": 0.1971,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Evan Engram",
+     "team": "DEN",
+     "probability": 0.158,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Bo Nix",
+     "team": "DEN",
+     "probability": 0.1318,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Marvin Mims Jr.",
+     "team": "DEN",
+     "probability": 0.115,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tyler Badie",
+     "team": "DEN",
+     "probability": 0.099,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Lil'Jordan Humphrey",
+     "team": "DEN",
+     "probability": 0.0978,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Troy Franklin",
+     "team": "DEN",
+     "probability": 0.0866,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jarrett Stidham",
+     "team": "DEN",
+     "probability": 0.0686,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Sam Darnold",
+     "team": "SEA",
+     "probability": 0.0463,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401872996",
+   "matchup": "HOU @ JAX",
+   "kickoffUtc": "2026-10-18T13:30Z",
+   "away": {
+    "abbr": "HOU",
+    "name": "Houston Texans"
+   },
+   "home": {
+    "abbr": "JAX",
+    "name": "Jacksonville Jaguars"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 21,
+     "home": 23
+    },
+    "pick": {
+     "abbr": "JAX",
+     "probability": 0.6216
+    },
+    "total": {
+     "median": 44,
+     "low": 26,
+     "high": 61
+    },
+    "margin": {
+     "median": 2,
+     "low": -14,
+     "high": 19
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401872997",
+   "matchup": "BAL @ CLE",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "away": {
+    "abbr": "BAL",
+    "name": "Baltimore Ravens"
+   },
+   "home": {
+    "abbr": "CLE",
+    "name": "Cleveland Browns"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 23,
+     "home": 20
+    },
+    "pick": {
+     "abbr": "BAL",
+     "probability": 0.6199
+    },
+    "total": {
+     "median": 43,
+     "low": 26,
+     "high": 60
+    },
+    "margin": {
+     "median": -3,
+     "low": -19,
+     "high": 14
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401872998",
+   "matchup": "CAR @ PHI",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "away": {
+    "abbr": "CAR",
+    "name": "Carolina Panthers"
+   },
+   "home": {
+    "abbr": "PHI",
+    "name": "Philadelphia Eagles"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 19,
+     "home": 26
+    },
+    "pick": {
+     "abbr": "PHI",
+     "probability": 0.6092
+    },
+    "total": {
+     "median": 45,
+     "low": 27,
+     "high": 62
+    },
+    "margin": {
+     "median": 7,
+     "low": -10,
+     "high": 23
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401872999",
+   "matchup": "CHI @ ATL",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "away": {
+    "abbr": "CHI",
+    "name": "Chicago Bears"
+   },
+   "home": {
+    "abbr": "ATL",
+    "name": "Atlanta Falcons"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 24,
+     "home": 24
+    },
+    "pick": {
+     "abbr": "CHI",
+     "probability": 0.5262
+    },
+    "total": {
+     "median": 48,
+     "low": 31,
+     "high": 64
+    },
+    "margin": {
+     "median": 0,
+     "low": -16,
+     "high": 17
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873000",
+   "matchup": "NO @ NYG",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "away": {
+    "abbr": "NO",
+    "name": "New Orleans Saints"
+   },
+   "home": {
+    "abbr": "NYG",
+    "name": "New York Giants"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 21,
+     "home": 25
+    },
+    "pick": {
+     "abbr": "NYG",
+     "probability": 0.6241
+    },
+    "total": {
+     "median": 46,
+     "low": 29,
+     "high": 64
+    },
+    "margin": {
+     "median": 3,
+     "low": -14,
+     "high": 20
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873001",
+   "matchup": "NYJ @ NE",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "away": {
+    "abbr": "NYJ",
+    "name": "New York Jets"
+   },
+   "home": {
+    "abbr": "NE",
+    "name": "New England Patriots"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 16,
+     "home": 27
+    },
+    "pick": {
+     "abbr": "NE",
+     "probability": 0.8014
+    },
+    "total": {
+     "median": 43,
+     "low": 26,
+     "high": 60
+    },
+    "margin": {
+     "median": 10,
+     "low": -7,
+     "high": 26
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873002",
+   "matchup": "PIT @ TB",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "away": {
+    "abbr": "PIT",
+    "name": "Pittsburgh Steelers"
+   },
+   "home": {
+    "abbr": "TB",
+    "name": "Tampa Bay Buccaneers"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 23,
+     "home": 22
+    },
+    "pick": {
+     "abbr": "PIT",
+     "probability": 0.5507
+    },
+    "total": {
+     "median": 45,
+     "low": 28,
+     "high": 62
+    },
+    "margin": {
+     "median": -1,
+     "low": -18,
+     "high": 15
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873003",
+   "matchup": "TEN @ IND",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "away": {
+    "abbr": "TEN",
+    "name": "Tennessee Titans"
+   },
+   "home": {
+    "abbr": "IND",
+    "name": "Indianapolis Colts"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 18,
+     "home": 27
+    },
+    "pick": {
+     "abbr": "IND",
+     "probability": 0.7442
+    },
+    "total": {
+     "median": 45,
+     "low": 28,
+     "high": 63
+    },
+    "margin": {
+     "median": 9,
+     "low": -8,
+     "high": 25
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873004",
+   "matchup": "ARI @ LAR",
+   "kickoffUtc": "2026-10-18T20:05Z",
+   "away": {
+    "abbr": "ARI",
+    "name": "Arizona Cardinals"
+   },
+   "home": {
+    "abbr": "LAR",
+    "name": "Los Angeles Rams"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 21,
+     "home": 32
+    },
+    "pick": {
+     "abbr": "LAR",
+     "probability": 0.7849
+    },
+    "total": {
+     "median": 53,
+     "low": 36,
+     "high": 70
+    },
+    "margin": {
+     "median": 10,
+     "low": -7,
+     "high": 27
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873005",
+   "matchup": "BUF @ LV",
+   "kickoffUtc": "2026-10-18T20:25Z",
+   "away": {
+    "abbr": "BUF",
+    "name": "Buffalo Bills"
+   },
+   "home": {
+    "abbr": "LV",
+    "name": "Las Vegas Raiders"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 28,
+     "home": 21
+    },
+    "pick": {
+     "abbr": "BUF",
+     "probability": 0.7195
+    },
+    "total": {
+     "median": 49,
+     "low": 32,
+     "high": 66
+    },
+    "margin": {
+     "median": -7,
+     "low": -23,
+     "high": 10
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873006",
+   "matchup": "LAC @ KC",
+   "kickoffUtc": "2026-10-18T20:25Z",
+   "away": {
+    "abbr": "LAC",
+    "name": "Los Angeles Chargers"
+   },
+   "home": {
+    "abbr": "KC",
+    "name": "Kansas City Chiefs"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 17,
+     "home": 24
+    },
+    "pick": {
+     "abbr": "KC",
+     "probability": 0.7223
+    },
+    "total": {
+     "median": 41,
+     "low": 24,
+     "high": 58
+    },
+    "margin": {
+     "median": 7,
+     "low": -10,
+     "high": 23
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873007",
+   "matchup": "DAL @ GB",
+   "kickoffUtc": "2026-10-19T00:20Z",
+   "away": {
+    "abbr": "DAL",
+    "name": "Dallas Cowboys"
+   },
+   "home": {
+    "abbr": "GB",
+    "name": "Green Bay Packers"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 23,
+     "home": 29
+    },
+    "pick": {
+     "abbr": "GB",
+     "probability": 0.634
+    },
+    "total": {
+     "median": 52,
+     "low": 35,
+     "high": 69
+    },
+    "margin": {
+     "median": 5,
+     "low": -12,
+     "high": 22
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  },
+  {
+   "providerEventId": "401873008",
+   "matchup": "WSH @ SF",
+   "kickoffUtc": "2026-10-20T00:15Z",
+   "away": {
+    "abbr": "WSH",
+    "name": "Washington Commanders"
+   },
+   "home": {
+    "abbr": "SF",
+    "name": "San Francisco 49ers"
+   },
+   "published": {
+    "generatedAt": "2026-10-16T18:43:47Z",
+    "projectedScore": {
+     "away": 20,
+     "home": 30
+    },
+    "pick": {
+     "abbr": "SF",
+     "probability": 0.8086
+    },
+    "total": {
+     "median": 50,
+     "low": 33,
+     "high": 67
+    },
+    "margin": {
+     "median": 9,
+     "low": -7,
+     "high": 26
+    },
+    "sportsbookTotal": null
+   },
+   "state": "PENDING",
+   "final": null,
+   "team": [],
+   "players": [],
+   "touchdowns": [],
+   "boardNote": null
+  }
+ ],
+ "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
+ "generatedAt": "2026-10-16T18:43:47Z"
+}

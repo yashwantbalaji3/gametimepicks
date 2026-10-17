@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "products/cycle-table",
   "dataClass": "internal-research",
-  "generatedAt": "2026-10-15T14:28:48.986Z",
+  "generatedAt": "2026-10-16T14:16:51.637Z",
   "rule": "won → carry real payout, skip rungs the payout already clears; lost → cycle ends; void/push → same rung; pending → open. Identical to ladder-position.mjs positionFromReceipts.",
   "sources": {
     "receipts": "app/public/data/mr-dub/settled/<date>.json",
@@ -12,16 +12,16 @@
     ]
   },
   "coverage": {
-    "receipts": 61,
+    "receipts": 62,
     "firstDate": "2026-08-15",
-    "lastDate": "2026-10-14"
+    "lastDate": "2026-10-15"
   },
   "eras": [
     {
       "era": "RECEIPTED",
       "from": "2026-08-15",
-      "to": "2026-10-14",
-      "receipts": 61,
+      "to": "2026-10-15",
+      "receipts": 62,
       "source": "mr-dub/settled/<date>.json",
       "cyclesDerived": true
     },
@@ -98,23 +98,23 @@
       ],
       "seed": 100,
       "counts": {
-        "cyclesStarted": 37,
-        "cyclesLost": 37,
+        "cyclesStarted": 39,
+        "cyclesLost": 38,
         "cyclesCompleted": 0,
-        "cyclesOpen": 0,
+        "cyclesOpen": 1,
         "cyclesWithPublishedStepDivergence": 4,
         "furthestStepMax": 4,
-        "meanFurthestStep": 1.73,
+        "meanFurthestStep": 1.69,
         "furthestPublishedStepMax": 4,
-        "meanFurthestPublishedStep": 1.59,
-        "placedLaneDays": 64,
-        "decidedLaneDays": 64,
+        "meanFurthestPublishedStep": 1.56,
+        "placedLaneDays": 66,
+        "decidedLaneDays": 66,
         "noPlayLaneDays": 58
       },
       "lanes": {
         "A": {
-          "placedLaneDays": 32,
-          "decidedLaneDays": 32,
+          "placedLaneDays": 33,
+          "decidedLaneDays": 33,
           "pendingLaneDays": 0,
           "noPlayLaneDays": 29,
           "cycles": [
@@ -726,11 +726,38 @@
               "sourceReceipts": [
                 "mr-dub/settled/2026-10-12.json"
               ]
+            },
+            {
+              "cycleId": "bank-builder:A:18",
+              "product": "bank-builder",
+              "lane": "A",
+              "cycle": 18,
+              "startDate": "2026-10-15",
+              "endDate": null,
+              "result": "open",
+              "furthestStep": 1,
+              "furthestPublishedStep": 1,
+              "steps": [
+                {
+                  "date": "2026-10-15",
+                  "publishedStep": 1,
+                  "ruleStep": 1,
+                  "stake": 100,
+                  "result": "won",
+                  "payout": 240.67,
+                  "publishedStepDiverged": false
+                }
+              ],
+              "cards": 1,
+              "publishedStepDivergences": 0,
+              "sourceReceipts": [
+                "mr-dub/settled/2026-10-15.json"
+              ]
             }
           ],
           "next": {
-            "ruleStep": 1,
-            "ruleStake": 100
+            "ruleStep": 2,
+            "ruleStake": 240.67
           },
           "noPlay": [
             {
@@ -881,8 +908,8 @@
           ]
         },
         "B": {
-          "placedLaneDays": 32,
-          "decidedLaneDays": 32,
+          "placedLaneDays": 33,
+          "decidedLaneDays": 33,
           "pendingLaneDays": 0,
           "noPlayLaneDays": 29,
           "cycles": [
@@ -1545,6 +1572,33 @@
                 "mr-dub/settled/2026-10-07.json",
                 "mr-dub/settled/2026-10-12.json"
               ]
+            },
+            {
+              "cycleId": "bank-builder:B:21",
+              "product": "bank-builder",
+              "lane": "B",
+              "cycle": 21,
+              "startDate": "2026-10-15",
+              "endDate": "2026-10-15",
+              "result": "lost",
+              "furthestStep": 1,
+              "furthestPublishedStep": 1,
+              "steps": [
+                {
+                  "date": "2026-10-15",
+                  "publishedStep": 1,
+                  "ruleStep": 1,
+                  "stake": 100,
+                  "result": "lost",
+                  "payout": 300.11,
+                  "publishedStepDiverged": false
+                }
+              ],
+              "cards": 1,
+              "publishedStepDivergences": 0,
+              "sourceReceipts": [
+                "mr-dub/settled/2026-10-15.json"
+              ]
             }
           ],
           "next": {
@@ -1721,23 +1775,23 @@
       ],
       "seed": 25,
       "counts": {
-        "cyclesStarted": 48,
+        "cyclesStarted": 49,
         "cyclesLost": 48,
         "cyclesCompleted": 0,
-        "cyclesOpen": 0,
+        "cyclesOpen": 1,
         "cyclesWithPublishedStepDivergence": 0,
         "furthestStepMax": 3,
-        "meanFurthestStep": 1.13,
+        "meanFurthestStep": 1.12,
         "furthestPublishedStepMax": 3,
-        "meanFurthestPublishedStep": 1.13,
-        "placedLaneDays": 54,
-        "decidedLaneDays": 54,
-        "noPlayLaneDays": 68
+        "meanFurthestPublishedStep": 1.12,
+        "placedLaneDays": 55,
+        "decidedLaneDays": 55,
+        "noPlayLaneDays": 69
       },
       "lanes": {
         "A": {
-          "placedLaneDays": 27,
-          "decidedLaneDays": 27,
+          "placedLaneDays": 28,
+          "decidedLaneDays": 28,
           "pendingLaneDays": 0,
           "noPlayLaneDays": 34,
           "cycles": [
@@ -2418,11 +2472,38 @@
               "sourceReceipts": [
                 "mr-dub/settled/2026-10-12.json"
               ]
+            },
+            {
+              "cycleId": "moonshot:A:25",
+              "product": "moonshot",
+              "lane": "A",
+              "cycle": 25,
+              "startDate": "2026-10-15",
+              "endDate": null,
+              "result": "open",
+              "furthestStep": 1,
+              "furthestPublishedStep": 1,
+              "steps": [
+                {
+                  "date": "2026-10-15",
+                  "publishedStep": 1,
+                  "ruleStep": 1,
+                  "stake": 25,
+                  "result": "won",
+                  "payout": 100.41,
+                  "publishedStepDiverged": false
+                }
+              ],
+              "cards": 1,
+              "publishedStepDivergences": 0,
+              "sourceReceipts": [
+                "mr-dub/settled/2026-10-15.json"
+              ]
             }
           ],
           "next": {
-            "ruleStep": 1,
-            "ruleStake": 25
+            "ruleStep": 2,
+            "ruleStake": 100.41
           },
           "noPlay": [
             {
@@ -2601,7 +2682,7 @@
           "placedLaneDays": 27,
           "decidedLaneDays": 27,
           "pendingLaneDays": 0,
-          "noPlayLaneDays": 34,
+          "noPlayLaneDays": 35,
           "cycles": [
             {
               "cycleId": "moonshot:B:1",
@@ -3454,6 +3535,11 @@
             },
             {
               "date": "2026-10-14",
+              "state": "NO_PLAY_RECEIPTED",
+              "note": null
+            },
+            {
+              "date": "2026-10-15",
               "state": "NO_PLAY_RECEIPTED",
               "note": null
             }

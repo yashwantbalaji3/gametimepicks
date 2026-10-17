@@ -152,3 +152,29 @@ export function sourcesFor(sport, role) {
     .sort(([, a], [, b]) => (a.authorization === "PUBLIC_DISPLAY" ? 0 : 1) - (b.authorization === "PUBLIC_DISPLAY" ? 0 : 1))
     .map(([id, s]) => ({ id, ...s }));
 }
+
+/**
+ * Public display names for source ids (DS-001 §1.7: a slug on a public page reads as a leak, not a label).
+ * UXR1-07 (2026-10-16): moved here from components/sports/upcoming-sports.tsx so every surface that prints a
+ * source reads ONE map — /ufc and /epl printed the raw id ("Schedule source: espn_scoreboard").
+ */
+export const SOURCE_DISPLAY_NAME = Object.freeze({
+  odds_api: "The Odds API",
+  mlb_statsapi: "MLB StatsAPI",
+  espn_cdn: "ESPN public data",
+  espn_scoreboard: "ESPN public scoreboard",
+  api_football: "API-Football",
+  openfootball: "openfootball (public domain)",
+  "committed-fixture-capture": "committed fixture capture",
+});
+
+/**
+ * The reader name for a source id. An id with no entry is shown with its separators as spaces — never the raw
+ * slug — and a missing id falls back to the caller's default.
+ * @param {string|null|undefined} id
+ * @param {string} [fallback]
+ */
+export function sourceDisplayName(id, fallback = "—") {
+  if (!id) return fallback;
+  return SOURCE_DISPLAY_NAME[id] ?? String(id).replace(/[_-]+/g, " ");
+}

@@ -138,7 +138,7 @@ export default function MlbFilterConsole({
                 density: "detailed",
               })
             }
-            className="font-mono uppercase tracking-[0.14em] rounded-[3px] px-2.5 py-1"
+            className="gtp-hit-44 font-mono uppercase tracking-[0.14em] rounded-[3px] px-2.5 py-1"
             style={{
               fontSize: 10,
               color: "var(--vault-text-mute)",
@@ -263,7 +263,7 @@ function ChipButton({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className="font-mono uppercase tracking-[0.10em] rounded-[3px] px-2.5 py-1 transition-colors"
+      className="gtp-hit-44 font-mono uppercase tracking-[0.10em] rounded-[3px] px-2.5 py-1 transition-colors"
       style={chipStyle(active)}
     >
       {children}

@@ -60,10 +60,10 @@ test("the one owner: day-view assigns post-start states only through postStartSt
   assert.doesNotMatch(src, /Date\.now\(\) - 3 \* 3600_000/, "no 'three hours after kickoff means settled'");
 });
 
-test("labels: 'Kicked off' and 'Final · grading pending' beside the unchanged 'Settled'", () => {
+test("labels follow DS-001 §2: 'Started', 'Final · grading pending', 'Final' (sport-neutral; 'Kicked off' was wrong for MLB)", () => {
   const c = fs.readFileSync(path.join(process.cwd(), "src/components/simulate/simulate-day.tsx"), "utf8");
-  assert.match(c, /STARTED: \{[^}]*label: "Kicked off" \}/);
+  assert.match(c, /STARTED: \{[^}]*label: "Started" \}/);
   assert.match(c, /AWAITING_SETTLEMENT: \{[^}]*label: "Final · grading pending" \}/);
-  assert.match(c, /SETTLED: \{[^}]*label: "Settled" \}/);
+  assert.match(c, /SETTLED: \{[^}]*label: "Final" \}/);
   assert.doesNotMatch(POST_START_PHRASE.STARTED, /settled|graded outcome/i, "the started sentence claims no settlement");
 });

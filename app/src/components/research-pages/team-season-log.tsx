@@ -95,7 +95,7 @@ export default function TeamSeasonLog({ teamName, seasons, defaultSeason, games,
                     )}
                   </td>
                   <td style={{ ...cell, textAlign: "right" }}>
-                    {href ? <Link href={href} style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-gold-bright)", display: "inline-flex", minHeight: 32, alignItems: "center" }}>Game →</Link> : null}
+                    {href ? <Link href={href} style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-gold-bright)", display: "inline-flex", minHeight: 44, alignItems: "center" }}>Game →</Link> : null}
                   </td>
                 </tr>
               );

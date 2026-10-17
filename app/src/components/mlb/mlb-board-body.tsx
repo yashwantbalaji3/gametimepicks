@@ -13,6 +13,8 @@ import { mlbMarketLabel } from "@/lib/format-mlb";
 import { isPredictionDisabled, MLB_CALIBRATION_DISCLOSURE } from "@/lib/mlb/model-calibration-status";
 import { currentEtDate } from "@/lib/freshness";
 import { isAnomalyLean } from "@/lib/mlb/lean-anomaly";
+import TeamMark from "@/components/ui/team-mark";
+import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import MlbTopLeansStrip from "@/components/mlb/mlb-top-leans-strip";
 import { toBoardLeanView } from "@/lib/mlb/board-lean-view";
@@ -37,6 +39,36 @@ import { surfaceHref } from "@/lib/nav/date-sport-route";
  *   2) games.length > 0 && no leans        → schedule-only "lines pending"
  *   3) games.length === 0                  → honest off-day shell
  */
+/**
+ * The board's `pendingReason` codes (pipeline/mlb/generate_mlb_board.py `_write_pending_board`) in reader words. They
+ * describe the PROP-PRICE capture, not the schedule: `no_events` means the odds provider listed no events, while the
+ * schedule may well hold games. An unknown code is never printed raw.
+ */
+const PRICES_NOT_CAPTURED = "Prop prices were not captured for this slate.";
+const MLB_PENDING_REASON: Record<string, string> = {
+  no_events: "Sportsbooks had not listed this slate's games when prop prices were captured.",
+  all_events_started: "Every game had started before prop prices were captured.",
+  odds_not_fetched: PRICES_NOT_CAPTURED,
+  odds_not_configured: PRICES_NOT_CAPTURED,
+  free_key_blocked: PRICES_NOT_CAPTURED,
+  cost_cap: PRICES_NOT_CAPTURED,
+  floor_guard: PRICES_NOT_CAPTURED,
+  dry_run: PRICES_NOT_CAPTURED,
+};
+
+/**
+ * One message per case (audit H4): the specific reason when the board records one, otherwise the generic state;
+ * a past slate, or one where every game has started, never promises projections "once lines post".
+ */
+function pendingBannerText(hasLeans: boolean, isPast: boolean, pendingReason: string | null | undefined): string {
+  if (hasLeans) return "Posted prop lines are limited for this slate.";
+  const reason = pendingReason ? MLB_PENDING_REASON[pendingReason] : undefined;
+  // "once lines post" is only promised while it can still happen: not for a past slate, and not once every game started.
+  const promise = !isPast && pendingReason !== "all_events_started" ? " Projections are listed once lines post." : "";
+  if (reason) return reason + promise;
+  return isPast ? "No prop lines were posted for this slate." : `No prop lines are posted for this slate yet.${promise}`;
+}
+
 export default function MlbBoardBody({ date, liveness }: { date: string; liveness?: ReactNode }) {
   const board = getMlbBoardForDate(date);
 
@@ -250,14 +282,9 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                   className="font-mono uppercase tracking-[0.14em] mb-1"
                   style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
                 >
-                  prop lines pending · projections coming soon
+                  {date < currentEtDate() ? "no prop lines for this slate" : "prop lines pending"}
                 </div>
-                {hasLeans
-                  ? "Posted prop lines are limited for this slate."
-                  : "Schedule is live but no posted prop lines yet. Projections appear here when lines post."}{" "}
-                {board.pendingReason && (
-                  <span>Reason: {board.pendingReason}.</span>
-                )}
+                {pendingBannerText(hasLeans, date < currentEtDate(), board.pendingReason)}
               </div>
             </section>
           )}
@@ -289,7 +316,7 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                 className="font-mono uppercase tracking-[0.14em] mb-3"
                 style={{ color: "var(--vault-gold-bright)", fontSize: 10 }}
               >
-                Scheduled · {totalGames} {totalGames === 1 ? "game" : "games"}
+                {date < currentEtDate() ? "Slate" : "Scheduled"} · {totalGames} {totalGames === 1 ? "game" : "games"}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {board.games.map((g) => (
@@ -309,7 +336,11 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                         fontWeight: 600,
                       }}
                     >
-                      {g.awayTeamAbbr ?? "?"} @ {g.homeTeamAbbr ?? "?"}
+                      <span className="inline-flex items-center gap-1.5">
+                        <span aria-hidden className="inline-flex"><TeamMark name={g.awayTeamAbbr} logoUrl={mlbTeamLogoUrl(g.awayTeamId)} size="sm" /></span>
+                        {g.awayTeamAbbr ?? "TBD"} @ {g.homeTeamAbbr ?? "TBD"}
+                        <span aria-hidden className="inline-flex"><TeamMark name={g.homeTeamAbbr} logoUrl={mlbTeamLogoUrl(g.homeTeamId)} size="sm" /></span>
+                      </span>
                     </div>
                     <div
                       style={{

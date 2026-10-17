@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "mlb-pregame-bullpen-1",
+  "public": false,
+  "approvedForProduction": false,
+  "productEligible": false,
+  "family": "bullpen_availability",
+  "gamePk": 849808,
+  "date": "2026-10-16",
+  "capturedAt": "2026-10-16T00:55:14.139Z",
+  "availableAt": "2026-10-16T00:55:14.139Z",
+  "eventStartTime": "2026-10-17T01:00:00Z",
+  "researchEligible": true,
+  "eligibilityReason": "captured pregame; source games Final + strictly earlier",
+  "windowDates": [
+    "2026-10-13",
+    "2026-10-14",
+    "2026-10-15"
+  ],
+  "home": {
+    "teamId": 119,
+    "teamName": "Los Angeles Dodgers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 56,
+      "relievers": [
+        {
+          "id": 680736,
+          "name": "Justin Wrobleski",
+          "appearances": 1,
+          "pitches": 32,
+          "outs": 5,
+          "dates": [
+            "2026-10-14"
+          ]
+        },
+        {
+          "id": 808963,
+          "name": "Roki Sasaki",
+          "appearances": 1,
+          "pitches": 14,
+          "outs": 1,
+          "dates": [
+            "2026-10-14"
+          ]
+        },
+        {
+          "id": 623465,
+          "name": "Evan Phillips",
+          "appearances": 1,
+          "pitches": 10,
+          "outs": 3,
+          "dates": [
+            "2026-10-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "away": {
+    "teamId": 158,
+    "teamName": "Milwaukee Brewers",
+    "last1Day": {
+      "appearances": 0,
+      "pitches": 0,
+      "relievers": []
+    },
+    "last3Days": {
+      "appearances": 3,
+      "pitches": 66,
+      "relievers": [
+        {
+          "id": 669084,
+          "name": "DL Hall",
+          "appearances": 1,
+          "pitches": 28,
+          "outs": 7,
+          "dates": [
+            "2026-10-14"
+          ]
+        },
+        {
+          "id": 682842,
+          "name": "Abner Uribe",
+          "appearances": 1,
+          "pitches": 20,
+          "outs": 1,
+          "dates": [
+            "2026-10-14"
+          ]
+        },
+        {
+          "id": 656730,
+          "name": "Trevor Megill",
+          "appearances": 1,
+          "pitches": 18,
+          "outs": 4,
+          "dates": [
+            "2026-10-14"
+          ]
+        }
+      ]
+    },
+    "likelyUnavailable": []
+  },
+  "leakageRule": "only Final games with officialDate < slate date and gameDate before capturedAt; a reliever flag is a workload signal, not a definitive availability claim",
+  "provenance": {
+    "source": "https://statsapi.mlb.com schedule(2026-10-13,2026-10-14,2026-10-15) + feed/live box scores",
+    "capturedAt": "2026-10-16T00:55:14.139Z"
+  },
+  "recordHash": "b2f14313b3af287f0b3bc98228d420811c09dca03020c1bc9a8ca6ba01f0edf7"
+}

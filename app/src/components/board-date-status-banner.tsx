@@ -122,9 +122,12 @@ export default function BoardDateStatusBanner({
             {config.eyebrow}
           </span>
         </div>
+        {/* UXR1-11 (DS-001 §9): with a zero flex-basis this text never wrapped to its own line, so at 320 px it was
+            squeezed to ~40 px beside the eyebrow — one word per line, "tonight" clipped, the date split. A 12rem
+            basis lets the banner's existing flex-wrap move it below the eyebrow when both cannot fit. */}
         <div
-          className="flex-1 min-w-0 text-[12px] leading-snug"
-          style={{ color: "var(--vault-text-mute)" }}
+          className="min-w-0 text-[12px] leading-snug"
+          style={{ color: "var(--vault-text-mute)", flex: "1 1 12rem" }}
         >
           <span style={{ color: "var(--vault-text)" }}>
             {state === "settled" && settled

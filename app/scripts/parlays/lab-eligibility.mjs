@@ -32,6 +32,9 @@ import { PRICE_MAX_AGE_DAYS } from "../../src/lib/parlays/card-leg-eligibility.m
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 const daysBetween = (a, b) => Math.abs(Date.parse(a) - Date.parse(b)) / 86_400_000;
 
+/** "Oct 11" — the America/New_York calendar day of an instant (a capture date that never moves). */
+const etDayLabel = (iso) => new Date(iso).toLocaleDateString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric" });
+
 /* How stale a price capture may be before the sport stops being publishable: PRICE_MAX_AGE_DAYS — ONE rule, owned by
    lib/parlays/card-leg-eligibility.mjs (F-1), which every card producer reads. */
 /**
@@ -258,7 +261,13 @@ export function labEligibility(root, date, now) {
         ? `no price capture for ${date} yet — the sport's own generation runs later in the day (newest capture ${prices.newestDate ?? "unknown"})`
         : "no odds capture is ingested for this sport");
     }
-    else if (ageDays > PRICE_MAX_AGE_DAYS) reasons.push(`the last price capture is ${ageDays.toFixed(1)} days old`);
+    /*
+     * 2026-10-15: this said "the last price capture is 3.9 days old", re-computed on every run. The age is wall-clock
+     * prose inside a published artifact: it is wrong by the time a static page is read, and it changed the text on
+     * every re-run, so the Results projection "restated" itself (r2 → r5 on 2026-10-15) for nothing but the clock.
+     * The capture DATE and the rule are facts that stay true until a new capture lands.
+     */
+    else if (ageDays > PRICE_MAX_AGE_DAYS) reasons.push(`the last price capture (${etDayLabel(prices.at)}) is more than ${PRICE_MAX_AGE_DAYS} days old`);
     /*
      * The SPECIFIC reason, when the source knows one. "No official settlement path has produced a
      * graded result yet" is the right sentence for a sport with no results on disk, and the wrong

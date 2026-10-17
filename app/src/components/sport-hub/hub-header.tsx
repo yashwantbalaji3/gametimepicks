@@ -74,7 +74,7 @@ export default function HubHeader({ model, deferToCanonical, compact = false }: 
   if (model.periodLabel === "Settled window") {
     return (
       <details className="rounded-[12px]" style={{ border: "1px solid var(--vault-border)", background: "var(--vault-wash-faint)" }}>
-        <summary className="cursor-pointer px-4 py-3 text-[13.5px] font-semibold" style={{ color: "var(--vault-text-mute)" }}>
+        <summary className="cursor-pointer px-4 py-3 text-[13.5px] font-semibold" style={{ color: "var(--vault-text-mute)", minHeight: 44 }}>
           Settled window{model.periodRange ? ` · ${model.periodRange}` : ""} — open the archive table
           ({model.rows.length} {model.labels.games.toLowerCase()})
         </summary>

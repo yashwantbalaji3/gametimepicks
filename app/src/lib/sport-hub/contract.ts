@@ -185,3 +185,20 @@ export function hubStatusWord(state: HubStatusInput | string | null | undefined,
     default: return startedByClock ? "started or final" : "scheduled";
   }
 }
+
+/**
+ * DS-001 §2 — the word a READER sees for a hub status. `hubStatusWord` stays the internal value (it is compared
+ * elsewhere, e.g. isLiveRow); only the chip is translated, so every sport's card says Upcoming / Live / Final in
+ * the same words /live uses (lib/live/lifecycle.mjs LIFECYCLE_LABEL). A source that only knows the game began
+ * says "Started" — never "Live" or "Final" it cannot vouch for.
+ */
+export function hubStatusDisplay(status: string | null | undefined): string {
+  switch (String(status ?? "").toLowerCase()) {
+    case "scheduled": return "Upcoming";
+    case "in progress": return "Live";
+    case "final": return "Final";
+    case "postponed": return "Postponed";
+    case "started or final": return "Started";
+    default: return String(status ?? "");
+  }
+}
