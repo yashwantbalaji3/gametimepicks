@@ -1705,6 +1705,444 @@ Source: `GameTimePicks_UX_System_V2_Engineering_Directive_2026-10-13.md` (founde
 - **Effort:** Release 2A ≈ 1 day; Release 2B + LIVE-F ≈ 1.5 days.
 - **Deferral order if time runs short:** GTP-19/20 folds go first, then GTP-17/18 research-page identity, then GTP-25. P0, the truth labels and LIVE-F status correctness never drop.
 
+#### Overnight execution log — 2026-10-14 (founder's limited overnight authorization)
+State is kept in four separate buckets: **confirmed Production behaviour**, **committed but undeployed**, **local work in progress** and **proposed future work**.
+
+**Confirmed in Production** (`d4bc2a1def`, built 06:50:39Z; 1 Production deployment):
+- #1079 (roadmap) was merged first as `adcc53f087`, producing 0 Vercel deployments.
+- #1080 (P0 + Release 2A) was merged as `d4bc2a1def` under the overnight gates:
+  - exact head `7d1c9a3ffd`;
+  - CI green on that head (run 38521500420);
+  - MERGEABLE/CLEAN with no file overlap with main;
+  - no data, workflow or Vercel changes;
+  - main CI green on the merge (run 38524452593).
+- **Production acceptance:**
+  - 18 affected routes at 1440 and 390 px, with every fix present and 0 console errors;
+  - a 91-page sweep at phone width showed 0 failed pages, 0 console errors, 0 broken images and 0 CSP report-only violations;
+  - all five security headers are present.
+- **Before merge, an independent read-only review of #1080** found 0 blockers and 2 should-fix items, both fixed in `7d1c9a3ffd`:
+  - a WATCH headline contradicting its own interval on a stale scorecard;
+  - the multi-sport lane mislabelled as "not enough prices".
+
+  Also fixed in the same commit: graded-leg wording ("Card decided"), past NBA dates on /simulate, and the EPL model-only reason.
+- **Documented limitation:** /bank-builder reads the pool's status on disk at build time, so before the morning generation the page correctly says today's card is not assessed. It does not yet read the status the generator itself recorded (review nit 5).
+- **GTP-08:** fixed at the producer and the reader, with no fail-closed fallback needed.
+  - From the next scheduled ledger and tier-grid runs, UFC and the multi-sport lane are written as closed.
+  - Settled records are unchanged.
+- **GTP-23:** no producer change was needed. The per-game, hash-bound `frozenPregame` time already existed and is now the one that is displayed (CLE@TB: 10:06 PM became 7:47 PM ET).
+
+**Committed, in review, not deployed:**
+- **#1081, Release 2B + LIVE-F:**
+  - exact-ID portraits and crests (NFL/MLB research pages, EPL crests, fighters on Home and Cage Chaos), and NBA crests;
+  - one shared `LiveEventCard` for NFL and MLB, with a visible report link;
+  - the shared `useRovingTabs` hook on the MLB report and /live;
+  - `.gtp-hit-44` touch targets;
+  - folds on the NFL and EPL hubs (`OpenOnHash` keeps deep links working);
+  - Power Board links to Homer Nukes;
+  - GTP-29 copy fixes.
+
+  Phone heights: /nfl 24,232 → 15,651 px; /epl 21,848 → 12,460 px. Final head `ef4a3d3448` also includes MLB board filters labelled by gap size rather than "confidence", an H+R+RBI filter, and Cage Chaos probability language. Locally on that exact head: unit 9,376 passed (2 RLS env failures), post-build 692, both CI e2e suites 515 passed with 0 failures, and 0 browser issues.
+- **#1082, Live Hub V2 foundation (draft, stacked on #1081):**
+  - a shared view model with eight statuses;
+  - per-sport capability: NFL and MLB tracked, NBA, soccer and UFC never;
+  - progress lines from verified fields only;
+  - frozen-line forecast progress;
+  - reading-order grouping;
+  - a guarded `/preview/live-v2` fixture.
+
+  It also adds pure mappers from the existing live contract and rosters (no new source). It is not wired into /live (head `0a19b9b42b`; unit 9,394 passed).
+
+**Deliberately not done (needs founder or counsel):**
+- GTP-01 legal inputs.
+- /responsible-use still describes a slip-comparison "Parlay Center" that /build does not offer; slip reading is an off account feature. This is legal-adjacent copy, so it is flagged rather than edited.
+- The `/results` accounting section stays unfolded: it is an integrity disclosure and is pinned by e2e.
+
+**Remaining after #1081 and #1082:**
+- **P2:**
+  - GTP-21/32 results paging;
+  - GTP-28 research shell;
+  - GTP-31 decorative alt text sitewide (done on new call sites);
+  - EPL player portraits (no authorized ID);
+  - small-target link lists on research squads.
+- **Live Hub V2:** adapters, wiring and real-event validation, Thursday NFL first.
+
+#### Daytime execution log — 2026-10-14 (founder directive "UX System V2 · Live Hub V2 · Launch readiness")
+Evidence stages as defined in §11 of that directive. Nothing below is Production-accepted unless it says so.
+
+**Status at 2026-10-16 03:55Z.** Status categories: COMPLETED · AWAITING CI · AWAITING FOUNDER APPROVAL · AWAITING PRODUCTION VERIFICATION · PROPOSAL (founder review).
+
+| Work | PR · exact head | Evidence | Status |
+|---|---|---|---|
+| UX Release 2B + LIVE-F | #1081 → merge `5917475b53` (20:16:25Z) | Merged at the approved head `6e24b774f4`. Before the merge: unit run on main + head locally (only known local-env failures).<br>**Production READY serving `5917475b53`** (built 20:17:59Z). Main CI green.<br>Merge diff: 43 files, all `app/src`; 0 data, settlement or grading paths.<br>Forecast Record: 15,868/15,868 served rows match the ledger; 0 settlement mismatches.<br>36-view sweep at 1440/390 px clean (logos, portraits, `/live` tabs, coverage line) | **COMPLETED** (Production-verified) |
+| Live RLS battery in CI | #1084 → merge `46c7912271` (21:58:09Z) | Merged at the approved head `bfb1bd39e0`. **Production serves `46c7912271`** (built 22:02:00Z). Main CI green (run 38644263216) and **live RLS 82–84 PASS on main, not skipped**. Merge diff: 3 harness files only. No route, account code, migration or hosted-DB path; `--hosted` needs an explicit flag and URL, and no workflow supplies them. Forecast Record served = ledger, 15,868/15,868 | **COMPLETED** (Production-verified) |
+| UFC grader truth | #1085 → merge `411089bfe4` (22:27:49Z) | Merged at the approved head `68ab9225cf`. Main CI green (run 38647814525). Merge diff: 7 code/test files, 0 data. **All 199 UFC record files byte-identical** before and after. On main: 44/44 UFC/ledger checks (draw = VOID, withdrawn never a loss or in the ledger, pending excluded from n). Production record: 71 rows = 70 decided (44 W / 26 L) + 1 VOID (Gatto–Kareckaite, no result, no score). Withdrawn Gall–Dumas absent; 9 pending 10/17 bouts excluded. 10/17 chain ready (fight-week Sat 11Z, post-card daily) | **COMPLETED**: Production serves `b713c2c98c` (built 23:24:04Z), which contains the merge. Served record: 15,868/15,868 = ledger; UFC 71 rows unchanged |
+| Roving-tab a11y follow-up | #1087 → merge `279098cf25` (2026-10-15 00:17:41Z) | Merged at the approved head `152a4a35b5`. Main CI green (run 38659199389). Merge diff: its 7 UI/test files. The merge's own build was killed at 46.2 min (wedge). It was delivered by `5195af77eb` (built 01:51:23Z). Real-browser check: `/results` 5 tabs → 1 tab stop, Arrow-Right works, all tabs paired; NFL game 2 tablists → 2 stops. 0 overflow, 0 broken images. All 25 Forecast Record files (15,868 rows: ids + settlement states) hash-identical to the ledger at `5195af77eb` | **COMPLETED** (Production-verified) |
+| Deploy-trigger non-inputs | #1091 → merge `39df089d02` (2026-10-15 16:34:05Z) | Merged at the approved head `dcfbf47fd2` (CI green, MERGEABLE CLEAN, 2 files). Built 16:34→16:40Z. **Production serves `39df089d02`**; main CI green (run 38770093761). Forecast Record 25/25 hash-identical to a local build of the same commit, 15,879 rows, 0 ledger mismatches. Next ops-only commit correctly ignored | **COMPLETED** (Production-verified) |
+| Static-gen workers 4 → 3 | #1094 (draft) · `e1bb1b33dc` | Validated locally: worker RSS −6%, build +6%, identical output | **ON HOLD** (founder, 2026-10-15): modest gain; do not merge without further approval |
+| Build memory observability (anon/file/peak) | #1095 (draft) · `0f9d3eab81` | Split out of #1094; worker count unchanged; 14/14 observability tests; fails against old script | PROPOSAL: ride with next necessary release |
+| HTML reduction series | #1096 · #1097 · #1098 · #1099 · #1100 (drafts) | ≈ −27% generated HTML combined; rendering, visible text and computed styles verified identical | PROPOSAL (local only, 0 deploys) |
+| Settled-history stamp guard | #1101 (draft, protected workflow) · `99d435f7b4` | 380–386 past-dated files per settle run no longer restamped (16,823 gradedAt); replay on 4 real commits | **AWAITING FOUNDER APPROVAL** (protected workflow) |
+| UX consistency series | #1102–#1107 (drafts; #1103 on #1092) | Status vocabulary, plain copy, Results paging, team identity, NBA strip, labels/targets; combined build + 10,119 tests 0 fail + 26-page sweep | PROPOSAL (display-only, 0 deploys) |
+| Live Hub V2 + Thursday plan | #1082 (draft, base main) · `659b6b9376` | 23-check plan plus a read-only capture kit: per-request status log, 390/1440 screenshots, settlement window to 10-16 16:00Z, gap report. Dry run OK (80 portraits, 66 logos, 0 broken). Capture armed for 10-15 23:15Z, with an idle-sleep assertion | **Preview only**; awaiting real-event evidence |
+| MLB stamp-only gate | #1088 (draft) · `26de79bfb8` (rebased; suppression-safety assessment added) | Deploy trigger now builds on publication-SLO public-field moves for every workflow (8 previously delayed in 10 days). Forecast of record identical for 21/21 games. Results and settlement never gated. **Conservative ≈ $0.75/day net (estimate).** | PROPOSAL (protected workflows) |
+| Data-contract checks | #1089 → merge `7c3f23722a` (02:11:09Z) | Marked ready, then merged at the approved head `9b19f082b1`. Main CI green (run 38669654780).<br>Workflow verified:<br>• active; `schedule` + dispatch only (no push trigger, so it never deploys);<br>• `contents: read`, `issues: write`; own concurrency group;<br>• no commit, push or build step.<br>`ufc-post-card` safeguards preserved (dry-run / `commit_artifacts` gating, `continue-on-error`, fails only after commit).<br>Manual verification run 38669700923: 9,401 tests, 0 failed, 7 min, no issue opened. The merge's own Vercel build was killed at about 46 min; it renders nothing, so Production is unaffected (`5195af77eb`, browser-verified) | **COMPLETED** in GitHub; awaiting the first scheduled run (03:47Z) and the next data build to carry it |
+| 503 bodies name no config variables | #1090 · `8af11b4e31` | CI green (run 38660171623). Revalidated on main `7c3f23722a` + head: unit 9,399 passed. The one local failure is the gitignored build-output parity test, which skips without the artifact exactly as on CI | **AWAITING FOUNDER APPROVAL** |
+| MLB-001 simulation audit | #1086 · `4e7287913d` | Research (descriptive) | Docs only; AWAITING FOUNDER APPROVAL |
+| Parity test vs UFC VOID row | merged with #1081 | `main` green again (main CI on `5917475b53`) | **COMPLETED** |
+
+#### COST-002 progress: Vercel cost and build reliability (founder P0, 2026-10-15; extends `COST-002` below, not a new task)
+Full report: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md`. Appendices: `docs/research/ops/vercel-cost-2026-10-15/`.
+
+- **ROOT CAUSE CONFIRMED (Vercel build log):** the 46-minute kills are memory exhaustion during static generation.
+  - `mem 15.51G/16.00G` at 2155/2874 pages, then 44 minutes of silence.
+  - Default of 7 workers; the last quarter renders the 5 MB MLB board and Results archive pages.
+  - Fix proposed in **#1093**: `experimental.cpus: 4`. Locally: same time, swap-outs −94% to −99%, and the export is identical in 7,500/7,500 files apart from build-instant values.
+- **Attribution (local):**
+  - limiting both archives to 21 days cuts HTML 56% and `next build` about 11%, but **does not lower peak memory** (8.81 vs 8.45–8.95 GiB);
+  - worker count does lower pressure: swap-outs 0–10.9k with 4 workers vs 50k–180k with 7, over 9 builds.
+  - The per-worker footprint is the remaining COST-002 profiling item, and the path to the cheaper Standard machine.
+- **Volume (measured):** about 85–90 deployments/day and 61–72 full builds/day. Bots cause about 82% of build CPU. There is no duplicate project.
+- **Estimated build CPU:** about 2,400–2,800 CPU-min/day; 4,216 in the failure day.
+- **Plan:**
+  - **P0:** #1093, then #1091.
+  - **P1:** #1088 (MLB gate); archive slimming (export −51% locally); `nightly-settle` gate; per-run snapshot hygiene.
+  - **P2:** deploy coordinator; data decoupling; move `data/internal` out of the deploy repo (51 s clone).
+- **Target:** −30% to −40% of build CPU after P0+P1, and −50% to −65% with P2. Dollar figures await the founder's Usage breakdown and billing-cycle dates.
+- **14:40Z update:**
+  - **Billing reconciliation:**
+    - Dashboard: Build CPU $65.32, on-demand $45.65, included credit $20. On-demand ≈ total usage − $20 credit, so non-build usage is about $0.33 (inference; to be confirmed on the Usage page).
+    - Our model (COST-001 rate $0.0035/CPU-min) gives $62.51 from 10-09 and $71.06 from 10-08, so it matches a cycle starting about 10-08/09. **The model is calibrated** (the earlier "1.8×" compared 14 d with a ~6-day cycle).
+    - Baseline: about $9.9/day of build CPU on 7 days, ≈ **$280–320/month** before the $20 credit.
+  - **Production build health:** a **6th** 46-minute kill (daily products 10:09→10:59Z). 6 kills in about 21 h.
+  - **#1093:** exact head `1b8463c539`, CI green (run 38692616491), MERGEABLE CLEAN, 2 files. Approval package sent.
+  - **#1091** (`dcfbf47fd2`): CI run 38750597086 green; MERGEABLE CLEAN; revalidated on main + head (22/22, including #1093's guard). **Proven to affect no automated commit**. 0 workflow `git add` lines and 0 bot commits in 14 d touch its globs.
+  - **#1088** (`ca375282f3`): replay refreshed on current data: 160 → 50 MLB build-triggering commits (−69%). All 28 lineup-driven simulation changes, 10 new-day files and 1 prediction change published.
+- **#1093 MERGED** as `a4c8e26f03` (14:27:50Z). It was marked ready only after reconfirming the exact head `1b8463c539`, CI green, MERGEABLE CLEAN and the 2-file scope.
+  - Main CI green (run 38751623403).
+  - The merge's own deployment was superseded and cancelled at 15:06:43Z, the same second that `bc0ac8b0e3` completed.
+  - **Production serves `bc0ac8b0e3`** (contains #1093; builtAt 15:02:28Z, live 15:06:43Z; about 4 min from the first build step to live).
+  - **Forecast Record:** 25/25 files hash-identical to the ledger at `bc0ac8b0e3` (15,879 rows).
+  - **Vercel log `dpl_FpJSaweMcmUE2yoSzNiNbX8UAKBb` (bc0ac8b):**
+    - cap active ("Experiments: cpus"); completed;
+    - **peak `mem` 14.82G/16.00G** (vs 15.51G and a stall at 7 workers), with the wrapper's own memory at 50 → 36 MB;
+    - 2,881 pages; `next build` 221 s; container 6m36s, of which **clone 1m23s**, build-cache creation 39 s, deploy 7 s.
+    - **Acceptance (≤ 13 G) NOT met:** it survived with a 7% margin. Follow-up **#1094** (3 workers, draft, founder decision).
+  - The log also shows the ignore step falling back to BUILD because the previous deployed SHA was 14 commits back, beyond Vercel's shallow clone. This happens on 3.6% of attempts over 14 d (0 of them ignorable). It is fail-safe, but it caps the savings from any skip rule.
+  - A 72-hour detached deploy watch runs until 10-18 14:30Z (`~/gtp-evidence/deploy-watch/`, GitHub API only). It flags every failure and any completed build over 30 min.
+- **17:30Z update (#1091 merged and verified; #1094 validated; shallow-clone fallback measured):**
+  - **#1091 MERGED** as `39df089d02` (16:34:05Z) at the approved head `dcfbf47fd2`. It was marked ready only after reconfirming the head, CI (python + quality green), MERGEABLE CLEAN and the 2-file scope. Merge diff: `app/scripts/vercel-ignore-build.sh` + `app/src/lib/build-trigger-non-inputs.test.mjs`.
+    - The merge built, as it should, since the ignore script is itself a build input: 16:34:10 → 16:40:06Z, about 6 min, `dpl_6geraKq2gFZ1KWADAZYPPJ4Nzb3k`.
+    - **Production serves `39df089d02`** (builtAt 16:35:38Z; read in the real browser).
+    - Main CI green (run 38770093761).
+    - **Forecast Record:** 25/25 served files hash-identical to a local build of the same commit (15,879 rows), and every row matches the ledger at `39df089d02` (0 missing, 0 settlement mismatches).
+    - **Genuine inputs still build.** The next commit, `cde42956e6`, touched only `ops/` and was "Canceled by Ignored Build Step", as before #1091. The 72-hour watch records each data commit's outcome.
+  - **#1094 (3 workers) local validation:** paired builds of the same tree against main (4 workers), on head `e1bb1b33dc` (rebased on `39df089d02`).
+
+    | | 3 workers | 4 workers |
+    |---|---|---|
+    | builds | 3 | 4 |
+    | completed | all | all |
+    | pages | 2,881 | 2,881 |
+    | worker restarts / OOM lines | 0 | 0 |
+    | `next build` mean | 139 s | 131 s (+6% at 3 workers) |
+    | output | identical | identical |
+    | simultaneous worker memory during static generation (per-process sampling) | 5.43 G | 5.76 G |
+    | largest single worker | 3.20 G | 2.08 G |
+
+    - Output check: 7,516 files compared; only `build-info.json`'s commit fields differ. 2,863 HTML both ways.
+    - Memory: fewer workers each render more pages and grow larger. **The local reduction is about 6%, not proportional.** The earlier "≈12.8 G on Vercel" extrapolation is withdrawn, and the config comment now carries the measured numbers.
+    - Local swap-outs were dominated by other processes on the 16 GB laptop (0–188k at both settings), so they are not used as evidence.
+    - **New instrumentation in #1094:** the build heartbeat now splits the cgroup charge into `anon` (process memory, the OOM risk), `file` (reclaimable page cache) and `peak`.
+      - The 14.82 G reading was `memory.current`, which includes page cache. How much of it was real risk is unknown until the next log.
+      - Tested on v2, v1 and no-stat fixture cgroups; the new test fails against the previous script.
+    - Regression: unit 10,103 tests (0 failures, 5 skipped); workers-cap guard; build-phase observability 14/14.
+    - Cost of 3 workers: about +8 s per build, i.e. about +1 CPU-min (~$0.004) per build, roughly $7/month at 60–70 builds/day.
+    - **Acceptance on the first Production build after merge:** the build completes; `anon` peak and `memory.peak` are recorded; revert to 4 if the anon peak does not fall.
+  - **Shallow-clone fallback (founder question: are skips silently becoming full builds?)** Vercel clones with `git clone --depth=10` (Vercel KB, Ignored Build Step).
+    - Real outcomes over 14 days, where BASE is the last *completed* deployment (as `VERCEL_GIT_PREVIOUS_SHA` is), with shallow-clone reachability modelled per commit graph:
+      - **11 of 1,235 attempts (0.9%)** had BASE outside the clone;
+      - 10 of those genuinely needed a build, and **1 was waste** (about $0.14 in 14 days);
+      - the result is the same under #1091 and under #1091 + #1088's 105 suppressions.
+    - Sequential replay with #1088: the longest run of consecutive ignored pushes is 6, below the depth of 10.
+    - The earlier "3.6%" counted commits by `rev-list`, which overcounts merged branch commits. 0.9% is the clone-accurate figure.
+    - **Verdict:** the fallback is not eroding the savings today.
+    - A fail-safe fix is built and tested, but **not proposed**: fetch the one missing commit (`--depth=1`, public repo URL, no credentials, 90 s timeout, any failure → build).
+      - Measured against GitHub: 21 s, about 38 MB for a commit 14 back.
+      - 5 behaviour tests on a real depth-10 clone; 3 fail against the current script.
+      - At ~11 gap attempts per 14 days, its 21 s cost roughly equals the one build it saves, so there is no net saving now.
+      - Kept in `docs/research/ops/vercel-cost-2026-10-15/shallow-gap/` for when ignore rates rise.
+- **19:30Z update (founder decisions; #1088 prepared; HTML-reduction series):**
+  - **Founder decisions (2026-10-15 ~17:45Z):**
+    - **#1094 ON HOLD.** The −6% worker-memory reduction does not justify the change while 4 workers work. A comment on the PR says "do not merge without further approval".
+    - The memory observability was split into **#1095** (draft, `0f9d3eab81`, 2 files, worker count unchanged). It should ride with the next necessary release; merging it alone would cost one build (≈ $0.15–0.20).
+    - The shallow-clone fallback is closed unless new evidence shows it is financially significant.
+  - **#1088 (Friday-morning package):**
+    - Rebased on main, now on top of #1091: head **`e2dd976085`**, CI quality + python green, MERGEABLE CLEAN.
+    - Combined ignore-step tests (#1088 SLO trigger + #1091 globs, gate, route exclusion, publication SLO): 71/71.
+    - Full unit suite: 10,128 tests, 0 failures.
+    - Scope re-checked against injury, roster and live data:
+      - the gate can hide only 3 stamp paths in 7 MLB file patterns;
+      - lineups live inside gated simulation files, so any lineup change publishes;
+      - team markets, player props and HR props are never gated;
+      - injuries and rosters come from other workflows that never call the gate;
+      - live scores come from the runtime API, not committed files.
+    - Package to be sent Friday before the 14:15Z MLB run, re-verified on the exact head then.
+  - **HTML reduction (founder priority; local only, isolated draft PRs, 0 deployments):**
+
+    | PR | Change | Measured (paired local builds, same tree) | Equivalence evidence |
+    |---|---|---|---|
+    | #1096 (`54e1655016`) | MLB board client receives a projected lean (TS `Pick` of the 25 fields it reads) | MLB board HTML 482.8 → 414.2 MB (−14.2%); busiest page inline payload 1.50 → 0.58 MB | Rendered markup identical on all 2,863 pages; only board script payloads differ. 17 filter/sort/density states hash-identical in a real browser. Filter equivalence on every committed board (>1,000 states) |
+    | #1097 (stacked on #1096) | MLB lean-row inline styles → shared classes (values verbatim; tier colours as CSS vars) | MLB board 414.2 → 310.5 MB (−25.0%); busiest page 4.56 → 3.39 MB | All 459 computed properties identical on 28,214 (detailed) and 12,130 (scan) elements, and at 390 px. Every other export file unchanged |
+    | #1098 (`6f2b890bfa`) | Results graded-row table inline styles → shared classes | Results by date 198.8 → 142.9 MB (−28.1%); NBA results −26% | Computed styles identical on 3 pages (627 + 943 rows); exactly the 130 table-bearing pages differ |
+
+    | #1099 (`fec83668bd`) | Site chrome: command-rail + footer link styles → classes (active via `aria-current`) | Every page −11.3 KB; total −2.8% | Visible text identical on all 2,863 pages. Rail (both active states) and footer computed styles identical. Two CSS guards caught a first draft (duplicate class, dead fallback); the CSS was fixed, the guards untouched |
+    | #1100 (`1642e72188`) | Player game-log cells + `EntityLink` / `ResultBadge` → classes | Total −4.5%; MLB players −35%, EPL −18%, NFL −8.5% | Visible text identical on all 2,863 pages. Computed styles identical on 5 pages (MLB/EPL/NFL/UFC players, MLB matchup), including runtime prose-link anchors |
+
+    - **Combined (sum of independently measured deltas): ≈ 1,145 → ≈ 834 MB (≈ −27%) of generated HTML.** MLB board archive −36%; Results by date −28%; MLB player pages −35%.
+    - Each PR touches `globals.css` (appended blocks), so merging them in sequence needs trivial rebases. Each is independently revertible.
+    - Unit suite on each: 10,101–10,106 tests, 0 failures.
+    - No data, forecast, settlement, results, provenance or timestamp change; historical pages stay fully accessible with identical content.
+    - **Cost effect is NOT yet measured.** Local `next build` time showed no reliable change (128–149 s, noisy laptop). Expected savings come from output bytes: build-cache creation/upload (39 s in the last Production log) and deploy upload, plus less memory held during page writes.
+    - To be quantified from the first Production build log after merge: cache-creation time, total container time, and the `mem` line. **No dollar claim until then.**
+    - Next candidates, measured:
+      - site chrome (command rail, mobile nav, footer) inline styles on all 2,863 pages, ≈ 45–70 MB;
+      - player-page table cells: inline styles ≈ 102 MB of markup across 1,810 player pages.
+    - The data archive (`data/internal`, clone 1m23s) remains P2.
+- **2026-10-15 evening (founder directive: continue development through the capture window; protect Production and the capture):**
+  - **Operating mode:**
+    - development moved to a dedicated worktree (`gametimepicks-wt/dev-1015`, `app/node_modules` symlinked) so the capture's checkout is never touched;
+    - no merges, deploys or paid calls;
+    - heavy builds only before 22:45Z and after the game's critical phase.
+  - **New finding (integrity): nightly-settle restamps settled history.**
+    - Each of the 5 settle runs on 10-15 rewrote 380–386 past-dated files (model-rows, optimizer-graded, row lineage): **16,823 `gradedAt` + 32 `settledAt`** values with no content change.
+    - **#1101** (protected workflow, approval required) adds a commit-step guard that restores past-dated JSON/JSONL whose only diff is exact stamp keys.
+    - Replay of the 4 real commits: 380–386 restored per run; changed app build-input files ~338 → ~30. latest/today/undated files still publish, and guard failure publishes everything.
+    - Tests 6 new; nightly-settle suites 344/344. It is not a build-count reduction by itself.
+  - **UX audit (independent, read-only, on main `ad78413337`):** 7 high, 10 medium and 7 low findings with file:line evidence. Shipped work (#1080/#1081) is excluded.
+  - **Drafts opened** (display-only, each with guard tests):
+
+    | PR | Audit items | Change |
+    |---|---|---|
+    | #1102 | H1, H2, M4, L1 | One game-state vocabulary: hub chips Upcoming/Live/Final/Started via a display map (internal values untouched); /live groups aligned; /simulate Started/Final/Report ready. The founder-conditioned "In progress at last update" heading is kept |
+    | #1103 (stacked on #1092) | H3, H4, H6, H7, L4 | Plain copy: /nfl lane codes mapped, run hash removed, no "today" claim; MLB board `pendingReason` → sentences, with one message per case and no promise on past slates; MLB/UFC/NFL/EPL/game-report jargon removed; `EVENT_STATUS_LABEL` (incl. UFC bout statuses) |
+    | #1104 | H5 (GTP-21/32) | Results explorers page (Show 50 more / Show all) instead of a silent 50 cap (87 of 137 cards were unreachable); model explorer the same at 250; sport names; slip IDs and sources behind disclosures. Browser-verified at 1440 and 375 |
+    | #1105 | M1, M2, M3, L3 | Team identity: EPL header crests lg; decorative crests beside names (incl. the TeamBadge fallback); MLB tiles name their real destination; board schedule grid gets ID crests |
+    | #1106 | M7, M8 (+ M6 for the founder) | /nba gets the shared section strip (Games / Model status / Results / Ask, no Live); mobile Menu label corrected. The M6 naming conflicts are listed for a founder decision |
+    | #1107 | L2, M5, L7 | "View archived report"; /today Upcoming/Started at 10.5 px; 44 px disclosures |
+
+  - **Deferred, with reason:**
+    - L5 (live badge): suspected, and the live panel is the capture's subject; waits for the evidence.
+    - M9/M10 type floor: broad, with layout risk; planned with build plus browser verification.
+    - `nfl/page.tsx:1070` 44 px: follows #1103.
+    - M6 names: founder decision.
+  - **Combined verification (21:35–21:50Z):** #1102–#1107 (plus #1092 via #1103) merge into a local-only integration branch without conflicts.
+    - `next build`: 151 s.
+    - Full unit **plus post-build** suite with the export present: **10,119 tests, 0 failures**.
+    - Browser sweep at 1440 and 390 px over 13 routes: 0 removed phrases reappearing, 0 overflow, 0 broken images. EPL header crests 56 px and decorative.
+  - **HTML-reduction series restacked** linearly (#1096 → #1097 → #1098 → #1099 → #1100), so it merges in order without conflicts. The only conflicts were appended `globals.css` blocks, each kept verbatim; CSS guards pass at the top of the stack.
+- **22:00Z update:**
+  - **OPS-002 seven-day window (cutover 10-08 05:56:44Z → 10-15 05:57Z), GitHub-side pre-check (read-only, GitHub API only).** The authoritative `ops-002-identity-report.mjs --cli-auth` still needs a Vercel token (expired) — **founder item**.
+    - 829 commits in the window.
+    - **607/607 `auto…` commits authored `github-actions[bot]`.**
+    - Every 24 h slot has READY bot data deployments: 60 / 52 / 56 / 73 / 62 / 47 / 34.
+    - No blocked or team-access status.
+    - 9 deployments failed. These are the 46-minute memory kills (COST-002 root cause, fixed by #1093), not identity failures. The acceptance code only treats an ERROR *after the newest READY* as STALE.
+    - **Expected verdict: PASS** once the script runs with a token; not recorded as DONE until then.
+  - **#1108** (stacked on #1082): `scripts/live/replay-v2-capture.mjs` replays the recorded SEA@DEN envelopes through the V2 view model.
+    - It compares score, status, quarter and clock against the gateway and ESPN, and classes one-pass transition lag separately from disagreement.
+    - This makes the promotion rule's "0 disagreements" a one-command check. Tests 4 new; V2 tests 22/22.
+  - **#1103 follow-ups:**
+    - UFC sentences in the body face at 12.5 px (audit M10); the mono at 10–11.5 px is gone from those paragraphs. Checked at 375 px: no overflow.
+    - 44 px "Per-product detail" disclosure on /nfl.
+  - **Deferred, not dropped:** the M9 report type floor (≈90 sub-11 px sizes across the MLB/NFL game reports). DS-001 §4 classes it P2 ("migrated as touched"); a mass change this close to the freeze risks mobile layout.
+- **23:35Z update:**
+  - **#1109 (new finding, truthfulness plus churn):** `lab-eligibility` wrote "the last price capture is 3.9 days old", recomputed every run.
+    - The age is wrong once a static page is read.
+    - It made the Results projection restate itself r2 → r5 on 10-15 for nothing but the clock.
+    - It now names the capture's ET date and the rule ("(Oct 11) is more than 3 days old"), a fixed fact.
+    - Tested a day apart for byte-identical text; fails against the old script.
+  - **Build-trigger churn, measured (7 days, 424 consecutive built ranges, GitHub statuses plus local git):**
+    - **37 builds (9%, ≈ 5.3/day) changed nothing but stamps and derived ages** across their whole range;
+    - making admin/status.json a non-input (#1088) adds 0 on top;
+    - all admin files, an upper bound needing a reader trace, would add 5 more.
+    - The remaining lever is a build-input-level stamp/age normalisation (the #1088 pattern generalised): ≈ $0.8/day, ≈ $24/month, at the COST-001 rate.
+    - **Proposed, not built**; it needs per-file reader traces.
+  - **Production health since 16:00Z:** 10 builds completed, 7 correctly ignored, 0 failed, 0 slow (72 h watch).
+  - **SEA@DEN capture:** running since 23:15Z (daemon untouched).
+    - Passes every 5 min: all HTTP 200, 0 bot challenges, screenshots at 390/1440 with 0 overflow and 0 broken images.
+    - V2 replay (#1108) on the real pregame passes: 4 passes, 0 refusals, 0 disagreements.
+    - Kickoff 00:15Z; the acceptance report follows the game.
+- **23:45Z — independent review of #1101–#1109 (read-only agent) and fixes:**
+  - **#1101:** a stamp appearing, disappearing or going null ↔ value was treated as "stamps only", so a backfilled `settledAt` would have been reverted. Now only string → string restamps are restored. Negative controls added; the real-commit replay still restores the 380+ restamps.
+  - **#1108:** missing ESPN truth was silently "agreement"; LAG could mask a gateway that was *ahead*, or a difference followed by a refusal; the clock would have flooded the report.
+    - Fixed: unverified passes are counted; LAG means behind + verified next pass; clock is drift.
+    - Tests 7/7; real pregame passes: 0 unverified, 0 disagreements.
+  - **#1103:** `no_events` means the odds provider listed no events, not "no games scheduled".
+    - All 8 generator reasons mapped, and the guard now reads them from the generator.
+    - No "once lines post" after every game started.
+    - NFL REFUSED = "No eligible games to consider".
+  - **#1102:** NBA dropped-final note nit fixed.
+  - **Reviewed correct:** #1104, #1105, #1106, #1107, #1109.
+  - **Open process lesson:** one commit (#1102 `c2c15eb43d`) landed before its test was updated; fixed in the next commit (`b22a14537f`). Going forward, commits are gated on the test result.
+- **00:20Z (10-16) — SEA@DEN kickoff observed (capture untouched, read-only analysis):**
+  - **First in-play pass** 00:17:11Z, two minutes after kickoff: V2 (#1108 replay) shows LIVE 0–0 Q1 14:56, exactly ESPN's STATUS_IN_PROGRESS 0–0, period 1, 14:56.
+  - **13 passes:** 78 requests, 0 non-200, 0 bot-challenged; 0 refusals, 0 unverified, 0 disagreements, 0 lags.
+  - **Check 1 so far:** 0 forecast, board or receipt changes after kickoff; 14 receipt revisions, none stamped at or after 00:15Z.
+  - **Screenshots:** 20 at 390/1440 with 0 overflow and 0 broken images.
+  - **Also since 23:45Z:**
+    - **#1110** (docs): runbook October addendum for the UAT rollback rehearsal.
+    - **#1111** (stacked on #1082): V2 delayed/stale line using the production freshness bands (checks 7/14); V2 tests 21/21.
+    - **#1105:** `PlayerAvatar` decorative option (GTP-31).
+    - **#1107:** NFL report labels at 11 px.
+    - **#1083:** build-churn proposal doc.
+- **03:45Z (10-16) — SEA@DEN game phase complete: DEN 17–14 (OT).** Report: `docs/live/LIVE_V2_SEA_DEN_ACCEPTANCE.md` (#1082 `c52d426125`).
+  - **Capture:** 52 passes, 312 requests, 0 non-200, 0 bot-challenged; 72 screenshots with 0 overflow and 0 broken images.
+  - **V2 replay:** 0 disagreements, 0 lags, 0 refusals; 3 clock-drift and 1 ESPN-omitted-period pass (informational).
+  - **PASS:** checks 1 (frozen across 40 post-kickoff passes; frozen at 8:09 PM ET), 2 (5-min resolution), 3, 4 (halftime, end of 4th, OT, Final/OT), 6, 8 (Final · grading pending, no WIN/LOSS), 10, 11, 12, 16, 18, 22–23.
+  - **Check 5:** PASS on screenshots vs ESPN's box.
+    - **Kit bug:** the kit requested `players=true`, but the gateway honours only `players=1`, so the envelopes carry no `playerStats`.
+    - Fixed on #1082 (`96ccf62ebb`) for Sunday.
+  - **Not observed live:** 7, 13–15, 19–21 (no delay or outage occurred).
+  - **Pending:** check 9 (canonical settlement; the capture keeps watching until it is served).
+  - **Cosmetic:** the game page's live panel eyebrow reads "LIVE NOW" above "Final/OT" (L5 family).
+  - **V2 stays unpublished.** Remaining windows: NFL Sunday 10/18 and one MLB postseason game.
+- **03:55Z (10-16) — post-game:**
+  - **#1112:** the live panel region reads "Final score", not "Live now", after the final (from the capture).
+  - **Re-verification:** after the review fixes, #1102–#1107, #1109, #1112 and #1092 merge without conflicts into a local integration branch.
+    - Build 147 s (niced);
+    - **10,122 unit + post-build tests, 0 failures**;
+    - 14-check browser sweep clean, incl. `/nfl/game/401872995` after the final and the `no_events` board.
+  - **Next, in order:**
+    1. #1088 exact-head package Friday morning before the 14:15Z MLB run (draft in `~/gtp-evidence/session-notes-2026-10-15/pkg1088-draft.md`; re-verify head, CI and build health).
+    2. SEA@DEN check 9 when the settlement lands (the capture keeps watching).
+    3. Founder decisions: #1101 (protected workflow), M6 names, OPS-002 token, legal inputs.
+    4. UX/HTML drafts for review and batched release.
+- **Monitoring proposed:**
+  - a daily deploy-cost report workflow;
+  - a CI memory early warning (peak > 12 G);
+  - post-build size budgets;
+  - Vercel Spend Management alerts.
+
+#### Prioritized launch view (2026-10-15 04:30Z; freeze Oct 17, launch Oct 20)
+**COMPLETED (Production-verified unless noted):**
+- #1081 UX Release 2B + LIVE-F
+- #1084 live RLS battery (runs on every main CI)
+- #1085 UFC grading integrity
+- #1087 roving tabs
+- #1089 data-contract monitoring: verified in GitHub (manual run 9,401/0). Its first scheduled run is delayed by GitHub's overnight scheduler gap. It renders nothing, so its failed merge build left Production unaffected.
+
+**BLOCKED, needs founder action:**
+1. **Privacy/Terms (GTP-01):** operator, governing state, minimum age, effective date, counsel approval. This is the only open audit P0, and it blocks launch while accounts are enabled.
+2. **Vercel 46-min build kills:** cause CONFIRMED as static-generation memory exhaustion (COST-002). The fix, #1093, is MERGED and live in `bc0ac8b0e3`; 72 h monitoring is under way. Needed: the build logs for `dpl_Hr1uX94SiSo1aywSTxE6bfem8mMB`, `dpl_3un6p5zPPrVPdS8Jxf3ZvuQGQg3q`, `dpl_4TnKxbgyYpcZhqUb4sXZ2bijzbP1`, `dpl_8Hf6T4QSgdvUZcE7bGQsYgwTZUat`, `dpl_8LLRvH9ztE8Mc2PmLuyrUAUxUpB4`, plus one good build for comparison (`DxWAvEMF91urUnEWYvsTdwA9Eu6t`). Or a fresh token.
+3. **Hosted Supabase `--hosted` RLS run:** needs authorization.
+
+**READY, held for a consolidated release after Vercel stabilizes (founder approval each):**
+- #1090: 503 bodies name no config variables. Head `8af11b4e31`, revalidated on `7c3f23722a`.
+- #1092 (draft): ET timestamps on every public page. 410+ raw UTC stamps → 0; post-build 694/0; unit 9,399/0.
+
+**PROPOSALS (founder review):**
+- #1091 (draft): the deploy trigger skips tests/e2e/CI-only commits. 13 of 183 code-merge builds in 14 days; closure-verified guard; mutation-checked.
+- #1088 (draft, deferred): MLB stamp-only gate.
+
+**IN PROGRESS:**
+- Thursday SEA@DEN real-event capture: armed and detached. See `docs/live/LIVE_V2_THURSDAY_READINESS.md` on #1082.
+- Live Hub V2 stays preview-only.
+
+**NEXT (localhost-first, after the freeze unless founder-approved):**
+- GTP-21/32 results paging;
+- the remaining codes on `/results/forecasts` (PRIVATE_RESEARCH), `/results/model-audit` (INSUFFICIENT_SAMPLE), `/nfl` (BASELINE_ONLY, "P181");
+- `/mlb/board` archive weight: 145 pages, 481 MB, 42% of the export. This is the structural build-cost driver, and B2 export reachability is the documented remedy.
+
+**Incident 2026-10-15 00:17Z–01:57Z (queue recovered; cause still open): repeated Vercel wedges. Evidence from GitHub's Vercel statuses only; the token is expired.**
+
+| Deployment | Queued | Ended | Result |
+|---|---|---|---|
+| `932a766f65` (bot) | 10-14 13:45Z | 14:37Z | failed (≈46 min of build after queueing) |
+| `411089bfe4` (#1085 merge) | 22:27:53Z | 23:22:37Z | failed (≈46 min of build after queueing) |
+| `279098cf25` (#1087 merge) | 00:17:45Z | 01:03:57Z | failed at **46.2 min**, the documented platform kill (9/24: 45.6–46.2 min) |
+| `e9cb321800` (bot) | 00:54:47Z | 01:50:09Z | failed (≈46 min after the previous failure freed the queue) |
+
+- Production served `26dc66200e` (built 00:02Z) until `5195af77eb` completed at 01:57Z: about 1h55m with no successful deploy.
+- Live scores are unaffected: they come from the runtime gateway.
+- Build durations rose over 4 days (median queue+build 4.1 → 4.7 → 5.7 → 7.8 min).
+- The export grew since 9/24: **2,855 HTML pages** (≈2,493 then); 1.5 GB; 108 pages over 2 MB, mostly 5.3 MB MLB board archive pages.
+- **Deployment outcomes since 10-14 06:00Z:**
+  - Code merges: #1080, #1081 and #1084 built; #1085, #1087 and #1089 were all killed at about 46 min (three in a row).
+  - Data commits: two also failed the same way (13:45Z and 00:54Z); most others built in 6–12 min.
+- **#1080 is not the cause by local evidence:** peak total node RSS before #1080 was 6.48 GB, at #1080 6.72 GB, at current main 6.58 GB (`next build` 116–124 s).
+  - CI container memory rose from about 9 GB (Oct 13) to 12–14 GB (Oct 14–15) of 15.6 GB.
+  - That cgroup figure includes file cache from writing the 1.5 GB export, so it is not proof of process memory growth.
+- A local build of current main succeeds in **137 s** (`next build` 126.7 s, 2,874 pages, largest process 2.46 GB RSS). The same code is killed on Vercel at 46 min, which points to a Vercel-environment hang rather than an intrinsically slow build.
+- **Phase evidence (CI, Linux 4 vCPU / 15.6 GB):** memory holds at 2–4 GB, then spikes during the last quarter of static generation (pages ≈2,154–2,820 of 2,873): 9.0 GB on Oct 13, 12–14 GB from Oct 14. This is cgroup memory, which includes file cache.
+- The export's two heaviest route groups are 60% of HTML:
+  - `/mlb/board/<date>`: 145 pages, 481 MB, up to 5.5 MB each;
+  - `/results/date/*`: 130 pages, 198 MB.
+- **Hypothesis, not confirmed:** memory pressure from rendering several multi-MB pages concurrently on Vercel's workers leads to a stall that is then killed at 46 min.
+- **Ruled out by local evidence:** #1080's code (peak node RSS 6.48 → 6.72 GB; same build time) and "slow code" (local build 2.3 min).
+- **Why #1089 built:** its files sit under `:(top)app/`. The narrow rule in #1091 would have skipped it.
+- The cause is unconfirmed. The build logs (`npx vercel inspect <dpl> --logs`; our heartbeat prints memory and load) need a fresh Vercel token.
+- Also tonight: automated requests to Production are being answered with the Vercel bot challenge (`x-vercel-mitigated: challenge`). Browsers are fine. This session's polling stopped at 00:50Z.
+
+**Incident 22:28–23:28Z (resolved): Vercel wedge, head-of-line blocking (P0 runbook `docs/P0_VERCEL_WEDGE_CONCURRENCY_2026-09-24.md` §7).**
+- The #1085 merge build has shown "deploying" since 22:27:53Z (over 55 minutes; the platform normally kills at about 46).
+- Two later bot pushes (23:09Z, 23:20Z) are queued behind it. Production is healthy but frozen at `fde6b71a75` (built 22:28Z).
+- The documented recovery, cancelling the wedged deployment so the queue drains, is a founder dashboard action. The Vercel token is expired.
+- If the build fails or is cancelled, the next build delivers #1085, because its diff spans everything since the last successful deploy.
+- **Resolution:**
+  - The merge build `411089bfe4` failed at 23:22:37Z, after about 55 minutes.
+  - `a20a2d30fe` was "Canceled from the Vercel Dashboard" at 23:28:47Z.
+  - `b713c2c98c`, which contains the merge, succeeded, and Production served it from 23:24Z.
+  - Production was frozen for about 56 minutes.
+  - The same code built in PR CI and then in `b713c2c98c`, so this was a platform wedge, not a code failure.
+  - Build logs for the failed deployment need a fresh Vercel token.
+
+**Findings logged 20:45Z:**
+- MLB game pages (`/games/mlb/<slug>/`) are generated only for the active slate, so the previous day's URLs 404 once the next board publishes. This predates #1081, and no public page links to them (checked). Decide before launch whether shared links to yesterday's games should resolve.
+- `ops/publication-slo.json` is read by public pages but excluded from the build trigger. Fixed for every workflow in #1088, pending review.
+
+**UFC grading after #1076** (scheduled run 38571656668, 13:25Z):
+- The Kareckaite–Gatto draw was appended once as VOID.
+- The ledger grew from 70 to 71 lines; decided n = 70; model log loss 0.719 vs market 0.629, unchanged.
+- No loss was recorded.
+
+The "10 bouts from 2026-09-26 awaiting results" line was a mislabel: 1 withdrawn bout plus 9 bouts from the 10/17 card, which has not been fought. No result was missed; #1085 fixes the message.
+
+**GTP-08 in producer outputs:**
+- `lab-ledger.json` (14:58Z) and `coverage-matrix.json` (13:58Z) show UFC and the multi-sport lane closed.
+- `tier-grid/ufc-latest.json` and `admin/ufc-lane.json` predate the merge; they flip on the next scheduled `ufc-fight-week` run.
+
+**Operations (read-only review):**
+- **Production builds:** 61 in 24h (52 data, 9 merges) and 127 in 48h.
+- **Preview deployments:** 0 in 7 days.
+- **Redundant builds:** about 12 per 48h whose own commit had no build input (the Vercel previous-SHA lag).
+- **Failed Vercel build:** one today, `932a766f65`, about 52 minutes (likely a 45-minute wedge).
+- **Billing:** the cost tool returned 403 because the Vercel token has expired, so there are no billed dollar figures.
+- **OPS-002:** GitHub-side evidence is clean (565 post-cutover `auto*` commits by github-actions[bot]). It can only be judged from 2026-10-15T05:57Z and needs a fresh Vercel token.
+- **Paid Odds API spend:** about 40 credits in about 37 hours. `mlb-pregame-capture` logs "credits spent 0" while spending about 3 per run.
+
+**Slip reading:** off in Production (`/api/slip-read` returns 503: service key not configured). `ANTHROPIC_API_KEY` is evidently set, so adding the service key would switch on a paid path outside the Ask spending cap.
+
+#### October 20 launch-readiness matrix (2026-10-14 15:55Z; updated 23:25Z)
+| Area | Status | Blocks launch? |
+|---|---|---|
+| Legal publication (Privacy/Terms) | Drafts only (#1077, green). Operator, state, minimum age, effective date and counsel approval records are all missing | **YES**, while accounts are enabled |
+| Account security tests | Live battery runs on every main CI (merged #1084; 82–84 PASS on main). The hosted Supabase project is still not verified | Recommended before launch: one hosted `--hosted` run (founder authorization) |
+| NFL live validation | **SEA@DEN captured 10-15/16 (DEN 17–14 OT): game-phase checks pass (see `docs/live/LIVE_V2_SEA_DEN_ACCEPTANCE.md`); settlement (check 9) pending.** Second window: NFL Sunday 10/18 | Required before freeze-exit UAT |
+| MLB feed / schedule freshness | 10/14 artifacts present; chain runs green; scheduled crons run 4–9h late | No |
+| UFC grading and bout identity | Void correct; withdrawn correct; message and key fixes in #1085 | No (#1085 recommended) |
+| NBA opening night | Schedule capture and /simulate dates include Oct 20 (GTP-11) | No |
+| Soccer coverage truth | Model-only state stated; untracked live stated | No |
+| Product capability (GTP-08) | Producer and reader both gated; two artifacts awaiting their next run | No |
+| Results accuracy | Main green again since the #1081 merge; served Forecast Record = ledger (15,868/15,868) | No |
+| Live Hub coverage | LIVE-F in #1081; V2 not promoted | No |
+| Security headers | 5/5 present; CSP report-only, 0 violations on 91 pages | No |
+| Ask GameTime spending | Gemini prepaid with auto-reload off (per the doc); the `ANTHROPIC_API_KEY` exposure is noted above | Founder console check |
+| Vercel cost / reliability | 0 previews; data builds dominate; **2 wedges today (23:25Z: a merge build is blocking the queue)**. MLB stamp gate proposed (#1088), about 9.5 fewer build-triggering commits a day | No; #1088 / #1089 await review |
+| Desktop/mobile accessibility | 2B live in Production: sweep clean at 1440/390; roving-tab follow-up #1087 awaiting approval | No |
+| Rollback | Revert-merge of a single merge commit; one build | Rehearse during Oct 18–19 UAT |
+
+
+
 ## Universal order
 1. Sport header + period selector
 2. Slate summary
