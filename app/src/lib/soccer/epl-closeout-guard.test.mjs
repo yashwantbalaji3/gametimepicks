@@ -45,6 +45,10 @@ const CROSS_LANE_READERS = [
   /* Stage 3E: the reader-parity pins build a throwaway EPL graded log in a temp directory to prove the owner above
      never re-grades a row. Test fixture only; reads nothing from the real EPL root. */
   "src/lib/results/reader-parity.test.mjs",
+  /* 2026-10-17 (G1): the model-health test pins that the EPL live record is judged on the live model's rows only, and
+     checks on committed data that health and /epl count the same live rows. Cross-sport by design, read-only, test
+     only, no World Cup path — the same role as the auditors above. */
+  "src/lib/ops/model-health.test.mjs",
   /*
    * Session 13 · the Universal Forecast Ledger: one append-only row per published forecast of EVERY sport, read
    * from each sport's settlement owner (for EPL: the match and player grade logs). Read-only, renders nothing, no
