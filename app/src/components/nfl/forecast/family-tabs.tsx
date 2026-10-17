@@ -31,8 +31,14 @@ export interface TabRow { player: RowPlayer; entry: RowEntry; rank?: number }
 const LIVE_MARKET: Record<string, string> = { passingYards: "player_pass_yds", rushingYards: "player_rush_yds", receivingYards: "player_reception_yds", receptions: "player_receptions", anytimeTd: "anytime_td" };
 const fmtAsOf = (iso: string | null) => (iso ? `${iso.slice(0, 16).replace("T", " ")} UTC` : null);
 
-export default function FamilyTabs({ families, lists, linkToGame, label, emptyText, filters, live, staticPanels = "all" }: {
-  families: TabFamily[]; lists: Record<string, TabRow[]>; linkToGame?: boolean; label: string; emptyText: string;
+export default function FamilyTabs({ families, lists, linkToGame, label, listLabel = "Player projections by statistic", emptyText, filters, live, staticPanels = "all" }: {
+  families: TabFamily[]; lists: Record<string, TabRow[]>; linkToGame?: boolean;
+  /** Id base for the tab/panel ids only (e.g. `players-<eventId>`) — never read aloud. */
+  label: string;
+  /** UXJ-01: the tablist's accessible name. `label` is an id fragment, and naming the list with it made screen
+   *  readers announce "players-401872996" / "hub-boards". */
+  listLabel?: string;
+  emptyText: string;
   filters?: { teamRefs?: Record<string, FollowRef> };
   live?: { eventId: string; kickoffUtc: string };
   /** "all": every panel is in the static page (game page — every captured price is on the page); "active": only the
@@ -75,7 +81,7 @@ export default function FamilyTabs({ families, lists, linkToGame, label, emptyTe
             style={{ minHeight: 36, padding: "0 10px", borderRadius: 8, fontSize: 13, border: "1px solid var(--vault-border-strong)", background: "transparent", color: "var(--vault-text)", minWidth: 160 }} />
         </div>
       ) : null}
-      <div className="nf-tabs" {...famTabs.listProps} aria-label={label}>
+      <div className="nf-tabs" {...famTabs.listProps} aria-label={listLabel}>
         {families.map((f) => (
           <button key={f.key} {...famTabs.tabProps(f.key)} id={`tab-${label}-${f.key}`} aria-controls={`panel-${label}-${f.key}`} className="nf-tab">
             {f.title}
