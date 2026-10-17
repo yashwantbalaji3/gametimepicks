@@ -56,6 +56,8 @@ interface BoardGame {
    * reading of the wall clock at simulation time.
    */
   startedBeforeGeneration?: boolean;
+  /** StatsAPI gameType (R / F / D / L / W …), carried from the schedule since MLB-001. Absent on older boards. */
+  gameType?: string | null;
 }
 export interface Board {
   date: string;
@@ -127,6 +129,32 @@ function buildStarter(
   if (pitcherId == null || !pitcherName) return null;
   const k = leans.find((l) => l.marketKey === "pitcher_strikeouts" && l.playerId === pitcherId);
   return { playerId: pitcherId, name: pitcherName, team, expStrikeouts: (k?.projection as number | undefined) ?? null };
+}
+
+/** StatsAPI postseason game types: Wild Card, Division Series, League Championship Series, World Series. */
+const POSTSEASON_GAME_TYPES = new Set(["F", "D", "L", "W"]);
+
+/**
+ * Which rule set a game is played under (MLB-001). StatsAPI's own `gameType` decides; a board written before the
+ * field was captured falls back to StatsAPI's season calendar (`mlb/season-state.json` → `calendar`), compared on
+ * the game's own date. Anything else is UNRESOLVED and says so — never guessed.
+ */
+export function resolveRuleset(
+  game: { gameType?: string | null; date?: string | null },
+  calendar?: { regularSeasonStartDate?: string; regularSeasonEndDate?: string; postSeasonStartDate?: string; postSeasonEndDate?: string } | null,
+): { ruleset: "REGULAR_SEASON" | "POSTSEASON" | null; rulesetBasis: "GAME_TYPE" | "SEASON_CALENDAR" | "UNRESOLVED" } {
+  if (game.gameType === "R") return { ruleset: "REGULAR_SEASON", rulesetBasis: "GAME_TYPE" };
+  if (game.gameType && POSTSEASON_GAME_TYPES.has(game.gameType)) return { ruleset: "POSTSEASON", rulesetBasis: "GAME_TYPE" };
+  const d = game.date ?? null;
+  if (!game.gameType && d && calendar) {
+    if (calendar.postSeasonStartDate && calendar.postSeasonEndDate && d >= calendar.postSeasonStartDate && d <= calendar.postSeasonEndDate) {
+      return { ruleset: "POSTSEASON", rulesetBasis: "SEASON_CALENDAR" };
+    }
+    if (calendar.regularSeasonStartDate && calendar.regularSeasonEndDate && d >= calendar.regularSeasonStartDate && d <= calendar.regularSeasonEndDate) {
+      return { ruleset: "REGULAR_SEASON", rulesetBasis: "SEASON_CALENDAR" };
+    }
+  }
+  return { ruleset: null, rulesetBasis: "UNRESOLVED" };
 }
 
 /** Convert one board game into a leakage-safe engine `GameInput`, with completeness + optional market layer. */

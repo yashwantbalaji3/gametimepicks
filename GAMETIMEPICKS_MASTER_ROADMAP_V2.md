@@ -101,7 +101,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | IN_PROGRESS — PRODUCTION DEPLOYED (World Model V2, experimental: #1024, #1026, #1027, #1029 → 2.2.0); FORWARD EVALUATION begun (1 game reviewed, 2026-10-08 TB @ DAL); not STATISTICALLY QUALIFIED; not PRODUCT ELIGIBLE | NFL-002, NFL-003, NFL-004 | Yes, family by family |
 | 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 #1039 product/Results truth PRODUCTION DEPLOYED (merge `f15a51f9`, 2026-10-10); PR 4 #1042 recovery evidence PRODUCTION DEPLOYED (merge `c71a7f5a`, 2026-10-10); served-forecast evidence #1046 READY_FOR_REVIEW; Stage B restatement #1045 and timing amendment #1049 DRAFT (local, not applied) | COST-001 deployment gate verified ✓ | Yes |
 | 7 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | IN_PROGRESS — RESEARCH COMPLETED (inventory, gaps, consumer matrix); foundation PRODUCTION DEPLOYED (#1040: read-only ForecastVersion/Settlement projection; no consumer, no migration); engineering lead: Lane A (founder, 2026-10-09) | Founder rules below | Foundation |
-| 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
+| 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | IN_PROGRESS — baseline audit done; rule corrections pa-v3 READY_FOR_REVIEW (not promoted) | TEMPORAL-001 can progress in parallel | Shadow |
 | 9 | `MLB-002` | MLB Modeling | Benchmark ladder (PA control → Poisson → hierarchical → NB → bivariate → enhanced PA → boosting → ensemble) | NOT_STARTED | MLB-001 | Shadow |
 | 10 | `MLB-003` | MLB Modeling | Batter markets from shared PA/base-state worlds; project every confirmed starter | NOT_STARTED | MLB-002 | Shadow → family-by-family |
 | 11 | `MLB-004` | MLB Modeling | Pitcher markets (workload survival, BF, K/contact/BB, bullpen transition) | NOT_STARTED | MLB-002 | Shadow → family-by-family |
@@ -736,7 +736,7 @@ One coherent baseball model should generate winner, score, run line, total, and 
 
 ## `MLB-001` — Rules + baseline audit
 **Priority:** P1  
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — baseline audit RESEARCH COMPLETED; rule corrections (items 1–2 + walk-off) IMPLEMENTED AND VALIDATED LOCALLY in pa-v3, READY_FOR_REVIEW (not promoted); items 3–8 open (MLB-002 challengers)
 
 Reproduce/fix in a new version where confirmed:
 - postseason extra-innings automatic-runner logic;
@@ -747,6 +747,11 @@ Reproduce/fix in a new version where confirmed:
 - bullpen quality/availability;
 - double-play/free-advancement assumptions;
 - lineup/batting-order opportunities.
+
+### Progress (2026-10-09, Lane A)
+- **Baseline audit** (`docs/research/mlb/mlb-001/MLB-001-baseline-audit-2026-10-09.md`, receipts archived; nothing tuned): 810 graded games, forecast of record verified 810/810. Winner log loss **0.6993 vs coin 0.6931**: lower is better, so the model scored *worse* than a coin flip on this sample (95% bootstrap of the difference [−0.006, +0.019] includes 0; no significance claim). The **market benchmark (0.6684) is better than the model** (paired difference excludes 0). Calibration slope 0.31; no home-field effect; total has no signal (already BREACHED/paused); the run-line 63% is the +1.5 base rate, not skill. Wording corrected per founder review; numbers unchanged.
+- **Rule corrections** (founder decision 6: implement and validate locally; promotion is a separate decision): `OFFICIAL_RULES_2026` = no automatic runner in the postseason (StatsAPI `gameType`, else the season calendar; an unresolved phase is refused, never assumed), walk-offs end on the winning run (a home run counts all), a game tied at the inning cap is discarded and re-drawn with a count, and a hopeless one is refused (bounded; no fabricated run). Opt-in only (`--rules official-2026` → `mlb-fullgame-2026.10-pa-v3`); the generator's default output stays pa-v2 and was verified byte-identical to main. `LEGACY_RULES` reproduces every pa-v1/pa-v2 artifact byte for byte. Carried pa-v2 forecasts keep their version on the transition day. Fixtures: `app/src/lib/mlb/full-game/rules.test.mjs`. Old vs corrected on 406 reproduced forecasts of record (`docs/research/mlb/mlb-001/rule-corrections/`): regular season P(home) unchanged, total −0.007; postseason total −0.08 (max 0.14), P(home) max ±0.013; 0 cap discards. 404 Aug–Sep pa-v2 forecasts could not be reproduced (consumed lineup captures not in the repository) and are excluded, not approximated.
+- **Not done:** items 3–8 (starter removal, pitcher-dependent hit/BB/HBP rates, PA conversion and slot double-count, bullpen, DP/advancement, lineup inputs) are MLB-002 challengers and need preregistered out-of-sample evidence. No historical prediction changed; no family unpaused; nothing promoted.
 
 ## `MLB-002` — Benchmark ladder
 **Status:** IN_PROGRESS — first challenger `mlb-pa-matchup-v1` NOT QUALIFIED (founder decision 3, 2026-10-10); prospective forward shadow approved to prepare
