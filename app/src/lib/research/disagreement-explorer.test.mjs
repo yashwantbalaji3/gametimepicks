@@ -309,6 +309,35 @@ test("the loader lists only rows whose provenance is proven and pregame", () => 
     assert.ok(Date.parse(r.capturedAt) < Date.parse(r.eventStart), "and that must precede first pitch");
   }
   assert.ok(view.coverage.listed <= view.coverage.total);
+  /* The page states "{listed} of {total}", so what it does NOT list is total − listed. That gap must be
+     accounted for by the slate's coverage states, never dropped silently. The newest slate can be fully
+     proven (2026-10-16 was: 42 of 42), so the gap itself may be zero here; the next test checks the
+     exclusion on a slate that actually mixes proven and unproven rows. */
+  const states = Object.values(view.coverage.byState).reduce((a, b) => a + b, 0);
+  assert.equal(states, view.coverage.total, "every row on the slate is counted under exactly one coverage state");
+  const proven = (view.coverage.byState.PROVEN_SIDECAR ?? 0) + (view.coverage.byState.PROVEN_STAMPED ?? 0);
+  assert.ok(view.coverage.listed <= proven, "only proven rows may be listed");
+});
+
+test("on a slate mixing proven and unproven rows, the loader leaves the unproven out and still counts them", () => {
+  const index = JSON.parse(
+    fs.readFileSync(path.join(APP, "public/data/research/row-lineage/index.json"), "utf8"),
+  );
+  const mixed = index.dates
+    .filter((d) => d.rowLevel && d.rowLevelClaimable > 0 && d.total > d.rowLevelClaimable)
+    .map((d) => d.date)
+    .sort()
+    .pop();
+  assert.ok(mixed, "the lineage history must hold at least one slate with rows the page does not list");
+  const view = loadExplorer(mixed);
+  assert.equal(view.date, mixed);
+  assert.ok(view.rows.length > 0);
+  for (const r of view.rows) {
+    assert.ok(
+      r.coverageState === "PROVEN_SIDECAR" || r.coverageState === "PROVEN_STAMPED",
+      `${r.rowId} is ${r.coverageState} and must not be listed individually`,
+    );
+  }
   assert.ok(view.coverage.total > view.coverage.listed, "the page must show how many rows it is NOT listing");
 });
 
