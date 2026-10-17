@@ -358,6 +358,17 @@ jobs:
             echo "  no allowlisted changes to commit"
             exit 0
           fi
+          # WRITER-BATCHING PROTOTYPE (2026-10-17, docs/cost/WRITER_BATCHING_AND_NFL_SPACING_2026-10-17.md).
+          # Every push of these ops-only files is an Ignored-Build-Step skip (still billed) or a redundant build. Push
+          # only when something a reader acts on moved: the public publication-slo fields, a per-sport verdict, an
+          # owner state, the heartbeat verdict — or main's heartbeat would fall 6 h behind. Fails open (exit 0 = commit).
+          GATE=0
+          node app/scripts/ops/ops-commit-gate.mjs || GATE=$?
+          if [ "$GATE" = "10" ]; then
+            echo "  ops-commit-gate: SKIP — only clocks / per-row detail changed; nothing pushed"
+            git reset -q
+            exit 0
+          fi
           ET=$(TZ=America/New_York date '+%Y-%m-%d %H:%M ET')
           git commit -m "auto-refresh: ${ET} (zero Odds API credits)"
           # Rebase-then-push, with retries. A bare `git push` fails whenever anything else
