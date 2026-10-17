@@ -16,7 +16,7 @@ import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
-import { loadGradedPicks, loadMlbGameRecord, PICK_SPORTS } from "@/lib/sports/graded-picks-loader";
+import { loadGradedPicks, loadMlbGameRecord, mlbGameFamilyLabel, PICK_SPORTS } from "@/lib/sports/graded-picks-loader";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 const HUBS: Record<string, { label: string; hub: string }> = {
@@ -42,15 +42,6 @@ export function generateMetadata({ params }: { params: { sport: string } }): Met
       : `${lane.label} predictions graded against official results. Nothing has been graded yet.`,
   });
 }
-
-const FAMILY_LABEL: Record<string, string> = {
-  moneyline: "Winner (moneyline)",
-  total: "Total (over/under)",
-  // Two run-line definitions, two records (TRUTH-001): v1 picked ±1.5 off the simulated favourite; v2 picks at
-  // the sportsbook's posted line.
-  run_line: "Run line (simulated ±1.5, retired)",
-  run_line_posted: "Run line (posted line)",
-};
 
 export default function GradedPicksPage({ params }: { params: { sport: string } }) {
   const lane = HUBS[params.sport];
@@ -115,7 +106,7 @@ export default function GradedPicksPage({ params }: { params: { sport: string } 
               <tbody>
                 {Object.entries(gameRecord.families).map(([market, f]) => (
                   <tr key={market} style={{ borderTop: "1px solid var(--vault-rule)" }}>
-                    <td className="py-2 pr-3" style={{ fontWeight: 600 }}>{FAMILY_LABEL[market] ?? market}</td>
+                    <td className="py-2 pr-3" style={{ fontWeight: 600 }}>{mlbGameFamilyLabel(market)}</td>
                     <td className="font-mono py-2 pr-3">{f.n.toLocaleString("en-US")}</td>
                     <td className="font-mono py-2 pr-3">{f.wins}–{f.losses}{f.pushes ? `–${f.pushes} pushes` : ""}</td>
                     <td className="font-mono py-2" style={{ color: "var(--vault-text-mute)" }}>

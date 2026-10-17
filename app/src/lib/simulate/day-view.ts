@@ -432,7 +432,21 @@ function nflSection(date: string, today: string): SportDaySection {
   const elig = nflSimulateEligibility(nowIso);
   const finals = nflFinalIds();
   const events: SimDayEvent[] = [];
-  for (const e of elig.events ?? []) {
+  /* UXJ-05: a GRADED game is not lobby-eligible ("graded games belong in results", simulate-eligibility.ts), so a
+     past date read "No NFL games on this date" beside a game that was played and graded — SEA @ DEN, Thu Oct 15.
+     MLB lists its settled games as "View result" cards pointing at Results; NFL now does the same. They join the
+     one loop below so the lifecycle rule (postStartState) still decides their state. */
+  const eligibleIds = new Set((elig.events ?? []).map((e) => String(e.providerEventId)));
+  const venueOf = new Map((readJson<{ rows?: Array<{ providerEventId?: string; venue?: string }> }>("nfl/schedule/latest.json")?.rows ?? [])
+    .map((r) => [String(r.providerEventId ?? ""), r.venue ?? null]));
+  const graded = (readJson<{ events?: Array<{ providerEventId: string; matchup: string; kickoffUtc: string; lifecycle?: string; home: { abbr: string; name: string }; away: { abbr: string; name: string } }> }>("nfl/index.json")?.events ?? [])
+    .filter((e) => e.lifecycle === "SETTLED" && !eligibleIds.has(String(e.providerEventId)))
+    .map((e) => ({
+      providerEventId: e.providerEventId, matchup: e.matchup, kickoffUtc: e.kickoffUtc, lifecycle: e.lifecycle as string,
+      home: e.home, away: e.away, venue: venueOf.get(String(e.providerEventId)) ?? null,
+      simulationReady: false, hasMarket: false, readinessReason: "",
+    }));
+  for (const e of [...(elig.events ?? []), ...graded]) {
     if (etDayOf(e.kickoffUtc) !== date) continue;
     /* #808: this read "settled = date < today || lifecycle === STARTED" — a game that had merely kicked off
        was labelled Settled (PHI @ CHI, 2026-09-28, second quarter). The lifecycle owner decides: SETTLED
@@ -452,7 +466,8 @@ function nflSection(date: string, today: string): SportDaySection {
       state,
       stateReason: post ? POST_START_PHRASE[post] : state === "BASELINE_ONLY" ? e.readinessReason : state === "MODEL_ONLY_NO_MARKET" ? "Model distribution published; no market price is attached to this event." : null,
       markets: e.hasMarket ? ["Moneyline", "Total"] : [],
-      href: `/nfl/game/${e.providerEventId}/`,
+      /* A settled game's action is "View result": the graded outcome lives on the NFL results record. */
+      href: post === "SETTLED" ? "/results/nfl/" : `/nfl/game/${e.providerEventId}/`,
       actionLabel: STATE_ACTION[state],
     });
   }
@@ -513,7 +528,9 @@ function nbaSection(date: string, today: string): SportDaySection {
       startUtc: e.scheduledStartUtc ?? null, startLabel: e.scheduledStartUtc ? etTime(e.scheduledStartUtc) : "TBD",
       venue: e.venue ?? null, state: "SCHEDULE_ONLY",
       stateReason: "NBA is schedule-only — no simulation is published, by design.",
-      markets: [], href: "/sports", actionLabel: STATE_ACTION.SCHEDULE_ONLY,
+      /* UXJ-03: the NBA hub carries this schedule and its final scores; "/sports" was the generic sports index, so
+         "View event details" opened a page with no event on it. Every other sport's schedule-only card opens its hub. */
+      markets: [], href: "/nba", actionLabel: STATE_ACTION.SCHEDULE_ONLY,
     });
   }
   /* GTP-11: "Off-season" only when there is no captured schedule at all. In preseason, a date with no
