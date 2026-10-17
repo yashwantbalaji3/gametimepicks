@@ -20,6 +20,46 @@ Everything below is grounded in repository and GitHub state at the time written.
 - **Settlement recovery: VERIFIED.** Run 39055981862 settled 10-16 as 41 VOID with 0 losses. The gate is HEALTHY, history is unchanged and Production is deployed. See §Settlement recovery.
 - **#1118: MERGED** as `07ecc9684c` (18:16Z) and live on Production. See §#1118.
 
+
+## Standing engineering policy (founder, 2026-10-17, about 20:00Z)
+The founder confirmed it twice in chat: the integration session may **merge routine, verified engineering PRs without per-PR approval**. Before each merge it must independently verify:
+- exact-head CI;
+- mergeability with current `main`;
+- dependencies;
+- integration, regression and build tests;
+- data integrity;
+- workflow timing and Production safeguards;
+- the Vercel cost impact.
+
+Exact-head merges only; no unprotected auto-merge, because `main` has no protection. See `docs/engineering/BRANCH_PROTECTION_RECOMMENDATION_2026-10-17.md`.
+
+**Founder approval is still required for:**
+- historical settlement restatements and material changes to published forecasts;
+- legal publication;
+- credentials;
+- new paid services or significant spending;
+- destructive or irreversible operations.
+
+Redundant PRs are closed only after their work is verified as preserved.
+
+**Not yet persisted in `CLAUDE.md`.** The session's attempt to read or edit the instruction file was blocked by the permission classifier, so the founder must add the policy text, or allow that edit.
+
+## Progress after the policy
+- **#1125 merged** as `d22d085cc6` at 20:08:49Z.
+  - Before merging: independently re-verified on `main` plus the two newer lineup-refresh commits (explorer test 25/25; unit 9,410/9,413, 0 fail).
+  - **`main` is GREEN:** quality-gate on `d22d085cc6` passed (unit 9,411/9,413; post-build 697/700).
+  - Vercel: "Canceled by Ignored Build Step", so **0 builds**.
+- **Combined candidate** (`main` `d22d085cc6` + #1124 + #1101 + #1117 + #1119 + #1120, merged in that order with no conflicts):
+  - lint, ask:check, build and accessibility audit ✓;
+  - unit 9,464/9,467, 0 fail;
+  - post-build 705/708, 0 fail;
+  - python 92/92.
+- **Merge refs:** GitHub did not recompute them after #1125. `gh pr update-branch` was used on #1124, #1101 and #1120.
+  - New heads: `4617bcc4d7`, `45fcaa3426`, `a207c627f8`.
+  - Each new head's parents are exactly the old head plus `d22d085cc6`, and each diff against `main` is identical to before.
+- **Trio:** #1117 ⊂ #1119 ⊂ #1120 (stacked). All 15 superseded PRs' heads (#1092, #1096–#1100, #1102–#1107, #1109, #1112, #1115) are ancestors of #1120. Merging #1120 alone brings everything in with one merge commit, and GitHub marks all 17 PRs merged.
+- **#1088 is deferred** until after tonight's MLB game: TB@CLE, first pitch 00:08Z on 10-18, with lineups posting at about 21–22Z. It edits `mlb-lineup-refresh.yml` and `mlb-daily-production.yml`. Target window: 10-18, about 04:00–12:00Z, outside :25–:45, before the NFL capture window.
+
 ## Release queue (exact heads; nothing merged without explicit approval of the exact head)
 | Order | PR | Head | CI | Notes |
 |---|---|---|---|---|
