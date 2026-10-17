@@ -288,6 +288,11 @@ function scanMisdated(root) {
     for (const f of fs.readdirSync(path.join(root, date)).filter((x) => x.endsWith(".json"))) {
       const j = readJson(path.join(root, date, f));
       if (!j?.officialDate) continue;   // written before the field existed — the builder refuses those by status
+      /* A `pending` join grades nothing (no observation is built from it), and the writer turns it `superseded` —
+         never `joined` — once the game is final on another date. 2026-10-17: gamePk 849817 was postponed 10-16 →
+         10-18 and its 10-16 join sat `pending` with officialDate 10-18, turning this scan red although nothing was
+         graded under the wrong date. Only a join that can grade is in scope. */
+      if (j.joinStatus === "pending" && !(j.counts?.marketSettledEligible > 0)) continue;
       if (j.officialDate !== date && j.joinStatus !== "superseded") out.push(`${date}/${f}: officialDate ${j.officialDate}, joinStatus ${j.joinStatus}`);
     }
   }
@@ -333,6 +338,20 @@ test("16d · every committed join sits under the date its own officialDate names
     assert.equal(caught.length, 1, `the scan must catch a join filed under the wrong date, caught ${JSON.stringify(caught)}`);
     assert.match(caught[0], /2026-09-22.*officialDate 2026-09-23/);
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+
+  // NEGATIVE CONTROL (the 849817 shape): a postponed game's pending join under its old date grades nothing and is
+  // not a misdated grade — but the same file once it can grade (joined, settled rows) IS caught.
+  const tmp2 = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-join-"));
+  try {
+    const put = (joinStatus, settled) => {
+      fs.mkdirSync(path.join(tmp2, "2026-10-16"), { recursive: true });
+      fs.writeFileSync(path.join(tmp2, "2026-10-16", "849817.json"), JSON.stringify({ gamePk: 849817, date: "2026-10-16", officialDate: "2026-10-18", joinStatus, counts: { marketSettledEligible: settled } }));
+    };
+    put("pending", 0);
+    assert.deepEqual(scanMisdated(tmp2), [], "a pending, ungraded join under the postponed date is not a misdated grade");
+    put("joined", 184);
+    assert.equal(scanMisdated(tmp2).length, 1, "the same join, once it grades under the wrong date, is caught");
+  } finally { fs.rmSync(tmp2, { recursive: true, force: true }); }
 
   assert.deepEqual(scanMisdated(JOIN_DIR), [], "a join graded under a date its game was not played on");
 });
