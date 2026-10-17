@@ -50,3 +50,14 @@ test("the day-by-day tracker lists graded days newest first, public records in t
   assert.ok(tracker.indexOf("Mon, Jul 14") < tracker.indexOf("Thu, Jul 10"), "newest first");
   assert.match(tracker, /MLB <strong[^>]*>3–1<\/strong>–1/);
 });
+
+test("🔴 RESULTS INTEGRITY 2026-10-17: every rate on a population card carries the shared small-sample note (sampleStateFor)", () => {
+  // Export of 2026-10-17 showed "64.3% of 14 decided" (NFL), "50% of 10 decided" (EPL, UFC) and "45.8% of 24" (MLB) with
+  // no caveat, while /epl, /ufc and /results/picks gate the same rates through sampleStateFor. The card now says it too.
+  const cardOf = (label) => { const i = html.indexOf(label); return html.slice(i, html.indexOf("Every graded row", i)); };
+  assert.match(cardOf("MLB game calls"), /62\.5% of 8 decided[\s\S]*far too few decided to judge accuracy/i, "8 decided is below the 30 floor");
+  assert.match(cardOf("MLB player-prop leans"), /51\.3% of 78 decided[\s\S]*still a small sample/i, "78 decided is between 30 and 200");
+  const big = renderToStaticMarkup(React.createElement(ResultsOverview, { populations: [{ ...pops[0], days: [day("2031-07-14", 120, 100)] }], products: [], seedToday: "2031-07-14" }));
+  assert.match(big, /54\.5% of 220 decided/);
+  assert.doesNotMatch(big, /too few decided|still a small sample/i, "at or above 200 decided no small-sample note");
+});

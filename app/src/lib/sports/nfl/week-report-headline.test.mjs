@@ -72,3 +72,13 @@ test("edges: no winner graded → a plain title; ranges with different aims are 
   ] } };
   assert.equal(weekHeadline(mixed).ranges, null, "an 80% range and a 50% range cannot be added up");
 });
+
+test("🔴 RESULTS INTEGRITY 2026-10-17: a week's winner record says it is far too few to judge (sampleStateFor floor of 30)", () => {
+  // The export showed "Week 6: the team we favored won 1 of 1 games" with no caveat anywhere on /results/nfl.
+  const one = { period: { label: "Week 6" }, summary: { props: [{ id: "winner", checks: 1, hits: 1, expectedHits: 0.7 }, { id: "likeliest_scorer", checks: 1, hits: 0 }] } };
+  assert.match(headlineDetail(weekHeadline(one)), /1 graded game is far too few to judge the winner record/);
+  assert.match(headlineDetail(weekHeadline(FROZEN)), /13 graded games is far too few to judge the winner record/);
+  assert.doesNotMatch(headlineDetail(weekHeadline(FROZEN)), /came true|accura/i);
+  const big = { summary: { props: [{ id: "winner", checks: 40, hits: 25 }] } };
+  assert.doesNotMatch(headlineDetail(weekHeadline(big)), /far too few/, "no caveat once the record clears the floor");
+});

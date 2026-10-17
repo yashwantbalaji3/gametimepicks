@@ -8,6 +8,8 @@ import {
   getMlbAvailableResultDates,
   getMlbComparisonReport,
   getMlbLifetimeSummary,
+  getMlbSettledLeansForDate,
+  mlbDayRecordOfRecord,
 } from "@/lib/data-mlb-results";
 import { mlbMarketLabel } from "@/lib/format-mlb";
 import { isPredictionDisabled, MLB_CALIBRATION_DISCLOSURE } from "@/lib/mlb/model-calibration-status";
@@ -83,10 +85,15 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
   // for this date, the page must read as historical/graded rather
   // than active. The banner below picks the right state from real
   // disk data; no live API calls.
+  /* RESULTS INTEGRITY (2026-10-17): the banner counts the day's leans OF RECORD (Stage 3B), like every other page
+     that counts them. It read the raw comparison report, so /mlb/board/2026-09-22 said 283–266 on 549 while
+     /results/date/2026-09-22 and /results/model-audit said 273–258 on 531. The report remains the fallback only
+     for a date with no row of record. */
+  const ofRecord = mlbReport ? mlbDayRecordOfRecord(getMlbSettledLeansForDate(date)) : null;
   const settledSummary = mlbReport
     ? (() => {
-        const w = mlbReport.wins;
-        const l = mlbReport.losses;
+        const w = ofRecord ? ofRecord.wins : mlbReport.wins;
+        const l = ofRecord ? ofRecord.losses : mlbReport.losses;
         const decisive = w + l;
         return {
           wins: w,

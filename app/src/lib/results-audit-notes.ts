@@ -32,6 +32,7 @@ import {
   getMlbLifetimeSummary,
   getMlbSettledLeans,
 } from "./data-mlb-results";
+import { sampleStateFor, SAMPLE_STATE } from "./sports/graded-picks.mjs";
 
 const NBA_SETTLED_PATH = path.join(
   process.cwd(),
@@ -451,11 +452,23 @@ function notesForSport(
     notes.push({
       weight: weightFor(summary.totalDecisive),
       headline: `Lifetime ${sport} settled hit rate`,
-      body: `${pct(summary.hitRate)} on ${summary.totalDecisive} decisive picks. Pushes excluded; pending and insufficient-data rows never counted. The audit is still on an early sample — every new settled slate widens the denominator.`,
+      body: `${pct(summary.hitRate)} on ${summary.totalDecisive} decisive picks. Pushes excluded; pending and insufficient-data rows never counted. ${lifetimeSampleSentence(summary.totalDecisive)}`,
     });
   }
 
   return notes.slice(0, 4);
+}
+
+/**
+ * RESULTS INTEGRITY (2026-10-17): the lifetime note's sample sentence follows the site's one small-sample rule
+ * (sampleStateFor) instead of always saying "still on an early sample" — /results/mlb printed that beside 49,606
+ * decisive picks. A large sample still earns no claim about the market: that sentence stays.
+ */
+export function lifetimeSampleSentence(decisive: number): string {
+  const s = sampleStateFor(decisive);
+  if (s === SAMPLE_STATE.TOO_SMALL || s === SAMPLE_STATE.NONE) return "Far too few decisive picks to judge the model yet — every new settled slate widens the denominator.";
+  if (s === SAMPLE_STATE.EMERGING) return "Still a small sample — every new settled slate widens the denominator.";
+  return "A large sample, so the rate itself is stable; a hit rate is still not evidence the model out-predicts the market price.";
 }
 
 function pct(v: number | null | undefined): string {

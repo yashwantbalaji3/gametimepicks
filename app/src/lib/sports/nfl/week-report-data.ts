@@ -4,6 +4,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { sampleStateFor, SAMPLE_STATE } from "@/lib/sports/graded-picks.mjs";
 
 export type Outcome = "HIT" | "MISS" | "VOID" | "NO_LINE" | "PUSH";
 
@@ -161,5 +162,10 @@ export function headlineDetail(h: WeekHeadline): string {
     );
   }
   if (h.scorer) parts.push(`Our likeliest touchdown scorer scored in ${h.scorer.hits} of ${h.scorer.checks} games.`);
+  /* RESULTS INTEGRITY (2026-10-17): the site's one small-sample rule travels with the week's winner record. A week
+     holds at most 16 games, under the 30 floor, so a week's record is always said to be too few on its own. */
+  if (h.winner && sampleStateFor(h.winner.checks) === SAMPLE_STATE.TOO_SMALL) {
+    parts.push(`${h.winner.checks} graded game${h.winner.checks === 1 ? " is" : "s is"} far too few to judge the winner record on its own.`);
+  }
   return parts.join(" ");
 }
