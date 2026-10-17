@@ -33,6 +33,8 @@
 | auto-refresh content gate prototype | branch `claude/writer-batching-prototype` `c4f9304eb9` | 12 new tests plus 54 adjacent pass; replay 30 → 10 pushes |
 
 **Documentation, all in #1116:**
+- the Simulation Theater v0 post-launch spec (saved outputs only);
+- the build-input coverage audit;
 - the coordinated HTML/UX package;
 - the MLB restatement proposal;
 - the results integrity review;
@@ -45,7 +47,7 @@
 ## 3. Release queue
 | # | PR | Purpose | Exact head | CI | Mergeable | Depends on | Recommendation | Production impact |
 |---|---|---|---|---|---|---|---|---|
-| 1 | #1122 | `main` CI repair plus the Home archive trust fix | `3392628da7` | _see hand-off_ | CLEAN | — | **Approve first** | 1 build; Home archive shows 2 recent reports |
+| 1 | #1122 | `main` CI repair plus the Home archive trust fix | `3392628da7` | ✅ quality and python on the merge ref | CLEAN | — | **Approve first** | 1 build; Home archive shows 2 recent reports |
 | 2 | #1118 | NFL product day: stale anchor never denies published forecasts | `46b23a4035` | red only on #1122's two tests; full gates green on the trial merge | CLEAN | after #1122 | Approve | 1 build |
 | 3 | #1101 | Stop restamping settled history (protected) | `22b0ac73bd` | green on head; trial gates green | CLEAN | — | Approve; the next window is any gap between settle runs | 1 build; ~362 fewer rewritten files per run |
 | 4 | #1088 | MLB stamp gate (protected) | `e2dd976085` | green on head; trial gates green | CLEAN | — | Approve; value lasts through the World Series | 1 build; about 7–10 fewer builds/day in the MLB postseason |
@@ -53,10 +55,11 @@
 | 6 | #1119 | UX Release 1 on HTML | `4465b08d40` | ✅ | CLEAN | #1117 | Approve (step 2) | 1 build |
 | 7 | #1120 | UX follow-up (internal codes, export guard, journey fixes) | `55153b7970` | ✅ | CLEAN | #1119 | Approve (step 3) | 1 build |
 | 8 | #1121 | Ask fail-closed provider and kill switch | `abb72dff26` | ✅ | CLEAN | `ASK_MODEL_PROVIDER=gemini` confirmed first | Approve after the env check | 1 build; Ask returns 503 if the provider isn't named |
-| 9 | #1123 | Results integrity plus EPL G1 | `2664bec024` | _see hand-off_ | CLEAN | after #1122 | Approve; revert the EPL commit if you decline it | 1 build |
-| 10 | #1116 | Docs | branch head | — | — | — | Merge any time | 0–1 build |
+| 9 | #1123 | Results integrity plus EPL G1 | `f1b4613fad` | red only on `main`'s two tests (fixed by #1122); unit on `main` + #1122 + #1123: 9,412/9,414, 0 fail | CLEAN | after #1122 | Approve; revert the EPL commit `2664bec024` if you decline it | 1 build |
+| 10 | **#1124** | Deploy trigger: 19 `data/internal` paths read by public routes, plus a fail-closed coverage guard | `7d86c48951` | tests 21/21; mutation control passes; composes with #1088 (45/45) | CLEAN | — | Approve (correctness) | +0.36 builds/day; measured stale windows of 8–50 min |
+| 11 | #1116 | Docs | branch head | — | — | — | Merge any time | 0–1 build |
 
-Expected deployments if all merge: about 10 Production builds (or fewer when queued builds supersede each other).
+Expected deployments if all merge: about 11 Production builds (or fewer when queued builds supersede each other).
 
 ## 4. Forecasting integrity
 - **No prediction, settlement, grade or historical record was changed** by any work this session.
@@ -95,7 +98,10 @@ Expected deployments if all merge: about 10 Production builds (or fewer when que
   - Writer batching is worth **−0.25 builds/day and −2.12 skips/day** now (the auto-refresh content gate), not the −4.2/day estimated earlier.
   - The NFL sim-v2 shadow builds are **not** redundant: a public page reads them.
 - **NFL spacing:** no change before launch. After launch, only "120 min, never within T−3h of a kickoff, never deferring live-props", run log-only first.
-- **New finding, being audited now:** the deploy trigger lists only 4 `data/internal` paths as build inputs, but public routes read more of them (confirmed for the sim-v2 shadow receipts). Results go into the build-input coverage audit.
+- **Build-input coverage (#1124):**
+  - The deploy trigger listed only 4 `data/internal` paths, but public routes read **19 more**.
+  - History shows user-visible stale windows: shadow receipts for 8–29 min, and `/models` showing a wrong NFL status for 50 min.
+  - The fix costs +0.36 builds/day (+0.5%) and adds a fail-closed guard. Audit: `docs/cost/BUILD_INPUT_COVERAGE_AUDIT_2026-10-17.md`.
 - **Confirmed savings: none yet.** No cost change has merged, and billed figures need a Vercel token.
 
 ## 7. NFL and Live Hub V2
@@ -157,7 +163,7 @@ Matrix: 38 VERIFIED (4 real-event, 31 Production, 1 CI, 2 local), 15 PENDING, 18
 | 9 | **Rollback dry run** Mon 07:00 ET (FD-9) | Mandatory | Monday | NO-GO, or a written waiver | Approve | the rehearsal doc |
 | 10 | **TRUTH-001** F1–F9 | Truthful MLB record | No (post-launch is acceptable) | Known disclosed limitation | Approve F1 (21 corrections); choose R1 or R2 | the proposal doc |
 | 11 | Remaining metric decisions: NBA dedup, Homer Nukes, "Edge" copy, About claim | Truthful numbers | No | Disclosed limitations | Approve dedup and Homer Nukes post-launch | the integrity doc |
-| 12 | Cost designs: auto-refresh gate; sim-v2 shadow as a build input; NFL spacing (post-launch, log-only) | Cost and correctness | No | Status quo | Approve the auto-refresh gate and the shadow build input | the cost docs |
+| 12 | Merge **#1124** (build-input coverage); cost designs: auto-refresh gate; NFL spacing (post-launch, log-only) | Cost and correctness | No | Status quo | Approve #1124 and the auto-refresh gate | the cost docs |
 | 13 | Vercel token (FD-5); NFL odds funding (FD-8) | Billing evidence; NFL prices | Medium | No billing proof; prices "not checked" | Provide the token; decide on odds | — |
 
 ## 11. Next 24–48 hours
