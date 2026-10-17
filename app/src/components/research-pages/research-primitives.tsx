@@ -96,15 +96,17 @@ export function CoverageStrip({ coverage, period }: { coverage: Coverage; period
 /** A label that links only when the entity has a research page. Never a broken link. */
 export function EntityLink({ href, children }: { href: string | null | undefined; children: ReactNode }) {
   if (!href) return <>{children}</>;
-  return <Link href={href} style={{ color: "var(--vault-gold-bright)", textDecoration: "underline", textUnderlineOffset: 3 }}>{children}</Link>;
+  /* a.ent-link in globals.css (gold, underline, 3px offset); it outranks the runtime prose-link rule as the inline style did. */
+  return <Link href={href} className="ent-link">{children}</Link>;
 }
 
 /** W / L / T / D letters are always text — colour is decoration, never the only signal. */
 export function ResultBadge({ code }: { code: string | null }) {
   if (!code) return null;
-  const color = code === "W" ? "var(--vault-success)" : code === "L" ? "var(--vault-danger)" : "var(--vault-text-mute)";
+  /* .rb + tone class in globals.css: W success, L danger, otherwise mute — colour and border share the tone. */
+  const tone = code === "W" ? "rb-w" : code === "L" ? "rb-l" : "rb-o";
   return (
-    <span className="font-mono" style={{ display: "inline-block", minWidth: 18, textAlign: "center", fontWeight: 800, fontSize: 11.5, color, border: `1px solid ${color}`, borderRadius: 4, padding: "0 3px" }}>
+    <span className={`font-mono rb ${tone}`}>
       {code}
     </span>
   );

@@ -226,21 +226,23 @@ export default function MlbLandingPage() {
         {games.map((g) => {
           const anchor = `game-${g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`}`;
           const tileKey = g.gamePk ?? `${g.awayTeamAbbr}-${g.homeTeamAbbr}`;
-          const detailHref = gameHrefByMatchId("mlb", g.gamePk) ?? `/mlb/board#${anchor}`;
+          const gameHref = gameHrefByMatchId("mlb", g.gamePk);
+          const detailHref = gameHref ?? `/mlb/board#${anchor}`;
+          const away = g.awayTeamAbbr ?? "TBD", home = g.homeTeamAbbr ?? "TBD";
           return (
             <Link
               key={tileKey}
               href={detailHref}
               className="vault-glow-hover flex items-center justify-between gap-3 rounded-[6px]"
               style={{ padding: "12px 14px", border: "1px solid var(--vault-border)", background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", color: "inherit", textDecoration: "none" }}
-              aria-label={`View props for ${g.awayTeamAbbr ?? "?"} at ${g.homeTeamAbbr ?? "?"}`}
+              aria-label={`${gameHref ? "Open game report" : "Open on the model board"}: ${away} at ${home}`}
             >
               <span className="inline-flex items-center gap-1 shrink-0" aria-hidden>
                 <TeamMark name={g.awayTeamAbbr} logoUrl={mlbTeamLogoUrl(g.awayTeamId)} size="md" />
                 <TeamMark name={g.homeTeamAbbr} logoUrl={mlbTeamLogoUrl(g.homeTeamId)} size="md" />
               </span>
               <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                <span style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>{g.awayTeamAbbr ?? "?"} @ {g.homeTeamAbbr ?? "?"}</span>
+                <span style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>{away} @ {home}</span>
                 <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{g.venue ?? "MLB"}</span>
               </div>
               <div className="flex flex-col items-end gap-0.5 shrink-0">
@@ -252,7 +254,7 @@ export default function MlbLandingPage() {
         })}
       </div>
     ) : (
-      <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>{isTodaysSlate ? <>The MLB Stats API will return today&apos;s games shortly.</> : <>No schedule artifact is on disk for this slate.</>}</p>
+      <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>{isTodaysSlate ? <>Today&apos;s MLB schedule hasn&apos;t been posted yet.</> : <>No MLB schedule is available for this date.</>}</p>
     );
 
   // Honest slate freshness — the board date vs the REAL today (client re-computes with the browser clock),
@@ -294,7 +296,7 @@ export default function MlbLandingPage() {
         <SectionHeader eyebrow={`Slate · ${date}`} title={isTodaysSlate ? `${games.length} game${games.length === 1 ? "" : "s"} today` : `${games.length} game${games.length === 1 ? "" : "s"} · ${date}`} rightSlot={games.length > 0 ? <Link href="/mlb/board" className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-gold)", fontSize: 11 }}>Open board →</Link> : undefined} />
         {slateTiles}
       </section>
-      <UpcomingSlateStrip title="Upcoming · next 7 days" days={buildMlbUpcomingDays(date)} boardHrefBase="/mlb/board" emptyMessage="No upcoming MLB slates on disk yet. The next refresh will pull the rolling window." />
+      <UpcomingSlateStrip title="Upcoming · next 7 days" days={buildMlbUpcomingDays(date)} boardHrefBase="/mlb/board" emptyMessage="No MLB games are scheduled in the next 7 days yet." />
     </div>
   );
 
@@ -339,7 +341,7 @@ export default function MlbLandingPage() {
           {mlbCards.map((c) => <SuggestedCard key={c.id} card={c} />)}
         </div>
       ) : (
-        <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No suggested cards cleared the optimizer for this slate. The probability views (Projections / Player Props) are still shown.</p>
+        <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No suggested cards qualified for this slate. The projections and player props are still shown.</p>
       )}
     </div>
   );
@@ -356,10 +358,10 @@ export default function MlbLandingPage() {
       <QuickActionRail
         heading="More on MLB"
         cards={[
-          { href: "/mlb/board", eyebrow: "Tonight", title: "Model board", sub: propsAvailable ? `${summary.leans} projections across ${gameCount} game${gameCount === 1 ? "" : "s"}.` : "Lines arriving soon — schedule live." },
+          { href: "/mlb/board", eyebrow: date === currentEtDate() ? "Today" : date > currentEtDate() ? "Next slate" : "Latest slate", title: "Model board", sub: propsAvailable ? `${summary.leans} projections across ${gameCount} game${gameCount === 1 ? "" : "s"}.` : date < currentEtDate() ? "No prop lines were posted for this slate." : "No prop lines posted for this slate yet." },
           { href: "/results/mlb", eyebrow: "Results", title: "MLB results", sub: mlbLifetime?.hitRate != null ? `${(mlbLifetime.hitRate * 100).toFixed(1)}% on ${mlbLifetime.decisive} settled.` : "Pending first settlement." },
           { href: "/results/model-audit", eyebrow: "Performance", title: "Model performance", sub: "Per-market, per-edge, per-game dispersion." },
-          { href: "/homer-nukes", eyebrow: "Home runs", title: "Homer Nukes", sub: "Today's five most likely home runs, each with its own probability." }, // GTP-25
+          { href: "/homer-nukes", eyebrow: "Home runs", title: "Homer Nukes", sub: "The five most likely home runs on the latest slate, each with its own probability." }, // GTP-25
         ]}
       />
     </div>

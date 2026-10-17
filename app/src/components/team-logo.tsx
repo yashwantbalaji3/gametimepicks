@@ -152,11 +152,11 @@ export default function TeamLogo({
   const px = SIZE_PX[size];
 
   if (!team || failed) {
-    return <TeamBadge team={team} size={size === "xl" ? "lg" : size} highlight={highlight} />;
+    return <TeamBadge team={team} size={size === "xl" ? "lg" : size} highlight={highlight} decorative={ariaLabel === ""} />;
   }
 
   const src = logoUrl(team, sport);
-  if (!src) return <TeamBadge team={team} size={size === "xl" ? "lg" : size} highlight={highlight} />;
+  if (!src) return <TeamBadge team={team} size={size === "xl" ? "lg" : size} highlight={highlight} decorative={ariaLabel === ""} />;
   return (
     /* P251-F10: the constant half of these declarations moved to .gtp-team-logo in globals.css,
        byte-for-byte. Only the size varies per instance, so only the size is still inline — this

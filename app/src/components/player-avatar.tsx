@@ -45,6 +45,9 @@ interface Props {
   role?: "pitcher" | "batter" | null;
   /** When true, no border/glow — for tight contexts like leg rows. */
   flat?: boolean;
+  /** The name is printed right beside the avatar: hide the image from assistive tech so the name is read once
+   *  (GTP-31). Default false — an avatar that stands alone still names its player. */
+  decorative?: boolean;
 }
 
 const SIZE_PX: Record<NonNullable<Props["size"]>, number> = {
@@ -71,6 +74,7 @@ export default function PlayerAvatar({
   size = "md",
   role,
   flat,
+  decorative = false,
 }: Props) {
   const px = SIZE_PX[size];
   const fontPx =
@@ -125,13 +129,14 @@ export default function PlayerAvatar({
         // fallback ::after can render it without extra DOM.
         ["--gtp-pa-team" as string]: team ? `"${team}"` : '""',
       }}
-      role="img"
-      aria-label={playerName}
+      role={decorative ? undefined : "img"}
+      aria-label={decorative ? undefined : playerName}
+      aria-hidden={decorative ? true : undefined}
     >
       {!showFallback && resolvedUrl && (
         <img
           src={resolvedUrl ?? undefined}
-          alt={playerName}
+          alt={decorative ? "" : playerName}
           width={px}
           height={px}
           loading="lazy"

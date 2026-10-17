@@ -326,7 +326,7 @@ function WinsSection({
         <button
           type="button"
           onClick={onToggleShowAll}
-          className="self-start font-mono uppercase tracking-[0.16em] px-3 py-1.5 rounded-[6px]"
+          className="gtp-hit-44 self-start font-mono uppercase tracking-[0.16em] px-3 py-1.5 rounded-[6px]"
           style={{
             color: "var(--vault-success)",
             border: "1px solid var(--vault-success)",

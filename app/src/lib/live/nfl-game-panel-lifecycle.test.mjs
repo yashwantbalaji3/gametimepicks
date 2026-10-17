@@ -69,3 +69,10 @@ test("PIT @ CLE (401872964) — settled on the index, FINAL on the graded record
   assert.equal(row.state, "FINAL");
   assert.ok(Number.isFinite(row.final?.home) && Number.isFinite(row.final?.away));
 });
+
+test("after the final the panel's region is titled 'Final score', never 'Live now' (SEA@DEN 2026-10-15)", () => {
+  const panel = fs.readFileSync(path.join(process.cwd(), "src/components/live/live-panel.tsx"), "utf8");
+  assert.match(panel, /title=\{life\.state === "FINAL_PENDING_SETTLEMENT" \|\| life\.state === "SETTLED" \? "Final score" : "Live now"\}/);
+  assert.doesNotMatch(panel, /title="Live now"/);
+});
+

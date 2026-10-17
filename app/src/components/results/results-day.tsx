@@ -39,14 +39,18 @@ function Outcome({ o }: { o: DayCall["outcome"] }) {
 
 function Calls({ calls }: { calls: DayCall[] }) {
   return (
-    <table className="gtp-day-table" style={{ fontSize: 13 }}>
-      <thead><tr><th scope="col">Call</th><th scope="col">Pick</th><th scope="col" className="r">Outcome</th></tr></thead>
-      <tbody>
-        {calls.map((c, i) => (
-          <tr key={i}><td>{c.market}</td><td>{c.pick}{c.line && !c.pick.includes(c.line) ? ` ${c.line}` : ""}</td><td className="r"><Outcome o={c.outcome} /></td></tr>
-        ))}
-      </tbody>
-    </table>
+    /* UXR1-02 (DS-001 §9): at 320 px this table was 11 px wider than the viewport and scrolled the whole page;
+       a table scrolls inside its own container, as the Ranges table below already does. */
+    <div className="overflow-x-auto">
+      <table className="gtp-day-table" style={{ fontSize: 13 }}>
+        <thead><tr><th scope="col">Call</th><th scope="col">Pick</th><th scope="col" className="r">Outcome</th></tr></thead>
+        <tbody>
+          {calls.map((c, i) => (
+            <tr key={i}><td>{c.market}</td><td>{c.pick}{c.line && !c.pick.includes(c.line) ? ` ${c.line}` : ""}</td><td className="r"><Outcome o={c.outcome} /></td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

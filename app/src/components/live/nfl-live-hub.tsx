@@ -49,8 +49,8 @@ const SANS = "var(--font-display)";
 const SECTIONS = [
   { key: "LIVE_NOW", label: "Live now" },
   { key: "UPCOMING", label: "Upcoming" },
-  { key: "FINAL_PENDING", label: "Final — grading pending" },
-  { key: "SETTLED", label: "Settled today" },
+  { key: "FINAL_PENDING", label: "Final · grading pending" },
+  { key: "SETTLED", label: "Final today" },
 ] as const;
 type SectionKey = (typeof SECTIONS)[number]["key"];
 

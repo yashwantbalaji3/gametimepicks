@@ -37,6 +37,8 @@ import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
 import { reportCardContext } from "@/lib/command-center/report-card";
 import path from "node:path";
 import { buildEplPresentation } from "@/lib/simulate/presentation/epl";
+import EtTime from "@/components/ui/et-time";
+import type React from "react";
 
 /**
  * One page per fixture that EVER carried a distribution — enumerated from the dated archive, not
@@ -125,11 +127,11 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
       {/* ── Identity ─────────────────────────────────────────────────────────────────────────── */}
       <header className="mt-4">
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-          <TeamLogo team={home} sport="soccer" size="sm" ariaLabel={`${home} crest`} />
+          <TeamLogo team={home} sport="soccer" size="lg" ariaLabel="" />
           <h1 style={{ fontSize: "clamp(20px, 3.4vw, 30px)", fontWeight: 800, margin: 0 }}>
             {home} <span style={{ color: "var(--vault-text-faint)", fontWeight: 500 }}>v</span> {away}
           </h1>
-          <TeamLogo team={away} sport="soccer" size="sm" ariaLabel={`${away} crest`} />
+          <TeamLogo team={away} sport="soccer" size="lg" ariaLabel="" />
         </div>
         <p className="font-mono mt-2" style={{ fontSize: 11.5, color: "var(--vault-text-mute)" }}>
           {ET(row.kickoffUtc)} ET{row.matchweek ? ` · Matchweek ${row.matchweek}` : ""} · Premier League
@@ -459,7 +461,7 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
           <dl style={{ display: "grid", gap: 6, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", margin: 0 }}>
             <Meta k="Model" v={row.modelId ?? "epl-model-v1-split-poisson"} />
             {row.lambdas ? <Meta k="Scoring rates (λ)" v={`${home} ${dec(row.lambdas.home)} · ${away} ${dec(row.lambdas.away)}`} /> : null}
-            <Meta k="Generated" v={generatedLine} />
+            <Meta k="Generated" v={set?.generatedAt ? <EtTime iso={set.generatedAt} /> : generatedLine} />
             <Meta k="Validation" v={validationLine} />
           </dl>
         </div>
@@ -508,7 +510,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Meta({ k, v }: { k: string; v: string }) {
+function Meta({ k, v }: { k: string; v: React.ReactNode }) {
   return (
     <div>
       <dt className="font-mono" style={{ fontSize: 9.5, letterSpacing: "0.06em", color: "var(--vault-text-faint)", textTransform: "uppercase" }}>{k}</dt>
