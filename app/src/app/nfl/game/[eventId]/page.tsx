@@ -72,6 +72,7 @@ import Methodology from "@/components/nfl/forecast/methodology";
 import { gameTabs } from "@/lib/sports/nfl/forecast-view.mjs";
 import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
 import { STATUS as WORLD_MODEL_STATUS } from "@/lib/sports/nfl/world-model-v2/artifact.mjs";
+import EtTime from "@/components/ui/et-time";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -672,7 +673,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
               <Stat label="Total points: ours vs sportsbooks" value={`${s.total.median} vs ${mc.marketTotal ?? "—"}`} sub="our projected total against the sportsbooks' over/under line" />
             </div>
             <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 760, lineHeight: 1.6 }}>{mc.note}</p>
-            <p style={{ margin: "6px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>Prices captured {mc.capturedAt} — before kickoff.</p>
+            <p style={{ margin: "6px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>Prices captured <EtTime iso={mc.capturedAt} /> — before kickoff.</p>
           </>
         ) : (
           <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{mc.note}</p>
@@ -777,8 +778,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <dt>model</dt><dd style={{ margin: 0 }}>{f.model.id} v{f.model.version}</dd>
           <dt>simulations</dt><dd style={{ margin: 0 }}>{f.model.simulations.toLocaleString("en-US")}</dd>
           <dt>input hash</dt><dd style={{ margin: 0 }}>{f.model.inputHash}</dd>
-          <dt>generated</dt><dd style={{ margin: 0 }}>{f.generatedAt}</dd>
-          <dt>kickoff</dt><dd style={{ margin: 0 }}>{f.kickoffUtc}</dd>
+          <dt>generated</dt><dd style={{ margin: 0 }}><EtTime iso={f.generatedAt} /></dd>
+          <dt>kickoff</dt><dd style={{ margin: 0 }}><EtTime iso={f.kickoffUtc} /></dd>
           <dt>state</dt><dd style={{ margin: 0 }}>{lifecycle === "UPCOMING" ? <><KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={false} when="before">UPCOMING</KickoffSlot><KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={false} when="after">STARTED</KickoffSlot></> : lifecycle}</dd>
         </dl>
         {/* P250 · A15: the player board's model provenance — the receipt above names only the team
