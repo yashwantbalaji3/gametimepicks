@@ -14,6 +14,7 @@ import { etDayLabel } from "@/lib/et-stamp.mjs";
 
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { forecastRecordView, familyHref, csvHref } from "@/lib/results/v2/forecast-ledger-reader";
+import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
 export const metadata = withRouteMetadata("/results/forecasts/", {
   title: "Forecast Record — Every Published Forecast, Measured · GameTime Picks",
@@ -134,7 +135,7 @@ export default function ForecastRecordPage() {
             <h2 id="fr-gaps" className="font-display">Published but not in this record yet</h2>
             <ul className="note" style={{ paddingLeft: 18 }}>
               {rec.declaredGaps.map((g: any) => (
-                <li key={`${g.sport}-${g.family}`}><b style={{ color: "var(--vault-text)" }}>{g.sport} · {g.family}</b>: {g.reason}</li>
+                <li key={`${g.sport}-${g.family}`}><b style={{ color: "var(--vault-text)" }}>{g.sport} · {g.family}</b>: {plainCodes(g.reason)}</li>
               ))}
             </ul>
           </section>

@@ -63,6 +63,7 @@ import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import { boardTabs, topBoards } from "@/lib/sports/nfl/forecast-view.mjs";
 import { loadForecastViews } from "@/lib/sports/nfl/forecast-view-load.mjs";
 import { formatUpdatedEt } from "@/lib/format";
+import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
 export const metadata: Metadata = withRouteMetadata("/nfl/", {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
@@ -664,7 +665,7 @@ export default function NflHubPage() {
             {" "}Nothing here is a bet recommendation.
           </p>
           {modelStatus?.totals?.state && modelStatus.totals.state !== "UNKNOWN" ? (
-            <p style={{ margin: "6px 0 0" }}>{modelStatus.totals.detail}</p>
+            <p style={{ margin: "6px 0 0" }}>{plainCodes(modelStatus.totals.detail)}</p>
           ) : null}
         </div>
         {totalsBand.sentence ? (
@@ -944,7 +945,7 @@ export default function NflHubPage() {
                 <tr key={c.layer}>
                   <td className="gtp-nfl-td gtp-nfl-td-13">{c.layer}</td>
                   <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: c.state === "LIVE" || c.state === "DEPLOYED" ? "var(--gtp-success-on-dark)" : "var(--vault-text-mute)" }}>{coverageStateLabel(c.state)}</td>
-                  <td className="gtp-nfl-td gtp-nfl-td-mute">{c.detail}</td>
+                  <td className="gtp-nfl-td gtp-nfl-td-mute">{plainCodes(c.detail)}</td>
                 </tr>
               ))}
             </tbody>
