@@ -2,11 +2,11 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-10-16T14:16:50Z",
+ "generatedAt": "2026-10-17T18:01:45Z",
  "worst": "BREACHED",
  "counts": {
-  "INSUFFICIENT_SAMPLE": 6,
-  "HOLDING": 9,
+  "INSUFFICIENT_SAMPLE": 5,
+  "HOLDING": 10,
   "WATCH": 3,
   "BREACHED": 4
  },
@@ -277,6 +277,48 @@
     "measures": {
      "logLossVsBaseline": 0.0259
     }
+   }
+  },
+  {
+   "id": "epl_result",
+   "sport": "epl",
+   "label": "EPL match result (home/draw/away)",
+   "baseline": "even odds (log loss 1.0986)",
+   "state": "HOLDING",
+   "n": 60,
+   "judgement": {
+    "state": "HOLDING",
+    "n": 60,
+    "needed": 60,
+    "meanDiff": -0.0663,
+    "lo95": -0.1955,
+    "hi95": 0.0608
+   },
+   "context": {
+    "modelLogLoss": 1.0323,
+    "market": {
+     "model": {
+      "logLoss": 1.034841,
+      "brier": 0.633771
+     },
+     "market": {
+      "logLoss": 1.027475,
+      "brier": 0.618892
+     },
+     "logLossDelta": 0.007366,
+     "brierDelta": 0.014879
+    },
+    "marketComparisonState": "MODEL_BEHIND",
+    "stoppingRule": "NO_MEASURABLE_ADVANTAGE"
+   },
+   "source": "app/public/data/soccer/epl/results/graded-forecasts.jsonl",
+   "bar": {
+    "verdict": "NO_BAR",
+    "reason": "the live bar is the forward receipt's own comparison (Elo-Poisson vs the split Poisson it replaced), judged in epl_forward_match_model — this family keeps the even-odds floor",
+    "model": null,
+    "modelsOnGradedBoards": null,
+    "source": "data/internal/research/epl/reports/epl-elo-poisson-forward-protocol.json#/frozen/minimumN",
+    "measures": null
    }
   },
   {
@@ -623,16 +665,16 @@
    "label": "EPL blind forward test · match model vs the one it replaced",
    "baseline": "the previous model (epl-model-v1-split-poisson), paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 20,
+   "n": 24,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "watch": false,
     "needed": 60,
-    "meanDiff": -0.4384,
+    "meanDiff": -0.3606,
     "lo95": null,
     "hi95": null,
-    "modelLogLoss": 1.0392,
-    "controlLogLoss": 1.4776,
+    "modelLogLoss": 0.9929,
+    "controlLogLoss": 1.3535,
     "modelId": "epl-model-v2-elo-poisson"
    },
    "context": null,
@@ -644,58 +686,16 @@
    }
   },
   {
-   "id": "epl_result",
-   "sport": "epl",
-   "label": "EPL match result (home/draw/away)",
-   "baseline": "even odds (log loss 1.0986)",
-   "state": "INSUFFICIENT_SAMPLE",
-   "n": 56,
-   "judgement": {
-    "state": "INSUFFICIENT_SAMPLE",
-    "n": 56,
-    "needed": 60,
-    "meanDiff": -0.047,
-    "lo95": null,
-    "hi95": null
-   },
-   "context": {
-    "modelLogLoss": 1.0516,
-    "market": {
-     "model": {
-      "logLoss": 1.057609,
-      "brier": 0.649864
-     },
-     "market": {
-      "logLoss": 1.058192,
-      "brier": 0.640766
-     },
-     "logLossDelta": -0.000583,
-     "brierDelta": 0.009098
-    },
-    "marketComparisonState": "MODEL_AHEAD",
-    "stoppingRule": "NO_MEASURABLE_ADVANTAGE"
-   },
-   "source": "app/public/data/soccer/epl/results/graded-forecasts.jsonl",
-   "bar": {
-    "verdict": "NO_BAR",
-    "reason": "the live bar is the forward receipt's own comparison (Elo-Poisson vs the split Poisson it replaced), judged in epl_forward_match_model — this family keeps the even-odds floor",
-    "model": null,
-    "modelsOnGradedBoards": null,
-    "source": "data/internal/research/epl/reports/epl-elo-poisson-forward-protocol.json#/frozen/minimumN",
-    "measures": null
-   }
-  },
-  {
    "id": "epl_shadow_totals",
    "sport": "epl",
    "label": "EPL totals SHADOW (research, not public) · club-specific total vs live P304",
    "baseline": "live P304 constant total, paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 20,
+   "n": 24,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "needed": 60,
-    "meanDiff": 0.0143,
+    "meanDiff": 0.0022,
     "lo95": null,
     "hi95": null,
     "failedBars": null,
@@ -715,17 +715,17 @@
    "label": "Ligue 1 match result (home/draw/away)",
    "baseline": "even odds (log loss 1.0986)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 27,
+   "n": 28,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 27,
+    "n": 28,
     "needed": 60,
-    "meanDiff": -0.2392,
+    "meanDiff": -0.2346,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "modelLogLoss": 0.8594
+    "modelLogLoss": 0.864
    },
    "source": "app/public/data/soccer/ligue-1/results/graded.json",
    "bar": {
@@ -793,6 +793,14 @@
   }
  ],
  "changes": [
+  {
+   "id": "epl_result",
+   "sport": "epl",
+   "label": "EPL match result (home/draw/away)",
+   "from": "INSUFFICIENT_SAMPLE",
+   "to": "HOLDING",
+   "at": "2026-10-17T18:01:45Z"
+  },
   {
    "id": "nfl_forward_anytime_td",
    "sport": "nfl",

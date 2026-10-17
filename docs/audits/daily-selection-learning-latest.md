@@ -1,18 +1,18 @@
-# Daily selection learning — through 2026-10-15
+# Daily selection learning — through 2026-10-16
 
-Training window: **2026-10-08 → 2026-10-15** (8d). Universe legs:
-**367** (baseline 48.5%). Published legs:
-**58**, cards: **21**. noLiveWire=**false**.
+Training window: **2026-10-09 → 2026-10-16** (8d). Universe legs:
+**370** (baseline 41.1%). Published legs:
+**58**, cards: **22**. noLiveWire=**false**.
 
 ## Recommended market status (Wilson-LB driven, fail-closed)
-- **batter_hits** → `allowed` — 58% (87/151, WLB 50%) shrunk 57%
-- **batter_hits_runs_rbis** → `disabled` — 48% (73/151, WLB 41%) shrunk 48%
-- **batter_total_bases** → `disabled` — 23% (7/30, WLB 12%) shrunk 33%
-- **pitcher_strikeouts** → `insufficient_sample` — 58% (11/19, WLB 36%) shrunk 53%
+- **batter_hits** → `restricted` — 56% (75/135, WLB 47%) shrunk 54%
+- **batter_hits_runs_rbis** → `disabled` — 46% (62/135, WLB 38%) shrunk 45%
+- **batter_total_bases** → `disabled` — 26% (7/27, WLB 13%) shrunk 32%
+- **pitcher_strikeouts** → `insufficient_sample` — 50% (8/16, WLB 28%) shrunk 45%
 
 ## Calibration
-- Edge inverted at high values: **true** 0-5:53% (41/77, WLB 42%) · 10-15:49% (38/77, WLB 38%) · 5-10:49% (51/104, WLB 40%) · neg:62% (13/21, WLB 41%) · 15-20:51% (23/45, WLB 37%) · 20+:44% (12/27, WLB 28%)
-- Confidence predictive: **true** (spread 14.3pts) Medium:63% (25/40, WLB 47%) · Low:48% (41/85, WLB 38%) · High:50% (112/226, WLB 43%)
+- Edge inverted at high values: **true** 20+:39% (9/23, WLB 22%) · 0-5:47% (30/64, WLB 35%) · neg:58% (11/19, WLB 36%) · 5-10:47% (45/95, WLB 38%) · 10-15:50% (36/72, WLB 39%) · 15-20:53% (21/40, WLB 38%)
+- Confidence predictive: **true** (spread 15.4pts) Low:43% (32/75, WLB 32%) · Medium:58% (18/31, WLB 41%) · High:49% (102/207, WLB 43%)
 
 ## Published leg hit rate by lane
 - low: 64% (9/14, WLB 39%)
@@ -26,6 +26,6 @@ Training window: **2026-10-08 → 2026-10-15** (8d). Universe legs:
 
 ## Warnings
 - edge signal is INVERTED at high values — edge capped, not used to promote
-- market pitcher_strikeouts: insufficient sample (19)
+- market pitcher_strikeouts: insufficient sample (16)
 
 _Recommendation artifact only — no production logic changed by this script._
