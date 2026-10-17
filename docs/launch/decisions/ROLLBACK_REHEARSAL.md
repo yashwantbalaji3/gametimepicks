@@ -202,3 +202,81 @@ It is the only way to exercise the alias switch, the auto-assignment behaviour, 
 2. Does the dry run satisfy F-4, or do you **also** want the live switch (§6) at 07:00–07:30 ET with Undo by 07:30? If not, will you waive the live part in writing?
 3. Is the Vercel plan Pro, so that "Choose another deployment" is available? On Hobby, a real incident can only go back one deployment.
 4. If a code merge lands before Monday (#1118, #1117, #1119, #1101 or #1088), confirm the last-known-good is recomputed against that merge (§3.2).
+
+---
+
+## 9. Scenario coverage check (added Sat 2026-10-17 ~07:00Z)
+
+**Read:** runbook §0–§10 on `origin/main` (`2c617c780c`) and §11 on #1110 (`e877e38cef`). Nothing was run. The rehearsal stays a **dry run** on Mon 10-19 07:00 ET, and no rollback is performed by this session.
+
+| Scenario | Runbook | This rehearsal | Verdict |
+|---|---|---|---|
+| Failed Vercel builds | #1110 §11.1 (signature, "not an outage", two-in-a-row rule) | Not exercised (nothing to fail) | **Covered**, but only once #1110 merges |
+| Stalled deployments (a build that neither finishes nor fails, and blocks the queue) | Not covered. §11.1 describes the 46-min memory kill only after it ends | — | **Missing**: added as §10.1 |
+| Superseded queued deployments | #1110 §11.2 | — | **Covered** (#1110). Evidence impact added in §10.1 |
+| Forecast-data integrity | #1110 §11.3 (Forecast Record = ledger after rollback and undo) | §3.3 (on K) | **Covered** |
+| Ledger preservation | Implicit only: a rollback cannot touch git | §2, §3.4 (append-only K→A, 0 violations on 10-17) | Rollback **covered**. The **revert-merge** path (§9) has no ledger check: added as §10.2 |
+| UI regressions | §1 "code or build regression", §3–§5, §9 | §3.3 step 4, §3.5, §3.6 | **Covered** |
+| Stale or broken data feeds | §1 "bad data" and "third-party outage"; §6 pausing writers; §7 kill switches | — | **Partial**: no decision table for live-feed vs published-data staleness. Added as §10.3 |
+| Account and auth failures | Not covered | — | **Missing**: added as §10.4 |
+| Provider configuration failures | §4 ("env vars don't change"), §7.4 kill switches | — | **Partial**: the env-dependent legal hash and #1121's fail-closed behaviour are not described. Added as §10.5 |
+| Rollback intervals in "served" evidence | Not covered | §2 (hazard noted), §5.4 | **Gap in the evidence scripts**: §10.6 |
+
+## 10. Proposed runbook additions (text for the founder to accept into §12 of the runbook; not applied to `docs/INCIDENT_AND_ROLLBACK_RUNBOOK.md`)
+
+### 10.1 Stalled deployments and the queue
+- **Detect:** the newest `main` commit's GitHub `Vercel` status stays **pending** more than **20 min** after the push. A healthy build is about 5–7 min end-to-end (#1110 §11.4); the Oct 13–15 memory kills ran about 46 min before failing.
+- **Effect:** Production keeps serving the last READY build. Newer pushes queue behind the stalled one, and only the newest queued push builds when it clears (§11.2). On a game day, published data stops advancing.
+- **Forecast-of-record consequence (Option B):** the forecast of record is the revision **served** by a READY deployment before start. If a stall holds a pregame revision back past kickoff, the earlier served revision is the record. That is correct by design. **Record the stall window** so nobody later treats the held-back revision as served.
+- **Action** (founder only, Vercel dashboard): cancel the stalled deployment (Deployments → ⋮ on the building row). The queue proceeds with the newest push. **Do not** redeploy with `VERCEL_FORCE_BUILD=1` repeatedly, and do not roll back: a rollback freezes data further.
+- **Superseded deployments** ("Canceled from the Vercel Dashboard") never became READY, so they were never served. Evidence must not count them, and the capture scripts already count READY only.
+
+### 10.2 Ledger preservation on the fix-forward path
+A rollback cannot change the ledger. A **revert-merge** can, if the reverted merge's diff includes ledger files.
+
+**Before pushing any revert:**
+1. Run `git diff --name-only <merge>^1 <merge> -- data/`. It must be empty. If not, revert only the `app/` paths, never `data/internal/forecast-ledger/`. The last five code merges (#1114, #1091, #1093, #1089, #1087) touch 0 `data/` files.
+2. Run §3.4's append-only comparison from `origin/main` to the revert branch: expect `violations: 0` and equal row counts.
+3. If the revert changes ledger-building code, the builder's own guard (`build-forecast-ledger.mjs:223`, `compareLedgers`) refuses a non-append change on the next settle run. Treat that refusal as a stop, never as something to bypass.
+
+### 10.3 Stale or broken data feeds (decision table)
+**General rule:** a rollback never fixes stale data. It freezes all data at an older build.
+
+| Symptom | Where it comes from | Action |
+|---|---|---|
+| **Live scores** stale or missing during games | `/api/live` (server-side ESPN/MLB). Freshness bands: < 45 s fresh, < 120 s delayed, ≥ 120 s stale (`lib/live/freshness.mjs:21-23`) | No rollback. If the provider is down, the labelled delayed or stale state is the designed behaviour. This behaviour is **fixture-tested only**, not yet observed live (matrix O-15). If the gateway itself misbehaves: `LIVE_GATEWAY_ENABLED=0` + forced build (runbook §7.4) |
+| **Published boards and forecasts** not refreshing | Scheduled writers (GitHub cron, often late) | Check `publication-watchdog` and `cron-watchdog`. Fix the writer forward. Do not backfill by hand (§6). Never re-run a paid workflow (§7) |
+| **Wrong** published data (a bad artifact on `main`) | A writer bug | §1 "bad data": pause that sport's writers (§6) and fix forward. Roll back only if the bad artifact is user-harmful **and** a fix is more than hours away, accepting that all data freezes |
+
+### 10.4 Account and auth failures
+The Supabase database is **not** part of a deployment, so a rollback changes nothing about stored data or its policies.
+
+| Failure | User sees | Action |
+|---|---|---|
+| Magic link opens a non-site URL | The sign-in panel's own hint (`sign-in-panel.tsx` "If the link opens a page that is not this site…") | Founder: Supabase → Authentication → URL Configuration (Site URL and redirect allow-list = `/account/`) |
+| Supabase outage | `/account/` stuck on "Checking your session…" or Supabase error text; the rest of the site unaffected (static export) | None; note it in the incident log |
+| **Cross-user read or write (RLS leak), P0** | Another reader's data | (1) Disable accounts: remove **both** `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, then a forced build (about 5–7 min). Every Production build since accounts launched contains them, so **no rollback target is free of accounts**. (2) Founder re-applies `db/accounts-schema.sql` (idempotent) in the SQL editor. (3) Re-run package 2 Tiers A–C before re-enabling. Revoking all invites (`update public.beta_access set revoked_at = now()`) stops **writes** only; reads are still governed by the select policies |
+| Shipped key turns out to be service-role | — | Treat as a P0 leak: rotate the key in Supabase, then the steps above |
+
+### 10.5 Provider configuration failures
+- **A rollback does not undo an env change** (§4). Fix the variable, then a forced build.
+- **Ask:**
+  - After #1121, an unset `ASK_MODEL_PROVIDER` makes Production refuse Ask (503 `PROVIDER_NOT_CONFIGURED`). Before #1121 it silently falls back to Anthropic.
+  - Rolling back to a build **older than #1121** restores that silent fallback.
+  - What users see per failure: package 3 §7.
+- **Legal pages are env-dependent.** Once Privacy and Terms are published, their approved hash covers text rendered from `NEXT_PUBLIC_ANALYTICS_ENABLED`, `NEXT_PUBLIC_ANALYTICS_ENDPOINT` and the `GTP_SUPPORT_*` variables (package 1 §2). Changing or removing any of them makes the next build's hash differ from the approval, and `/privacy/` and `/terms/` go back to **404** silently. **Treat those variables as frozen** after approval; any change goes through counsel re-approval.
+- **Accounts:** removing only the anon key yields MISCONFIGURED ("Accounts are temporarily unavailable") with the nav link still shown. Remove both variables to disable cleanly (package 1 §9).
+
+### 10.6 Evidence-script gap: rollback intervals
+- **The gap:**
+  - Three scripts treat every READY Production deployment as served:
+    - `app/scripts/ops/capture-github-production-deployments.mjs`;
+    - `scripts/capture-vercel-production-deployments.mjs`;
+    - `app/scripts/mlb/shadow-served-forecast-of-record.mjs`.
+  - Each has **0** references to rollback, promote or alias (grep at `2c617c780c`).
+  - During a rollback, bot builds go READY but are **not** served, so these scripts would credit a pregame revision that no visitor could see.
+- **Until fixed:**
+  - Any rollback (real, or a live rehearsal switch) must log `rollback_at`, `undo_at` (UTC) and the served SHA in `SESSION.md` and the incident issue.
+  - Option B evidence for any game whose last pregame revision falls inside that interval is adjudicated by hand.
+  - The dry run (§3) creates no interval.
+- **Proposed fix** (engineering, post-launch, not built): an append-only, hand-written interval log that the three scripts read. A READY deployment created inside an interval counts as served only if it is the rollback target. Founder approval needed, because it changes forecast-of-record evidence.
