@@ -6,6 +6,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { featuredSimulations } from "./simulate-lobby-featured.ts";
+import fs from "node:fs";
+import path from "node:path";
 
 const mlbReady = (slug, date, edge) => ({
   sport: "mlb", slug, date,
@@ -65,4 +67,11 @@ test("2026-10-17 · the archive fallback is the most RECENT reports first, cappe
   const cur = featuredSimulations([...details, mlbReady("today-2026-10-17", "2026-10-17", 1)], "2026-10-17");
   assert.equal(cur.allCurrent, true);
   assert.deepEqual(cur.featured.map((f) => f.date), ["2026-10-17"]);
+});
+
+test("2026-10-17 · UFC top reads name the likeliest finish in words, not the card's code", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "src/lib/top-reads.ts"), "utf8");
+  assert.match(src, /const UFC_FINISH: Record<string, string> = \{ DEC: "decision", KO: "knockout", SUB: "submission" \};/);
+  assert.match(src, /`likeliest finish: \$\{UFC_FINISH\[b\.prediction\.method\.most\]\}`/);
+  assert.doesNotMatch(src, /model reads \$\{b\.prediction\.method\.most\}/, "the raw code is no longer printed");
 });
