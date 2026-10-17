@@ -272,6 +272,8 @@ These are exact questions. Each one unblocks the rows listed.
 - **#1101 and #1088:** protected workflows, proposed window Sat 10:30–11:00Z. Packages and independent post-merge verifiers are in `docs/launch/approvals/`.
 - **#1117, HTML Release 1** (exact head `4b4610366e`): −27.4% HTML with identical rendering. **Merge first.**
 - **#1119, UX Release 1 on HTML Release 1:** #1115 reconciled onto #1117 (reconciliation `bb4f4a02be`, report `4465b08d40`). **Merge second.** It renders the same as #1115: 0 differing elements on 10 of 12 pages at all four widths, the other two differ only because their content changed between build times, and 0 differing pixels. HTML is −26.6% vs #1115. The 132-load sweep is clean. It supersedes merging #1115 on its own.
+- **#1120, internal codes in reader words** (head `f218d544c9`, built on #1119): **merge third**. A post-build guard now fails if any internal state code reaches visible text; it passes on a full build. Presentation only, with 0 data change.
+- **#1121, Ask spend control** (head `abb72dff26`): this is the engineering half of F-3. In Production, Ask refuses unless `ASK_MODEL_PROVIDER` names the provider, which ends the silent Anthropic fallback at about 10× cost outside the Gemini cap. The kill switch now accepts off/no/disabled. **Before merging**, confirm `ASK_MODEL_PROVIDER=gemini` in Production, or Ask returns 503 until it is set.
 
 ## 7. Evidence-based go/no-go assessment (as of 2026-10-16 20:45Z)
 
