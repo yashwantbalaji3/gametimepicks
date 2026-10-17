@@ -14,11 +14,13 @@ const BODY = { userId: "user-1", path: "user-1/slip.png", contentType: "image/pn
 /* app/api, not the repo root: the suite runs with cwd = app/. */
 const HANDLER = fs.readFileSync(path.join(process.cwd(), "api/slip-read.mjs"), "utf8");
 
-test("with no keys it refuses and names what is missing — never a half-attempt", () => {
+test("with no keys it refuses — never a half-attempt — and the public reason names no configuration", () => {
   const d = decideSlipRead({ env: {}, authorization: "Bearer t", body: BODY });
   assert.equal(d.status, 503);
   assert.equal(d.proceed, false);
-  for (const k of REQUIRED_ENV) assert.match(d.reason, new RegExp(k));
+  assert.deepEqual(d.missing, [...REQUIRED_ENV], "what is missing stays on the decision for the log and tests");
+  for (const k of REQUIRED_ENV) assert.doesNotMatch(d.reason, new RegExp(k), "the 503 body must not map the deployment");
+  assert.match(HANDLER, /reason: decision\.reason \}/, "the handler returns only the reason, never the decision's `missing`");
   assert.deepEqual(missingConfig({ ...ENV, ANTHROPIC_API_KEY: " " }), ["ANTHROPIC_API_KEY"], "blank counts as missing");
 });
 
