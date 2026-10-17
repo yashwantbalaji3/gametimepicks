@@ -89,6 +89,13 @@ export interface FeaturedSimulation {
 }
 
 export const FEATURED_CAP = 5;
+/**
+ * The archive fallback (no current/upcoming simulation) shows only the most RECENT reports, and fewer of them
+ * (2026-10-17): at 3 AM ET on a Saturday the home page featured five AUGUST preseason NFL reports — ranked by pick
+ * count — under "No current slate has a simulation yet", beside a launchpad counting 6 simulation-ready games. The
+ * archive is still reachable from the simulation lobby; on Home it is a short, dated pointer, not a showcase.
+ */
+export const ARCHIVE_CAP = 2;
 
 export function strongestEdgePct(sim: FeaturedSimView): number {
   let max = 0;
@@ -185,12 +192,19 @@ export function featuredSimulations(details: readonly FeaturedDetailInput[], tod
   const current = today ? cards.filter((c) => c.date != null && c.date >= today) : [];
   const pool = current.length > 0 ? current : cards;
   const allCurrent = current.length > 0;
+  /* The archive rule applies only when a day is supplied and nothing on it or after it is ready; without a day the
+     selector stays edge/coverage-sorted and back-compatible. */
+  const archive = today != null && !allCurrent;
 
   pool.sort((a, b) => {
     if (allCurrent) {
       // soonest kickoff first, then simulation coverage, then slug
       const da = (a.date ?? "9999-99-99").localeCompare(b.date ?? "9999-99-99");
       if (da !== 0) return da;
+    } else if (archive) {
+      // The archive: most RECENT first — the fallback promised "the most-recent slate" and ranked by coverage instead.
+      const dd = (b.date ?? "0000-00-00").localeCompare(a.date ?? "0000-00-00");
+      if (dd !== 0) return dd;
     }
     // Sprint 035: was `topEdgePct` — the model-vs-market difference, which is INVERTED on settled
     // results (20+pp rows hit .4317 vs .5203 under 2.5pp). Featuring by it surfaced the weakest
@@ -203,5 +217,5 @@ export function featuredSimulations(details: readonly FeaturedDetailInput[], tod
     ? cards.filter((c) => c.mode === "simulation" && c.date === today).length
     : 0;
 
-  return { featured: pool.slice(0, FEATURED_CAP), readyCount: pool.length, simulationsToday, allCurrent };
+  return { featured: pool.slice(0, archive ? ARCHIVE_CAP : FEATURED_CAP), readyCount: pool.length, simulationsToday, allCurrent };
 }

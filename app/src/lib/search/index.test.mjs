@@ -113,6 +113,12 @@ test("LIVE · a sport's players are indexed exactly when the export has pages th
   assert.ok(checkedWithPages >= 1, "anti-vacuity: at least one sport has player pages in the export");
 });
 
+/* The page is HTML: React escapes an apostrophe as &#x27; ("Nico O&#x27;Reilly", MW7 2026-10-17). Compare text to text. */
+const decodeEntities = (t) => t
+  .replace(/&#x([0-9a-f]+);/gi, (_m, h) => String.fromCodePoint(parseInt(h, 16)))
+  .replace(/&#(\d+);/g, (_m, d) => String.fromCodePoint(Number(d)))
+  .replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+
 test("LIVE · an indexed EPL player is one the fixture page actually names", { skip: !hasExport && "no export" }, () => {
   const eplPlayers = idx.rows.filter((r) => r.k === 1 && /Premier League ·/.test(r.s));
   if (!eplPlayers.length) return;
@@ -121,7 +127,7 @@ test("LIVE · an indexed EPL player is one the fixture page actually names", { s
     const f = path.join(OUT, String(p.h).replace(/^\//, "").replace(/\/$/, ""), "index.html");
     if (!byPage.has(f)) {
       byPage.set(f, fs.existsSync(f)
-        ? fs.readFileSync(f, "utf8").replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<[^>]+>/g, " ")
+        ? decodeEntities(fs.readFileSync(f, "utf8").replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<[^>]+>/g, " "))
         : "");
     }
     assert.ok(byPage.get(f).includes(p.l), `${p.l} is indexed to ${p.h}, and that page never names him`);

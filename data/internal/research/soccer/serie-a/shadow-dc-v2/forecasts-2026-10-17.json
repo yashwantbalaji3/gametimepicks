@@ -1,0 +1,163 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "serie-a",
+ "season": "2026-27",
+ "date": "2026-10-17",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-17T13:14:39.000Z",
+ "runs": [
+  {
+   "at": "2026-10-17T13:14:39.000Z",
+   "added": 2
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Monza|Cagliari",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874762",
+   "providerEventId": "401874762",
+   "kickoffUtc": "2026-10-19T16:30:00.000Z",
+   "matchup": "Monza v Cagliari",
+   "homeClub": "Monza",
+   "awayClub": "Cagliari",
+   "historyNames": {
+    "home": "Monza",
+    "away": "Cagliari"
+   },
+   "espnTeamIds": {
+    "home": "4007",
+    "away": "2925"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-17T13:14:39.000Z",
+   "probs": {
+    "home": 0.308254,
+    "draw": 0.26496,
+    "away": 0.426787
+   },
+   "over25": 0.480974,
+   "under25": 0.519026,
+   "expectedGoals": {
+    "home": 1.172,
+    "away": 1.4256
+   },
+   "lambdas": {
+    "home": 1.172,
+    "away": 1.4256
+   },
+   "rho": -0.013787,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 118,
+    "away": 118
+   },
+   "fit": {
+    "cutoffIso": "2026-10-17T13:14:39.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 11
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.412517,
+     "draw": 0.280165,
+     "away": 0.307318
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Parma|Torino",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874784",
+   "providerEventId": "401874784",
+   "kickoffUtc": "2026-10-19T18:45:00.000Z",
+   "matchup": "Parma v Torino",
+   "homeClub": "Parma",
+   "awayClub": "Torino",
+   "historyNames": {
+    "home": "Parma",
+    "away": "Torino"
+   },
+   "espnTeamIds": {
+    "home": "115",
+    "away": "239"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-17T13:14:39.000Z",
+   "probs": {
+    "home": 0.330709,
+    "draw": 0.305532,
+    "away": 0.363759
+   },
+   "over25": 0.342721,
+   "under25": 0.657279,
+   "expectedGoals": {
+    "home": 1.0038,
+    "away": 1.0679
+   },
+   "lambdas": {
+    "home": 1.0038,
+    "away": 1.0679
+   },
+   "rho": -0.013787,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 80,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-10-17T13:14:39.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 11
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.323883,
+     "draw": 0.274008,
+     "away": 0.402108
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 2
+ }
+}

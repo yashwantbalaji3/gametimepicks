@@ -104,10 +104,19 @@ test("every ESPN schedule abbreviation reaches a rated franchise — none silent
   const gate = totalsV3Gate(receipt, prereg);
   const state = foldTotalsV3({ games, efficiencyRows: efficiency, frozen: gate.frozen, fit: gate.fit });
   assert.equal(state.hasTeam("WSH"), false, "the raw ESPN code is NOT a rated team — which is why the map exists");
+  // The whole league, in ESPN's codes, independent of which week the committed schedule happens to hold.
+  const LEAGUE = ["ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAX", "KC",
+    "LAC", "LAR", "LV", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT", "SEA", "SF", "TB", "TEN", "WSH"];
+  for (const a of LEAGUE) assert.ok(state.hasTeam(toNflverseAbbr(a)), `${a} → ${toNflverseAbbr(a)} has no rating history`);
+  // The committed schedule is one week's remaining games: byes and games already played drop out as the week
+  // goes on (26 teams on Fri 2026-10-16, Week 6), so it is a sample of the league, never a census of it.
   const schedule = read("app/public/data/nfl/schedule/latest.json");
   const espn = new Set(schedule.rows.flatMap((r) => [r.home?.abbr, r.away?.abbr]).filter(Boolean));
-  assert.ok(espn.size >= 28, `the schedule carries the league (${espn.size} teams)`);
-  for (const a of espn) assert.ok(state.hasTeam(toNflverseAbbr(a)), `${a} → ${toNflverseAbbr(a)} has no rating history`);
+  assert.ok(espn.size >= 2, `the schedule carries at least one game (${espn.size} teams)`);
+  for (const a of espn) {
+    assert.ok(LEAGUE.includes(a), `${a} is not a known ESPN franchise code — unmapped, it would take the league average`);
+    assert.ok(state.hasTeam(toNflverseAbbr(a)), `${a} → ${toNflverseAbbr(a)} has no rating history`);
+  }
 });
 
 test("the committed tables carry only current franchise codes — one rating stream per franchise", () => {

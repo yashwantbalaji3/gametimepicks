@@ -1,0 +1,1365 @@
+{
+ "schemaVersion": 1,
+ "artifact": "product-eligible-legs",
+ "dataClass": "internal",
+ "date": "2026-10-17",
+ "asOf": "2026-10-17T18:14:20Z",
+ "generatedAt": "2026-10-17T18:14:21.654Z",
+ "marketPricedLegPolicy": {
+  "state": "ADMITTED_PENDING_FOUNDER_DECISION",
+  "gate": "F1",
+  "since": "2026-09-21"
+ },
+ "counts": {
+  "total": 28,
+  "eligible": 6
+ },
+ "legs": [
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849816:mlb_moneyline:home",
+   "sport": "mlb",
+   "eventId": "849816",
+   "eventStartUtc": "2026-10-18T00:08:00Z",
+   "entityIds": [
+    "mlb-team-114",
+    "mlb-team-139"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.4913,
+   "oddsForSide": {
+    "american": -106,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-17T14:04:12.572Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-17T14:04:12.572Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849816",
+    "family:team_result",
+    "entity:mlb:mlb-team-114",
+    "entity:mlb:mlb-team-139",
+    "start:995712"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-17.json",
+    "mlb/statsapi-schedule/2026-10-17.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Cleveland Guardians",
+   "displaySelection": "Cleveland Guardians to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849816:mlb_moneyline:away",
+   "sport": "mlb",
+   "eventId": "849816",
+   "eventStartUtc": "2026-10-18T00:08:00Z",
+   "entityIds": [
+    "mlb-team-139",
+    "mlb-team-114"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "mlb_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5087,
+   "oddsForSide": {
+    "american": -114,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-17T14:04:12.572Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-17T14:04:12.572Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849816",
+    "family:team_result",
+    "entity:mlb:mlb-team-139",
+    "entity:mlb:mlb-team-114",
+    "start:995712"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-17.json",
+    "mlb/statsapi-schedule/2026-10-17.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Cleveland Guardians",
+   "displaySelection": "Tampa Bay Rays to win",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849816:mlb_run_line:home:1.5",
+   "sport": "mlb",
+   "eventId": "849816",
+   "eventStartUtc": "2026-10-18T00:08:00Z",
+   "entityIds": [
+    "mlb-team-114",
+    "mlb-team-139"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "home",
+   "line": 1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.6251,
+   "oddsForSide": {
+    "american": -189,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-17T14:04:12.572Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-17T14:04:12.572Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849816",
+    "family:team_spread",
+    "entity:mlb:mlb-team-114",
+    "entity:mlb:mlb-team-139",
+    "start:995712"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-17.json",
+    "mlb/statsapi-schedule/2026-10-17.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Cleveland Guardians",
+   "displaySelection": "Cleveland Guardians +1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849816:mlb_run_line:away:-1.5",
+   "sport": "mlb",
+   "eventId": "849816",
+   "eventStartUtc": "2026-10-18T00:08:00Z",
+   "entityIds": [
+    "mlb-team-139",
+    "mlb-team-114"
+   ],
+   "marketFamily": "team_spread",
+   "marketKey": "mlb_run_line",
+   "side": "away",
+   "line": -1.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.3749,
+   "oddsForSide": {
+    "american": 155,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-17T14:04:12.572Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-17T14:04:12.572Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849816",
+    "family:team_spread",
+    "entity:mlb:mlb-team-139",
+    "entity:mlb:mlb-team-114",
+    "start:995712"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-17.json",
+    "mlb/statsapi-schedule/2026-10-17.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Cleveland Guardians",
+   "displaySelection": "Tampa Bay Rays -1.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849816:mlb_total_runs:over:6.5",
+   "sport": "mlb",
+   "eventId": "849816",
+   "eventStartUtc": "2026-10-18T00:08:00Z",
+   "entityIds": [
+    "mlb-team-114",
+    "mlb-team-139"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "over",
+   "line": 6.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5,
+   "oddsForSide": {
+    "american": -110,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-17T14:04:12.572Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-17T14:04:12.572Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849816",
+    "family:team_total",
+    "entity:mlb:mlb-team-114",
+    "entity:mlb:mlb-team-139",
+    "start:995712"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-17.json",
+    "mlb/statsapi-schedule/2026-10-17.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Cleveland Guardians",
+   "displaySelection": "Over 6.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "mlb:849816:mlb_total_runs:under:6.5",
+   "sport": "mlb",
+   "eventId": "849816",
+   "eventStartUtc": "2026-10-18T00:08:00Z",
+   "entityIds": [
+    "mlb-team-114",
+    "mlb-team-139"
+   ],
+   "marketFamily": "team_total",
+   "marketKey": "mlb_total_runs",
+   "side": "under",
+   "line": 6.5,
+   "forecastOwner": "mlb/team-markets",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "MARKET_CONTEXT",
+   "probability": null,
+   "marketImpliedProbability": 0.5,
+   "oddsForSide": {
+    "american": -110,
+    "bookmaker": "draftkings",
+    "capturedAt": "2026-10-17T14:04:12.572Z",
+    "receipt": "docs/MLB_DAILY_PIPELINE.md"
+   },
+   "publishedAt": "2026-10-17T14:04:12.572Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": true,
+   "eligibilityReasonCodes": [
+    "MARKET_PRICED_NO_FORECAST"
+   ],
+   "correlationKeys": [
+    "sport:mlb",
+    "event:mlb:849816",
+    "family:team_total",
+    "entity:mlb:mlb-team-114",
+    "entity:mlb:mlb-team-139",
+    "start:995712"
+   ],
+   "sourceReceiptRefs": [
+    "mlb/team-markets/2026-10-17.json",
+    "mlb/statsapi-schedule/2026-10-17.json"
+   ],
+   "displayMatchup": "Tampa Bay Rays @ Cleveland Guardians",
+   "displaySelection": "Under 6.5",
+   "registryState": "FULL_MODEL"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401897388:ufc_h2h:Mike Malott",
+   "sport": "ufc",
+   "eventId": "401897388",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Mike Malott",
+    "ufc-fighter-name:Joaquin Buckley"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Mike Malott",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.5594713656387665,
+   "oddsForSide": {
+    "american": -127,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401897388",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Mike Malott",
+    "entity:ufc:ufc-fighter-name:Joaquin Buckley"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Mike Malott vs Joaquin Buckley",
+   "displaySelection": "Mike Malott to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401897388:ufc_h2h:Joaquin Buckley",
+   "sport": "ufc",
+   "eventId": "401897388",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Mike Malott",
+    "ufc-fighter-name:Joaquin Buckley"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Joaquin Buckley",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.4878048780487805,
+   "oddsForSide": {
+    "american": 105,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401897388",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Mike Malott",
+    "entity:ufc:ufc-fighter-name:Joaquin Buckley"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Mike Malott vs Joaquin Buckley",
+   "displaySelection": "Joaquin Buckley to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401897729:ufc_h2h:Erin Blanchfield",
+   "sport": "ufc",
+   "eventId": "401897729",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Erin Blanchfield",
+    "ufc-fighter-name:Jasmine Jasudavicius"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Erin Blanchfield",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7674418604651163,
+   "oddsForSide": {
+    "american": -330,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401897729",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Erin Blanchfield",
+    "entity:ufc:ufc-fighter-name:Jasmine Jasudavicius"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Erin Blanchfield vs Jasmine Jasudavicius",
+   "displaySelection": "Erin Blanchfield to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401897729:ufc_h2h:Jasmine Jasudavicius",
+   "sport": "ufc",
+   "eventId": "401897729",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Erin Blanchfield",
+    "ufc-fighter-name:Jasmine Jasudavicius"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Jasmine Jasudavicius",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.273972602739726,
+   "oddsForSide": {
+    "american": 265,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401897729",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Erin Blanchfield",
+    "entity:ufc:ufc-fighter-name:Jasmine Jasudavicius"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Erin Blanchfield vs Jasmine Jasudavicius",
+   "displaySelection": "Jasmine Jasudavicius to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401923630:ufc_h2h:Kyle Nelson",
+   "sport": "ufc",
+   "eventId": "401923630",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Kyle Nelson",
+    "ufc-fighter-name:Cristian Pérez"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Kyle Nelson",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.26666666666666666,
+   "oddsForSide": {
+    "american": 275,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401923630",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Kyle Nelson",
+    "entity:ufc:ufc-fighter-name:Cristian Pérez"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Kyle Nelson vs Cristian Pérez",
+   "displaySelection": "Kyle Nelson to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401923630:ufc_h2h:Cristian Pérez",
+   "sport": "ufc",
+   "eventId": "401923630",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Kyle Nelson",
+    "ufc-fighter-name:Cristian Pérez"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Cristian Pérez",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7727272727272727,
+   "oddsForSide": {
+    "american": -340,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401923630",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Kyle Nelson",
+    "entity:ufc:ufc-fighter-name:Cristian Pérez"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Kyle Nelson vs Cristian Pérez",
+   "displaySelection": "Cristian Pérez to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401908372:ufc_h2h:Kyle Daukaus",
+   "sport": "ufc",
+   "eventId": "401908372",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Kyle Daukaus",
+    "ufc-fighter-name:Marc-Andre Barriault"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Kyle Daukaus",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6644295302013423,
+   "oddsForSide": {
+    "american": -198,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401908372",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Kyle Daukaus",
+    "entity:ufc:ufc-fighter-name:Marc-Andre Barriault"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Kyle Daukaus vs Marc-Andre Barriault",
+   "displaySelection": "Kyle Daukaus to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401908372:ufc_h2h:Marc-Andre Barriault",
+   "sport": "ufc",
+   "eventId": "401908372",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Kyle Daukaus",
+    "ufc-fighter-name:Marc-Andre Barriault"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Marc-Andre Barriault",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.37735849056603776,
+   "oddsForSide": {
+    "american": 165,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401908372",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Kyle Daukaus",
+    "entity:ufc:ufc-fighter-name:Marc-Andre Barriault"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Kyle Daukaus vs Marc-Andre Barriault",
+   "displaySelection": "Marc-Andre Barriault to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401905374:ufc_h2h:Nate Landwehr",
+   "sport": "ufc",
+   "eventId": "401905374",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Nate Landwehr",
+    "ufc-fighter-name:Mandel Nallo"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Nate Landwehr",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.29850746268656714,
+   "oddsForSide": {
+    "american": 235,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401905374",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Nate Landwehr",
+    "entity:ufc:ufc-fighter-name:Mandel Nallo"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Nate Landwehr vs Mandel Nallo",
+   "displaySelection": "Nate Landwehr to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401905374:ufc_h2h:Mandel Nallo",
+   "sport": "ufc",
+   "eventId": "401905374",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Nate Landwehr",
+    "ufc-fighter-name:Mandel Nallo"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Mandel Nallo",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7422680412371134,
+   "oddsForSide": {
+    "american": -288,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401905374",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Nate Landwehr",
+    "entity:ufc:ufc-fighter-name:Mandel Nallo"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Nate Landwehr vs Mandel Nallo",
+   "displaySelection": "Mandel Nallo to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401908371:ufc_h2h:Tanner Boser",
+   "sport": "ufc",
+   "eventId": "401908371",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Tanner Boser",
+    "ufc-fighter-name:Jhonata Diniz"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Tanner Boser",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.35714285714285715,
+   "oddsForSide": {
+    "american": 180,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401908371",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Tanner Boser",
+    "entity:ufc:ufc-fighter-name:Jhonata Diniz"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Tanner Boser vs Jhonata Diniz",
+   "displaySelection": "Tanner Boser to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401908371:ufc_h2h:Jhonata Diniz",
+   "sport": "ufc",
+   "eventId": "401908371",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Tanner Boser",
+    "ufc-fighter-name:Jhonata Diniz"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Jhonata Diniz",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6855345911949685,
+   "oddsForSide": {
+    "american": -218,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401908371",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Tanner Boser",
+    "entity:ufc:ufc-fighter-name:Jhonata Diniz"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Tanner Boser vs Jhonata Diniz",
+   "displaySelection": "Jhonata Diniz to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401911807:ufc_h2h:Julien LeBlanc",
+   "sport": "ufc",
+   "eventId": "401911807",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Julien LeBlanc",
+    "ufc-fighter-name:Nick Galanti"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Julien LeBlanc",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.17391304347826086,
+   "oddsForSide": {
+    "american": 475,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "PRICE_OUT_OF_RANGE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401911807",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Julien LeBlanc",
+    "entity:ufc:ufc-fighter-name:Nick Galanti"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Julien LeBlanc vs Nick Galanti",
+   "displaySelection": "Julien LeBlanc to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401911807:ufc_h2h:Nick Galanti",
+   "sport": "ufc",
+   "eventId": "401911807",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Julien LeBlanc",
+    "ufc-fighter-name:Nick Galanti"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Nick Galanti",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.8675496688741722,
+   "oddsForSide": {
+    "american": -655,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "PRICE_OUT_OF_RANGE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401911807",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Julien LeBlanc",
+    "entity:ufc:ufc-fighter-name:Nick Galanti"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Julien LeBlanc vs Nick Galanti",
+   "displaySelection": "Nick Galanti to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401929676:ufc_h2h:Javad Mahjoub",
+   "sport": "ufc",
+   "eventId": "401929676",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Javad Mahjoub",
+    "ufc-fighter-name:Joel Faglier"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Javad Mahjoub",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.4716981132075472,
+   "oddsForSide": {
+    "american": 112,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401929676",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Javad Mahjoub",
+    "entity:ufc:ufc-fighter-name:Joel Faglier"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Javad Mahjoub vs Joel Faglier",
+   "displaySelection": "Javad Mahjoub to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401929676:ufc_h2h:Joel Faglier",
+   "sport": "ufc",
+   "eventId": "401929676",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Javad Mahjoub",
+    "ufc-fighter-name:Joel Faglier"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Joel Faglier",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.5708154506437768,
+   "oddsForSide": {
+    "american": -133,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401929676",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Javad Mahjoub",
+    "entity:ufc:ufc-fighter-name:Joel Faglier"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Javad Mahjoub vs Joel Faglier",
+   "displaySelection": "Joel Faglier to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914039:ufc_h2h:Chad Anheliger",
+   "sport": "ufc",
+   "eventId": "401914039",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Chad Anheliger",
+    "ufc-fighter-name:Steven Koslow"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Chad Anheliger",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.4149377593360996,
+   "oddsForSide": {
+    "american": 141,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914039",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Chad Anheliger",
+    "entity:ufc:ufc-fighter-name:Steven Koslow"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Chad Anheliger vs Steven Koslow",
+   "displaySelection": "Chad Anheliger to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401914039:ufc_h2h:Steven Koslow",
+   "sport": "ufc",
+   "eventId": "401914039",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Chad Anheliger",
+    "ufc-fighter-name:Steven Koslow"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Steven Koslow",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6240601503759399,
+   "oddsForSide": {
+    "american": -166,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401914039",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Chad Anheliger",
+    "entity:ufc:ufc-fighter-name:Steven Koslow"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Chad Anheliger vs Steven Koslow",
+   "displaySelection": "Steven Koslow to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401908373:ufc_h2h:Chelsea Chandler",
+   "sport": "ufc",
+   "eventId": "401908373",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Chelsea Chandler",
+    "ufc-fighter-name:Melissa Croden"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Chelsea Chandler",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.2702702702702703,
+   "oddsForSide": {
+    "american": 270,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401908373",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Chelsea Chandler",
+    "entity:ufc:ufc-fighter-name:Melissa Croden"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Chelsea Chandler vs Melissa Croden",
+   "displaySelection": "Chelsea Chandler to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401908373:ufc_h2h:Melissa Croden",
+   "sport": "ufc",
+   "eventId": "401908373",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Chelsea Chandler",
+    "ufc-fighter-name:Melissa Croden"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Melissa Croden",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7701149425287356,
+   "oddsForSide": {
+    "american": -335,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401908373",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Chelsea Chandler",
+    "entity:ufc:ufc-fighter-name:Melissa Croden"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Chelsea Chandler vs Melissa Croden",
+   "displaySelection": "Melissa Croden to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401919643:ufc_h2h:SuYoung You",
+   "sport": "ufc",
+   "eventId": "401919643",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:SuYoung You",
+    "ufc-fighter-name:Cody Chovancek"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "SuYoung You",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.4807692307692308,
+   "oddsForSide": {
+    "american": 108,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401919643",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:SuYoung You",
+    "entity:ufc:ufc-fighter-name:Cody Chovancek"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "SuYoung You vs Cody Chovancek",
+   "displaySelection": "SuYoung You to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401919643:ufc_h2h:Cody Chovancek",
+   "sport": "ufc",
+   "eventId": "401919643",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:SuYoung You",
+    "ufc-fighter-name:Cody Chovancek"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Cody Chovancek",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.5614035087719298,
+   "oddsForSide": {
+    "american": -128,
+    "bookmaker": "consensus(6 books)",
+    "capturedAt": "2026-10-17T14:02:21Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-10-17T14:02:21Z",
+   "asOf": "2026-10-17T18:14:20Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401919643",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:SuYoung You",
+    "entity:ufc:ufc-fighter-name:Cody Chovancek"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "SuYoung You vs Cody Chovancek",
+   "displaySelection": "Cody Chovancek to win",
+   "registryState": "SCAFFOLD_ONLY"
+  }
+ ]
+}
