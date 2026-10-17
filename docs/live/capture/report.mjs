@@ -192,6 +192,9 @@ for (const ev of events) {
   const lastS = sett.at(-1) ?? null;
   const states = new Set(timeline.map((r) => r.state));
   const missingStates = ["PRE", "LIVE", "FINAL_PENDING_SETTLEMENT"].filter((s) => !states.has(s) && !(s === "FINAL_PENDING_SETTLEMENT" && (states.has("FINAL") || states.has("SETTLED"))));
+  // Thursday 10-15 recorded LIVE with NO envelope player stats (the kit asked players=true) and nothing flagged it.
+  // A LIVE window with zero player-stat rows is now a listed problem, never just a line of text.
+  if (states.has("LIVE") && maxPlayers === 0) evProblems.push("LIVE was observed but NO envelope player stats were captured (check the request's players=1 and the gateway)");
   const lpHashes = [...new Set(lp.map((x) => x.frozenHash))];
   const evShots = shots.filter((s) => s.event === ev || (legacy && String(s.name).startsWith("shot-game")));
 

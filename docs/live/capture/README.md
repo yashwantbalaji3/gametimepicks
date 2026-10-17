@@ -51,3 +51,11 @@ Phase B ends after the second consecutive pass on which every event's CANONICAL 
 - 4 screenshots, 0 px overflow, 0 broken images; game page 81 headshots / 63 logos;
 - settlement line written (`no-file-yet`; no live-props yet);
 - report written, listing LIVE and FINAL as not yet observed.
+
+## Mid-capture health check (added 2026-10-17)
+`node docs/live/capture/check-live.mjs ~/gtp-evidence/live-v2-sun-1018/captures` reads the evidence folder only (no network, never touches the running process). It prints:
+- whether the capture is alive, and its last pass;
+- the last hour's failed or bot-challenged requests;
+- for each event, the newest envelope's state, score and **player-stat row count**. It flags `LIVE WITH NO PLAYER STATS`, which is the Thursday failure mode.
+
+Run it once early in each window. `report.mjs` now also lists "LIVE observed with no envelope player stats" as a **problem**, not just a line of text.
