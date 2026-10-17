@@ -22,7 +22,7 @@ const shas = {};
 
 /**
  * Files OUTSIDE app/ that `npm run build` reads (emit steps, research/compare/lab/ask pages, the
- * search index, and the three data/internal paths a PUBLIC route reads). Any change here must build;
+ * search index, and the data/internal paths a PUBLIC route reads). Any change here must build;
  * the sibling data/internal churn (pregame archive etc.) must not — it feeds pipeline scripts only.
  * Audit: docs/V17_DEPLOY_TRIGGER_AUDIT.md (2026-09-22).
  */
@@ -38,6 +38,16 @@ const REPO_ROOT_BUILD_INPUTS = [
      and the Ask projection — its nightly commit touches only this path, so it must build. */
   "data/internal/forecast-ledger/v1/nfl.jsonl",
 ];
+/* 2026-10-17 build-input coverage audit: one representative file for EVERY data/internal entry the script lists, read
+   from the script itself, so a newly added path is behaviour-tested the day it lands (build-input-coverage.test.mjs
+   proves the list is complete; this proves each entry actually makes the ignore step BUILD). */
+{
+  const blockText = /# GTP-BUILD-INPUTS-BEGIN\s*\nBUILD_INPUTS=\(([\s\S]*?)\n\)\s*\n# GTP-BUILD-INPUTS-END/.exec(fs.readFileSync(SCRIPT, "utf8"))?.[1] ?? "";
+  for (const [, entry] of blockText.matchAll(/'\:\(top\)(data\/internal\/[^']+)'/g)) {
+    const rep = entry.endsWith("/") ? `${entry}2026-10-17/fixture.json` : entry;
+    if (!REPO_ROOT_BUILD_INPUTS.some((r) => (entry.endsWith("/") ? r.startsWith(entry) : r === entry))) REPO_ROOT_BUILD_INPUTS.push(rep);
+  }
+}
 
 function git(args, opts = {}) {
   const r = spawnSync("git", args, { cwd: repo, encoding: "utf8", ...opts });
@@ -174,7 +184,8 @@ test("`[skip ci]` in the commit message never skips a Vercel build — only the 
     "the script must not read the commit message at all");
 });
 
-test("repo-root build inputs outside app/ → BUILD (projections + the four read data/internal paths)", () => {
+test("repo-root build inputs outside app/ → BUILD (projections + every read data/internal path)", () => {
+  assert.ok(REPO_ROOT_BUILD_INPUTS.length >= 20, `only ${REPO_ROOT_BUILD_INPUTS.length} repo-root inputs exercised — the script's BUILD_INPUTS block was not parsed`);
   // Each input-N commit changes exactly one repo-root file the build reads; base = its parent.
   for (const [i, rel] of REPO_ROOT_BUILD_INPUTS.entries()) {
     const head = shas[`input-${i}`];
