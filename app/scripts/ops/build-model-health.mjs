@@ -68,11 +68,20 @@ const missing = (id, sport, label, source) => add({ id, sport, label, state: "IN
   const rows = readJsonl(path.join(ROOT, source));
   if (!rows) missing("epl_result", "epl", "EPL match result (home/draw/away)", source);
   else {
-    const losses = rows.map((r) => r.scores?.logLoss).filter(Number.isFinite);
+    /*
+     * THE LIVE MODEL'S OWN ROWS ONLY (2026-10-17, G1 — lib/soccer/epl-graded-by-model.mjs). The ledger holds every EPL
+     * model that ever published: 36 rows by epl-model-v1-split-poisson, 20 by the live epl-model-v2-elo-poisson. Judging
+     * all of them as "the live record" credited v2 with v1's evidence, and at minN 60 would have produced a verdict over
+     * the mixture. The live model id is the one the forecast builder publishes (forecasts/latest.json gradedRecord);
+     * without it nothing is attributable, so nothing is judged (n = 0) rather than the pooled ledger.
+     */
+    const liveModelId = readJson(path.join(ROOT, "app/public/data/soccer/epl/forecasts/latest.json"))?.gradedRecord?.modelId ?? null;
+    const live = liveModelId ? rows.filter((r) => r.modelId === liveModelId) : [];
+    const losses = live.map((r) => r.scores?.logLoss).filter(Number.isFinite);
     const judgement = comparePairedLoss(losses.map((l) => l - LN3), { minN: 60 });
     const learning = readJson(path.join(ROOT, "data/internal/research/epl/learning/latest.json"));
     add({ id: "epl_result", sport: "epl", label: "EPL match result (home/draw/away)", baseline: "even odds (log loss 1.0986)", state: judgement.state, n: judgement.n, judgement,
-      context: { modelLogLoss: r4(mean(losses)), market: learning?.comparison?.onPairedMatches ?? null, marketComparisonState: learning?.comparison?.state ?? null, stoppingRule: learning?.stoppingRule?.state ?? null }, source });
+      context: { liveModelId, priorModelRows: rows.length - live.length, modelLogLoss: r4(mean(losses)), market: learning?.comparison?.onPairedMatches ?? null, marketComparisonState: learning?.comparison?.state ?? null, stoppingRule: learning?.stoppingRule?.state ?? null }, source });
   }
 }
 {
