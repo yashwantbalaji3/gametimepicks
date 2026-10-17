@@ -21,12 +21,11 @@ interface Props {
 }
 
 const V = 11; // PLAYER_ROW.VALUES
-const cell: React.CSSProperties = { padding: "7px 9px", fontSize: 13, borderTop: "1px solid var(--vault-rule)", whiteSpace: "nowrap" };
-const head: React.CSSProperties = { padding: "6px 9px", fontFamily: MONO, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--vault-text-faint)", textAlign: "left", fontWeight: 600, whiteSpace: "nowrap" };
-const num: React.CSSProperties = { textAlign: "right", fontVariantNumeric: "tabular-nums" };
+/* Table cell, header and numeric styles live in globals.css ("Player research view", prv-*). They were inline on
+   every cell of every game-log row on ~1,800 player pages (COST-002 HTML reduction, 2026-10-15); values verbatim. */
 
 function NotRecorded() {
-  return <span style={{ color: "var(--vault-text-faint)" }}><span aria-hidden>—</span><span className="sr-only">not recorded</span></span>;
+  return <span className="prv-faint"><span aria-hidden>—</span><span className="sr-only">not recorded</span></span>;
 }
 
 export default function PlayerResearchView({ player, labels, teamHrefs, gameHrefs }: Props) {
@@ -67,17 +66,17 @@ export default function PlayerResearchView({ player, labels, teamHrefs, gameHref
           <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 380 }}>
             <thead>
               <tr>
-                <th scope="col" style={head}>Stat</th>
-                {[3, 5, 10].map((n) => <th key={n} scope="col" style={{ ...head, ...num }}>Last {n} · avg (n)</th>)}
+                <th scope="col" className="prv-h">Stat</th>
+                {[3, 5, 10].map((n) => <th key={n} scope="col" className="prv-h prv-n">Last {n} · avg (n)</th>)}
               </tr>
             </thead>
             <tbody>
               {groupCols.map((k) => (
                 <tr key={k}>
-                  <th scope="row" style={{ ...cell, textAlign: "left", fontWeight: 500 }}>{colDef(k).label}</th>
+                  <th scope="row" className="prv-c prv-rowh">{colDef(k).label}</th>
                   {(windows[k] ?? []).map((w) => (
-                    <td key={w.size} style={{ ...cell, ...num }}>
-                      {w.n ? <>{w.avg} <span style={{ color: "var(--vault-text-faint)", fontFamily: MONO, fontSize: 11 }}>(n={w.n})</span></> : <NotRecorded />}
+                    <td key={w.size} className="prv-c prv-n">
+                      {w.n ? <>{w.avg} <span className="prv-small">(n={w.n})</span></> : <NotRecorded />}
                     </td>
                   ))}
                 </tr>
@@ -130,12 +129,12 @@ export default function PlayerResearchView({ player, labels, teamHrefs, gameHref
             <caption className="sr-only">{player.name} game log, {selected?.label ?? ""}, newest first. A dash means the stat was not recorded for that game.</caption>
             <thead>
               <tr>
-                <th scope="col" style={head}>Date</th>
-                <th scope="col" style={head}>Team</th>
-                <th scope="col" style={head}>Opponent</th>
-                {player.sport !== "EPL" ? <th scope="col" style={head}>Team result</th> : <th scope="col" style={head}>Role</th>}
-                {groupCols.map((k) => <th key={k} scope="col" style={{ ...head, ...num }} title={colDef(k).label}><abbr title={colDef(k).label} style={{ textDecoration: "none" }}>{colDef(k).short}</abbr></th>)}
-                <th scope="col" style={head}><span className="sr-only">Game page</span></th>
+                <th scope="col" className="prv-h">Date</th>
+                <th scope="col" className="prv-h">Team</th>
+                <th scope="col" className="prv-h">Opponent</th>
+                {player.sport !== "EPL" ? <th scope="col" className="prv-h">Team result</th> : <th scope="col" className="prv-h">Role</th>}
+                {groupCols.map((k) => <th key={k} scope="col" className="prv-h prv-n" title={colDef(k).label}><abbr title={colDef(k).label} className="prv-abbr">{colDef(k).short}</abbr></th>)}
+                <th scope="col" className="prv-h"><span className="sr-only">Game page</span></th>
               </tr>
             </thead>
             <tbody>
@@ -145,22 +144,22 @@ export default function PlayerResearchView({ player, labels, teamHrefs, gameHref
                 const href = gameHrefs[r[0] as string];
                 return (
                   <tr key={String(r[0])}>
-                    <td style={{ ...cell, fontFamily: MONO, fontSize: 12 }}>{formatGameDate(r[1] as string | null)}</td>
-                    <td style={cell}><EntityLink href={r[3] ? teamHrefs[r[3] as string] : null}>{team?.abbreviation ?? team?.name ?? "—"}</EntityLink></td>
-                    <td style={cell}>
-                      <span style={{ color: "var(--vault-text-faint)", fontFamily: MONO, fontSize: 11 }}>{r[5] === "H" ? "vs" : r[5] === "A" ? "@" : r[5] === "N" ? "vs" : ""}</span>{" "}
+                    <td className="prv-c prv-date">{formatGameDate(r[1] as string | null)}</td>
+                    <td className="prv-c"><EntityLink href={r[3] ? teamHrefs[r[3] as string] : null}>{team?.abbreviation ?? team?.name ?? "—"}</EntityLink></td>
+                    <td className="prv-c">
+                      <span className="prv-small">{r[5] === "H" ? "vs" : r[5] === "A" ? "@" : r[5] === "N" ? "vs" : ""}</span>{" "}
                       <EntityLink href={r[4] ? teamHrefs[r[4] as string] : null}>{opp?.abbreviation ?? opp?.name ?? "—"}</EntityLink>
                     </td>
                     {player.sport !== "EPL" ? (
-                      <td style={cell}>{r[6] ? <span style={{ display: "inline-flex", gap: 6, alignItems: "center", fontVariantNumeric: "tabular-nums" }}><ResultBadge code={r[6] as string} /> {r[7]}–{r[8]}</span> : <span style={{ fontSize: 12, color: "var(--vault-text-faint)" }}>Not recorded</span>}</td>
+                      <td className="prv-c">{r[6] ? <span className="prv-res"><ResultBadge code={r[6] as string} /> {r[7]}–{r[8]}</span> : <span className="prv-nr">Not recorded</span>}</td>
                     ) : (
-                      <td style={{ ...cell, fontSize: 12, color: "var(--vault-text-mute)" }}>{r[10] === "S" ? "Started" : "Came on"}</td>
+                      <td className="prv-c prv-role">{r[10] === "S" ? "Started" : "Came on"}</td>
                     )}
                     {groupCols.map((k) => {
                       const v = r[V + colIndex.get(k)!];
-                      return <td key={k} style={{ ...cell, ...num }}>{typeof v === "number" ? v : <NotRecorded />}</td>;
+                      return <td key={k} className="prv-c prv-n">{typeof v === "number" ? v : <NotRecorded />}</td>;
                     })}
-                    <td style={{ ...cell, textAlign: "right" }}>{href ? <Link href={href} style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-gold-bright)" }}>Game →</Link> : null}</td>
+                    <td className="prv-c prv-r">{href ? <Link href={href} className="prv-glink">Game →</Link> : null}</td>
                   </tr>
                 );
               })}

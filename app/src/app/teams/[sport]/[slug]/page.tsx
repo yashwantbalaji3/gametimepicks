@@ -135,7 +135,7 @@ export default function TeamResearchPage({ params }: { params: { sport: string; 
             <ul style={{ ...PANEL, listStyle: "none", margin: 0, display: "grid", gap: 6 }}>
               {recentFinals.map((g) => (
                 <li key={g[0]} style={{ display: "flex", flexWrap: "wrap", gap: "4px 12px", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  <span className="gtp-hit-44-links" style={{ display: "inline-flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                     <ResultBadge code={g[8]} />
                     <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 700 }}>{g[6]}–{g[7]}</span>
                     <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vault-text-faint)" }}>{g[3] === "A" ? "@" : "vs"}</span>
@@ -165,7 +165,7 @@ export default function TeamResearchPage({ params }: { params: { sport: string; 
 
       {squad.length ? (
         <Section id="players" title="Player research" sub={`Players with a GameTime research page ${squadLabel}.`}>
-          <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
+          <ul className="gtp-hit-44-links" style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexWrap: "wrap", gap: "6px 14px" }}>
             {squad.map((p) => (
               <li key={p.id} style={{ fontSize: 13.5, minHeight: 32, display: "inline-flex", alignItems: "center" }}>
                 <EntityLink href={squadHrefs[p.id]}>{p.name}</EntityLink>

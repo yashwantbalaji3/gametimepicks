@@ -1,14 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { HUB_SECTIONS, type HubSport } from "@/lib/sports/hub-sections";
+import { HUB_SECTIONS, currentHubSection, type HubSport } from "@/lib/sports/hub-sections";
 
 /**
  * SPORT-HUB SECTION NAV (P208 · Release C) — the shared in-page wayfinding strip every hub mounts
  * under its hero. Sticky, horizontally scrollable at 390/768/1280/1440, one visual rhythm for all
  * four sports; anchors jump within the hub, links open the capability at its canonical owner. The
- * current anchor is tracked from the scroll position (IntersectionObserver) so the strip answers
- * "where am I on this page" — and under reduced data (no IO) it still works as plain links.
+ * current anchor is tracked from the scroll position (UXR1-15: `currentHubSection`, recomputed on scroll) so the
+ * strip answers "where am I on this page" — and without script it still works as plain links.
  */
 export default function SportHubNav({ sport, anchors }: {
   sport: HubSport;
@@ -24,19 +24,28 @@ export default function SportHubNav({ sport, anchors }: {
   const [current, setCurrent] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setCurrent(visible[0].target.id);
-      },
-      { rootMargin: "-20% 0px -65% 0px" },
-    );
-    for (const id of anchorIds) {
-      const el = document.getElementById(id);
-      if (el) io.observe(el);
-    }
-    return () => io.disconnect();
+    /* UXR1-15: the current section is recomputed from every section's position on scroll (one rAF per frame), not
+       remembered from the last IntersectionObserver entry. The observer only ever SET a section, so after scrolling
+       back to the top the last-visited one stayed highlighted over the hero; and a jump that crossed no band edge
+       (Home/End, a long anchor jump) never fired at all. Band: 20%–35% of the viewport, as before. */
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const boxes = anchorIds.flatMap((id) => {
+        const r = document.getElementById(id)?.getBoundingClientRect();
+        return r ? [{ id, top: r.top, bottom: r.bottom }] : [];
+      });
+      setCurrent(currentHubSection(boxes, window.innerHeight * 0.2, window.innerHeight * 0.35));
+    };
+    const schedule = () => { if (!frame) frame = window.requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
     // anchorIds derives from the static registry for this sport — stable per mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sport]);
@@ -65,9 +74,11 @@ export default function SportHubNav({ sport, anchors }: {
           const isAnchor = it.kind === "anchor";
           const on = isAnchor && current === it.target;
           const common = {
-            className: "shrink-0 rounded-full px-3 py-1.5 no-underline whitespace-nowrap",
+            /* UXR1-09 (GTP-12, DS-001 §6): these section links were 33 px tall on every hub (and on /nba since #1106);
+               a tappable control gets a 44 px hit area. */
+            className: "shrink-0 inline-flex items-center rounded-full px-3 no-underline whitespace-nowrap",
             style: {
-              minHeight: 32,
+              minHeight: 44,
               fontSize: 12,
               fontWeight: 650,
               color: on ? "var(--vault-gold-bright)" : "var(--vault-text-mute)",

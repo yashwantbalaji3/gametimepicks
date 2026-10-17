@@ -163,7 +163,7 @@ export const HUB_GROUPS = Object.freeze(["LIVE_NOW", "UPCOMING", "FINAL_TODAY"])
 
 export const HUB_GROUP_LABEL = Object.freeze({
   LIVE_NOW: "Live now",
-  UPCOMING: "Starting soon",
+  UPCOMING: "Upcoming",
   FINAL_TODAY: "Final today",
 });
 

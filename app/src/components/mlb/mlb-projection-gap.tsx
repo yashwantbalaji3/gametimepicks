@@ -17,7 +17,9 @@ interface Props {
   /** Max visual gap as a fraction of half the bar. Default caps at ~25%
    *  of the half-width, which matches NBA's track behavior for clarity. */
   maxFraction?: number;
-  width?: number;
+  /** px, or a CSS length such as "100%" to fill the row. (UXR1-03: a 9999 px "fill" put the centre tick at
+   *  ~5,000 px, so the line-vs-projection bar was clipped to an empty strip on every screen.) */
+  width?: number | string;
   height?: number;
 }
 

@@ -18,6 +18,7 @@ import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs
 import { availableWeekKeys } from "@/lib/sports/nfl/week-keys";
 import PredictionBoard from "@/components/prediction/prediction-board";
 import { presentWeeklyBoard } from "@/lib/prediction-presentation/nfl";
+import EtTime from "@/components/ui/et-time";
 
 const read = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
@@ -174,7 +175,7 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
             )}
           </div>
           <p className="font-mono" style={{ margin: "10px 0 0", fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-            Board stamp {wb.generatedAt} · {wb.scope.kind === "FULL_WEEK" ? "frozen full-week edition" : `${wb.scope.eventsDroppedAfterKickoff} games dropped after kickoff`}
+            Board stamp <EtTime iso={wb.generatedAt} /> · {wb.scope.kind === "FULL_WEEK" ? "frozen full-week edition" : `${wb.scope.eventsDroppedAfterKickoff} games dropped after kickoff`}
           </p>
         </section>
       ) : null}

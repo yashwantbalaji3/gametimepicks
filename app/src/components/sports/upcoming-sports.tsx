@@ -14,6 +14,8 @@
  *   - no liveness chips of any kind — there is no chip to date-gate, which is the structural fix.
  */
 import Link from "next/link";
+import { eventStatusLabel } from "@/lib/sports/schedule-contract.mjs";
+import { sourceDisplayName } from "@/lib/sports/source-registry.mjs";
 import { MatchupCrests } from "@/components/teams/matchup-crests";
 
 const ET_DATE = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" });
@@ -45,16 +47,7 @@ export interface SportSchedule {
   totals?: { captured: number; upcoming: number; shown: number };
 }
 
-/** Registry source ids → public display names (a slug on a public page reads as a leak, not a label). */
-const SOURCE_DISPLAY: Record<string, string> = {
-  odds_api: "The Odds API",
-  mlb_statsapi: "MLB StatsAPI",
-  espn_cdn: "ESPN public data",
-  espn_scoreboard: "ESPN public scoreboard",
-  api_football: "API-Football",
-  openfootball: "openfootball (public domain)",
-  "committed-fixture-capture": "committed fixture capture",
-};
+/* Registry source ids → public display names: one map, in lib/sports/source-registry.mjs (UXR1-07). */
 
 /** Sports with their own hub, so a schedule section can point at what actually publishes. */
 const SPORT_HUB: Record<string, string> = { ufc: "/ufc/", nfl: "/nfl/", epl: "/epl/" };
@@ -100,7 +93,7 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
 
       <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "var(--text-mute)" }}>
         {s.sourceVerdict.configured && s.sourceVerdict.fetchedAt
-          ? <>Source: {SOURCE_DISPLAY[s.sourceVerdict.sourceId ?? ""] ?? s.sourceVerdict.sourceId} · captured {captured}{s.sourceVerdict.freshness === "STALE" ? " · stale snapshot" : ""}</>
+          ? <>Source: {sourceDisplayName(s.sourceVerdict.sourceId)} · captured {captured}{s.sourceVerdict.freshness === "STALE" ? " · stale snapshot" : ""}</>
           : <>No approved schedule source is configured for this sport yet.</>}
       </p>
 
@@ -121,7 +114,7 @@ export function UpcomingSportSection({ s }: { s: SportSchedule }) {
                 <span style={{ fontSize: 14 }}>{competitorsLine(e)}</span>
               </span>
               <span style={{ fontSize: 12.5, color: "var(--text-mute)" }}>{etDateTime(e.scheduledStartUtc)}</span>
-              {e.status !== "SCHEDULED" ? <span style={{ fontSize: 11, color: "var(--text-mute)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{e.status.toLowerCase()}</span> : null}
+              {e.status !== "SCHEDULED" ? <span style={{ fontSize: 11, color: "var(--text-mute)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{eventStatusLabel(e.status)}</span> : null}
               {e.venue ? <span style={{ fontSize: 12, color: "var(--text-mute)" }}>{e.venue}</span> : null}
               {e.context ? <span style={{ fontSize: 11.5, color: "var(--text-mute)", fontStyle: "italic" }}>{e.context}</span> : null}
             </li>

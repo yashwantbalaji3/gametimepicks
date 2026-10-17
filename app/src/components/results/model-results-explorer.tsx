@@ -20,7 +20,7 @@
  * WHAT IS NOT HERE. No edge, no confidence, no lean: those are internal selection signals this
  * project does not surface, and they are stripped in the producer rather than hidden here.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export interface ModelDay {
   date: string;
@@ -135,6 +135,17 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
     [detail, market],
   );
 
+  /* Paged in steps of 250 (it was capped at 250 with "narrow by market" as the only way to the rest); resets with the selection. */
+  const DETAIL_STEP = 250;
+  const [detailLimit, setDetailLimit] = useState(DETAIL_STEP);
+  useEffect(() => { setDetailLimit(DETAIL_STEP); }, [visibleDetail]);
+  /* UXR1-01: when a click reveals the last pick the paging buttons unmount; focus moves to the count, not <body>. */
+  const detailStatusRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (detailLimit !== DETAIL_STEP && detailLimit >= visibleDetail.length) detailStatusRef.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detailLimit]);
+
   const control: React.CSSProperties = {
     minHeight: 44, borderRadius: 8, padding: "0 10px", fontSize: 13,
     background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)",
@@ -184,13 +195,13 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
             <button key={label} type="button"
               onClick={() => { const t = etToday(); const f = shift(t, -back); setFrom(f); setTo(t); sync({ mfrom: f, mto: t }); }}
               className="vault-press rounded-full px-3 inline-flex items-center"
-              style={{ minHeight: 36, fontSize: 11.5, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
+              style={{ minHeight: 44, fontSize: 11.5, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
               {label}
             </button>
           ))}
           <button type="button" onClick={() => { setFrom(""); setTo(""); setMarket("all"); setOpenDate(null); sync({ mfrom: "", mto: "", market: "all" }); }}
             className="vault-press rounded-full px-3 inline-flex items-center"
-            style={{ minHeight: 36, fontSize: 11.5, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
+            style={{ minHeight: 44, fontSize: 11.5, border: "1px solid var(--vault-border)", color: "var(--vault-text-mute)" }}>
             Reset
           </button>
         </div>
@@ -246,8 +257,11 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
                     </td>
                     <td style={{ padding: "6px 12px 6px 0", fontFamily: "monospace", fontSize: 11.5 }}>{m.wins + m.losses}</td>
                     <td style={{ padding: "6px 12px 6px 0", fontFamily: "monospace", fontSize: 11.5, color: "var(--vault-text-faint)" }}>{m.pushes || "—"}</td>
-                    <td style={{ padding: "6px 0" }}>
+                    <td style={{ padding: 0 }}>
+                      {/* UXR1-16 (GTP-12, DS-001 §6): an 18 px text button became a 44 px target; the cell drops its 6 px
+                          padding so the row grows to 44 px, not 56. */}
                       <button type="button" onClick={() => setOpenDate(openDate === d.date ? null : d.date)}
+                        className="gtp-hit-44"
                         style={{ color: "var(--vault-gold-bright)", background: "none", border: "none", padding: 0, font: "inherit", cursor: "pointer", textDecoration: "underline", fontSize: 11.5 }}
                         aria-expanded={openDate === d.date}>
                         {openDate === d.date ? "Hide picks" : `Open ${d.rows} picks`}
@@ -281,7 +295,7 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
                   </tr>
                 </thead>
                 <tbody>
-                  {visibleDetail.slice(0, 250).map((r) => (
+                  {visibleDetail.slice(0, detailLimit).map((r) => (
                     <tr key={r.id}>
                       <th scope="row" style={{ textAlign: "left", padding: "5px 12px 5px 0", fontWeight: 600 }}>{r.player ?? "—"}</th>
                       <td style={{ padding: "5px 12px 5px 0", color: "var(--vault-text-mute)" }}>{r.eventName ?? "—"}</td>
@@ -295,10 +309,24 @@ export default function ModelResultsExplorer({ days, coverage }: { days: ModelDa
               </table>
             </div>
           ) : null}
-          {visibleDetail.length > 250 ? (
-            <p className="m-0" style={{ fontSize: 11, color: "var(--vault-text-faint)" }}>
-              Showing the first 250 of {visibleDetail.length}. Narrow by market to see the rest — the counts above cover every one of them.
-            </p>
+          {visibleDetail.length > DETAIL_STEP ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <p ref={detailStatusRef} tabIndex={-1} role="status" aria-live="polite" className="m-0" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>
+                {detailLimit < visibleDetail.length ? `Showing ${detailLimit} of ${visibleDetail.length}.` : `Showing all ${visibleDetail.length}.`} The counts above cover every one of them.
+              </p>
+              {detailLimit < visibleDetail.length ? (
+                <>
+                  <button type="button" className="gtp-hit-44" onClick={() => setDetailLimit((n) => n + DETAIL_STEP)}
+                    style={{ padding: "0 14px", borderRadius: 999, border: "1px solid var(--vault-border)", background: "transparent", color: "var(--vault-text)", fontSize: 13, cursor: "pointer" }}>
+                    Show {Math.min(DETAIL_STEP, visibleDetail.length - detailLimit)} more
+                  </button>
+                  <button type="button" className="gtp-hit-44" onClick={() => setDetailLimit(visibleDetail.length)}
+                    style={{ padding: "0 14px", borderRadius: 999, border: "1px solid var(--vault-border)", background: "transparent", color: "var(--vault-text-mute)", fontSize: 13, cursor: "pointer" }}>
+                    Show all {visibleDetail.length}
+                  </button>
+                </>
+              ) : null}
+            </div>
           ) : null}
         </div>
       ) : null}

@@ -1,6 +1,7 @@
 "use client";
 
 import type { MlbBoardLean } from "@/lib/types-mlb";
+import type { MlbBoardLeanView } from "@/lib/mlb/board-lean-view";
 
 /**
  * MlbFilterConsole — sibling to NBA's VaultFilters, scoped to MLB markets.
@@ -137,7 +138,7 @@ export default function MlbFilterConsole({
                 density: "detailed",
               })
             }
-            className="font-mono uppercase tracking-[0.14em] rounded-[3px] px-2.5 py-1"
+            className="gtp-hit-44 font-mono uppercase tracking-[0.14em] rounded-[3px] px-2.5 py-1"
             style={{
               fontSize: 10,
               color: "var(--vault-text-mute)",
@@ -262,7 +263,7 @@ function ChipButton({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className="font-mono uppercase tracking-[0.10em] rounded-[3px] px-2.5 py-1 transition-colors"
+      className="gtp-hit-44 font-mono uppercase tracking-[0.10em] rounded-[3px] px-2.5 py-1 transition-colors"
       style={chipStyle(active)}
     >
       {children}
@@ -274,10 +275,10 @@ function ChipButton({
  * Pure helper: apply the filter state to a lean array. Exported for the
  * page component to compute filtered lists. Sort is also applied.
  */
-export function applyMlbFilters(
-  leans: MlbBoardLean[],
+export function applyMlbFilters<T extends MlbBoardLeanView>(
+  leans: T[],
   state: MlbFilterState,
-): MlbBoardLean[] {
+): T[] {
   const filtered = leans.filter((l) => {
     if (state.market !== "all" && l.marketKey !== state.market) return false;
     if (state.confidence !== "all" && l.confidence !== state.confidence)
@@ -303,10 +304,10 @@ function tierRank(c: MlbBoardLean["confidence"]): number {
   }
 }
 
-function sortLeans(
-  leans: MlbBoardLean[],
+function sortLeans<T extends MlbBoardLeanView>(
+  leans: T[],
   sort: MlbFilterSort,
-): MlbBoardLean[] {
+): T[] {
   const out = [...leans];
   switch (sort) {
     case "edge":

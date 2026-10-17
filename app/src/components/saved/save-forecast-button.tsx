@@ -11,7 +11,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { useSavedForecasts } from "@/lib/saved/saved-store";
-import { saveEligibility } from "@/lib/saved/saved-schema.mjs";
+import { matchupSides, saveEligibility } from "@/lib/saved/saved-schema.mjs";
 import type { SaveCard } from "@/lib/saved/saved-store";
 
 import { readSinkConfig, resolveSink, track } from "@/lib/analytics/sink";
@@ -23,6 +23,7 @@ export default function SaveForecastButton({ card, compact = true, placement = "
   const saved = ready && isSaved(card.id);
   const sink = useMemo(() => resolveSink(readSinkConfig()), []);
   const sport = card.sport as Sport;
+  const sides = matchupSides(card.sport, card.away.name, card.home.name);
   /* Eligibility on the CLIENT clock, after mount — the server render is the pregame control, so the markup matches. */
   const [eligibility, setEligibility] = useState<{ ok: boolean; reason: string | null }>(() => saveEligibility(card, card.freshness?.updatedAt ?? "1970-01-01T00:00:00Z"));
   useEffect(() => { setEligibility(saveEligibility(card, new Date().toISOString())); }, [card]);
@@ -45,7 +46,7 @@ export default function SaveForecastButton({ card, compact = true, placement = "
         else { save(card); track({ event: "forecast_saved", schemaVersion: SCHEMA_VERSION, dayBucket: currentEtDate(), surface: "app", sport, placement }, sink); }
       }}
       aria-pressed={saved}
-      aria-label={saved ? `Remove ${card.away.name} and ${card.home.name} from your saved forecasts` : `Save the ${card.away.name} and ${card.home.name} forecast`}
+      aria-label={saved ? `Remove ${sides.first} and ${sides.second} from your saved forecasts` : `Save the ${sides.first} and ${sides.second} forecast`}
       className="gtp-save-btn inline-flex items-center gap-1 rounded-full font-mono uppercase tracking-[0.08em]"
       style={{ ...style, border: `1px solid ${saved ? "var(--vault-gold)" : "var(--vault-rule)"}`, color: saved ? "var(--vault-gold)" : "var(--vault-text-mute)", background: "transparent", cursor: "pointer" }}
     >

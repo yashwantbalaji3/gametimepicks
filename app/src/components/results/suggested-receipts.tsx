@@ -27,18 +27,21 @@ export default function SuggestedReceipts({ date }: { date: string }) {
               <h3 className="m-0 text-[15px] font-semibold" style={{ color: "var(--vault-text)" }}>{c.tierLabel} · {american(c.combinedAmerican)}</h3>
               <span className="font-mono text-[12px] uppercase tracking-[0.06em]" style={{ color: c.result === "won" ? "var(--vault-text)" : "var(--vault-text-mute)" }}>{WORD[c.result] ?? c.result}</span>
             </div>
-            <table className="gtp-day-table">
-              <thead><tr><th scope="col">Leg</th><th scope="col">Price</th><th scope="col" className="r">Grade</th></tr></thead>
-              <tbody>
-                {c.legs.map((g, j) => (
-                  <tr key={j}>
-                    <td>{g.player ?? "—"}{g.team ? <span className="m"> · {g.team}</span> : null}<span className="m"> · {g.market ?? "—"} {g.side ?? ""} {g.line ?? ""}</span></td>
-                    <td>{american(g.odds)}</td>
-                    <td className="r"><span className={g.result === "won" ? "o w" : "o"}>{WORD[g.result] ?? g.result}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {/* UXR1-02 (DS-001 §9): the table scrolls inside its own container on a 320 px phone. */}
+            <div className="overflow-x-auto">
+              <table className="gtp-day-table">
+                <thead><tr><th scope="col">Leg</th><th scope="col">Price</th><th scope="col" className="r">Grade</th></tr></thead>
+                <tbody>
+                  {c.legs.map((g, j) => (
+                    <tr key={j}>
+                      <td>{g.player ?? "—"}{g.team ? <span className="m"> · {g.team}</span> : null}<span className="m"> · {g.market ?? "—"} {g.side ?? ""} {g.line ?? ""}</span></td>
+                      <td>{american(g.odds)}</td>
+                      <td className="r"><span className={g.result === "won" ? "o w" : "o"}>{WORD[g.result] ?? g.result}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </li>
         ))}
         {day.skipped.map((s) => (

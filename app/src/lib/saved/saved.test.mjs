@@ -35,7 +35,8 @@ test("a snapshot carries the forecast, the model state and the artifact stamp as
   assert.equal(items.length, 1, "one save per event");
   assert.equal(items[0].value, "SF 61%", "the ORIGINAL snapshot stands");
   assert.equal(items[0].modelState, "WATCH");
-  assert.equal(snap({ sport: "epl" }).matchup, "Angels v Giants");
+  // UXJ-02: football names the HOME side first ("Everton v Chelsea"), the order the match page and the card use.
+  assert.equal(snap({ sport: "epl" }).matchup, "Giants v Angels");
   assert.equal(snap({ sport: "ufc" }).matchup, "Angels vs Giants");
 });
 
