@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-17T17:49:45Z",
- "sourceGeneratedAt": "2026-10-17T17:49:45Z",
+ "generatedAt": "2026-10-17T22:55:19Z",
+ "sourceGeneratedAt": "2026-10-17T22:55:19Z",
  "providerEventId": "401872998",
  "matchup": "CAR @ PHI",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-17T17:49:45Z",
-  "roleEvidenceAt": "2026-10-17T17:49:45Z",
+  "injuriesCapturedAt": "2026-10-17T22:55:19Z",
+  "roleEvidenceAt": "2026-10-17T22:55:19Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -72,6 +72,24 @@
        "nfl-athlete-4360238",
        "nfl-athlete-15835",
        "nfl-athlete-4715355"
+      ]
+     },
+     {
+      "team": "CAR",
+      "pool": "targets",
+      "originalSum": 1.0917,
+      "normalizedSum": 1,
+      "factor": 0.916,
+      "playerIds": [
+       "nfl-athlete-4685472",
+       "nfl-athlete-4695883",
+       "nfl-athlete-2576925",
+       "nfl-athlete-4430034",
+       "nfl-athlete-4372780",
+       "nfl-athlete-4567096",
+       "nfl-athlete-4241416",
+       "nfl-athlete-4431588",
+       "nfl-athlete-4360763"
       ]
      }
     ]
@@ -134,14 +152,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 51,
+  "absent": 54,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "CAR": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -205,6 +223,17 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4430034",
+     "name": "Xavier Legette",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
      "playerId": "nfl-athlete-4372780",
      "name": "Tommy Tremble",
      "state": "PROJECTED",
@@ -258,12 +287,6 @@
      "name": "AJ Dillon",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
-    },
-    {
-     "playerId": "nfl-athlete-4430034",
-     "name": "Xavier Legette",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
     }
    ]
   },
@@ -384,7 +407,7 @@
      "playerId": "nfl-athlete-4040715",
      "name": "Jalen Hurts",
      "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
+     "reason": "designation: Injured Reserve"
     },
     {
      "playerId": "nfl-athlete-3929630",
@@ -476,6 +499,19 @@
    },
    {
     "team": "CAR",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 1,
+    "originalSum": 1.0917,
+    "residualOther": 0,
+    "joined": 9,
+    "missed": 0,
+    "state": "NORMALIZED"
+   },
+   {
+    "team": "CAR",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
@@ -484,19 +520,6 @@
     "originalSum": 0.994,
     "residualOther": 0.006,
     "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "CAR",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.9865,
-    "originalSum": 0.9865,
-    "residualOther": 0.0135,
-    "joined": 8,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -529,12 +552,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.8837,
+     "mean": 1.7255,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
+     "p25": 0.916,
+     "median": 1.832,
+     "p75": 2.748,
+     "p90": 3.664,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.916
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -602,12 +629,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 5.9875,
-     "p10": 2,
-     "p25": 3,
-     "median": 5,
-     "p75": 8,
-     "p90": 11,
+     "mean": 5.4846,
+     "p10": 1.832,
+     "p25": 2.748,
+     "median": 4.58,
+     "p75": 7.328,
+     "p90": 10.076,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.916
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -666,12 +697,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 5.0348,
-     "p10": 1,
-     "p25": 3,
-     "median": 5,
-     "p75": 7,
-     "p90": 9,
+     "mean": 4.6119,
+     "p10": 0.916,
+     "p25": 2.748,
+     "median": 4.58,
+     "p75": 6.412,
+     "p90": 8.244,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.916
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -764,12 +799,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.0028,
-     "p10": 1,
-     "p25": 1,
-     "median": 3,
-     "p75": 4,
-     "p90": 6,
+     "mean": 2.7506,
+     "p10": 0.916,
+     "p25": 0.916,
+     "median": 2.748,
+     "p75": 3.664,
+     "p90": 5.496,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.916
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -847,6 +886,40 @@
    }
   },
   {
+   "playerId": "nfl-athlete-4430034",
+   "name": "Xavier Legette",
+   "team": "CAR",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 21.137,
+     "p10": 0,
+     "p25": 1.39,
+     "median": 14.09,
+     "p75": 32.85,
+     "p90": 53.43,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.9417,
+     "p10": 0,
+     "p25": 0.916,
+     "median": 1.832,
+     "p75": 2.748,
+     "p90": 3.664,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.916
+     },
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1584,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-4567096",
    "name": "John Metchie III",
    "team": "CAR",
@@ -862,12 +935,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.9155,
+     "mean": 1.7546,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
+     "p25": 0.916,
+     "median": 1.832,
+     "p75": 2.748,
+     "p90": 3.664,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.916
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -892,12 +969,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.2936,
+     "mean": 2.1009,
      "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5,
+     "p25": 0.916,
+     "median": 1.832,
+     "p75": 2.748,
+     "p90": 4.58,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.916
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -956,12 +1037,16 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.5922,
+     "mean": 1.4585,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 4,
+     "median": 0.916,
+     "p75": 1.832,
+     "p90": 3.664,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.916
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1007,12 +1092,16 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_receptions": {
-     "mean": 1.2822,
+     "mean": 1.1745,
      "p10": 0,
      "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
+     "median": 0.916,
+     "p75": 1.832,
+     "p90": 2.748,
+     "conservation": {
+      "version": "nfl-share-conservation-v1",
+      "factor": 0.916
+     },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

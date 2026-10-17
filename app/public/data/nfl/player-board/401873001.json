@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-17T17:49:45Z",
- "sourceGeneratedAt": "2026-10-17T17:49:45Z",
+ "generatedAt": "2026-10-17T22:55:19Z",
+ "sourceGeneratedAt": "2026-10-17T22:55:19Z",
  "providerEventId": "401873001",
  "matchup": "NYJ @ NE",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-17T17:49:45Z",
-  "roleEvidenceAt": "2026-10-17T17:49:45Z",
+  "injuriesCapturedAt": "2026-10-17T22:55:19Z",
+  "roleEvidenceAt": "2026-10-17T22:55:19Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -108,7 +108,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 54,
+  "absent": 57,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -231,8 +231,8 @@
   },
   "NE": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -327,6 +327,17 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4047646",
+     "name": "A.J. Brown",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
      "playerId": "nfl-athlete-4831959",
      "name": "Eli Raridon",
      "state": "PROJECTED",
@@ -361,12 +372,6 @@
     {
      "playerId": "nfl-athlete-2991662",
      "name": "Mack Hollins",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-4047646",
-     "name": "A.J. Brown",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
     },
@@ -720,6 +725,36 @@
     },
     "anytime_td": {
      "probability": 0.2055,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4047646",
+   "name": "A.J. Brown",
+   "team": "NE",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 18.12,
+     "p10": 0,
+     "p25": 1.21,
+     "median": 12.46,
+     "p75": 27.63,
+     "p90": 44.57,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.7229,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1942,
      "pricingState": "NOT_PROBED"
     }
    }
