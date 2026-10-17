@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-15T18:59:47Z",
- "sourceGeneratedAt": "2026-10-15T18:59:47Z",
+ "generatedAt": "2026-10-17T17:49:45Z",
+ "sourceGeneratedAt": "2026-10-17T17:49:45Z",
  "providerEventId": "401872997",
  "matchup": "BAL @ CLE",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-15T18:59:47Z",
-  "roleEvidenceAt": "2026-10-15T18:59:47Z",
+  "injuriesCapturedAt": "2026-10-17T17:49:45Z",
+  "roleEvidenceAt": "2026-10-17T17:49:45Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -23,6 +23,15 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "BAL",
+     "playerId": "nfl-athlete-4035671",
+     "name": "Tyler Huntley",
+     "share": 0.666,
+     "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -92,14 +101,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 50,
+  "absent": 46,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "BAL": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -119,17 +128,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-3916387",
-     "name": "Lamar Jackson",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-4035671",
      "name": "Tyler Huntley",
      "state": "PROJECTED",
@@ -142,7 +140,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     },
@@ -177,7 +175,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4038441",
@@ -190,15 +188,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4432260",
-     "name": "Matt Hibner",
-     "state": "PROJECTED",
-     "families": [
-      "player_reception_yds"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4696882",
@@ -221,10 +210,22 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-3916387",
+     "name": "Lamar Jackson",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4870847",
      "name": "Ja'Kobi Lane",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4432260",
+     "name": "Matt Hibner",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-2576581",
@@ -276,7 +277,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-5083076",
@@ -298,7 +299,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4241463",
@@ -363,21 +364,11 @@
   "qbStarter": [
    {
     "team": "BAL",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3916387",
-     "name": "Lamar Jackson"
-    },
-    "snapshotAt": "2026-10-14T12:51:31Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4035671",
-      "name": "Tyler Huntley"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
-     "nfl-athlete-3916387"
-    ]
+     "nfl-athlete-4035671"
+    ],
+    "removed": []
    },
    {
     "team": "CLE",
@@ -386,7 +377,7 @@
      "playerId": "nfl-athlete-3122840",
      "name": "Deshaun Watson"
     },
-    "snapshotAt": "2026-10-14T12:51:31Z",
+    "snapshotAt": "2026-10-17T11:33:46Z",
     "removed": [
      {
       "playerId": "nfl-athlete-4432762",
@@ -403,9 +394,17 @@
     "team": "BAL",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3916387"
+     "nfl-athlete-4035671"
     ],
-    "withheld": [],
+    "withheld": [
+     {
+      "team": "BAL",
+      "playerId": "nfl-athlete-4035671",
+      "name": "Tyler Huntley",
+      "share": 0.666,
+      "reason": "withheld for Tyler Huntley (BAL): his modelled share of BAL's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
     "unjoined": []
    },
    {
@@ -438,10 +437,10 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.7844,
-    "originalSum": 0.7844,
-    "residualOther": 0.2156,
-    "joined": 6,
+    "sum": 0.9309,
+    "originalSum": 0.9309,
+    "residualOther": 0.0691,
+    "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -451,12 +450,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.3867,
-    "originalSum": 0.3867,
-    "residualOther": 0.6133,
-    "joined": 3,
+    "sum": 0.7712,
+    "originalSum": 0.7712,
+    "residualOther": 0.2288,
+    "joined": 5,
     "missed": 0,
-    "state": "UNDER_ALLOCATED"
+    "state": "CONSERVED"
    }
   ],
   "violations": 0
@@ -469,21 +468,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 75.487,
-     "p10": 31.34,
-     "p25": 48.31,
-     "median": 71.26,
-     "p75": 98.49,
-     "p90": 125.32,
+     "mean": 75.967,
+     "p10": 32.1,
+     "p25": 49.18,
+     "median": 71.55,
+     "p75": 98.42,
+     "p90": 124.55,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 12.391,
+     "mean": 12.037,
      "p10": 0,
      "p25": 0,
-     "median": 6.21,
-     "p75": 19.01,
-     "p90": 34.91,
+     "median": 5.69,
+     "p75": 18.35,
+     "p90": 34.46,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -508,12 +507,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 78.27,
-     "p10": 24.1,
-     "p25": 43.62,
-     "median": 71.23,
-     "p75": 105.18,
-     "p90": 142.31,
+     "mean": 79.016,
+     "p10": 24.43,
+     "p25": 43.64,
+     "median": 71.83,
+     "p75": 106.91,
+     "p90": 144.23,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -538,21 +537,21 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
-     "mean": 43.068,
-     "p10": 14.77,
-     "p25": 24.81,
-     "median": 39.35,
-     "p75": 57.3,
-     "p90": 75.9,
+     "mean": 42.827,
+     "p10": 14.45,
+     "p25": 25.07,
+     "median": 39.3,
+     "p75": 56.57,
+     "p90": 75.57,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 24.823,
-     "p10": 0.84,
-     "p25": 8.57,
-     "median": 20.34,
-     "p75": 36.22,
-     "p90": 54.41,
+     "mean": 25.645,
+     "p10": 1.01,
+     "p25": 9.1,
+     "median": 20.8,
+     "p75": 36.78,
+     "p90": 55.66,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -574,15 +573,15 @@
    "playerId": "nfl-athlete-4832800",
    "name": "Denzel Boston",
    "team": "CLE",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 49.383,
-     "p10": 6.95,
-     "p25": 21.38,
-     "median": 42.99,
-     "p75": 70.14,
-     "p90": 98.3,
+     "mean": 49.248,
+     "p10": 6.08,
+     "p25": 20.13,
+     "median": 42.53,
+     "p75": 70.58,
+     "p90": 101.57,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -607,12 +606,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 36.799,
-     "p10": 5.47,
-     "p25": 15.35,
-     "median": 31.38,
-     "p75": 52.53,
-     "p90": 75.57,
+     "mean": 36.325,
+     "p10": 5.72,
+     "p25": 15.75,
+     "median": 30.98,
+     "p75": 51.51,
+     "p90": 74.53,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -637,12 +636,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 39.425,
-     "p10": 7.82,
-     "p25": 18.27,
-     "median": 34.01,
-     "p75": 54.96,
-     "p90": 77.47,
+     "mean": 38.598,
+     "p10": 6.82,
+     "p25": 17.18,
+     "median": 33.79,
+     "p75": 53.64,
+     "p90": 75.18,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -664,15 +663,15 @@
    "playerId": "nfl-athlete-4360939",
    "name": "Rashod Bateman",
    "team": "BAL",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 33.843,
-     "p10": 0.03,
-     "p25": 10.85,
-     "median": 27.05,
-     "p75": 49.23,
-     "p90": 74.6,
+     "mean": 32.669,
+     "p10": 0.75,
+     "p25": 10.93,
+     "median": 26.24,
+     "p75": 47.37,
+     "p90": 72.35,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -694,15 +693,15 @@
    "playerId": "nfl-athlete-4870653",
    "name": "KC Concepcion",
    "team": "CLE",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 34.345,
-     "p10": 4.18,
-     "p25": 13.95,
-     "median": 29.39,
-     "p75": 48.3,
-     "p90": 70.8,
+     "mean": 34.572,
+     "p10": 4.95,
+     "p25": 14.47,
+     "median": 29.78,
+     "p75": 48.73,
+     "p90": 70.77,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -727,21 +726,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 13.826,
+     "mean": 13.111,
      "p10": 0,
-     "p25": 0.07,
-     "median": 6.88,
-     "p75": 20.36,
-     "p90": 38.6,
+     "p25": 0.06,
+     "median": 6.15,
+     "p75": 19.67,
+     "p90": 37.05,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 14.431,
+     "mean": 13.758,
      "p10": 0,
      "p25": 0,
-     "median": 8.8,
-     "p75": 21.96,
-     "p90": 38.16,
+     "median": 8.18,
+     "p75": 21.16,
+     "p90": 36.17,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -766,46 +765,16 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 14.245,
+     "mean": 15.378,
      "p10": 0,
-     "p25": 1.81,
-     "median": 9.08,
-     "p75": 21.16,
-     "p90": 36.2,
+     "p25": 2.04,
+     "median": 10.11,
+     "p75": 22.77,
+     "p90": 38.86,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
      "probability": 0.1916,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3916387",
-   "name": "Lamar Jackson",
-   "team": "BAL",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 19.234,
-     "p10": 0,
-     "p25": 2.95,
-     "median": 12.63,
-     "p75": 28.41,
-     "p90": 47.9,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 244.6167,
-     "p10": 119.2282,
-     "p25": 164.9722,
-     "median": 228.5818,
-     "p75": 306.868,
-     "p90": 390.7712,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1737,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -817,12 +786,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 28.966,
-     "p10": 0,
-     "p25": 8.84,
-     "median": 23.48,
-     "p75": 41.63,
-     "p90": 64.27,
+     "mean": 29.148,
+     "p10": 0.66,
+     "p25": 9.61,
+     "median": 23.14,
+     "p75": 42.5,
+     "p90": 64.49,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -847,12 +816,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 27.618,
-     "p10": 3.06,
-     "p25": 10.42,
-     "median": 22.88,
-     "p75": 39.32,
-     "p90": 59.19,
+     "mean": 26.79,
+     "p10": 3.09,
+     "p25": 10.18,
+     "median": 22.03,
+     "p75": 38.11,
+     "p90": 56.98,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -919,12 +888,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 21.22,
+     "mean": 21.327,
      "p10": 0,
-     "p25": 2.19,
-     "median": 14.77,
-     "p75": 32.12,
-     "p90": 52.51,
+     "p25": 1.24,
+     "median": 14.76,
+     "p75": 32.59,
+     "p90": 53.19,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -950,23 +919,6 @@
    "markets": {
     "anytime_td": {
      "probability": 0.0407,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4432260",
-   "name": "Matt Hibner",
-   "team": "BAL",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 15.114,
-     "p10": 0,
-     "p25": 0,
-     "median": 8.35,
-     "p75": 23,
-     "p90": 41.05,
      "pricingState": "NOT_PROBED"
     }
    }

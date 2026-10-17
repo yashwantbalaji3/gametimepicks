@@ -3,15 +3,145 @@
  "artifact": "epl-model-read",
  "dataClass": "INTERNAL_RESEARCH",
  "public": false,
- "generatedAt": "2026-10-13T00:56:16Z",
- "forecastGeneratedAt": "2026-10-13T00:56:11Z",
+ "generatedAt": "2026-10-17T18:09:28Z",
+ "forecastGeneratedAt": "2026-10-17T18:09:24Z",
  "validation": "NOT_VALIDATED_OUT_OF_SAMPLE — zero matches have been scored against a no-vig price",
  "note": "An operator view. Every figure is a probability or a signed difference in percentage points, and nothing here is ordered by opportunity or marked for action. A cold-start fixture's disagreement reflects the model having no history for a promoted club, not a view about the match.",
  "counts": {
-  "fixtures": 0,
-  "withMarket": 0,
-  "agreeOnHighest": 0,
-  "disagreeOnHighest": 0
+  "fixtures": 5,
+  "withMarket": 4,
+  "agreeOnHighest": 3,
+  "disagreeOnHighest": 1
  },
- "rows": []
+ "rows": [
+  {
+   "eventId": "soccer:epl:bournemouth-v-sunderland:20261018t1300",
+   "matchup": "Bournemouth v Sunderland",
+   "kickoffUtc": "2026-10-18T13:00:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 58.2,
+    "draw": 22.6,
+    "away": 19.2,
+    "expectedGoals": 2.7947
+   },
+   "market": {
+    "home": 45.3,
+    "draw": 27.2,
+    "away": 27.6
+   },
+   "differencePoints": {
+    "home": 12.9,
+    "draw": -4.6,
+    "away": -8.3
+   },
+   "widestDisagreement": {
+    "outcome": "home",
+    "points": 12.9
+   },
+   "modelHighestOutcome": "home",
+   "marketHighestOutcome": "home"
+  },
+  {
+   "eventId": "soccer:epl:leeds-united-v-manchester-united:20261018t1300",
+   "matchup": "Leeds United v Manchester United",
+   "kickoffUtc": "2026-10-18T13:00:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 35.3,
+    "draw": 25.3,
+    "away": 39.4,
+    "expectedGoals": 2.7947
+   },
+   "market": {
+    "home": 40.4,
+    "draw": 26.8,
+    "away": 32.8
+   },
+   "differencePoints": {
+    "home": -5.1,
+    "draw": -1.5,
+    "away": 6.6
+   },
+   "widestDisagreement": {
+    "outcome": "away",
+    "points": 6.6
+   },
+   "modelHighestOutcome": "away",
+   "marketHighestOutcome": "home"
+  },
+  {
+   "eventId": "soccer:epl:brighton-hove-albion-v-crystal-palace:20261018t1300",
+   "matchup": "Brighton & Hove Albion v Crystal Palace",
+   "kickoffUtc": "2026-10-18T13:00:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 60.3,
+    "draw": 22,
+    "away": 17.7,
+    "expectedGoals": 2.7947
+   },
+   "market": null,
+   "differencePoints": null,
+   "widestDisagreement": null,
+   "modelHighestOutcome": "home",
+   "marketHighestOutcome": null
+  },
+  {
+   "eventId": "soccer:epl:arsenal-v-nottingham-forest:20261018t1530",
+   "matchup": "Nottingham Forest v Arsenal",
+   "kickoffUtc": "2026-10-18T15:30:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 22.1,
+    "draw": 23.4,
+    "away": 54.5,
+    "expectedGoals": 2.7947
+   },
+   "market": {
+    "home": 16.6,
+    "draw": 24.8,
+    "away": 58.7
+   },
+   "differencePoints": {
+    "home": 5.5,
+    "draw": -1.3,
+    "away": -4.2
+   },
+   "widestDisagreement": {
+    "outcome": "home",
+    "points": 5.5
+   },
+   "modelHighestOutcome": "away",
+   "marketHighestOutcome": "away"
+  },
+  {
+   "eventId": "soccer:epl:coventry-city-v-tottenham-hotspur:20261019t1900",
+   "matchup": "Tottenham Hotspur v Coventry City",
+   "kickoffUtc": "2026-10-19T19:00:00Z",
+   "coldStart": false,
+   "model": {
+    "home": 52.2,
+    "draw": 23.9,
+    "away": 23.9,
+    "expectedGoals": 2.7947
+   },
+   "market": {
+    "home": 64.5,
+    "draw": 20.3,
+    "away": 15.3
+   },
+   "differencePoints": {
+    "home": -12.3,
+    "draw": 3.6,
+    "away": 8.7
+   },
+   "widestDisagreement": {
+    "outcome": "home",
+    "points": -12.3
+   },
+   "modelHighestOutcome": "home",
+   "marketHighestOutcome": "home"
+  }
+ ]
 }

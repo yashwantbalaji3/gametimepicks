@@ -6,6 +6,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { featuredSimulations } from "./simulate-lobby-featured.ts";
+import fs from "node:fs";
+import path from "node:path";
 
 const mlbReady = (slug, date, edge) => ({
   sport: "mlb", slug, date,
@@ -45,4 +47,31 @@ test("a WC game with NO report (no wcGameCenter/gameLabWc) is not featured (neve
   const details = [{ sport: "world_cup", slug: "x-2026-07-14", date: "2026-07-14", homeTeam: "X", awayTeam: "Y" }];
   const r = featuredSimulations(details, "2026-07-14");
   assert.equal(r.featured.length, 0, "no report ⇒ not featurable");
+});
+
+test("2026-10-17 · the archive fallback is the most RECENT reports first, capped at ARCHIVE_CAP — never August preseason by coverage", async () => {
+  const { ARCHIVE_CAP, FEATURED_CAP } = await import("./simulate-lobby-featured.ts");
+  assert.ok(ARCHIVE_CAP < FEATURED_CAP);
+  // Five August games with MANY picks, two recent ones with few — the 3 AM Saturday shape.
+  const details = [
+    mlbReady("aug-a-2026-08-15", "2026-08-15", 40), mlbReady("aug-b-2026-08-20", "2026-08-20", 38),
+    mlbReady("aug-c-2026-08-23", "2026-08-23", 36), mlbReady("aug-d-2026-08-28", "2026-08-28", 35),
+    mlbReady("recent-a-2026-10-15", "2026-10-15", 3), mlbReady("recent-b-2026-10-16", "2026-10-16", 2),
+  ];
+  const r = featuredSimulations(details, "2026-10-17");
+  assert.equal(r.allCurrent, false);
+  assert.equal(r.featured.length, ARCHIVE_CAP);
+  assert.deepEqual(r.featured.map((f) => f.date), ["2026-10-16", "2026-10-15"], "most recent first, regardless of pick count");
+  assert.equal(r.readyCount, 6, "the honest total is still reported");
+  // A current slate keeps the full cap and soonest-first order.
+  const cur = featuredSimulations([...details, mlbReady("today-2026-10-17", "2026-10-17", 1)], "2026-10-17");
+  assert.equal(cur.allCurrent, true);
+  assert.deepEqual(cur.featured.map((f) => f.date), ["2026-10-17"]);
+});
+
+test("2026-10-17 · UFC top reads name the likeliest finish in words, not the card's code", () => {
+  const src = fs.readFileSync(path.join(process.cwd(), "src/lib/top-reads.ts"), "utf8");
+  assert.match(src, /const UFC_FINISH: Record<string, string> = \{ DEC: "decision", KO: "knockout", SUB: "submission" \};/);
+  assert.match(src, /`likeliest finish: \$\{UFC_FINISH\[b\.prediction\.method\.most\]\}`/);
+  assert.doesNotMatch(src, /model reads \$\{b\.prediction\.method\.most\}/, "the raw code is no longer printed");
 });

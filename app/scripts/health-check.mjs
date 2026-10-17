@@ -17,6 +17,7 @@ import { fileURLToPath } from "node:url";
 import { checkMoneyIntegrity } from "../src/lib/money-integrity.ts";
 import { reconcileMoney } from "../src/lib/mr-dub/money-movements.mjs";
 import { evaluateTeamMapFreshness } from "../src/lib/world-cup/wc-team-map-freshness.ts";
+import { newestDecisiveDate } from "../src/lib/ops/newest-decisive-date.mjs";
 
 // Resolve the data dir relative to THIS script (app/scripts/ → app/public/data), so the deploy gate works
 // whether invoked from the repo root (the lifecycle: `npx tsx app/scripts/...`) or from app/ — never cwd-dependent.
@@ -178,16 +179,11 @@ if (dp) {
   if (contract == null) {
     C("research-contract:missing", "research/terminal-summary.json missing or unparseable");
   } else {
+    // The newest DECISIVE settled date — the population the contract summarises (lib/ops/newest-decisive-date.mjs).
+    // An all-void slate (a postponed game) cannot make a correct contract "stale" (2026-10-17).
     let newestSettled = "";
     try {
-      const raw = fs.readFileSync(path.join(ROOT, "mlb/results/settled_leans.jsonl"), "utf8");
-      for (const line of raw.split("\n")) {
-        if (!line.trim()) continue;
-        try {
-          const d = JSON.parse(line)?.date ?? "";
-          if (d > newestSettled) newestSettled = d;
-        } catch { /* single bad line never breaks the gate */ }
-      }
+      newestSettled = newestDecisiveDate(fs.readFileSync(path.join(ROOT, "mlb/results/settled_leans.jsonl"), "utf8"));
     } catch { /* ledger absence is caught by other checks */ }
     if (newestSettled && contract.asOfSettledDate !== newestSettled) {
       // CRITICAL when publishing (a stale public number must never ship); a WARNING while

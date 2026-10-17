@@ -61,6 +61,9 @@ export interface TopReadsSet {
 
 import { loadEplGradedRecord } from "./sports/epl/graded-record";
 
+/** UFC method codes on the card artifact, in reader words. An unknown code falls back to the weight class. */
+const UFC_FINISH: Record<string, string> = { DEC: "decision", KO: "knockout", SUB: "submission" };
+
 const read = (p: string) => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), p), "utf8")); } catch { return null; } };
 const etToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 
@@ -284,7 +287,9 @@ export function loadTopReads(): TopReadsSet | null {
       subject: w.name, team: null, photoUrl: side?.photoUrl ?? null,
       probability: w.probability,
       market: "Fight winner",
-      context: `${b.weightClass ?? "bout"}${b.prediction?.method?.most ? ` · model reads ${b.prediction.method.most}` : ""}`,
+      /* The model's likeliest finish in words (DEC/KO/SUB are the card's codes); the weight class only when no finish is
+         modelled — it lives on the bout page, and ten rows of it overflowed the Home word ceiling on a card Saturday. */
+      context: b.prediction?.method?.most && UFC_FINISH[b.prediction.method.most] ? `likeliest finish: ${UFC_FINISH[b.prediction.method.most]}` : (b.weightClass ?? "bout"),
       /* P250 · Phase 6: deep-link the bout's own anchor on the card page, not the general hub. */
       /* P251-F3: a ranked read now opens the bout's own page rather than scrolling the hub. */
       href: b.boutId ? `/ufc/bout/${b.boutId}/` : "/ufc/",
