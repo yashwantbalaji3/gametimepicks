@@ -264,8 +264,8 @@ These are exact questions. Each one unblocks the rows listed.
 
 ### 6c. Ready releases that are not launch blockers (approval queue)
 - **#1101 and #1088:** protected workflows, proposed window Sat 10:30–11:00Z. Packages and independent post-merge verifiers are in `docs/launch/approvals/`.
-- **#1117, HTML Release 1:** −27.4% HTML with identical rendering. Merge **before** #1115; they overlap in `mlb-lean-row.tsx`.
-- **#1115, UX Release 1:** 9 audit PRs plus sweep fixes. Python check fixed (UXR1-12); final open-item pass in progress. It is reconciled onto `main` after #1117.
+- **#1117, HTML Release 1** (exact head `4b4610366e`): −27.4% HTML with identical rendering. **Merge first.**
+- **#1119, UX Release 1 on HTML Release 1:** #1115 reconciled onto #1117 (reconciliation `bb4f4a02be`, report `4465b08d40`). **Merge second.** It renders the same as #1115: 0 differing elements on 10 of 12 pages at all four widths, the other two differ only because their content changed between build times, and 0 differing pixels. HTML is −26.6% vs #1115. The 132-load sweep is clean. It supersedes merging #1115 on its own.
 
 ## 7. Evidence-based go/no-go assessment (as of 2026-10-16 20:45Z)
 
