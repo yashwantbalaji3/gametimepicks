@@ -50,3 +50,11 @@
 - D-04: settled pages should show the final score and a link to the graded result (lifecycle rule review).
 - D-06: /live grouping when tracking is off.
 - Search listbox semantics.
+
+## Update 2026-10-17 ~15:30Z: re-verified on current `main` after #1122
+- **Order:** #1122 first (it repairs `main` CI and the settle gate), then #1117 → #1119 → #1120.
+- **Trial merge of current `main` `e2277786f0` + #1122 (`a7fbba5ce1`) + #1117 + #1119 + #1120, all clean, on today's data:**
+  - unit **9,452/9,454, 0 fail**;
+  - build exit 0;
+  - post-build **705/708, 0 fail**, which includes the internal-codes export guard, the journey checks and the Home `busiest-state` budget (non-lane 1,319 words).
+- The heads are unchanged: #1117 `4b4610366e`, #1119 `4465b08d40`, #1120 `55153b7970`.
