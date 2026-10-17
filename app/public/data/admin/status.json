@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-17T14:07:58.202Z",
+  "generatedAt": "2026-10-17T14:11:22.246Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -17,7 +17,7 @@
   },
   "slate": {
     "date": "2026-10-17",
-    "dailyPortfolioDate": "2026-10-16",
+    "dailyPortfolioDate": "2026-10-17",
     "activeBankroll": 14065.4,
     "openExposure": 0,
     "worldCupGames": 0,
@@ -129,16 +129,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-17T14:07:57.665Z",
-    "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "mlb-daily-production"
+    "lastRunAt": "2026-10-17T14:07:58.910Z",
+    "ageHours": 0.1,
+    "ok": false,
+    "status": "fail",
+    "phase": "daily-owner-slo"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-17",
-    "etTime": "10:07",
+    "etTime": "10:11",
     "stages": [
       {
         "stage": "schedule",
@@ -245,9 +245,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-10-16",
-  "nextRefreshDate": "2026-10-17",
-  "nextAction": "No active Bank Builder lane for 2026-10-16 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-10-17",
+  "nextRefreshDate": "2026-10-18",
+  "nextAction": "No active Bank Builder lane for 2026-10-17 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }

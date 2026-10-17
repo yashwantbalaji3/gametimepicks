@@ -1,0 +1,533 @@
+{
+ "schemaVersion": 1,
+ "artifact": "daily-product-receipt",
+ "dataClass": "PRIVATE_OPERATING_RECORD",
+ "date": "2026-10-17",
+ "generatedAt": "2026-10-17T14:11:28Z",
+ "states": [
+  "NOT_RUN",
+  "INPUTS_MISSING",
+  "STALE",
+  "INCIDENT",
+  "NO_PLAY",
+  "ACTIVE",
+  "PENDING_RESULT",
+  "SETTLED",
+  "VOID",
+  "OFF_SEASON"
+ ],
+ "lifecycleStates": [
+  "EVALUATING",
+  "ACTIVE",
+  "AWAITING_RESULT",
+  "SETTLED_WIN",
+  "SETTLED_LOSS",
+  "SETTLED_RECORDED",
+  "ADVANCED",
+  "RESTARTED",
+  "NO_PLAY",
+  "OFF_SEASON",
+  "INCIDENT"
+ ],
+ "inputs": {
+  "mlbBoard": {
+   "date": "2026-10-17",
+   "present": true,
+   "games": 1,
+   "leans": 41,
+   "hash": "98cd53ba37c3"
+  },
+  "nflMarket": {
+   "present": true,
+   "capturedAt": "2026-10-11T11:41:55Z",
+   "events": 77
+  },
+  "nflModelEligible": false,
+  "portfolioSource": "published mr-dub/daily-portfolio.json",
+  "nflNote": "NFL contributes NO legs: PUBLIC_EXPERIMENTAL — sportsbook prices are not a GameTimePicks pick"
+ },
+ "products": [
+  {
+   "product": "bank-builder",
+   "label": "Bank Builder",
+   "state": "NO_PLAY",
+   "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage",
+   "candidatesEvaluated": 0,
+   "rejections": [
+    {
+     "lane": "A",
+     "step": 2,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 eligible legs — awaiting a full card"
+    },
+    {
+     "lane": "B",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 eligible legs — awaiting a full card"
+    }
+   ],
+   "card": null,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "bank-builder@1",
+    "evidence": {
+     "policyVersion": "bank-builder@1",
+     "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:bank-builder:2026-10-17"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-17:98cd53ba37c3"
+     }
+    ]
+   }
+  },
+  {
+   "product": "moonshot",
+   "label": "Moonshot",
+   "state": "NO_PLAY",
+   "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage",
+   "candidatesEvaluated": 0,
+   "rejections": [
+    {
+     "lane": "A",
+     "step": 2,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 eligible legs — awaiting a full card"
+    },
+    {
+     "lane": "B",
+     "step": 1,
+     "status": "awaiting",
+     "legsFound": 0,
+     "legsRequired": 2,
+     "reason": "fewer than 2 eligible legs — awaiting a full card"
+    }
+   ],
+   "card": null,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "moonshot@2",
+    "evidence": {
+     "policyVersion": "moonshot@2",
+     "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:moonshot:2026-10-17"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-17:98cd53ba37c3"
+     }
+    ]
+   }
+  },
+  {
+   "product": "end-zone-vault",
+   "label": "End Zone Vault",
+   "state": "NO_PLAY",
+   "reason": "scorerPrice: FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market) · participation: FAIL(INACTIVE) · participation: FAIL(QUESTIONABLE)",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "end-zone-vault@1",
+    "evidence": {
+     "policyVersion": "end-zone-vault@1",
+     "reason": "scorerPrice: FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market) · participation: FAIL(INACTIVE) · participation: FAIL(QUESTIONABLE)"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:end-zone-vault:2026-10-17"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-17:98cd53ba37c3"
+     }
+    ]
+   }
+  },
+  {
+   "product": "homer-nukes",
+   "label": "Homer Nukes",
+   "state": "ACTIVE",
+   "reason": "5 model-qualified home-run picks published for the slate",
+   "candidatesEvaluated": 5,
+   "rejections": [],
+   "card": [
+    {
+     "playerId": 691406,
+     "player": "Junior Caminero",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "CLE",
+     "opponentTeamId": 114,
+     "matchup": "TB @ CLE",
+     "gamePk": 849816,
+     "gameDate": "2026-10-18T00:08:00Z",
+     "venue": "Progressive Field",
+     "opposingPitcher": "Shawn Armstrong",
+     "opposingPitcherId": 542888,
+     "probability": 0.1965,
+     "seasonHr": 42,
+     "seasonPa": 702,
+     "seasonRate": 0.05983,
+     "adjustedRate": 0.05069,
+     "pitcherHrAllowed": 4,
+     "pitcherBattersFaced": 154,
+     "pitcherMultiplier": 0.951,
+     "reason": "42 HR in 702 plate appearances (6.0% of trips, league 3.0%). Shawn Armstrong sits near league average for homers allowed (4 in 154), so the matchup barely moves it to 19.6%."
+    },
+    {
+     "playerId": 683748,
+     "player": "Victor Mesa Jr.",
+     "teamId": 139,
+     "teamAbbr": "TB",
+     "teamName": "Tampa Bay Rays",
+     "opponentAbbr": "CLE",
+     "opponentTeamId": 114,
+     "matchup": "TB @ CLE",
+     "gamePk": 849816,
+     "gameDate": "2026-10-18T00:08:00Z",
+     "venue": "Progressive Field",
+     "opposingPitcher": "Shawn Armstrong",
+     "opposingPitcherId": 542888,
+     "probability": 0.1626,
+     "seasonHr": 14,
+     "seasonPa": 262,
+     "seasonRate": 0.05344,
+     "adjustedRate": 0.04132,
+     "pitcherHrAllowed": 4,
+     "pitcherBattersFaced": 154,
+     "pitcherMultiplier": 0.951,
+     "reason": "14 HR in 262 plate appearances (5.3% of trips, league 3.0%). Shawn Armstrong sits near league average for homers allowed (4 in 154), so the matchup barely moves it to 16.3%."
+    },
+    {
+     "playerId": 682657,
+     "player": "Angel Martínez",
+     "teamId": 114,
+     "teamAbbr": "CLE",
+     "teamName": "Cleveland Guardians",
+     "opponentAbbr": "TB",
+     "opponentTeamId": 139,
+     "matchup": "TB @ CLE",
+     "gamePk": 849816,
+     "gameDate": "2026-10-18T00:08:00Z",
+     "venue": "Progressive Field",
+     "opposingPitcher": "Nick Martinez",
+     "opposingPitcherId": 607259,
+     "probability": 0.1548,
+     "seasonHr": 18,
+     "seasonPa": 416,
+     "seasonRate": 0.04327,
+     "adjustedRate": 0.0392,
+     "pitcherHrAllowed": 22,
+     "pitcherBattersFaced": 722,
+     "pitcherMultiplier": 1.003,
+     "reason": "18 HR in 416 plate appearances (4.3% of trips, league 3.0%). Nick Martinez sits near league average for homers allowed (22 in 722), so the matchup barely moves it to 15.5%."
+    },
+    {
+     "playerId": 656555,
+     "player": "Rhys Hoskins",
+     "teamId": 114,
+     "teamAbbr": "CLE",
+     "teamName": "Cleveland Guardians",
+     "opponentAbbr": "TB",
+     "opponentTeamId": 139,
+     "matchup": "TB @ CLE",
+     "gamePk": 849816,
+     "gameDate": "2026-10-18T00:08:00Z",
+     "venue": "Progressive Field",
+     "opposingPitcher": "Nick Martinez",
+     "opposingPitcherId": 607259,
+     "probability": 0.1466,
+     "seasonHr": 13,
+     "seasonPa": 317,
+     "seasonRate": 0.04101,
+     "adjustedRate": 0.037,
+     "pitcherHrAllowed": 22,
+     "pitcherBattersFaced": 722,
+     "pitcherMultiplier": 1.003,
+     "reason": "13 HR in 317 plate appearances (4.1% of trips, league 3.0%). Nick Martinez sits near league average for homers allowed (22 in 722), so the matchup barely moves it to 14.7%."
+    },
+    {
+     "playerId": 663993,
+     "player": "Nathaniel Lowe",
+     "teamId": 114,
+     "teamAbbr": "CLE",
+     "teamName": "Cleveland Guardians",
+     "opponentAbbr": "TB",
+     "opponentTeamId": 139,
+     "matchup": "TB @ CLE",
+     "gamePk": 849816,
+     "gameDate": "2026-10-18T00:08:00Z",
+     "venue": "Progressive Field",
+     "opposingPitcher": "Nick Martinez",
+     "opposingPitcherId": 607259,
+     "probability": 0.1458,
+     "seasonHr": 17,
+     "seasonPa": 429,
+     "seasonRate": 0.03963,
+     "adjustedRate": 0.03679,
+     "pitcherHrAllowed": 22,
+     "pitcherBattersFaced": 722,
+     "pitcherMultiplier": 1.003,
+     "reason": "17 HR in 429 plate appearances (4.0% of trips, league 3.0%). Nick Martinez sits near league average for homers allowed (22 in 722), so the matchup barely moves it to 14.6%."
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "homer-nukes@1",
+    "evidence": {
+     "policyVersion": "homer-nukes@1",
+     "cardRef": "card+card+card+card+card",
+     "lockAt": "2026-10-17T14:04:16.000Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:homer-nukes:2026-10-17"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-10-17:98cd53ba37c3"
+     }
+    ]
+   }
+  },
+  {
+   "product": "ufc-cards",
+   "label": "UFC paper cards",
+   "state": "NO_PLAY",
+   "reason": "the ladder was built for this date and no tier had enough supported legs",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "ufc-cards@1",
+    "evidence": {
+     "policyVersion": "ufc-cards@1",
+     "reason": "the ladder was built for this date and no tier had enough supported legs"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:ufc-cards:2026-10-17"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-17:98cd53ba37c3"
+     }
+    ]
+   }
+  },
+  {
+   "product": "epl-cards",
+   "label": "EPL paper cards",
+   "state": "ACTIVE",
+   "reason": "2 paper cards published for the 2026-10-17 event",
+   "candidatesEvaluated": 4,
+   "rejections": [],
+   "card": [
+    {
+     "tier": "low",
+     "slipId": "epl-low-2026-10-17",
+     "combinedAmerican": -103,
+     "combinedDecimal": 1.967,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:ipswich-town-v-manchester-city:20261017t1400",
+       "player": null,
+       "matchup": "Manchester City v Ipswich Town",
+       "kickoffUtc": "2026-10-17T14:00:00Z",
+       "team": "Manchester City",
+       "market": "match_result",
+       "marketLabel": "Match result",
+       "side": "home",
+       "line": null,
+       "odds": -382,
+       "decimal": 1.2617801047120418,
+       "books": 10
+      },
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:brentford-v-liverpool:20261017t1400",
+       "player": null,
+       "matchup": "Brentford v Liverpool",
+       "kickoffUtc": "2026-10-17T14:00:00Z",
+       "team": null,
+       "market": "total_goals",
+       "marketLabel": "Total goals 2.5",
+       "side": "over",
+       "line": 2.5,
+       "odds": -179,
+       "decimal": 1.558659217877095,
+       "books": 2
+      }
+     ],
+     "status": "pending",
+     "tierRecord": null
+    },
+    {
+     "tier": "medium",
+     "slipId": "epl-medium-2026-10-17",
+     "combinedAmerican": 155,
+     "combinedDecimal": 2.549,
+     "legs": [
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:aston-villa-v-newcastle-united:20261017t1630",
+       "player": null,
+       "matchup": "Newcastle United v Aston Villa",
+       "kickoffUtc": "2026-10-17T16:30:00Z",
+       "team": null,
+       "market": "total_goals",
+       "marketLabel": "Total goals 3.5",
+       "side": "under",
+       "line": 3.5,
+       "odds": -177,
+       "decimal": 1.5649717514124295,
+       "books": 2
+      },
+      {
+       "sport": "epl",
+       "eventId": "soccer:epl:fulham-v-hull-city:20261017t1400",
+       "player": null,
+       "matchup": "Fulham v Hull City",
+       "kickoffUtc": "2026-10-17T14:00:00Z",
+       "team": "Fulham",
+       "market": "match_result",
+       "marketLabel": "Match result",
+       "side": "home",
+       "line": null,
+       "odds": -159,
+       "decimal": 1.6289308176100628,
+       "books": 10
+      }
+     ],
+     "status": "pending",
+     "tierRecord": null
+    }
+   ],
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "ACTIVE",
+    "policyVersion": "epl-cards@1",
+    "evidence": {
+     "policyVersion": "epl-cards@1",
+     "cardRef": "card+card",
+     "lockAt": "2026-10-17T13:55:24Z"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:epl-cards:2026-10-17"
+     },
+     {
+      "to": "ACTIVE",
+      "runId": "gen:2026-10-17:98cd53ba37c3"
+     }
+    ]
+   }
+  },
+  {
+   "product": "mlb-cards",
+   "label": "MLB suggested cards",
+   "state": "NO_PLAY",
+   "reason": "no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "mlb-cards@1",
+    "evidence": {
+     "policyVersion": "mlb-cards@1",
+     "reason": "no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:mlb-cards:2026-10-17"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-17:98cd53ba37c3"
+     }
+    ]
+   }
+  },
+  {
+   "product": "multi-cards",
+   "label": "Multi-sport paper cards",
+   "state": "NO_PLAY",
+   "reason": "NOT_ELIGIBLE",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": true,
+   "lifecycle": {
+    "state": "NO_PLAY",
+    "policyVersion": "multi-cards@1",
+    "evidence": {
+     "policyVersion": "multi-cards@1",
+     "reason": "NOT_ELIGIBLE"
+    },
+    "transitions": [
+     {
+      "to": "EVALUATING",
+      "runId": "open:multi-cards:2026-10-17"
+     },
+     {
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-17:98cd53ba37c3"
+     }
+    ]
+   }
+  },
+  {
+   "product": "nba-lanes",
+   "label": "NBA (all lanes)",
+   "state": "NOT_RUN",
+   "reason": "NBA results capture did not report OFF_SEASON — investigate before assuming dormancy",
+   "candidatesEvaluated": 0,
+   "rejections": [],
+   "card": null,
+   "ledgerOwned": false
+  }
+ ],
+ "watchdog": [],
+ "authorities": {
+  "bankBuilder": "src/lib/daily-portfolio/accounting.ts · buildPersistedDailyPortfolio (the same call activate-daily-portfolio.mjs makes)",
+  "moonshot": "src/lib/daily-portfolio/accounting.ts · laneEligibility — the LIVE band is MOONSHOT_MIN_COMBINED_ODDS (world-cup/model-qualified-picks.ts)",
+  "vault": "data/internal/nfl/end-zone-vault/ledger.json (append-only, owned by the Vault)",
+  "money": "NOT THIS SCRIPT — no money artifact is read for state or written at all"
+ },
+ "honesty": [
+  "INPUTS_MISSING is not NO_PLAY: a missing slate is an operational gap, and saying 'nothing qualified' would be a lie about a decision that never happened",
+  "every rejection reason is copied verbatim from the live activation policy — this receipt invents none",
+  "NFL contributes legs only when its MODEL layer is publishable; captured sportsbook prices never qualify a leg by themselves"
+ ]
+}
