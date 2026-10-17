@@ -51,6 +51,8 @@ const UFC_ONLY = [
   "src/app/ufc",
   "src/app/cage-chaos",
   "src/components/sports/ufc-card.tsx",
+  "src/components/sports/ufc-bout-why.tsx",
+  "src/components/sports/ufc-fighter-comparison.tsx",
   "src/lib/sports/ufc",
   "src/lib/simulate/presentation/ufc.ts",
 ];
