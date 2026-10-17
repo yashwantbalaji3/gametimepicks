@@ -6,7 +6,7 @@
 | Sport | Saved artifact | Fields usable as-is | What is NOT saved |
 |---|---|---|---|
 | MLB | `app/public/data/mlb/full-game-simulations/<date>.json` (10k runs per game) | `winProbability`, `runs`, `teamTotals`, `totalRuns{mean, median, p10, p90, distribution[]}`, `runDifferential{…distribution[]}`, `runLine`, `finalScores[]` (scoreline → probability), `extraInningsProbability`, `players.batters[]` (per-player means: PA, H, TB, HR, R, RBI, BB, K), `gameStory` | individual sampled games, line scores, play-by-play. The engine generates them and discards them (COMP-001 R3) |
-| NFL | `data/internal/nfl/world-model-v2/runs/<event>-<stamp>.json` | `sampledWorlds[5]` at margin quantiles 0.1…0.9: winner, OT flag, points, scoring breakdown (TDs, FGs, XPs, 2PT, safeties), volume (attempts, completions, yards, carries); percentiles; `limitations[]`, `unsupported[]` | drive or play order: the engine models scoring outcomes, not drives |
+| NFL | `app/public/data/nfl/world-model-v2/<event>.json` (published copy, read by `lib/sports/nfl/world-model-v2/read.mjs`; internal runs live under `data/internal/nfl/world-model-v2/runs/`) | `sampledWorlds[5]` at margin quantiles 0.1…0.9: winner, OT flag, points, scoring breakdown (TDs, FGs, XPs, 2PT, safeties), volume (attempts, completions, yards, carries); percentiles; `limitations[]`, `unsupported[]` | drive or play order: the engine models scoring outcomes, not drives |
 | EPL | `soccer/epl/forecasts/latest.json` | 1X2, goal and total distributions, `topScorelines` | sampled matches, goal minutes |
 | UFC | `ufc/card-latest.json` | winner probability, method (DEC/KO/SUB), rounds | round-by-round |
 
@@ -24,7 +24,7 @@
 ## Data and cost budget
 - **Payload:** use the existing artifacts. MLB per-game bins are already on the board and game pages; if a component needs more, fetch the same JSON client-side, lazily. Adds 0 HTML pages; at most ~5–10 KB of JSON per game view.
 - **Compute:** none at request time and none added at build time.
-- **Vercel cost:** no new build triggers, because the artifacts are already build inputs. (The NFL WM2 runs live under `data/internal` and are **not** currently read by public pages. Exposing them requires adding them as a build input; see #1124's audit.)
+- **Vercel cost:** no new build triggers. Every artifact above is already a build input, including the NFL WM2 published copy under `app/public/data/nfl/world-model-v2/`.
 
 ## Honesty rules (acceptance criteria)
 - Every simulated element carries the "Simulated · not a real game" banner and the run count from the artifact.
@@ -41,5 +41,5 @@
 1. R2 range strip.
 2. R1 typical game.
 3. R4 overlay, which depends on D-04 SETTLED final rendering.
-4. NFL five-worlds strip, after the WM2 build-input decision.
+4. NFL five-worlds strip (data already public; experimental labelling required).
 5. R3 saved MLB samples (engine change plus aggregate-hash invariance tests).
