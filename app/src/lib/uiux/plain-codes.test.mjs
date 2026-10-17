@@ -43,6 +43,9 @@ test("every public render point of a data-carried sentence goes through plainCod
   assert.match(nfl, /\{plainCodes\(c\.detail\)\}/);
   assert.match(nfl, /\{plainCodes\(modelStatus\.totals\.detail\)\}/);
   assert.match(src("src/app/results/forecasts/page.tsx"), /\{plainCodes\(g\.reason\)\}/);
+  assert.match(src("src/components/nfl/player-board.tsx"), /<\/strong> \{plainCodes\(f\.reason\)\}/);
+  assert.match(nfl, /\{plainCodes\(productReceipts\.overDetermined\.gates\.join\("; "\)\)\}/);
+  assert.match(src("src/app/results/parlay-lab/page.tsx"), /\{plainCodes\(s\.blocked\) \?\? "This lane is closed today\."\}/);
   // The sources of record keep their codes: this change is presentation only.
   assert.match(fs.readFileSync(path.join(app, "..", "data/internal/model-eval/registrations.json"), "utf8"), /INSUFFICIENT_SAMPLE/);
   assert.match(src("src/lib/forecast-ledger/compose.mjs"), /PRIVATE_RESEARCH/);

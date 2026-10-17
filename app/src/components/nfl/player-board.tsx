@@ -26,6 +26,7 @@ import { indexLiveProps, liveRowsFromEnvelope, presentPlayerBoardFamily, type Pl
 import { useLiveEvent } from "@/components/live/use-live-event";
 import { etDateOf } from "@/lib/live/client";
 import NotInTheseNumbers, { type BoardCoverage } from "@/components/nfl/not-in-these-numbers";
+import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
 /**
  * v1.1.2: the player's name cell, with a follow star keyed on the board's own `nfl-athlete-<id>` —
@@ -403,7 +404,7 @@ export default function NflPlayerBoard({ board, teams, researchHrefs = {} }: { b
             {withheld.map(([key, f]) => (
               <li key={key} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)" }}>
                 {/* A raw family key is not a reader-facing label (player_pass_int shipped without one). */}
-                <strong style={{ color: "var(--vault-text-mute)" }}>{f.label && f.label !== key ? f.label : key.replace(/^player_/, "").replace(/_/g, " ").replace(/\bint\b/, "interceptions")}:</strong> {f.reason}
+                <strong style={{ color: "var(--vault-text-mute)" }}>{f.label && f.label !== key ? f.label : key.replace(/^player_/, "").replace(/_/g, " ").replace(/\bint\b/, "interceptions")}:</strong> {plainCodes(f.reason)}
               </li>
             ))}
           </ul>

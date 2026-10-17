@@ -1103,7 +1103,7 @@ export default function NflHubPage() {
           </details>
           <p style={{ margin: "12px 0 0", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 760 }}>
             <strong style={{ color: "var(--vault-text)" }}>What would change this:</strong>{" "}
-            {productReceipts.overDetermined.gates.join("; ")}.
+            {plainCodes(productReceipts.overDetermined.gates.join("; "))}.
           </p>
         </section>
       ) : null}

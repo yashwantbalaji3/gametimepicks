@@ -22,6 +22,7 @@ import { loadGradedLegRecord, loadCardShapeRecord } from "@/lib/parlays/risk-lad
 import LegRecordList from "@/components/parlays/lab/leg-record-list";
 import CardShapeList from "@/components/parlays/lab/card-shape-list";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
 export const metadata: Metadata = withRouteMetadata("/results/parlay-lab/", {
   title: "Suggested-Card Record · GameTime Picks",
@@ -89,7 +90,7 @@ export default function ParlayLabRecordPage() {
                         <details>
                           <summary style={{ cursor: "pointer" }}>No — why</summary>
                           <span style={{ display: "block", marginTop: 4, fontSize: 12, lineHeight: 1.5, maxWidth: 360 }}>
-                            {s.blocked ?? "This lane is closed today."}
+                            {plainCodes(s.blocked) ?? "This lane is closed today."}
                           </span>
                         </details>
                       )}
