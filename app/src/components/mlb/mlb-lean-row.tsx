@@ -1,4 +1,5 @@
 import type { MlbBoardLean, MlbReasonBullet } from "@/lib/types-mlb";
+import type { MlbBoardLeanView } from "@/lib/mlb/board-lean-view";
 import { isAnomalyLean } from "@/lib/mlb/lean-anomaly";
 import {
   formatAmericanOdds,
@@ -28,15 +29,14 @@ import VaultSparkline from "../vault-sparkline";
  * gets its own small chip next to the player name.
  */
 interface Props {
-  lean: MlbBoardLean;
+  lean: MlbBoardLeanView;
   density?: "detailed" | "scan";
 }
 
 function confidenceMeta(tier: MlbBoardLean["confidence"]): {
   label: string;
-  fg: string;
-  bg: string;
-  rim: string;
+  /** Tier class: sets --lr-fg / --lr-bg / --lr-rim (globals.css, "MLB lean row"). */
+  cls: string;
 } {
   switch (tier) {
     /* P2-A: these tiers are model-vs-market gap sizes, not confidence (a larger gap has not settled better;
@@ -44,51 +44,41 @@ function confidenceMeta(tier: MlbBoardLean["confidence"]): {
     case "High":
       return {
         label: "Gap ≥ 5 pp",
-        fg: "var(--vault-text)",
-        bg: "color-mix(in srgb, var(--vault-success) 10%, transparent)",
-        rim: "color-mix(in srgb, var(--vault-success) 35%, transparent)",
+        cls: "lr-t-high",
       };
     case "Medium":
       return {
         label: "Gap 2.5–5 pp",
-        fg: "var(--vault-gold-bright)",
-        bg: "color-mix(in srgb, var(--vault-accent) 10%, transparent)",
-        rim: "color-mix(in srgb, var(--vault-accent) 30%, transparent)",
+        cls: "lr-t-med",
       };
     case "Low":
       return {
         label: "Small gap",
-        fg: "var(--vault-warn)",
-        bg: "color-mix(in srgb, var(--vault-accent) 6%, transparent)",
-        rim: "color-mix(in srgb, var(--vault-accent) 18%, transparent)",
+        cls: "lr-t-low",
       };
     case "insufficient_data":
       return {
         label: "Sample too small",
-        fg: "var(--vault-text-faint)",
-        bg: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)",
-        rim: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)",
+        cls: "lr-t-insuf",
       };
     default:
       return {
         label: "Pass",
-        fg: "var(--vault-text-mute)",
-        bg: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)",
-        rim: "color-mix(in srgb, var(--vault-wash-base) 5%, transparent)",
+        cls: "lr-t-pass",
       };
   }
 }
 
-function bulletToneColor(tone: MlbReasonBullet["tone"]): string {
+function bulletToneClass(tone: MlbReasonBullet["tone"]): string {
   switch (tone) {
     case "warn":
-      return "var(--vault-warn)";
+      return "lr-c-warn";
     case "success":
-      return "var(--vault-success)";
+      return "lr-c-succ";
     case "mute":
-      return "var(--vault-text-faint)";
+      return "lr-c-faint";
     default:
-      return "var(--vault-text-mute)";
+      return "lr-c-mute";
   }
 }
 
@@ -112,9 +102,7 @@ function fallbackBulletsFromReason(reason: string): MlbReasonBullet[] {
    the internal rule code ("R5") is no longer shown beside it. */
 const ANOMALY_META = {
   label: "Anomaly · gap too large to trust",
-  fg: "var(--vault-warn)",
-  bg: "color-mix(in srgb, var(--vault-warn) 8%, transparent)",
-  rim: "color-mix(in srgb, var(--vault-warn) 35%, transparent)",
+  cls: "lr-t-anom",
 };
 
 export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
@@ -140,17 +128,8 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
       ? lean.reasonBullets
       : fallbackBulletsFromReason(lean.reason);
 
-  const containerStyle = {
-    padding: density === "scan" ? "8px 12px" : "14px 16px",
-    border: `1px solid ${meta.rim}`,
-    background: isInsufficient
-      ? "linear-gradient(180deg, color-mix(in srgb, var(--vault-scrim-cocoa) 30%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-base) 38%, transparent) 100%)"
-      : "linear-gradient(180deg, color-mix(in srgb, var(--vault-scrim-cocoa) 55%, transparent) 0%, color-mix(in srgb, var(--vault-scrim-base) 62%, transparent) 100%)",
-    minWidth: 0,
-    maxWidth: "100%",
-    opacity: isInsufficient ? 0.78 : 1,
-    scrollMarginTop: 80,
-  } as const;
+  /* Container: rim from the tier class, padding by density, dimmed surface for insufficient samples (globals.css). */
+  const containerCls = `lr ${meta.cls}${density === "scan" ? " lr-scan" : ""}${isInsufficient ? " lr-insuff" : ""}`;
 
   // ───────────────────────── SCAN MODE ─────────────────────────
   // Two-row layout on narrow screens (390 px), single-row on desktop.
@@ -161,8 +140,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
   if (density === "scan") {
     return (
       <div
-        className="flex flex-col sm:flex-row sm:items-center gap-x-3 gap-y-2 rounded-[4px] overflow-hidden"
-        style={containerStyle}
+        className={`flex flex-col sm:flex-row sm:items-center gap-x-3 gap-y-2 rounded-[4px] overflow-hidden ${containerCls}`}
         id={lean.id}
       >
         {/* Identity row — always visible */}
@@ -175,32 +153,19 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
             size="sm"
           />
           <span
-            className="font-medium text-[13px] truncate min-w-0 flex-1"
-            style={{ color: "var(--vault-text)" }}
+            className="font-medium text-[13px] truncate min-w-0 flex-1 lr-c-text"
           >
             {lean.playerName}
           </span>
           {matchup ? (
             <span
-              className="font-mono uppercase tracking-[0.12em] text-[10px] shrink-0 hidden md:inline"
-              style={{ color: "var(--vault-text-faint)" }}
+              className="font-mono uppercase tracking-[0.12em] text-[10px] shrink-0 hidden md:inline lr-c-faint"
             >
               {matchup.label}
             </span>
           ) : null}
           <span
-            className="font-mono shrink-0 sm:hidden"
-            style={{
-              color: meta.fg,
-              fontSize: 10,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              background: meta.bg,
-              borderRadius: 2,
-              padding: "2px 6px",
-              border: `1px solid ${meta.rim}`,
-              whiteSpace: "nowrap",
-            }}
+            className="font-mono shrink-0 sm:hidden lr-chip"
           >
             {meta.label}
           </span>
@@ -209,35 +174,24 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
         {/* Market + LINE / proj / gap / EDGE — always visible */}
         <div className="flex items-center gap-2 min-w-0">
           <span
-            className="font-mono uppercase tracking-[0.12em] text-[10px] shrink-0"
-            style={{ color: "var(--vault-text-faint)", minWidth: 60 }}
+            className="font-mono uppercase tracking-[0.12em] text-[10px] shrink-0 lr-c-faint lr-mw60"
           >
             {mlbMarketLabel(lean.marketKey)}
           </span>
           <span
-            className="font-mono font-semibold shrink-0"
-            style={{
-              color: "var(--vault-text)",
-              fontSize: 14,
-              fontVariantNumeric: "tabular-nums",
-            }}
+            className="font-mono font-semibold shrink-0 lr-num14"
           >
-            <span style={{ color: "var(--vault-gold-bright)" }}>
+            <span className="lr-c-goldb">
               {lean.lean}
             </span>{" "}
             {lean.line}
           </span>
           {hasProj && (
             <span
-              className="font-mono shrink-0"
-              style={{
-                color: "var(--vault-text-mute)",
-                fontSize: 12,
-                fontVariantNumeric: "tabular-nums",
-              }}
+              className="font-mono shrink-0 lr-num12m"
             >
               proj{" "}
-              <span style={{ color: "var(--vault-text)" }}>
+              <span className="lr-c-text">
                 {lean.projection}
               </span>
             </span>
@@ -258,34 +212,13 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
 
           {hasProj && lean.edgePct !== null && (
             <span
-              className="font-mono font-semibold shrink-0"
-              style={{
-                color:
-                  lean.edgePct >= 0
-                    ? "var(--vault-success)"
-                    : "var(--vault-warn)",
-                fontSize: 14,
-                fontVariantNumeric: "tabular-nums",
-                minWidth: 60,
-                textAlign: "right",
-              }}
+              className={`font-mono font-semibold shrink-0 lr-edge ${lean.edgePct >= 0 ? "lr-c-succ" : "lr-c-warn"}`}
             >
               {formatEdgePct(lean.edgePct)}
             </span>
           )}
           <span
-            className="font-mono shrink-0 hidden sm:inline-block"
-            style={{
-              color: meta.fg,
-              fontSize: 10,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              background: meta.bg,
-              borderRadius: 2,
-              padding: "2px 6px",
-              border: `1px solid ${meta.rim}`,
-              whiteSpace: "nowrap",
-            }}
+            className="font-mono shrink-0 hidden sm:inline-block lr-chip"
           >
             {meta.label}
           </span>
@@ -297,8 +230,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
   // ──────────────────────── DETAILED MODE ────────────────────────
   return (
     <div
-      className="flex flex-col gap-3 rounded-[4px] overflow-hidden"
-      style={containerStyle}
+      className={`flex flex-col gap-3 rounded-[4px] overflow-hidden ${containerCls}`}
       id={lean.id}
     >
       {/* Row 1 — identity cluster + confidence chip */}
@@ -313,65 +245,47 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
           />
           <div className="flex flex-col gap-0.5 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span
-                style={{
-                  color: "var(--vault-text)",
-                  fontSize: 15,
-                  fontWeight: 600,
-                  lineHeight: 1.2,
-                }}
-              >
+              <span className="lr-name">
                 {lean.playerName}
               </span>
               {isAnomaly && (
                 <span
-                  className="font-mono uppercase tracking-[0.12em]"
-                  style={{
-                    color: "var(--vault-warn)",
-                    fontSize: 10,
-                    background: "color-mix(in srgb, var(--vault-accent) 10%, transparent)",
-                    borderRadius: 2,
-                    padding: "1px 6px",
-                    border: "1px solid color-mix(in srgb, var(--vault-accent) 30%, transparent)",
-                  }}
+                  className="font-mono uppercase tracking-[0.12em] lr-anom"
                 >
                   Model anomaly
                 </span>
               )}
             </div>
             <div
-              className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-mono"
-              style={{ color: "var(--vault-text-mute)" }}
+              className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-mono lr-c-mute"
             >
               {matchup ? (
                 <>
                   {matchup.kind === "SIDED" ? (
                     <>
                       <span>{matchup.team}</span>
-                      <span style={{ color: "var(--vault-text-faint)" }}>vs</span>
+                      <span className="lr-c-faint">vs</span>
                       <span>{matchup.opponent}</span>
                     </>
                   ) : (
                     /* The game, with no claim about which side the player is on. */
                     <span>{matchup.label}</span>
                   )}
-                  <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>
+                  <span aria-hidden className="lr-c-faint">
                     ·
                   </span>
                 </>
               ) : null}
               <span
-                className="uppercase tracking-[0.12em]"
-                style={{ color: "var(--vault-text-faint)" }}
+                className="uppercase tracking-[0.12em] lr-c-faint"
               >
                 {lean.playerRole === "pitcher" ? "Pitcher" : "Batter"}
               </span>
-              <span aria-hidden style={{ color: "var(--vault-text-faint)" }}>
+              <span aria-hidden className="lr-c-faint">
                 ·
               </span>
               <span
-                className="uppercase tracking-[0.12em]"
-                style={{ color: "var(--vault-text-faint)" }}
+                className="uppercase tracking-[0.12em] lr-c-faint"
               >
                 {mlbMarketLabel(lean.marketKey)}
               </span>
@@ -379,18 +293,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
           </div>
         </div>
         <span
-          className="font-mono shrink-0"
-          style={{
-            color: meta.fg,
-            fontSize: 10,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            background: meta.bg,
-            borderRadius: 2,
-            padding: "4px 9px",
-            border: `1px solid ${meta.rim}`,
-            whiteSpace: "nowrap",
-          }}
+          className="font-mono shrink-0 lr-chip lr-chip-lg"
         >
           {meta.label}
         </span>
@@ -440,8 +343,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
       {/* Row 3 — NBA-style bullet reasoning, one short line per bullet */}
       {bullets.length > 0 && (
         <ul
-          className="flex flex-col gap-1 list-none p-0 m-0"
-          style={{ color: "var(--vault-text-mute)" }}
+          className="flex flex-col gap-1 list-none p-0 m-0 lr-c-mute"
         >
           {bullets.map((b, i) => (
             <li
@@ -449,23 +351,11 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
               className="flex items-baseline gap-2 text-[12px] leading-snug"
             >
               <span
-                className="font-mono uppercase tracking-[0.14em] shrink-0"
-                style={{
-                  fontSize: 10,
-                  color: bulletToneColor(b.tone),
-                  minWidth: 72,
-                }}
+                className={`font-mono uppercase tracking-[0.14em] shrink-0 lr-bl ${bulletToneClass(b.tone)}`}
               >
                 {b.label}
               </span>
-              <span
-                style={{
-                  color:
-                    b.tone === "warn"
-                      ? "var(--vault-warn)"
-                      : "var(--vault-text-mute)",
-                }}
-              >
+              <span className={b.tone === "warn" ? "lr-c-warn" : "lr-c-mute"}>
                 {/* GTP-14/27: the artifact's bullet names the internal rule ("R5"); the reader gets the meaning. */}
                 {b.text.replace(/\bR5 anomaly threshold\b/g, "anomaly threshold").replace(/\bR5\b ?/g, "")}
               </span>
@@ -490,20 +380,14 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
             />
           ) : (
             <span
-              className="font-mono uppercase tracking-[0.14em]"
-              style={{ color: "var(--vault-text-faint)", fontSize: 10 }}
+              className="font-mono uppercase tracking-[0.14em] lr-c-faint lr-fs10"
             >
               no recent trend
             </span>
           )}
         </div>
         <div
-          className="font-mono"
-          style={{
-            color: "var(--vault-text-faint)",
-            fontSize: 11,
-            fontVariantNumeric: "tabular-nums",
-          }}
+          className="font-mono lr-odds"
         >
           {directionalOdds} · {lean.bookmaker}
         </div>
@@ -543,54 +427,33 @@ function StatTile({
   mutedIfDash?: boolean;
 }) {
   const isDash = value === "—" || value === "";
-  const valueColor =
+  /* Colours and glow by accent (classes in globals.css, "MLB lean row"; values unchanged from the former inline styles). */
+  const valueCls =
     isDash && mutedIfDash
-      ? "var(--vault-text-faint)"
+      ? "lr-c-faint"
       : accent === "gold"
-        ? "var(--vault-gold-bright)"
+        ? "lr-c-goldb"
         : accent === "warn"
-          ? "var(--vault-warn)"
+          ? "lr-c-warn"
           : accent === "success"
-            ? "var(--vault-success)"
-            : "var(--vault-text)";
-  const labelColor =
+            ? "lr-c-succ"
+            : "lr-c-text";
+  const labelCls =
     accent === "warn"
-      ? "var(--vault-warn)"
+      ? "lr-c-warn"
       : accent === "success"
-        ? "var(--vault-success)"
+        ? "lr-c-succ"
         : accent === "gold"
-          ? "var(--vault-gold)"
-          : "var(--vault-text-faint)";
-  const glow =
-    accent === "gold" || (accent === "success" && !isDash)
-      ? "0 0 12px color-mix(in srgb, var(--vault-accent) 30%, transparent)"
-      : "none";
+          ? "lr-c-gold"
+          : "lr-c-faint";
+  const glow = accent === "gold" || (accent === "success" && !isDash);
   return (
-    <div
-      className="rounded-[5px] flex flex-col items-start justify-center"
-      style={{
-        padding: "8px 10px",
-        border: "1px solid var(--vault-border)",
-        background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
-        minHeight: 56,
-      }}
-    >
-      <span
-        className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: labelColor, fontSize: 10 }}
-      >
+    <div className="rounded-[5px] flex flex-col items-start justify-center lr-tile">
+      <span className={`font-mono uppercase tracking-[0.14em] lr-fs10 ${labelCls}`}>
         {label}
       </span>
       <span
-        className="font-display font-semibold tracking-tight tabular whitespace-nowrap"
-        style={{
-          color: valueColor,
-          fontSize: "clamp(20px, 3vw, 26px)",
-          lineHeight: 1.05,
-          marginTop: 2,
-          fontVariantNumeric: "tabular-nums",
-          textShadow: glow,
-        }}
+        className={`font-display font-semibold tracking-tight tabular whitespace-nowrap lr-tv ${valueCls}${glow ? " lr-glow" : ""}`}
       >
         {value}
       </span>
