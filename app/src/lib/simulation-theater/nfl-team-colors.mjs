@@ -6,6 +6,8 @@
  * (https://teamcolorcodes.com/nfl-team-color-codes/), cross-checked against Wikipedia `Module:Gridiron color/data`.
  * Review deviations kept: DAL secondary silver #869397 (not navy), TB secondary pewter #34302B. Individual team brand
  * guides were NOT fetched; each value needs a brand-guide spot check before it is validated (ST1-03).
+ * Per-team cross-check (iteration 3): nfl-team-colors-validation.mjs (kept out of this module so the island's bundle
+ * never ships it). It records, per team, both sources, the access date, agree and validated; it changes no paint.
  *
  * WHILE TEAM_COLORS_VALIDATED IS FALSE THE THEATER RENDERS NEUTRAL GTP TOKENS. The only way to see these colours is a
  * clearly labelled, dev-only "preview team colours (unvalidated)" toggle on the unlinked development route.

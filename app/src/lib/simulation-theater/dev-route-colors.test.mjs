@@ -151,3 +151,40 @@ test("collisions (CIE76 ΔE < 20): the three identical pairs; neutral output whi
   }
   console.log(`# theater: hatched away end zones in preview: ${hatched.length}`);
 });
+
+test("per-team validation (iteration 3): two public sources per team, ΔE ≤ 5 rule, counts reported; global flag stays false", async () => {
+  const { TEAM_COLOR_VALIDATION, VALIDATION_DELTA_E, VALIDATION_ACCESSED, colorAgreement } = await import("./nfl-team-colors-validation.mjs");
+  assert.equal(TEAM_COLORS_VALIDATED, false, "the founder decides; per-team results never flip the global flag");
+  assert.equal(VALIDATION_DELTA_E, 5);
+  const abbrs = Object.values(NFL_TEAM_COLORS).map((e) => e.abbr).sort();
+  assert.deepEqual(Object.keys(TEAM_COLOR_VALIDATION).sort(), abbrs, "every NFL team in the map, and only those");
+  const review = [];
+  for (const [abbr, v] of Object.entries(TEAM_COLOR_VALIDATION)) {
+    assert.equal(v.sources.length, 2, `${abbr}: two sources`);
+    assert.ok(/^https:\/\/teamcolorcodes\.com\/[a-z0-9-]+\/$/.test(v.sources[0].url), `${abbr}: teamcolorcodes team page`);
+    assert.match(v.sources[1].url, /Module:Gridiron_color\/data/);
+    for (const s of v.sources) {
+      assert.equal(s.accessed, VALIDATION_ACCESSED);
+      assert.ok(s.listed.length >= 2 && s.listed.every((h) => /^#[0-9A-F]{6}$/.test(h)), `${abbr}: observed hex list`);
+    }
+    // the stored flag is exactly the rule, recomputed from the observed lists
+    const a = colorAgreement(abbr);
+    const rule = [a.primary, a.secondary].every((r) => r.tcc.deltaE <= 5 && r.wiki.deltaE <= 5);
+    assert.equal(v.validated, rule, `${abbr}: validated follows the ΔE ≤ 5 rule`);
+    assert.equal(v.agree, rule);
+    assert.equal(v.primary.ours, nflTeamColor(abbr).primary);
+    assert.equal(v.secondary.ours, nflTeamColor(abbr).secondary);
+    if (!v.validated) {
+      assert.ok(v.note && /ΔE/.test(v.note), `${abbr}: a team needing review says why`);
+      review.push(`${abbr} (${v.note})`);
+    }
+  }
+  const validated = Object.values(TEAM_COLOR_VALIDATION).filter((v) => v.validated).length;
+  console.log(`# theater colours: validated ${validated} of 32 · needs review ${32 - validated}`);
+  for (const r of review) console.log(`# theater colours: needs review ${r}`);
+  assert.equal(validated + review.length, 32);
+  // nothing in the theater's components imports the validation data (no paint change, no bundle cost)
+  for (const f of fs.readdirSync(path.join(APP, "src/components/simulation-theater"))) {
+    if (/\.(tsx?|mjs)$/.test(f)) assert.ok(!fs.readFileSync(path.join(APP, "src/components/simulation-theater", f), "utf8").includes("nfl-team-colors-validation"), f);
+  }
+});
