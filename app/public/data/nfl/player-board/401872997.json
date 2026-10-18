@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-18T15:16:07Z",
- "sourceGeneratedAt": "2026-10-18T15:16:07Z",
+ "generatedAt": "2026-10-18T16:03:22Z",
+ "sourceGeneratedAt": "2026-10-18T16:03:22Z",
  "providerEventId": "401872997",
  "matchup": "BAL @ CLE",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-18T15:16:07Z",
-  "roleEvidenceAt": "2026-10-18T15:16:07Z",
+  "injuriesCapturedAt": "2026-10-18T16:03:22Z",
+  "roleEvidenceAt": "2026-10-18T16:03:22Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -101,14 +101,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 49,
+  "absent": 43,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "BAL": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -198,21 +198,11 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4696882",
      "name": "Devontez Walker",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-5088338",
-     "name": "Elijah Sarratt",
      "state": "PROJECTED",
      "families": [
       "anytime_td",
@@ -233,6 +223,12 @@
      "reason": "designation: Out"
     },
     {
+     "playerId": "nfl-athlete-5088338",
+     "name": "Elijah Sarratt",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-2576581",
      "name": "Chris Moore",
      "state": "EXCLUDED_NO_CURRENT_ROLE",
@@ -242,8 +238,8 @@
   },
   "CLE": {
    "counts": {
-    "PROJECTED": 8,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 7,
+    "EXCLUDED_UNAVAILABLE": 4,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -260,18 +256,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4685702",
-     "name": "Quinshon Judkins",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4832800",
@@ -343,6 +327,12 @@
        "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
+    },
+    {
+     "playerId": "nfl-athlete-4685702",
+     "name": "Quinshon Judkins",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-5081397",
@@ -442,9 +432,9 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.9309,
-    "originalSum": 0.9309,
-    "residualOther": 0.0691,
+    "sum": 0.9869,
+    "originalSum": 0.9869,
+    "residualOther": 0.0131,
     "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
@@ -531,45 +521,6 @@
     },
     "anytime_td": {
      "probability": 0.4166,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4685702",
-   "name": "Quinshon Judkins",
-   "team": "CLE",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 43.179,
-     "p10": 14.44,
-     "p25": 25.26,
-     "median": 39.87,
-     "p75": 57.12,
-     "p90": 75.26,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_reception_yds": {
-     "mean": 25.515,
-     "p10": 1.29,
-     "p25": 9.33,
-     "median": 20.44,
-     "p75": 36.7,
-     "p90": 55.19,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 3.1559,
-     "p10": 1,
-     "p25": 1,
-     "median": 3,
-     "p75": 4,
-     "p90": 6,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.3713,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -788,7 +739,7 @@
    "playerId": "nfl-athlete-4870847",
    "name": "Ja'Kobi Lane",
    "team": "BAL",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 17.595,
@@ -891,27 +842,6 @@
     },
     "anytime_td": {
      "probability": 0.107,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-5088338",
-   "name": "Elijah Sarratt",
-   "team": "BAL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_receptions": {
-     "mean": 1.3621,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.103,
      "pricingState": "NOT_PROBED"
     }
    }

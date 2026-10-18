@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-18T15:16:07Z",
- "sourceGeneratedAt": "2026-10-18T15:16:07Z",
+ "generatedAt": "2026-10-18T16:03:22Z",
+ "sourceGeneratedAt": "2026-10-18T16:03:22Z",
  "providerEventId": "401872999",
  "matchup": "CHI @ ATL",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-18T15:16:07Z",
-  "roleEvidenceAt": "2026-10-18T15:16:07Z",
+  "injuriesCapturedAt": "2026-10-18T16:03:22Z",
+  "roleEvidenceAt": "2026-10-18T16:03:22Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -86,7 +86,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 55,
+  "absent": 54,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -109,7 +109,7 @@
       "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4259545",
@@ -242,11 +242,11 @@
   },
   "ATL": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -347,33 +347,16 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-5344782",
-     "name": "Jack Strand",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
-    },
-    {
      "playerId": "nfl-athlete-2972515",
      "name": "Cooper Rush",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-5344782",
+     "name": "Jack Strand",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   }
@@ -404,25 +387,11 @@
    },
    {
     "team": "ATL",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4360423",
-     "name": "Michael Penix Jr."
-    },
-    "snapshotAt": "2026-10-17T11:33:46Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-2972515",
-      "name": "Cooper Rush"
-     },
-     {
-      "playerId": "nfl-athlete-5344782",
-      "name": "Jack Strand"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
      "nfl-athlete-4360423"
-    ]
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -469,6 +438,19 @@
     "originalSum": 0.9239,
     "residualOther": 0.0761,
     "joined": 7,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "CHI",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.9109,
+    "originalSum": 0.9109,
+    "residualOther": 0.0891,
+    "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -652,7 +634,7 @@
    "playerId": "nfl-athlete-4431611",
    "name": "Caleb Williams",
    "team": "CHI",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 18.816,
@@ -986,18 +968,6 @@
     },
     "anytime_td": {
      "probability": 0.0718,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-5344782",
-   "name": "Jack Strand",
-   "team": "ATL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.07,
      "pricingState": "NOT_PROBED"
     }
    }

@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-18T15:16:07Z",
- "sourceGeneratedAt": "2026-10-18T15:16:07Z",
+ "generatedAt": "2026-10-18T16:03:22Z",
+ "sourceGeneratedAt": "2026-10-18T16:03:22Z",
  "providerEventId": "401873003",
  "matchup": "TEN @ IND",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-18T15:16:07Z",
-  "roleEvidenceAt": "2026-10-18T15:16:07Z",
+  "injuriesCapturedAt": "2026-10-18T16:03:22Z",
+  "roleEvidenceAt": "2026-10-18T16:03:22Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -114,14 +114,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 58,
+  "absent": 53,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "TEN": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -186,16 +186,6 @@
      "participation": "QUESTIONABLE"
     },
     {
-     "playerId": "nfl-athlete-4685555",
-     "name": "Nicholas Singleton",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4883647",
      "name": "Elic Ayomanor",
      "state": "PROJECTED",
@@ -240,6 +230,12 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4685555",
+     "name": "Nicholas Singleton",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4240657",
      "name": "Michael Carter",
      "state": "WITHHELD_ROLE_UNCERTAIN",
@@ -249,11 +245,11 @@
   },
   "IND": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 4,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -279,17 +275,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4431459",
-     "name": "Tyler Warren",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-15818",
@@ -372,6 +357,12 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4431459",
+     "name": "Tyler Warren",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4360078",
      "name": "Alec Pierce",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -386,15 +377,8 @@
     {
      "playerId": "nfl-athlete-4683423",
      "name": "Riley Leonard",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   }
@@ -421,10 +405,6 @@
      {
       "playerId": "nfl-athlete-4429084",
       "name": "Anthony Richardson Sr."
-     },
-     {
-      "playerId": "nfl-athlete-4683423",
-      "name": "Riley Leonard"
      }
     ],
     "passers": [
@@ -583,36 +563,6 @@
     },
     "anytime_td": {
      "probability": 0.3671,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4431459",
-   "name": "Tyler Warren",
-   "team": "IND",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 37.812,
-     "p10": 7.17,
-     "p25": 17.62,
-     "median": 33.02,
-     "p75": 52.54,
-     "p90": 73.89,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 5.3255,
-     "p10": 2,
-     "p25": 3,
-     "median": 5,
-     "p75": 7,
-     "p90": 10,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.2499,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -1006,27 +956,6 @@
     },
     "anytime_td": {
      "probability": 0.0888,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4685555",
-   "name": "Nicholas Singleton",
-   "team": "TEN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 9.194,
-     "p10": 0,
-     "p25": 0.19,
-     "median": 4.87,
-     "p75": 13.52,
-     "p90": 25.15,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0824,
      "pricingState": "NOT_PROBED"
     }
    }
