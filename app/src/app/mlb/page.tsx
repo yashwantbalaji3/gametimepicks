@@ -50,7 +50,7 @@ import { loadRiskLadder, loadLabLedger, inSeasonLadder, loadMlbSeasonState } fro
 import RiskLadderBoard from "@/components/parlays/risk-ladder-board";
 import DeferUntilVisible from "@/components/defer-until-visible";
 import { loadHomerNukes } from "@/lib/mlb/homer-nukes";
-import { loadMlbPropsBoard, latestMlbBoardDate, toSwapCandidate } from "@/lib/mlb/mlb-props";
+import { loadMlbPropsBoard, countIneligibleMlbProps, latestMlbBoardDate, toSwapCandidate } from "@/lib/mlb/mlb-props";
 import { currentSlateDate } from "@/lib/parlays/ui-loader";
 import { currentEtDate } from "@/lib/freshness";
 import SlateLivenessBanner from "@/components/slate-liveness-banner";
@@ -105,6 +105,7 @@ export default function MlbLandingPage() {
     ?? latestMlbBoardDate(path.join(process.cwd(), "public", "data"), currentEtDate())
     ?? currentSlateDate() ?? currentEtDate();
   const mlbProps = loadMlbPropsBoard(path.join(process.cwd(), "public", "data"), flagshipDate);
+  const mlbPropsNotShown = countIneligibleMlbProps(path.join(process.cwd(), "public", "data"), flagshipDate);
   // Game Explorer reads the schedule for the SAME flagship date so its gameIds join the props' gameIds.
   const flagshipGames = (getMlbScheduleForDate(flagshipDate).games ?? []).map((g: any) => ({
     gameId: String(g.gameId ?? ""), matchup: String(g.matchup ?? ""), home: String(g.home ?? ""), away: String(g.away ?? ""), commenceTime: g.commenceTime ?? null,
@@ -472,6 +473,7 @@ export default function MlbLandingPage() {
           isTodaysSlate={isTodaysSlate}
           slateDate={flagshipDate}
           props={mlbProps}
+          notShown={mlbPropsNotShown}
           games={flagshipGames}
           teamRows={teamMarketRows}
           homerBoard={homerNukesBoard}

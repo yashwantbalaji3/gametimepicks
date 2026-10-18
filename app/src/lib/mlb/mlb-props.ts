@@ -124,3 +124,24 @@ export function loadMlbPropsBoard(root: string, date: string): BoardProp[] {
   }
   return out;
 }
+
+/**
+ * How many board offers were NOT shown because an ineligible operator priced them, split as the page
+ * splits its boards. The page states this count beside the board, so a hidden offer is an accurate
+ * "not shown" state rather than a silent gap. Each such row is a sportsbook offer ranked by its own
+ * price (no model projection travels on it); the model's leans for the same players live on the model
+ * board, which is priced from DraftKings and is unaffected.
+ */
+export function countIneligibleMlbProps(root: string, date: string): { batter: number; pitchers: number } {
+  let raw: { date?: string; props?: Array<Record<string, any>> } | null = null;
+  for (const rel of [["mlb", "player-props", `${date}.json`], ["mlb", "player-props", "latest.json"]]) {
+    try { raw = JSON.parse(fs.readFileSync(path.join(root, ...rel), "utf8")); break; } catch { /* next */ }
+  }
+  const out = { batter: 0, pitchers: 0 };
+  if (!raw || (raw.date && raw.date !== date)) return out;
+  for (const p of raw.props ?? []) {
+    if (!p.player || !Number(p.americanOdds ?? p.odds ?? 0) || isEligibleProvider(p.provider ?? null)) continue;
+    if (p.group === "pitchers") out.pitchers += 1; else out.batter += 1;
+  }
+  return out;
+}
