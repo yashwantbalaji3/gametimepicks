@@ -40,6 +40,7 @@ import { createAnnouncer, flush, offer, SEEK_SETTLE_MS } from "@/lib/simulation-
 import { TEAM_COLORS_VALIDATED, theaterPalette } from "@/lib/simulation-theater/nfl-team-colors.mjs";
 import { fieldMap, overlayFrame } from "@/lib/simulation-theater/field-geometry.mjs";
 import { unpackTheater } from "@/lib/simulation-theater/theater-pack.mjs";
+import { timelineLayout } from "@/lib/simulation-theater/timeline-layout.mjs";
 
 type Compiled = {
   keyframes: { driveIdx: number; phase: string; t0: number; dur: number; breakKind?: string }[];
@@ -117,7 +118,23 @@ function readDevHook(enabled: boolean): { run: number | null; t: number | null }
   return { run: num(run), t: num(t) };
 }
 
-// ── timeline (one tab stop, roving tabindex; spec S9) ─────────────────────────────────────────────────────────
+// ── timeline (one tab stop, roving tabindex; spec S9). Widths: lib/simulation-theater/timeline-layout.mjs (every
+//    segment ≥24 px and ∝ playback time; one row, or one row per period when one row cannot keep both) ───────────
+function useWidth(ref: React.RefObject<HTMLElement>) {
+  const [w, setW] = useState(0);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const read = () => { const r = el.getBoundingClientRect().width; setW((p) => (Math.abs(p - r) < 0.5 ? p : r)); };
+    read();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+  return w;
+}
+
 function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive, cursorRef }: {
   sample: TheaterSample; compiled: Compiled; palette: Palette; teams: Teams; current: number; onSeekDrive: (i: number) => void;
   cursorRef: (el: HTMLSpanElement | null) => void;
@@ -125,6 +142,8 @@ function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive,
   const [focusIdx, setFocusIdx] = useState(current);
   const within = useRef(false);
   const btns = useRef<(HTMLButtonElement | null)[]>([]);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const trackW = useWidth(trackRef);
   useEffect(() => { if (!within.current) setFocusIdx(current); }, [current]);
   const groups = useMemo(() => {
     const g: { period: number; items: TheaterEvent[]; dur: number }[] = [];
@@ -135,6 +154,9 @@ function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive,
     }
     return g;
   }, [sample, compiled]);
+  const layout = useMemo(() => (trackW > 0
+    ? timelineLayout(groups.map((g) => ({ period: g.period, durs: g.items.map((ev) => compiled.driveSpans[ev.index].t1 - compiled.driveSpans[ev.index].t0) })), trackW) as { mode: "row" | "rows"; widths: number[] }
+    : null), [groups, compiled, trackW]);
   const move = (i: number) => {
     const n = Math.max(0, Math.min(sample.events.length - 1, i));
     setFocusIdx(n);
@@ -147,27 +169,31 @@ function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive,
     else if (e.key === "End") { e.preventDefault(); move(sample.events.length - 1); }
   };
   const icon = (ev: TheaterEvent) => (ev.scoring ? "★" : ev.outcome === "TURNOVER" || ev.outcome === "DOWNS" ? "✕" : ev.outcome === "END_HALF" ? "⏸" : "");
+  const rows = layout?.mode === "rows";
   return (
     <div className="st-timeline">
       <div className="st-tl-head"><span>Drive timeline</span><span>{sample.events.length} drives · width ∝ playback time</span></div>
       <div
-        className="st-tl-track"
+        ref={trackRef}
+        className={`st-tl-track${rows ? " is-rows" : ""}`}
         role="toolbar"
         aria-label="Drive timeline: arrow keys move between drives, Enter seeks to the drive"
         aria-orientation="horizontal"
         data-st-timeline=""
+        data-st-tl-mode={layout?.mode ?? ""}
         onKeyDown={onKey}
         onFocus={() => { within.current = true; }}
         onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) within.current = false; }}
       >
         {groups.map((g) => (
-          <div key={`${g.period}-${g.items[0].index}`} className="st-tl-period" style={{ flex: `${g.dur} 1 0` }}>
+          <div key={`${g.period}-${g.items[0].index}`} className="st-tl-period" style={layout ? undefined : { flex: `${g.dur} 1 0` }}>
             <span className="st-tl-plabel" aria-hidden="true">{PERIOD_SHORT[g.period as 1]}</span>
             <div className="st-tl-segs">
               {g.items.map((ev) => {
                 const span = compiled.driveSpans[ev.index];
                 const ticks = compiled.markers.filter((m) => m.driveIdx === ev.index && !m.exact);
                 const cls = ev.index === current ? " is-current" : ev.index < current ? " is-done" : "";
+                const px = layout ? layout.widths[ev.index] : null;
                 return (
                   <button
                     key={ev.index}
@@ -177,7 +203,8 @@ function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive,
                     tabIndex={ev.index === focusIdx ? 0 : -1}
                     aria-label={driveAccessibleName(ev, teams)}
                     aria-current={ev.index === current ? "step" : undefined}
-                    style={{ flex: `${span.t1 - span.t0} 1 0`, "--st-off": palette[ev.offense].accent } as CSSProperties}
+                    data-st-ms={span.t1 - span.t0}
+                    style={{ flex: px != null ? `0 0 ${px}px` : `${span.t1 - span.t0} 1 0`, width: px ?? undefined, "--st-off": palette[ev.offense].accent } as CSSProperties}
                     onClick={() => { setFocusIdx(ev.index); onSeekDrive(ev.index); }}
                   >
                     {ticks.map((m) => (

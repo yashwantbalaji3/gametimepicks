@@ -13,6 +13,8 @@
  * ≥24 px thumb, focus never under the sticky score bug) · keyboard transport · bottom sheets · an accessibility audit
  * (the repo has no axe dependency: the contrast probe below is the one e2e/accessibility.spec.ts uses, scoped to the
  * theater, plus structural checks) · JS bytes against the §6.1 budget.
+ * Iteration 3: timeline segments are ≥24 × 24 px pointer targets at 320/390/1440 (elementFromPoint), the 320 px field is
+ * full-bleed, and the no-JavaScript final frame's ball is not stretched.
  */
 import zlib from "node:zlib";
 import { test, expect, type Page } from "@playwright/test";
@@ -153,6 +155,85 @@ for (const [w, h] of WIDTHS) {
     expect(errors).toEqual([]);
   });
 }
+
+// ── iteration 3 ─────────────────────────────────────────────────────────────────────────────────────────────────
+/** Per segment: the extent (px) of the region where elementFromPoint lands on THAT segment, along its centre lines. */
+const HIT_PROBE = `(() => [...document.querySelectorAll('.st-seg')].map((s) => {
+  const r = s.getBoundingClientRect();
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (let x = r.left - 30; x <= r.right + 30; x += 0.25) { const e = document.elementFromPoint(x, r.top + r.height / 2); if (e && e.closest('.st-seg') === s) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); } }
+  for (let y = r.top - 30; y <= r.bottom + 30; y += 0.25) { const e = document.elementFromPoint(r.left + r.width / 2, y); if (e && e.closest('.st-seg') === s) { y0 = Math.min(y0, y); y1 = Math.max(y1, y); } }
+  return { w: x1 - x0 + 0.25, h: y1 - y0 + 0.25, box: r.width, ms: Number(s.getAttribute('data-st-ms')) };
+}))()`;
+
+for (const [w, h] of [[320, 2200], [390, 2200], [1440, 1300]] as const) {
+  test(`${w} px: every timeline segment is a ≥24 × 24 px pointer target, ∝ playback time, one tab stop`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    for (const run of [428, 21]) { // 428: the default run · 21: 27 drives, the most crowded
+      await open(page, `?run=${run}&t=0.1`);
+      await page.locator("[data-st-timeline]").scrollIntoViewIfNeeded();
+      const segs = (await page.evaluate(HIT_PROBE)) as { w: number; h: number; box: number; ms: number }[];
+      expect(segs.length).toBeGreaterThan(10);
+      const small = segs.filter((s) => s.w < 24 || s.h < 24).map((s) => `${s.w.toFixed(1)}×${s.h.toFixed(1)}`);
+      expect(small, `run ${run}: undersized hit targets`).toEqual([]);
+      const k = segs.map((s) => s.box / s.ms);
+      expect(Math.max(...k) - Math.min(...k), `run ${run}: one px-per-ms scale`).toBeLessThan(0.0005);
+      console.log(`# ${w}px run ${run}: ${await page.locator("[data-st-timeline]").getAttribute("data-st-tl-mode")}, min hit ${Math.min(...segs.map((s) => s.w)).toFixed(1)} × ${Math.min(...segs.map((s) => s.h)).toFixed(1)} px`);
+      // still one tab stop: exactly one segment is tabbable
+      expect(await page.locator(".st-seg[tabindex='0']").count()).toBe(1);
+      const ov = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      expect(ov).toBeLessThanOrEqual(0);
+    }
+    // a click on the narrowest segment seeks to that drive
+    await open(page, "?run=21&t=0.1");
+    const i = await page.evaluate(() => { const s = [...document.querySelectorAll(".st-seg")]; let b = 0; s.forEach((x, j) => { if (x.getBoundingClientRect().width < s[b].getBoundingClientRect().width) b = j; }); return b; });
+    await page.locator(".st-seg").nth(i).click();
+    await expect(root(page)).toHaveAttribute("data-st-drive", String(i));
+  });
+}
+
+test("320 px: full-bleed field (≥300 px wide, edge to edge), taller; no overflow at 320/375/390; disclosure exact", async ({ page }) => {
+  for (const [w, minW] of [[320, 300], [375, 0], [390, 0]] as const) {
+    await page.setViewportSize({ width: w, height: 2200 });
+    await open(page, "?run=428&t=22.9");
+    const f = (await page.locator(".st-fieldwrap").boundingBox())!;
+    if (minW) {
+      expect(f.width).toBeGreaterThanOrEqual(minW);
+      expect(f.x).toBeGreaterThanOrEqual(-0.5);
+      expect(f.x + f.width).toBeLessThanOrEqual(w + 0.5);
+      expect(f.height).toBeGreaterThanOrEqual(168);
+    }
+    const ov = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+    expect(ov.sw).toBeLessThanOrEqual(ov.cw);
+    await expect(page.locator(".st-badge")).toHaveText(DISCLOSURE);
+    // disclosure, labels and controls keep their gutters and are never clipped by the viewport
+    const out = await page.evaluate((vw) => [...document.querySelectorAll(".st-badge, .st-legend, .st-transport button, .st-seek, .st-bug, .st-tl-head")]
+      .filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && (r.left < 0 || r.right > vw); }).map((el) => el.className), w);
+    expect(out).toEqual([]);
+    console.log(`# ${w}px field ${f.width.toFixed(1)} × ${f.height.toFixed(1)} at x=${f.x.toFixed(1)}`);
+  }
+});
+
+test.describe("no JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+  for (const [w, h] of [[320, 1600], [390, 1600], [1440, 1300]] as const) {
+    test(`${w} px: the server-rendered final frame's ball renders round (glow w/h 1 ± 5 %) and keeps its drawn shape`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await page.goto(PAGE, { waitUntil: "load" });
+      const r = await page.evaluate(() => {
+        const g = document.querySelector(".st-fieldwrap .st-ball-glow")!.getBoundingClientRect();
+        const body = document.querySelector(".st-fieldwrap .st-ball-body")!;
+        const b = body.getBoundingClientRect();
+        const drawn = Number(body.getAttribute("rx")) / Number(body.getAttribute("ry"));
+        return { glow: g.width / g.height, body: b.width / b.height / drawn, px: b.width };
+      });
+      console.log(`# no-JS ${w}px: glow w/h ${r.glow.toFixed(3)}, body distortion ${r.body.toFixed(3)}, ball ${r.px.toFixed(1)} px long`);
+      expect(Math.abs(r.glow - 1)).toBeLessThanOrEqual(0.05);
+      expect(Math.abs(r.body - 1)).toBeLessThanOrEqual(0.05);
+      expect(r.px).toBeGreaterThanOrEqual(17); // never smaller than the island's minimum ball (rx 9)
+    });
+  }
+});
 
 test("keyboard operates the transport (focus-scoped shortcuts)", async ({ page }) => {
   await open(page, "?run=428");

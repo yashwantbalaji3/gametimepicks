@@ -38,10 +38,14 @@ export function fieldMap(W, H) {
   return { W: w, H: h, sx, sy, X, Y, x0: X(0), x1: X(FIELD_LEN), y0: Y(0), y1: Y(1), fieldH: FIELD_WID * sy };
 }
 
+/** Ball half-length in px: BALL_RX.perW · box width, clamped to [min, max]; the half-width is BALL_RY_RATIO of it. */
+export const BALL_RX = Object.freeze({ min: 9, max: 17, perW: 0.016 });
+export const BALL_RY_RATIO = 0.62;
+
 /** Ball size in px: grows with the box, never below a size that reads at 320 px. */
 export function ballSize(W) {
-  const rx = Math.max(9, Math.min(17, W * 0.016));
-  return { rx: r2(rx), ry: r2(rx * 0.62) };
+  const rx = Math.max(BALL_RX.min, Math.min(BALL_RX.max, W * BALL_RX.perW));
+  return { rx: r2(rx), ry: r2(rx * BALL_RY_RATIO) };
 }
 
 /**
