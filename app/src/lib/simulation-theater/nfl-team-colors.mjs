@@ -15,6 +15,8 @@
  * Colour literals here are identity DATA (token-exception-registry.mjs "identity-data"), never theme values.
  */
 
+import { THEATER_TURF_MIX, turfHexes, turfSafeAccent } from "./field-geometry.mjs";
+
 export const TEAM_COLORS_VALIDATED = false;
 
 export const TEAM_COLOR_SOURCES = Object.freeze([
@@ -129,5 +131,14 @@ export function theaterPalette(homeAbbr, awayAbbr, { previewUnvalidated = false 
       ? { ...away, hatched: true }
       : { fill: a.secondary, ink, accent: a.accent, hatched: false };
   }
-  return { mode: TEAM_COLORS_VALIDATED ? "team" : "team-unvalidated", validated: TEAM_COLORS_VALIDATED, home, away };
+  // Accents paint ON THE TURF (ribbon, end-zone edge, timeline): each must reach 3:1 against both turf stripes (S6).
+  // An accent below that is replaced by its first 5 % step toward white that reaches it; `accentBase` keeps the
+  // original so the dev bar can say which accents were derived.
+  const turf = turfHexes(THEATER_TURF_MIX);
+  const safe = (p) => {
+    if (!p.accent.startsWith("#")) return p;
+    const r = turfSafeAccent(p.accent, turf, contrastRatio);
+    return r.derived ? { ...p, accent: r.accent, accentBase: r.base } : p;
+  };
+  return { mode: TEAM_COLORS_VALIDATED ? "team" : "team-unvalidated", validated: TEAM_COLORS_VALIDATED, home: safe(home), away: safe(away) };
 }
