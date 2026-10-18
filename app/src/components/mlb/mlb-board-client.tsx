@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { MlbBoardLean, MlbScheduleGame } from "@/lib/types-mlb";
+import type { MlbScheduleGame } from "@/lib/types-mlb";
+import type { MlbBoardLeanView } from "@/lib/mlb/board-lean-view";
 import MlbGameSection from "./mlb-game-section";
 import MlbFilterConsole, {
   applyMlbFilters,
@@ -18,7 +19,7 @@ import MlbFilterConsole, {
  * client component only handles the interactive scan tools.
  */
 interface Props {
-  leans: MlbBoardLean[];
+  leans: MlbBoardLeanView[];
   games: MlbScheduleGame[];
   teamOptions: string[];
   /** {gamePk -> "final" | "live" | "pregame"} derived from MLB Stats API. */
@@ -52,7 +53,7 @@ export default function MlbBoardClient({
 
   // Index filtered leans by gameId for fast per-game lookup.
   const visibleByGameId = useMemo(() => {
-    const map: Record<string, MlbBoardLean[]> = {};
+    const map: Record<string, MlbBoardLeanView[]> = {};
     for (const l of filteredLeans) {
       if (!map[l.gameId]) map[l.gameId] = [];
       map[l.gameId].push(l);

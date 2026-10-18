@@ -1,5 +1,6 @@
 import Link from "next/link";
-import type { MlbBoardLean, MlbScheduleGame } from "@/lib/types-mlb";
+import type { MlbScheduleGame } from "@/lib/types-mlb";
+import type { MlbBoardLeanView } from "@/lib/mlb/board-lean-view";
 import { formatTipoffEt } from "@/lib/format-mlb";
 import MlbLeanRow from "./mlb-lean-row";
 import PlayerAvatar from "@/components/player-avatar";
@@ -18,7 +19,7 @@ import TeamLogo from "../team-logo";
  */
 interface Props {
   game: MlbScheduleGame;
-  leans: MlbBoardLean[];
+  leans: MlbBoardLeanView[];
   /** Total leans in this game before filtering — used in the count chip. */
   totalLeansForGame?: number;
   density?: "detailed" | "scan";
