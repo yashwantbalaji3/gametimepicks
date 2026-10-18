@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-18T19:05:56Z",
+  "generatedAt": "2026-10-18T19:31:05Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
     "upcomingEvents": 5,
     "eventsWhereTeamForecastIsBlindToAnExclusion": 5,
-    "eventsWithAMaterialExclusion": 2,
+    "eventsWithAMaterialExclusion": 3,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
@@ -21,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "feac0ff3187ea71d",
+        "inputHash": "b1e3c0257525bf8e",
         "simulations": 10000,
-        "generatedAt": "2026-10-18T19:05:56Z"
+        "generatedAt": "2026-10-18T19:31:05Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T19:05:56Z",
-        "participationInputHash": "4e1f92bf2e4dadb4",
+        "snapshotAsOf": "2026-10-18T19:31:05Z",
+        "participationInputHash": "e12340fd8f5c0be8",
         "excludedCount": 5,
         "materialExclusions": [],
         "excluded": [
@@ -87,16 +87,16 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "5d563427d365adc5",
+        "inputHash": "8c9cfe88d488c881",
         "simulations": 10000,
-        "generatedAt": "2026-10-18T19:05:56Z"
+        "generatedAt": "2026-10-18T19:31:05Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T19:05:56Z",
-        "participationInputHash": "36de54a694ce5191",
-        "excludedCount": 6,
+        "snapshotAsOf": "2026-10-18T19:31:05Z",
+        "participationInputHash": "620237ee6ea618a2",
+        "excludedCount": 7,
         "materialExclusions": [
           {
             "name": "Trey Lance",
@@ -112,7 +112,7 @@
             "name": "Tre' Harris",
             "team": "LAC",
             "state": "Out",
-            "statedAt": "2026-10-16T23:46Z",
+            "statedAt": "2026-10-18T19:01Z",
             "families": [
               "passAttempts",
               "targets"
@@ -132,6 +132,14 @@
             "name": "Tyquan Thornton",
             "team": "KC",
             "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Jared Wiley",
+            "team": "KC",
+            "state": "Out",
             "families": [
               "targets"
             ]
@@ -182,18 +190,38 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "89ffc29f68d0f353",
+        "inputHash": "3abe055e4a7f40ed",
         "simulations": 10000,
-        "generatedAt": "2026-10-18T19:05:56Z"
+        "generatedAt": "2026-10-18T19:31:05Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T19:05:56Z",
-        "participationInputHash": "a259554689eabfb7",
-        "excludedCount": 3,
-        "materialExclusions": [],
+        "snapshotAsOf": "2026-10-18T19:31:05Z",
+        "participationInputHash": "adeeb5989a656579",
+        "excludedCount": 4,
+        "materialExclusions": [
+          {
+            "name": "Aidan O'Connell",
+            "team": "LV",
+            "state": "Out",
+            "statedAt": "2026-10-18T19:13Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
         "excluded": [
+          {
+            "name": "Aidan O'Connell",
+            "team": "LV",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Dont'e Thornton Jr.",
             "team": "LV",
@@ -231,15 +259,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "1bfb5f86beaca029",
+        "inputHash": "3b5bd927f6ce2ae3",
         "simulations": 10000,
-        "generatedAt": "2026-10-18T19:05:56Z"
+        "generatedAt": "2026-10-18T19:31:05Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T19:05:56Z",
-        "participationInputHash": "1ff8431a8e264847",
+        "snapshotAsOf": "2026-10-18T19:31:05Z",
+        "participationInputHash": "66ac12b85a2075ed",
         "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [
@@ -281,15 +309,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "82be498c9b11d534",
+        "inputHash": "af4a8e0dddd728ab",
         "simulations": 10000,
-        "generatedAt": "2026-10-18T19:05:56Z"
+        "generatedAt": "2026-10-18T19:31:05Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T19:05:56Z",
-        "participationInputHash": "786d29f0e25ecf1b",
+        "snapshotAsOf": "2026-10-18T19:31:05Z",
+        "participationInputHash": "b1a9818058a94562",
         "excludedCount": 6,
         "materialExclusions": [
           {

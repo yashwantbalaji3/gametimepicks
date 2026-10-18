@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-18T19:05:56Z",
- "sourceGeneratedAt": "2026-10-18T19:05:56Z",
+ "generatedAt": "2026-10-18T19:31:05Z",
+ "sourceGeneratedAt": "2026-10-18T19:31:05Z",
  "providerEventId": "401873005",
  "matchup": "BUF @ LV",
  "kickoffUtc": "2026-10-18T20:25Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-18T19:05:56Z",
-  "roleEvidenceAt": "2026-10-18T19:05:56Z",
+  "injuriesCapturedAt": "2026-10-18T19:31:05Z",
+  "roleEvidenceAt": "2026-10-18T19:31:05Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -104,7 +104,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 62,
+  "absent": 61,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -237,8 +237,8 @@
   },
   "LV": {
    "counts": {
-    "PROJECTED": 14,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 13,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -345,22 +345,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4260394",
-     "name": "Aidan O'Connell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
-    },
-    {
      "playerId": "nfl-athlete-5150247",
      "name": "Malik Benson",
      "state": "PROJECTED",
@@ -398,6 +382,12 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4260394",
+     "name": "Aidan O'Connell",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4432775",
      "name": "Dont'e Thornton Jr.",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -418,21 +408,11 @@
    },
    {
     "team": "LV",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-14880",
-     "name": "Kirk Cousins"
-    },
-    "snapshotAt": "2026-10-17T11:33:46Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4260394",
-      "name": "Aidan O'Connell"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
      "nfl-athlete-14880"
-    ]
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -1104,18 +1084,6 @@
    "markets": {
     "anytime_td": {
      "probability": 0.0768,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4260394",
-   "name": "Aidan O'Connell",
-   "team": "LV",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.0568,
      "pricingState": "NOT_PROBED"
     }
    }
