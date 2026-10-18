@@ -96,6 +96,8 @@ export function overlayFrame(f, box) {
     ribbon,
     trail,
     flashOpacity: f.flash ? r2(0.45 * (1 - f.flash.p)) : 0,
+    // iteration 7: glow + bloom rise over the first 18 % of the score hold, then fall; a pure function of the hold's p
+    glowOpacity: f.flash ? r2(f.flash.p < 0.18 ? f.flash.p / 0.18 : Math.max(0, 1 - (f.flash.p - 0.18) / 0.82)) : 0,
   };
 }
 

@@ -52,6 +52,8 @@ export type Overlay = {
   ribbon: { x: number; w: number } | null;
   trail: { x: number; w: number } | null;
   flashOpacity: number;
+  /** iteration 7: the scoring team's end-zone glow and the light bloom (0 outside a score's RESULT) */
+  glowOpacity?: number;
 };
 
 const VB_W = TOTAL_LEN * U;
@@ -77,7 +79,9 @@ function CuePattern({ id, size }: { id: string; size: number }) {
   );
 }
 
-export function StaticField({ palette, idPrefix, detail = true }: { palette: Palette; idPrefix: string; detail?: boolean }) {
+export function StaticField({ palette, idPrefix, detail = true, grain = true }: { palette: Palette; idPrefix: string; detail?: boolean;
+  /** false: the island draws the grain in its own static layer OUTSIDE the camera wrapper (<GrainLayer>, S8) */
+  grain?: boolean }) {
   const id = (s: string) => `${idPrefix}-${s}`;
   const mode = palette.mode;
   const yard: string[] = [];
@@ -142,10 +146,7 @@ export function StaticField({ palette, idPrefix, detail = true }: { palette: Pal
           <stop offset="0.5" style={{ stopColor: "var(--bg)", stopOpacity: 0 }} />
           <stop offset="1" style={{ stopColor: "var(--bg)", stopOpacity: 0.28 }} />
         </linearGradient>
-        <filter id={id("grain")} x="0" y="0" width="100%" height="100%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves={2} seed={7} stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
+        {grain ? <GrainFilter id={id("grain")} /> : null}
       </defs>
       {/* out-of-bounds margin, then the field of play */}
       <rect x={0} y={0} width={VB_W} height={VB_H} style={{ fill: "var(--st-turf-out)" }} />
@@ -157,7 +158,7 @@ export function StaticField({ palette, idPrefix, detail = true }: { palette: Pal
       {zone("home", 0)}
       {zone("away", 110)}
       {/* grain: rendered once, never animated; nothing moving descends from it (S8) */}
-      <rect x={0} y={0} width={VB_W} height={VB_H} filter={`url(#${id("grain")})`} opacity={0.04} />
+      {grain ? <rect x={0} y={0} width={VB_W} height={VB_H} filter={`url(#${id("grain")})`} opacity={0.04} /> : null}
       {detail ? <rect x={fx(10)} y={0} width={100 * U} height={VB_H} fill={`url(#${id("hash")})`} /> : null}
       <path d={yard.join("")} style={{ stroke: "var(--st-line)" }} strokeWidth={1.4} vectorEffect="non-scaling-stroke" />
       {/* goal lines and the field boundary (a painted white border) */}
@@ -169,6 +170,29 @@ export function StaticField({ palette, idPrefix, detail = true }: { palette: Pal
       {post(FIELD_LEN, 1.6 * U)}
       <rect x={0} y={0} width={VB_W} height={VB_H} fill={`url(#${id("depth")})`} />
       <rect x={0} y={0} width={VB_W} height={VB_H} fill={`url(#${id("light")})`} />
+    </svg>
+  );
+}
+
+function GrainFilter({ id }: { id: string }) {
+  return (
+    <filter id={id} x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves={2} seed={7} stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+    </filter>
+  );
+}
+
+/**
+ * The grain on its own static layer, OUTSIDE the camera wrapper (iteration 7, S8): the only SVG filter in the island is
+ * here, and nothing animated is its ancestor or descendant. Screen-space grain also reads as the camera's, not the
+ * turf's, so it stays put while the field moves under it.
+ */
+export function GrainLayer({ idPrefix }: { idPrefix: string }) {
+  return (
+    <svg className="st-grain" viewBox={`0 0 ${VB_W} ${VB_H}`} preserveAspectRatio="none" aria-hidden="true" focusable="false" data-st-grain="">
+      <defs><GrainFilter id={`${idPrefix}-grain`} /></defs>
+      <rect x={0} y={0} width={VB_W} height={VB_H} filter={`url(#${idPrefix}-grain)`} opacity={0.04} />
     </svg>
   );
 }
@@ -244,6 +268,17 @@ function LiveDefs({ idPrefix }: { idPrefix: string }) {
         <stop offset="1" style={{ stopColor: "var(--lava-text)", stopOpacity: 0.55 }} />
       </linearGradient>
       <CuePattern id={`${idPrefix}-cue`} size={7} />
+      {/* score glow (team accent, set per drive on the element) and the stadium-light bloom */}
+      <radialGradient id={`${idPrefix}-ezglow`} cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" style={{ stopColor: "currentColor", stopOpacity: 0.9 }} />
+        <stop offset="0.45" style={{ stopColor: "currentColor", stopOpacity: 0.35 }} />
+        <stop offset="1" style={{ stopColor: "currentColor", stopOpacity: 0 }} />
+      </radialGradient>
+      <radialGradient id={`${idPrefix}-bloom`} cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" style={{ stopColor: "var(--lava-text)", stopOpacity: 0.55 }} />
+        <stop offset="0.5" style={{ stopColor: "var(--lava-text)", stopOpacity: 0.12 }} />
+        <stop offset="1" style={{ stopColor: "var(--lava-text)", stopOpacity: 0 }} />
+      </radialGradient>
       <linearGradient id={`${idPrefix}-trail-l`} x1="1" y1="0" x2="0" y2="0">
         <stop offset="0" style={{ stopColor: "var(--lava-text)", stopOpacity: 0 }} />
         <stop offset="1" style={{ stopColor: "var(--lava-text)", stopOpacity: 0.55 }} />
@@ -307,6 +342,7 @@ export type LiveRefs = {
   trail?: (el: SVGRectElement | null) => void;
   ring?: (el: SVGCircleElement | null) => void;
   flash?: (el: SVGRectElement | null) => void;
+  glow?: (el: SVGGElement | null) => void;
 };
 
 /**
@@ -315,12 +351,14 @@ export type LiveRefs = {
  * once the drive has reached it (RESULT onward). Nothing marks any other yard line (no invented first downs).
  */
 export function FieldLive({
-  W, H, frame, o, palette, offenseAbbr, startTag, endTag, showEnd, endX, idPrefix, reducedMotion, refs = {}, travelDir, detachBall = false,
+  W, H, frame, o, palette, offenseAbbr, startTag, endTag, showEnd, endX, idPrefix, reducedMotion, refs = {}, travelDir, detachBall = false, spotTags = true,
 }: {
   W: number; H: number; frame: Frame | null; o: Overlay | null; palette: Palette; offenseAbbr: string; startTag: string; endTag: string;
   showEnd: boolean; endX: number; idPrefix: string; reducedMotion: boolean; refs?: LiveRefs; travelDir?: number;
   /** true: the ball is drawn by <DetachedBall> instead (the stretched no-JavaScript frame) */
   detachBall?: boolean;
+  /** false: the island draws the spot tags in screen space (<SpotTags>), so the camera never scales or crops them */
+  spotTags?: boolean;
 }) {
   const m = fieldMap(W, H);
   const f = frame;
@@ -331,7 +369,7 @@ export function FieldLive({
   // a score lights the end zone the scoring team ATTACKS (where the score happened), in the scoring team's accent
   const attacked = (side: Side): Side => (side === "home" ? "away" : "home");
   const zoneW = m.X(10) - m.X(0);
-  const tags = W >= 420;
+  const tags = spotTags && W >= 420;
   const team = palette.mode === "team";
   // an accent outline on an end zone (scoring flash with reduced motion, winner): in team mode drawn over a wider halo
   // in that END ZONE's ink (≥4.5:1 on its fill by construction), so the official colour keeps a contrasting boundary
@@ -366,6 +404,14 @@ export function FieldLive({
   return (
     <svg className="st-live" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
       <LiveDefs idPrefix={idPrefix} />
+      {f?.flash && !reducedMotion ? (
+        /* the scoring team's glow spilling from the lit end zone onto the field, and a white light bloom over the goal
+           line: both decorative, opacity from the same pure curve as the flash (overlayFrame), never on with reduced motion */
+        <g ref={refs.glow} opacity={o?.glowOpacity ?? 0} className="st-ezglow" data-st-glow="" style={{ color: palette[f.flash.side].accent }}>
+          <ellipse cx={attacked(f.flash.side) === "home" ? m.X(10) : m.X(110)} cy={m.Y(0.5)} rx={zoneW * 2.6} ry={m.fieldH * 0.75} fill={`url(#${idPrefix}-ezglow)`} />
+          <ellipse cx={attacked(f.flash.side) === "home" ? m.X(5) : m.X(115)} cy={m.Y(0.5)} rx={zoneW * 1.6} ry={m.fieldH * 0.62} fill={`url(#${idPrefix}-bloom)`} />
+        </g>
+      ) : null}
       {f?.flash && !reducedMotion ? (
         <rect ref={refs.flash} x={zoneX(attacked(f.flash.side))} y={m.y0} width={zoneW} height={m.fieldH} style={{ fill: palette[f.flash.side].accent, fillOpacity: o?.flashOpacity ?? 0 }} />
       ) : null}
@@ -421,7 +467,37 @@ export function FieldLive({
   );
 }
 
-type LiveEls = { ball: SVGGElement | null; ribbon: SVGRectElement | null; ribbonHi: SVGRectElement | null; ribbonCue?: SVGRectElement | null; trail: SVGRectElement | null; ring: SVGCircleElement | null; flash: SVGRectElement | null };
+/**
+ * The recorded-spot tags in SCREEN space (iteration 7): pinned to the top (start) and bottom (end) sidelines of the box,
+ * at the spot's camera-mapped x, which the island's painter writes each frame (translate only). Drawn outside the camera
+ * wrapper, so a zoom never scales, blurs or crops them. Same copy and look as FieldLive's in-scene tags.
+ */
+export function SpotTags({ W, H, startTag, endTag, showEnd, startRef, endRef }: {
+  W: number; H: number; startTag: string; endTag: string; showEnd: boolean;
+  startRef?: (el: SVGGElement | null) => void; endRef?: (el: SVGGElement | null) => void;
+}) {
+  if (W < 420) return null;
+  const m = fieldMap(W, H);
+  const tagFs = Math.max(9, Math.min(11.5, W * 0.0095));
+  const one = (text: string, cls: string, below: boolean, ref?: (el: SVGGElement | null) => void) => {
+    const w = text.length * tagFs * 0.64 + 12;
+    const ty = below ? m.y1 - tagFs - 10 : m.y0 + 4;
+    return (
+      <g ref={ref} className={`st-spottag ${cls}`} data-st-w={w.toFixed(1)}>
+        <rect x={-w / 2} y={ty} width={w} height={tagFs + 7} rx={3} />
+        <text x={0} y={ty + tagFs + 1.5} fontSize={tagFs} textAnchor="middle">{text}</text>
+      </g>
+    );
+  };
+  return (
+    <svg className="st-hud" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      {startTag ? one(startTag, "st-spottag-start", false, startRef) : null}
+      {showEnd && endTag ? one(endTag, "st-spottag-end", true, endRef) : null}
+    </svg>
+  );
+}
+
+type LiveEls = { ball: SVGGElement | null; ribbon: SVGRectElement | null; ribbonHi: SVGRectElement | null; ribbonCue?: SVGRectElement | null; trail: SVGRectElement | null; ring: SVGCircleElement | null; flash: SVGRectElement | null; glow?: SVGGElement | null };
 
 /** Per-frame paint: direct attribute writes, no React. Only values that change inside a phase are written here. */
 export function paintLive(els: LiveEls, o: Overlay | null) {
@@ -438,5 +514,6 @@ export function paintLive(els: LiveEls, o: Overlay | null) {
   if (els.trail) { els.trail.setAttribute("x", String(o.trail?.x ?? 0)); els.trail.setAttribute("width", String(o.trail?.w ?? 0)); }
   if (els.ring) els.ring.setAttribute("r", String(o.ringR));
   if (els.flash) els.flash.style.fillOpacity = String(o.flashOpacity);
+  if (els.glow) els.glow.setAttribute("opacity", String(o.glowOpacity ?? 0));
 }
 
