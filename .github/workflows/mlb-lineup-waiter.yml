@@ -1,0 +1,114 @@
+# MLB pregame LINEUP WAITER — dispatches mlb-lineup-refresh when a confirmed batting order lands, not when a cron does.
+#
+# WHY. mlb-lineup-refresh runs on hourly crons (15:30–00:30Z). Over 2026-10-10..18 GitHub delivered 0–7 of its 9
+# afternoon slots a day and the first afternoon run landed 17:53–22:31Z. On 10-18 none of the 15:30–17:30 slots fired;
+# a manual dispatch at 18:03Z captured both confirmed lineups (TB/CLE) and published. A cron cannot meet a lineup.
+#
+# HOW (modelled on nfl-pregame-free-refresh). Any delivered trigger starts ONE job (the group below, never cancelled).
+# It polls the free StatsAPI about every 10 minutes (± jitter) from T-240 before each game's first pitch, re-reading
+# the schedule each cycle (doubleheaders, postponements, moved first pitches), and compares each posted nine-man order
+# with the record of the lineup the committed simulation was built from (data/internal/mlb/input-snapshots/<date>.json,
+# falling back to the simulation's own batters). It dispatches mlb-lineup-refresh (workflow_dispatch, no inputs) only
+# for a side that is newly confirmed or changed and whose game has not started — never twice for one fingerprint, at
+# most MAX_DISPATCHES_PER_SLATE (6) a slate, at least 15 minutes apart, and never while any gtp-generated-artifacts
+# writer is running or queued (it waits, pulls main and re-decides). Rule: app/src/lib/ops/mlb-lineup-waiter.mjs.
+#
+# FREE AND WRITE-NOTHING. StatsAPI only (no provider key, no paid call). This job commits nothing: `contents: read`.
+# Only a dispatched refresh can commit, and #1088's stamp-only gate drops a refresh whose lineups did not move, so a
+# Vercel build happens only when public data materially changes.
+#
+# LIMITS. ≤ 400 StatsAPI calls per run; a 330-minute loop budget inside a 350-minute job timeout (GitHub's cap is
+# 360). At the budget, an unfinished slate hands over to a fresh run of this workflow (a GITHUB_TOKEN
+# workflow_dispatch always creates a run); it queues in this group and resumes from committed state. After the last
+# first pitch the job exits DONE. A job that dies is resumed by the next arrival: the decision is rebuilt from main,
+# the refresh run list (dispatch count, spacing, in-flight), and the ledger lines earlier runs printed.
+#
+# ALERTS. `::warning::`, the step summary, and scripts/ops_alert.sh (the existing OPS_WEBHOOK_URL path, as
+# cron-watchdog uses it): a side posted upstream with no confirmed-lineup simulation by T-60; a game that started
+# without one; a failed refresh; the dispatch cap reached; a refresh that did not take a dispatched lineup.
+#
+# ── ACTIVATION GUARD ──────────────────────────────────────────────────────────────────────────────────────────────
+# MERGING THIS FILE DOES NOT ACTIVATE IT. The job runs only when the repository variable
+#     MLB_LINEUP_WAITER_ENABLED == 'true'
+# (Settings → Secrets and variables → Actions → Variables, or `gh variable set MLB_LINEUP_WAITER_ENABLED --body true`).
+# Unset, every trigger is a skipped job: no runner, no StatsAPI call, no dispatch. A manual `dry_run=true` dispatch is
+# allowed while disabled — it decides once, prints the decision, and never dispatches or relays.
+#
+# ── ROLLBACK ──────────────────────────────────────────────────────────────────────────────────────────────────────
+#   1. Instant stop: `gh variable delete MLB_LINEUP_WAITER_ENABLED` (or set it to anything but 'true'). The next
+#      trigger is skipped; a run already waiting can be cancelled from the Actions tab (`gh run cancel <id>`) — it has
+#      written nothing, so cancelling loses nothing.
+#   2. Remove: revert this file (and app/scripts/ops/mlb-lineup-waiter.mjs + its lib/test). The hourly crons of
+#      mlb-lineup-refresh are untouched by this workflow and keep running either way.
+#   3. Data: nothing to clean up. The waiter writes no file; every commit it caused is an ordinary mlb-lineup-refresh
+#      commit, identical to one a cron or a human dispatch would have made.
+name: mlb-lineup-waiter
+
+on:
+  # The delivered clocks. publication-watchdog is a cron workflow (chain depth 2) whose completions arrive through
+  # the afternoon; mlb-daily-production's completion is the morning board (worst depth 3, so this is depth 4 —
+  # the most GitHub fires; workflow-trigger-depth.test.mjs pins it). Any one arrival suffices: a run that arrives
+  # before the first window waits inside the job (and relays at its budget). Default branch only (the job `if`).
+  workflow_run:
+    workflows: ["mlb-daily-production", "publication-watchdog"]
+    types: [completed]
+  schedule:
+    # Best-effort extras (scheduled delivery here runs hours late and drops slots — never the plan).
+    - cron: "23 13 * * *"
+    - cron: "23 15 * * *"
+    - cron: "23 17 * * *"
+    - cron: "23 20 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Decide once and report — never dispatch, never relay (allowed while the waiter is disabled)"
+        required: false
+        default: "false"
+
+concurrency:
+  group: mlb-lineup-waiter
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  wait:
+    # ACTIVATION GUARD (see the header) + THE TRUST BOUNDARY ON workflow_run: only a default-branch run may tick this.
+    if: >-
+      (vars.MLB_LINEUP_WAITER_ENABLED == 'true' ||
+       (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true')) &&
+      (github.event_name != 'workflow_run' ||
+       github.event.workflow_run.head_branch == github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    # The loop budget (330) plus a dispatched refresh's wait, under GitHub's 360-minute job cap.
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Wait for confirmed lineups and dispatch the refresh when one lands
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          DRY: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          if [ "${DRY:-false}" = "true" ]; then
+            node app/scripts/ops/mlb-lineup-waiter.mjs --dry-run --once
+          else
+            node app/scripts/ops/mlb-lineup-waiter.mjs --relay --budget-min 330 --max-calls 400 --max-dispatches 6
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: mlb-lineup-waiter
+        run: |
+          set -euo pipefail
+          EXIT_STATUS="${EXIT_STATUS:-1}" bash scripts/ops_alert.sh
