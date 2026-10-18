@@ -74,6 +74,10 @@ import { snapshotEvidence, windowAudit } from "../../src/lib/ask/parlay-window-e
 import { resultsDay, resultsDayDates } from "../../src/lib/results/v2/day.ts";
 import { productReceiptDates, productReceiptsFor } from "../../src/lib/results/v2/product-receipts.ts";
 import { forecastRecordView, familyHref, readForecastLedger } from "../../src/lib/results/v2/forecast-ledger-reader.ts";
+import { resultsV2Populations } from "../../src/lib/results/v2/overview.ts";
+import { makeGradedPickOwners } from "../../src/lib/sports/graded-pick-owners.mjs";
+import { currentEtDate } from "../../src/lib/freshness.ts";
+import { ASK_SPORT_RECORD_POPULATION, sportRecordCell } from "../../src/lib/ask/results-sport-record.mjs";
 import { ASK_FORECAST_KINDS, ASK_FORECAST_ROW, ASK_FORECAST_SPORTS } from "../../src/lib/ask/contract.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -781,6 +785,10 @@ function buildRecent() {
  * crosses is the STRUCTURE — counts, era, presentation, window, status, eligibility — which is what a
  * deterministic answer is built from. `owner.generatedAt` crosses, because "as of when" is the
  * question a reader most often actually means.
+ *
+ * ONE EXCEPTION (D-1, 2026-10-18): a sport's graded forecast record (EPL, UFC) and the recent graded feeds are read
+ * from the ledger owners /results reads, at this build, rather than from the graded-picks.json snapshot the
+ * projection counts — the snapshot lags any grade landed after the nightly settle. Still nothing is re-graded.
  */
 function buildResults() {
   const file = path.join(APP, "public/data/results/projection/latest.json");
@@ -827,7 +835,25 @@ function buildResults() {
     excluded.push({ what: "cells", count: noFamily.length - source.length, reason: "owner marked the cell not display-eligible" });
   }
 
-  const cells = source.map((c) => ({
+  /*
+   * D-1 (2026-10-18): a sport's graded forecast record is the Results V2 population /results renders, read from the
+   * ledger at THIS build — not the projection's graded-picks cell, a snapshot only the nightly settle rewrites. An EPL
+   * match graded by the matchweek refresh after the settle made Ask say 27–33 while /results said 27–34. The cell
+   * keeps its identity and eligibility; its counts become the population's All window (lib/ask/results-sport-record).
+   */
+  const pops = resultsV2Populations(currentEtDate());
+  const restated = new Map();
+  for (const [sport, popId] of Object.entries(ASK_SPORT_RECORD_POPULATION)) {
+    const id = proj.headline?.bySport?.[sport];
+    const cell = id ? source.find((c) => c.cellId === id) : null;
+    const pop = pops.find((p) => p.id === popId);
+    if (!cell || !pop) { notes.push(`results ${sport} record: ${!cell ? "no headline cell" : `no ${popId} population`} — projection cell kept`); continue; }
+    const next = sportRecordCell(cell, pop);
+    restated.set(cell.cellId, next);
+    notes.push(`results ${sport} record ${next.counts.won}-${next.counts.lost} from Results V2 ${popId} (projection snapshot ${cell.counts?.won}-${cell.counts?.lost})`);
+  }
+
+  const cells = source.map((c) => restated.get(c.cellId) ?? c).map((c) => ({
     cellId: c.cellId,
     recordType: c.recordType,
     family: c.family,
@@ -844,7 +870,8 @@ function buildResults() {
     window: c.window ?? null,
     status: c.status ?? null,
     displayEligible: c.displayEligible ?? null,
-    asOf: c.owner?.generatedAt ?? null,
+    /* A restated record (D-1) carries its own as-of — the newest graded day — not the snapshot's stamp. */
+    asOf: c.asOf ?? c.owner?.generatedAt ?? null,
   }));
 
   /*
@@ -853,17 +880,21 @@ function buildResults() {
    * publishes the newest rows rather than the feed. `total` is always the TRUE count, so a bounded
    * list can never be mistaken for the whole record.
    */
+  /*
+   * D-1: read from the ledger owners graded-picks.json is built from (and /results reads), not from that snapshot —
+   * the snapshot lags any grade landed after the nightly settle, and its `picks` are only the newest 60, so `total`
+   * read from it was the display slice, not the true count. `asOf` is the newest graded day in the feed.
+   */
   const RECENT_LIMIT = 40;
   const recent = {};
-  for (const sport of ["nfl", "epl", "ufc"]) {
-    const gp = path.join(APP, `public/data/${sport}/graded-picks.json`);
-    if (!fs.existsSync(gp)) { notes.push(`results recent ${sport} absent`); continue; }
-    const doc = JSON.parse(fs.readFileSync(gp, "utf8"));
-    const rows = Array.isArray(doc.picks) ? doc.picks : Array.isArray(doc.rows) ? doc.rows : [];
+  const owners = makeGradedPickOwners({ appDir: APP, rootDir: path.resolve(APP, "..") });
+  for (const [sport, read] of [["nfl", owners.nflPicks], ["epl", owners.eplPicks], ["ufc", owners.ufcPicks]]) {
+    const rows = read();
+    if (!rows) { notes.push(`results recent ${sport} absent`); continue; }
     const sorted = [...rows].sort((a, b) => String(b.when ?? "").localeCompare(String(a.when ?? "")));
     recent[sport] = {
       total: rows.length,
-      asOf: doc.generatedAt ?? null,
+      asOf: sorted.find((r) => typeof r.hit === "boolean" && r.when)?.when ?? null,
       rows: sorted.slice(0, RECENT_LIMIT).map((r) => ({
         eventId: r.eventId ?? null,
         when: r.when ?? null,
