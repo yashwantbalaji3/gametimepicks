@@ -408,3 +408,150 @@ test("bundle budget (spec §6.1): theater JS ≤120 KB gzip incremental over a r
   await page.getByRole("button", { name: "Pause", exact: true }).click();
   expect(reqs.filter((u) => !/\/_next\/static\/media\//.test(u))).toEqual([]);
 });
+
+// ── iteration 7: broadcast camera, score bug, transitions, frame times ─────────────────────────────────────────────
+const camTransform = (page: Page) => page.locator(".st-cam").evaluate((el: HTMLElement) => ({ tf: el.style.transform || "none", z: Number(el.dataset.stZoom ?? "1"), shot: el.dataset.stShot ?? "" }));
+
+test("camera: an accessible 'Camera' radiogroup; follow by default at 1440 (zoomed mid-drive, ≤1.35×); the choice persists per viewer", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, "?run=428&t=22.9");
+  const group = page.getByRole("radiogroup", { name: "Camera" });
+  await expect(group).toBeVisible();
+  await expect(group.getByRole("radio", { name: "Follow" })).toHaveAttribute("aria-checked", "true");
+  const a = await camTransform(page);
+  expect(a.tf).toContain("scale(");
+  expect(a.z).toBeGreaterThan(1.05);
+  expect(a.z).toBeLessThanOrEqual(1.35);
+  await group.getByRole("radio", { name: "Full field" }).click();
+  expect((await camTransform(page)).tf).toBe("none");
+  await page.reload({ waitUntil: "networkidle" });
+  await page.waitForSelector(".st-root[data-st-ready]");
+  await expect(page.getByRole("radiogroup", { name: "Camera" }).getByRole("radio", { name: "Full field" })).toHaveAttribute("aria-checked", "true");
+  expect((await camTransform(page)).tf).toBe("none");
+  // arrow keys move the choice (roving radio)
+  await page.getByRole("radio", { name: "Full field" }).focus();
+  await page.keyboard.press("ArrowLeft");
+  await expect(page.getByRole("radio", { name: "Follow" })).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByRole("radio", { name: "Follow" })).toBeFocused();
+});
+
+test("camera is deterministic: the same t frames identically after reload and after a seek-bar seek; no SVG filter inside the camera", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, "?run=428&t=22.9");
+  const a = await camTransform(page);
+  await page.reload({ waitUntil: "networkidle" });
+  await page.waitForSelector(".st-root[data-st-ready]");
+  expect(await camTransform(page)).toEqual(a);
+  await open(page, "?run=428");
+  await page.locator(".st-seek").evaluate((el: HTMLInputElement) => {
+    const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
+    set.call(el, "22900");
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  await page.waitForTimeout(150);
+  expect(await camTransform(page)).toEqual(a);
+  // S8: the grain filter is a screen-space sibling; nothing in the transformed subtree is filtered
+  expect(await page.locator(".st-cam filter, .st-cam [filter]").count()).toBe(0);
+  expect(await page.locator(".st-fieldwrap > .st-grain [filter]").count()).toBe(1);
+});
+
+test("390 px: the camera defaults to the full field; Follow stays bounded; reduced motion pins the full field", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, "?run=428&t=22.9");
+  await expect(page.getByRole("radio", { name: "Full field" })).toHaveAttribute("aria-checked", "true");
+  expect((await camTransform(page)).tf).toBe("none");
+  await page.getByRole("radio", { name: "Follow" }).click();
+  const f = await camTransform(page);
+  expect(f.z).toBeGreaterThan(1);
+  expect(f.z).toBeLessThanOrEqual(1.35);
+  const sw = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(sw).toBeLessThanOrEqual(390);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await open(page, "?run=428&t=22.9");
+  await expect(page.getByRole("radio", { name: "Follow" })).toHaveAttribute("aria-checked", "true");
+  expect((await camTransform(page)).tf).toBe("none");
+  await expect(page.locator(".st-camnote")).toHaveText("Reduced motion: the field stays fully framed");
+});
+
+test("transitions: start-of-game strip, halftime card with this run's Q1/Q2, final card with the exact disclosure, dismissible by button and Escape", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, "?run=428&t=0");
+  await expect(page.locator('[data-st-card="PERIOD_START"]')).toContainText("Start of game");
+  await expect(page.locator('[data-st-card="PERIOD_START"]')).toContainText("kick/return not modelled");
+  await open(page, "?run=428&t=31.8");
+  const half = page.getByRole("region", { name: "Halftime" }).or(page.locator('section[data-st-card="HALFTIME"]'));
+  await expect(half).toBeVisible();
+  await expect(half.locator("thead")).toContainText("Q1");
+  await expect(half).toContainText("SIMULATED · not a real game");
+  await open(page, "?run=428&t=66.6");
+  const fin = page.locator('section[data-st-card="FINAL"]');
+  await expect(fin).toBeVisible();
+  await expect(fin.locator(".st-card-line b")).toHaveText("SIMULATED · not a real game");
+  await expect(fin).toContainText("run #428 of 10,000");
+  await expect(fin.locator(".st-card-title")).toHaveText(/^Final( · OT)?$/);
+  await fin.getByRole("button", { name: /Hide the final/ }).click();
+  await expect(fin).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Play", exact: true })).toBeFocused();
+  await open(page, "?run=428&t=66.6");
+  await page.locator(".st-seek").focus();
+  await page.keyboard.press("Escape");
+  await expect(page.locator('section[data-st-card="FINAL"]')).toHaveCount(0);
+});
+
+test("score bug: the drive strip shows recorded totals after drive 7 and a labelled illustrative yardage while the ball moves", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, "?run=428&t=24.5");
+  await expect(page.locator(".st-bug-sit")).toHaveAttribute("data-st-situation", "recorded");
+  await expect(page.locator(".st-bug-sit-text")).toHaveText("Drive 7 of 19 · 10 plays · 75 yds");
+  await expect(page.locator(".st-bug-sit-tag")).toHaveText("recorded");
+  await open(page, "?run=428&t=22.9");
+  await expect(page.locator(".st-bug-sit")).toHaveAttribute("data-st-situation", "progress");
+  await expect(page.locator(".st-bug-sit-tag")).toHaveText("illustrative");
+  await expect(page.locator(".st-bug-sit-yds")).toHaveText(/^≈−?\d+ yds?$/);
+  expect(await page.locator(".st-bug").innerText()).not.toMatch(/\b(1st|2nd|3rd|4th)\s*&|down and/i);
+});
+
+/** rAF frame-to-frame deltas over `ms` of playback; returns p50/p95/max and the share of frames over 1/30 s. */
+async function frameTimes(page: Page, ms: number) {
+  return page.evaluate(async (dur) => {
+    const d: number[] = [];
+    let last = performance.now();
+    const end = last + dur;
+    await new Promise<void>((res) => {
+      const f = (now: number) => { d.push(now - last); last = now; if (now < end) requestAnimationFrame(f); else res(); };
+      requestAnimationFrame(f);
+    });
+    d.shift();
+    const s = [...d].sort((a, b) => a - b);
+    const q = (p: number) => s[Math.min(s.length - 1, Math.floor(p * s.length))];
+    return { n: s.length, p50: +q(0.5).toFixed(2), p95: +q(0.95).toFixed(2), max: +s[s.length - 1].toFixed(2), over33: +(s.filter((x) => x > 34).length / s.length).toFixed(3) };
+  }, ms);
+}
+
+test("frame times during playback (Chromium): 1440 follow camera; 390 full field and follow; 390 at 4× CPU throttle", async ({ page }) => {
+  test.setTimeout(120_000);
+  const out: Record<string, unknown> = {};
+  const runCase = async (label: string, w: number, h: number, cam: "Follow" | "Full field", throttle = 1) => {
+    await page.setViewportSize({ width: w, height: h });
+    await open(page, "?run=428&t=0");
+    await page.getByRole("radio", { name: cam }).click();
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: throttle });
+    await page.locator(".st-broadcast").scrollIntoViewIfNeeded();
+    await page.getByRole("button", { name: "Play", exact: true }).click();
+    const r = await frameTimes(page, 10_000); // drives 1–3 at 1×: kickoff establishing shot, follow, a score, a hand-off
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+    await page.getByRole("button", { name: "Pause", exact: true }).click();
+    out[label] = r;
+    return r;
+  };
+  const d = await runCase("1440 follow", 1440, 900, "Follow");
+  const m = await runCase("390 full field", 390, 844, "Full field");
+  const mf = await runCase("390 follow", 390, 844, "Follow");
+  const mt = await runCase("390 follow, 4× CPU throttle", 390, 844, "Follow", 4);
+  console.log(`# frame times (ms): ${JSON.stringify(out)}`);
+  expect(d.p95).toBeLessThanOrEqual(20); // spec §6.1 desktop target: p95 ≤ 20 ms
+  expect(m.p95).toBeLessThanOrEqual(40); // phone target: p95 ≤ 40 ms
+  expect(mf.p95).toBeLessThanOrEqual(40);
+  expect(mt.p95).toBeLessThanOrEqual(40);
+});

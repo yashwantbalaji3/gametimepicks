@@ -399,6 +399,8 @@
 /* camera (spec S8): ONE transform on a wrapper whose layers are cached (will-change); the grain, the stadium lighting,
    the spot tags and the cards are screen-space siblings, outside the transformed subtree */
 .st-cam{position:absolute;inset:0;transform-origin:0 0;will-change:transform}
+/* the moving layer gets its own compositing layer, so per-frame ball writes never repaint the cached turf and marks */
+.st-cam > .st-live{will-change:transform}
 .st-grain,.st-hud{pointer-events:none}
 .st-hud .st-spottag text{font-family:var(--font-mono)}
 .st-ezglow{pointer-events:none}
@@ -447,19 +449,21 @@
 .st-bug-sit-tag.is-illustrative{color:var(--vault-warn);border-color:color-mix(in srgb, var(--vault-warn) 55%, transparent)}
 
 /* transitions: start of period (non-blocking strip), quarter rollover, halftime and final cards */
-.st-strip.is-period{flex-direction:column;align-items:flex-start;gap:2px;top:8%;padding:9px 20px 10px 16px;border-left-color:var(--lava-heat)}
+.st-strip.is-period{flex-direction:column;align-items:flex-start;gap:2px;top:auto;bottom:9%;padding:9px 20px 10px 16px;border-left-color:var(--lava-heat)}
+/* desktop: the drive-end lower third sits above the bottom sideline, where the recorded END spot tag is pinned */
+.st-lower{bottom:12%}
 .st-strip-eyebrow{font:600 11px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--st-mute);font-variant-numeric:tabular-nums}
 .st-strip.is-period .st-strip-main{font-size:clamp(15px, 3cqi, 24px);letter-spacing:.16em}
 .st-strip-note{font:500 10px var(--font-mono);color:var(--st-faint);letter-spacing:.06em}
 .st-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px, 88%);padding:0 0 10px;border-radius:12px;overflow:hidden;z-index:2;
-  background:linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 96%, transparent), color-mix(in srgb, var(--bg) 94%, transparent));
+  background:linear-gradient(180deg, var(--surface-elevated), color-mix(in srgb, var(--bg) 55%, var(--surface-elevated)));
   border:1px solid var(--border-strong);box-shadow:0 24px 48px -20px var(--bg),inset 0 1px 0 color-mix(in srgb, var(--lava-text) 10%, transparent);
   animation:st-card-in var(--motion-entrance-duration) var(--motion-entrance-easing) both}
 @keyframes st-card-in{from{opacity:0;transform:translate(-50%,-46%) scale(.98)}to{opacity:1;transform:translate(-50%,-50%)}}
 .st-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:46px;padding:4px 6px 2px 16px;border-top:3px solid var(--vault-warn)}
 .st-card-title{margin:0;font:800 clamp(16px, 3.2cqi, 26px)/1.1 var(--font-headline);letter-spacing:.2em;text-transform:uppercase}
 .st-card-x{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid var(--border-strong);background:var(--st-panel-2);color:var(--st-text);cursor:pointer}
-.st-card-x svg{width:18px;height:18px}
+.st-fieldwrap .st-card-x svg{position:static;inset:auto;width:18px;height:18px}
 .st-card-table{width:100%;border-collapse:separate;border-spacing:0 4px;padding:0 12px;font-variant-numeric:tabular-nums}
 .st-card-table thead th{font:600 10px var(--font-mono);letter-spacing:.12em;color:var(--st-faint);text-align:right;padding:0 10px}
 .st-card-table tbody th{text-align:left;padding:0;font-weight:inherit}
@@ -474,6 +478,7 @@
 .st-card-win{margin-left:8px;color:var(--vault-warn);font-size:12px}
 .st-card-line{margin:4px 16px 0;font:500 10.5px var(--font-mono);letter-spacing:.1em;color:var(--st-mute)}
 .st-card-line b{color:var(--vault-warn);font-weight:700}
+.st-card-line span{display:block;margin-top:1px;color:var(--st-faint)}
 .st-card.is-final .st-card-head{border-top-color:var(--lava-heat)}
 .st-root[data-st-colors="team"] .st-card{overflow:hidden}
 
@@ -501,7 +506,9 @@
   .st-bug-sit-tag{font-size:8.5px;padding:0 5px}
   .st-scenebar{gap:4px 8px}
   .st-camtoggle-l{display:none}
-  .st-strip.is-period{top:5%;padding:5px 10px 6px 10px}
+  .st-strip.is-period{bottom:6%;padding:5px 10px 6px 10px}
+  .st-lower{bottom:4%}
+  .st-bug-illus:not(.on){display:none}
   .st-strip.is-period .st-strip-note{display:none}
   .st-strip-eyebrow{font-size:9.5px}
   .st-card{width:min(300px, 94%);padding-bottom:6px;border-radius:10px}
