@@ -404,7 +404,8 @@ export function FieldLive({
                   {cue ? (
                     <>
                       <path d={pennant} style={{ fill: off.fill, stroke: "var(--st-keyline)" }} data-st-cue="" />
-                      <rect x={d > 0 ? 2 : posW - stripeW} y={2.5} width={stripeW - 2} height={12} fill={`url(#${idPrefix}-cue)`} />
+                      {/* two keyline hairlines at the tail: the pattern itself is too fine to read at tag size */}
+                      <path className="st-postag-cue" d={((x) => `M${x} 14L${x + 3} 3M${x + 3} 14L${x + 6} 3`)(d > 0 ? 1.5 : posW - stripeW + 0.5)} style={{ fill: "none", stroke: "var(--st-keyline)", strokeWidth: 1.6, strokeLinecap: "round" }} />
                     </>
                   ) : (
                     <rect width={posW} height={17} rx={4} style={team ? { fill: off.fill, stroke: "var(--st-keyline)" } : { stroke: off.accent }} />
