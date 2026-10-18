@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-18T16:03:22Z",
- "sourceGeneratedAt": "2026-10-18T16:03:22Z",
+ "generatedAt": "2026-10-18T16:21:51Z",
+ "sourceGeneratedAt": "2026-10-18T16:21:51Z",
  "providerEventId": "401873003",
  "matchup": "TEN @ IND",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-18T16:03:22Z",
-  "roleEvidenceAt": "2026-10-18T16:03:22Z",
+  "injuriesCapturedAt": "2026-10-18T16:21:51Z",
+  "roleEvidenceAt": "2026-10-18T16:21:51Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -183,7 +183,7 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4883647",
@@ -434,6 +434,19 @@
   ],
   "pools": [
    {
+    "team": "TEN",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9877,
+    "originalSum": 0.9877,
+    "residualOther": 0.0123,
+    "joined": 8,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "IND",
     "pool": "passAttempts",
     "markets": [
@@ -456,19 +469,6 @@
     "originalSum": 0.9776,
     "residualOther": 0.0224,
     "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "TEN",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.8675,
-    "originalSum": 0.8675,
-    "residualOther": 0.1325,
-    "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -661,7 +661,7 @@
    "playerId": "nfl-athlete-4428557",
    "name": "Tyjae Spears",
    "team": "TEN",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 13.967,

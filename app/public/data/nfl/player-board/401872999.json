@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-18T16:03:22Z",
- "sourceGeneratedAt": "2026-10-18T16:03:22Z",
+ "generatedAt": "2026-10-18T16:21:51Z",
+ "sourceGeneratedAt": "2026-10-18T16:21:51Z",
  "providerEventId": "401872999",
  "matchup": "CHI @ ATL",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-18T16:03:22Z",
-  "roleEvidenceAt": "2026-10-18T16:03:22Z",
+  "injuriesCapturedAt": "2026-10-18T16:21:51Z",
+  "roleEvidenceAt": "2026-10-18T16:21:51Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -86,14 +86,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 54,
+  "absent": 53,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "CHI": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -122,22 +122,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-15168",
-     "name": "Case Keenum",
-     "state": "PROJECTED",
-     "families": [
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
     },
     {
      "playerId": "nfl-athlete-4434153",
@@ -231,6 +215,12 @@
       "anytime_td"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-15168",
+     "name": "Case Keenum",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4608686",
@@ -372,10 +362,6 @@
     },
     "snapshotAt": "2026-10-17T11:33:46Z",
     "removed": [
-     {
-      "playerId": "nfl-athlete-15168",
-      "name": "Case Keenum"
-     },
      {
       "playerId": "nfl-athlete-4434153",
       "name": "Tyson Bagent"
@@ -989,23 +975,6 @@
     },
     "anytime_td": {
      "probability": 0.0634,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-15168",
-   "name": "Case Keenum",
-   "team": "CHI",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 5.282,
-     "p10": 0,
-     "p25": 0,
-     "median": 0.31,
-     "p75": 6.79,
-     "p90": 16.79,
      "pricingState": "NOT_PROBED"
     }
    }
