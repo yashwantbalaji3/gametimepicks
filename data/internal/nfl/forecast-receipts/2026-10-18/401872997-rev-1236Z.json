@@ -1,0 +1,136 @@
+{
+ "providerEventId": "401872997",
+ "canonicalEventId": "nfl-401872997",
+ "matchup": "BAL @ CLE",
+ "home": {
+  "abbr": "CLE",
+  "name": "Cleveland Browns"
+ },
+ "away": {
+  "abbr": "BAL",
+  "name": "Baltimore Ravens"
+ },
+ "kickoffUtc": "2026-10-18T17:00Z",
+ "seasonType": 2,
+ "week": 6,
+ "venue": "Huntington Bank Field",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 2,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "bdb7ccde189f3a6f",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-win-elo-mov-v1@v1",
+   "nfl-margin-elo-hfa-v1@v1",
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v3-play-efficiency",
+   "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
+   "gamesFolded": 7356,
+   "foldedThrough": "2026-10-15",
+   "sigma": 13.32677
+  },
+  "winHead": {
+   "id": "nfl-win-elo-mov-v1",
+   "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+   "gamesFolded": 7340,
+   "foldedThrough": "2026-10-15"
+  },
+  "marginHead": {
+   "id": "nfl-margin-elo-hfa-v1",
+   "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+   "gamesFolded": 7340,
+   "sigma": 13.03176
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-10-18T12:36:07Z",
+ "evidence": {
+  "schedule": "2026-10-17T12:54:49Z",
+  "strengthCutoff": "2026-10-18T12:36:07Z",
+  "strengthGamesFolded": 869,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 20,
+   "away": 23,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.3504,
+   "away": 0.6189,
+   "tieMass": 0.0307,
+   "homeUnrounded": 0.35038386866651827,
+   "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+  },
+  "margin": {
+   "median": -3,
+   "p10": -19,
+   "p90": 14
+  },
+  "total": {
+   "median": 43,
+   "p10": 26,
+   "p90": 60,
+   "head": "matchup-totals-v3-play-efficiency"
+  },
+  "scoreRange": {
+   "homeP10": 8,
+   "homeP90": 32,
+   "awayP10": 11,
+   "awayP90": 35
+  },
+  "distribution": {
+   "marginMean": -2.85,
+   "marginSigma": 13.03,
+   "totalMean": 42.9513,
+   "totalSigma": 13.33,
+   "source": "nfl-gamesim-v1-joint-normal"
+  }
+ },
+ "marketComparison": {
+  "state": "NO_MARKET",
+  "note": "No current sportsbook capture covers this game."
+ },
+ "teamInputs": {
+  "version": 1,
+  "consumedByModel": false,
+  "participationAsOf": "2026-10-18T12:36:07Z",
+  "state": "BLIND_TO_STARTING_QB_ABSENCE",
+  "absences": [
+   {
+    "playerId": "nfl-athlete-3916387",
+    "name": "Lamar Jackson",
+    "team": "BAL",
+    "status": "Out",
+    "statedAt": "2026-10-16T16:43Z",
+    "depthChartAt": "2026-10-17T11:33:46Z"
+   }
+  ],
+  "comparisonWithheld": true,
+  "note": "This forecast does not account for Lamar Jackson (BAL, Out). Our team model rates teams from past results and does not adjust for who plays quarterback, so it is not compared with the sportsbooks for this game — their price already reflects the absence."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401872997",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "sideDecision": {
+  "schemaVersion": "side-decision@1",
+  "publishedSide": "AWAY",
+  "rule": "MODEL_FAVORED_V1",
+  "abstention": null,
+  "frozenAt": "2026-10-18T12:36:07Z"
+ },
+ "revisionOf": "401872997.json",
+ "priorInputHash": "1015ea38c077c720"
+}
