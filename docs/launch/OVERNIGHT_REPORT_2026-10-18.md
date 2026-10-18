@@ -209,3 +209,13 @@ The canonical `GAMETIMEPICKS_MASTER_ROADMAP_V2.md` lives on the **#1116 docs bra
 - Per-frame React re-render instead of direct attribute writes.
 - No mobile bottom sheets.
 - No Playwright, axe or bundle measurements yet.
+
+## Evening update: 10-18 about 18:30Z
+- **#1088 fully verified:** a real lineup change published (`785fbdc8ff`); a stamp-only run was suppressed (`b03a839bc`), giving 0 Vercel builds.
+- **MLB lineups:**
+  - one founder-authorized dispatch at 18:03Z after both lineups were posted;
+  - Production had confirmed lineups at 18:06Z, before the 21:08Z first pitch;
+  - status `degraded` is correct (1 TB batter has no projection).
+- **Approved and in progress (local):**
+  - the MLB lineup waiter: branch `claude/mlb-lineup-waiter`, gated off by a repo variable until acceptance;
+  - Theater team colours: registry raise reverted; brand roles NO/PIT black, JAX teal, TEN 2026 palette, TB official red.

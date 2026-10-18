@@ -199,6 +199,9 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 The audit's remaining items:
 - The void *reason* on postponed 10-16 rows reads "DNP/0-AB": a data/producer follow-up.
 
+- **2026-10-18 · #1088 FULLY VERIFIED:**
+  - **Real change published:** the lineup change of 18:05Z produced `785fbdc8ff`, a build and Production at 18:06Z.
+  - **Stamp-only run suppressed:** the 17:30Z slot, delivered at 18:13Z with lineups unchanged, gave the gate verdict SUPPRESS. It committed `b03a839bc` "(run records only — no forecast change)", which touched only ops and internal run-record files. Vercel: "Canceled by Ignored Build Step", so 0 builds.
 - **2026-10-18 · #1088 part 2 VERIFIED + MLB lineup delivery.**
   - **What happened:** GitHub delivered **none** of `mlb-lineup-refresh`'s 15:30–17:30Z slots. Founder-authorized single dispatch: run 39152425644 at 18:03Z, after both confirmed lineups were posted upstream (TB 9, CLE 9). It captured 2/2 confirmed batting orders and published `785fbdc8ff`.
   - **#1088's gate gave PUBLISH on this real lineup change,** so it does not suppress meaningful updates. Production was `785fbdc8ff` at 18:06Z, before the 21:08Z first pitch.
