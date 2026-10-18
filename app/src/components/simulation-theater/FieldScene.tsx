@@ -275,8 +275,8 @@ function LiveDefs({ idPrefix }: { idPrefix: string }) {
         <stop offset="1" style={{ stopColor: "currentColor", stopOpacity: 0 }} />
       </radialGradient>
       <radialGradient id={`${idPrefix}-bloom`} cx="0.5" cy="0.5" r="0.5">
-        <stop offset="0" style={{ stopColor: "var(--lava-text)", stopOpacity: 0.24 }} />
-        <stop offset="0.5" style={{ stopColor: "var(--lava-text)", stopOpacity: 0.06 }} />
+        <stop offset="0" style={{ stopColor: "var(--lava-text)", stopOpacity: 0.16 }} />
+        <stop offset="0.5" style={{ stopColor: "var(--lava-text)", stopOpacity: 0.04 }} />
         <stop offset="1" style={{ stopColor: "var(--lava-text)", stopOpacity: 0 }} />
       </radialGradient>
       <linearGradient id={`${idPrefix}-trail-l`} x1="1" y1="0" x2="0" y2="0">
