@@ -4,60 +4,154 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-10-18",
- "generatedAt": "2026-10-18T16:49:13Z",
+ "generatedAt": "2026-10-18T17:30:06Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401872996",
+   "providerEventId": "401872996",
    "matchup": "HOU @ JAX",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-10-18T13:30Z",
-   "observed": "STATUS_SCHEDULED"
-  },
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401872996-rev-1312Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "ed85d772c729afb3",
+    "forecastGeneratedAt": "2026-10-18T13:12:15Z",
+    "revisionChain": [
+     {
+      "file": "401872996.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "bbff187def0c0c68"
+     },
+     {
+      "file": "401872996-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "b022c3793dfe269c"
+     },
+     {
+      "file": "401872996-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "75a6bda844f6b3ca"
+     },
+     {
+      "file": "401872996-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "ef38e81d7a332da7"
+     },
+     {
+      "file": "401872996-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "8c0d0180aebb1ac8"
+     },
+     {
+      "file": "401872996-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "ed85d772c729afb3"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T16:49:13Z",
+    "settledAt": "2026-10-18T17:30:06Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 31,
+     "away": 34,
+     "margin": -3,
+     "total": 65,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 2,
+     "actual": -3,
+     "absError": 5,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 43,
+     "actual": 65,
+     "absError": 22,
+     "insideInterval80": false
+    },
+    "score": {
+     "projected": {
+      "home": 23,
+      "away": 20,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 22
+    },
+    "probabilistic": {
+     "brier": 0.386014,
+     "logLoss": 0.971011
+    }
+   },
+   "marketBenchmark": null
+  }
+ ],
+ "pending": [
   {
    "canonicalEventId": "nfl-401872997",
    "matchup": "BAL @ CLE",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401872998",
    "matchup": "CAR @ PHI",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401872999",
    "matchup": "CHI @ ATL",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401873000",
    "matchup": "NO @ NYG",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401873001",
    "matchup": "NYJ @ NE",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401873002",
    "matchup": "PIT @ TB",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401873003",
    "matchup": "TEN @ IND",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401873004",
@@ -94,24 +188,24 @@
  "recordElsewhere": [],
  "accounting": {
   "receipts": 13,
-  "settled": 0,
-  "pending": 13,
+  "settled": 1,
+  "pending": 12,
   "quarantined": 0,
   "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 1,
+  "decisive": 1,
   "ties": 0,
   "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerAccuracy": 0,
+  "marginMAE": 5,
+  "totalMAE": 22,
+  "marginInterval80Coverage": 1,
+  "totalInterval80Coverage": 0,
+  "brier": 0.386,
+  "logLoss": 0.971
  },
  "marketBenchmark": null,
  "comparison": null
