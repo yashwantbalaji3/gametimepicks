@@ -244,6 +244,23 @@ Post-launch candidates (priority · dependency · source):
 
 ## `SIM-THEATER-001` — Simulation Theater V2
 **Priority:** P1 planning (founder, 2026-10-18) · **Status:** FEASIBILITY COMPLETE. Milestones ST-01 → ST-05 are all PLANNED; nothing is IN DEVELOPMENT; implementation is NOT authorized.  
+
+**Founder decisions, 2026-10-18 (ST-01 v1.1 §8):**
+- **D1: APPROVED WITH CONDITIONS.** Recorded-drive playback is a narrowly scoped exception to the P242 retirement of the simulation "ceremony" (`docs/execution/PROGRAM_242_EXECUTION_LOG.md`).
+  - **What P242 retired:** the 10-second staged reveal, "Generate" buttons, timers and `?play=1` hand-offs. Those *gated* a precomputed report behind an animation and implied live computation.
+  - **How the Theater avoids each concern:**
+    1. **Opt-in only.** It starts on an explicit Play; nothing autoplays.
+    2. **Never gates anything.** The forecast, the distribution, the full drive transcript and the receipt evidence render immediately and remain complete with playback never started.
+    3. **No pretence of computation.** It replays drives already recorded in a frozen receipt and says so. There is no "generating" state, spinner or minimum duration.
+    4. **Persistent disclosure:** "SIMULATED · drive-level · movement illustrative · experimental model".
+    5. **No fabricated play-level events.** Only recorded drive fields are shown; in-drive motion and clock are labelled illustrative.
+    6. **Reduced-motion users** get stepped, non-animated states.
+  - P242's direct-report contract therefore holds for every surface.
+- **D2: APPROVED FOR LOCAL DEVELOPMENT.** An unlinked development route, `app/src/app/dev/simulation-theater/[eventId]/`, emits pages only with `GTP_DEV_ROUTES=1`. Public integration into `/nfl/simulation/[eventId]/` needs separate acceptance.
+- **D3: APPROVED WITH VALIDATION.** A 32-team colour map from verified references, flagged `TEAM_COLORS_VALIDATED=false`, with neutral styling until validated. No logos or branding assets.
+- **D4–D7: ACCEPTED** as documented: all five representatives with merged chips; fixed, disclosed orientation; no world-model data; drive-weighted ~40–103 s at 1×.
+- **D8: DEFERRED.** Receipt changes stay forward-only and need separate validation first.
+- **ST-02 status:** the first two tasks (library + preview shell, with a minimal renderer) are **IN DEVELOPMENT, local only**, on branch `claude/sim-theater-st02-prototype`. Nothing is deployed or reachable in Production.
 **Evidence:** `docs/research/SIMULATION_THEATER_V2_FEASIBILITY_2026-10-18.md` (cited below as **TV2**); `docs/research/NEXT_GEN_FEASIBILITY_SUMMARY_2026-10-18.md` §1; `docs/research/SIMULATION_THEATER_V0_SPEC_2026-10-17.md`; `COMP-001`; the founder-supplied competitor audit `~/Downloads/competitor-audit.md` (cited as **audit**; its screenshots were not supplied). Every effort figure is an estimate for one experienced engineer (TV2 §6) unless stated otherwise.  
 **Objective:** an interactive, receipt-backed NFL drive theater: watch one sampled game, inspect the uncertainty beside it, verify the record. It is not a copy of PropDealer: GTP's own tokens, layout and artwork (audit §6), and no claim that GTP is more accurate than any competitor.
 
