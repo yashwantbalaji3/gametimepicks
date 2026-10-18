@@ -60,8 +60,9 @@ export default function TheaterSection({ load, devHooks = false }: { load: Theat
   const manifest = load.manifest;
   const first = manifest.chips.find((c) => c.available);
   const sample = first ? manifest.samples[first.sampleIndex] : null;
+  const colors = theaterPalette(manifest.teams.home.abbr, manifest.teams.away.abbr).mode;
   const shell = (
-    <div className="st-root" style={THEATER_VARS as CSSProperties}>
+    <div className="st-root" style={THEATER_VARS as CSSProperties} data-st-colors={colors}>
       <Banner manifest={manifest} sample={sample} />
       <noscript><p className="st-rule">{LABELS.noscript}</p></noscript>
       <div className="st-samples">

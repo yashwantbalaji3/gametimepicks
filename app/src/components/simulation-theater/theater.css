@@ -349,3 +349,27 @@
 }
 .st-root[data-st-reduced="1"] .st-strip,.st-root[data-st-reduced="1"] .st-scoreflash,.st-root[data-st-reduced="1"] .st-lower,.st-root[data-st-reduced="1"] .st-bug-score.is-bump{animation:none}
 .st-root[data-st-reduced="1"] .st-scoreflash-bar{display:none}
+
+/* ── team colours (palette.mode "team": lib/simulation-theater/nfl-team-colors.mjs; the root carries data-st-colors) ─
+   Broadcast treatment inside the GTP frame: team blocks in the score bug, the scoring chip and the break-card rule carry
+   the team's colours; the clock, badge, banner, lower third and controls stay GTP. Every value arrives as a custom
+   property from theaterPalette(): --st-team-fill / -ink / -trim (block; ink ≥4.5:1, tested) and --st-team / --st-off
+   (on-field accent; ≥3:1 on turf and page, tested). The neutral switch falls back to the rules above untouched. */
+.st-bug-team.is-team{background:var(--st-team-fill);color:var(--st-team-ink);
+  box-shadow:inset 0 1px 0 color-mix(in srgb, var(--lava-text) 16%, transparent),inset 0 -1px 0 color-mix(in srgb, var(--bg) 35%, transparent)}
+.st-bug-team.is-team + .st-bug-team.is-team{border-left:2px solid var(--bg)}
+.st-bug-team.is-team .st-bug-bar{background:var(--st-team-trim)}
+.st-bug-team.is-team.has-ball{box-shadow:inset 0 -4px 0 var(--st-team-trim),inset 0 1px 0 color-mix(in srgb, var(--lava-text) 16%, transparent)}
+.st-bug-team.is-team.has-ball .st-bug-abbr{color:inherit}
+.st-bug-team.is-team .st-poss ellipse{stroke:var(--st-team-ink)}
+.st-root[data-st-colors="team"] .st-ribbon{fill-opacity:1}
+.st-scoreflash.is-team{background:linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--st-team-fill) 55%, var(--bg)) 16%, color-mix(in srgb, var(--st-team-fill) 55%, var(--bg)) 84%, transparent 100%);
+  border-top:3px solid var(--st-team);border-bottom:3px solid var(--st-team)}
+.st-scoreflash.is-team .st-scoreflash-sub{background:var(--st-team-fill);color:var(--st-team-ink);padding:5px 10px;border-radius:4px;box-shadow:0 0 0 2px var(--st-team-trim)}
+.st-strip-rule{position:absolute;left:0;right:0;top:0;height:4px;display:flex}
+.st-strip-rule i{flex:1 1 0}
+.st-root[data-st-colors="team"] .st-strip.is-major{overflow:hidden;border-top:1px solid var(--border-strong);padding-top:16px}
+.st-root[data-st-colors="team"] .st-seg{box-shadow:inset 0 -3px 0 var(--st-off)}
+.st-root[data-st-colors="team"] .st-seg.is-done{background:color-mix(in srgb, var(--st-off) 70%, var(--st-panel-2))}
+.st-root[data-st-colors="team"] .st-seg.is-current{box-shadow:0 0 0 1px var(--st-text) inset}
+.st-seg.is-hatch{background-image:repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in srgb, var(--bg) 55%, transparent) 4px 7px)}

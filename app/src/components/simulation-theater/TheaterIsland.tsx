@@ -192,7 +192,7 @@ function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive,
               {g.items.map((ev) => {
                 const span = compiled.driveSpans[ev.index];
                 const ticks = compiled.markers.filter((m) => m.driveIdx === ev.index && !m.exact);
-                const cls = ev.index === current ? " is-current" : ev.index < current ? " is-done" : "";
+                const cls = (ev.index === current ? " is-current" : ev.index < current ? " is-done" : "") + (palette[ev.offense].accentHatched ? " is-hatch" : "");
                 const px = layout ? layout.widths[ev.index] : null;
                 return (
                   <button
@@ -220,7 +220,7 @@ function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive,
         ))}
       </div>
       <div className="st-tl-key" aria-hidden="true">
-        <span>fill = offense</span><span>★ score</span><span>✕ turnover / downs</span><span>⏸ end of half / regulation / OT</span><span>| quarter rollover</span>
+        <span>fill = offense{(["away", "home"] as Side[]).filter((s) => palette[s].accentHatched).map((s) => ` (${teams[s].abbr} hatched)`).join("")}</span><span>★ score</span><span>✕ turnover / downs</span><span>⏸ end of half / regulation / OT</span><span>| quarter rollover</span>
       </div>
     </div>
   );
@@ -290,7 +290,7 @@ function SidePanel({ manifest, sample, ev, onSeekDrive, current }: {
 
 // ── on-field broadcast graphics (HTML over the scene; aria-hidden — the score bug, drive card and live region carry
 //    every fact) ─────────────────────────────────────────────────────────────────────────────────────────────────
-function Interstitial({ f, ev, teams, overtime }: { f: SceneState; ev: TheaterEvent; teams: Teams; overtime: boolean }) {
+function Interstitial({ f, ev, teams, overtime, palette }: { f: SceneState; ev: TheaterEvent; teams: Teams; overtime: boolean; palette: Palette }) {
   let text: string | null = null;
   let sub: string | null = null;
   const major = Boolean(f.breakKind);
@@ -302,6 +302,13 @@ function Interstitial({ f, ev, teams, overtime }: { f: SceneState; ev: TheaterEv
   if (!text) return null;
   return (
     <div className={`st-strip${f.rollover && !f.breakKind ? " is-roll" : ""}${major ? " is-major" : ""}`} aria-hidden="true" key={`${f.driveIdx}-${text}`}>
+      {major && palette.mode === "team" ? (
+        /* halftime / end of regulation / final: the two teams' accents across the top, away then home (score-bug order) */
+        <span className="st-strip-rule">
+          <i style={{ background: palette.away.accent }} />
+          <i style={{ background: palette.home.accent }} />
+        </span>
+      ) : null}
       <span className="st-strip-main">{text}</span>
       {sub ? <span className="st-strip-sub">{sub}</span> : null}
     </div>
@@ -313,7 +320,12 @@ function ScoreFlash({ ev, teams, palette }: { ev: TheaterEvent; teams: Teams; pa
   const side = ev.scoringSide as Side;
   const pts = ev.delta[side];
   return (
-    <div className="st-scoreflash" aria-hidden="true" key={`sf-${ev.index}`} style={{ "--st-team": palette[side].accent } as CSSProperties}>
+    <div
+      className={`st-scoreflash${palette.mode === "team" ? " is-team" : ""}`}
+      aria-hidden="true"
+      key={`sf-${ev.index}`}
+      style={{ "--st-team": palette[side].accent, "--st-team-fill": palette[side].fill, "--st-team-ink": palette[side].ink, "--st-team-trim": palette[side].trim } as CSSProperties}
+    >
       <span className="st-scoreflash-bar" />
       <span className="st-scoreflash-head">{SCORE_HEAD[ev.outcome] ?? ev.outcomeLabel}</span>
       <span className="st-scoreflash-sub">{teams[side].abbr} +{pts}</span>
@@ -361,10 +373,11 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
   const sample = manifest.samples[sampleIndex];
   const [reduced, setReduced] = useState(() => (typeof window !== "undefined" && window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false));
   const compact = useMedia("(max-width: 719px)");
-  const [previewColors, setPreviewColors] = useState(false);
+  // Team colours are ON in this dev prototype (founder D3, 2026-10-18); the dev bar's switch shows the neutral GTP frame.
+  const [neutralColors, setNeutralColors] = useState(false);
   const palette = useMemo(
-    () => theaterPalette(teams.home.abbr, teams.away.abbr, { previewUnvalidated: previewColors }) as Palette,
-    [teams.home.abbr, teams.away.abbr, previewColors],
+    () => theaterPalette(teams.home.abbr, teams.away.abbr, { neutral: neutralColors }) as Palette,
+    [teams.home.abbr, teams.away.abbr, neutralColors],
   );
   const compiled = useMemo(() => (sample?.validation.ok ? (compiledFor(sample, { reducedMotion: reduced }) as Compiled) : null), [sample, reduced]);
 
@@ -702,7 +715,17 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
   const showEnd = Boolean(f && AFTER_RESULT.includes(f.phase));
   const endFieldX = ev ? (ev.offense === "home" ? 110 - ev.fieldEnd : 10 + ev.fieldEnd) : 0;
   const scoringNow = Boolean(f && ev && f.phase === "RESULT" && ev.scoring);
-  const derivedAccents = (["home", "away"] as Side[]).filter((s) => palette[s].accentBase);
+  const sides = ["away", "home"] as Side[];
+  const derivedAccents = sides.filter((s) => palette[s].accentBase);
+  const colourNote = palette.mode !== "team"
+    ? "Neutral GTP colours (team colours off)."
+    : [
+      "Team colours: official league and club values (evidence: nfl-team-colors-evidence.json).",
+      derivedAccents.length ? `Lightened on the field for 3:1 on the turf: ${derivedAccents.map((s) => `${teams[s].abbr} ${palette[s].accentBase} → ${palette[s].accent}`).join(", ")}.` : "",
+      sides.filter((s) => palette[s].accentSwap).map((s) => `${teams[s].abbr} uses ${palette[s].accentSwap} on the field (accents too close).`).join(" "),
+      sides.filter((s) => palette[s].hatched).map((s) => `${teams[s].abbr} end zone hatched (colours too close).`).join(" "),
+      sides.filter((s) => palette[s].accentHatched).map((s) => `${teams[s].abbr} timeline hatched (accents too close).`).join(" "),
+    ].filter(Boolean).join(" ");
 
   return (
     <div
@@ -717,19 +740,18 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
       data-st-drive={f ? f.driveIdx : ""}
       data-st-run={sample?.runIndex ?? ""}
       data-st-reduced={reduced ? "1" : "0"}
+      data-st-colors={palette.mode}
     >
       <Banner manifest={manifest} sample={sample ?? null} />
       <div className="st-devbar">
         <span className="st-devtag">Development route · unlinked · noindex</span>
-        <label>
-          <input type="checkbox" checked={previewColors} onChange={(e) => setPreviewColors(e.target.checked)} />
-          Preview team colours (unvalidated)
-        </label>
-        <span className="st-devnote">
-          {previewColors
-            ? `Unvalidated proposal (spec Appendix A), for design review only.${derivedAccents.length ? ` Accent lightened to reach 3:1 on the turf: ${derivedAccents.map((s) => `${teams[s].abbr} ${palette[s].accentBase} → ${palette[s].accent}`).join(", ")}.` : ""}`
-            : TEAM_COLORS_VALIDATED ? "Team colours validated." : "Neutral GTP colours: the team colour map is not validated (decision D3)."}
-        </span>
+        {TEAM_COLORS_VALIDATED ? (
+          <label>
+            <input type="checkbox" checked={neutralColors} onChange={(e) => setNeutralColors(e.target.checked)} />
+            Neutral colours
+          </label>
+        ) : null}
+        <span className="st-devnote">{colourNote}</span>
       </div>
 
       <div className="st-samples">
@@ -792,7 +814,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                     refs={liveRefs}
                     travelDir={ev ? Math.sign(endFieldX - (ev.offense === "home" ? 110 - ev.fieldStart : 10 + ev.fieldStart)) || (ev.offense === "home" ? 1 : -1) : 1}
                   />
-                  {f && ev ? <Interstitial f={f} ev={ev} teams={teams} overtime={Boolean(sample.finalScore?.overtime)} /> : null}
+                  {f && ev ? <Interstitial f={f} ev={ev} teams={teams} overtime={Boolean(sample.finalScore?.overtime)} palette={palette} /> : null}
                   {scoringNow && ev ? <ScoreFlash ev={ev} teams={teams} palette={palette} /> : null}
                   {f && ev ? <LowerThird f={f} ev={ev} teams={teams} sample={sample} scoring={scoringNow} /> : null}
                 </div>
