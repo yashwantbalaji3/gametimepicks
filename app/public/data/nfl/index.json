@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-18T23:29:13Z",
+ "generatedAt": "2026-10-18T23:58:34Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -22,7 +22,7 @@
   "forecastsUpcoming": 2,
   "forecastsStarted": 12,
   "marketEvents": 14,
-  "settled": 9
+  "settled": 10
  },
  "nextKickoffUtc": "2026-10-19T00:20Z",
  "nextMatchup": "DAL @ GB",
@@ -33,17 +33,17 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-18T23:26:01Z",
+  "generatedAt": "2026-10-18T23:29:13Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 88,
-  "decisive": 87,
-  "winnerAccuracy": 0.5862,
-  "marginMAE": 9.8068,
-  "totalMAE": 11.1023,
-  "marginInterval80Coverage": 0.8068,
-  "totalInterval80Coverage": 0.8295,
+  "settledForecasts": 89,
+  "decisive": 88,
+  "winnerAccuracy": 0.5795,
+  "marginMAE": 9.8315,
+  "totalMAE": 11.191,
+  "marginInterval80Coverage": 0.809,
+  "totalInterval80Coverage": 0.8202,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,13 +57,13 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 88,
-    "decisive": 87,
-    "winnerAccuracy": 0.5862,
-    "marginMAE": 9.8068,
-    "totalMAE": 11.1023,
-    "marginInterval80Coverage": 0.8068,
-    "totalInterval80Coverage": 0.8295
+    "settledForecasts": 89,
+    "decisive": 88,
+    "winnerAccuracy": 0.5795,
+    "marginMAE": 9.8315,
+    "totalMAE": 11.191,
+    "marginInterval80Coverage": 0.809,
+    "totalInterval80Coverage": 0.8202
    }
   },
   "unknownSeasonTypeRows": 0,
@@ -107,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "75b74b9af6b5cb54",
-    "generatedAt": "2026-10-18T23:29:13Z"
+    "inputHash": "ea1d4701d1a22962",
+    "generatedAt": "2026-10-18T23:58:34Z"
    }
   },
   {
@@ -148,8 +148,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "bb1e812a9002aa57",
-    "generatedAt": "2026-10-18T23:29:13Z"
+    "inputHash": "dbb51a159761033b",
+    "generatedAt": "2026-10-18T23:58:34Z"
    }
   },
   {
@@ -534,10 +534,10 @@
     "name": "Arizona Cardinals"
    },
    "kickoffUtc": "2026-10-18T20:05Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 32,
