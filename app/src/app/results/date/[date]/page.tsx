@@ -11,6 +11,7 @@ import {
   getMlbComparisonReport,
 } from "@/lib/data-mlb-results";
 import { mlbMarketLabel } from "@/lib/format-mlb";
+import { tallyMlbOutcomes } from "@/lib/mlb-settled-outcome";
 import { formatPercent, formatDateLong } from "@/lib/format";
 import ResultsSportTabs from "@/components/results-sport-tabs";
 import SettledGameDetail, {
@@ -669,9 +670,7 @@ function MlbGameGroups({
       <div className="flex flex-col gap-3">
         {sortedGamePks.map((gpk) => {
           const gameRows = byGame.get(gpk) || [];
-          const wins = gameRows.filter((r) => r.outcome === "Win").length;
-          const losses = gameRows.filter((r) => r.outcome === "Loss").length;
-          const pushes = gameRows.filter((r) => r.outcome === "Push").length;
+          const { wins, losses, pushes, voids } = tallyMlbOutcomes(gameRows);
           const decisive = wins + losses;
           const hitRate = decisive > 0 ? wins / decisive : null;
           const r0 = gameRows[0];
@@ -699,6 +698,7 @@ function MlbGameGroups({
               wins={wins}
               losses={losses}
               pushes={pushes}
+              voids={voids}
               decisive={decisive}
               hitRate={hitRate}
               rows={detailRows}

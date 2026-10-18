@@ -41,7 +41,8 @@ export interface SettledLean {
   edgePct?: number | null;
   confidence?: string;
   finalStat?: number;
-  result?: "win" | "loss" | "push" | "stats_unavailable" | "invalid";
+  /** "void" reaches this shape only from the MLB adapter (lib/mlb-settled-outcome.ts); NBA rows never carry it. */
+  result?: "win" | "loss" | "push" | "void" | "stats_unavailable" | "invalid";
   projectionError?: number;
   absoluteProjectionError?: number;
   settlementSource?: string;
