@@ -4,7 +4,7 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-10-18",
- "generatedAt": "2026-10-18T23:29:13Z",
+ "generatedAt": "2026-10-18T23:58:34Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
@@ -1085,19 +1085,170 @@
     }
    },
    "marketBenchmark": null
+  },
+  {
+   "canonicalEventId": "nfl-401873006",
+   "providerEventId": "401873006",
+   "matchup": "LAC @ KC",
+   "kickoffUtc": "2026-10-18T20:25Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401873006-rev-1954Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "dcb2ce7a32ac076d",
+    "forecastGeneratedAt": "2026-10-18T19:54:05Z",
+    "revisionChain": [
+     {
+      "file": "401873006.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "589353151f6bd4d1"
+     },
+     {
+      "file": "401873006-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "7291590a13b3cb0b"
+     },
+     {
+      "file": "401873006-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "5fdc87f863859dd7"
+     },
+     {
+      "file": "401873006-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "e18abd887cc37f7e"
+     },
+     {
+      "file": "401873006-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "addaa8cc89459a29"
+     },
+     {
+      "file": "401873006-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "96309f9b740c4f78"
+     },
+     {
+      "file": "401873006-rev-1516Z.json",
+      "generatedAt": "2026-10-18T15:16:07Z",
+      "inputHash": "2122625a7132bef2"
+     },
+     {
+      "file": "401873006-rev-1603Z.json",
+      "generatedAt": "2026-10-18T16:03:22Z",
+      "inputHash": "61bd293e53e84ee0"
+     },
+     {
+      "file": "401873006-rev-1621Z.json",
+      "generatedAt": "2026-10-18T16:21:51Z",
+      "inputHash": "d0cec6c93258280e"
+     },
+     {
+      "file": "401873006-rev-1625Z.json",
+      "generatedAt": "2026-10-18T16:25:00Z",
+      "inputHash": "6cfbc0635cf07881"
+     },
+     {
+      "file": "401873006-rev-1649Z.json",
+      "generatedAt": "2026-10-18T16:49:13Z",
+      "inputHash": "718eb66e81d07c80"
+     },
+     {
+      "file": "401873006-rev-1730Z.json",
+      "generatedAt": "2026-10-18T17:30:06Z",
+      "inputHash": "731932c292b5b726"
+     },
+     {
+      "file": "401873006-rev-1757Z.json",
+      "generatedAt": "2026-10-18T17:57:29Z",
+      "inputHash": "3d3a555609825d23"
+     },
+     {
+      "file": "401873006-rev-1818Z.json",
+      "generatedAt": "2026-10-18T18:18:08Z",
+      "inputHash": "e44f04e89239eccc"
+     },
+     {
+      "file": "401873006-rev-1827Z.json",
+      "generatedAt": "2026-10-18T18:27:44Z",
+      "inputHash": "2654942932221f5f"
+     },
+     {
+      "file": "401873006-rev-1847Z.json",
+      "generatedAt": "2026-10-18T18:47:34Z",
+      "inputHash": "8fb39f45d3bbee8b"
+     },
+     {
+      "file": "401873006-rev-1905Z.json",
+      "generatedAt": "2026-10-18T19:05:56Z",
+      "inputHash": "5d563427d365adc5"
+     },
+     {
+      "file": "401873006-rev-1931Z.json",
+      "generatedAt": "2026-10-18T19:31:05Z",
+      "inputHash": "8c9cfe88d488c881"
+     },
+     {
+      "file": "401873006-rev-1954Z.json",
+      "generatedAt": "2026-10-18T19:54:05Z",
+      "inputHash": "dcb2ce7a32ac076d"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T23:29:13Z",
+    "settledAt": "2026-10-18T23:58:34Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 22,
+     "away": 6,
+     "margin": 16,
+     "total": 28,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "HOME",
+     "correct": true,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 7,
+     "actual": 16,
+     "absError": 9,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 41,
+     "actual": 28,
+     "absError": 13,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 24,
+      "away": 17,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 13
+    },
+    "probabilistic": {
+     "brier": 0.078008,
+     "logLoss": 0.327532
+    }
+   },
+   "marketBenchmark": null
   }
  ],
  "pending": [
   {
    "canonicalEventId": "nfl-401873005",
    "matchup": "BUF @ LV",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-18T20:25Z",
-   "observed": "STATUS_SCHEDULED"
-  },
-  {
-   "canonicalEventId": "nfl-401873006",
-   "matchup": "LAC @ KC",
    "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-10-18T20:25Z",
    "observed": "STATUS_SCHEDULED"
@@ -1119,24 +1270,24 @@
  "recordElsewhere": [],
  "accounting": {
   "receipts": 13,
-  "settled": 9,
-  "pending": 4,
+  "settled": 10,
+  "pending": 3,
   "quarantined": 0,
   "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 9,
-  "decisive": 9,
+  "settledForecasts": 10,
+  "decisive": 10,
   "ties": 0,
-  "winnerCorrect": 3,
-  "winnerAccuracy": 0.3333,
-  "marginMAE": 9.1111,
-  "totalMAE": 10.1111,
-  "marginInterval80Coverage": 0.8889,
-  "totalInterval80Coverage": 0.6667,
-  "brier": 0.3495,
-  "logLoss": 0.9082
+  "winnerCorrect": 4,
+  "winnerAccuracy": 0.4,
+  "marginMAE": 9.1,
+  "totalMAE": 10.4,
+  "marginInterval80Coverage": 0.9,
+  "totalInterval80Coverage": 0.7,
+  "brier": 0.3223,
+  "logLoss": 0.8501
  },
  "marketBenchmark": null,
  "comparison": null
