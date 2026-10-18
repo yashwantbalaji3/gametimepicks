@@ -1,7 +1,7 @@
 {
   "sport": "mlb",
   "date": "2026-10-18",
-  "generatedAt": "2026-10-18T09:30:17.000Z",
+  "generatedAt": "2026-10-18T21:38:16.000Z",
   "decisionEngineVersion": "mlb-prediction-2026.10-v2",
   "sourceArtifact": "full-game-simulations/2026-10-18.json",
   "notBettingAdvice": true,
@@ -15,14 +15,17 @@
       "homeTeam": "CLE",
       "awayTeamName": "Tampa Bay Rays",
       "homeTeamName": "Cleveland Guardians",
-      "artifactHash": "75f512fc0437c337205e94f412b61290ef9834b274bc74585709ffa1c45244a0",
+      "artifactHash": "b6730a04c86deab8e744f5011608f851cd264ddccd46b6201fbc2169d6af40b1",
       "decisionEngineVersion": "mlb-prediction-2026.10-v2",
       "completeness": {
-        "level": "ready",
-        "notes": [],
-        "awayLineupSource": "prop-derived",
-        "homeLineupSource": "prop-derived",
-        "awayRatedCount": 9,
+        "level": "degraded",
+        "notes": [
+          "TB confirmed batting order used; 1 of 9 have no GTP projection (no posted prop line, or too little data) and are simulated at replacement-level rates; the box score marks each one.",
+          "CLE confirmed batting order used, all 9 with posted prop lines."
+        ],
+        "awayLineupSource": "confirmed",
+        "homeLineupSource": "confirmed",
+        "awayRatedCount": 8,
         "homeRatedCount": 9,
         "awayLineupCount": 9,
         "homeLineupCount": 9,
@@ -30,7 +33,6 @@
         "hasHomeStarter": true,
         "startedBeforeGeneration": false,
         "missingFamilies": [
-          "confirmed_batting_order",
           "park_run_factors",
           "weather",
           "batter_handedness_splits"
@@ -52,7 +54,7 @@
           "homeCover": 0.5987
         }
       },
-      "status": "ready",
+      "status": "degraded",
       "predictedWinner": {
         "side": "home",
         "team": "CLE"
@@ -65,7 +67,7 @@
       "moneyline": {
         "side": "home",
         "team": "CLE",
-        "simulationProbability": 0.52,
+        "simulationProbability": 0.543,
         "marketImpliedProbability": 0.449,
         "marketAgreement": "MODEL HIGHER",
         "strengthLabel": "LEAN"
@@ -73,8 +75,8 @@
       "total": {
         "line": 6.5,
         "pick": "OVER",
-        "overProbability": 0.639,
-        "underProbability": 0.361,
+        "overProbability": 0.626,
+        "underProbability": 0.374,
         "pushProbability": 0,
         "simulationMedian": 8,
         "marketImpliedOver": 0.483,
@@ -88,8 +90,8 @@
         "pick": "CLE +1.5",
         "pickSide": "home",
         "pickLine": 1.5,
-        "coverProbability": 0.647,
-        "opposingCoverProbability": 0.353,
+        "coverProbability": 0.669,
+        "opposingCoverProbability": 0.331,
         "pushProbability": 0,
         "marketImpliedProbability": 0.5987,
         "bookmaker": "draftkings",
