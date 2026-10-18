@@ -1,0 +1,78 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-input-snapshot",
+ "dataClass": "PRIVATE_RESEARCH",
+ "what": "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+ "date": "2026-10-18",
+ "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+ "simulationVersion": 1,
+ "sourceBoardHash": "9c5b5cb4e48ae98c563bcbe2444d614ad952f5a651e899da25aa282ea37f9900",
+ "updatedAt": "2026-10-18T09:30:16.000Z",
+ "games": [
+  {
+   "gamePk": 849817,
+   "date": "2026-10-18",
+   "slug": "tb-vs-cle-2026-10-18",
+   "awayTeam": "TB",
+   "homeTeam": "CLE",
+   "firstPitch": "2026-10-18T21:08:00Z",
+   "artifactHash": "75f512fc0437c337205e94f412b61290ef9834b274bc74585709ffa1c45244a0",
+   "completenessLevel": "ready",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     802415,
+     650490,
+     691406,
+     666018,
+     676356,
+     810938,
+     689414,
+     683748,
+     670764
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "prop-derived",
+    "capturedAt": null,
+    "minutesToFirstPitch": null,
+    "batterIds": [
+     680757,
+     800050,
+     608070,
+     666176,
+     663993,
+     683953,
+     677587,
+     672275,
+     690984
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "awayStarter": {
+    "playerId": 656876,
+    "name": "Drew Rasmussen",
+    "hasStrikeoutProjection": true
+   },
+   "homeStarter": {
+    "playerId": 800048,
+    "name": "Parker Messick",
+    "hasStrikeoutProjection": true
+   },
+   "missingFamilies": [
+    "confirmed_batting_order",
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  }
+ ]
+}
