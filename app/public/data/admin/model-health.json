@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-10-18T09:26:06Z",
+ "generatedAt": "2026-10-18T12:41:01Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 5,
@@ -240,20 +240,20 @@
    "label": "UFC fight winner",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 70,
+   "n": 79,
    "judgement": {
     "state": "WATCH",
-    "n": 70,
+    "n": 79,
     "needed": 60,
-    "meanDiff": 0.0259,
-    "lo95": -0.0834,
-    "hi95": 0.1698
+    "meanDiff": 0.0264,
+    "lo95": -0.0743,
+    "hi95": 0.1463
    },
    "context": {
-    "modelLogLoss": 0.719,
-    "marketLogLoss": 0.6291,
-    "modelMinusMarket": 0.0899,
-    "pairedWithMarket": 70
+    "modelLogLoss": 0.7195,
+    "marketLogLoss": 0.65,
+    "modelMinusMarket": 0.0695,
+    "pairedWithMarket": 79
    },
    "source": "data/internal/research/ufc/model-vs-market/graded.jsonl",
    "bar": {
@@ -261,7 +261,7 @@
     "checks": [
      {
       "measure": "logLossVsBaseline",
-      "value": 0.0259,
+      "value": 0.0264,
       "bar": "≤ −0.005 vs a coin flip (0.6931)",
       "pass": false
      }
@@ -269,13 +269,13 @@
     "notComputable": [
      "calibrationZ"
     ],
-    "n": 70,
+    "n": 79,
     "needed": 60,
     "model": null,
     "modelsOnGradedBoards": null,
     "source": "app/public/data/ufc/fight-model-evaluation.json#/bars/winnerGain",
     "measures": {
-     "logLossVsBaseline": 0.0259
+     "logLossVsBaseline": 0.0264
     }
    }
   },
