@@ -192,9 +192,9 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 **Follow-up fixes from the 10-18 integrity audit (`docs/launch/INTEGRITY_AUDIT_2026-10-18.md`), both merged and PRODUCTION VERIFIED:**
 - #1126 `cd8465a2e1`: `/results/mlb/` Void rows were shown as Push. Display only.
 - #1127 `58acd1cbac`: a settled NFL game was shown as "Follow live" on `/nfl`, and the Home MLB card said "today's slate" for yesterday's slate. Display only.
+- #1128 `bec2cd28aa`: Ask's EPL (and UFC) record now comes from the same ledger population as `/results`, so the two can no longer split after a late grade (D-1). It also fixes Ask's recent-feed totals, which were capped at 60. Main CI post-build parity is green.
 
 The audit's remaining items:
-- D-1, the EPL Ask season lag: LOW; heals at the next settle.
 - The void *reason* on postponed 10-16 rows reads "DNP/0-AB": a data/producer follow-up.
 
 **Still to verify after scheduled runs:**

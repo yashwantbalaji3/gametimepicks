@@ -25,6 +25,7 @@ Everything below is grounded in repository and GitHub state at the time written.
   | #1088 | `05c9deea4f` | 10-18 04:48 |
   | #1126 MLB results: Void shown as Void, not Push (audit D-2) | `cd8465a2e1` | 10-18 06:12 |
   | #1127 Event state: settled NFL game not "Follow live"; Home MLB card names the slate date | `58acd1cbac` | 10-18 07:20 |
+  | #1128 Ask EPL/UFC record from the same ledger population as /results (audit D-1); recent-feed totals fixed | `bec2cd28aa` | 10-18 08:46 |
 
   The 10-18 release cost 2 Vercel builds for 4 merges; the other 2 were superseded, as expected. Main's code equals the locally validated candidate.
 - **Superseded PRs:** 12 were auto-marked merged. 5 stacked ones (#1097–#1100, #1103) were closed with evidence comments: their heads are on `main`.

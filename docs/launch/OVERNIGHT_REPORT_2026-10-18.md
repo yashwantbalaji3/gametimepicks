@@ -7,9 +7,10 @@ Production is **healthier than before**. Main CI is green.
 - **The release ran on schedule.** #1124, #1101, #1120 (carrying #1117 and #1119) and #1088 merged at exact heads, 04:46–04:48Z.
 - **It cost 2 Vercel builds for 4 merges.** The other two were superseded, as expected.
 - **Every check passed:** main CI on all four merges, Production serving the final commit, protected ledgers byte-identical, 11 key routes clean.
-- **Two audit fixes also shipped and are verified on Production:**
+- **Three audit fixes also shipped and are verified on Production:**
   - #1126: void rows on `/results/mlb/` were shown as "Push";
-  - #1127: a settled NFL game was shown as "Follow live", and the Home MLB card mislabelled yesterday's slate as today's.
+  - #1127: a settled NFL game was shown as "Follow live", and the Home MLB card mislabelled yesterday's slate as today's;
+  - #1128: Ask's EPL record contradicted `/results`.
 - **Seventeen superseded PRs are resolved:** 12 were auto-merged and 5 closed with evidence.
 - **One urgent compliance flag:** Production `/mlb` shows **offshore, unlicensed sportsbook prices** (BetOnline.ag). This needs your decision (§J).
 
@@ -22,7 +23,8 @@ Production is **healthier than before**. Main CI is green.
 | #1120 HTML/UX release (+#1117, #1119) | MERGED | `68135f7aa2` | ✅ 39098333216 | superseded → included in `05c9deea4f` | none; pages verified visually and by route sweep |
 | #1088 MLB stamp-only gate | MERGED | `05c9deea4f` | ✅ 39098353538 (unit 9,489/9,491; post-build 707/710) | built; Production `05c9deea4f` at 04:51Z | ⏳ `verify_1088.py` after the MLB daily-production and lineup runs |
 | #1126 MLB Void label | MERGED | `cd8465a2e1` | ✅ | built; verified (`/results/mlb/`: Void 82, Push 0) | — |
-| #1127 event-state labels | MERGED | `58acd1cbac` | ✅ | built; **Production `58acd1cbac`** at 07:21Z; verified | — |
+| #1127 event-state labels | MERGED | `58acd1cbac` | ✅ | built; verified | — |
+| #1128 Ask EPL/UFC record parity (audit D-1) | MERGED | `bec2cd28aa` | ✅ 39112754816 (post-build parity green) | built; Production `1a65a1aa9e` (includes it) at 09:00Z | — |
 
 **Pre-merge gates**, applied to every merge: exact head, required checks green, MERGEABLE/CLEAN, no data-writer workflow running, outside the :25–:45 lineup slot. For the release: MLB final and the UFC card finished. Main's code equals the locally validated candidate (full local gate green).
 
@@ -35,7 +37,7 @@ Production is **healthier than before**. Main CI is green.
   - 10-16 is 41 VOID, 0–0.
   - Results pages agree with the records for MLB and NFL.
   - NFL and UFC event states are correct.
-  - **The one FAIL (LOW):** Ask's EPL season headline lags `/results` by one loss after a late-graded match. It heals at the next settle and recurs; a proposed fix is in the audit.
+  - **The one FAIL (LOW), Ask's EPL lag, is now FIXED** by #1128: Ask derives the record from the same ledger population as `/results`.
 - **Release data safety:** no merged PR touched a data path. All 7 protected ledger and settled files are hash-identical to the pre-release baseline.
 - ⏳ **MLB settlement:** 10-17 (TB@CLE 849816, final 7–3) settles at the next nightly settle. #1101 is verified then.
 - ⏳ **#1088:** that real lineup, injury and roster changes still publish is verified after today's MLB runs.
