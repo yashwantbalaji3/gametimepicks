@@ -210,7 +210,7 @@ function simulateWaiter({ date, games, obs, boardAt, boardFirstPitch, refreshRun
       const land = startR + dur;
       const id = `W${dispatches.length + 1}`;
       landings.push({ start: startR, land, kind: "waiter", id, created });
-      ledger.dispatches.push({ at: iso(t), fingerprint: d.fingerprint, sides: d.owed });
+      ledger.dispatches.push({ at: iso(t), fingerprint: d.fingerprint, sides: d.owed, basis: d.basis }); // as the runner records it
       dispatches.push({ t, owed: d.owed, land });
       t = land + 60_000; // the runner waits for the refresh, then re-decides
       activeMs += t - tPrev;

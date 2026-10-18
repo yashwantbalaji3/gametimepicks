@@ -9,19 +9,23 @@
 # the schedule each cycle (doubleheaders, postponements, moved first pitches), and compares each posted nine-man order
 # with the record of the lineup the committed simulation was built from (data/internal/mlb/input-snapshots/<date>.json,
 # falling back to the simulation's own batters). It dispatches mlb-lineup-refresh (workflow_dispatch, no inputs) only
-# for a side that is newly confirmed or changed and whose game has not started — never twice for one fingerprint, at
-# most MAX_DISPATCHES_PER_SLATE (6) a slate, at least 15 minutes apart, and never while any gtp-generated-artifacts
-# writer is running or queued (it waits, pulls main and re-decides). Rule: app/src/lib/ops/mlb-lineup-waiter.mjs.
+# for a side that is newly confirmed or changed and whose game has not started — never twice for one fingerprint
+# (one retry if that refresh ended cancelled/failed), at most MAX_DISPATCHES_PER_SLATE (6) a slate, at least 15
+# minutes apart, and never while any gtp-generated-artifacts writer is running or queued (it waits, pulls main and
+# re-decides). Rule: app/src/lib/ops/mlb-lineup-waiter.mjs.
 #
 # FREE AND WRITE-NOTHING. StatsAPI only (no provider key, no paid call). This job commits nothing: `contents: read`.
 # Only a dispatched refresh can commit, and #1088's stamp-only gate drops a refresh whose lineups did not move, so a
 # Vercel build happens only when public data materially changes.
 #
 # LIMITS. ≤ 400 StatsAPI calls per run; a 330-minute loop budget inside a 350-minute job timeout (GitHub's cap is
-# 360). At the budget, an unfinished slate hands over to a fresh run of this workflow (a GITHUB_TOKEN
-# workflow_dispatch always creates a run); it queues in this group and resumes from committed state. After the last
-# first pitch the job exits DONE. A job that dies is resumed by the next arrival: the decision is rebuilt from main,
-# the refresh run list (dispatch count, spacing, in-flight), and the ledger lines earlier runs printed.
+# 360). Every sleep (poll and post-dispatch wait) is capped at the remaining budget, and a hard stop relays and exits
+# 12 minutes after the budget whatever a cycle is doing — so the relay always happens before the timeout kill. At the
+# budget (or at the StatsAPI call cap after ≥ 30 min of watching) an unfinished slate hands over to a fresh run of
+# this workflow (a GITHUB_TOKEN workflow_dispatch always creates a run); it queues in this group and resumes from
+# committed state. After the last first pitch the job exits DONE. A job that dies is resumed by the next arrival: the
+# decision is rebuilt from main, the refresh run list (dispatch count, spacing, in-flight), and the ledger lines
+# earlier runs printed (the last 100 waiter runs are listed; at most 30 run logs are read).
 #
 # ALERTS. `::warning::`, the step summary, and scripts/ops_alert.sh (the existing OPS_WEBHOOK_URL path, as
 # cron-watchdog uses it): a side posted upstream with no confirmed-lineup simulation by T-60; a game that started
@@ -33,6 +37,11 @@
 # (Settings → Secrets and variables → Actions → Variables, or `gh variable set MLB_LINEUP_WAITER_ENABLED --body true`).
 # Unset, every trigger is a skipped job: no runner, no StatsAPI call, no dispatch. A manual `dry_run=true` dispatch is
 # allowed while disabled — it decides once, prints the decision, and never dispatches or relays.
+# GitHub's `==` IGNORES CASE, so the job `if` alone would let "True"/"TRUE" through. Defence in depth: `dry_run` is a
+# typed boolean; the step runs the live loop only when the variable is EXACTLY 'true' and the dispatch did not ask for
+# a dry run (any case); and the runner itself forces --dry-run --once unless MLB_LINEUP_WAITER_ENABLED is exactly
+# 'true'. A disabled waiter never dispatches and never relays, on any trigger. Dry runs use their own concurrency
+# group (never queued behind, or replacing, a live run) and print no ledger lines (never suppressing a live alert).
 #
 # ── ROLLBACK ──────────────────────────────────────────────────────────────────────────────────────────────────────
 #   1. Instant stop: `gh variable delete MLB_LINEUP_WAITER_ENABLED` (or set it to anything but 'true'). The next
@@ -62,11 +71,13 @@ on:
     inputs:
       dry_run:
         description: "Decide once and report — never dispatch, never relay (allowed while the waiter is disabled)"
+        type: boolean
         required: false
-        default: "false"
+        default: false
 
 concurrency:
-  group: mlb-lineup-waiter
+  # Dry runs get their own group: never queued for hours behind a live run, never replacing a pending relay.
+  group: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' && 'mlb-lineup-waiter-dry' || 'mlb-lineup-waiter' }}
   cancel-in-progress: false
 
 permissions:
@@ -82,7 +93,7 @@ jobs:
       (github.event_name != 'workflow_run' ||
        github.event.workflow_run.head_branch == github.event.repository.default_branch)
     runs-on: ubuntu-latest
-    # The loop budget (330) plus a dispatched refresh's wait, under GitHub's 360-minute job cap.
+    # The loop budget (330) + the runner's hard stop (12) + setup, under this timeout and GitHub's 360-minute cap.
     timeout-minutes: 350
     steps:
       - uses: actions/checkout@v5
@@ -96,16 +107,27 @@ jobs:
           GH_REPO: ${{ github.repository }}
           OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
           DRY: ${{ github.event.inputs.dry_run }}
+          MLB_LINEUP_WAITER_ENABLED: ${{ vars.MLB_LINEUP_WAITER_ENABLED }}
         run: |
           set -euo pipefail
-          if [ "${DRY:-false}" = "true" ]; then
-            node app/scripts/ops/mlb-lineup-waiter.mjs --dry-run --once
-          else
+          # Live only when the variable is EXACTLY 'true' (the job `if` compares case-insensitively) and no dry run
+          # was asked for in any case. Everything else is one dry decision: no dispatch, no relay.
+          dry_lc="$(printf '%s' "${DRY:-}" | tr '[:upper:]' '[:lower:]')"
+          live=0
+          if [ "${MLB_LINEUP_WAITER_ENABLED:-}" = "true" ]; then
+            case "$dry_lc" in
+              ""|false) live=1 ;;
+            esac
+          fi
+          if [ "$live" = "1" ]; then
             node app/scripts/ops/mlb-lineup-waiter.mjs --relay --budget-min 330 --max-calls 400 --max-dispatches 6
+          else
+            node app/scripts/ops/mlb-lineup-waiter.mjs --dry-run --once
           fi
 
       - name: Notify on failure
-        if: failure()
+        # cancelled() too: a job killed at timeout-minutes is cancelled, not failed, and must still alert.
+        if: failure() || cancelled()
         env:
           OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
           PHASE: mlb-lineup-waiter

@@ -14,7 +14,8 @@ import {
 } from "./mlb-lineup-waiter.mjs";
 import {
   parseArgs, createStatsApi, CallCapReached, makeGh, parseLedgerLines, recoverLedger, decideOnce, writerWorkflowFiles,
-  LEDGER_MARK, REFRESH_WORKFLOW,
+  LEDGER_MARK, REFRESH_WORKFLOW, emitAlert, dispatchWithRetry, waitForRefresh, WRITER_GROUP_LINE, HARD_STOP_GRACE_MIN,
+  MAX_LEDGER_LOG_FETCHES, CAP_RELAY_MIN_ELAPSED_MIN,
 } from "../../../scripts/ops/mlb-lineup-waiter.mjs";
 
 const REPO = path.resolve(process.cwd(), "..");
@@ -441,7 +442,9 @@ const JOB = WF.jobs.wait;
 const RUN = JOB.steps.map((s) => String(s.run ?? "")).join("\n");
 
 test("CONTRACT: deduped, never cancelled; least privilege; under the 6-hour cap", () => {
-  assert.deepEqual(WF.concurrency, { group: "mlb-lineup-waiter", "cancel-in-progress": false });
+  assert.equal(WF.concurrency["cancel-in-progress"], false);
+  assert.equal(WF.concurrency.group, "${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' && 'mlb-lineup-waiter-dry' || 'mlb-lineup-waiter' }}",
+    "live runs share one group; a dry run has its own (never queued behind, or replacing, a live run or its relay)");
   assert.deepEqual(WF.permissions, { actions: "write", contents: "read" });
   assert.ok(JOB["timeout-minutes"] < 360 && JOB["timeout-minutes"] > 330, "the loop budget (330) fits inside the timeout, under GitHub's 360");
   assert.match(RUN, /--budget-min 330/);
@@ -453,7 +456,14 @@ test("CONTRACT: the activation guard — nothing runs unless vars.MLB_LINEUP_WAI
   assert.match(cond, /vars\.MLB_LINEUP_WAITER_ENABLED == 'true'/);
   assert.match(cond, /github\.event_name == 'workflow_dispatch' && github\.event\.inputs\.dry_run == 'true'/);
   assert.match(cond, /head_branch == github\.event\.repository\.default_branch/, "workflow_run trust boundary");
-  assert.match(RUN, /if \[ "\$\{DRY:-false\}" = "true" \]; then\s+node app\/scripts\/ops\/mlb-lineup-waiter\.mjs --dry-run --once/);
+  // The step: live only when the variable is EXACTLY 'true' and no dry run (any case) was asked for.
+  assert.equal(ON.workflow_dispatch.inputs.dry_run.type, "boolean");
+  assert.equal(ON.workflow_dispatch.inputs.dry_run.default, false);
+  const step = JOB.steps.find((s) => /--relay/.test(String(s.run ?? "")));
+  assert.equal(step.env.MLB_LINEUP_WAITER_ENABLED, "${{ vars.MLB_LINEUP_WAITER_ENABLED }}", "the runner re-checks the variable itself");
+  assert.match(step.run, /if \[ "\$\{MLB_LINEUP_WAITER_ENABLED:-\}" = "true" \]; then/);
+  assert.match(step.run, /tr '\[:upper:\]' '\[:lower:\]'/);
+  assert.match(step.run, /else\s+node app\/scripts\/ops\/mlb-lineup-waiter\.mjs --dry-run --once\s+fi/);
   assert.match(WF_TEXT, /ROLLBACK/);
   assert.match(WF_TEXT, /MERGING THIS FILE DOES NOT ACTIVATE IT/);
 });
@@ -486,4 +496,183 @@ test("CONTRACT: the only workflow the waiter dispatches is mlb-lineup-refresh (p
   const refresh = yaml.load(fs.readFileSync(path.join(REPO, ".github/workflows/mlb-lineup-refresh.yml"), "utf8"));
   assert.equal(refresh.concurrency.group, "gtp-generated-artifacts");
   assert.ok("workflow_dispatch" in (refresh.on ?? refresh[true]));
+});
+
+// ── independent-verification fixes (F1–F11, docs/launch/approvals/PR1131_ACTIVATION_READINESS.md) ─────────────
+
+test("F1: the runner itself forces --dry-run --once unless MLB_LINEUP_WAITER_ENABLED is exactly 'true'", () => {
+  for (const v of [undefined, "", "false", "True", "TRUE", " true", "1"]) {
+    const a = parseArgs(["--relay", "--budget-min", "330"], { MLB_LINEUP_WAITER_ENABLED: v });
+    assert.deepEqual([a.dryRun, a.once, a.relay, a.forcedDryRun], [true, true, false, true], String(v));
+  }
+  const live = parseArgs(["--relay"], { MLB_LINEUP_WAITER_ENABLED: "true" });
+  assert.deepEqual([live.dryRun, live.once, live.relay, live.forcedDryRun], [false, false, true, undefined]);
+  assert.equal(parseArgs(["--dry-run", "--once"], {}).forcedDryRun, undefined, "an asked-for dry run is not 'forced'");
+});
+
+test("F2: the post-dispatch wait never sleeps past the budget; the hard stop + setup fits the timeout", async () => {
+  for (const left of [0, 30_000, 5 * 60_000, 60 * 60_000]) {
+    let t = 0;
+    const slept = await waitForRefresh({ refreshRuns: () => [{ status: "queued" }] }, { sleep: async (ms) => { t += ms; }, remainingMs: () => Math.max(0, left - t) });
+    assert.ok(slept <= left, `${left}: slept ${slept}`);
+  }
+  let t = 0;
+  let polls = 0;
+  await waitForRefresh({ refreshRuns: () => (++polls < 3 ? [{ status: "in_progress" }] : [{ status: "completed" }]) }, { sleep: async (ms) => { t += ms; }, remainingMs: () => 3600_000 });
+  assert.equal(t, 45_000 + 2 * 60_000, "registers, then polls each minute until the refresh completes");
+  assert.ok(330 + HARD_STOP_GRACE_MIN + 3 <= JOB["timeout-minutes"]);
+  const notify = JOB.steps.find((s) => /ops_alert\.sh/.test(String(s.run ?? "")));
+  assert.equal(notify.if, "failure() || cancelled()", "a timeout cancels the job — the notify step must still run");
+});
+
+test("F3: ledger recovery lists 100 runs, skips skipped/in-progress/old ones, and reads at most MAX_LEDGER_LOG_FETCHES logs", () => {
+  const listed = [];
+  const views = [];
+  const runs = [];
+  for (let i = 0; i < 60; i++) runs.push({ databaseId: 1000 - i, createdAt: new Date(Date.parse("2026-10-18T17:00:00Z") - i * 60_000).toISOString(), status: "completed", conclusion: i % 2 ? "cancelled" : "skipped" });
+  runs.push({ databaseId: 1, createdAt: "2026-10-18T10:00:00Z", status: "completed", conclusion: "success" });
+  const exec = (args) => {
+    if (args[1] === "list") { listed.push(args); return JSON.stringify(runs); }
+    views.push(args[2]);
+    if (args[2] === "1") return `${LEDGER_MARK}${JSON.stringify({ kind: "dispatch", at: "2026-10-18T10:30:00Z", fingerprint: "f", sides: ["1:away:x"] })}`;
+    throw new Error("no logs");
+  };
+  const got = recoverLedger(makeGh({ exec, dryRun: true }), { nowMs: Date.parse("2026-10-18T18:00:00Z"), selfRunId: "0" });
+  assert.equal(listed[0][listed[0].indexOf("--limit") + 1], "100");
+  assert.equal(got.dispatches.length, 1, "30 cancelled-while-pending runs do not hide the run that dispatched");
+  assert.ok(views.length <= MAX_LEDGER_LOG_FETCHES + 1 && !views.some((id) => runs.find((r) => String(r.databaseId) === id)?.conclusion === "skipped"));
+  assert.equal(views[0], "1", "a run that certainly executed is read before the cancelled-while-pending pile");
+  views.length = 0;
+  recoverLedger(makeGh({ exec, dryRun: true }), { nowMs: Date.parse("2026-10-18T18:00:00Z"), selfRunId: "0", maxLogFetches: 5 });
+  assert.equal(views.length, 5, "the fetch bound is honoured");
+});
+
+test("F4: the writer list is EXACTLY the workflows whose parsed concurrency group is gtp-generated-artifacts", () => {
+  const dir = path.join(REPO, ".github/workflows");
+  const truth = [];
+  for (const f of fs.readdirSync(dir).filter((x) => /\.ya?ml$/.test(x))) {
+    const w = yaml.load(fs.readFileSync(path.join(dir, f), "utf8"));
+    const g = (c) => (typeof c === "string" ? c : c?.group);
+    if ([g(w?.concurrency), ...Object.values(w?.jobs ?? {}).map((j) => g(j?.concurrency))].includes("gtp-generated-artifacts")) truth.push(f);
+  }
+  assert.deepEqual(writerWorkflowFiles(dir), truth.sort());
+  assert.ok(truth.includes("ufc-fight-week.yml"), "the trailing-comment form");
+  assert.ok(truth.length >= 13);
+  for (const line of ["  group: gtp-generated-artifacts     # the one queue", "    group: 'gtp-generated-artifacts'", "concurrency: gtp-generated-artifacts", "concurrency: { group: gtp-generated-artifacts, cancel-in-progress: false }"]) assert.match(line, WRITER_GROUP_LINE, line);
+  for (const line of ["  group: gtp-generated-artifacts-shadow", "  # group: gtp-generated-artifacts", "  name: gtp-generated-artifacts"]) assert.doesNotMatch(line, WRITER_GROUP_LINE, line);
+});
+
+test("F5: a dispatched refresh that ended cancelled is retried once (with an alert), then alerted as exhausted", () => {
+  const key = `1:away:${fp(A)}`;
+  const up = { 1: { away: A, home: [] } };
+  const cancelled = (id, at) => run(id, at, { event: "workflow_dispatch", conclusion: "cancelled", updatedAt: at });
+  const one = decide({ nowIso: "2026-10-18T19:00:00Z", upstream: up, ledger: { dispatches: [{ at: "2026-10-18T18:20:00Z", sides: [key] }], alerted: [] }, refreshRuns: [cancelled(70, "2026-10-18T18:20:05Z")] });
+  assert.equal(one.decision, WAITER.DISPATCH);
+  assert.deepEqual(one.owed, [key]);
+  assert.ok(one.alerts.some((a) => a.key === `lost:${key}`));
+  assert.match(one.reasons.join(), /retrying/);
+  const two = decide({ nowIso: "2026-10-18T19:30:00Z", upstream: up, ledger: { dispatches: [{ at: "2026-10-18T18:20:00Z", sides: [key] }, { at: "2026-10-18T19:00:00Z", sides: [key] }], alerted: [`lost:${key}`] },
+    refreshRuns: [cancelled(70, "2026-10-18T18:20:05Z"), cancelled(71, "2026-10-18T19:00:05Z")] });
+  assert.notEqual(two.decision, WAITER.DISPATCH, "bounded: MAX_ATTEMPTS_PER_KEY");
+  assert.ok(two.alerts.some((a) => a.key === `retry-exhausted:${key}`));
+  assert.doesNotMatch(two.reasons.join(), /already in the committed simulation/, "the reason no longer claims main carries it");
+  // A cancelled dispatch followed by a SUCCESSFUL refresh (e.g. a cron that captured the same lineups) is landed, not lost.
+  const landed = decide({ nowIso: "2026-10-18T19:00:00Z", upstream: up, ledger: { dispatches: [{ at: "2026-10-18T18:20:00Z", sides: [key] }], alerted: [] },
+    refreshRuns: [cancelled(70, "2026-10-18T18:20:05Z"), run(72, "2026-10-18T18:30:00Z", { updatedAt: "2026-10-18T18:32:00Z" })] });
+  assert.notEqual(landed.decision, WAITER.DISPATCH);
+  assert.ok(landed.alerts.some((a) => a.key === `stalled:${key}`));
+});
+
+test("F6: an empty schedule while the board lists games WAITs (input failure); DONE once every board game is long started", () => {
+  const empty = decide({ games: [], upstream: {}, boardFirstPitch: { 1: "2026-10-18T21:08:00Z" } });
+  assert.equal(empty.decision, WAITER.WAIT);
+  assert.equal(empty.inputSuspect, true);
+  assert.equal(empty.waitSeconds, WAITER_LIMITS.EMPTY_SCHEDULE_RETRY_SECONDS);
+  assert.equal(decide({ nowIso: "2026-10-19T01:00:00Z", games: [], upstream: {}, boardFirstPitch: { 1: "2026-10-18T21:08:00Z" } }).decision, WAITER.DONE);
+  assert.equal(decide({ games: [], upstream: {}, boardFirstPitch: {} }).decision, WAITER.DONE, "no board games and no schedule games agree: empty slate");
+});
+
+test("F7: a TBD doubleheader game 2 past its board placeholder is FROZEN_BY_BOARD — no dispatch, one alert, no false stall", () => {
+  const g1 = game(1, "2026-10-18T17:05:00Z", { doubleHeader: "Y", awayTeamId: 5, homeTeamId: 6 });
+  const g2 = game(2, "2026-10-18T17:10:00Z", { doubleHeader: "Y", gameNumber: 2, startTimeTBD: true, awayTeamId: 5, homeTeamId: 6 });
+  const k2 = `2:away:${fp(C)}`;
+  const d = decide({ nowIso: "2026-10-18T19:00:00Z", games: [g1, g2], upstream: { 1: { away: A, home: B }, 2: { away: C, home: [] } },
+    boardFirstPitch: { 1: "2026-10-18T17:05:00Z", 2: "2026-10-18T17:10:00Z" }, ledger: { dispatches: [{ at: "2026-10-18T18:00:00Z", sides: [k2] }], alerted: [] },
+    refreshRuns: [run(5, "2026-10-18T18:00:05Z", { event: "workflow_dispatch", updatedAt: "2026-10-18T18:02:00Z" })] });
+  assert.equal(d.games.find((g) => g.gamePk === 2).state, "FROZEN_BY_BOARD");
+  assert.deepEqual(d.alerts.map((a) => a.key.split(":")[0]).filter((k) => k !== "started"), ["frozen"]);
+  assert.equal(d.next, WAITER.DONE, "nothing left a refresh could change");
+  // Before the board placeholder passes, game 2 is dispatchable — against the BOARD's clock (lead to 17:10).
+  const early = decide({ nowIso: "2026-10-18T16:30:00Z", games: [g1, g2], upstream: { 1: { away: [], home: [] }, 2: { away: C, home: [] } }, boardFirstPitch: { 1: "2026-10-18T17:05:00Z", 2: "2026-10-18T17:10:00Z" } });
+  assert.equal(early.decision, WAITER.DISPATCH);
+  assert.equal(early.games.find((g) => g.gamePk === 2).leadMin, 40);
+});
+
+test("F8: A → B → A is refreshed back to A — the dedupe is keyed to the committed state (ledger basis)", () => {
+  const kA = `1:away:${fp(A)}`, kB = `1:away:${fp(B)}`;
+  const up = { 1: { away: A, home: [] } };
+  const runs = [run(1, "2026-10-18T18:00:05Z", { event: "workflow_dispatch", updatedAt: "2026-10-18T18:02:00Z" })];
+  // basis says main had nothing when A was dispatched; main now carries B (a cron took B) → A is owed again.
+  const viaBasis = decide({ nowIso: "2026-10-18T19:30:00Z", upstream: up, committed: { 1: { away: side(B), home: side(null) } }, refreshRuns: runs,
+    ledger: { dispatches: [{ at: "2026-10-18T18:00:00Z", sides: [kA], basis: { [kA]: null } }], alerted: [] } });
+  assert.equal(viaBasis.decision, WAITER.DISPATCH);
+  assert.ok(!viaBasis.alerts.some((a) => a.key.startsWith("stalled:")), "no false stall alert");
+  // Main unchanged since the dispatch (basis still matches) → the refresh did not take it: stalled, never a loop.
+  const stalled = decide({ nowIso: "2026-10-18T19:30:00Z", upstream: up, refreshRuns: runs, ledger: { dispatches: [{ at: "2026-10-18T18:00:00Z", sides: [kA], basis: { [kA]: null } }], alerted: [] } });
+  assert.notEqual(stalled.decision, WAITER.DISPATCH);
+  assert.ok(stalled.alerts.some((a) => a.key === `stalled:${kA}`));
+  // A DISPATCH carries the basis the runner records.
+  assert.deepEqual(decide({ upstream: up, committed: { 1: { away: side(B), home: side(null) } } }).basis, { [kA]: fp(B) });
+  assert.ok(kB);
+});
+
+test("F9: the StatsAPI timeout covers the body read — a stalled body is rejected and retried within the cap", async () => {
+  let n = 0;
+  const api = createStatsApi({ timeoutMs: 30, fetchImpl: async () => { n++; return { ok: true, status: 200, json: () => (n === 1 ? new Promise(() => {}) : Promise.resolve({ dates: [] })) }; } });
+  assert.deepEqual(await api.schedule(DATE), { dates: [] });
+  assert.equal(api.calls, 2);
+});
+
+test("F10: dispatchWithRetry retries a failing gh, and never re-dispatches once the run list shows the dispatch was accepted", async () => {
+  let calls = 0;
+  const flaky = { dispatchRefresh: () => { calls++; if (calls < 2) throw new Error("HTTP 502"); }, refreshRuns: () => [] };
+  assert.deepEqual(await dispatchWithRetry(flaky, { sleep: async () => {} }), { dispatched: true });
+  assert.equal(calls, 2);
+  let sent = 0;
+  const lostResponse = { dispatchRefresh: () => { sent++; throw new Error("timeout"); }, refreshRuns: () => [{ event: "workflow_dispatch", createdAt: new Date(Date.now() + 1000).toISOString() }] };
+  assert.deepEqual(await dispatchWithRetry(lostResponse, { sleep: async () => {} }), { dispatched: true, inferred: true });
+  assert.equal(sent, 1, "accepted despite the error → no second dispatch");
+  const down = { dispatchRefresh: () => { throw new Error("down"); }, refreshRuns: () => { throw new Error("down"); } };
+  const r = await dispatchWithRetry(down, { sleep: async () => {}, attempts: 3 });
+  assert.equal(r.dispatched, false);
+  // `attempt` before, `dispatch` after: an attempt with no dispatch line is recovered as UNCONFIRMED — it blocks its
+  // key only once a refresh run appeared after it.
+  const k = `1:away:${fp(A)}`;
+  const att = `${LEDGER_MARK}${JSON.stringify({ kind: "attempt", at: "2026-10-18T17:30:00Z", fingerprint: "f", sides: [k] })}`;
+  const led = parseLedgerLines(att);
+  assert.equal(led.dispatches[0].unconfirmed, true);
+  assert.equal(decide({ upstream: { 1: { away: A, home: [] } }, ledger: led }).decision, WAITER.DISPATCH, "no run appeared → never accepted → dispatch");
+  assert.notEqual(decide({ upstream: { 1: { away: A, home: [] } }, ledger: led, refreshRuns: [{ databaseId: 3, createdAt: "2026-10-18T17:30:02Z", status: "in_progress", event: "workflow_dispatch" }] }).decision, WAITER.DISPATCH);
+  assert.equal(parseLedgerLines(`${att}\n${LEDGER_MARK}${JSON.stringify({ kind: "dispatch", at: "2026-10-18T17:30:01Z", fingerprint: "f", sides: [k] })}`).dispatches.length, 1, "a confirmed attempt is one dispatch");
+  const src = fs.readFileSync(path.join(REPO, "app/scripts/ops/mlb-lineup-waiter.mjs"), "utf8");
+  assert.match(src, /try \{\s*if \(a\.pull\) pull\(\);\s*again = await decideOnce\(/, "the pre-dispatch re-decide is inside a try");
+  assert.match(src, /const res = await dispatchWithRetry\(gh\);/, "the dispatch goes through the bounded retry");
+});
+
+test("F11: dry runs record no ledger; null createdAt never throws; the call-cap exit relays after a real watch", () => {
+  const out = [];
+  const orig = console.log;
+  console.log = (x) => out.push(String(x));
+  try {
+    emitAlert({ key: "t60:k", message: "m" }, { slateDate: DATE, dryRun: true, spawn: () => ({}) });
+    emitAlert({ key: "t60:live", message: "m" }, { slateDate: DATE, dryRun: false, spawn: () => ({}) });
+  } finally { console.log = orig; }
+  assert.deepEqual(parseLedgerLines(out.join("\n")).alerted, ["t60:live"], "only the live alert is remembered");
+  assert.deepEqual(parseLedgerLines(`${LEDGER_MARK}${JSON.stringify({ kind: "alert", key: "x", dryRun: true })}`).alerted, []);
+  assert.doesNotThrow(() => decide({ upstream: { 1: { away: A, home: [] } }, refreshRuns: [{ databaseId: 9, status: "completed", conclusion: "failure", event: "workflow_dispatch", createdAt: null }], ledger: { dispatches: [{ at: null, sides: ["1:away:x"] }, { at: "garbage", sides: ["1:away:y"] }], alerted: [] } }));
+  const spaced = decide({ upstream: { 1: { away: A, home: [] } }, refreshRuns: [{ databaseId: 9, status: "completed", conclusion: "success", event: "workflow_dispatch", createdAt: "bad" }, run(5, "2026-10-18T17:50:00Z", { event: "workflow_dispatch", updatedAt: "2026-10-18T17:52:00Z" })] });
+  assert.equal(spaced.decision, WAITER.WAIT, "an invalid timestamp never turns the spacing into NaN (and so into 'no spacing')");
+  assert.ok(CAP_RELAY_MIN_ELAPSED_MIN >= 15);
+  const src = fs.readFileSync(path.join(REPO, "app/scripts/ops/mlb-lineup-waiter.mjs"), "utf8");
+  assert.match(src, /stop === "CAP" && elapsedMin\(\) >= CAP_RELAY_MIN_ELAPSED_MIN\) relay\(/);
 });
