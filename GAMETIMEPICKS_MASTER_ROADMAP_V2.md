@@ -193,6 +193,8 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 - #1126 `cd8465a2e1`: `/results/mlb/` Void rows were shown as Push. Display only.
 - #1127 `58acd1cbac`: a settled NFL game was shown as "Follow live" on `/nfl`, and the Home MLB card said "today's slate" for yesterday's slate. Display only.
 - #1128 `bec2cd28aa`: Ask's EPL (and UFC) record now comes from the same ledger population as `/results`, so the two can no longer split after a late grade (D-1). It also fixes Ask's recent-feed totals, which were capped at 60. Main CI post-build parity is green.
+- #1129 (test-only): the MLB contradiction guards were latently red on postseason data; the sample now extends until the defect is present. Merging when the data writers are idle.
+- #1130 **DRAFT**: eligible-operator allowlist (offshore prices); awaiting founder review (see SB-01).
 
 The audit's remaining items:
 - The void *reason* on postponed 10-16 rows reads "DNP/0-AB": a data/producer follow-up.
@@ -415,6 +417,10 @@ Superseded in status by the 2026-10-18 entry above. Theater V2 corrects the v0 s
 **Effort totals (estimates, SB §5–6):** SB-01 → SB-05 ≈ 16.5–34 engineering days (0.5–1 + 2–4 + 4–10 + 3–5 + 5–10 + 2–4), excluding counsel time, contracts and SB-06. Counsel cost is UNVERIFIED (no quote obtained).
 
 ### SB-01 — Sportsbook data foundation · PLANNED
+- **2026-10-18 finding, URGENT, needs a founder decision:** Production `/mlb` **displays** offshore prices (BetOnline.ag: 21 of 126 props on 10-18; 11.6% of MLB props this season). The cause is best-price selection across the provider's `us` region. NFL display rows can name an offshore book, and the NFL/EPL/UFC no-vig consensus includes offshore books.
+  - **Fix prepared as DRAFT PR #1130:** allowlist, forward-only selection (M-2) and render-time filter (M-1). Fail-closed; historical data byte-identical; 0 offshore names in the built site.
+  - **Not merged:** it needs founder review. Consensus inputs (M-3/M-4) are a separate decision.
+  - Evidence: `docs/research/SMART_BETSLIP_PREP_AND_OPERATOR_POLICY_2026-10-18.md`.
 - **Scope:**
   - Audit the provider, the books and the event, market and player identity GTP holds. GTP stores no book-side identity today: published ladder legs drop the bookmaker (`app/scripts/parlays/build-risk-ladder.mjs:344-350`), the reader's slip is keyed by player name (`app/src/lib/slip/leg-identity.ts:10,22-43`), and capture never requests `includeLinks`/`includeSids`.
   - A licensed-operator allowlist (new `app/src/lib/books/licensed-books.mjs`, folding in the labels from `app/src/lib/sportsbook-comparison.ts`; `espnbet` displays as theScore Bet) and jurisdiction-aware eligibility (GTP has no geo detection today, SB §10 Q6).
