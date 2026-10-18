@@ -7,6 +7,7 @@ import path from "node:path";
 import type { BoardProp } from "@/components/mlb/props-board";
 import type { SwapCandidate } from "@/lib/parlays/leg-swap";
 import { mlbHeadshotUrl, mlbPersonIdFromHeadshotUrl } from "@/lib/player-headshots";
+import { isEligibleProvider } from "@/lib/sports/odds/eligible-operators.mjs";
 
 /**
  * A board row as a substitution-bench candidate — the ONE mapping /mlb and /build hand the risk ladder (a client
@@ -103,7 +104,12 @@ export function loadMlbPropsBoard(root: string, date: string): BoardProp[] {
         homeAway: p.homeAway ?? id?.homeAway ?? null,
       };
     })(),
-  })).filter((p) => p.player && Number.isFinite(p.americanOdds) && p.americanOdds !== 0);
+  })).filter((p) => p.player && Number.isFinite(p.americanOdds) && p.americanOdds !== 0)
+    /* ⚠ ELIGIBLE OPERATORS ONLY (2026-10-18). Boards captured before the ingest fix carry best-of-`us`-region
+       prices, some from offshore books (BetOnline.ag on 10-18: 21 of 126). Such a row is NOT shown — it is
+       never re-priced from another book, and the artifact itself is untouched. Also drops it from the swap
+       pool, which is built from these rows. */
+    .filter((p) => isEligibleProvider(p.provider));
 
   // Cap the board payload: top N per market group by market-implied probability, so the page stays
   // light (the full artifact remains for server-side generation/settlement). Keeps group diversity.
