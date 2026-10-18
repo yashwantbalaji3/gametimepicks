@@ -158,3 +158,54 @@ The canonical `GAMETIMEPICKS_MASTER_ROADMAP_V2.md` lives on the **#1116 docs bra
 - The run behaved exactly like a scheduled settle.
 
 **Session hygiene:** a stray self-referencing `app/node_modules/node_modules` symlink, created by this session at 12:09Z, caused one false local test failure. It was found and removed.
+
+## Simulation Theater V2: ST-02 prototype status (10-18 about 14:55Z)
+**Founder decisions (10-18):**
+- D1 approved with conditions; the P242 exception rationale is in the roadmap.
+- D2: local dev route.
+- D3: colour map, neutral until validated.
+- D4–D7 accepted.
+- D8 deferred.
+
+**Code:** branch `claude/sim-theater-st02-prototype` (`92de1cbf2d`, `cf355a8850`, `22019f96f3`), pushed with **no PR**. It is not deployed. The route `/dev/simulation-theater/[eventId]/` emits pages only with `GTP_DEV_ROUTES=1`, and the prune deletes `out/dev/` otherwise.
+
+**Implemented:**
+- Library:
+  - receipt adapter with an engine-identity check (rejects WM2);
+  - validation rules 1–8;
+  - timeline compiler with clock-derived quarters, rollover markers and period-aware END labels;
+  - pure `stateAt`;
+  - transport machine (no autoplay);
+  - throttled announcer;
+  - 32-team colour map (`TEAM_COLORS_VALIDATED=false`).
+- UI:
+  - server shell, complete without JavaScript;
+  - lazy island;
+  - broadcast-style score bug with a possession ball and SIM CLOCK marked illustrative;
+  - SVG field: procedural turf, yard lines and numbers, neutral end zones, drive ribbon, start ring, ball, possession chevron, score flash;
+  - drive timeline (roving tabindex; score, turnover and end markers; rollover ticks);
+  - transport: Play/Pause, previous/next drive, restart, 1/2/4×, seek;
+  - five-sample selector with merged chips;
+  - Drive, Distribution and Evidence panel;
+  - linescore and full transcript;
+  - persistent disclosure.
+
+**Data:** existing `nfl-drive-sim-v2` receipts only, read at build time. No writes.
+
+**Tests:**
+- 32 new tests pass: 170 receipts and 850 runs validate; determinism; the spec's boundary cases.
+- Typecheck clean.
+- Unit failures: route-inventory artifact regeneration (needs a data write at merge time) and the main-wide contradiction guard (#1129).
+
+**Browser-verified locally** (export served on :4179):
+- **1440 px:** playback runs; score and clock advance; the ribbon and ball move; the linescore matches the receipt (WSH 21–29 SF); 0 console errors.
+- **375 and 320 px:** no horizontal overflow; field 264×138 at 320; transport targets ≥44 px; sticky score bug; readable Drive panel.
+
+**Known gaps:**
+- The ball marker is small at desktop.
+- At 320 px the disclosure banner drops the word "movement". The disclosure must stay exact; this is a fix-next item.
+- 7 team accent colours fall below 3:1 on turf (D3 validation).
+- The page weighs about 255 KB of HTML against the spec's ≤20 KB of inline sample data.
+- Per-frame React re-render instead of direct attribute writes.
+- No mobile bottom sheets.
+- No Playwright, axe or bundle measurements yet.
