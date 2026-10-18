@@ -98,7 +98,7 @@ export const RUNOFF_NOTE_TEXT = "Engine ran out the half on this drive (clock us
 /** Persistent labels (spec §1.3). One source so the SSR shell, island and transcript cannot drift. */
 export const LABELS = Object.freeze({
   badge: "SIMULATED · drive-level · movement illustrative · experimental model",
-  badgeShort: "SIMULATED · drive-level · illustrative · experimental",
+  // No abbreviated badge (founder review, iteration 2): the badge wraps at narrow widths, it is never shortened.
   sample: "REPRESENTATIVE SIMULATED GAME — not the forecast",
   transitionCard: "Change of possession · kick/return not modelled",
   clockIllustrative: "Clock illustrative between recorded drive start and end",
