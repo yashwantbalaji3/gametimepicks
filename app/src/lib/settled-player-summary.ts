@@ -21,7 +21,7 @@
  *     then alphabetically. Featured-star handling stays opt-in.
  */
 import type { SettledLean } from "./settlement-data";
-import { isDecisive, normalizeResult, type ResultKind } from "./result-icons";
+import { isDecisive, isVoidResult, normalizeResult, type ResultKind } from "./result-icons";
 
 export interface PlayerResultSummary {
   /** Display key — usually the player's name. */
@@ -35,6 +35,8 @@ export interface PlayerResultSummary {
   wins: number;
   losses: number;
   pushes: number;
+  /** Settled-but-ungraded rows (MLB "void"). Counted apart: never push, pending, win or loss. */
+  voids: number;
   pending: number;
   decisive: number;
   hitRate: number | null;
@@ -74,6 +76,7 @@ export function summarizePlayerResults(
   let wins = 0;
   let losses = 0;
   let pushes = 0;
+  let voids = 0;
   let pending = 0;
   // Pick a representative team (most-frequent), playerId (first),
   // gameId (latest by date).
@@ -85,7 +88,8 @@ export function summarizePlayerResults(
     ?? "—") as string;
   for (const r of rows) {
     const k = normalizeResult(r.result);
-    if (k === "win") wins += 1;
+    if (isVoidResult(r.result)) voids += 1; // before normalizeResult's "void" → "pending"
+    else if (k === "win") wins += 1;
     else if (k === "loss") losses += 1;
     else if (k === "push") pushes += 1;
     else pending += 1;
@@ -119,6 +123,7 @@ export function summarizePlayerResults(
     wins,
     losses,
     pushes,
+    voids,
     pending,
     decisive,
     hitRate,

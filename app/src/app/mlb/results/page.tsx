@@ -7,6 +7,10 @@ import {
 } from "@/lib/data-mlb-results";
 import { getLifetimeSummary } from "@/lib/settlement-data";
 import { mlbMarketLabel } from "@/lib/format-mlb";
+import {
+  mlbOutcomeToSettledResult,
+  tallyMlbOutcomes,
+} from "@/lib/mlb-settled-outcome";
 import ResultsSportTabs from "@/components/results-sport-tabs";
 import MlbResultsSummary from "@/components/mlb/mlb-results-summary";
 import MlbResultsBreakdown from "@/components/mlb/mlb-results-breakdown";
@@ -169,12 +173,8 @@ export default function MlbResultsPage() {
           edgePct: r.edgePct,
           confidence: r.confidence,
           finalStat: r.actual,
-          result:
-            r.outcome === "Win"
-              ? "win"
-              : r.outcome === "Loss"
-                ? "loss"
-                : "push",
+          // ⚠ Void maps to "void", not "push" (lib/mlb-settled-outcome.ts).
+          result: mlbOutcomeToSettledResult(r.outcome),
         }));
         const matchupLabels: Record<string, string | null> = {};
         for (const r of settledRows) {
@@ -260,9 +260,7 @@ export default function MlbResultsPage() {
               });
               return sortedGamePks.map((gpk) => {
                 const rows = byGame.get(gpk) || [];
-                const wins = rows.filter((r) => r.outcome === "Win").length;
-                const losses = rows.filter((r) => r.outcome === "Loss").length;
-                const pushes = rows.filter((r) => r.outcome === "Push").length;
+                const { wins, losses, pushes, voids } = tallyMlbOutcomes(rows);
                 const decisive = wins + losses;
                 const hitRate = decisive > 0 ? wins / decisive : null;
                 const reportBucket = report.byGame[String(gpk)];
@@ -290,6 +288,7 @@ export default function MlbResultsPage() {
                     wins={wins}
                     losses={losses}
                     pushes={pushes}
+                    voids={voids}
                     decisive={decisive}
                     hitRate={hitRate}
                     rows={detailRows}

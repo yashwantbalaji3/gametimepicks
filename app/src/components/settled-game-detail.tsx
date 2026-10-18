@@ -2,7 +2,7 @@
  * SettledGameDetail — sport-agnostic expandable per-game audit card.
  *
  * Renders a collapsed `<details>` card with the game's matchup, W/L/P,
- * decisive count, and hit-rate chip. Expanding it reveals a per-row
+ * decisive count, void count (when any), and hit-rate chip. Expanding it reveals a per-row
  * audit table: player · market · lean · line · projection · actual ·
  * outcome · confidence · edge · book.
  *
@@ -24,7 +24,8 @@ export interface SettledLeanRow {
   line: number | null;
   projection: number | null;
   actual: number | null;
-  outcome: "Win" | "Loss" | "Push" | "—";
+  /** "Void" is its own state (an ungraded row: DNP / 0-AB / postponed), never shown as Push. */
+  outcome: "Win" | "Loss" | "Push" | "Void" | "—";
   confidence: string;  // "High" / "Medium" / "Low" / "insufficient_data" / etc.
   edgePct: number | null;
   bookmaker?: string | null;
@@ -37,6 +38,8 @@ interface Props {
   wins: number;
   losses: number;
   pushes: number;
+  /** Ungraded rows, counted apart from pushes; optional so sports without voids pass nothing. */
+  voids?: number;
   decisive: number;
   hitRate: number | null;
   rows: SettledLeanRow[];
@@ -64,7 +67,7 @@ function fmtOdds(n: number | null | undefined): string {
   return v > 0 ? `+${v}` : `${v}`;
 }
 
-/** Outcome colour class (globals.css, "Settled game detail"): Win success, Loss warn, Push mute, else faint. */
+/** Outcome colour class (globals.css, "Settled game detail"): Win success, Loss warn, Push / Void mute, else faint. */
 function outcomeClass(o: SettledLeanRow["outcome"]): string {
   switch (o) {
     case "Win":
@@ -73,6 +76,8 @@ function outcomeClass(o: SettledLeanRow["outcome"]): string {
       return "sgd-loss";
     case "Push":
       return "sgd-push";
+    case "Void":
+      return "sgd-void";
     default:
       return "sgd-other";
   }
@@ -84,6 +89,7 @@ export default function SettledGameDetail({
   wins,
   losses,
   pushes,
+  voids = 0,
   decisive,
   hitRate,
   rows,
@@ -146,6 +152,11 @@ export default function SettledGameDetail({
           <span style={{ color: "var(--vault-text-faint)" }}>
             {decisive} dec
           </span>
+          {voids > 0 && (
+            <span style={{ color: "var(--vault-text-faint)" }}>
+              {voids} void
+            </span>
+          )}
           <span
             className="font-display font-semibold"
             style={{

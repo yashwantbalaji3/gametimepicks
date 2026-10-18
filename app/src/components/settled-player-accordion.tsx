@@ -4,7 +4,7 @@
  *
  * Header (always visible):
  *   - PlayerAvatar + TeamLogo + player name + team
- *   - Compact result chip strip: ✅ wins · ❌ losses · — pending
+ *   - Compact result chip strip: ✅ wins · ❌ losses · ∅ voids · — pending
  *   - Hit-rate chip when decisive > 0 (faint when small sample)
  *   - Chevron
  *
@@ -23,7 +23,12 @@
  */
 import type { ReactNode } from "react";
 import type { SettledLean } from "@/lib/settlement-data";
-import { getResultIcon, normalizeResult } from "@/lib/result-icons";
+import {
+  getResultIcon,
+  getSettledLeanResultIcon,
+  normalizeResult,
+  VOID_RESULT_META,
+} from "@/lib/result-icons";
 import {
   dedupeSettledPicksByMarket,
   type PlayerResultSummary,
@@ -76,7 +81,7 @@ export default function SettledPlayerAccordion({
       <summary
         className="list-none cursor-pointer flex items-center gap-3 px-3 sm:px-4 py-2.5"
         style={{ borderRadius: 6 }}
-        aria-label={`${player.player} audit — ${player.wins} hit, ${player.losses} miss, ${player.pending} pending`}
+        aria-label={`${player.player} audit — ${player.wins} hit, ${player.losses} miss${player.voids > 0 ? `, ${player.voids} void` : ""}, ${player.pending} pending`}
       >
         <PlayerPortrait
           playerId={player.playerId}
@@ -117,6 +122,7 @@ export default function SettledPlayerAccordion({
           losses={player.losses}
           pending={player.pending}
           pushes={player.pushes}
+          voids={player.voids}
         />
         <span
           className="font-display font-semibold tabular shrink-0"
@@ -156,11 +162,13 @@ function ResultChipStrip({
   losses,
   pending,
   pushes,
+  voids,
 }: {
   wins: number;
   losses: number;
   pending: number;
   pushes: number;
+  voids: number;
 }) {
   return (
     <div
@@ -185,6 +193,14 @@ function ResultChipStrip({
           count={pushes}
           tone={getResultIcon("push").tone}
           ariaLabel={`${pushes} push`}
+        />
+      )}
+      {voids > 0 && (
+        <Chip
+          icon={VOID_RESULT_META.icon}
+          count={voids}
+          tone={VOID_RESULT_META.tone}
+          ariaLabel={`${voids} void`}
         />
       )}
       {pending > 0 && (
@@ -293,7 +309,7 @@ function MarketGroup({
 }
 
 function PickRow({ group }: { group: SettledPickGroup }) {
-  const meta = getResultIcon(group.result);
+  const meta = getSettledLeanResultIcon(group.result);
   const kind = normalizeResult(group.result);
   return (
     <div

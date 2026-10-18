@@ -24,7 +24,13 @@ export interface MlbSettledLean {
   projection: number | null;
   edgePct: number | null;
   actual: number;
-  outcome: "Win" | "Loss" | "Push";
+  /**
+   * ⚠ "Void" IS WRITTEN BY THE PRODUCER AND WAS MISSING FROM THIS TYPE (3,236 rows of
+   * settled_leans.jsonl on 2026-10-18; every row of a postponed game, every DNP / 0-AB).
+   * With it undeclared, `/results/mlb` mapped it to "push". Void is its own state: never
+   * a push, win or loss. See lib/mlb-settled-outcome.ts.
+   */
+  outcome: "Win" | "Loss" | "Push" | "Void";
 }
 
 export interface MlbBucket {

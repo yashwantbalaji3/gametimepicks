@@ -105,6 +105,29 @@ export function normalizeResult(raw: unknown): ResultKind {
   return "unknown";
 }
 
+/**
+ * ⚠ A SETTLED LEAN'S "void" IS NOT "pending". normalizeResult keeps "void" → "pending" because
+ * parlay slips and legs use it that way, and changing it would move every parlay page. A settled
+ * MLB lean marked void (DNP / 0-AB / postponed game) is final and ungraded: it gets its own label,
+ * its own count, and is never a push, win or loss. Only the settled-lean surfaces read this.
+ */
+export const VOID_RESULT_META: ResultIconMeta = {
+  icon: "∅",
+  label: "Void",
+  ariaLabel: "Void — not graded, excluded from the record and hit rate",
+  tone: "var(--vault-text-mute)",
+};
+
+/** True only for a settled lean's "void" result (any casing). */
+export function isVoidResult(raw: unknown): boolean {
+  return typeof raw === "string" && raw.trim().toLowerCase() === "void";
+}
+
+/** Icon metadata for a settled lean: Void gets its own meta, everything else as getResultIcon. */
+export function getSettledLeanResultIcon(raw: unknown): ResultIconMeta {
+  return isVoidResult(raw) ? VOID_RESULT_META : getResultIcon(raw);
+}
+
 /** Get the icon metadata for any raw result. */
 export function getResultIcon(raw: unknown): ResultIconMeta {
   return REGISTRY[normalizeResult(raw)];
