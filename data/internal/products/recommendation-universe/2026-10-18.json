@@ -1,0 +1,847 @@
+{
+ "schema": "recommendation-universe@1",
+ "artifact": "recommendation-universe",
+ "dataClass": "internal",
+ "date": "2026-10-18",
+ "asOf": "2026-10-18T09:37:33Z",
+ "floor": {
+  "version": "leg-floor@2",
+  "oddsMin": -650,
+  "oddsMax": 400,
+  "maxPriceAgeMs": 43200000,
+  "activationCutoffMs": 1800000,
+  "requireSettlement": "PROVEN",
+  "admitsMarketImplied": true,
+  "marketPricedLegPolicy": {
+   "state": "ADMITTED_PENDING_FOUNDER_DECISION",
+   "gate": "F1",
+   "since": "2026-09-21"
+  }
+ },
+ "note": "Every candidate leg judged by one floor. Zero eligible is a result, not a failure. Probabilities: MODEL = a GameTimePicks model number (usable only when MODEL_PUBLISHED); MARKET_IMPLIED = the book's de-vigged price, never ours.",
+ "counts": {
+  "candidates": 766,
+  "eligible": 6,
+  "universeHash": "26cb04e87b34"
+ },
+ "bySport": {
+  "mlb": {
+   "registryState": "FULL_MODEL",
+   "candidates": 44,
+   "eligible": 6,
+   "events": 2,
+   "exclusions": {
+    "AVAILABILITY_BLOCKED": 38,
+    "MARKET_MISSING": 38,
+    "MODEL_DEMOTED": 38
+   }
+  },
+  "nfl": {
+   "registryState": "EXPERIMENTAL_PUBLIC",
+   "candidates": 694,
+   "eligible": 0,
+   "events": 12,
+   "exclusions": {
+    "MARKET_MISSING": 694,
+    "SPORT_GATED": 694,
+    "ROLE_UNCERTAIN": 620,
+    "NO_PROBABILITY": 436,
+    "FAMILY_NOT_CLEARED": 106,
+    "AVAILABILITY_BLOCKED": 50,
+    "MODEL_NOT_PUBLIC": 24
+   }
+  },
+  "epl": {
+   "registryState": "EXPERIMENTAL_PUBLIC",
+   "candidates": 28,
+   "eligible": 0,
+   "events": 4,
+   "exclusions": {
+    "SPORT_GATED": 28,
+    "MODEL_NOT_PUBLIC": 22,
+    "ODDS_OUT_OF_RANGE": 2,
+    "MARKET_MISSING": 1
+   }
+  },
+  "ufc": {
+   "registryState": "SCAFFOLD_ONLY",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  },
+  "nba": {
+   "registryState": "HISTORICAL_ONLY",
+   "candidates": 0,
+   "eligible": 0,
+   "events": 0,
+   "exclusions": {}
+  }
+ },
+ "coverage": [
+  {
+   "sport": "epl",
+   "family": "team_result",
+   "candidates": 12,
+   "gtpProbabilityAny": 12,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 11,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "epl",
+   "family": "team_total",
+   "candidates": 16,
+   "gtpProbabilityAny": 10,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 6,
+   "noProbability": 0,
+   "priced": 16,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "mlb",
+   "family": "batter_hits",
+   "candidates": 16,
+   "gtpProbabilityAny": 16,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 16,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "batter_hits_runs_rbis",
+   "candidates": 17,
+   "gtpProbabilityAny": 17,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 17,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "batter_total_bases",
+   "candidates": 3,
+   "gtpProbabilityAny": 3,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 3,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "pitcher_strikeouts",
+   "candidates": 2,
+   "gtpProbabilityAny": 2,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 2,
+   "eligible": 0,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "team_result",
+   "candidates": 2,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 2,
+   "noProbability": 0,
+   "priced": 2,
+   "eligible": 2,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "team_spread",
+   "candidates": 2,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 2,
+   "noProbability": 0,
+   "priced": 2,
+   "eligible": 2,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "mlb",
+   "family": "team_total",
+   "candidates": 2,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 2,
+   "noProbability": 0,
+   "priced": 2,
+   "eligible": 2,
+   "sportState": "FULL_MODEL"
+  },
+  {
+   "sport": "nfl",
+   "family": "anytime_td",
+   "candidates": 234,
+   "gtpProbabilityAny": 234,
+   "gtpProbabilityUsable": 234,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_pass_yds",
+   "candidates": 21,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 21,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_reception_yds",
+   "candidates": 160,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 160,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_receptions",
+   "candidates": 170,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 170,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "player_rush_yds",
+   "candidates": 85,
+   "gtpProbabilityAny": 0,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 85,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "sport": "nfl",
+   "family": "team_result",
+   "candidates": 24,
+   "gtpProbabilityAny": 24,
+   "gtpProbabilityUsable": 0,
+   "marketOnly": 0,
+   "noProbability": 0,
+   "priced": 0,
+   "eligible": 0,
+   "sportState": "EXPERIMENTAL_PUBLIC"
+  }
+ ],
+ "exclusions": {
+  "MARKET_MISSING": 733,
+  "SPORT_GATED": 722,
+  "ROLE_UNCERTAIN": 620,
+  "NO_PROBABILITY": 436,
+  "FAMILY_NOT_CLEARED": 106,
+  "AVAILABILITY_BLOCKED": 88,
+  "MODEL_NOT_PUBLIC": 46,
+  "MODEL_DEMOTED": 38,
+  "ODDS_OUT_OF_RANGE": 2
+ },
+ "nflUnknownFamilies": [],
+ "grantedFamilies": [],
+ "nflFamilyGate": [
+  {
+   "sport": "nfl",
+   "family": "anytime_td",
+   "modelVersion": "nfl-anytime-td-opportunity-v1",
+   "publicationState": "PUBLISHED",
+   "state": "GATED",
+   "blockers": [
+    "MODEL_FORWARD_ACCUMULATING",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "PRICES_NOT_CAPTURED",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": {
+     "state": "FORWARD_HOLDING",
+     "n": 1018,
+     "needed": null,
+     "metrics": {
+      "n": 1018,
+      "logLoss": 0.4956,
+      "constantRateLogLoss": 0.5294,
+      "meanPredicted": 0.2344,
+      "actualRate": 0.222,
+      "level": 1.056,
+      "ece": 0.0273
+     }
+    },
+    "slate": {
+     "candidates": 234,
+     "modelProbability": 234,
+     "roleConfirmed": 0,
+     "priced": 0,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_pass_yds",
+   "modelVersion": "nfl-player-share-level-v1",
+   "publicationState": "ESTIMATE_BELOW_BAR",
+   "state": "GATED",
+   "blockers": [
+    "FAMILY_NOT_PUBLISHED",
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_ACCUMULATING",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "PRICES_NOT_CAPTURED",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": {
+     "state": "ACCUMULATING",
+     "n": 129,
+     "needed": 300,
+     "metrics": {
+      "n": 129,
+      "mae": 67.0951,
+      "rolling4Mae": 68.8973,
+      "shareVolMae": 72.6004,
+      "coverage80": 0.8295,
+      "ece": 0.098,
+      "level": 0.9899
+     }
+    },
+    "slate": {
+     "candidates": 21,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 0,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_reception_yds",
+   "modelVersion": "props-v1",
+   "publicationState": "PUBLISHED",
+   "state": "GATED",
+   "blockers": [
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_UNREGISTERED",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "PRICES_NOT_CAPTURED",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": null,
+    "slate": {
+     "candidates": 160,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 0,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_receptions",
+   "modelVersion": "nfl-player-share-level-v1",
+   "publicationState": "PUBLISHED",
+   "state": "GATED",
+   "blockers": [
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_ACCUMULATING",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "PRICES_NOT_CAPTURED",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": {
+     "state": "FORWARD_HOLDING",
+     "n": 769,
+     "needed": null,
+     "metrics": {
+      "n": 769,
+      "mae": 1.6242,
+      "rolling4Mae": 1.7169,
+      "shareVolMae": 1.6314,
+      "coverage80": 0.7861,
+      "ece": 0.0262,
+      "level": 1.0463
+     }
+    },
+    "slate": {
+     "candidates": 170,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 0,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  },
+  {
+   "sport": "nfl",
+   "family": "player_rush_yds",
+   "modelVersion": null,
+   "publicationState": "ESTIMATE_NEAR_BAR",
+   "state": "GATED",
+   "blockers": [
+    "FAMILY_NOT_PUBLISHED",
+    "NO_MODEL_PROBABILITY",
+    "MODEL_FORWARD_UNREGISTERED",
+    "ROLE_CONFIRMATION_UNAVAILABLE",
+    "PRICES_NOT_CAPTURED",
+    "NO_FOUNDER_GRANT"
+   ],
+   "evidence": {
+    "forward": null,
+    "slate": {
+     "candidates": 85,
+     "modelProbability": 0,
+     "roleConfirmed": 0,
+     "priced": 0,
+     "settlementProven": true
+    }
+   },
+   "grant": null
+  }
+ ],
+ "eligibleReceipts": [
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849817:mlb_moneyline:-:home:",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849817",
+    "eventStartUtc": "2026-10-18T21:08:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-114",
+    "opponentId": "mlb-team-139",
+    "matchup": "Tampa Bay Rays @ Cleveland Guardians"
+   },
+   "market": {
+    "family": "team_result",
+    "marketKey": "mlb_moneyline",
+    "side": "home",
+    "line": null,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": 113,
+    "marketCapturedAt": "2026-10-18T09:30:13.567Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.4489,
+    "selectionLabel": "Cleveland Guardians to win"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-18T09:30:13.567Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-18.json",
+     "mlb/statsapi-schedule/2026-10-18.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849817",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849817",
+     "family:team_result",
+     "team:mlb:mlb-team-114",
+     "opponent:mlb:mlb-team-139"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849817:mlb_moneyline:-:away:",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849817",
+    "eventStartUtc": "2026-10-18T21:08:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-139",
+    "opponentId": "mlb-team-114",
+    "matchup": "Tampa Bay Rays @ Cleveland Guardians"
+   },
+   "market": {
+    "family": "team_result",
+    "marketKey": "mlb_moneyline",
+    "side": "away",
+    "line": null,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -136,
+    "marketCapturedAt": "2026-10-18T09:30:13.567Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.5511,
+    "selectionLabel": "Tampa Bay Rays to win"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-18T09:30:13.567Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-18.json",
+     "mlb/statsapi-schedule/2026-10-18.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849817",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849817",
+     "family:team_result",
+     "team:mlb:mlb-team-139",
+     "opponent:mlb:mlb-team-114"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849817:mlb_run_line:-:home:1.5",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849817",
+    "eventStartUtc": "2026-10-18T21:08:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-114",
+    "opponentId": "mlb-team-139",
+    "matchup": "Tampa Bay Rays @ Cleveland Guardians"
+   },
+   "market": {
+    "family": "team_spread",
+    "marketKey": "mlb_run_line",
+    "side": "home",
+    "line": 1.5,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -168,
+    "marketCapturedAt": "2026-10-18T09:30:13.567Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.5987,
+    "selectionLabel": "Cleveland Guardians +1.5"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-18T09:30:13.567Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-18.json",
+     "mlb/statsapi-schedule/2026-10-18.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849817",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849817",
+     "family:team_spread",
+     "team:mlb:mlb-team-114",
+     "opponent:mlb:mlb-team-139"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849817:mlb_run_line:-:away:-1.5",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849817",
+    "eventStartUtc": "2026-10-18T21:08:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-139",
+    "opponentId": "mlb-team-114",
+    "matchup": "Tampa Bay Rays @ Cleveland Guardians"
+   },
+   "market": {
+    "family": "team_spread",
+    "marketKey": "mlb_run_line",
+    "side": "away",
+    "line": -1.5,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": 138,
+    "marketCapturedAt": "2026-10-18T09:30:13.567Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.4013,
+    "selectionLabel": "Tampa Bay Rays -1.5"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-18T09:30:13.567Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-18.json",
+     "mlb/statsapi-schedule/2026-10-18.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849817",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849817",
+     "family:team_spread",
+     "team:mlb:mlb-team-139",
+     "opponent:mlb:mlb-team-114"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849817:mlb_total_runs:-:over:6.5",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849817",
+    "eventStartUtc": "2026-10-18T21:08:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-114",
+    "opponentId": "mlb-team-139",
+    "matchup": "Tampa Bay Rays @ Cleveland Guardians"
+   },
+   "market": {
+    "family": "team_total",
+    "marketKey": "mlb_total_runs",
+    "side": "over",
+    "line": 6.5,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -102,
+    "marketCapturedAt": "2026-10-18T09:30:13.567Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.4826,
+    "selectionLabel": "Over 6.5"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-18T09:30:13.567Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-18.json",
+     "mlb/statsapi-schedule/2026-10-18.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849817",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849817",
+     "family:team_total",
+     "team:mlb:mlb-team-114",
+     "opponent:mlb:mlb-team-139"
+    ]
+   }
+  },
+  {
+   "schema": "recommendation-receipt@2",
+   "receiptId": "mlb:849817:mlb_total_runs:-:under:6.5",
+   "legClass": "TEAM",
+   "identity": {
+    "sport": "mlb",
+    "eventId": "849817",
+    "eventStartUtc": "2026-10-18T21:08:00Z",
+    "participantId": null,
+    "participantDisplay": null,
+    "teamId": "mlb-team-114",
+    "opponentId": "mlb-team-139",
+    "matchup": "Tampa Bay Rays @ Cleveland Guardians"
+   },
+   "market": {
+    "family": "team_total",
+    "marketKey": "mlb_total_runs",
+    "side": "under",
+    "line": 6.5,
+    "binary": false,
+    "sportsbook": "draftkings",
+    "price": -118,
+    "marketCapturedAt": "2026-10-18T09:30:13.567Z",
+    "marketReceiptId": "docs/MLB_DAILY_PIPELINE.md",
+    "marketImpliedProbability": 0.5174,
+    "selectionLabel": "Under 6.5"
+   },
+   "forecast": {
+    "forecastOwner": "mlb/team-markets",
+    "forecastId": null,
+    "modelVersion": null,
+    "projection": null,
+    "probabilityKind": "MARKET_IMPLIED",
+    "probabilityDetail": "MARKET_IMPLIED",
+    "probability": null,
+    "unusableModelProbability": null,
+    "confidence": null,
+    "modelStatus": "MARKET_CONTEXT",
+    "publicationStatus": "MARKET_CONTEXT",
+    "generatedAt": "2026-10-18T09:30:13.567Z",
+    "frozenAt": null
+   },
+   "context": {
+    "availabilityState": null,
+    "roleState": null,
+    "rosterTeam": null,
+    "familyValidationState": null,
+    "settlementSupport": "PROVEN",
+    "withheldReason": null,
+    "sourceRefs": [
+     "mlb/team-markets/2026-10-18.json",
+     "mlb/statsapi-schedule/2026-10-18.json"
+    ]
+   },
+   "evaluation": {
+    "eligible": true,
+    "exclusionCodes": [],
+    "correlationGroup": "event:mlb:849817",
+    "correlationTags": [
+     "sport:mlb",
+     "event:mlb:849817",
+     "family:team_total",
+     "team:mlb:mlb-team-114",
+     "opponent:mlb:mlb-team-139"
+    ]
+   }
+  }
+ ]
+}
