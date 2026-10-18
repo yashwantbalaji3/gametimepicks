@@ -159,3 +159,72 @@ The adversarial file is saved outside the worktree at `scratchpad/mlb-lineup-wai
 4. There is no data cleanup: every commit is an ordinary refresh commit.
 
 **Window note.** The postseason ends in early November, so the observable benefit window is about two weeks. F5 to F11 and the founder questions (regular-season cap, call budget) must close before Opening Day 2027.
+
+## Re-verification at 82f4a72999 (2026-10-18)
+
+- **Head:** `82f4a72999131327498b612c40ce63f256e13819` (draft; +779/−96 over `07abe77`, 6 files). Verified ~23:10Z by an independent verifier, not the author. Local only: nothing was dispatched, no variable was set, nothing was pushed or commented.
+- **Verdict: READY TO ACTIVATE**, subject to the founder's activation decision and the one-slate trial.
+  - F1–F4 are fixed and independently confirmed. No path found lets a disabled waiter dispatch or relay.
+  - The new findings N1–N3 are Low. Track them with the regular-season items; none blocks the trial.
+
+| # | Status | Evidence |
+|---|---|---|
+| F1 | **Fixed** | 14 variable values (`""`, `TRUE`, `True`, `tRuE`, `true `, ` true`, `'true'`, `"true"`, `1`, `yes`, `on`, …) × 15 triggers: `workflow_dispatch` with 11 `dry_run` forms, `workflow_run` on main and on another branch, `schedule`, self-relay. The step layer alone picks `--dry-run --once`, and the runner layer alone forces dry/once/no-relay. End to end, the real runner with a DISPATCH fixture and a refusing `gh` made **0** `workflow run` calls for 13 non-exact values. Positive control (`true`): 6 refresh attempts + 1 relay. |
+| F2 | **Fixed** (residual N1) | Every sleep is capped at the remaining budget. Notify is `failure() \|\| cancelled()`. The hard stop is real. |
+| F3 | **Fixed** | 70 newer cancelled + 20 skipped + null-`createdAt` + self runs: the dispatching run is still recovered, with ≤ 30 log reads. |
+| F4 | **Fixed** | The pattern equals js-yaml on all 10 literal forms tried (block, comment, quoted, flow, string, job-level, CRLF, comments, look-alikes). |
+| F5 | **Fixed** | LOST → 1 retry, then exhausted. A retry honours spacing and the in-flight gate. A queued dispatch is never duplicated. An unconfirmed attempt blocks only once a run follows it. |
+| F6 | **Fixed for empty** (residual N3) | Empty, or only other-`officialDate` entries → WAIT with `inputSuspect`. |
+| F7 | **Fixed** | FROZEN_BY_BOARD: one alert, never dispatched, DONE once game 1 is live, and the board clock bounds the window. |
+| F8 | **Fixed** | A→B→A works. Exhausted A followed by main moving to C re-opens A. No ping-pong when main is unchanged (a `stalled` alert instead). |
+| F9 | **Fixed** | A fetch that ignores abort and never sends headers is bounded at 2 × timeout. |
+| F10 | **Fixed** (info N4) | The attempt/dispatch lines and the 3-try dispatch with a run-list check work. |
+| F11 | **Fixed** | (a) A dry alert writes no ledger line and is print-only. (b) Dry runs use their own group, and a relay lands in the live group. (c) Garbage timestamps never throw, and spacing still holds. (d) Relay on CAP after ≥ 30 min (by reading). |
+
+**Rewritten adversarial tests.** The original file run against the new head gives 16/18. GUARD #1 and BUDGET fail only because they assert the *old source text*: the `[ "${DRY:-false}" = "true" ]` regex, and the old `for (… i < 25 …)` loop (`TypeError`). Neither is a behaviour failure.
+- The rewrites keep the intent. GUARD now executes the real step script across 7 × 6 cases, which is stronger.
+- BUDGET checks budget + hard stop + setup ≤ timeout and drives `waitForRefresh`. **Gap:** BUDGET assumes no time passes before the loop (see N1).
+- The author's two edited contract tests are tightened, not weakened.
+
+**New findings**
+- **N1 (Low).** The hard stop is armed *after* ledger recovery, with `(budget + 12) min` from the moment it is armed, not from `started` (runner `main`, `setTimeout(…, (a.budgetMin + HARD_STOP_GRACE_MIN) * 60_000)`).
+  - Measured: 30 one-second log reads armed it 31 s late.
+  - Realistic recovery (about 1 min) keeps the end under 350 min. The worst case (31 `gh` calls at the 120-s timeout) exceeds it: the job is killed with no relay, though notify still fires.
+  - Fix: delay `deadline + grace·60000 − Date.now()`.
+- **N2 (Low).** A `dispatch-failed:` alert is re-emitted, with a webhook each time, every cycle (~80 s) while `gh workflow run` keeps failing. The key is never added to `ledger.alerted`. Reproduced: the same key fired twice in 1.5 min.
+  - Fix: push the key and skip it if already present.
+- **N3 (Low).** A *partial* schedule ends the watch as DONE with no relay: board game 2 is missing from a 200 response and game 1 has started. This contradicts the PR's "DONE only when the board agrees". It needs StatsAPI to drop a game; postponed games normally stay listed.
+  - Fix: WAIT/`inputSuspect` while any board game ≤ 90 min past first pitch is absent from the schedule.
+- **Info:**
+  - N4: if `gh` errors after GitHub accepted the dispatch and the run list lags more than 10 s, a second dispatch is sent. This is bounded by the in-flight gate, spacing and the cap.
+  - N5: the writer pattern misses folded (`group: >-`) and `${{ … }}` group forms. Neither is in the repo today.
+  - N6: a mis-cased variable (`TRUE`) still starts a forced-dry job on every trigger (~20 a day, 1 StatsAPI call each, 0 dispatches). The header's "every trigger is a skipped job" holds only for other values.
+  - N7: the hard stop relays without checking `unfinished()`, which is harmless.
+
+**Tests (this head)**
+
+| Suite | Result |
+|---|---|
+| Author suite + PR adversarial file | **69/69** |
+| Original adversarial file | **16/18** (2 source-text failures, explained above) |
+| New re-verifier tests (20, not committed; `scratchpad/mlb-lineup-waiter.reverify2.test.mjs`) | **19/20**. The one failure is the N3 probe. |
+| Every tracked test that mentions workflows (115 files) | **986: 980 pass, 5 fail, 1 skipped.** The 5 failures are `ask-ci-and-build` post-build checks that need `out/` (no build allowed; unrelated). |
+| `tsc --noEmit -p .` | clean |
+| Unit phase (`run-suite --phase unit`) | **9,571: 9,565 pass, 1 fail, 5 skipped.** The failure is the known `forecast-contradiction`. Identical to the author's numbers. |
+
+- **Replay:** on the cached inputs, 0 StatsAPI calls. `replay.json` is **byte-identical** to the pre-fix run: 22/22 → 22/22, median 33 → 8 min, 10 dispatches, worst lead 34 → 158, 584 runner-min per day.
+- **Live:**
+  - `--dry-run --once` with a refusing `gh` (reads only), 23:07Z: DONE, 849817 STARTED, 1 call.
+  - `--date 2026-10-19`: WAIT, left to a later trigger.
+  - `--relay` with `MLB_LINEUP_WAITER_ENABLED=True`: forced to dry once.
+  - **0** `workflow run` calls.
+  - Ledger recovery logs "skipped": the waiter workflow is not on main yet, which is expected before merge.
+
+**Checklist changes**
+- Precondition 1 is now met: F1–F4 are fixed at `82f4a72`, and the adversarial file is in the PR with 18/18.
+- Add three checks:
+  - **(a)** The variable must be exactly lowercase `true`. The first triggered run's log must *not* contain `forced to --dry-run`.
+  - **(b)** The dry-run dispatch must run in group `mlb-lineup-waiter-dry`, and its step must show `--dry-run --once`.
+  - **(c)** Trial criteria gain two items: at most 1 `dispatch-failed` webhook (N2), and every `lost:`, `retry-exhausted:` and `frozen:` alert reviewed.
+- On rollback, `gh run cancel` now fires the notify alert. That alert is expected.
+- N1–N3 join F-items for Opening Day 2027.
