@@ -23,6 +23,7 @@ One set of words per meaning, everywhere:
 | Meaning | Word(s) | Owner |
 |---|---|---|
 | Event not started | **Upcoming** (live surfaces may show **Scheduled** + start time) | `lib/live/lifecycle.mjs` `LIFECYCLE_LABEL` |
+| Started, end not known to this surface | **Started** (never Live or Final it cannot vouch for) | `lib/sport-hub/contract.ts` `hubStatusDisplay` |
 | In progress | **Live** (**Delayed** when the feed is stale) | same |
 | Finished, not yet graded | **Final · grading pending** | same |
 | Finished and graded | **Final** | same |
@@ -35,6 +36,8 @@ One set of words per meaning, everywhere:
 
 - Status is never carried by colour alone. Every chip states its status in words (`StatusPill`, live `StateChip`).
 - A final event shows no period or clock line. The period line is a fact about a game in progress (NEW-2).
+
+**Hub cards (2026-10-15):** the shared hub card shows `hubStatusDisplay(status)`. The internal hub status words (`scheduled`, `in progress`, `final`, `started or final`) are logic values compared in code and are never printed raw. Group headings may still describe a mixed group ("Started or final"), and the founder-conditioned "In progress at last update" heading stays.
 
 ## 3. Probability display
 - A model probability is written as **"N% of simulated games"** (simulations) or **"N% chance · <outcome>"** (analytic models). It is followed, where relevant, by its validation status ("unvalidated", "experimental").

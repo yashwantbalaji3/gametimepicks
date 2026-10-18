@@ -127,7 +127,7 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
         {/* Quick filter chips (market) */}
         <div className="flex flex-wrap gap-1.5">
           {visibleMarkets.map((m) => (
-            <button key={m.key} onClick={() => setMarket(m.key)} className="rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.08em]"
+            <button key={m.key} onClick={() => setMarket(m.key)} className="gtp-hit-44 rounded-full px-2.5 py-1 font-mono uppercase tracking-[0.08em]"
               style={{ fontSize: 9.5, cursor: "pointer", color: market === m.key ? "var(--vault-scrim-espresso)" : "var(--vault-text-mute)", background: market === m.key ? "var(--gtp-bank-heat)" : "var(--vault-wash-soft)", border: "1px solid var(--vault-rule)" }}>
               {m.label}
             </button>
@@ -135,18 +135,18 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
         </div>
         <div className="flex flex-wrap gap-2">
           <input value={q} onChange={(e) => setQ(e.target.value)} type="search" placeholder={SEARCH_PLAYERS_OR_TEAMS} aria-label={SEARCH_PLAYERS_OR_TEAMS_LABEL}
-            className="flex-1 min-w-[150px] rounded-[8px] px-3 py-1.5 text-[12px]" style={selStyle} />
-          <select value={game} onChange={(e) => setGame(e.target.value)} aria-label="Filter by game" className="rounded-[8px] px-2 py-1.5 text-[11.5px]" style={{ ...selStyle, maxWidth: 200 }}>
+            className="flex-1 min-w-[150px] min-h-[44px] rounded-[8px] px-3 py-1.5 text-[12px]" style={selStyle} />
+          <select value={game} onChange={(e) => setGame(e.target.value)} aria-label="Filter by game" className="min-h-[44px] rounded-[8px] px-2 py-1.5 text-[11.5px]" style={{ ...selStyle, maxWidth: 200 }}>
             <option value="all">All games</option>
             {games.map((g) => <option key={g} value={g}>{g}</option>)}
           </select>
-          <select value={oddsRange} onChange={(e) => setOddsRange(e.target.value)} aria-label="Filter by odds range" className="rounded-[8px] px-2 py-1.5 text-[11.5px]" style={selStyle}>
+          <select value={oddsRange} onChange={(e) => setOddsRange(e.target.value)} aria-label="Filter by odds range" className="min-h-[44px] rounded-[8px] px-2 py-1.5 text-[11.5px]" style={selStyle}>
             {ODDS_RANGES.map((r) => <option key={r.key} value={r.key}>{r.label}</option>)}
           </select>
-          <select value={conf} onChange={(e) => setConf(e.target.value)} aria-label="Filter by confidence" className="rounded-[8px] px-2 py-1.5 text-[11.5px]" style={selStyle}>
+          <select value={conf} onChange={(e) => setConf(e.target.value)} aria-label="Filter by confidence" className="min-h-[44px] rounded-[8px] px-2 py-1.5 text-[11.5px]" style={selStyle}>
             {CONFS.map((c) => <option key={c.key} value={c.key}>{c.key === "all" ? c.label : `${c.label} confidence`}</option>)}
           </select>
-          <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort" className="rounded-[8px] px-2 py-1.5 text-[11.5px]" style={selStyle}>
+          <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort" className="min-h-[44px] rounded-[8px] px-2 py-1.5 text-[11.5px]" style={selStyle}>
             {SORTS.map((s) => <option key={s.key} value={s.key}>Sort: {s.label}</option>)}
           </select>
         </div>
@@ -230,7 +230,7 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12 }
           never reads as trimming the data. */}
       {rows.length > initialRows && (
         <button type="button" onClick={() => setExpanded((v) => !v)}
-          className="gtp-team-row self-start rounded-[8px] px-3 py-1.5 font-mono uppercase tracking-[0.12em]"
+          className="gtp-hit-44 gtp-team-row self-start rounded-[8px] px-3 py-1.5 font-mono uppercase tracking-[0.12em]"
           style={{ fontSize: 9.5, color: "var(--sport-theme-ink)", background: "color-mix(in srgb, var(--vault-wash-base) 3%, transparent)", border: "1px solid var(--vault-rule)", cursor: "pointer" }}>
           {expanded ? `Show first ${initialRows}` : `Show all ${rows.length}`}
         </button>

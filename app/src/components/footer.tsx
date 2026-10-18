@@ -119,12 +119,12 @@ export default function Footer() {
                 <ul className="space-y-2 list-none p-0">
                   {items.map((d) => (
                     <li key={d.href}>
-                      <Link href={d.href} style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>
+                      <Link href={d.href} className="ft-link">
                         {d.label}
                         {d.note ? (
                           /* Coverage state. MLB and EPL are both sports and are NOT the same kind
                              of thing; a sitemap that lists them identically implies they are. */
-                          <span style={{ color: "var(--vault-text-faint)", fontSize: 11 }}>{` \u00b7 ${d.note}`}</span>
+                          <span className="ft-note">{` \u00b7 ${d.note}`}</span>
                         ) : null}
                       </Link>
                     </li>
@@ -133,7 +133,7 @@ export default function Footer() {
                       unapproved draft, is worse than no link. */}
                   {group === "record" ? LEGAL_LINKS.map((l) => (
                     <li key={l.href}>
-                      <Link href={l.href} style={{ color: "var(--vault-text-mute)", textDecoration: "none" }}>{l.label}</Link>
+                      <Link href={l.href} className="ft-link">{l.label}</Link>
                     </li>
                   )) : null}
                   {group === "record" && supportConfigured ? (

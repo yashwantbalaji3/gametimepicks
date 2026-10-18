@@ -64,8 +64,8 @@ export default function TodayGamePredictions({ rows, nowMs }: { rows: GamePredic
                   </Cell>
                   <Cell muted><span className="font-mono" style={{ fontSize: 10.5 }}>{time ?? "—"}</span></Cell>
                   <Cell muted>
-                    <span className="font-mono uppercase tracking-[0.08em]" style={{ fontSize: 9 }}>
-                      {started ? "Started" : "Pregame"}
+                    <span className="font-mono uppercase tracking-[0.08em]" style={{ fontSize: 10.5 }}>
+                      {started ? "Started" : "Upcoming"}
                     </span>
                   </Cell>
                   <Cell>

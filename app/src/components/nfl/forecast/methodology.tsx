@@ -4,6 +4,7 @@
  * markets and limitations. The dashboard above reads without it.
  */
 import { NFL_RESULTS_COVERAGE_NOTE } from "@/lib/sports/nfl/results-coverage.mjs";
+import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
 const ts = (iso: string | null | undefined) => (iso ? `${iso.slice(0, 16).replace("T", " ")} UTC` : "—");
 
@@ -40,7 +41,7 @@ export default function Methodology({ view, status, started, calibration }: { vi
             <div className="nf-scroll" role="region" aria-label="Evaluation status" tabIndex={0}>
               <table className="nf-table" style={{ marginTop: 8 }}>
                 <tbody>
-                  {LADDER.map(([k, label]) => status?.[k] ? <tr key={k}><td>{label}</td><td className="nf-num">{status[k].value ? "Yes" : "Not yet"}</td><td className="nf-faint">{status[k].scope}</td></tr> : null)}
+                  {LADDER.map(([k, label]) => status?.[k] ? <tr key={k}><td>{label}</td><td className="nf-num">{status[k].value ? "Yes" : "Not yet"}</td><td className="nf-faint">{plainCodes(status[k].scope)}</td></tr> : null)}
                 </tbody>
               </table>
             </div>

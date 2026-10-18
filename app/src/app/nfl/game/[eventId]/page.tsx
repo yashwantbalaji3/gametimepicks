@@ -72,6 +72,8 @@ import Methodology from "@/components/nfl/forecast/methodology";
 import { gameTabs } from "@/lib/sports/nfl/forecast-view.mjs";
 import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
 import { STATUS as WORLD_MODEL_STATUS } from "@/lib/sports/nfl/world-model-v2/artifact.mjs";
+import EtTime from "@/components/ui/et-time";
+import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -418,12 +420,12 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           x.label && x.label !== key ? x.label : key.replace(/^player_/, "").replace(/_/g, " ").replace(/\bint\b/, "interceptions");
         const TeamCol = ({ t }: { t: { abbr: string; name: string } }) => (
           <div style={{ minWidth: 0 }}>
-            <p className="font-mono" style={{ margin: 0, fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+            <p className="font-mono" style={{ margin: 0, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
               <TeamLogo team={t.abbr} sport="nfl" size="sm" ariaLabel={`${t.name} logo`} /> {t.abbr}
             </p>
             {hasTd && tdTop(t.abbr).length ? (
               <div style={{ marginTop: 8 }}>
-                <p className="font-mono" style={{ margin: 0, fontSize: 9.5, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Likely TD scorers</p>
+                <p className="font-mono" style={{ margin: 0, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-gold)" }}>Likely TD scorers</p>
                 {tdTop(t.abbr).map((p) => (
                   <p key={p.playerId} style={{ margin: "4px 0 0", fontSize: 12.5 }}>
                     <span style={{ color: "var(--vault-text)", fontWeight: 600 }}>{p.name}</span>{" "}
@@ -513,13 +515,13 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
                   artifact's exact failed bar, never a silent gap and never an invented number. */}
               {withheld.length ? (
                 <details style={{ marginTop: 14, borderTop: "1px solid var(--vault-rule)", paddingTop: 10 }}>
-                  <summary className="font-mono" style={{ cursor: "pointer", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--vault-text-faint)", minHeight: 32 }}>
+                  <summary className="font-mono" style={{ cursor: "pointer", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--vault-text-faint)", minHeight: 44 }}>
                     {withheld.map(([key, x]) => famLabel(key, x)).join(" · ")} — withheld, with the exact bar each failed
                   </summary>
                   <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
                     {withheld.map(([key, x]) => (
                       <li key={key} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)" }}>
-                        <strong style={{ color: "var(--vault-text-mute)" }}>{famLabel(key, x)}:</strong> {x.reason ?? "did not clear its evaluation bar"}
+                        <strong style={{ color: "var(--vault-text-mute)" }}>{famLabel(key, x)}:</strong> {plainCodes(x.reason) ?? "did not clear its evaluation bar"}
                       </li>
                     ))}
                   </ul>
@@ -672,7 +674,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
               <Stat label="Total points: ours vs sportsbooks" value={`${s.total.median} vs ${mc.marketTotal ?? "—"}`} sub="our projected total against the sportsbooks' over/under line" />
             </div>
             <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 760, lineHeight: 1.6 }}>{mc.note}</p>
-            <p style={{ margin: "6px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>Prices captured {mc.capturedAt} — before kickoff.</p>
+            <p style={{ margin: "6px 0 0", fontSize: 11.5, color: "var(--vault-text-faint)" }}>Prices captured <EtTime iso={mc.capturedAt} /> — before kickoff.</p>
           </>
         ) : (
           <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)" }}>{mc.note}</p>
@@ -777,8 +779,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <dt>model</dt><dd style={{ margin: 0 }}>{f.model.id} v{f.model.version}</dd>
           <dt>simulations</dt><dd style={{ margin: 0 }}>{f.model.simulations.toLocaleString("en-US")}</dd>
           <dt>input hash</dt><dd style={{ margin: 0 }}>{f.model.inputHash}</dd>
-          <dt>generated</dt><dd style={{ margin: 0 }}>{f.generatedAt}</dd>
-          <dt>kickoff</dt><dd style={{ margin: 0 }}>{f.kickoffUtc}</dd>
+          <dt>generated</dt><dd style={{ margin: 0 }}><EtTime iso={f.generatedAt} /></dd>
+          <dt>kickoff</dt><dd style={{ margin: 0 }}><EtTime iso={f.kickoffUtc} /></dd>
           <dt>state</dt><dd style={{ margin: 0 }}>{lifecycle === "UPCOMING" ? <><KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={false} when="before">UPCOMING</KickoffSlot><KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={false} when="after">STARTED</KickoffSlot></> : lifecycle}</dd>
         </dl>
         {/* P250 · A15: the player board's model provenance — the receipt above names only the team
@@ -786,7 +788,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             family. Read verbatim from the artifact's per-family basis lines. */}
         {playerBoard ? (
           <details style={{ marginTop: 12, border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
-            <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 32 }}>
+            <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 44 }}>
               Player-family model provenance ({Object.values(playerBoard.families).filter((x) => x.state === "PUBLISHED").length} published)
             </summary>
             <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>

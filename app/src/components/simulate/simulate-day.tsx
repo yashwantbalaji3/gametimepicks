@@ -30,7 +30,7 @@ const POST_START_STATES: ReadonlyArray<SimDayEvent["state"]> = ["STARTED", "AWAI
 
 export const STATE_TONE: Record<SimDayEvent["state"], { fg: string; bg: string; label: string }> = {
   SIMULATION_READY: { fg: "var(--vault-success)", bg: "var(--vault-success-dim)", label: "Simulation ready" },
-  ARTIFACT_READY: { fg: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)", label: "Artifact ready" },
+  ARTIFACT_READY: { fg: "var(--vault-gold-bright)", bg: "var(--vault-gold-dim)", label: "Report ready" },
   BASELINE_ONLY: { fg: "var(--vault-warn)", bg: "var(--vault-warn-dim)", label: "Baseline only" },
   MODEL_ONLY_NO_MARKET: { fg: "var(--vault-info-bright)", bg: "color-mix(in srgb, var(--vault-info) 18%, transparent)", label: "Model only · no market" },
   NO_PLAY: { fg: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)", label: "No qualified play" },
@@ -39,9 +39,9 @@ export const STATE_TONE: Record<SimDayEvent["state"], { fg: string; bg: string; 
   // Warn, not danger: the day is not broken, this one game is uncovered — and the label says which.
   MISSED_COVERAGE: { fg: "var(--vault-warn)", bg: "var(--vault-warn-dim)", label: "No pregame forecast" },
   // #808: after the start the label follows the canonical record, never the clock (lib/simulate/lifecycle-state.mjs).
-  STARTED: { fg: "var(--gtp-bank-heat)", bg: "color-mix(in srgb, var(--gtp-bank-heat) 14%, transparent)", label: "Kicked off" },
+  STARTED: { fg: "var(--gtp-bank-heat)", bg: "color-mix(in srgb, var(--gtp-bank-heat) 14%, transparent)", label: "Started" },
   AWAITING_SETTLEMENT: { fg: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)", label: "Final · grading pending" },
-  SETTLED: { fg: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)", label: "Settled" },
+  SETTLED: { fg: "var(--vault-text-mute)", bg: "var(--vault-wash-soft)", label: "Final" },
 };
 
 function EventCard({ e, onOpen }: { e: SimDayEvent; onOpen: (e: SimDayEvent) => void }) {

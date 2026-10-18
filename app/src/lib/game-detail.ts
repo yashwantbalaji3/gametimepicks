@@ -17,6 +17,7 @@ import { normTeamName } from "@/lib/world-cup/market-outlook";
 import { resolveWcPlayerTeam } from "@/lib/world-cup/player-team-map";
 import { getMlbBoardForDate, activeMlbDate } from "@/lib/data-mlb";
 import { mlbTeamLogoUrl } from "@/lib/player-headshots";
+import { espnNbaCrestUrl } from "@/lib/sports/nba/roster-contract.mjs";
 import { buildMlbGameLabReport, type MlbGameLabView } from "@/lib/game-lab/mlb-report";
 import { buildWcGameLabReport, type WcGameLabView } from "@/lib/game-lab/wc-report";
 import { readGameSimulation, gameSimulationPath } from "@/lib/game-simulations/read";
@@ -334,8 +335,9 @@ function boardDetails(
       matchId: key || undefined, // gamePk (MLB) / gameId (NBA) — used to join the Game Lab report
       homeTeam: home,
       awayTeam: away,
-      homeLogo: sport === "mlb" ? mlbTeamLogoUrl(g.homeTeamId) : null,
-      awayLogo: sport === "mlb" ? mlbTeamLogoUrl(g.awayTeamId) : null,
+      // UXR1-14: NBA sides resolve through the ESPN NBA team registry (the /nba hub's crest source), never a guess.
+      homeLogo: sport === "mlb" ? mlbTeamLogoUrl(g.homeTeamId) : espnNbaCrestUrl(g.homeTeamAbbr),
+      awayLogo: sport === "mlb" ? mlbTeamLogoUrl(g.awayTeamId) : espnNbaCrestUrl(g.awayTeamAbbr),
       venue: g.venue ?? undefined,
       teamProjections: [],
       playerProps,

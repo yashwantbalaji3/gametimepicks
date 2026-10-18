@@ -16,7 +16,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import SectionHeader from "@/components/section-header";
-import { loadAllGradedPicks, loadMlbGameRecord } from "@/lib/sports/graded-picks-loader";
+import { loadAllGradedPicks, loadMlbGameRecord, mlbGameFamilyLabel } from "@/lib/sports/graded-picks-loader";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata: Metadata = withRouteMetadata("/results/picks/", {
@@ -110,7 +110,7 @@ export default function AllGradedPicksPage() {
                 generated before first pitch:{" "}
                 {Object.entries(mlbGames.families)
                   .filter(([, f]) => f.n > 0)
-                  .map(([m, f]) => `${m.replace("_", " ")} ${f.wins}–${f.losses}${f.pushes ? `–${f.pushes}` : ""}`)
+                  .map(([m, f]) => `${mlbGameFamilyLabel(m)} ${f.wins}–${f.losses}${f.pushes ? `–${f.pushes}` : ""}`)
                   .join(" · ")}
                 . Not comparable with the player-prop record above and never combined with it —{" "}
                 <Link href="/results/picks/mlb" style={{ color: "var(--gtp-bank-heat)" }}>full game-level record</Link>.

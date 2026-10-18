@@ -21,6 +21,7 @@ import Link from "next/link";
 import SectionHeader from "@/components/section-header";
 import PlayerAvatar from "@/components/player-avatar";
 import TeamLogo from "@/components/team-logo";
+import EtTime from "@/components/ui/et-time";
 
 export default function SportLabCards({
   ladder,
@@ -56,7 +57,7 @@ export default function SportLabCards({
           a price without knowing when it was read, and these cards were once served four days stale
           under a heading that said today. */}
       <p className="mt-1" style={{ margin: "4px 0 0", fontSize: 11, color: "var(--vault-text-faint)" }}>
-        Prices read {ladder.generatedAt} · card date {ladder.date}
+        Prices read <EtTime iso={ladder.generatedAt} /> · card date {ladder.date}
       </p>
       {/*
         minmax(0, 1fr), NOT the default 1fr.

@@ -74,6 +74,20 @@ export function saveCardOf(card) {
     freshness: { updatedAt: card.freshness?.updatedAt ?? null }, settlement: card.settlement,
   };
 }
+/**
+ * UXJ-02: a matchup in the sport's own order — the same rule the prediction card uses (components/command-center/
+ * prediction-card.tsx ORDER): "away @ home" for MLB/NFL, "home v away" for the Premier League, "red vs blue" for UFC.
+ * Saved Forecasts wrote every sport away-first, so "Everton v Chelsea" was saved as "Chelsea v Everton" — the
+ * reverse of the fixture the reader saved, with the home side named second.
+ */
+export function matchupSides(sport, away, home) {
+  if (sport === "epl") return { first: home, second: away, sep: "v" };
+  return { first: away, second: home, sep: sport === "ufc" ? "vs" : "@" };
+}
+export function matchupLabel(sport, away, home) {
+  const m = matchupSides(sport, away, home);
+  return `${m.first} ${m.sep} ${m.second}`;
+}
 /** Build the snapshot from a card (lib/command-center/contract PredictionCardModel) at save time. */
 export function snapshotFromCard(card, { savedAt, sourceRoute }) {
   /* GTP-34: the same words the card shows. Snapshots saved before this keep their own stored text (never rewritten). */
@@ -87,7 +101,7 @@ export function snapshotFromCard(card, { savedAt, sourceRoute }) {
     sport: card.sport,
     href: card.href,
     startUtc: card.startUtc ?? null,
-    matchup: `${card.away.name} ${card.sport === "epl" ? "v" : card.sport === "ufc" ? "vs" : "@"} ${card.home.name}`,
+    matchup: matchupLabel(card.sport, card.away.name, card.home.name),
     context: card.context ?? null,
     family: card.forecast.label,
     value: card.forecast.value,

@@ -28,6 +28,15 @@ export const EVENT_STATUS = Object.freeze([
 /** UFC bout-level extension — a sport EXTENSION, not a corruption of the shared taxonomy. */
 export const UFC_BOUT_STATUS_EXT = Object.freeze(["BOUT_CANCELLED", "REPLACEMENT_PENDING", "NO_CONTEST", "OVERTURNED"]);
 
+/** Reader words for every status above (DS-001 §1.7: no raw enum reaches a reader). Unmapped → "Status unknown". */
+export const EVENT_STATUS_LABEL = Object.freeze({
+  SCHEDULED: "Upcoming", LIVE: "Live", FINAL: "Final", POSTPONED: "Postponed", CANCELLED: "Cancelled",
+  SUSPENDED: "Suspended", ABANDONED: "Abandoned", UNKNOWN: "Status unknown",
+  BOUT_CANCELLED: "Bout cancelled", REPLACEMENT_PENDING: "Replacement pending", NO_CONTEST: "No contest", OVERTURNED: "Result overturned",
+});
+/** @param {string|null|undefined} s */
+export const eventStatusLabel = (s) => EVENT_STATUS_LABEL[String(s ?? "").toUpperCase()] ?? "Status unknown";
+
 /**
  * Coverage state — what WE claim about a sport's surface, decided by evidence, never inferred from
  * events existing. SCHEDULE_ONLY is a legitimate public state; SIMULATION_READY and beyond require

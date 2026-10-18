@@ -74,7 +74,7 @@ export function nbaHubFrom({ nowIso, schedule, finals }: { nowIso: string; sched
       : hubStatusWord(started ? "STARTED" : "SCHEDULED", started);
     const preseason = r.seasonType === 1;
     const reportNote = isFinal
-      ? `Final · ${away.label} ${fin.ftAway} – ${home.label} ${fin.ftHome}${fin.state === "FINAL_UNDER_REVIEW" ? " (under review)" : ""}`
+      ? `${away.label} ${fin.ftAway} – ${home.label} ${fin.ftHome}${fin.state === "FINAL_UNDER_REVIEW" ? " (under review)" : ""}`
       : started ? "Final not recorded yet"
       : preseason ? NBA_PRESEASON_NOTE : NBA_NO_FORECAST_NOTE;
     rows.push({
@@ -121,7 +121,7 @@ export function nbaHubFrom({ nowIso, schedule, finals }: { nowIso: string; sched
       read: null,
       reportState: "NONE",
       reportHref: null,
-      reportNote: `Final · ${awayLabel} ${fin.ftAway} – ${homeLabel} ${fin.ftHome}${fin.state === "FINAL_UNDER_REVIEW" ? " (under review)" : ""}`,
+      reportNote: `${awayLabel} ${fin.ftAway} – ${homeLabel} ${fin.ftHome}${fin.state === "FINAL_UNDER_REVIEW" ? " (under review)" : ""}`,
       participants: [[awayLabel, awayTeam], [homeLabel, homeTeam]].map(([name, team]) => ({ name: name as string, logoTeam: team ? (team as any).espnAbbr : null, logoSport: team ? ("nba" as const) : null })),
       separator: "@",
     });

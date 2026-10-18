@@ -9,6 +9,7 @@
  * path that could attach one. The retired May–June player-prop archive stays where it was, linked below
  * and labelled as the retired model it is.
  */
+import SportHubNav from "@/components/sports/sport-hub-nav";
 import Link from "next/link";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import SportSwitcher from "@/components/sports/sport-switcher";
@@ -34,6 +35,7 @@ export default function NbaHubPage() {
         Games, start times and official finals. The NBA model is in validation and publishes nothing until it
         clears its preregistered bars on regular-season games.
       </p>
+      <SportHubNav sport="nba" />
       <section id="nba-games" className="scroll-mt-24" aria-label="NBA games">
         {/* Session 11: schedule-only — one line per game keeps every game inside the page budget. */}
         <HubHeader model={model} compact />

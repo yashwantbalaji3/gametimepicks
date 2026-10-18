@@ -292,7 +292,7 @@ export default function MobileBottomNav() {
             onClick={() => setMenuOpen(true)}
             aria-expanded={menuOpen}
             aria-haspopup="dialog"
-            aria-label={`Menu — Results, sports and more${menuActive ? " (current section)" : ""}`}
+            aria-label={`Menu — sport hubs, products and more${menuActive ? " (current section)" : ""}`}
             className="w-full flex flex-col items-center justify-center gap-0.5 rounded-[8px] py-2 transition-colors"
             style={{
               minHeight: 48,

@@ -39,7 +39,7 @@ function Fighter({ f, picked, align = "left" }: { f: Side; picked: boolean; alig
         className="shrink-0 rounded-full"
         style={{ boxShadow: picked ? "0 0 0 2px var(--sport-ufc)" : "none", lineHeight: 0 }}
       >
-        <PlayerAvatar photoUrl={f.photoUrl} playerName={f.name} size="sm" flat />
+        <PlayerAvatar photoUrl={f.photoUrl} playerName={f.name} size="sm" flat decorative />
       </span>
       <span className="min-w-0">
         <span className="block" style={{ fontSize: 13, lineHeight: 1.25, overflowWrap: "anywhere", fontWeight: picked ? 800 : 600, color: picked ? "var(--vault-text)" : "var(--vault-text-mute)" }}>
@@ -185,9 +185,11 @@ export default function UfcPredictionBoard({ card }: { card: UfcCardArtifact }) 
         ))}
       </ul>
 
-      <p className="m-0 font-mono max-w-3xl" style={{ fontSize: 10.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
-        Win chance is the experimental fight model&apos;s published winner probability
-        {board.modelId ? ` (${board.modelId})` : ""} — not a sportsbook price. Method lean is the most likely way the fight
+      {/* UXR1-07 (DS-001 §1.7): the model fingerprint ("ufc-fight-model@e657fc40b64d") was printed inside this sentence.
+          It is provenance, not reading matter: it stays on the paragraph's title here and in each bout report's
+          provenance block. */}
+      <p className="m-0 font-mono max-w-3xl" title={board.modelId ? `Model: ${board.modelId}` : undefined} style={{ fontSize: 10.5, lineHeight: 1.6, color: "var(--vault-text-faint)" }}>
+        Win chance is the experimental fight model&apos;s published winner probability — not a sportsbook price. Method lean is the most likely way the fight
         ends, for either fighter, from the experimental method head; it is not the chance that the pick wins that way, and
         method and round are not yet graded. Not modelled means too little tracked history to read. Paper and educational.
       </p>
