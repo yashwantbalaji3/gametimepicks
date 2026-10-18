@@ -8,20 +8,83 @@
  * ⚠ NO TEST HERE MAKES A NETWORK CALL. A test that hits a live provider fails for reasons that have
  * nothing to do with the code, and teaches everyone to re-run it until it passes.
  *
+ * ⚠ AND NO TEST HERE TOUCHES THE COMMITTED TREE. These ran the real producer with `cwd: APP` against
+ * the real boards, schedule and live-props, and the producer's promotion sweep runs on every
+ * invocation before any window check. With a clock 48 h ahead it rewrote a real game's settlements
+ * PROVISIONAL → CANONICAL on disk (401872996, 2026-10-18) — one `git add` away from publishing a
+ * promotion no scheduled run had made. Every invocation now goes through `--app-root` into a
+ * disposable fixture store built below, and the last test proves the real tree was left byte-identical.
+ *
  * Run: npx tsx --test src/lib/sports/nfl/live-props-producer.test.mjs
  */
-import test from "node:test";
+import test, { after } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 const APP = process.cwd();
 const REPO_ROOT = path.resolve(APP, "..");
 const SCRIPT = path.join(APP, "scripts/nfl/capture-live-props.mjs");
+
+/*
+ * ── THE FIXTURE STORE ─────────────────────────────────────────────────────────────────────────────
+ * A disposable app root holding exactly what the producer reads: one board, a schedule that agrees
+ * with it, and one FINAL·PROVISIONAL live-props artifact whose reconciliation window has closed by
+ * any clock these tests pass — so the promotion sweep has real work to do, and does it HERE.
+ * Fixed instants, no copy of committed data: the result cannot drift with tomorrow's slate, and no
+ * board can ever sit inside the live window and send the producer to the network.
+ */
+const FIX_EVENT = "900000001";
+const FIX_KICKOFF = "2026-09-20T17:00Z";                 // the schedule's own HH:MMZ shape
+const FIX_FINAL_FIRST = "2026-09-20T20:10:00Z";
+const FIX_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-live-props-producer-"));
+const fixPath = (rel) => path.join(FIX_ROOT, "public/data/nfl", rel);
+const writeFix = (rel, obj) => {
+  fs.mkdirSync(path.dirname(fixPath(rel)), { recursive: true });
+  fs.writeFileSync(fixPath(rel), `${JSON.stringify(obj, null, 2)}\n`);
+};
+writeFix("schedule/latest.json", {
+  schemaVersion: 1, sport: "nfl", generatedAt: "2026-09-20T12:00:00Z",
+  rows: [{ providerEventId: FIX_EVENT, shortName: "AAA @ BBB", dateUtc: FIX_KICKOFF }],
+});
+writeFix(`player-board/${FIX_EVENT}.json`, {
+  schemaVersion: 1, providerEventId: FIX_EVENT, matchup: "AAA @ BBB", kickoffUtc: FIX_KICKOFF,
+  generatedAt: "2026-09-20T14:00:00Z",
+  players: [{ playerId: "nfl-athlete-1", name: "P", markets: { player_rush_yds: { median: 50, market: { line: 48.5, sportsbook: "draftkings", capturedAt: "2026-09-20T14:00:00Z" } } } }],
+});
+writeFix(`live-props/${FIX_EVENT}.json`, {
+  schemaVersion: 1, artifact: "nfl-live-props", providerEventId: FIX_EVENT, matchup: "AAA @ BBB", kickoffUtc: FIX_KICKOFF,
+  phase: "FINAL", finality: "PROVISIONAL", finalFirstObservedAt: FIX_FINAL_FIRST, observedAt: FIX_FINAL_FIRST,
+  rows: [{ id: "r1", settlement: { state: "SETTLED", finality: "PROVISIONAL" } }],
+});
+
+/* The committed paths this producer can read or write, hashed before any test runs. */
+const GUARDED = ["public/data/nfl/live-props", "public/data/nfl/player-board", "public/data/nfl/schedule"].map((d) => path.join(APP, d));
+function snapshot() {
+  const out = {};
+  for (const dir of GUARDED) {
+    let names = [];
+    try { names = fs.readdirSync(dir); } catch { continue; }
+    for (const f of names.sort()) {
+      const p = path.join(dir, f);
+      if (fs.statSync(p).isFile()) out[path.relative(APP, p)] = crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
+    }
+  }
+  return out;
+}
+const BEFORE = snapshot();
+after(() => fs.rmSync(FIX_ROOT, { recursive: true, force: true }));
+
+let invocations = 0;
 function run(args) {
+  invocations += 1;
+  /* `cwd` is the fixture too, so even a relative path the producer might grow resolves away from the repo. */
+  const argv = [SCRIPT, ...args, "--app-root", FIX_ROOT];
   try {
-    return { code: 0, out: execFileSync("node", [SCRIPT, ...args], { cwd: APP, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }) };
+    return { code: 0, out: execFileSync("node", argv, { cwd: FIX_ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }) };
   } catch (e) {
     return { code: e.status ?? 1, out: `${e.stdout ?? ""}${e.stderr ?? ""}` };
   }
@@ -45,7 +108,7 @@ test("a game that has not kicked off is OUTSIDE the window, and no provider call
 });
 
 test("the window closes after the game, so a finished fixture is not polled forever", () => {
-  const sched = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nfl/schedule/latest.json"), "utf8"));
+  const sched = JSON.parse(fs.readFileSync(fixPath("schedule/latest.json"), "utf8"));
   const first = sched.rows.map((r) => Date.parse(String(r.dateUtc).replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"))).filter(Number.isFinite).sort((a, b) => a - b)[0];
   assert.ok(Number.isFinite(first), "the schedule must carry a parseable kickoff for this guard to mean anything");
   const wellAfter = new Date(first + 48 * 3600_000).toISOString();
@@ -169,4 +232,23 @@ test("the live cadence is dense, kickoff-relative, and spends nothing", () => {
     }
   }
   assert.match(wf, /group:\s*gtp-generated-artifacts/, "it commits generated data and must share the writer queue");
+});
+
+test("the producer's promotion sweep ran in the FIXTURE store, which is how it would have reached the real one", () => {
+  /*
+   * Positive control for the guard below: a guard that passes because the sweep never fired would
+   * prove nothing. The 48-hour clock above is past the fixture's reconciliation window, so the sweep
+   * DID promote — and the write landed under --app-root.
+   */
+  const promoted = JSON.parse(fs.readFileSync(fixPath(`live-props/${FIX_EVENT}.json`), "utf8"));
+  assert.equal(promoted.finality, "CANONICAL", "the fixture artifact was promoted by an earlier test's run");
+  assert.equal(promoted.rows[0].settlement.finality, "CANONICAL");
+});
+
+test("no producer run in this file changed a committed byte (live-props, boards, schedule)", () => {
+  assert.ok(invocations >= 3, "the guard must follow the producer runs it is guarding");
+  assert.ok(Object.keys(BEFORE).some((k) => k.includes("live-props/")), "the guard must actually cover committed live-props files");
+  const after = snapshot();
+  const changed = [...new Set([...Object.keys(BEFORE), ...Object.keys(after)])].filter((k) => BEFORE[k] !== after[k]);
+  assert.deepEqual(changed, [], `the producer wrote into the committed tree: ${changed.join(", ")}`);
 });

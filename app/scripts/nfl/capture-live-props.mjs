@@ -4,6 +4,7 @@
  *
  *   node app/scripts/nfl/capture-live-props.mjs --now <ISO> [--event <id>] [--dry-run]
  *   node app/scripts/nfl/capture-live-props.mjs --now <ISO> --post-final   # settle games that are OVER
+ *   ... [--app-root <dir>]   # read and write under <dir> instead of this app (tests; default unchanged)
  *
  * `--post-final` (Session 9) is the scheduled, keyless settlement sweep: the same rows, the same grader,
  * aimed at games kicked off 3.5 h – 14 days ago instead of games in their live window. It writes only a
@@ -33,8 +34,19 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildLiveRows, phaseOf, promoteFinality, selectLiveTargets, selectPostFinalTargets, shouldPollEvent } from "../../src/lib/sports/nfl/live-prop-state.mjs";
 
-const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const arg = (n, d = null) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
+/*
+ * `--app-root <dir>` IS A PATH OVERRIDE AND NOTHING ELSE — the same narrow seam capture-epl-odds.mjs and
+ * build-nfl-public-forecasts.mjs carry. Every read (boards, schedule, prior artifacts) and every write
+ * (live-props) resolves under it, and no branch below consults it to decide what to track or how.
+ *
+ * ⚠ IT EXISTS BECAUSE THE TEST REWROTE PRODUCTION DATA. live-props-producer.test.mjs ran this script
+ * against the committed tree with a clock 48 h in the future, and the promotion sweep below — which
+ * runs on EVERY invocation, before any liveness question — flipped a real game's settlements from
+ * PROVISIONAL to CANONICAL on disk (401872996, 2026-10-18). The test now points this at a disposable
+ * fixture store. Default is this script's own app directory, so every scheduled invocation is unchanged.
+ */
+const APP = path.resolve(arg("app-root") ?? path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../.."));
 const DRY = process.argv.includes("--dry-run");
 const read = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 const NOW = arg("now");
