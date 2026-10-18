@@ -20,62 +20,62 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 9,
-  "gamesPending": 5,
+  "gamesFinal": 10,
+  "gamesPending": 4,
   "overall": {
-   "checks": 324,
-   "hits": 272,
-   "rate": 0.8395061728395061
+   "checks": 355,
+   "hits": 297,
+   "rate": 0.8366197183098592
   },
   "props": [
    {
     "id": "winner",
     "label": "Model-favored team won",
     "group": "team",
-    "checks": 9,
+    "checks": 10,
     "hits": 4,
     "voids": 0,
-    "rate": 0.4444444444444444,
-    "expectedHits": 5.6
+    "rate": 0.4,
+    "expectedHits": 6.4
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 9,
+    "checks": 10,
     "hits": 7,
     "voids": 0,
-    "rate": 0.7777777777777778,
-    "typicalMiss": 9.2,
-    "rangeWidth": 34.2,
-    "lean": -1.2
+    "rate": 0.7,
+    "typicalMiss": 10.2,
+    "rangeWidth": 34.3,
+    "lean": 0.8
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 9,
-    "hits": 8,
+    "checks": 10,
+    "hits": 9,
     "voids": 0,
-    "rate": 0.8888888888888888,
-    "typicalMiss": 7.9,
-    "rangeWidth": 33.1,
-    "lean": 6.6
+    "rate": 0.9,
+    "typicalMiss": 8.3,
+    "rangeWidth": 33.2,
+    "lean": 7.1
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 112,
-    "hits": 105,
-    "voids": 13,
-    "rate": 0.9375,
+    "checks": 122,
+    "hits": 114,
+    "voids": 15,
+    "rate": 0.9344262295081968,
     "status": "PUBLISHED",
     "typicalMiss": 1.6,
-    "rangeWidth": 5.5,
+    "rangeWidth": 5.6,
     "lean": -0.3
    },
    {
@@ -83,51 +83,51 @@
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 110,
-    "hits": 90,
-    "voids": 10,
-    "rate": 0.8181818181818182,
+    "checks": 119,
+    "hits": 99,
+    "voids": 12,
+    "rate": 0.8319327731092437,
     "status": "PUBLISHED",
-    "typicalMiss": 19.9,
-    "rangeWidth": 60.8,
-    "lean": -8.9
+    "typicalMiss": 19.3,
+    "rangeWidth": 61.2,
+    "lean": -8.8
    },
    {
     "id": "player_rush_yds",
     "label": "Rushing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 51,
-    "hits": 40,
-    "voids": 9,
-    "rate": 0.7843137254901961,
+    "checks": 57,
+    "hits": 44,
+    "voids": 11,
+    "rate": 0.7719298245614035,
     "status": "ESTIMATE",
-    "typicalMiss": 16.9,
-    "rangeWidth": 47.5,
-    "lean": -10.9
+    "typicalMiss": 17.6,
+    "rangeWidth": 47.1,
+    "lean": -11.4
    },
    {
     "id": "player_pass_yds",
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 15,
-    "hits": 15,
+    "checks": 17,
+    "hits": 17,
     "voids": 0,
     "rate": 1,
     "status": "ESTIMATE",
-    "typicalMiss": 55.7,
+    "typicalMiss": 52.1,
     "rangeWidth": 234.5,
-    "lean": -13.5
+    "lean": -10.2
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 9,
+    "checks": 10,
     "hits": 3,
     "voids": 0,
-    "rate": 0.3333333333333333
+    "rate": 0.3
    }
   ],
   "context": {
@@ -135,12 +135,12 @@
     "oursCloser": 0,
     "booksCloser": 0,
     "even": 0,
-    "noLine": 9
+    "noLine": 10
    },
    "touchdowns": {
-    "playersGraded": 144,
-    "expectedScorers": 32.7,
-    "actualScorers": 30
+    "playersGraded": 158,
+    "expectedScorers": 36.3,
+    "actualScorers": 32
    }
   }
  },
@@ -5337,11 +5337,505 @@
     },
     "sportsbookTotal": null
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 18,
+    "home": 16,
+    "total": 34,
+    "margin": -2
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "MISS"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "MISS",
+     "actual": 34
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "HIT",
+     "actual": -2
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "NO_LINE",
+     "oursOff": 19,
+     "booksOff": null
+    }
+   ],
+   "players": [
+    {
+     "name": "Kyren Williams",
+     "team": "LAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 7,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kyren Williams",
+     "team": "LAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 20,
+     "low": 0,
+     "high": 55,
+     "actual": 17,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kyren Williams",
+     "team": "LAR",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 70,
+     "low": 29,
+     "high": 122,
+     "actual": 50,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Puka Nacua",
+     "team": "LAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 8,
+     "low": 3,
+     "high": 15,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Puka Nacua",
+     "team": "LAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 61,
+     "low": 20,
+     "high": 123,
+     "actual": 80,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Trey McBride",
+     "team": "ARI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 3,
+     "high": 13,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Trey McBride",
+     "team": "ARI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 47,
+     "low": 15,
+     "high": 94,
+     "actual": 53,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Davante Adams",
+     "team": "LAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 9,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Davante Adams",
+     "team": "LAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 38,
+     "low": 5,
+     "high": 93,
+     "actual": 39,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Michael Wilson",
+     "team": "ARI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 5,
+     "low": 2,
+     "high": 10,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Michael Wilson",
+     "team": "ARI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 41,
+     "low": 10,
+     "high": 89,
+     "actual": 32,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Trey Benson",
+     "team": "ARI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Trey Benson",
+     "team": "ARI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 10,
+     "low": 0,
+     "high": 42,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Trey Benson",
+     "team": "ARI",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 9,
+     "low": 0,
+     "high": 37,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Blake Corum",
+     "team": "LAR",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 30,
+     "low": 7,
+     "high": 72,
+     "actual": 42,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Allgeier",
+     "team": "ARI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 4,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Allgeier",
+     "team": "ARI",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 9,
+     "low": 0,
+     "high": 34,
+     "actual": 38,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Tyler Higbee",
+     "team": "LAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 6,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Tyler Higbee",
+     "team": "LAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 20,
+     "low": 0,
+     "high": 60,
+     "actual": 22,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Reggie Virgil",
+     "team": "ARI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Reggie Virgil",
+     "team": "ARI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 9,
+     "low": 0,
+     "high": 40,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Kendrick Bourne",
+     "team": "ARI",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kendrick Bourne",
+     "team": "ARI",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 23,
+     "low": 0,
+     "high": 63,
+     "actual": 47,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Ronnie Rivers",
+     "team": "LAR",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 5,
+     "low": 0,
+     "high": 28,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Colby Parkinson",
+     "team": "LAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 5,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Colby Parkinson",
+     "team": "LAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 5,
+     "low": 0,
+     "high": 32,
+     "actual": 31,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Bam Knight",
+     "team": "ARI",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 6,
+     "low": 0,
+     "high": 29,
+     "actual": 80,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Konata Mumpfield",
+     "team": "LAR",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Konata Mumpfield",
+     "team": "LAR",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 0,
+     "high": 41,
+     "actual": 15,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jacoby Brissett",
+     "team": "ARI",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 3,
+     "low": 0,
+     "high": 22,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jacoby Brissett",
+     "team": "ARI",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 207,
+     "low": 120,
+     "high": 329,
+     "actual": 218,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Matthew Stafford",
+     "team": "LAR",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 3,
+     "low": 0,
+     "high": 21,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Matthew Stafford",
+     "team": "LAR",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 262,
+     "low": 153,
+     "high": 413,
+     "actual": 222,
+     "outcome": "HIT"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "Kyren Williams",
+     "team": "LAR",
+     "probability": 0.6476,
+     "outcome": "DID_NOT_SCORE",
+     "likeliest": true
+    },
+    {
+     "name": "Puka Nacua",
+     "team": "LAR",
+     "probability": 0.4675,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Trey McBride",
+     "team": "ARI",
+     "probability": 0.4194,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Davante Adams",
+     "team": "LAR",
+     "probability": 0.4125,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Michael Wilson",
+     "team": "ARI",
+     "probability": 0.3244,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Trey Benson",
+     "team": "ARI",
+     "probability": 0.3142,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Blake Corum",
+     "team": "LAR",
+     "probability": 0.3117,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Tyler Allgeier",
+     "team": "ARI",
+     "probability": 0.2411,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Tyler Higbee",
+     "team": "LAR",
+     "probability": 0.1787,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Reggie Virgil",
+     "team": "ARI",
+     "probability": 0.1643,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Kendrick Bourne",
+     "team": "ARI",
+     "probability": 0.1423,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Ronnie Rivers",
+     "team": "LAR",
+     "probability": 0.1203,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Colby Parkinson",
+     "team": "LAR",
+     "probability": 0.1165,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Bam Knight",
+     "team": "ARI",
+     "probability": 0.1164,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Konata Mumpfield",
+     "team": "LAR",
+     "probability": 0.1102,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jacoby Brissett",
+     "team": "ARI",
+     "probability": 0.1037,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Matthew Stafford",
+     "team": "LAR",
+     "probability": 0.0669,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
    "boardNote": null
   },
   {
@@ -5439,7 +5933,7 @@
     "name": "Green Bay Packers"
    },
    "published": {
-    "generatedAt": "2026-10-18T22:48:19Z",
+    "generatedAt": "2026-10-18T23:26:01Z",
     "projectedScore": {
      "away": 23,
      "home": 29
@@ -5480,7 +5974,7 @@
     "name": "San Francisco 49ers"
    },
    "published": {
-    "generatedAt": "2026-10-18T22:48:19Z",
+    "generatedAt": "2026-10-18T23:26:01Z",
     "projectedScore": {
      "away": 20,
      "home": 30
@@ -5510,5 +6004,5 @@
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-10-18T22:48:19Z"
+ "generatedAt": "2026-10-18T23:26:01Z"
 }
