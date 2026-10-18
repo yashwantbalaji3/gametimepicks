@@ -195,6 +195,11 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 - #1128 `bec2cd28aa`: Ask's EPL (and UFC) record now comes from the same ledger population as `/results`, so the two can no longer split after a late grade (D-1). It also fixes Ask's recent-feed totals, which were capped at 60. Main CI post-build parity is green.
 - #1129 (test-only): the MLB contradiction guards were latently red on postseason data; the sample now extends until the defect is present. Merging when the data writers are idle.
 - #1130 **DRAFT**: eligible-operator allowlist (offshore prices); awaiting founder review (see SB-01).
+- #1131 **DRAFT**: MLB lineup waiter (founder-approved for development). Inert until the repo variable `MLB_LINEUP_WAITER_ENABLED=true`; production activation needs separate acceptance. Evidence:
+  - 40/40 tests; 170/170 workflow guards;
+  - replay 10-08..10-18: median lineup→simulation 33 → 8 min, worst pre-pitch lead 33 → 158 min;
+  - $0 Actions cost (public repo, standard runner).
+- #1132: test isolation. `live-props-producer.test.mjs` ran the producer against the real data root, and local runs rewrote tracked `nfl/live-props`. No Production impact found: CI is `contents: read`, and every live-props commit came from producer workflows. Merges after #1129, post-NFL-window, under the gate.
 
 The audit's remaining items:
 - The void *reason* on postponed 10-16 rows reads "DNP/0-AB": a data/producer follow-up.
@@ -278,6 +283,15 @@ Post-launch candidates (priority · dependency · source):
 - **D4–D7: ACCEPTED** as documented: all five representatives with merged chips; fixed, disclosed orientation; no world-model data; drive-weighted ~40–103 s at 1×.
 - **D8: DEFERRED.** Receipt changes stay forward-only and need separate validation first.
 - **ST-02 status:** the first two tasks (library + preview shell, with a minimal renderer) are **IN DEVELOPMENT, local only**, on branch `claude/sim-theater-st02-prototype`. Nothing is deployed or reachable in Production.
+- **ST-02 status, 10-18 evening:** iteration 5 local, at `d59d5b62d6` on localhost:4179. Implemented:
+  - the broadcast field, score bug, possession, interstitials, scoring effects and drive summary;
+  - mobile sheets;
+  - timeline hit targets of at least 24 px;
+  - a full-bleed field at 320 px.
+  - **D3 colours on in the dev preview:** 32/32 validated (31 official), with the founder's roles. Official primaries on the field use a light keyline for ≥3:1 (BUF stays royal throughout).
+  - **Measured:** JS 25.8 KB gzip; inline data 16 KB.
+  - **Tests:** Playwright 21/21; theater unit tests pass.
+  - Not deployed; no PR.
 **Evidence:** `docs/research/SIMULATION_THEATER_V2_FEASIBILITY_2026-10-18.md` (cited below as **TV2**); `docs/research/NEXT_GEN_FEASIBILITY_SUMMARY_2026-10-18.md` §1; `docs/research/SIMULATION_THEATER_V0_SPEC_2026-10-17.md`; `COMP-001`; the founder-supplied competitor audit `~/Downloads/competitor-audit.md` (cited as **audit**; its screenshots were not supplied). Every effort figure is an estimate for one experienced engineer (TV2 §6) unless stated otherwise.  
 **Objective:** an interactive, receipt-backed NFL drive theater: watch one sampled game, inspect the uncertainty beside it, verify the record. It is not a copy of PropDealer: GTP's own tokens, layout and artwork (audit §6), and no claim that GTP is more accurate than any competitor.
 
