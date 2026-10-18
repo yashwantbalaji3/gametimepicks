@@ -334,7 +334,7 @@ function teamVars(palette: Palette, side: Side) {
  * aria-hidden: the score bug and the live region carry their facts. The halftime and final cards are readable sections
  * (not live regions, so nothing is announced twice); the final card can be dismissed (button or Escape).
  */
-function BroadcastCards({ cards, palette, onDismiss }: { cards: CardSet; palette: Palette; onDismiss: () => void }) {
+function BroadcastCards({ cards, palette, onDismiss, idBase }: { cards: CardSet; palette: Palette; onDismiss: () => void; idBase: string }) {
   const { period, brk, roll, endHalf } = cards;
   const team = palette.mode === "team";
   return (
@@ -370,9 +370,9 @@ function BroadcastCards({ cards, palette, onDismiss }: { cards: CardSet; palette
         </div>
       ) : null}
       {brk && (brk.kind === "HALFTIME" || brk.kind === "FINAL") && brk.rows ? (
-        <section className={`st-card is-${brk.kind.toLowerCase()}${team ? " is-team" : ""}`} aria-labelledby="st-card-title" data-st-card={brk.kind}>
+        <section className={`st-card is-${brk.kind.toLowerCase()}${team ? " is-team" : ""}`} aria-labelledby={`${idBase}-card-title`} data-st-card={brk.kind}>
           <header className="st-card-head">
-            <h3 id="st-card-title" className="st-card-title">{brk.title}</h3>
+            <h3 id={`${idBase}-card-title`} className="st-card-title">{brk.title}</h3>
             {brk.dismissible ? (
               <button type="button" className="st-card-x" aria-label={`Hide the ${brk.title.toLowerCase()} card`} onClick={onDismiss}>
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z" fill="currentColor" /></svg>
@@ -398,7 +398,7 @@ function BroadcastCards({ cards, palette, onDismiss }: { cards: CardSet; palette
               ))}
             </tbody>
           </table>
-          <p className="st-card-line"><b>{brk.line}</b>{"run" in brk && brk.run ? <span> · {brk.run}</span> : null}</p>
+          <p className="st-card-line"><b>{brk.line}</b>{"run" in brk && brk.run ? <span>{brk.run}</span> : null}</p>
         </section>
       ) : null}
     </>
@@ -1014,7 +1014,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                     endRef={setTagEnd}
                   />
                   <div className="st-dimmer" aria-hidden="true" />
-                  {f && ev ? <BroadcastCards cards={cards} palette={palette} onDismiss={dismissFinal} /> : null}
+                  {f && ev ? <BroadcastCards cards={cards} palette={palette} onDismiss={dismissFinal} idBase={uid} /> : null}
                   {scoringNow && ev ? <ScoreFlash ev={ev} teams={teams} palette={palette} /> : null}
                   {f && ev ? <LowerThird f={f} ev={ev} teams={teams} sample={sample} scoring={scoringNow} palette={palette} /> : null}
                 </div>
