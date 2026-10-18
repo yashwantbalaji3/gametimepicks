@@ -135,6 +135,9 @@ function useWidth(ref: React.RefObject<HTMLElement>) {
   return w;
 }
 
+/** A patterned (clash) side's timeline segment carries its abbreviation when it is at least this wide. */
+const SEG_ABBR_MIN_PX = 34;
+
 function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive, cursorRef }: {
   sample: TheaterSample; compiled: Compiled; palette: Palette; teams: Teams; current: number; onSeekDrive: (i: number) => void;
   cursorRef: (el: HTMLSpanElement | null) => void;
@@ -192,7 +195,8 @@ function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive,
               {g.items.map((ev) => {
                 const span = compiled.driveSpans[ev.index];
                 const ticks = compiled.markers.filter((m) => m.driveIdx === ev.index && !m.exact);
-                const cls = (ev.index === current ? " is-current" : ev.index < current ? " is-done" : "") + (palette[ev.offense].accentHatched ? " is-hatch" : "");
+                const cue = palette.mode === "team" && palette[ev.offense].patterned;
+                const cls = (ev.index === current ? " is-current" : ev.index < current ? " is-done" : "") + (cue ? " is-cue" : "");
                 const px = layout ? layout.widths[ev.index] : null;
                 return (
                   <button
@@ -210,6 +214,7 @@ function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive,
                     {ticks.map((m) => (
                       <span key={m.quarter} className="st-tick" aria-hidden="true" style={{ left: `${(((m.atT - span.t0) / (span.t1 - span.t0)) * 100).toFixed(2)}%` }} />
                     ))}
+                    {cue && px != null && px >= SEG_ABBR_MIN_PX ? <span className="st-seg-abbr" aria-hidden="true">{teams[ev.offense].abbr}</span> : null}
                     <span className="st-ico" aria-hidden="true">{icon(ev)}</span>
                     {ev.index === current ? <span ref={cursorRef} className="st-tl-cursor" aria-hidden="true" /> : null}
                   </button>
@@ -220,7 +225,7 @@ function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive,
         ))}
       </div>
       <div className="st-tl-key" aria-hidden="true">
-        <span>fill = offense{(["away", "home"] as Side[]).filter((s) => palette[s].accentHatched).map((s) => ` (${teams[s].abbr} hatched)`).join("")}</span><span>★ score</span><span>✕ turnover / downs</span><span>⏸ end of half / regulation / OT</span><span>| quarter rollover</span>
+        <span>fill = offense{(["away", "home"] as Side[]).filter((s) => palette.mode === "team" && palette[s].patterned).map((s) => ` (${teams[s].abbr} striped, labelled)`).join("")}</span><span>★ score</span><span>✕ turnover / downs</span><span>⏸ end of half / regulation / OT</span><span>| quarter rollover</span>
       </div>
     </div>
   );
@@ -304,10 +309,11 @@ function Interstitial({ f, ev, teams, overtime, palette }: { f: SceneState; ev: 
     <div className={`st-strip${f.rollover && !f.breakKind ? " is-roll" : ""}${major ? " is-major" : ""}`} aria-hidden="true" key={`${f.driveIdx}-${text}`}>
       {major && palette.mode === "team" ? (
         /* halftime / end of regulation / final: each team's block colour over its on-field accent, away then home
-           (score-bug order) */
+           (score-bug order); the side carrying the clash cues adds its stripes */
         <span className="st-strip-rule">
           {(["away", "home"] as Side[]).map((s) => (
-            <i key={s} style={{ background: `linear-gradient(180deg, ${palette[s].fill} 0 62%, ${palette[s].accent} 62% 100%)` }} />
+            <i key={s} data-st-cue={palette[s].patterned ? "" : undefined}
+              style={{ background: `${palette[s].patterned ? "var(--st-cue), " : ""}linear-gradient(180deg, ${palette[s].fill} 0 62%, ${palette[s].accent} 62% 100%)` }} />
           ))}
         </span>
       ) : null}
@@ -405,7 +411,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
 
   // direct-write targets for the per-frame painter
   const els = useRef({
-    ball: null as SVGGElement | null, ribbon: null as SVGRectElement | null, ribbonHi: null as SVGRectElement | null,
+    ball: null as SVGGElement | null, ribbon: null as SVGRectElement | null, ribbonHi: null as SVGRectElement | null, ribbonCue: null as SVGRectElement | null,
     trail: null as SVGRectElement | null, ring: null as SVGCircleElement | null, flash: null as SVGRectElement | null,
     clock: null as HTMLSpanElement | null, seek: null as HTMLInputElement | null, ptime: null as HTMLSpanElement | null,
     cursor: null as HTMLSpanElement | null,
@@ -414,6 +420,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
     ball: (el: SVGGElement | null) => { els.current.ball = el; },
     ribbon: (el: SVGRectElement | null) => { els.current.ribbon = el; },
     ribbonHi: (el: SVGRectElement | null) => { els.current.ribbonHi = el; },
+    ribbonCue: (el: SVGRectElement | null) => { els.current.ribbonCue = el; },
     trail: (el: SVGRectElement | null) => { els.current.trail = el; },
     ring: (el: SVGCircleElement | null) => { els.current.ring = el; },
     flash: (el: SVGRectElement | null) => { els.current.flash = el; },
@@ -723,9 +730,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
     : [
       "Team colours: official league and club values (evidence: nfl-team-colors-evidence.json).",
       `On the field: ${sides.map((s) => `${teams[s].abbr} ${palette[s].accent}`).join(", ")}, as is, each mark keylined for 3:1 on the turf.`,
-      sides.filter((s) => palette[s].accentSwap).map((s) => `${teams[s].abbr} uses ${palette[s].accentSwap} on the field (accents too close).`).join(" "),
-      sides.filter((s) => palette[s].hatched).map((s) => `${teams[s].abbr} end zone hatched (colours too close).`).join(" "),
-      sides.filter((s) => palette[s].accentHatched).map((s) => `${teams[s].abbr} timeline hatched (accents too close).`).join(" "),
+      sides.filter((s) => palette[s].patterned).map((s) => `${palette.clash === "field" ? "Field colours" : "Team colours"} too close: ${teams[s].abbr} keeps its colour and carries stripes, its abbreviation and a pennant tag.`).join(" "),
     ].filter(Boolean).join(" ");
 
   return (

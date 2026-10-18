@@ -11,7 +11,7 @@ import path from "node:path";
 import { DISABLED_PLACEHOLDER, contentParams, devRoutesEnabled, devStaticParams } from "./dev-routes.mjs";
 import { FIXTURE_EVENT_IDS, MAX_FIXTURES, fixtureUsable, loadTheater, usableFixtures } from "./loader.mjs";
 import {
-  FIELD_DISTINCT_DE00, NEUTRAL_PALETTE, NFL_TEAM_COLORS, TEAM_COLORS_VALIDATED, TEAM_COLOR_EVIDENCE, TEXT_MIN, UI_MIN, collides,
+  FIELD_DISTINCT_DE00, NEUTRAL_PALETTE, NFL_TEAM_COLORS, TEAM_COLORS_VALIDATED, TEAM_COLOR_EVIDENCE, TEXT_MIN, UI_MIN, clashOf, collides,
   contrastRatio, deltaE2000, deltaE76, fieldClash, fieldDistinct, hexToLab, nflTeamColor, theaterPalette,
 } from "./nfl-team-colors.mjs";
 import { THEATER_KEYLINE_MIX, THEATER_TURF_MIX, fieldSurfaces, keylineHex, turfHexes } from "./field-geometry.mjs";
@@ -85,7 +85,8 @@ const BG = "#0A0705"; // --bg, the page
 const PANEL_2 = "#18231D"; // --gtp-card-elevated, under the timeline
 const TURF = turfHexes(THEATER_TURF_MIX);
 const KEYLINE = keylineHex();
-const FOUNDER_ACCENTS = { JAX: "#D7A22A", NO: "#D3BC8D", PIT: "#FFB612", TEN: "#D50A0A", TB: "#C2242B" };
+/** Founder role decisions that name a field colour other than the primary (NO and PIT: black is not field-distinct). */
+const FOUNDER_ACCENTS = { NO: "#D3BC8D", PIT: "#FFB612", TB: "#C2242B" };
 const pairs = () => TEAMS.flatMap((h) => TEAMS.filter((a) => a !== h).map((a) => [h, a]));
 
 test("colour map: 32 teams keyed nfl:<ABBR>, matching the receipts; ON in the dev prototype, on the evidence file's basis", () => {
@@ -121,28 +122,33 @@ test("founder roles: NO and PIT black with gold, JAX teal with black and gold, T
   const roles = (a) => { const c = nflTeamColor(a); return [c.primary, c.secondary, c.accent, c.inkName]; };
   assert.deepEqual(roles("NO"), ["#000000", "#D3BC8D", "#D3BC8D", "white"]);
   assert.deepEqual(roles("PIT"), ["#000000", "#FFB612", "#FFB612", "white"]);
-  assert.deepEqual(roles("JAX"), ["#006778", "#000000", "#D7A22A", "white"]);
-  assert.deepEqual(roles("TEN"), ["#4495D2", "#001532", "#D50A0A", "dark"]);
+  // iteration 6 (founder: preserve recognizable branding): teal and Titans blue carry JAX and TEN on the field
+  assert.deepEqual(roles("JAX"), ["#006778", "#000000", "#006778", "white"]);
+  assert.deepEqual(roles("TEN"), ["#4495D2", "#001532", "#4495D2", "dark"]);
   assert.deepEqual(roles("TB"), ["#A71930", "#322F2B", "#C2242B", "white"]);
-  assert.ok(!TEAMS.some((t) => [t.primary, t.secondary, t.accent].includes("#D50A0A") && t.abbr !== "TEN"), "#D50A0A only as the Titans logo's red");
-  // gold is prominent for the Saints and Steelers: block trim (bar, lettering) and every on-field accent
+  assert.ok(!TEAMS.some((t) => [t.primary, t.secondary, t.accent].includes("#D50A0A")), "#D50A0A (the Titans logo's red) is on record, not painted");
+  // gold is prominent for the Saints and Steelers: block trim (bar, lettering) and every on-field mark, black is the block
   for (const a of ["NO", "PIT"]) {
     const p = theaterPalette(a, "SF");
     assert.equal(p.home.fill, "#000000");
     assert.equal(p.home.trim, nflTeamColor(a).secondary, `${a}: gold trim on black`);
     assert.equal(p.home.accent, nflTeamColor(a).secondary, `${a}: gold on the field, as is`);
+    assert.ok(!fieldDistinct("#000000"), `${a}: black cannot be told from the field surfaces, so gold goes on the field`);
   }
-  // the Titans: navy trim on Titans blue; the logo's red on the field, as is (keylined, never lightened)
+  // the Titans: navy trim on Titans blue, Titans blue on the field (it passes fieldDistinct)
   const ten = theaterPalette("TEN", "HOU");
   assert.equal(ten.home.trim, "#001532");
-  assert.equal(ten.home.accent, "#D50A0A");
-  // JAX: gold carries the team on the field; on teal neither gold nor black reaches 4.5:1, so the trim is the ink
+  assert.equal(ten.home.accent, "#4495D2");
+  assert.ok(fieldDistinct("#4495D2"));
+  // JAX: teal on the field (field-distinct, keylined); on teal neither gold nor black reaches 4.5:1, so the trim is the ink
   const jax = theaterPalette("JAX", "SF");
   assert.equal(jax.home.fill, "#006778");
-  assert.equal(jax.home.accent, "#D7A22A");
+  assert.equal(jax.home.accent, "#006778");
   assert.equal(jax.home.trim, "#FFFFFF");
-  // the evidence file names where each of these came from
+  assert.ok(fieldDistinct("#006778") && Math.min(...[...TURF, PANEL_2].map((x) => deltaE2000("#006778", x))) >= FIELD_DISTINCT_DE00);
+  // the evidence file names where each of these came from, and why each field colour is what it is
   for (const a of ["NO", "PIT", "JAX", "TEN", "TB"]) assert.ok(EVIDENCE.teams[a].decision.length > 80, `${a}: decision recorded`);
+  for (const a of ["JAX", "TEN"]) assert.match(EVIDENCE.teams[a].fieldColour.reason, /iteration 6, founder/);
   assert.ok(EVIDENCE.teams.TEN.sources.club.names.join(",") === "Titans blue,white,navy,red", "TEN: the brand page's colour proportions");
 });
 
@@ -192,109 +198,130 @@ test(`contrast by treatment: block text ≥${TEXT_MIN}:1; for every team and eve
         assert.ok(v >= UI_MIN, `${tag} outline halo on the ${zone} end zone ${v.toFixed(2)}`);
         min.halo = Math.min(min.halo, v);
       }
-      // the glyph on the current timeline segment
+      // the glyph and the clash abbreviation chip on a timeline segment: text on the field colour
       const g = contrastRatio(s.accentInk, s.accent);
-      assert.ok(g >= UI_MIN, `${tag} segment glyph ${g.toFixed(2)}`);
+      assert.ok(g >= TEXT_MIN, `${tag} segment glyph / abbreviation ${g.toFixed(2)}`);
       min.glyph = Math.min(min.glyph, g);
     }
   }
-  console.log(`# theater colours: worst block text ${min.text.toFixed(2)}, trim ${min.trim.toFixed(2)}; keyline on turf/panel/page ≥ ${min.keyline.toFixed(2)}; end-zone halo ≥ ${min.halo.toFixed(2)}; segment glyph ≥ ${min.glyph.toFixed(2)}; official on-field colours under 3:1 alone (keyline required): ${min.fillAloneUnder3.size}`);
+  console.log(`# theater colours: worst block text ${min.text.toFixed(2)}, trim ${min.trim.toFixed(2)}; keyline on turf/panel/page ≥ ${min.keyline.toFixed(2)}; end-zone halo ≥ ${min.halo.toFixed(2)}; segment glyph / abbreviation ≥ ${min.glyph.toFixed(2)}; official on-field colours under 3:1 alone (keyline required): ${min.fillAloneUnder3.size}`);
+  assert.ok(min.keyline >= UI_MIN && min.text >= TEXT_MIN && min.trim >= TEXT_MIN && min.glyph >= TEXT_MIN);
   assert.ok(Math.abs(contrastRatio(nflTeamColor("LAC").ink, nflTeamColor("LAC").primary) - 4.69) < 0.02, "LAC is the review's 4.69 minimum");
 });
 
-test("one identity: the primary carries the team on the field unless a founder role says otherwise or it cannot be told from the turf", () => {
+test("one identity: the primary carries the team on the field unless a founder role says otherwise or it cannot be told from the turf or panel", () => {
   const { turf, panel } = fieldSurfaces();
   const kept = [];
   for (const t of TEAMS) {
+    const fc = EVIDENCE.teams[t.abbr].fieldColour;
+    assert.equal(fc.hex, t.accent, `${t.abbr}: evidence fieldColour = the map's field colour`);
+    assert.ok(fc.reason.length > 60, `${t.abbr}: reason recorded`);
+    assert.deepEqual(fc.primaryDE00, { turfA: Math.round(deltaE2000(t.primary, turf[0]) * 10) / 10, turfB: Math.round(deltaE2000(t.primary, turf[1]) * 10) / 10, panel: Math.round(deltaE2000(t.primary, panel) * 10) / 10 }, `${t.abbr}: ΔE00 recomputed`);
     if (FOUNDER_ACCENTS[t.abbr]) { assert.equal(t.accent, FOUNDER_ACCENTS[t.abbr], `${t.abbr}: founder role`); continue; }
-    if (fieldDistinct(t.primary)) assert.equal(t.accent, t.primary, `${t.abbr}: primary on the field`);
+    if (fieldDistinct(t.primary)) { assert.equal(t.accent, t.primary, `${t.abbr}: primary on the field`); assert.equal(fc.role, "primary"); }
     else {
       assert.equal(t.accent, t.secondary, `${t.abbr}: primary not field-distinct → secondary`);
+      assert.equal(fc.role, "secondary");
+      assert.ok(Object.values(fc.primaryDE00).some((v) => v < FIELD_DISTINCT_DE00), `${t.abbr}: genuinely indistinguishable from a surface`);
       assert.ok(fieldDistinct(t.secondary), `${t.abbr}: the secondary is`);
       kept.push(t.abbr);
     }
   }
+  // iteration 6 re-examined every team with a secondary on the field: each primary is under ΔE00 20 against a surface
   assert.deepEqual(kept.sort(), ["CHI", "CLE", "GB", "HOU", "LV", "NYJ", "PHI"], "exactly these keep the secondary on the field");
-  for (const a of ["GB", "NYJ", "PHI"]) assert.ok(Math.min(...[...turf, panel].map((s) => deltaE2000(nflTeamColor(a).primary, s))) < FIELD_DISTINCT_DE00, `${a}: green on green`);
-  // CIEDE2000 reference pair (Sharma, Wu & Dalal 2005, pair 1 via Lab ≈ hex is not exact, so check symmetry and identity)
+  for (const a of ["GB", "NYJ", "PHI"]) assert.ok(Math.min(...turf.map((s) => deltaE2000(nflTeamColor(a).primary, s))) < FIELD_DISTINCT_DE00, `${a}: green on green turf`);
   assert.equal(deltaE2000("#00338D", "#00338D"), 0);
   assert.ok(Math.abs(deltaE2000("#00338D", "#153522") - deltaE2000("#153522", "#00338D")) < 1e-9);
-  // BUF: royal blue everywhere — score bug, end zone, ribbon, timeline — in its own fixture and every matchup without an accent clash
-  const hue = (hex) => { const [, a, b] = hexToLab(hex); return (Math.atan2(b, a) * 180 / Math.PI + 360) % 360; };
+  // BUF (founder, 2026-10-18): royal blue #00338D on the score bug AND the field in all 62 orientations, never red
   const buf = nflTeamColor("BUF");
-  const fixture = theaterPalette("LV", "BUF");
-  assert.equal(fixture.away.fill, buf.primary);
-  assert.equal(fixture.away.accent, buf.primary, "BUF @ LV: the field paints the official royal blue");
-  let clean = 0;
-  const swapped = [];
+  const hue = (hex) => { const [, a, b] = hexToLab(hex); return (Math.atan2(b, a) * 180 / Math.PI + 360) % 360; };
+  assert.equal(buf.primary, "#00338D");
+  assert.equal(buf.accent, "#00338D");
+  let royal = 0;
+  const cued = [];
   for (const o of TEAMS.filter((x) => x.abbr !== "BUF")) {
     for (const [p, side] of [[theaterPalette(o.abbr, "BUF"), "away"], [theaterPalette("BUF", o.abbr), "home"]]) {
-      if (p[side].accentSwap || p[side].accentHatched) { swapped.push(`BUF@${o.abbr} ${p[side].accentSwap ?? "hatched"}`); continue; }
-      clean++;
-      const dH = Math.abs(hue(p[side].accent) - hue(buf.primary));
-      assert.ok(Math.min(dH, 360 - dH) < 1, `BUF ${side} vs ${o.abbr}: on-field hue = primary hue`);
+      assert.equal(p[side].fill, "#00338D", `BUF ${side} vs ${o.abbr}: score bug royal`);
+      assert.equal(p[side].accent, "#00338D", `BUF ${side} vs ${o.abbr}: field royal`);
       assert.ok(!(hue(p[side].accent) < 60 || hue(p[side].accent) > 330), "no red");
-      assert.equal(p[side].fill === buf.primary ? p[side].accent : buf.primary, buf.primary);
+      royal++;
+      if (p[side].patterned) cued.push(`BUF@${o.abbr}`);
+      if (side === "home") assert.equal(p.home.patterned, false, "the home side never carries the cues");
     }
   }
-  // only the clash rule moves BUF off royal: as the away side against a home blue or purple (fieldClash)
-  assert.deepEqual(swapped, ["BUF@BAL #C60C30", "BUF@IND #C60C30", "BUF@LAR #C60C30", "BUF@MIN #C60C30", "BUF@NYG #C60C30"]);
-  assert.equal(clean, 57, `BUF keeps royal blue in ${clean} of 62 orientations`);
+  assert.equal(royal, 62, "BUF keeps royal blue in all 62 orientations");
+  // as the away side against a home blue or purple it keeps royal and carries the clash cues instead
+  assert.deepEqual(cued, ["BUF@BAL", "BUF@IND", "BUF@LAR", "BUF@MIN", "BUF@NYG"]);
+  const fixture = theaterPalette("LV", "BUF");
+  assert.equal(fixture.clash, null, "BUF @ LV (a dev fixture) does not clash");
 });
 
-test("collisions (CIE76 ΔE < 20; on the field also ΔE00 < 10): identical primaries, secondary or hatch for blocks; accent swap or hatch on the field; every 2026 matchup", () => {
+test("no colour swap ever: in all 992 pairings each side paints its primary on the block and its declared field colour on the field; every clash puts pattern + abbreviation cues on the away side", () => {
   const P = (a) => nflTeamColor(a).primary;
   const identical = [["ATL", "TB"], ["DAL", "NE"], ["DAL", "SEA"], ["LV", "NO"], ["LV", "PIT"], ["NE", "SEA"], ["NO", "PIT"]];
   const seen = [];
   for (let i = 0; i < TEAMS.length; i++) for (let j = i + 1; j < TEAMS.length; j++) if (TEAMS[i].primary === TEAMS[j].primary) seen.push([TEAMS[i].abbr, TEAMS[j].abbr].sort().join("="));
   assert.deepEqual(seen.sort(), identical.map((p) => p.join("=")).sort(), "exactly these identical primaries");
+  assert.equal(P("SEA"), P("NE"));
   let unordered = 0, primaryHits = 0;
   for (let i = 0; i < TEAMS.length; i++) for (let j = i + 1; j < TEAMS.length; j++) { unordered++; if (collides(TEAMS[i].primary, TEAMS[j].primary)) primaryHits++; }
   assert.equal(unordered, 496);
-  const n = { pairs: 0, secondary: 0, hatched: 0, swap: 0, accentHatched: 0 };
+  const n = { pairs: 0, blocks: 0, field: 0, both: 0 };
   for (const [h, a] of pairs()) {
     n.pairs++;
     const p = theaterPalette(h.abbr, a.abbr);
-    assert.equal(p.home.fill, h.primary, "home always paints its primary");
-    if (collides(h.primary, a.primary)) {
-      if (collides(h.primary, a.secondary)) { assert.ok(p.away.hatched); assert.equal(p.away.fill, a.primary); n.hatched++; }
-      else { assert.equal(p.away.fill, a.secondary); n.secondary++; }
-    } else assert.equal(p.away.fill, a.primary);
-    if (p.away.accentHatched) n.accentHatched++;
-    else assert.ok(!fieldClash(p.home.accent, p.away.accent), `${a.abbr}@${h.abbr}: on-field accents distinguishable`);
-    if (p.away.accentSwap) {
-      n.swap++;
-      assert.ok([a.secondary, a.primary, ...a.alt].includes(p.away.accentSwap), "the swap is an official colour of the team");
-      assert.equal(p.away.accent, p.away.accentSwap, "painted as is");
-      assert.ok(fieldDistinct(p.away.accentSwap), "and visible on the turf");
+    const tag = `${a.abbr}@${h.abbr}`;
+    // NO SWAP: block = primary, field = the declared field colour, for both sides, whatever the opponent
+    for (const [side, t] of [["home", h], ["away", a]]) {
+      assert.equal(p[side].fill, t.primary, `${tag} ${side}: score bug = primary`);
+      assert.equal(p[side].accent, t.accent, `${tag} ${side}: field = declared field colour`);
+      assert.equal(p[side].ink, t.ink, `${tag} ${side}: the team's own ink`);
+      assert.deepEqual(Object.keys(p[side]).sort(), ["accent", "accentInk", "fill", "ink", "patterned", "trim"], `${tag}: no swap or alternate field`);
     }
+    // a clash is the S7 primary rule or the on-field ΔE00 rule; it puts the cues on the AWAY side only
+    const clash = collides(h.primary, a.primary) || fieldClash(h.accent, a.accent);
+    assert.equal(p.clash !== null, clash, `${tag}: clash recomputed`);
+    assert.equal(p.clash, clashOf(h, a));
+    assert.equal(p.away.patterned, clash, `${tag}: the away side carries the pattern cue exactly when the pairing clashes`);
+    assert.equal(p.home.patterned, false);
+    if (clash) n[p.clash]++;
   }
-  console.log(`# theater colours: primary collisions ${primaryHits} of 496; of 992 pairings → away secondary ${n.secondary}, hatched end zone ${n.hatched}, accent swap ${n.swap}, hatched timeline ${n.accentHatched}`);
+  console.log(`# theater colours: primary collisions ${primaryHits} of 496; of 992 pairings → clash cues on the away side in ${n.blocks + n.field + n.both} (primaries ${n.blocks}, field colours ${n.field}, both ${n.both}); colour swaps 0`);
   assert.equal(n.pairs, 992);
   // Pinned: a change to any of these is a deliberate edit of the map, not drift.
-  // identity pass: more primaries on the field, and the ΔE00 < 10 clash guard for dark pairs → swaps 65 → 68 and
-  // hatched timelines 77 → 32 (no derived colour can fail SWAP_MAX_ADJUST any more; a swap only needs to be
-  // field-distinct and clash-free)
-  assert.deepEqual([primaryHits, n.secondary, n.hatched, n.swap, n.accentHatched], [42, 84, 0, 68, 32]);
-  // the guard catches the dark pairs CIE76 calls distinct
-  for (const [x, y] of [["BUF", "IND"], ["DAL", "NYG"], ["IND", "LAR"], ["TB", "TEN"]]) {
+  assert.deepEqual([primaryHits, n.blocks, n.field, n.both], [42, 32, 36, 52]);
+  // the guard still catches the dark pairs CIE76 calls distinct
+  for (const [x, y] of [["BUF", "IND"], ["DAL", "NYG"], ["IND", "LAR"]]) {
     const A = nflTeamColor(x).accent, B = nflTeamColor(y).accent;
     assert.ok(!collides(A, B) && fieldClash(A, B), `${x}/${y}: CIE76 ${deltaE76(A, B).toFixed(1)}, ΔE00 ${deltaE2000(A, B).toFixed(1)}`);
+    assert.ok(theaterPalette(y, x).away.patterned, `${x}@${y}: cued`);
   }
-  const SEA = theaterPalette("SEA", "NE");
-  assert.equal(SEA.away.fill, nflTeamColor("NE").secondary);
+  // the cues themselves: every patterned side renders the stripes (pattern) and its abbreviation (text) — rendered by
+  // theater-shell.test.mjs for all 120 clashing pairings; here, that the components read \`patterned\` and nothing else
+  const scene = read("src/components/simulation-theater/FieldScene.tsx");
+  const island = read("src/components/simulation-theater/TheaterIsland.tsx");
+  const parts = read("src/components/simulation-theater/parts.tsx");
+  const sheet = read("src/components/simulation-theater/theater.css");
+  assert.match(scene, /const cue = team && off\.patterned/, "possession tag + ribbon cue");
+  assert.match(scene, /palette\[side\]\.patterned \? \(\s*<rect[^>]*fill=\{`url\(#\$\{id\("cue"\)\}\)`\}/, "end-line stripes");
+  assert.match(island, /cue && px != null && px >= SEG_ABBR_MIN_PX \? <span className="st-seg-abbr" aria-hidden="true">\{teams\[ev\.offense\]\.abbr\}/, "timeline abbreviation");
+  assert.match(island, /cue \? " is-cue" : ""/, "timeline stripes");
+  assert.match(parts, /teamMode && p\.patterned \? " is-cue" : ""/, "score-bug stripes");
+  assert.match(sheet, /\.st-seg\.is-cue\{background-image:var\(--st-cue\)/);
+  assert.match(sheet, /\.st-seg-abbr\{[^}]*background:var\(--st-off\);color:var\(--st-off-ink\)/, "the abbreviation sits on a solid chip of the field colour");
+  assert.ok(!/accentSwap|accentHatched|\.alt\b/.test(scene + island + parts + read("src/lib/simulation-theater/nfl-team-colors.mjs")), "no swap path remains");
   // every matchup in the 2026 receipts: the evidence file records what is painted, recomputed here
   const receiptMatchups = new Set(readShadowReceipts(REPO).map(({ receipt }) => `${receipt.away.abbr}@${receipt.home.abbr}`));
   assert.deepEqual(EVIDENCE.matchups.map((m) => m.matchup).sort(), [...receiptMatchups].sort());
   for (const m of EVIDENCE.matchups) {
     const [a, h] = m.matchup.split("@");
     const p = theaterPalette(h, a);
+    assert.equal(m.clash ?? null, p.clash, `${m.matchup} clash`);
     for (const side of ["home", "away"]) {
-      const { mode: _m, ...want } = { mode: 0, ...p[side] };
+      const want = { ...p[side] };
       for (const k of Object.keys(want)) if (want[k] === false) delete want[k];
       assert.deepEqual(m[side], want, `${m.matchup} ${side}`);
     }
-    assert.ok(!fieldClash(p.home.accent, p.away.accent) || p.away.accentHatched, m.matchup);
   }
   // the neutral switch: tokens only; unknown teams fall back to neutral
   for (const [h, a] of [["SF", "WSH"], ["CIN", "DEN"], ["XXX", "YYY"]]) {
@@ -334,8 +361,9 @@ test("evidence file: every source recorded, flags recomputed by the rule, every 
     if (isOfficial) official++;
     // roles: the map holds exactly the recorded roles, and each is listed VERBATIM by the official sources named
     assert.deepEqual([v.roles.primary.hex, v.roles.secondary.hex, v.roles.accent.hex, v.roles.ink], [ours.primary, ours.secondary, ours.accent, ours.inkName], `${abbr}: map = evidence roles`);
-    assert.deepEqual((v.roles.alternates ?? []).map((x) => x.hex), ours.alt, `${abbr}: alternates`);
-    for (const r of [v.roles.primary, v.roles.secondary, v.roles.accent, ...(v.roles.alternates ?? [])]) {
+    assert.equal(v.roles.alternates, undefined, `${abbr}: no alternate role (no colour is swapped for a clash)`);
+    assert.equal(ours.alt, undefined, `${abbr}: the runtime map carries no alternate`);
+    for (const r of [v.roles.primary, v.roles.secondary, v.roles.accent, ...(v.recordedAlternates ?? [])]) {
       const recomputed = ["nflHeader", "nflLogo", "club"].filter((id) => v.sources[id]?.listed.includes(r.hex));
       assert.deepEqual(r.officialSources, recomputed, `${abbr} ${r.hex}: official sources recomputed`);
       assert.ok(recomputed.length >= 1, `${abbr} ${r.hex}: listed verbatim by an official source`);
@@ -344,10 +372,10 @@ test("evidence file: every source recorded, flags recomputed by the rule, every 
   }
   console.log(`# theater colours: validated 32 of 32, every one by an official source (${official}); every role value official-verbatim`);
   assert.equal(official, 32);
-  // changes (iteration 5, against d933d84b5e), then the identity pass, chain: each `before` is the previous `after`,
-  // and the last `after` is what the map holds now
+  // changes (iteration 5, against d933d84b5e), then the identity pass, then iteration 6, chain: each `before` is the
+  // previous `after`, and the last `after` is what the map holds now
   const last = new Map();
-  for (const c of [...E.changes, ...E.identityChanges]) {
+  for (const c of [...E.changes, ...E.identityChanges, ...E.brandingChanges]) {
     assert.notEqual(c.before, c.after);
     const k = `${c.abbr}.${c.field}`;
     if (last.has(k)) assert.equal(c.before, last.get(k), `${k}: the chain is unbroken`);
@@ -357,13 +385,15 @@ test("evidence file: every source recorded, flags recomputed by the rule, every 
   assert.deepEqual([...new Set(E.changes.map((c) => c.abbr))].sort(), ["BAL", "DEN", "HOU", "IND", "JAX", "KC", "NO", "NYG", "NYJ", "PHI", "PIT", "TB", "TEN"]);
   assert.deepEqual(E.identityChanges.map((c) => c.abbr), ["ARI", "ATL", "BAL", "BUF", "DAL", "IND", "LAR", "MIN", "NE", "NYG", "SEA", "SF", "WSH"]);
   assert.ok(E.identityChanges.every((c) => c.field === "accent" && c.after === nflTeamColor(c.abbr).primary));
+  assert.deepEqual(E.brandingChanges.map((c) => `${c.abbr} ${c.before}→${c.after}`), ["JAX #D7A22A→#006778", "TEN #D50A0A→#4495D2"]);
+  assert.ok(E.brandingChanges.every((c) => c.field === "accent" && c.after === nflTeamColor(c.abbr).primary && fieldDistinct(c.after)));
   assert.equal(E.history.length, 18);
   // every on-field colour: the official value as painted, and the treatment that carries its contrast, recomputed
   assert.ok(!("derivedUi" in E), "no derived (substituted) colour is recorded any more");
   const { turf, panel, page } = fieldSurfaces();
   const r2 = (x) => Math.round(x * 100) / 100;
   const surf = (hex) => ({ turf: r2(Math.min(...turf.map((t) => contrastRatio(hex, t)))), panel: r2(contrastRatio(hex, panel)), page: r2(contrastRatio(hex, page)) });
-  const want = TEAMS.flatMap((t) => [["accent", t.accent], ...t.alt.map((h) => ["alternate", h])].map(([role, hex]) => ({ abbr: t.abbr, role, official: hex, onField: hex, fillAlone: surf(hex), keyline: surf(KEYLINE) })));
+  const want = TEAMS.map((t) => ({ abbr: t.abbr, role: "accent", official: t.accent, onField: t.accent, fillAlone: surf(t.accent), keyline: surf(KEYLINE) }));
   assert.deepEqual(E.treatments.map(({ abbr, role, official: o, onField, fillAlone, keyline }) => ({ abbr, role, official: o, onField, fillAlone, keyline })), want);
   for (const d of E.treatments) {
     assert.equal(d.onField, d.official, `${d.abbr}: painted as is`);

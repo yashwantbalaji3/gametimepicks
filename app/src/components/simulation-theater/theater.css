@@ -139,7 +139,7 @@
 .st-ball-stripe{stroke:var(--lava-text);stroke-width:1.6;stroke-opacity:.9;fill:none}
 .st-ball-lace{stroke:var(--lava-text);stroke-width:1.2;stroke-linecap:round;fill:none}
 .st-chev path{fill:none;stroke:var(--lava-text);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.st-postag rect{fill:color-mix(in srgb, var(--bg) 84%, transparent);stroke-width:1.5}
+.st-postag rect,.st-postag path{fill:color-mix(in srgb, var(--bg) 84%, transparent);stroke-width:1.5}
 .st-postag text{fill:var(--lava-text);font:700 11px var(--font-mono);letter-spacing:.06em}
 
 /* broadcast graphics over the field (aria-hidden: the score bug, drive card and live region carry the facts) */
@@ -372,7 +372,6 @@
 .st-strip-rule{position:absolute;left:0;right:0;top:0;height:7px;display:flex;gap:2px;background:var(--bg)}
 .st-strip-rule i{flex:1 1 0}
 .st-root[data-st-colors="team"] .st-strip.is-major{overflow:hidden;border-top:1px solid var(--border-strong);padding-top:18px}
-.st-seg.is-hatch{background-image:repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in srgb, var(--bg) 55%, transparent) 4px 7px)}
 /* timeline, team mode: the official colour is never dimmed (a dimmed burgundy reads as a dimmed red). State is shown by
    FILL: a drive still to come shows the colour as a full-strength base band, a played or current drive is filled; the
    current one adds a ring. Every segment is keylined. */
@@ -382,5 +381,13 @@
 .st-root[data-st-colors="team"] .st-seg:hover{background-color:color-mix(in srgb, var(--st-off) 45%, var(--st-panel-2))}
 .st-root[data-st-colors="team"] .st-seg.is-done,.st-root[data-st-colors="team"] .st-seg.is-current{background-color:var(--st-off);background-image:none}
 .st-root[data-st-colors="team"] .st-seg.is-current{box-shadow:inset 0 0 0 2px var(--st-text)}
-.st-root[data-st-colors="team"] .st-seg.is-hatch{background-image:repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in srgb, var(--bg) 55%, transparent) 4px 7px),linear-gradient(0deg, var(--st-off) 0 14px, transparent 14px)}
-.st-root[data-st-colors="team"] .st-seg.is-hatch.is-done,.st-root[data-st-colors="team"] .st-seg.is-hatch.is-current{background-image:repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in srgb, var(--bg) 55%, transparent) 4px 7px)}
+/* clash cues (palette `patterned`: the away side when the two teams' colours are too close; WCAG 1.4.1). The team keeps
+   its official colour; the cue is shape and text: --st-cue stripes (theater-css.ts: keyline + a dark hairline) OVER that colour, the
+   abbreviation on a solid chip of it (ink ≥4.5:1, tested), the glyph on a chip too. */
+.st-root[data-st-colors="team"] .st-seg.is-cue{background-image:var(--st-cue),linear-gradient(0deg, var(--st-off) 0 14px, transparent 14px)}
+.st-root[data-st-colors="team"] .st-seg.is-cue.is-done,.st-root[data-st-colors="team"] .st-seg.is-cue.is-current{background-image:var(--st-cue)}
+.st-seg-abbr{position:absolute;top:3px;left:50%;transform:translateX(-50%);padding:0 2px;border-radius:2px;background:var(--st-off);color:var(--st-off-ink);
+  font:700 9px/11px var(--font-mono);letter-spacing:.04em;pointer-events:none}
+.st-root[data-st-colors="team"] .st-seg.is-cue .st-ico:not(:empty){padding:0 2px;border-radius:2px;background:var(--st-off)}
+.st-bug-team.is-team.is-cue .st-bug-bar{width:12px;flex-basis:12px;background:repeating-linear-gradient(135deg, var(--st-team-trim) 0 3px, var(--st-team-fill) 3px 6px)}
+.st-root[data-st-colors="team"] .st-ribbon-cue{pointer-events:none}

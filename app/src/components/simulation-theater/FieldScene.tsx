@@ -21,15 +21,12 @@
 import { BALL_RX, FIELD_LEN, FIELD_WID, HASH_FROM_SIDELINE, MARGIN_X, MARGIN_Y, TOTAL_LEN, TOTAL_WID, U, ballSize, fieldMap, numberSet } from "@/lib/simulation-theater/field-geometry.mjs";
 
 export type Side = "home" | "away";
-/** One side's paint (lib/simulation-theater/nfl-team-colors.mjs theaterPalette): block fill, its ink (text, ≥4.5:1) and trim,
- *  the on-field accent (an official value as is; in team mode every mark drawn in it carries the --st-keyline halo, the
- *  ≥3:1 boundary), its ink, `accentSwap` = the official colour used instead of a clashing accent, and the two collision
- *  fallbacks (hatched end zone, hatched timeline segments). */
-export type TeamPaint = {
-  fill: string; ink: string; trim: string; accent: string; accentInk?: string; hatched: boolean;
-  accentSwap?: string; accentHatched?: boolean;
-};
-export type Palette = { mode: string; validated: boolean; home: TeamPaint; away: TeamPaint };
+/** One side's paint (lib/simulation-theater/nfl-team-colors.mjs theaterPalette): block fill (the primary), its ink (text,
+ *  ≥4.5:1) and trim, the declared field colour `accent` (an official value as is, never swapped; in team mode every mark
+ *  drawn in it carries the --st-keyline halo, the ≥3:1 boundary), its ink, and `patterned`: this side carries the clash
+ *  cues (keyline stripes, abbreviation, pennant tag, square ribbon ends) because the two teams' colours are too close. */
+export type TeamPaint = { fill: string; ink: string; trim: string; accent: string; accentInk?: string; patterned: boolean };
+export type Palette = { mode: string; validated: boolean; clash?: string | null; home: TeamPaint; away: TeamPaint };
 export type Teams = { home: { abbr: string; name: string | null }; away: { abbr: string; name: string | null } };
 export type Frame = {
   phase: string;
@@ -66,6 +63,20 @@ const fy = (yd: number) => (yd + MARGIN_Y) * U; // yards from the top sideline �
  *  the team's block colour itself, opaque, so the end zone shows the official value. */
 const zoneFill = (p: TeamPaint, mode: string) => (mode === "neutral" ? `color-mix(in srgb, ${p.fill} 22%, var(--st-turf-b))` : p.fill);
 
+/** Width (yards) of the striped band along a patterned side's end line. */
+const CUE_BAND_YD = 2;
+
+/** The clash cue: diagonal stripes of the keyline with a dark hairline beside it, drawn OVER the team's own colour, so
+ *  they read on light and dark team colours alike and the official colour stays visible between them. */
+function CuePattern({ id, size }: { id: string; size: number }) {
+  return (
+    <pattern id={id} width={size} height={size} patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width={size * 0.22} height={size} style={{ fill: "var(--st-keyline)" }} />
+      <rect x={size * 0.22} width={size * 0.16} height={size} style={{ fill: "var(--bg)", fillOpacity: 0.8 }} />
+    </pattern>
+  );
+}
+
 export function StaticField({ palette, idPrefix, detail = true }: { palette: Palette; idPrefix: string; detail?: boolean }) {
   const id = (s: string) => `${idPrefix}-${s}`;
   const mode = palette.mode;
@@ -80,7 +91,10 @@ export function StaticField({ palette, idPrefix, detail = true }: { palette: Pal
       <rect x={fx(x0)} y={top} width={10 * U} height={FIELD_WID * U} style={{ fill: zoneFill(palette[side], mode) }} />
       {/* the pinstripe texture is for the neutral tint only: on a team colour it would read as the collision hatch */}
       {mode === "neutral" ? <rect x={fx(x0)} y={top} width={10 * U} height={FIELD_WID * U} fill={`url(#${id("pin")})`} /> : null}
-      {palette[side].hatched ? <rect x={fx(x0)} y={top} width={10 * U} height={FIELD_WID * U} fill={`url(#${id("hatch")})`} /> : null}
+      {/* clash cue: keyline stripes along the end line, clear of the lettering (which keeps its 4.5:1 on the plain fill) */}
+      {mode === "team" && palette[side].patterned ? (
+        <rect x={fx(side === "home" ? 0 : 120 - CUE_BAND_YD)} y={top} width={CUE_BAND_YD * U} height={FIELD_WID * U} fill={`url(#${id("cue")})`} data-st-cue="" />
+      ) : null}
     </g>
   );
   const post = (x: number, out: number) => (
@@ -108,9 +122,7 @@ export function StaticField({ palette, idPrefix, detail = true }: { palette: Pal
         <pattern id={id("pin")} width={14} height={14} patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
           <rect width={3} height={14} style={{ fill: "var(--lava-text)", fillOpacity: 0.07 }} />
         </pattern>
-        <pattern id={id("hatch")} width={16} height={16} patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <rect width={8} height={16} style={{ fill: "var(--bg)", fillOpacity: 0.35 }} />
-        </pattern>
+        <CuePattern id={id("cue")} size={14} />
         {detail ? (
           <pattern id={id("hash")} x={fx(0)} y={0} width={U} height={VB_H} patternUnits="userSpaceOnUse">
             <rect x={-0.9} y={top + 0.4 * U} width={1.8} height={0.8 * U} style={{ fill: "var(--st-line-soft)" }} />
@@ -231,6 +243,7 @@ function LiveDefs({ idPrefix }: { idPrefix: string }) {
         <stop offset="0" style={{ stopColor: "var(--lava-text)", stopOpacity: 0 }} />
         <stop offset="1" style={{ stopColor: "var(--lava-text)", stopOpacity: 0.55 }} />
       </linearGradient>
+      <CuePattern id={`${idPrefix}-cue`} size={7} />
       <linearGradient id={`${idPrefix}-trail-l`} x1="1" y1="0" x2="0" y2="0">
         <stop offset="0" style={{ stopColor: "var(--lava-text)", stopOpacity: 0 }} />
         <stop offset="1" style={{ stopColor: "var(--lava-text)", stopOpacity: 0.55 }} />
@@ -290,6 +303,7 @@ export type LiveRefs = {
   ball?: (el: SVGGElement | null) => void;
   ribbon?: (el: SVGRectElement | null) => void;
   ribbonHi?: (el: SVGRectElement | null) => void;
+  ribbonCue?: (el: SVGRectElement | null) => void;
   trail?: (el: SVGRectElement | null) => void;
   ring?: (el: SVGCircleElement | null) => void;
   flash?: (el: SVGRectElement | null) => void;
@@ -339,7 +353,16 @@ export function FieldLive({
       </g>
     );
   };
-  const posW = offenseAbbr.length * 7.4 + 14;
+  // possession tag: a miniature score-bug block; the patterned (clash) side's is a striped pennant pointing the way it attacks
+  const cue = team && off.patterned;
+  const textW = offenseAbbr.length * 7.4 + 14;
+  const stripeW = cue ? 8 : 0;
+  const point = cue ? 7 : 0;
+  const bodyW = textW + stripeW;
+  const posW = bodyW + point;
+  const d = (o?.dir ?? 1) > 0 ? 1 : -1;
+  const pennant = d > 0 ? `M0 0H${bodyW}L${posW} 8.5L${bodyW} 17H0Z` : `M${point} 0H${posW}V17H${point}L0 8.5Z`;
+  const textX = cue ? (d > 0 ? stripeW + textW / 2 : point + textW / 2) : posW / 2;
   return (
     <svg className="st-live" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
       <LiveDefs idPrefix={idPrefix} />
@@ -362,8 +385,12 @@ export function FieldLive({
       ) : null}
       {f ? (
         <>
-          <rect ref={refs.ribbon} className="st-ribbon" x={o?.ribbon?.x ?? 0} y={(o?.laneY ?? 0) - ribbonH / 2} width={o?.ribbon?.w ?? 0} height={ribbonH} rx={ribbonH / 2}
+          <rect ref={refs.ribbon} className="st-ribbon" x={o?.ribbon?.x ?? 0} y={(o?.laneY ?? 0) - ribbonH / 2} width={o?.ribbon?.w ?? 0} height={ribbonH} rx={cue ? 1 : ribbonH / 2}
             style={{ fill: off.accent }} />
+          {cue ? (
+            <rect ref={refs.ribbonCue} className="st-ribbon-cue" x={o?.ribbon?.x ?? 0} y={(o?.laneY ?? 0) - ribbonH / 2} width={o?.ribbon?.w ?? 0} height={ribbonH} rx={1}
+              fill={`url(#${idPrefix}-cue)`} data-st-cue="" />
+          ) : null}
           <rect ref={refs.ribbonHi} className="st-ribbon-hi" x={o?.ribbon?.x ?? 0} y={(o?.laneY ?? 0) - ribbonH / 2 + 1} width={o?.ribbon?.w ?? 0} height={1.5} />
           <rect ref={refs.trail} x={o?.trail?.x ?? 0} y={(o?.laneY ?? 0) - ry * 0.7} width={o?.trail?.w ?? 0} height={ry * 1.4} rx={ry * 0.7}
             fill={`url(#${idPrefix}-trail-${(travelDir ?? o?.travel ?? 1) > 0 ? "r" : "l"})`} />
@@ -374,8 +401,15 @@ export function FieldLive({
               {W >= 360 ? (
                 <g className="st-postag" transform={`translate(${-posW / 2} ${-ry - 24})`}>
                   {/* team mode: a miniature of the offense's score-bug block (fill, ink), keylined */}
-                  <rect width={posW} height={17} rx={4} style={team ? { fill: off.fill, stroke: "var(--st-keyline)" } : { stroke: off.accent }} />
-                  <text x={posW / 2} y={12.5} textAnchor="middle" style={team ? { fill: off.ink } : undefined}>{offenseAbbr}</text>
+                  {cue ? (
+                    <>
+                      <path d={pennant} style={{ fill: off.fill, stroke: "var(--st-keyline)" }} data-st-cue="" />
+                      <rect x={d > 0 ? 2 : posW - stripeW} y={2.5} width={stripeW - 2} height={12} fill={`url(#${idPrefix}-cue)`} />
+                    </>
+                  ) : (
+                    <rect width={posW} height={17} rx={4} style={team ? { fill: off.fill, stroke: "var(--st-keyline)" } : { stroke: off.accent }} />
+                  )}
+                  <text x={textX} y={12.5} textAnchor="middle" style={team ? { fill: off.ink } : undefined}>{offenseAbbr}</text>
                 </g>
               ) : null}
             </g>
@@ -386,7 +420,7 @@ export function FieldLive({
   );
 }
 
-type LiveEls = { ball: SVGGElement | null; ribbon: SVGRectElement | null; ribbonHi: SVGRectElement | null; trail: SVGRectElement | null; ring: SVGCircleElement | null; flash: SVGRectElement | null };
+type LiveEls = { ball: SVGGElement | null; ribbon: SVGRectElement | null; ribbonHi: SVGRectElement | null; ribbonCue?: SVGRectElement | null; trail: SVGRectElement | null; ring: SVGCircleElement | null; flash: SVGRectElement | null };
 
 /** Per-frame paint: direct attribute writes, no React. Only values that change inside a phase are written here. */
 export function paintLive(els: LiveEls, o: Overlay | null) {
@@ -399,6 +433,7 @@ export function paintLive(els: LiveEls, o: Overlay | null) {
   const rw = o.ribbon ? String(o.ribbon.w) : "0";
   if (els.ribbon) { els.ribbon.setAttribute("x", rx); els.ribbon.setAttribute("width", rw); }
   if (els.ribbonHi) { els.ribbonHi.setAttribute("x", rx); els.ribbonHi.setAttribute("width", rw); }
+  if (els.ribbonCue) { els.ribbonCue.setAttribute("x", rx); els.ribbonCue.setAttribute("width", rw); }
   if (els.trail) { els.trail.setAttribute("x", String(o.trail?.x ?? 0)); els.trail.setAttribute("width", String(o.trail?.w ?? 0)); }
   if (els.ring) els.ring.setAttribute("r", String(o.ringR));
   if (els.flash) els.flash.style.fillOpacity = String(o.flashOpacity);
