@@ -12,9 +12,13 @@
  *   FieldLive    start/end spot markers (recorded spots only), drive ribbon, trail, start ring, ball, possession
  *                chevrons and tag, score flash. Screen px. React renders it on DRIVE/PHASE changes only; the island's
  *                frame loop moves it with direct attribute writes (paintLive), so playback never re-renders React.
+ *   DetachedBall the no-JavaScript final frame (iteration 3): that frame is drawn once at 1200 px and stretched to
+ *                whatever box the page gives it, so its ball is NOT drawn in the stretched layer. It is its own small
+ *                square SVG, placed at the same fieldMap percentages and scaled uniformly, so it keeps its drawn shape at
+ *                every width (spec §2.2: "the ball never becomes an oval").
  * The whole scene is aria-hidden; the HTML shell (score bug, drive card, transcript) carries every fact.
  */
-import { FIELD_LEN, FIELD_WID, HASH_FROM_SIDELINE, MARGIN_X, MARGIN_Y, TOTAL_LEN, TOTAL_WID, U, ballSize, fieldMap, numberSet } from "@/lib/simulation-theater/field-geometry.mjs";
+import { BALL_RX, FIELD_LEN, FIELD_WID, HASH_FROM_SIDELINE, MARGIN_X, MARGIN_Y, TOTAL_LEN, TOTAL_WID, U, ballSize, fieldMap, numberSet } from "@/lib/simulation-theater/field-geometry.mjs";
 
 export type Side = "home" | "away";
 export type TeamPaint = { fill: string; ink: string; accent: string; hatched: boolean; accentBase?: string };
@@ -157,7 +161,7 @@ export function FieldMarks({ W, H, palette, teams }: { W: number; H: number; pal
   const topY = m.Y(0) + m.fieldH * 0.1;
   const zoneW = m.X(10) - m.X(0);
   const abbrSize = Math.max(10, Math.min(zoneW * 0.58, m.fieldH * 0.16));
-  const showAbbr = W >= 300;
+  const showAbbr = W >= 330; // dropped at 320 px (spec §2.3), where the full-bleed field is 320 wide
   const ink = (side: Side) => (palette.mode === "neutral" ? "var(--lava-text)" : palette[side].ink);
   const pyl = Math.max(3, Math.min(7, W * 0.0045));
   const arrow = (x: number, y: number, d: number, flip: boolean) => {
@@ -226,6 +230,53 @@ function LiveDefs({ idPrefix }: { idPrefix: string }) {
   );
 }
 
+/** The ball itself (glow, shadow, leather, stripes, laces, possession chevrons), centred on 0,0, in screen px. */
+function BallGlyph({ rx, ry, dir, idPrefix }: { rx: number; ry: number; dir: number; idPrefix: string }) {
+  return (
+    <>
+      <circle r={rx * 2.3} fill={`url(#${idPrefix}-glow)`} className="st-ball-glow" />
+      <ellipse cx={1.5} cy={ry + 2.5} rx={rx * 0.95} ry={ry * 0.45} className="st-ball-shadow" />
+      <ellipse rx={rx} ry={ry} fill={`url(#${idPrefix}-leather)`} className="st-ball-body" />
+      <path d={`M${-rx * 0.62} ${-ry * 0.55}V${ry * 0.55}M${rx * 0.62} ${-ry * 0.55}V${ry * 0.55}`} className="st-ball-stripe" />
+      <path d={`M${-rx * 0.3} 0H${rx * 0.3}M${-rx * 0.18} ${-ry * 0.3}V${ry * 0.3}M0 ${-ry * 0.3}V${ry * 0.3}M${rx * 0.18} ${-ry * 0.3}V${ry * 0.3}`} className="st-ball-lace" />
+      {/* possession: two chevrons ahead of the ball, pointing at the goal the offense attacks (shape, not colour) */}
+      <g transform={`scale(${dir} 1)`} className="st-chev">
+        <path d={`M${rx + 5} ${-ry * 0.9}L${rx + 5 + ry} 0L${rx + 5} ${ry * 0.9}`} />
+        <path d={`M${rx + 5 + ry * 0.9} ${-ry * 0.9}L${rx + 5 + ry * 1.9} 0L${rx + 5 + ry * 0.9} ${ry * 0.9}`} opacity={0.55} />
+      </g>
+    </>
+  );
+}
+
+/**
+ * The ball of a frame drawn at W × H and stretched to an unknown box (the server-rendered final frame): a square SVG
+ * centred at the ball's fieldMap position, given as percentages of the box (fieldMap is linear, so they hold at any
+ * size), and sized like the island's ball at the box's width: ballSize(boxW) = clamp(min, perW · boxW, max), written
+ * as a CSS clamp() of the box width. Square viewBox + square box = uniform scale: the ball keeps its drawn shape.
+ */
+export function DetachedBall({ W, H, o, idPrefix }: { W: number; H: number; o: Overlay | null; idPrefix: string }) {
+  if (!o) return null;
+  const { rx, ry } = ballSize(W);
+  const half = Math.ceil(Math.max(rx * 2.3, rx + 5 + ry * 1.9, ry + 2.5 + ry * 0.45) + 2);
+  const k = (2 * half) / rx; // box px per px of drawn half-length
+  const size = `clamp(${(k * BALL_RX.min).toFixed(2)}px, ${(k * BALL_RX.perW * 100).toFixed(3)}%, ${(k * BALL_RX.max).toFixed(2)}px)`;
+  return (
+    <svg
+      className="st-ball-solo"
+      viewBox={`${-half} ${-half} ${2 * half} ${2 * half}`}
+      style={{ left: `${((o.ballX / W) * 100).toFixed(3)}%`, top: `${((o.laneY / H) * 100).toFixed(3)}%`, width: size }}
+      aria-hidden="true"
+      focusable="false"
+      data-st-ball-solo=""
+    >
+      <LiveDefs idPrefix={idPrefix} />
+      <g opacity={o.ballOpacity}>
+        <BallGlyph rx={rx} ry={ry} dir={o.dir} idPrefix={idPrefix} />
+      </g>
+    </svg>
+  );
+}
+
 export type LiveRefs = {
   ball?: (el: SVGGElement | null) => void;
   ribbon?: (el: SVGRectElement | null) => void;
@@ -241,10 +292,12 @@ export type LiveRefs = {
  * once the drive has reached it (RESULT onward). Nothing marks any other yard line (no invented first downs).
  */
 export function FieldLive({
-  W, H, frame, o, palette, offenseAbbr, startTag, endTag, showEnd, endX, idPrefix, reducedMotion, refs = {}, travelDir,
+  W, H, frame, o, palette, offenseAbbr, startTag, endTag, showEnd, endX, idPrefix, reducedMotion, refs = {}, travelDir, detachBall = false,
 }: {
   W: number; H: number; frame: Frame | null; o: Overlay | null; palette: Palette; offenseAbbr: string; startTag: string; endTag: string;
   showEnd: boolean; endX: number; idPrefix: string; reducedMotion: boolean; refs?: LiveRefs; travelDir?: number;
+  /** true: the ball is drawn by <DetachedBall> instead (the stretched no-JavaScript frame) */
+  detachBall?: boolean;
 }) {
   const m = fieldMap(W, H);
   const f = frame;
@@ -299,24 +352,17 @@ export function FieldLive({
           <rect ref={refs.trail} x={o?.trail?.x ?? 0} y={(o?.laneY ?? 0) - ry * 0.7} width={o?.trail?.w ?? 0} height={ry * 1.4} rx={ry * 0.7}
             fill={`url(#${idPrefix}-trail-${(travelDir ?? o?.travel ?? 1) > 0 ? "r" : "l"})`} />
           <circle ref={refs.ring} className="st-ring" cx={o?.startX ?? 0} cy={o?.laneY ?? 0} r={o?.ringR ?? 6} />
-          <g ref={refs.ball} transform={`translate(${o?.ballX ?? 0} ${o?.laneY ?? 0})`} opacity={o?.ballOpacity ?? 1}>
-            <circle r={rx * 2.3} fill={`url(#${idPrefix}-glow)`} />
-            <ellipse cx={1.5} cy={ry + 2.5} rx={rx * 0.95} ry={ry * 0.45} className="st-ball-shadow" />
-            <ellipse rx={rx} ry={ry} fill={`url(#${idPrefix}-leather)`} className="st-ball-body" />
-            <path d={`M${-rx * 0.62} ${-ry * 0.55}V${ry * 0.55}M${rx * 0.62} ${-ry * 0.55}V${ry * 0.55}`} className="st-ball-stripe" />
-            <path d={`M${-rx * 0.3} 0H${rx * 0.3}M${-rx * 0.18} ${-ry * 0.3}V${ry * 0.3}M0 ${-ry * 0.3}V${ry * 0.3}M${rx * 0.18} ${-ry * 0.3}V${ry * 0.3}`} className="st-ball-lace" />
-            {/* possession: two chevrons ahead of the ball, pointing at the goal the offense attacks (shape, not colour) */}
-            <g transform={`scale(${o?.dir ?? 1} 1)`} className="st-chev">
-              <path d={`M${rx + 5} ${-ry * 0.9}L${rx + 5 + ry} 0L${rx + 5} ${ry * 0.9}`} />
-              <path d={`M${rx + 5 + ry * 0.9} ${-ry * 0.9}L${rx + 5 + ry * 1.9} 0L${rx + 5 + ry * 0.9} ${ry * 0.9}`} opacity={0.55} />
+          {detachBall ? null : (
+            <g ref={refs.ball} transform={`translate(${o?.ballX ?? 0} ${o?.laneY ?? 0})`} opacity={o?.ballOpacity ?? 1}>
+              <BallGlyph rx={rx} ry={ry} dir={o?.dir ?? 1} idPrefix={idPrefix} />
+              {W >= 360 ? (
+                <g className="st-postag" transform={`translate(${-posW / 2} ${-ry - 24})`}>
+                  <rect width={posW} height={17} rx={4} style={{ stroke: off.accent }} />
+                  <text x={posW / 2} y={12.5} textAnchor="middle">{offenseAbbr}</text>
+                </g>
+              ) : null}
             </g>
-            {W >= 360 ? (
-              <g className="st-postag" transform={`translate(${-posW / 2} ${-ry - 24})`}>
-                <rect width={posW} height={17} rx={4} style={{ stroke: off.accent }} />
-                <text x={posW / 2} y={12.5} textAnchor="middle">{offenseAbbr}</text>
-              </g>
-            ) : null}
-          </g>
+          )}
         </>
       ) : null}
     </svg>

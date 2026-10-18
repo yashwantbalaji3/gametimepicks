@@ -9,7 +9,7 @@
  * <style>, so it is neither inlined twice nor shipped inside the island's JavaScript.
  */
 import "./theater.css";
-import { FieldLive, FieldMarks, StaticField } from "./FieldScene";
+import { DetachedBall, FieldLive, FieldMarks, StaticField } from "./FieldScene";
 import type { Frame, Palette } from "./FieldScene";
 import { Banner, FieldLegend, Linescore, SceneBadge, ScoreBug, Transcript, Unavailable } from "./parts";
 import TheaterLoader from "./TheaterLoader";
@@ -30,6 +30,7 @@ function FinalFrame({ manifest, sample }: { manifest: TheaterManifest; sample: T
   const s = finalState(manifest, sample) as Frame & { score: { home: number; away: number }; period: number; periodClock: number; driveIdx: number };
   const ev = sample.events[s.driveIdx];
   const endX = fieldMap(SSR_W, SSR_H).X(ev.offense === "home" ? 110 - ev.fieldEnd : 10 + ev.fieldEnd);
+  const o = overlayFrame(s, { W: SSR_W, H: SSR_H });
   return (
     <div className="st-broadcast">
       <ScoreBug teams={manifest.teams} palette={palette} score={s.score} offense={null} period={s.period} periodClock={s.periodClock} clockIllustrative={false} stateChip="FINAL" illusId="st-ssr-illus" />
@@ -37,8 +38,10 @@ function FinalFrame({ manifest, sample }: { manifest: TheaterManifest; sample: T
       <div className="st-fieldwrap">
         <StaticField palette={palette} idPrefix="st-ssr" />
         <FieldMarks W={SSR_W} H={SSR_H} palette={palette} teams={manifest.teams} />
-        <FieldLive W={SSR_W} H={SSR_H} frame={s} o={overlayFrame(s, { W: SSR_W, H: SSR_H })} palette={palette} offenseAbbr={manifest.teams[ev.offense].abbr}
-          startTag="START" endTag="END" showEnd endX={endX} idPrefix="st-ssr-l" reducedMotion={false} />
+        {/* drawn at SSR_W × SSR_H and stretched to the box; the ball is detached so it never stretches (iteration 3) */}
+        <FieldLive W={SSR_W} H={SSR_H} frame={s} o={o} palette={palette} offenseAbbr={manifest.teams[ev.offense].abbr}
+          startTag="START" endTag="END" showEnd endX={endX} idPrefix="st-ssr-l" reducedMotion={false} detachBall />
+        <DetachedBall W={SSR_W} H={SSR_H} o={o} idPrefix="st-ssr-b" />
       </div>
       <FieldLegend homeAbbr={manifest.teams.home.abbr} />
       <p className="st-rule">Final frame of run #{sample.runIndex}: the last drive&apos;s recorded start and end spots.</p>
