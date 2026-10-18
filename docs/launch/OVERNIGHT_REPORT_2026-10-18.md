@@ -21,7 +21,7 @@ Production is **healthier than before**. Main CI is green.
 | #1124 build-input coverage | MERGED | `d29a2078ca` | ✅ 39098266421 | built | 7-day build effect (§D) |
 | #1101 settle historical-stamp guard | MERGED | `36958c5e68` | ✅ 39098309659 | superseded → included in `05c9deea4f` | ✅ **VERIFIED.** Settle `01ac320a62` (run 39114917123): 0 stamp-only past-dated files (388 the day before), 67 files changed (455 the day before), historical model-rows byte-identical; `verify_1101.py`: 0 failures |
 | #1120 HTML/UX release (+#1117, #1119) | MERGED | `68135f7aa2` | ✅ 39098333216 | superseded → included in `05c9deea4f` | none; pages verified visually and by route sweep |
-| #1088 MLB stamp-only gate | MERGED | `05c9deea4f` | ✅ 39098353538 (unit 9,489/9,491; post-build 707/710) | built; Production `05c9deea4f` at 04:51Z | ⏳ `verify_1088.py` after the MLB daily-production and lineup runs |
+| #1088 MLB stamp-only gate | MERGED | `05c9deea4f` | ✅ 39098353538 (unit 9,489/9,491; post-build 707/710) | built; Production `05c9deea4f` at 04:51Z | ✅ part 1: the first post-merge MLB daily-production run (09:29Z, commit `ecf249fb29`) **published the real 10-18 slate** (simulations, predictions; 20 files) and deployed; `verify_1088.py`: 0 failures. ⏳ part 2: stamp-only suppression on the lineup refreshes (15:30–23:30Z), with real lineup changes still publishing |
 | #1126 MLB Void label | MERGED | `cd8465a2e1` | ✅ | built; verified (`/results/mlb/`: Void 82, Push 0) | — |
 | #1127 event-state labels | MERGED | `58acd1cbac` | ✅ | built; verified | — |
 | #1128 Ask EPL/UFC record parity (audit D-1) | MERGED | `bec2cd28aa` | ✅ 39112754816 (post-build parity green) | built; Production `1a65a1aa9e` (includes it) at 09:00Z | — |
@@ -45,7 +45,7 @@ Production is **healthier than before**. Main CI is green.
   - `settled_leans` +41 rows, 0 existing rows changed;
   - forecast ledger pure appends (MLB +11, EPL +102).
   - ⚠ That run was a **manual `workflow_dispatch` under your account (`yashwantbalaji3`) at 09:20Z**, not one triggered by this session. Please confirm it was you or a tool you run.
-- ⏳ **#1088:** that real lineup, injury and roster changes still publish is verified after today's MLB runs.
+- **#1088, part 1 verified:** the real 10-18 slate published at 09:34Z, not suppressed. ⏳ Lineup-refresh behaviour is verifiable only after 15:30–23:30Z; the command is `python3 -I docs/launch/approvals/verify/verify_1088.py 05c9deea4f`.
 - **Data follow-up (not changed):** postponed 10-16 rows carry the void reason "DNP / 0-AB". The producer should use a postponement reason. Fixing stored settlement data requires your approval.
 
 ## D. Vercel cost optimization
@@ -99,7 +99,7 @@ The canonical `GAMETIMEPICKS_MASTER_ROADMAP_V2.md` lives on the **#1116 docs bra
 
 ## H. Remaining launch blockers (`docs/launch/GO_NO_GO_2026-10-18.md`)
 **Engineering:**
-- ✅ #1101 verified; ⏳ #1088 post-run verification;
+- ✅ #1101 verified; ✅ #1088 part 1 (slate publish); ⏳ #1088 part 2 (lineup refreshes 15:30–23:30Z);
 - ⏳ the NFL Sunday live window (capture pid 8301 healthy);
 - the rollback rehearsal (UAT, Mon 07:00 ET).
 
