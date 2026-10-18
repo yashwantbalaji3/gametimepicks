@@ -19,7 +19,7 @@ Production is **healthier than before**. Main CI is green.
 | PR | Status | Merge commit | Main CI | Vercel / Production | Remaining verification |
 |---|---|---|---|---|---|
 | #1124 build-input coverage | MERGED | `d29a2078ca` | ✅ 39098266421 | built | 7-day build effect (§D) |
-| #1101 settle historical-stamp guard | MERGED | `36958c5e68` | ✅ 39098309659 | superseded → included in `05c9deea4f` | ⏳ `verify_1101.py` after the next nightly settle |
+| #1101 settle historical-stamp guard | MERGED | `36958c5e68` | ✅ 39098309659 | superseded → included in `05c9deea4f` | ✅ **VERIFIED.** Settle `01ac320a62` (run 39114917123): 0 stamp-only past-dated files (388 the day before), 67 files changed (455 the day before), historical model-rows byte-identical; `verify_1101.py`: 0 failures |
 | #1120 HTML/UX release (+#1117, #1119) | MERGED | `68135f7aa2` | ✅ 39098333216 | superseded → included in `05c9deea4f` | none; pages verified visually and by route sweep |
 | #1088 MLB stamp-only gate | MERGED | `05c9deea4f` | ✅ 39098353538 (unit 9,489/9,491; post-build 707/710) | built; Production `05c9deea4f` at 04:51Z | ⏳ `verify_1088.py` after the MLB daily-production and lineup runs |
 | #1126 MLB Void label | MERGED | `cd8465a2e1` | ✅ | built; verified (`/results/mlb/`: Void 82, Push 0) | — |
@@ -39,7 +39,12 @@ Production is **healthier than before**. Main CI is green.
   - NFL and UFC event states are correct.
   - **The one FAIL (LOW), Ask's EPL lag, is now FIXED** by #1128: Ask derives the record from the same ledger population as `/results`.
 - **Release data safety:** no merged PR touched a data path. All 7 protected ledger and settled files are hash-identical to the pre-release baseline.
-- ⏳ **MLB settlement:** 10-17 (TB@CLE 849816, final 7–3) settles at the next nightly settle. #1101 is verified then.
+- **MLB settlement, verified.** 10-17 (TB@CLE 849816, final 7–3) settled in run 39114917123 at 09:20Z:
+  - 41 decisive, 24–17;
+  - health gate HEALTHY;
+  - `settled_leans` +41 rows, 0 existing rows changed;
+  - forecast ledger pure appends (MLB +11, EPL +102).
+  - ⚠ That run was a **manual `workflow_dispatch` under your account (`yashwantbalaji3`) at 09:20Z**, not one triggered by this session. Please confirm it was you or a tool you run.
 - ⏳ **#1088:** that real lineup, injury and roster changes still publish is verified after today's MLB runs.
 - **Data follow-up (not changed):** postponed 10-16 rows carry the void reason "DNP / 0-AB". The producer should use a postponement reason. Fixing stored settlement data requires your approval.
 
@@ -94,7 +99,7 @@ The canonical `GAMETIMEPICKS_MASTER_ROADMAP_V2.md` lives on the **#1116 docs bra
 
 ## H. Remaining launch blockers (`docs/launch/GO_NO_GO_2026-10-18.md`)
 **Engineering:**
-- ⏳ #1101 and #1088 post-run verification;
+- ✅ #1101 verified; ⏳ #1088 post-run verification;
 - ⏳ the NFL Sunday live window (capture pid 8301 healthy);
 - the rollback rehearsal (UAT, Mon 07:00 ET).
 
