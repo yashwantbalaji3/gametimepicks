@@ -11,7 +11,7 @@ import path from "node:path";
 import { freshnessFor } from "./freshness.ts";
 import { PUBLIC_STATE_LABEL, PUBLIC_STATE_MEANING } from "./contract.ts";
 import { modelStatusFor } from "./model-status.ts";
-import { featuredMlb, featuredNfl, featuredEpl, featuredUfc } from "./featured.ts";
+import { featuredMlb, featuredNfl, featuredEpl, featuredUfc, mlbSlateRef } from "./featured.ts";
 
 const NOW = "2026-09-15T12:00:00Z";
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), "gtp-cc-"));
@@ -125,6 +125,25 @@ test("MLB featured card: unpaused, the strength label is the sport's own and a s
   const none = featuredMlb({ dataRoot: root, today: "2026-09-15", nowIso: "2026-09-16T05:00:00Z", freshness: fresh, status });
   assert.equal(none.card, null);
   assert.match(none.reason, /has started/);
+});
+
+test("MLB featured lane: a presented slate from an earlier ET day is named by its date, never called today's (2026-10-18)", () => {
+  // Home on 2026-10-18 presented the 10-17 slate (the 10-18 board had not generated) and said
+  // "Every game on today's slate has started" under the Oct 18 date.
+  const root = tmp();
+  write(root, "mlb/predictions/2026-10-17.json", { generatedAt: "2026-10-17T15:00:00Z", predictions: [mlbPrediction({ gamePk: 7 })] });
+  write(root, "mlb/boards/2026-10-17.json", { games: [{ gamePk: 7, gameDate: "2026-10-17T20:08:00Z" }] });
+  const stale = featuredMlb({ dataRoot: root, today: "2026-10-17", nowIso: "2026-10-18T14:00:00Z", freshness: fresh, status });
+  assert.equal(stale.card, null);
+  assert.equal(stale.reason, "Every game on the slate for Sat, Oct 17 has started; its pre-game reads are frozen in each report.");
+  assert.doesNotMatch(stale.reason, /today/);
+  // Same slate read late on its own ET day (02:00Z on the 18th is 10 PM ET on the 17th): still today's slate.
+  const sameDay = featuredMlb({ dataRoot: root, today: "2026-10-17", nowIso: "2026-10-18T02:00:00Z", freshness: fresh, status });
+  assert.equal(sameDay.reason, "Every game on today's slate has started; its pre-game reads are frozen in each report.");
+  // A missing prediction set for an earlier slate is named the same way.
+  const missing = featuredMlb({ dataRoot: root, today: "2026-10-16", nowIso: "2026-10-18T14:00:00Z", freshness: fresh, status });
+  assert.equal(missing.reason, "No prediction set is published for the slate for Fri, Oct 16 yet.");
+  assert.equal(mlbSlateRef("2026-10-18", "2026-10-18T14:00:00Z"), "today's slate");
 });
 
 test("NFL / EPL / UFC featured cards carry a probability signal, never an invented tier, and the EPL constant-total risk", () => {

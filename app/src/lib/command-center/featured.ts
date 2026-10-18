@@ -13,6 +13,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { formatEtTime } from "@/lib/mlb/public-provenance";
+import { currentEtDate } from "@/lib/freshness";
+import { etDayLabel } from "@/lib/et-stamp.mjs";
 import { pausedFamiliesFrom, pauseMlbMarkets } from "@/lib/ops/live-record-gate.mjs";
 import { medianRunsCopy } from "@/lib/mlb/prediction/median-runs-copy.mjs";
 import { forecastRows, type EplForecastRow, type EplForecastSet } from "@/lib/sports/epl/forecast-view";
@@ -89,9 +91,22 @@ export function cardFromMlbPrediction(p: MlbPrediction, start: string | null, ct
     settlement: { kind: "mlb-game", gamePk: p.gamePk, family: forecast.label },
   };
 }
+/**
+ * How the MLB lane names the slate it read. `input.today` is the PRESENTED slate (currentSlateDate: the newest
+ * board on or before today ET), not the ET date. Between ET midnight and the morning board it is yesterday's, and
+ * on 2026-10-18 Home said "Every game on today's slate has started" under the Oct 18 date, beside the product
+ * day's "1 game today … the model board for today is not published yet" — two different days both called today.
+ * "Today's slate" now means the slate dated today ET; any other slate is named by its own date.
+ */
+export function mlbSlateRef(slateDate: string, nowIso: string): string {
+  const now = new Date(nowIso);
+  if (Number.isNaN(now.getTime()) || slateDate === currentEtDate(now)) return "today's slate";
+  return `the slate for ${etDayLabel(slateDate) ?? slateDate}`;
+}
 export function featuredMlb(input: FeaturedInput): Featured {
+  const slate = mlbSlateRef(input.today, input.nowIso);
   const doc = readJson(path.join(input.dataRoot, "mlb", "predictions", `${input.today}.json`)) as { generatedAt?: string; predictions?: MlbPrediction[] } | null;
-  if (!doc?.predictions) return { card: null, reason: "No prediction set is published for today's slate yet." };
+  if (!doc?.predictions) return { card: null, reason: `No prediction set is published for ${slate} yet.` };
   const board = readJson(path.join(input.dataRoot, "mlb", "boards", `${input.today}.json`)) as { games?: Array<{ gamePk: number; gameDate?: string }> } | null;
   const firstPitch = new Map((board?.games ?? []).map((g) => [String(g.gamePk), g.gameDate ?? null]));
   const paused = pausedFamiliesFrom(readJson(path.join(input.dataRoot, "admin", "model-health.json")), Date.parse(input.nowIso));
@@ -102,7 +117,7 @@ export function featuredMlb(input: FeaturedInput): Featured {
     .filter(({ start }) => lifecycleOf(start, input.nowIso) === "PREGAME")
     .sort((a, b) => (b.p.moneyline?.simulationProbability ?? 0) - (a.p.moneyline?.simulationProbability ?? 0) || String(a.start).localeCompare(String(b.start)));
   const pick = candidates[0];
-  if (!pick) return { card: null, reason: doc.predictions.length ? "Every game on today's slate has started; its pre-game reads are frozen in each report." : "No game on today's slate carries a prediction." };
+  if (!pick) return { card: null, reason: doc.predictions.length ? `Every game on ${slate} has started; its pre-game reads are frozen in each report.` : `No game on ${slate} carries a prediction.` };
   return { card: cardFromMlbPrediction(pick.p, pick.start, input), reason: null };
 }
 
