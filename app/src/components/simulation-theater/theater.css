@@ -504,6 +504,8 @@
   .st-bug-time{font-size:15px;line-height:18px}
   .st-bug-sit{min-height:22px;padding:2px 10px;font-size:10.5px;gap:8px}
   .st-bug-sit-tag{font-size:8.5px;padding:0 5px}
+  /* narrow: the strip wraps rather than truncating a recorded spot or total */
+  .st-bug-sit-text{white-space:normal}
   .st-scenebar{gap:4px 8px}
   .st-camtoggle-l{display:none}
   .st-strip.is-period{bottom:6%;padding:5px 10px 6px 10px}
@@ -526,9 +528,7 @@
 @container (max-width:340px){
   .st-bug-score{font-size:24px;line-height:28px}
   .st-card-line span{display:none}
-  /* 320 px: the recorded totals never truncate; the strip wraps instead */
   .st-bug-sit{font-size:10px;letter-spacing:0;gap:6px}
-  .st-bug-sit-text{white-space:normal}
 }
 
 @media (prefers-reduced-motion: reduce){
