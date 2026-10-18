@@ -99,19 +99,23 @@ export function overlayFrame(f, box) {
   };
 }
 
-// ── turf colour maths (for the ≥3:1 accent rule; spec S6) ───────────────────────────────────────────────────────
+// ── turf colour maths (for the ≥3:1 on-field rule; spec S6) ─────────────────────────────────────────────────────
 /**
- * The two tokens the turf is mixed from, as sRGB triples. They MIRROR globals.css (--bg, --vault-accent-deep);
- * field-geometry.test.mjs reads globals.css and fails if they drift. Kept as numbers because they feed contrast maths,
- * never paint.
+ * The tokens the field surfaces and the keyline are mixed from, as sRGB triples. They MIRROR globals.css (--bg,
+ * --vault-accent-deep, --lava-text, --gtp-card-elevated); field-geometry.test.mjs reads globals.css and fails if they
+ * drift. Kept as numbers because they feed contrast maths, never paint.
  */
 /** Turf stripes: percentages of --vault-accent-deep mixed into --bg (theater-css.ts paints with these). */
 export const THEATER_TURF_MIX = Object.freeze({ a: 30, b: 37 });
+/** The keyline (halo) around every team mark on the field and timeline: --lava-text mixed into --bg at this %. */
+export const THEATER_KEYLINE_MIX = 85;
 
-export const TOKEN_RGB = Object.freeze({ bg: Object.freeze([10, 7, 5]), accentDeep: Object.freeze([46, 160, 102]) });
+export const TOKEN_RGB = Object.freeze({
+  bg: Object.freeze([10, 7, 5]), accentDeep: Object.freeze([46, 160, 102]),
+  lavaText: Object.freeze([245, 247, 246]), cardElevated: Object.freeze([24, 35, 29]),
+});
 
 const toHex = (rgb) => `#${rgb.map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, "0")).join("")}`.toUpperCase();
-const fromHex = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
 const mixRgb = (a, b, pct) => a.map((v, i) => v * pct / 100 + b[i] * (1 - pct / 100));
 
 /** Hex of each turf stripe for a THEATER_TURF_MIX ({a, b} percentages of --vault-accent-deep into --bg). */
@@ -119,29 +123,10 @@ export function turfHexes(mix) {
   return [mix.a, mix.b].map((p) => toHex(mixRgb(TOKEN_RGB.accentDeep, TOKEN_RGB.bg, p)));
 }
 
-/**
- * A turf-safe accent: the team accent itself when it reaches `min`:1 against every turf stripe (and so against the darker
- * page), otherwise the first legible step of a lightening that KEEPS THE HUE: brighten first (scale the channels up, in
- * 5 % steps, toward the brightest the hue allows), and mix toward white (5 % steps) only when brightening alone cannot
- * reach `min`. Mixing toward white first would wash a red out to pink; brightening keeps a red red and a blue blue.
- * Returns { accent, derived, base, ratio, white, bright } (white / bright: the % of each step used).
- * @param {string} accent hex
- * @param {string[]} turf hex stripes
- * @param {(a:string,b:string)=>number} contrast WCAG contrast function
- * @param {number} [min]
- */
-export function turfSafeAccent(accent, turf, contrast, min = 3) {
-  const worst = (hex) => Math.min(...turf.map((t) => contrast(hex, t)));
-  if (worst(accent) >= min) return { accent, derived: false, base: accent, ratio: worst(accent), white: 0, bright: 0 };
-  const base = fromHex(accent);
-  const white = [255, 255, 255];
-  const k = 255 / Math.max(...base, 1);
-  for (let w = 0; w <= 100; w += 5) {
-    for (let v = 0; v <= 100; v += 5) {
-      const bright = base.map((c) => Math.min(255, c * (1 + (v / 100) * (k - 1))));
-      const hex = toHex(mixRgb(white, bright, w));
-      if (worst(hex) >= min) return { accent: hex, derived: true, base: accent, ratio: worst(hex), white: w, bright: v };
-    }
-  }
-  return { accent: toHex(white), derived: true, base: accent, ratio: worst(toHex(white)), white: 100, bright: 100 };
-}
+/** Every surface a team mark is painted on: both turf stripes, then the timeline panel (--st-panel-2), then the page. */
+export const fieldSurfaces = () => Object.freeze({
+  turf: turfHexes(THEATER_TURF_MIX), panel: toHex(TOKEN_RGB.cardElevated), page: toHex(TOKEN_RGB.bg),
+});
+
+/** Hex of the keyline (--st-keyline in theater-css.ts). */
+export const keylineHex = () => toHex(mixRgb(TOKEN_RGB.lavaText, TOKEN_RGB.bg, THEATER_KEYLINE_MIX));

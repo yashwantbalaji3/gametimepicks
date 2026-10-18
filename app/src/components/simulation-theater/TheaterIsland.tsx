@@ -204,7 +204,7 @@ function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive,
                     aria-label={driveAccessibleName(ev, teams)}
                     aria-current={ev.index === current ? "step" : undefined}
                     data-st-ms={span.t1 - span.t0}
-                    style={{ flex: px != null ? `0 0 ${px}px` : `${span.t1 - span.t0} 1 0`, width: px ?? undefined, "--st-off": palette[ev.offense].accent } as CSSProperties}
+                    style={{ flex: px != null ? `0 0 ${px}px` : `${span.t1 - span.t0} 1 0`, width: px ?? undefined, "--st-off": palette[ev.offense].accent, "--st-off-ink": palette[ev.offense].accentInk } as CSSProperties}
                     onClick={() => { setFocusIdx(ev.index); onSeekDrive(ev.index); }}
                   >
                     {ticks.map((m) => (
@@ -718,12 +718,11 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
   const endFieldX = ev ? (ev.offense === "home" ? 110 - ev.fieldEnd : 10 + ev.fieldEnd) : 0;
   const scoringNow = Boolean(f && ev && f.phase === "RESULT" && ev.scoring);
   const sides = ["away", "home"] as Side[];
-  const derivedAccents = sides.filter((s) => palette[s].accentBase);
   const colourNote = palette.mode !== "team"
     ? "Neutral GTP colours (team colours off)."
     : [
       "Team colours: official league and club values (evidence: nfl-team-colors-evidence.json).",
-      derivedAccents.length ? `Lightened on the field for 3:1 on the turf: ${derivedAccents.map((s) => `${teams[s].abbr} ${palette[s].accentBase} → ${palette[s].accent}`).join(", ")}.` : "",
+      `On the field: ${sides.map((s) => `${teams[s].abbr} ${palette[s].accent}`).join(", ")}, as is, each mark keylined for 3:1 on the turf.`,
       sides.filter((s) => palette[s].accentSwap).map((s) => `${teams[s].abbr} uses ${palette[s].accentSwap} on the field (accents too close).`).join(" "),
       sides.filter((s) => palette[s].hatched).map((s) => `${teams[s].abbr} end zone hatched (colours too close).`).join(" "),
       sides.filter((s) => palette[s].accentHatched).map((s) => `${teams[s].abbr} timeline hatched (accents too close).`).join(" "),
