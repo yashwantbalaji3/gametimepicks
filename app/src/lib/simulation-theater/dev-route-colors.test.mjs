@@ -12,7 +12,7 @@ import { DISABLED_PLACEHOLDER, contentParams, devRoutesEnabled, devStaticParams 
 import { FIXTURE_EVENT_IDS, MAX_FIXTURES, fixtureUsable, loadTheater, usableFixtures } from "./loader.mjs";
 import {
   FIELD_DISTINCT_DE00, NEUTRAL_PALETTE, NFL_TEAM_COLORS, TEAM_COLORS_VALIDATED, TEAM_COLOR_EVIDENCE, TEXT_MIN, UI_MIN, collides,
-  contrastRatio, deltaE2000, deltaE76, fieldDistinct, hexToLab, nflTeamColor, theaterPalette,
+  contrastRatio, deltaE2000, deltaE76, fieldClash, fieldDistinct, hexToLab, nflTeamColor, theaterPalette,
 } from "./nfl-team-colors.mjs";
 import { THEATER_KEYLINE_MIX, THEATER_TURF_MIX, fieldSurfaces, keylineHex, turfHexes } from "./field-geometry.mjs";
 import { readShadowReceipts } from "../sports/nfl/sim-v2/public-receipt.mjs";
@@ -154,6 +154,8 @@ test(`contrast by treatment: block text ≥${TEXT_MIN}:1; for every team and eve
   const sheet = read("src/components/simulation-theater/theater.css");
   assert.match(sheet, /\[data-st-colors="team"\] \.st-ribbon\{fill-opacity:1;stroke:var\(--st-keyline\)/, "ribbon: keylined");
   assert.match(sheet, /\[data-st-colors="team"\] \.st-seg\{[^}]*inset 0 0 0 1px var\(--st-keyline\)/, "timeline segments: keylined");
+  assert.match(sheet, /\[data-st-colors="team"\] \.st-seg\{[^}]*background-image:linear-gradient\(0deg, var\(--st-off\) 0 14px/, "timeline: a full-strength band on drives to come");
+  assert.ok(!/\[data-st-colors="team"\] \.st-seg\.is-done\{[^}]*color-mix/.test(sheet), "a played drive shows the official colour undimmed");
   const scene = read("src/components/simulation-theater/FieldScene.tsx");
   assert.match(scene, /fill: off\.fill, stroke: "var\(--st-keyline\)"/, "possession tag: a keylined score-bug block");
   assert.match(scene, /className="st-halo"[^>]*stroke: palette\[zone\]\.ink/, "end-zone outlines: a halo in that end zone's ink");
@@ -235,12 +237,12 @@ test("one identity: the primary carries the team on the field unless a founder r
       assert.equal(p[side].fill === buf.primary ? p[side].accent : buf.primary, buf.primary);
     }
   }
-  // only the collision rule moves BUF off royal: as the away side against a home blue or purple within CIE76 ΔE 20
-  assert.deepEqual(swapped, ["BUF@BAL #C60C30", "BUF@LAR #C60C30", "BUF@MIN #C60C30", "BUF@NYG #C60C30"]);
-  assert.equal(clean, 58, `BUF keeps royal blue in ${clean} of 62 orientations`);
+  // only the clash rule moves BUF off royal: as the away side against a home blue or purple (fieldClash)
+  assert.deepEqual(swapped, ["BUF@BAL #C60C30", "BUF@IND #C60C30", "BUF@LAR #C60C30", "BUF@MIN #C60C30", "BUF@NYG #C60C30"]);
+  assert.equal(clean, 57, `BUF keeps royal blue in ${clean} of 62 orientations`);
 });
 
-test("collisions (CIE76 ΔE < 20): identical primaries, secondary or hatch for blocks; accent swap or hatch on the field; every 2026 matchup", () => {
+test("collisions (CIE76 ΔE < 20; on the field also ΔE00 < 10): identical primaries, secondary or hatch for blocks; accent swap or hatch on the field; every 2026 matchup", () => {
   const P = (a) => nflTeamColor(a).primary;
   const identical = [["ATL", "TB"], ["DAL", "NE"], ["DAL", "SEA"], ["LV", "NO"], ["LV", "PIT"], ["NE", "SEA"], ["NO", "PIT"]];
   const seen = [];
@@ -259,7 +261,7 @@ test("collisions (CIE76 ΔE < 20): identical primaries, secondary or hatch for b
       else { assert.equal(p.away.fill, a.secondary); n.secondary++; }
     } else assert.equal(p.away.fill, a.primary);
     if (p.away.accentHatched) n.accentHatched++;
-    else assert.ok(!collides(p.home.accent, p.away.accent), `${a.abbr}@${h.abbr}: on-field accents distinguishable`);
+    else assert.ok(!fieldClash(p.home.accent, p.away.accent), `${a.abbr}@${h.abbr}: on-field accents distinguishable`);
     if (p.away.accentSwap) {
       n.swap++;
       assert.ok([a.secondary, a.primary, ...a.alt].includes(p.away.accentSwap), "the swap is an official colour of the team");
@@ -270,9 +272,15 @@ test("collisions (CIE76 ΔE < 20): identical primaries, secondary or hatch for b
   console.log(`# theater colours: primary collisions ${primaryHits} of 496; of 992 pairings → away secondary ${n.secondary}, hatched end zone ${n.hatched}, accent swap ${n.swap}, hatched timeline ${n.accentHatched}`);
   assert.equal(n.pairs, 992);
   // Pinned: a change to any of these is a deliberate edit of the map, not drift.
-  // identity pass: more primaries on the field → swaps 65 → 54 and hatched timelines 77 → 32 (no derived colour can
-  // fail SWAP_MAX_ADJUST any more; a swap only needs to be field-distinct)
-  assert.deepEqual([primaryHits, n.secondary, n.hatched, n.swap, n.accentHatched], [42, 84, 0, 54, 32]);
+  // identity pass: more primaries on the field, and the ΔE00 < 10 clash guard for dark pairs → swaps 65 → 68 and
+  // hatched timelines 77 → 32 (no derived colour can fail SWAP_MAX_ADJUST any more; a swap only needs to be
+  // field-distinct and clash-free)
+  assert.deepEqual([primaryHits, n.secondary, n.hatched, n.swap, n.accentHatched], [42, 84, 0, 68, 32]);
+  // the guard catches the dark pairs CIE76 calls distinct
+  for (const [x, y] of [["BUF", "IND"], ["DAL", "NYG"], ["IND", "LAR"], ["TB", "TEN"]]) {
+    const A = nflTeamColor(x).accent, B = nflTeamColor(y).accent;
+    assert.ok(!collides(A, B) && fieldClash(A, B), `${x}/${y}: CIE76 ${deltaE76(A, B).toFixed(1)}, ΔE00 ${deltaE2000(A, B).toFixed(1)}`);
+  }
   const SEA = theaterPalette("SEA", "NE");
   assert.equal(SEA.away.fill, nflTeamColor("NE").secondary);
   // every matchup in the 2026 receipts: the evidence file records what is painted, recomputed here
@@ -286,7 +294,7 @@ test("collisions (CIE76 ΔE < 20): identical primaries, secondary or hatch for b
       for (const k of Object.keys(want)) if (want[k] === false) delete want[k];
       assert.deepEqual(m[side], want, `${m.matchup} ${side}`);
     }
-    assert.ok(!collides(p.home.accent, p.away.accent) || p.away.accentHatched, m.matchup);
+    assert.ok(!fieldClash(p.home.accent, p.away.accent) || p.away.accentHatched, m.matchup);
   }
   // the neutral switch: tokens only; unknown teams fall back to neutral
   for (const [h, a] of [["SF", "WSH"], ["CIN", "DEN"], ["XXX", "YYY"]]) {
