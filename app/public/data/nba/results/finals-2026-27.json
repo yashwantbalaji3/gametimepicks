@@ -5,7 +5,7 @@
  "contract": "nba-finals-record-v1",
  "season": "2026-27",
  "note": "Write-once official NBA finals (ESPN scoreboard, accepted by the current-results adapter). A recorded final is never rewritten; disagreeing later observations go to `conflicts`. Holds finals only — a game absent here is pending, never a loss.",
- "updatedAt": "2026-10-17T06:07:00Z",
+ "updatedAt": "2026-10-18T08:59:29Z",
  "counts": {
   "finals": 67,
   "preseason": 67,
@@ -14,7 +14,7 @@
   "playIn": 0,
   "other": 0,
   "exhibition": 1,
-  "conflicts": 0,
+  "conflicts": 1,
   "refused": 0
  },
  "finals": [
@@ -2096,6 +2096,24 @@
    "source": "espn_scoreboard"
   }
  ],
- "conflicts": [],
+ "conflicts": [
+  {
+   "providerEventId": "401901822",
+   "recorded": {
+    "ftHome": 117,
+    "ftAway": 98,
+    "homeTeamId": "29",
+    "awayTeamId": "30"
+   },
+   "observed": {
+    "ftHome": 116,
+    "ftAway": 98,
+    "homeTeamId": "29",
+    "awayTeamId": "30"
+   },
+   "observedAt": "2026-10-18T08:59:29Z",
+   "note": "the recorded final stands; review before any correction"
+  }
+ ],
  "refused": []
 }
