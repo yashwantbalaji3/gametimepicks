@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-17T22:55:19Z",
- "sourceGeneratedAt": "2026-10-17T22:55:19Z",
+ "generatedAt": "2026-10-18T11:46:07Z",
+ "sourceGeneratedAt": "2026-10-18T11:46:07Z",
  "providerEventId": "401873006",
  "matchup": "LAC @ KC",
  "kickoffUtc": "2026-10-18T20:25Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-17T22:55:19Z",
-  "roleEvidenceAt": "2026-10-17T22:55:19Z",
+  "injuriesCapturedAt": "2026-10-18T11:46:07Z",
+  "roleEvidenceAt": "2026-10-18T11:46:07Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -129,21 +129,21 @@
    "player_receptions"
   ],
   "rows": 70,
-  "rosterDropped": 48,
+  "rosterDropped": 49,
   "withoutEspnId": 0
  },
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 51,
+  "absent": 50,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "LAC": {
    "counts": {
-    "PROJECTED": 11,
+    "PROJECTED": 10,
     "EXCLUDED_UNAVAILABLE": 2,
-    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
@@ -189,6 +189,7 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
+      "player_reception_yds",
       "player_receptions",
       "player_rush_yds"
      ],
@@ -261,16 +262,6 @@
      "participation": "QUESTIONABLE"
     },
     {
-     "playerId": "nfl-athlete-3051738",
-     "name": "Marquez Valdes-Scantling",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4383351",
      "name": "Trey Lance",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -281,6 +272,12 @@
      "name": "Tre' Harris",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-3051738",
+     "name": "Marquez Valdes-Scantling",
+     "state": "EXCLUDED_NO_CURRENT_ROLE",
+     "reason": "not on LAC's current roster"
     },
     {
      "playerId": "nfl-athlete-3886812",
@@ -428,19 +425,6 @@
   ],
   "pools": [
    {
-    "team": "LAC",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.9952,
-    "originalSum": 0.9952,
-    "residualOther": 0.0048,
-    "joined": 9,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
     "team": "KC",
     "pool": "passAttempts",
     "markets": [
@@ -463,6 +447,19 @@
     "originalSum": 0.9903,
     "residualOther": 0.0097,
     "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "LAC",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9201,
+    "originalSum": 0.9201,
+    "residualOther": 0.0799,
+    "joined": 8,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -490,21 +487,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 104.603,
-     "p10": 45.64,
-     "p25": 69.56,
-     "median": 99.27,
-     "p75": 134.09,
-     "p90": 168.76,
+     "mean": 103.92,
+     "p10": 46.2,
+     "p25": 68.81,
+     "median": 98.25,
+     "p75": 132.98,
+     "p90": 170.09,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 24.897,
+     "mean": 24.385,
      "p10": 0,
-     "p25": 7.39,
-     "median": 19.88,
-     "p75": 36.68,
-     "p90": 55.99,
+     "p25": 7.62,
+     "median": 19.31,
+     "p75": 35.91,
+     "p90": 54.53,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -529,12 +526,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 39.451,
-     "p10": 10.63,
-     "p25": 20.64,
-     "median": 35.43,
-     "p75": 53.13,
-     "p90": 73.45,
+     "mean": 38.96,
+     "p10": 10.61,
+     "p25": 20.42,
+     "median": 34.73,
+     "p75": 53.46,
+     "p90": 71.75,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -559,12 +556,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 43.402,
-     "p10": 6.33,
-     "p25": 18.36,
-     "median": 36.38,
-     "p75": 61.08,
-     "p90": 90.46,
+     "mean": 43.386,
+     "p10": 6.1,
+     "p25": 17.66,
+     "median": 36.92,
+     "p75": 62.01,
+     "p90": 88.99,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -589,12 +586,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 37.547,
-     "p10": 4.5,
-     "p25": 15.55,
-     "median": 32.12,
-     "p75": 53.41,
-     "p90": 77.02,
+     "mean": 37.958,
+     "p10": 5.11,
+     "p25": 15.63,
+     "median": 32.01,
+     "p75": 54.02,
+     "p90": 78.61,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -619,21 +616,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 19.435,
-     "p10": 0.79,
-     "p25": 5.36,
-     "median": 14.6,
-     "p75": 28.19,
-     "p90": 43.83,
+     "mean": 19.983,
+     "p10": 0.69,
+     "p25": 5.81,
+     "median": 15.17,
+     "p75": 28.91,
+     "p90": 46.01,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 17.487,
+     "mean": 18.44,
      "p10": 0,
-     "p25": 2.51,
-     "median": 12.59,
-     "p75": 26.6,
-     "p90": 42.01,
+     "p25": 3.37,
+     "median": 13.28,
+     "p75": 27.84,
+     "p90": 44.24,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -658,12 +655,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 16.854,
+     "mean": 16.214,
      "p10": 0,
-     "p25": 2.98,
-     "median": 11.43,
-     "p75": 24.82,
-     "p90": 41.49,
+     "p25": 2.74,
+     "median": 10.81,
+     "p75": 24.47,
+     "p90": 40.03,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_reception_yds": {
+     "mean": 11.449,
+     "p10": 0,
+     "p25": 0,
+     "median": 4.96,
+     "p75": 17.86,
+     "p90": 32.74,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -688,12 +694,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 24.927,
+     "mean": 27.152,
      "p10": 0,
-     "p25": 5.41,
-     "median": 19.03,
-     "p75": 37.53,
-     "p90": 57.63,
+     "p25": 6.19,
+     "median": 20.92,
+     "p75": 40.26,
+     "p90": 62.59,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -718,12 +724,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 26.257,
+     "mean": 28.04,
      "p10": 0,
-     "p25": 5.91,
-     "median": 19.53,
-     "p75": 38.59,
-     "p90": 62.02,
+     "p25": 6.9,
+     "median": 21.51,
+     "p75": 41.72,
+     "p90": 65.5,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -748,12 +754,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 22.203,
+     "mean": 23.421,
      "p10": 0,
-     "p25": 3.77,
-     "median": 16.18,
-     "p75": 32.79,
-     "p90": 53.77,
+     "p25": 4.94,
+     "median": 17.73,
+     "p75": 34.55,
+     "p90": 55.37,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -778,12 +784,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 18.239,
+     "mean": 18.67,
      "p10": 0,
-     "p25": 1.15,
-     "median": 12.09,
-     "p75": 28.09,
-     "p90": 45.9,
+     "p25": 1.58,
+     "median": 12.84,
+     "p75": 28.63,
+     "p90": 46.92,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -808,12 +814,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 11.499,
+     "mean": 11.795,
      "p10": 0,
-     "p25": 0.68,
-     "median": 6.33,
-     "p75": 17.15,
-     "p90": 30.88,
+     "p25": 0.91,
+     "median": 6.72,
+     "p75": 17.47,
+     "p90": 31.31,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -829,12 +835,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 22.936,
+     "mean": 24.883,
      "p10": 0,
-     "p25": 4.81,
-     "median": 16.7,
-     "p75": 34.14,
-     "p90": 55.02,
+     "p25": 5.96,
+     "median": 18.74,
+     "p75": 37.37,
+     "p90": 57.28,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -859,12 +865,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 17.75,
+     "mean": 18.137,
      "p10": 0,
-     "p25": 0,
-     "median": 11.71,
-     "p75": 26.61,
-     "p90": 46.21,
+     "p25": 1.01,
+     "median": 12.55,
+     "p75": 27.76,
+     "p90": 44.39,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -889,12 +895,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 19.835,
+     "mean": 19.839,
      "p10": 0,
      "p25": 3.68,
-     "median": 13.41,
-     "p75": 29.6,
-     "p90": 48.34,
+     "median": 13.73,
+     "p75": 29.48,
+     "p90": 47.97,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -919,12 +925,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 10.787,
+     "mean": 10.689,
      "p10": 0,
-     "p25": 0.06,
-     "median": 5.08,
-     "p75": 15.86,
-     "p90": 29.9,
+     "p25": 0.05,
+     "median": 5.12,
+     "p75": 15.71,
+     "p90": 30.22,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -943,39 +949,18 @@
    }
   },
   {
-   "playerId": "nfl-athlete-3051738",
-   "name": "Marquez Valdes-Scantling",
-   "team": "LAC",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_receptions": {
-     "mean": 1.4284,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0919,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4685553",
    "name": "Brenen Thompson",
    "team": "LAC",
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 13.983,
+     "mean": 13.95,
      "p10": 0,
      "p25": 0,
-     "median": 7.24,
-     "p75": 22.36,
-     "p90": 39.08,
+     "median": 7.4,
+     "p75": 21.76,
+     "p90": 38.24,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
