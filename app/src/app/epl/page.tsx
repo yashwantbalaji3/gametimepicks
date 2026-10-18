@@ -28,6 +28,7 @@ import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import SportSwitcher from "@/components/sports/sport-switcher";
 import { eplHub } from "@/lib/sport-hub/adapters";
 import Link from "next/link";
+import { sourceDisplayName } from "@/lib/sports/source-registry.mjs";
 
 import SportOverviewHero from "@/components/sport-overview-hero";
 import TopReadsPanel from "@/components/top-reads-panel";
@@ -374,7 +375,7 @@ export default function EplPage() {
           <SectionHeader
             eyebrow="Team predictions"
             title="No fixtures inside the forecast window"
-            sub="Between matchweeks the model publishes nothing, which is the honest state rather than a stale card left up."
+            sub="The model publishes team predictions only for fixtures inside its forecast window, and none are in it right now."
           />
         </section>
       )}
@@ -463,7 +464,7 @@ export default function EplPage() {
           <div className="rounded-[12px] overflow-hidden" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
             <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
               {topScorers.map((p) => (
-                <li key={`${p.slug}-${p.playerId}`} className="flex items-center justify-between gap-3 px-3 py-2.5" style={{ borderTop: "1px solid var(--vault-rule)" }}>
+                <li key={`${p.slug}-${p.playerId}`} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3 py-2.5" style={{ borderTop: "1px solid var(--vault-rule)" }}>
                   {/*
                     THE CLUB CREST, NOT A PORTRAIT.
                     These rows named a player with no identity beside them at all. A face would be
@@ -472,7 +473,9 @@ export default function EplPage() {
                     initials discs and read as broken rather than sparse. The club crest resolves for
                     all 20 clubs, so it is the identity we can actually carry, on every row.
                   */}
-                  <div className="min-w-0 flex items-center gap-2">
+                  {/* UXR1-05 (DS-001 §9): at 320 px the figures column left this side ~60 px, so the club and fixture
+                      ran one word per line underneath "127 apps". The row wraps; this side keeps a 12rem basis. */}
+                  <div className="min-w-0 flex items-center gap-2" style={{ flex: "1 1 12rem" }}>
                     {p.teamName ? <TeamLogo team={p.teamName} sport="soccer" size="sm" ariaLabel={`${p.teamName} crest`} /> : null}
                     <div className="min-w-0">
                       <span style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</span>
@@ -650,7 +653,7 @@ export default function EplPage() {
           />
         </div>
         <p className="font-mono mt-3" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-          Source: {feed?.sourceVerdict?.sourceId ?? "openfootball (public domain)"}
+          Source: {sourceDisplayName(feed?.sourceVerdict?.sourceId, "openfootball (public domain)")}
           {capturedAt ? ` · captured ${new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(capturedAt))} ET` : ""}
           {feed?.totals?.upcoming ? ` · showing the next ${(feed.events ?? []).length} of ${feed.totals.upcoming}` : ""}
         </p>

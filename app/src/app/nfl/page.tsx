@@ -62,6 +62,7 @@ import LiveNow from "@/components/live/live-now";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import { boardTabs, topBoards } from "@/lib/sports/nfl/forecast-view.mjs";
 import { loadForecastViews } from "@/lib/sports/nfl/forecast-view-load.mjs";
+import { formatUpdatedEt } from "@/lib/format";
 
 export const metadata: Metadata = withRouteMetadata("/nfl/", {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
@@ -170,6 +171,13 @@ function lastCaptureLabel(capturedAt?: string | null): string {
   const day = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric" }).format(new Date(ms));
   return `none current — last capture ${day} ET`;
 }
+
+/** The receipts' closed lane-state set (scripts/nfl/build-nfl-product-receipts.mjs) in reader words. */
+const NFL_LANE_STATE_LABEL: Record<string, string> = {
+  ACTIVE: "Card published",
+  NO_PLAY: "No qualified card",
+  REFUSED: "No eligible games to consider",
+};
 
 export default function NflHubPage() {
   const schedule = read("nfl/schedule/latest.json");
@@ -526,7 +534,7 @@ export default function NflHubPage() {
           }
           sub={
             slateGames.length === 0
-              ? "No scheduled games remain in the committed schedule capture. Nothing is invented to fill this space."
+              ? "No scheduled games remain in the current NFL schedule."
               : `The full ${weekLabel ?? "slate"}: ${simulatedOnSlate} of ${slateGames.length} carry a published simulation${weekCounts.missedPreEvent ? `, ${weekCounts.missedPreEvent} missed pre-event coverage` : ""}.`
           }
           rightSlot={experimentalChip}
@@ -768,7 +776,7 @@ export default function NflHubPage() {
           <SectionHeader
             eyebrow="Schedule"
             title={laterTitle}
-            sub={schedule ? `From the committed schedule capture (${schedule.generatedAt}). Simulations publish inside each game's own event window, not weeks ahead.` : "No schedule capture is readable — shown as missing rather than guessed."}
+            sub={schedule ? `NFL schedule as of ${formatUpdatedEt(schedule.generatedAt)}. Simulations publish inside each game's own window before kickoff, not weeks ahead.` : "The NFL schedule could not be read, so no games are listed."}
           />
           {/*
            * P695 — SIXTEEN SCHEDULE CARDS MOUNT ON SCROLL.
@@ -1038,7 +1046,7 @@ export default function NflHubPage() {
               wants it gets all of it; everyone else gets the model's answer and moves on. */}
           {(differentiation.whatWeFoundAndFixed || differentiation.weTriedToFixIt || differentiation.whatWouldChangeIt) ? (
             <details style={{ marginTop: 12, border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px", maxWidth: 760 }}>
-              <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 32 }}>
+              <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 44 }}>
                 How we tested this
               </summary>
               {differentiation.whatWeFoundAndFixed ? (
@@ -1062,12 +1070,12 @@ export default function NflHubPage() {
       {productReceipts ? (
         <section aria-labelledby="nfl-product-receipts" id="nfl-product-receipts">
           <SectionHeader
-            eyebrow={`Products · run ${productReceipts.runId} · next ${productReceipts.nextRunUtc}`}
-            title="All four NFL lanes ran today"
+            eyebrow={`Products · last run ${formatUpdatedEt(productReceipts.generatedAt)} · next ${formatUpdatedEt(productReceipts.nextRunUtc)}`}
+            title="All four NFL lanes ran"
             sub={productReceipts.plainEnglish}
           />
           <details style={{ border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
-            <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 32 }}>Per-product detail</summary>
+            <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 44 }}>Per-product detail</summary>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
               <thead>
@@ -1081,7 +1089,7 @@ export default function NflHubPage() {
                 {productReceipts.lanes.map((l) => (
                   <tr key={l.product}>
                     <td className="gtp-nfl-td gtp-nfl-td-13">{l.label}</td>
-                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{l.state}</td>
+                    <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 11.5, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)" }}>{NFL_LANE_STATE_LABEL[l.state] ?? l.state}</td>
                     <td className="gtp-nfl-td gtp-nfl-td-mono">{l.candidatesConsidered}</td>
                     <td style={{ padding: "7px 10px", borderTop: "1px solid var(--vault-border)", fontSize: 12.5, lineHeight: 1.55, color: "var(--vault-text-mute)" }}>
                       {l.rejections.map((r) => `${r.count} × ${r.label}`).join("; ") || "—"}
@@ -1102,7 +1110,7 @@ export default function NflHubPage() {
       {productEligibility ? (
         <section aria-labelledby="nfl-products" id="nfl-products">
           <SectionHeader
-            eyebrow={`Evaluated ${productEligibility.generatedAt}`}
+            eyebrow={`Evaluated ${formatUpdatedEt(productEligibility.generatedAt)}`}
             title="Why NFL is not in the paper products"
             sub={productEligibility.plainEnglish}
           />

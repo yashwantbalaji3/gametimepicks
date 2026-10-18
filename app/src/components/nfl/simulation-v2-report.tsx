@@ -11,6 +11,7 @@
  * No sportsbook number is read or shown: the engine takes none as an input.
  */
 import Link from "next/link";
+import { formatUpdatedEt } from "@/lib/format";
 
 const CSS = `
 .s2 table{width:100%;border-collapse:collapse}
@@ -268,7 +269,7 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
               <tr><th scope="row">Generated</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{stamp(r.generatedAt)} · before kickoff {stamp(kickoff.toISOString())}</td></tr>
               <tr><th scope="row">Seed</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.baseSeed} · {r.seedStrategy}</td></tr>
               <tr><th scope="row">Team strength</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.calibration?.anchors?.source} · calibrated means {H} {r.calibration?.calibratedMean?.[0]} / {A} {r.calibration?.calibratedMean?.[1]}</td></tr>
-              <tr><th scope="row">Availability</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.availabilitySnapshotId}</td></tr>
+              <tr><th scope="row">Availability</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }} title={r.availabilitySnapshotId}>{readableSnapshotId(r.availabilitySnapshotId)}</td></tr>
               <tr><th scope="row">Market</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{String(r.marketUse ?? "").startsWith("NOT_AN_INPUT") ? "Not used as an input" : r.marketUse}</td></tr>
               <tr><th scope="row">Receipt</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.simulationReceiptId}</td></tr>
             </tbody>
@@ -281,4 +282,15 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
       </section>
     </div>
   );
+}
+
+/** "injuries@2026-10-14T23:43:46Z+rosters@…" → "injuries as of Oct 14, 7:43 PM ET · rosters as of …"; the exact id stays in the title. */
+function readableSnapshotId(id: string | null | undefined): string {
+  if (!id) return "—";
+  return String(id).split("+").map((part) => {
+    const at = part.indexOf("@");
+    if (at < 0) return part;
+    const iso = part.slice(at + 1);
+    return Number.isFinite(Date.parse(iso)) ? `${part.slice(0, at)} as of ${formatUpdatedEt(iso)}` : part;
+  }).join(" · ");
 }

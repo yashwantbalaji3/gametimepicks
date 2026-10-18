@@ -301,9 +301,13 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
       style={containerStyle}
       id={lean.id}
     >
-      {/* Row 1 — identity cluster + confidence chip */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+      {/* Row 1 — identity cluster + confidence chip.
+          UXR1-04 (DS-001 §9): the chip was nowrap and never shrank, so on a phone the anomaly label
+          ("Anomaly · gap too large to trust", ~255 px) squeezed the identity column to one word per line and ran
+          over it. The row now wraps: the identity keeps a 12rem basis and the chip drops below it when both
+          cannot fit, wrapping its own text inside the card if it must. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0" style={{ flex: "1 1 12rem" }}>
           <PlayerAvatar sport="mlb"
             playerId={lean.playerId}
             playerName={lean.playerName}
@@ -389,7 +393,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
             borderRadius: 2,
             padding: "4px 9px",
             border: `1px solid ${meta.rim}`,
-            whiteSpace: "nowrap",
+            maxWidth: "100%",
           }}
         >
           {meta.label}
@@ -400,7 +404,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
                   projection-vs-line gap bar.
                   Three columns on every width; stat values are large so the
                   numbers pop. */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 min-[375px]:grid-cols-3 gap-2">
         <StatTile
           label={`${lean.lean === "Pass" || lean.lean === "No Play" ? "Line" : lean.lean.toUpperCase()}`}
           value={String(lean.line)}
@@ -433,7 +437,7 @@ export default function MlbLeanRow({ lean, density = "detailed" }: Props) {
         line={lean.line}
         projection={lean.projection}
         sigma={lean.sigma}
-        width={9999}
+        width="100%"
         height={8}
       />
 
@@ -567,17 +571,20 @@ function StatTile({
       : "none";
   return (
     <div
-      className="rounded-[5px] flex flex-col items-start justify-center"
+      /* Below 375 px the trio stacks and each tile reads as one row (label · value), so a 10-letter label is
+         never broken mid-word; from 375 px it is the original three-column tile, with 8 px side padding and no
+         extra label tracking below sm ("PROJECTION" = 63 px in a 68 px tile at 375 px). */
+      className="rounded-[5px] flex flex-row items-baseline justify-between gap-2 min-h-[40px] min-[375px]:flex-col min-[375px]:items-start min-[375px]:justify-center min-[375px]:gap-0 min-[375px]:min-h-[56px] min-w-0"
       style={{
-        padding: "8px 10px",
+        padding: "8px 8px",
         border: "1px solid var(--vault-border)",
         background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)",
-        minHeight: 56,
       }}
     >
+      {/* UXR1-06 (cont.): at 320 px "PROJECTION" at 0.14em ran out of its tile into "EDGE". */}
       <span
-        className="font-mono uppercase tracking-[0.14em]"
-        style={{ color: labelColor, fontSize: 10 }}
+        className="font-mono uppercase tracking-normal sm:tracking-[0.14em]"
+        style={{ color: labelColor, fontSize: 10, overflowWrap: "anywhere" }}
       >
         {label}
       </span>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
-import { orderRows, isInProgress, hubCounts, drawableSplit, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
+import { orderRows, isInProgress, hubStatusDisplay, hubCounts, drawableSplit, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
 
 /**
  * The first thing on every sport page: what is on, what we think, and where to read it.
@@ -33,7 +33,7 @@ function Action({ row }: { row: HubGameRow }) {
   }
   return (
     <Link href={row.reportHref} className="vault-press gtp-ev-cta inline-flex items-center gap-1 rounded-full px-4 text-[13px] font-semibold no-underline">
-      {row.reportState === "ARCHIVE" ? "View record" : "Open report"} <span aria-hidden>→</span>
+      {row.reportState === "ARCHIVE" ? "View archived report" : "Open report"} <span aria-hidden>→</span>
       <span className="sr-only"> for {row.matchup}</span>
     </Link>
   );
@@ -50,7 +50,7 @@ function Side({ p, favored, dim }: { p: HubParticipant; favored: boolean; dim: b
   return (
     <div className="flex min-w-0 flex-col items-center gap-2 text-center">
       {p.logoTeam && p.logoSport
-        ? <TeamLogo team={p.logoTeam} sport={p.logoSport} size="lg" highlight={favored} ariaLabel={`${p.name} logo`} />
+        ? <TeamLogo team={p.logoTeam} sport={p.logoSport} size="lg" highlight={favored} ariaLabel="" />
         : (
           <span aria-hidden className="inline-flex items-center justify-center rounded-full shrink-0 text-[15px] font-semibold"
             style={{ width: 52, height: 52, background: "var(--vault-wash-soft)", border: `1px solid ${favored ? "var(--vault-accent)" : "var(--vault-border)"}`, color: "var(--vault-text)" }}>
@@ -103,7 +103,7 @@ function EventCard({ row: r, unitLabel }: { row: HubGameRow; unitLabel: string }
     <li className="gtp-ev rounded-2xl p-4 sm:p-5 flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
         <span className="text-[12.5px] font-medium gtp-c-mute">{r.startLabel}</span>
-        <span className="gtp-ev-status rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em]">{r.status}</span>
+        <span className="gtp-ev-status rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em]">{hubStatusDisplay(r.status)}</span>
       </div>
       {hasSides ? (
         <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2" aria-label={r.matchup}>
@@ -149,7 +149,7 @@ function CompactRow({ row: r }: { row: HubGameRow }) {
         {r.matchup}
         {(r.participants ?? []).slice(1, 2).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
       </span>
-      <span className="text-[11px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)" }}>{r.status}</span>
+      <span className="text-[11px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)" }}>{hubStatusDisplay(r.status)}</span>
       {r.read ? <span className={tone!.cls}>{r.read.label} <span className="gtp-c-mute">· {tone!.label}</span></span> : null}
       <span className="text-[12px]"><Action row={r} /></span>
     </li>

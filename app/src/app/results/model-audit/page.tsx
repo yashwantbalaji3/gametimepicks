@@ -22,6 +22,7 @@ import type {
   ModelAuditSport,
 } from "@/lib/results-audit-notes";
 import { formatPercent } from "@/lib/format";
+import { mlbMarketLabel } from "@/lib/format-mlb";
 import { isPredictionDisabled } from "@/lib/mlb/model-calibration-status";
 import { loadRecentAccounting } from "@/lib/research/results-accounting-loader";
 import HitRateSparkline from "@/components/hit-rate-sparkline";
@@ -453,6 +454,24 @@ function Stat({ label, value }: { label: string; value: string }) {
 // Tables
 // ---------------------------------------------------------------------------
 
+/**
+ * UXR1-08 (GTP-27, DS-001 §1.7): the ledger's market and bucket keys ("batter_hits_runs_rbis", "insufficient_data",
+ * "regular_season") were printed as table text. A snake_case key reads as its market name (the shared MLB map) or,
+ * failing that, as words; the exact key stays in the cell's title. Anything that is not a key is shown as given.
+ */
+function readableKey(k: string): string {
+  if (!/^[a-z0-9]+(?:_[a-z0-9]+)+$/.test(k)) return k;
+  const market = mlbMarketLabel(k);
+  if (market !== k) return market;
+  const words = k.replace(/_/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+function KeyCell({ k }: { k: string }) {
+  const label = readableKey(k);
+  return <Td>{label === k ? k : <span title={k}>{label}</span>}</Td>;
+}
+
 function MarketsTable({ markets }: { markets: ModelAuditMarket[] }) {
   if (markets.length === 0) {
     return <EmptyRow label="No markets settled yet." />;
@@ -473,7 +492,7 @@ function MarketsTable({ markets }: { markets: ModelAuditMarket[] }) {
         <tbody>
           {markets.map((m) => (
             <tr key={m.label}>
-              <Td>{m.label}</Td>
+              <KeyCell k={m.label} />
               <Td align="right">
                 {m.wins}–{m.losses}{" "}
                 <Faint>on {m.decisive}</Faint>
@@ -510,8 +529,8 @@ function MarketSideTable({
         <tbody>
           {rows.map((r) => (
             <tr key={`${r.market}-${r.side}`}>
-              <Td>{r.market}</Td>
-              <Td>{r.side}</Td>
+              <KeyCell k={r.market} />
+              <KeyCell k={r.side} />
               <Td align="right">
                 {r.wins}–{r.losses} <Faint>on {r.decisive}</Faint>
               </Td>
@@ -549,7 +568,7 @@ function BucketTable({
         <tbody>
           {rows.map((r) => (
             <tr key={r.label}>
-              <Td>{r.label}</Td>
+              <KeyCell k={r.label} />
               <Td align="right">
                 {r.wins}–{r.losses} <Faint>on {r.decisive}</Faint>
               </Td>
@@ -623,7 +642,7 @@ function DateTimeline({
                 {r.wins}–{r.losses} <Faint>on {r.decisive}</Faint>
               </Td>
               <Td align="right">{fmtPct(r.hitRate)}</Td>
-              <Td>{r.gameContext?.seasonPhase ?? "—"}</Td>
+              <KeyCell k={r.gameContext?.seasonPhase ?? "—"} />
               <Td>{dayName(r.gameContext?.dayOfWeek)}</Td>
             </tr>
           ))}
