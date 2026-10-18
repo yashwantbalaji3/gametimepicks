@@ -1,0 +1,3087 @@
+{
+ "$schema": "gtp/nfl-team-colors-evidence@1",
+ "about": "Evidence for the Simulation Theater V2 NFL team colour map (app/src/lib/simulation-theater/nfl-team-colors.mjs). Data only: no component imports it, it never ships in a bundle, and the colour-literal scanner (lib/uiux/color-scan.mjs, .ts/.tsx/.mjs/.css) does not read .json. Hex values only, no logo or brand asset stored. dev-route-colors.test.mjs recomputes every flag and every derived value from this file.",
+ "accessed": "2026-10-18",
+ "validationDeltaE": 5,
+ "rules": {
+  "validated": "A source AGREES with a team when it lists colours within CIE76 ΔE ≤ validationDeltaE of BOTH the map's primary and its secondary. official = some official source agrees; agree = sources from two independent families agree (nflHeader, nflLogo and wiki are one family, NFL.com's); validated = official || agree.",
+  "roles": "primary = the team's primary brand colour (score-bug block, end zone); secondary = its main contrasting brand colour (the away block/end zone when the primaries collide); accent = an official colour that carries the team on the field (drive ribbon, end-zone edge, timeline fills, scoring flash, possession tag). Since iteration 5 every role value is listed VERBATIM by at least one official source (officialSources below).",
+  "contrast": "Text on a team block (ink, and the trim used for end-zone lettering) ≥ 4.5:1 on that block. On-field accents ≥ 3:1 against both turf stripes (and so the darker page). An official accent under 3:1 is painted, for the on-field use only, as its first legible hue-keeping lightening (field-geometry.mjs turfSafeAccent: brighten first, then mix toward white, 5 % steps); the official value stays the brand reference (derivedUi).",
+  "collisions": "CIE76 ΔE < 20 between the two primaries → the away block and end zone use the away secondary, or are hatched when that collides too. The two on-field accents are checked the same way → the away side uses the official alternative (secondary, primary, or a recorded alternate) that no longer collides and needs the smallest on-field adjustment (≤ 35 ΔE), else its timeline segments are hatched."
+ },
+ "sources": {
+  "tcc": {
+   "name": "teamcolorcodes.com (team page)",
+   "base": "https://teamcolorcodes.com/",
+   "official": false,
+   "family": "teamcolorcodes"
+  },
+  "wiki": {
+   "name": "Wikipedia Module:Gridiron color/data (rev 1380502831)",
+   "url": "https://en.wikipedia.org/wiki/Module:Gridiron_color/data",
+   "official": false,
+   "family": "nfl.com"
+  },
+  "nflHeader": {
+   "name": "NFL.com team page, profile-header colours (overlay, stripe)",
+   "base": "https://www.nfl.com/teams/",
+   "official": true,
+   "family": "nfl.com"
+  },
+  "nflLogo": {
+   "name": "NFL.com club logo SVG, fill colours (league-hosted club mark; white omitted)",
+   "base": "https://static.www.nfl.com/league/api/clubs/logos/",
+   "official": true,
+   "family": "nfl.com"
+  },
+  "club": {
+   "name": "club's official website",
+   "official": true,
+   "family": "club"
+  }
+ },
+ "caveats": [
+  "No team's or the NFL's brand-guide PDF was publicly reachable; therams.com/brand/ is password protected and was not entered.",
+  "Many Wikipedia values are byte-identical to NFL.com's, so Wikipedia is grouped in NFL.com's family and never counts as independent of it.",
+  "NFL.com renders every black as #000000, including the Panthers', whose own site uses #101820; a club's own value outranks NFL.com's.",
+  "The league-hosted DEN logo is the legacy 'D' mark; DEN's current colours come from NFL.com's header."
+ ],
+ "matchupsNote": "Every matchup in the 2026 shadow receipts (the theater's possible fixtures): the palette theaterPalette() paints, recomputed by the test.",
+ "teams": {
+  "ARI": {
+   "team": "Arizona Cardinals",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/arizona-cardinals-color-codes/",
+     "listed": [
+      "#97233F",
+      "#000000",
+      "#FFB612"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#97233F",
+      "#FFFFFF",
+      "#000000",
+      "#FFFFFF",
+      "#97233F"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/arizona-cardinals/",
+     "listed": [
+      "#97233F",
+      "#000000"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/ARI.svg",
+     "listed": [
+      "#000000",
+      "#97233F",
+      "#FFB612"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#97233F",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the logo colour (nflLogo).",
+   "iteration4Note": null
+  },
+  "ATL": {
+   "team": "Atlanta Falcons",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/atlanta-falcons-color-codes/",
+     "listed": [
+      "#A71930",
+      "#000000",
+      "#A5ACAF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#A71930",
+      "#FFFFFF",
+      "#000000",
+      "#000000",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/atlanta-falcons/",
+     "listed": [
+      "#A71930",
+      "#000000"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/ATL.svg",
+     "listed": [
+      "#A5ACAF",
+      "#000000",
+      "#A71930"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#A71930",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#A5ACAF",
+     "officialSources": [
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #A5ACAF = the logo colour (nflLogo).",
+   "iteration4Note": null
+  },
+  "BAL": {
+   "team": "Baltimore Ravens",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/baltimore-ravens-color-codes/",
+     "listed": [
+      "#241773",
+      "#000000",
+      "#9E7C0C",
+      "#C60C30"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#24135F",
+      "#FFFFFF",
+      "#9A7611",
+      "#000000",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/baltimore-ravens/",
+     "listed": [
+      "#24135F",
+      "#9A7611"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/BAL.svg",
+     "listed": [
+      "#9A7611",
+      "#000000",
+      "#24135F",
+      "#C8102E"
+     ]
+    },
+    "club": {
+     "url": "https://www.baltimoreravens.com/",
+     "where": "homepage Storyteller widget theme, colors.primary",
+     "listed": [
+      "#24135F"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#24135F",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#9A7611",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Accent #9E7C0C (teamcolorcodes) → the official gold #9A7611 (NFL.com header stripe, the league-hosted logo).",
+   "iteration4Note": "Primary changed: the club's own site, NFL.com's header and the league-hosted logo all give Ravens purple as #24135F, not tcc's #241773 (ΔE 9.8). Secondary black is in the official logo. Gold (#9A7611 officially) stays the accent; the map's #9E7C0C is ΔE 3.9 from it, so it was left."
+  },
+  "BUF": {
+   "team": "Buffalo Bills",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/buffalo-bills-color-codes/",
+     "listed": [
+      "#00338D",
+      "#C60C30"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#00338D",
+      "#FFFFFF",
+      "#C60C30",
+      "#C60C30",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/buffalo-bills/",
+     "listed": [
+      "#00338D",
+      "#C60C30"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/BUF.svg",
+     "listed": [
+      "#C60C30",
+      "#00338D"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#00338D",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#C60C30",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#C60C30",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #C60C30 = the secondary (nflHeader, nflLogo).",
+   "iteration4Note": null
+  },
+  "CAR": {
+   "team": "Carolina Panthers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/carolina-panthers-color-codes/",
+     "listed": [
+      "#0085CA",
+      "#101820",
+      "#BFC0BF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#0085CF",
+      "#0085CF",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/carolina-panthers/",
+     "listed": [
+      "#0085CF",
+      "#000000"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/CAR.svg",
+     "listed": [
+      "#000000",
+      "#B2B4BB",
+      "#0085CF"
+     ]
+    },
+    "club": {
+     "url": "https://www.panthers.com/",
+     "where": "homepage inline CSS: --blue / --pnthrx-blue, and --ink / --num (numerals)",
+     "listed": [
+      "#0085CA",
+      "#101820"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#0085CA",
+     "officialSources": [
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#101820",
+     "officialSources": [
+      "club"
+     ]
+    },
+    "accent": {
+     "hex": "#0085CA",
+     "officialSources": [
+      "club"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (club; club); accent #0085CA = the primary (club).",
+   "iteration4Note": "No change. The club's own site uses #0085CA for Panther blue and #101820 for its black ink and numerals, exactly the map. NFL.com renders the black as pure #000000 (ΔE 10.4), as it does for every club."
+  },
+  "CHI": {
+   "team": "Chicago Bears",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/chicago-bears-color-codes/",
+     "listed": [
+      "#0B162A",
+      "#C83803"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#0B162A",
+      "#FFFFFF",
+      "#E64100",
+      "#E64100",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/chicago-bears/",
+     "listed": [
+      "#0B162A",
+      "#E64100"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/CHI.svg",
+     "listed": [
+      "#E64100",
+      "#0B162A"
+     ]
+    },
+    "club": {
+     "url": "https://www.chicagobears.com/",
+     "where": "homepage game-strip data, primaryColor (no orange value on the club site)",
+     "listed": [
+      "#0B162A"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#0B162A",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#E64100",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#E64100",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo, club; nflHeader, nflLogo); accent #E64100 = the secondary (nflHeader, nflLogo).",
+   "iteration4Note": "Secondary and accent changed #C83803 → #E64100 (ΔE 11.7): NFL.com's header and the league-hosted logo both give Bears orange as #E64100. The club site confirms navy #0B162A. #E64100 is 2.84:1 on the turf, so the theater derives its turf-safe accent."
+  },
+  "CIN": {
+   "team": "Cincinnati Bengals",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/cincinnati-bengals-color-codes/",
+     "listed": [
+      "#000000",
+      "#FB4F14"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#FB4F14",
+      "#FB4F14",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/cincinnati-bengals/",
+     "listed": [
+      "#FB4F14",
+      "#000000"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/CIN.svg",
+     "listed": [
+      "#FB4F14",
+      "#000000"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#FB4F14",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FB4F14",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FB4F14 = the primary (nflHeader, nflLogo).",
+   "iteration4Note": null
+  },
+  "CLE": {
+   "team": "Cleveland Browns",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/cleveland-browns-color-codes/",
+     "listed": [
+      "#311D00",
+      "#FF3C00",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#311D00",
+      "#FFFFFF",
+      "#FF3C00",
+      "#FF3C00",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/cleveland-browns/",
+     "listed": [
+      "#FF3C00",
+      "#311D00"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/CLE.svg",
+     "listed": [
+      "#FF3C00",
+      "#311D00"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#311D00",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FF3C00",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FF3C00",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FF3C00 = the secondary (nflHeader, nflLogo).",
+   "iteration4Note": null
+  },
+  "DAL": {
+   "team": "Dallas Cowboys",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/dallas-cowboys-color-codes/",
+     "listed": [
+      "#003594",
+      "#041E42",
+      "#869397",
+      "#7F9695",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#002244",
+      "#FFFFFF",
+      "#B0B7BC",
+      "#B0B7BC",
+      "#002244"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/dallas-cowboys/",
+     "listed": [
+      "#002244",
+      "#B0B7BC"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/DAL.svg",
+     "listed": [
+      "#002244"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#002244",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#B0B7BC",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#B0B7BC",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader); accent #B0B7BC = the secondary (nflHeader).",
+   "iteration4Note": "Primary changed royal #003594 → navy #002244 (ΔE 40.2): the league-hosted star logo is navy #002244 and NFL.com's header pairs navy with silver; royal is a uniform trim colour, not the mark. Secondary and accent changed silver #869397 → #B0B7BC (ΔE 14.2, NFL.com header); the review's choice of silver over navy as the secondary is kept. dallascowboys.com carries no club colour value."
+  },
+  "DEN": {
+   "team": "Denver Broncos",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/denver-broncos-color-codes/",
+     "listed": [
+      "#FB4F14",
+      "#002244"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#0A2343",
+      "#FFFFFF",
+      "#FC4C02",
+      "#FC4C02",
+      "#0A2343"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/denver-broncos/",
+     "listed": [
+      "#FC4C02",
+      "#0A2343"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/DEN.svg",
+     "listed": [
+      "#0066B3",
+      "#F37021"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#FC4C02",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "secondary": {
+     "hex": "#0A2343",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#FC4C02",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "Made official-exact: orange #FB4F14 → #FC4C02 and navy #002244 → #0A2343, NFL.com's header values (ΔE ≤ 4.1). The league-hosted logo is the legacy 'D' mark and is not used.",
+   "iteration4Note": "No change. tcc, wiki and NFL.com's header agree (ΔE ≤ 4.1). The league-hosted logo file is the legacy \"D\" mark (legacy blue and orange), so it does not agree and is not a contradiction of the current colours."
+  },
+  "DET": {
+   "team": "Detroit Lions",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/detroit-lions-color-codes/",
+     "listed": [
+      "#0076B6",
+      "#B0B7BC",
+      "#000000",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#0076B6",
+      "#FFFFFF",
+      "#B0B7BC",
+      "#B0B7BC",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/detroit-lions/",
+     "listed": [
+      "#0076B6",
+      "#B0B7BC"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/DET.svg",
+     "listed": [
+      "#B0B7BC",
+      "#0076B6"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#0076B6",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#B0B7BC",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#0076B6",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #0076B6 = the primary (nflHeader, nflLogo).",
+   "iteration4Note": null
+  },
+  "GB": {
+   "team": "Green Bay Packers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/green-bay-packers-color-codes/",
+     "listed": [
+      "#203731",
+      "#FFB612"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#203731",
+      "#FFFFFF",
+      "#FFB612",
+      "#FFB612",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/green-bay-packers/",
+     "listed": [
+      "#203731",
+      "#FFB612"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/GB.svg",
+     "listed": [
+      "#FFB612",
+      "#203731"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#203731",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the secondary (nflHeader, nflLogo).",
+   "iteration4Note": null
+  },
+  "HOU": {
+   "team": "Houston Texans",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/houston-texans-color-codes/",
+     "listed": [
+      "#03202F",
+      "#A71930"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#021018",
+      "#FFFFFF",
+      "#EB0028",
+      "#EB0028",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/houston-texans/",
+     "listed": [
+      "#021018",
+      "#EB0028"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/HOU.svg",
+     "listed": [
+      "#021018",
+      "#EB0028"
+     ]
+    },
+    "club": {
+     "url": "https://www.houstontexans.com/",
+     "where": "homepage game-theme config (home default background, stripe) and nav accent; H-Town blue in accent2",
+     "listed": [
+      "#021018",
+      "#EB0028",
+      "#ED0028",
+      "#0080C6"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#021018",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#EB0028",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "accent": {
+     "hex": "#EB0028",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "ink": "white",
+    "alternates": [
+     {
+      "hex": "#0080C6",
+      "officialSources": [
+       "club"
+      ]
+     }
+    ]
+   },
+   "validated": true,
+   "decision": "Accent white (no source) → battle red #EB0028 (NFL.com header, the logo, houstontexans.com). H-Town blue #0080C6 (houstontexans.com theme accent2) is recorded as the official alternate the field uses when the opponent's accent is another red (e.g. HOU @ TEN).",
+   "iteration4Note": "Primary changed #03202F → #021018 (ΔE 9.9) and secondary #A71930 → #EB0028 (ΔE 33.1): the club's own site, NFL.com's header and the league-hosted logo all use deep steel blue #021018 and battle red #EB0028 (2024 identity). Accent stays white."
+  },
+  "IND": {
+   "team": "Indianapolis Colts",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/indianapolis-colts-color-codes/",
+     "listed": [
+      "#002C5F",
+      "#A2AAAD"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#013369",
+      "#FFFFFF",
+      "#A5ACAF",
+      "#FFFFFF",
+      "#013369"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/indianapolis-colts/",
+     "listed": [
+      "#013369",
+      "#A5ACAF"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/IND.svg",
+     "listed": [
+      "#013369"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#013369",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#A5ACAF",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#A5ACAF",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Made official-exact: #002C5F → #013369 (NFL.com header, the league-hosted logo) and silver #A2AAAD → #A5ACAF (NFL.com header).",
+   "iteration4Note": null
+  },
+  "JAX": {
+   "team": "Jacksonville Jaguars",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/jacksonville-jaguars-color-codes/",
+     "listed": [
+      "#101820",
+      "#D7A22A",
+      "#9F792C",
+      "#006778"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#006778",
+      "#FFFFFF",
+      "#000000",
+      "#000000",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/jacksonville-jaguars/",
+     "listed": [
+      "#000000",
+      "#006778"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/JAX.svg",
+     "listed": [
+      "#000000",
+      "#D7A22A",
+      "#0A0B09",
+      "#9F792C",
+      "#006778"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#006778",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#D7A22A",
+     "officialSources": [
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Founder decision 2026-10-18: teal #006778 is the primary (NFL.com's header stripe; also in the league-hosted logo), black #000000 the secondary (NFL.com's header overlay, the logo), gold #D7A22A the accent (the logo's main gold). Gold is 2.8:1 on teal and black 3.1:1, under the 4.5:1 text rule, so the block's trim and the end-zone lettering use the white ink; gold carries the team on the field.",
+   "iteration4Note": "Primary changed #101820 → #000000 (ΔE 10.4): both league sources render Jaguars black as #000000 (logo also #0A0B09) and jaguars.com carries no value. Secondary gold #D7A22A is exactly in the league-hosted logo, so it stays; teal #006778 (NFL.com's header stripe) is also official and is the alternative, but gold is the mark's main colour after black."
+  },
+  "KC": {
+   "team": "Kansas City Chiefs",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/kansas-city-chiefs-color-codes/",
+     "listed": [
+      "#E31837",
+      "#FFB81C"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#E31837",
+      "#FFFFFF",
+      "#FFB612",
+      "#FFB612",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/kansas-city-chiefs/",
+     "listed": [
+      "#E31837",
+      "#FFB612"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/KC.svg",
+     "listed": [
+      "#000000",
+      "#E31837"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#E31837",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#E31837",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Secondary made official-exact: gold #FFB81C → #FFB612 (NFL.com header). Accent stays Chiefs red (brightened on the turf).",
+   "iteration4Note": null
+  },
+  "LAC": {
+   "team": "Los Angeles Chargers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/los-angeles-chargers-color-codes/",
+     "listed": [
+      "#0080C6",
+      "#FFC20E",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#0080C6",
+      "#FFFFFF",
+      "#FFC20E",
+      "#FFC20E",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/los-angeles-chargers/",
+     "listed": [
+      "#0080C6",
+      "#FFC20E"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/LAC.svg",
+     "listed": [
+      "#0080C6",
+      "#FFC20E"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#0080C6",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFC20E",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#0080C6",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #0080C6 = the primary (nflHeader, nflLogo).",
+   "iteration4Note": null
+  },
+  "LAR": {
+   "team": "Los Angeles Rams",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/los-angeles-rams-team-colors/",
+     "listed": [
+      "#003594",
+      "#FFA300",
+      "#FF8200",
+      "#FFD100",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#003594",
+      "#FFFFFF",
+      "#FFD100",
+      "#FFD100",
+      "#003594"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/los-angeles-rams/",
+     "listed": [
+      "#003594",
+      "#FFD100"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/LAR.svg",
+     "listed": [
+      "#003594",
+      "#FFD100"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#003594",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFD100",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FFD100",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFD100 = the secondary (nflHeader, nflLogo).",
+   "iteration4Note": "Secondary and accent changed #FFA300 → #FFD100 (ΔE 27.3): NFL.com's header and the league-hosted logo give Sol as #FFD100; #FFA300 is a darker tone tcc also lists. Rams royal #003594 confirmed. therams.com/brand/ is password protected (not entered)."
+  },
+  "LV": {
+   "team": "Las Vegas Raiders",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/oakland-raiders-color-codes/",
+     "listed": [
+      "#000000",
+      "#A5ACAF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#C8C7C7",
+      "#C8C7C7",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/las-vegas-raiders/",
+     "listed": [
+      "#000000",
+      "#A5ACAF"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/LV.svg",
+     "listed": [
+      "#231F20",
+      "#0A0A09",
+      "#C8C7C7"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "secondary": {
+     "hex": "#A5ACAF",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#A5ACAF",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader; nflHeader); accent #A5ACAF = the secondary (nflHeader).",
+   "iteration4Note": "No change: NFL.com's header gives exactly #000000 and silver #A5ACAF. The league-hosted logo uses a lighter silver #C8C7C7 (ΔE 11, Wikipedia's value); the header is the league's pairing for the club, so the map keeps #A5ACAF."
+  },
+  "MIA": {
+   "team": "Miami Dolphins",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/miami-dolphins-color-codes/",
+     "listed": [
+      "#008E97",
+      "#FC4C02",
+      "#005778"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#008E97",
+      "#FFFFFF",
+      "#FC4C02",
+      "#FC4C02",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/miami-dolphins/",
+     "listed": [
+      "#008E97",
+      "#FC4C02"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/MIA.svg",
+     "listed": [
+      "#FC4C02",
+      "#008E97",
+      "#005778"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#008E97",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FC4C02",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#008E97",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #008E97 = the primary (nflHeader, nflLogo).",
+   "iteration4Note": null
+  },
+  "MIN": {
+   "team": "Minnesota Vikings",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/minnesota-vikings-color-codes/",
+     "listed": [
+      "#4F2683",
+      "#FFC62F"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#4F2683",
+      "#FFFFFF",
+      "#FFC62F",
+      "#FFC62F",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/minnesota-vikings/",
+     "listed": [
+      "#4F2683",
+      "#FFC62F"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/MIN.svg",
+     "listed": [
+      "#FFC62F",
+      "#E9BF9B",
+      "#000000",
+      "#4F2683"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#4F2683",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFC62F",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FFC62F",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFC62F = the secondary (nflHeader, nflLogo).",
+   "iteration4Note": null
+  },
+  "NE": {
+   "team": "New England Patriots",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/new-england-patriots-color-codes/",
+     "listed": [
+      "#002244",
+      "#C60C30",
+      "#B0B7BC"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#002244",
+      "#FFFFFF",
+      "#C60C30",
+      "#C60C30",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/new-england-patriots/",
+     "listed": [
+      "#002244",
+      "#C60C30"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/NE.svg",
+     "listed": [
+      "#C60C30",
+      "#002244",
+      "#B0B7BC"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#002244",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#C60C30",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#C60C30",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #C60C30 = the secondary (nflHeader, nflLogo).",
+   "iteration4Note": null
+  },
+  "NO": {
+   "team": "New Orleans Saints",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/new-orleans-saints-color-codes/",
+     "listed": [
+      "#D3BC8D",
+      "#101820"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#D3BC8D",
+      "#D3BC8D",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/new-orleans-saints/",
+     "listed": [
+      "#000000",
+      "#D3BC8D"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/NO.svg",
+     "listed": [
+      "#000000",
+      "#D3BC8D"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#D3BC8D",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#D3BC8D",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Founder decision 2026-10-18: black is the primary presentation colour (NFL.com's header leads with black; the Saints' home jersey), old gold #D3BC8D the secondary and the accent, so gold shows prominently as the block trim, the end-zone lettering and every on-field accent. Both values are in NFL.com's header and the league-hosted logo.",
+   "iteration4Note": "Secondary changed #101820 → #000000 (ΔE 10.4): NFL.com's header and the league-hosted logo; neworleanssaints.com carries no value. Old gold #D3BC8D confirmed. NFL.com leads with black (the home jersey); the map keeps gold as the fill (the helmet and mark), a role choice left to the founder."
+  },
+  "NYG": {
+   "team": "New York Giants",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/new-york-giants-color-codes/",
+     "listed": [
+      "#0B2265",
+      "#A71930",
+      "#A5ACAF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#0B2265",
+      "#FFFFFF",
+      "#A71930",
+      "#A71930",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/new-york-giants/",
+     "listed": [
+      "#0B2265",
+      "#A71930"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/NYG.svg",
+     "listed": [
+      "#A71930"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#0B2265",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "secondary": {
+     "hex": "#A71930",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#A71930",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Accent grey #A5ACAF (teamcolorcodes only) → red #A71930 (NFL.com header, the league-hosted logo).",
+   "iteration4Note": null
+  },
+  "NYJ": {
+   "team": "New York Jets",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/new-york-jets-color-codes/",
+     "listed": [
+      "#125740",
+      "#000000",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#115740",
+      "#FFFFFF",
+      "#000000",
+      "#FFFFFF",
+      "#115740"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/new-york-jets/",
+     "listed": [
+      "#115740",
+      "#B1B3B6"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/NYJ.svg",
+     "listed": [
+      "#115740"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#115740",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#B1B3B6",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#B1B3B6",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Values made official-exact: Gotham green #115740 (NFL.com header and the league-hosted logo; teamcolorcodes' #125740 is ΔE 0.2). Secondary and accent = #B1B3B6, the grey NFL.com's header pairs with the green. The previous black secondary and white accent were in no official source. Founder may prefer white/black (Jets 2024 identity) if an official value is found.",
+   "iteration4Note": "No change; validated by tcc + wiki (ΔE ≤ 0.2). Recorded: no official source lists the map's secondary black — NFL.com's header pairs green with grey #B1B3B6 and the logo is green only. That is an omission, not an official value contradicting ours; the founder may prefer the grey."
+  },
+  "PHI": {
+   "team": "Philadelphia Eagles",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/philadelphia-eagles-color-codes/",
+     "listed": [
+      "#004C54",
+      "#A5ACAF",
+      "#ACC0C6",
+      "#000000",
+      "#565A5C"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#004851",
+      "#FFFFFF",
+      "#A2AAAD",
+      "#A2AAAD",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/philadelphia-eagles/",
+     "listed": [
+      "#004851",
+      "#A2AAAD"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/PHI.svg",
+     "listed": [
+      "#004851",
+      "#000000",
+      "#A2AAAD"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#004851",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#A2AAAD",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#A2AAAD",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Made official-exact: midnight green #004C54 → #004851 and silver #A5ACAF → #A2AAAD (NFL.com header, the league-hosted logo).",
+   "iteration4Note": null
+  },
+  "PIT": {
+   "team": "Pittsburgh Steelers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/pittsburgh-steelers-color-codes/",
+     "listed": [
+      "#FFB612",
+      "#101820",
+      "#003087",
+      "#C60C30",
+      "#A5ACAF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#FFB612",
+      "#FFB612",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/pittsburgh-steelers/",
+     "listed": [
+      "#000000",
+      "#FFB612"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/PIT.svg",
+     "listed": [
+      "#000000",
+      "#A5ACAF",
+      "#FFB612",
+      "#C60C30",
+      "#00539B"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Founder decision 2026-10-18: black primary (NFL.com's header leads with black; the home jersey), Steelers gold #FFB612 the secondary and the accent (trim, lettering, on-field accents). Both values are in NFL.com's header and the league-hosted logo. The logo's red, blue and silver (the Steelmark) are recorded, not used.",
+   "iteration4Note": "Secondary changed #101820 → #000000 (ΔE 10.4): NFL.com's header and the league-hosted logo; steelers.com carries no value. Gold #FFB612 confirmed. NFL.com leads with black (the home jersey); the map keeps gold as the fill, a role choice left to the founder."
+  },
+  "SEA": {
+   "team": "Seattle Seahawks",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/seattle-seahawks-color-codes/",
+     "listed": [
+      "#002244",
+      "#69BE28",
+      "#A5ACAF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#002244",
+      "#FFFFFF",
+      "#69BE28",
+      "#69BE28",
+      "#002244"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/seattle-seahawks/",
+     "listed": [
+      "#002244",
+      "#A5ACAF"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/SEA.svg",
+     "listed": [
+      "#002244",
+      "#69BE28",
+      "#A5ACAF"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#002244",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#69BE28",
+     "officialSources": [
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#69BE28",
+     "officialSources": [
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflLogo); accent #69BE28 = the secondary (nflLogo).",
+   "iteration4Note": null
+  },
+  "SF": {
+   "team": "San Francisco 49ers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/san-francisco-49ers-team-colors/",
+     "listed": [
+      "#AA0000",
+      "#B3995D"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#AA0000",
+      "#FFFFFF",
+      "#B5925D",
+      "#B5925D",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/san-francisco-49ers/",
+     "listed": [
+      "#AA0000",
+      "#B3995D"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/SF.svg",
+     "listed": [
+      "#000000",
+      "#B3995D",
+      "#AA0000"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#AA0000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#B3995D",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#B3995D",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #B3995D = the secondary (nflHeader, nflLogo).",
+   "iteration4Note": "No change: NFL.com's header and the league-hosted logo give exactly #AA0000 and gold #B3995D. Wikipedia's #B5925D is ΔE 5.4 away."
+  },
+  "TB": {
+   "team": "Tampa Bay Buccaneers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/tampa-bay-buccaneers-team-colors/",
+     "listed": [
+      "#D50A0A",
+      "#FF7900",
+      "#0A0A08",
+      "#B1BABF",
+      "#34302B"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#A71930",
+      "#FFFFFF",
+      "#322F2B",
+      "#322F2B",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/tampa-bay-buccaneers/",
+     "listed": [
+      "#A71930",
+      "#322F2B"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/TB.svg",
+     "listed": [
+      "#B1BABF",
+      "#000000",
+      "#A71930",
+      "#0A0B09",
+      "#C2242B",
+      "#DC4405"
+     ]
+    },
+    "club": {
+     "url": "https://www.buccaneers.com/",
+     "where": "club-customised nav accent --dropdown-hover-bkg-var (other clubs keep the league default)",
+     "listed": [
+      "#A71930"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#A71930",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#322F2B",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#C2242B",
+     "officialSources": [
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Primary = Buccaneer red #A71930 (NFL.com header, the league-hosted logo, buccaneers.com's own nav accent). Secondary = pewter #322F2B, NFL.com's exact header value (replaces teamcolorcodes' #34302B, ΔE 1.0). Accent = the logo's brighter red #C2242B, the officially published value that replaces the unsupported #D50A0A; on the turf it is 2.0:1, so the field paints a brightened #C2242B (derivedUi).",
+   "iteration4Note": "Primary changed #D50A0A → #A71930 (ΔE 34.3): NFL.com's header, the league-hosted logo and buccaneers.com's own nav accent all use #A71930. Pewter #34302B is ΔE 1.0 from the official #322F2B. Accent NOT changed: #A71930 is 2.70:1 on the page (< 3:1), so the review's #D50A0A stays as the accent; the official logo's #C2242B (3.43:1) is the founder's alternative."
+  },
+  "TEN": {
+   "team": "Tennessee Titans",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/tennessee-titans-color-codes/",
+     "listed": [
+      "#0C2340",
+      "#4B92DB",
+      "#C8102E",
+      "#8A8D8F"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#4495D2",
+      "#FFFFFF",
+      "#D50A0A",
+      "#FFFFFF",
+      "#4495D2"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/tennessee-titans/",
+     "listed": [
+      "#4495D2",
+      "#001532"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/TEN.svg",
+     "listed": [
+      "#D50A0A",
+      "#4495D2"
+     ]
+    },
+    "club": {
+     "url": "https://www.tennesseetitans.com/brand/",
+     "where": "brand page (March 2026 rebrand): the 'Colors and typography' graphic's colour proportions, largest first, name Titans blue, white, navy and red (names only, no hex); the page's own carousel buttons use #4495d2. The navigation red #D50A0A is the league platform default, not counted.",
+     "listed": [
+      "#4495D2"
+     ],
+     "names": [
+      "Titans blue",
+      "white",
+      "navy",
+      "red"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#4495D2",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#001532",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#D50A0A",
+     "officialSources": [
+      "nflLogo"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "Roles from the club's own brand page (tennesseetitans.com/brand, March 2026 rebrand): its 'Colors and typography' graphic gives the colour proportions, largest first, Titans blue, white, navy, red. So primary = Titans blue #4495D2 (NFL.com header overlay, the league-hosted logo, the brand page's own UI), secondary = navy #001532 (NFL.com header stripe; the brand page names navy but prints no hex), accent = red #D50A0A (the league-hosted Titans logo's red). White is the ink's job. The red on tennesseetitans.com's navigation is the league platform's default (#D50A0A on 12 other club sites), so it is not counted as club evidence; the logo is.",
+   "iteration4Note": "Primary changed navy #0C2340 → Titans blue #4495D2, secondary #4B92DB → red #D50A0A, ink white → dark, accent → #4495D2. The March 2026 rebrand made Titans blue the dominant colour (club brand page and NFL.com); red is the shield logo's and the number outlines' colour (league-hosted logo). NFL.com's header pairs navy #001532 instead, the alternative secondary. tcc still lists the pre-2026 palette."
+  },
+  "WSH": {
+   "team": "Washington Commanders",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/washington-redskins-color-codes/",
+     "listed": [
+      "#5A1414",
+      "#FFB612"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#5A1414",
+      "#FFFFFF",
+      "#FFB612",
+      "#FFB612",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/washington-commanders/",
+     "listed": [
+      "#5A1414",
+      "#FFB612"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/WAS.svg",
+     "listed": [
+      "#FFB612",
+      "#5A1414"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#5A1414",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the secondary (nflHeader, nflLogo).",
+   "iteration4Note": null
+  }
+ },
+ "changes": [
+  {
+   "iteration": 5,
+   "abbr": "BAL",
+   "field": "accent",
+   "before": "#9E7C0C",
+   "after": "#9A7611"
+  },
+  {
+   "iteration": 5,
+   "abbr": "DEN",
+   "field": "primary",
+   "before": "#FB4F14",
+   "after": "#FC4C02"
+  },
+  {
+   "iteration": 5,
+   "abbr": "DEN",
+   "field": "secondary",
+   "before": "#002244",
+   "after": "#0A2343"
+  },
+  {
+   "iteration": 5,
+   "abbr": "DEN",
+   "field": "accent",
+   "before": "#FB4F14",
+   "after": "#FC4C02"
+  },
+  {
+   "iteration": 5,
+   "abbr": "HOU",
+   "field": "accent",
+   "before": "#FFFFFF",
+   "after": "#EB0028"
+  },
+  {
+   "iteration": 5,
+   "abbr": "IND",
+   "field": "primary",
+   "before": "#002C5F",
+   "after": "#013369"
+  },
+  {
+   "iteration": 5,
+   "abbr": "IND",
+   "field": "secondary",
+   "before": "#A2AAAD",
+   "after": "#A5ACAF"
+  },
+  {
+   "iteration": 5,
+   "abbr": "IND",
+   "field": "accent",
+   "before": "#A2AAAD",
+   "after": "#A5ACAF"
+  },
+  {
+   "iteration": 5,
+   "abbr": "JAX",
+   "field": "primary",
+   "before": "#000000",
+   "after": "#006778"
+  },
+  {
+   "iteration": 5,
+   "abbr": "JAX",
+   "field": "secondary",
+   "before": "#D7A22A",
+   "after": "#000000"
+  },
+  {
+   "iteration": 5,
+   "abbr": "KC",
+   "field": "secondary",
+   "before": "#FFB81C",
+   "after": "#FFB612"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NO",
+   "field": "primary",
+   "before": "#D3BC8D",
+   "after": "#000000"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NO",
+   "field": "secondary",
+   "before": "#000000",
+   "after": "#D3BC8D"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NO",
+   "field": "inkName",
+   "before": "dark",
+   "after": "white"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NYG",
+   "field": "accent",
+   "before": "#A5ACAF",
+   "after": "#A71930"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NYJ",
+   "field": "primary",
+   "before": "#125740",
+   "after": "#115740"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NYJ",
+   "field": "secondary",
+   "before": "#000000",
+   "after": "#B1B3B6"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NYJ",
+   "field": "accent",
+   "before": "#FFFFFF",
+   "after": "#B1B3B6"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PHI",
+   "field": "primary",
+   "before": "#004C54",
+   "after": "#004851"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PHI",
+   "field": "secondary",
+   "before": "#A5ACAF",
+   "after": "#A2AAAD"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PHI",
+   "field": "accent",
+   "before": "#A5ACAF",
+   "after": "#A2AAAD"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PIT",
+   "field": "primary",
+   "before": "#FFB612",
+   "after": "#000000"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PIT",
+   "field": "secondary",
+   "before": "#000000",
+   "after": "#FFB612"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PIT",
+   "field": "inkName",
+   "before": "dark",
+   "after": "white"
+  },
+  {
+   "iteration": 5,
+   "abbr": "TB",
+   "field": "secondary",
+   "before": "#34302B",
+   "after": "#322F2B"
+  },
+  {
+   "iteration": 5,
+   "abbr": "TB",
+   "field": "accent",
+   "before": "#D50A0A",
+   "after": "#C2242B"
+  },
+  {
+   "iteration": 5,
+   "abbr": "TEN",
+   "field": "secondary",
+   "before": "#D50A0A",
+   "after": "#001532"
+  },
+  {
+   "iteration": 5,
+   "abbr": "TEN",
+   "field": "accent",
+   "before": "#4495D2",
+   "after": "#D50A0A"
+  }
+ ],
+ "history": [
+  {
+   "iteration": 4,
+   "abbr": "BAL",
+   "field": "primary",
+   "before": "#241773",
+   "after": "#24135F"
+  },
+  {
+   "iteration": 4,
+   "abbr": "CHI",
+   "field": "secondary",
+   "before": "#C83803",
+   "after": "#E64100"
+  },
+  {
+   "iteration": 4,
+   "abbr": "CHI",
+   "field": "accent",
+   "before": "#C83803",
+   "after": "#E64100"
+  },
+  {
+   "iteration": 4,
+   "abbr": "DAL",
+   "field": "primary",
+   "before": "#003594",
+   "after": "#002244"
+  },
+  {
+   "iteration": 4,
+   "abbr": "DAL",
+   "field": "secondary",
+   "before": "#869397",
+   "after": "#B0B7BC"
+  },
+  {
+   "iteration": 4,
+   "abbr": "DAL",
+   "field": "accent",
+   "before": "#869397",
+   "after": "#B0B7BC"
+  },
+  {
+   "iteration": 4,
+   "abbr": "HOU",
+   "field": "primary",
+   "before": "#03202F",
+   "after": "#021018"
+  },
+  {
+   "iteration": 4,
+   "abbr": "HOU",
+   "field": "secondary",
+   "before": "#A71930",
+   "after": "#EB0028"
+  },
+  {
+   "iteration": 4,
+   "abbr": "JAX",
+   "field": "primary",
+   "before": "#101820",
+   "after": "#000000"
+  },
+  {
+   "iteration": 4,
+   "abbr": "LAR",
+   "field": "secondary",
+   "before": "#FFA300",
+   "after": "#FFD100"
+  },
+  {
+   "iteration": 4,
+   "abbr": "LAR",
+   "field": "accent",
+   "before": "#FFA300",
+   "after": "#FFD100"
+  },
+  {
+   "iteration": 4,
+   "abbr": "NO",
+   "field": "secondary",
+   "before": "#101820",
+   "after": "#000000"
+  },
+  {
+   "iteration": 4,
+   "abbr": "PIT",
+   "field": "secondary",
+   "before": "#101820",
+   "after": "#000000"
+  },
+  {
+   "iteration": 4,
+   "abbr": "TB",
+   "field": "primary",
+   "before": "#D50A0A",
+   "after": "#A71930"
+  },
+  {
+   "iteration": 4,
+   "abbr": "TEN",
+   "field": "primary",
+   "before": "#0C2340",
+   "after": "#4495D2"
+  },
+  {
+   "iteration": 4,
+   "abbr": "TEN",
+   "field": "secondary",
+   "before": "#4B92DB",
+   "after": "#D50A0A"
+  },
+  {
+   "iteration": 4,
+   "abbr": "TEN",
+   "field": "inkName",
+   "before": "white",
+   "after": "dark"
+  },
+  {
+   "iteration": 4,
+   "abbr": "TEN",
+   "field": "accent",
+   "before": "#4B92DB",
+   "after": "#4495D2"
+  }
+ ],
+ "derivedUi": [
+  {
+   "abbr": "BAL",
+   "role": "accent",
+   "official": "#9A7611",
+   "onField": "#A47E12",
+   "bright": 10,
+   "white": 0,
+   "turfRatio": 3.09,
+   "deltaE": 4.3,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "BUF",
+   "role": "accent",
+   "official": "#C60C30",
+   "onField": "#FF1B47",
+   "bright": 100,
+   "white": 5,
+   "turfRatio": 3.05,
+   "deltaE": 18.6,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "CAR",
+   "role": "accent",
+   "official": "#0085CA",
+   "onField": "#0088CF",
+   "bright": 10,
+   "white": 0,
+   "turfRatio": 3.01,
+   "deltaE": 1.5,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "CHI",
+   "role": "accent",
+   "official": "#E64100",
+   "onField": "#EF4300",
+   "bright": 35,
+   "white": 0,
+   "turfRatio": 3.04,
+   "deltaE": 3.4,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "DET",
+   "role": "accent",
+   "official": "#0076B6",
+   "onField": "#0089D3",
+   "bright": 40,
+   "white": 0,
+   "turfRatio": 3.06,
+   "deltaE": 8.8,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "HOU",
+   "role": "accent",
+   "official": "#EB0028",
+   "onField": "#FE1A40",
+   "bright": 95,
+   "white": 10,
+   "turfRatio": 3.02,
+   "deltaE": 9,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "HOU",
+   "role": "alternate",
+   "official": "#0080C6",
+   "onField": "#0089D4",
+   "bright": 25,
+   "white": 0,
+   "turfRatio": 3.07,
+   "deltaE": 4.2,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "KC",
+   "role": "accent",
+   "official": "#E31837",
+   "onField": "#FE1B3D",
+   "bright": 95,
+   "white": 0,
+   "turfRatio": 3.02,
+   "deltaE": 9.6,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "LAC",
+   "role": "accent",
+   "official": "#0080C6",
+   "onField": "#0089D4",
+   "bright": 25,
+   "white": 0,
+   "turfRatio": 3.07,
+   "deltaE": 4.2,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "MIA",
+   "role": "accent",
+   "official": "#008E97",
+   "onField": "#00939C",
+   "bright": 5,
+   "white": 0,
+   "turfRatio": 3.14,
+   "deltaE": 2,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "NE",
+   "role": "accent",
+   "official": "#C60C30",
+   "onField": "#FF1B47",
+   "bright": 100,
+   "white": 5,
+   "turfRatio": 3.05,
+   "deltaE": 18.6,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "NYG",
+   "role": "accent",
+   "official": "#A71930",
+   "onField": "#FB2648",
+   "bright": 95,
+   "white": 0,
+   "turfRatio": 3.04,
+   "deltaE": 29.8,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "TB",
+   "role": "accent",
+   "official": "#C2242B",
+   "onField": "#F92E37",
+   "bright": 90,
+   "white": 0,
+   "turfRatio": 3.04,
+   "deltaE": 19.8,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  },
+  {
+   "abbr": "TEN",
+   "role": "accent",
+   "official": "#D50A0A",
+   "onField": "#FD2424",
+   "bright": 95,
+   "white": 10,
+   "turfRatio": 3.03,
+   "deltaE": 11.8,
+   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+  }
+ ],
+ "matchups": [
+  {
+   "matchup": "ARI@LAR",
+   "home": {
+    "fill": "#003594",
+    "ink": "#FFFFFF",
+    "trim": "#FFD100",
+    "accent": "#FFD100"
+   },
+   "away": {
+    "fill": "#97233F",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#F53966",
+    "accentBase": "#97233F",
+    "accentSwap": "#97233F"
+   }
+  },
+  {
+   "matchup": "ATL@NO",
+   "home": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#D3BC8D",
+    "accent": "#D3BC8D"
+   },
+   "away": {
+    "fill": "#A71930",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#A5ACAF"
+   }
+  },
+  {
+   "matchup": "BAL@ATL",
+   "home": {
+    "fill": "#A71930",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#A5ACAF"
+   },
+   "away": {
+    "fill": "#24135F",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#A47E12",
+    "accentBase": "#9A7611"
+   }
+  },
+  {
+   "matchup": "BAL@CLE",
+   "home": {
+    "fill": "#311D00",
+    "ink": "#FFFFFF",
+    "trim": "#FF3C00",
+    "accent": "#FF3C00"
+   },
+   "away": {
+    "fill": "#24135F",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#A47E12",
+    "accentBase": "#9A7611"
+   }
+  },
+  {
+   "matchup": "BUF@LAR",
+   "home": {
+    "fill": "#003594",
+    "ink": "#FFFFFF",
+    "trim": "#FFD100",
+    "accent": "#FFD100"
+   },
+   "away": {
+    "fill": "#C60C30",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#FF1B47",
+    "accentBase": "#C60C30"
+   }
+  },
+  {
+   "matchup": "BUF@LV",
+   "home": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#A5ACAF",
+    "accent": "#A5ACAF"
+   },
+   "away": {
+    "fill": "#00338D",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#FF1B47",
+    "accentBase": "#C60C30"
+   }
+  },
+  {
+   "matchup": "CAR@PHI",
+   "home": {
+    "fill": "#004851",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#A2AAAD"
+   },
+   "away": {
+    "fill": "#0085CA",
+    "ink": "#0A0705",
+    "trim": "#0A0705",
+    "accent": "#0088CF",
+    "accentBase": "#0085CA"
+   }
+  },
+  {
+   "matchup": "CHI@ATL",
+   "home": {
+    "fill": "#A71930",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#A5ACAF"
+   },
+   "away": {
+    "fill": "#0B162A",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#EF4300",
+    "accentBase": "#E64100"
+   }
+  },
+  {
+   "matchup": "CHI@GB",
+   "home": {
+    "fill": "#203731",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#FFB612"
+   },
+   "away": {
+    "fill": "#0B162A",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#EF4300",
+    "accentBase": "#E64100"
+   }
+  },
+  {
+   "matchup": "CIN@MIA",
+   "home": {
+    "fill": "#008E97",
+    "ink": "#0A0705",
+    "trim": "#0A0705",
+    "accent": "#00939C",
+    "accentBase": "#008E97"
+   },
+   "away": {
+    "fill": "#FB4F14",
+    "ink": "#0A0705",
+    "trim": "#000000",
+    "accent": "#FB4F14"
+   }
+  },
+  {
+   "matchup": "CLE@NYJ",
+   "home": {
+    "fill": "#115740",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#B1B3B6"
+   },
+   "away": {
+    "fill": "#311D00",
+    "ink": "#FFFFFF",
+    "trim": "#FF3C00",
+    "accent": "#FF3C00"
+   }
+  },
+  {
+   "matchup": "DAL@GB",
+   "home": {
+    "fill": "#203731",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#FFB612"
+   },
+   "away": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#B0B7BC",
+    "accent": "#B0B7BC"
+   }
+  },
+  {
+   "matchup": "DEN@LAC",
+   "home": {
+    "fill": "#0080C6",
+    "ink": "#0A0705",
+    "trim": "#0A0705",
+    "accent": "#0089D4",
+    "accentBase": "#0080C6"
+   },
+   "away": {
+    "fill": "#FC4C02",
+    "ink": "#0A0705",
+    "trim": "#0A2343",
+    "accent": "#FC4C02"
+   }
+  },
+  {
+   "matchup": "DET@ARI",
+   "home": {
+    "fill": "#97233F",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#FFB612"
+   },
+   "away": {
+    "fill": "#0076B6",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#0089D3",
+    "accentBase": "#0076B6"
+   }
+  },
+  {
+   "matchup": "HOU@JAX",
+   "home": {
+    "fill": "#006778",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#D7A22A"
+   },
+   "away": {
+    "fill": "#021018",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#FE1A40",
+    "accentBase": "#EB0028"
+   }
+  },
+  {
+   "matchup": "HOU@TEN",
+   "home": {
+    "fill": "#4495D2",
+    "ink": "#0A0705",
+    "trim": "#001532",
+    "accent": "#FD2424",
+    "accentBase": "#D50A0A"
+   },
+   "away": {
+    "fill": "#021018",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#0089D4",
+    "accentBase": "#0080C6",
+    "accentSwap": "#0080C6"
+   }
+  },
+  {
+   "matchup": "IND@PIT",
+   "home": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#FFB612"
+   },
+   "away": {
+    "fill": "#013369",
+    "ink": "#FFFFFF",
+    "trim": "#A5ACAF",
+    "accent": "#A5ACAF"
+   }
+  },
+  {
+   "matchup": "LAC@KC",
+   "home": {
+    "fill": "#E31837",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#FE1B3D",
+    "accentBase": "#E31837"
+   },
+   "away": {
+    "fill": "#0080C6",
+    "ink": "#0A0705",
+    "trim": "#0A0705",
+    "accent": "#0089D4",
+    "accentBase": "#0080C6"
+   }
+  },
+  {
+   "matchup": "LV@NE",
+   "home": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#FF1B47",
+    "accentBase": "#C60C30"
+   },
+   "away": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#A5ACAF",
+    "accent": "#A5ACAF"
+   }
+  },
+  {
+   "matchup": "MIN@NO",
+   "home": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#D3BC8D",
+    "accent": "#D3BC8D"
+   },
+   "away": {
+    "fill": "#4F2683",
+    "ink": "#FFFFFF",
+    "trim": "#FFC62F",
+    "accent": "#FFC62F"
+   }
+  },
+  {
+   "matchup": "NO@NYG",
+   "home": {
+    "fill": "#0B2265",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#FB2648",
+    "accentBase": "#A71930"
+   },
+   "away": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#D3BC8D",
+    "accent": "#D3BC8D"
+   }
+  },
+  {
+   "matchup": "NYG@WSH",
+   "home": {
+    "fill": "#5A1414",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#FFB612"
+   },
+   "away": {
+    "fill": "#0B2265",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#FB2648",
+    "accentBase": "#A71930"
+   }
+  },
+  {
+   "matchup": "NYJ@NE",
+   "home": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#FF1B47",
+    "accentBase": "#C60C30"
+   },
+   "away": {
+    "fill": "#115740",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#B1B3B6"
+   }
+  },
+  {
+   "matchup": "PHI@JAX",
+   "home": {
+    "fill": "#006778",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#D7A22A"
+   },
+   "away": {
+    "fill": "#A2AAAD",
+    "ink": "#0A0705",
+    "trim": "#0A0705",
+    "accent": "#A2AAAD"
+   }
+  },
+  {
+   "matchup": "PIT@TB",
+   "home": {
+    "fill": "#A71930",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#F92E37",
+    "accentBase": "#C2242B"
+   },
+   "away": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#FFB612"
+   }
+  },
+  {
+   "matchup": "SEA@DEN",
+   "home": {
+    "fill": "#FC4C02",
+    "ink": "#0A0705",
+    "trim": "#0A2343",
+    "accent": "#FC4C02"
+   },
+   "away": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#69BE28",
+    "accent": "#69BE28"
+   }
+  },
+  {
+   "matchup": "SF@SEA",
+   "home": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#69BE28",
+    "accent": "#69BE28"
+   },
+   "away": {
+    "fill": "#AA0000",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#B3995D"
+   }
+  },
+  {
+   "matchup": "TB@DAL",
+   "home": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#B0B7BC",
+    "accent": "#B0B7BC"
+   },
+   "away": {
+    "fill": "#A71930",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#F92E37",
+    "accentBase": "#C2242B"
+   }
+  },
+  {
+   "matchup": "TEN@IND",
+   "home": {
+    "fill": "#013369",
+    "ink": "#FFFFFF",
+    "trim": "#A5ACAF",
+    "accent": "#A5ACAF"
+   },
+   "away": {
+    "fill": "#4495D2",
+    "ink": "#0A0705",
+    "trim": "#001532",
+    "accent": "#FD2424",
+    "accentBase": "#D50A0A"
+   }
+  },
+  {
+   "matchup": "WSH@SF",
+   "home": {
+    "fill": "#AA0000",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#B3995D"
+   },
+   "away": {
+    "fill": "#5A1414",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#FFB612"
+   }
+  }
+ ]
+}

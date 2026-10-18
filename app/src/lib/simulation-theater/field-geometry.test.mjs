@@ -60,13 +60,13 @@ test("overlayFrame is a pure function of the frame: equal t → equal overlay; r
   }
 });
 
-test("dev preview: every accent reaches ≥3:1 on both turf stripes (derived toward white where needed); neutral is untouched", () => {
+test("team colours: every on-field accent reaches ≥3:1 on both turf stripes; derivation keeps the hue (brighten, then white); neutral untouched", () => {
   const turf = turfHexes(THEATER_TURF_MIX);
   const derived = [];
   const teams = Object.values(NFL_TEAM_COLORS);
   for (const h of teams) for (const a of teams) {
     if (h === a) continue;
-    const p = theaterPalette(h.abbr, a.abbr, { previewUnvalidated: true });
+    const p = theaterPalette(h.abbr, a.abbr);
     for (const side of ["home", "away"]) {
       const acc = p[side].accent;
       assert.ok(Math.min(...turf.map((x) => contrastRatio(acc, x))) >= 3, `${side} ${acc}`);
@@ -78,6 +78,12 @@ test("dev preview: every accent reaches ≥3:1 on both turf stripes (derived tow
   const r = turfSafeAccent("#0076B6", turf, contrastRatio);
   assert.equal(r.base, "#0076B6");
   assert.ok(r.ratio >= 3);
-  assert.equal(theaterPalette("SF", "WSH").mode, "neutral");
-  assert.equal(theaterPalette("SF", "WSH").home.accentBase, undefined);
+  assert.equal(r.white, 0, "a blue reaches 3:1 by brightening alone");
+  // a red stays a red: brightened, never washed toward pink first (red channel dominant, G and B low)
+  const red = turfSafeAccent("#C60C30", turf, contrastRatio);
+  const [R, G, B] = [1, 3, 5].map((i) => parseInt(red.accent.slice(i, i + 2), 16));
+  assert.ok(R === 255 && G < 40 && B < 80, `red stays red: ${red.accent}`);
+  assert.deepEqual(turfSafeAccent("#FFB612", turf, contrastRatio), { accent: "#FFB612", derived: false, base: "#FFB612", ratio: turfSafeAccent("#FFB612", turf, contrastRatio).ratio, white: 0, bright: 0 });
+  assert.equal(theaterPalette("SF", "WSH", { neutral: true }).mode, "neutral");
+  assert.equal(theaterPalette("SF", "WSH", { neutral: true }).home.accentBase, undefined);
 });

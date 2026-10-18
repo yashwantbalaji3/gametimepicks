@@ -120,20 +120,28 @@ export function turfHexes(mix) {
 }
 
 /**
- * A turf-safe accent: the team accent itself when it reaches `min`:1 against every turf stripe, otherwise the first
- * 5 % step of a mix toward white that does. Returns { accent, derived, base, ratio }.
+ * A turf-safe accent: the team accent itself when it reaches `min`:1 against every turf stripe (and so against the darker
+ * page), otherwise the first legible step of a lightening that KEEPS THE HUE: brighten first (scale the channels up, in
+ * 5 % steps, toward the brightest the hue allows), and mix toward white (5 % steps) only when brightening alone cannot
+ * reach `min`. Mixing toward white first would wash a red out to pink; brightening keeps a red red and a blue blue.
+ * Returns { accent, derived, base, ratio, white, bright } (white / bright: the % of each step used).
  * @param {string} accent hex
  * @param {string[]} turf hex stripes
  * @param {(a:string,b:string)=>number} contrast WCAG contrast function
+ * @param {number} [min]
  */
 export function turfSafeAccent(accent, turf, contrast, min = 3) {
   const worst = (hex) => Math.min(...turf.map((t) => contrast(hex, t)));
-  if (worst(accent) >= min) return { accent, derived: false, base: accent, ratio: worst(accent) };
+  if (worst(accent) >= min) return { accent, derived: false, base: accent, ratio: worst(accent), white: 0, bright: 0 };
   const base = fromHex(accent);
-  for (let pct = 95; pct >= 0; pct -= 5) {
-    const hex = toHex(mixRgb(base, [255, 255, 255], pct));
-    if (worst(hex) >= min) return { accent: hex, derived: true, base: accent, ratio: worst(hex) };
+  const white = [255, 255, 255];
+  const k = 255 / Math.max(...base, 1);
+  for (let w = 0; w <= 100; w += 5) {
+    for (let v = 0; v <= 100; v += 5) {
+      const bright = base.map((c) => Math.min(255, c * (1 + (v / 100) * (k - 1))));
+      const hex = toHex(mixRgb(white, bright, w));
+      if (worst(hex) >= min) return { accent: hex, derived: true, base: accent, ratio: worst(hex), white: w, bright: v };
+    }
   }
-  const white = toHex([255, 255, 255]);
-  return { accent: white, derived: true, base: accent, ratio: worst(white) };
+  return { accent: toHex(white), derived: true, base: accent, ratio: worst(toHex(white)), white: 100, bright: 100 };
 }

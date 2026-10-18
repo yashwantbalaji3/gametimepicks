@@ -21,7 +21,14 @@
 import { BALL_RX, FIELD_LEN, FIELD_WID, HASH_FROM_SIDELINE, MARGIN_X, MARGIN_Y, TOTAL_LEN, TOTAL_WID, U, ballSize, fieldMap, numberSet } from "@/lib/simulation-theater/field-geometry.mjs";
 
 export type Side = "home" | "away";
-export type TeamPaint = { fill: string; ink: string; accent: string; hatched: boolean; accentBase?: string };
+/** One side's paint (lib/simulation-theater/nfl-team-colors.mjs theaterPalette): block fill, its ink (text, ≥4.5:1) and trim,
+ *  the on-field accent (≥3:1 on turf; `accentBase` = the official value when it had to be lightened, `accentSwap` = the
+ *  official colour used instead of a clashing accent), and the two collision fallbacks (hatched end zone, hatched
+ *  timeline segments). */
+export type TeamPaint = {
+  fill: string; ink: string; trim: string; accent: string; hatched: boolean;
+  accentBase?: string; accentSwap?: string; accentHatched?: boolean;
+};
 export type Palette = { mode: string; validated: boolean; home: TeamPaint; away: TeamPaint };
 export type Teams = { home: { abbr: string; name: string | null }; away: { abbr: string; name: string | null } };
 export type Frame = {
@@ -55,7 +62,8 @@ const VB_H = TOTAL_WID * U;
 const fx = (yd: number) => (yd + MARGIN_X) * U; // field yard → static units
 const fy = (yd: number) => (yd + MARGIN_Y) * U; // yards from the top sideline → static units
 
-/** Neutral end-zone paint (D3 default): a tint of the side's token into the turf. */
+/** Neutral end-zone paint (the dev bar's "Neutral colours"): a tint of the side's token into the turf. Team mode paints
+ *  the team's block colour itself, opaque, so the end zone shows the official value. */
 const zoneFill = (p: TeamPaint, mode: string) => (mode === "neutral" ? `color-mix(in srgb, ${p.fill} 22%, var(--st-turf-b))` : p.fill);
 
 export function StaticField({ palette, idPrefix, detail = true }: { palette: Palette; idPrefix: string; detail?: boolean }) {
@@ -69,7 +77,7 @@ export function StaticField({ palette, idPrefix, detail = true }: { palette: Pal
   const hashB = fy(FIELD_WID - HASH_FROM_SIDELINE);
   const zone = (side: Side, x0: number) => (
     <g>
-      <rect x={fx(x0)} y={top} width={10 * U} height={FIELD_WID * U} style={{ fill: zoneFill(palette[side], mode), fillOpacity: mode === "neutral" ? 1 : 0.88 }} />
+      <rect x={fx(x0)} y={top} width={10 * U} height={FIELD_WID * U} style={{ fill: zoneFill(palette[side], mode) }} />
       <rect x={fx(x0)} y={top} width={10 * U} height={FIELD_WID * U} fill={`url(#${id("pin")})`} />
       {palette[side].hatched ? <rect x={fx(x0)} y={top} width={10 * U} height={FIELD_WID * U} fill={`url(#${id("hatch")})`} /> : null}
     </g>
@@ -141,9 +149,9 @@ export function StaticField({ palette, idPrefix, detail = true }: { palette: Pal
       <path d={yard.join("")} style={{ stroke: "var(--st-line)" }} strokeWidth={1.4} vectorEffect="non-scaling-stroke" />
       {/* goal lines and the field boundary (a painted white border) */}
       <path d={`M${fx(10)} ${top}V${bot}M${fx(110)} ${top}V${bot}`} style={{ stroke: "var(--st-line-strong)" }} strokeWidth={2.6} vectorEffect="non-scaling-stroke" />
-      {/* end-zone edge in the team ACCENT (≥3:1 on page and turf; S6) */}
-      <line x1={fx(10) - 4} y1={top} x2={fx(10) - 4} y2={bot} style={{ stroke: palette.home.accent }} strokeOpacity={0.9} strokeWidth={2} vectorEffect="non-scaling-stroke" />
-      <line x1={fx(110) + 4} y1={top} x2={fx(110) + 4} y2={bot} style={{ stroke: palette.away.accent }} strokeOpacity={0.9} strokeWidth={2} vectorEffect="non-scaling-stroke" />
+      {/* end-zone edge in the team ACCENT, opaque (≥3:1 on page and turf; S6) */}
+      <line x1={fx(10) - 4} y1={top} x2={fx(10) - 4} y2={bot} style={{ stroke: palette.home.accent }} strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
+      <line x1={fx(110) + 4} y1={top} x2={fx(110) + 4} y2={bot} style={{ stroke: palette.away.accent }} strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
       <rect x={fx(0)} y={top} width={FIELD_LEN * U} height={FIELD_WID * U} fill="none" style={{ stroke: "var(--st-line-strong)" }} strokeWidth={3} vectorEffect="non-scaling-stroke" />
       {post(0, -1.6 * U)}
       {post(FIELD_LEN, 1.6 * U)}
@@ -162,7 +170,8 @@ export function FieldMarks({ W, H, palette, teams }: { W: number; H: number; pal
   const zoneW = m.X(10) - m.X(0);
   const abbrSize = Math.max(10, Math.min(zoneW * 0.58, m.fieldH * 0.16));
   const showAbbr = W >= 330; // dropped at 320 px (spec §2.3), where the full-bleed field is 320 wide
-  const ink = (side: Side) => (palette.mode === "neutral" ? "var(--lava-text)" : palette[side].ink);
+  // end-zone lettering: the team's trim on its own end-zone colour (≥4.5:1, tested), e.g. gold on Saints black
+  const ink = (side: Side) => (palette.mode === "neutral" ? "var(--lava-text)" : palette[side].trim);
   const pyl = Math.max(3, Math.min(7, W * 0.0045));
   const arrow = (x: number, y: number, d: number, flip: boolean) => {
     // a small triangle on the goal side of the number, pointing at the nearer goal line

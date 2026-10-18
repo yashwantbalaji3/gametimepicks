@@ -32,15 +32,12 @@ export const TOKEN_EXCEPTIONS = Object.freeze([
     files: {
       "src/components/team-badge.tsx": 68,
       "src/components/cricket-team-badge.tsx": 21,
-      /* Simulation Theater V2 NFL map (spec Appendix A): 32 teams × primary/secondary/accent + white/dark ink.
-         Unvalidated (TEAM_COLORS_VALIDATED = false): neutral tokens render unless a dev-only preview toggle is on. */
-      "src/lib/simulation-theater/nfl-team-colors.mjs": 98,
-      /* Its per-team validation: the hex values OBSERVED on teamcolorcodes.com, Wikipedia Module:Gridiron color/data,
-         NFL.com team pages, the league-hosted club logo files and six club sites (accessed 2026-10-18), 32 teams, plus
-         the before → after record of the iteration-4 changes. Data for tests only; never imported by a component, never
-         painted. Raised 291 → 510 on its own unmerged branch when the official sources were added (iteration 4): new
-         observed data, not drift; the founder/reviewer should confirm this one-time raise. */
-      "src/lib/simulation-theater/nfl-team-colors-validation.mjs": 510,
+      /* Simulation Theater V2 NFL map (dev route only): 32 teams × primary/secondary (+ 6 accents and 1 alternate that
+         are not the primary or secondary) + white/dark ink. Lowered 98 → 73 in iteration 5: accents equal to a primary or
+         secondary are written "p"/"s". Its evidence (sources, observed values, role decisions, derived on-field accents)
+         is DATA in nfl-team-colors-evidence.json, outside this scanner's runtime-code extensions; the iteration-4
+         validation module (raised 291 → 510 on its branch, never merged) is deleted and its entry removed. */
+      "src/lib/simulation-theater/nfl-team-colors.mjs": 73,
     },
   },
   {
