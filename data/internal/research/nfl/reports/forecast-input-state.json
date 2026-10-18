@@ -2,255 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-18T19:54:05Z",
+  "generatedAt": "2026-10-18T22:36:09Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 5,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 5,
-    "eventsWithAMaterialExclusion": 3,
+    "upcomingEvents": 2,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
+    "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873004",
-      "matchup": "ARI @ LAR",
-      "kickoffUtc": "2026-10-18T20:05Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "73c3aac3d900374f",
-        "simulations": 10000,
-        "generatedAt": "2026-10-18T19:54:05Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T19:54:05Z",
-        "participationInputHash": "bdfe6cd4e8235fe3",
-        "excludedCount": 5,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Terrance Ferguson",
-            "team": "LAR",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Tutu Atwell",
-            "team": "LAR",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jeremiyah Love",
-            "team": "ARI",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "James Conner",
-            "team": "ARI",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Hunter Long",
-            "team": "ARI",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401873006",
-      "matchup": "LAC @ KC",
-      "kickoffUtc": "2026-10-18T20:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "dcb2ce7a32ac076d",
-        "simulations": 10000,
-        "generatedAt": "2026-10-18T19:54:05Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T19:54:05Z",
-        "participationInputHash": "324796297faa3b2c",
-        "excludedCount": 7,
-        "materialExclusions": [
-          {
-            "name": "Trey Lance",
-            "team": "LAC",
-            "state": "Injured Reserve",
-            "statedAt": "2026-10-11T00:57Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Tre' Harris",
-            "team": "LAC",
-            "state": "Out",
-            "statedAt": "2026-10-18T19:01Z",
-            "families": [
-              "passAttempts",
-              "targets"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Rashee Rice",
-            "team": "KC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Tyquan Thornton",
-            "team": "KC",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jared Wiley",
-            "team": "KC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Trey Lance",
-            "team": "LAC",
-            "state": "Injured Reserve",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Tre' Harris",
-            "team": "LAC",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Alec Ingold",
-            "team": "LAC",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Trevor Penning",
-            "team": "LAC",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401873005",
-      "matchup": "BUF @ LV",
-      "kickoffUtc": "2026-10-18T20:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "53a6981753faed58",
-        "simulations": 10000,
-        "generatedAt": "2026-10-18T19:54:05Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T19:54:05Z",
-        "participationInputHash": "3e3f0a4604a39fa2",
-        "excludedCount": 4,
-        "materialExclusions": [
-          {
-            "name": "Aidan O'Connell",
-            "team": "LV",
-            "state": "Out",
-            "statedAt": "2026-10-18T19:13Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Aidan O'Connell",
-            "team": "LV",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Dont'e Thornton Jr.",
-            "team": "LV",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Carter Runyon",
-            "team": "LV",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "DJ Moore",
-            "team": "BUF",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873007",
@@ -259,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "cd8e3786ee05134c",
+        "inputHash": "c40c3e500ffe4c8c",
         "simulations": 10000,
-        "generatedAt": "2026-10-18T19:54:05Z"
+        "generatedAt": "2026-10-18T22:36:09Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T19:54:05Z",
-        "participationInputHash": "de32738df78f57d4",
+        "snapshotAsOf": "2026-10-18T22:36:09Z",
+        "participationInputHash": "191d7ac8077f4405",
         "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [
@@ -309,15 +71,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "e7d4b0bbed29eb88",
+        "inputHash": "327e10f51615d8e4",
         "simulations": 10000,
-        "generatedAt": "2026-10-18T19:54:05Z"
+        "generatedAt": "2026-10-18T22:36:09Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T19:54:05Z",
-        "participationInputHash": "33b4241f07c4d3fc",
+        "snapshotAsOf": "2026-10-18T22:36:09Z",
+        "participationInputHash": "f597d7f51ce8805b",
         "excludedCount": 6,
         "materialExclusions": [
           {
