@@ -122,7 +122,7 @@ export const ROUTE_TABLE = Object.freeze({
   "/preview/live": { classification: "internal", owner: "engineering", purpose: "GameTime Live v1.1 preview — live feed beside the frozen pregame forecast (pruned)", dataOwner: "live gateway (read-time) + committed nfl/mlb forecast artifacts (build-time)", freshness: "live half per gateway TTL; forecast half per artifact" },
   "/preview/live-nfl-states": { classification: "internal", owner: "engineering", purpose: "NFL Live card lifecycle fixture — deterministic PRE/LIVE/FINAL/stale/unavailable states rendered through the REAL card (pruned)", dataOwner: "hard-coded synthetic envelopes; no artifact and no network read", freshness: "fixed inputs — deliberately comparable across runs" },
   "/preview/june20": { classification: "internal", owner: "research", purpose: "dated preview fixture (pruned)", dataOwner: "fixtures", freshness: "frozen" },
-  "/dev/simulation-theater/[eventId]": { classification: "internal", owner: "research", family: true, purpose: "Simulation Theater V2 development prototype (founder D2 2026-10-18): drive-level playback of one recorded representative run of one nfl-drive-sim-v2 receipt of record; unlinked, noindex; emitted only by a GTP_DEV_ROUTES=1 build for ≤3 fixture events, pruned otherwise", dataOwner: "data/internal/research/nfl/sim-v2/shadow (read only) via lib/simulation-theater/loader.mjs", freshness: "each receipt's generatedAt, always before kickoff" },
+  "/dev/simulation-theater/[eventId]": { classification: "internal", owner: "research", family: true, devOnly: true, purpose: "Simulation Theater V2 development prototype (founder D2 2026-10-18): drive-level playback of one recorded representative run of one nfl-drive-sim-v2 receipt of record; unlinked, noindex; emitted only by a GTP_DEV_ROUTES=1 build for ≤3 fixture events, pruned otherwise", dataOwner: "data/internal/research/nfl/sim-v2/shadow (read only) via lib/simulation-theater/loader.mjs", freshness: "each receipt's generatedAt, always before kickoff" },
   // Redirect stubs — every one must be ONE hop to a real destination.
   "/picks": { classification: "redirect", owner: "product", purpose: "legacy Picks Lab alias", redirectTo: "/build" },
   "/parlays": { classification: "redirect", owner: "product", purpose: "legacy alias", redirectTo: "/build" },
@@ -188,10 +188,20 @@ export function buildRouteInventory({ now, appDir, outDir = null, navSources = [
   };
 
   const routes = [];
+  /*
+   * DEV-ONLY FAMILIES (`devOnly: true`, lib/simulation-theater/dev-routes.mjs) are not part of the default export by
+   * design: without GTP_DEV_ROUTES=1 they generate no page and scripts/prune-internal-routes.mjs deletes out/dev/. So
+   * they are reconciled here (owner, purpose, and, against an export, ZERO pages: any page is a P0 leak) but reported in
+   * `devRoutes`, not `routes`: the inventory of the default export does not change when a development route is added.
+   */
+  const devRoutes = [];
   for (const r of discovered) {
     const entry = ROUTE_TABLE[r];
     if (!entry) { find(`route-unowned-${r}`, "P0", `active route ${r} has no owner/purpose in the table — an unexplained route is a launch blocker`, r); continue; }
     const rec = { route: r, ...entry };
+    if (entry.devOnly && (entry.classification !== "internal" || !r.startsWith("/dev/"))) {
+      find(`dev-only-misclassified-${r}`, "P0", `${r} is marked devOnly but is not an internal route under /dev/`, r);
+    }
     // Redirect discipline: target must be a real public/archive destination (one hop).
     if (entry.classification === "redirect") {
       const target = ROUTE_TABLE[entry.redirectTo];
@@ -238,7 +248,7 @@ export function buildRouteInventory({ now, appDir, outDir = null, navSources = [
         }
       }
     } else rec.built = "UNVERIFIED (no export provided)";
-    routes.push(rec);
+    (entry.devOnly ? devRoutes : routes).push(rec);
   }
   // Inverse reconciliation: table rows whose source route vanished.
   for (const r of Object.keys(ROUTE_TABLE)) {
@@ -271,6 +281,7 @@ export function buildRouteInventory({ now, appDir, outDir = null, navSources = [
       p0: findings.filter((f) => f.severity === "P0").length,
     },
     routes,
+    ...(devRoutes.length ? { devRoutes } : {}),
     findings,
   };
 }
