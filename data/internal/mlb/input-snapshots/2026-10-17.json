@@ -1,0 +1,77 @@
+{
+ "schemaVersion": 1,
+ "artifact": "mlb-input-snapshot",
+ "dataClass": "PRIVATE_RESEARCH",
+ "what": "The inputs each published full-game simulation actually consumed. Joined to the forecast by (date, gamePk) and by the forecast's own artifactHash. Provenance only — it changes no published number.",
+ "date": "2026-10-17",
+ "modelVersion": "mlb-fullgame-2026.08-pa-v2",
+ "simulationVersion": 1,
+ "sourceBoardHash": "23f9748bdc05f3e3dcf8bcda5b94cf336ed82d03ae8c67bb8916886a95bfd6a3",
+ "updatedAt": "2026-10-18T00:07:46.000Z",
+ "games": [
+  {
+   "gamePk": 849816,
+   "date": "2026-10-17",
+   "slug": "tb-vs-cle-2026-10-17",
+   "awayTeam": "TB",
+   "homeTeam": "CLE",
+   "firstPitch": "2026-10-18T00:08:00Z",
+   "artifactHash": "ec51e9ad72ba88584ceb5520645bac00dcab9da0b98bf7e599c2e295a0db43f5",
+   "completenessLevel": "ready",
+   "startedBeforeGeneration": false,
+   "away": {
+    "source": "confirmed",
+    "capturedAt": "2026-10-17T20:51:50.103Z",
+    "minutesToFirstPitch": 196,
+    "batterIds": [
+     650490,
+     666018,
+     802415,
+     691406,
+     689414,
+     683748,
+     676356,
+     680700,
+     670764
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "home": {
+    "source": "confirmed",
+    "capturedAt": "2026-10-17T20:51:50.103Z",
+    "minutesToFirstPitch": 196,
+    "batterIds": [
+     680757,
+     608070,
+     800050,
+     666176,
+     663993,
+     683953,
+     672275,
+     690984,
+     677587
+    ],
+    "realCount": 9,
+    "ratedCount": 9,
+    "paddedSlots": 0
+   },
+   "awayStarter": {
+    "playerId": 607259,
+    "name": "Nick Martinez",
+    "hasStrikeoutProjection": true
+   },
+   "homeStarter": {
+    "playerId": 542888,
+    "name": "Shawn Armstrong",
+    "hasStrikeoutProjection": false
+   },
+   "missingFamilies": [
+    "park_run_factors",
+    "weather",
+    "batter_handedness_splits"
+   ]
+  }
+ ]
+}

@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-10-15T14:27:46Z",
+ "generatedAt": "2026-10-17T18:01:05Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 119,
-  "hits": 69,
+  "counted": 120,
+  "hits": 70,
   "misses": 50,
   "voided": 3,
   "shown": 60,
-  "total": 122
+  "total": 123
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,15 +28,30 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 14,
-   "hits": 8,
+   "counted": 15,
+   "hits": 9,
    "misses": 6,
-   "hitRate": 0.5714
+   "hitRate": 0.6
   }
  ],
  "sampleState": "EMERGING",
- "sampleNote": "119 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "120 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
+  {
+   "eventId": "nfl-401872995",
+   "when": "2026-10-15",
+   "eventName": null,
+   "subject": "SEA @ DEN",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "HOME",
+   "actual": "HOME",
+   "modelProbability": null,
+   "probabilityOfActual": 0.5518,
+   "marketProbabilityOfActual": null,
+   "hit": true
+  },
   {
    "eventId": "nfl-401872993",
    "when": "2026-10-11",
@@ -919,21 +934,6 @@
    "actual": "AWAY",
    "modelProbability": null,
    "probabilityOfActual": 0.7796,
-   "marketProbabilityOfActual": null,
-   "hit": true
-  },
-  {
-   "eventId": "nfl-401872944",
-   "when": "2026-09-20",
-   "eventName": null,
-   "subject": "WSH @ DAL",
-   "market": "Winner",
-   "basis": "HISTORICAL_MODEL_FAVORED",
-   "noPick": false,
-   "predicted": "HOME",
-   "actual": "HOME",
-   "modelProbability": null,
-   "probabilityOfActual": 0.51,
    "marketProbabilityOfActual": null,
    "hit": true
   }

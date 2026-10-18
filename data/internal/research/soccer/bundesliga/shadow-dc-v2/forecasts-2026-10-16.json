@@ -1,0 +1,94 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "bundesliga",
+ "season": "2026-27",
+ "date": "2026-10-16",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-16T14:17:51.000Z",
+ "runs": [
+  {
+   "at": "2026-10-16T14:17:51.000Z",
+   "added": 1
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|M'gladbach|Hoffenheim",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884768",
+   "providerEventId": "401884768",
+   "kickoffUtc": "2026-10-18T15:30:00.000Z",
+   "matchup": "Borussia Mönchengladbach v TSG Hoffenheim",
+   "homeClub": "Borussia Mönchengladbach",
+   "awayClub": "TSG Hoffenheim",
+   "historyNames": {
+    "home": "M'gladbach",
+    "away": "Hoffenheim"
+   },
+   "espnTeamIds": {
+    "home": "268",
+    "away": "7911"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-16T14:17:51.000Z",
+   "probs": {
+    "home": 0.392799,
+    "draw": 0.236465,
+    "away": 0.370736
+   },
+   "over25": 0.686916,
+   "under25": 0.313084,
+   "expectedGoals": {
+    "home": 1.7982,
+    "away": 1.7441
+   },
+   "lambdas": {
+    "home": 1.7982,
+    "away": 1.7441
+   },
+   "rho": -0.083845,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 140,
+    "away": 140
+   },
+   "fit": {
+    "cutoffIso": "2026-10-16T14:17:51.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 9
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.428686,
+     "draw": 0.22567,
+     "away": 0.345643
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 1
+ }
+}

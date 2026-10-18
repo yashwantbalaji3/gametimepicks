@@ -1,0 +1,203 @@
+{
+  "sport": "mlb",
+  "date": "2026-10-16",
+  "generatedAt": "2026-10-16T19:38:02.000Z",
+  "decisionEngineVersion": "mlb-prediction-2026.10-v2",
+  "sourceArtifact": "full-game-simulations/2026-10-16.json",
+  "notBettingAdvice": true,
+  "settledIntoMoney": false,
+  "predictions": [
+    {
+      "gamePk": 849817,
+      "slateDate": "2026-10-16",
+      "slug": "tb-vs-cle-2026-10-16",
+      "awayTeam": "TB",
+      "homeTeam": "CLE",
+      "awayTeamName": "Tampa Bay Rays",
+      "homeTeamName": "Cleveland Guardians",
+      "artifactHash": "2d9e39d476e80eb48518eb87108752494d71f70ceb8e1c6cb63b09944979c70f",
+      "decisionEngineVersion": "mlb-prediction-2026.10-v2",
+      "completeness": {
+        "level": "degraded",
+        "notes": [
+          "CLE has no posted probable starter — simulated vs a league bullpen aggregate."
+        ],
+        "awayLineupSource": "prop-derived",
+        "homeLineupSource": "prop-derived",
+        "awayRatedCount": 9,
+        "homeRatedCount": 9,
+        "awayLineupCount": 9,
+        "homeLineupCount": 9,
+        "hasAwayStarter": true,
+        "hasHomeStarter": false,
+        "startedBeforeGeneration": false,
+        "missingFamilies": [
+          "home_probable_starter",
+          "confirmed_batting_order",
+          "park_run_factors",
+          "weather",
+          "batter_handedness_splits"
+        ]
+      },
+      "market": {
+        "bookmaker": "draftkings",
+        "capturedAt": "2026-10-16T09:30:29.456Z",
+        "moneyline": {
+          "home": 0.4957,
+          "away": 0.5043
+        },
+        "total": {
+          "line": 6.5,
+          "over": 0.5
+        },
+        "runLine": {
+          "line": 1.5,
+          "homeCover": 0.6364
+        }
+      },
+      "status": "degraded",
+      "predictedWinner": {
+        "side": "away",
+        "team": "TB"
+      },
+      "projectedScore": {
+        "away": 4,
+        "home": 4,
+        "label": "Median simulation score"
+      },
+      "moneyline": {
+        "side": "away",
+        "team": "TB",
+        "simulationProbability": 0.52,
+        "marketImpliedProbability": 0.504,
+        "marketAgreement": "ALIGNED",
+        "strengthLabel": "LEAN"
+      },
+      "total": {
+        "line": 6.5,
+        "pick": "OVER",
+        "overProbability": 0.651,
+        "underProbability": 0.349,
+        "pushProbability": 0,
+        "simulationMedian": 8,
+        "marketImpliedOver": 0.5,
+        "strengthLabel": "STRONG SIMULATION"
+      },
+      "runLine": {
+        "basis": "POSTED_LINE",
+        "favorite": "away",
+        "line": 1.5,
+        "homeLine": 1.5,
+        "pick": "CLE +1.5",
+        "pickSide": "home",
+        "pickLine": 1.5,
+        "coverProbability": 0.61,
+        "opposingCoverProbability": 0.39,
+        "pushProbability": 0,
+        "marketImpliedProbability": 0.6364,
+        "bookmaker": "draftkings",
+        "capturedAt": "2026-10-16T09:30:29.456Z",
+        "strengthLabel": "STRONG SIMULATION"
+      },
+      "teamTotals": [
+        {
+          "team": "TB",
+          "side": "away",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        },
+        {
+          "team": "CLE",
+          "side": "home",
+          "line": null,
+          "pick": "UNAVAILABLE",
+          "overProbability": null,
+          "underProbability": null,
+          "pushProbability": null,
+          "simulationMedian": 4,
+          "unavailableReason": "No posted team-total line."
+        }
+      ],
+      "topPlayerPredictions": [
+        {
+          "player": "Richie Palacios",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.776,
+          "marketImpliedProbability": 0.598,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Taylor Walls",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.761,
+          "marketImpliedProbability": 0.573,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Brayan Rocchio",
+          "team": "",
+          "market": "batter_hits",
+          "marketLabel": "Hits",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.735,
+          "marketImpliedProbability": 0.561,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Petey Halpin",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 0.5,
+          "pick": "OVER",
+          "simulationProbability": 0.707,
+          "marketImpliedProbability": 0.583,
+          "strengthLabel": "VERY STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        },
+        {
+          "player": "Chandler Simpson",
+          "team": "",
+          "market": "batter_hits_runs_rbis",
+          "marketLabel": "Hits + Runs + RBIs",
+          "line": 1.5,
+          "pick": "OVER",
+          "simulationProbability": 0.64,
+          "marketImpliedProbability": 0.505,
+          "strengthLabel": "STRONG SIMULATION",
+          "source": "legacy_prop_engine",
+          "playerId": null,
+          "opponent": null
+        }
+      ],
+      "unavailableReasons": [
+        "Team totals: no posted market lines (simulated team runs shown as evidence)."
+      ]
+    }
+  ]
+}
