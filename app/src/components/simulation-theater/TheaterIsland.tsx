@@ -5,27 +5,41 @@
  * Every frame = stateAtCompiled(one representative run, compiled timeline, t). Playback starts ONLY on an explicit
  * Play (founder D1: no autoplay). The rAF loop runs only while PLAYING, ≥25% of the scene is on screen and the tab is
  * visible; otherwise it is cancelled, and resuming re-anchors the clock so no time jumps.
+ *
+ * RENDERING (iteration 2). React re-renders only when a COARSE key changes (drive, phase, score, period, possession,
+ * chips, cards, breaks). Everything that moves inside a phase (ball, ribbon, trail, start ring, flash, sim clock text,
+ * seek position, playback time, timeline cursor) is written to the DOM directly by paintFrame, which the frame store
+ * calls synchronously on every frame. The values come from the same pure functions (stateAtCompiled, overlayFrame), so
+ * a seek to t paints exactly what playing to t paints.
+ *
+ * DATA. The island receives the compact `theater-pack@1` transport and rebuilds the adapter's manifest with
+ * unpackTheater (lossless; theater-pack.test.mjs).
+ *
+ * DEV HOOK (dev route only, `devHooks`): `?run=<runIndex>&t=<seconds>` opens that run paused at that playback second,
+ * for reproducible screenshots and demos. The public route never passes devHooks.
  */
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent } from "react";
 
-import { FieldOverlay, StaticField } from "./FieldScene";
+import { FieldLive, FieldMarks, StaticField, paintLive } from "./FieldScene";
 import type { Frame, Palette, Side, Teams } from "./FieldScene";
-import { Banner, Linescore, SceneBadge, ScoreBug, Transcript, Unavailable } from "./parts";
-import { createFrameStore, useFrameValue } from "./frame-store";
-import type { FrameStore } from "./frame-store";
+import { Banner, FieldLegend, Linescore, SceneBadge, ScoreBug, Transcript, Unavailable, driveFacts } from "./parts";
+import { DistributionPanel, DrivePanel, EvidencePanel } from "./panels";
+import BottomSheet from "./BottomSheet";
+import { createFrameStore } from "./frame-store";
 import type { TheaterEvent, TheaterManifest, TheaterSample } from "./types";
-import { THEATER_CSS, THEATER_VARS } from "./theater-css";
+import { THEATER_VARS } from "./theater-css";
 
 import {
-  KIND_LABEL, LABELS, PERIOD_LONG, PERIOD_SHORT, RUNOFF_NOTE_TEXT, chipTitle, driveAccessibleName, fieldPosition, finalLine,
-  fmtClock, fmtDuration, fmtPeriodClock, fmtPlayback, plural, scoreLine, transcriptSentence,
+  LABELS, PERIOD_SHORT, RUNOFF_NOTE_TEXT, chipTitle, driveAccessibleName, fieldPosition, finalLine, fmtClock, fmtPeriodClock,
+  fmtPlayback, scoreLine, transcriptSentence,
 } from "@/lib/simulation-theater/format.mjs";
 import { compiledFor, stateAtCompiled } from "@/lib/simulation-theater/state-at.mjs";
-import { SCENE_POLICY } from "@/lib/simulation-theater/timeline.mjs";
 import { SPEEDS, createTransport, transport } from "@/lib/simulation-theater/transport-machine.mjs";
 import { createAnnouncer, flush, offer, SEEK_SETTLE_MS } from "@/lib/simulation-theater/announcer.mjs";
 import { TEAM_COLORS_VALIDATED, theaterPalette } from "@/lib/simulation-theater/nfl-team-colors.mjs";
+import { fieldMap, overlayFrame } from "@/lib/simulation-theater/field-geometry.mjs";
+import { unpackTheater } from "@/lib/simulation-theater/theater-pack.mjs";
 
 type Compiled = {
   keyframes: { driveIdx: number; phase: string; t0: number; dur: number; breakKind?: string }[];
@@ -51,93 +65,62 @@ type SceneState = Frame & {
 };
 type Tp = { state: string; t: number; tEnd: number; speed: number; driveStarts: number[]; reason: string | null };
 type Live = { t: number; frame: SceneState | null; playState: string };
+type SheetKind = "samples" | "drive" | "dist" | "evidence" | null;
 
 const STOPS = ["TURNOVER", "DOWNS", "FG_MISS"];
+const AFTER_RESULT = ["RESULT", "TRANSITION", "BREAK", "FINAL"];
+const SCORE_HEAD: Record<string, string> = { TD: "Touchdown", FG: "Field goal", OPP_TD: "Defensive touchdown", SAFETY: "Safety" };
 
-function periodWords(period: number, periodClock: number) {
-  return `${PERIOD_SHORT[period as 1]} ${fmtClock(periodClock)}`;
+function useMedia(query: string) {
+  const [on, setOn] = useState(() => (typeof window !== "undefined" && window.matchMedia ? window.matchMedia(query).matches : false));
+  useEffect(() => {
+    if (!window.matchMedia) return;
+    const mq = window.matchMedia(query);
+    const f = () => setOn(mq.matches);
+    f();
+    mq.addEventListener?.("change", f);
+    return () => mq.removeEventListener?.("change", f);
+  }, [query]);
+  return on;
 }
 
-// ── field (re-renders per frame) ───────────────────────────────────────────────────────────────────────────────
-function useBoxSize(ref: React.RefObject<HTMLElement>) {
-  const [size, setSize] = useState({ w: 1200, h: 533 });
+/** Pre-play (IDLE) shows the opening drive's start spot fully drawn: a display choice, not a timeline frame. */
+function shownFrame<F extends { ballOpacity: number; startRingScale: number }>(f: F | null, playState: string): F | null {
+  return f && playState === "IDLE" ? { ...f, ballOpacity: 1, startRingScale: 1 } : f;
+}
+
+function useBoxSize(ref: React.RefObject<HTMLElement>, mounted: boolean) {
+  const [size, setSize] = useState({ W: 1200, H: 561 });
   useEffect(() => {
     const el = ref.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver((entries) => {
-      const r = entries[0]?.contentRect;
-      if (r && r.width > 0 && r.height > 0) setSize({ w: Math.round(r.width), h: Math.round(r.height) });
-    });
+    if (!el) return;
+    const read = () => {
+      const r = el.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) setSize((s) => (s.W === Math.round(r.width) && s.H === Math.round(r.height) ? s : { W: Math.round(r.width), H: Math.round(r.height) }));
+    };
+    read();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(read);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [ref]);
+  }, [ref, mounted]);
   return size;
 }
 
-function LiveField({ store, palette, teams, reduced, idle, idPrefix, stageRef }: {
-  store: FrameStore<Live>; palette: Palette; teams: Teams; reduced: boolean; idle: boolean; idPrefix: string; stageRef: React.RefObject<HTMLDivElement>;
-}) {
-  const size = useBoxSize(stageRef);
-  useFrameValue(store, (v) => v.t); // per-frame subscription for the overlay
-  const live = store.get();
-  const f = live.frame;
-  // Pre-play (IDLE) shows the opening drive's start spot fully drawn; a display choice, not a frame of the timeline.
-  const shown = f && idle ? { ...f, ballOpacity: 1, startRingScale: 1 } : f;
-  // The static layer (turf, lines, grain) is built once per size/palette, never per frame.
-  const staticLayer = useMemo(() => <StaticField palette={palette} width={size.w} idPrefix={idPrefix} />, [palette, size.w, idPrefix]);
-  return (
-    <>
-      {staticLayer}
-      <div className="st-vignette" aria-hidden="true" />
-      <FieldOverlay width={size.w} height={size.h} frame={shown} palette={palette} teams={teams} reducedMotion={reduced} />
-      <div className="st-dimmer" aria-hidden="true" />
-    </>
-  );
-}
-
-function LiveBug({ store, teams, palette, illusId }: { store: FrameStore<Live>; teams: Teams; palette: Palette; illusId: string }) {
-  const key = useFrameValue(store, (v) => {
-    const f = v.frame;
-    if (!f) return "none";
-    return `${f.score.home}|${f.score.away}|${f.offense}|${f.period}|${Math.ceil(f.periodClock - 1e-9)}|${f.clockIllustrative}|${f.breakKind ?? ""}|${f.rollover?.quarter ?? ""}`;
-  });
-  const prev = useRef<{ home: number; away: number } | null>(null);
-  const f = store.get().frame;
-  const bump = useMemo(() => {
-    const p = prev.current;
-    const now = f ? f.score : null;
-    const b = p && now ? { home: now.home > p.home ? now.home : 0, away: now.away > p.away ? now.away : 0 } : { home: 0, away: 0 };
-    prev.current = now;
-    return b;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
-  if (!f) return null;
-  const stateChip = f.breakKind === "HALFTIME" ? "HALFTIME" : f.breakKind === "OT_START" ? "OT" : f.breakKind === "FINAL" ? "FINAL"
-    : f.rollover ? `END Q${f.rollover.quarter}` : f.period === 5 ? "OT" : null;
-  return (
-    <ScoreBug
-      teams={teams}
-      palette={palette}
-      score={f.score}
-      offense={f.breakKind === "FINAL" ? null : f.offense}
-      period={f.period}
-      periodClock={f.periodClock}
-      clockIllustrative={f.clockIllustrative}
-      stateChip={stateChip}
-      bump={bump}
-      illusId={illusId}
-    />
-  );
+/** Dev-only `?run=&t=` (seconds). Read once; ignored unless the route passed devHooks. */
+function readDevHook(enabled: boolean): { run: number | null; t: number | null } {
+  if (!enabled || typeof window === "undefined") return { run: null, t: null };
+  const q = new URLSearchParams(window.location.search);
+  const run = q.get("run");
+  const t = q.get("t");
+  const num = (v: string | null) => (v != null && v !== "" && Number.isFinite(Number(v)) ? Number(v) : null);
+  return { run: num(run), t: num(t) };
 }
 
 // ── timeline (one tab stop, roving tabindex; spec S9) ─────────────────────────────────────────────────────────
-function Cursor({ store, span }: { store: FrameStore<Live>; span: { t0: number; t1: number } }) {
-  const pct = useFrameValue(store, (v) => Math.round(Math.min(1, Math.max(0, (v.t - span.t0) / Math.max(1, span.t1 - span.t0))) * 1000) / 10);
-  return <span className="st-tl-cursor" style={{ left: `calc(${pct}% - 1px)` }} aria-hidden="true" />;
-}
-
-function DriveTimeline({ sample, compiled, palette, teams, current, store, onSeekDrive }: {
-  sample: TheaterSample; compiled: Compiled; palette: Palette; teams: Teams; current: number; store: FrameStore<Live>; onSeekDrive: (i: number) => void;
+function DriveTimeline({ sample, compiled, palette, teams, current, onSeekDrive, cursorRef }: {
+  sample: TheaterSample; compiled: Compiled; palette: Palette; teams: Teams; current: number; onSeekDrive: (i: number) => void;
+  cursorRef: (el: HTMLSpanElement | null) => void;
 }) {
   const [focusIdx, setFocusIdx] = useState(current);
   const within = useRef(false);
@@ -201,7 +184,7 @@ function DriveTimeline({ sample, compiled, palette, teams, current, store, onSee
                       <span key={m.quarter} className="st-tick" aria-hidden="true" style={{ left: `${(((m.atT - span.t0) / (span.t1 - span.t0)) * 100).toFixed(2)}%` }} />
                     ))}
                     <span className="st-ico" aria-hidden="true">{icon(ev)}</span>
-                    {ev.index === current ? <Cursor store={store} span={span} /> : null}
+                    {ev.index === current ? <span ref={cursorRef} className="st-tl-cursor" aria-hidden="true" /> : null}
                   </button>
                 );
               })}
@@ -216,7 +199,7 @@ function DriveTimeline({ sample, compiled, palette, teams, current, store, onSee
   );
 }
 
-// ── transport ──────────────────────────────────────────────────────────────────────────────────────────────────
+// ── transport icons ────────────────────────────────────────────────────────────────────────────────────────────
 const Icon = ({ d }: { d: string }) => (
   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d={d} fill="currentColor" /></svg>
 );
@@ -229,44 +212,7 @@ const ICONS = {
   list: "M4 6h16v2H4zM4 11h16v2H4zM4 16h16v2H4z",
 };
 
-function SeekRow({ store, compiled, sample, onSeek }: { store: FrameStore<Live>; compiled: Compiled; sample: TheaterSample; onSeek: (t: number) => void }) {
-  const t = useFrameValue(store, (v) => Math.round(v.t / 100) * 100);
-  const valueText = useFrameValue(store, (v) => {
-    const f = v.frame;
-    return f ? `${periodWords(f.period, f.periodClock)}, drive ${f.driveIdx + 1} of ${f.driveCount}` : "";
-  });
-  const pct = compiled.tEnd ? (t / compiled.tEnd) * 100 : 0;
-  return (
-    <div className="st-seekrow">
-      <input
-        className="st-seek"
-        type="range"
-        min={0}
-        max={compiled.tEnd}
-        step={100}
-        value={Math.min(t, compiled.tEnd)}
-        aria-label={`Seek playback of run #${sample.runIndex}`}
-        aria-valuetext={valueText}
-        style={{ "--st-pct": `${pct.toFixed(2)}%` } as CSSProperties}
-        onChange={(e) => onSeek(Number(e.target.value))}
-      />
-      <span className="st-ptime" aria-hidden="true">Playback {fmtPlayback(t)} / {fmtPlayback(compiled.tEnd)}</span>
-    </div>
-  );
-}
-
-// ── side panel ─────────────────────────────────────────────────────────────────────────────────────────────────
-function Hist({ hist, mark, label }: { hist: { value: number; probability: number }[]; mark: number; label: string }) {
-  const max = Math.max(...hist.map((h) => h.probability), 1e-6);
-  return (
-    <div className="st-hist" role="img" aria-label={label}>
-      {hist.map((h) => (
-        <span key={h.value} className={h.value === mark ? "is-run" : undefined} style={{ height: `${Math.max(2, (h.probability / max) * 100)}%` }} />
-      ))}
-    </div>
-  );
-}
-
+// ── desktop side panel (tabs) ──────────────────────────────────────────────────────────────────────────────────
 function SidePanel({ manifest, sample, ev, onSeekDrive, current }: {
   manifest: TheaterManifest; sample: TheaterSample; ev: TheaterEvent | null; onSeekDrive: (i: number) => void; current: number;
 }) {
@@ -274,7 +220,6 @@ function SidePanel({ manifest, sample, ev, onSeekDrive, current }: {
   const [tab, setTab] = useState<(typeof tabs)[number]>("Drive");
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const baseId = useId();
-  const teams = manifest.teams;
   const onTabKey = (e: ReactKeyboardEvent) => {
     const i = tabs.indexOf(tab);
     let n = i;
@@ -287,9 +232,6 @@ function SidePanel({ manifest, sample, ev, onSeekDrive, current }: {
     setTab(tabs[n]);
     tabRefs.current[n]?.focus();
   };
-  const runoffs = sample.events.filter((x) => x.notes.some((n) => n.code === "ENGINE_CLOCK_RUNOFF"));
-  const fin = sample.finalScore!;
-  const b = manifest.batch;
   return (
     <aside className="st-side" aria-label="Drive details and evidence">
       <div className="st-tabs" role="tablist" aria-label="Theater panel" onKeyDown={onTabKey}>
@@ -300,7 +242,7 @@ function SidePanel({ manifest, sample, ev, onSeekDrive, current }: {
             type="button"
             role="tab"
             id={`${baseId}-tab-${name}`}
-            aria-controls={`${baseId}-panel-${name}`}
+            aria-controls={tab === name ? `${baseId}-panel-${name}` : undefined}
             aria-selected={tab === name}
             tabIndex={tab === name ? 0 : -1}
             className="st-tab"
@@ -311,108 +253,87 @@ function SidePanel({ manifest, sample, ev, onSeekDrive, current }: {
         ))}
       </div>
       <div className="st-tabpanel" role="tabpanel" id={`${baseId}-panel-${tab}`} aria-labelledby={`${baseId}-tab-${tab}`} tabIndex={0}>
-        {tab === "Drive" && ev ? (
-          <>
-            <div className="st-drivehead">
-              <div>
-                <div className="st-eyebrow">Drive {ev.index + 1} of {sample.events.length} · {PERIOD_LONG[ev.period as 1]}</div>
-                <h3>{teams[ev.offense].abbr} ball · {fieldPosition(ev.fieldStart, teams[ev.offense === "home" ? "away" : "home"].abbr)}</h3>
-              </div>
-            </div>
-            <dl className="st-kv">
-              <dt>Started</dt><dd>{fmtPeriodClock(ev.period, ev.periodClockStart)}</dd>
-              <dt>Ended</dt><dd>{fmtPeriodClock(ev.periodEnd, ev.periodClockEnd)}</dd>
-              <dt>Plays</dt><dd>{plural(ev.plays, "play")}</dd>
-              <dt>Net yards</dt><dd>{plural(ev.netYards, "yard")}</dd>
-              <dt>Duration</dt><dd>{fmtDuration(ev.seconds)}</dd>
-              <dt>Result</dt><dd>{ev.outcomeLabel}{ev.outcome === "OPP_TD" || ev.outcome === "SAFETY" ? ` · ${teams[ev.offense === "home" ? "away" : "home"].abbr}` : ""}</dd>
-              <dt>Score after</dt><dd>{teams.home.abbr} {ev.scoreAfter.home} – {teams.away.abbr} {ev.scoreAfter.away}</dd>
-            </dl>
-            {ev.notes.filter((n) => n.code === "ENGINE_CLOCK_RUNOFF").map((n, i) => <p key={i} className="st-note">{RUNOFF_NOTE_TEXT}. Recorded: {plural(ev.plays, "play")} over {fmtDuration(ev.seconds)} of game clock.</p>)}
-            <p className="st-eyebrow" style={{ margin: "14px 0 0" }}>This period · select a drive to jump to it</p>
-            <ul className="st-qlist">
-              {sample.events.filter((x) => x.period === ev.period).map((x) => (
-                <li key={x.index}>
-                  <button type="button" aria-current={x.index === current ? "true" : undefined} onClick={() => onSeekDrive(x.index)}>
-                    <span>{fmtPeriodClock(x.period, x.periodClockStart)}</span>
-                    <span>{teams[x.offense].abbr}</span>
-                    <span>{x.outcomeLabel}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <p className="st-eyebrow" style={{ margin: "12px 0 0" }}>Plays, players and down-and-distance are not recorded for this engine; numbers above are the recorded drive summary.</p>
-          </>
-        ) : null}
-        {tab === "Distribution" ? (
-          <>
-            <p className="st-eyebrow" style={{ margin: 0 }}>{b.runCount.toLocaleString("en-US")} runs · this receipt · experimental engine · not the forecast</p>
-            <p style={{ margin: "10px 0 0" }}>Total points (this run: <b>{fin.home + fin.away}</b>, highlighted)</p>
-            <Hist hist={b.totalHistogram} mark={fin.home + fin.away} label={`Total points over ${b.runCount} runs; this run ${fin.home + fin.away}`} />
-            <p style={{ margin: "12px 0 0" }}>Home margin, {teams.home.abbr} minus {teams.away.abbr} (this run: <b>{fin.home - fin.away}</b>)</p>
-            <Hist hist={b.marginHistogram} mark={fin.home - fin.away} label={`Home margin over ${b.runCount} runs; this run ${fin.home - fin.away}`} />
-            {b.winProbability ? (
-              <dl className="st-kv">
-                <dt>{teams.home.abbr} won</dt><dd>{(b.winProbability.home * 100).toFixed(1)}% of runs</dd>
-                <dt>{teams.away.abbr} won</dt><dd>{(b.winProbability.away * 100).toFixed(1)}% of runs</dd>
-                <dt>Overtime</dt><dd>{b.overtimeProbability == null ? "—" : `${(b.overtimeProbability * 100).toFixed(1)}% of runs`}</dd>
-              </dl>
-            ) : null}
-          </>
-        ) : null}
-        {tab === "Evidence" ? (
-          <>
-            <dl className="st-ev">
-              <dt>Receipt</dt><dd>{manifest.receiptId}</dd>
-              <dt>Artifact hash</dt><dd>{manifest.receiptHash ?? "not stored"}</dd>
-              <dt>Receipt file (read only)</dt><dd>{manifest.file ?? "—"}</dd>
-              <dt>Engine</dt><dd>{manifest.engine} @ {manifest.engineVersion} · {manifest.promotionState} (experimental, not promoted)</dd>
-              <dt>Schemas</dt><dd>{manifest.receiptSchema} · {manifest.runSchema}</dd>
-              <dt>Run</dt><dd>#{sample.runIndex} of {manifest.runCount.toLocaleString("en-US")} · {sample.kinds.map((k) => KIND_LABEL[k as "UPSET"] ?? k).join(" = ")}</dd>
-              <dt>Selection rule</dt><dd>{sample.selectionRules.map((r) => r.text).join(" Also: ")}</dd>
-              <dt>Seed</dt><dd>baseSeed {manifest.seed.baseSeed} · {manifest.seed.seedStrategy}</dd>
-              <dt>Input cutoff (availability snapshot)</dt><dd>{manifest.inputCutoff ?? "not stored"}</dd>
-              <dt>Params sha256</dt><dd>{manifest.paramsSha256 ?? "—"}</dd>
-              <dt>Forecast receipt (input reference)</dt><dd>{manifest.forecastRef ?? "—"} · hash not stored</dd>
-              <dt>Generated · kickoff</dt><dd>{manifest.generatedAt} · {manifest.eventStart}</dd>
-              <dt>Scene</dt><dd>{SCENE_POLICY.version} · scene seed {sample.scene.sceneSeed} (cosmetic lane only; outcomes never depend on it)</dd>
-              <dt>Orientation</dt><dd style={{ fontFamily: "var(--font-display)" }}>{LABELS.orientation}</dd>
-            </dl>
-            <p className="st-eyebrow" style={{ margin: "14px 0 0" }}>Limitations</p>
-            <ul className="st-limits">
-              <li>Drive-level engine: no plays, downs and distance, penalties, timeouts or players are recorded or modelled per drive.</li>
-              <li>Ball movement within a drive is illustrative; only the start and end spots are recorded.</li>
-              <li>The game clock between a drive&apos;s recorded start and end is a linear interpolation (illustrative).</li>
-              <li>A turnover or defensive touchdown does not record whether it was an interception or a fumble.</li>
-              <li>Kicks, punts and returns are not events: a possession change is a card, not a flight.</li>
-              <li>The engine under-produces 3-point margins and overtime (docs/SIMULATION_ENGINE_V2.md, as cited by the spec).</li>
-              <li>Overtime&apos;s first period is 600 s even in the postseason (engine rule).</li>
-              {runoffs.length ? runoffs.map((x) => (
-                <li key={x.index}>Drive {x.index + 1}: {RUNOFF_NOTE_TEXT}: {plural(x.plays, "play")} over {fmtDuration(x.seconds)}.</li>
-              )) : <li>No engine clock run-off drive in this run.</li>}
-            </ul>
-            <p className="st-eyebrow" style={{ margin: "14px 0 0" }}>Not recorded (shown as absent, never zero)</p>
-            <ul className="st-limits">
-              {manifest.unavailableFields.map((u) => <li key={u.field}>{u.field}: {u.reason}</li>)}
-            </ul>
-            {manifest.sharedRuns.length ? (
-              <p className="st-note">Shared run: {manifest.sharedRuns.map((s) => `${s.kinds.map((k) => KIND_LABEL[k as "UPSET"] ?? k).join(" = ")} = run #${s.runIndex}`).join("; ")}. One chip plays it.</p>
-            ) : null}
-          </>
-        ) : null}
+        {tab === "Drive" && ev ? <DrivePanel sample={sample} ev={ev} teams={manifest.teams} current={current} onSeekDrive={onSeekDrive} /> : null}
+        {tab === "Distribution" ? <DistributionPanel manifest={manifest} sample={sample} /> : null}
+        {tab === "Evidence" ? <EvidencePanel manifest={manifest} sample={sample} /> : null}
       </div>
     </aside>
   );
 }
 
+// ── on-field broadcast graphics (HTML over the scene; aria-hidden — the score bug, drive card and live region carry
+//    every fact) ─────────────────────────────────────────────────────────────────────────────────────────────────
+function Interstitial({ f, ev, teams, overtime }: { f: SceneState; ev: TheaterEvent; teams: Teams; overtime: boolean }) {
+  let text: string | null = null;
+  let sub: string | null = null;
+  const major = Boolean(f.breakKind);
+  if (f.breakKind === "HALFTIME") { text = "Halftime"; sub = scoreLine(f.score, teams); }
+  else if (f.breakKind === "OT_START") { text = "End of regulation"; sub = `Overtime next · ${scoreLine(f.score, teams)}`; }
+  else if (f.breakKind === "FINAL") { text = overtime ? "Final · OT" : "Final"; sub = scoreLine(f.score, teams); }
+  else if (f.rollover) text = `End of Q${f.rollover.quarter}`;
+  else if (f.phase === "RESULT" && ev.outcome === "END_HALF") text = ev.outcomeLabel.charAt(0).toUpperCase() + ev.outcomeLabel.slice(1);
+  if (!text) return null;
+  return (
+    <div className={`st-strip${f.rollover && !f.breakKind ? " is-roll" : ""}${major ? " is-major" : ""}`} aria-hidden="true" key={`${f.driveIdx}-${text}`}>
+      <span className="st-strip-main">{text}</span>
+      {sub ? <span className="st-strip-sub">{sub}</span> : null}
+    </div>
+  );
+}
+
+function ScoreFlash({ ev, teams, palette }: { ev: TheaterEvent; teams: Teams; palette: Palette }) {
+  if (!ev.scoring || !ev.scoringSide) return null;
+  const side = ev.scoringSide as Side;
+  const pts = ev.delta[side];
+  return (
+    <div className="st-scoreflash" aria-hidden="true" key={`sf-${ev.index}`} style={{ "--st-team": palette[side].accent } as CSSProperties}>
+      <span className="st-scoreflash-bar" />
+      <span className="st-scoreflash-head">{SCORE_HEAD[ev.outcome] ?? ev.outcomeLabel}</span>
+      <span className="st-scoreflash-sub">{teams[side].abbr} +{pts}</span>
+    </div>
+  );
+}
+
+function LowerThird({ f, ev, teams, sample, scoring }: { f: SceneState; ev: TheaterEvent; teams: Teams; sample: TheaterSample; scoring: boolean }) {
+  const runoff = ev.notes.some((n) => n.code === "ENGINE_CLOCK_RUNOFF");
+  if (f.phase === "TRANSITION" && f.card) {
+    return <div className="st-lower is-card" aria-hidden="true"><span>{f.card}</span></div>;
+  }
+  if (f.phase === "RESULT") {
+    const d = driveFacts(ev, teams);
+    return (
+      <div className={`st-lower${scoring ? " with-banner" : ""}`} aria-hidden="true" key={`lt-${ev.index}`}>
+        <span className="st-lower-tag">Drive {ev.index + 1}/{sample.events.length}</span>
+        <span className="st-lower-main">{teams[ev.offense].abbr} · {d.plays} · {d.yards} · {d.time}</span>
+        <span className="st-lower-res">{d.result}</span>
+      </div>
+    );
+  }
+  if (runoff && (f.phase === "START" || f.phase === "PROGRESS")) {
+    return <div className="st-lower is-note" aria-hidden="true"><span>{RUNOFF_NOTE_TEXT}</span></div>;
+  }
+  return null;
+}
+
 // ── the island ─────────────────────────────────────────────────────────────────────────────────────────────────
-export default function TheaterIsland({ manifest }: { manifest: TheaterManifest }) {
+type Pack = Parameters<typeof unpackTheater>[0];
+
+export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; devHooks?: boolean }) {
+  const manifest = useMemo(() => unpackTheater(pack) as TheaterManifest, [pack]);
   const teams = manifest.teams;
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const hook = useMemo(() => readDevHook(devHooks), [devHooks]);
   const firstOk = manifest.chips.find((c) => c.available)?.sampleIndex ?? 0;
-  const [sampleIndex, setSampleIndex] = useState(firstOk);
+  const [sampleIndex, setSampleIndex] = useState(() => {
+    if (hook.run != null) {
+      const c = manifest.chips.find((x) => x.runIndex === hook.run && x.available);
+      if (c) return c.sampleIndex;
+    }
+    return firstOk;
+  });
   const sample = manifest.samples[sampleIndex];
-  const [reduced, setReduced] = useState(false);
+  const [reduced, setReduced] = useState(() => (typeof window !== "undefined" && window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false));
+  const compact = useMedia("(max-width: 719px)");
   const [previewColors, setPreviewColors] = useState(false);
   const palette = useMemo(
     () => theaterPalette(teams.home.abbr, teams.away.abbr, { previewUnvalidated: previewColors }) as Palette,
@@ -425,24 +346,79 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
   const [ctl, setCtl] = useState<{ state: string; speed: number }>({ state: "IDLE", speed: 1 });
   const [coarse, setCoarse] = useState("");
   const stageRef = useRef<HTMLDivElement>(null);
+  const box = useBoxSize(stageRef, Boolean(compiled));
+  const boxRef = useRef(box);
+  boxRef.current = box;
   const [visible, setVisible] = useState(true);
   const [docVisible, setDocVisible] = useState(true);
   const [announce, setAnnounce] = useState("");
+  const [sheet, setSheet] = useState<SheetKind>(null);
   type AnnState = { lastAt: number; queued: { kind: string; text: string } | null; spoken: { kind: string; text: string } | null };
   const annRef = useRef<AnnState>(createAnnouncer() as AnnState);
   const seekTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastResultDrive = useRef(-1);
   const lastBreak = useRef<string | null>(null);
   const lastRoll = useRef<number | null>(null);
+  const hookApplied = useRef(false);
+
+  // direct-write targets for the per-frame painter
+  const els = useRef({
+    ball: null as SVGGElement | null, ribbon: null as SVGRectElement | null, ribbonHi: null as SVGRectElement | null,
+    trail: null as SVGRectElement | null, ring: null as SVGCircleElement | null, flash: null as SVGRectElement | null,
+    clock: null as HTMLSpanElement | null, seek: null as HTMLInputElement | null, ptime: null as HTMLSpanElement | null,
+    cursor: null as HTMLSpanElement | null,
+  });
+  const liveRefs = useMemo(() => ({
+    ball: (el: SVGGElement | null) => { els.current.ball = el; },
+    ribbon: (el: SVGRectElement | null) => { els.current.ribbon = el; },
+    ribbonHi: (el: SVGRectElement | null) => { els.current.ribbonHi = el; },
+    trail: (el: SVGRectElement | null) => { els.current.trail = el; },
+    ring: (el: SVGCircleElement | null) => { els.current.ring = el; },
+    flash: (el: SVGRectElement | null) => { els.current.flash = el; },
+  }), []);
+  const setClockEl = useCallback((el: HTMLSpanElement | null) => { els.current.clock = el; }, []);
+  const setCursorEl = useCallback((el: HTMLSpanElement | null) => { els.current.cursor = el; }, []);
+  const lastText = useRef({ clock: "", ptime: "", vt: "" });
 
   const frameAt = useCallback((t: number): SceneState | null => (compiled && sample ? (stateAtCompiled(sample, compiled, teams, t) as SceneState) : null), [compiled, sample, teams]);
+
+  /** The per-frame painter: direct DOM writes only. */
+  const paintFrame = useCallback(() => {
+    const live = store.get();
+    const f = shownFrame(live.frame, live.playState);
+    const e = els.current;
+    paintLive(e, overlayFrame(f, boxRef.current));
+    if (f) {
+      const c = fmtClock(f.periodClock);
+      if (e.clock && lastText.current.clock !== c) { e.clock.textContent = c; lastText.current.clock = c; }
+      if (compiled) {
+        const span = compiled.driveSpans[f.driveIdx];
+        if (e.cursor && span) e.cursor.style.left = `calc(${(Math.min(1, Math.max(0, (live.t - span.t0) / Math.max(1, span.t1 - span.t0))) * 100).toFixed(2)}% - 1px)`;
+        const tv = Math.round(live.t / 100) * 100;
+        if (e.seek) {
+          if (Number(e.seek.value) !== tv) e.seek.value = String(tv);
+          e.seek.style.setProperty("--st-pct", `${((tv / compiled.tEnd) * 100).toFixed(2)}%`);
+          const vt = `${PERIOD_SHORT[f.period as 1]} ${fmtClock(f.periodClock)}, drive ${f.driveIdx + 1} of ${f.driveCount}`;
+          if (lastText.current.vt !== vt) { e.seek.setAttribute("aria-valuetext", vt); lastText.current.vt = vt; }
+        }
+        const pt = `${fmtPlayback(tv)} / ${fmtPlayback(compiled.tEnd)}`;
+        if (e.ptime && lastText.current.ptime !== pt) { e.ptime.textContent = pt; lastText.current.ptime = pt; }
+      }
+    }
+  }, [store, compiled]);
+
+  useEffect(() => store.subscribe(paintFrame), [store, paintFrame]);
+  // after every React commit (coarse change, resize, palette), repaint so freshly mounted nodes carry the frame
+  useEffect(() => { lastText.current = { clock: "", ptime: "", vt: "" }; paintFrame(); });
 
   const commit = useCallback((next: Tp) => {
     tpRef.current = next;
     const frame = frameAt(next.t);
     store.set({ t: next.t, frame, playState: next.state });
     setCtl((c) => (c.state === next.state && c.speed === next.speed ? c : { state: next.state, speed: next.speed }));
-    const key = frame ? `${frame.driveIdx}|${frame.phase}|${frame.score.home}-${frame.score.away}|${frame.chip?.text ?? ""}|${frame.card ?? ""}|${frame.rollover?.quarter ?? ""}|${frame.dimmed}` : "none";
+    const key = frame
+      ? `${frame.driveIdx}|${frame.phase}|${frame.score.home}-${frame.score.away}|${frame.chip?.text ?? ""}|${frame.card ?? ""}|${frame.rollover?.quarter ?? ""}|${frame.dimmed}|${frame.period}|${frame.clockIllustrative}|${next.state === "IDLE"}`
+      : "none";
     setCoarse((k) => (k === key ? k : key));
   }, [frameAt, store]);
 
@@ -453,7 +429,7 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
     if (r.say) setAnnounce(r.say);
   }, []);
 
-  // reduced motion: follow the OS setting (matchMedia listener)
+  // reduced motion: follow the OS setting
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -465,7 +441,7 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
 
   // (re)build the transport whenever the compiled timeline changes; same run → keep the current drive
   const prevRun = useRef<{ runIndex: number; drive: number } | null>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!compiled) { tpRef.current = null; store.set({ t: 0, frame: null, playState: "UNAVAILABLE" }); return; }
     const starts = compiled.driveSpans.map((s) => s.startT);
     let m = createTransport({ tEnd: compiled.tEnd, driveStarts: starts }) as Tp;
@@ -477,6 +453,10 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
     } else if (prevTp) {
       m = transport(m, "SPEED", { speed: prevTp.speed }) as Tp;
     }
+    if (!hookApplied.current) {
+      hookApplied.current = true;
+      if (hook.t != null && hook.t > 0) m = transport(m, "SEEK", { t: hook.t * 1000 }) as Tp;
+    }
     lastResultDrive.current = -1;
     lastBreak.current = null;
     lastRoll.current = null;
@@ -484,7 +464,6 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compiled]);
 
-  // keep track of the run and drive for the reduced-motion swap
   useEffect(() => {
     const f = store.get().frame;
     if (f && sample) prevRun.current = { runIndex: sample.runIndex, drive: f.driveIdx };
@@ -497,7 +476,7 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
     const io = new IntersectionObserver((es) => setVisible((es[0]?.intersectionRatio ?? 0) >= 0.25), { threshold: [0, 0.25, 0.5, 1] });
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [compiled]);
   useEffect(() => {
     const on = () => setDocVisible(document.visibilityState === "visible");
     on();
@@ -530,8 +509,7 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
     if (!f || !sample) return;
     const playing = live.playState === "PLAYING" || live.playState === "COMPLETED";
     const ev = sample.events[f.driveIdx];
-    const afterResult = ["RESULT", "TRANSITION", "BREAK", "FINAL"].includes(f.phase);
-    if (playing && afterResult && lastResultDrive.current !== f.driveIdx) {
+    if (playing && AFTER_RESULT.includes(f.phase) && lastResultDrive.current !== f.driveIdx) {
       lastResultDrive.current = f.driveIdx;
       const who = ev.outcome === "OPP_TD" || ev.outcome === "SAFETY" ? teams[ev.offense === "home" ? "away" : "home"].abbr : teams[ev.offense].abbr;
       const kind = ev.scoring ? "SCORE" : STOPS.includes(ev.outcome) ? "STOP" : "RESULT";
@@ -558,7 +536,6 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
     say({ kind: "FULL", text: `Drive ${f.driveIdx + 1} of ${f.driveCount}. ${transcriptSentence(ev, teams)}.` });
   }, [sample, store, teams, say]);
 
-  // controls
   const act = useCallback((action: string, arg: Record<string, unknown> = {}) => {
     const cur = tpRef.current;
     if (!cur) return;
@@ -567,7 +544,7 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
     commit(next);
     if (action === "PAUSE" || (action === "TOGGLE" && next.state !== "PLAYING")) announceFull();
     if (["SEEK", "NEXT_DRIVE", "PREV_DRIVE", "RESTART"].includes(action)) {
-      lastResultDrive.current = store.get().frame?.driveIdx ?? -1; // silent while seeking: no stale result announcement
+      lastResultDrive.current = store.get().frame?.driveIdx ?? -1; // silent while seeking
       if (seekTimer.current) clearTimeout(seekTimer.current);
       seekTimer.current = setTimeout(() => { seekTimer.current = null; announceFull(); }, SEEK_SETTLE_MS);
     }
@@ -588,19 +565,26 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
     setSampleIndex(i);
   }, [manifest.chips, commit]);
 
+  const openSheet = useCallback((k: SheetKind) => {
+    const cur = tpRef.current;
+    if (cur && cur.state === "PLAYING") act("PAUSE"); // opening a sheet pauses; only the reader resumes
+    setSheet(k);
+  }, [act]);
+
   // focus-scoped keyboard shortcuts (spec §2.1 Keyboard, S9; WCAG 2.1.4: active only while the region has focus)
   const onRegionKey = (e: ReactKeyboardEvent<HTMLDivElement>) => {
     if (e.altKey || e.ctrlKey || e.metaKey) return;
     const target = e.target as HTMLElement;
+    if (target.closest("[role=dialog]")) return; // sheets keep their own keys
     const tag = target.tagName;
     const isRange = tag === "INPUT" && (target as HTMLInputElement).type === "range";
     const isInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
-    const isButton = tag === "BUTTON" || target.getAttribute("role") === "tab" || target.getAttribute("role") === "radio";
+    const isButton = tag === "BUTTON" || tag === "SUMMARY" || target.getAttribute("role") === "tab" || target.getAttribute("role") === "radio";
     const inTimeline = Boolean(target.closest("[data-st-timeline]"));
     const inTabs = Boolean(target.closest("[role=tablist]")) || Boolean(target.closest("[role=radiogroup]"));
     const arrowsFree = !isRange && !inTimeline && !inTabs;
-    // Never on the seek range or any other input: those keep their native keys.
-    if (isInput) return;
+    if (isInput && !isRange) return;
+    if (isRange && !["k", "K", "1", "2", "4"].includes(e.key)) return; // the seek range keeps its native keys
     if (e.key === "k" || e.key === "K") { e.preventDefault(); act("TOGGLE"); return; }
     if (e.key === " ") { if (!isButton) { e.preventDefault(); act("TOGGLE"); } return; }
     if (e.key === "1" || e.key === "2" || e.key === "4") { e.preventDefault(); act("SPEED", { speed: Number(e.key) }); return; }
@@ -624,15 +608,89 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
     requestAnimationFrame(() => document.getElementById(`${uid}-chip-${avail[n].sampleIndex}`)?.focus());
   };
 
-  const f = store.get().frame;
+  const live = store.get();
+  const f = live.frame;
+  const shown = shownFrame(f, live.playState);
   const ev = f && sample ? sample.events[f.driveIdx] : null;
   const playing = ctl.state === "PLAYING";
-  const idle = ctl.state === "IDLE";
   const speedCycle = () => act("SPEED", { speed: SPEEDS[(SPEEDS.indexOf(ctl.speed) + 1) % SPEEDS.length] });
+  const currentChip = manifest.chips.find((c) => c.sampleIndex === sampleIndex);
+
+  // score bug inputs
+  const prevScore = useRef<{ home: number; away: number } | null>(null);
+  const scoreKey = f ? `${f.score.home}-${f.score.away}` : "";
+  const bump = useMemo(() => {
+    const p = prevScore.current;
+    const now = f ? f.score : null;
+    const b = p && now ? { home: now.home > p.home ? now.home : 0, away: now.away > p.away ? now.away : 0 } : { home: 0, away: 0 };
+    prevScore.current = now;
+    return b;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scoreKey]);
+  const stateChip = !f ? null : f.breakKind === "HALFTIME" ? "HALFTIME" : f.breakKind === "OT_START" ? "END REG" : f.breakKind === "FINAL" ? (sample?.finalScore?.overtime ? "FINAL/OT" : "FINAL")
+    : f.rollover ? `END Q${f.rollover.quarter}` : null;
+
+  const chipList = (vertical: boolean) => (
+    <div className={`st-chips${vertical ? " is-vertical" : ""}`} role="radiogroup" aria-labelledby={`${uid}-samples`} onKeyDown={onChipKey}>
+      {manifest.chips.map((c) => {
+        const s = manifest.samples[c.sampleIndex];
+        const checked = c.sampleIndex === sampleIndex;
+        return (
+          <button
+            key={c.runIndex}
+            id={`${uid}-chip-${c.sampleIndex}`}
+            type="button"
+            role="radio"
+            aria-checked={checked}
+            aria-disabled={!c.available || undefined}
+            tabIndex={checked ? 0 : -1}
+            className="st-chip"
+            data-sheet-initial={vertical && checked ? "" : undefined}
+            title={c.available ? undefined : `Unavailable: ${s.validation.errors.map((x) => x.detail).join("; ")}`}
+            onClick={() => { selectSample(c.sampleIndex); if (vertical) setSheet(null); }}
+          >
+            <span className="st-dot" aria-hidden="true" />
+            <span>{chipTitle(c.kinds)}</span>
+            {s.finalScore ? <span className="st-chip-score">{finalLine(s.finalScore, teams)}</span> : null}
+            {!c.available ? <span className="st-chip-score">unavailable</span> : null}
+          </button>
+        );
+      })}
+    </div>
+  );
+  const ruleLine = sample ? (
+    <p className="st-rule">
+      {sample.selectionRules.map((r) => r.text).join(" Also: ")} <span className="st-mono">· run #{sample.runIndex.toLocaleString("en-US")} of {manifest.runCount.toLocaleString("en-US")}</span>
+      {manifest.absentKinds.includes("OVERTIME") ? <span className="st-mono"> · No overtime run in this batch</span> : null}
+    </p>
+  ) : null;
+
+  const o = overlayFrame(shown, box);
+  // static layers: built once per size/palette, never per frame
+  const detail = box.W >= 400;
+  const staticLayer = useMemo(() => <StaticField palette={palette} idPrefix={`${uid}-f`} detail={detail} />, [palette, uid, detail]);
+  const marksLayer = useMemo(() => <FieldMarks W={box.W} H={box.H} palette={palette} teams={teams} />, [box.W, box.H, palette, teams]);
+  const m = fieldMap(box.W, box.H);
+  const def = ev ? teams[ev.offense === "home" ? "away" : "home"].abbr : "";
+  const showEnd = Boolean(f && AFTER_RESULT.includes(f.phase));
+  const endFieldX = ev ? (ev.offense === "home" ? 110 - ev.fieldEnd : 10 + ev.fieldEnd) : 0;
+  const scoringNow = Boolean(f && ev && f.phase === "RESULT" && ev.scoring);
+  const derivedAccents = (["home", "away"] as Side[]).filter((s) => palette[s].accentBase);
 
   return (
-    <div className="st-root" style={THEATER_VARS as CSSProperties} role="region" aria-label="Simulation theater" onKeyDown={onRegionKey}>
-      <style dangerouslySetInnerHTML={{ __html: THEATER_CSS }} />
+    <div
+      className="st-root"
+      style={THEATER_VARS as CSSProperties}
+      role="region"
+      aria-label="Simulation theater"
+      onKeyDown={onRegionKey}
+      data-st-ready=""
+      data-st-state={ctl.state}
+      data-st-phase={f?.phase ?? ""}
+      data-st-drive={f ? f.driveIdx : ""}
+      data-st-run={sample?.runIndex ?? ""}
+      data-st-reduced={reduced ? "1" : "0"}
+    >
       <Banner manifest={manifest} sample={sample ?? null} />
       <div className="st-devbar">
         <span className="st-devtag">Development route · unlinked · noindex</span>
@@ -640,42 +698,26 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
           <input type="checkbox" checked={previewColors} onChange={(e) => setPreviewColors(e.target.checked)} />
           Preview team colours (unvalidated)
         </label>
-        <span>{previewColors ? "Unvalidated proposal (spec Appendix A) — not approved; for design review only." : TEAM_COLORS_VALIDATED ? "Team colours validated." : "Neutral GTP colours: the team colour map is not validated (decision D3)."}</span>
+        <span className="st-devnote">
+          {previewColors
+            ? `Unvalidated proposal (spec Appendix A), for design review only.${derivedAccents.length ? ` Accent lightened to reach 3:1 on the turf: ${derivedAccents.map((s) => `${teams[s].abbr} ${palette[s].accentBase} → ${palette[s].accent}`).join(", ")}.` : ""}`
+            : TEAM_COLORS_VALIDATED ? "Team colours validated." : "Neutral GTP colours: the team colour map is not validated (decision D3)."}
+        </span>
       </div>
 
       <div className="st-samples">
-        <div className="st-samples-head"><span id={`${uid}-samples`}>Samples</span><span className="st-samplelabel">{LABELS.sample}</span></div>
-        <div className="st-chips" role="radiogroup" aria-labelledby={`${uid}-samples`} onKeyDown={onChipKey}>
-          {manifest.chips.map((c) => {
-            const s = manifest.samples[c.sampleIndex];
-            const checked = c.sampleIndex === sampleIndex;
-            return (
-              <button
-                key={c.runIndex}
-                id={`${uid}-chip-${c.sampleIndex}`}
-                type="button"
-                role="radio"
-                aria-checked={checked}
-                aria-disabled={!c.available || undefined}
-                tabIndex={checked ? 0 : -1}
-                className="st-chip"
-                title={c.available ? undefined : `Unavailable: ${s.validation.errors.map((x) => x.detail).join("; ")}`}
-                onClick={() => selectSample(c.sampleIndex)}
-              >
-                <span className="st-dot" aria-hidden="true" />
-                <span>{chipTitle(c.kinds)}</span>
-                {s.finalScore ? <span className="st-chip-score">{finalLine(s.finalScore, teams)}</span> : null}
-                {!c.available ? <span className="st-chip-score">unavailable</span> : null}
-              </button>
-            );
-          })}
-        </div>
-        {sample ? (
-          <p className="st-rule">
-            {sample.selectionRules.map((r) => r.text).join(" Also: ")} <span className="st-mono">· run #{sample.runIndex.toLocaleString("en-US")} of {manifest.runCount.toLocaleString("en-US")}</span>
-            {manifest.absentKinds.includes("OVERTIME") ? <span className="st-mono"> · No overtime run in this batch</span> : null}
-          </p>
-        ) : null}
+        <div className="st-samples-head"><span id={`${uid}-samples`}>Representative runs</span><span className="st-samplelabel">{LABELS.sample}</span></div>
+        {compact ? (
+          <button type="button" className="st-samplebtn" aria-haspopup="dialog" onClick={() => openSheet("samples")}>
+            <span className="st-samplebtn-k">{currentChip ? chipTitle(currentChip.kinds) : "Run"}</span>
+            {sample?.finalScore ? <span className="st-chip-score">{finalLine(sample.finalScore, teams)}</span> : null}
+            <span className="st-samplebtn-run">#{sample?.runIndex}</span>
+            <span aria-hidden="true" className="st-caret">▾</span>
+            <span className="st-sr">, change run</span>
+          </button>
+        ) : (
+          <>{chipList(false)}{ruleLine}</>
+        )}
       </div>
 
       {!sample || !sample.validation.ok || !compiled ? (
@@ -686,55 +728,110 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
         <>
           <div className="st-grid">
             <div className="st-stage">
-              <LiveBug store={store} teams={teams} palette={palette} illusId={`${uid}-illus`} />
-              <div className="st-fieldcard">
+              <div className="st-broadcast">
+                {f ? (
+                  <ScoreBug
+                    teams={teams}
+                    palette={palette}
+                    score={f.score}
+                    offense={f.breakKind === "FINAL" ? null : f.offense}
+                    period={f.period}
+                    periodClock={f.periodClock}
+                    clockIllustrative={f.clockIllustrative}
+                    stateChip={stateChip}
+                    bump={bump}
+                    illusId={`${uid}-illus`}
+                    clockRef={setClockEl}
+                  />
+                ) : null}
                 <SceneBadge />
                 <div ref={stageRef} className={`st-fieldwrap${f?.dimmed ? " is-dim" : ""}`}>
-                  <LiveField store={store} palette={palette} teams={teams} reduced={reduced} idle={idle} idPrefix={`${uid}-f`} stageRef={stageRef} />
-                  <div className="st-callouts" aria-hidden="true">
-                    {f?.chip ? <span key={`${f.driveIdx}-${f.chip.text}`} className={`st-callout tone-${f.chip.tone}`}>{f.chip.text}</span> : null}
-                    {f?.rollover ? <span key={`r${f.rollover.quarter}`} className="st-callout tone-roll">End of Q{f.rollover.quarter}</span> : null}
+                  {staticLayer}
+                  {marksLayer}
+                  <div className="st-dimmer" aria-hidden="true" />
+                  <FieldLive
+                    W={box.W}
+                    H={box.H}
+                    frame={shown}
+                    o={o}
+                    palette={palette}
+                    offenseAbbr={ev ? teams[ev.offense].abbr : ""}
+                    startTag={ev ? `START · ${fieldPosition(ev.fieldStart, def).toUpperCase()}` : ""}
+                    endTag={ev ? `END · ${ev.fieldEnd <= 0 ? "END ZONE" : ev.fieldEnd >= 100 ? "OWN END ZONE" : fieldPosition(ev.fieldEnd, def).toUpperCase()}` : ""}
+                    showEnd={showEnd}
+                    endX={m.X(endFieldX)}
+                    idPrefix={`${uid}-l`}
+                    reducedMotion={reduced}
+                    refs={liveRefs}
+                    travelDir={ev ? Math.sign(endFieldX - (ev.offense === "home" ? 110 - ev.fieldStart : 10 + ev.fieldStart)) || (ev.offense === "home" ? 1 : -1) : 1}
+                  />
+                  {f && ev ? <Interstitial f={f} ev={ev} teams={teams} overtime={Boolean(sample.finalScore?.overtime)} /> : null}
+                  {scoringNow && ev ? <ScoreFlash ev={ev} teams={teams} palette={palette} /> : null}
+                  {f && ev ? <LowerThird f={f} ev={ev} teams={teams} sample={sample} scoring={scoringNow} /> : null}
+                </div>
+                <FieldLegend homeAbbr={teams.home.abbr} />
+
+                <div className="st-transport" role="group" aria-label="Playback controls">
+                  <div className="st-transport-btns">
+                    <button type="button" className="st-btn" aria-label="Previous drive" onClick={() => act("PREV_DRIVE")}><Icon d={ICONS.prev} /></button>
+                    <button type="button" className="st-btn st-play" aria-label={playing ? "Pause" : "Play"} onClick={() => act("TOGGLE")}>
+                      <Icon d={playing ? ICONS.pause : ICONS.play} />
+                    </button>
+                    <button type="button" className="st-btn" aria-label="Next drive" onClick={() => act("NEXT_DRIVE")}><Icon d={ICONS.next} /></button>
+                    {compact ? null : <button type="button" className="st-btn" aria-label="Restart from kickoff" onClick={() => act("RESTART")}><Icon d={ICONS.restart} /></button>}
+                    {compact ? (
+                      <button type="button" className="st-btn st-speedcycle" aria-label={`Playback speed ${ctl.speed}×, change speed`} onClick={speedCycle}>{ctl.speed}×</button>
+                    ) : (
+                      <div className="st-speeds" role="radiogroup" aria-label="Playback speed">
+                        {SPEEDS.map((s: number) => (
+                          <button key={s} type="button" role="radio" aria-checked={ctl.speed === s} tabIndex={ctl.speed === s ? 0 : -1} className="st-speed" onClick={() => act("SPEED", { speed: s })}>{s}×</button>
+                        ))}
+                      </div>
+                    )}
+                    <a className="st-btn" href={`#st-transcript-${sample.runIndex}`} aria-label="Go to the full drive transcript"><Icon d={ICONS.list} /></a>
                   </div>
-                  {f?.card ? <span className="st-card" aria-hidden="true">{f.card}</span> : null}
+                  <div className="st-seekrow">
+                    <input
+                      ref={(el) => { els.current.seek = el; }}
+                      className="st-seek"
+                      type="range"
+                      min={0}
+                      max={compiled.tEnd}
+                      step={100}
+                      defaultValue={0}
+                      aria-label={`Seek playback of run #${sample.runIndex}`}
+                      onChange={(e) => act("SEEK", { t: Number(e.target.value) })}
+                    />
+                    <span className="st-ptime"><span className="st-ptime-l">Playback</span> <span ref={(el) => { els.current.ptime = el; }} /></span>
+                  </div>
                 </div>
-                <div className="st-caption">
-                  <span><span className="st-legend-ring" aria-hidden="true" />start spot (recorded)</span>
-                  <span><span className="st-legend-ball" aria-hidden="true" />ball: end spot recorded, path illustrative</span>
-                  <span>home ({teams.home.abbr}) defends the left end zone all game</span>
-                  {ev && ev.notes.some((n) => n.code === "ENGINE_CLOCK_RUNOFF") ? <span className="st-runoff">{RUNOFF_NOTE_TEXT}</span> : null}
-                </div>
+                <DriveTimeline sample={sample} compiled={compiled} palette={palette} teams={teams} current={f?.driveIdx ?? 0} onSeekDrive={seekDrive} cursorRef={setCursorEl} />
+                <details className="st-keys">
+                  <summary>Keyboard shortcuts (active while focus is inside the theater)</summary>
+                  <dl>
+                    <dt>K</dt><dd>Play / pause (Space too, when focus is not on a button)</dd>
+                    <dt>← / →</dt><dd>Previous / next drive (not on the seek bar or timeline, which use arrows themselves)</dd>
+                    <dt>Shift + ← / →</dt><dd>Back / forward 5 s of playback</dd>
+                    <dt>Home / End</dt><dd>Start / end of playback</dd>
+                    <dt>1 / 2 / 4</dt><dd>Speed 1× / 2× / 4×</dd>
+                  </dl>
+                </details>
               </div>
 
-              <DriveTimeline sample={sample} compiled={compiled} palette={palette} teams={teams} current={f?.driveIdx ?? 0} store={store} onSeekDrive={seekDrive} />
-
-              <div className="st-transport" role="group" aria-label="Playback controls">
-                <button type="button" className="st-btn" aria-label="Previous drive" onClick={() => act("PREV_DRIVE")}><Icon d={ICONS.prev} /></button>
-                <button type="button" className="st-btn st-play" aria-label={playing ? "Pause" : "Play"} onClick={() => act("TOGGLE")}>
-                  <Icon d={playing ? ICONS.pause : ICONS.play} />
-                </button>
-                <button type="button" className="st-btn" aria-label="Next drive" onClick={() => act("NEXT_DRIVE")}><Icon d={ICONS.next} /></button>
-                <button type="button" className="st-btn" aria-label="Restart from kickoff" onClick={() => act("RESTART")}><Icon d={ICONS.restart} /></button>
-                <div className="st-speeds" role="radiogroup" aria-label="Playback speed">
-                  {SPEEDS.map((s: number) => (
-                    <button key={s} type="button" role="radio" aria-checked={ctl.speed === s} className="st-speed" onClick={() => act("SPEED", { speed: s })}>{s}×</button>
-                  ))}
-                </div>
-                <button type="button" className="st-btn st-speedcycle" aria-label={`Playback speed ${ctl.speed}×, change speed`} onClick={speedCycle}>{ctl.speed}×</button>
-                <a className="st-btn" href={`#st-transcript-${sample.runIndex}`} aria-label="Go to the full drive transcript"><Icon d={ICONS.list} /></a>
-                <SeekRow store={store} compiled={compiled} sample={sample} onSeek={(t) => act("SEEK", { t })} />
-              </div>
-              <details className="st-keys">
-                <summary>Keyboard shortcuts (active while focus is inside the theater)</summary>
-                <dl>
-                  <dt>K</dt><dd>Play / pause (Space too, when focus is not on a button)</dd>
-                  <dt>← / →</dt><dd>Previous / next drive (not on the seek bar or timeline, which use arrows themselves)</dd>
-                  <dt>Shift + ← / →</dt><dd>Back / forward 5 s of playback</dd>
-                  <dt>Home / End</dt><dd>Start / end of playback</dd>
-                  <dt>1 / 2 / 4</dt><dd>Speed 1× / 2× / 4×</dd>
-                </dl>
-              </details>
+              {compact && ev ? (
+                <section className="st-drivecard" aria-label="Current drive">
+                  <div className="st-eyebrow">Drive {ev.index + 1} of {sample.events.length} · {fmtPeriodClock(ev.period, ev.periodClockStart)}</div>
+                  <h3 className="st-panel-h">{driveFacts(ev, teams).head}</h3>
+                  <p className="st-drivecard-facts">{driveFacts(ev, teams).plays} · {driveFacts(ev, teams).yards} · {driveFacts(ev, teams).time} · {driveFacts(ev, teams).result}</p>
+                  <div className="st-sheetbtns">
+                    <button type="button" className="st-btn" aria-haspopup="dialog" onClick={() => openSheet("drive")}>Drive details</button>
+                    <button type="button" className="st-btn" aria-haspopup="dialog" onClick={() => openSheet("dist")}>Distribution</button>
+                    <button type="button" className="st-btn" aria-haspopup="dialog" onClick={() => openSheet("evidence")}>Evidence</button>
+                  </div>
+                </section>
+              ) : null}
             </div>
-            <SidePanel manifest={manifest} sample={sample} ev={ev} onSeekDrive={seekDrive} current={f?.driveIdx ?? 0} />
+            {compact ? null : <SidePanel manifest={manifest} sample={sample} ev={ev} onSeekDrive={seekDrive} current={f?.driveIdx ?? 0} />}
           </div>
 
           <div className="st-below">
@@ -749,6 +846,25 @@ export default function TheaterIsland({ manifest }: { manifest: TheaterManifest 
           </div>
         </>
       )}
+
+      <BottomSheet open={sheet === "samples"} title="Representative runs" onClose={() => setSheet(null)}>
+        <p className="st-samplelabel" style={{ margin: "0 0 8px" }}>{LABELS.sample}</p>
+        {chipList(true)}
+        {ruleLine}
+      </BottomSheet>
+      {sample && ev ? (
+        <>
+          <BottomSheet open={sheet === "drive"} title="Drive details" onClose={() => setSheet(null)}>
+            <DrivePanel sample={sample} ev={ev} teams={teams} current={f?.driveIdx ?? 0} onSeekDrive={(i) => { seekDrive(i); setSheet(null); }} />
+          </BottomSheet>
+          <BottomSheet open={sheet === "dist"} title="Distribution" onClose={() => setSheet(null)}>
+            <DistributionPanel manifest={manifest} sample={sample} />
+          </BottomSheet>
+          <BottomSheet open={sheet === "evidence"} title="Evidence" onClose={() => setSheet(null)}>
+            <EvidencePanel manifest={manifest} sample={sample} />
+          </BottomSheet>
+        </>
+      ) : null}
       <div className="st-sr" aria-live="polite" aria-atomic="true">{announce}</div>
     </div>
   );

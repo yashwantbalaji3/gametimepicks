@@ -13,6 +13,7 @@ import { FIXTURE_EVENT_IDS, MAX_FIXTURES, fixtureUsable, loadTheater, usableFixt
 import {
   NEUTRAL_PALETTE, NFL_TEAM_COLORS, TEAM_COLORS_VALIDATED, collides, contrastRatio, deltaE76, nflTeamColor, theaterPalette,
 } from "./nfl-team-colors.mjs";
+import { THEATER_TURF_MIX, turfHexes } from "./field-geometry.mjs";
 import { readShadowReceipts } from "../sports/nfl/sim-v2/public-receipt.mjs";
 import { ROUTE_TABLE } from "../audits/route-inventory.mjs";
 
@@ -100,9 +101,10 @@ test("contrast: ink ≥4.5:1 on every primary; accent ≥3:1 on the page; turf-s
     const [p, q] = [h(a), h(b)];
     return `#${p.map((v, i) => Math.round(v * pct / 100 + q[i] * (1 - pct / 100)).toString(16).padStart(2, "0")).join("")}`;
   };
-  const turf = [mix(DEEP, BG, 26), mix(DEEP, BG, 33)]; // THEATER_TURF_MIX in theater-css.ts
+  const turf = [mix(DEEP, BG, THEATER_TURF_MIX.a), mix(DEEP, BG, THEATER_TURF_MIX.b)];
+  assert.deepEqual(turf.map((h) => h.toUpperCase()), turfHexes(THEATER_TURF_MIX), "the library's turf maths matches this test's independent mix");
   const css = read("src/components/simulation-theater/theater-css.ts");
-  assert.match(css, /THEATER_TURF_MIX = \{ a: 26, b: 33 \}/, "the test's turf mix matches the stylesheet");
+  assert.match(css, /THEATER_TURF_MIX\.a/, "the stylesheet paints the turf from THEATER_TURF_MIX");
   const lowTurf = [];
   for (const e of Object.values(NFL_TEAM_COLORS)) {
     assert.ok(contrastRatio(e.ink, e.primary) >= 4.5, `${e.abbr} ink ${contrastRatio(e.ink, e.primary).toFixed(2)}`);

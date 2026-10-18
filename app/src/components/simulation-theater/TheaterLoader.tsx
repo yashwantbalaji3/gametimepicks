@@ -4,14 +4,17 @@
  * the section comes within one viewport or the reader interacts with it. Until the island module has loaded, the
  * server-rendered shell (final frame, linescore, transcript) stays on screen, so there is no empty flash.
  * It never starts playback: the island opens IDLE and waits for an explicit Play.
+ *
+ * Its only data prop is the compact `theater-pack@1` transport (lib/simulation-theater/theater-pack.mjs): the island
+ * decodes it, so the page's RSC payload carries the samples once, in their compact form.
  */
 import { useEffect, useRef, useState } from "react";
 import type { ComponentType, ReactNode } from "react";
-import type { TheaterManifest } from "./types";
 
-type IslandType = ComponentType<{ manifest: TheaterManifest }>;
+type IslandProps = { pack: unknown; devHooks?: boolean };
+type IslandType = ComponentType<IslandProps>;
 
-export default function TheaterLoader({ manifest, children }: { manifest: TheaterManifest; children: ReactNode }) {
+export default function TheaterLoader({ pack, devHooks = false, children }: { pack: unknown; devHooks?: boolean; children: ReactNode }) {
   const [active, setActive] = useState(false);
   const [Island, setIsland] = useState<IslandType | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -28,11 +31,11 @@ export default function TheaterLoader({ manifest, children }: { manifest: Theate
   useEffect(() => {
     if (!active || Island) return;
     let alive = true;
-    import("./TheaterIsland").then((m) => { if (alive) setIsland(() => m.default as IslandType); }).catch(() => { /* the static shell stays */ });
+    import("./TheaterIsland").then((m) => { if (alive) setIsland(() => m.default as unknown as IslandType); }).catch(() => { /* the static shell stays */ });
     return () => { alive = false; };
   }, [active, Island]);
 
-  if (Island) return <Island manifest={manifest} />;
+  if (Island) return <Island pack={pack} devHooks={devHooks} />;
   return (
     <div ref={ref} onPointerDown={() => setActive(true)} onFocusCapture={() => setActive(true)}>
       {children}
