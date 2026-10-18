@@ -72,7 +72,7 @@ test("team colours: the official accent is painted as is; the keyline is ≥3:1 
     if (h === a) continue;
     const p = theaterPalette(h.abbr, a.abbr);
     assert.equal(p.home.accent, h.accent, "home: the official accent, unaltered");
-    assert.ok([a.accent, a.primary, a.secondary, ...a.alt].includes(p.away.accent), "away: an official colour, unaltered");
+    assert.equal(p.away.accent, a.accent, "away: its own declared field colour, unaltered and never swapped");
     assert.equal(p.home.accentBase, undefined);
   }
   assert.equal(theaterPalette("SF", "WSH", { neutral: true }).mode, "neutral");

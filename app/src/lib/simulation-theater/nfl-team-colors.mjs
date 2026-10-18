@@ -9,15 +9,23 @@
  * club logo, or the club's own site), every change against the previous map and every derived on-field accent.
  * dev-route-colors.test.mjs recomputes all of it from that file.
  *
- * ROLES. primary = the team's primary brand colour (score bug block, end zone); secondary = the main contrasting brand
- * colour (the away team's block and end zone when the two primaries collide); accent = the official colour that carries
- * the team on the field (drive ribbon, timeline fills, scoring flash, winner outline, break-card rule). `p` / `s` in the
- * accent column mean "the same value as the primary / secondary". ink = the text colour on the primary (≥4.5:1).
- * ONE IDENTITY (founder, 2026-10-18): the accent is the PRIMARY, so a team reads as one colour on the score bug, the
- * field and the timeline, except where a founder role decision names another official colour (JAX gold, NO and PIT
- * gold, TEN red, TB's official red) or the primary cannot be told from the field surfaces (fieldDistinct: CIEDE2000
- * ΔE00 < FIELD_DISTINCT_DE00 against a turf stripe or the timeline panel: the greens GB, NYJ, PHI and the near-blacks
- * CHI, CLE, HOU, LV), where it is the secondary.
+ * ROLES. primary = the team's primary brand colour (score bug block, end zone, possession tag); secondary = the main
+ * contrasting brand colour (block trim where it reaches 4.5:1, and the field colour where the primary cannot be told
+ * from the turf); accent = the team's DECLARED FIELD COLOUR, the official colour that carries the team on the field (drive
+ * ribbon, timeline fills, scoring flash, winner outline, break-card rule). `p` / `s` in the accent column mean "the same
+ * value as the primary / secondary". ink = the text colour on the primary (≥4.5:1).
+ * ONE IDENTITY, NEVER SWAPPED (founder, 2026-10-18): each team paints its primary on the score bug and its declared field
+ * colour on the field in EVERY matchup, home or away (Buffalo is royal blue #00338D in all 62 orientations). The field
+ * colour is the primary except where (1) a founder role decision names another official colour (NO and PIT gold, TB's
+ * official red) or (2) the primary cannot be told from the field surfaces even with the keyline (fieldDistinct:
+ * CIEDE2000 ΔE00 < FIELD_DISTINCT_DE00 against a turf stripe or the timeline panel: the greens GB, NYJ, PHI and the dark
+ * CHI, CLE, HOU, LV, and the blacks NO and PIT), where it is the secondary. JAX paints teal and TEN Titans blue, their
+ * primaries (iteration 6: both pass fieldDistinct).
+ * CLASHES ARE TOLD APART BY NON-COLOUR CUES (WCAG 1.4.1), never by an alternative colour: when the two primaries collide
+ * (CIE76 ΔE < 20) or the two field colours clash (fieldClash: also ΔE00 < 10), the AWAY side is `patterned`: a diagonal
+ * keyline stripe over its own colour on the timeline segments, the drive ribbon, the end line and the score-bug bar; its
+ * abbreviation on the timeline segments (where they are wide enough), as well as on the possession tag and score bug; a
+ * pennant-shaped possession tag pointing the way it attacks; square ribbon ends.
  * CONTRAST BY TREATMENT, NOT BY HUE: the official value is painted as is (no lightened or substituted colour), and every
  * team mark on the field and the timeline carries a light KEYLINE (--st-keyline, ≥3:1 on every field surface, tested),
  * the boundary WCAG 1.4.11 measures. The possession tag is a miniature score-bug block (fill, ink, keyline).
@@ -38,7 +46,7 @@ export const TEAM_COLOR_EVIDENCE = "src/lib/simulation-theater/nfl-team-colors-e
 const WHITE = "#FFFFFF";
 const DARK = "#0A0705";
 
-/** [abbr, primary, secondary, ink ("white" | "dark"), accent (hex, or "p" / "s"), alternate on-field colour (optional)] */
+/** [abbr, primary, secondary, ink ("white" | "dark"), field colour = accent (hex, or "p" / "s")] */
 const ROWS = [
   ["ARI", "#97233F", "#000000", "white", "p"],
   ["ATL", "#A71930", "#000000", "white", "p"],
@@ -52,9 +60,9 @@ const ROWS = [
   ["DEN", "#FC4C02", "#0A2343", "dark", "p"],
   ["DET", "#0076B6", "#B0B7BC", "white", "p"],
   ["GB", "#203731", "#FFB612", "white", "s"],
-  ["HOU", "#021018", "#EB0028", "white", "s", "#0080C6"],
+  ["HOU", "#021018", "#EB0028", "white", "s"],
   ["IND", "#013369", "#A5ACAF", "white", "p"],
-  ["JAX", "#006778", "#000000", "white", "#D7A22A"],
+  ["JAX", "#006778", "#000000", "white", "p"],
   ["KC", "#E31837", "#FFB612", "white", "p"],
   ["LAC", "#0080C6", "#FFC20E", "dark", "p"],
   ["LAR", "#003594", "#FFD100", "white", "p"],
@@ -70,16 +78,15 @@ const ROWS = [
   ["SEA", "#002244", "#69BE28", "white", "p"],
   ["SF", "#AA0000", "#B3995D", "white", "p"],
   ["TB", "#A71930", "#322F2B", "white", "#C2242B"],
-  ["TEN", "#4495D2", "#001532", "dark", "#D50A0A"],
+  ["TEN", "#4495D2", "#001532", "dark", "p"],
   ["WSH", "#5A1414", "#FFB612", "white", "p"],
 ];
 
-/** `nfl:<ABBR>` → { abbr, primary, secondary, accent, alt, ink, inkName }. `alt`: official alternates for an accent clash. */
-export const NFL_TEAM_COLORS = Object.freeze(Object.fromEntries(ROWS.map(([abbr, primary, secondary, ink, accent, alt]) => [
+/** `nfl:<ABBR>` → { abbr, primary, secondary, accent (the declared field colour), ink, inkName }. */
+export const NFL_TEAM_COLORS = Object.freeze(Object.fromEntries(ROWS.map(([abbr, primary, secondary, ink, accent]) => [
   `nfl:${abbr}`,
   Object.freeze({
     abbr, primary, secondary, accent: accent === "p" ? primary : accent === "s" ? secondary : accent,
-    alt: Object.freeze(alt ? [alt] : []),
     ink: ink === "white" ? WHITE : DARK, inkName: ink,
   }),
 ])));
@@ -157,8 +164,8 @@ export const UI_MIN = 3;
 
 /** Neutral GTP tokens (the dev bar's "Neutral colours" switch, and any unknown team). */
 export const NEUTRAL_PALETTE = Object.freeze({
-  home: Object.freeze({ fill: "var(--sport-nfl)", ink: "var(--bg)", trim: "var(--bg)", accent: "var(--sport-nfl)", accentInk: "var(--bg)", hatched: false }),
-  away: Object.freeze({ fill: "var(--lava-text-muted)", ink: "var(--bg)", trim: "var(--bg)", accent: "var(--lava-text-muted)", accentInk: "var(--bg)", hatched: false }),
+  home: Object.freeze({ fill: "var(--sport-nfl)", ink: "var(--bg)", trim: "var(--bg)", accent: "var(--sport-nfl)", accentInk: "var(--bg)", patterned: false }),
+  away: Object.freeze({ fill: "var(--lava-text-muted)", ink: "var(--bg)", trim: "var(--bg)", accent: "var(--lava-text-muted)", accentInk: "var(--bg)", patterned: false }),
 });
 
 /** White or the page-dark ink, whichever reads better on `fill`. */
@@ -174,34 +181,31 @@ export function blockTrim(team, fill, ink) {
 }
 
 /**
+ * Why a pairing needs the away side's non-colour cues: "blocks" (the primaries collide, CIE76 ΔE < 20: score bug, end
+ * zone, possession tag), "field" (the field colours clash, fieldClash), "both", or null.
+ */
+export function clashOf(home, away) {
+  const blocks = collides(home.primary, away.primary);
+  const field = fieldClash(home.accent, away.accent);
+  return blocks && field ? "both" : blocks ? "blocks" : field ? "field" : null;
+}
+
+/**
  * The palette the theater paints with.
  *   - `neutral` (the dev bar's switch), or the map not validated → NEUTRAL_PALETTE, mode "neutral"
- *   - otherwise team colours, mode "team":
- *       blocks   home = primary; away = primary, or its SECONDARY when the primaries collide (CIE76 ΔE < 20), or its
- *                primary HATCHED when the secondary collides with the home primary too
- *       field    each side's official accent, as is (the keyline carries the 3:1, never a lightened colour); `accentInk`
- *                = the better ink on it (the timeline glyphs). When the two accents clash (fieldClash: CIE76 < 20 or
- *                ΔE00 < 10), the away side takes the first of its primary, secondary and official alternates that no
- *                longer clashes and is fieldDistinct (`accentSwap` records it); if none can, its timeline segments are
- *                hatched (`accentHatched`)
+ *   - otherwise team colours, mode "team". NO COLOUR IS EVER SWAPPED: each side paints its primary on its block (`fill`,
+ *     `ink`, `trim`) and its declared field colour on the field (`accent`, `accentInk` = the better ink on it), whatever
+ *     the opponent. When the pairing clashes (clashOf), the AWAY side is `patterned` (stripes, abbreviation, pennant tag,
+ *     square ribbon ends) and `clash` says why; the home side stays plain, so exactly one side carries the cues.
  *   - an unknown team falls back to its neutral token
  */
 export function theaterPalette(homeAbbr, awayAbbr, { neutral = false } = {}) {
-  if (!TEAM_COLORS_VALIDATED || neutral) return { mode: "neutral", validated: TEAM_COLORS_VALIDATED, ...NEUTRAL_PALETTE };
-  const paint = (t, fill, hatched = false) => {
-    const ink = fill === t.primary ? t.ink : bestInk(fill);
-    return { fill, ink, trim: blockTrim(t, fill, ink), accent: t.accent, accentInk: bestInk(t.accent), hatched };
-  };
+  if (!TEAM_COLORS_VALIDATED || neutral) return { mode: "neutral", validated: TEAM_COLORS_VALIDATED, clash: null, ...NEUTRAL_PALETTE };
+  const paint = (t, patterned) => ({
+    fill: t.primary, ink: t.ink, trim: blockTrim(t, t.primary, t.ink), accent: t.accent, accentInk: bestInk(t.accent), patterned,
+  });
   const h = nflTeamColor(homeAbbr);
   const a = nflTeamColor(awayAbbr);
-  const home = h ? paint(h, h.primary) : NEUTRAL_PALETTE.home;
-  let away = a ? paint(a, a.primary) : NEUTRAL_PALETTE.away;
-  if (h && a && collides(h.primary, a.primary)) {
-    away = collides(h.primary, a.secondary) ? paint(a, a.primary, true) : paint(a, a.secondary);
-  }
-  if (h && a && fieldClash(home.accent, away.accent)) {
-    const pick = [a.primary, a.secondary, ...a.alt].find((hex) => hex !== a.accent && !fieldClash(home.accent, hex) && fieldDistinct(hex));
-    away = pick ? { ...away, accent: pick, accentInk: bestInk(pick), accentSwap: pick } : { ...away, accentHatched: true };
-  }
-  return { mode: "team", validated: true, home, away };
+  const clash = h && a ? clashOf(h, a) : null;
+  return { mode: "team", validated: true, clash, home: h ? paint(h, false) : NEUTRAL_PALETTE.home, away: a ? paint(a, clash !== null) : NEUTRAL_PALETTE.away };
 }

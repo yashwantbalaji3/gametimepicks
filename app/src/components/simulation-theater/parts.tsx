@@ -49,7 +49,8 @@ export type BugProps = {
 /**
  * Broadcast score bug: away–home order, team blocks, large tabular score, quarter and SIM CLOCK. With team colours on
  * (palette.mode "team"), each block is filled with the team's colour, its text in the team's ink (≥4.5:1, tested) and
- * its bar in the team's trim; the clock cell stays GTP-neutral, the frame. Possession = ball glyph + an underline on the
+ * its bar in the team's trim (striped trim on the block's own fill for the side carrying the clash cues); the clock cell
+ * stays GTP-neutral, the frame. Possession = ball glyph + an underline on the
  * team block (shape and position, never colour alone). No timeouts: the engine records none. The clock's
  * "illustrative" tag shows whenever it is interpolated between recorded instants.
  */
@@ -62,7 +63,7 @@ export function ScoreBug({ teams, palette, score, offense, period, periodClock, 
       ? { "--st-team": p.accent, "--st-team-fill": p.fill, "--st-team-ink": p.ink, "--st-team-trim": p.trim }
       : { "--st-team": p.accent };
     return (
-      <div className={`st-bug-team${teamMode ? " is-team" : ""}${has ? " has-ball" : ""}`} style={vars as CSSProperties} data-st-team={teams[side].abbr}>
+      <div className={`st-bug-team${teamMode ? " is-team" : ""}${teamMode && p.patterned ? " is-cue" : ""}${has ? " has-ball" : ""}`} style={vars as CSSProperties} data-st-team={teams[side].abbr}>
         <span className="st-bug-bar" aria-hidden="true" />
         <span className="st-bug-abbr">{teams[side].abbr}</span>
         {has ? <><BallGlyph /><span className="st-sr"> has the ball, </span></> : <span className="st-sr">, </span>}

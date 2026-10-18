@@ -16,6 +16,8 @@ export const THEATER_VARS = {
   "--st-turf-out": `color-mix(in srgb, var(--vault-accent-deep) 15%, var(--bg))`,
   /* the halo around every team mark (team colours on); THEATER_KEYLINE_MIX names the % for the contrast maths */
   "--st-keyline": `color-mix(in srgb, var(--lava-text) ${THEATER_KEYLINE_MIX}%, var(--bg))`,
+  /* the clash cue (palette `patterned`): keyline stripes with a dark hairline, laid OVER the team's own colour */
+  "--st-cue": `repeating-linear-gradient(135deg, transparent 0 5px, var(--st-keyline) 5px 6.5px, color-mix(in srgb, var(--bg) 80%, transparent) 6.5px 7.6px, transparent 7.6px 9px)`,
   "--st-line": `color-mix(in srgb, var(--lava-text) 78%, transparent)`,
   "--st-line-strong": `color-mix(in srgb, var(--lava-text) 92%, transparent)`,
   "--st-line-soft": `color-mix(in srgb, var(--lava-text) 50%, transparent)`,

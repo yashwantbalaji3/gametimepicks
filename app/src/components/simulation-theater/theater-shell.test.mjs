@@ -17,7 +17,7 @@ const { DetachedBall, FieldLive, FieldMarks, StaticField } = await import("./Fie
 const { LABELS } = await import("../../lib/simulation-theater/format.mjs");
 const { loadTheater, FIXTURE_EVENT_IDS } = await import("../../lib/simulation-theater/loader.mjs");
 const { finalState } = await import("../../lib/simulation-theater/state-at.mjs");
-const { theaterPalette } = await import("../../lib/simulation-theater/nfl-team-colors.mjs");
+const { NFL_TEAM_COLORS, theaterPalette } = await import("../../lib/simulation-theater/nfl-team-colors.mjs");
 const { BALL_RX, ballSize, fieldMap, overlayFrame } = await import("../../lib/simulation-theater/field-geometry.mjs");
 
 const DISCLOSURE = "SIMULATED · drive-level · movement illustrative · experimental model";
@@ -131,4 +131,54 @@ test("no-JavaScript final frame: the ball keeps its drawn shape in any box (rend
   }
   assert.equal(BALL_RX.max, rx, "drawn at the 1200 px size, i.e. the largest ball");
   console.log(`# no-JS ball: ${out.join(" · ")}`);
+});
+
+test("clash cues: in every clashing pairing (120 of 992) the away side renders stripes AND its abbreviation, in its own colours; nothing else is cued", () => {
+  const t = loadTheater(REPO, FIXTURE_EVENT_IDS[0]);
+  const m = t.manifest;
+  const s = finalState(m, m.samples[0]);
+  const W = 1200, H = 561;
+  const TEAMS = Object.values(NFL_TEAM_COLORS);
+  const cueCount = (html) => (html.match(/data-st-cue=""/g) ?? []).length;
+  let clashing = 0, plain = 0;
+  for (const h of TEAMS) for (const a of TEAMS) {
+    if (h === a) continue;
+    const palette = theaterPalette(h.abbr, a.abbr);
+    const teams = { home: { abbr: h.abbr, name: null }, away: { abbr: a.abbr, name: null } };
+    const bug = renderToStaticMarkup(React.createElement(ScoreBug, { teams, palette, score: { home: 7, away: 3 }, offense: "away", period: 2, periodClock: 400, clockIllustrative: false, stateChip: null, illusId: "x" }));
+    const turf = renderToStaticMarkup(React.createElement(StaticField, { palette, idPrefix: "t" }));
+    const live = (offense) => {
+      const frame = { ...s, offense, phase: "DRIVE", winner: null, flash: null };
+      return renderToStaticMarkup(React.createElement(FieldLive, {
+        W, H, frame, o: overlayFrame(frame, { W, H }), palette, offenseAbbr: teams[offense].abbr, startTag: "START", endTag: "END", showEnd: false, endX: 0, idPrefix: "t", reducedMotion: false,
+      }));
+    };
+    const [awayLive, homeLive] = [live("away"), live("home")];
+    const block = (abbr) => bug.match(new RegExp(`<div class="([^"]*)" style="([^"]*)" data-st-team="${abbr}">`));
+    const [ab, hb] = [block(a.abbr), block(h.abbr)];
+    // no swap: each block is its primary, each ribbon its declared field colour
+    assert.match(ab[2], new RegExp(`--st-team-fill:${a.primary}`));
+    assert.match(hb[2], new RegExp(`--st-team-fill:${h.primary}`));
+    assert.match(awayLive, new RegExp(`class="st-ribbon"[^>]*style="fill:${a.accent}"`));
+    assert.match(homeLive, new RegExp(`class="st-ribbon"[^>]*style="fill:${h.accent}"`));
+    assert.ok(!/is-cue/.test(hb[1]) && cueCount(homeLive) === 0, `${a.abbr}@${h.abbr}: the home side is never cued`);
+    if (palette.clash) {
+      clashing++;
+      const tag = `${a.abbr}@${h.abbr} (${palette.clash})`;
+      // PATTERN: striped score-bug bar, striped end line, striped ribbon + pennant tag
+      assert.match(ab[1], /\bis-cue\b/, `${tag}: score-bug stripes`);
+      assert.equal(cueCount(turf), 1, `${tag}: end-line stripes`);
+      assert.match(turf, /<rect x="1206" [^>]*fill="url\(#t-cue\)" data-st-cue=""/, `${tag}: on the away end line`);
+      assert.match(awayLive, /class="st-ribbon-cue"[^>]*fill="url\(#t-cue\)" data-st-cue=""/, `${tag}: ribbon stripes`);
+      assert.match(awayLive, new RegExp(`<path d="M[^"]*Z" style="fill:${a.primary};stroke:var\\(--st-keyline\\)" data-st-cue=""></path>`), `${tag}: pennant tag in the away primary`);
+      // ABBREVIATION: on the pennant tag and the score bug (the timeline chip is asserted in dev-route-colors.test.mjs)
+      assert.match(awayLive, new RegExp(`<text[^>]*>${a.abbr}</text>`), `${tag}: abbreviation on the tag`);
+      assert.match(bug, new RegExp(`<span class="st-bug-abbr">${a.abbr}</span>`), `${tag}: abbreviation on the score bug`);
+    } else {
+      plain++;
+      assert.ok(!/is-cue/.test(ab[1]) && cueCount(turf) === 0 && cueCount(awayLive) === 0, `${a.abbr}@${h.abbr}: no clash, no cue`);
+    }
+  }
+  assert.deepEqual([clashing, plain], [120, 872]);
+  console.log(`# clash cues rendered: ${clashing} clashing pairings cued on the away side (stripes + abbreviation), ${plain} plain`);
 });
