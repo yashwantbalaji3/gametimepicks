@@ -187,7 +187,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 - **Data:** no PR touched a data path. All 7 protected ledger and settled files are hash-identical to the pre-release baseline.
 - **Pages:** 11 key routes returned 200 with no error markers.
 - **Cost:** 2 Production builds for 4 merges.
-- **Superseded PRs:** #1117, #1119, #1092, #1096, #1102 and #1104–#1112 (incl. #1109, #1112), plus #1115, were auto-marked merged. Stacked #1097–#1100 and #1103 were closed with evidence: their heads are on `main`.
+- **Superseded PRs:** #1117, #1119, #1092, #1096, #1102, #1104, #1105, #1106, #1107, #1109, #1112 and #1115 were auto-marked merged. Stacked #1097–#1100 and #1103 were closed with evidence: their heads are on `main`.
 
 **Still to verify after scheduled runs:**
 - #1101 (`verify_1101.py`) after the next nightly settle;
