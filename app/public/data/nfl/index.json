@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-18T13:12:15Z",
+ "generatedAt": "2026-10-18T15:16:07Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 27,
+  "scheduledUpcoming": 26,
   "forecastsTotal": 14,
-  "forecastsUpcoming": 13,
-  "forecastsStarted": 1,
+  "forecastsUpcoming": 12,
+  "forecastsStarted": 2,
   "marketEvents": 14,
   "settled": 1
  },
- "nextKickoffUtc": "2026-10-18T13:30Z",
- "nextMatchup": "HOU VS JAX",
- "nextForecastUtc": "2026-10-18T13:30Z",
- "nextForecastMatchup": "HOU @ JAX",
+ "nextKickoffUtc": "2026-10-18T17:00Z",
+ "nextMatchup": "CHI @ ATL",
+ "nextForecastUtc": "2026-10-18T17:00Z",
+ "nextForecastMatchup": "CHI @ ATL",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-18T12:58:45Z",
+  "generatedAt": "2026-10-18T13:12:15Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -71,47 +71,6 @@
  },
  "events": [
   {
-   "providerEventId": "401872996",
-   "canonicalEventId": "nfl-401872996",
-   "matchup": "HOU @ JAX",
-   "home": {
-    "abbr": "JAX",
-    "name": "Jacksonville Jaguars"
-   },
-   "away": {
-    "abbr": "HOU",
-    "name": "Houston Texans"
-   },
-   "kickoffUtc": "2026-10-18T13:30Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 23,
-    "away": 20,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6213,
-    "away": 0.3506
-   },
-   "total": {
-    "median": 43,
-    "p10": 26,
-    "p90": 61,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "ed85d772c729afb3",
-    "generatedAt": "2026-10-18T13:12:15Z"
-   }
-  },
-  {
    "providerEventId": "401872999",
    "canonicalEventId": "nfl-401872999",
    "matchup": "CHI @ ATL",
@@ -148,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "9f93df38f90ba3c5",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "e3bbd6476303201a",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -189,8 +148,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "4e42e848a13fe3f5",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "61a29d946eb8bd77",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -230,8 +189,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "d67775b8cc3c3948",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "1f37852ca98629e9",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -271,8 +230,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "7eef1ceebba3bc2b",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "91e89b52bca792aa",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -312,8 +271,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "6360a55b43417e30",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "667fe8eb47cbc806",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -353,8 +312,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "14df573883803457",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "4d22de76f5c5674b",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -394,8 +353,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "48dd9ea0a32bc576",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "e8d4ae1dbe98ad73",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -435,8 +394,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "291f4523269ab33b",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "f91f9aa22e8460cf",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -476,8 +435,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "96309f9b740c4f78",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "2122625a7132bef2",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -517,8 +476,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "0cd744ac1f256356",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "3d8f442e47f28289",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -558,8 +517,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "23d5d613992718e8",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "47494803d0536bcf",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -599,8 +558,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "e9b64146c72a807a",
-    "generatedAt": "2026-10-18T13:12:15Z"
+    "inputHash": "6a2cb269a11d262d",
+    "generatedAt": "2026-10-18T15:16:07Z"
    }
   },
   {
@@ -642,6 +601,47 @@
     "version": 2,
     "inputHash": "7bc81be412311308",
     "generatedAt": "2026-10-16T00:09:05Z"
+   }
+  },
+  {
+   "providerEventId": "401872996",
+   "canonicalEventId": "nfl-401872996",
+   "matchup": "HOU @ JAX",
+   "home": {
+    "abbr": "JAX",
+    "name": "Jacksonville Jaguars"
+   },
+   "away": {
+    "abbr": "HOU",
+    "name": "Houston Texans"
+   },
+   "kickoffUtc": "2026-10-18T13:30Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 23,
+    "away": 20,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.6213,
+    "away": 0.3506
+   },
+   "total": {
+    "median": 43,
+    "p10": 26,
+    "p90": 61,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "ed85d772c729afb3",
+    "generatedAt": "2026-10-18T13:12:15Z"
    }
   }
  ],
