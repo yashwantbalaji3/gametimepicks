@@ -57,7 +57,7 @@ export function ScoreBug({ teams, palette, score, offense, period, periodClock, 
       <BallGlyph on={offense === side} />
       <span style={{ minWidth: 0 }}>
         <span className="st-team-abbr">{teams[side].abbr}</span>
-        <span className="st-team-name" style={{ display: "block" }}>{teams[side].name ?? ""}</span>
+        <span className="st-team-name">{teams[side].name ?? ""}</span>
       </span>
       <span key={bump ? `${side}-${bump[side]}` : side} className={`st-team-score${bump && bump[side] ? " is-bump" : ""}`}>{score[side]}</span>
     </div>

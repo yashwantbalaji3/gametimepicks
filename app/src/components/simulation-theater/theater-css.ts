@@ -65,17 +65,17 @@ export const THEATER_CSS = `
 /* main grid */
 .st-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:14px}
 @media (min-width:1024px){.st-grid{grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:24px}}
-.st-stage{min-width:0}
+.st-stage{min-width:0;container-type:inline-size}
 
 /* score bug */
 .st-bug{position:sticky;top:0;z-index:5;display:flex;align-items:stretch;min-height:64px;border-radius:14px;overflow:hidden;
   background:linear-gradient(180deg, color-mix(in srgb, var(--lava-text) 6%, var(--surface-elevated)) 0%, var(--surface-elevated) 55%, color-mix(in srgb, var(--bg) 40%, var(--surface-elevated)) 100%);
   border:1px solid var(--border-strong);box-shadow:inset 0 1px 0 color-mix(in srgb, var(--lava-text) 10%, transparent),0 10px 24px -14px var(--bg)}
 .st-team{display:flex;align-items:center;gap:10px;padding:0 14px 0 0;min-width:0;flex:1 1 0}
-.st-team-bar{align-self:stretch;width:6px;background:var(--st-team)}
-.st-team-abbr{font:600 20px/24px var(--font-headline);letter-spacing:.02em}
-.st-team-name{font-size:11px;color:var(--st-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.st-team-score{margin-left:auto;font:600 32px/36px var(--font-mono);font-variant-numeric:tabular-nums;min-width:2ch;text-align:right}
+.st-team-bar{align-self:stretch;width:6px;flex:0 0 6px;background:var(--st-team)}
+.st-team-abbr{font:600 20px/24px var(--font-headline);letter-spacing:.02em;white-space:nowrap}
+.st-team-name{display:block;font-size:11px;color:var(--st-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-team-score{margin-left:auto;padding-left:6px;flex:0 0 auto;font:600 32px/36px var(--font-mono);font-variant-numeric:tabular-nums;min-width:2ch;text-align:right}
 .st-team-score.is-bump{animation:st-bump var(--motion-number-transition-duration) var(--motion-number-transition-easing)}
 @keyframes st-bump{0%{transform:translateY(-35%);opacity:.2}100%{transform:none;opacity:1}}
 .st-poss{width:16px;height:10px;flex:0 0 16px;visibility:hidden}
@@ -95,7 +95,7 @@ export const THEATER_CSS = `
   background:color-mix(in srgb, var(--bg) 78%, transparent);border:1px solid var(--border-strong);border-radius:6px;padding:4px 8px}
 .st-badge .st-badge-short{display:none}
 @media (max-width:359px){.st-badge .st-badge-long{display:none}.st-badge .st-badge-short{display:inline}}
-.st-fieldwrap{position:relative;margin-top:8px;border-radius:10px;overflow:hidden;border:1px solid var(--border-strong);
+.st-fieldwrap{position:relative;width:100%;margin-top:8px;border-radius:10px;overflow:hidden;border:1px solid var(--border-strong);
   box-shadow:inset 0 2px 12px var(--bg);aspect-ratio:120/53.3;min-height:128px;max-height:none;background:var(--st-turf-a)}
 @media (max-width:719px){.st-fieldwrap{min-height:168px}}
 @media (max-width:359px){.st-fieldwrap{min-height:140px}}
@@ -217,10 +217,15 @@ export const THEATER_CSS = `
 .st-unavail h2{margin:0 0 6px;font:600 15px var(--font-headline);color:var(--lava-danger)}
 .st-unavail ul{margin:6px 0 0;padding-left:18px;font-family:var(--font-mono);font-size:11.5px;color:var(--st-mute)}
 
-@media (max-width:719px){
+/* score bug and field card follow the STAGE width (container query), not the viewport: the stage is narrower than the
+   viewport whenever the site rail or the side panel takes room */
+@container (max-width:640px){
+  .st-team-name{display:none}
+  .st-statechip{min-width:64px;padding:0 8px}
+}
+@container (max-width:460px){
   .st-bug{min-height:56px;border-radius:12px}
   .st-team{gap:6px;padding-right:8px}
-  .st-team-name{display:none}
   .st-team-abbr{font-size:16px}
   .st-team-score{font-size:24px;line-height:28px}
   .st-clockbox{min-width:96px;padding:0 10px}
@@ -228,9 +233,12 @@ export const THEATER_CSS = `
   .st-statechip{display:none}
   .st-fieldcard{padding:8px;border-radius:12px}
 }
-@media (max-width:359px){
+@container (max-width:330px){
   .st-bug{min-height:52px}
-  .st-clockbox{min-width:84px;padding:0 8px}
+  .st-team{gap:4px;padding-right:6px}
+  .st-poss{width:12px;flex-basis:12px}
+  .st-clockbox{min-width:76px;padding:0 8px}
   .st-clocklabel{display:none}
+  .st-fieldcard{padding:6px}
 }
 `;
