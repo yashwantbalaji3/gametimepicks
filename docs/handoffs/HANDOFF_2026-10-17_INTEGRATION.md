@@ -7,7 +7,60 @@
 
 Everything below is grounded in repository and GitHub state at the time written. **Re-verify before acting.**
 
-## State at hand-off
+## CURRENT STATE: 2026-10-18 about 05:30Z (overnight session); read this first
+- **`main`:** `05c9deea4f` (#1088 merge), plus bot data commits after it.
+  - **Production** build-info shows `05c9deea4f`, built 04:51:24Z.
+  - **Main CI is green** on all four release merges (quality-gate runs 39098266421, 39098309659, 39098333216, 39098353538). Final tip: unit 9,489/9,491 and post-build 707/710, 0 fail.
+- **Merged this session**, all exact-head:
+
+  | PR | Merge commit | When (UTC) |
+  |---|---|---|
+  | #1114 | `2cb1ba3920` | 10-16 23:44 |
+  | #1122 | `06895f5576` | 10-17 14:41 |
+  | #1118 | `07ecc9684c` | 10-17 18:16 |
+  | #1125 | `d22d085cc6` | 10-17 20:08 |
+  | #1124 | `d29a2078ca` | 10-18 04:46 |
+  | #1101 | `36958c5e68` | 10-18 04:47 |
+  | #1120 (+ #1117, #1119) | `68135f7aa2` | 10-18 04:47 |
+  | #1088 | `05c9deea4f` | 10-18 04:48 |
+
+  The 10-18 release cost 2 Vercel builds for 4 merges; the other 2 were superseded, as expected. Main's code equals the locally validated candidate.
+- **Superseded PRs:** 12 were auto-marked merged. 5 stacked ones (#1097–#1100, #1103) were closed with evidence comments: their heads are on `main`.
+- **Data integrity:** the release touched no data paths, and all 7 protected ledger and settled files are hash-identical to the pre-release baseline. The read-only Production integrity audit is at `docs/launch/INTEGRITY_AUDIT_2026-10-18.md`, when written.
+- **Outstanding post-release checks (they need scheduled runs first):**
+  - **#1101:** after the next nightly settle (crons from 05:17Z; delivered late, about 09–13Z), run `python3 -I docs/launch/approvals/verify/verify_1101.py 36958c5e68`. Expect 0 restamp FAILs.
+  - **#1088:** after the first MLB daily-production and lineup-refresh runs (about 13:58Z, then hourly 15:30–23:30Z), run `python3 -I docs/launch/approvals/verify/verify_1088.py 05c9deea4f`. Confirm real lineup, injury and roster changes still publish; only stamp-only commits are suppressed.
+  - **#1124:** 7-day build effect, per `docs/cost/VERCEL_BUILDS_MEASURED_2026-10-18.md`.
+- **Background processes:**
+  - **Sunday NFL capture** pid 8301 (`~/gtp-evidence/live-v2-sun-1018/`), healthy: 5-minute passes, phase A; caffeinate holds the Mac awake. Kickoffs are 13:30Z (HOU@JAX), 17:00Z and 20:25Z. Read-only checks: `node docs/live/capture/check-live.mjs ~/gtp-evidence/live-v2-sun-1018/captures` at about 13:45Z, 17:15Z and 20:40Z. Do not restart it or modify it.
+  - A session watcher waits for the next completed nightly-settle run.
+- **URGENT founder/compliance flag:** Production `/mlb` displays **offshore, unlicensed sportsbook prices** (BetOnline.ag; 58 of 252 props). The cause is best-price selection across the provider's `us` region (`app/src/lib/mlb/ingest-normalize.ts:75-102`). NFL prop cells can also show BetOnline, and the NFL/EPL/UFC no-vig consensus includes offshore books.
+  - Full evidence, the allowlist policy and mitigations M-1…M-4: `docs/research/SMART_BETSLIP_PREP_AND_OPERATOR_POLICY_2026-10-18.md`.
+  - **A draft fix (allowlist module, NFL ladder restricted to eligible books) sits uncommitted in a local scratch worktree, branch `claude/eligible-operators-allowlist`.** It is not pushed and has no PR. Its preparation was halted by a permission-classifier denial, and any change to public pricing needs founder approval. The founder decides M-1/M-2 (display) and M-3/M-4 (consensus inputs, which change outputs).
+- **Permission-classifier blocks this session hit:**
+  1. reading or editing `CLAUDE.md` to persist the merge policy ("Instruction Poisoning");
+  2. one read of CI output on 10-17 ("Merge Without Review"; later reads worked);
+  3. a read-only grep while preparing the offshore fix ("Modify Shared Resources").
+  None was worked around.
+- **Docs and research added on this branch tonight** (all under `docs/`):
+  - `research/SIMULATION_THEATER_V2_FEASIBILITY_2026-10-18.md`
+  - `research/SMART_BETSLIP_FEASIBILITY_2026-10-18.md`
+  - `research/NEXT_GEN_FEASIBILITY_SUMMARY_2026-10-18.md`
+  - `research/SIMULATION_THEATER_V2_ST01_SPEC_2026-10-18.md`
+  - `research/SIMULATION_THEATER_V2_ST01_REVIEW_AND_DECISIONS_2026-10-18.md`
+  - `research/SMART_BETSLIP_PREP_AND_OPERATOR_POLICY_2026-10-18.md`
+  - `cost/VERCEL_BUILDS_MEASURED_2026-10-18.md`
+  - `engineering/BRANCH_PROTECTION_RECOMMENDATION_2026-10-17.md`
+- **Roadmap** (`GAMETIMEPICKS_MASTER_ROADMAP_V2.md` on this branch): reconciled with merged work and #1083; ST-01…05 and SB-01…06 are P1 planning items (FEASIBILITY COMPLETE / PLANNED); the 10-18 release statuses are filled in. **It is not on `main` until #1116 merges**, a docs-only merge that the ignore step should skip.
+- **Open PRs still relevant:**
+  - #1116, this docs branch;
+  - #1121, Ask cap (env check first);
+  - #1123, results integrity (founder metric decisions);
+  - #1090;
+  - #1082/#1108/#1111, Live Hub V2 preview;
+  - #1083, roadmap execution log, superseded by the #1116 reconciliation. Close it once #1116 is on `main`.
+
+## State at hand-off (10-17 evening; historical)
 - **`main`:** `13689a863e` at about 19:30Z on 10-17; the newest code merge is #1118, `07ecc9684c`. Production build-info shows `07ecc968`, built 18:17:57Z. Later bot data commits deploy as usual.
 - **`main` CI is RED** on one slate-dependent test introduced by the 10-17 settle data. The fix is **#1125**, which awaits approval (see §#1118).
 - **Merged and verified this session:**
