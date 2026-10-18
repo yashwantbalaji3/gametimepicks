@@ -2,29 +2,29 @@
   "schemaVersion": 1,
   "artifact": "nfl-product-receipts",
   "dataClass": "PUBLIC_DERIVED",
-  "runId": "3c77f2ee5361",
-  "generatedAt": "2026-10-18T16:49:13Z",
+  "runId": "ab2e1c86832b",
+  "generatedAt": "2026-10-18T17:30:06Z",
   "asOf": {
-    "index": "2026-10-18T16:49:13Z",
-    "eligibility": "2026-10-18T16:49:13Z",
-    "vault": "2026-10-18T16:49:13Z",
+    "index": "2026-10-18T17:30:06Z",
+    "eligibility": "2026-10-18T17:30:06Z",
+    "vault": "2026-10-18T17:30:06Z",
     "markets": "2026-10-11T11:41:55Z"
   },
   "nextRunUtc": "2026-10-18T21:00:00Z",
-  "eventsInWindow": 12,
+  "eventsInWindow": 5,
   "lanes": [
     {
       "product": "bank-builder",
       "label": "Bank Builder",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 12,
+      "candidatesConsidered": 5,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 12
+          "count": 5
         }
       ],
       "reconciles": true,
@@ -37,13 +37,13 @@
       "label": "Moonshot",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 12,
+      "candidatesConsidered": 5,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 12
+          "count": 5
         }
       ],
       "reconciles": true,
@@ -56,13 +56,13 @@
       "label": "Card builder",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 12,
+      "candidatesConsidered": 5,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 12
+          "count": 5
         }
       ],
       "reconciles": true,
@@ -74,14 +74,14 @@
       "product": "end-zone-vault",
       "label": "End Zone Vault",
       "state": "NO_PLAY",
-      "stateReason": "161 model candidates · no current comparable touchdown price is available",
-      "candidatesConsidered": 161,
+      "stateReason": "68 model candidates · no current comparable touchdown price is available",
+      "candidatesConsidered": 68,
       "rejections": [
         {
           "reason": "NO_PRICED_MARKET",
           "label": "no NFL player-market price was captured for these games — the market was not checked in this window",
           "detail": "an unpriced leg can never enter a paper product — there is nothing to settle it against.",
-          "count": 161
+          "count": 68
         }
       ],
       "alsoBlocking": [
@@ -102,7 +102,7 @@
     "gates": [
       "the team model is BASELINE_ONLY (the P181 challenger was rejected on bars frozen before it was built)",
       "all four player families were rejected on their own frozen bars (P183 Release B)",
-      "no NFL player-market price was captured for these games — the market was not checked in this window (games probed in this window: 0 of 12)"
+      "no NFL player-market price was captured for these games — the market was not checked in this window (games probed in this window: 0 of 5)"
     ]
   },
   "recordSeparation": "NFL product outcomes are kept separate from every other sport's record and touch no money.",

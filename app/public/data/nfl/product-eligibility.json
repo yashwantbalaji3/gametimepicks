@@ -2,77 +2,14 @@
   "schemaVersion": 1,
   "artifact": "nfl-product-eligibility",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-18T16:49:13Z",
-  "indexGeneratedAt": "2026-10-18T16:49:13Z",
+  "generatedAt": "2026-10-18T17:30:06Z",
+  "indexGeneratedAt": "2026-10-18T17:30:06Z",
   "note": "Whether any NFL output may enter a paper product today, evaluated against the same gate the money path enforces. A refusal here is a finding, not an absence.",
-  "evaluatedAt": "2026-10-18T16:49:13Z",
+  "evaluatedAt": "2026-10-18T17:30:06Z",
   "gate": "output-state.permitsProductLeg — true only for VALIDATED_PICK",
-  "consideredEvents": 12,
+  "consideredEvents": 5,
   "qualifyingEvents": 0,
   "events": [
-    {
-      "canonicalEventId": "nfl-401872999",
-      "matchup": "CHI @ ATL",
-      "kickoffUtc": "2026-10-18T17:00Z",
-      "state": "PUBLIC_EXPERIMENTAL",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified PUBLIC_EXPERIMENTAL; only VALIDATED_PICK may become a product leg"
-    },
-    {
-      "canonicalEventId": "nfl-401872997",
-      "matchup": "BAL @ CLE",
-      "kickoffUtc": "2026-10-18T17:00Z",
-      "state": "PUBLIC_EXPERIMENTAL",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified PUBLIC_EXPERIMENTAL; only VALIDATED_PICK may become a product leg"
-    },
-    {
-      "canonicalEventId": "nfl-401873003",
-      "matchup": "TEN @ IND",
-      "kickoffUtc": "2026-10-18T17:00Z",
-      "state": "PUBLIC_EXPERIMENTAL",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified PUBLIC_EXPERIMENTAL; only VALIDATED_PICK may become a product leg"
-    },
-    {
-      "canonicalEventId": "nfl-401873001",
-      "matchup": "NYJ @ NE",
-      "kickoffUtc": "2026-10-18T17:00Z",
-      "state": "PUBLIC_EXPERIMENTAL",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified PUBLIC_EXPERIMENTAL; only VALIDATED_PICK may become a product leg"
-    },
-    {
-      "canonicalEventId": "nfl-401873000",
-      "matchup": "NO @ NYG",
-      "kickoffUtc": "2026-10-18T17:00Z",
-      "state": "PUBLIC_EXPERIMENTAL",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified PUBLIC_EXPERIMENTAL; only VALIDATED_PICK may become a product leg"
-    },
-    {
-      "canonicalEventId": "nfl-401872998",
-      "matchup": "CAR @ PHI",
-      "kickoffUtc": "2026-10-18T17:00Z",
-      "state": "PUBLIC_EXPERIMENTAL",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified PUBLIC_EXPERIMENTAL; only VALIDATED_PICK may become a product leg"
-    },
-    {
-      "canonicalEventId": "nfl-401873002",
-      "matchup": "PIT @ TB",
-      "kickoffUtc": "2026-10-18T17:00Z",
-      "state": "PUBLIC_EXPERIMENTAL",
-      "considered": true,
-      "qualifies": false,
-      "reason": "classified PUBLIC_EXPERIMENTAL; only VALIDATED_PICK may become a product leg"
-    },
     {
       "canonicalEventId": "nfl-401873004",
       "matchup": "ARI @ LAR",
@@ -135,6 +72,69 @@
       "considered": false,
       "qualifies": false,
       "reason": "already kicked off — never a candidate for a paper card"
+    },
+    {
+      "canonicalEventId": "nfl-401872997",
+      "matchup": "BAL @ CLE",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "state": "STARTED",
+      "considered": false,
+      "qualifies": false,
+      "reason": "already kicked off — never a candidate for a paper card"
+    },
+    {
+      "canonicalEventId": "nfl-401872998",
+      "matchup": "CAR @ PHI",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "state": "STARTED",
+      "considered": false,
+      "qualifies": false,
+      "reason": "already kicked off — never a candidate for a paper card"
+    },
+    {
+      "canonicalEventId": "nfl-401872999",
+      "matchup": "CHI @ ATL",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "state": "STARTED",
+      "considered": false,
+      "qualifies": false,
+      "reason": "already kicked off — never a candidate for a paper card"
+    },
+    {
+      "canonicalEventId": "nfl-401873000",
+      "matchup": "NO @ NYG",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "state": "STARTED",
+      "considered": false,
+      "qualifies": false,
+      "reason": "already kicked off — never a candidate for a paper card"
+    },
+    {
+      "canonicalEventId": "nfl-401873001",
+      "matchup": "NYJ @ NE",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "state": "STARTED",
+      "considered": false,
+      "qualifies": false,
+      "reason": "already kicked off — never a candidate for a paper card"
+    },
+    {
+      "canonicalEventId": "nfl-401873002",
+      "matchup": "PIT @ TB",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "state": "STARTED",
+      "considered": false,
+      "qualifies": false,
+      "reason": "already kicked off — never a candidate for a paper card"
+    },
+    {
+      "canonicalEventId": "nfl-401873003",
+      "matchup": "TEN @ IND",
+      "kickoffUtc": "2026-10-18T17:00Z",
+      "state": "STARTED",
+      "considered": false,
+      "qualifies": false,
+      "reason": "already kicked off — never a candidate for a paper card"
     }
   ],
   "products": [
@@ -143,9 +143,9 @@
       "label": "Bank Builder",
       "state": "EVALUATED_NONE_QUALIFY",
       "eligible": false,
-      "consideredEvents": 12,
+      "consideredEvents": 5,
       "qualifyingEvents": 0,
-      "reason": "12 pre-kickoff NFL games were evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
+      "reason": "5 pre-kickoff NFL games were evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
       "whatWouldQualify": [
         "an NFL model version that meets its own preregistered promotion bar on held-out data",
         "enough settled experimental forecasts to measure whether it is calibrated",
@@ -157,9 +157,9 @@
       "label": "Moonshot",
       "state": "EVALUATED_NONE_QUALIFY",
       "eligible": false,
-      "consideredEvents": 12,
+      "consideredEvents": 5,
       "qualifyingEvents": 0,
-      "reason": "12 pre-kickoff NFL games were evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
+      "reason": "5 pre-kickoff NFL games were evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
       "whatWouldQualify": [
         "an NFL model version that meets its own preregistered promotion bar on held-out data",
         "enough settled experimental forecasts to measure whether it is calibrated",
@@ -171,9 +171,9 @@
       "label": "Card builder",
       "state": "EVALUATED_NONE_QUALIFY",
       "eligible": false,
-      "consideredEvents": 12,
+      "consideredEvents": 5,
       "qualifyingEvents": 0,
-      "reason": "12 pre-kickoff NFL games were evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
+      "reason": "5 pre-kickoff NFL games were evaluated and none qualified: the NFL model is explicitly experimental, and only a validated model version may contribute a leg to a paper card",
       "whatWouldQualify": [
         "an NFL model version that meets its own preregistered promotion bar on held-out data",
         "enough settled experimental forecasts to measure whether it is calibrated",
@@ -185,9 +185,9 @@
       "label": "Endzone Vault",
       "state": "PRODUCT_GATED",
       "eligible": false,
-      "consideredEvents": 12,
+      "consideredEvents": 5,
       "qualifyingEvents": 0,
-      "reason": "the Vault reports WATCHLIST_ONLY on its own evaluation: 161 model candidates · no current comparable touchdown price is available",
+      "reason": "the Vault reports WATCHLIST_ONLY on its own evaluation: 68 model candidates · no current comparable touchdown price is available",
       "whatWouldQualify": []
     }
   ],
