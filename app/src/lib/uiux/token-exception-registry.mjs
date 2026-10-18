@@ -35,6 +35,9 @@ export const TOKEN_EXCEPTIONS = Object.freeze([
       /* Simulation Theater V2 NFL map (spec Appendix A): 32 teams × primary/secondary/accent + white/dark ink.
          Unvalidated (TEAM_COLORS_VALIDATED = false): neutral tokens render unless a dev-only preview toggle is on. */
       "src/lib/simulation-theater/nfl-team-colors.mjs": 98,
+      /* Its per-team cross-check: the hex values OBSERVED on teamcolorcodes.com and Wikipedia Module:Gridiron color/data
+         (accessed 2026-10-18), 32 teams. Data for tests only; never imported by a component, never painted. */
+      "src/lib/simulation-theater/nfl-team-colors-validation.mjs": 291,
     },
   },
   {
