@@ -44,7 +44,7 @@ function SimCard({ c, href, isTodaysSlateRow = true }: { c: MlbSimCard; href: st
       */}
       {c.awaitingLineup ? (
         <p className="font-mono mt-1" style={{ margin: 0, fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-          {isTodaysSlateRow ? "batting order not posted yet · refreshes hourly" : "batting order was never posted — simulated from posted lines"}
+          {isTodaysSlateRow ? "batting order not posted yet · re-simulated when it posts" : "batting order was never posted — simulated from posted lines"}
         </p>
       ) : null}
       <p className="font-mono mt-2" style={{ margin: 0, fontSize: 10.5, color: "var(--vault-accent)" }}>Open the simulation →</p>

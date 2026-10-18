@@ -304,7 +304,19 @@ jobs:
             echo "::error::forbidden paths staged — refusing to commit:"; echo "$BAD"; git reset -q; exit 1
           fi
           if git diff --cached --quiet; then echo "no slate changes to persist"; exit 0; fi
-          git commit -m "auto: mlb daily production slate ${{ steps.cfg.outputs.date }} [skip ci]"
+          # COST-001 Stage B (2026-10-14): a re-run over unchanged inputs regenerates every slate artifact
+          # with new clock stamps and nothing else (7 of 7 daily-production builds in the 24h to 10-14). The
+          # gate restores gated files that changed ONLY in their allowlisted stamps and drops a snapshot
+          # identical to the last committed one; a new market capture, a new day's file or any moved number
+          # publishes everything, untouched (app/src/lib/ops/stamp-only-gate.mjs). Exit 1 (publish) and 2
+          # (could not judge) leave the index exactly as staged. The run records (ops/, admin/status.json,
+          # health, history) still commit — none of them is a build input.
+          SLATE_MSG="auto: mlb daily production slate ${{ steps.cfg.outputs.date }} [skip ci]"
+          if node app/scripts/ops/stamp-only-gate.mjs; then
+            SLATE_MSG="auto: mlb daily production slate ${{ steps.cfg.outputs.date }} (run records only — no slate change) [skip ci]"
+          fi
+          if git diff --cached --quiet; then echo "nothing left to persist after the stamp gate"; exit 0; fi
+          git commit -m "$SLATE_MSG"
           # SPRINT 035: rebase/push failures used to `exit 0` or `echo` and vanish, so a fully generated
           # slate could be committed locally and thrown away with the run still green. Retry for genuine
           # races with the other bots, then fail — a discarded slate must be visible.
@@ -343,7 +355,7 @@ jobs:
             if git diff --cached --quiet; then
               echo "slate already current on origin — nothing to persist"; pushed=1; break
             fi
-            git commit -q -m "auto: mlb daily production slate ${{ steps.cfg.outputs.date }} [skip ci]"
+            git commit -q -m "$SLATE_MSG"
             if git push origin "HEAD:${GITHUB_REF_NAME}"; then pushed=1; break; fi
             echo "::warning::push attempt ${attempt} failed (another writer landed first) — retrying"
             sleep $((attempt * 5))

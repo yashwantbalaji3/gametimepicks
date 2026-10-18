@@ -18,7 +18,7 @@ export default function GameTimeBrief({ changes }: { changes: ChangeLog }) {
       <div className="flex items-baseline justify-between gap-2 flex-wrap">
         <h2 id="gt-brief-h" className="font-mono uppercase tracking-[0.14em] m-0" style={{ color: "var(--vault-gold)", fontSize: 11 }}>What changed</h2>
         <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-          {changes.snapshotWindow.first && changes.snapshotWindow.latest ? `MLB forecasts compared ${etTime(changes.snapshotWindow.first)} → ${etTime(changes.snapshotWindow.latest)} · ${changes.snapshotWindow.games} games` : "no earlier forecast snapshot today to compare"}
+          {changes.snapshotWindow.first && changes.snapshotWindow.latest ? `MLB forecasts: first run ${etTime(changes.snapshotWindow.first)} → latest published ${etTime(changes.snapshotWindow.latest)} · ${changes.snapshotWindow.games} games` : "no earlier forecast snapshot today to compare"}
         </span>
       </div>
       {quiet ? (

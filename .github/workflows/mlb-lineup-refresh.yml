@@ -157,7 +157,19 @@ jobs:
             echo "no lineup has changed the simulation since the last run"
             exit 0
           fi
-          git commit -m "auto: mlb lineup refresh ${{ steps.d.outputs.date }} [skip ci]"
+          # COST-001 Stage B (2026-10-14): the rebuild is deterministic, so a run whose lineups did not move
+          # reproduces the simulation byte for byte except its own generatedAt — and that stamp alone made
+          # every hourly run a full Vercel build (7 of 9 lineup builds in the 24h to 10-14 were stamp-only).
+          # The gate restores gated files that changed ONLY in their allowlisted stamps and drops a snapshot
+          # identical to the last committed one; any real change publishes everything, untouched
+          # (app/src/lib/ops/stamp-only-gate.mjs). Exit 0 = suppressed, 1 = publish, 2 = could not judge —
+          # 1 and 2 leave the index exactly as staged, so this line can only ever remove stamp churn.
+          MSG="auto: mlb lineup refresh ${{ steps.d.outputs.date }} [skip ci]"
+          if node app/scripts/ops/stamp-only-gate.mjs; then
+            MSG="auto: mlb lineup refresh ${{ steps.d.outputs.date }} (run records only — no forecast change) [skip ci]"
+          fi
+          if git diff --cached --quiet; then echo "nothing left to commit after the stamp gate"; exit 0; fi
+          git commit -m "$MSG"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
 
