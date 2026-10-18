@@ -5,9 +5,10 @@
  "validationDeltaE": 5,
  "rules": {
   "validated": "A source AGREES with a team when it lists colours within CIE76 ΔE ≤ validationDeltaE of BOTH the map's primary and its secondary. official = some official source agrees; agree = sources from two independent families agree (nflHeader, nflLogo and wiki are one family, NFL.com's); validated = official || agree.",
-  "roles": "primary = the team's primary brand colour (score-bug block, end zone); secondary = its main contrasting brand colour (the away block/end zone when the primaries collide); accent = an official colour that carries the team on the field (drive ribbon, end-zone edge, timeline fills, scoring flash, possession tag). Since iteration 5 every role value is listed VERBATIM by at least one official source (officialSources below).",
-  "contrast": "Text on a team block (ink, and the trim used for end-zone lettering) ≥ 4.5:1 on that block. On-field accents ≥ 3:1 against both turf stripes (and so the darker page). An official accent under 3:1 is painted, for the on-field use only, as its first legible hue-keeping lightening (field-geometry.mjs turfSafeAccent: brighten first, then mix toward white, 5 % steps); the official value stays the brand reference (derivedUi).",
-  "collisions": "CIE76 ΔE < 20 between the two primaries → the away block and end zone use the away secondary, or are hatched when that collides too. The two on-field accents are checked the same way → the away side uses the official alternative (secondary, primary, or a recorded alternate) that no longer collides and needs the smallest on-field adjustment (≤ 35 ΔE), else its timeline segments are hatched."
+  "roles": "primary = the team's primary brand colour (score-bug block, end zone); secondary = its main contrasting brand colour (the away block/end zone when the primaries collide); accent = the official colour that carries the team on the field (drive ribbon, timeline fills, scoring flash, winner outline, break-card rule). Every role value is listed VERBATIM by at least one official source (officialSources below).",
+  "contrast": "Text on a team block (ink, and the trim used for end-zone lettering) ≥ 4.5:1 on that block. On the field and the timeline, contrast comes from TREATMENT, not a substituted hue: the official value is painted as is, and every team mark carries a light keyline (--st-keyline = --lava-text 85% into --bg, #D2D3D2), the boundary WCAG 1.4.11 measures (≥ 3:1 on both turf stripes, the timeline panel and the page). The possession tag is a miniature score-bug block (fill, ink ≥ 4.5:1, keyline). Outlines drawn on an end zone (winner, reduced-motion scoring flash) sit on a halo in that end zone's ink (≥ 4.5:1 on its fill). No colour is lightened or replaced for contrast.",
+  "collisions": "CIE76 ΔE < 20 between the two primaries → the away block and end zone use the away secondary, or are hatched when that collides too. The two on-field accents are checked the same way → the away side uses the first of its primary, secondary and recorded alternates that no longer collides and is field-distinct (accentSwap), else its timeline segments are hatched.",
+  "identity": "One identity (founder, 2026-10-18): the accent IS the primary, so a team reads as one colour across the score bug, end zone, field, timeline and banners. Two exceptions only: (1) a founder role decision names another official colour (JAX gold, NO and PIT gold, TEN red, TB's official red); (2) the primary cannot be told from the field surfaces: CIEDE2000 ΔE00 < 20 against either turf stripe or the timeline panel (nfl-team-colors.mjs fieldDistinct; CIE76 overstates differences between very dark colours). Then the accent is the secondary. Exception 2 applies to the greens GB, NYJ, PHI and the near-blacks CHI, CLE, HOU, LV (NO and PIT are exception 1)."
  },
  "sources": {
   "tcc": {
@@ -100,15 +101,16 @@
      ]
     },
     "accent": {
-     "hex": "#FFB612",
+     "hex": "#97233F",
      "officialSources": [
+      "nflHeader",
       "nflLogo"
      ]
     },
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the logo colour (nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the logo colour (nflLogo). Identity pass (2026-10-18): accent #FFB612 → primary #97233F (ΔE00 ≥ 39.1 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": null
   },
   "ATL": {
@@ -163,15 +165,16 @@
      ]
     },
     "accent": {
-     "hex": "#A5ACAF",
+     "hex": "#A71930",
      "officialSources": [
+      "nflHeader",
       "nflLogo"
      ]
     },
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #A5ACAF = the logo colour (nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #A5ACAF = the logo colour (nflLogo). Identity pass (2026-10-18): accent #A5ACAF → primary #A71930 (ΔE00 ≥ 40.3 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": null
   },
   "BAL": {
@@ -235,16 +238,17 @@
      ]
     },
     "accent": {
-     "hex": "#9A7611",
+     "hex": "#24135F",
      "officialSources": [
       "nflHeader",
-      "nflLogo"
+      "nflLogo",
+      "club"
      ]
     },
     "ink": "white"
    },
    "validated": true,
-   "decision": "Accent #9E7C0C (teamcolorcodes) → the official gold #9A7611 (NFL.com header stripe, the league-hosted logo).",
+   "decision": "Accent #9E7C0C (teamcolorcodes) → the official gold #9A7611 (NFL.com header stripe, the league-hosted logo). Identity pass (2026-10-18): accent #9A7611 → primary #24135F (ΔE00 ≥ 28.5 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": "Primary changed: the club's own site, NFL.com's header and the league-hosted logo all give Ravens purple as #24135F, not tcc's #241773 (ΔE 9.8). Secondary black is in the official logo. Gold (#9A7611 officially) stays the accent; the map's #9E7C0C is ΔE 3.9 from it, so it was left."
   },
   "BUF": {
@@ -297,7 +301,7 @@
      ]
     },
     "accent": {
-     "hex": "#C60C30",
+     "hex": "#00338D",
      "officialSources": [
       "nflHeader",
       "nflLogo"
@@ -306,7 +310,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #C60C30 = the secondary (nflHeader, nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #C60C30 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #C60C30 → primary #00338D (ΔE00 ≥ 30.7 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": null
   },
   "CAR": {
@@ -445,7 +449,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo, club; nflHeader, nflLogo); accent #E64100 = the secondary (nflHeader, nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo, club; nflHeader, nflLogo); accent #E64100 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): the primary #0B162A stays off the field — ΔE00 17.4 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #E64100 (ΔE00 49.1) carries the team on the field.",
    "iteration4Note": "Secondary and accent changed #C83803 → #E64100 (ΔE 11.7): NFL.com's header and the league-hosted logo both give Bears orange as #E64100. The club site confirms navy #0B162A. #E64100 is 2.84:1 on the turf, so the theater derives its turf-safe accent."
   },
   "CIN": {
@@ -570,7 +574,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FF3C00 = the secondary (nflHeader, nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FF3C00 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): the primary #311D00 stays off the field — ΔE00 19.5 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #FF3C00 (ΔE00 53) carries the team on the field.",
    "iteration4Note": null
   },
   "DAL": {
@@ -624,15 +628,16 @@
      ]
     },
     "accent": {
-     "hex": "#B0B7BC",
+     "hex": "#002244",
      "officialSources": [
-      "nflHeader"
+      "nflHeader",
+      "nflLogo"
      ]
     },
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader); accent #B0B7BC = the secondary (nflHeader).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader); accent #B0B7BC = the secondary (nflHeader). Identity pass (2026-10-18): accent #B0B7BC → primary #002244 (ΔE00 ≥ 20.9 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": "Primary changed royal #003594 → navy #002244 (ΔE 40.2): the league-hosted star logo is navy #002244 and NFL.com's header pairs navy with silver; royal is a uniform trim colour, not the mark. Secondary and accent changed silver #869397 → #B0B7BC (ΔE 14.2, NFL.com header); the review's choice of silver over navy as the secondary is kept. dallascowboys.com carries no club colour value."
   },
   "DEN": {
@@ -817,7 +822,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the secondary (nflHeader, nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): the primary #203731 stays off the field — ΔE00 6.9 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #FFB612 (ΔE00 64.6) carries the team on the field.",
    "iteration4Note": null
   },
   "HOU": {
@@ -900,7 +905,7 @@
     ]
    },
    "validated": true,
-   "decision": "Accent white (no source) → battle red #EB0028 (NFL.com header, the logo, houstontexans.com). H-Town blue #0080C6 (houstontexans.com theme accent2) is recorded as the official alternate the field uses when the opponent's accent is another red (e.g. HOU @ TEN).",
+   "decision": "Accent white (no source) → battle red #EB0028 (NFL.com header, the logo, houstontexans.com). H-Town blue #0080C6 (houstontexans.com theme accent2) is recorded as the official alternate the field uses when the opponent's accent is another red (e.g. HOU @ TEN). Identity pass (2026-10-18): the primary #021018 stays off the field — ΔE00 10.8 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #EB0028 (ΔE00 49.1) carries the team on the field.",
    "iteration4Note": "Primary changed #03202F → #021018 (ΔE 9.9) and secondary #A71930 → #EB0028 (ΔE 33.1): the club's own site, NFL.com's header and the league-hosted logo all use deep steel blue #021018 and battle red #EB0028 (2024 identity). Accent stays white."
   },
   "IND": {
@@ -951,15 +956,16 @@
      ]
     },
     "accent": {
-     "hex": "#A5ACAF",
+     "hex": "#013369",
      "officialSources": [
-      "nflHeader"
+      "nflHeader",
+      "nflLogo"
      ]
     },
     "ink": "white"
    },
    "validated": true,
-   "decision": "Made official-exact: #002C5F → #013369 (NFL.com header, the league-hosted logo) and silver #A2AAAD → #A5ACAF (NFL.com header).",
+   "decision": "Made official-exact: #002C5F → #013369 (NFL.com header, the league-hosted logo) and silver #A2AAAD → #A5ACAF (NFL.com header). Identity pass (2026-10-18): accent #A5ACAF → primary #013369 (ΔE00 ≥ 25.6 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": null
   },
   "JAX": {
@@ -1205,7 +1211,7 @@
      ]
     },
     "accent": {
-     "hex": "#FFD100",
+     "hex": "#003594",
      "officialSources": [
       "nflHeader",
       "nflLogo"
@@ -1214,7 +1220,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFD100 = the secondary (nflHeader, nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFD100 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #FFD100 → primary #003594 (ΔE00 ≥ 31.4 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": "Secondary and accent changed #FFA300 → #FFD100 (ΔE 27.3): NFL.com's header and the league-hosted logo give Sol as #FFD100; #FFA300 is a darker tone tcc also lists. Rams royal #003594 confirmed. therams.com/brand/ is password protected (not entered)."
   },
   "LV": {
@@ -1274,7 +1280,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader; nflHeader); accent #A5ACAF = the secondary (nflHeader).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader; nflHeader); accent #A5ACAF = the secondary (nflHeader). Identity pass (2026-10-18): the primary #000000 stays off the field — ΔE00 11.2 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #A5ACAF (ΔE00 48.3) carries the team on the field.",
    "iteration4Note": "No change: NFL.com's header gives exactly #000000 and silver #A5ACAF. The league-hosted logo uses a lighter silver #C8C7C7 (ΔE 11, Wikipedia's value); the header is the league's pairing for the club, so the map keeps #A5ACAF."
   },
   "MIA": {
@@ -1393,7 +1399,7 @@
      ]
     },
     "accent": {
-     "hex": "#FFC62F",
+     "hex": "#4F2683",
      "officialSources": [
       "nflHeader",
       "nflLogo"
@@ -1402,7 +1408,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFC62F = the secondary (nflHeader, nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFC62F = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #FFC62F → primary #4F2683 (ΔE00 ≥ 30.9 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": null
   },
   "NE": {
@@ -1457,7 +1463,7 @@
      ]
     },
     "accent": {
-     "hex": "#C60C30",
+     "hex": "#002244",
      "officialSources": [
       "nflHeader",
       "nflLogo"
@@ -1466,7 +1472,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #C60C30 = the secondary (nflHeader, nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #C60C30 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #C60C30 → primary #002244 (ΔE00 ≥ 20.9 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": null
   },
   "NO": {
@@ -1580,16 +1586,15 @@
      ]
     },
     "accent": {
-     "hex": "#A71930",
+     "hex": "#0B2265",
      "officialSources": [
-      "nflHeader",
-      "nflLogo"
+      "nflHeader"
      ]
     },
     "ink": "white"
    },
    "validated": true,
-   "decision": "Accent grey #A5ACAF (teamcolorcodes only) → red #A71930 (NFL.com header, the league-hosted logo).",
+   "decision": "Accent grey #A5ACAF (teamcolorcodes only) → red #A71930 (NFL.com header, the league-hosted logo). Identity pass (2026-10-18): accent #A71930 → primary #0B2265 (ΔE00 ≥ 27.6 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": null
   },
   "NYJ": {
@@ -1649,7 +1654,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "Values made official-exact: Gotham green #115740 (NFL.com header and the league-hosted logo; teamcolorcodes' #125740 is ΔE 0.2). Secondary and accent = #B1B3B6, the grey NFL.com's header pairs with the green. The previous black secondary and white accent were in no official source. Founder may prefer white/black (Jets 2024 identity) if an official value is found.",
+   "decision": "Values made official-exact: Gotham green #115740 (NFL.com header and the league-hosted logo; teamcolorcodes' #125740 is ΔE 0.2). Secondary and accent = #B1B3B6, the grey NFL.com's header pairs with the green. The previous black secondary and white accent were in no official source. Founder may prefer white/black (Jets 2024 identity) if an official value is found. Identity pass (2026-10-18): the primary #115740 stays off the field — ΔE00 7.8 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #B1B3B6 (ΔE00 52.4) carries the team on the field.",
    "iteration4Note": "No change; validated by tcc + wiki (ΔE ≤ 0.2). Recorded: no official source lists the map's secondary black — NFL.com's header pairs green with grey #B1B3B6 and the logo is green only. That is an omission, not an official value contradicting ours; the founder may prefer the grey."
   },
   "PHI": {
@@ -1715,7 +1720,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "Made official-exact: midnight green #004C54 → #004851 and silver #A5ACAF → #A2AAAD (NFL.com header, the league-hosted logo).",
+   "decision": "Made official-exact: midnight green #004C54 → #004851 and silver #A5ACAF → #A2AAAD (NFL.com header, the league-hosted logo). Identity pass (2026-10-18): the primary #004851 stays off the field — ΔE00 15.7 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #A2AAAD (ΔE00 47.2) carries the team on the field.",
    "iteration4Note": null
   },
   "PIT": {
@@ -1837,15 +1842,16 @@
      ]
     },
     "accent": {
-     "hex": "#69BE28",
+     "hex": "#002244",
      "officialSources": [
+      "nflHeader",
       "nflLogo"
      ]
     },
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflLogo); accent #69BE28 = the secondary (nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflLogo); accent #69BE28 = the secondary (nflLogo). Identity pass (2026-10-18): accent #69BE28 → primary #002244 (ΔE00 ≥ 20.9 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": null
   },
   "SF": {
@@ -1899,7 +1905,7 @@
      ]
     },
     "accent": {
-     "hex": "#B3995D",
+     "hex": "#AA0000",
      "officialSources": [
       "nflHeader",
       "nflLogo"
@@ -1908,7 +1914,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #B3995D = the secondary (nflHeader, nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #B3995D = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #B3995D → primary #AA0000 (ΔE00 ≥ 40.3 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": "No change: NFL.com's header and the league-hosted logo give exactly #AA0000 and gold #B3995D. Wikipedia's #B5925D is ΔE 5.4 away."
   },
   "TB": {
@@ -2112,7 +2118,7 @@
      ]
     },
     "accent": {
-     "hex": "#FFB612",
+     "hex": "#5A1414",
      "officialSources": [
       "nflHeader",
       "nflLogo"
@@ -2121,7 +2127,7 @@
     "ink": "white"
    },
    "validated": true,
-   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the secondary (nflHeader, nflLogo).",
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #FFB612 → primary #5A1414 (ΔE00 ≥ 32.8 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
    "iteration4Note": null
   }
  },
@@ -2323,6 +2329,112 @@
    "after": "#D50A0A"
   }
  ],
+ "identityChanges": [
+  {
+   "iteration": "5-identity",
+   "abbr": "ARI",
+   "field": "accent",
+   "before": "#FFB612",
+   "after": "#97233F",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "ATL",
+   "field": "accent",
+   "before": "#A5ACAF",
+   "after": "#A71930",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "BAL",
+   "field": "accent",
+   "before": "#9A7611",
+   "after": "#24135F",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "BUF",
+   "field": "accent",
+   "before": "#C60C30",
+   "after": "#00338D",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "DAL",
+   "field": "accent",
+   "before": "#B0B7BC",
+   "after": "#002244",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "IND",
+   "field": "accent",
+   "before": "#A5ACAF",
+   "after": "#013369",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "LAR",
+   "field": "accent",
+   "before": "#FFD100",
+   "after": "#003594",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "MIN",
+   "field": "accent",
+   "before": "#FFC62F",
+   "after": "#4F2683",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "NE",
+   "field": "accent",
+   "before": "#C60C30",
+   "after": "#002244",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "NYG",
+   "field": "accent",
+   "before": "#A71930",
+   "after": "#0B2265",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "SEA",
+   "field": "accent",
+   "before": "#69BE28",
+   "after": "#002244",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "SF",
+   "field": "accent",
+   "before": "#B3995D",
+   "after": "#AA0000",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "WSH",
+   "field": "accent",
+   "before": "#FFB612",
+   "after": "#5A1414",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  }
+ ],
  "history": [
   {
    "iteration": 4,
@@ -2451,160 +2563,667 @@
    "after": "#4495D2"
   }
  ],
- "derivedUi": [
+ "treatmentsNote": "Every on-field colour, the official value as painted, with what carries its contrast. fillAlone = the colour's own contrast on each surface (for the record: it may be under 3:1); keyline = the keyline's contrast on the same surfaces (the boundary that meets WCAG 1.4.11). fieldDE00 = its smallest CIEDE2000 distance from the turf stripes and the timeline panel. Recomputed by dev-route-colors.test.mjs.",
+ "treatments": [
+  {
+   "abbr": "ARI",
+   "role": "accent",
+   "official": "#97233F",
+   "onField": "#97233F",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.46,
+    "panel": 2.03,
+    "page": 2.51
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 39.1,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "ATL",
+   "role": "accent",
+   "official": "#A71930",
+   "onField": "#A71930",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.57,
+    "panel": 2.18,
+    "page": 2.7
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 40.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
   {
    "abbr": "BAL",
    "role": "accent",
-   "official": "#9A7611",
-   "onField": "#A47E12",
-   "bright": 10,
-   "white": 0,
-   "turfRatio": 3.09,
-   "deltaE": 4.3,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "official": "#24135F",
+   "onField": "#24135F",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.17,
+    "panel": 1.03,
+    "page": 1.28
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 28.5,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "BUF",
    "role": "accent",
-   "official": "#C60C30",
-   "onField": "#FF1B47",
-   "bright": 100,
-   "white": 5,
-   "turfRatio": 3.05,
-   "deltaE": 18.6,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "official": "#00338D",
+   "onField": "#00338D",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.03,
+    "panel": 1.43,
+    "page": 1.78
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 30.7,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "CAR",
    "role": "accent",
    "official": "#0085CA",
-   "onField": "#0088CF",
-   "bright": 10,
-   "white": 0,
-   "turfRatio": 3.01,
-   "deltaE": 1.5,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "onField": "#0085CA",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.89,
+    "panel": 4.02,
+    "page": 4.98
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 41.2,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "CHI",
    "role": "accent",
    "official": "#E64100",
-   "onField": "#EF4300",
-   "bright": 35,
-   "white": 0,
-   "turfRatio": 3.04,
-   "deltaE": 3.4,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "onField": "#E64100",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.84,
+    "panel": 3.95,
+    "page": 4.9
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 49.1,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "CIN",
+   "role": "accent",
+   "official": "#FB4F14",
+   "onField": "#FB4F14",
+   "basis": "primary",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 3.46,
+    "panel": 4.8,
+    "page": 5.96
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 53.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "CLE",
+   "role": "accent",
+   "official": "#FF3C00",
+   "onField": "#FF3C00",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 3.27,
+    "panel": 4.55,
+    "page": 5.64
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 53,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "DAL",
+   "role": "accent",
+   "official": "#002244",
+   "onField": "#002244",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.19,
+    "panel": 1.01,
+    "page": 1.26
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 20.9,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "DEN",
+   "role": "accent",
+   "official": "#FC4C02",
+   "onField": "#FC4C02",
+   "basis": "primary",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 3.43,
+    "panel": 4.76,
+    "page": 5.91
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 53.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "DET",
    "role": "accent",
    "official": "#0076B6",
-   "onField": "#0089D3",
-   "bright": 40,
-   "white": 0,
-   "turfRatio": 3.06,
-   "deltaE": 8.8,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "onField": "#0076B6",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.37,
+    "panel": 3.29,
+    "page": 4.08
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 36.7,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "GB",
+   "role": "accent",
+   "official": "#FFB612",
+   "onField": "#FFB612",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 6.63,
+    "panel": 9.22,
+    "page": 11.43
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 64.6,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "HOU",
    "role": "accent",
    "official": "#EB0028",
-   "onField": "#FE1A40",
-   "bright": 95,
-   "white": 10,
-   "turfRatio": 3.02,
-   "deltaE": 9,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "onField": "#EB0028",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.53,
+    "panel": 3.52,
+    "page": 4.36
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 49.1,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "HOU",
    "role": "alternate",
    "official": "#0080C6",
-   "onField": "#0089D4",
-   "bright": 25,
-   "white": 0,
-   "turfRatio": 3.07,
-   "deltaE": 4.2,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "onField": "#0080C6",
+   "basis": "recorded official alternate (accent collisions only)",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.72,
+    "panel": 3.78,
+    "page": 4.69
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 40.1,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "IND",
+   "role": "accent",
+   "official": "#013369",
+   "onField": "#013369",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.07,
+    "panel": 1.29,
+    "page": 1.61
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 25.6,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "JAX",
+   "role": "accent",
+   "official": "#D7A22A",
+   "onField": "#D7A22A",
+   "basis": "founder role decision (JAX gold carries the team on the field)",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 5.05,
+    "panel": 7.01,
+    "page": 8.7
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 54.2,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "KC",
    "role": "accent",
    "official": "#E31837",
-   "onField": "#FE1B3D",
-   "bright": 95,
-   "white": 0,
-   "turfRatio": 3.02,
-   "deltaE": 9.6,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "onField": "#E31837",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.47,
+    "panel": 3.43,
+    "page": 4.26
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 48.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "LAC",
    "role": "accent",
    "official": "#0080C6",
-   "onField": "#0089D4",
-   "bright": 25,
-   "white": 0,
-   "turfRatio": 3.07,
-   "deltaE": 4.2,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "onField": "#0080C6",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.72,
+    "panel": 3.78,
+    "page": 4.69
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 40.1,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "LAR",
+   "role": "accent",
+   "official": "#003594",
+   "onField": "#003594",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.07,
+    "panel": 1.49,
+    "page": 1.85
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 31.4,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "LV",
+   "role": "accent",
+   "official": "#A5ACAF",
+   "onField": "#A5ACAF",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 5.06,
+    "panel": 7.03,
+    "page": 8.72
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 48.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "MIA",
    "role": "accent",
    "official": "#008E97",
-   "onField": "#00939C",
-   "bright": 5,
-   "white": 0,
-   "turfRatio": 3.14,
-   "deltaE": 2,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "onField": "#008E97",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.95,
+    "panel": 4.1,
+    "page": 5.08
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 30.8,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "MIN",
+   "role": "accent",
+   "official": "#4F2683",
+   "onField": "#4F2683",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.08,
+    "panel": 1.49,
+    "page": 1.85
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 30.9,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "NE",
    "role": "accent",
-   "official": "#C60C30",
-   "onField": "#FF1B47",
-   "bright": 100,
-   "white": 5,
-   "turfRatio": 3.05,
-   "deltaE": 18.6,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "official": "#002244",
+   "onField": "#002244",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.19,
+    "panel": 1.01,
+    "page": 1.26
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 20.9,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "NO",
+   "role": "accent",
+   "official": "#D3BC8D",
+   "onField": "#D3BC8D",
+   "basis": "founder role decision (NO black with gold)",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 6.3,
+    "panel": 8.75,
+    "page": 10.85
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 57.4,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "NYG",
    "role": "accent",
-   "official": "#A71930",
-   "onField": "#FB2648",
-   "bright": 95,
-   "white": 0,
-   "turfRatio": 3.04,
-   "deltaE": 29.8,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "official": "#0B2265",
+   "onField": "#0B2265",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.09,
+    "panel": 1.1,
+    "page": 1.37
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 27.6,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "NYJ",
+   "role": "accent",
+   "official": "#B1B3B6",
+   "onField": "#B1B3B6",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 5.55,
+    "panel": 7.7,
+    "page": 9.56
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 52.4,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "PHI",
+   "role": "accent",
+   "official": "#A2AAAD",
+   "onField": "#A2AAAD",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 4.93,
+    "panel": 6.85,
+    "page": 8.5
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 47.2,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "PIT",
+   "role": "accent",
+   "official": "#FFB612",
+   "onField": "#FFB612",
+   "basis": "founder role decision (PIT black with gold)",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 6.63,
+    "panel": 9.22,
+    "page": 11.43
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 64.6,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "SEA",
+   "role": "accent",
+   "official": "#002244",
+   "onField": "#002244",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.19,
+    "panel": 1.01,
+    "page": 1.26
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 20.9,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "SF",
+   "role": "accent",
+   "official": "#AA0000",
+   "onField": "#AA0000",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.5,
+    "panel": 2.09,
+    "page": 2.59
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 40.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "TB",
    "role": "accent",
    "official": "#C2242B",
-   "onField": "#F92E37",
-   "bright": 90,
-   "white": 0,
-   "turfRatio": 3.04,
-   "deltaE": 19.8,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "onField": "#C2242B",
+   "basis": "founder role decision (TB's official red, the same hue family as its primary)",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.99,
+    "panel": 2.76,
+    "page": 3.43
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 43.5,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   },
   {
    "abbr": "TEN",
    "role": "accent",
    "official": "#D50A0A",
-   "onField": "#FD2424",
-   "bright": 95,
-   "white": 10,
-   "turfRatio": 3.03,
-   "deltaE": 11.8,
-   "use": "drive ribbon, end-zone edge, timeline fills, scoring-flash rule, possession tag, winner outline"
+   "onField": "#D50A0A",
+   "basis": "founder role decision (TEN red: the Titans logo's red)",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.15,
+    "panel": 2.99,
+    "page": 3.71
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 45.8,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "WSH",
+   "role": "accent",
+   "official": "#5A1414",
+   "onField": "#5A1414",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.01,
+    "panel": 1.19,
+    "page": 1.48
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 32.8,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
   }
  ],
  "matchups": [
@@ -2614,15 +3233,15 @@
     "fill": "#003594",
     "ink": "#FFFFFF",
     "trim": "#FFD100",
-    "accent": "#FFD100"
+    "accent": "#003594",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#97233F",
     "ink": "#FFFFFF",
-    "trim": "#FFB612",
-    "accent": "#F53966",
-    "accentBase": "#97233F",
-    "accentSwap": "#97233F"
+    "trim": "#FFFFFF",
+    "accent": "#97233F",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -2631,13 +3250,15 @@
     "fill": "#000000",
     "ink": "#FFFFFF",
     "trim": "#D3BC8D",
-    "accent": "#D3BC8D"
+    "accent": "#D3BC8D",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#A71930",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#A5ACAF"
+    "accent": "#A71930",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -2646,14 +3267,15 @@
     "fill": "#A71930",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#A5ACAF"
+    "accent": "#A71930",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#24135F",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#A47E12",
-    "accentBase": "#9A7611"
+    "accent": "#24135F",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -2662,14 +3284,15 @@
     "fill": "#311D00",
     "ink": "#FFFFFF",
     "trim": "#FF3C00",
-    "accent": "#FF3C00"
+    "accent": "#FF3C00",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#24135F",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#A47E12",
-    "accentBase": "#9A7611"
+    "accent": "#24135F",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -2678,14 +3301,16 @@
     "fill": "#003594",
     "ink": "#FFFFFF",
     "trim": "#FFD100",
-    "accent": "#FFD100"
+    "accent": "#003594",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#C60C30",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#FF1B47",
-    "accentBase": "#C60C30"
+    "accent": "#C60C30",
+    "accentInk": "#FFFFFF",
+    "accentSwap": "#C60C30"
    }
   },
   {
@@ -2694,14 +3319,15 @@
     "fill": "#000000",
     "ink": "#FFFFFF",
     "trim": "#A5ACAF",
-    "accent": "#A5ACAF"
+    "accent": "#A5ACAF",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#00338D",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#FF1B47",
-    "accentBase": "#C60C30"
+    "accent": "#00338D",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -2710,14 +3336,15 @@
     "fill": "#004851",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#A2AAAD"
+    "accent": "#A2AAAD",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#0085CA",
     "ink": "#0A0705",
     "trim": "#0A0705",
-    "accent": "#0088CF",
-    "accentBase": "#0085CA"
+    "accent": "#0085CA",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -2726,14 +3353,15 @@
     "fill": "#A71930",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#A5ACAF"
+    "accent": "#A71930",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#0B162A",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#EF4300",
-    "accentBase": "#E64100"
+    "accent": "#E64100",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -2742,14 +3370,15 @@
     "fill": "#203731",
     "ink": "#FFFFFF",
     "trim": "#FFB612",
-    "accent": "#FFB612"
+    "accent": "#FFB612",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#0B162A",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#EF4300",
-    "accentBase": "#E64100"
+    "accent": "#E64100",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -2758,14 +3387,15 @@
     "fill": "#008E97",
     "ink": "#0A0705",
     "trim": "#0A0705",
-    "accent": "#00939C",
-    "accentBase": "#008E97"
+    "accent": "#008E97",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#FB4F14",
     "ink": "#0A0705",
     "trim": "#000000",
-    "accent": "#FB4F14"
+    "accent": "#FB4F14",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -2774,13 +3404,15 @@
     "fill": "#115740",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#B1B3B6"
+    "accent": "#B1B3B6",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#311D00",
     "ink": "#FFFFFF",
     "trim": "#FF3C00",
-    "accent": "#FF3C00"
+    "accent": "#FF3C00",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -2789,13 +3421,15 @@
     "fill": "#203731",
     "ink": "#FFFFFF",
     "trim": "#FFB612",
-    "accent": "#FFB612"
+    "accent": "#FFB612",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#002244",
     "ink": "#FFFFFF",
     "trim": "#B0B7BC",
-    "accent": "#B0B7BC"
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -2804,14 +3438,15 @@
     "fill": "#0080C6",
     "ink": "#0A0705",
     "trim": "#0A0705",
-    "accent": "#0089D4",
-    "accentBase": "#0080C6"
+    "accent": "#0080C6",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#FC4C02",
     "ink": "#0A0705",
     "trim": "#0A2343",
-    "accent": "#FC4C02"
+    "accent": "#FC4C02",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -2819,15 +3454,16 @@
    "home": {
     "fill": "#97233F",
     "ink": "#FFFFFF",
-    "trim": "#FFB612",
-    "accent": "#FFB612"
+    "trim": "#FFFFFF",
+    "accent": "#97233F",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#0076B6",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#0089D3",
-    "accentBase": "#0076B6"
+    "accent": "#0076B6",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -2836,14 +3472,15 @@
     "fill": "#006778",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#D7A22A"
+    "accent": "#D7A22A",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#021018",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#FE1A40",
-    "accentBase": "#EB0028"
+    "accent": "#EB0028",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -2852,15 +3489,15 @@
     "fill": "#4495D2",
     "ink": "#0A0705",
     "trim": "#001532",
-    "accent": "#FD2424",
-    "accentBase": "#D50A0A"
+    "accent": "#D50A0A",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#021018",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#0089D4",
-    "accentBase": "#0080C6",
+    "accent": "#0080C6",
+    "accentInk": "#0A0705",
     "accentSwap": "#0080C6"
    }
   },
@@ -2870,13 +3507,15 @@
     "fill": "#000000",
     "ink": "#FFFFFF",
     "trim": "#FFB612",
-    "accent": "#FFB612"
+    "accent": "#FFB612",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#013369",
     "ink": "#FFFFFF",
     "trim": "#A5ACAF",
-    "accent": "#A5ACAF"
+    "accent": "#013369",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -2885,15 +3524,15 @@
     "fill": "#E31837",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#FE1B3D",
-    "accentBase": "#E31837"
+    "accent": "#E31837",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#0080C6",
     "ink": "#0A0705",
     "trim": "#0A0705",
-    "accent": "#0089D4",
-    "accentBase": "#0080C6"
+    "accent": "#0080C6",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -2902,14 +3541,15 @@
     "fill": "#002244",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#FF1B47",
-    "accentBase": "#C60C30"
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#000000",
     "ink": "#FFFFFF",
     "trim": "#A5ACAF",
-    "accent": "#A5ACAF"
+    "accent": "#A5ACAF",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -2918,13 +3558,15 @@
     "fill": "#000000",
     "ink": "#FFFFFF",
     "trim": "#D3BC8D",
-    "accent": "#D3BC8D"
+    "accent": "#D3BC8D",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#4F2683",
     "ink": "#FFFFFF",
     "trim": "#FFC62F",
-    "accent": "#FFC62F"
+    "accent": "#4F2683",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -2933,14 +3575,15 @@
     "fill": "#0B2265",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#FB2648",
-    "accentBase": "#A71930"
+    "accent": "#0B2265",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#000000",
     "ink": "#FFFFFF",
     "trim": "#D3BC8D",
-    "accent": "#D3BC8D"
+    "accent": "#D3BC8D",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -2949,14 +3592,15 @@
     "fill": "#5A1414",
     "ink": "#FFFFFF",
     "trim": "#FFB612",
-    "accent": "#FFB612"
+    "accent": "#5A1414",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#0B2265",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#FB2648",
-    "accentBase": "#A71930"
+    "accent": "#0B2265",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -2965,14 +3609,15 @@
     "fill": "#002244",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#FF1B47",
-    "accentBase": "#C60C30"
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#115740",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#B1B3B6"
+    "accent": "#B1B3B6",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -2981,13 +3626,15 @@
     "fill": "#006778",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#D7A22A"
+    "accent": "#D7A22A",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#A2AAAD",
     "ink": "#0A0705",
     "trim": "#0A0705",
-    "accent": "#A2AAAD"
+    "accent": "#A2AAAD",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -2996,14 +3643,15 @@
     "fill": "#A71930",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#F92E37",
-    "accentBase": "#C2242B"
+    "accent": "#C2242B",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#000000",
     "ink": "#FFFFFF",
     "trim": "#FFB612",
-    "accent": "#FFB612"
+    "accent": "#FFB612",
+    "accentInk": "#0A0705"
    }
   },
   {
@@ -3012,13 +3660,15 @@
     "fill": "#FC4C02",
     "ink": "#0A0705",
     "trim": "#0A2343",
-    "accent": "#FC4C02"
+    "accent": "#FC4C02",
+    "accentInk": "#0A0705"
    },
    "away": {
     "fill": "#002244",
     "ink": "#FFFFFF",
     "trim": "#69BE28",
-    "accent": "#69BE28"
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -3027,13 +3677,15 @@
     "fill": "#002244",
     "ink": "#FFFFFF",
     "trim": "#69BE28",
-    "accent": "#69BE28"
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#AA0000",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#B3995D"
+    "accent": "#AA0000",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -3042,14 +3694,15 @@
     "fill": "#002244",
     "ink": "#FFFFFF",
     "trim": "#B0B7BC",
-    "accent": "#B0B7BC"
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#A71930",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#F92E37",
-    "accentBase": "#C2242B"
+    "accent": "#C2242B",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -3058,14 +3711,15 @@
     "fill": "#013369",
     "ink": "#FFFFFF",
     "trim": "#A5ACAF",
-    "accent": "#A5ACAF"
+    "accent": "#013369",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#4495D2",
     "ink": "#0A0705",
     "trim": "#001532",
-    "accent": "#FD2424",
-    "accentBase": "#D50A0A"
+    "accent": "#D50A0A",
+    "accentInk": "#FFFFFF"
    }
   },
   {
@@ -3074,13 +3728,15 @@
     "fill": "#AA0000",
     "ink": "#FFFFFF",
     "trim": "#FFFFFF",
-    "accent": "#B3995D"
+    "accent": "#AA0000",
+    "accentInk": "#FFFFFF"
    },
    "away": {
     "fill": "#5A1414",
     "ink": "#FFFFFF",
     "trim": "#FFB612",
-    "accent": "#FFB612"
+    "accent": "#5A1414",
+    "accentInk": "#FFFFFF"
    }
   }
  ]

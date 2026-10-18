@@ -1,5 +1,5 @@
 /**
- * Simulation Theater V2 · field geometry, the overlay frame and the turf-safe accent rule (iteration 2).
+ * Simulation Theater V2 · field geometry, the overlay frame and the on-field keyline (iteration 5: treatment, not hue).
  *
  * Run: npx tsx --test src/lib/simulation-theater/field-geometry.test.mjs
  */
@@ -9,7 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  FIELD_LEN, MARGIN_X, THEATER_TURF_MIX, TOKEN_RGB, ballSize, fieldMap, numberSet, overlayFrame, turfHexes, turfSafeAccent,
+  FIELD_LEN, MARGIN_X, THEATER_TURF_MIX, TOKEN_RGB, ballSize, fieldMap, fieldSurfaces, keylineHex, numberSet, overlayFrame, turfHexes,
 } from "./field-geometry.mjs";
 import { NFL_TEAM_COLORS, contrastRatio, theaterPalette } from "./nfl-team-colors.mjs";
 import { FIXTURE_EVENT_IDS, loadTheater } from "./loader.mjs";
@@ -18,12 +18,14 @@ import { compiledFor, stateAtCompiled } from "./state-at.mjs";
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
 
-test("TOKEN_RGB mirrors globals.css exactly (--bg, --vault-accent-deep)", () => {
+test("TOKEN_RGB mirrors globals.css exactly (--bg, --vault-accent-deep, --lava-text, --gtp-card-elevated)", () => {
   const css = fs.readFileSync(path.join(APP, "src/app/globals.css"), "utf8");
   const hex = (name) => new RegExp(`--${name}:\\s*(#[0-9A-Fa-f]{6})`).exec(css)[1];
   const rgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   assert.deepEqual(TOKEN_RGB.bg, rgb(hex("bg")));
   assert.deepEqual(TOKEN_RGB.accentDeep, rgb(hex("vault-accent-deep")));
+  assert.deepEqual(TOKEN_RGB.lavaText, rgb(hex("lava-text")));
+  assert.deepEqual(TOKEN_RGB.cardElevated, rgb(hex("gtp-card-elevated")));
 });
 
 test("the mapping puts yard 0 and yard 120 inside the sideline margin and is linear", () => {
@@ -60,30 +62,19 @@ test("overlayFrame is a pure function of the frame: equal t → equal overlay; r
   }
 });
 
-test("team colours: every on-field accent reaches ≥3:1 on both turf stripes; derivation keeps the hue (brighten, then white); neutral untouched", () => {
-  const turf = turfHexes(THEATER_TURF_MIX);
-  const derived = [];
+test("team colours: the official accent is painted as is; the keyline is ≥3:1 on every field surface; neutral untouched", () => {
+  const { turf, panel, page } = fieldSurfaces();
+  assert.deepEqual(turf, turfHexes(THEATER_TURF_MIX));
+  const k = keylineHex();
+  for (const bg of [...turf, panel, page]) assert.ok(contrastRatio(k, bg) >= 3, `keyline ${k} on ${bg}`);
   const teams = Object.values(NFL_TEAM_COLORS);
   for (const h of teams) for (const a of teams) {
     if (h === a) continue;
     const p = theaterPalette(h.abbr, a.abbr);
-    for (const side of ["home", "away"]) {
-      const acc = p[side].accent;
-      assert.ok(Math.min(...turf.map((x) => contrastRatio(acc, x))) >= 3, `${side} ${acc}`);
-      if (p[side].accentBase) derived.push(`${p[side].accentBase}`);
-    }
+    assert.equal(p.home.accent, h.accent, "home: the official accent, unaltered");
+    assert.ok([a.accent, a.primary, a.secondary, ...a.alt].includes(p.away.accent), "away: an official colour, unaltered");
+    assert.equal(p.home.accentBase, undefined);
   }
-  const uniq = [...new Set(derived)];
-  console.log(`# theater: accents derived for turf contrast: ${uniq.length} (${uniq.join(", ")})`);
-  const r = turfSafeAccent("#0076B6", turf, contrastRatio);
-  assert.equal(r.base, "#0076B6");
-  assert.ok(r.ratio >= 3);
-  assert.equal(r.white, 0, "a blue reaches 3:1 by brightening alone");
-  // a red stays a red: brightened, never washed toward pink first (red channel dominant, G and B low)
-  const red = turfSafeAccent("#C60C30", turf, contrastRatio);
-  const [R, G, B] = [1, 3, 5].map((i) => parseInt(red.accent.slice(i, i + 2), 16));
-  assert.ok(R === 255 && G < 40 && B < 80, `red stays red: ${red.accent}`);
-  assert.deepEqual(turfSafeAccent("#FFB612", turf, contrastRatio), { accent: "#FFB612", derived: false, base: "#FFB612", ratio: turfSafeAccent("#FFB612", turf, contrastRatio).ratio, white: 0, bright: 0 });
   assert.equal(theaterPalette("SF", "WSH", { neutral: true }).mode, "neutral");
-  assert.equal(theaterPalette("SF", "WSH", { neutral: true }).home.accentBase, undefined);
 });
+

@@ -22,12 +22,12 @@ import { BALL_RX, FIELD_LEN, FIELD_WID, HASH_FROM_SIDELINE, MARGIN_X, MARGIN_Y, 
 
 export type Side = "home" | "away";
 /** One side's paint (lib/simulation-theater/nfl-team-colors.mjs theaterPalette): block fill, its ink (text, ≥4.5:1) and trim,
- *  the on-field accent (≥3:1 on turf; `accentBase` = the official value when it had to be lightened, `accentSwap` = the
- *  official colour used instead of a clashing accent), and the two collision fallbacks (hatched end zone, hatched
- *  timeline segments). */
+ *  the on-field accent (an official value as is; in team mode every mark drawn in it carries the --st-keyline halo, the
+ *  ≥3:1 boundary), its ink, `accentSwap` = the official colour used instead of a clashing accent, and the two collision
+ *  fallbacks (hatched end zone, hatched timeline segments). */
 export type TeamPaint = {
-  fill: string; ink: string; trim: string; accent: string; hatched: boolean;
-  accentBase?: string; accentSwap?: string; accentHatched?: boolean;
+  fill: string; ink: string; trim: string; accent: string; accentInk?: string; hatched: boolean;
+  accentSwap?: string; accentHatched?: boolean;
 };
 export type Palette = { mode: string; validated: boolean; home: TeamPaint; away: TeamPaint };
 export type Teams = { home: { abbr: string; name: string | null }; away: { abbr: string; name: string | null } };
@@ -150,9 +150,8 @@ export function StaticField({ palette, idPrefix, detail = true }: { palette: Pal
       <path d={yard.join("")} style={{ stroke: "var(--st-line)" }} strokeWidth={1.4} vectorEffect="non-scaling-stroke" />
       {/* goal lines and the field boundary (a painted white border) */}
       <path d={`M${fx(10)} ${top}V${bot}M${fx(110)} ${top}V${bot}`} style={{ stroke: "var(--st-line-strong)" }} strokeWidth={2.6} vectorEffect="non-scaling-stroke" />
-      {/* end-zone edge in the team ACCENT, opaque (≥3:1 on page and turf; S6) */}
-      <line x1={fx(10) - 4} y1={top} x2={fx(10) - 4} y2={bot} style={{ stroke: palette.home.accent }} strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
-      <line x1={fx(110) + 4} y1={top} x2={fx(110) + 4} y2={bot} style={{ stroke: palette.away.accent }} strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
+      {/* no separate end-zone edge line: the end zone itself is the team's official colour, bounded by the white goal
+          and end lines, and its lettering carries the trim */}
       <rect x={fx(0)} y={top} width={FIELD_LEN * U} height={FIELD_WID * U} fill="none" style={{ stroke: "var(--st-line-strong)" }} strokeWidth={3} vectorEffect="non-scaling-stroke" />
       {post(0, -1.6 * U)}
       {post(FIELD_LEN, 1.6 * U)}
@@ -319,6 +318,15 @@ export function FieldLive({
   const attacked = (side: Side): Side => (side === "home" ? "away" : "home");
   const zoneW = m.X(10) - m.X(0);
   const tags = W >= 420;
+  const team = palette.mode === "team";
+  // an accent outline on an end zone (scoring flash with reduced motion, winner): in team mode drawn over a wider halo
+  // in that END ZONE's ink (≥4.5:1 on its fill by construction), so the official colour keeps a contrasting boundary
+  const outline = (side: Side, zone: Side, inset: number) => (
+    <>
+      {team ? <rect className="st-halo" x={zoneX(zone) + inset} y={m.y0 + inset} width={zoneW - 2 * inset} height={m.fieldH - 2 * inset} style={{ stroke: palette[zone].ink }} strokeWidth={6} /> : null}
+      <rect x={zoneX(zone) + inset} y={m.y0 + inset} width={zoneW - 2 * inset} height={m.fieldH - 2 * inset} fill="none" style={{ stroke: palette[side].accent }} strokeWidth={3} />
+    </>
+  );
   const tagFs = Math.max(9, Math.min(11.5, W * 0.0095));
   const tag = (x: number, y: number, text: string, cls: string, below: boolean) => {
     const w = text.length * tagFs * 0.64 + 12;
@@ -338,10 +346,8 @@ export function FieldLive({
       {f?.flash && !reducedMotion ? (
         <rect ref={refs.flash} x={zoneX(attacked(f.flash.side))} y={m.y0} width={zoneW} height={m.fieldH} style={{ fill: palette[f.flash.side].accent, fillOpacity: o?.flashOpacity ?? 0 }} />
       ) : null}
-      {f?.flash && reducedMotion ? (
-        <rect x={zoneX(attacked(f.flash.side)) + 2} y={m.y0 + 2} width={zoneW - 4} height={m.fieldH - 4} fill="none" style={{ stroke: palette[f.flash.side].accent }} strokeWidth={3} />
-      ) : null}
-      {f?.winner ? <rect x={zoneX(f.winner) + 1.5} y={m.y0 + 1.5} width={zoneW - 3} height={m.fieldH - 3} fill="none" style={{ stroke: palette[f.winner].accent }} strokeWidth={3} /> : null}
+      {f?.flash && reducedMotion ? outline(f.flash.side, attacked(f.flash.side), team ? 4 : 2) : null}
+      {f?.winner ? outline(f.winner, f.winner, team ? 4 : 1.5) : null}
       {f && o ? (
         <g className="st-spot st-spot-start">
           <line x1={o.startX} y1={m.y0} x2={o.startX} y2={m.y1} />
@@ -367,8 +373,9 @@ export function FieldLive({
               <BallGlyph rx={rx} ry={ry} dir={o?.dir ?? 1} idPrefix={idPrefix} />
               {W >= 360 ? (
                 <g className="st-postag" transform={`translate(${-posW / 2} ${-ry - 24})`}>
-                  <rect width={posW} height={17} rx={4} style={{ stroke: off.accent }} />
-                  <text x={posW / 2} y={12.5} textAnchor="middle">{offenseAbbr}</text>
+                  {/* team mode: a miniature of the offense's score-bug block (fill, ink), keylined */}
+                  <rect width={posW} height={17} rx={4} style={team ? { fill: off.fill, stroke: "var(--st-keyline)" } : { stroke: off.accent }} />
+                  <text x={posW / 2} y={12.5} textAnchor="middle" style={team ? { fill: off.ink } : undefined}>{offenseAbbr}</text>
                 </g>
               ) : null}
             </g>
