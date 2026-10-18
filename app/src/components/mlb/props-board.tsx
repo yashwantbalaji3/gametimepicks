@@ -80,7 +80,7 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12, 
   dense?: boolean;
   /** Rows shown before "show more". 150 batter props in a column is not a list, it is a scroll. */
   initialRows?: number;
-  /** Offers withheld because an ineligible (non-licensed) sportsbook priced them — stated, never silent. */
+  /** Offers withheld because an unsupported sportsbook (outside the eligible-operator allowlist) priced them — stated, never silent. */
   notShownIneligible?: number;
 }) {
   const [market, setMarket] = useState("all");
@@ -156,7 +156,7 @@ export default function MlbPropsBoard({ props, dense = false, initialRows = 12, 
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="font-mono uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-faint)", fontSize: 9 }}>
             {rows.length} shown
-            {notShownIneligible > 0 ? <span> · {`${notShownIneligible} non-licensed offer${notShownIneligible > 1 ? "s" : ""} not shown`}</span> : null}
+            {notShownIneligible > 0 ? <span> · {`${notShownIneligible} unsupported sportsbook offer${notShownIneligible > 1 ? "s" : ""} not shown`}</span> : null}
             {chips.length ? <span style={{ color: "var(--gtp-bank-heat)" }}> · {chips.length} filter{chips.length > 1 ? "s" : ""}</span> : null}
           </span>
           {chips.map((c) => (
