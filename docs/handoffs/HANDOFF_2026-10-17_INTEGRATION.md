@@ -8,7 +8,7 @@
 Everything below is grounded in repository and GitHub state at the time written. **Re-verify before acting.**
 
 ## CURRENT STATE: 2026-10-18 about 05:30Z (overnight session); read this first
-- **`main`:** `05c9deea4f` (#1088 merge), plus bot data commits after it.
+- **`main`:** `58acd1cbac` (#1127 merge, 07:20Z), plus bot data commits after it. **Production `58acd1cbac`**, built 07:21:22Z. Main CI is green on #1126 and #1127, both verified on their pages (`/results/mlb/` shows Void 82 and Push 0; `/nfl` has no stale SEA@DEN live line; Home names the Oct 17 slate).
   - **Production** build-info shows `05c9deea4f`, built 04:51:24Z.
   - **Main CI is green** on all four release merges (quality-gate runs 39098266421, 39098309659, 39098333216, 39098353538). Final tip: unit 9,489/9,491 and post-build 707/710, 0 fail.
 - **Merged this session**, all exact-head:
@@ -23,6 +23,8 @@ Everything below is grounded in repository and GitHub state at the time written.
   | #1101 | `36958c5e68` | 10-18 04:47 |
   | #1120 (+ #1117, #1119) | `68135f7aa2` | 10-18 04:47 |
   | #1088 | `05c9deea4f` | 10-18 04:48 |
+  | #1126 MLB results: Void shown as Void, not Push (audit D-2) | `cd8465a2e1` | 10-18 06:12 |
+  | #1127 Event state: settled NFL game not "Follow live"; Home MLB card names the slate date | `58acd1cbac` | 10-18 07:20 |
 
   The 10-18 release cost 2 Vercel builds for 4 merges; the other 2 were superseded, as expected. Main's code equals the locally validated candidate.
 - **Superseded PRs:** 12 were auto-marked merged. 5 stacked ones (#1097–#1100, #1103) were closed with evidence comments: their heads are on `main`.

@@ -189,6 +189,14 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 - **Cost:** 2 Production builds for 4 merges.
 - **Superseded PRs:** #1117, #1119, #1092, #1096, #1102, #1104, #1105, #1106, #1107, #1109, #1112 and #1115 were auto-marked merged. Stacked #1097–#1100 and #1103 were closed with evidence: their heads are on `main`.
 
+**Follow-up fixes from the 10-18 integrity audit (`docs/launch/INTEGRITY_AUDIT_2026-10-18.md`), both merged and PRODUCTION VERIFIED:**
+- #1126 `cd8465a2e1`: `/results/mlb/` Void rows were shown as Push. Display only.
+- #1127 `58acd1cbac`: a settled NFL game was shown as "Follow live" on `/nfl`, and the Home MLB card said "today's slate" for yesterday's slate. Display only.
+
+The audit's remaining items:
+- D-1, the EPL Ask season lag: LOW; heals at the next settle.
+- The void *reason* on postponed 10-16 rows reads "DNP/0-AB": a data/producer follow-up.
+
 **Still to verify after scheduled runs:**
 - #1101 (`verify_1101.py`) after the next nightly settle;
 - #1088 (`verify_1088.py`; lineup/injury/roster updates not suppressed) after the next MLB pipeline runs;
