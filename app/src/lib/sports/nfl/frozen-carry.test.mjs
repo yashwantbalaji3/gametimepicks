@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { selectFrozenReceipts, terminalEventIds, carriedThroughRollover } from "./frozen-carry.mjs";
+import { selectFrozenReceipts, terminalEventIds, carriedThroughRollover, carriedInPlayEvents } from "./frozen-carry.mjs";
 import { unionFrozenForecasts } from "./public-forecast-union.mjs";
 
 // Week 3's Monday-night game kicks off 2031-09-30T00:15Z; Week 4 starts Thursday.
@@ -86,11 +86,32 @@ test("the builder uses this rule and reads terminal state from the existing owne
 
 test("/nfl names a carried earlier-week game above the week — facts only, live state sent to /live", () => {
   const hub = fs.readFileSync(path.join(process.cwd(), "src/app/nfl/page.tsx"), "utf8");
-  // Started-ness through the shared lifecycle owner (P252), never the raw stamp.
-  assert.match(hub, /const carriedStarted = indexEvents\.filter\(\(e\) => hasStarted\(e, nowIso\) && !weekIds\.has\(e\.providerEventId\)\);/);
+  // Started-ness through the shared lifecycle owner (P252), never the raw stamp; terminal state from the results owner.
+  assert.match(hub, /const carriedStarted = carriedInPlayEvents\(indexEvents, \{ weekIds, nowIso, terminalIds: terminalEventIds\(\{ resultsRows: results\?\.rows \?\? \[\] \}\) \}\);/);
   assert.match(hub, /carriedStarted\.length \? \(/);
   assert.match(hub, /href="\/live\/"/);
   assert.match(hub, /href=\{`\/nfl\/game\/\$\{e\.providerEventId\}\/`\}/);
   const block = hub.slice(hub.indexOf("carriedStarted.length ? ("), hub.indexOf(") : null}", hub.indexOf("carriedStarted.length ? (")));
   assert.doesNotMatch(block, /Live now|in progress|still on/i, "a static page never claims the game is still being played");
+});
+
+test("🔴 /nfl's earlier-week line never names a settled or final game as one to follow live (SEA @ DEN, 2026-10-18)", () => {
+  // The shape nfl/index.json carried on 2026-10-18: Thursday's game SETTLED, the Sunday week UPCOMING, and the
+  // finished game absent from the week's ids because the schedule capture had dropped it.
+  const THU = { providerEventId: "995", matchup: "SEA @ DEN", kickoffUtc: "2031-10-16T00:15Z", lifecycle: "SETTLED", state: "SETTLED" };
+  const SUN = { providerEventId: "996", matchup: "HOU @ JAX", kickoffUtc: "2031-10-19T13:30Z", lifecycle: "UPCOMING" };
+  const weekIds = new Set(["996"]);
+  const nowIso = "2031-10-19T12:00:00Z";
+  const ids = (events, terminalIds = new Set()) => carriedInPlayEvents(events, { weekIds, nowIso, terminalIds }).map((e) => e.providerEventId);
+  assert.deepEqual(ids([SUN, THU]), [], "the index's own SETTLED lifecycle is canonical: the game is over");
+  // A STARTED stamp that is stale (the index ran mid-game) loses to a STATUS_FINAL result from the results owner.
+  const staleStarted = { ...THU, lifecycle: "STARTED", state: "LOCKED" };
+  const finals = terminalEventIds({ resultsRows: [{ providerEventId: 995, statusRaw: "STATUS_FINAL" }] });
+  assert.deepEqual(ids([SUN, staleStarted], finals), []);
+  // Unchanged: an earlier week's game still in play (STARTED, no final) is named; so is an UPCOMING stamp the clock advanced.
+  assert.deepEqual(ids([SUN, staleStarted]), ["995"]);
+  const mnf = { providerEventId: "801", kickoffUtc: "2031-10-19T11:00:00Z", lifecycle: "UPCOMING" };
+  assert.deepEqual(ids([mnf]), ["801"]);
+  // A game of the selected week is never repeated above it.
+  assert.deepEqual(carriedInPlayEvents([{ ...SUN, lifecycle: "STARTED" }], { weekIds, nowIso, terminalIds: new Set() }), []);
 });

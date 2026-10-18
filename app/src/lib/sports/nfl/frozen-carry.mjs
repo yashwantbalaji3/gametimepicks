@@ -19,7 +19,7 @@
  * receipt per event (the latest pre-kickoff revision) is chosen.
  */
 import { eventState, EVENT_STATE } from "../event-lifecycle.mjs";
-import { NFL_DURATION_HOURS } from "./effective-lifecycle.mjs";
+import { NFL_DURATION_HOURS, effectiveLifecycle } from "./effective-lifecycle.mjs";
 
 /**
  * @param {{ receipts: Array<object>, currentPeriod: {seasonType:number, week:number}|null, nowIso: string,
@@ -54,4 +54,29 @@ export function terminalEventIds({ resultsRows = [], settledIds = [] } = {}) {
   const ids = new Set(settledIds.map(String));
   for (const r of resultsRows) if (/^STATUS_FINAL/.test(r?.statusRaw ?? "") && r?.providerEventId != null) ids.add(String(r.providerEventId));
   return ids;
+}
+
+/**
+ * THE /nfl "EARLIER WEEK'S GAME" LINE — which index events it may name.
+ *
+ * ⚠ 2026-10-18: /nfl said "SEA @ DEN · kicked off Thu 8:15 PM ET · Follow live" three days after that game
+ *   went final. The index carries it as lifecycle SETTLED (graded), and results/latest.json has STATUS_FINAL,
+ *   but the page selected `hasStarted(e) && !weekIds.has(id)` — and hasStarted is true for SETTLED too. The
+ *   game had left the week's ids only because the schedule capture stops listing a finished game.
+ *
+ * The line exists for a game still being played (see the rollover rule above), so it takes only events whose
+ * effective lifecycle is STARTED — never SETTLED — and drops any event a terminal owner (a STATUS_FINAL result
+ * or a settlement, via `terminalEventIds`) already calls over. Terminal-ness comes from those canonical fields,
+ * never from the clock.
+ *
+ * @template {{ providerEventId: string, lifecycle?: string, kickoffUtc?: string|null }} E
+ * @param {E[]} indexEvents
+ * @param {{ weekIds: Set<string|undefined>, nowIso: string, terminalIds: Set<string> }} opts
+ * @returns {E[]}
+ */
+export function carriedInPlayEvents(indexEvents, { weekIds, nowIso, terminalIds }) {
+  return (indexEvents ?? []).filter((e) =>
+    effectiveLifecycle(e, nowIso) === "STARTED"
+    && !terminalIds.has(String(e.providerEventId))
+    && !weekIds.has(e.providerEventId));
 }

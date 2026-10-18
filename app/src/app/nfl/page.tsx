@@ -55,6 +55,7 @@ import FollowLegacyMigration from "@/components/follow/follow-legacy-migration";
 import DeferUntilVisible from "@/components/defer-until-visible";
 import { legacyNameMap, nflTeamRefsByAbbr } from "@/lib/follow/entity-registry";
 import { hasStarted } from "@/lib/sports/nfl/effective-lifecycle.mjs";
+import { carriedInPlayEvents, terminalEventIds } from "@/lib/sports/nfl/frozen-carry.mjs";
 import { availableWeekKeys, weekKeyOf } from "@/lib/sports/nfl/week-keys";
 import ForecastStyles from "@/components/nfl/forecast/styles";
 import ModelStatus from "@/components/nfl/forecast/model-status";
@@ -279,7 +280,8 @@ export default function NflHubPage() {
    * week. It states facts only — the week and the kickoff — and sends "is it still on?" to /live, since
    * a static page cannot know when a game ends.
    */
-  const carriedStarted = indexEvents.filter((e) => hasStarted(e, nowIso) && !weekIds.has(e.providerEventId));
+  /* 2026-10-18: a SETTLED / STATUS_FINAL game is over, not "still being played" — see carriedInPlayEvents. */
+  const carriedStarted = carriedInPlayEvents(indexEvents, { weekIds, nowIso, terminalIds: terminalEventIds({ resultsRows: results?.rows ?? [] }) });
   const periodLabelOf = (id: string) => nflEvents.find((e) => e.providerAliases[0]?.id === id)?.period.label ?? null;
   const etKickoff = (iso: string) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" }).format(new Date(iso));
   const weatherByEvent = new Map(
