@@ -7,7 +7,7 @@
  *
  *   settled (the sport's canonical settlement record says so) → SETTLED              "Settled"
  *   final known, not yet settled                              → AWAITING_SETTLEMENT  "Final · grading pending"
- *   started, no final known                                   → STARTED              "Kicked off"
+ *   started, no final known                                   → STARTED              "Started"
  *   not started, or a start that cannot be read               → null (the caller's pregame readiness states)
  *
  * Each sport supplies the three facts from its own owners (day-view.ts); this function only decides the
@@ -31,5 +31,5 @@ export function startedAt(startUtc, nowMs) {
 export const POST_START_PHRASE = Object.freeze({
   SETTLED: "Settled — the graded outcome is on Results; the report shows the frozen forecast beside it.",
   AWAITING_SETTLEMENT: "Final — grading against the official result is pending. The report shows the frozen pregame forecast.",
-  STARTED: "Kicked off — no final is recorded yet. The report shows the frozen pregame forecast; the result arrives when it is graded.",
+  STARTED: "Started — no final is recorded yet. The report shows the frozen pregame forecast; the result arrives when it is graded.",
 });

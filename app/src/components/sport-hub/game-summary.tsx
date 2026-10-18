@@ -1,6 +1,6 @@
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
-import { orderRows, isInProgress, hubCounts, drawableSplit, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
+import { orderRows, isInProgress, hubStatusDisplay, hubCounts, drawableSplit, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
 
 /**
  * The first thing on every sport page: what is on, what we think, and where to read it.
@@ -103,7 +103,7 @@ function EventCard({ row: r, unitLabel }: { row: HubGameRow; unitLabel: string }
     <li className="gtp-ev rounded-2xl p-4 sm:p-5 flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
         <span className="text-[12.5px] font-medium gtp-c-mute">{r.startLabel}</span>
-        <span className="gtp-ev-status rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em]">{r.status}</span>
+        <span className="gtp-ev-status rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em]">{hubStatusDisplay(r.status)}</span>
       </div>
       {hasSides ? (
         <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2" aria-label={r.matchup}>
@@ -149,7 +149,7 @@ function CompactRow({ row: r }: { row: HubGameRow }) {
         {r.matchup}
         {(r.participants ?? []).slice(1, 2).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
       </span>
-      <span className="text-[11px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)" }}>{r.status}</span>
+      <span className="text-[11px] uppercase tracking-[0.08em]" style={{ color: "var(--vault-text-mute)" }}>{hubStatusDisplay(r.status)}</span>
       {r.read ? <span className={tone!.cls}>{r.read.label} <span className="gtp-c-mute">· {tone!.label}</span></span> : null}
       <span className="text-[12px]"><Action row={r} /></span>
     </li>
