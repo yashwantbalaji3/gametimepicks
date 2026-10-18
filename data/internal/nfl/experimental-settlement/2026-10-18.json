@@ -4,7 +4,7 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-10-18",
- "generatedAt": "2026-10-18T23:26:01Z",
+ "generatedAt": "2026-10-18T23:29:13Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
@@ -927,16 +927,167 @@
     }
    },
    "marketBenchmark": null
+  },
+  {
+   "canonicalEventId": "nfl-401873004",
+   "providerEventId": "401873004",
+   "matchup": "ARI @ LAR",
+   "kickoffUtc": "2026-10-18T20:05Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401873004-rev-1954Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "73c3aac3d900374f",
+    "forecastGeneratedAt": "2026-10-18T19:54:05Z",
+    "revisionChain": [
+     {
+      "file": "401873004.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "e33067df099b25ba"
+     },
+     {
+      "file": "401873004-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "d96eb9cde5533d39"
+     },
+     {
+      "file": "401873004-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "30d2af17baa6aed7"
+     },
+     {
+      "file": "401873004-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "cb4d4544b01cdf33"
+     },
+     {
+      "file": "401873004-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "80687eecb9b5e22b"
+     },
+     {
+      "file": "401873004-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "291f4523269ab33b"
+     },
+     {
+      "file": "401873004-rev-1516Z.json",
+      "generatedAt": "2026-10-18T15:16:07Z",
+      "inputHash": "f91f9aa22e8460cf"
+     },
+     {
+      "file": "401873004-rev-1603Z.json",
+      "generatedAt": "2026-10-18T16:03:22Z",
+      "inputHash": "89d2a2a3c950f652"
+     },
+     {
+      "file": "401873004-rev-1621Z.json",
+      "generatedAt": "2026-10-18T16:21:51Z",
+      "inputHash": "d6be61992ea5096e"
+     },
+     {
+      "file": "401873004-rev-1625Z.json",
+      "generatedAt": "2026-10-18T16:25:00Z",
+      "inputHash": "a4cc2467ec082568"
+     },
+     {
+      "file": "401873004-rev-1649Z.json",
+      "generatedAt": "2026-10-18T16:49:13Z",
+      "inputHash": "ffe3685cb464fc04"
+     },
+     {
+      "file": "401873004-rev-1730Z.json",
+      "generatedAt": "2026-10-18T17:30:06Z",
+      "inputHash": "4ae59e754677931f"
+     },
+     {
+      "file": "401873004-rev-1757Z.json",
+      "generatedAt": "2026-10-18T17:57:29Z",
+      "inputHash": "c0e03782f4d714b7"
+     },
+     {
+      "file": "401873004-rev-1818Z.json",
+      "generatedAt": "2026-10-18T18:18:08Z",
+      "inputHash": "39e14923bfcbdc78"
+     },
+     {
+      "file": "401873004-rev-1827Z.json",
+      "generatedAt": "2026-10-18T18:27:44Z",
+      "inputHash": "c9c0aced4cb2579e"
+     },
+     {
+      "file": "401873004-rev-1847Z.json",
+      "generatedAt": "2026-10-18T18:47:34Z",
+      "inputHash": "89f3bdca94b865a1"
+     },
+     {
+      "file": "401873004-rev-1905Z.json",
+      "generatedAt": "2026-10-18T19:05:56Z",
+      "inputHash": "feac0ff3187ea71d"
+     },
+     {
+      "file": "401873004-rev-1931Z.json",
+      "generatedAt": "2026-10-18T19:31:05Z",
+      "inputHash": "b1e3c0257525bf8e"
+     },
+     {
+      "file": "401873004-rev-1954Z.json",
+      "generatedAt": "2026-10-18T19:54:05Z",
+      "inputHash": "73c3aac3d900374f"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T23:26:01Z",
+    "settledAt": "2026-10-18T23:29:13Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 16,
+     "away": 18,
+     "margin": -2,
+     "total": 34,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 10,
+     "actual": -2,
+     "absError": 12,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 53,
+     "actual": 34,
+     "absError": 19,
+     "insideInterval80": false
+    },
+    "score": {
+     "projected": {
+      "home": 32,
+      "away": 21,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 19
+    },
+    "probabilistic": {
+     "brier": 0.613716,
+     "logLoss": 1.529703
+    }
+   },
+   "marketBenchmark": null
   }
  ],
  "pending": [
-  {
-   "canonicalEventId": "nfl-401873004",
-   "matchup": "ARI @ LAR",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-10-18T20:05Z",
-   "observed": "STATUS_SCHEDULED"
-  },
   {
    "canonicalEventId": "nfl-401873005",
    "matchup": "BUF @ LV",
@@ -968,24 +1119,24 @@
  "recordElsewhere": [],
  "accounting": {
   "receipts": 13,
-  "settled": 8,
-  "pending": 5,
+  "settled": 9,
+  "pending": 4,
   "quarantined": 0,
   "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 8,
-  "decisive": 8,
+  "settledForecasts": 9,
+  "decisive": 9,
   "ties": 0,
   "winnerCorrect": 3,
-  "winnerAccuracy": 0.375,
-  "marginMAE": 8.75,
-  "totalMAE": 9,
-  "marginInterval80Coverage": 0.875,
-  "totalInterval80Coverage": 0.75,
-  "brier": 0.3164,
-  "logLoss": 0.8305
+  "winnerAccuracy": 0.3333,
+  "marginMAE": 9.1111,
+  "totalMAE": 10.1111,
+  "marginInterval80Coverage": 0.8889,
+  "totalInterval80Coverage": 0.6667,
+  "brier": 0.3495,
+  "logLoss": 0.9082
  },
  "marketBenchmark": null,
  "comparison": null
