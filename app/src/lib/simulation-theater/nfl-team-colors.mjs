@@ -146,6 +146,10 @@ export const fieldDistinct = (hex) => {
 /** Spec §2.5 (S7): two colours collide when CIE76 ΔE < 20. */
 export const COLLISION_DELTA_E = 20;
 export const collides = (a, b) => deltaE76(a, b) < COLLISION_DELTA_E;
+/** On the field the S7 rule is joined by ΔE00 < FIELD_CLASH_DE00: CIE76 calls dark pairs such as BUF royal / IND blue
+ *  (ΔE00 5.9) or DAL navy / NYG blue (6.8) distinct; side by side on a dark turf they are not. */
+export const FIELD_CLASH_DE00 = 10;
+export const fieldClash = (a, b) => collides(a, b) || deltaE2000(a, b) < FIELD_CLASH_DE00;
 
 /** Thresholds the palette guarantees (WCAG 2.x): text on a team block, and the keyline around every team mark. */
 export const TEXT_MIN = 4.5;
@@ -176,9 +180,10 @@ export function blockTrim(team, fill, ink) {
  *       blocks   home = primary; away = primary, or its SECONDARY when the primaries collide (CIE76 ΔE < 20), or its
  *                primary HATCHED when the secondary collides with the home primary too
  *       field    each side's official accent, as is (the keyline carries the 3:1, never a lightened colour); `accentInk`
- *                = the better ink on it (the current timeline segment's glyph). When the two accents collide, the away
- *                side takes the first of its primary, secondary and official alternates that no longer collides and is
- *                fieldDistinct (`accentSwap` records it); if none can, its timeline segments are hatched (`accentHatched`)
+ *                = the better ink on it (the timeline glyphs). When the two accents clash (fieldClash: CIE76 < 20 or
+ *                ΔE00 < 10), the away side takes the first of its primary, secondary and official alternates that no
+ *                longer clashes and is fieldDistinct (`accentSwap` records it); if none can, its timeline segments are
+ *                hatched (`accentHatched`)
  *   - an unknown team falls back to its neutral token
  */
 export function theaterPalette(homeAbbr, awayAbbr, { neutral = false } = {}) {
@@ -194,8 +199,8 @@ export function theaterPalette(homeAbbr, awayAbbr, { neutral = false } = {}) {
   if (h && a && collides(h.primary, a.primary)) {
     away = collides(h.primary, a.secondary) ? paint(a, a.primary, true) : paint(a, a.secondary);
   }
-  if (h && a && collides(home.accent, away.accent)) {
-    const pick = [a.primary, a.secondary, ...a.alt].find((hex) => hex !== a.accent && !collides(home.accent, hex) && fieldDistinct(hex));
+  if (h && a && fieldClash(home.accent, away.accent)) {
+    const pick = [a.primary, a.secondary, ...a.alt].find((hex) => hex !== a.accent && !fieldClash(home.accent, hex) && fieldDistinct(hex));
     away = pick ? { ...away, accent: pick, accentInk: bestInk(pick), accentSwap: pick } : { ...away, accentHatched: true };
   }
   return { mode: "team", validated: true, home, away };
