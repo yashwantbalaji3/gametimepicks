@@ -13,6 +13,8 @@ import { mlbMarketLabel } from "@/lib/format-mlb";
 import { isPredictionDisabled, MLB_CALIBRATION_DISCLOSURE } from "@/lib/mlb/model-calibration-status";
 import { currentEtDate } from "@/lib/freshness";
 import { isAnomalyLean } from "@/lib/mlb/lean-anomaly";
+import TeamMark from "@/components/ui/team-mark";
+import { mlbTeamLogoUrl } from "@/lib/player-headshots";
 import MlbSummaryStrip from "@/components/mlb/mlb-summary-strip";
 import MlbTopLeansStrip from "@/components/mlb/mlb-top-leans-strip";
 import MlbBoardClient from "@/components/mlb/mlb-board-client";
@@ -308,7 +310,11 @@ export default function MlbBoardBody({ date, liveness }: { date: string; livenes
                         fontWeight: 600,
                       }}
                     >
-                      {g.awayTeamAbbr ?? "?"} @ {g.homeTeamAbbr ?? "?"}
+                      <span className="inline-flex items-center gap-1.5">
+                        <span aria-hidden className="inline-flex"><TeamMark name={g.awayTeamAbbr} logoUrl={mlbTeamLogoUrl(g.awayTeamId)} size="sm" /></span>
+                        {g.awayTeamAbbr ?? "TBD"} @ {g.homeTeamAbbr ?? "TBD"}
+                        <span aria-hidden className="inline-flex"><TeamMark name={g.homeTeamAbbr} logoUrl={mlbTeamLogoUrl(g.homeTeamId)} size="sm" /></span>
+                      </span>
                     </div>
                     <div
                       style={{

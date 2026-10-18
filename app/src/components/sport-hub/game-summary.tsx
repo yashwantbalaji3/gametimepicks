@@ -50,7 +50,7 @@ function Side({ p, favored, dim }: { p: HubParticipant; favored: boolean; dim: b
   return (
     <div className="flex min-w-0 flex-col items-center gap-2 text-center">
       {p.logoTeam && p.logoSport
-        ? <TeamLogo team={p.logoTeam} sport={p.logoSport} size="lg" highlight={favored} ariaLabel={`${p.name} logo`} />
+        ? <TeamLogo team={p.logoTeam} sport={p.logoSport} size="lg" highlight={favored} ariaLabel="" />
         : (
           <span aria-hidden className="inline-flex items-center justify-center rounded-full shrink-0 text-[15px] font-semibold"
             style={{ width: 52, height: 52, background: "var(--vault-wash-soft)", border: `1px solid ${favored ? "var(--vault-accent)" : "var(--vault-border)"}`, color: "var(--vault-text)" }}>

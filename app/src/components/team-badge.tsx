@@ -24,6 +24,8 @@ interface Props {
   highlight?: boolean;
   className?: string;
   style?: CSSProperties;
+  /** Visible text beside the badge already names the team: hide it from assistive tech (GTP-31). */
+  decorative?: boolean;
 }
 
 const SIZES: Record<NonNullable<Props["size"]>, { px: number; font: number }> = {
@@ -110,13 +112,15 @@ export default function TeamBadge({
   highlight = false,
   className,
   style,
+  decorative = false,
 }: Props) {
   const abbr = (team ?? "?").trim().toUpperCase();
   const colors = TEAM_COLORS[abbr] ?? NEUTRAL;
   const dim = SIZES[size];
   return (
     <span
-      aria-label={team ? `${team} team badge` : "team badge unknown"}
+      aria-label={decorative ? undefined : team ? `${team} team badge` : "team badge unknown"}
+      aria-hidden={decorative ? true : undefined}
       className={`inline-flex items-center justify-center font-display font-semibold ${
         className ?? ""
       }`}
