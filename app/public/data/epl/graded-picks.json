@@ -3,23 +3,36 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-10-17T18:01:05Z",
+ "generatedAt": "2026-10-18T09:25:08Z",
  "sport": "epl",
  "label": "Premier League",
  "what": "Match-result forecasts: the outcome the model gave the most probability to, graded against the official full-time score.",
  "caveat": "This model has cleared no preregistered bar and publishes distributions rather than picks — the 'predicted' column is simply its likeliest outcome.",
  "counts": {
-  "counted": 60,
+  "counted": 61,
   "hits": 27,
-  "misses": 33,
+  "misses": 34,
   "voided": 0,
   "shown": 60,
-  "total": 60
+  "total": 61
  },
- "hitRate": 0.45,
+ "hitRate": 0.4426,
  "sampleState": "EMERGING",
- "sampleNote": "60 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "61 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
+  {
+   "eventId": "soccer:epl:aston-villa-v-newcastle-united:20261017t1630",
+   "when": "2026-10-17",
+   "eventName": null,
+   "subject": "Newcastle United v Aston Villa",
+   "market": "Match result",
+   "predicted": "home win",
+   "actual": "away win (0-1)",
+   "modelProbability": 0.438435,
+   "probabilityOfActual": 0.311311,
+   "marketProbabilityOfActual": null,
+   "hit": false
+  },
   {
    "eventId": "soccer:epl:fulham-v-hull-city:20261017t1400",
    "when": "2026-10-17",
@@ -784,19 +797,6 @@
    "actual": "home win (2-0)",
    "modelProbability": 0.42233,
    "probabilityOfActual": 0.42233,
-   "marketProbabilityOfActual": null,
-   "hit": true
-  },
-  {
-   "eventId": "soccer:epl:arsenal-v-coventry-city:20260821t1900",
-   "when": "2026-08-21",
-   "eventName": null,
-   "subject": "Arsenal v Coventry City",
-   "market": "Match result",
-   "predicted": "home win",
-   "actual": "home win (3-0)",
-   "modelProbability": 0.69144,
-   "probabilityOfActual": 0.69144,
    "marketProbabilityOfActual": null,
    "hit": true
   }
