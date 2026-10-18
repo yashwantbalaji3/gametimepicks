@@ -21,9 +21,9 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent } from "react";
 
-import { FieldLive, FieldMarks, StaticField, paintLive } from "./FieldScene";
+import { FieldLive, FieldMarks, GrainLayer, SpotTags, StaticField, paintLive } from "./FieldScene";
 import type { Frame, Palette, Side, Teams } from "./FieldScene";
-import { Banner, FieldLegend, Linescore, SceneBadge, ScoreBug, Transcript, Unavailable, driveFacts } from "./parts";
+import { Banner, FieldLegend, Linescore, SceneBadge, ScoreBug, Transcript, Unavailable, depthClass, driveFacts } from "./parts";
 import { DistributionPanel, DrivePanel, EvidencePanel } from "./panels";
 import BottomSheet from "./BottomSheet";
 import { createFrameStore } from "./frame-store";
@@ -41,6 +41,9 @@ import { TEAM_COLORS_VALIDATED, theaterPalette } from "@/lib/simulation-theater/
 import { fieldMap, overlayFrame } from "@/lib/simulation-theater/field-geometry.mjs";
 import { unpackTheater } from "@/lib/simulation-theater/theater-pack.mjs";
 import { timelineLayout } from "@/lib/simulation-theater/timeline-layout.mjs";
+import { cameraAt, cameraScreenX, cameraTransform } from "@/lib/simulation-theater/camera.mjs";
+import { breakCard, driveEndLowerThird, driveSituation, periodCard, progressYardsText, rolloverCard } from "@/lib/simulation-theater/broadcast.mjs";
+import { MARGIN_X } from "@/lib/simulation-theater/field-geometry.mjs";
 
 type Compiled = {
   keyframes: { driveIdx: number; phase: string; t0: number; dur: number; breakKind?: string }[];
@@ -63,6 +66,7 @@ type SceneState = Frame & {
   card: string | null;
   breakKind: string | null;
   rollover: { quarter: number; atT: number } | null;
+  ballYardsToGoal: number;
 };
 type Tp = { state: string; t: number; tEnd: number; speed: number; driveStarts: number[]; reason: string | null };
 type Live = { t: number; frame: SceneState | null; playState: string };
@@ -117,6 +121,23 @@ function readDevHook(enabled: boolean): { run: number | null; t: number | null }
   const num = (v: string | null) => (v != null && v !== "" && Number.isFinite(Number(v)) ? Number(v) : null);
   return { run: num(run), t: num(t) };
 }
+
+// ── camera preference (iteration 7): per viewer, in localStorage, every access guarded (private windows, blocked storage)
+type CamMode = "follow" | "full";
+const CAM_KEY = "gtp:sim-theater:camera";
+function readCamPref(): CamMode | null {
+  try {
+    const v = window.localStorage.getItem(CAM_KEY);
+    return v === "follow" || v === "full" ? v : null;
+  } catch {
+    return null;
+  }
+}
+function writeCamPref(v: CamMode) {
+  try { window.localStorage.setItem(CAM_KEY, v); } catch { /* storage unavailable: the choice lasts for this page only */ }
+}
+/** Narrow screens default to the full field (see iteration 7 WALKTHROUGH): at ≤719 px the whole field is ≤358 px wide. */
+const COMPACT_QUERY = "(max-width: 719px)";
 
 // ── timeline (one tab stop, roving tabindex; spec S9). Widths: lib/simulation-theater/timeline-layout.mjs (every
 //    segment ≥24 px and ∝ playback time; one row, or one row per period when one row cannot keep both) ───────────
@@ -295,31 +316,92 @@ function SidePanel({ manifest, sample, ev, onSeekDrive, current }: {
 
 // ── on-field broadcast graphics (HTML over the scene; aria-hidden — the score bug, drive card and live region carry
 //    every fact) ─────────────────────────────────────────────────────────────────────────────────────────────────
-function Interstitial({ f, ev, teams, overtime, palette }: { f: SceneState; ev: TheaterEvent; teams: Teams; overtime: boolean; palette: Palette }) {
-  let text: string | null = null;
-  let sub: string | null = null;
-  const major = Boolean(f.breakKind);
-  if (f.breakKind === "HALFTIME") { text = "Halftime"; sub = scoreLine(f.score, teams); }
-  else if (f.breakKind === "OT_START") { text = "End of regulation"; sub = `Overtime next · ${scoreLine(f.score, teams)}`; }
-  else if (f.breakKind === "FINAL") { text = overtime ? "Final · OT" : "Final"; sub = scoreLine(f.score, teams); }
-  else if (f.rollover) text = `End of Q${f.rollover.quarter}`;
-  else if (f.phase === "RESULT" && ev.outcome === "END_HALF") text = ev.outcomeLabel.charAt(0).toUpperCase() + ev.outcomeLabel.slice(1);
-  if (!text) return null;
+type CardSet = {
+  period: ReturnType<typeof periodCard>;
+  brk: ReturnType<typeof breakCard>;
+  roll: ReturnType<typeof rolloverCard>;
+  endHalf: string | null;
+};
+
+/** Team colour block for a card row: the team's own fill and ink (with its depth), keylined. */
+function teamVars(palette: Palette, side: Side) {
+  const p = palette[side];
+  return { "--st-team": p.accent, "--st-team-fill": p.fill, "--st-team-ink": p.ink, "--st-team-trim": p.trim } as CSSProperties;
+}
+
+/**
+ * On-field broadcast cards (iteration 7). Non-blocking strips (start of period, quarter rollover, end of half) are
+ * aria-hidden: the score bug and the live region carry their facts. The halftime and final cards are readable sections
+ * (not live regions, so nothing is announced twice); the final card can be dismissed (button or Escape).
+ */
+function BroadcastCards({ cards, palette, onDismiss }: { cards: CardSet; palette: Palette; onDismiss: () => void }) {
+  const { period, brk, roll, endHalf } = cards;
+  const team = palette.mode === "team";
   return (
-    <div className={`st-strip${f.rollover && !f.breakKind ? " is-roll" : ""}${major ? " is-major" : ""}`} aria-hidden="true" key={`${f.driveIdx}-${text}`}>
-      {major && palette.mode === "team" ? (
-        /* halftime / end of regulation / final: each team's block colour over its on-field accent, away then home
-           (score-bug order); the side carrying the clash cues adds its stripes */
-        <span className="st-strip-rule">
-          {(["away", "home"] as Side[]).map((s) => (
-            <i key={s} data-st-cue={palette[s].patterned ? "" : undefined}
-              style={{ background: `${palette[s].patterned ? "var(--st-cue), " : ""}linear-gradient(180deg, ${palette[s].fill} 0 62%, ${palette[s].accent} 62% 100%)` }} />
-          ))}
-        </span>
+    <>
+      {period ? (
+        <div className="st-strip is-period" aria-hidden="true" key={`p-${period.driveIdx}`} data-st-card="PERIOD_START">
+          <span className="st-strip-eyebrow">{period.sub}</span>
+          <span className="st-strip-main">{period.title}</span>
+          <span className="st-strip-note">{period.note}</span>
+        </div>
       ) : null}
-      <span className="st-strip-main">{text}</span>
-      {sub ? <span className="st-strip-sub">{sub}</span> : null}
-    </div>
+      {roll && !brk ? (
+        <div className="st-strip is-roll" aria-hidden="true" key={`r-${roll.title}`} data-st-card="ROLLOVER">
+          <span className="st-strip-main">{roll.title}</span>
+          <span className="st-strip-sub">{roll.sub}</span>
+        </div>
+      ) : null}
+      {endHalf && !brk ? (
+        <div className="st-strip" aria-hidden="true" key={`h-${endHalf}`} data-st-card="END_HALF"><span className="st-strip-main">{endHalf}</span></div>
+      ) : null}
+      {brk && brk.kind === "END_REG" ? (
+        <div className="st-strip is-major" aria-hidden="true" data-st-card="END_REG">
+          {team ? (
+            <span className="st-strip-rule">
+              {(["away", "home"] as Side[]).map((s) => (
+                <i key={s} data-st-cue={palette[s].patterned ? "" : undefined}
+                  style={{ background: `${palette[s].patterned ? "var(--st-cue), " : ""}linear-gradient(180deg, ${palette[s].fill} 0 62%, ${palette[s].accent} 62% 100%)` }} />
+              ))}
+            </span>
+          ) : null}
+          <span className="st-strip-main">{brk.title}</span>
+          <span className="st-strip-sub">{brk.sub}</span>
+        </div>
+      ) : null}
+      {brk && (brk.kind === "HALFTIME" || brk.kind === "FINAL") && brk.rows ? (
+        <section className={`st-card is-${brk.kind.toLowerCase()}${team ? " is-team" : ""}`} aria-labelledby="st-card-title" data-st-card={brk.kind}>
+          <header className="st-card-head">
+            <h3 id="st-card-title" className="st-card-title">{brk.title}</h3>
+            {brk.dismissible ? (
+              <button type="button" className="st-card-x" aria-label={`Hide the ${brk.title.toLowerCase()} card`} onClick={onDismiss}>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z" fill="currentColor" /></svg>
+              </button>
+            ) : null}
+          </header>
+          <table className="st-card-table">
+            <caption className="st-sr">{brk.title}: {brk.sub}</caption>
+            {brk.columns ? (
+              <thead><tr><th scope="col"><span className="st-sr">Team</span></th>{brk.columns.map((c) => <th key={c} scope="col">{c}</th>)}</tr></thead>
+            ) : null}
+            <tbody>
+              {brk.rows.map((r) => (
+                <tr key={r.side} className={r.leader ? "is-leader" : undefined}>
+                  <th scope="row">
+                    <span className={`st-card-team${team ? ` is-team ${depthClass(palette[r.side as Side].ink)}` : ""}${team && palette[r.side as Side].patterned ? " is-cue" : ""}`} style={teamVars(palette, r.side as Side)}>
+                      <span className="st-bug-bar" aria-hidden="true" />{r.abbr}
+                    </span>
+                    {r.leader && brk.kind === "FINAL" ? <span className="st-card-win"><span aria-hidden="true">◀</span><span className="st-sr">, winner</span></span> : null}
+                  </th>
+                  {r.cells.map((v, i) => <td key={i} className={i === r.cells.length - 1 ? "is-total" : undefined}>{v}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="st-card-line"><b>{brk.line}</b>{"run" in brk && brk.run ? <span> · {brk.run}</span> : null}</p>
+        </section>
+      ) : null}
+    </>
   );
 }
 
@@ -332,7 +414,7 @@ function ScoreFlash({ ev, teams, palette }: { ev: TheaterEvent; teams: Teams; pa
       className={`st-scoreflash${palette.mode === "team" ? " is-team" : ""}`}
       aria-hidden="true"
       key={`sf-${ev.index}`}
-      style={{ "--st-team": palette[side].accent, "--st-team-fill": palette[side].fill, "--st-team-ink": palette[side].ink, "--st-team-trim": palette[side].trim } as CSSProperties}
+      style={teamVars(palette, side)}
     >
       <span className="st-scoreflash-bar" />
       <span className="st-scoreflash-head">{SCORE_HEAD[ev.outcome] ?? ev.outcomeLabel}</span>
@@ -341,17 +423,20 @@ function ScoreFlash({ ev, teams, palette }: { ev: TheaterEvent; teams: Teams; pa
   );
 }
 
-function LowerThird({ f, ev, teams, sample, scoring }: { f: SceneState; ev: TheaterEvent; teams: Teams; sample: TheaterSample; scoring: boolean }) {
+/** Drive-end lower third (recorded totals only), the change-of-possession card, and the run-off note. */
+function LowerThird({ f, ev, teams, sample, scoring, palette }: { f: SceneState; ev: TheaterEvent; teams: Teams; sample: TheaterSample; scoring: boolean; palette: Palette }) {
   const runoff = ev.notes.some((n) => n.code === "ENGINE_CLOCK_RUNOFF");
   if (f.phase === "TRANSITION" && f.card) {
     return <div className="st-lower is-card" aria-hidden="true"><span>{f.card}</span></div>;
   }
   if (f.phase === "RESULT") {
-    const d = driveFacts(ev, teams);
+    const d = driveEndLowerThird(ev, teams, sample.events.length);
+    const team = palette.mode === "team";
     return (
-      <div className={`st-lower${scoring ? " with-banner" : ""}`} aria-hidden="true" key={`lt-${ev.index}`}>
-        <span className="st-lower-tag">Drive {ev.index + 1}/{sample.events.length}</span>
-        <span className="st-lower-main">{teams[ev.offense].abbr} · {d.plays} · {d.yards} · {d.time}</span>
+      <div className={`st-lower is-drive${scoring ? " with-banner" : ""}`} aria-hidden="true" key={`lt-${ev.index}`} data-st-card="DRIVE_END">
+        <span className={`st-lower-team${team ? ` is-team ${depthClass(palette[ev.offense].ink)}` : ""}`} style={teamVars(palette, ev.offense)}>{d.team}</span>
+        <span className="st-lower-tag">{d.tag}</span>
+        <span className="st-lower-main">{d.facts}</span>
         <span className="st-lower-res">{d.result}</span>
       </div>
     );
@@ -380,7 +465,16 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
   });
   const sample = manifest.samples[sampleIndex];
   const [reduced, setReduced] = useState(() => (typeof window !== "undefined" && window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false));
-  const compact = useMedia("(max-width: 719px)");
+  const compact = useMedia(COMPACT_QUERY);
+  // camera (iteration 7): the viewer's stored choice, else follow on wide screens and the full field on narrow ones
+  const [camMode, setCamModeState] = useState<CamMode>(() => readCamPref()
+    ?? (typeof window !== "undefined" && window.matchMedia && window.matchMedia(COMPACT_QUERY).matches ? "full" : "follow"));
+  const setCamMode = useCallback((v: CamMode) => { setCamModeState(v); writeCamPref(v); }, []);
+  const camModeRef = useRef(camMode);
+  camModeRef.current = camMode;
+  const reducedRef = useRef(reduced);
+  reducedRef.current = reduced;
+  const effCam: CamMode = reduced ? "full" : camMode;
   // Team colours are ON in this dev prototype (founder D3, 2026-10-18); the dev bar's switch shows the neutral GTP frame.
   const [neutralColors, setNeutralColors] = useState(false);
   const palette = useMemo(
@@ -414,8 +508,11 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
     ball: null as SVGGElement | null, ribbon: null as SVGRectElement | null, ribbonHi: null as SVGRectElement | null, ribbonCue: null as SVGRectElement | null,
     trail: null as SVGRectElement | null, ring: null as SVGCircleElement | null, flash: null as SVGRectElement | null,
     clock: null as HTMLSpanElement | null, seek: null as HTMLInputElement | null, ptime: null as HTMLSpanElement | null,
-    cursor: null as HTMLSpanElement | null,
+    cursor: null as HTMLSpanElement | null, glow: null as SVGGElement | null,
+    cam: null as HTMLDivElement | null, tagStart: null as SVGGElement | null, tagEnd: null as SVGGElement | null, sitYds: null as HTMLSpanElement | null,
   });
+  /** the drive's recorded spots in TOTAL yards, for the screen-space tags */
+  const spotRef = useRef<{ start: number | null; end: number | null }>({ start: null, end: null });
   const liveRefs = useMemo(() => ({
     ball: (el: SVGGElement | null) => { els.current.ball = el; },
     ribbon: (el: SVGRectElement | null) => { els.current.ribbon = el; },
@@ -424,10 +521,15 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
     trail: (el: SVGRectElement | null) => { els.current.trail = el; },
     ring: (el: SVGCircleElement | null) => { els.current.ring = el; },
     flash: (el: SVGRectElement | null) => { els.current.flash = el; },
+    glow: (el: SVGGElement | null) => { els.current.glow = el; },
   }), []);
+  const setCamEl = useCallback((el: HTMLDivElement | null) => { els.current.cam = el; }, []);
+  const setTagStart = useCallback((el: SVGGElement | null) => { els.current.tagStart = el; }, []);
+  const setTagEnd = useCallback((el: SVGGElement | null) => { els.current.tagEnd = el; }, []);
+  const setSitYds = useCallback((el: HTMLSpanElement | null) => { els.current.sitYds = el; }, []);
   const setClockEl = useCallback((el: HTMLSpanElement | null) => { els.current.clock = el; }, []);
   const setCursorEl = useCallback((el: HTMLSpanElement | null) => { els.current.cursor = el; }, []);
-  const lastText = useRef({ clock: "", ptime: "", vt: "" });
+  const lastText = useRef({ clock: "", ptime: "", vt: "", cam: "", yds: "", tags: "" });
 
   const frameAt = useCallback((t: number): SceneState | null => (compiled && sample ? (stateAtCompiled(sample, compiled, teams, t) as SceneState) : null), [compiled, sample, teams]);
 
@@ -453,23 +555,51 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
         const pt = `${fmtPlayback(tv)} / ${fmtPlayback(compiled.tEnd)}`;
         if (e.ptime && lastText.current.ptime !== pt) { e.ptime.textContent = pt; lastText.current.ptime = pt; }
       }
+      if (e.sitYds && sample) {
+        const yt = progressYardsText(sample.events[f.driveIdx], f.ballYardsToGoal);
+        if (lastText.current.yds !== yt) { e.sitYds.textContent = yt; lastText.current.yds = yt; }
+      }
     }
-  }, [store, compiled]);
+    // the camera (iteration 7): one transform on the cached field wrapper, a pure function of (run, t, mode)
+    if (compiled && sample) {
+      const b = boxRef.current;
+      const cam = cameraAt(sample, compiled, live.t, { mode: camModeRef.current, reducedMotion: reducedRef.current });
+      const tf = cameraTransform(cam, b.W, b.H);
+      if (e.cam && lastText.current.cam !== tf.css) {
+        e.cam.style.transform = tf.css === "none" ? "" : tf.css;
+        e.cam.dataset.stZoom = String(cam.z);
+        e.cam.dataset.stShot = cam.shot;
+        lastText.current.cam = tf.css;
+      }
+      const sp = spotRef.current;
+      const tagKey = `${tf.css}|${sp.start}|${sp.end}|${b.W}|${Boolean(e.tagStart)}|${Boolean(e.tagEnd)}`;
+      if (lastText.current.tags !== tagKey) {
+        lastText.current.tags = tagKey;
+        for (const [el, x] of [[e.tagStart, sp.start], [e.tagEnd, sp.end]] as [SVGGElement | null, number | null][]) {
+          if (!el || x == null) continue;
+          const w = Number(el.dataset.stW) || 0;
+          const sx = Math.min(Math.max(cameraScreenX(cam, b.W, x), w / 2 + 2), b.W - w / 2 - 2);
+          el.setAttribute("transform", `translate(${sx.toFixed(2)} 0)`);
+        }
+      }
+    }
+  }, [store, compiled, sample]);
 
   useEffect(() => store.subscribe(paintFrame), [store, paintFrame]);
   // after every React commit (coarse change, resize, palette), repaint so freshly mounted nodes carry the frame
-  useEffect(() => { lastText.current = { clock: "", ptime: "", vt: "" }; paintFrame(); });
+  useLayoutEffect(() => { lastText.current = { clock: "", ptime: "", vt: "", cam: "", yds: "", tags: "" }; paintFrame(); });
 
   const commit = useCallback((next: Tp) => {
     tpRef.current = next;
     const frame = frameAt(next.t);
     store.set({ t: next.t, frame, playState: next.state });
     setCtl((c) => (c.state === next.state && c.speed === next.speed ? c : { state: next.state, speed: next.speed }));
+    const pc = frame && compiled && sample ? periodCard(sample, compiled, teams, next.t) : null;
     const key = frame
-      ? `${frame.driveIdx}|${frame.phase}|${frame.score.home}-${frame.score.away}|${frame.chip?.text ?? ""}|${frame.card ?? ""}|${frame.rollover?.quarter ?? ""}|${frame.dimmed}|${frame.period}|${frame.clockIllustrative}|${next.state === "IDLE"}`
+      ? `${frame.driveIdx}|${frame.phase}|${frame.score.home}-${frame.score.away}|${frame.chip?.text ?? ""}|${frame.card ?? ""}|${frame.rollover?.quarter ?? ""}|${frame.dimmed}|${frame.period}|${frame.clockIllustrative}|${next.state === "IDLE"}|${pc?.driveIdx ?? ""}`
       : "none";
     setCoarse((k) => (k === key ? k : key));
-  }, [frameAt, store]);
+  }, [frameAt, store, compiled, sample, teams]);
 
   const say = useCallback((msg: { kind: string; text: string }) => {
     const speed = tpRef.current?.speed ?? 1;
@@ -625,6 +755,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
     if (e.altKey || e.ctrlKey || e.metaKey) return;
     const target = e.target as HTMLElement;
     if (target.closest("[role=dialog]")) return; // sheets keep their own keys
+    if (e.key === "Escape" && finalCardOpen) { e.preventDefault(); dismissFinal(); return; }
     const tag = target.tagName;
     const isRange = tag === "INPUT" && (target as HTMLInputElement).type === "range";
     const isInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
@@ -668,16 +799,47 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
   // score bug inputs
   const prevScore = useRef<{ home: number; away: number } | null>(null);
   const scoreKey = f ? `${f.score.home}-${f.score.away}` : "";
+  const rollFrom = useRef<{ home: number | null; away: number | null } | null>(null);
   const bump = useMemo(() => {
     const p = prevScore.current;
     const now = f ? f.score : null;
-    const b = p && now ? { home: now.home > p.home ? now.home : 0, away: now.away > p.away ? now.away : 0 } : { home: 0, away: 0 };
+    // the digit roll plays only while PLAYING forward through a score; a seek just shows the score
+    const live = tpRef.current?.state === "PLAYING";
+    const b = live && p && now ? { home: now.home > p.home ? now.home : 0, away: now.away > p.away ? now.away : 0 } : { home: 0, away: 0 };
+    rollFrom.current = live && p && now ? { home: now.home > p.home ? p.home : null, away: now.away > p.away ? p.away : null } : null;
     prevScore.current = now;
     return b;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scoreKey]);
   const stateChip = !f ? null : f.breakKind === "HALFTIME" ? "HALFTIME" : f.breakKind === "OT_START" ? "END REG" : f.breakKind === "FINAL" ? (sample?.finalScore?.overtime ? "FINAL/OT" : "FINAL")
     : f.rollover ? `END Q${f.rollover.quarter}` : null;
+
+  // final card dismissal (Escape or its button); it comes back whenever the final frame is reached again
+  const [dismissed, setDismissed] = useState<string | null>(null);
+  const finalKey = sample && f?.breakKind === "FINAL" ? `${sample.runIndex}-FINAL` : null;
+  const finalCardOpen = Boolean(finalKey && dismissed !== finalKey);
+  const playBtn = useRef<HTMLButtonElement>(null);
+  const dismissFinal = useCallback(() => {
+    if (!finalKey) return;
+    setDismissed(finalKey);
+    requestAnimationFrame(() => playBtn.current?.focus());
+  }, [finalKey]);
+  useEffect(() => { if (!finalKey && dismissed) setDismissed(null); }, [finalKey, dismissed]);
+  const cards: CardSet = {
+    period: f && compiled && sample ? periodCard(sample, compiled, teams, live.t) : null,
+    brk: f?.breakKind && sample ? breakCard(f.breakKind, f.score, sample, teams, manifest.runCount) : null,
+    roll: f ? rolloverCard(f.rollover, f.score, teams) : null,
+    endHalf: f && ev && f.phase === "RESULT" && ev.outcome === "END_HALF" ? ev.outcomeLabel.charAt(0).toUpperCase() + ev.outcomeLabel.slice(1) : null,
+  };
+  if (cards.brk?.kind === "FINAL" && !finalCardOpen) cards.brk = null;
+  const situation = f && ev && sample ? driveSituation(ev, f.phase === "FINAL" ? "RESULT" : f.phase === "BREAK" || f.phase === "TRANSITION" ? "RESULT" : f.phase, teams, sample.events.length) : null;
+  const onCamKey = (e: ReactKeyboardEvent) => {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+    e.preventDefault();
+    const next: CamMode = camMode === "follow" ? "full" : "follow";
+    setCamMode(next);
+    requestAnimationFrame(() => document.getElementById(`${uid}-cam-${next}`)?.focus());
+  };
 
   const chipList = (vertical: boolean) => (
     <div className={`st-chips${vertical ? " is-vertical" : ""}`} role="radiogroup" aria-labelledby={`${uid}-samples`} onKeyDown={onChipKey}>
@@ -717,12 +879,15 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
   const o = overlayFrame(shown, box);
   // static layers: built once per size/palette, never per frame
   const detail = box.W >= 400;
-  const staticLayer = useMemo(() => <StaticField palette={palette} idPrefix={`${uid}-f`} detail={detail} />, [palette, uid, detail]);
+  const staticLayer = useMemo(() => <StaticField palette={palette} idPrefix={`${uid}-f`} detail={detail} grain={false} />, [palette, uid, detail]);
   const marksLayer = useMemo(() => <FieldMarks W={box.W} H={box.H} palette={palette} teams={teams} />, [box.W, box.H, palette, teams]);
   const m = fieldMap(box.W, box.H);
   const def = ev ? teams[ev.offense === "home" ? "away" : "home"].abbr : "";
   const showEnd = Boolean(f && AFTER_RESULT.includes(f.phase));
   const endFieldX = ev ? (ev.offense === "home" ? 110 - ev.fieldEnd : 10 + ev.fieldEnd) : 0;
+  spotRef.current = ev
+    ? { start: (ev.offense === "home" ? 110 - ev.fieldStart : 10 + ev.fieldStart) + MARGIN_X, end: showEnd ? endFieldX + MARGIN_X : null }
+    : { start: null, end: null };
   const scoringNow = Boolean(f && ev && f.phase === "RESULT" && ev.scoring);
   const sides = ["away", "home"] as Side[];
   const colourNote = palette.mode !== "team"
@@ -747,6 +912,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
       data-st-run={sample?.runIndex ?? ""}
       data-st-reduced={reduced ? "1" : "0"}
       data-st-colors={palette.mode}
+      data-st-camera={effCam}
     >
       <Banner manifest={manifest} sample={sample ?? null} />
       <div className="st-devbar">
@@ -795,15 +961,29 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                     clockIllustrative={f.clockIllustrative}
                     stateChip={stateChip}
                     bump={bump}
+                    from={rollFrom.current ?? undefined}
                     illusId={`${uid}-illus`}
                     clockRef={setClockEl}
+                    situation={situation}
+                    sitYardsRef={setSitYds}
                   />
                 ) : null}
-                <SceneBadge />
-                <div ref={stageRef} className={`st-fieldwrap${f?.dimmed ? " is-dim" : ""}`}>
+                <div className="st-scenebar">
+                  <SceneBadge />
+                  <div className="st-camtoggle" role="radiogroup" aria-label="Camera" aria-describedby={reduced ? `${uid}-camnote` : undefined} onKeyDown={onCamKey}>
+                    <span className="st-camtoggle-l" aria-hidden="true">Camera</span>
+                    {(["follow", "full"] as CamMode[]).map((m) => (
+                      <button key={m} id={`${uid}-cam-${m}`} type="button" role="radio" aria-checked={camMode === m} tabIndex={camMode === m ? 0 : -1} className="st-camopt" onClick={() => setCamMode(m)}>
+                        {m === "follow" ? "Follow" : "Full field"}
+                      </button>
+                    ))}
+                  </div>
+                  {reduced ? <span id={`${uid}-camnote`} className="st-camnote">Reduced motion: the field stays fully framed</span> : null}
+                </div>
+                <div ref={stageRef} className={`st-fieldwrap${f?.dimmed ? " is-dim" : ""}`} data-st-camera={effCam}>
+                  <div className="st-cam" ref={setCamEl} data-st-cam="">
                   {staticLayer}
                   {marksLayer}
-                  <div className="st-dimmer" aria-hidden="true" />
                   <FieldLive
                     W={box.W}
                     H={box.H}
@@ -819,17 +999,31 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                     reducedMotion={reduced}
                     refs={liveRefs}
                     travelDir={ev ? Math.sign(endFieldX - (ev.offense === "home" ? 110 - ev.fieldStart : 10 + ev.fieldStart)) || (ev.offense === "home" ? 1 : -1) : 1}
+                    spotTags={false}
                   />
-                  {f && ev ? <Interstitial f={f} ev={ev} teams={teams} overtime={Boolean(sample.finalScore?.overtime)} palette={palette} /> : null}
+                  </div>
+                  <GrainLayer idPrefix={`${uid}-g`} />
+                  <div className="st-atmos" aria-hidden="true" />
+                  <SpotTags
+                    W={box.W}
+                    H={box.H}
+                    startTag={ev ? `START · ${fieldPosition(ev.fieldStart, def).toUpperCase()}` : ""}
+                    endTag={ev ? `END · ${ev.fieldEnd <= 0 ? "END ZONE" : ev.fieldEnd >= 100 ? "OWN END ZONE" : fieldPosition(ev.fieldEnd, def).toUpperCase()}` : ""}
+                    showEnd={showEnd}
+                    startRef={setTagStart}
+                    endRef={setTagEnd}
+                  />
+                  <div className="st-dimmer" aria-hidden="true" />
+                  {f && ev ? <BroadcastCards cards={cards} palette={palette} onDismiss={dismissFinal} /> : null}
                   {scoringNow && ev ? <ScoreFlash ev={ev} teams={teams} palette={palette} /> : null}
-                  {f && ev ? <LowerThird f={f} ev={ev} teams={teams} sample={sample} scoring={scoringNow} /> : null}
+                  {f && ev ? <LowerThird f={f} ev={ev} teams={teams} sample={sample} scoring={scoringNow} palette={palette} /> : null}
                 </div>
                 <FieldLegend homeAbbr={teams.home.abbr} />
 
                 <div className="st-transport" role="group" aria-label="Playback controls">
                   <div className="st-transport-btns">
                     <button type="button" className="st-btn" aria-label="Previous drive" onClick={() => act("PREV_DRIVE")}><Icon d={ICONS.prev} /></button>
-                    <button type="button" className="st-btn st-play" aria-label={playing ? "Pause" : "Play"} onClick={() => act("TOGGLE")}>
+                    <button ref={playBtn} type="button" className="st-btn st-play" aria-label={playing ? "Pause" : "Play"} onClick={() => act("TOGGLE")}>
                       <Icon d={playing ? ICONS.pause : ICONS.play} />
                     </button>
                     <button type="button" className="st-btn" aria-label="Next drive" onClick={() => act("NEXT_DRIVE")}><Icon d={ICONS.next} /></button>

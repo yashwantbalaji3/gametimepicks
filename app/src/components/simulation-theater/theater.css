@@ -391,3 +391,139 @@
 .st-root[data-st-colors="team"] .st-seg.is-cue .st-ico:not(:empty){padding:0 2px;border-radius:2px;background:var(--st-off)}
 .st-bug-team.is-team.is-cue .st-bug-bar{width:12px;flex-basis:12px;background:repeating-linear-gradient(135deg, var(--st-team-trim) 0 3px, var(--st-team-fill) 3px 6px)}
 .st-root[data-st-colors="team"] .st-ribbon-cue{pointer-events:none}
+
+/* ══ iteration 7 · broadcast package: camera, score bug, transitions, atmosphere ═══════════════════════════════════
+   Motion still uses the --motion-* role tokens only, so the global reduced-motion block shortens every CSS animation
+   here; the island additionally pins the camera to the full field and drops the glow and bloom under reduced motion. */
+
+/* camera (spec S8): ONE transform on a wrapper whose layers are cached (will-change); the grain, the stadium lighting,
+   the spot tags and the cards are screen-space siblings, outside the transformed subtree */
+.st-cam{position:absolute;inset:0;transform-origin:0 0;will-change:transform}
+.st-grain,.st-hud{pointer-events:none}
+.st-hud .st-spottag text{font-family:var(--font-mono)}
+.st-ezglow{pointer-events:none}
+.st-atmos{position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 34% 60% at 10% -14%, color-mix(in srgb, var(--lava-text) 11%, transparent), transparent 72%),
+    radial-gradient(ellipse 34% 60% at 90% -14%, color-mix(in srgb, var(--lava-text) 11%, transparent), transparent 72%),
+    radial-gradient(ellipse 28% 40% at 50% -12%, color-mix(in srgb, var(--vault-warn) 6%, transparent), transparent 70%),
+    radial-gradient(ellipse 78% 74% at 50% 46%, transparent 56%, color-mix(in srgb, var(--bg) 52%, transparent) 100%)}
+
+/* scene bar: the exact badge, then the camera control (radiogroup, 44 px targets) */
+.st-scenebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;margin-top:8px}
+.st-scenebar .st-badge{margin:0}
+.st-camtoggle{display:inline-flex;align-items:stretch;border:1px solid var(--border-strong);border-radius:10px;overflow:hidden;background:var(--st-panel-2)}
+.st-camtoggle-l{display:flex;align-items:center;padding:0 10px;font:500 10px var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--st-faint)}
+.st-camopt{min-height:44px;min-width:44px;padding:0 12px;border:0;border-left:1px solid var(--border-strong);background:transparent;color:var(--st-mute);font:500 12.5px var(--font-display);cursor:pointer;
+  transition:background var(--motion-state-change-duration) var(--motion-state-change-easing),color var(--motion-state-change-duration) var(--motion-state-change-easing)}
+.st-camopt[aria-checked="true"]{background:color-mix(in srgb, var(--lava-heat) 22%, var(--st-panel-2));color:var(--st-text)}
+.st-camnote{font:500 10.5px var(--font-mono);color:var(--st-faint)}
+
+/* score bug, broadcast pass */
+.st-bug{flex-wrap:wrap;min-height:64px}
+.st-bug-teams{min-height:62px}
+.st-bug-team{gap:12px;padding-right:16px}
+.st-bug-abbr{font:800 22px/26px var(--font-headline);letter-spacing:.05em}
+.st-bug-score{font:700 40px/46px var(--font-mono);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.st-bug-team.is-team.is-lift,.st-card-team.is-team.is-lift,.st-lower-team.is-team.is-lift{background:linear-gradient(180deg, color-mix(in srgb, var(--lava-text) 16%, var(--st-team-fill)) 0%, var(--st-team-fill) 58%)}
+.st-bug-team.is-team.is-shade,.st-card-team.is-team.is-shade,.st-lower-team.is-team.is-shade{background:linear-gradient(180deg, var(--st-team-fill) 42%, color-mix(in srgb, var(--bg) 30%, var(--st-team-fill)) 100%)}
+.st-bug-clock{min-width:172px;padding:8px 18px;row-gap:3px}
+.st-bug-q{display:inline-flex;align-items:center;justify-content:center;min-width:36px;padding:2px 8px;border-radius:5px;background:var(--lava-heat);color:var(--vault-on-accent);font:800 14px/18px var(--font-headline)}
+.st-bug-time{font:700 24px/28px var(--font-mono)}
+/* digit roll (spec §2.4: 240 ms): the new score rises into place and the previous one, generated content with empty
+   alternative text (never read, never in innerText), rolls out above it */
+.st-bug-score.is-roll{display:inline-block;overflow:hidden}
+.st-roll{display:inline-block;position:relative;animation:st-roll calc(var(--motion-number-transition-duration) / 2) var(--motion-number-transition-easing) both}
+.st-roll::before{content:attr(data-from) / "";position:absolute;right:0;bottom:100%;opacity:.7}
+@keyframes st-roll{from{transform:translateY(100%)}to{transform:none}}
+.st-bug-team:has(.is-roll){animation:st-bugflash var(--motion-emphasis-duration) var(--motion-emphasis-easing) both}
+@keyframes st-bugflash{0%{filter:brightness(1.25)}100%{filter:none}}
+/* the drive strip: recorded totals at drive end, recorded start spot, labelled illustrative yardage in between */
+.st-bug-sit{flex:1 1 100%;display:flex;align-items:center;gap:10px;min-width:0;min-height:26px;padding:3px 12px;border-top:1px solid var(--border-strong);
+  background:color-mix(in srgb, var(--bg) 55%, transparent);font:600 11.5px var(--font-mono);letter-spacing:.04em;color:var(--st-text);font-variant-numeric:tabular-nums}
+.st-bug-sit-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-bug-sit-yds{color:var(--vault-warn);white-space:nowrap}
+.st-bug-sit-tag{margin-left:auto;flex:0 0 auto;padding:1px 7px;border-radius:999px;font:600 9.5px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border-strong);color:var(--st-faint)}
+.st-bug-sit-tag.is-illustrative{color:var(--vault-warn);border-color:color-mix(in srgb, var(--vault-warn) 55%, transparent)}
+
+/* transitions: start of period (non-blocking strip), quarter rollover, halftime and final cards */
+.st-strip.is-period{flex-direction:column;align-items:flex-start;gap:2px;top:8%;padding:9px 20px 10px 16px;border-left-color:var(--lava-heat)}
+.st-strip-eyebrow{font:600 11px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--st-mute);font-variant-numeric:tabular-nums}
+.st-strip.is-period .st-strip-main{font-size:clamp(15px, 3cqi, 24px);letter-spacing:.16em}
+.st-strip-note{font:500 10px var(--font-mono);color:var(--st-faint);letter-spacing:.06em}
+.st-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(380px, 88%);padding:0 0 10px;border-radius:12px;overflow:hidden;z-index:2;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--surface-elevated) 96%, transparent), color-mix(in srgb, var(--bg) 94%, transparent));
+  border:1px solid var(--border-strong);box-shadow:0 24px 48px -20px var(--bg),inset 0 1px 0 color-mix(in srgb, var(--lava-text) 10%, transparent);
+  animation:st-card-in var(--motion-entrance-duration) var(--motion-entrance-easing) both}
+@keyframes st-card-in{from{opacity:0;transform:translate(-50%,-46%) scale(.98)}to{opacity:1;transform:translate(-50%,-50%)}}
+.st-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:46px;padding:4px 6px 2px 16px;border-top:3px solid var(--vault-warn)}
+.st-card-title{margin:0;font:800 clamp(16px, 3.2cqi, 26px)/1.1 var(--font-headline);letter-spacing:.2em;text-transform:uppercase}
+.st-card-x{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid var(--border-strong);background:var(--st-panel-2);color:var(--st-text);cursor:pointer}
+.st-card-x svg{width:18px;height:18px}
+.st-card-table{width:100%;border-collapse:separate;border-spacing:0 4px;padding:0 12px;font-variant-numeric:tabular-nums}
+.st-card-table thead th{font:600 10px var(--font-mono);letter-spacing:.12em;color:var(--st-faint);text-align:right;padding:0 10px}
+.st-card-table tbody th{text-align:left;padding:0;font-weight:inherit}
+.st-card-table td{font:700 17px var(--font-mono);text-align:right;padding:0 10px;color:var(--st-mute)}
+.st-card-table td.is-total{font-size:clamp(22px, 4cqi, 34px);color:var(--st-text)}
+.st-card-table tr.is-leader td.is-total{color:var(--vault-warn)}
+.st-card-team{display:inline-flex;align-items:center;gap:10px;min-width:92px;height:40px;padding-right:14px;border-radius:6px;overflow:hidden;font:800 18px var(--font-headline);letter-spacing:.05em;background:var(--st-panel-2);color:var(--st-text)}
+.st-card-team .st-bug-bar{width:6px;flex:0 0 6px;background:var(--st-team)}
+.st-card-team.is-team{color:var(--st-team-ink);box-shadow:0 0 0 1px var(--st-keyline)}
+.st-card-team.is-team .st-bug-bar{background:var(--st-team-trim)}
+.st-card-team.is-team.is-cue .st-bug-bar{width:12px;flex-basis:12px;background:repeating-linear-gradient(135deg, var(--st-team-trim) 0 3px, var(--st-team-fill) 3px 6px)}
+.st-card-win{margin-left:8px;color:var(--vault-warn);font-size:12px}
+.st-card-line{margin:4px 16px 0;font:500 10.5px var(--font-mono);letter-spacing:.1em;color:var(--st-mute)}
+.st-card-line b{color:var(--vault-warn);font-weight:700}
+.st-card.is-final .st-card-head{border-top-color:var(--lava-heat)}
+.st-root[data-st-colors="team"] .st-card{overflow:hidden}
+
+/* drive-end lower third: the offense's own block, then the recorded totals */
+.st-lower.is-drive .st-lower-team{display:flex;align-items:center;padding:6px 10px;font:800 12.5px var(--font-headline);letter-spacing:.08em;background:var(--st-panel-2);color:var(--st-text)}
+.st-lower.is-drive .st-lower-team.is-team{color:var(--st-team-ink)}
+.st-lower.is-drive .st-lower-tag{background:color-mix(in srgb, var(--lava-text) 8%, var(--bg));color:var(--st-mute);font-weight:600}
+
+@container (max-width:640px){
+  .st-bug-score{font-size:32px;line-height:38px}
+  .st-bug-clock{min-width:128px;padding:6px 12px}
+  .st-bug-time{font-size:19px}
+  .st-card{width:min(340px, 92%)}
+}
+@container (max-width:480px){
+  .st-bug{min-height:52px}
+  .st-bug-teams{min-height:42px}
+  .st-bug-team{gap:6px;padding-right:10px}
+  .st-bug-abbr{font-size:17px;line-height:20px}
+  .st-bug-score{font-size:28px;line-height:32px}
+  .st-bug-clock{min-width:0}
+  .st-bug-q{font-size:12px;line-height:15px;min-width:28px;padding:1px 6px}
+  .st-bug-time{font-size:15px;line-height:18px}
+  .st-bug-sit{min-height:22px;padding:2px 10px;font-size:10.5px;gap:8px}
+  .st-bug-sit-tag{font-size:8.5px;padding:0 5px}
+  .st-scenebar{gap:4px 8px}
+  .st-camtoggle-l{display:none}
+  .st-strip.is-period{top:5%;padding:5px 10px 6px 10px}
+  .st-strip.is-period .st-strip-note{display:none}
+  .st-strip-eyebrow{font-size:9.5px}
+  .st-card{width:min(300px, 94%);padding-bottom:6px;border-radius:10px}
+  .st-card-head{min-height:44px;padding:0 0 0 12px}
+  .st-card-title{font-size:14px;letter-spacing:.16em}
+  .st-card-x{border:0;border-left:1px solid var(--border-strong);border-radius:0}
+  .st-card-table{border-spacing:0 3px;padding:0 8px}
+  .st-card-table thead th{font-size:9px;padding:0 6px}
+  .st-card-table td{font-size:13px;padding:0 6px}
+  .st-card-table td.is-total{font-size:20px}
+  .st-card-team{height:28px;min-width:64px;font-size:14px;gap:6px;padding-right:8px}
+  .st-card-line{margin:2px 12px 0;font-size:9px;letter-spacing:.06em}
+  .st-lower.is-drive .st-lower-team{padding:4px 6px;font-size:10.5px}
+}
+@container (max-width:340px){
+  .st-bug-score{font-size:24px;line-height:28px}
+  .st-card-line span{display:none}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .st-card,.st-roll,.st-bug-team:has(.is-roll){animation:none}
+  .st-roll::before{display:none}
+}
+.st-root[data-st-reduced="1"] .st-card,.st-root[data-st-reduced="1"] .st-roll,.st-root[data-st-reduced="1"] .st-bug-team:has(.is-roll){animation:none}
+.st-root[data-st-reduced="1"] .st-roll::before{display:none}

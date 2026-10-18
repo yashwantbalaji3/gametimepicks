@@ -6,6 +6,18 @@ import type { CSSProperties, Ref } from "react";
 import type { Palette, Side, Teams } from "./FieldScene";
 import type { TheaterEvent, TheaterManifest, TheaterSample } from "./types";
 import { LABELS, PERIOD_SHORT, fieldPosition, fmtClock, fmtDuration, plural, transcriptSentence } from "@/lib/simulation-theater/format.mjs";
+import { relLuminance } from "@/lib/simulation-theater/nfl-team-colors.mjs";
+
+/**
+ * Score-bug depth (iteration 7): the official fill stays the block's colour; the gradient only ever moves AWAY from the
+ * block's ink (a light lift at the top under dark ink, a shade at the bottom under light ink), so the ink's contrast can
+ * only rise above the flat fill's ≥4.5:1 (theater-broadcast.test.mjs checks all 32 teams). Returns the CSS class.
+ */
+export function depthClass(ink: string) {
+  return /^#[0-9a-f]{6}$/i.test(ink) && relLuminance(ink) < 0.18 ? "is-lift" : "is-shade";
+}
+
+export type Situation = { kind: "start" | "progress" | "recorded"; text: string; tag: string };
 
 export function Banner({ manifest, sample }: { manifest: TheaterManifest; sample: TheaterSample | null }) {
   return (
@@ -42,8 +54,13 @@ export type BugProps = {
   clockIllustrative: boolean;
   stateChip: string | null;
   bump?: { home: number; away: number };
+  /** iteration 7: the score each side rolls FROM (digit roll, only while playing); null = no roll */
+  from?: { home: number | null; away: number | null };
   illusId: string;
   clockRef?: Ref<HTMLSpanElement>;
+  /** iteration 7: the drive strip (lib/simulation-theater/broadcast.mjs driveSituation) and its per-frame yardage span */
+  situation?: Situation | null;
+  sitYardsRef?: Ref<HTMLSpanElement>;
 };
 
 /**
@@ -54,7 +71,8 @@ export type BugProps = {
  * team block (shape and position, never colour alone). No timeouts: the engine records none. The clock's
  * "illustrative" tag shows whenever it is interpolated between recorded instants.
  */
-export function ScoreBug({ teams, palette, score, offense, period, periodClock, clockIllustrative, stateChip, bump, illusId, clockRef }: BugProps) {
+export function ScoreBug({ teams, palette, score, offense, period, periodClock, clockIllustrative, stateChip, bump, from, illusId, clockRef, situation, sitYardsRef }: BugProps) {
+  const rollFrom = (side: Side) => (from && from[side] != null && from[side] !== score[side] ? from[side] : null);
   const team = (side: Side) => {
     const has = offense === side;
     const p = palette[side];
@@ -63,11 +81,16 @@ export function ScoreBug({ teams, palette, score, offense, period, periodClock, 
       ? { "--st-team": p.accent, "--st-team-fill": p.fill, "--st-team-ink": p.ink, "--st-team-trim": p.trim }
       : { "--st-team": p.accent };
     return (
-      <div className={`st-bug-team${teamMode ? " is-team" : ""}${teamMode && p.patterned ? " is-cue" : ""}${has ? " has-ball" : ""}`} style={vars as CSSProperties} data-st-team={teams[side].abbr}>
+      <div className={`st-bug-team${teamMode ? ` is-team ${depthClass(p.ink)}` : ""}${teamMode && p.patterned ? " is-cue" : ""}${has ? " has-ball" : ""}`} style={vars as CSSProperties} data-st-team={teams[side].abbr}>
         <span className="st-bug-bar" aria-hidden="true" />
         <span className="st-bug-abbr">{teams[side].abbr}</span>
         {has ? <><BallGlyph /><span className="st-sr"> has the ball, </span></> : <span className="st-sr">, </span>}
-        <span key={bump ? `${side}-${bump[side]}` : side} className={`st-bug-score${bump && bump[side] ? " is-bump" : ""}`}>{score[side]}</span>
+        {rollFrom(side) != null ? (
+          /* digit roll: the previous score (generated content with empty alt text, so it is never read) rolls up and out */
+          <span key={`${side}-${score[side]}`} className="st-bug-score is-roll"><span className="st-roll" data-from={rollFrom(side) ?? undefined}>{score[side]}</span></span>
+        ) : (
+          <span key={bump ? `${side}-${bump[side]}` : side} className={`st-bug-score${bump && bump[side] ? " is-bump" : ""}`}>{score[side]}</span>
+        )}
       </div>
     );
   };
@@ -85,6 +108,13 @@ export function ScoreBug({ teams, palette, score, offense, period, periodClock, 
         <span id={illusId} className="st-sr">{LABELS.clockIllustrative}</span>
       </div>
       {stateChip ? <div className="st-bug-state">{stateChip}</div> : null}
+      {situation ? (
+        <div className={`st-bug-sit is-${situation.kind}`} data-st-situation={situation.kind}>
+          <span className="st-bug-sit-text">{situation.text}</span>
+          {situation.kind === "progress" ? <span className="st-bug-sit-yds" ref={sitYardsRef} /> : null}
+          <span className={`st-bug-sit-tag is-${situation.tag}`}>{situation.tag}</span>
+        </div>
+      ) : null}
     </div>
   );
 }
