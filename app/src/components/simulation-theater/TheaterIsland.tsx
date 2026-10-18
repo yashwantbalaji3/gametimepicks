@@ -303,10 +303,12 @@ function Interstitial({ f, ev, teams, overtime, palette }: { f: SceneState; ev: 
   return (
     <div className={`st-strip${f.rollover && !f.breakKind ? " is-roll" : ""}${major ? " is-major" : ""}`} aria-hidden="true" key={`${f.driveIdx}-${text}`}>
       {major && palette.mode === "team" ? (
-        /* halftime / end of regulation / final: the two teams' accents across the top, away then home (score-bug order) */
+        /* halftime / end of regulation / final: each team's block colour over its on-field accent, away then home
+           (score-bug order) */
         <span className="st-strip-rule">
-          <i style={{ background: palette.away.accent }} />
-          <i style={{ background: palette.home.accent }} />
+          {(["away", "home"] as Side[]).map((s) => (
+            <i key={s} style={{ background: `linear-gradient(180deg, ${palette[s].fill} 0 62%, ${palette[s].accent} 62% 100%)` }} />
+          ))}
         </span>
       ) : null}
       <span className="st-strip-main">{text}</span>

@@ -78,7 +78,8 @@ export function StaticField({ palette, idPrefix, detail = true }: { palette: Pal
   const zone = (side: Side, x0: number) => (
     <g>
       <rect x={fx(x0)} y={top} width={10 * U} height={FIELD_WID * U} style={{ fill: zoneFill(palette[side], mode) }} />
-      <rect x={fx(x0)} y={top} width={10 * U} height={FIELD_WID * U} fill={`url(#${id("pin")})`} />
+      {/* the pinstripe texture is for the neutral tint only: on a team colour it would read as the collision hatch */}
+      {mode === "neutral" ? <rect x={fx(x0)} y={top} width={10 * U} height={FIELD_WID * U} fill={`url(#${id("pin")})`} /> : null}
       {palette[side].hatched ? <rect x={fx(x0)} y={top} width={10 * U} height={FIELD_WID * U} fill={`url(#${id("hatch")})`} /> : null}
     </g>
   );
