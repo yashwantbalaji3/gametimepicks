@@ -29,7 +29,13 @@ export const TOKEN_EXCEPTIONS = Object.freeze([
     owner: "sport-operations",
     rationale: "Team/club brand colours are identity DATA, not theme drift (P207 contract). Re-theming them would misrepresent real organisations.",
     removal: "never (identity by contract)",
-    files: { "src/components/team-badge.tsx": 68, "src/components/cricket-team-badge.tsx": 21 },
+    files: {
+      "src/components/team-badge.tsx": 68,
+      "src/components/cricket-team-badge.tsx": 21,
+      /* Simulation Theater V2 NFL map (spec Appendix A): 32 teams × primary/secondary/accent + white/dark ink.
+         Unvalidated (TEAM_COLORS_VALIDATED = false): neutral tokens render unless a dev-only preview toggle is on. */
+      "src/lib/simulation-theater/nfl-team-colors.mjs": 98,
+    },
   },
   {
     id: "sport-accent-palette",
