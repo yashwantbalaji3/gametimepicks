@@ -199,6 +199,20 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 The audit's remaining items:
 - The void *reason* on postponed 10-16 rows reads "DNP/0-AB": a data/producer follow-up.
 
+- **2026-10-18 · #1088 part 2 VERIFIED + MLB lineup delivery.**
+  - **What happened:** GitHub delivered **none** of `mlb-lineup-refresh`'s 15:30–17:30Z slots. Founder-authorized single dispatch: run 39152425644 at 18:03Z, after both confirmed lineups were posted upstream (TB 9, CLE 9). It captured 2/2 confirmed batting orders and published `785fbdc8ff`.
+  - **#1088's gate gave PUBLISH on this real lineup change,** so it does not suppress meaningful updates. Production was `785fbdc8ff` at 18:06Z, before the 21:08Z first pitch.
+  - **Status `degraded` is correct:** 1 of TB's 9 confirmed batters has no GTP projection and is simulated at replacement level, as the rules require.
+  - **Measured schedule delivery** (scheduled runs within 60 min of the 9 daily 15:30–23:30Z slots): 10-11 5/9, 10-12 2/9, 10-13 4/9, 10-14 5/9, 10-15 5/9, 10-16 5/9, 10-17 7/9, 10-18 0/9 by 18:00Z. The first afternoon run landed 17:53–22:31Z.
+  - **Recommended permanent fix, NOT implemented (protected workflow; needs founder approval):** an `mlb-lineup-waiter` modelled on `nfl-pregame-free-refresh`.
+    - **Triggers:** reliable clocks (`workflow_run` off `mlb-daily-production` and `publication-watchdog`, plus the daily-products tick), with crons only as best-effort extras.
+    - **Behaviour:** one concurrency group, never cancelled. It waits *inside* the job from T−4h to first pitch, polling the free StatsAPI about every 10 min. It dispatches the existing refresh only when a confirmed lineup is new or changed against the committed simulation, re-deciding on fresh `main` before each dispatch and capping dispatches per slate.
+    - **Failure detection:** an ops alert when no confirmed-lineup simulation exists by T−60.
+    - **Cost:** $0 in Actions minutes (the repo is public). No paid API. **Vercel:** one build per *real* lineup change (#1088 suppresses everything else), likely fewer builds than today's hourly crons.
+    - **Rejected alternatives:**
+      - A staggered second cron: same delivery problem, small gain.
+      - Extending `cron-watchdog`: it is itself cron-driven and lands about 13:00–18:45Z, so it can't meet pregame deadlines.
+
 **Still to verify after scheduled runs:**
 - #1101 (`verify_1101.py`) after the next nightly settle;
 - #1088 (`verify_1088.py`; lineup/injury/roster updates not suppressed) after the next MLB pipeline runs;
