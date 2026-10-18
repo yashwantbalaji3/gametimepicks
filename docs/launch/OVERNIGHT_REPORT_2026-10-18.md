@@ -124,3 +124,37 @@ The canonical `GAMETIMEPICKS_MASTER_ROADMAP_V2.md` lives on the **#1116 docs bra
 3. **Simulation Theater:** approve the ST-01 v1.1 design and decisions D1, D2, D3 and D8.
 4. **Smart Betslip:** counsel engagement and scope (B1); comparison display rules (B2); commercial model (B3); budget (B4); freshness target (B5); age and jurisdiction (B6).
 5. **Process:** persist the standing merge policy in `CLAUDE.md`. The session was blocked from editing it. Consider the branch-protection ruleset (`docs/engineering/BRANCH_PROTECTION_RECOMMENDATION_2026-10-17.md`).
+
+## Daytime update: 10-18 about 13:50Z
+
+**Release acceptance:**
+- #1101 is verified; #1088 part 1 is verified.
+- ⏳ #1088 lineup refreshes run from 15:30Z.
+
+**NFL Sunday capture, mid-window health check at 13:46Z** (read-only `check-live.mjs` from `claude/live-hub-sunday-kit`):
+- pid 8301 alive; last pass 13:43:48Z (n=456);
+- 72 requests in the last hour, 0 non-200, 0 bot-challenged, 0 malformed lines;
+- HOU@JAX 401872996: LIVE, 0–0, 11 player-stat rows;
+- NO@NYG and BUF@LV not yet started.
+- **Not acceptance.** The next checks are at 17:15Z and 20:40Z, then `report.mjs` and `git-watch.mjs` after the final whistle.
+
+**Offshore prices:** **draft #1130**, head `d05a537cd7`.
+- MLB board rows are price-only offers. 10 of the 21 have model projections on the model board, DraftKings-priced and untouched; 11 had no model content.
+- Withheld offers are now counted on the page ("21 non-licensed offers not shown").
+- The 7 NFL records keep their projection, with "Price not shown".
+- **Awaiting founder approval of an exact head.** It is rebased after #1129.
+
+**#1129** (main latently red on 10-18 data):
+- the MLB contradiction guard sample;
+- the homepage word ceiling (1,821 > 1,820 on plain `main`, from the UFC past-event note).
+- Fixed and fully gated locally. It merges after the NFL window (from 23:46Z).
+
+**09:20Z settle dispatch:**
+- Not GitHub Actions automation, which dispatches as `github-actions[bot]`.
+- Not `cron-watchdog`.
+- Not this session, any local session, scheduled task, crontab or launchd.
+- What remains: a client using your GitHub credentials with `workflow` scope (web or mobile, `gh` elsewhere, or an authorized app or agent).
+- **Check:** GitHub → Settings → Security log at 09:20:05Z.
+- The run behaved exactly like a scheduled settle.
+
+**Session hygiene:** a stray self-referencing `app/node_modules/node_modules` symlink, created by this session at 12:09Z, caused one false local test failure. It was found and removed.
