@@ -160,7 +160,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 - 10-17 — #1118 merged as `07ecc9684c` (18:16Z): NFL product-day stale-anchor fix, live on Production `07ecc968`.
 - 10-17 — #1125 merged as `d22d085cc6` (20:08Z): explorer test made independent of the newest slate; main CI green; 0 Vercel builds.
 
-**Pending in the 10-18 release window (~04:30–08:30Z):**
+**10-18 release window (~04:30–08:30Z):**
 
 | PR | What | Where tracked |
 |---|---|---|
@@ -169,7 +169,30 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | #1120 | UX/HTML trio, with #1117 (HTML Release 1) and #1119 (UX Release 1) stacked inside | `UX-001` (§16) |
 | #1088 | MLB stamp-only build gate (protected workflows) | `COST-001` (§3A) |
 
-_(release window 10-18 — statuses filled after merge)_
+**10-18 release window: all four MERGED and PRODUCTION VERIFIED for deployment.** Each was an exact-head merge under the founder's standing policy, at 04:46:37–04:48:10Z.
+- Before merging:
+  - the MLB game TB@CLE was final and the UFC card was finished (13/13 bouts post);
+  - the :25–:45 lineup slot was respected;
+  - no data-writer workflows were running.
+
+| PR | Merge commit | Main CI (quality-gate) | Vercel |
+|---|---|---|---|
+| #1124 | `d29a2078ca` | ✅ 39098266421 | built |
+| #1101 | `36958c5e68` | ✅ 39098309659 | superseded by the next push (expected) |
+| #1120 (+ #1117, #1119) | `68135f7aa2` | ✅ 39098333216 | superseded by the next push (expected) |
+| #1088 | `05c9deea4f` | ✅ 39098353538: unit 9,489/9,491, post-build 707/710, 0 fail | built; **Production `05c9deea4f`** at 04:51:24Z |
+
+**Evidence:**
+- **Code identity:** main's code is identical to the locally validated candidate (`main` `6de21842dd` + the four PRs, merged in that order; full local gate green), with data paths excluded.
+- **Data:** no PR touched a data path. All 7 protected ledger and settled files are hash-identical to the pre-release baseline.
+- **Pages:** 11 key routes returned 200 with no error markers.
+- **Cost:** 2 Production builds for 4 merges.
+- **Superseded PRs:** #1117, #1119, #1092, #1096, #1102 and #1104–#1112 (incl. #1109, #1112), plus #1115, were auto-marked merged. Stacked #1097–#1100 and #1103 were closed with evidence: their heads are on `main`.
+
+**Still to verify after scheduled runs:**
+- #1101 (`verify_1101.py`) after the next nightly settle;
+- #1088 (`verify_1088.py`; lineup/injury/roster updates not suppressed) after the next MLB pipeline runs;
+- #1124's build effect over 7 days (`docs/cost/VERCEL_BUILDS_MEASURED_2026-10-18.md`).
 
 **Open, outside the window:**
 - #1121 Ask spend control (Production must name its provider; kill switch accepts off/no/disabled; head `abb72dff26`). ⚠ It can switch Ask off if `ASK_MODEL_PROVIDER` is unset, so it merges only after the env is confirmed.
