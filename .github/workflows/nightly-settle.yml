@@ -840,6 +840,14 @@ jobs:
           # Committing it here is what makes the contract genuinely self-updating.
           git add app/public/data/research/ 2>/dev/null || true
 
+          # Historical stamp guard (2026-10-15). A re-run regenerates every dated settlement artefact and
+          # restamps it: each morning re-run on 2026-10-15 rewrote ~386 past-dated files (16,823 gradedAt,
+          # 32 settledAt) with no other change. A staged past-dated JSON/JSONL whose only difference is its
+          # stamps goes back to its committed bytes, so settled history stops moving; any real change — a
+          # correction, a late result, a new row — publishes as before, as do undated, today's and new files.
+          # If the guard cannot run it changes nothing, and this step publishes everything staged, as before.
+          node app/scripts/ops/historical-stamp-guard.mjs || echo "::warning::historical-stamp-guard could not run (exit $?) — publishing everything staged"
+
           if git diff --staged --quiet; then
             echo "No settled-data changes — nothing to commit."
             exit 0
