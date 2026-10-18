@@ -82,11 +82,90 @@ test("every NON_BUILD_INPUT prefix is real in source and absent from the built e
     // reader ⇒ producer: the rule must skip something that actually exists, or it is a no-op.
     const src = path.join(APP, rel);
     assert.ok(fs.existsSync(src), `${prefix} is skipped by the deploy trigger but does not exist in source — the rule is a no-op`);
-    const files = fs.readdirSync(src, { recursive: true, withFileTypes: true }).filter((e) => e.isFile());
+    // A trailing slash names a tree; anything else names one file (COST-001 Stage B: admin/status.json).
+    const files = prefix.endsWith("/")
+      ? fs.readdirSync(src, { recursive: true, withFileTypes: true }).filter((e) => e.isFile())
+      : fs.statSync(src).isFile() ? [src] : [];
     assert.ok(files.length > 0, `${prefix} is skipped by the deploy trigger but is empty in source — the rule is a no-op`);
 
     // producer ⇒ reader: nothing under it may reach the export, or skipping its builds serves stale bytes.
     const exported = path.join(out, rel.replace(/^public\//, ""));
     assert.ok(!fs.existsSync(exported), `${prefix} reaches the export at ${path.relative(APP, exported)} — the deploy trigger must stop skipping builds for it`);
   }
+});
+
+/**
+ * A FILE-LEVEL NON_BUILD_INPUT MUST HAVE NO PUBLIC READER (COST-001 Stage B, 2026-10-14).
+ *
+ * The export check above proves the file is not SERVED. It cannot prove the file is not READ at build
+ * time by a public page — a page that renders a field of it would then go stale while the deploy trigger
+ * skipped. (That is exactly the standing exception for the ops/ tree: public pages read
+ * ops/publication-slo.json through lib/ops/read-publication-slo.ts, which is why the MLB stamp gate
+ * publishes whenever that verdict's public fields move — lib/ops/stamp-only-gate.mjs.) So for every
+ * file-level entry, every source that names it must be an internal-only reader.
+ */
+/**
+ * PUBLIC REACHABILITY. A module matters here only if a PUBLIC route can import it at build time: every
+ * page/layout/route under src/app outside the pruned internal routes (/ops, /launch, /preview), followed
+ * through static and dynamic imports ("@/…" and relative). lib/launch is not internal by folder — /bank-builder
+ * imports its runbook registry — so a folder allowlist would be wrong in both directions.
+ */
+const SRC_FILES = fs.readdirSync(path.join(APP, "src"), { recursive: true }).filter((f) => /\.(m?[jt]sx?)$/.test(f)).map((f) => `src/${f.split(path.sep).join("/")}`);
+const SRC_SET = new Set(SRC_FILES);
+const stripComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1");
+function resolveImport(from, spec) {
+  let base;
+  if (spec.startsWith("@/")) base = `src/${spec.slice(2)}`;
+  else if (spec.startsWith(".")) base = path.posix.normalize(path.posix.join(path.posix.dirname(from), spec));
+  else return null;
+  for (const c of [base, ...[".ts", ".tsx", ".mjs", ".js", ".jsx"].map((e) => base + e), ...["ts", "tsx", "mjs", "js"].map((e) => `${base}/index.${e}`)]) if (SRC_SET.has(c)) return c;
+  return null;
+}
+const PUBLIC_REACHABLE = (() => {
+  const entries = SRC_FILES.filter((f) => /^src\/app\//.test(f) && /\/(page|layout|route|template|not-found|error|loading|opengraph-image|sitemap|robots)\.(m?[jt]sx?)$/.test(f) && !/^src\/app\/(ops|launch|preview)\//.test(f));
+  const seen = new Set(entries);
+  const stack = [...entries];
+  while (stack.length) {
+    const f = stack.pop();
+    const text = fs.readFileSync(path.join(APP, f), "utf8");
+    for (const m of text.matchAll(/(?:from\s+|import\s*\(\s*|import\s+)["']([^"']+)["']/g)) {
+      const r = resolveImport(f, m[1]);
+      if (r && !seen.has(r)) { seen.add(r); stack.push(r); }
+    }
+  }
+  return seen;
+})();
+
+test("NON_BUILD_INPUT files are read by no module a public route can reach", () => {
+  const sh = read("scripts/vercel-ignore-build.sh");
+  const block = /# GTP-NON-BUILD-INPUTS-BEGIN\s*\nNON_BUILD_INPUTS=\(([\s\S]*?)\)\s*\n# GTP-NON-BUILD-INPUTS-END/.exec(sh);
+  const fileEntries = [...block[1].matchAll(/'([^']+)'/g)].map((m) => m[1]).filter((p) => !p.endsWith("/"));
+  assert.ok(fileEntries.includes("app/public/data/admin/status.json"), "the admin status entry this guard was written for is gone — revisit the guard");
+  assert.ok(PUBLIC_REACHABLE.size > 100 && PUBLIC_REACHABLE.has("src/app/page.tsx"), "the reachability walk found too little to be trusted");
+  for (const entry of fileEntries) {
+    const dir = path.posix.basename(path.posix.dirname(entry));
+    const base = path.posix.basename(entry).replace(".", "\\.");
+    // The two shapes a build-time read takes here: readJson("admin/status.json") — the path as a call's
+    // first argument — and path.join(…, "admin", "status.json"). A path named in a label or in prose is not a read.
+    const reads = [new RegExp(`\\(\\s*["'][^"']*${dir}/${base}["']`), new RegExp(`["']${dir}["']\\s*,\\s*["']${base}["']`)];
+    const readers = SRC_FILES.filter((f) => !/\.test\./.test(f) && reads.some((re) => re.test(stripComments(fs.readFileSync(path.join(APP, f), "utf8")))));
+    assert.ok(readers.length > 0, `${entry}: no reader found at all — the scan no longer matches how the file is read`);
+    assert.deepEqual(readers.filter((f) => PUBLIC_REACHABLE.has(f)), [], `${entry} is skipped by the deploy trigger but a public route reaches a module that reads it`);
+  }
+});
+
+/**
+ * THE ops/ TREE HAS EXACTLY ONE PUBLIC READER, AND THE DEPLOY TRIGGER WATCHES IT (COST-001 Stage B).
+ *
+ * app/public/data/ops/ is a NON_BUILD_INPUT tree. lib/ops/read-publication-slo.ts reads
+ * ops/publication-slo.json at build time for public pages, so vercel-ignore-build.sh compares that file's
+ * public fields (scripts/ops/publication-slo-public-changed.mjs) before it skips. A second publicly reachable
+ * reader of anything under ops/ would go stale silently — so a new one fails here until the trigger covers it.
+ */
+test("the only publicly reachable reader under ops/ is the publication-SLO reader, and the trigger watches it", () => {
+  const opsRead = [/\(\s*["'][^"']*\bops\/[a-z0-9-]+\.json["']/, /["']ops["']\s*,\s*["'][a-z0-9-]+\.json["']/];
+  const readers = SRC_FILES.filter((f) => !/\.test\./.test(f) && PUBLIC_REACHABLE.has(f) && opsRead.some((re) => re.test(stripComments(fs.readFileSync(path.join(APP, f), "utf8")))));
+  assert.deepEqual(readers, ["src/lib/ops/read-publication-slo.ts"], "the set of publicly reachable ops/ readers changed — the deploy trigger watches only publication-slo.json");
+  assert.match(stripComments(read("src/lib/ops/read-publication-slo.ts")), /["']ops["']\s*,\s*["']publication-slo\.json["']/);
+  assert.match(read("scripts/vercel-ignore-build.sh"), /publication-slo-public-changed\.mjs/, "the deploy trigger no longer watches the publication-SLO public fields");
 });
