@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-10-17",
-  "platformState": "INCIDENT",
+  "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
       "state": "PUBLISHED",
@@ -27,16 +27,21 @@
       "missed": []
     },
     "ufc": {
-      "state": "INCIDENT",
-      "reason": "1 event(s) have no forecast and the earliest one's deadline (2026-10-17T22:30:00.000Z, 90 min before its start) has passed",
-      "deadlineUtc": "2026-10-17T22:30:00.000Z",
+      "state": "MISSED_COVERAGE",
+      "reason": "2 of 13 event(s) started with no pre-event forecast; nothing is still pending",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 13,
         "published": 11,
-        "missedCoverage": 1,
-        "awaiting": 1
+        "missedCoverage": 2,
+        "awaiting": 0
       },
       "missed": [
+        {
+          "id": "401909783",
+          "label": "Louis Jourdain vs Timmy Cuamba",
+          "startUtc": "2026-10-18T00:00Z"
+        },
         {
           "id": "401929675",
           "label": "Katlyn Cerminara vs Mackenzie Stiller",
@@ -57,7 +62,7 @@
       "missed": []
     }
   },
-  "checkedAt": "2026-10-17T23:18:26.058Z",
+  "checkedAt": "2026-10-18T00:07:49.808Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "PUBLISHED",
@@ -80,7 +85,7 @@
       "startUtc": "2026-10-18T00:08:00Z",
       "away": "Tampa Bay Rays",
       "home": "Cleveland Guardians",
-      "detailedState": "Pre-Game",
+      "detailedState": "Warmup",
       "pregameAtCheck": true
     }
   ]
