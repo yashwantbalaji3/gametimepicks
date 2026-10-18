@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-18T18:47:34Z",
- "sourceGeneratedAt": "2026-10-18T18:47:34Z",
+ "generatedAt": "2026-10-18T19:05:56Z",
+ "sourceGeneratedAt": "2026-10-18T19:05:56Z",
  "providerEventId": "401873005",
  "matchup": "BUF @ LV",
  "kickoffUtc": "2026-10-18T20:25Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-18T18:47:34Z",
-  "roleEvidenceAt": "2026-10-18T18:47:34Z",
+  "injuriesCapturedAt": "2026-10-18T19:05:56Z",
+  "roleEvidenceAt": "2026-10-18T19:05:56Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -104,14 +104,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 65,
+  "absent": 62,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "BUF": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -151,17 +151,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-3915416",
-     "name": "DJ Moore",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4385690",
@@ -205,7 +194,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-3930086",
@@ -237,6 +226,12 @@
       "player_reception_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3915416",
+     "name": "DJ Moore",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   },
@@ -488,6 +483,19 @@
     "state": "CONSERVED"
    },
    {
+    "team": "BUF",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9722,
+    "originalSum": 0.9722,
+    "residualOther": 0.0278,
+    "joined": 8,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "LV",
     "pool": "passAttempts",
     "markets": [
@@ -497,19 +505,6 @@
     "originalSum": 0.939,
     "residualOther": 0.061,
     "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "BUF",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.8897,
-    "originalSum": 0.8897,
-    "residualOther": 0.1103,
-    "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -659,36 +654,6 @@
     },
     "anytime_td": {
      "probability": 0.4216,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3915416",
-   "name": "DJ Moore",
-   "team": "BUF",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 33.298,
-     "p10": 0.98,
-     "p25": 10.94,
-     "median": 27.38,
-     "p75": 48.35,
-     "p90": 72.03,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 3.4256,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.2809,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -1000,7 +965,7 @@
    "playerId": "nfl-athlete-4242433",
    "name": "Joshua Palmer",
    "team": "BUF",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 18.73,
