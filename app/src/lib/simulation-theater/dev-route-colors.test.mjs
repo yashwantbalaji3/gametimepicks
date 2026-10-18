@@ -87,7 +87,7 @@ test("colour map: 32 teams keyed nfl:<ABBR>, matching the abbreviations the rece
   for (const { receipt } of readShadowReceipts(REPO)) { used.add(receipt.home.abbr); used.add(receipt.away.abbr); }
   for (const a of used) assert.ok(nflTeamColor(a), `receipt abbreviation ${a} has an entry`);
   assert.ok(nflTeamColor("WSH") && !nflTeamColor("WAS"));
-  for (const e of Object.values(NFL_TEAM_COLORS)) assert.ok(e.source && /teamcolorcodes/.test(e.source), `${e.abbr} names its source`);
+  for (const e of Object.values(NFL_TEAM_COLORS)) assert.ok(e.source && /teamcolorcodes|NFL\.com/.test(e.source), `${e.abbr} names its source`);
   // A bare NBA/MLB key can never match: the lookup is namespaced.
   assert.equal(NFL_TEAM_COLORS.DEN, undefined);
   assert.ok(!fs.readFileSync(path.join(APP, "src/components/simulation-theater/TheaterIsland.tsx"), "utf8").includes("team-badge"), "TEAM_COLORS (NBA/MLB) is never used for NFL");
@@ -116,9 +116,15 @@ test("contrast: ink ≥4.5:1 on every primary; accent ≥3:1 on the page; turf-s
   assert.ok(Math.abs(contrastRatio(NFL_TEAM_COLORS["nfl:LAC"].ink, NFL_TEAM_COLORS["nfl:LAC"].primary) - 4.69) < 0.02, "LAC is the review's 4.69 minimum");
 });
 
-test("collisions (CIE76 ΔE < 20): the three identical pairs; neutral output while unvalidated; hatch rule", () => {
+test("collisions (CIE76 ΔE < 20): the identical primaries; neutral output while unvalidated; hatch rule", () => {
   const P = (a) => nflTeamColor(a).primary;
-  for (const [a, b] of [["CIN", "DEN"], ["DAL", "LAR"], ["NE", "SEA"]]) assert.equal(deltaE76(P(a), P(b)), 0, `${a} = ${b}`);
+  // Iteration 4's official values moved DAL to navy (= NE = SEA), TB to #A71930 (= ATL) and JAX to #000000 (= LV).
+  const identical = [["ATL", "TB"], ["CIN", "DEN"], ["DAL", "NE"], ["DAL", "SEA"], ["JAX", "LV"], ["NE", "SEA"]];
+  for (const [a, b] of identical) assert.equal(deltaE76(P(a), P(b)), 0, `${a} = ${b}`);
+  const all = Object.values(NFL_TEAM_COLORS);
+  const seen = [];
+  for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++) if (all[i].primary === all[j].primary) seen.push([all[i].abbr, all[j].abbr].sort());
+  assert.deepEqual(seen.map((p) => p.join("=")).sort(), identical.map((p) => p.join("=")).sort(), "no other identical primaries");
   const teams = Object.values(NFL_TEAM_COLORS);
   let pairs = 0, hits = 0;
   for (let i = 0; i < teams.length; i++) for (let j = i + 1; j < teams.length; j++) { pairs++; if (collides(teams[i].primary, teams[j].primary)) hits++; }
@@ -152,37 +158,76 @@ test("collisions (CIE76 ΔE < 20): the three identical pairs; neutral output whi
   console.log(`# theater: hatched away end zones in preview: ${hatched.length}`);
 });
 
-test("per-team validation (iteration 3): two public sources per team, ΔE ≤ 5 rule, counts reported; global flag stays false", async () => {
-  const { TEAM_COLOR_VALIDATION, VALIDATION_DELTA_E, VALIDATION_ACCESSED, colorAgreement } = await import("./nfl-team-colors-validation.mjs");
+test("per-team validation (iterations 3–4): every source recorded, flags follow the rule recomputed here; counts pinned; global flag stays false", async () => {
+  const { TEAM_COLOR_VALIDATION, VALIDATION_DELTA_E, VALIDATION_ACCESSED, VALIDATION_SOURCES, COLOR_CHANGES, colorAgreement } = await import("./nfl-team-colors-validation.mjs");
   assert.equal(TEAM_COLORS_VALIDATED, false, "the founder decides; per-team results never flip the global flag");
   assert.equal(VALIDATION_DELTA_E, 5);
   const abbrs = Object.values(NFL_TEAM_COLORS).map((e) => e.abbr).sort();
   assert.deepEqual(Object.keys(TEAM_COLOR_VALIDATION).sort(), abbrs, "every NFL team in the map, and only those");
-  const review = [];
+  // Official means league- or club-published; the two references are not.
+  assert.deepEqual(Object.entries(VALIDATION_SOURCES).filter(([, s]) => s.official).map(([k]) => k).sort(), ["club", "nflHeader", "nflLogo"]);
+  const within = (hex, listed) => listed.some((h) => deltaE76(hex, h) <= 5);
+  const review = [], officialTeams = [], referenceOnly = [];
   for (const [abbr, v] of Object.entries(TEAM_COLOR_VALIDATION)) {
-    assert.equal(v.sources.length, 2, `${abbr}: two sources`);
+    const ids = v.sources.map((s) => s.id);
+    assert.deepEqual(ids.slice(0, 4), ["tcc", "wiki", "nflHeader", "nflLogo"], `${abbr}: the four common sources`);
+    assert.ok(ids.length === 4 || (ids.length === 5 && ids[4] === "club"), `${abbr}: at most one club source`);
     assert.ok(/^https:\/\/teamcolorcodes\.com\/[a-z0-9-]+\/$/.test(v.sources[0].url), `${abbr}: teamcolorcodes team page`);
     assert.match(v.sources[1].url, /Module:Gridiron_color\/data/);
+    assert.ok(/^https:\/\/www\.nfl\.com\/teams\/[a-z0-9-]+\/$/.test(v.sources[2].url), `${abbr}: NFL.com team page`);
+    assert.ok(/^https:\/\/static\.www\.nfl\.com\/league\/api\/clubs\/logos\/[A-Z]{2,3}\.svg$/.test(v.sources[3].url), `${abbr}: league-hosted logo`);
+    if (v.sources[4]) assert.ok(/^https:\/\/www\.[a-z0-9]+\.com\//.test(v.sources[4].url) && v.sources[4].where, `${abbr}: club page and location`);
     for (const s of v.sources) {
       assert.equal(s.accessed, VALIDATION_ACCESSED);
-      assert.ok(s.listed.length >= 2 && s.listed.every((h) => /^#[0-9A-F]{6}$/.test(h)), `${abbr}: observed hex list`);
+      assert.equal(typeof s.official, "boolean");
+      assert.ok(s.listed.length >= 1 && s.listed.every((h) => /^#[0-9A-F]{6}$/.test(h)), `${abbr}/${s.id}: observed hex list`);
     }
-    // the stored flag is exactly the rule, recomputed from the observed lists
-    const a = colorAgreement(abbr);
-    const rule = [a.primary, a.secondary].every((r) => r.tcc.deltaE <= 5 && r.wiki.deltaE <= 5);
-    assert.equal(v.validated, rule, `${abbr}: validated follows the ΔE ≤ 5 rule`);
-    assert.equal(v.agree, rule);
-    assert.equal(v.primary.ours, nflTeamColor(abbr).primary);
-    assert.equal(v.secondary.ours, nflTeamColor(abbr).secondary);
-    if (!v.validated) {
-      assert.ok(v.note && /ΔE/.test(v.note), `${abbr}: a team needing review says why`);
-      review.push(`${abbr} (${v.note})`);
-    }
+    // THE RULE, recomputed here from the recorded lists (independent of the module's own helper):
+    // validated ⇔ one official source lists both the primary and the secondary within ΔE ≤ 5,
+    //             or two sources from different families (wiki counts as NFL.com's family) both do.
+    const ours = nflTeamColor(abbr);
+    const agreeing = v.sources.filter((s) => within(ours.primary, s.listed) && within(ours.secondary, s.listed));
+    const official = agreeing.some((s) => s.official);
+    const agree = new Set(agreeing.map((s) => s.family)).size >= 2;
+    for (const s of v.sources) assert.equal(s.agree, agreeing.includes(s), `${abbr}/${s.id}: per-source agree`);
+    assert.equal(v.official, official, `${abbr}: official`);
+    assert.equal(v.agree, agree, `${abbr}: agree`);
+    assert.equal(v.validated, official || agree, `${abbr}: the stored validated flag follows the rule`);
+    assert.equal(colorAgreement(abbr).validated, v.validated);
+    assert.equal(v.primary.ours, ours.primary);
+    assert.equal(v.secondary.ours, ours.secondary);
+    assert.ok(v.note, `${abbr}: a note`);
+    if (!v.validated) review.push(`${abbr} (${v.note})`);
+    else (official ? officialTeams : referenceOnly).push(abbr);
   }
   const validated = Object.values(TEAM_COLOR_VALIDATION).filter((v) => v.validated).length;
-  console.log(`# theater colours: validated ${validated} of 32 · needs review ${32 - validated}`);
+  console.log(`# theater colours: validated ${validated} of 32 (official ${officialTeams.length}, two references only ${referenceOnly.join(", ") || "none"}) · needs review ${32 - validated}`);
   for (const r of review) console.log(`# theater colours: needs review ${r}`);
   assert.equal(validated + review.length, 32);
+  // Pinned counts: a change to any of these is a deliberate edit, not drift.
+  assert.equal(validated, 32);
+  assert.equal(review.length, 0);
+  assert.deepEqual(referenceOnly, ["NYJ"], "NYJ's secondary black is listed by no official source (recorded in its note)");
+  // The 19 that iteration 3 validated stay validated; the 13 it flagged each carry their resolution.
+  const ITER3_VALIDATED = ["ARI", "ATL", "BUF", "CIN", "CLE", "DEN", "DET", "GB", "IND", "KC", "LAC", "MIA", "MIN", "NE", "NYG", "NYJ", "PHI", "SEA", "WSH"];
+  const ITER3_REVIEW = ["BAL", "CAR", "CHI", "DAL", "HOU", "JAX", "LAR", "LV", "NO", "PIT", "SF", "TB", "TEN"];
+  assert.equal(ITER3_VALIDATED.length + ITER3_REVIEW.length, 32);
+  for (const a of ITER3_VALIDATED) assert.equal(TEAM_COLOR_VALIDATION[a].validated, true, `${a} stays validated`);
+  for (const a of ITER3_REVIEW) {
+    assert.ok(TEAM_COLOR_VALIDATION[a].official, `${a}: resolved against an official source`);
+    assert.ok(/^(No change|Primary changed|Secondary)/.test(TEAM_COLOR_VALIDATION[a].note), `${a}: the note says what was decided`);
+  }
+  // Every recorded change is in the map, and was a real change; nothing outside the 13 changed.
+  for (const c of COLOR_CHANGES) {
+    assert.ok(ITER3_REVIEW.includes(c.abbr), `${c.abbr} was one of the 13`);
+    assert.notEqual(c.before, c.after);
+    assert.equal(nflTeamColor(c.abbr)[c.field], c.after, `${c.abbr} ${c.field} is now ${c.after}`);
+  }
+  assert.deepEqual([...new Set(COLOR_CHANGES.map((c) => c.abbr))], ["BAL", "CHI", "DAL", "HOU", "JAX", "LAR", "NO", "PIT", "TB", "TEN"]);
+  for (const e of Object.values(NFL_TEAM_COLORS)) {
+    const changed = COLOR_CHANGES.some((c) => c.abbr === e.abbr);
+    assert.equal(/NFL\.com/.test(e.source), changed, `${e.abbr}: the source string says whether the row was revised`);
+  }
   // nothing in the theater's components imports the validation data (no paint change, no bundle cost)
   for (const f of fs.readdirSync(path.join(APP, "src/components/simulation-theater"))) {
     if (/\.(tsx?|mjs)$/.test(f)) assert.ok(!fs.readFileSync(path.join(APP, "src/components/simulation-theater", f), "utf8").includes("nfl-team-colors-validation"), f);
