@@ -1612,21 +1612,62 @@ Stabilize EPL → correct/grade Ligue 1 → league-specific validation → La Li
 
 # 10. NBA roadmap
 
-## `NBA-001` — Private/shadow readiness
-**Status:** NOT_STARTED
-Preserve current shadow/private work; do not imply public forecast parity.
+## `NBA-2026-OPENING` — NBA Season Launch and Continuous Improvement (founder directive 2026-10-19)
+**Target:** opening night is Tue 2026-10-20. The schedule is confirmed against ESPN's public scoreboard (season 2027, type 2), and our capture lists the same three ids:
 
-## `NBA-002` — World model research
-**Status:** NOT_STARTED
-`minutes/rotation → possessions → shot/FT/rebound/assist events → team score/player outputs`
+| Game | ESPN id | Tip-off (UTC) | Tip-off (ET) |
+|---|---|---|---|
+| BOS @ DET | `401909088` | 19:00Z | 3:00 PM |
+| PHI @ NY | `401909089` | 23:00Z | 7:00 PM |
+| OKC @ SA | `401909090` | 01:30Z on 10-21 | 9:30 PM |
 
-Benchmark Elo/pace-efficiency, hierarchical possessions, lineup-adjusted latent strength, distributional boosting/ensemble.
+**Governing contract (unchanged):** `docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md`.
+- NBA is `HISTORICAL_ONLY` in `sport-capability-registry.ts`.
+- No public NBA forecast, probability, pick or projection until a market's forward-shadow bars hold:
+  - winner, margin and total: n ≥ 300 graded games;
+  - points, rebounds and assists: 1,500 player-games each;
+  - 3PM: 800 player-games.
+- On 2026-10-20 every market has n = 0. A public experimental display would need a founder decision; it does not follow from this roadmap.
 
-Hard invariants: player minutes = 240 regulation + 25 per OT; five players on court; `3PM ≤ 3PA ≤ FGA`; PRA derives from same P/R/A path; overtime and late-foul effects explicit.
+**State vocabulary for this initiative (founder 2026-10-19):** NOT STARTED · IN PROGRESS · IMPLEMENTED LOCALLY · TESTED · READY FOR RELEASE · LIVE · BLOCKED. A branch existing is never LIVE.
 
-### Existing references
-- `claude/handoff-nba-b-pretip-boards`
-- `claude/handoff-nba-stage12-prep`
+| Milestone | Initiative | Priority | State | Evidence | Blockers / next action |
+|---|---|---|---|---|---|
+| NBA-01 | Opening-night data and roster readiness | P0 | IN PROGRESS | Schedule: ESPN ids 401909088/89/90 confirmed. Rosters: 2026-10-18 capture has 30/30 teams and 539 players, with 2026-27 moves present. Roster backstop: #1133 | Merge #1133, which re-captures the roster when the capture is over 30 h old, so opening night can't hit `ROSTER_STALE`. Two-way status is not exposed by the free source |
+| NBA-02 | NBA forecasting pipeline | P0 | LIVE (private shadow only) | `nba-forecast-window` builds v0 / v0.1 / v0.2 pre-tip, write-once with receipts | **v0.2 cold-start bug:** a team with 1–2 new-season games gets a 0 score (seen in preseason forecasts on 10-13 to 10-15). Needs a founder decision: fix as a new version string, or let v1 supersede it |
+| NBA-03 | Points / rebounds / assists / 3PM projections | P0 | IN PROGRESS | v0 and v0.1 project all four stats; the pieces are drawn independently | The coherent engine (NBA-05) adds 3PM ≤ 3PA, Σ player points = team score, and 240 + 25·OT minutes |
+| NBA-04 | Top 10 prop boards | P0 (private) / founder (public) | IN PROGRESS | `claude/nba-top-boards` | Eligibility gates; boards frozen pre-tip and write-once; no market line exists, so there is no edge. Public display needs a founder decision plus a registry change |
+| NBA-05 | Game simulation integrity | P0 | IN PROGRESS | `claude/nba-sim-v1-coherent`: candidate family `v1` (`nba-sim-v1-coherent`) | Arm v1 as a shadow before the 11:00Z 10-20 window so its forward shadow starts at game 1. v0 is never changed |
+| NBA-06 | NBA Simulation Theater V2 | P1 | IN PROGRESS | `claude/sim-theater-nba-prototype`: local dev route only | Quarter checkpoints come from real samples; anything between them is labelled illustrative; no invented possessions or shots |
+| NBA-07 | Live Hub and player tracking | P1 | IN PROGRESS | `claude/nba-live-adapter`: adapter plus an opening-night capture kit | Not public until the capture validates PRE→LIVE→FINAL. Polling is free ESPN only |
+| NBA-08 | Settlement and Results/Tracking | P0 | IN PROGRESS | Finals record, `nba-results-refresh` and the shadow ledger (v0, v0.1) | v0.2 is never graded. Prop rows are UNGRADABLE for bets (no recorded line). The board ledger is being built (NBA-04 branch) |
+| NBA-09 | Daily performance analysis | P1 | IN PROGRESS | Daily report script (NBA-04 branch) | Never a hit-rate claim below the preregistered minimums |
+| NBA-10 | Model evaluation and controlled improvement | P1 | IN PROGRESS | Preregistered bars; v1 development-season evaluation | Promotion only by preregistered bars on the forward shadow; no retraining after single games |
+| NBA-11 | Existing product integration | P2 | BLOCKED (by design) | Registry gates Ask, Parlay Lab, Bank Builder, Moonshot and BYO | Needs `decision-nba-markets-authorization` (paid odds) and passed bars |
+| NBA-12 | Opening-night Production acceptance | P0 | NOT STARTED | — | Checklist runs from 10-20 morning; scope is the schedule, finals, forecast receipts and the private ledger |
+
+**Cost:**
+- All NBA inputs are free (ESPN public endpoints). There are no NBA odds: `nba-market-probe` is paid and manual, and has no authorization receipt.
+- Research data commits (`data/internal/research/**`) are not Vercel build inputs.
+
+**Open founder decisions:**
+- `decision-nba-markets-authorization`
+- `decision-nba-model-investment`
+- `decision-nba-calibration-plan`
+- N4 (abstention band)
+- N6 (Elo-side promotion)
+- `blocker-nba-lineup-rights` (deferred 2026-09-10; due "before tip-off week")
+- The v0.2 bug
+- Whether any experimental public NBA display is wanted before the bars are met
+
+### Earlier entries (kept for history)
+- `NBA-001` (private/shadow readiness) is superseded by NBA-01 to NBA-02.
+- `NBA-002` (world-model research: `minutes/rotation → possessions → events → outputs`) continues as NBA-05 / NBA-10.
+  - Hard invariants: minutes = 240 + 25·OT; `3PM ≤ 3PA ≤ FGA`; PRA from the same draw.
+  - Possession-level modelling remains P2 research.
+- Unmerged prior art:
+  - `claude/handoff-nba-b-pretip-boards` (Stage 12-S2 private top boards, revived in NBA-04);
+  - `claude/handoff-nba-stage12-prep` (superseded by 6589829).
 
 ---
 
