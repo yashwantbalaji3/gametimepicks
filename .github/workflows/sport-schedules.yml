@@ -532,6 +532,43 @@ jobs:
           git pull --rebase --autostash origin main
           git push origin HEAD:main
 
+      # SHADOW GRADING for the families nba-forecast-window builds but nothing graded (NBA-2026-OPENING · NBA-08/10):
+      # v0.2 (the 2026-27 challenger, founder N3) and v1 (the coherent-engine candidate, #1134). The preregistration's
+      # forward shadow counts only GRADED pre-tip forecasts, so without this their evidence never accrues. Same grader,
+      # same family guard (a ledger never mixes families), same "pending is never a loss" rules as v0 / v0.1. It writes
+      # ONLY each family's ledger.json and box-score cache — the forecasts are nba-forecast-window's, never touched here.
+      # A family with no forecasts yet exits 0 ("nothing to grade"). A refusal is recorded and never blocks the others.
+      - name: NBA shadow grading — v0.2 and v1
+        id: nbagradeshadow
+        if: ${{ !cancelled() && steps.nbaexp.outputs.now != '' }}
+        working-directory: app
+        env:
+          NOW: ${{ steps.nbaexp.outputs.now }}
+        run: |
+          set -uo pipefail
+          STATE=GRADED
+          for FAM in v0.2 v1; do
+            if ! npx tsx scripts/nba/grade-nba-experimental-forecasts.mjs --fetch --write --now "$NOW" --family "$FAM"; then
+              STATE=FAILED; echo "NBA shadow grading $FAM" >> "$REFUSALS"
+            fi
+          done
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+
+      - name: Commit NBA shadow ledgers (v0.2, v1) if changed
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' && steps.nbagradeshadow.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Each path only if it exists (one missing pathspec makes `git add` stage nothing); never a forecasts/ file.
+          for F in experimental-v0.2/ledger.json experimental-v0.2/boxscores experimental-v1/ledger.json experimental-v1/boxscores; do
+            if [ -e "data/internal/research/nba/$F" ]; then git add "data/internal/research/nba/$F"; fi
+          done
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: nba shadow ledgers v0.2 + v1 (private research) [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
       # PRIVATE NBA Top Boards — grade + daily report (NBA-2026-OPENING · NBA-08/09). Boards are FROZEN only by
       # nba-forecast-window (pre-tip, write-once); this step only appends to each family's ledger.json and writes the
       # private daily report, so the two writers never touch the same file. It reads the box scores the v0.1 grader

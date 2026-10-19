@@ -198,3 +198,17 @@ test("board staging stages frozen day files only — never ledger.json — and t
   assert.deepEqual(out.stdout.trim().split("\n"), ["data/internal/research/nba/top-boards/v0.1/2026-10-20.json"]);
   fs.rmSync(root, { recursive: true, force: true });
 });
+
+test("shadow grading: sport-schedules grades v0.2 and v1 after v0.1, stages only ledgers + box scores (never forecasts), and a refusal never blocks the others", () => {
+  const ss = fs.readFileSync(path.resolve(process.cwd(), "..", ".github", "workflows", "sport-schedules.yml"), "utf8").replace(/^\s*#.*$/gm, "");
+  const at = ss.indexOf("grade-nba-experimental-forecasts.mjs --fetch --write --now \"$NOW\" --family \"$FAM\"");
+  assert.ok(at > 0, "the shadow families are graded");
+  assert.match(ss, /for FAM in v0\.2 v1; do/);
+  assert.ok(at > ss.indexOf("--family v0.1"), "after v0.1 (whose fetch the others reuse)");
+  assert.match(ss, /STATE=FAILED; echo "NBA shadow grading \$FAM" >> "\$REFUSALS"/, "a refusal is recorded, the loop goes on");
+  const commit = ss.slice(ss.indexOf("Commit NBA shadow ledgers"));
+  const loop = commit.match(/for F in ([^;]+); do/)?.[1] ?? "";
+  assert.deepEqual(loop.trim().split(/\s+/), ["experimental-v0.2/ledger.json", "experimental-v0.2/boxscores", "experimental-v1/ledger.json", "experimental-v1/boxscores"]);
+  assert.doesNotMatch(loop, /forecasts/, "the window owns the forecasts");
+  assert.match(commit, /if \[ -e "data\/internal\/research\/nba\/\$F" \]; then git add/, "each path only if it exists");
+});
