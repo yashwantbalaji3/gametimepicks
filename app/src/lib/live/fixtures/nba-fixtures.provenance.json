@@ -1,0 +1,134 @@
+{
+ "_note": "Provenance for every NBA live fixture. REAL = sanitized recorded ESPN payload (only fields the adapter reads kept). SYNTHETIC = derived from a real one by scripts/nba/synthesize-live-fixtures.mjs; edits listed.",
+ "recordedAt": "2026-10-19T05:10:46Z",
+ "real": [
+  {
+   "file": "nba-scoreboard-opening-pre.json",
+   "synthetic": false,
+   "source": "site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=20261020",
+   "events": [
+    "401909088",
+    "401909089",
+    "401909090"
+   ],
+   "state": "STATUS_SCHEDULED ×3"
+  },
+  {
+   "file": "nba-summary-opening-pre.json",
+   "synthetic": false,
+   "source": "site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=401909088",
+   "state": "STATUS_SCHEDULED, no boxscore.players"
+  },
+  {
+   "file": "nba-scoreboard-final.json",
+   "synthetic": false,
+   "source": "site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=20261016",
+   "events": [
+    "401898719"
+   ],
+   "state": "STATUS_FINAL 106-121 (2026 preseason)"
+  },
+  {
+   "file": "nba-summary-final.json",
+   "synthetic": false,
+   "source": "site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=401898719",
+   "state": "STATUS_FINAL, 44 athlete rows incl. 19 DNP"
+  },
+  {
+   "file": "nba-frozen-projection-401898719.json",
+   "synthetic": false,
+   "source": "data/internal/research/nba/experimental-v0.1/forecasts/2026-10-16.json",
+   "state": "EXCERPT: 6 of 28 players, frozen before tip"
+  }
+ ],
+ "synthetic": [
+  {
+   "file": "nba-scoreboard-endq1-synthetic.json",
+   "synthetic": true,
+   "derivedFrom": "nba-scoreboard-final.json",
+   "edits": [
+    "status → STATUS_END_PERIOD / in / period 1 / displayClock 0.0",
+    "scores + linescores truncated to real Q1 values",
+    "winner flag removed"
+   ]
+  },
+  {
+   "file": "nba-scoreboard-halftime-synthetic.json",
+   "synthetic": true,
+   "derivedFrom": "nba-scoreboard-final.json",
+   "edits": [
+    "status → STATUS_HALFTIME / in / period 2",
+    "scores + linescores truncated to real Q1–Q2 values",
+    "winner flag removed"
+   ]
+  },
+  {
+   "file": "nba-scoreboard-live-q3-synthetic.json",
+   "synthetic": true,
+   "derivedFrom": "nba-scoreboard-final.json",
+   "edits": [
+    "status → STATUS_IN_PROGRESS / in / period 3 / displayClock 5:42",
+    "linescores: real Q1–Q2 + INVENTED partial Q3 (15, 14)",
+    "winner flag removed"
+   ]
+  },
+  {
+   "file": "nba-scoreboard-regress-score-synthetic.json",
+   "synthetic": true,
+   "derivedFrom": "nba-scoreboard-live-q3-synthetic.json",
+   "edits": [
+    "as live-q3 but displayClock 4:58",
+    "home Q3 partial 15 → 13 so the home score DECREASES 70 → 68"
+   ]
+  },
+  {
+   "file": "nba-scoreboard-regress-pregame-synthetic.json",
+   "synthetic": true,
+   "derivedFrom": "nba-scoreboard-final.json",
+   "edits": [
+    "status → STATUS_SCHEDULED / pre / period 0",
+    "scores, linescores and winner flags removed"
+   ]
+  },
+  {
+   "file": "nba-scoreboard-live-ot-synthetic.json",
+   "synthetic": true,
+   "derivedFrom": "nba-scoreboard-final.json",
+   "edits": [
+    "status → STATUS_IN_PROGRESS / in / period 5 / displayClock 2:31 / detail '2:31 - OT'",
+    "away Q4 33 → 18 (regulation tie 106-106)",
+    "INVENTED OT linescore 4 / 6",
+    "winner flag removed"
+   ]
+  },
+  {
+   "file": "nba-scoreboard-final-ot-synthetic.json",
+   "synthetic": true,
+   "derivedFrom": "nba-scoreboard-live-ot-synthetic.json",
+   "edits": [
+    "status → STATUS_FINAL / post / period 5 / detail 'Final/OT'",
+    "INVENTED OT linescore 9 / 11 → 115-117"
+   ]
+  },
+  {
+   "file": "nba-summary-live-q3-synthetic.json",
+   "synthetic": true,
+   "derivedFrom": "nba-summary-final.json",
+   "edits": [
+    "header status → STATUS_IN_PROGRESS Q3 5:42; scores/linescores as live-q3 scoreboard",
+    "Cam Whitmore, Bryce Hopkins (DEN), Chris Manon, Rafael Castro (LAL): stats → [] with didNotPlay false (not yet appeared)",
+    "Jaden Hardy: MIN '--' with every other cell zero-filled (ESPN absent-row quirk)",
+    "Nikola Jokic: 3PT cell → '--' (a blank cell on a player who has appeared)",
+    "every other athlete row: REAL final values, unedited"
+   ]
+  },
+  {
+   "file": "nba-summary-labels-moved-synthetic.json",
+   "synthetic": true,
+   "derivedFrom": "nba-summary-final.json",
+   "edits": [
+    "first team block: labels[1] (PTS) ⇄ labels[5] (REB)"
+   ]
+  }
+ ]
+}
