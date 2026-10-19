@@ -48,6 +48,18 @@ export const CAMERA_POLICY = Object.freeze({
 
 export const CAMERA_MODES = Object.freeze(["follow", "full"]);
 
+/**
+ * REVIEW VARIANTS (iteration 8, dev route only). A founder review asked whether a 1.6× cap is a meaningful improvement on
+ * the spec's 1.35×. The dev route can pass `maxZoom: 1.6` (its `?zoomCap=1.6` hook) to compare the two on the same t;
+ * nothing else can. Any other value falls back to the spec cap, so a bad hook can never raise the limit. The default,
+ * and the only cap the public route can reach, stays CAMERA_POLICY.maxZoom.
+ */
+export const REVIEW_ZOOM_CAPS = Object.freeze([1.6]);
+/** The cap actually used for a requested one: the spec cap unless the request is exactly a listed review variant. */
+export function zoomCapFor(requested) {
+  return REVIEW_ZOOM_CAPS.includes(requested) ? requested : CAMERA_POLICY.maxZoom;
+}
+
 const H_FULL = TOTAL_LEN / 2;
 const ASPECT = TOTAL_WID / TOTAL_LEN;
 const round4 = (v) => Math.round(v * 10000) / 10000;
@@ -65,10 +77,10 @@ const totalX = (offense, ytg) => (offense === "home" ? 110 - ytg : 10 + ytg) + M
 const laneToY = (lane) => MARGIN_Y + clamp(lane, 0, 1) * FIELD_WID;
 
 /** Smallest window (zoom ≤ max) holding [lo, hi], centred as near `focus` as that allows, inside the frame. */
-function windowFor(lo0, hi0, focus, laneY) {
+function windowFor(lo0, hi0, focus, laneY, zmax) {
   const lo = clamp(lo0, 0, TOTAL_LEN);
   const hi = clamp(hi0, lo, TOTAL_LEN);
-  const z = clamp(TOTAL_LEN / Math.max(1e-6, hi - lo), CAMERA_POLICY.minZoom, CAMERA_POLICY.maxZoom);
+  const z = clamp(TOTAL_LEN / Math.max(1e-6, hi - lo), CAMERA_POLICY.minZoom, zmax);
   const h = TOTAL_LEN / (2 * z);
   let cx = clamp(focus, hi - h, lo + h);
   cx = clamp(cx, h, TOTAL_LEN - h);
@@ -127,18 +139,18 @@ function plan(sample, compiled) {
 }
 
 /** Drive i's follow shot at raw PROGRESS fraction p (0 = start spot, 1 = end spot). */
-function shot(g, p) {
+function shot(g, p, zmax) {
   const fa = g.s + CAMERA_POLICY.leadYd * g.dir;
   const fb = g.e + CAMERA_POLICY.leadYd * g.dir;
-  return windowFor(g.lo, g.hi, fa + (fb - fa) * smooth(p), g.laneY);
+  return windowFor(g.lo, g.hi, fa + (fb - fa) * smooth(p), g.laneY, zmax);
 }
 
 /** After drive i's possession changes hands: a window holding drive i's spots AND drive i+1's start spot. */
-function handoff(P, i) {
+function handoff(P, i, zmax) {
   const g = P.geoms[i];
   const n = P.geoms[i + 1];
   const pad = CAMERA_POLICY.padYd;
-  return windowFor(Math.min(g.lo, n.s - pad), Math.max(g.hi, n.s + pad), n.s + CAMERA_POLICY.leadYd * n.dir, n.laneY);
+  return windowFor(Math.min(g.lo, n.s - pad), Math.max(g.hi, n.s + pad), n.s + CAMERA_POLICY.leadYd * n.dir, n.laneY, zmax);
 }
 
 function keyIndexAt(keyframes, t) {
@@ -152,29 +164,29 @@ function keyIndexAt(keyframes, t) {
 }
 
 /** The window at local time `dt` (ms) into keyframe k. */
-function windowInKeyframe(P, compiled, k, dt) {
+function windowInKeyframe(P, compiled, k, dt, zmax) {
   const kf = compiled.keyframes[k];
   const i = kf.driveIdx;
   const g = P.geoms[i];
   const p = kf.dur > 0 ? clamp(dt / kf.dur, 0, 1) : 1;
   switch (kf.phase) {
     case "START": {
-      const from = k === 0 ? FULL_WINDOW : windowInKeyframe(P, compiled, k - 1, compiled.keyframes[k - 1].dur);
-      const to = P.est[i] ? FULL_WINDOW : shot(g, 0);
+      const from = k === 0 ? FULL_WINDOW : windowInKeyframe(P, compiled, k - 1, compiled.keyframes[k - 1].dur, zmax);
+      const to = P.est[i] ? FULL_WINDOW : shot(g, 0, zmax);
       return lerpWin(from, to, smooth(p));
     }
     case "PROGRESS": {
-      const s = shot(g, p);
+      const s = shot(g, p, zmax);
       return P.est[i] ? lerpWin(FULL_WINDOW, s, smooth(dt / CAMERA_POLICY.establishMs)) : s;
     }
     case "RESULT":
-      return shot(g, 1);
+      return shot(g, 1, zmax);
     case "TRANSITION": {
-      const to = g.ev.scoring || i + 1 >= P.geoms.length ? FULL_WINDOW : handoff(P, i);
-      return lerpWin(shot(g, 1), to, smooth(p));
+      const to = g.ev.scoring || i + 1 >= P.geoms.length ? FULL_WINDOW : handoff(P, i, zmax);
+      return lerpWin(shot(g, 1, zmax), to, smooth(p));
     }
     case "BREAK":
-      return lerpWin(shot(g, 1), FULL_WINDOW, smooth(dt / CAMERA_POLICY.easeMs));
+      return lerpWin(shot(g, 1, zmax), FULL_WINDOW, smooth(dt / CAMERA_POLICY.easeMs));
     default:
       return FULL_WINDOW;
   }
@@ -201,17 +213,18 @@ function out(win, mode, shotKind) {
  * @param {object} sample   adapted, valid TheaterSample
  * @param {object} compiled compileTimeline(sample, …)
  * @param {number} tIn      playback ms
- * @param {{ mode?: "follow"|"full", reducedMotion?: boolean }} [opts]
+ * @param {{ mode?: "follow"|"full", reducedMotion?: boolean, maxZoom?: number }} [opts]  maxZoom: a REVIEW_ZOOM_CAPS
+ *        variant (dev route only); anything else is the spec cap
  * @returns {{ version:string, mode:string, shot:string, z:number, x0:number, x1:number, y0:number, y1:number }}
  */
-export function cameraAt(sample, compiled, tIn, { mode = "follow", reducedMotion = false } = {}) {
+export function cameraAt(sample, compiled, tIn, { mode = "follow", reducedMotion = false, maxZoom } = {}) {
   const eff = reducedMotion || compiled?.reducedMotion ? "full" : mode === "full" ? "full" : "follow";
   if (eff === "full" || !compiled?.keyframes?.length) return out(FULL_WINDOW, eff, "full");
   const t = clamp(Number.isFinite(tIn) ? tIn : 0, 0, compiled.tEnd);
   const P = plan(sample, compiled);
   const k = keyIndexAt(compiled.keyframes, t);
   const kf = compiled.keyframes[k];
-  const win = windowInKeyframe(P, compiled, k, t - kf.t0);
+  const win = windowInKeyframe(P, compiled, k, t - kf.t0, zoomCapFor(maxZoom));
   const kind = win.h >= H_FULL - 1e-9 ? "establishing" : kf.phase === "RESULT" ? "hold" : kf.phase === "PROGRESS" && !P.est[kf.driveIdx] ? "follow" : "ease";
   return out(win, eff, kind);
 }

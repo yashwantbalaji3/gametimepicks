@@ -9,7 +9,8 @@
  *   periodCard      the start-of-period card (opening kickoff, second half, overtime): non-blocking, PERIOD_CARD_MS long
  *   breakCard       halftime (score summary with the run's first-half linescore), end of regulation, final (final-score
  *                   card with the "SIMULATED · not a real game" line)
- *   rolloverCard    the non-blocking "End of Q1" / "End of Q3" strip (S2)
+ *   rolloverCard    the non-blocking "End of Q1" / "End of Q3" strip (S2); when the quarter ends INSIDE a drive, its instant
+ *                   comes from the interpolated clock, so the strip carries ROLLOVER_TIMING_TAG (iteration 8)
  * Timings are the motion sheet's (spec §2.4): cards ride the compiled timeline's own phases and add no time.
  */
 import { PERIOD_SHORT, fieldPosition, fmtClock, fmtPeriodClock, plural, scoreLine } from "./format.mjs";
@@ -19,6 +20,8 @@ export const GAME_DISCLOSURE = "SIMULATED · not a real game";
 /** The illustrative tag on the in-drive yardage. */
 export const ILLUSTRATIVE_TAG = "illustrative";
 export const RECORDED_TAG = "recorded";
+/** A quarter that ends inside a drive: the drive spans the rollover (recorded), the instant on screen is interpolated. */
+export const ROLLOVER_TIMING_TAG = "mid-drive · timing illustrative";
 /** How long the start-of-period card shows from the drive's first frame (START 500 ms + the first 1.1 s of the drive). */
 export const PERIOD_CARD_MS = 1600;
 
@@ -95,7 +98,7 @@ export function breakCard(breakKind, score, sample, teams, runCount) {
       columns: ok ? ["Q1", "Q2", "Half"] : ["Half"],
       rows: sides.map((s) => ({ side: s, abbr: teams[s].abbr, score: score[s], cells: ok ? [ps[s][0], ps[s][1], score[s]] : [score[s]], leader: score[s] > score[other(s)] })),
       line: GAME_DISCLOSURE,
-      dismissible: false,
+      dismissible: true,
     };
   }
   if (breakKind === "OT_START") {
@@ -118,10 +121,19 @@ export function breakCard(breakKind, score, sample, teams, runCount) {
   return null;
 }
 
-/** The non-blocking quarter-rollover strip (S2): "End of Q1", with the score at that instant. */
-export function rolloverCard(rollover, score, teams) {
+/**
+ * The non-blocking quarter-rollover strip (S2): "End of Q1", with the score at that instant. `exact` is the compiled
+ * marker's own flag: false when the quarter ended inside a drive (the instant is the interpolated clock's), and the strip
+ * then carries ROLLOVER_TIMING_TAG.
+ */
+export function rolloverCard(rollover, score, teams, exact = true) {
   if (!rollover) return null;
-  return { kind: "ROLLOVER", title: `End of Q${rollover.quarter}`, sub: `${PERIOD_SHORT[rollover.quarter + 1]} next · ${scoreLine(score, teams)}` };
+  return {
+    kind: "ROLLOVER",
+    title: `End of Q${rollover.quarter}`,
+    sub: `${PERIOD_SHORT[rollover.quarter + 1]} next · ${scoreLine(score, teams)}`,
+    timing: exact ? null : ROLLOVER_TIMING_TAG,
+  };
 }
 
 /** The drive-end lower third: recorded totals only. */

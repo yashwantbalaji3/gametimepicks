@@ -19,6 +19,15 @@ export function depthClass(ink: string) {
 
 export type Situation = { kind: "start" | "progress" | "recorded"; text: string; tag: string };
 
+/**
+ * ILLUSTRATIVE PAIRING (iteration 8). Every interpolated value the theater renders (the clock between a drive's recorded
+ * instants, the in-drive yardage, a mid-drive quarter rollover's timing) carries `data-st-interp`, and sits inside a
+ * `data-st-interp-scope` that also holds its visible `data-st-interp-tag` ("illustrative" / "clock illustrative"). The
+ * value and its tag share one no-wrap unit, so no width can separate them; theater-broadcast.test.mjs and the e2e spec
+ * fail if any interpolated value renders without its tag.
+ */
+export const INTERP = { value: "data-st-interp", scope: "data-st-interp-scope", tag: "data-st-interp-tag" } as const;
+
 export function Banner({ manifest, sample }: { manifest: TheaterManifest; sample: TheaterSample | null }) {
   return (
     <div className="st-banner" role="note" aria-label="Simulation disclosure">
@@ -100,19 +109,26 @@ export function ScoreBug({ teams, palette, score, offense, period, periodClock, 
         {team("away")}
         {team("home")}
       </div>
-      <div className="st-bug-clock" aria-describedby={clockIllustrative ? illusId : undefined}>
-        <span className="st-bug-q">{PERIOD_SHORT[period as 1]}</span>
-        <span className="st-bug-time"><span className="st-sr">sim clock </span><span ref={clockRef}>{fmtClock(periodClock)}</span></span>
+      <div className="st-bug-clock" aria-describedby={clockIllustrative ? illusId : undefined} data-st-interp-scope={clockIllustrative ? "clock" : undefined}>
+        <span className="st-bug-q" data-st-interp={clockIllustrative ? "period" : undefined}>{PERIOD_SHORT[period as 1]}</span>
+        <span className="st-bug-time" data-st-interp={clockIllustrative ? "clock" : undefined}><span className="st-sr">sim clock </span><span ref={clockRef}>{fmtClock(periodClock)}</span></span>
         <span className="st-bug-cl" aria-hidden="true">Sim clock</span>
-        <span className={`st-bug-illus${clockIllustrative ? " on" : ""}`}>{clockIllustrative ? "clock illustrative" : "at recorded instant"}</span>
+        <span className={`st-bug-illus${clockIllustrative ? " on" : ""}`} data-st-interp-tag={clockIllustrative ? "" : undefined}>{clockIllustrative ? "clock illustrative" : "at recorded instant"}</span>
         <span id={illusId} className="st-sr">{LABELS.clockIllustrative}</span>
       </div>
       {stateChip ? <div className="st-bug-state">{stateChip}</div> : null}
       {situation ? (
         <div className={`st-bug-sit is-${situation.kind}`} data-st-situation={situation.kind}>
           <span className="st-bug-sit-text">{situation.text}</span>
-          {situation.kind === "progress" ? <span className="st-bug-sit-yds" ref={sitYardsRef} /> : null}
-          <span className={`st-bug-sit-tag is-${situation.tag}`}>{situation.tag}</span>
+          {situation.kind === "progress" ? (
+            /* the illustrative yardage and its tag: one unit that never wraps apart (iteration 8) */
+            <span className="st-bug-sit-illus" data-st-interp-scope="yards">
+              <span className="st-bug-sit-yds" ref={sitYardsRef} data-st-interp="yards" />
+              <span className={`st-bug-sit-tag is-${situation.tag}`} data-st-interp-tag="">{situation.tag}</span>
+            </span>
+          ) : (
+            <span className={`st-bug-sit-tag is-${situation.tag}`}>{situation.tag}</span>
+          )}
         </div>
       ) : null}
     </div>
