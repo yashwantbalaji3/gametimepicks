@@ -325,7 +325,7 @@ function Leaders({ sample, teams, palette }: { sample: NbaSample; teams: NbaTeam
         {SIDES.map((side) => (
           <tr key={side}>
             <th scope="row"><span className={`nba-chip-team${palette[side].patterned ? " is-cue" : ""}`} style={teamStyle(palette, side)}>{teams[side].abbr}</span></th>
-            <td>{cell(L[side].pts, "pts")}</td><td>{cell(L[side].reb, "reb")}</td><td>{cell(L[side].ast, "ast")}</td>
+            <td data-k="PTS">{cell(L[side].pts, "pts")}</td><td data-k="REB">{cell(L[side].reb, "reb")}</td><td data-k="AST">{cell(L[side].ast, "ast")}</td>
           </tr>
         ))}
       </tbody>

@@ -132,6 +132,19 @@
 .nba-card-abbr{font:800 18px var(--font-headline);letter-spacing:.05em}
 .nba-card-pts{margin-left:auto;font:700 26px var(--font-mono);font-variant-numeric:tabular-nums}
 .nba-card-win{font:700 11px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:4px;border:1px solid currentColor}
+@media (max-width:479px){
+  .nba-card{padding:0 10px 10px}
+  .nba-card-team{flex-wrap:wrap;gap:2px 6px;padding:6px 8px}
+  .nba-card-abbr{font-size:15px}
+  .nba-card-pts{font-size:22px}
+  .nba-card-win{order:3;font-size:11px;padding:0 4px}
+  .nba-leaders thead{display:none}
+  .nba-leaders tbody tr{display:grid;grid-template-columns:64px minmax(0,1fr);border-bottom:1px solid var(--border-strong);padding:4px 0}
+  .nba-leaders tbody th{grid-row:span 3;border:0}
+  .nba-leaders tbody td{border:0;padding:2px 6px}
+  .nba-leaders tbody td::before{content:attr(data-k);display:inline-block;width:3.2em;font:600 11px var(--font-mono);color:var(--st-faint)}
+  .nba-leaders .nba-lead{display:inline}
+}
 .nba-card-more summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font:600 13px var(--font-headline);color:var(--lava-heat)}
 
 /* ── tables ───────────────────────────────────────────────────────────────────────────────────────────── */
