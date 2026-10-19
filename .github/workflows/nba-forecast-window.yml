@@ -113,6 +113,14 @@ jobs:
               # v1 is the coherent-engine CANDIDATE (nba-sim-v1-coherent): shadow research, same instant. Its refusal warns, never fails.
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$D" --now "$NOW" --write --family v1 --horizon-hours 8 \
                 || echo "::warning::v1 refused for $D — v0, v0.1 and v0.2 unaffected"
+              # PRIVATE Top Boards (points / rebounds / assists / 3PM), frozen write-once at this same pre-tip instant from
+              # the forecasts just built or already committed (v0.1 = player champion, founder N1; v1 = coherent-engine
+              # candidate). This workflow is the ONLY writer of top-boards/<family>/<date>.json (grading writes ledger.json
+              # in sport-schedules). A refusal warns and never costs a forecast.
+              node scripts/nba/freeze-nba-top-boards.mjs --family v0.1 --date "$D" --now "$NOW" --write \
+                || echo "::warning::v0.1 top-board freeze refused for $D — forecasts unaffected"
+              node scripts/nba/freeze-nba-top-boards.mjs --family v1 --date "$D" --now "$NOW" --write \
+                || echo "::warning::v1 top-board freeze refused for $D — forecasts unaffected"
             done
             if [ "$V0_FAILED" = "1" ]; then echo "::error::v0 forecast build refused"; exit 1; fi
             # One `git add` per family directory that exists: a single missing pathspec (experimental-v1/ before v1's first
@@ -120,7 +128,11 @@ jobs:
             for FD in experimental experimental-v0.1 experimental-v0.2 experimental-v1; do
               if [ -d "../data/internal/research/nba/$FD" ]; then git add "../data/internal/research/nba/$FD/"; fi
             done
-            if git diff --cached --quiet; then echo "no forecast added — nothing to commit"; exit 0; fi
+            # Frozen board day files (never ledger.json, which belongs to sport-schedules), per family directory that exists.
+            for BD in top-boards/v0.1 top-boards/v1; do
+              if [ -d "../data/internal/research/nba/$BD" ]; then find "../data/internal/research/nba/$BD" -maxdepth 1 -name '20*.json' -exec git add {} +; fi
+            done
+            if git diff --cached --quiet; then echo "no forecast or board added — nothing to commit"; exit 0; fi
             # Never commit a run that changed or removed an already-committed forecast.
             node scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD || exit 1
             # The exact injury snapshot the receipts hash, so the hash can be checked against history.

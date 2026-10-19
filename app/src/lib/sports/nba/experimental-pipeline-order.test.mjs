@@ -164,3 +164,37 @@ test("roster backstop: a stale (> 30 h) roster is re-captured BEFORE the roster-
   assert.doesNotMatch(rosterAdds[0], /rosters\/(\s|"|$)|raw/, "never the whole rosters tree or raw payloads");
   assert.ok(body.indexOf(rosterAdds[0]) > body.indexOf("verify-nba-forecast-receipts.mjs --against HEAD"), "staged after the frozen-game guard, with the injuries snapshot");
 });
+
+test("private Top Boards: the window is the ONLY freezer (after every family's build, before the frozen-game guard); sport-schedules only grades and reports", () => {
+  const body = fs.readFileSync(WINDOW, "utf8").replace(/^\s*#.*$/gm, "");
+  const v1Build = body.indexOf("--family v1 --horizon-hours 8");
+  for (const fam of ["v0.1", "v1"]) {
+    const at = body.indexOf(`freeze-nba-top-boards.mjs --family ${fam} --date "$D" --now "$NOW" --write`);
+    assert.ok(at > v1Build, `${fam} boards freeze after every forecast build, at the same instant`);
+    assert.ok(at < body.indexOf("verify-nba-forecast-receipts.mjs --against HEAD"), `${fam} freeze before the guard`);
+    assert.match(body, new RegExp(`freeze-nba-top-boards\\.mjs --family ${fam.replace(".", "\\.")} [^\\n]*\\\\\\n[^\\n]*\\|\\| echo "::warning::`), `${fam} freeze refusal warns, never fails the forecasts`);
+  }
+  const ss = fs.readFileSync(path.resolve(process.cwd(), "..", ".github", "workflows", "sport-schedules.yml"), "utf8").replace(/^\s*#.*$/gm, "");
+  assert.doesNotMatch(ss, /freeze-nba-top-boards/, "a second freezer would race the window on the same day file");
+  assert.match(ss, /grade-nba-top-boards\.mjs --family "\$FAM" --now "\$NOW" --write/);
+  assert.match(ss, /nba-daily-performance-report\.mjs --family "\$FAM" --now "\$NOW" --write/);
+  assert.doesNotMatch(ss, /git add [^\n]*top-boards\/(v0\.1|v1)\/?(\s|$)/, "sport-schedules never stages a frozen day file");
+});
+
+test("board staging stages frozen day files only — never ledger.json — and tolerates a missing family directory", () => {
+  const yaml = fs.readFileSync(WINDOW, "utf8");
+  const loop = yaml.match(/^( *)for BD in [^\n]*\n(?:\1 [^\n]*\n)*?\1done\n/m)?.[0];
+  assert.ok(loop, "the per-family board staging loop exists");
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "nba-window-boards-"));
+  const app = path.join(root, "app");
+  fs.mkdirSync(app);
+  const dir = path.join(root, "data/internal/research/nba/top-boards/v0.1");
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "2026-10-20.json"), "{}\n");
+  fs.writeFileSync(path.join(dir, "ledger.json"), "{}\n");
+  execFileSync("git", ["init", "-q"], { cwd: root });
+  const out = spawnSync("bash", ["-c", `set -uo pipefail\n${loop}git diff --cached --name-only`], { cwd: app, encoding: "utf8" });
+  assert.equal(out.status, 0, out.stderr);
+  assert.deepEqual(out.stdout.trim().split("\n"), ["data/internal/research/nba/top-boards/v0.1/2026-10-20.json"]);
+  fs.rmSync(root, { recursive: true, force: true });
+});
