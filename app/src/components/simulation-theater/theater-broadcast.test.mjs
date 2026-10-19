@@ -190,46 +190,8 @@ test("score-bug depth: the gradient moves away from the ink, so no team's ink dr
 
 // ── iteration 8: no interpolated value renders without its illustrative tag ───────────────────────────────────────
 
-/** A minimal tree from React's static markup (tags, attributes, text), enough to walk ancestors and subtrees. */
-function tree(html) {
-  const VOID = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
-  const rootNode = { tag: "#root", attrs: {}, kids: [], parent: null, text: "" };
-  let cur = rootNode;
-  const re = /<(\/?)([a-zA-Z][a-zA-Z0-9-]*)((?:\s+[^\s=>\/]+(?:="[^"]*")?)*)\s*(\/?)>|([^<]+)/g;
-  let m;
-  while ((m = re.exec(html))) {
-    if (m[5] != null) { cur.kids.push({ tag: "#text", text: m[5], kids: [], parent: cur, attrs: {} }); continue; }
-    const [, close, tag, attrStr, self] = m;
-    if (close) { cur = cur.parent ?? cur; continue; }
-    const attrs = {};
-    for (const a of attrStr.matchAll(/([^\s=]+)(?:="([^"]*)")?/g)) attrs[a[1]] = a[2] ?? "";
-    const node = { tag, attrs, kids: [], parent: cur };
-    cur.kids.push(node);
-    if (!self && !VOID.has(tag)) cur = node;
-  }
-  return rootNode;
-}
-const walk = (n, f) => { f(n); for (const k of n.kids) walk(k, f); };
-const textOf = (n) => { let t = ""; walk(n, (x) => { if (x.tag === "#text") t += x.text; }); return t; };
-const hiddenNode = (n) => { for (let x = n; x; x = x.parent) { const a = x.attrs ?? {}; if ("hidden" in a || a["aria-hidden"] === "true" || /\bst-sr\b/.test(a.class ?? "")) return true; } return false; };
-
-/**
- * The rule: every element marked data-st-interp sits inside a data-st-interp-scope that holds a VISIBLE (not screen-reader
- * only, not hidden) data-st-interp-tag reading "illustrative". Returns the violations.
- */
-function untaggedInterp(html) {
-  const bad = [];
-  walk(tree(html), (n) => {
-    if (!n.attrs || !("data-st-interp" in n.attrs)) return;
-    let scope = n.parent;
-    while (scope && !(scope.attrs && "data-st-interp-scope" in scope.attrs)) scope = scope.parent;
-    if (!scope) { bad.push(`${n.attrs["data-st-interp"]}: no scope`); return; }
-    const tags = [];
-    walk(scope, (x) => { if (x.attrs && "data-st-interp-tag" in x.attrs) tags.push(x); });
-    if (!tags.some((t) => /illustrative/i.test(textOf(t)) && !hiddenNode(t))) bad.push(`${n.attrs["data-st-interp"]}: no visible illustrative tag in its scope`);
-  });
-  return bad;
-}
+// the pairing audit (tree / untaggedInterp) lives in interp-audit.mjs, shared with the NBA theater's tests
+const { untaggedInterp } = await import("./interp-audit.mjs");
 
 test("the pairing check itself fails on an interpolated value without a visible tag (negative controls)", () => {
   assert.deepEqual(untaggedInterp('<div data-st-interp-scope="x"><span data-st-interp="clock">7:12</span><span data-st-interp-tag="">clock illustrative</span></div>'), []);

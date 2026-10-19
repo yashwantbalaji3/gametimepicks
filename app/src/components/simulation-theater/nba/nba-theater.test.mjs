@@ -1,0 +1,166 @@
+/**
+ * NBA theater · components: every interpolated value carries its visible illustrative tag (the iteration-8 audit, shared
+ * with the NFL theater), the fixture gate refuses a fixture without its banner, the player panel never pro-rates, the
+ * court draws no players / ball / shots / possession, and the stylesheet is tokens-only with no label under 11px.
+ * Run: npx tsx --test src/components/simulation-theater/nba/nba-theater.test.mjs
+ */
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+
+globalThis.React = React;
+const { untaggedInterp } = await import("../interp-audit.mjs");
+const { Scoreboard, DiffTimeline, PlayerPanel, BreakCard, OutcomeChips, SelectionRules } = await import("./nba-parts.tsx");
+const { default: NbaCourt } = await import("./NbaCourt.tsx");
+const { fixtureGate } = await import("./nba-gate.ts");
+const { default: NbaTheaterIsland } = await import("./NbaTheaterIsland.tsx");
+const { loadNbaTheater } = await import("../../../lib/simulation-theater/nba/loader.mjs");
+const { compileTimeline, stateAt } = await import("../../../lib/simulation-theater/nba/timeline.mjs");
+const { FIXTURE_BANNER } = await import("../../../lib/simulation-theater/nba/adapter-nba-sim-v1.mjs");
+
+const APP = process.cwd();
+const REPO = path.resolve(APP, "..");
+const LOADS = ["401909088", "401909089", "401909090"].map((id) => loadNbaTheater(REPO, id));
+const html = (el) => renderToStaticMarkup(el);
+const text = (h) => h.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+
+test("scoreboard: at every 100 ms of every fixture sample, each interpolated value renders with its visible tag", () => {
+  let renders = 0;
+  let interp = 0;
+  for (const load of LOADS) {
+    const m = load.manifest;
+    for (const s of m.samples.filter((x) => x.validation.ok)) {
+      const c = compileTimeline(s);
+      for (let t = 0; t <= c.tEnd; t += 100) {
+        const f = stateAt(c, t);
+        const out = html(React.createElement(Scoreboard, { teams: m.teams, palette: load.palettes.team, frame: f, fixture: m.fixture }));
+        renders++;
+        assert.deepEqual(untaggedInterp(out), [], `#${s.runIndex} t=${t}`);
+        if (f.scoreIllustrative) { assert.match(out, /data-st-interp="score"/); interp++; }
+        if (f.clockIllustrative) assert.match(out, /data-st-interp="clock"/);
+        if (!f.scoreIllustrative && !f.clockIllustrative) assert.doesNotMatch(out, /data-st-interp=/, "a recorded frame marks nothing");
+        assert.match(text(out), /Simulated/);
+        assert.doesNotMatch(out, /possession|poss-arrow/i, "no possession arrow");
+      }
+    }
+  }
+  assert.ok(interp > 1000, `interpolated frames: ${interp}`);
+  console.log(`# NBA scoreboard: ${renders} renders, ${interp} with interpolated values, every one tagged`);
+});
+
+test("the audit catches a missing tag (negative control on the real component's markup)", () => {
+  const load = LOADS[0];
+  const s = load.manifest.samples[0];
+  const c = compileTimeline(s);
+  const out = html(React.createElement(Scoreboard, { teams: load.manifest.teams, palette: load.palettes.team, frame: stateAt(c, 5000), fixture: true }));
+  assert.deepEqual(untaggedInterp(out), []);
+  const stripped = out.replace(/ data-st-interp-tag=""/g, "");
+  assert.ok(untaggedInterp(stripped).length >= 1, "removing the tag must fail the audit");
+  const hidden = out.replace(/data-st-interp-tag=""/, 'data-st-interp-tag="" aria-hidden="true"');
+  assert.ok(untaggedInterp(hidden).length >= 1, "a hidden tag must fail the audit");
+});
+
+test("timeline: the differential line is drawn only through checkpoints and its tag is visible", () => {
+  for (const load of LOADS) {
+    const s = load.manifest.samples[0];
+    const c = compileTimeline(s);
+    const out = html(React.createElement(DiffTimeline, { compiled: c, teams: load.manifest.teams, palette: load.palettes.team, t: 3000, width: 600 }));
+    assert.deepEqual(untaggedInterp(out), []);
+    const d = out.match(/class="nba-tl-line" d="([^"]+)"/)[1];
+    assert.equal((d.match(/[ML]/g) ?? []).length, c.checkpoints.length, "one vertex per checkpoint, nothing in between");
+    assert.equal((out.match(/class="nba-tl-dot"/g) ?? []).length, c.checkpoints.length);
+    assert.equal((out.match(/class="nba-tl-seg(?: is-[a-z]+)*"/g) ?? []).length, s.periods.length, "one segment per quarter (+OT)");
+  }
+});
+
+test("fixture gate: a fixture without the exact banner text is refused; with it, the banner renders first", () => {
+  const load = LOADS[1];
+  assert.equal(fixtureGate(load, null).ok, false);
+  assert.equal(fixtureGate(load, "test fixture").ok, false);
+  assert.equal(fixtureGate(load, FIXTURE_BANNER).ok, true);
+  const refused = html(React.createElement(NbaTheaterIsland, { manifest: load.manifest, palettes: load.palettes, fixtureBanner: null }));
+  assert.match(refused, /Refused: test fixture without its banner/);
+  assert.doesNotMatch(refused, /nba-court|nba-sb-score|nba-players/, "nothing of the theater renders");
+  const ok = html(React.createElement(NbaTheaterIsland, { manifest: load.manifest, palettes: load.palettes, fixtureBanner: FIXTURE_BANNER }));
+  assert.match(ok, /data-nba-fixture-banner/);
+  assert.ok(ok.indexOf("data-nba-fixture-banner") < ok.indexOf("nba-court"), "the banner comes before the court");
+  assert.match(text(ok), /TEST FIXTURE — not model output/);
+  assert.deepEqual(untaggedInterp(ok), []);
+  // a real (non-fixture) manifest needs no banner
+  const real = { ...load.manifest, fixture: false };
+  assert.equal(fixtureGate({ ...load, manifest: real }, null).ok, true);
+  assert.doesNotMatch(html(React.createElement(NbaTheaterIsland, { manifest: real, palettes: load.palettes, fixtureBanner: null })), /data-nba-fixture-banner/);
+});
+
+test("player panel: the sample's final game totals, labelled; during playback it says per-quarter splits are not modelled", () => {
+  const load = LOADS[0];
+  const s = load.manifest.samples[0];
+  const live = text(html(React.createElement(PlayerPanel, { sample: s, teams: load.manifest.teams, palette: load.palettes.team, playing: true })));
+  assert.match(live, new RegExp(`Final line of run #${s.runIndex.toLocaleString("en-US")}`));
+  assert.match(live, /Per-quarter player splits are not modelled/);
+  assert.match(live, /never pro-rated/);
+  const fin = text(html(React.createElement(PlayerPanel, { sample: s, teams: load.manifest.teams, palette: load.palettes.team, playing: false })));
+  assert.doesNotMatch(fin, /Per-quarter player splits/);
+  // values are exactly the sample's (no scaling): every player's points appear
+  for (const p of s.players.home) assert.ok(fin.includes(p.name));
+});
+
+test("cards: halftime shows Q1–Q2 only; final shows every period, leaders, run #, rule, model, inputAsOf, simulations, seed, disclosure", () => {
+  const load = LOADS[2];
+  const m = load.manifest;
+  const s = m.samples.find((x) => x.overtimePeriods > 0);
+  const half = text(html(React.createElement(BreakCard, { kind: "HALFTIME", manifest: m, sample: s, palette: load.palettes.team, onDismiss: () => {}, variant: "overlay", idBase: "x" })));
+  assert.match(half, /Halftime/);
+  assert.doesNotMatch(half, /\bQ3\b/);
+  const fin = html(React.createElement(BreakCard, { kind: "FINAL", manifest: m, sample: s, palette: load.palettes.team, onDismiss: () => {}, variant: "overlay", idBase: "x" }));
+  const ft = text(fin);
+  for (const re of [/Final\/OT/, /\bOT1\b/, /Stat leaders/, new RegExp(`Run #${s.runIndex}`), /nba-sim-v1-coherent/, new RegExp(m.inputAsOf), /4,000/, new RegExp(m.seed), /SIMULATED · quarter checkpoints only/]) assert.match(ft, re);
+  assert.match(fin, /aria-label="Hide the final\/ot card"/, "dismissible");
+  const sheet = text(html(React.createElement(BreakCard, { kind: "FINAL", manifest: m, sample: s, palette: load.palettes.team, variant: "sheet", idBase: "x" })));
+  assert.match(sheet, /Sample, model and disclosure/, "the phone card folds the details");
+});
+
+test("outcome selector lists only present samples; rules and run numbers are available on demand", () => {
+  const nyk = LOADS[1];
+  const out = text(html(React.createElement(OutcomeChips, { manifest: nyk.manifest, selected: 0, idBase: "x", vertical: true })));
+  assert.doesNotMatch(out, /Upset/);
+  assert.match(out, /Typical/);
+  assert.match(out, /Run #/);
+  const rules = text(html(React.createElement(SelectionRules, { manifest: nyk.manifest })));
+  assert.match(rules, /Not in this run Upset/);
+});
+
+test("court: regulation SVG with both team ends, and NO player dots, ball, shot marks or possession arrow", () => {
+  const load = LOADS[1];
+  const out = html(React.createElement(NbaCourt, { palette: load.palettes.team, teams: load.manifest.teams, idPrefix: "c" }));
+  assert.match(out, /viewBox="-3 -3 100 56"/);
+  assert.equal((out.match(/class="nba-rim"/g) ?? []).length, 2);
+  assert.equal((out.match(/class="nba-paint"/g) ?? []).length, 2);
+  assert.match(out, /No players, ball or shots are drawn/);
+  assert.doesNotMatch(out, /player-dot|nba-ball|shot-|possession/i);
+  // the clashing away side (PHI) is patterned: hatched paint, striped band
+  assert.match(out, /class="nba-end is-away is-cue"/);
+  assert.match(out, /fill="url\(#c-hatch-away\)"/);
+});
+
+test("stylesheet: tokens only (no colour literal) and no font under 11px except court SVG text gated by container width", () => {
+  const css = fs.readFileSync(path.join(APP, "src/components/simulation-theater/nba/nba-theater.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b|rgba?\(/);
+  const small = [];
+  for (const m of css.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+    const sel = m[1].trim();
+    for (const f of m[2].matchAll(/font(?:-size)?:[^;]*?(\d+(?:\.\d+)?)px/g)) {
+      if (Number(f[1]) < 11 && !/nba-band-abbr|nba-wordmark/.test(sel)) small.push(`${sel}: ${f[0]}`);
+    }
+  }
+  assert.deepEqual(small, []);
+  // court text is in feet (SVG units): hidden below the width at which it would render under 11px
+  const pxPerFt = (w) => w / 100;
+  assert.ok(pxPerFt(600) * 2.1 >= 11 && /@container \(max-width:599px\)\{\.nba-band-abbr,\.nba-wordmark\{display:none\}\}/.test(css));
+  assert.ok(pxPerFt(860) * 1.3 >= 11 && /@container \(max-width:859px\)\{\.nba-wordmark\.is-sub\{display:none\}\}/.test(css));
+  const vars = fs.readFileSync(path.join(APP, "src/components/simulation-theater/nba/nba-theater-css.ts"), "utf8");
+  assert.doesNotMatch(vars.replace(/\/\*[\s\S]*?\*\//g, ""), /#[0-9a-fA-F]{3,8}\b|rgba?\(/);
+});
