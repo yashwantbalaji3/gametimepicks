@@ -1,16 +1,16 @@
 {
   "policyVersion": 1,
   "generatedAt": null,
-  "latestSettledDate": "2026-10-17",
-  "trainingWindowStart": "2026-10-10",
-  "trainingWindowEnd": "2026-10-17",
+  "latestSettledDate": "2026-10-18",
+  "trainingWindowStart": "2026-10-11",
+  "trainingWindowEnd": "2026-10-18",
   "trainingWindowDays": 8,
   "sampleSizes": {
     "universeLegs": 411,
     "publishedLegs": 58,
     "publishedCards": 22
   },
-  "universeBaselineHitRate": 0.4282,
+  "universeBaselineHitRate": 0.455,
   "noLiveWire": false,
   "hardGuards": {
     "maxLegsByLane": {
@@ -33,60 +33,53 @@
   },
   "recommendedMarketStatus": {
     "pitcher_strikeouts": {
-      "wins": 9,
-      "losses": 8,
+      "wins": 8,
+      "losses": 9,
       "n": 17,
-      "hitRate": 0.5294,
-      "wilsonLB": 0.3096,
-      "shrunk": 0.4747,
+      "hitRate": 0.4706,
+      "wilsonLB": 0.2616,
+      "shrunk": 0.4622,
       "recommendedStatus": "insufficient_sample"
     },
     "batter_hits": {
-      "wins": 86,
-      "losses": 67,
-      "n": 153,
-      "hitRate": 0.5621,
-      "wilsonLB": 0.4829,
-      "shrunk": 0.5466,
-      "recommendedStatus": "restricted"
+      "wins": 89,
+      "losses": 66,
+      "n": 155,
+      "hitRate": 0.5742,
+      "wilsonLB": 0.4955,
+      "shrunk": 0.5606,
+      "recommendedStatus": "allowed"
     },
     "batter_hits_runs_rbis": {
-      "wins": 72,
-      "losses": 81,
-      "n": 153,
-      "hitRate": 0.4706,
-      "wilsonLB": 0.3932,
-      "shrunk": 0.4657,
-      "recommendedStatus": "disabled"
+      "wins": 79,
+      "losses": 76,
+      "n": 155,
+      "hitRate": 0.5097,
+      "wilsonLB": 0.4317,
+      "shrunk": 0.5034,
+      "recommendedStatus": "restricted"
     },
     "batter_total_bases": {
-      "wins": 9,
-      "losses": 22,
+      "wins": 11,
+      "losses": 20,
       "n": 31,
-      "hitRate": 0.2903,
-      "wilsonLB": 0.161,
-      "shrunk": 0.3444,
+      "hitRate": 0.3548,
+      "wilsonLB": 0.2112,
+      "shrunk": 0.3941,
       "recommendedStatus": "disabled"
     }
   },
   "calibration": {
     "edgeInverted": true,
     "confidencePredictive": true,
-    "confidenceSpread": 0.1319,
+    "confidenceSpread": 0.1769,
     "byEdgeBucket": {
-      "20+": {
-        "wins": 11,
-        "losses": 14,
-        "n": 25,
-        "hitRate": 0.44,
-        "wilsonLB": 0.2667
-      },
       "0-5": {
-        "wins": 38,
-        "losses": 37,
+        "wins": 41,
+        "losses": 34,
         "n": 75,
-        "hitRate": 0.5067,
-        "wilsonLB": 0.396
+        "hitRate": 0.5467,
+        "wilsonLB": 0.4345
       },
       "neg": {
         "wins": 12,
@@ -96,119 +89,119 @@
         "wilsonLB": 0.3466
       },
       "5-10": {
-        "wins": 51,
-        "losses": 57,
-        "n": 108,
-        "hitRate": 0.4722,
-        "wilsonLB": 0.3806
+        "wins": 57,
+        "losses": 55,
+        "n": 112,
+        "hitRate": 0.5089,
+        "wilsonLB": 0.4176
       },
       "10-15": {
-        "wins": 40,
-        "losses": 40,
-        "n": 80,
-        "hitRate": 0.5,
-        "wilsonLB": 0.393
+        "wins": 42,
+        "losses": 43,
+        "n": 85,
+        "hitRate": 0.4941,
+        "wilsonLB": 0.3904
       },
       "15-20": {
-        "wins": 24,
-        "losses": 20,
+        "wins": 25,
+        "losses": 19,
         "n": 44,
-        "hitRate": 0.5455,
-        "wilsonLB": 0.4007
+        "hitRate": 0.5682,
+        "wilsonLB": 0.4222
+      },
+      "20+": {
+        "wins": 10,
+        "losses": 10,
+        "n": 20,
+        "hitRate": 0.5,
+        "wilsonLB": 0.2993
       }
     },
     "byConfidence": {
+      "Medium": {
+        "wins": 25,
+        "losses": 13,
+        "n": 38,
+        "hitRate": 0.6579,
+        "wilsonLB": 0.4989
+      },
       "Low": {
         "wins": 38,
-        "losses": 45,
-        "n": 83,
-        "hitRate": 0.4578,
-        "wilsonLB": 0.3549
-      },
-      "Medium": {
-        "wins": 23,
-        "losses": 16,
-        "n": 39,
-        "hitRate": 0.5897,
-        "wilsonLB": 0.4342
+        "losses": 41,
+        "n": 79,
+        "hitRate": 0.481,
+        "wilsonLB": 0.3743
       },
       "High": {
-        "wins": 115,
+        "wins": 124,
         "losses": 117,
-        "n": 232,
-        "hitRate": 0.4957,
-        "wilsonLB": 0.4319
+        "n": 241,
+        "hitRate": 0.5145,
+        "wilsonLB": 0.4517
       }
     }
   },
   "segments": {
     "universe_byMarket": {
       "pitcher_strikeouts": {
-        "wins": 9,
-        "losses": 8,
+        "wins": 8,
+        "losses": 9,
         "n": 17,
-        "hitRate": 0.5294,
-        "wilsonLB": 0.3096
+        "hitRate": 0.4706,
+        "wilsonLB": 0.2616
       },
       "batter_hits": {
-        "wins": 86,
-        "losses": 67,
-        "n": 153,
-        "hitRate": 0.5621,
-        "wilsonLB": 0.4829
+        "wins": 89,
+        "losses": 66,
+        "n": 155,
+        "hitRate": 0.5742,
+        "wilsonLB": 0.4955
       },
       "batter_hits_runs_rbis": {
-        "wins": 72,
-        "losses": 81,
-        "n": 153,
-        "hitRate": 0.4706,
-        "wilsonLB": 0.3932
+        "wins": 79,
+        "losses": 76,
+        "n": 155,
+        "hitRate": 0.5097,
+        "wilsonLB": 0.4317
       },
       "batter_total_bases": {
-        "wins": 9,
-        "losses": 22,
+        "wins": 11,
+        "losses": 20,
         "n": 31,
-        "hitRate": 0.2903,
-        "wilsonLB": 0.161
+        "hitRate": 0.3548,
+        "wilsonLB": 0.2112
       }
     },
     "universe_byConfidence": {
+      "Medium": {
+        "wins": 25,
+        "losses": 13,
+        "n": 38,
+        "hitRate": 0.6579,
+        "wilsonLB": 0.4989
+      },
       "Low": {
         "wins": 38,
-        "losses": 45,
-        "n": 83,
-        "hitRate": 0.4578,
-        "wilsonLB": 0.3549
-      },
-      "Medium": {
-        "wins": 23,
-        "losses": 16,
-        "n": 39,
-        "hitRate": 0.5897,
-        "wilsonLB": 0.4342
+        "losses": 41,
+        "n": 79,
+        "hitRate": 0.481,
+        "wilsonLB": 0.3743
       },
       "High": {
-        "wins": 115,
+        "wins": 124,
         "losses": 117,
-        "n": 232,
-        "hitRate": 0.4957,
-        "wilsonLB": 0.4319
+        "n": 241,
+        "hitRate": 0.5145,
+        "wilsonLB": 0.4517
       }
     },
     "universe_byEdgeBucket": {
-      "20+": {
-        "wins": 11,
-        "losses": 14,
-        "n": 25,
-        "hitRate": 0.44,
-        "wilsonLB": 0.2667
-      },
       "0-5": {
-        "wins": 38,
-        "losses": 37,
+        "wins": 41,
+        "losses": 34,
         "n": 75,
-        "hitRate": 0.5067,
-        "wilsonLB": 0.396
+        "hitRate": 0.5467,
+        "wilsonLB": 0.4345
       },
       "neg": {
         "wins": 12,
@@ -218,41 +211,48 @@
         "wilsonLB": 0.3466
       },
       "5-10": {
-        "wins": 51,
-        "losses": 57,
-        "n": 108,
-        "hitRate": 0.4722,
-        "wilsonLB": 0.3806
+        "wins": 57,
+        "losses": 55,
+        "n": 112,
+        "hitRate": 0.5089,
+        "wilsonLB": 0.4176
       },
       "10-15": {
-        "wins": 40,
-        "losses": 40,
-        "n": 80,
-        "hitRate": 0.5,
-        "wilsonLB": 0.393
+        "wins": 42,
+        "losses": 43,
+        "n": 85,
+        "hitRate": 0.4941,
+        "wilsonLB": 0.3904
       },
       "15-20": {
-        "wins": 24,
-        "losses": 20,
+        "wins": 25,
+        "losses": 19,
         "n": 44,
-        "hitRate": 0.5455,
-        "wilsonLB": 0.4007
+        "hitRate": 0.5682,
+        "wilsonLB": 0.4222
+      },
+      "20+": {
+        "wins": 10,
+        "losses": 10,
+        "n": 20,
+        "hitRate": 0.5,
+        "wilsonLB": 0.2993
       }
     },
     "universe_byRole": {
       "pitcher": {
-        "wins": 9,
-        "losses": 8,
+        "wins": 8,
+        "losses": 9,
         "n": 17,
-        "hitRate": 0.5294,
-        "wilsonLB": 0.3096
+        "hitRate": 0.4706,
+        "wilsonLB": 0.2616
       },
       "batter": {
-        "wins": 167,
-        "losses": 170,
-        "n": 337,
-        "hitRate": 0.4955,
-        "wilsonLB": 0.4425
+        "wins": 179,
+        "losses": 162,
+        "n": 341,
+        "hitRate": 0.5249,
+        "wilsonLB": 0.4719
       }
     },
     "published_byRiskLane": {

@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-10-18T13:37:03Z",
+ "generatedAt": "2026-10-19T09:27:27Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 5,
@@ -22,20 +22,20 @@
    "label": "MLB total picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "BREACHED",
-   "n": 776,
+   "n": 777,
    "judgement": {
     "state": "BREACHED",
-    "n": 776,
+    "n": 777,
     "needed": 200,
-    "meanDiff": 0.0344,
-    "lo95": 0.015,
-    "hi95": 0.0528
+    "meanDiff": 0.0347,
+    "lo95": 0.0167,
+    "hi95": 0.0527
    },
    "context": {
-    "hitRate": 0.491,
+    "hitRate": 0.4903,
     "meanPickProbability": 0.5872,
-    "modelMinusMarket": 0.0336,
-    "pairedWithMarket": 776
+    "modelMinusMarket": 0.034,
+    "pairedWithMarket": 777
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -105,14 +105,14 @@
    "label": "NFL receptions 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "BREACHED",
-   "n": 872,
+   "n": 1006,
    "judgement": {
     "state": "BREACHED",
-    "n": 872,
+    "n": 1006,
     "needed": 150,
-    "rate": 0.8933,
+    "rate": 0.8966,
     "target": 0.8,
-    "z": 6.8914,
+    "z": 7.6614,
     "direction": "ranges too wide"
    },
    "context": null,
@@ -122,7 +122,7 @@
     "checks": [
      {
       "measure": "coverage80",
-      "value": 0.7833,
+      "value": 0.7878,
       "bar": [
        0.72,
        0.88
@@ -134,20 +134,20 @@
      "ece",
      "level"
     ],
-    "n": 872,
+    "n": 1006,
     "needed": 300,
     "model": "nfl-player-share-level-v1",
     "modelsOnGradedBoards": {
      "player-props-v1": 32,
-     "nfl-player-share-level-v1": 48
+     "nfl-player-share-level-v1": 59
     },
     "source": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json#/frozenBars/perFamily/coverage80",
     "measures": {
-     "coverage80": 0.7833,
-     "coverageInclusive": 0.8933,
-     "coverageMidP": 0.7833,
-     "onEndpoint": 192,
-     "n": 872
+     "coverage80": 0.7878,
+     "coverageInclusive": 0.8966,
+     "coverageMidP": 0.7878,
+     "onEndpoint": 219,
+     "n": 1006
     }
    }
   },
@@ -157,20 +157,20 @@
    "label": "MLB moneyline picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "WATCH",
-   "n": 819,
+   "n": 820,
    "judgement": {
     "state": "WATCH",
-    "n": 819,
+    "n": 820,
     "needed": 200,
-    "meanDiff": 0.0069,
-    "lo95": -0.0056,
-    "hi95": 0.0195
+    "meanDiff": 0.007,
+    "lo95": -0.0053,
+    "hi95": 0.0193
    },
    "context": {
-    "hitRate": 0.5116,
-    "meanPickProbability": 0.5718,
-    "modelMinusMarket": 0.0308,
-    "pairedWithMarket": 814
+    "hitRate": 0.511,
+    "meanPickProbability": 0.5717,
+    "modelMinusMarket": 0.031,
+    "pairedWithMarket": 815
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -188,14 +188,14 @@
    "label": "NFL rushing yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "WATCH",
-   "n": 480,
+   "n": 544,
    "judgement": {
     "state": "WATCH",
-    "n": 480,
+    "n": 544,
     "needed": 150,
-    "rate": 0.8458,
+    "rate": 0.8364,
     "target": 0.8,
-    "z": 2.5104,
+    "z": 2.1223,
     "direction": "ranges too wide"
    },
    "context": null,
@@ -221,7 +221,7 @@
     "needed": 300,
     "model": "nfl-player-share-level-v1",
     "modelsOnGradedBoards": {
-     "player-props-v1": 32,
+     "player-props-v1": 43,
      "nfl-player-share-level-v1": 48
     },
     "source": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json#/frozenBars/perFamily/coverage80",
@@ -285,28 +285,28 @@
    "label": "EPL match result (home/draw/away)",
    "baseline": "even odds (log loss 1.0986)",
    "state": "HOLDING",
-   "n": 61,
+   "n": 65,
    "judgement": {
     "state": "HOLDING",
-    "n": 61,
+    "n": 65,
     "needed": 60,
-    "meanDiff": -0.0641,
-    "lo95": -0.1854,
-    "hi95": 0.0613
+    "meanDiff": -0.0812,
+    "lo95": -0.1961,
+    "hi95": 0.0375
    },
    "context": {
-    "modelLogLoss": 1.0345,
+    "modelLogLoss": 1.0175,
     "market": {
      "model": {
-      "logLoss": 1.037334,
-      "brier": 0.63557
+      "logLoss": 1.026836,
+      "brier": 0.626737
      },
      "market": {
-      "logLoss": 1.030499,
-      "brier": 0.621209
+      "logLoss": 1.022499,
+      "brier": 0.615003
      },
-     "logLossDelta": 0.006835,
-     "brierDelta": 0.014361
+     "logLossDelta": 0.004337,
+     "brierDelta": 0.011734
     },
     "marketComparisonState": "MODEL_BEHIND",
     "stoppingRule": "NO_MEASURABLE_ADVANTAGE"
@@ -358,14 +358,14 @@
    "label": "NFL touchdown chances",
    "baseline": "expected scorers = actual scorers",
    "state": "HOLDING",
-   "n": 1170,
+   "n": 1344,
    "judgement": {
     "state": "HOLDING",
-    "n": 1170,
+    "n": 1344,
     "needed": 150,
-    "expected": 276.1473,
-    "actual": 278,
-    "z": 0.1348,
+    "expected": 316.7544,
+    "actual": 313,
+    "z": -0.2553,
     "direction": null
    },
    "context": null,
@@ -375,13 +375,13 @@
     "checks": [
      {
       "measure": "ece",
-      "value": 0.0291,
+      "value": 0.0274,
       "bar": "≤ 0.04",
       "pass": true
      },
      {
       "measure": "level",
-      "value": 0.9933,
+      "value": 1.012,
       "bar": [
        0.9,
        1.1
@@ -390,18 +390,18 @@
      }
     ],
     "notComputable": [],
-    "n": 1170,
+    "n": 1344,
     "needed": 1000,
     "model": null,
     "modelsOnGradedBoards": {
      "player-props-v1": 16,
-     "nfl-anytime-td-opportunity-v1": 64
+     "nfl-anytime-td-opportunity-v1": 75
     },
     "source": "data/internal/research/nfl/reports/anytime-td-forward-protocol.json#/frozen/eceMax",
     "measures": {
-     "ece": 0.0291,
-     "level": 0.9933,
-     "n": 1170
+     "ece": 0.0274,
+     "level": 1.012,
+     "n": 1344
     }
    }
   },
@@ -460,14 +460,14 @@
    "label": "NFL winning margin 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 80,
+   "n": 91,
    "judgement": {
     "state": "HOLDING",
-    "n": 80,
+    "n": 91,
     "needed": 48,
-    "rate": 0.8,
+    "rate": 0.8132,
     "target": 0.8,
-    "z": 0,
+    "z": 0.3145,
     "direction": null
    },
    "context": null,
@@ -477,7 +477,7 @@
     "checks": [
      {
       "measure": "coverage80",
-      "value": 0.8,
+      "value": 0.8132,
       "bar": [
        0.75,
        0.85
@@ -486,14 +486,14 @@
      }
     ],
     "notComputable": [],
-    "n": 80,
+    "n": 91,
     "needed": 64,
     "model": null,
     "modelsOnGradedBoards": null,
     "source": "data/internal/research/nfl/regular-season-evaluation-contract.json#/bars/marginHead/requirement",
     "measures": {
-     "coverage80": 0.8,
-     "n": 80
+     "coverage80": 0.8132,
+     "n": 91
     }
    }
   },
@@ -503,14 +503,14 @@
    "label": "NFL passing yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 152,
+   "n": 171,
    "judgement": {
     "state": "HOLDING",
-    "n": 152,
+    "n": 171,
     "needed": 150,
-    "rate": 0.8224,
+    "rate": 0.8421,
     "target": 0.8,
-    "z": 0.6894,
+    "z": 1.3765,
     "direction": null
    },
    "context": null,
@@ -521,7 +521,7 @@
     "model": null,
     "modelsOnGradedBoards": {
      "player-props-v1": 16,
-     "nfl-player-share-level-v1": 64
+     "nfl-player-share-level-v1": 75
     },
     "source": null,
     "measures": {
@@ -539,14 +539,14 @@
    "label": "NFL receiving yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 858,
+   "n": 988,
    "judgement": {
     "state": "HOLDING",
-    "n": 858,
+    "n": 988,
     "needed": 150,
-    "rate": 0.789,
+    "rate": 0.7935,
     "target": 0.8,
-    "z": -0.8023,
+    "z": -0.509,
     "direction": null
    },
    "context": null,
@@ -556,7 +556,7 @@
     "checks": [
      {
       "measure": "coverage80",
-      "value": 0.789,
+      "value": 0.7935,
       "bar": [
        0.72,
        0.88
@@ -567,20 +567,20 @@
     "notComputable": [
      "ece"
     ],
-    "n": 858,
+    "n": 988,
     "needed": 300,
     "model": "player-props-v1",
     "modelsOnGradedBoards": {
-     "player-props-v1": 48,
+     "player-props-v1": 59,
      "nfl-player-share-level-v1": 32
     },
     "source": "data/internal/research/nfl/reports/player-props-v1-evaluation.json#/promotionPolicy/0",
     "measures": {
-     "coverage80": 0.789,
-     "coverageInclusive": 0.789,
-     "coverageMidP": 0.7436,
-     "onEndpoint": 78,
-     "n": 858
+     "coverage80": 0.7935,
+     "coverageInclusive": 0.7935,
+     "coverageMidP": 0.746,
+     "onEndpoint": 94,
+     "n": 988
     }
    }
   },
@@ -590,14 +590,14 @@
    "label": "NFL total points 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 80,
+   "n": 91,
    "judgement": {
     "state": "HOLDING",
-    "n": 80,
+    "n": 91,
     "needed": 48,
-    "rate": 0.8375,
+    "rate": 0.8242,
     "target": 0.8,
-    "z": 0.8385,
+    "z": 0.5766,
     "direction": null
    },
    "context": null,
@@ -607,7 +607,7 @@
     "checks": [
      {
       "measure": "coverage80",
-      "value": 0.8375,
+      "value": 0.8242,
       "bar": [
        0.75,
        0.85
@@ -616,14 +616,14 @@
      }
     ],
     "notComputable": [],
-    "n": 80,
+    "n": 91,
     "needed": 64,
     "model": null,
     "modelsOnGradedBoards": null,
     "source": "data/internal/research/nfl/regular-season-evaluation-contract.json#/bars/totalHead/requirement",
     "measures": {
-     "coverage80": 0.8375,
-     "n": 80
+     "coverage80": 0.8242,
+     "n": 91
     }
    }
   },
@@ -633,18 +633,18 @@
    "label": "NFL winner",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "HOLDING",
-   "n": 79,
+   "n": 90,
    "judgement": {
     "state": "HOLDING",
-    "n": 79,
+    "n": 90,
     "needed": 48,
-    "meanDiff": -0.0492,
-    "lo95": -0.1056,
-    "hi95": 0.0076
+    "meanDiff": -0.0295,
+    "lo95": -0.0888,
+    "hi95": 0.0309
    },
    "context": {
-    "hits": 48,
-    "expectedHits": 48.1826
+    "hits": 53,
+    "expectedHits": 55.4973
    },
    "source": "app/public/data/nfl/reconciliation/<week>.json",
    "bar": {
@@ -665,16 +665,16 @@
    "label": "EPL blind forward test · match model vs the one it replaced",
    "baseline": "the previous model (epl-model-v1-split-poisson), paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 25,
+   "n": 29,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "watch": false,
     "needed": 60,
-    "meanDiff": -0.3653,
+    "meanDiff": -0.3263,
     "lo95": null,
     "hi95": null,
-    "modelLogLoss": 0.9999,
-    "controlLogLoss": 1.3652,
+    "modelLogLoss": 0.9664,
+    "controlLogLoss": 1.2928,
     "modelId": "epl-model-v2-elo-poisson"
    },
    "context": null,
@@ -691,11 +691,11 @@
    "label": "EPL totals SHADOW (research, not public) · club-specific total vs live P304",
    "baseline": "live P304 constant total, paired per match",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 25,
+   "n": 29,
    "judgement": {
     "receiptState": "ACCUMULATING",
     "needed": 60,
-    "meanDiff": 0.0047,
+    "meanDiff": -0.0021,
     "lo95": null,
     "hi95": null,
     "failedBars": null,
@@ -746,20 +746,20 @@
    "label": "MLB run line posted picks",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "INSUFFICIENT_SAMPLE",
-   "n": 9,
+   "n": 10,
    "judgement": {
     "state": "INSUFFICIENT_SAMPLE",
-    "n": 9,
+    "n": 10,
     "needed": 200,
-    "meanDiff": 0.0062,
+    "meanDiff": 0.0468,
     "lo95": null,
     "hi95": null
    },
    "context": {
-    "hitRate": 0.5556,
-    "meanPickProbability": 0.6217,
-    "modelMinusMarket": 0.0329,
-    "pairedWithMarket": 9
+    "hitRate": 0.5,
+    "meanPickProbability": 0.6264,
+    "modelMinusMarket": 0.0489,
+    "pairedWithMarket": 10
    },
    "source": "app/public/data/mlb/results/game-predictions-graded.jsonl",
    "bar": {
@@ -832,14 +832,6 @@
    "from": "BREACHED",
    "to": "HOLDING",
    "at": "2026-10-07T09:24:12Z"
-  },
-  {
-   "id": "ufc_winner",
-   "sport": "ufc",
-   "label": "UFC fight winner",
-   "from": "INSUFFICIENT_SAMPLE",
-   "to": "WATCH",
-   "at": "2026-10-04T13:57:16Z"
   }
  ]
 }
