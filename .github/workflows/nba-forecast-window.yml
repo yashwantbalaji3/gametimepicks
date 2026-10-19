@@ -115,7 +115,11 @@ jobs:
                 || echo "::warning::v1 refused for $D — v0, v0.1 and v0.2 unaffected"
             done
             if [ "$V0_FAILED" = "1" ]; then echo "::error::v0 forecast build refused"; exit 1; fi
-            git add ../data/internal/research/nba/experimental/ ../data/internal/research/nba/experimental-v0.1/ ../data/internal/research/nba/experimental-v0.2/ ../data/internal/research/nba/experimental-v1/
+            # One `git add` per family directory that exists: a single missing pathspec (experimental-v1/ before v1's first
+            # successful build) makes `git add` stage NOTHING, which would silently drop every other family's forecast.
+            for FD in experimental experimental-v0.1 experimental-v0.2 experimental-v1; do
+              if [ -d "../data/internal/research/nba/$FD" ]; then git add "../data/internal/research/nba/$FD/"; fi
+            done
             if git diff --cached --quiet; then echo "no forecast added — nothing to commit"; exit 0; fi
             # Never commit a run that changed or removed an already-committed forecast.
             node scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD || exit 1
