@@ -27,7 +27,7 @@ export function FixtureBanner({ text, note }: { text: string; note: string | nul
   return (
     <div className="nba-fixture" role="note" aria-label="Test fixture" data-nba-fixture-banner="">
       <strong>{text}</strong>
-      {note ? <span>{note}</span> : null}
+      {note ? <span>{note.replace(text, "").replace(/^[\s.·—-]+/, "")}</span> : null}
     </div>
   );
 }
@@ -113,7 +113,7 @@ export function Linescore({ sample, teams, palette, through }: { sample: NbaSamp
   );
 }
 
-function PlayerTable({ side, sample, teams, palette }: { side: NbaSide; sample: NbaSample; teams: NbaTeams; palette: NbaPalette }) {
+function PlayerTable({ side, sample, teams, palette, playRates }: { side: NbaSide; sample: NbaSample; teams: NbaTeams; palette: NbaPalette; playRates?: Record<string, number> }) {
   const rows: NbaPlayerLine[] = [...sample.players[side]].sort((a, b) => b.minutes - a.minutes || b.pts - a.pts);
   const t = sample.team[side];
   const teamMin = 240 + 25 * sample.overtimePeriods;
@@ -128,7 +128,12 @@ function PlayerTable({ side, sample, teams, palette }: { side: NbaSide; sample: 
       <tbody>
         {rows.map((p) => (
           <tr key={p.providerAthleteId ?? p.name} className={p.minutes === 0 ? "is-dnp" : undefined}>
-            <th scope="row"><span className="nba-pname">{p.name}</span></th>
+            <th scope="row">
+              <span className="nba-pname">{p.name}</span>
+              {playRates && p.providerAthleteId && playRates[p.providerAthleteId] != null ? (
+                <span className="nba-prate">plays in {Math.round(playRates[p.providerAthleteId] * 100)}% of draws</span>
+              ) : null}
+            </th>
             <td>{fmtMin(p.minutes)}</td><td className="is-pts">{p.pts}</td><td>{p.reb}</td><td>{p.ast}</td><td>{p.threePm}-{p.threePa}</td>
           </tr>
         ))}
@@ -144,7 +149,9 @@ function PlayerTable({ side, sample, teams, palette }: { side: NbaSide; sample: 
  * The selected sample's player lines: its GAME totals, labelled as that sample's final line. During playback the panel
  * says plainly that per-quarter splits are not modelled; nothing is pro-rated to the playback position.
  */
-export function PlayerPanel({ sample, teams, palette, playing }: { sample: NbaSample; teams: NbaTeams; palette: NbaPalette; playing: boolean }) {
+export function PlayerPanel({ sample, teams, palette, playing, playRates }: {
+  sample: NbaSample; teams: NbaTeams; palette: NbaPalette; playing: boolean; playRates?: { home: Record<string, number>; away: Record<string, number> };
+}) {
   return (
     <div className="nba-playerpanel">
       <p className="nba-panel-lede">
@@ -154,9 +161,9 @@ export function PlayerPanel({ sample, teams, palette, playing }: { sample: NbaSa
         <p className="nba-note" data-nba-no-splits="">Per-quarter player splits are not modelled. These are the sample&apos;s final game totals, shown whole at every point of playback, never pro-rated.</p>
       ) : null}
       <div className="nba-players-grid">
-        {SIDES.map((side) => <PlayerTable key={side} side={side} sample={sample} teams={teams} palette={palette} />)}
+        {SIDES.map((side) => <PlayerTable key={side} side={side} sample={sample} teams={teams} palette={palette} playRates={playRates?.[side]} />)}
       </div>
-      <p className="nba-fine">MIN in minutes; 0 = did not play in this sample. 3PM-A = three-pointers made-attempted.</p>
+      <p className="nba-fine">MIN in minutes; 0 = did not play in this sample. 3PM-A = three-pointers made-attempted.{playRates ? " “Plays in N% of draws” is the model's playRate: the share of all simulated games in which the player logs minutes." : ""}</p>
     </div>
   );
 }
@@ -302,6 +309,7 @@ export function ModelFacts({ manifest, sample }: { manifest: NbaManifest; sample
       <div><dt>Inputs as of</dt><dd className="st-mono">{manifest.inputAsOf ?? "—"}</dd></div>
       <div><dt>Simulations</dt><dd>{n(manifest.simulations)}</dd></div>
       <div><dt>Seed</dt><dd className="st-mono">{manifest.seed ?? "—"}</dd></div>
+      <div><dt>Data</dt><dd>{manifest.fixture ? "Synthetic TEST FIXTURE (not model output)" : manifest.provenance ? `Real engine output${manifest.role ? ` (${manifest.role})` : ""}, dev copy of ${manifest.provenance.source ?? "?"}` : `Engine output${manifest.role ? ` (${manifest.role})` : ""}: ${manifest.file ?? "?"}`}</dd></div>
     </dl>
   );
 }

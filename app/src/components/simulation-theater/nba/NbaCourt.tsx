@@ -75,8 +75,8 @@ export default function NbaCourt({ palette, teams, idPrefix }: { palette: NbaPal
       <line className="nba-line" x1={G.halfCourt.x1} y1={G.halfCourt.y1} x2={G.halfCourt.x2} y2={G.halfCourt.y2} />
       <circle className="nba-line" cx={c.cx} cy={c.cy} r={c.r} />
       <circle className="nba-line" cx={c.cx} cy={c.cy} r={c.inner} />
-      <text className="nba-wordmark" x={c.cx} y={c.cy - 3.1} textAnchor="middle" dominantBaseline="central" aria-hidden="true">GTP</text>
-      <text className="nba-wordmark is-sub" x={c.cx} y={c.cy + 3.3} textAnchor="middle" dominantBaseline="central" aria-hidden="true">SIMULATED</text>
+      <text className="nba-wordmark" x={c.cx} y={c.cy - 3.9} textAnchor="middle" dominantBaseline="central" aria-hidden="true">GTP</text>
+      <text className="nba-wordmark is-sub" x={c.cx} y={c.cy + 3.9} textAnchor="middle" dominantBaseline="central" aria-hidden="true">SIMULATED</text>
       <rect className="nba-line nba-boundary" x={0} y={0} width={G.boundary.w} height={G.boundary.h} />
     </svg>
   );

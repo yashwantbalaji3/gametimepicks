@@ -10,7 +10,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { FIXTURE_BANNER, NBA_ENGINE_ID, adaptNbaArtifact, checkHistogram, defaultSampleIndex } from "./adapter-nba-sim-v1.mjs";
 import { SAMPLE_LABELS, validateSample } from "./validate-sample.mjs";
-import { NBA_FIXTURE_SOURCE, NBA_THEATER_SOURCE, loadNbaTheater, usableNbaEvents, v1ArtifactSource } from "./loader.mjs";
+import { NBA_FIXTURE_SOURCE, NBA_REAL_DEV_SOURCE, NBA_THEATER_SOURCE, loadNbaTheater, readArtifact, usableNbaEvents, v1ArtifactSource } from "./loader.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -153,18 +153,73 @@ test("histogram check: probabilities must sum to 1 over integer bins; a bad hist
   assert.ok(m.samples.every((s) => s.validation.ok));
 });
 
-test("loader: today's source is the fixture; switching to real v1 output is ONE line (and a missing artifact fails closed)", () => {
-  assert.equal(NBA_THEATER_SOURCE, NBA_FIXTURE_SOURCE);
+test("loader: today's source is the verified dev copy of real v1 output; switching to a committed artifact is ONE line; missing fails closed", () => {
+  assert.equal(NBA_THEATER_SOURCE, NBA_REAL_DEV_SOURCE);
   const src = fs.readFileSync(path.join(APP, "src/lib/simulation-theater/nba/loader.mjs"), "utf8");
   const lines = src.split("\n").filter((l) => /^export const NBA_THEATER_SOURCE = /.test(l));
   assert.equal(lines.length, 1, "exactly one SOURCE line");
   assert.equal(v1ArtifactSource("2026-10-20").path, "data/internal/research/nba/experimental-v1/forecasts/2026-10-20.json");
   assert.deepEqual(usableNbaEvents(REPO), ["401909088", "401909089", "401909090"]);
+  assert.deepEqual(usableNbaEvents(REPO, { source: NBA_FIXTURE_SOURCE }), ["401909088", "401909089", "401909090"]);
   const t = loadNbaTheater(REPO, "401909089");
   assert.equal(t.ok, true);
+  assert.equal(t.manifest.fixture, false);
   assert.equal(t.palettes.team.mode, "team");
   const missing = loadNbaTheater(REPO, "401909089", { source: v1ArtifactSource("1999-01-01") });
   assert.equal(missing.ok, false);
   assert.equal(missing.error.code, "NO_ARTIFACT");
   assert.deepEqual(usableNbaEvents(REPO, { source: v1ArtifactSource("1999-01-01") }), []);
+});
+
+// ── the REAL nba-sim-v1-coherent artifact (dev copy with provenance) ─────────────────────────────────────────────
+const REAL_REL = "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20.json";
+const REAL = JSON.parse(fs.readFileSync(path.join(APP, REAL_REL), "utf8"));
+const PROV = JSON.parse(fs.readFileSync(path.join(APP, "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20.provenance.json"), "utf8"));
+
+test("real v1 dev copy: NOT a fixture, sha256 matches its provenance, engine id and inputAsOf as recorded", () => {
+  assert.equal(REAL.fixture, undefined, "a real artifact carries no fixture flag");
+  assert.equal(REAL.modelVersion, "nba-sim-v1-coherent");
+  assert.equal(PROV.modelVersion, REAL.modelVersion);
+  assert.equal(PROV.inputAsOf, REAL.inputAsOf);
+  const r = readArtifact(REPO, NBA_REAL_DEV_SOURCE);
+  assert.equal(r.provenance.verified, true, `sha ${r.provenance.actualSha256} ≠ ${PROV.sha256}`);
+  assert.deepEqual(REAL.games.map((g) => g.providerEventId), ["401909088", "401909089", "401909090"]);
+});
+
+test("real v1 dev copy: every one of the 15 samples passes every invariant; the only finding is the 0.01 minutes rounding (a note)", () => {
+  const r = readArtifact(REPO, NBA_REAL_DEV_SOURCE);
+  let notes = 0;
+  for (const g of REAL.games) {
+    const a = adaptNbaArtifact(REAL, g.providerEventId, { file: REAL_REL, provenance: r.provenance });
+    assert.equal(a.ok, true, JSON.stringify(a.error));
+    assert.equal(a.manifest.fixture, false);
+    assert.ok(a.manifest.provenance?.sha256);
+    assert.equal(a.manifest.samples.length, 5);
+    for (const s of a.manifest.samples) {
+      assert.deepEqual(s.validation.errors, [], `${g.providerEventId} ${s.label} #${s.runIndex}`);
+      for (const n of s.validation.notes) { assert.equal(n.code, "MINUTES_ROUNDED"); notes++; }
+    }
+    assert.ok(Object.keys(a.manifest.playRates.home).length > 5, "playRate per v1 player row");
+    assert.ok(a.manifest.sim.totalHistogram.length > 50);
+  }
+  console.log(`# real v1: 15 samples valid; ${notes} MINUTES_ROUNDED note(s) (minutes serialized at 0.01)`);
+});
+
+test("a dev copy is refused without verified provenance (missing or tampered sidecar), so nothing unmarked under __fixtures__ passes", () => {
+  const id = REAL.games[0].providerEventId;
+  assert.equal(adaptNbaArtifact(REAL, id, { file: REAL_REL }).error.code, "FIXTURE_UNMARKED");
+  assert.equal(adaptNbaArtifact(REAL, id, { file: REAL_REL, provenance: { verified: false } }).error.code, "FIXTURE_UNMARKED");
+  const tampered = loadNbaTheater(REPO, id, { read: { ...readArtifact(REPO, NBA_REAL_DEV_SOURCE), provenance: { ...PROV, verified: false } } });
+  assert.equal(tampered.ok, false);
+});
+
+test("minutes rounding allowance: only for values serialized at 0.01, only within 0.005 × players; anything else fails", () => {
+  const s = clone(REAL.games[0].forecast.representativeSamples[0]);
+  const v = validateSample(s, { simulations: 10000 });
+  assert.equal(v.ok, true);
+  assert.ok(v.notes.some((n) => n.code === "MINUTES_ROUNDED"));
+  const far = clone(s); far.players.home[0].minutes = Math.round((far.players.home[0].minutes + 0.3) * 100) / 100;
+  assert.ok(validateSample(far, { simulations: 10000 }).errors.some((e) => e.code === "MINUTES_SUM"), "0.3 min off is beyond rounding");
+  const fine = clone(s); fine.players.home[0].minutes += 0.001; // not at 0.01 resolution: strict 1e-6 applies
+  assert.ok(validateSample(fine, { simulations: 10000 }).errors.some((e) => e.code === "MINUTES_SUM"));
 });

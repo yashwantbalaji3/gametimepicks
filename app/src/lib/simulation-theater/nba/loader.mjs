@@ -1,16 +1,20 @@
 /**
  * NBA SIMULATION THEATER · LOADER — the only I/O in the NBA theater library. Server side, build time only. READ ONLY.
  *
- * SOURCE SWITCH (one line). Until the nba-sim-v1-coherent engine lands, the theater reads a generated, schema-valid TEST
- * FIXTURE (marked `fixture: true`; rendered only under a "TEST FIXTURE — not model output" banner). To read real engine
- * output instead, change the single line marked SOURCE below to, e.g.:
+ * SOURCE SWITCH (one line). Three sources exist:
+ *   NBA_REAL_DEV_SOURCE  (current) a byte-for-byte DEV COPY of REAL nba-sim-v1-coherent output for 2026-10-20, kept under
+ *                        __fixtures__/ with a provenance sidecar; read only if the sidecar's sha256 matches the file.
+ *   NBA_FIXTURE_SOURCE   the generated synthetic TEST FIXTURE (`fixture: true`; rendered only under its banner). Used by
+ *                        the validator mutation tests and the fixture-gate tests.
+ *   v1ArtifactSource(d)  a committed experimental-v1 artifact: data/internal/research/nba/experimental-v1/forecasts/<d>.json
+ * Once experimental-v1 artifacts are committed under data/, the one line marked SOURCE becomes:
  *
  *   export const NBA_THEATER_SOURCE = v1ArtifactSource("2026-10-20");
  *
- * which reads data/internal/research/nba/experimental-v1/forecasts/2026-10-20.json (the v0.2 artifact shape with the v1
- * additions). Nothing else changes: the adapter validates either the same way, and the fixture banner follows the
- * artifact's own `fixture` flag.
+ * Nothing else changes: the adapter validates every source the same way, and the fixture banner follows the artifact's
+ * own `fixture` flag.
  */
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -18,20 +22,41 @@ import { adaptNbaArtifact } from "./adapter-nba-sim-v1.mjs";
 import { nbaPalette } from "./nba-team-colors.mjs";
 
 export const NBA_FIXTURE_SOURCE = Object.freeze({ kind: "fixture", path: "app/src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-fixture.json" });
+export const NBA_REAL_DEV_SOURCE = Object.freeze({
+  kind: "dev-copy",
+  path: "app/src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20.json",
+  provenance: "app/src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20.provenance.json",
+});
 export const v1ArtifactSource = (date) => Object.freeze({ kind: "artifact", path: `data/internal/research/nba/experimental-v1/forecasts/${date}.json` });
 
 // SOURCE ↓ (the one line to change when real nba-sim-v1 output exists)
-export const NBA_THEATER_SOURCE = NBA_FIXTURE_SOURCE;
+export const NBA_THEATER_SOURCE = NBA_REAL_DEV_SOURCE;
 
 export const NBA_COLORS_FILE = "app/src/lib/simulation-theater/nba/nba-team-colors.json";
 export const MAX_NBA_EVENTS = 3;
 
 export function readArtifact(repoRoot, source = NBA_THEATER_SOURCE) {
   const file = path.join(repoRoot, source.path);
+  let bytes;
   try {
-    return { file: source.path, artifact: JSON.parse(fs.readFileSync(file, "utf8")), error: null };
+    bytes = fs.readFileSync(file);
   } catch (e) {
-    return { file: source.path, artifact: null, error: { code: "NO_ARTIFACT", reason: `${source.path}: ${e?.code ?? e?.message ?? "unreadable"}` } };
+    return { file: source.path, artifact: null, provenance: null, error: { code: "NO_ARTIFACT", reason: `${source.path}: ${e?.code ?? e?.message ?? "unreadable"}` } };
+  }
+  let provenance = null;
+  if (source.provenance) {
+    try {
+      const p = JSON.parse(fs.readFileSync(path.join(repoRoot, source.provenance), "utf8"));
+      const sha = crypto.createHash("sha256").update(bytes).digest("hex");
+      provenance = { ...p, verified: p.sha256 === sha, actualSha256: sha };
+    } catch {
+      provenance = { verified: false };
+    }
+  }
+  try {
+    return { file: source.path, artifact: JSON.parse(bytes.toString("utf8")), provenance, error: null };
+  } catch (e) {
+    return { file: source.path, artifact: null, provenance, error: { code: "NO_ARTIFACT", reason: `${source.path}: ${e?.message ?? "not JSON"}` } };
   }
 }
 
@@ -46,7 +71,7 @@ export function readTeamColors(repoRoot) {
 export function loadNbaTheater(repoRoot, eventId, { source = NBA_THEATER_SOURCE, read = null } = {}) {
   const r = read ?? readArtifact(repoRoot, source);
   if (!r.artifact) return { eventId: String(eventId), file: r.file, ok: false, error: r.error, manifest: null, palettes: null };
-  const a = adaptNbaArtifact(r.artifact, eventId, { file: r.file });
+  const a = adaptNbaArtifact(r.artifact, eventId, { file: r.file, provenance: r.provenance ?? null });
   let palettes = null;
   if (a.ok) {
     const colors = readTeamColors(repoRoot);

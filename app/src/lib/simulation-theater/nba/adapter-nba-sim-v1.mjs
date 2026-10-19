@@ -7,8 +7,10 @@
  * `invariants`. The forecast block is read from `game.forecast` (the v0.2 layout) or, if absent, from the game itself.
  *
  * A TEST FIXTURE is an artifact with `fixture: true`. The manifest carries `fixture`, and the theater refuses to render a
- * fixture without its "TEST FIXTURE — not model output" banner (NbaTheaterSection). A file under `__fixtures__/` that is
- * NOT marked `fixture: true` is rejected outright (FIXTURE_UNMARKED), so a fixture can never pass for model output.
+ * fixture without its "TEST FIXTURE — not model output" banner (nba-gate.ts). A file under `__fixtures__/` that is NOT
+ * marked `fixture: true` is rejected (FIXTURE_UNMARKED) UNLESS the loader verified it as a byte-for-byte DEV COPY of real
+ * engine output (a provenance sidecar whose sha256 matches: `opts.provenance.verified`), so nothing synthetic can pass for
+ * model output and a dev copy always says where it came from.
  *
  * Every representative sample is re-validated (validate-sample.mjs). Only samples PRESENT in the artifact are listed, in
  * the order typical, close, high, low, upset; an absent label (often `upset`) is simply not offered.
@@ -55,11 +57,12 @@ export function checkHistogram(h) {
  * @param {{ file?: string|null }} opts
  * @returns {{ ok: boolean, error: {code: string, reason: string}|null, manifest: object|null }}
  */
-export function adaptNbaArtifact(artifact, eventId, { file = null } = {}) {
+export function adaptNbaArtifact(artifact, eventId, { file = null, provenance = null } = {}) {
   const fail = (code, reason) => ({ ok: false, error: { code, reason }, manifest: null });
   if (!isObj(artifact)) return fail("MALFORMED", "not an artifact object");
   const fixture = artifact.fixture === true;
-  if (!fixture && file && /__fixtures__/.test(String(file))) return fail("FIXTURE_UNMARKED", `${file} sits under __fixtures__ but is not marked fixture: true`);
+  const devCopy = !fixture && provenance?.verified === true;
+  if (!fixture && !devCopy && file && /__fixtures__/.test(String(file))) return fail("FIXTURE_UNMARKED", `${file} sits under __fixtures__ but is neither marked fixture: true nor a verified dev copy of engine output`);
   if (artifact.artifact !== NBA_ARTIFACT) return fail("ARTIFACT_MISMATCH", `artifact ${artifact.artifact ?? "(none)"} is not ${NBA_ARTIFACT}`);
   if (!Array.isArray(artifact.games)) return fail("MALFORMED", "games[] missing");
   const g = artifact.games.find((x) => String(x?.providerEventId) === String(eventId));
@@ -80,7 +83,7 @@ export function adaptNbaArtifact(artifact, eventId, { file = null } = {}) {
     const v = validateSample(raw, { simulations });
     if (raw && seen.has(raw.label)) v.errors.push({ code: "LABEL_DUPLICATE", detail: `second sample labelled ${raw.label}` });
     if (raw?.label) seen.add(raw.label);
-    const validation = { ok: v.errors.length === 0, errors: v.errors };
+    const validation = { ok: v.errors.length === 0, errors: v.errors, notes: v.notes ?? [] };
     samples.push({
       runIndex: raw?.runIndex ?? null,
       label: raw?.label ?? null,
@@ -99,6 +102,13 @@ export function adaptNbaArtifact(artifact, eventId, { file = null } = {}) {
   samples.sort((a, b) => order(a.label) - order(b.label));
   if (!samples.length) return fail("NO_SAMPLES", "representativeSamples is empty");
 
+  // v1 player rows are quantiles CONDITIONAL on playing; playRate (share of draws with minutes > 0) is shown beside them
+  const playRates = { home: {}, away: {} };
+  for (const side of ["home", "away"]) {
+    for (const p of Array.isArray(fc.players?.[side]) ? fc.players[side] : []) {
+      if (p?.providerAthleteId != null && num(p.playRate) != null) playRates[side][String(p.providerAthleteId)] = p.playRate;
+    }
+  }
   const hist = checkHistogram(fc.sim.totalHistogram);
   const q = (o) => (isObj(o) ? { p10: num(o.p10), p25: num(o.p25), p50: num(o.p50), p75: num(o.p75), p90: num(o.p90), mean: num(o.mean), sd: num(o.sd) } : null);
   const manifest = {
@@ -106,6 +116,9 @@ export function adaptNbaArtifact(artifact, eventId, { file = null } = {}) {
     fixture,
     fixtureNote: fixture ? String(artifact.fixtureNote ?? "") : null,
     file,
+    role: typeof artifact.role === "string" ? artifact.role : null,
+    provenance: devCopy ? { source: provenance.source ?? null, sha256: provenance.sha256 ?? null, copiedAt: provenance.copiedAt ?? null, knownDeviation: provenance.knownDeviation ?? null } : null,
+    playRates,
     date: artifact.date ?? null,
     dateUtc: g.dateUtc ?? null,
     venue: g.venue ?? null,

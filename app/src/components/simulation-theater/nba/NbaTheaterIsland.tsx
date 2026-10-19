@@ -89,7 +89,9 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
   const [tlW, tlRef] = useWidth(640);
   const [histW, histRef] = useWidth(320);
 
-  // rebuild the transport when the sample changes (keeps the speed; restarts at tip-off)
+  const hookDone = useRef(false);
+  const hookT = useRef<number | null>(null);
+  // rebuild the transport when the sample changes (keeps the speed; restarts at tip-off, or at a pending dev-hook seek)
   const lastCompiled = useRef(compiled);
   useEffect(() => {
     if (lastCompiled.current === compiled) return;
@@ -97,12 +99,12 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
     if (!compiled) { setTp(null); return; }
     let m = createTransport({ tEnd: compiled.tEnd, driveStarts: compiled.periodStarts }) as Tp;
     if (tpRef.current) m = transport(m, "SPEED", { speed: tpRef.current.speed }) as Tp;
+    if (hookT.current != null) { m = transport(m, "SEEK", { t: hookT.current }) as Tp; hookT.current = null; }
     setTp(m);
   }, [compiled]);
 
-  // dev hook: ?run= / ?label= and ?t= (seconds), applied once after mount
-  const hookDone = useRef(false);
-  const hookT = useRef<number | null>(null);
+  // dev hook: ?run= / ?label= and ?t= (seconds), applied once after mount. A different sample seeks when its transport
+  // is rebuilt (above); the default sample seeks at once.
   useEffect(() => {
     if (!devHooks || hookDone.current || typeof window === "undefined") return;
     hookDone.current = true;
@@ -110,16 +112,15 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
     const run = q.get("run");
     const label = q.get("label");
     const i = manifest.samples.findIndex((s) => s.validation.ok && ((run != null && String(s.runIndex) === run) || (label != null && s.label === label)));
-    if (i >= 0) setSampleIndex(i);
     const t = Number(q.get("t"));
-    if (Number.isFinite(t) && t > 0) hookT.current = t * 1000;
-  }, [devHooks, manifest.samples]);
-  useEffect(() => {
-    if (hookT.current == null || !tp || !compiled || tp.tEnd !== compiled.tEnd) return;
-    const t = hookT.current;
-    hookT.current = null;
-    setTp(transport(tp, "SEEK", { t }) as Tp);
-  }, [tp, compiled]);
+    const seek = Number.isFinite(t) && t > 0 ? t * 1000 : null;
+    if (i >= 0 && i !== sampleIndex) {
+      hookT.current = seek;
+      setSampleIndex(i);
+    } else if (seek != null) {
+      setTp((cur) => (cur ? (transport(cur, "SEEK", { t: seek }) as Tp) : cur));
+    }
+  }, [devHooks, manifest.samples, sampleIndex]);
 
   const act = useCallback((action: string, arg: Record<string, unknown> = {}) => {
     setTp((cur) => (cur ? (transport(cur, action, arg) as Tp) : cur));
@@ -189,6 +190,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
         <div className="st-devbar nba-devbar">
           <span className="st-devtag">dev prototype</span>
           <label><input type="checkbox" checked={neutral} onChange={(e) => setNeutral(e.target.checked)} /> Neutral colours</label>
+          <span className="nba-devnote nba-datanote">{manifest.fixture ? "Data: synthetic test fixture" : `Data: real ${manifest.modelVersion} output${manifest.role ? ` (${manifest.role})` : ""} · inputs as of ${manifest.inputAsOf ?? "?"}${manifest.provenance ? " · dev copy, sha256 verified" : ""}`}</span>
           {palette.mode === "team" ? <span className="nba-devnote">Team colours: {palettes.team.status === "single-source-unvalidated" ? "one non-official source, unvalidated" : palettes.team.status}{palettes.team.clash ? ` · ${teams.away.abbr} patterned (colours clash)` : ""}</span> : null}
         </div>
       ) : null}
@@ -235,11 +237,15 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
                     <button type="button" className="st-btn st-play" aria-label={playing ? "Pause" : "Play"} onClick={() => act("TOGGLE")}><Icon d={playing ? ICON.pause : ICON.play} /></button>
                     <button type="button" className="st-btn" aria-label="Next period" onClick={() => act("NEXT_DRIVE")}><Icon d={ICON.next} /></button>
                     <button type="button" className="st-btn" aria-label="Restart from tip-off" onClick={() => act("RESTART")}><Icon d={ICON.restart} /></button>
-                    <div className="st-speeds" role="radiogroup" aria-label="Playback speed">
-                      {SPEEDS.map((s: number) => (
-                        <button key={s} type="button" role="radio" aria-checked={tp.speed === s} className="st-speed" onClick={() => act("SPEED", { speed: s })}>{s}×</button>
-                      ))}
-                    </div>
+                    {compact ? (
+                      <button type="button" className="st-btn st-speedcycle" aria-label={`Playback speed ${tp.speed}×, change speed`} onClick={() => act("SPEED", { speed: SPEEDS[(SPEEDS.indexOf(tp.speed) + 1) % SPEEDS.length] })}>{tp.speed}×</button>
+                    ) : (
+                      <div className="st-speeds" role="radiogroup" aria-label="Playback speed">
+                        {SPEEDS.map((s: number) => (
+                          <button key={s} type="button" role="radio" aria-checked={tp.speed === s} className="st-speed" onClick={() => act("SPEED", { speed: s })}>{s}×</button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="st-seekrow">
                     <input className="st-seek" type="range" min={0} max={compiled.tEnd} step={100} value={Math.round(tp.t)} aria-label={`Seek playback of run #${sample.runIndex}`} aria-valuetext={`${frame.periodDisplay} ${frame.phase === "LIVE" ? fmtGameClock(frame.clockSec) : ""}`} onChange={(e) => act("SEEK", { t: Number(e.target.value) })} />
@@ -275,7 +281,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
               </div>
               {!compact || playersOpen ? (
                 <div id={`${uid}-players`}>
-                  <PlayerPanel sample={sample} teams={teams} palette={palette} playing={frame.phase !== "FINAL"} />
+                  <PlayerPanel sample={sample} teams={teams} palette={palette} playing={frame.phase !== "FINAL"} playRates={manifest.playRates} />
                 </div>
               ) : (
                 <p className="nba-fine">Game totals for {sample.players.away.length + sample.players.home.length} players in run #{sample.runIndex}. Per-quarter splits are not modelled.</p>
@@ -288,6 +294,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
                 {manifest.notModelled.map((x) => <li key={x}>{x}</li>)}
                 <li>The score ticks and the game clock between quarter-end checkpoints are illustrative (tagged on screen).</li>
                 <li>This sample passed every contract invariant re-checked here (period sums, player points, 3PM ≤ 3PA, minutes = {240 + 25 * sample.overtimePeriods}).</li>
+                {sample.validation.notes.map((n) => <li key={n.detail} className="nba-validation-note">Note {n.code}: {n.detail}.</li>)}
               </ul>
               {compact ? <><h3 className="nba-h3">Selection rules</h3><SelectionRules manifest={manifest} /></> : null}
             </section>

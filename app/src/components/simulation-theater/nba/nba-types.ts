@@ -15,7 +15,7 @@ export type NbaSample = {
   overtimePeriods: number;
   team: { home: NbaTeamBox; away: NbaTeamBox };
   players: { home: NbaPlayerLine[]; away: NbaPlayerLine[] };
-  validation: { ok: boolean; errors: { code: string; detail: string }[] };
+  validation: { ok: boolean; errors: { code: string; detail: string }[]; notes: { code: string; detail: string }[] };
 };
 export type Quantiles = { p10: number | null; p25: number | null; p50: number | null; p75: number | null; p90: number | null; mean: number | null; sd: number | null } | null;
 export type NbaManifest = {
@@ -23,6 +23,9 @@ export type NbaManifest = {
   fixture: boolean;
   fixtureNote: string | null;
   file: string | null;
+  role: string | null;
+  provenance: { source: string | null; sha256: string | null; copiedAt: string | null; knownDeviation: string | null } | null;
+  playRates: { home: Record<string, number>; away: Record<string, number> };
   date: string | null;
   dateUtc: string | null;
   venue: string | null;
