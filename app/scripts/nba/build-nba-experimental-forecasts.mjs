@@ -14,13 +14,15 @@
  * (read only) · data/internal/research/injuries/nba/latest.json.
  *
  * Run (from app/):
- *   npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date 2026-10-03 --now 2026-09-22T12:00:00Z [--write] [--simulations N] [--family v0|v0.1] [--out <file>] [--horizon-hours H]
+ *   npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date 2026-10-03 --now 2026-09-22T12:00:00Z [--write] [--simulations N] [--family v0|v0.1|v0.2|v1] [--out <file>] [--horizon-hours H]
  *
  * FAMILIES (v1.8 A1): --family v0 (default) is the frozen preregistered pool (box-score history) and writes
  * experimental/forecasts/; --family v0.1 is the ROSTER-GATED pool and writes experimental-v0.1/forecasts/.
  * v0.1 REFUSES (exit 1) when rosters/latest.json is absent — it never falls back to history. --family v0.2 is the
  * 2026-27 CHALLENGER (founder N3): v0.1's pool, plus the season's finals record and fetched box scores folded at
- * --now (season-fold.mjs); writes experimental-v0.2/forecasts/ and REFUSES when the finals record is unreadable. --out <file>
+ * --now (season-fold.mjs); writes experimental-v0.2/forecasts/ and REFUSES when the finals record is unreadable. --family v1 is the
+ * coherent-engine CANDIDATE (game-sim-v1.mjs, nba-sim-v1-coherent): v0.2's roster gate and season fold, the v1 engine and its
+ * blended-history profiles (sim-v1-profile.mjs); writes experimental-v1/forecasts/ with the same write-once receipts. --out <file>
  * overrides the output path for a research comparison (never used by the workflow).
  * WRITE-ONCE, PRE-TIP (Session 10 · G2/G4/G7 — lib/sports/nba/forecast-receipt.mjs): the date file is never
  * rewritten whole. A game already in it is kept byte-for-byte; a game whose tip is at or before --now is

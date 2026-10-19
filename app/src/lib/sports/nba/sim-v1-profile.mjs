@@ -74,10 +74,12 @@ export function inPopulation(phase, population) {
   throw new Error(`sim-v1-profile: unknown population ${population}`);
 }
 
+/** One played stat line; a stat the provider did not report is null and is left out of THAT stat's rate only. */
 function appRow(p) {
-  const ints = ["minutes", "pts", "reb", "ast", "threePm", "threePa", "fgm", "fga", "ftm", "fta"];
-  if (!ints.every((k) => Number.isInteger(p[k]))) return null;
-  return { minutes: p.minutes, pts: p.pts, reb: p.reb, ast: p.ast, threePa: p.threePa, threePm: p.threePm, twoPa: p.fga - p.threePa, twoPm: p.fgm - p.threePm, fta: p.fta, ftm: p.ftm };
+  if (!Number.isInteger(p.minutes) || p.minutes <= 0) return null;
+  const int = (x) => (Number.isInteger(x) ? x : null);
+  const diff = (a, b) => (Number.isInteger(a) && Number.isInteger(b) && a >= b ? a - b : null);
+  return { minutes: p.minutes, pts: int(p.pts), reb: int(p.reb), ast: int(p.ast), threePa: int(p.threePa), threePm: int(p.threePm), twoPa: diff(p.fga, p.threePa), twoPm: diff(p.fgm, p.threePm), fta: int(p.fta), ftm: int(p.ftm) };
 }
 
 /**
@@ -94,7 +96,6 @@ export function indexBoxscores(boxscores) {
   const games = [];
   for (const { d, t, season } of docs) {
     const teamPts = new Map();
-    const statLines = new Map();
     let complete = true;
     for (const p of d.players) {
       if (p?.providerAthleteId == null) continue;
@@ -102,12 +103,11 @@ export function indexBoxscores(boxscores) {
       const teamId = String(p.providerTeamId);
       const played = !p.didNotPlay && Number.isInteger(p.minutes) && p.minutes > 0;
       const line = played ? appRow(p) : null;
-      if (played && !line) complete = false;
+      if (played && (!line || RATE_KEYS.some((k) => line[k] == null))) complete = false;
       const coachDnp = p.didNotPlay === true && /COACH/i.test(String(p.dnpReason ?? ""));
       if (!byAthlete.has(id)) byAthlete.set(id, []);
       byAthlete.get(id).push({ t, season, phase: d.phase, teamId, eventId: String(d.providerEventId), played: played && line != null, coachDnp, line, starter: p.starter === true, name: p.name ?? null });
       if (played && Number.isInteger(p.pts)) teamPts.set(teamId, (teamPts.get(teamId) ?? 0) + p.pts);
-      if (line) { const s = statLines.get(teamId) ?? { pts: 0, minutes: 0 }; s.pts += line.pts; s.minutes += line.minutes; statLines.set(teamId, s); }
     }
     const teams = (d.teams ?? []).map((x) => String(x.providerTeamId));
     if (teams.length !== 2) continue;
@@ -139,7 +139,7 @@ export function leagueMeans(index, { asOf, population = "regular" }) {
     for (const r of rows) {
       if (!r.played || !ids.has(r.eventId)) continue;
       minutes += r.line.minutes;
-      for (const k of RATE_KEYS) tot[k] += r.line[k];
+      for (const k of RATE_KEYS) tot[k] += r.line[k]; // complete games only: every key is an integer
     }
   }
   const rates = Object.fromEntries(RATE_KEYS.map((k) => [k, minutes > 0 ? tot[k] / minutes : LEAGUE_FALLBACK.rates[k]]));
@@ -176,12 +176,19 @@ export function playerProfile(index, athleteId, { asOf, population = "regular", 
   const minutesSd = Math.sqrt((mw * wVar + P.MINUTES_SD_PRIOR_GAMES * sdPrior ** 2) / (mw + P.MINUTES_SD_PRIOR_GAMES));
   // rates
   const sw = Object.fromEntries(RATE_KEYS.map((key) => [key, 0]));
-  let wMin = 0, rawMin = 0;
-  played.forEach((r, i) => { const w = 0.5 ** (i / P.RATE_HALF_LIFE_APPS); wMin += w * r.line.minutes; rawMin += r.line.minutes; for (const key of RATE_KEYS) sw[key] += w * r.line[key]; });
+  const swMin = Object.fromEntries(RATE_KEYS.map((key) => [key, 0]));
+  let wMin = 0, rawMin = 0, w3a = 0, w3m = 0, w2a = 0, w2m = 0;
+  played.forEach((r, i) => {
+    const w = 0.5 ** (i / P.RATE_HALF_LIFE_APPS);
+    wMin += w * r.line.minutes; rawMin += r.line.minutes;
+    for (const key of RATE_KEYS) if (r.line[key] != null) { sw[key] += w * r.line[key]; swMin[key] += w * r.line.minutes; }
+    if (r.line.threePa != null && r.line.threePm != null) { w3a += w * r.line.threePa; w3m += w * r.line.threePm; }
+    if (r.line.twoPa != null && r.line.twoPm != null) { w2a += w * r.line.twoPa; w2m += w * r.line.twoPm; }
+  });
   const K = P.RATE_PRIOR_MINUTES;
-  const rates = Object.fromEntries(RATE_KEYS.map((key) => [key, (sw[key] + K * league.rates[key]) / (wMin + K)]));
-  const p3 = (sw.threePm + P.P3_PRIOR_ATTEMPTS * league.p3) / (sw.threePa + P.P3_PRIOR_ATTEMPTS);
-  const p2 = (sw.twoPm + P.P2_PRIOR_ATTEMPTS * league.p2) / (sw.twoPa + P.P2_PRIOR_ATTEMPTS);
+  const rates = Object.fromEntries(RATE_KEYS.map((key) => [key, (sw[key] + K * league.rates[key]) / (swMin[key] + K)]));
+  const p3 = (w3m + P.P3_PRIOR_ATTEMPTS * league.p3) / (w3a + P.P3_PRIOR_ATTEMPTS);
+  const p2 = (w2m + P.P2_PRIOR_ATTEMPTS * league.p2) / (w2a + P.P2_PRIOR_ATTEMPTS);
   const curSeason = corpusSeasonOfDate(asOf);
   const last = played[0];
   return {

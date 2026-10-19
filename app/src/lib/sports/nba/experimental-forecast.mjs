@@ -25,6 +25,8 @@ import { simulateGame, DEFAULT_SIMULATIONS, NBA_SIM_MODEL_VERSION } from "./game
 import { rosterForTeam } from "./roster-contract.mjs";
 import { gatePool, POOL_VERSION as ROSTER_GATED_POOL_VERSION } from "./roster-gated-pool.mjs";
 import { frozenWinnerSide, DECIDED_WINNER_HEAD } from "./winner-side.mjs";
+import { simulateGameV1, NBA_SIM_V1_MODEL_VERSION } from "./game-sim-v1.mjs";
+import { indexBoxscores, leagueMeans, buildSideProfile, PROFILE_VERSION as V1_PROFILE_VERSION } from "./sim-v1-profile.mjs";
 
 export const FORECAST_ARTIFACT = "nba-experimental-forecasts";
 /**
@@ -38,12 +40,20 @@ export const FORECAST_ARTIFACT = "nba-experimental-forecasts";
  * season-fold.mjs), which v0 and v0.1 never read. It is SHADOW research beside the champion: it never replaces
  * v0.1 (N1 champion) or the Elo winner side (N2) automatically.
  *
+ * v1 (2026-10-19) is the coherent-engine CANDIDATE (game-sim-v1.mjs, "nba-sim-v1-coherent"): v0.2's roster gate and
+ * data rule (the 2026-27 season fold), but a different ENGINE — shared-pace team scoring from Elo + the pools, quarters,
+ * overtime, minutes that sum to 240 (+25 per OT), and player stats allocated so they sum to the team. Its player
+ * history is sim-v1-profile.mjs (current + prior season blended by recency and shrinkage), never the minutes model's
+ * single-season rows. `engine` is the one key the build branches on; v0/v0.1/v0.2 have none and run game-sim.mjs
+ * exactly as before.
+ *
  * `role` and `dataRule` are labels for readers; nothing in the build branches on `role`.
  */
 export const FAMILIES = Object.freeze({
   "v0": Object.freeze({ family: "v0", poolRule: "box-score-history", dataRule: "corpus-v1", role: "PREREGISTERED_SHADOW", modelVersion: "nba-preseason-experimental-v0", dir: "experimental" }),
   "v0.1": Object.freeze({ family: "v0.1", poolRule: "roster-gated", dataRule: "corpus-v1", role: "CHAMPION", modelVersion: "nba-preseason-experimental-v0.1", dir: "experimental-v0.1" }),
   "v0.2": Object.freeze({ family: "v0.2", poolRule: "roster-gated", dataRule: "corpus-v1+season-2026-27", role: "CHALLENGER", modelVersion: "nba-experimental-v0.2-season-2026-27", dir: "experimental-v0.2" }),
+  "v1": Object.freeze({ family: "v1", poolRule: "roster-gated", dataRule: "corpus-v1+season-2026-27", role: "CANDIDATE_SHADOW", modelVersion: "nba-sim-v1-coherent", dir: "experimental-v1", engine: "v1" }),
 });
 export function familySpec(family) {
   const f = FAMILIES[String(family ?? "v0")];
@@ -152,6 +162,15 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
   if (typeof now !== "string" || !Number.isFinite(Date.parse(now))) throw new Error("REFUSED: --now ISO required");
   const spec = familySpec(family);
   const rosterGated = spec.poolRule === "roster-gated";
+  const engineV1 = spec.engine === "v1";
+  // v1 reads the same as-of box scores (one index per artifact) and league means per population, lazily.
+  let v1Index = null;
+  const v1League = new Map();
+  const v1LeagueFor = (population) => {
+    if (!v1Index) v1Index = indexBoxscores(boxscores);
+    if (!v1League.has(population)) v1League.set(population, leagueMeans(v1Index, { asOf: now, population }));
+    return v1League.get(population);
+  };
   // v0.1 FAILS CLOSED on a missing roster capture at the artifact level too: no roster, no forecast, no fallback.
   if (rosterGated && !rosters) throw new Error(`REFUSED: family ${spec.family} requires a roster capture (rosters/latest.json) — it never falls back to box-score membership`);
   const teamMinutesCache = new Map();
@@ -225,7 +244,14 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
           manifest.roster.playersSimulatedOnRoster += rosterReconciliation.simulatedOnRoster;
         }
       }
-      return { name, abbr: s?.abbr ?? null, providerTeamId: String(s?.providerTeamId), rating, minutes, rosterReconciliation, pool };
+      let profile = null;
+      if (engineV1) {
+        const league = v1LeagueFor(population); // also builds v1Index
+        // The gated rows are the roster (membership, availability under the CURRENT team); v1 reads each player's own
+        // blended history from the index — the minutes-model rates on those rows are not used.
+        profile = buildSideProfile(v1Index, { teamId: String(s?.providerTeamId), rosterRows: minutes.rows, asOf: now, population, league });
+      }
+      return { name, abbr: s?.abbr ?? null, providerTeamId: String(s?.providerTeamId), rating, minutes, rosterReconciliation, pool, ...(engineV1 ? { profile } : {}) };
     };
     const home = side(row.home);
     const away = side(row.away);
@@ -237,7 +263,19 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
       continue;
     }
     const eloP = winProbability(home.rating.rating, away.rating.rating, { neutralSite: row.neutralSite === true });
-    const sim = simulateGame({ providerEventId: row.providerEventId, inputAsOf: now, neutralSite: row.neutralSite === true, home, away, eloWinProbability: eloP, simulations });
+    let sim;
+    if (engineV1) {
+      try {
+        sim = simulateGameV1({ providerEventId: row.providerEventId, inputAsOf: now, neutralSite: row.neutralSite === true, home, away, league: v1LeagueFor(population), eloWinProbability: eloP, simulations });
+      } catch (e) {
+        if (!/^REFUSED/.test(e.message)) throw e; // an invariant violation is a bug, never a refusal
+        manifest.refused.push({ providerEventId: String(row.providerEventId), reason: `V1_ENGINE: ${e.message}` });
+        manifest.byLabel[label] -= 1;
+        continue;
+      }
+    } else {
+      sim = simulateGame({ providerEventId: row.providerEventId, inputAsOf: now, neutralSite: row.neutralSite === true, home, away, eloWinProbability: eloP, simulations });
+    }
     manifest.poolRateSubstitutions += sim.assumptions.minutes.home.poolRateSubstitutions + sim.assumptions.minutes.away.poolRateSubstitutions;
     manifest.defaultSdSubstitutions += sim.assumptions.minutes.home.defaultSdSubstitutions + sim.assumptions.minutes.away.defaultSdSubstitutions;
 
@@ -261,7 +299,8 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     productEligible: false,
     neverReadBy: "app/src/app/** (public routes) — internal research only; sport-capability-registry keeps NBA HISTORICAL_ONLY",
     modelVersion: spec.modelVersion,
-    ...(rosterGated ? { family: spec.family, poolRule: spec.poolRule, poolVersion: ROSTER_GATED_POOL_VERSION, simEngineVersion: NBA_SIM_MODEL_VERSION } : {}),
+    ...(rosterGated ? { family: spec.family, poolRule: spec.poolRule, poolVersion: ROSTER_GATED_POOL_VERSION, simEngineVersion: engineV1 ? NBA_SIM_V1_MODEL_VERSION : NBA_SIM_MODEL_VERSION } : {}),
+    ...(engineV1 ? { profileVersion: V1_PROFILE_VERSION } : {}),
     ...(spec.dataRule !== "corpus-v1" ? { dataRule: spec.dataRule, role: spec.role } : {}),
     generatedAt: now,
     inputAsOf: now,

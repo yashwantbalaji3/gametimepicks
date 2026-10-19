@@ -382,7 +382,7 @@ function sampleView(prep, draw, label, selectionRule, names) {
  * @param home/away  { name, providerTeamId, rating: { rating, games, basis }, profile: buildSideProfile() result }
  * @param league     leagueMeans() result (as of the same instant)
  */
-export function simulateGameV1({ providerEventId, inputAsOf, neutralSite = false, home, away, league, eloWinProbability, simulations = V1_DEFAULT_SIMULATIONS, seed = null, params = V1_PARAMS }) {
+export function simulateGameV1({ providerEventId, inputAsOf, neutralSite = false, home, away, league, eloWinProbability, simulations = V1_DEFAULT_SIMULATIONS, seed = null, params = V1_PARAMS, __testMutateDraw = null }) {
   if (!providerEventId) throw new Error("simulateGameV1: providerEventId required");
   if (!Number.isInteger(simulations) || simulations < 1) throw new Error("simulateGameV1: simulations must be a positive integer");
   const prep = prepareGame({ providerEventId, seed, neutralSite, home, away, league, params });
@@ -393,6 +393,7 @@ export function simulateGameV1({ providerEventId, inputAsOf, neutralSite = false
   let checked = 0;
   for (let i = 0; i < N; i += 1) {
     const d = simulateOneDraw(prep, i);
+    if (__testMutateDraw) __testMutateDraw(d, i); // TEST SEAM ONLY: proves a violating draw throws (never passed by the build)
     const v = checkDraw(d);
     if (v.length) throw new Error(`INVARIANT VIOLATION in ${providerEventId} draw ${i}: ${v.join("; ")}`);
     checked += 1;
