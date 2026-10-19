@@ -1,12 +1,22 @@
 /**
- * Simulation Theater V2 · browser verification of the DEV route (iteration 2). LOCAL ONLY, opt-in.
+ * Simulation Theater V2 · browser verification of the DEV route and of the INTEGRATED public route. LOCAL ONLY, opt-in.
  *
- * The route exists only in an export built with GTP_DEV_ROUTES=1 (scripts/prune-internal-routes.mjs deletes out/dev/
- * otherwise), so in the default suite and in CI this file SKIPS. To run it:
+ * Both routes carry the Theater only in an opted-in build or dev server: the dev route needs GTP_DEV_ROUTES=1, the
+ * public section on /nfl/simulation/[eventId] needs GTP_NFL_THEATER_PUBLIC=1 (default OFF). So in the default suite and
+ * in CI this file SKIPS. To run it against a dev server (the coordinator's, on 4182 by default):
  *
- *   cd app && GTP_DEV_ROUTES=1 npm run build && (cd .. && git checkout -- data/ app/public/data/)
- *   node scripts/serve-export.mjs 4181 out &
- *   GTP_THEATER_E2E=1 npx playwright test -c playwright.theater.config.ts
+ *   GTP_DEV_ROUTES=1 GTP_NFL_THEATER_PUBLIC=1 <dev server on :4182>
+ *   GTP_THEATER_E2E=1 npx playwright test -c playwright.theater.config.ts                         # dev route
+ *   GTP_THEATER_E2E=1 GTP_THEATER_TARGET=public npx playwright test -c playwright.theater.config.ts  # integrated route
+ *
+ * Env: GTP_THEATER_BASE_URL (default http://localhost:4182; GTP_THEATER_BASE is still honoured), GTP_THEATER_TARGET
+ * (dev | public, default dev), GTP_THEATER_EVENT (default 401873008).
+ *
+ * EXPECTATIONS ARE DERIVED (integration 2026-10-19), not pinned: the run the page opens on and every playback instant
+ * come from the receipt of record the route renders (e2e/simulation-theater.fixture.ts). On the dev route a run and an
+ * instant are opened with the `?run=&t=` hook; the public route has no hooks, so the same state is reached through the
+ * page's own controls (run chip / run sheet, then the seek bar), which the dev route's determinism test proves equal.
+ * The zoom review variant (`?zoomCap=`) exists only on the dev route; its tests skip on the public target.
  *
  * Covers: no console errors · Play advances · deterministic seek (?t= hook and the seek bar agree) · reduced motion
  * (stepped, no PROGRESS frame, no animation) · 320/375/390/768/1440 (no overflow, exact disclosure, ≥44 px controls,
@@ -19,20 +29,80 @@
 import zlib from "node:zlib";
 import { test, expect, type Page } from "@playwright/test";
 
+import { deriveFixture, type TheaterFixture } from "./simulation-theater.fixture";
+
 const ENABLED = process.env.GTP_THEATER_E2E === "1";
-const PAGE = "/dev/simulation-theater/401873008/";
+const TARGET = process.env.GTP_THEATER_TARGET === "public" ? "public" : "dev";
+const PUBLIC = TARGET === "public";
+const EVENT = process.env.GTP_THEATER_EVENT ?? "401873008";
+const PAGE = PUBLIC ? `/nfl/simulation/${EVENT}/` : `/dev/simulation-theater/${EVENT}/`;
 const DISCLOSURE = "SIMULATED · drive-level · movement illustrative · experimental model";
+const PUBLIC_LABELS = ["SIMULATED", "DRIVE-LEVEL", "MOVEMENT ILLUSTRATIVE", "EXPERIMENTAL MODEL"];
 const WIDTHS = [[320, 640], [375, 812], [390, 844], [768, 1024], [1440, 900]] as const;
 
-test.skip(!ENABLED, "dev-route theater spec: set GTP_THEATER_E2E=1 and serve a GTP_DEV_ROUTES=1 export (see header)");
+test.skip(!ENABLED, "theater spec: set GTP_THEATER_E2E=1 and serve a GTP_DEV_ROUTES=1 / GTP_NFL_THEATER_PUBLIC=1 build (see header)");
 
-async function open(page: Page, q = "") {
+/** Derived once from the receipt of record (node side); see e2e/simulation-theater.fixture.ts. */
+const F = ENABLED ? deriveFixture(EVENT) : (null as unknown as TheaterFixture);
+const hasHalf = () => F.t.half != null;
+
+type At = { run?: number; t?: number | null; zoomCap?: string };
+
+/** Seek the island through its own seek bar (the public route's only way in; identical to the hook's SEEK). */
+async function seekBar(page: Page, seconds: number) {
+  await page.locator(".st-seek").evaluate((el: HTMLInputElement, v) => {
+    const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
+    set.call(el, v);
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  }, String(Math.round(seconds * 1000)));
+  await page.waitForTimeout(120);
+}
+
+/** Pick a representative run with the page's own control: the chip row, or (phones) the run sheet. */
+async function chooseRun(page: Page, run: number) {
+  if (Number(await root(page).getAttribute("data-st-run")) === run) return;
+  const i = F.chipIndexOf(run);
+  const sheetBtn = page.locator(".st-samplebtn");
+  if (await sheetBtn.count()) {
+    await sheetBtn.click();
+    await page.getByRole("dialog", { name: "Representative runs" }).locator(".st-chip").nth(i).click();
+  } else {
+    await page.locator(".st-chips:not(.is-vertical) .st-chip").nth(i).click();
+  }
+  await expect(root(page)).toHaveAttribute("data-st-run", String(run));
+}
+
+async function open(page: Page, at: At = {}) {
   const errors: string[] = [];
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
   page.on("pageerror", (e) => errors.push(String(e)));
-  await page.goto(PAGE + q, { waitUntil: "networkidle" });
+  if (!PUBLIC) {
+    const q = new URLSearchParams();
+    if (at.run != null) q.set("run", String(at.run));
+    if (at.t != null) q.set("t", String(at.t));
+    if (at.zoomCap != null) q.set("zoomCap", at.zoomCap);
+    const qs = q.toString();
+    await page.goto(PAGE + (qs ? `?${qs}` : ""), { waitUntil: "networkidle" });
+    await page.waitForSelector(".st-root[data-st-ready]");
+    return errors;
+  }
+  if (at.zoomCap != null) throw new Error("zoomCap is a dev-route review hook");
+  await page.goto(PAGE, { waitUntil: "networkidle" });
+  // the island loads when the section comes within a viewport (TheaterLoader); the report above it is long
+  await page.locator("[data-stp-section]").scrollIntoViewIfNeeded();
   await page.waitForSelector(".st-root[data-st-ready]");
+  if (at.run != null) await chooseRun(page, at.run);
+  if (at.t != null && at.t > 0) await seekBar(page, at.t);
   return errors;
+}
+/** Reload the same state: the dev route reloads its URL; the public route re-opens through its controls. */
+async function reopen(page: Page, at: At) {
+  if (!PUBLIC) {
+    await page.reload({ waitUntil: "networkidle" });
+    await page.waitForSelector(".st-root[data-st-ready]");
+    return;
+  }
+  await open(page, at);
 }
 const root = (page: Page) => page.locator(".st-root[data-st-ready]");
 const bugText = (page: Page) => page.locator(".st-bug").innerText();
@@ -63,30 +133,25 @@ test("Play advances state, Pause stops it", async ({ page }) => {
 
 test("seek is deterministic: the same t gives the same score bug and ball, by URL hook or by the seek bar", async ({ page }) => {
   const samples: Record<string, string> = {};
-  for (const t of [3.4, 22.9, 24.5, 31.8, 66.6]) {
-    await open(page, `?run=428&t=${t}`);
+  for (const t of [F.t.early, F.t.mid, F.t.result, ...(hasHalf() ? [F.t.half!] : []), F.t.final]) {
+    await open(page, { run: F.run, t });
     const a = { bug: await bugText(page), ball: await page.locator(".st-live g[transform]").first().getAttribute("transform"), drive: await root(page).getAttribute("data-st-drive") };
-    await page.reload({ waitUntil: "networkidle" });
-    await page.waitForSelector(".st-root[data-st-ready]");
+    await reopen(page, { run: F.run, t });
     const b = { bug: await bugText(page), ball: await page.locator(".st-live g[transform]").first().getAttribute("transform"), drive: await root(page).getAttribute("data-st-drive") };
     expect(b).toEqual(a);
     samples[String(t)] = a.bug;
   }
-  // the seek bar reaches the same state as the URL hook
-  await open(page, "?run=428");
-  await page.locator(".st-seek").evaluate((el: HTMLInputElement) => {
-    const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
-    set.call(el, "24500");
-    el.dispatchEvent(new Event("input", { bubbles: true }));
-  });
-  await page.waitForTimeout(200);
-  expect(await bugText(page)).toBe(samples["24.5"]);
+  // the seek bar reaches the same state as the URL hook (on the public route both are the seek bar)
+  await open(page, { run: F.run });
+  await seekBar(page, F.t.result);
+  await page.waitForTimeout(100);
+  expect(await bugText(page)).toBe(samples[String(F.t.result)]);
   await expect(page.locator(".st-scoreflash")).toBeVisible();
 });
 
 test("reduced motion: stepped timeline (no PROGRESS frame), no theater animation, outcomes unchanged", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await open(page, "?run=428");
+  await open(page, { run: F.run });
   await expect(root(page)).toHaveAttribute("data-st-reduced", "1");
   await page.getByRole("button", { name: "Play", exact: true }).click();
   const phases = new Set<string>();
@@ -96,22 +161,22 @@ test("reduced motion: stepped timeline (no PROGRESS frame), no theater animation
   }
   expect([...phases].filter((p) => p === "PROGRESS")).toEqual([]);
   await page.keyboard.press("k");
-  await open(page, "?run=428&t=9.8");
+  await open(page, { run: F.run, t: F.t.earlyReducedResult }); // the first scoring drive's RESULT, reduced timeline
   await expect(page.locator(".st-scoreflash")).toBeVisible();
   const anim = await page.locator(".st-scoreflash").evaluate((el) => getComputedStyle(el).animationName);
   expect(anim).toBe("none");
   // the final score is the recorded one at either motion setting
-  await open(page, "?run=428&t=999");
+  await open(page, { run: F.run, t: 999 });
   const reducedFinal = await bugText(page);
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  await open(page, "?run=428&t=999");
+  await open(page, { run: F.run, t: 999 });
   expect(await bugText(page)).toBe(reducedFinal);
 });
 
 for (const [w, h] of WIDTHS) {
   test(`${w} px: no horizontal overflow, exact disclosure, ≥44 px controls, ≥24 px thumb, focus never under the sticky bug`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
-    const errors = await open(page, "?run=428&t=22.9");
+    const errors = await open(page, { run: F.run, t: F.t.mid });
     const ov = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
     expect(ov.sw, "no horizontal page scroll").toBeLessThanOrEqual(ov.cw);
     const badge = page.locator(".st-badge");
@@ -169,8 +234,8 @@ const HIT_PROBE = `(() => [...document.querySelectorAll('.st-seg')].map((s) => {
 for (const [w, h] of [[320, 2200], [390, 2200], [1440, 1300]] as const) {
   test(`${w} px: every timeline segment is a ≥24 × 24 px pointer target, ∝ playback time, one tab stop`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
-    for (const run of [428, 21]) { // 428: the default run · 21: 27 drives, the most crowded
-      await open(page, `?run=${run}&t=0.1`);
+    for (const run of [...new Set([F.run, F.crowdedRun])]) { // the default run · the run with the most drives (the most crowded)
+      await open(page, { run, t: 0.1 });
       await page.locator("[data-st-timeline]").scrollIntoViewIfNeeded();
       const segs = (await page.evaluate(HIT_PROBE)) as { w: number; h: number; box: number; ms: number }[];
       expect(segs.length).toBeGreaterThan(10);
@@ -185,7 +250,7 @@ for (const [w, h] of [[320, 2200], [390, 2200], [1440, 1300]] as const) {
       expect(ov).toBeLessThanOrEqual(0);
     }
     // a click on the narrowest segment seeks to that drive
-    await open(page, "?run=21&t=0.1");
+    await open(page, { run: F.crowdedRun, t: 0.1 });
     const i = await page.evaluate(() => { const s = [...document.querySelectorAll(".st-seg")]; let b = 0; s.forEach((x, j) => { if (x.getBoundingClientRect().width < s[b].getBoundingClientRect().width) b = j; }); return b; });
     await page.locator(".st-seg").nth(i).click();
     await expect(root(page)).toHaveAttribute("data-st-drive", String(i));
@@ -195,7 +260,7 @@ for (const [w, h] of [[320, 2200], [390, 2200], [1440, 1300]] as const) {
 test("320 px: full-bleed field (≥300 px wide, edge to edge), taller; no overflow at 320/375/390; disclosure exact", async ({ page }) => {
   for (const [w, minW] of [[320, 300], [375, 0], [390, 0]] as const) {
     await page.setViewportSize({ width: w, height: 2200 });
-    await open(page, "?run=428&t=22.9");
+    await open(page, { run: F.run, t: F.t.mid });
     const f = (await page.locator(".st-fieldwrap").boundingBox())!;
     if (minW) {
       expect(f.width).toBeGreaterThanOrEqual(minW);
@@ -236,7 +301,7 @@ test.describe("no JavaScript", () => {
 });
 
 test("keyboard operates the transport (focus-scoped shortcuts)", async ({ page }) => {
-  await open(page, "?run=428");
+  await open(page, { run: F.run });
   const play = page.getByRole("button", { name: "Play", exact: true });
   await play.focus();
   await page.keyboard.press("Enter");
@@ -268,7 +333,7 @@ test("keyboard operates the transport (focus-scoped shortcuts)", async ({ page }
 
 test("390 px: bottom sheets are modal dialogs that pause playback, trap focus, close on Escape and return focus", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await open(page, "?run=428");
+  await open(page, { run: F.run });
   await page.getByRole("button", { name: "Play", exact: true }).click();
   const opener = page.getByRole("button", { name: /change run/ });
   await opener.click();
@@ -318,7 +383,7 @@ const CONTRAST_PROBE = `(() => {
     return cands;
   }
   const out = [];
-  for (const el of document.querySelectorAll('.st-root *')) {
+  for (const el of document.querySelectorAll('.st-root *, [data-stp-section] *')) {
     const owns = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
     if (!owns) continue;
     const cs = getComputedStyle(el);
@@ -368,10 +433,16 @@ for (const [w, h] of [[1440, 900], [390, 844]] as const) {
   test(`accessibility audit at ${w} px: contrast (AA) and structure, idle, mid-drive, halftime, final, rollover, review label, and with a sheet open`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     // iteration 8: also the halftime card (overlay / phone sheet), a mid-drive rollover with its tag, and the zoom review label
-    for (const q of ["?run=428", "?run=428&t=24.5", "?run=428&t=66.6", "?run=428&t=31.8", "?run=428&t=17.5", "?run=428&t=11.7&zoomCap=1.6"]) {
+    const states: At[] = [
+      { run: F.run }, { run: F.run, t: F.t.result }, { run: F.run, t: F.t.final },
+      ...(hasHalf() ? [{ run: F.run, t: F.t.half }] : []),
+      ...(F.roll ? [{ run: F.roll.run, t: F.roll.t }] : []),
+      ...(!PUBLIC && F.t.zoom != null ? [{ run: F.run, t: F.t.zoom, zoomCap: "1.6" }] : []),
+    ];
+    for (const q of states) {
       await open(page, q);
-      expect(await page.evaluate(CONTRAST_PROBE), `contrast ${q}`).toEqual([]);
-      expect(await page.evaluate(STRUCTURE_PROBE), `structure ${q}`).toEqual([]);
+      expect(await page.evaluate(CONTRAST_PROBE), `contrast ${JSON.stringify(q)}`).toEqual([]);
+      expect(await page.evaluate(STRUCTURE_PROBE), `structure ${JSON.stringify(q)}`).toEqual([]);
     }
     if (w < 720) {
       await page.getByRole("button", { name: "Evidence", exact: true }).click();
@@ -394,8 +465,32 @@ test("bundle budget (spec §6.1): theater JS ≤120 KB gzip incremental over a r
     page.off("response", handler);
     return js;
   };
-  const ref = await collect("/about/");
-  const theater = await collect(PAGE);
+  /*
+   * dev route: theater JS = what the theater page loads beyond /about/.
+   * public route: the page also carries the Simulation V2 report, so the reference is the SAME page before the island
+   * loads (it loads once the section nears the viewport) and the theater JS is what loads after scrolling to it.
+   */
+  let ref: Map<string, number>;
+  let theater: Map<string, number>;
+  if (PUBLIC) {
+    const js = new Map<string, number>();
+    const handler = async (r: import("@playwright/test").Response) => {
+      if (!r.url().endsWith(".js")) return;
+      try { js.set(new URL(r.url()).pathname, zlib.gzipSync(await r.body(), { level: 9 }).length); } catch { /* aborted */ }
+    };
+    page.on("response", handler);
+    await page.goto(PAGE, { waitUntil: "networkidle" });
+    await page.waitForTimeout(800);
+    ref = new Map(js);
+    await page.locator("[data-stp-section]").scrollIntoViewIfNeeded();
+    await page.waitForSelector(".st-root[data-st-ready]");
+    await page.waitForTimeout(800);
+    page.off("response", handler);
+    theater = js;
+  } else {
+    ref = await collect("/about/");
+    theater = await collect(PAGE);
+  }
   await page.waitForSelector(".st-root[data-st-ready]");
   const extra = [...theater].filter(([k]) => !ref.has(k));
   const total = extra.reduce((a, [, v]) => a + v, 0);
@@ -413,9 +508,9 @@ test("bundle budget (spec §6.1): theater JS ≤120 KB gzip incremental over a r
 // ── iteration 7: broadcast camera, score bug, transitions, frame times ─────────────────────────────────────────────
 const camTransform = (page: Page) => page.locator(".st-cam").evaluate((el: HTMLElement) => ({ tf: el.style.transform || "none", z: Number(el.dataset.stZoom ?? "1"), shot: el.dataset.stShot ?? "" }));
 
-test("camera: an accessible 'Camera' radiogroup; follow by default at 1440 (zoomed mid-drive, ≤1.35×); the choice persists per viewer", async ({ page }) => {
+test("camera: an accessible 'Camera' radiogroup; follow by default at 1440 (zoomed mid-drive, ≤1.35×); the choice lasts for the page view and stores nothing", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await open(page, "?run=428&t=22.9");
+  await open(page, { run: F.run, t: F.t.mid });
   const group = page.getByRole("radiogroup", { name: "Camera" });
   await expect(group).toBeVisible();
   await expect(group.getByRole("radio", { name: "Follow" })).toHaveAttribute("aria-checked", "true");
@@ -425,12 +520,20 @@ test("camera: an accessible 'Camera' radiogroup; follow by default at 1440 (zoom
   expect(a.z).toBeLessThanOrEqual(1.35);
   await group.getByRole("radio", { name: "Full field" }).click();
   expect((await camTransform(page)).tf).toBe("none");
-  await page.reload({ waitUntil: "networkidle" });
-  await page.waitForSelector(".st-root[data-st-ready]");
-  await expect(page.getByRole("radiogroup", { name: "Camera" }).getByRole("radio", { name: "Full field" })).toHaveAttribute("aria-checked", "true");
-  expect((await camTransform(page)).tf).toBe("none");
+  // integration 2026-10-19: no browser storage (the privacy notice names none for the theater), so the choice holds while
+  // the page is open (seek elsewhere and back) and a reload returns to the width default
+  await seekBar(page, F.t.result);
+  await seekBar(page, F.t.mid);
+  await expect(group.getByRole("radio", { name: "Full field" })).toHaveAttribute("aria-checked", "true");
+  expect(await page.evaluate(() => { try { return Object.keys(localStorage).filter((k) => /theater|camera/i.test(k)); } catch { return []; } })).toEqual([]);
+  await reopen(page, { run: F.run, t: F.t.mid });
+  await expect(page.getByRole("radiogroup", { name: "Camera" }).getByRole("radio", { name: "Follow" })).toHaveAttribute("aria-checked", "true");
   // arrow keys move the choice (roving radio)
-  await page.getByRole("radio", { name: "Full field" }).focus();
+  await page.getByRole("radio", { name: "Follow" }).click();
+  await page.getByRole("radio", { name: "Follow" }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("radio", { name: "Full field" })).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByRole("radio", { name: "Full field" })).toBeFocused();
   await page.keyboard.press("ArrowLeft");
   await expect(page.getByRole("radio", { name: "Follow" })).toHaveAttribute("aria-checked", "true");
   await expect(page.getByRole("radio", { name: "Follow" })).toBeFocused();
@@ -438,18 +541,13 @@ test("camera: an accessible 'Camera' radiogroup; follow by default at 1440 (zoom
 
 test("camera is deterministic: the same t frames identically after reload and after a seek-bar seek; no SVG filter inside the camera", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await open(page, "?run=428&t=22.9");
+  await open(page, { run: F.run, t: F.t.mid });
   const a = await camTransform(page);
-  await page.reload({ waitUntil: "networkidle" });
-  await page.waitForSelector(".st-root[data-st-ready]");
+  await reopen(page, { run: F.run, t: F.t.mid });
   expect(await camTransform(page)).toEqual(a);
-  await open(page, "?run=428");
-  await page.locator(".st-seek").evaluate((el: HTMLInputElement) => {
-    const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
-    set.call(el, "22900");
-    el.dispatchEvent(new Event("input", { bubbles: true }));
-  });
-  await page.waitForTimeout(150);
+  await open(page, { run: F.run });
+  await seekBar(page, F.t.mid);
+  await page.waitForTimeout(30);
   expect(await camTransform(page)).toEqual(a);
   // S8: the grain filter is a screen-space sibling; nothing in the transformed subtree is filtered
   expect(await page.locator(".st-cam filter, .st-cam [filter]").count()).toBe(0);
@@ -458,7 +556,7 @@ test("camera is deterministic: the same t frames identically after reload and af
 
 test("390 px: the camera defaults to the full field; Follow stays bounded; reduced motion pins the full field", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await open(page, "?run=428&t=22.9");
+  await open(page, { run: F.run, t: F.t.mid });
   await expect(page.getByRole("radio", { name: "Full field" })).toHaveAttribute("aria-checked", "true");
   expect((await camTransform(page)).tf).toBe("none");
   await page.getByRole("radio", { name: "Follow" }).click();
@@ -468,7 +566,7 @@ test("390 px: the camera defaults to the full field; Follow stays bounded; reduc
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(390);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await open(page, "?run=428&t=22.9");
+  await open(page, { run: F.run, t: F.t.mid });
   await expect(page.getByRole("radio", { name: "Follow" })).toHaveAttribute("aria-checked", "true");
   expect((await camTransform(page)).tf).toBe("none");
   await expect(page.locator(".st-camnote")).toHaveText("Reduced motion: the field stays fully framed");
@@ -476,36 +574,38 @@ test("390 px: the camera defaults to the full field; Follow stays bounded; reduc
 
 test("transitions: start-of-game strip, halftime card with this run's Q1/Q2, final card with the exact disclosure, dismissible by button and Escape", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await open(page, "?run=428&t=0");
+  await open(page, { run: F.run, t: 0 });
   await expect(page.locator('[data-st-card="PERIOD_START"]')).toContainText("Start of game");
   await expect(page.locator('[data-st-card="PERIOD_START"]')).toContainText("kick/return not modelled");
-  await open(page, "?run=428&t=31.8");
-  const half = page.getByRole("region", { name: "Halftime" }).or(page.locator('section[data-st-card="HALFTIME"]'));
-  await expect(half).toBeVisible();
-  await expect(half.locator("thead")).toContainText("Q1");
-  await expect(half).toContainText("SIMULATED · not a real game");
-  await open(page, "?run=428&t=66.6");
+  if (hasHalf()) {
+    await open(page, { run: F.run, t: F.t.half });
+    const half = page.getByRole("region", { name: "Halftime" }).or(page.locator('section[data-st-card="HALFTIME"]'));
+    await expect(half).toBeVisible();
+    await expect(half.locator("thead")).toContainText("Q1");
+    await expect(half).toContainText("SIMULATED · not a real game");
+  }
+  await open(page, { run: F.run, t: F.t.final });
   const fin = page.locator('section[data-st-card="FINAL"]');
   await expect(fin).toBeVisible();
   await expect(fin.locator(".st-card-line b")).toHaveText("SIMULATED · not a real game");
-  await expect(fin).toContainText("run #428 of 10,000");
+  await expect(fin).toContainText(`run #${F.run.toLocaleString("en-US")} of ${F.runCount.toLocaleString("en-US")}`);
   await expect(fin.locator(".st-card-title")).toHaveText(/^Final( · OT)?$/);
   await fin.getByRole("button", { name: /Hide the final/ }).click();
   await expect(fin).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Play", exact: true })).toBeFocused();
-  await open(page, "?run=428&t=66.6");
+  await open(page, { run: F.run, t: F.t.final });
   await page.locator(".st-seek").focus();
   await page.keyboard.press("Escape");
   await expect(page.locator('section[data-st-card="FINAL"]')).toHaveCount(0);
 });
 
-test("score bug: the drive strip shows recorded totals after drive 7 and a labelled illustrative yardage while the ball moves", async ({ page }) => {
+test("score bug: the drive strip shows recorded totals at the reference drive's end and a labelled illustrative yardage while the ball moves", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await open(page, "?run=428&t=24.5");
+  await open(page, { run: F.run, t: F.t.result });
   await expect(page.locator(".st-bug-sit")).toHaveAttribute("data-st-situation", "recorded");
-  await expect(page.locator(".st-bug-sit-text")).toHaveText("Drive 7 of 19 · 10 plays · 75 yds");
+  await expect(page.locator(".st-bug-sit-text")).toHaveText(F.refStrip); // e.g. "Drive 9 of 23 · 6 plays · 67 yds"
   await expect(page.locator(".st-bug-sit-tag")).toHaveText("recorded");
-  await open(page, "?run=428&t=22.9");
+  await open(page, { run: F.run, t: F.t.mid });
   await expect(page.locator(".st-bug-sit")).toHaveAttribute("data-st-situation", "progress");
   await expect(page.locator(".st-bug-sit-tag")).toHaveText("illustrative");
   await expect(page.locator(".st-bug-sit-yds")).toHaveText(/^≈−?\d+ yds?$/);
@@ -534,7 +634,7 @@ test("frame times during playback (Chromium): 1440 follow camera; 390 full field
   const out: Record<string, unknown> = {};
   const runCase = async (label: string, w: number, h: number, cam: "Follow" | "Full field", throttle = 1) => {
     await page.setViewportSize({ width: w, height: h });
-    await open(page, "?run=428&t=0");
+    await open(page, { run: F.run, t: 0 });
     await page.getByRole("radio", { name: cam }).click();
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("Emulation.setCPUThrottlingRate", { rate: throttle });
@@ -559,18 +659,20 @@ test("frame times during playback (Chromium): 1440 follow camera; 390 full field
 
 // ── iteration 8: zoom review variant, mobile camera default, dismissible cards, illustrative tags ────────────────────
 test("zoom review variant: ?zoomCap=1.6 is labelled on screen and reaches 1.6× on a short drive; the default and any other value stay ≤1.35×", async ({ page }) => {
+  test.skip(PUBLIC, "the zoom review variant is a dev-route hook; the public route never reads it");
+  test.skip(F.t.zoom == null, "no instant in this run where the two caps differ");
   await page.setViewportSize({ width: 1440, height: 900 });
-  await open(page, "?run=428&t=11.7"); // drive 4: a 21-yard punt drive, where the caps differ
+  await open(page, { run: F.run, t: F.t.zoom }); // a short drive's PROGRESS, where the caps differ (derived)
   await expect(page.locator("[data-st-review]")).toHaveCount(0);
   expect((await camTransform(page)).z).toBeCloseTo(1.35, 3);
-  await open(page, "?run=428&t=11.7&zoomCap=1.6");
+  await open(page, { run: F.run, t: F.t.zoom, zoomCap: "1.6" });
   await expect(page.locator("[data-st-review]")).toBeVisible();
   await expect(page.locator("[data-st-review]")).toContainText("Review variant");
   await expect(page.locator("[data-st-review]")).toContainText("1.6×");
   await expect(page.locator("[data-st-review]")).toContainText("1.35×");
   expect((await camTransform(page)).z).toBeCloseTo(1.6, 3);
   for (const q of ["2", "1.5", "abc", "1.35"]) {
-    await open(page, `?run=428&t=11.7&zoomCap=${q}`);
+    await open(page, { run: F.run, t: F.t.zoom, zoomCap: q });
     await expect(page.locator("[data-st-review]")).toHaveCount(0);
     expect((await camTransform(page)).z).toBeLessThanOrEqual(1.35);
   }
@@ -579,7 +681,7 @@ test("zoom review variant: ?zoomCap=1.6 is labelled on screen and reaches 1.6× 
 for (const [w, h] of [[390, 844], [320, 640]] as const) {
   test(`${w} px: the camera opens on the full field, listed first; the control is visibly labelled 'Camera', full width, ≥44 px, with a hint`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
-    await open(page, "?run=428&t=11.7");
+    await open(page, { run: F.run, t: F.t.zoom ?? F.t.mid });
     await expect(root(page)).toHaveAttribute("data-st-camera", "full");
     expect((await camTransform(page)).tf).toBe("none");
     const group = page.getByRole("radiogroup", { name: "Camera" });
@@ -607,7 +709,7 @@ for (const [w, h] of [[390, 844], [320, 640]] as const) {
 
 test("the camera default follows the width live when the viewer has not chosen: follow at 1440, full field at 390", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await open(page, "?run=428&t=11.7");
+  await open(page, { run: F.run, t: F.t.zoom ?? F.t.mid });
   await expect(root(page)).toHaveAttribute("data-st-camera", "follow");
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(root(page)).toHaveAttribute("data-st-camera", "full");
@@ -618,8 +720,12 @@ test("the camera default follows the width live when the viewer has not chosen: 
 for (const [w, h] of [[1440, 900], [390, 844], [320, 640]] as const) {
   test(`${w} px: halftime and final cards are dismissible (button returns focus to Play; Escape anywhere), recorded totals + 'SIMULATED · not a real game'${w < 720 ? ", as a sheet that leaves the field visible" : ""}`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
-    for (const [t, kind, name] of [[31.8, "HALFTIME", /Hide the halftime card/], [66.6, "FINAL", /Hide the final card/]] as const) {
-      await open(page, `?run=428&t=${t}`);
+    const cardCases = [
+      ...(hasHalf() ? [[F.t.half!, "HALFTIME", /Hide the halftime card/] as const] : []),
+      [F.t.final, "FINAL", /Hide the final card/] as const,
+    ];
+    for (const [t, kind, name] of cardCases) {
+      await open(page, { run: F.run, t });
       const card = page.locator(`section[data-st-card="${kind}"]`);
       await expect(card).toBeVisible();
       await expect(card).toHaveAttribute("data-st-card-variant", w < 720 ? "sheet" : "overlay");
@@ -664,13 +770,13 @@ for (const [w, h] of [[1440, 900], [390, 844], [320, 640]] as const) {
       await expect(card).toHaveCount(0);
       await expect(page.getByRole("button", { name: "Play", exact: true })).toBeFocused();
       // Escape from inside the theater (focus stays where it was) …
-      await open(page, `?run=428&t=${t}`);
+      await open(page, { run: F.run, t });
       await page.locator(".st-seek").focus();
       await page.keyboard.press("Escape");
       await expect(page.locator(`section[data-st-card="${kind}"]`)).toHaveCount(0);
       await expect(page.locator(".st-seek")).toBeFocused();
       // … and with nothing focused yet
-      await open(page, `?run=428&t=${t}`);
+      await open(page, { run: F.run, t });
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
       await page.keyboard.press("Escape");
       await expect(page.locator(`section[data-st-card="${kind}"]`)).toHaveCount(0);
@@ -729,9 +835,10 @@ for (const [w, h] of [[320, 640], [390, 844], [768, 1024], [1440, 900]] as const
   test(`${w} px: no interpolated value (clock, quarter, in-drive yardage, mid-drive rollover) renders without its visible illustrative tag`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     let interpSeen = 0;
-    // paused frames: mid-drive (drives 4, 6, 7, 12), the mid-drive Q1 rollover (17.36 s), a drive start and a drive end
-    for (const t of [11.7, 17.5, 18.7, 22.9, 23.14, 40.5, 21.0, 24.5]) {
-      await open(page, `?run=428&t=${t}`);
+    // paused frames (derived): mid-drive across the game, the mid-drive rollover when this run has one, a drive start and
+    // a drive end
+    for (const t of F.t.interp) {
+      await open(page, { run: F.run, t });
       await page.locator(".st-broadcast").scrollIntoViewIfNeeded();
       expect(await interpViolations(page), `t=${t}`).toEqual([]);
       interpSeen += await page.locator("[data-st-interp]").count();
@@ -740,7 +847,7 @@ for (const [w, h] of [[320, 640], [390, 844], [768, 1024], [1440, 900]] as const
       }
     }
     // and live playback (4×), sampled every ~150 ms for 3 s
-    await open(page, "?run=428&t=10");
+    await open(page, { run: F.run, t: F.t.interp[1] });
     await page.locator(".st-broadcast").scrollIntoViewIfNeeded();
     await page.getByRole("button", { name: "Play", exact: true }).click();
     await page.keyboard.press("4");
@@ -749,8 +856,67 @@ for (const [w, h] of [[320, 640], [390, 844], [768, 1024], [1440, 900]] as const
       expect(await interpViolations(page), `live sample ${i}`).toEqual([]);
     }
     expect(interpSeen).toBeGreaterThan(10);
-    // the rollover inside drive 6 is tagged
-    await open(page, "?run=428&t=17.5");
-    await expect(page.locator('[data-st-card="ROLLOVER"] [data-st-interp-tag]')).toHaveText("mid-drive · timing illustrative");
+    // a quarter rollover inside a drive is tagged (derived: this run's, else another representative run's)
+    if (F.roll) {
+      await open(page, { run: F.roll.run, t: F.roll.t });
+      await expect(page.locator('[data-st-card="ROLLOVER"] [data-st-interp-tag]')).toHaveText("mid-drive · timing illustrative");
+    }
   });
 }
+
+// ── integration (2026-10-19): the public section's own frame — persistent labels, methodology, no-JS drive table ────
+test.describe("integrated public route", () => {
+  test.skip(!PUBLIC, "set GTP_THEATER_TARGET=public (and serve with GTP_NFL_THEATER_PUBLIC=1)");
+
+  for (const [w, h] of [[320, 640], [390, 844], [768, 1024], [1440, 900]] as const) {
+    test(`${w} px: the four labels and the methodology note stay on screen and in the accessibility tree before, during and after playback; no dev bar; no overflow`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      const errors = await open(page);
+      const labels = page.locator("[data-stp-labels] li");
+      const check = async (when: string) => {
+        await expect(labels, when).toHaveText(PUBLIC_LABELS);
+        for (let i = 0; i < PUBLIC_LABELS.length; i++) {
+          const b = (await labels.nth(i).boundingBox())!;
+          expect(b.width, `${when}: label ${i} rendered`).toBeGreaterThan(0);
+          expect(b.x, when).toBeGreaterThanOrEqual(0);
+          expect(b.x + b.width, when).toBeLessThanOrEqual(w + 0.5);
+        }
+        await expect(page.getByRole("list", { name: `Simulation replay disclosure: ${PUBLIC_LABELS.join(" · ")}` })).toBeVisible();
+        await expect(page.getByRole("note", { name: "How this replay is made" })).toContainText("Drive boundaries are recorded facts");
+        await expect(page.getByRole("note", { name: "How this replay is made" })).toContainText("illustrative");
+        await expect(page.getByRole("note", { name: "How this replay is made" })).toContainText("has not been shown to be more accurate than the baseline");
+        await expect(page.locator(".st-badge")).toHaveText(DISCLOSURE);
+      };
+      await check("idle");
+      await page.getByRole("button", { name: "Play", exact: true }).click();
+      await page.waitForTimeout(1200);
+      await check("playing");
+      await page.getByRole("button", { name: "Pause", exact: true }).click();
+      await seekBar(page, F.t.final);
+      await check("final");
+      await expect(page.locator(".st-devbar")).toHaveCount(0);
+      await expect(page.getByText("Development route · unlinked")).toHaveCount(0);
+      const ov = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+      expect(ov.sw, "no horizontal page scroll").toBeLessThanOrEqual(ov.cw);
+      expect(errors).toEqual([]);
+    });
+  }
+
+  test.describe("no JavaScript", () => {
+    test.use({ javaScriptEnabled: false });
+    for (const [w, h] of [[320, 1600], [1440, 1300]] as const) {
+      test(`${w} px: labels, methodology and the server-rendered drive table of the recorded run`, async ({ page }) => {
+        await page.setViewportSize({ width: w, height: h });
+        await page.goto(PAGE, { waitUntil: "load" });
+        await expect(page.locator("[data-stp-labels] li")).toHaveText(PUBLIC_LABELS);
+        await expect(page.locator("[data-stp-method]")).toBeVisible();
+        const table = page.locator("[data-stp-drive-table]");
+        await expect(table).toContainText(`run #${F.run.toLocaleString("en-US")}`);
+        await expect(table.locator("tbody tr")).toHaveCount(F.drives);
+        await expect(table.locator("tbody tr").first().locator("td").first()).toHaveText("Q1 15:00");
+        const ov = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+        expect(ov.sw).toBeLessThanOrEqual(ov.cw);
+      });
+    }
+  });
+});
