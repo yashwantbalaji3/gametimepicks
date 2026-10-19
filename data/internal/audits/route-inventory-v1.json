@@ -4,9 +4,9 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 93,
+  "routes": 94,
   "public": 63,
-  "internal": 9,
+  "internal": 10,
   "redirects": 17,
   "archive": 2,
   "findings": 0,
@@ -563,6 +563,15 @@
    "purpose": "NFL Live card lifecycle fixture — deterministic PRE/LIVE/FINAL/stale/unavailable states rendered through the REAL card (pruned)",
    "dataOwner": "hard-coded synthetic envelopes; no artifact and no network read",
    "freshness": "fixed inputs — deliberately comparable across runs",
+   "built": false
+  },
+  {
+   "route": "/preview/nba/boards",
+   "classification": "internal",
+   "owner": "research",
+   "purpose": "NBA Top 10 player boards PRIVATE preview — shadow model, not validated, not published (NBA stays HISTORICAL_ONLY; pruned)",
+   "dataOwner": "data/internal/research/nba/top-boards (freeze-nba-top-boards) or the latest committed v0.1 forecast replayed at build",
+   "freshness": "each edition's frozenAt",
    "built": false
   },
   {

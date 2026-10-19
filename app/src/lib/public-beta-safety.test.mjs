@@ -45,7 +45,10 @@ test("3 · NO public source reads internal research (observations / benchmark / 
   // guardInternalRoute()-protected AND pruned from the public export.
   // Session 13: /preview/simulation-v2 renders the Simulation Engine V2 SHADOW receipts — guardInternalRoute()-protected
   // and pruned with /preview, the same two protections; the research-payload regex above still applies to it.
-  const internalPrefixes = [`src${path.sep}app${path.sep}ops${path.sep}`, `src${path.sep}app${path.sep}launch${path.sep}`, `src${path.sep}app${path.sep}preview${path.sep}simulation-v2${path.sep}`];
+  // NBA Top Boards: /preview/nba/boards renders the PRIVATE frozen boards (or replays the committed v0.1 forecast) —
+  // guardInternalRoute()-protected and pruned with /preview (pinned in lib/sports/nba/top-board-route-gating.test.mjs);
+  // the research-payload regex above still applies to it.
+  const internalPrefixes = [`src${path.sep}app${path.sep}ops${path.sep}`, `src${path.sep}app${path.sep}launch${path.sep}`, `src${path.sep}app${path.sep}preview${path.sep}simulation-v2${path.sep}`, `src${path.sep}app${path.sep}preview${path.sep}nba${path.sep}boards${path.sep}`];
   const isInternalOps = (f) => internalPrefixes.some((pre) => path.relative(app, f).startsWith(pre));
   const leaks = files.filter((f) => {
     const src = fs.readFileSync(f, "utf8");
