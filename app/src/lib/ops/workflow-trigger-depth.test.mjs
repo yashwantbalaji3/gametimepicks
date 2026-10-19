@@ -138,6 +138,21 @@ test("the tick spends nothing and writes nothing: free deciders only", () => {
   assert.doesNotMatch(TICK_RUN, /git (commit|push)|commit-generated/, "tick never writes");
 });
 
+test("the NBA finals waiter is reachable: depth 3 at worst (publication-watchdog → nba-forecast-window → waiter), never from daily-products", () => {
+  // Its overnight clocks are nba-forecast-window's completions (own cron at :17, or publication-watchdog's) — a
+  // source one level deeper than that would put the waiter at depth 4, the last level GitHub fires, with no margin.
+  const w = WF.get("nba-finals-waiter");
+  assert.ok(w, "nba-finals-waiter.yml not found by name");
+  assert.deepEqual(w.sources, ["publication-watchdog", "nba-forecast-window"]);
+  assert.equal(DEPTH.get("publication-watchdog"), 1);
+  assert.equal(DEPTH.get("nba-forecast-window"), 2);
+  assert.equal(DEPTH.get("nba-finals-waiter"), 3, "pinned: a deeper source would leave no margin under the 4-workflow limit");
+  assert.ok(!w.sources.includes("daily-products"));
+  assert.ok("workflow_dispatch" in w.on, "it relays to itself by workflow_dispatch (a fresh chain)");
+  // The refresh it dispatches is reached by workflow_dispatch (a fresh chain), never by workflow_run from the waiter.
+  assert.ok(!WF.get("nba-results-refresh").sources.includes("nba-finals-waiter"));
+});
+
 test("worstChainDepth: a source's deepest delivery decides, and a cycle cannot hang the guard", () => {
   const g = (edges) => new Map(Object.entries(edges).map(([n, s]) => [n, { sources: s }]));
   // C has a cron AND a workflow_run source 3 deep; its worst case is what GitHub may refuse.

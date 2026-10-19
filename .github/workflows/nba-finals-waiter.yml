@@ -1,0 +1,144 @@
+# NBA POST-FINAL WAITER — dispatches nba-results-refresh when a game goes final on ESPN, not when a cron does.
+#
+# WHY. nba-results-refresh is the ONLY writer of app/public/data/nba/results/{latest,finals-<season>}.json (what /nba
+# shows as finals, what the experimental grader reads). Its clocks are crons (`41 * * * *`, `11,26 0-7 * * *`) and
+# workflow_run on publication-watchdog, which is dense only ~12–22Z. Between 00Z and 12Z only the crons fire, and
+# GitHub delivered 3–5 runs in that span on 10-18 and 10-19 (e.g. 00Z, 04Z, 05Z, 08Z, 09Z). Opening night PHI@NY
+# (401909089) tips 23:00Z and ends ≈ 01:30Z; OKC@SA (401909090) tips 01:30Z and ends ≈ 04:00Z — their finals could
+# publish hours late, the failure NFL had on 10-18 (NO@NYG). A cron cannot meet a final.
+#
+# HOW (modelled on mlb-lineup-waiter). Any delivered trigger starts ONE job (the group below, never cancelled). From
+# the night's earliest tip + 100 minutes it polls ESPN's free NBA day scoreboard about every 5 minutes (± jitter),
+# pulls main each cycle, and compares every game ESPN shows STATUS_FINAL with the committed finals record
+# (app/public/data/nba/results/finals-<season>.json). A final the record does not hold yet → it confirms the final on
+# the month scoreboard the refresh itself reads, then dispatches nba-results-refresh (workflow_dispatch, no inputs) —
+# never twice for one final fingerprint (one retry if that refresh ended cancelled/failed), at most
+# MAX_DISPATCHES_PER_NIGHT (6) a night, at least 10 minutes apart, and never while an nba-results-refresh run is in
+# progress or queued. A final the record holds in `refused`/`conflicts` is alerted once and never dispatched for.
+# Before any game is near its end the job sleeps to the window; once every game of the night is recorded (or
+# postponed/cancelled, held, or given up 8 h after tip) it exits DONE. Rule: app/src/lib/ops/nba-finals-waiter.mjs.
+#
+# FREE AND WRITE-NOTHING. ESPN's public scoreboard only (no key, no paid call); public-repo Actions minutes. This job
+# commits nothing: `contents: read`. Only a dispatched refresh can commit, under its own rules (write-once finals;
+# latest.json only when a reader-visible field moved). Each such commit touches app/public/data, which IS a Vercel
+# build input (scripts/vercel-ignore-build.sh) — so a dispatch that records a final costs one Production build, the
+# same build the next cron refresh would have caused for that final, only earlier.
+#
+# LIMITS. ≤ 200 ESPN calls per run; a 330-minute loop budget inside a 350-minute job timeout (GitHub's cap is 360).
+# Every sleep (poll and post-dispatch wait) is capped at the remaining budget, and a hard stop relays and exits 12
+# minutes after the budget whatever a cycle is doing — so the relay always happens before the timeout kill. At the
+# budget (or at the ESPN call cap after ≥ 30 min of watching) an unfinished night hands over to a fresh run of this
+# workflow (a GITHUB_TOKEN workflow_dispatch always creates a run); it queues in this group and resumes from committed
+# state. A job that dies is resumed by the next arrival: the decision is rebuilt from main, the refresh run list
+# (dispatch count, spacing, in-flight), and the ledger lines earlier runs printed (the last 100 waiter runs are
+# listed; at most 30 run logs are read — and only when a decision could depend on them).
+#
+# ALERTS. `::warning::`, the step summary, and scripts/ops_alert.sh (the existing OPS_WEBHOOK_URL path, as the MLB
+# lineup waiter uses it): a final on ESPN still not committed 45 min after it was first seen; a failed refresh; the
+# dispatch cap reached; a refresh that completed without taking a dispatched final; a final held in
+# refused/conflicts; an ESPN FINAL → in-progress regression; a game given up 8 h after tip.
+#
+# ── ACTIVATION GUARD ──────────────────────────────────────────────────────────────────────────────────────────────
+# MERGING THIS FILE DOES NOT ACTIVATE IT. The job runs only when the repository variable
+#     NBA_FINALS_WAITER_ENABLED == 'true'
+# (Settings → Secrets and variables → Actions → Variables, or `gh variable set NBA_FINALS_WAITER_ENABLED --body true`).
+# Unset, every trigger is a skipped job: no runner, no ESPN call, no dispatch. A manual `dry_run=true` dispatch is
+# allowed while disabled — it decides once, prints the decision, and never dispatches or relays.
+# GitHub's `==` IGNORES CASE, so the job `if` alone would let "True"/"TRUE" through. Defence in depth: `dry_run` is a
+# typed boolean; the step runs the live loop only when the variable is EXACTLY 'true' and the dispatch did not ask for
+# a dry run (any case); and the runner itself forces --dry-run --once unless NBA_FINALS_WAITER_ENABLED is exactly
+# 'true'. A disabled waiter never dispatches and never relays, on any trigger. Dry runs use their own concurrency
+# group (never queued behind, or replacing, a live run) and print no ledger lines (never suppressing a live alert).
+# Activation plan and one-night trial: docs/launch/approvals/NBA_FINALS_WAITER_ACTIVATION.md.
+#
+# ── ROLLBACK ──────────────────────────────────────────────────────────────────────────────────────────────────────
+#   1. Instant stop: `gh variable delete NBA_FINALS_WAITER_ENABLED` (or set it to anything but 'true'). The next
+#      trigger is skipped; a run already waiting can be cancelled from the Actions tab (`gh run cancel <id>`) — it has
+#      written nothing, so cancelling loses nothing.
+#   2. Remove: revert this file (and app/scripts/ops/nba-finals-waiter.mjs + its lib/test). The crons and the
+#      publication-watchdog trigger of nba-results-refresh are untouched by this workflow and keep running either way.
+#   3. Data: nothing to clean up. The waiter writes no file; every commit it caused is an ordinary nba-results-refresh
+#      commit, identical to one a cron or a human dispatch would have made.
+name: nba-finals-waiter
+
+on:
+  # The delivered clocks. publication-watchdog is a cron workflow (depth 1) whose completions arrive through the
+  # day; nba-forecast-window's completion (depth 2 — its own cron at :17 or publication-watchdog) also arrives in the
+  # evening and overnight. This is therefore depth 3 at worst (workflow-trigger-depth.test.mjs pins it). Any one
+  # arrival suffices: a run that arrives inside the horizon waits inside the job (and relays at its budget).
+  # Default branch only (the job `if`).
+  workflow_run:
+    workflows: ["publication-watchdog", "nba-forecast-window"]
+    types: [completed]
+  schedule:
+    # Best-effort extras before / across US evening finals (scheduled delivery here runs late and drops slots).
+    - cron: "47 21 * * *"
+    - cron: "47 23 * * *"
+    - cron: "47 1 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Decide once and report — never dispatch, never relay (allowed while the waiter is disabled)"
+        type: boolean
+        required: false
+        default: false
+
+concurrency:
+  # Dry runs get their own group: never queued for hours behind a live run, never replacing a pending relay.
+  group: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' && 'nba-finals-waiter-dry' || 'nba-finals-waiter' }}
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  wait:
+    # ACTIVATION GUARD (see the header) + THE TRUST BOUNDARY ON workflow_run: only a default-branch run may tick this.
+    if: >-
+      (vars.NBA_FINALS_WAITER_ENABLED == 'true' ||
+       (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true')) &&
+      (github.event_name != 'workflow_run' ||
+       github.event.workflow_run.head_branch == github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    # The loop budget (330) + the runner's hard stop (12) + setup, under this timeout and GitHub's 360-minute cap.
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Wait for NBA finals and dispatch the results refresh when one lands
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          DRY: ${{ github.event.inputs.dry_run }}
+          NBA_FINALS_WAITER_ENABLED: ${{ vars.NBA_FINALS_WAITER_ENABLED }}
+        run: |
+          set -euo pipefail
+          # Live only when the variable is EXACTLY 'true' (the job `if` compares case-insensitively) and no dry run
+          # was asked for in any case. Everything else is one dry decision: no dispatch, no relay.
+          dry_lc="$(printf '%s' "${DRY:-}" | tr '[:upper:]' '[:lower:]')"
+          live=0
+          if [ "${NBA_FINALS_WAITER_ENABLED:-}" = "true" ]; then
+            case "$dry_lc" in
+              ""|false) live=1 ;;
+            esac
+          fi
+          if [ "$live" = "1" ]; then
+            node app/scripts/ops/nba-finals-waiter.mjs --relay --budget-min 330 --max-calls 200 --max-dispatches 6
+          else
+            node app/scripts/ops/nba-finals-waiter.mjs --dry-run --once
+          fi
+
+      - name: Notify on failure
+        # cancelled() too: a job killed at timeout-minutes is cancelled, not failed, and must still alert.
+        if: failure() || cancelled()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: nba-finals-waiter
+        run: |
+          set -euo pipefail
+          EXIT_STATUS="${EXIT_STATUS:-1}" bash scripts/ops_alert.sh
