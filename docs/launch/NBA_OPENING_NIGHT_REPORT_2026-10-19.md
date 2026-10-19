@@ -137,3 +137,29 @@ Top 3 on the private board for each category (model median; v0.1 champion | v1 c
 4. **Founder decision:** v0.2 cold-start bug. 35 of 54 preseason forecasts have a 0 team score, and the same will hit each team's 2nd and 3rd regular-season games. Retire v0.2 in favour of v1, or fix it under a new version string.
 5. **Founder decision:** whether any experimental public NBA display (clearly labelled, no probabilities) is wanted before the bars are met. Default: no.
 6. After 10-21: review the live capture report, then decide on public NBA live scores.
+
+## Addendum — 10-19 afternoon
+
+| PR | What | Merge commit |
+|---|---|---|
+| #1138 | Forecast Ledger, founder option B | `1a48e76b88` (15:14Z) |
+| #1136 | NBA finals waiter GitHub-side expiry | `ef9d1bf9bf` (16:14Z) |
+| #1137 | Nightly grading for v0.2 and v1 | `db8b322480` (16:54Z) |
+
+**#1138 — Forecast Ledger, founder option B.**
+- **What broke:** Homer Nukes re-published postponed ALCS game 849817 (first on the 10-16 board, again on 10-18). The ledger refused the duplicate ids; the nightly ledger step failed closed from 05:28 ET, and every PR's quality gate was red.
+- **The fix:**
+  - The five 10-16 picks are VOID (`POSTPONED_REPUBLISHED`) and keep their committed ids.
+  - The re-picked players' 10-18 publications are their own forecasts, with ids qualified by `slate:2026-10-18`.
+  - No committed id changed.
+- **Recovery:** the ledger recovered at 15:39Z (`b665b2bac3`, 5 rows void).
+
+**#1136 — waiter expiry.** A live run needs `NBA_FINALS_WAITER_EXPIRES_AT`, stops at it and never relays past it.
+- **Trial:** activation at 18:45Z on 10-20, one deadline at 10:00Z on 10-21.
+- **Validation:** dry runs against the real 10-20 scoreboard.
+
+**#1137 — shadow grading.** `sport-schedules` grades v0.2 and v1 nightly, so their forward shadow accrues.
+
+**Not caused by these changes:** the 16:37Z nightly-settle rerun lost a push race on ops status files (`admin/status.json`, `ops/*.json`) with other writers. Later reruns retry.
+
+**Theater review:** http://localhost:4181/dev/simulation-theater/nba/401909088/ (and …089, …090).
