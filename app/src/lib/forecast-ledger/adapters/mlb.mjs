@@ -11,6 +11,14 @@
  * HOMER NUKES (owner: settle-homer-nukes.mjs → homer-nukes/settled-<date>.json). BINARY P(player homers). The
  * published day file is overwritten during the day and has no frozen copy, so these rows are labelled
  * OWNER_SETTLED_UNFROZEN and carry no publication time (the settled file does not record one).
+ *   POSTPONED + RE-PUBLISHED (founder decision 2026-10-19, option B). When a game (gamePk) appears in more than one
+ *   day's settled file, it was postponed off every earlier slate and the owner published it again. Every still-PENDING
+ *   pick for that game on an earlier slate is VOID (reason POSTPONED_REPUBLISHED — never a miss, never measured),
+ *   whether or not that player was picked again. PENDING → VOID is an allowed append-only move and the row keeps its
+ *   committed id. A player picked on more than one slate: the earliest publication keeps the plain identity; every
+ *   later one is its own forecast with identity qualified by `slate:<date>`, graded on its own result. An earlier pick
+ *   the owner already GRADED is never voided — and if that player was picked again, the same id appears twice, which
+ *   stays a duplicate-id defect and fails the build, as compose.mjs requires.
  *
  * PROJECTED SCORE + SIMULATION-MEDIAN TOTAL (owner: grade-projected-scores.mjs → game-projected-scores-graded.jsonl,
  * Block A, re-opening the SAME revision the game owner graded and reproducing its probabilities exactly). CONTINUOUS:
@@ -82,11 +90,37 @@ export function mlbGameRows(graded = [], sourceModels = new Map()) {
 }
 
 /** @param settledFiles [{ file, doc }] homer-nukes settled-<date>.json */
+export const POSTPONED_REPUBLISHED = "POSTPONED_REPUBLISHED";
+
 export function homerNukesRows(settledFiles = []) {
   const out = [];
-  for (const { file, doc } of settledFiles) {
+  const usable = (p) => Number.isInteger(p?.gamePk) && p?.playerId != null && isNum(p?.probability);
+  // Publications of each (gamePk, player), in slate order — the republication rule needs the whole set first.
+  const slateOf = ({ file, doc }) => (typeof doc?.date === "string" ? doc.date : (String(file).match(/(\d{4}-\d{2}-\d{2})/)?.[1] ?? ""));
+  const pubs = new Map();
+  const gameSlates = new Map();
+  for (const f of settledFiles) {
+    for (const p of f.doc?.picks ?? []) {
+      if (!usable(p)) continue;
+      const k = `${p.gamePk}|${p.playerId}`;
+      if (!pubs.has(k)) pubs.set(k, []);
+      pubs.get(k).push(slateOf(f));
+      if (!gameSlates.has(p.gamePk)) gameSlates.set(p.gamePk, new Set());
+      gameSlates.get(p.gamePk).add(slateOf(f));
+    }
+  }
+  for (const list of pubs.values()) list.sort();
+  const lastSlateOfGame = new Map([...gameSlates].map(([g, set]) => [g, [...set].sort().at(-1)]));
+  for (const f of settledFiles) {
+    const { file, doc } = f;
+    const slate = slateOf(f);
     for (const p of doc?.picks ?? []) {
-      if (!Number.isInteger(p.gamePk) || p.playerId == null || !isNum(p.probability)) continue;
+      if (!usable(p)) continue;
+      const slates = pubs.get(`${p.gamePk}|${p.playerId}`);
+      const republished = slates.length > 1 && new Set(slates).size === slates.length;
+      const isFirst = slate === slates[0];
+      const gameLater = lastSlateOfGame.get(p.gamePk);
+      const postponedOffThisSlate = slate < gameLater;
       let settlement = { state: "PENDING" };
       let measurement = {};
       if (p.result === "hit" || p.result === "miss") {
@@ -98,6 +132,12 @@ export function homerNukesRows(settledFiles = []) {
         settlement = { state: "NO_MEASUREMENT", reason: "ABSENT_FROM_OFFICIAL_BOX_SCORE" };
       } else if (p.result !== "pending") {
         settlement = { state: "NO_MEASUREMENT", reason: `OWNER_RESULT_${String(p.result).toUpperCase()}` };
+      }
+      // Postponed + re-published: an earlier, still-pending publication is VOID; a graded earlier one is left alone
+      // (same id twice → the build refuses, as it must). Measurement is cleared for a VOID row.
+      if (postponedOffThisSlate && p.result === "pending") {
+        settlement = { state: "VOID", finalCategory: "VOID", reason: POSTPONED_REPUBLISHED, source: `game re-published on the ${gameLater} slate` };
+        measurement = {};
       }
       out.push(makeRow({
         sport: "MLB",
@@ -123,6 +163,13 @@ export function homerNukesRows(settledFiles = []) {
         settlement,
         measurement,
         recoverability: RECOVERABILITY.OWNER_SETTLED_UNFROZEN,
+        ...(republished && !isFirst ? {
+          identityQualifier: `slate:${slate}`,
+          provenance: { notes: [`re-publication on the ${slate} slate of a game first published on ${slates[0]} (postponed); its own forecast`] },
+        } : {}),
+        ...(postponedOffThisSlate && p.result === "pending" && isFirst ? {
+          provenance: { notes: [`postponed off the ${slate} slate; the game was re-published on ${gameLater}`] },
+        } : {}),
       }));
     }
   }
