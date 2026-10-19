@@ -436,7 +436,7 @@ export function advanceNbaGuard(guard, observed, { confirmPolls = SCORE_CORRECTI
       const b = observed[side].score;
       if (a === null) continue;
       if (b === null) lifecycleIssues.push(regression("SCORE_DISAPPEARED", prev, observed, { side }));
-      else if (b < a) scoreIssues.push(regression("SCORE_DECREASED", prev, observed, { side, from: a, to: b }));
+      else if (b < a) scoreIssues.push(regression("SCORE_DECREASED", prev, observed, { side, fromScore: a, toScore: b }));
     }
   }
 

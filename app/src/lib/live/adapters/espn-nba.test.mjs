@@ -352,7 +352,7 @@ test("NBA 19 · a score decrease is held and flagged; only a PERSISTENT one is a
   const rs = run([q3, low(60), low(120), low(180)]);
   assert.equal(rs[1].held, true);
   assert.equal(rs[1].presented, q3);
-  assert.deepEqual(rs[1].discrepancies.map((d) => [d.kind, d.code, d.side, d.from, d.to]), [["PROVIDER_REGRESSION", "SCORE_DECREASED", "home", 70, 68]]);
+  assert.deepEqual(rs[1].discrepancies.map((d) => [d.kind, d.code, d.side, d.fromScore, d.toScore, d.from.lifecycle, d.to.lifecycle]), [["PROVIDER_REGRESSION", "SCORE_DECREASED", "home", 70, 68, "LIVE", "LIVE"]]);
   assert.equal(rs[2].held, true, `still held below ${SCORE_CORRECTION_CONFIRM_POLLS} consecutive polls`);
   assert.equal(rs[3].held, false);
   assert.equal(rs[3].presented.home.score, 68);
