@@ -7,7 +7,7 @@
 # preseason games) was never forecast before tip, and the preregistration only counts pre-tip artifacts.
 #
 # This workflow asks one free question often: does a game tip within 8 hours that some family (v0, the v0.1
-# champion, the v0.2 2026-27 challenger) has not forecast? If so
+# champion, the v0.2 2026-27 challenger, the v1 coherent-engine candidate) has not forecast? If so
 # it captures the injuries feed FIRST (free ESPN, G4), then builds only that game (write-once: a stored game
 # is never rewritten, a tipped game is refused — lib/sports/nba/forecast-receipt.mjs), verifies no committed
 # forecast changed, and commits. Overlapping or repeated runs are no-ops by construction.
@@ -83,6 +83,19 @@ jobs:
           for ATTEMPT in 1 2 3; do
             git reset -q --hard origin/main
             NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            # ROSTER BACKSTOP. v0.1 / v0.2 refuse a roster older than ROSTER_MAX_AGE_HOURS (48 h). sport-schedules owns
+            # the daily capture, but its cron arrives hours late and can be dropped; one missed day leaves opening
+            # night's late games (PHI @ NY, OKC @ SA) facing ROSTER_STALE. So when the committed capture is older than
+            # 30 h — i.e. sport-schedules has missed its day — re-capture here (free ESPN, no key) at the forecast's own
+            # instant. Under 30 h nothing is fetched, so the two writers never capture the same day in the normal case.
+            # A failed capture writes nothing (exit 2 leaves latest.json untouched) and the gate decides as before.
+            ROSTER_CAPTURED=0
+            ROSTER_AGE_H="$(node -e 'const r=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));const a=Date.parse(r.asOf??r.capturedAt??"");console.log(Number.isFinite(a)?Math.floor((Date.parse(process.argv[2])-a)/3600000):9999)' ../data/internal/research/nba/rosters/latest.json "$NOW" 2>/dev/null || echo 9999)"
+            if [ "$ROSTER_AGE_H" -gt 30 ]; then
+              echo "::notice::roster capture is ${ROSTER_AGE_H} h old (> 30 h) — re-capturing before the build"
+              if node scripts/nba/capture-nba-rosters.mjs --now "$NOW"; then ROSTER_CAPTURED=1
+              else echo "::warning::roster re-capture failed — the roster gate decides on the committed capture"; fi
+            fi
             # G4 — injuries first, at the forecast's own instant. A failed capture writes nothing (last-known-good
             # stands) and the receipt records that snapshot's real age; it never blocks the forecast.
             node scripts/sports/capture-injuries.mjs --now "$NOW" \
@@ -97,14 +110,25 @@ jobs:
               # v0.2 is the 2026-27 challenger (founder N3): shadow research, same instant. Its refusal warns, never fails.
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$D" --now "$NOW" --write --family v0.2 --horizon-hours 8 \
                 || echo "::warning::v0.2 refused for $D — v0 and v0.1 unaffected"
+              # v1 is the coherent-engine CANDIDATE (nba-sim-v1-coherent): shadow research, same instant. Its refusal warns, never fails.
+              node scripts/nba/build-nba-experimental-forecasts.mjs --date "$D" --now "$NOW" --write --family v1 --horizon-hours 8 \
+                || echo "::warning::v1 refused for $D — v0, v0.1 and v0.2 unaffected"
             done
             if [ "$V0_FAILED" = "1" ]; then echo "::error::v0 forecast build refused"; exit 1; fi
-            git add ../data/internal/research/nba/experimental/ ../data/internal/research/nba/experimental-v0.1/ ../data/internal/research/nba/experimental-v0.2/
+            # One `git add` per family directory that exists: a single missing pathspec (experimental-v1/ before v1's first
+            # successful build) makes `git add` stage NOTHING, which would silently drop every other family's forecast.
+            for FD in experimental experimental-v0.1 experimental-v0.2 experimental-v1; do
+              if [ -d "../data/internal/research/nba/$FD" ]; then git add "../data/internal/research/nba/$FD/"; fi
+            done
             if git diff --cached --quiet; then echo "no forecast added — nothing to commit"; exit 0; fi
             # Never commit a run that changed or removed an already-committed forecast.
             node scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD || exit 1
             # The exact injury snapshot the receipts hash, so the hash can be checked against history.
             git add ../data/internal/research/injuries/nba/latest.json
+            # The roster the receipts hash, when this run re-captured it (normalised files only; raw/ is never committed).
+            if [ "$ROSTER_CAPTURED" = "1" ]; then
+              git add ../data/internal/research/nba/rosters/latest.json "../data/internal/research/nba/rosters/${NOW:0:10}.json"
+            fi
             git commit -q -m "auto: nba pre-tip forecast window $NOW [skip ci]"
             if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; exit 0; fi
             # Lost a race with another writer: re-plan on the new main (the write-once builder makes that correct).

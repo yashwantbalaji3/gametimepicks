@@ -1,0 +1,74 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-sim-v1-simcount-benchmark",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "modelVersion": "nba-sim-v1-coherent",
+ "generatedAt": "2026-10-19T05:27:11.816Z",
+ "games": [
+  "401704826",
+  "401704892",
+  "401704962",
+  "401705062",
+  "401705166",
+  "401705266",
+  "401705364",
+  "401705464",
+  "401705563",
+  "401705663"
+ ],
+ "seeds": 5,
+ "note": "no outcome read; seed-to-seed SD over 5 seeds per game, 10 games of 2024-25; runtime on the machine that ran it",
+ "table": [
+  {
+   "simulations": 1000,
+   "pHomeSeedSD_mean": 0.0149,
+   "pHomeSeedSD_max": 0.0211,
+   "analyticSE_at_p05": 0.0158,
+   "ptsP50SeedSD_mean": 0.319,
+   "ptsP50SeedSD_max": 0.894,
+   "msPerGame_mean": 97,
+   "rotationPlayers": 122
+  },
+  {
+   "simulations": 2000,
+   "pHomeSeedSD_mean": 0.0131,
+   "pHomeSeedSD_max": 0.0173,
+   "analyticSE_at_p05": 0.0112,
+   "ptsP50SeedSD_mean": 0.208,
+   "ptsP50SeedSD_max": 0.548,
+   "msPerGame_mean": 107,
+   "rotationPlayers": 121
+  },
+  {
+   "simulations": 5000,
+   "pHomeSeedSD_mean": 0.0083,
+   "pHomeSeedSD_max": 0.0122,
+   "analyticSE_at_p05": 0.0071,
+   "ptsP50SeedSD_mean": 0.107,
+   "ptsP50SeedSD_max": 0.548,
+   "msPerGame_mean": 328,
+   "rotationPlayers": 122
+  },
+  {
+   "simulations": 10000,
+   "pHomeSeedSD_mean": 0.0055,
+   "pHomeSeedSD_max": 0.0074,
+   "analyticSE_at_p05": 0.005,
+   "ptsP50SeedSD_mean": 0.095,
+   "ptsP50SeedSD_max": 0.548,
+   "msPerGame_mean": 767,
+   "rotationPlayers": 122
+  },
+  {
+   "simulations": 20000,
+   "pHomeSeedSD_mean": 0.0035,
+   "pHomeSeedSD_max": 0.0042,
+   "analyticSE_at_p05": 0.0035,
+   "ptsP50SeedSD_mean": 0.056,
+   "ptsP50SeedSD_max": 0.548,
+   "msPerGame_mean": 1111,
+   "rotationPlayers": 121
+  }
+ ]
+}
