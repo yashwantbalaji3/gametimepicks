@@ -365,9 +365,10 @@ const STRUCTURE_PROBE = `(() => {
 })()`;
 
 for (const [w, h] of [[1440, 900], [390, 844]] as const) {
-  test(`accessibility audit at ${w} px: contrast (AA) and structure, idle and mid-drive and with a sheet open`, async ({ page }) => {
+  test(`accessibility audit at ${w} px: contrast (AA) and structure, idle, mid-drive, halftime, final, rollover, review label, and with a sheet open`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
-    for (const q of ["?run=428", "?run=428&t=24.5", "?run=428&t=66.6"]) {
+    // iteration 8: also the halftime card (overlay / phone sheet), a mid-drive rollover with its tag, and the zoom review label
+    for (const q of ["?run=428", "?run=428&t=24.5", "?run=428&t=66.6", "?run=428&t=31.8", "?run=428&t=17.5", "?run=428&t=11.7&zoomCap=1.6"]) {
       await open(page, q);
       expect(await page.evaluate(CONTRAST_PROBE), `contrast ${q}`).toEqual([]);
       expect(await page.evaluate(STRUCTURE_PROBE), `structure ${q}`).toEqual([]);
