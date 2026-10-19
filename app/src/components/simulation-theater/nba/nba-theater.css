@@ -77,10 +77,18 @@
   .nba-sb-mid{min-width:66px;padding:4px 6px}
   .nba-sb-period,.nba-sb-clock{font-size:13px}
 }
+@media (max-width:359px){
+  .nba-sb-abbr{font-size:15px}
+  .nba-sb-score{font-size:23px;min-width:2.6ch}
+  .nba-sb-mid{min-width:54px;padding:4px}
+  .nba-sb-team{gap:4px}
+}
 
 /* ── court ────────────────────────────────────────────────────────────────────────────────────────────── */
 .nba-courtwrap{position:relative;margin-top:8px;border-radius:10px;overflow:hidden;container-type:inline-size}
 .nba-court{display:block;width:100%;height:auto;aspect-ratio:100/56}
+.nba-courtwrap{background:var(--st-floor-out)}
+@media (min-width:1180px){.nba-court{max-height:420px}}
 .nba-apron{fill:var(--st-floor-out)}
 .nba-plank-a{fill:var(--st-floor-a)}
 .nba-plank-b{fill:var(--st-floor-b)}
@@ -137,7 +145,9 @@
   background:var(--st-panel-2);color:var(--st-text);border-left:4px solid var(--nba-trim, var(--st-mute))}
 .nba-root[data-st-colors="team"] .nba-chip-team{background:var(--nba-fill);color:var(--nba-ink);box-shadow:0 0 0 1px var(--st-keyline)}
 .nba-chip-team.is-cue{border-left-style:dashed;border-left-width:6px}
-.nba-leaders{margin-top:8px}
+.nba-leaders{margin-top:8px;table-layout:fixed}
+.nba-leaders thead th:first-child,.nba-leaders tbody th{width:64px}
+.nba-lead{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nba-leaders caption,.nba-players caption{caption-side:top;text-align:left;padding:0 0 6px;font:600 12px var(--font-headline);color:var(--st-mute)}
 .nba-leaders th,.nba-leaders td{padding:5px 6px;text-align:left;font:500 12.5px var(--font-display);border-bottom:1px solid var(--border-strong);vertical-align:middle}
 .nba-leaders thead th{font:600 11px var(--font-mono);color:var(--st-faint);letter-spacing:.08em}

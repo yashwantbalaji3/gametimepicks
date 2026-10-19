@@ -131,7 +131,7 @@ function PlayerTable({ side, sample, teams, palette, playRates }: { side: NbaSid
             <th scope="row">
               <span className="nba-pname">{p.name}</span>
               {playRates && p.providerAthleteId && playRates[p.providerAthleteId] != null ? (
-                <span className="nba-prate">plays in {Math.round(playRates[p.providerAthleteId] * 100)}% of draws</span>
+                <span className="nba-prate" title="playRate: share of all simulated games in which he logs minutes">plays {Math.round(playRates[p.providerAthleteId] * 100)}%</span>
               ) : null}
             </th>
             <td>{fmtMin(p.minutes)}</td><td className="is-pts">{p.pts}</td><td>{p.reb}</td><td>{p.ast}</td><td>{p.threePm}-{p.threePa}</td>
@@ -163,7 +163,7 @@ export function PlayerPanel({ sample, teams, palette, playing, playRates }: {
       <div className="nba-players-grid">
         {SIDES.map((side) => <PlayerTable key={side} side={side} sample={sample} teams={teams} palette={palette} playRates={playRates?.[side]} />)}
       </div>
-      <p className="nba-fine">MIN in minutes; 0 = did not play in this sample. 3PM-A = three-pointers made-attempted.{playRates ? " “Plays in N% of draws” is the model's playRate: the share of all simulated games in which the player logs minutes." : ""}</p>
+      <p className="nba-fine">MIN in minutes; 0 = did not play in this sample. 3PM-A = three-pointers made-attempted.{playRates ? " “plays N%” is the model's playRate: the share of all simulated games in which the player logs minutes." : ""}</p>
     </div>
   );
 }
@@ -316,7 +316,7 @@ export function ModelFacts({ manifest, sample }: { manifest: NbaManifest; sample
 
 function Leaders({ sample, teams, palette }: { sample: NbaSample; teams: NbaTeams; palette: NbaPalette }) {
   const L = statLeaders(sample) as Record<NbaSide, Record<"pts" | "reb" | "ast", NbaPlayerLine | null>>;
-  const cell = (p: NbaPlayerLine | null, k: "pts" | "reb" | "ast") => (p ? <><span className="nba-lead-name">{p.name}</span> <b>{p[k]}</b></> : "—");
+  const cell = (p: NbaPlayerLine | null, k: "pts" | "reb" | "ast") => (p ? <span className="nba-lead"><b>{p[k]}</b> <span className="nba-lead-name">{p.name}</span></span> : "—");
   return (
     <table className="nba-leaders">
       <caption>Stat leaders in this sample (game totals)</caption>
