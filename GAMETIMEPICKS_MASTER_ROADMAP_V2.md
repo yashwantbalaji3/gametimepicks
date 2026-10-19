@@ -205,7 +205,7 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
   - 40/40 tests; 170/170 workflow guards;
   - replay 10-08..10-18: median lineup→simulation 33 → 8 min, worst pre-pitch lead 33 → 158 min;
   - $0 Actions cost (public repo, standard runner).
-- #1132: test isolation. `live-props-producer.test.mjs` ran the producer against the real data root, and local runs rewrote tracked `nfl/live-props`. No Production impact found: CI is `contents: read`, and every live-props commit came from producer workflows. Merges after #1129, post-NFL-window, under the gate.
+- #1132 **MERGED** `67fee1259f` (10-19 00:47Z); main CI 39182395609 green; Production `182f1291c5` includes it. Test isolation: `live-props-producer.test.mjs` ran the producer against the real data root, and local runs rewrote tracked `nfl/live-props`. No Production impact found: CI is `contents: read`, and every live-props commit came from producer workflows. Merges after #1129, post-NFL-window, under the gate.
 
 The audit's remaining items:
 - The void *reason* on postponed 10-16 rows reads "DNP/0-AB": a data/producer follow-up.
