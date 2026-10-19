@@ -123,20 +123,10 @@ function readDevHook(enabled: boolean): { run: number | null; t: number | null; 
   return { run: num(q.get("run")), t: num(q.get("t")), zoomCap: zc != null && zc !== CAMERA_POLICY.maxZoom && zoomCapFor(zc) === zc ? zc : null };
 }
 
-// ── camera preference (iteration 7): per viewer, in localStorage, every access guarded (private windows, blocked storage)
+// ── camera preference (iteration 7; integration 2026-10-19): the viewer's choice lasts for THIS page view only. The
+//    prototype kept it in localStorage; on a public page that would be a browser-storage use the privacy notice does not
+//    name (lib/legal/texts.test.mjs), so the integrated island keeps it in component state and stores nothing.
 type CamMode = "follow" | "full";
-const CAM_KEY = "gtp:sim-theater:camera";
-function readCamPref(): CamMode | null {
-  try {
-    const v = window.localStorage.getItem(CAM_KEY);
-    return v === "follow" || v === "full" ? v : null;
-  } catch {
-    return null;
-  }
-}
-function writeCamPref(v: CamMode) {
-  try { window.localStorage.setItem(CAM_KEY, v); } catch { /* storage unavailable: the choice lasts for this page only */ }
-}
 /** Narrow screens default to the full field (see iteration 7 WALKTHROUGH): at ≤719 px the whole field is ≤358 px wide. */
 const COMPACT_QUERY = "(max-width: 719px)";
 
@@ -512,9 +502,9 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
   const compact = useMedia(COMPACT_QUERY);
   // camera (iteration 7; iteration 8: the default tracks the width live): the viewer's stored choice, else the full field
   // on narrow screens (< 720 px) and follow on wide ones
-  const [camPref, setCamPref] = useState<CamMode | null>(() => (typeof window !== "undefined" ? readCamPref() : null));
+  const [camPref, setCamPref] = useState<CamMode | null>(null);
   const camMode: CamMode = camPref ?? (compact ? "full" : "follow");
-  const setCamMode = useCallback((v: CamMode) => { setCamPref(v); writeCamPref(v); }, []);
+  const setCamMode = useCallback((v: CamMode) => { setCamPref(v); }, []);
   const camModeRef = useRef(camMode);
   camModeRef.current = camMode;
   const reducedRef = useRef(reduced);
@@ -1011,16 +1001,19 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
       data-st-camera={effCam}
     >
       <Banner manifest={manifest} sample={sample ?? null} />
-      <div className="st-devbar">
-        <span className="st-devtag">Development route · unlinked · noindex</span>
-        {TEAM_COLORS_VALIDATED ? (
-          <label>
-            <input type="checkbox" checked={neutralColors} onChange={(e) => setNeutralColors(e.target.checked)} />
-            Neutral colours
-          </label>
-        ) : null}
-        <span className="st-devnote">{colourNote}</span>
-      </div>
+      {/* integration (2026-10-19): the development bar belongs to the dev route only; the public section never shows it */}
+      {devHooks ? (
+        <div className="st-devbar">
+          <span className="st-devtag">Development route · unlinked · noindex</span>
+          {TEAM_COLORS_VALIDATED ? (
+            <label>
+              <input type="checkbox" checked={neutralColors} onChange={(e) => setNeutralColors(e.target.checked)} />
+              Neutral colours
+            </label>
+          ) : null}
+          <span className="st-devnote">{colourNote}</span>
+        </div>
+      ) : null}
 
       <div className="st-samples">
         <div className="st-samples-head"><span id={`${uid}-samples`}>Representative runs</span><span className="st-samplelabel">{LABELS.sample}</span></div>

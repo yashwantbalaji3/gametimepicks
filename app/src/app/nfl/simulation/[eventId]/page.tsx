@@ -40,6 +40,23 @@ function canonicalFor(eventId: string): CanonicalForecast | null {
   };
 }
 
+/**
+ * SIMULATION REPLAY (Simulation Theater V2), PUBLIC BETA BEHIND A BUILD FLAG (P242 narrow exception, founder 2026-10-19;
+ * docs/launch/approvals/P242_NFL_THEATER_PUBLIC_BETA_2026-10-19.md). Drive-level playback of one representative run of
+ * THIS page's receipt of record, with persistent SIMULATED · DRIVE-LEVEL · MOVEMENT ILLUSTRATIVE · EXPERIMENTAL MODEL
+ * labels. Default OFF: next.config.mjs defines `process.env.GTP_NFL_THEATER_PUBLIC` as "1" only when the build sets it,
+ * so this `if` is a compile-time constant and, OFF, the import below is never part of the build (no theater pack, CSS
+ * or island chunk in the page; public-theater-export.test.mjs checks out/). Rollback = build with the flag unset.
+ * This is NOT the retired presentation-player ceremony (P242), which stays unmounted.
+ */
+async function SimulationReplay({ rec }: { rec: NonNullable<ReturnType<typeof simulationOfRecord>> }) {
+  if (process.env.GTP_NFL_THEATER_PUBLIC === "1") {
+    const { default: PublicTheaterSection } = await import("@/components/simulation-theater/PublicTheaterSection");
+    return <PublicTheaterSection rec={rec} />;
+  }
+  return null;
+}
+
 export function generateStaticParams() {
   return showableSimulationEvents(entries()).map((eventId) => ({ eventId }));
 }
@@ -73,6 +90,7 @@ export default function NflSimulationV2Page({ params }: { params: { eventId: str
         Simulation · experimental · {r.runCount.toLocaleString("en-US")} coherent game paths
       </p>
       <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} />
+      <SimulationReplay rec={rec} />
     </div>
   );
 }
