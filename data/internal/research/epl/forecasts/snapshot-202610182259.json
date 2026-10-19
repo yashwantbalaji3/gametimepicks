@@ -1,0 +1,406 @@
+{
+ "schemaVersion": 1,
+ "artifact": "epl-forecast-set",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "competition": "epl",
+ "generatedAt": "2026-10-18T22:59:26Z",
+ "lookaheadHours": 96,
+ "matchModel": {
+  "modelId": "epl-model-v2-elo-poisson",
+  "adopted": true,
+  "reason": "P304 replay ELIGIBLE; forward receipt ACCUMULATING",
+  "forwardState": "ACCUMULATING",
+  "controlModelId": "epl-model-v1-split-poisson"
+ },
+ "oddsCapturedAt": "2026-10-18T22:59:08Z",
+ "fixturesConsidered": 1,
+ "counts": {
+  "CURRENT_PRE_EVENT": 1
+ },
+ "gradedRecord": {
+  "modelId": "epl-model-v2-elo-poisson",
+  "gradedUnderThisModel": 29,
+  "priorModels": [
+   {
+    "modelId": "epl-model-v1-split-poisson",
+    "graded": 36
+   }
+  ],
+  "unattributed": 0,
+  "ledgerTotal": 65,
+  "note": "Counts by the modelId on each graded row. Figures for the live model exist only over its own rows; a previous model's record is not this model's evidence."
+ },
+ "rows": [
+  {
+   "eventId": "soccer:epl:coventry-city-v-tottenham-hotspur:20261019t1900",
+   "sparseInput": null,
+   "matchup": "Tottenham Hotspur v Coventry City",
+   "homeClub": "Tottenham Hotspur",
+   "awayClub": "Coventry City",
+   "slug": "tottenham-hotspur-v-coventry-city-2026-10-19",
+   "kickoffUtc": "2026-10-19T19:00:00Z",
+   "matchweek": 7,
+   "state": "CURRENT_PRE_EVENT",
+   "rule": null,
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
+    "modelId": "epl-model-v2-elo-poisson",
+    "probs": {
+     "home": 0.521695,
+     "draw": 0.238992,
+     "away": 0.239313
+    },
+    "totals": {
+     "expected": 2.7947,
+     "over25": 0.52929,
+     "under25": 0.47071,
+     "quantiles": {
+      "p10": 1,
+      "p25": 2,
+      "p50": 3,
+      "p75": 4,
+      "p90": 5
+     },
+     "distribution": [
+      0.061131,
+      0.170845,
+      0.238734,
+      0.222399,
+      0.155387,
+      0.086853,
+      0.040455,
+      0.016152,
+      0.005642,
+      0.001752,
+      0.00049,
+      0.000124,
+      0.000028,
+      0.000006,
+      0.000001,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "ladder": [
+      {
+       "line": 0.5,
+       "over": 0.938869,
+       "under": 0.061131
+      },
+      {
+       "line": 1.5,
+       "over": 0.768024,
+       "under": 0.231976
+      },
+      {
+       "line": 2.5,
+       "over": 0.52929,
+       "under": 0.47071
+      },
+      {
+       "line": 3.5,
+       "over": 0.30689,
+       "under": 0.69311
+      },
+      {
+       "line": 4.5,
+       "over": 0.151504,
+       "under": 0.848496
+      }
+     ]
+    },
+    "teamGoals": {
+     "home": {
+      "expected": 1.7135,
+      "distribution": [
+       0.180232,
+       0.30883,
+       0.264592,
+       0.151127,
+       0.06474,
+       0.022186,
+       0.006336,
+       0.001551,
+       0.000332,
+       0.000063,
+       0.000011
+      ]
+     },
+     "away": {
+      "expected": 1.0812,
+      "distribution": [
+       0.33918,
+       0.36673,
+       0.198258,
+       0.071454,
+       0.019314,
+       0.004177,
+       0.000753,
+       0.000116,
+       0.000016,
+       0.000002,
+       0
+      ]
+     }
+    },
+    "btts": {
+     "yes": 0.541719,
+     "no": 0.458281
+    },
+    "cleanSheet": {
+     "home": 0.33918,
+     "away": 0.180232
+    },
+    "doubleChance": {
+     "homeOrDraw": 0.760687,
+     "drawOrAway": 0.478305,
+     "homeOrAway": 0.761008
+    },
+    "margin": {
+     "expected": 0.6323,
+     "distribution": [
+      {
+       "margin": -10,
+       "p": 0
+      },
+      {
+       "margin": -9,
+       "p": 0
+      },
+      {
+       "margin": -8,
+       "p": 0.000003
+      },
+      {
+       "margin": -7,
+       "p": 0.000026
+      },
+      {
+       "margin": -6,
+       "p": 0.000176
+      },
+      {
+       "margin": -5,
+       "p": 0.001018
+      },
+      {
+       "margin": -4,
+       "p": 0.004989
+      },
+      {
+       "margin": -3,
+       "p": 0.02007
+      },
+      {
+       "margin": -2,
+       "p": 0.063593
+      },
+      {
+       "margin": -1,
+       "p": 0.149437
+      },
+      {
+       "margin": 0,
+       "p": 0.238992
+      },
+      {
+       "margin": 1,
+       "p": 0.236827
+      },
+      {
+       "margin": 2,
+       "p": 0.159717
+      },
+      {
+       "margin": 3,
+       "p": 0.079884
+      },
+      {
+       "margin": 4,
+       "p": 0.031469
+      },
+      {
+       "margin": 5,
+       "p": 0.010181
+      },
+      {
+       "margin": 6,
+       "p": 0.002788
+      },
+      {
+       "margin": 7,
+       "p": 0.000661
+      },
+      {
+       "margin": 8,
+       "p": 0.000138
+      },
+      {
+       "margin": 9,
+       "p": 0.000025
+      },
+      {
+       "margin": 10,
+       "p": 0.000004
+      }
+     ]
+    },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.113257
+     },
+     {
+      "score": "1-0",
+      "p": 0.104749
+     },
+     {
+      "score": "2-1",
+      "p": 0.097034
+     },
+     {
+      "score": "2-0",
+      "p": 0.089744
+     },
+     {
+      "score": "0-1",
+      "p": 0.066096
+     },
+     {
+      "score": "1-2",
+      "p": 0.061228
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "3-1",
+      "p": 0.055423
+     },
+     {
+      "score": "2-2",
+      "p": 0.052458
+     },
+     {
+      "score": "3-0",
+      "p": 0.051259
+     }
+    ],
+    "topScorelinesMass": 0.752379,
+    "lambdas": {
+     "home": 1.7135,
+     "away": 1.0812
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
+   },
+   "modelOnly": null,
+   "control": {
+    "modelId": "epl-model-v1-split-poisson",
+    "probs": {
+     "home": 0.627023,
+     "draw": 0.271456,
+     "away": 0.101521
+    },
+    "over25": 0.266094
+   },
+   "shadowTotals": {
+    "modelId": "epl-totals-shadow-v1-goal-ratios",
+    "protocol": "epl-totals-shadow-forward-protocol@2026-09-15T04:20:00Z",
+    "multiplier": 0.95237,
+    "baseTotal": 2.7947,
+    "lambdas": {
+     "home": 1.647,
+     "away": 1.0147
+    },
+    "probs": {
+     "home": 0.521511,
+     "draw": 0.245356,
+     "away": 0.233133
+    },
+    "totals": {
+     "expected": 2.6616,
+     "over25": 0.49693,
+     "distribution": [
+      0.069834,
+      0.185873,
+      0.247363,
+      0.219463,
+      0.146033,
+      0.077737,
+      0.034485,
+      0.013112,
+      0.004362,
+      0.00129,
+      0.000343,
+      0.000083,
+      0.000018,
+      0.000003,
+      0.000001,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "ladder": [
+      {
+       "line": 0.5,
+       "over": 0.930166,
+       "under": 0.069834
+      },
+      {
+       "line": 1.5,
+       "over": 0.744293,
+       "under": 0.255707
+      },
+      {
+       "line": 2.5,
+       "over": 0.49693,
+       "under": 0.50307
+      },
+      {
+       "line": 3.5,
+       "over": 0.277467,
+       "under": 0.722533
+      },
+      {
+       "line": 4.5,
+       "over": 0.131435,
+       "under": 0.868565
+      }
+     ]
+    }
+   },
+   "market": {
+    "books": 1,
+    "impliedSum": 1.057261,
+    "noVig": [
+     {
+      "name": "Coventry City",
+      "prob": 0.15764
+     },
+     {
+      "name": "Tottenham Hotspur",
+      "prob": 0.636742
+     },
+     {
+      "name": "Draw",
+      "prob": 0.205618
+     }
+    ]
+   },
+   "publicActivation": "OFF"
+  }
+ ],
+ "note": "Forecast distributions only. publicActivation is OFF on every row; nothing here is a recommendation."
+}

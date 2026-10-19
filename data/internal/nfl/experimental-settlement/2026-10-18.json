@@ -4,77 +4,1254 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-10-18",
- "generatedAt": "2026-10-18T12:04:38Z",
+ "generatedAt": "2026-10-18T23:58:34Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401872996",
+   "providerEventId": "401872996",
    "matchup": "HOU @ JAX",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T13:30Z"
+   "kickoffUtc": "2026-10-18T13:30Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401872996-rev-1312Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "ed85d772c729afb3",
+    "forecastGeneratedAt": "2026-10-18T13:12:15Z",
+    "revisionChain": [
+     {
+      "file": "401872996.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "bbff187def0c0c68"
+     },
+     {
+      "file": "401872996-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "b022c3793dfe269c"
+     },
+     {
+      "file": "401872996-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "75a6bda844f6b3ca"
+     },
+     {
+      "file": "401872996-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "ef38e81d7a332da7"
+     },
+     {
+      "file": "401872996-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "8c0d0180aebb1ac8"
+     },
+     {
+      "file": "401872996-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "ed85d772c729afb3"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T16:49:13Z",
+    "settledAt": "2026-10-18T17:30:06Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 31,
+     "away": 34,
+     "margin": -3,
+     "total": 65,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 2,
+     "actual": -3,
+     "absError": 5,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 43,
+     "actual": 65,
+     "absError": 22,
+     "insideInterval80": false
+    },
+    "score": {
+     "projected": {
+      "home": 23,
+      "away": 20,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 22
+    },
+    "probabilistic": {
+     "brier": 0.386014,
+     "logLoss": 0.971011
+    }
+   },
+   "marketBenchmark": null
   },
   {
    "canonicalEventId": "nfl-401872997",
+   "providerEventId": "401872997",
    "matchup": "BAL @ CLE",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401872997-rev-1649Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "cff95a55a7621a5a",
+    "forecastGeneratedAt": "2026-10-18T16:49:13Z",
+    "revisionChain": [
+     {
+      "file": "401872997.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "1015ea38c077c720"
+     },
+     {
+      "file": "401872997-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "7e122fd8a26d5a87"
+     },
+     {
+      "file": "401872997-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "bdb7ccde189f3a6f"
+     },
+     {
+      "file": "401872997-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "0a69453e0bfdd623"
+     },
+     {
+      "file": "401872997-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "e4db5b4279bad16c"
+     },
+     {
+      "file": "401872997-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "4e42e848a13fe3f5"
+     },
+     {
+      "file": "401872997-rev-1516Z.json",
+      "generatedAt": "2026-10-18T15:16:07Z",
+      "inputHash": "61a29d946eb8bd77"
+     },
+     {
+      "file": "401872997-rev-1603Z.json",
+      "generatedAt": "2026-10-18T16:03:22Z",
+      "inputHash": "8b8630c2f5c3ef0a"
+     },
+     {
+      "file": "401872997-rev-1621Z.json",
+      "generatedAt": "2026-10-18T16:21:51Z",
+      "inputHash": "54eb0c79e973b1f3"
+     },
+     {
+      "file": "401872997-rev-1625Z.json",
+      "generatedAt": "2026-10-18T16:25:00Z",
+      "inputHash": "4cf2a59fb6505f8e"
+     },
+     {
+      "file": "401872997-rev-1649Z.json",
+      "generatedAt": "2026-10-18T16:49:13Z",
+      "inputHash": "cff95a55a7621a5a"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T22:36:09Z",
+    "settledAt": "2026-10-18T22:43:38Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 13,
+     "away": 10,
+     "margin": 3,
+     "total": 23,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "AWAY",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": -3,
+     "actual": 3,
+     "absError": 6,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 43,
+     "actual": 23,
+     "absError": 20,
+     "insideInterval80": false
+    },
+    "score": {
+     "projected": {
+      "home": 20,
+      "away": 23,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 20
+    },
+    "probabilistic": {
+     "brier": 0.42198,
+     "logLoss": 1.04868
+    }
+   },
+   "marketBenchmark": null
   },
   {
    "canonicalEventId": "nfl-401872998",
+   "providerEventId": "401872998",
    "matchup": "CAR @ PHI",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401872998-rev-1649Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "4f8f6d6ad251de27",
+    "forecastGeneratedAt": "2026-10-18T16:49:13Z",
+    "revisionChain": [
+     {
+      "file": "401872998.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "91bf04fa295ef70f"
+     },
+     {
+      "file": "401872998-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "e0b206ef905711b1"
+     },
+     {
+      "file": "401872998-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "d3bdabc2cf7e9fea"
+     },
+     {
+      "file": "401872998-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "e714aff4ad159fda"
+     },
+     {
+      "file": "401872998-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "ac4d372ec67db684"
+     },
+     {
+      "file": "401872998-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "14df573883803457"
+     },
+     {
+      "file": "401872998-rev-1516Z.json",
+      "generatedAt": "2026-10-18T15:16:07Z",
+      "inputHash": "4d22de76f5c5674b"
+     },
+     {
+      "file": "401872998-rev-1603Z.json",
+      "generatedAt": "2026-10-18T16:03:22Z",
+      "inputHash": "f666674e23662046"
+     },
+     {
+      "file": "401872998-rev-1621Z.json",
+      "generatedAt": "2026-10-18T16:21:51Z",
+      "inputHash": "46072de6fd1c47a1"
+     },
+     {
+      "file": "401872998-rev-1625Z.json",
+      "generatedAt": "2026-10-18T16:25:00Z",
+      "inputHash": "47b9b91f09f7f863"
+     },
+     {
+      "file": "401872998-rev-1649Z.json",
+      "generatedAt": "2026-10-18T16:49:13Z",
+      "inputHash": "4f8f6d6ad251de27"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T22:36:09Z",
+    "settledAt": "2026-10-18T22:43:38Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 14,
+     "away": 25,
+     "margin": -11,
+     "total": 39,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 7,
+     "actual": -11,
+     "absError": 18,
+     "insideInterval80": false
+    },
+    "total": {
+     "projected": 44,
+     "actual": 39,
+     "absError": 5,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 26,
+      "away": 18,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 19
+    },
+    "probabilistic": {
+     "brier": 0.371734,
+     "logLoss": 0.94084
+    }
+   },
+   "marketBenchmark": null
   },
   {
    "canonicalEventId": "nfl-401872999",
+   "providerEventId": "401872999",
    "matchup": "CHI @ ATL",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401872999-rev-1649Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "15faf25515d4cfbf",
+    "forecastGeneratedAt": "2026-10-18T16:49:13Z",
+    "revisionChain": [
+     {
+      "file": "401872999.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "a63710150ad72cff"
+     },
+     {
+      "file": "401872999-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "e01e84d9064ff9db"
+     },
+     {
+      "file": "401872999-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "f99658fe3739aa9f"
+     },
+     {
+      "file": "401872999-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "1ab0e89c2a569b6c"
+     },
+     {
+      "file": "401872999-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "39cc17f577d68f8d"
+     },
+     {
+      "file": "401872999-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "9f93df38f90ba3c5"
+     },
+     {
+      "file": "401872999-rev-1516Z.json",
+      "generatedAt": "2026-10-18T15:16:07Z",
+      "inputHash": "e3bbd6476303201a"
+     },
+     {
+      "file": "401872999-rev-1603Z.json",
+      "generatedAt": "2026-10-18T16:03:22Z",
+      "inputHash": "d5e22bb87e2aabb7"
+     },
+     {
+      "file": "401872999-rev-1621Z.json",
+      "generatedAt": "2026-10-18T16:21:51Z",
+      "inputHash": "c0682d2380b96e83"
+     },
+     {
+      "file": "401872999-rev-1625Z.json",
+      "generatedAt": "2026-10-18T16:25:00Z",
+      "inputHash": "3edc977020f59df0"
+     },
+     {
+      "file": "401872999-rev-1649Z.json",
+      "generatedAt": "2026-10-18T16:49:13Z",
+      "inputHash": "15faf25515d4cfbf"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T22:36:09Z",
+    "settledAt": "2026-10-18T22:43:38Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 23,
+     "away": 31,
+     "margin": -8,
+     "total": 54,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "AWAY",
+     "correct": true,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 0,
+     "actual": -8,
+     "absError": 8,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 48,
+     "actual": 54,
+     "absError": 6,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 24,
+      "away": 24,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 8
+    },
+    "probabilistic": {
+     "brier": 0.196781,
+     "logLoss": 0.586268
+    }
+   },
+   "marketBenchmark": null
   },
   {
    "canonicalEventId": "nfl-401873000",
+   "providerEventId": "401873000",
    "matchup": "NO @ NYG",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401873000-rev-1649Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "2545041c6649961c",
+    "forecastGeneratedAt": "2026-10-18T16:49:13Z",
+    "revisionChain": [
+     {
+      "file": "401873000.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "61515fc5390ea4f0"
+     },
+     {
+      "file": "401873000-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "486d743f03aba969"
+     },
+     {
+      "file": "401873000-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "9ad2894c34803676"
+     },
+     {
+      "file": "401873000-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "e0ba7508c0398ab0"
+     },
+     {
+      "file": "401873000-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "5fc060e17af938c2"
+     },
+     {
+      "file": "401873000-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "6360a55b43417e30"
+     },
+     {
+      "file": "401873000-rev-1516Z.json",
+      "generatedAt": "2026-10-18T15:16:07Z",
+      "inputHash": "667fe8eb47cbc806"
+     },
+     {
+      "file": "401873000-rev-1603Z.json",
+      "generatedAt": "2026-10-18T16:03:22Z",
+      "inputHash": "98bcd6ba1bdb876d"
+     },
+     {
+      "file": "401873000-rev-1621Z.json",
+      "generatedAt": "2026-10-18T16:21:51Z",
+      "inputHash": "6c368ba5247cacca"
+     },
+     {
+      "file": "401873000-rev-1625Z.json",
+      "generatedAt": "2026-10-18T16:25:00Z",
+      "inputHash": "a2cfcad5f52d62bc"
+     },
+     {
+      "file": "401873000-rev-1649Z.json",
+      "generatedAt": "2026-10-18T16:49:13Z",
+      "inputHash": "2545041c6649961c"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T22:36:09Z",
+    "settledAt": "2026-10-18T22:43:38Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 27,
+     "away": 34,
+     "margin": -7,
+     "total": 61,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 3,
+     "actual": -7,
+     "absError": 10,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 46,
+     "actual": 61,
+     "absError": 15,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 25,
+      "away": 21,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 15
+    },
+    "probabilistic": {
+     "brier": 0.39,
+     "logLoss": 0.979497
+    }
+   },
+   "marketBenchmark": null
   },
   {
    "canonicalEventId": "nfl-401873001",
+   "providerEventId": "401873001",
    "matchup": "NYJ @ NE",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401873001-rev-1649Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "655f3e78bc26b2ff",
+    "forecastGeneratedAt": "2026-10-18T16:49:13Z",
+    "revisionChain": [
+     {
+      "file": "401873001.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "588c5356d7e27d3d"
+     },
+     {
+      "file": "401873001-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "2f2363a1b13715a0"
+     },
+     {
+      "file": "401873001-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "60d201e862585e5f"
+     },
+     {
+      "file": "401873001-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "f37f26c691f2bd2a"
+     },
+     {
+      "file": "401873001-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "3227480f408f6521"
+     },
+     {
+      "file": "401873001-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "7eef1ceebba3bc2b"
+     },
+     {
+      "file": "401873001-rev-1516Z.json",
+      "generatedAt": "2026-10-18T15:16:07Z",
+      "inputHash": "91e89b52bca792aa"
+     },
+     {
+      "file": "401873001-rev-1603Z.json",
+      "generatedAt": "2026-10-18T16:03:22Z",
+      "inputHash": "094e4705eaf29e0a"
+     },
+     {
+      "file": "401873001-rev-1621Z.json",
+      "generatedAt": "2026-10-18T16:21:51Z",
+      "inputHash": "ed0a9f36db597b00"
+     },
+     {
+      "file": "401873001-rev-1625Z.json",
+      "generatedAt": "2026-10-18T16:25:00Z",
+      "inputHash": "0ca546a918229aa8"
+     },
+     {
+      "file": "401873001-rev-1649Z.json",
+      "generatedAt": "2026-10-18T16:49:13Z",
+      "inputHash": "655f3e78bc26b2ff"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T22:36:09Z",
+    "settledAt": "2026-10-18T22:43:38Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 26,
+     "away": 19,
+     "margin": 7,
+     "total": 45,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "HOME",
+     "correct": true,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 10,
+     "actual": 7,
+     "absError": 3,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 43,
+     "actual": 45,
+     "absError": 2,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 27,
+      "away": 16,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 4
+    },
+    "probabilistic": {
+     "brier": 0.04016,
+     "logLoss": 0.223644
+    }
+   },
+   "marketBenchmark": null
   },
   {
    "canonicalEventId": "nfl-401873002",
+   "providerEventId": "401873002",
    "matchup": "PIT @ TB",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401873002-rev-1649Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "deefd6d92dc170e9",
+    "forecastGeneratedAt": "2026-10-18T16:49:13Z",
+    "revisionChain": [
+     {
+      "file": "401873002.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "3f446fab2d2d5dab"
+     },
+     {
+      "file": "401873002-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "f853129014d64220"
+     },
+     {
+      "file": "401873002-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "2753e57a6921aba7"
+     },
+     {
+      "file": "401873002-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "48c1d14248659615"
+     },
+     {
+      "file": "401873002-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "cde0b117492c3e28"
+     },
+     {
+      "file": "401873002-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "48dd9ea0a32bc576"
+     },
+     {
+      "file": "401873002-rev-1516Z.json",
+      "generatedAt": "2026-10-18T15:16:07Z",
+      "inputHash": "e8d4ae1dbe98ad73"
+     },
+     {
+      "file": "401873002-rev-1603Z.json",
+      "generatedAt": "2026-10-18T16:03:22Z",
+      "inputHash": "2008f67bbb082381"
+     },
+     {
+      "file": "401873002-rev-1621Z.json",
+      "generatedAt": "2026-10-18T16:21:51Z",
+      "inputHash": "5eaed35cf8c9a85a"
+     },
+     {
+      "file": "401873002-rev-1625Z.json",
+      "generatedAt": "2026-10-18T16:25:00Z",
+      "inputHash": "b1df2fc969c6f57c"
+     },
+     {
+      "file": "401873002-rev-1649Z.json",
+      "generatedAt": "2026-10-18T16:49:13Z",
+      "inputHash": "deefd6d92dc170e9"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T22:36:09Z",
+    "settledAt": "2026-10-18T22:43:38Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 19,
+     "away": 26,
+     "margin": -7,
+     "total": 45,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "AWAY",
+     "correct": true,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": -2,
+     "actual": -7,
+     "absError": 5,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 44,
+     "actual": 45,
+     "absError": 1,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 21,
+      "away": 23,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 5
+    },
+    "probabilistic": {
+     "brier": 0.1764,
+     "logLoss": 0.544727
+    }
+   },
+   "marketBenchmark": null
   },
   {
    "canonicalEventId": "nfl-401873003",
+   "providerEventId": "401873003",
    "matchup": "TEN @ IND",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T17:00Z"
+   "kickoffUtc": "2026-10-18T17:00Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401873003-rev-1649Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "19baf09d56c8f9d6",
+    "forecastGeneratedAt": "2026-10-18T16:49:13Z",
+    "revisionChain": [
+     {
+      "file": "401873003.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "17e11c54269a4bf2"
+     },
+     {
+      "file": "401873003-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "2d27ac654db67077"
+     },
+     {
+      "file": "401873003-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "6cebfa6abd50007b"
+     },
+     {
+      "file": "401873003-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "9bd6f4c42a9b37ec"
+     },
+     {
+      "file": "401873003-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "2bc16c4f3a772414"
+     },
+     {
+      "file": "401873003-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "d67775b8cc3c3948"
+     },
+     {
+      "file": "401873003-rev-1516Z.json",
+      "generatedAt": "2026-10-18T15:16:07Z",
+      "inputHash": "1f37852ca98629e9"
+     },
+     {
+      "file": "401873003-rev-1603Z.json",
+      "generatedAt": "2026-10-18T16:03:22Z",
+      "inputHash": "c70aefe1f1ffb800"
+     },
+     {
+      "file": "401873003-rev-1621Z.json",
+      "generatedAt": "2026-10-18T16:21:51Z",
+      "inputHash": "10660bea08371442"
+     },
+     {
+      "file": "401873003-rev-1625Z.json",
+      "generatedAt": "2026-10-18T16:25:00Z",
+      "inputHash": "771fddf53af82d04"
+     },
+     {
+      "file": "401873003-rev-1649Z.json",
+      "generatedAt": "2026-10-18T16:49:13Z",
+      "inputHash": "19baf09d56c8f9d6"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T22:36:09Z",
+    "settledAt": "2026-10-18T22:43:38Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 20,
+     "away": 26,
+     "margin": -6,
+     "total": 46,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 9,
+     "actual": -6,
+     "absError": 15,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 45,
+     "actual": 46,
+     "absError": 1,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 27,
+      "away": 18,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 15
+    },
+    "probabilistic": {
+     "brier": 0.54834,
+     "logLoss": 1.348999
+    }
+   },
+   "marketBenchmark": null
   },
   {
    "canonicalEventId": "nfl-401873004",
+   "providerEventId": "401873004",
    "matchup": "ARI @ LAR",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T20:05Z"
-  },
-  {
-   "canonicalEventId": "nfl-401873005",
-   "matchup": "BUF @ LV",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T20:25Z"
+   "kickoffUtc": "2026-10-18T20:05Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401873004-rev-1954Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "73c3aac3d900374f",
+    "forecastGeneratedAt": "2026-10-18T19:54:05Z",
+    "revisionChain": [
+     {
+      "file": "401873004.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "e33067df099b25ba"
+     },
+     {
+      "file": "401873004-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "d96eb9cde5533d39"
+     },
+     {
+      "file": "401873004-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "30d2af17baa6aed7"
+     },
+     {
+      "file": "401873004-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "cb4d4544b01cdf33"
+     },
+     {
+      "file": "401873004-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "80687eecb9b5e22b"
+     },
+     {
+      "file": "401873004-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "291f4523269ab33b"
+     },
+     {
+      "file": "401873004-rev-1516Z.json",
+      "generatedAt": "2026-10-18T15:16:07Z",
+      "inputHash": "f91f9aa22e8460cf"
+     },
+     {
+      "file": "401873004-rev-1603Z.json",
+      "generatedAt": "2026-10-18T16:03:22Z",
+      "inputHash": "89d2a2a3c950f652"
+     },
+     {
+      "file": "401873004-rev-1621Z.json",
+      "generatedAt": "2026-10-18T16:21:51Z",
+      "inputHash": "d6be61992ea5096e"
+     },
+     {
+      "file": "401873004-rev-1625Z.json",
+      "generatedAt": "2026-10-18T16:25:00Z",
+      "inputHash": "a4cc2467ec082568"
+     },
+     {
+      "file": "401873004-rev-1649Z.json",
+      "generatedAt": "2026-10-18T16:49:13Z",
+      "inputHash": "ffe3685cb464fc04"
+     },
+     {
+      "file": "401873004-rev-1730Z.json",
+      "generatedAt": "2026-10-18T17:30:06Z",
+      "inputHash": "4ae59e754677931f"
+     },
+     {
+      "file": "401873004-rev-1757Z.json",
+      "generatedAt": "2026-10-18T17:57:29Z",
+      "inputHash": "c0e03782f4d714b7"
+     },
+     {
+      "file": "401873004-rev-1818Z.json",
+      "generatedAt": "2026-10-18T18:18:08Z",
+      "inputHash": "39e14923bfcbdc78"
+     },
+     {
+      "file": "401873004-rev-1827Z.json",
+      "generatedAt": "2026-10-18T18:27:44Z",
+      "inputHash": "c9c0aced4cb2579e"
+     },
+     {
+      "file": "401873004-rev-1847Z.json",
+      "generatedAt": "2026-10-18T18:47:34Z",
+      "inputHash": "89f3bdca94b865a1"
+     },
+     {
+      "file": "401873004-rev-1905Z.json",
+      "generatedAt": "2026-10-18T19:05:56Z",
+      "inputHash": "feac0ff3187ea71d"
+     },
+     {
+      "file": "401873004-rev-1931Z.json",
+      "generatedAt": "2026-10-18T19:31:05Z",
+      "inputHash": "b1e3c0257525bf8e"
+     },
+     {
+      "file": "401873004-rev-1954Z.json",
+      "generatedAt": "2026-10-18T19:54:05Z",
+      "inputHash": "73c3aac3d900374f"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T23:26:01Z",
+    "settledAt": "2026-10-18T23:29:13Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 16,
+     "away": 18,
+     "margin": -2,
+     "total": 34,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "HOME",
+     "correct": false,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 10,
+     "actual": -2,
+     "absError": 12,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 53,
+     "actual": 34,
+     "absError": 19,
+     "insideInterval80": false
+    },
+    "score": {
+     "projected": {
+      "home": 32,
+      "away": 21,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 19
+    },
+    "probabilistic": {
+     "brier": 0.613716,
+     "logLoss": 1.529703
+    }
+   },
+   "marketBenchmark": null
   },
   {
    "canonicalEventId": "nfl-401873006",
+   "providerEventId": "401873006",
    "matchup": "LAC @ KC",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-10-18T20:25Z"
+   "kickoffUtc": "2026-10-18T20:25Z",
+   "seasonType": 2,
+   "week": 6,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-10-18/401873006-rev-1954Z.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "dcb2ce7a32ac076d",
+    "forecastGeneratedAt": "2026-10-18T19:54:05Z",
+    "revisionChain": [
+     {
+      "file": "401873006.json",
+      "generatedAt": "2026-10-18T11:46:07Z",
+      "inputHash": "589353151f6bd4d1"
+     },
+     {
+      "file": "401873006-rev-1204Z.json",
+      "generatedAt": "2026-10-18T12:04:38Z",
+      "inputHash": "7291590a13b3cb0b"
+     },
+     {
+      "file": "401873006-rev-1236Z.json",
+      "generatedAt": "2026-10-18T12:36:07Z",
+      "inputHash": "5fdc87f863859dd7"
+     },
+     {
+      "file": "401873006-rev-1254Z.json",
+      "generatedAt": "2026-10-18T12:54:30Z",
+      "inputHash": "e18abd887cc37f7e"
+     },
+     {
+      "file": "401873006-rev-1258Z.json",
+      "generatedAt": "2026-10-18T12:58:45Z",
+      "inputHash": "addaa8cc89459a29"
+     },
+     {
+      "file": "401873006-rev-1312Z.json",
+      "generatedAt": "2026-10-18T13:12:15Z",
+      "inputHash": "96309f9b740c4f78"
+     },
+     {
+      "file": "401873006-rev-1516Z.json",
+      "generatedAt": "2026-10-18T15:16:07Z",
+      "inputHash": "2122625a7132bef2"
+     },
+     {
+      "file": "401873006-rev-1603Z.json",
+      "generatedAt": "2026-10-18T16:03:22Z",
+      "inputHash": "61bd293e53e84ee0"
+     },
+     {
+      "file": "401873006-rev-1621Z.json",
+      "generatedAt": "2026-10-18T16:21:51Z",
+      "inputHash": "d0cec6c93258280e"
+     },
+     {
+      "file": "401873006-rev-1625Z.json",
+      "generatedAt": "2026-10-18T16:25:00Z",
+      "inputHash": "6cfbc0635cf07881"
+     },
+     {
+      "file": "401873006-rev-1649Z.json",
+      "generatedAt": "2026-10-18T16:49:13Z",
+      "inputHash": "718eb66e81d07c80"
+     },
+     {
+      "file": "401873006-rev-1730Z.json",
+      "generatedAt": "2026-10-18T17:30:06Z",
+      "inputHash": "731932c292b5b726"
+     },
+     {
+      "file": "401873006-rev-1757Z.json",
+      "generatedAt": "2026-10-18T17:57:29Z",
+      "inputHash": "3d3a555609825d23"
+     },
+     {
+      "file": "401873006-rev-1818Z.json",
+      "generatedAt": "2026-10-18T18:18:08Z",
+      "inputHash": "e44f04e89239eccc"
+     },
+     {
+      "file": "401873006-rev-1827Z.json",
+      "generatedAt": "2026-10-18T18:27:44Z",
+      "inputHash": "2654942932221f5f"
+     },
+     {
+      "file": "401873006-rev-1847Z.json",
+      "generatedAt": "2026-10-18T18:47:34Z",
+      "inputHash": "8fb39f45d3bbee8b"
+     },
+     {
+      "file": "401873006-rev-1905Z.json",
+      "generatedAt": "2026-10-18T19:05:56Z",
+      "inputHash": "5d563427d365adc5"
+     },
+     {
+      "file": "401873006-rev-1931Z.json",
+      "generatedAt": "2026-10-18T19:31:05Z",
+      "inputHash": "8c9cfe88d488c881"
+     },
+     {
+      "file": "401873006-rev-1954Z.json",
+      "generatedAt": "2026-10-18T19:54:05Z",
+      "inputHash": "dcb2ce7a32ac076d"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-10-18T23:29:13Z",
+    "settledAt": "2026-10-18T23:58:34Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 22,
+     "away": 6,
+     "margin": 16,
+     "total": 28,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "HOME",
+     "correct": true,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 7,
+     "actual": 16,
+     "absError": 9,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 41,
+     "actual": 28,
+     "absError": 13,
+     "insideInterval80": true
+    },
+    "score": {
+     "projected": {
+      "home": 24,
+      "away": 17,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 13
+    },
+    "probabilistic": {
+     "brier": 0.078008,
+     "logLoss": 0.327532
+    }
+   },
+   "marketBenchmark": null
+  }
+ ],
+ "pending": [
+  {
+   "canonicalEventId": "nfl-401873005",
+   "matchup": "BUF @ LV",
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-10-18T20:25Z",
+   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401873007",
@@ -93,24 +1270,24 @@
  "recordElsewhere": [],
  "accounting": {
   "receipts": 13,
-  "settled": 0,
-  "pending": 13,
+  "settled": 10,
+  "pending": 3,
   "quarantined": 0,
   "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 10,
+  "decisive": 10,
   "ties": 0,
-  "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerCorrect": 4,
+  "winnerAccuracy": 0.4,
+  "marginMAE": 9.1,
+  "totalMAE": 10.4,
+  "marginInterval80Coverage": 0.9,
+  "totalInterval80Coverage": 0.7,
+  "brier": 0.3223,
+  "logLoss": 0.8501
  },
  "marketBenchmark": null,
  "comparison": null

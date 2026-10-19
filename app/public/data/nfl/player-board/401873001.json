@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-18T12:04:38Z",
- "sourceGeneratedAt": "2026-10-18T12:04:38Z",
+ "generatedAt": "2026-10-18T16:49:13Z",
+ "sourceGeneratedAt": "2026-10-18T16:49:13Z",
  "providerEventId": "401873001",
  "matchup": "NYJ @ NE",
  "kickoffUtc": "2026-10-18T17:00Z",
@@ -11,8 +11,8 @@
  "week": 6,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-18T12:04:38Z",
-  "roleEvidenceAt": "2026-10-18T12:04:38Z",
+  "injuriesCapturedAt": "2026-10-18T16:49:13Z",
+  "roleEvidenceAt": "2026-10-18T16:49:13Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -165,7 +165,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4808766",
@@ -270,7 +270,7 @@
       "anytime_td",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4361432",
@@ -335,7 +335,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4831959",
@@ -439,6 +439,19 @@
    },
    {
     "team": "NE",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9923,
+    "originalSum": 0.9923,
+    "residualOther": 0.0077,
+    "joined": 9,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "NE",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
@@ -451,30 +464,17 @@
     "state": "CONSERVED"
    },
    {
-    "team": "NE",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.8633,
-    "originalSum": 0.8633,
-    "residualOther": 0.1367,
-    "joined": 8,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
     "team": "NYJ",
     "pool": "targets",
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.7213,
-    "originalSum": 0.7213,
-    "residualOther": 0.2787,
-    "joined": 5,
+    "sum": 0.8859,
+    "originalSum": 0.8859,
+    "residualOther": 0.1141,
+    "joined": 6,
     "missed": 0,
-    "state": "UNDER_ALLOCATED"
+    "state": "CONSERVED"
    }
   ],
   "violations": 0
@@ -592,7 +592,7 @@
    "playerId": "nfl-athlete-4432710",
    "name": "TreVeyon Henderson",
    "team": "NE",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 36.61,
@@ -703,7 +703,7 @@
    "playerId": "nfl-athlete-5083315",
    "name": "Kenyon Sadiq",
    "team": "NYJ",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 27.388,
@@ -733,7 +733,7 @@
    "playerId": "nfl-athlete-4047646",
    "name": "A.J. Brown",
    "team": "NE",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 18,

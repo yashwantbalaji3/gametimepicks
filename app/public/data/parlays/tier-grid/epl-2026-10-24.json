@@ -1,0 +1,272 @@
+{
+ "schemaVersion": 1,
+ "artifact": "parlay-tier-grid",
+ "dataClass": "DERIVED_POLICY_VIEW",
+ "moneyClass": "NON_MONEY",
+ "sport": "epl",
+ "date": "2026-10-24",
+ "generatedAt": "2026-10-18T22:59:32Z",
+ "state": "PUBLISHED",
+ "bandsUnreachable": [
+  "low",
+  "longshot"
+ ],
+ "calmestAvailable": "medium",
+ "tiers": [
+  {
+   "id": "bronze",
+   "minBankroll": 0,
+   "maxBankroll": 50,
+   "cardsPerDay": 1,
+   "bands": [
+    "low"
+   ],
+   "offered": 0,
+   "emptyToday": true,
+   "substitute": {
+    "band": "medium",
+    "slipId": "epl-medium-2026-10-24",
+    "reason": "Nothing on today's board priced in this range. The calmest card available is medium risk, which is a longer price than this bankroll is normally shown — its own record is attached."
+   }
+  },
+  {
+   "id": "silver",
+   "minBankroll": 50,
+   "maxBankroll": 100,
+   "cardsPerDay": 2,
+   "bands": [
+    "low",
+    "medium"
+   ],
+   "offered": 1,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "gold",
+   "minBankroll": 100,
+   "maxBankroll": 250,
+   "cardsPerDay": 3,
+   "bands": [
+    "low",
+    "medium",
+    "high"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "diamond",
+   "minBankroll": 250,
+   "maxBankroll": null,
+   "cardsPerDay": 4,
+   "bands": [
+    "low",
+    "medium",
+    "high",
+    "longshot"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  }
+ ],
+ "cells": [
+  {
+   "tier": "bronze",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no combination of today's prices lands in this band — 2 legs → +116 (medium) … +424 (high)"
+  },
+  {
+   "tier": "bronze",
+   "band": "medium",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no combination of today's prices lands in this band — 2 legs → +116 (medium) … +424 (high)"
+  },
+  {
+   "tier": "silver",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "epl-medium-2026-10-24",
+   "reason": null
+  },
+  {
+   "tier": "silver",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "gold",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no combination of today's prices lands in this band — 2 legs → +116 (medium) … +424 (high)"
+  },
+  {
+   "tier": "gold",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "epl-medium-2026-10-24",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "high",
+   "state": "OFFERED",
+   "slipId": "epl-high-2026-10-24",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 3 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "diamond",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no combination of today's prices lands in this band — 2 legs → +116 (medium) … +424 (high)"
+  },
+  {
+   "tier": "diamond",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "epl-medium-2026-10-24",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "high",
+   "state": "OFFERED",
+   "slipId": "epl-high-2026-10-24",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "longshot",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "not enough eligible priced fixtures to build a card"
+  }
+ ],
+ "cards": [
+  {
+   "band": "medium",
+   "slipId": "epl-medium-2026-10-24",
+   "combinedAmerican": 116,
+   "combinedDecimal": 2.156,
+   "legs": [
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:arsenal-v-everton:20261024t1400",
+     "player": null,
+     "matchup": "Arsenal v Everton",
+     "kickoffUtc": "2026-10-24T14:00:00Z",
+     "team": "Arsenal",
+     "market": "match_result",
+     "marketLabel": "Match result",
+     "side": "home",
+     "line": null,
+     "odds": -247,
+     "decimal": 1.4048582995951417,
+     "books": 10
+    },
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:chelsea-v-tottenham-hotspur:20261024t1630",
+     "player": null,
+     "matchup": "Chelsea v Tottenham Hotspur",
+     "kickoffUtc": "2026-10-24T16:30:00Z",
+     "team": null,
+     "market": "total_goals",
+     "marketLabel": "Total goals 2.5",
+     "side": "over",
+     "line": 2.5,
+     "odds": -187,
+     "decimal": 1.53475935828877,
+     "books": 1
+    }
+   ],
+   "status": "pending",
+   "record": null
+  },
+  {
+   "band": "high",
+   "slipId": "epl-high-2026-10-24",
+   "combinedAmerican": 312,
+   "combinedDecimal": 4.12,
+   "legs": [
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:aston-villa-v-manchester-city:20261024t1130",
+     "player": null,
+     "matchup": "Aston Villa v Manchester City",
+     "kickoffUtc": "2026-10-24T11:30:00Z",
+     "team": null,
+     "market": "total_goals",
+     "marketLabel": "Total goals 3",
+     "side": "under",
+     "line": 3,
+     "odds": -101,
+     "decimal": 1.99009900990099,
+     "books": 4
+    },
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:coventry-city-v-fulham:20261024t1400",
+     "player": null,
+     "matchup": "Coventry City v Fulham",
+     "kickoffUtc": "2026-10-24T14:00:00Z",
+     "team": null,
+     "market": "total_goals",
+     "marketLabel": "Total goals 2.5",
+     "side": "under",
+     "line": 2.5,
+     "odds": 107,
+     "decimal": 2.0700000000000003,
+     "books": 4
+    }
+   ],
+   "status": "pending",
+   "record": null
+  }
+ ],
+ "note": "A policy view of cards published by the risk ladder. No stake is baked in: bankroll is entered in the reader's own browser and never leaves it. Paper-only, educational; not advice."
+}
