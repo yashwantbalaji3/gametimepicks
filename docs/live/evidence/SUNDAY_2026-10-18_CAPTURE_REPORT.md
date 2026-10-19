@@ -155,3 +155,22 @@ Passes: 576 (2026-10-16T20:30:47Z → 2026-10-19T00:05:11Z); with requests: 135;
 ## Notes
 
 - 401873000: no live-props artifact on main during the window (in-game player progress rests on the gateway envelopes)
+
+## Final acceptance (watcher closed 2026-10-19 17:00Z)
+
+All three games reached canonical settlement on `main`, and Production served each one.
+
+| Game | Provisional final on main | Canonical on main | Production READY | Prop-settlement rows |
+|---|---|---|---|---|
+| HOU – JAX | 10-18 17:31Z | 10-18 22:37Z (`4aae3effb2`) | 22:41Z | 59 (50 observed, 9 no-measurement) |
+| NO – NYG | 10-18 22:37Z | **10-19 16:39Z** (`db689f2eae`) | 16:37Z | 66 (50 observed, 16 no-measurement) |
+| BUF – LV | 10-19 00:00Z | **10-19 16:39Z** (`db689f2eae`) | 16:37Z | 61 (51 observed, 10 no-measurement) |
+
+**What held throughout:**
+- Frozen forecasts and frozen live-props values were unchanged across every pass.
+- Every row is canonical; none is provisional.
+- Directional outcomes decided: 0. No authorized market line was captured (odds credit ceiling), so no W/L is claimed.
+
+**Exceptions:**
+- NO – NYG and BUF – LV took about 15.6 h and 16.6 h from provisional to canonical. The cause is the late `nfl-event-window` cron delivery documented in `docs/live/NFL_LIVE_TRACKING_INVESTIGATION_2026-10-19.md`: promotion needs a run more than 3 h after the final, and the first one came the next afternoon. The investigation's fix is a post-final waiter, pending a founder decision.
+- The two single-pass PAT-timing score mismatches noted above were transient.
