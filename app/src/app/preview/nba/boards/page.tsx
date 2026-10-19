@@ -55,7 +55,7 @@ export default function NbaBoardsPreviewPage() {
   const { origin, doc, note } = loadBoards();
   const meta: TopBoardMeta | null = doc ? {
     date: doc.date, family: doc.family, modelVersion: doc.modelVersion ?? null,
-    minExpectedMinutes: ELIGIBILITY.minExpectedMinutes, maxMinutesCv: ELIGIBILITY.maxMinutesCv, maxRows: BOARD_MAX_ROWS,
+    minExpectedMinutes: ELIGIBILITY.minExpectedMinutes, maxMinutesCv: ELIGIBILITY.maxMinutesCv, minPlayRate: ELIGIBILITY.minPlayRate, maxRows: BOARD_MAX_ROWS,
   } : null;
   const editions: TopBoardEdition[] = doc ? [...doc.editions].reverse() : [];
 

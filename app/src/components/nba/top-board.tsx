@@ -34,7 +34,10 @@ export interface TopBoardRow {
   eventId: string;
   tipoffUtc: string;
   projection: { p50: number; mean: number };
-  range: { p10: number; p90: number };
+  range: { p10: number; p25?: number; p75?: number; p90: number };
+  /** Share of simulated draws in which he played (families with conditional quantiles, e.g. v1); null otherwise. */
+  playRate: number | null;
+  quantileConditioning: "CONDITIONAL_ON_PLAYING" | "AS_SIMULATED";
   expectedMinutes: number | null;
   minutesSd: number | null;
   injuryStatus: string | null;
@@ -75,6 +78,7 @@ export interface TopBoardMeta {
   modelVersion: string | null;
   minExpectedMinutes: number;
   maxMinutesCv: number;
+  minPlayRate: number;
   maxRows: number;
 }
 
@@ -95,6 +99,7 @@ export const WITHHELD_WORDS: Record<string, string> = {
   AVAILABILITY_UNVERIFIED: "Availability not confirmed",
   TEAM_POOL_FALLBACK_RATES: "Rates borrowed from the team average",
   LOW_EXPECTED_MINUTES: "Expected minutes below the floor",
+  LOW_PLAY_RATE: "Model gives a real chance he does not play",
   MINUTES_TOO_UNCERTAIN: "Minutes estimate too uncertain",
   MISSING_DISTRIBUTION: "Projection range incomplete",
 };
@@ -181,6 +186,7 @@ function PlayerCard({ row, label, scaleMax }: { row: TopBoardRow; label: string;
         <RangeBar row={row} scaleMax={scaleMax} label={label} />
         <div className="tb-chips">
           <span className="tb-chip">Expected minutes {num(row.expectedMinutes)}</span>
+          {typeof row.playRate === "number" ? <span className="tb-chip">Plays in {Math.round(row.playRate * 100)}% of simulations · range if he plays</span> : null}
           {row.injuryStatus ? <span className="tb-chip" data-tone="warn">Injury report: {row.injuryStatus}</span> : null}
           {row.flags.includes("TRADED_HISTORY_OTHER_TEAM") ? <span className="tb-chip" data-tone="warn">History from a previous team</span> : null}
           <span className="tb-chip">No market line — model projection only</span>
@@ -271,7 +277,8 @@ export default function TopBoard({ edition, meta, initialCategory = "points" }: 
           not on the injury report at all (day-to-day included), has his own recent-game history and per-minute rates,
           is expected to play at least {meta.minExpectedMinutes} minutes, and his minutes estimate is not too uncertain
           (spread at most {Math.round(meta.maxMinutesCv * 100)}% of the estimate). Games that had tipped when the board
-          was frozen are excluded. The board holds at most {meta.maxRows} and is never padded.
+          was frozen are excluded. Where a model&apos;s ranges are conditional on playing, he must play in at least
+          {" "}{Math.round(meta.minPlayRate * 100)}% of its simulations. The board holds at most {meta.maxRows} and is never padded.
         </p>
         <p style={{ margin: "6px 0 0" }}>
           The bar shows the 10th to 90th percentile of the model&apos;s simulated outcomes, with the median marked. It is a

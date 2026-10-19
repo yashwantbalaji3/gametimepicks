@@ -25,11 +25,14 @@ test("thresholds and policies are pinned (changing one is a decision, not a refa
   assert.equal(ELIGIBILITY.minExpectedMinutes, 20, "preregistration §6 graded population");
   assert.equal(ELIGIBILITY.maxMinutesCv, 0.35, "≈ 90th percentile of minutesSd/expectedMinutes on committed v0.1 preseason rows");
   assert.equal(ELIGIBILITY.tradedHistoryPolicy, "INCLUDE_WITH_FLAG");
+  assert.equal(ELIGIBILITY.minPlayRate, 0.95, "conditional-on-playing families (v1)");
+  assert.equal(ELIGIBILITY.minGamesUsed, 3, "minutes-model MIN_GAMES_FOR_RATES");
+  assert.deepEqual([...ELIGIBILITY.playerRateBases], ["player-window", "v1-shrunk-to-league"]);
   assert.equal(BOARD_MAX_ROWS, 10);
   assert.deepEqual(CATEGORIES.map((c) => [c.key, c.stat]), [["points", "pts"], ["rebounds", "reb"], ["assists", "ast"], ["threes", "threePm"]]);
   assert.deepEqual(ELIGIBILITY_RULES.map((r) => r.id), [
     "MISSING_ATHLETE_ID", "AVAILABILITY_OUT", "INJURY_DESIGNATION", "INSUFFICIENT_HISTORY", "NULL_MINUTES",
-    "AVAILABILITY_UNVERIFIED", "TEAM_POOL_FALLBACK_RATES", "LOW_EXPECTED_MINUTES", "MINUTES_TOO_UNCERTAIN", "MISSING_DISTRIBUTION",
+    "AVAILABILITY_UNVERIFIED", "LOW_PLAY_RATE", "TEAM_POOL_FALLBACK_RATES", "LOW_EXPECTED_MINUTES", "MINUTES_TOO_UNCERTAIN", "MISSING_DISTRIBUTION",
   ]);
   assert.match(RANKING.rule, /p50 desc, then frozen mean desc, then providerAthleteId asc/);
 });
@@ -45,6 +48,10 @@ const CASES = [
   ["INJURY_DESIGNATION", player(1, { injuryStatus: "Day-To-Day" })],
   ["INJURY_DESIGNATION", player(1, { injuryStatus: "Questionable" })],
   ["INSUFFICIENT_HISTORY", player(1, { basis: "insufficient" })],
+  ["INSUFFICIENT_HISTORY", player(1, { basis: "v1-blended-history", gamesUsed: 2, ratesBasis: "v1-shrunk-to-league" })],
+  ["LOW_PLAY_RATE", player(1, { playRate: 0.9499, conditioning: "quantiles over the draws in which the player played" })],
+  ["LOW_PLAY_RATE", player(1, { conditioning: "quantiles over the draws in which the player played" })],
+  ["TEAM_POOL_FALLBACK_RATES", player(1, { ratesBasis: "something-new" })],
   ["NULL_MINUTES", player(1, { expectedMinutes: null })],
   ["AVAILABILITY_UNVERIFIED", player(1, { availability: "unknown" })],
   ["TEAM_POOL_FALLBACK_RATES", player(1, { ratesBasis: "team-pool-fallback" })],
@@ -62,6 +69,11 @@ for (const [rule, mutated] of CASES) {
     assert.deepEqual(eligibilityReasons(mutated, ctx, without(rule)), [], `${rule}: with the rule removed the player would be ranked`);
   });
 }
+
+test("v1 row shape: own shrunk rates and blended history are eligible; playRate exactly 0.95 passes", () => {
+  const v1 = player(1, { basis: "v1-blended-history", ratesBasis: "v1-shrunk-to-league", gamesUsed: 40, playRate: 0.95, conditioning: "quantiles over the draws in which the player played" });
+  assert.deepEqual(eligibilityReasons(v1, ctx), []);
+});
 
 test("boundaries: exactly 20 expected minutes and exactly the minutes ratio 0.35 are eligible", () => {
   assert.deepEqual(eligibilityReasons(player(1, { expectedMinutes: 20, minutesSd: 7 }), ctx), []);
@@ -195,4 +207,30 @@ test("frozenEditionViolations catches a rewritten row, a removed edition and a g
 test("refuses a forecast from another family and a missing source hash", () => {
   assert.throws(() => buildBoardEdition({ artifact: artifact([], { family: "v0.2" }), sourceSha256: SHA, frozenAt: FROZEN_AT, family: "v0.1" }), /REFUSED/);
   assert.throws(() => buildBoardEdition({ artifact: artifact([]), sourceSha256: "nope", frozenAt: FROZEN_AT, family: "v0.1" }), /sourceSha256/);
+});
+
+test("REAL v1 rows (trimmed dev fixture with provenance): playRate rule, Day-To-Day, traded flag, and the row carries playRate", async () => {
+  const fx = JSON.parse(await import("node:fs").then((fs) => fs.readFileSync(new URL("./__fixtures__/nba-v1-2026-10-20-trimmed.json", import.meta.url), "utf8")));
+  assert.match(fx.provenance.note, /TRIMMED DEV FIXTURE/);
+  assert.equal(fx.provenance.family, "v1");
+  const byName = Object.fromEntries(fx.rows.map((r) => [r.player.name, r.player]));
+  assert.deepEqual(eligibilityReasons(byName["Cade Cunningham"], ctx), [], "playRate 0.9728, own history → eligible");
+  assert.ok(eligibilityReasons(byName["Daniss Jenkins"], ctx).includes("LOW_PLAY_RATE"), "playRate 0.946");
+  assert.ok(eligibilityReasons(byName["Elijah Harkless"], ctx).includes("LOW_PLAY_RATE"), "playRate 0.787");
+  assert.deepEqual(eligibilityReasons(byName["Josh Hart"], ctx), ["INJURY_DESIGNATION"]);
+  assert.deepEqual(eligibilityReasons(byName["Taurean Prince"], ctx), []);
+  // through the board: a v1-family game built from those real rows (the fixture game is re-stamped — synthetic receipt)
+  const home = [byName["Cade Cunningham"], byName["Daniss Jenkins"], byName["Josh Hart"]];
+  const away = [byName["Elijah Harkless"], byName["Taurean Prince"]];
+  const g = game("fx-v1", { home, away, family: "v1", modelVersion: "nba-sim-v1-coherent" });
+  const e = buildBoardEdition({ artifact: { ...artifact([g]), family: "v1", modelVersion: "nba-sim-v1-coherent" }, sourceSha256: SHA, frozenAt: FROZEN_AT, family: "v1" });
+  const rows = e.boards.points.rows;
+  assert.deepEqual(rows.map((r) => r.player.name).sort(), ["Cade Cunningham", "Taurean Prince"]);
+  const cade = rows.find((r) => r.player.name === "Cade Cunningham");
+  assert.equal(cade.playRate, 0.9728);
+  assert.equal(cade.modelVersion, "nba-sim-v1-coherent");
+  assert.equal(cade.quantileConditioning, "CONDITIONAL_ON_PLAYING");
+  assert.deepEqual(Object.keys(cade.range), ["p10", "p25", "p75", "p90"]);
+  assert.deepEqual(rows.find((r) => r.player.name === "Taurean Prince").flags, [FLAGS.TRADED_HISTORY_OTHER_TEAM], "historyBasis other-team on the row");
+  assert.equal(e.boards.points.withheld.byPrimaryReason.LOW_PLAY_RATE, 2);
 });

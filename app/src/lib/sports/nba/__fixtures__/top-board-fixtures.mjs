@@ -22,14 +22,14 @@ export function player(id, { pts = 20, reb = 6, ast = 4, threePm = 2, ...over } 
 }
 
 /** One forecast game with a valid receipt. */
-export function game(id, { tip = "2026-11-01T23:30Z", home = [], away = [], generatedAt = "2026-11-01T15:00:00Z", family = "v0.1", pool = null } = {}) {
+export function game(id, { tip = "2026-11-01T23:30Z", home = [], away = [], generatedAt = "2026-11-01T15:00:00Z", family = "v0.1", pool = null, modelVersion = "nba-preseason-experimental-v0.1" } = {}) {
   const g = {
     providerEventId: String(id), label: "NBA REGULAR SEASON — SHADOW", seasonType: 2, population: "regular", dateUtc: tip, etDate: "2026-11-01",
     home: { name: "Fixture Home", abbr: "BOS", providerTeamId: "2", ...(pool?.home ? { pool: pool.home } : {}) },
     away: { name: "Fixture Away", abbr: "NY", providerTeamId: "18", ...(pool?.away ? { pool: pool.away } : {}) },
     forecast: { modelVersion: "nba-sim-fixture", inputAsOf: generatedAt, players: { home, away } },
   };
-  return stampReceipt(g, { family, modelVersion: "nba-preseason-experimental-v0.1", now: generatedAt, inputs: { fixture: FIXTURE_NOTE } });
+  return stampReceipt(g, { family, modelVersion, now: generatedAt, inputs: { fixture: FIXTURE_NOTE } });
 }
 
 export function artifact(games, { date = "2026-11-01", generatedAt = "2026-11-01T15:00:00Z", family = "v0.1" } = {}) {

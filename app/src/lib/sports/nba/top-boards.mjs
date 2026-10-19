@@ -56,11 +56,26 @@ export const NO_CONFIDENCE = Object.freeze({
  *   among otherwise-eligible rows (trailing10 basis, ≥ 20 expected minutes, n = 397) the ratio's median is 0.197 and its
  *   90th percentile 0.346; 0.35 withholds the top decile — the rows whose minutes the model itself says it does not know
  *   (a ±1 SD swing of more than a third of the minutes). A row with no measured minutes spread is withheld the same way.
+ *   (v1 on the opening-night 2026-10-20 build: median 0.252, 90th percentile 0.336 among ≥ 20-minute rows — 3 of 38 withheld.)
+ * minPlayRate 0.95 (families whose quantiles are CONDITIONAL on playing — v1 `nba-sim-v1-coherent`, whose rows carry
+ *   `playRate` = share of simulated draws with minutes > 0 and `conditioning`): a board projection is read as "what he
+ *   does tonight", so a row whose model gives him a ≥ 5 % chance of not playing at all would show a conditional median
+ *   that overstates his unconditional one. 0.95 keeps the two within one draw in twenty; on the 2026-10-20 v1 build the
+ *   median playRate is 0.971 and 2 of 38 ≥ 20-minute rows fall below it. A conditional row with no playRate is withheld.
+ *   Families without conditional quantiles (v0 / v0.1 / v0.2 carry neither field) are not subject to it.
+ * minGamesUsed 3: the minutes model's own MIN_GAMES_FOR_RATES — fewer appearances than that is "insufficient history"
+ *   whatever the basis label says (v1 labels every row "v1-blended-history").
+ * playerRateBases: per-minute rates must come from the player's OWN history — v0.x "player-window", v1
+ *   "v1-shrunk-to-league" (his history shrunk toward league rates by its own weight). "team-pool-fallback" and any
+ *   unknown label are withheld (fail closed).
  */
 export const ELIGIBILITY = Object.freeze({
   version: "nba-top-board-eligibility@1",
   minExpectedMinutes: 20,
   maxMinutesCv: 0.35,
+  minPlayRate: 0.95,
+  minGamesUsed: 3,
+  playerRateBases: Object.freeze(["player-window", "v1-shrunk-to-league"]),
   tradedHistoryPolicy: "INCLUDE_WITH_FLAG",
 });
 
@@ -106,8 +121,8 @@ export const ELIGIBILITY_RULES = Object.freeze([
   }),
   Object.freeze({
     id: "INSUFFICIENT_HISTORY", scope: "player",
-    description: "minutes basis \"insufficient\" (fewer than 3 appearances in the season window)",
-    fails: (p) => p?.basis === "insufficient",
+    description: "minutes basis \"insufficient\", or fewer than 3 appearances used (the minutes model's MIN_GAMES_FOR_RATES)",
+    fails: (p) => p?.basis === "insufficient" || (isNum(p?.gamesUsed) && p.gamesUsed < ELIGIBILITY.minGamesUsed),
   }),
   Object.freeze({
     id: "NULL_MINUTES", scope: "player",
@@ -120,9 +135,14 @@ export const ELIGIBILITY_RULES = Object.freeze([
     fails: (p) => p?.availability !== "active" && p?.availability !== "out",
   }),
   Object.freeze({
+    id: "LOW_PLAY_RATE", scope: "player",
+    description: `conditional-on-playing quantiles with playRate below ${ELIGIBILITY.minPlayRate} (or no playRate recorded)`,
+    fails: (p) => (p?.conditioning != null || p?.playRate !== undefined) && !(isNum(p?.playRate) && p.playRate >= ELIGIBILITY.minPlayRate),
+  }),
+  Object.freeze({
     id: "TEAM_POOL_FALLBACK_RATES", scope: "player",
-    description: "per-minute rates borrowed from the team pool, not the player's own window",
-    fails: (p) => p?.ratesBasis !== "player-window",
+    description: "per-minute rates not from the player's own history (team-pool fallback, or an unknown basis)",
+    fails: (p) => !ELIGIBILITY.playerRateBases.includes(p?.ratesBasis),
   }),
   Object.freeze({
     id: "LOW_EXPECTED_MINUTES", scope: "player",
@@ -279,7 +299,9 @@ export function buildBoardEdition({ artifact, sourceSha256, sourcePath = null, f
       eventId: String(c.g.providerEventId),
       tipoffUtc: c.g.dateUtc,
       projection: { p50: c.dist.p50, mean: c.dist.mean },
-      range: { p10: c.dist.p10, p90: c.dist.p90 },
+      range: { p10: c.dist.p10, ...(isNum(c.dist.p25) ? { p25: c.dist.p25 } : {}), ...(isNum(c.dist.p75) ? { p75: c.dist.p75 } : {}), p90: c.dist.p90 },
+      playRate: isNum(c.p.playRate) ? c.p.playRate : null,
+      quantileConditioning: c.p.conditioning != null ? "CONDITIONAL_ON_PLAYING" : "AS_SIMULATED",
       expectedMinutes: r2(c.p.expectedMinutes),
       minutesSd: r2(c.p.minutesSd),
       injuryStatus: c.p.injuryStatus ?? null,
