@@ -2,29 +2,29 @@
   "schemaVersion": 1,
   "artifact": "nfl-product-receipts",
   "dataClass": "PUBLIC_DERIVED",
-  "runId": "e7f6678c8121",
-  "generatedAt": "2026-10-18T18:27:44Z",
+  "runId": "5e42a918bcf1",
+  "generatedAt": "2026-10-18T23:58:34Z",
   "asOf": {
-    "index": "2026-10-18T18:27:44Z",
-    "eligibility": "2026-10-18T18:27:44Z",
-    "vault": "2026-10-18T18:27:44Z",
+    "index": "2026-10-18T23:58:34Z",
+    "eligibility": "2026-10-18T23:58:34Z",
+    "vault": "2026-10-18T23:58:34Z",
     "markets": "2026-10-11T11:41:55Z"
   },
-  "nextRunUtc": "2026-10-18T21:00:00Z",
-  "eventsInWindow": 5,
+  "nextRunUtc": "2026-10-19T14:30:00Z",
+  "eventsInWindow": 2,
   "lanes": [
     {
       "product": "bank-builder",
       "label": "Bank Builder",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 5,
+      "candidatesConsidered": 2,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 5
+          "count": 2
         }
       ],
       "reconciles": true,
@@ -37,13 +37,13 @@
       "label": "Moonshot",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 5,
+      "candidatesConsidered": 2,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 5
+          "count": 2
         }
       ],
       "reconciles": true,
@@ -56,13 +56,13 @@
       "label": "Card builder",
       "state": "NO_PLAY",
       "stateReason": "every candidate was rejected; see the taxonomy below",
-      "candidatesConsidered": 5,
+      "candidatesConsidered": 2,
       "rejections": [
         {
           "reason": "NOT_VALIDATED_MODEL",
           "label": "the team model is experimental, not validated",
           "detail": "output-state.permitsProductLeg is true only for VALIDATED_PICK. The shipped champion is BASELINE_ONLY and the Program 181 challenger was rejected against bars frozen before it was built.",
-          "count": 5
+          "count": 2
         }
       ],
       "reconciles": true,
@@ -74,14 +74,14 @@
       "product": "end-zone-vault",
       "label": "End Zone Vault",
       "state": "NO_PLAY",
-      "stateReason": "68 model candidates · no current comparable touchdown price is available",
-      "candidatesConsidered": 68,
+      "stateReason": "27 model candidates · no current comparable touchdown price is available",
+      "candidatesConsidered": 27,
       "rejections": [
         {
           "reason": "NO_PRICED_MARKET",
           "label": "no NFL player-market price was captured for these games — the market was not checked in this window",
           "detail": "an unpriced leg can never enter a paper product — there is nothing to settle it against.",
-          "count": 68
+          "count": 27
         }
       ],
       "alsoBlocking": [
@@ -102,7 +102,7 @@
     "gates": [
       "the team model is BASELINE_ONLY (the P181 challenger was rejected on bars frozen before it was built)",
       "all four player families were rejected on their own frozen bars (P183 Release B)",
-      "no NFL player-market price was captured for these games — the market was not checked in this window (games probed in this window: 0 of 5)"
+      "no NFL player-market price was captured for these games — the market was not checked in this window (games probed in this window: 0 of 2)"
     ]
   },
   "recordSeparation": "NFL product outcomes are kept separate from every other sport's record and touch no money.",

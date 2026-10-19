@@ -45,11 +45,31 @@ const newestCovering = (list, min) => {
 
 const simulated = (a) => a.games.filter((g) => g && g.runs && g.winProbability && g.status !== "unavailable");
 
+const roundedMeanDiffers = (g) => Math.round(g.runs.away.mean) !== g.runs.away.median || Math.round(g.runs.home.mean) !== g.runs.home.median;
+const roundedMeanTies = (g) => Math.round(g.runs.away.mean) === Math.round(g.runs.home.mean) && g.runs.away.median !== g.runs.home.median;
+
+/* 2026-10-18 · THE SAMPLE MUST CONTAIN THE DEFECT IT GUARDS AGAINST. The newest slates covering ≥5 games can,
+   in the postseason, hold no game where a rounded mean contradicts the median (10-14..10-18: 5 games, 0 differ),
+   which left the anti-vacuity guard red on plain main with nothing broken. So the sample is the newest covering
+   set EXTENDED, newest-first, until it also holds at least one contradicting game and one rounded-mean tie — and
+   every guard below runs over that whole sample, so the median rule is checked on exactly the games where a
+   rounded mean would have said something different. The bar never drops; the sample only grows. */
+const guardSample = () => {
+  const withGames = slates().filter((a) => simulated(a).length);
+  const out = newestCovering(withGames, 5);
+  const has = (pred) => out.some((a) => simulated(a).some(pred));
+  for (const a of withGames.slice(out.length)) {
+    if (has(roundedMeanDiffers) && has(roundedMeanTies)) break;
+    out.push(a);
+  }
+  return out;
+};
+
 test("the canonical projected score IS the median, and it carries its own label", () => {
   const withGames = slates().filter((a) => simulated(a).length);
   assert.ok(withGames.length, "no committed MLB slate carries a simulation — this guard would be vacuous");
   let checked = 0;
-  for (const a of newestCovering(withGames, 5)) {
+  for (const a of guardSample()) {
     for (const g of simulated(a)) {
       const d = buildGamePredictionDecision(g, []);
       if (!d.projectedScore) continue;
@@ -74,12 +94,11 @@ test("a rounded mean really does contradict the median on real slate data", () =
   /* Sample the SAME slates the guards check — the newest three that carry a simulation. The newest FILES
      can be an empty off-day artifact (2026-09-28: 0 games) or a slate whose rows are all unsimulated
      (09-27: 15 rows, 0 simulated); sampling those made this guard report itself vacuous at season end. */
-  for (const a of newestCovering(slates().filter((x) => simulated(x).length), 5)) {
+  for (const a of guardSample()) {
     for (const g of simulated(a)) {
       games += 1;
-      const rA = Math.round(g.runs.away.mean), rH = Math.round(g.runs.home.mean);
-      if (rA !== g.runs.away.median || rH !== g.runs.home.median) differs += 1;
-      if (rA === rH && g.runs.away.median !== g.runs.home.median) ties += 1;
+      if (roundedMeanDiffers(g)) differs += 1;
+      if (roundedMeanTies(g)) ties += 1;
     }
   }
   assert.ok(games >= 5, `only ${games} simulated games available — guard is vacuous`);
