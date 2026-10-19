@@ -124,3 +124,18 @@ test("G2 · the pre-tip window: free, own concurrency group, injuries → v0 →
   assert.match(body, /--family v0\.2 --horizon-hours 8 \\\n[^\n]*\|\| echo "::warning::/, "v0.2 refusal warns, never fails");
   assert.match(body, /git add [^\n]*experimental-v0\.2\//, "the challenger's directory is committed with the others");
 });
+
+test("roster backstop: a stale (> 30 h) roster is re-captured BEFORE the roster-gated builds; only normalised files are staged", () => {
+  const body = fs.readFileSync(WINDOW, "utf8").replace(/^\s*#.*$/gm, "");
+  const cap = body.indexOf("capture-nba-rosters.mjs --now \"$NOW\"");
+  assert.ok(cap > 0, "the window can re-capture the roster");
+  assert.match(body, /if \[ "\$ROSTER_AGE_H" -gt 30 \]; then/, "only when sport-schedules has missed its day (> 30 h), so the two writers do not capture the same day");
+  assert.ok(cap < body.indexOf("capture-injuries.mjs"), "roster before injuries");
+  assert.ok(cap < body.indexOf("--family v0.1 --horizon-hours 8"), "roster before the roster-gated family reads it");
+  // A failed capture must never fail the run or block v0 (the gate decides on the committed capture).
+  assert.match(body, /capture-nba-rosters\.mjs --now "\$NOW"; then ROSTER_CAPTURED=1\n\s+else echo "::warning::/);
+  const rosterAdds = (body.match(/git add [^\n]*/g) ?? []).filter((l) => l.includes("rosters"));
+  assert.equal(rosterAdds.length, 1);
+  assert.doesNotMatch(rosterAdds[0], /rosters\/(\s|"|$)|raw/, "never the whole rosters tree or raw payloads");
+  assert.ok(body.indexOf(rosterAdds[0]) > body.indexOf("verify-nba-forecast-receipts.mjs --against HEAD"), "staged after the frozen-game guard, with the injuries snapshot");
+});

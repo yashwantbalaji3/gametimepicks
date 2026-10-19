@@ -83,6 +83,19 @@ jobs:
           for ATTEMPT in 1 2 3; do
             git reset -q --hard origin/main
             NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            # ROSTER BACKSTOP. v0.1 / v0.2 refuse a roster older than ROSTER_MAX_AGE_HOURS (48 h). sport-schedules owns
+            # the daily capture, but its cron arrives hours late and can be dropped; one missed day leaves opening
+            # night's late games (PHI @ NY, OKC @ SA) facing ROSTER_STALE. So when the committed capture is older than
+            # 30 h — i.e. sport-schedules has missed its day — re-capture here (free ESPN, no key) at the forecast's own
+            # instant. Under 30 h nothing is fetched, so the two writers never capture the same day in the normal case.
+            # A failed capture writes nothing (exit 2 leaves latest.json untouched) and the gate decides as before.
+            ROSTER_CAPTURED=0
+            ROSTER_AGE_H="$(node -e 'const r=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));const a=Date.parse(r.asOf??r.capturedAt??"");console.log(Number.isFinite(a)?Math.floor((Date.parse(process.argv[2])-a)/3600000):9999)' ../data/internal/research/nba/rosters/latest.json "$NOW" 2>/dev/null || echo 9999)"
+            if [ "$ROSTER_AGE_H" -gt 30 ]; then
+              echo "::notice::roster capture is ${ROSTER_AGE_H} h old (> 30 h) — re-capturing before the build"
+              if node scripts/nba/capture-nba-rosters.mjs --now "$NOW"; then ROSTER_CAPTURED=1
+              else echo "::warning::roster re-capture failed — the roster gate decides on the committed capture"; fi
+            fi
             # G4 — injuries first, at the forecast's own instant. A failed capture writes nothing (last-known-good
             # stands) and the receipt records that snapshot's real age; it never blocks the forecast.
             node scripts/sports/capture-injuries.mjs --now "$NOW" \
@@ -108,6 +121,10 @@ jobs:
             node scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD || exit 1
             # The exact injury snapshot the receipts hash, so the hash can be checked against history.
             git add ../data/internal/research/injuries/nba/latest.json
+            # The roster the receipts hash, when this run re-captured it (normalised files only; raw/ is never committed).
+            if [ "$ROSTER_CAPTURED" = "1" ]; then
+              git add ../data/internal/research/nba/rosters/latest.json "../data/internal/research/nba/rosters/${NOW:0:10}.json"
+            fi
             git commit -q -m "auto: nba pre-tip forecast window $NOW [skip ci]"
             if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; exit 0; fi
             # Lost a race with another writer: re-plan on the new main (the write-once builder makes that correct).
