@@ -49,6 +49,10 @@
 # a dry run (any case); and the runner itself forces --dry-run --once unless NBA_FINALS_WAITER_ENABLED is exactly
 # 'true'. A disabled waiter never dispatches and never relays, on any trigger. Dry runs use their own concurrency
 # group (never queued behind, or replacing, a live run) and print no ledger lines (never suppressing a live alert).
+# EXPIRY (GitHub-side, independent of any local controller): a live run ALSO needs the repository variable
+#     NBA_FINALS_WAITER_EXPIRES_AT = an ISO instant like 2026-10-21T10:00:00Z, in the future and ≤ 36 h ahead.
+# Missing / past / too far → the runner forces --dry-run --once. A live run stops at the expiry and never relays at or
+# after it. So if the variable is left set (a disconnected Mac, a dead controller) the waiter goes inert by itself.
 # Activation plan and one-night trial: docs/launch/approvals/NBA_FINALS_WAITER_ACTIVATION.md.
 #
 # ── ROLLBACK ──────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -116,6 +120,9 @@ jobs:
           OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
           DRY: ${{ github.event.inputs.dry_run }}
           NBA_FINALS_WAITER_ENABLED: ${{ vars.NBA_FINALS_WAITER_ENABLED }}
+          # GitHub-side expiry (required for a live run): a future ISO instant ≤ 36 h ahead. Past it, every trigger is a
+          # forced dry run and a live run stops and never relays — the variable can be left set without effect.
+          NBA_FINALS_WAITER_EXPIRES_AT: ${{ vars.NBA_FINALS_WAITER_EXPIRES_AT }}
         run: |
           set -euo pipefail
           # Live only when the variable is EXACTLY 'true' (the job `if` compares case-insensitively) and no dry run

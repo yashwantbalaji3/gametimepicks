@@ -16,7 +16,7 @@ import {
   etDate, isFinalStatus, isOffStatus, adapterQuarantineReason,
 } from "./nba-finals-waiter.mjs";
 import {
-  parseArgs, createEspnApi, CallCapReached, makeGh, parseLedgerLines, recoverLedger, decideOnce, gatherInputs, decideWith,
+  parseArgs, expiryState, liveDeadlineMs, mayRelayAt, MAX_EXPIRY_HORIZON_HOURS, createEspnApi, CallCapReached, makeGh, parseLedgerLines, recoverLedger, decideOnce, gatherInputs, decideWith,
   needsNoLedger, emitAlert, dispatchWithRetry, waitForRefresh, recordObservations, emptyLedger, readCommitted,
   LEDGER_MARK, REFRESH_WORKFLOW, SELF_WORKFLOW, HARD_STOP_GRACE_MIN, MAX_LEDGER_LOG_FETCHES, CAP_RELAY_MIN_ELAPSED_MIN, REFRESH_WINDOW_DAYS,
 } from "../../../scripts/ops/nba-finals-waiter.mjs";
@@ -309,11 +309,14 @@ test("ACTIVATION F1: the runner forces --dry-run --once unless NBA_FINALS_WAITER
     const a = parseArgs(["--relay", "--budget-min", "330"], { NBA_FINALS_WAITER_ENABLED: v });
     assert.deepEqual([a.dryRun, a.once, a.relay, a.forcedDryRun], [true, true, false, true], String(v));
   }
-  const live = parseArgs(["--relay"], { NBA_FINALS_WAITER_ENABLED: "true" });
+  const NOW = Date.parse("2026-10-20T18:45:00Z");
+  const live = parseArgs(["--relay"], { NBA_FINALS_WAITER_ENABLED: "true", NBA_FINALS_WAITER_EXPIRES_AT: "2026-10-21T10:00:00Z" }, NOW);
   assert.deepEqual([live.dryRun, live.once, live.relay, live.forcedDryRun], [false, false, true, undefined]);
+  assert.equal(live.expiresAtMs, Date.parse("2026-10-21T10:00:00Z"));
   assert.equal(parseArgs(["--dry-run", "--once"], {}).forcedDryRun, undefined, "an asked-for dry run is not 'forced'");
-  assert.throws(() => parseArgs(["--now", "2026-10-21T01:00:00Z"], { NBA_FINALS_WAITER_ENABLED: "true" }), /only accepted with --dry-run/);
-  assert.throws(() => parseArgs(["--budget-min", "400"], { NBA_FINALS_WAITER_ENABLED: "true" }), /under the job timeout/);
+  const ON = { NBA_FINALS_WAITER_ENABLED: "true", NBA_FINALS_WAITER_EXPIRES_AT: "2026-10-21T10:00:00Z" };
+  assert.throws(() => parseArgs(["--now", "2026-10-21T01:00:00Z"], ON, NOW), /only accepted with --dry-run/);
+  assert.throws(() => parseArgs(["--budget-min", "400"], ON, NOW), /under the job timeout/);
   assert.throws(() => parseArgs(["--max-dispatches", "40"], {}));
   assert.throws(() => parseArgs(["--date", "20261020"], {}));
   assert.equal(parseArgs([], {}).maxCalls, WAITER_LIMITS.ESPN_CALL_CAP);
@@ -654,4 +657,41 @@ test("REPLAY variants: a cancelled waiter refresh is retried once (≤ 2 for tha
   const fx = loadFixtures();
   const snap = normalizeScoreboard(snapshotAt(fx.scheduled, fx.timeline, Date.parse("2026-10-21T01:32:00Z"), { month: true }));
   assert.equal(snap.find((g) => g.eventId === "401909089").statusName, "STATUS_HALFTIME", "the month feed lags the day feed by the fixture's monthLagSec");
+});
+
+test("EXPIRY (GitHub-side): an ENABLED waiter is live only with a future NBA_FINALS_WAITER_EXPIRES_AT ≤ 36 h ahead; otherwise forced dry", () => {
+  const NOW = Date.parse("2026-10-20T18:45:00Z");
+  const env = (exp) => ({ NBA_FINALS_WAITER_ENABLED: "true", ...(exp === undefined ? {} : { NBA_FINALS_WAITER_EXPIRES_AT: exp }) });
+  const cases = [
+    [undefined, "EXPIRY_MISSING"], ["", "EXPIRY_MISSING"], ["tomorrow", "EXPIRY_UNPARSEABLE"], ["2026-10-21", "EXPIRY_UNPARSEABLE"],
+    ["2026-10-21T10:00:00+00:00", "EXPIRY_UNPARSEABLE"], ["2026-10-20T18:45:00Z", "EXPIRED"], ["2026-10-19T10:00:00Z", "EXPIRED"],
+    ["2026-10-22T07:00:00Z", "EXPIRY_TOO_FAR"], ["2027-01-01T00:00:00Z", "EXPIRY_TOO_FAR"],
+  ];
+  for (const [exp, reason] of cases) {
+    const a = parseArgs(["--relay", "--budget-min", "330"], env(exp), NOW);
+    assert.deepEqual([a.dryRun, a.once, a.relay, a.forcedDryRun, a.forcedReason], [true, true, false, true, reason], String(exp));
+    assert.equal(a.expiresAtMs, undefined, "a forced run carries no live expiry");
+  }
+  // Exactly at the horizon is allowed; one minute past it is not.
+  const edge = new Date(NOW + MAX_EXPIRY_HORIZON_HOURS * 3_600_000).toISOString().replace(/\.\d{3}Z$/, "Z");
+  assert.equal(parseArgs(["--relay"], env(edge), NOW).dryRun, false);
+  assert.equal(expiryState(env(edge), NOW - 60_000).reason, "EXPIRY_TOO_FAR");
+  // The expiry never re-enables a disabled waiter.
+  assert.equal(parseArgs(["--relay"], { NBA_FINALS_WAITER_ENABLED: "TRUE", NBA_FINALS_WAITER_EXPIRES_AT: "2026-10-21T10:00:00Z" }, NOW).forcedReason, "NOT_ENABLED");
+});
+
+test("EXPIRY: the live loop ends at min(budget, expiry) and a relay at or after the expiry is refused", () => {
+  const started = Date.parse("2026-10-21T07:00:00Z");
+  const exp = Date.parse("2026-10-21T10:00:00Z");
+  assert.equal(liveDeadlineMs({ startedMs: started, budgetMin: 330, expiresAtMs: exp }), exp, "expiry before the budget ends the run");
+  assert.equal(liveDeadlineMs({ startedMs: started - 6 * 3_600_000, budgetMin: 330, expiresAtMs: exp }), started - 6 * 3_600_000 + 330 * 60_000, "budget first → budget");
+  assert.equal(liveDeadlineMs({ startedMs: started, budgetMin: 330 }), started + 330 * 60_000);
+  assert.equal(mayRelayAt(exp - 1, exp), true);
+  assert.equal(mayRelayAt(exp, exp), false);
+  assert.equal(mayRelayAt(exp + 1, exp), false);
+});
+
+test("EXPIRY: the workflow passes vars.NBA_FINALS_WAITER_EXPIRES_AT to the runner's step", () => {
+  const wf = fs.readFileSync(path.resolve(process.cwd(), "..", ".github", "workflows", "nba-finals-waiter.yml"), "utf8").replace(/^\s*#.*$/gm, "");
+  assert.match(wf, /NBA_FINALS_WAITER_EXPIRES_AT: \$\{\{ vars\.NBA_FINALS_WAITER_EXPIRES_AT \}\}/);
 });

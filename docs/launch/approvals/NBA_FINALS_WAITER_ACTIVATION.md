@@ -78,17 +78,47 @@ Dry runs use their own concurrency group (`nba-finals-waiter-dry`) and print no 
 2. **Remove:** revert the workflow, the runner, the rule, the replay and the tests. The refresh's own crons and watchdog trigger are untouched either way.
 3. **Data:** nothing to clean up. Every commit the waiter caused is an ordinary `auto: nba results capture` commit.
 
-## One-night trial proposal — opening night 2026-10-20
+## One-night trial — opening night 2026-10-20 (founder-approved 2026-10-19)
 
-The trial needs this branch merged first, because schedule and `workflow_run` triggers fire only from the default branch.
+ESPN's 10-20 scoreboard lists three games: BOS @ DET at 19:00Z, PHI @ NY at 23:00Z and OKC @ SA at 01:30Z on 10-21. The founder moved activation earlier so that all three are watched.
 
-ESPN's recorded scoreboard lists three games: BOS@DET at 19:00Z, PHI@NY at 23:00Z and OKC@SA at 01:30Z on 10-21. BOS@DET ends during the dense watchdog hours. In the replay, a delivered refresh records it at 21:54Z with no help from the waiter.
+**Timing:**
+- **Activation: 18:45Z** (2:45 PM ET), before the first tip.
+- **One deadline for everything: 2026-10-21T10:00:00Z.** This replaces the earlier 08:00Z and 12:00Z figures.
+  - OKC @ SA, the last game, tips at 01:30Z and ends at about 04:00Z, or about 04:20Z with two overtimes.
+  - The waiter gives up on a game 8 h after tip, which is 09:30Z for OKC @ SA. 10:00Z covers that with margin.
+  - The opening-night evidence capture keeps its own stop rule: final + 3 h, or 08:00Z at the latest. It is read-only and has nothing to do with the waiter.
 
-1. **Before the trial (optional, free, no effect):** `gh workflow run nba-finals-waiter.yml -f dry_run=true`. It prints one decision and dispatches nothing.
-2. **≈ 22:00Z 10-20:** `gh variable set NBA_FINALS_WAITER_ENABLED --body true`.
-3. **First arrival.** On 10-18 the first watchdog completion after 22:00Z came at 22:03Z. If none arrives, the waiter's own 23:47Z cron or an nba-forecast-window completion starts it.
-4. **Expected run.** The run sleeps to 00:40Z (PHI@NY tip + 100 min) and polls every 5 min. It dispatches about 5 min after PHI@NY goes final, relays at about 03:35Z, dispatches about 5 min after OKC@SA goes final, and exits DONE at about 04:10Z.
-5. **After DONE:** `gh variable delete NBA_FINALS_WAITER_ENABLED`. Activating permanently is a separate decision that depends on this trial's results.
+**Steps:**
+
+1. **Dry runs, already done (free, no effect):**
+   - On GitHub, run 39267580926 on 10-19 at 14:17Z ran forced `--dry-run --once`, made 1 ESPN call and dispatched nothing.
+   - Locally, against the real 10-20 scoreboard, at six instants:
+     - 18:45Z WAIT (first window 20:40Z);
+     - 20:45Z watching BOS @ DET;
+     - 00:45Z watching BOS @ DET and PHI @ NY;
+     - 03:30Z adds OKC @ SA;
+     - each game is given up 8 h after tip if not final. That is what the 03:30Z and 09:59Z checks showed, because the replay reads today's scoreboard where nothing has tipped.
+2. **At 18:45Z 10-20**, the controller sets both variables:
+   - `gh variable set NBA_FINALS_WAITER_EXPIRES_AT --body 2026-10-21T10:00:00Z`
+   - then `gh variable set NBA_FINALS_WAITER_ENABLED --body true`
+3. **First arrival:** a publication-watchdog or nba-forecast-window completion, or the 21:47Z cron. The run waits until 20:40Z (BOS @ DET tip + 100 min). A run budget is 330 min, so the night takes about 3 runs, linked by relays. No relay happens at or after the expiry.
+4. **End:** the controller deletes both variables once every opening-night final is committed and no waiter run is active, or at 10:00Z at the latest. It cancels any waiter run still going at the deadline.
+
+**Independent limits** (none of them needs the Mac):
+
+| Limit | Value |
+|---|---|
+| GitHub-side expiry | 10:00Z. After it, every trigger is a forced dry run |
+| Job timeout | 350 min |
+| Loop budget per run | 330 min |
+| ESPN calls per run | 200 |
+| Refresh dispatches per night | 6 |
+| Spacing between dispatches | ≥ 10 min |
+| Concurrency | never while a refresh is queued or in progress; own concurrency group |
+| Permissions | `contents: read` |
+
+If the Mac disconnects, the variables stay set, but the waiter is inert after 10:00Z. Delete them by hand when convenient.
 
 ### Success criteria (all from the run logs, the run list and `git log`)
 
@@ -97,7 +127,7 @@ ESPN's recorded scoreboard lists three games: BOS@DET at 19:00Z, PHI@NY at 23:00
 - No dispatch is created while a refresh run is queued or in progress.
 - The waiter makes no commit. Every commit in the window is `auto: nba results capture`.
 - Every alert key appears at most once. Ideally no alerts fire at all, apart from an expected `late:` if ESPN's month feed lags.
-- The waiter exits DONE before 12Z. Runner time is about 6–7 h.
+- The waiter exits DONE before the 10:00Z expiry. Runner time is about 6–7 h.
 - Production builds from nba-results commits between 00Z and 12Z are at most the number of waiter dispatches plus the crons that found something new.
 
 ### Abort immediately (delete the variable) if
@@ -105,7 +135,7 @@ ESPN's recorded scoreboard lists three games: BOS@DET at 19:00Z, PHI@NY at 23:00
 - a game draws more than 2 dispatches
 - any commit comes from the waiter's run
 - a dispatch overlaps a running refresh
-- the waiter has not exited by 12Z
+- the waiter has not exited by the 10:00Z expiry (it stops itself there; check that it did)
 
 ## Evidence
 
