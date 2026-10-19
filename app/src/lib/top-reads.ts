@@ -156,7 +156,8 @@ export function loadTopReads(): TopReadsSet | null {
     if (r.eventEtDate && r.eventEtDate < today) {
       // One exclusion note per sport+reason — the panel renders these, and a per-row entry
       // turned fifty dropped goalscorers into fifty identical footnotes.
-      const reason = `past event ${r.eventEtDate} — archived, never a "today" read`;
+      // Kept short: it renders on the homepage under the first-viewport word ceiling (busiest-state test).
+      const reason = `past event ${r.eventEtDate} (archived)`;
       if (!excluded.some((e) => e.sport === r.sport && e.reason === reason)) excluded.push({ sport: r.sport, reason });
       return;
     }
