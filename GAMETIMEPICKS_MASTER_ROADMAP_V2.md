@@ -193,9 +193,15 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 - #1126 `cd8465a2e1`: `/results/mlb/` Void rows were shown as Push. Display only.
 - #1127 `58acd1cbac`: a settled NFL game was shown as "Follow live" on `/nfl`, and the Home MLB card said "today's slate" for yesterday's slate. Display only.
 - #1128 `bec2cd28aa`: Ask's EPL (and UFC) record now comes from the same ledger population as `/results`, so the two can no longer split after a late grade (D-1). It also fixes Ask's recent-feed totals, which were capped at 60. Main CI post-build parity is green.
-- #1129 (test-only): the MLB contradiction guards were latently red on postseason data; the sample now extends until the defect is present. Merging when the data writers are idle.
-- #1130 **DRAFT**: eligible-operator allowlist (offshore prices); awaiting founder review (see SB-01).
-- #1131 **DRAFT**: MLB lineup waiter (founder-approved for development). Inert until the repo variable `MLB_LINEUP_WAITER_ENABLED=true`; production activation needs separate acceptance. Evidence:
+- #1129 **MERGED** `c0ffb1b7c5` (10-19 00:10Z), with the contradiction-guard sample and the homepage past-event note trim.
+  - The first CI run (13:21Z, during the NFL window) failed the time-sensitive homepage word guard. The branch was refreshed onto current `main`, and the fresh CI passed. The guard was not changed.
+  - Main CI 39179595614 green; Production `754c466c4d` includes it.
+  - **Follow-up:** the BUILT busiest-state guard measures live, time-of-day homepage content (1,331–1,387 non-lane words across a Sunday). Making that measurement deterministic is a candidate test-hardening task; the ceiling stays unchanged.
+- #1130 **DRAFT**, final package ready (`docs/launch/approvals/PR1130_APPROVAL_PACKAGE.md`). Candidate head `b4aa6c6173` (PR + `main` c0ffb1b7).
+  - **Gates:** unit 9,506 / 0 fail, post-build 707 / 0 fail, 0 data files changed.
+  - **Open items:** O-6 is an offshore key in one old NFL game page's embedded data. O-7 is two NFL display paths without the eligibility check.
+  - Awaiting founder exact-head approval.
+- #1131 **DRAFT**: MLB lineup waiter, independently verified **READY TO ACTIVATE** at `82f4a72999` after the F1–F11 fixes (`docs/launch/approvals/PR1131_ACTIVATION_READINESS.md`). Activation needs the founder decision plus a one-slate trial. Original note: Inert until the repo variable `MLB_LINEUP_WAITER_ENABLED=true`; production activation needs separate acceptance. Evidence:
   - 40/40 tests; 170/170 workflow guards;
   - replay 10-08..10-18: median lineup→simulation 33 → 8 min, worst pre-pitch lead 33 → 158 min;
   - $0 Actions cost (public repo, standard runner).
@@ -283,6 +289,14 @@ Post-launch candidates (priority · dependency · source):
 - **D4–D7: ACCEPTED** as documented: all five representatives with merged chips; fixed, disclosed orientation; no world-model data; drive-weighted ~40–103 s at 1×.
 - **D8: DEFERRED.** Receipt changes stay forward-only and need separate validation first.
 - **ST-02 status:** the first two tasks (library + preview shell, with a minimal renderer) are **IN DEVELOPMENT, local only**, on branch `claude/sim-theater-st02-prototype`. Nothing is deployed or reachable in Production.
+- **ST-02 iteration 7 (10-18 23:10Z, `120d6b440f`, local):**
+  - a broadcast camera: a pure function, capped at 1.35×, full field at kickoffs and breaks;
+  - a broadcast score bug with a drive strip (recorded totals, plus ≈ illustrative yardage, tagged);
+  - transition cards: start, end of quarter, halftime, final;
+  - stadium atmosphere;
+  - the no-swap team-colour rule: official colours always, with away-team cues for clashes.
+  - **Measured:** frame p95 about 17.4 ms; JS 30.7 KB.
+  - **Tests:** Playwright 27/27.
 - **ST-02 status, 10-18 evening:** iteration 5 local, at `d59d5b62d6` on localhost:4179. Implemented:
   - the broadcast field, score bug, possession, interstitials, scoring effects and drive summary;
   - mobile sheets;
