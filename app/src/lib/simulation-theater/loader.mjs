@@ -17,6 +17,13 @@ import { adaptReceipt } from "./adapter-nfl-sim-v2.mjs";
  *   401873006  LAC @ KC — two kinds share one run (UPSET = OVERTIME), so the selector shows a merged chip (S5).
  * Every fixture carries an OVERTIME representative. A fixture whose receipt of record fails to load or validate is
  * dropped (never substituted).
+ *
+ * RE-PINNED 2026-10-19 (integration onto main 9b6e923c1a). The notes above describe the receipts the prototype was built
+ * on (2026-10-17). The receipt of RECORD moves whenever the shadow job writes a newer pre-kickoff receipt; on main it is
+ * now 401873008 → 2026-10-19/…93e33ba709b93f85 (default run #48, no run #428), 401873005 → 2026-10-18/…3951d5992642d372
+ * (UPSET = OVERTIME share run #16, a merged chip) and 401873006 → 2026-10-18/…886fa90906706f3b (five distinct runs).
+ * Tests that assert on specific runs pin the write-once 2026-10-17 files by path; the e2e spec derives its expectations
+ * from whatever record this loader resolves.
  */
 export const FIXTURE_EVENT_IDS = Object.freeze(["401873008", "401873005", "401873006"]);
 export const MAX_FIXTURES = 3;

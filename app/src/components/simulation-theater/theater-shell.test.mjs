@@ -15,7 +15,7 @@ globalThis.React = React;
 const { SceneBadge, ScoreBug, FieldLegend, Transcript } = await import("./parts.tsx");
 const { DetachedBall, FieldLive, FieldMarks, StaticField } = await import("./FieldScene.tsx");
 const { LABELS } = await import("../../lib/simulation-theater/format.mjs");
-const { loadTheater, FIXTURE_EVENT_IDS } = await import("../../lib/simulation-theater/loader.mjs");
+const { adaptReceipt } = await import("../../lib/simulation-theater/adapter-nfl-sim-v2.mjs");
 const { finalState } = await import("../../lib/simulation-theater/state-at.mjs");
 const { NFL_TEAM_COLORS, theaterPalette } = await import("../../lib/simulation-theater/nfl-team-colors.mjs");
 const { BALL_RX, ballSize, fieldMap, overlayFrame } = await import("../../lib/simulation-theater/field-geometry.mjs");
@@ -23,6 +23,19 @@ const { BALL_RX, ballSize, fieldMap, overlayFrame } = await import("../../lib/si
 const DISCLOSURE = "SIMULATED · drive-level · movement illustrative · experimental model";
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
+/*
+ * PINNED to the write-once reference receipt (run #428), not to 401873008's receipt of RECORD: the record moves whenever
+ * the shadow job writes a newer pre-kickoff receipt (on 2026-10-19 it became 93e33ba709b93f85, which has no run #428),
+ * and these assertions are about rendering, not about which receipt is current. Selecting the record stays in
+ * public-receipt.mjs (loader.mjs) and is covered by the loader and dev-route tests.
+ */
+const REF_FILE = "data/internal/research/nfl/sim-v2/shadow/2026-10-17/401873008-6da012510c023181.json";
+const refTheater = () => {
+  const a = adaptReceipt(JSON.parse(fs.readFileSync(path.join(REPO, REF_FILE), "utf8")), { file: REF_FILE });
+  assert.ok(a.ok, `reference receipt adapts: ${a.error?.code}`);
+  assert.equal(a.manifest.samples[0].runIndex, 428, "samples[0] is run #428 (MEDIAN_LIKE, display order)");
+  return { ok: true, manifest: a.manifest };
+};
 const text = (html) => html.replace(/<[^>]+>/g, "").replace(/&#x27;/g, "'").replace(/&amp;/g, "&");
 
 test("the scene badge renders the EXACT disclosure, once, with no abbreviated variant anywhere", () => {
@@ -42,7 +55,7 @@ test("the scene badge renders the EXACT disclosure, once, with no abbreviated va
 });
 
 test("limitations stay visible: illustrative clock, fixed orientation, not the forecast, experimental", () => {
-  const t = loadTheater(REPO, FIXTURE_EVENT_IDS[0]);
+  const t = refTheater();
   const m = t.manifest;
   const palette = theaterPalette(m.teams.home.abbr, m.teams.away.abbr);
   const bug = (illus) => renderToStaticMarkup(React.createElement(ScoreBug, { teams: m.teams, palette, score: { home: 3, away: 0 }, offense: "home", period: 1, periodClock: 701.4, clockIllustrative: illus, stateChip: null, illusId: "x" }));
@@ -62,7 +75,7 @@ test("limitations stay visible: illustrative clock, fixed orientation, not the f
 });
 
 test("the field marks only the RECORDED start and end spots (no invented first-down or per-play marks)", () => {
-  const t = loadTheater(REPO, FIXTURE_EVENT_IDS[0]);
+  const t = refTheater();
   const m = t.manifest;
   const sample = m.samples[0];
   const palette = theaterPalette(m.teams.home.abbr, m.teams.away.abbr);
@@ -84,7 +97,7 @@ test("the field marks only the RECORDED start and end spots (no invented first-d
 });
 
 test("no-JavaScript final frame: the ball keeps its drawn shape in any box (rendered w/h of the round glow = 1 ± 5 %)", () => {
-  const t = loadTheater(REPO, FIXTURE_EVENT_IDS[0]);
+  const t = refTheater();
   const m = t.manifest;
   const sample = m.samples[0];
   const palette = theaterPalette(m.teams.home.abbr, m.teams.away.abbr);
@@ -134,7 +147,7 @@ test("no-JavaScript final frame: the ball keeps its drawn shape in any box (rend
 });
 
 test("clash cues: in every clashing pairing (120 of 992) the away side renders stripes AND its abbreviation, in its own colours; nothing else is cued", () => {
-  const t = loadTheater(REPO, FIXTURE_EVENT_IDS[0]);
+  const t = refTheater();
   const m = t.manifest;
   const s = finalState(m, m.samples[0]);
   const W = 1200, H = 561;
