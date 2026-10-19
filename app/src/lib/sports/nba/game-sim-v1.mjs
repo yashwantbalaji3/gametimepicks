@@ -382,9 +382,30 @@ function histogram(arr) {
 const STAT_OUT = ["pts", "reb", "ast", "threePm", "threePa", "twoPm", "ftm"];
 const COMBO_KEYS = Object.freeze({ pra: ["pts", "reb", "ast"], ptsAst: ["pts", "ast"], ptsReb: ["pts", "reb"] });
 
+/**
+ * Minutes to 0.01 for a published sample WITHOUT breaking invariant 3: independent toFixed(2) rounding let a side sum to
+ * 239.98–240.02 (found by the theater's validator on the 2026-10-20 build). Largest-remainder rounding in hundredths:
+ * floor every player, then hand the missing hundredths to the largest remainders (ties → lower index). The side then sums
+ * to exactly 240 + 25·OT, a 0-minute player stays 0 (remainder 0), and no player rises by more than 0.01.
+ */
+export function roundMinutesPreservingTotal(minutes, overtimePeriods) {
+  const target = Math.round((240 + 25 * overtimePeriods) * 100);
+  const hundredths = minutes.map((m) => m * 100);
+  const floors = hundredths.map((h) => Math.floor(h + 1e-7));
+  let missing = target - floors.reduce((a, b) => a + b, 0);
+  if (missing < 0 || missing > minutes.length) throw new Error(`invariant 3: minutes sum ${minutes.reduce((a, b) => a + b, 0)} is not ${target / 100}`);
+  const order = hundredths.map((h, i) => [h - floors[i], i]).filter(([rem]) => rem > 1e-7).sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+  if (order.length < missing) throw new Error("invariant 3: not enough fractional minutes to distribute");
+  for (let k = 0; k < missing; k += 1) floors[order[k][1]] += 1;
+  return floors.map((f) => f / 100);
+}
+
 function sampleView(prep, draw, label, selectionRule, names) {
   const periods = draw.periods.home.map((h, i) => ({ period: i + 1, label: i < 4 ? `Q${i + 1}` : `OT${i - 3}`, home: h, away: draw.periods.away[i] }));
-  const pl = (side) => draw.players[side].map((p) => ({ providerAthleteId: p.providerAthleteId, name: names.get(p.providerAthleteId) ?? null, minutes: r2(p.minutes), pts: p.pts, reb: p.reb, ast: p.ast, threePa: p.threePa, threePm: p.threePm, twoPm: p.twoPm, ftm: p.ftm }));
+  const pl = (side) => {
+    const mins = roundMinutesPreservingTotal(draw.players[side].map((p) => p.minutes), draw.overtimePeriods);
+    return draw.players[side].map((p, i) => ({ providerAthleteId: p.providerAthleteId, name: names.get(p.providerAthleteId) ?? null, minutes: mins[i], pts: p.pts, reb: p.reb, ast: p.ast, threePa: p.threePa, threePm: p.threePm, twoPm: p.twoPm, ftm: p.ftm }));
+  };
   return { runIndex: draw.runIndex, label, selectionRule, final: { ...draw.final }, periods, overtimePeriods: draw.overtimePeriods, team: { home: { ...draw.team.home }, away: { ...draw.team.away } }, players: { home: pl("home"), away: pl("away") } };
 }
 
