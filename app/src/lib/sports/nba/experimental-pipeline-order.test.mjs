@@ -17,6 +17,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
+import { execFileSync, spawnSync } from "node:child_process";
 
 const WORKFLOW = path.resolve(process.cwd(), "..", ".github", "workflows", "sport-schedules.yml");
 
@@ -122,7 +124,30 @@ test("G2 · the pre-tip window: free, own concurrency group, injuries → v0 →
   assert.ok(body.indexOf("--family v0.1 --horizon-hours 8") < body.indexOf("--family v0.2 --horizon-hours 8"), "v0.2 builds after v0.1");
   assert.ok(body.indexOf("--family v0.2 --horizon-hours 8") < body.indexOf("verify-nba-forecast-receipts.mjs --against HEAD"), "v0.2 builds before the frozen-game guard");
   assert.match(body, /--family v0\.2 --horizon-hours 8 \\\n[^\n]*\|\| echo "::warning::/, "v0.2 refusal warns, never fails");
-  assert.match(body, /git add [^\n]*experimental-v0\.2\//, "the challenger's directory is committed with the others");
+  assert.match(body, /for FD in experimental experimental-v0\.1 experimental-v0\.2 experimental-v1; do/, "every family's directory (the challenger and the v1 candidate included) is committed with the others");
+});
+
+test("staging survives a family directory that does not exist yet (a missing pathspec must never drop the others)", () => {
+  // Real git, real bash: run the window's own staging loop in a repo where experimental-v1/ was never created (v1's
+  // first builds refused). The v0 and v0.1 forecasts must still be staged. A single `git add a/ b/ missing/` would
+  // stage NOTHING ("fatal: pathspec ... did not match any files") and the run would exit "nothing to commit".
+  const yaml = fs.readFileSync(WINDOW, "utf8");
+  const loop = yaml.match(/^( *)for FD in [^\n]*\n(?:\1 [^\n]*\n)*?\1done\n/m)?.[0];
+  assert.ok(loop, "the per-family staging loop exists");
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "nba-window-stage-"));
+  const app = path.join(root, "app");
+  fs.mkdirSync(app);
+  for (const d of ["experimental", "experimental-v0.1"]) {
+    fs.mkdirSync(path.join(root, "data/internal/research/nba", d, "forecasts"), { recursive: true });
+    fs.writeFileSync(path.join(root, "data/internal/research/nba", d, "forecasts", "2026-10-20.json"), "{}\n");
+  }
+  const git = (args, cwd = root) => execFileSync("git", args, { cwd, encoding: "utf8" });
+  git(["init", "-q"]);
+  const out = spawnSync("bash", ["-c", `set -uo pipefail\n${loop}git diff --cached --name-only`], { cwd: app, encoding: "utf8" });
+  assert.equal(out.status, 0, out.stderr);
+  const staged = out.stdout.trim().split("\n").sort();
+  assert.deepEqual(staged, ["data/internal/research/nba/experimental-v0.1/forecasts/2026-10-20.json", "data/internal/research/nba/experimental/forecasts/2026-10-20.json"]);
+  fs.rmSync(root, { recursive: true, force: true });
 });
 
 test("roster backstop: a stale (> 30 h) roster is re-captured BEFORE the roster-gated builds; only normalised files are staged", () => {

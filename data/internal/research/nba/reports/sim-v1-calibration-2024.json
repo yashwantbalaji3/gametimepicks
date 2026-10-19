@@ -1,0 +1,91 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-sim-v1-calibration",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "fitSeason": 2024,
+ "minDaysIntoSeason": 30,
+ "generatedAt": "2026-10-19T05:18:29.231Z",
+ "method": "see app/scripts/nba/calibrate-sim-v1.mjs header",
+ "fit": {
+  "HCA_POINTS": 1.982,
+  "ELO_TO_MARGIN": 0.05115,
+  "TOTAL_WEIGHT": 1.956,
+  "TOTAL_OFFSET": -2.947,
+  "TEAM_NOISE_SD": 10.152,
+  "PACE_SD": 0.0446,
+  "QUARTER_SHARES": [
+   0.2513,
+   0.2518,
+   0.2534,
+   0.2435
+  ],
+  "QUARTER_DIRICHLET_ALPHA": 432.2,
+  "OT_SCALE": 0.917,
+  "MINUTES_POWER": 1.25
+ },
+ "diagnostics": {
+  "games": 1010,
+  "overtimeGames": 45,
+  "regulationTieRate": 0.0446,
+  "residualSD": {
+   "margin": 14.36,
+   "total": 17.59
+  },
+  "meanTotal": 227.34,
+  "meanL": 229.9,
+  "meanTraw": 230.1,
+  "corrTotalSignal": 0.445,
+  "sdTrawMinusL": 4.46,
+  "totalBiasAtFit": 0,
+  "marginBiasAtFit": 0.004,
+  "quarterPearsonRatio": 1.26,
+  "meanTeamRegPts": 113.67,
+  "otPeriodsTeam": 104,
+  "otPtsMean": 10.8,
+  "minutesPowerGrid": [
+   {
+    "gamma": 1,
+    "rows": 7059,
+    "minutesMAE": 5.882,
+    "minutesMAE_ge20": 5.621,
+    "rows_ge20": 3505
+   },
+   {
+    "gamma": 1.25,
+    "rows": 7059,
+    "minutesMAE": 5.752,
+    "minutesMAE_ge20": 5.082,
+    "rows_ge20": 3450
+   },
+   {
+    "gamma": 1.5,
+    "rows": 7059,
+    "minutesMAE": 5.837,
+    "minutesMAE_ge20": 4.879,
+    "rows_ge20": 3403
+   },
+   {
+    "gamma": 1.75,
+    "rows": 7059,
+    "minutesMAE": 6.079,
+    "minutesMAE_ge20": 4.958,
+    "rows_ge20": 3350
+   },
+   {
+    "gamma": 2,
+    "rows": 7059,
+    "minutesMAE": 6.37,
+    "minutesMAE_ge20": 5.138,
+    "rows_ge20": 3315
+   },
+   {
+    "gamma": 2.5,
+    "rows": 7059,
+    "minutesMAE": 6.924,
+    "minutesMAE_ge20": 5.583,
+    "rows_ge20": 3282
+   }
+  ]
+ }
+}
