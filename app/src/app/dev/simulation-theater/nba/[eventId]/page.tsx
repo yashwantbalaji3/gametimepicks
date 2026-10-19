@@ -1,10 +1,11 @@
 /**
  * /dev/simulation-theater/nba/[eventId] — DEVELOPMENT ONLY, UNLINKED, NOINDEX. The NBA Simulation Theater prototype.
  *
- * Plays one representative sample of one nba-sim-v1 game at quarter-checkpoint level. Until the nba-sim-v1-coherent
- * engine lands, the data is a generated TEST FIXTURE (lib/simulation-theater/nba/__fixtures__/), rendered only under its
- * "TEST FIXTURE — not model output" banner; switching to real output is the one SOURCE line in
- * lib/simulation-theater/nba/loader.mjs.
+ * Plays one representative sample of one nba-sim-v1 game at quarter-checkpoint level. The data is REAL
+ * nba-sim-v1-coherent output for 2026-10-20 (a sha256-verified dev copy under lib/simulation-theater/nba/__fixtures__/,
+ * with its provenance sidecar) until experimental-v1 artifacts are committed under data/; switching is the one SOURCE line
+ * in lib/simulation-theater/nba/loader.mjs. A synthetic TEST FIXTURE (fixture: true) would render only under its
+ * "TEST FIXTURE — not model output" banner.
  *
  * Same gate as the NFL dev route (lib/simulation-theater/dev-routes.mjs): pages exist in the static export ONLY when the
  * build sets GTP_DEV_ROUTES=1 (≤ 3 events). Otherwise generateStaticParams yields only the inert placeholder (and reads

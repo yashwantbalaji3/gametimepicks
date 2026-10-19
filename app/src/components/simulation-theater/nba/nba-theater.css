@@ -97,14 +97,14 @@
 .nba-connector{stroke:var(--st-court-line);stroke-width:.2}
 .nba-rim{fill:none;stroke:var(--vault-risk);stroke-width:.22}
 .nba-center-fill{fill:color-mix(in srgb, var(--vault-crown) 30%, var(--bg))}
-.nba-wordmark{fill:var(--st-court-line);font:800 2.6px var(--font-headline);letter-spacing:.5px}
+.nba-wordmark{fill:var(--st-court-line);font:800 2.2px var(--font-headline);letter-spacing:.4px}
 .nba-wordmark.is-sub{font:700 1.3px var(--font-mono);letter-spacing:.35px;fill:var(--st-mute)}
 /* SVG text scales with the court: below these widths it would read under 11px, so it is not drawn (decorative) */
 @container (max-width:599px){.nba-band-abbr,.nba-wordmark{display:none}}
 @container (max-width:859px){.nba-wordmark.is-sub{display:none}}
 .nba-court-note{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);margin:0;max-width:calc(100% - 16px);padding:3px 10px;border-radius:999px;
   background:color-mix(in srgb, var(--bg) 78%, transparent);border:1px solid var(--border-strong);font:500 11px var(--font-mono);color:var(--st-mute);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-@container (max-width:420px){.nba-court-note{white-space:normal;bottom:4px;line-height:1.3}}
+@media (max-width:719px){.nba-court-note{position:static;transform:none;max-width:none;margin:6px 0 0;border-radius:8px;white-space:normal;line-height:1.35}}
 
 /* ── halftime / final cards ───────────────────────────────────────────────────────────────────────────── */
 .nba-card-layer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:10px;background:color-mix(in srgb, var(--bg) 35%, transparent)}
@@ -160,6 +160,10 @@
 .nba-players thead th:first-child,.nba-players tbody th,.nba-players tfoot th{text-align:left;width:40%}
 .nba-players tbody th{font:500 12.5px var(--font-display);overflow:hidden}
 .nba-pname{display:block;overflow:hidden;text-overflow:ellipsis}
+.nba-prate{display:block;font:500 11px var(--font-mono);color:var(--st-faint);overflow:hidden;text-overflow:ellipsis}
+.nba-validation-note{color:var(--st-faint)}
+.nba-datanote{color:var(--st-mute)}
+.nba-root .st-ptime-l{font-size:11px}
 .nba-players td.is-pts{color:var(--st-text);font-weight:700}
 .nba-players tr.is-dnp{color:var(--st-faint)}
 .nba-players tfoot th,.nba-players tfoot td{font-weight:700;border-bottom:0;color:var(--st-text)}

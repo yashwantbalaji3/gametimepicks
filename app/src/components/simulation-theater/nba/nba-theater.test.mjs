@@ -17,20 +17,22 @@ const { Scoreboard, DiffTimeline, PlayerPanel, BreakCard, OutcomeChips, Selectio
 const { default: NbaCourt } = await import("./NbaCourt.tsx");
 const { fixtureGate } = await import("./nba-gate.ts");
 const { default: NbaTheaterIsland } = await import("./NbaTheaterIsland.tsx");
-const { loadNbaTheater } = await import("../../../lib/simulation-theater/nba/loader.mjs");
+const { loadNbaTheater, NBA_FIXTURE_SOURCE } = await import("../../../lib/simulation-theater/nba/loader.mjs");
 const { compileTimeline, stateAt } = await import("../../../lib/simulation-theater/nba/timeline.mjs");
 const { FIXTURE_BANNER } = await import("../../../lib/simulation-theater/nba/adapter-nba-sim-v1.mjs");
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
-const LOADS = ["401909088", "401909089", "401909090"].map((id) => loadNbaTheater(REPO, id));
+const IDS = ["401909088", "401909089", "401909090"];
+const LOADS = IDS.map((id) => loadNbaTheater(REPO, id)); // real nba-sim-v1-coherent output (verified dev copy)
+const FIX_LOADS = IDS.map((id) => loadNbaTheater(REPO, id, { source: NBA_FIXTURE_SOURCE })); // synthetic test fixture
 const html = (el) => renderToStaticMarkup(el);
 const text = (h) => h.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
 
-test("scoreboard: at every 100 ms of every fixture sample, each interpolated value renders with its visible tag", () => {
+test("scoreboard: at every 100 ms of every sample (real v1 and fixture), each interpolated value renders with its visible tag", () => {
   let renders = 0;
   let interp = 0;
-  for (const load of LOADS) {
+  for (const load of [...LOADS, ...FIX_LOADS]) {
     const m = load.manifest;
     for (const s of m.samples.filter((x) => x.validation.ok)) {
       const c = compileTimeline(s);
@@ -77,7 +79,8 @@ test("timeline: the differential line is drawn only through checkpoints and its 
 });
 
 test("fixture gate: a fixture without the exact banner text is refused; with it, the banner renders first", () => {
-  const load = LOADS[1];
+  const load = FIX_LOADS[1];
+  assert.equal(load.manifest.fixture, true);
   assert.equal(fixtureGate(load, null).ok, false);
   assert.equal(fixtureGate(load, "test fixture").ok, false);
   assert.equal(fixtureGate(load, FIXTURE_BANNER).ok, true);
@@ -90,22 +93,29 @@ test("fixture gate: a fixture without the exact banner text is refused; with it,
   assert.match(text(ok), /TEST FIXTURE — not model output/);
   assert.deepEqual(untaggedInterp(ok), []);
   // a real (non-fixture) manifest needs no banner
-  const real = { ...load.manifest, fixture: false };
-  assert.equal(fixtureGate({ ...load, manifest: real }, null).ok, true);
-  assert.doesNotMatch(html(React.createElement(NbaTheaterIsland, { manifest: real, palettes: load.palettes, fixtureBanner: null })), /data-nba-fixture-banner/);
+  const real = LOADS[1];
+  assert.equal(real.manifest.fixture, false);
+  assert.equal(fixtureGate(real, null).ok, true);
+  const rh = html(React.createElement(NbaTheaterIsland, { manifest: real.manifest, palettes: real.palettes, fixtureBanner: null }));
+  assert.doesNotMatch(rh, /data-nba-fixture-banner/);
+  assert.match(text(rh), /run #577 of 10,000/, "real output opens on its typical sample");
 });
 
 test("player panel: the sample's final game totals, labelled; during playback it says per-quarter splits are not modelled", () => {
   const load = LOADS[0];
   const s = load.manifest.samples[0];
-  const live = text(html(React.createElement(PlayerPanel, { sample: s, teams: load.manifest.teams, palette: load.palettes.team, playing: true })));
+  const live = text(html(React.createElement(PlayerPanel, { sample: s, teams: load.manifest.teams, palette: load.palettes.team, playing: true, playRates: load.manifest.playRates })));
   assert.match(live, new RegExp(`Final line of run #${s.runIndex.toLocaleString("en-US")}`));
   assert.match(live, /Per-quarter player splits are not modelled/);
   assert.match(live, /never pro-rated/);
-  const fin = text(html(React.createElement(PlayerPanel, { sample: s, teams: load.manifest.teams, palette: load.palettes.team, playing: false })));
+  const fin = text(html(React.createElement(PlayerPanel, { sample: s, teams: load.manifest.teams, palette: load.palettes.team, playing: false, playRates: load.manifest.playRates })));
   assert.doesNotMatch(fin, /Per-quarter player splits/);
   // values are exactly the sample's (no scaling): every player's points appear
   for (const p of s.players.home) assert.ok(fin.includes(p.name));
+  // v1 player numbers sit beside the model's playRate
+  assert.match(fin, /plays in \d+% of draws/);
+  const fx = FIX_LOADS[0];
+  assert.doesNotMatch(text(html(React.createElement(PlayerPanel, { sample: fx.manifest.samples[0], teams: fx.manifest.teams, palette: fx.palettes.team, playing: false, playRates: fx.manifest.playRates }))), /plays in/, "no playRate invented for the fixture");
 });
 
 test("cards: halftime shows Q1–Q2 only; final shows every period, leaders, run #, rule, model, inputAsOf, simulations, seed, disclosure", () => {
@@ -117,14 +127,14 @@ test("cards: halftime shows Q1–Q2 only; final shows every period, leaders, run
   assert.doesNotMatch(half, /\bQ3\b/);
   const fin = html(React.createElement(BreakCard, { kind: "FINAL", manifest: m, sample: s, palette: load.palettes.team, onDismiss: () => {}, variant: "overlay", idBase: "x" }));
   const ft = text(fin);
-  for (const re of [/Final\/OT/, /\bOT1\b/, /Stat leaders/, new RegExp(`Run #${s.runIndex}`), /nba-sim-v1-coherent/, new RegExp(m.inputAsOf), /4,000/, new RegExp(m.seed), /SIMULATED · quarter checkpoints only/]) assert.match(ft, re);
+  for (const re of [/Final\/OT/, /\bOT1\b/, /Stat leaders/, new RegExp(`Run #${s.runIndex}`), /nba-sim-v1-coherent/, new RegExp(m.inputAsOf), new RegExp(m.simulations.toLocaleString("en-US")), new RegExp(m.seed), /SIMULATED · quarter checkpoints only/, /Real engine output \(CANDIDATE_SHADOW\)/]) assert.match(ft, re);
   assert.match(fin, /aria-label="Hide the final\/ot card"/, "dismissible");
   const sheet = text(html(React.createElement(BreakCard, { kind: "FINAL", manifest: m, sample: s, palette: load.palettes.team, variant: "sheet", idBase: "x" })));
   assert.match(sheet, /Sample, model and disclosure/, "the phone card folds the details");
 });
 
 test("outcome selector lists only present samples; rules and run numbers are available on demand", () => {
-  const nyk = LOADS[1];
+  const nyk = FIX_LOADS[1];
   const out = text(html(React.createElement(OutcomeChips, { manifest: nyk.manifest, selected: 0, idBase: "x", vertical: true })));
   assert.doesNotMatch(out, /Upset/);
   assert.match(out, /Typical/);

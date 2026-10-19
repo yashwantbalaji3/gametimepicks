@@ -11,7 +11,11 @@ import { adaptNbaArtifact } from "./adapter-nba-sim-v1.mjs";
 import { createTransport, transport } from "../transport-machine.mjs";
 
 const FIXTURE = JSON.parse(fs.readFileSync(path.join(process.cwd(), "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-fixture.json"), "utf8"));
-const SAMPLES = FIXTURE.games.flatMap((g) => adaptNbaArtifact(FIXTURE, g.providerEventId).manifest.samples.filter((s) => s.validation.ok));
+const REAL = JSON.parse(fs.readFileSync(path.join(process.cwd(), "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20.json"), "utf8"));
+const SAMPLES = [
+  ...FIXTURE.games.flatMap((g) => adaptNbaArtifact(FIXTURE, g.providerEventId).manifest.samples.filter((s) => s.validation.ok)),
+  ...REAL.games.flatMap((g) => adaptNbaArtifact(REAL, g.providerEventId, { provenance: { verified: true } }).manifest.samples.filter((s) => s.validation.ok)),
+];
 
 test("compiled timeline: Q 12 s, OT 5 s, 1.2 s quarter holds, 4 s halftime; checkpoints are the recorded cumulative scores", () => {
   for (const s of SAMPLES) {
@@ -52,7 +56,7 @@ test("stateAt at every checkpoint, break and the final is EXACT (recorded) and n
 });
 
 test("between checkpoints the score and clock are illustrative, monotone, and within the period's recorded bounds", () => {
-  for (const s of SAMPLES.slice(0, 6)) {
+  for (const s of [...SAMPLES.slice(0, 4), ...SAMPLES.slice(-6)]) {
     const c = compileTimeline(s);
     for (const seg of c.segments) {
       let prev = seg.before;
