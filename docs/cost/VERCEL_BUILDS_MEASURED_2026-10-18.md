@@ -326,3 +326,101 @@ The scratch scripts ran from a private temp directory and were deleted after thi
 2. #1088's `STAMP_RULES` are replayed per MLB commit.
 
 The release statuses in §5 were re-read at the end of the run (§1.1).
+
+## 10. Measured after-window (2026-10-18 04:54Z → 2026-10-19 06:00Z)
+
+**Method:** same as §1. Data: GraphQL latest `Vercel` status for 779 first-parent `main` commits (re-read 06:06Z), `deployments?environment=Production` plus statuses for the 83 deployments created after 04:54Z, Actions run lists, and the predicate parsed from each head's own `vercel-ignore-build.sh`. **Check:** the 10-11 → 10-17 rerun reproduces §0/§2 exactly (564 heads; 387/68/97/11/1; 38/51/298).
+
+**Windows:** before = 10-11 00:00Z → 10-18 04:46Z (7.199 d, 571 heads, 640 commits). After = 25.1 h (1.046 d, 103 heads, 128 commits, `38f731a80b` … `877a687556`). The four release merges fall in neither (§5).
+
+**Confounders:** the after window is an NFL Sunday plus an MLB ALCS day with one game. It ends at 06:00Z, a quarter of the way into 10-19 UTC. Per-day figures are shown, but the verdicts rest on per-commit and per-run rates.
+
+**Deployments cross-check:** 80 Production deployments belong to after-window heads: 69 `success`, 11 `inactive` "Canceled from the Vercel Dashboard", 0 failed. Every completed head has exactly one deployment. No ignored head has one.
+
+### 10.1 #1088 MLB stamp-only gate
+
+| Metric | Before | Expected | Measured after | Verdict |
+|---|---|---|---|---|
+| 1. Completed builds per MLB commit | 103 / 111 = **0.93** | ≈ 0.21 + heartbeats | **5 / 16 = 0.31**: 3 content (0.19) + 2 inherited | **Works** |
+| — per MLB workflow run | 103 / 118 = 0.87 | — | 5 / 17 = 0.29 | |
+| 2. MLB-headed completed builds per day | **14.3** (7 d: 14.4) | 4–7 | **4.8** (5 builds) | Within the expected range. One game; run counts were normal (11 lineup runs vs 10.1/day before; 6 production runs vs 6.3/day) |
+| 3. Suffixed commits | n/a | ignored, or folded into another build | **13** (8 lineup, 5 production): **9 ignored**, 2 superseded (`64ffbe3bef`, `2e371bf17d`), 2 built as inherited NO_INPUT (`7d81b51fac`, `edc513b22e`); **0 built on their own diff** | **Pass** |
+| 4. Ignored pushes per day | 9.9 (7 d: 9.7) | rises | **22.0** (23); 9 are MLB suffixed | Rose, as predicted |
+
+- **CLOCK_ONLY completed builds:** 52 before (47 of them lineup) → **0** after.
+- **Gate-suppressed runs that made no commit:** 0. The only lineup run without a commit (`39202284642`, 10-19 05:00Z) skipped at "Board precheck", meaning no slate. That comes from the jobs/steps API; logs were not downloaded.
+
+**Safety checks:**
+- **All 13 suffixed commits** (not just a sample of 5) change 0 files under `mlb/{full-game-simulations,predictions,game-simulations}/` and add 0 `prediction-snapshots/` files.
+- **All 3 unsuffixed commits built on their own head:**
+  - `ecf249fb29`: first slate of the day, with new files.
+  - `785fbdc8ff`: lineups confirmed; 314 non-clock leaves changed.
+  - `cf2f4b9793`: the frozen-pregame record for game 849817 was added.
+- **No pure heartbeat publish was seen.**
+
+**New cost from #1088's publication-SLO clause:**
+- **2 completed builds** (`d96022705f` 08:45Z, `f0b02a7ff7` 04:01Z) were auto-refresh pushes with no path input. In each, `publicSloKey` changed at the ET date roll (`date`, `state` PUBLISHED→PUBLISHING, deadline).
+- **All other auto-refresh and MLB pushes** with an SLO file change but unchanged public fields were ignored (11/11 not queued).
+- **ESTIMATE:** this clause adds about 1 build per ET day.
+- **Net #1088 ≈ −8 to −9 completed builds/day** on this slate.
+
+### 10.2 #1101 settle historical stamp guard
+
+| Metric | Before | Expected | Measured after | Verdict |
+|---|---|---|---|---|
+| 1. Files changed per settle commit | median **427** (413–458, n = 31) | large drop | **45** (44–67, n = 4: `01ac320a62` 67, `0cda4d4b21` 44, `e4f297bda9` 45, `ab363d26b0` 45) | **Works (−89%)** |
+| 2. Settle-headed completed builds | 27 / 31 commits (0.87); 3.8/day | not necessarily lower | **4 / 4 commits (1.00)**; 3.8/day. Runs: 5 (1 failed run, no commit) | Unchanged, as expected |
+| 3. Settle e2e p50 | 5.5 min | no change | 4.0 min | No regression; the drop is less queueing |
+| 4. CLOCK_ONLY settle pushes | 0 | — | **0 of 4** | Reruns carry real settlements, e.g. `e4f297bda9` UFC graded 70→79 and `ab363d26b0` results-projection revision 3→4 |
+
+The "publish only on new settlement" idea (§8 #5) has **no support** in this sample (n = 4, small).
+
+### 10.3 #1124 build-input coverage
+
+| Metric | Before | Expected | Measured after | Verdict |
+|---|---|---|---|---|
+| 1. Ignored shadow pushes | 3 / 21 heads | 0 | **0 / 3** | **Pass** |
+| 2. Shadow-headed completed builds | 15 / 21, all NO_INPUT | MEANINGFUL | **2 / 2 MEANINGFUL** (`ed149d6f60`, `ac0dc90452`); 1 superseded (`3fc1f7283c`) | **Pass** |
+| 3. Builds that happened only because of a newly covered path | REPLAY +0.43/day | +0.36–0.43/day; flag above 1/day | **2 completed + 1 superseded in 1.046 d = 1.9 completed/day** | **FLAG** |
+
+The 2 completed are the only pushes whose inputs exist only under the post-`d29a` predicate. Caveats on the flag:
+- `ac0dc90452` was queued behind `edc513b22e`, so under the old rule it might have been inherited anyway. The defensible range is **+1 to +2 builds in 25 h**.
+- Shadow pushes inherited far less often after the change. Before, 15 of 21 shadow heads built as NO_INPUT. Builds are now faster (§10.4), so fewer pushes land while another build is unresolved.
+- The sample is **3 pushes on an NFL Sunday** (12 shadow runs vs 8.6/day before). Too small to call; re-measure on a non-game weekday.
+
+### 10.4 Whole system
+
+| Metric | Before (7 d / 7.2 d) | Measured after | Note |
+|---|---|---|---|
+| Completed builds per day | **55.3** / 54.3 | **66.0** (69) | +19% vs 55.3, just under the +20% alert (66.4). NFL drove it: 24 builds vs 8.3/day |
+| Completed per first-parent commit | 0.611 (391 / 640) | **0.539** (69 / 128) | **−12%** |
+| Same-weekday check | Sun 10-11: 74 completed / 126 commits | Sun 10-18 (UTC day): 69 / 127 | −5 builds on equal commit volume |
+| Completed per commit, by family: MLB | 0.93 | 0.31 | Down |
+| — NFL window + receipts, per push | 0.92 | 0.96 | Unchanged |
+| — all other writers | 0.57 | 0.65 | Up: +2 SLO-clause, +2 from #1124 |
+| Ignored per day | 9.7 | 22.0 | Expected rise |
+| Canceled per day | 13.9 | 10.5 (11) | |
+| Failed | 0 since 10-15 15:30Z | **0** of 103 heads; 0 failed deployments | Pass |
+| Completed e2e p50 / p90 | 3.8 / 6.1 (10-17) | **3.8 / 5.7** | Pass |
+
+**Content vs inherited** (definition: a build is inherited when its push diff touches no build input and it was pushed while the previous head was unresolved):
+
+| | Before | After |
+|---|---|---|
+| Content: MEANINGFUL | 301 | 64 |
+| Content: CLOCK_ONLY | 52 | 0 |
+| Content: SLO-clause | — | 2 |
+| Content total | 353 (49.0/day) | **66** (63.1/day) |
+| Inherited | 38 (5.3/day; 37 queued) | **3** (2.9/day: `7d81b51fac`, `6439850685`, `edc513b22e`) |
+| Inherited per commit | 0.059 | 0.023 |
+
+The "head commit alone" variant gives the same 5 no-input builds.
+
+**10-19 NBA, after 05:00Z:**
+- **#1133 (`877a687556`, 05:49:16Z) produced 0 completed Production builds, not 1.** Its final status is "Canceled by Ignored Build Step" (pending 05:49:20Z → 05:50:07Z), and it has no deployment record.
+- This is correct for its diff: `.github/workflows/nba-forecast-window.yml` plus one `*.test.mjs`, which is excluded by `NON_BUILD_GLOBS`. The workflow change takes effect in Actions without a deploy.
+- **No `auto: nba …` commit landed on `main` after 05:00Z.** The 05:14Z `nba-results-refresh` run committed nothing.
+- **NBA-triggered Production builds after 05:00Z: 0.**
+- Earlier in the window: 2 `nba results capture` builds, both MEANINGFUL. Three NBA research heads were superseded (13:11Z).
+
+**Billing:** these are build counts only. No CPU or billed figure is available until FD-5.
