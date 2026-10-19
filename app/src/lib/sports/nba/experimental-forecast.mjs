@@ -193,6 +193,7 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     poolRateSubstitutions: 0, defaultSdSubstitutions: 0,
     gamesAlreadyStartedAtNow: 0,
     family: spec.family, poolRule: spec.poolRule,
+    ...(engineV1 ? { v1Pool: { profileVersion: V1_PROFILE_VERSION, simulated: 0, insufficientHistory: 0, out: 0, otherTeamHistory: 0 } } : {}),
     pool: rosterGated ? { poolVersion: ROSTER_GATED_POOL_VERSION, rosterPlayers: 0, playersSimulated: 0, playersInsufficientHistory: 0, playersExcludedNotOnRoster: 0, playersOtherTeamHistory: 0, gamesRefusedByRosterGate: 0 } : { poolVersion: null, rule: "v0: box-score history" },
     roster: rosters ? {
       provided: true, asOf: rosters.asOf ?? rosters.capturedAt ?? null, contractVersion: rosters.contractVersion ?? null,
@@ -250,6 +251,11 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
         // The gated rows are the roster (membership, availability under the CURRENT team); v1 reads each player's own
         // blended history from the index — the minutes-model rates on those rows are not used.
         profile = buildSideProfile(v1Index, { teamId: String(s?.providerTeamId), rosterRows: minutes.rows, asOf: now, population, league });
+        // v1's OWN pool counts (its blended two-season history differs from the gate's single-season minutes rows)
+        manifest.v1Pool.simulated += profile.players.length;
+        manifest.v1Pool.insufficientHistory += profile.insufficientHistory.length;
+        manifest.v1Pool.out += profile.excludedOut.length;
+        manifest.v1Pool.otherTeamHistory += profile.players.filter((p) => p.historyBasis === "other-team").length;
       }
       return { name, abbr: s?.abbr ?? null, providerTeamId: String(s?.providerTeamId), rating, minutes, rosterReconciliation, pool, ...(engineV1 ? { profile } : {}) };
     };

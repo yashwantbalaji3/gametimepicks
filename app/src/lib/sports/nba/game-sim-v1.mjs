@@ -51,9 +51,21 @@
  * ("fixed-per-game", v0's policy), so any draw can be replayed from (seed, runIndex) alone — that is how the
  * representative samples are produced and how the tests prove they are real draws.
  *
- * SIMULATION COUNT (benchmark, scripts/nba/evaluate-sim-v1.mjs --benchmark, 2024-25 games, 5 seeds each; see
- * V1_SIM_COUNT_BENCHMARK below): 10,000 draws. Monte-Carlo SE of pHome ≤ 0.005 and the seed-to-seed spread of a
- * rotation player's p50 points ≤ 0.5 at 10,000, at well under a second per game.
+ * SIMULATION COUNT — 10,000 draws, from the benchmark (scripts/nba/evaluate-sim-v1.mjs --benchmark → data/internal/
+ * research/nba/reports/sim-v1-simcount-benchmark.json): 10 games of 2024-25 (no outcome read), 5 seeds each, seed-to-seed
+ * SD of pHome and of each rotation player's (expected ≥ 20 min) p50 points, and wall time per game on the dev machine:
+ *
+ *     draws    pHome SD mean / max    analytic SE at p=.5    p50-pts SD mean / max    ms per game
+ *      1,000      0.0149 / 0.0211           0.0158               0.319 / 0.894             97
+ *      2,000      0.0131 / 0.0173           0.0112               0.208 / 0.548            107
+ *      5,000      0.0083 / 0.0122           0.0071               0.107 / 0.548            328
+ *     10,000      0.0055 / 0.0074           0.0050               0.095 / 0.548            767
+ *     20,000      0.0035 / 0.0042           0.0035               0.056 / 0.548           1111
+ *
+ * (the 0.548 max is a median sitting on an integer boundary, flipping between two integers at any N.) 10,000 keeps the
+ * pHome Monte-Carlo SD ≤ 0.0075 — below the 0.01 granularity anyone reads — and p50s stable to ~0.1 point, at < 1 s per
+ * game (an opening-night slate in seconds); 20,000 buys 0.002 of pHome for 45 % more time. V1_DEFAULT_SIMULATIONS = 10,000
+ * (v0's count too, so the families' draw counts match).
  */
 import { fnv1a32, mulberry32, SEED_POLICY } from "./game-sim.mjs";
 import { PROFILE_VERSION, PROFILE_PARAMS } from "./sim-v1-profile.mjs";
@@ -87,7 +99,6 @@ export const V1_PARAMS = Object.freeze({
   MIN_REGULATION_POINTS: 50,
   THREE_FEASIBILITY_RESAMPLES: 20,
 });
-export const V1_SIM_COUNT_BENCHMARK = null;
 
 const r2 = (x) => (x == null || !Number.isFinite(x) ? null : Number(x.toFixed(2)));
 const r4 = (x) => (x == null || !Number.isFinite(x) ? null : Number(x.toFixed(4)));
