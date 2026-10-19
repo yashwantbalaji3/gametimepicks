@@ -2,75 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-18T23:58:34Z",
+  "generatedAt": "2026-10-19T16:27:16Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 2,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
+    "upcomingEvents": 1,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
     "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873007",
-      "matchup": "DAL @ GB",
-      "kickoffUtc": "2026-10-19T00:20Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "ea1d4701d1a22962",
-        "simulations": 10000,
-        "generatedAt": "2026-10-18T23:58:34Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T23:58:34Z",
-        "participationInputHash": "6120efeb1263e337",
-        "excludedCount": 4,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Josh Jacobs",
-            "team": "GB",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Chris Brooks",
-            "team": "GB",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Skyy Moore",
-            "team": "GB",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Emari Demercado",
-            "team": "DAL",
-            "state": "Out",
-            "families": [
-              "rushAttempts"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873008",
@@ -79,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "dbb51a159761033b",
+        "inputHash": "398cf68b1f2405be",
         "simulations": 10000,
-        "generatedAt": "2026-10-18T23:58:34Z"
+        "generatedAt": "2026-10-19T16:27:16Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-10-18T23:58:34Z",
-        "participationInputHash": "e064a6fb6bd6a1e5",
+        "snapshotAsOf": "2026-10-19T16:27:16Z",
+        "participationInputHash": "6c1a596b28441c64",
         "excludedCount": 6,
         "materialExclusions": [
           {

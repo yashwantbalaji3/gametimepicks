@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-18T23:58:34Z",
+ "generatedAt": "2026-10-19T16:27:16Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,33 +17,33 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 16,
+  "scheduledUpcoming": 15,
   "forecastsTotal": 14,
-  "forecastsUpcoming": 2,
-  "forecastsStarted": 12,
+  "forecastsUpcoming": 1,
+  "forecastsStarted": 13,
   "marketEvents": 14,
-  "settled": 10
+  "settled": 11
  },
- "nextKickoffUtc": "2026-10-19T00:20Z",
- "nextMatchup": "DAL @ GB",
- "nextForecastUtc": "2026-10-19T00:20Z",
- "nextForecastMatchup": "DAL @ GB",
+ "nextKickoffUtc": "2026-10-20T00:15Z",
+ "nextMatchup": "WSH @ SF",
+ "nextForecastUtc": "2026-10-20T00:15Z",
+ "nextForecastMatchup": "WSH @ SF",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-18T23:29:13Z",
+  "generatedAt": "2026-10-18T23:58:34Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 89,
-  "decisive": 88,
-  "winnerAccuracy": 0.5795,
-  "marginMAE": 9.8315,
-  "totalMAE": 11.191,
-  "marginInterval80Coverage": 0.809,
-  "totalInterval80Coverage": 0.8202,
+  "settledForecasts": 90,
+  "decisive": 89,
+  "winnerAccuracy": 0.5843,
+  "marginMAE": 9.8222,
+  "totalMAE": 11.2111,
+  "marginInterval80Coverage": 0.8111,
+  "totalInterval80Coverage": 0.8222,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,60 +57,19 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 89,
-    "decisive": 88,
-    "winnerAccuracy": 0.5795,
-    "marginMAE": 9.8315,
-    "totalMAE": 11.191,
-    "marginInterval80Coverage": 0.809,
-    "totalInterval80Coverage": 0.8202
+    "settledForecasts": 90,
+    "decisive": 89,
+    "winnerAccuracy": 0.5843,
+    "marginMAE": 9.8222,
+    "totalMAE": 11.2111,
+    "marginInterval80Coverage": 0.8111,
+    "totalInterval80Coverage": 0.8222
    }
   },
   "unknownSeasonTypeRows": 0,
   "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: regular-season cohort; season types never share an aggregate."
  },
  "events": [
-  {
-   "providerEventId": "401873007",
-   "canonicalEventId": "nfl-401873007",
-   "matchup": "DAL @ GB",
-   "home": {
-    "abbr": "GB",
-    "name": "Green Bay Packers"
-   },
-   "away": {
-    "abbr": "DAL",
-    "name": "Dallas Cowboys"
-   },
-   "kickoffUtc": "2026-10-19T00:20Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 29,
-    "away": 23,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6352,
-    "away": 0.3341
-   },
-   "total": {
-    "median": 52,
-    "p10": 35,
-    "p90": 69,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "ea1d4701d1a22962",
-    "generatedAt": "2026-10-18T23:58:34Z"
-   }
-  },
   {
    "providerEventId": "401873008",
    "canonicalEventId": "nfl-401873008",
@@ -135,21 +94,21 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.8076,
-    "away": 0.1707
+    "home": 0.806,
+    "away": 0.1704
    },
    "total": {
     "median": 50,
     "p10": 33,
-    "p90": 67,
+    "p90": 68,
     "head": "matchup-totals-v3-play-efficiency"
    },
    "hasMarket": false,
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "dbb51a159761033b",
-    "generatedAt": "2026-10-18T23:58:34Z"
+    "inputHash": "398cf68b1f2405be",
+    "generatedAt": "2026-10-19T16:27:16Z"
    }
   },
   {
@@ -616,10 +575,10 @@
     "name": "Los Angeles Chargers"
    },
    "kickoffUtc": "2026-10-18T20:25Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 24,
@@ -642,6 +601,47 @@
     "version": 2,
     "inputHash": "dcb2ce7a32ac076d",
     "generatedAt": "2026-10-18T19:54:05Z"
+   }
+  },
+  {
+   "providerEventId": "401873007",
+   "canonicalEventId": "nfl-401873007",
+   "matchup": "DAL @ GB",
+   "home": {
+    "abbr": "GB",
+    "name": "Green Bay Packers"
+   },
+   "away": {
+    "abbr": "DAL",
+    "name": "Dallas Cowboys"
+   },
+   "kickoffUtc": "2026-10-19T00:20Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 29,
+    "away": 23,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.6352,
+    "away": 0.3341
+   },
+   "total": {
+    "median": 52,
+    "p10": 35,
+    "p90": 69,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "ea1d4701d1a22962",
+    "generatedAt": "2026-10-18T23:58:34Z"
    }
   }
  ],
