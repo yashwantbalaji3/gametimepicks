@@ -6,6 +6,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { FIXTURE_BANNER, NBA_ENGINE_ID, adaptNbaArtifact, checkHistogram, defaultSampleIndex } from "./adapter-nba-sim-v1.mjs";
@@ -36,9 +37,17 @@ test("the fixture is marked fixture: true, carries the engine id and adapts with
 });
 
 test("the fixture generator is deterministic (re-running it reproduces the committed file byte for byte)", () => {
+  // integration 2026-10-19: written to a temp file (the test never rewrites the committed fixture) from the PINNED roster
+  // extract, so a later roster capture on main cannot turn this red; the generator no longer reads rosters/latest.json
+  const gen = path.join(APP, "src/lib/simulation-theater/nba/__fixtures__/generate-nba-fixture.mjs");
+  assert.doesNotMatch(fs.readFileSync(gen, "utf8").replace(/\/\*[\s\S]*?\*\//g, ""), /rosters\/latest\.json/, "the generator reads the pinned roster, not the live capture");
   const before = fs.readFileSync(path.join(APP, FIX_REL), "utf8");
-  execFileSync(process.execPath, [path.join(APP, "src/lib/simulation-theater/nba/__fixtures__/generate-nba-fixture.mjs")], { cwd: APP, stdio: "pipe" });
-  assert.equal(fs.readFileSync(path.join(APP, FIX_REL), "utf8"), before);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "nba-fixture-"));
+  for (const out of ["a.json", "b.json"]) {
+    execFileSync(process.execPath, [gen, "--out", path.join(dir, out)], { cwd: APP, stdio: "pipe" });
+    assert.equal(fs.readFileSync(path.join(dir, out), "utf8"), before, `${out}: byte-identical to the committed fixture`);
+  }
+  assert.equal(fs.readFileSync(path.join(APP, FIX_REL), "utf8"), before, "the committed fixture is untouched");
 });
 
 test("a baseline sample passes; each contract invariant rejects its mutation", () => {

@@ -7,17 +7,16 @@
  * team scores, a random quarter split, OT until untied, a random but coherent player allocation). It says nothing about
  * these games. The artifact is marked `fixture: true`; the theater renders it only under its TEST FIXTURE banner.
  *
- * Deterministic: same script → byte-identical file. Player names and ids come from the committed roster capture
- * (data/internal/research/nba/rosters/latest.json), so the layout sees realistic name lengths.
+ * Deterministic: same script → byte-identical file. Player names and ids come from a PINNED extract of a committed
+ * roster capture (nba-fixture-roster.json), so the layout sees realistic name lengths and later captures change nothing.
  *
- * Run (from app/): node src/lib/simulation-theater/nba/__fixtures__/generate-nba-fixture.mjs
+ * Run (from app/): node src/lib/simulation-theater/nba/__fixtures__/generate-nba-fixture.mjs [--out <file>] [--roster <file>]
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const REPO = path.resolve(HERE, "../../../../../..");
 const OUT = path.join(HERE, "nba-sim-v1-fixture.json");
 const N = 4000;
 
@@ -110,7 +109,17 @@ function allocate(r, pts, ot, roster) {
   return { team: { pts, reb, ast, threePa, threePm, twoPm, ftm, fgm }, players };
 }
 
-const roster = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/nba/rosters/latest.json"), "utf8"));
+/*
+ * PINNED ROSTER (integration 2026-10-19). The generator used to read the LIVE roster capture
+ * (data/internal/research/nba/rosters/latest.json), so every roster capture on main changed this "deterministic" file and
+ * turned its byte-for-byte test red. It now reads nba-fixture-roster.json: the six opening-night teams' active players
+ * extracted from the capture the committed fixture was generated from (provenance inside). `--roster <file>` overrides
+ * it and `--out <file>` writes elsewhere (the test writes to a temp file and never touches the committed fixture).
+ */
+const arg = (n) => { const i = process.argv.indexOf(n); return i > -1 ? process.argv[i + 1] ?? null : null; };
+const ROSTER_FILE = arg("--roster") ? path.resolve(arg("--roster")) : path.join(HERE, "nba-fixture-roster.json");
+const OUT_FILE = arg("--out") ? path.resolve(arg("--out")) : OUT;
+const roster = JSON.parse(fs.readFileSync(ROSTER_FILE, "utf8"));
 const games = GAMES.map((G) => {
   const seed = hash(`fixture:${G.id}`).toString(16).padStart(8, "0");
   const r = rng(parseInt(seed, 16));
@@ -172,5 +181,5 @@ const artifact = {
   dataClass: "PRIVATE_RESEARCH", productEligible: false, modelVersion: "nba-sim-v1-coherent", family: "v1-fixture",
   generatedAt: "2026-10-19T12:00:00Z", inputAsOf: "2026-10-19T12:00:00Z", date: "2026-10-20", games,
 };
-fs.writeFileSync(OUT, `${JSON.stringify(artifact, null, 1)}\n`);
-console.log(`wrote ${path.relative(process.cwd(), OUT)}: ${games.length} games, samples ${games.map((g) => g.forecast.representativeSamples.map((s) => `${s.label}#${s.runIndex}${s.overtimePeriods ? `(OT${s.overtimePeriods})` : ""}`).join(",")).join(" | ")}`);
+fs.writeFileSync(OUT_FILE, `${JSON.stringify(artifact, null, 1)}\n`);
+console.log(`wrote ${path.relative(process.cwd(), OUT_FILE)}: ${games.length} games, samples ${games.map((g) => g.forecast.representativeSamples.map((s) => `${s.label}#${s.runIndex}${s.overtimePeriods ? `(OT${s.overtimePeriods})` : ""}`).join(",")).join(" | ")}`);
