@@ -65,6 +65,7 @@ import { boardTabs, topBoards } from "@/lib/sports/nfl/forecast-view.mjs";
 import { loadForecastViews } from "@/lib/sports/nfl/forecast-view-load.mjs";
 import { formatUpdatedEt } from "@/lib/format";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
+import { sanitizeVaultArtifact } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
 
 export const metadata: Metadata = withRouteMetadata("/nfl/", {
   title: "NFL Hub — Slate, Experimental Simulations & Coverage Status · GameTime Picks",
@@ -359,8 +360,9 @@ export default function NflHubPage() {
 
   // P174-E: Endzone Vault. Renders only when the evaluator produced candidates; a NO_VAULT or
   // INCIDENT window shows nothing here rather than an empty table pretending to be a product.
-  type VaultRow = { playerId: string; name: string; position: string | null; team: string; opponent?: string | null; event: string; providerEventId?: string | null; kickoffUtc?: string | null; tdProbability: number; roleState: string; marketPrice?: { yesOdds?: number; sportsbook?: string; capturedAt?: string } | null };
-  const vault = read("nfl/end-zone-vault/latest.json") as
+  type VaultRow = { playerId: string; name: string; position: string | null; team: string; opponent?: string | null; event: string; providerEventId?: string | null; kickoffUtc?: string | null; tdProbability: number; roleState: string; marketPrice?: { yesOdds?: number; sportsbook?: string | null; capturedAt?: string; bookWithheld?: string | null } | null };
+  /* O-7: the Vault's `marketPrice` goes through the same loader sanitiser as the player boards (eligible-operators@1). */
+  const vault = sanitizeVaultArtifact(read("nfl/end-zone-vault/latest.json")) as
     | { state: string; reason: string; disclaimer: string; generatedAt?: string; selections: VaultRow[]; watchlist: VaultRow[] }
     | null;
   const propAbsence = markets?.propMarkets?.state === "PROBED" && (markets.propMarkets.offeredMarkets ?? []).length === 0;

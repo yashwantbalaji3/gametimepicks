@@ -21,6 +21,7 @@ import { useLiveEvent } from "@/components/live/use-live-event";
 import { etDateOf } from "@/lib/live/client";
 import { indexLiveProps, liveRowsFromEnvelope } from "@/lib/prediction-presentation/nfl";
 import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
+import { BOOK_AVAILABILITY_NOTE, isEligibleProvider } from "@/lib/sports/odds/eligible-operators.mjs";
 
 import PlayerRow, { type RowEntry, type RowFamily, type RowPlayer } from "./player-row";
 
@@ -108,6 +109,8 @@ export default function FamilyTabs({ families, lists, linkToGame, label, listLab
                 </ol>
                 <p className="nf-faint" style={{ margin: "8px 0 0" }}>
                   {narrowed ? `${rows.length} of ${total} shown · ` : ""}{f.metric}{f.sourceLabel ? ` · ${f.sourceLabel}` : ""}{f.asOf ? ` · as of ${fmtAsOf(f.asOf)}` : ""}
+                  {/* Licensed somewhere ≠ available here: said once under any list that names a book. */}
+                  {rows.some((r) => r.entry.market && !r.entry.market.bookWithheld && isEligibleProvider(r.entry.market.sportsbook)) ? ` · ${BOOK_AVAILABILITY_NOTE}` : ""}
                 </p>
               </>
             ) : (

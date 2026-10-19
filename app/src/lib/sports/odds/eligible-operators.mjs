@@ -36,6 +36,13 @@ export const ELIGIBLE_OPERATOR_KEYS = Object.freeze([
  *  never depends on this list (anything absent from ELIGIBLE_OPERATOR_KEYS is already excluded). */
 export const KNOWN_OFFSHORE_KEYS = Object.freeze(["bovada", "betonlineag", "mybookieag", "betus", "lowvig", "betanysports"]);
 
+/**
+ * ⚠ "ELIGIBLE" MEANS LICENSED IN AT LEAST ONE US JURISDICTION — NOT "AVAILABLE TO THIS READER". GameTimePicks has
+ * no geo or state gating, so a page that names an eligible book must not read as a claim that the reader can use
+ * it. Every surface that prints a book name prints this sentence beside it (one owner, so the wording cannot drift).
+ */
+export const BOOK_AVAILABILITY_NOTE = "Sportsbook availability varies by state.";
+
 const ELIGIBLE = new Set(ELIGIBLE_OPERATOR_KEYS);
 
 /** True only for a listed operator key. Unknown, empty or non-string keys are not eligible. */

@@ -26,7 +26,7 @@ import Link from "next/link";
 import PlayerAvatar from "@/components/player-avatar";
 import type { MarketSnapshot, ModelForecast, PredictionPresentation } from "@/lib/prediction-presentation/contract";
 import { RAIL_STATE, railGeometry, railStateOf } from "@/lib/live/tracked-prediction.mjs";
-import { isEligibleOperator } from "@/lib/sports/odds/eligible-operators.mjs";
+import { BOOK_AVAILABILITY_NOTE, isEligibleOperator } from "@/lib/sports/odds/eligible-operators.mjs";
 
 /** ET, once, for every surface that renders a prediction. */
 export const etStart = (iso: string) =>
@@ -526,6 +526,9 @@ export function PredictionBoard({
         })}
       </ol>
       {sharedNote ? <p className="gtp-pred-note">{sharedNote}</p> : null}
+      {/* The allowlist means "licensed in at least one US jurisdiction", not "available where you are" — so a
+          board that names a book says so, once, beneath it. A board naming no book carries no such line. */}
+      {predictions.some((p) => shownFrozen(p.market)) ? <p className="gtp-pred-note" data-book-availability>{BOOK_AVAILABILITY_NOTE}</p> : null}
     </div>
   );
 }

@@ -6,7 +6,7 @@
  * `internal-route-guard` already makes internal pages render a data-free 404 shell in production
  * (defense-in-depth); this step removes the shipped payload entirely. Chained into `npm run build`.
  *
- * THREE SWEEPS, each closing a hole the previous one left open:
+ * FOUR SWEEPS, each closing a hole the previous one left open:
  *   1. ROUTE HTML   — delete out/<route>/ and out/<route>.txt.
  *   2. ROUTE CHUNKS — delete out/_next/static/chunks/app/<route>/. Deleting the HTML alone leaves the
  *                     page's compiled JS on the CDN at a guessable path; the /ops chunk carried the
@@ -16,6 +16,11 @@
  *                     mirrors into `out/data/`, where every file is world-readable at its raw URL even
  *                     though nothing links it. Deny-by-default is the only sweep that cannot rot: it
  *                     needs no list of what is secret, only proof of what is used.
+ *   4. OFFERS       — the exported COPY of each `nfl/live-props/<eventId>.json` withholds any frozen offer from a
+ *                     sportsbook outside the eligible-operator allowlist (eligible-operators@1, approval package
+ *                     O-6): `{ sportsbook: null, bookWithheld: "ineligible-operator" }` replaces the book, line
+ *                     and prices. Projections, live facts and settlement are untouched; a file with nothing to
+ *                     withhold is not rewritten (byte-identical); public/data itself is never written.
  *
  * WHY DERIVE THE KEEP-SET INSTEAD OF LISTING IT
  * A hand-maintained allowlist goes stale the first time someone adds a fetch. The keep-set is read
@@ -34,6 +39,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { LEGAL_ROUTES, legalRouteIsPublic } from "../src/lib/legal/texts.mjs";
+import { sanitizeLivePropsJsonText } from "../src/lib/sports/odds/public-offer-sanitizer.mjs";
 
 /* Legal pages join the sweep until they may publish (lib/legal/texts.mjs · legalReadiness): an
    unapproved Terms page must not be reachable at its raw URL any more than /launch is. */
@@ -255,4 +261,25 @@ if (!fs.existsSync(dataDir)) {
     `[prune-internal-routes] out/data swept: removed ${removedFiles} file(s), ` +
       `${(removedBytes / 1e6).toFixed(1)} MB; kept ${kept.length ? kept.join(", ") : "(nothing referenced)"}`,
   );
+}
+
+// ── 4. offers: the public copy withholds ineligible sportsbooks (eligible-operators@1) ──────────
+/*
+ * Runs in BOTH data branches above (it is a rewrite of what is published, not a choice of what is). Scoped to the
+ * one documented directory whose records carry a frozen sportsbook offer and are fetched by the browser at runtime;
+ * the post-build guard (lib/sports/odds/public-offer-export.built.test.mjs) scans every exported HTML, RSC payload
+ * and out/data JSON so a new carrier anywhere else fails the build's test phase instead of shipping.
+ */
+{
+  const lpDir = path.join(dataDir, "nfl", "live-props");
+  const rewritten = [];
+  for (const p of walkFiles(lpDir)) {
+    if (!p.endsWith(".json")) continue;
+    const before = fs.readFileSync(p, "utf8");
+    const { text, withheld } = sanitizeLivePropsJsonText(before);
+    if (text === before) continue;
+    fs.writeFileSync(p, text);
+    rewritten.push(`${path.relative(dataDir, p)} (${withheld} withheld)`);
+  }
+  console.log(`[prune-internal-routes] ineligible-operator offers withheld in out/data: ${rewritten.length ? rewritten.join(", ") : "(none)"}`);
 }

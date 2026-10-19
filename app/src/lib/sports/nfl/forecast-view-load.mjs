@@ -8,6 +8,7 @@ import path from "node:path";
 
 import { gameView } from "./forecast-view.mjs";
 import { unionFrozenForecasts } from "./public-forecast-union.mjs";
+import { sanitizePlayerBoard } from "../odds/public-offer-sanitizer.mjs";
 import { readWorldModelArtifacts } from "./world-model-v2/read.mjs";
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
@@ -18,7 +19,7 @@ export function loadForecastViews(publicDir) {
   const art = unionFrozenForecasts(readJson(path.join(data, "forecasts/latest.json")), readJson(path.join(data, "forecasts/frozen-latest.json")));
   const worlds = new Map(readWorldModelArtifacts(publicDir).map((a) => [a.identity.providerEventId, a]));
   return (art?.forecasts ?? [])
-    .map((f) => gameView({ forecast: f, world: worlds.get(String(f.providerEventId)) ?? null, board: readJson(path.join(data, "player-board", `${f.providerEventId}.json`)) }))
+    .map((f) => gameView({ forecast: f, world: worlds.get(String(f.providerEventId)) ?? null, board: sanitizePlayerBoard(readJson(path.join(data, "player-board", `${f.providerEventId}.json`))) }))
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc) || a.providerEventId.localeCompare(b.providerEventId));
 }
 
