@@ -113,9 +113,9 @@ test("player panel: the sample's final game totals, labelled; during playback it
   // values are exactly the sample's (no scaling): every player's points appear
   for (const p of s.players.home) assert.ok(fin.includes(p.name));
   // v1 player numbers sit beside the model's playRate
-  assert.match(fin, /plays in \d+% of draws/);
+  assert.match(fin, /plays \d+%/);
   const fx = FIX_LOADS[0];
-  assert.doesNotMatch(text(html(React.createElement(PlayerPanel, { sample: fx.manifest.samples[0], teams: fx.manifest.teams, palette: fx.palettes.team, playing: false, playRates: fx.manifest.playRates }))), /plays in/, "no playRate invented for the fixture");
+  assert.doesNotMatch(text(html(React.createElement(PlayerPanel, { sample: fx.manifest.samples[0], teams: fx.manifest.teams, palette: fx.palettes.team, playing: false, playRates: fx.manifest.playRates }))), /plays \d+%/, "no playRate invented for the fixture");
 });
 
 test("cards: halftime shows Q1–Q2 only; final shows every period, leaders, run #, rule, model, inputAsOf, simulations, seed, disclosure", () => {
