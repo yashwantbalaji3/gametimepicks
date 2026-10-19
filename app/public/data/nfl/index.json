@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-19T16:27:16Z",
+ "generatedAt": "2026-10-19T20:08:06Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -22,7 +22,7 @@
   "forecastsUpcoming": 1,
   "forecastsStarted": 13,
   "marketEvents": 14,
-  "settled": 11
+  "settled": 13
  },
  "nextKickoffUtc": "2026-10-20T00:15Z",
  "nextMatchup": "WSH @ SF",
@@ -33,17 +33,17 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-10-18T23:58:34Z",
+  "generatedAt": "2026-10-19T16:27:16Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 90,
-  "decisive": 89,
-  "winnerAccuracy": 0.5843,
-  "marginMAE": 9.8222,
-  "totalMAE": 11.2111,
-  "marginInterval80Coverage": 0.8111,
-  "totalInterval80Coverage": 0.8222,
+  "settledForecasts": 92,
+  "decisive": 91,
+  "winnerAccuracy": 0.5934,
+  "marginMAE": 9.7065,
+  "totalMAE": 11.2935,
+  "marginInterval80Coverage": 0.8152,
+  "totalInterval80Coverage": 0.8261,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,13 +57,13 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 90,
-    "decisive": 89,
-    "winnerAccuracy": 0.5843,
-    "marginMAE": 9.8222,
-    "totalMAE": 11.2111,
-    "marginInterval80Coverage": 0.8111,
-    "totalInterval80Coverage": 0.8222
+    "settledForecasts": 92,
+    "decisive": 91,
+    "winnerAccuracy": 0.5934,
+    "marginMAE": 9.7065,
+    "totalMAE": 11.2935,
+    "marginInterval80Coverage": 0.8152,
+    "totalInterval80Coverage": 0.8261
    }
   },
   "unknownSeasonTypeRows": 0,
@@ -107,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "398cf68b1f2405be",
-    "generatedAt": "2026-10-19T16:27:16Z"
+    "inputHash": "153922730ebd860e",
+    "generatedAt": "2026-10-19T20:08:06Z"
    }
   },
   {
@@ -534,10 +534,10 @@
     "name": "Buffalo Bills"
    },
    "kickoffUtc": "2026-10-18T20:25Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 21,
@@ -616,10 +616,10 @@
     "name": "Dallas Cowboys"
    },
    "kickoffUtc": "2026-10-19T00:20Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 29,
