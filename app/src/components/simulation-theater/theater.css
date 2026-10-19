@@ -460,10 +460,10 @@
   border:1px solid var(--border-strong);box-shadow:0 24px 48px -20px var(--bg),inset 0 1px 0 color-mix(in srgb, var(--lava-text) 10%, transparent);
   animation:st-card-in var(--motion-entrance-duration) var(--motion-entrance-easing) both}
 @keyframes st-card-in{from{opacity:0;transform:translate(-50%,-46%) scale(.98)}to{opacity:1;transform:translate(-50%,-50%)}}
-.st-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:46px;padding:4px 6px 2px 16px;border-top:3px solid var(--vault-warn)}
-.st-card-title{margin:0;font:800 clamp(16px, 3.2cqi, 26px)/1.1 var(--font-headline);letter-spacing:.2em;text-transform:uppercase}
+.st-card-head{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"eye close" "title close";align-items:center;column-gap:12px;min-height:46px;padding:8px 6px 4px 16px;border-top:3px solid var(--vault-warn)}
+.st-card-title{grid-area:title;margin:0;font:800 clamp(16px, 3.2cqi, 26px)/1.1 var(--font-headline);letter-spacing:.2em;text-transform:uppercase}
 .st-card-x{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid var(--border-strong);background:var(--st-panel-2);color:var(--st-text);cursor:pointer}
-.st-fieldwrap .st-card-x svg{position:static;inset:auto;width:18px;height:18px}
+.st-fieldwrap .st-card-x svg,.st-card-x svg{position:static;inset:auto;width:18px;height:18px}
 .st-card-table{width:100%;border-collapse:separate;border-spacing:0 4px;padding:0 12px;font-variant-numeric:tabular-nums}
 .st-card-table thead th{font:600 10px var(--font-mono);letter-spacing:.12em;color:var(--st-faint);text-align:right;padding:0 10px}
 .st-card-table tbody th{text-align:left;padding:0;font-weight:inherit}
@@ -481,6 +481,60 @@
 .st-card-line span{display:block;margin-top:1px;color:var(--st-faint)}
 .st-card.is-final .st-card-head{border-top-color:var(--lava-heat)}
 .st-root[data-st-colors="team"] .st-card{overflow:hidden}
+
+/* ── iteration 8 ───────────────────────────────────────────────────────────────────────────────────────────── */
+/* break cards: eyebrow, Esc hint, the two-team colour rule, a lit winner row */
+.st-card{width:min(420px, 88%)}
+.st-card-eyebrow{grid-area:eye;font:600 9.5px var(--font-mono);letter-spacing:.22em;text-transform:uppercase;color:var(--st-faint)}
+.st-card-close{grid-area:close;display:inline-flex;align-items:center;gap:8px}
+.st-card-kbd{font:600 9.5px var(--font-mono);letter-spacing:.06em;padding:2px 6px;border:1px solid var(--border-strong);border-bottom-width:2px;border-radius:5px;color:var(--st-faint)}
+.st-card-rule{display:flex;gap:2px;height:6px;margin:0 0 6px;background:var(--bg)}
+.st-card-rule i{flex:1 1 0}
+.st-card.is-final tr.is-leader th,.st-card.is-final tr.is-leader td{background:color-mix(in srgb, var(--vault-warn) 7%, transparent)}
+.st-card.is-final tr.is-leader td:last-child{border-radius:0 8px 8px 0}
+/* phones: a compact, non-modal sheet fixed to the viewport bottom, above the site's bottom navigation (≈56 px + 12) */
+.st-card.is-sheet{position:fixed;top:auto;left:max(8px, env(safe-area-inset-left, 0px));right:max(8px, env(safe-area-inset-right, 0px));
+  bottom:calc(env(safe-area-inset-bottom, 0px) + 68px);transform:none;width:auto;max-width:560px;margin:0 auto;z-index:39;border-radius:14px;padding-bottom:8px;
+  box-shadow:0 -10px 32px -12px var(--bg),0 0 0 1px var(--border-strong);animation:st-sheet-in var(--motion-entrance-duration) var(--motion-entrance-easing) both}
+@keyframes st-sheet-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (min-width:768px){.st-card.is-sheet{bottom:calc(env(safe-area-inset-bottom, 0px) + 12px)}}
+.st-card.is-sheet .st-card-head{min-height:44px;padding:4px 0 2px 12px}
+.st-card.is-sheet .st-card-title{font-size:15px;letter-spacing:.16em}
+.st-card.is-sheet .st-card-eyebrow{font-size:8.5px;letter-spacing:.18em}
+.st-card.is-sheet .st-card-kbd{display:none}
+.st-card.is-sheet .st-card-x{border:0;border-left:1px solid var(--border-strong);border-radius:0}
+.st-card.is-sheet .st-card-rule{height:4px;margin-bottom:4px}
+.st-card.is-sheet .st-card-table{border-spacing:0 2px;padding:0 10px;line-height:1.1}
+.st-card.is-sheet .st-card-table thead th{font-size:9px;line-height:12px;padding:0 8px}
+.st-card.is-sheet .st-card-table td{font-size:14px;padding:0 8px}
+.st-card.is-sheet .st-card-table td.is-total{font-size:22px}
+.st-card.is-sheet .st-card-team{height:28px;min-width:68px;font-size:15px;gap:6px;padding-right:8px}
+.st-card.is-sheet .st-card-line{margin:3px 12px 0;font-size:9.5px;letter-spacing:.06em}
+.st-card.is-sheet .st-card-table tbody th{white-space:nowrap}
+.st-card.is-sheet .st-card-win{margin-left:6px}
+.st-card.is-sheet .st-card-line span{display:inline;margin-left:8px}
+@media (max-width:359px){
+  .st-card.is-sheet .st-card-team{min-width:58px;font-size:13.5px}
+  .st-card.is-sheet .st-card-table td{font-size:13px;padding:0 6px}
+  .st-card.is-sheet .st-card-line span{display:block;margin:1px 0 0}
+}
+/* while the sheet shows, focused controls scroll clear of it (WCAG 2.4.11) */
+:root:has(.st-card.is-sheet){scroll-padding-bottom:250px}
+
+/* the illustrative yardage and its tag: one unit, never wrapped apart */
+.st-bug-sit-illus{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;white-space:nowrap}
+.st-bug-sit-illus .st-bug-sit-tag{margin-left:0}
+.st-strip-timing{display:inline-flex;margin-left:10px}
+.st-strip-timing .st-bug-sit-tag{margin-left:0;background:var(--bg)}
+@container (max-width:640px){
+  /* narrow: the rollover's timing tag takes its own line rather than being cut off */
+  .st-strip.is-roll{flex-wrap:wrap;justify-content:center;row-gap:3px}
+  .st-strip-timing{margin-left:0}
+}
+/* the camera hint on phones and the dev-only zoom review label */
+.st-camhint{flex:1 1 100%;font-size:10px}
+.st-review{flex:1 1 100%;margin:0;padding:6px 10px;border:1px dashed var(--vault-warn);border-radius:8px;font:500 11px var(--font-mono);color:var(--st-mute);letter-spacing:.03em}
+.st-review b{color:var(--vault-warn);text-transform:uppercase;letter-spacing:.12em}
 
 /* drive-end lower third: the offense's own block, then the recorded totals */
 .st-lower.is-drive .st-lower-team{display:flex;align-items:center;padding:6px 10px;font:800 12.5px var(--font-headline);letter-spacing:.08em;background:var(--st-panel-2);color:var(--st-text)}
@@ -507,7 +561,10 @@
   /* narrow: the strip wraps rather than truncating a recorded spot or total */
   .st-bug-sit-text{white-space:normal}
   .st-scenebar{gap:4px 8px}
-  .st-camtoggle-l{display:none}
+  /* phones (iteration 8): the camera control is a labelled, full-width segmented control */
+  .st-camtoggle{flex:1 1 100%}
+  .st-camtoggle-l{padding:0 8px}
+  .st-camopt{flex:1 1 0;padding:0 8px}
   .st-strip.is-period{bottom:6%;padding:5px 10px 6px 10px}
   .st-lower{bottom:4%}
   .st-bug-illus:not(.on){display:none}
@@ -532,7 +589,7 @@
 }
 
 @media (prefers-reduced-motion: reduce){
-  .st-card,.st-roll,.st-bug-team:has(.is-roll){animation:none}
+  .st-card,.st-card.is-sheet,.st-roll,.st-bug-team:has(.is-roll){animation:none}
   .st-roll::before{display:none}
 }
 .st-root[data-st-reduced="1"] .st-card,.st-root[data-st-reduced="1"] .st-roll,.st-root[data-st-reduced="1"] .st-bug-team:has(.is-roll){animation:none}

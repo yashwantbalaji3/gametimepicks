@@ -16,7 +16,9 @@
  * unpackTheater (lossless; theater-pack.test.mjs).
  *
  * DEV HOOK (dev route only, `devHooks`): `?run=<runIndex>&t=<seconds>` opens that run paused at that playback second,
- * for reproducible screenshots and demos. The public route never passes devHooks.
+ * for reproducible screenshots and demos. `?zoomCap=1.6` (iteration 8) frames the follow camera with a REVIEW cap instead
+ * of the spec's 1.35×, labelled on screen as a review variant; only the values in camera.mjs REVIEW_ZOOM_CAPS are
+ * honoured. The public route never passes devHooks, so neither hook exists there.
  */
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent } from "react";
@@ -41,7 +43,7 @@ import { TEAM_COLORS_VALIDATED, theaterPalette } from "@/lib/simulation-theater/
 import { fieldMap, overlayFrame } from "@/lib/simulation-theater/field-geometry.mjs";
 import { unpackTheater } from "@/lib/simulation-theater/theater-pack.mjs";
 import { timelineLayout } from "@/lib/simulation-theater/timeline-layout.mjs";
-import { cameraAt, cameraScreenX, cameraTransform } from "@/lib/simulation-theater/camera.mjs";
+import { CAMERA_POLICY, cameraAt, cameraScreenX, cameraTransform, zoomCapFor } from "@/lib/simulation-theater/camera.mjs";
 import { breakCard, driveEndLowerThird, driveSituation, periodCard, progressYardsText, rolloverCard } from "@/lib/simulation-theater/broadcast.mjs";
 import { MARGIN_X } from "@/lib/simulation-theater/field-geometry.mjs";
 
@@ -112,14 +114,13 @@ function useBoxSize(ref: React.RefObject<HTMLElement>, mounted: boolean) {
   return size;
 }
 
-/** Dev-only `?run=&t=` (seconds). Read once; ignored unless the route passed devHooks. */
-function readDevHook(enabled: boolean): { run: number | null; t: number | null } {
-  if (!enabled || typeof window === "undefined") return { run: null, t: null };
+/** Dev-only `?run=&t=` (seconds) and `?zoomCap=` (a review variant). Read once; ignored unless the route passed devHooks. */
+function readDevHook(enabled: boolean): { run: number | null; t: number | null; zoomCap: number | null } {
+  if (!enabled || typeof window === "undefined") return { run: null, t: null, zoomCap: null };
   const q = new URLSearchParams(window.location.search);
-  const run = q.get("run");
-  const t = q.get("t");
   const num = (v: string | null) => (v != null && v !== "" && Number.isFinite(Number(v)) ? Number(v) : null);
-  return { run: num(run), t: num(t) };
+  const zc = num(q.get("zoomCap"));
+  return { run: num(q.get("run")), t: num(q.get("t")), zoomCap: zc != null && zc !== CAMERA_POLICY.maxZoom && zoomCapFor(zc) === zc ? zc : null };
 }
 
 // ── camera preference (iteration 7): per viewer, in localStorage, every access guarded (private windows, blocked storage)
@@ -330,11 +331,11 @@ function teamVars(palette: Palette, side: Side) {
 }
 
 /**
- * On-field broadcast cards (iteration 7). Non-blocking strips (start of period, quarter rollover, end of half) are
- * aria-hidden: the score bug and the live region carry their facts. The halftime and final cards are readable sections
- * (not live regions, so nothing is announced twice); the final card can be dismissed (button or Escape).
+ * On-field broadcast strips (iteration 7). Non-blocking strips (start of period, quarter rollover, end of half, end of
+ * regulation) are aria-hidden: the score bug and the live region carry their facts. The halftime and final cards are
+ * BreakCard below.
  */
-function BroadcastCards({ cards, palette, onDismiss, idBase }: { cards: CardSet; palette: Palette; onDismiss: () => void; idBase: string }) {
+function BroadcastStrips({ cards, palette }: { cards: CardSet; palette: Palette }) {
   const { period, brk, roll, endHalf } = cards;
   const team = palette.mode === "team";
   return (
@@ -350,6 +351,13 @@ function BroadcastCards({ cards, palette, onDismiss, idBase }: { cards: CardSet;
         <div className="st-strip is-roll" aria-hidden="true" key={`r-${roll.title}`} data-st-card="ROLLOVER">
           <span className="st-strip-main">{roll.title}</span>
           <span className="st-strip-sub">{roll.sub}</span>
+          {roll.timing ? (
+            /* the quarter ended inside a drive: the instant shown is the interpolated clock's (iteration 8) */
+            <span className="st-strip-timing" data-st-interp-scope="rollover">
+              <span className="st-sr" data-st-interp="rollover-instant" />
+              <span className="st-bug-sit-tag is-illustrative" data-st-interp-tag="">{roll.timing}</span>
+            </span>
+          ) : null}
         </div>
       ) : null}
       {endHalf && !brk ? (
@@ -357,51 +365,87 @@ function BroadcastCards({ cards, palette, onDismiss, idBase }: { cards: CardSet;
       ) : null}
       {brk && brk.kind === "END_REG" ? (
         <div className="st-strip is-major" aria-hidden="true" data-st-card="END_REG">
-          {team ? (
-            <span className="st-strip-rule">
-              {(["away", "home"] as Side[]).map((s) => (
-                <i key={s} data-st-cue={palette[s].patterned ? "" : undefined}
-                  style={{ background: `${palette[s].patterned ? "var(--st-cue), " : ""}linear-gradient(180deg, ${palette[s].fill} 0 62%, ${palette[s].accent} 62% 100%)` }} />
-              ))}
-            </span>
-          ) : null}
+          {team ? <TeamRule palette={palette} className="st-strip-rule" /> : null}
           <span className="st-strip-main">{brk.title}</span>
           <span className="st-strip-sub">{brk.sub}</span>
         </div>
       ) : null}
-      {brk && (brk.kind === "HALFTIME" || brk.kind === "FINAL") && brk.rows ? (
-        <section className={`st-card is-${brk.kind.toLowerCase()}${team ? " is-team" : ""}`} aria-labelledby={`${idBase}-card-title`} data-st-card={brk.kind}>
-          <header className="st-card-head">
-            <h3 id={`${idBase}-card-title`} className="st-card-title">{brk.title}</h3>
-            {brk.dismissible ? (
-              <button type="button" className="st-card-x" aria-label={`Hide the ${brk.title.toLowerCase()} card`} onClick={onDismiss}>
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z" fill="currentColor" /></svg>
-              </button>
-            ) : null}
-          </header>
-          <table className="st-card-table">
-            <caption className="st-sr">{brk.title}: {brk.sub}</caption>
-            {brk.columns ? (
-              <thead><tr><th scope="col"><span className="st-sr">Team</span></th>{brk.columns.map((c) => <th key={c} scope="col">{c}</th>)}</tr></thead>
-            ) : null}
-            <tbody>
-              {brk.rows.map((r) => (
-                <tr key={r.side} className={r.leader ? "is-leader" : undefined}>
-                  <th scope="row">
-                    <span className={`st-card-team${team ? ` is-team ${depthClass(palette[r.side as Side].ink)}` : ""}${team && palette[r.side as Side].patterned ? " is-cue" : ""}`} style={teamVars(palette, r.side as Side)}>
-                      <span className="st-bug-bar" aria-hidden="true" />{r.abbr}
-                    </span>
-                    {r.leader && brk.kind === "FINAL" ? <span className="st-card-win"><span aria-hidden="true">◀</span><span className="st-sr">, winner</span></span> : null}
-                  </th>
-                  {r.cells.map((v, i) => <td key={i} className={i === r.cells.length - 1 ? "is-total" : undefined}>{v}</td>)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="st-card-line"><b>{brk.line}</b>{"run" in brk && brk.run ? <span>{brk.run}</span> : null}</p>
-        </section>
-      ) : null}
     </>
+  );
+}
+
+/** Two-team colour rule: each side's own fill over its accent (the clash side carries its stripe cue). */
+function TeamRule({ palette, className }: { palette: Palette; className: string }) {
+  return (
+    <span className={className} aria-hidden="true">
+      {(["away", "home"] as Side[]).map((s) => (
+        <i key={s} data-st-cue={palette[s].patterned ? "" : undefined}
+          style={{ background: `${palette[s].patterned ? "var(--st-cue), " : ""}linear-gradient(180deg, ${palette[s].fill} 0 62%, ${palette[s].accent} 62% 100%)` }} />
+      ))}
+    </span>
+  );
+}
+
+type Brk = NonNullable<ReturnType<typeof breakCard>>;
+
+/**
+ * Halftime and final cards (iteration 7; iteration 8: both dismissible, a phone variant, a team-colour rule). RECORDED
+ * totals only (this run's Q1/Q2/half points, the final score) and "SIMULATED · not a real game".
+ *   variant "overlay"  ≥ 720 px: centred on the field, which it dims.
+ *   variant "sheet"    < 720 px: a compact non-modal sheet fixed to the bottom of the viewport (above the site's bottom
+ *                      navigation), so the 168 px field above stays fully visible and the controls do not move.
+ * It is a labelled region, never a live region (the live region already says "Halftime." / "Final."), and it never takes
+ * focus: the close button (44 px) or Escape hides it, and focus returns to Play only if it was inside the card.
+ */
+function BreakCard({ brk, palette, onDismiss, idBase, variant, cardRef }: {
+  brk: Brk; palette: Palette; onDismiss: () => void; idBase: string; variant: "overlay" | "sheet"; cardRef: React.RefObject<HTMLElement>;
+}) {
+  if (!brk.rows) return null;
+  const team = palette.mode === "team";
+  const kind = brk.kind.toLowerCase();
+  return (
+    <section
+      ref={cardRef as React.RefObject<HTMLElement>}
+      className={`st-card is-${kind} is-${variant}${team ? " is-team" : ""}`}
+      aria-labelledby={`${idBase}-card-title`}
+      aria-describedby={`${idBase}-card-line`}
+      data-st-card={brk.kind}
+      data-st-card-variant={variant}
+    >
+      <header className="st-card-head">
+        <span className="st-card-eyebrow" aria-hidden="true">{brk.kind === "FINAL" ? "Simulated final" : "Simulated · first half"}</span>
+        <h3 id={`${idBase}-card-title`} className="st-card-title">{brk.title}</h3>
+        {brk.dismissible ? (
+          <span className="st-card-close">
+            <kbd className="st-card-kbd" aria-hidden="true">Esc</kbd>
+            <button type="button" className="st-card-x" aria-label={`Hide the ${brk.title.toLowerCase()} card`} aria-keyshortcuts="Escape" onClick={onDismiss}>
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z" fill="currentColor" /></svg>
+            </button>
+          </span>
+        ) : null}
+      </header>
+      {team ? <TeamRule palette={palette} className="st-card-rule" /> : null}
+      <table className="st-card-table">
+        <caption className="st-sr">{brk.title}: {brk.sub}</caption>
+        {brk.columns ? (
+          <thead><tr><th scope="col"><span className="st-sr">Team</span></th>{brk.columns.map((c) => <th key={c} scope="col">{c}</th>)}</tr></thead>
+        ) : null}
+        <tbody>
+          {brk.rows.map((r) => (
+            <tr key={r.side} className={r.leader ? "is-leader" : undefined}>
+              <th scope="row">
+                <span className={`st-card-team${team ? ` is-team ${depthClass(palette[r.side as Side].ink)}` : ""}${team && palette[r.side as Side].patterned ? " is-cue" : ""}`} style={teamVars(palette, r.side as Side)}>
+                  <span className="st-bug-bar" aria-hidden="true" />{r.abbr}
+                </span>
+                {r.leader && brk.kind === "FINAL" ? <span className="st-card-win"><span aria-hidden="true">◀</span><span className="st-sr">, winner</span></span> : null}
+              </th>
+              {r.cells.map((v, i) => <td key={i} className={i === r.cells.length - 1 ? "is-total" : undefined}>{v}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="st-card-line" id={`${idBase}-card-line`}><b>{brk.line}</b>{"run" in brk && brk.run ? <span>{brk.run}</span> : null}</p>
+    </section>
   );
 }
 
@@ -466,10 +510,11 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
   const sample = manifest.samples[sampleIndex];
   const [reduced, setReduced] = useState(() => (typeof window !== "undefined" && window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false));
   const compact = useMedia(COMPACT_QUERY);
-  // camera (iteration 7): the viewer's stored choice, else follow on wide screens and the full field on narrow ones
-  const [camMode, setCamModeState] = useState<CamMode>(() => readCamPref()
-    ?? (typeof window !== "undefined" && window.matchMedia && window.matchMedia(COMPACT_QUERY).matches ? "full" : "follow"));
-  const setCamMode = useCallback((v: CamMode) => { setCamModeState(v); writeCamPref(v); }, []);
+  // camera (iteration 7; iteration 8: the default tracks the width live): the viewer's stored choice, else the full field
+  // on narrow screens (< 720 px) and follow on wide ones
+  const [camPref, setCamPref] = useState<CamMode | null>(() => (typeof window !== "undefined" ? readCamPref() : null));
+  const camMode: CamMode = camPref ?? (compact ? "full" : "follow");
+  const setCamMode = useCallback((v: CamMode) => { setCamPref(v); writeCamPref(v); }, []);
   const camModeRef = useRef(camMode);
   camModeRef.current = camMode;
   const reducedRef = useRef(reduced);
@@ -549,7 +594,8 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
         if (e.seek) {
           if (Number(e.seek.value) !== tv) e.seek.value = String(tv);
           e.seek.style.setProperty("--st-pct", `${((tv / compiled.tEnd) * 100).toFixed(2)}%`);
-          const vt = `${PERIOD_SHORT[f.period as 1]} ${fmtClock(f.periodClock)}, drive ${f.driveIdx + 1} of ${f.driveCount}`;
+          // the interpolated clock is never announced without its tag (iteration 8)
+          const vt = `${PERIOD_SHORT[f.period as 1]} ${fmtClock(f.periodClock)}${f.clockIllustrative ? " (clock illustrative)" : ""}, drive ${f.driveIdx + 1} of ${f.driveCount}`;
           if (lastText.current.vt !== vt) { e.seek.setAttribute("aria-valuetext", vt); lastText.current.vt = vt; }
         }
         const pt = `${fmtPlayback(tv)} / ${fmtPlayback(compiled.tEnd)}`;
@@ -563,7 +609,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
     // the camera (iteration 7): one transform on the cached field wrapper, a pure function of (run, t, mode)
     if (compiled && sample) {
       const b = boxRef.current;
-      const cam = cameraAt(sample, compiled, live.t, { mode: camModeRef.current, reducedMotion: reducedRef.current });
+      const cam = cameraAt(sample, compiled, live.t, { mode: camModeRef.current, reducedMotion: reducedRef.current, maxZoom: hook.zoomCap ?? undefined });
       const tf = cameraTransform(cam, b.W, b.H);
       if (e.cam && lastText.current.cam !== tf.css) {
         e.cam.style.transform = tf.css === "none" ? "" : tf.css;
@@ -583,7 +629,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
         }
       }
     }
-  }, [store, compiled, sample]);
+  }, [store, compiled, sample, hook.zoomCap]);
 
   useEffect(() => store.subscribe(paintFrame), [store, paintFrame]);
   // after every React commit (coarse change, resize, palette), repaint so freshly mounted nodes carry the frame
@@ -755,7 +801,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
     if (e.altKey || e.ctrlKey || e.metaKey) return;
     const target = e.target as HTMLElement;
     if (target.closest("[role=dialog]")) return; // sheets keep their own keys
-    if (e.key === "Escape" && finalCardOpen) { e.preventDefault(); dismissFinal(); return; }
+    if (e.key === "Escape" && cardOpen) { e.preventDefault(); dismissCard(); return; }
     const tag = target.tagName;
     const isRange = tag === "INPUT" && (target as HTMLInputElement).type === "range";
     const isInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
@@ -814,24 +860,74 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
   const stateChip = !f ? null : f.breakKind === "HALFTIME" ? "HALFTIME" : f.breakKind === "OT_START" ? "END REG" : f.breakKind === "FINAL" ? (sample?.finalScore?.overtime ? "FINAL/OT" : "FINAL")
     : f.rollover ? `END Q${f.rollover.quarter}` : null;
 
-  // final card dismissal (Escape or its button); it comes back whenever the final frame is reached again
+  // halftime / final card dismissal (Escape or its button); a card comes back whenever its break is reached again
   const [dismissed, setDismissed] = useState<string | null>(null);
-  const finalKey = sample && f?.breakKind === "FINAL" ? `${sample.runIndex}-FINAL` : null;
-  const finalCardOpen = Boolean(finalKey && dismissed !== finalKey);
+  const cardKey = sample && f && (f.breakKind === "FINAL" || f.breakKind === "HALFTIME") ? `${sample.runIndex}-${f.breakKind}-${f.driveIdx}` : null;
+  const cardOpen = Boolean(cardKey && dismissed !== cardKey);
   const playBtn = useRef<HTMLButtonElement>(null);
-  const dismissFinal = useCallback(() => {
-    if (!finalKey) return;
-    setDismissed(finalKey);
-    requestAnimationFrame(() => playBtn.current?.focus());
-  }, [finalKey]);
-  useEffect(() => { if (!finalKey && dismissed) setDismissed(null); }, [finalKey, dismissed]);
+  const cardRef = useRef<HTMLElement>(null);
+  const dismissCard = useCallback(() => {
+    if (!cardKey) return;
+    // focus returns to Play only when it was inside the card (its close button); otherwise it stays where it is
+    const inside = Boolean(cardRef.current && cardRef.current.contains(document.activeElement));
+    setDismissed(cardKey);
+    if (inside) requestAnimationFrame(() => playBtn.current?.focus());
+  }, [cardKey]);
+  useEffect(() => { if (!cardKey && dismissed) setDismissed(null); }, [cardKey, dismissed]);
+  // Escape also works with focus on the page itself (nothing focused yet); inside the theater onRegionKey handles it
+  useEffect(() => {
+    if (!cardOpen || sheet) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || e.defaultPrevented) return;
+      const a = document.activeElement;
+      if (a && a !== document.body) return;
+      e.preventDefault();
+      dismissCard();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [cardOpen, sheet, dismissCard]);
+  // phones: the sheet never covers the field. It sits at the viewport bottom (above the site's bottom navigation); if
+  // the field is there, just below the field; else just above it (under the sticky score bug). Presentation only:
+  // written straight to the card's style on scroll/resize, never into React state.
+  const sheetOn = Boolean(compact && cardOpen && f && (f.breakKind === "HALFTIME" || f.breakKind === "FINAL"));
+  useLayoutEffect(() => {
+    if (!sheetOn) return;
+    let raf = 0;
+    const place = () => {
+      raf = 0;
+      const card = cardRef.current;
+      const field = stageRef.current;
+      if (!card || !field) return;
+      const H = card.offsetHeight;
+      const nav = document.querySelector('nav[aria-label="Mobile bottom navigation"]');
+      const navTop = nav && nav.getBoundingClientRect().height > 0 ? nav.getBoundingClientRect().top : window.innerHeight;
+      const maxBottom = Math.min(window.innerHeight, navTop) - 12;
+      const bug = card.closest(".st-root")?.querySelector(".st-bug")?.getBoundingClientRect();
+      const minTop = bug && bug.top <= 1 && bug.bottom > 0 ? bug.bottom + 8 : 8;
+      const fr = field.getBoundingClientRect();
+      const overlap = (t: number) => Math.max(0, Math.min(t + H, fr.bottom) - Math.max(t, fr.top));
+      const dflt = maxBottom - H;
+      const cands = [dflt, fr.bottom + 8, fr.top - 8 - H].filter((t) => t >= minTop && t + H <= maxBottom);
+      const pick = cands.find((t) => overlap(t) === 0) ?? [dflt, ...cands].reduce((a, t) => (overlap(t) < overlap(a) ? t : a), dflt);
+      card.style.top = `${Math.round(pick)}px`;
+      card.style.bottom = "auto";
+      card.dataset.stPlace = pick === dflt ? "bottom" : pick > fr.top ? "below-field" : "above-field";
+    };
+    const on = () => { if (!raf) raf = requestAnimationFrame(place); };
+    place();
+    window.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    return () => { window.removeEventListener("scroll", on); window.removeEventListener("resize", on); if (raf) cancelAnimationFrame(raf); };
+  });
+  const rollMarker = f?.rollover && compiled ? compiled.markers.find((mk) => mk.quarter === f.rollover!.quarter && mk.atT === f.rollover!.atT) : null;
   const cards: CardSet = {
     period: f && compiled && sample ? periodCard(sample, compiled, teams, live.t) : null,
     brk: f?.breakKind && sample ? breakCard(f.breakKind, f.score, sample, teams, manifest.runCount) : null,
-    roll: f ? rolloverCard(f.rollover, f.score, teams) : null,
+    roll: f ? rolloverCard(f.rollover, f.score, teams, rollMarker ? rollMarker.exact : true) : null,
     endHalf: f && ev && f.phase === "RESULT" && ev.outcome === "END_HALF" ? ev.outcomeLabel.charAt(0).toUpperCase() + ev.outcomeLabel.slice(1) : null,
   };
-  if (cards.brk?.kind === "FINAL" && !finalCardOpen) cards.brk = null;
+  const breakCardShown = cards.brk && (cards.brk.kind === "FINAL" || cards.brk.kind === "HALFTIME") && cardOpen ? cards.brk : null;
   const situation = f && ev && sample ? driveSituation(ev, f.phase === "FINAL" ? "RESULT" : f.phase === "BREAK" || f.phase === "TRANSITION" ? "RESULT" : f.phase, teams, sample.events.length) : null;
   const onCamKey = (e: ReactKeyboardEvent) => {
     if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
@@ -970,15 +1066,22 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                 ) : null}
                 <div className="st-scenebar">
                   <SceneBadge />
-                  <div className="st-camtoggle" role="radiogroup" aria-label="Camera" aria-describedby={reduced ? `${uid}-camnote` : undefined} onKeyDown={onCamKey}>
+                  <div className="st-camtoggle" role="radiogroup" aria-label="Camera" aria-describedby={reduced ? `${uid}-camnote` : compact ? `${uid}-camhint` : undefined} onKeyDown={onCamKey}>
                     <span className="st-camtoggle-l" aria-hidden="true">Camera</span>
-                    {(["follow", "full"] as CamMode[]).map((m) => (
-                      <button key={m} id={`${uid}-cam-${m}`} type="button" role="radio" aria-checked={camMode === m} tabIndex={camMode === m ? 0 : -1} className="st-camopt" onClick={() => setCamMode(m)}>
-                        {m === "follow" ? "Follow" : "Full field"}
+                    {/* phones list the full field first: it is their default (iteration 8) */}
+                    {((compact ? ["full", "follow"] : ["follow", "full"]) as CamMode[]).map((m) => (
+                      <button key={m} id={`${uid}-cam-${m}`} type="button" role="radio" aria-checked={camMode === m} tabIndex={camMode === m ? 0 : -1} className="st-camopt" data-st-camopt={m} onClick={() => setCamMode(m)}>
+                        {m === "follow" ? (compact ? "Follow drive" : "Follow") : "Full field"}
                       </button>
                     ))}
                   </div>
                   {reduced ? <span id={`${uid}-camnote`} className="st-camnote">Reduced motion: the field stays fully framed</span> : null}
+                  {!reduced && compact ? <span id={`${uid}-camhint`} className="st-camnote st-camhint">Phones open on the full field · Follow drive zooms in on the drive</span> : null}
+                  {hook.zoomCap ? (
+                    <p className="st-review" data-st-review="" role="note">
+                      <b>Review variant</b> · follow camera capped at {hook.zoomCap}× · the spec default is {CAMERA_POLICY.maxZoom}× · dev route only
+                    </p>
+                  ) : null}
                 </div>
                 <div ref={stageRef} className={`st-fieldwrap${f?.dimmed ? " is-dim" : ""}`} data-st-camera={effCam}>
                   <div className="st-cam" ref={setCamEl} data-st-cam="">
@@ -1014,7 +1117,8 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                     endRef={setTagEnd}
                   />
                   <div className="st-dimmer" aria-hidden="true" />
-                  {f && ev ? <BroadcastCards cards={cards} palette={palette} onDismiss={dismissFinal} idBase={uid} /> : null}
+                  {f && ev ? <BroadcastStrips cards={cards} palette={palette} /> : null}
+                  {breakCardShown && !compact ? <BreakCard brk={breakCardShown} palette={palette} onDismiss={dismissCard} idBase={uid} variant="overlay" cardRef={cardRef} /> : null}
                   {scoringNow && ev ? <ScoreFlash ev={ev} teams={teams} palette={palette} /> : null}
                   {f && ev ? <LowerThird f={f} ev={ev} teams={teams} sample={sample} scoring={scoringNow} palette={palette} /> : null}
                 </div>
@@ -1080,6 +1184,9 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                 </section>
               ) : null}
             </div>
+            {/* phones: the card is a sheet fixed to the viewport bottom, rendered outside the stage (a size container, which
+                would otherwise be its containing block) */}
+            {breakCardShown && compact ? <BreakCard brk={breakCardShown} palette={palette} onDismiss={dismissCard} idBase={uid} variant="sheet" cardRef={cardRef} /> : null}
             {compact ? null : <SidePanel manifest={manifest} sample={sample} ev={ev} onSeekDrive={seekDrive} current={f?.driveIdx ?? 0} />}
           </div>
 

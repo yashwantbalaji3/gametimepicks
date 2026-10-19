@@ -555,3 +555,201 @@ test("frame times during playback (Chromium): 1440 follow camera; 390 full field
   expect(mf.p95).toBeLessThanOrEqual(40);
   expect(mt.p95).toBeLessThanOrEqual(40);
 });
+
+// ── iteration 8: zoom review variant, mobile camera default, dismissible cards, illustrative tags ────────────────────
+test("zoom review variant: ?zoomCap=1.6 is labelled on screen and reaches 1.6× on a short drive; the default and any other value stay ≤1.35×", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, "?run=428&t=11.7"); // drive 4: a 21-yard punt drive, where the caps differ
+  await expect(page.locator("[data-st-review]")).toHaveCount(0);
+  expect((await camTransform(page)).z).toBeCloseTo(1.35, 3);
+  await open(page, "?run=428&t=11.7&zoomCap=1.6");
+  await expect(page.locator("[data-st-review]")).toBeVisible();
+  await expect(page.locator("[data-st-review]")).toContainText("Review variant");
+  await expect(page.locator("[data-st-review]")).toContainText("1.6×");
+  await expect(page.locator("[data-st-review]")).toContainText("1.35×");
+  expect((await camTransform(page)).z).toBeCloseTo(1.6, 3);
+  for (const q of ["2", "1.5", "abc", "1.35"]) {
+    await open(page, `?run=428&t=11.7&zoomCap=${q}`);
+    await expect(page.locator("[data-st-review]")).toHaveCount(0);
+    expect((await camTransform(page)).z).toBeLessThanOrEqual(1.35);
+  }
+});
+
+for (const [w, h] of [[390, 844], [320, 640]] as const) {
+  test(`${w} px: the camera opens on the full field, listed first; the control is visibly labelled 'Camera', full width, ≥44 px, with a hint`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await open(page, "?run=428&t=11.7");
+    await expect(root(page)).toHaveAttribute("data-st-camera", "full");
+    expect((await camTransform(page)).tf).toBe("none");
+    const group = page.getByRole("radiogroup", { name: "Camera" });
+    await expect(group.locator(".st-camtoggle-l")).toBeVisible();
+    await expect(group.locator(".st-camtoggle-l")).toHaveText("Camera");
+    const opts = group.getByRole("radio");
+    await expect(opts.nth(0)).toHaveText("Full field");
+    await expect(opts.nth(0)).toHaveAttribute("aria-checked", "true");
+    await expect(opts.nth(1)).toHaveText("Follow drive");
+    for (let i = 0; i < 2; i++) {
+      const b = (await opts.nth(i).boundingBox())!;
+      expect(b.height).toBeGreaterThanOrEqual(44);
+      expect(b.x).toBeGreaterThanOrEqual(0);
+      expect(b.x + b.width).toBeLessThanOrEqual(w);
+    }
+    const gb = (await group.boundingBox())!;
+    const sb = (await page.locator(".st-scenebar").boundingBox())!;
+    expect(gb.width).toBeGreaterThanOrEqual(sb.width - 1); // full width of the scene bar: discoverable
+    await expect(page.locator(".st-camhint")).toContainText("Phones open on the full field");
+    await opts.nth(1).click();
+    await expect(root(page)).toHaveAttribute("data-st-camera", "follow");
+    expect((await camTransform(page)).z).toBeGreaterThan(1);
+  });
+}
+
+test("the camera default follows the width live when the viewer has not chosen: follow at 1440, full field at 390", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, "?run=428&t=11.7");
+  await expect(root(page)).toHaveAttribute("data-st-camera", "follow");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(root(page)).toHaveAttribute("data-st-camera", "full");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(root(page)).toHaveAttribute("data-st-camera", "follow");
+});
+
+for (const [w, h] of [[1440, 900], [390, 844], [320, 640]] as const) {
+  test(`${w} px: halftime and final cards are dismissible (button returns focus to Play; Escape anywhere), recorded totals + 'SIMULATED · not a real game'${w < 720 ? ", as a sheet that leaves the field visible" : ""}`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    for (const [t, kind, name] of [[31.8, "HALFTIME", /Hide the halftime card/], [66.6, "FINAL", /Hide the final card/]] as const) {
+      await open(page, `?run=428&t=${t}`);
+      const card = page.locator(`section[data-st-card="${kind}"]`);
+      await expect(card).toBeVisible();
+      await expect(card).toHaveAttribute("data-st-card-variant", w < 720 ? "sheet" : "overlay");
+      await expect(card.locator(".st-card-line b")).toHaveText("SIMULATED · not a real game");
+      await expect(card.getByRole("table")).toBeVisible();
+      if (kind === "HALFTIME") await expect(card.locator("thead")).toContainText("Q1");
+      // it is a labelled region, never a live region, and it never takes focus on its own
+      expect(await card.getAttribute("aria-live")).toBeNull();
+      expect(await card.evaluate((el) => el.contains(document.activeElement))).toBe(false);
+      const cb = (await card.boundingBox())!;
+      expect(cb.x).toBeGreaterThanOrEqual(0);
+      expect(cb.x + cb.width).toBeLessThanOrEqual(w + 0.5);
+      if (w < 720) {
+        // wherever the page is scrolled (field fully on screen, from just under the top to just above the nav), the
+        // sheet sits in the viewport, clear of the site's bottom navigation, and never covers the field
+        const sb0 = (await card.boundingBox())!;
+        expect(sb0.height).toBeLessThanOrEqual(170);
+        const nav = page.getByRole("navigation", { name: "Mobile bottom navigation" });
+        const nb = (await nav.count()) ? await nav.boundingBox() : null;
+        const fieldTopAbs = await page.locator(".st-fieldwrap").evaluate((el) => el.getBoundingClientRect().top + scrollY);
+        let placements = 0;
+        for (let y = 0; y <= h - 168 - (nb ? h - nb.y : 0); y += 40) {
+          await page.evaluate((top) => window.scrollTo(0, top), Math.max(0, fieldTopAbs - y));
+          await page.waitForTimeout(80);
+          const fb = (await page.locator(".st-fieldwrap").boundingBox())!;
+          if (fb.y < 0 || fb.y + fb.height > (nb ? nb.y : h)) continue;
+          const sb = (await card.boundingBox())!;
+          expect(sb.y).toBeGreaterThanOrEqual(0);
+          expect(sb.y + sb.height).toBeLessThanOrEqual(nb ? nb.y + 0.5 : h);
+          expect(fb.y + fb.height <= sb.y + 0.5 || sb.y + sb.height <= fb.y + 0.5, `field ${fb.y}–${fb.y + fb.height}, sheet ${sb.y}–${sb.y + sb.height}`).toBe(true);
+          placements++;
+        }
+        expect(placements).toBeGreaterThan(2);
+      }
+      const x = card.getByRole("button", { name });
+      const xb = (await x.boundingBox())!;
+      expect(xb.width).toBeGreaterThanOrEqual(44);
+      expect(xb.height).toBeGreaterThanOrEqual(44);
+      await expect(x).toHaveAttribute("aria-keyshortcuts", "Escape");
+      await x.focus();
+      await page.keyboard.press("Enter");
+      await expect(card).toHaveCount(0);
+      await expect(page.getByRole("button", { name: "Play", exact: true })).toBeFocused();
+      // Escape from inside the theater (focus stays where it was) …
+      await open(page, `?run=428&t=${t}`);
+      await page.locator(".st-seek").focus();
+      await page.keyboard.press("Escape");
+      await expect(page.locator(`section[data-st-card="${kind}"]`)).toHaveCount(0);
+      await expect(page.locator(".st-seek")).toBeFocused();
+      // … and with nothing focused yet
+      await open(page, `?run=428&t=${t}`);
+      await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+      await page.keyboard.press("Escape");
+      await expect(page.locator(`section[data-st-card="${kind}"]`)).toHaveCount(0);
+    }
+  });
+}
+
+/**
+ * Every interpolated value on screen (data-st-interp) has a VISIBLE illustrative tag in its scope: rendered, inside the
+ * viewport, on top (elementFromPoint), not screen-reader-only; the in-drive yardage shares a line with its tag.
+ */
+async function interpViolations(page: Page) {
+  return page.evaluate(() => {
+    const bad: string[] = [];
+    const vis = (el: Element) => {
+      const r = el.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) return false;
+      if (r.left < -0.5 || r.right > innerWidth + 0.5) return false;
+      const cs = getComputedStyle(el);
+      if (cs.visibility === "hidden" || Number(cs.opacity) === 0 || el.closest(".st-sr")) return false;
+      // never clipped by an ancestor that hides overflow
+      for (let a = el.parentElement; a; a = a.parentElement) {
+        const s = getComputedStyle(a);
+        if (s.display === "none") return false;
+        if (s.overflowX !== "visible" || s.overflowY !== "visible") {
+          const ar = a.getBoundingClientRect();
+          if (r.left < ar.left - 0.5 || r.right > ar.right + 0.5 || r.top < ar.top - 0.5 || r.bottom > ar.bottom + 0.5) return false;
+        }
+      }
+      // and drawn on top (hit testing skips pointer-events:none overlays, which are checked by clipping alone)
+      if (cs.pointerEvents === "none") return true;
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return Boolean(hit && (hit === el || el.contains(hit)));
+    };
+    for (const v of Array.from(document.querySelectorAll("[data-st-interp]"))) {
+      const scope = v.closest("[data-st-interp-scope]");
+      if (!scope) { bad.push(`${v.getAttribute("data-st-interp")}: no scope`); continue; }
+      const r = scope.getBoundingClientRect();
+      if (r.width < 1 || r.height < 1) continue; // its strip is not rendered at all: nothing is shown
+      const tag = scope.querySelector("[data-st-interp-tag]");
+      if (!tag) { bad.push(`${v.getAttribute("data-st-interp")}: no tag`); continue; }
+      if (!/illustrative/i.test(tag.textContent ?? "")) bad.push(`${v.getAttribute("data-st-interp")}: tag reads '${tag.textContent}'`);
+      // the field's strips sit under the aria-hidden overlay layer but are drawn; check the tag is drawn on top
+      if (!vis(tag)) bad.push(`${v.getAttribute("data-st-interp")}: tag not visible`);
+      if (v.getAttribute("data-st-interp") === "yards" && (v.textContent ?? "") !== "") {
+        const a = v.getBoundingClientRect();
+        const b = tag.getBoundingClientRect();
+        if (Math.abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) > 4) bad.push("yards: tag on another line");
+      }
+    }
+    return bad;
+  });
+}
+
+for (const [w, h] of [[320, 640], [390, 844], [768, 1024], [1440, 900]] as const) {
+  test(`${w} px: no interpolated value (clock, quarter, in-drive yardage, mid-drive rollover) renders without its visible illustrative tag`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    let interpSeen = 0;
+    // paused frames: mid-drive (drives 4, 6, 7, 12), the mid-drive Q1 rollover (17.36 s), a drive start and a drive end
+    for (const t of [11.7, 17.5, 18.7, 22.9, 23.14, 40.5, 21.0, 24.5]) {
+      await open(page, `?run=428&t=${t}`);
+      await page.locator(".st-broadcast").scrollIntoViewIfNeeded();
+      expect(await interpViolations(page), `t=${t}`).toEqual([]);
+      interpSeen += await page.locator("[data-st-interp]").count();
+      if (await page.locator(".st-bug-illus.on").count()) {
+        expect(await page.locator(".st-seek").getAttribute("aria-valuetext")).toContain("(clock illustrative)");
+      }
+    }
+    // and live playback (4×), sampled every ~150 ms for 3 s
+    await open(page, "?run=428&t=10");
+    await page.locator(".st-broadcast").scrollIntoViewIfNeeded();
+    await page.getByRole("button", { name: "Play", exact: true }).click();
+    await page.keyboard.press("4");
+    for (let i = 0; i < 20; i++) {
+      await page.waitForTimeout(150);
+      expect(await interpViolations(page), `live sample ${i}`).toEqual([]);
+    }
+    expect(interpSeen).toBeGreaterThan(10);
+    // the rollover inside drive 6 is tagged
+    await open(page, "?run=428&t=17.5");
+    await expect(page.locator('[data-st-card="ROLLOVER"] [data-st-interp-tag]')).toHaveText("mid-drive · timing illustrative");
+  });
+}

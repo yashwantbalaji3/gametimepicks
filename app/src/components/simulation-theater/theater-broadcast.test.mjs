@@ -19,7 +19,7 @@ const { compileTimeline } = await import("../../lib/simulation-theater/timeline.
 const { stateAtCompiled } = await import("../../lib/simulation-theater/state-at.mjs");
 const { plural } = await import("../../lib/simulation-theater/format.mjs");
 const {
-  GAME_DISCLOSURE, ILLUSTRATIVE_TAG, RECORDED_TAG, PERIOD_CARD_MS, breakCard, driveEndLowerThird, driveSituation, periodCard, progressYardsText, rolloverCard,
+  GAME_DISCLOSURE, ILLUSTRATIVE_TAG, RECORDED_TAG, ROLLOVER_TIMING_TAG, PERIOD_CARD_MS, breakCard, driveEndLowerThird, driveSituation, periodCard, progressYardsText, rolloverCard,
 } = await import("../../lib/simulation-theater/broadcast.mjs");
 const { NFL_TEAM_COLORS, contrastRatio, theaterPalette, TEXT_MIN } = await import("../../lib/simulation-theater/nfl-team-colors.mjs");
 const { TOKEN_RGB } = await import("../../lib/simulation-theater/field-geometry.mjs");
@@ -88,7 +88,7 @@ test("final card: 'SIMULATED · not a real game', the receipt's final score, the
   }
 });
 
-test("halftime card: the run's own Q1 and Q2 points (only when they sum to the halftime score), non-blocking", () => {
+test("halftime card: the run's own Q1 and Q2 points (only when they sum to the halftime score), non-blocking, dismissible", () => {
   let seen = 0;
   for (const { m, s, c } of SAMPLES) {
     const brk = c.keyframes.find((k) => k.phase === "BREAK" && k.breakKind === "HALFTIME");
@@ -96,7 +96,8 @@ test("halftime card: the run's own Q1 and Q2 points (only when they sum to the h
     const st = stateAtCompiled(s, c, m.teams, brk.t0 + 10);
     const card = breakCard("HALFTIME", st.score, s, m.teams, m.runCount);
     assert.equal(card.title, "Halftime");
-    assert.equal(card.dismissible, false);
+    assert.equal(card.line, GAME_DISCLOSURE);
+    assert.equal(card.dismissible, true, "iteration 8: the halftime card can be hidden too");
     for (const r of card.rows) {
       if (card.columns.length === 3) assert.deepEqual(r.cells, [s.periodScores[r.side][0], s.periodScores[r.side][1], st.score[r.side]]);
       else assert.deepEqual(r.cells, [st.score[r.side]]);
@@ -126,7 +127,10 @@ test("period cards: 'Start of game' at t = 0, 'Start of 2nd half' at Q3 15:00, '
     }
     for (const mk of c.markers) {
       const st = stateAtCompiled(s, c, m.teams, mk.atT);
-      assert.equal(rolloverCard(st.rollover, st.score, m.teams).title, `End of Q${mk.quarter}`);
+      const rc = rolloverCard(st.rollover, st.score, m.teams, mk.exact);
+      assert.equal(rc.title, `End of Q${mk.quarter}`);
+      // a quarter that ends inside a drive is shown at the interpolated clock's instant: tagged (iteration 8)
+      assert.equal(rc.timing, mk.exact ? null : ROLLOVER_TIMING_TAG);
     }
     for (const card of [first, half ? periodCard(s, c, m.teams, half.t0 + half.dur) : null]) {
       if (card) assert.doesNotMatch(`${card.title} ${card.sub}`, FABRICATED);
@@ -182,4 +186,96 @@ test("score-bug depth: the gradient moves away from the ink, so no team's ink dr
     worst = Math.min(worst, c);
   }
   console.log(`# score-bug depth: worst ink contrast across both stops ${worst.toFixed(2)}:1`);
+});
+
+// ── iteration 8: no interpolated value renders without its illustrative tag ───────────────────────────────────────
+
+/** A minimal tree from React's static markup (tags, attributes, text), enough to walk ancestors and subtrees. */
+function tree(html) {
+  const VOID = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
+  const rootNode = { tag: "#root", attrs: {}, kids: [], parent: null, text: "" };
+  let cur = rootNode;
+  const re = /<(\/?)([a-zA-Z][a-zA-Z0-9-]*)((?:\s+[^\s=>\/]+(?:="[^"]*")?)*)\s*(\/?)>|([^<]+)/g;
+  let m;
+  while ((m = re.exec(html))) {
+    if (m[5] != null) { cur.kids.push({ tag: "#text", text: m[5], kids: [], parent: cur, attrs: {} }); continue; }
+    const [, close, tag, attrStr, self] = m;
+    if (close) { cur = cur.parent ?? cur; continue; }
+    const attrs = {};
+    for (const a of attrStr.matchAll(/([^\s=]+)(?:="([^"]*)")?/g)) attrs[a[1]] = a[2] ?? "";
+    const node = { tag, attrs, kids: [], parent: cur };
+    cur.kids.push(node);
+    if (!self && !VOID.has(tag)) cur = node;
+  }
+  return rootNode;
+}
+const walk = (n, f) => { f(n); for (const k of n.kids) walk(k, f); };
+const textOf = (n) => { let t = ""; walk(n, (x) => { if (x.tag === "#text") t += x.text; }); return t; };
+const hiddenNode = (n) => { for (let x = n; x; x = x.parent) { const a = x.attrs ?? {}; if ("hidden" in a || a["aria-hidden"] === "true" || /\bst-sr\b/.test(a.class ?? "")) return true; } return false; };
+
+/**
+ * The rule: every element marked data-st-interp sits inside a data-st-interp-scope that holds a VISIBLE (not screen-reader
+ * only, not hidden) data-st-interp-tag reading "illustrative". Returns the violations.
+ */
+function untaggedInterp(html) {
+  const bad = [];
+  walk(tree(html), (n) => {
+    if (!n.attrs || !("data-st-interp" in n.attrs)) return;
+    let scope = n.parent;
+    while (scope && !(scope.attrs && "data-st-interp-scope" in scope.attrs)) scope = scope.parent;
+    if (!scope) { bad.push(`${n.attrs["data-st-interp"]}: no scope`); return; }
+    const tags = [];
+    walk(scope, (x) => { if (x.attrs && "data-st-interp-tag" in x.attrs) tags.push(x); });
+    if (!tags.some((t) => /illustrative/i.test(textOf(t)) && !hiddenNode(t))) bad.push(`${n.attrs["data-st-interp"]}: no visible illustrative tag in its scope`);
+  });
+  return bad;
+}
+
+test("the pairing check itself fails on an interpolated value without a visible tag (negative controls)", () => {
+  assert.deepEqual(untaggedInterp('<div data-st-interp-scope="x"><span data-st-interp="clock">7:12</span><span data-st-interp-tag="">clock illustrative</span></div>'), []);
+  assert.equal(untaggedInterp('<div><span data-st-interp="clock">7:12</span></div>').length, 1, "no scope");
+  assert.equal(untaggedInterp('<div data-st-interp-scope="x"><span data-st-interp="yards">≈5 yds</span></div>').length, 1, "no tag");
+  assert.equal(untaggedInterp('<div data-st-interp-scope="x"><span data-st-interp="yards"></span><span class="st-sr" data-st-interp-tag="">illustrative</span></div>').length, 1, "tag only for screen readers");
+  assert.equal(untaggedInterp('<div data-st-interp-scope="x"><span data-st-interp="yards"></span><span aria-hidden="true"><b data-st-interp-tag="">illustrative</b></span></div>').length, 1, "hidden tag");
+});
+
+test("score bug: at every 100 ms of every fixture run, each interpolated value (clock, period, in-drive yardage) renders with its visible tag", () => {
+  let renders = 0;
+  let interp = 0;
+  const fixtures = SAMPLES.filter(({ m }) => ["401873008", "401873005"].includes(String(m.eventId))).slice(0, 8);
+  assert.ok(fixtures.length >= 2);
+  for (const { m, s, c } of fixtures) {
+    const palette = theaterPalette(m.teams.home.abbr, m.teams.away.abbr);
+    for (let t = 0; t <= c.tEnd; t += 100) {
+      const st = stateAtCompiled(s, c, m.teams, t);
+      const ev = s.events[st.driveIdx];
+      const phase = st.phase === "FINAL" || st.phase === "BREAK" || st.phase === "TRANSITION" ? "RESULT" : st.phase;
+      const html = renderToStaticMarkup(React.createElement(ScoreBug, {
+        teams: m.teams, palette, score: st.score, offense: st.offense, period: st.period, periodClock: st.periodClock,
+        clockIllustrative: st.clockIllustrative, stateChip: null, illusId: "x", situation: driveSituation(ev, phase, m.teams, s.events.length),
+      }));
+      renders++;
+      assert.deepEqual(untaggedInterp(html), [], `#${s.runIndex} t=${t} ${st.phase}`);
+      // and nothing interpolated escapes the marking: an illustrative clock or a moving ball always marks its value
+      if (st.clockIllustrative) assert.match(html, /data-st-interp="clock"/, `#${s.runIndex} t=${t}: clock unmarked`);
+      if (st.phase === "PROGRESS") assert.match(html, /data-st-interp="yards"/, `#${s.runIndex} t=${t}: yardage unmarked`);
+      if (/data-st-interp=/.test(html)) interp++;
+    }
+  }
+  assert.ok(interp > 100, `interpolated frames checked: ${interp}`);
+  console.log(`# score bug: ${renders} renders, ${interp} with interpolated values, every one tagged`);
+});
+
+test("the in-drive yardage and its tag are one no-wrap unit (they can never land on different lines)", async () => {
+  const fs = await import("node:fs");
+  const css = fs.readFileSync(path.join(process.cwd(), "src/components/simulation-theater/theater.css"), "utf8");
+  assert.match(css, /\.st-bug-sit-illus\{[^}]*white-space:nowrap/);
+  assert.match(css, /\.st-bug-sit-illus\{[^}]*flex:0 0 auto/);
+  assert.doesNotMatch(css, /\.st-bug-sit-(illus|tag)[^{]*\{[^}]*display:\s*none/, "the tag is never hidden at any width");
+  const { m, s } = SAMPLES[0];
+  const html = renderToStaticMarkup(React.createElement(ScoreBug, {
+    teams: m.teams, palette: theaterPalette(m.teams.home.abbr, m.teams.away.abbr), score: { home: 0, away: 0 }, offense: "home", period: 1,
+    periodClock: 800, clockIllustrative: true, stateChip: null, illusId: "x", situation: driveSituation(s.events[0], "PROGRESS", m.teams, s.events.length),
+  }));
+  assert.match(html, /<span class="st-bug-sit-illus" data-st-interp-scope="yards"><span class="st-bug-sit-yds" data-st-interp="yards"><\/span><span class="st-bug-sit-tag is-illustrative" data-st-interp-tag="">illustrative<\/span><\/span>/);
 });

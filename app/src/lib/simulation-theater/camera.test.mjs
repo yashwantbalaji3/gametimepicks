@@ -13,7 +13,7 @@ import { readShadowReceipts } from "../sports/nfl/sim-v2/public-receipt.mjs";
 import { adaptReceipt } from "./adapter-nfl-sim-v2.mjs";
 import { compileTimeline } from "./timeline.mjs";
 import { stateAtCompiled } from "./state-at.mjs";
-import { CAMERA_POLICY, cameraAt, cameraScreenX, cameraTransform } from "./camera.mjs";
+import { CAMERA_POLICY, REVIEW_ZOOM_CAPS, cameraAt, cameraScreenX, cameraTransform, zoomCapFor } from "./camera.mjs";
 import { MARGIN_X, MARGIN_Y, FIELD_WID, TOTAL_LEN, TOTAL_WID, ballSize } from "./field-geometry.mjs";
 import { FIXTURE_EVENT_IDS } from "./loader.mjs";
 
@@ -149,4 +149,46 @@ test("reduced motion and 'full field' mode: a static, fully framed field at ever
       }
     }
   }
+});
+
+// ── iteration 8: the dev-only 1.6× review variant ─────────────────────────────────────────────────────────────────
+test("review cap: only the listed variant is honoured; the default (and every other request) is exactly the spec's 1.35×", () => {
+  assert.equal(CAMERA_POLICY.maxZoom, 1.35, "the default stays the validated spec cap");
+  assert.deepEqual([...REVIEW_ZOOM_CAPS], [1.6]);
+  for (const bad of [undefined, null, 0, 1, 1.35, 1.5, 1.61, 2, 10, "1.6", Number.NaN, Infinity]) assert.equal(zoomCapFor(bad), 1.35, String(bad));
+  assert.equal(zoomCapFor(1.6), 1.6);
+  const { s, c } = FIXTURES.find(({ s }) => s.runIndex === 428) ?? FIXTURES[0];
+  for (let t = 0; t <= c.tEnd; t += 25) {
+    assert.deepEqual(cameraAt(s, c, t, { maxZoom: 1.35 }), cameraAt(s, c, t), `t=${t}: an explicit 1.35 equals the default`);
+    assert.deepEqual(cameraAt(s, c, t, { maxZoom: 7 }), cameraAt(s, c, t), `t=${t}: an unlisted cap falls back to the default`);
+  }
+});
+
+test("review cap 1.6×: bounded, deterministic, and it still never clips the ball, the recorded spots or the lit end zone", () => {
+  let n = 0;
+  let deeper = 0;
+  let laneClips = 0;
+  for (const { m, s, c } of SAMPLES) {
+    const step = FIXTURES.some((f) => f.s === s) ? 4 : 40;
+    for (let t = 0; t <= c.tEnd; t += step) {
+      const cam = cameraAt(s, c, t, { maxZoom: 1.6 });
+      assert.ok(cam.z >= 1 - EPS && cam.z <= 1.6 + EPS, `${s.receiptId} t=${t} z=${cam.z}`);
+      assert.ok(cam.x0 >= -EPS && cam.x1 <= TOTAL_LEN + EPS && cam.y0 >= -EPS && cam.y1 <= TOTAL_WID + EPS);
+      const st = stateAtCompiled(s, c, m.teams, t);
+      for (const [a, b] of required(st)) assert.ok(a >= cam.x0 - 1e-3 && b <= cam.x1 + 1e-3, `${s.receiptId} #${s.runIndex} t=${t} ${st.phase} 1.6× clips [${a.toFixed(2)}, ${b.toFixed(2)}]`);
+      // FINDING (iteration 8): at 1.6× the top of the possession tag can leave the frame for a few frames of a hand-off
+      // while the ball fades out (TRANSITION); 1.35× never does. Counted, and held to "never while the ball is ≥ 50 % visible".
+      const laneY = MARGIN_Y + st.lane * FIELD_WID;
+      if (!(laneY - 6 >= cam.y0 && laneY + 3 <= cam.y1)) {
+        laneClips++;
+        assert.ok(st.phase === "TRANSITION" && st.ballOpacity < 0.5, `${s.receiptId} t=${t} ${st.phase} opacity ${st.ballOpacity}: 1.6× clips the ball's lane`);
+      }
+      if (cam.z > 1.35 + EPS) deeper++;
+      n++;
+    }
+    assert.equal(cameraAt(s, c, c.tEnd, { maxZoom: 1.6 }).z, 1);
+  }
+  const { s, c } = FIXTURES[0];
+  assert.deepEqual(cameraAt(s, c, 22900, { maxZoom: 1.6 }), cameraAt(JSON.parse(JSON.stringify(s)), compileTimeline(s), 22900, { maxZoom: 1.6 }));
+  console.log(`# 1.6× review cap: ${n.toLocaleString("en-US")} frames, ${((100 * deeper) / n).toFixed(1)}% of them zoomed past 1.35×; spots, ball and end zone never clipped; the fading ball's tag clipped at the top in ${laneClips} frames`);
 });
