@@ -1,0 +1,426 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-sim-v1-dev-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "generatedAt": "2026-10-19T05:34:04.242Z",
+ "devSeason": 2025,
+ "minDaysIntoSeason": 30,
+ "sampledGames": 1005,
+ "eligible": 1005,
+ "v1Params": {
+  "HCA_POINTS": 1.982,
+  "ELO_TO_MARGIN": 0.05115,
+  "TOTAL_WEIGHT": 1.956,
+  "TOTAL_OFFSET": -2.947,
+  "TEAM_NOISE_SD": 10.152,
+  "PACE_SD": 0.0446,
+  "QUARTER_SHARES": [
+   0.2513,
+   0.2518,
+   0.2534,
+   0.2435
+  ],
+  "QUARTER_DIRICHLET_ALPHA": 432.2,
+  "OT_SCALE": 0.917,
+  "MINUTES_POWER": 1.25,
+  "PACE_FLOOR": 0.7,
+  "MIN_REGULATION_POINTS": 50,
+  "THREE_FEASIBILITY_RESAMPLES": 20
+ },
+ "v1ProfileParams": {
+  "MINUTES_HALF_LIFE_APPS": 10,
+  "RATE_HALF_LIFE_APPS": 40,
+  "RATE_PRIOR_MINUTES": 100,
+  "P3_PRIOR_ATTEMPTS": 150,
+  "P2_PRIOR_ATTEMPTS": 100,
+  "PLAY_PRIOR": 0.85,
+  "PLAY_PRIOR_GAMES": 3,
+  "MINUTES_SD_PRIOR_RATIO": 0.3,
+  "MINUTES_SD_PRIOR_GAMES": 3,
+  "TEAM_HALF_LIFE_GAMES": 15,
+  "TEAM_PRIOR_GAMES": 10,
+  "LEAGUE_WINDOW_GAMES": 600
+ },
+ "paramsFittedOn": "corpus season 2024 (2023-24) only — data/internal/research/nba/reports/sim-v1-calibration-2024.json",
+ "caveats": [
+  "historical development numbers on 2024-25; NOT the assessment season, NOT forward shadow — nothing here promotes or validates v1",
+  "pools differ by design: v0 = box-score history; v1 = historical roster proxy (played for the team in its last 10 games and last appeared for it); no injuries feed existed",
+  "player rows: v0 quantiles are unconditional over its draws (it always plays everyone); v1 quantiles are conditional on the draws in which the player played",
+  "bars are the preregistration §7 SHADOW→PUBLIC bars applied to a historical sample, reported for orientation only"
+ ],
+ "realized": {
+  "games": 1005,
+  "overtimeRate": 0.0458,
+  "preregRealizedOT": 0.0469,
+  "marginSD": 16.27,
+  "totalSD": 19.848
+ },
+ "results": {
+  "elo": {
+   "winner": {
+    "n": 1005,
+    "brier": 0.2147,
+    "logLoss": 0.6175,
+    "ece": 0.0541,
+    "accuracy": 0.6577,
+    "reliability": [
+     {
+      "bin": "0-0.1",
+      "n": 1,
+      "meanP": 0.09,
+      "hitRate": 0
+     },
+     {
+      "bin": "0.1-0.2",
+      "n": 14,
+      "meanP": 0.149,
+      "hitRate": 0.071
+     },
+     {
+      "bin": "0.2-0.3",
+      "n": 61,
+      "meanP": 0.254,
+      "hitRate": 0.213
+     },
+     {
+      "bin": "0.3-0.4",
+      "n": 118,
+      "meanP": 0.353,
+      "hitRate": 0.322
+     },
+     {
+      "bin": "0.4-0.5",
+      "n": 136,
+      "meanP": 0.456,
+      "hitRate": 0.36
+     },
+     {
+      "bin": "0.5-0.6",
+      "n": 178,
+      "meanP": 0.553,
+      "hitRate": 0.483
+     },
+     {
+      "bin": "0.6-0.7",
+      "n": 201,
+      "meanP": 0.649,
+      "hitRate": 0.602
+     },
+     {
+      "bin": "0.7-0.8",
+      "n": 156,
+      "meanP": 0.751,
+      "hitRate": 0.679
+     },
+     {
+      "bin": "0.8-0.9",
+      "n": 114,
+      "meanP": 0.839,
+      "hitRate": 0.833
+     },
+     {
+      "bin": "0.9-1",
+      "n": 26,
+      "meanP": 0.918,
+      "hitRate": 0.923
+     }
+    ]
+   }
+  },
+  "v0": {
+   "modelVersion": "nba-preseason-experimental-v0",
+   "simulations": 1000,
+   "winner": {
+    "n": 1005,
+    "brier": 0.2668,
+    "logLoss": 0.7447,
+    "ece": 0.1067,
+    "accuracy": 0.5134,
+    "reliability": [
+     {
+      "bin": "0-0.1",
+      "n": 7,
+      "meanP": 0.041,
+      "hitRate": 0.571
+     },
+     {
+      "bin": "0.1-0.2",
+      "n": 9,
+      "meanP": 0.157,
+      "hitRate": 0.667
+     },
+     {
+      "bin": "0.2-0.3",
+      "n": 66,
+      "meanP": 0.259,
+      "hitRate": 0.409
+     },
+     {
+      "bin": "0.3-0.4",
+      "n": 181,
+      "meanP": 0.356,
+      "hitRate": 0.508
+     },
+     {
+      "bin": "0.4-0.5",
+      "n": 244,
+      "meanP": 0.453,
+      "hitRate": 0.545
+     },
+     {
+      "bin": "0.5-0.6",
+      "n": 250,
+      "meanP": 0.55,
+      "hitRate": 0.544
+     },
+     {
+      "bin": "0.6-0.7",
+      "n": 163,
+      "meanP": 0.64,
+      "hitRate": 0.528
+     },
+     {
+      "bin": "0.7-0.8",
+      "n": 58,
+      "meanP": 0.735,
+      "hitRate": 0.569
+     },
+     {
+      "bin": "0.8-0.9",
+      "n": 18,
+      "meanP": 0.835,
+      "hitRate": 0.889
+     },
+     {
+      "bin": "0.9-1",
+      "n": 9,
+      "meanP": 0.948,
+      "hitRate": 0
+     }
+    ]
+   },
+   "team": {
+    "marginMAE": 14.642,
+    "marginBias": -1.416,
+    "totalMAE": 16.578,
+    "totalBias": 0.465,
+    "marginCoverage80": 0.88,
+    "totalCoverage80": 0.834,
+    "marginCoverage50": null,
+    "totalCoverage50": null,
+    "simMarginSD_mean": 21.999,
+    "simTotalSD_mean": 22.022,
+    "overtimeOrTieRate_mean": 0.0169
+   },
+   "players": {
+    "matchedRows": 21116,
+    "predictedButDnp": 4891,
+    "playedButUnpredicted": 177,
+    "minutesMAE": 8.432,
+    "minutesMAE_expectedGe20": 8.475,
+    "rowsExpectedGe20": 6093,
+    "families": {
+     "pts": {
+      "unconditionalMAE": 5.312,
+      "coverage80": 0.55,
+      "unconditionalMAE_ge20": 6.688,
+      "coverage80_ge20": 0.545,
+      "n": 21116,
+      "n_ge20": 6093
+     },
+     "reb": {
+      "unconditionalMAE": 2.145,
+      "coverage80": 0.586,
+      "unconditionalMAE_ge20": 2.353,
+      "coverage80_ge20": 0.6,
+      "n": 21116,
+      "n_ge20": 6093
+     },
+     "ast": {
+      "unconditionalMAE": 1.448,
+      "coverage80": 0.621,
+      "unconditionalMAE_ge20": 1.847,
+      "coverage80_ge20": 0.612,
+      "n": 21116,
+      "n_ge20": 6093
+     },
+     "threePm": {
+      "unconditionalMAE": 0.911,
+      "coverage80": 0.677,
+      "unconditionalMAE_ge20": 1.152,
+      "coverage80_ge20": 0.666,
+      "n": 21116,
+      "n_ge20": 6093
+     }
+    }
+   }
+  },
+  "v1": {
+   "modelVersion": "nba-sim-v1-coherent",
+   "simulations": 4000,
+   "winner": {
+    "n": 1005,
+    "brier": 0.2122,
+    "logLoss": 0.6117,
+    "ece": 0.0251,
+    "accuracy": 0.6716,
+    "reliability": [
+     {
+      "bin": "0-0.1",
+      "n": 5,
+      "meanP": 0.077,
+      "hitRate": 0
+     },
+     {
+      "bin": "0.1-0.2",
+      "n": 28,
+      "meanP": 0.162,
+      "hitRate": 0.107
+     },
+     {
+      "bin": "0.2-0.3",
+      "n": 84,
+      "meanP": 0.256,
+      "hitRate": 0.274
+     },
+     {
+      "bin": "0.3-0.4",
+      "n": 120,
+      "meanP": 0.347,
+      "hitRate": 0.333
+     },
+     {
+      "bin": "0.4-0.5",
+      "n": 165,
+      "meanP": 0.449,
+      "hitRate": 0.388
+     },
+     {
+      "bin": "0.5-0.6",
+      "n": 192,
+      "meanP": 0.552,
+      "hitRate": 0.547
+     },
+     {
+      "bin": "0.6-0.7",
+      "n": 171,
+      "meanP": 0.646,
+      "hitRate": 0.661
+     },
+     {
+      "bin": "0.7-0.8",
+      "n": 141,
+      "meanP": 0.753,
+      "hitRate": 0.709
+     },
+     {
+      "bin": "0.8-0.9",
+      "n": 76,
+      "meanP": 0.842,
+      "hitRate": 0.842
+     },
+     {
+      "bin": "0.9-1",
+      "n": 23,
+      "meanP": 0.921,
+      "hitRate": 0.913
+     }
+    ]
+   },
+   "team": {
+    "marginMAE": 11.314,
+    "marginBias": 0.559,
+    "totalMAE": 15.285,
+    "totalBias": -2.98,
+    "marginCoverage80": 0.815,
+    "totalCoverage80": 0.776,
+    "marginCoverage50": 0.536,
+    "totalCoverage50": 0.48,
+    "simMarginSD_mean": 14.383,
+    "simTotalSD_mean": 17.938,
+    "overtimeOrTieRate_mean": 0.0243
+   },
+   "players": {
+    "matchedRows": 20890,
+    "predictedButDnp": 4448,
+    "playedButUnpredicted": 403,
+    "minutesMAE": 6.065,
+    "minutesMAE_expectedGe20": 5.408,
+    "rowsExpectedGe20": 9930,
+    "families": {
+     "pts": {
+      "unconditionalMAE": 4.789,
+      "coverage80": 0.789,
+      "unconditionalMAE_ge20": 5.66,
+      "coverage80_ge20": 0.78,
+      "n": 20890,
+      "n_ge20": 9930
+     },
+     "reb": {
+      "unconditionalMAE": 1.977,
+      "coverage80": 0.835,
+      "unconditionalMAE_ge20": 2.104,
+      "coverage80_ge20": 0.849,
+      "n": 20890,
+      "n_ge20": 9930
+     },
+     "ast": {
+      "unconditionalMAE": 1.356,
+      "coverage80": 0.869,
+      "unconditionalMAE_ge20": 1.645,
+      "coverage80_ge20": 0.859,
+      "n": 20890,
+      "n_ge20": 9930
+     },
+     "threePm": {
+      "unconditionalMAE": 0.903,
+      "coverage80": 0.906,
+      "unconditionalMAE_ge20": 1.098,
+      "coverage80_ge20": 0.905,
+      "n": 20890,
+      "n_ge20": 9930
+     }
+    }
+   }
+  }
+ },
+ "bars": {
+  "v0": {
+   "winner_brier_le_0240": false,
+   "winner_logloss_le_elo_plus_0005": false,
+   "winner_logloss_le_coin_minus_0010": false,
+   "winner_ece_le_005": false,
+   "margin_mae_le_125": false,
+   "margin_cov80_in_076_084": false,
+   "margin_absbias_le_10": false,
+   "total_mae_le_160": false,
+   "total_cov80_in_076_084": true,
+   "total_absbias_le_20": true,
+   "total_sd_gt_margin_sd": true,
+   "minutes_mae_le_60": false,
+   "pts_cov80_ge20_in_076_084": false,
+   "reb_cov80_ge20_in_076_084": false,
+   "ast_cov80_ge20_in_076_084": false,
+   "threePm_cov80_ge20_in_074_086": false
+  },
+  "v1": {
+   "winner_brier_le_0240": true,
+   "winner_logloss_le_elo_plus_0005": true,
+   "winner_logloss_le_coin_minus_0010": true,
+   "winner_ece_le_005": true,
+   "margin_mae_le_125": true,
+   "margin_cov80_in_076_084": true,
+   "margin_absbias_le_10": true,
+   "total_mae_le_160": true,
+   "total_cov80_in_076_084": true,
+   "total_absbias_le_20": false,
+   "total_sd_gt_margin_sd": true,
+   "minutes_mae_le_60": true,
+   "pts_cov80_ge20_in_076_084": true,
+   "reb_cov80_ge20_in_076_084": false,
+   "ast_cov80_ge20_in_076_084": false,
+   "threePm_cov80_ge20_in_074_086": false
+  }
+ }
+}
