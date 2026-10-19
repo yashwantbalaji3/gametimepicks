@@ -115,7 +115,7 @@ test("colour map: 32 teams keyed nfl:<ABBR>, matching the receipts; ON in the de
   };
   walk(path.join(APP, "src"));
   assert.deepEqual(importers.filter((f) => !f.startsWith("src/components/simulation-theater/") && !f.startsWith("src/lib/simulation-theater/")).sort(),
-    ["src/app/dev/simulation-theater/[eventId]/page.tsx"], "only the dev route mounts the theater");
+    ["src/app/dev/simulation-theater/[eventId]/page.tsx", "src/app/dev/simulation-theater/nba/[eventId]/page.tsx"], "only the dev routes (NFL, and the NBA prototype) mount a theater");
 });
 
 test("founder roles: NO and PIT black with gold, JAX teal with black and gold, TEN Titans blue / navy / red, TB official reds", () => {
