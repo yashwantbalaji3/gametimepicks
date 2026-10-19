@@ -1,103 +1,129 @@
 # PR #1130: eligible-operator allowlist (founder approval package)
 
-- **Candidate head (local merge, not pushed):** `b4aa6c6173858606370eb06ee5515cd6437f961d` on local branch `claude/eligible-operators-allowlist-rebase`.
-  - Parents: the PR head `126196a73201ebb347e07b9651d8c93aa2613e5a` and `origin/main` `c0ffb1b7c5c0c8ac0343f1555642eb445b3ed625` (includes #1129).
-  - The merge was clean: no conflicts and no hand edits.
-- **Original PR head:** `126196a73201ebb347e07b9651d8c93aa2613e5a`. The PR is still a draft and is not merged.
-- **Main has moved since then:** `origin/main` is now `a44d0720f6`, one bot data commit (`auto: mlb lineup refresh … [skip ci]`).
-  - It still merges cleanly with the candidate (`git merge-tree`). No re-gate is needed for a data-only commit.
-- **Prepared:** 2026-10-18, by a verifier session. Nothing was pushed, no data was written, and no paid API was called.
+- **Candidate head (local, not pushed):** `3f778eac4552ff20c48ff88174543c5aa311d408` on local branch `claude/eligible-operators-ext`.
+  - It is one commit (O-6/O-7) on top of a clean merge of `origin/main` `72128bfcd0` into the earlier candidate `b4aa6c61`.
+  - `origin/main` was still `72128bfcd0` when this was written.
+- **Original PR head:** `126196a7`. The PR is still a draft and is not merged.
+- **Prepared:** 2026-10-18. Nothing was pushed, no data was written, and no paid API was called.
 
-## Scope: 12 files, +236 −12, all code and tests
-- **M-1, render-time withhold-and-count (MLB):**
-  - `lib/mlb/mlb-props.ts` filters `loadMlbPropsBoard` to eligible providers. The filter takes either the key or the display title.
-  - The new `countIneligibleMlbProps` counts the rows withheld.
-  - The `/mlb` boards state "N unsupported sportsbook offers not shown" (`props-board.tsx`, `mlb-flagship-sections.tsx`, `app/mlb/page.tsx`).
-  - A withheld row is never re-priced from another book.
-- **M-2, forward-only selection among eligible books:**
-  - MLB ingest (`ingest-normalize.ts`) skips books that are not on the list.
-  - The NFL prop ladder (`prop-display-selection.mjs`) filters its candidates to eligible books before the DK → FD → most-coverage steps. If no eligible book posted the market, the row is absent.
-  - Prices already captured or frozen keep their original book.
-- **NFL market cell:** `prediction-board.tsx` shows "Price not shown" for a frozen capture from an ineligible book. The live rail then falls back to the model band instead of the offshore line.
-- **Allowlist module:** `lib/sports/odds/eligible-operators.mjs` (policy `eligible-operators@1`), plus 3 new test files and 1 extended test file.
-- **Out of scope:**
-  - **M-3/M-4:** offshore books still feed the no-vig consensus that benchmarks read.
-  - Jurisdiction or state gating.
-  - Smart Betslip.
-  - Any rewrite of historical artifacts.
+## Scope: 27 files, +804 −34 against main, all code and tests
+- **M-1 / M-2 (unchanged from `b4aa6c61`):** MLB withholds and counts ineligible offers at render; MLB ingest and the NFL prop ladder pick only among eligible books; the NFL market cell shows "Price not shown".
+- **O-6 / O-7 (new):** one loader-boundary sanitiser, `lib/sports/odds/public-offer-sanitizer.mjs`, plus an export-time copy step (details below).
+- **Allowlist:** `eligible-operators@1`, 9 keys (8 operators), each on Pennsylvania's licensed list. It is fail-closed, so an unknown key is not eligible.
+- **Out of scope:** M-3/M-4 (consensus inputs), state gating, Smart Betslip, and rewriting historical artifacts.
 
-## Allowlist and licensing basis
-- **Eligible (fail-closed):** 9 provider keys, which are 8 operators.
-  - `draftkings`, `fanduel`, `betmgm`, `williamhill_us` + `caesars` (both are Caesars), `betrivers`, `fanatics`, `espnbet`, `betparx`.
-  - Each operator is on Pennsylvania's licensed online sportsbook list (checked 2026-10-18).
-  - Display titles resolve too, because the MLB board stores titles such as "BetMGM".
-- **Known offshore (6 keys):** `bovada`, `betonlineag`, `mybookieag`, `betus`, `lowvig`, `betanysports`.
-  - The first five are in the provider's `us` region and have regulator actions on record (MI, TN, FL; see the PR's research doc).
-  - This list exists only so that guards can name these books. Eligibility never depends on it.
-- **Unknown, empty or non-string key ⇒ not eligible.** Tested with `hardrockbet`, `ballybet`, `fliff`, `""`, `null` and `42`.
-  - A new book stays off the page until someone adds it with a citation.
+## O-6: embedded page data and public JSON (resolved)
+- **Loader boundary:**
+  - The sanitiser runs before any component receives the data, so before serialisation.
+  - It turns an ineligible offer into `{ sportsbook: null, bookWithheld: "ineligible-operator" }` and drops the book, line, odds and `capturedAt`.
+  - Applied at `/nfl/game/[eventId]` (player board), `forecast-view-load.mjs` (every `PlayerRow`), `/nfl` and `/endzone-vault` (Vault), `nfl-hub-data.ts` (/live roster: boards and live-props), and `use-live-props.ts` (in-browser backstop on each fetch).
+  - A clean artifact is returned by reference, so it serialises byte-identically.
+- **Presentation:**
+  - The new `INELIGIBLE_BOOK` market state comes from `marketFromCapturedOffer`, used by the weekly-board, Vault and game-report rows.
+  - It renders "Price not shown" and is never a false "not probed".
+- **Public JSON (`/data/nfl/live-props/*.json`):**
+  - (a) **Is it fetched at runtime?** Yes, by the /live hub (`use-live-props.ts`, one request per live game per tick). Game pages don't fetch it; they use the gateway.
+  - (b) **Implemented: sweep 4 in `prune-internal-routes.mjs`.**
+    - It rewrites only the **exported copy** in `out/data/nfl/live-props/`.
+    - Only files that carry an ineligible offer are rewritten, in the producer's own format.
+    - `public/data` is never written.
+  - Result: 1 of 74 files was rewritten (`401872960.json`, 1 withheld). The other 73 are byte-identical to the repo.
+  - **Why this is safe:**
+    - The client only reads `frozen.market` for the line and book, and both are already nullable.
+    - Settlement scripts and the live capture kit read the repo or git, never `out/`.
+    - The committed record stays the historical evidence.
 
-## Before → after on current data
-Before = Production, which serves `c0ffb1b7` (per `/data/build-info.json`). After = a local build of the candidate.
+## O-7: PlayerRow and Vault `marketPrice` (resolved, same policy)
+- **`PlayerRow`:**
+  - `forecast-view.mjs` `capturedMarket` passes each slot through `sanitizeOffer`.
+  - `PlayerRow` renders "Sportsbook · Price not shown" (`data-market-withheld`) for a withheld slot, and fails closed on any ineligible key even if a caller skipped the loader.
+- **Vault:**
+  - `sanitizeVaultArtifact` handles the Vault's `marketPrice`.
+  - `presentVaultCandidate` turns a withheld price into `INELIGIBLE_BOOK`.
+  - The committed `end-zone-vault/2026-09-25.json` (Dallas Goedert, betonlineag) is covered by a test. It is not the current `latest`.
 
-| Measure | Before | After |
+## Jurisdiction handling
+- **The limitation:** "Eligible" means licensed in at least one US jurisdiction, not available to this visitor. GTP has no geo gating.
+- **New note:** `BOOK_AVAILABILITY_NOTE`, which reads "Sportsbook availability varies by state.", has one owner, `eligible-operators.mjs`. It renders only where a book is named:
+  - under the NFL `PredictionBoard`;
+  - under each NFL family list (`FamilyTabs`);
+  - in the MLB props board's count line.
+- **Build result:**
+  - 49 exported pages carry the note.
+  - `/nfl` carries none today, because no named price is shown there now.
+- **Not touched:** Terms, privacy, the top banner (it has a word budget), and legal routes.
+
+## Scan results (local build of the candidate, default `npm run build`)
+
+| Scope | Files scanned | Offshore key or title mentions |
 |---|---|---|
-| `/mlb` batter props board (2026-10-18, newest; no 10-19 file yet) | 120 rows (126 incl. 6 pitcher) | **99** (105 incl. 6 pitcher) |
-| Offshore offers on that board | 21, all BetOnline.ag | 0 shown; notice reads **"21 unsupported sportsbook offers not shown"** (in `out/mlb/index.html`) |
-| `/mlb` HTML mentions of an offshore name | 46 (4 in visible text, 42 in payload) | **0** |
-| Providers on the board (before) | BetOnline.ag 21 · DraftKings 43 · BetMGM 24 · BetRivers 23 · Caesars 15 | the 105 shown rows are from these four licensed books |
-| `nfl/markets/latest.json` offshore `sportsbook` values | 7 (betonlineag, anytime-TD Yes, Oct 11 events 401872982/983×2/985×2/989/992) | file unchanged; the next capture can't select them (M-2) |
-| Pages rendering those 7 NFL rows | 0 | 0 |
-| Built HTML naming BetOnline/Bovada/MyBookie/BetUS/LowVig in **visible text** | 1 (`/mlb`) | **0** |
-| Built HTML containing an offshore key **anywhere** (incl. RSC payload) | 2 (`/mlb`, `/nfl/game/401872960`) | **1** (`/nfl/game/401872960`; payload only, see O-6) |
+| Exported HTML (`**/index.html`, excl. `_next`) | 2,869 | **0** (was 2 routes: `/mlb`, `/nfl/game/401872960`) |
+| RSC payloads (`**/*.txt`, excl. `_next`) | 2,868 | **0** |
+| `out/data/**` (1,774 JSON + CSV/JSONL; 1,800 files) | 1,800 | **0** (was 1: `nfl/live-props/401872960.json`) |
+| Post-build guard (HTML + RSC + data JSON) | 7,511 | **0**; the documented-exceptions list is empty |
+| `_next/static` JS (O-8, code, out of scope) | 3 chunks | `9304-*.js` 6, `app/nfl/game/[eventId]/page-*.js` 10, `app/mlb/page-*.js` 6 (allowlist key list and `bookmakerLabel` map) |
 
-- **The 21 withheld MLB offers all come from one game, TB @ CLE.** They are 8 hits offers and 13 total-bases offers, across 16 players.
-  - Every one of the 16 players has at least one DraftKings-priced lean on the model board (`mlb/boards/2026-10-18.json`, 41 leans, all DK).
-  - **10 of the 21** have a lean on the exact same market and line. Those leans stay visible and unchanged.
-  - The other 11 offers had no model content of their own.
-- **Raw JSON is not public:** `/data/mlb/player-props/latest.json` → **404**, and `/data/nfl/markets/latest.json` → **404** (Production, curl).
-- **Historical integrity:** `git diff --name-only origin/main...b4aa6c61 -- data app/public/data` → **0 files**. Against the merged base, `git diff --name-only c0ffb1b7 b4aa6c61 -- data app/public/data` → **0 files**.
-  - Of the 12 changed files, all are under `app/src/`. Captures, frozen forecasts, ledgers and settlements are byte-identical.
+- **Pattern:** `betonlineag|bovada|mybookieag|betus|lowvig|betanysports|betonline|mybookie|bet ?any ?sports`, case-insensitive.
+- **Built page `/nfl/game/401872960`:**
+  - The payload now carries `"anytime_td":{"probability":0.3874,"market":{"sportsbook":null,"bookWithheld":"ineligible-operator"}}`.
+  - The projection is unchanged.
 
-## Gate (on candidate `b4aa6c61`)
-- **Targeted tests:** 25 / 25 pass, 0 fail.
-  - Files: `eligible-operators`, `ingest-normalize-eligibility`, `mlb-props-eligibility`, `prop-display-selection`, `prop-display-policy`.
-- **`npx tsc --noEmit -p .`:** clean, no output.
-- **Unit phase:** 1,183 files → **pass**.
-  - 9,511 tests: 9,506 pass, 0 fail, 5 skipped.
-- **Build:** `npm run build` (default, no dev routes) → ok. `next-build` took 139.7 s.
-- **Post-build phase:** 124 rendered-guard files → **pass**.
-  - 710 tests: 707 pass, 0 fail, 3 skipped.
-- **Data hygiene:** the unit and build phases dirtied `app/public/data/nfl/live-props/*` (the known `live-props-producer` test, until #1132) and `data/ask-projection/v1/recent/*`. Both were restored with `git checkout -- data/ app/public/data/`. Nothing was committed.
+## Regression guards (new)
+- **`public-offer-sanitizer.test.mjs` (unit, 10 tests):**
+  - **Sanitiser rules:** eligible offers pass unchanged by reference; offshore, unknown, empty and null books are withheld; the input is never mutated.
+  - **The 401872960 board and live-props record:** every non-offer field is deep-equal, including `settlement`, `live`, projections and `frozenIdentity`.
+  - **Live-props text:** clean records come back byte-identical (73 clean, 1 sanitised).
+  - **Vault and presentation:** the Vault is covered; presentation returns `INELIGIBLE_BOOK`.
+  - **`PlayerRow` path:** covered.
+  - **Rendered output** (`PredictionBoard` and `PlayerRow`):
+    - a withheld or offshore offer renders "Price not shown", with no book and no price;
+    - the note appears only beside a named book.
+  - **Export step:** a scratch export run proves `public/data/nfl/live-props/*` is byte-identical afterwards.
+- **`public-offer-export.test.mjs` (post-build, 4 tests):**
+  - the full-export scan;
+  - the 401872960 payload;
+  - the exported live-props copy is sanitised while the committed record isn't, with settlement, live facts and projections equal.
+
+## Gate (on candidate `3f778eac`)
+- **Targeted tests:** 148 / 148 pass across 15 files, 0 fail.
+- **`npx tsc --noEmit -p .`:** clean.
+- **Unit phase:** 1,184 files → **pass**.
+  - 9,522 tests: 9,517 pass, 0 fail, 5 skipped.
+  - The render test was added to the sanitiser file afterwards and passes in the targeted run.
+- **Build:** `npm run build` (default) → ok. `next-build` took 143.1 s.
+  - Prune log: `ineligible-operator offers withheld in out/data: nfl/live-props/401872960.json (1 withheld)`.
+- **Post-build phase:** 125 rendered-guard files → **pass**.
+  - 714 tests: 711 pass, 0 fail, 3 skipped (archive-integration skips).
+- **Data hygiene:**
+  - The build dirtied `data/ask-projection/v1/recent/*` (known). It was restored with `git checkout -- data/ app/public/data/`.
+  - `git diff --name-only origin/main...3f778eac -- data app/public/data` → **0 files**.
 
 ## Remaining limitations and open founder or counsel questions
-- **O-1 Jurisdiction:** licensed books are shown to every visitor in every state. GTP has no geo or state gating, which is unchanged from today's DK/FD display. State-aware eligibility is a counsel item (SB-01).
-- **O-2 Age:** 21+ vs 18+ wording and gating is a counsel decision. This PR does not touch it.
-- **O-3 MLB price selection:** M-2 makes MLB ingest pick the bettor-best price **among eligible books**. NFL keeps the DK → FD → most-coverage ladder, restricted to eligible books.
-  - Should MLB adopt the NFL ladder, so both sports pick a book the same way?
-- **O-4 Consensus (M-3/M-4):** offshore books still feed the no-vig consensus that model benchmarks read. They are never displayed as a named price. Excluding them changes model outputs, so it is a separate founder decision.
-- **O-5 Wording:** "unsupported sportsbook offers not shown" is a placeholder until jurisdiction eligibility exists. Confirm it, or supply the final copy.
-- **O-6 Offshore key in page source and raw JSON:** a residual, not visible on the page.
-  - `/nfl/game/401872960` (a 09-27 game, now final) carries `"sportsbook":"betonlineag"` (Zay Flowers anytime-TD +110) in its serialized client props. The same was true before.
-  - After the change, the anytime-TD tab renders "Price not shown" instead of the book.
-  - `/data/nfl/live-props/401872960.json` is public (**200** on Production) and contains the same key. Live Hub polls these files.
-  - No artifact is rewritten. Founder decision: accept as historical record, or follow up by stripping it at render or by not exporting it.
-- **O-7 Guard coverage:** the render-time guard covers the MLB props board and the NFL prediction-board market cell.
-  - The NFL forecast `PlayerRow` (`/nfl` hub and the game family tabs) and the `/nfl` vault's `marketPrice` still print `sportsbook` without a check. They rely on M-2 forward selection.
-  - No current page reaches an offshore value through them (0 in the build).
-  - Suggested follow-up: apply `isEligibleOperator` there too.
-- **O-8 JS chunks:** `_next/static/chunks/…/nfl/game/[eventId]` contains the offshore key list and the pre-existing `bookmakerLabel` map ("Bovada", "BetOnline", …). This is code, not page content.
+- **O-1 Jurisdiction:** the note is a disclosure, not gating. State-aware eligibility is still a counsel item (SB-01).
+  - **24 exported pages** name a licensed book without the note:
+    - `/results/date/*` ×16;
+    - `/simulate/d/*` ×4;
+    - `/today`, `/sports`, `/results`, `/results/parlays`.
+  - These are historical results and simulations outside the allowlist display paths.
+  - Founder decision: extend the note to those pages, or accept.
+- **O-2 Age wording:** a counsel decision. Not touched.
+- **O-3:** should MLB adopt the NFL DK → FD → coverage ladder?
+- **O-4 Consensus:** offshore books still feed the no-vig consensus. They are never named.
+- **O-5:** confirm the "unsupported sportsbook offers not shown" and "Sportsbook availability varies by state." copy.
+- **O-6 residuals:**
+  - The repo file `app/public/data/nfl/live-props/401872960.json` still contains the key, by design (committed history).
+  - Production serves the old copy until the next deploy.
+  - `settlement.line` is never altered. On the one withheld row (an anytime-TD market) it is `null`.
+- **O-8 JS chunks:** the allowlist's offshore key list and the `bookmakerLabel` map are compiled code, not page content.
+- **Other readers not sanitised:**
+  - `lib/live/preview-data.ts` (`/preview`, pruned from the export).
+  - Products/engine-v2 leg pricing (Smart Betslip scope).
+  - Neither reaches an exported page: the scan found 0.
 
-## Cost
-- One Production build on merge.
-- No new workflows, no paid API calls, no data regeneration.
+## Cost, rollback, approval
+- **Cost:** one Production build on merge. No new workflows, no paid API calls, no data regeneration.
+- **Rollback:** `git revert -m 1 <merge commit>` plus one build. No data cleanup is needed.
 
-## Rollback
-- `git revert -m 1 <merge commit>`, then one Production build.
-- No data cleanup is needed, because no artifact was written or rewritten.
-- The withheld offers reappear exactly as before.
-
-## Approval line
-> Approve #1130 at exact head b4aa6c6173858606370eb06ee5515cd6437f961d
+> Approve #1130 at exact head 3f778eac4552ff20c48ff88174543c5aa311d408
 
 (If the coordinator re-merges main before pushing, the head changes and this line must be updated to the pushed SHA.)
