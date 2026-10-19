@@ -131,7 +131,7 @@ function PlayerTable({ side, sample, teams, palette, playRates }: { side: NbaSid
             <th scope="row">
               <span className="nba-pname">{p.name}</span>
               {playRates && p.providerAthleteId && playRates[p.providerAthleteId] != null ? (
-                <span className="nba-prate" title="playRate: share of all simulated games in which he logs minutes">plays {Math.round(playRates[p.providerAthleteId] * 100)}%</span>
+                <span className="nba-prate" title="playRate: share of all simulated games in which this player logs minutes">plays {Math.round(playRates[p.providerAthleteId] * 100)}%</span>
               ) : null}
             </th>
             <td>{fmtMin(p.minutes)}</td><td className="is-pts">{p.pts}</td><td>{p.reb}</td><td>{p.ast}</td><td>{p.threePm}-{p.threePa}</td>
