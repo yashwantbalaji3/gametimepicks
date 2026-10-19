@@ -1,0 +1,198 @@
+/**
+ * NBA Top Boards — eligibility, ranking, never-filled, no-market and write-once pins (SYNTHETIC fixtures only).
+ *
+ * Every eligibility rule has (a) a pinned test that the mutated player is withheld with that rule's id and (b) a
+ * MUTATION PROBE: the same mutated player becomes eligible when only that rule is removed from the rule table —
+ * proving the rule (not some other one) is what withholds him, so deleting or weakening a rule fails this file.
+ *
+ * Run (from app/): node --test src/lib/sports/nba/top-boards.test.mjs
+ */
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import {
+  BOARD_MAX_ROWS, CATEGORIES, ELIGIBILITY, ELIGIBILITY_RULES, FLAGS, GAME_REASON, NO_CONFIDENCE, NO_MARKET, RANKING,
+  buildBoardEdition, eligibilityReasons, freezeBoards, frozenEditionViolations,
+} from "./top-boards.mjs";
+import { artifact, game, player, SHA } from "./__fixtures__/top-board-fixtures.mjs";
+
+const FROZEN_AT = "2026-11-01T16:00:00Z";
+const ctx = { stat: "pts", otherTeamIds: new Set() };
+const without = (id) => ELIGIBILITY_RULES.filter((r) => r.id !== id);
+const edition = (games, o = {}) => buildBoardEdition({ artifact: artifact(games), sourceSha256: SHA, frozenAt: FROZEN_AT, family: "v0.1", ...o });
+
+test("thresholds and policies are pinned (changing one is a decision, not a refactor)", () => {
+  assert.equal(ELIGIBILITY.minExpectedMinutes, 20, "preregistration §6 graded population");
+  assert.equal(ELIGIBILITY.maxMinutesCv, 0.35, "≈ 90th percentile of minutesSd/expectedMinutes on committed v0.1 preseason rows");
+  assert.equal(ELIGIBILITY.tradedHistoryPolicy, "INCLUDE_WITH_FLAG");
+  assert.equal(BOARD_MAX_ROWS, 10);
+  assert.deepEqual(CATEGORIES.map((c) => [c.key, c.stat]), [["points", "pts"], ["rebounds", "reb"], ["assists", "ast"], ["threes", "threePm"]]);
+  assert.deepEqual(ELIGIBILITY_RULES.map((r) => r.id), [
+    "MISSING_ATHLETE_ID", "AVAILABILITY_OUT", "INJURY_DESIGNATION", "INSUFFICIENT_HISTORY", "NULL_MINUTES",
+    "AVAILABILITY_UNVERIFIED", "TEAM_POOL_FALLBACK_RATES", "LOW_EXPECTED_MINUTES", "MINUTES_TOO_UNCERTAIN", "MISSING_DISTRIBUTION",
+  ]);
+  assert.match(RANKING.rule, /p50 desc, then frozen mean desc, then providerAthleteId asc/);
+});
+
+test("the base fixture player is eligible (positive control)", () => {
+  assert.deepEqual(eligibilityReasons(player(1), ctx), []);
+});
+
+/* Each case: the rule id, and a mutation of an otherwise-eligible player that ONLY that rule catches. */
+const CASES = [
+  ["MISSING_ATHLETE_ID", player(1, { providerAthleteId: null })],
+  ["AVAILABILITY_OUT", player(1, { availability: "out" })],
+  ["INJURY_DESIGNATION", player(1, { injuryStatus: "Day-To-Day" })],
+  ["INJURY_DESIGNATION", player(1, { injuryStatus: "Questionable" })],
+  ["INSUFFICIENT_HISTORY", player(1, { basis: "insufficient" })],
+  ["NULL_MINUTES", player(1, { expectedMinutes: null })],
+  ["AVAILABILITY_UNVERIFIED", player(1, { availability: "unknown" })],
+  ["TEAM_POOL_FALLBACK_RATES", player(1, { ratesBasis: "team-pool-fallback" })],
+  ["LOW_EXPECTED_MINUTES", player(1, { expectedMinutes: 19.99, minutesSd: 4 })],
+  ["MINUTES_TOO_UNCERTAIN", player(1, { expectedMinutes: 30, minutesSd: 10.6 })],
+  ["MINUTES_TOO_UNCERTAIN", player(1, { minutesSd: null })],
+  ["MISSING_DISTRIBUTION", player(1, { pts: { mean: 20, p10: 12, p50: null, p90: 28 } })],
+];
+
+for (const [rule, mutated] of CASES) {
+  test(`rule ${rule}: withheld, and the mutation probe proves this rule is the one doing it`, () => {
+    const reasons = eligibilityReasons(mutated, ctx);
+    assert.ok(reasons.includes(rule), `${rule} must withhold: got ${reasons.join(",")}`);
+    // MUTATION PROBE: remove only this rule → no other rule catches the mutation, so the player would be ranked.
+    assert.deepEqual(eligibilityReasons(mutated, ctx, without(rule)), [], `${rule}: with the rule removed the player would be ranked`);
+  });
+}
+
+test("boundaries: exactly 20 expected minutes and exactly the minutes ratio 0.35 are eligible", () => {
+  assert.deepEqual(eligibilityReasons(player(1, { expectedMinutes: 20, minutesSd: 7 }), ctx), []);
+  assert.deepEqual(eligibilityReasons(player(1, { expectedMinutes: 20, minutesSd: 7.01 }), ctx), ["MINUTES_TOO_UNCERTAIN"]);
+});
+
+test("Day-To-Day is withheld on every board (founder rule: unresolved → withheld), with the reason listed", () => {
+  const e = edition([game("fx-1", { home: [player(1), player(2, { injuryStatus: "Day-To-Day" })] })]);
+  for (const c of CATEGORIES) {
+    const b = e.boards[c.key];
+    assert.deepEqual(b.rows.map((r) => r.player.providerAthleteId), ["1"]);
+    const w = b.withheld.players.find((x) => x.providerAthleteId === "2");
+    assert.equal(w.primaryReason, "INJURY_DESIGNATION");
+  }
+});
+
+test("players the roster gate kept out of the simulation (Out, no history) are listed as withheld, not dropped", () => {
+  const pool = { home: { out: [{ providerAthleteId: "9", name: "Gate Out", injuryStatus: "Out" }], insufficientHistory: [{ providerAthleteId: "8", name: "Gate New" }], otherTeamHistory: [] } };
+  const e = edition([game("fx-1", { home: [player(1)], pool })]);
+  const w = Object.fromEntries(e.boards.points.withheld.players.map((x) => [x.providerAthleteId, x.primaryReason]));
+  assert.deepEqual(w, { 8: "INSUFFICIENT_HISTORY", 9: "AVAILABILITY_OUT" });
+  assert.equal(e.boards.points.withheld.count, 2);
+});
+
+test("traded-player history: INCLUDED with the TRADED_HISTORY_OTHER_TEAM flag (documented decision)", () => {
+  const pool = { away: { out: [], insufficientHistory: [], otherTeamHistory: [{ providerAthleteId: "5", historyTeam: "4" }] } };
+  const e = edition([game("fx-1", { home: [player(1)], away: [player(5, { pts: 25 })], pool })]);
+  const row = e.boards.points.rows.find((r) => r.player.providerAthleteId === "5");
+  assert.ok(row, "the traded player is ranked");
+  assert.deepEqual(row.flags, [FLAGS.TRADED_HISTORY_OTHER_TEAM]);
+  assert.deepEqual(e.boards.points.rows.find((r) => r.player.providerAthleteId === "1").flags, []);
+});
+
+test("games: tipped at the freeze, forecast after the freeze, broken receipt, other family → off the board with the reason", () => {
+  const started = game("fx-started", { tip: "2026-11-01T15:30Z", home: [player(11)] });
+  const late = game("fx-late", { generatedAt: "2026-11-01T17:00:00Z", home: [player(12)] });
+  const broken = game("fx-broken", { home: [player(13)] }); broken.forecast.players.home[0].pts.p50 = 99; // edited after its receipt
+  const other = game("fx-other", { family: "v0.2", home: [player(14)] });
+  const ok = game("fx-ok", { home: [player(15)] });
+  const e = edition([started, late, broken, other, ok]);
+  const state = Object.fromEntries(e.games.map((g) => [g.eventId, g.state]));
+  assert.deepEqual(state, { "fx-started": GAME_REASON.GAME_STARTED_AT_FREEZE, "fx-late": GAME_REASON.FORECAST_AFTER_FREEZE, "fx-broken": GAME_REASON.RECEIPT_BROKEN, "fx-other": GAME_REASON.FAMILY_MISMATCH, "fx-ok": "ON_BOARD" });
+  assert.deepEqual(e.boards.points.rows.map((r) => r.player.providerAthleteId), ["15"]);
+  // probe: freezing before the started game's tip puts it back on
+  const early = edition([started], { frozenAt: "2026-11-01T15:00:00Z" });
+  assert.equal(early.games[0].state, "ON_BOARD");
+});
+
+test("ranking: p50 desc, then mean desc, then athlete id asc — deterministic under input order", () => {
+  const a = player("30", { pts: 20 }); const b = player("10", { pts: 20 }); const c = player("20", { pts: 20 }); const d = player("40", { pts: 25 });
+  c.pts = { ...c.pts, mean: 21 }; // same p50 as a/b, higher mean
+  const one = edition([game("fx-1", { home: [a, b], away: [c, d] })]).boards.points.rows.map((r) => r.player.providerAthleteId);
+  const two = edition([game("fx-1", { home: [b, a], away: [d, c] })]).boards.points.rows.map((r) => r.player.providerAthleteId);
+  assert.deepEqual(one, ["40", "20", "10", "30"]);
+  assert.deepEqual(two, one);
+});
+
+test("max 10, and never filled: 14 eligible → 10; 3 eligible → 3; 0 eligible → empty board that says why", () => {
+  const many = Array.from({ length: 14 }, (_, i) => player(100 + i, { pts: 10 + i }));
+  assert.equal(edition([game("fx-1", { home: many })]).boards.points.rows.length, 10);
+  const few = edition([game("fx-1", { home: [player(1), player(2), player(3), player(4, { expectedMinutes: 12, minutesSd: 2 })] })]).boards.points;
+  assert.equal(few.rows.length, 3);
+  assert.equal(few.eligibleCount, 3);
+  assert.equal(few.withheld.count, 1);
+  const none = edition([game("fx-1", { home: [player(1, { injuryStatus: "Out", availability: "out" })] })]).boards.points;
+  assert.equal(none.rows.length, 0);
+  assert.match(none.emptyReason, /no player passed every eligibility rule \(1 considered and withheld\)/);
+  const noGames = edition([game("fx-1", { tip: "2026-11-01T12:00Z", home: [player(1)] })]).boards.points;
+  assert.match(noGames.emptyReason, /no game was eligible at the freeze \(GAME_STARTED_AT_FREEZE\)/);
+});
+
+test("rows carry no market: line/odds/edge null with NO_AUTHORIZED_PRICE; confidence null with its reason; no over/under or value field", () => {
+  const e = edition([game("fx-1", { home: [player(1)] })]);
+  const row = e.boards.points.rows[0];
+  for (const [k, v] of Object.entries(NO_MARKET)) assert.equal(row[k], v);
+  assert.equal(row.marketLine, null); assert.equal(row.marketOdds, null); assert.equal(row.edge, null);
+  assert.equal(row.marketReason, "NO_AUTHORIZED_PRICE");
+  assert.equal(row.confidence, null);
+  assert.equal(row.confidenceReason, NO_CONFIDENCE.confidenceReason);
+  const keys = JSON.stringify(e).match(/"[A-Za-z0-9]+":/g).map((k) => k.slice(1, -2));
+  for (const k of keys) assert.doesNotMatch(k, /^(over|under|prob|value|ev$|expectedValue|kelly|implied)/i, `field ${k} must not exist`);
+});
+
+test("row fields: player, team, opponent, tipoff, projection, p10–p90, minutes, updated, model, receipt hash, sort keys", () => {
+  const e = edition([game("fx-1", { home: [player(1)] })]);
+  const r = e.boards.points.rows[0];
+  assert.equal(r.player.name, "Fixture Player 1");
+  assert.deepEqual([r.team.abbr, r.opponent.abbr, r.homeAway], ["BOS", "NYK", "home"]);
+  assert.equal(r.tipoffUtc, "2026-11-01T23:30Z");
+  assert.deepEqual(Object.keys(r.projection), ["p50", "mean"]);
+  assert.deepEqual(Object.keys(r.range), ["p10", "p90"]);
+  assert.equal(r.expectedMinutes, 30);
+  assert.deepEqual(r.updated, { inputAsOf: "2026-11-01T15:00:00Z", generatedAt: "2026-11-01T15:00:00Z" });
+  assert.equal(r.modelVersion, "nba-preseason-experimental-v0.1");
+  assert.equal(r.receipt.forecastSha256, SHA);
+  assert.match(r.receipt.gamePayloadSha256, /^[0-9a-f]{64}$/);
+  assert.deepEqual(Object.keys(r.sortKeys), ["projection", "expectedMinutes", "p90"]);
+});
+
+test("write-once: a second freeze adds only new, untipped games as a new edition; edition 1 is untouched", () => {
+  const g1 = game("fx-1", { home: [player(1)] });
+  const first = freezeBoards({ existing: null, artifact: artifact([g1]), sourceSha256: SHA, frozenAt: FROZEN_AT, family: "v0.1", date: "2026-11-01" });
+  assert.ok(first.ok); assert.deepEqual(first.added, ["fx-1"]);
+  const frozenCopy = JSON.parse(JSON.stringify(first.doc));
+  const g2 = game("fx-2", { generatedAt: "2026-11-01T18:00:00Z", tip: "2026-11-02T02:00Z", home: [player(2, { pts: 40 })] });
+  const second = freezeBoards({ existing: first.doc, artifact: artifact([g1, g2]), sourceSha256: "b".repeat(64), frozenAt: "2026-11-01T18:30:00Z", family: "v0.1", date: "2026-11-01" });
+  assert.ok(second.ok);
+  assert.deepEqual(second.added, ["fx-2"]);
+  assert.equal(second.doc.editions.length, 2);
+  assert.deepEqual(second.doc.editions[0], frozenCopy.editions[0], "edition 1 is byte-identical");
+  assert.equal(second.doc.editions[1].games.find((g) => g.eventId === "fx-1").state, GAME_REASON.ON_EARLIER_EDITION);
+  assert.deepEqual(first.doc, frozenCopy, "the input document was not mutated");
+  // a third run with nothing new writes nothing
+  const third = freezeBoards({ existing: second.doc, artifact: artifact([g1, g2]), sourceSha256: SHA, frozenAt: "2026-11-01T19:00:00Z", family: "v0.1", date: "2026-11-01" });
+  assert.equal(third.edition, null);
+  // refuses a freeze instant that is not after the last edition, and a family mismatch
+  assert.equal(freezeBoards({ existing: second.doc, artifact: artifact([g1]), sourceSha256: SHA, frozenAt: "2026-11-01T18:30:00Z", family: "v0.1", date: "2026-11-01" }).ok, false);
+  assert.equal(freezeBoards({ existing: second.doc, artifact: artifact([g1]), sourceSha256: SHA, frozenAt: "2026-11-01T20:00:00Z", family: "v0.2", date: "2026-11-01" }).ok, false);
+});
+
+test("frozenEditionViolations catches a rewritten row, a removed edition and a game on two editions", () => {
+  const first = freezeBoards({ existing: null, artifact: artifact([game("fx-1", { home: [player(1)] })]), sourceSha256: SHA, frozenAt: FROZEN_AT, family: "v0.1", date: "2026-11-01" }).doc;
+  assert.deepEqual(frozenEditionViolations({ before: first, after: first }), []);
+  const edited = JSON.parse(JSON.stringify(first)); edited.editions[0].boards.points.rows[0].projection.p50 = 50;
+  assert.match(frozenEditionViolations({ before: first, after: edited }).join(), /edition 1 was rewritten/);
+  assert.match(frozenEditionViolations({ before: first, after: { ...first, editions: [] } }).join(), /editions removed/);
+  const dup = JSON.parse(JSON.stringify(first)); dup.editions.push({ ...dup.editions[0], edition: 2 });
+  assert.match(frozenEditionViolations({ before: first, after: dup }).join(), /fx-1 is on editions 1 and 2/);
+});
+
+test("refuses a forecast from another family and a missing source hash", () => {
+  assert.throws(() => buildBoardEdition({ artifact: artifact([], { family: "v0.2" }), sourceSha256: SHA, frozenAt: FROZEN_AT, family: "v0.1" }), /REFUSED/);
+  assert.throws(() => buildBoardEdition({ artifact: artifact([]), sourceSha256: "nope", frozenAt: FROZEN_AT, family: "v0.1" }), /sourceSha256/);
+});
