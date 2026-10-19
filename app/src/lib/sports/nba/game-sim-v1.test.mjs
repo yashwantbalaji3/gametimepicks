@@ -275,3 +275,17 @@ test("ARTIFACT — family v1 builds through buildForecastArtifact with the v1 en
   assert.equal(v02a.simEngineVersion, "nba-preseason-experimental-v0");
   assert.equal(JSON.stringify(v02a), JSON.stringify(v02b));
 });
+
+test("published sample minutes are 0.01-rounded AND sum to exactly 240 + 25·OT per side (largest remainder)", async () => {
+  const { roundMinutesPreservingTotal } = await import("./game-sim-v1.mjs");
+  // Ten players whose independent toFixed(2) rounding sums to 240.02.
+  const raw = [36.004, 35.004, 34.004, 30.004, 28.004, 24.004, 20.004, 18.004, 15.004, -0.036 + 0];
+  raw[9] = 240 - raw.slice(0, 9).reduce((a, b) => a + b, 0);
+  const naive = raw.reduce((a, m) => a + Number(m.toFixed(2)), 0);
+  assert.notEqual(Math.round(naive * 100), 24000, "fixture reproduces the drift");
+  const out = roundMinutesPreservingTotal(raw, 0);
+  assert.equal(Math.round(out.reduce((a, b) => a + b, 0) * 100), 24000);
+  out.forEach((m, i) => { assert.ok(Math.abs(m - raw[i]) < 0.01 + 1e-9); assert.equal(Math.round(m * 100), m * 100); });
+  assert.deepEqual(roundMinutesPreservingTotal([0, 132.5, 132.5], 1), [0, 132.5, 132.5], "OT target 265; zero stays zero");
+  assert.throws(() => roundMinutesPreservingTotal([100, 100], 0), /invariant 3/);
+});
