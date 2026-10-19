@@ -99,27 +99,39 @@ Top 3 on the private board for each category (model median; v0.1 champion | v1 c
 |---|---|
 | Schedule, finals, `/nba` hub | Ready for Production (already live) |
 | Private forecasts v0 / v0.1 / v0.2 | Ready (live shadow) |
-| v1 candidate shadow | Ready for release (#1134) |
-| Private boards, ledger, daily report | Ready for release (boards PR) |
+| v1 candidate shadow | Live in Production as a private shadow (#1134) |
+| Private boards, ledger, daily report | Live in Production, private (#1135) |
 | NBA Theater | Local implementation complete; not for Production |
 | NBA live (public) | Needs the opening-night capture evidence |
 | Public forecasts or boards | Requires a founder decision; blocked by the preregistration bars |
 | Market lines, edges, NBA in parlay products | Blocked: missing dependency (NBA odds authorization) and bars |
-| Finals waiter | Requires founder approval to activate |
+| Finals waiter | Merged inert (#1135); requires founder approval to activate |
 | Possession-level simulation | Not realistically achievable before tip-off |
 
 ## F. GitHub and Vercel
-- **Merged:** #1133 (`877a687556`, 05:49Z). It changed a workflow and a test only, so Vercel ignored it: 0 builds.
-- **In flight:** #1134 (v1). See the PR for its exact head and CI. Boards PR: TBD.
-- **Production builds caused by NBA work overnight:** 0 so far. Each app-source merge costs one build.
+
+| PR | Merge commit | Head | CI | Production build |
+|---|---|---|---|---|
+| #1133 roster backstop | `877a687556` (05:49Z) | `1fec32aadd` | quality + python green | 0 (Vercel ignored it: workflow and test only) |
+| #1134 v1 engine | `77d9430944` (06:22Z) | `29722959e1` | quality + python green | 1 (served 06:27Z) |
+| #1135 boards, ledger, report, acceptance checker, finals waiter (inert) | `473a7bfa7a` (06:52Z) | `54f527b8aa` | quality + python green | 1 |
+
+- **Two bugs found in review and fixed before #1134 merged:**
+  - The window's `git add` with a not-yet-existing `experimental-v1/` would have staged nothing, dropping every family's forecasts. A real-git regression test now covers it, mutation-probed.
+  - Sample minutes drifted to 239.98–240.02. They now use largest-remainder rounding, exact on 30/30 sides.
 - **Paid API usage:** none. All NBA inputs are free ESPN endpoints.
+- **Rollback:** each PR reverts cleanly. Committed private forecasts and boards stay as write-once history.
 - **Cost comparison 10-19:** see `docs/cost/VERCEL_BUILDS_MEASURED_2026-10-18.md` §10.
   - #1088 saves about 8–9 builds a day.
   - #1101 cuts files per settle commit by 89%; builds are unchanged.
   - #1124 adds about 1–2 builds a day (flagged for a weekday re-measure).
+  - Whole system: 55 → 66 builds a day on an NFL Sunday, while builds per commit fell 12%.
+- **Branches not merged (local by design):**
+  - `claude/sim-theater-nba-prototype`
+  - `claude/nba-live-adapter`
 
 ## G. Recommended next 24 hours
-1. Merge #1134 and the boards PR before 11:00Z 10-20, so v1 and both boards freeze from game 1.
+1. Done: #1134 and #1135 are merged, so v1 and both boards freeze from game 1 (the first window is about 11:00Z 10-20).
 2. Run `node app/scripts/nba/opening-night-acceptance.mjs` at about 12Z, 16Z, 19:30Z and 23:30Z on 10-20, and after the last final.
 3. **Founder decision:** activate the NBA finals waiter for one night (10-20). Without it, the PHI @ NY and OKC @ SA finals can publish hours late.
 4. **Founder decision:** v0.2 cold-start bug. 35 of 54 preseason forecasts have a 0 team score, and the same will hit each team's 2nd and 3rd regular-season games. Retire v0.2 in favour of v1, or fix it under a new version string.
