@@ -30,6 +30,12 @@
  * to be EXACTLY "true" (the workflow passes vars.NBA_FINALS_WAITER_ENABLED). Otherwise the run is forced to
  * `--dry-run --once` with no relay — whatever the flags say, it never dispatches and never relays.
  *
+ * EXPIRY (GitHub-side, needs no local controller). A live run ALSO requires NBA_FINALS_WAITER_EXPIRES_AT (the workflow
+ * passes vars.NBA_FINALS_WAITER_EXPIRES_AT): an ISO instant in the future and at most MAX_EXPIRY_HORIZON_HOURS ahead.
+ * Missing, unparseable, past or too far ahead → forced `--dry-run --once`, exactly like a disabled waiter. A live run
+ * stops at the expiry (its loop deadline is min(budget, expiry)) and never relays at or after it. So a variable left
+ * set — a Mac that disconnected, a controller that died — goes inert by itself at the expiry, on GitHub's side.
+ *
  * TIME. Every sleep (the poll, the post-dispatch wait) is capped at the remaining loop budget, and a hard stop
  * (HARD_STOP_GRACE_MIN after the budget) relays and exits even if one cycle overran — so the run always hands over
  * before the job's timeout-minutes kills it.
@@ -62,8 +68,33 @@ export const LEDGER_RUN_LIST_LIMIT = 100;
 export const CAP_RELAY_MIN_ELAPSED_MIN = 30;
 /** `gh workflow run` attempts before giving up for this cycle (with a run-list check between them). */
 export const DISPATCH_ATTEMPTS = 3;
+/** The furthest ahead an expiry may be set: a trial is one night, never an open-ended activation. */
+export const MAX_EXPIRY_HORIZON_HOURS = 36;
 
-export function parseArgs(argv, env = process.env) {
+/** Is NBA_FINALS_WAITER_EXPIRES_AT a usable expiry at `nowMs`? Pure. */
+export function expiryState(env, nowMs = Date.now()) {
+  const raw = env?.NBA_FINALS_WAITER_EXPIRES_AT ?? "";
+  if (!raw) return { ok: false, reason: "EXPIRY_MISSING", raw };
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?Z$/.test(raw)) return { ok: false, reason: "EXPIRY_UNPARSEABLE", raw };
+  const t = Date.parse(raw);
+  if (!Number.isFinite(t)) return { ok: false, reason: "EXPIRY_UNPARSEABLE", raw };
+  if (t <= nowMs) return { ok: false, reason: "EXPIRED", raw, expiresAtMs: t };
+  if (t - nowMs > MAX_EXPIRY_HORIZON_HOURS * 3_600_000) return { ok: false, reason: "EXPIRY_TOO_FAR", raw, expiresAtMs: t };
+  return { ok: true, reason: null, raw, expiresAtMs: t };
+}
+
+/** The live loop's deadline: the budget, or the expiry if that comes first. Pure. */
+export function liveDeadlineMs({ startedMs, budgetMin, expiresAtMs = null }) {
+  const budget = startedMs + budgetMin * 60_000;
+  return Number.isFinite(expiresAtMs) ? Math.min(budget, expiresAtMs) : budget;
+}
+
+/** A relay may only hand the night to a fresh run before the expiry. Pure. */
+export function mayRelayAt(nowMs, expiresAtMs) {
+  return !Number.isFinite(expiresAtMs) || nowMs < expiresAtMs;
+}
+
+export function parseArgs(argv, env = process.env, nowMs = Date.now()) {
   const has = (f) => argv.includes(f);
   const val = (f, d) => { const i = argv.indexOf(f); return i >= 0 && argv[i + 1] != null ? argv[i + 1] : d; };
   const a = {
@@ -86,7 +117,13 @@ export function parseArgs(argv, env = process.env) {
   // Defence in depth behind the workflow's guard: live only when the variable is EXACTLY "true" (GitHub's `==` in the
   // job `if` ignores case, so "True" would pass it). Anything else is one dry decision — no dispatch, no relay.
   if (!a.dryRun && env?.NBA_FINALS_WAITER_ENABLED !== "true") {
-    Object.assign(a, { dryRun: true, once: true, relay: false, forcedDryRun: true });
+    Object.assign(a, { dryRun: true, once: true, relay: false, forcedDryRun: true, forcedReason: "NOT_ENABLED" });
+  }
+  // GitHub-side expiry: an enabled live run still needs a valid, near-future NBA_FINALS_WAITER_EXPIRES_AT.
+  if (!a.dryRun) {
+    const ex = expiryState(env, nowMs);
+    if (!ex.ok) Object.assign(a, { dryRun: true, once: true, relay: false, forcedDryRun: true, forcedReason: ex.reason, expiryRaw: ex.raw });
+    else a.expiresAtMs = ex.expiresAtMs;
   }
   return a;
 }
@@ -369,13 +406,15 @@ function describe(d) {
 export async function main(argv = process.argv.slice(2)) {
   const a = parseArgs(argv);
   const started = Date.now();
-  const deadline = started + a.budgetMin * 60_000;
+  const deadline = liveDeadlineMs({ startedMs: started, budgetMin: a.budgetMin, expiresAtMs: a.expiresAtMs ?? null });
   const remainingMs = () => Math.max(0, deadline - Date.now());
   const elapsedMin = () => (Date.now() - started) / 60_000;
   const clock = () => (a.now ? a.now : new Date().toISOString());
   const api = createEspnApi({ cap: a.maxCalls });
   const gh = makeGh({ dryRun: a.dryRun });
-  if (a.forcedDryRun) console.log("::notice::nba-finals-waiter NBA_FINALS_WAITER_ENABLED is not exactly 'true' — forced to --dry-run --once (no dispatch, no relay)");
+  if (a.forcedDryRun && a.forcedReason === "NOT_ENABLED") console.log("::notice::nba-finals-waiter NBA_FINALS_WAITER_ENABLED is not exactly 'true' — forced to --dry-run --once (no dispatch, no relay)");
+  else if (a.forcedDryRun) console.log(`::warning::nba-finals-waiter enabled but NBA_FINALS_WAITER_EXPIRES_AT is not usable (${a.forcedReason}${a.expiryRaw ? ` · ${a.expiryRaw}` : ""}; it must be a future ISO instant ≤ ${MAX_EXPIRY_HORIZON_HOURS} h ahead) — forced to --dry-run --once. Delete NBA_FINALS_WAITER_ENABLED if the trial is over.`);
+  if (a.expiresAtMs) console.log(`::notice::nba-finals-waiter live until ${new Date(a.expiresAtMs).toISOString()} (GitHub-side expiry; no relay at or after it)`);
   const ledger = emptyLedger();
   let ledgerRecovered = false;
   const ensureLedger = () => {
@@ -411,6 +450,7 @@ export async function main(argv = process.argv.slice(2)) {
     if (relayed) return;
     relayed = true;
     if (!(a.relay && !a.dryRun)) { console.log(`${why} with the night unfinished (no relay in this mode)`); return; }
+    if (!mayRelayAt(Date.now(), a.expiresAtMs)) { console.log(`::warning::nba-finals-waiter ${why} at or after the expiry ${new Date(a.expiresAtMs).toISOString()} — NOT relaying; the trial window is over`); summary(`- ${why} at the expiry — not relayed`); return; }
     try { gh.relaySelf(); console.log(`::notice::nba-finals-waiter ${why} with the night unfinished — relayed to a fresh run`); summary(`- ${why} — relayed to a fresh run`); }
     catch (e) { console.log(`::warning::nba-finals-waiter could not relay (${String(e.message ?? e).slice(0, 80)}) — the next trigger resumes from committed state`); }
   };
@@ -428,6 +468,7 @@ export async function main(argv = process.argv.slice(2)) {
   }
 
   for (;;) {
+    if (a.expiresAtMs && Date.now() >= a.expiresAtMs) { stop = "EXPIRED"; console.log(`::notice::nba-finals-waiter reached its expiry ${new Date(a.expiresAtMs).toISOString()} — stopping, no relay`); break; }
     if (remainingMs() <= 0) { stop = "BUDGET"; break; }
     if (a.pull && !a.dryRun) pull();
     let d;
