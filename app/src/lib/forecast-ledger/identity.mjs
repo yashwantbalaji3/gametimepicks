@@ -14,6 +14,14 @@
  *     prevent. The version is an IMMUTABLE field on the row instead, so changing it is an append-only violation,
  *     not a silent new row.
  *
+ * REPUBLICATION QUALIFIER (founder decision 2026-10-19, option B). The one exception to "one forecast per subject /
+ * family / event": an owner that re-publishes a POSTPONED game on a later slate (Homer Nukes put ALCS game 849817 on
+ * the 10-16 board, the game did not play that day, and the 10-18 board published it again at different probabilities).
+ * The original publication keeps the plain identity — so every committed id is unchanged — and is VOID (postponed).
+ * Each re-publication is its own forecast, identified by the tuple plus `slate:<YYYY-MM-DD>` (the slate it was
+ * published on). `identityQualifier` is optional and only an adapter's explicit republication rule passes it; without
+ * it the key is byte-identical to before.
+ *
  * Pure (no node:crypto) so the same id is computable in a browser, a build script and a test.
  */
 
@@ -39,7 +47,11 @@ export function identityKey(parts) {
     if (typeof v !== "string" || v.length === 0) throw new Error(`forecast identity: ${k} is required (got ${JSON.stringify(v)})`);
     if (v.includes("|")) throw new Error(`forecast identity: ${k} may not contain "|"`);
   }
-  return IDENTITY_FIELDS.map((k) => parts[k]).join("|");
+  const base = IDENTITY_FIELDS.map((k) => parts[k]).join("|");
+  const q = parts?.identityQualifier;
+  if (q == null) return base;
+  if (typeof q !== "string" || !/^slate:\d{4}-\d{2}-\d{2}$/.test(q)) throw new Error(`forecast identity: identityQualifier must be "slate:YYYY-MM-DD" (got ${JSON.stringify(q)})`);
+  return `${base}|${q}`;
 }
 
 export function forecastIdFor(parts) {
