@@ -84,7 +84,7 @@ const CSS = `
 .tbt .tbt-sub{display:block;font-size:11px;color:var(--vault-text-faint);margin-top:2px}
 .tbt .tbt-np{display:block;color:var(--vault-text-mute);font-size:12px}
 .tbt code{font-family:var(--font-mono);font-size:10px;color:var(--vault-text-faint);overflow-wrap:anywhere}
-.tbt .tbt-stick{position:sticky;left:0;background:var(--vault-bg, var(--vault-panel));z-index:1;overflow-wrap:anywhere}
+.tbt .tbt-stick{position:sticky;left:0;background:var(--vault-bg);z-index:1;overflow-wrap:anywhere}
 @media (max-width:639px){.tbt .tbt-stick{width:112px;min-width:112px;max-width:112px;font-size:13px}}
 .tbt-empty{border:1px dashed var(--vault-border-strong);border-radius:12px;padding:16px;font-size:14px;color:var(--vault-text-mute);margin:0 0 12px}
 `;
