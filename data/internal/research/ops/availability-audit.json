@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "availability-audit",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-10-19T20:08:06Z",
+  "generatedAt": "2026-10-20T15:31:04Z",
   "question": "Can a participant who cannot or is not expected to play still enter the active simulation population?",
   "sports": {
     "nfl": {
@@ -11,10 +11,69 @@
       "state": "ACTIVE",
       "events": [
         {
-          "eventId": "401873008",
-          "matchup": "WSH @ SF",
-          "startUtc": "2026-10-20T00:15Z",
-          "evidenceAsOf": "2026-10-19T16:27:16Z",
+          "eventId": "401873010",
+          "matchup": "NE @ CHI",
+          "startUtc": "2026-10-23T00:15Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 41,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 41
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-4608686",
+              "name": "Kyle Monangai",
+              "team": "CHI",
+              "family": "rushAttempts",
+              "state": "Out",
+              "statedAt": "2026-10-20T00:05Z",
+              "reason": "injuries capture designates Out (stated 2026-10-20T00:05Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4608686",
+              "name": "Kyle Monangai",
+              "team": "CHI",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-20T00:05Z",
+              "reason": "injuries capture designates Out (stated 2026-10-20T00:05Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-2991662",
+              "name": "Mack Hollins",
+              "team": "NE",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-10T20:09Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-10T20:09Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4361432",
+              "name": "Romeo Doubs",
+              "team": "NE",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-19T23:53Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-19T23:53Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4039505",
+              "name": "Reggie Gilliam",
+              "team": "NE",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-11T00:36Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-11T00:36Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873011",
+          "matchup": "PIT VS NO",
+          "startUtc": "2026-10-25T13:30Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
           "cutoffSafe": true,
           "includedSlots": 44,
           "unknownSlots": 0,
@@ -23,13 +82,385 @@
           },
           "excluded": [
             {
+              "id": "nfl-athlete-4431492",
+              "name": "Roman Wilson",
+              "team": "PIT",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-17T19:27Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-17T19:27Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4035687",
+              "name": "Michael Pittman Jr.",
+              "team": "PIT",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-10T19:52Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-10T19:52Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4035656",
+              "name": "Ben Skowronek",
+              "team": "PIT",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T17:15Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T17:15Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873012",
+          "matchup": "CIN @ BAL",
+          "startUtc": "2026-10-25T17:00Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 37,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 37
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-3916387",
+              "name": "Lamar Jackson",
+              "team": "BAL",
+              "family": "passAttempts",
+              "state": "Out",
+              "statedAt": "2026-10-19T19:08Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T19:08Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-3916387",
+              "name": "Lamar Jackson",
+              "team": "BAL",
+              "family": "rushAttempts",
+              "state": "Out",
+              "statedAt": "2026-10-19T19:08Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T19:08Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4432260",
+              "name": "Matt Hibner",
+              "team": "BAL",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T16:22Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:22Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-3052897",
+              "name": "Durham Smythe",
+              "team": "BAL",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-07T23:18Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-07T23:18Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-3050481",
+              "name": "Tanner Hudson",
+              "team": "CIN",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-19T23:18Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-19T23:18Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873013",
+          "matchup": "CLE @ TEN",
+          "startUtc": "2026-10-25T17:00Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 39,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 39
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-4427238",
+              "name": "Dillon Gabriel",
+              "team": "CLE",
+              "family": "passAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-10T00:37Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-10T00:37Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4685702",
+              "name": "Quinshon Judkins",
+              "team": "CLE",
+              "family": "rushAttempts",
+              "state": "Out",
+              "statedAt": "2026-10-19T16:30Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:30Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-5081397",
+              "name": "Dylan Sampson",
+              "team": "CLE",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-16T18:20Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-16T18:20Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4601080",
+              "name": "Raheim Sanders",
+              "team": "CLE",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-13T21:00Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-13T21:00Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4427238",
+              "name": "Dillon Gabriel",
+              "team": "CLE",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-10T00:37Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-10T00:37Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4685702",
+              "name": "Quinshon Judkins",
+              "team": "CLE",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T16:30Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:30Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4601080",
+              "name": "Raheim Sanders",
+              "team": "CLE",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-13T21:00Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-13T21:00Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-5081397",
+              "name": "Dylan Sampson",
+              "team": "CLE",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-16T18:20Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-16T18:20Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873014",
+          "matchup": "IND @ MIN",
+          "startUtc": "2026-10-25T17:00Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 50,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 50
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-4360569",
+              "name": "Jordan Mason",
+              "team": "MIN",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-19T21:24Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-19T21:24Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-3921690",
+              "name": "Josh Oliver",
+              "team": "MIN",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-09-30T00:26Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-09-30T00:26Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4360569",
+              "name": "Jordan Mason",
+              "team": "MIN",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-19T21:24Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-19T21:24Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4431459",
+              "name": "Tyler Warren",
+              "team": "IND",
+              "family": "rushAttempts",
+              "state": "Out",
+              "statedAt": "2026-10-19T16:41Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:41Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4431459",
+              "name": "Tyler Warren",
+              "team": "IND",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T16:41Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:41Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4360078",
+              "name": "Alec Pierce",
+              "team": "IND",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-19T18:32Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-19T18:32Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4061956",
+              "name": "Ashton Dulin",
+              "team": "IND",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T16:41Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:41Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873015",
+          "matchup": "MIA @ NYJ",
+          "startUtc": "2026-10-25T17:00Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 37,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 37
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-4427366",
+              "name": "Breece Hall",
+              "team": "NYJ",
+              "family": "rushAttempts",
+              "state": "Out",
+              "statedAt": "2026-10-19T17:12Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T17:12Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4597500",
+              "name": "Adonai Mitchell",
+              "team": "NYJ",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T17:12Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T17:12Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4427366",
+              "name": "Breece Hall",
+              "team": "NYJ",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T17:12Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T17:12Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873016",
+          "matchup": "NYG @ HOU",
+          "startUtc": "2026-10-25T17:00Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 51,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 51
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-4035538",
+              "name": "David Montgomery",
+              "team": "HOU",
+              "family": "rushAttempts",
+              "state": "Out",
+              "statedAt": "2026-10-19T16:40Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:40Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4366031",
+              "name": "Tank Dell",
+              "team": "HOU",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-19T19:45Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-19T19:45Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4366031",
+              "name": "Tank Dell",
+              "team": "HOU",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-19T19:45Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-19T19:45Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4035538",
+              "name": "David Montgomery",
+              "team": "HOU",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T16:40Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:40Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4429148",
+              "name": "Theo Johnson",
+              "team": "NYG",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T17:10Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T17:10Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-3123075",
+              "name": "Braxton Berrios",
+              "team": "NYG",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-14T21:17Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-14T21:17Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873017",
+          "matchup": "SF @ ATL",
+          "startUtc": "2026-10-25T17:00Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 43,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 43
+          },
+          "excluded": [
+            {
               "id": "nfl-athlete-3126486",
               "name": "Deebo Samuel Sr.",
               "team": "SF",
               "family": "rushAttempts",
               "state": "Out",
-              "statedAt": "2026-10-15T19:54Z",
-              "reason": "injuries capture designates Out (stated 2026-10-15T19:54Z) — ineligible players carry no opportunity share"
+              "statedAt": "2026-10-19T22:56Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T22:56Z) — ineligible players carry no opportunity share"
             },
             {
               "id": "nfl-athlete-3126486",
@@ -37,8 +468,8 @@
               "team": "SF",
               "family": "targets",
               "state": "Out",
-              "statedAt": "2026-10-15T19:54Z",
-              "reason": "injuries capture designates Out (stated 2026-10-15T19:54Z) — ineligible players carry no opportunity share"
+              "statedAt": "2026-10-19T22:56Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T22:56Z) — ineligible players carry no opportunity share"
             },
             {
               "id": "nfl-athlete-3043116",
@@ -48,69 +479,423 @@
               "state": "Injured Reserve",
               "statedAt": "2026-10-15T19:50Z",
               "reason": "injuries capture designates Injured Reserve (stated 2026-10-15T19:50Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873018",
+          "matchup": "TB @ CAR",
+          "startUtc": "2026-10-25T17:00Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 40,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 40
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-4678008",
+              "name": "Jonathon Brooks",
+              "team": "CAR",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-15T18:28Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-15T18:28Z) — ineligible players carry no opportunity share"
             },
             {
-              "id": "nfl-athlete-2576980",
-              "name": "Marcus Mariota",
-              "team": "WSH",
+              "id": "nfl-athlete-4239934",
+              "name": "AJ Dillon",
+              "team": "CAR",
+              "family": "rushAttempts",
+              "state": "Out",
+              "statedAt": "2026-10-19T16:27Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:27Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4678008",
+              "name": "Jonathon Brooks",
+              "team": "CAR",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-15T18:28Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-15T18:28Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4239934",
+              "name": "AJ Dillon",
+              "team": "CAR",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T16:27Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:27Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-3052587",
+              "name": "Baker Mayfield",
+              "team": "TB",
               "family": "passAttempts",
               "state": "Out",
-              "statedAt": "2026-10-17T16:55Z",
-              "reason": "injuries capture designates Out (stated 2026-10-17T16:55Z) — ineligible players carry no opportunity share"
+              "statedAt": "2026-10-19T16:41Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:41Z) — ineligible players carry no opportunity share"
             },
             {
-              "id": "nfl-athlete-4575131",
-              "name": "Jacory Croskey-Merritt",
-              "team": "WSH",
+              "id": "nfl-athlete-3052587",
+              "name": "Baker Mayfield",
+              "team": "TB",
               "family": "rushAttempts",
               "state": "Out",
-              "statedAt": "2026-10-17T16:46Z",
-              "reason": "injuries capture designates Out (stated 2026-10-17T16:46Z) — ineligible players carry no opportunity share"
+              "statedAt": "2026-10-19T16:41Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:41Z) — ineligible players carry no opportunity share"
             },
             {
-              "id": "nfl-athlete-2576980",
-              "name": "Marcus Mariota",
-              "team": "WSH",
+              "id": "nfl-athlete-4430871",
+              "name": "Sean Tucker",
+              "team": "TB",
               "family": "rushAttempts",
               "state": "Out",
-              "statedAt": "2026-10-17T16:55Z",
-              "reason": "injuries capture designates Out (stated 2026-10-17T16:55Z) — ineligible players carry no opportunity share"
+              "statedAt": "2026-10-19T17:18Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T17:18Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873019",
+          "matchup": "DEN @ ARI",
+          "startUtc": "2026-10-25T20:05Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 46,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 46
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-4870808",
+              "name": "Jeremiyah Love",
+              "team": "ARI",
+              "family": "rushAttempts",
+              "state": "Out",
+              "statedAt": "2026-10-19T23:21Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T23:21Z) — ineligible players carry no opportunity share"
             },
             {
-              "id": "nfl-athlete-3127586",
-              "name": "Jeremy McNichols",
-              "team": "WSH",
+              "id": "nfl-athlete-3045147",
+              "name": "James Conner",
+              "team": "ARI",
               "family": "rushAttempts",
               "state": "Injured Reserve",
-              "statedAt": "2026-10-18T01:45Z",
-              "reason": "injuries capture designates Injured Reserve (stated 2026-10-18T01:45Z) — ineligible players carry no opportunity share"
+              "statedAt": "2026-10-13T19:00Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-13T19:00Z) — ineligible players carry no opportunity share"
             },
             {
-              "id": "nfl-athlete-3127586",
-              "name": "Jeremy McNichols",
-              "team": "WSH",
+              "id": "nfl-athlete-3045147",
+              "name": "James Conner",
+              "team": "ARI",
               "family": "targets",
               "state": "Injured Reserve",
-              "statedAt": "2026-10-18T01:45Z",
-              "reason": "injuries capture designates Injured Reserve (stated 2026-10-18T01:45Z) — ineligible players carry no opportunity share"
+              "statedAt": "2026-10-13T19:00Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-13T19:00Z) — ineligible players carry no opportunity share"
             },
             {
-              "id": "nfl-athlete-4575131",
-              "name": "Jacory Croskey-Merritt",
-              "team": "WSH",
+              "id": "nfl-athlete-4870808",
+              "name": "Jeremiyah Love",
+              "team": "ARI",
               "family": "targets",
               "state": "Out",
-              "statedAt": "2026-10-17T16:46Z",
-              "reason": "injuries capture designates Out (stated 2026-10-17T16:46Z) — ineligible players carry no opportunity share"
+              "statedAt": "2026-10-19T23:21Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T23:21Z) — ineligible players carry no opportunity share"
             },
             {
-              "id": "nfl-athlete-4602667",
-              "name": "Jaylin Lane",
-              "team": "WSH",
+              "id": "nfl-athlete-4239944",
+              "name": "Hunter Long",
+              "team": "ARI",
               "family": "targets",
               "state": "Injured Reserve",
-              "statedAt": "2026-10-06T23:14Z",
-              "reason": "injuries capture designates Injured Reserve (stated 2026-10-06T23:14Z) — ineligible players carry no opportunity share"
+              "statedAt": "2026-10-06T23:22Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-06T23:22Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4600981",
+              "name": "Pat Bryant",
+              "team": "DEN",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-09T21:47Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-09T21:47Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4600981",
+              "name": "Pat Bryant",
+              "team": "DEN",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-09T21:47Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-09T21:47Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873020",
+          "matchup": "GB @ DET",
+          "startUtc": "2026-10-25T20:25Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 39,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 39
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-3149687",
+              "name": "Chris Brooks",
+              "team": "GB",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-10T20:06Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-10T20:06Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4430191",
+              "name": "Skyy Moore",
+              "team": "GB",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-17T21:54Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-17T21:54Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-3149687",
+              "name": "Chris Brooks",
+              "team": "GB",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-10T20:06Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-10T20:06Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873021",
+          "matchup": "LAR @ LV",
+          "startUtc": "2026-10-25T20:25Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 45,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 45
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-4432775",
+              "name": "Dont'e Thornton Jr.",
+              "team": "LV",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-16T22:08Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-16T22:08Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-5155825",
+              "name": "Carter Runyon",
+              "team": "LV",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-17T02:53Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-17T02:53Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-16800",
+              "name": "Davante Adams",
+              "team": "LAR",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T21:31Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T21:31Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4570037",
+              "name": "Terrance Ferguson",
+              "team": "LAR",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-07T17:52Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-07T17:52Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873022",
+          "matchup": "KC @ SEA",
+          "startUtc": "2026-10-26T00:20Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 42,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 42
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-4685512",
+              "name": "Jadarian Price",
+              "team": "SEA",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-16T17:27Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-16T17:27Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4426385",
+              "name": "Zach Charbonnet",
+              "team": "SEA",
+              "family": "rushAttempts",
+              "state": "Out",
+              "statedAt": "2026-10-19T23:10Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T23:10Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4685512",
+              "name": "Jadarian Price",
+              "team": "SEA",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-16T17:27Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-16T17:27Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4426385",
+              "name": "Zach Charbonnet",
+              "team": "SEA",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T23:10Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T23:10Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4678006",
+              "name": "Elijah Arroyo",
+              "team": "SEA",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T23:21Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T23:21Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4428331",
+              "name": "Rashee Rice",
+              "team": "KC",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T16:45Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T16:45Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4362921",
+              "name": "Tyquan Thornton",
+              "team": "KC",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-13T18:29Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-13T18:29Z) — ineligible players carry no opportunity share"
+            }
+          ]
+        },
+        {
+          "eventId": "401873009",
+          "matchup": "DAL @ PHI",
+          "startUtc": "2026-10-27T00:15Z",
+          "evidenceAsOf": "2026-10-20T14:18:42Z",
+          "cutoffSafe": true,
+          "includedSlots": 37,
+          "unknownSlots": 0,
+          "stateCounts": {
+            "AVAILABLE_ROLE_UNCERTAIN": 37
+          },
+          "excluded": [
+            {
+              "id": "nfl-athlete-4040715",
+              "name": "Jalen Hurts",
+              "team": "PHI",
+              "family": "passAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-19T14:18Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-19T14:18Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-3929630",
+              "name": "Saquon Barkley",
+              "team": "PHI",
+              "family": "rushAttempts",
+              "state": "Out",
+              "statedAt": "2026-10-19T17:14Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T17:14Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4429013",
+              "name": "Tank Bigsby",
+              "team": "PHI",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-06T23:17Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-06T23:17Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4040715",
+              "name": "Jalen Hurts",
+              "team": "PHI",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-19T14:18Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-19T14:18Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4431545",
+              "name": "Will Shipley",
+              "team": "PHI",
+              "family": "rushAttempts",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-16T20:07Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-16T20:07Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-3929630",
+              "name": "Saquon Barkley",
+              "team": "PHI",
+              "family": "targets",
+              "state": "Out",
+              "statedAt": "2026-10-19T17:14Z",
+              "reason": "injuries capture designates Out (stated 2026-10-19T17:14Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4431545",
+              "name": "Will Shipley",
+              "team": "PHI",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-16T20:07Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-16T20:07Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4241374",
+              "name": "Grant Calcaterra",
+              "team": "PHI",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-18T02:34Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-18T02:34Z) — ineligible players carry no opportunity share"
+            },
+            {
+              "id": "nfl-athlete-4429013",
+              "name": "Tank Bigsby",
+              "team": "PHI",
+              "family": "targets",
+              "state": "Injured Reserve",
+              "statedAt": "2026-10-06T23:17Z",
+              "reason": "injuries capture designates Injured Reserve (stated 2026-10-06T23:17Z) — ineligible players carry no opportunity share"
             }
           ]
         }
@@ -122,52 +907,108 @@
     "mlb": {
       "owner": "capture-mlb-pregame-lineup.mjs (StatsAPI, 8x/day) → selectConfirmedLineup → full-game sim",
       "hardExclusionReachable": true,
-      "state": "ACTIVE",
-      "slate": "2026-10-19.json",
+      "state": "NO_SIMULATED_EVENTS",
+      "slate": "2026-10-20.json",
       "confirmedLineups": 0,
-      "totalSimulated": 1,
-      "events": [
-        {
-          "eventId": "849815",
-          "matchup": "CLE @ TB",
-          "startUtc": "2026-10-20T00:08:00Z",
-          "lineupSource": {
-            "away": "prop-derived",
-            "home": "prop-derived"
-          },
-          "confirmed": false,
-          "includedBatters": 18,
-          "startersKnown": true,
-          "level": "ready",
-          "missingFamilies": [
-            "confirmed_batting_order",
-            "park_run_factors",
-            "weather",
-            "batter_handedness_splits"
-          ],
-          "notes": [
-            "CLE starter Shawn Armstrong has no strikeout projection — league starter rate used."
-          ]
-        }
-      ],
-      "gaps": [
-        "1 of 1 simulated games ran on a PROP-DERIVED lineup because no batting order had been posted yet. A batter enters that lineup because a sportsbook posted a line for him, so a player scratched AFTER the lines were posted can still be simulated. The artifact records this as level \"degraded\" with lineupSource \"prop-derived\" and the hourly lineup refresh replaces it once the order lands — it is a labelled weaker state, not a silent one."
-      ]
+      "totalSimulated": 0,
+      "events": [],
+      "gaps": []
     },
     "epl": {
       "owner": "epl player-projections (ESPN squads + per-player rates) — TEAM forecasts are a separate owner",
       "hardExclusionReachable": false,
       "state": "ACTIVE",
       "withLineup": 0,
-      "awaitingLineup": 1,
+      "awaitingLineup": 10,
       "events": [
         {
-          "eventId": "soccer:epl:coventry-city-v-tottenham-hotspur:20261019t1900",
-          "matchup": "Tottenham Hotspur v Coventry City",
-          "startUtc": "2026-10-19T19:00:00Z",
+          "eventId": "soccer:epl:ipswich-town-v-nottingham-forest:20261023t1900",
+          "matchup": "Ipswich Town v Nottingham Forest",
+          "startUtc": "2026-10-23T19:00:00Z",
+          "lineupState": "AWAITING_LINEUP",
+          "projectedPlayers": 53,
+          "conditionalPlayers": 53,
+          "excluded": []
+        },
+        {
+          "eventId": "soccer:epl:aston-villa-v-manchester-city:20261024t1130",
+          "matchup": "Aston Villa v Manchester City",
+          "startUtc": "2026-10-24T11:30:00Z",
+          "lineupState": "AWAITING_LINEUP",
+          "projectedPlayers": 56,
+          "conditionalPlayers": 56,
+          "excluded": []
+        },
+        {
+          "eventId": "soccer:epl:arsenal-v-everton:20261024t1400",
+          "matchup": "Arsenal v Everton",
+          "startUtc": "2026-10-24T14:00:00Z",
+          "lineupState": "AWAITING_LINEUP",
+          "projectedPlayers": 53,
+          "conditionalPlayers": 53,
+          "excluded": []
+        },
+        {
+          "eventId": "soccer:epl:coventry-city-v-fulham:20261024t1400",
+          "matchup": "Coventry City v Fulham",
+          "startUtc": "2026-10-24T14:00:00Z",
           "lineupState": "AWAITING_LINEUP",
           "projectedPlayers": 58,
           "conditionalPlayers": 58,
+          "excluded": []
+        },
+        {
+          "eventId": "soccer:epl:chelsea-v-tottenham-hotspur:20261024t1630",
+          "matchup": "Chelsea v Tottenham Hotspur",
+          "startUtc": "2026-10-24T16:30:00Z",
+          "lineupState": "AWAITING_LINEUP",
+          "projectedPlayers": 60,
+          "conditionalPlayers": 60,
+          "excluded": []
+        },
+        {
+          "eventId": "soccer:epl:brighton-hove-albion-v-liverpool:20261025t1400",
+          "matchup": "Liverpool v Brighton & Hove Albion",
+          "startUtc": "2026-10-25T14:00:00Z",
+          "lineupState": "AWAITING_LINEUP",
+          "projectedPlayers": 66,
+          "conditionalPlayers": 66,
+          "excluded": []
+        },
+        {
+          "eventId": "soccer:epl:crystal-palace-v-newcastle-united:20261025t1400",
+          "matchup": "Crystal Palace v Newcastle United",
+          "startUtc": "2026-10-25T14:00:00Z",
+          "lineupState": "AWAITING_LINEUP",
+          "projectedPlayers": 63,
+          "conditionalPlayers": 63,
+          "excluded": []
+        },
+        {
+          "eventId": "soccer:epl:bournemouth-v-manchester-united:20261025t1400",
+          "matchup": "Manchester United v Bournemouth",
+          "startUtc": "2026-10-25T14:00:00Z",
+          "lineupState": "AWAITING_LINEUP",
+          "projectedPlayers": 60,
+          "conditionalPlayers": 60,
+          "excluded": []
+        },
+        {
+          "eventId": "soccer:epl:brentford-v-hull-city:20261025t1400",
+          "matchup": "Hull City v Brentford",
+          "startUtc": "2026-10-25T14:00:00Z",
+          "lineupState": "AWAITING_LINEUP",
+          "projectedPlayers": 63,
+          "conditionalPlayers": 63,
+          "excluded": []
+        },
+        {
+          "eventId": "soccer:epl:leeds-united-v-sunderland:20261025t1630",
+          "matchup": "Sunderland v Leeds United",
+          "startUtc": "2026-10-25T16:30:00Z",
+          "lineupState": "AWAITING_LINEUP",
+          "projectedPlayers": 61,
+          "conditionalPlayers": 61,
           "excluded": []
         }
       ],

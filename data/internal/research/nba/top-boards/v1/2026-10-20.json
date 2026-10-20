@@ -3938,6 +3938,3871 @@
      "emptyReason": null
     }
    }
+  },
+  {
+   "edition": 2,
+   "frozenAt": "2026-10-20T15:05:48Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-10-20.json",
+    "sha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+    "artifactGeneratedAt": "2026-10-20T12:29:28Z",
+    "artifactInputAsOf": "2026-10-20T12:29:28Z",
+    "runs": 2,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909088",
+     "tipoffUtc": "2026-10-20T19:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Detroit Pistons",
+      "abbr": "DET",
+      "espnAbbr": "DET",
+      "providerTeamId": "8"
+     },
+     "away": {
+      "name": "Boston Celtics",
+      "abbr": "BOS",
+      "espnAbbr": "BOS",
+      "providerTeamId": "2"
+     },
+     "forecastGeneratedAt": "2026-10-20T12:29:28Z",
+     "forecastInputAsOf": "2026-10-20T12:29:28Z",
+     "gamePayloadSha256": "c130921d643a7167734ef4b4eb1b4b029f6e5bce194fec4f1ebadad9497d8c70",
+     "state": "ON_EARLIER_EDITION",
+     "flags": []
+    },
+    {
+     "eventId": "401909089",
+     "tipoffUtc": "2026-10-20T23:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "New York Knicks",
+      "abbr": "NYK",
+      "espnAbbr": "NY",
+      "providerTeamId": "18"
+     },
+     "away": {
+      "name": "Philadelphia 76ers",
+      "abbr": "PHI",
+      "espnAbbr": "PHI",
+      "providerTeamId": "20"
+     },
+     "forecastGeneratedAt": "2026-10-20T15:05:48Z",
+     "forecastInputAsOf": "2026-10-20T15:05:48Z",
+     "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-20|v1|e2|points|401909089|3934672",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Jalen Brunson",
+        "providerAthleteId": "3934672"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.68
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.9774,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.35,
+       "minutesSd": 6.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24,
+        "expectedMinutes": 32.35,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-20|v1|e2|points|401909089|3917376",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Jaylen Brown",
+        "providerAthleteId": "3917376"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.87
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 29
+       },
+       "playRate": 0.9765,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.4,
+       "minutesSd": 6.56,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 18,
+        "expectedMinutes": 28.4,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-20|v1|e2|points|401909089|4431678",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.2
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.9755,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.63,
+       "minutesSd": 6.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18,
+        "expectedMinutes": 29.63,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-20|v1|e2|points|401909089|3136195",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Karl-Anthony Towns",
+        "providerAthleteId": "3136195"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.13
+       },
+       "range": {
+        "p10": 10,
+        "p25": 13,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.19,
+       "minutesSd": 5.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18,
+        "expectedMinutes": 26.19,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-20|v1|e2|points|401909089|3059318",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Joel Embiid",
+        "providerAthleteId": "3059318"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.88
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.9706,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.64,
+       "minutesSd": 6.16,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17,
+        "expectedMinutes": 26.64,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-20|v1|e2|points|401909089|3934719",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "OG Anunoby",
+        "providerAthleteId": "3934719"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.96
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 21,
+        "p90": 25
+       },
+       "playRate": 0.9728,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.69,
+       "minutesSd": 7.55,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15,
+        "expectedMinutes": 29.69,
+        "p90": 25
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-20|v1|e2|points|401909089|1966",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "LeBron James",
+        "providerAthleteId": "1966"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.44
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 17,
+        "p90": 22
+       },
+       "playRate": 0.9744,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.87,
+       "minutesSd": 6.25,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 13,
+        "expectedMinutes": 25.87,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-20|v1|e2|points|401909089|3147657",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Mikal Bridges",
+        "providerAthleteId": "3147657"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.96
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 17,
+        "p90": 21
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.88,
+       "minutesSd": 6.52,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12,
+        "expectedMinutes": 27.88,
+        "p90": 21
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-20|v1|e2|points|401909089|3062679",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Josh Hart",
+        "providerAthleteId": "3062679"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.32
+       },
+       "range": {
+        "p10": 5,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.975,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.64,
+       "minutesSd": 6.35,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11,
+        "expectedMinutes": 26.64,
+        "p90": 19
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-20|v1|e2|points|401909089|5124612",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.31
+       },
+       "range": {
+        "p10": 5,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9769,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.16,
+       "minutesSd": 6.36,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11,
+        "expectedMinutes": 28.16,
+        "p90": 19
+       }
+      }
+     ],
+     "eligibleCount": 10,
+     "shownCount": 10,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 3,
+       "LOW_PLAY_RATE": 11,
+       "INSUFFICIENT_HISTORY": 3,
+       "INJURY_DESIGNATION": 3,
+       "AVAILABILITY_OUT": 3
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 13,
+       "LOW_EXPECTED_MINUTES": 17,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 3,
+       "NULL_MINUTES": 6,
+       "AVAILABILITY_UNVERIFIED": 3,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "INJURY_DESIGNATION": 6,
+       "AVAILABILITY_OUT": 3
+      },
+      "players": [
+       {
+        "providerAthleteId": "2528426",
+        "name": "Jordan Clarkson",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3914044",
+        "name": "Landry Shamet",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277869",
+        "name": "Jose Alvarado",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4411057",
+        "name": "Kevin McCullar Jr.",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431823",
+        "name": "Miles McBride",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432808",
+        "name": "James Wiseman",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433225",
+        "name": "Tyler Kolek",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683730",
+        "name": "Jaden Akins",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4838721",
+        "name": "Tyler Nickel",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5211983",
+        "name": "Pacome Dadiet",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5289900",
+        "name": "Mohamed Diawara",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6585",
+        "name": "Andre Drummond",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-20|v1|e2|rebounds|401909089|3136195",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Karl-Anthony Towns",
+        "providerAthleteId": "3136195"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 9,
+        "mean": 9.44
+       },
+       "range": {
+        "p10": 5,
+        "p25": 7,
+        "p75": 12,
+        "p90": 15
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.19,
+       "minutesSd": 5.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 9,
+        "expectedMinutes": 26.19,
+        "p90": 15
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-20|v1|e2|rebounds|401909089|3059318",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Joel Embiid",
+        "providerAthleteId": "3059318"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.13
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9706,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.64,
+       "minutesSd": 6.16,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6,
+        "expectedMinutes": 26.64,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-20|v1|e2|rebounds|401909089|3062679",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Josh Hart",
+        "providerAthleteId": "3062679"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.04
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.975,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.64,
+       "minutesSd": 6.35,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6,
+        "expectedMinutes": 26.64,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-20|v1|e2|rebounds|401909089|3917376",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Jaylen Brown",
+        "providerAthleteId": "3917376"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.47
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9765,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.4,
+       "minutesSd": 6.56,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 5,
+        "expectedMinutes": 28.4,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-20|v1|e2|rebounds|401909089|1966",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "LeBron James",
+        "providerAthleteId": "1966"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.67
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9744,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.87,
+       "minutesSd": 6.25,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 4,
+        "expectedMinutes": 25.87,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-20|v1|e2|rebounds|401909089|3934719",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "OG Anunoby",
+        "providerAthleteId": "3934719"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.54
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9728,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.69,
+       "minutesSd": 7.55,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4,
+        "expectedMinutes": 29.69,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-20|v1|e2|rebounds|401909089|5124612",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.5
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9769,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.16,
+       "minutesSd": 6.36,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4,
+        "expectedMinutes": 28.16,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-20|v1|e2|rebounds|401909089|4431678",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.23
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9755,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.63,
+       "minutesSd": 6.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3,
+        "expectedMinutes": 29.63,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-20|v1|e2|rebounds|401909089|3934672",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Jalen Brunson",
+        "providerAthleteId": "3934672"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.15
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9774,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.35,
+       "minutesSd": 6.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3,
+        "expectedMinutes": 32.35,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-20|v1|e2|rebounds|401909089|3147657",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Mikal Bridges",
+        "providerAthleteId": "3147657"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.1
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.88,
+       "minutesSd": 6.52,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3,
+        "expectedMinutes": 27.88,
+        "p90": 6
+       }
+      }
+     ],
+     "eligibleCount": 10,
+     "shownCount": 10,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 3,
+       "LOW_PLAY_RATE": 11,
+       "INSUFFICIENT_HISTORY": 3,
+       "INJURY_DESIGNATION": 3,
+       "AVAILABILITY_OUT": 3
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 13,
+       "LOW_EXPECTED_MINUTES": 17,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 3,
+       "NULL_MINUTES": 6,
+       "AVAILABILITY_UNVERIFIED": 3,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "INJURY_DESIGNATION": 6,
+       "AVAILABILITY_OUT": 3
+      },
+      "players": [
+       {
+        "providerAthleteId": "2528426",
+        "name": "Jordan Clarkson",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3914044",
+        "name": "Landry Shamet",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277869",
+        "name": "Jose Alvarado",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4411057",
+        "name": "Kevin McCullar Jr.",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431823",
+        "name": "Miles McBride",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432808",
+        "name": "James Wiseman",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433225",
+        "name": "Tyler Kolek",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683730",
+        "name": "Jaden Akins",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4838721",
+        "name": "Tyler Nickel",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5211983",
+        "name": "Pacome Dadiet",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5289900",
+        "name": "Mohamed Diawara",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6585",
+        "name": "Andre Drummond",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-20|v1|e2|assists|401909089|3934672",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Jalen Brunson",
+        "providerAthleteId": "3934672"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 7,
+        "mean": 6.82
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 9,
+        "p90": 11
+       },
+       "playRate": 0.9774,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.35,
+       "minutesSd": 6.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 7,
+        "expectedMinutes": 32.35,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-20|v1|e2|assists|401909089|1966",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "LeBron James",
+        "providerAthleteId": "1966"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.66
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9744,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.87,
+       "minutesSd": 6.25,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 4,
+        "expectedMinutes": 25.87,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-20|v1|e2|assists|401909089|3062679",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Josh Hart",
+        "providerAthleteId": "3062679"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.32
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 7
+       },
+       "playRate": 0.975,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.64,
+       "minutesSd": 6.35,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4,
+        "expectedMinutes": 26.64,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-20|v1|e2|assists|401909089|4431678",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.22
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 7
+       },
+       "playRate": 0.9755,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.63,
+       "minutesSd": 6.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4,
+        "expectedMinutes": 29.63,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-20|v1|e2|assists|401909089|3917376",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Jaylen Brown",
+        "providerAthleteId": "3917376"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.57
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9765,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.4,
+       "minutesSd": 6.56,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 3,
+        "expectedMinutes": 28.4,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-20|v1|e2|assists|401909089|3147657",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Mikal Bridges",
+        "providerAthleteId": "3147657"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.29
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.88,
+       "minutesSd": 6.52,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3,
+        "expectedMinutes": 27.88,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-20|v1|e2|assists|401909089|5124612",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.97
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9769,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.16,
+       "minutesSd": 6.36,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3,
+        "expectedMinutes": 28.16,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-20|v1|e2|assists|401909089|3136195",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Karl-Anthony Towns",
+        "providerAthleteId": "3136195"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.85
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.19,
+       "minutesSd": 5.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3,
+        "expectedMinutes": 26.19,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-20|v1|e2|assists|401909089|3059318",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Joel Embiid",
+        "providerAthleteId": "3059318"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.81
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9706,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.64,
+       "minutesSd": 6.16,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3,
+        "expectedMinutes": 26.64,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-20|v1|e2|assists|401909089|3934719",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "OG Anunoby",
+        "providerAthleteId": "3934719"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.17
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9728,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.69,
+       "minutesSd": 7.55,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2,
+        "expectedMinutes": 29.69,
+        "p90": 4
+       }
+      }
+     ],
+     "eligibleCount": 10,
+     "shownCount": 10,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 3,
+       "LOW_PLAY_RATE": 11,
+       "INSUFFICIENT_HISTORY": 3,
+       "INJURY_DESIGNATION": 3,
+       "AVAILABILITY_OUT": 3
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 13,
+       "LOW_EXPECTED_MINUTES": 17,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 3,
+       "NULL_MINUTES": 6,
+       "AVAILABILITY_UNVERIFIED": 3,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "INJURY_DESIGNATION": 6,
+       "AVAILABILITY_OUT": 3
+      },
+      "players": [
+       {
+        "providerAthleteId": "2528426",
+        "name": "Jordan Clarkson",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3914044",
+        "name": "Landry Shamet",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277869",
+        "name": "Jose Alvarado",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4411057",
+        "name": "Kevin McCullar Jr.",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431823",
+        "name": "Miles McBride",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432808",
+        "name": "James Wiseman",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433225",
+        "name": "Tyler Kolek",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683730",
+        "name": "Jaden Akins",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4838721",
+        "name": "Tyler Nickel",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5211983",
+        "name": "Pacome Dadiet",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5289900",
+        "name": "Mohamed Diawara",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6585",
+        "name": "Andre Drummond",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-20|v1|e2|threes|401909089|4431678",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.3
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9755,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.63,
+       "minutesSd": 6.43,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2,
+        "expectedMinutes": 29.63,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-20|v1|e2|threes|401909089|3934672",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Jalen Brunson",
+        "providerAthleteId": "3934672"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.25
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9774,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.35,
+       "minutesSd": 6.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2,
+        "expectedMinutes": 32.35,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-20|v1|e2|threes|401909089|3934719",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "OG Anunoby",
+        "providerAthleteId": "3934719"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.1
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9728,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.69,
+       "minutesSd": 7.55,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2,
+        "expectedMinutes": 29.69,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-20|v1|e2|threes|401909089|3917376",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Jaylen Brown",
+        "providerAthleteId": "3917376"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.61
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9765,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.4,
+       "minutesSd": 6.56,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 1,
+        "expectedMinutes": 28.4,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-20|v1|e2|threes|401909089|5124612",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.57
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9769,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.16,
+       "minutesSd": 6.36,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1,
+        "expectedMinutes": 28.16,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-20|v1|e2|threes|401909089|3147657",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Mikal Bridges",
+        "providerAthleteId": "3147657"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.55
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9754,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.88,
+       "minutesSd": 6.52,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1,
+        "expectedMinutes": 27.88,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-20|v1|e2|threes|401909089|3059318",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Joel Embiid",
+        "providerAthleteId": "3059318"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.25
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9706,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.64,
+       "minutesSd": 6.16,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1,
+        "expectedMinutes": 26.64,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-20|v1|e2|threes|401909089|3062679",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Josh Hart",
+        "providerAthleteId": "3062679"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.25
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.975,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.64,
+       "minutesSd": 6.35,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1,
+        "expectedMinutes": 26.64,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-20|v1|e2|threes|401909089|3136195",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Karl-Anthony Towns",
+        "providerAthleteId": "3136195"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "home",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.22
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.19,
+       "minutesSd": 5.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1,
+        "expectedMinutes": 26.19,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-20|v1|e2|threes|401909089|1966",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "LeBron James",
+        "providerAthleteId": "1966"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401909089",
+       "tipoffUtc": "2026-10-20T23:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.05
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 2
+       },
+       "playRate": 0.9744,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.87,
+       "minutesSd": 6.25,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T15:05:48Z",
+        "generatedAt": "2026-10-20T15:05:48Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "16a4887e2dbe0455fc10105e5e3e518b690a4d7ce49dae84095c9670bbcefbd1",
+        "gamePayloadSha256": "34ca184afb610147aab1357dd6280d793609e25217add1f9c80c6cacd5cb1d45"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 1,
+        "expectedMinutes": 25.87,
+        "p90": 2
+       }
+      }
+     ],
+     "eligibleCount": 10,
+     "shownCount": 10,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 3,
+       "LOW_PLAY_RATE": 11,
+       "INSUFFICIENT_HISTORY": 3,
+       "INJURY_DESIGNATION": 3,
+       "AVAILABILITY_OUT": 3
+      },
+      "byReason": {
+       "MINUTES_TOO_UNCERTAIN": 13,
+       "LOW_EXPECTED_MINUTES": 17,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 3,
+       "NULL_MINUTES": 6,
+       "AVAILABILITY_UNVERIFIED": 3,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "INJURY_DESIGNATION": 6,
+       "AVAILABILITY_OUT": 3
+      },
+      "players": [
+       {
+        "providerAthleteId": "2528426",
+        "name": "Jordan Clarkson",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3914044",
+        "name": "Landry Shamet",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277869",
+        "name": "Jose Alvarado",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4411057",
+        "name": "Kevin McCullar Jr.",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431823",
+        "name": "Miles McBride",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432808",
+        "name": "James Wiseman",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433225",
+        "name": "Tyler Kolek",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683730",
+        "name": "Jaden Akins",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4838721",
+        "name": "Tyler Nickel",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909089",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5211983",
+        "name": "Pacome Dadiet",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5289900",
+        "name": "Mohamed Diawara",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6585",
+        "name": "Andre Drummond",
+        "team": "NYK",
+        "eventId": "401909089",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    }
+   }
   }
  ]
 }
