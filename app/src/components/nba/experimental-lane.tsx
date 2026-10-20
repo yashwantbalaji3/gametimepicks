@@ -40,24 +40,22 @@ const et = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET";
 const fmt = (v: number | null) => (v == null ? "—" : String(v));
 
+/* One class string per table (descendant variants) instead of per-cell attributes: the rows are inlined twice (HTML +
+   RSC payload), so per-cell classes cost ~2× their length per cell on a page that sits at its weight budget. */
+const TABLE = "w-full text-[12.5px] [&_th]:font-medium [&_th]:text-right [&_th:first-child]:text-left [&_td]:text-right [&_td]:tabular-nums [&_td:first-child]:text-left [&_td]:px-1 [&_th]:px-1";
+
 function TeamTable({ team, rows }: { team: string; rows: Row[] }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-[12.5px]" style={{ color: "var(--vault-text)" }}>
+      <table className={TABLE}>
         <caption className="text-left font-semibold pb-1">{team}</caption>
-        <thead>
-          <tr style={{ color: "var(--vault-text-mute)" }}>
-            <th className="text-left font-medium py-1 pr-2">Player</th>
-            <th className="text-right font-medium px-1">Min</th>
-            {STATS.map(([, label]) => <th key={label} className="text-right font-medium px-1">{label}</th>)}
-          </tr>
-        </thead>
+        <thead><tr><th>Player</th><th>Min</th>{STATS.map(([, label]) => <th key={label}>{label}</th>)}</tr></thead>
         <tbody>
           {rows.map((r) => (
             <tr key={r.providerAthleteId}>
-              <td className="py-0.5 pr-2">{r.name}{r.injuryStatus ? <span style={{ color: "var(--vault-text-mute)" }}> · {r.injuryStatus}</span> : null}</td>
-              <td className="text-right px-1 tabular-nums">{fmt(r.expectedMinutes)}</td>
-              {STATS.map(([k]) => <td key={k} className="text-right px-1 tabular-nums">{fmt(r.medians[k])}</td>)}
+              <td>{r.name}{r.injuryStatus ? ` · ${r.injuryStatus}` : ""}</td>
+              <td>{fmt(r.expectedMinutes)}</td>
+              {STATS.map(([k]) => <td key={k}>{fmt(r.medians[k])}</td>)}
             </tr>
           ))}
         </tbody>

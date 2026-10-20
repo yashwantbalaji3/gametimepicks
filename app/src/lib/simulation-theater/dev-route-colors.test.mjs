@@ -310,9 +310,20 @@ test("no colour swap ever: in all 992 pairings each side paints its primary on t
   assert.match(sheet, /\.st-seg\.is-cue\{background-image:var\(--st-cue\)/);
   assert.match(sheet, /\.st-seg-abbr\{[^}]*background:var\(--st-off\);color:var\(--st-off-ink\)/, "the abbreviation sits on a solid chip of the field colour");
   assert.ok(!/accentSwap|accentHatched|\.alt\b/.test(scene + island + parts + read("src/lib/simulation-theater/nfl-team-colors.mjs")), "no swap path remains");
-  // every matchup in the 2026 receipts: the evidence file records what is painted, recomputed here
+  // Every matchup in the committed receipts paints by the same rules, recomputed here. The receipts grow every week
+  // (2026-10-20 17:33Z: week-7 receipts turned this red when it compared them with the static evidence list), so the
+  // guarantee is checked per receipt matchup — not by equality with a pinned list that rots on the next slate.
   const receiptMatchups = new Set(readShadowReceipts(REPO).map(({ receipt }) => `${receipt.away.abbr}@${receipt.home.abbr}`));
-  assert.deepEqual(EVIDENCE.matchups.map((m) => m.matchup).sort(), [...receiptMatchups].sort());
+  assert.ok(receiptMatchups.size > 0, "the receipts are read");
+  for (const mu of receiptMatchups) {
+    const [a, h] = mu.split("@");
+    const p = theaterPalette(h, a);
+    const clash = collides(nflTeamColor(h).primary, nflTeamColor(a).primary) || fieldClash(nflTeamColor(h).accent, nflTeamColor(a).accent);
+    assert.equal(p.clash !== null, clash, `${mu}: clash recomputed`);
+    assert.equal(p.away.patterned, clash, `${mu}: cues on the away side exactly when it clashes`);
+    assert.equal(p.home.patterned, false, `${mu}: never on the home side`);
+  }
+  // The evidence file (what was painted when it was written) must still be what the map paints today.
   for (const m of EVIDENCE.matchups) {
     const [a, h] = m.matchup.split("@");
     const p = theaterPalette(h, a);
