@@ -9,19 +9,24 @@
  * A rate is never shown alone: `hitRate` carries its own numerator and denominator (wins of W + L), and a tier with
  * n < 30 carries a small-sample note.
  *
- * LEDGER PAYOUT UNDER REVIEW. settle-lab-cards.mjs multiplies EVERY leg's price into `combinedDecimal` before voids
- * are removed, so a card that won on its remaining legs after a void is recorded at the full card's price and the
- * ledger's `returned` overstates it. Restating published payouts needs founder approval; until then any tier with
- * such a card is flagged here and the UI says so. Nothing published is changed.
+ * LEDGER PAYOUT UNDER REVIEW. Receipts written before the reduced-win fix carry no `payoutDecimal`, and the ledger
+ * credits their winning cards at `combinedDecimal` — the FULL card price, voided legs included — so a card that won
+ * on its remaining legs after a void is overstated in `returned`. The settler now writes `payoutDecimal` (decided
+ * winning legs only, lib/parlays/settlement.mjs) on every receipt settled for the first time, and never touches a
+ * published one. Restating the historical receipts needs founder approval; until then any tier holding such a
+ * LEGACY reduced win is flagged here and the UI says so. Nothing published is changed.
  */
+import { fullCardDecimal, payoutFor, cardResult } from "../settlement.mjs";
 export const SMALL_SAMPLE_N = 30;
 export const PAYOUT_REVIEW_NOTE = "Ledger payout under review: some winning cards in this risk level had a voided or pushed leg, and their recorded payout still includes that leg's price. Win–loss counts are unaffected.";
 export const SMALL_SAMPLE_NOTE = "Small sample: fewer than 30 settled cards, so this record says little about what to expect.";
 
 const TIERS = ["low", "medium", "high", "longshot"];
 
-/** A settled card won on its remaining legs after at least one void — the case whose payout is overstated. */
+/** A settled card won on its remaining legs after at least one void or push. */
 export const isReducedWin = (card) => card?.result === "win" && Array.isArray(card?.legs) && card.legs.some((r) => r === "void" || r === "push");
+/** A reduced win whose receipt predates the fix (no `payoutDecimal`) — the case whose recorded return is overstated. */
+export const isOverstatedReducedWin = (card) => isReducedWin(card) && !Object.prototype.hasOwnProperty.call(card, "payoutDecimal");
 
 /**
  * @param {ReadonlyArray<{date: string, policyVersion?: number, cards: ReadonlyArray<{sport: string, tier: string, result: string, legs?: string[]}>}>} settledDocs
@@ -45,7 +50,7 @@ export function tierHistory(settledDocs, ledger, { sport = "mlb" } = {}) {
       if (!mine.length) { counts.noPlay += 1; continue; }
       for (const c of mine) {
         if (c.result in counts && c.result !== "noPlay") counts[c.result] += 1;
-        if (isReducedWin(c)) reducedWins += 1;
+        if (isOverstatedReducedWin(c)) reducedWins += 1;
       }
     }
     const n = counts.win + counts.loss + counts.push + counts.void;
@@ -64,18 +69,13 @@ export function tierHistory(settledDocs, ledger, { sport = "mlb" } = {}) {
 }
 
 /* ── THE ARITHMETIC, BOTH WAYS (pinned by history.test.mjs) ─────────────────────────────────────────────────── */
-const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
 
-/** What settle-lab-cards.mjs does TODAY (~line 335): every priced leg multiplies in, voided or not. */
+/** What every legacy receipt records as `combinedDecimal` (and the ledger credited a win at): every priced leg. */
 export function combinedDecimalAsSettled(legOdds) {
-  let combined = 1;
-  for (const o of legOdds) if (o != null) combined *= dec(o);
-  return Number(combined.toFixed(6));
+  return fullCardDecimal(legOdds);
 }
 
-/** The intended reduced-card price: void and push legs drop out, only decisive legs multiply in. */
+/** The corrected return (settlement.mjs PAYOUT_POLICY): void and push legs drop out, the winning legs multiply in. */
 export function combinedDecimalReduced(legOdds, results) {
-  let combined = 1;
-  legOdds.forEach((o, i) => { if (o != null && results[i] !== "void" && results[i] !== "push") combined *= dec(o); });
-  return Number(combined.toFixed(6));
+  return payoutFor(cardResult(results), results, legOdds);
 }

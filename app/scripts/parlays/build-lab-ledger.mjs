@@ -31,6 +31,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { labEligibility } from "./lab-eligibility.mjs";
+import { recordedReturn } from "../../src/lib/parlays/settlement.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const GRADED = path.join(APP, "public", "data", "parlays", "optimizer-graded");
@@ -109,7 +110,11 @@ for (const f of receiptFiles) {
       if (st === "push") { bucket.pushes++; continue; }
       if (st === "win") bucket.wins++; else bucket.losses++;
       bucket.staked += 1;
-      if (st === "win" && Number.isFinite(c.combinedDecimal)) bucket.returned += c.combinedDecimal;
+      /* A winning card returns its recorded payout: `payoutDecimal` on receipts written under the reduced-win
+         fix (lib/parlays/settlement.mjs PAYOUT_POLICY), the legacy `combinedDecimal` on every earlier receipt —
+         read exactly as published until the founder decides on a restatement. */
+      const ret = recordedReturn(c);
+      if (st === "win" && Number.isFinite(ret)) bucket.returned += ret;
     }
     if (!stream.settledDays.includes(date)) stream.settledDays.push(date);
   }

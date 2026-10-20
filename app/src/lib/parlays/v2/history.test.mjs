@@ -6,7 +6,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { tierHistory, isReducedWin, combinedDecimalAsSettled, combinedDecimalReduced, SMALL_SAMPLE_N, PAYOUT_REVIEW_NOTE } from "./history.mjs";
+import { tierHistory, isReducedWin, isOverstatedReducedWin, combinedDecimalAsSettled, combinedDecimalReduced, SMALL_SAMPLE_N, PAYOUT_REVIEW_NOTE } from "./history.mjs";
+import { PAYOUT_POLICY } from "../settlement.mjs";
 
 const ledger = { policy: { version: 2, since: "2026-08-17" } };
 const day = (date, cards, policyVersion = 2) => ({ date, policyVersion, cards: cards.map(([tier, result, legs = [result]]) => ({ sport: "mlb", tier, result, legs })) });
@@ -54,29 +55,43 @@ test("a tier with a reduced win (void or push leg on a winning card) is flagged 
   assert.equal(h.low.payoutNote, null);
 });
 
-/* ── THE SETTLEMENT DEFECT (settle-lab-cards.mjs ~line 335) ────────────────────────────────────────────────────
+test("a reduced win on a receipt written under the fix (it carries payoutDecimal) is NOT flagged", () => {
+  const fixed = { sport: "mlb", tier: "high", result: "win", combinedDecimal: 2.451623, payoutDecimal: 1.505051, legs: ["win", "void"] };
+  assert.equal(isReducedWin(fixed), true);
+  assert.equal(isOverstatedReducedWin(fixed), false);
+  assert.equal(isOverstatedReducedWin({ result: "win", legs: ["win", "void"] }), true, "a legacy receipt card has no payoutDecimal");
+  const h = tierHistory([{ date: "2026-10-21", policyVersion: 2, payoutPolicy: PAYOUT_POLICY, cards: [fixed] }], ledger);
+  assert.equal(h.high.payoutUnderReview, false);
+  assert.equal(h.high.payoutNote, null);
+});
+
+/* ── THE SETTLEMENT DEFECT (fixed forward-only in PR #1141 · lib/parlays/settlement.mjs) ─────────────────────────
    Published receipt parlays/lab-settled/2026-08-18.json, slip_2026-08-18_conservative_9cbc273e3512 (MLB, medium):
    legs priced −198 and −159 (parlays/risk-ladder/2026-08-18.json), settled ['win', 'void'], recorded
-   combinedDecimal 2.451623. The void leg's −159 is still multiplied in; the reduced card is the −198 leg alone. */
+   combinedDecimal 2.451623. The void leg's −159 is in the recorded figure; the reduced card is the −198 leg alone.
+   The receipt itself is unchanged (append-only): settlement.test.mjs pins every historical card byte-for-byte. */
 const LEGS = [-198, -159];
 const RESULTS = ["win", "void"];
 const RECORDED = 2.451623;
 
-test("reproduction: the script's current arithmetic matches the published receipt and overstates the reduced win", () => {
+test("reproduction: the legacy arithmetic matches the published receipt and overstates the reduced win", () => {
   assert.equal(combinedDecimalAsSettled(LEGS), RECORDED);
   assert.equal(combinedDecimalReduced(LEGS, RESULTS), 1.505051);
   assert.ok(combinedDecimalAsSettled(LEGS) - combinedDecimalReduced(LEGS, RESULTS) > 0.9, "≈0.95 units overstated on one paper unit");
 });
 
-test("source pin: settle-lab-cards.mjs still multiplies every leg's price before voids are removed", () => {
+test("source pin: the settler no longer prices a payout inline — it routes through settlement.mjs under the receipt's own policy", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "scripts", "parlays", "settle-lab-cards.mjs"), "utf8");
-  const loop = src.slice(src.indexOf("for (const leg of card.legs ?? [])"), src.indexOf("const decisive = results.filter"));
-  assert.match(loop, /if \(leg\.odds != null\) combined \*= dec\(leg\.odds\);/,
-    "the defect moved or was fixed — update history.mjs combinedDecimalAsSettled, flip the todo test below, and drop the UI note once payouts are restated");
+  const loop = src.slice(src.indexOf("for (const leg of card.legs ?? [])"), src.indexOf("const receipt = {"));
+  assert.doesNotMatch(loop, /combined \*= dec\(leg\.odds\)/, "the inline full-card product is gone");
+  assert.match(src, /from "\.\.\/\.\.\/src\/lib\/parlays\/settlement\.mjs"/);
+  assert.match(loop, /receiptCard\(\{/);
+  assert.match(src, /const policy = payoutPolicyForRun\(prior\);/, "the policy comes from the receipt already on disk");
 });
 
-test("intended: a reduced win is paid on its decisive legs only", { todo: "payout restatement needs founder approval" }, () => {
-  // Fails today by design (2.451623 ≠ 1.505051). Marked todo so the suite stays green until the founder approves
-  // restating published payouts; settle-lab-cards.mjs and every published receipt are left unchanged.
-  assert.equal(combinedDecimalAsSettled(LEGS), combinedDecimalReduced(LEGS, RESULTS));
+test("intended: a reduced win is paid on its decisive winning legs only (formerly a todo; now the settled rule)", () => {
+  // Receipts settled from now on carry payoutDecimal = combinedDecimalReduced. Legacy receipts keep their recorded
+  // figure; restating them is a founder decision (docs/PARLAY_LAB_V2.md lists every affected card).
+  assert.equal(combinedDecimalReduced(LEGS, RESULTS), 1.505051);
+  assert.notEqual(combinedDecimalAsSettled(LEGS), combinedDecimalReduced(LEGS, RESULTS), "the historical figure is not restated");
 });
