@@ -153,8 +153,10 @@ export function officialGameLine(manifest) {
   const any = Object.values(terms).some((x) => x.median != null || x.mean != null);
   const teamWithheld = !any || o.projectedScore?.state === TEAM_SCORE_STATE.WITHHELD || typeof w.teamScores === "string";
   const side = String(o.winnerSide ?? "").toLowerCase();
-  const pHome = numOrNull(o.pHomePublished ?? o.pHome);
-  const pAway = numOrNull(o.pAway);
+  // ONLY a PUBLISHED probability may print. The raw head (`pHome`: NBA's Elo head) rides in the block for audit and is
+  // never a fallback — a missing / malformed `withheld` block must not turn it into a printed number.
+  const pHome = numOrNull(o.pHomePublished);
+  const pAway = pHome == null ? null : Number((1 - pHome).toFixed(12));
   const winWithheld = typeof w.winProbability === "string" || pHome == null;
   return {
     state: OFFICIAL_STATE.AVAILABLE,

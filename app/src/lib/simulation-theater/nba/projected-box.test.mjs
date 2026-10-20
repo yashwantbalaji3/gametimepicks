@@ -219,6 +219,11 @@ test("official snapshot (#1149): team scores and win probability WITHHELD with t
   const gb = officialGameLine(bare);
   assert.equal(gb.teamScores.state, "WITHHELD");
   assert.match(gb.teamScores.reason, /publishes no team score/);
+  // the raw Elo head (pHome) rides in the block but is NEVER a fallback: no published probability ⇒ WITHHELD
+  assert.ok(typeof bare.representative.official.pHome === "number", "the raw head is present");
+  assert.equal(gb.winProbability.state, "WITHHELD");
+  assert.equal(gb.winProbability.home, null);
+  assert.equal(officialGameLine({ representative: { official: { pHome: 0.61, pAway: 0.39, pHomePublished: null } } }).winProbability.state, "WITHHELD");
 });
 
 test("run fit: the official representative is reported as still far from the official projection (distance > tolerance); what-ifs carry their distance", () => {
