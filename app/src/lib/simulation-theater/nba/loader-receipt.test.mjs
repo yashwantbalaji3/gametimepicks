@@ -11,7 +11,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { NBA_COLORS_FILE, NBA_REAL_TEST_FIXTURE_SOURCE, NBA_THEATER_SOURCE, lastRunOutcome, loadNbaTheater, nbaRouteEvents, readArtifact, usableNbaEvents, v1ArtifactSource } from "./loader.mjs";
+import { NBA_COLORS_FILE, NBA_REAL_TEST_FIXTURE_SOURCE, NBA_THEATER_OFFICIAL_SOURCE, NBA_THEATER_SOURCE, lastRunOutcome, loadNbaTheater, nbaRouteEvents, readArtifact, usableNbaEvents, v1ArtifactSource } from "./loader.mjs";
 import { defaultSampleIndex } from "./labels.mjs";
 import { receiptIntegrity, stampReceipt } from "../../sports/nba/forecast-receipt.mjs";
 import { nbaOfficialSnapshot } from "../../consistency/official-snapshot.mjs";
@@ -23,6 +23,9 @@ const REPO = path.resolve(APP, "..");
 const REAL = readArtifact(REPO, NBA_REAL_TEST_FIXTURE_SOURCE).artifact;
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const SRC = v1ArtifactSource("2026-10-20");
+/** The OFFICIAL source beside it (v0.1 + Elo side), as committed. */
+const OFF = readArtifact(REPO, NBA_THEATER_OFFICIAL_SOURCE);
+const officialOf = (id, supportingDoc) => nbaOfficialSnapshot(id, { official: { doc: OFF.artifact, path: OFF.file }, supporting: { doc: supportingDoc, path: SRC.path } });
 
 /** The committed shape at its first pre-tip window: one game stamped, the other two logged OUTSIDE_HORIZON. */
 function committedShape() {
@@ -49,10 +52,10 @@ test("committed receipt: a stamped game loads, from the receipt (never the fixtu
   assert.equal(t.manifest.provenance, null, "not the dev copy");
   const rep = t.manifest.representative;
   assert.equal(rep.state, "SELECTED");
-  const direct = selectOfficialRepresentative(runsFromNbaSamples(a.games[0]), officialTargets(nbaOfficialSnapshot("401909088", a)));
+  const direct = selectOfficialRepresentative(runsFromNbaSamples(a.games[0]), officialTargets(officialOf("401909088", a)));
   assert.equal(rep.officialRunIndex, direct.official.run.runIndex);
   assert.equal(t.manifest.samples[defaultSampleIndex(t.manifest)].runIndex, rep.officialRunIndex, "the theater opens on it");
-  assert.equal(rep.official.source, SRC.path);
+  assert.equal(rep.official.source, NBA_THEATER_OFFICIAL_SOURCE.path, "measured against the OFFICIAL v0.1 snapshot, not the replayed v1 file");
   assert.equal(rep.official.publication, "PRIVATE");
   for (const s of t.manifest.samples) assert.equal(runRole(t.manifest, s.runIndex).hypothetical, s.runIndex !== rep.officialRunIndex);
   assert.ok(Object.keys(rep.players).length > 10, "official per-player expectations, keyed by providerAthleteId");
@@ -129,9 +132,17 @@ test("the COMMITTED receipt: every game it holds passes integrity and opens on i
     assert.equal(t.ok, true, `${id}: ${JSON.stringify(t.error)}`);
     const rep = t.manifest.representative;
     assert.equal(rep.state, "SELECTED", id);
-    const direct = selectOfficialRepresentative(runsFromNbaSamples(g), officialTargets(nbaOfficialSnapshot(id, committed.artifact)));
+    const direct = selectOfficialRepresentative(runsFromNbaSamples(g), officialTargets(officialOf(id, committed.artifact)));
     assert.equal(rep.officialRunIndex, direct.official.run.runIndex, id);
     console.log(`# NBA ${id}: official representative run #${rep.officialRunIndex} (distance ${rep.distance.toFixed(4)}); what-ifs ${rep.runs.filter((r) => r.hypothetical).map((r) => `#${r.runIndex} ${r.kinds.join("=")} ${r.distance?.toFixed(3)}`).join(", ")}`);
   }
   for (const id of nbaRouteEvents(REPO).filter((x) => !ids.includes(x))) assert.equal(loadNbaTheater(REPO, id).error.code, "NO_OFFICIAL_RECEIPT", id);
+});
+
+test("official v0.1 source missing: the runs still play, every one a hypothetical what-if (never promoted to official)", () => {
+  const a = committedShape();
+  const t = loadNbaTheater(REPO, "401909088", { source: SRC, read: readOf(a), officialRead: { file: NBA_THEATER_OFFICIAL_SOURCE.path, artifact: null, provenance: null, sha256: null, error: { code: "NO_ARTIFACT" } } });
+  assert.equal(t.ok, true);
+  assert.equal(t.manifest.representative.state, "NO_OFFICIAL");
+  assert.ok(t.manifest.representative.runs.every((r) => r.hypothetical));
 });

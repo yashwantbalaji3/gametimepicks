@@ -9,8 +9,9 @@
  *   official targets   officialTargets(snapshot), where the snapshot is lib/consistency/official-snapshot.mjs
  *                        NFL  nflOfficialSnapshot: the forecast of record (latest receipt strictly before kickoff, the
  *                             model the game page publishes) — margin/total joint normal, team = (T ± M)/2.
- *                        NBA  nbaOfficialSnapshot: the committed v1 receipt (refused unless receiptIntegrity is OK) —
- *                             sim home/away/margin/total means and sds + per-player family means.
+ *                        NBA  nbaOfficialSnapshot: the Elo favoured side + the v0.1 player families (the source the
+ *                             public /nba lane prints) — no team expectations (WITHHELD), so the selector applies its
+ *                             side constraint; the stored runs come from the SUPPORTING v1 receipt.
  *   selection          selectOfficialRepresentative(runs, targets) over the stored runs that VALIDATED in the Theater
  *                      (a run the Theater cannot play can never be the default). Runs are de-duplicated by runIndex
  *                      first: a run stored under two kinds (e.g. UPSET = OVERTIME) is one run with one role.
@@ -41,8 +42,8 @@ export function snapshotOrRefusal(build) {
 
 /** NFL: official snapshot from the forecast receipts + player board (see loader.mjs readNflOfficialInputs). */
 export const nflOfficial = (eventId, inputs) => snapshotOrRefusal(() => nflOfficialSnapshot(eventId, inputs ?? {}));
-/** NBA: official snapshot from the committed v1 artifact (receiptIntegrity enforced by the snapshot). */
-export const nbaOfficial = (eventId, artifact, ref = {}) => snapshotOrRefusal(() => nbaOfficialSnapshot(eventId, artifact, ref));
+/** NBA: official snapshot from the committed v0.1 artifact + the supporting v1 artifact ({official, supporting}: {doc, path, sha256}). */
+export const nbaOfficial = (eventId, sources) => snapshotOrRefusal(() => nbaOfficialSnapshot(eventId, sources ?? {}));
 
 /** One entry per runIndex, first occurrence wins; `kinds` lists every kind the run was stored under. */
 export function dedupeRuns(runs) {
@@ -74,7 +75,10 @@ export function officialSummary(snapshot) {
     pTie: num(g.pTie),
     pHomePublished: num(g.pHomePublished),
     winnerSide: g.winner?.side ?? null,
-    projectedScore: { home: num(g.projectedScore?.home), away: num(g.projectedScore?.away), convention: g.projectedScore?.convention ?? null },
+    projectedScore: { home: num(g.projectedScore?.home), away: num(g.projectedScore?.away), convention: g.projectedScore?.convention ?? null, state: g.projectedScore?.state ?? null },
+    // NBA: what the official forecast deliberately does not state (team scores, win probability, ranges) and why
+    withheld: g.withheld ?? null,
+    composition: snapshot.composition?.id ?? null,
     team: { home: teamTerm(g.home), away: teamTerm(g.away), margin: teamTerm(g.margin), total: teamTerm(g.total) },
   };
 }
