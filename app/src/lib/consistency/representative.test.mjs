@@ -82,3 +82,37 @@ test("NBA stored samples normalise with player lines keyed by providerAthleteId"
   assert.deepEqual(r.periods.home, [26, 21, 29, 31]);
   assert.equal(r.players[0].playerId, "11");
 });
+
+test("a run stored under two kinds is ONE run: never both the official run and a what-if", () => {
+  const dup = { representativeRuns: [
+    ...simReceipt.representativeRuns,
+    { kind: "OVERTIME", runIndex: 3, final: { home: 17, away: 24, overtime: false }, quarters: { home: [0, 7, 3, 7, 0], away: [7, 7, 3, 7, 0] } },
+  ] };
+  const sel = selectOfficialRepresentative(runsFromNflSimReceipt(dup), targets);
+  const indices = [sel.official.run.runIndex, ...sel.whatIf.map((w) => w.run.runIndex)];
+  assert.equal(new Set(indices).size, indices.length, "each runIndex appears once");
+  assert.equal(indices.length, 4);
+  const w3 = sel.whatIf.find((w) => w.run.runIndex === 3);
+  assert.equal(w3.kind, "UPSET + OVERTIME", "both stored kinds are kept on the single entry");
+  // the duplicate can also be the closest run: still exactly one entry for it, as the official run
+  const low = simReceipt.representativeRuns[2];
+  const sel2 = selectOfficialRepresentative(runsFromNflSimReceipt({ representativeRuns: [low, { ...low, kind: "OVERTIME" }] }), targets);
+  assert.equal(sel2.official.run.runIndex, 12);
+  assert.deepEqual(sel2.whatIf, []);
+});
+
+test("CONDITIONAL_ON_PLAYING families compare on unconditional terms; a 0-minute run counts as 0, not as missing", () => {
+  const snapshot = { snapshotId: "s", game: {}, players: [{ playerId: "1", families: {
+    pts: { expected: 20, sd: 6, conditioning: "CONDITIONAL_ON_PLAYING", playRate: 0.5, distribution: { kind: "quantiles", points: [] } },
+  } }] };
+  const t = officialTargets(snapshot);
+  assert.equal(t.players["1"].pts.expected, 10, "r·μ");
+  assert.ok(Math.abs(t.players["1"].pts.scale - Math.sqrt(0.5 * (36 + 400) - 100)) < 1e-12, "√(r(σ²+μ²) − (rμ)²)");
+  const run = (minutes, pts) => ({ runIndex: 1, home: 100, away: 90, players: [{ playerId: "1", stats: { minutes, pts } }] });
+  const satOut = runDistance(run(0, null), t).terms.find((x) => x.key === "1:pts");
+  assert.equal(satOut.value, 0, "sat out ⇒ 0 points against the unconditional expectation");
+  assert.equal(runDistance(run(30, 10), t).terms.find((x) => x.key === "1:pts").value, 10);
+  // a family without a play rate still skips a missing stat rather than inventing a 0
+  const t2 = officialTargets({ snapshotId: "s", game: {}, players: [{ playerId: "1", families: { pts: { expected: 20, sd: 6, distribution: { kind: "quantiles", points: [] } } } }] });
+  assert.equal(runDistance(run(0, null), t2).terms.find((x) => x.key === "1:pts"), undefined);
+});

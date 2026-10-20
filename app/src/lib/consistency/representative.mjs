@@ -15,6 +15,11 @@
  *   Player terms (only when the runs carry player lines and the snapshot has that player/family): one term per
  *     (official player, family) with scale = that family's sd (or (p90 − p10)/2.5631 when no sd is stored), sharing a
  *     TOTAL weight of `playerWeight` (default 1, i.e. all players together weigh as much as one team term).
+ *     A family stored CONDITIONAL_ON_PLAYING with a playRate r ∈ (0,1) (NBA v1) is compared on its UNCONDITIONAL
+ *     terms — expectation r·μ, scale √(r·(σ²+μ²) − (r·μ)²) — and a run in which that player logged 0 minutes counts as
+ *     0 for it, so a game where he sat out is neither ignored nor scored against an average that assumes he played.
+ *   A run stored under several kinds (e.g. the same run as UPSET and OVERTIME) is ONE run: runs are de-duplicated by
+ *     runIndex before scoring (its kinds are kept together), so it can never be both the official run and a what-if.
  *   Ties → lowest runIndex. Deterministic: same runs + same snapshot ⇒ same pick.
  *   `withinTolerance` = distance ≤ `tolerance` (default 0.5 normalised units). A pool of stored representatives is
  *   small (NFL sim-v2 stores 5, NBA v1 stores 5); a pick outside tolerance is reported, never hidden.
@@ -61,9 +66,17 @@ export function officialTargets(snapshot) {
       if (!isNum(e.expected) || e.distribution?.kind === "bernoulli") continue;
       const pts = e.distribution?.points ?? [];
       const q = (qq) => pts.find((x) => x.q === qq)?.v;
-      const scale = isNum(e.sd) ? e.sd : isNum(q(0.9)) && isNum(q(0.1)) ? (q(0.9) - q(0.1)) / Z80 : null;
-      if (!isNum(scale) || scale <= 0) continue;
-      (players[p.playerId] ??= {})[fam] = { expected: e.expected, scale };
+      const sd = isNum(e.sd) ? e.sd : isNum(q(0.9)) && isNum(q(0.1)) ? (q(0.9) - q(0.1)) / Z80 : null;
+      if (!isNum(sd) || sd <= 0) continue;
+      const r = e.playRate;
+      if (e.conditioning === "CONDITIONAL_ON_PLAYING" && isNum(r) && r > 0 && r < 1) {
+        const expected = r * e.expected;
+        const variance = r * (sd * sd + e.expected * e.expected) - expected * expected;
+        if (!(variance > 0)) continue;
+        (players[p.playerId] ??= {})[fam] = { expected, scale: Math.sqrt(variance), unconditional: true };
+      } else {
+        (players[p.playerId] ??= {})[fam] = { expected: e.expected, scale: sd, unconditional: false };
+      }
     }
   }
   return { snapshotId: snapshot?.snapshotId ?? null, team, players };
@@ -118,8 +131,9 @@ export function runDistance(run, targets, { playerWeight = REPRESENTATIVE_RULE.p
     if (!p.playerId) continue; // never matched by name
     const fams = targets.players?.[p.playerId];
     if (!fams) continue;
+    const satOut = p.stats?.minutes === 0;
     for (const [fam, t] of Object.entries(fams)) {
-      const v = p.stats?.[fam];
+      const v = isNum(p.stats?.[fam]) ? p.stats[fam] : satOut && t.unconditional ? 0 : null;
       if (!isNum(v)) continue;
       pterms.push({ key: `${p.playerId}:${fam}`, value: v, expected: t.expected, scale: t.scale, z: (v - t.expected) / t.scale });
     }
@@ -139,8 +153,17 @@ export function runDistance(run, targets, { playerWeight = REPRESENTATIVE_RULE.p
  */
 export function selectOfficialRepresentative(runs, targets, opts = {}) {
   const tolerance = opts.tolerance ?? REPRESENTATIVE_RULE.tolerance;
-  const scored = (runs ?? [])
-    .filter((r) => Number.isInteger(r?.runIndex) && isNum(r.home) && isNum(r.away))
+  const byIndex = new Map();
+  for (const r of runs ?? []) {
+    if (!Number.isInteger(r?.runIndex) || !isNum(r.home) || !isNum(r.away)) continue;
+    const seen = byIndex.get(r.runIndex);
+    if (seen) {
+      if (r.sourceKind && !seen.sourceKinds.includes(r.sourceKind)) seen.sourceKinds.push(r.sourceKind);
+    } else {
+      byIndex.set(r.runIndex, { ...r, sourceKinds: r.sourceKind ? [r.sourceKind] : [] });
+    }
+  }
+  const scored = [...byIndex.values()]
     .map((run) => ({ run, ...runDistance(run, targets, opts) }))
     .sort((a, b) => a.distance - b.distance || a.run.runIndex - b.run.runIndex);
   const best = scored[0] ?? null;
@@ -150,7 +173,7 @@ export function selectOfficialRepresentative(runs, targets, opts = {}) {
   const whatIf = scored
     .filter((s) => s !== best || !official)
     .sort((a, b) => a.run.runIndex - b.run.runIndex)
-    .map((s) => ({ run: s.run, role: RUN_ROLE.WHAT_IF, kind: s.run.sourceKind ?? "ALTERNATE", label: WHAT_IF_LABEL, hypothetical: true, feedsProducts: false, distance: s.distance }));
+    .map((s) => ({ run: s.run, role: RUN_ROLE.WHAT_IF, kind: s.run.sourceKinds.length ? s.run.sourceKinds.join(" + ") : "ALTERNATE", label: WHAT_IF_LABEL, hypothetical: true, feedsProducts: false, distance: s.distance }));
   const reconciliation = official
     ? best.terms.filter((t) => !t.key.includes(":")).map((t) => ({
       term: t.key, officialExpectation: t.expected, simulatedGame: t.value, difference: t.value - t.expected,
