@@ -75,10 +75,11 @@ export function officialSummary(snapshot) {
     pTie: num(g.pTie),
     pHomePublished: num(g.pHomePublished),
     winnerSide: g.winner?.side ?? null,
-    projectedScore: { home: num(g.projectedScore?.home), away: num(g.projectedScore?.away), convention: g.projectedScore?.convention ?? null, state: g.projectedScore?.state ?? null },
-    // NBA: what the official forecast deliberately does not state (team scores, win probability, ranges) and why
-    withheld: g.withheld ?? null,
-    composition: snapshot.composition?.id ?? null,
+    projectedScore: { home: num(g.projectedScore?.home), away: num(g.projectedScore?.away), convention: g.projectedScore?.convention ?? null, ...(g.projectedScore?.state ? { state: g.projectedScore.state } : {}) },
+    // NBA only (absent for NFL, whose summary shape is unchanged): what the official forecast deliberately does not
+    // state (team scores, win probability, ranges) and why, and the named composition
+    ...(g.withheld ? { withheld: g.withheld } : {}),
+    ...(snapshot.composition?.id ? { composition: snapshot.composition.id } : {}),
     team: { home: teamTerm(g.home), away: teamTerm(g.away), margin: teamTerm(g.margin), total: teamTerm(g.total) },
   };
 }

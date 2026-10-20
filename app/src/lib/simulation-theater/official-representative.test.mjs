@@ -53,6 +53,7 @@ test("targets come from the OFFICIAL snapshot and the default is the stored run 
   assert.equal(rep.distance, direct.distance);
   assert.equal(officialRunIndex(m), 12);
   assert.deepEqual(rep.official.projectedScore, { home: 24, away: 20, convention: "scores-derived-from-total-and-margin-v1" });
+  assert.equal("withheld" in rep.official, false, "NFL summary shape unchanged");
   assert.equal(rep.official.pHome, 0.62);
   assert.equal(rep.official.team.margin.expected, 3.4);
   assert.equal(rep.official.team.total.expected, 44.2);
@@ -147,6 +148,10 @@ test("NBA: player expectations join by providerAthleteId only and carry the offi
   assert.deepEqual(m.representative.players["11"].families.pts, { expected: 23.9, median: 23.84 });
   assert.equal(m.representative.players["11"].conditioning, "AS_SIMULATED");
   assert.equal(m.representative.players["Same Name"], undefined, "never keyed by name");
+  assert.equal(m.representative.official.projectedScore.state, "WITHHELD", "NBA official team score is withheld, with its reason");
+  assert.equal(m.representative.official.projectedScore.home, null);
+  assert.match(m.representative.official.withheld.teamScores, /ignores the opponent/);
+  assert.equal(m.representative.official.composition, "nba-official-composition@1");
   const refusedM = withNbaRepresentative(manifest, game, { snapshot: null, refusal: { code: "RECEIPT_INTEGRITY", message: "x" } });
   assert.equal(refusedM.representative.state, REP_STATE.NO_OFFICIAL);
   assert.ok(refusedM.representative.runs.every((r) => r.hypothetical));
