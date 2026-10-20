@@ -101,6 +101,10 @@ export function candidatesFromSportLadder(doc, sport) {
       capturedAt: str(l.capturedAt),
       participantStatus: str(l.injuryStatus ?? l.playerStatus ?? l.participantStatus),
       forecastClass: str(l.forecastClass) ?? "MARKET_IMPLIED_NO_FORECAST",
+      // Carried verbatim when the ladder has them (UFC legs carry modelProbability + modelId); null otherwise.
+      modelProbability: numOrNull(l.modelProbability),
+      modelId: str(l.modelId),
+      marketStatus: str(l.marketStatus),
       receipts: [artifact],
     })),
   }));

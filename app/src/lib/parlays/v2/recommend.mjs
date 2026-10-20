@@ -78,9 +78,9 @@ export const REASONS = Object.freeze({
 });
 
 const HOUR = 3_600_000;
-const STATUS_FLAG = /^(out|injured|injury|inactive|dnp|did not play|scratch|scratched|doubtful|questionable|suspended|il|ir|day-to-day|not playing)\b/i;
+export const PARTICIPANT_STATUS_FLAG = /^(out|injured|injury|inactive|dnp|did not play|scratch|scratched|doubtful|questionable|suspended|il|ir|day-to-day|not playing)\b/i;
 /** Markets settled without a line (moneyline / result / winner). Everything else must carry a numeric line. */
-const LINELESS = /moneyline|h2h|match_result|result|winner|fight|to_win|method|double_chance|btts|both_teams/i;
+export const LINELESS_MARKET = /moneyline|h2h|match_result|result|winner|fight|to_win|method|double_chance|btts|both_teams/i;
 
 const scopeFor = (sport) => (/epl|soccer|ligue|mls/.test(sport) ? "90_minutes" : sport === "ufc" ? "full_fight" : "full_game");
 
@@ -100,7 +100,7 @@ const scopeFor = (sport) => (/epl|soccer|ligue|mls/.test(sport) ? "90_minutes" :
 export function legReasons(leg, ctx) {
   const r = [];
   const sport = String(leg?.sport ?? "").toLowerCase();
-  const lineRequired = !LINELESS.test(String(leg?.market ?? ""));
+  const lineRequired = !LINELESS_MARKET.test(String(leg?.market ?? ""));
   if (!leg?.eventId || !leg?.market || !leg?.selection || (lineRequired && !Number.isFinite(leg?.line))) r.push("INVALID_MAPPING");
   if (!canEnterPredictionProducts(sport)) r.push("SPORT_NOT_ELIGIBLE");
 
@@ -112,7 +112,7 @@ export function legReasons(leg, ctx) {
   if (!ctx.families) r.push("COVERAGE_UNAVAILABLE");
   else if (legIsMarketContext({ sport, market: leg?.market }, ctx.families)) r.push("MARKET_CONTEXT_FAMILY");
 
-  if (typeof leg?.participantStatus === "string" && STATUS_FLAG.test(leg.participantStatus.trim())) r.push("PARTICIPANT_STATUS");
+  if (typeof leg?.participantStatus === "string" && PARTICIPANT_STATUS_FLAG.test(leg.participantStatus.trim())) r.push("PARTICIPANT_STATUS");
 
   if (!ctx.isVerifiedOperator(leg?.book)) r.push("OPERATOR_NOT_VERIFIED");
   if (!Number.isFinite(leg?.price) || leg.price === 0) r.push("PRICE_MISSING");
