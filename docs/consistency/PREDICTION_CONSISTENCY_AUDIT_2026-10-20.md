@@ -310,3 +310,31 @@ Until all four are done, `theaterActivationGate('nfl', id)` stays closed and the
 | 9 | Ids instead of names in slip legKey, propJoinKey, enrich_dual_legs, settle_suggested_cards and NBA settlement | 5 static NAME_JOIN findings | release-owner |
 | 10 | Price capture time from the capture, never from the board/artifact | 3 static findings | release-owner |
 | 11 | NBA: one win-probability head of record (Elo vs simulation) | 1 WARN | NBA department |
+
+## 10 · Founder decisions and fixes applied (2026-10-20, local, not merged)
+
+**Founder decisions (in chat, 2026-10-20):**
+1. The NFL player board is the official player projection. World Model V2 is a labelled supporting simulation only.
+2. The NFL Theater stays non-public ("Hold until aligned") until sim-v2 is re-anchored to the official game forecast (§8). `theaterActivationGate('nfl', …)` enforces this.
+
+**Applied on this branch:**
+- **Fix 1** (`88729914fd`):
+  - forecast-view / game page / `/nfl` hub now headline the official board (ids only).
+  - World Model V2 appears under "Supporting simulation (World Model V2 · not the official projection · not graded)", with an older-revision notice.
+  - Audit: 1068 → 546 records. Game-page player mismatches and version mixes, plus top-board mismatches, leaks and unqualified records, all go to 0.
+  - Verified in a default build: post-build 713/713, browser-checked at `/nfl/game/401873008` (Daniels 165 pass yds = board 165.3).
+- **Selector fixes** (`5c01df5db0`):
+  - Runs are de-duplicated by runIndex.
+  - NBA `CONDITIONAL_ON_PLAYING` families are compared on unconditional terms (r·μ, √(r(σ²+μ²)−(rμ)²)), and a 0-minute run counts as 0.
+
+**Applied on PR #1140** (`claude/gtp-theater-integrate-20261019`, local head `146a952004`):
+- The Theater default is the Official Representative Simulation (this selector, byte-identical). NFL 401873008 picks run #48 (30–20, distance 0.035); NBA 401909088 picks run #35 (107–105, distance 0.482).
+- Every other run is "What-if · hypothetical", with its own hypothetical box-score watermark.
+- The NFL headline is the forecast of record. The engine's batch win shares are labelled "engine batch, not the forecast".
+- The NBA Theater reads the committed v1 receipt, checked with `receiptIntegrity`. It fails closed for games without a receipt and never falls back to the fixture.
+- e2e (serial, flag-ON + dev build of `7e3ec23bac`):
+  - NFL dev: 49 passed, 6 skipped (public-only).
+  - NFL public: 54 passed, 1 skipped (dev-only).
+  - The NBA dev route needs main merged into #1140 first, because the committed receipt is newer than the branch base.
+
+**Still open:** fixes 2–11 above. All of them are producer, grading or methodology changes owned by the release-owner session or the NBA department.
