@@ -151,6 +151,41 @@ export function marketVerdict({ market, paired, minN, challengerState }) {
 }
 
 /**
+ * WINNER-HEAD COMPARISON (coordinator request, 2026-10-20): Elo vs v1-sim vs v0.1-sim on IDENTICAL frozen forward
+ * games — regular season, pre-tip in both v0.1 and v1, same final. "Elo" is the frozen Elo pHome in the v0.1 receipt
+ * (the published N2 side). Paired log-loss / Brier differences with the same game bootstrap, plus each head's mean
+ * pHome beside the realised home-win rate (n). Report only: no verdict (§7's winner bar names the sim; scoring the
+ * Elo side for promotion is founder reading N6).
+ */
+export function winnerHeadComparison({ v01 = [], v1 = [] }, opts = {}) {
+  const { pairs, excluded } = pairGames(v01, v1);
+  const rows = pairs.map(({ a, b }) => ({ y: a.winner?.elo?.y ?? a.winner?.sim?.y, elo: a.winner?.elo, v01: a.winner?.sim, v1: b.winner?.sim }))
+    .filter((r) => (r.y === 0 || r.y === 1) && r.elo && r.v01 && r.v1);
+  const diff = (key, x, y) => pairedMarket(rows.map((r) => [[r[x][key], r[y][key]]]), opts);
+  const mean = (xs) => (xs.length ? r4(xs.reduce((s, v) => s + v, 0) / xs.length) : null);
+  return {
+    n: rows.length, excluded,
+    eloSource: "v0.1 receipt forecast.elo.pHome (the frozen N2 winner side)",
+    meanPHome: { elo: mean(rows.map((r) => r.elo.p)), v01Sim: mean(rows.map((r) => r.v01.p)), v1Sim: mean(rows.map((r) => r.v1.p)), realisedHomeWinRate: mean(rows.map((r) => r.y)), n: rows.length },
+    logLoss: { v1SimMinusElo: diff("logLoss", "elo", "v1"), v01SimMinusElo: diff("logLoss", "elo", "v01"), v1SimMinusV01Sim: diff("logLoss", "v01", "v1") },
+    brier: { v1SimMinusElo: diff("brier", "elo", "v1"), v01SimMinusElo: diff("brier", "elo", "v01"), v1SimMinusV01Sim: diff("brier", "v01", "v1") },
+    rule: "second head − first head; lower is better; a direction only when the 95% interval excludes 0; no verdict (N6)",
+  };
+}
+
+/**
+ * Proposed challengers (TEXT ONLY — nothing is built, fitted or armed by this module). Each would be a new version
+ * string with its own forward shadow (prereg §1, §10).
+ */
+export const PROPOSED_CHALLENGERS = Object.freeze([
+  Object.freeze({
+    id: "elo-home-advantage-refit",
+    text: "Elo home-advantage refit (fit on 2023-24 only): refit NBA_ELO_PARAMS.HOME_ADVANTAGE (today 70) on the 2023-24 regular season alone, freeze it, look once at 2024-25 development, then shadow forward as a new version string beside the frozen N2 Elo side. Never replaces the published side automatically.",
+    motivation: "Coordinator-relayed historical evidence (research PR #1152, 2024-25 development season, n 1005, NOT re-derived here): mean pHome Elo 0.584 vs v1 0.547 vs realised home-win rate 0.530 — Elo overstates home; paired v1 − Elo log loss −0.0059 (95% CI −0.0110 to −0.0009), Brier −0.0026 (−0.0049 to −0.0004). Historical development evidence only; it promotes nothing and is not forward-shadow evidence (§8).",
+  }),
+]);
+
+/**
  * The full report. `families` maps family → current grades (experimental-grading-ledger.mjs currentGrades).
  * @returns {object} report with `promotes: false` — always.
  */
@@ -162,6 +197,8 @@ export function evaluateChampionChallenger({ champion = "v0.1", challengers = ["
     rule: "report only — a verdict is an input to a founder decision (promotion-record.json), never a promotion; markets are judged separately (§7)",
     bootstrap: { ...opts, method: "game-clustered percentile bootstrap of the pooled mean paired difference" },
     champion, comparisons: {},
+    winnerHeads: winnerHeadComparison({ v01: families["v0.1"] ?? [], v1: families.v1 ?? [] }, opts),
+    proposedChallengers: PROPOSED_CHALLENGERS,
   };
   for (const ch of challengers) {
     const { pairs, excluded } = pairGames(families[champion] ?? [], families[ch] ?? []);

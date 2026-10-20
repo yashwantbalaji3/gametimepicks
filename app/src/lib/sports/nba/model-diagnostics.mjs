@@ -13,7 +13,7 @@
  *   - data checks: finals under review, box-score points that disagree with the recorded final, unmeasured OT.
  * Season-to-date findings (regular season, the §3 population) drive the text proposals; one slate never does.
  */
-import { clusterBootstrap } from "./champion-challenger.mjs";
+import { clusterBootstrap, PROPOSED_CHALLENGERS } from "./champion-challenger.mjs";
 import { MINUTES_BANDS } from "./grader-metrics.mjs";
 import { LABELS } from "./experimental-forecast.mjs";
 
@@ -136,6 +136,7 @@ export function buildDiagnostics({ family, date, generatedAt, entries, bootstrap
   return {
     artifact: "nba-model-diagnostics", diagnosticsVersion: DIAGNOSTICS_VERSION, family, date, generatedAt,
     dataClass: "PRIVATE_RESEARCH", productEligible: false, changesNothing: true,
+    standingProposals: PROPOSED_CHALLENGERS.map((c) => ({ id: c.id, text: c.text, motivation: c.motivation, textOnly: true })),
     slate: { games: slate.length, findings: systematicFindings(slate, bootstrap), surprises: slateSurprises(slate), note: "one slate never drives a proposal — see seasonToDate" },
     populations,
   };
@@ -163,5 +164,6 @@ export function diagnosticsMarkdown(r) {
     if (p.note) L.push("", `_${p.note}_`);
     L.push("", "### Proposals (text only — nothing is applied)", "", ...p.proposals.map((x) => `- ${x}`));
   }
+  L.push("", "## Standing proposed challengers (text only — nothing is built or armed)", "", ...r.standingProposals.map((c) => `- ${c.text} _Motivation: ${c.motivation}_`));
   return L.join("\n") + "\n";
 }

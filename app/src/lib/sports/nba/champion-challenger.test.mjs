@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { clusterBootstrap, mulberry32, pairGames, pairPlayerRows, pairedMetrics, evaluateChampionChallenger, VERDICT, marketVerdict } from "./champion-challenger.mjs";
+import { clusterBootstrap, mulberry32, pairGames, pairPlayerRows, pairedMetrics, evaluateChampionChallenger, VERDICT, marketVerdict, winnerHeadComparison, PROPOSED_CHALLENGERS } from "./champion-challenger.mjs";
 import { emptyPromotionRecord, appendPromotionRecord, validatePromotionRecord, promotionRecordViolations, RECORD_KIND } from "./promotion-record.mjs";
 import { FAMILIES } from "./experimental-forecast.mjs";
 import { FIXTURE_NOTE, graded, predPlayer, boxDoc, boxRow, HOME, AWAY, REG, PRE } from "./__fixtures__/nba-grading-fixtures.mjs";
@@ -104,6 +104,24 @@ test("verdicts: READY_FOR_FOUNDER_REVIEW needs n, a CI excluding 0 in the challe
   assert.equal(marketVerdict({ market: "m", paired: { ...paired, direction: "CI_INCLUDES_0", ci95: [-0.03, 0.01] }, minN: 300, challengerState: { state: "BARS_HOLD" } }).verdict, VERDICT.NOT_READY);
   assert.equal(marketVerdict({ market: "m", paired: { ...paired, direction: "CHAMPION_LOWER" }, minN: 300, challengerState: { state: "BARS_HOLD" } }).verdict, VERDICT.NOT_READY);
   assert.equal(marketVerdict({ market: "m", paired, minN: 300, challengerState: { state: "HOLD" } }).verdict, VERDICT.NOT_READY);
+});
+
+test("winner heads: Elo (v0.1 receipt) vs v0.1-sim vs v1-sim on identical frozen forward games only; no verdict; the Elo home refit is a text-only proposal", () => {
+  const mk = (id, over) => graded(id, { inputAsOf: "2029-12-31T00:00:00Z", final: Number(id.slice(1)) % 2 ? [110, 100] : [100, 110], ...over });
+  const v01 = Array.from({ length: 40 }, (_, i) => mk(`w${i}`, { pHome: 0.55, eloPHome: 0.62 }));
+  const v1 = [...Array.from({ length: 40 }, (_, i) => mk(`w${i}`, { pHome: 0.5 })), mk("w99", { pHome: 0.5 }), mk("w98", { pHome: 0.5, label: PRE })];
+  const w = winnerHeadComparison({ v01, v1 }, { B: 300 });
+  assert.equal(w.n, 40, "only the 40 games both families froze pre-tip");
+  assert.equal(w.excluded.onlyChallenger, 2);
+  assert.deepEqual([w.meanPHome.elo, w.meanPHome.v01Sim, w.meanPHome.v1Sim, w.meanPHome.realisedHomeWinRate, w.meanPHome.n], [0.62, 0.55, 0.5, 0.5, 40]);
+  assert.ok(w.logLoss.v1SimMinusElo.diff < 0, "on a 50% home sample the 0.5 head beats a 0.62 head");
+  for (const k of ["v1SimMinusElo", "v01SimMinusElo", "v1SimMinusV01Sim"]) assert.equal(w.brier[k].n, 40);
+  assert.equal("verdict" in w, false);
+  const r = evaluateChampionChallenger({ families: { "v0.1": v01, "v0.2": [], v1 }, computedAt: "t", bootstrap: { B: 200 } });
+  assert.equal(r.winnerHeads.n, 40);
+  assert.equal(r.promotes, false);
+  assert.match(PROPOSED_CHALLENGERS[0].text, /Elo home-advantage refit \(fit on 2023-24 only\)/);
+  assert.deepEqual(r.proposedChallengers, PROPOSED_CHALLENGERS);
 });
 
 /* ── promotion / rollback record ── */

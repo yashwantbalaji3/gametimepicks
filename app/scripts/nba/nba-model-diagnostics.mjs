@@ -71,5 +71,12 @@ for (const [ch, c] of Object.entries(cc.comparisons)) {
   console.log(`[champion v0.1 vs ${ch}] paired regular-season pre-tip games ${c.pairedGames} · excluded ${JSON.stringify(c.excluded)} · overall ${c.overall}`);
   for (const v of c.verdicts) console.log(`  ${v.market}: ${v.verdict} (n ${v.n} / min ${v.minN})${v.reasons.length && v.verdict !== "INSUFFICIENT_N" ? ` — ${v.reasons.join("; ")}` : ""}`);
 }
+{
+  const w = cc.winnerHeads;
+  const f = (m) => `${m.diff} (95% CI ${m.ci95.join(" to ")}, n ${m.n}) ${m.direction}`;
+  console.log(`[winner heads, identical frozen forward games] n ${w.n} · mean pHome Elo ${w.meanPHome.elo} · v0.1 sim ${w.meanPHome.v01Sim} · v1 sim ${w.meanPHome.v1Sim} · realised ${w.meanPHome.realisedHomeWinRate}`);
+  console.log(`  log loss v1−Elo ${f(w.logLoss.v1SimMinusElo)} · v0.1−Elo ${f(w.logLoss.v01SimMinusElo)} · v1−v0.1 ${f(w.logLoss.v1SimMinusV01Sim)}`);
+  for (const c of cc.proposedChallengers) console.log(`[proposed challenger, text only] ${c.text}`);
+}
 if (flag("--write")) writeOut(path.join(OUT, "champion-challenger", `${DATE}.json`), JSON.stringify(cc, null, 1) + "\n");
 else console.log("dry run — pass --write to persist");
