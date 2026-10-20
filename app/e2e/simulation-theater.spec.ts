@@ -1072,7 +1072,9 @@ test.describe("projected box score", () => {
         const body = document.querySelector("[role=dialog] .st-sheet-body") as HTMLElement;
         const th = body.querySelector(".stbx-table thead th") as HTMLElement;
         const table = body.querySelector(".stbx-table") as HTMLElement;
-        body.scrollTop = table.offsetTop + 400;
+        // measured against the sheet body itself (offsetTop is relative to the nearest positioned ancestor, which the
+        // official-vs-simulated block above the table changed)
+        body.scrollTop = table.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop + 400;
         const br = body.getBoundingClientRect();
         const tr = th.getBoundingClientRect();
         return { top: tr.top - br.top, scrolled: body.scrollTop > 0, below: table.getBoundingClientRect().bottom > br.top + 40 };
