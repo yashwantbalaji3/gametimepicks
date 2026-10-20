@@ -624,7 +624,7 @@
 .stbx-table thead th{padding:6px 8px;text-align:right;font:600 10.5px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--lava-text-faint);border-bottom:1px solid var(--border-strong);background:var(--gtp-card)}
 .stbx-table thead th:first-child{text-align:left;padding-left:0}
 .stbx-table tbody th{padding:6px 8px 6px 0;text-align:left;font-weight:500;vertical-align:top;border-bottom:1px solid var(--gtp-card-border)}
-.stbx-table td{padding:6px 8px;text-align:right;vertical-align:top;white-space:nowrap;font:600 14px var(--font-mono);border-bottom:1px solid var(--gtp-card-border)}
+.stbx-table td{padding:6px 8px;text-align:right;vertical-align:top;white-space:nowrap;font:600 14px var(--font-mono);font-variant-numeric:tabular-nums;border-bottom:1px solid var(--gtp-card-border)}
 .stbx-table td.is-nm{white-space:normal;font:600 12px var(--font-display);color:var(--vault-warn)}
 .stbx-table .stbx-group th{padding:12px 0 4px;font:600 10.5px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--lava-text-faint);border-bottom:1px solid var(--border-strong)}
 .stbx-players{margin-top:14px}
@@ -642,11 +642,17 @@
 .stbx-tabbar{flex:0 0 6px;width:6px;height:18px;border-radius:2px;background:var(--lava-text-faint)}
 .stbx-tab.is-team .stbx-tabbar{background:var(--st-team);box-shadow:0 0 0 1px var(--st-keyline)}
 .stbx-tabscore{font:600 13px var(--font-mono);font-variant-numeric:tabular-nums;color:var(--lava-text-muted)}
-.stbx-dialog .stbx-table thead th{position:sticky;top:0;z-index:1;background:var(--surface-elevated)}
+/* top:-12px = .st-sheet-body's padding-top: a sticky box sticks to the scrollport inset by its padding, so top:0 left a
+   12 px strip above the head through which the rows scrolled; this pins the head to the sheet body's top edge */
+.stbx-dialog .stbx-table thead th{position:sticky;top:-12px;z-index:1;background:var(--surface-elevated)}
 .stbx-dialog .stbx-mark{margin-top:2px}
 .stbx-open{white-space:nowrap}
 .st-transport > .stbx-open{flex:0 0 auto}
 .st-card-actions{display:flex;justify-content:center;padding:4px 12px 0}
+/* phones: the FINAL sheet carries its box-score button in the header row, beside Hide, not in a row of its own, so the
+   sheet stays as short as it was (≤170 px: the field above it stays fully visible) */
+.st-card.is-sheet .st-card-head.has-act{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"eye act close" "title act close";column-gap:0}
+.st-card.is-sheet .st-card-head .stbx-open{grid-area:act;align-self:stretch;min-height:44px;padding:0 12px;font-size:12px;border:0;border-left:1px solid var(--border-strong);border-radius:0}
 /* the box score dialog: a centred modal above 720 px; at ≤720 px it stays the bottom sheet (like every theater sheet) */
 @media (min-width:721px){
   .st-sheet-backdrop.is-modal{align-items:center;padding:24px}

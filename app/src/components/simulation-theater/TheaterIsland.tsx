@@ -396,6 +396,14 @@ function BreakCard({ brk, palette, onDismiss, idBase, variant, cardRef, onBoxSco
   if (!brk.rows) return null;
   const team = palette.mode === "team";
   const kind = brk.kind.toLowerCase();
+  // FINAL only. On the phone sheet it sits in the header row beside Hide (visible "Box score"; the accessible name stays
+  // "View projected box score"), so the sheet gains no row and keeps the field above it fully visible.
+  const boxBtn = brk.kind === "FINAL" && onBoxScore ? (
+    <button type="button" className="st-btn stbx-open" aria-haspopup="dialog" data-stbx-open="final" onClick={onBoxScore}>
+      {variant === "sheet" ? <><span className="st-sr">View projected </span>Box score</> : "View projected box score"}
+    </button>
+  ) : null;
+  const headAct = variant === "sheet" && boxBtn;
   return (
     <section
       ref={cardRef as React.RefObject<HTMLElement>}
@@ -405,9 +413,10 @@ function BreakCard({ brk, palette, onDismiss, idBase, variant, cardRef, onBoxSco
       data-st-card={brk.kind}
       data-st-card-variant={variant}
     >
-      <header className="st-card-head">
+      <header className={`st-card-head${headAct ? " has-act" : ""}`}>
         <span className="st-card-eyebrow" aria-hidden="true">{brk.kind === "FINAL" ? "Simulated final" : "Simulated · first half"}</span>
         <h3 id={`${idBase}-card-title`} className="st-card-title">{brk.title}</h3>
+        {headAct ? boxBtn : null}
         {brk.dismissible ? (
           <span className="st-card-close">
             <kbd className="st-card-kbd" aria-hidden="true">Esc</kbd>
@@ -438,11 +447,7 @@ function BreakCard({ brk, palette, onDismiss, idBase, variant, cardRef, onBoxSco
         </tbody>
       </table>
       <p className="st-card-line" id={`${idBase}-card-line`}><b>{brk.line}</b>{"run" in brk && brk.run ? <span>{brk.run}</span> : null}</p>
-      {brk.kind === "FINAL" && onBoxScore ? (
-        <div className="st-card-actions">
-          <button type="button" className="st-btn stbx-open" aria-haspopup="dialog" data-stbx-open="final" onClick={onBoxScore}>View projected box score</button>
-        </div>
-      ) : null}
+      {boxBtn && !headAct ? <div className="st-card-actions">{boxBtn}</div> : null}
     </section>
   );
 }

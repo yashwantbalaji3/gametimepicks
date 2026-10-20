@@ -160,7 +160,10 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
   const dismiss = useCallback(() => { if (cardKey) setDismissed(cardKey); }, [cardKey]);
   useEffect(() => {
     if (!cardShown) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && !sheet) dismiss(); };
+    // An Escape a dialog already handled (useDialogFocus calls preventDefault) is not the card's: by the time the event
+    // reaches window, the dialog's close has re-rendered this listener with sheet = null, so `!sheet` alone let the box
+    // score's Escape dismiss the FINAL card behind it as well.
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape" && !e.defaultPrevented && !sheet) dismiss(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [cardShown, dismiss, sheet]);
