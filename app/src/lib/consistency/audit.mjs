@@ -25,7 +25,7 @@ import { nflOfficialSnapshot, nbaOfficialSnapshot, playerOf, SnapshotRefusal } f
 import { evaluateMarket, LEAN } from "./market-evaluator.mjs";
 import { officialTargets, runsFromNbaSamples, runsFromNflSimReceipt, selectOfficialRepresentative } from "./representative.mjs";
 import {
-  CODES, SEVERITY, TOLERANCE, boxScoreChecks, discrepancy, leanContradictions, nameKeyedRows, nbaRunInvariants, nflRunInvariants,
+  CODES, SEVERITY, TOLERANCE, boxScoreChecks, discrepancy, leanContradictions, nameKeyedRows, nbaRunInvariants, nflAllocatedLineInvariants, nflRunInvariants,
   postLockRewrites, projectionMismatches, scenarioLeaks, surfaceVersionMix, unqualifiedAsQualified, versionMixFromSources, worldModelWorldInvariants,
 } from "./checks.mjs";
 import { staticScan } from "./static-scan.mjs";
@@ -34,6 +34,8 @@ import { loadForecastViews } from "../sports/nfl/forecast-view-load.mjs";
 import { readWorldModelArtifacts } from "../sports/nfl/world-model-v2/read.mjs";
 import { readShadowReceipts, simulationOfRecord } from "../sports/nfl/sim-v2/public-receipt.mjs";
 import { DEFAULT_BOARD_FAMILY } from "../sports/nba/top-boards.mjs";
+import { adaptReceipt } from "../simulation-theater/adapter-nfl-sim-v2.mjs";
+import { safeAllocateNflPlayers } from "../simulation-theater/player-allocation.mjs";
 
 export const AUDIT_VERSION = "gtp.consistency.audit@1";
 export const DEFAULT_NBA_DATES = Object.freeze(["2026-10-20"]);
@@ -126,6 +128,21 @@ export function simAnchorCheck(snapshot, aggregate, tol = SIM_ANCHOR_TOLERANCE) 
   ].map((t) => ({ ...t, diff: isNum(t.official) && isNum(t.simulated) ? t.simulated - t.official : null }));
   const failed = terms.filter((t) => t.diff == null || Math.abs(t.diff) > t.tolerance);
   return { anchored: failed.length === 0, terms, failed };
+}
+
+/** Every validated stored run of the sim-v2 receipt, allocated from the official snapshot (the Theater's box score rule). */
+function allocatedRuns(sim, snapshot) {
+  const a = adaptReceipt(sim.doc, { file: sim.path });
+  if (!a.ok) return [];
+  const raw = new Map((sim.doc.representativeRuns ?? []).map((r) => [r.runIndex, r]));
+  return a.manifest.samples.filter((s) => s.validation.ok).map((s) => {
+    const r = safeAllocateNflPlayers(s, a.manifest, snapshot);
+    return {
+      runIndex: s.runIndex, drives: raw.get(s.runIndex)?.drives ?? [], snapshot,
+      teams: { home: a.manifest.teams.home.abbr, away: a.manifest.teams.away.abbr },
+      allocation: r.allocation, error: r.error,
+    };
+  });
 }
 
 function auditNflEvent(ctx, id) {
@@ -409,6 +426,11 @@ function auditNflEvent(ctx, id) {
     }
     ctx.representatives.push({ sport: "NFL", eventId: id, snapshotId: snapshot.snapshotId, official: sel.official ? { runIndex: sel.official.run.runIndex, home: sel.official.run.home, away: sel.official.run.away } : null, distance: sel.distance, withinTolerance: sel.withinTolerance, currentDefault: current ? { runIndex: current.runIndex, kind: current.sourceKind } : null, whatIf: sel.whatIf.map((w) => ({ runIndex: w.run.runIndex, kind: w.kind, label: w.label })) });
     out.push(...boxScoreChecks({ snapshot, surface: "simulation-theater.runs", runs, validator: nflRunInvariants, owner: OWNERS.simV2, sources: [sim.path], correction: "Every stored run must satisfy Σ quarters = final = last drive score." }));
+    out.push(...boxScoreChecks({
+      snapshot, surface: "simulation-theater.allocated-players", runs: allocatedRuns(sim, snapshot), validator: nflAllocatedLineInvariants,
+      owner: OWNERS.theater, sources: [sim.path, boardPath],
+      correction: "Allocated player lines must reconcile with the run's drives (passing + rushing + unattributed = net yards, TDs only on TD drives, completions ≤ attempts, receptions ≤ targets) and join the official snapshot by nfl-athlete id; otherwise the box score keeps its NOT_MODELED rows.",
+    }));
     out.push(...postLockRewrites({ snapshot, artifacts: [{ surface: "nfl-simulation-v2", path: sim.path, generatedAt: sim.doc.generatedAt }], owner: OWNERS.simV2 }));
   }
 

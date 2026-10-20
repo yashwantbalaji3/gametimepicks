@@ -11,10 +11,16 @@
  *   MODELED      a value the run record stores as such: the final score, points by period.
  *   DERIVED      exactly computable from the recorded drives: counts and sums of drive facts (drives, plays, net yards,
  *                clock, results), and the try points read from each touchdown drive's score change.
- *   NOT_MODELED  everything else. Rendered as the words "Not modeled by this engine", NEVER as 0. Every player section
- *                (passing, rushing, receiving, kicking, defense) is NOT_MODELED: this engine records drives, not plays
- *                or players. Nothing from World Model V2 (allocV1 player allocations) or from the receipt's batch-level
- *                distributions is read here: those describe other runs or another engine, not this run.
+ *   ALLOCATED    only when the caller passes the OFFICIAL forecast snapshot (`{ official }`): passing, rushing and
+ *                receiving lines (and the team passing / rushing split) allocated from the official player projection
+ *                to this run's recorded drives by player-allocation.mjs (`nfl-player-allocation@1`). Labelled
+ *                "Allocated from the official projection", never Modeled or Derived. Any missing or mismatched input,
+ *                or a broken reconciliation, keeps the NOT_MODELED rows below and states the code in `allocation`.
+ *   NOT_MODELED  everything else. Rendered as the words "Not modeled by this engine", NEVER as 0. Without an
+ *                allocation every player section (passing, rushing, receiving, kicking, defense) is NOT_MODELED: this
+ *                engine records drives, not plays or players; kicking and defense always are. Nothing from World Model
+ *                V2 (allocV1 player allocations) or from the receipt's batch-level distributions is read here: those
+ *                describe other runs or another engine, not this run.
  *
  * FAIL CLOSED. Every reconciliation below must hold or `nflBoxScore` throws a BoxScoreInvariantError; the UI then
  * shows "Box score unavailable" with the reason, never a partial or guessed table:
@@ -28,19 +34,22 @@
  * unit test proves the client path (unpacked theater-pack@1) yields a byte-identical box score.
  */
 import { PERIOD_SHORT, fmtDuration, fmtSigned } from "./format.mjs";
+import { ALLOCATED_LABEL, ALLOCATION_VERSION, safeAllocateNflPlayers } from "./player-allocation.mjs";
 
 export const BOX_SCORE_VERSION = "nfl-box-score@1";
 export const BOX_SCORE_WATERMARK = "SIMULATED · PROJECTED · NOT ACTUAL GAME STATISTICS";
 export const BOX_SCORE_TITLE = "Projected box score";
 export const NOT_MODELED_TEXT = "Not modeled by this engine";
 export const PLAYER_NOT_MODELED_REASON = "this engine records drives, not plays or players";
-export const STATUS = Object.freeze({ MODELED: "MODELED", DERIVED: "DERIVED", NOT_MODELED: "NOT_MODELED" });
-export const STATUS_LABEL = Object.freeze({ MODELED: "Modeled", DERIVED: "Derived", NOT_MODELED: "Not modeled" });
+export const STATUS = Object.freeze({ MODELED: "MODELED", DERIVED: "DERIVED", ALLOCATED: "ALLOCATED", NOT_MODELED: "NOT_MODELED" });
+export const STATUS_LABEL = Object.freeze({ MODELED: "Modeled", DERIVED: "Derived", ALLOCATED: "Allocated", NOT_MODELED: "Not modeled" });
 export const STATUS_HELP = Object.freeze({
   MODELED: "stored by the engine for this run",
   DERIVED: "computed exactly from this run's recorded drives",
+  ALLOCATED: "allocated from the official projection to this run's recorded drives",
   NOT_MODELED: "this engine does not record it",
 });
+export const ALLOCATED_GROUP = ALLOCATED_LABEL;
 
 const REG_SECONDS = 3600;
 const SIDES = Object.freeze(["away", "home"]);
@@ -93,9 +102,11 @@ function need(cond, code, detail) {
 /**
  * @param {object} sample   one adapted TheaterSample (adapter-nfl-sim-v2.mjs), validated
  * @param {object} manifest the TheaterManifest the sample came from (identity, teams, provenance)
+ * @param {{ official?: object|null }} [opts] `official`: the event's official forecast snapshot (nflOfficialSnapshot);
+ *   without it the player sections stay NOT_MODELED
  * @returns {object} the box score (plain JSON); throws BoxScoreInvariantError when any reconciliation fails
  */
-export function nflBoxScore(sample, manifest) {
+export function nflBoxScore(sample, manifest, { official = null } = {}) {
   need(manifest && manifest.teams && manifest.teams.home && manifest.teams.away, "MANIFEST", "manifest with teams required");
   need(sample && Array.isArray(sample.events), "SAMPLE", "sample with events required");
   need(sample.receiptId === manifest.receiptId, "RUN_BINDING", `sample of ${sample.receiptId} is not from receipt ${manifest.receiptId}`);
@@ -273,6 +284,26 @@ export function nflBoxScore(sample, manifest) {
     })),
   ];
 
+  // ── player allocation (official projection → this run's drives); fails closed to NOT_MODELED ──────────────────
+  const alloc = official
+    ? safeAllocateNflPlayers(sample, manifest, official)
+    : { ok: false, allocation: null, error: { kind: "INPUT", code: "NO_OFFICIAL_SNAPSHOT", reason: "no official forecast snapshot was supplied" } };
+  if (alloc.ok) {
+    const A = alloc.allocation.teams;
+    const at = categories.findIndex((c) => c.id === "passRush");
+    const arow = (id, label, get, note) => ({
+      id, group: ALLOCATED_GROUP, label, status: STATUS.ALLOCATED, note, reason: null,
+      away: { value: get(A.away.team), display: fmtInt(get(A.away.team)) },
+      home: { value: get(A.home.team), display: fmtInt(get(A.home.team)) },
+    });
+    categories.splice(at, 1,
+      arow("passYds", "Passing yards", (t) => t.passYds, "positive drive net yards split by the official projection's passing share"),
+      arow("rushYds", "Rushing yards", (t) => t.rushYds, "the rest of each positive drive's net yards"),
+      arow("unattributedYds", "Net yards not attributed", (t) => t.unattributedYds, "drives that gained no net yards: a sack, penalty or loss cannot be told apart in a drive-level record"),
+    );
+  }
+  const players = alloc.ok ? allocatedSections(alloc.allocation) : PLAYER_SECTIONS.map((p) => ({ ...p }));
+
   const columns = Array.from({ length: nPeriods }, (_, p) => PERIOD_SHORT[p + 1]);
   const winner = fin.home > fin.away ? "home" : fin.away > fin.home ? "away" : null;
   const header = {
@@ -309,8 +340,44 @@ export function nflBoxScore(sample, manifest) {
     },
     composition: { away: compositionText(T.away.composition), home: compositionText(T.home.composition) },
     categories,
-    players: PLAYER_SECTIONS.map((p) => ({ ...p })),
+    players,
+    allocation: alloc.ok ? allocationSummary(alloc.allocation) : { ok: false, version: ALLOCATION_VERSION, ...alloc.error },
     invariants,
+  };
+}
+
+/** Column layout of each allocated section (the row keys, in order). */
+export const ALLOCATED_COLUMNS = Object.freeze({
+  passing: Object.freeze([["cmp", "C"], ["att", "Att"], ["yds", "Yds"], ["td", "TD"]]),
+  rushing: Object.freeze([["car", "Car"], ["yds", "Yds"], ["td", "TD"]]),
+  receiving: Object.freeze([["rec", "Rec"], ["tgt", "Tgt"], ["yds", "Yds"], ["td", "TD"]]),
+});
+
+/** Passing / rushing / receiving as ALLOCATED sections with per-side rows; kicking and defense stay NOT_MODELED. */
+function allocatedSections(a) {
+  return PLAYER_SECTIONS.map((p) => {
+    if (!ALLOCATED_COLUMNS[p.id]) return { ...p };
+    const side = (s) => ({ abbr: a.teams[s].team.abbr, rows: a.teams[s].lines[p.id].map((r) => ({ ...r })) });
+    return {
+      id: p.id, label: p.label, status: STATUS.ALLOCATED, reason: null, note: ALLOCATED_LABEL,
+      columns: ALLOCATED_COLUMNS[p.id].map(([key, label]) => ({ key, label })),
+      away: side("away"), home: side("home"),
+    };
+  });
+}
+
+/** The allocation block the box score carries: provenance, team reconciliation, touchdown attribution. */
+function allocationSummary(a) {
+  return {
+    ok: true,
+    version: a.version,
+    label: a.label,
+    snapshotId: a.snapshotId,
+    officialSources: a.officialSources,
+    rules: a.rules,
+    teams: { away: a.teams.away.team, home: a.teams.home.team },
+    touchdowns: a.touchdowns,
+    unallocated: a.unallocated,
   };
 }
 
@@ -341,13 +408,13 @@ export function provenanceLine(h) {
 }
 
 /** Non-throwing wrapper for the UI: `{ ok: true, box }` or `{ ok: false, error: { code, reason } }` (fail closed). */
-export function safeNflBoxScore(sample, manifest) {
+export function safeNflBoxScore(sample, manifest, opts = {}) {
   try {
-    return { ok: true, box: nflBoxScore(sample, manifest), error: null };
+    return { ok: true, box: nflBoxScore(sample, manifest, opts), error: null };
   } catch (e) {
     return { ok: false, box: null, error: { code: e?.code ?? "BOX_SCORE_ERROR", reason: String(e?.detail ?? e?.message ?? e) } };
   }
 }
 
 /** Category groups in display order (the dialog and the server table share it). */
-export const CATEGORY_GROUPS = Object.freeze(["Scoring", "Possession", "Drive results", "Not recorded for this run"]);
+export const CATEGORY_GROUPS = Object.freeze(["Scoring", "Possession", "Drive results", ALLOCATED_GROUP, "Not recorded for this run"]);

@@ -192,6 +192,76 @@ export function worldModelWorldInvariants(world) {
 }
 
 /**
+ * NFL Theater ALLOCATED player lines (simulation-theater/player-allocation.mjs, `nfl-player-allocation@1`), re-checked
+ * INDEPENDENTLY of the allocator against the raw stored run (`drives`: offense 0 = home, 1 = away) and the official
+ * snapshot. `entry` = { runIndex, drives, snapshot, teams: {home, away abbr}, allocation | null, error | null }.
+ *   · an allocation the allocator refused for a broken reconciliation (kind INVARIANT) is a violation; an INPUT refusal
+ *     (inputs missing: the box keeps its NOT_MODELED rows) is not;
+ *   · team passing + rushing + unattributed = Σ drive net yards; unattributed = the drives with net ≤ 0; attempts +
+ *     carries = Σ plays; completions ≤ attempts;
+ *   · lines sum to the team: Σ att = Σ tgt = attempts, Σ cmp = Σ rec = completions, Σ passing yds = Σ receiving yds =
+ *     passing, Σ car = carries, Σ rushing yds = rushing; per player cmp ≤ att, rec ≤ tgt, TD ≤ rec / car, a scorer
+ *     has at least a yard per touchdown;
+ *   · touchdowns: exactly one per offensive TD drive of that team (and only on those), Σ passing TD = Σ receiving TD,
+ *     a receiving TD names a passer of the same team;
+ *   · identity: every row's playerId is an `nfl-athlete-*` id the official snapshot carries FOR THAT TEAM (never a name);
+ *   · every allocated section is labelled ALLOCATED with "Allocated from the official projection".
+ */
+export function nflAllocatedLineInvariants(entry) {
+  const v = [];
+  if (!entry.allocation) {
+    if (entry.error?.kind === "INVARIANT") v.push(`allocation refused: ${entry.error.code} ${entry.error.reason}`);
+    return v;
+  }
+  const a = entry.allocation;
+  const drives = Array.isArray(entry.drives) ? entry.drives : [];
+  if (a.status !== "ALLOCATED" || a.label !== "Allocated from the official projection") v.push(`allocation labelled ${a.status} "${a.label}"`);
+  if (entry.snapshot && a.snapshotId !== entry.snapshot.snapshotId) v.push(`allocation from snapshot ${a.snapshotId}, official is ${entry.snapshot.snapshotId}`);
+  const roster = new Map((entry.snapshot?.players ?? []).map((p) => [p.playerId, p.team]));
+  const sum = (rows, k) => rows.reduce((s, r) => s + (Number.isInteger(r[k]) ? r[k] : NaN), 0);
+  for (const [side, o] of [["home", 0], ["away", 1]]) {
+    const t = a.teams?.[side]?.team;
+    const L = a.teams?.[side]?.lines;
+    if (!t || !L) { v.push(`${side}: no allocated team`); continue; }
+    const abbr = entry.teams?.[side];
+    if (abbr != null && t.abbr !== abbr) v.push(`${side}: allocated team ${t.abbr} ≠ ${abbr}`);
+    const off = drives.map((d, i) => ({ ...d, n: i + 1 })).filter((d) => d.offense === o);
+    const net = off.reduce((s, d) => s + d.netYards, 0);
+    const lost = off.filter((d) => d.netYards <= 0).reduce((s, d) => s + d.netYards, 0);
+    const plays = off.reduce((s, d) => s + d.plays, 0);
+    if (t.passYds + t.rushYds + t.unattributedYds !== net) v.push(`${t.abbr} passing ${t.passYds} + rushing ${t.rushYds} + unattributed ${t.unattributedYds} ≠ drive net yards ${net}`);
+    if (t.unattributedYds !== lost) v.push(`${t.abbr} unattributed ${t.unattributedYds} ≠ Σ net of drives with net ≤ 0 (${lost})`);
+    if (t.attempts + t.carries !== plays) v.push(`${t.abbr} attempts ${t.attempts} + carries ${t.carries} ≠ plays ${plays}`);
+    if (!(t.completions <= t.attempts)) v.push(`${t.abbr} completions ${t.completions} > attempts ${t.attempts}`);
+    if (sum(L.passing, "att") !== t.attempts || sum(L.receiving, "tgt") !== t.attempts) v.push(`${t.abbr} Σ attempts / targets ≠ ${t.attempts}`);
+    if (sum(L.passing, "cmp") !== t.completions || sum(L.receiving, "rec") !== t.completions) v.push(`${t.abbr} Σ completions / receptions ≠ ${t.completions}`);
+    if (sum(L.passing, "yds") !== t.passYds || sum(L.receiving, "yds") !== t.passYds) v.push(`${t.abbr} Σ passing / receiving yards ≠ ${t.passYds}`);
+    if (sum(L.rushing, "car") !== t.carries || sum(L.rushing, "yds") !== t.rushYds) v.push(`${t.abbr} Σ carries / rushing yards ≠ ${t.carries} / ${t.rushYds}`);
+    for (const r of L.passing) if (!(r.cmp <= r.att)) v.push(`${r.playerId} ${r.cmp} completions on ${r.att} attempts`);
+    for (const r of L.receiving) if (!(r.rec <= r.tgt) || !(r.td <= r.rec)) v.push(`${r.playerId} ${r.rec} receptions / ${r.tgt} targets / ${r.td} TD`);
+    for (const r of L.rushing) if (!(r.td <= r.car)) v.push(`${r.playerId} ${r.td} rushing TD on ${r.car} carries`);
+    for (const r of [...L.rushing, ...L.receiving]) if (r.td > 0 && !(r.yds >= r.td)) v.push(`${r.playerId} ${r.td} TD on ${r.yds} yards`);
+    const tdDrives = off.filter((d) => d.result === "TD").map((d) => d.n);
+    const tds = (a.touchdowns ?? []).filter((x) => x.side === side);
+    if (tds.map((x) => x.drive).join(",") !== tdDrives.join(",")) v.push(`${t.abbr} touchdowns on drives [${tds.map((x) => x.drive)}] ≠ TD drives [${tdDrives}]`);
+    if (sum(L.rushing, "td") + sum(L.receiving, "td") !== tdDrives.length) v.push(`${t.abbr} player touchdowns ${sum(L.rushing, "td") + sum(L.receiving, "td")} ≠ TD drives ${tdDrives.length}`);
+    if (sum(L.passing, "td") !== sum(L.receiving, "td")) v.push(`${t.abbr} passing TD ${sum(L.passing, "td")} ≠ receiving TD ${sum(L.receiving, "td")}`);
+    for (const x of tds) {
+      const rows = x.type === "RUSH" ? L.rushing : x.type === "REC" ? L.receiving : [];
+      if (!rows.some((r) => r.playerId === x.scorerId)) v.push(`drive ${x.drive}: scorer ${x.scorerId} has no ${x.type} line`);
+      if (x.type === "REC" && !L.passing.some((r) => r.playerId === x.passerId)) v.push(`drive ${x.drive}: passer ${x.passerId} has no passing line`);
+    }
+    for (const r of [...L.passing, ...L.rushing, ...L.receiving]) {
+      if (!/^nfl-athlete-\d+$/.test(String(r.playerId))) v.push(`row keyed by ${JSON.stringify(r.playerId)}, not an nfl-athlete id`);
+      else if (entry.snapshot && roster.get(r.playerId) !== t.abbr) v.push(`${r.playerId} is not an official ${t.abbr} player`);
+    }
+  }
+  const stray = (a.touchdowns ?? []).filter((x) => x.side !== "home" && x.side !== "away");
+  if (stray.length) v.push(`${stray.length} touchdown(s) without a team`);
+  return v;
+}
+
+/**
  * BOX_SCORE_INCONSISTENT for each run whose validator returns violations.
  * @param {{ snapshot, surface, runs, validator: (run) => string[], correction, owner }} o
  */
