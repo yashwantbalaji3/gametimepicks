@@ -1646,7 +1646,7 @@ Stabilize EPL → correct/grade Ligue 1 → league-specific validation → La Li
 | NBA-07 | Live Hub and player tracking | P1 | IMPLEMENTED LOCALLY | `claude/nba-live-adapter` (`9b6c267bb2`): 32 tests. Capture kit running outside Claude (pid 56283), wakes 18:45Z 10-20 | Not public until the capture validates PRE→LIVE→FINAL. Polling is free ESPN only |
 | NBA-08 | Settlement and Results/Tracking | P0 | LIVE (private) | Finals record + `nba-results-refresh`; shadow ledgers v0, v0.1 and, since **#1137** (`db8b322480`, 16:54Z 10-19), v0.2 + v1 graded nightly; board ledger graded in `sport-schedules` (#1135). **Finals waiter:** merged inert (#1135); **GitHub-side expiry #1136** (`ef9d1bf9bf`, 16:14Z): a live run needs `NBA_FINALS_WAITER_EXPIRES_AT` (future, ≤ 36 h ahead), stops at it and never relays past it | **Founder-approved one-night trial:** the controller (`~/gtp-evidence/nba-finals-waiter-trial-1020/trial.sh`) pre-checks and activates at **18:45Z 10-20**; one deadline **10:00Z 10-21** |
 | NBA-09 | Daily performance analysis | P1 | LIVE (private) | `nba-daily-performance-report.mjs` (#1135), run by `sport-schedules` per family | No hit-rate claim below the preregistered minimums |
-| NBA-10 | Model evaluation and controlled improvement | P1 | IN PROGRESS | Preregistered bars; v1 development-season evaluation | Promotion only by preregistered bars on the forward shadow; no retraining after single games |
+| NBA-10 | Model evaluation and controlled improvement (see `NBA-CC` below) | P1 | IN PROGRESS | Preregistered bars; v1 development-season evaluation | Promotion only by preregistered bars on the forward shadow; no retraining after single games |
 | NBA-11 | Existing product integration | P2 | BLOCKED (by design) | Registry gates Ask, Parlay Lab, Bank Builder, Moonshot and BYO | Needs `decision-nba-markets-authorization` (paid odds) and passed bars |
 | NBA-12 | Opening-night Production acceptance | P0 | IN PROGRESS | `app/scripts/nba/opening-night-acceptance.mjs` (#1135). At 05:12Z: 16 pass, 0 fail, 12 pending (forecasts owed from 11:00Z, finals after tip) | Run it at about 12Z, 16Z, 19:30Z and 23:30Z on 10-20, and after the last final |
 
@@ -1663,6 +1663,38 @@ Stabilize EPL → correct/grade Ligue 1 → league-specific validation → La Li
 - `blocker-nba-lineup-rights` (deferred 2026-09-10; due "before tip-off week")
 - The v0.2 bug
 - Whether any experimental public NBA display is wanted before the bars are met
+
+### `NBA-CC` — Champion–challenger engine architecture (founder decision 2026-10-20, long-term requirement)
+
+**Principle:** test many engines internally, publish exactly one canonical projection. The best engine is decided by forward evidence, not by which engine is currently official.
+
+**This decision does NOT:**
+- change the public champion;
+- relax any Theater gate;
+- authorize a deployment.
+
+**Engines today:**
+
+| Engine | Role | Status |
+|---|---|---|
+| **Official (champion)** | Public | Elo winner side (N2) + v0.1 roster-gated player medians (N1). Public via the §13 experimental lane. Team scores withheld. |
+| **Challenger: v1** (`nba-sim-v1-coherent`, family `v1`) | Theater engine | Frozen pre-tip by `nba-forecast-window` at the same instant as v0, v0.1 and v0.2, so all share identical information cutoffs. Graded nightly since #1137. |
+| **Research: v0.2** | Shadow | 2026-27 season-fold challenger, carrying the cold-start bug. |
+| **Research: possession simulation** (#1159) | Research | Private. Does not beat v1 on a 100-game sample. |
+
+**Requirements, with the existing pieces that serve each:**
+
+| # | Requirement | Reuse (no duplication) | Gap / next |
+|---|---|---|---|
+| 1 | Champion–challenger on verified history + forward-frozen forecasts, identical cutoffs | Same-instant family builds in `nba-forecast-window`; write-once receipts (`forecast-receipt.mjs`); v1 development evaluation (#1134); **#1152** paired Elo vs v1 winner test (2024-25, n = 1,005: Δ log loss −0.0059 [−0.0110, −0.0009], Δ Brier −0.0026 [−0.0049, −0.0004]; Elo overstates home 0.584 vs 0.530) | Forward pairing starts with 10-20; development-season results promote nothing (§8) |
+| 2 | Each market judged independently (winner, score, PTS/REB/AST/3PM, combinations) | Preregistration §7 bars are per market already; the grader (`experimental-forecast.mjs` grade, per family); **#1154** champion/challenger evaluator with slicing | Per-market scoreboard artifact (private), one row per engine × market |
+| 3 | Judge the full simulation distribution, not a representative run | Receipts store quantiles from 10,000 draws; the grader computes coverage and median hit | Add proper distribution scores (CRPS / interval score; log score at thresholds) in the #1154 evaluator; representative runs are display only, never graded |
+| 4 | Automatic daily grading of every engine's frozen predictions | `sport-schedules` grades v0, v0.1, v0.2 and v1 nightly (#1137); private board ledger and daily report (#1135); **#1154** fixes (9-day window, stat-correction re-fetch, OT, append-only, disputed finals excluded) | Merge #1154 after 05:00Z; daily comparison table in the private daily report |
+| 5 | Evidence-based promotion, coordinated with the release owner | Preregistration §6–§8 sample minimums and bars; **#1154** append-only `promotion-record.json` (requires a human approver) | Promotion = a founder-approved record + a new official snapshot version, never a code default flip |
+| 6 | One canonical public prediction everywhere | **#1149** official snapshot contract (Elo side + v0.1 players official; v1 SUPPORTING_SIMULATION; audit check that `/nba` prints exactly the snapshot); #1144 consistency gate; the registry keeps NBA out of products | Products read the snapshot only once NBA is authorized for them (#1157 adapter, switched off) |
+| 7 | Theater: outcomes labelled as individual simulations; the official panel always shows the canonical forecast | **#1153** three-layer box score (official panel / simulation run / allocation); #1140 "what-if · hypothetical" labels | **Conflict to resolve:** #1149's anchor gate holds the Theater until v1 agrees with the official forecast. Under this architecture the Theater may run a different engine, so the gate should instead require labelling and consistency of the official panel. Changing the gate is a separate founder decision; it stays as is until then. |
+| 8 | Forward-only promotions with versions and effective dates | Write-once receipts; append-only ledgers and promotion record; §13 lane snapshot per slate | The official snapshot carries `modelVersion` + `effectiveFrom`; history is never re-pointed |
+| 9 | A calibrated ensemble only if properly evaluated | #1159 research harness; v0.1 / v1 / Elo receipts at identical instants | After enough forward sample: stacking on a held-out window, coherence-checked (team = Σ players) before any consideration |
 
 ### Earlier entries (kept for history)
 - `NBA-001` (private/shadow readiness) is superseded by NBA-01 to NBA-02.
