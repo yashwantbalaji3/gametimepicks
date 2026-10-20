@@ -79,6 +79,14 @@ v1 plays low-minute players much more than v0.1. That is a minutes-allocation di
 
 **Official representative.** The closest stored v1 run sits 1.32–1.53 normalised units from the official v0.1 projections. The selector's tolerance is 0.5, so `withinTolerance` is false on all 3. Five stored runs cannot represent a different model's forecast well.
 
+### Which head is off? (research PR #1152)
+
+On the 2024-25 development season (n = 1,005, paired bootstrap), v1 has lower log loss than Elo: −0.0059 [95% −0.0110, −0.0009]. Brier is also lower: −0.0026 [−0.0049, −0.0004].
+
+Elo's mean pHome is 0.584 against a realized home win rate of 0.530, so **Elo overstates the home side**. v1 sits below Elo in 98.4% of games (mean −0.037), the same gap seen on opening night.
+
+So the anchor's pHome term does not mean v1 is wrong. It measures that the replayed simulation and the official head disagree. Which head is official is founder decision N6. Development-season evidence promotes nothing (prereg §8).
+
 ## 4. What stays gated, and why
 
 - **NBA Theater public flag:** stays OFF. The gate is closed on all 3 games: `SIM_NOT_ANCHORED` (pHome and players), `ANCHOR_TOLERANCE_UNAPPROVED`, and `MODEL_VERSION_MIX` from the private v1 board.
@@ -99,8 +107,8 @@ Only NBA entries were re-pinned. Non-NBA entries are byte-for-byte main's, becau
 
 ## 6. Decisions needed (founder / release owner)
 
-1. **Approve or amend NBA anchor tolerances:** pHome 0.02, reusing the NFL founder value, and player z ≤ 0.25 (proposed). Until approved, the NBA Theater gate stays closed even if every term passes.
-2. **NBA official team scores.** Keep WITHHELD (the default here), or name a reconciliation path, e.g. a v1 home-advantage recalibration evaluated walk-forward against Elo before any use.
+1. **Approve or amend NBA anchor tolerances, after N6 (which winner head is official).** The tolerances are: pHome 0.02, reusing the NFL founder value, and player z ≤ 0.25 (proposed). Until approved, the NBA Theater gate stays closed even if every term passes.
+2. **NBA official team scores.** Keep WITHHELD (the default here), or name a reconciliation path. If N6 made the v1 sim head the official winner head, v1's team scores would be coherent with the official side by construction. They would still have to pass the §7 margin/total bars on forward rows: on the 2024-25 development season v1 fails total bias (−2.98 vs |bias| ≤ 2).
 3. **The private v1 top board:** retire, or relabel as a candidate shadow.
 4. **Unchanged open items:** `decision-nba-markets-authorization`, N4 / N6, the v0.2 cold-start bug.
 
