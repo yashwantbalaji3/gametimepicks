@@ -43,7 +43,7 @@ test("🔴 no coverage note promises a forecast the hub does not publish, or a s
   const nbaNote = competitionFor("nba").note;
   if (LANE.enabled) {
     assert.match(nbaNote, /experimental projections · not validated/);
-    assert.match(read("src/app/nba/page.tsx"), /<NbaExperimentalLane snapshot=\{lane\} \/>/, "the note promises a lane the hub renders");
+    assert.match(read("src/app/nba/page.tsx"), /<NbaExperimentalLane snapshot=\{lane\}[ >]/, "the note promises a lane the hub renders");
   } else assert.match(nbaNote, /no forecast/);
   assert.doesNotMatch(nbaNote, /\bvalidated\b(?<!not validated)/, "never 'validated' without 'not'");
   for (const c of COMPETITIONS) assert.doesNotMatch(c.note, /\blive\b|\bin season\b|\btoday\b/i, c.key);

@@ -42,10 +42,10 @@ export const LANE = Object.freeze({
 export const MIN_EXPECTED_MINUTES = 10;
 export const STATS = Object.freeze([["pts", "PTS"], ["reb", "REB"], ["ast", "AST"], ["threePm", "3PM"]]);
 export const WITHHELD = Object.freeze({
-  winProbability: "Not shown: no NBA win probability has been validated (0 graded regular-season games).",
+  winProbability: "Not shown: no NBA game-outcome chance has been validated (0 graded regular-season games).",
   teamScores: "Not shown: this model's team score is a sum of player simulations that ignores the opponent, can contradict the Elo side, and has not met its historical checks.",
   playerRanges: "Medians only: the model's ranges have not yet shown reliable coverage.",
-  markets: "No odds, lines, edges, picks or rankings: there is no authorized NBA price, and these figures are not betting recommendations.",
+  markets: "No sportsbook prices, lines, edges, picks or rankings: there is no authorized NBA price, and these figures are not betting recommendations.",
 });
 
 const r1 = (x) => (Number.isFinite(x) ? Math.round(x * 10) / 10 : null);

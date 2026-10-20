@@ -12,7 +12,7 @@
 import React from "react";
 import fs from "node:fs";
 import path from "node:path";
-import { LANE, STATS, LANE_SNAPSHOT_SCHEMA } from "@/lib/sports/nba/experimental-public-lane.mjs";
+import { LANE, STATS, LANE_SNAPSHOT_SCHEMA, laneIsCurrent } from "@/lib/sports/nba/experimental-public-lane.mjs";
 
 type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null> };
 type Game = {
@@ -25,6 +25,12 @@ type Game = {
   players: { source: string; away: Row[]; home: Row[] };
 };
 type Snapshot = { schema: string; label: string; validation: string; date: string | null; withheld: Record<string, string>; games: Game[]; excluded: { providerEventId: string; reason: string }[] };
+
+/** The lane to show at `etDate`: null when disabled, missing, or its slate is in the past (never shown as current). */
+export function loadCurrentLane(etDate: string): Snapshot | null {
+  const s = loadExperimentalSnapshot();
+  return s && laneIsCurrent(s, etDate) ? s : null;
+}
 
 export function loadExperimentalSnapshot(): Snapshot | null {
   if (!LANE.enabled) return null;
@@ -65,7 +71,25 @@ function TeamTable({ team, rows }: { team: string; rows: Row[] }) {
   );
 }
 
-export default function NbaExperimentalLane({ snapshot }: { snapshot: Snapshot | null }) {
+const favouredName = (g: Game) => (g.elo.favoured === g.home.abbr ? g.home.name : g.elo.favoured === g.away.abbr ? g.away.name : null) ?? g.elo.favoured;
+export const laneCardId = (id: string) => `nba-exp-${id}`;
+
+/** One line above the schedule: which games have frozen experimental output, each a jump link to its card. */
+export function NbaLaneTonight({ snapshot }: { snapshot: Snapshot | null }) {
+  if (!snapshot || snapshot.games.length === 0) return null;
+  const frozen = [...new Set(snapshot.games.map((g) => et(g.frozenAt)))].join(" / ");
+  return (
+    <p className="m-0 text-[13.5px]" style={{ color: "var(--vault-text)" }}>
+      <strong>{LANE.label}:</strong>{" "}
+      {snapshot.games.map((g, i) => (
+        <span key={g.providerEventId}>{i ? " · " : ""}<a href={`#${laneCardId(g.providerEventId)}`} className="underline">{g.away.name} at {g.home.name}</a></span>
+      ))}
+      <span style={{ color: "var(--vault-text-mute)" }}> — frozen pregame model output (frozen {frozen}), not validated.</span>
+    </p>
+  );
+}
+
+export default function NbaExperimentalLane({ snapshot, statuses = {} }: { snapshot: Snapshot | null; statuses?: Record<string, string> }) {
   if (!snapshot || snapshot.games.length === 0) return null;
   return (
     <section id="nba-experimental" className="scroll-mt-24 flex flex-col gap-3" aria-labelledby="nba-experimental-h">
@@ -79,15 +103,16 @@ export default function NbaExperimentalLane({ snapshot }: { snapshot: Snapshot |
       </div>
       <h2 id="nba-experimental-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>Experimental model projections{snapshot.date ? ` · ${slateLabel(snapshot.date)} slate` : ""}</h2>
       {snapshot.games.map((g) => (
-        <article key={g.providerEventId} className="flex flex-col gap-2 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
+        <article key={g.providerEventId} id={laneCardId(g.providerEventId)} className="scroll-mt-24 flex flex-col gap-2 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
           <header className="flex flex-col gap-0.5">
             <h3 className="m-0 text-[15px] font-bold" style={{ color: "var(--vault-text)" }}>{g.away.name} at {g.home.name}</h3>
             <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
               Tip-off {et(g.tipUtc)} · frozen pregame forecast, frozen {et(g.frozenAt)}
             </p>
+            {statuses[g.providerEventId] ? <p className="m-0 text-[12px]" style={{ color: "var(--vault-text)" }}>Game status: {statuses[g.providerEventId]}</p> : null}
           </header>
           <p className="m-0 text-[13px]" style={{ color: "var(--vault-text)" }}>
-            <strong>Elo rating favours {g.elo.favoured ?? "neither side"}.</strong>{" "}
+            <strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong>{" "}
             <span style={{ color: "var(--vault-text-mute)" }}>Source: {g.elo.source}.</span>
           </p>
           <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Team scores: {g.teamScores.reason}</p>
