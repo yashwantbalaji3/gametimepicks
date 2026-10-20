@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-10-20T13:37:15Z",
+ "generatedAt": "2026-10-20T14:33:43Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 132,
-  "hits": 76,
+  "counted": 133,
+  "hits": 77,
   "misses": 56,
   "voided": 3,
   "shown": 60,
-  "total": 135
+  "total": 136
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,15 +28,30 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 27,
-   "hits": 15,
+   "counted": 28,
+   "hits": 16,
    "misses": 12,
-   "hitRate": 0.5556
+   "hitRate": 0.5714
   }
  ],
  "sampleState": "EMERGING",
- "sampleNote": "132 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "133 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
+  {
+   "eventId": "nfl-401873008",
+   "when": "2026-10-19",
+   "eventName": null,
+   "subject": "WSH @ SF",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "HOME",
+   "actual": "HOME",
+   "modelProbability": null,
+   "probabilityOfActual": 0.8053,
+   "marketProbabilityOfActual": null,
+   "hit": true
+  },
   {
    "eventId": "nfl-401872996",
    "when": "2026-10-18",
@@ -919,21 +934,6 @@
    "actual": "AWAY",
    "modelProbability": null,
    "probabilityOfActual": 0.4018,
-   "marketProbabilityOfActual": null,
-   "hit": false
-  },
-  {
-   "eventId": "nfl-401872948",
-   "when": "2026-09-24",
-   "eventName": null,
-   "subject": "ATL @ GB",
-   "market": "Winner",
-   "basis": "HISTORICAL_MODEL_FAVORED",
-   "noPick": false,
-   "predicted": "HOME",
-   "actual": "AWAY",
-   "modelProbability": null,
-   "probabilityOfActual": 0.3304,
    "marketProbabilityOfActual": null,
    "hit": false
   }

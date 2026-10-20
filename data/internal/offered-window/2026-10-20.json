@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "artifact": "offered-window-matrix",
   "dataClass": "INTERNAL_DERIVED",
-  "generatedAt": "2026-10-20T13:38:13Z",
+  "generatedAt": "2026-10-20T14:34:41Z",
   "date": "2026-10-20",
-  "state": "COMPLETE",
+  "state": "FINDINGS",
   "sports": [
     {
       "sport": "mlb",
@@ -37,20 +37,20 @@
       "sport": "nfl",
       "state": "COMPLETE",
       "horizonHours": 336,
-      "population": 15,
+      "population": 14,
       "counts": {
         "JOIN_FAILED": 0,
         "SOURCE_STALE": 0,
         "SETTLED": 0,
-        "STARTED": 1,
+        "STARTED": 0,
         "REFUSED": 0,
-        "PUBLISHED": 0,
+        "PUBLISHED": 14,
         "FORECAST_READY": 0,
         "OFFERED_PRICED": 0,
         "OFFERED_UNPRICED": 0,
         "NOT_YET_CAPTURED": 0,
         "ACQUISITION_UNSCHEDULED": 0,
-        "ACQUISITION_UNAUTHORIZED": 14,
+        "ACQUISITION_UNAUTHORIZED": 0,
         "NOT_OFFERED": 0
       },
       "owed": [],
@@ -59,33 +59,18 @@
       "rows": [
         {
           "sport": "nfl",
-          "providerEventId": "401873008",
-          "canonicalId": "nfl-401873008",
-          "startUtc": "2026-10-20T00:15Z",
-          "marketFamilies": [],
-          "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": "39f4d27ce6a04486",
-          "publicRoute": "/nfl/game/401873008/",
-          "settlementId": "401873008",
-          "sourceAgeHours": null,
-          "nextDeadlineUtc": null,
-          "state": "STARTED",
-          "reason": "the event has begun; nothing new may be generated for it"
-        },
-        {
-          "sport": "nfl",
           "providerEventId": "401873010",
           "canonicalId": "nfl-401873010",
           "startUtc": "2026-10-23T00:15Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "c18d9640629baa74",
           "publicRoute": "/nfl/game/401873010/",
           "settlementId": "401873010",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -94,13 +79,13 @@
           "startUtc": "2026-10-25T13:30Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "f9dd447a9aab00ba",
           "publicRoute": "/nfl/game/401873011/",
           "settlementId": "401873011",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -109,13 +94,13 @@
           "startUtc": "2026-10-25T17:00Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "5f9f4a958e2eb06a",
           "publicRoute": "/nfl/game/401873017/",
           "settlementId": "401873017",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -124,13 +109,13 @@
           "startUtc": "2026-10-25T17:00Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "b000656d5211aaf0",
           "publicRoute": "/nfl/game/401873013/",
           "settlementId": "401873013",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -139,13 +124,13 @@
           "startUtc": "2026-10-25T17:00Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "3c59f6d2a4725141",
           "publicRoute": "/nfl/game/401873014/",
           "settlementId": "401873014",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -154,13 +139,13 @@
           "startUtc": "2026-10-25T17:00Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "53f45c6bbe80062a",
           "publicRoute": "/nfl/game/401873015/",
           "settlementId": "401873015",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -169,13 +154,13 @@
           "startUtc": "2026-10-25T17:00Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "2905ab373fd1a6b3",
           "publicRoute": "/nfl/game/401873018/",
           "settlementId": "401873018",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -184,13 +169,13 @@
           "startUtc": "2026-10-25T17:00Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "6ddd091a064c22dd",
           "publicRoute": "/nfl/game/401873012/",
           "settlementId": "401873012",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -199,13 +184,13 @@
           "startUtc": "2026-10-25T17:00Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "dca345e26f21c0a0",
           "publicRoute": "/nfl/game/401873016/",
           "settlementId": "401873016",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -214,13 +199,13 @@
           "startUtc": "2026-10-25T20:05Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "11e65d7aa5c45eef",
           "publicRoute": "/nfl/game/401873019/",
           "settlementId": "401873019",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -229,13 +214,13 @@
           "startUtc": "2026-10-25T20:25Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "77e6ff09472e8772",
           "publicRoute": "/nfl/game/401873020/",
           "settlementId": "401873020",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -244,13 +229,13 @@
           "startUtc": "2026-10-25T20:25Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "4fb5c41df061c13a",
           "publicRoute": "/nfl/game/401873021/",
           "settlementId": "401873021",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -259,13 +244,13 @@
           "startUtc": "2026-10-26T00:20Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "bc339dcd2bc53b67",
           "publicRoute": "/nfl/game/401873022/",
           "settlementId": "401873022",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         },
         {
           "sport": "nfl",
@@ -274,13 +259,13 @@
           "startUtc": "2026-10-27T00:15Z",
           "marketFamilies": [],
           "acquisitionAt": "2026-10-11T11:41:55Z",
-          "forecastRevision": null,
+          "forecastRevision": "ff4ad1c87c457fd1",
           "publicRoute": "/nfl/game/401873009/",
           "settlementId": "401873009",
           "sourceAgeHours": null,
           "nextDeadlineUtc": "2026-10-20T15:00:00.000Z",
-          "state": "ACQUISITION_UNAUTHORIZED",
-          "reason": "the NFL odds authorization has lapsed (docs/receipts/ODDS_AUTHORIZATION_P171.md): expiry: this receipt expires at Program 171 and nothing here can confirm that program is still open — a renewal is required before another paid call (Program 171 close OR the 3,000-credit cumulative ceiling, whichever first). Its scheduled capture still runs and refuses, spending nothing."
+          "state": "PUBLISHED",
+          "reason": "reached a public surface"
         }
       ],
       "conserved": true,
@@ -288,26 +273,27 @@
     },
     {
       "sport": "ufc",
-      "state": "COMPLETE",
+      "state": "FINDINGS",
       "horizonHours": 336,
       "population": 11,
       "counts": {
         "JOIN_FAILED": 0,
-        "SOURCE_STALE": 0,
+        "SOURCE_STALE": 11,
         "SETTLED": 0,
         "STARTED": 0,
         "REFUSED": 0,
         "PUBLISHED": 0,
-        "FORECAST_READY": 10,
+        "FORECAST_READY": 0,
         "OFFERED_PRICED": 0,
         "OFFERED_UNPRICED": 0,
         "NOT_YET_CAPTURED": 0,
         "ACQUISITION_UNSCHEDULED": 0,
         "ACQUISITION_UNAUTHORIZED": 0,
-        "NOT_OFFERED": 1
+        "NOT_OFFERED": 0
       },
       "owed": [],
-      "awaited": [
+      "awaited": [],
+      "findings": [
         {
           "sport": "ufc",
           "providerEventId": "401911632",
@@ -318,10 +304,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401911632",
-          "sourceAgeHours": 71.59777777777778,
+          "sourceAgeHours": 72.53888888888889,
           "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -333,10 +319,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401911633",
-          "sourceAgeHours": 71.59777777777778,
+          "sourceAgeHours": 72.53888888888889,
           "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -348,10 +334,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401911634",
-          "sourceAgeHours": 71.59777777777778,
+          "sourceAgeHours": 72.53888888888889,
           "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -363,163 +349,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401911635",
-          "sourceAgeHours": 71.59777777777778,
+          "sourceAgeHours": 72.53888888888889,
           "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
-        },
-        {
-          "sport": "ufc",
-          "providerEventId": "401911637",
-          "canonicalId": "ufc-401911637",
-          "startUtc": "2026-10-24T16:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": "2026-10-17T14:02:21Z",
-          "forecastRevision": null,
-          "publicRoute": "/ufc/",
-          "settlementId": "401911637",
-          "sourceAgeHours": 71.59777777777778,
-          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
-        },
-        {
-          "sport": "ufc",
-          "providerEventId": "401911639",
-          "canonicalId": "ufc-401911639",
-          "startUtc": "2026-10-24T16:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": "2026-10-17T14:02:21Z",
-          "forecastRevision": null,
-          "publicRoute": "/ufc/",
-          "settlementId": "401911639",
-          "sourceAgeHours": 71.59777777777778,
-          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
-        },
-        {
-          "sport": "ufc",
-          "providerEventId": "401911638",
-          "canonicalId": "ufc-401911638",
-          "startUtc": "2026-10-24T16:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": "2026-10-17T14:02:21Z",
-          "forecastRevision": null,
-          "publicRoute": "/ufc/",
-          "settlementId": "401911638",
-          "sourceAgeHours": 71.59777777777778,
-          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
-        },
-        {
-          "sport": "ufc",
-          "providerEventId": "401911640",
-          "canonicalId": "ufc-401911640",
-          "startUtc": "2026-10-24T16:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": "2026-10-17T14:02:21Z",
-          "forecastRevision": null,
-          "publicRoute": "/ufc/",
-          "settlementId": "401911640",
-          "sourceAgeHours": 71.59777777777778,
-          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
-        },
-        {
-          "sport": "ufc",
-          "providerEventId": "401928047",
-          "canonicalId": "ufc-401928047",
-          "startUtc": "2026-10-24T14:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": "2026-10-17T14:02:21Z",
-          "forecastRevision": null,
-          "publicRoute": "/ufc/",
-          "settlementId": "401928047",
-          "sourceAgeHours": 71.59777777777778,
-          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
-        },
-        {
-          "sport": "ufc",
-          "providerEventId": "401930357",
-          "canonicalId": "ufc-401930357",
-          "startUtc": "2026-10-24T14:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": "2026-10-17T14:02:21Z",
-          "forecastRevision": null,
-          "publicRoute": "/ufc/",
-          "settlementId": "401930357",
-          "sourceAgeHours": 71.59777777777778,
-          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
-        }
-      ],
-      "findings": [],
-      "rows": [
-        {
-          "sport": "ufc",
-          "providerEventId": "401911632",
-          "canonicalId": "ufc-401911632",
-          "startUtc": "2026-10-24T18:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": "2026-10-17T14:02:21Z",
-          "forecastRevision": null,
-          "publicRoute": "/ufc/",
-          "settlementId": "401911632",
-          "sourceAgeHours": 71.59777777777778,
-          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
-        },
-        {
-          "sport": "ufc",
-          "providerEventId": "401911633",
-          "canonicalId": "ufc-401911633",
-          "startUtc": "2026-10-24T18:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": "2026-10-17T14:02:21Z",
-          "forecastRevision": null,
-          "publicRoute": "/ufc/",
-          "settlementId": "401911633",
-          "sourceAgeHours": 71.59777777777778,
-          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
-        },
-        {
-          "sport": "ufc",
-          "providerEventId": "401911634",
-          "canonicalId": "ufc-401911634",
-          "startUtc": "2026-10-24T18:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": "2026-10-17T14:02:21Z",
-          "forecastRevision": null,
-          "publicRoute": "/ufc/",
-          "settlementId": "401911634",
-          "sourceAgeHours": 71.59777777777778,
-          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
-        },
-        {
-          "sport": "ufc",
-          "providerEventId": "401911635",
-          "canonicalId": "ufc-401911635",
-          "startUtc": "2026-10-24T18:00Z",
-          "marketFamilies": [],
-          "acquisitionAt": "2026-10-17T14:02:21Z",
-          "forecastRevision": null,
-          "publicRoute": "/ufc/",
-          "settlementId": "401911635",
-          "sourceAgeHours": 71.59777777777778,
-          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -531,10 +364,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401929495",
-          "sourceAgeHours": 71.59777777777778,
+          "sourceAgeHours": 72.53888888888889,
           "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "NOT_OFFERED",
-          "reason": "the provider lists no supported market — evidence, not an outage"
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -546,10 +379,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401911637",
-          "sourceAgeHours": 71.59777777777778,
+          "sourceAgeHours": 72.53888888888889,
           "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -561,10 +394,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401911639",
-          "sourceAgeHours": 71.59777777777778,
+          "sourceAgeHours": 72.53888888888889,
           "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -576,10 +409,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401911638",
-          "sourceAgeHours": 71.59777777777778,
+          "sourceAgeHours": 72.53888888888889,
           "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -591,10 +424,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401911640",
-          "sourceAgeHours": 71.59777777777778,
+          "sourceAgeHours": 72.53888888888889,
           "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -606,10 +439,10 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401928047",
-          "sourceAgeHours": 71.59777777777778,
+          "sourceAgeHours": 72.53888888888889,
           "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
         },
         {
           "sport": "ufc",
@@ -621,10 +454,177 @@
           "forecastRevision": null,
           "publicRoute": "/ufc/",
           "settlementId": "401930357",
-          "sourceAgeHours": 71.59777777777778,
+          "sourceAgeHours": 72.53888888888889,
           "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
-          "state": "FORECAST_READY",
-          "reason": "a pre-start model artifact exists"
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
+        }
+      ],
+      "rows": [
+        {
+          "sport": "ufc",
+          "providerEventId": "401911632",
+          "canonicalId": "ufc-401911632",
+          "startUtc": "2026-10-24T18:00Z",
+          "marketFamilies": [],
+          "acquisitionAt": "2026-10-17T14:02:21Z",
+          "forecastRevision": null,
+          "publicRoute": "/ufc/",
+          "settlementId": "401911632",
+          "sourceAgeHours": 72.53888888888889,
+          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
+        },
+        {
+          "sport": "ufc",
+          "providerEventId": "401911633",
+          "canonicalId": "ufc-401911633",
+          "startUtc": "2026-10-24T18:00Z",
+          "marketFamilies": [],
+          "acquisitionAt": "2026-10-17T14:02:21Z",
+          "forecastRevision": null,
+          "publicRoute": "/ufc/",
+          "settlementId": "401911633",
+          "sourceAgeHours": 72.53888888888889,
+          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
+        },
+        {
+          "sport": "ufc",
+          "providerEventId": "401911634",
+          "canonicalId": "ufc-401911634",
+          "startUtc": "2026-10-24T18:00Z",
+          "marketFamilies": [],
+          "acquisitionAt": "2026-10-17T14:02:21Z",
+          "forecastRevision": null,
+          "publicRoute": "/ufc/",
+          "settlementId": "401911634",
+          "sourceAgeHours": 72.53888888888889,
+          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
+        },
+        {
+          "sport": "ufc",
+          "providerEventId": "401911635",
+          "canonicalId": "ufc-401911635",
+          "startUtc": "2026-10-24T18:00Z",
+          "marketFamilies": [],
+          "acquisitionAt": "2026-10-17T14:02:21Z",
+          "forecastRevision": null,
+          "publicRoute": "/ufc/",
+          "settlementId": "401911635",
+          "sourceAgeHours": 72.53888888888889,
+          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
+        },
+        {
+          "sport": "ufc",
+          "providerEventId": "401929495",
+          "canonicalId": "ufc-401929495",
+          "startUtc": "2026-10-24T18:00Z",
+          "marketFamilies": [],
+          "acquisitionAt": "2026-10-17T14:02:21Z",
+          "forecastRevision": null,
+          "publicRoute": "/ufc/",
+          "settlementId": "401929495",
+          "sourceAgeHours": 72.53888888888889,
+          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
+        },
+        {
+          "sport": "ufc",
+          "providerEventId": "401911637",
+          "canonicalId": "ufc-401911637",
+          "startUtc": "2026-10-24T16:00Z",
+          "marketFamilies": [],
+          "acquisitionAt": "2026-10-17T14:02:21Z",
+          "forecastRevision": null,
+          "publicRoute": "/ufc/",
+          "settlementId": "401911637",
+          "sourceAgeHours": 72.53888888888889,
+          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
+        },
+        {
+          "sport": "ufc",
+          "providerEventId": "401911639",
+          "canonicalId": "ufc-401911639",
+          "startUtc": "2026-10-24T16:00Z",
+          "marketFamilies": [],
+          "acquisitionAt": "2026-10-17T14:02:21Z",
+          "forecastRevision": null,
+          "publicRoute": "/ufc/",
+          "settlementId": "401911639",
+          "sourceAgeHours": 72.53888888888889,
+          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
+        },
+        {
+          "sport": "ufc",
+          "providerEventId": "401911638",
+          "canonicalId": "ufc-401911638",
+          "startUtc": "2026-10-24T16:00Z",
+          "marketFamilies": [],
+          "acquisitionAt": "2026-10-17T14:02:21Z",
+          "forecastRevision": null,
+          "publicRoute": "/ufc/",
+          "settlementId": "401911638",
+          "sourceAgeHours": 72.53888888888889,
+          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
+        },
+        {
+          "sport": "ufc",
+          "providerEventId": "401911640",
+          "canonicalId": "ufc-401911640",
+          "startUtc": "2026-10-24T16:00Z",
+          "marketFamilies": [],
+          "acquisitionAt": "2026-10-17T14:02:21Z",
+          "forecastRevision": null,
+          "publicRoute": "/ufc/",
+          "settlementId": "401911640",
+          "sourceAgeHours": 72.53888888888889,
+          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
+        },
+        {
+          "sport": "ufc",
+          "providerEventId": "401928047",
+          "canonicalId": "ufc-401928047",
+          "startUtc": "2026-10-24T14:00Z",
+          "marketFamilies": [],
+          "acquisitionAt": "2026-10-17T14:02:21Z",
+          "forecastRevision": null,
+          "publicRoute": "/ufc/",
+          "settlementId": "401928047",
+          "sourceAgeHours": 72.53888888888889,
+          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
+        },
+        {
+          "sport": "ufc",
+          "providerEventId": "401930357",
+          "canonicalId": "ufc-401930357",
+          "startUtc": "2026-10-24T14:00Z",
+          "marketFamilies": [],
+          "acquisitionAt": "2026-10-17T14:02:21Z",
+          "forecastRevision": null,
+          "publicRoute": "/ufc/",
+          "settlementId": "401930357",
+          "sourceAgeHours": 72.53888888888889,
+          "nextDeadlineUtc": "2026-10-21T13:00:00.000Z",
+          "state": "SOURCE_STALE",
+          "reason": "newest capture is 72.5h old against a 72h bound"
         }
       ],
       "conserved": true,
@@ -667,7 +667,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#ipswich-town-v-nottingham-forest-2026-10-23",
           "settlementId": "soccer:epl:ipswich-town-v-nottingham-forest:20261023t1900",
-          "sourceAgeHours": 38.65138888888889,
+          "sourceAgeHours": 39.5925,
           "nextDeadlineUtc": "2026-10-22T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -685,7 +685,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#aston-villa-v-manchester-city-2026-10-24",
           "settlementId": "soccer:epl:aston-villa-v-manchester-city:20261024t1130",
-          "sourceAgeHours": 38.65138888888889,
+          "sourceAgeHours": 39.5925,
           "nextDeadlineUtc": "2026-10-22T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -703,7 +703,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#arsenal-v-everton-2026-10-24",
           "settlementId": "soccer:epl:arsenal-v-everton:20261024t1400",
-          "sourceAgeHours": 38.65138888888889,
+          "sourceAgeHours": 39.5925,
           "nextDeadlineUtc": "2026-10-22T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -721,7 +721,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#coventry-city-v-fulham-2026-10-24",
           "settlementId": "soccer:epl:coventry-city-v-fulham:20261024t1400",
-          "sourceAgeHours": 38.65138888888889,
+          "sourceAgeHours": 39.5925,
           "nextDeadlineUtc": "2026-10-22T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -739,7 +739,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#chelsea-v-tottenham-hotspur-2026-10-24",
           "settlementId": "soccer:epl:chelsea-v-tottenham-hotspur:20261024t1630",
-          "sourceAgeHours": 38.65138888888889,
+          "sourceAgeHours": 39.5925,
           "nextDeadlineUtc": "2026-10-22T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -757,7 +757,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#liverpool-v-brighton-and-hove-albion-2026-10-25",
           "settlementId": "soccer:epl:brighton-hove-albion-v-liverpool:20261025t1400",
-          "sourceAgeHours": 38.65138888888889,
+          "sourceAgeHours": 39.5925,
           "nextDeadlineUtc": "2026-10-22T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -775,7 +775,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#crystal-palace-v-newcastle-united-2026-10-25",
           "settlementId": "soccer:epl:crystal-palace-v-newcastle-united:20261025t1400",
-          "sourceAgeHours": 38.65138888888889,
+          "sourceAgeHours": 39.5925,
           "nextDeadlineUtc": "2026-10-22T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -793,7 +793,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#manchester-united-v-bournemouth-2026-10-25",
           "settlementId": "soccer:epl:bournemouth-v-manchester-united:20261025t1400",
-          "sourceAgeHours": 38.65138888888889,
+          "sourceAgeHours": 39.5925,
           "nextDeadlineUtc": "2026-10-22T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -811,7 +811,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#hull-city-v-brentford-2026-10-25",
           "settlementId": "soccer:epl:brentford-v-hull-city:20261025t1400",
-          "sourceAgeHours": 38.65138888888889,
+          "sourceAgeHours": 39.5925,
           "nextDeadlineUtc": "2026-10-22T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -829,7 +829,7 @@
           "forecastRevision": null,
           "publicRoute": "/epl/#sunderland-v-leeds-united-2026-10-25",
           "settlementId": "soccer:epl:leeds-united-v-sunderland:20261025t1630",
-          "sourceAgeHours": 38.65138888888889,
+          "sourceAgeHours": 39.5925,
           "nextDeadlineUtc": "2026-10-22T21:00:00.000Z",
           "state": "PUBLISHED",
           "reason": "reached a public surface"
@@ -852,8 +852,8 @@
     }
   ],
   "totals": {
-    "events": 36,
+    "events": 35,
     "owed": 0,
-    "findings": 0
+    "findings": 11
   }
 }
