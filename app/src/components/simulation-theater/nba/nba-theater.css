@@ -9,6 +9,12 @@
 .nba-note{margin:6px 0 0;padding:6px 10px;border-left:3px solid var(--vault-warn);background:color-mix(in srgb, var(--vault-warn) 8%, transparent);color:var(--st-text)}
 .nba-h3{margin:12px 0 4px;font:600 13px var(--font-headline)}
 
+/* ── private-candidate banner (integration 2026-10-19): always first, never dismissible; a hatched dashed notice in mono
+   capitals, deliberately unlike the scoreboard (no team fill, no score type, no tabular numerals) ─────────────────────── */
+.nba-private{margin:0 0 8px;padding:8px 12px;border:2px dashed var(--vault-warn);border-radius:8px;
+  background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--vault-warn) 10%, var(--bg)) 0 8px, var(--bg) 8px 16px);
+  font:700 11.5px/1.45 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--st-text);overflow-wrap:anywhere}
+
 /* ── fixture banner: impossible to miss ───────────────────────────────────────────────────────────────── */
 .nba-fixture{display:flex;flex-direction:column;gap:2px;margin:0 0 8px;padding:10px 14px;border-radius:10px;
   border:2px dashed var(--vault-risk);background:color-mix(in srgb, var(--vault-risk) 14%, var(--bg));color:var(--st-text)}

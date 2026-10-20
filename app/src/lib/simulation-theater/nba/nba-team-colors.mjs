@@ -104,7 +104,8 @@ export function clashOf(home, away) {
 
 /** Neutral GTP tokens: the "neutral colours" switch, an unknown team, or no colour data. */
 export const NEUTRAL_NBA_PALETTE = Object.freeze({
-  home: Object.freeze({ fill: "var(--sport-nba, var(--lava-heat))", ink: "var(--bg)", trim: "var(--bg)", court: "var(--lava-heat)", courtInk: "var(--bg)", tint: "color-mix(in srgb, var(--lava-heat) 30%, var(--st-floor-a))", patterned: false }),
+  // --sport-nba is a defined token (globals.css), so no fallback (token-definition.test.mjs: a fallback that can never render)
+  home: Object.freeze({ fill: "var(--sport-nba)", ink: "var(--bg)", trim: "var(--bg)", court: "var(--lava-heat)", courtInk: "var(--bg)", tint: "color-mix(in srgb, var(--lava-heat) 30%, var(--st-floor-a))", patterned: false }),
   away: Object.freeze({ fill: "var(--lava-text-muted)", ink: "var(--bg)", trim: "var(--bg)", court: "var(--lava-text-muted)", courtInk: "var(--bg)", tint: "color-mix(in srgb, var(--lava-text-muted) 30%, var(--st-floor-a))", patterned: false }),
 });
 

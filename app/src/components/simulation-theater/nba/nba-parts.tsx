@@ -8,7 +8,7 @@
  * reading "illustrative". nba-theater.test.mjs fails if any interpolated value renders without it.
  */
 import type { CSSProperties } from "react";
-import { FIXTURE_BANNER, LABEL_TITLES } from "@/lib/simulation-theater/nba/adapter-nba-sim-v1.mjs";
+import { FIXTURE_BANNER, LABEL_TITLES, NBA_PRIVATE_BANNER } from "@/lib/simulation-theater/nba/labels.mjs";
 import { fmtGameClock, statLeaders } from "@/lib/simulation-theater/nba/timeline.mjs";
 import type { NbaCompiled, NbaFrame, NbaManifest, NbaPalette, NbaPlayerLine, NbaSample, NbaSide, NbaTeams } from "./nba-types";
 
@@ -20,6 +20,19 @@ export const ILLUS_TAG = "illustrative";
 export function teamStyle(palette: NbaPalette, side: NbaSide): CSSProperties {
   const p = palette[side];
   return { "--nba-fill": p.fill, "--nba-ink": p.ink, "--nba-trim": p.trim, "--nba-court": p.court, "--nba-tint": p.tint } as CSSProperties;
+}
+
+/**
+ * The PRIVATE CANDIDATE banner (integration 2026-10-19). Always first in the NBA theater, in every state (fixture,
+ * real dev copy, refusal), never dismissible. A hatched, dashed notice in mono capitals: nothing like the scoreboard's
+ * team blocks, so it cannot be read as a live score.
+ */
+export function PrivateCandidateBanner() {
+  return (
+    <p className="nba-private" role="note" aria-label="Private experimental candidate" data-nba-private-banner="">
+      {NBA_PRIVATE_BANNER}
+    </p>
+  );
 }
 
 /** The fixture banner. Rendered whenever the manifest is a fixture; the section refuses to render a fixture without it. */

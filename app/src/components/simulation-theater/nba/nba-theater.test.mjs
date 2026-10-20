@@ -20,6 +20,7 @@ const { default: NbaTheaterIsland } = await import("./NbaTheaterIsland.tsx");
 const { loadNbaTheater, NBA_FIXTURE_SOURCE } = await import("../../../lib/simulation-theater/nba/loader.mjs");
 const { compileTimeline, stateAt } = await import("../../../lib/simulation-theater/nba/timeline.mjs");
 const { FIXTURE_BANNER } = await import("../../../lib/simulation-theater/nba/adapter-nba-sim-v1.mjs");
+const LABELS = await import("../../../lib/simulation-theater/nba/labels.mjs");
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -173,4 +174,61 @@ test("stylesheet: tokens only (no colour literal) and no font under 11px except 
   assert.ok(pxPerFt(860) * 1.3 >= 11 && /@container \(max-width:859px\)\{\.nba-wordmark\.is-sub\{display:none\}\}/.test(css));
   const vars = fs.readFileSync(path.join(APP, "src/components/simulation-theater/nba/nba-theater-css.ts"), "utf8");
   assert.doesNotMatch(vars.replace(/\/\*[\s\S]*?\*\//g, ""), /#[0-9a-fA-F]{3,8}\b|rgba?\(/);
+});
+
+// ── integration 2026-10-19: the persistent PRIVATE CANDIDATE banner, and a client graph that names no private source ──
+const PRIVATE = "EXPERIMENTAL MODEL — PRIVATE CANDIDATE · SIMULATED QUARTER SCORES · NOT A FORECAST";
+
+test("private-candidate banner: exact text, FIRST in the theater for real data, the fixture and every refusal; never dismissible", () => {
+  assert.equal(LABELS.NBA_PRIVATE_BANNER, PRIVATE);
+  const first = (h) => {
+    const i = h.indexOf('data-nba-private-banner=""');
+    assert.ok(i > 0, "banner present");
+    for (const other of ["data-nba-fixture-banner", "Simulation disclosure", "nba-scoreboard", "nba-unavailable", "Representative outcomes"]) {
+      const j = h.indexOf(other);
+      if (j >= 0) assert.ok(i < j, `banner precedes ${other}`);
+    }
+    assert.ok(text(h).includes(PRIVATE));
+  };
+  for (const load of LOADS) first(html(React.createElement(NbaTheaterIsland, { manifest: load.manifest, palettes: load.palettes, fixtureBanner: null })));
+  first(html(React.createElement(NbaTheaterIsland, { manifest: FIX_LOADS[0].manifest, palettes: FIX_LOADS[0].palettes, fixtureBanner: FIXTURE_BANNER })));
+  first(html(React.createElement(NbaTheaterIsland, { manifest: FIX_LOADS[0].manifest, palettes: FIX_LOADS[0].palettes, fixtureBanner: null })));
+  const section = fs.readFileSync(path.join(APP, "src/components/simulation-theater/nba/NbaTheaterSection.tsx"), "utf8");
+  assert.match(section, /<PrivateCandidateBanner \/>\s*<NbaUnavailable/, "the section's refusal state carries it too");
+  const parts = fs.readFileSync(path.join(APP, "src/components/simulation-theater/nba/nba-parts.tsx"), "utf8");
+  const banner = parts.slice(parts.indexOf("export function PrivateCandidateBanner"), parts.indexOf("/** The fixture banner."));
+  assert.ok(banner.length > 50);
+  assert.doesNotMatch(banner, /button|onClick|useState|dismiss/i, "never dismissible");
+  assert.doesNotMatch(banner, /nba-scoreboard|nba-team|st-bug/);
+  // visually distinct from the scoreboard: its own hatched, dashed class, no team fill, no scoreboard numerals
+  const css = fs.readFileSync(path.join(APP, "src/components/simulation-theater/nba/nba-theater.css"), "utf8");
+  const rule = css.match(/\.nba-private\{[^}]*\}/)?.[0] ?? "";
+  assert.match(rule, /dashed/);
+  assert.match(rule, /repeating-linear-gradient/);
+  assert.doesNotMatch(rule, /--nba-fill|--nba-ink|tabular-nums/);
+});
+
+test("the NBA client modules import only client-safe labels: no engine id, artifact name or private data path in the island's graph", () => {
+  const CLIENT = ["NbaTheaterIsland.tsx", "nba-parts.tsx", "NbaCourt.tsx", "nba-gate.ts", "nba-theater-css.ts"].map((f) => path.join(APP, "src/components/simulation-theater/nba", f));
+  const seen = new Set();
+  const stack = [...CLIENT];
+  while (stack.length) {
+    const f = stack.pop();
+    if (seen.has(f)) continue;
+    seen.add(f);
+    for (const m of fs.readFileSync(f, "utf8").matchAll(/^import\s+(type\s+)?[^;]*?from\s+["']([^"']+)["']/gm)) {
+      if (m[1]) continue; // type-only imports are erased
+      const spec = m[2];
+      const base = spec.startsWith("@/") ? path.join(APP, "src", spec.slice(2)) : spec.startsWith(".") ? path.resolve(path.dirname(f), spec) : null;
+      if (!base) continue;
+      const hit = [base, `${base}.tsx`, `${base}.ts`, `${base}.mjs`].find((c) => fs.existsSync(c) && fs.statSync(c).isFile());
+      if (hit) stack.push(hit);
+    }
+  }
+  const rel = [...seen].map((f) => path.relative(APP, f)).sort();
+  assert.ok(!rel.some((f) => /adapter-nba-sim-v1|nba\/loader\.mjs|validate-sample/.test(f)), `client graph: ${rel.join(", ")}`);
+  for (const f of seen) {
+    const src = fs.readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    assert.doesNotMatch(src, /nba-sim-v1-coherent|data\/internal\/research\/nba|experimental-v1/, path.relative(APP, f));
+  }
 });

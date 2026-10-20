@@ -19,13 +19,13 @@ import BottomSheet from "../BottomSheet";
 import NbaCourt from "./NbaCourt";
 import { NBA_THEATER_VARS } from "./nba-theater-css";
 import {
-  BreakCard, DiffTimeline, DisclosureBanner, FIXTURE_BANNER, FixtureBanner, Linescore, ModelFacts, NbaUnavailable, OutcomeChips, PlayerPanel,
+  BreakCard, DiffTimeline, DisclosureBanner, FIXTURE_BANNER, FixtureBanner, Linescore, ModelFacts, NbaUnavailable, OutcomeChips, PlayerPanel, PrivateCandidateBanner,
   Scoreboard, SelectionRules, TotalHistogram,
 } from "./nba-parts";
 import type { NbaCompiled, NbaFrame, NbaLoad, NbaManifest, NbaPalette } from "./nba-types";
 import { SPEEDS, createTransport, transport } from "@/lib/simulation-theater/transport-machine.mjs";
 import { compileTimeline, fmtGameClock, stateAt } from "@/lib/simulation-theater/nba/timeline.mjs";
-import { defaultSampleIndex } from "@/lib/simulation-theater/nba/adapter-nba-sim-v1.mjs";
+import { defaultSampleIndex } from "@/lib/simulation-theater/nba/labels.mjs";
 
 type Tp = { state: string; t: number; tEnd: number; speed: number; driveStarts: number[]; reason: string | null };
 
@@ -177,13 +177,14 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
   }, [manifest.samples]);
 
   if (manifest.fixture && fixtureBanner !== FIXTURE_BANNER) {
-    return <NbaUnavailable title="Refused: test fixture without its banner" reason={`This data is a test fixture. It renders only under the banner "${FIXTURE_BANNER}".`} />;
+    return <><PrivateCandidateBanner /><NbaUnavailable title="Refused: test fixture without its banner" reason={`This data is a test fixture. It renders only under the banner "${FIXTURE_BANNER}".`} /></>;
   }
 
   const teams = manifest.teams;
   const rootStyle = NBA_THEATER_VARS as CSSProperties;
   return (
     <div className="st-root nba-root" style={rootStyle} data-st-colors={palette.mode} data-nba-theater="">
+      <PrivateCandidateBanner />
       {manifest.fixture ? <FixtureBanner text={FIXTURE_BANNER} note={manifest.fixtureNote} /> : null}
       <DisclosureBanner manifest={manifest} sample={sample} />
       {devHooks ? (

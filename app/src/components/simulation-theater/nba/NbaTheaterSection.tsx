@@ -11,7 +11,7 @@ import "./nba-theater.css";
 import type { CSSProperties } from "react";
 import NbaTheaterIsland from "./NbaTheaterIsland";
 import { NBA_THEATER_VARS } from "./nba-theater-css";
-import { NbaUnavailable } from "./nba-parts";
+import { NbaUnavailable, PrivateCandidateBanner } from "./nba-parts";
 import { fixtureGate } from "./nba-gate";
 import type { NbaLoad } from "./nba-types";
 
@@ -20,6 +20,7 @@ export default function NbaTheaterSection({ load, fixtureBanner, devHooks = fals
   if (!gate.ok || !load.manifest || !load.palettes) {
     return (
       <div className="st-root nba-root" style={NBA_THEATER_VARS as CSSProperties}>
+        <PrivateCandidateBanner />
         <NbaUnavailable title={load.manifest?.fixture ? "Refused: test fixture without its banner" : "NBA theater unavailable"} reason={gate.reason ?? "unavailable"} />
       </div>
     );

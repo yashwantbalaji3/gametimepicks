@@ -3,7 +3,7 @@
  * A manifest marked `fixture: true` may render ONLY when the caller passes the exact FIXTURE_BANNER text; the island then
  * always renders that banner above everything else. Any other input is refused (no court, score or player line).
  */
-import { FIXTURE_BANNER } from "@/lib/simulation-theater/nba/adapter-nba-sim-v1.mjs";
+import { FIXTURE_BANNER } from "@/lib/simulation-theater/nba/labels.mjs";
 import type { NbaLoad } from "./nba-types";
 
 export function fixtureGate(load: NbaLoad, fixtureBanner: string | null | undefined): { ok: boolean; reason: string | null } {
