@@ -184,6 +184,20 @@ test("every stamp rule names a build input — a rule for a free file would be d
 /* ── Real committed artifacts (shape drift) ───────────────────────────────────────────────────────── */
 
 const newest = (dir, re) => { try { return fs.readdirSync(path.join(REPO, dir)).filter((f) => re.test(f)).sort().at(-1) ?? null; } catch { return null; } };
+/* The newest day file that actually HAS games. An MLB off day (or the end of the season) commits an empty day file —
+   2026-10-20 has 0 games in all three day families — and the shape-drift check below needs a real row to perturb,
+   so it reads the latest day with one instead of silently checking fewer artifacts. */
+const newestWithRows = (dir, re) => {
+  let files;
+  try { files = fs.readdirSync(path.join(REPO, dir)).filter((f) => re.test(f)).sort().reverse(); } catch { return null; }
+  for (const f of files) {
+    try {
+      const d = JSON.parse(fs.readFileSync(path.join(REPO, dir, f), "utf8"));
+      if ((d.games ?? d.predictions ?? []).length > 0) return f;
+    } catch { /* unreadable → try the previous day */ }
+  }
+  return null;
+};
 
 test("on the newest committed MLB artifacts: re-stamping suppresses, one moved number publishes", () => {
   const cases = [
@@ -194,7 +208,7 @@ test("on the newest committed MLB artifacts: re-stamping suppresses, one moved n
   ];
   let checked = 0;
   for (const [dir, re, perturb] of cases) {
-    const f = newest(dir, re);
+    const f = re.source.startsWith("^\\d{4}") ? newestWithRows(dir, re) : newest(dir, re);
     if (!f) continue;
     const file = `${dir}/${f}`;
     const text = fs.readFileSync(path.join(REPO, file), "utf8");
