@@ -19,8 +19,8 @@
  *       scorers    `anytime_td` p → expected touchdowns λ = −ln(1 − p), split into rushing / receiving λ by the
  *                  player's expected rushing vs receiving yards
  *   2 VOLUME (this run's drives)  plays P = Σ plays. The projection implies E[attempts] = E[receptions] ÷ c and
- *       E[carries] = E[rushing yards] ÷ y (c, y: ALLOCATION_RULES, league constants — allocation parameters, not
- *       forecasts). attempts = round(P × E[att] ÷ (E[att] + E[car])), carries = P − attempts,
+ *       E[carries] = E[rushing yards] ÷ y (c, y: ALLOCATION_RULES — league rates derived from the committed nflverse
+ *       team-game file, allocation parameters, not forecasts; see CONSTANTS_DERIVATION). attempts = round(P × E[att] ÷ (E[att] + E[car])), carries = P − attempts,
  *       completions = min(attempts, round(attempts × c)).
  *   3 YARDS (drive by drive)  a drive with net yards > 0 splits them pass/rush by the projection's yard share
  *       (passing = round(net × share), rushing = the rest). A drive with net yards ≤ 0 is UNATTRIBUTED: a drive-level
@@ -45,15 +45,33 @@
 export const ALLOCATION_VERSION = "nfl-player-allocation@1";
 export const ALLOCATED_LABEL = "Allocated from the official projection";
 export const ALLOCATED_STATUS = "ALLOCATED";
+/** What any UI must say next to allocated rows: they are an allocation of the official projection, not simulated. */
+export const ALLOCATED_DISCLOSURE = "Allocated, not simulated: the official player projection's shares applied to this run's recorded drives.";
 
 /**
- * Allocation parameters (NOT forecasts). League-wide NFL rates, rounded: completion rate ≈ 0.65 and yards per carry
- * ≈ 4.3 over recent regular seasons. They only convert the projection's expected receptions and rushing yards into the
- * pass/run split of this run's recorded plays. Changing them is a new ALLOCATION_VERSION.
+ * Where c and y come from (methodology choice for founder approval — NOT model outputs). League-wide rates over the
+ * 2021–2025 regular seasons of the committed nflverse play-by-play extract data/internal/research/nfl/sim-v2/
+ * team-games-v1.json.gz (scripts/research/nfl/extract_pbp_drives.py; the drive engine's own training data), in box-score
+ * conventions: pass attempts include spikes; carries are designed runs + scrambles + kneels; sacks are neither.
+ * player-allocation.test.mjs recomputes both from that file and fails if they drift.
+ */
+export const CONSTANTS_DERIVATION = Object.freeze({
+  file: "data/internal/research/nfl/sim-v2/team-games-v1.json.gz",
+  seasons: [2021, 2025],
+  seasonType: "REG",
+  completionRate: "Σ cmp ÷ Σ (passAtt + spikes)",
+  yardsPerCarry: "Σ rushYds ÷ Σ (rushAtt + scrambles + kneels)",
+  precision: 4,
+});
+
+/**
+ * Allocation parameters (NOT forecasts): CONSTANTS_DERIVATION over 2,718 team-games (completion rate 0.6462, yards per
+ * carry 4.3861). They only convert the projection's expected receptions and rushing yards into the pass/run split of
+ * this run's recorded plays. Changing them is a new ALLOCATION_VERSION.
  */
 export const ALLOCATION_RULES = Object.freeze({
-  completionRate: 0.65,
-  yardsPerCarry: 4.3,
+  completionRate: 0.6462,
+  yardsPerCarry: 4.3861,
   unattributed: "drives with net yards ≤ 0 (sacks, penalties and losses cannot be told apart in a drive-level record)",
   touchdownWeight: "λ = −ln(1 − anytime_td p), split rushing/receiving by expected rushing vs receiving yards",
   rounding: "largest remainder; ties by playerId",

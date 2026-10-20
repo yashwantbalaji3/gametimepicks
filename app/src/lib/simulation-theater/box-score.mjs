@@ -34,7 +34,7 @@
  * unit test proves the client path (unpacked theater-pack@1) yields a byte-identical box score.
  */
 import { PERIOD_SHORT, fmtDuration, fmtSigned } from "./format.mjs";
-import { ALLOCATED_LABEL, ALLOCATION_VERSION, safeAllocateNflPlayers } from "./player-allocation.mjs";
+import { ALLOCATED_DISCLOSURE, ALLOCATED_LABEL, ALLOCATION_VERSION, safeAllocateNflPlayers } from "./player-allocation.mjs";
 
 export const BOX_SCORE_VERSION = "nfl-box-score@1";
 export const BOX_SCORE_WATERMARK = "SIMULATED · PROJECTED · NOT ACTUAL GAME STATISTICS";
@@ -359,7 +359,7 @@ function allocatedSections(a) {
     if (!ALLOCATED_COLUMNS[p.id]) return { ...p };
     const side = (s) => ({ abbr: a.teams[s].team.abbr, rows: a.teams[s].lines[p.id].map((r) => ({ ...r })) });
     return {
-      id: p.id, label: p.label, status: STATUS.ALLOCATED, reason: null, note: ALLOCATED_LABEL,
+      id: p.id, label: p.label, status: STATUS.ALLOCATED, reason: null, note: ALLOCATED_LABEL, disclosure: ALLOCATED_DISCLOSURE,
       columns: ALLOCATED_COLUMNS[p.id].map(([key, label]) => ({ key, label })),
       away: side("away"), home: side("home"),
     };
@@ -372,6 +372,7 @@ function allocationSummary(a) {
     ok: true,
     version: a.version,
     label: a.label,
+    disclosure: ALLOCATED_DISCLOSURE,
     snapshotId: a.snapshotId,
     officialSources: a.officialSources,
     rules: a.rules,

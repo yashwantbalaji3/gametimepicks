@@ -10,13 +10,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import zlib from "node:zlib";
 
 import { adaptReceipt } from "./adapter-nfl-sim-v2.mjs";
 import { adaptAllReceipts, nflTheaterOfficial, loadTheater } from "./loader.mjs";
 import { packTheater, unpackTheater } from "./theater-pack.mjs";
 import {
-  ALLOCATED_LABEL, ALLOCATED_STATUS, ALLOCATION_ERROR_KIND, ALLOCATION_RULES, ALLOCATION_VERSION, allocateNflPlayers, apportion,
-  safeAllocateNflPlayers,
+  ALLOCATED_DISCLOSURE, ALLOCATED_LABEL, ALLOCATED_STATUS, ALLOCATION_ERROR_KIND, ALLOCATION_RULES, ALLOCATION_VERSION, CONSTANTS_DERIVATION,
+  allocateNflPlayers, apportion, safeAllocateNflPlayers,
 } from "./player-allocation.mjs";
 import { CATEGORY_GROUPS, PLAYER_SECTIONS, STATUS, nflBoxScore } from "./box-score.mjs";
 import { nflAllocatedLineInvariants } from "../consistency/checks.mjs";
@@ -62,6 +63,20 @@ test("apportion: exact totals, largest remainder, ties by id, caps honoured, ref
     const items = [{ id: "x", w: 0.37 }, { id: "y", w: 2.2 }, { id: "z", w: 1 / 3, cap: Math.floor(n / 4) }];
     assert.equal([...apportion(n, items).values()].reduce((a, b) => a + b, 0), n);
   }
+});
+
+/* ───────────────────────────── the two allocation constants ───────────────────────────── */
+
+test("the two constants are recomputed from the committed nflverse team-game file (2021–2025 REG, box-score conventions)", () => {
+  const D = CONSTANTS_DERIVATION;
+  const games = JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(REPO, D.file))).toString("utf8"))
+    .filter((g) => g.s >= D.seasons[0] && g.s <= D.seasons[1] && g.st === D.seasonType);
+  const S = (k) => games.reduce((a, g) => a + (g[k] ?? 0), 0);
+  assert.equal(games.length, 2718, "five regular seasons of team-games");
+  assert.equal(S("passAtt") + S("spikes") + S("rushAtt") + S("scrambles") + S("kneels") + S("sacks"), S("plays"), "every scrimmage play is an attempt, a carry or a sack");
+  const round = (x) => Number(x.toFixed(D.precision));
+  assert.equal(ALLOCATION_RULES.completionRate, round(S("cmp") / (S("passAtt") + S("spikes"))));
+  assert.equal(ALLOCATION_RULES.yardsPerCarry, round(S("rushYds") / (S("rushAtt") + S("scrambles") + S("kneels"))));
 });
 
 /* ───────────────────────────── every committed receipt ───────────────────────────── */
@@ -121,6 +136,7 @@ test("EVERY validated run of every committed sim-v2 receipt: allocated lines rec
         if (["passing", "rushing", "receiving"].includes(p.id)) {
           assert.equal(p.status, STATUS.ALLOCATED);
           assert.equal(p.note, ALLOCATED_LABEL);
+          assert.equal(p.disclosure, ALLOCATED_DISCLOSURE, "allocated, not simulated");
         } else assert.equal(p.status, STATUS.NOT_MODELED, `${p.id} stays not modeled`);
       }
       for (const c of box.categories.filter((x) => x.status === STATUS.ALLOCATED)) assert.equal(c.group, ALLOCATED_LABEL);
@@ -149,12 +165,13 @@ test("401873008 run #48 (WSH 20–30 SF): the worked example, pinned", () => {
   assert.deepEqual(A.officialSources.map((x) => x.path), ["data/internal/nfl/forecast-receipts/2026-10-20/401873008-rev-0007Z.json", "app/public/data/nfl/player-board/401873008.json"]);
   const pick = (t) => [t.plays, t.attempts, t.completions, t.carries, t.netYards, t.passYds, t.rushYds, t.unattributedYds];
   assert.deepEqual(pick(A.teams.away), [63, 42, 27, 21, 378, 273, 107, -2]);
-  assert.deepEqual(pick(A.teams.home), [51, 28, 18, 23, 446, 308, 139, -1]);
+  assert.deepEqual(pick(A.teams.home), [51, 29, 19, 22, 446, 308, 139, -1]);
   assert.deepEqual(A.teams.away.unattributedDrives, [{ drive: 15, netYards: -2 }]);
   const sec = (id, side) => box.players.find((p) => p.id === id)[side].rows;
-  assert.deepEqual(sec("passing", "home"), [{ playerId: "nfl-athlete-4361741", name: "Brock Purdy", att: 28, cmp: 18, yds: 308, td: 3 }]);
+  assert.deepEqual(sec("passing", "home"), [{ playerId: "nfl-athlete-4361741", name: "Brock Purdy", att: 29, cmp: 19, yds: 308, td: 3 }]);
   assert.deepEqual(sec("passing", "away"), [{ playerId: "nfl-athlete-4426348", name: "Jayden Daniels", att: 42, cmp: 27, yds: 273, td: 2 }]);
-  assert.deepEqual(sec("rushing", "home")[0], { playerId: "nfl-athlete-3117251", name: "Christian McCaffrey", car: 11, yds: 65, td: 1 });
+  assert.deepEqual(sec("rushing", "home")[0], { playerId: "nfl-athlete-3117251", name: "Christian McCaffrey", car: 10, yds: 65, td: 1 });
+  assert.match(box.allocation.disclosure, /^Allocated, not simulated/);
   assert.deepEqual(A.touchdowns.map((x) => [x.drive, x.side, x.type, x.scorerId, x.passerId]), [
     [4, "home", "RUSH", "nfl-athlete-3117251", null], // McCaffrey
     [8, "home", "REC", "nfl-athlete-16737", "nfl-athlete-4361741"], // Evans from Purdy

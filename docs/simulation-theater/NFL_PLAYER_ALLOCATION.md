@@ -39,7 +39,7 @@ All steps run per team.
    - attempts = round(P × E[att] ÷ (E[att] + E[car])).
    - carries = P − attempts.
    - completions = min(attempts, round(attempts × c)).
-   - c = 0.65 and y = 4.3 (`ALLOCATION_RULES`) are rounded league-wide rates. They are allocation parameters, not forecasts, and changing them requires a new version.
+   - c = 0.6462 and y = 4.3861 (`ALLOCATION_RULES`) are league-wide rates derived from committed data; see "Where the two constants come from" below. They are allocation parameters, not forecasts, and changing them requires a new version.
 3. **Yards, drive by drive.**
    - A drive with net yards > 0 is split. Passing gets round(net × the projection's passing-yard share), and rushing gets the rest.
    - A drive with net yards ≤ 0 is **unattributed**: a drive-level record cannot tell a sack, a penalty or a loss apart.
@@ -56,6 +56,28 @@ All steps run per team.
    - Tries (XP and two-point), defensive and special-teams scores, kicking, and defense stay team-level or `NOT_MODELED`.
 
 The rule is deterministic per (receipt, runIndex): it uses no randomness and no clock. The server table and the client dialog (unpacked `theater-pack@1`) produce byte-identical output.
+
+## Where the two constants come from (for founder approval)
+
+The two constants are a **methodology choice, not model outputs**. They decide how a run's plays are split into pass attempts and carries, and how many attempts are completions, so they show up directly in every allocated player line. Everything else in the allocation comes from the official projection or from the run's recorded drives.
+
+| Constant | Value | Formula |
+|---|---|---|
+| Completion rate c | 0.6462 | Σ completions ÷ Σ (pass attempts + spikes) |
+| Yards per carry y | 4.3861 | Σ rushing yards ÷ Σ (designed runs + scrambles + kneels) |
+
+- **Source.** The committed nflverse play-by-play extract `data/internal/research/nfl/sim-v2/team-games-v1.json.gz`, built by `scripts/research/nfl/extract_pbp_drives.py` (nflverse, CC BY 4.0). It is the same data the sim-v2 drive engine was trained on.
+- **Window.** The 2021–2025 regular seasons: 2,718 team-games, the five most recent complete seasons.
+- **Conventions.** Box-score conventions: spikes count as pass attempts; scrambles and kneels count as carries; sacks are neither. In this file every scrimmage play is exactly one of attempt, carry or sack.
+- **Rounding.** Four decimals. `CONSTANTS_DERIVATION` in the code records the file, window and formulas, and `player-allocation.test.mjs` recomputes both values from the file and fails if they drift.
+- **Sensitivity.** The full 2015–2025 window gives c = 0.6407 and y = 4.3357. With those values, run #48 below is unchanged: the same attempts, completions and carries for both teams.
+- **Sacks.** About 2.4 sacks per team-game are in a drive's play count but are neither attempts nor carries. The allocation spreads them over attempts and carries in proportion, and any yards they lose on a drive with net yards ≤ 0 are left unattributed.
+
+## Labelling in any UI
+
+- Allocated rows carry the status `ALLOCATED` and the label "Allocated from the official projection".
+- Every allocated section and the box score's `allocation` block also carry `disclosure` (`ALLOCATED_DISCLOSURE`), which reads "Allocated, not simulated: the official player projection's shares applied to this run's recorded drives."
+- Any UI that renders these rows must show that disclosure next to them, and must never present them as Modeled, Derived or simulated.
 
 ## Reconciliations
 
@@ -105,12 +127,12 @@ Official sources: `data/internal/nfl/forecast-receipts/2026-10-20/401873008-rev-
 | Team | Plays | Att | Cmp | Car | Net yds | Pass | Rush | Unattributed |
 |---|---|---|---|---|---|---|---|---|
 | WSH | 63 | 42 | 27 | 21 | 378 | 273 | 107 | −2 (drive 15) |
-| SF | 51 | 28 | 18 | 23 | 446 | 308 | 139 | −1 (drive 18) |
+| SF | 51 | 29 | 19 | 22 | 446 | 308 | 139 | −1 (drive 18) |
 
-- **Passing.** Purdy 18/28, 308 yds, 3 TD. Daniels 27/42, 273 yds, 2 TD.
-- **Rushing (SF).** McCaffrey 11–65, 1 TD. Black 5–29. Purdy 4–26. James 2–10. Mac Jones 1–9.
+- **Passing.** Purdy 19/29, 308 yds, 3 TD. Daniels 27/42, 273 yds, 2 TD.
+- **Rushing (SF).** McCaffrey 10–65, 1 TD. Black 5–29. Purdy 4–26. James 2–10. Mac Jones 1–9.
 - **Rushing (WSH).** Daniels 8–42. White 5–26. Ekeler 3–17. Kaliakmanis 3–13. McNichols 2–9.
-- **Receiving (SF).** Evans 4/6, 78 yds, 1 TD. Kittle 3/5, 64 yds, 1 TD. McCaffrey 3/4, 44 yds. Pearsall 2/4, 37 yds. Tonges 1/1, 31 yds. Aiyuk 3/5, 25 yds, 1 TD. Juszczyk 1/2, 16 yds. Cooks 1/1, 13 yds.
+- **Receiving (SF).** Evans 4/6, 78 yds, 1 TD. Kittle 4/5, 64 yds, 1 TD. McCaffrey 3/5, 44 yds. Pearsall 2/4, 37 yds. Tonges 1/1, 31 yds. Aiyuk 3/5, 25 yds, 1 TD. Juszczyk 1/2, 16 yds. Cooks 1/1, 13 yds.
 - **Receiving (WSH).** McLaurin 5/8, 57 yds, 1 TD. Diggs 5/8, 49 yds, 1 TD. Okonkwo 4/6, 36 yds. Williams 3/5, 34 yds. Burks 2/4, 27 yds. Brown 2/3, 21 yds. McNichols 2/3, 17 yds. White 2/3, 17 yds. Ekeler 2/2, 15 yds.
 - **Touchdowns by drive.**
   - Drive 4: McCaffrey rush.
@@ -124,7 +146,7 @@ Official sources: `data/internal/nfl/forecast-receipts/2026-10-20/401873008-rev-
 ## Limits (read before showing it)
 
 - These lines are an **allocation**, not a simulation of players. Within a run, each player's share is the projection's share. The variation from run to run comes only from the drives.
-- The completion rate is the constant c in every run.
+- The completion rate is the constant c in every run (rounded to whole completions).
 - Attempts include sacks and scrambles, and carries include kneels. The drive record cannot separate them.
 - The Theater UI does not pass the snapshot yet, so the dev-route dialog still shows `NOT_MODELED` rows. Wiring it up needs the official snapshot on the manifest, row rendering in `BoxScoreTable.tsx`, and updated e2e expectations.
 - The NFL Theater stays non-public until the drive engine is re-anchored to the official forecast. This layer adds no flag.
