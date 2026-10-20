@@ -79,7 +79,9 @@ export default function NflSimulationV2Page({ params }: { params: { eventId: str
   const r = rec.receipt;
   const gameHref = `/nfl/game/${params.eventId}/`;
   return (
-    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden">
+    // overflow-x: clip (not hidden) where supported: hidden makes this shell a scroll container, which pins the
+    // replay's sticky score bug to the shell instead of the viewport on phones; clip trims the same overflow without that.
+    <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden supports-[overflow:clip]:overflow-x-clip">
       <p className="font-mono" style={{ fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--vault-text-faint)", margin: 0 }}>
         <Link href="/nfl/">NFL</Link> · <Link href={gameHref}>{r.away.abbr} @ {r.home.abbr}</Link> · Simulation
       </p>

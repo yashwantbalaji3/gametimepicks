@@ -184,12 +184,20 @@ for (const [w, h] of WIDTHS) {
     const bb = (await badge.boundingBox())!;
     expect(bb.x).toBeGreaterThanOrEqual(0);
     expect(bb.x + bb.width).toBeLessThanOrEqual(w + 0.5);
-    // nothing inside the theater is wider than the viewport or clipped off its right edge
+    // nothing inside the theater is wider than the viewport or clipped off its right edge. The follow camera layer
+    // (.st-cam) is deliberately larger than its frame when zoomed; it is exempt only because the frame clips it, which
+    // is asserted here so the exemption cannot hide a real overflow.
+    const frame = await page.evaluate(() => { const f = document.querySelector(".st-fieldwrap")!; return { overflow: getComputedStyle(f).overflow, right: f.getBoundingClientRect().right }; });
+    expect(frame.overflow, "the field frame clips the camera layer").toBe("hidden");
+    expect(frame.right).toBeLessThanOrEqual(w + 1);
     const clipped = await page.evaluate((vw) => [...document.querySelectorAll(".st-root *")]
-      .filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && cs.visibility !== "hidden" && r.right > vw + 1 && !el.closest(".st-chips,.st-scroll,svg"); })
+      .filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && cs.visibility !== "hidden" && r.right > vw + 1 && !el.closest(".st-chips,.st-scroll,svg,.st-cam"); })
       .map((el) => `${el.tagName}.${(el as HTMLElement).className}`).slice(0, 5), w);
     expect(clipped).toEqual([]);
-    // target sizes: every control in the theater except the timeline's segments (one composite tab stop, spec S9)
+    // target sizes: every control in the theater except the timeline's segments (one composite tab stop, spec S9),
+    // measured once finite entrance animations have settled (under parallel load a row was caught mid-animation)
+    await page.locator(".st-root").first().evaluate((el) => Promise.all(el.getAnimations({ subtree: true })
+      .filter((a) => Number.isFinite(Number(a.effect?.getComputedTiming().endTime))).map((a) => a.finished.catch(() => undefined))));
     const small = await page.evaluate(() => [...document.querySelectorAll(".st-root button, .st-root a[href], .st-root input:not([type=checkbox]), .st-root summary")]
       .filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && !el.closest("[data-st-timeline]") && (r.width < 44 || r.height < 44); })
       .map((el) => `${el.tagName}.${(el as HTMLElement).className} ${Math.round(el.getBoundingClientRect().width)}×${Math.round(el.getBoundingClientRect().height)}`));
@@ -567,6 +575,8 @@ test("390 px: the camera defaults to the full field; Follow stays bounded; reduc
   expect(sw).toBeLessThanOrEqual(390);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await open(page, { run: F.run, t: F.t.mid });
+  // the camera choice lasts only for the page view (nothing stored), so choose Follow again after the reload
+  await page.getByRole("radio", { name: "Follow" }).click();
   await expect(page.getByRole("radio", { name: "Follow" })).toHaveAttribute("aria-checked", "true");
   expect((await camTransform(page)).tf).toBe("none");
   await expect(page.locator(".st-camnote")).toHaveText("Reduced motion: the field stays fully framed");
@@ -607,7 +617,8 @@ test("score bug: the drive strip shows recorded totals at the reference drive's 
   await expect(page.locator(".st-bug-sit-tag")).toHaveText("recorded");
   await open(page, { run: F.run, t: F.t.mid });
   await expect(page.locator(".st-bug-sit")).toHaveAttribute("data-st-situation", "progress");
-  await expect(page.locator(".st-bug-sit-tag")).toHaveText("illustrative");
+  // scoped to the drive situation: a mid-drive quarter rollover adds its own "mid-drive · timing illustrative" tag
+  await expect(page.locator(".st-bug-sit .st-bug-sit-tag")).toHaveText("illustrative");
   await expect(page.locator(".st-bug-sit-yds")).toHaveText(/^≈−?\d+ yds?$/);
   expect(await page.locator(".st-bug").innerText()).not.toMatch(/\b(1st|2nd|3rd|4th)\s*&|down and/i);
 });
@@ -735,6 +746,8 @@ for (const [w, h] of [[1440, 900], [390, 844], [320, 640]] as const) {
       // it is a labelled region, never a live region, and it never takes focus on its own
       expect(await card.getAttribute("aria-live")).toBeNull();
       expect(await card.evaluate((el) => el.contains(document.activeElement))).toBe(false);
+      // measure the settled card: its entrance animation (st-card-in) scales it from 0.98
+      await card.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)));
       const cb = (await card.boundingBox())!;
       expect(cb.x).toBeGreaterThanOrEqual(0);
       expect(cb.x + cb.width).toBeLessThanOrEqual(w + 0.5);
