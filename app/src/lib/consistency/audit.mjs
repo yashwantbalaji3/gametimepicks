@@ -29,7 +29,7 @@ import {
   postLockRewrites, projectionMismatches, scenarioLeaks, surfaceVersionMix, unqualifiedAsQualified, versionMixFromSources, worldModelWorldInvariants,
 } from "./checks.mjs";
 import { staticScan } from "./static-scan.mjs";
-import { MARKET_KEY, gameView, topBoards } from "../sports/nfl/forecast-view.mjs";
+import { MARKET_KEY, boardTabs, gameView, topBoards } from "../sports/nfl/forecast-view.mjs";
 import { loadForecastViews } from "../sports/nfl/forecast-view-load.mjs";
 import { readWorldModelArtifacts } from "../sports/nfl/world-model-v2/read.mjs";
 import { readShadowReceipts, simulationOfRecord } from "../sports/nfl/sim-v2/public-receipt.mjs";
@@ -154,7 +154,9 @@ function auditNflEvent(ctx, id) {
   out.push(...versionMixFromSources({
     snapshot,
     displayed: {
-      SUPPORTING_SIMULATION: wmDisplayed ? ["nfl-game-page", "nfl-top-boards"] : [],
+      // founder decision 2026-10-20: World Model V2 renders only on the game page, as a labelled supporting block
+      // (never on the Top boards); a stale input is still a displayed stale input until the producer rebuilds it.
+      SUPPORTING_SIMULATION: wmDisplayed ? ["nfl-game-page.supporting-simulation"] : [],
       SHADOW: simRec?.showable ? ["nfl-simulation-v2", "simulation-theater"] : [],
       OFFICIAL: ["nfl-player-board"],
     },
@@ -171,8 +173,11 @@ function auditNflEvent(ctx, id) {
     }));
   }
 
-  /* 3 · the game page view, built by the page's own logic on the official record + WMv2 + board */
-  const view = gameView({ forecast: snapshot && receipts.find((r) => r.file === recordPath).receipt, world: wmDisplayed ? wm?.doc : null, board: board.doc });
+  /* 3 · the game page view — exactly what the page renders when the event is in the public forecast copy (the loader's
+     own view, with the snapshot it built from that copy); otherwise the page's logic on the receipt of record + this
+     snapshot + WMv2 + board. */
+  const pub = ctx.publicViews.get(id);
+  const view = pub ?? gameView({ forecast: receipts.find((r) => r.file === recordPath).receipt, world: wmDisplayed ? wm?.doc : null, board: board.doc, official: snapshot });
   const playerPairs = [];
   const missing = [];
   const viewFamilies = {};
@@ -180,7 +185,7 @@ function auditNflEvent(ctx, id) {
   for (const row of view.players) {
     for (const [vf, e] of Object.entries(row.families)) {
       const fam = MARKET_KEY[vf];
-      viewFamilies[fam] = e.source === "worldModel" ? snapshot.sources.find((s) => s.role === "SUPPORTING_SIMULATION")?.modelVersion ?? "nfl-world-model-v2" : snapshot.modelVersions.players[fam];
+      viewFamilies[fam] = e.source === "worldModel" ? snapshot.sources.find((s) => s.role === "SUPPORTING_SIMULATION")?.modelVersion ?? "nfl-world-model-v2" : e.modelVersion ?? snapshot.modelVersions.players[fam];
       legs.push({ subjectId: row.playerId, label: row.name, family: fam, sourceRole: e.source === "worldModel" ? "SUPPORTING_SIMULATION" : "OFFICIAL", source: e.source });
       const o = official(row.playerId, fam);
       if (!o) { missing.push({ subjectId: row.playerId, label: row.name, family: fam, field: "noOfficialCounterpart", expected: 0, actual: 1 }); continue; }
@@ -198,8 +203,24 @@ function auditNflEvent(ctx, id) {
   }));
   if (view.simulation) {
     const sw = view.simulation;
+    /* A supporting simulation is allowed to differ from the official numbers ONLY when it is labelled as such (role,
+       the shared label, not official, not graded) and carries the revision notice whenever its input is not the
+       record's. Labelled ⇒ its differences are recorded as WARN under its own surface; unlabelled ⇒ ERROR, as before. */
+    const labelled = sw.role === "SUPPORTING_SIMULATION" && typeof sw.label === "string" && /not the official projection/.test(sw.label) && sw.official === false && sw.graded === false;
+    const supAligned = snapshot.sources.find((x) => x.role === "SUPPORTING_SIMULATION")?.alignedWithOfficial;
+    const noticeOk = supAligned !== false || (typeof sw.revisionNotice === "string" && sw.revisionNotice.length > 0);
+    if (!labelled || !noticeOk) {
+      out.push(discrepancy({
+        code: CODES.SCENARIO_LEAK, severity: SEVERITY.ERROR, snapshot, surface: "nfl-game-page.simulation",
+        identity: { subjectId: id, family: "game", field: !labelled ? "supportingLabel" : "revisionNotice" }, sources: [wm.path],
+        expected: !labelled ? "labelled SUPPORTING_SIMULATION" : "older-revision notice", actual: !labelled ? (sw.role ?? null) : null,
+        correction: "World Model V2 renders only inside its labelled supporting block, with the older-revision notice when its input hash is not the record's.", owner: OWNERS.forecastView,
+      }));
+    }
     out.push(...projectionMismatches({
-      snapshot, surface: "nfl-game-page.simulation", sources: [recordPath, wm.path], owner: OWNERS.worldModel,
+      snapshot, surface: labelled && noticeOk ? "nfl-game-page.supporting-simulation" : "nfl-game-page.simulation", sources: [recordPath, wm.path], owner: OWNERS.worldModel,
+      severity: labelled && noticeOk ? SEVERITY.WARN : SEVERITY.ERROR,
+      detail: labelled && noticeOk ? "shown only as a labelled supporting simulation (not the official projection, not graded)" : null,
       pairs: [
         { subjectId: id, family: "game", field: "pHome", expected: snapshot.game.pHome, actual: sw.winProbability?.home, tolerance: TOLERANCE.fourDp },
         { subjectId: id, family: "game", field: "marginMedian", expected: snapshot.game.margin.median, actual: sw.margin?.median, tolerance: TOLERANCE.wholeNumber },
@@ -214,7 +235,6 @@ function auditNflEvent(ctx, id) {
   }
 
   /* 4 · the public forecast copy (what /nfl and the game page actually read today) */
-  const pub = ctx.publicViews.get(id);
   if (pub) {
     const r = pub.record;
     out.push(...projectionMismatches({
@@ -233,14 +253,17 @@ function auditNflEvent(ctx, id) {
 
   /* 5 · /nfl Top boards — the same rows, ranked (only meaningful before kickoff) */
   const tb = topBoards([view], { now: snapshot.generatedAt, size: 10 });
+  const tbTabs = boardTabs(tb.boards);
   const tbLegs = []; const tbPairs = []; const tbRows = [];
   for (const [vf, b] of Object.entries(tb.boards)) {
     const fam = MARKET_KEY[vf];
+    // what the list SAYS it is: a family labelled as an estimate (forecast-view ESTIMATE_NOTE) is not presented as qualified
+    const presentedAs = tbTabs.families.find((x) => x.key === vf)?.estimate ? "ESTIMATE" : "QUALIFIED";
     for (const r of b.rows) {
       const o = official(r.playerId, fam);
       tbLegs.push({ subjectId: r.playerId, label: r.name, family: fam, sourceRole: r.entry.source === "worldModel" ? "SUPPORTING_SIMULATION" : "OFFICIAL", source: r.entry.source });
       if (o) tbPairs.push({ subjectId: r.playerId, label: r.name, family: fam, field: "headline", expected: officialHeadline(fam, o), actual: r.entry.value });
-      tbRows.push({ subjectId: r.playerId, label: r.name, family: fam, presentedAs: "QUALIFIED", qualified: !!o && o.state === "PUBLISHED", reasons: !o ? ["NOT_IN_OFFICIAL_SNAPSHOT"] : o.state !== "PUBLISHED" ? [`FAMILY_${o.state}`] : [] });
+      tbRows.push({ subjectId: r.playerId, label: r.name, family: fam, presentedAs, qualified: !!o && o.state === "PUBLISHED", reasons: !o ? ["NOT_IN_OFFICIAL_SNAPSHOT"] : o.state !== "PUBLISHED" ? [`FAMILY_${o.state}`] : [] });
     }
   }
   out.push(...projectionMismatches({ snapshot, surface: "nfl-top-boards", sources: [boardPath, wm?.path].filter(Boolean), pairs: tbPairs, owner: OWNERS.forecastView, detail: "founder decision 2026-10-20: the player board is the official player source", correction: "Rank by the board's official projection; World Model V2 stays clearly labelled as a supporting simulation." }));

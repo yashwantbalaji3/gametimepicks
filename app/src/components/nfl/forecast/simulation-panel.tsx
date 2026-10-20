@@ -1,7 +1,9 @@
 /**
- * SIMULATED GAME OUTCOMES — World Model V2's worlds for this game, counted. The scores in these worlds are drawn
- * from the forecast of record's own margin and total, so the ranges agree with the hero; the win share is a count of
- * the worlds and can differ from the forecast's win chance (which comes from a separate rating) — stated once, here.
+ * SUPPORTING SIMULATION — World Model V2's worlds for this game, counted (founder decision 2026-10-20: World Model V2
+ * is a labelled supporting simulation, never the official projection, not graded). The block carries the one shared
+ * label (forecast-view.mjs SUPPORTING_LABEL), its version, the forecast input hash it was built from, and — when that
+ * is not the forecast of record's — the "older forecast revision" notice. Its win share is a count of the worlds and
+ * can differ from the forecast's win chance (which comes from a separate rating) — stated once, here.
  */
 import { Histogram } from "@/components/distribution-chart";
 
@@ -21,12 +23,13 @@ export default function SimulationPanel({ sim, away, home, recordWinHome }: { si
   const diffPts = Math.round((w.home - recordWinHome) * 1000) / 10;
   const teams: Array<[string, any]> = [[away, sim.teams.away], [home, sim.teams.home]];
   return (
-    <section id="simulation" className="nf-section" aria-labelledby="nf-sim-h" data-source="world-model-v2">
-      <p className="nf-eyebrow">World Model V2 · {sim.runs.toLocaleString("en-US")} simulated games</p>
+    <section id="simulation" className="nf-section" aria-labelledby="nf-sim-h" data-source="world-model-v2" data-role="supporting-simulation">
+      <p className="nf-eyebrow" data-supporting-label="">{sim.label}</p>
       <h2 id="nf-sim-h" className="nf-h2">Simulated game outcomes</h2>
       <p className="nf-sub">
-        Each simulated game is complete and consistent: the final score, the scoring plays, both offenses and every player line belong to the same game.
+        World Model V2 {sim.version} · {sim.runs.toLocaleString("en-US")} simulated games · forecast input {sim.inputHash ?? "not recorded"}. The official win chance, score and player projections are the ones above; these simulated games are a supporting view.
       </p>
+      {sim.revisionNotice ? <p className="nf-withheld" role="note" data-revision-notice="">{sim.revisionNotice}</p> : null}
       <div className="nf-card" style={{ marginTop: 12 }}>
         <p className="nf-eyebrow">Who won the simulated games</p>
         <div className="nf-split" style={{ marginTop: 8 }} role="img" aria-label={`${away} won ${pct(w.away)}, ${home} won ${pct(w.home)}, tied ${pct(w.tie)}`}>
