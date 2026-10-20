@@ -334,6 +334,19 @@ export const NBA_COMPOSITION = Object.freeze({
   supporting: "v1 nba-sim-v1-coherent — SUPPORTING_SIMULATION, never merged",
 });
 /**
+ * NBA TOP-BOARD ROLES (founder decision 2026-10-20: "Retain the v1 Top 10 research board, but relabel it clearly as an
+ * NBA v1 Challenger — Research Only. Remove any possibility that its numbers appear as official predictions, Top
+ * Picks or product recommendations."). Only the OFFICIAL family may feed a board that shows official numbers; a
+ * CHALLENGER_RESEARCH_ONLY board is a private research artifact (preview route only, never a product source). A board
+ * of any family not listed here is a model-version mix (audit ERROR).
+ */
+export const NBA_BOARD_ROLE = Object.freeze({ OFFICIAL: "OFFICIAL", CHALLENGER_RESEARCH_ONLY: "CHALLENGER_RESEARCH_ONLY" });
+export const NBA_BOARD_ROLES = Object.freeze({
+  [NBA_OFFICIAL_FAMILY]: Object.freeze({ role: NBA_BOARD_ROLE.OFFICIAL, label: "NBA official experimental projections (v0.1)" }),
+  [NBA_SUPPORTING_FAMILY]: Object.freeze({ role: NBA_BOARD_ROLE.CHALLENGER_RESEARCH_ONLY, label: "NBA v1 Challenger — Research Only", decidedBy: "founder 2026-10-20" }),
+});
+
+/**
  * v0's draws are not whole numbers (a points median of 21.38): counting stats are read as the law of an integer by the
  * evaluator's continuity rule (market-evaluator.mjs), exactly as NFL yards are; minutes are genuinely continuous.
  */
