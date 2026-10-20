@@ -319,7 +319,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
         </>
       )}
 
-      <BottomSheet open={sheet === "outcomes"} title="Representative outcomes" onClose={() => setSheet(null)}>
+      <BottomSheet open={sheet === "outcomes"} title="Representative outcomes" onClose={() => setSheet(null)} vars={NBA_THEATER_VARS}>
         <p className="nba-fine" style={{ margin: "0 0 8px" }}>Each is one real draw from this run, picked by the rule shown.</p>
         <OutcomeChips manifest={manifest} selected={sampleIndex} onSelect={selectSample} idBase={`${uid}-s`} vertical />
       </BottomSheet>

@@ -107,6 +107,13 @@ async function reopen(page: Page, at: At) {
   await open(page, at);
 }
 const root = (page: Page) => page.locator(".st-root[data-st-ready]");
+/** The open dialog is drawn on top along its bottom edge: nothing (e.g. the site's bottom navigation) covers it. */
+const dialogOnTopAtBottom = (page: Page) => page.evaluate(() => {
+  const d = document.querySelector("[role=dialog]")!;
+  const r = d.getBoundingClientRect();
+  const y = Math.min(r.bottom, innerHeight) - 12;
+  return [0.25, 0.5, 0.75].every((fx) => { const hit = document.elementFromPoint(r.left + r.width * fx, y); return Boolean(hit && d.contains(hit)); });
+});
 const bugText = (page: Page) => page.locator(".st-bug").innerText();
 
 test("loads with no console errors; the island replaces the static shell; IDLE (no autoplay)", async ({ page }) => {
@@ -351,6 +358,7 @@ test("390 px: bottom sheets are modal dialogs that pause playback, trap focus, c
   await expect(dlg).toBeVisible();
   await expect(dlg).toHaveAttribute("aria-modal", "true");
   await expect(root(page)).toHaveAttribute("data-st-state", "PAUSED");
+  expect(await dialogOnTopAtBottom(page), "the sheet is drawn above the site's bottom navigation").toBe(true);
   for (let i = 0; i < 12; i++) {
     await page.keyboard.press("Tab");
     expect(await page.evaluate(() => Boolean(document.activeElement?.closest("[role=dialog]")))).toBe(true);
@@ -1049,6 +1057,7 @@ test.describe("projected box score", () => {
         expect(b.y, `${w}: centred modal`).toBeGreaterThan(0);
         expect(b.y + b.height).toBeLessThan(h);
       }
+      expect(await dialogOnTopAtBottom(page), `${w}: nothing (the site's bottom navigation) covers the dialog`).toBe(true);
       const ov = await page.evaluate(() => {
         const body = document.querySelector("[role=dialog] .st-sheet-body") as HTMLElement;
         return { sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, bsw: body.scrollWidth, bcw: body.clientWidth };

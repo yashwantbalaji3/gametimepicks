@@ -67,6 +67,13 @@ for (const [w, h] of WIDTHS) {
     expect(box.width).toBeLessThanOrEqual(w + 0.5);
     if (w < 720) expect(Math.round(box.width)).toBe(w);
     else expect(box.width).toBeLessThanOrEqual(1040.5);
+    // drawn on top along its bottom edge: the site's bottom navigation (phones) never covers it
+    expect(await page.evaluate(() => {
+      const el = document.querySelector('[role="dialog"][data-nba-boxscore]')!;
+      const r = el.getBoundingClientRect();
+      const y = Math.min(r.bottom, innerHeight) - 12;
+      return [0.25, 0.5, 0.75].every((fx) => { const hit = document.elementFromPoint(r.left + r.width * fx, y); return Boolean(hit && el.contains(hit)); });
+    }), "nothing covers the box score").toBe(true);
 
     // tabular numerals on the stat cells
     const fvn = await d.locator(".nba-bx-table tbody td").first().evaluate((el) => getComputedStyle(el).fontVariantNumeric);

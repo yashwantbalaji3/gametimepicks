@@ -17,6 +17,8 @@ import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
 import { NOT_SIMULATED_REASON, fmtBoxMinutes, nextSort, sortBoxRows } from "@/lib/simulation-theater/nba/box-score.mjs";
 import type { NbaPalette, NbaSide } from "./nba-types";
 import { teamStyle } from "./nba-parts";
+import { TheaterLayer } from "../BottomSheet";
+import { NBA_THEATER_VARS } from "./nba-theater-css";
 
 export type BoxSort = { key: string; dir: "asc" | "desc" };
 type Col = { key: string; label: string; title: string; modeled: string; sortable: boolean };
@@ -223,7 +225,9 @@ export default function NbaBoxScoreDialog({ open, onClose, result, palette, comp
   const onSort = useCallback((key: string) => setSort((cur) => nextSort(cur, key) as BoxSort), []);
   if (!open) return null;
   const h = result?.box?.header;
+  // portalled to <body> (TheaterLayer): in place it sat in <main>'s z-10 stacking context, under the site's bottom nav
   return (
+    <TheaterLayer vars={NBA_THEATER_VARS} className="nba-root">
     <div className="nba-bx-backdrop" onClick={close}>
       <div
         ref={ref}
@@ -247,5 +251,6 @@ export default function NbaBoxScoreDialog({ open, onClose, result, palette, comp
         </div>
       </div>
     </div>
+    </TheaterLayer>
   );
 }
