@@ -99,3 +99,24 @@ test("rendered lane: the UNVALIDATED banner, freeze times and sources show; no p
   assert.doesNotMatch(rest, /\b(picks?|edge|lean|best bet|lock|value)\b/i);
   assert.doesNotMatch(visible, /\blive\b/i, "a frozen forecast is never called live");
 });
+
+test("audit-only facts stay private: the public snapshot carries no seed and no hint of the withheld team score's side", async () => {
+  const { buildExperimentalAudit } = await import("./experimental-public-lane.mjs");
+  const text = JSON.stringify(snap());
+  assert.doesNotMatch(text, /contradictsElo|"seed"|teamScoreContradictsElo/);
+  const audit = buildExperimentalAudit({ forecastDoc: structuredClone(DOC), generatedAt: "2026-10-20T17:20:00Z" });
+  assert.equal(audit.dataClass, "PRIVATE_RESEARCH");
+  assert.deepEqual(audit.games.map((g) => g.teamScoreContradictsElo), [false, true, true], "PHI @ NY and OKC @ SA: the withheld v0.1 median favours the other side");
+  assert.ok(audit.games.every((g) => typeof g.seed === "string"));
+});
+
+test("a past slate is never shown as current: laneIsCurrent is true only on or before the snapshot's own ET date", async () => {
+  const { laneIsCurrent } = await import("./experimental-public-lane.mjs");
+  const s = snap();
+  assert.equal(laneIsCurrent(s, "2026-10-20"), true);
+  assert.equal(laneIsCurrent(s, "2026-10-21"), false, "the next day's build hides yesterday's lane");
+  assert.equal(laneIsCurrent(null, "2026-10-20"), false);
+  assert.equal(laneIsCurrent({ ...s, date: null }, "2026-10-20"), false);
+  const page = fs.readFileSync(path.join(process.cwd(), "src/app/nba/page.tsx"), "utf8");
+  assert.match(page, /laneIsCurrent\(snapshot, currentEtDate\(\)\)/, "the page gates the lane on its slate date");
+});

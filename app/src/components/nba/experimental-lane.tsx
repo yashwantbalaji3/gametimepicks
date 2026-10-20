@@ -38,6 +38,7 @@ export function loadExperimentalSnapshot(): Snapshot | null {
 
 const et = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET";
+const slateLabel = (d: string) => new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(new Date(`${d}T12:00:00Z`));
 const fmt = (v: number | null) => (v == null ? "—" : String(v));
 
 /* One class string per table (descendant variants) instead of per-cell attributes: the rows are inlined twice (HTML +
@@ -76,7 +77,7 @@ export default function NbaExperimentalLane({ snapshot }: { snapshot: Snapshot |
           them. Each figure was frozen before tip-off and is shown exactly as frozen.
         </p>
       </div>
-      <h2 id="nba-experimental-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>Experimental model projections</h2>
+      <h2 id="nba-experimental-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>Experimental model projections{snapshot.date ? ` · ${slateLabel(snapshot.date)} slate` : ""}</h2>
       {snapshot.games.map((g) => (
         <article key={g.providerEventId} className="flex flex-col gap-2 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
           <header className="flex flex-col gap-0.5">

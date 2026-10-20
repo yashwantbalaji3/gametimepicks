@@ -70,10 +70,11 @@ function sideRows(players) {
  * @param {string|null} a.sourceCommit  the git commit that holds that file, when known
  * @param {string} a.generatedAt  when this snapshot was assembled (never a forecast time)
  */
-export function buildExperimentalSnapshot({ forecastDoc, sourceFile, sourceCommit = null, generatedAt }) {
+function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCommit = null, generatedAt }) {
   if (forecastDoc?.family !== LANE.sourceFamily) throw new Error(`REFUSED: lane reads family ${LANE.sourceFamily}, got ${JSON.stringify(forecastDoc?.family)}`);
   const games = [];
   const excluded = [];
+  const audit = [];
   for (const g of forecastDoc.games ?? []) {
     const integrity = receiptIntegrity(g);
     const r = g.receipt ?? {};
@@ -83,6 +84,14 @@ export function buildExperimentalSnapshot({ forecastDoc, sourceFile, sourceCommi
     }
     const f = g.forecast ?? {};
     const side = f.publishedSide === "HOME" ? g.home : f.publishedSide === "AWAY" ? g.away : null;
+    // PRIVATE audit facts (never in the public snapshot): which side the withheld v0.1 team median favours, and the seed.
+    audit.push({
+      providerEventId: String(g.providerEventId),
+      seed: f.seed ?? null,
+      teamScoreContradictsElo: side != null && Number.isFinite(f.sim?.home?.p50) && Number.isFinite(f.sim?.away?.p50) && f.sim.home.p50 !== f.sim.away.p50
+        ? (f.sim.home.p50 > f.sim.away.p50 ? "HOME" : "AWAY") !== f.publishedSide
+        : null,
+    });
     games.push({
       providerEventId: String(g.providerEventId),
       etDate: g.etDate,
@@ -91,21 +100,14 @@ export function buildExperimentalSnapshot({ forecastDoc, sourceFile, sourceCommi
       home: { abbr: g.home?.abbr ?? null, name: g.home?.name ?? null },
       frozenAt: r.generatedAt,
       receipt: { schema: r.schema, family: r.family, modelVersion: r.modelVersion, payloadSha256: r.payloadSha256 },
-      engine: { simulation: f.modelVersion ?? null, simulations: f.simulations ?? null, seed: f.seed ?? null },
+      engine: { simulation: f.modelVersion ?? null, simulations: f.simulations ?? null },
       elo: {
         favoured: side?.abbr ?? null,
         state: side ? "FAVOURED" : "TOO_CLOSE",
         rule: f.sideRule?.id ?? null,
         source: "Elo team rating — the published winner side (founder N2); no probability is shown",
       },
-      teamScores: {
-        state: "WITHHELD",
-        reason: WITHHELD.teamScores,
-        // recorded (not shown) so the withholding is auditable: does the v0.1 team median favour the other side?
-        contradictsElo: side != null && Number.isFinite(f.sim?.home?.p50) && Number.isFinite(f.sim?.away?.p50) && f.sim.home.p50 !== f.sim.away.p50
-          ? (f.sim.home.p50 > f.sim.away.p50 ? "HOME" : "AWAY") !== f.publishedSide
-          : null,
-      },
+      teamScores: { state: "WITHHELD", reason: WITHHELD.teamScores },
       players: {
         source: `v0.1 roster-gated player simulation (${r.modelVersion}) — medians of ${f.simulations ?? "?"} simulated games`,
         away: sideRows(f.players?.away),
@@ -113,7 +115,7 @@ export function buildExperimentalSnapshot({ forecastDoc, sourceFile, sourceCommi
       },
     });
   }
-  return {
+  const snapshot = {
     schema: LANE_SNAPSHOT_SCHEMA,
     lane: LANE.id,
     label: LANE.label,
@@ -128,6 +130,26 @@ export function buildExperimentalSnapshot({ forecastDoc, sourceFile, sourceCommi
     games,
     excluded,
   };
+  return { snapshot, audit };
+}
+
+/** The PUBLIC snapshot (what every lane surface reads). */
+export function buildExperimentalSnapshot(args) {
+  return buildExperimentalSnapshotWithAudit(args).snapshot;
+}
+
+/**
+ * The private audit companion of a snapshot (data/internal/research/nba/experimental-public-audit/<date>.json): the facts
+ * that justify a withholding but must not travel publicly. Same inputs, same order.
+ */
+export function buildExperimentalAudit({ forecastDoc, generatedAt }) {
+  const snap = buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile: "", generatedAt });
+  return { schema: "nba-experimental-public-audit@1", dataClass: "PRIVATE_RESEARCH", date: forecastDoc?.date ?? null, generatedAt, games: snap.audit };
+}
+
+/** Is a snapshot the CURRENT slate at `buildEtDate`? A past slate is never shown as current (the page hides it). */
+export function laneIsCurrent(snapshot, buildEtDate) {
+  return Boolean(snapshot?.date && buildEtDate && snapshot.date >= buildEtDate);
 }
 
 /** Every number in a snapshot game must be the receipt's stored value — re-derive and compare. Pure. */

@@ -16,6 +16,8 @@ import SportSwitcher from "@/components/sports/sport-switcher";
 import { nbaHub } from "@/lib/sport-hub/nba-hub";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import NbaExperimentalLane, { loadExperimentalSnapshot } from "@/components/nba/experimental-lane";
+import { laneIsCurrent } from "@/lib/sports/nba/experimental-public-lane.mjs";
+import { currentEtDate } from "@/lib/freshness";
 
 export const metadata = withRouteMetadata("/nba/", {
   title: "NBA — Schedule, final scores & experimental projections · GameTime Picks",
@@ -24,10 +26,12 @@ export const metadata = withRouteMetadata("/nba/", {
 });
 
 export default function NbaHubPage() {
-  const model = nbaHub(new Date().toISOString());
+  /* §12 look 5 · §13 (founder decision 2026-10-20): the experimental lane — null when disabled or empty, and hidden once
+     its slate is in the past (a stale snapshot never reads as current; the page falls back to the factual wording). */
+  const snapshot = loadExperimentalSnapshot();
+  const lane = snapshot && laneIsCurrent(snapshot, currentEtDate()) ? snapshot : null;
+  const model = nbaHub(new Date().toISOString(), lane ? new Set(lane.games.map((g) => g.providerEventId)) : null);
   const finals = model.rows.filter((r) => r.status === "final").length;
-  /* §12 look 5 · §13 (founder decision 2026-10-20): the experimental lane — null when disabled or empty. */
-  const lane = loadExperimentalSnapshot();
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       {/* UX-001 phase 2: the shared sport switcher — every hub links to every other sport. */}
