@@ -145,3 +145,51 @@ into the capability registry by automation.
 | 2 | 2026-10-02 | 2024-25 **development** season, full (1,005 games after day 30), v0 + shadow Elo unchanged, 1,000 sims, dry run (`diagnose-sim-dispersion.mjs --season 2025 --games 1005 --simulations 1000`) | v0 sim winner Brier **0.267** vs shadow Elo **0.215** (bar ≤ 0.240); margin p10–p90 coverage **0.88** (bar 0.76–0.84); margin bias −1.42 (bar \|bias\| ≤ 1.0); sim total SD 22.02 ≈ margin SD 22.00 (bar: total SD > margin SD). v0 cannot meet the winner, margin or total bars; it stays the frozen shadow. No bar changed; assessment season (2025-26) still unread by any candidate |
 | 3 | 2026-10-07 | no outcome: founder decisions N1–N3, N5 (Yash, 2026-10-07 03:21Z) recorded before the first 2026-27 regular-season game. Additions only: the frozen Elo winner side and the joint PRA / P+A / P+R quantiles become new keys in every family's receipt (v0 included; no existing v0 or v0.1 number changes, checked byte-for-byte against the previous build on real slates), the P+A / P+R rows above (PRA's shape), and the v0.2 challenger family | no bar changed. v0.1 is the player champion (N1); v0.2 shadows from game 1 and never replaces v0.1 or the Elo side automatically (N3). The winner row's bar names `sim`; scoring an Elo-side winner for promotion is a later founder reading (N6), not this look |
 | 4 | 2026-10-19 | **v1 candidate** (`nba-sim-v1-coherent`, family `v1`, CANDIDATE_SHADOW; `game-sim-v1.mjs`, `sim-v1-profile.mjs`). Scalar parameters fitted on the 2023-24 regular season ONLY (`calibrate-sim-v1.mjs` → `reports/sim-v1-calibration-2024.json`) and frozen; then ONE look at the 2024-25 **development** season, same sample rule as look 2 (1,005 games ≥ day 30), seasons ≤ 2025 only loaded (`evaluate-sim-v1.mjs --write` → `reports/sim-v1-dev-evaluation.json`; a 5-game harness smoke run preceded it, numbers discarded). v1 4,000 draws, v0 1,000, Elo unchanged; v1 pools = historical roster proxy (no captures existed), no injuries feed | v1: winner Brier **0.212** (Elo 0.215, v0 0.267), log loss 0.612 (Elo 0.618, coin 0.693), ECE 0.025; margin MAE 11.31, bias +0.56, p10–p90 0.815, p25–p75 0.536; total MAE 15.29, **bias −2.98 (fails \|bias\| ≤ 2.0)**, p10–p90 0.776, p25–p75 0.480; sim total SD 17.94 > margin SD 14.38; OT rate 2.4 % vs realised 4.6 % (under). Players (expected ≥ 20 min, n 9,930): minutes MAE 5.41; p10–p90 coverage pts 0.780, **reb 0.849, ast 0.859 (fail 0.76–0.84), 3PM 0.905 (fails 0.74–0.86)** — over-dispersed. Historical dev numbers only: no interval on the v1−Elo winner difference was computed, so no claim that v1 beats Elo; nothing promotes or validates v1. No parameter changed after this look; assessment season (2025-26) still unread by v1; v1 starts its own forward shadow as a candidate |
+| 5 | 2026-10-20 | **no outcome; governance amendment.** Founder decision (Yash, in the release owner's session, 2026-10-20) creating a separate **EXPERIMENTAL PUBLIC LANE** (§13), recorded before any 2026-27 regular-season final. Read: the frozen pre-tip receipts for 2026-10-20 (v0.1 + Elo; integrity verified). | **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.** No market moved from SHADOW. The capability registry keeps NBA `HISTORICAL_ONLY`. The lane counts toward nothing in §6–§8. |
+
+## 13. Experimental public lane (amendment, founder decision 2026-10-20)
+
+**Status.** This is a separate lane beside the preregistered shadow. It is **not** the §7–§8 SHADOW → PUBLIC FORECAST promotion: it satisfies no bar, and its outputs are never counted as validation, as a forward-shadow sample, or as a product record. Lane id `nba-experimental-public@1` (`app/src/lib/sports/nba/experimental-public-lane.mjs`).
+
+**Scope:**
+- **Surfaces:** the `/nba` hub only.
+- **Data:** one canonical snapshot per slate, `nba-experimental-public-snapshot@1`, at `app/public/data/nba/experimental-public/<date>.json`. It is built by `app/scripts/nba/build-nba-experimental-public.mjs` from the **committed** v0.1 forecast file.
+- **Every public surface** that shows these figures reads this snapshot and nothing else.
+
+**What is published, per game:** only games whose forecast receipt verifies (`receiptIntegrity` = OK, generated strictly before tip):
+- **Game information:** the Elo winner side (founder N2), shown as the favoured team only. Source label: "Elo team rating".
+- **Player figures:** v0.1 roster-gated player medians (founder N1) for PTS / REB / AST / 3PM, plus expected minutes. Players with at least 10 expected minutes who are not ruled Out are listed by expected minutes, never ranked. Source label: the v0.1 receipt's model version.
+- **Provenance:** freeze time, tip time, receipt model version and payload hash. Every block carries the notice **UNVALIDATED EXPERIMENTAL SIMULATION**.
+- **No recomputation:** every number is copied from the receipt's stored payload, and the producer refuses any game that does not re-derive.
+
+**What is withheld (pinned by tests):**
+
+| Item | Reason |
+|---|---|
+| Win probabilities and confidence | No regular-season game has been graded |
+| Projected team scores | The v0.1 team score is a sum of player simulations that ignores the opponent; on 2026-10-20 it contradicts the Elo side in 2 of 3 games; v0's margin and total checks failed (look 2) |
+| Player ranges | Preseason coverage was not reliable |
+| Odds, lines, edges, picks, Top-10 rankings | No authorized NBA price exists |
+| Bank Builder, Moonshot and Parlay Lab legs; Smart Betslip selections | The registry stays `HISTORICAL_ONLY`, so `canEnterPredictionProducts("nba")` is false |
+| The animated NBA Simulation Theater | Stays private until its own activation, alignment and privacy gates pass |
+
+**A tipped game** is shown as a *frozen pregame forecast*, with its freeze time, never as live.
+
+**Model versions:**
+- v0.1 family receipts (`nba-preseason-experimental-v0.1`), using the simulation engine `nba-preseason-experimental-v0`.
+- Elo `NBA_ELO_PARAMS` (§1).
+- The v1 candidate is **not** a lane source.
+
+**Data sources:**
+- ESPN public schedule, roster and injuries captures (free).
+- The box-score corpus (§2).
+
+**Rollback criteria.** Set `LANE.enabled = false` (one line); the next build removes every lane surface. Roll back on any of these:
+- a published number that differs from its receipt;
+- a game published without a verified pre-tip receipt;
+- any probability, odds, edge or pick reaching the page;
+- the snapshot being read by a product;
+- a private v1, theater or internal-path marker in the export;
+- wrong game identity.
+
+**Lane scorecard.** The lane's figures are graded only as context, in the existing shadow ledger for v0.1, which is already graded nightly. They are never reported as a validated record.
