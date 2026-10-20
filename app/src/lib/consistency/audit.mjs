@@ -634,11 +634,30 @@ export function serializeBaseline(b) {
 }
 
 /**
+ * A fingerprint's CLASS: the fingerprint without its event and subject (code | sport | surface | family | field).
+ * Every new slate mints new event ids (and new players), so a class — not a fingerprint — is what a baseline can
+ * legitimately know about events it has never seen.
+ */
+export function fingerprintClass(fp) {
+  const [code, sport, , surface, , family, field] = String(fp).split("|");
+  return [code, sport, surface, family, field].join("|");
+}
+const eventOf = (fp) => String(fp).split("|")[2];
+
+/**
  * Compare an audit with a baseline.
+ *   · A discrepancy on an event the baseline has NEVER seen, whose class IS pinned → `drift` (a new slate showing a
+ *     known, already-tracked inconsistency; it must not turn main red on every data commit).
+ *   · A discrepancy whose CLASS is not pinned → `newStrict`, always — a new kind of inconsistency fails even when its
+ *     data changed.
+ *   · On an event the baseline already holds: a new fingerprint or a higher count fails (`newStrict` / `grown`) unless
+ *     its data sources changed since the pin (then `drift`). Code paths never excuse.
  * @returns {{ newStrict: object[], grown: object[], drift: object[], resolved: object[] }}
  */
 export function compareWithBaseline(audit, baseline) {
   const pinned = new Map(baseline.entries.map((e) => [e.f, { fingerprint: e.f, count: e.n }]));
+  const pinnedClasses = new Set(baseline.entries.map((e) => fingerprintClass(e.f)));
+  const pinnedEvents = new Set(baseline.entries.map((e) => eventOf(e.f)));
   const changed = (p) => !(p in baseline.manifest) ? true : baseline.manifest[p] !== audit.manifest[p];
   const isSourceFile = (p) => !/^(app\/public\/data|data)\//.test(p); // code paths: drift never excuses them
   const newStrict = []; const grown = []; const drift = [];
@@ -647,7 +666,12 @@ export function compareWithBaseline(audit, baseline) {
     seen.add(d.fingerprint);
     const b = pinned.get(d.fingerprint);
     const dataChanged = (d.sources ?? []).filter(Boolean).some((p) => !isSourceFile(p) && changed(p));
-    if (!b) { (dataChanged ? drift : newStrict).push(d); continue; }
+    if (!b) {
+      if (!pinnedClasses.has(fingerprintClass(d.fingerprint))) newStrict.push(d); // a new class: always fails
+      else if (!pinnedEvents.has(eventOf(d.fingerprint))) drift.push({ ...d, driftReason: "NEW_EVENT_KNOWN_CLASS" });
+      else (dataChanged ? drift : newStrict).push(d); // a known event: regression unless its data changed
+      continue;
+    }
     if ((d.count ?? 1) > b.count) (dataChanged ? drift : grown).push({ ...d, pinnedCount: b.count });
   }
   const resolved = baseline.entries.filter((e) => !seen.has(e.f));

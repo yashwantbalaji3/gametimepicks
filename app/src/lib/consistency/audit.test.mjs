@@ -31,6 +31,40 @@ test("no NEW discrepancy beyond the pinned baseline (sources unchanged)", (t) =>
   assert.deepEqual(cmp.grown.map((d) => `${d.fingerprint} ${d.pinnedCount}→${d.count}`), [], "grown discrepancies");
 });
 
+test("baseline classes: a NEW event of a KNOWN class is drift; a NEW class always fails; a known event regresses", () => {
+  const fp = (code, sport, event, surface, subject, family, field) => [code, sport, event, surface, subject, family, field].join("|");
+  const known = fp("MODEL_VERSION_MIX", "NBA", "401909088", "nba-top-board.default-family", "401909088", "v0.1", "DEFAULT_BOARD_FAMILY");
+  const base = { manifest: { "data/x.json": "aaa" }, entries: [{ f: known, n: 1, s: [0] }] };
+  const rec = (f, sources = ["data/x.json"]) => ({ fingerprint: f, count: 1, sources });
+  const audit = (ds, manifest = { "data/x.json": "aaa" }) => ({ discrepancies: ds, manifest });
+
+  // today's next slate: same class, an event the pin has never seen ⇒ drift, not failure (sources unchanged even)
+  const nextSlate = fp("MODEL_VERSION_MIX", "NBA", "401909089", "nba-top-board.default-family", "401909089", "v0.1", "DEFAULT_BOARD_FAMILY");
+  let c = compareWithBaseline(audit([rec(known), rec(nextSlate)]), base);
+  assert.deepEqual(c.newStrict, []);
+  assert.equal(c.drift.length, 1);
+  assert.equal(c.drift[0].driftReason, "NEW_EVENT_KNOWN_CLASS");
+
+  // a NEW class fails — on a new event, on a known event, and even when its data changed
+  const newClassNewEvent = fp("LEAN_CONTRADICTION", "NBA", "401909090", "nba-top-board", "p1", "pts", "lean");
+  const newClassKnownEvent = fp("SCENARIO_LEAK", "NBA", "401909088", "nba-top-board", "p1", "pts", "value");
+  c = compareWithBaseline(audit([rec(known), rec(newClassNewEvent), rec(newClassKnownEvent)], { "data/x.json": "CHANGED" }), base);
+  assert.deepEqual(c.newStrict.map((d) => d.fingerprint).sort(), [newClassKnownEvent, newClassNewEvent].sort());
+  assert.deepEqual(c.drift, []);
+
+  // a known class on an ALREADY-baselined event with a new subject: a regression (fails) unless its data changed
+  const regression = fp("MODEL_VERSION_MIX", "NBA", "401909088", "nba-top-board.default-family", "other", "v0.1", "DEFAULT_BOARD_FAMILY");
+  c = compareWithBaseline(audit([rec(known), rec(regression)]), base);
+  assert.deepEqual(c.newStrict.map((d) => d.fingerprint), [regression]);
+  c = compareWithBaseline(audit([rec(known), rec(regression)], { "data/x.json": "CHANGED" }), base);
+  assert.deepEqual(c.newStrict, []);
+  assert.equal(c.drift.length, 1);
+
+  // a grown count on a pinned fingerprint still fails when its data is unchanged
+  c = compareWithBaseline(audit([{ ...rec(known), count: 3 }]), base);
+  assert.equal(c.grown.length, 1);
+});
+
 test("every record names its code, source and correction", () => {
   for (const d of audit.discrepancies) {
     assert.ok(d.code && d.severity && d.surface && d.fingerprint, d.fingerprint);
