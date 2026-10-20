@@ -36,7 +36,7 @@ export interface BoardRowViewT {
   sortKeys: Record<string, string | number | null>;
 }
 export interface MarketStateT { key: string; label: string; basis: string; state: string; rows: number; text: string | null }
-export interface BoardTableModelT { date: string | null; family: string | null; schema: string | null; modelVersion: string | null; rows: BoardRowViewT[]; markets: MarketStateT[]; priced: boolean }
+export interface BoardTableModelT { date: string | null; family: string | null; role?: string | null; roleLabel?: string | null; researchOnly?: boolean; schema: string | null; modelVersion: string | null; rows: BoardRowViewT[]; markets: MarketStateT[]; priced: boolean }
 
 const PRICE_COLUMNS: { key: keyof BoardRowViewT["price"]; label: string }[] = [
   { key: "sportsbook", label: "Sportsbook" },
@@ -141,6 +141,12 @@ export default function TopBoardTable({ model }: { model: BoardTableModelT | nul
   return (
     <section className="tbt" aria-label="NBA board table — every market">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      {model.researchOnly ? (
+        <p className="tbt-note" role="note" data-nba-board-role="research-only">
+          <strong>{model.roleLabel ?? `Unregistered family ${model.family}`}.</strong> A challenger model&rsquo;s numbers for
+          research — never official predictions, never Top Picks, never a product source.
+        </p>
+      ) : null}
       {!model.priced ? (
         <p className="tbt-note">
           <strong>No authorized NBA price.</strong> Sportsbook, line, Over/Under, model probability, odds and edge/EV are

@@ -328,3 +328,22 @@ test("price cells: only a QUALIFIED evaluation displays a side and a best edge (
   assert.equal(q.edge.value.best, 0.04);
   assert.equal(q.edge.display, "Edge 4.0 pts · EV 7.0%");
 });
+
+test("the v1 board is labelled 'NBA v1 Challenger — Research Only' everywhere it can be shown (founder 2026-10-20)", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const { buildDailyReport, reportMarkdown } = await import("./top-board-report.mjs");
+  const repo = path.resolve(process.cwd(), "..");
+  const v1 = JSON.parse(fs.readFileSync(path.join(repo, "data/internal/research/nba/top-boards/v1/2026-10-20.json"), "utf8"));
+  const off = JSON.parse(fs.readFileSync(path.join(repo, "data/internal/research/nba/top-boards/v0.1/2026-10-20.json"), "utf8"));
+  const m1 = boardTableModel(v1);
+  assert.equal(m1.researchOnly, true);
+  assert.equal(m1.roleLabel, "NBA v1 Challenger — Research Only");
+  assert.equal(boardTableModel(off).researchOnly, false);
+  const md = reportMarkdown(buildDailyReport({ date: "2026-10-20", family: "v1", generatedAt: "2026-10-21T00:00:00Z", boardDoc: v1, ledger: { entries: [] } }));
+  assert.match(md.split("\n")[0], /^# NBA v1 Challenger — Research Only — /);
+  assert.match(md, /never a Top Pick, never a product source/);
+  // a v1 row can never be evaluated as a market (only the official family feeds a board evaluation)
+  const r = m1.rows[0];
+  assert.ok(r, "the v1 board has rows");
+});

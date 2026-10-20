@@ -11,6 +11,7 @@
  *     full-sample board coverage is not the §7 bar.
  */
 import { PREREG } from "./grader-metrics.mjs";
+import { NBA_BOARD_ROLE, NBA_BOARD_ROLES } from "../../consistency/official-snapshot.mjs";
 import { CATEGORIES } from "./top-boards.mjs";
 import { SETTLEMENT, PROJECTION_STATUS, boardRows } from "./top-board-grading.mjs";
 
@@ -202,7 +203,11 @@ const fmt = (x) => (x == null ? "—" : String(x));
 /** Markdown rendering of the report JSON. */
 export function reportMarkdown(r) {
   const L = [];
-  L.push(`# NBA Top Boards — daily performance report · ${r.date} · family ${r.family}`);
+  const role = NBA_BOARD_ROLES[r.family];
+  L.push(role && role.role !== NBA_BOARD_ROLE.OFFICIAL
+    ? `# ${role.label} — Top Boards daily report · ${r.date} · family ${r.family}`
+    : `# NBA Top Boards — daily performance report · ${r.date} · family ${r.family}`);
+  if (!role || role.role !== NBA_BOARD_ROLE.OFFICIAL) L.push("", `**${role?.label ?? `Unregistered family ${r.family}`}.** Never official, never a Top Pick, never a product source.`);
   L.push("");
   L.push(`PRIVATE research (dataClass ${r.dataClass}, productEligible false). Shadow model, not validated, not published. Generated ${r.generatedAt}.`);
   L.push("");
