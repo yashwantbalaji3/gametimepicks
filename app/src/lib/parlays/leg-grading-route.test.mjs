@@ -32,3 +32,36 @@ test("settle-lab-cards.mjs routes every leg through legGradingRoute (no `?? \"ml
   assert.doesNotMatch(loop, /leg\.sport \?\? "mlb"/, "no implicit MLB fall-through before the MLB grader");
   assert.match(loop, /refusal/, "a refused leg is recorded");
 });
+
+/*
+ * SETTLEMENT HISTORY DOES NOT MOVE. Every committed ladder the settler reads (the four LADDER_DIRS, every date, every
+ * card, every leg — with the settler's own default: a leg without a sport takes its ladder's sport) routes to EXACTLY
+ * the grader the old inline rule chose. So re-running the settler over any committed day grades every leg on the same
+ * path as before, and every committed lab-settled receipt is reproduced unchanged by construction.
+ */
+const LADDER_DIRS = { mlb: "risk-ladder", ufc: "risk-ladder-ufc", epl: "risk-ladder-epl", nfl: "risk-ladder-nfl" };
+const oldRoute = (leg) => { const s = leg.sport ?? "mlb"; return s === "ufc" || s === "epl" || s === "nfl" ? s : "mlb"; };
+
+test("every committed ladder leg routes to the same grader as before (no committed record can change)", () => {
+  const root = path.resolve(process.cwd(), "public/data/parlays");
+  let files = 0, legs = 0;
+  const moved = [];
+  for (const [sport, dir] of Object.entries(LADDER_DIRS)) {
+    const d = path.join(root, dir);
+    if (!fs.existsSync(d)) continue;
+    for (const f of fs.readdirSync(d).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort()) {
+      const doc = JSON.parse(fs.readFileSync(path.join(d, f), "utf8"));
+      if (!Array.isArray(doc.cards)) continue;
+      files += 1;
+      for (const c of doc.cards) for (const l of c.legs ?? []) {
+        const leg = { ...l, sport: l.sport ?? sport }; // the settler's own per-ladder default
+        legs += 1;
+        const now = legGradingRoute(leg).route;
+        if (now !== oldRoute(leg)) moved.push({ file: `${dir}/${f}`, slipId: c.slipId ?? null, sport: leg.sport, old: oldRoute(leg), now });
+      }
+    }
+  }
+  assert.ok(files > 0 && legs > 0, "the committed ladders were read");
+  assert.deepEqual(moved, [], `committed legs whose grading path would change: ${JSON.stringify(moved.slice(0, 5))}`);
+  console.log(`# ${legs} committed legs across ${files} ladder files: 0 change grading path`);
+});
