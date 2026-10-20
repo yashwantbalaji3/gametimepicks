@@ -4,6 +4,9 @@
  * SOURCE SWITCH (one line). Three sources exist:
  *   NBA_REAL_DEV_SOURCE  (current) a byte-for-byte DEV COPY of REAL nba-sim-v1-coherent output for 2026-10-20, kept under
  *                        __fixtures__/ with a provenance sidecar; read only if the sidecar's sha256 matches the file.
+ *                        Integration 2026-10-19: the copy is r2, rebuilt offline from main's committed inputs AFTER the
+ *                        minutes-rounding fix (29722959e1); its sidecar declares `minutesExact`, so it is validated with
+ *                        no rounding allowance. The pre-fix copy (sha 45df05d8…) is superseded and removed.
  *   NBA_FIXTURE_SOURCE   the generated synthetic TEST FIXTURE (`fixture: true`; rendered only under its banner). Used by
  *                        the validator mutation tests and the fixture-gate tests.
  *   v1ArtifactSource(d)  a committed experimental-v1 artifact: data/internal/research/nba/experimental-v1/forecasts/<d>.json
@@ -24,8 +27,8 @@ import { nbaPalette } from "./nba-team-colors.mjs";
 export const NBA_FIXTURE_SOURCE = Object.freeze({ kind: "fixture", path: "app/src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-fixture.json" });
 export const NBA_REAL_DEV_SOURCE = Object.freeze({
   kind: "dev-copy",
-  path: "app/src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20.json",
-  provenance: "app/src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20.provenance.json",
+  path: "app/src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20-r2.json",
+  provenance: "app/src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20-r2.provenance.json",
 });
 export const v1ArtifactSource = (date) => Object.freeze({ kind: "artifact", path: `data/internal/research/nba/experimental-v1/forecasts/${date}.json` });
 

@@ -11,7 +11,7 @@ import { adaptNbaArtifact } from "./adapter-nba-sim-v1.mjs";
 import { createTransport, transport } from "../transport-machine.mjs";
 
 const FIXTURE = JSON.parse(fs.readFileSync(path.join(process.cwd(), "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-fixture.json"), "utf8"));
-const REAL = JSON.parse(fs.readFileSync(path.join(process.cwd(), "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20.json"), "utf8"));
+const REAL = JSON.parse(fs.readFileSync(path.join(process.cwd(), "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20-r2.json"), "utf8"));
 const SAMPLES = [
   ...FIXTURE.games.flatMap((g) => adaptNbaArtifact(FIXTURE, g.providerEventId).manifest.samples.filter((s) => s.validation.ok)),
   ...REAL.games.flatMap((g) => adaptNbaArtifact(REAL, g.providerEventId, { provenance: { verified: true } }).manifest.samples.filter((s) => s.validation.ok)),

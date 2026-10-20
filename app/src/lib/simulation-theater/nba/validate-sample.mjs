@@ -23,6 +23,10 @@
  *                        serialized at 0.01 resolution, to the rounding bound 0.005 × players-with-minutes; that case is
  *                        returned as a NOTE `MINUTES_ROUNDED`, never silently: the engine checks the exact sum before
  *                        serializing, and nba-sim-v1-coherent artifacts round minutes to 2 decimals)
+ *                        `exactMinutes: true` (integration 2026-10-19) removes the allowance: a source built after the
+ *                        engine's largest-remainder rounding fix (29722959e1) must sum to 240 + 25·OT to 1e-6 per side, and
+ *                        any drift fails closed as MINUTES_SUM. The engine's OT convention: 25 team-minutes per OT period
+ *                        (5 players × 5 min; game-sim-v1.mjs OT_MINUTES_PER_TEAM).
  *   MINUTES_RANGE        a player outside 0 ≤ min ≤ 48 + 5·OT (invariant 3)
  *   REB_SUM              Σ player rebounds ≠ team rebounds (invariant 6)
  *   ZERO_MIN_STATS       a player with 0 minutes has a non-zero counting stat (invariant 7)
@@ -43,9 +47,9 @@ export const periodLabel = (n) => (n <= 4 ? `Q${n}` : `OT${n - 4}`);
 
 /**
  * @param {any} s           one entry of representativeSamples
- * @param {{ simulations?: number }} ctx
+ * @param {{ simulations?: number, exactMinutes?: boolean }} ctx
  */
-export function validateSample(s, { simulations = null } = {}) {
+export function validateSample(s, { simulations = null, exactMinutes = false } = {}) {
   const errors = [];
   const notes = [];
   const err = (code, detail) => errors.push({ code, detail });
@@ -115,8 +119,8 @@ export function validateSample(s, { simulations = null } = {}) {
     const dev = Math.abs(min - teamMinutes);
     const bound = 0.5 * MINUTES_RESOLUTION * played + 1e-9;
     if (dev > MINUTES_TOL) {
-      if (rounded && dev <= bound) notes.push({ code: "MINUTES_ROUNDED", detail: `${side}: Σ minutes ${Math.round(min * 100) / 100} vs ${teamMinutes} — within the 0.01-rounding bound ±${Math.round(bound * 1000) / 1000} for ${played} players` });
-      else err("MINUTES_SUM", `${side}: Σ minutes ${Math.round(min * 1e6) / 1e6} ≠ ${teamMinutes}${rounded ? ` (beyond the rounding bound ±${Math.round(bound * 1000) / 1000})` : ""}`);
+      if (rounded && !exactMinutes && dev <= bound) notes.push({ code: "MINUTES_ROUNDED", detail: `${side}: Σ minutes ${Math.round(min * 100) / 100} vs ${teamMinutes} — within the 0.01-rounding bound ±${Math.round(bound * 1000) / 1000} for ${played} players` });
+      else err("MINUTES_SUM", `${side}: Σ minutes ${Math.round(min * 1e6) / 1e6} ≠ ${teamMinutes}${exactMinutes ? " (exact source: no rounding allowance)" : rounded ? ` (beyond the rounding bound ±${Math.round(bound * 1000) / 1000})` : ""}`);
     }
   }
   return { ok: errors.length === 0, errors, notes };

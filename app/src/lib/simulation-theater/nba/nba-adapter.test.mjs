@@ -181,23 +181,29 @@ test("loader: today's source is the verified dev copy of real v1 output; switchi
 });
 
 // ── the REAL nba-sim-v1-coherent artifact (dev copy with provenance) ─────────────────────────────────────────────
-const REAL_REL = "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20.json";
+const REAL_REL = "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20-r2.json";
 const REAL = JSON.parse(fs.readFileSync(path.join(APP, REAL_REL), "utf8"));
-const PROV = JSON.parse(fs.readFileSync(path.join(APP, "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20.provenance.json"), "utf8"));
+const PROV = JSON.parse(fs.readFileSync(path.join(APP, "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20-r2.provenance.json"), "utf8"));
 
-test("real v1 dev copy: NOT a fixture, sha256 matches its provenance, engine id and inputAsOf as recorded", () => {
+test("real v1 dev copy (r2): NOT a fixture, sha256 matches its provenance, engine id and inputAsOf as recorded, post-rounding-fix", () => {
   assert.equal(REAL.fixture, undefined, "a real artifact carries no fixture flag");
   assert.equal(REAL.modelVersion, "nba-sim-v1-coherent");
   assert.equal(PROV.modelVersion, REAL.modelVersion);
   assert.equal(PROV.inputAsOf, REAL.inputAsOf);
+  assert.equal(PROV.generatedAt, REAL.generatedAt);
   const r = readArtifact(REPO, NBA_REAL_DEV_SOURCE);
   assert.equal(r.provenance.verified, true, `sha ${r.provenance.actualSha256} ≠ ${PROV.sha256}`);
+  assert.equal(PROV.sha256, "c4612dc4e8ab924e6b1f1fc8af9c713d1494f5cf731c6719dbb34f9c8adcc261");
+  assert.equal(PROV.minutesExact, true);
+  assert.equal(PROV.supersedes.sha256, "45df05d89d2d0eedd9214f5c5dfeb038aaf5740ba881b234fe660145e2cc3e11", "the pre-rounding-fix copy is named as superseded");
+  assert.ok(!fs.existsSync(path.join(APP, "src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20.json")), "the pre-fix copy is gone from the tree");
   assert.deepEqual(REAL.games.map((g) => g.providerEventId), ["401909088", "401909089", "401909090"]);
+  for (const g of REAL.games) assert.ok(Date.parse(g.receipt?.generatedAt ?? REAL.generatedAt) < Date.parse(g.dateUtc), `${g.providerEventId}: built before tip`);
 });
 
-test("real v1 dev copy: every one of the 15 samples passes every invariant; the only finding is the 0.01 minutes rounding (a note)", () => {
+test("real v1 dev copy (r2): CONSERVATION in every one of the 15 samples — side minutes = 240 + 25·OT exactly, Σ player pts = team pts = final = Σ periods; no rounding note", () => {
   const r = readArtifact(REPO, NBA_REAL_DEV_SOURCE);
-  let notes = 0;
+  const rows = [];
   for (const g of REAL.games) {
     const a = adaptNbaArtifact(REAL, g.providerEventId, { file: REAL_REL, provenance: r.provenance });
     assert.equal(a.ok, true, JSON.stringify(a.error));
@@ -205,13 +211,46 @@ test("real v1 dev copy: every one of the 15 samples passes every invariant; the 
     assert.ok(a.manifest.provenance?.sha256);
     assert.equal(a.manifest.samples.length, 5);
     for (const s of a.manifest.samples) {
-      assert.deepEqual(s.validation.errors, [], `${g.providerEventId} ${s.label} #${s.runIndex}`);
-      for (const n of s.validation.notes) { assert.equal(n.code, "MINUTES_ROUNDED"); notes++; }
+      const tag = `${g.providerEventId} ${s.label} #${s.runIndex}`;
+      assert.deepEqual(s.validation.errors, [], tag);
+      assert.deepEqual(s.validation.notes, [], `${tag}: exact source, so no MINUTES_ROUNDED note`);
+      for (const side of ["home", "away"]) {
+        const mins = s.players[side].reduce((x, p) => x + p.minutes, 0);
+        assert.ok(Math.abs(mins - (240 + 25 * s.overtimePeriods)) < 1e-6, `${tag} ${side}: Σ minutes ${mins}`);
+        const pts = s.players[side].reduce((x, p) => x + p.pts, 0);
+        assert.equal(pts, s.team[side].pts, `${tag} ${side}: Σ player pts`);
+        assert.equal(s.team[side].pts, s.final[side], `${tag} ${side}: team = final`);
+        assert.equal(s.periods.reduce((x, p) => x + p[side], 0), s.final[side], `${tag} ${side}: Σ periods`);
+      }
+      rows.push(`${g.providerEventId} ${s.label}#${s.runIndex}${s.overtimePeriods ? ` OT${s.overtimePeriods}` : ""}`);
     }
     assert.ok(Object.keys(a.manifest.playRates.home).length > 5, "playRate per v1 player row");
     assert.ok(a.manifest.sim.totalHistogram.length > 50);
   }
-  console.log(`# real v1: 15 samples valid; ${notes} MINUTES_ROUNDED note(s) (minutes serialized at 0.01)`);
+  assert.equal(rows.length, 15);
+  console.log(`# real v1 r2: 15 samples conserve minutes and points exactly (${rows.join(", ")})`);
+});
+
+test("exact source fails closed: with minutesExact a 0.01-minute drift is MINUTES_SUM (no note), without it the documented allowance applies", () => {
+  const r = readArtifact(REPO, NBA_REAL_DEV_SOURCE);
+  const drifted = clone(REAL);
+  const ps = drifted.games[0].forecast.representativeSamples[0].players.home;
+  const i = ps.findIndex((p) => p.minutes > 1);
+  ps[i].minutes = Math.round((ps[i].minutes + 0.01) * 100) / 100;
+  const exact = adaptNbaArtifact(drifted, drifted.games[0].providerEventId, { file: REAL_REL, provenance: r.provenance });
+  const s0 = exact.manifest.samples.find((s) => s.runIndex === drifted.games[0].forecast.representativeSamples[0].runIndex);
+  assert.equal(s0.validation.ok, false);
+  assert.ok(s0.validation.errors.some((e) => e.code === "MINUTES_SUM" && /exact source/.test(e.detail)));
+  const lax = adaptNbaArtifact(drifted, drifted.games[0].providerEventId, { file: REAL_REL, provenance: { ...r.provenance, minutesExact: false } });
+  const s1 = lax.manifest.samples.find((s) => s.runIndex === s0.runIndex);
+  assert.equal(s1.validation.ok, true);
+  assert.ok(s1.validation.notes.some((n) => n.code === "MINUTES_ROUNDED"));
+  // and a points leak fails closed whatever the source
+  const leak = clone(REAL);
+  const p = leak.games[1].forecast.representativeSamples[0].players.away.find((x) => x.minutes > 10);
+  p.ftm += 1; p.pts += 1;
+  const bad = adaptNbaArtifact(leak, leak.games[1].providerEventId, { file: REAL_REL, provenance: r.provenance });
+  assert.ok(bad.manifest.samples.find((s) => s.runIndex === leak.games[1].forecast.representativeSamples[0].runIndex).validation.errors.some((e) => e.code === "PLAYER_PTS_SUM"));
 });
 
 test("a dev copy is refused without verified provenance (missing or tampered sidecar), so nothing unmarked under __fixtures__ passes", () => {
@@ -223,10 +262,14 @@ test("a dev copy is refused without verified provenance (missing or tampered sid
 });
 
 test("minutes rounding allowance: only for values serialized at 0.01, only within 0.005 × players; anything else fails", () => {
+  // the r2 copy sums exactly, so plant the pre-fix drift (−0.02 on one side, still at 0.01 resolution) to exercise it
   const s = clone(REAL.games[0].forecast.representativeSamples[0]);
+  const j = s.players.home.findIndex((p) => p.minutes > 1);
+  s.players.home[j].minutes = Math.round((s.players.home[j].minutes - 0.02) * 100) / 100;
   const v = validateSample(s, { simulations: 10000 });
   assert.equal(v.ok, true);
   assert.ok(v.notes.some((n) => n.code === "MINUTES_ROUNDED"));
+  assert.ok(validateSample(s, { simulations: 10000, exactMinutes: true }).errors.some((e) => e.code === "MINUTES_SUM"), "no allowance for an exact source");
   const far = clone(s); far.players.home[0].minutes = Math.round((far.players.home[0].minutes + 0.3) * 100) / 100;
   assert.ok(validateSample(far, { simulations: 10000 }).errors.some((e) => e.code === "MINUTES_SUM"), "0.3 min off is beyond rounding");
   const fine = clone(s); fine.players.home[0].minutes += 0.001; // not at 0.01 resolution: strict 1e-6 applies

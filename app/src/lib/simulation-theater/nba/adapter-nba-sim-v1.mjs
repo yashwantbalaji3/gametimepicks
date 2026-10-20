@@ -16,20 +16,13 @@
  * the order typical, close, high, low, upset; an absent label (often `upset`) is simply not offered.
  */
 import { SAMPLE_LABELS, validateSample } from "./validate-sample.mjs";
+import { FIXTURE_BANNER, LABEL_TITLES, NBA_DISCLOSURE, NBA_PRIVATE_BANNER, NOT_MODELLED, defaultSampleIndex } from "./labels.mjs";
+
+// client-safe labels live in labels.mjs (the island imports them, never this adapter); re-exported for server code/tests
+export { FIXTURE_BANNER, LABEL_TITLES, NBA_DISCLOSURE, NBA_PRIVATE_BANNER, NOT_MODELLED, defaultSampleIndex };
 
 export const NBA_ENGINE_ID = "nba-sim-v1-coherent";
 export const NBA_ARTIFACT = "nba-experimental-forecasts";
-export const FIXTURE_BANNER = "TEST FIXTURE — not model output";
-export const LABEL_TITLES = Object.freeze({ typical: "Typical", close: "Close", high: "High-scoring", low: "Low-scoring", upset: "Upset" });
-
-/** What the engine does not model: shown verbatim on the evidence panel and the final card. */
-export const NOT_MODELLED = Object.freeze([
-  "Possessions, shots, passes, rebounds as events, player movement, ball position and shot locations are not modelled.",
-  "Player stats exist only as each player's game total in a sample; per-quarter player splits are not modelled.",
-  "No possession arrow: who has the ball is not modelled.",
-  "Score progress inside a quarter is not model output; only quarter-end scores are recorded.",
-]);
-export const NBA_DISCLOSURE = "SIMULATED · quarter checkpoints only · scoring between checkpoints illustrative · experimental model";
 
 const isObj = (v) => v && typeof v === "object" && !Array.isArray(v);
 const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
@@ -77,10 +70,12 @@ export function adaptNbaArtifact(artifact, eventId, { file = null, provenance = 
   if (isObj(fc.invariants) && fc.invariants.violations !== 0) return fail("ENGINE_INVARIANTS", `engine reports ${fc.invariants.violations} invariant violation(s)`);
 
   const simulations = Number.isInteger(fc.simulations) ? fc.simulations : Number.isInteger(fc.engine?.simulations) ? fc.engine.simulations : null;
+  // a verified dev copy whose sidecar declares minutesExact (built after the engine's rounding fix) gets no allowance
+  const exactMinutes = devCopy && provenance?.minutesExact === true;
   const seen = new Set();
   const samples = [];
   for (const raw of fc.representativeSamples) {
-    const v = validateSample(raw, { simulations });
+    const v = validateSample(raw, { simulations, exactMinutes });
     if (raw && seen.has(raw.label)) v.errors.push({ code: "LABEL_DUPLICATE", detail: `second sample labelled ${raw.label}` });
     if (raw?.label) seen.add(raw.label);
     const validation = { ok: v.errors.length === 0, errors: v.errors, notes: v.notes ?? [] };
@@ -143,9 +138,3 @@ export function adaptNbaArtifact(artifact, eventId, { file = null, provenance = 
   };
   return { ok: true, error: null, manifest };
 }
-
-/** The first sample that validated (typical when it did), or null. */
-export const defaultSampleIndex = (manifest) => {
-  const i = manifest?.samples?.findIndex((s) => s.validation.ok) ?? -1;
-  return i < 0 ? null : i;
-};

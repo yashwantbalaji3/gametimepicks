@@ -1,0 +1,22 @@
+{
+ "$schema": "gtp/nba-theater-dev-copy@1",
+ "what": "A byte-for-byte DEV COPY of REAL nba-sim-v1-coherent engine output (not a synthetic fixture: it carries no fixture flag), rebuilt offline from committed inputs on main. Kept here only so the unlinked NBA Simulation Theater dev route can be built and reviewed before experimental-v1 artifacts are committed under data/. Read only; never edited. The theater refuses it unless this file's sha256 matches.",
+ "artifactFile": "nba-sim-v1-real-2026-10-20-r2.json",
+ "sha256": "c4612dc4e8ab924e6b1f1fc8af9c713d1494f5cf731c6719dbb34f9c8adcc261",
+ "modelVersion": "nba-sim-v1-coherent",
+ "role": "CANDIDATE_SHADOW",
+ "date": "2026-10-20",
+ "inputAsOf": "2026-10-19T17:00:00Z",
+ "generatedAt": "2026-10-19T17:00:00Z",
+ "source": "node app/scripts/nba/build-nba-experimental-forecasts.mjs --family v1 --date 2026-10-20 --now 2026-10-19T17:00:00Z --out .sprint-scratch/nba-v1-2026-10-20.json — run on branch claude/gtp-theater-integrate-20261019 (base main 9b6e923c1a, which includes the V1 minutes-rounding fix 29722959e1). No network, no paid API; inputs read only: data/internal/research/nba/{corpus-v1.json,boxscores/,rosters/latest.json (asOf 2026-10-19T16:25:36Z)}, data/internal/research/injuries/nba/latest.json (2026-10-19T16:25:54Z, sha256 c1b4f428616e8bfa973652db043e938ca32b8fba3622d3378910ae04c80c3b59), app/public/data/nba/schedule/latest.json, app/public/data/nba/results/finals-2026-27.json. Each game's receipt inside the artifact records its input hashes.",
+ "copiedAt": "2026-10-19",
+ "games": ["401909088 BOS @ DET", "401909089 PHI @ NY", "401909090 OKC @ SA"],
+ "supersedes": {
+  "artifactFile": "nba-sim-v1-real-2026-10-20.json",
+  "sha256": "45df05d89d2d0eedd9214f5c5dfeb038aaf5740ba881b234fe660145e2cc3e11",
+  "why": "built before the minutes-rounding fix (29722959e1): sample minutes summed to 239.98–240.02 per side. Removed from the tree; it remains in git history."
+ },
+ "minutesExact": true,
+ "minutesNote": "Built after 29722959e1 (largest-remainder rounding to 0.01): every sample's side minutes sum to exactly 240 + 25·OT. The theater therefore validates this copy with NO rounding allowance (validate-sample.mjs exactMinutes): any drift fails closed as MINUTES_SUM.",
+ "knownDeviation": null
+}
