@@ -14,6 +14,7 @@
  */
 
 import { isDisputedFinal } from "./experimental-grading-ledger.mjs";
+import { aggregateScores, PLAYER_MARKETS, TEAM_MARKETS, DISTRIBUTION_SCORES_VERSION } from "./distribution-scores.mjs";
 
 /** §6 minimum n and §7 SHADOW → PUBLIC FORECAST bars, verbatim. */
 export const PREREG = Object.freeze({
@@ -320,8 +321,17 @@ export function validationMetrics(games) {
     players: playerMetrics(g),
   };
   m.slices = sliceMetrics(g);
+  m.distributionScores = distributionScoreBlock(g);
   m.states = marketStates(m);
   return m;
+}
+
+/** Engine × market distribution scores over the frozen receipt quantiles (distribution-scores.mjs). Diagnostic only. */
+export function distributionScoreBlock(games) {
+  const out = { label: "diagnostic, promotes nothing", version: DISTRIBUTION_SCORES_VERSION, source: "frozen receipt quantiles only (never draws / representative runs)" };
+  for (const m of PLAYER_MARKETS) out[m] = aggregateScores(games.flatMap((g) => (g.players?.rows ?? []).map((r) => r.dist?.[m] ?? null)), m);
+  for (const m of TEAM_MARKETS) out[m] = aggregateScores(games.map((g) => g.dist?.[m] ?? null), m);
+  return out;
 }
 
 /** Overtime head: the fact (grader v2 derives it) and the sim's P(OT) scored as a probability (Brier / log loss / ECE). */

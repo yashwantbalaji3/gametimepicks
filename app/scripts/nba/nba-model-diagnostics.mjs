@@ -17,7 +17,8 @@ import { fileURLToPath } from "node:url";
 
 import { etDateOf, FAMILIES } from "../../src/lib/sports/nba/experimental-forecast.mjs";
 import { currentEntriesAnySchema, underReviewIds } from "../../src/lib/sports/nba/experimental-grading-ledger.mjs";
-import { buildDiagnostics, diagnosticsMarkdown } from "../../src/lib/sports/nba/model-diagnostics.mjs";
+import { buildDiagnostics, diagnosticsMarkdown, distributionScoreTable, distributionTableMarkdown } from "../../src/lib/sports/nba/model-diagnostics.mjs";
+import { LABELS as POP_LABELS } from "../../src/lib/sports/nba/experimental-forecast.mjs";
 import { evaluateChampionChallenger } from "../../src/lib/sports/nba/champion-challenger.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -69,6 +70,15 @@ for (const fam of fams) {
   } else if (fams.length === 1) console.log(diagnosticsMarkdown(r));
 }
 
+// PRIVATE engine × market distribution-score table (diagnostic, promotes nothing), every population.
+{
+  const tables = Object.values(POP_LABELS).map((label) => distributionScoreTable({ families: current, date: DATE, label, underReview }));
+  for (const t of tables) for (const r of t.rows.filter((x) => ["pts", "margin"].includes(x.market))) console.log(`[distribution ${t.population}] ${r.engine} ${r.market}: CRPS ${r.crps.mean} (n ${r.crps.n}, levels ${r.crps.levels.join("/")}) · IS80 ${r.is80.mean} (n ${r.is80.n})`);
+  if (flag("--write")) {
+    writeOut(path.join(OUT, "diagnostics", `${DATE}.distribution-scores.json`), JSON.stringify({ label: "diagnostic, promotes nothing", tables }, null, 1) + "\n");
+    writeOut(path.join(OUT, "diagnostics", `${DATE}.distribution-scores.md`), `# NBA distribution scores — ${DATE} (PRIVATE · diagnostic, promotes nothing)\n\n${tables.map(distributionTableMarkdown).join("\n")}`);
+  }
+}
 const cc = evaluateChampionChallenger({ champion: "v0.1", challengers: ["v0.2", "v1"], families: Object.fromEntries(Object.entries(current).map(([k, es]) => [k, es.filter((e) => e.status === "GRADED").map((e) => e.grade)])), computedAt: NOW, bootstrap: { B }, underReview });
 cc.asOfSlate = DATE;
 for (const [ch, c] of Object.entries(cc.comparisons)) {

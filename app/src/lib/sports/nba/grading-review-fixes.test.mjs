@@ -1,5 +1,5 @@
 /**
- * Regression tests for the coordinator's review of #1154 (head 47bb50c6d2). Each test failed on that head.
+ * Regression tests for the coordinator's review of PR 1154 (head 47bb50c6d2). Each test failed on that head.
  * SYNTHETIC fixtures (clearly marked) unless a test says COMMITTED.
  *
  * Run (from app/): npx tsx --test src/lib/sports/nba/grading-review-fixes.test.mjs

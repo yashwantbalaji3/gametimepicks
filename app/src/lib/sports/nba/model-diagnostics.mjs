@@ -14,7 +14,8 @@
  * Season-to-date findings (regular season, the §3 population) drive the text proposals; one slate never does.
  */
 import { clusterBootstrap, PROPOSED_CHALLENGERS } from "./champion-challenger.mjs";
-import { MINUTES_BANDS } from "./grader-metrics.mjs";
+import { MINUTES_BANDS, distributionScoreBlock } from "./grader-metrics.mjs";
+import { PLAYER_MARKETS, TEAM_MARKETS, THRESHOLDS } from "./distribution-scores.mjs";
 import { LABELS } from "./experimental-forecast.mjs";
 import { isDisputedFinal } from "./experimental-grading-ledger.mjs";
 
@@ -132,6 +133,7 @@ export function buildDiagnostics({ family, date, generatedAt, entries, bootstrap
     const seasonFindings = systematicFindings(season, bootstrap);
     populations[label] = {
       seasonToDate: { games: season.length, findings: seasonFindings },
+      distributionScores: distributionScoreBlock(season),
       proposals: proposeCandidates(seasonFindings, { family, population: label }),
       proposalsAreTextOnly: true,
       ...(label === LABELS[1] ? { note: "§3: preseason findings may motivate a candidate; they never promote one" } : {}),
@@ -145,6 +147,36 @@ export function buildDiagnostics({ family, date, generatedAt, entries, bootstrap
     slate: { games: slate.length, findings: systematicFindings(slate, bootstrap), surprises: slateSurprises(slateAll, { underReview }), note: "one slate never drives a proposal — see seasonToDate" },
     populations,
   };
+}
+
+/**
+ * PRIVATE engine × market table of distribution scores (frozen receipt quantiles), season to date for one population.
+ * Diagnostic, promotes nothing: each engine is scored on its OWN graded rows here — the paired, identical-row
+ * comparison is in the champion/challenger report.
+ * @param families { [family]: currentEntries } (status GRADED entries with { date, grade })
+ */
+export function distributionScoreTable({ families, date, label, underReview = new Set() }) {
+  const rows = [];
+  for (const [engine, entries] of Object.entries(families)) {
+    const games = (entries ?? []).filter((e) => e.status === "GRADED" && e.date <= date && e.grade?.label === label && !isDisputedFinal(e.grade, underReview)).map((e) => e.grade);
+    if (!games.length) continue;
+    const block = distributionScoreBlock(games);
+    for (const market of [...PLAYER_MARKETS, ...TEAM_MARKETS]) rows.push({ engine, market, games: games.length, ...block[market] });
+  }
+  return { label: "diagnostic, promotes nothing", population: label, asOf: date, source: "frozen receipt quantiles only", rows };
+}
+
+const cell = (x) => (x?.n ? `${x.mean} (n ${x.n})` : "—");
+export function distributionTableMarkdown(t) {
+  const L = [`### Distribution scores (diagnostic, promotes nothing) — ${t.population}, to ${t.asOf}`, "",
+    "Computed from each engine's frozen receipt quantiles only. CRPS ≈ 2 × mean pinball over the stored levels, which approximates CRPS on a sparse quantile set. IS = Gneiting–Raftery interval score. LS(≥k) = log score of P(X ≥ k). Lower is better for every score. Each engine is scored on its own rows here; the identical-row paired comparison is in the champion/challenger report.", "",
+    "| engine | market | CRPS (levels) | IS80 | IS50 | threshold log scores |", "|---|---|---|---|---|---|"];
+  for (const r of t.rows) {
+    const thr = Object.entries(r.thresholdLogScore ?? {}).map(([k, v]) => `${k.replace("ge", "≥")}: ${cell(v)}`).join("; ") || "—";
+    L.push(`| ${r.engine} | ${r.market} | ${cell(r.crps)} {${(r.crps?.levels ?? []).join(",")}} | ${cell(r.is80)} | ${cell(r.is50)} | ${thr} |`);
+  }
+  if (!t.rows.length) L.push("| — | — | no graded rows | | | |");
+  return L.join("\n") + "\n";
 }
 
 const names = (xs, f, max = 12) => (xs.length > max ? `${xs.slice(0, max).map(f).join("; ")}; … +${xs.length - max} more in the JSON` : xs.map(f).join("; "));
@@ -168,6 +200,7 @@ export function diagnosticsMarkdown(r) {
     if (!p.seasonToDate.findings.some((x) => x.status === "SYSTEMATIC")) L.push("- no finding with an interval excluding its nominal value");
     if (p.note) L.push("", `_${p.note}_`);
     L.push("", "### Proposals (text only — nothing is applied)", "", ...p.proposals.map((x) => `- ${x}`));
+    L.push("", distributionTableMarkdown({ population: label, asOf: r.date, rows: [...PLAYER_MARKETS, ...TEAM_MARKETS].map((market) => ({ engine: r.family, market, ...p.distributionScores[market] })) }));
   }
   L.push("", "## Standing proposed challengers (text only — nothing is built or armed)", "", ...r.standingProposals.map((c) => `- ${c.text} _Motivation: ${c.motivation}_`));
   return L.join("\n") + "\n";

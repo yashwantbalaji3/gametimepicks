@@ -21,6 +21,7 @@
 import { validationMetrics, PREREG, MARKET_STATE } from "./grader-metrics.mjs";
 import { LABELS } from "./experimental-forecast.mjs";
 import { isDisputedFinal } from "./experimental-grading-ledger.mjs";
+import { crpsFromPinball, commonLevels, thresholdLogScore, THRESHOLDS, PLAYER_MARKETS, TEAM_MARKETS } from "./distribution-scores.mjs";
 
 export const EVALUATOR_VERSION = "nba-champion-challenger-1";
 export const VERDICT = Object.freeze({ INSUFFICIENT_N: "INSUFFICIENT_N", NOT_READY: "NOT_READY", READY_FOR_FOUNDER_REVIEW: "READY_FOR_FOUNDER_REVIEW" });
@@ -135,6 +136,12 @@ export function pairedMetrics(pairs, opts = {}) {
   };
   // Minutes on the ≥ 20-minute pts-eligible rows (the minutes MAE bar applies to every player family).
   out.players.minutesAbsErr = pairedMarket(pairs.map((p) => pairPlayerRows(p, "pts").map(([ra, rb]) => [ra.minutesAbsErr, rb.minutesAbsErr])), opts);
+  // Distribution scores (diagnostic, promotes nothing) on identical rows: players use the pts-eligible rows of pairPlayerRows.
+  out.distribution = { label: "diagnostic, promotes nothing", players: {}, team: {} };
+  for (const m of PLAYER_MARKETS) {
+    out.distribution.players[m] = pairedDistribution(pairs.map((p) => pairPlayerRows(p, "pts").map(([ra, rb]) => [ra.dist?.[m], rb.dist?.[m]]).filter(([x, y]) => x && y)), m, opts);
+  }
+  for (const m of TEAM_MARKETS) out.distribution.team[m] = pairedDistribution(pairs.map((p) => [[p.a.dist?.[m], p.b.dist?.[m]]].filter(([x, y]) => x && y)), m, opts);
   for (const k of STATS) {
     out.players[k] = {
       absErr: pairedMarket(pairs.map((p) => pairPlayerRows(p, k).map(([ra, rb]) => [ra.unconditional?.[k], rb.unconditional?.[k]])), opts),
@@ -146,6 +153,25 @@ export function pairedMetrics(pairs, opts = {}) {
       })(),
     };
   }
+  return out;
+}
+
+/**
+ * Paired distribution scores for one market: per pair of score rows (champion a, challenger b) on the SAME row, CRPS on
+ * the levels BOTH store, IS80, IS50 (only where both store p25/p75), threshold log scores. Game-clustered intervals.
+ * The reported `levels` are the common levels of every paired row (rows may differ only if an engine changed storage).
+ */
+function pairedDistribution(clusters, market, opts) {
+  const levelSets = clusters.flat().map(([a, b]) => commonLevels(a, b).join(","));
+  const out = {
+    levels: [...new Set(levelSets)].length === 1 ? levelSets[0].split(",") : [...new Set(levelSets)],
+    crps: pairedMarket(clusters.map((c) => c.map(([a, b]) => { const L = commonLevels(a, b); return [crpsFromPinball(a.pinball, L), crpsFromPinball(b.pinball, L)]; })), opts),
+    is80: pairedMarket(clusters.map((c) => c.map(([a, b]) => [a.is80, b.is80])), opts),
+    is50: pairedMarket(clusters.map((c) => c.map(([a, b]) => [a.is50, b.is50])), opts),
+    thresholdLogScore: {},
+  };
+  out.crps.levels = out.levels;
+  for (const k of THRESHOLDS[market] ?? []) out.thresholdLogScore[`ge${k}`] = pairedMarket(clusters.map((c) => c.map(([a, b]) => [thresholdLogScore(a.pGe?.[k], a.actual, k), thresholdLogScore(b.pGe?.[k], b.actual, k)])), opts);
   return out;
 }
 

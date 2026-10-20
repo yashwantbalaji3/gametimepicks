@@ -27,6 +27,7 @@ import { gatePool, POOL_VERSION as ROSTER_GATED_POOL_VERSION } from "./roster-ga
 import { frozenWinnerSide, DECIDED_WINNER_HEAD } from "./winner-side.mjs";
 import { simulateGameV1, NBA_SIM_V1_MODEL_VERSION } from "./game-sim-v1.mjs";
 import { indexBoxscores, leagueMeans, buildSideProfile, PROFILE_VERSION as V1_PROFILE_VERSION } from "./sim-v1-profile.mjs";
+import { scoreQuantileBlock } from "./distribution-scores.mjs";
 
 export const FORECAST_ARTIFACT = "nba-experimental-forecasts";
 /**
@@ -438,6 +439,12 @@ export function gradeForecastGame(game, final, boxscore = null) {
             inside80: Number.isFinite(q.p10) && Number.isFinite(q.p90) ? (actual >= q.p10 && actual <= q.p90 ? 1 : 0) : null,
           };
         }
+        // Distribution scores over the FROZEN receipt quantiles (distribution-scores.mjs): per-level pinball, interval
+        // scores, P(X ≥ k) at the standard thresholds. Never over draws or mean/sd.
+        row.dist = {};
+        for (const m of ["pts", "reb", "ast", "threePm"]) row.dist[m] = Number.isInteger(a[m]) ? scoreQuantileBlock(pred[m], a[m], { market: m }) : null;
+        for (const [ck, parts] of Object.entries(COMBO_PARTS)) row.dist[ck] = parts.every((k) => Number.isInteger(a[k])) ? scoreQuantileBlock(pred[ck], parts.reduce((s, k) => s + a[k], 0), { market: ck }) : null;
+        row.dist.minutes = scoreQuantileBlock(pred.minutes, a.minutes, { market: "minutes" });
         players.rows.push(row);
       }
       for (const [id, pred] of predicted) if (!seen.has(id)) players.predictedButAbsent.push({ side: sideKey, providerAthleteId: id, name: pred.name, expectedMinutes: pred.expectedMinutes, availability: pred.availability ?? null, injuryStatus: pred.injuryStatus ?? null });
@@ -445,7 +452,11 @@ export function gradeForecastGame(game, final, boxscore = null) {
     players.pace = paceFromBoxscore(boxscore, game);
   }
 
-  return { providerEventId: game.providerEventId, label: game.label, seasonType: game.seasonType, population: game.population, dateUtc: game.dateUtc, graded: true, final: { ftHome: final.ftHome, ftAway: final.ftAway, source: final.source ?? null }, winner, score, intervals, overtime, timing, players };
+  const dist = {
+    margin: scoreQuantileBlock(f.sim.margin, final.ftHome - final.ftAway, { market: "margin" }),
+    total: scoreQuantileBlock(f.sim.total, final.ftHome + final.ftAway, { market: "total" }),
+  };
+  return { providerEventId: game.providerEventId, label: game.label, seasonType: game.seasonType, population: game.population, dateUtc: game.dateUtc, graded: true, final: { ftHome: final.ftHome, ftAway: final.ftAway, source: final.source ?? null }, winner, score, intervals, overtime, timing, players, dist };
 }
 
 const meanOf = (xs) => (xs.length ? r4(xs.reduce((s, x) => s + x, 0) / xs.length) : null);
