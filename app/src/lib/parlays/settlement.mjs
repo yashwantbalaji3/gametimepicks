@@ -54,13 +54,13 @@ const priced = (o) => typeof o === "number" && Number.isFinite(o) && o !== 0;
  * @param {ReadonlyArray<string>} results
  */
 export function cardResult(results) {
-  const r = results ?? [];
-  const decisive = r.filter((x) => x !== "push" && x !== "void");
-  return r.includes("pending") && !r.includes("loss") ? "pending"
+  const all = results ?? [];
+  const decisive = all.filter((r) => r !== "push" && r !== "void");
+  return all.includes("pending") && !all.includes("loss") ? "pending"
     : decisive.includes("loss") ? "loss"
-    : decisive.length && decisive.every((x) => x === "win") ? "win"
-    : r.length && r.every((x) => x === "push") ? "push"
-    : r.length && r.every((x) => x === "push" || x === "void") ? "void"
+    : decisive.length && decisive.every((r) => r === "win") ? "win"
+    : all.length && all.every((r) => r === "push") ? "push"
+    : all.length && all.every((r) => r === "push" || r === "void") ? "void"
     : "pending";
 }
 

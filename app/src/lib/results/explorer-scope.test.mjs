@@ -38,7 +38,10 @@ test("the date-refusal copy points at the dated surfaces that actually exist", (
 test("settler: a scratch against a FINAL box voids; an unknown market never fabricates a refund", () => {
   assert.match(settler, /if \(!stats\) \{ results\.push\("void"\); continue; \}/, "scratch → void");
   assert.match(settler, /marketKnown\(leg\.marketLabel\) \? "void" : "pending"/, "known-market missing stat → void; unknown market stays pending");
-  assert.match(settler, /r !== "push" && r !== "void"/, "voids reduce the card like pushes");
+  // The card rule moved to lib/parlays/settlement.mjs (PR #1141, reduced-win payout fix); the settler routes through it.
+  const settlement = fs.readFileSync(path.join(APP, "src/lib/parlays/settlement.mjs"), "utf8");
+  assert.match(settler, /receiptCard\(\{/, "the settler builds every card through the settlement module");
+  assert.match(settlement, /r !== "push" && r !== "void"/, "voids reduce the card like pushes");
 });
 
 test("completion re-runs carry forward what a quiet source can no longer say, inside the recorded population", () => {
