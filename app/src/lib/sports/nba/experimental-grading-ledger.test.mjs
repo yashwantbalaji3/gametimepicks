@@ -158,6 +158,13 @@ test("ledger: a stat correction appends a CORRECTION that supersedes, with old/n
   assert.equal(currentGradeEntries(b.ledger).get("C1").seq, 2, "the current view is the correction");
 });
 
+test("ledger: a game first graded on the final alone, then with its box score, appends a CORRECTION with cause BOXSCORE_ADDED", () => {
+  const box = boxDoc("BA");
+  const a = appendGameResults(emptyExperimentalLedger(spec), [item("BA", graded("BA"))], { gradedAt: "t1" });
+  const b = appendGameResults(a.ledger, [item("BA", graded("BA", { box }), { boxscoreHash: boxscoreContentHash(box) })], { gradedAt: "t2" });
+  assert.deepEqual([b.appended[0].lineageReason, b.appended[0].cause, b.appended[0].supersedes], [LINEAGE.CORRECTION, CORRECTION_CAUSE.BOXSCORE_ADDED, 1]);
+});
+
 test("ledger: a box-score check log is append-only; a CORRECTION check writes a BOXSCORE_CORRECTION record with old/new hashes", () => {
   let l = emptyExperimentalLedger(spec);
   l = appendBoxscoreCheck(l, { providerEventId: "C1", checkedAt: "t1", outcome: "UNCHANGED", hash: "aaa" });

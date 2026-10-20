@@ -27,7 +27,7 @@ import { finalFor, nbaSeasonLabel, etDateOf } from "./finals-record.mjs";
 export const GRADER_VERSION = "nba-experimental-grader-2";
 export const LEDGER_SCHEMA_VERSION = 2;
 export const LINEAGE = Object.freeze({ INITIAL: "INITIAL", PENDING_RESOLVED: "PENDING_RESOLVED", CORRECTION: "CORRECTION" });
-export const CORRECTION_CAUSE = Object.freeze({ BOXSCORE_CORRECTION: "BOXSCORE_CORRECTION", FINAL_CHANGED: "FINAL_CHANGED", GRADER_CHANGE: "GRADER_CHANGE", OTHER: "OTHER" });
+export const CORRECTION_CAUSE = Object.freeze({ BOXSCORE_CORRECTION: "BOXSCORE_CORRECTION", BOXSCORE_ADDED: "BOXSCORE_ADDED", FINAL_CHANGED: "FINAL_CHANGED", GRADER_CHANGE: "GRADER_CHANGE", OTHER: "OTHER" });
 
 /* ─────────────────────────── 1. finals ─────────────────────────── */
 
@@ -230,6 +230,7 @@ export function appendGameResults(ledger, items, { gradedAt, graderVersion = GRA
     let cause = null;
     if (lineageReason === LINEAGE.CORRECTION && isDecided(prev)) {
       if (it.cause) cause = it.cause;
+      else if (!prev.inputs?.boxscoreHash && it.inputs?.boxscoreHash) cause = CORRECTION_CAUSE.BOXSCORE_ADDED; // graded on the final alone first; player rows arrived later
       else if (prev.inputs?.boxscoreHash && it.inputs?.boxscoreHash && prev.inputs.boxscoreHash !== it.inputs.boxscoreHash) cause = CORRECTION_CAUSE.BOXSCORE_CORRECTION;
       else if (prev.grade?.final && it.grade?.final && (prev.grade.final.ftHome !== it.grade.final.ftHome || prev.grade.final.ftAway !== it.grade.final.ftAway)) cause = CORRECTION_CAUSE.FINAL_CHANGED;
       else if (prev.graderVersion !== graderVersion) cause = CORRECTION_CAUSE.GRADER_CHANGE;
