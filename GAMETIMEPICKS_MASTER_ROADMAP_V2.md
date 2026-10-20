@@ -1649,6 +1649,14 @@ Stabilize EPL → correct/grade Ligue 1 → league-specific validation → La Li
 | NBA-10 | Model evaluation and controlled improvement | P1 | IN PROGRESS | Preregistered bars; v1 development-season evaluation | Promotion only by preregistered bars on the forward shadow; no retraining after single games |
 | NBA-11 | Existing product integration | P2 | BLOCKED (by design) | Registry gates Ask, Parlay Lab, Bank Builder, Moonshot and BYO | Needs `decision-nba-markets-authorization` (paid odds) and passed bars |
 | NBA-12 | Opening-night Production acceptance | P0 | IN PROGRESS | `app/scripts/nba/opening-night-acceptance.mjs` (#1135). At 05:12Z: 16 pass, 0 fail, 12 pending (forecasts owed from 11:00Z, finals after tip) | Run it at about 12Z, 16Z, 19:30Z and 23:30Z on 10-20, and after the last final |
+| NBA-13 | One official NBA source (consistency) | P0 | IMPLEMENTED LOCALLY · draft **#1149** | `nbaOfficialSnapshot` = `nba-official-composition@1`: Elo side + v0.1 players (what `/nba` prints). v1 is SUPPORTING_SIMULATION; official team score/margin/total are WITHHELD. A new `nba-public-lane` audit check found 0 findings on 10-20. The NBA Theater anchor gate (`nbaSimAnchorCheck`) is closed on 3/3 games. Lib + components: 456 pass | Founder: anchor tolerances, *after* N6; team scores WITHHELD vs a reconciliation path; retire the private v1 board. Full suite + build owed after 05:00Z |
+| NBA-14 | Lane automation (daily coverage) | P0 | IMPLEMENTED LOCALLY · draft **#1150** | `publish-nba-experimental-lane.mjs` + pure `decidePublish`: HOLD until every game is frozen or tipped; REFUSE on a re-derivation failure or a differing published slate; NOOP when unchanged. Rebuilding 10-20 → NOOP | Release owner applies the workflow step after #1148. One Production build per slate (~160/season) |
+| NBA-15 | Theater V2 three-layer box score | P0 | IMPLEMENTED LOCALLY · draft **#1153** (dev-only) | `nba-projected-box@1`: three labelled layers: official v0.1 projection, the simulated v1 run, and an estimated starter grouping. Team score and win % show "Withheld". FGA/FTA/STL/BLK/TO are "not modelled". The run's distance from the official projection is shown honestly (1.32–1.53 vs 0.5 tolerance). Checklist: `docs/simulation-theater/NBA_THEATER_PUBLIC_ACTIVATION_CHECKLIST.md` | e2e at 4 widths and screenshots owed after 05:00Z. Public flag stays OFF (V18 §13 + anchor gate) |
+| NBA-16 | Top Boards v2 + markets gap report | P1 | IMPLEMENTED LOCALLY · draft **#1151** (private) | PRA/P+R/P+A from v0.1 joint sums; R+A "not modelled"; discrete-stat tie fix; `boardRowEvaluation` refuses everything today (`NO_AUTHORIZED_PRICE`). Gap report: `docs/nba/NBA_MARKETS_GAP_REPORT_2026-10-21.md` | `decision-nba-markets-authorization` (token is h2h only; props need a new template); #1130 |
+| NBA-17 | Product legs (Bank Builder / Moonshot / Parlay Lab / Smart Betslip) | P1 | IMPLEMENTED LOCALLY · draft **#1157** (inert) | Gated `nba-leg.mjs`. An exposure invariant goes red if any one of six switches flips. Plan: `docs/nba/NBA_PRODUCT_INTEGRATION_PLAN_2026-10-21.md` | No NBA market can complete a leg even with every switch flipped (auth = h2h; snapshot = player props; settlement = team markets). Founder Q1: which market first. Moonshot policy is team-markets-only |
+| NBA-18 | Grading, error analysis, challenger evaluation | P0 | IN PROGRESS · draft **#1154** | Fixes the 9-day-window defect, stat-correction re-check, OT capture, append-only ledgers; RMSE/slices; a paired champion/challenger evaluator (report only) | Real opening-night integration run after the finals (~03:30Z 10-21). Workflow diffs in the PR body |
+| NBA-19 | Winner-head evidence (research) | P1 | RESEARCH COMPLETED · draft **#1152** | 2024-25, n = 1,005, paired: v1 − Elo log loss −0.0059 [−0.0110, −0.0009], Brier −0.0026 [−0.0049, −0.0004]. Elo mean pHome 0.584 vs realized 0.530 (overstates home). Development season: promotes nothing (§8) | Input to N6. Proposed challengers: an Elo home-advantage refit; the v1 sim head against the §7 winner bars on forward rows |
+| NBA-20 | Possession-level simulation (research) | P2 | IN PROGRESS | `nba-possession-sim-v0` private prototype: event log → box score fold, invariants, dev-season evaluation vs v1 / Elo | Never wired into the Theater until it beats or matches v1 and has an approved event-stream contract |
 
 **Cost:**
 - All NBA inputs are free (ESPN public endpoints). There are no NBA odds: `nba-market-probe` is paid and manual, and has no authorization receipt.
@@ -1663,6 +1671,12 @@ Stabilize EPL → correct/grade Ligue 1 → league-specific validation → La Li
 - `blocker-nba-lineup-rights` (deferred 2026-09-10; due "before tip-off week")
 - The v0.2 bug
 - Whether any experimental public NBA display is wanted before the bars are met
+- **Added 2026-10-21 (NBA full-product session):**
+  - NBA anchor tolerances (#1149): decide after N6, since on 2024-25 Elo, not v1, is the less calibrated head (#1152).
+  - Official NBA team scores: keep WITHHELD, or name a reconciliation path.
+  - Retire or relabel the private v1 top board.
+  - Which NBA market opens first, and a props authorization template, if props are wanted (#1151 / #1157).
+  - Starter-estimate rule and the 0.5 representative tolerance before any public Theater (#1153).
 
 ### Earlier entries (kept for history)
 - `NBA-001` (private/shadow readiness) is superseded by NBA-01 to NBA-02.
@@ -3435,3 +3449,33 @@ GameTimePicks reaches the intended architecture when a user can:
 15. Know every model was promoted because evidence supported it—not because it looked sophisticated or ran 10,000 simulations.
 16. Keep the development loop on localhost; approve deliberate Vercel releases; measure Build CPU and deployment count so monthly infrastructure spend stays sustainable.
 
+## 2026-10-21 — Claude Code (NBA full-product readiness session) — NBA-13 → NBA-20
+- **Starting main SHA:** `0894582617` (2026-10-20 20:15Z)
+- **Branches / drafts:**
+  - #1149 `claude/nba-canonical-official-snapshot`
+  - #1150 lane automation
+  - #1151 Top Boards v2
+  - #1152 winner-head research
+  - #1153 Theater box score
+  - #1154 grading
+  - #1155 settler unknown-sport fix
+  - #1156 founder-token scope fix
+  - #1157 product legs
+  - The possession-sim research branch
+- **Goal:** the founder brief "NBA Full Product Readiness & Continuous Model Improvement" (Oct 20–21).
+- **Reproduced:**
+  - Two NBA official sources. `/nba` showed v0.1 + Elo; the snapshot, Theater and audit used v1. Points medians differed by up to 7.9.
+  - Lane snapshot not automated.
+  - Grading read only a 9-day window.
+  - No NBA odds exist.
+- **Decisions made (engineering, within §13):** official = Elo side + v0.1 players; v1 supporting; team scores WITHHELD; the NBA Theater gate requires an approved anchor.
+- **Local tests:**
+  - The full stacked integration (#1149 + #1151 + #1153 + #1157) gives 1,336 pass, 0 fail, 3 skipped across consistency, simulation-theater lib + components, sports/nba, products, parlays and launch.
+  - No `next build` (protected window to 05:00Z).
+- **Vercel builds:** 0 (`claude/**` is not deployment-enabled).
+- **Production:** unchanged by this session.
+- **Process exception:** #1153 was rebased and force-pushed (`--force-with-lease`) once. That is disclosed; later stacked updates used merges.
+- **Remaining:**
+  - Full suite + build + post-build for #1149 under the lock after 05:00Z.
+  - Grading integration on real finals.
+  - The founder decisions listed under NBA "Open founder decisions".
