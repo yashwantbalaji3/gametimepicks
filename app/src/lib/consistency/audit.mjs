@@ -23,7 +23,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  NBA_LANE_FAMILIES, NBA_OFFICIAL_FAMILY, NBA_SUPPORTING_FAMILY, SOURCE_ROLE, SnapshotRefusal, nbaOfficialSnapshot, nbaSupportingGame, nflOfficialSnapshot, playerOf,
+  NBA_BOARD_ROLE, NBA_BOARD_ROLES, NBA_LANE_FAMILIES, NBA_OFFICIAL_FAMILY, NBA_SUPPORTING_FAMILY, SOURCE_ROLE, SnapshotRefusal, nbaOfficialSnapshot, nbaSupportingGame, nflOfficialSnapshot, playerOf,
 } from "./official-snapshot.mjs";
 import { evaluateMarket, LEAN } from "./market-evaluator.mjs";
 import { officialTargets, runsFromNbaSamples, runsFromNflSimReceipt, selectOfficialRepresentative } from "./representative.mjs";
@@ -586,6 +586,13 @@ function auditNbaDate(ctx, date) {
     for (const b of boards) {
       const fam = b.doc.family;
       const famGames = fam === officialFamily ? off : fam === NBA_SUPPORTING_FAMILY ? sup : null;
+      // A labelled challenger research board (founder 2026-10-20) is a different model BY DESIGN: it is inventoried,
+      // not compared with the official numbers and not a version mix. It must stay off every public / product surface
+      // (top-board-route-gating + static scan). Any family without a role is still an ERROR.
+      if (NBA_BOARD_ROLES[fam]?.role === NBA_BOARD_ROLE.CHALLENGER_RESEARCH_ONLY) {
+        ctx.researchBoards.push({ sport: "NBA", eventId: id, family: fam, label: NBA_BOARD_ROLES[fam].label, path: b.path, editions: (b.doc.editions ?? []).filter((ed) => (ed.games ?? []).some((x) => String(x.eventId) === id)).length });
+        continue;
+      }
       for (const ed of b.doc.editions ?? []) {
         const gm = (ed.games ?? []).find((x) => String(x.eventId) === id);
         if (!gm) continue;
@@ -656,6 +663,7 @@ export function runConsistencyAudit({ repoRoot, nflEvents = null, nbaDates = DEF
     publicViews: new Map(loadForecastViews(publicDir).map((v) => [String(v.providerEventId), v])),
     representatives: [],
     anchors: [],
+    researchBoards: [],
   };
   for (const e of ctx.shadowEntries) manifest[e.file] ??= sha256(fs.readFileSync(path.join(repoRoot, e.file)));
   const events = nflEvents ?? nflEventsWithAllSources(repoRoot);
@@ -672,6 +680,7 @@ export function runConsistencyAudit({ repoRoot, nflEvents = null, nbaDates = DEF
     evaluations: results.flatMap((r) => r.evaluations),
     representatives: ctx.representatives,
     simAnchors: ctx.anchors,
+    researchBoards: ctx.researchBoards,
     discrepancies,
     summary: summarize(discrepancies),
     manifest,

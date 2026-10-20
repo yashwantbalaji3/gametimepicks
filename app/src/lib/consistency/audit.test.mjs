@@ -166,3 +166,13 @@ test("NBA gate policy: ANCHORED is in force; LABELLED_SUPPORTING_RUNS is prepare
   const noSim = theaterActivationGate("nba", "7", { audit: { ...base, simAnchors: [] }, nbaPolicy: NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS });
   assert.equal(noSim.blockers[0].code, "NO_SUPPORTING_SIMULATION");
 });
+
+test("the v1 board is a labelled NBA v1 Challenger — Research Only board: inventoried, never an official comparison or version mix", () => {
+  const rb = audit.researchBoards.filter((x) => x.sport === "NBA");
+  assert.equal(rb.length, 3, "one per 2026-10-20 game");
+  for (const x of rb) { assert.equal(x.family, "v1"); assert.equal(x.label, "NBA v1 Challenger — Research Only"); }
+  assert.deepEqual(audit.discrepancies.filter((d) => d.sport === "NBA" && /nba-top-board\.v1/.test(d.surface ?? "")), []);
+  for (const id of ["401909088", "401909089", "401909090"]) {
+    assert.ok(!theaterActivationGate("nba", id, { audit }).blockers.some((b) => b.code === "MODEL_VERSION_MIX"), id);
+  }
+});

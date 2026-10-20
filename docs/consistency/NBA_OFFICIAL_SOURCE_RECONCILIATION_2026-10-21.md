@@ -150,3 +150,18 @@ That conflicts with this PR's anchor gate, which requires v1 to agree with the o
 3. Clear everything §13 and the activation checklist in #1153 require.
 
 **UI work (not done here).** The Theater copy would have to drop "Official Representative Simulation" under the alternative. #1153's tests that the official layer never changes with the selected run stay the overwrite guarantee.
+
+## 9. The v1 board is relabelled "NBA v1 Challenger — Research Only" (founder decision, 2026-10-20)
+
+**The decision:** "Retain the v1 Top 10 research board, but relabel it clearly as an NBA v1 Challenger — Research Only. Remove any possibility that its numbers appear as official predictions, Top Picks or product recommendations."
+
+**What changed:**
+- `NBA_BOARD_ROLES` in `official-snapshot.mjs`: `v0.1` is `OFFICIAL`; `v1` is `CHALLENGER_RESEARCH_ONLY`, labelled as above.
+- The audit inventories a research-only board in `researchBoards[]`. It is not compared with the official numbers and is not a version mix.
+- A board of any family *without* a role is still an ERROR.
+- Public and product isolation stays enforced by `top-board-route-gating.test.mjs` (no public route imports a board) and by the export pruning of `/preview/**`.
+
+**Baseline (NBA entries only re-pinned):**
+- `MODEL_VERSION_MIX nba-top-board.v1` (6 → 0) and the 8 `PROJECTION_MISMATCH nba-top-board.v1|…` classes (3 → 0 each) are resolved.
+- NBA keeps one pinned entry: `PROJECTION_MISMATCH simulation-theater.default` on 401909090.
+- The Theater gate no longer carries `MODEL_VERSION_MIX` on any 10-20 game.
