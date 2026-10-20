@@ -3,17 +3,17 @@
  "artifact": "ufc-card-population-receipt",
  "dataClass": "INTERNAL_RESEARCH",
  "public": false,
- "generatedAt": "2026-10-19T19:11:56Z",
+ "generatedAt": "2026-10-20T15:36:45Z",
  "version": 1,
  "event": {
   "providerEventId": "600061267",
   "name": "UFC 333: Volkanovski vs. Evloev"
  },
  "counts": {
-  "expected": 11,
-  "captured": 11,
-  "read": 10,
-  "unmodelled": 1,
+  "expected": 14,
+  "captured": 14,
+  "read": 12,
+  "unmodelled": 2,
   "priced": 0,
   "missing": 0,
   "phantom": 0
@@ -154,6 +154,45 @@
   {
    "boutId": "401930357",
    "providerBoutId": "401930357",
+   "inputs": {
+    "fighterHistory": "AVAILABLE",
+    "marketPrice": "MISSING",
+    "weighIns": "UNSUPPORTED",
+    "injuriesOrReplacements": "UNSUPPORTED",
+    "reachStance": "UNSUPPORTED"
+   },
+   "read": "READ",
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401930915",
+   "providerBoutId": "401930915",
+   "inputs": {
+    "fighterHistory": "AVAILABLE",
+    "marketPrice": "MISSING",
+    "weighIns": "UNSUPPORTED",
+    "injuriesOrReplacements": "UNSUPPORTED",
+    "reachStance": "UNSUPPORTED"
+   },
+   "read": "READ",
+   "unmodelledReason": null
+  },
+  {
+   "boutId": "401930916",
+   "providerBoutId": "401930916",
+   "inputs": {
+    "fighterHistory": "MISSING",
+    "marketPrice": "MISSING",
+    "weighIns": "UNSUPPORTED",
+    "injuriesOrReplacements": "UNSUPPORTED",
+    "reachStance": "UNSUPPORTED"
+   },
+   "read": "UNMODELLED",
+   "unmodelledReason": "Neither fighter has enough UFC history in our corpus to build a read from."
+  },
+  {
+   "boutId": "401930917",
+   "providerBoutId": "401930917",
    "inputs": {
     "fighterHistory": "AVAILABLE",
     "marketPrice": "MISSING",
