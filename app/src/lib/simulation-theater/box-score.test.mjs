@@ -53,8 +53,12 @@ test("run of record for 401873008: header, provenance and run binding", () => {
   }
 });
 
-test("the Overtime representative of 401873008's record: WSH 38–35 SF in OT, with an OT column", () => {
-  const m = loadTheater(REPO, "401873008").manifest;
+/** A write-once receipt whose OVERTIME representative is WSH 38–35 SF (OT). Pinned: the receipt OF RECORD moves as new
+ *  pre-kickoff receipts are committed, and its OT run (if any) moves with it. */
+const OT_FILE = "data/internal/research/nfl/sim-v2/shadow/2026-10-19/401873008-93e33ba709b93f85.json";
+
+test("the Overtime representative of a pinned 401873008 receipt: WSH 38–35 SF in OT, with an OT column", () => {
+  const m = adaptFile(OT_FILE);
   const ot = m.samples.find((s) => s.kind === "OVERTIME");
   assert.ok(ot, "an OVERTIME representative exists");
   const box = nflBoxScore(ot, m);

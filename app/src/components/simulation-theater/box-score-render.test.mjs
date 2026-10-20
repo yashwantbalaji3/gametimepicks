@@ -6,6 +6,7 @@
  */
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -69,9 +70,14 @@ test("server table: every number equals nflBoxScore for the default run; NOT_MOD
   assert.ok(!/\b[A-Z]{3,}(?:_[A-Z0-9]{2,})+\b/.test(visible(html)), "no internal state code in visible text");
 });
 
-test("the Overtime run renders its OT column", () => {
-  const ot = m.samples.find((s) => s.kind === "OVERTIME");
-  const html = renderToStaticMarkup(React.createElement(BoxScoreForRun, { manifest: m, sample: ot }));
+test("the Overtime run renders its OT column", async () => {
+  // pinned write-once receipt (its OT run is WSH 38–35 SF); the receipt of record moves as new receipts are committed
+  const { adaptReceipt } = await import("../../lib/simulation-theater/adapter-nfl-sim-v2.mjs");
+  const rel = "data/internal/research/nfl/sim-v2/shadow/2026-10-19/401873008-93e33ba709b93f85.json";
+  const a = adaptReceipt(JSON.parse(fs.readFileSync(path.join(REPO, rel), "utf8")), { file: rel });
+  assert.ok(a.ok, `${rel} adapts`);
+  const ot = a.manifest.samples.find((s) => s.kind === "OVERTIME");
+  const html = renderToStaticMarkup(React.createElement(BoxScoreForRun, { manifest: a.manifest, sample: ot }));
   assert.match(html, /<th scope="col">OT<\/th>/);
   assert.ok(visible(html).includes("WSH 38–35 SF (OT)"));
 });
