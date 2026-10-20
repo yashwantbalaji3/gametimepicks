@@ -250,20 +250,6 @@ const hypOf = (m, s) => runRole(m, s.runIndex, s.title).hypothetical;
 const pbox = (m, s, h = hypOf(m, s)) => nbaProjectedBox(s, m, { hypothetical: h });
 /** The <tr> of one player in one rendered table (its HTML), by name. */
 const rowHtml = (out, name) => out.split("<tr").find((tr) => tr.includes(`<span class="nba-bx-pname">${name}</span>`)) ?? "";
-/** The coordinator's snapshot shape (team scores WITHHELD; v0.1 families incl. minutes and combos). */
-function withheldShape(m) {
-  const x = JSON.parse(JSON.stringify(m));
-  x.representative.official.team = { home: null, away: null, margin: null, total: null };
-  x.representative.official.teamScores = { state: "WITHHELD", reason: "the official side model and the supporting simulation disagree" };
-  x.representative.official.winnerSide = "home";
-  for (const p of Object.values(x.representative.players)) {
-    p.families.minutes = { expected: 31.25, median: 31.5 };
-    p.families.pra = { expected: 22.25, median: 21.5 };
-    p.families.ptsReb = { expected: 17.75, median: 17.5 };
-    p.families.ptsAst = { expected: 16.25, median: 16 };
-  }
-  return x;
-}
 
 test("box score: watermark first, both teams, three labelled layers, sortable columns with aria-sort, DNP ≠ 0, n/m, provenance", () => {
   let rendered = 0;
@@ -289,11 +275,11 @@ test("box score: watermark first, both teams, three labelled layers, sortable co
       assert.equal((out.match(/class="nba-bx-table nba-px-table"/g) ?? []).length, 2);
       assert.equal((out.match(/data-nba-boxscore-team="(away|home)"/g) ?? []).length, 2);
       assert.equal((out.match(/<caption class="st-sr">[^<]*Official projection \(median\) and Simulated game — one run — simulated run #/g) ?? []).length, 2);
-      assert.equal((out.match(/<th scope="colgroup" colSpan="4" class="nba-px-layerhead" data-layer="official">Official projection · median<\/th>/gi) ?? []).length, 2);
+      assert.equal((out.match(/<th scope="colgroup" colSpan="8" class="nba-px-layerhead" data-layer="official">Official projection · median<\/th>/gi) ?? []).length, 2);
       assert.equal((out.match(/<th scope="colgroup" colSpan="9" class="nba-px-layerhead" data-layer="simulated">Simulated game — one run<\/th>/gi) ?? []).length, 2);
       assert.equal((out.match(/<th scope="colgroup" colSpan="5" class="nba-px-layerhead" data-layer="not-modelled">Not modelled<\/th>/gi) ?? []).length, 2);
       for (const label of SIM_LABELS) assert.equal((out.match(new RegExp(`data-layer="simulated" data-modeled="MODELED"[^>]*><button type="button" class="nba-bx-sort"[^>]*>${label}<`, "g")) ?? []).length, 2, label);
-      for (const label of ["PTS", "REB", "AST", "3PM"]) assert.equal((out.match(new RegExp(`data-layer="official"[^>]*><button type="button" class="nba-bx-sort" title="[^"]+ · Official projection">${label}<`, "g")) ?? []).length, 2, `official ${label}`);
+      for (const label of ["MIN", "PTS", "REB", "AST", "3PM", "PRA", "P\\+R", "P\\+A"]) assert.equal((out.match(new RegExp(`data-layer="official"[^>]*><button type="button" class="nba-bx-sort" title="[^"]+ · Official projection">${label}<`, "g")) ?? []).length, 2, `official ${label}`);
       for (const label of NM_LABELS) assert.equal((out.match(new RegExp(`data-layer="not-modelled"><abbr class="nba-px-nmhead" title="${label}: not modelled[^"]*">${label}</abbr>`, "g")) ?? []).length, 2, `n/m ${label}`);
       assert.doesNotMatch(out, /<button[^>]*>(FGA|FG%|FTA|STL|BLK|TOV|TO|PF|OREB|DREB|\+\/-)</, "no unmodeled column is sortable or filled");
       // default sort: simulated minutes descending, marked with aria-sort on exactly that header (one per table)
@@ -315,7 +301,8 @@ test("box score: watermark first, both teams, three labelled layers, sortable co
       assert.match(t, /Not simulated · availability/);
       assert.match(t, /Starter \(est\.\)/);
       // totals: simulated minutes and points; official PTS from the official team term, other official columns not summed
-      assert.match(out, /<tfoot><tr><th scope="row" class="nba-bx-name">Team<\/th><td class="nba-px-role"><\/td><td class="nba-px-off is-first" data-layer="official" data-nba-official-team="AVAILABLE">[\d.]+<\/td>(<td class="nba-px-off" data-layer="official"><span aria-hidden="true">—<\/span><span class="st-sr">player projections are not summed into a team total<\/span><\/td>){3}<td class="is-first" data-layer="simulated">(240|265)<\/td><td class="is-pts" data-layer="simulated">\d+<\/td>/);
+      // totals: simulated minutes and points; official MIN etc. not summed, official PTS WITHHELD (no number)
+      assert.match(out, /<tfoot><tr><th scope="row" class="nba-bx-name">Team<\/th><td class="nba-px-role"><\/td><td class="nba-px-off is-first" data-layer="official"><span aria-hidden="true">—<\/span><span class="st-sr">player projections are not summed into a team total<\/span><\/td><td class="nba-px-off" data-layer="official" data-nba-official-team="WITHHELD"><span class="nba-px-withheld">Withheld<\/span><\/td>(<td class="nba-px-off" data-layer="official"><span aria-hidden="true">—<\/span><span class="st-sr">player projections are not summed into a team total<\/span><\/td>){6}<td class="is-first" data-layer="simulated">(240|265)<\/td><td class="is-pts" data-layer="simulated">\d+<\/td>/);
       // the explanation, the official game line, leaders, not modeled, provenance
       for (const re of [/One simulated game is not the median/, /Official projection · game/, /Top scorer/, /Top rebounder/, /Top assister/, /Not modeled · not shown/, /FGA · FG% · 2PA/, /Starter \/ bench/, /n\/m = not modelled/]) assert.match(t, re);
       assert.match(out, /data-nba-boxscore-provenance=""[^>]*>Run #[\d,]+ of 10,000/);
@@ -394,20 +381,32 @@ test("what-if rule (UI): choosing any hypothetical run never changes an official
   }
 });
 
-test("coordinator snapshot: team scores WITHHELD render 'Withheld' and no team number; MIN / PRA / P+R / P+A official columns appear", () => {
-  const load = LOADS[2];
-  const m = withheldShape(load.manifest);
-  const s = m.samples[0];
-  const out = html(React.createElement(BoxScoreBody, { result: pbox(m, s), palette: load.palettes.team, idBase: "c", manifest: m }));
-  const t = text(out);
-  assert.match(out, /data-nba-px-teamscore="WITHHELD"><b class="nba-px-withheld">Withheld<\/b> · the official side model and the supporting simulation disagree/);
-  assert.equal((out.match(/data-nba-official-team="WITHHELD"><span class="nba-px-withheld">Withheld<\/span>/g) ?? []).length, 2);
-  assert.doesNotMatch(out, /data-st-compare=""/, "no official-vs-run team comparison when the official team score is withheld");
-  assert.match(out, /data-nba-px-favoured="">SA</);
-  assert.equal((out.match(/<th scope="colgroup" colSpan="8" class="nba-px-layerhead" data-layer="official">/g) ?? []).length, 2);
-  for (const label of ["MIN", "PRA", "P\\+R", "P\\+A"]) assert.equal((out.match(new RegExp(`data-layer="official"[^>]*><button type="button" class="nba-bx-sort"[^>]*>${label}<`, "g")) ?? []).length, 2, label);
-  assert.match(out, /data-nba-official="minutes" title="Official projection: median 31\.50 · mean 31\.25">31\.50<\/td>/);
-  assert.match(t, /SIMULATED FINAL/, "the simulated game is unchanged");
+test("official snapshot (#1149): win probability and team score render 'Withheld' with the snapshot's reasons and no number; Elo side; run fit reported honestly", () => {
+  for (const load of LOADS) {
+    const m = load.manifest;
+    const o = m.representative.official;
+    for (const s of m.samples) {
+      const out = html(React.createElement(BoxScoreBody, { result: pbox(m, s), palette: load.palettes.team, idBase: "c", manifest: m }));
+      const t = text(out).replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+      assert.ok(t.includes(`Official team score Withheld · ${o.withheld.teamScores}`), "team score withheld with its reason");
+      assert.ok(t.includes(`Win probability Withheld · ${o.withheld.winProbability}`), "win probability withheld with its reason");
+      assert.match(out, /data-nba-px-teamscore="WITHHELD"/);
+      assert.match(out, /data-nba-px-winprob="WITHHELD"/);
+      // the raw Elo pHome rides in the block but is never printed
+      for (const p of [o.pHome, o.pAway]) assert.ok(!t.includes(LABELS_REP.fmtPct(p)), `win probability ${LABELS_REP.fmtPct(p)} printed`);
+      assert.doesNotMatch(out, /data-st-compare=""/, "no official-vs-run team comparison when the official team score is withheld");
+      assert.equal((out.match(/data-nba-official-team="WITHHELD"><span class="nba-px-withheld">Withheld<\/span>/g) ?? []).length, 2);
+      assert.match(out, new RegExp(`data-nba-px-favoured="">${m.teams[String(o.winnerSide).toLowerCase()].abbr}<`));
+      assert.ok(t.includes(`Player ranges: ${o.withheld.playerRanges}`));
+      // the run layer names its (different) model, and its distance from the official projection
+      assert.match(t, /Simulated game — one run( · what-if · hypothetical)? · nba-sim-v1-coherent \(supporting simulation\)/);
+      if (s.runIndex === m.representative.officialRunIndex) {
+        assert.match(out, /data-nba-px-fit="official-representative" data-within="false">Closest stored run, still far from the official projection \(distance \d\.\d\d; tolerance 0\.50\)/);
+      } else {
+        assert.match(out, /data-nba-px-fit="what-if" data-within="false">What-if · hypothetical · distance/);
+      }
+    }
+  }
 });
 
 test("layer view and statistic: official-only hides simulated and n/m; simulated-only hides official; mean prints means; controls are native radios", () => {

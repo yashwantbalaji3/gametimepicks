@@ -52,9 +52,12 @@ type Leader = { value: number; players: { side: NbaSide; name: string }[] } | nu
 type TeamTerm = OffVal | null;
 type OfficialGame = {
   state: "AVAILABLE" | "NO_OFFICIAL"; refusal: { code: string; message: string } | null; snapshotId: string | null; modelVersion: string | null; publication?: string | null;
-  winnerSide: NbaSide | null; pHome: number | null; pAway: number | null;
+  composition?: string | null; winnerSide: NbaSide | null;
+  winProbability: { state: "AVAILABLE" | "WITHHELD"; reason: string | null; home: number | null; away: number | null } | null;
   teamScores: { state: "AVAILABLE" | "WITHHELD"; reason: string | null; away: TeamTerm; home: TeamTerm; margin: TeamTerm; total: TeamTerm } | null;
+  playerRanges: string | null;
 };
+type RunFit = { role: string; distance: number | null; tolerance: number | null; withinTolerance: boolean; rule: string | null; text: string };
 type SimBox = {
   header: {
     matchup: string; status: string; runIndex: number; title: string | null; simulations: number | null; engine: string | null; profileVersion: string | null;
@@ -72,7 +75,7 @@ export type NbaProjectedBox = {
   hypothetical: boolean;
   layers: {
     official: { label: string; note: string; state: string; available: boolean; conditioning: string[]; refusal: { code: string; message: string } | null; unplaced: number };
-    simulated: { label: string; note: string; runIndex: number; title: string | null; hypothetical: boolean; invariantsChecked: string[] };
+    simulated: { label: string; note: string; runIndex: number; title: string | null; hypothetical: boolean; invariantsChecked: string[]; source: string; fit: RunFit };
     estimated: { label: string; note: string; fields: string[]; method: { id: string; rule: string; label: string; source: string } };
     notModelled: { label: string; note: string; columns: { label: string; why: string }[] };
   };
@@ -230,9 +233,13 @@ function OfficialGameLine({ game, box, idBase }: { game: OfficialGame; box: NbaP
       <h3 id={`${idBase}-og`} className="nba-h3">{LAYER_LABEL.official} · game</h3>
       <dl className="nba-facts nba-px-facts">
         <div><dt>Favoured</dt><dd data-nba-px-favoured="">{game.winnerSide ? h[game.winnerSide].abbr : "—"}</dd></div>
-        <div><dt>Win probability</dt><dd>{h.away.abbr} {fmtPct(game.pAway)} · {h.home.abbr} {fmtPct(game.pHome)}</dd></div>
+        {game.winProbability?.state === TEAM_SCORE_STATE.WITHHELD ? (
+          <div className="is-wide"><dt>Win probability</dt><dd data-nba-px-winprob="WITHHELD"><b className="nba-px-withheld">{WITHHELD_TEXT}</b> · {game.winProbability.reason}</dd></div>
+        ) : game.winProbability ? (
+          <div><dt>Win probability</dt><dd data-nba-px-winprob="AVAILABLE">{h.away.abbr} {fmtPct(game.winProbability.away)} · {h.home.abbr} {fmtPct(game.winProbability.home)}</dd></div>
+        ) : null}
         {ts?.state === TEAM_SCORE_STATE.WITHHELD ? (
-          <div className="is-wide"><dt>Team score · margin · total</dt><dd data-nba-px-teamscore="WITHHELD"><b className="nba-px-withheld">{WITHHELD_TEXT}</b> · {ts.reason}</dd></div>
+          <div className="is-wide"><dt>Official team score</dt><dd data-nba-px-teamscore="WITHHELD"><b className="nba-px-withheld">{WITHHELD_TEXT}</b> · {ts.reason}</dd></div>
         ) : ts ? (
           <>
             <div><dt>{h.away.abbr} points</dt><dd data-nba-px-teamscore="AVAILABLE">{term(ts.away)}</dd></div>
@@ -242,7 +249,8 @@ function OfficialGameLine({ game, box, idBase }: { game: OfficialGame; box: NbaP
           </>
         ) : null}
       </dl>
-      <p className="nba-fine">{LAYER_NOTE.official} The same for every run below{game.modelVersion ? ` · ${game.modelVersion}` : ""}{game.publication === "PRIVATE" ? " · private" : ""}.</p>
+      {game.playerRanges ? <p className="nba-fine" data-nba-px-ranges="">Player ranges: {game.playerRanges}</p> : null}
+      <p className="nba-fine">{LAYER_NOTE.official} The same for every run below{game.composition ? ` · ${game.composition}` : ""}{game.modelVersion ? ` · side ${game.modelVersion}` : ""}{game.publication === "PRIVATE" ? " · private" : ""}.</p>
     </section>
   );
 }
@@ -318,7 +326,8 @@ export function BoxScoreBody({ result, palette, sort = DEFAULT_BOX_SORT, onSort,
       {hypothetical ? <p className="st-whatif-banner" data-st-whatif-banner="">{WHAT_IF_BANNER}</p> : null}
       <p className="nba-bx-watermark" role="note" id={`${idBase}-wm`} data-nba-boxscore-watermark="">{box.watermark}</p>
       <div className="nba-bx-summary">
-        <span className="nba-card-eyebrow" data-layer="simulated">{LAYER_LABEL.simulated}{hypothetical ? " · what-if · hypothetical" : ""}</span>
+        <span className="nba-card-eyebrow" data-layer="simulated">{LAYER_LABEL.simulated}{hypothetical ? " · what-if · hypothetical" : ""} · {box.layers.simulated.source}</span>
+        <p className={`nba-px-fit${box.layers.simulated.fit.withinTolerance ? "" : " is-far"}`} data-nba-px-fit={box.layers.simulated.fit.role} data-within={box.layers.simulated.fit.withinTolerance ? "true" : "false"}>{box.layers.simulated.fit.text}</p>
         <div className="nba-bx-final" role="group" aria-label={`${LAYER_LABEL.simulated}, ${h.status}: ${h.away.abbr} ${h.final.away}, ${h.home.abbr} ${h.final.home}`}>
           {SIDES.map((side) => (
             <div key={side} className={`nba-card-team${h.winner === side ? " is-winner" : ""}${palette[side].patterned ? " is-cue" : ""}`} style={teamStyle(palette, side)}>

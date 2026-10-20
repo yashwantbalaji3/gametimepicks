@@ -13,16 +13,17 @@ import path from "node:path";
 
 import {
   GROUPS, LAYER, LAYER_LABEL, NBA_PROJECTED_BOX_SCHEMA, NOT_MODELLED_COLUMNS, OFFICIAL_COLUMNS, REPRESENTATIVE_VS_MEDIAN, ROLE_METHOD, TEAM_SCORE_STATE,
-  estimateRoles, nbaProjectedBox, nextProjectedSort, officialGameLine, officialLayerKey, officialLayerOf, sortProjectedRows,
+  estimateRoles, nbaProjectedBox, nextProjectedSort, officialGameLine, officialLayerKey, officialLayerOf, runFit, sortProjectedRows,
 } from "./projected-box.mjs";
 import { NBA_BOX_WATERMARK, NBA_BOX_WATERMARK_WHAT_IF, nbaBoxScore } from "./box-score.mjs";
-import { NBA_FIXTURE_SOURCE, NBA_REAL_TEST_FIXTURE_SOURCE, loadNbaTheater } from "./loader.mjs";
+import { NBA_FIXTURE_SOURCE, NBA_REAL_TEST_FIXTURE_SOURCE, loadNbaTheater, officialArtifactSource } from "./loader.mjs";
 import { runRole } from "../representative-labels.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
 const IDS = ["401909088", "401909089", "401909090"];
-const LOADS = IDS.map((id) => loadNbaTheater(REPO, id, { source: NBA_REAL_TEST_FIXTURE_SOURCE }));
+// the r2 dev copy replayed against the OFFICIAL v0.1 snapshot of its date (official-snapshot PR #1149)
+const LOADS = IDS.map((id) => loadNbaTheater(REPO, id, { source: NBA_REAL_TEST_FIXTURE_SOURCE, officialSource: officialArtifactSource("2026-10-20") }));
 const RECEIPT_LOADS = IDS.map((id) => loadNbaTheater(REPO, id)).filter((l) => l.ok); // the committed receipt the route reads
 const ALL = [...LOADS, ...RECEIPT_LOADS].flatMap((l) => l.manifest.samples.map((s) => ({ m: l.manifest, s, tag: `${l.file.split("/").pop()} ${l.eventId} #${s.runIndex} ${s.label}` })));
 const clone = (x) => JSON.parse(JSON.stringify(x));
@@ -30,24 +31,15 @@ const SIDES = ["away", "home"];
 const rowsOf = (box, side) => box.teams[side].groups.flatMap((g) => g.rows);
 const hyp = (m, s) => runRole(m, s.runIndex, s.title).hypothetical;
 
-/** The coordinator's NBA official snapshot (2026-10-20): Elo side + v0.1 player medians/means; team scores WITHHELD. */
-function coordinatorShape(m, { declare = true } = {}) {
+/** A snapshot WITH official team terms (the pre-#1149 shape, or a future one that publishes them): AVAILABLE path. */
+function withTeamTerms(m) {
   const x = clone(m);
   const o = x.representative.official;
-  o.team = { home: null, away: null, margin: null, total: null };
-  o.projectedScore = { home: null, away: null, convention: null };
-  o.winnerSide = "home";
-  if (declare) o.teamScores = { state: "WITHHELD", reason: "the official side model and the supporting simulation disagree" };
-  for (const p of Object.values(x.representative.players)) {
-    const f = p.families;
-    const med = (k) => f[k]?.median ?? 0;
-    f.minutes = { expected: 27.31, median: 27.4 };
-    f.pra = { expected: 20.25, median: med("pts") + med("reb") + med("ast") + 0.5 };
-    f.ptsReb = { expected: 15.5, median: med("pts") + med("reb") + 0.25 };
-    f.ptsAst = { expected: 14.75, median: med("pts") + med("ast") + 0.75 };
-    p.conditioning = "AS_PROJECTED";
-    p.playRate = null;
-  }
+  o.team = { home: { expected: 112.4, median: 112 }, away: { expected: 108.6, median: 109 }, margin: { expected: 3.8, median: 4 }, total: { expected: 221, median: 221 } };
+  o.projectedScore = { home: null, away: null, convention: null, state: null };
+  o.withheld = null;
+  o.pHomePublished = 0.61;
+  o.pAway = 0.39;
   return x;
 }
 
@@ -70,8 +62,10 @@ test("every real sample (r2 dev copy + committed receipt) builds; schema, three 
     assert.deepEqual(b.columns.filter((c) => c.layer === LAYER.SIMULATED).map((c) => c.label), ["MIN", "PTS", "REB", "AST", "3PM", "3PA", "2PM", "FGM", "FTM"]);
     assert.deepEqual(b.columns.filter((c) => c.layer === LAYER.NOT_MODELLED).map((c) => c.label), ["FGA", "FTA", "STL", "BLK", "TO"]);
     assert.ok(b.columns.filter((c) => c.layer === LAYER.NOT_MODELLED).every((c) => !c.sortable && /not modelled/.test(c.title)));
-    // today's v1-based snapshot carries pts/reb/ast/3PM per player
-    assert.deepEqual(b.columns.filter((c) => c.layer === LAYER.OFFICIAL).map((c) => c.label), ["PTS", "REB", "AST", "3PM"]);
+    // the official snapshot (#1149) carries the v0.1 families MIN / PTS / REB / AST / 3PM / PRA / P+R / P+A per player
+    assert.deepEqual(b.columns.filter((c) => c.layer === LAYER.OFFICIAL).map((c) => c.label), ["MIN", "PTS", "REB", "AST", "3PM", "PRA", "P+R", "P+A"]);
+    assert.equal(b.layers.simulated.source, `${m.modelVersion} (supporting simulation)`);
+    assert.equal(b.layers.simulated.source, "nba-sim-v1-coherent (supporting simulation)");
     assert.equal(b.watermark, hyp(m, s) ? NBA_BOX_WATERMARK_WHAT_IF : NBA_BOX_WATERMARK);
   }
 });
@@ -156,10 +150,10 @@ test("official layer: exact snapshot values by athlete id, never rounded, never 
       }
       // official team totals: points only (from the official team term), nothing else summed
       assert.deepEqual(Object.keys(b.teams[side].totals.official).sort(), ["pts", "state"]);
-      assert.deepEqual(b.teams[side].totals.official.pts, { median: m.representative.official.team[side].median, mean: m.representative.official.team[side].expected });
+      assert.deepEqual(b.teams[side].totals.official, { state: "WITHHELD", pts: null }, "official team score is WITHHELD: no number");
     }
     assert.ok(matched > 15, `${tag}: ${matched} official rows`);
-    assert.equal(b.officialGame.teamScores.state, TEAM_SCORE_STATE.AVAILABLE);
+    assert.equal(b.officialGame.teamScores.state, TEAM_SCORE_STATE.WITHHELD);
   }
 });
 
@@ -187,31 +181,67 @@ test("what-if rule: the official layer is identical for every stored run (offici
   }
 });
 
-test("coordinator snapshot shape: team scores WITHHELD (null), v0.1 families incl. MIN / PRA / P+R / P+A, Elo side — builds, prints no team number", () => {
-  for (const load of LOADS) {
-    const m = coordinatorShape(load.manifest);
+test("official snapshot (#1149): team scores and win probability WITHHELD with the snapshot's reasons, Elo side, v0.1 families; a team-terms snapshot still works", () => {
+  for (const load of [...LOADS, ...RECEIPT_LOADS]) {
+    const m = load.manifest;
+    const o = m.representative.official;
+    assert.equal(o.projectedScore.state, "WITHHELD");
     for (const s of m.samples) {
-      const r = nbaProjectedBox(s, m, { hypothetical: hyp(m, s) });
-      assert.equal(r.ok, true, JSON.stringify(r.errors));
-      const b = r.box;
-      assert.deepEqual(b.columns.filter((c) => c.layer === LAYER.OFFICIAL).map((c) => c.label), OFFICIAL_COLUMNS.map((c) => c.label));
-      assert.deepEqual(OFFICIAL_COLUMNS.map((c) => c.label), ["MIN", "PTS", "REB", "AST", "3PM", "PRA", "P+R", "P+A"]);
-      assert.equal(b.officialGame.teamScores.state, "WITHHELD");
-      assert.equal(b.officialGame.teamScores.reason, "the official side model and the supporting simulation disagree");
-      for (const k of ["home", "away", "margin", "total"]) assert.equal(b.officialGame.teamScores[k], null);
-      for (const side of SIDES) assert.deepEqual(b.teams[side].totals.official, { state: "WITHHELD", pts: null });
-      assert.equal(b.officialGame.winnerSide, "home");
-      // the simulated layer is untouched by the official change
-      assert.deepEqual(b.teams.home.totals.simulated, nbaProjectedBox(s, load.manifest).box.teams.home.totals.simulated);
+      const b = nbaProjectedBox(s, m, { hypothetical: hyp(m, s) }).box;
+      const g = b.officialGame;
+      assert.equal(g.teamScores.state, "WITHHELD");
+      assert.equal(g.teamScores.reason, o.withheld.teamScores);
+      for (const k of ["home", "away", "margin", "total"]) assert.equal(g.teamScores[k], null);
+      // the Elo pHome rides in the block, but the official forecast withholds a win probability: no number is surfaced
+      assert.equal(g.winProbability.state, "WITHHELD");
+      assert.equal(g.winProbability.reason, o.withheld.winProbability);
+      assert.equal(g.winProbability.home, null);
+      assert.equal(g.winnerSide, String(o.winnerSide).toLowerCase());
+      assert.ok(["home", "away"].includes(g.winnerSide));
+      assert.equal(g.playerRanges, o.withheld.playerRanges);
       const any = rowsOf(b, "home").find((x) => x.official);
-      assert.deepEqual(any.official.values.minutes, { median: 27.4, mean: 27.31 });
-      assert.equal(any.official.conditioning, "AS_PROJECTED");
+      assert.equal(any.official.conditioning, "AS_SIMULATED");
+      assert.equal(any.official.playRate, null);
+      assert.deepEqual(Object.keys(any.official.values).sort(), ["ast", "minutes", "pra", "pts", "ptsAst", "ptsReb", "reb", "threePm"]);
     }
   }
-  // undeclared: all team terms null ⇒ still WITHHELD, with the neutral default reason
-  const g = officialGameLine(coordinatorShape(LOADS[0].manifest, { declare: false }));
-  assert.equal(g.teamScores.state, "WITHHELD");
-  assert.match(g.teamScores.reason, /publishes no team score/);
+  // a snapshot that DOES publish team terms and a win probability: AVAILABLE, exact values, PTS team total = the term
+  const m = withTeamTerms(LOADS[0].manifest);
+  const b = nbaProjectedBox(m.samples[0], m).box;
+  assert.equal(b.officialGame.teamScores.state, "AVAILABLE");
+  assert.deepEqual(b.officialGame.teamScores.home, { median: 112, mean: 112.4 });
+  assert.deepEqual(b.teams.away.totals.official, { state: "AVAILABLE", pts: { median: 109, mean: 108.6 } });
+  assert.deepEqual(b.officialGame.winProbability, { state: "AVAILABLE", reason: null, home: 0.61, away: 0.39 });
+  // all team terms null with no declared reason ⇒ still WITHHELD, with the neutral default reason
+  const bare = clone(LOADS[0].manifest);
+  bare.representative.official.withheld = null;
+  bare.representative.official.projectedScore = { state: null };
+  const gb = officialGameLine(bare);
+  assert.equal(gb.teamScores.state, "WITHHELD");
+  assert.match(gb.teamScores.reason, /publishes no team score/);
+});
+
+test("run fit: the official representative is reported as still far from the official projection (distance > tolerance); what-ifs carry their distance", () => {
+  for (const load of [...LOADS, ...RECEIPT_LOADS]) {
+    const m = load.manifest;
+    const rep = m.representative;
+    assert.equal(rep.rule, "official-representative@2");
+    for (const s of m.samples) {
+      const fit = nbaProjectedBox(s, m, { hypothetical: hyp(m, s) }).box.layers.simulated.fit;
+      if (s.runIndex === rep.officialRunIndex) {
+        assert.equal(fit.role, "official-representative");
+        assert.equal(fit.distance, rep.distance);
+        assert.equal(fit.withinTolerance, rep.withinTolerance);
+        if (!rep.withinTolerance) assert.match(fit.text, /^Closest stored run, still far from the official projection \(distance \d+\.\d\d; tolerance 0\.50\)/);
+      } else {
+        assert.equal(fit.role, "what-if");
+        assert.match(fit.text, /^What-if · hypothetical · distance/);
+      }
+    }
+    // the 2026-10-20 slate: every official representative is outside the 0.5 tolerance (1.3–1.7)
+    assert.equal(rep.withinTolerance, false, `${load.eventId}: distance ${rep.distance}`);
+  }
+  assert.match(runFit(null, 1).text, /No official projection/);
 });
 
 test("NO_OFFICIAL: no representative ⇒ no official column, the simulated layer still builds, every run a what-if", () => {

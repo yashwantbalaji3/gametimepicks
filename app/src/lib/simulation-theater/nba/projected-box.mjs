@@ -10,8 +10,10 @@
  *                      MIN · PTS · REB · AST · 3PM · PRA · P+R · P+A — whichever families the snapshot carries (a column
  *                      appears only if at least one player has it). Values are printed exactly (fmtExpectation, two
  *                      decimals), never rounded into, summed into, or replaced by the run. Player projections are NOT
- *                      summed into team totals (a column of medians is not a team score). The official TEAM score /
- *                      margin / total may be WITHHELD (null): then the box says "Withheld" and shows no number.
+ *                      summed into team totals (a column of medians is not a team score). Contract (official-snapshot
+ *                      PR #1149): the official side is the Elo favoured side; the TEAM score / margin / total and the
+ *                      win probability are WITHHELD (null, reasons in official.withheld): the box prints "Withheld"
+ *                      with the snapshot's own reason and never a number.
  *   LAYER "simulated"  SIMULATED GAME — ONE RUN. The selected stored run's whole numbers, from box-score.mjs nbaBoxScore()
  *                      with every one of its fail-closed invariants (player pts = team pts = Σ periods, 2·2PM + 3·3PM +
  *                      FTM = PTS, 3PM ≤ 3PA, minutes = 240 + 25·OT exactly, team fgm = Σ 2PM + Σ 3PM, …). FGM is the
@@ -39,8 +41,8 @@ export const LAYER_LABEL = Object.freeze({
   "not-modelled": "Not modelled",
 });
 export const LAYER_NOTE = Object.freeze({
-  official: "The official forecast for each player: the median (or mean) over many simulated games. Can be fractional. Not summed into team totals.",
-  simulated: "One stored run of the supporting simulation: whole numbers that add up exactly (player points = team score).",
+  official: "The official forecast for each player (the official player model): the median, or mean, of his outcome. Can be fractional. Not summed into team totals.",
+  simulated: "One stored run of the supporting simulation, a different model from the official projection: whole numbers that add up exactly (player points = team score).",
   estimated: "Starter / bench grouping estimated from each player's recent starts. Not a recorded lineup and not official.",
   "not-modelled": "The simulation does not produce these statistics, so none is shown.",
 });
@@ -116,8 +118,8 @@ export const REPRESENTATIVE_VS_MEDIAN = Object.freeze({
   title: "One simulated game is not the median",
   lead: "The official projection and the simulated game answer different questions.",
   points: Object.freeze([
-    "Official projection: for each player, the middle (median) or average (mean) outcome over many simulated games. It is a summary of a distribution, can be fractional, and the player medians do not add up to a team score.",
-    "Simulated game — one run: a single complete game drawn from the supporting simulation. Every number is a whole number and they add up exactly: player points sum to the team score and the quarters sum to the final.",
+    "Official projection: for each player, the middle (median) or average (mean) of his outcome under the official player model. It summarises a distribution, can be fractional, and the player medians do not add up to a team score.",
+    "Simulated game — one run: a single complete game drawn from the supporting simulation, which is a different model. Every number is a whole number and they add up exactly: player points sum to the team score and the quarters sum to the final.",
     "So a player can score well above or below his official projection in the run, and a team's run total can differ from any sum of projections. Neither is rounded into the other.",
   ]),
 });
@@ -134,33 +136,41 @@ const numOrNull = (v) => (isNum(v) ? v : null);
 const isObj = (v) => v && typeof v === "object" && !Array.isArray(v);
 
 /**
- * The official TEAM-level line (layer "official"). Depends on the manifest only. Tolerates a snapshot whose team terms
- * are null (WITHHELD) — and reads a state / reason if the snapshot carries one under any of the names below.
+ * The official GAME-level line (layer "official"). Depends on the manifest only. Contract (official-snapshot PR #1149,
+ * nba-official-composition@1): official = the Elo favoured side (`winnerSide` "HOME" | "AWAY") + v0.1 player families;
+ * `team.{home,away,margin,total}` are null, `projectedScore.state` is "WITHHELD", and `withheld` holds the reason texts
+ * (teamScores, winProbability, playerRanges, markets). A withheld figure is printed as "Withheld" with its reason —
+ * never a number, even when a raw value (e.g. the Elo pHome) rides in the block.
  */
 export function officialGameLine(manifest) {
   const rep = manifest?.representative ?? null;
   const o = rep?.official ?? null;
-  if (!o) return { state: OFFICIAL_STATE.NO_OFFICIAL, refusal: rep?.refusal ?? null, winnerSide: null, pHome: null, pAway: null, modelVersion: null, snapshotId: null, teamScores: null };
+  if (!o) return { state: OFFICIAL_STATE.NO_OFFICIAL, refusal: rep?.refusal ?? null, winnerSide: null, winProbability: null, modelVersion: null, composition: null, snapshotId: null, teamScores: null, playerRanges: null };
+  const w = isObj(o.withheld) ? o.withheld : {};
   const t = isObj(o.team) ? o.team : {};
   const term = (k) => (isObj(t[k]) ? { median: numOrNull(t[k].median), mean: numOrNull(t[k].expected) } : { median: null, mean: null });
   const terms = { away: term("away"), home: term("home"), margin: term("margin"), total: term("total") };
   const any = Object.values(terms).some((x) => x.median != null || x.mean != null);
-  const declared = [o.teamScores, o.teamScoreState, o.teamState, t.state].find((x) => x != null) ?? null;
-  const declaredState = typeof declared === "string" ? declared : isObj(declared) ? declared.state ?? null : null;
-  const declaredReason = isObj(declared) ? declared.reason ?? declared.message ?? null : null;
-  const withheld = !any || declaredState === TEAM_SCORE_STATE.WITHHELD;
+  const teamWithheld = !any || o.projectedScore?.state === TEAM_SCORE_STATE.WITHHELD || typeof w.teamScores === "string";
+  const side = String(o.winnerSide ?? "").toLowerCase();
+  const pHome = numOrNull(o.pHomePublished ?? o.pHome);
+  const pAway = numOrNull(o.pAway);
+  const winWithheld = typeof w.winProbability === "string" || pHome == null;
   return {
     state: OFFICIAL_STATE.AVAILABLE,
     refusal: null,
     snapshotId: o.snapshotId ?? null,
     modelVersion: o.modelVersion ?? null,
+    composition: o.composition ?? null,
     publication: o.publication ?? null,
-    winnerSide: o.winnerSide === "home" || o.winnerSide === "away" ? o.winnerSide : null,
-    pHome: numOrNull(o.pHomePublished ?? o.pHome),
-    pAway: numOrNull(o.pAway),
-    teamScores: withheld
-      ? { state: TEAM_SCORE_STATE.WITHHELD, reason: declaredReason ?? DEFAULT_WITHHELD_REASON, away: null, home: null, margin: null, total: null }
+    winnerSide: side === "home" || side === "away" ? side : null,
+    winProbability: winWithheld
+      ? { state: TEAM_SCORE_STATE.WITHHELD, reason: typeof w.winProbability === "string" ? w.winProbability : "the official forecast publishes no win probability for this game", home: null, away: null }
+      : { state: TEAM_SCORE_STATE.AVAILABLE, reason: null, home: pHome, away: pAway },
+    teamScores: teamWithheld
+      ? { state: TEAM_SCORE_STATE.WITHHELD, reason: typeof w.teamScores === "string" ? w.teamScores : DEFAULT_WITHHELD_REASON, away: null, home: null, margin: null, total: null }
       : { state: TEAM_SCORE_STATE.AVAILABLE, reason: null, ...terms },
+    playerRanges: typeof w.playerRanges === "string" ? w.playerRanges : null,
   };
 }
 
@@ -192,6 +202,31 @@ export function estimateRoles(simIds, inputs) {
   const starters = new Set(ranked.filter((x) => x.sr >= ROLE_METHOD.threshold).slice(0, ROLE_METHOD.slots).map((x) => x.id));
   return Object.fromEntries(simIds.map((id) => [id, { role: starters.has(id) ? "starter" : "bench", starterRate: numOrNull(inputs?.[id]?.starterRate) }]));
 }
+
+export const SUPPORTING_SIMULATION = "supporting simulation";
+
+/**
+ * How close this run is to the official projection (official-representative@2: the normalised distance over the
+ * official player terms, side-constrained to runs the Elo side won). Reported, never hidden: on the 2026-10-20 slate
+ * the official representatives sit at 1.32–1.53 against a 0.5 tolerance, i.e. the closest stored run is still far.
+ */
+export function runFit(rep, runIndex) {
+  if (!rep || rep.state === "NO_OFFICIAL" || !rep.official) return { role: "what-if", distance: null, tolerance: rep?.tolerance ?? null, withinTolerance: false, rule: rep?.rule ?? null, text: FIT_TEXT.none() };
+  const entry = (rep.runs ?? []).find((r) => r.runIndex === runIndex) ?? null;
+  const official = rep.state === "SELECTED" && rep.officialRunIndex === runIndex;
+  const distance = numOrNull(official ? rep.distance : entry?.distance);
+  const tolerance = numOrNull(rep.tolerance);
+  const within = official ? rep.withinTolerance === true : distance != null && tolerance != null && distance <= tolerance;
+  const text = official ? (within ? FIT_TEXT.officialWithin(distance, tolerance) : FIT_TEXT.officialFar(distance, tolerance)) : FIT_TEXT.whatIf(distance, tolerance);
+  return { role: official ? "official-representative" : "what-if", distance, tolerance, withinTolerance: within, rule: rep.rule ?? null, text };
+}
+const f2 = (v) => (isNum(v) ? v.toFixed(2) : "—");
+export const FIT_TEXT = Object.freeze({
+  officialWithin: (d, t) => `Closest stored run to the official projection (distance ${f2(d)}, within the ${f2(t)} tolerance).`,
+  officialFar: (d, t) => `Closest stored run, still far from the official projection (distance ${f2(d)}; tolerance ${f2(t)}). No stored run is closer, so read its numbers as one possible game, not as the forecast.`,
+  whatIf: (d, t) => `What-if · hypothetical · distance ${f2(d)} from the official projection (tolerance ${f2(t)}).`,
+  none: () => "No official projection to measure this run against: it is a hypothetical what-if.",
+});
 
 /**
  * @param {any} sample    one manifest sample (adapter-nba-sim-v1.mjs)
@@ -288,6 +323,9 @@ export function nbaProjectedBox(sample, manifest, { hypothetical = false } = {})
         },
         simulated: {
           label: LAYER_LABEL.simulated, note: LAYER_NOTE.simulated, runIndex: b.header.runIndex, title: b.header.title, hypothetical: !!hypothetical,
+          // the run comes from a DIFFERENT model than the official projection: name it on the layer
+          source: manifest.modelVersion ? `${manifest.modelVersion} (${SUPPORTING_SIMULATION})` : SUPPORTING_SIMULATION,
+          fit: runFit(rep, b.header.runIndex),
           invariantsChecked: [...b.invariantsChecked, ...(hasFgm ? ["FGM_SUM"] : [])],
         },
         estimated: {
