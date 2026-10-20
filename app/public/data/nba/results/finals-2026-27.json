@@ -5,11 +5,11 @@
  "contract": "nba-finals-record-v1",
  "season": "2026-27",
  "note": "Write-once official NBA finals (ESPN scoreboard, accepted by the current-results adapter). A recorded final is never rewritten; disagreeing later observations go to `conflicts`. Holds finals only — a game absent here is pending, never a loss.",
- "updatedAt": "2026-10-18T08:59:29Z",
+ "updatedAt": "2026-10-20T21:40:39Z",
  "counts": {
-  "finals": 67,
+  "finals": 68,
   "preseason": 67,
-  "regular": 0,
+  "regular": 1,
   "postseason": 0,
   "playIn": 0,
   "other": 0,
@@ -2093,6 +2093,37 @@
    "winnerSide": "away",
    "statusRaw": "STATUS_FINAL",
    "firstRecordedAt": "2026-10-17T06:07:00Z",
+   "source": "espn_scoreboard"
+  },
+  {
+   "canonicalEventId": "nba:nba:2026-10-20:401909088",
+   "providerEventId": "401909088",
+   "dateUtc": "2026-10-20T19:00Z",
+   "dateEt": "2026-10-20",
+   "season": "2026-27",
+   "seasonType": 2,
+   "phase": "REGULAR",
+   "neutralSite": false,
+   "exhibition": false,
+   "home": {
+    "tricode": "DET",
+    "providerTeamId": "8",
+    "espnAbbr": "DET",
+    "name": "Detroit Pistons",
+    "exhibition": false
+   },
+   "away": {
+    "tricode": "BOS",
+    "providerTeamId": "2",
+    "espnAbbr": "BOS",
+    "name": "Boston Celtics",
+    "exhibition": false
+   },
+   "ftHome": 121,
+   "ftAway": 113,
+   "winnerSide": "home",
+   "statusRaw": "STATUS_FINAL",
+   "firstRecordedAt": "2026-10-20T21:40:39Z",
    "source": "espn_scoreboard"
   }
  ],
