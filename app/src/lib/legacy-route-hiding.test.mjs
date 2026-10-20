@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { assertProtectedLedgerIntact } from "./mr-dub/protected-invariant.mjs";
+import { LANE } from "./sports/nba/experimental-public-lane.mjs";
 
 const app = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(app, rel), "utf8");
@@ -59,14 +60,19 @@ test("the footer states coverage honestly: MLB's hub, NBA archive, and NO schedu
     // now names what the hub is; the property (MLB is labelled, and not as an archive) is unchanged.
     assert.match(builtFooter, /MLB<span[^>]*> · simulation center/, "MLB is labelled by what its hub is");
     assert.match(builtFooter, /NBA archive<span[^>]*> · retired model/, "the NBA archive is labelled a retired model's record, not current coverage");
-    assert.match(builtFooter, /NBA<span[^>]*> · schedule \+ final scores · no forecast/, "the NBA hub is labelled factual-only");
+    // NBA preregistration §13 (founder decision 2026-10-20): with the experimental public lane on, the hub's label must
+    // say its projections are NOT validated; with it off, factual-only. Never an unqualified forecast claim.
+    if (LANE.enabled) assert.match(builtFooter, /NBA<span[^>]*> · schedule \+ experimental projections · not validated/, "the NBA hub is labelled unvalidated");
+    else assert.match(builtFooter, /NBA<span[^>]*> · schedule \+ final scores · no forecast/, "the NBA hub is labelled factual-only");
   }
   assert.match(registry, /href: "\/mlb", label: "MLB", note: "simulation center"/, "MLB declares its coverage");
   assert.match(registry, /href: "\/results\/nba", label: "NBA archive", note: "retired model/,
     "the NBA archive declares itself a retired model's archive");
   // Session 6 (founder decision 3): /nba is a factual hub in the sports group, and its entry says it publishes no forecast.
-  assert.match(registry, /href: "\/nba", label: "NBA", note: "schedule \+ final scores · no forecast"/,
-    "the NBA hub's nav entry must not imply a model");
+  assert.match(registry, LANE.enabled
+    ? /href: "\/nba", label: "NBA", note: "schedule \+ experimental projections · not validated"/
+    : /href: "\/nba", label: "NBA", note: "schedule \+ final scores · no forecast"/,
+  "the NBA hub's nav entry must not imply a validated model");
   // The schedule-only leagues have no public destination at all, so nothing links to them.
   for (const league of ["nhl", "ipl"]) {
     assert.equal(registry.indexOf(`href: "/${league}"`), -1, `nothing links /${league}`);

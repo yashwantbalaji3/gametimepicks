@@ -98,13 +98,24 @@ test("/sports revival keeps the retirement's invariant: coverage stated in words
   const PUBLISHED_UNVALIDATED = new Set(["/epl"]);
   /* Session 6 (founder decision 3): a FACTUAL hub — schedule and finals, no forecast. Its page must say so and its
      nav entry must say so; neither may carry the "simulation pending" line, which would imply a model is coming. */
-  const FACTUAL_ONLY = new Set(["/nba"]);
+  /* 2026-10-20 (founder decision · NBA preregistration §12 look 5 / §13): /nba carries the EXPERIMENTAL PUBLIC LANE —
+     frozen pregame model output, labelled unvalidated. The page and its nav entry must both say "not validated"; the
+     factual-only wording stays as the page's fallback when the lane is disabled. */
+  const FACTUAL_ONLY = new Set([]);
+  const EXPERIMENTAL_LANE = new Set(["/nba"]);
   const PAGE_FOR = { "/mlb": "src/app/mlb/page.tsx", "/nfl": "src/app/nfl/page.tsx", "/epl": "src/app/epl/page.tsx", "/ufc": "src/app/ufc/page.tsx", "/nba": "src/app/nba/page.tsx" };
   const leagueLinks = [...nav.matchAll(/href: "(\/(?:mlb|nfl|epl|nba|ufc))"/g)].map((m) => m[1]);
   assert.ok(leagueLinks.length > 0, "the nav links at least one league");
   for (const href of leagueLinks) {
     const src = renderedSource(PAGE_FOR[href]);
     if (SIMULATED.has(href)) continue;
+    if (EXPERIMENTAL_LANE.has(href)) {
+      assert.match(src, /experimental projections — not validated/, `${href} must state its projections are not validated`);
+      assert.match(src, /Schedule only — no public forecast/, `${href} keeps the factual-only wording for a disabled lane`);
+      assert.match(nav, new RegExp(`href: "${href}"[\\s\\S]{0,160}?not validated`), `${href}'s nav entry must say not validated`);
+      assert.doesNotMatch(src, /simulation pending/, `${href} must not imply a model is coming`);
+      continue;
+    }
     if (FACTUAL_ONLY.has(href)) {
       assert.match(src, /Schedule only — no public forecast/, `${href} must state that it publishes no forecast`);
       assert.match(nav, new RegExp(`href: "${href}"[\\s\\S]{0,160}?no forecast`), `${href}'s nav entry must say it publishes no forecast`);
