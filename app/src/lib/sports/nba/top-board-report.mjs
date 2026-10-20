@@ -14,6 +14,9 @@ import { PREREG } from "./grader-metrics.mjs";
 import { CATEGORIES } from "./top-boards.mjs";
 import { SETTLEMENT, PROJECTION_STATUS, boardRows } from "./top-board-grading.mjs";
 
+/** Every ranked category the report covers: schema @2's (a superset of @1's), so an @1 day file reports its four. */
+const REPORT_CATEGORIES = CATEGORIES; // ⊇ CATEGORIES_V1 (same keys first), pinned by top-boards.test.mjs
+
 export const REPORT_ARTIFACT = "nba-top-board-daily-report";
 const r3 = (x) => (typeof x === "number" && Number.isFinite(x) ? Number(x.toFixed(3)) : null);
 const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
@@ -24,6 +27,16 @@ function calibrationBlock(entries, stat) {
   const graded = entries.filter((e) => e.projectionStatus === PROJECTION_STATUS.GRADED && e.accuracy);
   const n = graded.length;
   const bar = PREREG.player[PREREG_STAT[stat]];
+  if (!bar) {
+    // PRA / P+R / P+A: the preregistration §6 sets no minimum n and no coverage band for a combination board.
+    return {
+      n, preregMinN: null, nominalBand: null,
+      coverage80: n ? r3(mean(graded.map((e) => e.accuracy.inside80))) : null,
+      shareAtOrAboveP50: n ? r3(mean(graded.map((e) => e.accuracy.atOrAboveP50))) : null,
+      state: "NO_PREREGISTERED_BAR",
+      warning: `no preregistered sample size or coverage band for ${stat} (preregistration §6 covers pts, reb, ast, threePm only) — descriptive only, never a claim`,
+    };
+  }
   const coverage = n ? r3(mean(graded.map((e) => e.accuracy.inside80))) : null;
   const atOrAbove = n ? r3(mean(graded.map((e) => e.accuracy.atOrAboveP50))) : null;
   const belowMin = n < bar.minN;
@@ -80,7 +93,7 @@ export function buildDailyReport({ date, family, generatedAt, boardDoc, ledger, 
 
   // 8 · accuracy per category (day + cumulative)
   const perCategory = {};
-  for (const c of CATEGORIES) {
+  for (const c of REPORT_CATEGORIES) {
     const day = dayEntries.filter((e) => e.category === c.key);
     const cum = allEntries.filter((e) => e.category === c.key);
     perCategory[c.key] = { label: c.label, day: accuracyBlock(day), cumulative: accuracyBlock(cum) };
@@ -113,7 +126,7 @@ export function buildDailyReport({ date, family, generatedAt, boardDoc, ledger, 
 
   // 12 · withheld summary
   const withheldSummary = {};
-  for (const c of CATEGORIES) {
+  for (const c of REPORT_CATEGORIES) {
     const per = {};
     for (const e of editions) { const b = e.boards?.[c.key]; if (!b) continue; for (const [k, v] of Object.entries(b.withheld.byPrimaryReason)) per[k] = (per[k] ?? 0) + v; }
     withheldSummary[c.key] = { shown: editions.reduce((s, e) => s + (e.boards?.[c.key]?.shownCount ?? 0), 0), eligible: editions.reduce((s, e) => s + (e.boards?.[c.key]?.eligibleCount ?? 0), 0), withheldByPrimaryReason: per, emptyReasons: editions.map((e) => e.boards?.[c.key]?.emptyReason).filter(Boolean) };
@@ -131,7 +144,7 @@ export function buildDailyReport({ date, family, generatedAt, boardDoc, ledger, 
 
   // 14 · calibration
   const calibration = {};
-  for (const c of CATEGORIES) {
+  for (const c of REPORT_CATEGORIES) {
     calibration[c.key] = {
       day: calibrationBlock(dayEntries.filter((e) => e.category === c.key), c.stat),
       cumulative: calibrationBlock(allEntries.filter((e) => e.category === c.key), c.stat),
@@ -149,11 +162,11 @@ export function buildDailyReport({ date, family, generatedAt, boardDoc, ledger, 
   for (const v of voidByPlayer.values()) investigations.push(`Availability: ${v.player} (${v.team}) was on the ${v.categories.join(", ")} board(s) and was ${v.reason}${v.detail ? ` (${v.detail})` : ""} — check the injury snapshot and freeze timing against the actual status.`);
   for (const w of withheldButPlayedBig.slice(0, 5)) investigations.push(`Eligibility: ${w.player} played ${w.minutes} min but was withheld as ${w.withheldAs} — review whether that rule is too strict for this case.`);
   for (const p of playedButUnpredicted.slice(0, 5)) investigations.push(`Pool: ${p.player} played ${p.minutes} min but was not in the simulated pool — roster/history gap.`);
-  for (const c of CATEGORIES) {
+  for (const c of REPORT_CATEGORIES) {
     const d = perCategory[c.key].day;
     if (d.graded >= 5 && Math.abs(d.biasP50 ?? 0) >= 2) investigations.push(`${c.label}: day bias ${d.biasP50} on ${d.graded} rows — look for a shared minutes or pace cause before reading anything into it (small n).`);
     const cal = calibration[c.key].cumulative;
-    if (cal.n >= 30 && cal.coverage80 != null && (cal.coverage80 < cal.nominalBand[0] - 0.1 || cal.coverage80 > cal.nominalBand[1] + 0.1)) investigations.push(`${c.label}: cumulative p10–p90 coverage ${cal.coverage80} on n=${cal.n} is far from ${cal.nominalBand.join("–")} — dispersion check (descriptive; ${cal.warning}).`);
+    if (cal.n >= 30 && cal.coverage80 != null && cal.nominalBand && (cal.coverage80 < cal.nominalBand[0] - 0.1 || cal.coverage80 > cal.nominalBand[1] + 0.1)) investigations.push(`${c.label}: cumulative p10–p90 coverage ${cal.coverage80} on n=${cal.n} is far from ${cal.nominalBand.join("–")} — dispersion check (descriptive; ${cal.warning}).`);
   }
   if (traded.length) {
     const tg = graded.filter((e) => (rowById.get(e.rowId)?.flags ?? []).includes("TRADED_HISTORY_OTHER_TEAM"));
@@ -231,7 +244,7 @@ export function reportMarkdown(r) {
   L.push("## 14. Calibration (descriptive)");
   L.push("| Category | Day n | Day p10–p90 coverage | Cum n / prereg min | Cum coverage | Cum ≥ p50 share | State |");
   L.push("|---|---|---|---|---|---|---|");
-  for (const [k, c] of Object.entries(r.s14_calibration)) L.push(`| ${k} | ${c.day.n} | ${fmt(c.day.coverage80)} | ${c.cumulative.n} / ${c.cumulative.preregMinN} | ${fmt(c.cumulative.coverage80)} | ${fmt(c.cumulative.shareAtOrAboveP50)} | ${c.cumulative.state} |`);
+  for (const [k, c] of Object.entries(r.s14_calibration)) L.push(`| ${k} | ${c.day.n} | ${fmt(c.day.coverage80)} | ${c.cumulative.n} / ${c.cumulative.preregMinN ?? "no bar"} | ${fmt(c.cumulative.coverage80)} | ${fmt(c.cumulative.shareAtOrAboveP50)} | ${c.cumulative.state} |`);
   L.push("");
   for (const [k, c] of Object.entries(r.s14_calibration)) L.push(`- ${k}: ${c.cumulative.warning}`);
   L.push("## 15. Recommended investigations");

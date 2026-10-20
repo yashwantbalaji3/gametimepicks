@@ -1,7 +1,15 @@
 /**
- * NBA TOP 10 PLAYER BOARDS (points · rebounds · assists · 3PM) — PRIVATE shadow artifact. PURE, no I/O.
+ * NBA TOP 10 PLAYER BOARDS (points · rebounds · assists · 3PM · PRA · P+R · P+A) — PRIVATE shadow artifact. PURE, no I/O.
  *
- * WHAT A BOARD IS. A ranking, by the shadow model's frozen MEDIAN projection (p50), of the players who pass every
+ * SCHEMA. `nba-top-board@2` (the default for new day files) adds the three JOINT combination boards (PRA, P+R, P+A —
+ * the quantiles of the per-draw SUM of one player's own simulated components, game-sim.mjs COMBO_KEYS, so the
+ * shared-minutes correlation is kept), an explicit NOT_MODELLED R+A board (no family simulates rebounds+assists jointly
+ * and a sum of marginal quantiles is not the quantile of the sum, so it is never computed), and ranking@2 (below).
+ * `nba-top-board@1` day files (four categories, ranking@1) stay readable and are never rewritten: a later freeze into
+ * an existing @1 day file builds its new edition under @1 so a day file never mixes schemas (`SCHEMA_SPECS`).
+ *
+ * WHAT A BOARD IS. A ranking, by the shadow model's frozen projection (ranking@2: p50, or the mean on a board whose
+ * quantile summaries are whole numbers — see RANKING), of the players who pass every
  * eligibility rule below, built from ONE committed forecast artifact of ONE family at ONE instant (the freeze). It is
  * a model projection only: there is no authorized NBA price (no odds authorization; `nba-market-probe` is paid and
  * manual), so every row carries `marketLine: null, marketOdds: null, edge: null` with reason NO_AUTHORIZED_PRICE, and
@@ -22,19 +30,56 @@
  */
 import { canonicalJson, receiptIntegrity, sha256 } from "./forecast-receipt.mjs";
 import { canonicalTricodeFromEspnAbbr } from "./boxscore-parse.mjs";
+import { COMBO_KEYS } from "./game-sim.mjs";
 
 export const TOP_BOARD_ARTIFACT = "nba-top-boards";
-export const TOP_BOARD_SCHEMA = "nba-top-board@1";
+export const TOP_BOARD_SCHEMA_V1 = "nba-top-board@1";
+export const TOP_BOARD_SCHEMA = "nba-top-board@2";
 export const BOARD_MAX_ROWS = 10;
 export const DEFAULT_BOARD_FAMILY = "v0.1"; // founder N1: v0.1 is the player champion
 
-export const CATEGORIES = Object.freeze([
+/** How a category's distribution was produced. */
+export const MARKET_BASIS = Object.freeze({
+  MARGINAL: "MARGINAL",                       // one simulated stat
+  JOINT_SIMULATED_SUM: "JOINT_SIMULATED_SUM", // quantiles of the per-draw sum of the player's own components (same draws)
+  NOT_MODELLED: "NOT_MODELLED",               // no family produces it; never derived from marginals
+});
+export const MARKET_BASIS_TEXT = Object.freeze({
+  MARGINAL: "single simulated statistic",
+  JOINT_SIMULATED_SUM: "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+  NOT_MODELLED: "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+});
+
+/** The joint combinations: stat key → its components (single source of truth: game-sim.mjs COMBO_KEYS). */
+export const COMBO_COMPONENTS = COMBO_KEYS;
+
+const cat = (key, stat, label, basis = MARKET_BASIS.MARGINAL) => Object.freeze({ key, stat, label, basis, ...(COMBO_COMPONENTS[stat] ? { components: Object.freeze([...COMBO_COMPONENTS[stat]]) } : {}) });
+
+/** Schema @1 categories, exactly as frozen on every @1 day file. Never edited. */
+export const CATEGORIES_V1 = Object.freeze([
   Object.freeze({ key: "points", stat: "pts", label: "Points" }),
   Object.freeze({ key: "rebounds", stat: "reb", label: "Rebounds" }),
   Object.freeze({ key: "assists", stat: "ast", label: "Assists" }),
   Object.freeze({ key: "threes", stat: "threePm", label: "3PM" }),
 ]);
-export const categoryByKey = (key) => CATEGORIES.find((c) => c.key === key) ?? null;
+
+/** Schema @2 modelled categories (ranked boards). */
+export const CATEGORIES = Object.freeze([
+  cat("points", "pts", "Points"),
+  cat("rebounds", "reb", "Rebounds"),
+  cat("assists", "ast", "Assists"),
+  cat("threes", "threePm", "3PM"),
+  cat("pra", "pra", "PRA", MARKET_BASIS.JOINT_SIMULATED_SUM),
+  cat("ptsReb", "ptsReb", "P+R", MARKET_BASIS.JOINT_SIMULATED_SUM),
+  cat("ptsAst", "ptsAst", "P+A", MARKET_BASIS.JOINT_SIMULATED_SUM),
+]);
+
+/** Schema @2 categories shown as NOT MODELLED — an explicit empty board, never a ranking. */
+export const NOT_MODELLED_CATEGORIES = Object.freeze([
+  Object.freeze({ key: "rebAst", stat: null, label: "R+A", basis: MARKET_BASIS.NOT_MODELLED, components: Object.freeze(["reb", "ast"]), reason: "NOT_MODELLED" }),
+]);
+
+export const categoryByKey = (key) => CATEGORIES.find((c) => c.key === key) ?? NOT_MODELLED_CATEGORIES.find((c) => c.key === key) ?? null;
 
 export const NO_MARKET = Object.freeze({
   marketLine: null,
@@ -79,10 +124,31 @@ export const ELIGIBILITY = Object.freeze({
   tradedHistoryPolicy: "INCLUDE_WITH_FLAG",
 });
 
-export const RANKING = Object.freeze({
+/** ranking@1 — schema @1 day files. Kept verbatim so an @1 day file's later editions rank the same way. */
+export const RANKING_V1 = Object.freeze({
   id: "nba-top-board-ranking@1",
   metric: "MODEL_MEDIAN_P50",
   rule: "frozen p50 desc, then frozen mean desc, then providerAthleteId asc (deterministic, no clock)",
+});
+
+/**
+ * ranking@2. A median read off whole-number draws is itself a whole number (v1 `nba-sim-v1-coherent` stores integer
+ * quantiles), so on a 3PM board most players tie at p50 = 1 or 2 and the board is really ordered by its tie-break.
+ * Rule, per board: if EVERY candidate's stored quantile summary (p10, p25?, p50, p75?, p90) is whole numbers the board
+ * is DISCRETE and is ranked by the frozen mean desc, then providerAthleteId asc; otherwise (v0.x continuous summaries)
+ * it is ranked as ranking@1 (p50 desc, mean desc, id asc). The metric used is recorded on each board (`rankingMetric`).
+ */
+export const RANKING = Object.freeze({
+  id: "nba-top-board-ranking@2",
+  metric: "MODEL_MEDIAN_P50_OR_MEAN_WHEN_DISCRETE",
+  metrics: Object.freeze({ CONTINUOUS: "MODEL_MEDIAN_P50", DISCRETE: "MODEL_MEAN" }),
+  rule: "per board: continuous quantile summaries → frozen p50 desc, then mean desc, then providerAthleteId asc; whole-number (discrete) summaries on every candidate → frozen mean desc, then providerAthleteId asc (deterministic, no clock)",
+});
+
+/** Which schema builds what. A day file is always extended under the schema it was created with. */
+export const SCHEMA_SPECS = Object.freeze({
+  [TOP_BOARD_SCHEMA_V1]: Object.freeze({ schema: TOP_BOARD_SCHEMA_V1, schemaVersion: 1, categories: CATEGORIES_V1, notModelled: Object.freeze([]), ranking: RANKING_V1 }),
+  [TOP_BOARD_SCHEMA]: Object.freeze({ schema: TOP_BOARD_SCHEMA, schemaVersion: 2, categories: CATEGORIES, notModelled: NOT_MODELLED_CATEGORIES, ranking: RANKING }),
 });
 
 /** Game-level exclusions: the whole game is off the board, recorded in `games[]` with this reason. */
@@ -183,9 +249,29 @@ export function eligibilityReasons(player, ctx, rules = ELIGIBILITY_RULES) {
   return reasons;
 }
 
-/** Deterministic ranking comparator over candidate rows ({ dist, id }). */
+const idOrder = (a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+
+/** Deterministic ranking comparator over candidate rows ({ dist, id }) — ranking@1, and ranking@2 on a CONTINUOUS board. */
 export function compareCandidates(a, b) {
-  return (b.dist.p50 - a.dist.p50) || ((b.dist.mean ?? 0) - (a.dist.mean ?? 0)) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  return (b.dist.p50 - a.dist.p50) || ((b.dist.mean ?? 0) - (a.dist.mean ?? 0)) || idOrder(a, b);
+}
+
+/** ranking@2 on a DISCRETE board: frozen mean desc, then providerAthleteId asc. */
+export function compareCandidatesByMean(a, b) {
+  return ((b.dist.mean ?? 0) - (a.dist.mean ?? 0)) || idOrder(a, b);
+}
+
+const QUANTILE_FIELDS = ["p10", "p25", "p50", "p75", "p90"];
+/** A stored quantile summary made only of whole numbers (integer draws → order-statistic quantiles). */
+export function isDiscreteSummary(dist) {
+  const vs = QUANTILE_FIELDS.map((k) => dist?.[k]).filter((v) => v !== undefined && v !== null);
+  return vs.length >= 3 && vs.every((v) => Number.isInteger(v));
+}
+
+/** The ranking metric for one board's candidates under a ranking spec. */
+export function boardRankingMetric(candidates, ranking = RANKING) {
+  if (ranking.id === RANKING_V1.id) return RANKING_V1.metric;
+  return candidates.length && candidates.every((c) => isDiscreteSummary(c.dist)) ? RANKING.metrics.DISCRETE : RANKING.metrics.CONTINUOUS;
 }
 
 const teamView = (t) => (t ? {
@@ -245,7 +331,10 @@ function sidePlayers(game, side) {
  * @param {{ artifact: object, sourceSha256: string, sourcePath?: string, frozenAt: string, family: string,
  *           earlierEventIds?: Set<string>, edition?: number, rules?: object[] }} o
  */
-export function buildBoardEdition({ artifact, sourceSha256, sourcePath = null, frozenAt, family, earlierEventIds = new Set(), edition = 1, rules = ELIGIBILITY_RULES }) {
+export function buildBoardEdition({ artifact, sourceSha256, sourcePath = null, frozenAt, family, earlierEventIds = new Set(), edition = 1, rules = ELIGIBILITY_RULES, schema = TOP_BOARD_SCHEMA }) {
+  const spec = SCHEMA_SPECS[schema];
+  if (!spec) throw new Error(`buildBoardEdition: unknown board schema ${JSON.stringify(schema)}`);
+  const v2 = spec.schemaVersion >= 2;
   if (!Number.isFinite(ms(frozenAt))) throw new Error("buildBoardEdition: frozenAt (ISO) is required");
   if (typeof sourceSha256 !== "string" || !/^[0-9a-f]{64}$/.test(sourceSha256)) throw new Error("buildBoardEdition: sourceSha256 (hex sha256 of the forecast file) is required");
   if (artifact?.family != null && family != null && String(artifact.family) !== String(family)) throw new Error(`REFUSED: forecast declares family ${artifact.family}, not ${family}`);
@@ -265,7 +354,7 @@ export function buildBoardEdition({ artifact, sourceSha256, sourcePath = null, f
   }
 
   const boards = {};
-  for (const cat of CATEGORIES) {
+  for (const cat of spec.categories) {
     const candidates = [];
     const withheld = [];
     for (const { game: g, flags: gameFlags } of onBoard) {
@@ -286,12 +375,15 @@ export function buildBoardEdition({ artifact, sourceSha256, sourcePath = null, f
         }
       }
     }
-    candidates.sort(compareCandidates);
+    const rankingMetric = boardRankingMetric(candidates, spec.ranking);
+    const discrete = v2 && rankingMetric === RANKING.metrics.DISCRETE;
+    candidates.sort(discrete ? compareCandidatesByMean : compareCandidates);
     const rows = candidates.slice(0, BOARD_MAX_ROWS).map((c, i) => ({
       rank: i + 1,
       rowId: `${artifact?.date ?? "?"}|${family}|e${edition}|${cat.key}|${c.g.providerEventId}|${c.id}`,
       category: cat.key,
       stat: cat.stat,
+      ...(v2 ? { marketBasis: cat.basis, ...(cat.components ? { components: [...cat.components] } : {}), rankingMetric } : {}),
       player: { name: c.p.name ?? null, providerAthleteId: c.id },
       team: c.team,
       opponent: c.opponent,
@@ -312,7 +404,7 @@ export function buildBoardEdition({ artifact, sourceSha256, sourcePath = null, f
       family,
       receipt: { forecastSha256: sourceSha256, gamePayloadSha256: c.g.receipt?.payloadSha256 ?? null },
       flags: c.flags,
-      sortKeys: { projection: c.dist.p50, expectedMinutes: r2(c.p.expectedMinutes), p90: c.dist.p90 },
+      sortKeys: { projection: discrete ? c.dist.mean : c.dist.p50, expectedMinutes: r2(c.p.expectedMinutes), p90: c.dist.p90 },
     }));
     const byReason = {};
     for (const w of withheld) for (const r of w.reasons) byReason[r] = (byReason[r] ?? 0) + 1;
@@ -326,11 +418,22 @@ export function buildBoardEdition({ artifact, sourceSha256, sourcePath = null, f
     }
     boards[cat.key] = {
       category: cat.key, label: cat.label, stat: cat.stat,
+      ...(v2 ? { marketBasis: cat.basis, basisText: MARKET_BASIS_TEXT[cat.basis], ...(cat.components ? { components: [...cat.components] } : {}), state: rows.length ? "RANKED" : "EMPTY", rankingMetric } : {}),
       rows,
       eligibleCount: candidates.length,
       shownCount: rows.length,
       withheld: { count: withheld.length, byPrimaryReason, byReason, players: withheld },
       emptyReason,
+    };
+  }
+  for (const nm of spec.notModelled) {
+    boards[nm.key] = {
+      category: nm.key, label: nm.label, stat: null,
+      marketBasis: MARKET_BASIS.NOT_MODELLED, basisText: MARKET_BASIS_TEXT.NOT_MODELLED, components: [...nm.components],
+      state: "NOT_MODELLED", rankingMetric: null,
+      rows: [], eligibleCount: 0, shownCount: 0,
+      withheld: { count: 0, byPrimaryReason: {}, byReason: {}, players: [] },
+      emptyReason: `${nm.label} is not modelled: no forecast family simulates ${nm.components.join(" + ")} jointly, and adding marginal projections is not its distribution — it is never computed`,
     };
   }
 
@@ -352,11 +455,14 @@ export function buildBoardEdition({ artifact, sourceSha256, sourcePath = null, f
 }
 
 /** A fresh (empty) day document. */
-export function emptyBoardDoc({ date, family, modelVersion }) {
+export function emptyBoardDoc({ date, family, modelVersion, schema = TOP_BOARD_SCHEMA }) {
+  const spec = SCHEMA_SPECS[schema];
+  if (!spec) throw new Error(`emptyBoardDoc: unknown board schema ${JSON.stringify(schema)}`);
+  const v2 = spec.schemaVersion >= 2;
   return {
-    schemaVersion: 1,
+    schemaVersion: spec.schemaVersion,
     artifact: TOP_BOARD_ARTIFACT,
-    schema: TOP_BOARD_SCHEMA,
+    schema: spec.schema,
     dataClass: "PRIVATE_RESEARCH",
     productEligible: false,
     publicState: "PRIVATE",
@@ -364,10 +470,12 @@ export function emptyBoardDoc({ date, family, modelVersion }) {
     date,
     family,
     modelVersion: modelVersion ?? null,
-    categories: CATEGORIES.map((c) => ({ key: c.key, stat: c.stat, label: c.label })),
+    categories: v2
+      ? [...spec.categories, ...spec.notModelled].map((c) => ({ key: c.key, stat: c.stat, label: c.label, basis: c.basis, ...(c.components ? { components: [...c.components] } : {}), modelled: c.basis !== MARKET_BASIS.NOT_MODELLED }))
+      : spec.categories.map((c) => ({ key: c.key, stat: c.stat, label: c.label })),
     maxRows: BOARD_MAX_ROWS,
     eligibility: { ...ELIGIBILITY, rules: ELIGIBILITY_RULES.map((r) => ({ id: r.id, scope: r.scope, description: r.description })), flags: Object.values(FLAGS) },
-    ranking: RANKING,
+    ranking: spec.ranking,
     market: { state: "NO_AUTHORIZED_PRICE", note: "no NBA odds authorization exists; no line, odds, edge or over/under probability is ever recorded" },
     confidence: { value: null, reason: NO_CONFIDENCE.confidenceReason },
     writeOnce: { rule: "an edition, once written, is never rewritten; a later freeze only adds a new edition for games on no earlier edition that have not tipped" },
@@ -388,6 +496,9 @@ export function frozenEventIds(doc) {
  */
 export function freezeBoards({ existing, artifact, sourceSha256, sourcePath, frozenAt, family, date }) {
   const errors = [];
+  // A day file is extended under the schema it was created with (an @1 file never gains an @2 edition).
+  const schema = existing ? (existing.schema ?? TOP_BOARD_SCHEMA_V1) : TOP_BOARD_SCHEMA;
+  if (!SCHEMA_SPECS[schema]) errors.push(`stored board schema ${JSON.stringify(schema)} is not one this code can extend`);
   if (existing) {
     if (existing.family !== family) errors.push(`stored board family ${existing.family} ≠ ${family}`);
     if (existing.date !== date) errors.push(`stored board date ${existing.date} ≠ ${date}`);
@@ -397,9 +508,9 @@ export function freezeBoards({ existing, artifact, sourceSha256, sourcePath, fro
   }
   if (artifact?.date && artifact.date !== date) errors.push(`forecast artifact is for ${artifact.date}, not ${date}`);
   if (errors.length) return { ok: false, errors };
-  const doc = existing ? JSON.parse(JSON.stringify(existing)) : emptyBoardDoc({ date, family, modelVersion: artifact?.modelVersion });
+  const doc = existing ? JSON.parse(JSON.stringify(existing)) : emptyBoardDoc({ date, family, modelVersion: artifact?.modelVersion, schema });
   const earlier = frozenEventIds(doc);
-  const edition = buildBoardEdition({ artifact, sourceSha256, sourcePath, frozenAt, family, earlierEventIds: earlier, edition: (doc.editions?.length ?? 0) + 1 });
+  const edition = buildBoardEdition({ artifact, sourceSha256, sourcePath, frozenAt, family, earlierEventIds: earlier, edition: (doc.editions?.length ?? 0) + 1, schema });
   if (!edition.gamesOnBoard) return { ok: true, doc: existing ?? null, edition: null, added: [], note: "no game is newly eligible at this instant — nothing frozen (an edition is never written empty)" };
   doc.editions.push(edition);
   const added = edition.games.filter((g) => g.state === "ON_BOARD").map((g) => g.eventId);
