@@ -1,0 +1,287 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-top-board-daily-report",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "date": "2026-10-19",
+ "family": "v1",
+ "generatedAt": "2026-10-20T14:17:02Z",
+ "s01_scope": {
+  "date": "2026-10-19",
+  "family": "v1",
+  "modelVersion": null,
+  "editions": []
+ },
+ "s02_games": {
+  "inForecast": 0,
+  "onBoard": 0,
+  "offBoardByReason": {},
+  "withFinalBoxscore": 0,
+  "awaitingBoxscore": 0
+ },
+ "s03_rowsPublishedPrivate": {
+  "total": 0,
+  "byCategory": {},
+  "uniquePlayers": 0,
+  "note": "PRIVATE artifact rows — nothing was published publicly"
+ },
+ "s04_graded": {
+  "projectionGraded": 0,
+  "byCategory": {}
+ },
+ "s05_settlement": {
+  "counts": {
+   "WIN": 0,
+   "LOSS": 0,
+   "PUSH": 0,
+   "VOID": 0,
+   "PENDING": 0,
+   "UNGRADABLE": 0
+  },
+  "note": "W/L/P are 0 by construction: no line is recorded for any NBA row (NO_AUTHORIZED_PRICE), so no row can win, lose or push. Projection accuracy is graded separately below."
+ },
+ "s06_pending": {
+  "count": 0,
+  "notYetGraded": 0,
+  "rows": []
+ },
+ "s07_ungradable": {
+  "count": 0,
+  "byReason": {}
+ },
+ "s08_accuracy": {
+  "points": {
+   "label": "Points",
+   "day": {
+    "graded": 0,
+    "maeP50": null,
+    "biasP50": null,
+    "maeMean": null,
+    "biasMean": null,
+    "minutesMae": null,
+    "minutesBias": null
+   },
+   "cumulative": {
+    "graded": 0,
+    "maeP50": null,
+    "biasP50": null,
+    "maeMean": null,
+    "biasMean": null,
+    "minutesMae": null,
+    "minutesBias": null
+   }
+  },
+  "rebounds": {
+   "label": "Rebounds",
+   "day": {
+    "graded": 0,
+    "maeP50": null,
+    "biasP50": null,
+    "maeMean": null,
+    "biasMean": null,
+    "minutesMae": null,
+    "minutesBias": null
+   },
+   "cumulative": {
+    "graded": 0,
+    "maeP50": null,
+    "biasP50": null,
+    "maeMean": null,
+    "biasMean": null,
+    "minutesMae": null,
+    "minutesBias": null
+   }
+  },
+  "assists": {
+   "label": "Assists",
+   "day": {
+    "graded": 0,
+    "maeP50": null,
+    "biasP50": null,
+    "maeMean": null,
+    "biasMean": null,
+    "minutesMae": null,
+    "minutesBias": null
+   },
+   "cumulative": {
+    "graded": 0,
+    "maeP50": null,
+    "biasP50": null,
+    "maeMean": null,
+    "biasMean": null,
+    "minutesMae": null,
+    "minutesBias": null
+   }
+  },
+  "threes": {
+   "label": "3PM",
+   "day": {
+    "graded": 0,
+    "maeP50": null,
+    "biasP50": null,
+    "maeMean": null,
+    "biasMean": null,
+    "minutesMae": null,
+    "minutesBias": null
+   },
+   "cumulative": {
+    "graded": 0,
+    "maeP50": null,
+    "biasP50": null,
+    "maeMean": null,
+    "biasMean": null,
+    "minutesMae": null,
+    "minutesBias": null
+   }
+  }
+ },
+ "s09_largestMisses": [],
+ "s10_largestPositiveDeviations": [],
+ "s11_availabilitySurprises": {
+  "predictedButVoid": [],
+  "playedButUnpredicted": [],
+  "withheldButPlayedBig": [],
+  "thresholdMinutes": 20
+ },
+ "s12_withheld": {
+  "points": {
+   "shown": 0,
+   "eligible": 0,
+   "withheldByPrimaryReason": {},
+   "emptyReasons": []
+  },
+  "rebounds": {
+   "shown": 0,
+   "eligible": 0,
+   "withheldByPrimaryReason": {},
+   "emptyReasons": []
+  },
+  "assists": {
+   "shown": 0,
+   "eligible": 0,
+   "withheldByPrimaryReason": {},
+   "emptyReasons": []
+  },
+  "threes": {
+   "shown": 0,
+   "eligible": 0,
+   "withheldByPrimaryReason": {},
+   "emptyReasons": []
+  }
+ },
+ "s13_dataQuality": [
+  {
+   "issue": "NO_BOARD_FROZEN",
+   "detail": "no v1 board file for 2026-10-19 — the day was not frozen (never back-filled)"
+  }
+ ],
+ "s14_calibration": {
+  "points": {
+   "day": {
+    "n": 0,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": null,
+    "shareAtOrAboveP50": null,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 0 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   },
+   "cumulative": {
+    "n": 0,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": null,
+    "shareAtOrAboveP50": null,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 0 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   }
+  },
+  "rebounds": {
+   "day": {
+    "n": 0,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": null,
+    "shareAtOrAboveP50": null,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 0 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   },
+   "cumulative": {
+    "n": 0,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": null,
+    "shareAtOrAboveP50": null,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 0 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   }
+  },
+  "assists": {
+   "day": {
+    "n": 0,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": null,
+    "shareAtOrAboveP50": null,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 0 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   },
+   "cumulative": {
+    "n": 0,
+    "preregMinN": 1500,
+    "nominalBand": [
+     0.76,
+     0.84
+    ],
+    "coverage80": null,
+    "shareAtOrAboveP50": null,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 0 is below the preregistered minimum 1500 — descriptive only, no calibration or hit-rate claim"
+   }
+  },
+  "threes": {
+   "day": {
+    "n": 0,
+    "preregMinN": 800,
+    "nominalBand": [
+     0.74,
+     0.86
+    ],
+    "coverage80": null,
+    "shareAtOrAboveP50": null,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 0 is below the preregistered minimum 800 — descriptive only, no calibration or hit-rate claim"
+   },
+   "cumulative": {
+    "n": 0,
+    "preregMinN": 800,
+    "nominalBand": [
+     0.74,
+     0.86
+    ],
+    "coverage80": null,
+    "shareAtOrAboveP50": null,
+    "state": "DESCRIPTIVE_ONLY",
+    "warning": "n = 0 is below the preregistered minimum 800 — descriptive only, no calibration or hit-rate claim"
+   }
+  }
+ },
+ "s15_investigations": [
+  "None generated by the rules for this date."
+ ]
+}
