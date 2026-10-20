@@ -17,7 +17,7 @@
 import { useId, useMemo, useState } from "react";
 
 import { etStamp } from "@/lib/et-stamp.mjs";
-import { filterOptions, filterRowViews, sortRowViews } from "@/lib/sports/nba/top-board-rows.mjs";
+import { filterOptions, filterRowViews, sortRowViews } from "@/lib/sports/nba/top-board-view-ops.mjs";
 
 export interface PriceCell { value: unknown; state: string; reasonCode: string | null; display: string }
 export interface BoardRowViewT {
