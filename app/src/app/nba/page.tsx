@@ -15,7 +15,7 @@ import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import SportSwitcher from "@/components/sports/sport-switcher";
 import { nbaHub } from "@/lib/sport-hub/nba-hub";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import NbaExperimentalLane, { loadExperimentalSnapshot } from "@/components/nba/experimental-lane";
+import NbaExperimentalLane, { NbaLaneIndex, loadExperimentalSnapshot } from "@/components/nba/experimental-lane";
 import { laneIsCurrent } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { currentEtDate } from "@/lib/freshness";
 
@@ -52,18 +52,21 @@ export default function NbaHubPage() {
           </>
         )}
       </p>
+      {/* Founder 2026-10-20: tonight's frozen experimental projections come FIRST — an index of the slate's games, then
+          the projection cards — and the full schedule follows. Same snapshot, same numbers; only the order changed. */}
+      <NbaLaneIndex snapshot={lane} />
       <SportHubNav sport="nba" />
+      <NbaExperimentalLane snapshot={lane} />
+
       <section id="nba-games" className="scroll-mt-24" aria-label="NBA games">
         {/* Session 11: schedule-only — one line per game keeps every game inside the page budget. */}
         <HubHeader model={model} compact />
       </section>
 
-      <NbaExperimentalLane snapshot={lane} />
-
       <section id="nba-model-status" className="scroll-mt-24 flex flex-col gap-2" aria-labelledby="nba-model-status-h">
         <h2 id="nba-model-status-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>Model status</h2>
         <ul className="m-0 pl-5 text-[13.5px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
-          <li>Game winner, score and player stats: <strong style={{ color: "var(--vault-text)" }}>in validation</strong> — {lane ? "only the experimental lane above is published, and it is not validated." : "nothing is published."}</li>
+          <li>Game winner, score and player stats: <strong style={{ color: "var(--vault-text)" }}>in validation</strong> — {lane ? "only the experimental projections above are published, and they are not validated." : "nothing is published."}</li>
           <li>Preseason games are tracked for schedule and final-score plumbing only; they never count as model evidence.</li>
           <li>A family publishes only after it meets its bar on regular-season games, scored against forecasts frozen before tip-off.</li>
         </ul>

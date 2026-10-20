@@ -120,3 +120,11 @@ test("a past slate is never shown as current: laneIsCurrent is true only on or b
   const page = fs.readFileSync(path.join(process.cwd(), "src/app/nba/page.tsx"), "utf8");
   assert.match(page, /laneIsCurrent\(snapshot, currentEtDate\(\)\)/, "the page gates the lane on its slate date");
 });
+
+test("/nba page order (founder 2026-10-20): the lane index and the projection cards come BEFORE the schedule", async () => {
+  const fs = await import("node:fs");
+  const src = fs.readFileSync(new URL("../../../app/nba/page.tsx", import.meta.url), "utf8");
+  const at = (needle) => { const i = src.indexOf(needle); assert.ok(i > 0, `${needle} is rendered`); return i; };
+  assert.ok(at("<NbaLaneIndex snapshot={lane} />") < at("<NbaExperimentalLane snapshot={lane} />"));
+  assert.ok(at("<NbaExperimentalLane snapshot={lane} />") < at('id="nba-games"'), "projections above the schedule");
+});

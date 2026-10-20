@@ -65,6 +65,30 @@ function TeamTable({ team, rows }: { team: string; rows: Row[] }) {
   );
 }
 
+/**
+ * The compact "tonight" index at the top of /nba: one line per lane game (full team names, tip time, freeze time) linking
+ * to its projection card. Static text only — no live status (the page is a static export, so a build-time status would
+ * go stale after tip-off), no number, no ranking.
+ */
+export function NbaLaneIndex({ snapshot }: { snapshot: Snapshot | null }) {
+  if (!snapshot || snapshot.games.length === 0) return null;
+  return (
+    <nav aria-label="Games with experimental projections" className="rounded-lg p-3 flex flex-col gap-1.5" style={{ border: "1px solid var(--vault-border)", background: "var(--vault-panel)" }} data-nba-lane-index="">
+      <p className="m-0 text-[13px] font-semibold" style={{ color: "var(--vault-text)" }}>
+        Experimental player projections{snapshot.date ? ` · ${slateLabel(snapshot.date)}` : ""} — frozen before tip-off, not validated
+      </p>
+      <ul className="m-0 p-0 list-none flex flex-col gap-1">
+        {snapshot.games.map((g) => (
+          <li key={g.providerEventId} className="text-[13px]">
+            <a href={`#nba-game-${g.providerEventId}`} className="underline font-semibold" style={{ color: "var(--vault-text)" }}>{g.away.name} at {g.home.name}</a>
+            <span style={{ color: "var(--vault-text-mute)" }}> · tip-off {et(g.tipUtc)} · frozen {et(g.frozenAt)}</span>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
 export default function NbaExperimentalLane({ snapshot }: { snapshot: Snapshot | null }) {
   if (!snapshot || snapshot.games.length === 0) return null;
   return (
@@ -79,11 +103,11 @@ export default function NbaExperimentalLane({ snapshot }: { snapshot: Snapshot |
       </div>
       <h2 id="nba-experimental-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>Experimental model projections{snapshot.date ? ` · ${slateLabel(snapshot.date)} slate` : ""}</h2>
       {snapshot.games.map((g) => (
-        <article key={g.providerEventId} className="flex flex-col gap-2 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
+        <article key={g.providerEventId} id={`nba-game-${g.providerEventId}`} className="scroll-mt-24 flex flex-col gap-2 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
           <header className="flex flex-col gap-0.5">
             <h3 className="m-0 text-[15px] font-bold" style={{ color: "var(--vault-text)" }}>{g.away.name} at {g.home.name}</h3>
             <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-              Tip-off {et(g.tipUtc)} · frozen pregame forecast, frozen {et(g.frozenAt)}
+              Tip-off {et(g.tipUtc)} · frozen pregame forecast, frozen {et(g.frozenAt)} · not updated after tip-off
             </p>
           </header>
           <p className="m-0 text-[13px]" style={{ color: "var(--vault-text)" }}>
