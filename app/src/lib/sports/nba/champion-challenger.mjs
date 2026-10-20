@@ -20,6 +20,7 @@
  */
 import { validationMetrics, PREREG, MARKET_STATE } from "./grader-metrics.mjs";
 import { LABELS } from "./experimental-forecast.mjs";
+import { isDisputedFinal } from "./experimental-grading-ledger.mjs";
 
 export const EVALUATOR_VERSION = "nba-champion-challenger-1";
 export const VERDICT = Object.freeze({ INSUFFICIENT_N: "INSUFFICIENT_N", NOT_READY: "NOT_READY", READY_FOR_FOUNDER_REVIEW: "READY_FOR_FOUNDER_REVIEW" });
@@ -66,17 +67,22 @@ export function clusterBootstrap(clusters, { B = BOOTSTRAP_DEFAULTS.B, seed = BO
 }
 
 /** Pair two families' current grades on identical, eligible games. */
-export function pairGames(champion, challenger) {
+export function pairGames(champion, challenger, { underReview = new Set() } = {}) {
   const byId = (gs) => new Map((gs ?? []).filter((g) => g?.graded).map((g) => [String(g.providerEventId), g]));
   const A = byId(champion), Bm = byId(challenger);
-  const excluded = { onlyChampion: 0, onlyChallenger: 0, notRegularSeason: 0, notPreTip: 0, finalMismatch: 0 };
+  const excluded = { onlyChampion: 0, onlyChallenger: 0, notRegularSeason: 0, notPreTip: 0, receiptNotVerified: 0, disputedFinal: 0, finalMismatch: 0, boxscoreMismatch: 0 };
   const pairs = [];
   for (const [id, a] of A) {
     const b = Bm.get(id);
     if (!b) { excluded.onlyChampion += 1; continue; }
     if (a.label !== REGULAR || b.label !== REGULAR) { excluded.notRegularSeason += 1; continue; }
     if (a.timing?.preTip !== true || b.timing?.preTip !== true) { excluded.notPreTip += 1; continue; }
+    // Pre-tip is a VERIFIED receipt in both (receiptIntegrity OK: payload hash matches, generatedAt < tip), not inputAsOf alone.
+    if (a.timing?.receipt !== "OK" || b.timing?.receipt !== "OK") { excluded.receiptNotVerified += 1; continue; }
+    if (isDisputedFinal(a, underReview) || isDisputedFinal(b, underReview)) { excluded.disputedFinal += 1; continue; }
     if (a.final?.ftHome !== b.final?.ftHome || a.final?.ftAway !== b.final?.ftAway) { excluded.finalMismatch += 1; continue; }
+    // Review #2: both families must have graded the game on the SAME box score (same content hash).
+    if ((a.context?.boxscoreHash ?? null) !== (b.context?.boxscoreHash ?? null)) { excluded.boxscoreMismatch += 1; continue; }
     pairs.push({ id, a, b });
   }
   for (const id of Bm.keys()) if (!A.has(id)) excluded.onlyChallenger += 1;
@@ -100,9 +106,11 @@ const directionOf = (ci) => (ci.lo == null || ci.hi == null ? "NO_INTERVAL" : ci
 
 /** One paired market: per-cluster [champion value, challenger value] → difference interval. */
 function pairedMarket(clusterPairs, opts) {
-  const diffs = clusterPairs.map((c) => c.map(([x, y]) => (Number.isFinite(x) && Number.isFinite(y) ? y - x : NaN)));
-  const A = clusterPairs.flat().map(([x]) => x).filter(Number.isFinite);
-  const Bv = clusterPairs.flat().map(([, y]) => y).filter(Number.isFinite);
+  // Means and the difference over the SAME paired rows (both values finite) — one n.
+  const both = clusterPairs.map((c) => c.filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y)));
+  const diffs = both.map((c) => c.map(([x, y]) => y - x));
+  const A = both.flat().map(([x]) => x);
+  const Bv = both.flat().map(([, y]) => y);
   const ci = clusterBootstrap(diffs, opts);
   return {
     n: ci.n, clusters: ci.clusters,
@@ -158,7 +166,7 @@ export function marketVerdict({ market, paired, minN, challengerState }) {
  * Elo side for promotion is founder reading N6).
  */
 export function winnerHeadComparison({ v01 = [], v1 = [] }, opts = {}) {
-  const { pairs, excluded } = pairGames(v01, v1);
+  const { pairs, excluded } = pairGames(v01, v1, { underReview: opts.underReview ?? new Set() });
   const rows = pairs.map(({ a, b }) => ({ y: a.winner?.elo?.y ?? a.winner?.sim?.y, elo: a.winner?.elo, v01: a.winner?.sim, v1: b.winner?.sim }))
     .filter((r) => (r.y === 0 || r.y === 1) && r.elo && r.v01 && r.v1);
   const diff = (key, x, y) => pairedMarket(rows.map((r) => [[r[x][key], r[y][key]]]), opts);
@@ -189,7 +197,7 @@ export const PROPOSED_CHALLENGERS = Object.freeze([
  * The full report. `families` maps family → current grades (experimental-grading-ledger.mjs currentGrades).
  * @returns {object} report with `promotes: false` — always.
  */
-export function evaluateChampionChallenger({ champion = "v0.1", challengers = ["v0.2", "v1"], families, computedAt, bootstrap = {} }) {
+export function evaluateChampionChallenger({ champion = "v0.1", challengers = ["v0.2", "v1"], families, computedAt, bootstrap = {}, underReview = new Set() }) {
   const opts = { ...BOOTSTRAP_DEFAULTS, ...bootstrap };
   const report = {
     artifact: "nba-champion-challenger-report", evaluatorVersion: EVALUATOR_VERSION, computedAt, preregistration: PREREG.doc,
@@ -197,11 +205,12 @@ export function evaluateChampionChallenger({ champion = "v0.1", challengers = ["
     rule: "report only — a verdict is an input to a founder decision (promotion-record.json), never a promotion; markets are judged separately (§7)",
     bootstrap: { ...opts, method: "game-clustered percentile bootstrap of the pooled mean paired difference" },
     champion, comparisons: {},
-    winnerHeads: winnerHeadComparison({ v01: families["v0.1"] ?? [], v1: families.v1 ?? [] }, opts),
+    underReview: [...underReview].sort(),
+    winnerHeads: winnerHeadComparison({ v01: families["v0.1"] ?? [], v1: families.v1 ?? [] }, { ...opts, underReview }),
     proposedChallengers: PROPOSED_CHALLENGERS,
   };
   for (const ch of challengers) {
-    const { pairs, excluded } = pairGames(families[champion] ?? [], families[ch] ?? []);
+    const { pairs, excluded } = pairGames(families[champion] ?? [], families[ch] ?? [], { underReview });
     const paired = pairedMetrics(pairs, opts);
     // The challenger's §7 states computed on exactly the paired games (its own rows within them).
     const chValidation = validationMetrics(pairs.map((p) => p.b));

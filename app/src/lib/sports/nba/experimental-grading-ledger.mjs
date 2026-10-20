@@ -50,17 +50,48 @@ export function finalLookup({ finalsRecords = {}, resultsRows = [], corpusRows =
     const ordered = [...records].sort(([a], [b]) => (a === season ? -1 : b === season ? 1 : 0));
     for (const [s, rec] of ordered) {
       const f = finalFor(rec, id);
-      if (f.state === "PENDING") continue;
-      return { state: f.state, ftHome: f.ftHome, ftAway: f.ftAway, source: `finals-record:${s}`, season: s, underReview: f.state === "FINAL_UNDER_REVIEW" };
+      if (f.state === "PENDING") {
+        // Review #1: a final the record REFUSED (identity disagreement …) stays ungraded with the record's reason. It
+        // never falls through to the rolling window, which would grade exactly what the record declined to accept.
+        const refused = (rec.refused ?? []).filter((x) => String(x.providerEventId) === id);
+        if (refused.length) return { state: "REFUSED", source: `finals-record:${s}`, season: s, reason: refused.map((x) => x.reason).join("; ") };
+        continue;
+      }
+      const row = (rec.finals ?? []).find((x) => String(x.providerEventId) === id);
+      return {
+        state: f.state, ftHome: f.ftHome, ftAway: f.ftAway, source: `finals-record:${s}`, season: s, underReview: f.state === "FINAL_UNDER_REVIEW",
+        homeTeamId: row?.home?.providerTeamId ?? null, awayTeamId: row?.away?.providerTeamId ?? null,
+      };
     }
     const r = results.get(id);
-    if (r && Number.isInteger(r.ftHome) && Number.isInteger(r.ftAway)) return { state: "FINAL", ftHome: r.ftHome, ftAway: r.ftAway, source: "results-capture", underReview: false };
+    if (r && Number.isInteger(r.ftHome) && Number.isInteger(r.ftAway)) return { state: "FINAL", ftHome: r.ftHome, ftAway: r.ftAway, source: "results-capture", underReview: false, homeTeamId: r.home?.providerTeamId ?? null, awayTeamId: r.away?.providerTeamId ?? null };
     const c = corpus.get(id);
     if (c && Number.isInteger(c.ftHome) && Number.isInteger(c.ftAway)) {
       return { state: "FINAL", ftHome: c.ftHome, ftAway: c.ftAway, source: "corpus-v1", underReview: false, ...(typeof c.overtime === "boolean" ? { overtime: c.overtime, overtimeSource: "corpus-v1" } : {}) };
     }
     return { state: "PENDING", providerEventId: id };
   };
+}
+
+/**
+ * Do the final's team ids match the forecast's sides? true / false, or null when the source carries no ids (corpus).
+ * A mismatch (swapped or different teams) must leave the game ungraded.
+ */
+export function finalTeamsMatch(final, game) {
+  if (final?.homeTeamId == null || final?.awayTeamId == null) return null;
+  return String(final.homeTeamId) === String(game?.home?.providerTeamId) && String(final.awayTeamId) === String(game?.away?.providerTeamId);
+}
+
+/** Event ids the finals records hold under `conflicts` — UNDER REVIEW: no new ledger entry, excluded from metrics/pairing. */
+export function underReviewIds(finalsRecords) {
+  const out = new Set();
+  for (const rec of Object.values(finalsRecords ?? {})) for (const c of rec?.conflicts ?? []) out.add(String(c.providerEventId));
+  return out;
+}
+
+/** Is a graded game's final disputed (under review in the record, or the box score's points disagree with it)? */
+export function isDisputedFinal(g, underReview = new Set()) {
+  return underReview.has(String(g?.providerEventId)) || g?.context?.finalState === "FINAL_UNDER_REVIEW" || g?.context?.boxscorePoints?.agrees === false;
 }
 
 /* ─────────────────────────── 3. overtime ─────────────────────────── */
@@ -195,16 +226,24 @@ const gradeBody = (g) => {
 };
 const isDecided = (e) => e?.status === "GRADED";
 
-/** Latest gradeEntry per providerEventId (the ledger's CURRENT view). */
+/** Lineage key (review #3): one forecast DATE's frozen game for one event — never the event id alone. */
+export const gradeKey = (date, providerEventId) => `${date ?? ""}|${providerEventId}`;
+
+/** Latest gradeEntry per (forecast date, providerEventId) (the ledger's CURRENT view). */
 export function currentGradeEntries(ledger) {
   const m = new Map();
-  for (const e of ledger?.gradeEntries ?? []) m.set(String(e.providerEventId), e);
+  for (const e of ledger?.gradeEntries ?? []) m.set(gradeKey(e.date, e.providerEventId), e);
   return m;
 }
 
-/** Current graded games (gradeForecastGame outputs) — what every metric reads. */
+/**
+ * Current graded games — what every metric reads. ONE row per event (§: one graded row per event): when an event was
+ * forecast on two dates, the latest forecast date's grade is the one counted.
+ */
 export function currentGrades(ledger) {
-  return [...currentGradeEntries(ledger).values()].filter(isDecided).map((e) => e.grade);
+  const byEvent = new Map();
+  for (const e of [...currentGradeEntries(ledger).values()].filter(isDecided).sort((a, b) => String(a.date).localeCompare(String(b.date)))) byEvent.set(String(e.providerEventId), e);
+  return [...byEvent.values()].map((e) => e.grade);
 }
 
 /**
@@ -219,7 +258,8 @@ export function appendGameResults(ledger, items, { gradedAt, graderVersion = GRA
   const appended = [];
   for (const it of items) {
     const id = String(it.providerEventId);
-    const prev = latest.get(id) ?? null;
+    const key = gradeKey(it.date, id);
+    const prev = latest.get(key) ?? null;
     const body = it.status === "GRADED" ? gradeBody(it.grade) : canonicalJson({ pending: it.pendingReason ?? null });
     const prevBody = prev ? (prev.status === "GRADED" ? gradeBody(prev.grade) : canonicalJson({ pending: prev.pendingReason ?? null })) : null;
     if (prev && prevBody === body) continue;
@@ -245,7 +285,7 @@ export function appendGameResults(ledger, items, { gradedAt, graderVersion = GRA
       ...(cause === CORRECTION_CAUSE.BOXSCORE_CORRECTION ? { correction: { oldBoxscoreHash: prev.inputs?.boxscoreHash ?? null, newBoxscoreHash: it.inputs?.boxscoreHash ?? null } } : {}),
     };
     next.gradeEntries.push(entry);
-    latest.set(id, entry);
+    latest.set(key, entry);
     appended.push(entry);
   }
   return { ledger: next, appended };
@@ -272,6 +312,27 @@ export function appendBoxscoreCheck(ledger, check) {
 export function latestCorrection(ledger, providerEventId) {
   return [...(ledger?.boxscoreCorrections ?? [])].reverse().find((c) => c.providerEventId === String(providerEventId)) ?? null;
 }
+/**
+ * Review #2 — ONE canonical corrected box score across families: the newest BOXSCORE_CORRECTION in ANY family's
+ * ledger (by detectedAt, then list order). Every family grades a game on the same box score.
+ */
+export function latestCorrectionAcross(ledgers, providerEventId) {
+  let best = null;
+  for (const l of ledgers ?? []) {
+    const c = latestCorrection(l, providerEventId);
+    if (c && (!best || Date.parse(c.detectedAt) > Date.parse(best.detectedAt))) best = c;
+  }
+  return best;
+}
+/** The newest box-score check of an event across every family (so one family's check spares the others a request). */
+export function lastCheckAtAcross(ledgers, providerEventId) {
+  let best = null;
+  for (const l of ledgers ?? []) {
+    const t = lastCheckAt(l, providerEventId);
+    if (t && (!best || Date.parse(t) > Date.parse(best))) best = t;
+  }
+  return best;
+}
 export function lastCheckAt(ledger, providerEventId) {
   return [...(ledger?.boxscoreChecks ?? [])].reverse().find((c) => c.providerEventId === String(providerEventId))?.checkedAt ?? null;
 }
@@ -293,11 +354,11 @@ export function experimentalLedgerAppendOnlyViolations({ before, after }) {
   }
   const seen = new Map();
   for (const e of after?.gradeEntries ?? []) {
-    const id = String(e.providerEventId);
-    const prev = seen.get(id);
-    if (e.lineageReason === LINEAGE.INITIAL && prev) v.push(`gradeEntries: second INITIAL for ${id} (seq ${e.seq})`);
-    if (e.lineageReason !== LINEAGE.INITIAL && (!prev || e.supersedes !== prev.seq)) v.push(`gradeEntries: seq ${e.seq} (${e.lineageReason}) does not supersede the previous entry of ${id}`);
-    seen.set(id, e);
+    const key = gradeKey(e.date, e.providerEventId);
+    const prev = seen.get(key);
+    if (e.lineageReason === LINEAGE.INITIAL && prev) v.push(`gradeEntries: second INITIAL for ${key} (seq ${e.seq})`);
+    if (e.lineageReason !== LINEAGE.INITIAL && (!prev || e.supersedes !== prev.seq)) v.push(`gradeEntries: seq ${e.seq} (${e.lineageReason}) does not supersede the previous entry of ${key}`);
+    seen.set(key, e);
   }
   return v;
 }
@@ -343,7 +404,12 @@ export function boxscorePointsCheck(doc, { homeTeamId, awayTeamId, ftHome, ftAwa
  * event; a schema-1 ledger (not yet re-graded by v2) → its date entries' graded games (latest date entry wins).
  */
 export function currentEntriesAnySchema(ledger) {
-  if (Array.isArray(ledger?.gradeEntries) && ledger.gradeEntries.length) return [...currentGradeEntries(ledger).values()];
+  if (Array.isArray(ledger?.gradeEntries) && ledger.gradeEntries.length) {
+    // One entry per event (the latest forecast date), like currentGrades.
+    const byEvent = new Map();
+    for (const e of [...currentGradeEntries(ledger).values()].sort((a, b) => String(a.date).localeCompare(String(b.date)))) if (e.status === "GRADED" || !byEvent.has(String(e.providerEventId))) byEvent.set(String(e.providerEventId), e);
+    return [...byEvent.values()];
+  }
   const m = new Map();
   for (const e of ledger?.entries ?? []) for (const g of e?.games ?? []) if (g?.graded) m.set(String(g.providerEventId), { providerEventId: String(g.providerEventId), date: e.date, status: "GRADED", grade: g, legacy: true });
   return [...m.values()];

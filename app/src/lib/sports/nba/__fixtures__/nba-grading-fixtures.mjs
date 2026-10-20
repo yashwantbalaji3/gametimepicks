@@ -97,7 +97,11 @@ export function summaryFromDoc(doc, { period = 4 } = {}) {
   };
 }
 
-/** A graded game through the REAL grader. */
-export function graded(id, { final = [110, 100], box = null, ...over } = {}) {
-  return gradeForecastGame(forecastGame(id, over), { ftHome: final[0], ftAway: final[1], source: "fixture" }, box);
+/**
+ * A graded game through the REAL grader, with the receipt state the v2 script records (`timing.receipt`, default "OK"
+ * — these synthetic games carry no real receipt; tests that exercise the receipt rule pass another state).
+ */
+export function graded(id, { final = [110, 100], box = null, receipt = "OK", ...over } = {}) {
+  const g = gradeForecastGame(forecastGame(id, over), { ftHome: final[0], ftAway: final[1], source: "fixture" }, box);
+  return g.graded ? { ...g, timing: { ...g.timing, receipt } } : g;
 }

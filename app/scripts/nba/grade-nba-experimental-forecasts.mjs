@@ -39,9 +39,10 @@ import { parseSummary, LabelOrderError } from "../../src/lib/sports/nba/boxscore
 import { validationFromGrades } from "../../src/lib/sports/nba/grader-metrics.mjs";
 import {
   GRADER_VERSION, RECHECK, finalLookup, resolveOvertime, periodsFromSummary, boxscoreContentHash, diffBoxscores, recheckDue,
-  emptyExperimentalLedger, upgradeLedger, appendGameResults, appendBoxscoreCheck, latestCorrection, lastCheckAt, currentGrades,
-  experimentalLedgerAppendOnlyViolations, restDaysFor, boxscorePointsCheck, ledgerText,
+  emptyExperimentalLedger, upgradeLedger, appendGameResults, appendBoxscoreCheck, latestCorrectionAcross, lastCheckAtAcross, currentGrades,
+  experimentalLedgerAppendOnlyViolations, restDaysFor, boxscorePointsCheck, ledgerText, finalTeamsMatch, underReviewIds,
 } from "../../src/lib/sports/nba/experimental-grading-ledger.mjs";
+import { receiptIntegrity } from "../../src/lib/sports/nba/forecast-receipt.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -111,8 +112,18 @@ function findBoxscore(id) {
   }
   return null;
 }
+// Review #2 — ONE canonical corrected box score: every family's ledger is read for corrections and checks, so all
+// families grade a game on the same box score (the newest correction anywhere) and one family's check spares the rest.
+const otherLedgers = Object.values(FAMILIES).filter((f) => f.family !== FAMILY.family).map((f) => {
+  for (const base of [OUT_DIR, NBA].filter(Boolean)) {
+    const file = path.join(base, f.dir, "ledger.json");
+    if (fs.existsSync(file)) { try { return upgradeLedger(readJson(file)); } catch { /* unreadable → none */ } }
+  }
+  return null;
+}).filter(Boolean);
+const underReview = underReviewIds(finalsRecords);
 function correctedBoxscore(ledger, id) {
-  const c = latestCorrection(ledger, id);
+  const c = latestCorrectionAcross([ledger, ...otherLedgers], id);
   if (!c?.new?.file) return null;
   for (const base of [OUT_DIR, NBA].filter(Boolean)) {
     const f = path.join(base, c.new.file);
@@ -175,8 +186,21 @@ ledger.labels ??= Object.values(LABELS);
 
 const files = fs.readdirSync(FORECASTS).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().filter((f) => !ONLY_DATE || f === `${ONLY_DATE}.json`);
 const items = [];
-const pendingWrites = [];
-let corrections = 0, checks = 0;
+const pendingWrites = new Map(); // path → doc (one write per path per run)
+let corrections = 0, checks = 0, underReviewSkipped = 0;
+const underReviewIdsSeen = new Set();
+/** Where a correction payload lives: reuse a stored file with the SAME content (a flapping A→B→A→B box), never rewrite. */
+function correctionFile(id, doc, hash) {
+  const f = path.join(CORRECTIONS_DIR, `${id}.${hash.slice(0, 12)}.json`);
+  if (pendingWrites.has(f)) return { file: f, reused: true };
+  if (fs.existsSync(f)) {
+    let same = false;
+    try { same = boxscoreContentHash(readJson(f)) === hash; } catch { same = false; }
+    return same ? { file: f, reused: true } : { error: `stored ${relNba(f)} holds different content` };
+  }
+  pendingWrites.set(f, doc);
+  return { file: f, reused: false };
+}
 for (const file of files) {
   const artifact = readJson(path.join(FORECASTS, file));
   const artGate = familyGuard({ family: FAMILY.family, doc: artifact, what: "forecast artifact" });
@@ -186,18 +210,25 @@ for (const file of files) {
   for (const game of artifact.games ?? []) {
     const id = String(game.providerEventId);
     const final = lookupFinal(id, { dateUtc: game.dateUtc });
-    if (final.state === "PENDING") { pending.push(id); items.push({ providerEventId: id, date, status: "PENDING", pendingReason: "NO_FINAL (finals record, results capture, corpus)" }); continue; }
+    const pend = (reason) => { pending.push(id); items.push({ providerEventId: id, date, status: "PENDING", pendingReason: reason }); };
+    if (final.state === "PENDING") { pend("NO_FINAL (finals record, results capture, corpus)"); continue; }
+    // Review #1: a final the record refused stays ungraded, with the record's own reason.
+    if (final.state === "REFUSED") { pend(`FINAL_REFUSED_BY_RECORD (${final.source}): ${final.reason}`); continue; }
+    // Review #5 + release owner: a final under `conflicts` is UNDER REVIEW — no new ledger entry (any legacy grade stands),
+    // excluded from metrics and pairing. Restating a recorded final is the founder's decision.
+    if (final.state === "FINAL_UNDER_REVIEW" || underReview.has(id)) { underReviewSkipped += 1; underReviewIdsSeen.add(id); console.log(`  ${id}: FINAL_UNDER_REVIEW (${final.source}, conflicts) — no ledger entry; any legacy grade stands`); continue; }
+    if (finalTeamsMatch(final, game) === false) { pend(`TEAM_ID_MISMATCH: final ${final.homeTeamId}/${final.awayTeamId} vs forecast ${game.home?.providerTeamId}/${game.away?.providerTeamId}`); continue; }
     let box = correctedBoxscore(ledger, id) ?? findBoxscore(id);
     if (!box && FETCH) {
       const r = await fetchBoxDoc(id, game);
-      if (r.doc) {
-        const f = path.join(EXP_BOX, `${id}.json`);
-        pendingWrites.push([f, r.doc]);
+      const f = path.join(EXP_BOX, `${id}.json`);
+      if (r.doc && !fs.existsSync(f) && !pendingWrites.has(f)) {
+        pendingWrites.set(f, r.doc);
         box = { doc: r.doc, source: "experimental-fetch", file: f };
         fetched.push(id);
-      } else console.log(`  ${id}: box score not stored (${r.error}) — graded without player rows`);
+      } else console.log(`  ${id}: box score not stored (${r.error ?? `${relNba(f)} exists but is unreadable`}) — graded without player rows`);
     } else if (box && RECHECK_ON && box.source !== "corpus") {
-      const due = recheckDue({ tipUtc: game.dateUtc, now: NOW, lastCheckedAt: lastCheckAt(ledger, id) ?? box.doc?.capturedAt ?? null });
+      const due = recheckDue({ tipUtc: game.dateUtc, now: NOW, lastCheckedAt: lastCheckAtAcross([ledger, ...otherLedgers], id) ?? box.doc?.capturedAt ?? null });
       if (due.due) {
         const r = await fetchBoxDoc(id, game);
         checks += 1;
@@ -206,26 +237,34 @@ for (const file of files) {
           const old = { hash: oldHash, file: relNba(box.file), capturedAt: box.doc?.capturedAt ?? null };
           if (oldHash === newHash) ledger = appendBoxscoreCheck(ledger, { providerEventId: id, checkedAt: NOW, outcome: "UNCHANGED", hash: oldHash });
           else {
-            const f = path.join(CORRECTIONS_DIR, `${id}.${newHash.slice(0, 12)}.json`);
-            pendingWrites.push([f, r.doc]);
-            ledger = appendBoxscoreCheck(ledger, { providerEventId: id, checkedAt: NOW, outcome: "CORRECTION", hash: newHash, old, new: { hash: newHash, file: relNba(f), capturedAt: NOW }, changes: diffBoxscores(box.doc, r.doc) });
-            box = { doc: r.doc, source: "experimental-correction", file: f };
-            corrections += 1;
-            console.log(`  ${id}: BOX SCORE CORRECTION ${oldHash.slice(0, 12)} → ${newHash.slice(0, 12)}`);
+            // Review #4: a refusal here is per GAME (logged, the game keeps its current box score), never per family.
+            const cf = correctionFile(id, r.doc, newHash);
+            if (cf.error) ledger = appendBoxscoreCheck(ledger, { providerEventId: id, checkedAt: NOW, outcome: "CHECK_FAILED", detail: cf.error });
+            else {
+              ledger = appendBoxscoreCheck(ledger, { providerEventId: id, checkedAt: NOW, outcome: "CORRECTION", hash: newHash, old, new: { hash: newHash, file: relNba(cf.file), capturedAt: NOW, reusedStoredFile: cf.reused }, changes: diffBoxscores(box.doc, r.doc) });
+              box = { doc: r.doc, source: "experimental-correction", file: cf.file };
+              corrections += 1;
+              console.log(`  ${id}: BOX SCORE CORRECTION ${oldHash.slice(0, 12)} → ${newHash.slice(0, 12)}${cf.reused ? " (stored payload reused)" : ""}`);
+            }
           }
         } else ledger = appendBoxscoreCheck(ledger, { providerEventId: id, checkedAt: NOW, outcome: "CHECK_FAILED", detail: r.error });
       }
     }
     const ot = resolveOvertime({ final, boxscore: box?.doc ?? null });
     const g = gradeForecastGame(game, { ...final, ...ot }, box?.doc ?? null);
-    if (!g.graded) { pending.push(id); items.push({ providerEventId: id, date, status: "PENDING", pendingReason: g.reason }); continue; }
+    if (!g.graded) { pend(g.reason); continue; }
+    // Pre-tip = a VERIFIED receipt (payload hash matches, generatedAt < tip), recorded beside the inputAsOf check.
+    const ri = receiptIntegrity(game);
+    g.timing = { ...g.timing, receipt: ri.state, ...(ri.problems ? { receiptProblems: ri.problems } : {}) };
+    const boxscoreHash = box ? boxscoreContentHash(box.doc) : null;
     g.context = {
       finalState: final.state,
+      boxscoreHash,
       boxscorePoints: boxscorePointsCheck(box?.doc ?? null, { homeTeamId: game.home?.providerTeamId, awayTeamId: game.away?.providerTeamId, ftHome: final.ftHome, ftAway: final.ftAway }),
       restDays: { home: restDaysFor({ teamId: game.home?.providerTeamId, tipUtc: game.dateUtc, priorTips }), away: restDaysFor({ teamId: game.away?.providerTeamId, tipUtc: game.dateUtc, priorTips }) },
     };
     graded.push(g);
-    items.push({ providerEventId: id, date, status: "GRADED", grade: g, inputs: { finalSource: final.source, finalState: final.state, boxscoreSource: box?.source ?? null, boxscoreHash: box ? boxscoreContentHash(box.doc) : null, boxscoreFile: box ? relNba(box.file) : null } });
+    items.push({ providerEventId: id, date, status: "GRADED", grade: g, inputs: { finalSource: final.source, finalState: final.state, boxscoreSource: box?.source ?? null, boxscoreHash, boxscoreFile: box ? relNba(box.file) : null } });
   }
   console.log(`[${FAMILY.family}] ${date}: forecast ${(artifact.games ?? []).length} · graded ${graded.length} · pending ${pending.length}${FETCH ? ` · fetched ${fetched.length}` : ""}`);
   for (const [label, b] of Object.entries(summariseGrades(graded))) if (b.games) console.log(`  ${label}: games ${b.games} · elo brier ${b.winner.elo.brier} ll ${b.winner.elo.logLoss} (n ${b.winner.elo.n}) · sim brier ${b.winner.sim.brier} ll ${b.winner.sim.logLoss} (n ${b.winner.sim.n}) · margin MAE ${b.score.marginMAE} · total MAE ${b.score.totalMAE} · minutes MAE ${b.players.minutesMAE} (rows ${b.players.matchedRows})`);
@@ -234,24 +273,26 @@ for (const file of files) {
 const { ledger: next, appended } = appendGameResults(ledger, items, { gradedAt: NOW, graderVersion: GRADER_VERSION });
 next.graderVersion = GRADER_VERSION;
 next.recheck = { ...RECHECK, enabled: RECHECK_ON };
-next.validation = validationFromGrades(currentGrades(next), { computedAt: NOW });
+next.validation = validationFromGrades(currentGrades(next), { computedAt: NOW, underReview });
+next.validation.excluded.underReviewNoEntry = [...underReviewIdsSeen].sort();
 next.updatedAt = appended.length || checks ? NOW : before?.updatedAt ?? NOW;
 next.requestsMade = requestsMade;
 const violations = experimentalLedgerAppendOnlyViolations({ before, after: next });
 if (violations.length) { console.error(`REFUSED (append-only guard): ${violations.join("; ")}`); process.exit(1); }
 const lineage = appended.reduce((m, e) => ({ ...m, [e.lineageReason]: (m[e.lineageReason] ?? 0) + 1 }), {});
-console.log(`appended ${appended.length} grade entr${appended.length === 1 ? "y" : "ies"} ${JSON.stringify(lineage)} · box-score re-checks ${checks} · corrections ${corrections} · requests ${requestsMade}`);
+console.log(`appended ${appended.length} grade entr${appended.length === 1 ? "y" : "ies"} ${JSON.stringify(lineage)} · box-score re-checks ${checks} · corrections ${corrections} · under review (no entry) ${underReviewSkipped} · requests ${requestsMade}`);
 for (const [label, m] of Object.entries(next.validation.byLabel)) console.log(`[validation] ${label}: games ${m.games} · pre-tip ${m.timing.preTip}/${m.games} · sim brier ${m.winner.sim.brier} ece ${m.winner.sim.ece} (n ${m.winner.sim.n}) · OT ${m.overtime.n} measured / ${m.overtime.notMeasured} not · margin cov80 ${m.margin.coverage80} (n ${m.margin.coverage80N}) · states ${Object.entries(m.states).map(([k, s]) => `${k}=${s.state}`).join(" ")}`);
 
 if (!WRITE) { console.log("dry run — pass --write to append to the ledger"); process.exit(0); }
 const nowText = fs.existsSync(LEDGER_IN) ? fs.readFileSync(LEDGER_IN, "utf8") : null;
 if (nowText !== beforeText) { console.error("REFUSED: ledger changed during this run"); process.exit(1); }
 for (const [f, doc] of pendingWrites) {
-  if (fs.existsSync(f)) { console.error(`REFUSED: ${rel(f)} already exists — a stored box score is never rewritten`); process.exit(1); }
+  // Decided per game in the loop; a file that appeared since (a concurrent writer) is never overwritten.
+  if (fs.existsSync(f)) { console.error(`REFUSED: ${rel(f)} appeared during this run — a stored box score is never rewritten`); process.exit(1); }
   writeJson(f, doc);
 }
 fs.mkdirSync(path.dirname(LEDGER_OUT), { recursive: true });
 const text = ledgerText(next);
 if (JSON.stringify(JSON.parse(text)) !== JSON.stringify(next)) { console.error("REFUSED: ledger serialisation does not round-trip"); process.exit(1); }
 fs.writeFileSync(LEDGER_OUT, text);
-console.log(`wrote ${OUT_DIR ? LEDGER_OUT : rel(LEDGER_OUT)} (${next.gradeEntries.length} grade entries · legacy entries ${next.entries?.length ?? 0} untouched)${pendingWrites.length ? ` + ${pendingWrites.length} box-score file(s)` : ""}`);
+console.log(`wrote ${OUT_DIR ? LEDGER_OUT : rel(LEDGER_OUT)} (${next.gradeEntries.length} grade entries · legacy entries ${next.entries?.length ?? 0} untouched)${pendingWrites.size ? ` + ${pendingWrites.size} box-score file(s)` : ""}`);

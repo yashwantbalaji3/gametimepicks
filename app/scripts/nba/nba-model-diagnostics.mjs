@@ -16,7 +16,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { etDateOf, FAMILIES } from "../../src/lib/sports/nba/experimental-forecast.mjs";
-import { currentEntriesAnySchema } from "../../src/lib/sports/nba/experimental-grading-ledger.mjs";
+import { currentEntriesAnySchema, underReviewIds } from "../../src/lib/sports/nba/experimental-grading-ledger.mjs";
 import { buildDiagnostics, diagnosticsMarkdown } from "../../src/lib/sports/nba/model-diagnostics.mjs";
 import { evaluateChampionChallenger } from "../../src/lib/sports/nba/champion-challenger.mjs";
 
@@ -37,6 +37,10 @@ for (const f of fams) if (!FAMILIES[f]) { console.error(`REFUSED: unknown family
 const ROOT = opt("--ledger-root") ? path.resolve(opt("--ledger-root")) : NBA;
 const OUT = opt("--out-dir") ? path.resolve(opt("--out-dir")) : path.join(NBA, "reports");
 const B = opt("--bootstrap-b") ? Number(opt("--bootstrap-b")) : 2000;
+// Finals under review (record `conflicts`) are excluded from every finding and every pair (review #5).
+const RESULTS_DIR = opt("--results-dir") ? path.resolve(opt("--results-dir")) : path.join(APP, "public", "data", "nba", "results");
+const finalsRecords = Object.fromEntries((fs.existsSync(RESULTS_DIR) ? fs.readdirSync(RESULTS_DIR) : []).filter((f) => /^finals-\d{4}-\d{2}\.json$/.test(f)).map((f) => [f, JSON.parse(fs.readFileSync(path.join(RESULTS_DIR, f), "utf8"))]));
+const underReview = underReviewIds(finalsRecords);
 if (!Number.isInteger(B) || B < 100) { console.error("REFUSED: --bootstrap-b integer ≥ 100"); process.exit(1); }
 
 const readLedger = (fam) => {
@@ -54,7 +58,7 @@ for (const fam of Object.keys(FAMILIES)) {
   current[fam] = l ? currentEntriesAnySchema(l.doc).filter((e) => e.date <= DATE) : [];
 }
 for (const fam of fams) {
-  const r = buildDiagnostics({ family: fam, date: DATE, generatedAt: NOW, entries: current[fam], bootstrap: { B } });
+  const r = buildDiagnostics({ family: fam, date: DATE, generatedAt: NOW, entries: current[fam], bootstrap: { B }, underReview });
   const sys = r.slate.findings.filter((f) => f.status === "SYSTEMATIC").length;
   const s = r.slate.surprises;
   console.log(`[diagnostics ${fam}] ${DATE}: slate games ${r.slate.games} · slate systematic findings ${sys} · DNP ${s.predictedButDnp.length} · absent ${s.predictedButAbsent.length} · unpredicted ${s.playedButUnpredicted.length} · finals under review ${s.dataChecks.finalsUnderReview.length}`);
@@ -65,7 +69,7 @@ for (const fam of fams) {
   } else if (fams.length === 1) console.log(diagnosticsMarkdown(r));
 }
 
-const cc = evaluateChampionChallenger({ champion: "v0.1", challengers: ["v0.2", "v1"], families: Object.fromEntries(Object.entries(current).map(([k, es]) => [k, es.filter((e) => e.status === "GRADED").map((e) => e.grade)])), computedAt: NOW, bootstrap: { B } });
+const cc = evaluateChampionChallenger({ champion: "v0.1", challengers: ["v0.2", "v1"], families: Object.fromEntries(Object.entries(current).map(([k, es]) => [k, es.filter((e) => e.status === "GRADED").map((e) => e.grade)])), computedAt: NOW, bootstrap: { B }, underReview });
 cc.asOfSlate = DATE;
 for (const [ch, c] of Object.entries(cc.comparisons)) {
   console.log(`[champion v0.1 vs ${ch}] paired regular-season pre-tip games ${c.pairedGames} · excluded ${JSON.stringify(c.excluded)} · overall ${c.overall}`);

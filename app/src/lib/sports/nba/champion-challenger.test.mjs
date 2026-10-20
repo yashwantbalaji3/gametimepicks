@@ -31,7 +31,7 @@ test("pairing: only identical REGULAR-season games frozen pre-tip in BOTH famili
   const chall = [graded("1"), graded("2"), graded("3", { label: PRE }), graded("4"), graded("5", { final: [111, 100] }), graded("7")];
   const { pairs, excluded } = pairGames(champ, chall);
   assert.deepEqual(pairs.map((p) => p.id), ["1", "2"]);
-  assert.deepEqual(excluded, { onlyChampion: 1, onlyChallenger: 1, notRegularSeason: 1, notPreTip: 1, finalMismatch: 1 });
+  assert.deepEqual(excluded, { onlyChampion: 1, onlyChallenger: 1, notRegularSeason: 1, notPreTip: 1, receiptNotVerified: 0, disputedFinal: 0, finalMismatch: 1, boxscoreMismatch: 0 });
 });
 
 test("player pairing: identical athlete ids, expectedMinutes ≥ 20 in BOTH families (3PM also rate ≥ 0.05 in both)", () => {

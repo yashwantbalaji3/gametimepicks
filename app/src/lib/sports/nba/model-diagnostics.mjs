@@ -16,6 +16,7 @@
 import { clusterBootstrap, PROPOSED_CHALLENGERS } from "./champion-challenger.mjs";
 import { MINUTES_BANDS } from "./grader-metrics.mjs";
 import { LABELS } from "./experimental-forecast.mjs";
+import { isDisputedFinal } from "./experimental-grading-ledger.mjs";
 
 export const DIAGNOSTICS_VERSION = "nba-model-diagnostics-1";
 const STATS = ["pts", "reb", "ast", "threePm"];
@@ -80,7 +81,7 @@ export function systematicFindings(games, opts = {}) {
 }
 
 /** Rotation / injury surprises and data checks for one slate's games. */
-export function slateSurprises(games, { top = 10 } = {}) {
+export function slateSurprises(games, { top = 10, underReview = new Set() } = {}) {
   const minutesMisses = games.flatMap((g) => (g.players?.rows ?? []).map((r) => ({ providerEventId: g.providerEventId, side: r.side, name: r.name, expectedMinutes: r2(r.expectedMinutes), actualMinutes: r.actualMinutes, error: r2(r.minutesErr), injuryStatus: r.injuryStatus ?? null })))
     .filter((r) => Number.isFinite(r.error)).sort((a, b) => Math.abs(b.error) - Math.abs(a.error)).slice(0, top);
   const list = (k, keep) => games.flatMap((g) => (g.players?.[k] ?? []).filter(keep).map((p) => ({ providerEventId: g.providerEventId, ...p })));
@@ -90,7 +91,7 @@ export function slateSurprises(games, { top = 10 } = {}) {
     predictedButAbsent: list("predictedButAbsent", (p) => (p.expectedMinutes ?? 0) >= SURPRISE_MINUTES),
     playedButUnpredicted: list("playedButUnpredicted", (p) => (p.minutes ?? 0) >= SURPRISE_MINUTES),
     dataChecks: {
-      finalsUnderReview: games.filter((g) => g.context?.finalState === "FINAL_UNDER_REVIEW").map((g) => g.providerEventId),
+      finalsUnderReview: games.filter((g) => g.context?.finalState === "FINAL_UNDER_REVIEW" || underReview.has(String(g.providerEventId))).map((g) => g.providerEventId),
       boxscorePointsDisagree: games.filter((g) => g.context?.boxscorePoints?.agrees === false).map((g) => ({ providerEventId: g.providerEventId, final: g.final, boxscore: { home: g.context.boxscorePoints.home, away: g.context.boxscorePoints.away } })),
       overtimeNotMeasured: games.filter((g) => typeof g.overtime?.actual !== "boolean").map((g) => g.providerEventId),
       withoutBoxscore: games.filter((g) => !g.players).map((g) => g.providerEventId),
@@ -118,8 +119,11 @@ export function proposeCandidates(findings, { family, population }) {
  * The daily diagnostics report for one family.
  * @param entries  current-view gradeEntries (status GRADED) — each { date, grade }
  */
-export function buildDiagnostics({ family, date, generatedAt, entries, bootstrap = {} }) {
-  const graded = entries.filter((e) => e.status === "GRADED");
+export function buildDiagnostics({ family, date, generatedAt, entries, bootstrap = {}, underReview = new Set() }) {
+  const all = entries.filter((e) => e.status === "GRADED");
+  const slateAll = all.filter((e) => e.date === date).map((e) => e.grade);
+  // Review #5: disputed finals are listed in the data checks but never feed a finding or a proposal.
+  const graded = all.filter((e) => !isDisputedFinal(e.grade, underReview));
   const slate = graded.filter((e) => e.date === date).map((e) => e.grade);
   const populations = {};
   for (const label of Object.values(LABELS)) {
@@ -137,7 +141,8 @@ export function buildDiagnostics({ family, date, generatedAt, entries, bootstrap
     artifact: "nba-model-diagnostics", diagnosticsVersion: DIAGNOSTICS_VERSION, family, date, generatedAt,
     dataClass: "PRIVATE_RESEARCH", productEligible: false, changesNothing: true,
     standingProposals: PROPOSED_CHALLENGERS.map((c) => ({ id: c.id, text: c.text, motivation: c.motivation, textOnly: true })),
-    slate: { games: slate.length, findings: systematicFindings(slate, bootstrap), surprises: slateSurprises(slate), note: "one slate never drives a proposal — see seasonToDate" },
+    excluded: { disputedFinal: all.length - graded.length },
+    slate: { games: slate.length, findings: systematicFindings(slate, bootstrap), surprises: slateSurprises(slateAll, { underReview }), note: "one slate never drives a proposal — see seasonToDate" },
     populations,
   };
 }

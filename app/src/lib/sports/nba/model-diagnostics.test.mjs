@@ -112,8 +112,9 @@ test("diagnostics report: slate vs season-to-date, surprises listed, proposals t
   ];
   const r = buildDiagnostics({ family: "v0.1", date: "2030-01-10", generatedAt: "t", entries, bootstrap: { B: 200 } });
   assert.equal(r.changesNothing, true);
-  assert.equal(r.slate.games, 1);
-  assert.equal(r.populations[REG].seasonToDate.games, 2, "a later slate is never read");
+  assert.equal(r.slate.games, 0, "d1's final is disputed: it feeds no finding (review #5)");
+  assert.equal(r.excluded.disputedFinal, 1);
+  assert.equal(r.populations[REG].seasonToDate.games, 1, "a later slate is never read; the disputed d1 is excluded");
   assert.equal(r.populations[REG].proposalsAreTextOnly, true);
   const s = r.slate.surprises;
   assert.equal(s.predictedButDnp.length, 1);

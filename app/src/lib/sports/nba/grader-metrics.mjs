@@ -13,6 +13,8 @@
  * counted as NOT_RECORDED rather than as misses.
  */
 
+import { isDisputedFinal } from "./experimental-grading-ledger.mjs";
+
 /** §6 minimum n and §7 SHADOW → PUBLIC FORECAST bars, verbatim. */
 export const PREREG = Object.freeze({
   doc: "docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md",
@@ -348,10 +350,16 @@ function overtimeMetrics(g, ot) {
 }
 
 /** The validation block over a set of current grades (grader v2: the ledger's current view, one grade per event). */
-export function validationFromGrades(grades, { computedAt }) {
+export function validationFromGrades(grades, { computedAt, underReview = new Set() }) {
   const byLabel = {};
-  for (const g of grades ?? []) if (g?.graded) (byLabel[g.label] ??= []).push(g);
-  return { preregistration: PREREG.doc, computedAt, source: "gradeEntries current view (latest entry per event)", byLabel: Object.fromEntries(Object.entries(byLabel).map(([label, games]) => [label, validationMetrics(games)])) };
+  const excluded = { disputedFinal: 0, disputedIds: [] };
+  for (const g of grades ?? []) {
+    if (!g?.graded) continue;
+    // Review #5: a final under review in the record (or whose box-score points disagree) never enters a metric.
+    if (isDisputedFinal(g, underReview)) { excluded.disputedFinal += 1; excluded.disputedIds.push(String(g.providerEventId)); continue; }
+    (byLabel[g.label] ??= []).push(g);
+  }
+  return { preregistration: PREREG.doc, computedAt, source: "gradeEntries current view (one row per event, latest forecast date)", excluded, byLabel: Object.fromEntries(Object.entries(byLabel).map(([label, games]) => [label, validationMetrics(games)])) };
 }
 
 

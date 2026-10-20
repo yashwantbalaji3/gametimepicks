@@ -12,7 +12,7 @@ import path from "node:path";
 import {
   finalLookup, overtimeFromBoxscore, resolveOvertime, periodsFromSummary, boxscoreContentHash, diffBoxscores, recheckDue,
   emptyExperimentalLedger, upgradeLedger, appendGameResults, appendBoxscoreCheck, latestCorrection, currentGrades, currentGradeEntries,
-  experimentalLedgerAppendOnlyViolations, restDaysFor, boxscorePointsCheck, LINEAGE, CORRECTION_CAUSE, GRADER_VERSION, currentEntriesAnySchema, ledgerText,
+  experimentalLedgerAppendOnlyViolations, restDaysFor, boxscorePointsCheck, LINEAGE, CORRECTION_CAUSE, GRADER_VERSION, currentEntriesAnySchema, ledgerText, gradeKey,
 } from "./experimental-grading-ledger.mjs";
 import { FAMILIES } from "./experimental-forecast.mjs";
 import { FIXTURE_NOTE, finalsRecord, boxDoc, boxRow, graded, HOME, AWAY } from "./__fixtures__/nba-grading-fixtures.mjs";
@@ -133,12 +133,12 @@ test("ledger: INITIAL once; an identical re-grade appends nothing; a source-labe
 });
 
 test("ledger: PENDING → PENDING_RESOLVED; a decided grade is never downgraded to PENDING; pending→pending appends nothing", () => {
-  let { ledger } = appendGameResults(emptyExperimentalLedger(spec), [{ providerEventId: "P1", date: "d", status: "PENDING", pendingReason: "NO_FINAL" }], { gradedAt: "t1" });
-  let r = appendGameResults(ledger, [{ providerEventId: "P1", date: "d", status: "PENDING", pendingReason: "other" }], { gradedAt: "t2" });
+  let { ledger } = appendGameResults(emptyExperimentalLedger(spec), [{ providerEventId: "P1", date: "2030-01-10", status: "PENDING", pendingReason: "NO_FINAL" }], { gradedAt: "t1" });
+  let r = appendGameResults(ledger, [{ providerEventId: "P1", date: "2030-01-10", status: "PENDING", pendingReason: "other" }], { gradedAt: "t2" });
   assert.equal(r.appended.length, 0);
   r = appendGameResults(ledger, [item("P1", graded("P1"))], { gradedAt: "t3" });
   assert.deepEqual(r.appended.map((e) => [e.lineageReason, e.supersedes]), [[LINEAGE.PENDING_RESOLVED, 1]]);
-  const r2 = appendGameResults(r.ledger, [{ providerEventId: "P1", date: "d", status: "PENDING", pendingReason: "window rolled" }], { gradedAt: "t4" });
+  const r2 = appendGameResults(r.ledger, [{ providerEventId: "P1", date: "2030-01-10", status: "PENDING", pendingReason: "window rolled" }], { gradedAt: "t4" });
   assert.equal(r2.appended.length, 0);
   assert.equal(currentGrades(r2.ledger).length, 1);
 });
@@ -155,7 +155,7 @@ test("ledger: a stat correction appends a CORRECTION that supersedes, with old/n
   assert.deepEqual(e.correction, { oldBoxscoreHash: boxscoreContentHash(box1), newBoxscoreHash: boxscoreContentHash(box2) });
   assert.deepEqual(b.ledger.gradeEntries[0], before.gradeEntries[0], "the original grade is never overwritten");
   assert.deepEqual(experimentalLedgerAppendOnlyViolations({ before, after: b.ledger }), []);
-  assert.equal(currentGradeEntries(b.ledger).get("C1").seq, 2, "the current view is the correction");
+  assert.equal(currentGradeEntries(b.ledger).get(gradeKey("2030-01-10", "C1")).seq, 2, "the current view is the correction");
 });
 
 test("ledger: a game first graded on the final alone, then with its box score, appends a CORRECTION with cause BOXSCORE_ADDED", () => {

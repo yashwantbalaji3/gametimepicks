@@ -89,3 +89,49 @@ test("e2e: INITIAL → replayed stat correction → CORRECTION lineage; original
 test("e2e: --summary-dir without --out-dir is refused (a replay never writes the repo)", () => {
   assert.throws(() => run(["--summary-dir", "/nonexistent", "--now", "2026-10-18T12:00:00Z"]), /Command failed/);
 });
+
+/** Review #4: a flapping box score (A → B → A → B) reuses the stored correction file; it never exits 1 or blocks the family. */
+test("e2e: flapping box score A→B→A→B — existing identical correction file is reused, no per-family refusal", { skip: !fs.existsSync(path.join(NBA, FAM_DIR, "forecasts", `${DATE}.json`)) }, () => {
+  const forecast = JSON.parse(fs.readFileSync(path.join(NBA, FAM_DIR, "forecasts", `${DATE}.json`), "utf8"));
+  const id = String(forecast.games[0].providerEventId);
+  const orig = JSON.parse(fs.readFileSync(path.join(NBA, "experimental", "boxscores", `${id}.json`), "utf8"));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "nba-grader-flap-"));
+  try {
+    const out = path.join(tmp, "out"), A = path.join(tmp, "A"), B = path.join(tmp, "B");
+    fs.mkdirSync(A); fs.mkdirSync(B);
+    const target = orig.players.find((p) => Number.isInteger(p.pts) && Number.isInteger(p.minutes));
+    const docB = { ...orig, players: orig.players.map((p) => (p === target ? { ...p, reb: p.reb + 1 } : p)) };
+    fs.writeFileSync(path.join(A, `${id}.json`), JSON.stringify(summaryFromDoc(orig)));
+    fs.writeFileSync(path.join(B, `${id}.json`), JSON.stringify(summaryFromDoc(docB)));
+    run(["--now", "2026-10-18T00:00:00Z", "--write", "--out-dir", out]);
+    for (const [now, dir] of [["2026-10-18T06:00:00Z", B], ["2026-10-18T12:30:00Z", A], ["2026-10-18T19:00:00Z", B]]) {
+      const o = run(["--now", now, "--fetch", "--write", "--out-dir", out, "--summary-dir", dir]); // throws on a non-zero exit
+      assert.doesNotMatch(o, /REFUSED/);
+    }
+    const l = JSON.parse(fs.readFileSync(path.join(out, FAM_DIR, "ledger.json"), "utf8"));
+    const corr = l.boxscoreCorrections.filter((c) => c.providerEventId === id);
+    assert.deepEqual(corr.map((c) => c.new.hash), [boxscoreContentHash(docB), boxscoreContentHash(orig), boxscoreContentHash(docB)]);
+    assert.equal(corr[2].new.file, corr[0].new.file, "the third flip points at the stored B file");
+    assert.equal(l.boxscoreChecks.filter((c) => c.providerEventId === id).at(-1).checkedAt, "2026-10-18T19:00:00Z", "the last check advances");
+    assert.deepEqual(experimentalLedgerAppendOnlyViolations({ before: null, after: l }), []);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+/** Review #5 + release owner: a final listed under `conflicts` in the finals record appends NOTHING; the legacy grade stands. */
+test("e2e: COMMITTED 401901822 (finals-record conflict) gets no ledger entry and is excluded from validation", { skip: !fs.existsSync(path.join(NBA, FAM_DIR, "forecasts", `${DATE}.json`)) }, () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "nba-grader-conflict-"));
+  try {
+    const out = path.join(tmp, "out");
+    const o = run(["--now", "2026-10-20T20:00:00Z", "--write", "--out-dir", out]);
+    assert.match(o, /401901822: FINAL_UNDER_REVIEW/);
+    const l = JSON.parse(fs.readFileSync(path.join(out, FAM_DIR, "ledger.json"), "utf8"));
+    assert.equal(l.gradeEntries.filter((e) => e.providerEventId === "401901822").length, 0, "no new entry");
+    const legacy = JSON.parse(fs.readFileSync(LEDGER, "utf8"));
+    assert.deepEqual(l.entries, legacy.entries, "the legacy grade (116–98) stands untouched");
+    assert.ok(l.validation.excluded.underReviewNoEntry.includes("401901822"), "listed as under review, not graded");
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
