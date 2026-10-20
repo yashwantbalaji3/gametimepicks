@@ -116,7 +116,9 @@ test("sorting: PTS / REB / AST / 3PM / MIN set aria-sort on their header, toggle
   for (const k of SORT_KEYS) {
     const btn = sortButton(page, 0, k);
     await btn.click();
-    const want = k === "MIN" ? "ascending" : "descending"; // MIN starts sorted descending, so one click flips it
+    // a column that is not the current sort starts descending (nextSort). MIN is the default sort, but by the time the loop
+    // reaches it 3PM is sorted, so MIN is a new column again here.
+    const want = "descending";
     await expect(table.locator(`thead th[aria-sort="${want}"]`)).toContainText(k);
     await expect(table.locator("thead th[aria-sort]")).toHaveCount(1);
     await expect(btn).toBeFocused();

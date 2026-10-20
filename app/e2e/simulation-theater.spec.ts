@@ -88,8 +88,10 @@ async function open(page: Page, at: At = {}) {
   }
   if (at.zoomCap != null) throw new Error("zoomCap is a dev-route review hook");
   await page.goto(PAGE, { waitUntil: "networkidle" });
-  // the island loads when the section comes within a viewport (TheaterLoader); the report above it is long
-  await page.locator("[data-stp-section]").scrollIntoViewIfNeeded();
+  // the island loads when its shell comes within a viewport (TheaterLoader); the report above it is long. Scroll the shell
+  // itself, not the whole section: with the drive table and the box score below it the section is several viewports tall
+  // at 320 px, and centring it leaves the shell out of the loader's range.
+  await page.locator("[data-stp-section] .st-root").first().scrollIntoViewIfNeeded();
   await page.waitForSelector(".st-root[data-st-ready]");
   if (at.run != null) await chooseRun(page, at.run);
   if (at.t != null && at.t > 0) await seekBar(page, at.t);
@@ -490,7 +492,7 @@ test("bundle budget (spec §6.1): theater JS ≤120 KB gzip incremental over a r
     await page.goto(PAGE, { waitUntil: "networkidle" });
     await page.waitForTimeout(800);
     ref = new Map(js);
-    await page.locator("[data-stp-section]").scrollIntoViewIfNeeded();
+    await page.locator("[data-stp-section] .st-root").first().scrollIntoViewIfNeeded();
     await page.waitForSelector(".st-root[data-st-ready]");
     await page.waitForTimeout(800);
     page.off("response", handler);
@@ -1023,6 +1025,8 @@ test.describe("projected box score", () => {
     await offer.click();
     const dlg = boxDialog(page);
     await expect(dlg).toBeVisible();
+    // measure the settled sheet: its entrance animation (st-rise) starts 6 px low
+    await dlg.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
     const b = (await dlg.boundingBox())!;
     expect(Math.abs(b.y + b.height - 844), "anchored to the viewport bottom").toBeLessThanOrEqual(2);
     await page.keyboard.press("Escape");
@@ -1036,6 +1040,7 @@ test.describe("projected box score", () => {
       await boxButton(page).click();
       const dlg = boxDialog(page);
       await expect(dlg).toBeVisible();
+      await dlg.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished))); // settled (st-rise starts 6 px low)
       const b = (await dlg.boundingBox())!;
       expect(b.x).toBeGreaterThanOrEqual(-0.5);
       expect(b.x + b.width).toBeLessThanOrEqual(w + 0.5);
