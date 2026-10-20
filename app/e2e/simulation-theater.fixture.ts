@@ -16,6 +16,16 @@ import { loadTheater } from "../src/lib/simulation-theater/loader.mjs";
 import { compileTimeline } from "../src/lib/simulation-theater/timeline.mjs";
 import { CAMERA_POLICY, REVIEW_ZOOM_CAPS, cameraAt } from "../src/lib/simulation-theater/camera.mjs";
 import { driveSituation } from "../src/lib/simulation-theater/broadcast.mjs";
+import { nflBoxScore } from "../src/lib/simulation-theater/box-score.mjs";
+
+/** The projected box score's rendered shape (lib/simulation-theater/box-score.mjs), as far as the spec reads it. */
+export type BoxExpect = {
+  header: { scoreLine: string; runIndex: number; teams: { home: { abbr: string }; away: { abbr: string } } };
+  periods: { columns: string[]; away: number[]; home: number[] };
+  categories: { id: string; status: string; away: { display: string }; home: { display: string } }[];
+  players: { id: string; label: string; reason: string }[];
+  provenance: string;
+};
 
 type Kf = { driveIdx: number; phase: string; t0: number; dur: number; breakKind?: string };
 type Marker = { type: string; quarter: number; atT: number; driveIdx: number; exact: boolean };
@@ -128,5 +138,7 @@ export function deriveFixture(eventId: string, repoRoot = path.resolve(process.c
     refDrive: ref.index,
     /** the drive strip at the reference drive's RESULT: "Drive 7 of 19 · 10 plays · 75 yds" */
     refStrip: driveSituation(ref, "RESULT", m.teams, n).text as string,
+    /** the projected box score of the run the page opens on (the dialog and the server table must print exactly this) */
+    box: nflBoxScore(s, m) as unknown as BoxExpect,
   };
 }

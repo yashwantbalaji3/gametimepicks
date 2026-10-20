@@ -4,12 +4,17 @@
  * swipe, a 44 px Close button, max 85vh with internal scroll. The keyboard contract (focus in, Tab contained, Escape
  * closes, focus returned to the opener) is the product's shared useDialogFocus hook, not a local copy.
  * The caller pauses playback when it opens (playback resumes only on a user action).
+ * `variant="modal"` (the projected box score on wide screens): the same dialog and keyboard contract, centred as a modal
+ * above 720 px; at ≤720 px it is the bottom sheet again (theater.css `.st-sheet.is-modal`).
  */
 import { useCallback, useEffect, useId, useLayoutEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
 
-export default function BottomSheet({ open, title, onClose, children }: { open: boolean; title: string; onClose: () => void; children: ReactNode }) {
+export default function BottomSheet({ open, title, onClose, children, variant = "sheet" }: {
+  open: boolean; title: string; onClose: () => void; children: ReactNode; variant?: "sheet" | "modal";
+}) {
+  const mod = variant === "modal" ? " is-modal" : "";
   const ref = useRef<HTMLDivElement>(null);
   const initial = useRef<HTMLElement | null>(null);
   const titleId = useId();
@@ -33,8 +38,8 @@ export default function BottomSheet({ open, title, onClose, children }: { open: 
 
   if (!open) return null;
   return (
-    <div className="st-sheet-backdrop" onClick={close}>
-      <div ref={ref} className="st-sheet" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(e) => e.stopPropagation()}>
+    <div className={`st-sheet-backdrop${mod}`} onClick={close}>
+      <div ref={ref} className={`st-sheet${mod}`} role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(e) => e.stopPropagation()}>
         <div
           className="st-sheet-handle"
           aria-hidden="true"

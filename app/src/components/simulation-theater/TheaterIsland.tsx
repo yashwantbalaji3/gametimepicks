@@ -28,6 +28,7 @@ import type { Frame, Palette, Side, Teams } from "./FieldScene";
 import { Banner, FieldLegend, Linescore, SceneBadge, ScoreBug, Transcript, Unavailable, depthClass, driveFacts } from "./parts";
 import { DistributionPanel, DrivePanel, EvidencePanel } from "./panels";
 import BottomSheet from "./BottomSheet";
+import BoxScoreDialog from "./BoxScorePanel";
 import { createFrameStore } from "./frame-store";
 import type { TheaterEvent, TheaterManifest, TheaterSample } from "./types";
 import { THEATER_VARS } from "./theater-css";
@@ -72,7 +73,7 @@ type SceneState = Frame & {
 };
 type Tp = { state: string; t: number; tEnd: number; speed: number; driveStarts: number[]; reason: string | null };
 type Live = { t: number; frame: SceneState | null; playState: string };
-type SheetKind = "samples" | "drive" | "dist" | "evidence" | null;
+type SheetKind = "samples" | "drive" | "dist" | "evidence" | "box" | null;
 
 const STOPS = ["TURNOVER", "DOWNS", "FG_MISS"];
 const AFTER_RESULT = ["RESULT", "TRANSITION", "BREAK", "FINAL"];
@@ -387,8 +388,10 @@ type Brk = NonNullable<ReturnType<typeof breakCard>>;
  * It is a labelled region, never a live region (the live region already says "Halftime." / "Final."), and it never takes
  * focus: the close button (44 px) or Escape hides it, and focus returns to Play only if it was inside the card.
  */
-function BreakCard({ brk, palette, onDismiss, idBase, variant, cardRef }: {
+function BreakCard({ brk, palette, onDismiss, idBase, variant, cardRef, onBoxScore }: {
   brk: Brk; palette: Palette; onDismiss: () => void; idBase: string; variant: "overlay" | "sheet"; cardRef: React.RefObject<HTMLElement>;
+  /** FINAL only: the card offers the projected box score of this run */
+  onBoxScore?: () => void;
 }) {
   if (!brk.rows) return null;
   const team = palette.mode === "team";
@@ -435,6 +438,11 @@ function BreakCard({ brk, palette, onDismiss, idBase, variant, cardRef }: {
         </tbody>
       </table>
       <p className="st-card-line" id={`${idBase}-card-line`}><b>{brk.line}</b>{"run" in brk && brk.run ? <span>{brk.run}</span> : null}</p>
+      {brk.kind === "FINAL" && onBoxScore ? (
+        <div className="st-card-actions">
+          <button type="button" className="st-btn stbx-open" aria-haspopup="dialog" data-stbx-open="final" onClick={onBoxScore}>View projected box score</button>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -785,6 +793,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
     if (cur && cur.state === "PLAYING") act("PAUSE"); // opening a sheet pauses; only the reader resumes
     setSheet(k);
   }, [act]);
+  const openBox = useCallback(() => openSheet("box"), [openSheet]);
 
   // focus-scoped keyboard shortcuts (spec §2.1 Keyboard, S9; WCAG 2.1.4: active only while the region has focus)
   const onRegionKey = (e: ReactKeyboardEvent<HTMLDivElement>) => {
@@ -1111,7 +1120,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                   />
                   <div className="st-dimmer" aria-hidden="true" />
                   {f && ev ? <BroadcastStrips cards={cards} palette={palette} /> : null}
-                  {breakCardShown && !compact ? <BreakCard brk={breakCardShown} palette={palette} onDismiss={dismissCard} idBase={uid} variant="overlay" cardRef={cardRef} /> : null}
+                  {breakCardShown && !compact ? <BreakCard brk={breakCardShown} palette={palette} onDismiss={dismissCard} idBase={uid} variant="overlay" cardRef={cardRef} onBoxScore={openBox} /> : null}
                   {scoringNow && ev ? <ScoreFlash ev={ev} teams={teams} palette={palette} /> : null}
                   {f && ev ? <LowerThird f={f} ev={ev} teams={teams} sample={sample} scoring={scoringNow} palette={palette} /> : null}
                 </div>
@@ -1150,6 +1159,8 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                     />
                     <span className="st-ptime"><span className="st-ptime-l">Playback</span> <span ref={(el) => { els.current.ptime = el; }} /></span>
                   </div>
+                  {/* the whole run's projected box score, any time (no need to watch to the end) */}
+                  <button type="button" className="st-btn stbx-open" aria-haspopup="dialog" data-stbx-open="transport" onClick={() => openSheet("box")}>Projected box score</button>
                 </div>
                 <DriveTimeline sample={sample} compiled={compiled} palette={palette} teams={teams} current={f?.driveIdx ?? 0} onSeekDrive={seekDrive} cursorRef={setCursorEl} />
                 <details className="st-keys">
@@ -1179,7 +1190,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
             </div>
             {/* phones: the card is a sheet fixed to the viewport bottom, rendered outside the stage (a size container, which
                 would otherwise be its containing block) */}
-            {breakCardShown && compact ? <BreakCard brk={breakCardShown} palette={palette} onDismiss={dismissCard} idBase={uid} variant="sheet" cardRef={cardRef} /> : null}
+            {breakCardShown && compact ? <BreakCard brk={breakCardShown} palette={palette} onDismiss={dismissCard} idBase={uid} variant="sheet" cardRef={cardRef} onBoxScore={openBox} /> : null}
             {compact ? null : <SidePanel manifest={manifest} sample={sample} ev={ev} onSeekDrive={seekDrive} current={f?.driveIdx ?? 0} />}
           </div>
 
@@ -1187,7 +1198,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
             <section className="st-box" aria-label="Linescore">
               <h2>Linescore · this run</h2>
               <Linescore sample={sample} teams={teams} />
-              <p className="st-eyebrow" style={{ margin: "8px 0 0" }}>Team and player lines for this run: not recorded in nfl-drive-run@1</p>
+              <p className="st-eyebrow" style={{ margin: "8px 0 0" }}>Team totals: derived from this run&apos;s drives (projected box score) · player lines: not recorded in nfl-drive-run@1</p>
             </section>
             <section className="st-box" aria-label="Transcript">
               <Transcript sample={sample} teams={teams} current={f?.driveIdx ?? null} />
@@ -1201,6 +1212,9 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
         {chipList(true)}
         {ruleLine}
       </BottomSheet>
+      {sample && sample.validation.ok ? (
+        <BoxScoreDialog open={sheet === "box"} onClose={() => setSheet(null)} manifest={manifest} sample={sample} palette={palette} />
+      ) : null}
       {sample && ev ? (
         <>
           <BottomSheet open={sheet === "drive"} title="Drive details" onClose={() => setSheet(null)}>

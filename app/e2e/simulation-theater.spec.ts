@@ -933,3 +933,172 @@ test.describe("integrated public route", () => {
     }
   });
 });
+
+// ── projected box score (Lane A-NFL, 2026-10-20): lib/simulation-theater/box-score.mjs, BoxScorePanel, BoxScoreTable ───
+// Both targets. The expected numbers are nflBoxScore(run, manifest) for the run the page opens on (F.box), computed in
+// node from the same receipt of record; the page must print exactly those strings.
+const BOX_WATERMARK = "SIMULATED · PROJECTED · NOT ACTUAL GAME STATISTICS";
+const NOT_MODELED = "Not modeled by this engine";
+const boxDialog = (page: Page) => page.getByRole("dialog", { name: /^Projected box score · run #/ });
+const boxButton = (page: Page) => page.getByRole("button", { name: "Projected box score", exact: true });
+
+/** Every category cell of both team tabs equals F.box; NOT_MODELED rows read as words; player sections are listed. */
+async function expectBoxNumbers(page: Page) {
+  const dlg = boxDialog(page);
+  await expect(dlg.locator("[data-stbx-watermark]")).toHaveText(BOX_WATERMARK);
+  await expect(dlg.locator("[data-stbx-final]")).toHaveText(F.box.header.scoreLine);
+  await expect(dlg.locator("[data-stbx-periods] thead th")).toHaveText(["Team", ...F.box.periods.columns, "T"]);
+  for (const side of ["away", "home"] as const) {
+    await dlg.locator(`[data-stbx-tab="${side}"]`).click();
+    await expect(dlg.locator(`[data-stbx-tab="${side}"]`)).toHaveAttribute("aria-selected", "true");
+    for (const c of F.box.categories) {
+      const td = dlg.locator(`tr[data-stbx-cat="${c.id}"] td[data-stbx-side="${side}"]`);
+      await expect(td, `${side} ${c.id}`).toHaveText(c[side].display);
+      if (c.status === "NOT_MODELED") {
+        await expect(td).toHaveText(NOT_MODELED);
+        await expect(td).toBeVisible();
+      }
+    }
+  }
+  for (const p of F.box.players) {
+    const li = dlg.locator(`[data-stbx-player="${p.id}"]`);
+    await expect(li).toContainText(NOT_MODELED);
+    await expect(li).toContainText(p.reason);
+    expect(/\d/.test(await li.innerText()), `${p.id}: no number`).toBe(false);
+  }
+  await expect(dlg.locator("[data-stbx-provenance]")).toContainText(F.box.provenance);
+}
+
+test.describe("projected box score", () => {
+  test("mid-playback from the transport: pauses, numbers equal box-score.mjs, focus trapped, Escape returns focus", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const errors = await open(page, { run: F.run });
+    await page.getByRole("button", { name: "Play", exact: true }).click();
+    await page.waitForTimeout(1500);
+    await expect(root(page)).toHaveAttribute("data-st-state", "PLAYING");
+    const opener = boxButton(page);
+    await opener.click();
+    const dlg = boxDialog(page);
+    await expect(dlg).toBeVisible();
+    await expect(dlg).toHaveAttribute("aria-modal", "true");
+    await expect(root(page)).toHaveAttribute("data-st-state", "PAUSED");
+    await expect(dlg.locator("[data-stbx-dialog]")).toHaveAttribute("data-stbx-run", String(F.run));
+    await expectBoxNumbers(page);
+    for (let i = 0; i < 10; i++) {
+      await page.keyboard.press("Tab");
+      expect(await page.evaluate(() => Boolean(document.activeElement?.closest("[role=dialog]")))).toBe(true);
+    }
+    // the team tabs are one tab stop with arrow keys (shared roving-tabs model)
+    await dlg.locator('[data-stbx-tab="away"]').focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(dlg.locator('[data-stbx-tab="home"]')).toBeFocused();
+    await expect(dlg.locator('[data-stbx-tab="home"]')).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("Escape");
+    await expect(dlg).toBeHidden();
+    await expect(opener).toBeFocused();
+    await expect(root(page)).toHaveAttribute("data-st-state", "PAUSED"); // only the reader resumes
+    expect(errors).toEqual([]);
+  });
+
+  test("at the final: the FINAL card offers it; same numbers; Escape returns focus to the card's button", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await open(page, { run: F.run, t: F.t.final });
+    const card = page.locator('[data-st-card="FINAL"]');
+    await expect(card).toBeVisible();
+    const offer = card.getByRole("button", { name: "View projected box score" });
+    await expect(offer).toBeVisible();
+    await offer.click();
+    await expect(boxDialog(page)).toBeVisible();
+    await expectBoxNumbers(page);
+    await page.keyboard.press("Escape");
+    await expect(boxDialog(page)).toBeHidden();
+    await expect(offer).toBeFocused();
+  });
+
+  test("390 px at the final: the FINAL sheet offers it too and the box score opens as a bottom sheet", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await open(page, { run: F.run, t: F.t.final });
+    const offer = page.locator('[data-st-card="FINAL"]').getByRole("button", { name: "View projected box score" });
+    await expect(offer).toBeVisible();
+    await offer.click();
+    const dlg = boxDialog(page);
+    await expect(dlg).toBeVisible();
+    const b = (await dlg.boundingBox())!;
+    expect(Math.abs(b.y + b.height - 844), "anchored to the viewport bottom").toBeLessThanOrEqual(2);
+    await page.keyboard.press("Escape");
+    await expect(offer).toBeFocused();
+  });
+
+  for (const [w, h] of [[320, 640], [390, 844], [768, 1024], [1440, 900]] as const) {
+    test(`${w} px: dialog inside the viewport, no horizontal overflow, sticky table head, NOT_MODELED rows visible as text`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h });
+      await open(page, { run: F.run, t: F.t.mid });
+      await boxButton(page).click();
+      const dlg = boxDialog(page);
+      await expect(dlg).toBeVisible();
+      const b = (await dlg.boundingBox())!;
+      expect(b.x).toBeGreaterThanOrEqual(-0.5);
+      expect(b.x + b.width).toBeLessThanOrEqual(w + 0.5);
+      if (w <= 720) expect(Math.abs(b.y + b.height - h), `${w}: bottom sheet`).toBeLessThanOrEqual(2);
+      else {
+        expect(b.y, `${w}: centred modal`).toBeGreaterThan(0);
+        expect(b.y + b.height).toBeLessThan(h);
+      }
+      const ov = await page.evaluate(() => {
+        const body = document.querySelector("[role=dialog] .st-sheet-body") as HTMLElement;
+        return { sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, bsw: body.scrollWidth, bcw: body.clientWidth };
+      });
+      expect(ov.sw, "no horizontal page scroll").toBeLessThanOrEqual(ov.cw);
+      expect(ov.bsw, "the table fits the dialog (no horizontal scroll inside)").toBeLessThanOrEqual(ov.bcw);
+      // tabular numbers
+      const fv = await dlg.locator('tr[data-stbx-cat="yards"] td').first().evaluate((el) => getComputedStyle(el).fontVariantNumeric);
+      expect(fv).toContain("tabular-nums");
+      // sticky head: scroll the sheet body well down; the table head stays at the top of the scroll area
+      const stuck = await page.evaluate(() => {
+        const body = document.querySelector("[role=dialog] .st-sheet-body") as HTMLElement;
+        const th = body.querySelector(".stbx-table thead th") as HTMLElement;
+        const table = body.querySelector(".stbx-table") as HTMLElement;
+        body.scrollTop = table.offsetTop + 400;
+        const br = body.getBoundingClientRect();
+        const tr = th.getBoundingClientRect();
+        return { top: tr.top - br.top, scrolled: body.scrollTop > 0, below: table.getBoundingClientRect().bottom > br.top + 40 };
+      });
+      if (stuck.scrolled && stuck.below) expect(Math.abs(stuck.top), "thead stuck to the top of the sheet").toBeLessThanOrEqual(2);
+      for (const id of ["redZoneTrips", "firstDowns"]) {
+        const td = dlg.locator(`tr[data-stbx-cat="${id}"] td`);
+        await td.scrollIntoViewIfNeeded();
+        await expect(td).toHaveText(NOT_MODELED);
+        await expect(td).toBeVisible();
+      }
+      const pass = dlg.locator('[data-stbx-player="passing"]');
+      await pass.scrollIntoViewIfNeeded();
+      await expect(pass).toBeVisible();
+      await expect(pass).toContainText(NOT_MODELED);
+      // every control in the dialog is a ≥44 px target
+      const small = await page.evaluate(() => [...document.querySelectorAll("[role=dialog] button")]
+        .filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && (r.width < 44 || r.height < 44); }).length);
+      expect(small).toBe(0);
+    });
+  }
+
+  test.describe("no JavaScript", () => {
+    test.use({ javaScriptEnabled: false });
+    for (const [w, h] of [[320, 1600], [1440, 1300]] as const) {
+      test(`${w} px: the server-rendered box table prints box-score.mjs for the default run`, async ({ page }) => {
+        await page.setViewportSize({ width: w, height: h });
+        await page.goto(PAGE, { waitUntil: "load" });
+        const t = page.locator("[data-stbx-static]");
+        await expect(t).toHaveAttribute("data-stbx-run", String(F.run));
+        await expect(t.locator("[data-stbx-watermark]")).toHaveText(BOX_WATERMARK);
+        await expect(t.locator("[data-stbx-final]")).toHaveText(F.box.header.scoreLine);
+        for (const c of F.box.categories) {
+          if (c.status === "NOT_MODELED") await expect(t.locator(`tr[data-stbx-cat="${c.id}"] td[data-stbx-side="both"]`)).toHaveText(NOT_MODELED);
+          else for (const side of ["away", "home"] as const) await expect(t.locator(`tr[data-stbx-cat="${c.id}"] td[data-stbx-side="${side}"]`)).toHaveText(c[side].display);
+        }
+        await expect(t.locator("[data-stbx-player]")).toHaveCount(F.box.players.length);
+        const ov = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
+        expect(ov.sw).toBeLessThanOrEqual(ov.cw);
+      });
+    }
+  });
+});

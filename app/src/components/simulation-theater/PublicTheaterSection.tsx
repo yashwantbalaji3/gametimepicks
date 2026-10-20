@@ -9,6 +9,8 @@
  *   - the four persistent labels and the methodology note, OUTSIDE the client island, so they stay on screen and in the
  *     accessibility tree before, during and after playback, and with JavaScript off;
  *   - a server-rendered drive table of the recorded sample (the no-JavaScript fallback);
+ *   - the server-rendered projected box score of that same run (BoxScoreStatic; lib/simulation-theater/box-score.mjs),
+ *     which fails closed to an "unavailable" line if any of its reconciliations does not hold;
  *   - a truthful "Simulation replay unavailable" state for a receipt that does not adapt or has no valid run (no pack
  *     is serialized then).
  */
@@ -16,6 +18,7 @@ import "./public-theater.css";
 import type { CSSProperties } from "react";
 
 import TheaterSection from "./TheaterSection";
+import { BoxScoreForRun } from "./BoxScoreTable";
 import { Unavailable } from "./parts";
 import { THEATER_VARS } from "./theater-css";
 import type { TheaterLoad, TheaterManifest, TheaterSample } from "./types";
@@ -86,6 +89,7 @@ export default function PublicTheaterSection({ rec }: { rec: Rec }) {
         <>
           <TheaterSection load={load} />
           <DriveTable manifest={load.manifest} sample={sample} />
+          <BoxScoreForRun manifest={load.manifest} sample={sample} />
         </>
       ) : (
         <div className="st-root" style={THEATER_VARS as CSSProperties}>

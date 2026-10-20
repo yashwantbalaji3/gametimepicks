@@ -21,7 +21,9 @@ import { notFound } from "next/navigation";
 
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import TheaterSection from "@/components/simulation-theater/TheaterSection";
-import type { TheaterLoad } from "@/components/simulation-theater/types";
+import { BoxScoreForRun } from "@/components/simulation-theater/BoxScoreTable";
+import type { TheaterLoad, TheaterSample } from "@/components/simulation-theater/types";
+import { defaultSample } from "@/lib/simulation-theater/public-theater.mjs";
 import { DISABLED_PLACEHOLDER, devRoutesEnabled, devStaticParams } from "@/lib/simulation-theater/dev-routes.mjs";
 import { FIXTURE_EVENT_IDS, loadTheater, usableFixtures } from "@/lib/simulation-theater/loader.mjs";
 
@@ -50,6 +52,12 @@ export default function SimulationTheaterDevPage({ params }: { params: { eventId
     <div className="vault-page-shell" style={{ padding: "16px 16px 48px" }}>
       {/* devHooks: the `?run=&t=` seek hook for reproducible screenshots (TheaterIsland). Dev route only. */}
       <TheaterSection load={load} devHooks />
+      {/* the default run's projected box score, server-rendered (no-JavaScript fallback; the island has the dialog) */}
+      {load.ok && load.manifest ? (
+        <div style={{ maxWidth: 1200, margin: "18px auto 0" }}>
+          <BoxScoreForRun manifest={load.manifest} sample={defaultSample(load.manifest) as TheaterSample | null} />
+        </div>
+      ) : null}
     </div>
   );
 }

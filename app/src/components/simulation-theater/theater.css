@@ -595,3 +595,62 @@
 }
 .st-root[data-st-reduced="1"] .st-card,.st-root[data-st-reduced="1"] .st-roll,.st-root[data-st-reduced="1"] .st-bug-team:has(.is-roll){animation:none}
 .st-root[data-st-reduced="1"] .st-roll::before{display:none}
+
+/* ── projected box score (lib/simulation-theater/box-score.mjs; BoxScoreTable.tsx, BoxScorePanel.tsx) ─────────────────
+   Global tokens only (no --st-* theme variable is required): the server-rendered table sits OUTSIDE .st-root on the public
+   section and the dev route, the dialog inside it. NOT_MODELED renders as words in the warn tone, never as a number. */
+.stbx{color:var(--lava-text);font-family:var(--font-display);font-size:13px;line-height:1.45;min-width:0}
+.stbx-static{margin-top:16px;border-radius:14px;background:var(--gtp-card);border:1px solid var(--gtp-card-border);padding:12px 14px}
+.stbx-title{margin:0 0 6px;font:600 15px var(--font-headline);color:var(--lava-text)}
+.stbx-mark{display:inline-block;margin:0 0 10px;padding:3px 8px;border-radius:6px;font:600 11px/1.4 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--vault-warn);border:1px solid color-mix(in srgb, var(--vault-warn) 55%, transparent);background:color-mix(in srgb, var(--vault-warn) 8%, var(--bg))}
+.stbx-head{margin:0 0 10px}
+.stbx-final{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px}
+.stbx-final b{font:600 11px var(--font-mono);letter-spacing:.14em;color:var(--lava-text-muted)}
+.stbx-score{font:700 20px var(--font-mono);font-variant-numeric:tabular-nums}
+.stbx-sub{margin:2px 0 0;font-size:12px;color:var(--lava-text-muted)}
+.stbx-line{border-collapse:collapse;margin:0 0 12px;font-family:var(--font-mono);font-size:13px;font-variant-numeric:tabular-nums}
+.stbx-cap{caption-side:top;text-align:left;padding:0 0 4px;font:600 12px var(--font-display);color:var(--lava-text)}
+.stbx-line th,.stbx-line td{padding:4px 10px;text-align:right;border-top:1px solid var(--border-strong)}
+.stbx-line th:first-child{text-align:left;padding-left:0}
+.stbx-line thead th{border-top:0;font-size:10.5px;letter-spacing:.08em;color:var(--lava-text-faint)}
+.stbx-status{display:inline-block;padding:0 5px;border-radius:4px;border:1px solid var(--border-strong);font:600 9.5px/1.6 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;vertical-align:1px;color:var(--lava-text-muted)}
+.stbx-status.is-modeled{color:var(--vault-info);border-color:color-mix(in srgb, var(--vault-info) 55%, transparent)}
+.stbx-status.is-not_modeled{color:var(--vault-warn);border-color:color-mix(in srgb, var(--vault-warn) 55%, transparent)}
+.stbx-note{display:block;margin-top:1px;font-size:11.5px;font-weight:400;color:var(--lava-text-muted)}
+.stbx-cap .stbx-note{display:inline;margin-left:4px}
+.stbx-label{font-weight:600}
+.stbx-table{width:100%;border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums}
+.stbx-table thead th{padding:6px 8px;text-align:right;font:600 10.5px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--lava-text-faint);border-bottom:1px solid var(--border-strong);background:var(--gtp-card)}
+.stbx-table thead th:first-child{text-align:left;padding-left:0}
+.stbx-table tbody th{padding:6px 8px 6px 0;text-align:left;font-weight:500;vertical-align:top;border-bottom:1px solid var(--gtp-card-border)}
+.stbx-table td{padding:6px 8px;text-align:right;vertical-align:top;white-space:nowrap;font:600 14px var(--font-mono);border-bottom:1px solid var(--gtp-card-border)}
+.stbx-table td.is-nm{white-space:normal;font:600 12px var(--font-display);color:var(--vault-warn)}
+.stbx-table .stbx-group th{padding:12px 0 4px;font:600 10.5px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--lava-text-faint);border-bottom:1px solid var(--border-strong)}
+.stbx-players{margin-top:14px}
+.stbx-h{margin:0 0 4px;font:600 13px var(--font-headline)}
+.stbx-players ul{list-style:none;margin:0;padding:0}
+.stbx-players li{padding:6px 0;border-bottom:1px solid var(--gtp-card-border)}
+.stbx-nm{margin-left:8px;font-weight:600;color:var(--vault-warn)}
+.stbx-comp,.stbx-prov{margin:10px 0 0;font:500 11.5px/1.5 var(--font-mono);color:var(--lava-text-muted);overflow-wrap:anywhere}
+.stbx-comp span{display:block}
+/* dialog: team tabs (the team's field colour as a bar, as on the score bug), sticky table head inside the sheet's scroll */
+.stbx-tabs{display:flex;gap:6px;margin:4px 0 8px;border-bottom:1px solid var(--border-strong)}
+.stbx-tab{flex:1 1 0;min-width:0;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-bottom:3px solid transparent;
+  background:transparent;color:var(--lava-text-muted);font:700 14px var(--font-headline);letter-spacing:.05em;cursor:pointer}
+.stbx-tab[aria-selected="true"]{color:var(--lava-text);border-bottom-color:var(--lava-heat)}
+.stbx-tabbar{flex:0 0 6px;width:6px;height:18px;border-radius:2px;background:var(--lava-text-faint)}
+.stbx-tab.is-team .stbx-tabbar{background:var(--st-team);box-shadow:0 0 0 1px var(--st-keyline)}
+.stbx-tabscore{font:600 13px var(--font-mono);font-variant-numeric:tabular-nums;color:var(--lava-text-muted)}
+.stbx-dialog .stbx-table thead th{position:sticky;top:0;z-index:1;background:var(--surface-elevated)}
+.stbx-dialog .stbx-mark{margin-top:2px}
+.stbx-open{white-space:nowrap}
+.st-transport > .stbx-open{flex:0 0 auto}
+.st-card-actions{display:flex;justify-content:center;padding:4px 12px 0}
+/* the box score dialog: a centred modal above 720 px; at ≤720 px it stays the bottom sheet (like every theater sheet) */
+@media (min-width:721px){
+  .st-sheet-backdrop.is-modal{align-items:center;padding:24px}
+  .st-sheet.is-modal{max-width:760px;max-height:min(85vh, 900px);border-radius:18px;border-bottom:1px solid var(--border-strong)}
+  .st-sheet.is-modal .st-sheet-handle{display:none}
+  .st-sheet.is-modal .st-sheet-head{padding-top:12px}
+}
