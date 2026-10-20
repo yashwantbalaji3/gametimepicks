@@ -1,8 +1,8 @@
 "use client";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, type ReactNode } from "react";
 import ParlayCard, { type V2CardView } from "./ParlayCard";
 import SmartBetslip from "./SmartBetslip";
-import { useSmartSlip } from "@/lib/slip/smart-slip-store";
+import { useSmartSlip, type SmartSlipApi } from "@/lib/slip/smart-slip-store";
 import { etStamp } from "@/lib/et-stamp.mjs";
 
 /**
@@ -96,8 +96,23 @@ function TierSection({ t, selectedCardId, onCompare }: { t: V2Tier; selectedCard
   );
 }
 
+/** /build: the board with the reader's own slip (browser storage, live clock). */
 export default function TierBoard({ model }: { model: ParlayLabV2Model }) {
-  const { slip, nowMs, openCard, remove, move, clear } = useSmartSlip();
+  const slipApi = useSmartSlip();
+  return <TierBoardView model={model} slipApi={slipApi} />;
+}
+
+/**
+ * The board over a slip the CALLER owns. /build passes the default hook above; the dev fixture route
+ * (/dev/parlay-lab-fixture) passes a non-persisting, fixed-clock slip and an injected operator allowlist.
+ */
+export function TierBoardView({ model, slipApi, isVerifiedOperator, children }: {
+  model: ParlayLabV2Model;
+  slipApi: SmartSlipApi;
+  isVerifiedOperator?: (label: unknown) => boolean;
+  children?: ReactNode;
+}) {
+  const { slip, nowMs, openCard, remove, move, clear } = slipApi;
   const slipHeading = useRef<HTMLHeadingElement>(null);
 
   const onCompare = useCallback((card: V2CardView) => {
@@ -125,7 +140,9 @@ export default function TierBoard({ model }: { model: ParlayLabV2Model }) {
         {model.tiers.map((t) => <TierSection key={t.tier} t={t} selectedCardId={slip.sourceCardId} onCompare={onCompare} />)}
       </div>
 
-      <SmartBetslip ref={slipHeading} slip={slip} nowMs={nowMs} onRemove={remove} onMove={move} onClear={clear} />
+      {children}
+
+      <SmartBetslip ref={slipHeading} slip={slip} nowMs={nowMs} onRemove={remove} onMove={move} onClear={clear} isVerifiedOperator={isVerifiedOperator} />
     </section>
   );
 }

@@ -29,9 +29,11 @@ const SmartBetslip = forwardRef<HTMLHeadingElement, {
   onRemove: (key: string) => void;
   onMove: (from: number, to: number) => void;
   onClear: () => void;
-}>(function SmartBetslip({ slip, nowMs, onRemove, onMove, onClear }, headingRef) {
+  /** Dev fixture route only (an injected allowlist). Omitted everywhere else: the operator seam decides. */
+  isVerifiedOperator?: (label: unknown) => boolean;
+}>(function SmartBetslip({ slip, nowMs, onRemove, onMove, onClear, isVerifiedOperator }, headingRef) {
   /* Until mount there is no reader clock; freshness is a client fact, so the server renders the empty state. */
-  const view = slipView(nowMs == null ? { ...slip, legs: [] } : slip, { nowMs: nowMs ?? 0 }) as SlipDisplay;
+  const view = slipView(nowMs == null ? { ...slip, legs: [] } : slip, { nowMs: nowMs ?? 0, ...(isVerifiedOperator ? { isVerifiedOperator } : {}) }) as SlipDisplay;
   const n = view.legs.length;
   return (
     <section aria-labelledby="smart-betslip-heading" className="flex flex-col gap-3 rounded-[14px] p-3.5"

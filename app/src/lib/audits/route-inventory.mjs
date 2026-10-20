@@ -117,6 +117,7 @@ export const ROUTE_TABLE = Object.freeze({
   "/privacy": { classification: legalRouteIsPublic("privacy") ? "public" : "internal", owner: "legal", purpose: "privacy notice — draft for review until counsel approval", dataOwner: "lib/legal/texts.mjs + content manifest", freshness: "effective date on approval" },
   "/launch": { classification: "internal", owner: "ops", purpose: "founder command center (pruned from public export)", dataOwner: "evidence artifacts + derived boards", freshness: "per-artifact" },
   "/ops": { classification: "internal", owner: "ops", purpose: "ops dashboard (pruned)", dataOwner: "admin status", freshness: "per-artifact" },
+  "/dev/parlay-lab-fixture": { classification: "internal", owner: "product", devOnly: true, purpose: "Parlay Lab V2 development fixture — the real tier board + Smart Betslip over FIXTURE cards (not real picks, not real prices) with a QUALIFIED card, for browser tests; unlinked, noindex; content only when GTP_DEV_ROUTES=1, a data-free 404 otherwise (pruned with /dev once that sweep is on main)", dataOwner: "lib/parlays/v2/__fixtures__/lab-fixture-page.mjs (synthetic, no artifact read)", freshness: "fixed inputs — fixture clock 2026-10-19T18:00:00Z" },
   "/preview/simulation-v2": { classification: "internal", owner: "research", purpose: "Simulation Engine V2 SHADOW receipts presentation (Session 13 · Phase F) — internal until the founder/model gate (pruned)", dataOwner: "data/internal/research/nfl/sim-v2/shadow (build-nfl-sim-v2-shadow)", freshness: "each receipt's generatedAt" },
   "/preview/epl": { classification: "internal", owner: "research", purpose: "EPL artifact preview (pruned)", dataOwner: "epl lane artifacts", freshness: "per-artifact" },
   "/preview/live": { classification: "internal", owner: "engineering", purpose: "GameTime Live v1.1 preview — live feed beside the frozen pregame forecast (pruned)", dataOwner: "live gateway (read-time) + committed nfl/mlb forecast artifacts (build-time)", freshness: "live half per gateway TTL; forecast half per artifact" },
@@ -188,10 +189,20 @@ export function buildRouteInventory({ now, appDir, outDir = null, navSources = [
   };
 
   const routes = [];
+  /*
+   * DEV-ONLY FAMILIES (`devOnly: true`, lib/simulation-theater/dev-routes.mjs) are not part of the default export by
+   * design: without GTP_DEV_ROUTES=1 they generate no page and scripts/prune-internal-routes.mjs deletes out/dev/. So
+   * they are reconciled here (owner, purpose, and, against an export, ZERO pages: any page is a P0 leak) but reported in
+   * `devRoutes`, not `routes`: the inventory of the default export does not change when a development route is added.
+   */
+  const devRoutes = [];
   for (const r of discovered) {
     const entry = ROUTE_TABLE[r];
     if (!entry) { find(`route-unowned-${r}`, "P0", `active route ${r} has no owner/purpose in the table — an unexplained route is a launch blocker`, r); continue; }
     const rec = { route: r, ...entry };
+    if (entry.devOnly && (entry.classification !== "internal" || !r.startsWith("/dev/"))) {
+      find(`dev-only-misclassified-${r}`, "P0", `${r} is marked devOnly but is not an internal route under /dev/`, r);
+    }
     // Redirect discipline: target must be a real public/archive destination (one hop).
     if (entry.classification === "redirect") {
       const target = ROUTE_TABLE[entry.redirectTo];
@@ -227,7 +238,7 @@ export function buildRouteInventory({ now, appDir, outDir = null, navSources = [
         }
       }
     } else rec.built = "UNVERIFIED (no export provided)";
-    routes.push(rec);
+    (entry.devOnly ? devRoutes : routes).push(rec);
   }
   // Inverse reconciliation: table rows whose source route vanished.
   for (const r of Object.keys(ROUTE_TABLE)) {
@@ -260,6 +271,7 @@ export function buildRouteInventory({ now, appDir, outDir = null, navSources = [
       p0: findings.filter((f) => f.severity === "P0").length,
     },
     routes,
+    ...(devRoutes.length ? { devRoutes } : {}),
     findings,
   };
 }
