@@ -117,6 +117,10 @@ export const STATE_ACTION: Record<SimEventState, string> = {
  * question without pulling `node:fs` into the browser bundle. One definition, two entry points.
  */
 import { READY_STATES } from "./ready-states.mjs";
+import { pinnedBuildEtDate } from "./build-today.mjs";
+
+/** One "today" per build for the date window (params and selector agree across midnight ET); live clock elsewhere. */
+const simulateToday = (): string => pinnedBuildEtDate({ fallback: () => currentEtDate() });
 export { READY_STATES };
 
 /** ET calendar day of an ISO instant (date-only format — immune to the Intl hour-24 trap). */
@@ -556,7 +560,7 @@ function nbaSection(date: string, today: string): SportDaySection {
 
 /** Every date in the bounded window that any registered sport has an event on (plus today, always). */
 export function availableSimulateDates(opts?: { today?: string }): string[] {
-  const today = opts?.today ?? currentEtDate();
+  const today = opts?.today ?? simulateToday();
   const lo = addDays(today, -WINDOW_BACK);
   const hi = addDays(today, WINDOW_FORWARD);
   const dates = new Set<string>([today]);
@@ -587,7 +591,7 @@ export function simulationReadyCount(day: SimulateDayView): number {
 }
 
 export function buildSimulateDay(date?: string, opts?: { today?: string }): SimulateDayView {
-  const today = opts?.today ?? currentEtDate();
+  const today = opts?.today ?? simulateToday();
   const d = date ?? today;
   const availableDates = availableSimulateDates({ today });
   const idx = availableDates.indexOf(d);

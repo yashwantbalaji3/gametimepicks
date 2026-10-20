@@ -51,7 +51,8 @@ export function shaMatches(abbrev, full) {
 
 /** Convention-era release commits, newest last, each carrying its FULL sha as identity. */
 export function conventionCommits() {
-  const log = execSync('git log --reverse --format="%H|%cs|%s|%p"', { cwd: process.cwd(), encoding: "utf8" });
+  // The full history no longer fits execSync's 1 MB default buffer (ENOBUFS in CI, 2026-10-20); 256 MB is ample.
+  const log = execSync('git log --reverse --format="%H|%cs|%s|%p"', { cwd: process.cwd(), encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
   return log.split("\n").filter((l) => RE.test(l)).map((l) => {
     const [commit, date, subject, parents] = l.split("|");
     let program = null, release = null;

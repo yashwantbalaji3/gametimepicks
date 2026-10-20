@@ -494,7 +494,12 @@ export default function NflHubPage() {
           { href: "#nfl-slate", label: "See the slate", primary: true },
           /* A CTA to a section that did not render is a dead button — the second slot follows
              what this build actually shows. */
-          slateMarketRows.length ? { href: "#nfl-markets", label: "Sportsbook prices" } : { href: "#nfl-boards", label: "Weekly top boards" },
+          /* …and "Weekly top boards" only while a game is still to kick off (the section renders only then): after the
+             week's last kickoff the button would have pointed at nothing (2026-10-20, after Monday night). Results
+             always renders. */
+          slateMarketRows.length ? { href: "#nfl-markets", label: "Sportsbook prices" }
+            : unifiedBoards.games ? { href: "#nfl-boards", label: "Weekly top boards" }
+            : { href: "#nfl-results", label: "Results" },
         ]}
         /* P250-W2: this said the same thing the lead paragraph below says, one line apart — a
            reader met three consecutive disclaimers before a single number. The hero states the
