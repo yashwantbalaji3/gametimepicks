@@ -104,6 +104,22 @@ export function adaptNbaArtifact(artifact, eventId, { file = null, provenance = 
       if (p?.providerAthleteId != null && num(p.playRate) != null) playRates[side][String(p.providerAthleteId)] = p.playRate;
     }
   }
+  // Rostered players the engine did NOT simulate (assumptions.availability): ruled Out, or no usable history. They are
+  // listed on the box score as "not simulated" with the reason — distinct from a simulated player's 0-minute DNP.
+  const rosterNotSimulated = { home: [], away: [] };
+  for (const side of ["home", "away"]) {
+    const a = fc.assumptions?.availability?.[side];
+    const seenIds = new Set();
+    const add = (p, reason) => {
+      const id = p?.providerAthleteId != null ? String(p.providerAthleteId) : null;
+      if (!p || typeof p.name !== "string" || (id && seenIds.has(id))) return;
+      if (id) seenIds.add(id);
+      rosterNotSimulated[side].push({ providerAthleteId: id, name: p.name, reason, injuryStatus: typeof p.injuryStatus === "string" ? p.injuryStatus : null });
+    };
+    for (const p of Array.isArray(a?.excludedOut) ? a.excludedOut : []) add(p, "out");
+    for (const p of Array.isArray(a?.excludedInsufficientHistory) ? a.excludedInsufficientHistory : []) add(p, "insufficient-history");
+    for (const p of Array.isArray(a?.excludedNoMinutes) ? a.excludedNoMinutes : []) add(p, "no-expected-minutes");
+  }
   const hist = checkHistogram(fc.sim.totalHistogram);
   const q = (o) => (isObj(o) ? { p10: num(o.p10), p25: num(o.p25), p50: num(o.p50), p75: num(o.p75), p90: num(o.p90), mean: num(o.mean), sd: num(o.sd) } : null);
   const manifest = {
@@ -114,11 +130,13 @@ export function adaptNbaArtifact(artifact, eventId, { file = null, provenance = 
     role: typeof artifact.role === "string" ? artifact.role : null,
     provenance: devCopy ? { source: provenance.source ?? null, sha256: provenance.sha256 ?? null, copiedAt: provenance.copiedAt ?? null, knownDeviation: provenance.knownDeviation ?? null } : null,
     playRates,
+    rosterNotSimulated,
     date: artifact.date ?? null,
     dateUtc: g.dateUtc ?? null,
     venue: g.venue ?? null,
     teams: { home, away },
     modelVersion: fc.modelVersion,
+    profileVersion: typeof artifact.profileVersion === "string" ? artifact.profileVersion : null,
     inputAsOf: fc.inputAsOf ?? artifact.inputAsOf ?? null,
     generatedAt: artifact.generatedAt ?? null,
     simulations,

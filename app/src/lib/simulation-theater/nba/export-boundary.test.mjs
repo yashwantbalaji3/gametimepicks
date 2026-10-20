@@ -17,6 +17,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { NBA_PRIVATE_MARKERS, scanExportForNbaPrivate } from "./export-boundary.mjs";
+import { NBA_BOX_SCORE_SCHEMA, NBA_BOX_WATERMARK } from "./box-score.mjs";
 
 const APP = process.cwd();
 const OUT = path.join(APP, "out");
@@ -75,6 +76,10 @@ test("scanner: each planted leak is caught (engine id, data path, family, both s
     ["data/y.json", `{"sha":"${NBA_PRIVATE_MARKERS[4]}"}`, NBA_PRIVATE_MARKERS[4]],
     ["nba/sim/1/index.html", '<script>{"v":"theater-pack@1","m":{"sport":"nba"}}</script>', "theater pack with sport nba"],
     ["nba/sim/2/index.txt", '1:"{\\"v\\":\\"theater-pack@1\\",\\"m\\":{\\"sport\\":\\"nba\\"}}"', "theater pack with sport nba"],
+    // Projected Final Box Score (Lane A-NBA 2026-10-20)
+    ["_next/static/chunks/7-def.js", 'const S="nba-box-score@1"', "nba-box-score@"],
+    ["_next/static/chunks/8-ghi.js", '(0,r.jsx)("div",{role:"dialog","data-nba-boxscore":""})', "data-nba-boxscore"],
+    ["nba/game/3/index.html", "<p>PROJECTED · SIMULATED · NOT ACTUAL GAME STATISTICS · PRIVATE CANDIDATE MODEL</p>", "PRIVATE CANDIDATE MODEL"],
   ];
   for (const [file, body, marker] of cases) {
     const r = scanExportForNbaPrivate(plant({ ...CLEAN, [file]: body }));
@@ -93,4 +98,16 @@ test("scanner: build-info's commit subject may name a marker; any other build-in
   assert.deepEqual(realLeak.leaks, [{ file: "data/build-info.json", marker: "data/internal/research/nba" }]);
   const elsewhere = scanExportForNbaPrivate(plant({ ...CLEAN, "data/other.json": info({}) }));
   assert.ok(elsewhere.leaks.some((l) => l.marker === "experimental-v1"), "a message field outside build-info is still scanned");
+});
+
+test("box-score markers: the schema, the dialog attribute and the watermark's private clause are markers; an NFL-style public watermark is not", () => {
+  assert.ok(NBA_PRIVATE_MARKERS.some((m) => NBA_BOX_SCORE_SCHEMA.startsWith(m)), "the box-score schema id is covered");
+  assert.ok(NBA_PRIVATE_MARKERS.some((m) => NBA_BOX_WATERMARK.includes(m)), "the watermark is covered");
+  assert.ok(NBA_PRIVATE_MARKERS.includes("data-nba-boxscore"));
+  for (const m of NBA_PRIVATE_MARKERS) assert.match(m, /^[\x20-\x7e]+$/, `marker ${m} is ASCII (a minifier's escaping cannot hide it)`);
+  const nflLike = scanExportForNbaPrivate(plant({ ...CLEAN, "nfl/simulation/2/index.html": '<p>PROJECTED · SIMULATED · NOT ACTUAL GAME STATISTICS</p><table class="st-box-score"></table>' }));
+  assert.deepEqual(nflLike.leaks, [], "a public NFL box score's watermark is not an NBA leak");
+  // CSS ships un-pruned under _next/static/css, so no NBA box-score CLASS name is a marker (its styles use nba-bx-*)
+  const css = scanExportForNbaPrivate(plant({ ...CLEAN, "_next/static/css/a.css": ".nba-bx-table{min-width:600px}.nba-bx-watermark{margin:0}" }));
+  assert.deepEqual(css.leaks, []);
 });

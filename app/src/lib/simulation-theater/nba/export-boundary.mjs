@@ -17,6 +17,11 @@ export const NBA_PRIVATE_MARKERS = Object.freeze([
   "experimental-v1", // the artifact family directory
   "c4612dc4e8ab924e6b1f1fc8af9c713d1494f5cf731c6719dbb34f9c8adcc261", // dev copy r2 (nba-sim-v1-real-2026-10-20-r2.json)
   "45df05d89d2d0eedd9214f5c5dfeb038aaf5740ba881b234fe660145e2cc3e11", // the superseded pre-rounding-fix dev copy
+  // Projected Final Box Score (Lane A-NBA 2026-10-20). ASCII-only, so a minifier's escaping cannot hide them, and unique
+  // to the NBA box score (an NFL box score never says PRIVATE CANDIDATE MODEL, never carries these attributes):
+  "nba-box-score@", // box-score.mjs NBA_BOX_SCORE_SCHEMA
+  "data-nba-boxscore", // NbaBoxScore.tsx dialog / table attributes (class names are NOT markers: CSS ships un-pruned)
+  "PRIVATE CANDIDATE MODEL", // the box-score watermark's private-candidate clause
 ]);
 
 /** A theater pack (`theater-pack@…`) whose sport is NBA, as JSON or JSON escaped inside an RSC payload string. */
