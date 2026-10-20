@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-10-20",
-  "checkedAt": "2026-10-20T09:27:17.535Z",
-  "treeHead": "03a4e2fac",
+  "checkedAt": "2026-10-20T09:35:06.342Z",
+  "treeHead": "f5fdc71a9",
   "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 0,
@@ -15,7 +15,7 @@
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": null
+      "receiptPath": "mlb/boards/2026-10-20.json"
     },
     {
       "id": "mlb-markets",
@@ -39,7 +39,7 @@
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": null
+      "receiptPath": "mlb/game-simulations/2026-10-20.json"
     },
     {
       "id": "risk-ladder",
@@ -135,7 +135,7 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 213.8h old against a 48h bound",
+      "reason": "receipt is 213.9h old against a 48h bound",
       "dueAtIso": "2026-10-20T15:00:00.000Z",
       "receiptAt": "2026-10-11T11:41:55Z",
       "label": "NFL market capture",
