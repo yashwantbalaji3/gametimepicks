@@ -87,7 +87,7 @@ test("rendered lane: the UNVALIDATED banner, freeze times and sources show; no p
   const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: JSON.parse(JSON.stringify(snap())) }));
   assert.match(html, /UNVALIDATED EXPERIMENTAL SIMULATION/);
   assert.match(html, /frozen pregame forecast, frozen Oct 20/);
-  assert.match(html, /Elo rating favours NY/);
+  assert.match(html, /Elo rating favours New York Knicks/, "team names, never mixed NY/NYK codes");
   assert.match(html, /not validated, not a betting recommendation and\s+not a pick/);
   assert.match(html, /not ranked/);
   const visible = html.replace(/<[^>]+>/g, " ");
@@ -98,4 +98,44 @@ test("rendered lane: the UNVALIDATED banner, freeze times and sources show; no p
   for (const v of Object.values(WITHHELD)) rest = rest.split(v).join("");
   assert.doesNotMatch(rest, /\b(picks?|edge|lean|best bet|lock|value)\b/i);
   assert.doesNotMatch(visible, /\blive\b/i, "a frozen forecast is never called live");
+});
+
+test("audit-only facts stay private: the public snapshot carries no seed and no hint of the withheld team score's side", async () => {
+  const { buildExperimentalAudit } = await import("./experimental-public-lane.mjs");
+  const text = JSON.stringify(snap());
+  assert.doesNotMatch(text, /contradictsElo|"seed"|teamScoreContradictsElo/);
+  const audit = buildExperimentalAudit({ forecastDoc: structuredClone(DOC), generatedAt: "2026-10-20T17:20:00Z" });
+  assert.equal(audit.dataClass, "PRIVATE_RESEARCH");
+  assert.deepEqual(audit.games.map((g) => g.teamScoreContradictsElo), [false, true, true], "PHI @ NY and OKC @ SA: the withheld v0.1 median favours the other side");
+  assert.ok(audit.games.every((g) => typeof g.seed === "string"));
+});
+
+test("a past slate is never shown as current: laneIsCurrent is true only on or before the snapshot's own ET date", async () => {
+  const { laneIsCurrent } = await import("./experimental-public-lane.mjs");
+  const s = snap();
+  assert.equal(laneIsCurrent(s, "2026-10-20"), true);
+  assert.equal(laneIsCurrent(s, "2026-10-21"), false, "the next day's build hides yesterday's lane");
+  assert.equal(laneIsCurrent(null, "2026-10-20"), false);
+  assert.equal(laneIsCurrent({ ...s, date: null }, "2026-10-20"), false);
+  const page = fs.readFileSync(path.join(process.cwd(), "src/app/nba/page.tsx"), "utf8");
+  const comp = fs.readFileSync(path.join(process.cwd(), "src/components/nba/experimental-lane.tsx"), "utf8");
+  assert.match(page, /loadCurrentLane\(currentEtDate\(\)\)/, "the page gates the lane on its slate date");
+  assert.match(comp, /laneIsCurrent\(s, etDate\)/);
+  // Founder direction 2026-10-20: the lane leads the page — the jump line and the lane render ABOVE the schedule list.
+  const iTonight = page.indexOf("<NbaLaneTonight"), iLane = page.indexOf("<NbaExperimentalLane"), iGames = page.indexOf('id="nba-games"');
+  assert.ok(iTonight > 0 && iTonight < iLane && iLane < iGames, "jump line → lane → schedule");
+});
+
+test("the jump line links every lane game to its card; each card shows its game status from the schedule rows", async () => {
+  const { NbaLaneTonight, laneCardId, default: Lane } = await import("../../../components/nba/experimental-lane.tsx");
+  const s = JSON.parse(JSON.stringify(snap()));
+  const line = renderToStaticMarkup(React.createElement(NbaLaneTonight, { snapshot: s }));
+  for (const g of s.games) assert.match(line, new RegExp(`href="#${laneCardId(g.providerEventId)}"`));
+  assert.match(line, /not validated/);
+  const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: s, statuses: { "401909088": "final · BOS 113 – DET 121" } }));
+  for (const g of s.games) assert.match(html, new RegExp(`id="${laneCardId(g.providerEventId)}"`));
+  assert.match(html, /Game status: final · BOS 113 – DET 121/);
+  const page = fs.readFileSync(path.join(process.cwd(), "src/app/nba/page.tsx"), "utf8");
+  assert.match(page, /if \(r\.status === "final" && lane\?\.games/, "only a recorded final is stated — a static page never freezes 'scheduled'/'tipped'");
+  assert.doesNotMatch(page, /tipped — final not recorded yet|`scheduled · /);
 });
