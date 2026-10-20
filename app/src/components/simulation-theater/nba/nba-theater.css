@@ -243,4 +243,66 @@
 .nba-unavailable h2{margin:0 0 6px;font:600 15px var(--font-headline)}
 .nba-unavailable p{margin:0;font:400 13px/1.5 var(--font-display);color:var(--st-mute)}
 
+/* ── projected final box score (Lane A-NBA 2026-10-20): a dialog on wide screens, a full-height sheet on phones; tables
+   scroll sideways with the player column sticky; tabular numerals throughout ───────────────────────────────────────── */
+.nba-boxbtn{font-size:13px;padding:0 14px}
+.nba-card-boxbtn{width:100%;margin-top:10px;font-size:13px}
+.nba-bx-backdrop{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb, var(--vault-ink-black) 62%, transparent)}
+.nba-bx-dialog{width:min(1040px, 100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;overflow:hidden;background:var(--surface-elevated);color:var(--st-text);
+  border:1px solid var(--border-strong);border-top:3px solid var(--vault-warn);border-radius:14px;box-shadow:var(--gtp-card-shadow)}
+@media (max-width:719px){
+  .nba-bx-backdrop{padding:0;align-items:stretch}
+  .nba-bx-dialog{width:100%;max-height:none;height:100%;border-radius:0;border-left:0;border-right:0}
+}
+.nba-bx-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 16px 8px;border-bottom:1px solid var(--border-strong)}
+.nba-bx-title{margin:2px 0 0;font:800 18px/1.15 var(--font-headline);letter-spacing:.06em;text-transform:uppercase}
+.nba-bx-close{flex:0 0 auto;font-size:13px;padding:0 14px}
+.nba-bx-body{overflow-y:auto;padding:12px 16px 20px;overscroll-behavior:contain;min-width:0}
+.nba-bx{min-width:0}
+.nba-bx-watermark{margin:0 0 10px;padding:6px 10px;border:2px dashed var(--vault-warn);border-radius:8px;
+  background:repeating-linear-gradient(135deg, color-mix(in srgb, var(--vault-warn) 10%, var(--bg)) 0 8px, var(--bg) 8px 16px);
+  font:700 11px/1.45 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--st-text);overflow-wrap:anywhere}
+.nba-bx-watermark.is-foot{margin:14px 0 0}
+.nba-bx-summary{display:grid;gap:8px}
+.nba-bx-final{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nba-bx-status{margin:0;font:500 12.5px/1.6 var(--font-display);color:var(--st-mute)}
+.nba-bx-facts{margin-top:0}
+.nba-bx-scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px}
+.nba-bx-scroll:focus-visible{outline:2px solid var(--lava-heat);outline-offset:2px}
+.nba-bx-scroll.is-linescore{margin-top:10px}
+.nba-bx-linescore th.is-ot{color:var(--vault-warn)}
+.nba-bx-legend{margin-top:10px}
+.nba-bx-teams{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:10px}
+.nba-bx-team{min-width:0}
+.nba-bx-teamhead{display:flex;align-items:center;gap:8px;margin:0 0 6px;font:600 14px var(--font-headline)}
+.nba-bx-teamname{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nba-bx-teampts{margin-left:auto;font:700 16px var(--font-mono);font-variant-numeric:tabular-nums}
+.nba-bx-table{width:100%;min-width:600px;border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums}
+.nba-bx-table th,.nba-bx-table td{padding:4px 8px;font:500 12.5px var(--font-mono);font-variant-numeric:tabular-nums;text-align:right;border-bottom:1px solid var(--border-strong);white-space:nowrap}
+.nba-bx-table thead th{padding:0;font-size:11px;color:var(--st-faint);letter-spacing:.06em;vertical-align:bottom}
+.nba-bx-table thead th.is-sorted{color:var(--st-text)}
+.nba-bx-sort{width:100%;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;padding:0 8px;border:0;background:none;color:inherit;
+  font:700 11.5px var(--font-mono);letter-spacing:.06em;cursor:pointer}
+.nba-bx-sort:focus-visible{outline:2px solid var(--lava-heat);outline-offset:-2px}
+.nba-bx-arrow{display:inline-block;width:1em;font-size:11px}
+.nba-bx-name{position:sticky;left:0;z-index:1;min-width:132px;max-width:172px;text-align:left!important;background:var(--surface-elevated);box-shadow:1px 0 0 var(--border-strong)}
+.nba-bx-table thead th.nba-bx-name{z-index:2;padding:0 8px}
+.nba-bx-table tbody th.nba-bx-name{font:500 12.5px var(--font-display)}
+.nba-bx-pname{display:block;overflow:hidden;text-overflow:ellipsis}
+.nba-bx-table td.is-pts{font-weight:700;color:var(--st-text)}
+.nba-bx-table tr.is-dnp,.nba-bx-table tr.is-ns{color:var(--st-faint)}
+.nba-bx-dnp{text-align:left!important;font:500 11.5px var(--font-mono);letter-spacing:.04em}
+.nba-bx-dnp abbr{font-weight:800;text-decoration:none;color:var(--st-mute)}
+.nba-bx-table tfoot th,.nba-bx-table tfoot td{font-weight:700;border-bottom:0;color:var(--st-text)}
+.nba-bx-leaders{margin-top:14px}
+.nba-bx-notmodeled{margin-top:10px}
+.nba-bx-prov{overflow-wrap:anywhere}
+.nba-bx-unavailable p{margin:0;font:400 13px/1.5 var(--font-display)}
+.nba-bx-unavailable ul{margin:6px 0 0;padding-left:18px;font:400 12px/1.5 var(--font-mono);color:var(--st-mute)}
+@media (max-width:479px){
+  .nba-bx-head{padding:8px 12px}
+  .nba-bx-body{padding:10px 12px 16px}
+  .nba-bx-name{min-width:112px;max-width:136px}
+}
+
 @media (prefers-reduced-motion: reduce){.nba-root *{transition:none!important;animation:none!important}}

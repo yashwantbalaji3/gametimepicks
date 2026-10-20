@@ -17,6 +17,7 @@ export type NbaSample = {
   players: { home: NbaPlayerLine[]; away: NbaPlayerLine[] };
   validation: { ok: boolean; errors: { code: string; detail: string }[]; notes: { code: string; detail: string }[] };
 };
+export type NbaRosterExclusion = { providerAthleteId: string | null; name: string; reason: string; injuryStatus: string | null };
 export type Quantiles = { p10: number | null; p25: number | null; p50: number | null; p75: number | null; p90: number | null; mean: number | null; sd: number | null } | null;
 export type NbaManifest = {
   eventId: string;
@@ -26,6 +27,9 @@ export type NbaManifest = {
   role: string | null;
   provenance: { source: string | null; sha256: string | null; copiedAt: string | null; knownDeviation: string | null } | null;
   playRates: { home: Record<string, number>; away: Record<string, number> };
+  /** Rostered players the engine did not simulate (Out / no usable history): "not simulated" on the box score. */
+  rosterNotSimulated?: { home: NbaRosterExclusion[]; away: NbaRosterExclusion[] };
+  profileVersion?: string | null;
   date: string | null;
   dateUtc: string | null;
   venue: string | null;

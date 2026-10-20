@@ -10,6 +10,10 @@
  *
  * REFUSAL: a fixture manifest renders only with its exact FIXTURE_BANNER text (the section checks too).
  *
+ * PROJECTED BOX SCORE (Lane A-NBA 2026-10-20): the "Box score" control (any time) and the FINAL card's button open the
+ * selected run's box score (box-score.mjs) in a dialog / sheet; it shares the sheet slot, so Escape closes it and never
+ * the card underneath. `data-nba-ready` marks hydration for the opt-in e2e spec.
+ *
  * DEV HOOK (dev route only, `devHooks`): `?run=<runIndex>` or `?label=<typical|close|high|low|upset>`, and `?t=<seconds>`
  * open that sample paused at that playback second (deterministic), for screenshots.
  */
@@ -17,6 +21,8 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react"
 import type { CSSProperties } from "react";
 import BottomSheet from "../BottomSheet";
 import NbaCourt from "./NbaCourt";
+import NbaBoxScoreDialog from "./NbaBoxScore";
+import type { NbaBoxResult } from "./NbaBoxScore";
 import { NBA_THEATER_VARS } from "./nba-theater-css";
 import {
   BreakCard, DiffTimeline, DisclosureBanner, FIXTURE_BANNER, FixtureBanner, Linescore, ModelFacts, NbaUnavailable, OutcomeChips, PlayerPanel, PrivateCandidateBanner,
@@ -26,6 +32,7 @@ import type { NbaCompiled, NbaFrame, NbaLoad, NbaManifest, NbaPalette } from "./
 import { SPEEDS, createTransport, transport } from "@/lib/simulation-theater/transport-machine.mjs";
 import { compileTimeline, fmtGameClock, stateAt } from "@/lib/simulation-theater/nba/timeline.mjs";
 import { defaultSampleIndex } from "@/lib/simulation-theater/nba/labels.mjs";
+import { nbaBoxScore } from "@/lib/simulation-theater/nba/box-score.mjs";
 
 type Tp = { state: string; t: number; tEnd: number; speed: number; driveStarts: number[]; reason: string | null };
 
@@ -81,7 +88,10 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
   const compact = useMedia(COMPACT_QUERY);
   const [neutral, setNeutral] = useState(false);
   const palette: NbaPalette = neutral ? palettes.neutral : palettes.team;
-  const [sheet, setSheet] = useState<null | "outcomes">(null);
+  const [sheet, setSheet] = useState<null | "outcomes" | "box">(null);
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setReady(true); }, []);
+  const box = useMemo(() => (sample?.validation.ok ? (nbaBoxScore(sample, manifest) as NbaBoxResult) : null), [sample, manifest]);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [playersOpen, setPlayersOpen] = useState(false);
   const [dismissed, setDismissed] = useState<string | null>(null);
@@ -168,6 +178,8 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
     setAnnounce(`${word}, recorded: ${t.away.abbr} ${frame.score.away}, ${t.home.abbr} ${frame.score.home}.`);
   }, [frame, tp, sampleIndex, manifest.teams]);
 
+  const openBox = useCallback(() => { act("PAUSE"); setSheet("box"); }, [act]);
+
   const selectSample = useCallback((i: number) => {
     const s = manifest.samples[i];
     if (!s?.validation.ok) return;
@@ -183,7 +195,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
   const teams = manifest.teams;
   const rootStyle = NBA_THEATER_VARS as CSSProperties;
   return (
-    <div className="st-root nba-root" style={rootStyle} data-st-colors={palette.mode} data-nba-theater="">
+    <div className="st-root nba-root" style={rootStyle} data-st-colors={palette.mode} data-nba-theater="" data-nba-ready={ready ? "" : undefined} data-nba-run={sample?.runIndex}>
       <PrivateCandidateBanner />
       {manifest.fixture ? <FixtureBanner text={FIXTURE_BANNER} note={manifest.fixtureNote} /> : null}
       <DisclosureBanner manifest={manifest} sample={sample} />
@@ -199,6 +211,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
       <section className="nba-outcomes" aria-label="Representative outcomes">
         <div className="nba-outcomes-head">
           <span className="nba-eyebrow">Representative outcomes · real draws from this run</span>
+          <button type="button" className="st-btn nba-boxbtn" aria-haspopup="dialog" disabled={!box} onClick={openBox}>Box score</button>
           {compact ? null : (
             <button type="button" className="nba-linkbtn" aria-expanded={rulesOpen} aria-controls={`${uid}-rules`} onClick={() => setRulesOpen((v) => !v)}>
               {rulesOpen ? "Hide" : "Show"} run numbers and selection rules
@@ -228,9 +241,9 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
                 <div className="nba-courtwrap">
                   <NbaCourt palette={palette} teams={teams} idPrefix={`${uid}-court`} />
                   <p className="nba-court-note">Quarter-level simulation · no players, ball or shots modelled</p>
-                  {cardShown && !compact ? <div className="nba-card-layer"><BreakCard kind={cardShown} manifest={manifest} sample={sample} palette={palette} onDismiss={dismiss} variant="overlay" idBase={uid} /></div> : null}
+                  {cardShown && !compact ? <div className="nba-card-layer"><BreakCard kind={cardShown} manifest={manifest} sample={sample} palette={palette} onDismiss={dismiss} variant="overlay" idBase={uid} onOpenBoxScore={box ? openBox : undefined} /></div> : null}
                 </div>
-                {cardShown && compact ? <BreakCard kind={cardShown} manifest={manifest} sample={sample} palette={palette} onDismiss={dismiss} variant="sheet" idBase={uid} /> : null}
+                {cardShown && compact ? <BreakCard kind={cardShown} manifest={manifest} sample={sample} palette={palette} onDismiss={dismiss} variant="sheet" idBase={uid} onOpenBoxScore={box ? openBox : undefined} /> : null}
 
                 <div className="st-transport nba-transport" role="group" aria-label="Playback controls">
                   <div className="st-transport-btns">
@@ -307,6 +320,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
         <p className="nba-fine" style={{ margin: "0 0 8px" }}>Each is one real draw from this run, picked by the rule shown.</p>
         <OutcomeChips manifest={manifest} selected={sampleIndex} onSelect={selectSample} idBase={`${uid}-s`} vertical />
       </BottomSheet>
+      <NbaBoxScoreDialog open={sheet === "box"} onClose={() => setSheet(null)} result={box} palette={palette} compact={compact} runKey={`${sampleIndex}-${sample?.runIndex}`} />
       <div className="st-sr" aria-live="polite" aria-atomic="true">{announce}</div>
     </div>
   );

@@ -350,8 +350,10 @@ function Leaders({ sample, teams, palette }: { sample: NbaSample; teams: NbaTeam
  * Halftime and final cards. `variant` "overlay" sits over the court on wide screens; "sheet" is the compact phone card,
  * rendered in the page flow BELOW the court, so it can never cover it. Dismissible (button; Escape in the island).
  */
-export function BreakCard({ kind, manifest, sample, palette, onDismiss, variant, idBase }: {
+export function BreakCard({ kind, manifest, sample, palette, onDismiss, variant, idBase, onOpenBoxScore }: {
   kind: "HALFTIME" | "FINAL"; manifest: NbaManifest; sample: NbaSample; palette: NbaPalette; onDismiss?: () => void; variant: "overlay" | "sheet"; idBase: string;
+  /** FINAL only: opens the projected box score of this run (Lane A-NBA 2026-10-20). */
+  onOpenBoxScore?: () => void;
 }) {
   const teams = manifest.teams;
   const final = kind === "FINAL";
@@ -385,6 +387,9 @@ export function BreakCard({ kind, manifest, sample, palette, onDismiss, variant,
       {final ? (
         <>
           <Leaders sample={sample} teams={teams} palette={palette} />
+          {onOpenBoxScore ? (
+            <button type="button" className="st-btn nba-card-boxbtn" aria-haspopup="dialog" onClick={onOpenBoxScore}>Projected box score</button>
+          ) : null}
           {variant === "sheet" ? (
             <details className="nba-card-more">
               <summary>Sample, model and disclosure</summary>
