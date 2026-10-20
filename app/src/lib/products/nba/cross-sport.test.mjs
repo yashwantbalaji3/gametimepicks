@@ -97,3 +97,10 @@ test("Smart Betslip: compare-only row — operator name, price, capture time; no
   assert.deepEqual(row.handoff, { status: "HANDOFF_NOT_AVAILABLE", link: null, prefill: "UNSUPPORTED" });
   assert.equal(row.price, leg.price.sideAmerican);
 });
+
+test("a TEST_FIXTURE leg is never relabelled OFFICIAL_SNAPSHOT downstream (candidate forecastClass, slip provenance)", () => {
+  const { leg } = fixtureLeg();
+  assert.equal(leg.provenance, "TEST_FIXTURE");
+  assert.equal(toParlayCandidateInput(leg).forecastClass, "TEST_FIXTURE");
+  assert.equal(toSmartSlipRow(leg).provenance, "TEST_FIXTURE");
+});

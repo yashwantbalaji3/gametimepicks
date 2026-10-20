@@ -32,7 +32,7 @@
  * Pure: no fs, no fetch, no clock.
  */
 import { EVALUATOR_VERSION, LEAN } from "../../consistency/market-evaluator.mjs";
-import { NBA_PLAYER_FAMILIES, OFFICIAL_SNAPSHOT_SCHEMA, PUBLICATION } from "../../consistency/official-snapshot.mjs";
+import { NBA_PLAYER_FAMILIES, OFFICIAL_SNAPSHOT_SCHEMA, PUBLICATION, sealSnapshot } from "../../consistency/official-snapshot.mjs";
 import { canEnterPredictionProducts, capabilityState } from "../../sport-capability-registry.ts";
 import { americanToImpliedRaw } from "../../projection-framework.ts";
 import { LEG_BOUNDS } from "../eligible-leg/contract.mjs";
@@ -50,6 +50,7 @@ export const NBA_PRODUCT_FAMILIES = Object.freeze(NBA_PLAYER_FAMILIES.filter((f)
 
 /** Every refusal code. */
 export const REFUSAL = Object.freeze({
+  SNAPSHOT_SEAL_BROKEN: "SNAPSHOT_SEAL_BROKEN",
   REGISTRY_NOT_PRODUCT_ELIGIBLE: "REGISTRY_NOT_PRODUCT_ELIGIBLE",
   NO_EVALUATION: "NO_EVALUATION",
   EVALUATOR_VERSION_MISMATCH: "EVALUATOR_VERSION_MISMATCH",
@@ -124,7 +125,10 @@ export function nbaLegFromEvaluation({ evaluation, snapshot, verification = null
   const reasons = [];
   const add = (r) => { if (!reasons.includes(r)) reasons.push(r); };
   const reg = registry ?? REAL_REGISTRY;
-  const registryStamp = { source: reg.source ?? "INJECTED", state: safeState(reg) };
+  // Provenance is decided by IDENTITY, never by the registry's self-declared `source` string: an injected registry
+  // that names itself "sport-capability-registry" is still injected.
+  const isRealRegistry = reg === REAL_REGISTRY;
+  const registryStamp = { source: isRealRegistry ? REAL_REGISTRY_SOURCE : `INJECTED(${reg.source ?? "?"})`, state: safeState(reg) };
 
   // 1 · registry
   let regOk = false;
@@ -152,6 +156,10 @@ export function nbaLegFromEvaluation({ evaluation, snapshot, verification = null
     if (s.sport !== "NBA" || (id && id.sport !== "NBA")) add(REFUSAL.NOT_NBA_SNAPSHOT);
     if (id && id.snapshotId !== s.snapshotId) add(REFUSAL.SNAPSHOT_ID_MISMATCH);
     if (id && String(id.eventId) !== String(s.eventId)) add(REFUSAL.SNAPSHOT_EVENT_MISMATCH);
+    // the seal must still hold: an edited copy ({...snapshot, publication: "PUBLIC"}) keeps its old id but not its hash
+    let sealed = false;
+    try { sealed = sealSnapshot(s).snapshotId === s.snapshotId; } catch { sealed = false; }
+    if (!sealed) add(REFUSAL.SNAPSHOT_SEAL_BROKEN);
     if (s.publication !== PUBLICATION.PUBLIC) add(REFUSAL.SNAPSHOT_NOT_PUBLIC);
     if (s.capability?.canEnterPredictionProducts !== true) add(REFUSAL.SNAPSHOT_CAPABILITY_CLOSED);
   }
@@ -195,7 +203,8 @@ export function nbaLegFromEvaluation({ evaluation, snapshot, verification = null
   const lockMs = Date.parse(s.lockAt ?? "");
   const leg = {
     schema: NBA_LEG_SCHEMA,
-    provenance: registryStamp.source === REAL_REGISTRY_SOURCE ? PROVENANCE.OFFICIAL : PROVENANCE.TEST_FIXTURE,
+    // OFFICIAL only under the real registry AND with no TEST FIXTURE marker on the verification or the snapshot
+    provenance: isRealRegistry && !/TEST FIXTURE/i.test(`${v.label ?? ""} ${s.capability?.state ?? ""}`) ? PROVENANCE.OFFICIAL : PROVENANCE.TEST_FIXTURE,
     sport: "nba",
     // identity — ids only
     snapshotId: s.snapshotId,

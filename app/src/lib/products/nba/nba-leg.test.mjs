@@ -15,6 +15,7 @@ import { NBA_PLAYER_FAMILIES, SnapshotRefusal, nbaOfficialSnapshot } from "../..
 import { canEnterPredictionProducts, capabilityState } from "../../sport-capability-registry.ts";
 import { HANDOFF, NBA_LEG_SCHEMA, PROVENANCE, REFUSAL, nbaLegFromEvaluation } from "./nba-leg.mjs";
 import { NBA_PRODUCT_TIERS, RISK_OVERCLAIM, TIER_REASON, tierView } from "./product-tiers.mjs";
+import { CURRENT_POLICY } from "../selection-policy.mjs";
 import { CAPTURED_AT, NOW, PERMISSIVE_REGISTRY, PRICE, TEST_FIXTURE, evaluate, permissiveSnapshot, realShapeSnapshot, verificationFor } from "./__fixtures__/permissive.mjs";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "..");
@@ -209,4 +210,28 @@ test("product-risk metadata is relative, never 'safe' / 'guaranteed'", () => {
   }
   assert.match("a safe leg", RISK_OVERCLAIM);
   assert.match("guaranteed winner", RISK_OVERCLAIM);
+});
+
+/* ── review findings (2026-10-21) ─────────────────────────────────────────────────────────────────────────────────── */
+test("an injected registry that NAMES itself the real one still yields a TEST_FIXTURE leg (provenance by identity)", () => {
+  const s = permissiveSnapshot(); const e = evaluate(s);
+  const impostor = { ...PERMISSIVE_REGISTRY, source: "sport-capability-registry" };
+  const r = nbaLegFromEvaluation({ evaluation: e, snapshot: s, verification: verificationFor(e), registry: impostor });
+  assert.equal(r.ok, true);
+  assert.equal(r.leg.provenance, PROVENANCE.TEST_FIXTURE);
+  assert.match(r.leg.registry.source, /^INJECTED\(/);
+});
+
+test("an edited copy of a sealed snapshot is refused (SNAPSHOT_SEAL_BROKEN)", () => {
+  const s = permissiveSnapshot(); const e = evaluate(s);
+  const forged = { ...s, frozenAt: "2026-01-01T00:00:00.000Z" }; // same snapshotId, different body
+  const r = nbaLegFromEvaluation({ evaluation: e, snapshot: forged, verification: verificationFor(e), registry: PERMISSIVE_REGISTRY });
+  assert.equal(r.ok, false);
+  assert.ok(r.refusal.reasons.includes(REFUSAL.SNAPSHOT_SEAL_BROKEN));
+});
+
+test("Moonshot's tier view describes the policy Moonshot runs today, never the retired @1 design", () => {
+  assert.equal(NBA_PRODUCT_TIERS.moonshot.policy, CURRENT_POLICY.moonshot);
+  assert.doesNotMatch(NBA_PRODUCT_TIERS.moonshot.payout, /\+700|3–5-leg/);
+  assert.doesNotMatch(`${NBA_PRODUCT_TIERS.moonshot.payout} ${NBA_PRODUCT_TIERS.moonshot.relativeRisk}`, RISK_OVERCLAIM);
 });

@@ -8,7 +8,7 @@
  *
  * NO NEW NUMBERS. Every bar is read from the constant that already owns it:
  *   Bank Builder    SELECTION_POLICIES["bank-builder@1"].bars (maxLegOdds, maxLegsPerGame, legsPerLane)
- *   Moonshot        SELECTION_POLICIES["moonshot@1"].bars (teamMarketsOnly, minCombinedOdds, minLegs, targetLegs)
+ *   Moonshot        SELECTION_POLICIES[CURRENT_POLICY.moonshot].bars (moonshot@2: lanes, legsPerLane, legOddsMin/Max, teamMarketsOnly)
  *   Parlay Lab      PARLAY_ODDS_BANDS (combined-price band) + BAND_MAX_LEGS (leg cap) — founder decision D2
  *   every tier      LEG_BOUNDS (price range, staleness, 30-minute activation cutoff); a settlement path for the market
  *
@@ -18,7 +18,7 @@
  * Pure: the clock is an argument.
  */
 import { LEG_BOUNDS } from "../eligible-leg/contract.mjs";
-import { SELECTION_POLICIES } from "../selection-policy.mjs";
+import { CURRENT_POLICY, SELECTION_POLICIES } from "../selection-policy.mjs";
 import { PARLAY_ODDS_BANDS, PUBLIC_RISK_BAND_TEXT } from "../../parlays/risk-odds-bands.mjs";
 import { BAND_MAX_LEGS } from "../../parlays/multi-sport.mjs";
 import { MARKETS as NBA_SETTLED_MARKETS } from "../../sports/nba/settlement-contract.mjs";
@@ -27,7 +27,9 @@ import { MARKETS as NBA_SETTLED_MARKETS } from "../../sports/nba/settlement-cont
 export const RISK_OVERCLAIM = /\b(safe|safest|safer|guarantee[sd]?|sure thing|risk[- ]free|can(?:'|no)t lose|certain(?:ty)?|lock of)\b/i;
 
 const BB = SELECTION_POLICIES["bank-builder@1"].bars;
-const MS = SELECTION_POLICIES["moonshot@1"].bars;
+// the version Moonshot RUNS today (moonshot@2, the two-leg ladder since 2026-09-10) — never the retired @1 design
+const MS_POLICY = CURRENT_POLICY.moonshot;
+const MS = SELECTION_POLICIES[MS_POLICY].bars;
 const LOSS_NOTE = "Any leg can lose, and a card loses when one leg does.";
 
 export const TIER_REASON = Object.freeze({
@@ -70,12 +72,12 @@ export const NBA_PRODUCT_TIERS = Object.freeze({
   moonshot: Object.freeze({
     id: "moonshot",
     product: "moonshot",
-    policy: "moonshot@1",
-    legRules: Object.freeze({ oddsMin: LEG_BOUNDS.oddsMin, oddsMax: LEG_BOUNDS.oddsMax, playerMarkets: !MS.teamMarketsOnly }),
-    cardRules: Object.freeze({ minLegs: MS.minLegs, targetLegs: MS.targetLegs, minCombinedOdds: MS.minCombinedOdds, oneLegPerEvent: true }),
-    payout: `${MS.minLegs}–${MS.targetLegs}-leg paper cards priced at +${MS.minCombinedOdds} or longer`,
-    relativeRisk: `A longshot product: the highest relative risk of the paper products, and most cards are expected to lose. ${LOSS_NOTE}`,
-    note: "moonshot@1 is team-markets-only, so it refuses an NBA player leg at qualification — with the same lean every other tier shows.",
+    policy: MS_POLICY,
+    legRules: Object.freeze({ oddsMin: MS.legOddsMin, oddsMax: MS.legOddsMax, playerMarkets: !MS.teamMarketsOnly }),
+    cardRules: Object.freeze({ lanes: MS.lanes, legsPerLane: MS.legsPerLane, maxLegsPerGame: MS.maxLegsPerGame, oneLegPerEvent: true }),
+    payout: `${MS.legsPerLane}-leg ladder cards per lane (${MS.lanes} lanes); a won card carries its payout to the next rung, a lost one returns to the $${MS.seedStake} seed`,
+    relativeRisk: `Each card must reach a rung target, so a card carries more relative risk than a Bank Builder card and a lost card resets the lane. ${LOSS_NOTE}`,
+    note: `${MS_POLICY} is team-markets-only, so it refuses an NBA player leg at qualification — with the same lean every other tier shows.`,
   }),
   "parlay-lab-low": lab("low"),
   "parlay-lab-medium": lab("medium"),

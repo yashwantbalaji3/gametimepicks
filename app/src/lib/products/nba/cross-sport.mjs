@@ -154,7 +154,7 @@ export function toParlayCandidateInput(leg) {
     modelId: leg.modelVersion,
     modelProbability: over ? leg.pOver : leg.pUnder,
     uncertainty: null,
-    forecastClass: "OFFICIAL_SNAPSHOT",
+    forecastClass: leg.provenance === "OFFICIAL_SNAPSHOT" ? "OFFICIAL_SNAPSHOT" : "TEST_FIXTURE", // never relabels a fixture leg
     participantStatus: null,
     marketStatus: null,
     priceMismatch: false,
@@ -167,6 +167,7 @@ export function toSmartSlipRow(leg) {
   const over = leg.side === "OVER";
   return {
     sport: "nba",
+    provenance: leg.provenance,
     eventId: leg.eventId,
     market: NBA_FAMILY_MARKET_KEY[leg.family] ?? null,
     selection: `${over ? "Over" : "Under"} ${leg.line}`,
