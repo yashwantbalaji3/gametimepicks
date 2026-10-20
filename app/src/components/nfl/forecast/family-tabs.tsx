@@ -2,8 +2,10 @@
 /**
  * Tabbed player lists, one tab per statistical family — the SAME component for the game dashboard's player
  * projections and the hub's Top boards, so a family reads identically in both places. Rows come pre-computed from
- * forecast-view.mjs (the client never ranks, rounds differently or recomputes). A family with no published model shows
- * its reason, never a placeholder number.
+ * forecast-view.mjs (the client never ranks, rounds differently or recomputes) and are the OFFICIAL player board's
+ * projections only (founder decision 2026-10-20). A family with no published model shows its reason, never a
+ * placeholder number; a family the board marks ESTIMATE says so once above its list; a player the supporting
+ * simulation carries but the board does not project is named under "No official projection", without a number.
  *
  * Optional, per surface:
  *   filters   (hub) team chips with the follow star and a player search. They narrow the rows that were published —
@@ -24,15 +26,18 @@ import { SEARCH_PLAYERS, SEARCH_PLAYERS_LABEL } from "@/lib/ui/search-labels";
 
 import PlayerRow, { type RowEntry, type RowFamily, type RowPlayer } from "./player-row";
 
-export interface TabFamily extends RowFamily { withheld: string | null; metric: string; sourceLabel: string | null; asOf: string | null }
+export interface TabFamily extends RowFamily { withheld: string | null; metric: string; sourceLabel: string | null; asOf: string | null; estimate?: string | null }
+export interface UnprojectedPlayer { playerId: string; name: string; team: string }
 export interface TabRow { player: RowPlayer; entry: RowEntry; rank?: number }
 
 /** Forecast-view family → the live gateway's market key. */
 const LIVE_MARKET: Record<string, string> = { passingYards: "player_pass_yds", rushingYards: "player_rush_yds", receivingYards: "player_reception_yds", receptions: "player_receptions", anytimeTd: "anytime_td" };
 const fmtAsOf = (iso: string | null) => (iso ? `${iso.slice(0, 16).replace("T", " ")} UTC` : null);
 
-export default function FamilyTabs({ families, lists, linkToGame, label, listLabel = "Player projections by statistic", emptyText, filters, live, staticPanels = "all" }: {
+export default function FamilyTabs({ families, lists, unprojected = {}, linkToGame, label, listLabel = "Player projections by statistic", emptyText, filters, live, staticPanels = "all" }: {
   families: TabFamily[]; lists: Record<string, TabRow[]>; linkToGame?: boolean;
+  /** Game page: players the supporting simulation carries for a family that the official board does not project. */
+  unprojected?: Record<string, UnprojectedPlayer[]>;
   /** Id base for the tab/panel ids only (e.g. `players-<eventId>`) — never read aloud. */
   label: string;
   /** UXJ-01: the tablist's accessible name. `label` is an id fragment, and naming the list with it made screen
@@ -93,8 +98,10 @@ export default function FamilyTabs({ families, lists, linkToGame, label, listLab
       {families.filter((f) => staticPanels === "all" || f.key === fam.key).map((f) => {
         const rows = rowsOf(f.key);
         const total = (lists[f.key] ?? []).length;
+        const none = unprojected[f.key] ?? [];
         return (
           <div key={f.key} role="tabpanel" id={`panel-${label}-${f.key}`} aria-labelledby={`tab-${label}-${f.key}`} hidden={f.key !== fam.key}>
+            {f.estimate && rows.length ? <p className="nf-faint" data-estimate={f.key} style={{ margin: "8px 0 0" }}><strong style={{ color: "var(--vault-text)" }}>{f.estimate}</strong></p> : null}
             {f.withheld ? (
               <p className="nf-withheld" data-withheld={f.key}><strong style={{ color: "var(--vault-text)" }}>Not published yet.</strong> {f.withheld}</p>
             ) : rows.length ? (
@@ -113,6 +120,11 @@ export default function FamilyTabs({ families, lists, linkToGame, label, listLab
             ) : (
               <p className="nf-withheld">{narrowed ? "No published row matches this filter." : emptyText}</p>
             )}
+            {!f.withheld && none.length && !narrowed ? (
+              <p className="nf-faint" data-no-official={f.key} style={{ margin: "6px 0 0" }}>
+                No official projection: {none.map((x) => `${x.name} (${x.team})`).join(", ")}.
+              </p>
+            ) : null}
           </div>
         );
       })}

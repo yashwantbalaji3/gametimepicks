@@ -23,20 +23,21 @@ export default function Methodology({ view, status, started, calibration }: { vi
           <table className="nf-table">
             <thead><tr><th scope="col">Number</th><th scope="col">Model</th><th scope="col">Version / run</th><th scope="col">Produced</th></tr></thead>
             <tbody>
-              <tr><td>Win chance, projected score, margin, total</td><td>Game Time Forecast</td><td className="nf-num">{r.modelId}</td><td className="nf-num">{ts(r.generatedAt)}</td></tr>
-              {sim ? <tr><td>Simulated outcomes, sampled games, passing / rushing / receiving yards, receptions</td><td>World Model V2</td><td className="nf-num">{sim.version} · run {sim.simulationId} · {sim.runs.toLocaleString("en-US")} games</td><td className="nf-num">{ts(sim.generatedAt)}</td></tr> : null}
-              <tr><td>Anytime touchdown</td><td>Touchdown model (player board)</td><td className="nf-num">opportunity model</td><td className="nf-num">{ts(view.players.find((p: any) => p.families.anytimeTd)?.families.anytimeTd.asOf)}</td></tr>
+              <tr><td>Win chance, projected score, margin, total</td><td>Game Time Forecast</td><td className="nf-num">{r.modelId}{r.inputHash ? ` · input ${r.inputHash}` : ""}</td><td className="nf-num">{ts(r.generatedAt)}</td></tr>
+              <tr><td>Passing / rushing / receiving yards, receptions (official)</td><td>Official player board</td><td className="nf-num">{view.official?.snapshotId ? `snapshot ${view.official.snapshotId.slice(0, 12)}` : "no official snapshot"}</td><td className="nf-num">{ts(view.official?.boardGeneratedAt)}</td></tr>
+              <tr><td>Anytime touchdown (official)</td><td>Touchdown model (official player board)</td><td className="nf-num">opportunity model</td><td className="nf-num">{ts(view.players.find((p: any) => p.families.anytimeTd)?.families.anytimeTd.asOf)}</td></tr>
+              {sim ? <tr><td>Simulated outcomes and sampled games: supporting simulation, not the official projection, not graded</td><td>World Model V2</td><td className="nf-num">{sim.version} · run {sim.simulationId} · {sim.runs.toLocaleString("en-US")} games · input {sim.inputHash ?? "not recorded"}</td><td className="nf-num">{ts(sim.generatedAt)}</td></tr> : null}
             </tbody>
           </table>
         </div>
         <p className="nf-sub">
-          The Game Time Forecast rates both teams from past results and play efficiency and produces the win chance and the score centre. World Model V2 simulates {sim ? sim.runs.toLocaleString("en-US") : "10,000"} complete games: each one draws a final score around that centre, splits it into touchdowns, kicks and safeties, gives each offense its passes and carries, and hands those to the players expected to be active — so in every simulated game the passing yards equal the receivers&apos; yards and every touchdown has a ball carrier or receiver. Player projections are counted from those games.
+          The Game Time Forecast rates both teams from past results and play efficiency and produces the win chance and the score centre. Player projections are the official player board&apos;s, the numbers Results grade. As a supporting view, World Model V2 simulates {sim ? sim.runs.toLocaleString("en-US") : "10,000"} complete games: each one draws a final score around that centre, splits it into touchdowns, kicks and safeties, and hands passes and carries to the players expected to be active. Its numbers are not the official projection and are not graded.
           {calibration ? ` ${calibration}` : ""}
           {started ? " This game has kicked off: everything shown is the last version produced before kickoff." : " Until kickoff a later run may update these numbers when an input changes (each version is kept); at kickoff the last version is frozen."}
         </p>
         {sim ? (
           <>
-            <p className="nf-sub"><strong style={{ color: "var(--vault-text)" }}>Inputs as of:</strong> forecast {ts(sim.inputs.forecastGeneratedAt)} · injuries {ts(sim.inputs.injuriesAsOf)} · rosters {ts(sim.inputs.rostersGeneratedAt)} · player history through the last completed week ({sim.inputs.packet?.split("/").pop()}).</p>
+            <p className="nf-sub"><strong style={{ color: "var(--vault-text)" }}>Supporting simulation inputs as of:</strong> forecast {ts(sim.inputs.forecastGeneratedAt)} · injuries {ts(sim.inputs.injuriesAsOf)} · rosters {ts(sim.inputs.rostersGeneratedAt)} · player history through the last completed week ({sim.inputs.packet?.split("/").pop()}).</p>
             {sim.quarterbacks ? <p className="nf-sub"><strong style={{ color: "var(--vault-text)" }}>Quarterbacks:</strong> {Object.entries(sim.quarterbacks).map(([t, q]: [string, any]) => `${t} ${q.passer?.name ?? "not resolved"}`).join(" · ")} (depth chart; the first quarterback not ruled out throws).</p> : null}
             <div className="nf-scroll" role="region" aria-label="Evaluation status" tabIndex={0}>
               <table className="nf-table" style={{ marginTop: 8 }}>
@@ -58,7 +59,7 @@ export default function Methodology({ view, status, started, calibration }: { vi
             {sim.availability?.length ? <p className="nf-sub"><strong style={{ color: "var(--vault-text)" }}>Availability used:</strong> {sim.availability.map((x: any) => `${x.name} (${x.team}, ${x.status ?? x.state}${x.simulated ? ", simulated as playing" : ", not simulated"})`).join("; ")}.</p> : null}
             <p className="nf-faint">{sim.diagnostics.teamWorldsChecked.toLocaleString("en-US")} simulated team-games checked for consistency, {sim.diagnostics.invariantViolations} inconsistent.</p>
           </>
-        ) : <p className="nf-sub">No World Model V2 simulation is available for this game; simulated outcomes and player projections from it are not shown.</p>}
+        ) : <p className="nf-sub">No World Model V2 supporting simulation is available for this game.</p>}
       </details>
     </section>
   );
