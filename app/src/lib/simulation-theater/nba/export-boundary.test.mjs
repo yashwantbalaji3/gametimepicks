@@ -84,3 +84,13 @@ test("scanner: each planted leak is caught (engine id, data path, family, both s
   const dev = scanExportForNbaPrivate(plant({ ...CLEAN, "dev/simulation-theater/nba/401909088/index.html": "<html></html>" }));
   assert.equal(dev.devTree, true, "a surviving out/dev/ is reported");
 });
+
+test("scanner: build-info's commit subject may name a marker; any other build-info field may not", () => {
+  const info = (extra) => JSON.stringify({ commit: { sha: "29b6bdeb", message: "NBA guard fails on experimental-v1 and nba-sim-v1-coherent" }, ...extra });
+  const subjectOnly = scanExportForNbaPrivate(plant({ ...CLEAN, "data/build-info.json": info({}) }));
+  assert.deepEqual(subjectOnly.leaks, [], "the deployed commit's subject line is not a leak");
+  const realLeak = scanExportForNbaPrivate(plant({ ...CLEAN, "data/build-info.json": info({ source: "data/internal/research/nba/x.json" }) }));
+  assert.deepEqual(realLeak.leaks, [{ file: "data/build-info.json", marker: "data/internal/research/nba" }]);
+  const elsewhere = scanExportForNbaPrivate(plant({ ...CLEAN, "data/other.json": info({}) }));
+  assert.ok(elsewhere.leaks.some((l) => l.marker === "experimental-v1"), "a message field outside build-info is still scanned");
+});

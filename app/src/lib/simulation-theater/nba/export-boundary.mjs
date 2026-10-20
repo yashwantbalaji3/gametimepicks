@@ -25,6 +25,19 @@ const NBA_PACK = /theater-pack@[\s\S]{0,4000}?\\*"sport\\*"\s*:\s*\\*"nba\\*"|\\
 const TEXT_EXT = /\.(html|txt|js|mjs|cjs|json|css|map|xml|svg|rsc|md|webmanifest)$/i;
 
 /**
+ * data/build-info.json records the deployed commit's subject line, so a commit that merely NAMES a marker (e.g. this
+ * guard's own commit) would read as a leak. Only `message` fields are dropped there; every other field is still scanned.
+ */
+const BUILD_INFO = "data/build-info.json";
+function withoutCommitMessages(body) {
+  try {
+    return JSON.stringify(JSON.parse(body), (key, value) => (key === "message" ? undefined : value));
+  } catch {
+    return body; // unparseable: scan it as-is
+  }
+}
+
+/**
  * @param {string} outDir  a static export (app/out)
  * @returns {{ exists: boolean, files: number, devTree: boolean, leaks: { file: string, marker: string }[] }}
  */
@@ -39,7 +52,8 @@ export function scanExportForNbaPrivate(outDir) {
       if (!e.isFile() || !TEXT_EXT.test(e.name)) continue;
       res.files++;
       const rel = path.relative(outDir, full).split(path.sep).join("/");
-      const body = fs.readFileSync(full, "utf8");
+      const raw = fs.readFileSync(full, "utf8");
+      const body = rel === BUILD_INFO ? withoutCommitMessages(raw) : raw;
       for (const m of NBA_PRIVATE_MARKERS) if (body.includes(m)) res.leaks.push({ file: rel, marker: m });
       if (body.includes("theater-pack@") && NBA_PACK.test(body)) res.leaks.push({ file: rel, marker: "theater pack with sport nba" });
     }
