@@ -699,8 +699,9 @@ export default function NflHubPage() {
       </MoreDisclosure>
 
       {/* ── WEEKLY LEADERS · founder directive 2026-10-08 (one NFL forecast experience) ──────────────
-          ONE set of Top boards, ranked by lib/sports/nfl/forecast-view.mjs topBoards from the SAME player rows each game
-          page renders — a player's number here is his number there. Top-N is a maximum, never a quota; Questionable,
+          ONE set of Top boards, ranked by lib/sports/nfl/forecast-view.mjs topBoards from the SAME official player-board rows
+          each game page renders — a player's number here is his number there (founder decision 2026-10-20: no World Model
+          V2 number ranks; it is a supporting simulation on the game page only). Top-N is a maximum, never a quota; Questionable,
           Doubtful and Out never rank; a family with no published model says so instead of showing a number. The
           weekly-boards artifact is still produced and settled; it is no longer a second public board on this page. */}
       {unifiedBoards.games ? (
@@ -708,7 +709,7 @@ export default function NflHubPage() {
           <SectionHeader
             eyebrow={`This week · ${unifiedBoards.games} ${unifiedBoards.games === 1 ? "game" : "games"} to come`}
             title="Weekly leaders"
-            sub="The top projected players across every game still to kick off — the same numbers as each game page. Players listed as Questionable, Doubtful or Out are left out, and a list shows fewer than ten rather than fill."
+            sub="The official player board's top projections across every game still to kick off — the same numbers as each game page. Players listed as Questionable, Doubtful or Out are left out, and a list shows fewer than ten rather than fill."
           />
           <FamilyTabs
             {...boardTabs(unifiedBoards.boards)} linkToGame label="hub-boards" listLabel="Weekly leaders by statistic" staticPanels="active" emptyText="No player is cleared for this list in the games still to kick off."
