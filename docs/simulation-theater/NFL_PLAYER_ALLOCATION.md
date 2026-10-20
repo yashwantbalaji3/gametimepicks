@@ -9,7 +9,7 @@ The sim-v2 drive engine records drives, not plays or players. Each drive has a q
 
 This layer fills passing, rushing and receiving lines for one selected run. It allocates that run's recorded drive facts to players in the proportions of the **official player projection**: the player board, read only through `nflOfficialSnapshot` (founder decision, 2026-10-20). It reads nothing from the sim-v2 batch distributions, World Model V2 or role shares.
 
-Every allocated line carries the status `ALLOCATED` and the label **"Allocated from the official projection"**. That keeps it distinct from the two existing statuses:
+Every allocated line carries the status `ALLOCATED` and exactly the founder-approved label **"Allocated estimate — not simulated or official model projection."** (see "Founder decision" below). That keeps it distinct from the two existing statuses:
 
 - `MODELED` means the engine stored the value.
 - `DERIVED` means the value is exactly computable from the drives.
@@ -57,7 +57,18 @@ All steps run per team.
 
 The rule is deterministic per (receipt, runIndex): it uses no randomness and no clock. The server table and the client dialog (unpacked `theater-pack@1`) produce byte-identical output.
 
-## Where the two constants come from (for founder approval)
+## Founder decision (2026-10-20)
+
+The founder approved the 2021–2025 constants (completion rate 0.6462, yards per carry 4.3861) for **internal Simulation Theater development, testing and draft PR preparation only**, relayed by the release-owner session. The conditions, and where each one is met:
+
+1. **They are allocation assumptions, not official model predictions.** Their provenance, formulas and limitations are documented below, and `player-allocation.test.mjs` recomputes both values from the committed file.
+2. **Exact label.** Every derived player statistic is labelled exactly "Allocated estimate — not simulated or official model projection." This is `ALLOCATED_LABEL` (also `ALLOCATED_DISCLOSURE` and the `ALLOCATED` status tag). A test pins the wording, and the audit fails any other wording.
+3. **Consistent with the board.** Official player projections stay consistent with the frozen canonical player board. The allocation only reads the board through `nflOfficialSnapshot`; it never writes to the board, and nothing it produces replaces or restates a board value.
+4. **Unavailable rather than invented.** A statistic that cannot be reliably produced shows as unavailable, never as an invented official number. Every failure keeps the NOT_MODELED rows (for example `NO_PASSER`).
+5. **No release without separate approval.** Allocated lines are not merged, deployed or publicly activated without separate release approval and passing consistency gates. The PR stays a draft.
+6. **The NBA release comes first.** Nothing here may interrupt the NBA release, its CI, the opening-night recorder or the finals waiter.
+
+## Where the two constants come from
 
 The two constants are a **methodology choice, not model outputs**. They decide how a run's plays are split into pass attempts and carries, and how many attempts are completions, so they show up directly in every allocated player line. Everything else in the allocation comes from the official projection or from the run's recorded drives.
 
@@ -75,9 +86,8 @@ The two constants are a **methodology choice, not model outputs**. They decide h
 
 ## Labelling in any UI
 
-- Allocated rows carry the status `ALLOCATED` and the label "Allocated from the official projection".
-- Every allocated section and the box score's `allocation` block also carry `disclosure` (`ALLOCATED_DISCLOSURE`), which reads "Allocated, not simulated: the official player projection's shares applied to this run's recorded drives."
-- Any UI that renders these rows must show that disclosure next to them, and must never present them as Modeled, Derived or simulated.
+- Allocated rows carry the status `ALLOCATED`. The status tag, each section's `note` and `disclosure`, the category group and the `allocation` block all read exactly "Allocated estimate — not simulated or official model projection."
+- Any UI that renders these rows must show that exact wording next to them, without paraphrasing it. It must never present them as Modeled, Derived, simulated or an official projection.
 
 ## Reconciliations
 

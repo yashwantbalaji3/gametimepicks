@@ -5,8 +5,9 @@
  * facts (plays, net yards, results) into passing / rushing / receiving lines by ALLOCATING them to players in the
  * proportions of the OFFICIAL player projection — the player board, read only through the official forecast snapshot
  * (lib/consistency/official-snapshot.mjs `nflOfficialSnapshot`, founder decision 2026-10-20). Nothing from the sim-v2
- * batch distributions, World Model V2 or role shares is read. Every line is labelled ALLOCATED ("Allocated from the
- * official projection"): it is neither MODELED (stored by the engine) nor DERIVED (exactly computable from the drives).
+ * batch distributions, World Model V2 or role shares is read. Every line is labelled ALLOCATED with the founder-approved
+ * wording ALLOCATED_LABEL (2026-10-20): it is neither MODELED (stored by the engine) nor DERIVED (exactly computable from
+ * the drives), and never an official model projection.
  *
  * The full rule, with a worked example, is docs/simulation-theater/NFL_PLAYER_ALLOCATION.md. In short, per team:
  *
@@ -43,10 +44,14 @@
  * Deterministic per (receipt, runIndex): no randomness, no clock; the same run and snapshot give byte-identical JSON.
  */
 export const ALLOCATION_VERSION = "nfl-player-allocation@1";
-export const ALLOCATED_LABEL = "Allocated from the official projection";
+/**
+ * The exact label every allocated statistic carries (founder decision 2026-10-20, verbatim; pinned by a test). Allocated
+ * lines are allocation assumptions applied to the official board's shares — not simulated, not an official projection.
+ */
+export const ALLOCATED_LABEL = "Allocated estimate — not simulated or official model projection.";
 export const ALLOCATED_STATUS = "ALLOCATED";
-/** What any UI must say next to allocated rows: they are an allocation of the official projection, not simulated. */
-export const ALLOCATED_DISCLOSURE = "Allocated, not simulated: the official player projection's shares applied to this run's recorded drives.";
+/** What any UI must show next to allocated rows: the same founder-approved wording, never paraphrased. */
+export const ALLOCATED_DISCLOSURE = ALLOCATED_LABEL;
 
 /**
  * Where c and y come from (methodology choice for founder approval — NOT model outputs). League-wide rates over the

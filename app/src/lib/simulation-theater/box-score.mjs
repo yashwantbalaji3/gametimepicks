@@ -13,8 +13,9 @@
  *                clock, results), and the try points read from each touchdown drive's score change.
  *   ALLOCATED    only when the caller passes the OFFICIAL forecast snapshot (`{ official }`): passing, rushing and
  *                receiving lines (and the team passing / rushing split) allocated from the official player projection
- *                to this run's recorded drives by player-allocation.mjs (`nfl-player-allocation@1`). Labelled
- *                "Allocated from the official projection", never Modeled or Derived. Any missing or mismatched input,
+ *                to this run's recorded drives by player-allocation.mjs (`nfl-player-allocation@1`). Labelled exactly
+ *                ALLOCATED_LABEL ("Allocated estimate — not simulated or official model projection."), never Modeled
+ *                or Derived. Any missing or mismatched input,
  *                or a broken reconciliation, keeps the NOT_MODELED rows below and states the code in `allocation`.
  *   NOT_MODELED  everything else. Rendered as the words "Not modeled by this engine", NEVER as 0. Without an
  *                allocation every player section (passing, rushing, receiving, kicking, defense) is NOT_MODELED: this
@@ -42,7 +43,7 @@ export const BOX_SCORE_TITLE = "Projected box score";
 export const NOT_MODELED_TEXT = "Not modeled by this engine";
 export const PLAYER_NOT_MODELED_REASON = "this engine records drives, not plays or players";
 export const STATUS = Object.freeze({ MODELED: "MODELED", DERIVED: "DERIVED", ALLOCATED: "ALLOCATED", NOT_MODELED: "NOT_MODELED" });
-export const STATUS_LABEL = Object.freeze({ MODELED: "Modeled", DERIVED: "Derived", ALLOCATED: "Allocated", NOT_MODELED: "Not modeled" });
+export const STATUS_LABEL = Object.freeze({ MODELED: "Modeled", DERIVED: "Derived", ALLOCATED: ALLOCATED_LABEL, NOT_MODELED: "Not modeled" });
 export const STATUS_HELP = Object.freeze({
   MODELED: "stored by the engine for this run",
   DERIVED: "computed exactly from this run's recorded drives",

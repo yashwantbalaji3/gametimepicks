@@ -19,8 +19,8 @@ import {
   ALLOCATED_DISCLOSURE, ALLOCATED_LABEL, ALLOCATED_STATUS, ALLOCATION_ERROR_KIND, ALLOCATION_RULES, ALLOCATION_VERSION, CONSTANTS_DERIVATION,
   allocateNflPlayers, apportion, safeAllocateNflPlayers,
 } from "./player-allocation.mjs";
-import { CATEGORY_GROUPS, PLAYER_SECTIONS, STATUS, nflBoxScore } from "./box-score.mjs";
-import { nflAllocatedLineInvariants } from "../consistency/checks.mjs";
+import { CATEGORY_GROUPS, PLAYER_SECTIONS, STATUS, STATUS_LABEL, nflBoxScore } from "./box-score.mjs";
+import { ALLOCATED_EXACT_LABEL, nflAllocatedLineInvariants } from "../consistency/checks.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -47,6 +47,31 @@ const entryOf = (raw, manifest, sample, snapshot, res) => ({
   teams: { home: manifest.teams.home.abbr, away: manifest.teams.away.abbr },
   allocation: res.allocation,
   error: res.error,
+});
+
+/* ───────────────────────────── the founder's label ───────────────────────────── */
+
+/** Founder decision 2026-10-20, verbatim: every derived player statistic is labelled exactly this. */
+const FOUNDER_LABEL = "Allocated estimate — not simulated or official model projection.";
+
+test("every allocated statistic carries the founder's exact wording (code, status tag, sections, group, audit)", () => {
+  assert.equal(ALLOCATED_LABEL, FOUNDER_LABEL);
+  assert.equal(ALLOCATED_DISCLOSURE, FOUNDER_LABEL);
+  assert.equal(STATUS_LABEL[STATUS.ALLOCATED], FOUNDER_LABEL);
+  assert.equal(ALLOCATED_EXACT_LABEL, FOUNDER_LABEL, "the audit holds its own copy");
+  const m = adaptFile(RUN48_FILE);
+  const box = nflBoxScore(m.samples.find((x) => x.runIndex === 48), m, { official: officialOf("401873008").snapshot });
+  const allocated = box.players.filter((p) => p.status === STATUS.ALLOCATED);
+  assert.deepEqual(allocated.map((p) => p.id), ["passing", "rushing", "receiving"]);
+  for (const p of allocated) {
+    assert.equal(p.note, FOUNDER_LABEL);
+    assert.equal(p.disclosure, FOUNDER_LABEL);
+  }
+  const cats = box.categories.filter((c) => c.status === STATUS.ALLOCATED);
+  assert.deepEqual(cats.map((c) => c.id), ["passYds", "rushYds", "unattributedYds"]);
+  for (const c of cats) assert.equal(c.group, FOUNDER_LABEL);
+  assert.equal(box.allocation.label, FOUNDER_LABEL);
+  assert.ok(!/official projection"|Allocated from the official|Allocated, not simulated/.test(JSON.stringify(box)), "no superseded wording anywhere");
 });
 
 /* ───────────────────────────── apportionment ───────────────────────────── */
@@ -136,7 +161,7 @@ test("EVERY validated run of every committed sim-v2 receipt: allocated lines rec
         if (["passing", "rushing", "receiving"].includes(p.id)) {
           assert.equal(p.status, STATUS.ALLOCATED);
           assert.equal(p.note, ALLOCATED_LABEL);
-          assert.equal(p.disclosure, ALLOCATED_DISCLOSURE, "allocated, not simulated");
+          assert.equal(p.disclosure, ALLOCATED_DISCLOSURE, "founder wording on every allocated section");
         } else assert.equal(p.status, STATUS.NOT_MODELED, `${p.id} stays not modeled`);
       }
       for (const c of box.categories.filter((x) => x.status === STATUS.ALLOCATED)) assert.equal(c.group, ALLOCATED_LABEL);
@@ -171,7 +196,7 @@ test("401873008 run #48 (WSH 20–30 SF): the worked example, pinned", () => {
   assert.deepEqual(sec("passing", "home"), [{ playerId: "nfl-athlete-4361741", name: "Brock Purdy", att: 29, cmp: 19, yds: 308, td: 3 }]);
   assert.deepEqual(sec("passing", "away"), [{ playerId: "nfl-athlete-4426348", name: "Jayden Daniels", att: 42, cmp: 27, yds: 273, td: 2 }]);
   assert.deepEqual(sec("rushing", "home")[0], { playerId: "nfl-athlete-3117251", name: "Christian McCaffrey", car: 10, yds: 65, td: 1 });
-  assert.match(box.allocation.disclosure, /^Allocated, not simulated/);
+  assert.equal(box.allocation.disclosure, FOUNDER_LABEL);
   assert.deepEqual(A.touchdowns.map((x) => [x.drive, x.side, x.type, x.scorerId, x.passerId]), [
     [4, "home", "RUSH", "nfl-athlete-3117251", null], // McCaffrey
     [8, "home", "REC", "nfl-athlete-16737", "nfl-athlete-4361741"], // Evans from Purdy
@@ -288,6 +313,7 @@ test("mutation: every corruption of an allocation is caught by the audit's indep
     "another team's player": mut((a) => { H(a).lines.receiving[0].playerId = a.teams.away.lines.receiving[0].playerId; }),
     "an unofficial id": mut((a) => { H(a).lines.receiving[0].playerId = "nfl-athlete-1"; }),
     "relabelled as modeled": mut((a) => { a.status = "MODELED"; }),
+    "paraphrased label": mut((a) => { a.label = "Allocated from the official projection"; }),
     "allocated from another snapshot": mut((a) => { a.snapshotId = "0".repeat(64); }),
     "a touchdown scorer with no line": mut((a) => { a.touchdowns[0].scorerId = "nfl-athlete-4421446"; }),
     "an INVARIANT refusal": mut((a, e) => { e.allocation = null; e.error = { kind: "INVARIANT", code: "YARDS_RECONCILE", reason: "x" }; }),

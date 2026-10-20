@@ -205,8 +205,12 @@ export function worldModelWorldInvariants(world) {
  *   · touchdowns: exactly one per offensive TD drive of that team (and only on those), Σ passing TD = Σ receiving TD,
  *     a receiving TD names a passer of the same team;
  *   · identity: every row's playerId is an `nfl-athlete-*` id the official snapshot carries FOR THAT TEAM (never a name);
- *   · every allocated section is labelled ALLOCATED with "Allocated from the official projection".
+ *   · the allocation is labelled ALLOCATED with exactly "Allocated estimate — not simulated or official model projection."
+ *     (founder wording, 2026-10-20).
  */
+/** Founder-approved wording (2026-10-20), verbatim. Kept here as a literal so the audit does not trust the allocator. */
+export const ALLOCATED_EXACT_LABEL = "Allocated estimate — not simulated or official model projection.";
+
 export function nflAllocatedLineInvariants(entry) {
   const v = [];
   if (!entry.allocation) {
@@ -215,7 +219,7 @@ export function nflAllocatedLineInvariants(entry) {
   }
   const a = entry.allocation;
   const drives = Array.isArray(entry.drives) ? entry.drives : [];
-  if (a.status !== "ALLOCATED" || a.label !== "Allocated from the official projection") v.push(`allocation labelled ${a.status} "${a.label}"`);
+  if (a.status !== "ALLOCATED" || a.label !== ALLOCATED_EXACT_LABEL) v.push(`allocation labelled ${a.status} "${a.label}"`);
   if (entry.snapshot && a.snapshotId !== entry.snapshot.snapshotId) v.push(`allocation from snapshot ${a.snapshotId}, official is ${entry.snapshot.snapshotId}`);
   const roster = new Map((entry.snapshot?.players ?? []).map((p) => [p.playerId, p.team]));
   const sum = (rows, k) => rows.reduce((s, r) => s + (Number.isInteger(r[k]) ? r[k] : NaN), 0);
