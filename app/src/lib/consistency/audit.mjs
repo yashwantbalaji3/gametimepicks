@@ -703,10 +703,29 @@ export const THEATER_GATE_CODES = Object.freeze([CODES.SCENARIO_LEAK, CODES.BOX_
  *   · the event has an official snapshot (a refusal blocks).
  * @returns {{ sport, eventId, open: boolean, blockers: object[] }}
  */
-export function theaterActivationGate(sport, eventId, { audit = null, repoRoot = null } = {}) {
+/**
+ * NBA THEATER GATE POLICY (founder decision 2026-10-20, relayed by the release owner: "the Theater may run a different
+ * engine from the official forecast; one canonical public prediction everywhere"). Two policies; the founder decides.
+ *   ANCHORED (IN FORCE)          the replayed v1 simulation must agree with the official forecast (nbaSimAnchorCheck)
+ *                                under an approved tolerance, and its closest run is shown as the Official
+ *                                Representative Simulation.
+ *   LABELLED_SUPPORTING_RUNS     PREPARED, NOT IN FORCE. No anchor is required. The official panel shows the canonical
+ *                                snapshot only; every replayed run is labelled an individual nba-sim-v1-coherent run
+ *                                (never "official representative"); nothing a run shows overwrites an official value.
+ *                                Still required: a verified pre-tip supporting game, consistent box scores, no
+ *                                scenario leak, no model-version mix — and the founder's adoption of the policy.
+ * Changing the policy in force is a founder decision recorded in the same reviewed PR that edits this constant.
+ */
+export const NBA_THEATER_GATE_POLICY = Object.freeze({ ANCHORED: "ANCHORED", LABELLED_SUPPORTING_RUNS: "LABELLED_SUPPORTING_RUNS" });
+export const NBA_THEATER_GATE_POLICY_IN_FORCE = NBA_THEATER_GATE_POLICY.ANCHORED;
+
+export function theaterActivationGate(sport, eventId, { audit = null, repoRoot = null, nbaPolicy = NBA_THEATER_GATE_POLICY_IN_FORCE } = {}) {
   const a = audit ?? runConsistencyAudit({ repoRoot, nflEvents: String(sport).toUpperCase() === "NFL" ? [String(eventId)] : [], nbaDates: String(sport).toUpperCase() === "NBA" ? DEFAULT_NBA_DATES : [] });
   const S = String(sport).toUpperCase(); const id = String(eventId);
-  const theaterSurface = (s) => /^simulation-theater/.test(s) || /^nfl-simulation-v2/.test(s);
+  const labelledRuns = S === "NBA" && nbaPolicy === NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS;
+  // under LABELLED_SUPPORTING_RUNS no run is presented as the official representative, so the default-run selection
+  // surface (simulation-theater.default) is not a gate; every other theater surface still is
+  const theaterSurface = (s) => (/^simulation-theater/.test(s) && !(labelledRuns && s === "simulation-theater.default")) || /^nfl-simulation-v2/.test(s);
   const blockers = a.discrepancies.filter((d) => {
     if (d.sport !== S && !(d.static && d.sport === "ALL" && d.code === CODES.SCENARIO_LEAK)) return false;
     if (d.static) return (d.surface ?? "").startsWith("simulation-theater") || d.code === CODES.SCENARIO_LEAK;
@@ -721,7 +740,9 @@ export function theaterActivationGate(sport, eventId, { audit = null, repoRoot =
   if (S === "NBA" && !refusal && known(a, S, id)) {
     const anc = (a.simAnchors ?? []).find((x) => x.sport === "NBA" && x.eventId === id);
     if (!anc) blockers.unshift({ code: "NO_SUPPORTING_SIMULATION", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: "no verified pre-tip v1 game to replay", fingerprint: `NOSIM|${S}|${id}` });
-    else {
+    else if (labelledRuns) {
+      if (nbaPolicy !== NBA_THEATER_GATE_POLICY_IN_FORCE) blockers.unshift({ code: "GATE_POLICY_NOT_IN_FORCE", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: `${nbaPolicy} is prepared, not adopted (in force: ${NBA_THEATER_GATE_POLICY_IN_FORCE}) — founder decision`, fingerprint: `POLICY|${S}|${id}` });
+    } else {
       if (!anc.anchored) blockers.unshift({ code: "SIM_NOT_ANCHORED", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: `failed: ${anc.failed.map((t) => t.term).join(", ")}`, fingerprint: `ANCHOR|${S}|${id}` });
       if (!anc.toleranceApproved) blockers.unshift({ code: "ANCHOR_TOLERANCE_UNAPPROVED", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: anc.tolerance.basis, fingerprint: `ANCHORTOL|${S}|${id}` });
     }

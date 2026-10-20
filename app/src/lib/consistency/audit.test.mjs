@@ -15,7 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { NBA_SIM_ANCHOR_TOLERANCE, SIM_ANCHOR_TOLERANCE, THEATER_GATE_CODES, compareWithBaseline, nbaSimAnchorCheck, runConsistencyAudit, simAnchorCheck, theaterActivationGate } from "./audit.mjs";
+import { NBA_SIM_ANCHOR_TOLERANCE, NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE, SIM_ANCHOR_TOLERANCE, THEATER_GATE_CODES, compareWithBaseline, nbaSimAnchorCheck, runConsistencyAudit, simAnchorCheck, theaterActivationGate } from "./audit.mjs";
 import { nbaOfficialSnapshot } from "./official-snapshot.mjs";
 import { NBA_ID, nbaArtifact, nbaSources } from "./__fixtures__/synthetic.mjs";
 
@@ -151,4 +151,18 @@ test("real 2026-10-20 slate: the official NBA snapshot is v0.1 + Elo, the lane m
   const laneFindings = audit.discrepancies.filter((d) => d.sport === "NBA" && d.surface === "nba-public-lane");
   assert.deepEqual(laneFindings, [], "the public lane prints exactly the official snapshot");
   for (const s of nba) assert.equal(theaterActivationGate("nba", s.eventId, { audit }).open, false);
+});
+
+test("NBA gate policy: ANCHORED is in force; LABELLED_SUPPORTING_RUNS is prepared — evaluable, never open while not adopted", () => {
+  assert.equal(NBA_THEATER_GATE_POLICY_IN_FORCE, NBA_THEATER_GATE_POLICY.ANCHORED);
+  const base = { discrepancies: [], refusals: [], snapshots: [{ sport: "NBA", eventId: "7" }] };
+  const unanchored = { ...base, simAnchors: [{ sport: "NBA", eventId: "7", anchored: false, toleranceApproved: false, failed: [{ term: "pHome" }], tolerance: NBA_SIM_ANCHOR_TOLERANCE }] };
+  const alt = theaterActivationGate("nba", "7", { audit: unanchored, nbaPolicy: NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS });
+  assert.deepEqual(alt.blockers.map((b) => b.code), ["GATE_POLICY_NOT_IN_FORCE"], "no anchor is required under the alternative — only its adoption is missing");
+  // the default-run selection is not a gate under labelled runs; box-score / leak / version-mix still are
+  const withDefault = { ...unanchored, discrepancies: [{ code: "PROJECTION_MISMATCH", sport: "NBA", eventId: "7", surface: "simulation-theater.default", fingerprint: "d" }, { code: "BOX_SCORE_INCONSISTENT", sport: "NBA", eventId: "7", surface: "simulation-theater.runs", fingerprint: "b" }] };
+  assert.deepEqual(theaterActivationGate("nba", "7", { audit: withDefault, nbaPolicy: NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS }).blockers.map((b) => b.fingerprint ?? b.code).sort(), ["POLICY|NBA|7", "b"]);
+  assert.ok(theaterActivationGate("nba", "7", { audit: withDefault }).blockers.some((b) => b.fingerprint === "d"), "under ANCHORED the default run still gates");
+  const noSim = theaterActivationGate("nba", "7", { audit: { ...base, simAnchors: [] }, nbaPolicy: NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS });
+  assert.equal(noSim.blockers[0].code, "NO_SUPPORTING_SIMULATION");
 });

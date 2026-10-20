@@ -121,3 +121,32 @@ npx tsx scripts/consistency/audit-prediction-consistency.mjs --gate NBA:40190908
 ```
 
 No `next build` was run, because of the protected window to 05:00Z 10-21. The change touches no route, page, component or public data file. The full post-build export-boundary suite is owed after 05:00Z under the shared build lock.
+
+## 8. Alternative Theater gate (prepared, NOT in force)
+
+**Background.** A founder architecture decision, relayed by the release owner on 2026-10-20 (roadmap `NBA-CC`): the Theater may run a different engine from the official forecast; the best engine is decided by forward, market-by-market evidence; there is one canonical public prediction everywhere.
+
+That conflicts with this PR's anchor gate, which requires v1 to agree with the official forecast. As directed, the anchor gate stays **in force**. The alternative is prepared for the founder to decide:
+
+| | `ANCHORED` (in force) | `LABELLED_SUPPORTING_RUNS` (prepared) |
+|---|---|---|
+| v1 must agree with the official forecast | yes (`nbaSimAnchorCheck`, approved tolerance) | no |
+| What the official panel shows | the canonical snapshot | the canonical snapshot, unchanged by any run |
+| How replayed runs are labelled | the closest run is the "Official Representative Simulation" | every run is an individual `nba-sim-v1-coherent` run; none is called official |
+| Is the default-run selection (`simulation-theater.default`) a gate? | yes | no |
+| Still required | supporting game, box-score consistency, no scenario leak, no model-version mix | same, plus the founder adopting the policy |
+
+**Evaluation on the committed 2026-10-20 slate:**
+
+| Game | ANCHORED | LABELLED_SUPPORTING_RUNS |
+|---|---|---|
+| 401909088 BOS @ DET | closed: ANCHOR_TOLERANCE_UNAPPROVED, SIM_NOT_ANCHORED, MODEL_VERSION_MIX ×3 (private v1 board) | closed: GATE_POLICY_NOT_IN_FORCE, MODEL_VERSION_MIX ×3 |
+| 401909089 PHI @ NY | closed: same, MODEL_VERSION_MIX ×2 | closed: GATE_POLICY_NOT_IN_FORCE, MODEL_VERSION_MIX ×2 |
+| 401909090 OKC @ SA | closed: same + the default-run mismatch, MODEL_VERSION_MIX ×1 | closed: GATE_POLICY_NOT_IN_FORCE, MODEL_VERSION_MIX ×1 |
+
+**To open the gate under the alternative, the founder would need to:**
+1. Adopt it: edit `NBA_THEATER_GATE_POLICY_IN_FORCE` in a reviewed PR.
+2. Retire or relabel the private v1 top board (the `MODEL_VERSION_MIX` blocker).
+3. Clear everything §13 and the activation checklist in #1153 require.
+
+**UI work (not done here).** The Theater copy would have to drop "Official Representative Simulation" under the alternative. #1153's tests that the official layer never changes with the selected run stay the overwrite guarantee.
