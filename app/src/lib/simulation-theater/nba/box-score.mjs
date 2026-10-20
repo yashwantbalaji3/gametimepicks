@@ -44,6 +44,8 @@ export const NBA_BOX_SCORE_SCHEMA = "nba-box-score@1";
 export const BOX_SCORE_KINDS = Object.freeze({ SAMPLE: "selected-run-sample", MEDIAN: "per-player-median", ACTUAL: "actual" });
 /** Shown on every box score, in this exact text (and a planted copy is an export-boundary leak). */
 export const NBA_BOX_WATERMARK = "PROJECTED · SIMULATED · NOT ACTUAL GAME STATISTICS · PRIVATE CANDIDATE MODEL";
+/** A what-if (hypothetical) run's watermark: never "PROJECTED" (Cross-Product Prediction Consistency, 2026-10-20). */
+export const NBA_BOX_WATERMARK_WHAT_IF = "HYPOTHETICAL SCENARIO · NOT THE FORECAST · SIMULATED · NOT ACTUAL GAME STATISTICS · PRIVATE CANDIDATE MODEL";
 export const MODELED = "MODELED";
 export const OT_TEAM_MINUTES = 25; // 5 players × 5 minutes per OT period
 export const REGULATION_TEAM_MINUTES = 240;

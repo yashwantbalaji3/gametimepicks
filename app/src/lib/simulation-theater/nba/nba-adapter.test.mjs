@@ -11,7 +11,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { FIXTURE_BANNER, NBA_ENGINE_ID, adaptNbaArtifact, checkHistogram, defaultSampleIndex } from "./adapter-nba-sim-v1.mjs";
 import { SAMPLE_LABELS, validateSample } from "./validate-sample.mjs";
-import { NBA_FIXTURE_SOURCE, NBA_REAL_DEV_SOURCE, NBA_THEATER_SOURCE, loadNbaTheater, readArtifact, usableNbaEvents, v1ArtifactSource } from "./loader.mjs";
+import { NBA_FIXTURE_SOURCE, NBA_REAL_TEST_FIXTURE_SOURCE, NBA_THEATER_DATE, NBA_THEATER_SOURCE, loadNbaTheater, readArtifact, usableNbaEvents, v1ArtifactSource } from "./loader.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -162,15 +162,18 @@ test("histogram check: probabilities must sum to 1 over integer bins; a bad hist
   assert.ok(m.samples.every((s) => s.validation.ok));
 });
 
-test("loader: today's source is the verified dev copy of real v1 output; switching to a committed artifact is ONE line; missing fails closed", () => {
-  assert.equal(NBA_THEATER_SOURCE, NBA_REAL_DEV_SOURCE);
+test("loader: the route reads the COMMITTED private v1 receipt (ONE source line, never a fixture); the r2 copy is a test fixture only; missing fails closed", () => {
+  assert.deepEqual(NBA_THEATER_SOURCE, v1ArtifactSource(NBA_THEATER_DATE));
+  assert.equal(NBA_THEATER_SOURCE.kind, "artifact");
+  assert.ok(!/__fixtures__/.test(NBA_THEATER_SOURCE.path), "the route source is not under __fixtures__");
+  assert.equal(NBA_REAL_TEST_FIXTURE_SOURCE.kind, "test-fixture-copy");
   const src = fs.readFileSync(path.join(APP, "src/lib/simulation-theater/nba/loader.mjs"), "utf8");
   const lines = src.split("\n").filter((l) => /^export const NBA_THEATER_SOURCE = /.test(l));
-  assert.equal(lines.length, 1, "exactly one SOURCE line");
+  assert.deepEqual(lines, ["export const NBA_THEATER_SOURCE = v1ArtifactSource(NBA_THEATER_DATE);"], "exactly one SOURCE line, the committed receipt");
   assert.equal(v1ArtifactSource("2026-10-20").path, "data/internal/research/nba/experimental-v1/forecasts/2026-10-20.json");
-  assert.deepEqual(usableNbaEvents(REPO), ["401909088", "401909089", "401909090"]);
+  assert.deepEqual(usableNbaEvents(REPO, { source: NBA_REAL_TEST_FIXTURE_SOURCE }), ["401909088", "401909089", "401909090"]);
   assert.deepEqual(usableNbaEvents(REPO, { source: NBA_FIXTURE_SOURCE }), ["401909088", "401909089", "401909090"]);
-  const t = loadNbaTheater(REPO, "401909089");
+  const t = loadNbaTheater(REPO, "401909089", { source: NBA_REAL_TEST_FIXTURE_SOURCE });
   assert.equal(t.ok, true);
   assert.equal(t.manifest.fixture, false);
   assert.equal(t.palettes.team.mode, "team");
@@ -191,7 +194,7 @@ test("real v1 dev copy (r2): NOT a fixture, sha256 matches its provenance, engin
   assert.equal(PROV.modelVersion, REAL.modelVersion);
   assert.equal(PROV.inputAsOf, REAL.inputAsOf);
   assert.equal(PROV.generatedAt, REAL.generatedAt);
-  const r = readArtifact(REPO, NBA_REAL_DEV_SOURCE);
+  const r = readArtifact(REPO, NBA_REAL_TEST_FIXTURE_SOURCE);
   assert.equal(r.provenance.verified, true, `sha ${r.provenance.actualSha256} ≠ ${PROV.sha256}`);
   assert.equal(PROV.sha256, "c4612dc4e8ab924e6b1f1fc8af9c713d1494f5cf731c6719dbb34f9c8adcc261");
   assert.equal(PROV.minutesExact, true);
@@ -202,7 +205,7 @@ test("real v1 dev copy (r2): NOT a fixture, sha256 matches its provenance, engin
 });
 
 test("real v1 dev copy (r2): CONSERVATION in every one of the 15 samples — side minutes = 240 + 25·OT exactly, Σ player pts = team pts = final = Σ periods; no rounding note", () => {
-  const r = readArtifact(REPO, NBA_REAL_DEV_SOURCE);
+  const r = readArtifact(REPO, NBA_REAL_TEST_FIXTURE_SOURCE);
   const rows = [];
   for (const g of REAL.games) {
     const a = adaptNbaArtifact(REAL, g.providerEventId, { file: REAL_REL, provenance: r.provenance });
@@ -232,7 +235,7 @@ test("real v1 dev copy (r2): CONSERVATION in every one of the 15 samples — sid
 });
 
 test("exact source fails closed: with minutesExact a 0.01-minute drift is MINUTES_SUM (no note), without it the documented allowance applies", () => {
-  const r = readArtifact(REPO, NBA_REAL_DEV_SOURCE);
+  const r = readArtifact(REPO, NBA_REAL_TEST_FIXTURE_SOURCE);
   const drifted = clone(REAL);
   const ps = drifted.games[0].forecast.representativeSamples[0].players.home;
   const i = ps.findIndex((p) => p.minutes > 1);
@@ -257,7 +260,7 @@ test("a dev copy is refused without verified provenance (missing or tampered sid
   const id = REAL.games[0].providerEventId;
   assert.equal(adaptNbaArtifact(REAL, id, { file: REAL_REL }).error.code, "FIXTURE_UNMARKED");
   assert.equal(adaptNbaArtifact(REAL, id, { file: REAL_REL, provenance: { verified: false } }).error.code, "FIXTURE_UNMARKED");
-  const tampered = loadNbaTheater(REPO, id, { read: { ...readArtifact(REPO, NBA_REAL_DEV_SOURCE), provenance: { ...PROV, verified: false } } });
+  const tampered = loadNbaTheater(REPO, id, { source: NBA_REAL_TEST_FIXTURE_SOURCE, read: { ...readArtifact(REPO, NBA_REAL_TEST_FIXTURE_SOURCE), provenance: { ...PROV, verified: false } } });
   assert.equal(tampered.ok, false);
 });
 

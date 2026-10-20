@@ -17,6 +17,8 @@
  */
 import { adaptReceipt } from "./adapter-nfl-sim-v2.mjs";
 import { fieldPosition, fmtDuration, fmtPeriodClock, plural, scoreLine } from "./format.mjs";
+import { withNflRepresentative } from "./official-representative.mjs";
+import { officialRunIndex } from "./representative-labels.mjs";
 
 export const NFL_THEATER_PUBLIC_ENV = "GTP_NFL_THEATER_PUBLIC";
 
@@ -43,8 +45,10 @@ export const UNAVAILABLE_TITLE = "Simulation replay unavailable";
  * Adapt the page's receipt of record for the section. Same shape as loader.mjs loadTheater (TheaterLoad), but it takes
  * the record the page already resolved, so the page and the section can never show different receipts.
  * @param {{ file: string, receipt: object, showable: boolean } | null} rec  simulationOfRecord(...) output
+ * @param {{ snapshot: object|null, refusal: object|null } | null} official  loader.mjs nflTheaterOfficial(...) output: the
+ *   official forecast the default run is measured against (null ⇒ no official forecast: every run is a what-if)
  */
-export function publicTheaterLoad(rec) {
+export function publicTheaterLoad(rec, official = null) {
   if (!rec || !rec.receipt) {
     return { eventId: "", file: null, ok: false, error: { code: "NO_RECEIPT", reason: "no receipt generated before kickoff" }, manifest: null, showable: false };
   }
@@ -62,12 +66,23 @@ export function publicTheaterLoad(rec) {
   if (!a.manifest.chips.some((c) => c.available)) {
     return { eventId, file: rec.file ?? null, ok: false, error: { code: "NO_VALID_RUN", reason: "no representative run of this receipt passed validation" }, manifest: null, showable: true };
   }
-  return { eventId, file: rec.file ?? null, ok: true, error: null, manifest: a.manifest, showable: true };
+  const manifest = withNflRepresentative(a.manifest, rec.receipt, official ?? { snapshot: null, refusal: { code: "NO_OFFICIAL", message: "no official forecast supplied" } });
+  return { eventId, file: rec.file ?? null, ok: true, error: null, manifest, showable: true };
 }
 
-/** The sample the section opens on (and the no-JS drive table shows): the first available chip, as the island does. */
+/**
+ * The chip the Theater opens on (server shell, island and the no-JS drive table alike): the OFFICIAL REPRESENTATIVE
+ * SIMULATION when one was selected, else the first available chip (then labelled a hypothetical what-if).
+ */
+export function defaultChip(manifest) {
+  const off = officialRunIndex(manifest);
+  const chips = manifest?.chips ?? [];
+  return (off != null ? chips.find((c) => c.available && c.runIndex === off) : null) ?? chips.find((c) => c.available) ?? null;
+}
+
+/** The sample of defaultChip. */
 export function defaultSample(manifest) {
-  const chip = manifest?.chips?.find((c) => c.available);
+  const chip = defaultChip(manifest);
   return chip ? manifest.samples[chip.sampleIndex] : null;
 }
 

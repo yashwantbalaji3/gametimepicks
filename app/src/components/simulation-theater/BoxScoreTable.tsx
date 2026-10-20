@@ -17,6 +17,8 @@ import type { TheaterManifest, TheaterSample } from "./types";
 import {
   BOX_SCORE_TITLE, BOX_SCORE_WATERMARK, CATEGORY_GROUPS, NOT_MODELED_TEXT, STATUS_HELP, STATUS_LABEL, safeNflBoxScore,
 } from "@/lib/simulation-theater/box-score.mjs";
+import { WHAT_IF_BOX_TITLE, WHAT_IF_BOX_WATERMARK, WHAT_IF_TAG, NFL_PLAYERS_NOT_MODELED_NOTE, runRole } from "@/lib/simulation-theater/representative-labels.mjs";
+import { OfficialComparison } from "./RepresentativeParts";
 
 export type BoxStatus = "MODELED" | "DERIVED" | "NOT_MODELED";
 export type BoxCell = { value: number | null; display: string };
@@ -48,11 +50,15 @@ export function StatusTag({ status }: { status: BoxStatus }) {
   );
 }
 
-export function Watermark() {
-  return <p className="stbx-mark" data-stbx-watermark="">{BOX_SCORE_WATERMARK}</p>;
+/** A what-if run's box score never carries the word PROJECTED: it says HYPOTHETICAL SCENARIO · NOT THE FORECAST. */
+export function Watermark({ hypothetical = false }: { hypothetical?: boolean }) {
+  return <p className="stbx-mark" data-stbx-watermark="" data-stbx-hypothetical={hypothetical ? "" : undefined}>{hypothetical ? WHAT_IF_BOX_WATERMARK : BOX_SCORE_WATERMARK}</p>;
 }
 
-export function BoxHeader({ box }: { box: BoxScore }) {
+/** The box score's title for a run: projected (official representative) or what-if (hypothetical). */
+export const boxTitleFor = (hypothetical: boolean) => (hypothetical ? WHAT_IF_BOX_TITLE : BOX_SCORE_TITLE);
+
+export function BoxHeader({ box, hypothetical = false }: { box: BoxScore; hypothetical?: boolean }) {
   const h = box.header;
   return (
     <div className="stbx-head">
@@ -60,7 +66,7 @@ export function BoxHeader({ box }: { box: BoxScore }) {
         <b>{h.label}</b>
         <span className="stbx-score" data-stbx-final="">{h.scoreLine}</span>
       </p>
-      <p className="stbx-sub">Run #{h.runIndex.toLocaleString("en-US")} · {h.kindLabel} representative run · totals for the whole simulated game</p>
+      <p className="stbx-sub">Run #{h.runIndex.toLocaleString("en-US")} · {hypothetical ? `${WHAT_IF_TAG} · ${h.kindLabel} run` : `Official representative simulation · ${h.kindLabel} run`} · totals for the whole simulated game</p>
     </div>
   );
 }
@@ -191,7 +197,7 @@ export function Provenance({ box }: { box: BoxScore }) {
 /**
  * The server-rendered box score (no JavaScript needed). `box` null ⇒ a truthful unavailable line with the reason.
  */
-export function BoxScoreStatic({ box, error }: { box: BoxScore | null; error?: { code: string; reason: string } | null }) {
+export function BoxScoreStatic({ box, error, manifest = null }: { box: BoxScore | null; error?: { code: string; reason: string } | null; manifest?: TheaterManifest | null }) {
   if (!box) {
     return (
       <section className="stbx stbx-static" data-stbx-static="" data-stbx-state="unavailable" data-stbx-error={error?.code ?? "UNAVAILABLE"} aria-label={`${BOX_SCORE_TITLE} unavailable`}>
@@ -200,14 +206,17 @@ export function BoxScoreStatic({ box, error }: { box: BoxScore | null; error?: {
       </section>
     );
   }
+  const hypothetical = manifest ? runRole(manifest, box.header.runIndex).hypothetical : false;
   return (
-    <section className="stbx stbx-static" data-stbx-static="" data-stbx-version={box.version} data-stbx-run={box.header.runIndex} aria-labelledby="stbx-static-h">
-      <h3 className="stbx-title" id="stbx-static-h">{BOX_SCORE_TITLE} · run #{box.header.runIndex.toLocaleString("en-US")}</h3>
-      <Watermark />
-      <BoxHeader box={box} />
+    <section className="stbx stbx-static" data-stbx-static="" data-stbx-version={box.version} data-stbx-run={box.header.runIndex} data-stbx-role={hypothetical ? "what-if" : "official"} aria-labelledby="stbx-static-h">
+      <h3 className="stbx-title" id="stbx-static-h">{boxTitleFor(hypothetical)} · run #{box.header.runIndex.toLocaleString("en-US")}</h3>
+      <Watermark hypothetical={hypothetical} />
+      <BoxHeader box={box} hypothetical={hypothetical} />
       <PeriodTable box={box} />
+      {manifest ? <OfficialComparison manifest={manifest} final={box.header.final} teams={box.header.teams} hypothetical={hypothetical} /> : null}
       <CompareCategoryTable box={box} />
       <PlayerSections box={box} />
+      <p className="stbx-note">{NFL_PLAYERS_NOT_MODELED_NOTE}</p>
       <Composition box={box} />
       <Provenance box={box} />
     </section>
@@ -218,5 +227,5 @@ export function BoxScoreStatic({ box, error }: { box: BoxScore | null; error?: {
 export function BoxScoreForRun({ manifest, sample }: { manifest: TheaterManifest; sample: TheaterSample | null }) {
   if (!sample) return <BoxScoreStatic box={null} error={{ code: "NO_VALID_RUN", reason: "no representative run of this receipt passed validation" }} />;
   const r = safeNflBoxScore(sample, manifest);
-  return <BoxScoreStatic box={r.ok ? (r.box as BoxScore) : null} error={r.error} />;
+  return <BoxScoreStatic box={r.ok ? (r.box as BoxScore) : null} error={r.error} manifest={manifest} />;
 }

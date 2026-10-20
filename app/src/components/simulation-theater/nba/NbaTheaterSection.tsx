@@ -14,6 +14,7 @@ import { NBA_THEATER_VARS } from "./nba-theater-css";
 import { NbaUnavailable, PrivateCandidateBanner } from "./nba-parts";
 import { fixtureGate } from "./nba-gate";
 import type { NbaLoad } from "./nba-types";
+import { NO_OFFICIAL_NBA } from "@/lib/simulation-theater/representative-labels.mjs";
 
 export default function NbaTheaterSection({ load, fixtureBanner, devHooks = false }: { load: NbaLoad; fixtureBanner?: string | null; devHooks?: boolean }) {
   const gate = fixtureGate(load, fixtureBanner);
@@ -21,7 +22,7 @@ export default function NbaTheaterSection({ load, fixtureBanner, devHooks = fals
     return (
       <div className="st-root nba-root" style={NBA_THEATER_VARS as CSSProperties}>
         <PrivateCandidateBanner />
-        <NbaUnavailable title={load.manifest?.fixture ? "Refused: test fixture without its banner" : "NBA theater unavailable"} reason={gate.reason ?? "unavailable"} />
+        <NbaUnavailable title={load.manifest?.fixture ? "Refused: test fixture without its banner" : load.error?.code === "NO_OFFICIAL_RECEIPT" ? NO_OFFICIAL_NBA : "NBA theater unavailable"} reason={gate.reason ?? "unavailable"} />
       </div>
     );
   }

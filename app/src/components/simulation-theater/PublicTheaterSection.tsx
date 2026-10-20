@@ -15,6 +15,7 @@
  *     is serialized then).
  */
 import "./public-theater.css";
+import path from "node:path";
 import type { CSSProperties } from "react";
 
 import TheaterSection from "./TheaterSection";
@@ -25,6 +26,9 @@ import type { TheaterLoad, TheaterManifest, TheaterSample } from "./types";
 import {
   PUBLIC_THEATER_LABELS, PUBLIC_THEATER_LABEL_LINE, PUBLIC_THEATER_METHODOLOGY, UNAVAILABLE_TITLE, defaultSample, driveTableRows, publicTheaterLoad,
 } from "@/lib/simulation-theater/public-theater.mjs";
+import { nflTheaterOfficial } from "@/lib/simulation-theater/loader.mjs";
+
+const REPO_ROOT = path.resolve(process.cwd(), "..");
 
 type Rec = Parameters<typeof publicTheaterLoad>[0];
 type DriveRow = { n: number; start: string; offense: string; from: string; plays: string; yards: string; time: string; result: string; score: string };
@@ -75,7 +79,10 @@ function DriveTable({ manifest, sample }: { manifest: TheaterManifest; sample: T
 }
 
 export default function PublicTheaterSection({ rec }: { rec: Rec }) {
-  const load = publicTheaterLoad(rec) as TheaterLoad;
+  // the official forecast of record the default run is measured against (official-representative.mjs)
+  const rid = (rec?.receipt as { eventId?: string | number } | undefined)?.eventId;
+  const eventId = rid != null ? String(rid) : null;
+  const load = publicTheaterLoad(rec, eventId ? nflTheaterOfficial(REPO_ROOT, eventId) : null) as TheaterLoad;
   const sample = load.ok && load.manifest ? (defaultSample(load.manifest) as TheaterSample | null) : null;
   return (
     <section className="stp" aria-labelledby="stp-h" data-stp-section="" data-stp-state={load.ok && sample ? "ready" : "unavailable"}>

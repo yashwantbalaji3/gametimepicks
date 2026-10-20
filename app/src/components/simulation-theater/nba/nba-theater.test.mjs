@@ -17,7 +17,7 @@ const { Scoreboard, DiffTimeline, PlayerPanel, BreakCard, OutcomeChips, Selectio
 const { default: NbaCourt } = await import("./NbaCourt.tsx");
 const { fixtureGate } = await import("./nba-gate.ts");
 const { default: NbaTheaterIsland } = await import("./NbaTheaterIsland.tsx");
-const { loadNbaTheater, NBA_FIXTURE_SOURCE } = await import("../../../lib/simulation-theater/nba/loader.mjs");
+const { loadNbaTheater, NBA_FIXTURE_SOURCE, NBA_REAL_TEST_FIXTURE_SOURCE } = await import("../../../lib/simulation-theater/nba/loader.mjs");
 const { compileTimeline, stateAt } = await import("../../../lib/simulation-theater/nba/timeline.mjs");
 const { FIXTURE_BANNER } = await import("../../../lib/simulation-theater/nba/adapter-nba-sim-v1.mjs");
 const LABELS = await import("../../../lib/simulation-theater/nba/labels.mjs");
@@ -27,7 +27,7 @@ const { nbaBoxScore, NBA_BOX_WATERMARK } = await import("../../../lib/simulation
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
 const IDS = ["401909088", "401909089", "401909090"];
-const LOADS = IDS.map((id) => loadNbaTheater(REPO, id)); // real nba-sim-v1-coherent output (verified dev copy)
+const LOADS = IDS.map((id) => loadNbaTheater(REPO, id, { source: NBA_REAL_TEST_FIXTURE_SOURCE })); // real nba-sim-v1-coherent output (verified copy; TEST FIXTURE since the route reads the committed receipt)
 const FIX_LOADS = IDS.map((id) => loadNbaTheater(REPO, id, { source: NBA_FIXTURE_SOURCE })); // synthetic test fixture
 const html = (el) => renderToStaticMarkup(el);
 const text = (h) => h.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
@@ -311,7 +311,13 @@ test("box score dialog: role=dialog, aria-modal, labelled and described; Close b
   const r = nbaBoxScore(s, load.manifest);
   const open = html(React.createElement(NbaBoxScoreDialog, { open: true, onClose: () => {}, result: r, palette: load.palettes.team, compact: false, runKey: "k" }));
   assert.match(open, /role="dialog" aria-modal="true" aria-labelledby="[^"]+-title" aria-describedby="[^"]+-wm" data-nba-boxscore=""/);
-  assert.match(open, /<h2 id="[^"]+-title" class="nba-bx-title">Projected box score<\/h2>/);
+  assert.match(open, /<h2 id="[^"]+-title" class="nba-bx-title">Projected box score · official representative simulation<\/h2>/);
+  // a what-if run's dialog is never "projected": hypothetical title, banner and watermark (consistency 2026-10-20)
+  const wi = html(React.createElement(NbaBoxScoreDialog, { open: true, onClose: () => {}, result: r, palette: load.palettes.team, compact: false, runKey: "k", manifest: load.manifest, hypothetical: true }));
+  assert.match(wi, /<h2 id="[^"]+-title" class="nba-bx-title">What-if box score · hypothetical<\/h2>/);
+  assert.match(text(wi), /Hypothetical scenario — not the forecast/);
+  assert.match(text(wi), /HYPOTHETICAL SCENARIO · NOT THE FORECAST/);
+  assert.doesNotMatch(wi, /projected/i, "no \"projected\" anywhere in a what-if box score, captions included");
   assert.match(open, /<button type="button" class="st-btn nba-bx-close" aria-keyshortcuts="Escape">Close<\/button>/);
   assert.match(text(open), /SIMULATED FINAL\/OT · OKC @ SA · run #245/);
   const sheet = html(React.createElement(NbaBoxScoreDialog, { open: true, onClose: () => {}, result: r, palette: load.palettes.team, compact: true, runKey: "k" }));

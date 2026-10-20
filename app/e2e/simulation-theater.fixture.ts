@@ -8,11 +8,16 @@
  * from the compiled timeline. All instants are multiples of 100 ms, the seek bar's step, so the URL hook (dev route)
  * and the seek bar (public route) land on identical states.
  *
+ * DEFAULT RUN (Cross-Product Prediction Consistency, 2026-10-20): the page opens on the OFFICIAL REPRESENTATIVE
+ * SIMULATION — the stored run closest to the official forecast of record (manifest.representative, public-theater.mjs
+ * defaultChip) — so `run` is that run, derived the same way; `whatIfRuns` are the other valid stored runs.
+ *
  * Node side only (imported by the spec, never by the app).
  */
 import path from "node:path";
 
 import { loadTheater } from "../src/lib/simulation-theater/loader.mjs";
+import { defaultChip } from "../src/lib/simulation-theater/public-theater.mjs";
 import { compileTimeline } from "../src/lib/simulation-theater/timeline.mjs";
 import { CAMERA_POLICY, REVIEW_ZOOM_CAPS, cameraAt } from "../src/lib/simulation-theater/camera.mjs";
 import { driveSituation } from "../src/lib/simulation-theater/broadcast.mjs";
@@ -53,7 +58,8 @@ export function deriveFixture(eventId: string, repoRoot = path.resolve(process.c
   const load = loadTheater(repoRoot, eventId);
   if (!load.ok || !load.manifest) throw new Error(`theater e2e: ${eventId} has no usable receipt of record (${load.error?.code})`);
   const m = load.manifest as unknown as Manifest;
-  const chip = m.chips.find((c) => c.available)!;
+  const chip = defaultChip(load.manifest) as Chip;
+  const rep = (load.manifest as unknown as { representative?: { state: string; officialRunIndex: number | null; distance: number | null } }).representative ?? null;
   const s = m.samples[chip.sampleIndex] as Sample;
   const c = compileTimeline(s) as Compiled;
   const cr = compileTimeline(s, { reducedMotion: true }) as Compiled;
@@ -115,8 +121,13 @@ export function deriveFixture(eventId: string, repoRoot = path.resolve(process.c
     file: load.file as string,
     teams: m.teams as { home: { abbr: string }; away: { abbr: string } },
     runCount: m.runCount as number,
-    /** the run the page opens on (first available chip) */
+    /** the run the page opens on: the official representative (else the first available chip, then a what-if) */
     run: s.runIndex,
+    /** the official representative's runIndex and distance (null without an official forecast) */
+    officialRun: rep?.state === "SELECTED" ? rep.officialRunIndex : null,
+    officialDistance: rep?.state === "SELECTED" ? rep.distance : null,
+    /** every other valid stored run: a hypothetical what-if */
+    whatIfRuns: m.chips.filter((x) => x.available && x.runIndex !== (rep?.state === "SELECTED" ? rep.officialRunIndex : null)).map((x) => x.runIndex) as number[],
     runs: m.chips.filter((x) => x.available).map((x) => x.runIndex) as number[],
     chipIndexOf: (run: number) => m.chips.findIndex((x) => x.runIndex === run),
     crowdedRun: crowded.runIndex,

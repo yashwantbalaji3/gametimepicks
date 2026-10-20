@@ -17,6 +17,11 @@ export const NBA_PRIVATE_MARKERS = Object.freeze([
   "experimental-v1", // the artifact family directory
   "c4612dc4e8ab924e6b1f1fc8af9c713d1494f5cf731c6719dbb34f9c8adcc261", // dev copy r2 (nba-sim-v1-real-2026-10-20-r2.json)
   "45df05d89d2d0eedd9214f5c5dfeb038aaf5740ba881b234fe660145e2cc3e11", // the superseded pre-rounding-fix dev copy
+  // The committed private receipt the dev route reads since 2026-10-20 (loader.mjs NBA_THEATER_SOURCE): the file's bytes
+  // at its first pre-tip window (a49d5bfaa9) and the write-once payloadSha256 of 401909088's receipt stamp. The path
+  // markers above already cover every later version of the file.
+  "06d14473c547d2194189b44b40862809d82ce3544487f9673311366a76f13984", // experimental-v1/forecasts/2026-10-20.json @ a49d5bfaa9
+  "c130921d643a7167734ef4b4eb1b4b029f6e5bce194fec4f1ebadad9497d8c70", // 401909088 receipt payloadSha256
   // Projected Final Box Score (Lane A-NBA 2026-10-20). ASCII-only, so a minifier's escaping cannot hide them, and unique
   // to the NBA box score (an NFL box score never says PRIVATE CANDIDATE MODEL, never carries these attributes):
   "nba-box-score@", // box-score.mjs NBA_BOX_SCORE_SCHEMA

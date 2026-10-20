@@ -8,6 +8,7 @@ import {
   KIND_LABEL, LABELS, PERIOD_LONG, RUNOFF_NOTE_TEXT, fieldPosition, fmtDuration, fmtPeriodClock, plural,
 } from "@/lib/simulation-theater/format.mjs";
 import { SCENE_POLICY } from "@/lib/simulation-theater/timeline.mjs";
+import { OfficialForecastCard } from "./RepresentativeParts";
 
 function Hist({ hist, mark, label }: { hist: { value: number; probability: number }[]; mark: number; label: string }) {
   const max = Math.max(...hist.map((h) => h.probability), 1e-6);
@@ -59,17 +60,20 @@ export function DistributionPanel({ manifest, sample }: { manifest: TheaterManif
   const teams = manifest.teams;
   const fin = sample.finalScore!;
   const b = manifest.batch;
+  // The OFFICIAL forecast comes first (Cross-Product Prediction Consistency, 2026-10-20): the drive engine's batch below
+  // disagrees with it, so its win shares are labelled as the engine's own counts, never as the forecast.
   return (
     <>
-      <p className="st-eyebrow" style={{ margin: 0 }}>{b.runCount.toLocaleString("en-US")} runs · this receipt · experimental engine · not the forecast</p>
+      <OfficialForecastCard manifest={manifest} teams={teams} />
+      <p className="st-eyebrow" style={{ margin: "12px 0 0" }}>Drive-engine batch · {b.runCount.toLocaleString("en-US")} runs · this receipt · experimental engine · not the forecast</p>
       <p style={{ margin: "10px 0 0" }}>Total points (this run: <b>{fin.home + fin.away}</b>, highlighted)</p>
       <Hist hist={b.totalHistogram} mark={fin.home + fin.away} label={`Total points over ${b.runCount} runs; this run ${fin.home + fin.away}`} />
       <p style={{ margin: "12px 0 0" }}>Home margin, {teams.home.abbr} minus {teams.away.abbr} (this run: <b>{fin.home - fin.away}</b>)</p>
       <Hist hist={b.marginHistogram} mark={fin.home - fin.away} label={`Home margin over ${b.runCount} runs; this run ${fin.home - fin.away}`} />
       {b.winProbability ? (
         <dl className="st-kv">
-          <dt>{teams.home.abbr} won</dt><dd>{(b.winProbability.home * 100).toFixed(1)}% of runs</dd>
-          <dt>{teams.away.abbr} won</dt><dd>{(b.winProbability.away * 100).toFixed(1)}% of runs</dd>
+          <dt>{teams.home.abbr} won (engine batch, not the forecast)</dt><dd>{(b.winProbability.home * 100).toFixed(1)}% of runs</dd>
+          <dt>{teams.away.abbr} won (engine batch, not the forecast)</dt><dd>{(b.winProbability.away * 100).toFixed(1)}% of runs</dd>
           <dt>Overtime</dt><dd>{b.overtimeProbability == null ? "—" : `${(b.overtimeProbability * 100).toFixed(1)}% of runs`}</dd>
         </dl>
       ) : null}
@@ -93,6 +97,8 @@ export function EvidencePanel({ manifest, sample }: { manifest: TheaterManifest;
         <dt>Input cutoff (availability snapshot)</dt><dd>{manifest.inputCutoff ?? "not stored"}</dd>
         <dt>Params sha256</dt><dd>{manifest.paramsSha256 ?? "—"}</dd>
         <dt>Forecast receipt (input reference)</dt><dd>{manifest.forecastRef ?? "—"} · hash not stored</dd>
+        <dt>Official forecast (default-run target)</dt><dd data-st-official-source="">{manifest.representative?.official ? `${manifest.representative.official.source ?? "—"} · snapshot ${manifest.representative.snapshotId?.slice(0, 12) ?? "—"}…` : `none (${manifest.representative?.refusal?.code ?? "NO_OFFICIAL"})`}</dd>
+        <dt>Default-run rule</dt><dd>{manifest.representative ? `${manifest.representative.rule}: the stored run closest to the official forecast; every other run is a hypothetical what-if` : "—"}</dd>
         <dt>Generated · kickoff</dt><dd>{manifest.generatedAt} · {manifest.eventStart}</dd>
         <dt>Scene</dt><dd>{SCENE_POLICY.version} · scene seed {sample.scene.sceneSeed} (cosmetic lane only; outcomes never depend on it)</dd>
         <dt>Orientation</dt><dd style={{ fontFamily: "var(--font-display)" }}>{LABELS.orientation}</dd>

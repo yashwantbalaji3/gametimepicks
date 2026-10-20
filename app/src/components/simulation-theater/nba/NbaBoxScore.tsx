@@ -14,8 +14,12 @@
  */
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
-import { NOT_SIMULATED_REASON, fmtBoxMinutes, nextSort, sortBoxRows } from "@/lib/simulation-theater/nba/box-score.mjs";
-import type { NbaPalette, NbaSide } from "./nba-types";
+import { NBA_BOX_WATERMARK_WHAT_IF, NOT_SIMULATED_REASON, fmtBoxMinutes, nextSort, sortBoxRows } from "@/lib/simulation-theater/nba/box-score.mjs";
+import {
+  NBA_PLAYER_EXPECTATION_NOTE, OFFICIAL_BOX_TITLE, RECONCILIATION_NOTE, WHAT_IF_BANNER, WHAT_IF_BOX_TITLE, fmtExpectation, fmtPct, playerExpectation,
+} from "@/lib/simulation-theater/representative-labels.mjs";
+import { OfficialComparison } from "../RepresentativeParts";
+import type { NbaManifest, NbaPalette, NbaSide } from "./nba-types";
 import { teamStyle } from "./nba-parts";
 import { TheaterLayer } from "../BottomSheet";
 import { NBA_THEATER_VARS } from "./nba-theater-css";
@@ -50,8 +54,16 @@ export const DEFAULT_BOX_SORT: BoxSort = { key: "minutes", dir: "desc" };
 const n = (v: number | null | undefined) => (v == null ? "—" : v.toLocaleString("en-US"));
 const cell = (k: string, v: unknown) => (k === "minutes" ? fmtBoxMinutes(v as number) : String(v));
 const ariaSort = (sort: BoxSort, key: string) => (sort.key === key ? (sort.dir === "desc" ? "descending" : "ascending") : undefined);
-
-function TeamTable({ team, box, palette, sort, onSort, idBase }: { team: TeamBox; box: NbaBox; palette: NbaPalette; sort: BoxSort; onSort?: (key: string) => void; idBase: string }) {
+/** The families the official receipt carries a per-player expectation for (official-snapshot NBA_PLAYER_FAMILIES). */
+const OFFICIAL_FAMILIES = new Set(["pts", "reb", "ast", "threePm"]);
+type PlayerExp = { families: Record<string, { expected: number | null; median: number | null }>; playRate: number | null } | null;
+const expOf = (manifest: NbaManifest | null | undefined, id: string | null) => (manifest ? (playerExpectation(manifest, id) as PlayerExp) : null);
+/** The official average beside a modeled stat (never rounded into the run's whole number). */
+function OffExp({ e, k }: { e: PlayerExp; k: string }) {
+  const v = OFFICIAL_FAMILIES.has(k) ? e?.families?.[k]?.expected : null;
+  return v == null ? null : <span className="st-offexp" data-nba-official-exp={k}><span className="st-sr">official average </span>avg {fmtExpectation(v)}</span>;
+}
+function TeamTable({ team, box, palette, sort, onSort, idBase, manifest, hypothetical = false }: { team: TeamBox; box: NbaBox; palette: NbaPalette; sort: BoxSort; onSort?: (key: string) => void; idBase: string; manifest?: NbaManifest | null; hypothetical?: boolean }) {
   const rows = sortBoxRows(team.rows, sort) as Row[];
   const cols = box.columns;
   const head = `${idBase}-${team.side}-h`;
@@ -66,7 +78,7 @@ function TeamTable({ team, box, palette, sort, onSort, idBase }: { team: TeamBox
       <div className="nba-bx-scroll" role="region" aria-labelledby={head} tabIndex={0}>
         <table className="nba-bx-table">
           <caption className="st-sr">
-            {team.name}, projected player lines of simulated run #{box.header.runIndex}{sortCol ? `, sorted by ${sortCol.title.toLowerCase()} ${sort.dir === "desc" ? "descending" : "ascending"}` : ""}. Every column is modeled engine output.
+            {team.name}, {hypothetical ? "hypothetical what-if player lines" : "projected player lines"} of simulated run #{box.header.runIndex}{sortCol ? `, sorted by ${sortCol.title.toLowerCase()} ${sort.dir === "desc" ? "descending" : "ascending"}` : ""}. Every column is modeled engine output.
           </caption>
           <thead>
             <tr>
@@ -83,16 +95,22 @@ function TeamTable({ team, box, palette, sort, onSort, idBase }: { team: TeamBox
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.providerAthleteId ?? r.name} className={r.status === "dnp" ? "is-dnp" : undefined} data-status={r.status}>
-                <th scope="row" className="nba-bx-name"><span className="nba-bx-pname">{r.name}</span></th>
-                {r.status === "dnp" ? (
-                  <td colSpan={cols.length} className="nba-bx-dnp"><abbr title="Did not play: 0 modeled minutes in this run">DNP</abbr> · 0 modeled minutes in this run</td>
-                ) : (
-                  cols.map((c) => <td key={c.key} className={c.key === "pts" ? "is-pts" : undefined}>{cell(c.key, r[c.key])}</td>)
-                )}
-              </tr>
-            ))}
+            {rows.map((r) => {
+              const e = expOf(manifest, r.providerAthleteId);
+              return (
+                <tr key={r.providerAthleteId ?? r.name} className={r.status === "dnp" ? "is-dnp" : undefined} data-status={r.status}>
+                  <th scope="row" className="nba-bx-name"><span className="nba-bx-pname">{r.name}</span></th>
+                  {r.status === "dnp" ? (
+                    <td colSpan={cols.length} className="nba-bx-dnp">
+                      <abbr title="Did not play: 0 modeled minutes in this run">DNP</abbr> · 0 modeled minutes in this run
+                      {e?.families?.pts?.expected != null ? <span className="st-offexp" data-nba-official-exp="dnp">official average per game played: {fmtExpectation(e.families.pts.expected)} pts{e.playRate != null ? ` · plays in ${fmtPct(e.playRate)} of simulated games` : ""}</span> : null}
+                    </td>
+                  ) : (
+                    cols.map((c) => <td key={c.key} className={c.key === "pts" ? "is-pts" : undefined}>{cell(c.key, r[c.key])}<OffExp e={e} k={c.key} /></td>)
+                  )}
+                </tr>
+              );
+            })}
             {team.notSimulated.map((r) => (
               <tr key={`ns-${r.providerAthleteId ?? r.name}`} className="is-ns" data-status="not-simulated">
                 <th scope="row" className="nba-bx-name"><span className="nba-bx-pname">{r.name}</span></th>
@@ -103,7 +121,14 @@ function TeamTable({ team, box, palette, sort, onSort, idBase }: { team: TeamBox
           <tfoot>
             <tr>
               <th scope="row" className="nba-bx-name">Team</th>
-              {cols.map((c) => <td key={c.key} className={c.key === "pts" ? "is-pts" : undefined}>{cell(c.key, team.totals[c.key])}</td>)}
+              {cols.map((c) => (
+                <td key={c.key} className={c.key === "pts" ? "is-pts" : undefined}>
+                  {cell(c.key, team.totals[c.key])}
+                  {c.key === "pts" && manifest?.representative?.official?.team?.[team.side]?.expected != null
+                    ? <span className="st-offexp" data-nba-official-exp="team"><span className="st-sr">official expected points </span>avg {fmtExpectation(manifest.representative.official.team[team.side]!.expected)}</span>
+                    : null}
+                </td>
+              ))}
             </tr>
           </tfoot>
         </table>
@@ -118,8 +143,12 @@ function LeaderCell({ l, box }: { l: Leader; box: NbaBox }) {
 }
 
 /** The box score's content (pure). `result` is nbaBoxScore()'s return value. */
-export function BoxScoreBody({ result, palette, sort = DEFAULT_BOX_SORT, onSort, idBase }: {
+export function BoxScoreBody({ result, palette, sort = DEFAULT_BOX_SORT, onSort, idBase, manifest = null, hypothetical = false }: {
   result: NbaBoxResult | null; palette: NbaPalette; sort?: BoxSort; onSort?: (key: string) => void; idBase: string;
+  /** the manifest with `representative`: official expectations beside the run's numbers */
+  manifest?: NbaManifest | null;
+  /** a what-if run: hypothetical banner and watermark, never "projected" */
+  hypothetical?: boolean;
 }) {
   if (!result || !result.ok || !result.box) {
     return (
@@ -133,9 +162,11 @@ export function BoxScoreBody({ result, palette, sort = DEFAULT_BOX_SORT, onSort,
   const h = box.header;
   const kinds = ["pts", "reb", "ast"].filter((k) => box.leaders.game[k] !== undefined);
   const LABEL: Record<string, string> = { pts: "Top scorer", reb: "Top rebounder", ast: "Top assister" };
+  const watermark = hypothetical ? NBA_BOX_WATERMARK_WHAT_IF : box.watermark;
   return (
-    <div className="nba-bx" data-nba-boxscore-kind={box.kind}>
-      <p className="nba-bx-watermark" role="note" id={`${idBase}-wm`} data-nba-boxscore-watermark="">{box.watermark}</p>
+    <div className="nba-bx" data-nba-boxscore-kind={box.kind} data-nba-boxscore-role={hypothetical ? "what-if" : "official"}>
+      {hypothetical ? <p className="st-whatif-banner" data-st-whatif-banner="">{WHAT_IF_BANNER}</p> : null}
+      <p className="nba-bx-watermark" role="note" id={`${idBase}-wm`} data-nba-boxscore-watermark="">{watermark}</p>
       <div className="nba-bx-summary">
         <div className="nba-bx-final" role="group" aria-label={`${h.status}: ${h.away.abbr} ${h.final.away}, ${h.home.abbr} ${h.final.home}`}>
           {SIDES.map((side) => (
@@ -170,12 +201,15 @@ export function BoxScoreBody({ result, palette, sort = DEFAULT_BOX_SORT, onSort,
         </table>
       </div>
 
+      {manifest ? <OfficialComparison manifest={manifest} final={h.final} teams={h} hypothetical={hypothetical} /> : null}
+
       <p className="nba-fine nba-bx-legend">
         Every column is <b>MODELED</b>: this run&apos;s game totals from the engine. MIN to 0.01 (each team sums to exactly {box.teamMinutes}).
         DNP = simulated but 0 minutes in this run (not the same as 0 points). Rows start by modeled minutes; the run records no starters.
       </p>
+      {manifest?.representative?.official ? <p className="nba-fine nba-bx-legend" data-nba-official-note="">{NBA_PLAYER_EXPECTATION_NOTE} {RECONCILIATION_NOTE}</p> : null}
       <div className="nba-bx-teams">
-        {SIDES.map((side) => <TeamTable key={side} team={box.teams[side]} box={box} palette={palette} sort={sort} onSort={onSort} idBase={idBase} />)}
+        {SIDES.map((side) => <TeamTable key={side} team={box.teams[side]} box={box} palette={palette} sort={sort} onSort={onSort} idBase={idBase} manifest={manifest} hypothetical={hypothetical} />)}
       </div>
 
       <table className="nba-leaders nba-bx-leaders">
@@ -199,14 +233,15 @@ export function BoxScoreBody({ result, palette, sort = DEFAULT_BOX_SORT, onSort,
         </ul>
       </section>
       <p className="nba-fine nba-bx-prov" data-nba-boxscore-provenance="">{box.provenance} · checked: {box.invariantsChecked.join(", ")}</p>
-      <p className="nba-bx-watermark is-foot" aria-hidden="true">{box.watermark}</p>
+      <p className="nba-bx-watermark is-foot" aria-hidden="true">{watermark}</p>
     </div>
   );
 }
 
 /** The dialog / sheet. Owns the sort; resets it when the run changes. Body scroll is locked while open. */
-export default function NbaBoxScoreDialog({ open, onClose, result, palette, compact, runKey }: {
+export default function NbaBoxScoreDialog({ open, onClose, result, palette, compact, runKey, manifest = null, hypothetical = false }: {
   open: boolean; onClose: () => void; result: NbaBoxResult | null; palette: NbaPalette; compact: boolean; runKey: string;
+  manifest?: NbaManifest | null; hypothetical?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
@@ -242,12 +277,12 @@ export default function NbaBoxScoreDialog({ open, onClose, result, palette, comp
         <header className="nba-bx-head">
           <div>
             <span className="nba-card-eyebrow">{h ? `${h.status} · ${h.matchup} · run #${n(h.runIndex)}` : "Simulated"}</span>
-            <h2 id={`${uid}-title`} className="nba-bx-title">Projected box score</h2>
+            <h2 id={`${uid}-title`} className="nba-bx-title">{hypothetical ? WHAT_IF_BOX_TITLE : OFFICIAL_BOX_TITLE}</h2>
           </div>
           <button type="button" className="st-btn nba-bx-close" onClick={close} aria-keyshortcuts="Escape">Close</button>
         </header>
         <div className="nba-bx-body">
-          <BoxScoreBody result={result} palette={palette} sort={sort} onSort={onSort} idBase={uid} />
+          <BoxScoreBody result={result} palette={palette} sort={sort} onSort={onSort} idBase={uid} manifest={manifest} hypothetical={hypothetical} />
         </div>
       </div>
     </div>

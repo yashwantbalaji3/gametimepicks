@@ -33,6 +33,8 @@ import { SPEEDS, createTransport, transport } from "@/lib/simulation-theater/tra
 import { compileTimeline, fmtGameClock, stateAt } from "@/lib/simulation-theater/nba/timeline.mjs";
 import { defaultSampleIndex } from "@/lib/simulation-theater/nba/labels.mjs";
 import { nbaBoxScore } from "@/lib/simulation-theater/nba/box-score.mjs";
+import { runRole } from "@/lib/simulation-theater/representative-labels.mjs";
+import { OfficialForecastCard, RoleTag, RunRoleNotice } from "../RepresentativeParts";
 
 type Tp = { state: string; t: number; tEnd: number; speed: number; driveStarts: number[]; reason: string | null };
 
@@ -92,6 +94,8 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
   const [ready, setReady] = useState(false);
   useEffect(() => { setReady(true); }, []);
   const box = useMemo(() => (sample?.validation.ok ? (nbaBoxScore(sample, manifest) as NbaBoxResult) : null), [sample, manifest]);
+  // official representative vs what-if (manifest.representative): a what-if is labelled hypothetical everywhere
+  const hypothetical = sample ? runRole(manifest, sample.runIndex, sample.title).hypothetical : true;
   const [rulesOpen, setRulesOpen] = useState(false);
   const [playersOpen, setPlayersOpen] = useState(false);
   const [dismissed, setDismissed] = useState<string | null>(null);
@@ -202,6 +206,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
       <PrivateCandidateBanner />
       {manifest.fixture ? <FixtureBanner text={FIXTURE_BANNER} note={manifest.fixtureNote} /> : null}
       <DisclosureBanner manifest={manifest} sample={sample} />
+      <OfficialForecastCard manifest={manifest} teams={teams} />
       {devHooks ? (
         <div className="st-devbar nba-devbar">
           <span className="st-devtag">dev prototype</span>
@@ -214,7 +219,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
       <section className="nba-outcomes" aria-label="Representative outcomes">
         <div className="nba-outcomes-head">
           <span className="nba-eyebrow">Representative outcomes · real draws from this run</span>
-          <button type="button" className="st-btn nba-boxbtn" aria-haspopup="dialog" disabled={!box} onClick={openBox}>Box score</button>
+          <button type="button" className="st-btn nba-boxbtn" aria-haspopup="dialog" disabled={!box} onClick={openBox}>{hypothetical ? "What-if box score (hypothetical)" : "Box score"}</button>
           {compact ? null : (
             <button type="button" className="nba-linkbtn" aria-expanded={rulesOpen} aria-controls={`${uid}-rules`} onClick={() => setRulesOpen((v) => !v)}>
               {rulesOpen ? "Hide" : "Show"} run numbers and selection rules
@@ -223,6 +228,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
         </div>
         {compact ? (
           <button type="button" className="st-samplebtn nba-samplebtn" aria-haspopup="dialog" onClick={() => { act("PAUSE"); setSheet("outcomes"); }}>
+            {sample ? <RoleTag manifest={manifest} runIndex={sample.runIndex} /> : null}
             <span className="st-samplebtn-k">{sample?.title ?? "—"}{sample?.validation.ok ? ` · ${teams.away.abbr} ${sample.final.away}–${sample.final.home} ${teams.home.abbr}` : ""}</span>
             <span className="st-samplebtn-run">#{sample?.runIndex}</span>
             <span className="st-caret" aria-hidden="true">▾</span>
@@ -231,6 +237,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
           <OutcomeChips manifest={manifest} selected={sampleIndex} onSelect={selectSample} idBase={uid} />
         )}
         {!compact && rulesOpen ? <div id={`${uid}-rules`} className="nba-rules-box"><SelectionRules manifest={manifest} /></div> : null}
+        {sample ? <RunRoleNotice manifest={manifest} runIndex={sample.runIndex} kindTitle={sample.title} /> : null}
       </section>
 
       {!compiled || !frame || !tp || !sample ? (
@@ -323,7 +330,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
         <p className="nba-fine" style={{ margin: "0 0 8px" }}>Each is one real draw from this run, picked by the rule shown.</p>
         <OutcomeChips manifest={manifest} selected={sampleIndex} onSelect={selectSample} idBase={`${uid}-s`} vertical />
       </BottomSheet>
-      <NbaBoxScoreDialog open={sheet === "box"} onClose={() => setSheet(null)} result={box} palette={palette} compact={compact} runKey={`${sampleIndex}-${sample?.runIndex}`} />
+      <NbaBoxScoreDialog open={sheet === "box"} onClose={() => setSheet(null)} result={box} palette={palette} compact={compact} runKey={`${sampleIndex}-${sample?.runIndex}`} manifest={manifest} hypothetical={hypothetical} />
       <div className="st-sr" aria-live="polite" aria-atomic="true">{announce}</div>
     </div>
   );

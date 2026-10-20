@@ -47,6 +47,8 @@ import { timelineLayout } from "@/lib/simulation-theater/timeline-layout.mjs";
 import { CAMERA_POLICY, cameraAt, cameraScreenX, cameraTransform, zoomCapFor } from "@/lib/simulation-theater/camera.mjs";
 import { breakCard, driveEndLowerThird, driveSituation, periodCard, progressYardsText, rolloverCard } from "@/lib/simulation-theater/broadcast.mjs";
 import { MARGIN_X } from "@/lib/simulation-theater/field-geometry.mjs";
+import { officialRunIndex, runRole } from "@/lib/simulation-theater/representative-labels.mjs";
+import { OfficialForecastCard, RoleTag, RunRoleNotice } from "./RepresentativeParts";
 
 type Compiled = {
   keyframes: { driveIdx: number; phase: string; t0: number; dur: number; breakKind?: string }[];
@@ -388,10 +390,12 @@ type Brk = NonNullable<ReturnType<typeof breakCard>>;
  * It is a labelled region, never a live region (the live region already says "Halftime." / "Final."), and it never takes
  * focus: the close button (44 px) or Escape hides it, and focus returns to Play only if it was inside the card.
  */
-function BreakCard({ brk, palette, onDismiss, idBase, variant, cardRef, onBoxScore }: {
+function BreakCard({ brk, palette, onDismiss, idBase, variant, cardRef, onBoxScore, hypothetical = false }: {
   brk: Brk; palette: Palette; onDismiss: () => void; idBase: string; variant: "overlay" | "sheet"; cardRef: React.RefObject<HTMLElement>;
-  /** FINAL only: the card offers the projected box score of this run */
+  /** FINAL only: the card offers the box score of this run (projected for the official representative, what-if otherwise) */
   onBoxScore?: () => void;
+  /** a what-if run: its box score is never called "projected" */
+  hypothetical?: boolean;
 }) {
   if (!brk.rows) return null;
   const team = palette.mode === "team";
@@ -400,7 +404,9 @@ function BreakCard({ brk, palette, onDismiss, idBase, variant, cardRef, onBoxSco
   // "View projected box score"), so the sheet gains no row and keeps the field above it fully visible.
   const boxBtn = brk.kind === "FINAL" && onBoxScore ? (
     <button type="button" className="st-btn stbx-open" aria-haspopup="dialog" data-stbx-open="final" onClick={onBoxScore}>
-      {variant === "sheet" ? <><span className="st-sr">View projected </span>Box score</> : "View projected box score"}
+      {hypothetical
+        ? (variant === "sheet" ? <><span className="st-sr">View hypothetical what-if </span>Box score</> : "View what-if box score (hypothetical)")
+        : (variant === "sheet" ? <><span className="st-sr">View projected </span>Box score</> : "View projected box score")}
     </button>
   ) : null;
   const headAct = variant === "sheet" && boxBtn;
@@ -502,7 +508,9 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
   const teams = manifest.teams;
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const hook = useMemo(() => readDevHook(devHooks), [devHooks]);
-  const firstOk = manifest.chips.find((c) => c.available)?.sampleIndex ?? 0;
+  // default: the OFFICIAL REPRESENTATIVE SIMULATION (manifest.representative), else the first valid run (a what-if)
+  const offRun = officialRunIndex(manifest);
+  const firstOk = (offRun != null ? manifest.chips.find((c) => c.available && c.runIndex === offRun)?.sampleIndex : undefined) ?? manifest.chips.find((c) => c.available)?.sampleIndex ?? 0;
   const [sampleIndex, setSampleIndex] = useState(() => {
     if (hook.run != null) {
       const c = manifest.chips.find((x) => x.runIndex === hook.run && x.available);
@@ -845,6 +853,8 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
   const playing = ctl.state === "PLAYING";
   const speedCycle = () => act("SPEED", { speed: SPEEDS[(SPEEDS.indexOf(ctl.speed) + 1) % SPEEDS.length] });
   const currentChip = manifest.chips.find((c) => c.sampleIndex === sampleIndex);
+  const role = sample ? runRole(manifest, sample.runIndex, chipTitle(sample.kinds)) : null;
+  const hypothetical = role ? role.hypothetical : true;
 
   // score bug inputs
   const prevScore = useRef<{ home: number; away: number } | null>(null);
@@ -961,6 +971,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
             onClick={() => { selectSample(c.sampleIndex); if (vertical) setSheet(null); }}
           >
             <span className="st-dot" aria-hidden="true" />
+            <RoleTag manifest={manifest} runIndex={c.runIndex} />
             <span>{chipTitle(c.kinds)}</span>
             {s.finalScore ? <span className="st-chip-score">{finalLine(s.finalScore, teams)}</span> : null}
             {!c.available ? <span className="st-chip-score">unavailable</span> : null}
@@ -1015,6 +1026,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
       data-st-camera={effCam}
     >
       <Banner manifest={manifest} sample={sample ?? null} />
+      <OfficialForecastCard manifest={manifest} teams={teams} />
       {/* integration (2026-10-19): the development bar belongs to the dev route only; the public section never shows it */}
       {devHooks ? (
         <div className="st-devbar">
@@ -1033,6 +1045,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
         <div className="st-samples-head"><span id={`${uid}-samples`}>Representative runs</span><span className="st-samplelabel">{LABELS.sample}</span></div>
         {compact ? (
           <button type="button" className="st-samplebtn" aria-haspopup="dialog" onClick={() => openSheet("samples")}>
+            {sample ? <RoleTag manifest={manifest} runIndex={sample.runIndex} /> : null}
             <span className="st-samplebtn-k">{currentChip ? chipTitle(currentChip.kinds) : "Run"}</span>
             {sample?.finalScore ? <span className="st-chip-score">{finalLine(sample.finalScore, teams)}</span> : null}
             <span className="st-samplebtn-run">#{sample?.runIndex}</span>
@@ -1042,6 +1055,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
         ) : (
           <>{chipList(false)}{ruleLine}</>
         )}
+        {sample ? <RunRoleNotice manifest={manifest} runIndex={sample.runIndex} kindTitle={chipTitle(sample.kinds)} /> : null}
       </div>
 
       {!sample || !sample.validation.ok || !compiled ? (
@@ -1125,7 +1139,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                   />
                   <div className="st-dimmer" aria-hidden="true" />
                   {f && ev ? <BroadcastStrips cards={cards} palette={palette} /> : null}
-                  {breakCardShown && !compact ? <BreakCard brk={breakCardShown} palette={palette} onDismiss={dismissCard} idBase={uid} variant="overlay" cardRef={cardRef} onBoxScore={openBox} /> : null}
+                  {breakCardShown && !compact ? <BreakCard brk={breakCardShown} palette={palette} onDismiss={dismissCard} idBase={uid} variant="overlay" cardRef={cardRef} onBoxScore={openBox} hypothetical={hypothetical} /> : null}
                   {scoringNow && ev ? <ScoreFlash ev={ev} teams={teams} palette={palette} /> : null}
                   {f && ev ? <LowerThird f={f} ev={ev} teams={teams} sample={sample} scoring={scoringNow} palette={palette} /> : null}
                 </div>
@@ -1165,7 +1179,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
                     <span className="st-ptime"><span className="st-ptime-l">Playback</span> <span ref={(el) => { els.current.ptime = el; }} /></span>
                   </div>
                   {/* the whole run's projected box score, any time (no need to watch to the end) */}
-                  <button type="button" className="st-btn stbx-open" aria-haspopup="dialog" data-stbx-open="transport" onClick={() => openSheet("box")}>Projected box score</button>
+                  <button type="button" className="st-btn stbx-open" aria-haspopup="dialog" data-stbx-open="transport" onClick={() => openSheet("box")}>{hypothetical ? "What-if box score (hypothetical)" : "Projected box score"}</button>
                 </div>
                 <DriveTimeline sample={sample} compiled={compiled} palette={palette} teams={teams} current={f?.driveIdx ?? 0} onSeekDrive={seekDrive} cursorRef={setCursorEl} />
                 <details className="st-keys">
@@ -1195,7 +1209,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
             </div>
             {/* phones: the card is a sheet fixed to the viewport bottom, rendered outside the stage (a size container, which
                 would otherwise be its containing block) */}
-            {breakCardShown && compact ? <BreakCard brk={breakCardShown} palette={palette} onDismiss={dismissCard} idBase={uid} variant="sheet" cardRef={cardRef} onBoxScore={openBox} /> : null}
+            {breakCardShown && compact ? <BreakCard brk={breakCardShown} palette={palette} onDismiss={dismissCard} idBase={uid} variant="sheet" cardRef={cardRef} onBoxScore={openBox} hypothetical={hypothetical} /> : null}
             {compact ? null : <SidePanel manifest={manifest} sample={sample} ev={ev} onSeekDrive={seekDrive} current={f?.driveIdx ?? 0} />}
           </div>
 
@@ -1203,7 +1217,7 @@ export default function TheaterIsland({ pack, devHooks = false }: { pack: Pack; 
             <section className="st-box" aria-label="Linescore">
               <h2>Linescore · this run</h2>
               <Linescore sample={sample} teams={teams} />
-              <p className="st-eyebrow" style={{ margin: "8px 0 0" }}>Team totals: derived from this run&apos;s drives (projected box score) · player lines: not recorded in nfl-drive-run@1</p>
+              <p className="st-eyebrow" style={{ margin: "8px 0 0" }}>Team totals: derived from this run&apos;s drives ({hypothetical ? "what-if box score, hypothetical" : "projected box score"}) · player lines: not recorded in nfl-drive-run@1</p>
             </section>
             <section className="st-box" aria-label="Transcript">
               <Transcript sample={sample} teams={teams} current={f?.driveIdx ?? null} />

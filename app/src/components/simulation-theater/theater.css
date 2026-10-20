@@ -660,3 +660,32 @@
   .st-sheet.is-modal .st-sheet-handle{display:none}
   .st-sheet.is-modal .st-sheet-head{padding-top:12px}
 }
+
+/* ── official representative vs what-if (Cross-Product Prediction Consistency, 2026-10-20; RepresentativeParts.tsx) ── */
+.st-official{margin-top:8px;padding:10px 14px;border:1px solid var(--st-edge);border-left:3px solid var(--vault-accent-deep);border-radius:10px;background:var(--st-panel);color:var(--st-text);font-size:12.5px;line-height:1.45}
+.st-official.is-none{border-left-color:var(--vault-warn)}
+.st-official-h{margin:0;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+.st-official-src{color:var(--st-faint);text-transform:none;letter-spacing:0}
+.st-official-kv{display:flex;flex-wrap:wrap;gap:4px 18px;margin:6px 0 0}
+.st-official-kv div{display:flex;gap:6px;align-items:baseline;min-width:0}
+.st-official-kv dt{color:var(--st-mute);font-size:11.5px}
+.st-official-kv dd{margin:0;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.st-official-note{margin:6px 0 0;color:var(--st-mute);font-size:11.5px}
+.st-roletag{display:inline-block;padding:1px 6px;border-radius:999px;font-family:var(--font-mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.st-roletag.is-official{border:1px solid var(--vault-accent-deep);color:var(--st-text)}
+.st-roletag.is-whatif{border:1px dashed var(--vault-warn);color:var(--st-text)}
+.st-rolenote{margin-top:8px;padding:8px 12px;border-radius:8px;font-size:12px;line-height:1.45;color:var(--st-text)}
+.st-rolenote p{margin:0}
+.st-rolenote.is-official{border:1px solid var(--st-edge);border-left:3px solid var(--vault-accent-deep);background:var(--st-panel)}
+.st-rolenote.is-whatif{border:1px dashed var(--vault-warn);background:color-mix(in srgb, var(--vault-warn) 8%, transparent)}
+.st-rolenote p.st-rolenote-fine{margin-top:4px;color:var(--st-mute);font-size:11.5px}
+.st-whatif-banner{margin:0 0 4px;font-family:var(--font-mono);font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--vault-warn)}
+.st-compare{margin-top:12px}
+.st-compare.is-whatif{padding:8px 10px;border:1px dashed var(--vault-warn);border-radius:8px}
+.st-compare-table{width:100%;border-collapse:collapse;font-size:12px}
+.st-compare-table caption{text-align:left;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--st-mute);padding-bottom:4px}
+.st-compare-table th,.st-compare-table td{padding:4px 6px;border-bottom:1px solid var(--st-edge);text-align:left}
+.st-compare-table td{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.st-compare-med{color:var(--st-faint)}
+.st-compare-note{margin:6px 0 0;color:var(--st-mute);font-size:11.5px}
+.st-offexp{display:block;color:var(--st-faint);font-size:10px;font-weight:400}

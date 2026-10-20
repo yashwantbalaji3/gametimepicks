@@ -24,8 +24,16 @@ export const NBA_DISCLOSURE = "SIMULATED · quarter checkpoints only · scoring 
  */
 export const NBA_PRIVATE_BANNER = "EXPERIMENTAL MODEL — PRIVATE CANDIDATE · SIMULATED QUARTER SCORES · NOT A FORECAST";
 
-/** The first sample that validated (typical when it did), or null. */
+/**
+ * The sample the theater opens on: the OFFICIAL REPRESENTATIVE SIMULATION (manifest.representative, the stored sample
+ * closest to the official forecast) when one was selected; else the first sample that validated (then a what-if); or null.
+ */
 export const defaultSampleIndex = (manifest) => {
+  const rep = manifest?.representative;
+  if (rep && rep.state === "SELECTED" && Number.isInteger(rep.officialRunIndex)) {
+    const o = manifest.samples?.findIndex((s) => s.validation.ok && s.runIndex === rep.officialRunIndex) ?? -1;
+    if (o >= 0) return o;
+  }
   const i = manifest?.samples?.findIndex((s) => s.validation.ok) ?? -1;
   return i < 0 ? null : i;
 };

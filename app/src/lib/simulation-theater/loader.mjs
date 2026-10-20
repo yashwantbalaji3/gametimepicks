@@ -5,8 +5,50 @@
  * write-once and never modified here), resolves the receipt of record per event with the SAME rule the public
  * simulation page uses (latest generated before kickoff, fail closed: public-receipt.mjs), and adapts it.
  */
+import fs from "node:fs";
+import path from "node:path";
+
 import { readShadowReceipts, simulationOfRecord } from "../sports/nfl/sim-v2/public-receipt.mjs";
 import { adaptReceipt } from "./adapter-nfl-sim-v2.mjs";
+import { nflOfficial, withNflRepresentative } from "./official-representative.mjs";
+
+/**
+ * OFFICIAL FORECAST INPUTS (Cross-Product Prediction Consistency, 2026-10-20). The Theater's default run is the stored run
+ * closest to the OFFICIAL forecast (official-representative.mjs). The official NFL snapshot is built from the same
+ * committed sources as lib/consistency/audit.mjs: every forecast receipt of the event under data/internal/nfl/forecast-
+ * receipts/<date>/<id>[-rev-HHMMZ].json (the forecast of record = latest strictly before kickoff, forecastOfRecord) and
+ * the event's player board app/public/data/nfl/player-board/<id>.json. READ ONLY. Missing or unreadable inputs make the
+ * snapshot refuse (typed), and the Theater then labels every run a hypothetical what-if.
+ */
+export const NFL_FORECAST_RECEIPTS_DIR = "data/internal/nfl/forecast-receipts";
+export const NFL_PLAYER_BOARD_DIR = "app/public/data/nfl/player-board";
+
+export function readNflOfficialInputs(repoRoot, eventId) {
+  const id = String(eventId);
+  const receipts = [];
+  const root = path.join(repoRoot, NFL_FORECAST_RECEIPTS_DIR);
+  let days = [];
+  try { days = fs.readdirSync(root).sort(); } catch { days = []; }
+  for (const d of days) {
+    let files = [];
+    try { files = fs.readdirSync(path.join(root, d)).sort(); } catch { continue; }
+    for (const f of files) {
+      if (!(f === `${id}.json` || (f.startsWith(`${id}-rev-`) && f.endsWith(".json")))) continue;
+      try {
+        receipts.push({ file: `${NFL_FORECAST_RECEIPTS_DIR}/${d}/${f}`, receipt: JSON.parse(fs.readFileSync(path.join(root, d, f), "utf8")) });
+      } catch { /* an unreadable receipt is simply not a candidate */ }
+    }
+  }
+  let playerBoard = null;
+  const boardRel = `${NFL_PLAYER_BOARD_DIR}/${id}.json`;
+  try { playerBoard = { path: boardRel, doc: JSON.parse(fs.readFileSync(path.join(repoRoot, boardRel), "utf8")) }; } catch { playerBoard = null; }
+  return { receipts, playerBoard };
+}
+
+/** The official snapshot (or its typed refusal) for one event. */
+export function nflTheaterOfficial(repoRoot, eventId) {
+  return nflOfficial(String(eventId), readNflOfficialInputs(repoRoot, eventId));
+}
 
 /**
  * Development fixtures (spec S12: a FIXED list of ≤3 event ids, so a dev build adds at most three pages).
@@ -34,15 +76,17 @@ export function adaptAllReceipts(repoRoot) {
 }
 
 /**
- * The theater for one event's receipt of record.
+ * The theater for one event's receipt of record, with `manifest.representative` (the official representative and the
+ * hypothetical what-ifs). `official` overrides the snapshot read from disk (tests).
  * @returns {{ eventId: string, file: string|null, ok: boolean, error: {code:string, reason:string}|null, manifest: object|null, showable: boolean }}
  */
-export function loadTheater(repoRoot, eventId, entries = null) {
+export function loadTheater(repoRoot, eventId, entries = null, official = null) {
   const all = entries ?? readShadowReceipts(repoRoot);
   const rec = simulationOfRecord(all, eventId);
   if (!rec) return { eventId: String(eventId), file: null, ok: false, error: { code: "NO_RECEIPT", reason: "no receipt generated before kickoff" }, manifest: null, showable: false };
   const a = adaptReceipt(rec.receipt, { file: rec.file });
-  return { eventId: String(eventId), file: rec.file, ok: a.ok, error: a.ok ? null : a.error, manifest: a.manifest, showable: rec.showable };
+  const manifest = a.ok ? withNflRepresentative(a.manifest, rec.receipt, official ?? nflTheaterOfficial(repoRoot, eventId)) : a.manifest;
+  return { eventId: String(eventId), file: rec.file, ok: a.ok, error: a.ok ? null : a.error, manifest, showable: rec.showable };
 }
 
 /** True when the fixture's receipt of record adapts and every one of its samples validates. */

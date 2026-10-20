@@ -21,6 +21,8 @@ import { finalState } from "@/lib/simulation-theater/state-at.mjs";
 import { theaterPalette } from "@/lib/simulation-theater/nfl-team-colors.mjs";
 import { fieldMap, overlayFrame } from "@/lib/simulation-theater/field-geometry.mjs";
 import { packTheater } from "@/lib/simulation-theater/theater-pack.mjs";
+import { officialRunIndex } from "@/lib/simulation-theater/representative-labels.mjs";
+import { OfficialForecastCard, RoleTag, RunRoleNotice } from "./RepresentativeParts";
 
 const SSR_W = 1200;
 const SSR_H = 561;
@@ -58,12 +60,15 @@ export default function TheaterSection({ load, devHooks = false }: { load: Theat
     );
   }
   const manifest = load.manifest;
-  const first = manifest.chips.find((c) => c.available);
+  // the OFFICIAL REPRESENTATIVE SIMULATION when one was selected (official-representative.mjs), else the first valid run
+  const off = officialRunIndex(manifest);
+  const first = (off != null ? manifest.chips.find((c) => c.available && c.runIndex === off) : null) ?? manifest.chips.find((c) => c.available);
   const sample = first ? manifest.samples[first.sampleIndex] : null;
   const colors = theaterPalette(manifest.teams.home.abbr, manifest.teams.away.abbr).mode;
   const shell = (
     <div className="st-root" style={THEATER_VARS as CSSProperties} data-st-colors={colors}>
       <Banner manifest={manifest} sample={sample} />
+      <OfficialForecastCard manifest={manifest} teams={manifest.teams} />
       <noscript><p className="st-rule">{LABELS.noscript}</p></noscript>
       <div className="st-samples">
         <div className="st-samples-head"><span>Representative runs</span><span className="st-samplelabel">{LABELS.sample}</span></div>
@@ -72,12 +77,14 @@ export default function TheaterSection({ load, devHooks = false }: { load: Theat
             const s = manifest.samples[c.sampleIndex];
             return (
               <li key={c.runIndex} className="st-chip" aria-current={sample && c.runIndex === sample.runIndex ? "true" : undefined}>
+                <RoleTag manifest={manifest} runIndex={c.runIndex} />
                 <span>{chipTitle(c.kinds)}</span>
                 {s.finalScore ? <span className="st-chip-score">{finalLine(s.finalScore, manifest.teams)}</span> : null}
               </li>
             );
           })}
         </ul>
+        {sample ? <RunRoleNotice manifest={manifest} runIndex={sample.runIndex} kindTitle={chipTitle(sample.kinds)} /> : null}
       </div>
       {sample ? (
         <>

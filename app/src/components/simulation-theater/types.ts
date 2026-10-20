@@ -86,6 +86,32 @@ export type TheaterManifest = {
     marginHistogram: Hist;
   };
   unavailableFields: { field: string; reason: string }[];
+  /** Official representative vs hypothetical what-ifs (lib/simulation-theater/official-representative.mjs). */
+  representative?: TheaterRepresentative;
+};
+/** theater-representative@1 (both sports). Plain JSON; the islands read it through representative-labels.mjs. */
+export type OfficialTerm = { expected: number | null; median: number | null; p10: number | null; p90: number | null; published: number | null } | null;
+export type TheaterRepresentative = {
+  version: string;
+  sport: "NFL" | "NBA";
+  rule: string;
+  tolerance: number;
+  reconciliationRule: string;
+  state: "SELECTED" | "NO_OFFICIAL" | "NO_ELIGIBLE_RUN";
+  refusal: { code: string; message: string } | null;
+  snapshotId: string | null;
+  official: {
+    sport: string; snapshotId: string; publication: string; modelVersion: string | null; generatedAt: string | null; lockAt: string | null; source: string | null;
+    pHome: number | null; pAway: number | null; pTie: number | null; pHomePublished: number | null; winnerSide: string | null;
+    projectedScore: { home: number | null; away: number | null; convention: string | null };
+    team: { home: OfficialTerm; away: OfficialTerm; margin: OfficialTerm; total: OfficialTerm };
+  } | null;
+  officialRunIndex: number | null;
+  distance: number | null;
+  withinTolerance: boolean;
+  runs: { runIndex: number; kinds: string[]; role: string; hypothetical: boolean; distance: number | null }[];
+  reconciliation: { term: string; officialExpectation: number; simulatedGame: number; difference: number; note: string }[];
+  players: Record<string, { families: Record<string, { expected: number | null; median: number | null }>; playRate: number | null; conditioning: string | null }> | null;
 };
 export type TheaterLoad = {
   eventId: string;

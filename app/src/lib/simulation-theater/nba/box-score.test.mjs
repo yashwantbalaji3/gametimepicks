@@ -12,12 +12,12 @@ import {
   BOX_COLUMNS, BOX_SCORE_KINDS, MODELED, NBA_BOX_SCORE_SCHEMA, NBA_BOX_WATERMARK, NOT_MODELED, REQUIRED_SORT_KEYS,
   nbaBoxScore, nextSort, sortBoxRows, teamMinutesFor,
 } from "./box-score.mjs";
-import { NBA_FIXTURE_SOURCE, loadNbaTheater } from "./loader.mjs";
+import { NBA_FIXTURE_SOURCE, NBA_REAL_TEST_FIXTURE_SOURCE, loadNbaTheater } from "./loader.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
 const IDS = ["401909088", "401909089", "401909090"];
-const LOADS = IDS.map((id) => loadNbaTheater(REPO, id));
+const LOADS = IDS.map((id) => loadNbaTheater(REPO, id, { source: NBA_REAL_TEST_FIXTURE_SOURCE })); // verified copy of real output (TEST FIXTURE)
 const ALL = LOADS.flatMap((l) => l.manifest.samples.map((s) => ({ m: l.manifest, s, tag: `${l.eventId} #${s.runIndex} ${s.label}` })));
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const SIDES = ["away", "home"];

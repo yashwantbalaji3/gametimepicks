@@ -1,4 +1,5 @@
 /** Shapes produced by lib/simulation-theater/nba (adapter-nba-sim-v1.mjs, nba-team-colors.mjs): plain JSON, server → client. */
+import type { TheaterRepresentative } from "../types";
 export type NbaSide = "home" | "away";
 export type NbaTeam = { abbr: string; name: string; providerTeamId: string | null };
 export type NbaTeams = { home: NbaTeam; away: NbaTeam };
@@ -51,6 +52,8 @@ export type NbaManifest = {
   samples: NbaSample[];
   disclosure: string;
   notModelled: string[];
+  /** Official representative vs hypothetical what-ifs (lib/simulation-theater/official-representative.mjs). */
+  representative?: TheaterRepresentative;
 };
 export type NbaTeamPaint = { fill: string; ink: string; trim: string; court: string; courtInk: string; tint: string; tintPct?: number; patterned: boolean };
 export type NbaPalette = { mode: "team" | "neutral"; status: string; clash: string | null; home: NbaTeamPaint; away: NbaTeamPaint };

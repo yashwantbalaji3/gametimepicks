@@ -1,11 +1,11 @@
 /**
  * /dev/simulation-theater/nba/[eventId] — DEVELOPMENT ONLY, UNLINKED, NOINDEX. The NBA Simulation Theater prototype.
  *
- * Plays one representative sample of one nba-sim-v1 game at quarter-checkpoint level. The data is REAL
- * nba-sim-v1-coherent output for 2026-10-20 (a sha256-verified dev copy under lib/simulation-theater/nba/__fixtures__/,
- * with its provenance sidecar) until experimental-v1 artifacts are committed under data/; switching is the one SOURCE line
- * in lib/simulation-theater/nba/loader.mjs. A synthetic TEST FIXTURE (fixture: true) would render only under its
- * "TEST FIXTURE — not model output" banner.
+ * Plays one representative sample of one nba-sim-v1 game at quarter-checkpoint level. The data is the COMMITTED PRIVATE
+ * v1 RECEIPT for the slate (lib/simulation-theater/nba/loader.mjs NBA_THEATER_SOURCE), each game's receipt stamp verified
+ * (receiptIntegrity) before use. The default run is the OFFICIAL REPRESENTATIVE SIMULATION (the stored sample closest to
+ * the receipt's official expectations); the others are labelled hypothetical what-ifs. A slate game the committed receipt
+ * does not hold yet renders "No official forecast receipt for this game yet" — never a fixture in its place.
  *
  * Same gate as the NFL dev route (lib/simulation-theater/dev-routes.mjs): pages exist in the static export ONLY when the
  * build sets GTP_DEV_ROUTES=1 (≤ 3 events). Otherwise generateStaticParams yields only the inert placeholder (and reads
@@ -23,12 +23,12 @@ import NbaTheaterSection from "@/components/simulation-theater/nba/NbaTheaterSec
 import type { NbaLoad } from "@/components/simulation-theater/nba/nba-types";
 import { FIXTURE_BANNER } from "@/lib/simulation-theater/nba/adapter-nba-sim-v1.mjs";
 import { DISABLED_PLACEHOLDER, devRoutesEnabled, devStaticParams } from "@/lib/simulation-theater/dev-routes.mjs";
-import { loadNbaTheater, usableNbaEvents } from "@/lib/simulation-theater/nba/loader.mjs";
+import { loadNbaTheater, nbaRouteEvents } from "@/lib/simulation-theater/nba/loader.mjs";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
 
 export function generateStaticParams() {
-  return devStaticParams(() => usableNbaEvents(REPO_ROOT));
+  return devStaticParams(() => nbaRouteEvents(REPO_ROOT));
 }
 
 export const dynamicParams = false;
@@ -43,7 +43,7 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
 }
 
 export default function NbaSimulationTheaterDevPage({ params }: { params: { eventId: string } }) {
-  if (!devRoutesEnabled() || params.eventId === DISABLED_PLACEHOLDER || !usableNbaEvents(REPO_ROOT).includes(params.eventId)) notFound();
+  if (!devRoutesEnabled() || params.eventId === DISABLED_PLACEHOLDER || !nbaRouteEvents(REPO_ROOT).includes(params.eventId)) notFound();
   const load = loadNbaTheater(REPO_ROOT, params.eventId) as NbaLoad;
   return (
     <div className="vault-page-shell" style={{ padding: "16px 16px 48px" }}>

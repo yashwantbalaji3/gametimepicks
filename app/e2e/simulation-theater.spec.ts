@@ -1116,3 +1116,38 @@ test.describe("projected box score", () => {
     }
   });
 });
+
+// ── official representative vs what-if (Cross-Product Prediction Consistency, 2026-10-20) ──────────────────────────
+// Both targets. The page opens on the run closest to the official forecast of record (F.run = F.officialRun, derived in
+// node by the same rule); the official forecast is the headline; every other stored run is "What-if · hypothetical"
+// and its box score is never "projected".
+test.describe("official representative and what-ifs", () => {
+  test("opens on the official representative, with its distance and the official forecast headline", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const errors = await open(page, {});
+    expect(F.officialRun, "the receipt of record has an official representative").not.toBeNull();
+    await expect(root(page)).toHaveAttribute("data-st-run", String(F.officialRun));
+    await expect(page.locator('[data-st-role-note="official"]')).toContainText(`Official representative simulation · closest stored run to the official forecast · distance ${F.officialDistance!.toFixed(2)}`);
+    await expect(page.locator("[data-st-official]").first()).toContainText("Official forecast");
+    await expect(page.locator('.st-chips:not(.is-vertical) [data-st-role="official"]')).toHaveCount(1);
+    expect(await page.locator('.st-chips:not(.is-vertical) [data-st-role="what-if"]').count()).toBeGreaterThanOrEqual(F.whatIfRuns.length);
+    expect(errors).toEqual([]);
+  });
+
+  test("every what-if run: persistent hypothetical banner; its box score is 'What-if box score · hypothetical', never projected", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    for (const run of F.whatIfRuns) {
+      await open(page, { run });
+      await expect(page.locator('[data-st-role-note="what-if"] [data-st-whatif-banner]')).toHaveText("Hypothetical scenario — not the forecast");
+      await page.getByRole("button", { name: "What-if box score (hypothetical)", exact: true }).click();
+      const dlg = page.getByRole("dialog", { name: /^What-if box score · hypothetical · run #/ });
+      await expect(dlg).toBeVisible();
+      await expect(dlg.locator("[data-stbx-dialog]")).toHaveAttribute("data-stbx-role", "what-if");
+      await expect(dlg.locator("[data-st-whatif-banner]").first()).toHaveText("Hypothetical scenario — not the forecast");
+      await expect(dlg.locator("[data-stbx-watermark]")).toHaveText("SIMULATED · HYPOTHETICAL SCENARIO · NOT THE FORECAST · NOT ACTUAL GAME STATISTICS");
+      expect(await dlg.innerText()).not.toMatch(/projected/i);
+      await page.keyboard.press("Escape");
+      await expect(dlg).toBeHidden();
+    }
+  });
+});

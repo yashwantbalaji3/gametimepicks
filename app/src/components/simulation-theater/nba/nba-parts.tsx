@@ -11,6 +11,8 @@ import type { CSSProperties } from "react";
 import { FIXTURE_BANNER, LABEL_TITLES, NBA_PRIVATE_BANNER } from "@/lib/simulation-theater/nba/labels.mjs";
 import { fmtGameClock, statLeaders } from "@/lib/simulation-theater/nba/timeline.mjs";
 import type { NbaCompiled, NbaFrame, NbaManifest, NbaPalette, NbaPlayerLine, NbaSample, NbaSide, NbaTeams } from "./nba-types";
+import { RoleTag } from "../RepresentativeParts";
+import { runRole } from "@/lib/simulation-theater/representative-labels.mjs";
 
 export const SIDES: NbaSide[] = ["away", "home"];
 const n = (v: number | null | undefined) => (v == null ? "—" : v.toLocaleString("en-US"));
@@ -284,6 +286,7 @@ export function OutcomeChips({ manifest, selected, onSelect, idBase, vertical = 
           title={s.validation.ok ? s.selectionRule : s.validation.errors.map((e) => e.code).join(", ")}
         >
           <span className="st-dot" aria-hidden="true" />
+          <RoleTag manifest={manifest} runIndex={s.runIndex} />
           <span>{s.title}</span>
           {s.validation.ok ? (
             <span className="st-chip-score">{t.away.abbr} {s.final.away}–{s.final.home} {t.home.abbr}{s.overtimePeriods ? ` · ${s.overtimePeriods > 1 ? `${s.overtimePeriods}OT` : "OT"}` : ""}</span>
@@ -388,7 +391,7 @@ export function BreakCard({ kind, manifest, sample, palette, onDismiss, variant,
         <>
           <Leaders sample={sample} teams={teams} palette={palette} />
           {onOpenBoxScore ? (
-            <button type="button" className="st-btn nba-card-boxbtn" aria-haspopup="dialog" onClick={onOpenBoxScore}>Projected box score</button>
+            <button type="button" className="st-btn nba-card-boxbtn" aria-haspopup="dialog" onClick={onOpenBoxScore}>{runRole(manifest, sample.runIndex).hypothetical ? "What-if box score (hypothetical)" : "Projected box score"}</button>
           ) : null}
           {variant === "sheet" ? (
             <details className="nba-card-more">

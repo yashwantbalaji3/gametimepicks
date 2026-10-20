@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { DISABLED_PLACEHOLDER, contentParams, devRoutesEnabled, devStaticParams } from "../dev-routes.mjs";
-import { usableNbaEvents } from "./loader.mjs";
+import { nbaRouteEvents, readArtifact } from "./loader.mjs";
 import { ROUTE_TABLE } from "../../audits/route-inventory.mjs";
 
 const APP = process.cwd();
@@ -19,18 +19,27 @@ const src = fs.readFileSync(path.join(APP, PAGE), "utf8");
 
 test("without GTP_DEV_ROUTES=1 the NBA route emits only the inert placeholder and reads no artifact", () => {
   let reads = 0;
-  const getIds = () => { reads++; return usableNbaEvents(REPO); };
+  const getIds = () => { reads++; return nbaRouteEvents(REPO); };
   for (const env of [{}, { GTP_DEV_ROUTES: "0" }, { GTP_DEV_ROUTES: "true" }, { NEXT_PUBLIC_INTERNAL_ROUTES: "1" }]) {
     assert.equal(devRoutesEnabled(env), false);
     assert.deepEqual(devStaticParams(getIds, env), [{ eventId: DISABLED_PLACEHOLDER }]);
   }
   assert.equal(reads, 0);
   const on = devStaticParams(getIds, { GTP_DEV_ROUTES: "1" });
-  assert.deepEqual(contentParams(on).map((p) => p.eventId), ["401909088", "401909089", "401909090"]);
+  const ids = contentParams(on).map((p) => p.eventId);
+  // derived from the COMMITTED receipt (never pinned runs, never a fixture): its games, then the slate games its run log
+  // names but it does not hold yet (they render "No official forecast receipt for this game yet")
+  const r = readArtifact(REPO);
+  if (!r.artifact) { assert.deepEqual(ids, [], "no committed receipt in this checkout: no NBA page at all"); return; }
+  const inFile = r.artifact.games.map((g) => String(g.providerEventId));
+  const logged = r.artifact.runs.flatMap((x) => x.outcomes.map((o) => String(o.providerEventId)));
+  assert.ok(ids.length > 0 && ids.length <= 3);
+  for (const id of ids) assert.ok(inFile.includes(id) || logged.includes(id), `${id} is neither in the receipt nor in its run log`);
+  assert.deepEqual(ids.filter((id) => inFile.includes(id)), inFile.filter((id) => ids.includes(id)), "receipt games come first, in file order");
 });
 
 test("the page uses the shared gate, 404s itself when disabled, is noindex, and passes the fixture banner explicitly", () => {
-  assert.match(src, /devStaticParams\(\(\) => usableNbaEvents\(REPO_ROOT\)\)/);
+  assert.match(src, /devStaticParams\(\(\) => nbaRouteEvents\(REPO_ROOT\)\)/);
   assert.match(src, /export const dynamicParams = false/);
   assert.match(src, /if \(!devRoutesEnabled\(\) \|\| params\.eventId === DISABLED_PLACEHOLDER/);
   assert.match(src, /notFound\(\)/);
