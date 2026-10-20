@@ -27,6 +27,7 @@
  *   --out-dir DIR  read-only integration mode: the ledger and every cache write go under DIR/<family dir>/ (the repo's
  *                  ledger is read as the starting point and never written).
  *   --summary-dir DIR  offline replay (needs --out-dir): "fetch" reads DIR/<id>.json instead of the network.
+ *   --results-dir DIR  (needs --out-dir) read the finals record / rolling window from DIR instead of app/public/….
  * Exit: 0 ok · 1 usage / refused · 2 provider label order changed (PAUSE, prereg §10)
  */
 import fs from "node:fs";
@@ -47,7 +48,9 @@ const REPO = path.resolve(APP, "..");
 const NBA = path.join(REPO, "data", "internal", "research", "nba");
 const CORPUS = path.join(NBA, "corpus-v1.json");
 const BOXSCORES = path.join(NBA, "boxscores");
-const RESULTS_DIR = path.join(APP, "public", "data", "nba", "results");
+const RESULTS_ARG = (() => { const a = process.argv.slice(2); const i = a.indexOf("--results-dir"); return i === -1 ? null : a[i + 1] ?? null; })();
+// --results-dir DIR (needs --out-dir): read finals-<season>.json / latest.json from DIR (e.g. a newer main's copies).
+const RESULTS_DIR = RESULTS_ARG ? path.resolve(RESULTS_ARG) : path.join(APP, "public", "data", "nba", "results");
 const SUMMARY_URL = (id) => `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${encodeURIComponent(id)}`;
 const MIN_GAP_MS = 250, RETRIES = 3, BACKOFF_MS = [1000, 2500, 6000], FETCH_TIMEOUT_MS = 20000;
 
@@ -63,6 +66,7 @@ const ONLY_DATE = opt("--date");
 const NOW = opt("--now") ?? new Date().toISOString();
 const OUT_DIR = opt("--out-dir") ? path.resolve(opt("--out-dir")) : null;
 const SUMMARY_DIR = opt("--summary-dir") ? path.resolve(opt("--summary-dir")) : null;
+if (RESULTS_ARG && !OUT_DIR) { console.error("REFUSED: --results-dir only with --out-dir — an alternate finals source never writes the repo's ledgers"); process.exit(1); }
 if (SUMMARY_DIR && !OUT_DIR) { console.error("REFUSED: --summary-dir (offline replay) only with --out-dir — a replay never writes the repo's ledgers"); process.exit(1); }
 if (!Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now must be ISO"); process.exit(1); }
 if (ONLY_DATE && !/^\d{4}-\d{2}-\d{2}$/.test(ONLY_DATE)) { console.error("REFUSED: --date YYYY-MM-DD"); process.exit(1); }
