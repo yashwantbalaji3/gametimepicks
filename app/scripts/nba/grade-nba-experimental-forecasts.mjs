@@ -1,27 +1,32 @@
 /**
- * NBA experimental forecast grader (NBA readiness tracks N2/N3) — PRIVATE RESEARCH ARTIFACT.
- * NBA PRESEASON — EXPERIMENTAL · dataClass PRIVATE_RESEARCH · productEligible: false.
+ * NBA experimental forecast grader (NBA readiness tracks N2/N3) — PRIVATE RESEARCH ARTIFACT. GRADER v2.
+ * dataClass PRIVATE_RESEARCH · productEligible: false. Every rule lives in experimental-grading-ledger.mjs (tested).
  *
- * For every forecast date under data/internal/research/nba/experimental/forecasts/, finds finals
- * by providerEventId in (a) app/public/data/nba/results/latest.json (STATUS_FINAL rows with both
- * scores) or (b) corpus-v1.json, and the box score in (c) boxscores/<id>.json (canonical corpus)
- * or (d) experimental/boxscores/<id>.json (fetched here). With --fetch, a graded game whose box
- * score is in neither place is fetched from the ESPN summary endpoint (the same free endpoint the
- * corpus builder uses; ≈4 req/s pacing, 3 retries) and stored under (d) — never into the
- * canonical corpus directory, whose MANIFEST is owned by build-nba-boxscore-corpus.mjs.
+ * FINALS (v2 — the rolling-window defect): the write-once season record app/public/data/nba/results/finals-<season>.json
+ * FIRST, then the rolling results/latest.json (same-night fallback, before the record takes the final), then corpus-v1.
+ * A game is pending only while no source holds its final — it no longer expires after the 9-day window.
  *
- * Grades per game: winner (Brier + log loss, Elo AND sim, separately), score MAE, total MAE, and
- * PER PLAYER the minutes error and the production error CONDITIONAL on actual minutes — reported
- * separately, in separate preseason / regular-season buckets. Appends one entry per forecast date
- * to experimental/ledger.json (re-grading a date replaces its entry; the ledger never double-counts).
+ * BOX SCORES: canonical corpus boxscores/<id>.json, then any family's fetch cache <family dir>/boxscores/<id>.json.
+ * With --fetch: a final with no box score is fetched from the free ESPN summary endpoint (≈4 req/s, 3 retries) into
+ * THIS family's cache (never the canonical corpus directory, whose MANIFEST build-nba-boxscore-corpus.mjs owns), with the
+ * summary's period count recorded beside it. STAT CORRECTIONS (v2): a fetched (non-corpus) box score inside the bounded
+ * re-check window (RECHECK: 72 h after tip, at most every 6 h) is fetched again; a changed payload is written to
+ * <family dir>/boxscores/corrections/<id>.<hash12>.json (the original file is never rewritten) and logged as a
+ * BOXSCORE_CORRECTION with old/new content hashes; the game's re-grade appends a CORRECTION entry that supersedes.
+ *
+ * OVERTIME (v2): summary period count → box-score team minutes → corpus flag → null (NOT_MEASURED).
+ *
+ * LEDGER (v2 — append-only): <family dir>/ledger.json schema 2. The schema-1 `entries` (date-level, v1) are frozen
+ * byte-for-byte; per-game grades are APPENDED to `gradeEntries` (INITIAL | PENDING_RESOLVED | CORRECTION + supersedes).
+ * The `validation` block (grader-metrics.mjs) is derived from the current view each run. The append-only guard runs
+ * before every write and refuses the write on any violation.
  *
  * Run (from app/):
- *   npx tsx scripts/nba/grade-nba-experimental-forecasts.mjs [--write] [--fetch] [--now ISO] [--date YYYY-MM-DD] [--family v0|v0.1]
- *
- * FAMILIES (v1.8 A1): each family grades its own forecasts into its own ledger (experimental/ vs
- * experimental-v0.1/). Fetched box scores are looked up across both families' caches and written only to
- * the grading family's own cache, so a game is fetched once even when two families forecast it.
- * Exit: 0 ok · 1 usage / refused
+ *   npx tsx scripts/nba/grade-nba-experimental-forecasts.mjs [--write] [--fetch] [--no-recheck] [--now ISO]
+ *        [--date YYYY-MM-DD] [--family v0|v0.1|v0.2|v1] [--out-dir DIR]
+ *   --out-dir DIR  read-only integration mode: the ledger and every cache write go under DIR/<family dir>/ (the repo's
+ *                  ledger is read as the starting point and never written).
+ * Exit: 0 ok · 1 usage / refused · 2 provider label order changed (PAUSE, prereg §10)
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -29,53 +34,82 @@ import { fileURLToPath } from "node:url";
 
 import { gradeForecastGame, summariseGrades, LABELS, familySpec, familyGuard, FAMILIES } from "../../src/lib/sports/nba/experimental-forecast.mjs";
 import { parseSummary, LabelOrderError } from "../../src/lib/sports/nba/boxscore-parse.mjs";
-import { validationByLabel } from "../../src/lib/sports/nba/grader-metrics.mjs";
+import { validationFromGrades } from "../../src/lib/sports/nba/grader-metrics.mjs";
+import {
+  GRADER_VERSION, RECHECK, finalLookup, resolveOvertime, periodsFromSummary, boxscoreContentHash, diffBoxscores, recheckDue,
+  emptyExperimentalLedger, upgradeLedger, appendGameResults, appendBoxscoreCheck, latestCorrection, lastCheckAt, currentGrades,
+  experimentalLedgerAppendOnlyViolations, restDaysFor, boxscorePointsCheck,
+} from "../../src/lib/sports/nba/experimental-grading-ledger.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const NBA = path.resolve(APP, "..", "data", "internal", "research", "nba");
+const REPO = path.resolve(APP, "..");
+const NBA = path.join(REPO, "data", "internal", "research", "nba");
 const CORPUS = path.join(NBA, "corpus-v1.json");
 const BOXSCORES = path.join(NBA, "boxscores");
-const argvEarly = process.argv.slice(2);
-const familyArg = (() => { const i = argvEarly.indexOf("--family"); return i === -1 ? "v0" : argvEarly[i + 1] ?? null; })();
-let FAMILY;
-try { FAMILY = familySpec(familyArg); } catch (e) { console.error(e.message); process.exit(1); }
-const EXP = path.join(NBA, FAMILY.dir);
-const FORECASTS = path.join(EXP, "forecasts");
-const EXP_BOX = path.join(EXP, "boxscores");
-const ALL_EXP_BOX = Object.values(FAMILIES).map((f) => path.join(NBA, f.dir, "boxscores"));
-const LEDGER = path.join(EXP, "ledger.json");
-const RESULTS = path.join(APP, "public", "data", "nba", "results", "latest.json");
+const RESULTS_DIR = path.join(APP, "public", "data", "nba", "results");
 const SUMMARY_URL = (id) => `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${encodeURIComponent(id)}`;
 const MIN_GAP_MS = 250, RETRIES = 3, BACKOFF_MS = [1000, 2500, 6000], FETCH_TIMEOUT_MS = 20000;
 
 const argv = process.argv.slice(2);
 const flag = (n) => argv.includes(n);
 const opt = (n) => { const i = argv.indexOf(n); return i === -1 ? null : argv[i + 1] ?? null; };
+let FAMILY;
+try { FAMILY = familySpec(opt("--family") ?? "v0"); } catch (e) { console.error(e.message); process.exit(1); }
 const WRITE = flag("--write");
 const FETCH = flag("--fetch");
+const RECHECK_ON = FETCH && !flag("--no-recheck");
 const ONLY_DATE = opt("--date");
 const NOW = opt("--now") ?? new Date().toISOString();
+const OUT_DIR = opt("--out-dir") ? path.resolve(opt("--out-dir")) : null;
 if (!Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now must be ISO"); process.exit(1); }
 if (ONLY_DATE && !/^\d{4}-\d{2}-\d{2}$/.test(ONLY_DATE)) { console.error("REFUSED: --date YYYY-MM-DD"); process.exit(1); }
+
+const EXP = path.join(NBA, FAMILY.dir);
+const FORECASTS = path.join(EXP, "forecasts");
+const WRITE_ROOT = OUT_DIR ? path.join(OUT_DIR, FAMILY.dir) : EXP;
+const EXP_BOX = path.join(WRITE_ROOT, "boxscores");
+const CORRECTIONS_DIR = path.join(EXP_BOX, "corrections");
+const LEDGER_IN = OUT_DIR && fs.existsSync(path.join(WRITE_ROOT, "ledger.json")) ? path.join(WRITE_ROOT, "ledger.json") : path.join(EXP, "ledger.json");
+const LEDGER_OUT = path.join(WRITE_ROOT, "ledger.json");
+const ALL_EXP_BOX = [...(OUT_DIR ? Object.values(FAMILIES).map((f) => path.join(OUT_DIR, f.dir, "boxscores")) : []), ...Object.values(FAMILIES).map((f) => path.join(NBA, f.dir, "boxscores"))];
 if (!fs.existsSync(FORECASTS)) { console.log(`no forecasts directory for family ${FAMILY.family} — nothing to grade`); process.exit(0); }
 
 const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
-const corpus = readJson(CORPUS);
-const corpusById = new Map((corpus.rows ?? []).map((r) => [String(r.providerEventId), r]));
-const results = fs.existsSync(RESULTS) ? readJson(RESULTS) : null;
-const resultsById = new Map((results?.rows ?? []).filter((r) => /^STATUS_FINAL/.test(r?.statusRaw ?? "")).map((r) => [String(r.providerEventId), r]));
+const rel = (f) => path.relative(REPO, f);
+/** Box-score paths in the ledger are relative to the NBA research root (or to --out-dir), so both modes resolve them. */
+const relNba = (f) => (OUT_DIR && f.startsWith(OUT_DIR + path.sep) ? path.relative(OUT_DIR, f) : f.startsWith(NBA + path.sep) ? path.relative(NBA, f) : rel(f));
 
-function findFinal(id) {
-  const r = resultsById.get(id);
-  if (r && Number.isInteger(r.ftHome) && Number.isInteger(r.ftAway)) return { ftHome: r.ftHome, ftAway: r.ftAway, source: "results-capture" };
-  const c = corpusById.get(id);
-  if (c && Number.isInteger(c.ftHome) && Number.isInteger(c.ftAway)) return { ftHome: c.ftHome, ftAway: c.ftAway, source: "corpus-v1", overtime: typeof c.overtime === "boolean" ? c.overtime : undefined };
-  return null;
+/* ─────────────── inputs ─────────────── */
+const finalsRecords = {};
+for (const f of fs.existsSync(RESULTS_DIR) ? fs.readdirSync(RESULTS_DIR) : []) {
+  const m = /^finals-(\d{4}-\d{2})\.json$/.exec(f);
+  if (m) { try { finalsRecords[m[1]] = readJson(path.join(RESULTS_DIR, f)); } catch (e) { console.error(`REFUSED: unreadable finals record ${f}: ${e.message}`); process.exit(1); } }
 }
+const results = fs.existsSync(path.join(RESULTS_DIR, "latest.json")) ? readJson(path.join(RESULTS_DIR, "latest.json")) : null;
+const corpus = readJson(CORPUS);
+// The rolling window is read for FINAL rows only (results-publishable.test.mjs pins this premise for every reader).
+const lookupFinal = finalLookup({ finalsRecords, resultsRows: (results?.rows ?? []).filter((r) => /^STATUS_FINAL/.test(r?.statusRaw ?? "")), corpusRows: corpus.rows ?? [] });
+// Prior tips per team (rest / back-to-back slices, prereg §9): every recorded final of every loaded season.
+const priorTips = new Map();
+for (const rec of Object.values(finalsRecords)) for (const f of rec.finals ?? []) for (const side of ["home", "away"]) {
+  const id = f[side]?.providerTeamId; if (id == null) continue;
+  if (!priorTips.has(String(id))) priorTips.set(String(id), []);
+  priorTips.get(String(id)).push(f.dateUtc);
+}
+
 function findBoxscore(id) {
   for (const [dir, source] of [[BOXSCORES, "corpus"], ...ALL_EXP_BOX.map((d) => [d, "experimental-fetch"])]) {
     const f = path.join(dir, `${id}.json`);
-    if (fs.existsSync(f)) { try { return { doc: readJson(f), source }; } catch { /* unreadable → treat as absent */ } }
+    if (fs.existsSync(f)) { try { return { doc: readJson(f), source, file: f }; } catch { /* unreadable → absent */ } }
+  }
+  return null;
+}
+function correctedBoxscore(ledger, id) {
+  const c = latestCorrection(ledger, id);
+  if (!c?.new?.file) return null;
+  for (const base of [OUT_DIR, NBA].filter(Boolean)) {
+    const f = path.join(base, c.new.file);
+    if (fs.existsSync(f)) { try { return { doc: readJson(f), source: "experimental-correction", file: f }; } catch { /* fall through */ } }
   }
   return null;
 }
@@ -101,70 +135,108 @@ async function fetchSummary(id) {
   }
   return { error: String(last?.message ?? last) };
 }
+/** Fetch + parse one summary into a stored doc (periods recorded beside the parser's output). */
+async function fetchBoxDoc(id, game) {
+  const r = await fetchSummary(id);
+  if (!r.summary) return { error: `fetch ${r.error}` };
+  try {
+    const parsed = parseSummary(r.summary, { providerEventId: id, season: null, phase: game.seasonType, dateUtc: game.dateUtc, capturedAt: NOW });
+    if (parsed.doc.status && !/FINAL/.test(parsed.doc.status)) return { error: `summary status ${parsed.doc.status} not final` };
+    const periods = periodsFromSummary(r.summary);
+    return { doc: { ...parsed.doc, ...(periods ? { periods: { count: periods, source: "espn-summary-period" } } : {}) } };
+  } catch (e) {
+    if (e instanceof LabelOrderError) { console.error(`ABORT (PAUSE, prereg §10): ${e.message} on ${id}`); process.exit(2); }
+    return { error: `parse ${e?.message ?? e}` };
+  }
+}
+const writeJson = (f, doc) => { fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, JSON.stringify(doc, null, 1)); };
 
 /* ─────────────── grade ─────────────── */
-const files = fs.readdirSync(FORECASTS).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().filter((f) => !ONLY_DATE || f === `${ONLY_DATE}.json`);
-const ledger = fs.existsSync(LEDGER) ? readJson(LEDGER) : { schemaVersion: 1, artifact: "nba-experimental-ledger", family: FAMILY.family, modelVersion: FAMILY.modelVersion, poolRule: FAMILY.poolRule, dataClass: "PRIVATE_RESEARCH", productEligible: false, labels: Object.values(LABELS), entries: [] };
-// A LEDGER NEVER MIXES FAMILIES. The sibling directories normally keep them apart, but a path is not a
-// proof — so the check reads the document. An unstamped ledger is legacy v0 and is adopted by v0 only.
+const beforeText = fs.existsSync(LEDGER_IN) ? fs.readFileSync(LEDGER_IN, "utf8") : null;
+const before = beforeText ? JSON.parse(beforeText) : null;
+let ledger = before ? upgradeLedger(before) : emptyExperimentalLedger(FAMILY);
+// A LEDGER NEVER MIXES FAMILIES — the check reads the document, not the path. An unstamped ledger is legacy v0.
 const ledgerGate = familyGuard({ family: FAMILY.family, doc: ledger, what: "ledger" });
-if (!ledgerGate.ok) { console.error(`REFUSED: ${path.relative(path.resolve(APP, ".."), LEDGER)} — ${ledgerGate.detail}`); process.exit(1); }
+if (!ledgerGate.ok) { console.error(`REFUSED: ${rel(LEDGER_IN)} — ${ledgerGate.detail}`); process.exit(1); }
 if (ledgerGate.adopt) { ledger.family = FAMILY.family; ledger.modelVersion = FAMILY.modelVersion; ledger.poolRule = FAMILY.poolRule; }
-const entries = [];
+ledger.labels ??= Object.values(LABELS);
+
+const files = fs.readdirSync(FORECASTS).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().filter((f) => !ONLY_DATE || f === `${ONLY_DATE}.json`);
+const items = [];
+const pendingWrites = [];
+let corrections = 0, checks = 0;
 for (const file of files) {
   const artifact = readJson(path.join(FORECASTS, file));
-  // ...and neither does a GRADING RUN. A forecast that declares another family is refused rather than
-  // averaged in: the ledger's summary would otherwise blend two pool rules into one record.
   const artGate = familyGuard({ family: FAMILY.family, doc: artifact, what: "forecast artifact" });
   if (!artGate.ok) { console.error(`REFUSED: ${FAMILY.dir}/forecasts/${file} — ${artGate.detail}`); process.exit(1); }
   const date = artifact.date ?? file.slice(0, 10);
-  const graded = [];
-  const pending = [];
-  const fetched = [];
+  const graded = [], pending = [], fetched = [];
   for (const game of artifact.games ?? []) {
     const id = String(game.providerEventId);
-    const final = findFinal(id);
-    if (!final) { pending.push({ providerEventId: id, reason: "no final in results capture or corpus" }); continue; }
-    let box = findBoxscore(id);
+    const final = lookupFinal(id, { dateUtc: game.dateUtc });
+    if (final.state === "PENDING") { pending.push(id); items.push({ providerEventId: id, date, status: "PENDING", pendingReason: "NO_FINAL (finals record, results capture, corpus)" }); continue; }
+    let box = correctedBoxscore(ledger, id) ?? findBoxscore(id);
     if (!box && FETCH) {
-      const r = await fetchSummary(id);
-      if (r.summary) {
-        try {
-          const parsed = parseSummary(r.summary, { providerEventId: id, season: null, phase: game.seasonType, dateUtc: game.dateUtc, capturedAt: NOW });
-          if (parsed.doc.status && !/FINAL/.test(parsed.doc.status)) { pending.push({ providerEventId: id, reason: `summary status ${parsed.doc.status} not final` }); continue; }
-          if (WRITE) { fs.mkdirSync(EXP_BOX, { recursive: true }); fs.writeFileSync(path.join(EXP_BOX, `${id}.json`), JSON.stringify(parsed.doc, null, 1)); }
-          box = { doc: parsed.doc, source: "experimental-fetch" };
-          fetched.push(id);
-        } catch (e) {
-          if (e instanceof LabelOrderError) { console.error(`ABORT: ${e.message} on ${id}`); process.exit(2); }
-          pending.push({ providerEventId: id, reason: `parse ${e?.message ?? e}` });
-        }
-      } else pending.push({ providerEventId: id, reason: `fetch ${r.error}` });
+      const r = await fetchBoxDoc(id, game);
+      if (r.doc) {
+        const f = path.join(EXP_BOX, `${id}.json`);
+        pendingWrites.push([f, r.doc]);
+        box = { doc: r.doc, source: "experimental-fetch", file: f };
+        fetched.push(id);
+      } else console.log(`  ${id}: box score not stored (${r.error}) — graded without player rows`);
+    } else if (box && RECHECK_ON && box.source !== "corpus") {
+      const due = recheckDue({ tipUtc: game.dateUtc, now: NOW, lastCheckedAt: lastCheckAt(ledger, id) ?? box.doc?.capturedAt ?? null });
+      if (due.due) {
+        const r = await fetchBoxDoc(id, game);
+        checks += 1;
+        if (r.doc) {
+          const oldHash = boxscoreContentHash(box.doc), newHash = boxscoreContentHash(r.doc);
+          const old = { hash: oldHash, file: relNba(box.file), capturedAt: box.doc?.capturedAt ?? null };
+          if (oldHash === newHash) ledger = appendBoxscoreCheck(ledger, { providerEventId: id, checkedAt: NOW, outcome: "UNCHANGED", hash: oldHash });
+          else {
+            const f = path.join(CORRECTIONS_DIR, `${id}.${newHash.slice(0, 12)}.json`);
+            pendingWrites.push([f, r.doc]);
+            ledger = appendBoxscoreCheck(ledger, { providerEventId: id, checkedAt: NOW, outcome: "CORRECTION", hash: newHash, old, new: { hash: newHash, file: relNba(f), capturedAt: NOW }, changes: diffBoxscores(box.doc, r.doc) });
+            box = { doc: r.doc, source: "experimental-correction", file: f };
+            corrections += 1;
+            console.log(`  ${id}: BOX SCORE CORRECTION ${oldHash.slice(0, 12)} → ${newHash.slice(0, 12)}`);
+          }
+        } else ledger = appendBoxscoreCheck(ledger, { providerEventId: id, checkedAt: NOW, outcome: "CHECK_FAILED", detail: r.error });
+      }
     }
-    graded.push(gradeForecastGame(game, final, box?.doc ?? null));
+    const ot = resolveOvertime({ final, boxscore: box?.doc ?? null });
+    const g = gradeForecastGame(game, { ...final, ...ot }, box?.doc ?? null);
+    if (!g.graded) { pending.push(id); items.push({ providerEventId: id, date, status: "PENDING", pendingReason: g.reason }); continue; }
+    g.context = {
+      finalState: final.state,
+      boxscorePoints: boxscorePointsCheck(box?.doc ?? null, { homeTeamId: game.home?.providerTeamId, awayTeamId: game.away?.providerTeamId, ftHome: final.ftHome, ftAway: final.ftAway }),
+      restDays: { home: restDaysFor({ teamId: game.home?.providerTeamId, tipUtc: game.dateUtc, priorTips }), away: restDaysFor({ teamId: game.away?.providerTeamId, tipUtc: game.dateUtc, priorTips }) },
+    };
+    graded.push(g);
+    items.push({ providerEventId: id, date, status: "GRADED", grade: g, inputs: { finalSource: final.source, finalState: final.state, boxscoreSource: box?.source ?? null, boxscoreHash: box ? boxscoreContentHash(box.doc) : null, boxscoreFile: box ? relNba(box.file) : null } });
   }
-  const summary = summariseGrades(graded);
-  const entry = { date, gradedAt: NOW, modelVersion: artifact.modelVersion ?? null, inputAsOf: artifact.inputAsOf ?? null, forecastGames: (artifact.games ?? []).length, graded: graded.filter((g) => g.graded).length, pending, fetched, summary, games: graded };
-  entries.push(entry);
-  console.log(`[${FAMILY.family}] ${date}: forecast ${entry.forecastGames} · graded ${entry.graded} · pending ${pending.length}${FETCH ? ` · fetched ${fetched.length}` : ""}`);
-  for (const [label, b] of Object.entries(summary)) if (b.games) console.log(`  ${label}: games ${b.games} · elo brier ${b.winner.elo.brier} ll ${b.winner.elo.logLoss} · sim brier ${b.winner.sim.brier} ll ${b.winner.sim.logLoss} · margin MAE ${b.score.marginMAE} · total MAE ${b.score.totalMAE} · minutes MAE ${b.players.minutesMAE} (rows ${b.players.matchedRows}) · cond pts MAE ${b.players.conditionalMAE.pts}`);
+  console.log(`[${FAMILY.family}] ${date}: forecast ${(artifact.games ?? []).length} · graded ${graded.length} · pending ${pending.length}${FETCH ? ` · fetched ${fetched.length}` : ""}`);
+  for (const [label, b] of Object.entries(summariseGrades(graded))) if (b.games) console.log(`  ${label}: games ${b.games} · elo brier ${b.winner.elo.brier} ll ${b.winner.elo.logLoss} (n ${b.winner.elo.n}) · sim brier ${b.winner.sim.brier} ll ${b.winner.sim.logLoss} (n ${b.winner.sim.n}) · margin MAE ${b.score.marginMAE} · total MAE ${b.score.totalMAE} · minutes MAE ${b.players.minutesMAE} (rows ${b.players.matchedRows})`);
 }
 
-/* Session 10 · G5 — the preregistered validation block (grader-metrics.mjs), cumulative, one block per label. */
-const buildValidation = (allEntries) => validationByLabel(allEntries, { computedAt: NOW });
+const { ledger: next, appended } = appendGameResults(ledger, items, { gradedAt: NOW, graderVersion: GRADER_VERSION });
+next.graderVersion = GRADER_VERSION;
+next.recheck = { ...RECHECK, enabled: RECHECK_ON };
+next.validation = validationFromGrades(currentGrades(next), { computedAt: NOW });
+next.updatedAt = appended.length || checks ? NOW : before?.updatedAt ?? NOW;
+next.requestsMade = requestsMade;
+const violations = experimentalLedgerAppendOnlyViolations({ before, after: next });
+if (violations.length) { console.error(`REFUSED (append-only guard): ${violations.join("; ")}`); process.exit(1); }
+const lineage = appended.reduce((m, e) => ({ ...m, [e.lineageReason]: (m[e.lineageReason] ?? 0) + 1 }), {});
+console.log(`appended ${appended.length} grade entr${appended.length === 1 ? "y" : "ies"} ${JSON.stringify(lineage)} · box-score re-checks ${checks} · corrections ${corrections} · requests ${requestsMade}`);
+for (const [label, m] of Object.entries(next.validation.byLabel)) console.log(`[validation] ${label}: games ${m.games} · pre-tip ${m.timing.preTip}/${m.games} · sim brier ${m.winner.sim.brier} ece ${m.winner.sim.ece} (n ${m.winner.sim.n}) · OT ${m.overtime.n} measured / ${m.overtime.notMeasured} not · margin cov80 ${m.margin.coverage80} (n ${m.margin.coverage80N}) · states ${Object.entries(m.states).map(([k, s]) => `${k}=${s.state}`).join(" ")}`);
 
-if (WRITE) {
-  const byDate = new Map(ledger.entries.map((e) => [e.date, e]));
-  for (const e of entries) if (e.graded > 0 || !byDate.has(e.date)) byDate.set(e.date, e);
-  ledger.entries = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
-  ledger.validation = buildValidation(ledger.entries);
-  ledger.updatedAt = NOW;
-  ledger.requestsMade = requestsMade;
-  fs.mkdirSync(EXP, { recursive: true });
-  fs.writeFileSync(LEDGER, JSON.stringify(ledger, null, 1));
-  console.log(`wrote ${path.relative(path.resolve(APP, ".."), LEDGER)} (${ledger.entries.length} date entries)`);
-} else console.log("dry run — pass --write to append to the ledger");
-{
-  const v = buildValidation([...(WRITE ? ledger.entries : [...new Map([...ledger.entries, ...entries].map((e) => [e.date, e])).values()])]);
-  for (const [label, m] of Object.entries(v.byLabel)) console.log(`[validation] ${label}: games ${m.games} · pre-tip ${m.timing.preTip}/${m.games} · sim brier ${m.winner.sim.brier} ece ${m.winner.sim.ece} · margin cov80 ${m.margin.coverage80} · states ${Object.entries(m.states).map(([k, s]) => `${k}=${s.state}`).join(" ")}`);
+if (!WRITE) { console.log("dry run — pass --write to append to the ledger"); process.exit(0); }
+const nowText = fs.existsSync(LEDGER_IN) ? fs.readFileSync(LEDGER_IN, "utf8") : null;
+if (nowText !== beforeText) { console.error("REFUSED: ledger changed during this run"); process.exit(1); }
+for (const [f, doc] of pendingWrites) {
+  if (fs.existsSync(f)) { console.error(`REFUSED: ${rel(f)} already exists — a stored box score is never rewritten`); process.exit(1); }
+  writeJson(f, doc);
 }
+writeJson(LEDGER_OUT, next);
+console.log(`wrote ${OUT_DIR ? LEDGER_OUT : rel(LEDGER_OUT)} (${next.gradeEntries.length} grade entries · legacy entries ${next.entries?.length ?? 0} untouched)${pendingWrites.length ? ` + ${pendingWrites.length} box-score file(s)` : ""}`);

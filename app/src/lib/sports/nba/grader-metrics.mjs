@@ -63,6 +63,8 @@ function winnerMetrics(games) {
     const rel = reliability(pairs);
     out[head] = {
       n: pairs.length,
+      accuracy: r4(mean(pairs.map(({ p, y }) => ((p >= 0.5 ? 1 : 0) === y ? 1 : 0)))),
+      accuracyRule: "p(home) >= 0.5 picks home (the grader's `hit`); n beside it",
       brier: r4(mean(pairs.map(({ p, y }) => (p - y) ** 2))),
       logLoss: r4(mean(pairs.map(({ p, y }) => -(y ? Math.log(clamp(p)) : Math.log(1 - clamp(p)))))),
       ece: rel.ece,
@@ -87,21 +89,155 @@ function intervalMetrics(games, key) {
   const recorded = rows.filter((r) => r.inside80 === 0 || r.inside80 === 1);
   const errKey = key === "margin" ? "marginErr" : "totalErr";
   const absKey = key === "margin" ? "marginAbsErr" : "totalAbsErr";
+  const rec50 = rows.filter((r) => r.inside50 === 0 || r.inside50 === 1);
+  const errs = games.map((g) => g.score?.[errKey]).filter(Number.isFinite);
   return {
     n: games.filter((g) => Number.isFinite(g.score?.[absKey])).length,
     mae: r4(mean(games.map((g) => g.score?.[absKey]).filter(Number.isFinite))),
-    bias: r4(mean(games.map((g) => g.score?.[errKey]).filter(Number.isFinite))),
+    rmse: errs.length ? r4(Math.sqrt(mean(errs.map((e) => e * e)))) : null,
+    bias: r4(mean(errs)),
+    biasRule: "mean(forecast − actual): positive = projected too high",
     coverage80: recorded.length ? r4(mean(recorded.map((r) => r.inside80))) : null,
     coverage80N: recorded.length,
-    coverage50: null,
-    coverage50Reason: "NOT_RECORDED — the v0 artifact stores p10/p50/p90, not p25/p75",
+    coverage50: rec50.length ? r4(mean(rec50.map((r) => r.inside50))) : null,
+    coverage50N: rec50.length,
+    coverage50Reason: rec50.length ? null : "NOT_RECORDED — the v0 artifact stores p10/p50/p90, not p25/p75",
     intervalNotRecorded: games.length - recorded.length,
+  };
+}
+
+/** MAE / RMSE / bias over signed errors (forecast − actual), with n. MAE/RMSE use |err| when given separately. */
+export function errorStats(signed, abs = null) {
+  const s = signed.filter(Number.isFinite);
+  const a = abs ? abs.filter(Number.isFinite) : s.map(Math.abs);
+  return {
+    n: a.length,
+    mae: r4(mean(a)),
+    rmse: a.length ? r4(Math.sqrt(mean(a.map((x) => x * x)))) : null,
+    bias: s.length ? r4(mean(s)) : null,
+    biasN: s.length,
+  };
+}
+const rate01 = (xs) => { const v = xs.filter((x) => x === 0 || x === 1); return { n: v.length, rate: v.length ? r4(mean(v)) : null }; };
+
+const STATS = ["pts", "reb", "ast", "threePm"];
+const COMBOS = ["pra", "ptsAst", "ptsReb"];
+
+/** Per-stat error + coverage block over matched player rows (unconditional = sim mean vs actual). */
+function statBlock(rows) {
+  const out = {};
+  for (const k of STATS) {
+    out[k] = {
+      unconditional: errorStats(rows.map((r) => r.signed?.[k] ?? null), rows.map((r) => r.unconditional?.[k] ?? null).filter((x) => x != null)),
+      conditionalMAE: r4(mean(rows.map((r) => r.conditional?.[k]).filter(Number.isFinite))),
+      coverage80: rate01(rows.map((r) => r.inside80?.[k])),
+      atOrAboveMedian: rate01(rows.map((r) => r.atOrAboveMedian?.[k])),
+    };
+  }
+  for (const c of COMBOS) {
+    const xs = rows.map((r) => r.combos?.[c]).filter(Boolean);
+    out[c] = { unconditional: errorStats(xs.map((x) => x.signed)), coverage80: rate01(xs.map((x) => x.inside80)) };
+  }
+  return out;
+}
+
+/** Expected-minutes bands. 10 = the §13 lane's listing floor; 20 = the §6/§7 player-bar floor. Reporting splits only. */
+export const MINUTES_BANDS = Object.freeze([
+  Object.freeze({ key: "<10", lo: -Infinity, hi: 10, source: "prereg §13 (the lane lists players with ≥ 10 expected minutes)" }),
+  Object.freeze({ key: "10-20", lo: 10, hi: 20, source: "prereg §13 / §6" }),
+  Object.freeze({ key: "≥20", lo: 20, hi: Infinity, source: "prereg §6 (player bars count expectedMinutes ≥ 20)" }),
+]);
+const restKey = (d) => (d == null ? "unknown" : d === 0 ? "0 (back-to-back)" : d === 1 ? "1" : "2+");
+
+/** Tertile cut points of a sample (in-sample, labelled) — used only for the pace slice, so no constant is chosen here. */
+function tertiles(xs) {
+  const v = xs.filter(Number.isFinite).sort((a, b) => a - b);
+  if (v.length < 3) return null;
+  const q = (p) => v[Math.min(v.length - 1, Math.floor(p * v.length))];
+  return [q(1 / 3), q(2 / 3)];
+}
+
+/**
+ * Player + game slices: expected-minutes band, injury status / availability (incl. DNP + absent misses), home/away,
+ * rest / back-to-back (prereg §9: rest 0 / 1 / 2+), starter, pace (in-sample tertiles). Every cell carries n.
+ * §6: rest / role slices are REPORTED, never gated, until n ≥ 100 per slice.
+ */
+export function sliceMetrics(games) {
+  const rowsWithCtx = games.flatMap((g) => (g.players?.rows ?? []).map((r) => ({ r, g })));
+  const group = (keyOf) => {
+    const m = new Map();
+    for (const x of rowsWithCtx) { const k = keyOf(x); if (!m.has(k)) m.set(k, []); m.get(k).push(x.r); }
+    return Object.fromEntries([...m.entries()].sort(([a], [b]) => String(a).localeCompare(String(b))).map(([k, rows]) => [k, {
+      n: rows.length,
+      minutes: errorStats(rows.map((r) => r.minutesErr ?? null), rows.map((r) => r.minutesAbsErr)),
+      stats: statBlock(rows),
+    }]));
+  };
+  const band = (em) => MINUTES_BANDS.find((b) => Number.isFinite(em) && em >= b.lo && em < b.hi)?.key ?? "unknown";
+  const paceCuts = tertiles(games.map((g) => g.players?.pace?.possessions));
+  const paceKey = (g) => {
+    const p = g.players?.pace?.possessions;
+    if (!paceCuts || !Number.isFinite(p)) return "unknown";
+    return p < paceCuts[0] ? "low (in-sample tertile 1)" : p < paceCuts[1] ? "mid (tertile 2)" : "high (tertile 3)";
+  };
+  const players = {
+    expectedMinutes: group(({ r }) => band(r.expectedMinutes)),
+    injuryStatus: group(({ r }) => r.injuryStatus ?? "none listed"),
+    availability: group(({ r }) => r.availability ?? "unknown"),
+    homeAway: group(({ r }) => r.side ?? "unknown"),
+    rest: group(({ r, g }) => restKey(g.context?.restDays?.[r.side])),
+    starter: group(({ r }) => (r.starterActual == null ? "unknown" : r.starterActual ? "started" : "bench")),
+    pace: group(({ g }) => paceKey(g)),
+  };
+  // Availability misses by the prediction's injury status (DNP incl. coach's decision; not in the box score = absent).
+  const misses = {};
+  for (const g of games) for (const [kind, list] of [["predictedButDnp", g.players?.predictedButDnp], ["predictedButAbsent", g.players?.predictedButAbsent]]) {
+    for (const p of list ?? []) {
+      const k = p.injuryStatus ?? "none listed";
+      misses[k] ??= { predictedButDnp: 0, predictedButAbsent: 0 };
+      misses[k][kind] += 1;
+    }
+  }
+  for (const [k, v] of Object.entries(players.injuryStatus)) misses[k] ??= { predictedButDnp: 0, predictedButAbsent: 0, _played: v.n };
+  for (const k of Object.keys(misses)) {
+    const played = players.injuryStatus[k]?.n ?? 0;
+    const { predictedButDnp, predictedButAbsent } = misses[k];
+    const predicted = played + predictedButDnp + predictedButAbsent;
+    misses[k] = { predicted, played, predictedButDnp, predictedButAbsent, missRate: predicted ? r4((predictedButDnp + predictedButAbsent) / predicted) : null };
+  }
+  const gameGroup = (keyOf) => {
+    const m = new Map();
+    for (const g of games) { const k = keyOf(g); if (!m.has(k)) m.set(k, []); m.get(k).push(g); }
+    return Object.fromEntries([...m.entries()].sort(([a], [b]) => String(a).localeCompare(String(b))).map(([k, gs]) => [k, {
+      n: gs.length,
+      simAccuracy: rate01(gs.map((g) => g.winner?.sim?.hit)),
+      eloAccuracy: rate01(gs.map((g) => g.winner?.elo?.hit)),
+      margin: errorStats(gs.map((g) => g.score?.marginErr)),
+      total: errorStats(gs.map((g) => g.score?.totalErr)),
+    }]));
+  };
+  const b2b = (g) => {
+    const h = g.context?.restDays?.home, a = g.context?.restDays?.away;
+    if (h == null || a == null) return "unknown";
+    return h === 0 && a === 0 ? "both back-to-back" : h === 0 ? "home back-to-back" : a === 0 ? "away back-to-back" : "neither";
+  };
+  return {
+    note: "§6/§9: slices are reported, never gated, until n ≥ 100 per slice; pace tertiles are in-sample (cut points listed)",
+    paceCuts: paceCuts ? paceCuts.map(r4) : null,
+    players,
+    availabilityMisses: misses,
+    games: { backToBack: gameGroup(b2b), pace: gameGroup(paceKey) },
   };
 }
 
 function playerMetrics(games) {
   const rows = games.flatMap((g) => g.players?.rows ?? []);
-  const out = { minutes: { n: rows.length, mae: r4(mean(rows.map((r) => r.minutesAbsErr).filter(Number.isFinite))) }, families: {} };
+  const out = {
+    minutes: { ...errorStats(rows.map((r) => r.minutesErr ?? null), rows.map((r) => r.minutesAbsErr)), n: rows.length, mae: r4(mean(rows.map((r) => r.minutesAbsErr).filter(Number.isFinite))), coverage80: rate01(rows.map((r) => r.minutesInside80)) },
+    allRows: statBlock(rows),
+    families: {},
+  };
+
   for (const [fam, spec] of Object.entries(PREREG.player)) {
     const eligible = rows.filter((r) => Number.isFinite(r.expectedMinutes) && r.expectedMinutes >= spec.minMinutes
       && (spec.minRatePerMin == null || (Number.isFinite(r.rates?.[fam]) && r.rates[fam] >= spec.minRatePerMin)));
@@ -112,6 +248,7 @@ function playerMetrics(games) {
       minN: spec.minN,
       conditionalMAE: r4(mean(eligible.map((r) => r.conditional?.[fam]).filter(Number.isFinite))),
       unconditionalMAE: r4(mean(eligible.map((r) => r.unconditional?.[fam]).filter(Number.isFinite))),
+      unconditional: errorStats(eligible.map((r) => r.signed?.[fam] ?? null), eligible.map((r) => r.unconditional?.[fam]).filter((x) => x != null)),
       coverage80: cov.length ? r4(mean(cov)) : null,
       coverage80N: cov.length,
       atOrAboveMedianRate: med.length ? r4(mean(med)) : null,
@@ -177,18 +314,46 @@ export function validationMetrics(games) {
     winner: winnerMetrics(g),
     margin: intervalMetrics(g, "margin"),
     total: intervalMetrics(g, "total"),
-    overtime: {
-      n: ot.length,
-      notMeasured: g.length - ot.length,
-      actualRate: ot.length ? r4(mean(ot.map((x) => (x.overtime.actual ? 1 : 0)))) : null,
-      simTieMassMean: r4(mean(ot.map((x) => x.overtime.simTieMass).filter(Number.isFinite))),
-      note: "forward finals carry no overtime fact (results capture + box score); only corpus finals do — NOT_MEASURED is not 'no overtime'",
-    },
+    overtime: overtimeMetrics(g, ot),
     players: playerMetrics(g),
   };
+  m.slices = sliceMetrics(g);
   m.states = marketStates(m);
   return m;
 }
+
+/** Overtime head: the fact (grader v2 derives it) and the sim's P(OT) scored as a probability (Brier / log loss / ECE). */
+function overtimeMetrics(g, ot) {
+  const pOf = (x) => (Number.isFinite(x.overtime.pOvertime) ? x.overtime.pOvertime : x.overtime.simTieMass);
+  const pairs = ot.filter((x) => Number.isFinite(pOf(x))).map((x) => ({ p: pOf(x), y: x.overtime.actual ? 1 : 0 }));
+  const rel = reliability(pairs);
+  const sources = {};
+  for (const x of ot) { const k = x.overtime.source ?? "unknown"; sources[k] = (sources[k] ?? 0) + 1; }
+  return {
+    n: ot.length,
+    notMeasured: g.length - ot.length,
+    actualRate: ot.length ? r4(mean(ot.map((x) => (x.overtime.actual ? 1 : 0)))) : null,
+    simTieMassMean: r4(mean(ot.map((x) => x.overtime.simTieMass).filter(Number.isFinite))),
+    head: {
+      n: pairs.length,
+      pMean: r4(mean(pairs.map((x) => x.p))),
+      brier: r4(mean(pairs.map(({ p, y }) => (p - y) ** 2))),
+      logLoss: r4(mean(pairs.map(({ p, y }) => -(y ? Math.log(clamp(p)) : Math.log(1 - clamp(p)))))),
+      ece: rel.ece,
+      reliability: rel.table,
+    },
+    sources,
+    note: "grader v2 derives the fact (summary periods → box-score team minutes → corpus); a game with none is NOT_MEASURED, never 'no overtime'",
+  };
+}
+
+/** The validation block over a set of current grades (grader v2: the ledger's current view, one grade per event). */
+export function validationFromGrades(grades, { computedAt }) {
+  const byLabel = {};
+  for (const g of grades ?? []) if (g?.graded) (byLabel[g.label] ??= []).push(g);
+  return { preregistration: PREREG.doc, computedAt, source: "gradeEntries current view (latest entry per event)", byLabel: Object.fromEntries(Object.entries(byLabel).map(([label, games]) => [label, validationMetrics(games)])) };
+}
+
 
 /**
  * The ledger's validation block: CUMULATIVE over every graded date, one block per label (preseason and regular
