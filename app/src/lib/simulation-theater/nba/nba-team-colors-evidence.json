@@ -1,0 +1,670 @@
+{
+ "$schema": "gtp/nba-team-colors-evidence@1",
+ "about": "Evidence for nba-team-colors.json. Data only; no component imports it. nba-colors.test.mjs checks that every team's map values equal the primary source's listing.",
+ "accessed": "2026-10-19",
+ "primarySource": "tcc",
+ "sources": {
+  "tcc": {
+   "name": "teamcolorcodes.com, NBA team color codes page",
+   "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+   "official": false,
+   "family": "teamcolorcodes"
+  },
+  "wikiModule": {
+   "name": "Wikipedia Module:Sports color/basketball (raw), read through a summarising fetch",
+   "url": "https://en.wikipedia.org/w/index.php?title=Module:Sports_color/basketball&action=raw",
+   "official": false,
+   "family": "wikipedia",
+   "caveat": "Extracted by a summarising fetch of a 170k-character module; the entry read may be a historical or uniform set rather than the current brand set (e.g. ATL, DET, PHI, NYK differ from tcc). Recorded as observed, NOT used for any value."
+  }
+ },
+ "caveats": [
+  "No official NBA or club brand guide was consulted; values are from one non-official source. status = single-source-unvalidated.",
+  "UTA: the tcc listing (navy/green/gold) appears to predate the Jazz's 2025 identity change; treat as stale until checked against utahjazz.com.",
+  "PHI and NYK share the primary #006BB6: the PHI @ NYK opening-night pairing exercises the clash cues (away side patterned).",
+  "Wikipedia values differ for several teams; disagreement is recorded, not resolved."
+ ],
+ "teams": {
+  "ATL": {
+   "team": "Atlanta Hawks",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#E03A3E",
+      "#C1D32F",
+      "#26282A"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#C8102E",
+      "#FFFFFF",
+      "#FDB927",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "BOS": {
+   "team": "Boston Celtics",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#007A33",
+      "#BA9653",
+      "#963821",
+      "#FFFFFF",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#008348",
+      "#FFFFFF",
+      "#FFFFFF",
+      "#008348"
+     ]
+    }
+   }
+  },
+  "BKN": {
+   "team": "Brooklyn Nets",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#000000",
+      "#FFFFFF"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#FFFFFF",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "CHA": {
+   "team": "Charlotte Hornets",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#1D1160",
+      "#00788C",
+      "#A1A1A4"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#00788C",
+      "#FFFFFF",
+      "#1D1160",
+      "#FFFFFF"
+     ]
+    }
+   }
+  },
+  "CHI": {
+   "team": "Chicago Bulls",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#CE1141",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#CE1141",
+      "#FFFFFF",
+      "#000000",
+      "#FFFFFF"
+     ]
+    }
+   }
+  },
+  "CLE": {
+   "team": "Cleveland Cavaliers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#860038",
+      "#041E42",
+      "#FDBB30",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#860038",
+      "#FFFFFF",
+      "#BC945C",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "DAL": {
+   "team": "Dallas Mavericks",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#00538C",
+      "#002B5E",
+      "#B8C4CA",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#0064B1",
+      "#FFFFFF",
+      "#BBC4CA",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "DEN": {
+   "team": "Denver Nuggets",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#0E2240",
+      "#FEC524",
+      "#8B2131",
+      "#1D428A"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#0E2240",
+      "#FFFFFF",
+      "#FEC524",
+      "#0E2240"
+     ]
+    }
+   }
+  },
+  "DET": {
+   "team": "Detroit Pistons",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#C8102E",
+      "#1D42BA",
+      "#BEC0C2",
+      "#002D62"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#1D428A",
+      "#FFFFFF",
+      "#C8102E",
+      "#FFFFFF"
+     ]
+    }
+   }
+  },
+  "GSW": {
+   "team": "Golden State Warriors",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#1D428A",
+      "#FFC72C"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#1D428A",
+      "#FFFFFF",
+      "#FDB927",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "HOU": {
+   "team": "Houston Rockets",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#CE1141",
+      "#000000",
+      "#C4CED4"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#CE0E2D",
+      "#FFFFFF",
+      "#FFD520",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "IND": {
+   "team": "Indiana Pacers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#002D62",
+      "#FDBB30",
+      "#BEC0C2"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#0C2340",
+      "#FFFFFF",
+      "#FFD520",
+      "#0C2340"
+     ]
+    }
+   }
+  },
+  "LAC": {
+   "team": "Los Angeles Clippers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#C8102E",
+      "#1D428A",
+      "#BEC0C2",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#12173F",
+      "#FFFFFF",
+      "#C8102E",
+      "#FFFFFF"
+     ]
+    }
+   }
+  },
+  "LAL": {
+   "team": "Los Angeles Lakers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#552583",
+      "#FDB927",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#31006F",
+      "#FFFFFF",
+      "#FDB927",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "MEM": {
+   "team": "Memphis Grizzlies",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#5D76A9",
+      "#12173F",
+      "#F5B112",
+      "#707271"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#5D76A9",
+      "#FFFFFF",
+      "#12173F",
+      "#FFFFFF"
+     ]
+    }
+   }
+  },
+  "MIA": {
+   "team": "Miami Heat",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#98002E",
+      "#F9A01B",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#98002E",
+      "#FFFFFF"
+     ]
+    }
+   }
+  },
+  "MIL": {
+   "team": "Milwaukee Bucks",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#00471B",
+      "#EEE1C6",
+      "#0077C0",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#00471B",
+      "#FFFFFF",
+      "#EEE1C6",
+      "#00471B"
+     ]
+    }
+   }
+  },
+  "MIN": {
+   "team": "Minnesota Timberwolves",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#0C2340",
+      "#236192",
+      "#9EA2A2",
+      "#78BE20"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#1D428A",
+      "#FFFFFF",
+      "#009A44",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "NOP": {
+   "team": "New Orleans Pelicans",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#0C2340",
+      "#C8102E",
+      "#85714D"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#0C2340",
+      "#FFFFFF",
+      "#B9975B",
+      "#0C2340"
+     ]
+    }
+   }
+  },
+  "NYK": {
+   "team": "New York Knicks",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#006BB6",
+      "#F58426",
+      "#BEC0C2",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#1D428A",
+      "#FFFFFF",
+      "#F58426",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "OKC": {
+   "team": "Oklahoma City Thunder",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#007AC1",
+      "#EF3B24",
+      "#002D62",
+      "#FDBB30"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#007AC1",
+      "#FFFFFF",
+      "#EF3B24",
+      "#FFFFFF"
+     ]
+    }
+   }
+  },
+  "ORL": {
+   "team": "Orlando Magic",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#0077C0",
+      "#C4CED4",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#0050B5",
+      "#FFFFFF",
+      "#000000",
+      "#FFFFFF"
+     ]
+    }
+   }
+  },
+  "PHI": {
+   "team": "Philadelphia 76ers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#006BB6",
+      "#ED174C",
+      "#002B5C",
+      "#C4CED4"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#1D428A",
+      "#FFFFFF",
+      "#C8102E",
+      "#FFFFFF"
+     ]
+    }
+   }
+  },
+  "PHX": {
+   "team": "Phoenix Suns",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#1D1160",
+      "#E56020",
+      "#000000",
+      "#63727A",
+      "#F9AD1B"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#1D1160",
+      "#FFFFFF",
+      "#E56020",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "POR": {
+   "team": "Portland Trail Blazers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#E03A3E",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#E03A3E",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "SAC": {
+   "team": "Sacramento Kings",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#5A2D81",
+      "#63727A",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#5A2D81",
+      "#FFFFFF"
+     ]
+    }
+   }
+  },
+  "SAS": {
+   "team": "San Antonio Spurs",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#C4CED4",
+      "#000000"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#C4CED4",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "TOR": {
+   "team": "Toronto Raptors",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#CE1141",
+      "#000000",
+      "#A1A1A4",
+      "#B4975A"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#CE1141",
+      "#FFFFFF",
+      "#000000",
+      "#FFFFFF"
+     ]
+    }
+   }
+  },
+  "UTA": {
+   "team": "Utah Jazz",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#002B5C",
+      "#00471B",
+      "#F9A01B"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#4E008E",
+      "#FFFFFF",
+      "#79A3DC",
+      "#000000"
+     ]
+    }
+   }
+  },
+  "WAS": {
+   "team": "Washington Wizards",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/nba-team-color-codes/",
+     "listed": [
+      "#002B5C",
+      "#E31837",
+      "#C4CED4"
+     ]
+    },
+    "wikiModule": {
+     "listed": [
+      "#002B5C",
+      "#FFFFFF",
+      "#E31837",
+      "#FFFFFF"
+     ]
+    }
+   }
+  }
+ }
+}

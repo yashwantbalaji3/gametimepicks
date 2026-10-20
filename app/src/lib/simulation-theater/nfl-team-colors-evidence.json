@@ -1,0 +1,4099 @@
+{
+ "$schema": "gtp/nfl-team-colors-evidence@1",
+ "about": "Evidence for the Simulation Theater V2 NFL team colour map (app/src/lib/simulation-theater/nfl-team-colors.mjs). Data only: no component imports it, it never ships in a bundle, and the colour-literal scanner (lib/uiux/color-scan.mjs, .ts/.tsx/.mjs/.css) does not read .json. Hex values only, no logo or brand asset stored. dev-route-colors.test.mjs recomputes every flag and every derived value from this file.",
+ "accessed": "2026-10-18",
+ "validationDeltaE": 5,
+ "rules": {
+  "validated": "A source AGREES with a team when it lists colours within CIE76 ΔE ≤ validationDeltaE of BOTH the map's primary and its secondary. official = some official source agrees; agree = sources from two independent families agree (nflHeader, nflLogo and wiki are one family, NFL.com's); validated = official || agree.",
+  "roles": "primary = the team's primary brand colour (score-bug block, end zone, possession tag) — painted in every matchup, home or away; secondary = its main contrasting brand colour (block trim where it reaches 4.5:1, and the field colour where the primary cannot be told from the turf); accent = the team's DECLARED FIELD COLOUR, painted in every matchup (drive ribbon, timeline fills, scoring flash, winner outline, break-card rule). Every role value is listed VERBATIM by at least one official source (officialSources below). fieldColour (per team) records which role the field colour is and why.",
+  "contrast": "Text on a team block (ink, and the trim used for end-zone lettering) ≥ 4.5:1 on that block. On the field and the timeline, contrast comes from TREATMENT, not a substituted hue: the official value is painted as is, and every team mark carries a light keyline (--st-keyline = --lava-text 85% into --bg, #D2D3D2), the boundary WCAG 1.4.11 measures (≥ 3:1 on both turf stripes, the timeline panel and the page). The possession tag is a miniature score-bug block (fill, ink ≥ 4.5:1, keyline). Outlines drawn on an end zone (winner, reduced-motion scoring flash) sit on a halo in that end zone's ink (≥ 4.5:1 on its fill). No colour is lightened or replaced for contrast.",
+  "collisions": "NO COLOUR IS EVER SWAPPED. A pairing CLASHES when the two primaries collide (CIE76 ΔE < 20: score bug, end zone, possession tag) or the two field colours clash (fieldClash: CIE76 ΔE < 20 or CIEDE2000 ΔE00 < 10; CIE76 calls dark pairs such as BUF royal / IND blue, ΔE00 5.9, distinct). Then the AWAY side is `patterned` and is told apart by non-colour cues (WCAG 1.4.1): diagonal stripes of the keyline (with a dark hairline) over its own colour on its timeline segments, drive ribbon, end line and score-bug bar; its abbreviation on its timeline segments wherever they are ≥ 34 px wide (and, as for every team, on the possession tag, the score bug and the end zone); a pennant-shaped possession tag pointing the way it attacks; square ribbon ends. The home side stays plain, so exactly one side carries the cues.",
+  "identity": "One identity, never swapped (founder, 2026-10-18: keep Buffalo's royal blue #00338D in every matchup, including away games, and apply the same principle to every team). The field colour is the primary except (1) where a founder role decision names another official colour (NO and PIT gold: their black is ΔE00 11.2 from the turf; TB's official red #C2242B) or (2) where the primary cannot be told from the field surfaces even keylined: CIEDE2000 ΔE00 < 20 against either turf stripe or the timeline panel (fieldDistinct) — then the secondary. Exception 2 applies to GB, NYJ, PHI, CHI, CLE, HOU and LV (re-examined in iteration 6, every one under 20). JAX now paints teal and TEN Titans blue, their primaries."
+ },
+ "sources": {
+  "tcc": {
+   "name": "teamcolorcodes.com (team page)",
+   "base": "https://teamcolorcodes.com/",
+   "official": false,
+   "family": "teamcolorcodes"
+  },
+  "wiki": {
+   "name": "Wikipedia Module:Gridiron color/data (rev 1380502831)",
+   "url": "https://en.wikipedia.org/wiki/Module:Gridiron_color/data",
+   "official": false,
+   "family": "nfl.com"
+  },
+  "nflHeader": {
+   "name": "NFL.com team page, profile-header colours (overlay, stripe)",
+   "base": "https://www.nfl.com/teams/",
+   "official": true,
+   "family": "nfl.com"
+  },
+  "nflLogo": {
+   "name": "NFL.com club logo SVG, fill colours (league-hosted club mark; white omitted)",
+   "base": "https://static.www.nfl.com/league/api/clubs/logos/",
+   "official": true,
+   "family": "nfl.com"
+  },
+  "club": {
+   "name": "club's official website",
+   "official": true,
+   "family": "club"
+  }
+ },
+ "caveats": [
+  "No team's or the NFL's brand-guide PDF was publicly reachable; therams.com/brand/ is password protected and was not entered.",
+  "Many Wikipedia values are byte-identical to NFL.com's, so Wikipedia is grouped in NFL.com's family and never counts as independent of it.",
+  "NFL.com renders every black as #000000, including the Panthers', whose own site uses #101820; a club's own value outranks NFL.com's.",
+  "The league-hosted DEN logo is the legacy 'D' mark; DEN's current colours come from NFL.com's header."
+ ],
+ "matchupsNote": "Every matchup in the 2026 shadow receipts (the theater's possible fixtures): the palette theaterPalette() paints, recomputed by the test. clash = why the away side carries the cues (blocks / field / both), absent when the pairing does not clash.",
+ "teams": {
+  "ARI": {
+   "team": "Arizona Cardinals",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/arizona-cardinals-color-codes/",
+     "listed": [
+      "#97233F",
+      "#000000",
+      "#FFB612"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#97233F",
+      "#FFFFFF",
+      "#000000",
+      "#FFFFFF",
+      "#97233F"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/arizona-cardinals/",
+     "listed": [
+      "#97233F",
+      "#000000"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/ARI.svg",
+     "listed": [
+      "#000000",
+      "#97233F",
+      "#FFB612"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#97233F",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#97233F",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the logo colour (nflLogo). Identity pass (2026-10-18): accent #FFB612 → primary #97233F (ΔE00 ≥ 39.1 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#97233F",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 48.4,
+     "turfB": 50.7,
+     "panel": 39.1
+    },
+    "fieldDE00": 39.1,
+    "reason": "primary: ΔE00 39.1 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "ATL": {
+   "team": "Atlanta Falcons",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/atlanta-falcons-color-codes/",
+     "listed": [
+      "#A71930",
+      "#000000",
+      "#A5ACAF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#A71930",
+      "#FFFFFF",
+      "#000000",
+      "#000000",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/atlanta-falcons/",
+     "listed": [
+      "#A71930",
+      "#000000"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/ATL.svg",
+     "listed": [
+      "#A5ACAF",
+      "#000000",
+      "#A71930"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#A71930",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#A71930",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #A5ACAF = the logo colour (nflLogo). Identity pass (2026-10-18): accent #A5ACAF → primary #A71930 (ΔE00 ≥ 40.3 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#A71930",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 49.6,
+     "turfB": 51.8,
+     "panel": 40.3
+    },
+    "fieldDE00": 40.3,
+    "reason": "primary: ΔE00 40.3 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "BAL": {
+   "team": "Baltimore Ravens",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/baltimore-ravens-color-codes/",
+     "listed": [
+      "#241773",
+      "#000000",
+      "#9E7C0C",
+      "#C60C30"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#24135F",
+      "#FFFFFF",
+      "#9A7611",
+      "#000000",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/baltimore-ravens/",
+     "listed": [
+      "#24135F",
+      "#9A7611"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/BAL.svg",
+     "listed": [
+      "#9A7611",
+      "#000000",
+      "#24135F",
+      "#C8102E"
+     ]
+    },
+    "club": {
+     "url": "https://www.baltimoreravens.com/",
+     "where": "homepage Storyteller widget theme, colors.primary",
+     "listed": [
+      "#24135F"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#24135F",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#24135F",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Accent #9E7C0C (teamcolorcodes) → the official gold #9A7611 (NFL.com header stripe, the league-hosted logo). Identity pass (2026-10-18): accent #9A7611 → primary #24135F (ΔE00 ≥ 28.5 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": "Primary changed: the club's own site, NFL.com's header and the league-hosted logo all give Ravens purple as #24135F, not tcc's #241773 (ΔE 9.8). Secondary black is in the official logo. Gold (#9A7611 officially) stays the accent; the map's #9E7C0C is ΔE 3.9 from it, so it was left.",
+   "fieldColour": {
+    "hex": "#24135F",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 35.7,
+     "turfB": 37.6,
+     "panel": 28.5
+    },
+    "fieldDE00": 28.5,
+    "reason": "primary: ΔE00 28.5 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "BUF": {
+   "team": "Buffalo Bills",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/buffalo-bills-color-codes/",
+     "listed": [
+      "#00338D",
+      "#C60C30"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#00338D",
+      "#FFFFFF",
+      "#C60C30",
+      "#C60C30",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/buffalo-bills/",
+     "listed": [
+      "#00338D",
+      "#C60C30"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/BUF.svg",
+     "listed": [
+      "#C60C30",
+      "#00338D"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#00338D",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#C60C30",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#00338D",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #C60C30 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #C60C30 → primary #00338D (ΔE00 ≥ 30.7 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#00338D",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 36.7,
+     "turfB": 38,
+     "panel": 30.7
+    },
+    "fieldDE00": 30.7,
+    "reason": "primary: ΔE00 30.7 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "CAR": {
+   "team": "Carolina Panthers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/carolina-panthers-color-codes/",
+     "listed": [
+      "#0085CA",
+      "#101820",
+      "#BFC0BF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#0085CF",
+      "#0085CF",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/carolina-panthers/",
+     "listed": [
+      "#0085CF",
+      "#000000"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/CAR.svg",
+     "listed": [
+      "#000000",
+      "#B2B4BB",
+      "#0085CF"
+     ]
+    },
+    "club": {
+     "url": "https://www.panthers.com/",
+     "where": "homepage inline CSS: --blue / --pnthrx-blue, and --ink / --num (numerals)",
+     "listed": [
+      "#0085CA",
+      "#101820"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#0085CA",
+     "officialSources": [
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#101820",
+     "officialSources": [
+      "club"
+     ]
+    },
+    "accent": {
+     "hex": "#0085CA",
+     "officialSources": [
+      "club"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (club; club); accent #0085CA = the primary (club).",
+   "iteration4Note": "No change. The club's own site uses #0085CA for Panther blue and #101820 for its black ink and numerals, exactly the map. NFL.com renders the black as pure #000000 (ΔE 10.4), as it does for every club.",
+   "fieldColour": {
+    "hex": "#0085CA",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 42.8,
+     "turfB": 41.9,
+     "panel": 41.2
+    },
+    "fieldDE00": 41.2,
+    "reason": "primary: ΔE00 41.2 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "CHI": {
+   "team": "Chicago Bears",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/chicago-bears-color-codes/",
+     "listed": [
+      "#0B162A",
+      "#C83803"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#0B162A",
+      "#FFFFFF",
+      "#E64100",
+      "#E64100",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/chicago-bears/",
+     "listed": [
+      "#0B162A",
+      "#E64100"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/CHI.svg",
+     "listed": [
+      "#E64100",
+      "#0B162A"
+     ]
+    },
+    "club": {
+     "url": "https://www.chicagobears.com/",
+     "where": "homepage game-strip data, primaryColor (no orange value on the club site)",
+     "listed": [
+      "#0B162A"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#0B162A",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#E64100",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#E64100",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo, club; nflHeader, nflLogo); accent #E64100 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): the primary #0B162A stays off the field — ΔE00 17.4 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #E64100 (ΔE00 49.1) carries the team on the field.",
+   "iteration4Note": "Secondary and accent changed #C83803 → #E64100 (ΔE 11.7): NFL.com's header and the league-hosted logo both give Bears orange as #E64100. The club site confirms navy #0B162A. #E64100 is 2.84:1 on the turf, so the theater derives its turf-safe accent.",
+   "fieldColour": {
+    "hex": "#E64100",
+    "role": "secondary",
+    "primaryDE00": {
+     "turfA": 25.9,
+     "turfB": 28.3,
+     "panel": 17.4
+    },
+    "fieldDE00": 49.1,
+    "reason": "secondary: the primary #0B162A is ΔE00 17.4 from the panel (under 20), genuinely indistinguishable from it even keylined (the mark would read as its keyline alone); the secondary #E64100 (ΔE00 49.1) carries the team on the field. Re-examined in iteration 6: kept."
+   }
+  },
+  "CIN": {
+   "team": "Cincinnati Bengals",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/cincinnati-bengals-color-codes/",
+     "listed": [
+      "#000000",
+      "#FB4F14"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#FB4F14",
+      "#FB4F14",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/cincinnati-bengals/",
+     "listed": [
+      "#FB4F14",
+      "#000000"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/CIN.svg",
+     "listed": [
+      "#FB4F14",
+      "#000000"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#FB4F14",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FB4F14",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FB4F14 = the primary (nflHeader, nflLogo).",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#FB4F14",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 57.9,
+     "turfB": 58.5,
+     "panel": 53.3
+    },
+    "fieldDE00": 53.3,
+    "reason": "primary: ΔE00 53.3 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "CLE": {
+   "team": "Cleveland Browns",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/cleveland-browns-color-codes/",
+     "listed": [
+      "#311D00",
+      "#FF3C00",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#311D00",
+      "#FFFFFF",
+      "#FF3C00",
+      "#FF3C00",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/cleveland-browns/",
+     "listed": [
+      "#FF3C00",
+      "#311D00"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/CLE.svg",
+     "listed": [
+      "#FF3C00",
+      "#311D00"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#311D00",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FF3C00",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FF3C00",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FF3C00 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): the primary #311D00 stays off the field — ΔE00 19.5 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #FF3C00 (ΔE00 53) carries the team on the field.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#FF3C00",
+    "role": "secondary",
+    "primaryDE00": {
+     "turfA": 25.3,
+     "turfB": 27.1,
+     "panel": 19.5
+    },
+    "fieldDE00": 53,
+    "reason": "secondary: the primary #311D00 is ΔE00 19.5 from the panel (under 20), genuinely indistinguishable from it even keylined (the mark would read as its keyline alone); the secondary #FF3C00 (ΔE00 53) carries the team on the field. Re-examined in iteration 6: kept."
+   }
+  },
+  "DAL": {
+   "team": "Dallas Cowboys",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/dallas-cowboys-color-codes/",
+     "listed": [
+      "#003594",
+      "#041E42",
+      "#869397",
+      "#7F9695",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#002244",
+      "#FFFFFF",
+      "#B0B7BC",
+      "#B0B7BC",
+      "#002244"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/dallas-cowboys/",
+     "listed": [
+      "#002244",
+      "#B0B7BC"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/DAL.svg",
+     "listed": [
+      "#002244"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#002244",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#B0B7BC",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#002244",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader); accent #B0B7BC = the secondary (nflHeader). Identity pass (2026-10-18): accent #B0B7BC → primary #002244 (ΔE00 ≥ 20.9 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": "Primary changed royal #003594 → navy #002244 (ΔE 40.2): the league-hosted star logo is navy #002244 and NFL.com's header pairs navy with silver; royal is a uniform trim colour, not the mark. Secondary and accent changed silver #869397 → #B0B7BC (ΔE 14.2, NFL.com header); the review's choice of silver over navy as the secondary is kept. dallascowboys.com carries no club colour value.",
+   "fieldColour": {
+    "hex": "#002244",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 28.1,
+     "turfB": 30.1,
+     "panel": 20.9
+    },
+    "fieldDE00": 20.9,
+    "reason": "primary: ΔE00 20.9 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "DEN": {
+   "team": "Denver Broncos",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/denver-broncos-color-codes/",
+     "listed": [
+      "#FB4F14",
+      "#002244"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#0A2343",
+      "#FFFFFF",
+      "#FC4C02",
+      "#FC4C02",
+      "#0A2343"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/denver-broncos/",
+     "listed": [
+      "#FC4C02",
+      "#0A2343"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/DEN.svg",
+     "listed": [
+      "#0066B3",
+      "#F37021"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#FC4C02",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "secondary": {
+     "hex": "#0A2343",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#FC4C02",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "Made official-exact: orange #FB4F14 → #FC4C02 and navy #002244 → #0A2343, NFL.com's header values (ΔE ≤ 4.1). The league-hosted logo is the legacy 'D' mark and is not used.",
+   "iteration4Note": "No change. tcc, wiki and NFL.com's header agree (ΔE ≤ 4.1). The league-hosted logo file is the legacy \"D\" mark (legacy blue and orange), so it does not agree and is not a contradiction of the current colours.",
+   "fieldColour": {
+    "hex": "#FC4C02",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 57.9,
+     "turfB": 58.4,
+     "panel": 53.3
+    },
+    "fieldDE00": 53.3,
+    "reason": "primary: ΔE00 53.3 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "DET": {
+   "team": "Detroit Lions",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/detroit-lions-color-codes/",
+     "listed": [
+      "#0076B6",
+      "#B0B7BC",
+      "#000000",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#0076B6",
+      "#FFFFFF",
+      "#B0B7BC",
+      "#B0B7BC",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/detroit-lions/",
+     "listed": [
+      "#0076B6",
+      "#B0B7BC"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/DET.svg",
+     "listed": [
+      "#B0B7BC",
+      "#0076B6"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#0076B6",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#B0B7BC",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#0076B6",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #0076B6 = the primary (nflHeader, nflLogo).",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#0076B6",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 38.9,
+     "turfB": 38.3,
+     "panel": 36.7
+    },
+    "fieldDE00": 36.7,
+    "reason": "primary: ΔE00 36.7 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "GB": {
+   "team": "Green Bay Packers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/green-bay-packers-color-codes/",
+     "listed": [
+      "#203731",
+      "#FFB612"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#203731",
+      "#FFFFFF",
+      "#FFB612",
+      "#FFB612",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/green-bay-packers/",
+     "listed": [
+      "#203731",
+      "#FFB612"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/GB.svg",
+     "listed": [
+      "#FFB612",
+      "#203731"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#203731",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): the primary #203731 stays off the field — ΔE00 6.9 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #FFB612 (ΔE00 64.6) carries the team on the field.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#FFB612",
+    "role": "secondary",
+    "primaryDE00": {
+     "turfA": 6.9,
+     "turfB": 8.9,
+     "panel": 7.2
+    },
+    "fieldDE00": 64.6,
+    "reason": "secondary: the primary #203731 is ΔE00 6.9 from the turfA (under 20), genuinely indistinguishable from it even keylined (the mark would read as its keyline alone); the secondary #FFB612 (ΔE00 64.6) carries the team on the field. Re-examined in iteration 6: kept."
+   }
+  },
+  "HOU": {
+   "team": "Houston Texans",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/houston-texans-color-codes/",
+     "listed": [
+      "#03202F",
+      "#A71930"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#021018",
+      "#FFFFFF",
+      "#EB0028",
+      "#EB0028",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/houston-texans/",
+     "listed": [
+      "#021018",
+      "#EB0028"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/HOU.svg",
+     "listed": [
+      "#021018",
+      "#EB0028"
+     ]
+    },
+    "club": {
+     "url": "https://www.houstontexans.com/",
+     "where": "homepage game-theme config (home default background, stripe) and nav accent; H-Town blue in accent2",
+     "listed": [
+      "#021018",
+      "#EB0028",
+      "#ED0028",
+      "#0080C6"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#021018",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#EB0028",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "accent": {
+     "hex": "#EB0028",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Accent white (no source) → battle red #EB0028 (NFL.com header, the logo, houstontexans.com). H-Town blue #0080C6 (houstontexans.com theme accent2) is recorded as the official alternate the field uses when the opponent's accent is another red (e.g. HOU @ TEN). Identity pass (2026-10-18): the primary #021018 stays off the field — ΔE00 10.8 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #EB0028 (ΔE00 49.1) carries the team on the field. Iteration 6: no colour is swapped for a clash any more, so the H-Town blue alternate is kept on record only (recordedAlternates).",
+   "iteration4Note": "Primary changed #03202F → #021018 (ΔE 9.9) and secondary #A71930 → #EB0028 (ΔE 33.1): the club's own site, NFL.com's header and the league-hosted logo all use deep steel blue #021018 and battle red #EB0028 (2024 identity). Accent stays white.",
+   "recordedAlternates": [
+    {
+     "hex": "#0080C6",
+     "officialSources": [
+      "club"
+     ],
+     "note": "recorded only: since iteration 6 no team switches to an alternate colour for a clash"
+    }
+   ],
+   "fieldColour": {
+    "hex": "#EB0028",
+    "role": "secondary",
+    "primaryDE00": {
+     "turfA": 20.4,
+     "turfB": 23.5,
+     "panel": 10.8
+    },
+    "fieldDE00": 49.1,
+    "reason": "secondary: the primary #021018 is ΔE00 10.8 from the panel (under 20), genuinely indistinguishable from it even keylined (the mark would read as its keyline alone); the secondary #EB0028 (ΔE00 49.1) carries the team on the field. Re-examined in iteration 6: kept."
+   }
+  },
+  "IND": {
+   "team": "Indianapolis Colts",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/indianapolis-colts-color-codes/",
+     "listed": [
+      "#002C5F",
+      "#A2AAAD"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#013369",
+      "#FFFFFF",
+      "#A5ACAF",
+      "#FFFFFF",
+      "#013369"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/indianapolis-colts/",
+     "listed": [
+      "#013369",
+      "#A5ACAF"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/IND.svg",
+     "listed": [
+      "#013369"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#013369",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#A5ACAF",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#013369",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Made official-exact: #002C5F → #013369 (NFL.com header, the league-hosted logo) and silver #A2AAAD → #A5ACAF (NFL.com header). Identity pass (2026-10-18): accent #A5ACAF → primary #013369 (ΔE00 ≥ 25.6 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#013369",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 31.6,
+     "turfB": 32.9,
+     "panel": 25.6
+    },
+    "fieldDE00": 25.6,
+    "reason": "primary: ΔE00 25.6 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "JAX": {
+   "team": "Jacksonville Jaguars",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/jacksonville-jaguars-color-codes/",
+     "listed": [
+      "#101820",
+      "#D7A22A",
+      "#9F792C",
+      "#006778"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#006778",
+      "#FFFFFF",
+      "#000000",
+      "#000000",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/jacksonville-jaguars/",
+     "listed": [
+      "#000000",
+      "#006778"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/JAX.svg",
+     "listed": [
+      "#000000",
+      "#D7A22A",
+      "#0A0B09",
+      "#9F792C",
+      "#006778"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#006778",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#006778",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Founder decision 2026-10-18: teal #006778 is the primary (NFL.com's header stripe; also in the league-hosted logo), black #000000 the secondary (NFL.com's header overlay, the logo), gold #D7A22A the accent (the logo's main gold). Gold is 2.8:1 on teal and black 3.1:1, under the 4.5:1 text rule, so the block's trim and the end-zone lettering use the white ink; gold carries the team on the field. Iteration 6 (founder, 2026-10-18, preserve recognizable branding): the field colour is now the primary #006778 (was #D7A22A); see fieldColour.",
+   "iteration4Note": "Primary changed #101820 → #000000 (ΔE 10.4): both league sources render Jaguars black as #000000 (logo also #0A0B09) and jaguars.com carries no value. Secondary gold #D7A22A is exactly in the league-hosted logo, so it stays; teal #006778 (NFL.com's header stripe) is also official and is the alternative, but gold is the mark's main colour after black.",
+   "fieldColour": {
+    "hex": "#006778",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 24.1,
+     "turfB": 23.1,
+     "panel": 25.4
+    },
+    "fieldDE00": 23.1,
+    "reason": "primary teal #006778 (iteration 6, founder: preserve recognizable branding): ΔE00 23.1 ≥ 20 from every field surface and its keyline is ≥ 7.76:1 on the turf, so teal replaces the earlier on-field gold #D7A22A. Gold and black stay the brand accents on record; neither reaches 3:1 on teal (2.8:1, 3.1:1 is under the 4.5:1 text rule), so the block keeps the white ink as its trim."
+   }
+  },
+  "KC": {
+   "team": "Kansas City Chiefs",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/kansas-city-chiefs-color-codes/",
+     "listed": [
+      "#E31837",
+      "#FFB81C"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#E31837",
+      "#FFFFFF",
+      "#FFB612",
+      "#FFB612",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/kansas-city-chiefs/",
+     "listed": [
+      "#E31837",
+      "#FFB612"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/KC.svg",
+     "listed": [
+      "#000000",
+      "#E31837"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#E31837",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#E31837",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Secondary made official-exact: gold #FFB81C → #FFB612 (NFL.com header). Accent stays Chiefs red (brightened on the turf).",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#E31837",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 56.7,
+     "turfB": 58.5,
+     "panel": 48.3
+    },
+    "fieldDE00": 48.3,
+    "reason": "primary: ΔE00 48.3 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "LAC": {
+   "team": "Los Angeles Chargers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/los-angeles-chargers-color-codes/",
+     "listed": [
+      "#0080C6",
+      "#FFC20E",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#0080C6",
+      "#FFFFFF",
+      "#FFC20E",
+      "#FFC20E",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/los-angeles-chargers/",
+     "listed": [
+      "#0080C6",
+      "#FFC20E"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/LAC.svg",
+     "listed": [
+      "#0080C6",
+      "#FFC20E"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#0080C6",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFC20E",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#0080C6",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #0080C6 = the primary (nflHeader, nflLogo).",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#0080C6",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 41.8,
+     "turfB": 41.1,
+     "panel": 40.1
+    },
+    "fieldDE00": 40.1,
+    "reason": "primary: ΔE00 40.1 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "LAR": {
+   "team": "Los Angeles Rams",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/los-angeles-rams-team-colors/",
+     "listed": [
+      "#003594",
+      "#FFA300",
+      "#FF8200",
+      "#FFD100",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#003594",
+      "#FFFFFF",
+      "#FFD100",
+      "#FFD100",
+      "#003594"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/los-angeles-rams/",
+     "listed": [
+      "#003594",
+      "#FFD100"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/LAR.svg",
+     "listed": [
+      "#003594",
+      "#FFD100"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#003594",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFD100",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#003594",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFD100 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #FFD100 → primary #003594 (ΔE00 ≥ 31.4 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": "Secondary and accent changed #FFA300 → #FFD100 (ΔE 27.3): NFL.com's header and the league-hosted logo give Sol as #FFD100; #FFA300 is a darker tone tcc also lists. Rams royal #003594 confirmed. therams.com/brand/ is password protected (not entered).",
+   "fieldColour": {
+    "hex": "#003594",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 37.3,
+     "turfB": 38.4,
+     "panel": 31.4
+    },
+    "fieldDE00": 31.4,
+    "reason": "primary: ΔE00 31.4 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "LV": {
+   "team": "Las Vegas Raiders",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/oakland-raiders-color-codes/",
+     "listed": [
+      "#000000",
+      "#A5ACAF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#C8C7C7",
+      "#C8C7C7",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/las-vegas-raiders/",
+     "listed": [
+      "#000000",
+      "#A5ACAF"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/LV.svg",
+     "listed": [
+      "#231F20",
+      "#0A0A09",
+      "#C8C7C7"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "secondary": {
+     "hex": "#A5ACAF",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#A5ACAF",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader; nflHeader); accent #A5ACAF = the secondary (nflHeader). Identity pass (2026-10-18): the primary #000000 stays off the field — ΔE00 11.2 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #A5ACAF (ΔE00 48.3) carries the team on the field.",
+   "iteration4Note": "No change: NFL.com's header gives exactly #000000 and silver #A5ACAF. The league-hosted logo uses a lighter silver #C8C7C7 (ΔE 11, Wikipedia's value); the header is the league's pairing for the club, so the map keeps #A5ACAF.",
+   "fieldColour": {
+    "hex": "#A5ACAF",
+    "role": "secondary",
+    "primaryDE00": {
+     "turfA": 20.6,
+     "turfB": 24,
+     "panel": 11.2
+    },
+    "fieldDE00": 48.3,
+    "reason": "secondary: the primary #000000 is ΔE00 11.2 from the panel (under 20), genuinely indistinguishable from it even keylined (the mark would read as its keyline alone); the secondary #A5ACAF (ΔE00 48.3) carries the team on the field. Re-examined in iteration 6: kept."
+   }
+  },
+  "MIA": {
+   "team": "Miami Dolphins",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/miami-dolphins-color-codes/",
+     "listed": [
+      "#008E97",
+      "#FC4C02",
+      "#005778"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#008E97",
+      "#FFFFFF",
+      "#FC4C02",
+      "#FC4C02",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/miami-dolphins/",
+     "listed": [
+      "#008E97",
+      "#FC4C02"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/MIA.svg",
+     "listed": [
+      "#FC4C02",
+      "#008E97",
+      "#005778"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#008E97",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FC4C02",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#008E97",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #008E97 = the primary (nflHeader, nflLogo).",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#008E97",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 33.1,
+     "turfB": 30.8,
+     "panel": 37.1
+    },
+    "fieldDE00": 30.8,
+    "reason": "primary: ΔE00 30.8 ≥ 20 from every field surface (nearest: turfB), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "MIN": {
+   "team": "Minnesota Vikings",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/minnesota-vikings-color-codes/",
+     "listed": [
+      "#4F2683",
+      "#FFC62F"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#4F2683",
+      "#FFFFFF",
+      "#FFC62F",
+      "#FFC62F",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/minnesota-vikings/",
+     "listed": [
+      "#4F2683",
+      "#FFC62F"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/MIN.svg",
+     "listed": [
+      "#FFC62F",
+      "#E9BF9B",
+      "#000000",
+      "#4F2683"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#4F2683",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFC62F",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#4F2683",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFC62F = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #FFC62F → primary #4F2683 (ΔE00 ≥ 30.9 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#4F2683",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 37,
+     "turfB": 38.3,
+     "panel": 30.9
+    },
+    "fieldDE00": 30.9,
+    "reason": "primary: ΔE00 30.9 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "NE": {
+   "team": "New England Patriots",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/new-england-patriots-color-codes/",
+     "listed": [
+      "#002244",
+      "#C60C30",
+      "#B0B7BC"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#002244",
+      "#FFFFFF",
+      "#C60C30",
+      "#C60C30",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/new-england-patriots/",
+     "listed": [
+      "#002244",
+      "#C60C30"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/NE.svg",
+     "listed": [
+      "#C60C30",
+      "#002244",
+      "#B0B7BC"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#002244",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#C60C30",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#002244",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #C60C30 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #C60C30 → primary #002244 (ΔE00 ≥ 20.9 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#002244",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 28.1,
+     "turfB": 30.1,
+     "panel": 20.9
+    },
+    "fieldDE00": 20.9,
+    "reason": "primary: ΔE00 20.9 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "NO": {
+   "team": "New Orleans Saints",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/new-orleans-saints-color-codes/",
+     "listed": [
+      "#D3BC8D",
+      "#101820"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#D3BC8D",
+      "#D3BC8D",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/new-orleans-saints/",
+     "listed": [
+      "#000000",
+      "#D3BC8D"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/NO.svg",
+     "listed": [
+      "#000000",
+      "#D3BC8D"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#D3BC8D",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#D3BC8D",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Founder decision 2026-10-18: black is the primary presentation colour (NFL.com's header leads with black; the Saints' home jersey), old gold #D3BC8D the secondary and the accent, so gold shows prominently as the block trim, the end-zone lettering and every on-field accent. Both values are in NFL.com's header and the league-hosted logo.",
+   "iteration4Note": "Secondary changed #101820 → #000000 (ΔE 10.4): NFL.com's header and the league-hosted logo; neworleanssaints.com carries no value. Old gold #D3BC8D confirmed. NFL.com leads with black (the home jersey); the map keeps gold as the fill (the helmet and mark), a role choice left to the founder.",
+   "fieldColour": {
+    "hex": "#D3BC8D",
+    "role": "secondary",
+    "primaryDE00": {
+     "turfA": 20.6,
+     "turfB": 24,
+     "panel": 11.2
+    },
+    "fieldDE00": 57.4,
+    "reason": "founder role decision: Saints black with gold, gold on the field only if black is indistinguishable even keylined. It is: black #000000 is ΔE00 11.2 from the timeline panel (20.6 and 24.0 from the two turf stripes), under 20, so a black timeline segment would read as its keyline alone; old gold #D3BC8D (ΔE00 57.4) carries the team on the field. Black stays the score-bug and end-zone colour."
+   }
+  },
+  "NYG": {
+   "team": "New York Giants",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/new-york-giants-color-codes/",
+     "listed": [
+      "#0B2265",
+      "#A71930",
+      "#A5ACAF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#0B2265",
+      "#FFFFFF",
+      "#A71930",
+      "#A71930",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/new-york-giants/",
+     "listed": [
+      "#0B2265",
+      "#A71930"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/NYG.svg",
+     "listed": [
+      "#A71930"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#0B2265",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "secondary": {
+     "hex": "#A71930",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#0B2265",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Accent grey #A5ACAF (teamcolorcodes only) → red #A71930 (NFL.com header, the league-hosted logo). Identity pass (2026-10-18): accent #A71930 → primary #0B2265 (ΔE00 ≥ 27.6 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#0B2265",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 34.3,
+     "turfB": 36,
+     "panel": 27.6
+    },
+    "fieldDE00": 27.6,
+    "reason": "primary: ΔE00 27.6 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "NYJ": {
+   "team": "New York Jets",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/new-york-jets-color-codes/",
+     "listed": [
+      "#125740",
+      "#000000",
+      "#FFFFFF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#115740",
+      "#FFFFFF",
+      "#000000",
+      "#FFFFFF",
+      "#115740"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/new-york-jets/",
+     "listed": [
+      "#115740",
+      "#B1B3B6"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/NYJ.svg",
+     "listed": [
+      "#115740"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#115740",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#B1B3B6",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#B1B3B6",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Values made official-exact: Gotham green #115740 (NFL.com header and the league-hosted logo; teamcolorcodes' #125740 is ΔE 0.2). Secondary and accent = #B1B3B6, the grey NFL.com's header pairs with the green. The previous black secondary and white accent were in no official source. Founder may prefer white/black (Jets 2024 identity) if an official value is found. Identity pass (2026-10-18): the primary #115740 stays off the field — ΔE00 7.8 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #B1B3B6 (ΔE00 52.4) carries the team on the field.",
+   "iteration4Note": "No change; validated by tcc + wiki (ΔE ≤ 0.2). Recorded: no official source lists the map's secondary black — NFL.com's header pairs green with grey #B1B3B6 and the logo is green only. That is an omission, not an official value contradicting ours; the founder may prefer the grey.",
+   "fieldColour": {
+    "hex": "#B1B3B6",
+    "role": "secondary",
+    "primaryDE00": {
+     "turfA": 11.3,
+     "turfB": 7.8,
+     "panel": 19.9
+    },
+    "fieldDE00": 52.4,
+    "reason": "secondary: the primary #115740 is ΔE00 7.8 from the turfB (under 20), genuinely indistinguishable from it even keylined (the mark would read as its keyline alone); the secondary #B1B3B6 (ΔE00 52.4) carries the team on the field. Re-examined in iteration 6: kept."
+   }
+  },
+  "PHI": {
+   "team": "Philadelphia Eagles",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/philadelphia-eagles-color-codes/",
+     "listed": [
+      "#004C54",
+      "#A5ACAF",
+      "#ACC0C6",
+      "#000000",
+      "#565A5C"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#004851",
+      "#FFFFFF",
+      "#A2AAAD",
+      "#A2AAAD",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/philadelphia-eagles/",
+     "listed": [
+      "#004851",
+      "#A2AAAD"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/PHI.svg",
+     "listed": [
+      "#004851",
+      "#000000",
+      "#A2AAAD"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#004851",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#A2AAAD",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#A2AAAD",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Made official-exact: midnight green #004C54 → #004851 and silver #A5ACAF → #A2AAAD (NFL.com header, the league-hosted logo). Identity pass (2026-10-18): the primary #004851 stays off the field — ΔE00 15.7 from the nearest field surface, under 20, so it could not be told from the turf even keylined; the secondary #A2AAAD (ΔE00 47.2) carries the team on the field.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#A2AAAD",
+    "role": "secondary",
+    "primaryDE00": {
+     "turfA": 15.7,
+     "turfB": 15.9,
+     "panel": 16.1
+    },
+    "fieldDE00": 47.2,
+    "reason": "secondary: the primary #004851 is ΔE00 15.7 from the turfA (under 20), genuinely indistinguishable from it even keylined (the mark would read as its keyline alone); the secondary #A2AAAD (ΔE00 47.2) carries the team on the field. Re-examined in iteration 6: kept."
+   }
+  },
+  "PIT": {
+   "team": "Pittsburgh Steelers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/pittsburgh-steelers-color-codes/",
+     "listed": [
+      "#FFB612",
+      "#101820",
+      "#003087",
+      "#C60C30",
+      "#A5ACAF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#000000",
+      "#FFFFFF",
+      "#FFB612",
+      "#FFB612",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/pittsburgh-steelers/",
+     "listed": [
+      "#000000",
+      "#FFB612"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/PIT.svg",
+     "listed": [
+      "#000000",
+      "#A5ACAF",
+      "#FFB612",
+      "#C60C30",
+      "#00539B"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#000000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Founder decision 2026-10-18: black primary (NFL.com's header leads with black; the home jersey), Steelers gold #FFB612 the secondary and the accent (trim, lettering, on-field accents). Both values are in NFL.com's header and the league-hosted logo. The logo's red, blue and silver (the Steelmark) are recorded, not used.",
+   "iteration4Note": "Secondary changed #101820 → #000000 (ΔE 10.4): NFL.com's header and the league-hosted logo; steelers.com carries no value. Gold #FFB612 confirmed. NFL.com leads with black (the home jersey); the map keeps gold as the fill, a role choice left to the founder.",
+   "fieldColour": {
+    "hex": "#FFB612",
+    "role": "secondary",
+    "primaryDE00": {
+     "turfA": 20.6,
+     "turfB": 24,
+     "panel": 11.2
+    },
+    "fieldDE00": 64.6,
+    "reason": "founder role decision: Steelers black with gold, gold on the field only if black is indistinguishable even keylined. It is: black #000000 is ΔE00 11.2 from the timeline panel (20.6 and 24.0 from the two turf stripes), under 20, so a black timeline segment would read as its keyline alone; Steelers gold #FFB612 (ΔE00 64.6) carries the team on the field. Black stays the score-bug and end-zone colour."
+   }
+  },
+  "SEA": {
+   "team": "Seattle Seahawks",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/seattle-seahawks-color-codes/",
+     "listed": [
+      "#002244",
+      "#69BE28",
+      "#A5ACAF"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#002244",
+      "#FFFFFF",
+      "#69BE28",
+      "#69BE28",
+      "#002244"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/seattle-seahawks/",
+     "listed": [
+      "#002244",
+      "#A5ACAF"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/SEA.svg",
+     "listed": [
+      "#002244",
+      "#69BE28",
+      "#A5ACAF"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#002244",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#69BE28",
+     "officialSources": [
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#002244",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflLogo); accent #69BE28 = the secondary (nflLogo). Identity pass (2026-10-18): accent #69BE28 → primary #002244 (ΔE00 ≥ 20.9 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#002244",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 28.1,
+     "turfB": 30.1,
+     "panel": 20.9
+    },
+    "fieldDE00": 20.9,
+    "reason": "primary: ΔE00 20.9 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "SF": {
+   "team": "San Francisco 49ers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/san-francisco-49ers-team-colors/",
+     "listed": [
+      "#AA0000",
+      "#B3995D"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#AA0000",
+      "#FFFFFF",
+      "#B5925D",
+      "#B5925D",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/san-francisco-49ers/",
+     "listed": [
+      "#AA0000",
+      "#B3995D"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/SF.svg",
+     "listed": [
+      "#000000",
+      "#B3995D",
+      "#AA0000"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#AA0000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#B3995D",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#AA0000",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #B3995D = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #B3995D → primary #AA0000 (ΔE00 ≥ 40.3 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": "No change: NFL.com's header and the league-hosted logo give exactly #AA0000 and gold #B3995D. Wikipedia's #B5925D is ΔE 5.4 away.",
+   "fieldColour": {
+    "hex": "#AA0000",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 48.5,
+     "turfB": 50.5,
+     "panel": 40.3
+    },
+    "fieldDE00": 40.3,
+    "reason": "primary: ΔE00 40.3 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  },
+  "TB": {
+   "team": "Tampa Bay Buccaneers",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/tampa-bay-buccaneers-team-colors/",
+     "listed": [
+      "#D50A0A",
+      "#FF7900",
+      "#0A0A08",
+      "#B1BABF",
+      "#34302B"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#A71930",
+      "#FFFFFF",
+      "#322F2B",
+      "#322F2B",
+      "#FFFFFF"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/tampa-bay-buccaneers/",
+     "listed": [
+      "#A71930",
+      "#322F2B"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/TB.svg",
+     "listed": [
+      "#B1BABF",
+      "#000000",
+      "#A71930",
+      "#0A0B09",
+      "#C2242B",
+      "#DC4405"
+     ]
+    },
+    "club": {
+     "url": "https://www.buccaneers.com/",
+     "where": "club-customised nav accent --dropdown-hover-bkg-var (other clubs keep the league default)",
+     "listed": [
+      "#A71930"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#A71930",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#322F2B",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#C2242B",
+     "officialSources": [
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "Primary = Buccaneer red #A71930 (NFL.com header, the league-hosted logo, buccaneers.com's own nav accent). Secondary = pewter #322F2B, NFL.com's exact header value (replaces teamcolorcodes' #34302B, ΔE 1.0). Accent = the logo's brighter red #C2242B, the officially published value that replaces the unsupported #D50A0A; on the turf it is 2.0:1, so the field paints a brightened #C2242B (derivedUi).",
+   "iteration4Note": "Primary changed #D50A0A → #A71930 (ΔE 34.3): NFL.com's header, the league-hosted logo and buccaneers.com's own nav accent all use #A71930. Pewter #34302B is ΔE 1.0 from the official #322F2B. Accent NOT changed: #A71930 is 2.70:1 on the page (< 3:1), so the review's #D50A0A stays as the accent; the official logo's #C2242B (3.43:1) is the founder's alternative.",
+   "fieldColour": {
+    "hex": "#C2242B",
+    "role": "accent",
+    "primaryDE00": {
+     "turfA": 49.6,
+     "turfB": 51.8,
+     "panel": 40.3
+    },
+    "fieldDE00": 43.5,
+    "reason": "founder role decision in force: TB's official red, the league-hosted logo's #C2242B (same hue family as the primary Buccaneer red #A71930, which is also field-distinct at ΔE00 40.3)."
+   }
+  },
+  "TEN": {
+   "team": "Tennessee Titans",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/tennessee-titans-color-codes/",
+     "listed": [
+      "#0C2340",
+      "#4B92DB",
+      "#C8102E",
+      "#8A8D8F"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#4495D2",
+      "#FFFFFF",
+      "#D50A0A",
+      "#FFFFFF",
+      "#4495D2"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/tennessee-titans/",
+     "listed": [
+      "#4495D2",
+      "#001532"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/TEN.svg",
+     "listed": [
+      "#D50A0A",
+      "#4495D2"
+     ]
+    },
+    "club": {
+     "url": "https://www.tennesseetitans.com/brand/",
+     "where": "brand page (March 2026 rebrand): the 'Colors and typography' graphic's colour proportions, largest first, name Titans blue, white, navy and red (names only, no hex); the page's own carousel buttons use #4495d2. The navigation red #D50A0A is the league platform default, not counted.",
+     "listed": [
+      "#4495D2"
+     ],
+     "names": [
+      "Titans blue",
+      "white",
+      "navy",
+      "red"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#4495D2",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "secondary": {
+     "hex": "#001532",
+     "officialSources": [
+      "nflHeader"
+     ]
+    },
+    "accent": {
+     "hex": "#4495D2",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo",
+      "club"
+     ]
+    },
+    "ink": "dark"
+   },
+   "validated": true,
+   "decision": "Roles from the club's own brand page (tennesseetitans.com/brand, March 2026 rebrand): its 'Colors and typography' graphic gives the colour proportions, largest first, Titans blue, white, navy, red. So primary = Titans blue #4495D2 (NFL.com header overlay, the league-hosted logo, the brand page's own UI), secondary = navy #001532 (NFL.com header stripe; the brand page names navy but prints no hex), accent = red #D50A0A (the league-hosted Titans logo's red). White is the ink's job. The red on tennesseetitans.com's navigation is the league platform's default (#D50A0A on 12 other club sites), so it is not counted as club evidence; the logo is. Iteration 6 (founder, 2026-10-18, preserve recognizable branding): the field colour is now the primary #4495D2 (was #D50A0A); see fieldColour.",
+   "iteration4Note": "Primary changed navy #0C2340 → Titans blue #4495D2, secondary #4B92DB → red #D50A0A, ink white → dark, accent → #4495D2. The March 2026 rebrand made Titans blue the dominant colour (club brand page and NFL.com); red is the shield logo's and the number outlines' colour (league-hosted logo). NFL.com's header pairs navy #001532 instead, the alternative secondary. tcc still lists the pre-2026 palette.",
+   "fieldColour": {
+    "hex": "#4495D2",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 46.3,
+     "turfB": 45.2,
+     "panel": 45.7
+    },
+    "fieldDE00": 45.2,
+    "reason": "primary Titans blue #4495D2 (iteration 6, founder: prefer Titans blue): ΔE00 45.2 ≥ 20 from every field surface, so it replaces the logo red #D50A0A on the field. Navy #001532 stays the block trim (≥4.5:1 on Titans blue); red stays on record."
+   }
+  },
+  "WSH": {
+   "team": "Washington Commanders",
+   "sources": {
+    "tcc": {
+     "url": "https://teamcolorcodes.com/washington-redskins-color-codes/",
+     "listed": [
+      "#5A1414",
+      "#FFB612"
+     ]
+    },
+    "wiki": {
+     "listed": [
+      "#5A1414",
+      "#FFFFFF",
+      "#FFB612",
+      "#FFB612",
+      "#000000"
+     ]
+    },
+    "nflHeader": {
+     "url": "https://www.nfl.com/teams/washington-commanders/",
+     "listed": [
+      "#5A1414",
+      "#FFB612"
+     ]
+    },
+    "nflLogo": {
+     "url": "https://static.www.nfl.com/league/api/clubs/logos/WAS.svg",
+     "listed": [
+      "#FFB612",
+      "#5A1414"
+     ]
+    }
+   },
+   "roles": {
+    "primary": {
+     "hex": "#5A1414",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "secondary": {
+     "hex": "#FFB612",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "accent": {
+     "hex": "#5A1414",
+     "officialSources": [
+      "nflHeader",
+      "nflLogo"
+     ]
+    },
+    "ink": "white"
+   },
+   "validated": true,
+   "decision": "No change in iteration 5. Primary and secondary as the official sources list them (nflHeader, nflLogo; nflHeader, nflLogo); accent #FFB612 = the secondary (nflHeader, nflLogo). Identity pass (2026-10-18): accent #FFB612 → primary #5A1414 (ΔE00 ≥ 32.8 from every field surface), so the score bug, end zone, field and timeline show one colour; the keyline gives it 3:1 on the turf.",
+   "iteration4Note": null,
+   "fieldColour": {
+    "hex": "#5A1414",
+    "role": "primary",
+    "primaryDE00": {
+     "turfA": 40.2,
+     "turfB": 42.3,
+     "panel": 32.8
+    },
+    "fieldDE00": 32.8,
+    "reason": "primary: ΔE00 32.8 ≥ 20 from every field surface (nearest: panel), so it can be told from the turf with the keyline; one colour on the score bug and the field."
+   }
+  }
+ },
+ "changes": [
+  {
+   "iteration": 5,
+   "abbr": "BAL",
+   "field": "accent",
+   "before": "#9E7C0C",
+   "after": "#9A7611"
+  },
+  {
+   "iteration": 5,
+   "abbr": "DEN",
+   "field": "primary",
+   "before": "#FB4F14",
+   "after": "#FC4C02"
+  },
+  {
+   "iteration": 5,
+   "abbr": "DEN",
+   "field": "secondary",
+   "before": "#002244",
+   "after": "#0A2343"
+  },
+  {
+   "iteration": 5,
+   "abbr": "DEN",
+   "field": "accent",
+   "before": "#FB4F14",
+   "after": "#FC4C02"
+  },
+  {
+   "iteration": 5,
+   "abbr": "HOU",
+   "field": "accent",
+   "before": "#FFFFFF",
+   "after": "#EB0028"
+  },
+  {
+   "iteration": 5,
+   "abbr": "IND",
+   "field": "primary",
+   "before": "#002C5F",
+   "after": "#013369"
+  },
+  {
+   "iteration": 5,
+   "abbr": "IND",
+   "field": "secondary",
+   "before": "#A2AAAD",
+   "after": "#A5ACAF"
+  },
+  {
+   "iteration": 5,
+   "abbr": "IND",
+   "field": "accent",
+   "before": "#A2AAAD",
+   "after": "#A5ACAF"
+  },
+  {
+   "iteration": 5,
+   "abbr": "JAX",
+   "field": "primary",
+   "before": "#000000",
+   "after": "#006778"
+  },
+  {
+   "iteration": 5,
+   "abbr": "JAX",
+   "field": "secondary",
+   "before": "#D7A22A",
+   "after": "#000000"
+  },
+  {
+   "iteration": 5,
+   "abbr": "KC",
+   "field": "secondary",
+   "before": "#FFB81C",
+   "after": "#FFB612"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NO",
+   "field": "primary",
+   "before": "#D3BC8D",
+   "after": "#000000"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NO",
+   "field": "secondary",
+   "before": "#000000",
+   "after": "#D3BC8D"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NO",
+   "field": "inkName",
+   "before": "dark",
+   "after": "white"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NYG",
+   "field": "accent",
+   "before": "#A5ACAF",
+   "after": "#A71930"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NYJ",
+   "field": "primary",
+   "before": "#125740",
+   "after": "#115740"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NYJ",
+   "field": "secondary",
+   "before": "#000000",
+   "after": "#B1B3B6"
+  },
+  {
+   "iteration": 5,
+   "abbr": "NYJ",
+   "field": "accent",
+   "before": "#FFFFFF",
+   "after": "#B1B3B6"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PHI",
+   "field": "primary",
+   "before": "#004C54",
+   "after": "#004851"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PHI",
+   "field": "secondary",
+   "before": "#A5ACAF",
+   "after": "#A2AAAD"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PHI",
+   "field": "accent",
+   "before": "#A5ACAF",
+   "after": "#A2AAAD"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PIT",
+   "field": "primary",
+   "before": "#FFB612",
+   "after": "#000000"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PIT",
+   "field": "secondary",
+   "before": "#000000",
+   "after": "#FFB612"
+  },
+  {
+   "iteration": 5,
+   "abbr": "PIT",
+   "field": "inkName",
+   "before": "dark",
+   "after": "white"
+  },
+  {
+   "iteration": 5,
+   "abbr": "TB",
+   "field": "secondary",
+   "before": "#34302B",
+   "after": "#322F2B"
+  },
+  {
+   "iteration": 5,
+   "abbr": "TB",
+   "field": "accent",
+   "before": "#D50A0A",
+   "after": "#C2242B"
+  },
+  {
+   "iteration": 5,
+   "abbr": "TEN",
+   "field": "secondary",
+   "before": "#D50A0A",
+   "after": "#001532"
+  },
+  {
+   "iteration": 5,
+   "abbr": "TEN",
+   "field": "accent",
+   "before": "#4495D2",
+   "after": "#D50A0A"
+  }
+ ],
+ "identityChanges": [
+  {
+   "iteration": "5-identity",
+   "abbr": "ARI",
+   "field": "accent",
+   "before": "#FFB612",
+   "after": "#97233F",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "ATL",
+   "field": "accent",
+   "before": "#A5ACAF",
+   "after": "#A71930",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "BAL",
+   "field": "accent",
+   "before": "#9A7611",
+   "after": "#24135F",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "BUF",
+   "field": "accent",
+   "before": "#C60C30",
+   "after": "#00338D",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "DAL",
+   "field": "accent",
+   "before": "#B0B7BC",
+   "after": "#002244",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "IND",
+   "field": "accent",
+   "before": "#A5ACAF",
+   "after": "#013369",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "LAR",
+   "field": "accent",
+   "before": "#FFD100",
+   "after": "#003594",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "MIN",
+   "field": "accent",
+   "before": "#FFC62F",
+   "after": "#4F2683",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "NE",
+   "field": "accent",
+   "before": "#C60C30",
+   "after": "#002244",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "NYG",
+   "field": "accent",
+   "before": "#A71930",
+   "after": "#0B2265",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "SEA",
+   "field": "accent",
+   "before": "#69BE28",
+   "after": "#002244",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "SF",
+   "field": "accent",
+   "before": "#B3995D",
+   "after": "#AA0000",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  },
+  {
+   "iteration": "5-identity",
+   "abbr": "WSH",
+   "field": "accent",
+   "before": "#FFB612",
+   "after": "#5A1414",
+   "reason": "one identity: the primary carries the team on the field, keylined for 3:1 (was a different official colour, lightened where under 3:1)"
+  }
+ ],
+ "brandingChanges": [
+  {
+   "iteration": "6-branding",
+   "abbr": "JAX",
+   "field": "accent",
+   "before": "#D7A22A",
+   "after": "#006778",
+   "reason": "preserve recognizable branding (founder, 2026-10-18): the primary carries the team on the field — ΔE00 23.1 ≥ 20 from every field surface, keylined for 3:1"
+  },
+  {
+   "iteration": "6-branding",
+   "abbr": "TEN",
+   "field": "accent",
+   "before": "#D50A0A",
+   "after": "#4495D2",
+   "reason": "preserve recognizable branding (founder, 2026-10-18): the primary carries the team on the field — ΔE00 45.2 ≥ 20 from every field surface, keylined for 3:1"
+  }
+ ],
+ "history": [
+  {
+   "iteration": 4,
+   "abbr": "BAL",
+   "field": "primary",
+   "before": "#241773",
+   "after": "#24135F"
+  },
+  {
+   "iteration": 4,
+   "abbr": "CHI",
+   "field": "secondary",
+   "before": "#C83803",
+   "after": "#E64100"
+  },
+  {
+   "iteration": 4,
+   "abbr": "CHI",
+   "field": "accent",
+   "before": "#C83803",
+   "after": "#E64100"
+  },
+  {
+   "iteration": 4,
+   "abbr": "DAL",
+   "field": "primary",
+   "before": "#003594",
+   "after": "#002244"
+  },
+  {
+   "iteration": 4,
+   "abbr": "DAL",
+   "field": "secondary",
+   "before": "#869397",
+   "after": "#B0B7BC"
+  },
+  {
+   "iteration": 4,
+   "abbr": "DAL",
+   "field": "accent",
+   "before": "#869397",
+   "after": "#B0B7BC"
+  },
+  {
+   "iteration": 4,
+   "abbr": "HOU",
+   "field": "primary",
+   "before": "#03202F",
+   "after": "#021018"
+  },
+  {
+   "iteration": 4,
+   "abbr": "HOU",
+   "field": "secondary",
+   "before": "#A71930",
+   "after": "#EB0028"
+  },
+  {
+   "iteration": 4,
+   "abbr": "JAX",
+   "field": "primary",
+   "before": "#101820",
+   "after": "#000000"
+  },
+  {
+   "iteration": 4,
+   "abbr": "LAR",
+   "field": "secondary",
+   "before": "#FFA300",
+   "after": "#FFD100"
+  },
+  {
+   "iteration": 4,
+   "abbr": "LAR",
+   "field": "accent",
+   "before": "#FFA300",
+   "after": "#FFD100"
+  },
+  {
+   "iteration": 4,
+   "abbr": "NO",
+   "field": "secondary",
+   "before": "#101820",
+   "after": "#000000"
+  },
+  {
+   "iteration": 4,
+   "abbr": "PIT",
+   "field": "secondary",
+   "before": "#101820",
+   "after": "#000000"
+  },
+  {
+   "iteration": 4,
+   "abbr": "TB",
+   "field": "primary",
+   "before": "#D50A0A",
+   "after": "#A71930"
+  },
+  {
+   "iteration": 4,
+   "abbr": "TEN",
+   "field": "primary",
+   "before": "#0C2340",
+   "after": "#4495D2"
+  },
+  {
+   "iteration": 4,
+   "abbr": "TEN",
+   "field": "secondary",
+   "before": "#4B92DB",
+   "after": "#D50A0A"
+  },
+  {
+   "iteration": 4,
+   "abbr": "TEN",
+   "field": "inkName",
+   "before": "white",
+   "after": "dark"
+  },
+  {
+   "iteration": 4,
+   "abbr": "TEN",
+   "field": "accent",
+   "before": "#4B92DB",
+   "after": "#4495D2"
+  }
+ ],
+ "treatmentsNote": "Every on-field colour, the official value as painted, with what carries its contrast. fillAlone = the colour's own contrast on each surface (for the record: it may be under 3:1); keyline = the keyline's contrast on the same surfaces (the boundary that meets WCAG 1.4.11). fieldDE00 = its smallest CIEDE2000 distance from the turf stripes and the timeline panel. Recomputed by dev-route-colors.test.mjs.",
+ "treatments": [
+  {
+   "abbr": "ARI",
+   "role": "accent",
+   "official": "#97233F",
+   "onField": "#97233F",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.46,
+    "panel": 2.03,
+    "page": 2.51
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 39.1,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "ATL",
+   "role": "accent",
+   "official": "#A71930",
+   "onField": "#A71930",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.57,
+    "panel": 2.18,
+    "page": 2.7
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 40.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "BAL",
+   "role": "accent",
+   "official": "#24135F",
+   "onField": "#24135F",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.17,
+    "panel": 1.03,
+    "page": 1.28
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 28.5,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "BUF",
+   "role": "accent",
+   "official": "#00338D",
+   "onField": "#00338D",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.03,
+    "panel": 1.43,
+    "page": 1.78
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 30.7,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "CAR",
+   "role": "accent",
+   "official": "#0085CA",
+   "onField": "#0085CA",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.89,
+    "panel": 4.02,
+    "page": 4.98
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 41.2,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "CHI",
+   "role": "accent",
+   "official": "#E64100",
+   "onField": "#E64100",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.84,
+    "panel": 3.95,
+    "page": 4.9
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 49.1,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "CIN",
+   "role": "accent",
+   "official": "#FB4F14",
+   "onField": "#FB4F14",
+   "basis": "primary",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 3.46,
+    "panel": 4.8,
+    "page": 5.96
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 53.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "CLE",
+   "role": "accent",
+   "official": "#FF3C00",
+   "onField": "#FF3C00",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 3.27,
+    "panel": 4.55,
+    "page": 5.64
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 53,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "DAL",
+   "role": "accent",
+   "official": "#002244",
+   "onField": "#002244",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.19,
+    "panel": 1.01,
+    "page": 1.26
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 20.9,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "DEN",
+   "role": "accent",
+   "official": "#FC4C02",
+   "onField": "#FC4C02",
+   "basis": "primary",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 3.43,
+    "panel": 4.76,
+    "page": 5.91
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 53.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "DET",
+   "role": "accent",
+   "official": "#0076B6",
+   "onField": "#0076B6",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.37,
+    "panel": 3.29,
+    "page": 4.08
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 36.7,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "GB",
+   "role": "accent",
+   "official": "#FFB612",
+   "onField": "#FFB612",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 6.63,
+    "panel": 9.22,
+    "page": 11.43
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 64.6,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "HOU",
+   "role": "accent",
+   "official": "#EB0028",
+   "onField": "#EB0028",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.53,
+    "panel": 3.52,
+    "page": 4.36
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 49.1,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "IND",
+   "role": "accent",
+   "official": "#013369",
+   "onField": "#013369",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.07,
+    "panel": 1.29,
+    "page": 1.61
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 25.6,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "JAX",
+   "role": "accent",
+   "official": "#006778",
+   "onField": "#006778",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.78,
+    "panel": 2.48,
+    "page": 3.07
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 23.1,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "KC",
+   "role": "accent",
+   "official": "#E31837",
+   "onField": "#E31837",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.47,
+    "panel": 3.43,
+    "page": 4.26
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 48.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "LAC",
+   "role": "accent",
+   "official": "#0080C6",
+   "onField": "#0080C6",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.72,
+    "panel": 3.78,
+    "page": 4.69
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 40.1,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "LAR",
+   "role": "accent",
+   "official": "#003594",
+   "onField": "#003594",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.07,
+    "panel": 1.49,
+    "page": 1.85
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 31.4,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "LV",
+   "role": "accent",
+   "official": "#A5ACAF",
+   "onField": "#A5ACAF",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 5.06,
+    "panel": 7.03,
+    "page": 8.72
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 48.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "MIA",
+   "role": "accent",
+   "official": "#008E97",
+   "onField": "#008E97",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 2.95,
+    "panel": 4.1,
+    "page": 5.08
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 30.8,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "MIN",
+   "role": "accent",
+   "official": "#4F2683",
+   "onField": "#4F2683",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.08,
+    "panel": 1.49,
+    "page": 1.85
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 30.9,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "NE",
+   "role": "accent",
+   "official": "#002244",
+   "onField": "#002244",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.19,
+    "panel": 1.01,
+    "page": 1.26
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 20.9,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "NO",
+   "role": "accent",
+   "official": "#D3BC8D",
+   "onField": "#D3BC8D",
+   "basis": "founder role decision (NO black with gold)",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 6.3,
+    "panel": 8.75,
+    "page": 10.85
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 57.4,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "NYG",
+   "role": "accent",
+   "official": "#0B2265",
+   "onField": "#0B2265",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.09,
+    "panel": 1.1,
+    "page": 1.37
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 27.6,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "NYJ",
+   "role": "accent",
+   "official": "#B1B3B6",
+   "onField": "#B1B3B6",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 5.55,
+    "panel": 7.7,
+    "page": 9.56
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 52.4,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "PHI",
+   "role": "accent",
+   "official": "#A2AAAD",
+   "onField": "#A2AAAD",
+   "basis": "secondary: primary not field-distinct",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 4.93,
+    "panel": 6.85,
+    "page": 8.5
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 47.2,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "PIT",
+   "role": "accent",
+   "official": "#FFB612",
+   "onField": "#FFB612",
+   "basis": "founder role decision (PIT black with gold)",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 6.63,
+    "panel": 9.22,
+    "page": 11.43
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 64.6,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "SEA",
+   "role": "accent",
+   "official": "#002244",
+   "onField": "#002244",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.19,
+    "panel": 1.01,
+    "page": 1.26
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 20.9,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "SF",
+   "role": "accent",
+   "official": "#AA0000",
+   "onField": "#AA0000",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.5,
+    "panel": 2.09,
+    "page": 2.59
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 40.3,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "TB",
+   "role": "accent",
+   "official": "#C2242B",
+   "onField": "#C2242B",
+   "basis": "founder role decision (TB's official red)",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.99,
+    "panel": 2.76,
+    "page": 3.43
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 43.5,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "TEN",
+   "role": "accent",
+   "official": "#4495D2",
+   "onField": "#4495D2",
+   "basis": "primary",
+   "treatment": "keyline (consistency; the colour alone also reaches 3:1)",
+   "fillAlone": {
+    "turf": 3.59,
+    "panel": 4.99,
+    "page": 6.19
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 45.2,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  },
+  {
+   "abbr": "WSH",
+   "role": "accent",
+   "official": "#5A1414",
+   "onField": "#5A1414",
+   "basis": "primary",
+   "treatment": "keyline (required: the colour alone is under 3:1)",
+   "fillAlone": {
+    "turf": 1.01,
+    "panel": 1.19,
+    "page": 1.48
+   },
+   "keyline": {
+    "turf": 7.76,
+    "panel": 10.79,
+    "page": 13.38
+   },
+   "fieldDE00": 32.8,
+   "use": "drive ribbon, timeline fills, scoring flash, winner outline, break-card rule"
+  }
+ ],
+ "matchups": [
+  {
+   "matchup": "ARI@LAR",
+   "home": {
+    "fill": "#003594",
+    "ink": "#FFFFFF",
+    "trim": "#FFD100",
+    "accent": "#003594",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#97233F",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#97233F",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "ATL@NO",
+   "home": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#D3BC8D",
+    "accent": "#D3BC8D",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#A71930",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#A71930",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "BAL@ATL",
+   "home": {
+    "fill": "#A71930",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#A71930",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#24135F",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#24135F",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "BAL@CLE",
+   "home": {
+    "fill": "#311D00",
+    "ink": "#FFFFFF",
+    "trim": "#FF3C00",
+    "accent": "#FF3C00",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#24135F",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#24135F",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "BUF@LAR",
+   "clash": "both",
+   "home": {
+    "fill": "#003594",
+    "ink": "#FFFFFF",
+    "trim": "#FFD100",
+    "accent": "#003594",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#00338D",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#00338D",
+    "accentInk": "#FFFFFF",
+    "patterned": true
+   }
+  },
+  {
+   "matchup": "BUF@LV",
+   "home": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#A5ACAF",
+    "accent": "#A5ACAF",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#00338D",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#00338D",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "CAR@PHI",
+   "home": {
+    "fill": "#004851",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#A2AAAD",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#0085CA",
+    "ink": "#0A0705",
+    "trim": "#0A0705",
+    "accent": "#0085CA",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "CHI@ATL",
+   "home": {
+    "fill": "#A71930",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#A71930",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#0B162A",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#E64100",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "CHI@GB",
+   "home": {
+    "fill": "#203731",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#FFB612",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#0B162A",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#E64100",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "CIN@MIA",
+   "home": {
+    "fill": "#008E97",
+    "ink": "#0A0705",
+    "trim": "#0A0705",
+    "accent": "#008E97",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#FB4F14",
+    "ink": "#0A0705",
+    "trim": "#000000",
+    "accent": "#FB4F14",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "CLE@NYJ",
+   "home": {
+    "fill": "#115740",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#B1B3B6",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#311D00",
+    "ink": "#FFFFFF",
+    "trim": "#FF3C00",
+    "accent": "#FF3C00",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "DAL@GB",
+   "home": {
+    "fill": "#203731",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#FFB612",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#B0B7BC",
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "DEN@LAC",
+   "home": {
+    "fill": "#0080C6",
+    "ink": "#0A0705",
+    "trim": "#0A0705",
+    "accent": "#0080C6",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#FC4C02",
+    "ink": "#0A0705",
+    "trim": "#0A2343",
+    "accent": "#FC4C02",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "DET@ARI",
+   "home": {
+    "fill": "#97233F",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#97233F",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#0076B6",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#0076B6",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "HOU@JAX",
+   "home": {
+    "fill": "#006778",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#006778",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#021018",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#EB0028",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "HOU@TEN",
+   "home": {
+    "fill": "#4495D2",
+    "ink": "#0A0705",
+    "trim": "#001532",
+    "accent": "#4495D2",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#021018",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#EB0028",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "IND@PIT",
+   "home": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#FFB612",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#013369",
+    "ink": "#FFFFFF",
+    "trim": "#A5ACAF",
+    "accent": "#013369",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "LAC@KC",
+   "home": {
+    "fill": "#E31837",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#E31837",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#0080C6",
+    "ink": "#0A0705",
+    "trim": "#0A0705",
+    "accent": "#0080C6",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "LV@NE",
+   "home": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#A5ACAF",
+    "accent": "#A5ACAF",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "MIN@NO",
+   "home": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#D3BC8D",
+    "accent": "#D3BC8D",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#4F2683",
+    "ink": "#FFFFFF",
+    "trim": "#FFC62F",
+    "accent": "#4F2683",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "NO@NYG",
+   "home": {
+    "fill": "#0B2265",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#0B2265",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#D3BC8D",
+    "accent": "#D3BC8D",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "NYG@WSH",
+   "home": {
+    "fill": "#5A1414",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#5A1414",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#0B2265",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#0B2265",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "NYJ@NE",
+   "home": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#115740",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#B1B3B6",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "PHI@JAX",
+   "clash": "blocks",
+   "home": {
+    "fill": "#006778",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#006778",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#004851",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#A2AAAD",
+    "accentInk": "#0A0705",
+    "patterned": true
+   }
+  },
+  {
+   "matchup": "PIT@TB",
+   "home": {
+    "fill": "#A71930",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#C2242B",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#000000",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#FFB612",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "SEA@DEN",
+   "home": {
+    "fill": "#FC4C02",
+    "ink": "#0A0705",
+    "trim": "#0A2343",
+    "accent": "#FC4C02",
+    "accentInk": "#0A0705"
+   },
+   "away": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#69BE28",
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "SF@SEA",
+   "home": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#69BE28",
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#AA0000",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#AA0000",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "TB@DAL",
+   "home": {
+    "fill": "#002244",
+    "ink": "#FFFFFF",
+    "trim": "#B0B7BC",
+    "accent": "#002244",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#A71930",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#C2242B",
+    "accentInk": "#FFFFFF"
+   }
+  },
+  {
+   "matchup": "TEN@IND",
+   "home": {
+    "fill": "#013369",
+    "ink": "#FFFFFF",
+    "trim": "#A5ACAF",
+    "accent": "#013369",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#4495D2",
+    "ink": "#0A0705",
+    "trim": "#001532",
+    "accent": "#4495D2",
+    "accentInk": "#0A0705"
+   }
+  },
+  {
+   "matchup": "WSH@SF",
+   "home": {
+    "fill": "#AA0000",
+    "ink": "#FFFFFF",
+    "trim": "#FFFFFF",
+    "accent": "#AA0000",
+    "accentInk": "#FFFFFF"
+   },
+   "away": {
+    "fill": "#5A1414",
+    "ink": "#FFFFFF",
+    "trim": "#FFB612",
+    "accent": "#5A1414",
+    "accentInk": "#FFFFFF"
+   }
+  }
+ ]
+}

@@ -29,7 +29,17 @@ export const TOKEN_EXCEPTIONS = Object.freeze([
     owner: "sport-operations",
     rationale: "Team/club brand colours are identity DATA, not theme drift (P207 contract). Re-theming them would misrepresent real organisations.",
     removal: "never (identity by contract)",
-    files: { "src/components/team-badge.tsx": 68, "src/components/cricket-team-badge.tsx": 21 },
+    files: {
+      "src/components/team-badge.tsx": 68,
+      "src/components/cricket-team-badge.tsx": 21,
+      /* Simulation Theater V2 NFL map (dev route only): 32 teams × primary/secondary (+ 3 accents and 1 alternate that
+         are not the primary or secondary) + white/dark ink. Lowered 98 → 73 in iteration 5: accents equal to a primary or
+         secondary are written "p"/"s"; lowered 73 → 70 by the one-identity pass (ARI, ATL, BAL accents = primary). Its
+         evidence (sources, observed values, role decisions, on-field treatments) is DATA in nfl-team-colors-evidence.json,
+         outside this scanner's runtime-code extensions; the iteration-4 validation module (raised 291 → 510 on its
+         branch, never merged) is deleted and its entry removed. */
+      "src/lib/simulation-theater/nfl-team-colors.mjs": 70,
+    },
   },
   {
     id: "sport-accent-palette",

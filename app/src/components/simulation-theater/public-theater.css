@@ -1,0 +1,22 @@
+/* Simulation Theater V2 · the public section's own frame (P242 narrow exception, flag GTP_NFL_THEATER_PUBLIC).
+   Tokens only (no colour literals). Loaded only through PublicTheaterSection, which the page imports only when the
+   flag is "1" at build time, so a default build ships none of these rules. */
+.stp{margin:40px auto 0;max-width:1200px;min-width:0}
+.stp-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:0 0 10px}
+.stp-head h2{margin:0;font:600 22px var(--font-display);color:var(--vault-text)}
+.stp-beta{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--vault-text-mute);border:1px solid var(--gtp-card-border);border-radius:999px;padding:2px 8px}
+.stp-labels{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px;padding:0;list-style:none}
+.stp-labels li{font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--vault-warn);border:1px solid color-mix(in srgb, var(--vault-warn) 55%, transparent);background:color-mix(in srgb, var(--vault-warn) 8%, var(--bg));border-radius:6px;padding:3px 8px;white-space:normal}
+.stp-method{margin:0 0 16px;padding:10px 14px;border-left:3px solid var(--vault-warn);background:var(--gtp-card);border-radius:0 10px 10px 0;font-size:13px;line-height:1.5;color:var(--lava-text-muted)}
+.stp-method p{margin:0}
+.stp-method p+p{margin-top:4px}
+.stp-method b{color:var(--lava-text)}
+.stp-drives{margin-top:16px;border-radius:14px;background:var(--gtp-card);border:1px solid var(--gtp-card-border);padding:12px 14px;min-width:0}
+.stp-drives h3{margin:0 0 4px;font:600 15px var(--font-headline);color:var(--lava-text)}
+.stp-drives p{margin:0 0 8px;font-size:12px;color:var(--lava-text-muted)}
+.stp-scroll{overflow-x:auto;max-width:100%}
+.stp-table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:12px;font-variant-numeric:tabular-nums;color:var(--lava-text)}
+.stp-table caption{text-align:left}
+.stp-table th,.stp-table td{padding:6px 8px;border-bottom:1px solid var(--gtp-card-border);text-align:left;white-space:nowrap}
+.stp-table thead th{color:var(--lava-text-muted);font-weight:600}
+.stp-sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}

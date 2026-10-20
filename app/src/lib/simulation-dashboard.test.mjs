@@ -240,6 +240,8 @@ test("dashboard modules live in the V2.5 report; runner renders the report direc
   // The runner composes the V2.5 report as the single primary report, rendered directly (null-guarded only).
   assert.match(RUNNER_SRC, /\{postReveal \?/, "the V2.5 report is composed through postReveal");
   // The ceremony stays retired (P242): no staged animation, no phase machine, no Generate CTA.
+  // (The 2026-10-19 narrow exception permits only the flagged Simulation Theater replay on /nfl/simulation/[eventId],
+  // never in this runner; lib/simulation-theater/public-theater.test.mjs checks the Theater mounts none of the ceremony.)
   assert.doesNotMatch(RUNNER_SRC, /SportSimulationAnimation/, "no staged animation in the runner");
   assert.doesNotMatch(RUNNER_SRC, /phase === "revealing"|setPhase|useState/, "no phase machine in the runner");
   assert.doesNotMatch(RUNNER_SRC, /Generate Simulation|onClick=\{start\}/, "no Generate CTA in the runner");

@@ -21,7 +21,9 @@ test("every discovered source route is explained by the table — an unexplained
     assert.ok(r.owner && r.purpose && r.classification, `${r.route}: schema completeness`);
     if (r.classification === "redirect") assert.ok(ROUTE_TABLE[r.redirectTo], `${r.route}: redirect target known`);
   }
-  assert.equal(inv.routes.length, discoverRoutes(appDir).length, "one record per source route");
+  // One record per source route: the default-export inventory plus the dev-only families it reports separately.
+  assert.equal(inv.routes.length + (inv.devRoutes?.length ?? 0), discoverRoutes(appDir).length, "one record per source route");
+  for (const r of inv.devRoutes ?? []) assert.ok(r.devOnly && r.classification === "internal" && r.route.startsWith("/dev/"), `${r.route}: dev-only rows are internal /dev/ routes`);
 });
 
 test("DETERMINISM · same inputs produce identical bytes", () => {
