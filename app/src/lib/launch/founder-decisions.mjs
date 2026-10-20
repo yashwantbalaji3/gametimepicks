@@ -92,3 +92,34 @@ export function reconcileDecisionsWithQueue(founderQueueItems) {
   for (const q of queueItems) if (!cardItems.has(q)) problems.push(`founder-queue item ${q} has no card — a decision nobody can answer`);
   return problems;
 }
+
+/**
+ * Does an answer match one of a decision's token TEMPLATES, segment by segment? Pure.
+ *
+ * Templates are colon-separated: literal segments must match EXACTLY (case-sensitive) and placeholder segments
+ * (`<...>`) must be non-empty, colon-free and of their declared kind. The segment COUNT must match. The previous check
+ * compared only the first segment, so `AUTHORIZE:player_points:500` passed for `AUTHORIZE:h2h:<ceiling-credits>` —
+ * a props answer validated as the h2h scope the founder was asked about.
+ *   <ceiling-credits>   a positive integer (a credit ceiling is a count)
+ *   any other <name>    a non-empty value with no ':' (e.g. a provider name)
+ */
+export const PLACEHOLDER_KINDS = Object.freeze({ "ceiling-credits": /^[1-9]\d*$/ });
+
+export function tokenMatchesTemplate(token, template) {
+  if (typeof token !== "string" || typeof template !== "string") return false;
+  const got = token.split(":");
+  const want = template.split(":");
+  if (got.length !== want.length) return false;
+  return want.every((w, i) => {
+    const m = /^<([a-z0-9-]+)>$/.exec(w);
+    if (!m) return got[i] === w;
+    const kind = PLACEHOLDER_KINDS[m[1]];
+    return got[i].length > 0 && (kind ? kind.test(got[i]) : true);
+  });
+}
+
+/** @returns {{ valid: boolean, template: string|null }} the first template the answer matches, if any */
+export function validateAnswerToken(decision, token) {
+  const template = (decision?.answerTokens ?? []).find((t) => tokenMatchesTemplate(token, t)) ?? null;
+  return { valid: template != null, template };
+}
