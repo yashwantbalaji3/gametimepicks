@@ -51,7 +51,7 @@ export const OWNERS = Object.freeze({
   playerBoard: "player board producer — release-owner session",
   nbaBoards: "NBA top boards (app/src/lib/sports/nba/top-boards.mjs) — NBA department",
   nbaForecast: "NBA forecast builders (v0.1 official, v1 supporting) — release-owner session",
-  nbaLane: "NBA experimental public lane (app/src/lib/sports/nba/experimental-public-lane.mjs, #1146) — release-owner session",
+  nbaLane: "NBA experimental public lane (app/src/lib/sports/nba/experimental-public-lane.mjs, PR 1146) — release-owner session",
 });
 
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
@@ -536,7 +536,7 @@ function auditNbaDate(ctx, date) {
     const officialFamily = NBA_OFFICIAL_FAMILY;
     const supGame = nbaSupportingGame(supportingSrc, id).game;
 
-    // the public /nba lane (#1146) shows exactly the official snapshot (display rule: 1 dp)
+    // the public /nba lane (PR 1146) shows exactly the official snapshot (display rule: 1 dp)
     const laneGame = (lane?.doc?.games ?? []).find((x) => String(x.providerEventId) === id) ?? null;
     if (laneGame) {
       const surface = "nba-public-lane";
