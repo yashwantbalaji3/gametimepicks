@@ -1,0 +1,3817 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-top-boards",
+ "schema": "nba-top-board@1",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "publicState": "PRIVATE",
+ "neverReadBy": "public routes under app/src/app/** — private artifact; sport-capability-registry keeps NBA HISTORICAL_ONLY",
+ "date": "2026-10-20",
+ "family": "v0.1",
+ "modelVersion": "nba-preseason-experimental-v0.1",
+ "categories": [
+  {
+   "key": "points",
+   "stat": "pts",
+   "label": "Points"
+  },
+  {
+   "key": "rebounds",
+   "stat": "reb",
+   "label": "Rebounds"
+  },
+  {
+   "key": "assists",
+   "stat": "ast",
+   "label": "Assists"
+  },
+  {
+   "key": "threes",
+   "stat": "threePm",
+   "label": "3PM"
+  }
+ ],
+ "maxRows": 10,
+ "eligibility": {
+  "version": "nba-top-board-eligibility@1",
+  "minExpectedMinutes": 20,
+  "maxMinutesCv": 0.35,
+  "minPlayRate": 0.95,
+  "minGamesUsed": 3,
+  "playerRateBases": [
+   "player-window",
+   "v1-shrunk-to-league"
+  ],
+  "tradedHistoryPolicy": "INCLUDE_WITH_FLAG",
+  "rules": [
+   {
+    "id": "MISSING_ATHLETE_ID",
+    "scope": "player",
+    "description": "no providerAthleteId — the row could never be joined to a box score"
+   },
+   {
+    "id": "AVAILABILITY_OUT",
+    "scope": "player",
+    "description": "ruled Out by the injury feed at the forecast instant"
+   },
+   {
+    "id": "INJURY_DESIGNATION",
+    "scope": "player",
+    "description": "ANY injury designation, including Day-To-Day — an unresolved status is withheld (founder rule)"
+   },
+   {
+    "id": "INSUFFICIENT_HISTORY",
+    "scope": "player",
+    "description": "minutes basis \"insufficient\", or fewer than 3 appearances used (the minutes model's MIN_GAMES_FOR_RATES)"
+   },
+   {
+    "id": "NULL_MINUTES",
+    "scope": "player",
+    "description": "expected minutes absent (never read as zero)"
+   },
+   {
+    "id": "AVAILABILITY_UNVERIFIED",
+    "scope": "player",
+    "description": "availability not read from an injury feed (\"unknown\" or absent) — unknown is not active"
+   },
+   {
+    "id": "LOW_PLAY_RATE",
+    "scope": "player",
+    "description": "conditional-on-playing quantiles with playRate below 0.95 (or no playRate recorded)"
+   },
+   {
+    "id": "TEAM_POOL_FALLBACK_RATES",
+    "scope": "player",
+    "description": "per-minute rates not from the player's own history (team-pool fallback, or an unknown basis)"
+   },
+   {
+    "id": "LOW_EXPECTED_MINUTES",
+    "scope": "player",
+    "description": "expected minutes below 20 (the preregistered graded population)"
+   },
+   {
+    "id": "MINUTES_TOO_UNCERTAIN",
+    "scope": "player",
+    "description": "minutesSd / expectedMinutes above 0.35, or no measured minutes spread"
+   },
+   {
+    "id": "MISSING_DISTRIBUTION",
+    "scope": "category",
+    "description": "the category's frozen distribution (mean, p10, p50, p90) is incomplete"
+   }
+  ],
+  "flags": [
+   "TRADED_HISTORY_OTHER_TEAM",
+   "LEGACY_NO_RECEIPT"
+  ]
+ },
+ "ranking": {
+  "id": "nba-top-board-ranking@1",
+  "metric": "MODEL_MEDIAN_P50",
+  "rule": "frozen p50 desc, then frozen mean desc, then providerAthleteId asc (deterministic, no clock)"
+ },
+ "market": {
+  "state": "NO_AUTHORIZED_PRICE",
+  "note": "no NBA odds authorization exists; no line, odds, edge or over/under probability is ever recorded"
+ },
+ "confidence": {
+  "value": null,
+  "reason": "no calibrated confidence until the preregistered bars are met"
+ },
+ "writeOnce": {
+  "rule": "an edition, once written, is never rewritten; a later freeze only adds a new edition for games on no earlier edition that have not tipped"
+ },
+ "editions": [
+  {
+   "edition": 1,
+   "frozenAt": "2026-10-20T12:29:28Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v0.1/forecasts/2026-10-20.json",
+    "sha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+    "artifactGeneratedAt": "2026-10-20T12:29:28Z",
+    "artifactInputAsOf": "2026-10-20T12:29:28Z",
+    "runs": 1,
+    "modelVersion": "nba-preseason-experimental-v0.1"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909088",
+     "tipoffUtc": "2026-10-20T19:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Detroit Pistons",
+      "abbr": "DET",
+      "espnAbbr": "DET",
+      "providerTeamId": "8"
+     },
+     "away": {
+      "name": "Boston Celtics",
+      "abbr": "BOS",
+      "espnAbbr": "BOS",
+      "providerTeamId": "2"
+     },
+     "forecastGeneratedAt": "2026-10-20T12:29:28Z",
+     "forecastInputAsOf": "2026-10-20T12:29:28Z",
+     "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-20|v0.1|e1|points|401909088|4432166",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Cade Cunningham",
+        "providerAthleteId": "4432166"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 21.38,
+        "mean": 21.44
+       },
+       "range": {
+        "p10": 13.03,
+        "p90": 30.05
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 32.17,
+       "minutesSd": 2.44,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.38,
+        "expectedMinutes": 32.17,
+        "p90": 30.05
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-20|v0.1|e1|points|401909088|4065648",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Jayson Tatum",
+        "providerAthleteId": "4065648"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 19.38,
+        "mean": 19.57
+       },
+       "range": {
+        "p10": 13.63,
+        "p90": 25.81
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 30.76,
+       "minutesSd": 4.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.38,
+        "expectedMinutes": 30.76,
+        "p90": 25.81
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-20|v0.1|e1|points|401909088|4251",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Paul George",
+        "providerAthleteId": "4251"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 13.22,
+        "mean": 13.59
+       },
+       "range": {
+        "p10": 8.04,
+        "p90": 19.59
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 30.55,
+       "minutesSd": 5.44,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 13.22,
+        "expectedMinutes": 30.55,
+        "p90": 19.59
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-20|v0.1|e1|points|401909088|4066354",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Payton Pritchard",
+        "providerAthleteId": "4066354"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 13.22,
+        "mean": 13.49
+       },
+       "range": {
+        "p10": 5.24,
+        "p90": 22.04
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 27.45,
+       "minutesSd": 3.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.22,
+        "expectedMinutes": 27.45,
+        "p90": 22.04
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-20|v0.1|e1|points|401909088|3157465",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Duncan Robinson",
+        "providerAthleteId": "3157465"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 9.74,
+        "mean": 10.16
+       },
+       "range": {
+        "p10": 4.26,
+        "p90": 16.63
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 23.23,
+       "minutesSd": 5.15,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 9.74,
+        "expectedMinutes": 23.23,
+        "p90": 16.63
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-20|v0.1|e1|points|401909088|3078576",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Derrick White",
+        "providerAthleteId": "3078576"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 8.42,
+        "mean": 8.82
+       },
+       "range": {
+        "p10": 2.81,
+        "p90": 15.18
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 28.38,
+       "minutesSd": 6.57,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 8.42,
+        "expectedMinutes": 28.38,
+        "p90": 15.18
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-20|v0.1|e1|points|401909088|5107199",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Daniss Jenkins",
+        "providerAthleteId": "5107199"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 8.12,
+        "mean": 8.54
+       },
+       "range": {
+        "p10": 3.37,
+        "p90": 14.3
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 20.52,
+       "minutesSd": 6.18,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 8.12,
+        "expectedMinutes": 20.52,
+        "p90": 14.3
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-20|v0.1|e1|points|401909088|4433621",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Jalen Duren",
+        "providerAthleteId": "4433621"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 8,
+        "mean": 8.12
+       },
+       "range": {
+        "p10": 4.99,
+        "p90": 11.42
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 23.24,
+       "minutesSd": 3.18,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 8,
+        "expectedMinutes": 23.24,
+        "p90": 11.42
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-20|v0.1|e1|points|401909088|4065804",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Sam Hauser",
+        "providerAthleteId": "4065804"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 7.56,
+        "mean": 7.8
+       },
+       "range": {
+        "p10": 2.29,
+        "p90": 13.5
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 20.68,
+       "minutesSd": 3.93,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 7.56,
+        "expectedMinutes": 20.68,
+        "p90": 13.5
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-20|v0.1|e1|points|401909088|4397449",
+       "category": "points",
+       "stat": "pts",
+       "player": {
+        "name": "Elijah Harkless",
+        "providerAthleteId": "4397449"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 6.26,
+        "mean": 6.44
+       },
+       "range": {
+        "p10": 3.06,
+        "p90": 10.14
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 25.39,
+       "minutesSd": 5.73,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 6.26,
+        "expectedMinutes": 25.39,
+        "p90": 10.14
+       }
+      }
+     ],
+     "eligibleCount": 11,
+     "shownCount": 10,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 1,
+       "LOW_EXPECTED_MINUTES": 17,
+       "TEAM_POOL_FALLBACK_RATES": 1,
+       "INSUFFICIENT_HISTORY": 4,
+       "AVAILABILITY_OUT": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_EXPECTED_MINUTES": 18,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "INSUFFICIENT_HISTORY": 4,
+       "NULL_MINUTES": 5,
+       "AVAILABILITY_UNVERIFIED": 4,
+       "MISSING_DISTRIBUTION": 5,
+       "AVAILABILITY_OUT": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2596112",
+        "name": "Javonte Green",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2990962",
+        "name": "Taurean Prince",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3195",
+        "name": "Mike Conley",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3908845",
+        "name": "John Collins",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066372",
+        "name": "Kevin Huerter",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277951",
+        "name": "Luka Garza",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4278562",
+        "name": "Paul Reed",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4351852",
+        "name": "Mitchell Robinson",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4395702",
+        "name": "Isaiah Joe",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397251",
+        "name": "Ron Harper Jr.",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397424",
+        "name": "Neemias Queta",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397882",
+        "name": "Tolu Smith",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "TEAM_POOL_FALLBACK_RATES",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "TEAM_POOL_FALLBACK_RATES"
+       },
+       {
+        "providerAthleteId": "4433188",
+        "name": "Devin Carter",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4593841",
+        "name": "Baylor Scheierman",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683689",
+        "name": "Jordan Walsh",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683771",
+        "name": "Ronald Holland II",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4700852",
+        "name": "Chaz Lanier",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702745",
+        "name": "Amari Williams",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5037878",
+        "name": "Ugonna Onyenso",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106283",
+        "name": "Dillon Mitchell",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5107818",
+        "name": "Isaac Jones",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5142621",
+        "name": "Chris Cenac Jr.",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5175647",
+        "name": "Hugo Gonzalez",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5258459",
+        "name": "Ebuka Okorie",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-20|v0.1|e1|rebounds|401909088|4065648",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Jayson Tatum",
+        "providerAthleteId": "4065648"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 9.03,
+        "mean": 9.23
+       },
+       "range": {
+        "p10": 4.97,
+        "p90": 13.76
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 30.76,
+       "minutesSd": 4.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 9.03,
+        "expectedMinutes": 30.76,
+        "p90": 13.76
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-20|v0.1|e1|rebounds|401909088|4433621",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Jalen Duren",
+        "providerAthleteId": "4433621"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 6.59,
+        "mean": 6.7
+       },
+       "range": {
+        "p10": 3.24,
+        "p90": 10.3
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 23.24,
+       "minutesSd": 3.18,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.59,
+        "expectedMinutes": 23.24,
+        "p90": 10.3
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-20|v0.1|e1|rebounds|401909088|4684742",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Ausar Thompson",
+        "providerAthleteId": "4684742"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 5.84,
+        "mean": 6.06
+       },
+       "range": {
+        "p10": 2.99,
+        "p90": 9.42
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 23.78,
+       "minutesSd": 5.32,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.84,
+        "expectedMinutes": 23.78,
+        "p90": 9.42
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-20|v0.1|e1|rebounds|401909088|4432166",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Cade Cunningham",
+        "providerAthleteId": "4432166"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 3.65,
+        "mean": 3.74
+       },
+       "range": {
+        "p10": 0.4,
+        "p90": 6.91
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 32.17,
+       "minutesSd": 2.44,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.65,
+        "expectedMinutes": 32.17,
+        "p90": 6.91
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-20|v0.1|e1|rebounds|401909088|4065804",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Sam Hauser",
+        "providerAthleteId": "4065804"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 3.43,
+        "mean": 3.52
+       },
+       "range": {
+        "p10": 1.74,
+        "p90": 5.41
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 20.68,
+       "minutesSd": 3.93,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.43,
+        "expectedMinutes": 20.68,
+        "p90": 5.41
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-20|v0.1|e1|rebounds|401909088|4251",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Paul George",
+        "providerAthleteId": "4251"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 3.2,
+        "mean": 3.3
+       },
+       "range": {
+        "p10": 0.96,
+        "p90": 5.7
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 30.55,
+       "minutesSd": 5.44,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 3.2,
+        "expectedMinutes": 30.55,
+        "p90": 5.7
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-20|v0.1|e1|rebounds|401909088|4397449",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Elijah Harkless",
+        "providerAthleteId": "4397449"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.97,
+        "mean": 3.09
+       },
+       "range": {
+        "p10": 1.33,
+        "p90": 4.97
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 25.39,
+       "minutesSd": 5.73,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 2.97,
+        "expectedMinutes": 25.39,
+        "p90": 4.97
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-20|v0.1|e1|rebounds|401909088|4066354",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Payton Pritchard",
+        "providerAthleteId": "4066354"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.91,
+        "mean": 2.96
+       },
+       "range": {
+        "p10": 1.7,
+        "p90": 4.27
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 27.45,
+       "minutesSd": 3.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.91,
+        "expectedMinutes": 27.45,
+        "p90": 4.27
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-20|v0.1|e1|rebounds|401909088|3078576",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Derrick White",
+        "providerAthleteId": "3078576"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.47,
+        "mean": 2.6
+       },
+       "range": {
+        "p10": 0.7,
+        "p90": 4.65
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 28.38,
+       "minutesSd": 6.57,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.47,
+        "expectedMinutes": 28.38,
+        "p90": 4.65
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-20|v0.1|e1|rebounds|401909088|5107199",
+       "category": "rebounds",
+       "stat": "reb",
+       "player": {
+        "name": "Daniss Jenkins",
+        "providerAthleteId": "5107199"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.09,
+        "mean": 2.3
+       },
+       "range": {
+        "p10": 0.14,
+        "p90": 4.61
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 20.52,
+       "minutesSd": 6.18,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.09,
+        "expectedMinutes": 20.52,
+        "p90": 4.61
+       }
+      }
+     ],
+     "eligibleCount": 11,
+     "shownCount": 10,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 1,
+       "LOW_EXPECTED_MINUTES": 17,
+       "TEAM_POOL_FALLBACK_RATES": 1,
+       "INSUFFICIENT_HISTORY": 4,
+       "AVAILABILITY_OUT": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_EXPECTED_MINUTES": 18,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "INSUFFICIENT_HISTORY": 4,
+       "NULL_MINUTES": 5,
+       "AVAILABILITY_UNVERIFIED": 4,
+       "MISSING_DISTRIBUTION": 5,
+       "AVAILABILITY_OUT": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2596112",
+        "name": "Javonte Green",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2990962",
+        "name": "Taurean Prince",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3195",
+        "name": "Mike Conley",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3908845",
+        "name": "John Collins",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066372",
+        "name": "Kevin Huerter",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277951",
+        "name": "Luka Garza",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4278562",
+        "name": "Paul Reed",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4351852",
+        "name": "Mitchell Robinson",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4395702",
+        "name": "Isaiah Joe",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397251",
+        "name": "Ron Harper Jr.",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397424",
+        "name": "Neemias Queta",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397882",
+        "name": "Tolu Smith",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "TEAM_POOL_FALLBACK_RATES",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "TEAM_POOL_FALLBACK_RATES"
+       },
+       {
+        "providerAthleteId": "4433188",
+        "name": "Devin Carter",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4593841",
+        "name": "Baylor Scheierman",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683689",
+        "name": "Jordan Walsh",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683771",
+        "name": "Ronald Holland II",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4700852",
+        "name": "Chaz Lanier",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702745",
+        "name": "Amari Williams",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5037878",
+        "name": "Ugonna Onyenso",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106283",
+        "name": "Dillon Mitchell",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5107818",
+        "name": "Isaac Jones",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5142621",
+        "name": "Chris Cenac Jr.",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5175647",
+        "name": "Hugo Gonzalez",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5258459",
+        "name": "Ebuka Okorie",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-20|v0.1|e1|assists|401909088|4432166",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Cade Cunningham",
+        "providerAthleteId": "4432166"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 5.79,
+        "mean": 5.83
+       },
+       "range": {
+        "p10": 2.88,
+        "p90": 8.79
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 32.17,
+       "minutesSd": 2.44,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.79,
+        "expectedMinutes": 32.17,
+        "p90": 8.79
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-20|v0.1|e1|assists|401909088|4065648",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Jayson Tatum",
+        "providerAthleteId": "4065648"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 5.73,
+        "mean": 5.85
+       },
+       "range": {
+        "p10": 2.72,
+        "p90": 9.08
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 30.76,
+       "minutesSd": 4.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.73,
+        "expectedMinutes": 30.76,
+        "p90": 9.08
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-20|v0.1|e1|assists|401909088|4066354",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Payton Pritchard",
+        "providerAthleteId": "4066354"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 4.77,
+        "mean": 4.86
+       },
+       "range": {
+        "p10": 2.14,
+        "p90": 7.63
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 27.45,
+       "minutesSd": 3.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.77,
+        "expectedMinutes": 27.45,
+        "p90": 7.63
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-20|v0.1|e1|assists|401909088|4397449",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Elijah Harkless",
+        "providerAthleteId": "4397449"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 3.19,
+        "mean": 3.41
+       },
+       "range": {
+        "p10": 0.6,
+        "p90": 6.39
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 25.39,
+       "minutesSd": 5.73,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 3.19,
+        "expectedMinutes": 25.39,
+        "p90": 6.39
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-20|v0.1|e1|assists|401909088|4684742",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Ausar Thompson",
+        "providerAthleteId": "4684742"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.82,
+        "mean": 2.95
+       },
+       "range": {
+        "p10": 1.06,
+        "p90": 4.97
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 23.78,
+       "minutesSd": 5.32,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.82,
+        "expectedMinutes": 23.78,
+        "p90": 4.97
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-20|v0.1|e1|assists|401909088|4251",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Paul George",
+        "providerAthleteId": "4251"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.62,
+        "mean": 2.69
+       },
+       "range": {
+        "p10": 0.99,
+        "p90": 4.43
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 30.55,
+       "minutesSd": 5.44,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 2.62,
+        "expectedMinutes": 30.55,
+        "p90": 4.43
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-20|v0.1|e1|assists|401909088|5107199",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Daniss Jenkins",
+        "providerAthleteId": "5107199"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.55,
+        "mean": 2.64
+       },
+       "range": {
+        "p10": 1.34,
+        "p90": 4.06
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 20.52,
+       "minutesSd": 6.18,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.55,
+        "expectedMinutes": 20.52,
+        "p90": 4.06
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-20|v0.1|e1|assists|401909088|3078576",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Derrick White",
+        "providerAthleteId": "3078576"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.48,
+        "mean": 2.83
+       },
+       "range": {
+        "p10": 0,
+        "p90": 6.08
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 28.38,
+       "minutesSd": 6.57,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.48,
+        "expectedMinutes": 28.38,
+        "p90": 6.08
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-20|v0.1|e1|assists|401909088|3157465",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Duncan Robinson",
+        "providerAthleteId": "3157465"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 1.66,
+        "mean": 1.71
+       },
+       "range": {
+        "p10": 0.81,
+        "p90": 2.67
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 23.23,
+       "minutesSd": 5.15,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.66,
+        "expectedMinutes": 23.23,
+        "p90": 2.67
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-20|v0.1|e1|assists|401909088|4433621",
+       "category": "assists",
+       "stat": "ast",
+       "player": {
+        "name": "Jalen Duren",
+        "providerAthleteId": "4433621"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 1.58,
+        "mean": 1.65
+       },
+       "range": {
+        "p10": 0.15,
+        "p90": 3.09
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 23.24,
+       "minutesSd": 3.18,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.58,
+        "expectedMinutes": 23.24,
+        "p90": 3.09
+       }
+      }
+     ],
+     "eligibleCount": 11,
+     "shownCount": 10,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 1,
+       "LOW_EXPECTED_MINUTES": 17,
+       "TEAM_POOL_FALLBACK_RATES": 1,
+       "INSUFFICIENT_HISTORY": 4,
+       "AVAILABILITY_OUT": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_EXPECTED_MINUTES": 18,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "INSUFFICIENT_HISTORY": 4,
+       "NULL_MINUTES": 5,
+       "AVAILABILITY_UNVERIFIED": 4,
+       "MISSING_DISTRIBUTION": 5,
+       "AVAILABILITY_OUT": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2596112",
+        "name": "Javonte Green",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2990962",
+        "name": "Taurean Prince",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3195",
+        "name": "Mike Conley",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3908845",
+        "name": "John Collins",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066372",
+        "name": "Kevin Huerter",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277951",
+        "name": "Luka Garza",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4278562",
+        "name": "Paul Reed",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4351852",
+        "name": "Mitchell Robinson",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4395702",
+        "name": "Isaiah Joe",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397251",
+        "name": "Ron Harper Jr.",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397424",
+        "name": "Neemias Queta",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397882",
+        "name": "Tolu Smith",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "TEAM_POOL_FALLBACK_RATES",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "TEAM_POOL_FALLBACK_RATES"
+       },
+       {
+        "providerAthleteId": "4433188",
+        "name": "Devin Carter",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4593841",
+        "name": "Baylor Scheierman",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683689",
+        "name": "Jordan Walsh",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683771",
+        "name": "Ronald Holland II",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4700852",
+        "name": "Chaz Lanier",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702745",
+        "name": "Amari Williams",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5037878",
+        "name": "Ugonna Onyenso",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106283",
+        "name": "Dillon Mitchell",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5107818",
+        "name": "Isaac Jones",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5142621",
+        "name": "Chris Cenac Jr.",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5175647",
+        "name": "Hugo Gonzalez",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5258459",
+        "name": "Ebuka Okorie",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-10-20|v0.1|e1|threes|401909088|4251",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Paul George",
+        "providerAthleteId": "4251"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.74,
+        "mean": 2.82
+       },
+       "range": {
+        "p10": 1.4,
+        "p90": 4.34
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 30.55,
+       "minutesSd": 5.44,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 2.74,
+        "expectedMinutes": 30.55,
+        "p90": 4.34
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-10-20|v0.1|e1|threes|401909088|3157465",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Duncan Robinson",
+        "providerAthleteId": "3157465"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.55,
+        "mean": 2.66
+       },
+       "range": {
+        "p10": 1.01,
+        "p90": 4.44
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 23.23,
+       "minutesSd": 5.15,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.55,
+        "expectedMinutes": 23.23,
+        "p90": 4.44
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-10-20|v0.1|e1|threes|401909088|4065648",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Jayson Tatum",
+        "providerAthleteId": "4065648"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.45,
+        "mean": 2.5
+       },
+       "range": {
+        "p10": 0.83,
+        "p90": 4.17
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 30.76,
+       "minutesSd": 4.13,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.45,
+        "expectedMinutes": 30.76,
+        "p90": 4.17
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-10-20|v0.1|e1|threes|401909088|4432166",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Cade Cunningham",
+        "providerAthleteId": "4432166"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.41,
+        "mean": 2.43
+       },
+       "range": {
+        "p10": 0.74,
+        "p90": 4.08
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 32.17,
+       "minutesSd": 2.44,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.41,
+        "expectedMinutes": 32.17,
+        "p90": 4.08
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-10-20|v0.1|e1|threes|401909088|4065804",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Sam Hauser",
+        "providerAthleteId": "4065804"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.34,
+        "mean": 2.47
+       },
+       "range": {
+        "p10": 0.58,
+        "p90": 4.49
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 20.68,
+       "minutesSd": 3.93,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.34,
+        "expectedMinutes": 20.68,
+        "p90": 4.49
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-10-20|v0.1|e1|threes|401909088|4066354",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Payton Pritchard",
+        "providerAthleteId": "4066354"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 2.24,
+        "mean": 2.37
+       },
+       "range": {
+        "p10": 0.02,
+        "p90": 4.61
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 27.45,
+       "minutesSd": 3.65,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.24,
+        "expectedMinutes": 27.45,
+        "p90": 4.61
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-10-20|v0.1|e1|threes|401909088|3078576",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Derrick White",
+        "providerAthleteId": "3078576"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "away",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 1.56,
+        "mean": 1.81
+       },
+       "range": {
+        "p10": 0,
+        "p90": 3.97
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 28.38,
+       "minutesSd": 6.57,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.56,
+        "expectedMinutes": 28.38,
+        "p90": 3.97
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-10-20|v0.1|e1|threes|401909088|5107199",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Daniss Jenkins",
+        "providerAthleteId": "5107199"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.17
+       },
+       "range": {
+        "p10": 0,
+        "p90": 2.51
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 20.52,
+       "minutesSd": 6.18,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1,
+        "expectedMinutes": 20.52,
+        "p90": 2.51
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-10-20|v0.1|e1|threes|401909088|4397449",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Elijah Harkless",
+        "providerAthleteId": "4397449"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 0.76,
+        "mean": 0.82
+       },
+       "range": {
+        "p10": 0,
+        "p90": 1.66
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 25.39,
+       "minutesSd": 5.73,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [
+        "TRADED_HISTORY_OTHER_TEAM"
+       ],
+       "sortKeys": {
+        "projection": 0.76,
+        "expectedMinutes": 25.39,
+        "p90": 1.66
+       }
+      },
+      {
+       "rank": 10,
+       "rowId": "2026-10-20|v0.1|e1|threes|401909088|4684742",
+       "category": "threes",
+       "stat": "threePm",
+       "player": {
+        "name": "Ausar Thompson",
+        "providerAthleteId": "4684742"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909088",
+       "tipoffUtc": "2026-10-20T19:00Z",
+       "projection": {
+        "p50": 0.07,
+        "mean": 0.14
+       },
+       "range": {
+        "p10": 0,
+        "p90": 0.4
+       },
+       "playRate": null,
+       "quantileConditioning": "AS_SIMULATED",
+       "expectedMinutes": 23.78,
+       "minutesSd": 5.32,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-10-20T12:29:28Z",
+        "generatedAt": "2026-10-20T12:29:28Z"
+       },
+       "modelVersion": "nba-preseason-experimental-v0.1",
+       "family": "v0.1",
+       "receipt": {
+        "forecastSha256": "04640a129b1d3d4a947ebbae74c8cb5d73ea3759d8df8101922507e565fd163e",
+        "gamePayloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 0.07,
+        "expectedMinutes": 23.78,
+        "p90": 0.4
+       }
+      }
+     ],
+     "eligibleCount": 11,
+     "shownCount": 10,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 1,
+       "LOW_EXPECTED_MINUTES": 17,
+       "TEAM_POOL_FALLBACK_RATES": 1,
+       "INSUFFICIENT_HISTORY": 4,
+       "AVAILABILITY_OUT": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 2,
+       "LOW_EXPECTED_MINUTES": 18,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "INSUFFICIENT_HISTORY": 4,
+       "NULL_MINUTES": 5,
+       "AVAILABILITY_UNVERIFIED": 4,
+       "MISSING_DISTRIBUTION": 5,
+       "AVAILABILITY_OUT": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2596112",
+        "name": "Javonte Green",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2990962",
+        "name": "Taurean Prince",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3195",
+        "name": "Mike Conley",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3908845",
+        "name": "John Collins",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066372",
+        "name": "Kevin Huerter",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277951",
+        "name": "Luka Garza",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4278562",
+        "name": "Paul Reed",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4351852",
+        "name": "Mitchell Robinson",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4395702",
+        "name": "Isaiah Joe",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397251",
+        "name": "Ron Harper Jr.",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397424",
+        "name": "Neemias Queta",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397882",
+        "name": "Tolu Smith",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "TEAM_POOL_FALLBACK_RATES",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "TEAM_POOL_FALLBACK_RATES"
+       },
+       {
+        "providerAthleteId": "4433188",
+        "name": "Devin Carter",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4593841",
+        "name": "Baylor Scheierman",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683689",
+        "name": "Jordan Walsh",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683771",
+        "name": "Ronald Holland II",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4700852",
+        "name": "Chaz Lanier",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702745",
+        "name": "Amari Williams",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5037878",
+        "name": "Ugonna Onyenso",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106283",
+        "name": "Dillon Mitchell",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5107818",
+        "name": "Isaac Jones",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5142621",
+        "name": "Chris Cenac Jr.",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5175647",
+        "name": "Hugo Gonzalez",
+        "team": "BOS",
+        "eventId": "401909088",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5258459",
+        "name": "Ebuka Okorie",
+        "team": "DET",
+        "eventId": "401909088",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       }
+      ]
+     },
+     "emptyReason": null
+    }
+   }
+  }
+ ]
+}

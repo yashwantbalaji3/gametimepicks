@@ -1,0 +1,2923 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-experimental-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "neverReadBy": "app/src/app/** (public routes) — internal research only; sport-capability-registry keeps NBA HISTORICAL_ONLY",
+ "modelVersion": "nba-preseason-experimental-v0.1",
+ "family": "v0.1",
+ "poolRule": "roster-gated",
+ "poolVersion": "nba-roster-gated-pool-v0.1",
+ "simEngineVersion": "nba-preseason-experimental-v0",
+ "generatedAt": "2026-10-20T12:29:28Z",
+ "inputAsOf": "2026-10-20T12:29:28Z",
+ "date": "2026-10-20",
+ "labels": [
+  "NBA REGULAR SEASON — SHADOW"
+ ],
+ "ratings": {
+  "params": {
+   "K": 20,
+   "HOME_ADVANTAGE": 70,
+   "MEAN": 1500,
+   "SEASON_REGRESSION": 0.25,
+   "SCALE": 400
+  },
+  "targetSeason": 2027,
+  "boundaryRegressionApplied": {
+   "regular": true,
+   "preseason": true
+  },
+  "folded": {
+   "regular": 3962,
+   "preseason": 217,
+   "skippedNonFinal": 0
+  },
+  "lastFoldedDateUtc": {
+   "regular": "2026-06-14T00:30Z",
+   "preseason": "2025-10-18T02:30Z"
+  }
+ },
+ "roster": {
+  "provided": true,
+  "asOf": "2026-10-19T16:25:36Z",
+  "contractVersion": "nba-roster-contract-v1",
+  "teamsMissingRoster": [],
+  "playersOnRosterWithoutHistory": 0,
+  "playersSimulatedButNotOnRoster": 0,
+  "playersSimulatedOnRoster": 35,
+  "poolRule": "v0: the simulated pool is still box-score history; roster is reconciled, not applied"
+ },
+ "games": [
+  {
+   "providerEventId": "401909088",
+   "label": "NBA REGULAR SEASON — SHADOW",
+   "seasonType": 2,
+   "population": "regular",
+   "dateUtc": "2026-10-20T19:00Z",
+   "etDate": "2026-10-20",
+   "neutralSite": false,
+   "venue": "Little Caesars Arena",
+   "home": {
+    "name": "Detroit Pistons",
+    "abbr": "DET",
+    "providerTeamId": "8",
+    "rating": {
+     "rating": 1598.6784,
+     "games": 266,
+     "basis": "regular"
+    },
+    "minutesModel": {
+     "modelVersion": "nba-minutes-model-v0",
+     "seasonUsed": 2026,
+     "teamGamesInSeason": 96,
+     "teamGamesInWindow": 10,
+     "windowFromDateUtc": "2026-04-29T23:00Z",
+     "windowToDateUtc": "2026-05-18T00:00Z"
+    },
+    "rosterReconciliation": {
+     "state": "CAPTURED",
+     "asOf": "2026-10-19T16:25:36Z",
+     "rosterSize": 18,
+     "simulatedOnRoster": 18,
+     "onRosterWithoutHistory": [],
+     "simulatedButNotOnRoster": [],
+     "poolRule": "v0: pool = box-score history; roster reconciled, not applied"
+    },
+    "pool": {
+     "poolVersion": "nba-roster-gated-pool-v0.1",
+     "rosterAsOf": "2026-10-19T16:25:36Z",
+     "rosterAgeHours": 20.06,
+     "maxAgeHours": 48,
+     "rule": "pool = captured roster as of the forecast instant; history looked up by athlete (same team, else last team); no roster → refuse; no history → INSUFFICIENT_HISTORY (null, never 0); two-way never inferred",
+     "rosterSize": 18,
+     "rosterCapturedAt": "2026-10-19T16:25:36Z",
+     "simulated": 16,
+     "insufficientHistory": [
+      {
+       "providerAthleteId": "5037878",
+       "name": "Ugonna Onyenso",
+       "position": "C",
+       "experienceYears": 0,
+       "gamesUsed": 0,
+       "dnpCount": 0,
+       "historyBasis": "none"
+      },
+      {
+       "providerAthleteId": "5258459",
+       "name": "Ebuka Okorie",
+       "position": "G",
+       "experienceYears": 0,
+       "gamesUsed": 0,
+       "dnpCount": 0,
+       "historyBasis": "none"
+      }
+     ],
+     "out": [],
+     "otherTeamHistory": [
+      {
+       "providerAthleteId": "2990962",
+       "name": "Taurean Prince",
+       "historyTeam": "15",
+       "expectedMinutes": 29.667,
+       "basis": "trailing10"
+      },
+      {
+       "providerAthleteId": "3908845",
+       "name": "John Collins",
+       "historyTeam": "12",
+       "expectedMinutes": 24.5,
+       "basis": "trailing10"
+      },
+      {
+       "providerAthleteId": "4395702",
+       "name": "Isaiah Joe",
+       "historyTeam": "25",
+       "expectedMinutes": 10,
+       "basis": "trailing10"
+      },
+      {
+       "providerAthleteId": "4397449",
+       "name": "Elijah Harkless",
+       "historyTeam": "26",
+       "expectedMinutes": 32.667,
+       "basis": "trailing10"
+      }
+     ],
+     "excludedNotOnRoster": [
+      {
+       "providerAthleteId": "6440",
+       "name": "Tobias Harris",
+       "expectedMinutes": 34.3,
+       "basis": "trailing10",
+       "lastSeenDateUtc": "2026-05-18T00:00Z"
+      },
+      {
+       "providerAthleteId": "2991043",
+       "name": "Caris LeVert",
+       "expectedMinutes": 18.889,
+       "basis": "trailing10",
+       "lastSeenDateUtc": "2026-05-18T00:00Z"
+      },
+      {
+       "providerAthleteId": "4433218",
+       "name": "Jaden Ivey",
+       "expectedMinutes": 16.788,
+       "basis": "season",
+       "lastSeenDateUtc": "2026-02-01T23:00Z"
+      },
+      {
+       "providerAthleteId": "4432107",
+       "name": "Marcus Sasser",
+       "expectedMinutes": 12.2,
+       "basis": "trailing10",
+       "lastSeenDateUtc": "2026-05-18T00:00Z"
+      },
+      {
+       "providerAthleteId": "4432810",
+       "name": "Isaiah Stewart",
+       "expectedMinutes": 10.1,
+       "basis": "trailing10",
+       "lastSeenDateUtc": "2026-05-18T00:00Z"
+      },
+      {
+       "providerAthleteId": "4592187",
+       "name": "Wendell Moore Jr.",
+       "expectedMinutes": 10,
+       "basis": "season",
+       "lastSeenDateUtc": "2026-05-09T19:00Z"
+      },
+      {
+       "providerAthleteId": "4433378",
+       "name": "Colby Jones",
+       "expectedMinutes": 7,
+       "basis": "insufficient",
+       "lastSeenDateUtc": "2025-11-10T00:30Z"
+      },
+      {
+       "providerAthleteId": "4906923",
+       "name": "Bobi Klintman",
+       "expectedMinutes": 6.167,
+       "basis": "season",
+       "lastSeenDateUtc": "2026-03-31T01:30Z"
+      }
+     ],
+     "v0PoolSize": 20,
+     "v0PoolRetained": 12
+    }
+   },
+   "away": {
+    "name": "Boston Celtics",
+    "abbr": "BOS",
+    "providerTeamId": "2",
+    "rating": {
+     "rating": 1601.512,
+     "games": 283,
+     "basis": "regular"
+    },
+    "minutesModel": {
+     "modelVersion": "nba-minutes-model-v0",
+     "seasonUsed": 2026,
+     "teamGamesInSeason": 89,
+     "teamGamesInWindow": 10,
+     "windowFromDateUtc": "2026-04-09T23:30Z",
+     "windowToDateUtc": "2026-05-02T23:30Z"
+    },
+    "rosterReconciliation": {
+     "state": "CAPTURED",
+     "asOf": "2026-10-19T16:25:36Z",
+     "rosterSize": 17,
+     "simulatedOnRoster": 17,
+     "onRosterWithoutHistory": [],
+     "simulatedButNotOnRoster": [],
+     "poolRule": "v0: pool = box-score history; roster reconciled, not applied"
+    },
+    "pool": {
+     "poolVersion": "nba-roster-gated-pool-v0.1",
+     "rosterAsOf": "2026-10-19T16:25:36Z",
+     "rosterAgeHours": 20.06,
+     "maxAgeHours": 48,
+     "rule": "pool = captured roster as of the forecast instant; history looked up by athlete (same team, else last team); no roster → refuse; no history → INSUFFICIENT_HISTORY (null, never 0); two-way never inferred",
+     "rosterSize": 17,
+     "rosterCapturedAt": "2026-10-19T16:25:36Z",
+     "simulated": 14,
+     "insufficientHistory": [
+      {
+       "providerAthleteId": "5106283",
+       "name": "Dillon Mitchell",
+       "position": "F",
+       "experienceYears": 0,
+       "gamesUsed": 0,
+       "dnpCount": 0,
+       "historyBasis": "none"
+      },
+      {
+       "providerAthleteId": "5142621",
+       "name": "Chris Cenac Jr.",
+       "position": "F",
+       "experienceYears": 0,
+       "gamesUsed": 0,
+       "dnpCount": 0,
+       "historyBasis": "none"
+      }
+     ],
+     "out": [
+      {
+       "providerAthleteId": "4433188",
+       "name": "Devin Carter",
+       "injuryStatus": "Out"
+      }
+     ],
+     "otherTeamHistory": [
+      {
+       "providerAthleteId": "3195",
+       "name": "Mike Conley",
+       "historyTeam": "16",
+       "expectedMinutes": 15.4,
+       "basis": "trailing10"
+      },
+      {
+       "providerAthleteId": "4251",
+       "name": "Paul George",
+       "historyTeam": "20",
+       "expectedMinutes": 36.6,
+       "basis": "trailing10"
+      },
+      {
+       "providerAthleteId": "4351852",
+       "name": "Mitchell Robinson",
+       "historyTeam": "18",
+       "expectedMinutes": 13.6,
+       "basis": "trailing10"
+      },
+      {
+       "providerAthleteId": "4433188",
+       "name": "Devin Carter",
+       "historyTeam": "23",
+       "expectedMinutes": null,
+       "basis": "trailing10"
+      }
+     ],
+     "excludedNotOnRoster": [
+      {
+       "providerAthleteId": "3917376",
+       "name": "Jaylen Brown",
+       "expectedMinutes": 34.625,
+       "basis": "trailing10",
+       "lastSeenDateUtc": "2026-05-02T23:30Z"
+      },
+      {
+       "providerAthleteId": "4351851",
+       "name": "Anfernee Simons",
+       "expectedMinutes": 24.51,
+       "basis": "season",
+       "lastSeenDateUtc": "2026-02-04T01:00Z"
+      },
+      {
+       "providerAthleteId": "6478",
+       "name": "Nikola Vucevic",
+       "expectedMinutes": 19.75,
+       "basis": "trailing10",
+       "lastSeenDateUtc": "2026-05-02T23:30Z"
+      },
+      {
+       "providerAthleteId": "4687718",
+       "name": "Josh Minott",
+       "expectedMinutes": 15.879,
+       "basis": "season",
+       "lastSeenDateUtc": "2026-02-05T01:00Z"
+      },
+      {
+       "providerAthleteId": "4397885",
+       "name": "Dalano Banton",
+       "expectedMinutes": 13.667,
+       "basis": "trailing10",
+       "lastSeenDateUtc": "2026-05-02T23:30Z"
+      },
+      {
+       "providerAthleteId": "3948153",
+       "name": "Chris Boucher",
+       "expectedMinutes": 10.444,
+       "basis": "season",
+       "lastSeenDateUtc": "2026-02-04T01:00Z"
+      },
+      {
+       "providerAthleteId": "4277964",
+       "name": "Xavier Tillman",
+       "expectedMinutes": 8.143,
+       "basis": "season",
+       "lastSeenDateUtc": "2026-02-05T01:00Z"
+      },
+      {
+       "providerAthleteId": "4701992",
+       "name": "Max Shulga",
+       "expectedMinutes": 7.25,
+       "basis": "trailing10",
+       "lastSeenDateUtc": "2026-05-02T23:30Z"
+      },
+      {
+       "providerAthleteId": "4593043",
+       "name": "John Tonje",
+       "expectedMinutes": 7,
+       "basis": "season",
+       "lastSeenDateUtc": "2026-04-12T22:00Z"
+      },
+      {
+       "providerAthleteId": "4397886",
+       "name": "Charles Bassey",
+       "expectedMinutes": 3.4,
+       "basis": "season",
+       "lastSeenDateUtc": "2026-04-04T00:00Z"
+      }
+     ],
+     "v0PoolSize": 21,
+     "v0PoolRetained": 11
+    }
+   },
+   "poolVersion": "nba-roster-gated-pool-v0.1",
+   "forecast": {
+    "modelVersion": "nba-preseason-experimental-v0",
+    "providerEventId": "401909088",
+    "inputAsOf": "2026-10-20T12:29:28Z",
+    "simulations": 10000,
+    "seed": "c9eca230",
+    "seedPolicy": "fixed-per-game: hash(providerEventId)",
+    "neutralSite": false,
+    "elo": {
+     "home": {
+      "rating": 1598.6784,
+      "games": 266,
+      "basis": "regular"
+     },
+     "away": {
+      "rating": 1601.512,
+      "games": 283,
+      "basis": "regular"
+     },
+     "pHome": 0.5955,
+     "pAway": 0.4045
+    },
+    "sim": {
+     "pHome": 0.5093,
+     "pAway": 0.4906,
+     "tieMass": 0.0171,
+     "tieRule": "regulation ties split 0.5/0.5 (overtime not modelled in v0)",
+     "home": {
+      "mean": 105.49,
+      "sd": 15.87,
+      "p10": 85,
+      "p50": 105,
+      "p90": 126
+     },
+     "away": {
+      "mean": 104.96,
+      "sd": 17.4,
+      "p10": 83,
+      "p50": 104,
+      "p90": 127
+     },
+     "margin": {
+      "mean": 0.53,
+      "sd": 23.64,
+      "p10": -30,
+      "p50": 1,
+      "p90": 30
+     },
+     "total": {
+      "mean": 210.46,
+      "sd": 23.46,
+      "p10": 181,
+      "p50": 210,
+      "p90": 241
+     }
+    },
+    "eloVsSimGap": -0.0861,
+    "players": {
+     "home": [
+      {
+       "providerAthleteId": "4432166",
+       "name": "Cade Cunningham",
+       "expectedMinutes": 32.1745,
+       "minutesSd": 2.4356,
+       "starterRate": 1,
+       "basis": "trailing10",
+       "gamesUsed": 10,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.667,
+        "reb": 0.114,
+        "ast": 0.181,
+        "threePm": 0.075
+       },
+       "minutes": {
+        "mean": 32.15,
+        "sd": 2.47,
+        "p10": 29,
+        "p50": 32.16,
+        "p90": 35.32
+       },
+       "pts": {
+        "mean": 21.44,
+        "sd": 6.61,
+        "p10": 13.03,
+        "p50": 21.38,
+        "p90": 30.05
+       },
+       "reb": {
+        "mean": 3.74,
+        "sd": 2.4,
+        "p10": 0.4,
+        "p50": 3.65,
+        "p90": 6.91
+       },
+       "ast": {
+        "mean": 5.83,
+        "sd": 2.29,
+        "p10": 2.88,
+        "p50": 5.79,
+        "p90": 8.79
+       },
+       "threePm": {
+        "mean": 2.43,
+        "sd": 1.29,
+        "p10": 0.74,
+        "p50": 2.41,
+        "p90": 4.08
+       },
+       "pra": {
+        "mean": 31.02,
+        "sd": 7.55,
+        "p10": 21.54,
+        "p50": 30.83,
+        "p90": 40.92
+       },
+       "ptsAst": {
+        "mean": 27.28,
+        "sd": 7.1,
+        "p10": 18.25,
+        "p50": 27.14,
+        "p90": 36.47
+       },
+       "ptsReb": {
+        "mean": 25.19,
+        "sd": 7.08,
+        "p10": 16.28,
+        "p50": 25.04,
+        "p90": 34.28
+       }
+      },
+      {
+       "providerAthleteId": "4397449",
+       "name": "Elijah Harkless",
+       "expectedMinutes": 25.3875,
+       "minutesSd": 5.7285,
+       "starterRate": 1,
+       "basis": "trailing10",
+       "gamesUsed": 3,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.255,
+        "reb": 0.122,
+        "ast": 0.133,
+        "threePm": 0.031
+       },
+       "minutes": {
+        "mean": 25.33,
+        "sd": 5.65,
+        "p10": 18.15,
+        "p50": 25.29,
+        "p90": 32.6
+       },
+       "pts": {
+        "mean": 6.44,
+        "sd": 2.81,
+        "p10": 3.06,
+        "p50": 6.26,
+        "p90": 10.14
+       },
+       "reb": {
+        "mean": 3.09,
+        "sd": 1.46,
+        "p10": 1.33,
+        "p50": 2.97,
+        "p90": 4.97
+       },
+       "ast": {
+        "mean": 3.41,
+        "sd": 2.21,
+        "p10": 0.6,
+        "p50": 3.19,
+        "p90": 6.39
+       },
+       "threePm": {
+        "mean": 0.82,
+        "sd": 0.61,
+        "p10": 0,
+        "p50": 0.76,
+        "p90": 1.66
+       },
+       "pra": {
+        "mean": 12.94,
+        "sd": 4.48,
+        "p10": 7.46,
+        "p50": 12.53,
+        "p90": 18.89
+       },
+       "ptsAst": {
+        "mean": 9.85,
+        "sd": 3.88,
+        "p10": 5.16,
+        "p50": 9.47,
+        "p90": 15.1
+       },
+       "ptsReb": {
+        "mean": 9.53,
+        "sd": 3.45,
+        "p10": 5.28,
+        "p50": 9.28,
+        "p90": 14.12
+       }
+      },
+      {
+       "providerAthleteId": "4684742",
+       "name": "Ausar Thompson",
+       "expectedMinutes": 23.7812,
+       "minutesSd": 5.3243,
+       "starterRate": 1,
+       "basis": "trailing10",
+       "gamesUsed": 10,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.239,
+        "reb": 0.255,
+        "ast": 0.124,
+        "threePm": 0.003
+       },
+       "minutes": {
+        "mean": 23.7,
+        "sd": 5.3,
+        "p10": 16.88,
+        "p50": 23.68,
+        "p90": 30.41
+       },
+       "pts": {
+        "mean": 5.68,
+        "sd": 2.96,
+        "p10": 2.08,
+        "p50": 5.37,
+        "p90": 9.65
+       },
+       "reb": {
+        "mean": 6.06,
+        "sd": 2.53,
+        "p10": 2.99,
+        "p50": 5.84,
+        "p90": 9.42
+       },
+       "ast": {
+        "mean": 2.95,
+        "sd": 1.53,
+        "p10": 1.06,
+        "p50": 2.82,
+        "p90": 4.97
+       },
+       "threePm": {
+        "mean": 0.14,
+        "sd": 0.18,
+        "p10": 0,
+        "p50": 0.07,
+        "p90": 0.4
+       },
+       "pra": {
+        "mean": 14.69,
+        "sd": 4.97,
+        "p10": 8.62,
+        "p50": 14.23,
+        "p90": 21.25
+       },
+       "ptsAst": {
+        "mean": 8.62,
+        "sd": 3.59,
+        "p10": 4.26,
+        "p50": 8.3,
+        "p90": 13.39
+       },
+       "ptsReb": {
+        "mean": 11.74,
+        "sd": 4.34,
+        "p10": 6.51,
+        "p50": 11.29,
+        "p90": 17.44
+       }
+      },
+      {
+       "providerAthleteId": "4433621",
+       "name": "Jalen Duren",
+       "expectedMinutes": 23.2371,
+       "minutesSd": 3.1825,
+       "starterRate": 1,
+       "basis": "trailing10",
+       "gamesUsed": 10,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.348,
+        "reb": 0.288,
+        "ast": 0.07,
+        "threePm": 0
+       },
+       "minutes": {
+        "mean": 23.26,
+        "sd": 3.22,
+        "p10": 19.15,
+        "p50": 23.23,
+        "p90": 27.42
+       },
+       "pts": {
+        "mean": 8.12,
+        "sd": 2.53,
+        "p10": 4.99,
+        "p50": 8,
+        "p90": 11.42
+       },
+       "reb": {
+        "mean": 6.7,
+        "sd": 2.75,
+        "p10": 3.24,
+        "p50": 6.59,
+        "p90": 10.3
+       },
+       "ast": {
+        "mean": 1.65,
+        "sd": 1.09,
+        "p10": 0.15,
+        "p50": 1.58,
+        "p90": 3.09
+       },
+       "threePm": {
+        "mean": 0,
+        "sd": 0,
+        "p10": 0,
+        "p50": 0,
+        "p90": 0
+       },
+       "pra": {
+        "mean": 16.47,
+        "sd": 4.24,
+        "p10": 11.19,
+        "p50": 16.28,
+        "p90": 22.02
+       },
+       "ptsAst": {
+        "mean": 9.78,
+        "sd": 2.84,
+        "p10": 6.24,
+        "p50": 9.6,
+        "p90": 13.53
+       },
+       "ptsReb": {
+        "mean": 14.82,
+        "sd": 3.98,
+        "p10": 9.85,
+        "p50": 14.65,
+        "p90": 19.99
+       }
+      },
+      {
+       "providerAthleteId": "3157465",
+       "name": "Duncan Robinson",
+       "expectedMinutes": 23.2286,
+       "minutesSd": 5.1471,
+       "starterRate": 0.778,
+       "basis": "trailing10",
+       "gamesUsed": 9,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.439,
+        "reb": 0.089,
+        "ast": 0.074,
+        "threePm": 0.115
+       },
+       "minutes": {
+        "mean": 23.18,
+        "sd": 5.15,
+        "p10": 16.55,
+        "p50": 23.22,
+        "p90": 29.72
+       },
+       "pts": {
+        "mean": 10.16,
+        "sd": 4.85,
+        "p10": 4.26,
+        "p50": 9.74,
+        "p90": 16.63
+       },
+       "reb": {
+        "mean": 2.1,
+        "sd": 1.3,
+        "p10": 0.45,
+        "p50": 1.98,
+        "p90": 3.83
+       },
+       "ast": {
+        "mean": 1.71,
+        "sd": 0.74,
+        "p10": 0.81,
+        "p50": 1.66,
+        "p90": 2.67
+       },
+       "threePm": {
+        "mean": 2.66,
+        "sd": 1.34,
+        "p10": 1.01,
+        "p50": 2.55,
+        "p90": 4.44
+       },
+       "pra": {
+        "mean": 13.96,
+        "sd": 5.46,
+        "p10": 7.25,
+        "p50": 13.52,
+        "p90": 21.11
+       },
+       "ptsAst": {
+        "mean": 11.87,
+        "sd": 5.08,
+        "p10": 5.7,
+        "p50": 11.44,
+        "p90": 18.69
+       },
+       "ptsReb": {
+        "mean": 12.25,
+        "sd": 5.21,
+        "p10": 5.9,
+        "p50": 11.81,
+        "p90": 19.1
+       }
+      },
+      {
+       "providerAthleteId": "2990962",
+       "name": "Taurean Prince",
+       "expectedMinutes": 23.0561,
+       "minutesSd": 4.6467,
+       "starterRate": 0.444,
+       "basis": "trailing10",
+       "gamesUsed": 9,
+       "availability": "active",
+       "injuryStatus": "Day-To-Day",
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.483,
+        "reb": 0.157,
+        "ast": 0.112,
+        "threePm": 0.127
+       },
+       "minutes": {
+        "mean": 23.1,
+        "sd": 4.59,
+        "p10": 17.26,
+        "p50": 23.13,
+        "p90": 28.95
+       },
+       "pts": {
+        "mean": 11.2,
+        "sd": 4.99,
+        "p10": 5.11,
+        "p50": 10.83,
+        "p90": 17.75
+       },
+       "reb": {
+        "mean": 3.68,
+        "sd": 2.28,
+        "p10": 0.72,
+        "p50": 3.51,
+        "p90": 6.68
+       },
+       "ast": {
+        "mean": 2.59,
+        "sd": 1.21,
+        "p10": 1.1,
+        "p50": 2.5,
+        "p90": 4.21
+       },
+       "threePm": {
+        "mean": 2.93,
+        "sd": 1.39,
+        "p10": 1.23,
+        "p50": 2.82,
+        "p90": 4.79
+       },
+       "pra": {
+        "mean": 17.46,
+        "sd": 6.11,
+        "p10": 9.9,
+        "p50": 17.03,
+        "p90": 25.58
+       },
+       "ptsAst": {
+        "mean": 13.78,
+        "sd": 5.37,
+        "p10": 7.19,
+        "p50": 13.38,
+        "p90": 20.84
+       },
+       "ptsReb": {
+        "mean": 14.87,
+        "sd": 5.73,
+        "p10": 7.84,
+        "p50": 14.47,
+        "p90": 22.52
+       }
+      },
+      {
+       "providerAthleteId": "5107199",
+       "name": "Daniss Jenkins",
+       "expectedMinutes": 20.5171,
+       "minutesSd": 6.1761,
+       "starterRate": 0.3,
+       "basis": "trailing10",
+       "gamesUsed": 10,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.417,
+        "reb": 0.11,
+        "ast": 0.129,
+        "threePm": 0.053
+       },
+       "minutes": {
+        "mean": 20.49,
+        "sd": 6.16,
+        "p10": 12.52,
+        "p50": 20.56,
+        "p90": 28.4
+       },
+       "pts": {
+        "mean": 8.54,
+        "sd": 4.3,
+        "p10": 3.37,
+        "p50": 8.12,
+        "p90": 14.3
+       },
+       "reb": {
+        "mean": 2.3,
+        "sd": 1.71,
+        "p10": 0.14,
+        "p50": 2.09,
+        "p90": 4.61
+       },
+       "ast": {
+        "mean": 2.64,
+        "sd": 1.07,
+        "p10": 1.34,
+        "p50": 2.55,
+        "p90": 4.06
+       },
+       "threePm": {
+        "mean": 1.17,
+        "sd": 0.98,
+        "p10": 0,
+        "p50": 1,
+        "p90": 2.51
+       },
+       "pra": {
+        "mean": 13.48,
+        "sd": 5.57,
+        "p10": 6.66,
+        "p50": 12.94,
+        "p90": 20.9
+       },
+       "ptsAst": {
+        "mean": 11.18,
+        "sd": 4.88,
+        "p10": 5.25,
+        "p50": 10.72,
+        "p90": 17.71
+       },
+       "ptsReb": {
+        "mean": 10.84,
+        "sd": 4.97,
+        "p10": 4.82,
+        "p50": 10.32,
+        "p90": 17.55
+       }
+      },
+      {
+       "providerAthleteId": "3908845",
+       "name": "John Collins",
+       "expectedMinutes": 19.0405,
+       "minutesSd": 4.8363,
+       "starterRate": 0.6,
+       "basis": "trailing10",
+       "gamesUsed": 10,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.559,
+        "reb": 0.249,
+        "ast": 0.045,
+        "threePm": 0.045
+       },
+       "minutes": {
+        "mean": 19.09,
+        "sd": 4.82,
+        "p10": 12.88,
+        "p50": 19.1,
+        "p90": 25.2
+       },
+       "pts": {
+        "mean": 10.63,
+        "sd": 6.19,
+        "p10": 2.99,
+        "p50": 10.02,
+        "p90": 18.77
+       },
+       "reb": {
+        "mean": 4.81,
+        "sd": 2.51,
+        "p10": 1.74,
+        "p50": 4.55,
+        "p90": 8.15
+       },
+       "ast": {
+        "mean": 0.91,
+        "sd": 0.77,
+        "p10": 0,
+        "p50": 0.79,
+        "p90": 1.95
+       },
+       "threePm": {
+        "mean": 0.96,
+        "sd": 0.9,
+        "p10": 0,
+        "p50": 0.79,
+        "p90": 2.19
+       },
+       "pra": {
+        "mean": 16.35,
+        "sd": 7.31,
+        "p10": 7.5,
+        "p50": 15.55,
+        "p90": 26.16
+       },
+       "ptsAst": {
+        "mean": 11.54,
+        "sd": 6.34,
+        "p10": 3.82,
+        "p50": 10.91,
+        "p90": 19.91
+       },
+       "ptsReb": {
+        "mean": 15.44,
+        "sd": 7.15,
+        "p10": 6.82,
+        "p50": 14.65,
+        "p90": 25.01
+       }
+      },
+      {
+       "providerAthleteId": "4066372",
+       "name": "Kevin Huerter",
+       "expectedMinutes": 14.4296,
+       "minutesSd": 6.6688,
+       "starterRate": 0.1,
+       "basis": "season",
+       "gamesUsed": 30,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.395,
+        "reb": 0.136,
+        "ast": 0.124,
+        "threePm": 0.057
+       },
+       "minutes": {
+        "mean": 14.4,
+        "sd": 6.51,
+        "p10": 6.02,
+        "p50": 14.38,
+        "p90": 22.77
+       },
+       "pts": {
+        "mean": 5.72,
+        "sd": 4.58,
+        "p10": 0.42,
+        "p50": 4.83,
+        "p90": 11.97
+       },
+       "reb": {
+        "mean": 1.98,
+        "sd": 1.52,
+        "p10": 0.17,
+        "p50": 1.72,
+        "p90": 4.04
+       },
+       "ast": {
+        "mean": 1.84,
+        "sd": 1.51,
+        "p10": 0.08,
+        "p50": 1.54,
+        "p90": 3.86
+       },
+       "threePm": {
+        "mean": 0.86,
+        "sd": 0.77,
+        "p10": 0,
+        "p50": 0.69,
+        "p90": 1.93
+       },
+       "pra": {
+        "mean": 9.54,
+        "sd": 6,
+        "p10": 2.65,
+        "p50": 8.54,
+        "p90": 17.6
+       },
+       "ptsAst": {
+        "mean": 7.56,
+        "sd": 5.26,
+        "p10": 1.62,
+        "p50": 6.62,
+        "p90": 14.8
+       },
+       "ptsReb": {
+        "mean": 7.7,
+        "sd": 5.28,
+        "p10": 1.67,
+        "p50": 6.73,
+        "p90": 14.88
+       }
+      },
+      {
+       "providerAthleteId": "4278562",
+       "name": "Paul Reed",
+       "expectedMinutes": 8.6599,
+       "minutesSd": 4.0241,
+       "starterRate": 0,
+       "basis": "trailing10",
+       "gamesUsed": 7,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.808,
+        "reb": 0.397,
+        "ast": 0.064,
+        "threePm": 0.026
+       },
+       "minutes": {
+        "mean": 8.7,
+        "sd": 3.98,
+        "p10": 3.55,
+        "p50": 8.63,
+        "p90": 13.8
+       },
+       "pts": {
+        "mean": 7.08,
+        "sd": 5.03,
+        "p10": 1.27,
+        "p50": 6.25,
+        "p90": 13.86
+       },
+       "reb": {
+        "mean": 3.49,
+        "sd": 2.39,
+        "p10": 0.71,
+        "p50": 3.1,
+        "p90": 6.73
+       },
+       "ast": {
+        "mean": 0.6,
+        "sd": 0.57,
+        "p10": 0,
+        "p50": 0.46,
+        "p90": 1.39
+       },
+       "threePm": {
+        "mean": 0.27,
+        "sd": 0.29,
+        "p10": 0,
+        "p50": 0.18,
+        "p90": 0.66
+       },
+       "pra": {
+        "mean": 11.16,
+        "sd": 6.67,
+        "p10": 3.35,
+        "p50": 10.25,
+        "p90": 19.85
+       },
+       "ptsAst": {
+        "mean": 7.67,
+        "sd": 5.23,
+        "p10": 1.61,
+        "p50": 6.86,
+        "p90": 14.66
+       },
+       "ptsReb": {
+        "mean": 10.57,
+        "sd": 6.45,
+        "p10": 3.05,
+        "p50": 9.65,
+        "p90": 18.98
+       }
+      },
+      {
+       "providerAthleteId": "4395702",
+       "name": "Isaiah Joe",
+       "expectedMinutes": 7.7716,
+       "minutesSd": 5.1844,
+       "starterRate": 0,
+       "basis": "trailing10",
+       "gamesUsed": 9,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.367,
+        "reb": 0.156,
+        "ast": 0.133,
+        "threePm": 0.089
+       },
+       "minutes": {
+        "mean": 7.91,
+        "sd": 4.93,
+        "p10": 1.11,
+        "p50": 7.72,
+        "p90": 14.48
+       },
+       "pts": {
+        "mean": 3.02,
+        "sd": 3.02,
+        "p10": 0,
+        "p50": 2.25,
+        "p90": 7.09
+       },
+       "reb": {
+        "mean": 1.31,
+        "sd": 1.41,
+        "p10": 0,
+        "p50": 0.9,
+        "p90": 3.25
+       },
+       "ast": {
+        "mean": 1.06,
+        "sd": 1.05,
+        "p10": 0,
+        "p50": 0.79,
+        "p90": 2.51
+       },
+       "threePm": {
+        "mean": 0.74,
+        "sd": 0.81,
+        "p10": 0,
+        "p50": 0.51,
+        "p90": 1.83
+       },
+       "pra": {
+        "mean": 5.4,
+        "sd": 4.36,
+        "p10": 0.48,
+        "p50": 4.53,
+        "p90": 11.29
+       },
+       "ptsAst": {
+        "mean": 4.09,
+        "sd": 3.57,
+        "p10": 0.23,
+        "p50": 3.25,
+        "p90": 8.97
+       },
+       "ptsReb": {
+        "mean": 4.33,
+        "sd": 3.78,
+        "p10": 0.2,
+        "p50": 3.49,
+        "p90": 9.46
+       }
+      },
+      {
+       "providerAthleteId": "2596112",
+       "name": "Javonte Green",
+       "expectedMinutes": 7.2167,
+       "minutesSd": 3.7995,
+       "starterRate": 0,
+       "basis": "trailing10",
+       "gamesUsed": 7,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.215,
+        "reb": 0.123,
+        "ast": 0.015,
+        "threePm": 0.062
+       },
+       "minutes": {
+        "mean": 7.37,
+        "sd": 3.69,
+        "p10": 2.46,
+        "p50": 7.34,
+        "p90": 12.15
+       },
+       "pts": {
+        "mean": 2.02,
+        "sd": 2.49,
+        "p10": 0,
+        "p50": 1.18,
+        "p90": 5.38
+       },
+       "reb": {
+        "mean": 0.97,
+        "sd": 0.95,
+        "p10": 0,
+        "p50": 0.74,
+        "p90": 2.28
+       },
+       "ast": {
+        "mean": 0.14,
+        "sd": 0.17,
+        "p10": 0,
+        "p50": 0.08,
+        "p90": 0.38
+       },
+       "threePm": {
+        "mean": 0.62,
+        "sd": 0.79,
+        "p10": 0,
+        "p50": 0.33,
+        "p90": 1.68
+       },
+       "pra": {
+        "mean": 3.14,
+        "sd": 2.89,
+        "p10": 0.3,
+        "p50": 2.32,
+        "p90": 7.02
+       },
+       "ptsAst": {
+        "mean": 2.17,
+        "sd": 2.52,
+        "p10": 0,
+        "p50": 1.28,
+        "p90": 5.58
+       },
+       "ptsReb": {
+        "mean": 3,
+        "sd": 2.85,
+        "p10": 0.2,
+        "p50": 2.18,
+        "p90": 6.84
+       }
+      },
+      {
+       "providerAthleteId": "4683771",
+       "name": "Ronald Holland II",
+       "expectedMinutes": 4.4407,
+       "minutesSd": 2.7185,
+       "starterRate": 0,
+       "basis": "trailing10",
+       "gamesUsed": 7,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.275,
+        "reb": 0.225,
+        "ast": 0,
+        "threePm": 0.05
+       },
+       "minutes": {
+        "mean": 4.53,
+        "sd": 2.62,
+        "p10": 0.96,
+        "p50": 4.48,
+        "p90": 8.01
+       },
+       "pts": {
+        "mean": 1.35,
+        "sd": 1.44,
+        "p10": 0,
+        "p50": 0.94,
+        "p90": 3.35
+       },
+       "reb": {
+        "mean": 1.04,
+        "sd": 0.96,
+        "p10": 0,
+        "p50": 0.83,
+        "p90": 2.32
+       },
+       "ast": {
+        "mean": 0,
+        "sd": 0,
+        "p10": 0,
+        "p50": 0,
+        "p90": 0
+       },
+       "threePm": {
+        "mean": 0.27,
+        "sd": 0.33,
+        "p10": 0,
+        "p50": 0.15,
+        "p90": 0.72
+       },
+       "pra": {
+        "mean": 2.39,
+        "sd": 1.99,
+        "p10": 0.23,
+        "p50": 1.95,
+        "p90": 5.03
+       },
+       "ptsAst": {
+        "mean": 1.35,
+        "sd": 1.44,
+        "p10": 0,
+        "p50": 0.94,
+        "p90": 3.35
+       },
+       "ptsReb": {
+        "mean": 2.39,
+        "sd": 1.99,
+        "p10": 0.23,
+        "p50": 1.95,
+        "p90": 5.03
+       }
+      },
+      {
+       "providerAthleteId": "5107818",
+       "name": "Isaac Jones",
+       "expectedMinutes": 3.6915,
+       "minutesSd": 3.0014,
+       "starterRate": 0,
+       "basis": "season",
+       "gamesUsed": 4,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.316,
+        "reb": 0.158,
+        "ast": 0,
+        "threePm": 0
+       },
+       "minutes": {
+        "mean": 3.85,
+        "sd": 2.7,
+        "p10": 0,
+        "p50": 3.71,
+        "p90": 7.5
+       },
+       "pts": {
+        "mean": 2.1,
+        "sd": 3.34,
+        "p10": 0,
+        "p50": 0.4,
+        "p90": 6.45
+       },
+       "reb": {
+        "mean": 0.72,
+        "sd": 0.95,
+        "p10": 0,
+        "p50": 0.36,
+        "p90": 1.99
+       },
+       "ast": {
+        "mean": 0,
+        "sd": 0,
+        "p10": 0,
+        "p50": 0,
+        "p90": 0
+       },
+       "threePm": {
+        "mean": 0,
+        "sd": 0,
+        "p10": 0,
+        "p50": 0,
+        "p90": 0
+       },
+       "pra": {
+        "mean": 2.82,
+        "sd": 3.67,
+        "p10": 0,
+        "p50": 1.41,
+        "p90": 7.62
+       },
+       "ptsAst": {
+        "mean": 2.1,
+        "sd": 3.34,
+        "p10": 0,
+        "p50": 0.4,
+        "p90": 6.45
+       },
+       "ptsReb": {
+        "mean": 2.82,
+        "sd": 3.67,
+        "p10": 0,
+        "p50": 1.41,
+        "p90": 7.62
+       }
+      },
+      {
+       "providerAthleteId": "4700852",
+       "name": "Chaz Lanier",
+       "expectedMinutes": 1.8131,
+       "minutesSd": 1.7945,
+       "starterRate": 0,
+       "basis": "trailing10",
+       "gamesUsed": 3,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.286,
+        "reb": 0,
+        "ast": 0.143,
+        "threePm": 0
+       },
+       "minutes": {
+        "mean": 1.95,
+        "sd": 1.57,
+        "p10": 0,
+        "p50": 1.79,
+        "p90": 4.14
+       },
+       "pts": {
+        "mean": 1.21,
+        "sd": 2.16,
+        "p10": 0,
+        "p50": 0.01,
+        "p90": 3.88
+       },
+       "reb": {
+        "mean": 0,
+        "sd": 0,
+        "p10": 0,
+        "p50": 0,
+        "p90": 0
+       },
+       "ast": {
+        "mean": 0.29,
+        "sd": 0.35,
+        "p10": 0,
+        "p50": 0.17,
+        "p90": 0.76
+       },
+       "threePm": {
+        "mean": 0,
+        "sd": 0,
+        "p10": 0,
+        "p50": 0,
+        "p90": 0
+       },
+       "pra": {
+        "mean": 1.49,
+        "sd": 2.29,
+        "p10": 0,
+        "p50": 0.53,
+        "p90": 4.38
+       },
+       "ptsAst": {
+        "mean": 1.49,
+        "sd": 2.29,
+        "p10": 0,
+        "p50": 0.53,
+        "p90": 4.38
+       },
+       "ptsReb": {
+        "mean": 1.21,
+        "sd": 2.16,
+        "p10": 0,
+        "p50": 0.01,
+        "p90": 3.88
+       }
+      },
+      {
+       "providerAthleteId": "4397882",
+       "name": "Tolu Smith",
+       "expectedMinutes": 1.5543,
+       "minutesSd": 2.0564,
+       "starterRate": 0,
+       "basis": "trailing10",
+       "gamesUsed": 3,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "team-pool-fallback",
+       "rates": {
+        "pts": 0.4288,
+        "reb": 0.1732,
+        "ast": 0.1062,
+        "threePm": 0.0555
+       },
+       "minutes": {
+        "mean": 1.81,
+        "sd": 1.65,
+        "p10": 0,
+        "p50": 1.53,
+        "p90": 4.17
+       },
+       "pts": {
+        "mean": 0.78,
+        "sd": 0.87,
+        "p10": 0,
+        "p50": 0.52,
+        "p90": 2.01
+       },
+       "reb": {
+        "mean": 0.31,
+        "sd": 0.35,
+        "p10": 0,
+        "p50": 0.21,
+        "p90": 0.81
+       },
+       "ast": {
+        "mean": 0.19,
+        "sd": 0.22,
+        "p10": 0,
+        "p50": 0.12,
+        "p90": 0.49
+       },
+       "threePm": {
+        "mean": 0.1,
+        "sd": 0.11,
+        "p10": 0,
+        "p50": 0.07,
+        "p90": 0.26
+       },
+       "pra": {
+        "mean": 1.29,
+        "sd": 1.3,
+        "p10": 0,
+        "p50": 0.98,
+        "p90": 3.14
+       },
+       "ptsAst": {
+        "mean": 0.97,
+        "sd": 1.03,
+        "p10": 0,
+        "p50": 0.69,
+        "p90": 2.41
+       },
+       "ptsReb": {
+        "mean": 1.1,
+        "sd": 1.14,
+        "p10": 0,
+        "p50": 0.8,
+        "p90": 2.72
+       }
+      }
+     ],
+     "away": [
+      {
+       "providerAthleteId": "4065648",
+       "name": "Jayson Tatum",
+       "expectedMinutes": 30.7642,
+       "minutesSd": 4.1292,
+       "starterRate": 1,
+       "basis": "trailing10",
+       "gamesUsed": 7,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.636,
+        "reb": 0.298,
+        "ast": 0.19,
+        "threePm": 0.081
+       },
+       "minutes": {
+        "mean": 30.79,
+        "sd": 4.1,
+        "p10": 25.55,
+        "p50": 30.77,
+        "p90": 36.16
+       },
+       "pts": {
+        "mean": 19.57,
+        "sd": 4.73,
+        "p10": 13.63,
+        "p50": 19.38,
+        "p90": 25.81
+       },
+       "reb": {
+        "mean": 9.23,
+        "sd": 3.43,
+        "p10": 4.97,
+        "p50": 9.03,
+        "p90": 13.76
+       },
+       "ast": {
+        "mean": 5.85,
+        "sd": 2.48,
+        "p10": 2.72,
+        "p50": 5.73,
+        "p90": 9.08
+       },
+       "threePm": {
+        "mean": 2.5,
+        "sd": 1.29,
+        "p10": 0.83,
+        "p50": 2.45,
+        "p90": 4.17
+       },
+       "pra": {
+        "mean": 34.65,
+        "sd": 7.24,
+        "p10": 25.64,
+        "p50": 34.3,
+        "p90": 44.16
+       },
+       "ptsAst": {
+        "mean": 25.42,
+        "sd": 5.7,
+        "p10": 18.33,
+        "p50": 25.16,
+        "p90": 32.88
+       },
+       "ptsReb": {
+        "mean": 28.8,
+        "sd": 6.35,
+        "p10": 20.89,
+        "p50": 28.45,
+        "p90": 37.21
+       }
+      },
+      {
+       "providerAthleteId": "4251",
+       "name": "Paul George",
+       "expectedMinutes": 30.5496,
+       "minutesSd": 5.4405,
+       "starterRate": 1,
+       "basis": "trailing10",
+       "gamesUsed": 10,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.445,
+        "reb": 0.107,
+        "ast": 0.087,
+        "threePm": 0.093
+       },
+       "minutes": {
+        "mean": 30.64,
+        "sd": 5.43,
+        "p10": 23.67,
+        "p50": 30.68,
+        "p90": 37.56
+       },
+       "pts": {
+        "mean": 13.59,
+        "sd": 4.54,
+        "p10": 8.04,
+        "p50": 13.22,
+        "p90": 19.59
+       },
+       "reb": {
+        "mean": 3.3,
+        "sd": 1.83,
+        "p10": 0.96,
+        "p50": 3.2,
+        "p90": 5.7
+       },
+       "ast": {
+        "mean": 2.69,
+        "sd": 1.35,
+        "p10": 0.99,
+        "p50": 2.62,
+        "p90": 4.43
+       },
+       "threePm": {
+        "mean": 2.82,
+        "sd": 1.16,
+        "p10": 1.4,
+        "p50": 2.74,
+        "p90": 4.34
+       },
+       "pra": {
+        "mean": 19.58,
+        "sd": 5.59,
+        "p10": 12.68,
+        "p50": 19.16,
+        "p90": 27.01
+       },
+       "ptsAst": {
+        "mean": 16.28,
+        "sd": 4.96,
+        "p10": 10.22,
+        "p50": 15.91,
+        "p90": 22.88
+       },
+       "ptsReb": {
+        "mean": 16.89,
+        "sd": 5.16,
+        "p10": 10.59,
+        "p50": 16.47,
+        "p90": 23.76
+       }
+      },
+      {
+       "providerAthleteId": "3078576",
+       "name": "Derrick White",
+       "expectedMinutes": 28.3794,
+       "minutesSd": 6.5723,
+       "starterRate": 1,
+       "basis": "trailing10",
+       "gamesUsed": 9,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.31,
+        "reb": 0.092,
+        "ast": 0.092,
+        "threePm": 0.059
+       },
+       "minutes": {
+        "mean": 28.34,
+        "sd": 6.5,
+        "p10": 19.99,
+        "p50": 28.29,
+        "p90": 36.72
+       },
+       "pts": {
+        "mean": 8.82,
+        "sd": 4.84,
+        "p10": 2.81,
+        "p50": 8.42,
+        "p90": 15.18
+       },
+       "reb": {
+        "mean": 2.6,
+        "sd": 1.53,
+        "p10": 0.7,
+        "p50": 2.47,
+        "p90": 4.65
+       },
+       "ast": {
+        "mean": 2.83,
+        "sd": 2.38,
+        "p10": 0,
+        "p50": 2.48,
+        "p90": 6.08
+       },
+       "threePm": {
+        "mean": 1.81,
+        "sd": 1.55,
+        "p10": 0,
+        "p50": 1.56,
+        "p90": 3.97
+       },
+       "pra": {
+        "mean": 14.26,
+        "sd": 6.08,
+        "p10": 6.89,
+        "p50": 13.74,
+        "p90": 22.29
+       },
+       "ptsAst": {
+        "mean": 11.65,
+        "sd": 5.61,
+        "p10": 4.85,
+        "p50": 11.13,
+        "p90": 19.09
+       },
+       "ptsReb": {
+        "mean": 11.42,
+        "sd": 5.3,
+        "p10": 4.86,
+        "p50": 10.96,
+        "p90": 18.4
+       }
+      },
+      {
+       "providerAthleteId": "4066354",
+       "name": "Payton Pritchard",
+       "expectedMinutes": 27.4521,
+       "minutesSd": 3.6493,
+       "starterRate": 0,
+       "basis": "trailing10",
+       "gamesUsed": 9,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.493,
+        "reb": 0.108,
+        "ast": 0.176,
+        "threePm": 0.084
+       },
+       "minutes": {
+        "mean": 27.43,
+        "sd": 3.62,
+        "p10": 22.7,
+        "p50": 27.47,
+        "p90": 32.03
+       },
+       "pts": {
+        "mean": 13.49,
+        "sd": 6.54,
+        "p10": 5.24,
+        "p50": 13.22,
+        "p90": 22.04
+       },
+       "reb": {
+        "mean": 2.96,
+        "sd": 1.02,
+        "p10": 1.7,
+        "p50": 2.91,
+        "p90": 4.27
+       },
+       "ast": {
+        "mean": 4.86,
+        "sd": 2.15,
+        "p10": 2.14,
+        "p50": 4.77,
+        "p90": 7.63
+       },
+       "threePm": {
+        "mean": 2.37,
+        "sd": 1.67,
+        "p10": 0.02,
+        "p50": 2.24,
+        "p90": 4.61
+       },
+       "pra": {
+        "mean": 21.3,
+        "sd": 7.26,
+        "p10": 12.18,
+        "p50": 20.88,
+        "p90": 30.87
+       },
+       "ptsAst": {
+        "mean": 18.34,
+        "sd": 7.05,
+        "p10": 9.51,
+        "p50": 17.93,
+        "p90": 27.55
+       },
+       "ptsReb": {
+        "mean": 16.44,
+        "sd": 6.73,
+        "p10": 7.94,
+        "p50": 16.12,
+        "p90": 25.21
+       }
+      },
+      {
+       "providerAthleteId": "4065804",
+       "name": "Sam Hauser",
+       "expectedMinutes": 20.6819,
+       "minutesSd": 3.9322,
+       "starterRate": 0.889,
+       "basis": "trailing10",
+       "gamesUsed": 9,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.377,
+        "reb": 0.17,
+        "ast": 0.058,
+        "threePm": 0.117
+       },
+       "minutes": {
+        "mean": 20.69,
+        "sd": 3.96,
+        "p10": 15.58,
+        "p50": 20.7,
+        "p90": 25.81
+       },
+       "pts": {
+        "mean": 7.8,
+        "sd": 4.28,
+        "p10": 2.29,
+        "p50": 7.56,
+        "p90": 13.5
+       },
+       "reb": {
+        "mean": 3.52,
+        "sd": 1.46,
+        "p10": 1.74,
+        "p50": 3.43,
+        "p90": 5.41
+       },
+       "ast": {
+        "mean": 1.24,
+        "sd": 0.91,
+        "p10": 0,
+        "p50": 1.16,
+        "p90": 2.46
+       },
+       "threePm": {
+        "mean": 2.47,
+        "sd": 1.5,
+        "p10": 0.58,
+        "p50": 2.34,
+        "p90": 4.49
+       },
+       "pra": {
+        "mean": 12.56,
+        "sd": 4.93,
+        "p10": 6.37,
+        "p50": 12.24,
+        "p90": 19.04
+       },
+       "ptsAst": {
+        "mean": 9.04,
+        "sd": 4.46,
+        "p10": 3.34,
+        "p50": 8.75,
+        "p90": 14.89
+       },
+       "ptsReb": {
+        "mean": 11.32,
+        "sd": 4.73,
+        "p10": 5.35,
+        "p50": 11.04,
+        "p90": 17.57
+       }
+      },
+      {
+       "providerAthleteId": "4397424",
+       "name": "Neemias Queta",
+       "expectedMinutes": 17.5285,
+       "minutesSd": 5.9605,
+       "starterRate": 0.889,
+       "basis": "trailing10",
+       "gamesUsed": 9,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.434,
+        "reb": 0.423,
+        "ast": 0.042,
+        "threePm": 0.005
+       },
+       "minutes": {
+        "mean": 17.62,
+        "sd": 5.94,
+        "p10": 10.07,
+        "p50": 17.66,
+        "p90": 25.34
+       },
+       "pts": {
+        "mean": 7.7,
+        "sd": 4.38,
+        "p10": 2.47,
+        "p50": 7.15,
+        "p90": 13.58
+       },
+       "reb": {
+        "mean": 7.45,
+        "sd": 4.33,
+        "p10": 2.31,
+        "p50": 6.91,
+        "p90": 13.25
+       },
+       "ast": {
+        "mean": 0.84,
+        "sd": 0.83,
+        "p10": 0,
+        "p50": 0.65,
+        "p90": 1.99
+       },
+       "threePm": {
+        "mean": 0.22,
+        "sd": 0.32,
+        "p10": 0,
+        "p50": 0.07,
+        "p90": 0.66
+       },
+       "pra": {
+        "mean": 16,
+        "sd": 7.4,
+        "p10": 7.09,
+        "p50": 15.17,
+        "p90": 25.93
+       },
+       "ptsAst": {
+        "mean": 8.54,
+        "sd": 4.63,
+        "p10": 3,
+        "p50": 7.94,
+        "p90": 14.74
+       },
+       "ptsReb": {
+        "mean": 15.15,
+        "sd": 7.13,
+        "p10": 6.63,
+        "p50": 14.37,
+        "p90": 24.77
+       }
+      },
+      {
+       "providerAthleteId": "4593841",
+       "name": "Baylor Scheierman",
+       "expectedMinutes": 16.026,
+       "minutesSd": 8.0431,
+       "starterRate": 0.2,
+       "basis": "trailing10",
+       "gamesUsed": 10,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.464,
+        "reb": 0.172,
+        "ast": 0.068,
+        "threePm": 0.115
+       },
+       "minutes": {
+        "mean": 16,
+        "sd": 7.88,
+        "p10": 5.64,
+        "p50": 15.87,
+        "p90": 26.35
+       },
+       "pts": {
+        "mean": 7.44,
+        "sd": 5.18,
+        "p10": 1.43,
+        "p50": 6.57,
+        "p90": 14.51
+       },
+       "reb": {
+        "mean": 2.76,
+        "sd": 2.24,
+        "p10": 0.17,
+        "p50": 2.33,
+        "p90": 5.83
+       },
+       "ast": {
+        "mean": 1.14,
+        "sd": 1.13,
+        "p10": 0,
+        "p50": 0.88,
+        "p90": 2.65
+       },
+       "threePm": {
+        "mean": 1.85,
+        "sd": 1.38,
+        "p10": 0.26,
+        "p50": 1.62,
+        "p90": 3.71
+       },
+       "pra": {
+        "mean": 11.35,
+        "sd": 7,
+        "p10": 3.06,
+        "p50": 10.42,
+        "p90": 20.7
+       },
+       "ptsAst": {
+        "mean": 8.58,
+        "sd": 5.69,
+        "p10": 2.01,
+        "p50": 7.72,
+        "p90": 16.37
+       },
+       "ptsReb": {
+        "mean": 10.2,
+        "sd": 6.48,
+        "p10": 2.6,
+        "p50": 9.3,
+        "p90": 18.92
+       }
+      },
+      {
+       "providerAthleteId": "4683689",
+       "name": "Jordan Walsh",
+       "expectedMinutes": 13.4385,
+       "minutesSd": 6.4104,
+       "starterRate": 0.3,
+       "basis": "trailing10",
+       "gamesUsed": 10,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.199,
+        "reb": 0.186,
+        "ast": 0.081,
+        "threePm": 0.037
+       },
+       "minutes": {
+        "mean": 13.54,
+        "sd": 6.27,
+        "p10": 5.42,
+        "p50": 13.42,
+        "p90": 21.72
+       },
+       "pts": {
+        "mean": 2.75,
+        "sd": 2.28,
+        "p10": 0.08,
+        "p50": 2.31,
+        "p90": 5.86
+       },
+       "reb": {
+        "mean": 2.55,
+        "sd": 1.98,
+        "p10": 0.27,
+        "p50": 2.19,
+        "p90": 5.22
+       },
+       "ast": {
+        "mean": 1.13,
+        "sd": 1,
+        "p10": 0,
+        "p50": 0.93,
+        "p90": 2.54
+       },
+       "threePm": {
+        "mean": 0.55,
+        "sd": 0.56,
+        "p10": 0,
+        "p50": 0.41,
+        "p90": 1.33
+       },
+       "pra": {
+        "mean": 6.44,
+        "sd": 3.94,
+        "p10": 1.85,
+        "p50": 5.89,
+        "p90": 11.75
+       },
+       "ptsAst": {
+        "mean": 3.88,
+        "sd": 2.73,
+        "p10": 0.78,
+        "p50": 3.4,
+        "p90": 7.58
+       },
+       "ptsReb": {
+        "mean": 5.3,
+        "sd": 3.47,
+        "p10": 1.33,
+        "p50": 4.77,
+        "p90": 10
+       }
+      },
+      {
+       "providerAthleteId": "3195",
+       "name": "Mike Conley",
+       "expectedMinutes": 12.8542,
+       "minutesSd": 6.7602,
+       "starterRate": 0.5,
+       "basis": "trailing10",
+       "gamesUsed": 10,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.325,
+        "reb": 0.091,
+        "ast": 0.182,
+        "threePm": 0.078
+       },
+       "minutes": {
+        "mean": 13.01,
+        "sd": 6.6,
+        "p10": 4.26,
+        "p50": 12.93,
+        "p90": 21.72
+       },
+       "pts": {
+        "mean": 4.23,
+        "sd": 3.65,
+        "p10": 0.06,
+        "p50": 3.46,
+        "p90": 9.18
+       },
+       "reb": {
+        "mean": 1.51,
+        "sd": 1.89,
+        "p10": 0,
+        "p50": 0.83,
+        "p90": 4.09
+       },
+       "ast": {
+        "mean": 2.37,
+        "sd": 1.74,
+        "p10": 0.35,
+        "p50": 2.09,
+        "p90": 4.74
+       },
+       "threePm": {
+        "mean": 1.06,
+        "sd": 1.03,
+        "p10": 0,
+        "p50": 0.81,
+        "p90": 2.48
+       },
+       "pra": {
+        "mean": 8.11,
+        "sd": 5.47,
+        "p10": 1.9,
+        "p50": 7.24,
+        "p90": 15.41
+       },
+       "ptsAst": {
+        "mean": 6.6,
+        "sd": 4.62,
+        "p10": 1.36,
+        "p50": 5.81,
+        "p90": 12.88
+       },
+       "ptsReb": {
+        "mean": 5.74,
+        "sd": 4.49,
+        "p10": 0.77,
+        "p50": 4.86,
+        "p90": 11.77
+       }
+      },
+      {
+       "providerAthleteId": "4351852",
+       "name": "Mitchell Robinson",
+       "expectedMinutes": 11.3518,
+       "minutesSd": 3.2252,
+       "starterRate": 0,
+       "basis": "trailing10",
+       "gamesUsed": 10,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.309,
+        "reb": 0.419,
+        "ast": 0.029,
+        "threePm": 0
+       },
+       "minutes": {
+        "mean": 11.41,
+        "sd": 3.19,
+        "p10": 7.37,
+        "p50": 11.4,
+        "p90": 15.49
+       },
+       "pts": {
+        "mean": 3.54,
+        "sd": 2.36,
+        "p10": 0.64,
+        "p50": 3.25,
+        "p90": 6.75
+       },
+       "reb": {
+        "mean": 4.77,
+        "sd": 1.86,
+        "p10": 2.53,
+        "p50": 4.59,
+        "p90": 7.23
+       },
+       "ast": {
+        "mean": 0.4,
+        "sd": 0.4,
+        "p10": 0,
+        "p50": 0.31,
+        "p90": 0.96
+       },
+       "threePm": {
+        "mean": 0,
+        "sd": 0,
+        "p10": 0,
+        "p50": 0,
+        "p90": 0
+       },
+       "pra": {
+        "mean": 8.71,
+        "sd": 3.51,
+        "p10": 4.52,
+        "p50": 8.35,
+        "p90": 13.46
+       },
+       "ptsAst": {
+        "mean": 3.94,
+        "sd": 2.43,
+        "p10": 0.98,
+        "p50": 3.62,
+        "p90": 7.24
+       },
+       "ptsReb": {
+        "mean": 8.31,
+        "sd": 3.41,
+        "p10": 4.23,
+        "p50": 7.95,
+        "p90": 12.92
+       }
+      },
+      {
+       "providerAthleteId": "4277951",
+       "name": "Luka Garza",
+       "expectedMinutes": 10.573,
+       "minutesSd": 8.8828,
+       "starterRate": 0.222,
+       "basis": "trailing10",
+       "gamesUsed": 9,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.632,
+        "reb": 0.263,
+        "ast": 0.079,
+        "threePm": 0.061
+       },
+       "minutes": {
+        "mean": 11.09,
+        "sd": 8,
+        "p10": 0,
+        "p50": 10.54,
+        "p90": 22.03
+       },
+       "pts": {
+        "mean": 7.06,
+        "sd": 6.33,
+        "p10": 0,
+        "p50": 5.74,
+        "p90": 15.85
+       },
+       "reb": {
+        "mean": 3.84,
+        "sd": 5.55,
+        "p10": 0,
+        "p50": 1.4,
+        "p90": 11.14
+       },
+       "ast": {
+        "mean": 0.95,
+        "sd": 1.19,
+        "p10": 0,
+        "p50": 0.52,
+        "p90": 2.57
+       },
+       "threePm": {
+        "mean": 0.81,
+        "sd": 1.07,
+        "p10": 0,
+        "p50": 0.4,
+        "p90": 2.3
+       },
+       "pra": {
+        "mean": 11.85,
+        "sd": 10.48,
+        "p10": 0,
+        "p50": 9.73,
+        "p90": 26.21
+       },
+       "ptsAst": {
+        "mean": 8.01,
+        "sd": 6.95,
+        "p10": 0,
+        "p50": 6.65,
+        "p90": 17.72
+       },
+       "ptsReb": {
+        "mean": 10.9,
+        "sd": 9.89,
+        "p10": 0,
+        "p50": 8.79,
+        "p90": 24.41
+       }
+      },
+      {
+       "providerAthleteId": "4397251",
+       "name": "Ron Harper Jr.",
+       "expectedMinutes": 7.7209,
+       "minutesSd": 9.8635,
+       "starterRate": 0.25,
+       "basis": "trailing10",
+       "gamesUsed": 8,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.608,
+        "reb": 0.149,
+        "ast": 0.081,
+        "threePm": 0.122
+       },
+       "minutes": {
+        "mean": 8.84,
+        "sd": 8.07,
+        "p10": 0,
+        "p50": 7.53,
+        "p90": 20.44
+       },
+       "pts": {
+        "mean": 5.64,
+        "sd": 7.35,
+        "p10": 0,
+        "p50": 2.82,
+        "p90": 15.74
+       },
+       "reb": {
+        "mean": 1.45,
+        "sd": 2.04,
+        "p10": 0,
+        "p50": 0.58,
+        "p90": 4.19
+       },
+       "ast": {
+        "mean": 1.04,
+        "sd": 1.82,
+        "p10": 0,
+        "p50": 0.09,
+        "p90": 3.33
+       },
+       "threePm": {
+        "mean": 1.17,
+        "sd": 1.65,
+        "p10": 0,
+        "p50": 0.46,
+        "p90": 3.39
+       },
+       "pra": {
+        "mean": 8.13,
+        "sd": 9.35,
+        "p10": 0,
+        "p50": 5.11,
+        "p90": 20.95
+       },
+       "ptsAst": {
+        "mean": 6.68,
+        "sd": 8.18,
+        "p10": 0,
+        "p50": 3.81,
+        "p90": 17.9
+       },
+       "ptsReb": {
+        "mean": 7.09,
+        "sd": 8.48,
+        "p10": 0,
+        "p50": 4.12,
+        "p90": 18.85
+       }
+      },
+      {
+       "providerAthleteId": "5175647",
+       "name": "Hugo Gonzalez",
+       "expectedMinutes": 7.3453,
+       "minutesSd": 8.5614,
+       "starterRate": 0,
+       "basis": "trailing10",
+       "gamesUsed": 5,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.227,
+        "reb": 0.182,
+        "ast": 0.068,
+        "threePm": 0.045
+       },
+       "minutes": {
+        "mean": 8.16,
+        "sd": 7.19,
+        "p10": 0,
+        "p50": 7.1,
+        "p90": 18.27
+       },
+       "pts": {
+        "mean": 1.94,
+        "sd": 2.51,
+        "p10": 0,
+        "p50": 1,
+        "p90": 5.37
+       },
+       "reb": {
+        "mean": 2.24,
+        "sd": 3.8,
+        "p10": 0,
+        "p50": 0.21,
+        "p90": 7.16
+       },
+       "ast": {
+        "mean": 1.27,
+        "sd": 2.39,
+        "p10": 0,
+        "p50": 0,
+        "p90": 4.19
+       },
+       "threePm": {
+        "mean": 0.38,
+        "sd": 0.49,
+        "p10": 0,
+        "p50": 0.2,
+        "p90": 1.04
+       },
+       "pra": {
+        "mean": 5.45,
+        "sd": 6.46,
+        "p10": 0,
+        "p50": 3.38,
+        "p90": 14.21
+       },
+       "ptsAst": {
+        "mean": 3.21,
+        "sd": 3.98,
+        "p10": 0,
+        "p50": 1.85,
+        "p90": 8.46
+       },
+       "ptsReb": {
+        "mean": 4.18,
+        "sd": 5.25,
+        "p10": 0,
+        "p50": 2.38,
+        "p90": 11.14
+       }
+      },
+      {
+       "providerAthleteId": "4702745",
+       "name": "Amari Williams",
+       "expectedMinutes": 5.3345,
+       "minutesSd": 5.2953,
+       "starterRate": 0.087,
+       "basis": "season",
+       "gamesUsed": 23,
+       "availability": "active",
+       "injuryStatus": null,
+       "ratesBasis": "player-window",
+       "rates": {
+        "pts": 0.211,
+        "reb": 0.279,
+        "ast": 0.068,
+        "threePm": 0
+       },
+       "minutes": {
+        "mean": 5.79,
+        "sd": 4.59,
+        "p10": 0,
+        "p50": 5.36,
+        "p90": 12.14
+       },
+       "pts": {
+        "mean": 1.4,
+        "sd": 1.95,
+        "p10": 0,
+        "p50": 0.59,
+        "p90": 4
+       },
+       "reb": {
+        "mean": 1.78,
+        "sd": 2.35,
+        "p10": 0,
+        "p50": 0.88,
+        "p90": 4.9
+       },
+       "ast": {
+        "mean": 0.76,
+        "sd": 1.32,
+        "p10": 0,
+        "p50": 0.04,
+        "p90": 2.48
+       },
+       "threePm": {
+        "mean": 0,
+        "sd": 0,
+        "p10": 0,
+        "p50": 0,
+        "p90": 0
+       },
+       "pra": {
+        "mean": 3.93,
+        "sd": 4.15,
+        "p10": 0,
+        "p50": 2.79,
+        "p90": 9.43
+       },
+       "ptsAst": {
+        "mean": 2.15,
+        "sd": 2.62,
+        "p10": 0,
+        "p50": 1.28,
+        "p90": 5.61
+       },
+       "ptsReb": {
+        "mean": 3.17,
+        "sd": 3.53,
+        "p10": 0,
+        "p50": 2.1,
+        "p90": 7.87
+       }
+      }
+     ]
+    },
+    "assumptions": {
+     "availability": {
+      "home": {
+       "source": "injuries-feed",
+       "rule": "status contains 'Out' → excluded; Day-To-Day and unlisted → simulated at full expected minutes",
+       "excludedOut": [],
+       "excludedNoMinutes": [
+        {
+         "providerAthleteId": "5037878",
+         "name": "Ugonna Onyenso",
+         "basis": "insufficient",
+         "dnpCount": 0
+        },
+        {
+         "providerAthleteId": "5258459",
+         "name": "Ebuka Okorie",
+         "basis": "insufficient",
+         "dnpCount": 0
+        }
+       ],
+       "poolSize": 16
+      },
+      "away": {
+       "source": "injuries-feed",
+       "rule": "status contains 'Out' → excluded; Day-To-Day and unlisted → simulated at full expected minutes",
+       "excludedOut": [
+        {
+         "providerAthleteId": "4433188",
+         "name": "Devin Carter",
+         "injuryStatus": "Out"
+        }
+       ],
+       "excludedNoMinutes": [
+        {
+         "providerAthleteId": "5106283",
+         "name": "Dillon Mitchell",
+         "basis": "insufficient",
+         "dnpCount": 0
+        },
+        {
+         "providerAthleteId": "5142621",
+         "name": "Chris Cenac Jr.",
+         "basis": "insufficient",
+         "dnpCount": 0
+        }
+       ],
+       "poolSize": 14
+      }
+     },
+     "minutes": {
+      "home": {
+       "model": "nba-minutes-model-v0",
+       "population": "regular",
+       "seasonUsed": 2026,
+       "window": {
+        "from": "2026-04-29T23:00Z",
+        "to": "2026-05-18T00:00Z",
+        "teamGames": 10
+       },
+       "rawPoolMinutes": 308.82,
+       "rescaleFactor": 0.7772,
+       "rescaleBounds": {
+        "min": 0.5,
+        "max": 1.5
+       },
+       "targetTeamMinutes": 240,
+       "scaledPoolMinutes": 240,
+       "defaultSdSubstitutions": 0,
+       "poolRateSubstitutions": 1,
+       "poolRate": {
+        "pts": 0.4288,
+        "reb": 0.1732,
+        "ast": 0.1062,
+        "threePm": 0.0555
+       }
+      },
+      "away": {
+       "model": "nba-minutes-model-v0",
+       "population": "regular",
+       "seasonUsed": 2026,
+       "window": {
+        "from": "2026-04-09T23:30Z",
+        "to": "2026-05-02T23:30Z",
+        "teamGames": 10
+       },
+       "rawPoolMinutes": 287.53,
+       "rescaleFactor": 0.8347,
+       "rescaleBounds": {
+        "min": 0.5,
+        "max": 1.5
+       },
+       "targetTeamMinutes": 240,
+       "scaledPoolMinutes": 240,
+       "defaultSdSubstitutions": 0,
+       "poolRateSubstitutions": 0,
+       "poolRate": {
+        "pts": 0.4286,
+        "reb": 0.1953,
+        "ast": 0.1044,
+        "threePm": 0.0712
+       }
+      }
+     }
+    },
+    "publishedSide": "HOME",
+    "sideRule": {
+     "id": "nba-winner-side@1",
+     "head": "elo",
+     "tooClose": "exact 0.5 only (no band; N4 open)",
+     "generation": "nba-preseason-experimental-v0.1"
+    }
+   },
+   "receipt": {
+    "schema": "nba-forecast-receipt@1",
+    "eventId": "401909088",
+    "family": "v0.1",
+    "modelVersion": "nba-preseason-experimental-v0.1",
+    "generatedAt": "2026-10-20T12:29:28Z",
+    "tipUtc": "2026-10-20T19:00Z",
+    "preTip": true,
+    "inputs": {
+     "injuries": {
+      "file": "injuries/nba/latest.json",
+      "state": "CURRENT",
+      "generatedAt": "2026-10-20T12:29:28Z",
+      "sourceAsOf": "2026-10-20T12:29:19Z",
+      "entries": 90,
+      "sha256": "86111257be6b93b5efecc7ab13ed89854b535dcb71b9ca6e4685a992d270e647",
+      "ageMinutesAtForecast": 0
+     },
+     "rosters": {
+      "file": "rosters/latest.json",
+      "asOf": "2026-10-19T16:25:36Z",
+      "contractVersion": "nba-roster-contract-v1",
+      "sha256": "8faecd4e44c6ea1040600bca58a8b83edb16ccd4bf5ce9c53f521ddf8f2f569a"
+     },
+     "schedule": {
+      "file": "app/public/data/nba/schedule/latest.json",
+      "generatedAt": "2026-10-19T16:25:28Z"
+     },
+     "corpus": {
+      "file": "corpus-v1.json",
+      "generatedAt": "2026-08-10T18:35:00Z",
+      "rows": 4179
+     },
+     "boxscores": {
+      "dir": "boxscores/",
+      "docs": 4179
+     }
+    },
+    "payloadSha256": "fc6819451e28909304a427a64564ff55d209fb8f1afc1ee4c5bfe32266593504"
+   }
+  }
+ ],
+ "manifest": {
+  "date": "2026-10-20",
+  "now": "2026-10-20T12:29:28Z",
+  "gamesOnSchedule": 1,
+  "gamesForecast": 1,
+  "refused": [],
+  "byLabel": {
+   "NBA REGULAR SEASON — SHADOW": 1
+  },
+  "teamsWithoutRegularHistory": [],
+  "teamsWithoutPreseasonHistory": [],
+  "teamsWithoutBoxscoreHistory": [],
+  "playersWithExpectedMinutes": 30,
+  "playersOut": 1,
+  "playersInsufficient": 4,
+  "playersNoMinutes": 4,
+  "playersUnknownToHistory": [],
+  "minutesBasisCounts": {
+   "trailing10": 28,
+   "season": 3,
+   "insufficient": 4
+  },
+  "poolRateSubstitutions": 1,
+  "defaultSdSubstitutions": 0,
+  "gamesAlreadyStartedAtNow": 0,
+  "family": "v0.1",
+  "poolRule": "roster-gated",
+  "pool": {
+   "poolVersion": "nba-roster-gated-pool-v0.1",
+   "rosterPlayers": 35,
+   "playersSimulated": 30,
+   "playersInsufficientHistory": 4,
+   "playersExcludedNotOnRoster": 18,
+   "playersOtherTeamHistory": 8,
+   "gamesRefusedByRosterGate": 0
+  },
+  "roster": {
+   "provided": true,
+   "asOf": "2026-10-19T16:25:36Z",
+   "contractVersion": "nba-roster-contract-v1",
+   "teamsMissingRoster": [],
+   "playersOnRosterWithoutHistory": 0,
+   "playersSimulatedButNotOnRoster": 0,
+   "playersSimulatedOnRoster": 35,
+   "poolRule": "v0: the simulated pool is still box-score history; roster is reconciled, not applied"
+  }
+ },
+ "inputs": {
+  "corpus": {
+   "file": "corpus-v1.json",
+   "generatedAt": "2026-08-10T18:35:00Z",
+   "rows": 4179
+  },
+  "boxscores": {
+   "dir": "boxscores/",
+   "docs": 4179
+  },
+  "schedule": {
+   "file": "app/public/data/nba/schedule/latest.json",
+   "generatedAt": "2026-10-19T16:25:28Z",
+   "rows": 453
+  },
+  "injuries": {
+   "file": "injuries/nba/latest.json",
+   "generatedAt": "2026-10-20T12:29:28Z",
+   "sourceAsOf": "2026-10-20T12:29:19Z",
+   "entries": 90
+  },
+  "rosters": {
+   "file": "rosters/latest.json",
+   "asOf": "2026-10-19T16:25:36Z",
+   "contractVersion": "nba-roster-contract-v1",
+   "teamsCaptured": 30,
+   "players": 525
+  }
+ },
+ "writeOnce": {
+  "schema": "nba-forecast-receipt@1",
+  "rule": "a game, once written, is never rewritten; only games not yet forecast and still before tip are added"
+ },
+ "runs": [
+  {
+   "at": "2026-10-20T12:29:28Z",
+   "added": [
+    "401909088"
+   ],
+   "horizonHours": 8,
+   "outcomes": [
+    {
+     "providerEventId": "401909088",
+     "outcome": "ADDED",
+     "tipUtc": "2026-10-20T19:00Z"
+    },
+    {
+     "providerEventId": "401909089",
+     "outcome": "OUTSIDE_HORIZON",
+     "tipUtc": "2026-10-20T23:00Z"
+    },
+    {
+     "providerEventId": "401909090",
+     "outcome": "OUTSIDE_HORIZON",
+     "tipUtc": "2026-10-21T01:30Z"
+    }
+   ],
+   "refused": [],
+   "injuries": "CURRENT"
+  }
+ ]
+}
