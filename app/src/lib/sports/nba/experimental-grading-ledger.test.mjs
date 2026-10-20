@@ -12,7 +12,7 @@ import path from "node:path";
 import {
   finalLookup, overtimeFromBoxscore, resolveOvertime, periodsFromSummary, boxscoreContentHash, diffBoxscores, recheckDue,
   emptyExperimentalLedger, upgradeLedger, appendGameResults, appendBoxscoreCheck, latestCorrection, currentGrades, currentGradeEntries,
-  experimentalLedgerAppendOnlyViolations, restDaysFor, boxscorePointsCheck, LINEAGE, CORRECTION_CAUSE, GRADER_VERSION, currentEntriesAnySchema,
+  experimentalLedgerAppendOnlyViolations, restDaysFor, boxscorePointsCheck, LINEAGE, CORRECTION_CAUSE, GRADER_VERSION, currentEntriesAnySchema, ledgerText,
 } from "./experimental-grading-ledger.mjs";
 import { FAMILIES } from "./experimental-forecast.mjs";
 import { FIXTURE_NOTE, finalsRecord, boxDoc, boxRow, graded, HOME, AWAY } from "./__fixtures__/nba-grading-fixtures.mjs";
@@ -170,7 +170,7 @@ test("ledger: a box-score check log is append-only; a CORRECTION check writes a 
 test("GUARD: an edited, removed or re-ordered entry, a second INITIAL, a broken supersedes, or changed legacy entries are all violations", () => {
   const legacy = { schemaVersion: 1, artifact: "nba-experimental-ledger", family: "v0.1", modelVersion: spec.modelVersion, entries: [{ date: "2030-01-01", games: [] }] };
   const up = upgradeLedger(legacy);
-  assert.deepEqual(up.entries, legacy.entries, "upgrade keeps the schema-1 entries byte-for-byte");
+  assert.deepEqual(up.entries, legacy.entries, "upgrade keeps the schema-1 entries unchanged");
   const { ledger } = appendGameResults(up, [item("A", graded("A")), item("B", graded("B"))], { gradedAt: "t1" });
   const before = JSON.parse(JSON.stringify(ledger));
   assert.deepEqual(experimentalLedgerAppendOnlyViolations({ before: legacy, after: ledger }), []);
@@ -218,4 +218,15 @@ test("box-score points cross-check reports, never changes, the final", () => {
   const doc = boxDoc("X", { homeRows: [boxRow("p1", HOME, { pts: 117 })], awayRows: [boxRow("p2", AWAY, { pts: 98 })] });
   assert.deepEqual(boxscorePointsCheck(doc, { homeTeamId: HOME, awayTeamId: AWAY, ftHome: 116, ftAway: 98 }), { home: 117, away: 98, agrees: false });
   assert.equal(boxscorePointsCheck(doc, { homeTeamId: HOME, awayTeamId: AWAY, ftHome: 117, ftAway: 98 }).agrees, true);
+});
+
+test("ledger text: one line per append-only element (an append is a one-line diff) and it round-trips", () => {
+  const { ledger } = appendGameResults(upgradeLedger({ schemaVersion: 1, family: "v0.1", entries: [{ date: "d", games: [] }] }), [item("A", graded("A")), item("B", graded("B"))], { gradedAt: "t" });
+  const text = ledgerText(ledger);
+  assert.deepEqual(JSON.parse(text), ledger);
+  const lines = text.split("\n");
+  assert.equal(lines.filter((l) => l.startsWith('  {"seq":')).length, 2, "each grade entry is one line");
+  const more = appendGameResults(ledger, [item("C", graded("C"))], { gradedAt: "t2" }).ledger;
+  const added = ledgerText(more).split("\n").filter((l) => !lines.includes(l));
+  assert.ok(added.some((l) => l.includes('"providerEventId":"C"')), "the new entry is a new line");
 });

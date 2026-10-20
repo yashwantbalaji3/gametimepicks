@@ -17,7 +17,7 @@
  * OVERTIME (v2): summary period count → box-score team minutes → corpus flag → null (NOT_MEASURED).
  *
  * LEDGER (v2 — append-only): <family dir>/ledger.json schema 2. The schema-1 `entries` (date-level, v1) are frozen
- * byte-for-byte; per-game grades are APPENDED to `gradeEntries` (INITIAL | PENDING_RESOLVED | CORRECTION + supersedes).
+ * content-identical (canonical JSON); per-game grades are APPENDED to `gradeEntries` (INITIAL | PENDING_RESOLVED | CORRECTION + supersedes).
  * The `validation` block (grader-metrics.mjs) is derived from the current view each run. The append-only guard runs
  * before every write and refuses the write on any violation.
  *
@@ -26,6 +26,7 @@
  *        [--date YYYY-MM-DD] [--family v0|v0.1|v0.2|v1] [--out-dir DIR]
  *   --out-dir DIR  read-only integration mode: the ledger and every cache write go under DIR/<family dir>/ (the repo's
  *                  ledger is read as the starting point and never written).
+ *   --summary-dir DIR  offline replay (needs --out-dir): "fetch" reads DIR/<id>.json instead of the network.
  * Exit: 0 ok · 1 usage / refused · 2 provider label order changed (PAUSE, prereg §10)
  */
 import fs from "node:fs";
@@ -38,7 +39,7 @@ import { validationFromGrades } from "../../src/lib/sports/nba/grader-metrics.mj
 import {
   GRADER_VERSION, RECHECK, finalLookup, resolveOvertime, periodsFromSummary, boxscoreContentHash, diffBoxscores, recheckDue,
   emptyExperimentalLedger, upgradeLedger, appendGameResults, appendBoxscoreCheck, latestCorrection, lastCheckAt, currentGrades,
-  experimentalLedgerAppendOnlyViolations, restDaysFor, boxscorePointsCheck,
+  experimentalLedgerAppendOnlyViolations, restDaysFor, boxscorePointsCheck, ledgerText,
 } from "../../src/lib/sports/nba/experimental-grading-ledger.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -61,6 +62,8 @@ const RECHECK_ON = FETCH && !flag("--no-recheck");
 const ONLY_DATE = opt("--date");
 const NOW = opt("--now") ?? new Date().toISOString();
 const OUT_DIR = opt("--out-dir") ? path.resolve(opt("--out-dir")) : null;
+const SUMMARY_DIR = opt("--summary-dir") ? path.resolve(opt("--summary-dir")) : null;
+if (SUMMARY_DIR && !OUT_DIR) { console.error("REFUSED: --summary-dir (offline replay) only with --out-dir — a replay never writes the repo's ledgers"); process.exit(1); }
 if (!Number.isFinite(Date.parse(NOW))) { console.error("REFUSED: --now must be ISO"); process.exit(1); }
 if (ONLY_DATE && !/^\d{4}-\d{2}-\d{2}$/.test(ONLY_DATE)) { console.error("REFUSED: --date YYYY-MM-DD"); process.exit(1); }
 
@@ -118,6 +121,11 @@ function correctedBoxscore(ledger, id) {
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 let lastRequestAt = 0, requestsMade = 0;
 async function fetchSummary(id) {
+  if (SUMMARY_DIR) {
+    // Offline replay (tests / integration): the payload a fetch would have returned, read from DIR/<id>.json.
+    const f = path.join(SUMMARY_DIR, `${id}.json`);
+    return fs.existsSync(f) ? { summary: readJson(f) } : { error: "http_404 (replay: no payload)" };
+  }
   let last = null;
   for (let attempt = 0; attempt <= RETRIES; attempt += 1) {
     const wait = lastRequestAt + MIN_GAP_MS - Date.now();
@@ -238,5 +246,8 @@ for (const [f, doc] of pendingWrites) {
   if (fs.existsSync(f)) { console.error(`REFUSED: ${rel(f)} already exists — a stored box score is never rewritten`); process.exit(1); }
   writeJson(f, doc);
 }
-writeJson(LEDGER_OUT, next);
+fs.mkdirSync(path.dirname(LEDGER_OUT), { recursive: true });
+const text = ledgerText(next);
+if (JSON.stringify(JSON.parse(text)) !== JSON.stringify(next)) { console.error("REFUSED: ledger serialisation does not round-trip"); process.exit(1); }
+fs.writeFileSync(LEDGER_OUT, text);
 console.log(`wrote ${OUT_DIR ? LEDGER_OUT : rel(LEDGER_OUT)} (${next.gradeEntries.length} grade entries · legacy entries ${next.entries?.length ?? 0} untouched)${pendingWrites.length ? ` + ${pendingWrites.length} box-score file(s)` : ""}`);

@@ -67,6 +67,36 @@ export function finalsRecord(season, finals, conflicts = []) {
   };
 }
 
+/**
+ * An ESPN `summary` payload that parseSummary turns back into `doc` (the inverse of boxscore-parse.mjs) — used to
+ * replay a stat correction offline. `period` is the header status period (4 = regulation).
+ */
+export function summaryFromDoc(doc, { period = 4 } = {}) {
+  const LABELS = ["MIN", "PTS", "FG", "3PT", "FT", "REB", "AST", "TO", "STL", "BLK", "OREB", "DREB", "PF", "+/-"];
+  const s = (v) => (v == null ? "--" : String(v));
+  const ma = (m, a) => (m == null || a == null ? "--" : `${m}-${a}`);
+  const teamObj = (t) => ({ id: t.providerTeamId, abbreviation: t.abbr ?? null, displayName: t.name ?? null });
+  const stats = (p) => {
+    if (p.didNotPlay) return [];
+    if (p.minutes == null) return ["--", "0", "0-0", "0-0", "0-0", "0", "0", "0", "0", "0", "0", "0", "0", "0"];
+    const pm = p.plusMinus == null ? "--" : p.plusMinus > 0 ? `+${p.plusMinus}` : String(p.plusMinus);
+    return [s(p.minutes), s(p.pts), ma(p.fgm, p.fga), ma(p.threePm, p.threePa), ma(p.ftm, p.fta), s(p.reb), s(p.ast), s(p.tov), s(p.stl), s(p.blk), s(p.oreb), s(p.dreb), s(p.pf), pm];
+  };
+  const athlete = (p) => ({
+    athlete: p.providerAthleteId == null ? { shortName: p.name } : { id: p.providerAthleteId, displayName: p.name },
+    starter: p.starter, ...(p.active == null ? {} : { active: p.active }), didNotPlay: p.didNotPlay, ...(p.dnpReason ? { reason: p.dnpReason } : {}),
+    stats: stats(p),
+  });
+  return {
+    fixture: FIXTURE_NOTE,
+    header: { competitions: [{ status: { period, type: { name: doc.status } }, competitors: doc.teams.map((t) => ({ homeAway: t.homeAway, team: teamObj(t) })) }] },
+    boxscore: {
+      teams: doc.teams.map((t) => ({ homeAway: t.homeAway, team: teamObj(t) })),
+      players: doc.teams.map((t) => ({ team: teamObj(t), statistics: [{ labels: LABELS, athletes: doc.players.filter((p) => String(p.providerTeamId) === String(t.providerTeamId)).map(athlete) }] })),
+    },
+  };
+}
+
 /** A graded game through the REAL grader. */
 export function graded(id, { final = [110, 100], box = null, ...over } = {}) {
   return gradeForecastGame(forecastGame(id, over), { ftHome: final[0], ftAway: final[1], source: "fixture" }, box);

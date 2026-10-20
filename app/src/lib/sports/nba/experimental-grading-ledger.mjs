@@ -17,7 +17,7 @@
  *      corpus-v1's period-derived flag on all 4,167 it determines and leaves 12 undetermined — one side short of 240
  *      from missing rows) → corpus flag. Undeterminable stays null (NOT_MEASURED), never "no overtime".
  *   4. REPLACE-ON-REGRADE. v1 replaced a date's entry when it re-graded. Schema 2 keeps the v1 `entries` array
- *      byte-for-byte (frozen legacy history) and appends per-GAME entries to `gradeEntries` with lineage
+ *      content-identical (canonical JSON; frozen legacy history) and appends per-GAME entries to `gradeEntries` with lineage
  *      INITIAL | PENDING_RESOLVED | CORRECTION (`supersedes` = the prior seq), like top-board-grading.mjs. An identical
  *      re-grade appends nothing. `experimentalLedgerAppendOnlyViolations` is the post-write guard.
  */
@@ -178,7 +178,7 @@ export function upgradeLedger(ledger) {
     ...ledger,
     schemaVersion: LEDGER_SCHEMA_VERSION,
     rule: "append-only: `gradeEntries`, `boxscoreChecks` and `boxscoreCorrections` are only ever appended; a resolved PENDING appends PENDING_RESOLVED, a changed decided grade appends CORRECTION with `supersedes`. `entries` is the frozen schema-1 history (grader v1, date-level) and is never written again.",
-    legacyEntries: { key: "entries", schemaVersion: 1, frozen: true, note: "grader v1 date entries, kept byte-for-byte; grader v1 replaced a date's entry on re-grade, so these are its LAST view per date, not a lineage" },
+    legacyEntries: { key: "entries", schemaVersion: 1, frozen: true, note: "grader v1 date entries, kept content-identical (canonical JSON); grader v1 replaced a date's entry on re-grade, so these are its LAST view per date, not a lineage" },
     gradeEntries: [],
     boxscoreChecks: [],
     boxscoreCorrections: [],
@@ -276,7 +276,7 @@ export function lastCheckAt(ledger, providerEventId) {
 }
 
 /**
- * Post-write guard. BEFORE's legacy `entries` are byte-identical in AFTER; every append-only array of BEFORE is an
+ * Post-write guard. BEFORE's legacy `entries` are canonically identical in AFTER; every append-only array of BEFORE is an
  * unchanged prefix of AFTER's; seqs strictly increase; every CORRECTION/PENDING_RESOLVED supersedes an earlier entry
  * of the same event; no INITIAL for an event that already had one.
  */
@@ -346,4 +346,20 @@ export function currentEntriesAnySchema(ledger) {
   const m = new Map();
   for (const e of ledger?.entries ?? []) for (const g of e?.games ?? []) if (g?.graded) m.set(String(g.providerEventId), { providerEventId: String(g.providerEventId), date: e.date, status: "GRADED", grade: g, legacy: true });
   return [...m.values()];
+}
+
+const LINE_ARRAYS = new Set(["entries", "gradeEntries", "boxscoreChecks", "boxscoreCorrections"]);
+/**
+ * The ledger's on-disk text: top-level keys pretty-printed, every element of the append-only arrays (and the frozen
+ * legacy `entries`) on ONE line — so an append is a one-line diff and the file stays ≈ compact-JSON size.
+ * JSON.parse(ledgerText(doc)) deep-equals doc.
+ */
+export function ledgerText(doc) {
+  const keys = Object.keys(doc).filter((k) => doc[k] !== undefined);
+  const parts = keys.map((k) => {
+    const v = doc[k];
+    if (LINE_ARRAYS.has(k) && Array.isArray(v)) return ` ${JSON.stringify(k)}: ${v.length ? `[\n${v.map((x) => `  ${JSON.stringify(x)}`).join(",\n")}\n ]` : "[]"}`;
+    return ` ${JSON.stringify(k)}: ${JSON.stringify(v, null, 1).split("\n").join("\n ")}`;
+  });
+  return `{\n${parts.join(",\n")}\n}\n`;
 }
