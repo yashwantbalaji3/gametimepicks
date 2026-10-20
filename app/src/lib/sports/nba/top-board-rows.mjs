@@ -55,9 +55,13 @@ export function priceCells(evaluation = null) {
   }
   const ev = evaluation.evaluation;
   const lean = ev.lean ?? "NONE";
-  const leanText = lean === "OVER" ? "Over" : lean === "UNDER" ? "Under" : "No lean";
-  const leanSide = lean === "OVER" ? "over" : lean === "UNDER" ? "under" : null;
-  const edgeBest = ev.edge ? (leanSide ? ev.edge[leanSide] : Math.max(ev.edge.over, ev.edge.under)) : null;
+  // A side is DISPLAYED only for a QUALIFIED evaluation. The evaluator may return a lean while non-blocking reasons
+  // (private publication, sport not product-eligible) withhold it — that is not a pick and never reads as one.
+  const qualified = ev.eligibility?.qualified === true;
+  const shownLean = qualified ? lean : "NONE";
+  const leanText = shownLean === "OVER" ? "Over" : shownLean === "UNDER" ? "Under" : qualified ? "No lean" : `No pick (${ev.withheldReasons?.[0] ?? "not qualified"})`;
+  const leanSide = shownLean === "OVER" ? "over" : shownLean === "UNDER" ? "under" : null;
+  const edgeBest = ev.edge && leanSide ? ev.edge[leanSide] : null; // never max(over, under): that would invent a side
   const cell = (value, display) => Object.freeze({ value, state: "EVALUATED", reasonCode: null, display });
   return {
     sportsbook: cell(evaluation.book, evaluation.book),
@@ -65,7 +69,7 @@ export function priceCells(evaluation = null) {
     side: Object.freeze({ value: lean, state: "EVALUATED", reasonCode: lean === "NONE" ? (ev.withheldReasons?.[0] ?? null) : null, display: leanText, qualified: ev.eligibility?.qualified ?? false, withheldReasons: ev.withheldReasons ?? [] }),
     modelProbability: cell({ over: ev.pOver, under: ev.pUnder, push: ev.pPush }, `Over ${pct(ev.pOver)} · Under ${pct(ev.pUnder)}`),
     odds: cell({ over: evaluation.overAmerican, under: evaluation.underAmerican }, `${fmtAmerican(evaluation.overAmerican)} / ${fmtAmerican(evaluation.underAmerican)}`),
-    edge: cell({ edge: ev.edge, ev: ev.ev, best: edgeBest }, ev.edge ? `Edge ${(edgeBest * 100).toFixed(1)} pts · EV ${isNum(ev.ev?.[leanSide ?? "over"]) ? (ev.ev[leanSide ?? "over"] * 100).toFixed(1) : "—"}%` : "—"),
+    edge: cell({ edge: ev.edge, ev: ev.ev, best: edgeBest }, isNum(edgeBest) ? `Edge ${(edgeBest * 100).toFixed(1)} pts · EV ${isNum(ev.ev?.[leanSide]) ? (ev.ev[leanSide] * 100).toFixed(1) : "—"}%` : "—"),
   };
 }
 

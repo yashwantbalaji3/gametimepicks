@@ -207,9 +207,13 @@ test("an evaluated row's cells are copied from the evaluator only", () => {
   assert.equal(v.price.side.qualified, false);
   assert.equal(v.price.modelProbability.value.over, evaluation.evaluation.pOver);
   assert.deepEqual(v.price.odds.value, { over: -110, under: -110 });
-  assert.equal(v.price.edge.value.best, evaluation.evaluation.edge.over);
+  // unqualified (NBA is not product-eligible): the evaluator's raw edge is kept, but no side and no best edge is shown
+  assert.deepEqual(v.price.edge.value.edge, evaluation.evaluation.edge);
+  assert.equal(v.price.edge.value.best, null);
+  assert.equal(v.price.edge.display, "—");
+  assert.match(v.price.side.display, /^No pick \(/);
   assert.equal(v.updated.oddsCapturedAt, "2026-11-01T15:30:00Z");
-  assert.equal(v.sortKeys.edge, evaluation.evaluation.edge.over);
+  assert.equal(v.sortKeys.edge, null, "an unqualified row never sorts as if it had an edge");
   const rejected = boardRowView(r, { edition, doc, evaluation: boardRowEvaluation(r, null, fixturePrice(r), TEST_AUTH) });
   assert.deepEqual([rejected.price.line.value, rejected.price.line.reasonCode], [null, "NO_SNAPSHOT"]);
 });
@@ -310,4 +314,17 @@ test("REAL: the committed v1 board against the official (v0.1) snapshot is refus
   assert.equal(out.state, "PRICE_REJECTED");
   assert.ok(out.reasonCodes.includes("NOT_OFFICIAL_FAMILY"));
   assert.ok(out.reasonCodes.includes("BOARD_SNAPSHOT_DIVERGED"), "different payload / median than the official record");
+});
+
+test("price cells: only a QUALIFIED evaluation displays a side and a best edge (TEST FIXTURE values)", async () => {
+  const { priceCells } = await import("./top-board-rows.mjs");
+  const base = { state: "EVALUATED", book: "fixturebook", line: 23.5, overAmerican: -110, underAmerican: -110,
+    evaluation: { lean: "OVER", pOver: 0.56, pUnder: 0.44, pPush: 0, edge: { over: 0.04, under: -0.04 }, ev: { over: 0.07, under: -0.1 }, eligibility: { qualified: false }, withheldReasons: ["PUBLICATION_PRIVATE"] } };
+  const un = priceCells(base);
+  assert.equal(un.side.display, "No pick (PUBLICATION_PRIVATE)");
+  assert.equal(un.edge.display, "—");
+  const q = priceCells({ ...base, evaluation: { ...base.evaluation, eligibility: { qualified: true }, withheldReasons: [] } });
+  assert.equal(q.side.display, "Over");
+  assert.equal(q.edge.value.best, 0.04);
+  assert.equal(q.edge.display, "Edge 4.0 pts · EV 7.0%");
 });
