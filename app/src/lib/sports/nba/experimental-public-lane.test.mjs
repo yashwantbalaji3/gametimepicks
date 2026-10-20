@@ -135,4 +135,7 @@ test("the jump line links every lane game to its card; each card shows its game 
   const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: s, statuses: { "401909088": "final · BOS 113 – DET 121" } }));
   for (const g of s.games) assert.match(html, new RegExp(`id="${laneCardId(g.providerEventId)}"`));
   assert.match(html, /Game status: final · BOS 113 – DET 121/);
+  const page = fs.readFileSync(path.join(process.cwd(), "src/app/nba/page.tsx"), "utf8");
+  assert.match(page, /if \(r\.status === "final" && lane\?\.games/, "only a recorded final is stated — a static page never freezes 'scheduled'/'tipped'");
+  assert.doesNotMatch(page, /tipped — final not recorded yet|`scheduled · /);
 });

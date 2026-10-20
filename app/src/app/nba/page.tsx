@@ -30,9 +30,11 @@ export default function NbaHubPage() {
   const lane = loadCurrentLane(currentEtDate());
   const model = nbaHub(new Date().toISOString(), lane ? new Set(lane.games.map((g) => g.providerEventId)) : null);
   const finals = model.rows.filter((r) => r.status === "final").length;
-  /* Each lane card states its game's status from the SAME schedule/finals rows the list below uses. */
+  /* A recorded FINAL (from the same finals record the list below uses) is the only status a card states: the page is a
+     static export, so "scheduled" or "tipped" computed at build time would go stale after tip-off. Otherwise the card
+     shows only its fixed tip-off and freeze times. */
   const statuses: Record<string, string> = {};
-  for (const r of model.rows) if (lane?.games.some((g) => g.providerEventId === r.id)) statuses[r.id] = r.status === "final" ? `final · ${r.reportNote}` : r.started ? "tipped — final not recorded yet" : `scheduled · ${r.startLabel}`;
+  for (const r of model.rows) if (r.status === "final" && lane?.games.some((g) => g.providerEventId === r.id)) statuses[r.id] = `final · ${r.reportNote}`;
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       {/* UX-001 phase 2: the shared sport switcher — every hub links to every other sport. */}
