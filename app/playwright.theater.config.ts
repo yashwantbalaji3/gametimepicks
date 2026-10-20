@@ -14,7 +14,8 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: /simulation-theater\.spec\.ts/,
+  // nba-theater.spec.ts (Lane A-NBA 2026-10-20): the NBA dev route's box score; skips on GTP_THEATER_TARGET=public
+  testMatch: /(simulation|nba)-theater\.spec\.ts/,
   timeout: 60_000,
   expect: { timeout: 5_000 },
   workers: 2,
