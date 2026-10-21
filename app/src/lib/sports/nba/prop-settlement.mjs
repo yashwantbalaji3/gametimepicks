@@ -11,7 +11,9 @@
  * WHAT IT DOES NOT DO. It writes nothing and holds no ledger. The repo's one settlement writer stays
  * nightly-settle (MLB). It reads no file and calls no network: `prop-settlement-source.mjs` builds its
  * input from committed data. It does not admit a prop into any product. Per the PR 1166 plan, a prop leg
- * also needs forward shadow-grading on real frozen pre-tip rows before any product can carry one.
+ * also needs forward shadow-grading on real frozen pre-tip rows before any product can carry one. That shadow grading
+ * is `prop-shadow-grading.mjs` (pure), which calls this grader with the frozen median as a SYNTHETIC_MEDIAN_LINE; its
+ * append-only ledger has exactly one writer, `scripts/nba/grade-nba-player-props.mjs`.
  *
  * NOT A BLIND NFL COPY. It borrows NFL's NO_MEASUREMENT + `bookRuleUnknown` semantics
  * (`nfl/live-prop-state.mjs`). It does not borrow NFL's tie handling: an NBA game cannot end tied, so a tied
