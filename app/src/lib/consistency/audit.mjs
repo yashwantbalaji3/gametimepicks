@@ -725,8 +725,10 @@ export const THEATER_GATE_CODES = Object.freeze([CODES.SCENARIO_LEAK, CODES.BOX_
  *                                scenario leak, no model-version mix — and the founder's adoption of the policy.
  * Changing the policy in force is a founder decision recorded in the same reviewed PR that edits this constant.
  */
-export { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE, NBA_THEATER_REPLAY_ENGINE } from "./theater-gate-policy.mjs";
-import { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE, NBA_THEATER_REPLAY_ENGINE } from "./theater-gate-policy.mjs";
+export { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE } from "./theater-gate-policy.mjs";
+export { NBA_THEATER_REPLAY_ENGINE } from "./theater-replay-engine.mjs";
+import { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE } from "./theater-gate-policy.mjs";
+import { NBA_THEATER_REPLAY_ENGINE } from "./theater-replay-engine.mjs";
 import { etDateOf, readPossessionArtifact, replayGateProblems } from "../simulation-theater/nba/possession/stored-run.mjs";
 
 /**

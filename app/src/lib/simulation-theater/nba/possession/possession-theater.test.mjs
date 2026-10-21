@@ -382,7 +382,7 @@ test("public loader: same payload as the full loader (byte-identical), reading o
 test("G2 (founder decision 2026-10-21): every game the public route would publish has the consistency gate OPEN for the possession replay engine", async () => {
   const { runConsistencyAudit, theaterActivationGate } = await import("../../../consistency/audit.mjs");
   const { publicPossessionEvents } = await import("./public-loader.mjs");
-  const { NBA_THEATER_REPLAY_ENGINE } = await import("../../../consistency/theater-gate-policy.mjs");
+  const { NBA_THEATER_REPLAY_ENGINE } = await import("../../../consistency/theater-replay-engine.mjs");
   const { ROLE_C_LABEL } = await import("./labels.mjs");
   assert.equal(NBA_THEATER_REPLAY_ENGINE.id, POSSESSION_ENGINE_ID);
   assert.equal(NBA_THEATER_REPLAY_ENGINE.label, ROLE_C_LABEL, "the gate's engine label is the page's label");
