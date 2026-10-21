@@ -272,7 +272,7 @@ const reasonEntry = (code, count, detail = null) => ({ code, text: REASONS[code]
  * @param {number} [input.maxCardsPerTier]
  * @param {((sport: string) => boolean)|null} [input.canEnterSport]  TESTS ONLY — replaces the registry check (header)
  * @param {((leg: object) => boolean)|null} [input.settlesNba]       TESTS ONLY — replaces the NBA settlement check
- * @param {ReadonlyArray<object>} [input.sportNotes]   per-sport source states (./nba-source.mjs nbaSourceStatus)
+ * @param {ReadonlyArray<{ sport: string, state: string, text: string }>} [input.sportNotes]   per-sport source states (./nba-source.mjs nbaSourceStatus)
  */
 export function recommendTiers({ candidates = [], now, coverage = null, isVerifiedOperator = seamPredicate, engineNotes = [], poolNotes = [], maxCardsPerTier = 3, canEnterSport = null, settlesNba = null, sportNotes = [] }) {
   const nowMs = Date.parse(now ?? "");
