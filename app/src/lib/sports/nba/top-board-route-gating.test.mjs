@@ -15,7 +15,8 @@ const APP = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 const PAGE = "src/app/preview/nba/boards/page.tsx";
 const COMPONENT = "src/components/nba/top-board.tsx";
-const BOARD_MODULES = [COMPONENT, "src/lib/sports/nba/top-boards.mjs", "src/lib/sports/nba/top-board-grading.mjs", "src/lib/sports/nba/top-board-report.mjs"];
+const TABLE = "src/components/nba/top-board-table.tsx";
+const BOARD_MODULES = [COMPONENT, TABLE, "src/lib/sports/nba/top-boards.mjs", "src/lib/sports/nba/top-board-grading.mjs", "src/lib/sports/nba/top-board-report.mjs", "src/lib/sports/nba/top-board-rows.mjs", "src/lib/sports/nba/top-board-evaluation.mjs"];
 
 test("the preview page is guarded (404 in the production export), noindex, and carries the private banner", () => {
   const src = read(PAGE);
@@ -87,4 +88,18 @@ test("if a public build exists, out/ holds no NBA board route or chunk", () => {
   if (process.env.NEXT_PUBLIC_INTERNAL_ROUTES === "1") return; // an intentional internal build keeps it
   assert.ok(!fs.existsSync(path.join(out, "preview", "nba")), "out/preview/nba must be absent");
   assert.ok(!fs.existsSync(path.join(out, "_next", "static", "chunks", "app", "preview")), "the preview chunks must be absent");
+});
+
+test("the board table prints price columns only as 'No authorized NBA price' and never imports the evaluator or a price", () => {
+  const src = read(TABLE).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  assert.match(src, /No authorized NBA price/);
+  assert.doesNotMatch(src, /market-evaluator|top-board-evaluation|evaluateMarket/, "the client table never evaluates");
+  assert.doesNotMatch(src, /\b(odds|moneyline|line|edge)\s*[:=]\s*[-+]?\d/i);
+  // the page passes no price/evaluation today — every cell is NO_AUTHORIZED_PRICE
+  const page = read(PAGE).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  assert.match(page, /boardTableModel\(doc\)/);
+  assert.doesNotMatch(page, /evaluations\s*:/);
+  assert.doesNotMatch(page, /top-board-evaluation/);
+  const rows = read("src/lib/sports/nba/top-board-rows.mjs");
+  assert.doesNotMatch(rows, /from "[^"]*market-evaluator/, "the row view model is evaluator-free (client-safe)");
 });
