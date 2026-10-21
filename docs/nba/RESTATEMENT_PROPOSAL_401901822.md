@@ -303,3 +303,23 @@ Every CORRECTION carries `reason` (as in C-1), `evidence` (the C-1 hashes plus t
 - **The two CHA-side figures and every other player row.** Only Edey's three fields differ.
 - **Anything public.** These are PRIVATE_RESEARCH, `productEligible: false` ledgers. No published page, pick or receipt depends on this game.
 - **Exclusion.** The game stays excluded until the founder approves the restatement. This proposal recommends that the grader on main stop counting it until then. PR 1154 already does that: "a final under review gets no entry and is excluded everywhere".
+
+## Addendum: NBA.com check (2026-10-21, about 00:25Z, read-only in a browser)
+
+This was read by the coordinator session in the in-app browser, from NBA.com's own game page data. NBA game id is `0012600059`, the page is https://www.nba.com/game/cha-vs-mem-0012600059/box-score, and the status reads "Final".
+
+| Field | NBA.com value | Sums to |
+|---|---|---|
+| Headline score | MEM **116** – CHA 98 | n/a |
+| MEM period scores | 23 / 27 / 30 / 37 | **117** |
+| MEM player points (sum of player rows) | n/a | **117** |
+| Zach Edey | **10** pts, FT **4 / 4** | n/a |
+| MEM team FT | 29 / 31 | n/a |
+| CHA periods and player sum | 20 / 18 / 24 / 36 | 98, consistent |
+
+**Reading:**
+- NBA.com is **internally inconsistent**. Its headline says 116, while its own periods and box score sum to 117 and match our committed box score (sha256 `ff56514f…2574`).
+- ESPN has since moved its box score to 116 (Edey 9 pts, 3 / 3 FT).
+- So no source gives an internally consistent 116. NBA.com does **not** independently confirm 116–98.
+
+**Recommendation:** keep 401901822 on HOLD (excluded from metrics, nothing restated). Ask for a human check of the official NBA game book or stats correction notice, or a founder ruling on which source is authoritative, before any correction is drafted for application. The winner (MEM) is the same either way.
