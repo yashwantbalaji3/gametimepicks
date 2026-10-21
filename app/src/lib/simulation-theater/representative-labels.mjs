@@ -15,7 +15,12 @@
  * other: the comparison rows print both and their signed difference.
  */
 
+import { NBA_THEATER_GATE_POLICY } from "../consistency/theater-gate-policy.mjs";
+
 export const OFFICIAL_RUN_TITLE = "Official representative simulation";
+/** NBA under LABELLED_SUPPORTING_RUNS: the run the Theater opens on is one run of the supporting engine, never official. */
+export const SUPPORTING_RUN_TITLE = "Simulated game · one supporting-simulation run";
+export const SUPPORTING_RUN_SUBTITLE = "an individual run of a different simulation engine; the official projection beside it never changes";
 export const OFFICIAL_RUN_SUBTITLE = "closest stored run to the official forecast";
 export const WHAT_IF_TAG = "What-if · hypothetical";
 export const WHAT_IF_BANNER = "Hypothetical scenario — not the forecast";
@@ -25,6 +30,7 @@ export const NO_OFFICIAL_NBA = "No official forecast receipt for this game yet";
 export const NO_OFFICIAL_NFL = "No official forecast of record for this game yet";
 export const NO_OFFICIAL_RUNS_NOTE = "No stored run can be the official representative, so every run below is a hypothetical what-if, not the forecast.";
 export const OFFICIAL_BOX_TITLE = "Projected box score · official representative simulation";
+export const SUPPORTING_BOX_TITLE = "Projected box score · official projection beside one simulated run";
 export const WHAT_IF_BOX_TITLE = "What-if box score · hypothetical";
 export const WHAT_IF_BOX_WATERMARK = "SIMULATED · HYPOTHETICAL SCENARIO · NOT THE FORECAST · NOT ACTUAL GAME STATISTICS";
 export const COMPARISON_TITLE = "Official expectation vs this simulated game";
@@ -32,7 +38,10 @@ export const COMPARISON_TITLE = "Official expectation vs this simulated game";
 export const NBA_PLAYER_EXPECTATION_NOTE = "Small figures are the official average per game played (the forecast's mean over the simulated games in which the player played, with how often he played). A DNP in this run is one whole-number outcome of that same forecast.";
 export const NFL_PLAYERS_NOT_MODELED_NOTE = "Player expectations are not compared: this engine records drives, not players.";
 
-export const ROLE = Object.freeze({ OFFICIAL: "OFFICIAL_REPRESENTATIVE", WHAT_IF: "WHAT_IF" });
+export const ROLE = Object.freeze({ OFFICIAL: "OFFICIAL_REPRESENTATIVE", SUPPORTING_RUN: "SUPPORTING_RUN", WHAT_IF: "WHAT_IF" });
+
+/** Is this an NBA manifest under the labelled-supporting-runs policy? (the server stamps `representative.policy`) */
+export const labelledRuns = (manifest) => manifest?.representative?.sport === "NBA" && manifest?.representative?.policy === NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS;
 
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 
@@ -70,6 +79,9 @@ export function runRole(manifest, runIndex, kindTitle = null) {
   const rep = manifest?.representative ?? null;
   const official = officialRunIndex(manifest);
   if (official != null && runIndex === official) {
+    if (labelledRuns(manifest)) {
+      return { role: ROLE.SUPPORTING_RUN, hypothetical: false, distance: rep.distance, tag: SUPPORTING_RUN_TITLE, line: `${SUPPORTING_RUN_TITLE} · ${SUPPORTING_RUN_SUBTITLE}` };
+    }
     return { role: ROLE.OFFICIAL, hypothetical: false, distance: rep.distance, tag: OFFICIAL_RUN_TITLE, line: officialRunLine(rep) };
   }
   const entry = rep?.runs?.find((r) => r.runIndex === runIndex) ?? null;

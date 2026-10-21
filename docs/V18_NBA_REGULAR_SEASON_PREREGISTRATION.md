@@ -242,3 +242,35 @@ into the capability registry by automation.
 **Rollback switch.** Set `AMENDMENT_A.enabled = false` in `app/src/lib/sports/nba/experimental-public-lane.mjs` (one line). The next snapshot build drops the combo fields, `/nba/projections/` renders its empty state, and the `/nba` link line disappears. `LANE.enabled = false` still removes every lane surface, this one included.
 
 **Page weight.** The route has no budget until it is measured on a post-05:00Z build. The measurement commands are in the PR; no existing budget is raised.
+
+### §13 amendment B — NBA Simulation Theater: canonical forecast + labelled supporting-simulation runs
+
+**Status:** recorded 2026-10-20 as **approved in principle** by the founder. It is not an activation. The public NBA Theater stays OFF until the activation conditions below are met and the release owner verifies them.
+
+**The founder's decision:** "Adopt the architecture separating the canonical official forecast from independently simulated v1 outcomes. The official projection panel must never change when users explore alternative simulation runs. Retain the v1 Top 10 research board, but relabel it clearly as an NBA v1 Challenger — Research Only … Do not activate the Theater publicly merely because the architectural decision is approved."
+
+**What it decides:**
+1. **One official forecast.** The Theater's official projection panel shows only the canonical snapshot: the Elo side plus v0.1 players, exactly as the lane prints them.
+2. **Runs are labelled.** Replayed games are individual runs of the supporting simulation engine (`nba-sim-v1-coherent`).
+   - The run the Theater opens on is labelled "Simulated game · one supporting-simulation run". It is never "official".
+   - Every other run is a hypothetical what-if.
+3. **No overwrite.** Nothing a run shows changes, replaces or rounds into an official number: not on the Theater, boards, lane, products or results.
+4. **No anchor.** v1 is not required to agree with the official forecast. Which engine is best is decided by forward, market-by-market evidence (roadmap `NBA-CC`), never by this amendment.
+5. **The v1 board.** It is "NBA v1 Challenger — Research Only": private, never official, never a Top Pick, never a product source.
+
+**Engineering:**
+- `app/src/lib/consistency/theater-gate-policy.mjs` sets `NBA_THEATER_GATE_POLICY_IN_FORCE = LABELLED_SUPPORTING_RUNS`.
+- The consistency gate still requires:
+  - a verified pre-tip supporting game;
+  - box-score invariants on every run;
+  - no scenario leak;
+  - no unlabelled model-version mix.
+
+**Activation conditions (all required; none is met by this amendment):**
+1. A recorded founder approval file under `docs/launch/approvals/` that permits public NBA Theater output, cited in the commit that sets `NBA_THEATER_PUBLIC_ENABLED = true`.
+2. The consistency gate is open for each published game.
+3. A public route exists, and the export-boundary rules are revised to allow exactly the labelled public Theater markers.
+4. e2e at 320 / 390 / 768 / 1440, accessibility, reduced motion, and a privacy scan of the export.
+5. Release-owner verification on the exact head and on Production.
+
+**What stays withheld:** win probabilities, official team scores and ranges, odds, picks and products, as in §13.

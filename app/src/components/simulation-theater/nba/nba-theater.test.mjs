@@ -22,7 +22,11 @@ const { compileTimeline, stateAt } = await import("../../../lib/simulation-theat
 const { FIXTURE_BANNER } = await import("../../../lib/simulation-theater/nba/adapter-nba-sim-v1.mjs");
 const LABELS = await import("../../../lib/simulation-theater/nba/labels.mjs");
 const { BoxScoreBody, default: NbaBoxScoreDialog } = await import("./NbaBoxScore.tsx");
-const { nbaBoxScore, NBA_BOX_WATERMARK } = await import("../../../lib/simulation-theater/nba/box-score.mjs");
+const { NBA_BOX_WATERMARK } = await import("../../../lib/simulation-theater/nba/box-score.mjs");
+const { nbaProjectedBox } = await import("../../../lib/simulation-theater/nba/projected-box.mjs");
+const LABELS_REP = await import("../../../lib/simulation-theater/representative-labels.mjs");
+const { runRole } = LABELS_REP;
+const { OfficialForecastCard } = await import("../RepresentativeParts.tsx");
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -236,17 +240,25 @@ test("the NBA client modules import only client-safe labels: no engine id, artif
   // Lane A-NBA 2026-10-20: the box score is in that graph (so the same scan covers it), via the island
   assert.ok(rel.includes(path.join("src/components/simulation-theater/nba/NbaBoxScore.tsx")), rel.join(", "));
   assert.ok(rel.includes(path.join("src/lib/simulation-theater/nba/box-score.mjs")), rel.join(", "));
+  assert.ok(rel.includes(path.join("src/lib/simulation-theater/nba/projected-box.mjs")), "V2: the three-layer box score is scanned too");
 });
 
-// ── Lane A-NBA 2026-10-20: the Projected Final Box Score ─────────────────────────────────────────────────────────────
-test("box score: watermark first, both teams, table semantics, MODELED sortable columns with aria-sort, DNP ≠ 0, provenance", () => {
+// ── Lane A-NBA 2026-10-20 / V2: the THREE-LAYER Projected Box Score (projected-box.mjs) ─────────────────────────────
+const SIM_LABELS = ["MIN", "PTS", "REB", "AST", "3PM", "3PA", "2PM", "FGM", "FTM"];
+const NM_LABELS = ["FGA", "FTA", "STL", "BLK", "TO"];
+const hypOf = (m, s) => runRole(m, s.runIndex, s.title).hypothetical;
+const pbox = (m, s, h = hypOf(m, s)) => nbaProjectedBox(s, m, { hypothetical: h });
+/** The <tr> of one player in one rendered table (its HTML), by name. */
+const rowHtml = (out, name) => out.split("<tr").find((tr) => tr.includes(`<span class="nba-bx-pname">${name}</span>`)) ?? "";
+
+test("box score: watermark first, both teams, three labelled layers, sortable columns with aria-sort, DNP ≠ 0, n/m, provenance", () => {
   let rendered = 0;
   for (const load of LOADS) {
     const m = load.manifest;
     for (const s of m.samples) {
-      const r = nbaBoxScore(s, m);
+      const r = pbox(m, s, false);
       assert.equal(r.ok, true);
-      const out = html(React.createElement(BoxScoreBody, { result: r, palette: load.palettes.team, idBase: "b" }));
+      const out = html(React.createElement(BoxScoreBody, { result: r, palette: load.palettes.team, idBase: "b", manifest: m }));
       const t = text(out);
       rendered++;
       // the watermark: exact text, before any number of the box score
@@ -256,29 +268,45 @@ test("box score: watermark first, both teams, table semantics, MODELED sortable 
       // header facts
       assert.match(t, new RegExp(`SIMULATED FINAL${s.overtimePeriods ? "/OT" : ""} ${m.teams.away.abbr} @ ${m.teams.home.abbr} · run #${s.runIndex.toLocaleString("en-US")} of 10,000`));
       for (const re of [new RegExp(m.modelVersion), new RegExp(m.inputAsOf), /One selected simulated run \(not a median, not an actual game\)/]) assert.match(t, re);
-      // quarter-by-quarter incl. OT
+      // quarter-by-quarter incl. OT (simulated layer)
       for (const p of s.periods) assert.match(out, new RegExp(`<th scope="col"( class="is-ot")?>${p.label}</th>`));
-      // both teams, each a real table with caption, column headers and row headers
-      assert.equal((out.match(/class="nba-bx-table"/g) ?? []).length, 2);
+      assert.match(out, /<table class="nba-linescore nba-bx-linescore" data-layer="simulated">/);
+      // both teams, each a real table with caption, layer group headers, column headers and row headers
+      assert.equal((out.match(/class="nba-bx-table nba-px-table"/g) ?? []).length, 2);
       assert.equal((out.match(/data-nba-boxscore-team="(away|home)"/g) ?? []).length, 2);
-      assert.equal((out.match(/<caption class="st-sr">[^<]*projected player lines/g) ?? []).length, 2);
-      for (const label of ["MIN", "PTS", "REB", "AST", "3PM", "3PA", "2PM", "FTM"]) assert.equal((out.match(new RegExp(`data-modeled="MODELED"[^>]*><button type="button" class="nba-bx-sort"[^>]*>${label}<`, "g")) ?? []).length, 2, label);
-      assert.doesNotMatch(out, /<button[^>]*>(FGA|FG%|FTA|STL|BLK|TOV|PF|OREB|DREB|\+\/-)</, "no unmodeled column");
-      // default sort: minutes descending, marked with aria-sort on exactly that header (one per table)
+      assert.equal((out.match(/<caption class="st-sr">[^<]*Official projection \(median\) and Simulated game — one run — simulated run #/g) ?? []).length, 2);
+      assert.equal((out.match(/<th scope="colgroup" colSpan="8" class="nba-px-layerhead" data-layer="official">Official projection · median<\/th>/gi) ?? []).length, 2);
+      assert.equal((out.match(/<th scope="colgroup" colSpan="9" class="nba-px-layerhead" data-layer="simulated">Simulated game — one run<\/th>/gi) ?? []).length, 2);
+      assert.equal((out.match(/<th scope="colgroup" colSpan="5" class="nba-px-layerhead" data-layer="not-modelled">Not modelled<\/th>/gi) ?? []).length, 2);
+      for (const label of SIM_LABELS) assert.equal((out.match(new RegExp(`data-layer="simulated" data-modeled="MODELED"[^>]*><button type="button" class="nba-bx-sort"[^>]*>${label}<`, "g")) ?? []).length, 2, label);
+      for (const label of ["MIN", "PTS", "REB", "AST", "3PM", "PRA", "P\\+R", "P\\+A"]) assert.equal((out.match(new RegExp(`data-layer="official"[^>]*><button type="button" class="nba-bx-sort" title="[^"]+ · Official projection">${label}<`, "g")) ?? []).length, 2, `official ${label}`);
+      for (const label of NM_LABELS) assert.equal((out.match(new RegExp(`data-layer="not-modelled"><abbr class="nba-px-nmhead" title="${label}: not modelled[^"]*">${label}</abbr>`, "g")) ?? []).length, 2, `n/m ${label}`);
+      assert.doesNotMatch(out, /<button[^>]*>(FGA|FG%|FTA|STL|BLK|TOV|TO|PF|OREB|DREB|\+\/-)</, "no unmodeled column is sortable or filled");
+      // default sort: simulated minutes descending, marked with aria-sort on exactly that header (one per table)
       assert.equal((out.match(/aria-sort="descending"/g) ?? []).length, 2);
       assert.equal((out.match(/aria-sort="ascending"/g) ?? []).length, 0);
-      assert.match(out, /<th scope="col" aria-sort="descending" data-modeled="MODELED" class="is-sorted"><button type="button" class="nba-bx-sort" title="Minutes · MODELED">MIN/);
+      assert.match(out, /<th scope="col" aria-sort="descending" data-layer="simulated" data-modeled="MODELED" class="is-sorted is-first"><button type="button" class="nba-bx-sort" title="Minutes \(0\.01\) · Simulated game — one run">MIN/);
       // rows: every simulated player, DNPs as DNP (no number), not-simulated with the reason
-      const rows = (out.match(/<tr[^>]*data-status="(played|dnp|not-simulated)"/g) ?? []).length;
-      assert.equal(rows, s.players.home.length + s.players.away.length + m.rosterNotSimulated.home.length + m.rosterNotSimulated.away.length);
+      const nRows = s.players.home.length + s.players.away.length + m.rosterNotSimulated.home.length + m.rosterNotSimulated.away.length;
+      assert.equal((out.match(/<tr[^>]*data-status="(played|dnp|not-simulated)"/g) ?? []).length, nRows);
       const dnp = s.players.home.concat(s.players.away).filter((p) => p.minutes === 0).length;
       assert.equal((out.match(/data-status="dnp"/g) ?? []).length, dnp);
       assert.equal((out.match(/<abbr title="Did not play: 0 modeled minutes in this run">DNP<\/abbr>/g) ?? []).length, dnp);
       assert.match(t, /Not simulated · no usable game history/);
-      // totals, leaders, not modeled, provenance
-      assert.match(out, /<tfoot><tr><th scope="row" class="nba-bx-name">Team<\/th><td>(240|265)<\/td><td class="is-pts">\d+<\/td>/);
-      for (const re of [/Top scorer/, /Top rebounder/, /Top assister/, /Not modeled · not shown/, /FGA · FG% · 2PA/, /Starter \/ bench/]) assert.match(t, re);
+      // not-modelled cells: n/m on every row and the totals, never a number
+      assert.equal((out.match(/<td class="nba-px-nm" data-layer="not-modelled"[^>]*><span aria-hidden="true">n\/m<\/span><span class="st-sr">not modelled<\/span><\/td>/g) ?? []).length, 5 * (nRows + 2));
+      // groups: estimated starters / bench, DNP, availability — estimated groups say so
+      assert.match(t, /Likely starters · estimated · Estimated from recent starts · not a recorded lineup · not official/);
+      assert.match(out, /<th scope="rowgroup" colSpan="\d+" data-layer="estimated">/);
+      assert.match(t, /Not simulated · availability/);
+      assert.match(t, /Starter \(est\.\)/);
+      // totals: simulated minutes and points; official PTS from the official team term, other official columns not summed
+      // totals: simulated minutes and points; official MIN etc. not summed, official PTS WITHHELD (no number)
+      assert.match(out, /<tfoot><tr><th scope="row" class="nba-bx-name">Team<\/th><td class="nba-px-role"><\/td><td class="nba-px-off is-first" data-layer="official"><span aria-hidden="true">—<\/span><span class="st-sr">player projections are not summed into a team total<\/span><\/td><td class="nba-px-off" data-layer="official" data-nba-official-team="WITHHELD"><span class="nba-px-withheld">Withheld<\/span><\/td>(<td class="nba-px-off" data-layer="official"><span aria-hidden="true">—<\/span><span class="st-sr">player projections are not summed into a team total<\/span><\/td>){6}<td class="is-first" data-layer="simulated">(240|265)<\/td><td class="is-pts" data-layer="simulated">\d+<\/td>/);
+      // the explanation, the official game line, leaders, not modeled, provenance
+      for (const re of [/One simulated game is not the median/, /Official projection · game/, /Top scorer/, /Top rebounder/, /Top assister/, /Not modeled · not shown/, /FGA · FG% · 2PA/, /Starter \/ bench/, /n\/m = not modelled/]) assert.match(t, re);
       assert.match(out, /data-nba-boxscore-provenance=""[^>]*>Run #[\d,]+ of 10,000/);
+      assert.match(t, /checked: [A-Z_, ]*TEAM_FGM[A-Z_, ]*FGM_SUM/);
       assert.match(t, /dev copy sha256 c4612dc4… verified/);
       assert.deepEqual(untaggedInterp(out), [], "nothing on the box score is interpolated");
     }
@@ -286,38 +314,146 @@ test("box score: watermark first, both teams, table semantics, MODELED sortable 
   assert.equal(rendered, 15);
 });
 
-test("box score: a played zero renders 0 and a DNP renders DNP; sorting by PTS ascending flips aria-sort; DNP rows stay last", () => {
+test("box score: the official cell is the snapshot's exact value; a played zero renders 0; a DNP keeps its official projection; PTS ascending flips aria-sort; DNP group after played", () => {
   const load = LOADS[0];
-  const s = load.manifest.samples[0];
-  const r = nbaBoxScore(s, load.manifest);
-  const out = html(React.createElement(BoxScoreBody, { result: r, palette: load.palettes.team, idBase: "b", sort: { key: "pts", dir: "asc" } }));
+  const m = load.manifest;
+  const s = m.samples[0];
+  const r = pbox(m, s, false);
+  const out = html(React.createElement(BoxScoreBody, { result: r, palette: load.palettes.team, idBase: "b", sort: { layer: "simulated", key: "pts", dir: "asc" } }));
   assert.equal((out.match(/aria-sort="ascending"/g) ?? []).length, 2);
-  assert.match(out, /aria-sort="ascending" data-modeled="MODELED" class="is-sorted"><button type="button" class="nba-bx-sort" title="Points · MODELED">PTS/);
-  // in each table, every DNP row comes after every played row
-  for (const tbl of out.split('class="nba-bx-table"').slice(1)) {
-    const statuses = [...tbl.split("</tbody>")[0].matchAll(/data-status="([a-z-]+)"/g)].map((x) => x[1]);
-    const lastPlayed = statuses.lastIndexOf("played");
-    assert.ok(statuses.slice(0, lastPlayed + 1).every((x) => x === "played"), statuses.join(","));
+  assert.match(out, /aria-sort="ascending" data-layer="simulated" data-modeled="MODELED" class="is-sorted"><button type="button" class="nba-bx-sort" title="Points · Simulated game — one run">PTS/);
+  // in each table, the DNP and availability groups follow every played group
+  for (const tbl of out.split('class="nba-bx-table nba-px-table"').slice(1)) {
+    const groups = [...tbl.split("<tfoot>")[0].matchAll(/data-nba-px-group="([a-z]+)"/g)].map((x) => x[1]);
+    const firstOff = groups.findIndex((g) => g === "dnp" || g === "unavailable");
+    assert.ok(firstOff < 0 || groups.slice(firstOff).every((g) => g === "dnp" || g === "unavailable"), groups.join(","));
   }
-  // a played row with 0 in some stat shows the digit 0
-  const zeroRow = r.box.teams.home.rows.find((x) => x.status === "played" && x.ast === 0) ?? r.box.teams.away.rows.find((x) => x.status === "played" && x.ast === 0);
-  assert.ok(zeroRow, "this sample has a played player with 0 assists");
-  assert.match(out, new RegExp(`${zeroRow.name}</span></th><td>[\\d.]+</td><td class="is-pts">\\d+</td><td>\\d+</td><td>0</td>`));
+  // a played row with 0 assists shows the digit 0 in the simulated AST cell
+  const rows = ["home", "away"].flatMap((side) => r.box.teams[side].groups.flatMap((g) => g.rows));
+  const zero = rows.find((x) => x.status === "played" && x.simulated.ast === 0);
+  assert.ok(zero, "this sample has a played player with 0 assists");
+  const simTds = [...rowHtml(out, zero.name).matchAll(/<td[^>]*data-layer="simulated"[^>]*>([^<]*)<\/td>/g)].map((x) => x[1]);
+  assert.equal(simTds[3], "0", simTds.join("|"));
+  // official cells print the snapshot value exactly (two decimals at most, never rounded to the run's whole number)
+  const withOff = rows.find((x) => x.status === "played" && x.official && !Number.isInteger(x.official.values.pts.median ?? 0)) ?? rows.find((x) => x.official);
+  const offTd = rowHtml(out, withOff.name).match(/data-nba-official="pts" title="Official projection: median ([^ ]+) · mean ([^"]+)">([^<]+)<\/td>/);
+  assert.ok(offTd, rowHtml(out, withOff.name));
+  assert.equal(offTd[3], LABELS_REP.fmtExpectation(m.representative.players[withOff.providerAthleteId].families.pts.median));
+  assert.equal(offTd[2], LABELS_REP.fmtExpectation(m.representative.players[withOff.providerAthleteId].families.pts.expected));
+  // a DNP in this run still shows its official projection (the forecast does not change with the run)
+  const dnp = rows.find((x) => x.status === "dnp" && x.official);
+  if (dnp) assert.match(rowHtml(out, dnp.name), /data-nba-official="pts"[^>]*>[\d.]+<\/td>.*<abbr title="Did not play/);
+});
+
+test("what-if rule (UI): choosing any hypothetical run never changes an official number — official cells, game line and key are byte-identical across runs", () => {
+  for (const load of LOADS) {
+    const m = load.manifest;
+    const officialBits = (out) => [
+      ...out.matchAll(/<td[^>]*data-layer="official"[^>]*>.*?<\/td>/g),
+      ...out.matchAll(/<section class="nba-px-official"[\s\S]*?<\/section>/g),
+      ...out.matchAll(/data-nba-official-key="[0-9a-f]+"/g),
+    ].map((x) => x[0]).join("\n");
+    // sort by athlete name in both tables so row order is identical whatever the run
+    const render = (s, h) => html(React.createElement(BoxScoreBody, { result: pbox(m, s, h), palette: load.palettes.team, idBase: "w", sort: { layer: "official", key: "pts", dir: "desc" } }));
+    const offRun = m.samples.find((s) => s.runIndex === m.representative.officialRunIndex);
+    const ref = officialBits(render(offRun, false)).replace(/<tr[^>]*>/g, "");
+    let whatIfs = 0;
+    for (const s of m.samples) {
+      const h = hypOf(m, s);
+      if (h) whatIfs++;
+      const out = render(s, h);
+      // per-player official cells: compare as a multiset keyed by row (DNP grouping can move a row between tbodies)
+      const cells = (o) => o.split("<tr").filter((tr) => tr.includes('data-status="')).map((tr) => `${tr.match(/nba-bx-pname">([^<]+)/)?.[1]}|${[...tr.matchAll(/data-nba-official="[^"]+"[^>]*>[^<]*/g)].map((x) => x[0]).join(",")}`).sort();
+      assert.deepEqual(cells(out), cells(render(offRun, false)), `${load.eventId} #${s.runIndex}: official cells moved`);
+      assert.equal(out.match(/<section class="nba-px-official"[\s\S]*?<\/section>/)[0], render(offRun, false).match(/<section class="nba-px-official"[\s\S]*?<\/section>/)[0]);
+      assert.equal(out.match(/data-nba-official-key="([0-9a-f]+)"/)[1], render(offRun, false).match(/data-nba-official-key="([0-9a-f]+)"/)[1]);
+      if (h) {
+        assert.match(out, /data-st-whatif-banner="">Hypothetical scenario — not the forecast/);
+        assert.match(text(out), /This is a hypothetical what-if run\. Choosing it changes only the simulated-game columns; the official projection columns are the same for every run\./);
+        assert.match(out, /data-layer="simulated">Simulated game — one run · what-if<\/th>/);
+      }
+    }
+    assert.ok(whatIfs >= 3);
+    assert.ok(ref.length > 100);
+    // the theater's own official card reads the manifest only: rendering it after every box score gives the same bytes
+    const card = html(React.createElement(OfficialForecastCard, { manifest: m, teams: m.teams }));
+    for (const s of m.samples) { pbox(m, s); assert.equal(html(React.createElement(OfficialForecastCard, { manifest: m, teams: m.teams })), card); }
+  }
+});
+
+test("official snapshot (#1149): win probability and team score render 'Withheld' with the snapshot's reasons and no number; Elo side; run fit reported honestly", () => {
+  for (const load of LOADS) {
+    const m = load.manifest;
+    const o = m.representative.official;
+    for (const s of m.samples) {
+      const out = html(React.createElement(BoxScoreBody, { result: pbox(m, s), palette: load.palettes.team, idBase: "c", manifest: m }));
+      const t = text(out).replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+      assert.ok(t.includes(`Official team score Withheld · ${o.withheld.teamScores}`), "team score withheld with its reason");
+      assert.ok(t.includes(`Win probability Withheld · ${o.withheld.winProbability}`), "win probability withheld with its reason");
+      assert.match(out, /data-nba-px-teamscore="WITHHELD"/);
+      assert.match(out, /data-nba-px-winprob="WITHHELD"/);
+      // the raw Elo pHome rides in the block but is never printed
+      for (const p of [o.pHome, o.pAway]) assert.ok(!t.includes(LABELS_REP.fmtPct(p)), `win probability ${LABELS_REP.fmtPct(p)} printed`);
+      assert.doesNotMatch(out, /data-st-compare=""/, "no official-vs-run team comparison when the official team score is withheld");
+      assert.equal((out.match(/data-nba-official-team="WITHHELD"><span class="nba-px-withheld">Withheld<\/span>/g) ?? []).length, 2);
+      assert.match(out, new RegExp(`data-nba-px-favoured="">${m.teams[String(o.winnerSide).toLowerCase()].abbr}<`));
+      assert.ok(t.includes(`Player ranges: ${o.withheld.playerRanges}`));
+      // the run layer names its (different) model, and its distance from the official projection
+      assert.match(t, /Simulated game — one run( · what-if · hypothetical)? · nba-sim-v1-coherent \(supporting simulation\)/);
+      if (s.runIndex === m.representative.officialRunIndex) {
+        assert.match(out, /data-nba-px-fit="official-representative" data-within="false">Closest stored run, still far from the official projection \(distance \d\.\d\d; tolerance 0\.50\)/);
+      } else {
+        assert.match(out, /data-nba-px-fit="what-if" data-within="false">What-if · hypothetical · distance/);
+      }
+    }
+  }
+});
+
+test("layer view and statistic: official-only hides simulated and n/m; simulated-only hides official; mean prints means; controls are native radios", () => {
+  const load = LOADS[1];
+  const m = load.manifest;
+  const r = pbox(m, m.samples[0], false);
+  const only = (view, stat = "median") => html(React.createElement(BoxScoreBody, { result: r, palette: load.palettes.team, idBase: "v", view, stat }));
+  const off = only("official");
+  assert.doesNotMatch(off, /<td[^>]*data-layer="(simulated|not-modelled)"/);
+  assert.match(off, /<td[^>]*data-layer="official"/);
+  assert.match(off, /data-nba-px-view="official"/);
+  const sim = only("simulated");
+  assert.doesNotMatch(sim, /<td[^>]*data-layer="official"/);
+  assert.match(sim, /<td class="nba-px-nm" data-layer="not-modelled"/);
+  const mean = only("both", "mean");
+  assert.match(mean, /data-layer="official">Official projection · mean<\/th>/);
+  const row = r.box.teams.home.groups[0].rows.find((x) => x.official?.values?.pts);
+  assert.match(rowHtml(mean, row.name), new RegExp(`data-nba-official="pts"[^>]*>${LABELS_REP.fmtExpectation(row.official.values.pts.mean).replace(".", "\\.")}</td>`));
+  // controls: two fieldsets with legends, radios grouped by name, the checked one marked
+  const both = only("both");
+  assert.match(both, /<fieldset class="nba-px-fs"><legend>Show columns<\/legend>/);
+  assert.match(both, /<fieldset class="nba-px-fs"><legend>Official statistic<\/legend>/);
+  assert.equal((both.match(/<input type="radio" name="v-view"/g) ?? []).length, 3);
+  assert.equal((both.match(/<input type="radio" name="v-stat"/g) ?? []).length, 2);
+  assert.match(both, /<input type="radio" name="v-view" checked="" value="both"/);
+  // no official forecast: the official view is disabled and the tables fall back to the simulated layer
+  const bare = JSON.parse(JSON.stringify(m));
+  delete bare.representative;
+  const none = html(React.createElement(BoxScoreBody, { result: nbaProjectedBox(bare.samples[0], bare, { hypothetical: true }), palette: load.palettes.team, idBase: "n", view: "official" }));
+  assert.match(none, /<input type="radio" name="n-view"[^>]*(disabled=""[^>]*value="official"|value="official"[^>]*disabled="")/);
+  assert.match(none, /data-nba-px-view="simulated"/);
+  assert.match(none, /data-nba-px-official="none"/);
 });
 
 test("box score dialog: role=dialog, aria-modal, labelled and described; Close button; nothing when closed; unavailable fails closed", () => {
   const load = LOADS[2];
   const s = load.manifest.samples[0];
-  const r = nbaBoxScore(s, load.manifest);
+  const r = pbox(load.manifest, s, false);
   const open = html(React.createElement(NbaBoxScoreDialog, { open: true, onClose: () => {}, result: r, palette: load.palettes.team, compact: false, runKey: "k" }));
   assert.match(open, /role="dialog" aria-modal="true" aria-labelledby="[^"]+-title" aria-describedby="[^"]+-wm" data-nba-boxscore=""/);
   assert.match(open, /<h2 id="[^"]+-title" class="nba-bx-title">Projected box score · official representative simulation<\/h2>/);
   // a what-if run's dialog is never "projected": hypothetical title, banner and watermark (consistency 2026-10-20)
-  const wi = html(React.createElement(NbaBoxScoreDialog, { open: true, onClose: () => {}, result: r, palette: load.palettes.team, compact: false, runKey: "k", manifest: load.manifest, hypothetical: true }));
+  const wi = html(React.createElement(NbaBoxScoreDialog, { open: true, onClose: () => {}, result: pbox(load.manifest, s, true), palette: load.palettes.team, compact: false, runKey: "k", manifest: load.manifest }));
   assert.match(wi, /<h2 id="[^"]+-title" class="nba-bx-title">What-if box score · hypothetical<\/h2>/);
   assert.match(text(wi), /Hypothetical scenario — not the forecast/);
   assert.match(text(wi), /HYPOTHETICAL SCENARIO · NOT THE FORECAST/);
-  assert.doesNotMatch(wi, /projected/i, "no \"projected\" anywhere in a what-if box score, captions included");
+  assert.doesNotMatch(wi, /projected/i, "no \"projected\" anywhere in a what-if box score, captions included (\"Official projection\" is the official layer's name)");
   assert.match(open, /<button type="button" class="st-btn nba-bx-close" aria-keyshortcuts="Escape">Close<\/button>/);
   assert.match(text(open), /SIMULATED FINAL\/OT · OKC @ SA · run #245/);
   const sheet = html(React.createElement(NbaBoxScoreDialog, { open: true, onClose: () => {}, result: r, palette: load.palettes.team, compact: true, runKey: "k" }));
@@ -326,13 +462,13 @@ test("box score dialog: role=dialog, aria-modal, labelled and described; Close b
   // a failed box score: the codes, no player table, no numbers from the run
   const bad = JSON.parse(JSON.stringify(s));
   bad.players.home[0].pts += 1;
-  const failed = nbaBoxScore(bad, load.manifest);
+  const failed = nbaProjectedBox(bad, load.manifest);
   assert.equal(failed.ok, false);
   const fo = html(React.createElement(NbaBoxScoreDialog, { open: true, onClose: () => {}, result: failed, palette: load.palettes.team, compact: false, runKey: "k" }));
   assert.match(fo, /data-nba-boxscore-unavailable/);
   assert.match(text(fo), /Box score unavailable/);
   assert.match(fo, /<code>PLAYER_PTS_SUM<\/code>/);
-  assert.doesNotMatch(fo, /nba-bx-table|aria-describedby/);
+  assert.doesNotMatch(fo, /nba-bx-table|aria-describedby|data-layer="official"/);
 });
 
 test("box score entry points: a 'Box score' control in the theater at any time, and a button on the FINAL card only", () => {
@@ -356,5 +492,13 @@ test("box score styles: sticky player column, horizontal scroll, tabular numeral
   assert.match(css, /\.nba-bx-table\{[^}]*font-variant-numeric:tabular-nums/);
   assert.match(css, /\.nba-bx-sort\{[^}]*min-width:44px;min-height:44px/);
   assert.match(css, /@media \(max-width:719px\)\{\s*\.nba-bx-backdrop\{padding:0;align-items:stretch\}\s*\.nba-bx-dialog\{width:100%;max-height:none;height:100%/);
-  assert.doesNotMatch(css, /data-nba-boxscore|PRIVATE CANDIDATE MODEL|nba-box-score@/, "no export-boundary marker in the CSS (CSS ships un-pruned)");
+  assert.doesNotMatch(css, /data-nba-boxscore|PRIVATE CANDIDATE MODEL|nba-box-score@|nba-projected-box@|data-nba-px-/, "no export-boundary marker in the CSS (CSS ships un-pruned)");
+  // V2: 44 px radio targets with a visible keyboard focus ring; the official layer has a non-colour cue too (its own
+  // header text and a left rule in the legend); reduced motion turns off transitions, animations and smooth scrolling
+  assert.match(css, /\.nba-px-radio\{[^}]*min-height:44px/);
+  assert.match(css, /\.nba-px-radio input:focus-visible\{outline:2px solid var\(--lava-heat\)/);
+  assert.match(css, /\.nba-bx-sort:focus-visible\{outline:2px solid/);
+  assert.match(css, /\.nba-bx-scroll:focus-visible\{outline:2px solid/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)\{\.nba-root \*\{transition:none!important;animation:none!important;scroll-behavior:auto!important\}\}/);
+  assert.match(css, /\.nba-px-grouplabel\{position:sticky;left:8px/);
 });
