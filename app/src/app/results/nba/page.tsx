@@ -36,13 +36,13 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 export const metadata = withRouteMetadata("/results/nba/", {
   title: "NBA Model Audit (archive) · GameTime Picks",
   description:
-    "The settled May–June NBA archive — every lean graded against the verified final box score. Historical record only; the current season's schedule and finals are on /nba, with no forecast published.",
+    "The settled May–June NBA archive — every lean graded against the verified final box score. Historical record only; the current season's schedule, finals and frozen pregame experimental player projections (not validated, not betting recommendations) are on /nba, with no validated forecast published.",
 });
 
 /**
  * The archive is the retired May–June 2026 player-prop model's settled record. A reader arriving from Results during
  * the 2026-27 season must not read its hit rate as the current NBA model: this says what the page is and where the
- * current season lives. No NBA forecast is published (the 2026-27 model is in validation, founder-gated).
+ * current season lives. The 2026-27 model is in validation; /nba shows only its frozen experimental projections (preregistration §13).
  */
 function NbaArchiveNotice() {
   return (
@@ -61,7 +61,7 @@ function NbaArchiveNotice() {
       <Link href="/nba/" className="underline" style={{ color: "var(--vault-gold-bright)" }}>
         NBA hub
       </Link>{" "}
-      has the schedule and official finals. No NBA forecast is published while the new model is in validation.
+      has the schedule, official finals and frozen pregame experimental player projections (not validated, not betting recommendations). No validated NBA forecast is published while the new model is in validation.
     </aside>
   );
 }
