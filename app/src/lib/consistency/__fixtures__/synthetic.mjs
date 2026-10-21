@@ -74,3 +74,37 @@ export function nbaArtifact({ tamper = false, noReceipt = false } = {}) {
   if (tamper) g = { ...g, forecast: { ...g.forecast, sim: { ...g.forecast.sim, pHome: 0.99 } } };
   return { schemaVersion: 1, dataClass: "PRIVATE_RESEARCH", family: "v1", modelVersion: "nba-sim-v1-coherent", profileVersion: "nba-sim-v1-profile-1", games: [g] };
 }
+
+/**
+ * The OFFICIAL NBA source shape (v0.1 roster-gated family): Elo side + v0.1 players (continuous quantiles, no
+ * playRate). Its own team simulation (sim) is deliberately contradicting the Elo side, as on opening night: the
+ * snapshot must never read it. Player 33 is below the lane's 10-minute row rule.
+ */
+export function nbaOfficialArtifact({ tamper = false, noReceipt = false, generatedAt = "2026-11-01T12:00:00Z", publishedSide = "HOME" } = {}) {
+  const game = {
+    providerEventId: NBA_ID, dateUtc: "2026-11-02T00:00Z",
+    home: { name: "Home", abbr: "HOM" }, away: { name: "Away", abbr: "AWY" },
+    forecast: {
+      modelVersion: "nba-preseason-experimental-v0", inputAsOf: "2026-11-01T12:00:00Z",
+      elo: { pHome: 0.6, pAway: 0.4 },
+      sim: { pHome: 0.45, pAway: 0.55, tieMass: 0.02, home: { mean: 104.1, sd: 15, p10: 85, p50: 104, p90: 124 }, away: { mean: 110.3, sd: 15, p10: 91, p50: 110, p90: 130 } },
+      publishedSide, sideRule: { id: "nba-winner-side@1", head: "elo" },
+      players: {
+        home: [
+          { providerAthleteId: "11", name: "Same Name", availability: "active", expectedMinutes: 33.2, minutes: { mean: 33.1, sd: 2.4, p10: 30, p50: 33.2, p90: 36 }, pts: { mean: 23.9, sd: 6.6, p10: 15.6, p50: 23.84, p90: 32.5 }, pra: { mean: 33.1, sd: 7.5, p10: 23.6, p50: 32.9, p90: 42.8 } },
+          { providerAthleteId: "33", name: "Bench Guy", availability: "active", expectedMinutes: 8.5, pts: { mean: 3.1, sd: 2.2, p10: 0.6, p50: 2.9, p90: 6.1 } },
+        ],
+        away: [{ providerAthleteId: "22", name: "Same Name", availability: "active", expectedMinutes: 30, reb: { mean: 8.2, sd: 3, p10: 4.4, p50: 8.06, p90: 12.1 } }],
+      },
+    },
+  };
+  let g = noReceipt ? game : stampReceipt(game, { family: "v0.1", modelVersion: "nba-preseason-experimental-v0.1", now: generatedAt, inputs: {} });
+  if (tamper) g = { ...g, forecast: { ...g.forecast, elo: { pHome: 0.99, pAway: 0.01 } } };
+  return { schemaVersion: 1, dataClass: "PRIVATE_RESEARCH", family: "v0.1", modelVersion: "nba-preseason-experimental-v0.1", simEngineVersion: "nba-preseason-experimental-v0", games: [g] };
+}
+
+/** {official, supporting} sources for nbaOfficialSnapshot from the two synthetic day files. */
+export const nbaSources = ({ official = nbaOfficialArtifact(), supporting = nbaArtifact() } = {}) => ({
+  official: official ? { doc: official, path: "data/internal/research/nba/experimental-v0.1/forecasts/2026-11-01.json" } : null,
+  supporting: supporting ? { doc: supporting, path: "data/internal/research/nba/experimental-v1/forecasts/2026-11-01.json" } : null,
+});

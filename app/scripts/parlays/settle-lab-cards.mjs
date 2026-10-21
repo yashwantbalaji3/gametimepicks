@@ -21,6 +21,7 @@ import { gradeEplLeg } from "../../src/lib/sports/epl/settlement-contract.mjs";
 import { loadCurrentEplResults } from "../../src/lib/soccer/epl-current-results.mjs";
 import { loadOfficialUfcResults, fighterIndexForDate } from "../../src/lib/sports/ufc/official-results.mjs";
 import { classifyReceiptChange, RECEIPT_CHANGE } from "../../src/lib/parlays/receipt-completion.mjs";
+import { legGradingRoute } from "../../src/lib/parlays/leg-grading-route.mjs";
 import { canShowLiveProjections, capabilityState } from "../../src/lib/sport-capability-registry.ts";
 
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -330,15 +331,25 @@ const ladder = { cards: sources.flatMap((s) => s.cards) };
 const cards = [];
 for (const card of ladder.cards ?? []) {
   const results = [];
+  const refusedLegs = [];
   let combined = 1;
   for (const leg of card.legs ?? []) {
     if (leg.odds != null) combined *= dec(leg.odds);
 
     /* Route by the leg's OWN sport. A cross-sport card carries legs from more than one, so the
-       grading path is a property of the leg, never of the card. */
-    if ((leg.sport ?? "mlb") === "ufc") { results.push(gradeUfcLeg(leg)); continue; }
-    if ((leg.sport ?? "mlb") === "epl") { results.push(gradeEplLegCard(leg)); continue; }
-    if ((leg.sport ?? "mlb") === "nfl") { results.push(gradeNflLeg(leg)); continue; }
+       grading path is a property of the leg, never of the card. A NAMED sport with no grader here
+       (e.g. nba) is refused: the leg stays pending and the refusal is recorded on the card — it is
+       never looked up in an MLB box score (lib/parlays/leg-grading-route.mjs). */
+    const { route, refusal } = legGradingRoute(leg);
+    if (refusal) {
+      refusedLegs.push({ ...refusal, player: leg.player ?? null, marketLabel: leg.marketLabel ?? null });
+      console.warn(`  ::warning::leg refused (${refusal.code} ${refusal.sport}) — left pending, never graded as MLB`);
+      results.push("pending");
+      continue;
+    }
+    if (route === "ufc") { results.push(gradeUfcLeg(leg)); continue; }
+    if (route === "epl") { results.push(gradeEplLegCard(leg)); continue; }
+    if (route === "nfl") { results.push(gradeNflLeg(leg)); continue; }
 
     const box = await boxFor(leg.gamePk);
     if (!box.final) { results.push("pending"); continue; }
@@ -393,6 +404,7 @@ for (const card of ladder.cards ?? []) {
     sports,
     tier: card.tier, slipId: card.slipId, result,
     combinedDecimal: Number(combined.toFixed(6)), legs: results,
+    ...(refusedLegs.length ? { refusedLegs } : {}),
   });
   console.log(`  ${(card.tierLabel ?? card.tier ?? "?").padEnd(12)} ${result.toUpperCase()}`);
 }

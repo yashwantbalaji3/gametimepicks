@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 
 import { freezeBoards } from "./top-boards.mjs";
 import {
-  GRADE_REASON, PROJECTION_STATUS, SETTLEMENT, appendGrades, boardRows, emptyGradesLedger, gradeBoardRow, ledgerAppendOnlyViolations, settleAgainstLine,
+  GRADE_REASON, PROJECTION_STATUS, SETTLEMENT, actualStat, appendGrades, boardRows, emptyGradesLedger, gradeBoardRow, ledgerAppendOnlyViolations, settleAgainstLine,
 } from "./top-board-grading.mjs";
 import { buildDailyReport, reportMarkdown } from "./top-board-report.mjs";
 import { artifact, boxscore, FIXTURE_NOTE, game, player, SHA } from "./__fixtures__/top-board-fixtures.mjs";
@@ -57,6 +57,20 @@ test("a played row with a null actual is UNGRADABLE (data quality), not a zero",
   assert.deepEqual([g.settlement.status, g.settlement.reason, g.accuracy], [SETTLEMENT.UNGRADABLE, GRADE_REASON.NULL_ACTUAL, null]);
 });
 
+test("joint boards (PRA, P+R, P+A) grade against the SUM of the box-score components; a missing component is null, never a partial sum", () => {
+  const box = boxscore("fx-1", [{ id: 1, minutes: 33, pts: 26, reb: 7, ast: 5 }]);
+  assert.equal(gradeBoardRow(row(1, "pra"), { boxscore: box }).accuracy.actual, 38);
+  assert.equal(gradeBoardRow(row(1, "ptsReb"), { boxscore: box }).accuracy.actual, 33);
+  assert.equal(gradeBoardRow(row(1, "ptsAst"), { boxscore: box }).accuracy.actual, 31);
+  assert.equal(row(1, "pra").marketBasis, "JOINT_SIMULATED_SUM");
+  assert.deepEqual(row(1, "pra").components, ["pts", "reb", "ast"]);
+  const gap = boxscore("fx-1", [{ id: 1, minutes: 33, pts: 26, reb: 7, ast: 5 }]); gap.players[0].reb = null;
+  assert.equal(actualStat(gap.players[0], "pra"), null);
+  const g = gradeBoardRow(row(1, "pra"), { boxscore: gap });
+  assert.deepEqual([g.settlement.status, g.settlement.reason], [SETTLEMENT.UNGRADABLE, GRADE_REASON.NULL_ACTUAL]);
+  assert.equal(actualStat(gap.players[0], "pts"), 26, "marginal stats read directly");
+});
+
 test("line settlement vocabulary exists (WIN/LOSS/PUSH) but needs a recorded line AND side", () => {
   assert.equal(settleAgainstLine({ line: 20.5, side: "OVER", actual: 21 }).status, SETTLEMENT.WIN);
   assert.equal(settleAgainstLine({ line: 20.5, side: "OVER", actual: 20 }).status, SETTLEMENT.LOSS);
@@ -104,17 +118,22 @@ test("daily report: 15 sections; W/L/P 0 with the reason; VOID out of denominato
   assert.equal(sections.length, 15);
   assert.deepEqual([rep.s05_settlement.counts.WIN, rep.s05_settlement.counts.LOSS, rep.s05_settlement.counts.PUSH], [0, 0, 0]);
   assert.match(rep.s05_settlement.note, /no line is recorded/);
-  assert.equal(rep.s05_settlement.counts.VOID, 4, "player 2 on four boards");
+  assert.equal(rep.s05_settlement.counts.VOID, 7, "player 2 on seven boards (four marginal + PRA, P+R, P+A)");
   const pts = rep.s08_accuracy.points.day;
   assert.equal(pts.graded, 3, "VOID excluded from the denominator");
   assert.equal(pts.maeP50, 5.333, "(|20-30| + |10-4| + |8-8|) / 3");
   assert.equal(rep.s09_largestMisses[0].player, "Fixture Player 3");
   assert.equal(rep.s10_largestPositiveDeviations[0].player, "Fixture Player 1");
-  assert.equal(rep.s11_availabilitySurprises.predictedButVoid.length, 4);
+  assert.equal(rep.s11_availabilitySurprises.predictedButVoid.length, 7);
   assert.deepEqual(rep.s11_availabilitySurprises.playedButUnpredicted.map((p) => p.player), ["Fixture Player 77"]);
   assert.equal(rep.s14_calibration.points.cumulative.state, "DESCRIPTIVE_ONLY");
   assert.match(rep.s14_calibration.points.cumulative.warning, /below the preregistered minimum 1500/);
   assert.equal(rep.s14_calibration.threes.cumulative.preregMinN, 800);
+  // joint boards: graded on the component sum; no preregistered bar → its own state, never a claim
+  assert.equal(rep.s08_accuracy.pra.day.graded, 3);
+  assert.equal(rep.s14_calibration.pra.cumulative.state, "NO_PREREGISTERED_BAR");
+  assert.equal(rep.s14_calibration.pra.cumulative.preregMinN, null);
+  assert.match(rep.s14_calibration.ptsAst.cumulative.warning, /no preregistered sample size or coverage band/);
   const md = reportMarkdown(rep);
   for (let i = 1; i <= 15; i += 1) assert.match(md, new RegExp(`^## ${i}\\. `, "m"), `markdown section ${i}`);
   assert.doesNotMatch(md, /hit rate/i);

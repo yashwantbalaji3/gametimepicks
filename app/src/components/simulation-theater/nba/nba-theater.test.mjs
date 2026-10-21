@@ -17,7 +17,7 @@ const { Scoreboard, DiffTimeline, PlayerPanel, BreakCard, OutcomeChips, Selectio
 const { default: NbaCourt } = await import("./NbaCourt.tsx");
 const { fixtureGate } = await import("./nba-gate.ts");
 const { default: NbaTheaterIsland } = await import("./NbaTheaterIsland.tsx");
-const { loadNbaTheater, NBA_FIXTURE_SOURCE, NBA_REAL_TEST_FIXTURE_SOURCE } = await import("../../../lib/simulation-theater/nba/loader.mjs");
+const { loadNbaTheater, NBA_FIXTURE_SOURCE, NBA_REAL_TEST_FIXTURE_SOURCE, NBA_THEATER_OFFICIAL_SOURCE } = await import("../../../lib/simulation-theater/nba/loader.mjs");
 const { compileTimeline, stateAt } = await import("../../../lib/simulation-theater/nba/timeline.mjs");
 const { FIXTURE_BANNER } = await import("../../../lib/simulation-theater/nba/adapter-nba-sim-v1.mjs");
 const LABELS = await import("../../../lib/simulation-theater/nba/labels.mjs");
@@ -27,7 +27,7 @@ const { nbaBoxScore, NBA_BOX_WATERMARK } = await import("../../../lib/simulation
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
 const IDS = ["401909088", "401909089", "401909090"];
-const LOADS = IDS.map((id) => loadNbaTheater(REPO, id, { source: NBA_REAL_TEST_FIXTURE_SOURCE })); // real nba-sim-v1-coherent output (verified copy; TEST FIXTURE since the route reads the committed receipt)
+const LOADS = IDS.map((id) => loadNbaTheater(REPO, id, { source: NBA_REAL_TEST_FIXTURE_SOURCE, officialSource: NBA_THEATER_OFFICIAL_SOURCE })); // measured against the committed OFFICIAL v0.1 file of the same date; real nba-sim-v1-coherent output (verified copy; TEST FIXTURE since the route reads the committed receipt)
 const FIX_LOADS = IDS.map((id) => loadNbaTheater(REPO, id, { source: NBA_FIXTURE_SOURCE })); // synthetic test fixture
 const html = (el) => renderToStaticMarkup(el);
 const text = (h) => h.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
