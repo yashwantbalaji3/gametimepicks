@@ -25,7 +25,7 @@ import {
   DEFAULT_LAYER_VIEW, DEFAULT_OFFICIAL_STAT, DEFAULT_PROJECTED_SORT, LAYER, LAYER_LABEL, LAYER_NOTE, NOT_MODELLED_TEXT, REPRESENTATIVE_VS_MEDIAN, ROLE_LABEL,
   ROLE_METHOD, TEAM_SCORE_STATE, WHAT_IF_NOTE, WITHHELD_TEXT, nextProjectedSort, officialLayerKey, sortProjectedRows,
 } from "@/lib/simulation-theater/nba/projected-box.mjs";
-import { OFFICIAL_BOX_TITLE, WHAT_IF_BANNER, WHAT_IF_BOX_TITLE, fmtExpectation, fmtPct } from "@/lib/simulation-theater/representative-labels.mjs";
+import { OFFICIAL_BOX_TITLE, SUPPORTING_BOX_TITLE, WHAT_IF_BANNER, WHAT_IF_BOX_TITLE, labelledRuns, fmtExpectation, fmtPct } from "@/lib/simulation-theater/representative-labels.mjs";
 import { OfficialComparison } from "../RepresentativeParts";
 import type { NbaManifest, NbaPalette, NbaSide } from "./nba-types";
 import { teamStyle } from "./nba-parts";
@@ -446,7 +446,7 @@ export default function NbaBoxScoreDialog({ open, onClose, result, palette, comp
         <header className="nba-bx-head">
           <div>
             <span className="nba-card-eyebrow">{h ? `${h.status} · ${h.matchup} · run #${n(h.runIndex)}` : "Simulated"}</span>
-            <h2 id={`${uid}-title`} className="nba-bx-title">{hypothetical ? WHAT_IF_BOX_TITLE : OFFICIAL_BOX_TITLE}</h2>
+            <h2 id={`${uid}-title`} className="nba-bx-title">{hypothetical ? WHAT_IF_BOX_TITLE : labelledRuns(manifest) ? SUPPORTING_BOX_TITLE : OFFICIAL_BOX_TITLE}</h2>
           </div>
           <button type="button" className="st-btn nba-bx-close" onClick={close} aria-keyshortcuts="Escape">Close</button>
         </header>
