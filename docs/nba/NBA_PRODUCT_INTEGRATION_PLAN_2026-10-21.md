@@ -226,3 +226,13 @@ MLB default.
 
 **Exposure invariant.** "INERT" became "GATED": only `nba-source.mjs`, `board-model.mjs` and the TEST FIXTURE slate
 may import the NBA product modules, and point 12 proves each refuses under the real registry.
+
+## HARD BLOCKER: NBA player-prop legs (release owner, 2026-10-21)
+
+**No NBA player-prop leg may appear in any product until both of these hold:**
+1. An NBA **player-prop grader** exists. Today the NBA settlement contract grades team markets only.
+2. That grader has been **graded forward**: shadow-settled on real frozen pre-tip rows against official box scores, with stat corrections handled (PR 1154 re-check).
+
+This holds even if authorization, an odds feed, the registry and every flag are open.
+
+**Until then:** prop cards stay refused, and `bank-builder-nba-player@0-proposed` stays inactive.

@@ -188,10 +188,33 @@ const NBA_PRODUCT_MODULES = Object.freeze([
   "src/lib/products/nba/proposed-policies.mjs",
 ]);
 
+/** Importers of the NBA product modules that are NOT admitted (pure; the git-grep hit list in, the violations out). */
+function unadmittedImporters(files) {
+  return files
+    .filter((f) => !NBA_PRODUCT_MODULES.includes(f) && !/^src\/lib\/products\/nba\/(.+\.test\.mjs|__fixtures__\/.+)$/.test(f))
+    .filter((f) => !/^src\/lib\/parlays\/v2\/nba-[^/]+\.test\.mjs$/.test(f))
+    .filter((f) => !GATED_IMPORTERS.includes(f));
+}
+
 test("every non-test module in products/nba/ is on the reviewed NBA_PRODUCT_MODULES list", () => {
   const dir = path.join(APP, "src/lib/products/nba");
   const mods = fs.readdirSync(dir).filter((f) => f.endsWith(".mjs") && !f.endsWith(".test.mjs")).map((f) => `src/lib/products/nba/${f}`).sort();
   assert.deepEqual(mods, [...NBA_PRODUCT_MODULES].sort(), "a new NBA product module must be added to the reviewed list");
+});
+
+test("MUTATION PROBE: a new products/nba/ module importing the adapter fails the invariant (folder membership admits nothing)", () => {
+  const probe = "src/lib/products/nba/leak-probe.mjs";
+  assert.deepEqual(unadmittedImporters([probe]), [probe], "an unlisted module inside products/nba/ is a violation");
+  assert.deepEqual(unadmittedImporters(["src/app/nba/page.tsx"]), ["src/app/nba/page.tsx"], "a public page is a violation");
+  assert.deepEqual(unadmittedImporters([...NBA_PRODUCT_MODULES, "src/lib/products/nba/nba-leg.test.mjs", "src/lib/products/nba/__fixtures__/permissive.mjs", ...GATED_IMPORTERS]), [], "the reviewed set passes");
+  // and the folder scan catches the file itself, even before anything imports it
+  const dir = path.join(APP, "src/lib/products/nba");
+  const tmp = path.join(dir, "leak-probe.mjs");
+  fs.writeFileSync(tmp, 'import { nbaLegFromEvaluation } from "./nba-leg.mjs";\nexport const x = nbaLegFromEvaluation;\n');
+  try {
+    const mods = fs.readdirSync(dir).filter((f) => f.endsWith(".mjs") && !f.endsWith(".test.mjs")).map((f) => `src/lib/products/nba/${f}`).sort();
+    assert.notDeepEqual(mods, [...NBA_PRODUCT_MODULES].sort(), "the reviewed-list check fails while the probe exists");
+  } finally { fs.rmSync(tmp, { force: true }); }
 });
 
 test("the NBA product modules are GATED: only the listed importers (and the NBA modules / their tests) import them", () => {
@@ -201,12 +224,9 @@ test("the NBA product modules are GATED: only the listed importers (and the NBA 
     const IMPORT = "(from |import\\()\"[^\"]*(products/nba/|nba-source\\.mjs)|from \"\\./(nba-leg|product-tiers|cross-sport|nba-team-leg|proposed-policies)\\.mjs\"";
     hits = execFileSync("git", ["grep", "--untracked", "-l", "-E", IMPORT, "--", "src", "scripts"], { cwd: APP, encoding: "utf8" });
   } catch (e) { hits = e.status === 1 ? "" : String(e.stdout ?? ""); }
-  const importers = hits.split("\n").filter(Boolean)
-    // inside products/nba/ only the EXPLICIT modules (and tests / fixtures) may import each other — a new module there
-    // must be added to NBA_PRODUCT_MODULES in a reviewed change, never admitted by its folder
-    .filter((f) => !NBA_PRODUCT_MODULES.includes(f) && !/^src\/lib\/products\/nba\/(.+\.test\.mjs|__fixtures__\/.+)$/.test(f))
-    .filter((f) => !/^src\/lib\/parlays\/v2\/nba-[^/]+\.test\.mjs$/.test(f))
-    .filter((f) => !GATED_IMPORTERS.includes(f));
+  // inside products/nba/ only the EXPLICIT modules (and tests / fixtures) may import each other — a new module there
+  // must be added to NBA_PRODUCT_MODULES in a reviewed change, never admitted by its folder
+  const importers = unadmittedImporters(hits.split("\n").filter(Boolean));
   assert.deepEqual(importers, [], "a build/page/script imports the NBA product adapter outside the gated list — activation must follow the plan");
 });
 
