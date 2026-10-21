@@ -54,6 +54,18 @@ This file is the durable execution control plane for GameTimePicks. Fresh Claude
 
 For example, a model can be PRODUCTION DEPLOYED (visible, labelled experimental) without being FORWARD EVALUATED, and FORWARD EVALUATED without being STATISTICALLY QUALIFIED. `DONE` means FULLY ACCEPTED against the task's own acceptance list.
 
+**Milestone states for planned product initiatives (founder direction 2026-10-18).** `SIM-THEATER-001` and `BETSLIP-001` (§2A) track the item and each milestone with these five states. They sit beside the status values and stages above and replace neither:
+
+| Milestone state | Meaning | Nearest status · stage above |
+|---|---|---|
+| FEASIBILITY COMPLETE | Read-only feasibility research done; nothing built | `NOT_STARTED` · RESEARCH COMPLETED |
+| PLANNED | Scoped in this roadmap; implementation not authorized or not begun | `NOT_STARTED` |
+| IN DEVELOPMENT | Founder-authorized implementation under way (localhost, `claude/*` branch) | `IN_PROGRESS` · up to IMPLEMENTED LOCALLY |
+| TESTED | The milestone's acceptance passed locally and on exact-head CI | `READY_FOR_REVIEW` · CI VALIDATED |
+| PRODUCTION VERIFIED | Released through an approved merge and its Production acceptance passed | `DONE` for that milestone's own acceptance list · PRODUCTION DEPLOYED |
+
+A milestone state never speaks to model quality: a PRODUCTION VERIFIED display feature is not thereby FORWARD EVALUATED or STATISTICALLY QUALIFIED.
+
 ---
 
 # 1. Product north star
@@ -99,40 +111,516 @@ A live forecast is a **new receipt** linked to its pregame parent. It never muta
 | 3 | `NFL-003` | NFL Modeling | Player opportunity allocation (plays → pass/rush → attempts/carries → targets → catches → yards → TDs, with `OTHER`) | IN_PROGRESS — allocV1 PRODUCTION DEPLOYED inside World Model V2 (experimental, labelled); not FORWARD EVALUATED; first-game review: rushing-efficiency tail hypothesis (§NFL-005) | NFL-002 team volume | Shadow → family-by-family promotion |
 | 4 | `NFL-004` | NFL Modeling | TD model: hierarchical Bernoulli → team scoring opportunities → red-zone role → drive attribution | IN_PROGRESS — RESEARCH (passing-TD pure-sim candidate failed preregistered dev bars; 50/50 blend passed dev, forward shadow only; world TD v2 preregistered, forward-only). Not qualified; passing TD and first TD withheld publicly; anytime TD stays on the existing published model | NFL-003 | Shadow → family-by-family promotion |
 | 5 | `NFL-005` | NFL Modeling | Shared worlds + forward promotion (winner/score/spread/total/player reconcile) | IN_PROGRESS — PRODUCTION DEPLOYED (World Model V2, experimental: #1024, #1026, #1027, #1029 → 2.2.0); FORWARD EVALUATION begun (1 game reviewed, 2026-10-08 TB @ DAL); not STATISTICALLY QUALIFIED; not PRODUCT ELIGIBLE | NFL-002, NFL-003, NFL-004 | Yes, family by family |
-| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 #1039 product/Results truth PRODUCTION DEPLOYED (merge `f15a51f9`, 2026-10-10); PR 4 #1042 recovery evidence PRODUCTION DEPLOYED (merge `c71a7f5a`, 2026-10-10); served-forecast evidence #1046 READY_FOR_REVIEW; Stage B restatement #1045 and timing amendment #1049 DRAFT (local, not applied) | COST-001 deployment gate verified ✓ | Yes |
+| 6 | `TRUTH-001` | Truth / Market Identity | Fix signed-line/model-vs-market truth defects and stale semantics/copy | IN_PROGRESS — PR 1 #1037 PRODUCTION DEPLOYED (merge `20910052`, 2026-10-09); PR 2 #1038 posted-line run line PRODUCTION DEPLOYED (merge `80a6a3fe`, 2026-10-10); PR 3 #1039 product/Results truth PRODUCTION DEPLOYED (merge `f15a51f9`, 2026-10-10); PR 4 #1042 recovery evidence PRODUCTION DEPLOYED (merge `c71a7f5a`, 2026-10-10); served-forecast evidence #1046 READY_FOR_REVIEW; Stage B restatement #1045 and timing amendment #1049 DRAFT (local, not applied); MLB restatement proposal (10-17) awaits founder decisions F1–F9 (§4) | COST-001 deployment gate verified ✓ | Yes |
 | 7 | `CONTRACT-001` | Canonical Architecture | Freeze Event/FeatureSnapshot/WorldReceipt/Forecast/Market/Eligibility/Product/Settlement/Live contracts | IN_PROGRESS — RESEARCH COMPLETED (inventory, gaps, consumer matrix); foundation PRODUCTION DEPLOYED (#1040: read-only ForecastVersion/Settlement projection; no consumer, no migration); engineering lead: Lane A (founder, 2026-10-09) | Founder rules below | Foundation |
-| 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | NOT_STARTED | TEMPORAL-001 can progress in parallel | Shadow |
+| 8 | `MLB-001` | MLB Modeling | World Model V2 rules + baseline audit (extra-innings runner, safety-cap run, starter removal, K/BB/HBP, PA conversion, bullpen, DP/advancement, lineup opportunities) | NOT_STARTED — descriptive simulation audit #1086 (research, docs only) awaits founder review (§7) | TEMPORAL-001 can progress in parallel | Shadow |
 | 9 | `MLB-002` | MLB Modeling | Benchmark ladder (PA control → Poisson → hierarchical → NB → bivariate → enhanced PA → boosting → ensemble) | NOT_STARTED | MLB-001 | Shadow |
 | 10 | `MLB-003` | MLB Modeling | Batter markets from shared PA/base-state worlds; project every confirmed starter | NOT_STARTED | MLB-002 | Shadow → family-by-family |
 | 11 | `MLB-004` | MLB Modeling | Pitcher markets (workload survival, BF, K/contact/BB, bullpen transition) | NOT_STARTED | MLB-002 | Shadow → family-by-family |
 | 12 | `MLB-005` | MLB Modeling | Shared WorldReceipt + forward shadow | NOT_STARTED | MLB-003, MLB-004 | Family-by-family |
-| 13 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | IN_PROGRESS — NFL hook only: World Model V2 grader (private, #1027). Ledger hardening itself not started; zero-build settlement assessment open | CONTRACT-001 | Yes |
+| 13 | `LEDGER-001` | Results / Data | Harden ledger validation, conflict quarantine, correction events, publication evidence | IN_PROGRESS — NFL hook only: World Model V2 grader (private, #1027). Ledger hardening itself not started; zero-build settlement assessment open; settled-history stamp guard #1101 in the 10-18 window (§5) | CONTRACT-001 | Yes |
 | 14 | `TEMPORAL-001` | Data Platform | Point-in-time temporal data/identity foundation for MLB/NFL critical fields | NOT_STARTED | CONTRACT-001 | Foundation |
-| 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 (expanded by founder directive 2026-10-13: substreams A nav/IA · B design system · C Home/Today · D sport/game pages · E Live/Results) | IN_PROGRESS — UX System V2 Release 1 PRODUCTION DEPLOYED (#1072 → `ab9ad4059d`, 2026-10-13: rail clusters, label face, Home/Today order + fold, one h1); Release 2 post-launch | CONTRACT-001 view contracts; never ahead of P0 truth fixes | Yes |
-| 16 | `RESULTS-001` | Results | Prop-family Results V2 + time filters + drill-down | IN_PROGRESS — NFL World Model V2 per-family grading (private, #1027) and the public coverage note; Results V2 pages not started | LEDGER-001 | Yes |
+| 15 | `UX-001` | Frontend | Canonical Sport Hub / UX System V2 (expanded by founder directive 2026-10-13: substreams A nav/IA · B design system · C Home/Today · D sport/game pages · E Live/Results) | IN_PROGRESS — UX System V2 Release 1 PRODUCTION DEPLOYED (#1072 → `ab9ad4059d`, 2026-10-13: rail clusters, label face, Home/Today order + fold, one h1); P0 + Release 2A PRODUCTION DEPLOYED (#1080 → `d4bc2a1def`, 10-14); Release 2B + LIVE-F PRODUCTION DEPLOYED (#1081 → `5917475b53`, 10-14); HTML/UX trio #1117 → #1119 → #1120 in the 10-18 release window; remaining P2 post-launch (§16) | CONTRACT-001 view contracts; never ahead of P0 truth fixes | Yes |
+| 16 | `RESULTS-001` | Results | Prop-family Results V2 + time filters + drill-down | IN_PROGRESS — NFL World Model V2 per-family grading (private, #1027) and the public coverage note; Results V2 pages not started; results-integrity draft #1123 waits on founder metric decisions (§15) | LEDGER-001 | Yes |
 | 17 | `PRODUCT-001` | Product Engine | Canonical multi-sport candidate/eligibility/selection engine | NOT_STARTED | CONTRACT-001, LEDGER-001 | Shadow → Yes |
 | 18 | `PRODUCT-002` | Bank Builder / Moonshot | Migrate to canonical multi-sport forecast candidates | NOT_STARTED | PRODUCT-001 + passing family gates | Yes |
 | 19 | `PARLAY-001` | Parlay Lab | Same-world joint probability / dependency architecture | NOT_STARTED | PRODUCT-001 + world receipts | Shadow → Yes |
-| 20 | `LIVE-001` | Live | MLB factual prop tracking + event timeline | IN_PROGRESS — factual NFL/MLB score tracking and NFL rush/rec/receptions beside frozen projections PRODUCTION DEPLOYED (/live, game pages, #1028 Live Now). MLB player join waits on TRUTH-001; WM2 rows on /live and `passing:YDS` planned | Live data/ID capability | Yes |
+| 20 | `LIVE-001` | Live | MLB factual prop tracking + event timeline | IN_PROGRESS — factual NFL/MLB score tracking and NFL rush/rec/receptions beside frozen projections PRODUCTION DEPLOYED (/live, game pages, #1028 Live Now). MLB player join waits on TRUTH-001; WM2 rows on /live and `passing:YDS` planned. Live Hub V2 (#1082, draft) preview-only: SEA@DEN game-phase checks PASS 10-16; adapters, wiring and further real-event windows remain (§17) | Live data/ID capability | Yes |
 | 21 | `LIVE-002` | Live | MLB visual Game Center / pitch & field graphics | NOT_STARTED | LIVE-001 | Yes |
 | 22 | `LIVE-003` | Live Modeling | Conditional live forecasts from captured state | NOT_STARTED | LIVE-001/002 replay archive | Shadow |
 | 23 | `LIVE-004` | Live Products | Validated live straight opportunities | NOT_STARTED | LIVE-003 + fresh market identity | Shadow → Yes |
 | 24 | `LIVE-005` | Live Products | Supported live parlays | NOT_STARTED | LIVE-004 + dependence validation | Last |
 | 25 | `OPS-001` | Operations | Freshness, dependency receipts, retries, alerts, cost controls | IN_PROGRESS — publish data-loss protection PRODUCTION DEPLOYED (#1068 → `5c0b1b6619`, 2026-10-13; first live window pushed once via the helper); extending the helper and bundle to the remaining workflows is post-launch | Parallel | Yes |
 | 26 | `TRUTHDOC-001` | Documentation | Generated “what runs now” inventory | NOT_STARTED | CONTRACT-001 | Yes |
-| 27 | `COST-002` | Release Engineering / FinOps | Reduce build memory so the export fits Vercel Standard (free first build slot); profile `/simulate/d/*` and last-quarter routes | NOT_STARTED | COST-001 Phase 1 | Build config/data loading; Production only after founder approval |
+| 27 | `COST-002` | Release Engineering / FinOps | Reduce build memory so the export fits Vercel Standard (free first build slot); profile `/simulate/d/*` and last-quarter routes | IN_PROGRESS — 46-min build kills root-caused to static-generation memory; worker cap #1093 PRODUCTION DEPLOYED (`a4c8e26f03`, 10-15); its ≤ 13 G peak acceptance not met (14.82 G); #1094 ON HOLD (§3A) | COST-001 Phase 1 | Build config/data loading; Production only after founder approval |
+| 28 | `SIM-THEATER-001` | Simulation / Frontend | Simulation Theater V2: interactive NFL drive theater from recorded sim-v2 receipts (ST-01 → ST-05) | **P1 planning** (founder 2026-10-18) — FEASIBILITY COMPLETE; ST-01–ST-05 all PLANNED; implementation NOT authorized (§2A) | ST-01 founder sign-off (engine, route, P242); DS-001; `COST-001`; `CONTRACT-001`; `NFL-002` for ST-04/ST-05 | Local preview first; public step only after founder approval (code-merge build only; 0 data builds) |
+| 29 | `BETSLIP-001` | Product / Parlay Lab | Smart Betslip / Parlay Lab V2: licensed-book comparison and officially supported sportsbook hand-off (SB-01 → SB-06) | **P1 planning** (founder 2026-10-18) — FEASIBILITY COMPLETE; SB-01–SB-06 all PLANNED; implementation NOT authorized (§2A) | Licensed-book allowlist; `GTP-01` counsel for SB-03+; `PARLAY-001` for SB-06; `COST-001` task 7 for any faster freshness | SB-01/SB-02 static data on existing captures; SB-03+ only after counsel approval |
 
 **Standing / parallel workstreams (not ranked against the queue above):**
 
 | Task ID | Department | Task | Status | Dependency | Production-bound? |
 |---|---|---|---|---|---|
-| `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — Phase 1 verified 2026-10-08; awaiting founder spend-alert confirmation | None — do first | Process/config, no app release expected |
-| `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | IN_PROGRESS — fix merged (#1019 → `f65e7656`, 2026-10-08 04:03Z); first bot data commit attributed `github-actions[bot]`, READY, live; **7-day observation running from cutover 2026-10-08T05:56:44Z** (earliest DONE ≈ 2026-10-15T05:57Z) | None | Workflow/identity config; Production freshness |
+| `COST-001` | Release Engineering / FinOps | Audit Build CPU causes and auto-deploy triggers; enforce localhost-first and no wasted Vercel builds | IN_PROGRESS — Phase 1 verified 2026-10-08; awaiting founder spend-alert confirmation; #1091 deploy-trigger non-inputs PRODUCTION DEPLOYED (`39df089d02`, 10-15); #1088 MLB stamp-only gate and #1124 build-input coverage in the 10-18 window (§3A) | None — do first | Process/config, no app release expected |
+| `OPS-002` | Operations / Release Engineering | Bot commit identity: Vercel BLOCKED 21 bot-authored Production deployments (`TEAM_ACCESS_REQUIRED`) on 2026-10-07 | IN_PROGRESS — fix merged (#1019 → `f65e7656`, 2026-10-08 04:03Z); first bot data commit attributed `github-actions[bot]`, READY, live; 7-day window from cutover 2026-10-08T05:56:44Z completed 2026-10-15T05:57Z; GitHub-side pre-check clean (10-15); the authoritative report needs a fresh Vercel token (**founder**), so not DONE (§18) | None | Workflow/identity config; Production freshness |
 | `NCAAF-001` | NCAAF Modeling (DP) | Point-in-time data foundation — DP-owned, independent lane | Owned by DP (status in §12) | None | Foundation |
+| `THEATER-001` | Frontend / NFL | Simulation Theater V2 (NFL): drive-level replay of the drive-engine receipt of record on `/nfl/simulation/[eventId]`; SIMULATED · DRIVE-LEVEL · MOVEMENT ILLUSTRATIVE · EXPERIMENTAL MODEL | INTEGRATED (local) · PUBLIC FLAG OFF (`GTP_NFL_THEATER_PUBLIC`) · draft #1140 — merge held for founder decision (standing rule: no Theater deployment to Vercel) — branch `claude/gtp-theater-integrate-20261019`; flag-OFF and flag-ON exports verified by post-build tests 2026-10-20. P242 narrow exception approved by the founder 2026-10-19 ("public beta if gates pass"; `docs/launch/approvals/P242_NFL_THEATER_PUBLIC_BETA_2026-10-19.md`). Not merged; e2e not run | Release-owner handoff; exact-head CI; acceptance matrix | Yes — flag stays OFF until handoff |
+| `THEATER-002` | Frontend / NBA | Simulation Theater (NBA): quarter-checkpoint playback of private V1 coherent samples | INTEGRATED (local, dev route only) · PRIVATE / PREREGISTRATION-RESTRICTED — same branch; default export proven free of V1 output by `export-boundary.test.mjs`. No public NBA model output | September NBA preregistration grading bars | No (dev-only) |
+| `PARLAY-002` | Parlay Lab | Parlay Lab V2: four canonical tiers (LOW/MEDIUM/HIGH/LONGSHOT) re-gated at build, honest NO QUALIFYING PARLAY, tier records with denominators; compare-only Smart Betslip (no links, no combined book quote, model joint probability withheld) | INTEGRATED (local) · PUBLIC FLAG OFF (`NEXT_PUBLIC_PARLAY_LAB_V2`) · draft #1141 (stays draft until #1130 is approved) — branch `claude/gtp-parlay-smartbetslip-20261019`, stacked on #1130 (operator allowlist; fails closed without it). Open founder items: decorrelation caps (PROPOSED), reduced-win payout restatement, slip storage privacy note. Verified operator prefill (SB-L2) not started. `PARLAY-001` (joint probability) remains NOT_STARTED | #1130; founder items | Yes — after #1130 |
+| `COST-003` | Release Engineering / FinOps | Per-push build audit 2026-10-12 → 10-19 (measured vs inferred vs billed) + ignore-build mutation tests | FINDINGS (local) — `docs/cost/BUILD_COST_AUDIT_2026-10-19.md` on `claude/gtp-build-cost-audit-20261019`; ~53 completed Production builds/day; 3 levers proposed to the workflow owner (coalescing 8–27/day, batching 0–18/day, non-data writers 3–7/day; overlapping, not additive). No workflow changed | Workflow owner (launch-readiness session) | No (docs/tests) |
 
 - `COST-001` protections remain mandatory for every task above: localhost-first, `claude/*` branches create no Vercel deployment, one controlled Production build per approved merge, and no documentation-only Production deployment.
 - `OPS-002` observation and DP's `NCAAF-001` continue in parallel and are not paused or re-scoped by the NFL override.
+- Ranks 28–29 (added 2026-10-18) are P1 *planning* priorities. They rank planning attention, not execution ahead of launch work, and neither is authorized for implementation (§23).
 - Previous order (2026-10-07/08, before the override): CI-001, COST-001, OPS-002, TRUTH-001, CONTRACT-001, LEDGER-001, TEMPORAL-001, UX-001, RESULTS-001, MLB-001, NFL-001, PRODUCT-001, … (see git history of this file).
+
+## Launch release status (updated 2026-10-17; launch Oct 20)
+
+**Merge policy (standing founder policy, 2026-10-17).** The integration session may make autonomous, verified exact-head merges (`--match-head-commit`) of routine engineering PRs. High-risk exceptions still need founder approval: historical settlement restatements and material changes to published forecasts, legal publication, credentials, new paid services or significant spending, and destructive or irreversible operations (`docs/handoffs/HANDOFF_2026-10-17_INTEGRATION.md`). `main` has no branch protection; recommendation only (repository settings are the founder's): `docs/engineering/BRANCH_PROTECTION_RECOMMENDATION_2026-10-17.md`.
+
+**Merged and verified, 2026-10-16 → 10-17:**
+- 10-16 — #1114 merged as `2cb1ba3920` (23:44Z): test only; the franchise-map test checks all 32 franchises instead of assuming ≥ 28 in one week; 0 builds (Ignored Build Step).
+- 10-17 — #1122 merged as `06895f5576` (14:41Z): settle health gate counts only Win/Loss; archive cap; search entity decode; guard 16f.
+- 10-17 — Settlement recovery: a founder-approved single nightly-settle dispatch, run 39055981862 at 17:57Z, settled 10-16 as 41 VOID with 0 losses; health gate HEALTHY; history unchanged; Production deployed `4a6f8b27`.
+- 10-17 — #1118 merged as `07ecc9684c` (18:16Z): NFL product-day stale-anchor fix, live on Production `07ecc968`.
+- 10-17 — #1125 merged as `d22d085cc6` (20:08Z): explorer test made independent of the newest slate; main CI green; 0 Vercel builds.
+
+**10-18 release window (~04:30–08:30Z):**
+
+| PR | What | Where tracked |
+|---|---|---|
+| #1124 | Deploy trigger covers every `data/internal` path a public route reads | `COST-001` (§3A) |
+| #1101 | nightly-settle historical stamp guard (protected workflow) | `LEDGER-001` (§5) |
+| #1120 | UX/HTML trio, with #1117 (HTML Release 1) and #1119 (UX Release 1) stacked inside | `UX-001` (§16) |
+| #1088 | MLB stamp-only build gate (protected workflows) | `COST-001` (§3A) |
+
+**10-18 release window: all four MERGED and PRODUCTION VERIFIED for deployment.** Each was an exact-head merge under the founder's standing policy, at 04:46:37–04:48:10Z.
+- Before merging:
+  - the MLB game TB@CLE was final and the UFC card was finished (13/13 bouts post);
+  - the :25–:45 lineup slot was respected;
+  - no data-writer workflows were running.
+
+| PR | Merge commit | Main CI (quality-gate) | Vercel |
+|---|---|---|---|
+| #1124 | `d29a2078ca` | ✅ 39098266421 | built |
+| #1101 | `36958c5e68` | ✅ 39098309659 | superseded by the next push (expected) |
+| #1120 (+ #1117, #1119) | `68135f7aa2` | ✅ 39098333216 | superseded by the next push (expected) |
+| #1088 | `05c9deea4f` | ✅ 39098353538: unit 9,489/9,491, post-build 707/710, 0 fail | built; **Production `05c9deea4f`** at 04:51:24Z |
+
+**Evidence:**
+- **Code identity:** main's code is identical to the locally validated candidate (`main` `6de21842dd` + the four PRs, merged in that order; full local gate green), with data paths excluded.
+- **Data:** no PR touched a data path. All 7 protected ledger and settled files are hash-identical to the pre-release baseline.
+- **Pages:** 11 key routes returned 200 with no error markers.
+- **Cost:** 2 Production builds for 4 merges.
+- **Superseded PRs:** #1117, #1119, #1092, #1096, #1102, #1104, #1105, #1106, #1107, #1109, #1112 and #1115 were auto-marked merged. Stacked #1097–#1100 and #1103 were closed with evidence: their heads are on `main`.
+
+**Follow-up fixes from the 10-18 integrity audit (`docs/launch/INTEGRITY_AUDIT_2026-10-18.md`), both merged and PRODUCTION VERIFIED:**
+- #1126 `cd8465a2e1`: `/results/mlb/` Void rows were shown as Push. Display only.
+- #1127 `58acd1cbac`: a settled NFL game was shown as "Follow live" on `/nfl`, and the Home MLB card said "today's slate" for yesterday's slate. Display only.
+- #1128 `bec2cd28aa`: Ask's EPL (and UFC) record now comes from the same ledger population as `/results`, so the two can no longer split after a late grade (D-1). It also fixes Ask's recent-feed totals, which were capped at 60. Main CI post-build parity is green.
+- #1129 **MERGED** `c0ffb1b7c5` (10-19 00:10Z), with the contradiction-guard sample and the homepage past-event note trim.
+  - The first CI run (13:21Z, during the NFL window) failed the time-sensitive homepage word guard. The branch was refreshed onto current `main`, and the fresh CI passed. The guard was not changed.
+  - Main CI 39179595614 green; Production `754c466c4d` includes it.
+  - **Follow-up:** the BUILT busiest-state guard measures live, time-of-day homepage content (1,331–1,387 non-lane words across a Sunday). Making that measurement deterministic is a candidate test-hardening task; the ceiling stays unchanged.
+- #1130 **DRAFT**: extended for O-6/O-7. Candidate head `3f778eac45`.
+  - **Sanitising:** loader-boundary sanitiser, plus a sanitised *exported* copy of live-props JSON; committed data is untouched.
+  - **Disclosure:** "Sportsbook availability varies by state" beside named books.
+  - **Export scan:** 0 offshore mentions across HTML, RSC and `out/data`.
+  - **Gates:** unit 9,517 / 0 fail; post-build 711 / 0 fail.
+  - Awaiting founder exact-head approval (`PR1130_APPROVAL_PACKAGE.md`).
+- #1131 **MERGED INERT** `32a275b420` (10-19 02:47Z). The variable is unset. Dry run 39191632155 OK: `--dry-run --once`, DONE, 0 dispatches. One-slate trial plan: CLE@TB 10-19, needing the founder's go (`PR1131_ONE_SLATE_TRIAL_PLAN.md`). Previously: independently verified **READY TO ACTIVATE** at `82f4a72999` after the F1–F11 fixes (`docs/launch/approvals/PR1131_ACTIVATION_READINESS.md`). Activation needs the founder decision plus a one-slate trial. Original note: Inert until the repo variable `MLB_LINEUP_WAITER_ENABLED=true`; production activation needs separate acceptance. Evidence:
+  - 40/40 tests; 170/170 workflow guards;
+  - replay 10-08..10-18: median lineup→simulation 33 → 8 min, worst pre-pitch lead 33 → 158 min;
+  - $0 Actions cost (public repo, standard runner).
+- #1132 **MERGED** `67fee1259f` (10-19 00:47Z); main CI 39182395609 green; Production `182f1291c5` includes it. Test isolation: `live-props-producer.test.mjs` ran the producer against the real data root, and local runs rewrote tracked `nfl/live-props`. No Production impact found: CI is `contents: read`, and every live-props commit came from producer workflows. Merges after #1129, post-NFL-window, under the gate.
+
+The audit's remaining items:
+- The void *reason* on postponed 10-16 rows reads "DNP/0-AB": a data/producer follow-up.
+
+- **2026-10-18 · #1088 FULLY VERIFIED:**
+  - **Real change published:** the lineup change of 18:05Z produced `785fbdc8ff`, a build and Production at 18:06Z.
+  - **Stamp-only run suppressed:** the 17:30Z slot, delivered at 18:13Z with lineups unchanged, gave the gate verdict SUPPRESS. It committed `b03a839bc` "(run records only — no forecast change)", which touched only ops and internal run-record files. Vercel: "Canceled by Ignored Build Step", so 0 builds.
+- **2026-10-18 · #1088 part 2 VERIFIED + MLB lineup delivery.**
+  - **What happened:** GitHub delivered **none** of `mlb-lineup-refresh`'s 15:30–17:30Z slots. Founder-authorized single dispatch: run 39152425644 at 18:03Z, after both confirmed lineups were posted upstream (TB 9, CLE 9). It captured 2/2 confirmed batting orders and published `785fbdc8ff`.
+  - **#1088's gate gave PUBLISH on this real lineup change,** so it does not suppress meaningful updates. Production was `785fbdc8ff` at 18:06Z, before the 21:08Z first pitch.
+  - **Status `degraded` is correct:** 1 of TB's 9 confirmed batters has no GTP projection and is simulated at replacement level, as the rules require.
+  - **Measured schedule delivery** (scheduled runs within 60 min of the 9 daily 15:30–23:30Z slots): 10-11 5/9, 10-12 2/9, 10-13 4/9, 10-14 5/9, 10-15 5/9, 10-16 5/9, 10-17 7/9, 10-18 0/9 by 18:00Z. The first afternoon run landed 17:53–22:31Z.
+  - **Recommended permanent fix, NOT implemented (protected workflow; needs founder approval):** an `mlb-lineup-waiter` modelled on `nfl-pregame-free-refresh`.
+    - **Triggers:** reliable clocks (`workflow_run` off `mlb-daily-production` and `publication-watchdog`, plus the daily-products tick), with crons only as best-effort extras.
+    - **Behaviour:** one concurrency group, never cancelled. It waits *inside* the job from T−4h to first pitch, polling the free StatsAPI about every 10 min. It dispatches the existing refresh only when a confirmed lineup is new or changed against the committed simulation, re-deciding on fresh `main` before each dispatch and capping dispatches per slate.
+    - **Failure detection:** an ops alert when no confirmed-lineup simulation exists by T−60.
+    - **Cost:** $0 in Actions minutes (the repo is public). No paid API. **Vercel:** one build per *real* lineup change (#1088 suppresses everything else), likely fewer builds than today's hourly crons.
+    - **Rejected alternatives:**
+      - A staggered second cron: same delivery problem, small gain.
+      - Extending `cron-watchdog`: it is itself cron-driven and lands about 13:00–18:45Z, so it can't meet pregame deadlines.
+
+- **2026-10-19 · NFL live tracking** (`docs/live/NFL_LIVE_TRACKING_INVESTIGATION_2026-10-19.md`):
+  - `nfl-live-props` has been disabled since 9-27, with founder approval, after an unledgered paid charge. The free variant is manual-only.
+  - NO@NYG's late provisional final came from `nfl-event-window` crons arriving 1h47m–3h21m late, a 2h40m gap.
+  - **Recommended:** a post-final waiter (0 credits; founder activation); hold paid kickoff sweeps at the credit ceiling; a FINAL-aware post-final pickup.
+  - Canonical settlement for NO@NYG and BUF@LV is expected with Monday's first `nfl-event-window` run.
+
+**Still to verify after scheduled runs:**
+- #1101 (`verify_1101.py`) after the next nightly settle;
+- #1088 (`verify_1088.py`; lineup/injury/roster updates not suppressed) after the next MLB pipeline runs;
+- #1124's build effect over 7 days (`docs/cost/VERCEL_BUILDS_MEASURED_2026-10-18.md`).
+
+**Open, outside the window:**
+- #1121 Ask spend control (Production must name its provider; kill switch accepts off/no/disabled; head `abb72dff26`). ⚠ It can switch Ask off if `ASK_MODEL_PROVIDER` is unset, so it merges only after the env is confirmed.
+- #1123 results integrity: with the founder's metric decisions (§15).
+- #1090 (503 bodies from `/api/slip-read` and `/api/ask` name no config variables; `8af11b4e31`): open; recorded as awaiting founder approval on 10-16 (#1083).
+- #1116 (this branch): docs only (launch matrix, UAT plan, decision packages, cost baseline, COMP-001, TRUTH analyses).
+- Live Hub V2 #1082 (+ #1108, #1111): preview only (§17).
+
+**Launch gates: NO-GO until each closes or is accepted in writing by the founder.** The engineering part is the window merges plus the live windows (no P0 in the UFC 10-17 or NFL 10-18 windows).
+- **Privacy/Terms (GTP-01): founder and counsel inputs.** Both pages still 404 while accounts are live; the drafts (#1077, unpublished) contradict accounts. Missing: operator entity, governing state, minimum age, effective date, counsel approval records. Engineering never bypasses the gate or invents parameters.
+- **Hosted Supabase RLS verification.** The live RLS battery runs on every `main` CI since #1084 (`46c7912271`, 10-14; checks 82–84 PASS); a hosted `--hosted` run needs founder authorization.
+- **Ask provider cap.** Ask is enabled with a provider key and no in-app daily cap: #1121 after the env check, or Ask off. Related (10-14, #1083): slip reading is off (`/api/slip-read` 503, service key not set); adding that key would open a paid path outside the Ask cap.
+- **Rollback rehearsal.** Revert-merge dry run during the Oct 18–19 UAT; runbook addendum #1110 (draft).
+- **Open decision (10-14, #1083):** MLB game pages exist only for the active slate, so yesterday's `/games/mlb/<slug>/` URLs 404 once the next board publishes (predates #1081; no public page links to them). Decide before launch whether shared links should resolve.
+
+---
+
+# 2A. Post-launch tracked items (competitive and simulation)
+
+Neither item blocks the Oct 20 launch. This roadmap stays the planning authority; nothing below is authorized for implementation until the founder approves it.
+
+**2026-10-18 (founder):** Simulation Theater V2 (`SIM-THEATER-001`) and Smart Betslip / Multi-Sportsbook Integration (`BETSLIP-001`, new) are approved as major product objectives with **P1 planning priority**. This approves product direction and roadmap planning only (§23). Milestone states are defined in §0. The open founder decisions and a recommended implementation order follow the two items at the end of this section.
+
+## `COMP-001` — PropDealer competitive audit
+**Status:** RESEARCH COMPLETED (2026-10-16; read-only). Post-launch input, not a launch blocker.  
+**Evidence:** `docs/research/COMP-001-PROPDEALER-COMPETITIVE-ANALYSIS.md`. Homepage only, because the site's robots.txt disallows all paths; anything beyond the homepage is ADVERTISED or INACCESSIBLE, not verified.  
+**Rule:** no performance or superiority claims about either product. A larger run count or polished visuals is not evidence of accuracy.
+
+Post-launch candidates (priority · dependency · source):
+1. **Typical-game spotlight** with an on-object "Simulated · not a real game · 1 of N" banner (NFL median sampled world; MLB top `finalScores` phrased as a frequency). P2 Phase C · DS-001 banner rule; WM2 keeps its experimental label · doc §7 R1 (built through `SIM-THEATER-001`).
+2. **Range strip** (p10–p90 band, median, posted line) on prop rows and live rails. P2 Phase C · DS-001 probability display, GTP-14 · doc §7 R2.
+3. **Per-family deep links** as filter states of existing boards; no new routes, and unsupported families are absent. P2 Phase C · `UX-001` substream A, GTP-14 · doc §7 R3a.
+4. **Persist five MLB sampled games** (linescore plus PA trace) from the real engine. Post-launch producer change · `MLB-001` rules audit; aggregates byte-identical with the recorder on and off · doc §7 R3.
+5. **Pregame ↔ live ↔ final overlay:** where the final landed in the frozen pregame distribution; descriptive, never a grade. After Live Hub V2 promotion · `LIVE-001`, `RESULTS-001`, Option B forecast of record · doc §7 R4.
+6. **"Watch one game" chapter** in SimulationStory, from recorded events only. Post-launch · founder re-confirmation of the 2026-09-07 animation retirement (P242) · doc §7 R5, §10 Q1.
+7. **Strategic, owned by existing tasks:** MLB live re-simulation (`LIVE-003`), NFL drive engine (`NFL-002`), same-world parlay joints (`PARLAY-001`). Their existing dependencies apply · doc §7 R6–R8, §9.
+8. **Founder questions:** Q1 (does a trace-backed replay fall under P242?), Q2 (a deeper human review given robots.txt), Q4 (sportsbook links, betslip, bonuses and community as a deliberate non-goal; founder/legal) · doc §10.
+   - **2026-10-18:** Q4 is superseded in direction for sportsbook links and betslip: the founder now supports transparent sportsbook comparisons and officially supported betslip integrations, subject to counsel (`BETSLIP-001`, §23); bonuses and community are not addressed. Q1 moves to `SIM-THEATER-001` ST-01. This doc's §6.2 "no drive data or engine" is corrected by `docs/research/SIMULATION_THEATER_V2_FEASIBILITY_2026-10-18.md` §2 row 18: the sim-v2 drive engine exists.
+
+## `SIM-THEATER-001` — Simulation Theater V2
+**Priority:** P1 planning (founder, 2026-10-18) · **Status:** FEASIBILITY COMPLETE. Milestones ST-01 → ST-05 are all PLANNED; nothing is IN DEVELOPMENT; implementation is NOT authorized.  
+
+**Founder decisions, 2026-10-18 (ST-01 v1.1 §8):**
+- **D1: APPROVED WITH CONDITIONS.** Recorded-drive playback is a narrowly scoped exception to the P242 retirement of the simulation "ceremony" (`docs/execution/PROGRAM_242_EXECUTION_LOG.md`).
+  - **What P242 retired:** the 10-second staged reveal, "Generate" buttons, timers and `?play=1` hand-offs. Those *gated* a precomputed report behind an animation and implied live computation.
+  - **How the Theater avoids each concern:**
+    1. **Opt-in only.** It starts on an explicit Play; nothing autoplays.
+    2. **Never gates anything.** The forecast, the distribution, the full drive transcript and the receipt evidence render immediately and remain complete with playback never started.
+    3. **No pretence of computation.** It replays drives already recorded in a frozen receipt and says so. There is no "generating" state, spinner or minimum duration.
+    4. **Persistent disclosure:** "SIMULATED · drive-level · movement illustrative · experimental model".
+    5. **No fabricated play-level events.** Only recorded drive fields are shown; in-drive motion and clock are labelled illustrative.
+    6. **Reduced-motion users** get stepped, non-animated states.
+  - P242's direct-report contract therefore holds for every surface.
+- **D2: APPROVED FOR LOCAL DEVELOPMENT.** An unlinked development route, `app/src/app/dev/simulation-theater/[eventId]/`, emits pages only with `GTP_DEV_ROUTES=1`. Public integration into `/nfl/simulation/[eventId]/` needs separate acceptance.
+- **D3: APPROVED WITH VALIDATION.** A 32-team colour map from verified references, flagged `TEAM_COLORS_VALIDATED=false`, with neutral styling until validated. No logos or branding assets.
+- **D4–D7: ACCEPTED** as documented: all five representatives with merged chips; fixed, disclosed orientation; no world-model data; drive-weighted ~40–103 s at 1×.
+- **D8: DEFERRED.** Receipt changes stay forward-only and need separate validation first.
+- **ST-02 status:** the first two tasks (library + preview shell, with a minimal renderer) are **IN DEVELOPMENT, local only**, on branch `claude/sim-theater-st02-prototype`. Nothing is deployed or reachable in Production.
+- **ST-02 iteration 8 (10-19 02:50Z, `365a73e1d7`, local; iteration 7 tagged `sim-theater-iter7`):**
+  - **Zoom:** 1.6× evaluated against 1.35×. Keep 1.35×: 1.6× leaves no readable yard row in 34.8% of frames and breaks the 120 yd/s camera-speed limit.
+  - **Mobile:** full field by default, with a labelled "Follow drive" option.
+  - **Cards:** dismissible halftime and final cards, shown as a compact sheet on phones.
+  - **Labels:** an illustrative-label audit, with tests.
+  - **Tests:** Playwright 38/38.
+- **ST-02 iteration 7 (10-18 23:10Z, `120d6b440f`, local):**
+  - a broadcast camera: a pure function, capped at 1.35×, full field at kickoffs and breaks;
+  - a broadcast score bug with a drive strip (recorded totals, plus ≈ illustrative yardage, tagged);
+  - transition cards: start, end of quarter, halftime, final;
+  - stadium atmosphere;
+  - the no-swap team-colour rule: official colours always, with away-team cues for clashes.
+  - **Measured:** frame p95 about 17.4 ms; JS 30.7 KB.
+  - **Tests:** Playwright 27/27.
+- **ST-02 status, 10-18 evening:** iteration 5 local, at `d59d5b62d6` on localhost:4179. Implemented:
+  - the broadcast field, score bug, possession, interstitials, scoring effects and drive summary;
+  - mobile sheets;
+  - timeline hit targets of at least 24 px;
+  - a full-bleed field at 320 px.
+  - **D3 colours on in the dev preview:** 32/32 validated (31 official), with the founder's roles. Official primaries on the field use a light keyline for ≥3:1 (BUF stays royal throughout).
+  - **Measured:** JS 25.8 KB gzip; inline data 16 KB.
+  - **Tests:** Playwright 21/21; theater unit tests pass.
+  - Not deployed; no PR.
+**Evidence:** `docs/research/SIMULATION_THEATER_V2_FEASIBILITY_2026-10-18.md` (cited below as **TV2**); `docs/research/NEXT_GEN_FEASIBILITY_SUMMARY_2026-10-18.md` §1; `docs/research/SIMULATION_THEATER_V0_SPEC_2026-10-17.md`; `COMP-001`; the founder-supplied competitor audit `~/Downloads/competitor-audit.md` (cited as **audit**; its screenshots were not supplied). Every effort figure is an estimate for one experienced engineer (TV2 §6) unless stated otherwise.  
+**Objective:** an interactive, receipt-backed NFL drive theater: watch one sampled game, inspect the uncertainty beside it, verify the record. It is not a copy of PropDealer: GTP's own tokens, layout and artwork (audit §6), and no claim that GTP is more accurate than any competitor.
+
+**What already exists (TV2 §1, §3; code read on `origin/main` `6de21842dd`):**
+- The drive engine `nfl-drive-sim-v2` (`app/src/lib/sports/nfl/sim-v2/engine.mjs`) records one event per drive (`:416`). It is `NFL-002` rung 4 with `promotionState: "SHADOW"` (`receipt.mjs:249`).
+- All 168 receipts on `main` keep 5 representative runs with full drive logs (`simulation-receipt@2`, `nfl-drive-run@1`, 10,000 runs, 16–27 drives each). None has per-run player lines.
+- `/nfl/simulation/[eventId]/` already renders 3 of the 5 logs as static tables (`components/nfl/simulation-v2-report.tsx:238-257`, `:241`). The audit and COMP-001 missed this page.
+- The WM2 "five sample games" on `/nfl/game/<id>/` come from a different engine with no drive order (`world-model-v2/engine.mjs:6-21`), different run indices and opposite home/away ordering. They must never be spliced onto drive runs (TV2 §2 row 11).
+
+**Rules for every milestone (TV2 §8; audit §6, §10):**
+- **Experimental label on every frame, transcript and share image.** sim-v2's held-out winner log loss was 0.6468 vs 0.6358 for V1, and 0.6419 vs 0.6343 (lower is better): worse on both point estimates, with no intervals reported (`docs/SIMULATION_ENGINE_V2.md:97-100,128-131`). Motion never implies validation. A comparative claim needs an interval excluding 0.
+- **No invented plays.** `plays` is a count. No snaps, downs, penalties or player credits are drawn from a drive record.
+- **One `simulationReceiptId` per view.** A test fails if a WM2 artifact (`nfl-world-model-v2-simulation`) ever reaches the theater.
+- **Representative ≠ forecast.** The frozen forecast appears only in its own labelled card; the batch distribution sits beside the sample; each `kind` shows its selection-rule text.
+- **Write-once receipts.** Any backfill goes into a separate, verified sidecar.
+- **Known engine biases are listed as limitations:** 3-point margins 8.0% vs 14.9% and overtime 3.2% vs 5.4% (`docs/SIMULATION_ENGINE_V2.md:134`).
+
+**Cost rule (TV2 §7):** through ST-03, **0 new data commits and 0 new build triggers**. The receipts sit under `data/internal/research/nfl/sim-v2/shadow/`, which today is not a build input (`app/scripts/vercel-ignore-build.sh:124-134`); the theater derives everything from them at build time, so the only builds are approved code merges (1 each). Theater JSON is never written to `app/public/data` from the shadow workflow (that would add about 2.9 build-triggering commits a day). Work happens on `claude/*` branches (no deployments) under `/preview/` (pruned from the export, `app/scripts/prune-internal-routes.mjs:41`); no preview deploys. Production freshness of the receipt of record is the #1124 decision (`COST-001`; 19 `data/internal` paths including this directory, ≈ +0.36 builds/day measured for the whole set), not a theater cost.
+
+| ID | Milestone | State | Effort (est.) | Source | Gate to start |
+|---|---|---|---|---|---|
+| ST-01 | Architecture and design | PLANNED | 1–2 d (ADR and reconciliation); visual design spec UNESTIMATED | TV2 §6 Phase 0; audit §9 Phase 0 | Founder approval to begin |
+| ST-02 | Interactive Drive Theater MVP | PLANNED | 6–10 d local MVP; +3–5 d public island | TV2 §6 Phases 1–2 (audit §9 Phase 2: 10–15 d) | ST-01 sign-off |
+| ST-03 | Same-world player statistics | PLANNED | 5–8 d; optional verified backfill +3–5 d | TV2 §6 Phases 3, 3b (audit §9 Phase 2b: 5–10 d) | ST-02; founder approval of `nfl-drive-run@2` |
+| ST-04 | Advanced gameplay research | PLANNED | 4–8+ weeks, outcome uncertain | TV2 §6 Phase 4 (audit §9 Phase 3: 3–6+ weeks) | Founder funding decision under `NFL-002` |
+| ST-05 | Cinematic experience | PLANNED (not committed scope) | 3–6 weeks after ST-04 | TV2 §6 Phase 5 (audit §9: 2.5D 3–5 weeks; 3D 6–12+ weeks) | ST-04 model gate passed |
+
+**Effort totals (estimates, TV2 §6):** ST-01 → ST-03 ≈ 12–20 engineering days for local work, 15–25 with the public island, 18–30 with the verified backfill. ST-04 and ST-05 are research-scale and uncommitted.
+
+### ST-01 — Architecture and design · PLANNED
+- **Scope:**
+  - An ADR confirming the engine (`nfl-drive-sim-v2`, the only NFL engine with drive order) and the route: extend `/nfl/simulation/[eventId]/` (recommended, TV2 §10 Q2) vs. a new route or `/nfl/game/[eventId]/`.
+  - Receipt identity and provenance as the `TheaterManifest v1` / `TheaterSample v1` contract (TV2 §5.1): receipt id, `artifactHash`, engine version, `params.sha256`, run index, selection rule; `selectionDistance` and `forecastHash` null with a stated reason until stored.
+  - Visual architecture: server-rendered summary, final-state SVG and transcript; a client island loaded with `next/dynamic` on first Play; no renderer code on unrelated routes (TV2 §5.2).
+  - A visual design spec with desktop and mobile layouts.
+  - Labelling for three geometry classes: **drive-level** (recorded drive events), **model-event** (future ST-04 output), **illustrative movement** (the ball path between a drive's start and end).
+  - Corrects COMP-001 §6.2 and the v0 spec's "out of scope: playback" for NFL drives (TV2 §2 rows 18–19); drafts the DS-001 "Simulated · not a real game" banner rule.
+- **Depends on:** the founder's P242 decision; DS-001; `CONTRACT-001` WorldReceipt identity.
+- **Effort (est.):** 1–2 d for the ADR and reconciliation (TV2 §6 Phase 0; audit §9 Phase 0). The design spec is not estimated in either doc (UNESTIMATED).
+- **Data / reuse:** receipt and validator `app/src/lib/sports/nfl/sim-v2/receipt.mjs:166-312`; receipt of record `sim-v2/public-receipt.mjs:44-66` (latest before kickoff, fail-closed, never an older substitute); coherence contract `sim-v2/coherence.mjs:20-75`; tokens in `app/src/app/globals.css` (`--vault-gold`, `--sport-nfl`, `--gtp-card`) and `docs/UX_DESIGN_STANDARDS.md`.
+- **Visual / UX (audit §6):**
+  - Desktop: header with a persistent SIMULATED badge and the frozen-forecast status; a sample strip (run id and why it was chosen); the field scene with a possession marker and drive ribbon; a side panel with the current drive and Distribution / Players / Evidence tabs; a transport row; the run's box score beside batch ranges; a provenance drawer.
+  - Phone: compact score card, a field with a minimum usable height, a separate 44 px transport row, a sample sheet, one statistic family at a time, the transcript under the field; portrait complete.
+  - Banner: "Simulated · not a real game · run #N of 10,000 · experimental engine" (TV2 §6 Phase 2). Nothing reproduced from PropDealer's branding, proportions, imagery or layout.
+- **Acceptance:** the founder approves the ADR and the design spec; the spec names every label, breakpoint (320/390/768/1440), budget and absence state that ST-02 must meet.
+- **Cost:** documentation only; no Production build (`COST-001`: no documentation-only Production deployment).
+- **Risks:** the P242 precedent (staged animation retired as "ceremony" on 2026-09-07); a route choice that blurs two engines; design ambition outrunning drive-level data.
+- **Release:** none (documentation).
+- **Founder decisions:** P242 (TV2 §10 Q1); route (Q2); show all five representatives with selection-rule text (Q6); approve the design spec before ST-02 code.
+
+### ST-02 — Interactive Drive Theater MVP · PLANNED
+- **Scope:**
+  - A local-only prototype that plays recorded drives from one verified receipt: animated field, scoreboard, game clock (labelled apart from the playback clock), possession changes with an explicit "kick/return not modelled" step, drive timeline, all 5 representative runs.
+  - Playback controls: play/pause, seek, 1×/2×/4×, next drive; an accessible HTML transcript; reduced-motion stepping.
+  - A pure, deterministic `stateAt(sample, t, sceneVersion)`. Score changes only at drive end; the ball moves linearly from `fieldStart` to `fieldEnd` and is labelled illustrative (TV2 §5.3). `clockEnd`, `fieldEnd` and `scoreBefore` are derived as in TV2 §4.
+  - Polished visual quality to the ST-01 spec: a finished, designed scene, not a bare SVG demo. SVG is the rendering technique, not the design standard.
+  - Never merged with WM2 world-model samples, with a test that blocks it.
+  - Later and separately approved (TV2 §6 Phase 2): a lazy island above the existing drive tables on `/nfl/simulation/[eventId]/`.
+- **Depends on:** ST-01 sign-off. No legal or paid dependency.
+- **Effort (est.):** 6–10 d for the local MVP (TV2 §6 Phase 1); +3–5 d for the public island (Phase 2). The audit estimates 10–15 d for its Drive Theater MVP (audit §9 Phase 2).
+- **Data / reuse:**
+  - Data: existing receipts only (`data/internal/research/nfl/sim-v2/shadow/**`); five samples are about 16 KB raw, inlined at build time (TV2 §5.2).
+  - Likely new files (TV2 §6 Phase 1): `app/src/lib/sports/nfl/sim-v2/theater-adapter.mjs`, `app/src/lib/theater/state-at.mjs`, `app/src/components/theater/{drive-theater,field-svg,transport,transcript}.tsx`, `app/src/app/preview/simulation-theater/[eventId]/page.tsx` (`guardInternalRoute()`, noindex), each with tests.
+  - Reuse: `lib/simulate/presentation/player-machine.mjs:31-48` (state vocabulary, extended with a time cursor); reduced-motion listener `simulation-story.tsx:130-136`; `story-controls.mjs:14-36`; field art `components/simulate/scenes.tsx` (`Field`) and `components/game/sport-field-graphics.tsx` (`GridironGraphic`); the `LiveScoreStrip` pattern (`components/live/live-primitives.tsx:78-127`) without `LiveBadge` or `FreshnessLine`; the roving-tab chooser pattern from `components/nfl/forecast/game-explorer.tsx` (UI only, never its data).
+- **Visual / UX:** the ST-01 spec; the SVG is `aria-hidden` and the transcript is its accessible equivalent; 44 px controls; no autoplay; the render loop stops when paused, hidden or off-screen.
+- **Acceptance:**
+  - **Determinism:** `stateAt` output is identical across reload, 1×/2×/4×, forward/back seek and reduced motion.
+  - **Same-world identity:** every number shown resolves to one `runIndex` of one `simulationReceiptId`. The adapter reproduces `final` and `quarters` from drives for all 840 representatives (168 × 5). The WM2-blocking test passes.
+  - **Missing data:** unavailable, malformed or unsupported receipts render a readable absence; no zero-filled values; no fallback to another receipt.
+  - **Accessibility:** keyboard-only operation with zero traps; WCAG 2.2 AA target with zero serious or critical automated findings plus a manual screen-reader pass (audit §10).
+  - **Responsive:** no horizontal overflow at 320/390/768/1440 px; controls ≥ 44 px.
+  - **Performance (targets, est.):** theater JS ≤ 30 KB gzip (TV2 §7; the audit's ceiling is ≤ 120 KB); five samples inline ≤ 20 KB raw HTML; 0 network requests during playback; seek p95 ≤ 100 ms, 60 FPS desktop / 30 FPS mid-range phone, no memory growth across 20 sample switches (audit §8).
+  - **Founder review** of the localhost candidate on desktop and phone before any public step (§0 protocol 17).
+- **Cost:** 0 new data commits and 0 build triggers; local only (`NEXT_PUBLIC_INTERNAL_ROUTES=1 next dev`); no animation library (pixi.js ≈ 215 KB and three ≈ 171 KB gzip, TV2 §1). The public step is 1 code-merge build.
+- **Risks:** motion read as accuracy; the ball path read as tracking; WM2 splicing through shared `nfl-athlete-<espnId>` ids; a stale receipt of record on Production (4 stale windows of 8–29 min in 14 days, TV2 §1 [OBS]) unless #1124 lands.
+- **Release:** local preview only inside this milestone. The public release (moving from `/preview/` to `/nfl/simulation/[eventId]/`, TV2 §7) needs founder approval, exact-head CI and Production verification. It does not change the game page, picks or eligibility, and does not promote sim-v2.
+- **Founder decisions:** approval to implement; later, approval of the public release.
+
+### ST-03 — Same-world player statistics · PLANNED
+- **Scope:**
+  - A recording-only producer change: `nfl-drive-run@2` serializes per representative `team` (25 `TEAM_FIELDS`), sparse `players[{playerId, side, stats}]` plus `OTHER`, `firstTd`, and per-drive `scorer`/`passer`, recorded without consuming RNG (TV2 §4). Today `receipt.mjs` re-simulates each representative into `scratch.players` (`:223,227`) and serializes only `final`, `quarters` and `drives` (`:228-236`).
+  - A synchronized player panel: *batch range* (`playerStatDistributions`) | *this run*, beside the original projections, with drive-scorer highlights.
+  - Historical receipts stay unchanged and show "player lines not recorded for this receipt". They gain lines only through a byte-reproduction proof, into a separate sidecar (TV2 §6 Phase 3b).
+- **Depends on:** ST-02; founder approval of the shadow-artifact change.
+- **Effort (est.):** 5–8 d (TV2 §6 Phase 3); optional verified backfill 3–5 d (Phase 3b). The audit estimates 5–10 d (§9 Phase 2b).
+- **Data / reuse:** `sim-v2/engine.mjs` (recording only; player buffer `:111`, team buffer `:164`), `receipt.mjs`, `coherence.mjs`, `.github/workflows/nfl-sim-v2-shadow.yml` (same write-once commit), `lib/sports/nfl/player-identity.mjs`.
+- **Visual / UX:** a Players tab in the side panel on desktop; one statistic family at a time on phone; choosing a player highlights only contributions that exist in that run (audit §6).
+- **Acceptance:** with identical inputs, everything except `representativeRuns` is byte-identical with the recorder on and off; representative `final`, `quarters` and `drives` are unchanged; Σ players = team in every serialized run; a backfill attaches only on a byte-exact reproduction of `final`, `quarters` and `drives`; player lines ≤ 4 KB raw per run (TV2 §6–7).
+- **Cost:** 0 new commits (the fields ride the existing shadow commit); each receipt grows about 10–15 KB raw (est., TV2 §7).
+- **Risks:** the recorder consuming RNG and changing outcomes (guarded by the invariance test); backfill needs pinned inputs (thetas are stored rounded to 4 dp, `receipt.mjs:260`), so some receipts may never qualify.
+- **Release:** a producer change through an approved merge. It touches a shadow artifact only, never a published forecast.
+- **Founder decisions:** approve `nfl-drive-run@2` forward-only; backfill by byte-exact reconstruction, or never (TV2 §10 Q3).
+
+### ST-04 — Advanced gameplay research · PLANNED
+- **Scope:** requirements for a play-level NFL model (down, distance and field state; play type and participants; completion, sack, turnover and penalty rules; clock with timeouts and two-minute logic; kicks and returns; tries; OT rules) with preregistered held-out evaluation (TV2 §4). Owned by `NFL-002` as the rung-4 successor. Positioning: "Model-generated plays. Movement is illustrative." (audit §6). The theater gains `kind: "PLAY_SIMULATED"` only after the model gate passes; plays are never interpolated from drives.
+- **Depends on:** `NFL-002`; re-confirmation of the nflverse play-by-play licence (labelled CC BY 4.0 in `scripts/research/nfl/extract_pbp_drives.py`, TV2 §4).
+- **Effort (est.):** 4–8+ weeks, outcome uncertain (TV2 §6 Phase 4); the audit estimates 3–6 weeks or more (§9 Phase 3).
+- **Data / reuse:** the `drives-v1.json.gz` extraction; `NFL-002` registration and replay tooling.
+- **Visual / UX:** the "model-event" label class from ST-01; the drive view does not change until the gate passes.
+- **Acceptance (model-validation gates before any individual play is presented as simulated evidence):** a preregistered held-out proper-score evaluation with uncertainty; rules coverage and distribution sanity (audit §9); replay invariants (plays reproduce drives, drives reproduce finals); fixtures for penalties, stoppages, possession changes, tries and kneels (audit §10).
+- **Cost:** local research compute; no build or data-commit change until a separately approved producer.
+- **Risks:** weeks of research with an uncertain result; a play model can score worse than the drive engine; a renderer must never mask missing semantics.
+- **Release:** none until the model gate passes and the founder approves a play-level theater.
+- **Founder decisions:** fund a play-level model under `NFL-002` (TV2 §10 Q5).
+
+### ST-05 — Cinematic experience · PLANNED (not committed scope)
+- **Scope:** evaluation of future rendering: broadcast-style views, 2.5D (original silhouettes, ball motion, camera framing, quality tiers) and a costed 3D prototype, with performance and cost evaluation; an opt-in loader and explicit "movement is illustrative" labelling (TV2 §6 Phase 5; audit §6, §9).
+- **Depends on:** ST-04 play-level output. Without it, cinematic rendering over drives would be decoration (TV2 §1).
+- **Effort (est.):** 3–6 weeks after ST-04 (TV2 §6 Phase 5). The audit estimates 2.5D at 3–5 weeks after a stable play payload and polished 3D at 6–12+ weeks (§9). Not committed.
+- **Data / reuse:** ST-04 events; a separate scene RNG; original assets with documented rights.
+- **Visual / UX:** realism of rendering never upgrades scientific validity (audit §6); accessibility equivalence through the transcript; a reduced-motion mode.
+- **Acceptance (targets, audit §8):** 2.5D ≤ 2 MB extra on explicit opt-in; experimental 3D ≤ 5 MB with a fallback; ST-02 frame-pacing and memory budgets; build overhead ≤ 5% wall time and peak memory; a demonstrated user benefit over 2.5D before any 3D.
+- **Cost:** the audit's transfer table is illustrative arithmetic, not a quoted Vercel price; measure before approval. No per-visit compute.
+- **Risks:** bundle size and memory on phones; asset licensing; realism read as tracking data.
+- **Release:** separately approved; on no current plan.
+- **Founder decisions:** whether to pursue it at all, after ST-04 and a costed prototype.
+
+### History: tracking entry as recorded 2026-10-17 (kept as written)
+Superseded in status by the 2026-10-18 entry above. Theater V2 corrects the v0 spec's "out of scope: playback" for NFL drive playback, because every frame maps to a recorded `nfl-drive-sim-v2` drive event (TV2 §9). The v0 display items below (range strip, typical game, overlay, five-worlds strip, saved MLB samples) remain proposals under their own gates.
+
+**Status:** TRACKED — technical plan awaiting founder review; implementation NOT started and NOT authorized  
+**Spec:** `docs/research/SIMULATION_THEATER_V0_SPEC_2026-10-17.md`. v0 renders only fields already in committed artifacts (MLB `finalScores` and bins, NFL `sampledWorlds`), with no new pages and no per-visit or build-time compute. It covers COMP-001 R1, R2 and R4.  
+**Review gates** (the spec defines none of its own, so these apply):
+1. **Plan review:** founder approves the v0 scope and order (range strip → typical game → pregame/final overlay → NFL five-worlds strip → saved MLB samples).
+2. **Cost impact:** 0 new pages and 0 new build triggers, confirmed before release; no cost claim without measurement.
+3. **Data contract:** an element renders only when its field exists in that game's artifact (a missing field is a stated absence, never a zero); NFL experimental status shown beside any world; the overlay reads only the frozen, served pregame artifact.
+
+**Acceptance (the spec's honesty rules):** "Simulated · not a real game" banner and run count on every simulated element; 390 px with no overflow, 320 px readable, ≥ 44 px targets. **Out of scope for v0:** playback or animation (P242) and live re-simulation (`LIVE-003`).
+
+## `BETSLIP-001` — Smart Betslip / Parlay Lab V2 (multi-sportsbook comparison and official betslip hand-off)
+**Priority:** P1 planning (founder, 2026-10-18) · **Status:** FEASIBILITY COMPLETE. Milestones SB-01 → SB-06 are all PLANNED; nothing is IN DEVELOPMENT; implementation is NOT authorized.  
+**Evidence:** `docs/research/SMART_BETSLIP_FEASIBILITY_2026-10-18.md` (cited below as **SB**); `docs/research/NEXT_GEN_FEASIBILITY_SUMMARY_2026-10-18.md` §2; the competitor audit. Efforts are estimated dev-days for one engineer, excluding review and release windows (SB §5). Placed beside the Theater item; `PARLAY-001` (§14) points here.  
+**Objective:** for every suggested-parlay risk level, show each licensed book's own captured price for the exact legs and, later, hand the selection to the book through officially supported links, while the forecast record stays separate from any commercial surface. It is not a copy of PropDealer and claims no edge over the market: GTP's own lab gate states that no current model is required to beat the market and none does (`app/scripts/parlays/lab-eligibility.mjs:23-25`).  
+**Policy direction (founder, 2026-10-18; §23):** the Terms and responsible-use language ("no sportsbook links", "no affiliate links") and the 2026-09-24 "NOT LINE SHOPPING" positioning are not permanent product restrictions and may be revised through legal review. Until counsel approves revised text and it is published, they stay in force in code and on the site. Nothing is published before counsel approval.
+
+**Risk levels in scope: founder names → repo names.** The names differ. The repo has one public risk taxonomy (founder decision D2, `app/src/lib/parlays/risk-odds-bands.mjs`) plus two separate products:
+
+| Founder name | Repo name | Definition in code |
+|---|---|---|
+| Conservative | Low Risk (`low`) | Combined −200 to +100; alias `conservative` → `low` (`app/src/lib/parlays/risk-taxonomy.ts:22`) |
+| Balanced | Medium Risk (`medium`) | +100 to +300; alias `balanced` → `medium` (`risk-taxonomy.ts:23`). ⚠ "Balanced" is also a reader *style* that holds Low **and** Medium cards (`READER_STYLE_LABELS`, `risk-odds-bands.mjs`), so copy must say which is meant |
+| Aggressive | High Risk (`high`) | +300 to +600; alias `aggressive` → `high` (`risk-taxonomy.ts:24`) |
+| (no founder name) | Longshot (`longshot`) | > +600; in scope as the fourth public tier |
+| Bank Builder | Bank Builder product (`PRODUCT-002`) | A separate product, not a risk tier |
+| Moonshot | Moonshot product (`PRODUCT-003`) | A separate product, not a tier; closest in variance to Longshot |
+
+**Sports:** wherever markets and integrations permit. Today NFL team markets are captured from several books; MLB/NBA props request only `draftkings,fanduel` (`pipeline/config.py:184,188-191`). UFC cannot enter Bank Builder or Moonshot (capability registry `SCAFFOLD_ONLY`, `app/src/lib/parlays/card-gates-d4-d5.test.mjs:29`). The risk ladder has published 0 MLB cards a day since 2026-09-30 (offseason), and the NFL ladder was last written 2026-08-24 (SB §3).
+
+**Feasibility levels (SB §1):** L0 compare-only: FEASIBLE now. L1 event-page links: technically feasible, blocked by GTP's own policy. L2 single-leg prefill: plausible for some books, UNVERIFIED per book. L3 multi-leg prefill: not supported on public evidence. L4 same-game parlay with live pricing: not feasible under current policy.
+
+**Rules for every milestone (SB §4, §8):**
+- **Exact match or nothing.** Event (`app/src/lib/sports/odds/event-join.mjs`), participant by registry id, market by allowlist (no `*_alternate` key for a main-line leg), exact line, explicit side, the outcome's own price, a licensed book. Any failure means no quote and no link.
+- **Never substitute a line, never invent or recompute a quote, never construct a book URL from a guessed pattern.**
+- **Combined odds only when every leg is priced EXACT by the same book.** Never cross-book; never present multiplied legs as a book's same-game price.
+- **No "currently available" or "best price now" claim from a static capture.** Honest form: "Book X posted −110 at 10:47 ET (3 h ago); the book's current price may differ."
+- **Record integrity.** Quotes and links live in separate artifacts. Lab-ledger (`PAPER_ONLY`) and risk-ladder hashes stay unchanged; card selection is byte-identical with and without the books layer; no click data ever feeds selection or ranking.
+- **GTP's tier label stays GTP's.** A book's price for the same legs can fall in a different band and is labelled neutrally ("at Book X: +240").
+- **Ask keeps refusing sportsbook links** (`app/src/lib/ask/contract.mjs:376-384`) unless the founder decides otherwise separately.
+
+**Cost rule (SB §6–7):** static data written in the same commit as the existing captures (Option A): 0 added builds and, for L0, 0 added credits. No browser-side provider key (Option C exposes the paid key). No extra price commits (Option B: each is 1 Production build). Any freshness beyond capture cadence is a `COST-001` task 7 decision (runtime store, Option E). A request-time function (Option D) only as a founder-budgeted pilot with a hard daily credit cap (≈ 7,200 credits/day for one continuously requested 5-market event at a 60 s TTL, est.). Current Odds API spend ≈ $30/month on the 20K tier (`docs/CURRENT_COST_BASELINE.md:25`).
+
+| ID | Milestone | State | Effort (est.) | SB map | Gate to start |
+|---|---|---|---|---|---|
+| SB-01 | Sportsbook data foundation | PLANNED | Decisions and counsel packet 0.5–1 d; MLB id registry 2–4 d; allowlist inside SB-02; jurisdiction eligibility and offshore display review UNESTIMATED | M0, §4.2, §10 Q6 | Founder approval to begin |
+| SB-02 | Multi-sportsbook comparison MVP | PLANNED | 4–7 d; +2–3 d for multi-book props | M1 (L0) | SB-01 allowlist; founder display-rule decision |
+| SB-03 | Official sportsbook links | PLANNED (legal-gated) | 3–5 d after counsel | M2 (L1) | Counsel approval; revised Terms published |
+| SB-04 | Single-selection handoff | PLANNED (legal-gated) | 5–10 d | M3 (L2) | SB-03 gates; an authorized probe |
+| SB-05 | Complete multi-leg parlay handoff | PLANNED (long-term objective) | 2–4 d spike, then contract-dependent | M4 (L3) | Documented partner support; contract; counsel |
+| SB-06 | Advanced Parlay Lab integration | PLANNED (long-term) | UNESTIMATED (SB treats L4 as not planned) | L4, §9 | `PARLAY-001` joint model; D5 |
+
+**Effort totals (estimates, SB §5–6):** SB-01 → SB-05 ≈ 16.5–34 engineering days (0.5–1 + 2–4 + 4–10 + 3–5 + 5–10 + 2–4), excluding counsel time, contracts and SB-06. Counsel cost is UNVERIFIED (no quote obtained).
+
+### SB-01 — Sportsbook data foundation · PLANNED
+- **2026-10-18 finding, URGENT, needs a founder decision:** Production `/mlb` **displays** offshore prices (BetOnline.ag: 21 of 126 props on 10-18; 11.6% of MLB props this season). The cause is best-price selection across the provider's `us` region. NFL display rows can name an offshore book, and the NFL/EPL/UFC no-vig consensus includes offshore books.
+  - **Fix prepared as DRAFT PR #1130:** allowlist, forward-only selection (M-2) and render-time filter (M-1). Fail-closed; historical data byte-identical; 0 offshore names in the built site.
+  - **Not merged:** it needs founder review. Consensus inputs (M-3/M-4) are a separate decision.
+  - Evidence: `docs/research/SMART_BETSLIP_PREP_AND_OPERATOR_POLICY_2026-10-18.md`.
+- **Scope:**
+  - Audit the provider, the books and the event, market and player identity GTP holds. GTP stores no book-side identity today: published ladder legs drop the bookmaker (`app/scripts/parlays/build-risk-ladder.mjs:344-350`), the reader's slip is keyed by player name (`app/src/lib/slip/leg-identity.ts:10,22-43`), and capture never requests `includeLinks`/`includeSids`.
+  - A licensed-operator allowlist (new `app/src/lib/books/licensed-books.mjs`, folding in the labels from `app/src/lib/sportsbook-comparison.ts`; `espnbet` displays as theScore Bet) and jurisdiction-aware eligibility (GTP has no geo detection today, SB §10 Q6).
+  - Investigate the offshore books in public `app/public/data/nfl/markets/latest.json` (bovada, mybookieag, betus, lowvig, betonlineag; the provider's `us` region includes unlicensed books) and whether any current page displays prices sourced from them. /live and game pages already show sportsbook lines with book and capture time (`LIVE-001`, §17).
+  - An MLB id-keyed player registry before any prefill; name-only matching is not accepted (SB §4.2).
+  - The founder decision and counsel packet (SB M0).
+- **Depends on:** the founder decisions at the end of this section; `CONTRACT-001` market identity and `PRODUCT-001` `marketSnapshot` (event, book, `capturedAt`).
+- **Effort (est.):** 0.5–1 d for the decision and counsel packet (SB M0); 2–4 d for the MLB registry (SB §4.2); the allowlist inside SB-02's estimate; jurisdiction eligibility and the offshore display review UNESTIMATED.
+- **Data / reuse:** `app/scripts/nfl/capture-nfl-odds.mjs` (receipt-gated, ledgered capture), `pipeline/config.py`, `event-join.mjs`, `app/src/lib/sports/nfl/player-identity.mjs`, `app/src/lib/sports/odds/live-market-contract.mjs` (stale-feed pattern).
+- **Visual / UX:** none public; an internal audit report.
+- **Acceptance:** a written inventory of ids held vs needed per level; an allowlist with a test that no offshore key reaches a public compare or link surface; a list of current pages that show offshore-sourced prices (or a statement that none do) for founder and counsel; the forecast ledger, lab-ledger, risk-ladder and Results byte-identical.
+- **Cost:** 0 builds for the audit; the allowlist ships inside SB-02's merge.
+- **Risks:** offshore prices may already be shown publicly (trust and legal exposure; UNVERIFIED until the review); book keys change (ESPN BET → theScore Bet, 2025-12-01).
+- **Release:** none for the audit. Any change to current public price displays is a founder or counsel decision.
+- **Founder decisions:** an offshore allowlist for public price displays; a jurisdiction policy; approve counsel engagement and scope.
+
+### SB-02 — Multi-sportsbook comparison MVP · PLANNED
+- **Scope:** L0 "book quote at capture time".
+  - Per leg: each allowlisted book's captured price for the *exact* line, stamped "captured HH:MM ET (age)".
+  - Per card: a single-book combined price only where one book prices every leg EXACT.
+  - PARTIAL (the book offers the event, not this line) shows "not offered at this line at Book X" with no price; NONE omits the book; quotes past the freshness band or after the start are hidden; unavailable states are explicit.
+  - No links; no "best" marker unless the founder revises the 09-24 policy through legal review; no claim that a price is currently available.
+- **Depends on:** SB-01's allowlist; the founder's display-rule decision; freshness bands.
+- **Effort (est.):** 4–7 d, plus 2–3 d for multi-book props (SB M1). NFL team markets first, since they are already captured from several books.
+- **Data / reuse:** a new artifact `app/public/data/books/quotes-<date>.json` written in the same commit as the existing captures; new `app/src/lib/books/quote-join.mjs`; display in `app/src/components/slip/slip-drawer.tsx` and `app/src/components/parlay-ticket-card.tsx`; the freshness vocabulary pattern from `app/src/lib/live/freshness.mjs`.
+- **Visual / UX:** neutral per-book rows (book, price, capture time, age), never sorted or highlighted by price; no "bet now"; DS-001 cards, 44 px targets, 320/390/768/1440 px; age stated in text, not by colour alone.
+- **Acceptance (tests, SB M1):** an offshore key never renders; no cross-book combined price; a quote past the band or after the start is hidden; PARTIAL never shows a price; ladder and lab-ledger hashes unchanged; card selection byte-identical with and without the books layer.
+- **Cost:** $0 incremental; 0 added builds and 0 added credits (inference in SB §5: credits are per market × region and the pipeline already queries `regions=us`). Proposed display bands (est., founder to set, SB §2.5): ≤ 15 min show with the time; 15 min–6 h show the age explicitly; > 6 h or after the start, hide. `PRICE_MAX_AGE_DAYS = 3` (paper-card publishability) is never reused for comparison.
+- **Risks:** captures read as current (MLB props are captured once each morning, NFL twice a day plus weekend sweeps, while the provider refreshes every 40–60 s); tier drift; reversing the 09-24 positioning before legal review.
+- **Release:** an approved merge after founder review of the localhost candidate; comparison copy goes to counsel if it changes positioning.
+- **Founder decisions:** the comparison display rules (side by side; whether any "best" marker is ever shown); the freshness SLO.
+
+### SB-03 — Official sportsbook links · PLANNED (legal-gated)
+- **Scope:**
+  - Research event-level links. The Odds API returns event links "where available"; which books return them is UNVERIFIED.
+  - Per book, a link to the event page through a GTP interstitial (21+, 1-800-GAMBLER plus a state-helpline note, "prices may differ", "GTP is not affiliated", no affiliate tag); links absent after the event starts.
+  - Revised Terms, responsible-use, age (21+ vs the draft's 18+, `app/src/lib/legal/texts.mjs:42` per SB §2.4) and jurisdiction text drafted **for counsel review**, with the counsel questions from SB §2.4 added to `docs/legal/COUNSEL_REVIEW_BRIEF.md`. Nothing is published before legal approval.
+- **Depends on:** `GTP-01` counsel sign-off; the founder's minimum-age decision; the Terms rewrite; one authorized probe of ≤ 5 credits (est.).
+- **Effort (est.):** 3–5 d after counsel (SB M2).
+- **Data / reuse:** `licensed-books.mjs`; a new static interstitial `app/src/app/out/page.tsx`; copy in `app/src/lib/legal/texts.mjs:61`, `app/src/app/responsible-use/page.tsx:58` and `app/src/components/footer.tsx:167-174`, changed only after counsel.
+- **Visual / UX:** a reflective interstitial; no link-outs on Longshot cards (proposed rule, SB §8); no links on live or in-play surfaces.
+- **Acceptance:** counsel approval recorded; no link on any page without the interstitial; links absent after the start; Ask still refuses sportsbook links (golden tests in `app/scripts/ask/golden.mjs`).
+- **Cost:** 0 added builds (links ride the same artifact); the probe ≤ 5 credits (est.); counsel cost UNVERIFIED.
+- **Risks:** an unpaid link may count as operator marketing in some states (a counsel question); state helpline and 21+ advertising rules (OH verified, PA UNVERIFIED, SB §2.4); impulsive wagering from one-tap funnels.
+- **Release:** only after counsel approval and publication of the revised Terms, with founder approval.
+- **Founder decisions:** counsel engagement and scope; minimum age; jurisdiction suppression; the commercial relationship (SB §10 Q3 recommends none by default).
+
+### SB-04 — Single-selection handoff · PLANNED (legal-gated)
+- **Scope:**
+  - Add `includeLinks=true&includeSids=true` to the existing capture calls; store `link`/`sid` only for EXACT outcomes; show "Open this leg at Book X" per leg. The user assembles any parlay at the book.
+  - DraftKings, FanDuel and BetMGM first. Support must be documented per book. Today no book's own docs confirm a format: FanDuel's `addToBetslip?marketId=&selectionId=` is verified only in The Odds API's example, and DraftKings and BetMGM preselect only in SharpAPI's table (SB §2.1).
+  - Controlled testing: a human in a legal state confirms the right selection appears in the slip, without placing a bet.
+- **Depends on:** SB-03's gates; SB-01's MLB registry; a founder-authorized probe to measure per-book coverage and credit cost; a re-read of the Odds API terms for link use.
+- **Effort (est.):** 5–10 d (SB M3).
+- **Data / reuse:** the capture scripts, `quote-join.mjs`, the SB-02 artifact schema.
+- **Visual / UX:** one link per EXACT leg, never on PARTIAL or NONE; the SB-03 interstitial.
+- **Acceptance:** coverage measured per book; every rendered link maps to an EXACT outcome in the same capture; at least one book confirmed manually; no URL built from a guessed pattern; no offshore links.
+- **Cost:** steady state $0–29/month (est.), only if added prop captures force the 20K → 100K tier ($59); probe ≤ 5–20 credits (est.); whether `includeLinks` costs extra credits is UNVERIFIED (SB §2.2).
+- **Risks:** aggregator deep links are "where available" and can break silently; book formats are undocumented.
+- **Release:** an approved merge after counsel approval and probe evidence.
+- **Founder decisions:** the probe; the Odds API budget.
+
+### SB-05 — Complete multi-leg parlay handoff · PLANNED (long-term objective)
+- **Scope:** evaluate authorized technology providers and direct partnerships (Unabated/Gambly, OpticOdds deep-link permission, SharpAPI, book affiliate programs) for documented multi-leg links, with real coverage, licensing and costs. **No assumption that multi-leg prefill works until it is independently verified: the feasibility doc found no public evidence of it** (OpticOdds `deep_link_urls` is null in every example; SportsGameOdds says per-leg links are not guaranteed to prefill a multi-leg slip; Unabated/Gambly claims it without a book list; SB §1).
+- **Depends on:** a commercial relationship, and therefore state licensing (NJ, PA, MI, OH, MA, NY; SB §2.4, counsel items), budget and counsel.
+- **Effort (est.):** a 2–4 d spike, then contract-dependent (SB M4).
+- **Data / reuse:** SB-04's identity and artifacts.
+- **Visual / UX:** a multi-leg link only when every leg is EXACT at that book.
+- **Acceptance:** written partner documentation that the multi-leg link works per named book; contract terms that permit display; controlled verification per book.
+- **Cost (SB §6):** SharpAPI $79–399/month (verified on its pricing page; single selection only); SportsGameOdds $99–299/month (verified); Unabated free tier requires surfacing Gambly links, paid $799 / $2,999 UNVERIFIED; OpticOdds contact sales, ~$5K/month/sport per a third party, UNVERIFIED; NJ ancillary CSIE ≥ $2,000 if revenue share, UNVERIFIED.
+- **Risks:** commercial-funnel conditions (Unabated's free tier); licensing exposure from any compensation.
+- **Release:** nothing ships without the documentation and a contract.
+- **Founder decisions:** any partnership, purchase or compensation model (none approved).
+
+### SB-06 — Advanced Parlay Lab integration · PLANNED (long-term)
+- **Scope:** integrate quotes and hand-off with suggested parlays (all four tiers), Bank Builder, Moonshot and Parlay Lab. Same-game parlays only with a validated joint-probability model (`PARLAY-001`) and confirmed book pricing (each book's own same-game quote, never multiplied legs). Founder decision D5 currently keeps same-game legs off official cards (`app/src/lib/parlays/card-events.mjs:1-15`). Responsible-use safeguards at every risk level.
+- **Depends on:** `PARLAY-001`; `PRODUCT-001`/`PRODUCT-002`/`PRODUCT-003`; `LIVE-005` for live same-game pricing; SB-02 and SB-04.
+- **Effort (est.):** UNESTIMATED (SB §5 treats L4 as not planned).
+- **Data / reuse:** `app/src/lib/products/correlation.mjs:11-24` (product of marginals ≠ joint probability); `app/src/lib/accounts/slip-reading.mjs:13-14,113-122` (same-game repricing disclosed).
+- **Visual / UX:** GTP's tier label kept; a book's price shown only as that book's own quote; no link-outs on Longshot or Moonshot unless the founder decides otherwise after counsel; no "bet now".
+- **Acceptance:** card selection byte-identical with and without the books layer across all products; no same-game price without a book's own quote; joint probability only from validated shared worlds.
+- **Cost:** same-game pricing is request-time and paid (OpticOdds, contact sales, UNVERIFIED); any such path needs a `COST-001` decision and a budget.
+- **Risks:** impulsive wagering on high-variance cards; mispriced correlated legs.
+- **Release:** after `PARLAY-001` validation and founder approval of any D5 change.
+- **Founder decisions:** whether D5 ever changes; responsible-use rules per tier.
+
+## Founder direction and open decisions — Theater V2 and Smart Betslip (2026-10-18)
+**Recorded direction (founder, 2026-10-18; also in §23):**
+- Both initiatives are approved as major product objectives with P1 planning priority. **Planning approval only:** implementing either feature, Production workflow changes, purchasing APIs, partnerships, publishing revised legal documents and deploying are NOT approved.
+- The goal is a better, more integrated product that keeps forecasting credibility and sustainable costs, not a copy of PropDealer.
+- The founder is willing to support transparent sportsbook comparisons and officially supported betslip integrations. The Terms and responsible-use language and the 09-24 "NOT LINE SHOPPING" positioning are revisable through legal review; nothing is published before counsel approval.
+
+**Open founder decisions before engineering starts.** Adapted from the six in `NEXT_GEN_FEASIBILITY_SUMMARY_2026-10-18.md` §4 (S1–S6), TV2 §10 and SB §10:
+
+| # | Decision | Needed before | Source |
+|---|---|---|---|
+| T1 | Does replaying recorded sim-v2 drive events fall outside the 2026-09-07 animation retirement (P242)? | ST-02 | S1; TV2 Q1 |
+| T2 | Engine and route (`/nfl/simulation/[eventId]/` recommended); show all five representatives with rule text; approve the design spec | ST-02 | TV2 Q2, Q6 |
+| T3 | Record per-sample player stats in future receipts (`nfl-drive-run@2`, forward-only); historical lines by byte-exact reconstruction, or never | ST-03 | S2; TV2 Q3 |
+| T4 | Receipt-of-record freshness on Production (#1124) | ST-02 public step | TV2 Q4. #1124 is in the 10-18 release window (§2); this closes if it merges |
+| T5 | Fund a play-level model under `NFL-002` | ST-04 | TV2 Q5 |
+| B1 | **Approve counsel engagement and its scope:** link-out marketing status by state, registration triggers, required disclosures, minimum age, revised Terms and responsible-use text. Replaces S3 "should GTP ever link?", which the 10-18 direction answers in principle | SB-03 | S3 (superseded in direction 2026-10-18); SB Q1 |
+| B2 | Comparison display rules: per-book prices side by side; whether any "best" marker is ever shown; the revised wording of the 09-24 policy after legal review. Replaces S4 "is line shopping acceptable?" | SB-02 | S4 (superseded in direction 2026-10-18); SB Q2 |
+| B3 | Commercial relationship: none, flat-fee, or revenue share (SB recommends none by default) | SB-03; SB-05 | S5; SB Q3 |
+| B4 | Budget: Odds API tier (20K → 100K, +$29/month), the authorized probe, any paid deep-link or same-game feed | SB-04; SB-05 | SB Q4 |
+| B5 | Freshness SLO for quotes (display bands) and whether runtime data delivery (`COST-001` task 7) is approved | SB-02 | SB Q5 |
+| B6 | Audience gate for book-facing surfaces: 21+ vs the current 18+; suppression outside states with legal online betting | SB-03 | SB Q6 |
+| B7 | Data hygiene: an allowlist that excludes offshore books from public price displays, and a review of current pages that may show them | SB-01 (near term) | S6 |
+| B8 | Ask keeps refusing sportsbook links even if the site links (a separate decision) | SB-03 | SB §3 |
+
+## Recommended implementation order (recommendation only; founder approval required)
+Based on TV2 §6–7, SB §5–7 and the summary doc. Nothing here touches the Oct 20 launch or the 10-18 release window.
+1. **ST-01 and SB-01 in parallel, after launch.** Both are documentation and read-only audit work with 0 build cost. SB-01's offshore allowlist and display review (B7) is a near-term trust item, because current public data already contains offshore books.
+2. **Counsel engagement (B1) starts early** if the founder approves it: it has the longest lead time and gates SB-03 onward.
+3. **ST-02 local MVP**, once T1–T2 are decided. It needs no legal or paid dependency and adds 0 data commits and 0 build triggers.
+4. **SB-02 L0 comparison**, once B2, B5 and the SB-01 allowlist exist. Static data rides existing capture commits: 0 extra builds and credits.
+5. **ST-02 public island and ST-03 recording**, after founder approval (T3, T4). One code-merge build each; ST-03's fields ride the existing shadow commit.
+6. **SB-03 → SB-04**, only after counsel approval and publication of the revised Terms (B1, B3, B4, B6, B8).
+7. **ST-04**, if funded (T5). Independent of the betslip; weeks of research with an uncertain outcome.
+8. **Long-term:** SB-05 (documented partner support and a contract), SB-06 (`PARLAY-001` validation; any D5 change) and ST-05 (after ST-04's model gate).
 
 ---
 
@@ -333,6 +821,19 @@ Bot data commits are 386 of the 480 (80%).
 
 **Stage B (runtime Results pilot):** options in `docs/research/ops/zero-build-settlement-assessment-2026-10-09.md`; pilot design and cost estimate in `docs/research/ops/runtime-results-pilot-design-2026-10-09.md`. It reuses the existing private Blob store and SDK: write-once versions, `ifMatch` manifest, an `/api/results` function, and the static snapshot as fallback. Local validation comes before any Production PR. The founder approved the direction: Vercel Blob, NFL World Model V2 grades first, the static snapshot as fallback. No Production pilot without separate approval.
 
+### Progress (2026-10-15 → 10-17)
+Measured build counts only; **no billed saving is claimed** for any item.
+- 10-15 — #1091 merged as `39df089d02` (16:34Z) at head `dcfbf47fd2`: tests/e2e/CI-only commits no longer build. Production verified; the next ops-only commit was correctly ignored.
+- 10-15 — Shallow-clone fallback: 11 of 1,235 attempts (0.9%) had the base outside Vercel's depth-10 clone, and 1 was a wasted build. Founder closed it unless new evidence shows it matters; the tested fix stays unproposed on #1083's branch.
+- 10-15 — Billing reconciliation: the dashboard shows Build CPU $65.32 for the current cycle, which the COST-001 rate model ($0.0035/CPU-min) reproduces for a cycle starting ≈ 10-08/09; run rate ≈ $9.9/day of build CPU (estimate). Further billing evidence needs a fresh Vercel token (founder).
+- 10-15 — Churn: over 7 days, 37 of 424 built ranges (9%) changed nothing but stamps and derived ages (#1083).
+- 10-17 — Per-push baseline (10-09 → 10-17): 58.7 completed builds/day (44.7 real content, ≤ 7.7 stamp-only, 6.3 with no build input) plus 9.6 ignored pushes/day.
+- 10-17 — #1088 MLB stamp-only gate (protected workflows; 10-18 window): a replay of 29 commits gives 9 builds, with 100/100 suppressed changes stamp-only; `priceAgeDays` is never rendered; results and settlement are never gated. It also makes `ops/publication-slo.json`, which public pages read, a build input for every workflow.
+- 10-17 — #1124 (10-18 window): an import-graph audit found 19 `data/internal` paths that public routes read but the ignore step skipped, including the NFL sim-v2 shadow directory behind `/nfl/simulation/[eventId]`. Declaring them costs ≈ +0.36 builds/day and stops stale public data.
+- 10-17 — Writer batching: the earlier "−4.2 builds/day" was overstated. Safe now: ≈ −0.25 completed builds/day and −2.12 skips/day via an auto-refresh content gate (prototype `claude/writer-batching-prototype`).
+- 10-17 — The NFL receipts gate saves 0 deployments on its own (parked, `claude/nfl-receipts-stamp-gate`).
+- 10-17 — NFL event-window spacing: none before launch. After launch, only "120 min, never within T−3h, never deferring live-props", log-only first (founder decision on freshness).
+
 ### Remaining tasks (COST-001)
 | # | Task | Needs | Status |
 |---|---|---|---|
@@ -341,14 +842,26 @@ Bot data commits are 386 of the 480 (80%).
 | 3 | On-demand concurrency → "Run up to one build per branch" | founder approval | DONE — 01:31:41Z; post-merge data deploys monitored |
 | 4 | Spend Management notifications (notify-only, **no pause**) | founder, dashboard (docs §10) | WAITING ON FOUNDER |
 | 5 | Phase 2 local memory test | local | DONE (finding: Standard unsafe) → continues as `COST-002` |
-| 6 | Re-run `scripts/vercel-cost-report.mjs` after 7 days of the 2026-10-09 cycle; record observed vs baseline | — | NOT_STARTED (due ≈ 2026-10-16) |
+| 6 | Re-run `scripts/vercel-cost-report.mjs` after 7 days of the 2026-10-09 cycle; record observed vs baseline | — | BLOCKED (10-14) — the cost tool returns 403 because the Vercel token expired; needs a fresh token (founder). The per-push baseline above stands in until then |
 | 7 | Phase 3 only if `COST-002` cannot reach Standard: founder data-freshness SLO → publisher cadence or runtime data delivery | founder decision | DEFERRED |
 
+- **See also (2026-10-18):** `SIM-THEATER-001` adds 0 data commits and 0 build triggers through ST-03. `BETSLIP-001` rides the existing capture commits; any freshness beyond capture cadence would be decided here as task 7 (runtime data delivery), never by extra price commits or a browser-side provider key.
+
 ## `COST-002` — Build memory reduction (path back to the free Standard build slot)
-**Priority:** P1 (cost) · **Status:** NOT_STARTED · **Depends on:** COST-001 Phase 1
+**Priority:** P1 (cost); build reliability raised to founder P0 on 2026-10-15 · **Status:** IN_PROGRESS · **Depends on:** COST-001 Phase 1
 - Evidence: docs/COST_001_VERCEL_COST_CONTROL.md §11 — constrained builds OOM at the 8 GB ceiling with or without a worker cap; restarted pages `/simulate/d/<date>` (candidate, not proven).
 - Do: profile per-route render memory locally (Docker 4 CPU / 8 GB harness); reduce the heaviest routes' build-time data loads without changing published content; re-run ≥ 3 constrained builds.
 - Acceptance: ≥ 3 consecutive constrained builds with **0 OOM kills and ≥ 1.5 GiB headroom**; byte-identical public export (excluding build stamps) vs. baseline. Only then propose Standard + on-demand off (founder approval; Enhanced is the one-click rollback). Expected ≈ $10–40/month if achieved — not claimed until observed.
+
+### Progress (2026-10-14 → 10-17)
+Full investigation: `docs/ops/VERCEL_COST_INVESTIGATION_2026-10-15.md` (on #1083's branch, not on `main`).
+- 10-14/15 — Repeated 46-minute Vercel build kills (6 in about 21 h). Production was frozen about 56 min (10-14 22:28–23:24Z) and about 1 h 55 m (10-15 00:02–01:57Z); live scores were unaffected (runtime gateway). #1080's code was ruled out by local evidence.
+- 10-15 — **Root cause confirmed** from the Vercel build log: memory exhaustion during static generation (`mem 15.51G/16.00G` at 2,155/2,874 pages, default 7 workers, then silence until the kill).
+- 10-15 — #1093 (`experimental.cpus: 4`) merged as `a4c8e26f03` (14:27Z) at head `1b8463c539`; Production `bc0ac8b0e3` built with the cap, peak `mem` 14.82G/16.00G. **Its ≤ 13 G acceptance is not met** (7% margin). 10-17: 0 failed builds since, against 10 memory kills before.
+- 10-15 — Limiting both archives to 21 days cuts HTML 56% locally but does not lower peak memory; worker count does. Per-worker footprint is the open profiling item.
+- 10-15 — #1094 (4 → 3 workers, `e1bb1b33dc`): local reduction only ≈ 6%. **ON HOLD (founder):** do not merge without further approval. The anon/file/peak observability split is #1095 (draft, `0f9d3eab81`), to ride with the next necessary release.
+- 10-15/17 — HTML reduction #1096–#1100 is consolidated as #1117 (−27.4% generated HTML, render-equivalent; inside #1120 in the 10-18 window). No build-time change is measured, so no saving is claimed.
+- Remaining P2: deploy coordinator, data decoupling, moving `data/internal` out of the deploy repo (clone 1 m 23 s). Proposed monitoring: daily deploy-cost report, CI memory early warning (peak > 12 G), post-build size budgets, Vercel Spend Management alerts.
 
 ### Cost metrics to track
 `monthly_total`, `Build CPU Minutes charge`, `build count`, `preview count`, `Production count`, `median/p95 build minutes`, `top trigger categories`, `avoided builds`, `Vercel-specific incidents`, `projected month-end cost` (if measurable). Set alerts with founder-agreed thresholds; **do not claim a saving until observed**.
@@ -558,6 +1071,12 @@ Investigation (read-only):
 - **Design:** a new append-only `mlb/corrections/pregame-forecast-recoveries.jsonl` (original commit, times, hash, versions, as-of times, values), plus a status file for the 12 non-recoverable games.
 - **Never:** rewrite the original files, regenerate, use post-start revisions, or count recovered forecasts in public denominators without proven publication eligibility.
 
+### Progress (2026-10-16/17): MLB served revision and restatement proposal
+- 10-16/17 — Re-run with actual first-pitch times over 818 graded games: 22 graded from a different revision (6 change a win/loss), 4 never public, 9 ambiguous. This supersedes the earlier "29 + 2" figure. Report: `docs/research/truth/TRUTH_MLB29_ANALYSIS_2026-10-17.md`.
+- 10-16/17 — Option B moves the moneyline record from 418–400 to 417–397; log loss 0.7000 → 0.6986 (lower is better), both higher (worse) than a coin flip at 0.6931. **No status changes.**
+- 10-16/17 — #1045/#1049 remain valid but red: they need a merge of `main` and a new write-once log id. The grader-switch proposal is code only on `claude/mlb-served-revision-proposal` (opt-in; needs founder plus Results/OPS approval).
+- 10-17 — Restatement proposal: `docs/research/truth/MLB_RESTATEMENT_PROPOSAL_2026-10-17.md`. Reconciled 22 + 4 + 9 + 2 = 37 implicated games; 21 high-confidence corrections, 6 of them outcome changes. The "4 never public" were public and then withdrawn before a delayed start, so R1 (void) vs R2 (keep) is a policy reading; 823246 holds on an 8 s margin. No model-health state changes under any reading. **Founder decisions F1–F9 pending** (historical restatement: founder approval required). Selector tests: `82a2dbffa3`.
+
 ### Founder decisions requested at the first checkpoint (as written, kept for history) and their resolution
 1. **A8, MLB run-line pick semantics.** Option A (recommended): evaluate the pick at the book's signed line when one is posted (pick the side with the higher cover probability at that line), keep ±1.5 off the simulated favourite only when no line is posted, and bump `DECISION_ENGINE_VERSION` so Results separate the two definitions. Option B: keep today's rule and label the hero card "simulated line (not the posted line)". A changes a graded family's definition forward-only; B is copy only. → **Resolved 2026-10-09: Option A approved**, implemented in #1038 with the founder's restriction-inheritance safeguard. Implemented stricter than the option text, per the founder's decision ("do not infer a posted line from a simulated market convention"): with no posted line there is no run-line pick at all.
 2. **D1 restoration.** Whether to restore the pregame forecasts erased from public MLB files on 09-20/09-25/10-01/10-03 (and pruned board leans 08-27 → 09-09) from the internal snapshots, as a labelled correction, or leave them with the existing corrections register. → **Resolved 2026-10-09: approved to develop** as an append-only correction package, restoring only verifiably published pregame forecasts (see "Historical MLB forecast recovery" above).
@@ -623,6 +1142,7 @@ Investigation (read-only):
 - Legacy missing provenance remains null/classified, never fabricated.
 - Research models remain isolated/namespaced.
 - Research producers never overwrite public artifacts.
+- **See also (2026-10-18):** `SIM-THEATER-001` ST-01 defines `TheaterManifest v1` from the sim-v2 receipt (WorldReceipt identity); `BETSLIP-001` needs MarketSnapshot identity with event, book and `capturedAt`, which no public artifact carries per leg today.
 
 ## `LEDGER-001` — Forecast ledger hardening
 **Priority:** P1  
@@ -671,6 +1191,11 @@ The World Model V2 grader alone writes only `data/internal/` (not a build input)
 3. A Supabase table only when LEDGER-001 needs queries across events.
 
 Founder decisions are needed on per-family freshness targets and on a runtime read path for public Results.
+
+### Progress (2026-10-15 → 10-17): settled-history restamping
+- 10-15 — Finding: every `nightly-settle` run rewrote 380–386 past-dated files (model rows, optimizer-graded, row lineage) with no content change: 16,823 `gradedAt` + 32 `settledAt` values on 10-15; 388 files on the 10-17 settle.
+- 10-15/17 — #1101 (protected workflow; 10-18 window) restores past-dated JSON/JSONL whose only diff is a string → string restamp of exact stamp keys; a stamp appearing, disappearing or going null still publishes (review fix). Replay restores 383–390 files per run with 0 violations across 1,943 files; ledger byte-identical. It is not a build reduction: the settle commit still deploys.
+- 10-17 — Diff noise, not integrity: each settle re-serializes `settled_leans.jsonl` key order with identical values.
 
 ## `TEMPORAL-001` — Temporal Data & Identity Platform
 **Priority:** P1  
@@ -737,6 +1262,7 @@ One coherent baseball model should generate winner, score, run line, total, and 
 ## `MLB-001` — Rules + baseline audit
 **Priority:** P1  
 **Status:** NOT_STARTED
+- 10-14 — Descriptive simulation audit #1086 (`4e7287913d`; research, docs only) is open and awaits founder review. No rule is fixed by it.
 
 Reproduce/fix in a new version where confirmed:
 - postseason extra-innings automatic-runner logic;
@@ -849,6 +1375,7 @@ One coherent football world should connect game script, score, team opportunity,
 ## `NFL-002` — Benchmark ladder
 **Status:** IN_PROGRESS — RESEARCH (L6 win REJECTED / margin ELIGIBLE / totals REJECTED; incumbent retained); Week 5 forward shadow captured. Not qualified.
 **Status (2026-10-08):** IN_PROGRESS — rungs 1, 2, 3, 6 scored once on held-out 2006–2021 under a committed registration; rung 4 reviewed (Sim V2); rung 5 not started. **Incumbent retained.**
+- **See also (2026-10-18):** `SIM-THEATER-001` (§2A). The Theater V2 drive view replays rung 4 (sim-v2) receipts as an experimental display only, and its ST-04 play-level model (4–8+ weeks, est.) would be owned here. Nothing in it changes a rung verdict or the incumbent.
 1. Existing MOV/Elo champion.
 2. Opponent-adjusted EPA/success-rate temporal baseline.
 3. Dynamic hierarchical offense/defense strength.
@@ -1089,21 +1616,110 @@ Stabilize EPL → correct/grade Ligue 1 → league-specific validation → La Li
 
 # 10. NBA roadmap
 
-## `NBA-001` — Private/shadow readiness
-**Status:** NOT_STARTED
-Preserve current shadow/private work; do not imply public forecast parity.
+## `NBA-2026-OPENING` — NBA Season Launch and Continuous Improvement (founder directive 2026-10-19)
+**Target:** opening night is Tue 2026-10-20. The schedule is confirmed against ESPN's public scoreboard (season 2027, type 2), and our capture lists the same three ids:
 
-## `NBA-002` — World model research
-**Status:** NOT_STARTED
-`minutes/rotation → possessions → shot/FT/rebound/assist events → team score/player outputs`
+| Game | ESPN id | Tip-off (UTC) | Tip-off (ET) |
+|---|---|---|---|
+| BOS @ DET | `401909088` | 19:00Z | 3:00 PM |
+| PHI @ NY | `401909089` | 23:00Z | 7:00 PM |
+| OKC @ SA | `401909090` | 01:30Z on 10-21 | 9:30 PM |
 
-Benchmark Elo/pace-efficiency, hierarchical possessions, lineup-adjusted latent strength, distributional boosting/ensemble.
+**Governing contract (unchanged):** `docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md`.
+- NBA is `HISTORICAL_ONLY` in `sport-capability-registry.ts`.
+- No public NBA forecast, probability, pick or projection until a market's forward-shadow bars hold:
+  - winner, margin and total: n ≥ 300 graded games;
+  - points, rebounds and assists: 1,500 player-games each;
+  - 3PM: 800 player-games.
+- On 2026-10-20 every market has n = 0. A public experimental display would need a founder decision; it does not follow from this roadmap.
 
-Hard invariants: player minutes = 240 regulation + 25 per OT; five players on court; `3PM ≤ 3PA ≤ FGA`; PRA derives from same P/R/A path; overtime and late-foul effects explicit.
+**State vocabulary for this initiative (founder 2026-10-19):** NOT STARTED · IN PROGRESS · IMPLEMENTED LOCALLY · TESTED · READY FOR RELEASE · LIVE · BLOCKED. A branch existing is never LIVE.
 
-### Existing references
-- `claude/handoff-nba-b-pretip-boards`
-- `claude/handoff-nba-stage12-prep`
+| Milestone | Initiative | Priority | State | Evidence | Blockers / next action |
+|---|---|---|---|---|---|
+| NBA-01 | Opening-night data and roster readiness | P0 | LIVE | Schedule: ESPN ids 401909088/89/90 confirmed. Rosters: 2026-10-18 capture has 30/30 teams and 539 players, with 2026-27 moves present. Roster backstop **#1133 merged** (`877a687556`, 05:49Z 10-19; Vercel ignored it, 0 builds) | The window re-captures the roster when it is over 30 h old, so opening night can't hit `ROSTER_STALE`. Two-way status is not exposed by the free source |
+| NBA-02 | NBA forecasting pipeline | P0 | LIVE (private shadow only) | `nba-forecast-window` builds v0 / v0.1 / v0.2 pre-tip, write-once with receipts | **v0.2 cold-start bug:** a team with 1–2 new-season games gets a 0 score (seen in preseason forecasts on 10-13 to 10-15). Needs a founder decision: fix as a new version string, or let v1 supersede it |
+| NBA-03 | Points / rebounds / assists / 3PM projections | P0 | IN PROGRESS | v0 and v0.1 project all four stats; the pieces are drawn independently | The coherent engine (NBA-05) adds 3PM ≤ 3PA, Σ player points = team score, and 240 + 25·OT minutes |
+| NBA-04 | Top 10 prop boards | P0 (private) / founder (public) | LIVE (private) | **#1135 merged** (`473a7bfa7a`, 06:52Z 10-19): v0.1 and v1 boards frozen write-once by `nba-forecast-window` at each pre-tip instant; internal preview `/preview/nba/boards` (pruned). Opening-night dry run: about 32 eligible, about 72 withheld | No market line exists, so there is no edge or confidence. Public display needs a founder decision plus a registry change. Follow-up: v1 integer medians tie on 3PM (rank by mean for discrete stats) |
+| NBA-05 | Game simulation integrity | P0 | LIVE (private candidate shadow) | **#1134 merged** (`77d9430944`, 06:22Z 10-19; Production served it 06:27Z). Family `v1`, `nba-sim-v1-coherent`; 7 per-draw invariants. Dev 2024-25: Brier 0.212 (v0 0.267, Elo 0.215); fails total bias (−2.98) and reb/ast/3PM coverage (over-dispersed) | Forward shadow from game 1. v1 grading step is a follow-up (v0.2 has none either). v0 is byte-identical |
+| NBA-06 | NBA Simulation Theater V2 | P1 | IMPLEMENTED LOCALLY | `claude/sim-theater-nba-prototype` (`d69a792cae`), localhost:4181, renders the real v1 artifact; 43 + 70 tests pass | Quarter checkpoints come from real samples; anything between them is labelled illustrative; no invented possessions or shots |
+| NBA-07 | Live Hub and player tracking | P1 | IMPLEMENTED LOCALLY | `claude/nba-live-adapter` (`9b6c267bb2`): 32 tests. Capture kit running outside Claude (pid 56283), wakes 18:45Z 10-20 | Not public until the capture validates PRE→LIVE→FINAL. Polling is free ESPN only |
+| NBA-08 | Settlement and Results/Tracking | P0 | LIVE (private) | Finals record + `nba-results-refresh`; shadow ledgers v0, v0.1 and, since **#1137** (`db8b322480`, 16:54Z 10-19), v0.2 + v1 graded nightly; board ledger graded in `sport-schedules` (#1135). **Finals waiter:** merged inert (#1135); **GitHub-side expiry #1136** (`ef9d1bf9bf`, 16:14Z): a live run needs `NBA_FINALS_WAITER_EXPIRES_AT` (future, ≤ 36 h ahead), stops at it and never relays past it | **Founder-approved one-night trial:** the controller (`~/gtp-evidence/nba-finals-waiter-trial-1020/trial.sh`) pre-checks and activates at **18:45Z 10-20**; one deadline **10:00Z 10-21** |
+| NBA-09 | Daily performance analysis | P1 | LIVE (private) | `nba-daily-performance-report.mjs` (#1135), run by `sport-schedules` per family | No hit-rate claim below the preregistered minimums |
+| NBA-10 | Model evaluation and controlled improvement (see `NBA-CC` below) | P1 | IN PROGRESS | Preregistered bars; v1 development-season evaluation | Promotion only by preregistered bars on the forward shadow; no retraining after single games |
+| NBA-11 | Existing product integration | P2 | BLOCKED (by design) | Registry gates Ask, Parlay Lab, Bank Builder, Moonshot and BYO | Needs `decision-nba-markets-authorization` (paid odds) and passed bars |
+| NBA-12 | Opening-night Production acceptance | P0 | IN PROGRESS | `app/scripts/nba/opening-night-acceptance.mjs` (#1135). At 05:12Z: 16 pass, 0 fail, 12 pending (forecasts owed from 11:00Z, finals after tip) | Run it at about 12Z, 16Z, 19:30Z and 23:30Z on 10-20, and after the last final |
+
+**Cost:**
+- All NBA inputs are free (ESPN public endpoints). There are no NBA odds: `nba-market-probe` is paid and manual, and has no authorization receipt.
+- Research data commits (`data/internal/research/**`) are not Vercel build inputs.
+
+**Open founder decisions:**
+- `decision-nba-markets-authorization`
+- `decision-nba-model-investment`
+- `decision-nba-calibration-plan`
+- N4 (abstention band)
+- N6 (Elo-side promotion)
+- `blocker-nba-lineup-rights` (deferred 2026-09-10; due "before tip-off week")
+- The v0.2 bug
+- Whether any experimental public NBA display is wanted before the bars are met
+
+### `NBA-CC` — Champion–challenger engine architecture (founder decision 2026-10-20, long-term requirement)
+
+**Principle:** test many engines internally, publish exactly one canonical projection. The best engine is decided by forward evidence, not by which engine is currently official.
+
+**This decision does NOT:**
+- change the public champion;
+- relax any Theater gate;
+- authorize a deployment.
+
+**Engines today:**
+
+| Engine | Role | Status |
+|---|---|---|
+| **Official (champion)** | Public | Elo winner side (N2) + v0.1 roster-gated player medians (N1). Public via the §13 experimental lane. Team scores withheld. |
+| **Challenger: v1** (`nba-sim-v1-coherent`, family `v1`) | Theater engine | Frozen pre-tip by `nba-forecast-window` at the same instant as v0, v0.1 and v0.2, so all share identical information cutoffs. Graded nightly since #1137. |
+| **Research: v0.2** | Shadow | 2026-27 season-fold challenger, carrying the cold-start bug. |
+| **Research: possession simulation** (#1159) | Research | Private. Does not beat v1 on a 100-game sample. |
+
+**Requirements, with the existing pieces that serve each:**
+
+| # | Requirement | Reuse (no duplication) | Gap / next |
+|---|---|---|---|
+| 1 | Champion–challenger on verified history + forward-frozen forecasts, identical cutoffs | Same-instant family builds in `nba-forecast-window`; write-once receipts (`forecast-receipt.mjs`); v1 development evaluation (#1134); **#1152** paired Elo vs v1 winner test (2024-25, n = 1,005: Δ log loss −0.0059 [−0.0110, −0.0009], Δ Brier −0.0026 [−0.0049, −0.0004]; Elo overstates home 0.584 vs 0.530) | Forward pairing starts with 10-20; development-season results promote nothing (§8) |
+| 2 | Each market judged independently (winner, score, PTS/REB/AST/3PM, combinations) | Preregistration §7 bars are per market already; the grader (`experimental-forecast.mjs` grade, per family); **#1154** champion/challenger evaluator with slicing | Per-market scoreboard artifact (private), one row per engine × market |
+| 3 | Judge the full simulation distribution, not a representative run | Receipts store quantiles from 10,000 draws; the grader computes coverage and median hit | Add proper distribution scores (CRPS / interval score; log score at thresholds) in the #1154 evaluator; representative runs are display only, never graded |
+| 4 | Automatic daily grading of every engine's frozen predictions | `sport-schedules` grades v0, v0.1, v0.2 and v1 nightly (#1137); private board ledger and daily report (#1135); **#1154** fixes (9-day window, stat-correction re-fetch, OT, append-only, disputed finals excluded) | Merge #1154 after 05:00Z; daily comparison table in the private daily report |
+| 5 | Evidence-based promotion, coordinated with the release owner | Preregistration §6–§8 sample minimums and bars; **#1154** append-only `promotion-record.json` (requires a human approver) | Promotion = a founder-approved record + a new official snapshot version, never a code default flip |
+| 6 | One canonical public prediction everywhere | **#1149** official snapshot contract (Elo side + v0.1 players official; v1 SUPPORTING_SIMULATION; audit check that `/nba` prints exactly the snapshot); #1144 consistency gate; the registry keeps NBA out of products | Products read the snapshot only once NBA is authorized for them (#1157 adapter, switched off) |
+| 7 | Theater: outcomes labelled as individual simulations; the official panel always shows the canonical forecast | **#1153** three-layer box score (official panel / simulation run / allocation); #1140 "what-if · hypothetical" labels | **Conflict to resolve:** #1149's anchor gate holds the Theater until v1 agrees with the official forecast. Under this architecture the Theater may run a different engine, so the gate should instead require labelling and consistency of the official panel. Changing the gate is a separate founder decision; it stays as is until then. |
+| 8 | Forward-only promotions with versions and effective dates | Write-once receipts; append-only ledgers and promotion record; §13 lane snapshot per slate | The official snapshot carries `modelVersion` + `effectiveFrom`; history is never re-pointed |
+| 9 | A calibrated ensemble only if properly evaluated | #1159 research harness; v0.1 / v1 / Elo receipts at identical instants | After enough forward sample: stacking on a held-out window, coherence-checked (team = Σ players) before any consideration |
+
+### Founder decision register — NBA engines and Theater (canonical, newest first)
+
+| Date | Decision | Status | Record |
+|---|---|---|---|
+| 2026-10-21 | **Allow `nba-possession-sim-v0` as the NBA Theater replay engine.** Three roles: A = official snapshot (Elo + v0.1), B = v1 challenger, C = Research Possession Simulation. Public presentation is approved **conditionally**, on the 11 founder conditions plus the activation checklist. The research engine is **not** promoted to official | APPROVED (conditional); flag OFF | `docs/launch/approvals/NBA_THEATER_PUBLIC_2026-10-21.md` (gates G1–G12) |
+| 2026-10-21 | **D6 — free public ESPN NBA box scores for player-stat grading (scoped).**
+- Read-only retrieval through the existing ESPN integration; no paid credits.
+- Scratch/cache first; validate event IDs, player identity, MIN/PTS/REB/AST/3PM and source timestamps; check source consistency and data-use terms before any commit; never commit raw responses blindly.
+- Then *propose* a minimal normalized integration in the existing pipeline: immutable predictions, append-only grading, disputed-final holds kept.
+- No overwrite of results or settled ledgers; no champion change; no paid odds; no public flag change; data commits must use the build-skip controls.
+- Run 10-20 player shadow grading and report what #1169 still needs. | APPROVED (scoped) | founder, release-owner session, 2026-10-21 |
+| 2026-10-20 | Theater Gate V2 (`LABELLED_SUPPORTING_RUNS`) | APPROVED; merged via #1170, 08:19Z 10-21 | #1162 |
+| 2026-10-20 | `/nba/projections/` (amendment A) | APPROVED; merged via #1170 | #1163, prereg §13 A |
+| 2026-10-20 | Official NBA = Elo side + v0.1 players; v1 is a challenger and its board is research-only | APPROVED; on Production | #1149 |
+| 2026-10-20 | Champion–challenger architecture (this section) | APPROVED (long-term) | above |
+
+### Earlier entries (kept for history)
+- `NBA-001` (private/shadow readiness) is superseded by NBA-01 to NBA-02.
+- `NBA-002` (world-model research: `minutes/rotation → possessions → events → outputs`) continues as NBA-05 / NBA-10.
+  - Hard invariants: minutes = 240 + 25·OT; `3PM ≤ 3PA ≤ FGA`; PRA from the same draw.
+  - Possession-level modelling remains P2 research.
+- Unmerged prior art:
+  - `claude/handoff-nba-b-pretip-boards` (Stage 12-S2 private top boards, revived in NBA-04);
+  - `claude/handoff-nba-stage12-prep` (superseded by 6589829).
 
 ---
 
@@ -1122,6 +1738,8 @@ Slices (state on `main` 5ed6f6bc51, 2026-10-10):
   - #1053: title fight only on provider evidence, plus a fight-day freeze for the card build and odds capture;
   - #1052: U3 claims copy.
   - Both are Production-verified (see the session logs). UFC-001 stays **IN_PROGRESS**.
+- **10-14 — #1085 UFC grader truth** merged as `411089bfe4` (22:27Z) at head `68ab9225cf`; Production `b713c2c98c`. All 199 UFC record files byte-identical; served record 71 rows = 70 decided (44 W / 26 L) + 1 VOID (Gatto–Kareckaite draw); withdrawn Gall–Dumas absent; pending 10/17 bouts excluded from n. The "10 bouts awaiting results" line was a mislabel (1 withdrawn + 9 unfought 10/17 bouts), and #1085 fixes the message.
+- **10-14 — First post-#1076 grading run** (38571656668): the draw was appended once as VOID (ledger 70 → 71 lines, decided n = 70); log loss model 0.719 vs market 0.629 (lower is better), unchanged; no loss recorded.
 
 #### UFC experience (UX phases; founder directive 2026-10-10; plan in `docs/ufc/UFC-001-UX-PLAN.md`)
 - **Phase A, prediction board, plus A2, page order:** **MERGED and PRODUCTION_VERIFIED.** PR #1057 at `df2d1ee3f4`, merge `5dc31a98f7`, 2026-10-11 09:05Z; A2 was consolidated from #1058. After the card, the board reads "Last card · pregame predictions".
@@ -1174,6 +1792,7 @@ Slices (state on `main` 5ed6f6bc51, 2026-10-10):
 - **Today:** `summary.json` reconciliation for 2026-09-26 reads frozen 9, graded 8, pending 1, with `pendingBoutIds` = the Gall pairing. It is pending indefinitely, because nothing closes a superseded pairing.
 - **Options:** (a) VOID this bout; (b) a general rule: a pairing absent from the final pre-start snapshot is WITHDRAWN (never graded, never void, excluded from the denominator); (c) leave it pending.
 - **Recommendation:** (b). No historical rewrite until the founder decides.
+- **Resolved 2026-10-13 (founder):** Gall–Dumas is WITHDRAWN under option (b), implemented in #1076 (see the 10-13 evening session log); the #1085 record above shows it absent.
 - **Related diagnostic (P2):** the grader prints "12 bout(s) from 2026-09-26 … -7 day(s)". It labels all pending bouts with the oldest pending date (the Gall pairing). Grading is unaffected.
 
 ## `UFC-002` — World/process model
@@ -1235,6 +1854,7 @@ Rules:
 - same data-quality floor across products;
 - market-only paper constructions are clearly labeled;
 - model favorite and price-value selection are distinct concepts.
+- **See also (2026-10-18):** `BETSLIP-001` (§2A). Candidates should carry `marketSnapshot` identity (event, book, `capturedAt`) so book quotes can be matched exactly.
 
 ## `PRODUCT-002` — Bank Builder
 **Status:** NOT_STARTED
@@ -1254,6 +1874,8 @@ When legs share common worlds:
 Never market `product of marginals` as GTP joint probability unless independence is explicitly justified.
 
 Audit bounded selector search/top-30 truncation with exact small-universe solver and counterexample tests.
+
+- **See also (2026-10-18):** `BETSLIP-001` (§2A, Smart Betslip / Parlay Lab V2). Book quotes and hand-off never alter card selection or the paper record; a card keeps GTP's tier label, a book's price is shown only as that book's own single-book quote, and same-game legs wait for this item's validated joint model (SB-06).
 
 ---
 
@@ -1294,6 +1916,10 @@ Every metric links to all underlying forecasts with date/event/subject/target/li
 - **Why it matters:** per-basis NFL records do exist. The answer may fail to explain them.
 - **Context:** #1055 changed only the Ask eval expectation (`res-06`), deriving it from the artifact. Ask's answer was not changed.
 - **Next step:** a separately reviewed product-truth correction, owned by Lane B (NFL / Results) with Ask. Not started.
+
+### Progress (2026-10-15 → 10-17)
+- 10-15 — Results explorers page through every settled card and graded pick instead of a silent 50 cap (87 of 137 cards were unreachable): #1104 (GTP-21/32), consolidated into #1120 (10-18 window).
+- 10-17 — Results integrity draft #1123 (`f1b4613fad`): 5 presentation fixes (small-sample notes beside every rate, MLB board banner counting leans of record, labels). Five metric-changing items are **founder decisions**: NBA archive duplicates (4,592 rows / 2,830 unique); **EPL pooling v1 and v2 (time-sensitive)**; Homer Nukes scratched batters; "Edge" labels; a stale About claim. Review: `docs/research/RESULTS_INTEGRITY_REVIEW_2026-10-17.md`.
 
 ## `RESULTS-002` — Product results
 **Status:** NOT_STARTED
@@ -1584,6 +2210,8 @@ Source: `GameTimePicks_UX_System_V2_Engineering_Directive_2026-10-13.md` (founde
 
 **Enforcement:** each 2A/2B/LIVE-F change cites the rule it applies. Existing ratchet tests stay in force. New lint or ratchet guards are added only where cheap and non-flaky; the token and radius ratchet migration stays P2.
 
+- **See also (2026-10-18):** `SIM-THEATER-001` ST-01 drafts the "Simulated · not a real game" banner rule (COMP-001 R1) and the drive-level / model-event / illustrative-movement labels; `BETSLIP-001` book-price rows follow the probability and badge rules here, with model and market labelled separately.
+
 **Source:** `GameTimePicks-UX-System-V2-Audit.pdf` (ChatGPT Work, independent, read-only; snapshot `e344bfc9`, 2026-10-13). It contains 34 findings (GTP-01…34), 12 work packages (CC-01…12) and 15 plates. The audit is the primary UX reference; this roadmap remains the planning authority.
 
 **Reconciliation method:**
@@ -1623,6 +2251,8 @@ Source: `GameTimePicks_UX_System_V2_Engineering_Directive_2026-10-13.md` (founde
 | GTP-02 | / (Simulation Hub EPL) | "Every forecast fixture has kicked off" beside 10 future fixtures | Use `forecastRows()` and the PREGAME filter; "kicked off" only when none is pregame | `lib/command-center/featured.ts:170-181` | S | test `command-center.test.mjs:142` |
 | GTP-10 | / (UFC card) | Prelim bout labelled "· main card" (picks the last modelled bout; label hard-coded) | Feature the title fight or the first modelled bout; segment from `buildPredictionBoard` | `featured.ts:195,208-209`, `ufc/prediction-board.mjs:21-36` | S | — |
 | GTP-11 | /simulate, /simulate/d/* | "NBA 0 · off season" in preseason; date list skips Oct 20–22 (12-row display cap feeds the date list) | Date list from uncapped rows; "No NBA games on this date" when the capture has rows; keep started games for today | `lib/simulate/day-view.ts:474-515`, `sports/upcoming/adapters.mjs:216,232,243` | S–M | NBA opening night Oct 20 |
+
+- **See also (GTP-01, 2026-10-18):** `BETSLIP-001` SB-03 adds Smart Betslip counsel questions (link-out marketing status by state, registration triggers, disclosures, 21+ vs 18+, revised Terms and responsible-use text). It does not change the launch gate, and nothing is published before counsel approval.
 
 #### P1 — launch polish; do before the freeze where safe (two batched releases)
 **Release 2A "State and truth labels" (all display-only, S):**
@@ -1705,6 +2335,20 @@ Source: `GameTimePicks_UX_System_V2_Engineering_Directive_2026-10-13.md` (founde
 - **Effort:** Release 2A ≈ 1 day; Release 2B + LIVE-F ≈ 1.5 days.
 - **Deferral order if time runs short:** GTP-19/20 folds go first, then GTP-17/18 research-page identity, then GTP-25. P0, the truth labels and LIVE-F status correctness never drop.
 
+#### Release status (2026-10-14 → 10-17)
+- 10-14 — #1079 (this plan, roadmap only) merged as `adcc53f087`; 0 deployments.
+- 10-14 — **P0 + Release 2A (#1080) PRODUCTION VERIFIED:** merged as `d4bc2a1def` at head `7d1c9a3ffd` (built 06:50:39Z). 18 affected routes at 1440/390 px and a 91-page phone sweep: 0 failed pages, 0 console errors, 0 CSP report-only violations; 5/5 security headers.
+- 10-14 — **GTP-08** fixed at producer and reader in #1080 (no fail-closed fallback needed); UFC and the multi-sport lane are written as closed from the next scheduled runs; settled records unchanged.
+- 10-14 — **GTP-23:** no producer change needed; #1080 displays the existing per-game, hash-bound `frozenPregame` time (CLE@TB: 10:06 PM → 7:47 PM ET).
+- 10-14 — **Documented limitation (#1080 review nit 5):** `/bank-builder` reads the pool status on disk at build time, so before the morning generation it says today's card is not assessed; it does not yet read the status the generator recorded.
+- 10-14 — **Release 2B + LIVE-F (#1081) PRODUCTION VERIFIED:** merged as `5917475b53` at head `6e24b774f4`; 36-view sweep at 1440/390 clean; served Forecast Record 15,868/15,868 = ledger. Phone heights: /nfl 24,232 → 15,651 px, /epl 21,848 → 12,460 px (GTP-19/20).
+- 10-15 — Roving-tab follow-up #1087 merged as `279098cf25` (GTP-13 on 5 more tablists); its own build was killed (COST-002), and `5195af77eb` delivered it, Production-verified.
+- 10-15/16 — Independent UX audit on `ad78413337` (7 high, 10 medium, 7 low) → drafts #1102–#1107, plus #1092 (ET timestamps), #1109 (stale-capture reason names the capture date) and #1112 ("Final score" after the final). All are consolidated into #1119/#1120 with HTML Release 1 #1117 (10-18 window).
+- 10-17 — Trio evidence (package `docs/release/HTML_UX_RELEASE_PACKAGE_2026-10-17.md`): #1117 −27.4% HTML, render-equivalent; #1119 render-equivalent to #1115 (0 differing elements on 10/12 pages × 4 widths, 0 pixel diff), HTML −26.6% vs #1115; #1120 puts internal state codes in reader words and adds a post-build export guard, 0 data change.
+- **Deliberately not done; founder or counsel inputs:** GTP-01 legal inputs; `/responsible-use` still describes a slip-comparison "Parlay Center" that `/build` does not offer (legal-adjacent copy: flagged, not edited); the `/results` accounting section stays unfolded (integrity disclosure, pinned by e2e).
+- **P2 status (10-17):** the list above stands. GTP-21/32 paging is implemented in #1104 (inside #1120); GTP-31 decorative alt text is done on new call sites (#1105 `PlayerAvatar` decorative option) but not sitewide; EPL player portraits still have no authorized IDs. Added to P2: small-target link lists on research squads; the M9/M10 report type floor (DS-001 §4 "migrated as touched"). L5 (live badge) waits on live evidence; M6 naming conflicts are a founder decision.
+- **Verification gates (status 10-17):** SEA@DEN observed (§17); UFC first post-#1076 grading done (§11); OPS-002 seven-day report waits on a Vercel token (§18); authenticated account flows (hosted RLS) and real-device/VoiceOver/200% zoom checks remain open (§2 launch gates).
+
 ## Universal order
 1. Sport header + period selector
 2. Slate summary
@@ -1751,7 +2395,7 @@ Keyboard navigation; screen-reader names/tab semantics; non-color status encodin
 
 ## `LIVE-001` — L1 factual MLB tracking
 **Priority:** P2  
-**Status:** IN_PROGRESS — factual NFL/MLB score + NFL player-stat tracking PRODUCTION DEPLOYED; MLB player join waits on TRUTH-001.
+**Status:** IN_PROGRESS — factual NFL/MLB score + NFL player-stat tracking PRODUCTION DEPLOYED; LIVE-F consistent /live PRODUCTION DEPLOYED (#1081, 10-14); MLB player join waits on TRUTH-001; Live Hub V2 preview only (below).
 
 Capture player box/stat progression, event timeline, score/inning/out/base state, current batter/pitcher, source age, correction identity.
 
@@ -1780,6 +2424,14 @@ Use `Threshold reached — awaiting official settlement`, not premature `WIN`. U
   - **Order (2026-10-09):** `passing:YDS` is mapped only AFTER /live reads the World Model V2 rows. The gateway guard (`live-slot.test.mjs`) keeps passing yards out while /live compares against the player board, whose passing-yards family is ESTIMATE (rejected at its own bar). Mapping it first would put a live number beside a rejected forecast.
   - Live tracking stays factual and separate from any live re-simulation (LIVE-003, shadow).
 
+### Live Hub V2 status (2026-10-14 → 10-17; preview only, unpublished)
+- 10-14 — #1082 Live Hub V2 foundation (draft): shared view model with eight statuses; per-sport capability (NFL and MLB tracked; NBA, soccer and UFC never); progress lines from verified fields only; frozen-line forecast progress; guarded `/preview/live-v2` fixture. Not wired into /live.
+- 10-15/16 — Stacked drafts: #1108 replays a recorded capture through the V2 view model (0-disagreement promotion check); #1111 delayed/stale line from the production freshness bands (checks 7/14). #1112 ("Final score" after the final) moved into #1120.
+- 10-16 — **SEA@DEN (DEN 17–14 OT) game phase PASS:** 52 passes, 312 requests, 0 non-200; V2 replay 0 disagreements, 0 lags, 0 refusals; checks 1–4, 6, 8, 10–12, 16, 18, 22–23 PASS, check 5 PASS on screenshots. Not observed live (no delay or outage occurred): 7, 13–15, 19–21. Report: `docs/live/LIVE_V2_SEA_DEN_ACCEPTANCE.md` (#1082 `c52d426125`). Kit bug (`players=true` vs `players=1`) fixed in `96ccf62ebb`.
+- 10-16 — Check 9: the canonical prop settlement was first served at 2026-10-16T17:12:52Z. Market paper record: NO_TARGETS, because the NFL odds credit ceiling has been exhausted since 10-11 (founder decision FD-8).
+- 10-17 — Sunday 10/18 capture running from a Terminal tab with nohup + caffeinate (3 games, `players=1`, kit `ab2f28b88f`); the kit flags "LIVE with no player stats" and has a read-only `check-live.mjs`.
+- **Remaining:** adapters, wiring into /live, and real-event validation (NFL Sunday 10/18, then one MLB postseason game). V2 stays unpublished until then.
+
 ## `LIVE-002` — L2 visual Game Center
 **Status:** NOT_STARTED
 
@@ -1788,6 +2440,8 @@ MLB: diamond, inning/score, balls/strikes/outs, baserunners, batter/pitcher, rea
 Never fabricate broadcast-like paths when source coordinates are unavailable.
 
 Later adapt the same Live shell to NFL possession/down-distance/drive charts, Soccer clock/cards/shots/xG where legitimate, and NBA/NHL/UFC event structures.
+
+- **See also (2026-10-18):** `SIM-THEATER-001` may later share field primitives with this Game Center, but simulated and live data never mix (no `LiveBadge` or freshness text in a simulation).
 
 ## `LIVE-003` — L3 conditional forecast
 **Status:** NOT_STARTED
@@ -1809,6 +2463,7 @@ Requires validated live target, exact fresh market, synchronized state/quote, un
 ## `LIVE-005` — Live parlays
 **Status:** NOT_STARTED
 Only after live straights and dependence/joint-world validation.
+- **See also (2026-10-18):** `BETSLIP-001` SB-06. Same-game parlays priced from live book quotes belong here and in `PARLAY-001`, not in the betslip comparison.
 
 ---
 
@@ -1816,7 +2471,7 @@ Only after live straights and dependence/joint-world validation.
 
 ## `OPS-002` — Bot commit identity and blocked Production deployments
 **Priority:** HIGH — address promptly after COST-001 Phase 1 (founder, 2026-10-07)  
-**Status:** IN_PROGRESS — merged and verified in Production; **seven-day observation running** (cutover 2026-10-08T05:56:44Z → earliest DONE ≈ 2026-10-15T05:57Z)  
+**Status:** IN_PROGRESS — merged and verified in Production; seven-day window (cutover 2026-10-08T05:56:44Z → 2026-10-15T05:57Z) complete; GitHub-side pre-check clean; **acceptance report blocked on a fresh Vercel token (founder)**  
 **Owner/session:** Claude Code session 2026-10-08 (OPS-002)  
 **Branch:** `claude/ops-002-bot-commit-identity` (from `origin/main` `a20ec45c79`, merged) · acceptance monitor + records: `claude/ops-002-acceptance-monitor`  
 **PR:** [#1019](https://github.com/yashwantbalaji3/gametimepicks/pull/1019) (merged by founder approval, exact head enforced with `--match-head-commit`)  
@@ -1855,7 +2510,9 @@ Only after live straights and dependence/joint-world validation.
 | 2 | Founder approves merge; merge exact head (`--match-head-commit`); 1 Production build | DONE — approved 2026-10-08; merged `f65e7656`; 1 build (40 CPU-min ≈ $0.14) |
 | 3 | Cutover = first post-merge data commit authored `github-actions[bot]`; Vercel attributes it `github-actions[bot]/bot`, READY; build-info advances | DONE — `851ecc75` @ 05:56:44Z → `dpl_BjrG1yjNziJ91VNqAnRv3nKASiSS` READY, live |
 | 4 | ≥ 7 days after cutover: `node scripts/ops-002-identity-report.mjs --cli-auth --cutover <cutover>` returns **`PASS`** (exit 0). PASS requires all of: no `TEAM_ACCESS_REQUIRED`; every post-cutover `auto…` deployment attributed to `github-actions[bot]`/bot; ≥ 1 READY bot data deployment in **every** 24 h slot; live build-info = newest READY build; `main` head deployed; nothing errored, blocked or stuck. `NOT_YET` (3) and `STALE` (4) are never acceptance (founder requirement 2026-10-08; docs/OPS_002 §6) | after merge (read-only, $0) |
-| 5 | Record evidence → `DONE` | NOT_STARTED — earliest 2026-10-15T05:57Z. If the report is not run, the seven days are not accepted |
+| 5 | Record evidence → `DONE` | BLOCKED (10-15) — the window has closed, but the authoritative report needs a fresh Vercel token (**founder**). If the report is not run, the seven days are not accepted |
+
+- **10-15 — GitHub-side pre-check (read-only, GitHub API only; not the acceptance report):** 829 commits in the window; 607/607 `auto…` commits authored `github-actions[bot]`; every 24 h slot has READY bot data deployments (60/52/56/73/62/47/34); no blocked or team-access status. The 9 failed deployments were the 46-minute memory kills (`COST-002`), not identity failures. Expected verdict PASS once the script runs; not recorded as DONE until then.
 
 Daily check (read-only, $0): `node scripts/ops-002-identity-report.mjs --cli-auth --cutover 2026-10-08T05:56:44Z`. Any `FAIL` reopens the investigation; `STALE` means a freshness incident (OPS-001 territory) and must be explained before acceptance.
 
@@ -1947,7 +2604,9 @@ Limit: while the repo is public Vercel runs no team-access check, so the 7 days 
 
 ## `OPS-001`
 **Priority:** P1/P2  
-**Status:** NOT_STARTED
+**Status:** IN_PROGRESS — publish data-loss protection PRODUCTION DEPLOYED (#1068 → `5c0b1b6619`, 2026-10-13); the rest of the scope below is NOT_STARTED  
+- 10-15 — Scheduled data-contract check #1089 merged as `7c3f23722a` at head `9b19f082b1`: schedule + dispatch only (no push trigger, so it never deploys), `contents: read`, `issues: write`; manual run 38669700923 passed (9,401 tests, 0 failed).
+- 10-14 — Defect: `mlb-pregame-capture` logs "credits spent 0" while spending about 3 Odds API credits per run (≈ 40 credits in ≈ 37 h observed).
 
 Add dependency completion receipts, idempotent jobs, retry budgets, missing-artifact alerts, stale-but-green detection, source outage monitoring, provider capture age, market age, model age, build/deploy age, live observation latency, API/cost ceilings, rollback readiness.
 
@@ -2059,6 +2718,12 @@ Unless explicitly changed by the founder:
 - No arbitrary “1,000 picks before display” rule: Experimental forecasts may display honestly; product eligibility requires evidence.
 - No historical rescoring/rewrite: forward-only model evolution.
 - **Localhost-first/Vercel release control: YES, founder-mandated.** Do not use Vercel for ordinary debugging. Measure and gate auto-deploy triggers before pushing implementation/roadmap updates. Batch locally and deploy approved candidates intentionally; preserve data freshness and CI/production gates.
+- **Simulation Theater V2 and Smart Betslip / Multi-Sportsbook Integration (founder, 2026-10-18): approved as major product objectives with P1 planning priority** (`SIM-THEATER-001`, `BETSLIP-001`, §2A).
+  - **Planning approval only.** Not approved: implementing either feature, Production workflow changes, purchasing APIs, partnerships, publishing revised legal documents, or deploying.
+  - The goal is a better, more integrated product that keeps forecasting credibility and sustainable costs, not a copy of PropDealer.
+  - The founder is willing to support transparent sportsbook comparisons and officially supported betslip integrations.
+  - **Superseded in direction on 2026-10-18 (kept; still in force until counsel-approved revisions are published):** the Terms draft "…link to or partner with any sportsbook" (`app/src/lib/legal/texts.mjs:61`); `/responsible-use` "There are no affiliate links to sportsbooks" (`app/src/app/responsible-use/page.tsx:58`); the counsel brief's "no sportsbook links" premise (`docs/legal/COUNSEL_REVIEW_BRIEF.md:9`); the 2026-09-24 founder decision that the displayed price is "NOT LINE SHOPPING" (`app/src/lib/sports/odds/prop-display-selection.mjs:23-42`); COMP-001 Q4 (sportsbook links and betslip as a deliberate non-goal). Each is revisable only through legal review; nothing is published before counsel approval.
+  - **Unchanged:** D5 (same-game legs off official cards); Ask's refusal of sportsbook links (a separate decision); P242 (open, `SIM-THEATER-001` ST-01); paper-only records.
 
 ---
 
@@ -2731,6 +3396,21 @@ Founder merged each PR with the pinned exact-head command. This session's auto-m
   - Founder and counsel still need: operator legal entity, state, effective date, minimum age (18 vs 21), and counsel approval receipts (reviewer, role, date, content hash).
   - Account deletion is manual until an in-site delete exists.
 
+## 2026-10-14 → 10-17 — Claude Code (single primary session) — release records, CI repair, launch gates (consolidated)
+Facts are recorded once, in each item's status (§2 launch status, §2A, §3A, §4, §5, §7, §11, §15, §16, §17, §18); this entry keeps only session evidence that has no item home. Folded in from #1083 (2026-10-14 → 10-16 overnight and daytime logs, not merged) and this branch's 10-16/17 entries.
+- **10-14 → 10-15 merges** (#1079, #1080, #1081, #1084, #1085, #1087, #1089, #1091, #1093): each founder-approved at an exact head. All but #1079 (roadmap, 0 deployments) had `main` CI green on the merge, and all but #1079 and #1089 (renders nothing) were Production-verified. Where checked, the served Forecast Record matched the ledger (15,868 → 15,879 rows, 0 settlement mismatches).
+- **#1114 (10-16):** root cause of the red `main` suite was a franchise-map test assuming ≥ 28 teams in one week's remaining schedule. `main` CI on the merge: unit 9,402/9,404, post-build 696/699, 0 fail; mutation controls hold.
+- **#1122 (10-17), cause:** two data/calendar-driven guards failed on `main`'s own build. Home word ceiling 1,868 > 1,820, because at 3 AM ET Home featured five August preseason NFL reports (the fallback never sorted by recency) and a ten-bout UFC card added rows; join guard 16d, because gamePk 849817 was postponed 10-16 → 10-18. Fix: archive most-recent-first, capped at 2; UFC finishes in words; 16d judges only joins that grade, 16f pins the interim state. Home at 1,809.
+- **#1118 (10-17), evidence:** replayed across 78 real indexes since 10-08, 37 "forecasts not published" errors on `main` → 0, 197 evaluations identical. An edge-case review found the filter threw on a malformed kickoff (would have taken down Home and `/today`); fixed with a regression test before merge. `nextEventUtc` on LIVE days is cosmetic and latent; deferred.
+- **10-17 trial merge** of `main` + #1122 + #1118 + #1101 + #1088: unit 9,434/9,437, post-build 699/702, 0 fail. The window order and heads are in §2; the earlier "Sat 10:30–11:00Z" slot for #1101/#1088 is superseded by the 10-18 window.
+- **Launch packets (docs on #1116):** Privacy/Terms 24 rows classified (1 incorrect, 5 missing, 6 legal decisions, 2 product clarifications, 10 resolved) plus 2 new findings; the account strategy recommends invite-only only if F-1 and F-2 close, otherwise disabled; Supabase tier table, Ask checklist, UAT tagged by verification level, rollback packet with stalled-deploy, auth and provider sections; launch matrix in the four-way taxonomy (38 VERIFIED / 15 PENDING / 18 BLOCKED / 5 DEFERRED).
+- **Process:** one 10-15 commit (#1102 `c2c15eb43d`) landed before its test was updated, fixed in `b22a14537f`; commits are now gated on the test result. The 10-17 overnight session merged and deployed nothing (0 Production builds, 0 paid calls).
+
+## 2026-10-18 — Claude Code (roadmap planning, docs only) — `SIM-THEATER-001`, `BETSLIP-001`
+- Recorded the founder's 2026-10-18 direction (§23; §2A): Simulation Theater V2 and Smart Betslip / Multi-Sportsbook Integration approved as P1 planning objectives, planning only.
+- `SIM-THEATER-001` rewritten as Simulation Theater V2 (FEASIBILITY COMPLETE; ST-01 → ST-05 PLANNED); its 2026-10-17 entry kept as history. New `BETSLIP-001` (FEASIBILITY COMPLETE; SB-01 → SB-06 PLANNED). Open decisions T1–T5 and B1–B8 and a recommended order added; milestone-state mapping in §0; §2 rows 28–29; "See also" bullets in `NFL-002`, `PRODUCT-001`, `PARLAY-001`, `GTP-01`, `COST-001`, DS-001, `CONTRACT-001`, `LIVE-002`, `LIVE-005`.
+- Sources: `docs/research/SIMULATION_THEATER_V2_FEASIBILITY_2026-10-18.md`, `SMART_BETSLIP_FEASIBILITY_2026-10-18.md`, `NEXT_GEN_FEASIBILITY_SUMMARY_2026-10-18.md`, the v0 spec, COMP-001 and the founder-supplied competitor audit. Docs only: no code, tests, builds, paid calls or deployments.
+
 ---
 
 # 26. Immediate execution waves
@@ -2771,6 +3451,8 @@ Founder merged each PR with the pinned exact-head command. This session's auto-m
 
 ## Roadmap policy change log
 
+- **2026-10-18 — Simulation Theater V2 and Smart Betslip (founder):** both approved as major product objectives with P1 planning priority; planning approval only (§23). The Terms and responsible-use "no sportsbook links" language and the 09-24 "NOT LINE SHOPPING" positioning are revisable through legal review, with nothing published before counsel approval. Milestone states (FEASIBILITY COMPLETE → PRODUCTION VERIFIED) added to §0 alongside the existing status values.
+- **2026-10-17 — Standing merge policy (founder):** recorded in §2 "Launch release status". For routine engineering PRs it replaces the per-merge founder approval required by the 2026-10-13 operating model and §16 approval item 6; the listed high-risk exceptions still need founder approval.
 - **2026-10-08 — Founder priority override (NFL World Model V2):** `NFL-001` → `NFL-005` move to the top of the queue, then `TRUTH-001`, `CONTRACT-001`, `MLB-001` → `MLB-005`; this replaces the earlier "NFL-001 only, then TRUTH-001" instruction. Time-sensitive Week 5 readiness milestone (2026-10-08 → 10-12) inside the NFL program. Unvalidated models stay in shadow; `COST-001` protections, `OPS-002` observation and DP's `NCAAF-001` are unaffected. Wave lists in §26 are historical; §2 is the execution order.
 - **2026-10-08 — CI-001:** main's `quality` gate was red because adapters.test.mjs MLB 8 required a `ready` MLB simulation in the newest 14 slates. `ready` (input completeness) has been rare by design since 2026-09-25, while the simulations themselves are healthy. The test's per-player check had been vacuous since it was written. It is replaced by hash-verified fixtures and a status-agnostic corpus contract. Rule: **tests must not take a precondition from rolling committed data; use pinned, self-verifying evidence or whole-history invariants.** The replacement-level batter disclosure finding is folded into `TRUTH-001` and `MLB-003`.
 - **2026-10-07 — Founder infrastructure-cost directive:** Added `COST-001` as the first priority after reviewing the previous Vercel billing cycle. Localhost-first implementation, local build/test/UX acceptance, batched changes, controlled automatic deployment triggers, founder review where requested, limited remote builds, budget/Build CPU measurement, and explicit remote-build exceptions are now mandatory. **This is a roadmap policy update only; `COST-001` implementation and Vercel configuration audit have not yet been performed.**
