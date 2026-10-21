@@ -13,6 +13,7 @@ import React from "react";
 import fs from "node:fs";
 import path from "node:path";
 import { LANE, STATS, LANE_SNAPSHOT_SCHEMA, AMENDMENT_A, laneIsCurrent } from "@/lib/sports/nba/experimental-public-lane.mjs";
+import { THEATER_LINK_TEXT, publicTheaterHref } from "@/lib/simulation-theater/nba/possession/public-route.mjs";
 
 type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
 type Game = {
@@ -119,7 +120,13 @@ export function NbaLaneTonight({ snapshot }: { snapshot: Snapshot | null }) {
   );
 }
 
-export default function NbaExperimentalLane({ snapshot, statuses = {} }: { snapshot: Snapshot | null; statuses?: Record<string, string> }) {
+/** The game's Theater link — only when /nba/simulation/<id>/ is built (`theaterIds` = public-route publicTheaterRouteIds). */
+function TheaterLink({ id, theaterIds }: { id: string; theaterIds: string[] }) {
+  if (!theaterIds.includes(id)) return null;
+  return <p className="m-0 text-[13px]"><a href={publicTheaterHref(id)} className="underline" style={{ color: "var(--vault-text)" }} data-nba-theater-link={id}>{THEATER_LINK_TEXT}</a></p>;
+}
+
+export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterIds = [] }: { snapshot: Snapshot | null; statuses?: Record<string, string>; theaterIds?: string[] }) {
   if (!snapshot || snapshot.games.length === 0) return null;
   return (
     <section id="nba-experimental" className="scroll-mt-24 flex flex-col gap-3" aria-labelledby="nba-experimental-h">
@@ -153,6 +160,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {} }: { snaps
                 {statuses[g.providerEventId] ? <p>Game status: {statuses[g.providerEventId]}</p> : null}
                 <p className="text-[13px]" style={{ color: "var(--vault-text)" }}><strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong></p>
                 <p>{g.players.away.length + g.players.home.length} players on the board · receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)}</p>
+                <TheaterLink id={g.providerEventId} theaterIds={theaterIds} />
               </article>
             ))}
           </div>
@@ -182,6 +190,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {} }: { snaps
             <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
               Receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)} · simulation engine {g.engine.simulation}
             </p>
+            <TheaterLink id={g.providerEventId} theaterIds={theaterIds} />
           </article>
         ))
       )}

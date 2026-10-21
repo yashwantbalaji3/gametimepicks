@@ -190,7 +190,7 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
   const rootStyle = NBA_THEATER_VARS as CSSProperties;
   const head = (
     <header className="nbp-head">
-      <h2>{teams.away.name} at {teams.home.name}</h2>
+      <h1 className="nbp-title">{teams.away.name} at {teams.home.name}</h1>
       <p className="nbp-engine" data-nbp-engine="">{payload.engine.label}</p>
       <p className="nbp-sub">{payload.venue ? `${payload.venue} · ` : ""}Simulated game · inputs frozen before tip{switchHref ? " · " : ""}{switchHref ? <a className="nbp-switch" href={switchHref}>{switchLabel ?? "Other mode"}</a> : null}</p>
     </header>

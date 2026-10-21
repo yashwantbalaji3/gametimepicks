@@ -165,9 +165,11 @@ BUILD_INPUTS=(
     ':(top)data/internal/research/nfl/reports/anytime-td-historical-replay-evaluation.json'
     ':(top)data/internal/research/nfl/reports/win-margin-historical-replay-evaluation.json'
     ':(top)data/internal/research/nfl/reports/matchup-totals-historical-replay-evaluation.json'
-    # NBA Simulation Theater possession runs (PR 1167; founder 2026-10-21; release owner decision): read by the public
-    # /nba/simulation/[eventId] route. Committed ONLY inside the once-per-slate lane publish commit, so this entry adds
-    # no Production build beyond the lane's own one per slate.
+    # NBA Simulation Theater possession runs, PR 1167, founder 2026-10-21, release owner decision: read by the public
+    # /nba/simulation/<eventId> route and by the /nba lane cards that link to it. Committed ONLY inside the once-per-slate
+    # lane publish commit, so this entry adds no Production build beyond the one the lane publish already triggers.
+    # Comments inside this array must contain no quote and no closing round bracket: build-input-coverage.test.mjs
+    # parses the block with a lazy regex up to the first closing bracket and reads entries between single quotes.
     ':(top)data/internal/research/nba/theater-possession/'
 )
 # GTP-BUILD-INPUTS-END
