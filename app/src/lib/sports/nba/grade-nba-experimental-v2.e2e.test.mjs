@@ -41,6 +41,13 @@ test("e2e: INITIAL → replayed stat correction → CORRECTION lineage; original
   try {
     const out = path.join(tmp, "out"), sums = path.join(tmp, "summaries");
     fs.mkdirSync(sums, { recursive: true });
+    // Since PR 1154 merged, the forecast-window automation grades DATE into the REPOSITORY ledger, so an --out-dir run that
+    // started from it would find every INITIAL grade already there (data, not code, turned this red on main 2026-10-21
+    // 14:28Z). Seed the scratch ledger with the repo ledger WITHOUT its schema-2 grade entries and corrections: the legacy
+    // entries stay content-identical (asserted below) and the run still proves INITIAL → CORRECTION end to end.
+    const seed = JSON.parse(repoLedgerBefore);
+    fs.mkdirSync(path.join(out, FAM_DIR), { recursive: true });
+    fs.writeFileSync(path.join(out, FAM_DIR, "ledger.json"), JSON.stringify({ ...seed, gradeEntries: [], boxscoreCorrections: [] }));
     // SYNTHETIC correction: +2 points to the first predicted home player who played.
     const predIds = new Set(forecast.games[0].forecast.players.home.map((p) => p.providerAthleteId));
     const target = orig.players.find((p) => predIds.has(p.providerAthleteId) && Number.isInteger(p.pts));
