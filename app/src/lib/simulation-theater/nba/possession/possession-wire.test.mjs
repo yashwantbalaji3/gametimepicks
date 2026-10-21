@@ -21,11 +21,12 @@ import { checkPossessionDraw } from "../../../sports/nba/research/possession-sim
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
 const IDS = ["401909088", "401909089", "401909090"];
-const DOC = readPossessionArtifact(REPO, "2026-10-20").doc;
+const DATE = "2026-10-20"; // the committed slate (the public loader defaults to the build's ET date)
+const DOC = readPossessionArtifact(REPO, DATE).doc;
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const eventsOf = (r) => (Array.isArray(r.events) ? r.events : unpackEvents(r.events)); // works before and after packed storage
 const rostersOf = (g) => [g.rosters.home.map((p) => String(p.providerAthleteId)), g.rosters.away.map((p) => String(p.providerAthleteId))];
-const LOADS = IDS.map((id) => loadPublicPossessionTheater(REPO, id));
+const LOADS = IDS.map((id) => loadPublicPossessionTheater(REPO, id, { date: DATE }));
 const escaped = (x) => JSON.stringify(JSON.stringify(x)).length - 2; // a string inside the RSC flight: quotes escaped
 
 test("event codec: every stored run of every game round-trips byte for byte (key order included) and stays valid (P1–P11, ledger, digest)", () => {
@@ -76,7 +77,7 @@ test("event codec refuses what it cannot rebuild exactly (score, index, period, 
 
 test("wire: unpack(pack(payload)) is the payload byte for byte, for both loaders and every game", () => {
   for (const id of IDS) {
-    for (const load of [loadPublicPossessionTheater(REPO, id), loadNbaPossessionTheater(REPO, id)]) {
+    for (const load of [loadPublicPossessionTheater(REPO, id, { date: DATE }), loadNbaPossessionTheater(REPO, id)]) {
       assert.equal(load.ok, true, JSON.stringify(load.error));
       const wire = packPlaybackPayload(load.payload);
       assert.equal(JSON.stringify(unpackPlaybackPayload(wire)), JSON.stringify(load.payload), id);
