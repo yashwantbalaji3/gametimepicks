@@ -7,9 +7,10 @@ import assert from "node:assert/strict";
 
 import {
   EXCLUSION, OFFICIAL_SNAPSHOT_SCHEMA, PUBLICATION, SNAPSHOT_REFUSAL, SOURCE_ROLE, SnapshotRefusal,
-  nbaOfficialSnapshot, nflOfficialSnapshot, playerOf,
+  NBA_OFFICIAL_FAMILY, nbaOfficialSnapshot, nbaReceiptInputRef, nflOfficialSnapshot, playerOf,
 } from "./official-snapshot.mjs";
-import { KICKOFF, NBA_ID, NFL_ID, nbaArtifact, nflBoard, nflReceipt, receiptsOf } from "./__fixtures__/synthetic.mjs";
+import { KICKOFF, NBA_ID, NFL_ID, nbaArtifact, nbaOfficialArtifact, nbaSources, nflBoard, nflReceipt, receiptsOf } from "./__fixtures__/synthetic.mjs";
+import { LANE } from "../sports/nba/experimental-public-lane.mjs";
 
 const refusal = (code) => (e) => e instanceof SnapshotRefusal && e.code === code;
 const board = (o) => ({ path: `app/public/data/nfl/player-board/${NFL_ID}.json`, doc: nflBoard(o) });
@@ -88,21 +89,75 @@ test("NFL distributions: quantile families keep exact points, anytime TD is bern
   assert.equal(s.game.home.expected, (44.2 + 3.4) / 2);
 });
 
-test("NBA: always PRIVATE while the registry keeps NBA off live projections; keyed by providerAthleteId", () => {
-  const s = nbaOfficialSnapshot(NBA_ID, nbaArtifact(), { path: "x.json" });
+test("NBA: official = Elo side + v0.1 players; always PRIVATE; keyed by providerAthleteId", () => {
+  const s = nbaOfficialSnapshot(NBA_ID, nbaSources());
   assert.equal(s.publication, PUBLICATION.PRIVATE);
   assert.equal(s.capability.canShowLiveProjections, false);
-  assert.deepEqual(s.players.map((p) => p.playerId), ["11", "22"]);
+  assert.equal(s.composition.id, "nba-official-composition@1");
+  assert.deepEqual(s.players.map((p) => p.playerId), ["11", "22", "33"]);
   assert.equal(playerOf(s, "Same Name"), null);
-  assert.equal(s.game.pHome, 0.57);
-  assert.equal(s.game.winner.pHome, 0.6, "the Elo head that publishes the side is kept apart, exactly");
-  assert.equal(s.game.total.distribution.kind, "empirical");
-  assert.equal(s.players[0].families.pts.conditioning, "CONDITIONAL_ON_PLAYING");
+  assert.equal(s.game.pHome, 0.6, "the official probability head is the Elo head that sets the side");
+  assert.equal(s.game.winner.side, "HOME");
+  assert.equal(s.game.pHomePublished, null, "never published (preregistration §13)");
+  assert.equal(s.players.find((p) => p.playerId === "11").families.pts.expected, 23.9, "v0.1 numbers, exactly");
+  assert.equal(s.players.find((p) => p.playerId === "11").families.pts.conditioning, "AS_SIMULATED");
+  assert.equal(s.players.find((p) => p.playerId === "11").families.pts.support, "integer", "counts use the continuity rule");
+  assert.equal(s.players.find((p) => p.playerId === "11").families.minutes.support, "continuous");
+  assert.ok(s.modelVersions.players.pts.startsWith("nba-preseason-experimental-v0.1@"));
 });
 
-test("NBA: refuses a broken or missing receipt, and an unknown game", () => {
-  assert.throws(() => nbaOfficialSnapshot(NBA_ID, nbaArtifact({ tamper: true })), refusal(SNAPSHOT_REFUSAL.RECEIPT_INTEGRITY));
-  assert.throws(() => nbaOfficialSnapshot(NBA_ID, nbaArtifact({ noReceipt: true })), refusal(SNAPSHOT_REFUSAL.RECEIPT_INTEGRITY));
-  assert.throws(() => nbaOfficialSnapshot("1", nbaArtifact()), refusal(SNAPSHOT_REFUSAL.GAME_NOT_IN_ARTIFACT));
-  assert.throws(() => nbaOfficialSnapshot(NBA_ID, null), refusal(SNAPSHOT_REFUSAL.NO_ARTIFACT));
+test("NBA: team scores, margin and total are WITHHELD — never read from v0.1's own sim or from v1", () => {
+  const s = nbaOfficialSnapshot(NBA_ID, nbaSources());
+  for (const k of ["home", "away", "margin", "total"]) assert.equal(s.game[k], null, k);
+  assert.equal(s.game.projectedScore.state, "WITHHELD");
+  assert.equal(s.game.projectedScore.home, null);
+  assert.match(s.game.withheld.teamScores, /ignores the opponent/);
+  assert.notEqual(s.game.pHome, 0.45, "v0.1's own (contradicting) sim head is not official");
+  assert.notEqual(s.game.pHome, 0.57, "v1's sim head is not official");
+});
+
+test("NBA: the lane's row rule marks exactly the medians /nba prints (MEDIAN_1DP)", () => {
+  const s = nbaOfficialSnapshot(NBA_ID, nbaSources());
+  const fam = (id, f) => playerOf(s, id).families[f];
+  assert.equal(fam("11", "pts").publicDisplay, "MEDIAN_1DP");
+  assert.equal(fam("11", "pra").publicDisplay, null, "combos are not on the lane");
+  assert.equal(fam("11", "minutes").publicDisplay, null);
+  assert.equal(fam("33", "pts").publicDisplay, null, "below 10 expected minutes");
+});
+
+test("NBA: v1 is attached as a SUPPORTING_SIMULATION source only, with input alignment", () => {
+  const s = nbaOfficialSnapshot(NBA_ID, nbaSources());
+  const sup = s.sources.find((x) => x.role === SOURCE_ROLE.SUPPORTING_SIMULATION);
+  assert.ok(sup);
+  assert.match(sup.modelVersion, /^nba-sim-v1-coherent@/);
+  assert.equal(s.supporting.state, "ATTACHED");
+  assert.deepEqual(Object.keys(s.players.find((p) => p.playerId === "11").families).sort(), ["minutes", "pra", "pts"], "no v1 family leaks in");
+  const without = nbaOfficialSnapshot(NBA_ID, nbaSources({ supporting: null }));
+  assert.equal(without.supporting.state, "NO_ARTIFACT");
+  assert.equal(without.sources.length, 1);
+  assert.equal(nbaOfficialSnapshot(NBA_ID, nbaSources({ supporting: nbaArtifact({ tamper: true }) })).supporting.state, "RECEIPT_INTEGRITY");
+  assert.equal(nbaReceiptInputRef({ inputs: { injuries: { sha256: "a" }, rosters: { sha256: "b" } } }), "injuries:a|rosters:b");
+});
+
+test("NBA: refuses the wrong family, a broken / missing / post-tip receipt, an unknown game", () => {
+  assert.throws(() => nbaOfficialSnapshot(NBA_ID, { official: { doc: nbaArtifact() } }), refusal(SNAPSHOT_REFUSAL.NOT_OFFICIAL_FAMILY), "v1 can never be passed off as official");
+  assert.throws(() => nbaOfficialSnapshot(NBA_ID, nbaSources({ official: nbaOfficialArtifact({ tamper: true }) })), refusal(SNAPSHOT_REFUSAL.RECEIPT_INTEGRITY));
+  assert.throws(() => nbaOfficialSnapshot(NBA_ID, nbaSources({ official: nbaOfficialArtifact({ noReceipt: true }) })), refusal(SNAPSHOT_REFUSAL.RECEIPT_INTEGRITY));
+  assert.throws(() => nbaOfficialSnapshot(NBA_ID, nbaSources({ official: nbaOfficialArtifact({ generatedAt: "2026-11-02T00:30:00Z" }) })), refusal(SNAPSHOT_REFUSAL.RECEIPT_INTEGRITY), "a post-tip stamp is a broken receipt");
+  assert.throws(() => nbaOfficialSnapshot("1", nbaSources()), refusal(SNAPSHOT_REFUSAL.GAME_NOT_IN_ARTIFACT));
+  assert.throws(() => nbaOfficialSnapshot(NBA_ID, { official: null }), refusal(SNAPSHOT_REFUSAL.NO_ARTIFACT));
+});
+
+test("NBA: the official family is the one the public lane reads (one constant)", () => {
+  assert.equal(NBA_OFFICIAL_FAMILY, LANE.sourceFamily);
+  assert.equal(NBA_OFFICIAL_FAMILY, "v0.1");
+});
+
+test("NBA board roles: keys are the official and supporting families; the module is dependency-free (plain-node safe)", async () => {
+  const { NBA_BOARD_ROLES, NBA_BOARD_ROLE, NBA_OFFICIAL_FAMILY: OFF, NBA_SUPPORTING_FAMILY: SUP } = await import("./official-snapshot.mjs");
+  assert.equal(NBA_BOARD_ROLES[OFF].role, NBA_BOARD_ROLE.OFFICIAL);
+  assert.equal(NBA_BOARD_ROLES[SUP].role, NBA_BOARD_ROLE.CHALLENGER_RESEARCH_ONLY);
+  const fs = await import("node:fs");
+  const src = fs.readFileSync(new URL("./nba-board-roles.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(src, /^import /m, "no imports: board producers load it under plain node");
 });

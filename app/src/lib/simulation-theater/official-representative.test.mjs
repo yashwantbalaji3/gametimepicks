@@ -17,7 +17,7 @@ import { readShadowReceipts, simulationOfRecord } from "../sports/nfl/sim-v2/pub
 import { forecastOfRecord } from "../forecast-ledger/adapters/nfl.mjs";
 import { officialTargets, runsFromNflSimReceipt, selectOfficialRepresentative } from "../consistency/representative.mjs";
 import { nbaOfficialSnapshot } from "../consistency/official-snapshot.mjs";
-import { NBA_ID, nbaArtifact, nflBoard, nflReceipt, receiptsOf, NFL_ID } from "../consistency/__fixtures__/synthetic.mjs";
+import { NBA_ID, nbaArtifact, nbaOfficialArtifact, nbaSources, nflBoard, nflReceipt, receiptsOf, NFL_ID } from "../consistency/__fixtures__/synthetic.mjs";
 
 const REPO = path.resolve(process.cwd(), "..");
 
@@ -53,6 +53,7 @@ test("targets come from the OFFICIAL snapshot and the default is the stored run 
   assert.equal(rep.distance, direct.distance);
   assert.equal(officialRunIndex(m), 12);
   assert.deepEqual(rep.official.projectedScore, { home: 24, away: 20, convention: "scores-derived-from-total-and-margin-v1" });
+  assert.equal("withheld" in rep.official, false, "NFL summary shape unchanged");
   assert.equal(rep.official.pHome, 0.62);
   assert.equal(rep.official.team.margin.expected, 3.4);
   assert.equal(rep.official.team.total.expected, 44.2);
@@ -127,24 +128,30 @@ test("reconciliation: fractional official expectations beside whole-number resul
   assert.equal(rec.simulatedGame, 24);
 });
 
-test("NBA: player expectations join by providerAthleteId only and carry the conditional-on-playing basis", () => {
+test("NBA: player expectations join by providerAthleteId only and carry the official (v0.1, as-simulated) basis", () => {
   const a = nbaArtifact();
   const game = a.games[0];
   game.forecast.representativeSamples = [
     { runIndex: 5, label: "typical", final: { home: 112, away: 109 }, players: { home: [{ providerAthleteId: "11", name: "Same Name", pts: 24 }], away: [] } },
     { runIndex: 9, label: "high", final: { home: 130, away: 126 }, players: { home: [{ providerAthleteId: "11", name: "Same Name", pts: 40 }], away: [] } },
+    { runIndex: 12, label: "upset", final: { home: 101, away: 106 }, players: { home: [{ providerAthleteId: "11", name: "Same Name", pts: 24 }], away: [] } },
   ];
-  // the stamp no longer matches once samples are added: the official snapshot REFUSES a broken receipt
-  const broken = { snapshot: null, refusal: null };
-  try { nbaOfficialSnapshot(NBA_ID, a); } catch (e) { broken.refusal = e.code; }
+  // the official snapshot REFUSES a broken official receipt
+  const broken = { refusal: null };
+  try { nbaOfficialSnapshot(NBA_ID, nbaSources({ official: nbaOfficialArtifact({ tamper: true }) })); } catch (e) { broken.refusal = e.code; }
   assert.equal(broken.refusal, "RECEIPT_INTEGRITY");
-  const manifest = { samples: [{ runIndex: 5, validation: { ok: true } }, { runIndex: 9, validation: { ok: true } }] };
-  const fresh = nbaArtifact();
-  const snap = nbaOfficialSnapshot(NBA_ID, fresh);
+  const manifest = { samples: [5, 9, 12].map((runIndex) => ({ runIndex, validation: { ok: true } })) };
+  const snap = nbaOfficialSnapshot(NBA_ID, nbaSources());
   const m = withNbaRepresentative(manifest, game, { snapshot: snap, refusal: null });
-  assert.equal(m.representative.officialRunIndex, 5);
-  assert.deepEqual(m.representative.players["11"], { families: { pts: { expected: 24.2, median: 24 } }, playRate: 0.97, conditioning: "CONDITIONAL_ON_PLAYING" });
+  assert.equal(m.representative.officialRunIndex, 5, "closest HOME win (the Elo side); the upset run is a what-if even with the same line");
+  assert.equal(m.representative.runs.find((r) => r.runIndex === 12).hypothetical, true);
+  assert.deepEqual(m.representative.players["11"].families.pts, { expected: 23.9, median: 23.84 });
+  assert.equal(m.representative.players["11"].conditioning, "AS_SIMULATED");
   assert.equal(m.representative.players["Same Name"], undefined, "never keyed by name");
+  assert.equal(m.representative.official.projectedScore.state, "WITHHELD", "NBA official team score is withheld, with its reason");
+  assert.equal(m.representative.official.projectedScore.home, null);
+  assert.match(m.representative.official.withheld.teamScores, /ignores the opponent/);
+  assert.equal(m.representative.official.composition, "nba-official-composition@1");
   const refusedM = withNbaRepresentative(manifest, game, { snapshot: null, refusal: { code: "RECEIPT_INTEGRITY", message: "x" } });
   assert.equal(refusedM.representative.state, REP_STATE.NO_OFFICIAL);
   assert.ok(refusedM.representative.runs.every((r) => r.hypothetical));
