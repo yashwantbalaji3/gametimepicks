@@ -66,7 +66,7 @@ export const BUDGET_KB = Object.freeze({
   "homer-nukes/index.html": 300,      // measured 116KB
   "sports/index.html": 300,           // measured 115KB
   "moonshot/index.html": 300,         // measured 112KB
-  "nba/index.html": 250,              // measured 236KB on 2026-10-20 (was ~194KB before): +~42KB for the NBA experimental public lane (preregistration §13 — 3 games × at most ~22 frozen player rows, one class string per table); bounded by the slate, not by history
+  "nba/index.html": 250,              // measured 236KB on 2026-10-20 (was ~194KB before): +~42KB for the NBA experimental public lane (preregistration §13 — 3 games × at most ~22 frozen player rows, one class string per table); bounded by the slate, not by history. 2026-10-21: an 11-game slate with full tables measured 388KB — the compact hub (rows on /nba/projections only) keeps the ceiling; do not raise it
 });
 
 /**
