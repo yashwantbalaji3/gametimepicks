@@ -26,3 +26,14 @@ export type PbPayload = {
   runs: PbRun[];
 };
 export type PbLoad = { eventId: string; ok: boolean; error: { code: string; reason: string } | null; payload: PbPayload | null; palettes: { team: NbaPalette; neutral: NbaPalette } | null };
+/**
+ * The island's props: the payload PACKED for the wire (lib/simulation-theater/nba/possession/wire.mjs). Each run's event
+ * log is an event-codec.mjs ledger (`nba-possession-events@1`): one row per event, `[typeIndex, c, poss,
+ * ...cols[typeIndex]]`, player ids interned into `ids`; `i`, `q` (except on period_start), `s` and game_end `final` are
+ * rebuilt by the fold. A run's `rule` is omitted when it is `selection.rules[kind]`.
+ */
+export type PbPackedEvents = { schema: string; types: string[]; cols: string[][]; ids: string[]; words: string[]; rows: (number | null | (number | null)[][])[][] };
+export type PbWire = Omit<PbPayload, "runs"> & {
+  wire: number;
+  runs: (Omit<PbRun, "events" | "rule"> & { rule?: string; log: PbPackedEvents })[];
+};

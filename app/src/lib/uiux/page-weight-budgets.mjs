@@ -81,4 +81,16 @@ export const FAMILY_BUDGET_KB = Object.freeze({
      the legacy June NBA-era pages (heaviest 2026-06-10 at 5,033KB, unchanged by B-3) — that legacy weight is
      backlog, not headroom for new days. Shrink-only. */
   "results/date": 5300,
+  /* NBA Simulation Theater public candidate (PR 1167), one page per published game. ESTIMATE; the coordinator measures
+     under the lock. A flag-ON build measured 446-458KB before the island's props were packed (wire.mjs + event-codec.mjs:
+     five event logs as ledgers, ~346KB → ~65KB escaped in the flight). Estimate after: island markup 34-36KB + props
+     63-66KB escaped + the ~74KB site shell (measured page − that same estimate on the old build) = 171-176KB. Emitted
+     only by a flag-ON build (FLAG_GATED_FAMILIES). Replace with the measured emission + headroom; shrink-only. */
+  "nba/simulation": 250,
 });
+
+/**
+ * Families a DEFAULT build does not emit: scripts/prune-internal-routes.mjs deletes the directory unless the route's
+ * public gate is on. Absent → nothing to measure (skipped); present → the ceiling above applies to every page.
+ */
+export const FLAG_GATED_FAMILIES = Object.freeze(["nba/simulation"]);
