@@ -11,7 +11,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { buildExperimentalSnapshot, snapshotMatchesSource } from "../../src/lib/sports/nba/experimental-public-lane.mjs";
+import { buildExperimentalSnapshot, buildExperimentalAudit, snapshotMatchesSource } from "../../src/lib/sports/nba/experimental-public-lane.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -43,4 +43,9 @@ if (argv.includes("--write")) {
   fs.writeFileSync(path.join(out, `${DATE}.json`), text);
   fs.writeFileSync(path.join(out, "latest.json"), text);
   console.log(`wrote public/data/nba/experimental-public/${DATE}.json (+ latest.json)`);
+  // The private audit companion (never exported): why each withholding holds, and the seeds.
+  const auditDir = path.join(REPO, "data", "internal", "research", "nba", "experimental-public-audit");
+  fs.mkdirSync(auditDir, { recursive: true });
+  fs.writeFileSync(path.join(auditDir, `${DATE}.json`), `${JSON.stringify(buildExperimentalAudit({ forecastDoc: doc, generatedAt: NOW }), null, 1)}\n`);
+  console.log(`wrote data/internal/research/nba/experimental-public-audit/${DATE}.json (private)`);
 }

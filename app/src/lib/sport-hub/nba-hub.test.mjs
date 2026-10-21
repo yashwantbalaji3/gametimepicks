@@ -118,3 +118,14 @@ test("freshness follows whichever artifact moved last — the finals record refr
   assert.equal(nbaHubFrom({ nowIso: NOW, schedule: sched, finals: null }).freshness, "2026-10-04T14:45:29Z", "no finals record: the schedule stamp alone");
   assert.equal(nbaHubFrom({ nowIso: NOW, schedule: null, finals: null }).freshness, null, "no stamp is invented");
 });
+
+test("a regular-season game the experimental lane covers points at it — never a validation claim; others keep the no-forecast note", async () => {
+  const { NBA_LANE_NOTE } = await import("./nba-hub.ts");
+  const withLane = nbaHubFrom({ nowIso: NOW, schedule: SCHEDULE, finals: FINALS, laneIds: new Set([byId.reg.id]) });
+  const row = withLane.rows.find((r) => r.id === byId.reg.id);
+  assert.equal(row.reportNote, NBA_LANE_NOTE);
+  assert.match(NBA_LANE_NOTE, /not validated/);
+  assert.doesNotMatch(NBA_LANE_NOTE, /\b(pick|projected|projection|favou?red|edge|lean)\b|%/i, "the row stays inside the hub's row vocabulary rule");
+  assert.equal(withLane.rows.find((r) => r.id === byId["next-pre"].id).reportNote, NBA_PRESEASON_NOTE, "preseason is untouched");
+  assert.equal(nbaHubFrom({ nowIso: NOW, schedule: SCHEDULE, finals: FINALS }).rows.find((r) => r.id === byId.reg.id).reportNote, NBA_NO_FORECAST_NOTE, "no lane → unchanged");
+});

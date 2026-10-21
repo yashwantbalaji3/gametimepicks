@@ -15,7 +15,8 @@ import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import SportSwitcher from "@/components/sports/sport-switcher";
 import { nbaHub } from "@/lib/sport-hub/nba-hub";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
-import NbaExperimentalLane, { loadExperimentalSnapshot } from "@/components/nba/experimental-lane";
+import NbaExperimentalLane, { NbaLaneTonight, loadCurrentLane } from "@/components/nba/experimental-lane";
+import { currentEtDate } from "@/lib/freshness";
 
 export const metadata = withRouteMetadata("/nba/", {
   title: "NBA — Schedule, final scores & experimental projections · GameTime Picks",
@@ -24,10 +25,16 @@ export const metadata = withRouteMetadata("/nba/", {
 });
 
 export default function NbaHubPage() {
-  const model = nbaHub(new Date().toISOString());
+  /* §12 look 5 · §13 (founder decision 2026-10-20): the experimental lane — null when disabled or empty, and hidden once
+     its slate is in the past (a stale snapshot never reads as current; the page falls back to the factual wording). */
+  const lane = loadCurrentLane(currentEtDate());
+  const model = nbaHub(new Date().toISOString(), lane ? new Set(lane.games.map((g) => g.providerEventId)) : null);
   const finals = model.rows.filter((r) => r.status === "final").length;
-  /* §12 look 5 · §13 (founder decision 2026-10-20): the experimental lane — null when disabled or empty. */
-  const lane = loadExperimentalSnapshot();
+  /* A recorded FINAL (from the same finals record the list below uses) is the only status a card states: the page is a
+     static export, so "scheduled" or "tipped" computed at build time would go stale after tip-off. Otherwise the card
+     shows only its fixed tip-off and freeze times. */
+  const statuses: Record<string, string> = {};
+  for (const r of model.rows) if (r.status === "final" && lane?.games.some((g) => g.providerEventId === r.id)) statuses[r.id] = `final · ${r.reportNote}`;
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       {/* UX-001 phase 2: the shared sport switcher — every hub links to every other sport. */}
@@ -48,13 +55,14 @@ export default function NbaHubPage() {
           </>
         )}
       </p>
+      <NbaLaneTonight snapshot={lane} />
       <SportHubNav sport="nba" />
+      {/* Founder direction 2026-10-20: tonight's frozen experimental output leads the page, above the schedule. */}
+      <NbaExperimentalLane snapshot={lane} statuses={statuses} />
       <section id="nba-games" className="scroll-mt-24" aria-label="NBA games">
         {/* Session 11: schedule-only — one line per game keeps every game inside the page budget. */}
         <HubHeader model={model} compact />
       </section>
-
-      <NbaExperimentalLane snapshot={lane} />
 
       <section id="nba-model-status" className="scroll-mt-24 flex flex-col gap-2" aria-labelledby="nba-model-status-h">
         <h2 id="nba-model-status-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>Model status</h2>
