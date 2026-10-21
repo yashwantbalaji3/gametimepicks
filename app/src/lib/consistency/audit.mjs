@@ -23,7 +23,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import {
-  NBA_LANE_FAMILIES, NBA_OFFICIAL_FAMILY, NBA_SUPPORTING_FAMILY, SOURCE_ROLE, SnapshotRefusal, nbaOfficialSnapshot, nbaSupportingGame, nflOfficialSnapshot, playerOf,
+  NBA_BOARD_ROLE, NBA_BOARD_ROLES, NBA_LANE_FAMILIES, NBA_OFFICIAL_FAMILY, NBA_SUPPORTING_FAMILY, SOURCE_ROLE, SnapshotRefusal, nbaOfficialSnapshot, nbaSupportingGame, nflOfficialSnapshot, playerOf,
 } from "./official-snapshot.mjs";
 import { evaluateMarket, LEAN } from "./market-evaluator.mjs";
 import { officialTargets, runsFromNbaSamples, runsFromNflSimReceipt, selectOfficialRepresentative } from "./representative.mjs";
@@ -586,6 +586,13 @@ function auditNbaDate(ctx, date) {
     for (const b of boards) {
       const fam = b.doc.family;
       const famGames = fam === officialFamily ? off : fam === NBA_SUPPORTING_FAMILY ? sup : null;
+      // A labelled challenger research board (founder 2026-10-20) is a different model BY DESIGN: it is inventoried,
+      // not compared with the official numbers and not a version mix. It must stay off every public / product surface
+      // (top-board-route-gating + static scan). Any family without a role is still an ERROR.
+      if (NBA_BOARD_ROLES[fam]?.role === NBA_BOARD_ROLE.CHALLENGER_RESEARCH_ONLY) {
+        ctx.researchBoards.push({ sport: "NBA", eventId: id, family: fam, label: NBA_BOARD_ROLES[fam].label, path: b.path, editions: (b.doc.editions ?? []).filter((ed) => (ed.games ?? []).some((x) => String(x.eventId) === id)).length });
+        continue;
+      }
       for (const ed of b.doc.editions ?? []) {
         const gm = (ed.games ?? []).find((x) => String(x.eventId) === id);
         if (!gm) continue;
@@ -656,6 +663,7 @@ export function runConsistencyAudit({ repoRoot, nflEvents = null, nbaDates = DEF
     publicViews: new Map(loadForecastViews(publicDir).map((v) => [String(v.providerEventId), v])),
     representatives: [],
     anchors: [],
+    researchBoards: [],
   };
   for (const e of ctx.shadowEntries) manifest[e.file] ??= sha256(fs.readFileSync(path.join(repoRoot, e.file)));
   const events = nflEvents ?? nflEventsWithAllSources(repoRoot);
@@ -672,6 +680,7 @@ export function runConsistencyAudit({ repoRoot, nflEvents = null, nbaDates = DEF
     evaluations: results.flatMap((r) => r.evaluations),
     representatives: ctx.representatives,
     simAnchors: ctx.anchors,
+    researchBoards: ctx.researchBoards,
     discrepancies,
     summary: summarize(discrepancies),
     manifest,
@@ -703,10 +712,29 @@ export const THEATER_GATE_CODES = Object.freeze([CODES.SCENARIO_LEAK, CODES.BOX_
  *   · the event has an official snapshot (a refusal blocks).
  * @returns {{ sport, eventId, open: boolean, blockers: object[] }}
  */
-export function theaterActivationGate(sport, eventId, { audit = null, repoRoot = null } = {}) {
+/**
+ * NBA THEATER GATE POLICY (founder decision 2026-10-20, relayed by the release owner: "the Theater may run a different
+ * engine from the official forecast; one canonical public prediction everywhere"). Two policies; the founder decides.
+ *   ANCHORED (IN FORCE)          the replayed v1 simulation must agree with the official forecast (nbaSimAnchorCheck)
+ *                                under an approved tolerance, and its closest run is shown as the Official
+ *                                Representative Simulation.
+ *   LABELLED_SUPPORTING_RUNS     PREPARED, NOT IN FORCE. No anchor is required. The official panel shows the canonical
+ *                                snapshot only; every replayed run is labelled an individual nba-sim-v1-coherent run
+ *                                (never "official representative"); nothing a run shows overwrites an official value.
+ *                                Still required: a verified pre-tip supporting game, consistent box scores, no
+ *                                scenario leak, no model-version mix — and the founder's adoption of the policy.
+ * Changing the policy in force is a founder decision recorded in the same reviewed PR that edits this constant.
+ */
+export const NBA_THEATER_GATE_POLICY = Object.freeze({ ANCHORED: "ANCHORED", LABELLED_SUPPORTING_RUNS: "LABELLED_SUPPORTING_RUNS" });
+export const NBA_THEATER_GATE_POLICY_IN_FORCE = NBA_THEATER_GATE_POLICY.ANCHORED;
+
+export function theaterActivationGate(sport, eventId, { audit = null, repoRoot = null, nbaPolicy = NBA_THEATER_GATE_POLICY_IN_FORCE } = {}) {
   const a = audit ?? runConsistencyAudit({ repoRoot, nflEvents: String(sport).toUpperCase() === "NFL" ? [String(eventId)] : [], nbaDates: String(sport).toUpperCase() === "NBA" ? DEFAULT_NBA_DATES : [] });
   const S = String(sport).toUpperCase(); const id = String(eventId);
-  const theaterSurface = (s) => /^simulation-theater/.test(s) || /^nfl-simulation-v2/.test(s);
+  const labelledRuns = S === "NBA" && nbaPolicy === NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS;
+  // under LABELLED_SUPPORTING_RUNS no run is presented as the official representative, so the default-run selection
+  // surface (simulation-theater.default) is not a gate; every other theater surface still is
+  const theaterSurface = (s) => (/^simulation-theater/.test(s) && !(labelledRuns && s === "simulation-theater.default")) || /^nfl-simulation-v2/.test(s);
   const blockers = a.discrepancies.filter((d) => {
     if (d.sport !== S && !(d.static && d.sport === "ALL" && d.code === CODES.SCENARIO_LEAK)) return false;
     if (d.static) return (d.surface ?? "").startsWith("simulation-theater") || d.code === CODES.SCENARIO_LEAK;
@@ -721,7 +749,9 @@ export function theaterActivationGate(sport, eventId, { audit = null, repoRoot =
   if (S === "NBA" && !refusal && known(a, S, id)) {
     const anc = (a.simAnchors ?? []).find((x) => x.sport === "NBA" && x.eventId === id);
     if (!anc) blockers.unshift({ code: "NO_SUPPORTING_SIMULATION", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: "no verified pre-tip v1 game to replay", fingerprint: `NOSIM|${S}|${id}` });
-    else {
+    else if (labelledRuns) {
+      if (nbaPolicy !== NBA_THEATER_GATE_POLICY_IN_FORCE) blockers.unshift({ code: "GATE_POLICY_NOT_IN_FORCE", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: `${nbaPolicy} is prepared, not adopted (in force: ${NBA_THEATER_GATE_POLICY_IN_FORCE}) — founder decision`, fingerprint: `POLICY|${S}|${id}` });
+    } else {
       if (!anc.anchored) blockers.unshift({ code: "SIM_NOT_ANCHORED", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: `failed: ${anc.failed.map((t) => t.term).join(", ")}`, fingerprint: `ANCHOR|${S}|${id}` });
       if (!anc.toleranceApproved) blockers.unshift({ code: "ANCHOR_TOLERANCE_UNAPPROVED", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: anc.tolerance.basis, fingerprint: `ANCHORTOL|${S}|${id}` });
     }
