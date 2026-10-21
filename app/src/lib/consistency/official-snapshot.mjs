@@ -27,9 +27,15 @@
  *   NFL players  the player board for the same event (the families the prop ledger freezes and grades).
  *   NFL World Model V2 → SUPPORTING_SIMULATION; NFL sim-v2 drive engine → SHADOW. Both are attached as sources with
  *                their own versions and input references, and their numbers are NEVER merged into the official ones.
- *   NBA          the v1 experimental forecast receipt (nba-forecast-receipt@1). Always PRIVATE until the sport
- *                capability registry lets NBA show live projections AND the artifact stops being PRIVATE_RESEARCH.
- *                Refused unless `receiptIntegrity` is OK (a broken or receipt-less game never becomes official).
+ *   NBA game     the Elo favoured side carried in the v0.1 receipt (founder N2) — the side and its Elo pHome only.
+ *                Team scores / margin / total have NO official value (WITHHELD): the v0.1 team score ignores the
+ *                opponent and contradicts the Elo side, and the coherent v1 engine is not anchored to Elo yet.
+ *   NBA players  the v0.1 roster-gated family (founder N1, player champion) — the same receipt the public /nba lane
+ *                (#1146) publishes medians from, so the lane, the Theater and every product read ONE source.
+ *   NBA v1 (nba-sim-v1-coherent) → SUPPORTING_SIMULATION: attached as a source with its own version and input
+ *                hashes (alignedWithOfficial = same injury + roster inputs); its numbers are NEVER merged in.
+ *                Every NBA receipt must pass `receiptIntegrity` (a broken or receipt-less game never becomes official);
+ *                the snapshot stays PRIVATE until the registry lets NBA show live projections.
  *
  * EXACT NUMBERS. Values are copied exactly as the owner stored them (unrounded where the owner kept an unrounded copy,
  * e.g. NFL `winProbability.homeUnrounded`). Nothing here rounds.
@@ -39,6 +45,7 @@
 import { canonicalJson, receiptIntegrity, sha256 } from "../sports/nba/forecast-receipt.mjs";
 import { forecastOfRecord } from "../forecast-ledger/adapters/nfl.mjs";
 import { canEnterPredictionProducts, canShowLiveProjections, capabilityState } from "../sport-capability-registry.ts";
+import { LANE, MIN_EXPECTED_MINUTES as LANE_MIN_EXPECTED_MINUTES, STATS as LANE_STATS, WITHHELD as LANE_WITHHELD } from "../sports/nba/experimental-public-lane.mjs";
 
 export const OFFICIAL_SNAPSHOT_SCHEMA = "gtp.contract.official-forecast-snapshot@1";
 
@@ -62,6 +69,9 @@ export const SNAPSHOT_REFUSAL = Object.freeze({
   GAME_NOT_IN_ARTIFACT: "GAME_NOT_IN_ARTIFACT",
   RECEIPT_INTEGRITY: "RECEIPT_INTEGRITY",
   NO_GAME_DISTRIBUTION: "NO_GAME_DISTRIBUTION",
+  NOT_OFFICIAL_FAMILY: "NOT_OFFICIAL_FAMILY",
+  NOT_PRE_TIP: "NOT_PRE_TIP",
+  NO_WINNER_HEAD: "NO_WINNER_HEAD",
 });
 
 export class SnapshotRefusal extends Error {
@@ -296,35 +306,94 @@ export function nflOfficialSnapshot(eventId, { receipts = [], playerBoard = null
 
 /* ────────────────────────────────────────────── NBA ────────────────────────────────────────────── */
 
-export const NBA_PLAYER_FAMILIES = Object.freeze(["pts", "reb", "ast", "threePm"]);
+/**
+ * WHICH NBA MODEL IS OFFICIAL (founder decisions N1 + N2, made public by #1146 on 2026-10-20). One composition, named
+ * and versioned, so the public /nba lane, the Simulation Theater, the boards and every product read the same numbers:
+ *   game     the Elo favoured side the v0.1 receipt publishes (`publishedSide`, rule nba-winner-side@1, head elo) and
+ *            that head's pHome. The probability is NOT published (preregistration §13).
+ *   teams    NO official home / away / margin / total. The v0.1 team score is a sum of its own players' points that
+ *            ignores the opponent (it contradicted the Elo side in 2 of 3 opening-night games), and the coherent v1
+ *            engine's win probability sat 0.04–0.05 below Elo in all three. Kept null with state WITHHELD until a
+ *            model is reconciled — never filled from a supporting simulation, never adjusted to agree with Elo.
+ *   players  the v0.1 roster-gated family (player champion): pts, reb, ast, threePm, the same-draw combos pra / ptsReb /
+ *            ptsAst, and minutes. rebAst, steals, blocks and turnovers are NOT modelled by any family.
+ *   v1       nba-sim-v1-coherent is a SUPPORTING_SIMULATION source (the Theater replays its stored runs); it is
+ *            checked against this snapshot (audit `nbaSimAnchorCheck`), never merged into it.
+ */
+export const NBA_OFFICIAL_FAMILY = LANE.sourceFamily;
+export const NBA_SUPPORTING_FAMILY = "v1";
+export const NBA_PLAYER_FAMILIES = Object.freeze(["pts", "reb", "ast", "threePm", "pra", "ptsReb", "ptsAst", "minutes"]);
+/** Families the public lane prints (median, 1 dp) for players who pass the lane's row rule. */
+export const NBA_LANE_FAMILIES = Object.freeze(LANE_STATS.map(([k]) => k));
+export const NBA_NOT_MODELLED = Object.freeze(["rebAst", "stl", "blk", "tov"]);
+export const NBA_COMPOSITION = Object.freeze({
+  id: "nba-official-composition@1",
+  game: "Elo favoured side from the v0.1 receipt (founder N2); probability not published",
+  teams: "WITHHELD — no official team score, margin or total",
+  players: "v0.1 roster-gated player simulation (founder N1)",
+  supporting: "v1 nba-sim-v1-coherent — SUPPORTING_SIMULATION, never merged",
+});
+// NBA top-board roles live in a dependency-free module (board producers run under plain node); re-exported here.
+export { NBA_BOARD_ROLE, NBA_BOARD_ROLES } from "./nba-board-roles.mjs";
 
-const histogramDist = (hist) => (Array.isArray(hist) && hist.length
-  ? { kind: DISTRIBUTION_KIND.EMPIRICAL, support: hist.map((b) => ({ value: b.value, probability: b.probability })) }
-  : null);
+/**
+ * v0's draws are not whole numbers (a points median of 21.38): counting stats are read as the law of an integer by the
+ * evaluator's continuity rule (market-evaluator.mjs), exactly as NFL yards are; minutes are genuinely continuous.
+ */
+export const NBA_SUPPORT = Object.freeze({ minutes: "continuous" });
+export const NBA_V01_SUPPORT_NOTE = "continuous draws of a counting stat, read as the law of an integer (continuity rule)";
+
+/** The injury + roster inputs a receipt was frozen on (equal refs ⇒ two families saw the same availability). */
+export function nbaReceiptInputRef(receipt) {
+  const i = receipt?.inputs ?? {};
+  const inj = i.injuries?.sha256 ?? null;
+  const ros = i.rosters?.sha256 ?? null;
+  return inj || ros ? `injuries:${inj ?? "-"}|rosters:${ros ?? "-"}` : null;
+}
+
+const preTipOk = (g) => g?.receipt?.preTip === true && Date.parse(g.receipt.generatedAt) < Date.parse(g.dateUtc);
+const lanePrints = (p) => p?.availability !== "out" && isNum(p?.expectedMinutes) && p.expectedMinutes >= LANE_MIN_EXPECTED_MINUTES;
+
+/**
+ * The supporting v1 game for an event, verified (receipt intact, frozen pre-tip), or the reason it is not usable.
+ * @param {{doc?: object}|null} supporting the v1 day file
+ * @returns {{ state: "ATTACHED"|"NO_ARTIFACT"|"NOT_SUPPORTING_FAMILY"|"GAME_NOT_IN_ARTIFACT"|"RECEIPT_INTEGRITY"|"NOT_PRE_TIP", game: object|null }}
+ */
+export function nbaSupportingGame(supporting, eventId) {
+  const doc = supporting?.doc ?? null;
+  if (!doc) return { state: "NO_ARTIFACT", game: null };
+  if (doc.family !== NBA_SUPPORTING_FAMILY) return { state: "NOT_SUPPORTING_FAMILY", game: null };
+  const g = doc.games?.find((x) => String(x.providerEventId) === String(eventId)) ?? null;
+  if (!g) return { state: "GAME_NOT_IN_ARTIFACT", game: null };
+  if (receiptIntegrity(g).state !== "OK") return { state: "RECEIPT_INTEGRITY", game: null };
+  if (!preTipOk(g)) return { state: "NOT_PRE_TIP", game: null };
+  return { state: "ATTACHED", game: g };
+}
 
 /**
  * @param {string} eventId providerEventId
- * @param {object} artifact the committed experimental-v1 forecasts day file
- * @param {{path?: string, sha256?: string}} [ref] where the artifact came from (file-bytes hash when known)
+ * @param {{ official: {doc: object, path?: string, sha256?: string}, supporting?: {doc: object, path?: string, sha256?: string}|null }} sources
+ *   official    the committed v0.1 forecasts day file (experimental-v0.1/forecasts/<date>.json)
+ *   supporting  the committed v1 forecasts day file (experimental-v1/forecasts/<date>.json), optional
  */
-export function nbaOfficialSnapshot(eventId, artifact, ref = {}) {
+export function nbaOfficialSnapshot(eventId, { official = null, supporting = null } = {}) {
   if (eventId == null || String(eventId) === "") throw new SnapshotRefusal(SNAPSHOT_REFUSAL.NO_EVENT_ID, "no event id");
-  if (!artifact) throw new SnapshotRefusal(SNAPSHOT_REFUSAL.NO_ARTIFACT, "no NBA forecast artifact");
+  const doc = official?.doc ?? null;
+  if (!doc) throw new SnapshotRefusal(SNAPSHOT_REFUSAL.NO_ARTIFACT, "no NBA official (v0.1) forecast artifact");
+  if (doc.family !== NBA_OFFICIAL_FAMILY) {
+    throw new SnapshotRefusal(SNAPSHOT_REFUSAL.NOT_OFFICIAL_FAMILY, `the official NBA family is ${NBA_OFFICIAL_FAMILY}, not ${JSON.stringify(doc.family)}`);
+  }
   const id = String(eventId);
-  const g = artifact.games?.find((x) => String(x.providerEventId) === id);
-  if (!g) throw new SnapshotRefusal(SNAPSHOT_REFUSAL.GAME_NOT_IN_ARTIFACT, `${id} not in artifact ${ref.path ?? ""}`);
+  const g = doc.games?.find((x) => String(x.providerEventId) === id);
+  if (!g) throw new SnapshotRefusal(SNAPSHOT_REFUSAL.GAME_NOT_IN_ARTIFACT, `${id} not in artifact ${official.path ?? ""}`);
   const integrity = receiptIntegrity(g);
   if (integrity.state !== "OK") throw new SnapshotRefusal(SNAPSHOT_REFUSAL.RECEIPT_INTEGRITY, `receipt ${integrity.state}`, integrity);
+  if (!preTipOk(g)) throw new SnapshotRefusal(SNAPSHOT_REFUSAL.NOT_PRE_TIP, `${id} receipt ${g.receipt.generatedAt} is not strictly before tip ${g.dateUtc}`);
   const f = g.forecast;
-  const sim = f?.sim;
-  if (!sim || !isNum(sim.pHome)) throw new SnapshotRefusal(SNAPSHOT_REFUSAL.NO_GAME_DISTRIBUTION, `${id} has no sim distribution`);
+  const r = g.receipt;
+  if (!isNum(f?.elo?.pHome)) throw new SnapshotRefusal(SNAPSHOT_REFUSAL.NO_WINNER_HEAD, `${id} has no Elo head`);
 
-  const version = `${g.receipt.modelVersion}@${artifact.profileVersion ?? artifact.simEngineVersion ?? "?"}`;
-  const team = (d, hist = null) => ({
-    distribution: histogramDist(hist) ?? { kind: DISTRIBUTION_KIND.QUANTILES, points: quantilePoints(d), mean: d?.mean ?? null },
-    expected: d?.mean ?? null, sd: d?.sd ?? null, median: d?.p50 ?? null, p10: d?.p10 ?? null, p90: d?.p90 ?? null, support: "integer",
-  });
-
+  const version = `${r.modelVersion}@${doc.simEngineVersion ?? "?"}`;
   const players = [];
   const excluded = [];
   const seen = new Set();
@@ -342,9 +411,11 @@ export function nbaOfficialSnapshot(eventId, artifact, ref = {}) {
           state: "PRIVATE_SHADOW",
           distribution: { kind: DISTRIBUTION_KIND.QUANTILES, points: quantilePoints(d), mean: d.mean ?? null, lowerBound: 0 },
           expected: d.mean ?? null, sd: d.sd ?? null, median: d.p50,
-          support: "integer",
-          conditioning: p.conditioning ? "CONDITIONAL_ON_PLAYING" : "AS_SIMULATED",
-          playRate: p.playRate ?? null,
+          support: NBA_SUPPORT[fam] ?? "integer",
+          supportNote: NBA_SUPPORT[fam] ? null : NBA_V01_SUPPORT_NOTE,
+          conditioning: "AS_SIMULATED",
+          playRate: null,
+          publicDisplay: NBA_LANE_FAMILIES.includes(fam) && lanePrints(p) ? "MEDIAN_1DP" : null,
           modelVersion: version,
         };
       }
@@ -358,39 +429,54 @@ export function nbaOfficialSnapshot(eventId, artifact, ref = {}) {
   }
   players.sort((a, b) => a.playerId.localeCompare(b.playerId));
 
+  const sup = nbaSupportingGame(supporting, id);
+  const sources = [
+    sourceEntry({ role: SOURCE_ROLE.OFFICIAL, path: official.path ?? null, doc: official.sha256 ? null : g, sha256: official.sha256, modelVersion: version, generatedAt: r.generatedAt, inputRef: r.payloadSha256, expectedInputRef: r.payloadSha256 }),
+  ];
+  if (sup.game) {
+    sources.push(sourceEntry({
+      role: SOURCE_ROLE.SUPPORTING_SIMULATION, path: supporting.path ?? null, doc: supporting.sha256 ? null : sup.game, sha256: supporting.sha256,
+      modelVersion: `${sup.game.receipt.modelVersion}@${supporting.doc.profileVersion ?? supporting.doc.simEngineVersion ?? "?"}`,
+      generatedAt: sup.game.receipt.generatedAt,
+      inputRef: nbaReceiptInputRef(sup.game.receipt), expectedInputRef: nbaReceiptInputRef(r),
+    }));
+  }
+
   const cap = capability("nba");
-  const isPublic = cap.canShowLiveProjections && artifact.dataClass !== "PRIVATE_RESEARCH";
-  const playerVersions = Object.fromEntries(NBA_PLAYER_FAMILIES.map((k) => [k, version]));
+  const isPublic = cap.canShowLiveProjections && doc.dataClass !== "PRIVATE_RESEARCH";
+  const side = f.publishedSide === "HOME" || f.publishedSide === "AWAY" ? f.publishedSide : null;
   return sealSnapshot({
     schema: OFFICIAL_SNAPSHOT_SCHEMA,
     sport: "NBA",
     eventId: id,
     matchup: `${g.away?.abbr ?? "?"} @ ${g.home?.abbr ?? "?"}`,
     home: { abbr: g.home?.abbr ?? null }, away: { abbr: g.away?.abbr ?? null },
-    modelVersions: { game: version, players: playerVersions },
-    inputAsOf: iso(f.inputAsOf ?? artifact.inputAsOf),
-    generatedAt: iso(g.receipt.generatedAt),
-    frozenAt: iso(g.receipt.generatedAt), // write-once: the receipt instant is the freeze
+    composition: NBA_COMPOSITION,
+    modelVersions: { game: `${f.sideRule?.id ?? "?"}:${f.sideRule?.head ?? "?"}(${r.modelVersion})`, players: Object.fromEntries(NBA_PLAYER_FAMILIES.map((k) => [k, version])) },
+    inputAsOf: iso(f.inputAsOf ?? doc.inputAsOf),
+    generatedAt: iso(r.generatedAt),
+    frozenAt: iso(r.generatedAt), // write-once: the receipt instant is the freeze
     lockAt: iso(g.dateUtc),
     publication: isPublic ? PUBLICATION.PUBLIC : PUBLICATION.PRIVATE,
     capability: cap,
     game: {
-      pHome: sim.pHome,
-      pAway: sim.pAway ?? null,
-      pTie: sim.tieMass ?? 0,
-      pHomePublished: sim.pHome,
-      // The receipt's published side comes from its Elo head, not from the simulation's pHome (kept apart, exact).
-      winner: { side: f.publishedSide ?? null, rule: f.sideRule?.id ?? null, head: f.sideRule?.head ?? null, pHome: f.elo?.pHome ?? null },
-      projectedScore: { home: sim.home?.p50 ?? null, away: sim.away?.p50 ?? null, convention: "per-team simulated median" },
-      home: team(sim.home),
-      away: team(sim.away),
-      margin: team(sim.margin, sim.marginHistogram),
-      total: team(sim.total, sim.totalHistogram),
+      probabilityHead: f.sideRule?.head ?? "elo",
+      pHome: f.elo.pHome,
+      pAway: isNum(f.elo.pAway) ? f.elo.pAway : null,
+      pTie: 0,
+      pHomePublished: null,
+      winner: { side, rule: f.sideRule?.id ?? null, head: f.sideRule?.head ?? null, pHome: f.elo.pHome },
+      projectedScore: { home: null, away: null, state: "WITHHELD", reason: LANE_WITHHELD.teamScores, convention: null },
+      home: null,
+      away: null,
+      margin: null,
+      total: null,
+      withheld: { ...LANE_WITHHELD },
     },
     players,
     excluded,
-    sources: [
-      sourceEntry({ role: SOURCE_ROLE.OFFICIAL, path: ref.path ?? null, doc: ref.sha256 ? null : g, sha256: ref.sha256, modelVersion: version, generatedAt: g.receipt.generatedAt, inputRef: g.receipt.payloadSha256, expectedInputRef: g.receipt.payloadSha256 }),
-    ],
+    notModelled: NBA_NOT_MODELLED,
+    supporting: { family: NBA_SUPPORTING_FAMILY, state: sup.state },
+    sources,
   });
 }

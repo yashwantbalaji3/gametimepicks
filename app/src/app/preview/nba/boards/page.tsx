@@ -1,5 +1,7 @@
 /**
- * /preview/nba/boards — INTERNAL. NBA Top 10 player boards (points · rebounds · assists · 3PM), PRIVATE preview.
+ * /preview/nba/boards — INTERNAL. NBA Top 10 player boards (points · rebounds · assists · 3PM · PRA · P+R · P+A; R+A is
+ * shown as not modelled), PRIVATE preview. A table over every frozen row (row view model, top-board-rows.mjs) with
+ * the price columns explicitly "No authorized NBA price", then the per-freeze cards.
  *
  * Internal by construction, exactly like every other /preview route: guardInternalRoute() 404s it in the production
  * export, prune-internal-routes.mjs deletes out/preview/ (HTML, RSC payload and page chunk), and it is visible only in
@@ -15,9 +17,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 import TopBoard, { type TopBoardEdition, type TopBoardMeta } from "@/components/nba/top-board";
+import TopBoardTable, { type BoardTableModelT } from "@/components/nba/top-board-table";
 import { guardInternalRoute } from "@/lib/internal-route-guard";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { BOARD_MAX_ROWS, DEFAULT_BOARD_FAMILY, ELIGIBILITY, freezeBoards } from "@/lib/sports/nba/top-boards.mjs";
+import { boardTableModel } from "@/lib/sports/nba/top-board-rows.mjs";
 
 export const metadata = withRouteMetadata("/preview/nba/boards/", {
   title: "Internal Preview · NBA Top Boards (private)",
@@ -58,6 +62,9 @@ export default function NbaBoardsPreviewPage() {
     minExpectedMinutes: ELIGIBILITY.minExpectedMinutes, maxMinutesCv: ELIGIBILITY.maxMinutesCv, minPlayRate: ELIGIBILITY.minPlayRate, maxRows: BOARD_MAX_ROWS,
   } : null;
   const editions: TopBoardEdition[] = doc ? [...doc.editions].reverse() : [];
+  // No price object exists for any row (no authorized NBA price), so no evaluation is passed: every price cell is
+  // NO_AUTHORIZED_PRICE. Wiring prices is boardRowEvaluation (top-board-evaluation.mjs) → `evaluations` here.
+  const table = doc ? (boardTableModel(doc) as BoardTableModelT) : null;
 
   return (
     <div className="mx-auto px-4 py-10" style={{ maxWidth: 960, width: "100%", boxSizing: "border-box" }}>
@@ -74,6 +81,9 @@ export default function NbaBoardsPreviewPage() {
         {meta ? `ET date ${meta.date} · ${meta.modelVersion ?? meta.family}. ` : ""}{note}
         {origin === "FROZEN" && editions.length > 1 ? ` ${editions.length} freezes on this date; latest first.` : ""}
       </p>
+      <h2 style={{ fontSize: 18, color: "var(--vault-text)", margin: "0 0 10px" }}>All markets</h2>
+      <TopBoardTable model={table} />
+      <h2 style={{ fontSize: 18, color: "var(--vault-text)", margin: "24px 0 10px" }}>Boards by freeze</h2>
       {meta && editions.length ? editions.map((e) => (
         <div key={e.edition} style={{ marginBottom: 28 }}>
           {editions.length > 1 ? <h2 style={{ fontSize: 16, color: "var(--vault-text)", margin: "0 0 8px" }}>Freeze {e.edition} · {e.gamesOnBoard} game{e.gamesOnBoard === 1 ? "" : "s"}</h2> : null}

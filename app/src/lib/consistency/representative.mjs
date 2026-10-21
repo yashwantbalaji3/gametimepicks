@@ -20,6 +20,10 @@
  *     0 for it, so a game where he sat out is neither ignored nor scored against an average that assumes he played.
  *   A run stored under several kinds (e.g. the same run as UPSET and OVERTIME) is ONE run: runs are de-duplicated by
  *     runIndex before scoring (its kinds are kept together), so it can never be both the official run and a what-if.
+ *   SIDE CONSTRAINT (@2). When the official snapshot has NO team expectations (NBA: team scores WITHHELD, only the
+ *     Elo favoured side is official) but names a winner side, only runs won by that side are eligible — the player
+ *     terms alone could otherwise crown an upset run "official". If no stored run is won by the official side, no run
+ *     is official (every run is a what-if). With team terms present (NFL) nothing changes: @2 picks what @1 picked.
  *   Ties → lowest runIndex. Deterministic: same runs + same snapshot ⇒ same pick.
  *   `withinTolerance` = distance ≤ `tolerance` (default 0.5 normalised units). A pool of stored representatives is
  *   small (NFL sim-v2 stores 5, NBA v1 stores 5); a pick outside tolerance is reported, never hidden.
@@ -34,7 +38,7 @@
  */
 
 export const REPRESENTATIVE_RULE = Object.freeze({
-  id: "official-representative@1",
+  id: "official-representative@2",
   teamTerms: Object.freeze(["home", "away", "margin", "total"]),
   playerWeight: 1,
   tolerance: 0.5,
@@ -79,7 +83,9 @@ export function officialTargets(snapshot) {
       }
     }
   }
-  return { snapshotId: snapshot?.snapshotId ?? null, team, players };
+  const side = snapshot?.game?.winner?.side;
+  const sideConstraint = !Object.keys(team).length && (side === "HOME" || side === "AWAY") ? side : null;
+  return { snapshotId: snapshot?.snapshotId ?? null, team, players, sideConstraint };
 }
 
 /**
@@ -163,8 +169,11 @@ export function selectOfficialRepresentative(runs, targets, opts = {}) {
       byIndex.set(r.runIndex, { ...r, sourceKinds: r.sourceKind ? [r.sourceKind] : [] });
     }
   }
+  const sideOf = (r) => (r.home > r.away ? "HOME" : r.away > r.home ? "AWAY" : null);
+  const sideConstraint = targets?.sideConstraint ?? null;
   const scored = [...byIndex.values()]
     .map((run) => ({ run, ...runDistance(run, targets, opts) }))
+    .map((s) => (sideConstraint && sideOf(s.run) !== sideConstraint ? { ...s, distance: Infinity, offSide: true } : s))
     .sort((a, b) => a.distance - b.distance || a.run.runIndex - b.run.runIndex);
   const best = scored[0] ?? null;
   const official = best && Number.isFinite(best.distance)
@@ -190,5 +199,6 @@ export function selectOfficialRepresentative(runs, targets, opts = {}) {
     whatIf,
     reconciliation,
     reconciliationRule: RECONCILIATION_RULE,
+    sideConstraint,
   };
 }
