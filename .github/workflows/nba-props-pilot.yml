@@ -32,6 +32,7 @@ concurrency:
 
 permissions:
   contents: write
+  actions: write   # only to disable THIS workflow if a paid call's ledger cannot be committed (credit ceiling guard)
 
 jobs:
   capture:
@@ -86,6 +87,8 @@ jobs:
 
       - name: Commit the ledger and the private price records
         if: always() && steps.gate.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -uo pipefail
           [ -d data/internal/research/odds/nba ] || { echo "nothing written"; exit 0; }
@@ -96,6 +99,10 @@ jobs:
           git commit -q -m "auto: nba props pilot capture $(date -u +%Y-%m-%dT%H:%M:%SZ) (private) [skip ci]"
           for a in 1 2 3 4 5; do
             if git push -q origin HEAD:main; then echo "committed on attempt $a"; exit 0; fi
-            git fetch -q origin main && git rebase -q origin/main || { git rebase --abort || true; exit 1; }
+            git fetch -q origin main && git rebase -q origin/main || { git rebase --abort || true; break; }
           done
+          # CREDIT-CEILING GUARD (founder 2026-10-21): a paid call whose ledger cannot reach main would be invisible to the
+          # next run's ceiling check, so stop ALL further runs instead of risking a repeat spend.
+          echo "::error::ledger could not be committed; disabling nba-props-pilot.yml so no further paid run can happen"
+          gh workflow disable nba-props-pilot.yml --repo "$GITHUB_REPOSITORY" || echo "::error::could not self-disable; set NBA_PROPS_PILOT=off now"
           exit 1
