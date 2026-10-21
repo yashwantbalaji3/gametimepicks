@@ -17,6 +17,7 @@ import Link from "next/link";
 import SectionHeader from "@/components/section-header";
 import EndzoneVaultBoard, { type VaultArtifact } from "@/components/nfl/endzone-vault-board";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { sanitizeVaultArtifact } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
 
 export const metadata = withRouteMetadata("/endzone-vault/", {
   title: "Endzone Vault · GameTime Picks",
@@ -38,7 +39,8 @@ const PANEL: React.CSSProperties = {
 };
 
 export default function EndzoneVaultPage() {
-  const vault = read<VaultArtifact>("nfl/end-zone-vault/latest.json");
+  /* O-7: same loader sanitiser as /nfl's Vault preview (eligible-operators@1). */
+  const vault = sanitizeVaultArtifact(read<VaultArtifact>("nfl/end-zone-vault/latest.json")) as VaultArtifact | null;
   const ledger = read<{ entries?: Array<{ date: string; state: string; legs?: unknown[] }> }>("nfl/end-zone-vault/latest.json");
   void ledger;
   const rows = (vault?.state === "ACTIVE" ? vault.selections : vault?.watchlist) ?? [];

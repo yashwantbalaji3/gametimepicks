@@ -7,6 +7,7 @@ import path from "node:path";
 import type { BoardProp } from "@/components/mlb/props-board";
 import type { SwapCandidate } from "@/lib/parlays/leg-swap";
 import { mlbHeadshotUrl, mlbPersonIdFromHeadshotUrl } from "@/lib/player-headshots";
+import { isEligibleProvider } from "@/lib/sports/odds/eligible-operators.mjs";
 
 /**
  * A board row as a substitution-bench candidate — the ONE mapping /mlb and /build hand the risk ladder (a client
@@ -103,7 +104,12 @@ export function loadMlbPropsBoard(root: string, date: string): BoardProp[] {
         homeAway: p.homeAway ?? id?.homeAway ?? null,
       };
     })(),
-  })).filter((p) => p.player && Number.isFinite(p.americanOdds) && p.americanOdds !== 0);
+  })).filter((p) => p.player && Number.isFinite(p.americanOdds) && p.americanOdds !== 0)
+    /* ⚠ ELIGIBLE OPERATORS ONLY (2026-10-18). Boards captured before the ingest fix carry best-of-`us`-region
+       prices, some from offshore books (BetOnline.ag on 10-18: 21 of 126). Such a row is NOT shown — it is
+       never re-priced from another book, and the artifact itself is untouched. Also drops it from the swap
+       pool, which is built from these rows. */
+    .filter((p) => isEligibleProvider(p.provider));
 
   // Cap the board payload: top N per market group by market-implied probability, so the page stays
   // light (the full artifact remains for server-side generation/settlement). Keeps group diversity.
@@ -115,6 +121,27 @@ export function loadMlbPropsBoard(root: string, date: string): BoardProp[] {
   for (const g of byGroup.values()) {
     g.sort((a, b) => 1 / dec(a.americanOdds) < 1 / dec(b.americanOdds) ? 1 : -1);
     out.push(...g.slice(0, PER_GROUP));
+  }
+  return out;
+}
+
+/**
+ * How many board offers were NOT shown because an ineligible operator priced them, split as the page
+ * splits its boards. The page states this count beside the board, so a hidden offer is an accurate
+ * "not shown" state rather than a silent gap. Each such row is a sportsbook offer ranked by its own
+ * price (no model projection travels on it); the model's leans for the same players live on the model
+ * board, which is priced from DraftKings and is unaffected.
+ */
+export function countIneligibleMlbProps(root: string, date: string): { batter: number; pitchers: number } {
+  let raw: { date?: string; props?: Array<Record<string, any>> } | null = null;
+  for (const rel of [["mlb", "player-props", `${date}.json`], ["mlb", "player-props", "latest.json"]]) {
+    try { raw = JSON.parse(fs.readFileSync(path.join(root, ...rel), "utf8")); break; } catch { /* next */ }
+  }
+  const out = { batter: 0, pitchers: 0 };
+  if (!raw || (raw.date && raw.date !== date)) return out;
+  for (const p of raw.props ?? []) {
+    if (!p.player || !Number(p.americanOdds ?? p.odds ?? 0) || isEligibleProvider(p.provider ?? null)) continue;
+    if (p.group === "pitchers") out.pitchers += 1; else out.batter += 1;
   }
   return out;
 }

@@ -13,6 +13,7 @@ import path from "node:path";
 
 import { gameView } from "./forecast-view.mjs";
 import { unionFrozenForecasts } from "./public-forecast-union.mjs";
+import { sanitizePlayerBoard } from "../odds/public-offer-sanitizer.mjs";
 import { readWorldModelArtifacts } from "./world-model-v2/read.mjs";
 import { nflOfficialSnapshot, SnapshotRefusal } from "../../consistency/official-snapshot.mjs";
 
@@ -46,9 +47,11 @@ export function loadForecastViews(publicDir) {
   return (art?.forecasts ?? [])
     .map((f) => {
       const world = worlds.get(String(f.providerEventId)) ?? null;
-      const board = readJson(path.join(data, "player-board", `${f.providerEventId}.json`));
-      const { snapshot, refusal } = officialSnapshotFor(f, board, world);
-      return gameView({ forecast: f, world, board, official: snapshot, officialRefusal: refusal });
+      const rawBoard = readJson(path.join(data, "player-board", `${f.providerEventId}.json`));
+      // The official snapshot reads the model's own board (projections are not prices); the page is handed the
+      // eligible-operators@1 sanitised board, so no book outside the allowlist reaches a reader (PR 1130).
+      const { snapshot, refusal } = officialSnapshotFor(f, rawBoard, world);
+      return gameView({ forecast: f, world, board: sanitizePlayerBoard(rawBoard), official: snapshot, officialRefusal: refusal });
     })
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc) || a.providerEventId.localeCompare(b.providerEventId));
 }

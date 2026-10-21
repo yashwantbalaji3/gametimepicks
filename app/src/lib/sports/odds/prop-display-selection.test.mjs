@@ -151,3 +151,18 @@ test("the capture still uses this module rather than a private copy", () => {
     "the canonical capture must import the policy, not re-declare one beside it");
   assert.ok(!/function selectPropPrices\(/.test(script), "a second copy of the selector is a second policy");
 });
+
+/* ── Eligible operators only (2026-10-18) ──────────────────────────────────────────────────────────
+ * The provider's `us` region includes offshore books with no US licence. The ladder's third rung used
+ * to rank every book returned, so a row with no DraftKings/FanDuel market could be named "BetOnline". */
+test("an offshore book is never chosen, even when it has the most coverage", () => {
+  const rows = selectPropPrices(probe({ lines: [line("betonlineag", 150, 150), line("betonlineag", 140, 140, { line: 80.5 }), line("betmgm", -130, -130)] }));
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].sportsbook, "betmgm", "the eligible book is chosen, not the offshore one with more rows");
+  assert.equal(rows[0].booksAvailable, 1, "only eligible books are counted as available");
+});
+
+test("only offshore books posted ⇒ no row (an absent price is a state, never filled from an ineligible book)", () => {
+  const rows = selectPropPrices(probe({ lines: [line("bovada", -110, -110), line("mybookieag", -105, -115)], tds: [atd("betonlineag", 250), atd("lowvig", 240)] }));
+  assert.deepEqual(rows, []);
+});

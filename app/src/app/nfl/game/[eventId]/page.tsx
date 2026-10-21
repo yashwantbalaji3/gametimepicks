@@ -30,6 +30,7 @@ import NflPlayerBoard, { type PlayerBoardArtifact } from "@/components/nfl/playe
 import LivePanel from "@/components/live/live-panel";
 import { participationLabel } from "@/components/prediction/prediction-board";
 import { PUBLIC_BOARD_CLEARED } from "@/lib/sports/nfl/board-ranking.mjs";
+import { sanitizePlayerBoard } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
 
 /*
  * ⚠ THIS PRINTED "available role uncertain" AND THE PHRASE APPEARS NOWHERE IN THE SOURCE.
@@ -180,7 +181,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
   if (!f) notFound();
   const playerBoard = ((): PlayerBoardArtifact | null => {
     try {
-      return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/player-board", `${params.eventId}.json`), "utf8"));
+      /* O-6: sanitised BEFORE any component sees it — this board is a client component's prop, so it is serialised
+         into the page. An ineligible book's offer becomes { sportsbook: null, bookWithheld } (no book, no price). */
+      return sanitizePlayerBoard(JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nfl/player-board", `${params.eventId}.json`), "utf8")));
     } catch { return null; }
   })();
 

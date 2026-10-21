@@ -14,6 +14,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { LIVE_PROPS_REFRESH_MS } from "@/lib/live/live-refresh-plan.mjs";
 import { mergeGatewayLiveRows } from "@/lib/live/gateway-live-rows.mjs";
 import { liveReadyFor, liveUrl } from "@/lib/live/client";
+import { sanitizeLivePropsArtifact } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
 
 export type LivePropsFeed = "NOT_ASKED" | "OK" | "UNAVAILABLE";
 /* Session 5 — `producerFeed` is the producer artifact alone; `feed` is OK when EITHER source was read.
@@ -39,13 +40,16 @@ export function useLivePropsStore(plan: { poll: string[]; once: string[] }, poll
   const load = useCallback(async (id: string) => {
     /* Session 5 — the producer record (frozen + settlement) and the gateway (live facts) on the SAME tick.
        The gateway call is the one useLiveEvent makes, CDN-cached by s-maxage; never a per-row request. */
-    const [producer, gateway] = await Promise.all([
+    const [rawProducer, gateway] = await Promise.all([
       /* `no-cache` revalidates against the CDN's ETag: an unchanged record costs a 304, not a body. */
       fetch(`/data/nfl/live-props/${id}.json`, { cache: "no-cache" }).then((r) => (r.ok ? r.json() : null)).catch(() => null),
       liveReadyFor("nfl")
         ? fetch(liveUrl({ sport: "nfl", event: id, players: true }), { headers: { accept: "application/json" } }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
         : Promise.resolve(null),
     ]);
+    /* O-6: the exported copy is already sanitised (prune-internal-routes sweep 4); this is the in-browser backstop,
+       so a record served before that step existed still never reaches a card with an ineligible book's price. */
+    const producer = sanitizeLivePropsArtifact(rawProducer);
     const merged = mergeGatewayLiveRows({ providerEventId: id, artifact: producer, envelope: gateway });
     if (!merged.artifact) {
       setStore((s) => (s[id]?.artifact ? s : { ...s, [id]: { feed: "UNAVAILABLE", artifact: null, producerFeed: "UNAVAILABLE", gatewayRead: false } }));
