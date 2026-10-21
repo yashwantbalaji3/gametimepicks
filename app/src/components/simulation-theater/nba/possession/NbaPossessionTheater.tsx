@@ -14,7 +14,9 @@
  * prefers-reduced-motion: no CSS motion, and playback advances in instant play-by-play steps (the clock shows each
  * play's own clock instead of ticking).
  *
- * The island receives only the build-time payload (payload.mjs). It never fetches and never reads the private research tree.
+ * The island receives only the build-time payload (payload.mjs), in its packed wire form (wire.mjs, PR 1167 page
+ * weight: one ledger row per event, rosters interned, the fold's own running score left out), and unpacks it once in a
+ * useMemo into the very same payload. It never fetches and never reads the private research tree.
  * `data-nbp-ready` marks hydration for the e2e spec. Dev hook (`devHooks`): `?run=<kind>` and `?t=<seconds>`.
  */
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
@@ -22,7 +24,7 @@ import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent } from "react";
 import NbaCourt from "../NbaCourt";
 import { NBA_THEATER_VARS } from "../nba-theater-css";
 import type { NbaPalette } from "../nba-types";
-import type { PbLoad, PbPayload } from "./possession-types";
+import type { PbPayload, PbWire } from "./possession-types";
 import {
   OnCourt, BreakNotice, EndCard, EngineFacts, Linescore, OfficialComparison, OfficialProjectionPanel, OUTCOME_PANEL_TITLE, PlayByPlay, PossessionBanner,
   PossessionBoxScore, PossessionIndicator, PossessionScoreboard, PossessionUnavailable, ReconciliationChecks, RunRole, RunSelector, ScoringProgression,
@@ -32,6 +34,7 @@ import { POSSESSION_SPEEDS, compilePossessionTimeline, frameAt, nextPlayT, onCou
 import { boxRows, compareWithOfficial, foldRun, reconcileBox } from "@/lib/simulation-theater/nba/possession/box.mjs";
 import { playLine } from "@/lib/simulation-theater/nba/possession/play-text.mjs";
 import { KEYBOARD_HELP } from "@/lib/simulation-theater/nba/possession/labels.mjs";
+import { unpackPlaybackPayload } from "@/lib/simulation-theater/nba/possession/wire.mjs";
 
 type Tp = { state: string; t: number; tEnd: number; speed: number; driveStarts: number[]; reason: string | null };
 const FEED_ITEMS = 14;
@@ -52,12 +55,12 @@ function useMedia(query: string) {
 
 const fmtPlay = (ms: number) => { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
 
-export default function NbaPossessionTheater({ payload, palettes, devHooks = false, initialKind = null, switchHref = null, switchLabel = null }: {
-  payload: PbPayload; palettes: NonNullable<PbLoad["palettes"]>; devHooks?: boolean; initialKind?: string | null; switchHref?: string | null; switchLabel?: string | null;
+export default function NbaPossessionTheater({ wire, palette, devHooks = false, initialKind = null, switchHref = null, switchLabel = null }: {
+  wire: PbWire; palette: NbaPalette; devHooks?: boolean; initialKind?: string | null; switchHref?: string | null; switchLabel?: string | null;
 }) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const payload = useMemo(() => unpackPlaybackPayload(wire) as PbPayload, [wire]);
   const teams = payload.teams;
-  const palette: NbaPalette = palettes.team;
   const first = Math.max(0, payload.runs.findIndex((r) => r.kind === (initialKind ?? payload.selection.defaultKind)));
   const [runIdx, setRunIdx] = useState(first);
   const run = payload.runs[runIdx];

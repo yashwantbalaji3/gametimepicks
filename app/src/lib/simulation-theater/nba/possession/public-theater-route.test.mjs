@@ -100,7 +100,7 @@ function graph(entry) {
 test("the client island's whole import graph is browser-safe: no node: module, never the loader, the artifact contract or a receipt hasher", () => {
   const { seen, bad } = graph("src/components/simulation-theater/nba/possession/NbaPossessionTheater.tsx");
   assert.deepEqual(bad, []);
-  for (const must of ["src/lib/simulation-theater/nba/possession/playback.mjs", "src/lib/simulation-theater/nba/possession/box.mjs", "src/lib/sports/nba/research/possession-sim/events.mjs"]) assert.ok(seen.has(must), must);
+  for (const must of ["src/lib/simulation-theater/nba/possession/playback.mjs", "src/lib/simulation-theater/nba/possession/box.mjs", "src/lib/sports/nba/research/possession-sim/events.mjs", "src/lib/simulation-theater/nba/possession/wire.mjs", "src/lib/simulation-theater/nba/possession/event-codec.mjs"]) assert.ok(seen.has(must), must);
   for (const never of ["src/lib/simulation-theater/nba/possession/possession-loader.mjs", "src/lib/simulation-theater/nba/possession/artifact-contract.mjs", "src/lib/simulation-theater/nba/loader.mjs", "src/lib/sports/nba/forecast-receipt.mjs", "src/lib/sports/nba/research/possession-sim/engine.mjs", "src/lib/consistency/official-snapshot.mjs"]) {
     assert.ok(!seen.has(never), `the client reaches ${never}`);
   }

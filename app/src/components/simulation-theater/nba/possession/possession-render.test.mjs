@@ -21,6 +21,7 @@ const { BOX_COLUMNS } = await import("../../../../lib/simulation-theater/nba/pos
 const { nbaPublicTheaterOn, nbaPublicTheaterParams } = await import("../../../../lib/simulation-theater/nba/possession/public-route.mjs");
 const { NBA_PRIVATE_MARKERS, NBA_THEATER_FLAG_ON_ALLOWLIST, scanExportForNbaPrivate } = await import("../../../../lib/simulation-theater/nba/export-boundary.mjs");
 const REP = await import("../../../../lib/simulation-theater/representative-labels.mjs");
+const { packPlaybackPayload } = await import("../../../../lib/simulation-theater/nba/possession/wire.mjs");
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -28,7 +29,9 @@ const IDS = ["401909088", "401909089", "401909090"];
 const LOADS = IDS.map((id) => loadNbaPossessionTheater(REPO, id));
 const html = (el) => renderToStaticMarkup(el);
 const text = (h) => h.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
-const render = (load, initialKind = null) => html(React.createElement(Island, { payload: load.payload, palettes: load.palettes, initialKind }));
+// the island's props exactly as NbaPossessionSection passes them (the packed payload + the team palette)
+const islandProps = (load) => ({ wire: packPlaybackPayload(load.payload), palette: load.palettes.team });
+const render = (load, initialKind = null) => html(React.createElement(Island, { ...islandProps(load), initialKind }));
 const officialSection = (h) => {
   const i = h.indexOf('<section class="nbp-panel is-official"');
   assert.ok(i >= 0, "official panel present");
@@ -154,7 +157,7 @@ test("FLAG ON (simulated build): the public page renders the labelled Theater; i
   const notAllowed = NBA_PRIVATE_MARKERS.filter((m) => !NBA_THEATER_FLAG_ON_ALLOWLIST.includes(m));
   for (const load of LOADS) {
     const page = render(load);
-    const rsc = JSON.stringify({ payload: load.payload, palettes: load.palettes }); // what the RSC payload serialises
+    const rsc = JSON.stringify(islandProps(load)); // what the RSC payload serialises (the island's props)
     for (const m of notAllowed) {
       assert.ok(!page.includes(m), `${load.eventId} HTML carries ${m}`);
       assert.ok(!rsc.includes(m), `${load.eventId} payload carries ${m}`);
@@ -203,6 +206,17 @@ test("founder labelling (approval 2026-10-21): every Theater surface carries the
       const rest = text.replace(/NOT A REAL OR LIVE GAME/g, "").replace(/overtime is rarer than in real games/g, "");
       assert.doesNotMatch(rest, /\blive\b|\breal game|in real time|happening now|\bLIVE\b/i, `${where}: no live/real-game wording`);
     }
+  }
+});
+
+test("page weight (PR 1167): the island's share of a page (server markup + its props escaped in the flight) is ≤ 150KB, and its props are the packed wire", () => {
+  for (const load of LOADS) {
+    const props = islandProps(load);
+    const flight = JSON.stringify(JSON.stringify(props)).length - 2; // the props as an escaped string inside the HTML
+    const kb = (render(load).length + flight) / 1024;
+    assert.ok(kb <= 150, `${load.eventId}: island markup + props ${kb.toFixed(1)}KB`);
+    assert.ok(!("events" in props.wire.runs[0]) && props.wire.runs.every((r) => r.log.schema === "nba-possession-events@1"), "no unpacked event log on the wire");
+    assert.ok(!("neutral" in props), "only the palette the island paints with");
   }
 });
 
