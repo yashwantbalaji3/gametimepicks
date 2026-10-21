@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-10-21T14:55:48.005Z",
+  "generatedAt": "2026-10-21T15:46:17.178Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -105,7 +105,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-10-21",
-      "generatedAt": "2026-10-21T14:01:32Z",
+      "generatedAt": "2026-10-21T14:55:53Z",
       "sports": [
         {
           "sport": "epl",
@@ -137,14 +137,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 14,
-            "priced": 14,
+            "scheduled": 15,
+            "priced": 15,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:14 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:15 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -166,13 +166,8 @@
     "dailyLifecycle": {
       "receiptDate": "2026-10-21",
       "present": true,
-      "generatedAt": "2026-10-21T09:38:31Z",
+      "generatedAt": "2026-10-21T14:55:52Z",
       "watchdog": [
-        {
-          "product": "end-zone-vault",
-          "kind": "INCIDENT_OPEN",
-          "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-10-21"
-        },
         {
           "product": "homer-nukes",
           "kind": "INCIDENT_OPEN",
@@ -189,7 +184,7 @@
           "policyVersion": "moonshot@2"
         },
         "end-zone-vault": {
-          "state": "INCIDENT",
+          "state": "NO_PLAY",
           "policyVersion": "end-zone-vault@1"
         },
         "homer-nukes": {
@@ -220,16 +215,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-10-21T14:51:15.871Z",
-    "ageHours": 0.1,
-    "ok": false,
-    "status": "fail",
-    "phase": "daily-owner-slo"
+    "lastRunAt": "2026-10-21T15:46:16.509Z",
+    "ageHours": 0,
+    "ok": true,
+    "status": "pass",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-10-21",
-    "etTime": "10:55",
+    "etTime": "11:46",
     "stages": [
       {
         "stage": "schedule",
