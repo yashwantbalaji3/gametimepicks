@@ -40,10 +40,9 @@ export function officialPanel(snapshot) {
 
 /**
  * @param game      one game of the validated private artifact
- * @param snapshot  the official snapshot for the same event (null → every run is a hypothetical what-if)
+ * @param official  officialPanel(snapshot) for the same event (null → every run is a hypothetical what-if)
  */
-export function buildPlaybackPayload(game, snapshot) {
-  const official = officialPanel(snapshot);
+export function buildPlaybackPayload(game, official) {
   const hasOfficial = !!official && (official.favouredSide === "HOME" || official.favouredSide === "AWAY");
   const runs = (game.runs ?? []).map((r) => {
     const isDefault = r.kind === POSSESSION_RUN_KIND.DEFAULT && hasOfficial;

@@ -307,10 +307,11 @@ test("payload: the client gets no private path / hash / supporting-engine id; th
 test("official panel immutability (data): the panel is built from the snapshot only — identical whichever run is shown, and with the runs removed", () => {
   const g = DOC.games[2];
   const snap = snapshotOf(g.providerEventId);
-  const a = buildPlaybackPayload(g, snap).official;
-  const b = buildPlaybackPayload({ ...g, runs: [...g.runs].reverse() }, snap).official;
-  const c = buildPlaybackPayload({ ...g, runs: [] }, snap).official;
-  const d = buildPlaybackPayload({ ...g, runs: g.runs.map((r) => ({ ...r, final: [0, 1] })) }, snap).official;
+  const panel = officialPanel(snap);
+  const a = buildPlaybackPayload(g, panel).official;
+  const b = buildPlaybackPayload({ ...g, runs: [...g.runs].reverse() }, panel).official;
+  const c = buildPlaybackPayload({ ...g, runs: [] }, panel).official;
+  const d = buildPlaybackPayload({ ...g, runs: g.runs.map((r) => ({ ...r, final: [0, 1] })) }, panel).official;
   assert.equal(JSON.stringify(a), JSON.stringify(b));
   assert.equal(JSON.stringify(a), JSON.stringify(c));
   assert.equal(JSON.stringify(a), JSON.stringify(d));
@@ -328,5 +329,27 @@ test("loader refusals: no artifact, game absent, wrong schema, official forecast
   const g = swapped.games[0];
   const up = g.runs.find((r) => r.kind === "upset"), de = g.runs.find((r) => r.kind === "default");
   up.kind = "default"; de.kind = "upset";
+  // (the embedded official panel still matches, so the side constraint is what refuses)
   assert.equal(loadNbaPossessionTheater(REPO, id, { read: { file: "x", doc: swapped } }).error.code, "SIDE_CONSTRAINT");
+});
+
+test("public loader: same payload as the full loader (byte-identical), reading only the possession artifact; embedded panel drift is refused", async () => {
+  const { loadPublicPossessionTheater, publicPossessionEvents } = await import("./public-loader.mjs");
+  for (const id of IDS) {
+    const full = loadNbaPossessionTheater(REPO, id);
+    const pub = loadPublicPossessionTheater(REPO, id);
+    assert.equal(pub.ok, true, JSON.stringify(pub.error));
+    assert.equal(JSON.stringify(pub.payload), JSON.stringify(full.payload), `${id}: public payload ≠ full payload`);
+    assert.equal(JSON.stringify(pub.palettes), JSON.stringify(full.palettes));
+  }
+  assert.deepEqual(publicPossessionEvents(REPO), IDS);
+  const drift = clone(DOC);
+  drift.games[0].official.panel.favouredSide = "AWAY";
+  assert.equal(loadNbaPossessionTheater(REPO, IDS[0], { read: { file: "x", doc: drift } }).error.code, "OFFICIAL_PANEL_DRIFT");
+  assert.equal(loadPublicPossessionTheater(REPO, IDS[0], { read: { file: "x", doc: drift } }).error.code, "SIDE_CONSTRAINT");
+  const noPanel = clone(DOC); delete noPanel.games[0].official.panel;
+  assert.equal(loadPublicPossessionTheater(REPO, IDS[0], { read: { file: "x", doc: noPanel } }).error.code, "NO_OFFICIAL_PANEL");
+  // the public loader names no receipt file (those change every forecast window and are not build inputs)
+  const src = fs.readFileSync(path.join(APP, "src/lib/simulation-theater/nba/possession/public-loader.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.doesNotMatch(src, /experimental-v|\.\.\/loader\.mjs|official-representative|official-snapshot/);
 });

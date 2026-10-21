@@ -10,7 +10,7 @@
  * OFF, the loader, the payload and the island are never part of the build, generateStaticParams yields one inert
  * placeholder that 404s, and scripts/prune-internal-routes.mjs deletes out/nba/simulation/ and its chunks.
  * public-theater-route.test.mjs checks the source; export-boundary.mjs scans out/ (flag-ON allowlist included).
- * Statically generated from committed files at build time; the browser never reads data/internal/**.
+ * Statically generated from committed files at build time; the browser never reads the private research tree.
  */
 import type { Metadata } from "next";
 import path from "node:path";
@@ -24,8 +24,8 @@ const buildFlagOn = () => process.env.GTP_NBA_THEATER_PUBLIC === "1";
 
 export async function generateStaticParams() {
   if (buildFlagOn()) {
-    const { possessionRouteEvents } = await import("@/lib/simulation-theater/nba/possession/possession-loader.mjs");
-    return nbaPublicTheaterParams(() => possessionRouteEvents(REPO_ROOT));
+    const { publicPossessionEvents } = await import("@/lib/simulation-theater/nba/possession/public-loader.mjs");
+    return nbaPublicTheaterParams(() => publicPossessionEvents(REPO_ROOT));
   }
   return [{ eventId: NBA_PUBLIC_THEATER_PLACEHOLDER }];
 }
@@ -45,9 +45,9 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
 
 export default async function NbaSimulationTheaterPage({ params }: { params: { eventId: string } }) {
   if (buildFlagOn() && nbaPublicTheaterOn() && params.eventId !== NBA_PUBLIC_THEATER_PLACEHOLDER) {
-    const { loadNbaPossessionTheater } = await import("@/lib/simulation-theater/nba/possession/possession-loader.mjs");
+    const { loadPublicPossessionTheater } = await import("@/lib/simulation-theater/nba/possession/public-loader.mjs");
     const { default: NbaPossessionSection } = await import("@/components/simulation-theater/nba/possession/NbaPossessionSection");
-    const load = loadNbaPossessionTheater(REPO_ROOT, params.eventId);
+    const load = loadPublicPossessionTheater(REPO_ROOT, params.eventId);
     if (!load.ok) notFound();
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden supports-[overflow:clip]:overflow-x-clip">

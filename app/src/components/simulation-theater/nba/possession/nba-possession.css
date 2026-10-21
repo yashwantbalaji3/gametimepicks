@@ -1,7 +1,8 @@
 /*
  * NBA Simulation Theater · POSSESSION PLAYBACK · styles. Tokens only: no raw colour literal (possession-theater.test.mjs
  * scans this file), no font under 11px, motion on the role tokens and OFF under prefers-reduced-motion (and under
- * data-nbp-motion="off", which the island sets from the same media query). Builds on theater.css + nba-theater.css.
+ * .is-motion-off, which the island sets from the same media query). No export marker here: CSS ships un-pruned,
+ * so the selectors use classes only (never a data attribute). Builds on theater.css + nba-theater.css.
  */
 .nbp-root{display:block}
 .nbp-banner{margin:0 0 8px;padding:8px 12px;border:2px dashed var(--vault-warn);border-radius:8px;
@@ -103,5 +104,5 @@
   .nbp-poss-dot{transition:none}
   .nbp-new{animation:none}
 }
-.nbp-root[data-nbp-motion="off"] .nbp-poss-dot{transition:none}
-.nbp-root[data-nbp-motion="off"] .nbp-new{animation:none}
+.nbp-root.is-motion-off .nbp-poss-dot{transition:none}
+.nbp-root.is-motion-off .nbp-new{animation:none}

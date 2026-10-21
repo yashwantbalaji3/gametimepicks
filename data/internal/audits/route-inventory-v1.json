@@ -4,9 +4,9 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 94,
+  "routes": 95,
   "public": 63,
-  "internal": 10,
+  "internal": 11,
   "redirects": 17,
   "archive": 2,
   "findings": 0,
@@ -421,6 +421,16 @@
    "purpose": "alias",
    "redirectTo": "/results/nba",
    "built": true
+  },
+  {
+   "route": "/nba/simulation/[eventId]",
+   "classification": "internal",
+   "owner": "research",
+   "family": true,
+   "purpose": "NBA Simulation Theater PUBLIC CANDIDATE (gated OFF): possession-level playback of the research engine beside the official projection panel; two-act gate (feature-manifest constant + build flag), pruned while off",
+   "dataOwner": "data/internal/research/nba/theater-possession via the possession public loader (becomes a BUILD_INPUT when the route is reclassified public)",
+   "freshness": "each game's inputAsOf (before tip)",
+   "built": "UNVERIFIED (no export provided)"
   },
   {
    "route": "/nfl",

@@ -43,6 +43,7 @@ import { canonicalJson, receiptIntegrity, sha256 } from "../../../src/lib/sports
 import { nbaOfficialSnapshot } from "../../../src/lib/consistency/official-snapshot.mjs";
 import { officialTargets } from "../../../src/lib/consistency/representative.mjs";
 import { DEFAULT_POOL_SIZE, POSSESSION_SELECTION_RULES, poolFeatures, selectPossessionRuns } from "../../../src/lib/simulation-theater/nba/possession/selection.mjs";
+import { officialPanel } from "../../../src/lib/simulation-theater/nba/possession/payload.mjs";
 import { POSSESSION_ARTIFACT, POSSESSION_ARTIFACT_SCHEMA, POSSESSION_CHECKER, ledgerColumns, possessionArtifactPath } from "../../../src/lib/simulation-theater/nba/possession/artifact-contract.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -196,7 +197,9 @@ for (const g of v1Doc.games ?? []) {
       boxscores: { docs: boxscores.length, folded: fold.added, skipped: fold.skipped },
       engineInputsSha256: sha256(canonicalJson({ ...engineInputs, leagueV1: league })),
     },
-    official: { snapshotId: snapshot.snapshotId, winnerSide: officialSide, modelVersion: snapshot.modelVersions?.game ?? null, targetPlayers: Object.keys(targets.players).length },
+    // the official panel, copied verbatim from the snapshot (payload.mjs officialPanel) — what the public candidate
+    // renders; possession-loader.mjs refuses the artifact if it ever differs from a fresh rebuild (OFFICIAL_PANEL_DRIFT)
+    official: { snapshotId: snapshot.snapshotId, winnerSide: officialSide, modelVersion: snapshot.modelVersions?.game ?? null, targetPlayers: Object.keys(targets.players).length, panel: officialPanel(snapshot) },
     seed: prep.seed, seedPolicy: prep.seedPolicy, poolSize: POOL,
     pool: {
       checkedDraws: checked, violations: 0,

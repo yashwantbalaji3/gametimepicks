@@ -14,7 +14,7 @@
  * prefers-reduced-motion: no CSS motion, and playback advances in instant play-by-play steps (the clock shows each
  * play's own clock instead of ticking).
  *
- * The island receives only the build-time payload (payload.mjs). It never fetches and never reads data/internal/**.
+ * The island receives only the build-time payload (payload.mjs). It never fetches and never reads the private research tree.
  * `data-nbp-ready` marks hydration for the e2e spec. Dev hook (`devHooks`): `?run=<kind>` and `?t=<seconds>`.
  */
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
@@ -203,7 +203,7 @@ export default function NbaPossessionTheater({ payload, palettes, devHooks = fal
   }
 
   return (
-    <div className="st-root nba-root nbp-root" style={rootStyle} data-nbp-theater="" data-nbp-ready={ready ? "" : undefined} data-nbp-run={run.kind} data-nbp-motion={reduced ? "off" : "on"} data-nbp-phase={frame.phase} onKeyDown={onKey}>
+    <div className={`st-root nba-root nbp-root${reduced ? " is-motion-off" : ""}`} style={rootStyle} data-nbp-theater="" data-nbp-ready={ready ? "" : undefined} data-nbp-run={run.kind} data-nbp-motion={reduced ? "off" : "on"} data-nbp-phase={frame.phase} onKeyDown={onKey}>
       <PossessionBanner />
       {head}
 

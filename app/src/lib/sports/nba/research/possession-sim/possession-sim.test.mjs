@@ -232,7 +232,9 @@ test("BOUNDARY — nothing outside the research folders imports the prototype (n
   // THEATER EXCEPTION (Lane C 2026-10-21, founder decision NBA-CC: the Theater may play a different engine than the
   // official forecast): the Theater's possession playback library + its offline generator may read the engine. Routes
   // import only that library, never the engine (possession-theater.test.mjs › BOUNDARY keeps products/boards/snapshot out).
-  const theater = (f) => f.includes(`${path.sep}simulation-theater${path.sep}nba${path.sep}possession${path.sep}`) || f.endsWith(`${path.sep}build-theater-possession-runs.mjs`);
+  // export-boundary(.test).mjs name the engine id only as a LEAK MARKER of the export scan.
+  const theater = (f) => f.includes(`${path.sep}simulation-theater${path.sep}nba${path.sep}possession${path.sep}`) || f.endsWith(`${path.sep}build-theater-possession-runs.mjs`)
+    || f.endsWith(`${path.sep}simulation-theater${path.sep}nba${path.sep}export-boundary.mjs`) || f.endsWith(`${path.sep}simulation-theater${path.sep}nba${path.sep}export-boundary.test.mjs`);
   const allowed = (f) => theater(f) || f.includes(`${path.sep}research${path.sep}possession-sim${path.sep}`) || f.endsWith(`${path.sep}fit-possession-sim-v0.mjs`) || f.endsWith(`${path.sep}evaluate-possession-sim-v0.mjs`) || f.endsWith(`${path.sep}research${path.sep}paired-metrics.mjs`);
   const offenders = files.filter((f) => !allowed(f) && /possession-sim/.test(fs.readFileSync(f, "utf8")));
   assert.deepEqual(offenders.map((f) => path.relative(root, f)), []);
