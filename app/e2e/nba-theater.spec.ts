@@ -32,6 +32,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
 
+import { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE } from "../src/lib/consistency/theater-gate-policy.mjs";
+import { OFFICIAL_BOX_TITLE, SUPPORTING_BOX_TITLE, SUPPORTING_RUN_TITLE } from "../src/lib/simulation-theater/representative-labels.mjs";
+
 const ENABLED = process.env.GTP_THEATER_E2E === "1" && process.env.GTP_THEATER_TARGET !== "public";
 type Sample = { runIndex: number; label: string; overtimePeriods: number };
 type Game = { providerEventId: string | number; forecast: { representativeSamples: Sample[] } };
@@ -46,7 +49,10 @@ const EVENT = GAME ? String(GAME.providerEventId) : "";
 const ABSENT = RECEIPT?.runs?.flatMap((r) => r.outcomes ?? []).map((o) => String(o.providerEventId)).find((id) => !RECEIPT.games.some((g) => String(g.providerEventId) === id)) ?? null;
 const SAMPLES = GAME?.forecast.representativeSamples ?? [];
 const PAGE = `/dev/simulation-theater/nba/${EVENT}/`;
-const OFFICIAL_TITLE = "Projected box score · official representative simulation";
+// Gate V2 (PR 1162, LABELLED_SUPPORTING_RUNS in force): the default NBA run is a labelled supporting-simulation run, not an
+// "official representative" — the titles and the role note follow the policy in force, read from its one source.
+const LABELLED = NBA_THEATER_GATE_POLICY_IN_FORCE === NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS;
+const OFFICIAL_TITLE = LABELLED ? SUPPORTING_BOX_TITLE : OFFICIAL_BOX_TITLE;
 const WHAT_IF_TITLE = "What-if box score · hypothetical";
 const WHAT_IF_BANNER = "Hypothetical scenario — not the forecast";
 const WATERMARK = "PROJECTED · SIMULATED · NOT ACTUAL GAME STATISTICS · PRIVATE CANDIDATE MODEL";
@@ -88,7 +94,8 @@ for (const [w, h] of WIDTHS) {
     // the run in the dialog is the run the theater has selected: by default the OFFICIAL REPRESENTATIVE, a stored run
     const run = await page.locator("[data-nba-theater]").getAttribute("data-nba-run");
     expect(SAMPLES.map((x) => String(x.runIndex))).toContain(run);
-    await expect(d.locator(".nba-card-eyebrow")).toContainText(`run #${Number(run).toLocaleString("en-US")}`);
+    // the header eyebrow (the simulated layer carries its own .nba-card-eyebrow)
+    await expect(d.locator(".nba-bx-head .nba-card-eyebrow")).toContainText(`run #${Number(run).toLocaleString("en-US")}`);
     await expect(d.locator(".nba-bx-title")).toHaveText(OFFICIAL_TITLE);
     // V2 three layers: official projection · simulated game (named supporting model) · not modelled; the official team
     // score is WITHHELD (official snapshot #1149) — no team comparison, no number — and the run's distance is reported
@@ -170,14 +177,24 @@ test("sorting: PTS / REB / AST / 3PM / MIN set aria-sort on their header, toggle
     await expect(table.locator("thead th[aria-sort]")).toHaveCount(1);
     await expect(btn).toBeFocused();
     const idx = await colIndex(k);
-    const rows = await table.locator("tbody tr[data-status]").evaluateAll((trs, i) => trs.map((tr) => ({
-      status: tr.getAttribute("data-status"),
-      v: tr.getAttribute("data-status") === "played" ? Number(tr.children[i]?.childNodes[0]?.textContent ?? "") : null,
+    // rows are grouped (starters · bench · DNP · unavailable, one tbody each) and the sort orders rows WITHIN each group
+    const groups = await table.locator("tbody[data-nba-px-group]").evaluateAll((tbs, i) => tbs.map((tb) => ({
+      id: tb.getAttribute("data-nba-px-group"),
+      rows: [...tb.querySelectorAll("tr[data-status]")].map((tr) => ({
+        status: tr.getAttribute("data-status"),
+        v: tr.getAttribute("data-status") === "played" ? Number(tr.children[i]?.childNodes[0]?.textContent ?? "") : null,
+      })),
     })), idx);
-    const played = rows.filter((r) => r.status === "played").map((r) => r.v as number);
-    for (let i = 1; i < played.length; i++) expect(want === "descending" ? played[i - 1] >= played[i] : played[i - 1] <= played[i], `${k} at ${i}`).toBe(true);
-    const firstOther = rows.findIndex((r) => r.status !== "played");
-    if (firstOther >= 0) expect(rows.slice(firstOther).every((r) => r.status !== "played")).toBe(true);
+    expect(groups.some((g) => g.rows.some((r) => r.status === "played"))).toBe(true);
+    for (const g of groups) {
+      const played = g.rows.filter((r) => r.status === "played").map((r) => r.v as number);
+      for (let i = 1; i < played.length; i++) expect(want === "descending" ? played[i - 1] >= played[i] : played[i - 1] <= played[i], `${k} in ${g.id} at ${i}`).toBe(true);
+      const firstOther = g.rows.findIndex((r) => r.status !== "played");
+      if (firstOther >= 0) expect(g.rows.slice(firstOther).every((r) => r.status !== "played"), `${k}: non-played rows last in ${g.id}`).toBe(true);
+    }
+    const flat = groups.flatMap((g) => g.rows);
+    const firstDnp = flat.findIndex((r) => r.status !== "played");
+    if (firstDnp >= 0) expect(flat.slice(firstDnp).every((r) => r.status !== "played"), `${k}: DNP / unavailable rows after every played row`).toBe(true);
     await btn.click();
     await expect(table.locator(`thead th[aria-sort="${want === "descending" ? "ascending" : "descending"}"]`)).toContainText(k);
   }
@@ -205,7 +222,7 @@ for (const [w, h] of [[390, 844], [1440, 900]] as const) {
     const ot = SAMPLES.find((x) => x.runIndex === run)?.overtimePeriods ?? 0;
     if (ot > 0) {
       await expect(d.locator(".nba-bx-linescore thead th.is-ot")).toHaveCount(ot);
-      await expect(d.locator(".nba-card-eyebrow")).toContainText("SIMULATED FINAL/OT");
+      await expect(d.locator(".nba-bx-head .nba-card-eyebrow")).toContainText("SIMULATED FINAL/OT");
       await expect(d.locator('.nba-bx-table tfoot td[data-layer="simulated"]').first()).toHaveText(String(240 + 25 * ot));
     } else {
       await expect(d.locator(".nba-bx-linescore thead th.is-ot")).toHaveCount(0);
@@ -219,7 +236,7 @@ for (const [w, h] of [[390, 844], [1440, 900]] as const) {
   });
 }
 
-test("the default run is the official representative; every other stored run is a labelled hypothetical what-if", async ({ page }) => {
+test("the default run is the labelled default (supporting run under Gate V2, else the official representative); every other stored run is a labelled hypothetical what-if", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const errors = await open(page);
   const root = page.locator("[data-nba-theater]");
@@ -230,9 +247,17 @@ test("the default run is the official representative; every other stored run is 
   const officialKey = await dialog(page).locator("[data-nba-official-key]").getAttribute("data-nba-official-key");
   const officialLine = await dialog(page).locator("[data-nba-px-official]").innerText();
   await page.keyboard.press("Escape");
-  await expect(page.locator('[data-st-role-note="official"]')).toContainText(/Official representative simulation · closest stored run to the official forecast · distance \d+\.\d\d/);
+  if (LABELLED) {
+    await expect(page.locator('[data-st-role-note="supporting"]')).toContainText(SUPPORTING_RUN_TITLE);
+    await expect(page.locator('[data-st-role-note="supporting"]')).toContainText(/distance \d+\.\d\d from the official projection/);
+    await expect(page.locator('[data-st-role-note="official"]')).toHaveCount(0);
+  } else {
+    await expect(page.locator('[data-st-role-note="official"]')).toContainText(/Official representative simulation · closest stored run to the official forecast · distance \d+\.\d\d/);
+  }
   await expect(page.locator("[data-st-official]")).toContainText("Official forecast");
-  await expect(page.locator('.nba-chips [data-st-role="official"]')).toHaveCount(1);
+  // exactly one non-hypothetical chip: the labelled supporting run under Gate V2, the official representative otherwise
+  await expect(page.locator(`.nba-chips [data-st-role="${LABELLED ? "supporting" : "official"}"]`)).toHaveCount(1);
+  await expect(page.locator(`.nba-chips [data-st-role="${LABELLED ? "official" : "supporting"}"]`)).toHaveCount(0);
   await expect(page.locator('.nba-chips [data-st-role="what-if"]')).toHaveCount(SAMPLES.length - 1);
   for (const s of SAMPLES.filter((x) => x.runIndex !== official)) {
     await page.goto(`${PAGE}?run=${s.runIndex}`, { waitUntil: "networkidle" });

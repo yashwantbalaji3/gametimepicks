@@ -34,7 +34,17 @@ function buildInfoEnv() {
  * the section, its CSS or the island to the build. Default OFF; rollback = build without it.
  * Guarded by lib/simulation-theater/public-theater.test.mjs (source) and public-theater-export.test.mjs (out/).
  */
-const theaterFlagEnv = () => ({ GTP_NFL_THEATER_PUBLIC: process.env.GTP_NFL_THEATER_PUBLIC === "1" ? "1" : "0" });
+/*
+ * GTP_NBA_THEATER_PUBLIC — the NBA Simulation Theater PUBLIC CANDIDATE route /nba/simulation/[eventId] (Lane C,
+ * 2026-10-21). Same compile-time pattern; default OFF. It is one of TWO acts: the page also requires
+ * NBA_THEATER_PUBLIC_ENABLED === true (lib/simulation-theater/nba/feature-manifest.mjs, today false — NBA public model
+ * output stays blocked by the September preregistration). OFF, the route renders an inert 404 placeholder that
+ * scripts/prune-internal-routes.mjs deletes. Guarded by lib/simulation-theater/nba/possession/public-theater-route.test.mjs.
+ */
+const theaterFlagEnv = () => ({
+  GTP_NFL_THEATER_PUBLIC: process.env.GTP_NFL_THEATER_PUBLIC === "1" ? "1" : "0",
+  GTP_NBA_THEATER_PUBLIC: process.env.GTP_NBA_THEATER_PUBLIC === "1" ? "1" : "0",
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

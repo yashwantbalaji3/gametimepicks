@@ -14,3 +14,5 @@
  */
 export const NBA_THEATER_GATE_POLICY = Object.freeze({ ANCHORED: "ANCHORED", LABELLED_SUPPORTING_RUNS: "LABELLED_SUPPORTING_RUNS" });
 export const NBA_THEATER_GATE_POLICY_IN_FORCE = NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS;
+// The approved replay ENGINE lives in theater-replay-engine.mjs (server-only): this module is reached by client
+// components (representative-labels.mjs), so it must never name the private engine id (export-boundary markers).

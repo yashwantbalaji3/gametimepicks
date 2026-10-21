@@ -34,6 +34,16 @@ const newestCovering = (list, count, min) => {
 
 /** The report's own test for whether it will render a game (mlb-full-game-report Overview). */
 const reportWouldRender = (g) => Boolean(g?.winProbability && g?.runs && g?.totalRuns);
+const isDegraded = (g) => reportWouldRender(g) && g.status !== "ready";
+/* The sample the guard checks: the newest slates until ≥5 report games, PLUS the newest committed slate that holds a
+   non-ready report game when the newest ones happen to hold none (2026-10-21: a postseason off-day slate had zero, and
+   the anti-vacuity guard below went red on data, not code). The defect class is therefore always exercised. */
+const sample = () => {
+  const withGames = slates().filter((a) => a.games.some(reportWouldRender));
+  const out = newestCovering(withGames, (x) => x.games.filter(reportWouldRender).length, 5);
+  if (!out.some((a) => a.games.some(isDegraded))) { const d = withGames.find((a) => a.games.some(isDegraded)); if (d) out.push(d); }
+  return out;
+};
 
 test("every game the REPORT renders also has a frozen forecast for the live panel", () => {
   const withGames = slates().filter((a) => a.games.some(reportWouldRender));
@@ -41,7 +51,7 @@ test("every game the REPORT renders also has a frozen forecast for the live pane
   let checked = 0;
   /* Session 3 · the NEWEST slates until ≥5 report games — never a fixed three. A postseason slate simulates 1–4
      games, so three slates (09-28..09-30: 2 games) made this guard call itself vacuous; the bar is unchanged. */
-  for (const a of newestCovering(withGames, (x) => x.games.filter(reportWouldRender).length, 5)) {
+  for (const a of sample()) {
     for (const g of a.games) {
       if (!reportWouldRender(g)) continue;
       checked += 1;
@@ -55,7 +65,7 @@ test("every game the REPORT renders also has a frozen forecast for the live pane
 test("⚠ ANTI-VACUITY: the slate really does contain degraded games", () => {
   /* If every game were `ready` the guard above would pass for the wrong reason and stop protecting
      anything. On 2026-09-25 it was 10 of 12. */
-  const degraded = slates().slice(0, 3).flatMap((a) => a.games).filter((g) => reportWouldRender(g) && g.status !== "ready").length;
+  const degraded = sample().flatMap((a) => a.games).filter(isDegraded).length;
   assert.ok(degraded > 0,
     "no non-ready simulated game in the sample — the defect class is unrepresented, so re-point this rather than trusting the silence");
 });

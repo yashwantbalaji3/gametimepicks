@@ -91,3 +91,43 @@ test("NO LEDGER WRITER: the contract module performs no filesystem writes", () =
   const src = fs.readFileSync(path.join(process.cwd(), "src", "lib", "sports", "nba", "settlement-contract.mjs"), "utf8");
   assert.ok(!/writeFileSync|appendFileSync|mkdirSync/.test(src), "one settlement writer exists in this repo and this is not it");
 });
+
+test("NO LEDGER WRITER: the NBA player-prop grader and its adapter perform no filesystem writes either", () => {
+  // The player-prop grader lives beside this contract (prop-settlement.mjs), so the one-writer guard covers it too.
+  for (const f of ["prop-settlement.mjs", "prop-settlement-source.mjs", "boxscore-line.mjs", "prop-shadow-grading.mjs"]) {
+    const src = fs.readFileSync(path.join(process.cwd(), "src", "lib", "sports", "nba", f), "utf8");
+    assert.ok(!/writeFileSync|appendFileSync|mkdirSync|createWriteStream|renameSync/.test(src), `${f}: one settlement writer exists in this repo and this is not it`);
+  }
+});
+
+test("ONE PROP-LEDGER WRITER: only scripts/nba/grade-nba-player-props.mjs writes the NBA prop-grade ledger, and it is offline", () => {
+  // Every non-test source file under app/scripts and app/src that names the ledger (its directory constant, its file
+  // constant, or the literal path) AND performs a filesystem write. Tests are excluded: they write fixtures under
+  // os.tmpdir() and drive the writer there (prop-shadow-grading.test.mjs).
+  const WRITES = /writeFileSync|appendFileSync|createWriteStream|renameSync|copyFileSync|\.writeFile\(|\.appendFile\(/;
+  const NAMES = /PROP_GRADES_DIR|PROP_GRADE_LEDGER_FILE|propLedgerPath|prop-grades\//;
+  const writers = [];
+  const walk = (dir) => {
+    for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (ent.name === "node_modules" || ent.name.startsWith(".")) continue;
+      const f = path.join(dir, ent.name);
+      if (ent.isDirectory()) { walk(f); continue; }
+      if (!/\.(m?js|ts|tsx)$/.test(ent.name) || /\.test\.|\.spec\./.test(ent.name)) continue;
+      const src = fs.readFileSync(f, "utf8");
+      if (NAMES.test(src) && WRITES.test(src)) writers.push(path.relative(process.cwd(), f));
+    }
+  };
+  walk(path.join(process.cwd(), "scripts"));
+  walk(path.join(process.cwd(), "src"));
+  assert.deepEqual(writers, [path.join("scripts", "nba", "grade-nba-player-props.mjs")]);
+  const script = fs.readFileSync(path.join(process.cwd(), "scripts", "nba", "grade-nba-player-props.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
+  assert.ok(!/\bfetch\(|https?:\/\/|odds/i.test(script), "the prop-ledger writer reads committed files only: no network, no odds");
+  assert.match(script, /appendFileSync/, "an existing ledger is only ever appended to");
+  assert.match(script, /flag: "wx"/, "a new ledger file is created exclusively, never over an existing one");
+});
+
+test("the team contract stays closed: player-prop families are not team markets", () => {
+  for (const market of ["pts", "pra", "player_points"]) {
+    assert.equal(gradeNbaLeg({ market, side: "over", line: 20.5 }, FINAL(110, 100)).outcome, "VOID_PENDING_REVIEW", market);
+  }
+});

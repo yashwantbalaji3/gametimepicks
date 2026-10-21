@@ -163,15 +163,22 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           D="$(TZ=America/New_York date +%Y-%m-%d)"
+          # Theater (#1167, founder 2026-10-21): --deepen lets the generator re-read the roster/injury blobs the official
+          # receipts hashed. --theater builds the slate's possession runs into data/internal/research/nba/
+          # theater-possession/$D/ on PUBLISH only (no-rewrite); it prints theater=OK|FAILED|SKIPPED and the exit code
+          # reflects ONLY the lane, so a Theater failure never blocks the lane. The artifact rides THIS once-per-slate
+          # commit (a BUILD_INPUT that is never committed per freeze, so it costs no extra Production build).
           for ATTEMPT in 1 2 3; do
             git fetch -q origin main && git reset -q --hard origin/main
-            OUT="$(node scripts/nba/publish-nba-experimental-lane.mjs --date "$D" --write)"; RC=$?
+            git fetch -q --deepen=400 origin main || echo "::warning::deepen failed; the Theater may refuse, the lane is unaffected"
+            OUT="$(node scripts/nba/publish-nba-experimental-lane.mjs --date "$D" --write --theater)"; RC=$?
             echo "$OUT"
             if [ "$RC" != "0" ]; then echo "::error::lane publish refused for $D"; exit 1; fi
             case "$OUT" in *"action=PUBLISH"*) ;; *) exit 0 ;; esac
             git add "public/data/nba/experimental-public/$D.json" public/data/nba/experimental-public/latest.json 2>/dev/null || git add public/data/nba/experimental-public/latest.json
+            if [ -d "../data/internal/research/nba/theater-possession/$D" ]; then git add "../data/internal/research/nba/theater-possession/$D/"; fi
             if git diff --cached --quiet; then echo "nothing staged"; exit 0; fi
-            git commit -q -m "auto: nba experimental lane $D (once per slate) [skip ci]"
+            git commit -q -m "auto: nba experimental lane $D (once per slate; Theater runs if built) [skip ci]"
             if git push -q origin HEAD:main; then exit 0; fi
             echo "::warning::push lost a race (attempt $ATTEMPT)"; sleep $((ATTEMPT * 15))
           done

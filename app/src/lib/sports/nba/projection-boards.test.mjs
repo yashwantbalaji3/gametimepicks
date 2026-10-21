@@ -118,7 +118,11 @@ test("the 10-20 regeneration only ADDED fields: stripping them gives the pre-ame
   }
   assert.equal(crypto.createHash("sha256").update(`${JSON.stringify(stripped, null, 1)}\n`).digest("hex"), PRE_AMENDMENT_SHA256);
   assert.equal(PUB.schema, "nba-experimental-public-snapshot@1", "additive only, so no schema bump");
-  assert.equal(fs.readFileSync(path.join(APP, "public/data/nba/experimental-public/latest.json"), "utf8"), PUB_TEXT, "latest.json is the same bytes");
+  // latest.json is the NEWEST dated slate, byte for byte (it was 10-20 until #1150 published 10-21; asserting 10-20 here
+  // turned main red on data, 2026-10-21). The 10-20 property itself is the strip check above.
+  const dir = path.join(APP, "public/data/nba/experimental-public");
+  const newest = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().at(-1);
+  assert.equal(fs.readFileSync(path.join(dir, "latest.json"), "utf8"), fs.readFileSync(path.join(dir, newest), "utf8"), `latest.json is the same bytes as the newest slate (${newest})`);
   // …and the committed file is exactly what the producer builds now.
   const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: PUB.source.file, sourceCommit: PUB.source.commit, generatedAt: PUB.generatedAt });
   assert.equal(`${JSON.stringify(rebuilt, null, 1)}\n`, PUB_TEXT);
@@ -191,11 +195,15 @@ test("forbidden vocabulary is absent from the rendered view (beyond the withheld
 
 test("the route reads ONLY the lane snapshot: no data/internal, no fs in the view/island/ops, same laneIsCurrent gate", () => {
   const page = fs.readFileSync(path.join(APP, "src/app/nba/projections/page.tsx"), "utf8");
-  assert.match(page, /AMENDMENT_A\.enabled \? loadCurrentLane\(currentEtDate\(\)\) : null/);
-  for (const rel of ["src/app/nba/projections/page.tsx", "src/components/nba/projections-view.tsx", "src/components/nba/projection-board.tsx", "src/lib/sports/nba/projection-board-ops.mjs", "src/components/nba/experimental-lane.tsx"]) {
+  // Follow-up to PR 1163: the default view goes through boardContext with no date, whose no-date branch is exactly
+  // loadCurrentLane(buildEtDate) behind the amendment switch — the same gate /nba uses.
+  assert.match(page, /boardContext\(\{ date: null, nowIso: now\.toISOString\(\), buildEtDate: currentEtDate\(now\), enabled: AMENDMENT_A\.enabled \}\)/);
+  const ctx = fs.readFileSync(path.join(APP, "src/components/nba/projection-board-context.ts"), "utf8");
+  assert.match(ctx, /!enabled \? null : date == null \? loadCurrentLane\(buildEtDate\) : loadLaneForDate\(date\)/);
+  for (const rel of ["src/app/nba/projections/page.tsx", "src/app/nba/projections/[date]/page.tsx", "src/components/nba/projections-view.tsx", "src/components/nba/projection-board.tsx", "src/components/nba/projection-game-status.tsx", "src/lib/sports/nba/projection-board-ops.mjs", "src/components/nba/experimental-lane.tsx", "src/components/nba/projection-board-context.ts"]) {
     const s = fs.readFileSync(path.join(APP, rel), "utf8");
     assert.ok(!s.includes("data/internal") && !s.includes('"internal"'), `${rel} never names data/internal`);
-    if (rel !== "src/components/nba/experimental-lane.tsx") assert.doesNotMatch(s, /from "node:|require\(/, `${rel} reads no file`);
+    if (!["src/components/nba/experimental-lane.tsx", "src/components/nba/projection-board-context.ts"].includes(rel)) assert.doesNotMatch(s, /from "node:|require\(/, `${rel} reads no file`);
   }
   const lane = fs.readFileSync(path.join(APP, "src/components/nba/experimental-lane.tsx"), "utf8");
   assert.match(lane, /path\.join\(process\.cwd\(\), "public", "data", "nba", "experimental-public", "latest\.json"\)/, "the only file the loader reads");

@@ -19,6 +19,7 @@ import path from "node:path";
 import { NBA_PRIVATE_MARKERS, scanExportForNbaPrivate } from "./export-boundary.mjs";
 import { NBA_BOX_SCORE_SCHEMA, NBA_BOX_WATERMARK } from "./box-score.mjs";
 import { NBA_PROJECTED_BOX_SCHEMA } from "./projected-box.mjs";
+import { nbaTheaterPublicEnabled } from "./feature-manifest.mjs";
 
 const APP = process.cwd();
 const OUT = path.join(APP, "out");
@@ -26,9 +27,15 @@ const BUILT = fs.existsSync(path.join(OUT, "index.html"));
 const DEV_BUILD = process.env.GTP_DEV_ROUTES === "1";
 
 test("default export: no file names the private NBA candidate, its data, its family or its sha; no NBA pack; no out/dev/", { skip: !BUILT ? "no export at app/out (run the build first)" : DEV_BUILD ? "GTP_DEV_ROUTES=1 build: the dev tree is kept on purpose (never deploy it)" : false }, () => {
-  const r = scanExportForNbaPrivate(OUT);
+  // NBA public Theater candidate (Lane C): OFF unless BOTH acts are done; OFF, out/nba/simulation/ must be pruned
+  const theaterOn = nbaTheaterPublicEnabled();
+  const r = scanExportForNbaPrivate(OUT, { publicTheaterOn: theaterOn });
   assert.ok(r.files > 500, `scanned only ${r.files} files — the scan is not looking at the export`);
   assert.equal(r.devTree, false, "out/dev/ survived the prune");
+  if (!theaterOn) {
+    assert.equal(fs.existsSync(path.join(OUT, "nba", "simulation")), false, "out/nba/simulation/ survived the prune with the public gate OFF");
+    assert.equal(fs.existsSync(path.join(OUT, "_next", "static", "chunks", "app", "nba", "simulation")), false, "the candidate route's chunks survived the prune");
+  }
   assert.deepEqual(r.leaks.slice(0, 20), [], `${r.leaks.length} leak(s)`);
   console.log(`# NBA export boundary: ${r.files} exported files clean; no out/dev/`);
 });
@@ -81,6 +88,11 @@ test("scanner: each planted leak is caught (engine id, data path, family, both s
     ["_next/static/chunks/7-def.js", 'const S="nba-box-score@1"', "nba-box-score@"],
     ["_next/static/chunks/8-ghi.js", '(0,r.jsx)("div",{role:"dialog","data-nba-boxscore":""})', "data-nba-boxscore"],
     ["nba/game/3/index.html", "<p>PROJECTED · SIMULATED · NOT ACTUAL GAME STATISTICS · PRIVATE CANDIDATE MODEL</p>", "PRIVATE CANDIDATE MODEL"],
+    // possession playback (Lane C 2026-10-21): leaks in a default (flag-OFF) build
+    ["_next/static/chunks/10-jkl.js", 'const L="Possession-level research simulation (nba-possession-sim-v0)"', "nba-possession-sim-v0"],
+    ["nba/simulation/1/index.txt", '{"schema":"nba-possession-playback@1"}', "nba-possession-playback@"],
+    ["nba/game/4/index.html", '<div data-nbp-run="default"></div>', "data-nbp-"],
+    ["data/z.json", '{"schema":"nba-theater-possession@1"}', "nba-theater-possession@"],
   ];
   for (const [file, body, marker] of cases) {
     const r = scanExportForNbaPrivate(plant({ ...CLEAN, [file]: body }));

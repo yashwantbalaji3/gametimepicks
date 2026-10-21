@@ -81,4 +81,22 @@ export const FAMILY_BUDGET_KB = Object.freeze({
      the legacy June NBA-era pages (heaviest 2026-06-10 at 5,033KB, unchanged by B-3) — that legacy weight is
      backlog, not headroom for new days. Shrink-only. */
   "results/date": 5300,
+  /* /nba/projections/<date>/ (PR 1171: one static page per committed slate snapshot + the build's ET date). The family
+     test reads out/nba/projections/<dir>/index.html, so it covers the DATED pages only; the default view keeps its own
+     "nba/projections/index.html" ceiling above. Measured under the build lock 2026-10-21 on PR 1171 at 25eaad51dd —
+     2026-10-20 page 100,416 B, 2026-10-21 page 155,051 B, current page 154,297 B at 11 games and 181,330 B at a
+     15-game synthetic slate. Bounded by one slate per page, not by history. Shrink-only. */
+  "nba/projections": 200,
+  /* NBA Simulation Theater public candidate (PR 1167), one page per published game. MEASURED under the build lock 2026-10-21 (flag-ON build of
+     PR 1167 c1feea7a49, real 11-game 10-21 slate): 169,020–180,315 B per page. A flag-ON build measured 446-458KB before the island's props were packed (wire.mjs + event-codec.mjs:
+     five event logs as ledgers, ~346KB → ~65KB escaped in the flight). Estimate after: island markup 34-36KB + props
+     63-66KB escaped + the ~74KB site shell (measured page − that same estimate on the old build) = 171-176KB. Emitted
+     only by a flag-ON build (FLAG_GATED_FAMILIES). Replace with the measured emission + headroom; shrink-only. */
+  "nba/simulation": 250,
 });
+
+/**
+ * Families a DEFAULT build does not emit: scripts/prune-internal-routes.mjs deletes the directory unless the route's
+ * public gate is on. Absent → nothing to measure (skipped); present → the ceiling above applies to every page.
+ */
+export const FLAG_GATED_FAMILIES = Object.freeze(["nba/simulation"]);

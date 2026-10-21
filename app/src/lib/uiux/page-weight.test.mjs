@@ -14,7 +14,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { BUDGET_KB, FAMILY_BUDGET_KB } from "./page-weight-budgets.mjs";
+import { BUDGET_KB, FAMILY_BUDGET_KB, FLAG_GATED_FAMILIES } from "./page-weight-budgets.mjs";
 
 const out = path.join(process.cwd(), "out");
 
@@ -33,6 +33,7 @@ test("every page a budgeted route family emits stays inside the family ceiling",
   for (const [dir, kb] of Object.entries(FAMILY_BUDGET_KB)) {
     const base = path.join(out, dir);
     const pages = fs.existsSync(base) ? fs.readdirSync(base).map((d) => path.join(base, d, "index.html")).filter((p) => fs.existsSync(p)) : [];
+    if (!fs.existsSync(base) && FLAG_GATED_FAMILIES.includes(dir)) continue; // pruned from a flag-OFF build
     assert.ok(pages.length > 0, `${dir}: the family emitted no pages — a ceiling over nothing is vacuous`);
     for (const p of pages) {
       const size = fs.statSync(p).size / 1024;

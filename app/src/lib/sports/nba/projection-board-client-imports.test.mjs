@@ -19,6 +19,27 @@ const resolve = (spec, fromRel) => {
   throw new Error(`unresolved import ${spec} from ${fromRel}`);
 };
 
+const graph = (root) => {
+  assert.match(read(root), /^"use client";/);
+  const seen = new Set();
+  const queue = [root];
+  while (queue.length) {
+    const rel = queue.shift();
+    if (seen.has(rel)) continue;
+    seen.add(rel);
+    for (const spec of imports(read(rel))) {
+      assert.ok(!spec.startsWith("node:") && !["fs", "path", "crypto", "child_process"].includes(spec), `${rel} imports ${spec}`);
+      const next = resolve(spec, rel);
+      if (next) queue.push(next);
+    }
+  }
+  return [...seen].sort();
+};
+
+test("follow-up to PR 1163: the reader's-clock status label is browser-safe too (React + the import-free ops only)", () => {
+  assert.deepEqual(graph("src/components/nba/projection-game-status.tsx"), ["src/components/nba/projection-game-status.tsx", "src/lib/sports/nba/projection-board-ops.mjs"]);
+});
+
 test("the projection board island's whole import graph is browser-safe (no node: module)", () => {
   const root = "src/components/nba/projection-board.tsx";
   assert.match(read(root), /^"use client";/);
