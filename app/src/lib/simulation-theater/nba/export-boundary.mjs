@@ -29,7 +29,24 @@ export const NBA_PRIVATE_MARKERS = Object.freeze([
   "data-nba-px-", // NbaBoxScore.tsx V2 layer attributes (data-nba-px-official, -group, -controls, ...)
   "data-nba-boxscore", // NbaBoxScore.tsx dialog / table attributes (class names are NOT markers: CSS ships un-pruned)
   "PRIVATE CANDIDATE MODEL", // the box-score watermark's private-candidate clause
+  // Possession playback (Lane C 2026-10-21). The private artifact's directory and schema are ALWAYS leaks; the engine
+  // id, the client payload schema and the island's data attributes are leaks in a default build and allowed ONLY by
+  // NBA_THEATER_FLAG_ON_ALLOWLIST, ONLY under the public route's own output, when the public gate is on.
+  "theater-possession", // data/internal/research/nba/theater-possession/<date>.json (artifact-contract.mjs)
+  "nba-theater-possession@", // the private artifact schema
+  "nba-possession-sim-v0", // the research engine id
+  "nba-possession-playback@", // the client payload schema (payload.mjs)
+  "data-nbp-", // NbaPossessionTheater.tsx data attributes
 ]);
+
+/**
+ * FLAG-ON ALLOWLIST (public candidate /nba/simulation/[eventId], both acts of public-route.mjs done). These markers are
+ * the Theater's own honest labels and payload — the page MUST name the engine ("Possession-level research simulation
+ * (nba-possession-sim-v0) — not the official forecast"). Allowed only in files under NBA_THEATER_FLAG_ON_PREFIXES (the
+ * route's HTML / RSC output and the static chunks that carry its island); every other marker stays a leak everywhere.
+ */
+export const NBA_THEATER_FLAG_ON_ALLOWLIST = Object.freeze(["nba-possession-sim-v0", "nba-possession-playback@", "data-nbp-"]);
+export const NBA_THEATER_FLAG_ON_PREFIXES = Object.freeze(["nba/simulation/", "_next/static/"]);
 
 /** A theater pack (`theater-pack@…`) whose sport is NBA, as JSON or JSON escaped inside an RSC payload string. */
 const NBA_PACK = /theater-pack@[\s\S]{0,4000}?\\*"sport\\*"\s*:\s*\\*"nba\\*"|\\*"sport\\*"\s*:\s*\\*"nba\\*"[\s\S]{0,4000}?theater-pack@/;
@@ -51,9 +68,11 @@ function withoutCommitMessages(body) {
 
 /**
  * @param {string} outDir  a static export (app/out)
+ * @param {{ publicTheaterOn?: boolean }} opts  true only for a build with the NBA public Theater gate on (both acts)
  * @returns {{ exists: boolean, files: number, devTree: boolean, leaks: { file: string, marker: string }[] }}
  */
-export function scanExportForNbaPrivate(outDir) {
+export function scanExportForNbaPrivate(outDir, { publicTheaterOn = false } = {}) {
+  const allowedHere = (rel, m) => publicTheaterOn && NBA_THEATER_FLAG_ON_ALLOWLIST.includes(m) && NBA_THEATER_FLAG_ON_PREFIXES.some((p) => rel.startsWith(p));
   const res = { exists: fs.existsSync(outDir), files: 0, devTree: false, leaks: [] };
   if (!res.exists) return res;
   res.devTree = fs.existsSync(path.join(outDir, "dev"));
@@ -66,7 +85,7 @@ export function scanExportForNbaPrivate(outDir) {
       const rel = path.relative(outDir, full).split(path.sep).join("/");
       const raw = fs.readFileSync(full, "utf8");
       const body = rel === BUILD_INFO ? withoutCommitMessages(raw) : raw;
-      for (const m of NBA_PRIVATE_MARKERS) if (body.includes(m)) res.leaks.push({ file: rel, marker: m });
+      for (const m of NBA_PRIVATE_MARKERS) if (body.includes(m) && !allowedHere(rel, m)) res.leaks.push({ file: rel, marker: m });
       if (body.includes("theater-pack@") && NBA_PACK.test(body)) res.leaks.push({ file: rel, marker: "theater pack with sport nba" });
     }
   };

@@ -34,6 +34,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { LEGAL_ROUTES, legalRouteIsPublic } from "../src/lib/legal/texts.mjs";
+import { nbaTheaterPublicEnabled } from "../src/lib/simulation-theater/nba/feature-manifest.mjs";
 
 /* Legal pages join the sweep until they may publish (lib/legal/texts.mjs · legalReadiness): an
    unapproved Terms page must not be reachable at its raw URL any more than /launch is. */
@@ -43,7 +44,12 @@ const GATED_LEGAL_ROUTES = Object.entries(LEGAL_ROUTES).filter(([id]) => !legalR
    page renders only an inert 404 placeholder, and this sweep removes even that, with its chunks. */
 const DEV_ROUTES = process.env.GTP_DEV_ROUTES === "1" ? [] : ["dev"];
 if (DEV_ROUTES.length === 0) console.log("[prune-internal-routes] GTP_DEV_ROUTES=1 → keeping out/dev/ (local development build; never deploy it)");
-const INTERNAL_ROUTES = ["ops", "preview", "launch", ...DEV_ROUTES, ...GATED_LEGAL_ROUTES];
+/* /nba/simulation/** (NBA Simulation Theater PUBLIC CANDIDATE, Lane C 2026-10-21) ships only when BOTH acts are done:
+   NBA_THEATER_PUBLIC_ENABLED === true (feature-manifest.mjs, today false) AND GTP_NBA_THEATER_PUBLIC=1. Otherwise its
+   page is an inert 404 placeholder, and this sweep removes it with its chunks. */
+const NBA_THEATER_ROUTES = nbaTheaterPublicEnabled() ? [] : ["nba/simulation"];
+if (NBA_THEATER_ROUTES.length === 0) console.log("[prune-internal-routes] NBA Theater public gate ON (constant + GTP_NBA_THEATER_PUBLIC=1) → keeping out/nba/simulation/");
+const INTERNAL_ROUTES = ["ops", "preview", "launch", ...DEV_ROUTES, ...NBA_THEATER_ROUTES, ...GATED_LEGAL_ROUTES];
 
 /**
  * Data files the public site serves even though no page links them. Kept deliberately, not by accident.
