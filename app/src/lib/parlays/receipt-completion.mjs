@@ -41,7 +41,31 @@ const idOf = (c) => String(c?.slipId ?? "");
  * are checked under the same asymmetric rule below. Missing the leg array made the first version
  * refuse every real completion as "legs or prices moved".
  */
-const withoutResults = (c) => { const { result, legs, ...rest } = c ?? {}; return JSON.stringify(rest); };
+/*
+ * `payoutDecimal` (lib/parlays/settlement.mjs, PAYOUT_POLICY receipts only) is outcome-dependent too — it is null
+ * while a card is pending and becomes a number when the card completes — so it is excluded here and checked by
+ * classifyPayoutMove below under the same asymmetric rule as the card's own result.
+ */
+const withoutResults = (c) => { const { result, legs, payoutDecimal, ...rest } = c ?? {}; return JSON.stringify(rest); };
+const hasPayout = (c) => !!c && Object.prototype.hasOwnProperty.call(c, "payoutDecimal");
+
+/**
+ * A recorded payout follows its card: it may go from null to a number only while the card it belongs to was
+ * pending (that is the card completing). A receipt never GAINS or LOSES the field — a receipt keeps the payout
+ * policy it was first written under, so adding a payout to a legacy receipt is a restatement, not a completion —
+ * and a decided card's payout never changes.
+ */
+function classifyPayoutMove(id, before, after, reasons) {
+  if (hasPayout(before) !== hasPayout(after)) {
+    reasons.push(`card ${id} ${hasPayout(after) ? "gained" : "lost"} a recorded payout — a receipt keeps the payout policy it was first written under`);
+    return;
+  }
+  if (!hasPayout(before)) return;
+  const f = before.payoutDecimal, t = after.payoutDecimal;
+  if (f === t) return;
+  if (f == null && String(before.result ?? PENDING) === PENDING) return;   // completes together with the card
+  reasons.push(`the payout on card ${id} was recorded ${f} and this run says ${t}`);
+}
 
 /**
  * pending → decided is a completion; anything else is a rewrite. Applied identically to a card's
@@ -83,6 +107,7 @@ export function classifyReceiptChange(prior, next) {
     // A decided outcome never moves — not to another outcome, and not back to pending. A source
     // that stops answering must not be able to un-settle a card that was already graded.
     classifyOutcomeMove(id, "the card", before.result, after.result, completed, reasons);
+    classifyPayoutMove(id, before, after, reasons);
     for (let i = 0; i < beforeLegs.length; i += 1) {
       classifyOutcomeMove(id, `leg ${i + 1}`, beforeLegs[i], afterLegs[i], completed, reasons);
     }

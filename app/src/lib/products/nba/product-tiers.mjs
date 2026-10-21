@@ -108,7 +108,9 @@ export function tierView(leg, tierId, { now, settles = nbaSettlesFamily } = {}) 
   if (!Number.isFinite(price) || price < LEG_BOUNDS.oddsMin || price > LEG_BOUNDS.oddsMax) reasons.push(TIER_REASON.PRICE_OUT_OF_RANGE);
   if (tier) {
     if (Number.isFinite(price) && price > tier.legRules.oddsMax && !reasons.includes(TIER_REASON.PRICE_OUT_OF_RANGE)) reasons.push(TIER_REASON.LEG_PRICE_ABOVE_TIER_MAX);
-    if (!tier.legRules.playerMarkets) reasons.push(TIER_REASON.TEAM_MARKETS_ONLY);
+    // A team-markets-only tier (moonshot@2) refuses a player leg; an NBA TEAM leg (nba-team-leg.mjs, marketKind
+    // "TEAM") is the market kind it was built for.
+    if (!tier.legRules.playerMarkets && leg?.marketKind !== "TEAM") reasons.push(TIER_REASON.TEAM_MARKETS_ONLY);
   }
   if (!settles(leg?.family)) reasons.push(TIER_REASON.NO_SETTLEMENT_PATH);
   return Object.freeze({

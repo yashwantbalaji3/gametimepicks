@@ -33,6 +33,12 @@ import { buildTierReplay } from "@/lib/parlays/lab/style-replay.mjs";
 import { loadMlbPropsBoard, toSwapCandidate } from "@/lib/mlb/mlb-props";
 import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { buildParlayLabV2Model } from "@/lib/parlays/v2/board-model.mjs";
+import TierBoard, { type ParlayLabV2Model } from "@/components/parlays/v2/TierBoard";
+
+/* Parlay Lab V2 (four-tier board + compare slip) — OFF unless the build sets NEXT_PUBLIC_PARLAY_LAB_V2=1. When off,
+   nothing below is computed or rendered and the page is unchanged. */
+const PARLAY_LAB_V2 = process.env.NEXT_PUBLIC_PARLAY_LAB_V2 === "1";
 
 export const metadata = withRouteMetadata("/build/", {
   title: "Parlay Center · GameTime Picks",
@@ -70,6 +76,9 @@ export default function ParlayCenterSuggestedPage() {
   const swapPool = loadMlbPropsBoard(dataRoot, ladderDate)
     .filter((p) => !legIsMarketContext({ sport: "MLB", market: p.market }, marketContext))
     .map(toSwapCandidate);
+  const v2Model = PARLAY_LAB_V2
+    ? (buildParlayLabV2Model({ dataRoot, repoRoot: path.resolve(process.cwd(), ".."), date: ladderDate, now: new Date().toISOString() }) as ParlayLabV2Model)
+    : null;
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
@@ -94,6 +103,8 @@ export default function ParlayCenterSuggestedPage() {
       />
 
       <ParlayCenterTabs active="suggested" />
+
+      {v2Model ? <TierBoard model={v2Model} /> : null}
 
       {/* The guided entry, first. */}
       {/* P234 · D — the published card as a recordable presentation. It reads the FIRST card of the
