@@ -103,3 +103,19 @@ Set `NBA_THEATER_PUBLIC_ENABLED = false`, or unset `GTP_NBA_THEATER_PUBLIC`, and
 - Promoting `nba-possession-sim-v0` (or v1) to the official NBA model.
 - Any NBA probability, team score, range, price or pick.
 - Any product use of Theater output.
+
+
+## Release record (2026-10-21)
+- **Release PR #1173**, merged at exact head `2aceeb8df2` (quality + python SUCCESS) at 18:03:10Z. Merge commit `0da26c3694`.
+- **Production** `build-info` `0da26c3694`, built 18:06:33Z. **One Production build:** the `ufc-fight-week` data commit just before the merge was superseded and cancelled.
+- **Second act:** `GTP_NBA_THEATER_PUBLIC=1` set by the founder in Vercel project `gametime-picks`, Production only. Effective: all 11 routes are built and served.
+- **G11 Production acceptance:**
+  - 11/11 `/nba/simulation/<id>/` return 200 (173–184 KB);
+  - e2e spec against Production 15/15;
+  - release-owner acceptance 147 checks, 0 failures: continuous Q1→Final with lineup changes at 320 / 390 / 768 / 1440; all 55 stored runs reach their stored finals with reconciled boxes; the official panel equals the `/nba` lane and is unchanged across runs; label, banner, transparency note and inputs line all present;
+  - privacy scan (23 pages + 40 chunks): the engine id appears only on the Theater pages and 4 Theater-only chunks.
+- **Findings after the release:**
+  - no page links to the Theater (entry-point PR in progress);
+  - the Theater page has no h1 (same PR);
+  - a pre-existing soccer research path string in the site-wide layout chunk (since 09-29; not NBA).
+- **Rollback ready:** #1174 (flip revert; CI green; retargeted to main). Faster path: Vercel Instant Rollback to deployment `d4d81aced9` / `b0f99b9ff2`.
