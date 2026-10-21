@@ -1696,6 +1696,16 @@ Stabilize EPL → correct/grade Ligue 1 → league-specific validation → La Li
 | 8 | Forward-only promotions with versions and effective dates | Write-once receipts; append-only ledgers and promotion record; §13 lane snapshot per slate | The official snapshot carries `modelVersion` + `effectiveFrom`; history is never re-pointed |
 | 9 | A calibrated ensemble only if properly evaluated | #1159 research harness; v0.1 / v1 / Elo receipts at identical instants | After enough forward sample: stacking on a held-out window, coherence-checked (team = Σ players) before any consideration |
 
+### Founder decision register — NBA engines and Theater (canonical, newest first)
+
+| Date | Decision | Status | Record |
+|---|---|---|---|
+| 2026-10-21 | **Allow `nba-possession-sim-v0` as the NBA Theater replay engine.** Three roles: A = official snapshot (Elo + v0.1), B = v1 challenger, C = Research Possession Simulation. Public presentation is approved **conditionally**, on the 11 founder conditions plus the activation checklist. The research engine is **not** promoted to official | APPROVED (conditional); flag OFF | `docs/launch/approvals/NBA_THEATER_PUBLIC_2026-10-21.md` (gates G1–G12) |
+| 2026-10-20 | Theater Gate V2 (`LABELLED_SUPPORTING_RUNS`) | APPROVED; merged via #1170, 08:19Z 10-21 | #1162 |
+| 2026-10-20 | `/nba/projections/` (amendment A) | APPROVED; merged via #1170 | #1163, prereg §13 A |
+| 2026-10-20 | Official NBA = Elo side + v0.1 players; v1 is a challenger and its board is research-only | APPROVED; on Production | #1149 |
+| 2026-10-20 | Champion–challenger architecture (this section) | APPROVED (long-term) | above |
+
 ### Earlier entries (kept for history)
 - `NBA-001` (private/shadow readiness) is superseded by NBA-01 to NBA-02.
 - `NBA-002` (world-model research: `minutes/rotation → possessions → events → outputs`) continues as NBA-05 / NBA-10.
