@@ -4,8 +4,8 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 95,
-  "public": 63,
+  "routes": 96,
+  "public": 64,
   "internal": 11,
   "redirects": 17,
   "archive": 2,
@@ -413,6 +413,15 @@
    "purpose": "legacy alias",
    "redirectTo": "/build",
    "built": true
+  },
+  {
+   "route": "/nba/projections",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "NBA projection-only player board (preregistration §13 amendment A, founder decision 2026-10-20): filters + a reader's sort over the experimental lane snapshot's frozen medians (PTS/REB/AST/3PM, PRA/P+R/P+A); UNVALIDATED EXPERIMENTAL SIMULATION, no prices, chances or picks; empty when the slate is past",
+   "dataOwner": "public/data/nba/experimental-public/latest.json (scripts/nba/build-nba-experimental-public.mjs)",
+   "freshness": "each game's freeze time and receipt hash on the page",
+   "built": false
   },
   {
    "route": "/nba/results",

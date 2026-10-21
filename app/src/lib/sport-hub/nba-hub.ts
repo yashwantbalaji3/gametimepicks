@@ -27,6 +27,8 @@ export const NBA_HUB_BEHIND_DAYS = 3;
 
 export const NBA_NO_FORECAST_NOTE = "No public forecast — model in validation";
 export const NBA_PRESEASON_NOTE = "Preseason — no forecast published";
+/** A game the NBA experimental public lane covers (preregistration §13): the row points at it, never claims validation. */
+export const NBA_LANE_NOTE = "Experimental model output below — not validated";
 
 type Side = { abbr?: string | null; name?: string | null; providerTeamId?: string | number | null };
 type ScheduleRow = { providerEventId?: string; dateUtc?: string; statusRaw?: string | null; seasonType?: number | null; home?: Side | null; away?: Side | null };
@@ -55,7 +57,7 @@ const latestStamp = (...stamps: unknown[]): string | null => {
 };
 
 /** Pure builder — every input passed in, so the page and the tests read the same function. */
-export function nbaHubFrom({ nowIso, schedule, finals }: { nowIso: string; schedule: ScheduleCapture; finals: FinalsRecord }): SportHubModel {
+export function nbaHubFrom({ nowIso, schedule, finals, laneIds = null }: { nowIso: string; schedule: ScheduleCapture; finals: FinalsRecord; laneIds?: ReadonlySet<string> | null }): SportHubModel {
   const now = Date.parse(nowIso);
   const lo = now - NBA_HUB_BEHIND_DAYS * DAY, hi = now + NBA_HUB_AHEAD_DAYS * DAY;
   let unidentified = 0;
@@ -76,7 +78,8 @@ export function nbaHubFrom({ nowIso, schedule, finals }: { nowIso: string; sched
     const reportNote = isFinal
       ? `${away.label} ${fin.ftAway} – ${home.label} ${fin.ftHome}${fin.state === "FINAL_UNDER_REVIEW" ? " (under review)" : ""}`
       : started ? "Final not recorded yet"
-      : preseason ? NBA_PRESEASON_NOTE : NBA_NO_FORECAST_NOTE;
+      : preseason ? NBA_PRESEASON_NOTE
+      : laneIds?.has(String(r.providerEventId)) ? NBA_LANE_NOTE : NBA_NO_FORECAST_NOTE;
     rows.push({
       id: r.providerEventId,
       startUtc: r.dateUtc!,
@@ -153,10 +156,11 @@ function readJson<T>(rel: string): T | null {
 }
 
 /** The page's loader: the committed schedule capture and this season's finals record. */
-export function nbaHub(nowIso: string): SportHubModel {
+export function nbaHub(nowIso: string, laneIds: ReadonlySet<string> | null = null): SportHubModel {
   const season = nbaSeasonLabel(etDateOf(nowIso));
   return nbaHubFrom({
     nowIso,
+    laneIds,
     schedule: readJson<ScheduleCapture>("nba/schedule/latest.json"),
     finals: season ? readJson<FinalsRecord>(`nba/results/finals-${season}.json`) : null,
   });

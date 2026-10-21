@@ -145,6 +145,7 @@ export const ROUTE_TABLE = Object.freeze({
      linked from every nav surface. /nhl and /ipl send readers to /today/, not the homepage. */
   "/trends": { classification: "redirect", owner: "product", purpose: "retired trends", redirectTo: "/mlb/board" },
   "/nba": { classification: "public", owner: "product", purpose: "NBA hub (Session 6, founder decision 3): schedule and official final scores only — no forecast while every NBA model is shadow/withheld; the page and its nav note both say so", dataOwner: "lib/sport-hub nbaHub over the committed NBA schedule + finals captures", freshness: "the hub's own updated stamp (HubTitle)" },
+  "/nba/projections": { classification: "public", owner: "product", purpose: "NBA projection-only player board (preregistration §13 amendment A, founder decision 2026-10-20): filters + a reader's sort over the experimental lane snapshot's frozen medians (PTS/REB/AST/3PM, PRA/P+R/P+A); UNVALIDATED EXPERIMENTAL SIMULATION, no prices, chances or picks; empty when the slate is past", dataOwner: "public/data/nba/experimental-public/latest.json (scripts/nba/build-nba-experimental-public.mjs)", freshness: "each game's freeze time and receipt hash on the page" },
   "/nba/results": { classification: "redirect", owner: "settlement", purpose: "alias", redirectTo: "/results/nba" },
   "/nhl": { classification: "redirect", owner: "product", purpose: "retired NHL hub", redirectTo: "/today" },
   "/ipl": { classification: "redirect", owner: "product", purpose: "retired IPL hub", redirectTo: "/today" },

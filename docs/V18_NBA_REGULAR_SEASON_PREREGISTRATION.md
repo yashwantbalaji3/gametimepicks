@@ -146,13 +146,14 @@ into the capability registry by automation.
 | 3 | 2026-10-07 | no outcome: founder decisions N1–N3, N5 (Yash, 2026-10-07 03:21Z) recorded before the first 2026-27 regular-season game. Additions only: the frozen Elo winner side and the joint PRA / P+A / P+R quantiles become new keys in every family's receipt (v0 included; no existing v0 or v0.1 number changes, checked byte-for-byte against the previous build on real slates), the P+A / P+R rows above (PRA's shape), and the v0.2 challenger family | no bar changed. v0.1 is the player champion (N1); v0.2 shadows from game 1 and never replaces v0.1 or the Elo side automatically (N3). The winner row's bar names `sim`; scoring an Elo-side winner for promotion is a later founder reading (N6), not this look |
 | 4 | 2026-10-19 | **v1 candidate** (`nba-sim-v1-coherent`, family `v1`, CANDIDATE_SHADOW; `game-sim-v1.mjs`, `sim-v1-profile.mjs`). Scalar parameters fitted on the 2023-24 regular season ONLY (`calibrate-sim-v1.mjs` → `reports/sim-v1-calibration-2024.json`) and frozen; then ONE look at the 2024-25 **development** season, same sample rule as look 2 (1,005 games ≥ day 30), seasons ≤ 2025 only loaded (`evaluate-sim-v1.mjs --write` → `reports/sim-v1-dev-evaluation.json`; a 5-game harness smoke run preceded it, numbers discarded). v1 4,000 draws, v0 1,000, Elo unchanged; v1 pools = historical roster proxy (no captures existed), no injuries feed | v1: winner Brier **0.212** (Elo 0.215, v0 0.267), log loss 0.612 (Elo 0.618, coin 0.693), ECE 0.025; margin MAE 11.31, bias +0.56, p10–p90 0.815, p25–p75 0.536; total MAE 15.29, **bias −2.98 (fails \|bias\| ≤ 2.0)**, p10–p90 0.776, p25–p75 0.480; sim total SD 17.94 > margin SD 14.38; OT rate 2.4 % vs realised 4.6 % (under). Players (expected ≥ 20 min, n 9,930): minutes MAE 5.41; p10–p90 coverage pts 0.780, **reb 0.849, ast 0.859 (fail 0.76–0.84), 3PM 0.905 (fails 0.74–0.86)** — over-dispersed. Historical dev numbers only: no interval on the v1−Elo winner difference was computed, so no claim that v1 beats Elo; nothing promotes or validates v1. No parameter changed after this look; assessment season (2025-26) still unread by v1; v1 starts its own forward shadow as a candidate |
 | 5 | 2026-10-20 | **no outcome; governance amendment.** Founder decision (Yash, in the release owner's session, 2026-10-20) creating a separate **EXPERIMENTAL PUBLIC LANE** (§13), recorded before any 2026-27 regular-season final. Read: the frozen pre-tip receipts for 2026-10-20 (v0.1 + Elo; integrity verified). | **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.** No market moved from SHADOW. The capability registry keeps NBA `HISTORICAL_ONLY`. The lane counts toward nothing in §6–§8. |
+| 6 | 2026-10-20 | **no outcome; governance amendment A** (§13 amendment A). Founder's conditional approval (Yash, 2026-10-20) of projection-only player boards with PRA / P+R / P+A. Recorded; activation is via the release-owner gate. Read: the same frozen 2026-10-20 v0.1 receipts, to reconcile the combo fields. | **No bar, threshold, metric, sample size, graded record or evaluation rule above changed.** No market moved from SHADOW; registry still `HISTORICAL_ONLY`. Combos are copied from the receipts (per-draw sums), not recomputed. |
 
 ## 13. Experimental public lane (amendment, founder decision 2026-10-20)
 
 **Status.** This is a separate lane beside the preregistered shadow. It is **not** the §7–§8 SHADOW → PUBLIC FORECAST promotion: it satisfies no bar, and its outputs are never counted as validation, as a forward-shadow sample, or as a product record. Lane id `nba-experimental-public@1` (`app/src/lib/sports/nba/experimental-public-lane.mjs`).
 
 **Scope:**
-- **Surfaces:** the `/nba` hub only.
+- **Surfaces:** the `/nba` hub only (plus `/nba/projections/` under amendment A below, once activated).
 - **Data:** one canonical snapshot per slate, `nba-experimental-public-snapshot@1`, at `app/public/data/nba/experimental-public/<date>.json`. It is built by `app/scripts/nba/build-nba-experimental-public.mjs` from the **committed** v0.1 forecast file.
 - **Every public surface** that shows these figures reads this snapshot and nothing else.
 
@@ -193,6 +194,63 @@ into the capability registry by automation.
 - wrong game identity.
 
 **Lane scorecard.** The lane's figures are graded only as context, in the existing shadow ledger for v0.1, which is already graded nightly. They are never reported as a validated record.
+
+### 13 amendment A. Projection-only player boards (recorded 2026-10-20 — conditional approval; activation via release-owner gate)
+
+**Status.** Recorded 2026-10-20 after the founder's conditional approval (Yash, 2026-10-20). It is a change to the lane only: no bar, threshold, metric, sample size, graded record or evaluation rule in §1–§12 changes, no market leaves SHADOW, and the registry keeps NBA `HISTORICAL_ONLY`. Activation is the release-owner gate: the route ships only when the release owner merges it after confirming the publication with the founder. The proposal it adopts is `docs/nba/NBA_LANE_AMENDMENT_PROPOSAL_2026-10-20.md` (PR 1161).
+
+**The founder's conditions (2026-10-20):**
+- projection-only player boards with matchup, team, player and stat filters and user-controlled sorting;
+- PTS, REB, AST, 3PM, PRA, P+R and P+A, only where actually modelled;
+- combination statistics derive from the same frozen simulation draws and pass source-reconciliation tests;
+- every projection is clearly labelled experimental and unvalidated;
+- no sportsbook lines, odds, edges, EV, betting recommendations or unsupported markets under this authorization;
+- the amendment is recorded formally, every required safeguard is preserved, and page weight is measured;
+- a separate lightweight projection-board experience is preferred where needed.
+
+**What it permits:**
+- **Surface.** One added route, `/nba/projections/`, a separate lightweight page. `/nba` gains one link line to it, and its lane cards are compact (see Page weight below). The route reads only the lane snapshot (`latest.json`), under the same rule as `/nba`: hidden when disabled or when its slate is past (`laneIsCurrent`).
+- **Board view.** A table of the snapshot's players with filters for matchup, team, player (text) and stat group. The default order is expected minutes. A reader may re-sort by a stat column; that is the reader's sort, not a published ordering.
+- **Combination medians.** PRA, P+R and P+A medians, copied to 1 dp from the same v0.1 receipt (`pra` / `ptsReb` / `ptsAst` p50). The v0 engine sums the components per simulated draw (`game-sim.mjs` `comboDraws`), so a combo median is the median of the per-draw sum, not the sum of component medians. Label: "sum over the same simulated draws (v0 engine; components independent within a player)".
+- **Snapshot.** Additive only, so it stays `nba-experimental-public-snapshot@1`: `comboMedians` per player row and `comboSource` per game. No existing key, value or name changes. The board's stat list is `PROJECTION_BOARD_STATS`; the `/nba` card columns (`STATS`) are unchanged.
+
+**Source reconciliation (pinned by tests; any failure refuses the build):**
+- every published combo equals the receipt's own p50 (1 dp), and differs from the sum of component medians wherever the receipt's values differ;
+- for every receipt player, each combo mean equals the sum of its component means within 0.02 (draws are additive in the mean). A failure refuses the whole snapshot build;
+- the producer's `snapshotMatchesSource` re-derives the combos, and the builder exits 1 on any mismatch;
+- the 2026-10-20 snapshot was regenerated with fields added only. Stripping the added fields gives the pre-amendment file byte-for-byte (sha256 pinned in `projection-boards.test.mjs`).
+
+**What stays withheld:**
+
+| Item | Status |
+|---|---|
+| Sportsbook lines, odds, edges, EV, picks, leans, betting recommendations | Not shown; no authorized NBA price |
+| R+A, steals, blocks, turnovers | Not modelled; never shown |
+| Rank numbers, "top" wording, highlights, badges | Never shown; the only order besides expected minutes is the reader's own sort |
+| Player ranges (p10–p90), means, SDs, per-draw data | Not published (§13) |
+| Win probabilities, any percentage or chance | Not shown (§13) |
+| Projected team scores | Withheld (§13) |
+| Products (Bank Builder, Moonshot, Parlay Lab, Smart Betslip, Ask, Top-10 picks) | Cannot read the lane; `canEnterPredictionProducts("nba")` stays false |
+
+**Safeguards preserved:**
+- every block carries the UNVALIDATED EXPERIMENTAL SIMULATION notice, with freeze times and receipt hashes;
+- no recomputation;
+- the route never reads `data/internal/**` at runtime;
+- the client island's import graph is browser-safe (no `node:` module);
+- the §13 rollback criteria apply unchanged, plus one more: a combo that does not reconcile.
+
+**Rollback switch.** Set `AMENDMENT_A.enabled = false` in `app/src/lib/sports/nba/experimental-public-lane.mjs` (one line). The next snapshot build drops the combo fields, `/nba/projections/` renders its empty state, and the `/nba` link line disappears. `LANE.enabled = false` still removes every lane surface, this one included.
+
+**Page weight (measured 2026-10-21, release owner).** Full builds with the real 11-game 10-21 slate (uncommitted fixture built by the producer from verified receipts) and a 15-game synthetic slate:
+- `/nba/projections/`: 149 KB at 11 games and 175 KB at 15, after the board payload was packed (PR 1163). Budget **200 KB**.
+- `/nba` with full per-team tables: 388 KB at 11 games against its 250 KB budget.
+
+So, with this amendment on, the `/nba` lane cards became compact (PR 1170):
+- each card keeps matchup, tip, freeze time, final status, the Elo-favoured team, player count and receipt;
+- every player row lives on `/nba/projections/` only;
+- with `AMENDMENT_A.enabled = false` the full tables return to `/nba`.
+
+`/nba` then measured 232 KB at 11 games and 239 KB at 15. No existing budget was raised, and no published number changed.
 
 ### §13 amendment B — NBA Simulation Theater: canonical forecast + labelled supporting-simulation runs
 

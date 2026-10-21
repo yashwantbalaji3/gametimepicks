@@ -11,7 +11,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { buildExperimentalSnapshot, snapshotMatchesSource } from "../../src/lib/sports/nba/experimental-public-lane.mjs";
+import { buildExperimentalSnapshot, buildExperimentalAudit, snapshotMatchesSource } from "../../src/lib/sports/nba/experimental-public-lane.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -29,7 +29,11 @@ let commit = null;
 try { commit = execFileSync("git", ["log", "-1", "--format=%H", "--", rel], { cwd: REPO, encoding: "utf8" }).trim() || null; } catch { /* not a git checkout */ }
 
 // Published label omits the internal prefix: the public file names the family and date, the commit pins the bytes.
-const snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: NOW });
+// §13 amendment A: a combo that does not reconcile with its source draws throws REFUSED inside the build — exit 1.
+let snap;
+try {
+  snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: NOW });
+} catch (e) { console.error(e.message); process.exit(1); }
 const byId = new Map(doc.games.map((g) => [String(g.providerEventId), g]));
 for (const g of snap.games) {
   if (!snapshotMatchesSource(g, byId.get(g.providerEventId))) { console.error(`REFUSED: ${g.providerEventId} does not re-derive from its receipt`); process.exit(1); }
@@ -43,4 +47,9 @@ if (argv.includes("--write")) {
   fs.writeFileSync(path.join(out, `${DATE}.json`), text);
   fs.writeFileSync(path.join(out, "latest.json"), text);
   console.log(`wrote public/data/nba/experimental-public/${DATE}.json (+ latest.json)`);
+  // The private audit companion (never exported): why each withholding holds, and the seeds.
+  const auditDir = path.join(REPO, "data", "internal", "research", "nba", "experimental-public-audit");
+  fs.mkdirSync(auditDir, { recursive: true });
+  fs.writeFileSync(path.join(auditDir, `${DATE}.json`), `${JSON.stringify(buildExperimentalAudit({ forecastDoc: doc, generatedAt: NOW }), null, 1)}\n`);
+  console.log(`wrote data/internal/research/nba/experimental-public-audit/${DATE}.json (private)`);
 }
