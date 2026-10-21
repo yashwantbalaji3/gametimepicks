@@ -148,8 +148,11 @@ test("stylesheet: tokens only (no colour literal), no font under 11px, motion on
 });
 
 test("FLAG ON (simulated build): the public page renders the labelled Theater; its HTML + payload carry no private marker beyond the allowlist", () => {
-  // the gate: both acts — never on with the committed constant
-  assert.equal(nbaPublicTheaterOn({ env: { GTP_NBA_THEATER_PUBLIC: "1" } }), false);
+  // the gate: both acts. The committed constant is true (flipped 2026-10-21 with the approval file), so the env act decides;
+  // a false constant still keeps every env OFF.
+  assert.equal(nbaPublicTheaterOn({ env: { GTP_NBA_THEATER_PUBLIC: "1" } }), true);
+  assert.equal(nbaPublicTheaterOn({ env: {} }), false);
+  assert.equal(nbaPublicTheaterOn({ constantEnabled: false, env: { GTP_NBA_THEATER_PUBLIC: "1" } }), false);
   assert.equal(nbaPublicTheaterOn({ constantEnabled: true, env: { GTP_NBA_THEATER_PUBLIC: "1" } }), true);
   const params = nbaPublicTheaterParams(() => IDS, { constantEnabled: true, env: { GTP_NBA_THEATER_PUBLIC: "1" } });
   assert.deepEqual(params.map((p) => p.eventId), IDS);
@@ -250,3 +253,19 @@ test("inputs-as-of disclosure (release owner 2026-10-21, identical cutoffs): the
   for (const load of LOADS) assert.equal(load.payload.engine.inputAsOf, load.payload.official.frozenAt.replace(/\.000Z$/, "Z"));
 });
 
+
+test("scenario transparency (founder 2026-10-21): the default run is described as a SELECTED illustrative scenario — never a random draw or independent confirmation; every what-if stays hypothetical", () => {
+  assert.match(LABELS.DEFAULT_RUN_SUBTITLE, /selected illustrative scenario/);
+  assert.match(LABELS.DEFAULT_RUN_SUBTITLE, /among the runs the Elo favourite won/);
+  assert.match(LABELS.DEFAULT_RUN_SUBTITLE, /not a random draw/);
+  assert.match(LABELS.DEFAULT_RUN_SUBTITLE, /not an independent confirmation of the official forecast/);
+  for (const load of LOADS) {
+    const t = text(render(load));
+    assert.ok(t.includes(LABELS.DEFAULT_RUN_SUBTITLE), `${load.eventId}: the default run carries the transparency note`);
+    assert.doesNotMatch(t, /\b(random(ly)? (chosen|selected|sampled) run|typical run|confirms the (official )?forecast)\b/i, `${load.eventId}: no unbiased-draw or confirmation wording`);
+    for (const kind of ["upset", "high", "low", "overtime"]) {
+      if (!load.payload.runs?.some?.((r) => r.kind === kind) && !JSON.stringify(load.payload).includes(`"kind":"${kind}"`)) continue;
+      assert.ok(text(render(load, kind)).includes(REP.WHAT_IF_BANNER), `${load.eventId} ${kind}: hypothetical banner`);
+    }
+  }
+});

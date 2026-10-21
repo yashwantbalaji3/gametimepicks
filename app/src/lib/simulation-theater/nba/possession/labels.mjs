@@ -42,7 +42,9 @@ export const WITHHELD = "Withheld";
 export const OUTCOME_PANEL_TITLE = `Simulation outcome · this run · ${ROLE_C_LABEL}`;
 // Gate V2 labels describe v1 runs; this engine is NOT v1, so its default run says which engine it is.
 export const DEFAULT_RUN_TITLE = `Simulated game · one run of the ${ROLE_C_LABEL}`;
-export const DEFAULT_RUN_SUBTITLE = "one possible modelled outcome; the official projection beside it never changes";
+// Founder condition 2026-10-21 (scenario transparency): the default run is SELECTED from the runs the Elo favourite won,
+// so it must never read as an unbiased random draw or as independent confirmation of the official forecast.
+export const DEFAULT_RUN_SUBTITLE = "a selected illustrative scenario: the stored run closest to the official projection among the runs the Elo favourite won, so it is not a random draw and not an independent confirmation of the official forecast; the official projection beside it never changes";
 export const DEFAULT_RUN_TAG = "Default run · research simulation";
 export { WHAT_IF_BANNER, WHAT_IF_TAG };
 
