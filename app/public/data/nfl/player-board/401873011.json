@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-21T19:12:25Z",
- "sourceGeneratedAt": "2026-10-21T19:12:25Z",
+ "generatedAt": "2026-10-21T23:55:17Z",
+ "sourceGeneratedAt": "2026-10-21T23:55:17Z",
  "providerEventId": "401873011",
  "matchup": "PIT @ NO",
  "kickoffUtc": "2026-10-25T13:30Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-21T19:12:25Z",
-  "roleEvidenceAt": "2026-10-21T19:12:25Z",
+  "injuriesCapturedAt": "2026-10-21T23:55:17Z",
+  "roleEvidenceAt": "2026-10-21T23:55:17Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -48,25 +48,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "NO",
-      "pool": "targets",
-      "originalSum": 1.0282,
-      "normalizedSum": 1,
-      "factor": 0.9726,
-      "playerIds": [
-       "nfl-athlete-4361370",
-       "nfl-athlete-4569559",
-       "nfl-athlete-3929645",
-       "nfl-athlete-3054850",
-       "nfl-athlete-4879276",
-       "nfl-athlete-4239996",
-       "nfl-athlete-4036131",
-       "nfl-athlete-4573697"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_pass_int": {
@@ -183,7 +165,7 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4047650",
@@ -358,7 +340,7 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4569559",
@@ -390,7 +372,7 @@
       "anytime_td",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4879276",
@@ -485,19 +467,6 @@
   "pools": [
    {
     "team": "NO",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 1,
-    "originalSum": 1.0282,
-    "residualOther": 0,
-    "joined": 8,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
-    "team": "NO",
     "pool": "passAttempts",
     "markets": [
      "player_pass_yds"
@@ -523,15 +492,28 @@
     "state": "CONSERVED"
    },
    {
+    "team": "NO",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9142,
+    "originalSum": 0.9142,
+    "residualOther": 0.0858,
+    "joined": 7,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "PIT",
     "pool": "targets",
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.8634,
-    "originalSum": 0.8634,
-    "residualOther": 0.1366,
-    "joined": 6,
+    "sum": 0.7724,
+    "originalSum": 0.7724,
+    "residualOther": 0.2276,
+    "joined": 5,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -582,7 +564,7 @@
    "playerId": "nfl-athlete-3054850",
    "name": "Alvin Kamara",
    "team": "NO",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
      "mean": 20.682,
@@ -603,16 +585,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.7445,
+     "mean": 2.8219,
      "p10": 0,
-     "p25": 0.9726,
-     "median": 1.9451,
-     "p75": 3.8903,
-     "p90": 5.8354,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9726
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 6,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -637,16 +615,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 6.1938,
-     "p10": 1.9451,
-     "p25": 3.8903,
-     "median": 5.8354,
-     "p75": 7.7806,
-     "p90": 10.6983,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9726
-     },
+     "mean": 6.3685,
+     "p10": 2,
+     "p25": 4,
+     "median": 6,
+     "p75": 8,
+     "p90": 11,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -701,16 +675,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.187,
+     "mean": 2.2487,
      "p10": 0,
-     "p25": 0.9726,
-     "median": 1.9451,
-     "p75": 2.9177,
-     "p90": 4.8629,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9726
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -795,16 +765,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.2951,
-     "p10": 0.9726,
-     "p25": 1.9451,
-     "median": 3.8903,
-     "p75": 5.8354,
-     "p90": 7.7806,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9726
-     },
+     "mean": 4.4162,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -817,7 +783,7 @@
    "playerId": "nfl-athlete-4038815",
    "name": "Rico Dowdle",
    "team": "PIT",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
      "mean": 28.407,
@@ -868,16 +834,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.6158,
-     "p10": 0.9726,
-     "p25": 1.9451,
-     "median": 2.9177,
-     "p75": 4.8629,
-     "p90": 6.808,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9726
-     },
+     "mean": 3.7178,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -962,16 +924,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.8173,
+     "mean": 1.8685,
      "p10": 0,
-     "p25": 0.9726,
-     "median": 1.9451,
-     "p75": 2.9177,
-     "p90": 3.8903,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9726
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -984,7 +942,7 @@
    "playerId": "nfl-athlete-5081999",
    "name": "CJ Donaldson",
    "team": "NO",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
      "mean": 11.291,
@@ -1047,16 +1005,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.3583,
+     "mean": 1.3966,
      "p10": 0,
      "p25": 0,
-     "median": 0.9726,
-     "p75": 1.9451,
-     "p90": 2.9177,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9726
-     },
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1072,16 +1026,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_receptions": {
-     "mean": 1.1968,
+     "mean": 1.2306,
      "p10": 0,
      "p25": 0,
-     "median": 0.9726,
-     "p75": 1.9451,
-     "p90": 2.9177,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9726
-     },
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
