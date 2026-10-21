@@ -24,6 +24,9 @@
  * on the opener; no page-level horizontal overflow; on phones the table scrolls sideways with the player column sticky;
  * tabular numerals; sort buttons ≥ 44 px with aria-sort following PTS / REB / AST / 3PM / MIN; DNP rows always last;
  * and the FINAL card's "Projected box score" button (Escape closes the box score, not the card).
+ * V2 (2026-10-20): the three layers (official projection · simulated game · not modelled), the WITHHELD official team score
+ * and win probability, the run-distance note, the what-if rule (the official layer key and the official card never
+ * change when a what-if is chosen), keyboard layer-view radios, and prefers-reduced-motion.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -66,7 +69,7 @@ const dialog = (page: Page) => page.getByRole("dialog", { name: /box score/ });
 const ownNumber = (td: Element) => Number(td.childNodes[0]?.textContent ?? "");
 const focusInDialog = (page: Page) => page.evaluate(() => !!document.activeElement?.closest('[role="dialog"][data-nba-boxscore]'));
 const sortButton = (page: Page, team: number, label: string) =>
-  dialog(page).locator(".nba-bx-table").nth(team).locator("thead th button.nba-bx-sort").filter({ hasText: new RegExp(`^${label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`) });
+  dialog(page).locator(".nba-bx-table").nth(team).locator('thead th[data-layer="simulated"] button.nba-bx-sort').filter({ hasText: new RegExp(`^${label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`) });
 
 for (const [w, h] of WIDTHS) {
   test(`${w}px: Box score opens a labelled dialog with the watermark, both teams and no page overflow; Escape returns focus`, async ({ page }) => {
@@ -87,7 +90,14 @@ for (const [w, h] of WIDTHS) {
     expect(SAMPLES.map((x) => String(x.runIndex))).toContain(run);
     await expect(d.locator(".nba-card-eyebrow")).toContainText(`run #${Number(run).toLocaleString("en-US")}`);
     await expect(d.locator(".nba-bx-title")).toHaveText(OFFICIAL_TITLE);
-    await expect(d.locator("[data-st-compare]")).toBeVisible();
+    // V2 three layers: official projection · simulated game (named supporting model) · not modelled; the official team
+    // score is WITHHELD (official snapshot #1149) — no team comparison, no number — and the run's distance is reported
+    for (const layer of ["official", "simulated", "not-modelled"]) await expect(d.locator(`.nba-bx-table thead th.nba-px-layerhead[data-layer="${layer}"]`)).toHaveCount(2);
+    await expect(d.locator('[data-nba-px-teamscore="WITHHELD"]')).toContainText("Withheld");
+    await expect(d.locator('[data-nba-px-winprob="WITHHELD"]')).toContainText("Withheld");
+    await expect(d.locator("[data-st-compare]")).toHaveCount(0);
+    await expect(d.locator("[data-nba-px-fit]")).toBeVisible();
+    await expect(d.locator("[data-nba-px-explain]")).toContainText("One simulated game is not the median");
 
     // no page-level horizontal overflow; the dialog fits the viewport (full width as a sheet below 720 px)
     const metrics = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: window.innerWidth }));
@@ -105,7 +115,7 @@ for (const [w, h] of WIDTHS) {
     }), "nothing covers the box score").toBe(true);
 
     // tabular numerals on the stat cells
-    const fvn = await d.locator(".nba-bx-table tbody td").first().evaluate((el) => getComputedStyle(el).fontVariantNumeric);
+    const fvn = await d.locator('.nba-bx-table tbody td[data-layer="simulated"]').first().evaluate((el) => getComputedStyle(el).fontVariantNumeric);
     expect(fvn).toContain("tabular-nums");
 
     // sort targets are ≥ 44 px
@@ -148,7 +158,8 @@ test("sorting: PTS / REB / AST / 3PM / MIN set aria-sort on their header, toggle
   const d = dialog(page);
   const table = d.locator(".nba-bx-table").first();
   await expect(table.locator('thead th[aria-sort="descending"]')).toContainText("MIN");
-  const colIndex = async (label: string) => table.locator("thead th").evaluateAll((ths, l) => ths.findIndex((th) => (th.querySelector("button")?.textContent ?? "").startsWith(l)), label);
+  // the column's index in the column-header row (row 2 of thead lines up 1:1 with a played row's cells)
+  const colIndex = async (label: string) => table.locator("thead tr:last-child > th").evaluateAll((ths, l) => ths.findIndex((th) => th.getAttribute("data-layer") === "simulated" && (th.querySelector("button")?.textContent ?? "").startsWith(l)), label);
   for (const k of SORT_KEYS) {
     const btn = sortButton(page, 0, k);
     await btn.click();
@@ -159,7 +170,7 @@ test("sorting: PTS / REB / AST / 3PM / MIN set aria-sort on their header, toggle
     await expect(table.locator("thead th[aria-sort]")).toHaveCount(1);
     await expect(btn).toBeFocused();
     const idx = await colIndex(k);
-    const rows = await table.locator("tbody tr").evaluateAll((trs, i) => trs.map((tr) => ({
+    const rows = await table.locator("tbody tr[data-status]").evaluateAll((trs, i) => trs.map((tr) => ({
       status: tr.getAttribute("data-status"),
       v: tr.getAttribute("data-status") === "played" ? Number(tr.children[i]?.childNodes[0]?.textContent ?? "") : null,
     })), idx);
@@ -174,7 +185,7 @@ test("sorting: PTS / REB / AST / 3PM / MIN set aria-sort on their header, toggle
   await expect(d.locator(".nba-bx-table").nth(1).locator("thead th[aria-sort]")).toHaveCount(1);
   // DNP is not 0: DNP rows carry no number
   const dnp = d.locator('tr[data-status="dnp"]');
-  if (await dnp.count()) await expect(dnp.first().locator("td")).toHaveText(/^DNP · 0 modeled minutes in this run(official average per game played: [\d.]+ pts( · plays in [\d.]+% of simulated games)?)?$/);
+  if (await dnp.count()) await expect(dnp.first().locator('td[data-layer="simulated"]')).toHaveText(/^DNP · 0 modeled minutes in this run$/);
 });
 
 for (const [w, h] of [[390, 844], [1440, 900]] as const) {
@@ -195,10 +206,10 @@ for (const [w, h] of [[390, 844], [1440, 900]] as const) {
     if (ot > 0) {
       await expect(d.locator(".nba-bx-linescore thead th.is-ot")).toHaveCount(ot);
       await expect(d.locator(".nba-card-eyebrow")).toContainText("SIMULATED FINAL/OT");
-      await expect(d.locator(".nba-bx-table tfoot td").first()).toHaveText(String(240 + 25 * ot));
+      await expect(d.locator('.nba-bx-table tfoot td[data-layer="simulated"]').first()).toHaveText(String(240 + 25 * ot));
     } else {
       await expect(d.locator(".nba-bx-linescore thead th.is-ot")).toHaveCount(0);
-      await expect(d.locator(".nba-bx-table tfoot td").first()).toHaveText(/^240/);
+      await expect(d.locator('.nba-bx-table tfoot td[data-layer="simulated"]').first()).toHaveText(/^240/);
     }
     await page.keyboard.press("Escape");
     await expect(d).toHaveCount(0);
@@ -213,6 +224,12 @@ test("the default run is the official representative; every other stored run is 
   const errors = await open(page);
   const root = page.locator("[data-nba-theater]");
   const official = Number(await root.getAttribute("data-nba-run"));
+  // the official numbers before any what-if is chosen: the theater's official card and the box score's official layer
+  const officialCard = await page.locator("[data-st-official]").innerText();
+  await page.getByRole("button", { name: "Box score", exact: true }).click();
+  const officialKey = await dialog(page).locator("[data-nba-official-key]").getAttribute("data-nba-official-key");
+  const officialLine = await dialog(page).locator("[data-nba-px-official]").innerText();
+  await page.keyboard.press("Escape");
   await expect(page.locator('[data-st-role-note="official"]')).toContainText(/Official representative simulation · closest stored run to the official forecast · distance \d+\.\d\d/);
   await expect(page.locator("[data-st-official]")).toContainText("Official forecast");
   await expect(page.locator('.nba-chips [data-st-role="official"]')).toHaveCount(1);
@@ -226,10 +243,41 @@ test("the default run is the official representative; every other stored run is 
     await expect(d.locator(".nba-bx-title")).toHaveText(WHAT_IF_TITLE);
     await expect(d.locator("[data-st-whatif-banner]").first()).toHaveText(WHAT_IF_BANNER);
     expect(await d.innerText()).not.toMatch(/projected/i);
+    // choosing a what-if never changes an official number
+    await expect(d.locator("[data-nba-official-key]")).toHaveAttribute("data-nba-official-key", officialKey!);
+    expect(await d.locator("[data-nba-px-official]").innerText()).toBe(officialLine);
+    await expect(d.locator("[data-nba-px-whatif-note]")).toBeVisible();
     await page.keyboard.press("Escape");
+    expect(await page.locator("[data-st-official]").innerText()).toBe(officialCard);
   }
   expect(errors).toEqual([]);
 });
+
+for (const [w, h] of WIDTHS) {
+  test(`${w}px: layer view radios work from the keyboard; the table never widens the page; reduced motion is honoured`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: w, height: h });
+    const errors = await open(page);
+    await page.getByRole("button", { name: "Box score", exact: true }).click();
+    const d = dialog(page);
+    const sim = d.getByRole("radio", { name: "Simulated game — one run" });
+    await sim.focus();
+    await expect(sim).toBeFocused();
+    await page.keyboard.press("Space");
+    await expect(sim).toBeChecked();
+    await expect(d.locator('.nba-bx-table td[data-layer="official"]')).toHaveCount(0);
+    await page.keyboard.press("ArrowRight"); // wraps to "Both layers" in a native radio group
+    await expect(d.getByRole("radio", { name: "Both layers" })).toBeChecked();
+    await expect(d.locator('.nba-bx-table td[data-layer="official"]').first()).toBeVisible();
+    // the focus ring is visible on the focused radio
+    const ring = await d.getByRole("radio", { name: "Both layers" }).evaluate((el) => getComputedStyle(el).outlineStyle);
+    expect(["solid", "auto"]).toContain(ring);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+    const dur = await d.locator("button").first().evaluate((el) => getComputedStyle(el).transitionDuration);
+    expect(dur.split(",").every((x) => parseFloat(x) === 0)).toBe(true);
+    expect(errors).toEqual([]);
+  });
+}
 
 test("a slate game the committed receipt does not hold yet says so, with no court, score or box score", async ({ page }) => {
   test.skip(!ABSENT, "every slate game of the receipt's run log is in the receipt");

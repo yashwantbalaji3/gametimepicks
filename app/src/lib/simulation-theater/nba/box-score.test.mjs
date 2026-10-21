@@ -252,6 +252,7 @@ test("fail closed: each invariant rejects its mutation (no box, the code named)"
     ["PTS_FORMULA", (x) => { const a = firstPlayed(x, "away"); const b = x.players.away.filter((p) => p.minutes > 0)[1]; a.pts += 1; b.pts -= 1; }],
     ["DNP_WITH_STATS", (x) => { firstDnp(x).reb = 1; }],
     ["TEAM_BLOCK", (x) => { x.team.home.ast += 1; }],
+    ["TEAM_FGM", (x) => { x.team.home.fgm += 1; }], // V2 2026-10-20: the block's fgm must equal Σ 2PM + Σ 3PM
     ["OT_COUNT", (x) => { x.overtimePeriods = 1; }],
     ["NEGATIVE_OR_NONINT", (x) => { firstPlayed(x).reb = -1; }],
     ["FIELD_MISSING", (x) => { delete firstPlayed(x).minutes; }],
