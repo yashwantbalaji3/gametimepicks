@@ -15,7 +15,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { SIM_ANCHOR_TOLERANCE, THEATER_GATE_CODES, compareWithBaseline, runConsistencyAudit, simAnchorCheck, theaterActivationGate } from "./audit.mjs";
+import { NBA_SIM_ANCHOR_TOLERANCE, NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE, SIM_ANCHOR_TOLERANCE, THEATER_GATE_CODES, compareWithBaseline, nbaSimAnchorCheck, runConsistencyAudit, simAnchorCheck, theaterActivationGate } from "./audit.mjs";
+import { nbaOfficialSnapshot } from "./official-snapshot.mjs";
+import { NBA_THEATER_PUBLIC_ENABLED } from "../simulation-theater/nba/feature-manifest.mjs";
+import { NBA_ID, nbaArtifact, nbaSources } from "./__fixtures__/synthetic.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "../../../..");
@@ -91,7 +94,7 @@ test("NFL 401873008: the Theater gate is closed, and closed for the founder's re
 });
 
 test("theaterActivationGate logic on a synthetic audit: open only when the event is clean and anchored", () => {
-  const clean = { discrepancies: [], refusals: [], snapshots: [{ sport: "NFL", eventId: "1" }], simAnchors: [{ eventId: "1", anchored: true }] };
+  const clean = { discrepancies: [], refusals: [], snapshots: [{ sport: "NFL", eventId: "1" }], simAnchors: [{ sport: "NFL", eventId: "1", anchored: true }] };
   assert.equal(theaterActivationGate("nfl", "1", { audit: clean }).open, true);
   assert.equal(theaterActivationGate("nfl", "1", { audit: { ...clean, simAnchors: [] } }).blockers[0].code, "NO_SIM_RECEIPT_OF_RECORD");
   assert.equal(theaterActivationGate("nfl", "2", { audit: clean }).open, false);
@@ -112,5 +115,68 @@ test("NBA stays PRIVATE in every snapshot; the audit is read-only", () => {
   for (const s of audit.snapshots.filter((x) => x.sport === "NBA")) assert.equal(s.publication, "PRIVATE");
   for (const f of ["audit.mjs", "static-scan.mjs", "checks.mjs", "official-snapshot.mjs", "market-evaluator.mjs", "representative.mjs"]) {
     assert.doesNotMatch(fs.readFileSync(path.join(here, f), "utf8"), /\b(writeFileSync|writeFile|appendFile|mkdirSync|rmSync|unlinkSync)\b/, f);
+  }
+});
+
+test("NBA anchor: v1 must favour the Elo side, sit within the pHome tolerance, and match v0.1 player means", () => {
+  const snap = nbaOfficialSnapshot(NBA_ID, nbaSources());
+  const v1 = nbaArtifact().games[0];
+  const r = nbaSimAnchorCheck(snap, v1);
+  assert.equal(r.terms.find((t) => t.term === "side").pass, true);
+  assert.equal(r.terms.find((t) => t.term === "pHome").pass, false, "0.57 vs Elo 0.60 is outside 0.02");
+  assert.equal(r.anchored, false);
+  assert.equal(r.toleranceApproved, false, "NBA tolerances await founder approval");
+  const upset = { ...v1, forecast: { ...v1.forecast, sim: { ...v1.forecast.sim, pHome: 0.4 } } };
+  assert.equal(nbaSimAnchorCheck(snap, upset).terms.find((t) => t.term === "side").pass, false);
+  assert.equal(nbaSimAnchorCheck(snap, null).anchored, false);
+  assert.equal(NBA_SIM_ANCHOR_TOLERANCE.pHome, SIM_ANCHOR_TOLERANCE.pHome);
+});
+
+test("NBA Theater gate: closed without a supporting run, when unanchored, and while the tolerance is unapproved", () => {
+  const base = { discrepancies: [], refusals: [], snapshots: [{ sport: "NBA", eventId: "7" }] };
+  const A = NBA_THEATER_GATE_POLICY.ANCHORED;
+  assert.deepEqual(theaterActivationGate("nba", "7", { audit: { ...base, simAnchors: [] }, nbaPolicy: A }).blockers.map((b) => b.code), ["NO_SUPPORTING_SIMULATION"]);
+  const unanchored = theaterActivationGate("nba", "7", { nbaPolicy: A, audit: { ...base, simAnchors: [{ sport: "NBA", eventId: "7", anchored: false, toleranceApproved: false, failed: [{ term: "pHome" }], tolerance: NBA_SIM_ANCHOR_TOLERANCE }] } });
+  assert.deepEqual(unanchored.blockers.map((b) => b.code).sort(), ["ANCHOR_TOLERANCE_UNAPPROVED", "SIM_NOT_ANCHORED"]);
+  const approved = theaterActivationGate("nba", "7", { nbaPolicy: A, audit: { ...base, simAnchors: [{ sport: "NBA", eventId: "7", anchored: true, toleranceApproved: true, failed: [], tolerance: NBA_SIM_ANCHOR_TOLERANCE }] } });
+  assert.equal(approved.open, true);
+  assert.equal(theaterActivationGate("nfl", "7", { audit: { ...base, snapshots: [{ sport: "NFL", eventId: "7" }], simAnchors: [{ sport: "NBA", eventId: "7", anchored: true }] } }).blockers[0].code, "NO_SIM_RECEIPT_OF_RECORD", "an NBA anchor never opens an NFL gate");
+});
+
+test("real 2026-10-20 slate: the official NBA snapshot is v0.1 + Elo, the lane matches it, and the Theater gate stays closed", () => {
+  const nba = audit.snapshots.filter((x) => x.sport === "NBA");
+  assert.equal(nba.length, 3);
+  for (const s of nba) {
+    assert.match(s.modelVersions.players.pts, /^nba-preseason-experimental-v0\.1@/);
+    assert.ok(s.sources.some((x) => x.role === "SUPPORTING_SIMULATION" && /^nba-sim-v1-coherent@/.test(x.modelVersion)));
+  }
+  const laneFindings = audit.discrepancies.filter((d) => d.sport === "NBA" && d.surface === "nba-public-lane");
+  assert.deepEqual(laneFindings, [], "the public lane prints exactly the official snapshot");
+  // gate v2: under ANCHORED the gate stays closed (v1 is not anchored); under LABELLED_SUPPORTING_RUNS (in force) the
+  // CONSISTENCY gate opens — which activates nothing: the public flag is separate and false (feature-manifest.mjs)
+  for (const s of nba) assert.equal(theaterActivationGate("nba", s.eventId, { audit, nbaPolicy: NBA_THEATER_GATE_POLICY.ANCHORED }).open, false);
+  for (const s of nba) assert.equal(theaterActivationGate("nba", s.eventId, { audit }).open, true, s.eventId);
+  assert.equal(NBA_THEATER_PUBLIC_ENABLED, false, "the public NBA Theater flag is not part of gate v2");
+});
+
+test("NBA gate policy (gate v2): LABELLED_SUPPORTING_RUNS is in force; ANCHORED stays evaluable", () => {
+  assert.equal(NBA_THEATER_GATE_POLICY_IN_FORCE, NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS);
+  const base = { discrepancies: [], refusals: [], snapshots: [{ sport: "NBA", eventId: "7" }] };
+  const unanchored = { ...base, simAnchors: [{ sport: "NBA", eventId: "7", anchored: false, toleranceApproved: false, failed: [{ term: "pHome" }], tolerance: NBA_SIM_ANCHOR_TOLERANCE }] };
+  assert.equal(theaterActivationGate("nba", "7", { audit: unanchored }).open, true, "no anchor is required under the policy in force");
+  const withDefault = { ...unanchored, discrepancies: [{ code: "PROJECTION_MISMATCH", sport: "NBA", eventId: "7", surface: "simulation-theater.default", fingerprint: "d" }, { code: "BOX_SCORE_INCONSISTENT", sport: "NBA", eventId: "7", surface: "simulation-theater.runs", fingerprint: "b" }] };
+  assert.deepEqual(theaterActivationGate("nba", "7", { audit: withDefault }).blockers.map((b) => b.fingerprint), ["b"], "box-score consistency still gates; the default-run selection does not");
+  assert.ok(theaterActivationGate("nba", "7", { audit: withDefault, nbaPolicy: NBA_THEATER_GATE_POLICY.ANCHORED }).blockers.some((b) => b.fingerprint === "d"));
+  assert.equal(theaterActivationGate("nba", "7", { audit: { ...base, simAnchors: [] } }).blockers[0].code, "NO_SUPPORTING_SIMULATION");
+});
+
+
+test("the v1 board is a labelled NBA v1 Challenger — Research Only board: inventoried, never an official comparison or version mix", () => {
+  const rb = audit.researchBoards.filter((x) => x.sport === "NBA");
+  assert.equal(rb.length, 3, "one per 2026-10-20 game");
+  for (const x of rb) { assert.equal(x.family, "v1"); assert.equal(x.label, "NBA v1 Challenger — Research Only"); }
+  assert.deepEqual(audit.discrepancies.filter((d) => d.sport === "NBA" && /nba-top-board\.v1/.test(d.surface ?? "")), []);
+  for (const id of ["401909088", "401909089", "401909090"]) {
+    assert.ok(!theaterActivationGate("nba", id, { audit }).blockers.some((b) => b.code === "MODEL_VERSION_MIX"), id);
   }
 });

@@ -140,3 +140,20 @@ test("the jump line links every lane game to its card; each card shows its game 
   assert.match(page, /if \(r\.status === "final" && lane\?\.games/, "only a recorded final is stated — a static page never freezes 'scheduled'/'tipped'");
   assert.doesNotMatch(page, /tipped — final not recorded yet|`scheduled · /);
 });
+
+test("compact hub: with /nba/projections on, /nba cards carry no player table and link to the board; the per-game weight stays bounded", async () => {
+  const { default: Lane } = await import("../../../components/nba/experimental-lane.tsx");
+  const s = JSON.parse(JSON.stringify(snap()));
+  const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: s }));
+  if (!AMENDMENT_A.enabled) {
+    assert.match(html, /<table/, "with the board off, the hub keeps the full tables (amendment A's rollback loses nothing)");
+    return;
+  }
+  assert.doesNotMatch(html, /<table/, "the rows live on /nba/projections only");
+  assert.equal((html.match(/href="\/nba\/projections\/"/g) ?? []).length, 1, "one slate-level board link (projection-boards.test pins it)");
+  for (const g of s.games) assert.match(html, new RegExp(`${g.players.away.length + g.players.home.length} players on the board`));
+  // An 11-game slate with full tables measured /nba at 388 KB (budget 250 KB, empty-lane page 204 KB). The compact card
+  // must stay well under the ~3 KB/game (HTML + flight) that a 15-game slate leaves inside the budget.
+  const perGame = (html.length - renderToStaticMarkup(React.createElement(Lane, { snapshot: { ...s, games: s.games.slice(0, 1) } })).length) / (s.games.length - 1);
+  assert.ok(perGame < 900, `compact card ${Math.round(perGame)} B of HTML per game`);
+});

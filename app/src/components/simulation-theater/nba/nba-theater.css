@@ -305,4 +305,42 @@
   .nba-bx-name{min-width:112px;max-width:136px}
 }
 
-@media (prefers-reduced-motion: reduce){.nba-root *{transition:none!important;animation:none!important}}
+/* ── V2 three-layer box score (2026-10-20): official projection · simulated game · estimated role · not modelled. Each
+   layer has its own visual cue (tint / plain / italic / faint) AND its own text label, so colour is never the only cue ── */
+.nba-px-official,.nba-px-explain{margin-top:12px;padding:10px 12px;border-radius:10px;border:1px solid var(--border-strong)}
+.nba-px-official{border-left:4px solid var(--vault-crown);background:color-mix(in srgb, var(--vault-crown) 6%, var(--surface-elevated))}
+.nba-px-official .nba-h3,.nba-px-explain .nba-h3{margin:0 0 6px}
+.nba-px-facts{margin:0}
+.nba-px-facts .is-wide{grid-column:1/-1}
+.nba-px-withheld{font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--vault-warn)}
+.nba-px-explain .nba-limits{margin:6px 0 0}
+.nba-px-fit{margin:0;font:500 12.5px/1.5 var(--font-display);color:var(--st-mute)}
+.nba-px-fit.is-far{padding:6px 10px;border-left:4px solid var(--vault-warn);border-radius:6px;background:color-mix(in srgb, var(--vault-warn) 8%, var(--surface-elevated));color:var(--st-text)}
+.nba-px-whatifnote{margin:8px 0 0;font:600 12.5px/1.5 var(--font-display);color:var(--vault-warn)}
+.nba-px-controls{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:12px}
+.nba-px-fs{display:flex;flex-wrap:wrap;align-items:center;gap:0 4px;margin:0;padding:0;border:0;min-width:0}
+.nba-px-fs legend{float:left;margin-right:8px;font:600 11px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--st-faint)}
+.nba-px-radio{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px 0 6px;border-radius:8px;font:500 13px var(--font-display);cursor:pointer}
+.nba-px-radio input{width:18px;height:18px;margin:0;accent-color:var(--lava-heat)}
+.nba-px-radio input:focus-visible{outline:2px solid var(--lava-heat);outline-offset:2px}
+.nba-px-radio input:disabled+span{color:var(--st-faint);text-decoration:line-through}
+.nba-px-legend{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:4px;font:400 12px/1.5 var(--font-display);color:var(--st-mute)}
+.nba-px-legend li{padding-left:10px;border-left:4px solid var(--border-strong)}
+.nba-px-legend li[data-layer="official"]{border-left-color:var(--vault-crown)}
+.nba-px-legend li[data-layer="estimated"]{font-style:italic}
+.nba-px-table thead .nba-px-layerrow th,.nba-px-table thead .nba-px-layerrow td{padding:6px 8px;font:700 11px/1.2 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;text-align:left;white-space:nowrap}
+.nba-px-layerhead[data-layer="official"]{color:var(--st-text);background:color-mix(in srgb, var(--vault-crown) 14%, var(--surface-elevated))}
+.nba-px-layerhead[data-layer="simulated"]{color:var(--st-text)}
+.nba-px-layerhead[data-layer="not-modelled"]{color:var(--st-faint)}
+.nba-px-table td.nba-px-off{background:color-mix(in srgb, var(--vault-crown) 7%, var(--surface-elevated))}
+.nba-px-table th.is-first,.nba-px-table td.is-first,.nba-px-table .nba-px-layerhead{box-shadow:inset 1px 0 0 var(--border-strong)}
+.nba-px-table td.nba-px-role,.nba-px-table th.nba-px-role{text-align:left;font-style:italic;font-family:var(--font-display);color:var(--st-mute)}
+.nba-px-table thead th.nba-px-role{padding:0 8px}
+.nba-px-est{font-style:italic;font-weight:400;color:var(--st-faint);text-transform:none;letter-spacing:0}
+.nba-px-table td.nba-px-nm{color:var(--st-faint);font-size:11px}
+.nba-px-nmhead{display:inline-block;padding:0 8px;text-decoration:none;cursor:help}
+.nba-px-grouprow th{padding:8px 0 4px!important;text-align:left!important;border-bottom:1px solid var(--border-strong);background:var(--surface-elevated)}
+.nba-px-grouplabel{position:sticky;left:8px;display:inline-block;font:700 11px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--st-mute)}
+.nba-px-grouprow th[data-layer="estimated"] .nba-px-grouplabel{font-style:italic}
+
+@media (prefers-reduced-motion: reduce){.nba-root *{transition:none!important;animation:none!important;scroll-behavior:auto!important}}

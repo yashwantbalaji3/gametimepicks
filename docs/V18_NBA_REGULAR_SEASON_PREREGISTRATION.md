@@ -209,7 +209,7 @@ into the capability registry by automation.
 - a separate lightweight projection-board experience is preferred where needed.
 
 **What it permits:**
-- **Surface.** One added route, `/nba/projections/`, a separate lightweight page. `/nba` changes only by one link line to it. The route reads only the lane snapshot (`latest.json`), under the same rule as `/nba`: hidden when disabled or when its slate is past (`laneIsCurrent`).
+- **Surface.** One added route, `/nba/projections/`, a separate lightweight page. `/nba` gains one link line to it, and its lane cards are compact (see Page weight below). The route reads only the lane snapshot (`latest.json`), under the same rule as `/nba`: hidden when disabled or when its slate is past (`laneIsCurrent`).
 - **Board view.** A table of the snapshot's players with filters for matchup, team, player (text) and stat group. The default order is expected minutes. A reader may re-sort by a stat column; that is the reader's sort, not a published ordering.
 - **Combination medians.** PRA, P+R and P+A medians, copied to 1 dp from the same v0.1 receipt (`pra` / `ptsReb` / `ptsAst` p50). The v0 engine sums the components per simulated draw (`game-sim.mjs` `comboDraws`), so a combo median is the median of the per-draw sum, not the sum of component medians. Label: "sum over the same simulated draws (v0 engine; components independent within a player)".
 - **Snapshot.** Additive only, so it stays `nba-experimental-public-snapshot@1`: `comboMedians` per player row and `comboSource` per game. No existing key, value or name changes. The board's stat list is `PROJECTION_BOARD_STATS`; the `/nba` card columns (`STATS`) are unchanged.
@@ -241,4 +241,45 @@ into the capability registry by automation.
 
 **Rollback switch.** Set `AMENDMENT_A.enabled = false` in `app/src/lib/sports/nba/experimental-public-lane.mjs` (one line). The next snapshot build drops the combo fields, `/nba/projections/` renders its empty state, and the `/nba` link line disappears. `LANE.enabled = false` still removes every lane surface, this one included.
 
-**Page weight.** The route has no budget until it is measured on a post-05:00Z build. The measurement commands are in the PR; no existing budget is raised.
+**Page weight (measured 2026-10-21, release owner).** Full builds with the real 11-game 10-21 slate (uncommitted fixture built by the producer from verified receipts) and a 15-game synthetic slate:
+- `/nba/projections/`: 149 KB at 11 games and 175 KB at 15, after the board payload was packed (PR 1163). Budget **200 KB**.
+- `/nba` with full per-team tables: 388 KB at 11 games against its 250 KB budget.
+
+So, with this amendment on, the `/nba` lane cards became compact (PR 1170):
+- each card keeps matchup, tip, freeze time, final status, the Elo-favoured team, player count and receipt;
+- every player row lives on `/nba/projections/` only;
+- with `AMENDMENT_A.enabled = false` the full tables return to `/nba`.
+
+`/nba` then measured 232 KB at 11 games and 239 KB at 15. No existing budget was raised, and no published number changed.
+
+### §13 amendment B — NBA Simulation Theater: canonical forecast + labelled supporting-simulation runs
+
+**Status:** recorded 2026-10-20 as **approved in principle** by the founder. It is not an activation. The public NBA Theater stays OFF until the activation conditions below are met and the release owner verifies them.
+
+**The founder's decision:** "Adopt the architecture separating the canonical official forecast from independently simulated v1 outcomes. The official projection panel must never change when users explore alternative simulation runs. Retain the v1 Top 10 research board, but relabel it clearly as an NBA v1 Challenger — Research Only … Do not activate the Theater publicly merely because the architectural decision is approved."
+
+**What it decides:**
+1. **One official forecast.** The Theater's official projection panel shows only the canonical snapshot: the Elo side plus v0.1 players, exactly as the lane prints them.
+2. **Runs are labelled.** Replayed games are individual runs of the supporting simulation engine (`nba-sim-v1-coherent`).
+   - The run the Theater opens on is labelled "Simulated game · one supporting-simulation run". It is never "official".
+   - Every other run is a hypothetical what-if.
+3. **No overwrite.** Nothing a run shows changes, replaces or rounds into an official number: not on the Theater, boards, lane, products or results.
+4. **No anchor.** v1 is not required to agree with the official forecast. Which engine is best is decided by forward, market-by-market evidence (roadmap `NBA-CC`), never by this amendment.
+5. **The v1 board.** It is "NBA v1 Challenger — Research Only": private, never official, never a Top Pick, never a product source.
+
+**Engineering:**
+- `app/src/lib/consistency/theater-gate-policy.mjs` sets `NBA_THEATER_GATE_POLICY_IN_FORCE = LABELLED_SUPPORTING_RUNS`.
+- The consistency gate still requires:
+  - a verified pre-tip supporting game;
+  - box-score invariants on every run;
+  - no scenario leak;
+  - no unlabelled model-version mix.
+
+**Activation conditions (all required; none is met by this amendment):**
+1. A recorded founder approval file under `docs/launch/approvals/` that permits public NBA Theater output, cited in the commit that sets `NBA_THEATER_PUBLIC_ENABLED = true`.
+2. The consistency gate is open for each published game.
+3. A public route exists, and the export-boundary rules are revised to allow exactly the labelled public Theater markers.
+4. e2e at 320 / 390 / 768 / 1440, accessibility, reduced motion, and a privacy scan of the export.
+5. Release-owner verification on the exact head and on Production.
+
+**What stays withheld:** win probabilities, official team scores and ranges, odds, picks and products, as in §13.
