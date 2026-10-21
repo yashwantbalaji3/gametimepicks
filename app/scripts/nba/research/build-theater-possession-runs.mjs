@@ -269,7 +269,9 @@ const doc = {
   modelVersion: POSSESSION_SIM_VERSION,
   engine: { fitReport: { path: FIT_REPORT, sha256: fileSha(fitBytes) }, paramsSha256: paramsSha, checker: POSSESSION_CHECKER, ledgerColumns: ledgerKeys },
   selectionRules: POSSESSION_SELECTION_RULES,
-  sources: { v1: v1Bytes ? { path: rel(v1Path), sha256: fileSha(v1Bytes) } : null, official: { path: rel(offPath), sha256: fileSha(offBytes) } },
+  // paths only: the DAY files grow as games freeze through the day, so their hashes would change every committed game
+  // file; each game's own provenance (its official and v1 receipt payload hashes) is in game.inputs
+  sources: { v1: v1Bytes ? { path: rel(v1Path) } : null, official: { path: rel(offPath) } },
   games,
 };
 const { games: _all, ...header } = doc;
@@ -279,8 +281,9 @@ const kib = (n) => (n / 1024).toFixed(1);
 const plan = games.map((g) => {
   const file = path.join(ROOT, possessionGamePath(DATE, g.providerEventId));
   const existing = fs.existsSync(file) ? readJson(file) : null;
-  const body = { ...header, game: stored(g) };
-  const same = existing && canonicalJson({ ...existing, generatedAt: null }) === canonicalJson({ ...body, generatedAt: null });
+  // DETERMINISTIC: generatedAt is the game's own official freeze, so the same inputs rebuild byte-identical bytes
+  const body = { ...header, generatedAt: g.inputAsOf, game: stored(g) };
+  const same = existing && canonicalJson(existing) === canonicalJson(body);
   const text = `${JSON.stringify(same ? existing : body)}\n`;
   return { id: g.providerEventId, file, existing: !!existing, same: !!same, text };
 });
