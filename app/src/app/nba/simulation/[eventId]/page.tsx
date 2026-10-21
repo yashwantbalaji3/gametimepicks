@@ -21,10 +21,10 @@ import { NBA_PUBLIC_THEATER_PLACEHOLDER, nbaPublicTheaterOn, nbaPublicTheaterPar
 import type { PbLoad } from "@/components/simulation-theater/nba/possession/possession-types";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
-const buildFlagOn = () => process.env.GTP_NBA_THEATER_PUBLIC === "1";
-
 export async function generateStaticParams() {
-  if (buildFlagOn()) {
+  // the flag test is written INLINE (never behind a helper): webpack folds `"0" === "1"` only as a literal condition, which
+  // is what drops the dynamic imports below from a flag-OFF build (export-boundary.test.mjs scans out/ for their markers)
+  if (process.env.GTP_NBA_THEATER_PUBLIC === "1") {
     const { publicPossessionEvents } = await import("@/lib/simulation-theater/nba/possession/public-loader.mjs");
     return nbaPublicTheaterParams(() => publicPossessionEvents(REPO_ROOT));
   }
@@ -45,7 +45,7 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
 }
 
 export default async function NbaSimulationTheaterPage({ params }: { params: { eventId: string } }) {
-  if (buildFlagOn() && nbaPublicTheaterOn() && params.eventId !== NBA_PUBLIC_THEATER_PLACEHOLDER) {
+  if (process.env.GTP_NBA_THEATER_PUBLIC === "1" && nbaPublicTheaterOn() && params.eventId !== NBA_PUBLIC_THEATER_PLACEHOLDER) {
     const { loadPublicPossessionTheater } = await import("@/lib/simulation-theater/nba/possession/public-loader.mjs");
     const { default: NbaPossessionSection } = await import("@/components/simulation-theater/nba/possession/NbaPossessionSection");
     const load = loadPublicPossessionTheater(REPO_ROOT, params.eventId) as PbLoad; // JS loader → the island's type (as the dev route)

@@ -40,15 +40,19 @@ test("page source: static imports are the gate only; the loader and the island s
   const typeOnly = [...code.matchAll(/^import type [^;]+ from "([^"]+)";$/gm)].map((m) => m[1]).filter((x) => x.startsWith("@/")).sort();
   assert.deepEqual(typeOnly, ["@/components/simulation-theater/nba/possession/possession-types"], "the only type-only alias import is the island's load type");
   assert.deepEqual(statics.filter((s) => s.startsWith("@/")).sort(), ["@/lib/seo/route-metadata", "@/lib/simulation-theater/nba/possession/public-route.mjs"]);
-  assert.match(code, /const buildFlagOn = \(\) => process\.env\.GTP_NBA_THEATER_PUBLIC === "1";/);
-  // every dynamic import is inside a buildFlagOn() branch
+  // the flag test is a LITERAL condition at each branch (the NFL pattern): webpack folds `"0" === "1"` and drops the dynamic
+  // imports from a flag-OFF build only then. Behind a helper call it cannot, and the island shipped in a shared chunk
+  // (CI run 39547873081, export-boundary: nba-possession-sim-v0 + data-nbp- in _next/static/chunks).
+  assert.doesNotMatch(code, /buildFlagOn|const \w+ = \(\) => process\.env\.GTP_NBA_THEATER_PUBLIC/, "no helper around the build flag");
+  assert.equal([...code.matchAll(/process\.env\.GTP_NBA_THEATER_PUBLIC === "1"/g)].length, 2);
+  // every dynamic import is inside a literal flag branch
   const dyn = [...code.matchAll(/await import\("([^"]+)"\)/g)];
   assert.equal(dyn.length, 3);
   const gsp = code.slice(code.indexOf("export async function generateStaticParams"), code.indexOf("export const dynamicParams"));
-  assert.match(gsp, /if \(buildFlagOn\(\)\) \{\s*const \{ publicPossessionEvents \} = await import\(/);
+  assert.match(gsp, /if \(process\.env\.GTP_NBA_THEATER_PUBLIC === "1"\) \{\s*const \{ publicPossessionEvents \} = await import\(/);
   assert.match(gsp, /return \[\{ eventId: NBA_PUBLIC_THEATER_PLACEHOLDER \}\];/);
   const body = code.slice(code.indexOf("export default async function"));
-  assert.match(body, /if \(buildFlagOn\(\) && nbaPublicTheaterOn\(\) && params\.eventId !== NBA_PUBLIC_THEATER_PLACEHOLDER\) \{\s*const \{ loadPublicPossessionTheater \} = await import\(/);
+  assert.match(body, /if \(process\.env\.GTP_NBA_THEATER_PUBLIC === "1" && nbaPublicTheaterOn\(\) && params\.eventId !== NBA_PUBLIC_THEATER_PLACEHOLDER\) \{\s*const \{ loadPublicPossessionTheater \} = await import\(/);
   assert.match(body, /\n  notFound\(\);\n\}/, "the default path is a 404");
   assert.match(code, /robots: \{ index: false, follow: false \}/);
   assert.doesNotMatch(code, /data\/internal|nba-sim-v1-coherent|experimental-v1|NbaTheaterSection/);
