@@ -7,6 +7,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 import { POSSESSION_ARTIFACT_SCHEMA, POSSESSION_CHECKER, possessionArtifactPath } from "./artifact-contract.mjs";
@@ -496,5 +497,37 @@ test("current slate (release owner 2026-10-21): the public route follows the bui
   assert.deepEqual(publicPossessionEvents(REPO, { now: "2026-10-21T15:00:00Z", date: DATE }), [], "a past slate is never published as current");
   assert.deepEqual(publicPossessionEvents(REPO, { now: `${DATE}T15:00:00Z` }), IDS, "the default date is the build's slate");
   assert.deepEqual(publicPossessionEvents(REPO, { now: "2026-10-23T15:00:00Z" }), [], "no artifact for the day → nothing (placeholder 404)");
+});
+
+test("storage (release owner 2026-10-21): one file per game ≤ 100 KiB, events packed on disk (lossless); the reader refuses a mixed or misnamed slate", async () => {
+  const { EVENT_CODEC_SCHEMA, packEvents, unpackEvents } = await import("./event-codec.mjs");
+  const dir = path.join(REPO, possessionArtifactPath(DATE));
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort();
+  assert.deepEqual(files, IDS.map((id) => `${id}.json`).sort());
+  for (const f of files) {
+    const raw = fs.readFileSync(path.join(dir, f));
+    assert.ok(raw.length <= 100 * 1024, `${f}: ${raw.length} B on disk (≤ 100 KiB)`);
+    const g = JSON.parse(raw.toString("utf8")).game;
+    for (const r of g.runs) {
+      assert.equal(r.events.schema, EVENT_CODEC_SCHEMA, `${f} run ${r.runIndex}: events are packed on disk`);
+      const back = unpackEvents(r.events);
+      assert.equal(JSON.stringify(packEvents(back)), JSON.stringify(r.events), "pack(unpack(x)) is x");
+    }
+  }
+  // the assembled slate is the unpacked one every reader and check sees
+  for (const g of DOC.games) for (const r of g.runs) assert.ok(Array.isArray(r.events) && r.events[0].type === "period_start");
+  // a mixed slate (another engine) or a file not named for its own game is unreadable as a whole
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "poss-slate-"));
+  const tdir = path.join(tmp, possessionArtifactPath(DATE));
+  fs.mkdirSync(tdir, { recursive: true });
+  for (const f of files) fs.copyFileSync(path.join(dir, f), path.join(tdir, f));
+  assert.equal(readPossessionArtifact(tmp, DATE).error, null);
+  const first = JSON.parse(fs.readFileSync(path.join(tdir, files[0]), "utf8"));
+  fs.writeFileSync(path.join(tdir, files[0]), JSON.stringify({ ...first, modelVersion: "nba-sim-v1-coherent" }));
+  assert.match(readPossessionArtifact(tmp, DATE).error, /header modelVersion differs/);
+  fs.writeFileSync(path.join(tdir, files[0]), JSON.stringify(first));
+  fs.copyFileSync(path.join(dir, files[1]), path.join(tdir, "123.json"));
+  assert.match(readPossessionArtifact(tmp, DATE).error, /not the file of its own game/);
+  fs.rmSync(tmp, { recursive: true, force: true });
 });
 
