@@ -1,0 +1,514 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-possession-sim-v0-fit",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "fitSeason": 2024,
+ "minDaysIntoSeason": 30,
+ "generatedAt": "2026-10-20T21:20:42.666Z",
+ "method": "see app/scripts/nba/research/fit-possession-sim-v0.mjs header",
+ "stageA": {
+  "playerGames": 26309,
+  "teamGames": 2462,
+  "cells": 583,
+  "AND_ONE_PER_FGM": 0.0608,
+  "THREE_SHOT_TRIPS_PER_MIN": 0.001083,
+  "parityLogLik": -11207.4,
+  "parityTable": [
+   {
+    "fgm": "0",
+    "n": 3738,
+    "observedOdd": 0.0096,
+    "fittedOdd": 0.0086
+   },
+   {
+    "fgm": "1",
+    "n": 3647,
+    "observedOdd": 0.0694,
+    "fittedOdd": 0.0742
+   },
+   {
+    "fgm": "2",
+    "n": 3396,
+    "observedOdd": 0.1193,
+    "fittedOdd": 0.1297
+   },
+   {
+    "fgm": "3",
+    "n": 3113,
+    "observedOdd": 0.1648,
+    "fittedOdd": 0.1774
+   },
+   {
+    "fgm": "4",
+    "n": 2730,
+    "observedOdd": 0.2055,
+    "fittedOdd": 0.2184
+   },
+   {
+    "fgm": "5",
+    "n": 2389,
+    "observedOdd": 0.2658,
+    "fittedOdd": 0.2539
+   },
+   {
+    "fgm": "6",
+    "n": 1842,
+    "observedOdd": 0.2888,
+    "fittedOdd": 0.2847
+   },
+   {
+    "fgm": "7",
+    "n": 1470,
+    "observedOdd": 0.3136,
+    "fittedOdd": 0.3116
+   },
+   {
+    "fgm": "8",
+    "n": 1176,
+    "observedOdd": 0.3741,
+    "fittedOdd": 0.3351
+   },
+   {
+    "fgm": "9",
+    "n": 883,
+    "observedOdd": 0.3715,
+    "fittedOdd": 0.3553
+   },
+   {
+    "fgm": "10",
+    "n": 642,
+    "observedOdd": 0.4159,
+    "fittedOdd": 0.3732
+   },
+   {
+    "fgm": "11",
+    "n": 494,
+    "observedOdd": 0.4028,
+    "fittedOdd": 0.3887
+   },
+   {
+    "fgm": "12+",
+    "n": 789,
+    "observedOdd": 0.4411,
+    "fittedOdd": 0.4175
+   }
+  ],
+  "STEAL_SHARE_OF_TOV": 0.5794,
+  "BLOCK_PER_MISS2": 0.2067,
+  "BLOCK_PER_MISS3": 0.0055,
+  "PLAYER_REBOUND_SHARE": 0.8826,
+  "HOME_FG_RATIO": 1.0153,
+  "HOME_TOV_RATIO": 0.9989,
+  "HOME_TRIP_RATIO": 1.0196,
+  "homeAway": {
+   "home": {
+    "n": 1231,
+    "fgPct": 0.4779186587562048,
+    "tovPerSeg": 0.10928440595783949,
+    "trip2PerSeg": 0.07866004315805579
+   },
+   "away": {
+    "n": 1231,
+    "fgPct": 0.470732754290307,
+    "tovPerSeg": 0.10940245598446882,
+    "trip2PerSeg": 0.07714557896514097
+   }
+  },
+  "perTeamGame": {
+   "segments": 117.98,
+   "trips2": 9.19,
+   "trips3": 0.261,
+   "andOnes": 2.56,
+   "nonFtFoulsDrawn": 6.72,
+   "possessions": 100.7
+  }
+ },
+ "stageB": {
+  "games": 1010,
+  "PACE_OFFSET": -186.625,
+  "PACE_SLOPE": 1.7832,
+  "meanSegmentsPer48": 233.68,
+  "meanPaceInput": 235.69,
+  "residualSD": 9.909,
+  "cv2Target": 0.42019,
+  "meanSegmentSeconds": 12.325,
+  "SEGMENT_DURATION_SHAPE": 1.274,
+  "cv2AtShape": 0.42019,
+  "shapeBoundHit": false
+ },
+ "stageC": {
+  "games": 253,
+  "stride": 4,
+  "sims": 200,
+  "buckets": [
+   "1-3",
+   "4-6",
+   "7-10"
+  ],
+  "realStat": [
+   {
+    "n": 128,
+    "mean": 2.055,
+    "se": 0.724
+   },
+   {
+    "n": 152,
+    "mean": 3.579,
+    "se": 0.726
+   },
+   {
+    "n": 233,
+    "mean": 2.442,
+    "se": 0.598
+   }
+  ],
+  "grid": [
+   {
+    "W": 0,
+    "D": 0,
+    "simStat": [
+     0.12,
+     0.649,
+     1.374
+    ],
+    "objective": 26.617,
+    "otRate": 0.0218,
+    "marginBias": 0.402,
+    "totalBias": -1.169,
+    "perTeamGame": {
+     "fta": 21.89,
+     "tov": 12.78,
+     "oreb": 10.33,
+     "stl": 7.48,
+     "blk": 5.09,
+     "pf": 18.83,
+     "threePa": 34.28,
+     "fga": 87.45
+    }
+   },
+   {
+    "W": 300,
+    "D": 3,
+    "simStat": [
+     1.315,
+     1.43,
+     1.39
+    ],
+    "objective": 12.902,
+    "otRate": 0.0214,
+    "marginBias": 0.402,
+    "totalBias": -1.091,
+    "perTeamGame": {
+     "fta": 22.03,
+     "tov": 12.77,
+     "oreb": 10.32,
+     "stl": 7.47,
+     "blk": 5.09,
+     "pf": 18.9,
+     "threePa": 34.26,
+     "fga": 87.39
+    }
+   },
+   {
+    "W": 300,
+    "D": 6,
+    "simStat": [
+     1.485,
+     2.51,
+     1.98
+    ],
+    "objective": 3.386,
+    "otRate": 0.0213,
+    "marginBias": 0.399,
+    "totalBias": -1.007,
+    "perTeamGame": {
+     "fta": 22.17,
+     "tov": 12.76,
+     "oreb": 10.32,
+     "stl": 7.47,
+     "blk": 5.08,
+     "pf": 18.96,
+     "threePa": 34.23,
+     "fga": 87.33
+    }
+   },
+   {
+    "W": 300,
+    "D": 9,
+    "simStat": [
+     1.485,
+     2.631,
+     2.975
+    ],
+    "objective": 3.119,
+    "otRate": 0.0213,
+    "marginBias": 0.398,
+    "totalBias": -0.932,
+    "perTeamGame": {
+     "fta": 22.3,
+     "tov": 12.75,
+     "oreb": 10.32,
+     "stl": 7.46,
+     "blk": 5.08,
+     "pf": 19.02,
+     "threePa": 34.21,
+     "fga": 87.27
+    }
+   },
+   {
+    "W": 600,
+    "D": 3,
+    "simStat": [
+     2.366,
+     2.128,
+     1.44
+    ],
+    "objective": 6.99,
+    "otRate": 0.0197,
+    "marginBias": 0.395,
+    "totalBias": -1.054,
+    "perTeamGame": {
+     "fta": 22.17,
+     "tov": 12.76,
+     "oreb": 10.32,
+     "stl": 7.47,
+     "blk": 5.08,
+     "pf": 18.96,
+     "threePa": 34.22,
+     "fga": 87.31
+    }
+   },
+   {
+    "W": 600,
+    "D": 6,
+    "simStat": [
+     2.677,
+     4.048,
+     2.763
+    ],
+    "objective": 1.444,
+    "otRate": 0.0188,
+    "marginBias": 0.397,
+    "totalBias": -0.893,
+    "perTeamGame": {
+     "fta": 22.45,
+     "tov": 12.74,
+     "oreb": 10.31,
+     "stl": 7.45,
+     "blk": 5.07,
+     "pf": 19.09,
+     "threePa": 34.17,
+     "fga": 87.18
+    }
+   },
+   {
+    "W": 600,
+    "D": 9,
+    "simStat": [
+     2.661,
+     4.392,
+     4.544
+    ],
+    "objective": 14.308,
+    "otRate": 0.0187,
+    "marginBias": 0.408,
+    "totalBias": -0.734,
+    "perTeamGame": {
+     "fta": 22.7,
+     "tov": 12.73,
+     "oreb": 10.3,
+     "stl": 7.45,
+     "blk": 5.07,
+     "pf": 19.2,
+     "threePa": 34.13,
+     "fga": 87.08
+    }
+   },
+   {
+    "W": 900,
+    "D": 3,
+    "simStat": [
+     3.023,
+     2.779,
+     1.615
+    ],
+    "objective": 4.913,
+    "otRate": 0.0178,
+    "marginBias": 0.41,
+    "totalBias": -1.007,
+    "perTeamGame": {
+     "fta": 22.3,
+     "tov": 12.75,
+     "oreb": 10.31,
+     "stl": 7.46,
+     "blk": 5.08,
+     "pf": 19.02,
+     "threePa": 34.2,
+     "fga": 87.24
+    }
+   },
+   {
+    "W": 900,
+    "D": 6,
+    "simStat": [
+     3.553,
+     5.388,
+     3.582
+    ],
+    "objective": 14.117,
+    "otRate": 0.0156,
+    "marginBias": 0.398,
+    "totalBias": -0.806,
+    "perTeamGame": {
+     "fta": 22.71,
+     "tov": 12.72,
+     "oreb": 10.3,
+     "stl": 7.44,
+     "blk": 5.07,
+     "pf": 19.21,
+     "threePa": 34.12,
+     "fga": 87.04
+    }
+   },
+   {
+    "W": 900,
+    "D": 9,
+    "simStat": [
+     3.529,
+     5.959,
+     6.096
+    ],
+    "objective": 52.24,
+    "otRate": 0.0156,
+    "marginBias": 0.417,
+    "totalBias": -0.557,
+    "perTeamGame": {
+     "fta": 23.1,
+     "tov": 12.7,
+     "oreb": 10.29,
+     "stl": 7.43,
+     "blk": 5.06,
+     "pf": 19.38,
+     "threePa": 34.05,
+     "fga": 86.88
+    }
+   },
+   {
+    "W": 1200,
+    "D": 3,
+    "simStat": [
+     3.65,
+     3.354,
+     1.865
+    ],
+    "objective": 5.88,
+    "otRate": 0.0153,
+    "marginBias": 0.421,
+    "totalBias": -1,
+    "perTeamGame": {
+     "fta": 22.43,
+     "tov": 12.74,
+     "oreb": 10.31,
+     "stl": 7.45,
+     "blk": 5.07,
+     "pf": 19.08,
+     "threePa": 34.16,
+     "fga": 87.15
+    }
+   },
+   {
+    "W": 1200,
+    "D": 6,
+    "simStat": [
+     4.723,
+     6.593,
+     4.471
+    ],
+    "objective": 42.332,
+    "otRate": 0.0127,
+    "marginBias": 0.412,
+    "totalBias": -0.706,
+    "perTeamGame": {
+     "fta": 22.98,
+     "tov": 12.7,
+     "oreb": 10.29,
+     "stl": 7.43,
+     "blk": 5.06,
+     "pf": 19.33,
+     "threePa": 34.07,
+     "fga": 86.9
+    }
+   },
+   {
+    "W": 1200,
+    "D": 9,
+    "simStat": [
+     4.68,
+     7.445,
+     7.424
+    ],
+    "objective": 110.919,
+    "otRate": 0.0125,
+    "marginBias": 0.42,
+    "totalBias": -0.387,
+    "perTeamGame": {
+     "fta": 23.49,
+     "tov": 12.67,
+     "oreb": 10.28,
+     "stl": 7.41,
+     "blk": 5.05,
+     "pf": 19.57,
+     "threePa": 33.98,
+     "fga": 86.69
+    }
+   }
+  ],
+  "chosen": {
+   "LATE_FOUL_WINDOW_DS": 600,
+   "LATE_FOUL_MAX_DEFICIT": 6
+  },
+  "fitSeasonCheckAtChosen": {
+   "simMarginBias": 0.397,
+   "simTotalBias": -0.893,
+   "simOtRate": 0.0188,
+   "realOtRate": 0.0435,
+   "simPerTeamGame": {
+    "fta": 22.45,
+    "tov": 12.74,
+    "oreb": 10.31,
+    "stl": 7.45,
+    "blk": 5.07,
+    "pf": 19.09,
+    "threePa": 34.17,
+    "fga": 87.18
+   },
+   "realPerTeamGame": {
+    "fta": 21.41,
+    "tov": 13.01,
+    "oreb": 10.51,
+    "stl": 7.65,
+    "blk": 5.18,
+    "pf": 18.34,
+    "threePa": 35.15,
+    "fga": 88.81
+   }
+  }
+ },
+ "fit": {
+  "AND_ONE_PER_FGM": 0.0608,
+  "THREE_SHOT_TRIPS_PER_MIN": 0.001083,
+  "STEAL_SHARE_OF_TOV": 0.5794,
+  "BLOCK_PER_MISS2": 0.2067,
+  "BLOCK_PER_MISS3": 0.0055,
+  "PLAYER_REBOUND_SHARE": 0.8826,
+  "HOME_FG_RATIO": 1.0153,
+  "HOME_TOV_RATIO": 0.9989,
+  "HOME_TRIP_RATIO": 1.0196,
+  "PACE_OFFSET": -186.625,
+  "PACE_SLOPE": 1.7832,
+  "SEGMENT_DURATION_SHAPE": 1.274,
+  "LATE_FOUL_WINDOW_DS": 600,
+  "LATE_FOUL_MAX_DEFICIT": 6
+ }
+}

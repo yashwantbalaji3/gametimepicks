@@ -1,0 +1,999 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-possession-sim-v0-dev-evaluation",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "generatedAt": "2026-10-20T21:28:27.321Z",
+ "devSeason": 2025,
+ "minDaysIntoSeason": 30,
+ "eligible": 1005,
+ "sampledGames": 100,
+ "gamesArg": 100,
+ "status": "PARTIAL_SAMPLE (100 of 1005 eligible games, every 10-th) — the full run is: nice -n 19 node scripts/nba/research/evaluate-possession-sim-v0.mjs --write",
+ "models": {
+  "possession": {
+   "modelVersion": "nba-possession-sim-v0",
+   "simulations": 1000,
+   "params": {
+    "AND_ONE_PER_FGM": 0.0608,
+    "THREE_SHOT_TRIPS_PER_MIN": 0.001083,
+    "STEAL_SHARE_OF_TOV": 0.5794,
+    "BLOCK_PER_MISS2": 0.2067,
+    "BLOCK_PER_MISS3": 0.0055,
+    "PLAYER_REBOUND_SHARE": 0.8826,
+    "HOME_FG_RATIO": 1.0153,
+    "HOME_TOV_RATIO": 0.9989,
+    "HOME_TRIP_RATIO": 1.0196,
+    "PACE_OFFSET": -186.625,
+    "PACE_SLOPE": 1.7832,
+    "SEGMENT_DURATION_SHAPE": 1.274,
+    "LATE_FOUL_WINDOW_DS": 600,
+    "LATE_FOUL_MAX_DEFICIT": 6,
+    "MINUTES_POWER": 1.25,
+    "SHOT_CLOCK_DS": 240,
+    "PERSONAL_FOUL_LIMIT": 6,
+    "MANDATORY_TIMEOUT_CLOCKS_DS": [
+     4200,
+     1800
+    ],
+    "JUMP_BALL_PERIODS": [
+     1,
+     "OT"
+    ]
+   },
+   "paramsFittedOn": "corpus season 2024 (2023-24) only — data/internal/research/nba/reports/possession-sim-v0-fit-2024.json"
+  },
+  "v1": {
+   "modelVersion": "nba-sim-v1-coherent",
+   "simulations": 4000,
+   "params": {
+    "HCA_POINTS": 1.982,
+    "ELO_TO_MARGIN": 0.05115,
+    "TOTAL_WEIGHT": 1.956,
+    "TOTAL_OFFSET": -2.947,
+    "TEAM_NOISE_SD": 10.152,
+    "PACE_SD": 0.0446,
+    "QUARTER_SHARES": [
+     0.2513,
+     0.2518,
+     0.2534,
+     0.2435
+    ],
+    "QUARTER_DIRICHLET_ALPHA": 432.2,
+    "OT_SCALE": 0.917,
+    "MINUTES_POWER": 1.25,
+    "PACE_FLOOR": 0.7,
+    "MIN_REGULATION_POINTS": 50,
+    "THREE_FEASIBILITY_RESAMPLES": 20
+   }
+  },
+  "elo": "team-rating.mjs Elo through tip"
+ },
+ "caveats": [
+  "historical development-season numbers on 2024-25; NOT the assessment season, NOT forward shadow — nothing here promotes, validates or productises either engine",
+  "both engines use the same historical roster proxy pool and no injuries feed; player rows are paired on players both engines predicted who actually played",
+  "player quantiles for both engines are conditional on draws in which the player played; the naive baseline is over played games only",
+  "the possession engine uses no Elo: team strength enters only through player rates, team defensive ratios and home court",
+  "lower log loss / Brier / MAE is better; a difference is established only when its 95 % game-clustered bootstrap interval excludes 0"
+ ],
+ "realized": {
+  "games": 100,
+  "overtimeRate": 0.03,
+  "marginSD": 16.522,
+  "totalSD": 20.625
+ },
+ "winner": {
+  "elo": {
+   "n": 100,
+   "brier": 0.2586,
+   "logLoss": 0.7234,
+   "ece": 0.1289,
+   "accuracy": 0.58
+  },
+  "v1": {
+   "n": 100,
+   "brier": 0.2589,
+   "logLoss": 0.7235,
+   "ece": 0.0812,
+   "accuracy": 0.58
+  },
+  "pos": {
+   "n": 100,
+   "brier": 0.2506,
+   "logLoss": 0.6947,
+   "ece": 0.0946,
+   "accuracy": 0.52
+  }
+ },
+ "team": {
+  "v1": {
+   "marginMAE": 12.923,
+   "marginBias": -0.809,
+   "marginCoverage80": 0.77,
+   "totalMAE": 15.592,
+   "totalBias": -3.867,
+   "totalCoverage80": 0.77,
+   "simMarginSD_mean": 14.372,
+   "simTotalSD_mean": 17.95,
+   "overtimeRate_mean": 0.0247
+  },
+  "pos": {
+   "marginMAE": 12.967,
+   "marginBias": -1.513,
+   "marginCoverage80": 0.87,
+   "totalMAE": 15.602,
+   "totalBias": -3.893,
+   "totalCoverage80": 0.87,
+   "simMarginSD_mean": 16.99,
+   "simTotalSD_mean": 20.671,
+   "overtimeRate_mean": 0.0194
+  }
+ },
+ "minutes": {
+  "rows": 2109,
+  "v1MAE": 5.835,
+  "posMAE": 5.836,
+  "v1MAE_ge20": 5.295,
+  "posMAE_ge20": 5.348
+ },
+ "players": {
+  "pts": {
+   "v1": {
+    "n": 2109,
+    "MAE": 4.816,
+    "bias": -1.792,
+    "coverage80": 0.79
+   },
+   "pos": {
+    "n": 2109,
+    "MAE": 4.853,
+    "bias": -1.751,
+    "coverage80": 0.798
+   },
+   "naive": {
+    "n": 2109,
+    "MAE": 4.772,
+    "bias": -0.176,
+    "coverage80": 0.542
+   },
+   "pos_ge20": {
+    "n": 1001,
+    "MAE": 5.942,
+    "bias": -2.554,
+    "coverage80": 0.765
+   },
+   "v1_ge20": {
+    "n": 1001,
+    "MAE": 5.885,
+    "bias": -2.323,
+    "coverage80": 0.77
+   },
+   "naive_ge20": {
+    "n": 1001,
+    "MAE": 5.792,
+    "bias": -0.093,
+    "coverage80": 0.539
+   }
+  },
+  "reb": {
+   "v1": {
+    "n": 2109,
+    "MAE": 1.942,
+    "bias": -0.697,
+    "coverage80": 0.844
+   },
+   "pos": {
+    "n": 2109,
+    "MAE": 1.955,
+    "bias": -0.668,
+    "coverage80": 0.837
+   },
+   "naive": {
+    "n": 2109,
+    "MAE": 1.942,
+    "bias": -0.016,
+    "coverage80": 0.789
+   },
+   "pos_ge20": {
+    "n": 1001,
+    "MAE": 2.114,
+    "bias": -0.637,
+    "coverage80": 0.83
+   },
+   "v1_ge20": {
+    "n": 1001,
+    "MAE": 2.102,
+    "bias": -0.641,
+    "coverage80": 0.848
+   },
+   "naive_ge20": {
+    "n": 1001,
+    "MAE": 2.091,
+    "bias": 0.02,
+    "coverage80": 0.791
+   }
+  },
+  "ast": {
+   "v1": {
+    "n": 2109,
+    "MAE": 1.384,
+    "bias": -0.413,
+    "coverage80": 0.871
+   },
+   "pos": {
+    "n": 2109,
+    "MAE": 1.426,
+    "bias": -0.406,
+    "coverage80": 0.876
+   },
+   "naive": {
+    "n": 2109,
+    "MAE": 1.385,
+    "bias": -0.044,
+    "coverage80": 0.853
+   },
+   "pos_ge20": {
+    "n": 1001,
+    "MAE": 1.823,
+    "bias": -0.713,
+    "coverage80": 0.833
+   },
+   "v1_ge20": {
+    "n": 1001,
+    "MAE": 1.759,
+    "bias": -0.59,
+    "coverage80": 0.839
+   },
+   "naive_ge20": {
+    "n": 1001,
+    "MAE": 1.736,
+    "bias": -0.088,
+    "coverage80": 0.823
+   }
+  },
+  "threePm": {
+   "v1": {
+    "n": 2109,
+    "MAE": 0.907,
+    "bias": -0.235,
+    "coverage80": 0.903
+   },
+   "pos": {
+    "n": 2109,
+    "MAE": 0.914,
+    "bias": -0.254,
+    "coverage80": 0.899
+   },
+   "naive": {
+    "n": 2109,
+    "MAE": 0.905,
+    "bias": -0.057,
+    "coverage80": 0.897
+   },
+   "pos_ge20": {
+    "n": 1001,
+    "MAE": 1.131,
+    "bias": -0.349,
+    "coverage80": 0.883
+   },
+   "v1_ge20": {
+    "n": 1001,
+    "MAE": 1.125,
+    "bias": -0.287,
+    "coverage80": 0.892
+   },
+   "naive_ge20": {
+    "n": 1001,
+    "MAE": 1.14,
+    "bias": -0.048,
+    "coverage80": 0.884
+   }
+  },
+  "stl": {
+   "v1": {
+    "n": 0,
+    "MAE": null,
+    "bias": null,
+    "coverage80": null
+   },
+   "pos": {
+    "n": 2109,
+    "MAE": 0.68,
+    "bias": -0.159,
+    "coverage80": 0.92
+   },
+   "naive": {
+    "n": 2109,
+    "MAE": 0.707,
+    "bias": 0.013,
+    "coverage80": 0.922
+   },
+   "pos_ge20": {
+    "n": 1001,
+    "MAE": 0.75,
+    "bias": -0.127,
+    "coverage80": 0.936
+   },
+   "v1_ge20": {
+    "n": 0,
+    "MAE": null,
+    "bias": null,
+    "coverage80": null
+   },
+   "naive_ge20": {
+    "n": 1001,
+    "MAE": 0.791,
+    "bias": 0.085,
+    "coverage80": 0.943
+   }
+  },
+  "blk": {
+   "v1": {
+    "n": 0,
+    "MAE": null,
+    "bias": null,
+    "coverage80": null
+   },
+   "pos": {
+    "n": 2109,
+    "MAE": 0.495,
+    "bias": -0.052,
+    "coverage80": 0.939
+   },
+   "naive": {
+    "n": 2109,
+    "MAE": 0.506,
+    "bias": 0.004,
+    "coverage80": 0.921
+   },
+   "pos_ge20": {
+    "n": 1001,
+    "MAE": 0.583,
+    "bias": -0.04,
+    "coverage80": 0.942
+   },
+   "v1_ge20": {
+    "n": 0,
+    "MAE": null,
+    "bias": null,
+    "coverage80": null
+   },
+   "naive_ge20": {
+    "n": 1001,
+    "MAE": 0.597,
+    "bias": 0.004,
+    "coverage80": 0.92
+   }
+  },
+  "tov": {
+   "v1": {
+    "n": 0,
+    "MAE": null,
+    "bias": null,
+    "coverage80": null
+   },
+   "pos": {
+    "n": 2109,
+    "MAE": 0.871,
+    "bias": -0.19,
+    "coverage80": 0.908
+   },
+   "naive": {
+    "n": 2109,
+    "MAE": 0.901,
+    "bias": 0.017,
+    "coverage80": 0.905
+   },
+   "pos_ge20": {
+    "n": 1001,
+    "MAE": 1.043,
+    "bias": -0.255,
+    "coverage80": 0.894
+   },
+   "v1_ge20": {
+    "n": 0,
+    "MAE": null,
+    "bias": null,
+    "coverage80": null
+   },
+   "naive_ge20": {
+    "n": 1001,
+    "MAE": 1.082,
+    "bias": 0.055,
+    "coverage80": 0.9
+   }
+  }
+ },
+ "teamTotals": {
+  "fga": {
+   "actualPerTeamGame": 89.22,
+   "simPerTeamGame": 87.299,
+   "bias": -1.921
+  },
+  "threePa": {
+   "actualPerTeamGame": 37.635,
+   "simPerTeamGame": 35.643,
+   "bias": -1.992
+  },
+  "fta": {
+   "actualPerTeamGame": 21.135,
+   "simPerTeamGame": 22.031,
+   "bias": 0.896
+  },
+  "oreb": {
+   "actualPerTeamGame": 11.13,
+   "simPerTeamGame": 10.554,
+   "bias": -0.576
+  },
+  "dreb": {
+   "actualPerTeamGame": 32.68,
+   "simPerTeamGame": 32.501,
+   "bias": -0.179
+  },
+  "tov": {
+   "actualPerTeamGame": 13.16,
+   "simPerTeamGame": 13.199,
+   "bias": 0.039
+  },
+  "stl": {
+   "actualPerTeamGame": 8.105,
+   "simPerTeamGame": 7.492,
+   "bias": -0.613
+  },
+  "blk": {
+   "actualPerTeamGame": 4.775,
+   "simPerTeamGame": 4.993,
+   "bias": 0.218
+  },
+  "pf": {
+   "actualPerTeamGame": 17.83,
+   "simPerTeamGame": 18.681,
+   "bias": 0.851
+  },
+  "ast": {
+   "actualPerTeamGame": 26.92,
+   "simPerTeamGame": 26.462,
+   "bias": -0.458
+  }
+ },
+ "paired": {
+  "note": "A − B; lower is better for log loss, Brier and MAE; an interval excluding 0 is required to call a difference established",
+  "winner_pos_minus_v1": {
+   "logLoss": {
+    "mean": -0.02886,
+    "lo95": -0.07651,
+    "hi95": 0.01912,
+    "excludesZero": false,
+    "rows": 100,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "pos-v1:ll"
+   },
+   "brier": {
+    "mean": -0.00825,
+    "lo95": -0.02771,
+    "hi95": 0.01003,
+    "excludesZero": false,
+    "rows": 100,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "pos-v1:brier"
+   }
+  },
+  "winner_pos_minus_elo": {
+   "logLoss": {
+    "mean": -0.02872,
+    "lo95": -0.08175,
+    "hi95": 0.02081,
+    "excludesZero": false,
+    "rows": 100,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "pos-elo:ll"
+   },
+   "brier": {
+    "mean": -0.00801,
+    "lo95": -0.02727,
+    "hi95": 0.01257,
+    "excludesZero": false,
+    "rows": 100,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "pos-elo:brier"
+   }
+  },
+  "winner_v1_minus_elo": {
+   "logLoss": {
+    "mean": 0.00014,
+    "lo95": -0.01768,
+    "hi95": 0.01689,
+    "excludesZero": false,
+    "rows": 100,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "v1-elo:ll"
+   },
+   "brier": {
+    "mean": 0.00024,
+    "lo95": -0.00706,
+    "hi95": 0.00789,
+    "excludesZero": false,
+    "rows": 100,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "v1-elo:brier"
+   }
+  },
+  "marginAbsErr_pos_minus_v1": {
+   "mean": 0.044,
+   "lo95": -0.64841,
+   "hi95": 0.74076,
+   "excludesZero": false,
+   "rows": 100,
+   "clusters": 100,
+   "iterations": 2000,
+   "seed": "margin"
+  },
+  "totalAbsErr_pos_minus_v1": {
+   "mean": 0.00994,
+   "lo95": -1.09808,
+   "hi95": 1.11984,
+   "excludesZero": false,
+   "rows": 100,
+   "clusters": 100,
+   "iterations": 2000,
+   "seed": "total"
+  },
+  "marginCover80_pos_minus_v1": {
+   "mean": 0.1,
+   "lo95": 0.05,
+   "hi95": 0.16,
+   "excludesZero": true,
+   "rows": 100,
+   "clusters": 100,
+   "iterations": 2000,
+   "seed": "mcov"
+  },
+  "totalCover80_pos_minus_v1": {
+   "mean": 0.1,
+   "lo95": 0.03,
+   "hi95": 0.17,
+   "excludesZero": true,
+   "rows": 100,
+   "clusters": 100,
+   "iterations": 2000,
+   "seed": "tcov"
+  },
+  "playerAbsErr_pos_minus_v1": {
+   "pts": {
+    "mean": 0.03686,
+    "lo95": 0.01211,
+    "hi95": 0.06247,
+    "excludesZero": true,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "p-v1-pts"
+   },
+   "reb": {
+    "mean": 0.01277,
+    "lo95": 0.00259,
+    "hi95": 0.02303,
+    "excludesZero": true,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "p-v1-reb"
+   },
+   "ast": {
+    "mean": 0.04275,
+    "lo95": 0.03003,
+    "hi95": 0.05602,
+    "excludesZero": true,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "p-v1-ast"
+   },
+   "threePm": {
+    "mean": 0.00762,
+    "lo95": 0.004,
+    "hi95": 0.01122,
+    "excludesZero": true,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "p-v1-threePm"
+   }
+  },
+  "playerAbsErr_pos_minus_naive": {
+   "pts": {
+    "mean": 0.08088,
+    "lo95": -0.02891,
+    "hi95": 0.20214,
+    "excludesZero": false,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "p-nv-pts"
+   },
+   "reb": {
+    "mean": 0.01327,
+    "lo95": -0.03901,
+    "hi95": 0.06368,
+    "excludesZero": false,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "p-nv-reb"
+   },
+   "ast": {
+    "mean": 0.04084,
+    "lo95": 0.00867,
+    "hi95": 0.07445,
+    "excludesZero": true,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "p-nv-ast"
+   },
+   "threePm": {
+    "mean": 0.00934,
+    "lo95": -0.01046,
+    "hi95": 0.0291,
+    "excludesZero": false,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "p-nv-threePm"
+   },
+   "stl": {
+    "mean": -0.02679,
+    "lo95": -0.03898,
+    "hi95": -0.01455,
+    "excludesZero": true,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "p-nv-stl"
+   },
+   "blk": {
+    "mean": -0.01078,
+    "lo95": -0.02091,
+    "hi95": -0.00037,
+    "excludesZero": true,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "p-nv-blk"
+   },
+   "tov": {
+    "mean": -0.02971,
+    "lo95": -0.04564,
+    "hi95": -0.01414,
+    "excludesZero": true,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "p-nv-tov"
+   }
+  },
+  "playerCover80_pos_minus_naive": {
+   "stl": {
+    "mean": -0.00237,
+    "lo95": -0.01101,
+    "hi95": 0.00651,
+    "excludesZero": false,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "c-nv-stl"
+   },
+   "blk": {
+    "mean": 0.01802,
+    "lo95": 0.00938,
+    "hi95": 0.02665,
+    "excludesZero": true,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "c-nv-blk"
+   },
+   "tov": {
+    "mean": 0.00332,
+    "lo95": -0.00708,
+    "hi95": 0.01332,
+    "excludesZero": false,
+    "rows": 2109,
+    "clusters": 100,
+    "iterations": 2000,
+    "seed": "c-nv-tov"
+   }
+  }
+ },
+ "example": {
+  "providerEventId": "401704826",
+  "runIndex": 0,
+  "linescore": [
+   {
+    "period": 1,
+    "label": "Q1",
+    "home": 33,
+    "away": 18
+   },
+   {
+    "period": 2,
+    "label": "Q2",
+    "home": 20,
+    "away": 15
+   },
+   {
+    "period": 3,
+    "label": "Q3",
+    "home": 32,
+    "away": 30
+   },
+   {
+    "period": 4,
+    "label": "Q4",
+    "home": 36,
+    "away": 30
+   }
+  ],
+  "final": {
+   "home": 121,
+   "away": 93
+  },
+  "team": {
+   "home": {
+    "ds": 144000,
+    "pts": 121,
+    "fgm": 44,
+    "fga": 97,
+    "threePm": 16,
+    "threePa": 39,
+    "ftm": 17,
+    "fta": 23,
+    "oreb": 17,
+    "dreb": 40,
+    "reb": 57,
+    "ast": 27,
+    "stl": 8,
+    "blk": 3,
+    "tov": 12,
+    "pf": 14,
+    "teamRebounds": 7
+   },
+   "away": {
+    "ds": 144000,
+    "pts": 93,
+    "fgm": 33,
+    "fga": 81,
+    "threePm": 13,
+    "threePa": 35,
+    "ftm": 14,
+    "fta": 20,
+    "oreb": 4,
+    "dreb": 34,
+    "reb": 38,
+    "ast": 23,
+    "stl": 5,
+    "blk": 6,
+    "tov": 17,
+    "pf": 17,
+    "teamRebounds": 5
+   }
+  },
+  "events": 445,
+  "firstEvents": [
+   {
+    "q": 1,
+    "clock": "12:00",
+    "type": "period_start",
+    "poss": "home",
+    "player": null,
+    "score": {
+     "home": 0,
+     "away": 0
+    }
+   },
+   {
+    "q": 1,
+    "clock": "12:00",
+    "type": "jump_ball",
+    "team": "away",
+    "poss": "away",
+    "player": null,
+    "score": {
+     "home": 0,
+     "away": 0
+    }
+   },
+   {
+    "q": 1,
+    "clock": "11:47",
+    "type": "shot",
+    "team": "away",
+    "poss": "away",
+    "player": "4432107",
+    "made": false,
+    "value": 3,
+    "score": {
+     "home": 0,
+     "away": 0
+    }
+   },
+   {
+    "q": 1,
+    "clock": "11:47",
+    "type": "rebound",
+    "team": "home",
+    "poss": "away",
+    "player": "4432811",
+    "kind": "defensive",
+    "score": {
+     "home": 0,
+     "away": 0
+    }
+   },
+   {
+    "q": 1,
+    "clock": "11:44",
+    "type": "shot",
+    "team": "home",
+    "poss": "home",
+    "player": "4432811",
+    "made": true,
+    "value": 2,
+    "score": {
+     "home": 2,
+     "away": 0
+    }
+   },
+   {
+    "q": 1,
+    "clock": "11:28",
+    "type": "shot",
+    "team": "away",
+    "poss": "away",
+    "player": "4432107",
+    "made": false,
+    "value": 2,
+    "score": {
+     "home": 2,
+     "away": 0
+    }
+   },
+   {
+    "q": 1,
+    "clock": "11:28",
+    "type": "rebound",
+    "team": "home",
+    "poss": "away",
+    "player": "4433287",
+    "kind": "defensive",
+    "score": {
+     "home": 2,
+     "away": 0
+    }
+   },
+   {
+    "q": 1,
+    "clock": "11:28",
+    "type": "turnover",
+    "team": "home",
+    "poss": "home",
+    "player": "4433287",
+    "score": {
+     "home": 2,
+     "away": 0
+    }
+   },
+   {
+    "q": 1,
+    "clock": "11:22",
+    "type": "foul",
+    "team": "home",
+    "poss": "away",
+    "player": "4432816",
+    "kind": "personal",
+    "score": {
+     "home": 2,
+     "away": 0
+    }
+   },
+   {
+    "q": 1,
+    "clock": "11:01",
+    "type": "shot",
+    "team": "away",
+    "poss": "away",
+    "player": "3907822",
+    "made": true,
+    "value": 3,
+    "score": {
+     "home": 2,
+     "away": 3
+    }
+   },
+   {
+    "q": 1,
+    "clock": "10:53",
+    "type": "turnover",
+    "team": "home",
+    "poss": "home",
+    "player": "4066383",
+    "score": {
+     "home": 2,
+     "away": 3
+    }
+   },
+   {
+    "q": 1,
+    "clock": "10:29",
+    "type": "turnover",
+    "team": "away",
+    "poss": "away",
+    "player": "6440",
+    "score": {
+     "home": 2,
+     "away": 3
+    }
+   },
+   {
+    "q": 1,
+    "clock": "10:27",
+    "type": "shot",
+    "team": "home",
+    "poss": "home",
+    "player": "4066383",
+    "made": false,
+    "value": 2,
+    "score": {
+     "home": 2,
+     "away": 3
+    }
+   },
+   {
+    "q": 1,
+    "clock": "10:27",
+    "type": "rebound",
+    "team": "away",
+    "poss": "home",
+    "player": "3907822",
+    "kind": "defensive",
+    "score": {
+     "home": 2,
+     "away": 3
+    }
+   },
+   {
+    "q": 1,
+    "clock": "10:14",
+    "type": "foul",
+    "team": "home",
+    "poss": "away",
+    "player": "4433287",
+    "kind": "shooting",
+    "score": {
+     "home": 2,
+     "away": 3
+    }
+   },
+   {
+    "q": 1,
+    "clock": "10:14",
+    "type": "free_throw",
+    "team": "away",
+    "poss": "away",
+    "player": "6440",
+    "made": true,
+    "score": {
+     "home": 2,
+     "away": 4
+    }
+   }
+  ]
+ },
+ "runtimeSeconds": 94
+}
