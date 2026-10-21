@@ -27,9 +27,18 @@ function buildInfoEnv() {
   }
 }
 
+/**
+ * GTP_NFL_THEATER_PUBLIC — the Simulation replay (Theater) section on /nfl/simulation/[eventId] (P242 narrow exception,
+ * founder 2026-10-19). Defined into the bundle as "1" ONLY when the build environment sets exactly "1", else "0", so
+ * the page's `if (process.env.GTP_NFL_THEATER_PUBLIC === "1")` is a compile-time constant and, OFF, webpack never adds
+ * the section, its CSS or the island to the build. Default OFF; rollback = build without it.
+ * Guarded by lib/simulation-theater/public-theater.test.mjs (source) and public-theater-export.test.mjs (out/).
+ */
+const theaterFlagEnv = () => ({ GTP_NFL_THEATER_PUBLIC: process.env.GTP_NFL_THEATER_PUBLIC === "1" ? "1" : "0" });
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  env: buildInfoEnv(),
+  env: { ...buildInfoEnv(), ...theaterFlagEnv() },
   // Use static export so we can serve from any host (Vercel, Netlify, S3).
   // The pipeline writes JSON into public/data/, which is bundled into the build.
   output: "export",

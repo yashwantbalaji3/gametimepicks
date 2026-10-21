@@ -46,7 +46,7 @@ export const SPORTS: readonly Sport[] = [
   /* Session 6 (founder decision 3): NBA is a factual hub — schedule and official finals, no forecast while every NBA
      model is shadow/withheld. */
   { key: "basketball", label: "Basketball", glyph: "🏀",
-    competitions: [{ href: "/nba", label: "NBA", note: "schedule + final scores · no forecast", key: "nba" }] },
+    competitions: [{ href: "/nba", label: "NBA", note: "schedule + experimental projections · not validated", key: "nba" }] },
   { key: "baseball", label: "Baseball", glyph: "⚾",
     competitions: [{ href: "/mlb", label: "MLB", note: "simulation center", key: "mlb" }] },
   { key: "soccer", label: "Soccer", glyph: "⚽",

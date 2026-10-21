@@ -1,0 +1,123 @@
+/** Shapes produced by lib/simulation-theater/adapter-nfl-sim-v2.mjs (plain JSON, passed server → client as props). */
+import type { Side, Teams } from "./FieldScene";
+
+export type DriveNote = { code: string; detail: string };
+export type TheaterEvent = {
+  index: number;
+  kind: "DRIVE_SUMMARY";
+  engineQ: number;
+  inOT: boolean;
+  period: number;
+  periodClockStart: number;
+  periodEnd: number;
+  periodClockEnd: number;
+  clockStart: number;
+  clockEnd: number;
+  scorePeriod: number;
+  offense: Side;
+  fieldStart: number;
+  fieldEnd: number;
+  plays: number;
+  netYards: number;
+  seconds: number;
+  outcome: string;
+  outcomeLabel: string;
+  scoring: boolean;
+  scoringSide: Side | null;
+  delta: { home: number; away: number };
+  scoreBefore: { home: number; away: number };
+  scoreAfter: { home: number; away: number };
+  notes: DriveNote[];
+  participants: null;
+};
+export type ValidationItem = { code: string; drive?: number | null; detail: string };
+export type TheaterSample = {
+  version: string;
+  receiptId: string;
+  runIndex: number;
+  kind: string;
+  kinds: string[];
+  sharedKinds: string[];
+  label: string;
+  kindLabel: string;
+  selectionRules: { kind: string; text: string }[];
+  selectionDistance: null;
+  finalScore: { home: number; away: number; overtime: boolean } | null;
+  periodScores: { home: number[]; away: number[] } | null;
+  validation: { ok: boolean; errors: ValidationItem[]; notes: ValidationItem[] };
+  scene: { geometryClass: string; sceneVersion: string; sceneSeed: number };
+  events: TheaterEvent[];
+  lanes: number[];
+};
+export type Hist = { value: number; probability: number }[];
+export type TheaterManifest = {
+  receiptId: string;
+  receiptHash: string | null;
+  file: string | null;
+  eventId: string;
+  eventStart: string | null;
+  generatedAt: string | null;
+  engine: string;
+  engineVersion: string | null;
+  receiptSchema: string;
+  runSchema: string;
+  promotionState: string | null;
+  status: string;
+  runCount: number;
+  teams: Teams;
+  seed: { baseSeed: string | null; seedStrategy: string | null };
+  paramsSha256: string | null;
+  availabilitySnapshotId: string | null;
+  inputCutoff: string | null;
+  forecastRef: string | null;
+  forecastHash: null;
+  marketUse: string | null;
+  samples: TheaterSample[];
+  chips: { runIndex: number; sampleIndex: number; kinds: string[]; available: boolean }[];
+  sharedRuns: { runIndex: number; kinds: string[] }[];
+  absentKinds: string[];
+  batch: {
+    runCount: number;
+    winProbability: { home: number; away: number; tie: number } | null;
+    overtimeProbability: number | null;
+    total: Record<string, number> | null;
+    margin: Record<string, number> | null;
+    totalHistogram: Hist;
+    marginHistogram: Hist;
+  };
+  unavailableFields: { field: string; reason: string }[];
+  /** Official representative vs hypothetical what-ifs (lib/simulation-theater/official-representative.mjs). */
+  representative?: TheaterRepresentative;
+};
+/** theater-representative@1 (both sports). Plain JSON; the islands read it through representative-labels.mjs. */
+export type OfficialTerm = { expected: number | null; median: number | null; p10: number | null; p90: number | null; published: number | null } | null;
+export type TheaterRepresentative = {
+  version: string;
+  sport: "NFL" | "NBA";
+  rule: string;
+  tolerance: number;
+  reconciliationRule: string;
+  state: "SELECTED" | "NO_OFFICIAL" | "NO_ELIGIBLE_RUN";
+  refusal: { code: string; message: string } | null;
+  snapshotId: string | null;
+  official: {
+    sport: string; snapshotId: string; publication: string; modelVersion: string | null; generatedAt: string | null; lockAt: string | null; source: string | null;
+    pHome: number | null; pAway: number | null; pTie: number | null; pHomePublished: number | null; winnerSide: string | null;
+    projectedScore: { home: number | null; away: number | null; convention: string | null };
+    team: { home: OfficialTerm; away: OfficialTerm; margin: OfficialTerm; total: OfficialTerm };
+  } | null;
+  officialRunIndex: number | null;
+  distance: number | null;
+  withinTolerance: boolean;
+  runs: { runIndex: number; kinds: string[]; role: string; hypothetical: boolean; distance: number | null }[];
+  reconciliation: { term: string; officialExpectation: number; simulatedGame: number; difference: number; note: string }[];
+  players: Record<string, { families: Record<string, { expected: number | null; median: number | null }>; playRate: number | null; conditioning: string | null }> | null;
+};
+export type TheaterLoad = {
+  eventId: string;
+  file: string | null;
+  ok: boolean;
+  error: { code: string; reason: string } | null;
+  manifest: TheaterManifest | null;
+  showable: boolean;
+};

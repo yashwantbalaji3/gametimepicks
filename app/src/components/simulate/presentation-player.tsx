@@ -5,6 +5,9 @@
  * hand-off, and every `?play=1` href) was removed, so this module is unreachable from the public
  * bundle and no flag can re-enable it. It is retained as reference for a possible future
  * private/recording tool; deleting it is safe if that never happens.
+ * The P242 narrow exception of 2026-10-19 (docs/launch/approvals/P242_NFL_THEATER_PUBLIC_BETA_2026-10-19.md)
+ * permits ONLY the flagged, disclosed Simulation Theater replay on /nfl/simulation/[eventId]
+ * (components/simulation-theater); it does not revive this player or any of its launchers.
  */
 /**
  * THE PRESENTATION PLAYER — Program 234 · Release B.

@@ -33,6 +33,13 @@
  * rerolled or arrived at live, and no role may run on a stale or unavailable state to make it look
  * busy. `forbidden` on each role records that, because the constraint is what a future author will
  * otherwise reach for.
+ *
+ * ── THE SIMULATION THEATER IS NOT A ROLE (P242 narrow exception, 2026-10-19) ─────────────────────
+ * The flagged NFL Simulation Theater replay (components/simulation-theater) is reader-started playback of ONE recorded
+ * representative run: it never starts by itself, never implies a number is being computed, and is disclosed as
+ * SIMULATED · DRIVE-LEVEL · MOVEMENT ILLUSTRATIVE · EXPERIMENTAL MODEL. Its shell transitions use these role tokens;
+ * its playback clock is its own deterministic timeline (lib/simulation-theater/timeline.mjs). The retired P242
+ * ceremony (staged reveal, presentation player) gets no role and stays retired.
  */
 
 /** @typedef {"keep"|"shorten"|"remove"} ReducedBehaviour */

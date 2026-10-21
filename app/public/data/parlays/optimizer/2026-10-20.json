@@ -1,0 +1,195 @@
+{
+  "_disclaimer": "Slips produced by pipeline.parlay_optimizer. Sport-agnostic, calibration-aware, correlation-suppressing. No fabricated data \u2014 buckets are empty when the eligible pool is too small.",
+  "date": "2026-10-20",
+  "generatedAt": "2026-10-20T09:29:49+00:00",
+  "totalSlips": 0,
+  "buckets": {
+    "conservative": {
+      "nba": [],
+      "mlb": [],
+      "multi": [],
+      "all": []
+    },
+    "balanced": {
+      "nba": [],
+      "mlb": [],
+      "multi": [],
+      "all": []
+    },
+    "aggressive": {
+      "nba": [],
+      "mlb": [],
+      "multi": [],
+      "all": []
+    },
+    "star_power": {
+      "nba": [],
+      "mlb": [],
+      "multi": [],
+      "all": []
+    }
+  },
+  "sourcePools": {
+    "nbaCount": 0,
+    "mlbCount": 0
+  },
+  "legPool": {
+    "scoringProfile": "balanced",
+    "totalLegs": 0,
+    "legs": []
+  },
+  "publicRiskSections": {
+    "low": {
+      "all": [],
+      "nba": [],
+      "mlb": [],
+      "multi": []
+    },
+    "medium": {
+      "all": [],
+      "nba": [],
+      "mlb": [],
+      "multi": []
+    },
+    "high": {
+      "all": [],
+      "nba": [],
+      "mlb": [],
+      "multi": []
+    },
+    "longshot": {
+      "all": [],
+      "nba": [],
+      "mlb": [],
+      "multi": []
+    }
+  },
+  "learningPolicy": {
+    "learningPolicyLoaded": true,
+    "learningPolicyApplied": true,
+    "learningPolicyFallbackReason": null,
+    "learningPolicyVersion": 1,
+    "learningPolicyDate": "2026-10-19",
+    "learningPolicyTrainingWindow": [
+      "2026-10-12",
+      "2026-10-19"
+    ],
+    "learningPolicyLatestSettledDate": "2026-10-19",
+    "policyWarnings": [
+      "edge signal is INVERTED at high values \u2014 edge capped, not used to promote",
+      "market pitcher_strikeouts: insufficient sample (16)"
+    ]
+  },
+  "generationReceipt": {
+    "receiptVersion": 1,
+    "receiptKind": "PRODUCER",
+    "producer": "pipeline.snapshot_optimizer",
+    "status": "completed",
+    "date": "2026-10-20",
+    "generatedAt": "2026-10-20T09:29:49+00:00",
+    "outcome": "NO_QUALIFYING_GAMES",
+    "inputs": {
+      "nba": {
+        "board": "app/public/data/boards/2026-10-20.json",
+        "present": false,
+        "parsed": false,
+        "date": null,
+        "generatedAt": null,
+        "scheduleAvailable": null,
+        "propsAvailable": null,
+        "pendingReason": null,
+        "games": null,
+        "leans": null,
+        "leansLoaded": 0
+      },
+      "mlb": {
+        "board": "app/public/data/mlb/boards/2026-10-20.json",
+        "present": true,
+        "parsed": true,
+        "date": "2026-10-20",
+        "generatedAt": "2026-10-20T09:29:48.640416+00:00",
+        "scheduleAvailable": false,
+        "propsAvailable": false,
+        "pendingReason": "no_events",
+        "games": 0,
+        "leans": 0,
+        "leansLoaded": 0
+      }
+    },
+    "legPool": {
+      "totalLegs": 0,
+      "distinctGames": 0
+    },
+    "publicSlips": 0,
+    "publicSections": {
+      "low": {
+        "minLegs": 2,
+        "maxLegs": 2,
+        "maxLegsPerGame": 2,
+        "eligibleLegs": {
+          "all": 0,
+          "nba": 0,
+          "mlb": 0
+        },
+        "candidates": {
+          "all": 0,
+          "nba": 0,
+          "mlb": 0
+        },
+        "slips": 0,
+        "emptyReason": "no_leg_pool"
+      },
+      "medium": {
+        "minLegs": 3,
+        "maxLegs": 4,
+        "maxLegsPerGame": 2,
+        "eligibleLegs": {
+          "all": 0,
+          "nba": 0,
+          "mlb": 0
+        },
+        "candidates": {
+          "all": 0,
+          "nba": 0,
+          "mlb": 0
+        },
+        "slips": 0,
+        "emptyReason": "no_leg_pool"
+      },
+      "high": {
+        "minLegs": 4,
+        "maxLegs": 5,
+        "maxLegsPerGame": 2,
+        "eligibleLegs": {
+          "all": 0,
+          "nba": 0,
+          "mlb": 0
+        },
+        "candidates": {
+          "all": 0,
+          "nba": 0,
+          "mlb": 0
+        },
+        "slips": 0,
+        "emptyReason": "no_leg_pool"
+      },
+      "longshot": {
+        "minLegs": 5,
+        "maxLegs": 6,
+        "maxLegsPerGame": 2,
+        "eligibleLegs": {
+          "all": 0,
+          "nba": 0,
+          "mlb": 0
+        },
+        "candidates": {
+          "all": 0,
+          "nba": 0,
+          "mlb": 0
+        },
+        "slips": 0,
+        "emptyReason": "no_leg_pool"
+      }
+    }
+  }
+}

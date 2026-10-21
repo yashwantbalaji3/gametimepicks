@@ -6,6 +6,8 @@
  * DORMANT — NOT MOUNTED ANYWHERE PUBLIC (P242). The founder retired the staged reveal: the runner
  * renders the precomputed report directly. This file is retained as reference source (its content
  * guards keep it honest for any future revival); it can be deleted once nothing imports it.
+ * The P242 narrow exception of 2026-10-19 (docs/launch/approvals/P242_NFL_THEATER_PUBLIC_BETA_2026-10-19.md) covers
+ * only the flagged Simulation Theater replay on /nfl/simulation/[eventId]; this staged animation stays retired.
  *
  * A purely COSMETIC, deterministic, client-only staging animation that plays for a fixed
  * `SIMULATION_MIN_DURATION_MS` (10s) while the user waits, before the runner reveals the ALREADY-loaded

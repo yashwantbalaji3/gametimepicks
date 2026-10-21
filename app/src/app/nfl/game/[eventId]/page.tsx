@@ -369,8 +369,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
 
       {/* Founder directive 2026-10-08 — ONE NFL forecast experience. The projected scorecard (expected statistical
           summaries from the board) and the separate World Model V2 page are replaced by three sections read from the
-          shared forecast view (lib/sports/nfl/forecast-view.mjs): simulated outcomes, player projections, and real
-          sampled games. Every number names its source in Model details below. */}
+          shared forecast view (lib/sports/nfl/forecast-view.mjs): player projections (the OFFICIAL player board, via the
+          official forecast snapshot — founder decision 2026-10-20), then the labelled SUPPORTING simulation (World Model V2
+          simulated outcomes and real sampled games). Every number names its source in Model details below. */}
       {/* HISTORY IS NOT RE-PRESENTED: a game without a World Model V2 simulation (every week before 5, and any game
           whose simulation is not built yet) keeps the scorecard and player board it was published with — same
           numbers, same prices, same settlement. The unified sections below apply only where a simulation exists. */}
@@ -539,7 +540,6 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       })()}
         </>
       ) : null}
-      {view?.simulation ? <SimulationPanel sim={view.simulation} away={f.away.abbr} home={f.home.abbr} recordWinHome={s.winProbability.home} /> : null}
       {view?.simulation ? (
         <section id="players" className="nf-section" aria-labelledby="nf-players-h">
           {/* Alias anchor: /live and saved links point at #player-board (the pre-2026-10-08 section id), which must keep
@@ -547,17 +547,21 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <span id="player-board" aria-hidden="true" style={{ display: "block", position: "relative", top: -72 }} />
           <p className="nf-eyebrow">Player projections · expected statistical summaries · not one simulated game</p>
           <h2 id="nf-players-h" className="nf-h2">What each player is projected to do</h2>
-          <p className="nf-sub">Passing, rushing and receiving from the simulated games; anytime touchdown from the touchdown model. Players listed as Questionable or Doubtful are marked; players ruled out are not projected.</p>
+          <p className="nf-sub">Every number here is the official player board&apos;s projection, the one Results grade. Players listed as Questionable or Doubtful are marked; players ruled out are not projected.</p>
           {/* Live: the factual in-game stat joins each row through the single live poller (the retired player board's
               per-prop live lines now live here, once per player and family). */}
-          <FamilyTabs {...gameTabs(view)} label={`players-${f.providerEventId}`} emptyText="No player in this game has a projection for this statistic." live={{ eventId: f.providerEventId, kickoffUtc: f.kickoffUtc }} />
+          <FamilyTabs {...gameTabs(view)} label={`players-${f.providerEventId}`} emptyText="No official projection for this statistic in this game." live={{ eventId: f.providerEventId, kickoffUtc: f.kickoffUtc }} />
           {/* Who is NOT in these numbers — the board's coverage receipt, one component for every surface. */}
           <NotInTheseNumbers coverage={playerBoard?.coverage} arrivals={playerBoard?.newArrivals} teams={[f.away.abbr, f.home.abbr]} style={{ marginTop: 14 }} />
         </section>
       ) : null}
+      {/* Founder decision 2026-10-20: World Model V2 is a SUPPORTING simulation — its counted outcomes and sampled games
+          render below the official numbers, in their own labelled block (forecast-view.mjs SUPPORTING_LABEL), never as a
+          player row, a ranked board or a headline. */}
+      {view?.simulation ? <SimulationPanel sim={view.simulation} away={f.away.abbr} home={f.home.abbr} recordWinHome={s.winProbability.home} /> : null}
       {view?.simulation?.sampledWorlds?.length ? (
-        <section id="sampled-games" className="nf-section" aria-labelledby="nf-explorer-h">
-          <p className="nf-eyebrow">Simulated game explorer</p>
+        <section id="sampled-games" className="nf-section" aria-labelledby="nf-explorer-h" data-role="supporting-simulation">
+          <p className="nf-eyebrow">{view.simulation.label} · simulated game explorer</p>
           <h2 id="nf-explorer-h" className="nf-h2">Five of the simulated games, as they were generated</h2>
           <GameExplorer worlds={view.simulation.sampledWorlds} away={f.away.abbr} home={f.home.abbr} runs={view.simulation.runs} />
         </section>

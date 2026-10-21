@@ -167,7 +167,16 @@ test("O-7 PlayerRow path: the forecast view carries only the withheld flag for a
     ],
   };
   const forecast = { providerEventId: "9", matchup: "BAL @ KC", kickoffUtc: "2026-09-27T17:00:00Z", home: { abbr: "KC" }, away: { abbr: "BAL" } };
-  const rows = playerRows({ forecast, world: null, board });
+  // Since main's official-snapshot change, playerRows projects only the players the OFFICIAL snapshot carries
+  // (merge resolution on the PR 1130 × main combination); the projection comes from it, the market from the board.
+  const official = {
+    snapshotId: "snap-o7", sources: [],
+    players: [
+      { playerId: "nfl-athlete-1", team: "BAL", participation: "AVAILABLE", families: { anytime_td: { state: "PUBLISHED", expected: 0.3874 } } },
+      { playerId: "nfl-athlete-2", team: "KC", participation: "AVAILABLE", families: { anytime_td: { state: "PUBLISHED", expected: 0.41 } } },
+    ],
+  };
+  const rows = playerRows({ forecast, official, board });
   const a = rows.find((r) => r.playerId === "nfl-athlete-1").families.anytimeTd;
   const b = rows.find((r) => r.playerId === "nfl-athlete-2").families.anytimeTd;
   assert.deepEqual(a.market, WITHHELD, "PlayerRow receives no book, line or price");
