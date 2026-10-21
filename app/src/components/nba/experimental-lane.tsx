@@ -12,9 +12,9 @@
 import React from "react";
 import fs from "node:fs";
 import path from "node:path";
-import { LANE, STATS, LANE_SNAPSHOT_SCHEMA, laneIsCurrent } from "@/lib/sports/nba/experimental-public-lane.mjs";
+import { LANE, STATS, LANE_SNAPSHOT_SCHEMA, AMENDMENT_A, laneIsCurrent } from "@/lib/sports/nba/experimental-public-lane.mjs";
 
-type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null> };
+type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
 type Game = {
   providerEventId: string; tipUtc: string; frozenAt: string;
   away: { abbr: string | null; name: string | null }; home: { abbr: string | null; name: string | null };
@@ -22,9 +22,9 @@ type Game = {
   engine: { simulation: string | null; simulations: number | null };
   elo: { favoured: string | null; state: string; source: string };
   teamScores: { state: string; reason: string };
-  players: { source: string; away: Row[]; home: Row[] };
+  players: { source: string; comboSource?: string; away: Row[]; home: Row[] };
 };
-type Snapshot = { schema: string; label: string; validation: string; date: string | null; withheld: Record<string, string>; games: Game[]; excluded: { providerEventId: string; reason: string }[] };
+export type Snapshot = { schema: string; label: string; validation: string; date: string | null; withheld: Record<string, string>; games: Game[]; excluded: { providerEventId: string; reason: string }[] };
 
 /** The lane to show at `etDate`: null when disabled, missing, or its slate is in the past (never shown as current). */
 export function loadCurrentLane(etDate: string): Snapshot | null {
@@ -102,6 +102,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {} }: { snaps
         </p>
       </div>
       <h2 id="nba-experimental-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>Experimental model projections{snapshot.date ? ` · ${slateLabel(snapshot.date)} slate` : ""}</h2>
+      {AMENDMENT_A.enabled ? <p className="m-0 text-[13px]"><a href="/nba/projections/" className="underline" style={{ color: "var(--vault-text)" }}>Filter and sort these players, with PRA, P+R and P+A</a></p> : null}
       {snapshot.games.map((g) => (
         <article key={g.providerEventId} id={laneCardId(g.providerEventId)} className="scroll-mt-24 flex flex-col gap-2 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
           <header className="flex flex-col gap-0.5">

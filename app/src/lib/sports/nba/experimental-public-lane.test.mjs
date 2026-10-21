@@ -9,7 +9,7 @@ import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { buildExperimentalSnapshot, snapshotMatchesSource, LANE, WITHHELD } from "./experimental-public-lane.mjs";
+import { buildExperimentalSnapshot, snapshotMatchesSource, LANE, WITHHELD, AMENDMENT_A } from "./experimental-public-lane.mjs";
 import { capabilityState, canEnterPredictionProducts } from "../../sport-capability-registry.ts";
 
 const REPO = path.resolve(process.cwd(), "..");
@@ -20,7 +20,8 @@ const snap = () => buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC)
 test("the lane is surface-scoped: NBA stays HISTORICAL_ONLY, so no prediction product can read it", () => {
   assert.equal(capabilityState("nba"), "HISTORICAL_ONLY");
   assert.equal(canEnterPredictionProducts("nba"), false);
-  assert.deepEqual([...LANE.surfaces], ["/nba"]);
+  // §13 amendment A adds exactly one surface — the projection-only board — and nothing else.
+  assert.deepEqual([...LANE.surfaces], AMENDMENT_A.enabled ? ["/nba", "/nba/projections"] : ["/nba"]);
   const s = snap();
   assert.equal(s.productEligible, false);
   assert.match(s.validation, /^NOT_VALIDATED/);
