@@ -15,6 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { readPossessionArtifact } from "../simulation-theater/nba/possession/stored-run.mjs";
 import { NBA_SIM_ANCHOR_TOLERANCE, NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE, NBA_THEATER_REPLAY_ENGINE, SIM_ANCHOR_TOLERANCE, nbaReplayProblems, THEATER_GATE_CODES, compareWithBaseline, nbaSimAnchorCheck, runConsistencyAudit, simAnchorCheck, theaterActivationGate } from "./audit.mjs";
 import { nbaOfficialSnapshot } from "./official-snapshot.mjs";
 import { NBA_THEATER_PUBLIC_ENABLED } from "../simulation-theater/nba/feature-manifest.mjs";
@@ -166,7 +167,7 @@ test("real 2026-10-20 slate: the official NBA snapshot is v0.1 + Elo, the lane m
 
 test("NBA gate policy (gate v2): LABELLED_SUPPORTING_RUNS is in force; ANCHORED stays evaluable", () => {
   assert.equal(NBA_THEATER_GATE_POLICY_IN_FORCE, NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS);
-  const art = JSON.parse(fs.readFileSync(path.join(repoRoot, "data/internal/research/nba/theater-possession/2026-10-20.json"), "utf8"));
+  const art = readPossessionArtifact(repoRoot, "2026-10-20").doc; // assembled from the per-game files, events unpacked
   const id = String(art.games[0].providerEventId);
   const snap = audit.snapshots.find((x) => x.sport === "NBA" && x.eventId === id);
   const read = { file: "fixture", sha256: null, doc: art, error: null };
@@ -192,7 +193,7 @@ test("the v1 board is a labelled NBA v1 Challenger — Research Only board: inve
 
 test("NBA replay gate (role C, founder decision 2026-10-21): the possession engine's own stored runs open or close each game", () => {
   assert.equal(NBA_THEATER_REPLAY_ENGINE.id, "nba-possession-sim-v0");
-  const art = JSON.parse(fs.readFileSync(path.join(repoRoot, "data/internal/research/nba/theater-possession/2026-10-20.json"), "utf8"));
+  const art = readPossessionArtifact(repoRoot, "2026-10-20").doc; // assembled from the per-game files, events unpacked
   const read = (doc) => ({ file: "fixture", sha256: null, doc, error: null });
   const snapOf = (id) => audit.snapshots.find((x) => x.sport === "NBA" && x.eventId === id);
   for (const g of art.games) {
