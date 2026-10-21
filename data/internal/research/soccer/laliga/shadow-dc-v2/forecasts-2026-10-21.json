@@ -1,0 +1,232 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "laliga",
+ "season": "2026-27",
+ "date": "2026-10-21",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-10-21T14:41:45.000Z",
+ "runs": [
+  {
+   "at": "2026-10-21T14:41:45.000Z",
+   "added": 3
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Alaves|Malaga",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882836",
+   "providerEventId": "401882836",
+   "kickoffUtc": "2026-10-23T19:00:00.000Z",
+   "matchup": "Alavés v Málaga",
+   "homeClub": "Alavés",
+   "awayClub": "Málaga",
+   "historyNames": {
+    "home": "Alaves",
+    "away": "Malaga"
+   },
+   "espnTeamIds": {
+    "home": "96",
+    "away": "99"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-21T14:41:45.000Z",
+   "probs": {
+    "home": 0.599503,
+    "draw": 0.262805,
+    "away": 0.137692
+   },
+   "over25": 0.331369,
+   "under25": 0.668631,
+   "expectedGoals": {
+    "home": 1.4772,
+    "away": 0.5526
+   },
+   "lambdas": {
+    "home": 1.4772,
+    "away": 0.5526
+   },
+   "rho": -0.001106,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 120,
+    "away": 7
+   },
+   "fit": {
+    "cutoffIso": "2026-10-21T14:41:45.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 19
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.714606,
+     "draw": 0.233707,
+     "away": 0.051688
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Vallecano|Elche",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882830",
+   "providerEventId": "401882830",
+   "kickoffUtc": "2026-10-24T12:00:00.000Z",
+   "matchup": "Rayo Vallecano v Elche",
+   "homeClub": "Rayo Vallecano",
+   "awayClub": "Elche",
+   "historyNames": {
+    "home": "Vallecano",
+    "away": "Elche"
+   },
+   "espnTeamIds": {
+    "home": "101",
+    "away": "3751"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-21T14:41:45.000Z",
+   "probs": {
+    "home": 0.481499,
+    "draw": 0.252753,
+    "away": 0.265748
+   },
+   "over25": 0.494778,
+   "under25": 0.505222,
+   "expectedGoals": {
+    "home": 1.5609,
+    "away": 1.0921
+   },
+   "lambdas": {
+    "home": 1.5609,
+    "away": 1.0921
+   },
+   "rho": -0.001106,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 158,
+    "away": 83
+   },
+   "fit": {
+    "cutoffIso": "2026-10-21T14:41:45.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 19
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.541949,
+     "draw": 0.243362,
+     "away": 0.214688
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Santander|Espanol",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882831",
+   "providerEventId": "401882831",
+   "kickoffUtc": "2026-10-24T14:15:00.000Z",
+   "matchup": "Racing Santander v Espanyol",
+   "homeClub": "Racing Santander",
+   "awayClub": "Espanyol",
+   "historyNames": {
+    "home": "Santander",
+    "away": "Espanol"
+   },
+   "espnTeamIds": {
+    "home": "87",
+    "away": "88"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-10-21T14:41:45.000Z",
+   "probs": {
+    "home": 0.398155,
+    "draw": 0.212447,
+    "away": 0.389398
+   },
+   "over25": 0.734355,
+   "under25": 0.265645,
+   "expectedGoals": {
+    "home": 1.9212,
+    "away": 1.899
+   },
+   "lambdas": {
+    "home": 1.9212,
+    "away": 1.899
+   },
+   "rho": -0.001106,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 7,
+    "away": 120
+   },
+   "fit": {
+    "cutoffIso": "2026-10-21T14:41:45.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 19
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.577194,
+     "draw": 0.183212,
+     "away": 0.239594
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 3
+ }
+}

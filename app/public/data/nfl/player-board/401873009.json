@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-20T23:38:27Z",
- "sourceGeneratedAt": "2026-10-20T23:38:27Z",
+ "generatedAt": "2026-10-21T14:30:15Z",
+ "sourceGeneratedAt": "2026-10-21T14:30:15Z",
  "providerEventId": "401873009",
  "matchup": "DAL @ PHI",
  "kickoffUtc": "2026-10-27T00:15Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-20T23:38:27Z",
-  "roleEvidenceAt": "2026-10-20T23:38:27Z",
+  "injuriesCapturedAt": "2026-10-21T14:30:15Z",
+  "roleEvidenceAt": "2026-10-21T14:30:15Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -94,29 +94,7 @@
    "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
   }
  },
- "newArrivals": {
-  "PHI": [
-   {
-    "playerId": "nfl-athlete-4685279",
-    "name": "Jaydon Blue",
-    "position": "RB",
-    "team": "PHI",
-    "participation": "ACTIVE_UNCERTAIN",
-    "lastSeason": {
-     "club": "DAL",
-     "games": 6,
-     "targetsPg": 0.2,
-     "receptionsPg": 0.2,
-     "recYdsPg": 0.8,
-     "rushAttPg": 7.8,
-     "rushYdsPg": 25.7,
-     "passAttPg": 0,
-     "passYdsPg": 0
-    },
-    "note": "no game for PHI yet this season, so his role there is not yet observed and he is not in this game's numbers; his DAL history is kept only as a historical prior"
-   }
-  ]
- },
+ "newArrivals": {},
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
  "practiceSquadFiltered": 0,
@@ -134,7 +112,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 54,
+  "absent": 55,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -252,7 +230,7 @@
     "PROJECTED": 11,
     "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
-    "WITHHELD_ROLE_UNCERTAIN": 1,
+    "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
@@ -275,6 +253,7 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
+      "player_reception_yds",
       "player_receptions",
       "player_rush_yds"
      ],
@@ -392,12 +371,6 @@
      "name": "Will Shipley",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-4685279",
-     "name": "Jaydon Blue",
-     "state": "WITHHELD_ROLE_UNCERTAIN",
-     "reason": "no game for PHI yet this season — role at PHI not yet observed"
     }
    ]
   }
@@ -500,21 +473,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 53.353,
-     "p10": 18.74,
-     "p25": 31.23,
-     "median": 49.63,
-     "p75": 70.2,
-     "p90": 93.1,
+     "mean": 54.467,
+     "p10": 18.96,
+     "p25": 32.46,
+     "median": 50.28,
+     "p75": 72.35,
+     "p90": 94.72,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 16.819,
+     "mean": 17.204,
      "p10": 0,
-     "p25": 2.67,
-     "median": 12.01,
-     "p75": 25.45,
-     "p90": 41.21,
+     "p25": 2.98,
+     "median": 12.34,
+     "p75": 25.89,
+     "p90": 41.9,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -539,21 +512,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 36.334,
-     "p10": 10.71,
-     "p25": 19.42,
-     "median": 32.28,
-     "p75": 49.06,
-     "p90": 67.73,
+     "mean": 36.737,
+     "p10": 11.01,
+     "p25": 20.71,
+     "median": 33.38,
+     "p75": 49.04,
+     "p90": 66.32,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 15.016,
+     "mean": 15.101,
      "p10": 0,
      "p25": 0,
-     "median": 9.6,
-     "p75": 22.88,
-     "p90": 38.29,
+     "median": 9.84,
+     "p75": 23.6,
+     "p90": 39.14,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -582,12 +555,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 50.025,
-     "p10": 10.28,
-     "p25": 23.09,
-     "median": 44.02,
-     "p75": 69.98,
-     "p90": 97.33,
+     "mean": 51.459,
+     "p10": 11.81,
+     "p25": 25.38,
+     "median": 45.13,
+     "p75": 70.14,
+     "p90": 99.22,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -616,12 +589,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 67.553,
-     "p10": 20.01,
-     "p25": 37.53,
-     "median": 61.86,
-     "p75": 90.65,
-     "p90": 121.51,
+     "mean": 67.582,
+     "p10": 20.81,
+     "p25": 37.38,
+     "median": 61.19,
+     "p75": 90.99,
+     "p90": 124.35,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -646,12 +619,21 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
-     "mean": 31.507,
-     "p10": 4.51,
-     "p25": 12.56,
-     "median": 26.41,
-     "p75": 44.72,
-     "p90": 65.39,
+     "mean": 31.12,
+     "p10": 4.42,
+     "p25": 12.45,
+     "median": 25.78,
+     "p75": 44.02,
+     "p90": 64.86,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_reception_yds": {
+     "mean": 10.314,
+     "p10": 0,
+     "p25": 0,
+     "median": 4.42,
+     "p75": 16.19,
+     "p90": 29.75,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -676,12 +658,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 30.202,
-     "p10": 0.89,
-     "p25": 10.32,
-     "median": 24.64,
-     "p75": 44.5,
-     "p90": 65.59,
+     "mean": 31.068,
+     "p10": 1.56,
+     "p25": 10.9,
+     "median": 25.5,
+     "p75": 45.34,
+     "p90": 67.03,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -710,12 +692,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 55.98,
-     "p10": 12.18,
-     "p25": 27.14,
-     "median": 50,
-     "p75": 77.53,
-     "p90": 107.95,
+     "mean": 55.425,
+     "p10": 12.3,
+     "p25": 27.15,
+     "median": 48.78,
+     "p75": 76.75,
+     "p90": 107.18,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -740,12 +722,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 15.565,
+     "mean": 15.581,
      "p10": 0,
-     "p25": 2.64,
-     "median": 10.69,
-     "p75": 23,
-     "p90": 38.1,
+     "p25": 2.46,
+     "median": 10.35,
+     "p75": 23.11,
+     "p90": 39.37,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -761,12 +743,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 16.636,
-     "p10": 0.08,
-     "p25": 3.55,
-     "median": 11.68,
-     "p75": 24.54,
-     "p90": 39.71,
+     "mean": 16.061,
+     "p10": 0.01,
+     "p25": 2.98,
+     "median": 11.28,
+     "p75": 23.38,
+     "p90": 38.39,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -782,12 +764,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 28.872,
+     "mean": 30.161,
      "p10": 0,
-     "p25": 8,
-     "median": 22.41,
-     "p75": 43.22,
-     "p90": 65.83,
+     "p25": 8.66,
+     "median": 23.47,
+     "p75": 44.04,
+     "p90": 67.78,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -816,12 +798,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 32.47,
-     "p10": 2.27,
-     "p25": 12.03,
-     "median": 26.51,
-     "p75": 47.35,
-     "p90": 70.18,
+     "mean": 33.078,
+     "p10": 2.08,
+     "p25": 11.8,
+     "median": 27.4,
+     "p75": 48,
+     "p90": 70.07,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -846,12 +828,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 20.597,
+     "mean": 20.596,
      "p10": 0,
-     "p25": 4.86,
-     "median": 16.08,
-     "p75": 30.34,
-     "p90": 47.96,
+     "p25": 5.12,
+     "median": 15.58,
+     "p75": 30.32,
+     "p90": 48.75,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -876,12 +858,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 22.02,
+     "mean": 22.125,
      "p10": 0,
-     "p25": 5.14,
-     "median": 16.69,
-     "p75": 33.07,
-     "p90": 50.34,
+     "p25": 5.9,
+     "median": 17.27,
+     "p75": 32.57,
+     "p90": 50.81,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -910,12 +892,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 15.527,
+     "mean": 15.092,
      "p10": 0,
      "p25": 0,
-     "median": 8.35,
-     "p75": 24.51,
-     "p90": 41.82,
+     "median": 8.22,
+     "p75": 23.11,
+     "p90": 41.7,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -944,12 +926,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 10.368,
+     "mean": 10.247,
      "p10": 0,
-     "p25": 0.51,
-     "median": 5.86,
-     "p75": 15.38,
-     "p90": 27.85,
+     "p25": 0.36,
+     "median": 5.53,
+     "p75": 15.34,
+     "p90": 28.32,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -965,12 +947,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 12.661,
+     "mean": 13.071,
      "p10": 0,
      "p25": 0,
-     "median": 6.24,
-     "p75": 19.29,
-     "p90": 35.61,
+     "median": 6.64,
+     "p75": 19.87,
+     "p90": 35.95,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -999,12 +981,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 8.593,
+     "mean": 8.806,
      "p10": 0,
      "p25": 0,
-     "median": 3.66,
-     "p75": 12.37,
-     "p90": 24.78,
+     "median": 3.58,
+     "p75": 12.89,
+     "p90": 25.56,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1020,12 +1002,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 8.715,
+     "mean": 8.35,
      "p10": 0,
      "p25": 0,
-     "median": 3.38,
-     "p75": 12.44,
-     "p90": 25.08,
+     "median": 2.95,
+     "p75": 11.96,
+     "p90": 25.19,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
