@@ -24,7 +24,7 @@ import { fileURLToPath } from "node:url";
 import { FAMILIES } from "./experimental-forecast.mjs";
 import { finalFor } from "./finals-record.mjs";
 import { boxscoreAthlete, isFinalBoxscore } from "./boxscore-line.mjs";
-import { nbaPropSettlementReadiness } from "./prop-settlement-readiness.mjs";
+import { nbaPropSettlementGate, nbaPropSettlementReadiness } from "./prop-settlement-readiness.mjs";
 import { PROP_GRADES_DIR, PROP_GRADE_LEDGER_FILE, PROP_SHADOW_FAMILY } from "./prop-shadow-grading.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -131,4 +131,14 @@ export function committedNbaPropReadiness({ repoRoot = DEFAULT_REPO_ROOT } = {})
     entries = fs.readFileSync(f, "utf8").split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
   } catch { entries = []; }
   return nbaPropSettlementReadiness(entries);
+}
+
+/**
+ * Read-only: the prop-settlement gate from the committed shadow ledger AND the committed NBA promotion record. A missing
+ * or unreadable promotion record is no record, so the gate is closed.
+ */
+export function committedNbaPropSettlementGate({ repoRoot = DEFAULT_REPO_ROOT } = {}) {
+  let promotionRecord = null;
+  try { promotionRecord = readJson(path.join(repoRoot, "data", "internal", "research", "nba", "promotion-record.json")); } catch { promotionRecord = null; }
+  return nbaPropSettlementGate({ readiness: committedNbaPropReadiness({ repoRoot }), promotionRecord });
 }

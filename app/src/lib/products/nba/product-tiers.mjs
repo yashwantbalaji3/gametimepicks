@@ -22,6 +22,7 @@ import { CURRENT_POLICY, SELECTION_POLICIES } from "../selection-policy.mjs";
 import { PARLAY_ODDS_BANDS, PUBLIC_RISK_BAND_TEXT } from "../../parlays/risk-odds-bands.mjs";
 import { BAND_MAX_LEGS } from "../../parlays/multi-sport.mjs";
 import { MARKETS as NBA_SETTLED_MARKETS } from "../../sports/nba/settlement-contract.mjs";
+import { openPropFamilies } from "../../parlays/nba-lab-grading.mjs";
 
 /** Words a tier description may never use about a leg or a card. */
 export const RISK_OVERCLAIM = /\b(safe|safest|safer|guarantee[sd]?|sure thing|risk[- ]free|can(?:'|no)t lose|certain(?:ty)?|lock of)\b/i;
@@ -88,12 +89,13 @@ export const NBA_PRODUCT_TIERS = Object.freeze({
 /** The NBA TEAM settlement contract's markets. A player family needs forward-graded evidence (nbaSettlesFamilyWith). */
 export const nbaSettlesFamily = (family) => NBA_SETTLED_MARKETS.includes(family);
 /**
- * Team markets, plus player-prop families the forward shadow ledger shows GRADED
- * (sports/nba/prop-settlement-readiness.mjs readyFamilies). With no families passed, identical to nbaSettlesFamily.
+ * Team markets, plus player-prop families the prop-settlement GATE opens (sports/nba/prop-settlement-readiness.mjs
+ * nbaPropSettlementGate: forward-graded evidence AND a founder-approved promotion). With no gate, identical to
+ * nbaSettlesFamily.
  */
-export const nbaSettlesFamilyWith = (readyFamilies = []) => {
-  const ready = new Set(readyFamilies ?? []);
-  return (family) => nbaSettlesFamily(family) || ready.has(family);
+export const nbaSettlesFamilyWith = (gate = null) => {
+  const open = new Set(openPropFamilies(gate));
+  return (family) => nbaSettlesFamily(family) || open.has(family);
 };
 
 /**

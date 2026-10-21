@@ -17,6 +17,8 @@ import { nbaHub } from "@/lib/sport-hub/nba-hub";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import NbaExperimentalLane, { NbaLaneTonight, loadCurrentLane } from "@/components/nba/experimental-lane";
 import { currentEtDate } from "@/lib/freshness";
+import path from "node:path";
+import { publicTheaterRouteIds } from "@/lib/simulation-theater/nba/possession/public-route.mjs";
 
 export const metadata = withRouteMetadata("/nba/", {
   title: "NBA — Schedule, final scores & experimental projections · GameTime Picks",
@@ -24,10 +26,19 @@ export const metadata = withRouteMetadata("/nba/", {
     "The 2026-27 NBA schedule and official finals, plus frozen pregame experimental model projections that are not validated and are not betting recommendations. The retired May–June 2026 player-prop archive is linked separately.",
 });
 
-export default function NbaHubPage() {
+const REPO_ROOT = path.resolve(process.cwd(), "..");
+
+export default async function NbaHubPage() {
   /* §12 look 5 · §13 (founder decision 2026-10-20): the experimental lane — null when disabled or empty, and hidden once
      its slate is in the past (a stale snapshot never reads as current; the page falls back to the factual wording). */
   const lane = loadCurrentLane(currentEtDate());
+  // Theater entry points (release owner 2026-10-21): exactly the games /nba/simulation/<id>/ builds (the route's own
+  // gate and ids). The flag test is an INLINE literal, as on the route, so a flag-OFF build never imports the loader.
+  let theaterIds: string[] = [];
+  if (process.env.GTP_NBA_THEATER_PUBLIC === "1") {
+    const { publicPossessionEvents } = await import("@/lib/simulation-theater/nba/possession/public-loader.mjs");
+    theaterIds = publicTheaterRouteIds(() => publicPossessionEvents(REPO_ROOT));
+  }
   const model = nbaHub(new Date().toISOString(), lane ? new Set(lane.games.map((g) => g.providerEventId)) : null);
   const finals = model.rows.filter((r) => r.status === "final").length;
   /* A recorded FINAL (from the same finals record the list below uses) is the only status a card states: the page is a
@@ -58,7 +69,7 @@ export default function NbaHubPage() {
       <NbaLaneTonight snapshot={lane} />
       <SportHubNav sport="nba" />
       {/* Founder direction 2026-10-20: tonight's frozen experimental output leads the page, above the schedule. */}
-      <NbaExperimentalLane snapshot={lane} statuses={statuses} />
+      <NbaExperimentalLane snapshot={lane} statuses={statuses} theaterIds={theaterIds} />
       <section id="nba-games" className="scroll-mt-24" aria-label="NBA games">
         {/* Session 11: schedule-only — one line per game keeps every game inside the page budget. */}
         <HubHeader model={model} compact />
