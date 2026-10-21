@@ -229,7 +229,11 @@ function walk(dir, out = []) {
 test("BOUNDARY — nothing outside the research folders imports the prototype (no route, producer, board, workflow, snapshot)", () => {
   const root = path.resolve(APP, "..");
   const files = [...walk(path.join(APP, "src")), ...walk(path.join(APP, "scripts")), ...(fs.existsSync(path.join(root, ".github")) ? walk(path.join(root, ".github")) : [])];
-  const allowed = (f) => f.includes(`${path.sep}research${path.sep}possession-sim${path.sep}`) || f.endsWith(`${path.sep}fit-possession-sim-v0.mjs`) || f.endsWith(`${path.sep}evaluate-possession-sim-v0.mjs`) || f.endsWith(`${path.sep}research${path.sep}paired-metrics.mjs`);
+  // THEATER EXCEPTION (Lane C 2026-10-21, founder decision NBA-CC: the Theater may play a different engine than the
+  // official forecast): the Theater's possession playback library + its offline generator may read the engine. Routes
+  // import only that library, never the engine (possession-theater.test.mjs › BOUNDARY keeps products/boards/snapshot out).
+  const theater = (f) => f.includes(`${path.sep}simulation-theater${path.sep}nba${path.sep}possession${path.sep}`) || f.endsWith(`${path.sep}build-theater-possession-runs.mjs`);
+  const allowed = (f) => theater(f) || f.includes(`${path.sep}research${path.sep}possession-sim${path.sep}`) || f.endsWith(`${path.sep}fit-possession-sim-v0.mjs`) || f.endsWith(`${path.sep}evaluate-possession-sim-v0.mjs`) || f.endsWith(`${path.sep}research${path.sep}paired-metrics.mjs`);
   const offenders = files.filter((f) => !allowed(f) && /possession-sim/.test(fs.readFileSync(f, "utf8")));
   assert.deepEqual(offenders.map((f) => path.relative(root, f)), []);
 });
