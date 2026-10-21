@@ -10,7 +10,9 @@
  * /dev/simulation-theater/nba/[eventId] (GTP_DEV_ROUTES=1), which the production prune deletes.
  *
  * Even with the constant `true`, nbaTheaterPublicEnabled() also needs the build to set GTP_NBA_THEATER_PUBLIC=1 exactly,
- * so enabling is two deliberate acts. No public page imports this module today (feature-manifest.test.mjs checks).
+ * so enabling is two deliberate acts. One public CANDIDATE route reads it (Lane C 2026-10-21): /nba/simulation/[eventId]
+ * through possession/public-route.mjs, inert while this constant is false (an OFF build emits a 404 placeholder that
+ * the prune deletes). feature-manifest.test.mjs and possession/public-theater-route.test.mjs pin that shape.
  */
 export const NBA_THEATER_PUBLIC_ENABLED = false;
 

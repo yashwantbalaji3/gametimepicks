@@ -15,7 +15,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { NBA_SIM_ANCHOR_TOLERANCE, NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE, SIM_ANCHOR_TOLERANCE, THEATER_GATE_CODES, compareWithBaseline, nbaSimAnchorCheck, runConsistencyAudit, simAnchorCheck, theaterActivationGate } from "./audit.mjs";
+import { readPossessionArtifact } from "../simulation-theater/nba/possession/stored-run.mjs";
+import { NBA_SIM_ANCHOR_TOLERANCE, NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE, NBA_THEATER_REPLAY_ENGINE, SIM_ANCHOR_TOLERANCE, nbaReplayProblems, THEATER_GATE_CODES, compareWithBaseline, nbaSimAnchorCheck, runConsistencyAudit, simAnchorCheck, theaterActivationGate } from "./audit.mjs";
 import { nbaOfficialSnapshot } from "./official-snapshot.mjs";
 import { NBA_THEATER_PUBLIC_ENABLED } from "../simulation-theater/nba/feature-manifest.mjs";
 import { NBA_ID, nbaArtifact, nbaSources } from "./__fixtures__/synthetic.mjs";
@@ -155,19 +156,28 @@ test("real 2026-10-20 slate: the official NBA snapshot is v0.1 + Elo, the lane m
   // gate v2: under ANCHORED the gate stays closed (v1 is not anchored); under LABELLED_SUPPORTING_RUNS (in force) the
   // CONSISTENCY gate opens — which activates nothing: the public flag is separate and false (feature-manifest.mjs)
   for (const s of nba) assert.equal(theaterActivationGate("nba", s.eventId, { audit, nbaPolicy: NBA_THEATER_GATE_POLICY.ANCHORED }).open, false);
-  for (const s of nba) assert.equal(theaterActivationGate("nba", s.eventId, { audit }).open, true, s.eventId);
+  // founder decision 2026-10-21: under LABELLED_SUPPORTING_RUNS the replay is role C, gated by its own stored runs
+  for (const s of nba) {
+    const g = theaterActivationGate("nba", s.eventId, { audit, repoRoot });
+    assert.equal(g.open, true, `${s.eventId}: ${JSON.stringify(g.blockers)}`);
+  }
+  for (const s of nba) assert.deepEqual(theaterActivationGate("nba", s.eventId, { audit }).blockers.map((b) => b.code), ["NO_REPLAY_RUNS"], "no repo to read the runs from: closed");
   assert.equal(NBA_THEATER_PUBLIC_ENABLED, false, "the public NBA Theater flag is not part of gate v2");
 });
 
 test("NBA gate policy (gate v2): LABELLED_SUPPORTING_RUNS is in force; ANCHORED stays evaluable", () => {
   assert.equal(NBA_THEATER_GATE_POLICY_IN_FORCE, NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS);
-  const base = { discrepancies: [], refusals: [], snapshots: [{ sport: "NBA", eventId: "7" }] };
-  const unanchored = { ...base, simAnchors: [{ sport: "NBA", eventId: "7", anchored: false, toleranceApproved: false, failed: [{ term: "pHome" }], tolerance: NBA_SIM_ANCHOR_TOLERANCE }] };
-  assert.equal(theaterActivationGate("nba", "7", { audit: unanchored }).open, true, "no anchor is required under the policy in force");
-  const withDefault = { ...unanchored, discrepancies: [{ code: "PROJECTION_MISMATCH", sport: "NBA", eventId: "7", surface: "simulation-theater.default", fingerprint: "d" }, { code: "BOX_SCORE_INCONSISTENT", sport: "NBA", eventId: "7", surface: "simulation-theater.runs", fingerprint: "b" }] };
-  assert.deepEqual(theaterActivationGate("nba", "7", { audit: withDefault }).blockers.map((b) => b.fingerprint), ["b"], "box-score consistency still gates; the default-run selection does not");
-  assert.ok(theaterActivationGate("nba", "7", { audit: withDefault, nbaPolicy: NBA_THEATER_GATE_POLICY.ANCHORED }).blockers.some((b) => b.fingerprint === "d"));
-  assert.equal(theaterActivationGate("nba", "7", { audit: { ...base, simAnchors: [] } }).blockers[0].code, "NO_SUPPORTING_SIMULATION");
+  const art = readPossessionArtifact(repoRoot, "2026-10-20").doc; // assembled from the per-game files, events unpacked
+  const id = String(art.games[0].providerEventId);
+  const snap = audit.snapshots.find((x) => x.sport === "NBA" && x.eventId === id);
+  const read = { file: "fixture", sha256: null, doc: art, error: null };
+  const base = { discrepancies: [], refusals: [], snapshots: [snap] };
+  const unanchored = { ...base, simAnchors: [{ sport: "NBA", eventId: id, anchored: false, toleranceApproved: false, failed: [{ term: "pHome" }], tolerance: NBA_SIM_ANCHOR_TOLERANCE }] };
+  assert.equal(theaterActivationGate("nba", id, { audit: unanchored, nbaReplayRead: read }).open, true, "no v1 anchor is required under the policy in force");
+  const withDefault = { ...unanchored, discrepancies: [{ code: "PROJECTION_MISMATCH", sport: "NBA", eventId: id, surface: "simulation-theater.default", fingerprint: "d" }, { code: "BOX_SCORE_INCONSISTENT", sport: "NBA", eventId: id, surface: "simulation-theater.runs", fingerprint: "b" }] };
+  assert.deepEqual(theaterActivationGate("nba", id, { audit: withDefault, nbaReplayRead: read }).blockers.map((b) => b.fingerprint), ["b"], "box-score consistency still gates; the default-run selection does not");
+  assert.ok(theaterActivationGate("nba", id, { audit: withDefault, nbaPolicy: NBA_THEATER_GATE_POLICY.ANCHORED }).blockers.some((b) => b.fingerprint === "d"));
+  assert.equal(theaterActivationGate("nba", id, { audit: { ...base, simAnchors: [] }, nbaPolicy: NBA_THEATER_GATE_POLICY.ANCHORED }).blockers[0].code, "NO_SUPPORTING_SIMULATION", "ANCHORED still needs a v1 game");
 });
 
 
@@ -180,3 +190,39 @@ test("the v1 board is a labelled NBA v1 Challenger — Research Only board: inve
     assert.ok(!theaterActivationGate("nba", id, { audit }).blockers.some((b) => b.code === "MODEL_VERSION_MIX"), id);
   }
 });
+
+test("NBA replay gate (role C, founder decision 2026-10-21): the possession engine's own stored runs open or close each game", () => {
+  assert.equal(NBA_THEATER_REPLAY_ENGINE.id, "nba-possession-sim-v0");
+  const art = readPossessionArtifact(repoRoot, "2026-10-20").doc; // assembled from the per-game files, events unpacked
+  const read = (doc) => ({ file: "fixture", sha256: null, doc, error: null });
+  const snapOf = (id) => audit.snapshots.find((x) => x.sport === "NBA" && x.eventId === id);
+  for (const g of art.games) {
+    const id = String(g.providerEventId);
+    assert.deepEqual(nbaReplayProblems(id, snapOf(id), { read: read(art) }), [], `${id}: the committed runs pass`);
+  }
+  const id = String(art.games[0].providerEventId), snap = snapOf(id);
+  const clone = () => JSON.parse(JSON.stringify(art));
+  const codes = (doc, s = snap) => nbaReplayProblems(id, s, { read: read(doc) }).map((b) => b.code);
+  assert.deepEqual(codes({ ...clone(), modelVersion: "nba-sim-v1-coherent" }), ["REPLAY_ENGINE_NOT_APPROVED"], "only the approved engine replays");
+  assert.deepEqual(codes(null), ["NO_REPLAY_RUNS"]);
+  assert.deepEqual(codes({ ...clone(), games: [] }), ["NO_REPLAY_RUNS"], "a game without stored runs stays closed");
+  const tampered = clone(); tampered.games[0].runs[0].final = [0, 0];
+  assert.deepEqual(codes(tampered), ["NO_REPLAY_RUNS"], "a run whose box is not the fold of its log is refused (P1–P11 / digest)");
+  const unchecked = clone(); unchecked.games[0].pool.violations = 1;
+  assert.deepEqual(codes(unchecked), ["REPLAY_POOL_UNCHECKED"]);
+  assert.deepEqual(codes(clone(), { ...snap, snapshotId: "0".repeat(64) }), ["REPLAY_OFFICIAL_CHANGED"], "a new official forecast closes the gate until the runs are regenerated");
+  // identical cutoffs (release owner 2026-10-21, NBA-CC requirement 1): one second after the official freeze already fails
+  const afterFreeze = clone(); afterFreeze.games[0].inputAsOf = new Date(Date.parse(snap.frozenAt) + 1000).toISOString();
+  assert.ok(Date.parse(afterFreeze.games[0].inputAsOf) < Date.parse(snap.lockAt), "the probe is before tip: before-tip is not enough");
+  assert.deepEqual(codes(afterFreeze), ["REPLAY_INPUTS_AFTER_FREEZE"], "a run whose inputs are after the official freeze fails the gate");
+  const atFreeze = clone(); atFreeze.games[0].inputAsOf = snap.frozenAt;
+  assert.deepEqual(codes(atFreeze), [], "inputs exactly at the freeze pass");
+  const flipped = clone(); const def = flipped.games[0].runs.find((r) => r.kind === "default"); def.final = [def.final[1], def.final[0]];
+  assert.ok(codes(flipped).length > 0, "a default run off the official side never opens the gate");
+  // the gate wires it: a clean audit opens only with valid runs; v1 (role B) is not required under the policy in force
+  const base = { discrepancies: [], refusals: [], simAnchors: [], snapshots: [snap] };
+  assert.equal(theaterActivationGate("nba", id, { audit: base, nbaReplayRead: read(art) }).open, true, "no v1 anchor needed for the role C replay");
+  assert.deepEqual(theaterActivationGate("nba", id, { audit: base, nbaReplayRead: read(null) }).blockers.map((b) => b.code), ["NO_REPLAY_RUNS"]);
+  assert.equal(theaterActivationGate("nba", id, { audit: { ...base, discrepancies: [{ sport: "NBA", eventId: id, code: THEATER_GATE_CODES[0], fingerprint: "leak" }] }, nbaReplayRead: read(art) }).open, false, "consistency blockers still close it");
+});
+

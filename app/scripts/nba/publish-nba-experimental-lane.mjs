@@ -5,8 +5,14 @@
  * NOOP when nothing changed. Writes ONLY app/public/data/nba/experimental-public/<date>.json and latest.json (a Vercel
  * build input: at most one publish per slate).
  *
- *   node scripts/nba/publish-nba-experimental-lane.mjs --date 2026-10-21 [--now <ISO>] [--write]
+ *   node scripts/nba/publish-nba-experimental-lane.mjs --date 2026-10-21 [--now <ISO>] [--write] [--theater]
  * Exit 0 for HOLD / NOOP / PUBLISH, 1 for REFUSE. Prints `action=<ACTION>` as its last line (for the workflow).
+ *
+ * --theater (PR 1167, release owner 2026-10-21): on a PUBLISH with --write, ALSO build the slate's NBA Theater possession
+ * runs (scripts/nba/research/build-theater-possession-runs.mjs --date <D> --write --no-rewrite) so ONE commit carries the
+ * day file, latest.json and data/internal/research/nba/theater-possession/<D>/. The Theater can never block the lane:
+ * a failed or refused build prints `theater=FAILED …` and the lane still publishes (that day simply has no Theater).
+ * Prints `theater=OK|FAILED|SKIPPED` before the action line. Never run on NOOP / HOLD: a published slate is frozen.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -53,6 +59,18 @@ if (d.action === PUBLISH.PUBLISH && argv.includes("--write")) {
   fs.mkdirSync(OUT, { recursive: true });
   if (d.writeDay) { fs.writeFileSync(path.join(OUT, `${DATE}.json`), text); console.log(`  wrote public/data/nba/experimental-public/${DATE}.json`); }
   if (d.writeLatest) { fs.writeFileSync(path.join(OUT, "latest.json"), d.writeDay ? text : `${JSON.stringify(committedDay, null, 1)}\n`); console.log("  wrote public/data/nba/experimental-public/latest.json"); }
+}
+if (argv.includes("--theater")) {
+  if (d.action === PUBLISH.PUBLISH && argv.includes("--write")) {
+    try {
+      const outText = execFileSync("npx", ["tsx", path.join("scripts", "nba", "research", "build-theater-possession-runs.mjs"), "--date", DATE, "--write", "--no-rewrite"], { cwd: APP, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 10 * 60 * 1000 });
+      for (const line of outText.trim().split("\n").filter((l) => /^(timing|storage|wrote|data\/)/.test(l))) console.log(`  theater: ${line}`);
+      console.log("theater=OK");
+    } catch (e) {
+      const why = String(e?.stderr ?? e?.message ?? e).trim().split("\n").filter(Boolean).at(-1) ?? "unknown";
+      console.log(`theater=FAILED ${why} (the lane still publishes; no Theater for ${DATE})`);
+    }
+  } else console.log(`theater=SKIPPED (${d.action}${argv.includes("--write") ? "" : ", dry run"})`);
 }
 console.log(`action=${d.action}`);
 process.exit(d.action === PUBLISH.REFUSE ? 1 : 0);

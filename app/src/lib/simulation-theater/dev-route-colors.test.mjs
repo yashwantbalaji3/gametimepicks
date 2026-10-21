@@ -109,13 +109,14 @@ test("colour map: 32 teams keyed nfl:<ABBR>, matching the receipts; ON in the de
       const p = path.join(d, e.name);
       if (e.isDirectory()) { walk(p); continue; }
       if (!/\.(tsx?|mjs)$/.test(e.name) || /\.test\./.test(e.name)) continue;
-      const body = fs.readFileSync(p, "utf8");
+      // `import type` is erased at compile time and mounts nothing — only runtime imports count
+      const body = fs.readFileSync(p, "utf8").replace(/^import type [^;]+;$/gm, "");
       if (/from\s+["'][^"']*simulation-theater\/(TheaterSection|nfl-team-colors)/.test(body) || /from\s+["']@\/components\/simulation-theater\//.test(body)) importers.push(path.relative(APP, p));
     }
   };
   walk(path.join(APP, "src"));
   assert.deepEqual(importers.filter((f) => !f.startsWith("src/components/simulation-theater/") && !f.startsWith("src/lib/simulation-theater/")).sort(),
-    ["src/app/dev/simulation-theater/[eventId]/page.tsx", "src/app/dev/simulation-theater/nba/[eventId]/page.tsx"], "only the dev routes (NFL, and the NBA prototype) mount a theater");
+    ["src/app/dev/simulation-theater/[eventId]/page.tsx", "src/app/dev/simulation-theater/nba/[eventId]/page.tsx", "src/app/dev/simulation-theater/nba/[eventId]/possession/page.tsx"], "only the dev routes (NFL, the NBA prototype and its possession playback) mount a theater");
 });
 
 test("founder roles: NO and PIT black with gold, JAX teal with black and gold, TEN Titans blue / navy / red, TB official reds", () => {

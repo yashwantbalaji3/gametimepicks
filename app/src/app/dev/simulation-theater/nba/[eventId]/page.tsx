@@ -48,6 +48,8 @@ export default function NbaSimulationTheaterDevPage({ params }: { params: { even
   return (
     <div className="vault-page-shell" style={{ padding: "16px 16px 48px" }}>
       {/* the fixture banner text is passed explicitly: the section refuses to render a fixture without it */}
+      {/* the possession-level playback (research engine) is the sibling route; this page keeps the v1 quarter-checkpoint mode */}
+      <p style={{ margin: "0 0 8px" }}><a href={`/dev/simulation-theater/nba/${params.eventId}/possession/`}>Possession-level playback (research simulation) →</a></p>
       <NbaTheaterSection load={load} fixtureBanner={load.manifest?.fixture ? FIXTURE_BANNER : null} devHooks />
     </div>
   );
