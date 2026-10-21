@@ -10,8 +10,9 @@
  *
  * REFUSAL: a fixture manifest renders only with its exact FIXTURE_BANNER text (the section checks too).
  *
- * PROJECTED BOX SCORE (Lane A-NBA 2026-10-20): the "Box score" control (any time) and the FINAL card's button open the
- * selected run's box score (box-score.mjs) in a dialog / sheet; it shares the sheet slot, so Escape closes it and never
+ * PROJECTED BOX SCORE (Lane A-NBA 2026-10-20; three layers since V2): the "Box score" control (any time) and the FINAL
+ * card's button open the selected run's projected-box.mjs box score (official projection · simulated game · estimated
+ * role) in a dialog / sheet; it shares the sheet slot, so Escape closes it and never
  * the card underneath. `data-nba-ready` marks hydration for the opt-in e2e spec.
  *
  * DEV HOOK (dev route only, `devHooks`): `?run=<runIndex>` or `?label=<typical|close|high|low|upset>`, and `?t=<seconds>`
@@ -32,7 +33,7 @@ import type { NbaCompiled, NbaFrame, NbaLoad, NbaManifest, NbaPalette } from "./
 import { SPEEDS, createTransport, transport } from "@/lib/simulation-theater/transport-machine.mjs";
 import { compileTimeline, fmtGameClock, stateAt } from "@/lib/simulation-theater/nba/timeline.mjs";
 import { defaultSampleIndex } from "@/lib/simulation-theater/nba/labels.mjs";
-import { nbaBoxScore } from "@/lib/simulation-theater/nba/box-score.mjs";
+import { nbaProjectedBox } from "@/lib/simulation-theater/nba/projected-box.mjs";
 import { runRole } from "@/lib/simulation-theater/representative-labels.mjs";
 import { OfficialForecastCard, RoleTag, RunRoleNotice } from "../RepresentativeParts";
 
@@ -93,9 +94,10 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
   const [sheet, setSheet] = useState<null | "outcomes" | "box">(null);
   const [ready, setReady] = useState(false);
   useEffect(() => { setReady(true); }, []);
-  const box = useMemo(() => (sample?.validation.ok ? (nbaBoxScore(sample, manifest) as NbaBoxResult) : null), [sample, manifest]);
   // official representative vs what-if (manifest.representative): a what-if is labelled hypothetical everywhere
   const hypothetical = sample ? runRole(manifest, sample.runIndex, sample.title).hypothetical : true;
+  // V2 three-layer box score: official projection (manifest only) · simulated game (this run) · estimated role
+  const box = useMemo(() => (sample?.validation.ok ? (nbaProjectedBox(sample, manifest, { hypothetical }) as NbaBoxResult) : null), [sample, manifest, hypothetical]);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [playersOpen, setPlayersOpen] = useState(false);
   const [dismissed, setDismissed] = useState<string | null>(null);
@@ -330,7 +332,7 @@ export default function NbaTheaterIsland({ manifest, palettes, fixtureBanner, de
         <p className="nba-fine" style={{ margin: "0 0 8px" }}>Each is one real draw from this run, picked by the rule shown.</p>
         <OutcomeChips manifest={manifest} selected={sampleIndex} onSelect={selectSample} idBase={`${uid}-s`} vertical />
       </BottomSheet>
-      <NbaBoxScoreDialog open={sheet === "box"} onClose={() => setSheet(null)} result={box} palette={palette} compact={compact} runKey={`${sampleIndex}-${sample?.runIndex}`} manifest={manifest} hypothetical={hypothetical} />
+      <NbaBoxScoreDialog open={sheet === "box"} onClose={() => setSheet(null)} result={box} palette={palette} compact={compact} runKey={`${sampleIndex}-${sample?.runIndex}`} manifest={manifest} />
       <div className="st-sr" aria-live="polite" aria-atomic="true">{announce}</div>
     </div>
   );

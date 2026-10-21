@@ -269,7 +269,7 @@ export default function MethodologyPage() {
             name="NBA"
             stage="history only · nothing new is produced"
             inputs="Player game logs and prop prices captured while the model was running."
-            model="The projection model that produced this history is no longer run. No NBA forecast is published. The 2026-27 schedule and official final scores are on the NBA hub (/nba)."
+            model="The projection model that produced this history is no longer run. No validated NBA forecast is published; the NBA hub (/nba) has the 2026-27 schedule, official final scores and frozen pregame experimental player projections (not validated, not betting recommendations)."
             markets="None currently. The archived player-prop record remains readable."
             cards="None."
             settlement="The historical record was settled from official box scores at the time."

@@ -17,6 +17,9 @@ export function player(id, { pts = 20, reb = 6, ast = 4, threePm = 2, ...over } 
     rates: { pts: 0.6, reb: 0.2, ast: 0.13, threePm: 0.06 },
     minutes: { mean: 30, sd: 4, p10: 25, p50: 30, p90: 35 },
     pts: dist(pts), reb: dist(reb), ast: dist(ast), threePm: dist(threePm, 0.8),
+    // Joint combinations — SYNTHETIC: a fixture summary centred on the component sum (a real artifact stores the
+    // quantiles of the per-draw sum; nothing here is used to check that arithmetic).
+    pra: dist(pts + reb + ast, 0.3), ptsReb: dist(pts + reb, 0.3), ptsAst: dist(pts + ast, 0.3),
     ...over,
   };
 }

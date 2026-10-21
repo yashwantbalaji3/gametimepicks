@@ -715,18 +715,18 @@ export const THEATER_GATE_CODES = Object.freeze([CODES.SCENARIO_LEAK, CODES.BOX_
 /**
  * NBA THEATER GATE POLICY (founder decision 2026-10-20, relayed by the release owner: "the Theater may run a different
  * engine from the official forecast; one canonical public prediction everywhere"). Two policies; the founder decides.
- *   ANCHORED (IN FORCE)          the replayed v1 simulation must agree with the official forecast (nbaSimAnchorCheck)
+ *   ANCHORED                     the replayed v1 simulation must agree with the official forecast (nbaSimAnchorCheck)
  *                                under an approved tolerance, and its closest run is shown as the Official
  *                                Representative Simulation.
- *   LABELLED_SUPPORTING_RUNS     PREPARED, NOT IN FORCE. No anchor is required. The official panel shows the canonical
+ *   LABELLED_SUPPORTING_RUNS     IN FORCE on the gate-v2 branch (founder: approved in principle 2026-10-20). No anchor is required. The official panel shows the canonical
  *                                snapshot only; every replayed run is labelled an individual nba-sim-v1-coherent run
  *                                (never "official representative"); nothing a run shows overwrites an official value.
  *                                Still required: a verified pre-tip supporting game, consistent box scores, no
  *                                scenario leak, no model-version mix — and the founder's adoption of the policy.
  * Changing the policy in force is a founder decision recorded in the same reviewed PR that edits this constant.
  */
-export const NBA_THEATER_GATE_POLICY = Object.freeze({ ANCHORED: "ANCHORED", LABELLED_SUPPORTING_RUNS: "LABELLED_SUPPORTING_RUNS" });
-export const NBA_THEATER_GATE_POLICY_IN_FORCE = NBA_THEATER_GATE_POLICY.ANCHORED;
+export { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE } from "./theater-gate-policy.mjs";
+import { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE } from "./theater-gate-policy.mjs";
 
 export function theaterActivationGate(sport, eventId, { audit = null, repoRoot = null, nbaPolicy = NBA_THEATER_GATE_POLICY_IN_FORCE } = {}) {
   const a = audit ?? runConsistencyAudit({ repoRoot, nflEvents: String(sport).toUpperCase() === "NFL" ? [String(eventId)] : [], nbaDates: String(sport).toUpperCase() === "NBA" ? DEFAULT_NBA_DATES : [] });

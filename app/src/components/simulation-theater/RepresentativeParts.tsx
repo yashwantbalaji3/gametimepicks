@@ -15,8 +15,7 @@
 import type { TheaterRepresentative } from "./types";
 import {
   COMPARISON_TITLE, NO_OFFICIAL_NBA, NO_OFFICIAL_NFL, NO_OFFICIAL_RUNS_NOTE, OFFICIAL_FORECAST_TITLE, OFFICIAL_RUN_SUBTITLE, OFFICIAL_RUN_TITLE,
-  RECONCILIATION_NOTE, WHAT_IF_BANNER, WHAT_IF_TAG, fmtDistance, fmtExpectation, fmtPct, fmtSignedDiff, runRole, teamComparison,
-} from "@/lib/simulation-theater/representative-labels.mjs";
+  RECONCILIATION_NOTE, WHAT_IF_BANNER, WHAT_IF_TAG, fmtDistance, fmtExpectation, fmtPct, fmtSignedDiff, runRole, teamComparison, ROLE, SUPPORTING_RUN_TITLE, SUPPORTING_RUN_SUBTITLE } from "@/lib/simulation-theater/representative-labels.mjs";
 
 type Team = { abbr: string; name?: string | null };
 type Teams = { home: Team; away: Team };
@@ -57,6 +56,7 @@ export function OfficialForecastCard({ manifest, teams }: { manifest: WithRep; t
 /** The short tag on a run chip / outcome button. */
 export function RoleTag({ manifest, runIndex }: { manifest: WithRep; runIndex: number }) {
   const r = runRole(manifest, runIndex);
+  if (r.role === ROLE.SUPPORTING_RUN) return <span className="st-roletag is-supporting" data-st-role="supporting">Simulated run</span>;
   return <span className={`st-roletag${r.hypothetical ? " is-whatif" : " is-official"}`} data-st-role={r.hypothetical ? "what-if" : "official"}>{r.hypothetical ? WHAT_IF_TAG : "Official representative"}</span>;
 }
 
@@ -64,6 +64,14 @@ export function RoleTag({ manifest, runIndex }: { manifest: WithRep; runIndex: n
 export function RunRoleNotice({ manifest, runIndex, kindTitle }: { manifest: WithRep; runIndex: number; kindTitle: string | null }) {
   const rep = manifest.representative ?? null;
   const r = runRole(manifest, runIndex, kindTitle);
+  if (r.role === ROLE.SUPPORTING_RUN && rep) {
+    return (
+      <div className="st-rolenote is-supporting" role="note" data-st-role-note="supporting" data-st-distance={rep.distance ?? ""}>
+        <p><b>{SUPPORTING_RUN_TITLE}</b> · {SUPPORTING_RUN_SUBTITLE}</p>
+        <p className="st-rolenote-fine">One real stored run of the supporting simulation engine (distance {fmtDistance(rep.distance)} from the official projection). It is not the official forecast and changes no official number; the official projection panel shows the canonical forecast.</p>
+      </div>
+    );
+  }
   if (!r.hypothetical && rep) {
     return (
       <div className="st-rolenote is-official" role="note" data-st-role-note="official" data-st-distance={rep.distance ?? ""}>

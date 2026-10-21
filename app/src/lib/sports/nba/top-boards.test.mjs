@@ -11,9 +11,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  BOARD_MAX_ROWS, CATEGORIES, ELIGIBILITY, ELIGIBILITY_RULES, FLAGS, GAME_REASON, NO_CONFIDENCE, NO_MARKET, RANKING,
-  buildBoardEdition, eligibilityReasons, freezeBoards, frozenEditionViolations,
+  BOARD_MAX_ROWS, CATEGORIES, CATEGORIES_V1, ELIGIBILITY, ELIGIBILITY_RULES, FLAGS, GAME_REASON, MARKET_BASIS, NO_CONFIDENCE, NO_MARKET,
+  NOT_MODELLED_CATEGORIES, RANKING, RANKING_V1, TOP_BOARD_SCHEMA, TOP_BOARD_SCHEMA_V1,
+  buildBoardEdition, emptyBoardDoc, eligibilityReasons, freezeBoards, frozenEditionViolations, isDiscreteSummary,
 } from "./top-boards.mjs";
+import { COMBO_KEYS } from "./game-sim.mjs";
 import { artifact, game, player, SHA } from "./__fixtures__/top-board-fixtures.mjs";
 
 const FROZEN_AT = "2026-11-01T16:00:00Z";
@@ -29,12 +31,21 @@ test("thresholds and policies are pinned (changing one is a decision, not a refa
   assert.equal(ELIGIBILITY.minGamesUsed, 3, "minutes-model MIN_GAMES_FOR_RATES");
   assert.deepEqual([...ELIGIBILITY.playerRateBases], ["player-window", "v1-shrunk-to-league"]);
   assert.equal(BOARD_MAX_ROWS, 10);
-  assert.deepEqual(CATEGORIES.map((c) => [c.key, c.stat]), [["points", "pts"], ["rebounds", "reb"], ["assists", "ast"], ["threes", "threePm"]]);
+  assert.deepEqual(CATEGORIES_V1.map((c) => [c.key, c.stat]), [["points", "pts"], ["rebounds", "reb"], ["assists", "ast"], ["threes", "threePm"]], "schema @1 is frozen");
+  assert.deepEqual(CATEGORIES.map((c) => [c.key, c.stat, c.basis]), [
+    ["points", "pts", "MARGINAL"], ["rebounds", "reb", "MARGINAL"], ["assists", "ast", "MARGINAL"], ["threes", "threePm", "MARGINAL"],
+    ["pra", "pra", "JOINT_SIMULATED_SUM"], ["ptsReb", "ptsReb", "JOINT_SIMULATED_SUM"], ["ptsAst", "ptsAst", "JOINT_SIMULATED_SUM"],
+  ]);
+  assert.deepEqual(CATEGORIES.slice(0, 4).map((c) => c.key), CATEGORIES_V1.map((c) => c.key), "@2 is a superset of @1 (the report relies on it)");
+  assert.deepEqual(NOT_MODELLED_CATEGORIES.map((c) => [c.key, c.label, c.basis, c.stat]), [["rebAst", "R+A", "NOT_MODELLED", null]]);
+  assert.equal(TOP_BOARD_SCHEMA, "nba-top-board@2");
   assert.deepEqual(ELIGIBILITY_RULES.map((r) => r.id), [
     "MISSING_ATHLETE_ID", "AVAILABILITY_OUT", "INJURY_DESIGNATION", "INSUFFICIENT_HISTORY", "NULL_MINUTES",
     "AVAILABILITY_UNVERIFIED", "LOW_PLAY_RATE", "TEAM_POOL_FALLBACK_RATES", "LOW_EXPECTED_MINUTES", "MINUTES_TOO_UNCERTAIN", "MISSING_DISTRIBUTION",
   ]);
-  assert.match(RANKING.rule, /p50 desc, then frozen mean desc, then providerAthleteId asc/);
+  assert.match(RANKING_V1.rule, /p50 desc, then frozen mean desc, then providerAthleteId asc/);
+  assert.equal(RANKING.id, "nba-top-board-ranking@2");
+  assert.match(RANKING.rule, /\(discrete\) summaries on every candidate → frozen mean desc, then providerAthleteId asc/);
 });
 
 test("the base fixture player is eligible (positive control)", () => {
@@ -233,4 +244,113 @@ test("REAL v1 rows (trimmed dev fixture with provenance): playRate rule, Day-To-
   assert.deepEqual(Object.keys(cade.range), ["p10", "p25", "p75", "p90"]);
   assert.deepEqual(rows.find((r) => r.player.name === "Taurean Prince").flags, [FLAGS.TRADED_HISTORY_OTHER_TEAM], "historyBasis other-team on the row");
   assert.equal(e.boards.points.withheld.byPrimaryReason.LOW_PLAY_RATE, 2);
+});
+
+/* ───────────── schema @2: joint combination boards, R+A not modelled, ranking@2, @1 day files untouched ───────────── */
+
+test("combo boards: PRA / P+R / P+A rank the JOINT simulated sums (components = game-sim COMBO_KEYS), labelled with their basis", () => {
+  for (const c of CATEGORIES.filter((x) => x.basis === MARKET_BASIS.JOINT_SIMULATED_SUM)) assert.deepEqual([...c.components], COMBO_KEYS[c.stat]);
+  // a player whose PRA distribution ranks him first although his points do not: the board reads the stored joint
+  // distribution, never a sum of marginals
+  const a = player("1", { pts: 30, reb: 2, ast: 2 }); // fixture pra p50 34
+  const b = player("2", { pts: 20, reb: 12, ast: 10 }); // fixture pra p50 42
+  const e = edition([game("fx-1", { home: [a, b] })]);
+  assert.deepEqual(e.boards.points.rows.map((r) => r.player.providerAthleteId), ["1", "2"]);
+  assert.deepEqual(e.boards.pra.rows.map((r) => r.player.providerAthleteId), ["2", "1"]);
+  const pra = e.boards.pra;
+  assert.equal(pra.marketBasis, "JOINT_SIMULATED_SUM");
+  assert.match(pra.basisText, /joint sum .* draw by draw/);
+  assert.equal(pra.rows[0].marketBasis, "JOINT_SIMULATED_SUM");
+  assert.deepEqual(pra.rows[0].components, ["pts", "reb", "ast"]);
+  assert.equal(pra.rows[0].projection.p50, b.pra.p50, "the stored joint p50");
+  // the stored joint value is used even when it differs from the sum of marginal medians
+  const skew = player("4", { pts: 20, reb: 6, ast: 4 }); skew.pra = { ...skew.pra, p50: 27.5 };
+  assert.equal(edition([game("fx-1", { home: [skew] })]).boards.pra.rows[0].projection.p50, 27.5);
+  for (const k of ["pra", "ptsReb", "ptsAst"]) for (const r of e.boards[k].rows) for (const [f, v] of Object.entries(NO_MARKET)) assert.equal(r[f], v);
+  // a family without the joint distribution → withheld MISSING_DISTRIBUTION (never synthesised from marginals)
+  const noCombo = player("3"); delete noCombo.pra;
+  const e2 = edition([game("fx-1", { home: [noCombo] })]);
+  assert.equal(e2.boards.pra.rows.length, 0);
+  assert.equal(e2.boards.pra.withheld.players[0].primaryReason, "MISSING_DISTRIBUTION");
+  assert.equal(e2.boards.points.rows.length, 1);
+});
+
+test("R+A is an explicit NOT_MODELLED board: no rows, no withheld players, a reason — even when reb and ast exist", () => {
+  const e = edition([game("fx-1", { home: [player(1), player(2)] })]);
+  const ra = e.boards.rebAst;
+  assert.equal(ra.state, "NOT_MODELLED");
+  assert.equal(ra.marketBasis, "NOT_MODELLED");
+  assert.deepEqual(ra.rows, []);
+  assert.equal(ra.withheld.count, 0);
+  assert.match(ra.emptyReason, /not modelled.*adding marginal projections is not its distribution.*never computed/);
+  assert.equal(JSON.stringify(e).includes("|rebAst|"), false, "no rebAst row id anywhere");
+  const doc = emptyBoardDoc({ date: "2026-11-01", family: "v0.1", modelVersion: null });
+  assert.deepEqual(doc.categories.find((c) => c.key === "rebAst"), { key: "rebAst", stat: null, label: "R+A", basis: "NOT_MODELLED", components: ["reb", "ast"], modelled: false });
+  assert.equal(doc.schema, TOP_BOARD_SCHEMA); assert.equal(doc.schemaVersion, 2);
+  assert.equal(doc.ranking.id, RANKING.id);
+});
+
+/* v1-like integer quantile summaries: every quantile a whole number (as nba-sim-v1-coherent stores them). */
+const intDist = (p10, p50, p90, mean) => ({ mean, sd: 1, p10, p25: p50, p50, p75: p50, p90 });
+
+test("ranking@2: a DISCRETE board (whole-number quantiles on every candidate) ranks by mean, then id — not by tied integer medians", () => {
+  assert.equal(isDiscreteSummary(intDist(0, 2, 4, 2.1)), true);
+  assert.equal(isDiscreteSummary({ p10: 0.74, p50: 2.41, p90: 4.08 }), false);
+  // three players tie at p50 = 2; one has p50 = 3 but a LOWER mean. Mean order: 30 (2.6) > 10 (2.4) > 40 (2.3) > 20 (1.9)
+  const ps = [["10", intDist(0, 2, 4, 2.4)], ["20", intDist(0, 2, 4, 1.9)], ["30", intDist(1, 2, 5, 2.6)], ["40", intDist(1, 3, 4, 2.3)]]
+    .map(([id, d]) => ({ ...player(id), threePm: d }));
+  const e = edition([game("fx-1", { home: ps })]);
+  assert.equal(e.boards.threes.rankingMetric, "MODEL_MEAN");
+  assert.deepEqual(e.boards.threes.rows.map((r) => r.player.providerAthleteId), ["30", "10", "40", "20"]);
+  assert.deepEqual(e.boards.threes.rows.map((r) => r.sortKeys.projection), [2.6, 2.4, 2.3, 1.9], "the sort key is the ranking metric");
+  assert.equal(e.boards.threes.rows[0].rankingMetric, "MODEL_MEAN");
+  // deterministic under input order, and an exact mean tie falls to the id
+  const rev = edition([game("fx-1", { home: [...ps].reverse() })]);
+  assert.deepEqual(rev.boards.threes.rows.map((r) => r.player.providerAthleteId), ["30", "10", "40", "20"]);
+  const tie = [{ ...player("9"), threePm: intDist(0, 2, 4, 2) }, { ...player("5"), threePm: intDist(0, 1, 4, 2) }];
+  assert.deepEqual(edition([game("fx-1", { home: tie })]).boards.threes.rows.map((r) => r.player.providerAthleteId), ["5", "9"]);
+  // MUTATION PROBE: under ranking@1 (schema @1) the same rows rank by the integer p50 first — the old behaviour
+  const old = edition([game("fx-1", { home: ps })], { schema: TOP_BOARD_SCHEMA_V1 });
+  assert.deepEqual(old.boards.threes.rows.map((r) => r.player.providerAthleteId), ["40", "30", "10", "20"]);
+  // one continuous candidate (v0.x summaries carry two-decimal quantiles) makes the board CONTINUOUS: p50 first
+  const mixed = edition([game("fx-1", { home: [...ps, { ...player("50"), threePm: { mean: 2, sd: 1, p10: 0.5, p50: 1.9, p90: 3.8 } }] })]);
+  assert.equal(mixed.boards.threes.rankingMetric, "MODEL_MEDIAN_P50");
+});
+
+test("schema @1 day files are never rewritten or upgraded: a later freeze into an @1 file adds an @1-shaped edition", () => {
+  const g1 = game("fx-1", { home: [player(1)] });
+  const v1doc = emptyBoardDoc({ date: "2026-11-01", family: "v0.1", modelVersion: "nba-preseason-experimental-v0.1", schema: TOP_BOARD_SCHEMA_V1 });
+  v1doc.editions.push(buildBoardEdition({ artifact: artifact([g1]), sourceSha256: SHA, frozenAt: FROZEN_AT, family: "v0.1", schema: TOP_BOARD_SCHEMA_V1 }));
+  assert.deepEqual([v1doc.schema, v1doc.schemaVersion, v1doc.ranking.id], ["nba-top-board@1", 1, RANKING_V1.id]);
+  assert.deepEqual(Object.keys(v1doc.editions[0].boards), ["points", "rebounds", "assists", "threes"]);
+  assert.equal("marketBasis" in v1doc.editions[0].boards.points.rows[0], false, "@1 rows keep the @1 shape");
+  const before = JSON.parse(JSON.stringify(v1doc));
+  const g2 = game("fx-2", { generatedAt: "2026-11-01T18:00:00Z", tip: "2026-11-02T02:00Z", home: [player(2)] });
+  const r = freezeBoards({ existing: v1doc, artifact: artifact([g1, g2]), sourceSha256: SHA, frozenAt: "2026-11-01T18:30:00Z", family: "v0.1", date: "2026-11-01" });
+  assert.ok(r.ok, r.errors?.join());
+  assert.equal(r.doc.schema, "nba-top-board@1");
+  assert.deepEqual(Object.keys(r.doc.editions[1].boards), ["points", "rebounds", "assists", "threes"]);
+  assert.deepEqual(r.doc.editions[0], before.editions[0]);
+  assert.deepEqual(frozenEditionViolations({ before, after: r.doc }), []);
+  // a new day file is @2
+  const fresh = freezeBoards({ existing: null, artifact: artifact([g1]), sourceSha256: SHA, frozenAt: FROZEN_AT, family: "v0.1", date: "2026-11-01" });
+  assert.equal(fresh.doc.schema, "nba-top-board@2");
+  assert.deepEqual(Object.keys(fresh.edition.boards), ["points", "rebounds", "assists", "threes", "pra", "ptsReb", "ptsAst", "rebAst"]);
+  // an unknown stored schema is refused
+  assert.equal(freezeBoards({ existing: { ...v1doc, schema: "nba-top-board@9" }, artifact: artifact([g2]), sourceSha256: SHA, frozenAt: "2026-11-01T19:00:00Z", family: "v0.1", date: "2026-11-01" }).ok, false);
+});
+
+test("the committed frozen board files are still schema @1 (historical files are not migrated)", async () => {
+  const fs = await import("node:fs");
+  const dir = new URL("../../../../../data/internal/research/nba/top-boards/", import.meta.url);
+  let seen = 0;
+  for (const fam of ["v0.1", "v1"]) {
+    const f = new URL(`${fam}/2026-10-20.json`, dir);
+    if (!fs.existsSync(f)) continue;
+    seen += 1;
+    const d = JSON.parse(fs.readFileSync(f, "utf8"));
+    assert.equal(d.schema, "nba-top-board@1", `${fam}/2026-10-20.json`);
+    for (const e of d.editions) assert.deepEqual(Object.keys(e.boards), ["points", "rebounds", "assists", "threes"]);
+  }
+  assert.ok(seen >= 1, "positive control: at least one committed board file was read");
 });

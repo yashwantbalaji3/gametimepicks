@@ -32,6 +32,7 @@
  *   TIED_FINAL          the final is tied
  *   PLAYER_PTS_SUM      Σ player points ≠ the team's final score
  *   TEAM_BLOCK          Σ player <stat> ≠ the sample's own team block for that stat
+ *   TEAM_FGM            the team block's fgm ≠ Σ player 2PM + Σ player 3PM (V2 2026-10-20; checked when the block has fgm)
  *   PTS_FORMULA         pts ≠ 3·3PM + 2·2PM + FTM (when those columns exist)
  *   THREES_GT_PTS       3·3PM > pts
  *   THREE_PM_GT_PA      3PM > 3PA (when 3PA exists)
@@ -71,7 +72,7 @@ export const NOT_MODELED = Object.freeze([
   Object.freeze({ stat: "OREB · DREB", why: "rebounds are one game total per player, with no offensive/defensive split" }),
   Object.freeze({ stat: "STL · BLK · TOV · PF", why: "not simulated" }),
   Object.freeze({ stat: "+/−", why: "no lineups or stints are simulated, so no on-court score margin exists" }),
-  Object.freeze({ stat: "Starter / bench", why: "the run records no lineup; rows are ordered by modeled minutes, not by a starting five" }),
+  Object.freeze({ stat: "Starter / bench", why: "the run records no lineup; any starter / bench grouping shown beside it is an ESTIMATE from each player's recent starts (labelled so), never a recorded starting five" }),
   Object.freeze({ stat: "Per-quarter player splits", why: "player stats exist only as game totals of the run" }),
 ]);
 
@@ -159,6 +160,7 @@ export function nbaBoxScore(sample, manifest, { kind = BOX_SCORE_KINDS.SAMPLE } 
     const block = team?.[side];
     if (block && typeof block === "object") {
       for (const k of statKeys) if (k in block && block[k] !== totals[k]) err("TEAM_BLOCK", `${side}: Σ player ${k} ${totals[k]} ≠ team ${block[k]}`);
+      if ("fgm" in block && has("twoPm") && has("threePm") && block.fgm !== totals.twoPm + totals.threePm) err("TEAM_FGM", `${side}: team fgm ${block.fgm} ≠ Σ 2PM ${totals.twoPm} + Σ 3PM ${totals.threePm}`);
     }
     const notSimulated = (manifest.rosterNotSimulated?.[side] ?? [])
       .filter((r) => r && typeof r.name === "string" && !(r.providerAthleteId && ids.has(String(r.providerAthleteId))))
@@ -201,7 +203,7 @@ export function nbaBoxScore(sample, manifest, { kind = BOX_SCORE_KINDS.SAMPLE } 
     leaders: leadersOf(sides),
     notModeled: [...NOT_MODELED, ...absent],
     teamMinutes,
-    invariantsChecked: ["PERIOD_SUM", "PLAYER_PTS_SUM", "TEAM_BLOCK", "MINUTES_SUM", "THREES_GT_PTS", ...(has("threePa") ? ["THREE_PM_GT_PA"] : []), ...(has("twoPm") && has("ftm") ? ["PTS_FORMULA"] : []), "DNP_WITH_STATS", "OT_COUNT"],
+    invariantsChecked: ["PERIOD_SUM", "PLAYER_PTS_SUM", "TEAM_BLOCK", ...(has("twoPm") && has("threePm") && SIDES.every((s) => team?.[s] && "fgm" in team[s]) ? ["TEAM_FGM"] : []), "MINUTES_SUM", "THREES_GT_PTS", ...(has("threePa") ? ["THREE_PM_GT_PA"] : []), ...(has("twoPm") && has("ftm") ? ["PTS_FORMULA"] : []), "DNP_WITH_STATS", "OT_COUNT"],
     watermark: NBA_BOX_WATERMARK,
     provenance: provenanceLine(sample, manifest),
   };

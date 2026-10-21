@@ -30,7 +30,8 @@ import { SETTLEABLE_SPORTS, buildMultiLadder } from "../../parlays/multi-sport.m
 import { labEligibility } from "../../../../scripts/parlays/lab-eligibility.mjs";
 import { buildEligibleLegs } from "../../../../scripts/products/build-product-eligible-legs.mjs";
 import { evaluateMarket, WITHHELD } from "../../consistency/market-evaluator.mjs";
-import { LANE } from "../../sports/nba/experimental-public-lane.mjs";
+import * as lane from "../../sports/nba/experimental-public-lane.mjs";
+const { LANE } = lane;
 import { LEGAL_DOCUMENTS } from "../../legal/texts.mjs";
 import { nbaLegFromEvaluation, REFUSAL } from "./nba-leg.mjs";
 import { toParlayCandidateInput, toSmartSlipRow } from "./cross-sport.mjs";
@@ -134,8 +135,11 @@ test("every exclusion point refuses NBA on its own while the registry is HISTORI
   const r = nbaLegFromEvaluation({ evaluation: pe, snapshot: ps, verification: verificationFor(pe) });
   if (r.ok || !r.refusal.reasons.includes(REFUSAL.REGISTRY_NOT_PRODUCT_ELIGIBLE)) leak("products/nba/nba-leg.mjs", "produced a leg under the real registry");
 
-  // 10 · the experimental public lane stays on /nba
-  if (LANE.surfaces.some((s) => s !== "/nba")) leak("experimental-public-lane.mjs LANE.surfaces", `${LANE.surfaces}`);
+  // 10 · the experimental public lane stays on its approved surfaces: /nba, plus /nba/projections only while §13 amendment
+  //      A (founder, 2026-10-20) is on. An explicit list — any other surface, or a renamed amendment surface, is a leak.
+  const approvedSurfaces = ["/nba", ...(lane.AMENDMENT_A?.enabled ? ["/nba/projections"] : [])];
+  if (lane.AMENDMENT_A && lane.AMENDMENT_A.surface !== "/nba/projections") leak("experimental-public-lane.mjs AMENDMENT_A.surface", `${lane.AMENDMENT_A.surface}`);
+  if (LANE.surfaces.some((s) => !approvedSurfaces.includes(s))) leak("experimental-public-lane.mjs LANE.surfaces", `${LANE.surfaces}`);
 
   // 11 · PR #1141's candidate gate, once it is on this branch (checked against the real registry regardless of injection)
   const candPath = path.join(APP, "src", "lib", "parlays", "v2", "candidate.mjs");

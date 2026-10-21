@@ -23,6 +23,7 @@
  */
 import { REPRESENTATIVE_RULE, RECONCILIATION_RULE, RUN_ROLE, officialTargets, runDistance, runsFromNbaSamples, runsFromNflSimReceipt, selectOfficialRepresentative } from "../consistency/representative.mjs";
 import { SnapshotRefusal, nbaOfficialSnapshot, nflOfficialSnapshot } from "../consistency/official-snapshot.mjs";
+import { NBA_THEATER_GATE_POLICY_IN_FORCE } from "../consistency/theater-gate-policy.mjs";
 
 export const THEATER_REPRESENTATIVE_VERSION = "theater-representative@1";
 export const REP_STATE = Object.freeze({ SELECTED: "SELECTED", NO_OFFICIAL: "NO_OFFICIAL", NO_ELIGIBLE_RUN: "NO_ELIGIBLE_RUN" });
@@ -114,6 +115,8 @@ export function representativeBlock({ sport, snapshot, refusal = null, runs, eli
     version: THEATER_REPRESENTATIVE_VERSION,
     sport,
     rule: REPRESENTATIVE_RULE.id,
+    // NBA: how runs are labelled (consistency/theater-gate-policy.mjs); NFL keeps the official-representative wording
+    ...(sport === "NBA" ? { policy: NBA_THEATER_GATE_POLICY_IN_FORCE } : {}),
     tolerance: REPRESENTATIVE_RULE.tolerance,
     reconciliationRule: RECONCILIATION_RULE,
   };

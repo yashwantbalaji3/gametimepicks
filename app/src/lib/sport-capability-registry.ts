@@ -71,7 +71,7 @@ export const SPORT_CAPABILITIES: ReadonlyArray<SportCapability> = [
     label: "NBA",
     state: "HISTORICAL_ONLY",
     reason:
-      "Schedule and official finals publish on /nba (free ESPN capture + the write-once finals record); no NBA model has cleared its preregistered bars, so nothing predictive publishes. The May–June 2026 settled player-prop record is a retired model's archive and stays published as one.",
+      "Schedule and official finals publish on /nba (free ESPN capture + the write-once finals record); no NBA model has cleared its preregistered bars, so no validated forecast publishes — only the frozen experimental projections of the §13 lane on /nba (not validated, never product-eligible). The May–June 2026 settled player-prop record is a retired model's archive and stays published as one.",
     evidence: [
       "status/nba-first-market-recommendation.json",
       "docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md",
