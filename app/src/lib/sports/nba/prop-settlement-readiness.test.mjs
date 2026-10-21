@@ -61,3 +61,11 @@ test("the committed repo state today: the forward ledger has not been written ye
   assert.deepEqual(committedNbaPropReadiness({ repoRoot: tmp }).readyFamilies, ["threePm"]);
   fs.rmSync(tmp, { recursive: true, force: true });
 });
+
+test("SYNTHETIC_MEDIAN_LINE rows are never a price or a settled leg: readiness ignores their outcome and returns no line or price", () => {
+  const withLine = (outcome) => ({ ...entry(1, "pts", "GRADED"), notAPrice: true, measurement: { actual: 19, syntheticMedianLine: { label: "SYNTHETIC_MEDIAN_LINE", line: 1.18, side: "OVER", outcome, notAPrice: true } } });
+  const win = nbaPropSettlementReadiness([withLine("WIN")]);
+  const loss = nbaPropSettlementReadiness([withLine("LOSS")]);
+  assert.deepEqual(win, loss, "a synthetic-line WIN or LOSS changes nothing");
+  assert.doesNotMatch(JSON.stringify(win), /line|price|odds|WIN|LOSS|SYNTHETIC/i, "readiness carries counts and dates only");
+});
