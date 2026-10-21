@@ -109,9 +109,17 @@ export function compareSlipOdds({ legs = [], priceRecords = [], nowMs, operators
       if (!id.complete) { missing.push({ legIndex, reason: MISSING.LEG_IDENTITY_INCOMPLETE, text: MISSING_TEXT.LEG_IDENTITY_INCOMPLETE }); return; }
       const rows = records.filter((r) => r.book === book && String(r.eventId) === id.eventId && String(r.providerAthleteId) === id.playerId && r.family === id.family);
       if (!rows.length) { missing.push({ legIndex, reason: MISSING.NO_PRICE_RECORDED, text: MISSING_TEXT.NO_PRICE_RECORDED }); return; }
-      const atLine = rows.filter((r) => r.line === id.line);
-      if (!atLine.length) { missing.push({ legIndex, reason: MISSING.LINE_DIFFERS, text: MISSING_TEXT.LINE_DIFFERS, bookLines: [...new Set(rows.map((r) => r.line))].sort((a, b) => a - b) }); return; }
-      const r = atLine.reduce((a, b) => (Date.parse(b.capturedAt) > Date.parse(a.capturedAt) ? b : a));
+      /* The book's CURRENT offer is its newest record for this (event, athlete, family). A line is matched only if that
+         newest record is at the leg's line: an older record at the leg's line must not be priced after the book has
+         moved off it. Records captured at the same instant prefer the leg's line. */
+      const newestMs = Math.max(...rows.map((r) => Date.parse(r.capturedAt)).filter(Number.isFinite));
+      const newest = rows.filter((r) => Date.parse(r.capturedAt) === newestMs);
+      const r = newest.find((x) => x.line === id.line) ?? null;
+      if (!r) {
+        const bookLines = [...new Set((newest.length ? newest : rows).map((x) => x.line))].sort((a, b) => a - b);
+        missing.push({ legIndex, reason: MISSING.LINE_DIFFERS, text: MISSING_TEXT.LINE_DIFFERS, bookLines });
+        return;
+      }
       const freshness = freshnessBand(r.capturedAt, nowMs);
       if (freshness !== FRESHNESS.FRESH && freshness !== FRESHNESS.AGING) { missing.push({ legIndex, reason: MISSING.PRICE_STALE, text: MISSING_TEXT.PRICE_STALE, capturedAt: r.capturedAt }); return; }
       const price = id.side === "over" ? r.overAmerican : r.underAmerican;
@@ -156,7 +164,10 @@ export function compareSlipOdds({ legs = [], priceRecords = [], nowMs, operators
 
 /* ── COPYABLE SLIP TEXT ───────────────────────────────────────────────────────────────────────────────────── */
 
-const URLISH = /\b(?:https?:\/\/|www\.)\S*|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|net|org|bet|io|app|us|ag)\b\S*/gi;
+/* Any URL scheme (https://, draftkings://, fanduelsportsbook://), www., any host followed by a path (bit.ly/x,
+   t.co/x, caesars.ca/promo), and a bare host with a lowercase TLD (betmgm.co). Mixed-case dotted words such as a
+   market label "Pts.Reb" are not hosts and survive. */
+const URLISH = /\b[A-Za-z][A-Za-z0-9+.-]*:\/\/\S*|\bwww\.\S*|\b[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,24}\/\S*|\b[A-Za-z0-9-]{2,}(?:\.[A-Za-z0-9-]+)*\.[a-z]{2,6}\b(?!\.)/g;
 /** Strip anything that reads as a link or domain from a provider-supplied string. */
 export const stripLinks = (s) => String(s ?? "").replace(URLISH, "").replace(/\s{2,}/g, " ").trim();
 

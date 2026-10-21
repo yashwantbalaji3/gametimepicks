@@ -38,6 +38,9 @@ export function sameGameGroups(legs) {
 
 const signed = (n) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n)}`;
 
+/** A valid American price: finite, and at or beyond ±100. */
+export const isAmericanPrice = (p) => typeof p === "number" && Number.isFinite(p) && Math.abs(p) >= 100;
+
 /**
  * @param {ReadonlyArray<{ price: number|null, eventId?: unknown, sport?: string }>} legs
  * @returns {{ available: boolean, decimal: number|null, american: number|null, text: string,
@@ -48,7 +51,8 @@ export function combinedPrice(legs) {
   const list = legs ?? [];
   const sg = sameGameGroups(list);
   const base = { marketImpliedLabel: MARKET_IMPLIED_LABEL, modelJointProbability: null, modelJointProbabilityReason: MODEL_JOINT_UNAVAILABLE_REASON, sameGame: sg.sameGame || sg.unknownEvent };
-  const decs = list.map((l) => (Number.isFinite(l?.price) && l.price !== 0 ? americanToDecimal(l.price) : null));
+  // An American price is ±100 or beyond; −50 or +40 is not a price (americanToDecimal(−50) would read as +200).
+  const decs = list.map((l) => (isAmericanPrice(l?.price) ? americanToDecimal(l.price) : null));
   if (list.length < 2 || base.sameGame || decs.some((d) => d == null || !Number.isFinite(d) || d <= 1)) {
     return { ...base, available: false, decimal: null, american: null, text: COMBINED_PRICE_UNAVAILABLE, marketImpliedProbability: null };
   }

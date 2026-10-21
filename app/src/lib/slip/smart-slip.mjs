@@ -18,7 +18,7 @@
  *   · No outbound links. Handoff status is the constant HANDOFF_NOT_AVAILABLE.
  */
 import { isVerifiedOperator as seamPredicate, BOOK_AVAILABILITY_NOTE } from "../parlays/v2/operators.mjs";
-import { combinedPrice, sameGameGroups, signedAmerican, COMBINED_PRICE_UNAVAILABLE } from "../parlays/v2/pricing.mjs";
+import { combinedPrice, isAmericanPrice, sameGameGroups, signedAmerican, COMBINED_PRICE_UNAVAILABLE } from "../parlays/v2/pricing.mjs";
 
 export const SMART_SLIP_STORAGE_KEY = "gtp.slip.v2";
 export const SMART_SLIP_VERSION = 2;
@@ -134,14 +134,14 @@ const FRESH_TEXT = { FRESH: "Recorded within 15 minutes", AGING: "Recorded withi
 export function legView(leg, { nowMs, isVerifiedOperator = seamPredicate }) {
   const freshness = freshnessBand(leg.capturedAt, nowMs);
   const operatorOk = isVerifiedOperator(leg.book);
-  const priceVisible = operatorOk && leg.price != null && (freshness === FRESHNESS.FRESH || freshness === FRESHNESS.AGING);
+  const priceVisible = operatorOk && isAmericanPrice(leg.price) && (freshness === FRESHNESS.FRESH || freshness === FRESHNESS.AGING);
   return {
     key: leg.key, sport: leg.sport, game: leg.game, selection: leg.selection, line: leg.line,
     freshness, freshnessText: FRESH_TEXT[freshness],
     priceVisible,
     priceText: priceVisible ? signedAmerican(leg.price) : PRICE_NOT_VERIFIED,
     bookText: priceVisible ? leg.book : null,
-    hiddenBecause: priceVisible ? null : !operatorOk ? "operator" : leg.price == null ? "price" : "freshness",
+    hiddenBecause: priceVisible ? null : !operatorOk ? "operator" : !isAmericanPrice(leg.price) ? "price" : "freshness",
   };
 }
 
@@ -160,8 +160,10 @@ export function slipView(slip, { nowMs, isVerifiedOperator = seamPredicate }) {
   return {
     state, stateText: SLIP_STATE_TEXT[state],
     legs: views,
-    sameGame: sg.sameGame,
-    sameGameNote: sg.sameGame ? "Some legs are from the same game. Their outcomes move together, so no combined price is shown." : null,
+    sameGame: sg.sameGame || sg.unknownEvent,
+    sameGameNote: sg.sameGame ? "Some legs are from the same game. Their outcomes move together, so no combined price is shown."
+      : sg.unknownEvent ? "A leg has no game identifier, so it cannot be shown to come from a different game. No combined price is shown."
+      : null,
     combinedPriceText: priced?.available ? priced.text : COMBINED_PRICE_UNAVAILABLE,
     combinedAmerican: priced?.available ? priced.american : null,
     marketImpliedProbability: priced?.available ? priced.marketImpliedProbability : null,

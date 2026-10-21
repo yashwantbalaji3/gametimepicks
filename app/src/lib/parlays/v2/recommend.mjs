@@ -157,7 +157,7 @@ export function legReasons(leg, ctx) {
 
   if (!ctx.isVerifiedOperator(leg?.book)) r.push("OPERATOR_NOT_VERIFIED");
   if (!Number.isFinite(leg?.price) || leg.price === 0) r.push("PRICE_MISSING");
-  else if (leg.price < LEG_BOUNDS.oddsMin || leg.price > LEG_BOUNDS.oddsMax) r.push("PRICE_OUT_OF_RANGE");
+  else if (Math.abs(leg.price) < 100 || leg.price < LEG_BOUNDS.oddsMin || leg.price > LEG_BOUNDS.oddsMax) r.push("PRICE_OUT_OF_RANGE");
   if (leg?.priceMismatch) r.push("PRICE_MISMATCH");
   const cap = Date.parse(leg?.capturedAt ?? "");
   if (!Number.isFinite(cap)) r.push("PRICE_TIME_UNKNOWN");
