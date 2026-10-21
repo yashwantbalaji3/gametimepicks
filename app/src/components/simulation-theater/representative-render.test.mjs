@@ -137,7 +137,10 @@ test("NBA box score: official v0.1 layer beside the simulated run, NO official t
     }
   }
   const chips = html(React.createElement(OutcomeChips, { manifest: NBA.manifest, selected: 0, idBase: "c" }));
-  assert.equal((chips.match(/data-st-role="official"/g) ?? []).length, 1);
+  // gate v2 (LABELLED_SUPPORTING_RUNS): the run the Theater opens on is a "Simulated run", never "official"
+  assert.equal((chips.match(/data-st-role="official"/g) ?? []).length, 0, "no NBA run is called official");
+  assert.equal((chips.match(/data-st-role="supporting"/g) ?? []).length, 1);
   assert.equal((chips.match(/data-st-role="what-if"/g) ?? []).length, NBA.manifest.samples.length - 1);
+  assert.equal(NBA.manifest.representative.policy, "LABELLED_SUPPORTING_RUNS");
 });
 
