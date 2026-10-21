@@ -29,7 +29,11 @@ let commit = null;
 try { commit = execFileSync("git", ["log", "-1", "--format=%H", "--", rel], { cwd: REPO, encoding: "utf8" }).trim() || null; } catch { /* not a git checkout */ }
 
 // Published label omits the internal prefix: the public file names the family and date, the commit pins the bytes.
-const snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: NOW });
+// §13 amendment A: a combo that does not reconcile with its source draws throws REFUSED inside the build — exit 1.
+let snap;
+try {
+  snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: NOW });
+} catch (e) { console.error(e.message); process.exit(1); }
 const byId = new Map(doc.games.map((g) => [String(g.providerEventId), g]));
 for (const g of snap.games) {
   if (!snapshotMatchesSource(g, byId.get(g.providerEventId))) { console.error(`REFUSED: ${g.providerEventId} does not re-derive from its receipt`); process.exit(1); }

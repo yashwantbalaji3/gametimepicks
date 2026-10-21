@@ -8,7 +8,7 @@
  *   npx tsx scripts/ops/founder-decision-dryrun.mjs --decision <id> --token <answer>
  *   npx tsx scripts/ops/founder-decision-dryrun.mjs --list
  */
-import { FOUNDER_DECISIONS, reconcileDecisionsWithQueue } from "../../src/lib/launch/founder-decisions.mjs";
+import { FOUNDER_DECISIONS, reconcileDecisionsWithQueue, validateAnswerToken } from "../../src/lib/launch/founder-decisions.mjs";
 import { buildClosurePackets, executionQueue } from "../../src/lib/launch/closure-packets.mjs";
 import { SPORT_ASSESSMENTS } from "../../src/lib/sports/sport-assessments.mjs";
 import { readCurrentEvents, readProductReceipt, readRouteInventory, readEplCalibrationAuthority, readLadderReceipts } from "../../src/lib/launch/closure-packet-sources.mjs";
@@ -52,10 +52,9 @@ const d = FOUNDER_DECISIONS.find((x) => x.id === id);
 if (!d) { console.error(`REFUSED: unknown decision '${id}' — run with --list`); process.exit(1); }
 if (!token) { console.error("REFUSED: --token required (one of: " + d.answerTokens.join(" | ") + ")"); process.exit(1); }
 
-const shape = d.answerTokens.some((t) => {
-  const fixed = t.split(":")[0];
-  return token === t || (t.includes("<") && token.startsWith(fixed + ":") && token.length > fixed.length + 1);
-});
+// Segment by segment against the templates (lib/launch/founder-decisions.mjs validateAnswerToken): a different market
+// scope (e.g. AUTHORIZE:player_points:500 for an h2h-only question) is INVALID, never "VALID SHAPE".
+const shape = validateAnswerToken(d, token).valid;
 console.log(`\n${d.title}`);
 console.log(`  token: ${token} — ${shape ? "VALID SHAPE" : "INVALID: expected one of " + d.answerTokens.join(" | ")}`);
 if (!shape) process.exit(1);

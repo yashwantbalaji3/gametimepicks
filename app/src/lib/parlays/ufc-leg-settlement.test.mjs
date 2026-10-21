@@ -20,8 +20,8 @@ const BODY = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 test("a fight leg is graded from the official results capture, not a stat line", () => {
   assert.match(BODY, /results-latest\.json/, "UFC grading must read the official results capture");
   assert.match(BODY, /gradeUfcLeg/, "fight legs need their own grading path");
-  assert.match(BODY, /\(leg\.sport \?\? "mlb"\) === "ufc"/,
-    "the grading path must be chosen by the LEG's sport — a cross-sport card carries more than one");
+  assert.match(BODY, /legGradingRoute\(leg\)/, "the grading path must be chosen by the LEG's sport — a cross-sport card carries more than one");
+  assert.match(BODY, /route === "ufc"/, "fight legs route to the fight grader");
 });
 
 /*

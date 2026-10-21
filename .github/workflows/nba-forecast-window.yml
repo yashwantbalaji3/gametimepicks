@@ -151,6 +151,32 @@ jobs:
           echo "::error::could not push after 3 attempts"
           exit 1
 
+      # ONCE-PER-SLATE LANE PUBLISH (#1150). Runs on every non-dry tick — BUILD or hold — so a slate whose last game was
+      # refused still publishes once that game tips. decidePublish HOLDs until every game of the ET slate is frozen or has
+      # tipped, NOOPs on an identical committed day file, and REFUSEs (exit 1) rather than rewrite a published slate.
+      # Commits only the day file + latest.json: one Production build per slate (the /nba page is a static export).
+      - name: Publish the NBA experimental lane (once per slate)
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' && steps.build.outcome != 'failure' }}
+        working-directory: app
+        run: |
+          set -uo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          D="$(TZ=America/New_York date +%Y-%m-%d)"
+          for ATTEMPT in 1 2 3; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            OUT="$(node scripts/nba/publish-nba-experimental-lane.mjs --date "$D" --write)"; RC=$?
+            echo "$OUT"
+            if [ "$RC" != "0" ]; then echo "::error::lane publish refused for $D"; exit 1; fi
+            case "$OUT" in *"action=PUBLISH"*) ;; *) exit 0 ;; esac
+            git add "public/data/nba/experimental-public/$D.json" public/data/nba/experimental-public/latest.json 2>/dev/null || git add public/data/nba/experimental-public/latest.json
+            if git diff --cached --quiet; then echo "nothing staged"; exit 0; fi
+            git commit -q -m "auto: nba experimental lane $D (once per slate) [skip ci]"
+            if git push -q origin HEAD:main; then exit 0; fi
+            echo "::warning::push lost a race (attempt $ATTEMPT)"; sleep $((ATTEMPT * 15))
+          done
+          echo "::error::could not push the lane after 3 attempts"; exit 1
+
       - name: Report a hold
         if: steps.decide.outputs.decision != 'BUILD'
         run: echo "::notice::nba-forecast-window held — no NBA game tips within 8 h without a forecast from every family"

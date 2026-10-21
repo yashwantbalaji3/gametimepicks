@@ -10,8 +10,9 @@
  *        weekly boards · frozen live props (Live Hub / Results, incl. the graded "implied side") · sim-v2 batch
  *        distributions (/nfl/simulation) · the Theater default run · World Model V2 (game, players, its restated
  *        record, sampled worlds).
- *   NBA  v1 receipt (private) · the private top boards of every family · the receipt's two win-probability heads ·
- *        representative samples (Theater default + box-score invariants).
+ *   NBA  official snapshot = Elo side + v0.1 players (official-snapshot.mjs) · the public /nba experimental lane ·
+ *        the private top boards of every family · the supporting v1 simulation (favourite + anchor check,
+ *        nbaSimAnchorCheck) · its stored runs (Theater default + box-score invariants).
  *   Code static scan (static-scan.mjs).
  *
  * Nothing is written. Every file read is recorded in `manifest` (path → sha256 of its bytes) so a baseline can tell a
@@ -21,7 +22,9 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { nflOfficialSnapshot, nbaOfficialSnapshot, playerOf, SnapshotRefusal } from "./official-snapshot.mjs";
+import {
+  NBA_BOARD_ROLE, NBA_BOARD_ROLES, NBA_LANE_FAMILIES, NBA_OFFICIAL_FAMILY, NBA_SUPPORTING_FAMILY, SOURCE_ROLE, SnapshotRefusal, nbaOfficialSnapshot, nbaSupportingGame, nflOfficialSnapshot, playerOf,
+} from "./official-snapshot.mjs";
 import { evaluateMarket, LEAN } from "./market-evaluator.mjs";
 import { officialTargets, runsFromNbaSamples, runsFromNflSimReceipt, selectOfficialRepresentative } from "./representative.mjs";
 import {
@@ -47,7 +50,8 @@ export const OWNERS = Object.freeze({
   weeklyBoards: "weekly boards producer — release-owner session",
   playerBoard: "player board producer — release-owner session",
   nbaBoards: "NBA top boards (app/src/lib/sports/nba/top-boards.mjs) — NBA department",
-  nbaForecast: "NBA v1 forecast builder — NBA department",
+  nbaForecast: "NBA forecast builders (v0.1 official, v1 supporting) — release-owner session",
+  nbaLane: "NBA experimental public lane (app/src/lib/sports/nba/experimental-public-lane.mjs, PR 1146) — release-owner session",
 });
 
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
@@ -436,53 +440,164 @@ function auditNflEvent(ctx, id) {
 
 /* ═══════════════════════════════════════ NBA ═══════════════════════════════════════ */
 
-const NBA_FORECASTS = (date) => `data/internal/research/nba/experimental-v1/forecasts/${date}.json`;
+const NBA_FORECASTS = (family, date) => `data/internal/research/nba/experimental-${family}/forecasts/${date}.json`;
+const NBA_LANE = (date) => `app/public/data/nba/experimental-public/${date}.json`;
 const NBA_BOARDS_DIR = "data/internal/research/nba/top-boards";
 const NBA_STAT_FAMILY = Object.freeze({ pts: "pts", reb: "reb", ast: "ast", threePm: "threePm" });
+/** The lane's display rule (experimental-public-lane.mjs r1): one decimal, half away from zero via Math.round. */
+const r1 = (x) => (isNum(x) ? Math.round(x * 10) / 10 : null);
+
+/**
+ * NBA SUPPORTING-SIMULATION ANCHOR (the NBA counterpart of `simAnchorCheck`). The Theater replays stored v1 runs while
+ * the official forecast is the Elo side + v0.1 players; a public Theater must not show a simulation that tells another
+ * story. Terms (exact stored numbers both sides):
+ *   side     v1 sim favourite (pHome vs 0.5) = official Elo side
+ *   pHome    |v1 sim pHome − official Elo pHome| ≤ tolerance.pHome
+ *   players  per official (player, family ∈ pts/reb/ast/threePm) with a v1 counterpart: z = |v1 unconditional mean −
+ *            v0.1 mean| / v0.1 sd ≤ tolerance.playerZ (v1 stores means conditional on playing: r·μ is compared).
+ *   inputs   both receipts frozen on the same injury + roster inputs (reported; not a gate term on its own).
+ * TOLERANCE STATUS. pHome reuses the founder's NFL anchor value (0.02, 2026-10-20); playerZ 0.25 is PROPOSED by this
+ * audit. Neither is founder-approved FOR NBA, so `approved: false` keeps the Theater gate closed even if every term
+ * passes (methodology constants need a source and founder approval).
+ */
+export const NBA_SIM_ANCHOR_TOLERANCE = Object.freeze({
+  pHome: SIM_ANCHOR_TOLERANCE.pHome,
+  playerZ: 0.25,
+  approved: false,
+  basis: "pHome = founder NFL anchor tolerance (2026-10-20) proposed for NBA; playerZ = proposed; both await founder approval",
+});
+const ANCHOR_FAMILIES = Object.freeze(["pts", "reb", "ast", "threePm"]);
+
+export function nbaSimAnchorCheck(snapshot, supportingGame, tol = NBA_SIM_ANCHOR_TOLERANCE) {
+  const sim = supportingGame?.forecast?.sim ?? null;
+  const offSide = snapshot?.game?.winner?.side ?? null;
+  const simSide = isNum(sim?.pHome) ? (sim.pHome > 0.5 ? "HOME" : sim.pHome < 0.5 ? "AWAY" : null) : null;
+  const terms = [
+    { term: "side", official: offSide, simulated: simSide, tolerance: null, diff: null, pass: offSide != null && simSide === offSide },
+    (() => {
+      const official = snapshot?.game?.pHome ?? null; const simulated = sim?.pHome ?? null;
+      const diff = isNum(official) && isNum(simulated) ? simulated - official : null;
+      return { term: "pHome", official, simulated, tolerance: tol.pHome, diff, pass: diff != null && Math.abs(diff) <= tol.pHome };
+    })(),
+  ];
+  const byId = new Map();
+  for (const side of ["home", "away"]) for (const p of supportingGame?.forecast?.players?.[side] ?? []) byId.set(String(p.providerAthleteId), p);
+  const players = [];
+  for (const p of snapshot?.players ?? []) {
+    const v = byId.get(p.playerId);
+    for (const fam of ANCHOR_FAMILIES) {
+      const o = p.families?.[fam];
+      if (!o || !isNum(o.expected) || !isNum(o.sd) || o.sd <= 0) continue;
+      const d = v?.[fam];
+      const r = isNum(v?.playRate) && v.playRate > 0 && v.playRate <= 1 ? v.playRate : 1;
+      const simulated = v && isNum(d?.mean) ? (v.conditioning ? r * d.mean : d.mean) : null;
+      const z = isNum(simulated) ? Math.abs(simulated - o.expected) / o.sd : null;
+      players.push({ playerId: p.playerId, family: fam, official: o.expected, simulated, z, pass: z != null && z <= tol.playerZ });
+    }
+  }
+  const failedPlayers = players.filter((x) => !x.pass);
+  const worst = players.filter((x) => isNum(x.z)).sort((a, b) => b.z - a.z || a.playerId.localeCompare(b.playerId)).slice(0, 5);
+  terms.push({ term: "players", official: players.length, simulated: players.length - failedPlayers.length, tolerance: tol.playerZ, diff: null, pass: players.length > 0 && failedPlayers.length === 0, failed: failedPlayers.length, worst });
+  const sup = (snapshot?.sources ?? []).find((s) => s.role === SOURCE_ROLE.SUPPORTING_SIMULATION) ?? null;
+  const failed = terms.filter((t) => !t.pass);
+  return {
+    anchored: !!supportingGame && failed.length === 0,
+    toleranceApproved: tol.approved === true,
+    sameInputs: sup ? sup.alignedWithOfficial : null,
+    tolerance: tol,
+    terms,
+    failed,
+  };
+}
 
 function auditNbaDate(ctx, date) {
   const { repoRoot, read } = ctx;
-  const art = read(NBA_FORECASTS(date));
+  const off = read(NBA_FORECASTS(NBA_OFFICIAL_FAMILY, date));
+  const sup = read(NBA_FORECASTS(NBA_SUPPORTING_FAMILY, date));
+  const lane = read(NBA_LANE(date));
   const results = [];
-  if (!art) return results;
+  if (!off && !sup) return results;
   const boards = [];
   const bdir = path.join(repoRoot, NBA_BOARDS_DIR);
   if (fs.existsSync(bdir)) for (const fam of fs.readdirSync(bdir).sort()) { const b = read(`${NBA_BOARDS_DIR}/${fam}/${date}.json`); if (b) boards.push(b); }
+  const ids = [...new Set([...(off?.doc.games ?? []), ...(sup?.doc.games ?? [])].map((g) => String(g.providerEventId)))].sort();
+  const officialSrc = off ? { doc: off.doc, path: off.path, sha256: off.sha256 } : null;
+  const supportingSrc = sup ? { doc: sup.doc, path: sup.path, sha256: sup.sha256 } : null;
 
-  for (const g of art.doc.games ?? []) {
-    const id = String(g.providerEventId);
+  for (const id of ids) {
     const out = [];
     let snapshot;
-    try { snapshot = nbaOfficialSnapshot(id, art.doc, { path: art.path, sha256: art.sha256 }); } catch (e) {
+    try { snapshot = nbaOfficialSnapshot(id, { official: officialSrc, supporting: supportingSrc }); } catch (e) {
       if (!(e instanceof SnapshotRefusal)) throw e;
       results.push({ snapshot: null, refusal: { sport: "NBA", eventId: id, code: e.code, message: e.message }, discrepancies: [], evaluations: [] });
       continue;
     }
     const official = (pid, fam) => playerOf(snapshot, pid)?.families?.[fam] ?? null;
-    const officialFamily = art.doc.family;
+    const officialFamily = NBA_OFFICIAL_FAMILY;
+    const supGame = nbaSupportingGame(supportingSrc, id).game;
 
-    // two win-probability heads inside one receipt
-    out.push(...projectionMismatches({
-      snapshot, surface: "nba-forecast-receipt.winner-head", sources: [art.path], severity: SEVERITY.WARN, owner: OWNERS.nbaForecast,
-      pairs: [{ subjectId: id, family: "game", field: "pHome", groupSubject: "pHome", expected: snapshot.game.pHome, actual: snapshot.game.winner.pHome, tolerance: TOLERANCE.fourDp }],
-      detail: `published side ${snapshot.game.winner.side} comes from the ${snapshot.game.winner.head} head; the simulated pHome is ${snapshot.game.pHome}`,
-      correction: "One win probability of record per game: either the side follows the simulation or the simulation is re-anchored to the Elo head; a product never shows both as the forecast.",
-    }));
-    if (snapshot.game.winner.side && isNum(snapshot.game.pHome)) {
-      const simSide = snapshot.game.pHome > 0.5 ? "HOME" : snapshot.game.pHome < 0.5 ? "AWAY" : null;
-      if (simSide && simSide !== snapshot.game.winner.side) {
-        out.push(discrepancy({ code: CODES.LEAN_CONTRADICTION, severity: SEVERITY.ERROR, snapshot, surface: "nba-forecast-receipt.winner-head", identity: { subjectId: id, family: "game", field: "side" }, sources: [art.path], expected: simSide, actual: snapshot.game.winner.side, correction: "The published side and the simulation favourite must agree.", owner: OWNERS.nbaForecast }));
+    // the public /nba lane (PR 1146) shows exactly the official snapshot (display rule: 1 dp)
+    const laneGame = (lane?.doc?.games ?? []).find((x) => String(x.providerEventId) === id) ?? null;
+    if (laneGame) {
+      const surface = "nba-public-lane";
+      const sources = [lane.path, off.path];
+      const pairs = [];
+      for (const side of ["away", "home"]) {
+        for (const row of laneGame.players?.[side] ?? []) {
+          const pid = String(row.providerAthleteId ?? "");
+          const p = playerOf(snapshot, pid);
+          if (!p) { pairs.push({ subjectId: pid, label: row.name, family: "player", field: "noOfficialCounterpart", expected: 0, actual: 1 }); continue; }
+          if (p.side !== side) pairs.push({ subjectId: pid, label: row.name, family: "player", field: "side", expected: 0, actual: 1 });
+          pairs.push({ subjectId: pid, label: row.name, family: "minutes", field: "expectedMinutes", expected: r1(p.expectedMinutes), actual: row.expectedMinutes, tolerance: TOLERANCE.exact });
+          for (const fam of NBA_LANE_FAMILIES) {
+            const o = p.families?.[fam];
+            if (!o) { pairs.push({ subjectId: pid, label: row.name, family: fam, field: "noOfficialCounterpart", expected: 0, actual: 1 }); continue; }
+            if (o.publicDisplay !== "MEDIAN_1DP") pairs.push({ subjectId: pid, label: row.name, family: fam, field: "publicDisplay", expected: 0, actual: 1 });
+            pairs.push({ subjectId: pid, label: row.name, family: fam, field: "median1dp", expected: r1(o.median), actual: row.medians?.[fam], tolerance: TOLERANCE.exact });
+          }
+        }
+      }
+      const shown = new Set(["away", "home"].flatMap((s) => (laneGame.players?.[s] ?? []).map((r) => String(r.providerAthleteId))));
+      for (const p of snapshot.players) {
+        if (p.families?.pts?.publicDisplay === "MEDIAN_1DP" && !shown.has(p.playerId)) pairs.push({ subjectId: p.playerId, label: p.displayName, family: "player", field: "missingFromLane", expected: 0, actual: 1 });
+      }
+      out.push(...projectionMismatches({ snapshot, surface, sources, pairs, owner: OWNERS.nbaLane, correction: "The lane copies the official snapshot's v0.1 medians (1 dp) and expected minutes for exactly the players the official rule marks MEDIAN_1DP." }));
+      const sideAbbr = snapshot.game.winner.side === "HOME" ? snapshot.home.abbr : snapshot.game.winner.side === "AWAY" ? snapshot.away.abbr : null;
+      if ((laneGame.elo?.favoured ?? null) !== sideAbbr) {
+        out.push(discrepancy({ code: CODES.LEAN_CONTRADICTION, severity: SEVERITY.ERROR, snapshot, surface, identity: { subjectId: id, family: "game", field: "favoured" }, sources, expected: sideAbbr, actual: laneGame.elo?.favoured ?? null, correction: "The lane's favoured team is the official Elo side.", owner: OWNERS.nbaLane }));
+      }
+      const offSrc = snapshot.sources.find((s) => s.role === SOURCE_ROLE.OFFICIAL);
+      if (laneGame.frozenAt !== g0(off, id)?.receipt?.generatedAt || laneGame.receipt?.payloadSha256 !== offSrc?.inputRef) {
+        out.push(...postLockRewrites({ snapshot, artifacts: [{ surface, path: lane.path, frozenHash: offSrc?.inputRef ?? null, currentHash: laneGame.receipt?.payloadSha256 ?? null, detail: `lane frozenAt ${laneGame.frozenAt} vs official receipt ${g0(off, id)?.receipt?.generatedAt}` }], owner: OWNERS.nbaLane }));
+      }
+    }
+
+    // the supporting v1 simulation the Theater replays: same favourite, anchored to the official forecast
+    if (supGame) {
+      const anchor = nbaSimAnchorCheck(snapshot, supGame);
+      ctx.anchors.push({ sport: "NBA", eventId: id, snapshotId: snapshot.snapshotId, ...anchor });
+      const sideTerm = anchor.terms.find((t) => t.term === "side");
+      if (!sideTerm.pass && sideTerm.official && sideTerm.simulated) {
+        out.push(discrepancy({ code: CODES.LEAN_CONTRADICTION, severity: SEVERITY.ERROR, snapshot, surface: "simulation-theater.supporting", identity: { subjectId: id, family: "game", field: "side" }, sources: [sup.path, off.path], expected: sideTerm.official, actual: sideTerm.simulated, correction: "The simulation the Theater replays must favour the official Elo side.", owner: OWNERS.nbaForecast }));
       }
     }
 
     // private top boards of every family
     for (const b of boards) {
       const fam = b.doc.family;
+      const famGames = fam === officialFamily ? off : fam === NBA_SUPPORTING_FAMILY ? sup : null;
+      // A labelled challenger research board (founder 2026-10-20) is a different model BY DESIGN: it is inventoried,
+      // not compared with the official numbers and not a version mix. It must stay off every public / product surface
+      // (top-board-route-gating + static scan). Any family without a role is still an ERROR.
+      if (NBA_BOARD_ROLES[fam]?.role === NBA_BOARD_ROLE.CHALLENGER_RESEARCH_ONLY) {
+        ctx.researchBoards.push({ sport: "NBA", eventId: id, family: fam, label: NBA_BOARD_ROLES[fam].label, path: b.path, editions: (b.doc.editions ?? []).filter((ed) => (ed.games ?? []).some((x) => String(x.eventId) === id)).length });
+        continue;
+      }
       for (const ed of b.doc.editions ?? []) {
         const gm = (ed.games ?? []).find((x) => String(x.eventId) === id);
         if (!gm) continue;
         const pairs = [];
-        for (const [cat, board] of Object.entries(ed.boards ?? {})) {
+        for (const board of Object.values(ed.boards ?? {})) {
           for (const r of board.rows ?? []) {
             if (String(r.eventId) !== id) continue;
             const pid = String(r.player?.providerAthleteId ?? "");
@@ -490,15 +605,16 @@ function auditNbaDate(ctx, date) {
             if (!o) { pairs.push({ subjectId: pid, label: r.player?.name, family: r.stat, field: "noOfficialCounterpart", expected: 0, actual: 1 }); continue; }
             pairs.push({ subjectId: pid, label: r.player?.name, family: r.stat, field: "p50", expected: o.median, actual: r.projection?.p50, tolerance: TOLERANCE.twoDp });
             pairs.push({ subjectId: pid, label: r.player?.name, family: r.stat, field: "mean", expected: o.expected, actual: r.projection?.mean, tolerance: TOLERANCE.twoDp });
-            void cat;
           }
         }
         const surface = `nba-top-board.${fam}`;
-        out.push(...projectionMismatches({ snapshot, surface, sources: [b.path, art.path], pairs, owner: OWNERS.nbaBoards, correction: fam === officialFamily ? "Board rows copy the official snapshot's p50/mean exactly." : `The ${fam} board ranks a different model's numbers for the same game; only the official family (${officialFamily}) may feed a board.` }));
+        out.push(...projectionMismatches({ snapshot, surface, sources: [b.path, off.path], pairs, owner: OWNERS.nbaBoards, correction: fam === officialFamily ? "Board rows copy the official snapshot's p50/mean exactly." : `The ${fam} board ranks a different model's numbers for the same game; only the official family (${officialFamily}) may feed a board.` }));
         if (fam !== officialFamily) {
-          out.push(discrepancy({ code: CODES.MODEL_VERSION_MIX, severity: SEVERITY.ERROR, snapshot, surface, identity: { subjectId: id, family: fam, field: "boardFamily" }, sources: [b.path], expected: `${officialFamily} (${snapshot.modelVersions.game})`, actual: `${fam} (${b.doc.modelVersion})`, correction: "One model family per snapshot: retire or relabel non-official boards for this event.", owner: OWNERS.nbaBoards }));
-        } else if (gm.gamePayloadSha256 && gm.gamePayloadSha256 !== g.receipt?.payloadSha256) {
-          out.push(...postLockRewrites({ snapshot, artifacts: [{ surface, path: b.path, frozenHash: g.receipt?.payloadSha256, currentHash: gm.gamePayloadSha256, detail: "board froze a different game payload than the receipt of record" }], owner: OWNERS.nbaBoards }));
+          out.push(discrepancy({ code: CODES.MODEL_VERSION_MIX, severity: SEVERITY.ERROR, snapshot, surface, identity: { subjectId: id, family: fam, field: "boardFamily" }, sources: [b.path], expected: `${officialFamily} (${snapshot.modelVersions.players.pts})`, actual: `${fam} (${b.doc.modelVersion})`, correction: "One model family per snapshot: retire or relabel non-official boards for this event.", owner: OWNERS.nbaBoards }));
+        }
+        const frozen = g0(famGames, id)?.receipt?.payloadSha256 ?? null;
+        if (frozen && gm.gamePayloadSha256 && gm.gamePayloadSha256 !== frozen) {
+          out.push(...postLockRewrites({ snapshot, artifacts: [{ surface, path: b.path, frozenHash: frozen, currentHash: gm.gamePayloadSha256, detail: `board froze a different game payload than the ${fam} receipt` }], owner: OWNERS.nbaBoards }));
         }
       }
     }
@@ -506,19 +622,26 @@ function auditNbaDate(ctx, date) {
       out.push(discrepancy({ code: CODES.MODEL_VERSION_MIX, severity: SEVERITY.ERROR, snapshot, surface: "nba-top-board.default-family", identity: { subjectId: id, family: DEFAULT_BOARD_FAMILY, field: "DEFAULT_BOARD_FAMILY" }, sources: ["app/src/lib/sports/nba/top-boards.mjs"], expected: officialFamily, actual: DEFAULT_BOARD_FAMILY, correction: `DEFAULT_BOARD_FAMILY must name the official snapshot's family (${officialFamily}).`, owner: OWNERS.nbaBoards }));
     }
 
-    // Theater default + box scores (private)
-    const runs = runsFromNbaSamples(g);
-    const sel = selectOfficialRepresentative(runs, officialTargets(snapshot));
-    const current = runs.find((r) => r.sourceKind === "typical") ?? runs[0] ?? null;
-    if (sel.official && current && sel.official.run.runIndex !== current.runIndex) {
-      out.push(discrepancy({ code: CODES.PROJECTION_MISMATCH, severity: SEVERITY.ERROR, snapshot, surface: "simulation-theater.default", identity: { subjectId: id, family: "game", field: "representativeRun" }, sources: [art.path], expected: sel.official.run.runIndex, actual: current.runIndex, examples: [{ official: { runIndex: sel.official.run.runIndex, home: sel.official.run.home, away: sel.official.run.away, distance: sel.distance }, current: { runIndex: current.runIndex, home: current.home, away: current.away, kind: current.sourceKind } }], correction: "Default the Theater to selectOfficialRepresentative (team + official player expectations).", owner: OWNERS.theater }));
+    // Theater default + box scores (private): the stored v1 runs, measured against the OFFICIAL snapshot
+    if (supGame) {
+      const runs = runsFromNbaSamples(supGame);
+      const sel = selectOfficialRepresentative(runs, officialTargets(snapshot));
+      const current = runs.find((r) => r.sourceKind === "typical") ?? runs[0] ?? null;
+      if (sel.official && current && sel.official.run.runIndex !== current.runIndex) {
+        out.push(discrepancy({ code: CODES.PROJECTION_MISMATCH, severity: SEVERITY.ERROR, snapshot, surface: "simulation-theater.default", identity: { subjectId: id, family: "game", field: "representativeRun" }, sources: [sup.path, off.path], expected: sel.official.run.runIndex, actual: current.runIndex, examples: [{ official: { runIndex: sel.official.run.runIndex, home: sel.official.run.home, away: sel.official.run.away, distance: sel.distance }, current: { runIndex: current.runIndex, home: current.home, away: current.away, kind: current.sourceKind } }], correction: "Default the Theater to selectOfficialRepresentative (official side + official player expectations).", owner: OWNERS.theater }));
+      }
+      ctx.representatives.push({ sport: "NBA", eventId: id, snapshotId: snapshot.snapshotId, official: sel.official ? { runIndex: sel.official.run.runIndex, home: sel.official.run.home, away: sel.official.run.away } : null, distance: sel.distance, withinTolerance: sel.withinTolerance, sideConstraint: sel.sideConstraint ?? null, currentDefault: current ? { runIndex: current.runIndex, kind: current.sourceKind } : null, whatIf: sel.whatIf.map((w) => ({ runIndex: w.run.runIndex, kind: w.kind, label: w.label })) });
+      out.push(...boxScoreChecks({ snapshot, surface: "simulation-theater.runs", runs, validator: nbaRunInvariants, owner: OWNERS.nbaForecast, sources: [sup.path], correction: "Every stored sample must satisfy the engine's seven invariants." }));
+      out.push(...nameKeyedRows({ snapshot, surface: "simulation-theater.runs", rows: runs.flatMap((r) => r.players ?? []).map((p) => ({ playerId: p.playerId, name: p.stats?.name })), owner: OWNERS.nbaForecast, correction: "Sample players carry providerAthleteId." }));
     }
-    ctx.representatives.push({ sport: "NBA", eventId: id, snapshotId: snapshot.snapshotId, official: sel.official ? { runIndex: sel.official.run.runIndex, home: sel.official.run.home, away: sel.official.run.away } : null, distance: sel.distance, withinTolerance: sel.withinTolerance, currentDefault: current ? { runIndex: current.runIndex, kind: current.sourceKind } : null, whatIf: sel.whatIf.map((w) => ({ runIndex: w.run.runIndex, kind: w.kind, label: w.label })) });
-    out.push(...boxScoreChecks({ snapshot, surface: "simulation-theater.runs", runs, validator: nbaRunInvariants, owner: OWNERS.nbaForecast, sources: [art.path], correction: "Every stored sample must satisfy the engine's seven invariants." }));
-    out.push(...nameKeyedRows({ snapshot, surface: "simulation-theater.runs", rows: runs.flatMap((r) => r.players ?? []).map((p) => ({ playerId: p.playerId, name: p.stats?.name })), owner: OWNERS.nbaForecast, correction: "Sample players carry providerAthleteId." }));
     results.push({ snapshot, refusal: null, discrepancies: out, evaluations: [] });
   }
   return results;
+}
+
+/** The game of an artifact read (or null). */
+function g0(a, id) {
+  return (a?.doc?.games ?? []).find((x) => String(x.providerEventId) === String(id)) ?? null;
 }
 
 /* ═══════════════════════════════════════ entry points ═══════════════════════════════════════ */
@@ -540,6 +663,7 @@ export function runConsistencyAudit({ repoRoot, nflEvents = null, nbaDates = DEF
     publicViews: new Map(loadForecastViews(publicDir).map((v) => [String(v.providerEventId), v])),
     representatives: [],
     anchors: [],
+    researchBoards: [],
   };
   for (const e of ctx.shadowEntries) manifest[e.file] ??= sha256(fs.readFileSync(path.join(repoRoot, e.file)));
   const events = nflEvents ?? nflEventsWithAllSources(repoRoot);
@@ -556,6 +680,7 @@ export function runConsistencyAudit({ repoRoot, nflEvents = null, nbaDates = DEF
     evaluations: results.flatMap((r) => r.evaluations),
     representatives: ctx.representatives,
     simAnchors: ctx.anchors,
+    researchBoards: ctx.researchBoards,
     discrepancies,
     summary: summarize(discrepancies),
     manifest,
@@ -587,10 +712,29 @@ export const THEATER_GATE_CODES = Object.freeze([CODES.SCENARIO_LEAK, CODES.BOX_
  *   · the event has an official snapshot (a refusal blocks).
  * @returns {{ sport, eventId, open: boolean, blockers: object[] }}
  */
-export function theaterActivationGate(sport, eventId, { audit = null, repoRoot = null } = {}) {
+/**
+ * NBA THEATER GATE POLICY (founder decision 2026-10-20, relayed by the release owner: "the Theater may run a different
+ * engine from the official forecast; one canonical public prediction everywhere"). Two policies; the founder decides.
+ *   ANCHORED                     the replayed v1 simulation must agree with the official forecast (nbaSimAnchorCheck)
+ *                                under an approved tolerance, and its closest run is shown as the Official
+ *                                Representative Simulation.
+ *   LABELLED_SUPPORTING_RUNS     IN FORCE on the gate-v2 branch (founder: approved in principle 2026-10-20). No anchor is required. The official panel shows the canonical
+ *                                snapshot only; every replayed run is labelled an individual nba-sim-v1-coherent run
+ *                                (never "official representative"); nothing a run shows overwrites an official value.
+ *                                Still required: a verified pre-tip supporting game, consistent box scores, no
+ *                                scenario leak, no model-version mix — and the founder's adoption of the policy.
+ * Changing the policy in force is a founder decision recorded in the same reviewed PR that edits this constant.
+ */
+export { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE } from "./theater-gate-policy.mjs";
+import { NBA_THEATER_GATE_POLICY, NBA_THEATER_GATE_POLICY_IN_FORCE } from "./theater-gate-policy.mjs";
+
+export function theaterActivationGate(sport, eventId, { audit = null, repoRoot = null, nbaPolicy = NBA_THEATER_GATE_POLICY_IN_FORCE } = {}) {
   const a = audit ?? runConsistencyAudit({ repoRoot, nflEvents: String(sport).toUpperCase() === "NFL" ? [String(eventId)] : [], nbaDates: String(sport).toUpperCase() === "NBA" ? DEFAULT_NBA_DATES : [] });
   const S = String(sport).toUpperCase(); const id = String(eventId);
-  const theaterSurface = (s) => /^simulation-theater/.test(s) || /^nfl-simulation-v2/.test(s);
+  const labelledRuns = S === "NBA" && nbaPolicy === NBA_THEATER_GATE_POLICY.LABELLED_SUPPORTING_RUNS;
+  // under LABELLED_SUPPORTING_RUNS no run is presented as the official representative, so the default-run selection
+  // surface (simulation-theater.default) is not a gate; every other theater surface still is
+  const theaterSurface = (s) => (/^simulation-theater/.test(s) && !(labelledRuns && s === "simulation-theater.default")) || /^nfl-simulation-v2/.test(s);
   const blockers = a.discrepancies.filter((d) => {
     if (d.sport !== S && !(d.static && d.sport === "ALL" && d.code === CODES.SCENARIO_LEAK)) return false;
     if (d.static) return (d.surface ?? "").startsWith("simulation-theater") || d.code === CODES.SCENARIO_LEAK;
@@ -600,13 +744,28 @@ export function theaterActivationGate(sport, eventId, { audit = null, repoRoot =
   });
   const refusal = a.refusals.find((r) => r.sport === S && r.eventId === id);
   if (refusal) blockers.unshift({ code: "NO_OFFICIAL_SNAPSHOT", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: refusal.message, fingerprint: `REFUSAL|${S}|${id}` });
+  // NBA: no public replay unless the supporting v1 simulation is anchored to the official forecast under an
+  // approved tolerance (nbaSimAnchorCheck; NBA_SIM_ANCHOR_TOLERANCE is not yet founder-approved).
+  if (S === "NBA" && !refusal && known(a, S, id)) {
+    const anc = (a.simAnchors ?? []).find((x) => x.sport === "NBA" && x.eventId === id);
+    if (!anc) blockers.unshift({ code: "NO_SUPPORTING_SIMULATION", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: "no verified pre-tip v1 game to replay", fingerprint: `NOSIM|${S}|${id}` });
+    else if (labelledRuns) {
+      if (nbaPolicy !== NBA_THEATER_GATE_POLICY_IN_FORCE) blockers.unshift({ code: "GATE_POLICY_NOT_IN_FORCE", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: `${nbaPolicy} is prepared, not adopted (in force: ${NBA_THEATER_GATE_POLICY_IN_FORCE}) — founder decision`, fingerprint: `POLICY|${S}|${id}` });
+    } else {
+      if (!anc.anchored) blockers.unshift({ code: "SIM_NOT_ANCHORED", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: `failed: ${anc.failed.map((t) => t.term).join(", ")}`, fingerprint: `ANCHOR|${S}|${id}` });
+      if (!anc.toleranceApproved) blockers.unshift({ code: "ANCHOR_TOLERANCE_UNAPPROVED", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: anc.tolerance.basis, fingerprint: `ANCHORTOL|${S}|${id}` });
+    }
+  }
   // NFL: no public replay without a sim-v2 receipt of record that is anchored to the official forecast.
-  if (S === "NFL" && !refusal && !(a.simAnchors ?? []).some((x) => x.eventId === id)) {
+  if (S === "NFL" && !refusal && !(a.simAnchors ?? []).some((x) => x.sport === "NFL" && x.eventId === id)) {
     blockers.unshift({ code: "NO_SIM_RECEIPT_OF_RECORD", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: "no sim-v2 receipt of record to anchor", fingerprint: `NOSIM|${S}|${id}` });
   }
-  const known = a.snapshots.some((s) => s.sport === S && s.eventId === id);
-  if (!known && !refusal) blockers.unshift({ code: "NO_OFFICIAL_SNAPSHOT", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: "event not audited", fingerprint: `MISSING|${S}|${id}` });
+  if (!known(a, S, id) && !refusal) blockers.unshift({ code: "NO_OFFICIAL_SNAPSHOT", severity: SEVERITY.ERROR, sport: S, eventId: id, detail: "event not audited", fingerprint: `MISSING|${S}|${id}` });
   return { sport: S, eventId: id, open: blockers.length === 0, blockers };
+}
+
+function known(a, S, id) {
+  return a.snapshots.some((s) => s.sport === S && s.eventId === id);
 }
 
 /* ═══════════════════════════════════════ baseline ═══════════════════════════════════════ */

@@ -143,7 +143,8 @@ test("the lab settler grades EPL legs through the IDENTITY BRIDGE, not the raw c
   const code = settler.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
   assert.doesNotMatch(code, /soccer["'\s,\]]+.*epl.*results.*latest\.json/, "and must not re-read the raw capture");
   // Routed by the leg's OWN sport, so a cross-sport card grades each leg on its own path.
-  assert.match(code, /leg\.sport[^\n]*"epl"/, "EPL legs must be routed by leg.sport");
+  assert.match(code, /legGradingRoute\(leg\)/, "EPL legs must be routed by the leg's own sport (lib/parlays/leg-grading-route.mjs)");
+  assert.match(code, /route === "epl"/, "and EPL routes to the EPL grader");
 });
 
 test("BUILT EXPORT · the published cards actually reach a reader", () => {

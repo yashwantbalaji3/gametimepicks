@@ -5,10 +5,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  OFFICIAL_LABEL, RUN_ROLE, WHAT_IF_LABEL, officialTargets, runDistance, runsFromNbaSamples, runsFromNflSimReceipt, selectOfficialRepresentative,
+  OFFICIAL_LABEL, REPRESENTATIVE_RULE, RUN_ROLE, WHAT_IF_LABEL, officialTargets, runDistance, runsFromNbaSamples, runsFromNflSimReceipt, selectOfficialRepresentative,
 } from "./representative.mjs";
 import { nbaOfficialSnapshot, nflOfficialSnapshot } from "./official-snapshot.mjs";
-import { NBA_ID, NFL_ID, nbaArtifact, nflBoard, nflReceipt, receiptsOf } from "./__fixtures__/synthetic.mjs";
+import { NBA_ID, NFL_ID, nbaSources, nflBoard, nflReceipt, receiptsOf } from "./__fixtures__/synthetic.mjs";
 
 const snap = nflOfficialSnapshot(NFL_ID, { receipts: receiptsOf(nflReceipt()), playerBoard: { doc: nflBoard() } });
 const targets = officialTargets(snap);
@@ -64,8 +64,9 @@ test("reconciliation states fractional expectations beside whole-number results 
 });
 
 test("player terms join by id only and share one team-term weight", () => {
-  const s = nbaOfficialSnapshot(NBA_ID, nbaArtifact());
+  const s = nbaOfficialSnapshot(NBA_ID, nbaSources());
   const t = officialTargets(s);
+  assert.deepEqual(t.team, {}, "NBA official has no team expectations (WITHHELD)");
   const mk = (runIndex, pts, id = "11") => ({ runIndex, home: 112, away: 109, players: [{ playerId: id, stats: { pts } }] });
   const near = runDistance(mk(1, 24), t);
   const far = runDistance(mk(2, 40), t);
@@ -74,6 +75,27 @@ test("player terms join by id only and share one team-term weight", () => {
   assert.equal(byName.terms.filter((x) => x.key.includes(":")).length, 0, "an id-less line is never matched");
   const playerWeights = near.terms.filter((x) => x.key.includes(":")).reduce((a, x) => a + x.weight, 0);
   assert.equal(playerWeights, 1);
+});
+
+test("side constraint (@2): with no official team expectations only runs won by the official side can be official", () => {
+  const s = nbaOfficialSnapshot(NBA_ID, nbaSources());
+  const t = officialTargets(s);
+  assert.equal(t.sideConstraint, "HOME");
+  const upsetButClose = { runIndex: 1, home: 100, away: 104, players: [{ playerId: "11", stats: { pts: 24 } }] };
+  const homeWinFar = { runIndex: 2, home: 110, away: 101, players: [{ playerId: "11", stats: { pts: 31 } }] };
+  const sel = selectOfficialRepresentative([upsetButClose, homeWinFar], t);
+  assert.equal(sel.official.run.runIndex, 2, "the closer player line loses to the official side");
+  assert.equal(sel.sideConstraint, "HOME");
+  assert.deepEqual(sel.whatIf.map((w) => w.run.runIndex), [1]);
+  const none = selectOfficialRepresentative([upsetButClose], t);
+  assert.equal(none.official, null, "no run won by the official side → nothing is official");
+  assert.equal(none.whatIf.length, 1);
+  assert.equal(REPRESENTATIVE_RULE.id, "official-representative@2");
+});
+
+test("side constraint never applies when the snapshot has team terms (NFL picks are unchanged)", () => {
+  const s = nflOfficialSnapshot(NFL_ID, { receipts: receiptsOf(nflReceipt()), playerBoard: { path: "b.json", doc: nflBoard() } });
+  assert.equal(officialTargets(s).sideConstraint, null);
 });
 
 test("NBA stored samples normalise with player lines keyed by providerAthleteId", () => {

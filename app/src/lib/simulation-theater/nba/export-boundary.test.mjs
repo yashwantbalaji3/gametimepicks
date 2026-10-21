@@ -18,6 +18,7 @@ import path from "node:path";
 
 import { NBA_PRIVATE_MARKERS, scanExportForNbaPrivate } from "./export-boundary.mjs";
 import { NBA_BOX_SCORE_SCHEMA, NBA_BOX_WATERMARK } from "./box-score.mjs";
+import { NBA_PROJECTED_BOX_SCHEMA } from "./projected-box.mjs";
 
 const APP = process.cwd();
 const OUT = path.join(APP, "out");
@@ -104,6 +105,11 @@ test("box-score markers: the schema, the dialog attribute and the watermark's pr
   assert.ok(NBA_PRIVATE_MARKERS.some((m) => NBA_BOX_SCORE_SCHEMA.startsWith(m)), "the box-score schema id is covered");
   assert.ok(NBA_PRIVATE_MARKERS.some((m) => NBA_BOX_WATERMARK.includes(m)), "the watermark is covered");
   assert.ok(NBA_PRIVATE_MARKERS.includes("data-nba-boxscore"));
+  // V2 (2026-10-20): the three-layer box score's schema and its layer attributes; its CSS (nba-px-*) is not a marker
+  assert.ok(NBA_PRIVATE_MARKERS.some((m) => NBA_PROJECTED_BOX_SCHEMA.startsWith(m)), "the three-layer box schema id is covered");
+  assert.ok(NBA_PRIVATE_MARKERS.includes("data-nba-px-"));
+  const v2css = fs.readFileSync(path.join(APP, "src/components/simulation-theater/nba/nba-theater.css"), "utf8");
+  assert.ok(!NBA_PRIVATE_MARKERS.some((m) => v2css.includes(m)), "no marker in the NBA stylesheet (CSS ships un-pruned)");
   for (const m of NBA_PRIVATE_MARKERS) assert.match(m, /^[\x20-\x7e]+$/, `marker ${m} is ASCII (a minifier's escaping cannot hide it)`);
   const nflLike = scanExportForNbaPrivate(plant({ ...CLEAN, "nfl/simulation/2/index.html": '<p>PROJECTED · SIMULATED · NOT ACTUAL GAME STATISTICS</p><table class="st-box-score"></table>' }));
   assert.deepEqual(nflLike.leaks, [], "a public NFL box score's watermark is not an NBA leak");

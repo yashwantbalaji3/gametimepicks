@@ -1,15 +1,18 @@
 /**
  * NBA SIMULATION THEATER · LOADER — the only I/O in the NBA theater library. Server side, build time only. READ ONLY.
  *
- * SOURCE (Cross-Product Prediction Consistency, 2026-10-20). The Theater reads the COMMITTED PRIVATE v1 RECEIPT
+ * SOURCE (Cross-Product Prediction Consistency, 2026-10-20). The Theater REPLAYS the COMMITTED PRIVATE v1 RECEIPT
  *   v1ArtifactSource(NBA_THEATER_DATE) = data/internal/research/nba/experimental-v1/forecasts/<date>.json
- * — the same write-once file the official snapshot is built from (lib/consistency/official-snapshot.mjs
- * nbaOfficialSnapshot) — and verifies each game's `nba-forecast-receipt@1` stamp (receiptIntegrity,
- * lib/sports/nba/forecast-receipt.mjs) BEFORE use. Fail closed:
+ * (the SUPPORTING simulation) and MEASURES its runs against the OFFICIAL snapshot, built from
+ *   officialArtifactSource(NBA_THEATER_DATE) = data/internal/research/nba/experimental-v0.1/forecasts/<date>.json
+ * (Elo side + v0.1 players — what the public /nba lane prints; lib/consistency/official-snapshot.mjs). It verifies each
+ * game's `nba-forecast-receipt@1` stamp (receiptIntegrity, lib/sports/nba/forecast-receipt.mjs) BEFORE use. Fail closed:
  *   - file missing / unreadable / not JSON          → NO_ARTIFACT
  *   - game not in the committed file (e.g. it was OUTSIDE_HORIZON at the last pre-tip run) → NO_OFFICIAL_RECEIPT,
  *     rendered as "No official forecast receipt for this game yet". Never a fixture, never another date, in its place.
  *   - receipt stamp missing or broken                → RECEIPT_INTEGRITY
+ *   - official v0.1 file missing / game absent / broken → the representative block says NO_OFFICIAL (every run is a
+ *     hypothetical what-if); the runs still play, never labelled official.
  * The other sources exist ONLY for unit tests:
  *   NBA_REAL_TEST_FIXTURE_SOURCE  a byte-for-byte copy of real nba-sim-v1-coherent output for 2026-10-20 (r2), kept under
  *                                 __fixtures__/ with a provenance sidecar (read only if the sidecar's sha256 matches).
@@ -37,11 +40,14 @@ export const NBA_REAL_TEST_FIXTURE_SOURCE = Object.freeze({
   provenance: "app/src/lib/simulation-theater/nba/__fixtures__/nba-sim-v1-real-2026-10-20-r2.provenance.json",
 });
 export const v1ArtifactSource = (date) => Object.freeze({ kind: "artifact", path: `data/internal/research/nba/experimental-v1/forecasts/${date}.json` });
+/** The OFFICIAL NBA source (v0.1 players + the Elo side it carries). */
+export const officialArtifactSource = (date) => Object.freeze({ kind: "artifact", path: `data/internal/research/nba/experimental-v0.1/forecasts/${date}.json` });
 
 /** The slate the dev route renders. */
 export const NBA_THEATER_DATE = "2026-10-20";
 // SOURCE ↓ the committed private receipt (never a fixture)
 export const NBA_THEATER_SOURCE = v1ArtifactSource(NBA_THEATER_DATE);
+export const NBA_THEATER_OFFICIAL_SOURCE = officialArtifactSource(NBA_THEATER_DATE);
 
 export const NBA_COLORS_FILE = "app/src/lib/simulation-theater/nba/nba-team-colors.json";
 export const MAX_NBA_EVENTS = 3;
@@ -89,9 +95,12 @@ export function lastRunOutcome(artifact, eventId) {
  * The theater for one event.
  * @returns {{ eventId: string, file: string, ok: boolean, error: object|null, manifest: object|null, palettes: {team: object, neutral: object}|null }}
  */
-export function loadNbaTheater(repoRoot, eventId, { source = NBA_THEATER_SOURCE, read = null } = {}) {
+export function loadNbaTheater(repoRoot, eventId, { source = NBA_THEATER_SOURCE, read = null, officialSource = null, officialRead = null } = {}) {
   const id = String(eventId);
   const r = read ?? readArtifact(repoRoot, source);
+  // the official source sits beside the replayed one: the dated v0.1 file for the receipt, none for test fixtures
+  const offSrc = officialSource ?? (source.kind === "artifact" ? officialArtifactSource(String(source.path.match(/(\d{4}-\d{2}-\d{2})\.json$/)?.[1] ?? NBA_THEATER_DATE)) : null);
+  const o = officialRead ?? (offSrc ? readArtifact(repoRoot, offSrc) : null);
   const fail = (code, reason) => ({ eventId: id, file: r.file, ok: false, error: { code, reason }, manifest: null, palettes: null });
   if (!r.artifact) return fail(r.error?.code ?? "NO_ARTIFACT", r.error?.reason ?? "no artifact");
   const game = Array.isArray(r.artifact.games) ? r.artifact.games.find((g) => String(g?.providerEventId) === id) : null;
@@ -106,7 +115,11 @@ export function loadNbaTheater(repoRoot, eventId, { source = NBA_THEATER_SOURCE,
   }
   const a = adaptNbaArtifact(r.artifact, id, { file: r.file, provenance: r.provenance ?? null });
   if (!a.ok) return { eventId: id, file: r.file, ok: false, error: a.error, manifest: null, palettes: null };
-  const manifest = withNbaRepresentative(a.manifest, game, nbaOfficial(id, r.artifact, { path: r.file, sha256: r.sha256 ?? undefined }));
+  const official = nbaOfficial(id, {
+    official: o?.artifact ? { doc: o.artifact, path: o.file, sha256: o.sha256 ?? undefined } : null,
+    supporting: { doc: r.artifact, path: r.file, sha256: r.sha256 ?? undefined },
+  });
+  const manifest = withNbaRepresentative(a.manifest, game, official);
   const colors = readTeamColors(repoRoot);
   const { home, away } = manifest.teams;
   const palettes = { team: nbaPalette(colors, home.abbr, away.abbr), neutral: nbaPalette(colors, home.abbr, away.abbr, { neutral: true }) };
@@ -117,10 +130,12 @@ export function loadNbaTheater(repoRoot, eventId, { source = NBA_THEATER_SOURCE,
 export function usableNbaEvents(repoRoot, { source = NBA_THEATER_SOURCE } = {}) {
   const r = readArtifact(repoRoot, source);
   if (!r.artifact || !Array.isArray(r.artifact.games)) return [];
+  const offSrc = source.kind === "artifact" ? officialArtifactSource(String(source.path.match(/(\d{4}-\d{2}-\d{2})\.json$/)?.[1] ?? NBA_THEATER_DATE)) : null;
+  const officialRead = offSrc ? readArtifact(repoRoot, offSrc) : null;
   return r.artifact.games
     .map((g) => String(g?.providerEventId ?? ""))
     .filter((id) => id && /^[0-9A-Za-z_-]+$/.test(id))
-    .filter((id) => { const t = loadNbaTheater(repoRoot, id, { source, read: r }); return t.ok && t.manifest.samples.some((s) => s.validation.ok); })
+    .filter((id) => { const t = loadNbaTheater(repoRoot, id, { source, read: r, officialSource: offSrc, officialRead }); return t.ok && t.manifest.samples.some((s) => s.validation.ok); })
     .slice(0, MAX_NBA_EVENTS);
 }
 

@@ -273,7 +273,10 @@ export default function TopBoard({ edition, meta, initialCategory = "points" }: 
       <details>
         <summary>How this board is built</summary>
         <p style={{ margin: "6px 0 0" }}>
-          Ranked by the model&apos;s median projection (ties: the mean, then the player id). A player is listed only if he is
+          Ranked by the model&apos;s median projection (ties: the mean, then the player id); on a board whose stored
+          ranges are whole numbers (integer simulations) the median ties too often, so that board is ranked by the mean
+          (ties: the player id). PRA, P+R and P+A are the joint sums of the player&apos;s own simulated statistics, draw by
+          draw; R+A is not modelled and is never made by adding projections. A player is listed only if he is
           not on the injury report at all (day-to-day included), has his own recent-game history and per-minute rates,
           is expected to play at least {meta.minExpectedMinutes} minutes, and his minutes estimate is not too uncertain
           (spread at most {Math.round(meta.maxMinutesCv * 100)}% of the estimate). Games that had tipped when the board

@@ -11,7 +11,8 @@
  * snapshot this module builds — `nba-experimental-public-snapshot@1` — and nothing else. Each component carries its own
  * source label; they are never presented as one validated engine:
  *   - game information: the Elo winner side (founder N2) — the FAVOURED TEAM only, never a probability;
- *   - player figures: the v0.1 roster-gated family (founder N1, player champion) — MEDIANS only.
+ *   - player figures: the v0.1 roster-gated family (founder N1, player champion) — MEDIANS only; under §13 amendment A
+ *     also the PRA / P+R / P+A medians the receipt stores (per-draw sums over the same draws), for /nba/projections.
  *
  * WHAT IS WITHHELD, AND WHY (each a pinned test):
  *   - win probabilities / confidence: unvalidated (n = 0 regular-season games; v0.1 preseason sim ECE 0.218).
@@ -28,7 +29,25 @@
  */
 import { receiptIntegrity } from "./forecast-receipt.mjs";
 
+/**
+ * Schema stays @1 under amendment A: the change is ADDITIVE only (`comboMedians` per player row, `comboSource` per
+ * game) — no @1 key is renamed, removed or re-valued, so every @1 reader (the /nba lane) is unaffected.
+ */
 export const LANE_SNAPSHOT_SCHEMA = "nba-experimental-public-snapshot@1";
+/**
+ * §13 AMENDMENT A (founder decision 2026-10-20 — conditional approval; activation via the release-owner gate):
+ * projection-only player boards at /nba/projections — filters (matchup / team / player / stat) and a reader's sort over
+ * the SAME snapshot, plus PRA / P+R / P+A medians copied from the same receipt (joint sums over the same simulated
+ * draws, never sums of component medians). Still no lines, odds, edges, EV, probabilities, ranges or picks.
+ */
+export const AMENDMENT_A = Object.freeze({
+  id: "nba-experimental-public@1/amendment-A",
+  /** Amendment A's rollback switch: false drops the combo fields from the next snapshot and blanks /nba/projections. */
+  enabled: true,
+  recorded: "2026-10-20",
+  doc: "docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md §13 amendment A",
+  surface: "/nba/projections",
+});
 export const LANE = Object.freeze({
   id: "nba-experimental-public@1",
   /** The rollback switch: false removes every lane surface from the next build (one-line revert). */
@@ -36,11 +55,24 @@ export const LANE = Object.freeze({
   amendment: "docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md §12 look 5 + §13 (founder decision 2026-10-20)",
   label: "UNVALIDATED EXPERIMENTAL SIMULATION",
   sourceFamily: "v0.1",
-  surfaces: Object.freeze(["/nba"]),
+  surfaces: Object.freeze(AMENDMENT_A.enabled ? ["/nba", AMENDMENT_A.surface] : ["/nba"]),
 });
 /** Players shown per team: active (not Out), at least this many expected minutes, by expected minutes. */
 export const MIN_EXPECTED_MINUTES = 10;
+/** The /nba lane card columns (unchanged by amendment A). */
 export const STATS = Object.freeze([["pts", "PTS"], ["reb", "REB"], ["ast", "AST"], ["threePm", "3PM"]]);
+/**
+ * Amendment A combo stats and their components. Each is the median of the per-draw SUM over the same simulated draws
+ * (game-sim.mjs comboDraws / COMBO_KEYS) — copied from the receipt's own p50, never recomputed from component medians.
+ * R+A, steals, blocks and turnovers are not modelled and never appear.
+ */
+export const COMBO_COMPONENTS = Object.freeze({ pra: Object.freeze(["pts", "reb", "ast"]), ptsReb: Object.freeze(["pts", "reb"]), ptsAst: Object.freeze(["pts", "ast"]) });
+export const COMBO_STATS = Object.freeze([["pra", "PRA"], ["ptsReb", "P+R"], ["ptsAst", "P+A"]]);
+/** Every stat a /nba/projections board can show: the four lane medians, then the three combo medians. */
+export const PROJECTION_BOARD_STATS = Object.freeze([...STATS, ...COMBO_STATS]);
+export const COMBO_LABEL = "sum over the same simulated draws (v0 engine; components independent within a player)";
+/** Draw additivity: a combo's mean must equal the sum of its components' means within this (2-dp rounding slack). */
+export const COMBO_MEAN_TOLERANCE = 0.02;
 export const WITHHELD = Object.freeze({
   winProbability: "Not shown: no NBA game-outcome chance has been validated (0 graded regular-season games).",
   teamScores: "Not shown: this model's team score is a sum of player simulations that ignores the opponent, can contradict the Elo side, and has not met its historical checks.",
@@ -60,7 +92,25 @@ function sideRows(players) {
       expectedMinutes: r1(p.expectedMinutes),
       injuryStatus: p.injuryStatus ?? null,
       medians: Object.fromEntries(STATS.map(([k]) => [k, r1(p?.[k]?.p50)])),
+      ...(AMENDMENT_A.enabled ? { comboMedians: Object.fromEntries(COMBO_STATS.map(([k]) => [k, r1(p?.[k]?.p50)])) } : {}),
     }));
+}
+
+/**
+ * SOURCE RECONCILIATION (amendment A) for one receipt player: every combo exists, and its mean equals the sum of its
+ * components' means within COMBO_MEAN_TOLERANCE — the draws were summed per draw (means are additive across draws;
+ * medians are not). Returns the problems found (empty = reconciles). Pure.
+ */
+export function comboReconciliation(player) {
+  const problems = [];
+  for (const [k, parts] of Object.entries(COMBO_COMPONENTS)) {
+    const c = player?.[k];
+    if (!Number.isFinite(c?.p50) || !Number.isFinite(c?.mean)) { problems.push(`${k}: missing p50/mean`); continue; }
+    if (parts.some((q) => !Number.isFinite(player?.[q]?.mean))) { problems.push(`${k}: a component mean is missing`); continue; }
+    const sum = parts.reduce((a, q) => a + player[q].mean, 0);
+    if (!(Math.abs(sum - c.mean) <= COMBO_MEAN_TOLERANCE + 1e-9)) problems.push(`${k}: mean ${c.mean} differs from the sum of component means ${Math.round(sum * 100) / 100}`);
+  }
+  return problems;
 }
 
 /**
@@ -83,6 +133,13 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
       continue;
     }
     const f = g.forecast ?? {};
+    if (AMENDMENT_A.enabled) {
+      // A published combo must come from the same draws as its components: any player that fails refuses the build.
+      for (const p of [...(f.players?.away ?? []), ...(f.players?.home ?? [])]) {
+        const bad = comboReconciliation(p);
+        if (bad.length) throw new Error(`REFUSED: ${g.providerEventId} player ${p?.providerAthleteId} combos do not reconcile with their source draws — ${bad.join("; ")}`);
+      }
+    }
     const side = f.publishedSide === "HOME" ? g.home : f.publishedSide === "AWAY" ? g.away : null;
     // PRIVATE audit facts (never in the public snapshot): which side the withheld v0.1 team median favours, and the seed.
     audit.push({
@@ -110,6 +167,7 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
       teamScores: { state: "WITHHELD", reason: WITHHELD.teamScores },
       players: {
         source: `v0.1 roster-gated player simulation (${r.modelVersion}) — medians of ${f.simulations ?? "?"} simulated games`,
+        ...(AMENDMENT_A.enabled ? { comboSource: `PRA, P+R and P+A: ${COMBO_LABEL}` } : {}),
         away: sideRows(f.players?.away),
         home: sideRows(f.players?.home),
       },
@@ -161,6 +219,12 @@ export function snapshotMatchesSource(snapshotGame, sourceGame) {
       const p = src.get(row.providerAthleteId);
       if (!p) return false;
       for (const [k] of STATS) if (row.medians[k] !== r1(p?.[k]?.p50)) return false;
+      // Amendment A: combos re-derive from the receipt's OWN combo p50 (not a sum of medians) and reconcile by draws.
+      if (row.comboMedians !== undefined || AMENDMENT_A.enabled) {
+        if (!row.comboMedians || Object.keys(row.comboMedians).length !== COMBO_STATS.length) return false;
+        for (const [k] of COMBO_STATS) if (row.comboMedians[k] !== r1(p?.[k]?.p50)) return false;
+        if (comboReconciliation(p).length) return false;
+      }
       if (row.expectedMinutes !== r1(p.expectedMinutes)) return false;
     }
   }

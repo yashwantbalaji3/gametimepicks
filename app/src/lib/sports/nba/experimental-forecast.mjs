@@ -27,6 +27,7 @@ import { gatePool, POOL_VERSION as ROSTER_GATED_POOL_VERSION } from "./roster-ga
 import { frozenWinnerSide, DECIDED_WINNER_HEAD } from "./winner-side.mjs";
 import { simulateGameV1, NBA_SIM_V1_MODEL_VERSION } from "./game-sim-v1.mjs";
 import { indexBoxscores, leagueMeans, buildSideProfile, PROFILE_VERSION as V1_PROFILE_VERSION } from "./sim-v1-profile.mjs";
+import { scoreQuantileBlock } from "./distribution-scores.mjs";
 
 export const FORECAST_ARTIFACT = "nba-experimental-forecasts";
 /**
@@ -96,6 +97,26 @@ export const DATA_CLASS = "PRIVATE_RESEARCH";
 export const LABELS = Object.freeze({ 1: "NBA PRESEASON — EXPERIMENTAL", 2: "NBA REGULAR SEASON — SHADOW" });
 export const POPULATIONS = Object.freeze({ 1: "preseason", 2: "regular" });
 const STAT_KEYS = Object.freeze(["pts", "reb", "ast", "threePm"]);
+/** The three §5 joint combinations and their components (the keys `game-sim.mjs` COMBO_KEYS writes). */
+const COMBO_PARTS = Object.freeze({ pra: ["pts", "reb", "ast"], ptsAst: ["pts", "ast"], ptsReb: ["pts", "reb"] });
+
+/**
+ * Possessions per team from a box score — the standard estimate FGA + 0.44·FTA − OREB + TOV, averaged over the two
+ * sides. Null when any input is missing on either side (never zero-filled). A DIAGNOSTIC slice key, not a model input.
+ */
+export function paceFromBoxscore(boxscore, game) {
+  const sideIds = [game?.home?.providerTeamId, game?.away?.providerTeamId].map((x) => (x == null ? null : String(x)));
+  const per = [];
+  for (const id of sideIds) {
+    const rows = (boxscore?.players ?? []).filter((p) => String(p.providerTeamId) === id && Number.isInteger(p.minutes));
+    if (!rows.length) return null;
+    const sum = (k) => rows.reduce((s, p) => (s == null || !Number.isInteger(p[k]) ? null : s + p[k]), 0);
+    const fga = sum("fga"), fta = sum("fta"), oreb = sum("oreb"), tov = sum("tov");
+    if ([fga, fta, oreb, tov].some((x) => x == null)) return null;
+    per.push(fga + 0.44 * fta - oreb + tov);
+  }
+  return { possessions: r4((per[0] + per[1]) / 2), rule: "FGA + 0.44·FTA − OREB + TOV, mean of both sides (team box totals from player rows)" };
+}
 
 /** Label for a schedule seasonType — throws on anything but 1 or 2. */
 export function labelForSeasonType(seasonType) {
@@ -351,11 +372,24 @@ export function gradeForecastGame(game, final, boxscore = null) {
   /* Session 10 · G5 — the facts the preregistered interval / overtime / timing metrics need, recorded per game
      (grader-metrics.mjs aggregates them). An interval the artifact did not store is null, never "outside". */
   const within = (q, actual) => (Number.isFinite(q?.p10) && Number.isFinite(q?.p90) ? (actual >= q.p10 && actual <= q.p90 ? 1 : 0) : null);
+  // p25–p75 only where the artifact stored it (v1 does; v0/v0.1/v0.2 do not) — absent is null, never "outside".
+  const within50 = (q, actual) => (Number.isFinite(q?.p25) && Number.isFinite(q?.p75) ? (actual >= q.p25 && actual <= q.p75 ? 1 : 0) : null);
   const intervals = {
-    margin: { actual: final.ftHome - final.ftAway, p10: f.sim.margin?.p10 ?? null, p90: f.sim.margin?.p90 ?? null, inside80: within(f.sim.margin, final.ftHome - final.ftAway) },
-    total: { actual: final.ftHome + final.ftAway, p10: f.sim.total?.p10 ?? null, p90: f.sim.total?.p90 ?? null, inside80: within(f.sim.total, final.ftHome + final.ftAway) },
+    margin: { actual: final.ftHome - final.ftAway, p10: f.sim.margin?.p10 ?? null, p90: f.sim.margin?.p90 ?? null, inside80: within(f.sim.margin, final.ftHome - final.ftAway), inside50: within50(f.sim.margin, final.ftHome - final.ftAway) },
+    total: { actual: final.ftHome + final.ftAway, p10: f.sim.total?.p10 ?? null, p90: f.sim.total?.p90 ?? null, inside80: within(f.sim.total, final.ftHome + final.ftAway), inside50: within50(f.sim.total, final.ftHome + final.ftAway) },
   };
-  const overtime = { simTieMass: Number.isFinite(f.sim?.tieMass) ? f.sim.tieMass : null, actual: typeof final.overtime === "boolean" ? final.overtime : null };
+  // Overtime (grader v2): the FACT comes from the caller (finals record / box-score minutes / summary periods — see
+  // experimental-grading-ledger.mjs resolveOvertime); the PROBABILITY head is the sim's own P(OT): v1 models overtime
+  // (`overtimeRate`), v0-family sims split regulation ties, so their regulation tie mass IS their P(OT).
+  const pOvertime = Number.isFinite(f.sim?.overtimeRate) ? f.sim.overtimeRate : Number.isFinite(f.sim?.tieMass) ? f.sim.tieMass : null;
+  const overtime = {
+    simTieMass: Number.isFinite(f.sim?.tieMass) ? f.sim.tieMass : null,
+    pOvertime,
+    pOvertimeSource: Number.isFinite(f.sim?.overtimeRate) ? "sim.overtimeRate" : Number.isFinite(f.sim?.tieMass) ? "sim.tieMass" : null,
+    actual: typeof final.overtime === "boolean" ? final.overtime : null,
+    periods: Number.isInteger(final.periods) ? final.periods : null,
+    source: typeof final.overtime === "boolean" ? final.overtimeSource ?? final.source ?? null : null,
+  };
   const timing = { inputAsOf: f.inputAsOf ?? null, tipUtc: game.dateUtc ?? null, preTip: Number.isFinite(Date.parse(f.inputAsOf ?? "")) && Number.isFinite(Date.parse(game.dateUtc ?? "")) ? Date.parse(f.inputAsOf) < Date.parse(game.dateUtc) : null };
 
   let players = null;
@@ -370,28 +404,59 @@ export function gradeForecastGame(game, final, boxscore = null) {
         const id = String(a.providerAthleteId);
         seen.add(id);
         const pred = predicted.get(id);
-        if (a.didNotPlay) { if (pred) players.predictedButDnp.push({ side: sideKey, providerAthleteId: id, name: a.name, expectedMinutes: pred.expectedMinutes, dnpReason: a.dnpReason }); continue; }
+        if (a.didNotPlay) { if (pred) players.predictedButDnp.push({ side: sideKey, providerAthleteId: id, name: a.name, expectedMinutes: pred.expectedMinutes, dnpReason: a.dnpReason, availability: pred.availability ?? null, injuryStatus: pred.injuryStatus ?? null }); continue; }
         if (!Number.isInteger(a.minutes)) { players.nullMinutesActual += 1; continue; }
         if (!pred) { players.playedButUnpredicted.push({ side: sideKey, providerAthleteId: id, name: a.name, minutes: a.minutes, pts: a.pts }); continue; }
         // Minutes error: predicted expected minutes vs actual minutes (the minutes model's own error).
         // Conditional production error: actual minutes × predicted rate vs actual stat (rate error alone).
         const row = { side: sideKey, providerAthleteId: id, name: a.name, expectedMinutes: pred.expectedMinutes, actualMinutes: a.minutes, minutesAbsErr: r4(Math.abs(pred.expectedMinutes - a.minutes)), ratesBasis: pred.ratesBasis, conditional: {}, unconditional: {}, rates: {}, inside80: {}, atOrAboveMedian: {} };
+        // Grader v2 (additive): signed errors (forecast − actual, the repo convention) so bias and RMSE are computable;
+        // the prediction's availability / injury status and the box score's starter flag, for the §9 slices.
+        row.minutesErr = r4(pred.expectedMinutes - a.minutes);
+        row.minutesInside80 = Number.isFinite(pred.minutes?.p10) && Number.isFinite(pred.minutes?.p90) ? (a.minutes >= pred.minutes.p10 && a.minutes <= pred.minutes.p90 ? 1 : 0) : null;
+        row.availability = pred.availability ?? null;
+        row.injuryStatus = pred.injuryStatus ?? null;
+        row.starterActual = typeof a.starter === "boolean" ? a.starter : null;
+        row.signed = {};
         for (const k of STAT_KEYS) {
           const rate = pred.rates?.[k];
           row.rates[k] = Number.isFinite(rate) ? rate : null;
+          // Unconditional error and coverage need only the simulated distribution; conditional needs the rate too.
+          row.signed[k] = Number.isInteger(a[k]) && Number.isFinite(pred[k]?.mean) ? r4(pred[k].mean - a[k]) : null;
           if (!Number.isInteger(a[k]) || !Number.isFinite(rate)) { row.conditional[k] = null; row.unconditional[k] = null; row.inside80[k] = null; row.atOrAboveMedian[k] = null; continue; }
           row.conditional[k] = r4(Math.abs(a.minutes * rate - a[k]));
           row.unconditional[k] = r4(Math.abs(pred[k].mean - a[k]));
           row.inside80[k] = Number.isFinite(pred[k]?.p10) && Number.isFinite(pred[k]?.p90) ? (a[k] >= pred[k].p10 && a[k] <= pred[k].p90 ? 1 : 0) : null;
           row.atOrAboveMedian[k] = Number.isFinite(pred[k]?.p50) ? (a[k] >= pred[k].p50 ? 1 : 0) : null;
         }
+        // Joint combinations (§5: PRA, P+A, P+R — coverage of the frozen joint quantiles; never separately fitted).
+        row.combos = {};
+        for (const [ck, parts] of Object.entries(COMBO_PARTS)) {
+          const actual = parts.every((k) => Number.isInteger(a[k])) ? parts.reduce((s, k) => s + a[k], 0) : null;
+          const q = pred[ck];
+          row.combos[ck] = actual == null || !Number.isFinite(q?.mean) ? null : {
+            actual, signed: r4(q.mean - actual),
+            inside80: Number.isFinite(q.p10) && Number.isFinite(q.p90) ? (actual >= q.p10 && actual <= q.p90 ? 1 : 0) : null,
+          };
+        }
+        // Distribution scores over the FROZEN receipt quantiles (distribution-scores.mjs): per-level pinball, interval
+        // scores, P(X ≥ k) at the standard thresholds. Never over draws or mean/sd.
+        row.dist = {};
+        for (const m of ["pts", "reb", "ast", "threePm"]) row.dist[m] = Number.isInteger(a[m]) ? scoreQuantileBlock(pred[m], a[m], { market: m }) : null;
+        for (const [ck, parts] of Object.entries(COMBO_PARTS)) row.dist[ck] = parts.every((k) => Number.isInteger(a[k])) ? scoreQuantileBlock(pred[ck], parts.reduce((s, k) => s + a[k], 0), { market: ck }) : null;
+        row.dist.minutes = scoreQuantileBlock(pred.minutes, a.minutes, { market: "minutes" });
         players.rows.push(row);
       }
-      for (const [id, pred] of predicted) if (!seen.has(id)) players.predictedButAbsent.push({ side: sideKey, providerAthleteId: id, name: pred.name, expectedMinutes: pred.expectedMinutes });
+      for (const [id, pred] of predicted) if (!seen.has(id)) players.predictedButAbsent.push({ side: sideKey, providerAthleteId: id, name: pred.name, expectedMinutes: pred.expectedMinutes, availability: pred.availability ?? null, injuryStatus: pred.injuryStatus ?? null });
     }
+    players.pace = paceFromBoxscore(boxscore, game);
   }
 
-  return { providerEventId: game.providerEventId, label: game.label, seasonType: game.seasonType, population: game.population, dateUtc: game.dateUtc, graded: true, final: { ftHome: final.ftHome, ftAway: final.ftAway, source: final.source ?? null }, winner, score, intervals, overtime, timing, players };
+  const dist = {
+    margin: scoreQuantileBlock(f.sim.margin, final.ftHome - final.ftAway, { market: "margin" }),
+    total: scoreQuantileBlock(f.sim.total, final.ftHome + final.ftAway, { market: "total" }),
+  };
+  return { providerEventId: game.providerEventId, label: game.label, seasonType: game.seasonType, population: game.population, dateUtc: game.dateUtc, graded: true, final: { ftHome: final.ftHome, ftAway: final.ftAway, source: final.source ?? null }, winner, score, intervals, overtime, timing, players, dist };
 }
 
 const meanOf = (xs) => (xs.length ? r4(xs.reduce((s, x) => s + x, 0) / xs.length) : null);

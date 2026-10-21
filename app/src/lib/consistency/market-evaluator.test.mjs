@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { LEAN, LEAN_RULE, WITHHELD, decimalFromAmerican, evaluateMarket, lineProbabilities } from "./market-evaluator.mjs";
 import { nbaOfficialSnapshot, nflOfficialSnapshot } from "./official-snapshot.mjs";
 import { normCdf } from "../v2-candidate-gates.ts";
-import { NBA_ID, NFL_ID, nbaArtifact, nflBoard, nflReceipt, receiptsOf } from "./__fixtures__/synthetic.mjs";
+import { NBA_ID, NFL_ID, nbaSources, nflBoard, nflReceipt, receiptsOf } from "./__fixtures__/synthetic.mjs";
 
 const snap = nflOfficialSnapshot(NFL_ID, { receipts: receiptsOf(nflReceipt()), playerBoard: { doc: nflBoard() } });
 const NOW = "2026-11-01T17:10:00Z";
@@ -126,11 +126,17 @@ test("game markets: total, team total and spread from the official game distribu
   assert.equal(tt.identity.subjectId, "HOM");
 });
 
-test("NBA: private snapshots evaluate but are never qualified; empirical totals are exact", () => {
-  const s = nbaOfficialSnapshot(NBA_ID, nbaArtifact());
-  const e = evaluateMarket({ snapshot: s, family: "game_total", line: 221, overAmerican: -110, underAmerican: -110, capturedAt: "2026-11-01T11:00:00Z", now: "2026-11-01T12:30:00Z" });
-  assert.equal(e.pPush, 0.2);
-  assert.ok(e.withheldReasons.includes(WITHHELD.PUBLICATION_PRIVATE));
-  assert.equal(e.eligibility.qualified, false);
-  assert.equal(e.eligibility.publication, "PRIVATE");
+test("NBA: private v0.1 snapshots evaluate player props but are never qualified; withheld team markets refuse", () => {
+  const s = nbaOfficialSnapshot(NBA_ID, nbaSources());
+  const base = { snapshot: s, capturedAt: "2026-11-01T11:00:00Z", now: "2026-11-01T12:30:00Z", overAmerican: -110, underAmerican: -110 };
+  const pts = evaluateMarket({ ...base, playerId: "11", family: "pts", line: 23.5 });
+  assert.ok(pts.pOver > 0.5 && pts.pOver < 0.6, "v0.1 median 23.84 sits just above 23.5");
+  assert.equal(pts.pPush, 0, "half line");
+  assert.ok(pts.withheldReasons.includes(WITHHELD.PUBLICATION_PRIVATE));
+  assert.ok(pts.withheldReasons.includes(WITHHELD.FAMILY_NOT_PUBLISHED));
+  assert.equal(pts.eligibility.qualified, false);
+  assert.ok(evaluateMarket({ ...base, playerId: "11", family: "pts", line: 24 }).pPush > 0, "whole line: continuity rule gives push mass");
+  const total = evaluateMarket({ ...base, family: "game_total", line: 221 });
+  assert.ok(total.withheldReasons.includes(WITHHELD.FAMILY_NOT_IN_SNAPSHOT), "no official NBA total exists");
+  assert.equal(total.eligibility.qualified, false);
 });

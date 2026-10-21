@@ -19,6 +19,18 @@
  */
 import { canonicalJson } from "./forecast-receipt.mjs";
 import { boxscoreAthlete, isFinalBoxscore, LINE_STATE, measureAthlete } from "./boxscore-line.mjs";
+import { COMBO_COMPONENTS } from "./top-boards.mjs";
+
+/**
+ * The actual value of a board stat from one box-score line. A joint combination (pra / ptsReb / ptsAst) is the sum
+ * of its integer components; it is null (never a partial sum) when any component is missing.
+ */
+export function actualStat(boxPlayer, stat) {
+  const parts = COMBO_COMPONENTS[stat];
+  if (!parts) return boxPlayer?.[stat];
+  const vs = parts.map((k) => boxPlayer?.[k]);
+  return vs.every((v) => Number.isInteger(v)) ? vs.reduce((s, v) => s + v, 0) : null;
+}
 
 export const GRADES_ARTIFACT = "nba-top-board-grades";
 export const SETTLEMENT = Object.freeze({ WIN: "WIN", LOSS: "LOSS", PUSH: "PUSH", VOID: "VOID", PENDING: "PENDING", UNGRADABLE: "UNGRADABLE" });
@@ -62,15 +74,17 @@ export function gradeBoardRow(row, { boxscore = null, gameStatus = null } = {}) 
   if (POSTPONED.test(String(gameStatus ?? "")) || POSTPONED.test(String(boxscore?.status ?? ""))) return voidAs(GRADE_REASON.GAME_POSTPONED, gameStatus ?? boxscore?.status);
   if (!isFinalBoxscore(boxscore)) return pendingAs(GRADE_REASON.NO_FINAL_BOXSCORE);
 
-  // The shared line reader (boxscore-line.mjs): the player-prop grader reads the same way.
+  // The shared line reader (boxscore-line.mjs): the player-prop grader reads the same way. A joint combination
+  // (pra / ptsReb / ptsAst) is measured through its integer components and summed — null, never a partial sum.
   const a = boxscoreAthlete(boxscore, row.player?.providerAthleteId);
-  const line = measureAthlete(a, [row.stat]);
+  const parts = COMBO_COMPONENTS[row.stat] ?? [row.stat];
+  const line = measureAthlete(a, parts);
   if (line.state === LINE_STATE.NOT_IN_BOXSCORE) return voidAs(GRADE_REASON.NOT_IN_BOXSCORE, "late scratch or inactive — not listed in the final box score");
   if (line.state === LINE_STATE.DNP) return voidAs(GRADE_REASON.DNP, line.dnpReason);
   if (line.state !== LINE_STATE.MEASURED) {
-    return { ...base, settlement: { status: SETTLEMENT.UNGRADABLE, reason: GRADE_REASON.NULL_ACTUAL, detail: `minutes ${a.minutes} · ${row.stat} ${a[row.stat]}` }, projectionStatus: PROJECTION_STATUS.UNGRADABLE, accuracy: null };
+    return { ...base, settlement: { status: SETTLEMENT.UNGRADABLE, reason: GRADE_REASON.NULL_ACTUAL, detail: `minutes ${a.minutes} · ${row.stat} ${actualStat(a, row.stat)}` }, projectionStatus: PROJECTION_STATUS.UNGRADABLE, accuracy: null };
   }
-  const actual = line.values[row.stat];
+  const actual = parts.reduce((sum, k) => sum + line.values[k], 0);
   const { p50, mean } = row.projection ?? {};
   const { p10, p90 } = row.range ?? {};
   const accuracy = {

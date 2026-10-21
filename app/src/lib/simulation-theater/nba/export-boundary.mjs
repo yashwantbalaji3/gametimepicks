@@ -25,6 +25,8 @@ export const NBA_PRIVATE_MARKERS = Object.freeze([
   // Projected Final Box Score (Lane A-NBA 2026-10-20). ASCII-only, so a minifier's escaping cannot hide them, and unique
   // to the NBA box score (an NFL box score never says PRIVATE CANDIDATE MODEL, never carries these attributes):
   "nba-box-score@", // box-score.mjs NBA_BOX_SCORE_SCHEMA
+  "nba-projected-box@", // projected-box.mjs NBA_PROJECTED_BOX_SCHEMA (V2 three-layer box score, 2026-10-20)
+  "data-nba-px-", // NbaBoxScore.tsx V2 layer attributes (data-nba-px-official, -group, -controls, ...)
   "data-nba-boxscore", // NbaBoxScore.tsx dialog / table attributes (class names are NOT markers: CSS ships un-pruned)
   "PRIVATE CANDIDATE MODEL", // the box-score watermark's private-candidate clause
 ]);

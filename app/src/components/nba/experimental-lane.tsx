@@ -12,9 +12,9 @@
 import React from "react";
 import fs from "node:fs";
 import path from "node:path";
-import { LANE, STATS, LANE_SNAPSHOT_SCHEMA, laneIsCurrent } from "@/lib/sports/nba/experimental-public-lane.mjs";
+import { LANE, STATS, LANE_SNAPSHOT_SCHEMA, AMENDMENT_A, laneIsCurrent } from "@/lib/sports/nba/experimental-public-lane.mjs";
 
-type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null> };
+type Row = { providerAthleteId: string; name: string | null; expectedMinutes: number | null; injuryStatus: string | null; medians: Record<string, number | null>; comboMedians?: Record<string, number | null> };
 type Game = {
   providerEventId: string; tipUtc: string; frozenAt: string;
   away: { abbr: string | null; name: string | null }; home: { abbr: string | null; name: string | null };
@@ -22,9 +22,9 @@ type Game = {
   engine: { simulation: string | null; simulations: number | null };
   elo: { favoured: string | null; state: string; source: string };
   teamScores: { state: string; reason: string };
-  players: { source: string; away: Row[]; home: Row[] };
+  players: { source: string; comboSource?: string; away: Row[]; home: Row[] };
 };
-type Snapshot = { schema: string; label: string; validation: string; date: string | null; withheld: Record<string, string>; games: Game[]; excluded: { providerEventId: string; reason: string }[] };
+export type Snapshot = { schema: string; label: string; validation: string; date: string | null; withheld: Record<string, string>; games: Game[]; excluded: { providerEventId: string; reason: string }[] };
 
 /** The lane to show at `etDate`: null when disabled, missing, or its slate is in the past (never shown as current). */
 export function loadCurrentLane(etDate: string): Snapshot | null {
@@ -102,32 +102,59 @@ export default function NbaExperimentalLane({ snapshot, statuses = {} }: { snaps
         </p>
       </div>
       <h2 id="nba-experimental-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>Experimental model projections{snapshot.date ? ` · ${slateLabel(snapshot.date)} slate` : ""}</h2>
-      {snapshot.games.map((g) => (
-        <article key={g.providerEventId} id={laneCardId(g.providerEventId)} className="scroll-mt-24 flex flex-col gap-2 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
-          <header className="flex flex-col gap-0.5">
-            <h3 className="m-0 text-[15px] font-bold" style={{ color: "var(--vault-text)" }}>{g.away.name} at {g.home.name}</h3>
-            <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-              Tip-off {et(g.tipUtc)} · frozen pregame forecast, frozen {et(g.frozenAt)}
-            </p>
-            {statuses[g.providerEventId] ? <p className="m-0 text-[12px]" style={{ color: "var(--vault-text)" }}>Game status: {statuses[g.providerEventId]}</p> : null}
-          </header>
-          <p className="m-0 text-[13px]" style={{ color: "var(--vault-text)" }}>
-            <strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong>{" "}
-            <span style={{ color: "var(--vault-text-mute)" }}>Source: {g.elo.source}.</span>
+      {AMENDMENT_A.enabled ? (
+        /* COMPACT HUB (release owner 2026-10-21). With /nba/projections on, the player rows live there only, and every
+           sentence that is the same for each game is said once here. Full per-team tables measured /nba at 388 KB for
+           an 11-game slate (budget 250 KB, empty-lane page ~204 KB); the first compact card still cost ~3.9 KB a game
+           (HTML + flight) and broke the budget at ~12 games. The board shows the same rows from the same snapshot, so
+           nothing is lost and no number is restated. */
+        <>
+          <p className="m-0 text-[13px]"><a href="/nba/projections/" className="underline" style={{ color: "var(--vault-text)" }}>Every player median for this slate — filter and sort, with PRA, P+R and P+A</a></p>
+          <p className="m-0 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
+            Each game below: the side favoured by {snapshot.games[0]?.elo.source}; player medians from the{" "}
+            {snapshot.games[0]?.players.source}, listed on the board by expected minutes, not ranked; team scores withheld;
+            receipt = model version and payload hash of the frozen forecast.
           </p>
-          <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Team scores: {g.teamScores.reason}</p>
-          <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-            Player medians — source: {g.players.source}. Players listed by expected minutes, not ranked.
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <TeamTable team={g.away.name ?? g.away.abbr ?? "Away"} rows={g.players.away} />
-            <TeamTable team={g.home.name ?? g.home.abbr ?? "Home"} rows={g.players.home} />
+          <div className="grid gap-2 sm:grid-cols-2 text-[12px] [&_p]:m-0" style={{ color: "var(--vault-text-mute)" }}>
+            {snapshot.games.map((g) => (
+              <article key={g.providerEventId} id={laneCardId(g.providerEventId)} className="scroll-mt-24 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
+                <h3 className="m-0 text-[15px] font-bold" style={{ color: "var(--vault-text)" }}>{g.away.name} at {g.home.name}</h3>
+                <p>Tip-off {et(g.tipUtc)} · frozen pregame forecast, frozen {et(g.frozenAt)}</p>
+                {statuses[g.providerEventId] ? <p>Game status: {statuses[g.providerEventId]}</p> : null}
+                <p className="text-[13px]" style={{ color: "var(--vault-text)" }}><strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong></p>
+                <p>{g.players.away.length + g.players.home.length} players on the board · receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)}</p>
+              </article>
+            ))}
           </div>
-          <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
-            Receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)} · simulation engine {g.engine.simulation}
-          </p>
-        </article>
-      ))}
+        </>
+      ) : (
+        snapshot.games.map((g) => (
+          <article key={g.providerEventId} id={laneCardId(g.providerEventId)} className="scroll-mt-24 flex flex-col gap-2 rounded-lg p-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`${g.away.abbr} at ${g.home.abbr}, frozen pregame forecast`}>
+            <header className="flex flex-col gap-0.5">
+              <h3 className="m-0 text-[15px] font-bold" style={{ color: "var(--vault-text)" }}>{g.away.name} at {g.home.name}</h3>
+              <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+                Tip-off {et(g.tipUtc)} · frozen pregame forecast, frozen {et(g.frozenAt)}
+              </p>
+              {statuses[g.providerEventId] ? <p className="m-0 text-[12px]" style={{ color: "var(--vault-text)" }}>Game status: {statuses[g.providerEventId]}</p> : null}
+            </header>
+            <p className="m-0 text-[13px]" style={{ color: "var(--vault-text)" }}>
+              <strong>Elo rating favours {favouredName(g) ?? "neither side"}.</strong>{" "}
+              <span style={{ color: "var(--vault-text-mute)" }}>Source: {g.elo.source}.</span>
+            </p>
+            <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>Team scores: {g.teamScores.reason}</p>
+            <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
+              Player medians — source: {g.players.source}. Players listed by expected minutes, not ranked.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <TeamTable team={g.away.name ?? g.away.abbr ?? "Away"} rows={g.players.away} />
+              <TeamTable team={g.home.name ?? g.home.abbr ?? "Home"} rows={g.players.home} />
+            </div>
+            <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-mute)" }}>
+              Receipt {g.receipt.modelVersion} · {g.receipt.payloadSha256.slice(0, 12)} · simulation engine {g.engine.simulation}
+            </p>
+          </article>
+        ))
+      )}
       <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={{ color: "var(--vault-text-mute)" }}>
         {Object.entries(snapshot.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
       </ul>
