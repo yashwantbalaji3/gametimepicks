@@ -68,11 +68,27 @@ test("links: the hub's own lane-card anchor, else its schedule section, else non
   // Both anchors exist in the /nba source.
   const hub = fs.readFileSync(path.join(APP, "src/app/nba/page.tsx"), "utf8");
   assert.match(hub, /<section id="nba-games"/);
+  assert.match(hub, /<NbaExperimentalLane snapshot=\{lane\}/, "/nba renders the lane from the same loadCurrentLane result");
   assert.match(fs.readFileSync(path.join(APP, "src/components/nba/experimental-lane.tsx"), "utf8"), /export const laneCardId = \(id: string\) => `nba-exp-\$\{id\}`/);
   // The ops and view never name a forbidden destination.
   for (const rel of ["src/lib/sports/nba/projection-board-ops.mjs", "src/components/nba/projections-view.tsx", "src/components/nba/projection-board-context.ts", "src/components/nba/projection-game-status.tsx"]) {
     const code = fs.readFileSync(path.join(APP, rel), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
     assert.doesNotMatch(code, /simulation|theater|\/games\/|\/dev\/|draftkings|fanduel|betmgm|caesars|sportsbook|https?:\/\//i, rel);
+  }
+});
+
+test("links: the compact /nba hub (PR 1170) RENDERS the exact per-game anchor each board link targets", async () => {
+  // Whatever slate latest.json holds (data commits move it): build "on its own date", so /nba renders it as current.
+  const { default: Lane } = await import("../../../components/nba/experimental-lane.tsx");
+  const hubLane = JSON.parse(fs.readFileSync(path.join(DIR, "latest.json"), "utf8"));
+  const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: hubLane }));
+  const ctx = boardContext({ date: null, nowIso: `${hubLane.date}T12:00:00Z`, buildEtDate: hubLane.date, enabled: true });
+  assert.equal(ctx.games.length, hubLane.games.length);
+  assert.ok(ctx.games.length > 0);
+  for (const g of ctx.games) {
+    const frag = g.link.href.split("#")[1];
+    assert.equal(g.link.href, `/nba/#${frag}`);
+    assert.equal((html.match(new RegExp(`id="${frag}"`, "g")) ?? []).length, 1, `/nba renders exactly one #${frag}`);
   }
 });
 
@@ -125,10 +141,10 @@ test("context: 10-20 built on 10-21 is PAST, links to the hub schedule, status f
   for (const id of ["401909089", "401909090"]) assert.ok(["final", "started"].includes(by[id].status), id);
   for (const g of ctx.games) assert.ok(g.link == null || g.link.href === HUB_SCHEDULE_HREF, "no lane card exists on /nba for a past slate");
   assert.deepEqual(Object.keys(ctx.games[0]).sort(), ["id", "link", "status", "tipUtc"], "one short code, one instant and one link per game");
-  // The default view on 10-21 has no current slate: empty, never the 10-20 board.
+  // The default view on 10-21 never shows the 10-20 board: empty, or a slate dated 10-21 or later once one is committed.
   const def = boardContext({ date: null, nowIso: "2026-10-21T12:00:00Z", buildEtDate: "2026-10-21", enabled: true });
-  assert.equal(def.lane, null);
-  assert.deepEqual(def.games, []);
+  assert.ok(def.lane == null || def.lane.date >= "2026-10-21", `default view slate ${def.lane?.date}`);
+  if (def.lane == null) assert.deepEqual(def.games, []);
   assert.ok(def.dates.includes("2026-10-20"));
   // A date with no snapshot: empty.
   const none = boardContext({ date: "2026-10-19", nowIso: "2026-10-21T12:00:00Z", buildEtDate: "2026-10-21", enabled: true });
@@ -138,13 +154,23 @@ test("context: 10-20 built on 10-21 is PAST, links to the hub schedule, status f
   assert.equal(boardContext({ date: "2026-10-20", nowIso: "2026-10-21T12:00:00Z", buildEtDate: "2026-10-21", enabled: false }).lane, null);
 });
 
-test("context: 10-20 built on 10-20 is CURRENT and links each game to its frozen card on /nba", () => {
-  const ctx = boardContext({ date: null, nowIso: "2026-10-20T15:00:00Z", buildEtDate: "2026-10-20", enabled: true });
+test("context: the dated 10-20 page built on 10-20 is CURRENT; each game links to its card and reads the finals record", () => {
+  /* Slate-independent (data commits must not turn this red): the dated page reads 2026-10-20.json, and the expected
+     status of each game is derived here from the committed finals record itself — a recorded final wins even before
+     the build's tip-off (only the record may say final); every other game is upcoming at 15:00Z (all tips are later). */
+  const ctx = boardContext({ date: "2026-10-20", nowIso: "2026-10-20T15:00:00Z", buildEtDate: "2026-10-20", enabled: true });
   assert.equal(ctx.role, "current");
   assert.deepEqual(ctx.lane, PUB);
-  for (const g of ctx.games) assert.equal(g.link.href, `/nba/#nba-exp-${g.id}`);
-  const by = Object.fromEntries(ctx.games.map((g) => [g.id, g.status]));
-  assert.equal(by["401909090"], "upcoming");
+  const hubLane = JSON.parse(fs.readFileSync(path.join(DIR, "latest.json"), "utf8"));
+  const onHub = new Set(hubLane.date >= "2026-10-20" ? hubLane.games.map((g) => g.providerEventId) : []);
+  const finals = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nba/results/finals-2026-27.json"), "utf8"));
+  // finalFor: any row in the record is FINAL, or FINAL_UNDER_REVIEW when conflicted — both read "Final".
+  const recorded = new Set((finals.finals ?? []).map((f) => String(f.providerEventId)));
+  for (const g of ctx.games) {
+    assert.equal(g.link?.href ?? null, onHub.has(g.id) ? `/nba/#nba-exp-${g.id}` : g.link ? HUB_SCHEDULE_HREF : null, g.id);
+    assert.ok(Date.parse(g.tipUtc) > Date.parse("2026-10-20T15:00:00Z"));
+    assert.equal(g.status, recorded.has(g.id) ? "final" : "upcoming", g.id);
+  }
 });
 
 // ── render ──────────────────────────────────────────────────────────────────────────────────────────────────────────
