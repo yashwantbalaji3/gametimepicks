@@ -68,8 +68,8 @@ Each gate is recorded with its SHA when it passes. All are required.
 
 | # | Founder condition / checklist item | Status at 2026-10-21 13:40Z |
 |---|---|---|
-| G1 | Preregistration §13 amendment C, recorded in the prereg file: the Theater moves out of "withheld" for the possession research engine, scope as above (checklist §1) | **OPEN.** Text to be added in #1167 (NBA session) citing this file |
-| G2 | Consistency gate recognises the possession engine as the labelled supporting replay engine: `theaterActivationGate("NBA", id)` is open per published game; the official panel is byte-identical across runs (checklist §3, §4, §9) | **OPEN.** Engineering in #1167 |
+| G1 | Preregistration §13 amendment C, recorded in the prereg file: the Theater moves out of "withheld" for the possession research engine, scope as above (checklist §1) | Written in #1167 at `3d614189ba` (amendment C + looks-log row 7; no bar or rule changed) [reported]. Release owner verifies at merge |
+| G2 | Consistency gate recognises the possession engine as the labelled supporting replay engine: `theaterActivationGate("NBA", id)` is open per published game; the official panel is byte-identical across runs (checklist §3, §4, §9) | Implemented at `3d614189ba` (`NBA_THEATER_REPLAY_ENGINE`; shared `replayGateProblems`; consistency audit 0 new, 0 grown) [reported]. **Input-cutoff rule tightened (below)** |
 | G3 | Event log reconciles with the final box score on every stored run (P1–P11 invariants) | Implemented in #1167 [reported]. Record the suite and SHA |
 | G4 | Exact-head CI green on the flip commit's head | Pending |
 | G5 | Static export builds (flag OFF and flag ON) | Flag OFF: green on CI at `d5b2861273`. Flag ON: not run |
@@ -80,6 +80,12 @@ Each gate is recorded with its SHA when it passes. All are required.
 | G10 | Feature-ON and feature-OFF acceptance | Pending G5–G9 |
 | G11 | Release-owner Production checks after the flip | Pending |
 | G12 | Methodology constants shown or used for gating have a source and approval (checklist §2): the representative-distance disclosure wording and any estimated-role rule still displayed | **OPEN.** The NBA session lists which constants the possession Theater still prints; any non-model constant is put to the founder in one list |
+
+**Input cutoff (release owner, 2026-10-21, under NBA-CC requirement 1 "identical cutoffs").**
+- A possession run may use only inputs captured at or before the **official forecast's freeze instant** for that game. "Before tip" is not enough.
+- Why: the official-versus-simulated comparison must not give the research replay later information than the official forecast had.
+- Effect on 10-20: 401909089 and 401909090 used inputs from 15:05Z / 17:49Z, after the 14:17Z freeze. Those two games stay closed unless their runs are regenerated from freeze-time inputs.
+- Labels and copy (T1), and the official panel showing exactly the lane's players (amendment B), are done at `3d614189ba` [reported].
 
 **Permitted markers in the flag-ON export** (G8): the engine id `nba-possession-sim-v0`, the Theater pack schema, and its data attributes, on `/nba/simulation/<id>/` only. Everything in checklist §5 stays forbidden.
 
