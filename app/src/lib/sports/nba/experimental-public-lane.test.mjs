@@ -151,9 +151,9 @@ test("compact hub: with /nba/projections on, /nba cards carry no player table an
   }
   assert.doesNotMatch(html, /<table/, "the rows live on /nba/projections only");
   assert.equal((html.match(/href="\/nba\/projections\/"/g) ?? []).length, 1, "one slate-level board link (projection-boards.test pins it)");
-  for (const g of s.games) assert.match(html, new RegExp(`Player medians for ${g.players.away.length + g.players.home.length} players`));
+  for (const g of s.games) assert.match(html, new RegExp(`${g.players.away.length + g.players.home.length} players on the board`));
   // An 11-game slate with full tables measured /nba at 388 KB (budget 250 KB, empty-lane page 204 KB). The compact card
   // must stay well under the ~3 KB/game (HTML + flight) that a 15-game slate leaves inside the budget.
   const perGame = (html.length - renderToStaticMarkup(React.createElement(Lane, { snapshot: { ...s, games: s.games.slice(0, 1) } })).length) / (s.games.length - 1);
-  assert.ok(perGame < 1500, `compact card ${Math.round(perGame)} B of HTML per game`);
+  assert.ok(perGame < 900, `compact card ${Math.round(perGame)} B of HTML per game`);
 });
