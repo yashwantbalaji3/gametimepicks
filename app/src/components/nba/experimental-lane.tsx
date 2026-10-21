@@ -42,6 +42,36 @@ export function loadExperimentalSnapshot(): Snapshot | null {
   }
 }
 
+/* ── Dated snapshots (follow-up to PR 1163: /nba/projections/[date]) ──────────────────────────────────────────────────
+   The producer (scripts/nba/build-nba-experimental-public.mjs) writes <date>.json beside latest.json, write-once per
+   slate. A dated file counts only when it parses, carries the lane schema, and names the SAME date as its file name —
+   so a date in the list is always a slate whose snapshot is committed, never a guess. */
+const LANE_DIR = () => path.join(process.cwd(), "public", "data", "nba", "experimental-public");
+const DATED = /^(\d{4}-\d{2}-\d{2})\.json$/;
+
+function readDated(date: string): Snapshot | null {
+  try {
+    const s = JSON.parse(fs.readFileSync(path.join(LANE_DIR(), `${date}.json`), "utf8"));
+    return s?.schema === LANE_SNAPSHOT_SCHEMA && s.date === date && Array.isArray(s.games) ? s : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Every slate date with a committed, schema-valid dated snapshot, ascending. Empty when the lane switch is off. */
+export function committedLaneDates(): string[] {
+  if (!LANE.enabled) return [];
+  let names: string[] = [];
+  try { names = fs.readdirSync(LANE_DIR()); } catch { return []; }
+  return names.map((n) => DATED.exec(n)?.[1]).filter((d): d is string => !!d && readDated(d) != null).sort();
+}
+
+/** The committed snapshot for one slate date, exactly as frozen — null when the switch is off or no valid file exists. */
+export function loadLaneForDate(date: string): Snapshot | null {
+  if (!LANE.enabled || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  return readDated(date);
+}
+
 const et = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET";
 const slateLabel = (d: string) => new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(new Date(`${d}T12:00:00Z`));

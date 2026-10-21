@@ -81,4 +81,10 @@ export const FAMILY_BUDGET_KB = Object.freeze({
      the legacy June NBA-era pages (heaviest 2026-06-10 at 5,033KB, unchanged by B-3) — that legacy weight is
      backlog, not headroom for new days. Shrink-only. */
   "results/date": 5300,
+  /* /nba/projections/<date>/ (PR 1171: one static page per committed slate snapshot + the build's ET date). The family
+     test reads out/nba/projections/<dir>/index.html, so it covers the DATED pages only; the default view keeps its own
+     "nba/projections/index.html" ceiling above. Measured under the build lock 2026-10-21 on PR 1171 at 25eaad51dd —
+     2026-10-20 page 100,416 B, 2026-10-21 page 155,051 B, current page 154,297 B at 11 games and 181,330 B at a
+     15-game synthetic slate. Bounded by one slate per page, not by history. Shrink-only. */
+  "nba/projections": 200,
 });
