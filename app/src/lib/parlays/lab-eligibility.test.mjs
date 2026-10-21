@@ -117,7 +117,9 @@ test("every sport the gate can declare LIVE has a grader in settle-lab-cards", (
       assert.match(code, /boxFor\(/, "MLB grades from the box score and that path must still exist");
       continue;
     }
-    assert.match(code, new RegExp(`leg\\.sport[^\\n]*"${sport}"`),
+    // routed per LEG through lib/parlays/leg-grading-route.mjs: `const { route, refusal } = legGradingRoute(leg)`
+    assert.match(code, /legGradingRoute\(leg\)/, "the settler routes each leg by its own sport");
+    assert.match(code, new RegExp(`route === "${sport}"`),
       `${sport} is declared settleable and the settler has no branch for it — its legs would sit pending forever`);
   }
 });

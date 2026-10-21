@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-20T19:06:01Z",
- "sourceGeneratedAt": "2026-10-20T19:06:01Z",
+ "generatedAt": "2026-10-20T23:38:27Z",
+ "sourceGeneratedAt": "2026-10-20T23:38:27Z",
  "providerEventId": "401873016",
  "matchup": "NYG @ HOU",
  "kickoffUtc": "2026-10-25T17:00Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-20T19:06:01Z",
-  "roleEvidenceAt": "2026-10-20T19:06:01Z",
+  "injuriesCapturedAt": "2026-10-20T23:38:27Z",
+  "roleEvidenceAt": "2026-10-20T23:38:27Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -143,21 +143,21 @@
    "player_receptions"
   ],
   "rows": 107,
-  "rosterDropped": 79,
+  "rosterDropped": 80,
   "withoutEspnId": 0
  },
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 71,
+  "absent": 69,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "NYG": {
    "counts": {
-    "PROJECTED": 13,
+    "PROJECTED": 12,
     "EXCLUDED_UNAVAILABLE": 0,
-    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
@@ -170,6 +170,18 @@
      "families": [
       "anytime_td",
       "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4696981",
+     "name": "Cam Skattebo",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
@@ -192,18 +204,6 @@
      ]
     },
     {
-     "playerId": "nfl-athlete-4696981",
-     "name": "Cam Skattebo",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4595348",
      "name": "Malik Nabers",
      "state": "PROJECTED",
@@ -222,16 +222,6 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4241457",
-     "name": "Najee Harris",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -308,6 +298,12 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4241457",
+     "name": "Najee Harris",
+     "state": "EXCLUDED_NO_CURRENT_ROLE",
+     "reason": "not on NYG's current roster"
     },
     {
      "playerId": "nfl-athlete-4243389",
@@ -616,12 +612,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 55.047,
-     "p10": 14.54,
-     "p25": 29.36,
-     "median": 49.92,
-     "p75": 74.6,
-     "p90": 101.95,
+     "mean": 55.919,
+     "p10": 14.04,
+     "p25": 29.4,
+     "median": 50.42,
+     "p75": 76.13,
+     "p90": 104.26,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -689,12 +685,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 64.235,
-     "p10": 18.79,
-     "p25": 34.72,
-     "median": 58,
-     "p75": 87.9,
-     "p90": 117.04,
+     "mean": 63.924,
+     "p10": 18.51,
+     "p25": 35.09,
+     "median": 58.2,
+     "p75": 86.61,
+     "p90": 116.19,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -774,21 +770,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 33.541,
-     "p10": 7.25,
-     "p25": 16.27,
-     "median": 29.51,
-     "p75": 46.29,
-     "p90": 65.06,
+     "mean": 39.618,
+     "p10": 10.93,
+     "p25": 20.84,
+     "median": 35.67,
+     "p75": 53.43,
+     "p90": 73.81,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 17.547,
+     "mean": 17.624,
      "p10": 0,
-     "p25": 1.55,
-     "median": 12.44,
-     "p75": 26.61,
-     "p90": 42.77,
+     "p25": 1.69,
+     "median": 11.87,
+     "p75": 26.56,
+     "p90": 44.12,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -868,12 +864,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 12.288,
-     "p10": 0,
-     "p25": 1.46,
-     "median": 7.48,
-     "p75": 18.4,
-     "p90": 31.84,
+     "mean": 14.462,
+     "p10": 0.01,
+     "p25": 2.91,
+     "median": 10.27,
+     "p75": 21.39,
+     "p90": 34.78,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1000,12 +996,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 23.13,
+     "mean": 23.338,
      "p10": 0,
-     "p25": 3.95,
-     "median": 17.27,
-     "p75": 34.87,
-     "p90": 54.66,
+     "p25": 4.48,
+     "median": 16.79,
+     "p75": 35.24,
+     "p90": 56.07,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1030,12 +1026,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 9.701,
+     "mean": 12.167,
      "p10": 0,
-     "p25": 0.22,
-     "median": 5.11,
-     "p75": 14.58,
-     "p90": 26.18,
+     "p25": 1.21,
+     "median": 7.75,
+     "p75": 18.57,
+     "p90": 30.87,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1153,12 +1149,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 15.894,
+     "mean": 16.043,
      "p10": 0,
      "p25": 0,
-     "median": 9.68,
-     "p75": 24.09,
-     "p90": 42.25,
+     "median": 9.8,
+     "p75": 24.83,
+     "p90": 42.33,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1177,39 +1173,18 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4241457",
-   "name": "Najee Harris",
-   "team": "NYG",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 13.341,
-     "p10": 0,
-     "p25": 2.59,
-     "median": 9.1,
-     "p75": 19.76,
-     "p90": 32.58,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1235,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4689114",
    "name": "Jaxson Dart",
    "team": "NYG",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 12.092,
+     "mean": 14.449,
      "p10": 0,
-     "p25": 0.39,
-     "median": 6.39,
-     "p75": 18.17,
-     "p90": 32.71,
+     "p25": 1.29,
+     "median": 8.78,
+     "p75": 21.2,
+     "p90": 37.57,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1225,12 +1200,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 16.758,
+     "mean": 16.595,
      "p10": 0,
      "p25": 0,
-     "median": 10.49,
-     "p75": 26.09,
-     "p90": 44.52,
+     "median": 10.08,
+     "p75": 25.64,
+     "p90": 44.43,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1306,12 +1281,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 7.218,
+     "mean": 7.747,
      "p10": 0,
      "p25": 0,
-     "median": 1.81,
-     "p75": 9.99,
-     "p90": 21.54,
+     "median": 2.87,
+     "p75": 11.4,
+     "p90": 22.63,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -1348,12 +1323,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 5.766,
+     "mean": 6.685,
      "p10": 0,
      "p25": 0,
-     "median": 0.29,
-     "p75": 7.42,
-     "p90": 18.41,
+     "median": 1.09,
+     "p75": 9.13,
+     "p90": 21.62,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {

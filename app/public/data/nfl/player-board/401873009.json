@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-10-20T19:06:01Z",
- "sourceGeneratedAt": "2026-10-20T19:06:01Z",
+ "generatedAt": "2026-10-20T23:38:27Z",
+ "sourceGeneratedAt": "2026-10-20T23:38:27Z",
  "providerEventId": "401873009",
  "matchup": "DAL @ PHI",
  "kickoffUtc": "2026-10-27T00:15Z",
@@ -11,8 +11,8 @@
  "week": 7,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-10-20T19:06:01Z",
-  "roleEvidenceAt": "2026-10-20T19:06:01Z",
+  "injuriesCapturedAt": "2026-10-20T23:38:27Z",
+  "roleEvidenceAt": "2026-10-20T23:38:27Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -134,7 +134,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 52,
+  "absent": 54,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -249,8 +249,8 @@
   },
   "PHI": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -288,6 +288,16 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4429013",
+     "name": "Tank Bigsby",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -374,12 +384,6 @@
     {
      "playerId": "nfl-athlete-4040715",
      "name": "Jalen Hurts",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-4429013",
-     "name": "Tank Bigsby",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
     },
@@ -746,6 +750,27 @@
     },
     "anytime_td": {
      "probability": 0.2478,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429013",
+   "name": "Tank Bigsby",
+   "team": "PHI",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 16.636,
+     "p10": 0.08,
+     "p25": 3.55,
+     "median": 11.68,
+     "p75": 24.54,
+     "p90": 39.71,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2268,
      "pricingState": "NOT_PROBED"
     }
    }
