@@ -10,12 +10,18 @@ import { spawnSync } from "node:child_process";
 
 const APP = process.cwd();
 const SCRIPT = path.join(APP, "scripts/nba/capture-nba-props-odds.mjs");
-const run = (...args) => spawnSync(process.execPath, [SCRIPT, ...args], { cwd: APP, encoding: "utf8", env: { PATH: process.env.PATH } });
+// Launched through tsx exactly as the workflow runs it (`npx tsx scripts/nba/capture-nba-props-odds.mjs`): the script
+// imports TypeScript (identity-contract.ts), which plain `node` on the CI's Node 20 cannot load. The environment is
+// still stripped to PATH + HOME, so no ODDS_API_KEY can ever reach the child.
+const run = (...args) => spawnSync("npx", ["tsx", SCRIPT, ...args], { cwd: APP, encoding: "utf8", env: { PATH: process.env.PATH, HOME: process.env.HOME } });
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
-test("the script holds no HTTP client, no key read and no provider host", () => {
+test("the script makes no HTTP call itself and names no provider host; the key is read only after the receipt, with --apply", () => {
   const src = strip(fs.readFileSync(SCRIPT, "utf8"));
-  assert.doesNotMatch(src, /\bfetch\s*\(|node:https?|axios|undici|XMLHttpRequest|ODDS_API_KEY|api\.the-odds-api\.com|https?:\/\//);
+  assert.doesNotMatch(src, /\bfetch\s*\(|node:https?|axios|undici|XMLHttpRequest|api\.the-odds-api\.com|https?:\/\//);
+  const keyAt = src.indexOf("ODDS_API_KEY");
+  assert.ok(keyAt > src.indexOf("parseNbaPropsReceipt(receiptText"), "the key is read after the receipt parses");
+  assert.match(src.slice(keyAt - 80, keyAt), /has\("--apply"\)/, "and only when --apply is given");
 });
 
 test("dry run: prints a points-first plan with zero network calls and a documented worst case", () => {
@@ -37,9 +43,17 @@ test("--authorized refuses without a receipt, with a non-receipt file, and with 
   const b = run("--now", "2026-10-21T12:00:00Z", "--authorized", "--receipt", "README.md");
   assert.equal(b.status, 2);
   assert.match(b.stderr, /not a committed file under docs\/receipts/);
-  for (const f of fs.readdirSync(path.join(APP, "..", "docs/receipts")).filter((x) => /ODDS_AUTHORIZATION/.test(x))) {
+  for (const f of fs.readdirSync(path.join(APP, "..", "docs/receipts")).filter((x) => /ODDS_AUTHORIZATION/.test(x) && !/NBA/i.test(x))) {
     const c = run("--now", "2026-10-21T12:00:00Z", "--authorized", "--receipt", `docs/receipts/${f}`);
     assert.equal(c.status, 2, f);
     assert.match(c.stderr, /does not authorize NBA player props/);
+  }
+  // An NBA receipt, once committed, is DATED: after its date it refuses; and without --apply it never spends.
+  for (const f of fs.readdirSync(path.join(APP, "..", "docs/receipts")).filter((x) => /ODDS_AUTHORIZATION/.test(x) && /NBA/i.test(x))) {
+    const late = run("--now", "2030-01-01T00:00:00Z", "--authorized", "--receipt", `docs/receipts/${f}`);
+    assert.equal(late.status, 2, `${f}: refused after its date`);
+    const dry = run("--now", "2026-10-21T12:00:00Z", "--authorized", "--receipt", `docs/receipts/${f}`);
+    assert.ok([0, 2].includes(dry.status), `${f}: dry run or refused, never a spend (${dry.stderr})`);
+    if (dry.status === 0) assert.match(dry.stdout, /"state": "(DRY_RUN|NOTHING_TO_PRICE)"/);
   }
 });

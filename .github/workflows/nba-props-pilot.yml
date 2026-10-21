@@ -1,0 +1,108 @@
+name: nba-props-pilot
+
+# NBA PLAYER-POINTS ODDS PILOT — one pre-tip snapshot per game, founder-approved scope only.
+#
+# A run SPENDS only when ALL of these hold; otherwise it is a dry run or a no-op:
+#   1. repo variable NBA_PROPS_PILOT == "live". KILL SWITCH: set it to "off" (or delete it). The next run makes no paid
+#      call, and the key is not even passed to the script. `gh workflow disable nba-props-pilot.yml` stops all runs.
+#   2. the receipt docs/receipts/ODDS_AUTHORIZATION_NBA_POINTS_PILOT_2026-10-21.md exists AND parses at run time
+#      (parseNbaPropsReceipt): NBA player props only, `player_points` only, its ceiling, and a DATED expiry of
+#      2026-10-21 23:59 ET. After that the receipt refuses on its own, so the schedule below spends nothing.
+#   3. the capture's own guards (lib/sports/odds/nba-props/capture.mjs): a game is priced only if it tips 20–75 min
+#      after the run (T-60, with T-30 as the fallback, never after tip); once per game (the NBA ledger); at most
+#      ODDS_MAX_EVENTS_PER_RUN games per run; never below ODDS_API_MIN_CREDITS_REMAINING, read from the provider's
+#      own balance header; never past the receipt's ceiling; stop on any provider failure with no retry.
+#
+# ODDS_DRY_RUN IS DELIBERATELY NOT READ. It is shared with auto-refresh.yml: flipping it to run this pilot would
+# also re-enable that workflow's paid calls. This pilot has its own switch (1).
+#
+# Writes only PRIVATE research files (data/internal/research/odds/nba/**: the credit ledger and the parsed price
+# records). That path is not a Vercel build input (app/scripts/vercel-ignore-build.sh), so a commit here builds
+# nothing, and no page reads it: no odds or book names reach any public page.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every 15 minutes, 21:05–02:50 UTC. A run with no game 20–75 min from tip exits before any network call.
+    - cron: "5,20,35,50 21,22,23,0,1,2 * * *"
+
+concurrency:
+  group: nba-props-pilot
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write   # only to disable THIS workflow if a paid call's ledger cannot be committed (credit ceiling guard)
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      RECEIPT: docs/receipts/ODDS_AUTHORIZATION_NBA_POINTS_PILOT_2026-10-21.md
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Receipt present?
+        id: gate
+        run: |
+          if [ -f "$RECEIPT" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "no pilot receipt at $RECEIPT — nothing to do"; echo "run=false" >> "$GITHUB_OUTPUT"; fi
+
+      - uses: actions/setup-node@v5
+        if: steps.gate.outputs.run == 'true'
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install toolchain (tsx)
+        if: steps.gate.outputs.run == 'true'
+        working-directory: app
+        run: npm ci
+
+      - name: Capture (dry run unless NBA_PROPS_PILOT=live)
+        id: capture
+        if: steps.gate.outputs.run == 'true'
+        working-directory: app
+        env:
+          LIVE: ${{ vars.NBA_PROPS_PILOT }}
+          # The key is passed only when the switch is live.
+          ODDS_API_KEY: ${{ vars.NBA_PROPS_PILOT == 'live' && secrets.ODDS_API_KEY || '' }}
+          ODDS_API_MIN_CREDITS_REMAINING: ${{ vars.ODDS_API_MIN_CREDITS_REMAINING || '2000' }}
+          ODDS_MAX_EVENTS_PER_RUN: ${{ vars.ODDS_MAX_EVENTS_PER_RUN || '2' }}
+        run: |
+          set -uo pipefail
+          NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          APPLY=""
+          if [ "${LIVE:-}" = "live" ]; then APPLY="--apply"; fi
+          echo "now=$NOW live=${LIVE:-unset} floor=$ODDS_API_MIN_CREDITS_REMAINING maxEvents=$ODDS_MAX_EVENTS_PER_RUN"
+          npx tsx scripts/nba/capture-nba-props-odds.mjs --now "$NOW" --lead-minutes 20,75 --authorized --receipt "$RECEIPT" $APPLY
+          CODE=$?
+          echo "capture exit $CODE"
+          # 0 captured / dry run / nothing to price · 2 receipt refused (e.g. expired) · 4 ceiling or floor reached:
+          # all honest no-spend-further outcomes. 1 = a provider or transport failure: fail the run so it is seen.
+          case "$CODE" in 0|2|4) exit 0 ;; *) exit "$CODE" ;; esac
+
+      - name: Commit the ledger and the private price records
+        if: always() && steps.gate.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          [ -d data/internal/research/odds/nba ] || { echo "nothing written"; exit 0; }
+          git add data/internal/research/odds/nba/
+          if git diff --staged --quiet; then echo "no changes"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -m "auto: nba props pilot capture $(date -u +%Y-%m-%dT%H:%M:%SZ) (private) [skip ci]"
+          for a in 1 2 3 4 5; do
+            if git push -q origin HEAD:main; then echo "committed on attempt $a"; exit 0; fi
+            git fetch -q origin main && git rebase -q origin/main || { git rebase --abort || true; break; }
+          done
+          # CREDIT-CEILING GUARD (founder 2026-10-21): a paid call whose ledger cannot reach main would be invisible to the
+          # next run's ceiling check, so stop ALL further runs instead of risking a repeat spend.
+          echo "::error::ledger could not be committed; disabling nba-props-pilot.yml so no further paid run can happen"
+          gh workflow disable nba-props-pilot.yml --repo "$GITHUB_REPOSITORY" || echo "::error::could not self-disable; set NBA_PROPS_PILOT=off now"
+          exit 1

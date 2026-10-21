@@ -26,10 +26,18 @@ const FIXTURE = `# TEST FIXTURE — NBA points receipt shape (not a founder answ
 | Discipline | do not retry blindly |
 `;
 
-test("no NBA receipt is committed: the allowance exists only so a future one can be read", () => {
+test("every committed NBA receipt is DATED (never open-ended) and points-only; none exists before the founder answers", () => {
   const dir = path.join(process.cwd(), "..", "docs", "receipts");
-  const nba = fs.readdirSync(dir).filter((f) => /NBA/i.test(f));
-  assert.deepEqual(nba, [], "an NBA receipt appeared — this test must be revisited with the founder's answer quoted verbatim");
+  for (const f of fs.readdirSync(dir).filter((x) => /NBA/i.test(x))) {
+    const text = fs.readFileSync(path.join(dir, f), "utf8");
+    const e = expiryTerm(text);
+    assert.equal(e.kind, "DATED", `${f}: an NBA receipt must carry a dated expiry`);
+    const parsed = parseSportAuthorizationReceipt(text, "nba", { now: new Date(e.expiresAtMs - 60_000).toISOString() });
+    assert.equal(parsed.ok, true, `${f}: ${parsed.errors?.join("; ")}`);
+    assert.deepEqual(parsed.propMarkets, ["player_points"], `${f}: points only`);
+    assert.equal(parseSportAuthorizationReceipt(text, "nba", { now: new Date(e.expiresAtMs + 1).toISOString() }).ok, false, `${f}: refuses after its date`);
+    assert.match(text, /founder/i, `${f}: quotes the founder's answer`);
+  }
   assert.equal(AUTHORIZED_SPORTS.nba.sportKey, "basketball_nba");
   assert.equal(LEDGER_RELPATH.nba, "data/internal/research/odds/nba/authorization-ledger.json", "NBA gets its own ledger; one ceiling never funds another");
 });
@@ -71,9 +79,15 @@ test("prop markets are a closed list: points-only authorizes player_points and n
   assert.equal(propMarketsAuthorized({ ok: false }, ["player_points"]).ok, false, "a refused receipt authorizes nothing");
 });
 
-test("committed receipts keep their classification (no receipt has a date in its Expiry row)", () => {
+test("committed receipts keep their classification (no pre-existing receipt has a date in its Expiry row)", () => {
   const dir = path.join(process.cwd(), "..", "docs", "receipts");
-  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".md"))) {
-    assert.notEqual(expiryTerm(fs.readFileSync(path.join(dir, f), "utf8")).kind, "DATED", f);
-  }
+  // The NBA points pilot receipt (founder 2026-10-21: "October 21, 2026 only") is DATED by design; every OTHER receipt
+  // keeps its ceiling-only classification exactly as before.
+  const NBA_PILOT = "ODDS_AUTHORIZATION_NBA_POINTS_PILOT_2026-10-21.md";
+  const others = fs.readdirSync(dir).filter((x) => x.endsWith(".md") && x !== NBA_PILOT);
+  assert.ok(others.length >= 4, "the pre-existing receipts are still scanned");
+  for (const f of others) assert.notEqual(expiryTerm(fs.readFileSync(path.join(dir, f), "utf8")).kind, "DATED", f);
+  const pilot = expiryTerm(fs.readFileSync(path.join(dir, NBA_PILOT), "utf8"));
+  assert.equal(pilot.kind, "DATED", "the NBA pilot receipt expires on its date");
+  assert.equal(pilot.expiresOnEt, "2026-10-21");
 });
