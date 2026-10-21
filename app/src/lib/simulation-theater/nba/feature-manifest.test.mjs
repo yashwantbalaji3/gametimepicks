@@ -53,7 +53,7 @@ test("no public route is wired: outside src/app/dev nothing imports the NBA thea
   walk(path.join(APP, "src/app"));
   assert.deepEqual(offenders, []);
   const page = fs.readFileSync(path.join(APP, PUBLIC_CANDIDATE), "utf8");
-  const staticImports = [...page.matchAll(/^import [^;]+ from "([^"]+)";$/gm)].map((m) => m[1]);
+  const staticImports = [...page.matchAll(/^import (?!type )[^;]+ from "([^"]+)";$/gm)].map((m) => m[1]); // runtime imports only (import type is erased)
   assert.deepEqual(staticImports.filter((s) => /simulation-theater/.test(s)), ["@/lib/simulation-theater/nba/possession/public-route.mjs"], "the candidate statically imports only its gate");
   assert.doesNotMatch(page, /NbaTheaterSection|NbaBoxScore|nba\/loader\.mjs/, "the candidate never mounts the v1 quarter Theater or its box score");
   const nextConfig = fs.readFileSync(path.join(APP, "next.config.mjs"), "utf8");
