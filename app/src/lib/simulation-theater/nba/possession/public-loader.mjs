@@ -16,7 +16,7 @@ import path from "node:path";
 
 import { buildPlaybackPayload } from "./payload.mjs";
 import { etDateOf, readPossessionArtifact, replayGateProblems, sideConstraintProblem, validatedGame } from "./stored-run.mjs";
-import { NBA_THEATER_REPLAY_ENGINE } from "../../../consistency/theater-gate-policy.mjs";
+import { NBA_THEATER_REPLAY_ENGINE } from "../../../consistency/theater-replay-engine.mjs";
 import { nbaPalette } from "../nba-team-colors.mjs";
 
 /**

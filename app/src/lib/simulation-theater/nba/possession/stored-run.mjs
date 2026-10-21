@@ -100,7 +100,7 @@ export const etDateOf = (iso) => (Number.isFinite(Date.parse(iso ?? "")) ? new I
  * THE REPLAY GATE (role C, founder decision 2026-10-21) — one game's stored replay runs, checked against that game's
  * CURRENT official snapshot. The consistency gate (audit.mjs theaterActivationGate) and the public loader both call
  * this, so the page can never publish a game the gate keeps closed. Read-only.
- *   REPLAY_ENGINE_NOT_APPROVED   the artifact's engine is not `approvedEngineId` (theater-gate-policy NBA_THEATER_REPLAY_ENGINE)
+ *   REPLAY_ENGINE_NOT_APPROVED   the artifact's engine is not `approvedEngineId` (theater-replay-engine NBA_THEATER_REPLAY_ENGINE)
  *   NO_REPLAY_RUNS               no artifact / game / runs, or a stored run fails the P1–P11 checker or its digest
  *   REPLAY_POOL_UNCHECKED        the seed pool was not fully checked, or any pool draw violated an invariant
  *   REPLAY_OFFICIAL_CHANGED      the runs were selected against a different official snapshot
