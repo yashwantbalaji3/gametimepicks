@@ -18,9 +18,10 @@ const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 const PAGE = "src/app/nba/simulation/[eventId]/page.tsx";
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
-test("gate: both acts required; the committed constant is false so every env is OFF; OFF params = one placeholder, no data read", () => {
-  assert.equal(NBA_THEATER_PUBLIC_ENABLED, false, "never flipped here");
-  for (const env of [{}, { GTP_NBA_THEATER_PUBLIC: "1" }, { GTP_NBA_THEATER_PUBLIC: "true" }, { GTP_DEV_ROUTES: "1", GTP_NBA_THEATER_PUBLIC: "1" }]) {
+test("gate: both acts required; the committed constant is true (recorded decision), so the env act alone decides; OFF params = one placeholder, no data read", () => {
+  assert.equal(NBA_THEATER_PUBLIC_ENABLED, true, "flipped 2026-10-21 with the approval file");
+  assert.equal(nbaPublicTheaterOn({ env: { GTP_NBA_THEATER_PUBLIC: "1" } }), true, "both acts → ON");
+  for (const env of [{}, { GTP_NBA_THEATER_PUBLIC: "true" }, { GTP_NBA_THEATER_PUBLIC: "0" }, { GTP_DEV_ROUTES: "1" }]) {
     assert.equal(nbaPublicTheaterOn({ env }), false);
     assert.equal(nbaTheaterPublicEnabled(env), false);
     let called = false;
@@ -28,6 +29,7 @@ test("gate: both acts required; the committed constant is false so every env is 
     assert.equal(called, false, "an OFF build reads no data");
   }
   assert.equal(nbaPublicTheaterOn({ constantEnabled: true, env: { GTP_NBA_THEATER_PUBLIC: "0" } }), false);
+  assert.equal(nbaPublicTheaterOn({ constantEnabled: false, env: { GTP_NBA_THEATER_PUBLIC: "1" } }), false, "the constant is still an act: false keeps every env OFF");
   assert.equal(nbaPublicTheaterOn({ constantEnabled: true, env: { GTP_NBA_THEATER_PUBLIC: "1" } }), true);
   assert.deepEqual(nbaPublicTheaterParams(() => [], { constantEnabled: true, env: { GTP_NBA_THEATER_PUBLIC: "1" } }), [{ eventId: NBA_PUBLIC_THEATER_PLACEHOLDER }]);
 });
