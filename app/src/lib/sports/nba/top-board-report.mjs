@@ -11,7 +11,7 @@
  *     full-sample board coverage is not the §7 bar.
  */
 import { PREREG } from "./grader-metrics.mjs";
-import { NBA_BOARD_ROLE, NBA_BOARD_ROLES } from "../../consistency/official-snapshot.mjs";
+import { NBA_BOARD_ROLE, NBA_BOARD_ROLES } from "../../consistency/nba-board-roles.mjs";
 import { CATEGORIES } from "./top-boards.mjs";
 import { SETTLEMENT, PROJECTION_STATUS, boardRows } from "./top-board-grading.mjs";
 

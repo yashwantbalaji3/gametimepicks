@@ -23,7 +23,7 @@ import { CATEGORIES, CATEGORIES_V1, DEFAULT_BOARD_FAMILY, MARKET_BASIS, MARKET_B
 
 export const ROW_VIEW_VERSION = "nba-top-board-row-view@1";
 import { NO_AUTHORIZED_PRICE, NO_PRICE_TEXT } from "./top-board-view-ops.mjs";
-import { NBA_BOARD_ROLE, NBA_BOARD_ROLES } from "../../consistency/official-snapshot.mjs";
+import { NBA_BOARD_ROLE, NBA_BOARD_ROLES } from "../../consistency/nba-board-roles.mjs";
 export { NO_AUTHORIZED_PRICE, NO_PRICE_TEXT };
 export const NO_PRICE_EXPLANATION = "There is no authorized NBA price: the founder decision decision-nba-markets-authorization is open, NBA_MARKET_CONFIG has no player prop family, and the preregistration (§13) withholds odds, lines, edges and picks. Nothing on this board is an Over or an Under.";
 /** The family whose player projections are the official forecast (coordinator: official = v0.1 players). */
