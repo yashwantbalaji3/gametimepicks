@@ -20,6 +20,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
 
+import { ENGINE_LABEL } from "../src/lib/simulation-theater/nba/possession/labels.mjs";
+
 const ENABLED = process.env.GTP_THEATER_E2E === "1" && process.env.GTP_THEATER_TARGET !== "public";
 const DATE = process.env.GTP_NBA_THEATER_DATE ?? "2026-10-20";
 type Run = { kind: string; runIndex: number; final: [number, number]; periods: [number[], number[]]; overtimePeriods: number };
@@ -29,7 +31,8 @@ const ART: { games: Game[] } | null = (() => {
 })();
 const GAMES = ART?.games ?? [];
 const WIDTHS = [[320, 640], [390, 844], [768, 1024], [1440, 900]] as const;
-const ENGINE = "Possession-level research simulation (nba-possession-sim-v0) — not the official forecast";
+// the engine identity text lives in labels.mjs (one source for the UI, the unit tests and this spec)
+const ENGINE = ENGINE_LABEL;
 const WHAT_IF_BANNER = "Hypothetical scenario — not the forecast";
 const url = (id: string, q = "") => `/dev/simulation-theater/nba/${id}/possession/${q}`;
 
