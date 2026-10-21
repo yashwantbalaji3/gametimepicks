@@ -23,6 +23,18 @@ export function nbaPublicTheaterOn({ constantEnabled = NBA_THEATER_PUBLIC_ENABLE
   return constantEnabled === true && env?.[NBA_THEATER_PUBLIC_ENV] === "1";
 }
 
+/**
+ * ENTRY POINTS (release owner 2026-10-21): the event ids the public route ACTUALLY builds — exactly what
+ * generateStaticParams publishes, without the inert placeholder. Every link to the Theater (the /nba lane cards) is
+ * rendered from this list, so a link exists iff its page does: flag OFF or a game without valid runs → no link.
+ */
+export function publicTheaterRouteIds(getIds, opts = {}) {
+  return nbaPublicTheaterParams(getIds, opts).map((p) => p.eventId).filter((id) => id !== NBA_PUBLIC_THEATER_PLACEHOLDER);
+}
+export const publicTheaterHref = (eventId) => `/${NBA_PUBLIC_THEATER_ROUTE}/${eventId}/`;
+/** The link text carries the role C framing (research simulation, unvalidated) — never "watch the game". */
+export const THEATER_LINK_TEXT = "Watch a research simulation of this game (unvalidated) →";
+
 /** generateStaticParams: `getIds` is called ONLY when the gate is on (an OFF build reads nothing). */
 export function nbaPublicTheaterParams(getIds, opts = {}) {
   if (!nbaPublicTheaterOn(opts)) return [{ eventId: NBA_PUBLIC_THEATER_PLACEHOLDER }];
