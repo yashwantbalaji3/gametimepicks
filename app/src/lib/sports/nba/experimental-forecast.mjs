@@ -28,6 +28,8 @@ import { frozenWinnerSide, DECIDED_WINNER_HEAD } from "./winner-side.mjs";
 import { simulateGameV1, NBA_SIM_V1_MODEL_VERSION } from "./game-sim-v1.mjs";
 import { indexBoxscores, leagueMeans, buildSideProfile, PROFILE_VERSION as V1_PROFILE_VERSION } from "./sim-v1-profile.mjs";
 import { scoreQuantileBlock } from "./distribution-scores.mjs";
+import { simulateGameV03, NBA_SIM_V03_MODEL_VERSION } from "./game-sim-v03.mjs";
+import { gatePoolV03, indexRoleHistory, MINUTES_MODEL_V03_VERSION, POOL_V03_VERSION, BASES as V03_BASES } from "./minutes-model-v03.mjs";
 
 export const FORECAST_ARTIFACT = "nba-experimental-forecasts";
 /**
@@ -56,9 +58,29 @@ export const FAMILIES = Object.freeze({
   "v0.2": Object.freeze({ family: "v0.2", poolRule: "roster-gated", dataRule: "corpus-v1+season-2026-27", role: "CHALLENGER", modelVersion: "nba-experimental-v0.2-season-2026-27", dir: "experimental-v0.2" }),
   "v1": Object.freeze({ family: "v1", poolRule: "roster-gated", dataRule: "corpus-v1+season-2026-27", role: "CANDIDATE_SHADOW", modelVersion: "nba-sim-v1-coherent", dir: "experimental-v1", engine: "v1" }),
 });
+/**
+ * CANDIDATE families: resolvable by name (familySpec), never iterated by the nightly pipeline. They are kept OUT of
+ * FAMILIES on purpose — every script that walks FAMILIES (the forecast-window decision, the grader's cross-ledger
+ * checks, the receipt guard, the box-score fetch dirs) would otherwise start owing, grading or fetching for a family
+ * the founder has not armed. `armed: false` makes the builder refuse to write into the family's forecasts/ directory
+ * (a replay goes to --out). Arming is a founder decision recorded in the preregistration looks log and the promotion
+ * record path (PR 1154), not a code default.
+ *
+ * v0.3 (2026-10-21 investigation, docs/nba/NBA_V01_PRESEASON_MINUTES_INVESTIGATION_2026-10-21.md): v0.1's roster
+ * gate and Elo UNCHANGED; only the minutes layer changes (minutes-model-v03.mjs: full prior regular season as a role
+ * prior blended toward the current regular season) and how the engine normalises it (game-sim-v03.mjs: the v0 draw
+ * model with conditional minutes, rotation-aware normalisation to 240 in expectation, participation by play rate;
+ * game-sim.mjs, the frozen v0 engine, is not edited). Its data rule
+ * folds the fetched 2026-27 box scores (so the current season can accrue) but NOT the finals record, so its Elo is
+ * v0.1's and any difference from v0.1 is the minutes layer alone.
+ */
+export const CANDIDATE_FAMILIES = Object.freeze({
+  "v0.3": Object.freeze({ family: "v0.3", poolRule: "roster-gated", dataRule: "corpus-v1+boxscores-2026-27", role: "CANDIDATE_SHADOW", modelVersion: "nba-experimental-v0.3-role-minutes", dir: "experimental-v0.3", minutesRule: "v0.3-role-prior", armed: false }),
+});
 export function familySpec(family) {
-  const f = FAMILIES[String(family ?? "v0")];
-  if (!f) throw new Error(`REFUSED: unknown NBA experimental family ${JSON.stringify(family)} (${Object.keys(FAMILIES).join(", ")})`);
+  const key = String(family ?? "v0");
+  const f = FAMILIES[key] ?? CANDIDATE_FAMILIES[key];
+  if (!f) throw new Error(`REFUSED: unknown NBA experimental family ${JSON.stringify(family)} (${[...Object.keys(FAMILIES), ...Object.keys(CANDIDATE_FAMILIES)].join(", ")})`);
   return f;
 }
 
@@ -184,6 +206,14 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
   const spec = familySpec(family);
   const rosterGated = spec.poolRule === "roster-gated";
   const engineV1 = spec.engine === "v1";
+  // v0.3 candidate: a different minutes layer behind the same roster gate (one role index per population per artifact).
+  const minutesV03 = spec.minutesRule === "v0.3-role-prior";
+  const v03Index = new Map();
+  const v03IndexFor = (population) => {
+    if (!v03Index.has(population)) v03Index.set(population, indexRoleHistory(boxscores, { asOfDateUtc: now, population }));
+    return v03Index.get(population);
+  };
+  const poolVersion = minutesV03 ? POOL_V03_VERSION : ROSTER_GATED_POOL_VERSION;
   // v1 reads the same as-of box scores (one index per artifact) and league means per population, lazily.
   let v1Index = null;
   const v1League = new Map();
@@ -210,12 +240,12 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     teamsWithoutRegularHistory: [], teamsWithoutPreseasonHistory: [], teamsWithoutBoxscoreHistory: [],
     playersWithExpectedMinutes: 0, playersOut: 0, playersInsufficient: 0, playersNoMinutes: 0,
     playersUnknownToHistory: [], // injuries entries naming athletes with no box-score row for that team
-    minutesBasisCounts: { trailing10: 0, season: 0, insufficient: 0 },
+    minutesBasisCounts: minutesV03 ? Object.fromEntries(Object.values(V03_BASES).map((b) => [b, 0])) : { trailing10: 0, season: 0, insufficient: 0 },
     poolRateSubstitutions: 0, defaultSdSubstitutions: 0,
     gamesAlreadyStartedAtNow: 0,
     family: spec.family, poolRule: spec.poolRule,
     ...(engineV1 ? { v1Pool: { profileVersion: V1_PROFILE_VERSION, simulated: 0, insufficientHistory: 0, out: 0, otherTeamHistory: 0 } } : {}),
-    pool: rosterGated ? { poolVersion: ROSTER_GATED_POOL_VERSION, rosterPlayers: 0, playersSimulated: 0, playersInsufficientHistory: 0, playersExcludedNotOnRoster: 0, playersOtherTeamHistory: 0, gamesRefusedByRosterGate: 0 } : { poolVersion: null, rule: "v0: box-score history" },
+    pool: rosterGated ? { poolVersion, rosterPlayers: 0, playersSimulated: 0, playersInsufficientHistory: 0, playersExcludedNotOnRoster: 0, playersOtherTeamHistory: 0, gamesRefusedByRosterGate: 0 } : { poolVersion: null, rule: "v0: box-score history" },
     roster: rosters ? {
       provided: true, asOf: rosters.asOf ?? rosters.capturedAt ?? null, contractVersion: rosters.contractVersion ?? null,
       teamsMissingRoster: [], playersOnRosterWithoutHistory: 0, playersSimulatedButNotOnRoster: 0, playersSimulatedOnRoster: 0,
@@ -237,7 +267,9 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
       if (rating.basis === "default-no-history") noteTeam(population === "preseason" ? manifest.teamsWithoutPreseasonHistory : manifest.teamsWithoutRegularHistory, `${name} (${s?.providerTeamId})`);
       let minutes, pool = null;
       if (rosterGated) {
-        const gated = gatePool({ rosters, providerTeamId: s?.providerTeamId, boxscores, asOfDateUtc: now, injuries, population, teamMinutesCache });
+        const gated = minutesV03
+          ? gatePoolV03({ rosters, providerTeamId: s?.providerTeamId, boxscores, asOfDateUtc: now, injuries, population, roleIndex: v03IndexFor(population) })
+          : gatePool({ rosters, providerTeamId: s?.providerTeamId, boxscores, asOfDateUtc: now, injuries, population, teamMinutesCache });
         if (gated.state === "REFUSED") return { refused: gated.reason, name, providerTeamId: String(s?.providerTeamId), gate: gated.gate };
         minutes = gated; pool = gated.gate;
         manifest.pool.playersInsufficientHistory += pool.insufficientHistory.length;
@@ -301,7 +333,7 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
         continue;
       }
     } else {
-      sim = simulateGame({ providerEventId: row.providerEventId, inputAsOf: now, neutralSite: row.neutralSite === true, home, away, eloWinProbability: eloP, simulations });
+      sim = (minutesV03 ? simulateGameV03 : simulateGame)({ providerEventId: row.providerEventId, inputAsOf: now, neutralSite: row.neutralSite === true, home, away, eloWinProbability: eloP, simulations });
     }
     manifest.poolRateSubstitutions += sim.assumptions.minutes.home.poolRateSubstitutions + sim.assumptions.minutes.away.poolRateSubstitutions;
     manifest.defaultSdSubstitutions += sim.assumptions.minutes.home.defaultSdSubstitutions + sim.assumptions.minutes.away.defaultSdSubstitutions;
@@ -312,7 +344,7 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
       dateUtc: row.dateUtc, etDate: date, neutralSite: row.neutralSite === true, venue: row.venue ?? null,
       home: { name: home.name, abbr: home.abbr, providerTeamId: home.providerTeamId, rating: home.rating, minutesModel: { modelVersion: home.minutes.modelVersion, seasonUsed: home.minutes.seasonUsed, teamGamesInSeason: home.minutes.teamGamesInSeason, teamGamesInWindow: home.minutes.teamGamesInWindow, windowFromDateUtc: home.minutes.windowFromDateUtc, windowToDateUtc: home.minutes.windowToDateUtc }, rosterReconciliation: home.rosterReconciliation, ...(rosterGated ? { pool: home.pool } : {}) },
       away: { name: away.name, abbr: away.abbr, providerTeamId: away.providerTeamId, rating: away.rating, minutesModel: { modelVersion: away.minutes.modelVersion, seasonUsed: away.minutes.seasonUsed, teamGamesInSeason: away.minutes.teamGamesInSeason, teamGamesInWindow: away.minutes.teamGamesInWindow, windowFromDateUtc: away.minutes.windowFromDateUtc, windowToDateUtc: away.minutes.windowToDateUtc }, rosterReconciliation: away.rosterReconciliation, ...(rosterGated ? { pool: away.pool } : {}) },
-      ...(rosterGated ? { poolVersion: ROSTER_GATED_POOL_VERSION } : {}),
+      ...(rosterGated ? { poolVersion } : {}),
       // Stage 12-S1: the winner side is frozen beside the probabilities it comes from (N2: Elo, with the generation).
       forecast: { ...sim, ...frozenWinnerSide(sim, { head: DECIDED_WINNER_HEAD, generation: spec.modelVersion }) },
     });
@@ -326,7 +358,8 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     productEligible: false,
     neverReadBy: "app/src/app/** (public routes) — internal research only; sport-capability-registry keeps NBA HISTORICAL_ONLY",
     modelVersion: spec.modelVersion,
-    ...(rosterGated ? { family: spec.family, poolRule: spec.poolRule, poolVersion: ROSTER_GATED_POOL_VERSION, simEngineVersion: engineV1 ? NBA_SIM_V1_MODEL_VERSION : NBA_SIM_MODEL_VERSION } : {}),
+    ...(rosterGated ? { family: spec.family, poolRule: spec.poolRule, poolVersion, simEngineVersion: engineV1 ? NBA_SIM_V1_MODEL_VERSION : minutesV03 ? NBA_SIM_V03_MODEL_VERSION : NBA_SIM_MODEL_VERSION } : {}),
+    ...(minutesV03 ? { minutesModelVersion: MINUTES_MODEL_V03_VERSION, armed: spec.armed === true } : {}),
     ...(engineV1 ? { profileVersion: V1_PROFILE_VERSION } : {}),
     ...(spec.dataRule !== "corpus-v1" ? { dataRule: spec.dataRule, role: spec.role } : {}),
     generatedAt: now,

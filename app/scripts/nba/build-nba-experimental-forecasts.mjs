@@ -14,7 +14,7 @@
  * (read only) · data/internal/research/injuries/nba/latest.json.
  *
  * Run (from app/):
- *   npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date 2026-10-03 --now 2026-09-22T12:00:00Z [--write] [--simulations N] [--family v0|v0.1|v0.2|v1] [--out <file>] [--horizon-hours H]
+ *   npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date 2026-10-03 --now 2026-09-22T12:00:00Z [--write] [--simulations N] [--family v0|v0.1|v0.2|v1|v0.3] [--out <file>] [--horizon-hours H]
  *
  * FAMILIES (v1.8 A1): --family v0 (default) is the frozen preregistered pool (box-score history) and writes
  * experimental/forecasts/; --family v0.1 is the ROSTER-GATED pool and writes experimental-v0.1/forecasts/.
@@ -24,6 +24,10 @@
  * coherent-engine CANDIDATE (game-sim-v1.mjs, nba-sim-v1-coherent): v0.2's roster gate and season fold, the v1 engine and its
  * blended-history profiles (sim-v1-profile.mjs); writes experimental-v1/forecasts/ with the same write-once receipts. --out <file>
  * overrides the output path for a research comparison (never used by the workflow).
+ * CANDIDATE families (experimental-forecast.mjs CANDIDATE_FAMILIES, e.g. --family v0.3, the role-prior minutes candidate,
+ * NOT ARMED) are resolvable by name only and never walked by the pipeline. An unarmed candidate never writes into a
+ * forecasts/ directory: --write without --out is REFUSED, and so is an --out inside data/internal/research/nba/.../forecasts/.
+ * v0.3's data rule folds the fetched 2026-27 box scores but not the finals record (its Elo is v0.1's).
  * WRITE-ONCE, PRE-TIP (Session 10 · G2/G4/G7 — lib/sports/nba/forecast-receipt.mjs): the date file is never
  * rewritten whole. A game already in it is kept byte-for-byte; a game whose tip is at or before --now is
  * REFUSED, never forecast late; only games not yet forecast and still ahead are built and ADDED, each with a
@@ -63,6 +67,11 @@ let FAMILY;
 try { FAMILY = familySpec(opt("--family") ?? "v0"); } catch (e) { console.error(e.message); process.exit(1); }
 const OUT_DIR = path.join(NBA, FAMILY.dir, "forecasts");
 const OUT_FILE = opt("--out");
+if (FAMILY.armed === false) {
+  // An unarmed candidate is research only: never a frozen forecast in any family's forecasts/ directory.
+  if (WRITE && !OUT_FILE) { console.error(`REFUSED: family ${FAMILY.family} is a candidate that is NOT ARMED (founder decision required) — --write is refused; pass --out <file> outside any forecasts/ directory for a replay`); process.exit(1); }
+  if (OUT_FILE && path.resolve(OUT_FILE).startsWith(NBA + path.sep) && path.resolve(OUT_FILE).split(path.sep).includes("forecasts")) { console.error(`REFUSED: family ${FAMILY.family} is NOT ARMED — --out may not point inside a forecasts/ directory`); process.exit(1); }
+}
 const HORIZON = opt("--horizon-hours") != null ? Number(opt("--horizon-hours")) : null;
 if (HORIZON != null && !(HORIZON > 0)) { console.error("REFUSED: --horizon-hours must be a positive number"); process.exit(1); }
 if (!DATE || !/^\d{4}-\d{2}-\d{2}$/.test(DATE)) { console.error("REFUSED: --date YYYY-MM-DD required"); process.exit(1); }
@@ -106,7 +115,15 @@ let boxscores = corpusBoxscores;
 let corpusRows = corpus.rows ?? [];
 let seasonFold = null;
 let finalsText = null;
-if (FAMILY.dataRule !== "corpus-v1") {
+// v0.2 / v1 fold the finals record AND the fetched box scores; the v0.3 candidate folds the box scores only.
+const FOLDS_FINALS = FAMILY.dataRule === "corpus-v1+season-2026-27";
+if (FAMILY.dataRule !== "corpus-v1" && !FOLDS_FINALS) {
+  const fetched = Object.values(FAMILIES).flatMap((f) => readBoxDir(path.join(NBA, f.dir, "boxscores")));
+  const box = foldBoxscores(corpusBoxscores, fetched, { now: NOW });
+  boxscores = box.docs;
+  seasonFold = { boxscoresFolded: box.added, boxscoresSkipped: box.skipped };
+  console.log(`box-score fold @ ${NOW} (no finals fold; Elo stays corpus-v1): box scores +${box.added} ${JSON.stringify(box.skipped)}`);
+} else if (FAMILY.dataRule !== "corpus-v1") {
   // v0.2 (N3): fold the 2026-27 season as of --now. No finals record → no challenger forecast (never a silent v0.1 copy).
   if (!fs.existsSync(FINALS)) { console.error(`REFUSED: family ${FAMILY.family} requires ${path.relative(path.resolve(APP, ".."), FINALS)}`); process.exit(1); }
   finalsText = fs.readFileSync(FINALS, "utf8");
@@ -139,7 +156,8 @@ const receiptInputs = {
   schedule: { file: "app/public/data/nba/schedule/latest.json", generatedAt: schedule.generatedAt ?? null },
   corpus: { file: "corpus-v1.json", generatedAt: corpus.generatedAt ?? null, rows: (corpus.rows ?? []).length },
   boxscores: { dir: "boxscores/", docs: boxscores.length },
-  ...(seasonFold ? { finals: { file: "app/public/data/nba/results/finals-2026-27.json", sha256: sha256(finalsText), folded: seasonFold.finalsFolded }, fetchedBoxscores: { folded: seasonFold.boxscoresFolded } } : {}),
+  ...(seasonFold && FOLDS_FINALS ? { finals: { file: "app/public/data/nba/results/finals-2026-27.json", sha256: sha256(finalsText), folded: seasonFold.finalsFolded }, fetchedBoxscores: { folded: seasonFold.boxscoresFolded } } : {}),
+  ...(seasonFold && !FOLDS_FINALS ? { fetchedBoxscores: { folded: seasonFold.boxscoresFolded } } : {}),
 };
 
 console.log(`NBA experimental forecasts · family ${FAMILY.family} (${FAMILY.poolRule}) · ${DATE} · now ${NOW} · sims ${SIMS}`);
