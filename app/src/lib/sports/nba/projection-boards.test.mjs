@@ -118,7 +118,11 @@ test("the 10-20 regeneration only ADDED fields: stripping them gives the pre-ame
   }
   assert.equal(crypto.createHash("sha256").update(`${JSON.stringify(stripped, null, 1)}\n`).digest("hex"), PRE_AMENDMENT_SHA256);
   assert.equal(PUB.schema, "nba-experimental-public-snapshot@1", "additive only, so no schema bump");
-  assert.equal(fs.readFileSync(path.join(APP, "public/data/nba/experimental-public/latest.json"), "utf8"), PUB_TEXT, "latest.json is the same bytes");
+  // latest.json is the NEWEST dated slate, byte for byte (it was 10-20 until #1150 published 10-21; asserting 10-20 here
+  // turned main red on data, 2026-10-21). The 10-20 property itself is the strip check above.
+  const dir = path.join(APP, "public/data/nba/experimental-public");
+  const newest = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort().at(-1);
+  assert.equal(fs.readFileSync(path.join(dir, "latest.json"), "utf8"), fs.readFileSync(path.join(dir, newest), "utf8"), `latest.json is the same bytes as the newest slate (${newest})`);
   // …and the committed file is exactly what the producer builds now.
   const rebuilt = buildExperimentalSnapshot({ forecastDoc: structuredClone(DOC), sourceFile: PUB.source.file, sourceCommit: PUB.source.commit, generatedAt: PUB.generatedAt });
   assert.equal(`${JSON.stringify(rebuilt, null, 1)}\n`, PUB_TEXT);
