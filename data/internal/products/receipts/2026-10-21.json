@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-10-21",
- "generatedAt": "2026-10-21T09:38:31Z",
+ "generatedAt": "2026-10-21T14:55:52Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -138,18 +138,18 @@
   {
    "product": "end-zone-vault",
    "label": "End Zone Vault",
-   "state": "NOT_RUN",
-   "reason": "the Vault ledger holds no entry for 2026-10-21",
+   "state": "NO_PLAY",
+   "reason": "participation: FAIL(INACTIVE) · scorerPrice: FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market) · participation: FAIL(QUESTIONABLE)",
    "candidatesEvaluated": 0,
    "rejections": [],
    "card": null,
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "INCIDENT",
+    "state": "NO_PLAY",
     "policyVersion": "end-zone-vault@1",
     "evidence": {
      "policyVersion": "end-zone-vault@1",
-     "incidentRef": "NOT_RUN: the Vault ledger holds no entry for 2026-10-21"
+     "reason": "participation: FAIL(INACTIVE) · scorerPrice: FAIL(NO_MARKET — the authorized probe covered this window and returned no anytime-TD market) · participation: FAIL(QUESTIONABLE)"
     },
     "transitions": [
      {
@@ -157,8 +157,8 @@
       "runId": "open:end-zone-vault:2026-10-21"
      },
      {
-      "to": "INCIDENT",
-      "runId": "eval:2026-10-21:NOT_RUN"
+      "to": "NO_PLAY",
+      "runId": "eval:2026-10-21:66ef1e024fb3"
      }
     ]
    }
@@ -315,11 +315,6 @@
   }
  ],
  "watchdog": [
-  {
-   "product": "end-zone-vault",
-   "kind": "INCIDENT_OPEN",
-   "detail": "NOT_RUN: the Vault ledger holds no entry for 2026-10-21"
-  },
   {
    "product": "homer-nukes",
    "kind": "INCIDENT_OPEN",
