@@ -163,3 +163,23 @@ Top 3 on the private board for each category (model median; v0.1 champion | v1 c
 **Not caused by these changes:** the 16:37Z nightly-settle rerun lost a push race on ops status files (`admin/status.json`, `ops/*.json`) with other writers. Later reruns retry.
 
 **Theater review:** http://localhost:4181/dev/simulation-theater/nba/401909088/ (and …089, …090).
+
+## Founder decisions recorded in the release owner's session (2026-10-20, about 23:40Z)
+
+| # | Item | Decision | What it allows |
+|---|---|---|---|
+| 1 | #1162 NBA Theater Gate V2 | **APPROVED** | The gate change only: the canonical-forecast panel plus labelled supporting v1 runs. `NBA_THEATER_PUBLIC_ENABLED` stays false until the public route, export guards, browser QA, accessibility, privacy and a separate release authorization. The v1 Challenger board stays research-only. |
+| 2 | #1163 `/nba/projections/` | **APPROVED** | Figures come only from the official frozen forecast; combos only from valid source distributions; no odds, edges, EV or recommendations. Measured page weight, mobile, CI and export/privacy guards are verified before merge. |
+| 3 | 401901822 disputed final | **HOLD** | No restatement. Independent authoritative confirmation of 116–98 and an auditable append-only correction come to the founder first. |
+| 4 | Paid NBA player-points pilot | **HOLD** | No credits spent. Source authorization, real costs, safeguards and #1156 come first. |
+| 5 | Release execution | **Proceed after 05:00Z** | Dependency order, batched, exact-head green CI: #1156 → #1155 → #1154 → #1150 → #1149 → #1153/#1151/#1157 → #1162 → #1163. #1147 stays draft. |
+
+No change to the official winner model, and no frozen forecast is rewritten.
+
+**Tonight (releases inside the window, under the founder's one-build exceptions):**
+- **#1146** NBA experimental public lane: merged 19:46Z, live 19:53Z.
+- **#1148** lane hierarchy and wording: merged 23:03Z, live 23:08Z. The lane sits above the schedule, with jump links and team names; a status is shown only for recorded finals.
+
+**Finals waiter trial:**
+- BOS @ DET: ESPN final 21:36:43Z, refresh dispatched 21:39:35Z, committed 21:40:39Z (BOS 113 – DET 121). One dispatch.
+- The trial is still running.
