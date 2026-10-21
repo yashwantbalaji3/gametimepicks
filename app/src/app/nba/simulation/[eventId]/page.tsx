@@ -18,6 +18,7 @@ import { notFound } from "next/navigation";
 
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { NBA_PUBLIC_THEATER_PLACEHOLDER, nbaPublicTheaterOn, nbaPublicTheaterParams } from "@/lib/simulation-theater/nba/possession/public-route.mjs";
+import type { PbLoad } from "@/components/simulation-theater/nba/possession/possession-types";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
 const buildFlagOn = () => process.env.GTP_NBA_THEATER_PUBLIC === "1";
@@ -47,7 +48,7 @@ export default async function NbaSimulationTheaterPage({ params }: { params: { e
   if (buildFlagOn() && nbaPublicTheaterOn() && params.eventId !== NBA_PUBLIC_THEATER_PLACEHOLDER) {
     const { loadPublicPossessionTheater } = await import("@/lib/simulation-theater/nba/possession/public-loader.mjs");
     const { default: NbaPossessionSection } = await import("@/components/simulation-theater/nba/possession/NbaPossessionSection");
-    const load = loadPublicPossessionTheater(REPO_ROOT, params.eventId);
+    const load = loadPublicPossessionTheater(REPO_ROOT, params.eventId) as PbLoad; // JS loader → the island's type (as the dev route)
     if (!load.ok) notFound();
     return (
       <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-14 overflow-x-hidden supports-[overflow:clip]:overflow-x-clip">

@@ -35,7 +35,10 @@ test("gate: both acts required; the committed constant is false so every env is 
 test("page source: static imports are the gate only; the loader and the island sit behind the compile-time flag; default notFound; noindex", () => {
   const src = read(PAGE);
   const code = strip(src);
-  const statics = [...code.matchAll(/^import [^;]+ from "([^"]+)";$/gm)].map((m) => m[1]);
+  // runtime static imports only: `import type` is erased at compile time and loads nothing
+  const statics = [...code.matchAll(/^import (?!type )[^;]+ from "([^"]+)";$/gm)].map((m) => m[1]);
+  const typeOnly = [...code.matchAll(/^import type [^;]+ from "([^"]+)";$/gm)].map((m) => m[1]).filter((x) => x.startsWith("@/")).sort();
+  assert.deepEqual(typeOnly, ["@/components/simulation-theater/nba/possession/possession-types"], "the only type-only alias import is the island's load type");
   assert.deepEqual(statics.filter((s) => s.startsWith("@/")).sort(), ["@/lib/seo/route-metadata", "@/lib/simulation-theater/nba/possession/public-route.mjs"]);
   assert.match(code, /const buildFlagOn = \(\) => process\.env\.GTP_NBA_THEATER_PUBLIC === "1";/);
   // every dynamic import is inside a buildFlagOn() branch
