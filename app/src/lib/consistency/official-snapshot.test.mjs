@@ -152,3 +152,12 @@ test("NBA: the official family is the one the public lane reads (one constant)",
   assert.equal(NBA_OFFICIAL_FAMILY, LANE.sourceFamily);
   assert.equal(NBA_OFFICIAL_FAMILY, "v0.1");
 });
+
+test("NBA board roles: keys are the official and supporting families; the module is dependency-free (plain-node safe)", async () => {
+  const { NBA_BOARD_ROLES, NBA_BOARD_ROLE, NBA_OFFICIAL_FAMILY: OFF, NBA_SUPPORTING_FAMILY: SUP } = await import("./official-snapshot.mjs");
+  assert.equal(NBA_BOARD_ROLES[OFF].role, NBA_BOARD_ROLE.OFFICIAL);
+  assert.equal(NBA_BOARD_ROLES[SUP].role, NBA_BOARD_ROLE.CHALLENGER_RESEARCH_ONLY);
+  const fs = await import("node:fs");
+  const src = fs.readFileSync(new URL("./nba-board-roles.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(src, /^import /m, "no imports: board producers load it under plain node");
+});
