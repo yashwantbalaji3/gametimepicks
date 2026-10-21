@@ -21,6 +21,7 @@ import { gradeEplLeg } from "../../src/lib/sports/epl/settlement-contract.mjs";
 import { loadCurrentEplResults } from "../../src/lib/soccer/epl-current-results.mjs";
 import { loadOfficialUfcResults, fighterIndexForDate } from "../../src/lib/sports/ufc/official-results.mjs";
 import { classifyReceiptChange, RECEIPT_CHANGE } from "../../src/lib/parlays/receipt-completion.mjs";
+import { receiptCard, payoutFor, payoutPolicyForRun, PAYOUT_POLICY } from "../../src/lib/parlays/settlement.mjs";
 import { canShowLiveProjections, capabilityState } from "../../src/lib/sport-capability-registry.ts";
 
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -56,8 +57,7 @@ const etYesterday = () => {
 };
 const DATE = arg("--date", etYesterday());
 
-const dec = (a) => (a > 0 ? 1 + a / 100 : 1 + 100 / Math.abs(a));
-const get = async (url) => { const r = await fetch(url); if (!r.ok) throw new Error(`${r.status} ${url}`); return r.json(); };
+const get =async (url) => { const r = await fetch(url); if (!r.ok) throw new Error(`${r.status} ${url}`); return r.json(); };
 const norm = (s) => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
 
 /**
@@ -327,13 +327,24 @@ if (!sources.length) { console.log(`NOT_YET_OBSERVABLE: no published ladder for 
 console.log(`ladders for ${DATE}: ${sources.map((s) => `${s.sport} ${s.count}`).join(" · ")}`);
 const ladder = { cards: sources.flatMap((s) => s.cards) };
 
+/*
+ * ── PAYOUT POLICY: FORWARD-ONLY ────────────────────────────────────────────────────────────────────────────────
+ *
+ * The day's receipt, if one is already on disk, is read FIRST, because it decides which payout policy this run
+ * writes. A receipt keeps the policy it was first written under (lib/parlays/settlement.mjs payoutPolicyForRun):
+ * every receipt written before the reduced-win fix stays exactly as published — no payoutDecimal, combinedDecimal
+ * computed the way it always was — even when the completion sweep revisits its day. Only a day settled for the
+ * first time gets PAYOUT_POLICY, i.e. a payout from its decided winning legs alone.
+ */
+const out = path.join(RECEIPTS, `${DATE}.json`);
+const prior = fs.existsSync(out) ? JSON.parse(fs.readFileSync(out, "utf8")) : null;
+const policy = payoutPolicyForRun(prior);
+
 const cards = [];
+const oddsBySlip = new Map();
 for (const card of ladder.cards ?? []) {
   const results = [];
-  let combined = 1;
   for (const leg of card.legs ?? []) {
-    if (leg.odds != null) combined *= dec(leg.odds);
-
     /* Route by the leg's OWN sport. A cross-sport card carries legs from more than one, so the
        grading path is a property of the leg, never of the card. */
     if ((leg.sport ?? "mlb") === "ufc") { results.push(gradeUfcLeg(leg)); continue; }
@@ -359,41 +370,28 @@ for (const card of ladder.cards ?? []) {
     const over = String(leg.side ?? "").toLowerCase().startsWith("o");
     results.push(actual === leg.line ? "push" : (actual > leg.line) === over ? "win" : "loss");
   }
-  /* Voids reduce the card exactly as pushes do: excluded from the decisive set, never a loss and
-     never a win. A card whose remaining legs all win is a (reduced) win — the same convention the
-     graded slips upstream already apply. */
-  const decisive = results.filter((r) => r !== "push" && r !== "void");
-  const result = results.includes("pending") && !results.includes("loss") ? "pending"
-    : decisive.includes("loss") ? "loss"
-    : decisive.length && decisive.every((r) => r === "win") ? "win"
-    /*
-     * A CARD WHOSE EVERY LEG PUSHED IS SETTLED, NOT PENDING.
-     *
-     * Pushes are filtered out of `decisive`, so an all-push card left `decisive` empty: not pending,
-     * no loss, no winning leg to satisfy the clause above — and it fell through to "pending" and
-     * stayed there. Nothing would ever revisit it, because settlement targets ET-yesterday and the
-     * completion rule only moves a card OUT of pending when a result arrives, and every result had
-     * already arrived. It is the exact failure this file's own comments describe: publishable,
-     * gradeable, and sitting pending forever while the published record computes over the cards that
-     * happened to settle.
-     *
-     * An NFL tie on a two-way moneyline reaches this in one leg. Found by the Program 235 replay
-     * harness, which grades one of every outcome rather than whatever a live day happened to supply.
-     */
-    : results.length && results.every((r) => r === "push") ? "push"
-    /* Every leg pushed or voided, at least one void: the card is refunded, and is SETTLED — the
-       same all-legs-decided reasoning as the all-push branch above. */
-    : results.length && results.every((r) => r === "push" || r === "void") ? "void"
-    : "pending";
+  /*
+   * THE CARD'S OUTCOME AND ITS TWO NUMBERS come from lib/parlays/settlement.mjs (cardResult · fullCardDecimal ·
+   * payoutFor), where every rule has a test: voids and pushes drop out of the decisive set (a card whose remaining
+   * legs all win is a reduced win); any loss loses; every leg pushed ⇒ push; every leg pushed or voided ⇒ void
+   * (SETTLED, never pending forever — the Program 235 replay-harness finding); otherwise pending.
+   *
+   * `combinedDecimal` is the card's FULL published price, as on every receipt ever written. `payoutDecimal` — the
+   * return of a reduced win from its decided winning legs only — is written only under PAYOUT_POLICY, i.e. only on
+   * a day settled for the first time after the fix (see `policy` above).
+   */
   /* Derived, never hardcoded: a card stamped "mlb" while holding a fight leg makes the receipt
      lie about what was graded, and the attribution is what the record is built from. */
   const sports = [...new Set((card.legs ?? []).map((l) => l.sport ?? "mlb"))].sort();
-  cards.push({
+  const legOdds = (card.legs ?? []).map((l) => l.odds);
+  oddsBySlip.set(card.slipId, legOdds);
+  const settled = receiptCard({
     sport: sports.length === 1 ? sports[0] : "multi",
     sports,
-    tier: card.tier, slipId: card.slipId, result,
-    combinedDecimal: Number(combined.toFixed(6)), legs: results,
+    tier: card.tier, slipId: card.slipId, results, legOdds, policy,
   });
+  const { result } = settled;
+  cards.push(settled);
   console.log(`  ${(card.tierLabel ?? card.tier ?? "?").padEnd(12)} ${result.toUpperCase()}`);
 }
 
@@ -402,6 +400,8 @@ const receipt = {
   date: DATE, settledAt: NOW.replace(/\.\d{3}Z$/, "Z"),
   source: "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name; EPL official full-time scores via the results bridge, joined by canonical eventId; NFL official final scores (nfl/results/latest.json), joined by canonical eventId",
   policyVersion: 2,
+  /* Only on a receipt first written under the reduced-win fix; a legacy receipt never gains the field. */
+  ...(policy === PAYOUT_POLICY ? { payoutPolicy: PAYOUT_POLICY } : {}),
   cards,
 };
 
@@ -411,8 +411,7 @@ if (!apply) { console.log("dry-run — nothing written. Re-run with --apply."); 
 if (decided === 0) { console.log("nothing decided yet — no receipt written"); process.exit(0); }
 
 fs.mkdirSync(RECEIPTS, { recursive: true });
-const out = path.join(RECEIPTS, `${DATE}.json`);
-if (fs.existsSync(out)) {
+if (prior) {
   /*
    * A DAY WITH PENDING CARDS MUST STAY FINISHABLE.
    *
@@ -426,7 +425,6 @@ if (fs.existsSync(out)) {
    * before; every other transition REPLACES information that did. A decided outcome never moves,
    * not even back to pending.
    */
-  const prior = JSON.parse(fs.readFileSync(out, "utf8"));
   /*
    * P250 · A07 — CARRY FORWARD WHAT A QUIET SOURCE CAN NO LONGER SAY.
    *
@@ -452,9 +450,18 @@ if (fs.existsSync(out)) {
       const p = priorById.get(c.slipId);
       if (!p || (p.legs ?? []).length !== (c.legs ?? []).length) continue;
       c.legs = c.legs.map((r, i) => (r === "pending" && p.legs[i] !== "pending" ? p.legs[i] : r));
-      if (c.result === "pending" && p.result !== "pending") {
+      const carried = c.result === "pending" && p.result !== "pending";
+      if (carried) {
         c.result = p.result;
         console.log(`  ${c.slipId}: source no longer answers — the recorded ${p.result} stands`);
+      }
+      /* Under PAYOUT_POLICY the payout follows the outcome that stands: the recorded one when it was carried,
+         otherwise recomputed over the final legs (some of which may have been carried above). A legacy receipt
+         has no payoutDecimal and never gains one. */
+      if (policy === PAYOUT_POLICY) {
+        c.payoutDecimal = carried && Object.prototype.hasOwnProperty.call(p, "payoutDecimal")
+          ? p.payoutDecimal
+          : payoutFor(c.result, c.legs, oddsBySlip.get(c.slipId));
       }
     }
   }
