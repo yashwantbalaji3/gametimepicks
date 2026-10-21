@@ -210,7 +210,8 @@ for (const [w, h] of WIDTHS) {
     await expect(page.locator("[data-nbp-banner]")).toHaveText(POSSESSION_BANNER);
     await expect(page.locator("[data-nbp-oncourt-team]")).toHaveCount(2);
     for (const side of ["home", "away"]) await expect(page.locator(`[data-nbp-oncourt-team="${side}"] li`)).toHaveCount(5);
-    const body = (await page.locator("body").innerText()).replace(/NOT A REAL OR LIVE GAME/g, "").replace(/overtime is rarer than in real games/g, "");
+    // the Theater itself (the site navigation's own "Live" scores link is global chrome, not this game)
+    const body = (await page.locator("[data-nbp-theater]").innerText()).replace(/NOT A REAL OR LIVE GAME/g, "").replace(/overtime is rarer than in real games/g, "");
     expect(body).not.toMatch(/\blive\b|\breal game|happening now/i);
     if (PUBLIC) {
       await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);

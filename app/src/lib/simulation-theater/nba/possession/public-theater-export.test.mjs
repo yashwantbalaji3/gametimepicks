@@ -44,7 +44,12 @@ test("flag ON: every published page carries the founder's labels; only the allow
   for (const id of r.pages) {
     const html = fs.readFileSync(path.join(SIM, id, "index.html"), "utf8");
     assert.match(html, /<meta name="robots" content="noindex/, `${id}: kept out of search until the release owner publishes it`);
-    assert.doesNotMatch(html.replace(/NOT A REAL OR LIVE GAME/g, ""), /\bLIVE\b(?![^<]*<\/(?:script|style)>)/, `${id}: nothing says LIVE`);
+    // the Theater's own visible text (the site navigation's "Live" scores link is global chrome, not this game)
+    const open = html.indexOf("data-nbp-theater");
+    assert.ok(open > 0, `${id}: the Theater is server-rendered`);
+    const at = html.indexOf(">", open) + 1; // visible text only: start after the Theater's opening tag (attributes are not text)
+    const theater = html.slice(at, html.indexOf("</main>", at) > 0 ? html.indexOf("</main>", at) : undefined).replace(/<script[\s\S]*?<\/script>/g, "").replace(/<[^>]+>/g, " ");
+    assert.doesNotMatch(theater.replace(/NOT A REAL OR LIVE GAME/g, "").replace(/overtime is rarer than in real games/g, ""), /\blive\b|\breal game|happening now/i, `${id}: nothing in the Theater implies a live or real game`);
   }
   console.log(`# NBA theater ON: ${r.pages.length} page(s) labelled, ${r.files} files scanned, ${r.markerChunks.length} island chunk(s)`);
 });
