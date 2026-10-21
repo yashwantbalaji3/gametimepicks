@@ -12,6 +12,7 @@ import { REAL_REGISTRY, REFUSAL } from "../../products/nba/nba-leg.mjs";
 import { PUBLIC_RISK_TIERS, getRiskBucketForCombinedOdds } from "../risk-odds-bands.mjs";
 import { BAND_MAX_LEGS } from "../multi-sport.mjs";
 import { legGradingRoute, ROUTE_REFUSAL } from "../leg-grading-route.mjs";
+import { gradeNbaLabLeg } from "../nba-lab-grading.mjs";
 import { combinedPrice } from "./pricing.mjs";
 import { FIXTURE_CARD_LABEL, LEG_PROVENANCE, TIER_STATUS, legReasons, recommendCtx, recommendTiers } from "./recommend.mjs";
 import { NBA_SOURCE_STATE, SAME_GAME_POLICY, composeCards, nbaCandidateInputs, nbaParlayLab, nbaSourceStatus, toNbaAwareCandidate, toV2Leg } from "./nba-source.mjs";
@@ -245,8 +246,14 @@ test("cross-sport NBA+UFC fixture cards, and settlement routing never grades an 
   for (const c of all) for (const l of c.legs) {
     assert.ok(l.sport, "every leg names its sport — none can fall to the legacy MLB default");
     const r = legGradingRoute(l);
-    if (l.sport === "nba") assert.deepEqual(r, { route: null, refusal: { code: ROUTE_REFUSAL.UNSUPPORTED_SPORT, sport: "nba" } });
-    else assert.equal(r.route, l.sport);
+    assert.equal(r.route, l.sport, "each leg goes to its OWN sport's grader");
+    if (l.sport === "nba") {
+      // The NBA grader holds a FIXTURE leg: no real final or box score exists for a fixture event, so it can never settle.
+      const g = gradeNbaLabLeg(l, () => null);
+      assert.match(g.grader ?? "UNMAPPED", /^nba-|UNMAPPED/, "never another sport's rules");
+      assert.equal(g.result, "pending");
+    }
   }
-  assert.equal(legGradingRoute({ sport: "NBA" }).route, null, "case does not matter");
+  assert.equal(legGradingRoute({ sport: "NBA" }).route, "nba", "case does not matter");
+  assert.equal(legGradingRoute({ sport: "wnba" }).refusal.code, ROUTE_REFUSAL.UNSUPPORTED_SPORT, "a sport with no grader is still refused");
 });

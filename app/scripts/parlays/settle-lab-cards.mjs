@@ -23,6 +23,8 @@ import { loadOfficialUfcResults, fighterIndexForDate } from "../../src/lib/sport
 import { classifyReceiptChange, RECEIPT_CHANGE } from "../../src/lib/parlays/receipt-completion.mjs";
 import { receiptCard, payoutFor, payoutPolicyForRun, PAYOUT_POLICY } from "../../src/lib/parlays/settlement.mjs";
 import { legGradingRoute } from "../../src/lib/parlays/leg-grading-route.mjs";
+import { gradeNbaLabLeg } from "../../src/lib/parlays/nba-lab-grading.mjs";
+import { committedNbaPropResults } from "../../src/lib/sports/nba/prop-settlement-source.mjs";
 import { canShowLiveProjections, capabilityState } from "../../src/lib/sport-capability-registry.ts";
 
 const arg = (n, d = null) => { const i = process.argv.indexOf(n); return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -206,6 +208,23 @@ function gradeNflLeg(leg) {
 }
 
 /**
+ * NBA OUTCOMES, from the write-once finals record (app/public/data/nba/results/finals-<season>.json) and the stored FINAL
+ * box scores, read through the SAME adapter the NBA player-prop shadow grader uses (prop-settlement-source.mjs). The
+ * grading rules are the NBA team contract and the NBA player-prop grader, routed by lib/parlays/nba-lab-grading.mjs —
+ * never MLB's box-score reader. A game the record does not hold, a recorded finals conflict (the 401901822 hold), or a
+ * missing box score PENDS; a player absent / DNP / 0 minutes VOIDS (the lab's scratch rule), never loses.
+ * Joined on the provider event id, which is unique per game, so no date window is needed to stop cross-day grading.
+ */
+const nbaResultsFor = (() => {
+  let read = null;
+  return (eventId, athleteId) => {
+    read ??= committedNbaPropResults({ repoRoot: path.resolve(APP, "..") });
+    return read({ eventId, providerAthleteId: athleteId });
+  };
+})();
+let nbaLegsGraded = 0;
+
+/**
  * Grade one EPL leg through the SAME contract the results bridge exercises at ingest.
  *
  * VOID_PENDING_REVIEW maps to "pending", never to a loss: a postponed match reporting full time
@@ -346,6 +365,7 @@ const oddsBySlip = new Map();
 for (const card of ladder.cards ?? []) {
   const results = [];
   const refusedLegs = [];
+  const nbaNotes = [];
   for (const leg of card.legs ?? []) {
     /* Route by the leg's OWN sport. A cross-sport card carries legs from more than one, so the
        grading path is a property of the leg, never of the card. A NAMED sport with no grader here
@@ -361,6 +381,15 @@ for (const card of ladder.cards ?? []) {
     if (route === "ufc") { results.push(gradeUfcLeg(leg)); continue; }
     if (route === "epl") { results.push(gradeEplLegCard(leg)); continue; }
     if (route === "nfl") { results.push(gradeNflLeg(leg)); continue; }
+    if (route === "nba") {
+      const g = gradeNbaLabLeg(leg, nbaResultsFor);
+      nbaLegsGraded += 1;
+      if (g.result === "pending" || g.result === "void") {
+        nbaNotes.push({ code: g.code, outcome: g.outcome, bookRuleUnknown: g.bookRuleUnknown, player: leg.player ?? null, marketLabel: leg.marketLabel ?? null });
+      }
+      results.push(g.result);
+      continue;
+    }
 
     const box = await boxFor(leg.gamePk);
     if (!box.final) { results.push("pending"); continue; }
@@ -402,6 +431,9 @@ for (const card of ladder.cards ?? []) {
     tier: card.tier, slipId: card.slipId, results, legOdds, policy,
   });
   if (refusedLegs.length) settled.refusedLegs = refusedLegs;
+  /* Why an NBA leg pends or voids (NO_MEASUREMENT keeps bookRuleUnknown: the book's void rule is its own). Only on a
+     card that holds an NBA leg, so no existing receipt's shape changes. */
+  if (nbaNotes.length) settled.nbaLegNotes = nbaNotes;
   const { result } = settled;
   cards.push(settled);
   console.log(`  ${(card.tierLabel ?? card.tier ?? "?").padEnd(12)} ${result.toUpperCase()}`);
@@ -410,7 +442,9 @@ for (const card of ladder.cards ?? []) {
 const receipt = {
   schemaVersion: 1, artifact: "parlay-lab-settlement", dataClass: "PUBLIC_DERIVED",
   date: DATE, settledAt: NOW.replace(/\.\d{3}Z$/, "Z"),
-  source: "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name; EPL official full-time scores via the results bridge, joined by canonical eventId; NFL official final scores (nfl/results/latest.json), joined by canonical eventId",
+  source: "MLB Stats API official box score (feed/live), joined by gamePk; UFC official bout results (results-latest.json), joined by folded fighter name; EPL official full-time scores via the results bridge, joined by canonical eventId; NFL official final scores (nfl/results/latest.json), joined by canonical eventId" +
+    /* Named only on a day that graded an NBA leg, so no receipt without one changes a byte. */
+    (nbaLegsGraded ? "; NBA write-once finals record (nba/results/finals-<season>.json) and stored FINAL box scores, joined by provider event id and athlete id" : ""),
   policyVersion: 2,
   /* Only on a receipt first written under the reduced-win fix; a legacy receipt never gains the field. */
   ...(policy === PAYOUT_POLICY ? { payoutPolicy: PAYOUT_POLICY } : {}),

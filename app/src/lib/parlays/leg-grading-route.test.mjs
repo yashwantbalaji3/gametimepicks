@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { legGradingRoute, ROUTE_REFUSAL } from "./leg-grading-route.mjs";
+import { SETTLEABLE_SPORTS } from "./multi-sport.mjs";
 
 test("settleable sports route to their own grader; a legacy leg with no sport stays MLB", () => {
   for (const s of ["mlb", "ufc", "epl", "nfl"]) assert.equal(legGradingRoute({ sport: s }).route, s);
@@ -16,8 +17,13 @@ test("settleable sports route to their own grader; a legacy leg with no sport st
   assert.equal(legGradingRoute({ sport: null }).route, "mlb");
 });
 
-test("an unknown named sport (nba, ligue_1, wnba) is refused — fail closed, never MLB", () => {
-  for (const s of ["nba", "ligue_1", "wnba", "ncaaf"]) {
+test("nba routes to its own grader (nba-lab-grading.mjs) — graded, still not admitted to a ladder", () => {
+  assert.deepEqual(legGradingRoute({ sport: "nba" }), { route: "nba", refusal: null });
+  assert.ok(!SETTLEABLE_SPORTS.includes("nba"), "ladder admission is unchanged");
+});
+
+test("an unknown named sport (ligue_1, wnba, ncaaf) is refused — fail closed, never MLB", () => {
+  for (const s of ["ligue_1", "wnba", "ncaaf"]) {
     const r = legGradingRoute({ sport: s });
     assert.equal(r.route, null, s);
     assert.deepEqual(r.refusal, { code: ROUTE_REFUSAL.UNSUPPORTED_SPORT, sport: s });
