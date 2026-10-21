@@ -148,11 +148,8 @@ test("stylesheet: tokens only (no colour literal), no font under 11px, motion on
 });
 
 test("FLAG ON (simulated build): the public page renders the labelled Theater; its HTML + payload carry no private marker beyond the allowlist", () => {
-  // the gate: both acts. The committed constant is true (flipped 2026-10-21 with the approval file), so the env act decides;
-  // a false constant still keeps every env OFF.
-  assert.equal(nbaPublicTheaterOn({ env: { GTP_NBA_THEATER_PUBLIC: "1" } }), true);
-  assert.equal(nbaPublicTheaterOn({ env: {} }), false);
-  assert.equal(nbaPublicTheaterOn({ constantEnabled: false, env: { GTP_NBA_THEATER_PUBLIC: "1" } }), false);
+  // the gate: both acts — never on with the committed constant (ROLLED BACK: NBA_THEATER_PUBLIC_ENABLED = false)
+  assert.equal(nbaPublicTheaterOn({ env: { GTP_NBA_THEATER_PUBLIC: "1" } }), false);
   assert.equal(nbaPublicTheaterOn({ constantEnabled: true, env: { GTP_NBA_THEATER_PUBLIC: "1" } }), true);
   const params = nbaPublicTheaterParams(() => IDS, { constantEnabled: true, env: { GTP_NBA_THEATER_PUBLIC: "1" } });
   assert.deepEqual(params.map((p) => p.eventId), IDS);
