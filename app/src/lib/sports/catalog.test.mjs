@@ -10,6 +10,7 @@ import path from "node:path";
 import { SPORTS, COMPETITIONS, competitionFor } from "./catalog.ts";
 import { NAV_DESTINATIONS } from "../navigation.ts";
 import { soccerLeaguePages } from "./soccer/leagues.mjs";
+import { LANE } from "./nba/experimental-public-lane.mjs";
 
 const read = (rel) => fs.readFileSync(path.join(process.cwd(), rel), "utf8");
 
@@ -37,7 +38,14 @@ test("🔴 the navigation registry's Sports group IS the catalog, in order", () 
 });
 
 test("🔴 no coverage note promises a forecast the hub does not publish, or a season/liveness the list cannot keep", () => {
-  assert.match(competitionFor("nba").note, /no forecast/);
+  // NBA's note follows what /nba actually publishes: with the experimental public lane on (founder decision 2026-10-20,
+  // preregistration §13) it must say the projections are NOT validated; with the lane off it must say "no forecast".
+  const nbaNote = competitionFor("nba").note;
+  if (LANE.enabled) {
+    assert.match(nbaNote, /experimental projections · not validated/);
+    assert.match(read("src/app/nba/page.tsx"), /<NbaExperimentalLane snapshot=\{lane\}[ >]/, "the note promises a lane the hub renders");
+  } else assert.match(nbaNote, /no forecast/);
+  assert.doesNotMatch(nbaNote, /\bvalidated\b(?<!not validated)/, "never 'validated' without 'not'");
   for (const c of COMPETITIONS) assert.doesNotMatch(c.note, /\blive\b|\bin season\b|\btoday\b/i, c.key);
   // Ligue 1 passed a preregistered backtest but has too few matches to grade forward: neither "validated" nor "not validated".
   assert.equal(competitionFor("ligue-1").note, "model-only forecasts · backtest only");

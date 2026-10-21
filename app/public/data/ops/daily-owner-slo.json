@@ -1,79 +1,74 @@
 {
   "kind": "daily-owner-slo",
-  "date": "2026-10-19",
-  "checkedAt": "2026-10-19T18:35:02.789Z",
-  "treeHead": "46dff55cd",
-  "state": "STALE",
+  "date": "2026-10-20",
+  "checkedAt": "2026-10-21T00:42:45.045Z",
+  "treeHead": "980b0a39b",
+  "state": "INCIDENT",
   "scheduleSource": "mlb-statsapi",
-  "scheduledMlb": 1,
+  "scheduledMlb": 0,
   "owners": [
     {
       "id": "mlb-board",
-      "state": "HEALTHY",
-      "reason": "receipt present",
-      "dueAtIso": "2026-10-19T22:38:00.000Z",
-      "receiptAt": "2026-10-19T16:14:46.033738+00:00",
+      "state": "NO_WORK",
+      "reason": "no MLB events scheduled for 2026-10-20",
+      "dueAtIso": null,
       "label": "MLB board (projections)",
       "workflow": "morning-projections",
       "dependsOn": [],
-      "receiptPath": "mlb/boards/2026-10-19.json"
+      "receiptPath": "mlb/boards/2026-10-20.json"
     },
     {
       "id": "mlb-markets",
-      "state": "HEALTHY",
-      "reason": "receipt present",
-      "dueAtIso": "2026-10-19T23:08:00.000Z",
-      "receiptAt": "2026-10-19T16:39:50.269Z",
+      "state": "NO_WORK",
+      "reason": "no MLB events scheduled for 2026-10-20",
+      "dueAtIso": null,
       "label": "MLB team markets + player props",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": "mlb/team-markets/2026-10-19.json"
+      "receiptPath": null
     },
     {
       "id": "mlb-simulations",
-      "state": "HEALTHY",
-      "reason": "receipt present",
-      "dueAtIso": "2026-10-19T23:08:00.000Z",
-      "receiptAt": "2026-10-19T16:39:51.000Z",
+      "state": "NO_WORK",
+      "reason": "no MLB events scheduled for 2026-10-20",
+      "dueAtIso": null,
       "label": "MLB game simulations",
       "workflow": "mlb-daily-production",
       "dependsOn": [
         "mlb-board"
       ],
-      "receiptPath": "mlb/game-simulations/2026-10-19.json"
+      "receiptPath": "mlb/game-simulations/2026-10-20.json"
     },
     {
       "id": "risk-ladder",
-      "state": "HEALTHY",
-      "reason": "receipt present",
-      "dueAtIso": "2026-10-19T23:23:00.000Z",
-      "receiptAt": "2026-10-19T16:49:11Z",
+      "state": "NO_WORK",
+      "reason": "no MLB events scheduled for 2026-10-20",
+      "dueAtIso": null,
       "label": "Suggested-card risk ladder",
       "workflow": "daily-products",
       "dependsOn": [
         "mlb-markets"
       ],
-      "receiptPath": "parlays/risk-ladder/2026-10-19.json"
+      "receiptPath": "parlays/risk-ladder/2026-10-20.json"
     },
     {
       "id": "settlement",
-      "state": "HEALTHY",
-      "reason": "receipt present",
-      "dueAtIso": "2026-10-19T12:00:00.000Z",
-      "receiptAt": null,
+      "state": "INCIDENT",
+      "reason": "no receipt for 2026-10-20; due 2026-10-20T12:00:00.000Z plus 120m grace has passed",
+      "dueAtIso": "2026-10-20T12:00:00.000Z",
       "label": "Nightly settlement (previous day)",
       "workflow": "nightly-settle",
       "dependsOn": [],
-      "receiptPath": "parlays/lab-settled/2026-10-18.json"
+      "receiptPath": null
     },
     {
       "id": "schedules",
       "state": "HEALTHY",
       "reason": "receipt present",
-      "dueAtIso": "2026-10-19T13:00:00.000Z",
-      "receiptAt": "2026-10-19T16:25:28Z",
+      "dueAtIso": "2026-10-20T13:00:00.000Z",
+      "receiptAt": "2026-10-20T14:16:27Z",
       "label": "Schedule capture (NFL) + injury capture",
       "workflow": "sport-schedules",
       "dependsOn": [],
@@ -83,8 +78,8 @@
       "id": "nfl-index",
       "state": "HEALTHY",
       "reason": "receipt present",
-      "dueAtIso": "2026-10-19T15:00:00.000Z",
-      "receiptAt": "2026-10-19T16:27:16Z",
+      "dueAtIso": "2026-10-20T15:00:00.000Z",
+      "receiptAt": "2026-10-20T23:38:27Z",
       "label": "NFL canonical index",
       "workflow": "nfl-event-window",
       "dependsOn": [],
@@ -94,8 +89,8 @@
       "id": "nfl-products",
       "state": "HEALTHY",
       "reason": "receipt present",
-      "dueAtIso": "2026-10-19T15:00:00.000Z",
-      "receiptAt": "2026-10-19T16:27:16Z",
+      "dueAtIso": "2026-10-20T15:00:00.000Z",
+      "receiptAt": "2026-10-20T23:38:27Z",
       "label": "NFL product eligibility + run receipts",
       "workflow": "nfl-event-window",
       "dependsOn": [
@@ -107,8 +102,8 @@
       "id": "ufc-card",
       "state": "HEALTHY",
       "reason": "receipt present",
-      "dueAtIso": "2026-10-19T13:00:00.000Z",
-      "receiptAt": "2026-10-18T16:29:31Z",
+      "dueAtIso": "2026-10-20T13:00:00.000Z",
+      "receiptAt": "2026-10-20T15:36:37Z",
       "label": "UFC card + model read",
       "workflow": "ufc-fight-week",
       "dependsOn": [],
@@ -118,8 +113,8 @@
       "id": "ufc-lane",
       "state": "HEALTHY",
       "reason": "receipt present",
-      "dueAtIso": "2026-10-19T13:00:00.000Z",
-      "receiptAt": "2026-10-18T16:30:26Z",
+      "dueAtIso": "2026-10-20T13:00:00.000Z",
+      "receiptAt": "2026-10-20T15:37:19Z",
       "label": "UFC lane status",
       "workflow": "ufc-fight-week",
       "dependsOn": [
@@ -140,8 +135,8 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 198.9h old against a 48h bound",
-      "dueAtIso": "2026-10-19T15:00:00.000Z",
+      "reason": "receipt is 229.0h old against a 48h bound",
+      "dueAtIso": "2026-10-20T15:00:00.000Z",
       "receiptAt": "2026-10-11T11:41:55Z",
       "label": "NFL market capture",
       "workflow": "nfl-odds-capture",
@@ -152,8 +147,8 @@
       "id": "offered-window",
       "state": "HEALTHY",
       "reason": "receipt present",
-      "dueAtIso": "2026-10-19T12:00:00.000Z",
-      "receiptAt": "2026-10-19T15:38:53Z",
+      "dueAtIso": "2026-10-20T12:00:00.000Z",
+      "receiptAt": "2026-10-20T14:34:41Z",
       "label": "Offered-window matrix (all sports)",
       "workflow": "nightly-settle",
       "dependsOn": [],

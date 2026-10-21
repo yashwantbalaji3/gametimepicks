@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "nfl-weekly-boards",
   "dataClass": "PUBLIC",
-  "generatedAt": "2026-10-19T16:27:16Z",
+  "generatedAt": "2026-10-20T00:07:28Z",
   "period": {
     "seasonType": 2,
     "week": 6
@@ -41,6 +41,18 @@
           "pricingState": "NOT_PROBED"
         },
         {
+          "playerId": "nfl-athlete-16737",
+          "name": "Mike Evans",
+          "team": "SF",
+          "opponent": "WSH",
+          "providerEventId": "401873008",
+          "kickoffUtc": "2026-10-20T00:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 0.4665,
+          "probability": 0.4665,
+          "pricingState": "NOT_PROBED"
+        },
+        {
           "playerId": "nfl-athlete-3040151",
           "name": "George Kittle",
           "team": "SF",
@@ -65,46 +77,19 @@
           "pricingState": "NOT_PROBED"
         },
         {
-          "playerId": "nfl-athlete-3121422",
-          "name": "Terry McLaurin",
-          "team": "WSH",
-          "opponent": "SF",
-          "providerEventId": "401873008",
-          "kickoffUtc": "2026-10-20T00:15Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 0.285,
-          "probability": 0.285,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4426348",
-          "name": "Jayden Daniels",
-          "team": "WSH",
-          "opponent": "SF",
-          "providerEventId": "401873008",
-          "kickoffUtc": "2026-10-20T00:15Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 0.2615,
-          "probability": 0.2615,
-          "pricingState": "NOT_PROBED"
-        }
-      ],
-      "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-16737",
-          "name": "Mike Evans",
-          "team": "SF",
-          "providerEventId": "401873008",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-2976212",
           "name": "Stefon Diggs",
           "team": "WSH",
+          "opponent": "SF",
           "providerEventId": "401873008",
-          "reason": "QUESTIONABLE"
+          "kickoffUtc": "2026-10-20T00:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 0.3473,
+          "probability": 0.3473,
+          "pricingState": "NOT_PROBED"
         }
-      ]
+      ],
+      "excludedForAvailability": []
     },
     {
       "id": "top_receptions",
@@ -116,36 +101,47 @@
       "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (769 graded player-games).",
       "conservation": {
         "version": "nfl-share-conservation-v1",
-        "teamsReconciled": 0,
-        "teams": []
+        "teamsReconciled": 2,
+        "teams": [
+          {
+            "team": "SF",
+            "factor": 0.8245,
+            "originalSum": 1.2128
+          },
+          {
+            "team": "WSH",
+            "factor": 0.8252,
+            "originalSum": 1.2119
+          }
+        ]
       },
       "rows": [
         {
-          "playerId": "nfl-athlete-3040151",
-          "name": "George Kittle",
+          "playerId": "nfl-athlete-16737",
+          "name": "Mike Evans",
           "team": "SF",
           "opponent": "WSH",
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 4,
+          "value": 4.1227,
           "p10": 1,
           "median": 4,
-          "p90": 9,
+          "p90": 8,
           "pricingState": "NOT_PROBED"
         },
         {
-          "playerId": "nfl-athlete-4360438",
-          "name": "Brandon Aiyuk",
-          "team": "SF",
-          "opponent": "WSH",
+          "playerId": "nfl-athlete-2976212",
+          "name": "Stefon Diggs",
+          "team": "WSH",
+          "opponent": "SF",
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 4,
+          "value": 3.3006,
           "p10": 1,
-          "median": 4,
-          "p90": 9,
+          "median": 3,
+          "p90": 7,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -156,10 +152,38 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 4,
+          "value": 3.3006,
           "p10": 1,
-          "median": 4,
-          "p90": 8,
+          "median": 3,
+          "p90": 7,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-3040151",
+          "name": "George Kittle",
+          "team": "SF",
+          "opponent": "WSH",
+          "providerEventId": "401873008",
+          "kickoffUtc": "2026-10-20T00:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 3.2982,
+          "p10": 1,
+          "median": 3,
+          "p90": 7,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4360438",
+          "name": "Brandon Aiyuk",
+          "team": "SF",
+          "opponent": "WSH",
+          "providerEventId": "401873008",
+          "kickoffUtc": "2026-10-20T00:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 3.2982,
+          "p10": 1,
+          "median": 3,
+          "p90": 7,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -170,10 +194,10 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 4,
+          "value": 3.2982,
           "p10": 1,
-          "median": 4,
-          "p90": 8,
+          "median": 3,
+          "p90": 7,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -184,24 +208,10 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 3,
+          "value": 2.4755,
           "p10": 1,
-          "median": 3,
-          "p90": 7,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4428209",
-          "name": "Ricky Pearsall",
-          "team": "SF",
-          "opponent": "WSH",
-          "providerEventId": "401873008",
-          "kickoffUtc": "2026-10-20T00:15Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 3,
-          "p10": 1,
-          "median": 3,
-          "p90": 7,
+          "median": 2,
+          "p90": 6,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -212,9 +222,23 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 3,
+          "value": 2.4755,
           "p10": 1,
-          "median": 3,
+          "median": 2,
+          "p90": 5,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4428209",
+          "name": "Ricky Pearsall",
+          "team": "SF",
+          "opponent": "WSH",
+          "providerEventId": "401873008",
+          "kickoffUtc": "2026-10-20T00:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 2.4736,
+          "p10": 1,
+          "median": 2,
           "p90": 6,
           "pricingState": "NOT_PROBED"
         },
@@ -226,57 +250,14 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 2,
-          "p10": 0,
-          "median": 2,
-          "p90": 5,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4361577",
-          "name": "Dyami Brown",
-          "team": "WSH",
-          "opponent": "SF",
-          "providerEventId": "401873008",
-          "kickoffUtc": "2026-10-20T00:15Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 2,
-          "p10": 0,
-          "median": 2,
-          "p90": 4,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4697815",
-          "name": "Rachaad White",
-          "team": "WSH",
-          "opponent": "SF",
-          "providerEventId": "401873008",
-          "kickoffUtc": "2026-10-20T00:15Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 2,
+          "value": 1.6503,
           "p10": 0,
           "median": 2,
           "p90": 4,
           "pricingState": "NOT_PROBED"
         }
       ],
-      "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-16737",
-          "name": "Mike Evans",
-          "team": "SF",
-          "providerEventId": "401873008",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-2976212",
-          "name": "Stefon Diggs",
-          "team": "WSH",
-          "providerEventId": "401873008",
-          "reason": "QUESTIONABLE"
-        }
-      ]
+      "excludedForAvailability": []
     },
     {
       "id": "top_rush_yds",
@@ -296,24 +277,10 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 48.9,
-          "p10": 17,
+          "value": 48.87,
+          "p10": 18,
           "median": 49,
           "p90": 95,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4426348",
-          "name": "Jayden Daniels",
-          "team": "WSH",
-          "opponent": "SF",
-          "providerEventId": "401873008",
-          "kickoffUtc": "2026-10-20T00:15Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 19.5,
-          "p10": 1,
-          "median": 20,
-          "p90": 64,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -324,10 +291,24 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 19.16,
+          "value": 19.61,
           "p10": 3,
-          "median": 19,
+          "median": 20,
           "p90": 50,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4426348",
+          "name": "Jayden Daniels",
+          "team": "WSH",
+          "opponent": "SF",
+          "providerEventId": "401873008",
+          "kickoffUtc": "2026-10-20T00:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 19.43,
+          "p10": 0,
+          "median": 19,
+          "p90": 64,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -338,10 +319,10 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 15.43,
-          "p10": 1,
-          "median": 15,
-          "p90": 49,
+          "value": 15.6,
+          "p10": 0,
+          "median": 16,
+          "p90": 48,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -352,10 +333,10 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 12.15,
+          "value": 11.72,
           "p10": 0,
           "median": 12,
-          "p90": 42,
+          "p90": 38,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -366,24 +347,10 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 6.74,
+          "value": 6.59,
           "p10": 0,
           "median": 7,
-          "p90": 31,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4241464",
-          "name": "Mac Jones",
-          "team": "SF",
-          "opponent": "WSH",
-          "providerEventId": "401873008",
-          "kickoffUtc": "2026-10-20T00:15Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 2.8,
-          "p10": 0,
-          "median": 3,
-          "p90": 21,
+          "p90": 29,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -394,7 +361,7 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 2.68,
+          "value": 2.88,
           "p10": 0,
           "median": 3,
           "p90": 25,
@@ -408,10 +375,38 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 2.51,
+          "value": 2.47,
           "p10": 0,
-          "median": 3,
+          "median": 2,
           "p90": 24,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4241464",
+          "name": "Mac Jones",
+          "team": "SF",
+          "opponent": "WSH",
+          "providerEventId": "401873008",
+          "kickoffUtc": "2026-10-20T00:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 2.45,
+          "p10": 0,
+          "median": 2,
+          "p90": 21,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-3127586",
+          "name": "Jeremy McNichols",
+          "team": "WSH",
+          "opponent": "SF",
+          "providerEventId": "401873008",
+          "kickoffUtc": "2026-10-20T00:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 0.27,
+          "p10": 0,
+          "median": 0,
+          "p90": 19,
           "pricingState": "NOT_PROBED"
         }
       ],
@@ -427,6 +422,20 @@
       "basis": "props-v1 evaluation: n=3575, all promotion bars pass",
       "rows": [
         {
+          "playerId": "nfl-athlete-16737",
+          "name": "Mike Evans",
+          "team": "SF",
+          "opponent": "WSH",
+          "providerEventId": "401873008",
+          "kickoffUtc": "2026-10-20T00:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 39.46,
+          "p10": 7,
+          "median": 39,
+          "p90": 91,
+          "pricingState": "NOT_PROBED"
+        },
+        {
           "playerId": "nfl-athlete-3121422",
           "name": "Terry McLaurin",
           "team": "WSH",
@@ -434,9 +443,9 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 37.67,
+          "value": 37.48,
           "p10": 6,
-          "median": 38,
+          "median": 37,
           "p90": 90,
           "pricingState": "NOT_PROBED"
         },
@@ -448,10 +457,24 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 31.63,
-          "p10": 4,
+          "value": 31.76,
+          "p10": 3,
           "median": 32,
           "p90": 79,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-2976212",
+          "name": "Stefon Diggs",
+          "team": "WSH",
+          "opponent": "SF",
+          "providerEventId": "401873008",
+          "kickoffUtc": "2026-10-20T00:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 31.48,
+          "p10": 5,
+          "median": 31,
+          "p90": 75,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -462,7 +485,7 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 22.41,
+          "value": 21.83,
           "p10": 0,
           "median": 22,
           "p90": 62,
@@ -476,10 +499,10 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 20.25,
+          "value": 21.24,
           "p10": 0,
-          "median": 20,
-          "p90": 55,
+          "median": 21,
+          "p90": 57,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -490,10 +513,10 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 19.82,
+          "value": 20.07,
           "p10": 0,
           "median": 20,
-          "p90": 56,
+          "p90": 57,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -504,10 +527,10 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 15.69,
+          "value": 15.53,
           "p10": 0,
           "median": 16,
-          "p90": 53,
+          "p90": 52,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -518,10 +541,10 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 13.77,
+          "value": 13.86,
           "p10": 0,
           "median": 14,
-          "p90": 51,
+          "p90": 52,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -532,57 +555,14 @@
           "providerEventId": "401873008",
           "kickoffUtc": "2026-10-20T00:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 11.66,
+          "value": 12.59,
           "p10": 0,
-          "median": 12,
-          "p90": 44,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4361577",
-          "name": "Dyami Brown",
-          "team": "WSH",
-          "opponent": "SF",
-          "providerEventId": "401873008",
-          "kickoffUtc": "2026-10-20T00:15Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 9.28,
-          "p10": 0,
-          "median": 9,
-          "p90": 41,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4360438",
-          "name": "Brandon Aiyuk",
-          "team": "SF",
-          "opponent": "WSH",
-          "providerEventId": "401873008",
-          "kickoffUtc": "2026-10-20T00:15Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 8.66,
-          "p10": 0,
-          "median": 9,
-          "p90": 39,
+          "median": 13,
+          "p90": 45,
           "pricingState": "NOT_PROBED"
         }
       ],
-      "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-16737",
-          "name": "Mike Evans",
-          "team": "SF",
-          "providerEventId": "401873008",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-2976212",
-          "name": "Stefon Diggs",
-          "team": "WSH",
-          "providerEventId": "401873008",
-          "reason": "QUESTIONABLE"
-        }
-      ]
+      "excludedForAvailability": []
     },
     {
       "id": "top_pass_yds",

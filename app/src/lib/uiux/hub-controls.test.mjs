@@ -23,13 +23,32 @@ const mainOf = (f) => {
 };
 const exists = (rel) => fs.existsSync(path.join(OUT, rel, "index.html"));
 
-test("BUILT · the NFL hub's ranked boards can be filtered", { skip: !exists("nfl") && "no export" }, () => {
+test("BUILT · the NFL hub's ranked boards can be filtered", { skip: !exists("nfl") && "no export" }, async () => {
   const main = mainOf(path.join(OUT, "nfl", "index.html"));
   const buttons = (main.match(/<button\b/g) ?? []).length;
-  /* The team chips are one per club on the published boards, so the floor follows the boards: a full week's
-     45-row board offers ~30 clubs, the week's last game offers two. Every club must still be reachable. */
-  const wb = path.join(process.cwd(), "public/data/nfl/weekly-boards/latest.json");
-  const teams = fs.existsSync(wb) ? new Set(JSON.parse(fs.readFileSync(wb, "utf8")).boards.flatMap((b) => (b.rows ?? []).map((r) => r.team))).size : 7;
+  /* The hub's boards are the UNIFIED boards (forecast-view.mjs topBoards) over the games still to kick off at BUILD
+     time — not the weekly-boards artifact, which keeps the week's settled boards after the last kickoff. So the floor
+     comes from the same owner, evaluated at the export's own build instant: one team chip per club on those boards,
+     every club reachable. After the week's last kickoff there are no boards to filter, and the hub must say so by
+     omission: no #nfl-boards section and no link to one (2026-10-20, after Monday night). */
+  const { loadForecastViews } = await import("../sports/nfl/forecast-view-load.mjs");
+  const { topBoards } = await import("../sports/nfl/forecast-view.mjs");
+  const builtAt = JSON.parse(fs.readFileSync(path.join(OUT, "data", "build-info.json"), "utf8")).builtAt;
+  assert.ok(Number.isFinite(Date.parse(builtAt)), "the export records its build instant");
+  // The page renders a few minutes after build-info is stamped, so a kickoff inside the build is either state;
+  // outside that window the page must match the owner exactly.
+  const views = loadForecastViews(path.join(process.cwd(), "public"));
+  const early = topBoards(views, { now: builtAt });
+  const late = topBoards(views, { now: new Date(Date.parse(builtAt) + 45 * 60_000).toISOString() });
+  const present = /id="nfl-boards"/.test(main);
+  if (!present) {
+    assert.equal(late.games, 0, "the boards section is omitted only when no game is left to kick off");
+    assert.doesNotMatch(main, /href="#nfl-boards"/, "…and then nothing links to it");
+    return;
+  }
+  assert.ok(early.games > 0, "a boards section renders only while a game is still to kick off");
+  const unified = late.games ? late : early;
+  const teams = new Set(Object.values(unified.boards).flatMap((b) => (b.rows ?? []).map((r) => r.team))).size;
   assert.ok(buttons >= 1 + teams, `the NFL hub renders ${buttons} controls for ${teams} clubs on its ranked boards — every club needs a way in`);
   assert.match(main, /All teams/, "a team filter is offered");
   assert.match(main, /type="search"/, "…and a player search beside it");

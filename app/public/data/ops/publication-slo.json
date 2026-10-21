@@ -1,81 +1,70 @@
 {
   "kind": "publication-slo",
-  "date": "2026-10-19",
+  "date": "2026-10-20",
   "platformState": "PUBLISHING",
   "sports": {
     "mlb": {
-      "state": "PUBLISHED",
-      "reason": "all 1 event(s) in the horizon carry a forecast",
+      "state": "NO_EVENT",
+      "reason": "no events in this sport's forward horizon",
       "deadlineUtc": null,
       "counts": {
-        "scheduled": 1,
-        "published": 1,
+        "scheduled": 0,
+        "published": 0,
         "missedCoverage": 0,
         "awaiting": 0
       }
     },
     "nfl": {
-      "state": "PUBLISHING",
-      "reason": "13 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-10-22T22:45:00.000Z",
+      "state": "PUBLISHED",
+      "reason": "all 14 event(s) in the horizon carry a forecast",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 14,
-        "published": 1,
+        "published": 14,
         "missedCoverage": 0,
-        "awaiting": 13
-      },
-      "missed": []
+        "awaiting": 0
+      }
     },
     "ufc": {
       "state": "PUBLISHING",
-      "reason": "11 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-10-24T12:30:00.000Z",
+      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-10-24T16:30:00.000Z",
       "counts": {
-        "scheduled": 11,
-        "published": 0,
+        "scheduled": 14,
+        "published": 13,
         "missedCoverage": 0,
-        "awaiting": 11
+        "awaiting": 1
       },
       "missed": []
     },
     "epl": {
-      "state": "PUBLISHING",
-      "reason": "10 event(s) still awaiting a forecast, none of them late yet",
-      "deadlineUtc": "2026-10-23T17:30:00.000Z",
+      "state": "PUBLISHED",
+      "reason": "all 10 event(s) in the horizon carry a forecast",
+      "deadlineUtc": null,
       "counts": {
-        "scheduled": 11,
-        "published": 1,
+        "scheduled": 10,
+        "published": 10,
         "missedCoverage": 0,
-        "awaiting": 10
-      },
-      "missed": []
+        "awaiting": 0
+      }
     }
   },
-  "checkedAt": "2026-10-19T18:35:02.453Z",
+  "checkedAt": "2026-10-21T00:42:44.702Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
-  "state": "PUBLISHED",
-  "reason": "board published with 40 rows",
+  "state": "NO_EVENT",
+  "reason": "no games are scheduled for this date",
   "publishDeadlineUtc": null,
-  "scheduledGames": 1,
-  "pregameRemaining": 1,
+  "scheduledGames": 0,
+  "pregameRemaining": 0,
   "alreadyStarted": 0,
   "board": {
     "present": true,
-    "leans": 40,
-    "pendingReason": null,
-    "generatedAt": "2026-10-19T16:14:46.033738+00:00",
-    "scheduledGames": 1,
+    "leans": 0,
+    "pendingReason": "no_events",
+    "generatedAt": "2026-10-20T09:29:48.640416+00:00",
+    "scheduledGames": 0,
     "startedBeforeGeneration": 0
   },
-  "games": [
-    {
-      "gamePk": 849815,
-      "startUtc": "2026-10-20T00:08:00Z",
-      "away": "Cleveland Guardians",
-      "home": "Tampa Bay Rays",
-      "detailedState": "Scheduled",
-      "pregameAtCheck": true
-    }
-  ]
+  "games": []
 }
