@@ -131,7 +131,9 @@ test("a tampered stored run is refused (mutation probes: score, clock, ledger, d
 
 test("deterministic default selection: re-deriving the picks from the stored pool features gives the stored runs; the default is won by the official side", () => {
   for (const g of DOC.games) {
-    const features = g.pool.features.map(([runIndex, home, away, ot, distance]) => ({ runIndex, home, away, total: home + away, ot, distance }));
+    assert.deepEqual(g.pool.featureColumns, ["home", "away", "overtimePeriods", "distance"]);
+    assert.equal(g.pool.featureRowIndex, "runIndex");
+    const features = g.pool.features.map(([home, away, ot, distance], runIndex) => ({ runIndex, home, away, total: home + away, ot, distance }));
     assert.equal(features.length, g.poolSize);
     const snap = snapshotOf(g.providerEventId);
     assert.equal(snap.snapshotId, g.official.snapshotId);

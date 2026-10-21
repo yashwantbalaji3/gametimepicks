@@ -249,8 +249,9 @@ for (const og of offDoc.games ?? []) {
       overtimeShare: Number((features.filter((f) => f.ot > 0).length / POOL).toFixed(4)),
       totals: { p10: sel.poolTotals.p10, p90: sel.poolTotals.p90 },
       margin: { p10: features.length ? [...margins].sort((a, b) => a - b)[Math.ceil(0.1 * POOL) - 1] : null },
-      features: features.map((f) => [f.runIndex, f.home, f.away, f.ot, f.distance]),
-      featureColumns: ["runIndex", "home", "away", "overtimePeriods", "distance"],
+      // the row index IS the runIndex (draw i is row i), so it is not stored (storage ≤ 100 KiB per game)
+      features: features.map((f, i) => { if (f.runIndex !== i) refuse(`${id}: pool row ${i} holds run ${f.runIndex}`); return [f.home, f.away, f.ot, f.distance]; }),
+      featureColumns: ["home", "away", "overtimePeriods", "distance"], featureRowIndex: "runIndex",
     },
     selection: { missing: sel.missing },
     rosters: { home: roster(0), away: roster(1) },
