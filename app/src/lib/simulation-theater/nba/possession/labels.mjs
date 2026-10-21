@@ -33,6 +33,9 @@ export const WHAT_IS_REAL =
 export const ENGINE_NOTE =
   `This engine is an unvalidated research simulation. It is a different model from both the official forecast and the ${ROLE_B_LABEL}; its runs are independent draws (not reconciled to v1's draws), it has no preregistered evaluation, it has not been shown to be more accurate, and nothing it shows changes an official number.`;
 
+/** Beside "Inputs as of <ts> UTC": the replay's input cutoff is the OFFICIAL freeze (release owner 2026-10-21, identical cutoffs). */
+export const INPUTS_AS_OF_NOTE = "the official forecast's freeze for this game: the replay has no later information than the official forecast had";
+
 export const OFFICIAL_PANEL_TITLE = "Official projection";
 export const OFFICIAL_PANEL_NOTE = "The canonical forecast for this game. It is the same for every run and every what-if; no run below changes it.";
 export const WITHHELD = "Withheld";
