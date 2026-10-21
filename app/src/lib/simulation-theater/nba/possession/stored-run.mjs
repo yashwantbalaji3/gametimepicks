@@ -10,11 +10,12 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-import { POSSESSION_ARTIFACT, POSSESSION_ARTIFACT_SCHEMA, ledgerColumns, possessionArtifactPath } from "./artifact-contract.mjs";
+import { POSSESSION_ARTIFACT, POSSESSION_ARTIFACT_SCHEMA, POSSESSION_SLATE_HEADER, ledgerColumns, possessionArtifactPath } from "./artifact-contract.mjs";
 import { POSSESSION_ENGINE_ID } from "./labels.mjs";
 import { checkPossessionDraw } from "../../../sports/nba/research/possession-sim/invariants.mjs";
 import { boxToJson, foldEvents } from "../../../sports/nba/research/possession-sim/events.mjs";
 import { canonicalJson, sha256 } from "../../../sports/nba/forecast-receipt.mjs";
+import { EVENT_CODEC_SCHEMA, unpackEvents } from "./event-codec.mjs";
 
 /** Rebuild a stored run as an engine draw (for the checker). */
 export function drawFromStoredRun(run, rosters) {
@@ -38,11 +39,30 @@ export function storedRunProblems(run, rosters) {
 
 export const rostersOfGame = (game) => [game.rosters.home.map((p) => String(p.providerAthleteId)), game.rosters.away.map((p) => String(p.providerAthleteId))];
 
+/**
+ * The slate's possession artifact, assembled from its per-game files (artifact-contract.mjs possessionGamePath): the
+ * shared header + every game, in tip order. `sha256` is over the sorted per-file digests. A file whose header differs
+ * from the slate's (another schema, engine or date) makes the whole slate unreadable — never a mixed slate.
+ */
 export function readPossessionArtifact(repoRoot, date) {
   const rel = possessionArtifactPath(date);
   try {
-    const bytes = fs.readFileSync(path.join(repoRoot, rel));
-    return { file: rel, sha256: crypto.createHash("sha256").update(bytes).digest("hex"), doc: JSON.parse(bytes.toString("utf8")), error: null };
+    const dir = path.join(repoRoot, rel);
+    const names = fs.readdirSync(dir).filter((f) => /^[0-9A-Za-z_-]+\.json$/.test(f)).sort();
+    if (!names.length) return { file: rel, sha256: null, doc: null, error: "ENOENT: no game files" };
+    const files = names.map((f) => { const bytes = fs.readFileSync(path.join(dir, f)); return { f, sha: crypto.createHash("sha256").update(bytes).digest("hex"), doc: JSON.parse(bytes.toString("utf8")) }; });
+    const head = files[0].doc;
+    for (const x of files) {
+      for (const k of POSSESSION_SLATE_HEADER) if (JSON.stringify(x.doc[k]) !== JSON.stringify(head[k])) return { file: rel, sha256: null, doc: null, error: `${x.f}: header ${k} differs from the slate` };
+      if (x.doc.engine?.paramsSha256 !== head.engine?.paramsSha256) return { file: rel, sha256: null, doc: null, error: `${x.f}: engine params differ from the slate` };
+      if (!x.doc.game || `${x.doc.game.providerEventId}.json` !== x.f) return { file: rel, sha256: null, doc: null, error: `${x.f}: not the file of its own game` };
+    }
+    const { game: _g, ...header } = head;
+    // stored runs carry packed events (event-codec.mjs); every check below and every reader sees the unpacked log
+    const unpack = (g) => ({ ...g, runs: (g.runs ?? []).map((r) => (r.events?.schema === EVENT_CODEC_SCHEMA ? { ...r, events: unpackEvents(r.events) } : r)) });
+    const games = files.map((x) => unpack(x.doc.game)).sort((a, b) => String(a.dateUtc).localeCompare(String(b.dateUtc)) || String(a.providerEventId).localeCompare(String(b.providerEventId)));
+    const sha256 = crypto.createHash("sha256").update(files.map((x) => `${x.f}:${x.sha}`).join("\n")).digest("hex");
+    return { file: rel, sha256, doc: { ...header, generatedAt: files.map((x) => x.doc.generatedAt).sort().at(-1), games }, error: null };
   } catch (e) {
     return { file: rel, sha256: null, doc: null, error: e?.code ?? e?.message ?? "unreadable" };
   }

@@ -30,7 +30,11 @@ const DATE = process.env.GTP_NBA_THEATER_DATE ?? "2026-10-20";
 type Run = { kind: string; runIndex: number; final: [number, number]; periods: [number[], number[]]; overtimePeriods: number };
 type Game = { providerEventId: string; home: { abbr: string }; away: { abbr: string }; official: { winnerSide: "HOME" | "AWAY" }; runs: Run[] };
 const ART: { games: Game[] } | null = (() => {
-  try { return JSON.parse(fs.readFileSync(path.resolve(process.cwd(), "..", `data/internal/research/nba/theater-possession/${DATE}.json`), "utf8")); } catch { return null; }
+  // one file per game (artifact-contract.mjs); this spec reads only finals / kinds / sides, which are stored unpacked
+  try {
+    const dir = path.resolve(process.cwd(), "..", `data/internal/research/nba/theater-possession/${DATE}`);
+    return { games: fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort().map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).game) };
+  } catch { return null; }
 })();
 const GAMES = ART?.games ?? [];
 const WIDTHS = [[320, 640], [390, 844], [768, 1024], [1440, 900]] as const;

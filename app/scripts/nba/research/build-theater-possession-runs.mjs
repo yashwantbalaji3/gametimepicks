@@ -57,7 +57,9 @@ import { nbaOfficialSnapshot } from "../../../src/lib/consistency/official-snaps
 import { officialTargets } from "../../../src/lib/consistency/representative.mjs";
 import { DEFAULT_POOL_SIZE, POSSESSION_SELECTION_RULES, poolFeatures, selectPossessionRuns } from "../../../src/lib/simulation-theater/nba/possession/selection.mjs";
 import { officialPanel } from "../../../src/lib/simulation-theater/nba/possession/payload.mjs";
-import { POSSESSION_ARTIFACT, POSSESSION_ARTIFACT_SCHEMA, POSSESSION_CHECKER, ledgerColumns, possessionArtifactPath } from "../../../src/lib/simulation-theater/nba/possession/artifact-contract.mjs";
+import { POSSESSION_ARTIFACT, POSSESSION_ARTIFACT_SCHEMA, POSSESSION_CHECKER, ledgerColumns, possessionArtifactPath, possessionGamePath } from "../../../src/lib/simulation-theater/nba/possession/artifact-contract.mjs";
+import { readPossessionArtifact } from "../../../src/lib/simulation-theater/nba/possession/stored-run.mjs";
+import { packEvents } from "../../../src/lib/simulation-theater/nba/possession/event-codec.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const ROOT = path.resolve(APP, "..");
@@ -68,6 +70,9 @@ const DATE = opt("--date", null);
 const POOL = Number(opt("--pool", DEFAULT_POOL_SIZE));
 const WRITE = argv.includes("--write");
 const INCREMENTAL = argv.includes("--incremental");
+// --no-rewrite (the publish tick and every tick after): a committed game file is FROZEN — a rebuild that differs from it
+// REFUSES (exit 1, nothing written); identical files are left untouched; only games without a file are written.
+const NO_REWRITE = argv.includes("--no-rewrite");
 if (!DATE || !/^\d{4}-\d{2}-\d{2}$/.test(DATE)) { console.error("REFUSED: --date YYYY-MM-DD required"); process.exit(1); }
 if (!Number.isInteger(POOL) || POOL < 10) { console.error("REFUSED: --pool must be an integer ≥ 10"); process.exit(1); }
 
@@ -123,8 +128,9 @@ const ledgerKeys = ledgerColumns();
 const blobCache = new Map();
 const blob = (p, want) => { const k = `${p}@${want}`; if (!blobCache.has(k)) blobCache.set(k, blobBySha(p, want)); return blobCache.get(k); };
 
-const out = path.join(ROOT, possessionArtifactPath(DATE));
-const prev = INCREMENTAL && fs.existsSync(out) ? readJson(out) : null;
+const outDir = path.join(ROOT, possessionArtifactPath(DATE));
+const prevRead = readPossessionArtifact(ROOT, DATE); // unpacked; null doc when the slate has no files yet
+const prev = INCREMENTAL ? prevRead.doc : null;
 const paramsSha = sha256(canonicalJson(POSSESSION_PARAMS));
 const games = [];
 const t0 = Date.now();
@@ -265,13 +271,29 @@ const doc = {
   sources: { v1: v1Bytes ? { path: rel(v1Path), sha256: fileSha(v1Bytes) } : null, official: { path: rel(offPath), sha256: fileSha(offBytes) } },
   games,
 };
-const sameAsPrev = prev && canonicalJson({ ...doc, generatedAt: null }) === canonicalJson({ ...prev, generatedAt: null });
-const kib = (n) => (n / 1024).toFixed(0);
-console.log(`timing: ${timing.map((x) => `${x.id} ${x.reused ? "reused" : `${x.seconds}s`}`).join(" · ")} · total ${((Date.now() - t0) / 1000).toFixed(1)} s · artifact ${kib(Buffer.byteLength(JSON.stringify(doc)))} KiB for ${games.length} game(s)`);
-if (WRITE && sameAsPrev) {
-  console.log(`${rel(out)} unchanged — not rewritten`);
-} else if (WRITE) {
-  fs.mkdirSync(path.dirname(out), { recursive: true });
-  fs.writeFileSync(out, `${JSON.stringify(doc)}\n`);
-  console.log(`wrote ${rel(out)} (${(fs.statSync(out).size / 1024).toFixed(0)} KiB)`);
-} else console.log(`dry run (pass --write to write ${rel(out)})`);
+const { games: _all, ...header } = doc;
+// storage: one compact file per game, events packed (event-codec.mjs, lossless: the reader unpacks before validating)
+const stored = (g) => ({ ...g, runs: g.runs.map((r) => ({ ...r, events: packEvents(r.events) })) });
+const kib = (n) => (n / 1024).toFixed(1);
+const plan = games.map((g) => {
+  const file = path.join(ROOT, possessionGamePath(DATE, g.providerEventId));
+  const existing = fs.existsSync(file) ? readJson(file) : null;
+  const body = { ...header, game: stored(g) };
+  const same = existing && canonicalJson({ ...existing, generatedAt: null }) === canonicalJson({ ...body, generatedAt: null });
+  const text = `${JSON.stringify(same ? existing : body)}\n`;
+  return { id: g.providerEventId, file, existing: !!existing, same: !!same, text };
+});
+const bytes = plan.reduce((n, x) => n + Buffer.byteLength(x.text), 0);
+console.log(`timing: ${timing.map((x) => `${x.id} ${x.reused ? "reused" : `${x.seconds}s`}`).join(" · ")} · total ${((Date.now() - t0) / 1000).toFixed(1)} s`);
+console.log(`storage: ${plan.map((x) => `${x.id} ${kib(Buffer.byteLength(x.text))} KiB`).join(" · ")} · ${kib(bytes)} KiB for ${games.length} game(s)`);
+const changed = plan.filter((x) => x.existing && !x.same);
+if (NO_REWRITE && changed.length) refuse(`a committed game file would change (${changed.map((x) => x.id).join(", ")}) — committed possession runs are frozen; nothing written`);
+if (!WRITE) console.log(`dry run (pass --write to write ${rel(outDir)}/<id>.json)`);
+else {
+  fs.mkdirSync(outDir, { recursive: true });
+  for (const x of plan) {
+    if (x.same) { console.log(`${rel(x.file)} unchanged — not rewritten`); continue; }
+    fs.writeFileSync(x.file, x.text);
+    console.log(`wrote ${rel(x.file)} (${kib(Buffer.byteLength(x.text))} KiB)`);
+  }
+}
