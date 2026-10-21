@@ -4,8 +4,8 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 95,
-  "public": 64,
+  "routes": 96,
+  "public": 65,
   "internal": 10,
   "redirects": 17,
   "archive": 2,
@@ -422,6 +422,16 @@
    "dataOwner": "public/data/nba/experimental-public/latest.json (scripts/nba/build-nba-experimental-public.mjs)",
    "freshness": "each game's freeze time and receipt hash on the page",
    "built": false
+  },
+  {
+   "route": "/nba/projections/[date]",
+   "classification": "public",
+   "owner": "product",
+   "family": true,
+   "purpose": "NBA projection-only player board for one committed slate date (follow-up to PR 1163): the same view over that date's dated snapshot, a date before the build's ET date labelled PAST FROZEN SLATE (never current); per-game read-only status (schedule + finals record) and links only to /nba anchors that exist in the build; the build's own ET date is always generated (empty state when no snapshot is committed) so the param list is never empty",
+   "dataOwner": "public/data/nba/experimental-public/<date>.json (scripts/nba/build-nba-experimental-public.mjs) + nba/schedule/latest.json + nba/results/finals-<season>.json",
+   "freshness": "each game's freeze time and receipt hash on the page; status as of the build, advanced to Started on the reader's clock",
+   "built": "UNVERIFIED (no export provided)"
   },
   {
    "route": "/nba/results",

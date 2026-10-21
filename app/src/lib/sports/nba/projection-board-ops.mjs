@@ -97,3 +97,84 @@ export function statGroups(stats, comboKeys) {
     ...stats.map(([k, label], i) => ({ id: k, label, cols: [i] })),
   ];
 }
+
+/* ── Follow-up to PR 1163: slate dates, game links, game status ─────────────────────────────────────────────────────
+ * Still PURE and import-free. None of these touches a frozen number: a status is a read-only label beside the row, a
+ * link is an href, and a date list only names committed snapshot files. */
+
+/** The words a reader sees — the hub's own chip words (lib/sport-hub/contract.ts hubStatusDisplay). */
+export const GAME_STATUS_LABEL = Object.freeze({ upcoming: "Upcoming", started: "Started", final: "Final", postponed: "Postponed" });
+
+/**
+ * A game's status at BUILD time, from the committed record only:
+ *   final      the write-once finals record holds it (FINAL or FINAL_UNDER_REVIEW) — the only owner allowed to say so;
+ *   postponed  the committed schedule capture says postponed / canceled;
+ *   started    the tip-off instant has passed and no final is recorded ("Started", never "Final" or "Live");
+ *   upcoming   otherwise.
+ * `fin` is finals-record.mjs finalFor()'s result, resolved by the caller so this module stays import-free. Only the
+ * status CODE is returned — no score: the board is not a results page (the linked /nba hub carries the official final),
+ * and one short code per game keeps the page light.
+ * @param {{ tipUtc: string|null|undefined, nowMs: number, fin?: { state?: string }|null, scheduleStatusRaw?: string|null }} a
+ * @returns {"upcoming"|"started"|"final"|"postponed"}
+ */
+export function gameStatusAtBuild({ tipUtc, nowMs, fin = null, scheduleStatusRaw = null }) {
+  if (fin && (fin.state === "FINAL" || fin.state === "FINAL_UNDER_REVIEW")) return "final";
+  if (/POSTPONED|CANCELED|CANCELLED/i.test(String(scheduleStatusRaw ?? ""))) return "postponed";
+  const t = Date.parse(tipUtc ?? "");
+  return Number.isFinite(t) && Number.isFinite(nowMs) && nowMs >= t ? "started" : "upcoming";
+}
+
+/**
+ * The status on the READER's clock. The page is a static export, so the build's answer goes stale at tip-off (the
+ * kickoff-aware rule, components/live/kickoff-aware.tsx): the clock may advance "upcoming" to "started" once the tip-off
+ * instant passes. It never rewinds, never says "final" (only the finals record may), and never touches a postponed
+ * game. `nowMs` null = the first render, which is always the build's answer (no hydration flip).
+ * @param {"upcoming"|"started"|"final"|"postponed"} built
+ * @param {string|null|undefined} tipUtc
+ * @param {number|null} nowMs
+ */
+export function gameStatusOnClock(built, tipUtc, nowMs) {
+  if (built !== "upcoming" || nowMs == null) return built;
+  const t = Date.parse(tipUtc ?? "");
+  return Number.isFinite(t) && nowMs >= t ? "started" : "upcoming";
+}
+
+/** The hub's lane-card anchor (components/nba/experimental-lane.tsx laneCardId — kept identical, pinned by test). */
+export const hubLaneAnchor = (providerEventId) => `/nba/#nba-exp-${providerEventId}`;
+/** The hub's schedule section; the game's one-line row is inside it. */
+export const HUB_SCHEDULE_HREF = "/nba/#nba-games";
+
+/**
+ * The page a game links to — only a destination that exists in THIS build:
+ *   - its frozen card on /nba, when the hub renders that card (the hub's current lane holds the game);
+ *   - else the /nba schedule section, when the hub lists the game in its window;
+ *   - else nothing. There is no NBA game report route for the 2026-27 season (the /games/nba pages are the retired
+ *     May–June board's), and the Simulation Theater and every sportsbook are never linked.
+ * @param {string} id
+ * @param {{ hubLaneIds?: ReadonlySet<string>|null, hubListedIds?: ReadonlySet<string>|null }} where
+ * @returns {{ href: string, label: string } | null}
+ */
+export function gameLink(id, { hubLaneIds = null, hubListedIds = null } = {}) {
+  if (hubLaneIds?.has(String(id))) return { href: hubLaneAnchor(id), label: "NBA hub card" };
+  if (hubListedIds?.has(String(id))) return { href: HUB_SCHEDULE_HREF, label: "NBA hub schedule" };
+  return null;
+}
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+/** A dated board's URL. */
+export const slateHref = (date) => `/nba/projections/${date}/`;
+
+/**
+ * Date navigation: the most recent `limit` committed snapshot dates (newest first) plus the neighbours of `date` among
+ * ALL committed dates, so every committed slate is reachable by stepping while the list itself stays bounded (page
+ * weight does not grow with the season). Only dates in `dates` ever appear — nothing is invented.
+ * @param {ReadonlyArray<string>} dates  committed snapshot dates (any order)
+ * @param {string|null} date  the slate on this page (null on the default view)
+ * @param {number} [limit]
+ */
+export function slateNav(dates, date, limit = 7) {
+  const all = [...new Set(dates.filter((d) => DATE_RE.test(d)))].sort();
+  const prev = date ? [...all].reverse().find((d) => d < date) ?? null : null;
+  const next = date ? all.find((d) => d > date) ?? null : null;
+  return { recent: all.slice(-limit).reverse(), prev, next, total: all.length };
+}

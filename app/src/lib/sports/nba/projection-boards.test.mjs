@@ -191,11 +191,15 @@ test("forbidden vocabulary is absent from the rendered view (beyond the withheld
 
 test("the route reads ONLY the lane snapshot: no data/internal, no fs in the view/island/ops, same laneIsCurrent gate", () => {
   const page = fs.readFileSync(path.join(APP, "src/app/nba/projections/page.tsx"), "utf8");
-  assert.match(page, /AMENDMENT_A\.enabled \? loadCurrentLane\(currentEtDate\(\)\) : null/);
-  for (const rel of ["src/app/nba/projections/page.tsx", "src/components/nba/projections-view.tsx", "src/components/nba/projection-board.tsx", "src/lib/sports/nba/projection-board-ops.mjs", "src/components/nba/experimental-lane.tsx"]) {
+  // Follow-up to PR 1163: the default view goes through boardContext with no date, whose no-date branch is exactly
+  // loadCurrentLane(buildEtDate) behind the amendment switch — the same gate /nba uses.
+  assert.match(page, /boardContext\(\{ date: null, nowIso: now\.toISOString\(\), buildEtDate: currentEtDate\(now\), enabled: AMENDMENT_A\.enabled \}\)/);
+  const ctx = fs.readFileSync(path.join(APP, "src/components/nba/projection-board-context.ts"), "utf8");
+  assert.match(ctx, /!enabled \? null : date == null \? loadCurrentLane\(buildEtDate\) : loadLaneForDate\(date\)/);
+  for (const rel of ["src/app/nba/projections/page.tsx", "src/app/nba/projections/[date]/page.tsx", "src/components/nba/projections-view.tsx", "src/components/nba/projection-board.tsx", "src/components/nba/projection-game-status.tsx", "src/lib/sports/nba/projection-board-ops.mjs", "src/components/nba/experimental-lane.tsx", "src/components/nba/projection-board-context.ts"]) {
     const s = fs.readFileSync(path.join(APP, rel), "utf8");
     assert.ok(!s.includes("data/internal") && !s.includes('"internal"'), `${rel} never names data/internal`);
-    if (rel !== "src/components/nba/experimental-lane.tsx") assert.doesNotMatch(s, /from "node:|require\(/, `${rel} reads no file`);
+    if (!["src/components/nba/experimental-lane.tsx", "src/components/nba/projection-board-context.ts"].includes(rel)) assert.doesNotMatch(s, /from "node:|require\(/, `${rel} reads no file`);
   }
   const lane = fs.readFileSync(path.join(APP, "src/components/nba/experimental-lane.tsx"), "utf8");
   assert.match(lane, /path\.join\(process\.cwd\(\), "public", "data", "nba", "experimental-public", "latest\.json"\)/, "the only file the loader reads");
