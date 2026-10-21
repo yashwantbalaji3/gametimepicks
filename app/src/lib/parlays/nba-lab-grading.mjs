@@ -112,17 +112,27 @@ export function gradeNbaLabLeg(leg, resultFor) {
   };
 }
 
+/** The stamp only `nbaPropSettlementGate` (sports/nba/prop-settlement-readiness.mjs) puts on its output. */
+export const NBA_PROP_SETTLEMENT_GATE_SCHEMA = "nba-prop-settlement-gate@1";
+
+/** The prop families a settlement gate opens. Anything that is not the gate function's stamped output opens none. */
+export function openPropFamilies(gate) {
+  if (!gate || gate.schema !== NBA_PROP_SETTLEMENT_GATE_SCHEMA || !Object.isFrozen(gate) || !Array.isArray(gate.openFamilies)) return [];
+  return [...gate.openFamilies];
+}
+
 /**
- * Does the NBA settlement path cover this PLAYER-PROP leg? Only for a family in `readyFamilies` — families the forward
- * shadow ledger shows GRADED (sports/nba/prop-settlement-readiness.mjs). Team legs answer false here: they are the team
- * contract's question. With no readiness passed in, every prop is refused, as before.
- * @param {ReadonlyArray<string>} [readyFamilies]
+ * Does the NBA settlement path cover this PLAYER-PROP leg? Only for a family the settlement GATE opens
+ * (sports/nba/prop-settlement-readiness.mjs nbaPropSettlementGate): forward-graded evidence in the shadow ledger is
+ * NECESSARY, and a founder-approved PROMOTION in the NBA promotion record is SUFFICIENT. No gate, or a raw readiness
+ * object, opens nothing. Team legs answer false here: they are the team contract's question.
+ * @param {object|null} [gate]
  * @returns {(leg: object) => boolean}
  */
-export function nbaPropLegSettlesWith(readyFamilies = []) {
-  const ready = new Set(readyFamilies ?? []);
+export function nbaPropLegSettlesWith(gate = null) {
+  const open = new Set(openPropFamilies(gate));
   return (leg) => {
     const shape = nbaLabLegShape(leg);
-    return shape?.kind === "prop" && ready.has(shape.family);
+    return shape?.kind === "prop" && open.has(shape.family);
   };
 }

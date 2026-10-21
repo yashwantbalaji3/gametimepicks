@@ -244,8 +244,13 @@ This holds even if authorization, an odds feed, the registry and every flag are 
 | 1. Player-prop grader exists | **MET** on main (PR 1169 `prop-settlement.mjs`) and now **routed**: the lab settler sends `sport: "nba"` legs to `lib/parlays/nba-lab-grading.mjs` (team contract + prop grader), never MLB. `SETTLEABLE_SPORTS` (ladder admission) still excludes NBA. | `nba-lab-grading.test.mjs` on the real 10-20 finals and box scores; 75/75 graded Top Board rows agree on the actual stat |
 | 2. Graded forward on real frozen pre-tip rows | **NOT YET** in the committed ledger. The scheduled writer (`sport-schedules.yml` → `grade-nba-player-props.mjs --write`) has not run since PR 1173 wired it. A dry run on this tree: 10-20 → 441 GRADED · 126 NO_MEASUREMENT; 10-21 → 1995 PENDING_FINAL. | `prop-settlement-readiness.mjs` reads the committed ledger; with none, every family reads NOT READY |
 
-The settlement gate is now evidence-driven, not a comment. `recommend.mjs` `nbaLegSettles(nbaPropReadyFamilies)` and
-`product-tiers.mjs` `nbaSettlesFamilyWith(readyFamilies)` open a prop family only when a caller passes
-`committedNbaPropReadiness().readyFamilies`. Nothing passes it today, so every NBA prop leg is still
-`NO_SETTLEMENT_PATH`. Wiring it in belongs to the activation switch PR (§7 step 6). Even with the gate open, the
-registry, the price authorization and the §7 bars each still refuse every NBA leg.
+The settlement gate is now evidence-NECESSARY and founder-SUFFICIENT (release owner, 2026-10-21: opening from the
+ledger alone would be automatic promotion). `nbaPropSettlementGate({ readiness, promotionRecord })`
+(`prop-settlement-readiness.mjs`) opens a prop family only when the forward shadow ledger shows it GRADED **and** the
+append-only NBA promotion record (`data/internal/research/nba/promotion-record.json`, #1154) holds a valid PROMOTION
+for that family's market (v0.1, named human approver, READY_FOR_FOUNDER_REVIEW evidence) that no ROLLBACK reverses.
+No record, gate closed, whatever the ledger says (tested with a fully satisfied synthetic ledger). `recommend.mjs`
+`nbaLegSettles(gate)` and `product-tiers.mjs` `nbaSettlesFamilyWith(gate)` accept only the gate function's stamped,
+frozen output; a bare family list or raw readiness opens nothing. Nothing passes a gate today, the promotion record is
+empty, and wiring it in belongs to the activation switch PR (§7 step 6). Even with the gate open, the registry, the
+price authorization and the §7 bars each still refuse every NBA leg.

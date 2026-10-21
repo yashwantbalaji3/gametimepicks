@@ -37,8 +37,9 @@
  *
  * NBA LEGS (./nba-source.mjs supplies them; none exist under the real registry). On top of every gate above, an NBA
  * leg needs: a settlement path for its market (team markets: sports/nba/settlement-contract.mjs; a player prop: its
- * family must be GRADED FORWARD in the shadow ledger, passed in as `nbaPropReadyFamilies` — none by default, so a
- * prop is NO_SETTLEMENT_PATH unless that evidence is supplied; injectable for tests), a verified TWO-WAY price (the evaluator's implied
+ * family must be opened by the prop-settlement gate — forward-graded in the shadow ledger AND promoted in the founder-
+ * approved NBA promotion record — passed in as `nbaPropSettlementGate`; none by default, so a prop is
+ * NO_SETTLEMENT_PATH; injectable for tests), a verified TWO-WAY price (the evaluator's implied
  * pair was checked against it — a one-sided quote never prices a card), and its provenance (official snapshot id,
  * model version, odds authorization receipt, and the same odds capture instant as the leg).
  *
@@ -102,11 +103,12 @@ const NBA_MARKET_TO_SETTLED = Object.freeze({ moneyline: "moneyline", h2h: "mone
 /** Does the NBA TEAM settlement contract grade this leg's market? (Team markets only.) */
 export const nbaContractSettles = (leg) => NBA_SETTLED_MARKETS.includes(NBA_MARKET_TO_SETTLED[String(leg?.market ?? "")] ?? "");
 /**
- * The NBA settlement gate: team markets the contract grades, plus player-prop families the forward shadow ledger shows
- * GRADED (`nbaPropReadyFamilies`, from sports/nba/prop-settlement-readiness.mjs). Default: no prop family is ready.
+ * The NBA settlement gate: team markets the contract grades, plus player-prop families the prop-settlement GATE opens
+ * (sports/nba/prop-settlement-readiness.mjs nbaPropSettlementGate: forward-graded evidence AND a founder-approved
+ * promotion record). Default: no gate, so no prop family is open.
  */
-export const nbaLegSettles = (nbaPropReadyFamilies = []) => {
-  const prop = nbaPropLegSettlesWith(nbaPropReadyFamilies);
+export const nbaLegSettles = (nbaPropSettlementGate = null) => {
+  const prop = nbaPropLegSettlesWith(nbaPropSettlementGate);
   return (leg) => nbaContractSettles(leg) || prop(leg);
 };
 
@@ -261,11 +263,11 @@ export function compareCards(a, b) {
 }
 
 /** The evaluation context recommendTiers builds — exported so a card source can pre-check with the SAME gates. */
-export function recommendCtx({ nowMs, coverage = null, isVerifiedOperator = seamPredicate, canEnterSport = null, settlesNba = null, nbaPropReadyFamilies = [] }) {
+export function recommendCtx({ nowMs, coverage = null, isVerifiedOperator = seamPredicate, canEnterSport = null, settlesNba = null, nbaPropSettlementGate = null }) {
   return {
     nowMs, families: coverage ? marketContextFamilies(coverage) : null, isVerifiedOperator,
     canEnterSport: canEnterSport ?? canEnterPredictionProducts, sportGateInjected: canEnterSport != null,
-    settlesNba: settlesNba ?? nbaLegSettles(nbaPropReadyFamilies),
+    settlesNba: settlesNba ?? nbaLegSettles(nbaPropSettlementGate),
   };
 }
 
@@ -283,13 +285,13 @@ const reasonEntry = (code, count, detail = null) => ({ code, text: REASONS[code]
  * @param {number} [input.maxCardsPerTier]
  * @param {((sport: string) => boolean)|null} [input.canEnterSport]  TESTS ONLY — replaces the registry check (header)
  * @param {((leg: object) => boolean)|null} [input.settlesNba]       TESTS ONLY — replaces the NBA settlement check
- * @param {ReadonlyArray<string>} [input.nbaPropReadyFamilies]      prop families graded forward (prop-settlement-readiness.mjs)
+ * @param {object|null} [input.nbaPropSettlementGate]               nbaPropSettlementGate() output (prop-settlement-readiness.mjs)
  * @param {ReadonlyArray<{ sport: string, state: string, text: string }>} [input.sportNotes]   per-sport source states (./nba-source.mjs nbaSourceStatus)
  */
-export function recommendTiers({ candidates = [], now, coverage = null, isVerifiedOperator = seamPredicate, engineNotes = [], poolNotes = [], maxCardsPerTier = 3, canEnterSport = null, settlesNba = null, nbaPropReadyFamilies = [], sportNotes = [] }) {
+export function recommendTiers({ candidates = [], now, coverage = null, isVerifiedOperator = seamPredicate, engineNotes = [], poolNotes = [], maxCardsPerTier = 3, canEnterSport = null, settlesNba = null, nbaPropSettlementGate = null, sportNotes = [] }) {
   const nowMs = Date.parse(now ?? "");
   if (!Number.isFinite(nowMs)) throw new TypeError("recommendTiers: `now` must be an ISO instant");
-  const ctx = recommendCtx({ nowMs, coverage, isVerifiedOperator, canEnterSport, settlesNba, nbaPropReadyFamilies });
+  const ctx = recommendCtx({ nowMs, coverage, isVerifiedOperator, canEnterSport, settlesNba, nbaPropSettlementGate });
   const seamClosed = isVerifiedOperator === seamPredicate && OPERATOR_SEAM.state !== "CONNECTED";
 
   const evaluated = candidates.map((c) => evaluateCard(c, ctx));

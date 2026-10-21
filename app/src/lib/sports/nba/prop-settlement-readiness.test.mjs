@@ -69,3 +69,66 @@ test("SYNTHETIC_MEDIAN_LINE rows are never a price or a settled leg: readiness i
   assert.deepEqual(win, loss, "a synthetic-line WIN or LOSS changes nothing");
   assert.doesNotMatch(JSON.stringify(win), /line|price|odds|WIN|LOSS|SYNTHETIC/i, "readiness carries counts and dates only");
 });
+
+/* ── THE GATE: forward-graded evidence is NECESSARY; a founder-approved promotion record is SUFFICIENT ──────────── */
+import { nbaPropSettlementGate } from "./prop-settlement-readiness.mjs";
+import { committedNbaPropSettlementGate } from "./prop-settlement-source.mjs";
+import { VERDICT } from "./champion-challenger.mjs";
+import { NBA_PROP_SETTLEMENT_GATE_SCHEMA, openPropFamilies } from "../../parlays/nba-lab-grading.mjs";
+import { execFileSync } from "node:child_process";
+
+const FAMS = ["pts", "reb", "ast", "threePm", "pra", "ptsReb", "ptsAst"];
+/** A fully satisfied synthetic ledger: every family GRADED on many forward rows (TEST FIXTURE). */
+const FULL_LEDGER = nbaPropSettlementReadiness(FAMS.flatMap((f, i) => Array.from({ length: 600 }, (_, k) => entry(i * 1000 + k + 1, f, "GRADED", { playerId: String(k), eventId: String(401909000 + (k % 50)) }))));
+const promotion = (over = {}) => ({
+  seq: 1, kind: "PROMOTION", family: "v0.1", version: "nba-preseason-experimental-v0.1", market: "player_points",
+  date: "2026-11-20", decidedAt: "2026-11-20T15:00:00Z", metrics: { pricedRows: { value: 600, n: 600 } },
+  reason: "TEST FIXTURE — not a founder decision", approver: "Test Founder",
+  evidence: { verdict: VERDICT.READY_FOR_FOUNDER_REVIEW, report: "data/internal/research/nba/reports/test.json", market: "player_points" }, ...over,
+});
+const doc = (records) => ({ schemaVersion: 1, artifact: "nba-promotion-record", records });
+
+test("GATE: a fully satisfied ledger with NO promotion record stays closed for every family", () => {
+  assert.deepEqual(FULL_LEDGER.readyFamilies, [...FAMS].sort(), "the synthetic ledger is complete");
+  for (const pr of [null, doc([]), { records: "nope" }]) {
+    const g = nbaPropSettlementGate({ readiness: FULL_LEDGER, promotionRecord: pr });
+    assert.deepEqual(g.openFamilies, []);
+    assert.match(g.families.pts.reason, /no founder-approved promotion/);
+  }
+});
+
+test("GATE: a valid founder PROMOTION opens its own family only, and only with the ledger evidence", () => {
+  const g = nbaPropSettlementGate({ readiness: FULL_LEDGER, promotionRecord: doc([promotion()]) });
+  assert.deepEqual(g.openFamilies, ["pts"]);
+  assert.equal(g.families.pts.promotionSeq, 1);
+  assert.equal(g.schema, NBA_PROP_SETTLEMENT_GATE_SCHEMA);
+  const noEvidence = nbaPropSettlementGate({ readiness: nbaPropSettlementReadiness([]), promotionRecord: doc([promotion()]) });
+  assert.deepEqual(noEvidence.openFamilies, [], "a promotion without forward-graded evidence opens nothing");
+  assert.match(noEvidence.families.pts.reason, /not graded forward/);
+  assert.deepEqual(nbaPropSettlementGate({ readiness: FULL_LEDGER, promotionRecord: doc([promotion({ market: "pts", evidence: { ...promotion().evidence, market: "pts" } })]) }).openFamilies, ["pts"], "our family key is accepted too");
+});
+
+test("GATE: invalid, automated, rolled-back or wrong-family records open nothing", () => {
+  const closed = (records) => assert.deepEqual(nbaPropSettlementGate({ readiness: FULL_LEDGER, promotionRecord: doc(records) }).openFamilies, [], JSON.stringify(records).slice(0, 120));
+  closed([promotion({ approver: "github-actions[bot]" })]);
+  closed([promotion({ approver: "claude" })]);
+  closed([promotion({ approver: "" })]);
+  closed([promotion({ evidence: { ...promotion().evidence, verdict: "HOLD" } })]);
+  closed([promotion({ family: "v1", version: "nba-sim-v1-coherent" })]);
+  closed([promotion({ seq: undefined })]);
+  closed([promotion(), { seq: 2, kind: "ROLLBACK", rollsBack: 1, family: "v0.1", version: "nba-preseason-experimental-v0.1", market: "player_points", date: "2026-11-21", decidedAt: "2026-11-21T15:00:00Z", metrics: { x: { value: 1, n: 1 } }, reason: "TEST FIXTURE rollback text", approver: "Test Founder" }]);
+  assert.deepEqual(nbaPropSettlementGate({ readiness: { ...FULL_LEDGER, version: "forged" }, promotionRecord: doc([promotion()]) }).openFamilies, [], "readiness must be the readiness function's own output");
+});
+
+test("GATE: only the gate function's stamped, frozen output opens a predicate; raw readiness or a hand-built object opens nothing", () => {
+  assert.deepEqual(openPropFamilies(FULL_LEDGER), [], "raw readiness is not a gate");
+  assert.deepEqual(openPropFamilies({ schema: NBA_PROP_SETTLEMENT_GATE_SCHEMA, openFamilies: ["pts"] }), [], "an unfrozen hand-built object is not a gate");
+  const hits = execFileSync("git", ["grep", "-l", "NBA_PROP_SETTLEMENT_GATE_SCHEMA", "--", "src/**/*.mjs", "src/**/*.ts", "src/**/*.tsx", "scripts/**"], { encoding: "utf8" })
+    .split("\n").filter((f) => f && !/\.test\.mjs$/.test(f)).sort();
+  assert.deepEqual(hits, ["src/lib/parlays/nba-lab-grading.mjs", "src/lib/sports/nba/prop-settlement-readiness.mjs"], "the stamp has one producer and one definition");
+});
+
+test("GATE: the committed repo state is closed (the promotion record has no records)", () => {
+  const g = committedNbaPropSettlementGate({ repoRoot: path.resolve(process.cwd(), "..") });
+  assert.deepEqual(g.openFamilies, []);
+});
