@@ -21,7 +21,7 @@ import {
 } from "./experimental-public-lane.mjs";
 import { COMBO_KEYS } from "./game-sim.mjs";
 import { gamePayloadHash } from "./forecast-receipt.mjs";
-import { boardRows, filterRows, sortRows, statGroups, boardOptions } from "./projection-board-ops.mjs";
+import { boardRows, filterRows, sortRows, statGroups, boardOptions, packBoard, unpackBoard } from "./projection-board-ops.mjs";
 
 const APP = process.cwd();
 const REPO = path.resolve(APP, "..");
@@ -235,6 +235,26 @@ test("view ops: filters and a reader's sort change only order/visibility, never 
   assert.deepEqual(sortRows(rows, {}).map((r) => r.min), [...rows.map((r) => r.min)].sort((a, b) => b - a));
   const groups = statGroups(PROJECTION_BOARD_STATS, COMBO_STATS.map(([k]) => k));
   assert.deepEqual(groups.slice(0, 3).map((g) => g.cols), [[0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3], [4, 5, 6]]);
+});
+
+test("island wire format: unpack(pack(rows)) is the default-ordered rows, every value verbatim; teams travel once", () => {
+  const rows = boardRows(PUB, PROJECTION_BOARD_STATS);
+  const packed = packBoard(rows);
+  const back = unpackBoard(JSON.parse(JSON.stringify(packed))); // through the RSC flight's JSON
+  const want = sortRows(rows);
+  assert.equal(back.length, want.length);
+  back.forEach((r, i) => {
+    const w = want[i];
+    for (const k of ["game", "name", "team", "teamName", "min"]) assert.ok(Object.is(r[k], w[k]), `${w.id} ${k}`);
+    assert.equal(r.injury, w.injury);
+    assert.equal(r.v.length, w.v.length);
+    w.v.forEach((x, j) => assert.ok(Object.is(r.v[j], x), `${w.id} v[${j}]`));
+  });
+  // the island's default order (sortRows with no key) is exactly the server's — index ids keep every minutes tie
+  assert.deepEqual(sortRows(back).map((r) => r.name), want.map((r) => r.name));
+  assert.equal(packed.t.length, 6, "one entry per team of the slate");
+  // the point of the format: under half the per-row object JSON (page weight, PR 1163 measurement)
+  assert.ok(JSON.stringify(packed).length * 2 < JSON.stringify(rows).length, "packed board is under half the row-object JSON");
 });
 
 test("/nba links the board with one line from the lane, without odds/edge vocabulary", async () => {

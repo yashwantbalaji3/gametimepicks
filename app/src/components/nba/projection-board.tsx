@@ -12,26 +12,31 @@
  */
 import React, { useId, useMemo, useState } from "react";
 
-import { filterRows, sortRows } from "@/lib/sports/nba/projection-board-ops.mjs";
+import { filterRows, sortRows, unpackBoard } from "@/lib/sports/nba/projection-board-ops.mjs";
 
 export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[] };
 export type BoardOption = { id: string; label: string };
+/** packBoard's wire format: teams once, rows as arrays (page weight — see projection-board-ops.mjs). */
+export type PackedBoard = { t: [string, string, string][]; r: (string | number | null)[][] };
 export type StatGroup = { id: string; label: string; cols: number[] };
 
 const fmt = (v: number | null | undefined) => (v == null ? "—" : String(v));
 const FIELD = "flex flex-col gap-1 min-w-0 text-[12px]";
 const INPUT = "w-full min-w-0 min-h-[40px] rounded-md px-2 text-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2";
 const INPUT_STYLE = { border: "1px solid var(--vault-border)", background: "var(--vault-panel)", color: "var(--vault-text)", outlineColor: "var(--vault-gold-bright)" };
-const TABLE = "w-full text-[13px] [&_th]:font-medium [&_th]:text-right [&_td]:text-right [&_td]:tabular-nums [&_th]:px-2 [&_td]:px-2 [&_td]:py-1 [&_th]:py-1 [&_th]:whitespace-nowrap";
+// Row and cell styling lives on the table (one class string), not on each of the slate's ~250 rows: the row rule,
+// the left-aligned player name (row header) and team code (first data cell) are table-level selectors.
+const TABLE = "w-full text-[13px] [&_th]:font-medium [&_th]:text-right [&_td]:text-right [&_td]:tabular-nums [&_th]:px-2 [&_td]:px-2 [&_td]:py-1 [&_th]:py-1 [&_th]:whitespace-nowrap [&_tbody_tr]:border-t [&_tbody_tr]:border-[color:var(--vault-border)] [&_tbody_th]:text-left [&_tbody_th]:font-normal [&_tbody_td:first-of-type]:text-left";
 
-export default function ProjectionBoard({ rows, stats, groups, matchups, teams }: {
-  rows: BoardRow[];
+export default function ProjectionBoard({ board, stats, groups, matchups, teams }: {
+  board: PackedBoard;
   stats: (readonly [string, string])[];
   groups: StatGroup[];
   matchups: BoardOption[];
   teams: BoardOption[];
 }) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const rows: BoardRow[] = useMemo(() => unpackBoard(board), [board]);
   const [matchup, setMatchup] = useState("");
   const [team, setTeam] = useState("");
   const [player, setPlayer] = useState("");
@@ -108,9 +113,9 @@ export default function ProjectionBoard({ rows, stats, groups, matchups, teams }
             </thead>
             <tbody style={{ color: "var(--vault-text)" }}>
               {shown.map((r) => (
-                <tr key={r.id} style={{ borderTop: "1px solid var(--vault-border)" }}>
-                  <th scope="row" className="!text-left !font-normal">{r.name}{r.injury ? ` · ${r.injury}` : ""}</th>
-                  <td className="!text-left" title={r.teamName}>{r.team}</td>
+                <tr key={r.id}>
+                  <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}</th>
+                  <td title={r.teamName}>{r.team}</td>
                   <td>{fmt(r.min)}</td>
                   {cols.map((i) => <td key={stats[i][0]}>{fmt(r.v[i])}</td>)}
                 </tr>
