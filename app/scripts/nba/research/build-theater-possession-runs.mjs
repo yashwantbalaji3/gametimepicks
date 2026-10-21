@@ -3,9 +3,16 @@
  * NBA RESEARCH PROTOTYPE · dataClass PRIVATE_RESEARCH · productEligible: false. Writes ONE file:
  *   data/internal/research/nba/theater-possession/<date>.json
  *
- * AS OF TIP, NO POST-TIP INFORMATION. For each game of the committed v1 receipt (experimental-v1/forecasts/<date>.json)
- * the generator rebuilds EXACTLY the as-of inputs that receipt used, and refuses on any mismatch:
- *   asOf      = the receipt's own inputAsOf (= receipt.generatedAt, strictly before tip — receiptIntegrity + preTip).
+ * AS OF THE OFFICIAL FREEZE (release owner 2026-10-21, NBA-CC requirement 1 "identical cutoffs"): the replay may use only
+ * inputs dated at or before the OFFICIAL forecast's freeze for that game (the v0.1 receipt's generatedAt), so the
+ * official-vs-simulated comparison never hands the replay later information than the official forecast had.
+ *   asOf      = the official v0.1 receipt's generatedAt for the game (receiptIntegrity OK, strictly before tip).
+ *   basis     V1_RECEIPT_AT_OFFICIAL_FREEZE when the committed v1 receipt froze at that same instant: its inputs are
+ *             rebuilt and verified by the byte-identical v1 replay below (strongest check);
+ *             OFFICIAL_FREEZE_RECONSTRUCTED when v1 froze LATER (no v1 receipt exists at the freeze): the rosters and
+ *             injuries are the git blobs whose sha256 equal the OFFICIAL receipt's, box scores are folded at the freeze,
+ *             and the v1-side build runs at the freeze with no frozen v1 receipt to replay against (recorded as such).
+ * In both bases, refused on any mismatch:
  *   rosters   = the git blob of data/internal/research/nba/rosters/latest.json whose sha256 equals receipt.inputs.rosters.sha256.
  *   injuries  = the git blob of data/internal/research/injuries/nba/latest.json whose sha256 equals receipt.inputs.injuries.sha256.
  *   box scores= corpus boxscores/ + the families' fetched boxscores/ folded with season-fold.mjs foldBoxscores({ now: asOf })
@@ -114,9 +121,14 @@ for (const g of v1Doc.games ?? []) {
   const id = String(g.providerEventId);
   const integ = receiptIntegrity(g);
   if (integ.state !== "OK") refuse(`${id}: v1 receipt ${integ.state}`);
-  const asOf = g.forecast?.inputAsOf;
-  if (!asOf || asOf !== g.receipt.generatedAt || !(Date.parse(asOf) < Date.parse(g.dateUtc))) refuse(`${id}: inputAsOf ${asOf} is not the receipt instant strictly before tip ${g.dateUtc}`);
-  const ri = g.receipt.inputs;
+  const og = (offDoc.games ?? []).find((x) => String(x.providerEventId) === id);
+  if (!og || receiptIntegrity(og).state !== "OK") refuse(`${id}: no intact official v0.1 receipt`);
+  const asOf = og.receipt.generatedAt; // THE OFFICIAL FREEZE: the replay's input cutoff
+  if (!asOf || og.forecast?.inputAsOf !== asOf || !(Date.parse(asOf) < Date.parse(g.dateUtc))) refuse(`${id}: official freeze ${asOf} is not the receipt instant strictly before tip ${g.dateUtc}`);
+  const v1AtFreeze = g.forecast?.inputAsOf === asOf && g.receipt.generatedAt === asOf;
+  const basis = v1AtFreeze ? "V1_RECEIPT_AT_OFFICIAL_FREEZE" : "OFFICIAL_FREEZE_RECONSTRUCTED";
+  if (!v1AtFreeze && !(Date.parse(g.receipt.generatedAt) > Date.parse(asOf))) refuse(`${id}: v1 receipt ${g.receipt.generatedAt} precedes the official freeze ${asOf}`);
+  const ri = v1AtFreeze ? g.receipt.inputs : og.receipt.inputs;
   if (corpus.generatedAt !== ri.corpus.generatedAt || (corpus.rows ?? []).length !== ri.corpus.rows) refuse(`${id}: corpus-v1.json differs from the receipt's (${ri.corpus.generatedAt}/${ri.corpus.rows})`);
   const rosterBlob = blob("data/internal/research/nba/rosters/latest.json", ri.rosters.sha256);
   const injuryBlob = blob("data/internal/research/injuries/nba/latest.json", ri.injuries.sha256);
@@ -124,7 +136,8 @@ for (const g of v1Doc.games ?? []) {
   if (!injuryBlob) refuse(`${id}: no git blob of injuries/nba/latest.json has sha256 ${ri.injuries.sha256}`);
   const rosters = JSON.parse(rosterBlob.text), injuries = JSON.parse(injuryBlob.text);
   const fold = foldBoxscores(corpusBox, fetchedBox, { now: asOf });
-  if (fold.added !== ri.fetchedBoxscores?.folded || fold.docs.length !== ri.boxscores?.docs) refuse(`${id}: box-score fold at ${asOf} gives ${fold.added} folded / ${fold.docs.length} docs, receipt ${ri.fetchedBoxscores?.folded} / ${ri.boxscores?.docs}`);
+  // the fold-count check needs a v1 receipt AT this instant (the official v0.1 receipt folds no fetched box scores)
+  if (v1AtFreeze && (fold.added !== ri.fetchedBoxscores?.folded || fold.docs.length !== ri.boxscores?.docs)) refuse(`${id}: box-score fold at ${asOf} gives ${fold.added} folded / ${fold.docs.length} docs, receipt ${ri.fetchedBoxscores?.folded} / ${ri.boxscores?.docs}`);
   const boxscores = fold.docs;
   const population = g.population;
   const index = indexBoxscores(boxscores);
@@ -134,7 +147,7 @@ for (const g of v1Doc.games ?? []) {
     const gated = gatePool({ rosters, providerTeamId: s.providerTeamId, boxscores, asOfDateUtc: asOf, injuries: injuries.entries ?? null, population, teamMinutesCache: cache });
     if (gated.state === "REFUSED") refuse(`${id} ${key}: roster gate refused (${gated.reason})`);
     const prof = buildSideProfile(index, { teamId: String(s.providerTeamId), rosterRows: gated.rows, asOf, population, league });
-    const diffs = profileDiffs(prof, g.forecast.players[key]);
+    const diffs = v1AtFreeze ? profileDiffs(prof, g.forecast.players[key]) : [];
     if (diffs.length) refuse(`${id} ${key}: rebuilt v1 side differs from the frozen receipt — ${diffs.slice(0, 6).join("; ")}`);
     return prof;
   };
@@ -142,7 +155,7 @@ for (const g of v1Doc.games ?? []) {
   // strongest check: replay the v1 engine on the rebuilt sides (receipt's frozen ratings + Elo, its seed policy and draw
   // count) — the frozen players and sim blocks must come back byte-identical, so the profiles are the receipt's own.
   const replay = simulateGameV1({ providerEventId: id, inputAsOf: asOf, neutralSite: g.neutralSite === true, home: { name: g.home.name, providerTeamId: String(g.home.providerTeamId), rating: g.home.rating, profile: ph }, away: { name: g.away.name, providerTeamId: String(g.away.providerTeamId), rating: g.away.rating, profile: pa }, league, eloWinProbability: g.forecast.elo.pHome, simulations: g.forecast.simulations });
-  for (const k of ["players", "sim"]) if (canonicalJson(replay[k]) !== canonicalJson(g.forecast[k])) refuse(`${id}: v1 replay on the rebuilt inputs does not reproduce the receipt's frozen ${k} block`);
+  if (v1AtFreeze) for (const k of ["players", "sim"]) if (canonicalJson(replay[k]) !== canonicalJson(g.forecast[k])) refuse(`${id}: v1 replay on the rebuilt inputs does not reproduce the receipt's frozen ${k} block`);
   const ext = indexExtended(boxscores);
   const fitted = { theta: FITTED.AND_ONE_PER_FGM, tau: FITTED.THREE_SHOT_TRIPS_PER_MIN };
   const leagueExt = leagueExtended(ext, { asOf, population, fitted });
@@ -191,7 +204,9 @@ for (const g of v1Doc.games ?? []) {
     away: { name: g.away.name, abbr: g.away.abbr, providerTeamId: String(g.away.providerTeamId) },
     inputAsOf: asOf,
     inputs: {
-      v1Receipt: { path: rel(v1Path), payloadSha256: g.receipt.payloadSha256, generatedAt: g.receipt.generatedAt, profileRebuild: "V1_REPLAY_BYTE_IDENTICAL (players + sim blocks)" },
+      basis,
+      officialFreeze: { path: rel(offPath), payloadSha256: og.receipt.payloadSha256, generatedAt: asOf },
+      v1Receipt: { path: rel(v1Path), payloadSha256: g.receipt.payloadSha256, generatedAt: g.receipt.generatedAt, profileRebuild: v1AtFreeze ? "V1_REPLAY_BYTE_IDENTICAL (players + sim blocks)" : "NOT_REPLAYED: v1 froze after the official freeze; sides rebuilt at the freeze from the official receipt's input blobs" },
       rosters: { path: "data/internal/research/nba/rosters/latest.json", sha256: ri.rosters.sha256, gitBlobCommit: rosterBlob.commit },
       injuries: { path: "data/internal/research/injuries/nba/latest.json", sha256: ri.injuries.sha256, gitBlobCommit: injuryBlob.commit },
       boxscores: { docs: boxscores.length, folded: fold.added, skipped: fold.skipped },

@@ -210,10 +210,12 @@ test("NBA replay gate (role C, founder decision 2026-10-21): the possession engi
   const unchecked = clone(); unchecked.games[0].pool.violations = 1;
   assert.deepEqual(codes(unchecked), ["REPLAY_POOL_UNCHECKED"]);
   assert.deepEqual(codes(clone(), { ...snap, snapshotId: "0".repeat(64) }), ["REPLAY_OFFICIAL_CHANGED"], "a new official forecast closes the gate until the runs are regenerated");
-  const late = clone(); late.games[0].inputAsOf = "2026-10-21T12:00:00Z";
-  assert.deepEqual(codes(late), ["REPLAY_INPUTS_AFTER_LOCK"], "inputs after the lock are never a pre-tip replay");
-  const afterFreeze = clone(); afterFreeze.games[0].inputAsOf = new Date(Date.parse(snap.frozenAt) + 60_000).toISOString();
-  assert.deepEqual(codes(afterFreeze), [], "newer than the official freeze but before the lock: allowed (as-of-tip scope), disclosed on the page");
+  // identical cutoffs (release owner 2026-10-21, NBA-CC requirement 1): one second after the official freeze already fails
+  const afterFreeze = clone(); afterFreeze.games[0].inputAsOf = new Date(Date.parse(snap.frozenAt) + 1000).toISOString();
+  assert.ok(Date.parse(afterFreeze.games[0].inputAsOf) < Date.parse(snap.lockAt), "the probe is before tip: before-tip is not enough");
+  assert.deepEqual(codes(afterFreeze), ["REPLAY_INPUTS_AFTER_FREEZE"], "a run whose inputs are after the official freeze fails the gate");
+  const atFreeze = clone(); atFreeze.games[0].inputAsOf = snap.frozenAt;
+  assert.deepEqual(codes(atFreeze), [], "inputs exactly at the freeze pass");
   const flipped = clone(); const def = flipped.games[0].runs.find((r) => r.kind === "default"); def.final = [def.final[1], def.final[0]];
   assert.ok(codes(flipped).length > 0, "a default run off the official side never opens the gate");
   // the gate wires it: a clean audit opens only with valid runs; v1 (role B) is not required under the policy in force

@@ -55,20 +55,36 @@ test("artifact: committed, private, the contract's schema, the engine id, fit re
   assert.ok(Number.isFinite(Date.parse(DOC.generatedAt)));
 });
 
-test("as of tip: inputs are the v1 receipt's (asOf = receipt instant < tip; v1 replay byte-identical; roster / injury blobs by hash)", () => {
+test("as of the OFFICIAL freeze (identical cutoffs, release owner 2026-10-21): inputs at the v0.1 receipt instant; roster / injury blobs by hash; v1 replay where v1 froze at the same instant", () => {
   const v1 = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/nba/experimental-v1/forecasts", `${DATE}.json`), "utf8"));
+  const off = JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/nba/experimental-v0.1/forecasts", `${DATE}.json`), "utf8"));
+  const bases = new Set();
   for (const g of DOC.games) {
     const rg = v1.games.find((x) => String(x.providerEventId) === g.providerEventId);
-    assert.equal(g.inputAsOf, rg.receipt.generatedAt);
+    const og = off.games.find((x) => String(x.providerEventId) === g.providerEventId);
+    assert.equal(g.inputAsOf, og.receipt.generatedAt, `${g.providerEventId}: inputs dated exactly at the official freeze`);
     assert.ok(Date.parse(g.inputAsOf) < Date.parse(g.dateUtc), "inputs strictly before tip");
+    assert.equal(g.inputs.officialFreeze.payloadSha256, og.receipt.payloadSha256);
     assert.equal(g.inputs.v1Receipt.payloadSha256, rg.receipt.payloadSha256);
-    assert.equal(g.inputs.rosters.sha256, rg.receipt.inputs.rosters.sha256);
-    assert.equal(g.inputs.injuries.sha256, rg.receipt.inputs.injuries.sha256);
     assert.match(g.inputs.rosters.gitBlobCommit, /^[0-9a-f]{40}$/);
-    assert.match(g.inputs.v1Receipt.profileRebuild, /BYTE_IDENTICAL/);
-    assert.equal(g.inputs.boxscores.docs, rg.receipt.inputs.boxscores.docs);
     assert.match(g.inputs.engineInputsSha256, /^[0-9a-f]{64}$/);
+    bases.add(g.inputs.basis);
+    if (rg.receipt.generatedAt === og.receipt.generatedAt) {
+      assert.equal(g.inputs.basis, "V1_RECEIPT_AT_OFFICIAL_FREEZE");
+      assert.equal(g.inputs.rosters.sha256, rg.receipt.inputs.rosters.sha256);
+      assert.equal(g.inputs.injuries.sha256, rg.receipt.inputs.injuries.sha256);
+      assert.match(g.inputs.v1Receipt.profileRebuild, /BYTE_IDENTICAL/);
+      assert.equal(g.inputs.boxscores.docs, rg.receipt.inputs.boxscores.docs);
+    } else {
+      // v1 froze LATER: rebuilt from the OFFICIAL receipt's input blobs at the freeze (no frozen v1 receipt to replay)
+      assert.ok(Date.parse(rg.receipt.generatedAt) > Date.parse(og.receipt.generatedAt));
+      assert.equal(g.inputs.basis, "OFFICIAL_FREEZE_RECONSTRUCTED");
+      assert.equal(g.inputs.rosters.sha256, og.receipt.inputs.rosters.sha256);
+      assert.equal(g.inputs.injuries.sha256, og.receipt.inputs.injuries.sha256);
+      assert.match(g.inputs.v1Receipt.profileRebuild, /^NOT_REPLAYED/);
+    }
   }
+  assert.deepEqual([...bases].sort(), ["OFFICIAL_FREEZE_RECONSTRUCTED", "V1_RECEIPT_AT_OFFICIAL_FREEZE"], "10-20 exercises both bases");
 });
 
 test("EVERY stored run passes checkPossessionDraw (P1–P11) rebuilt from its own log + ledger, and its box digest", () => {

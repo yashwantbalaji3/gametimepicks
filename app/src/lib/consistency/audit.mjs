@@ -733,7 +733,7 @@ import { etDateOf, readPossessionArtifact, replayGateProblems } from "../simulat
  * Role C (founder decision 2026-10-21): what keeps one NBA game's stored replay runs off a public Theater — the shared
  * replay gate (stored-run.mjs replayGateProblems, also called by the public loader), checked against the game's CURRENT
  * official snapshot from this audit, as gate blockers. Read-only.
- * @param {{ snapshotId?: string, lockAt?: string }} snap
+ * @param {{ snapshotId?: string, lockAt?: string, frozenAt?: string }} snap  (lockAt picks the slate's artifact date)
  * @param {{ repoRoot?: string|null, read?: object|null }} opts `read` = a readPossessionArtifact result (tests)
  */
 export function nbaReplayProblems(eventId, snap, { repoRoot = null, read = null } = {}) {

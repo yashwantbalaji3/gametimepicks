@@ -85,11 +85,11 @@ export const etDateOf = (iso) => (Number.isFinite(Date.parse(iso ?? "")) ? new I
  *   REPLAY_POOL_UNCHECKED        the seed pool was not fully checked, or any pool draw violated an invariant
  *   REPLAY_OFFICIAL_CHANGED      the runs were selected against a different official snapshot
  *   REPLAY_SIDE_CONSTRAINT       the default run is not won by the official Elo side
- *   REPLAY_INPUTS_AFTER_LOCK     the engine's inputs are dated after the game's lock (the approval's scope is "stored
- *                                possession runs built from as-of-tip inputs"; inputs newer than the official freeze but
- *                                before the lock are allowed and the page discloses them: engine facts, inputs as of)
+ *   REPLAY_INPUTS_AFTER_FREEZE   the engine's inputs are dated after the OFFICIAL forecast's freeze for the game
+ *                                (release owner 2026-10-21, NBA-CC requirement 1 "identical cutoffs": the replay may
+ *                                never have later information than the official forecast it is compared with)
  * @param {object|null} read  a readPossessionArtifact result
- * @param {{ snapshotId?: string, lockAt?: string }|null} snap
+ * @param {{ snapshotId?: string, frozenAt?: string }|null} snap
  * @returns {{ code: string, detail: string }[]}
  */
 export function replayGateProblems(read, eventId, snap, { approvedEngineId }) {
@@ -103,7 +103,7 @@ export function replayGateProblems(read, eventId, snap, { approvedEngineId }) {
   if (!snap?.snapshotId || g.official?.snapshotId !== snap.snapshotId) out.push({ code: "REPLAY_OFFICIAL_CHANGED", detail: `runs selected against ${g.official?.snapshotId ?? "none"}, official is ${snap?.snapshotId ?? "none"} — regenerate the replay runs` });
   const side = sideConstraintProblem(g, g.official?.winnerSide);
   if (side) out.push({ code: "REPLAY_SIDE_CONSTRAINT", detail: side });
-  if (!(Date.parse(g.inputAsOf ?? "") <= Date.parse(snap?.lockAt ?? ""))) out.push({ code: "REPLAY_INPUTS_AFTER_LOCK", detail: `inputs as of ${g.inputAsOf ?? "?"} vs the game's lock ${snap?.lockAt ?? "?"}` });
+  if (!(Date.parse(g.inputAsOf ?? "") <= Date.parse(snap?.frozenAt ?? ""))) out.push({ code: "REPLAY_INPUTS_AFTER_FREEZE", detail: `inputs as of ${g.inputAsOf ?? "?"} vs the official freeze ${snap?.frozenAt ?? "?"}` });
   return out;
 }
 

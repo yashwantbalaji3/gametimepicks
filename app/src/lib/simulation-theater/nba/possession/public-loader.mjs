@@ -37,7 +37,7 @@ export function loadPublicPossessionTheater(repoRoot, eventId, { date = PUBLIC_T
   // the SAME replay gate the consistency gate applies (role C, founder decision 2026-10-21), against the embedded panel;
   // its equality with the CURRENT official snapshot is the consistency gate's half (possession-theater.test.mjs pins
   // that every game this loader publishes has theaterActivationGate open)
-  const problems = replayGateProblems(r, id, { snapshotId: panel.snapshotId, lockAt: panel.lockAt }, { approvedEngineId: NBA_THEATER_REPLAY_ENGINE.id });
+  const problems = replayGateProblems(r, id, { snapshotId: panel.snapshotId, frozenAt: panel.frozenAt }, { approvedEngineId: NBA_THEATER_REPLAY_ENGINE.id });
   if (problems.length) return fail(id, problems[0].code, problems.map((x) => x.detail).join("; "));
   // and the side the PAGE will print (the embedded panel) must be the side the default run was selected for
   const side = sideConstraintProblem(game, panel.favouredSide);
