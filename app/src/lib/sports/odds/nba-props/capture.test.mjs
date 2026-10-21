@@ -34,8 +34,9 @@ function fakeFetch(answer) {
   const urls = [];
   const impl = async (url) => {
     urls.push(url);
-    const { status = 200, body = null, last = null } = answer(url);
-    return { status, headers: { get: (h) => (h === "x-requests-last" ? (last == null ? null : String(last)) : null) }, json: async () => body };
+    const { status = 200, body = null, last = null, remaining = 18190 } = answer(url);
+    const hdr = { "x-requests-last": last, "x-requests-remaining": remaining };
+    return { status, headers: { get: (h) => (hdr[h] == null ? null : String(hdr[h])) }, json: async () => body };
   };
   return { impl, urls };
 }
@@ -105,7 +106,7 @@ test("provider failures stop the run and are never retried; an empty market cost
 
 test("a transport error is recorded as charged (unaccounted spend is the failure mode) and stops the run", async () => {
   const impl = async (url) => {
-    if (url.includes("/events?")) return { status: 200, headers: { get: () => "0" }, json: async () => LIST };
+    if (url.includes("/events?")) return { status: 200, headers: { get: (h) => (h === "x-requests-remaining" ? "18190" : "0") }, json: async () => LIST };
     throw Object.assign(new Error("socket hang up"), { name: "TypeError" });
   };
   const r = await run({ apply: true, fetchImpl: impl });
@@ -119,6 +120,56 @@ test("a repeated purchase inside 30 minutes is skipped", async () => {
   const f = provider();
   const again = await run({ apply: true, fetchImpl: f.impl, ledger: first.ledger });
   assert.equal(f.urls.length, 1, "only the free listing");
-  assert.ok(again.skipped.some((s) => s.reason === "DUPLICATE_WITHIN_30_MIN"));
+  assert.ok(again.skipped.some((s) => s.reason === "ALREADY_CAPTURED" || s.reason === "DUPLICATE_WITHIN_30_MIN"), "the stricter one-snapshot-per-game rule answers first");
+  assert.equal(again.ledger.cumulativeCredits, 1);
+});
+
+/* ── PILOT GUARDS ─────────────────────────────────────────────────────────────────────────────────────────────── */
+const LIST2 = [...LIST, { id: "fx-second", sport_key: "basketball_nba", commence_time: "2026-10-23T02:00:00Z", home_team: "Los Angeles Lakers", away_team: "Golden State Warriors" }];
+const two = () => fakeFetch((url) => (url.includes("/events?") ? { body: LIST2, last: 0 } : { body: pointsOnly, last: 1 }));
+
+test("credit floor: a balance that would cross ODDS_API_MIN_CREDITS_REMAINING stops BEFORE the paid call; an unreadable balance stops too", async () => {
+  const low = fakeFetch((url) => (url.includes("/events?") ? { body: LIST, last: 0, remaining: 2000 } : { body: pointsOnly, last: 1 }));
+  const r = await run({ apply: true, fetchImpl: low.impl, minCreditsRemaining: 2000 });
+  assert.equal(r.state, CAPTURE_STATE.CEILING_REACHED);
+  assert.equal(low.urls.length, 1, "only the free listing");
+  assert.ok(r.skipped.some((x) => x.reason === "CREDIT_FLOOR"));
+  const blind = fakeFetch((url) => (url.includes("/events?") ? { body: LIST, last: 0, remaining: null } : { body: pointsOnly, last: 1 }));
+  const b = await run({ apply: true, fetchImpl: blind.impl });
+  assert.equal(b.state, CAPTURE_STATE.STOPPED);
+  assert.equal(blind.urls.length, 1);
+  assert.match(b.stoppedBecause, /could not be read/);
+});
+
+test("ODDS_MAX_EVENTS_PER_RUN: at most N event-odds calls, earliest tip first; the rest are left for the next run", async () => {
+  const f = two();
+  const r = await run({ apply: true, fetchImpl: f.impl, maxEventsPerRun: 1 });
+  assert.equal(f.urls.filter((u) => u.includes("/odds?")).length, 1);
+  assert.ok(f.urls[1].includes(EVENT_1.id), "the earlier tip goes first");
+  assert.ok(r.skipped.some((x) => x.reason === "MAX_EVENTS_PER_RUN" && x.oddsEventId === "fx-second"));
+  assert.equal((await run({ apply: true, fetchImpl: provider().impl, maxEventsPerRun: 0 })).state, CAPTURE_STATE.REFUSED);
+});
+
+test("lead window 20–75 min: T-60 is priced, T-15 and T-4h are not; nothing in the window means zero calls", async () => {
+  const at = (iso) => ({ now: iso, clock: () => iso });
+  const inWin = provider();
+  const r = await run({ ...at("2026-10-22T22:30:00Z"), apply: true, fetchImpl: inWin.impl, minLeadMinutes: 20, maxLeadMinutes: 75 }); // tip 23:30 → T-60
+  assert.equal(r.state, CAPTURE_STATE.CAPTURED, r.stoppedBecause ?? "");
+  assert.equal(inWin.urls.filter((u) => u.includes("/odds?")).length, 1);
+  for (const iso of ["2026-10-22T23:15:00Z", "2026-10-22T19:30:00Z"]) {
+    const f = provider();
+    const x = await run({ ...at(iso), apply: true, fetchImpl: f.impl, minLeadMinutes: 20, maxLeadMinutes: 75, scheduleRows: SCHED.slice(0, 1) });
+    assert.equal(x.state, CAPTURE_STATE.NOTHING_TO_PRICE, iso);
+    assert.equal(f.urls.length, 0, `${iso}: not even the free listing`);
+  }
+});
+
+test("one snapshot per game: an event the ledger already priced (200) is never priced again, even outside the 30-minute window", async () => {
+  const first = await run({ apply: true, fetchImpl: provider().impl });
+  const later = "2026-10-22T22:45:00Z";
+  const f = provider();
+  const again = await run({ now: later, clock: () => later, apply: true, fetchImpl: f.impl, ledger: first.ledger });
+  assert.equal(f.urls.filter((u) => u.includes("/odds?")).length, 0);
+  assert.ok(again.skipped.some((x) => x.reason === "ALREADY_CAPTURED"));
   assert.equal(again.ledger.cumulativeCredits, 1);
 });

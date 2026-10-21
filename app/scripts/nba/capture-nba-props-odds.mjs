@@ -18,7 +18,7 @@
  * This file holds no HTTP call and no provider host. Those live in capture.mjs, which is tested with a fake fetch.
  * The API key is read only after the receipt parses, and only with --apply.
  *
- * Usage: node scripts/nba/capture-nba-props-odds.mjs --now <iso> [--lookahead-hours 30] [--markets player_points,…]
+ * Usage: node scripts/nba/capture-nba-props-odds.mjs --now <iso> [--lookahead-hours 30] [--lead-minutes 20,75] [--markets player_points,…]
  *        [--authorized --receipt docs/receipts/<file>.md]
  */
 import fs from "node:fs";
@@ -41,6 +41,8 @@ const refuse = (code, msg) => { console.error(`REFUSED: ${msg}`); process.exit(c
 const NOW = arg("--now");
 if (!NOW || !Number.isFinite(Date.parse(NOW))) refuse(2, "--now <ISO> required");
 const LOOKAHEAD_H = Number(arg("--lookahead-hours", "30"));
+const LEAD = (arg("--lead-minutes") ?? `0,${LOOKAHEAD_H * 60}`).split(",").map(Number);
+if (LEAD.length !== 2 || !LEAD.every(Number.isFinite) || LEAD[0] < 0 || LEAD[1] <= LEAD[0]) refuse(2, "--lead-minutes MIN,MAX needs two numbers with 0 ≤ MIN < MAX");
 const MARKETS = (arg("--markets") ?? POINTS_FIRST_SCOPE.join(",")).split(",").map((s) => s.trim()).filter(Boolean);
 
 const schedule = JSON.parse(fs.readFileSync(path.join(APP, "public/data/nba/schedule/latest.json"), "utf8"));
@@ -67,7 +69,12 @@ if (has("--authorized")) {
   const ledger = (() => { try { return JSON.parse(fs.readFileSync(ledgerPath, "utf8")); } catch { return null; } })();
   const result = await runNbaPropCapture({
     now: NOW, receiptText, receiptRel: rel, ledger, scheduleRows: schedule.rows ?? [], rosterFor, markets: MARKETS,
-    lookaheadHours: LOOKAHEAD_H, apply: has("--apply"),
+    // --lead-minutes MIN,MAX (pilot: 20,75 → T-60 with a T-30 fallback, never after tip); default: 0 to the lookahead.
+    minLeadMinutes: LEAD[0], maxLeadMinutes: LEAD[1],
+    // The repository's own odds guards, read from the environment the workflow passes.
+    minCreditsRemaining: Number(process.env.ODDS_API_MIN_CREDITS_REMAINING ?? "2000"),
+    maxEventsPerRun: Number(process.env.ODDS_MAX_EVENTS_PER_RUN ?? "2"),
+    apply: has("--apply"),
     // The key is read only here, after the receipt has parsed, and only when spending was asked for.
     apiKey: has("--apply") ? (process.env.ODDS_API_KEY ?? "").trim() : "",
     fetchImpl: globalThis.fetch,

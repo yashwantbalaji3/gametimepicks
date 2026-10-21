@@ -19,6 +19,14 @@
  *   7. A purchase repeated within 30 minutes is skipped (isDuplicateRequest).
  *   8. Every response goes through parseNbaPropResponses: identity, eligible operators, two-way, freshness, before-tip.
  *      The result must not contain the key (assertNoSecretLeak), or it is refused.
+ *   9. PILOT GUARDS (all on by default):
+ *      - credit floor: the provider's own x-requests-remaining (read from the free listing, then from each response)
+ *        minus the next call's worst case must stay at or above `minCreditsRemaining` (ODDS_API_MIN_CREDITS_REMAINING).
+ *        An unreadable balance stops the run before any paid call.
+ *      - `maxEventsPerRun` (ODDS_MAX_EVENTS_PER_RUN) event-odds calls per run at most, earliest tip first.
+ *      - lead window: only games whose tip is more than `minLeadMinutes` and at most `maxLeadMinutes` away
+ *        (pilot: 20–75 min, so T-60 with a T-30 fallback, never after tip).
+ *      - one snapshot per game: an event this ledger already holds a 200 response for is never priced again.
  */
 import {
   assertCallAllowed, assertNoSecretLeak, classifyProviderResult, emptyLedger, isDuplicateRequest, recordRequest,
@@ -49,13 +57,24 @@ const headersOf = (res) => ({
   "x-requests-remaining": res.headers?.get?.("x-requests-remaining") ?? null,
 });
 
-/** In-window ESPN rows: scheduled, tip strictly after `now`, within the lookahead. */
-export function captureWindow(scheduleRows, nowMs, lookaheadHours) {
+/** In-window ESPN rows: scheduled, tip more than `minLeadMinutes` and at most `maxLeadMinutes` after `now`, earliest first. */
+export function captureWindow(scheduleRows, nowMs, { minLeadMinutes = 0, maxLeadMinutes = 30 * 60 } = {}) {
   return (scheduleRows ?? []).filter((r) => {
     const t = Date.parse(r.dateUtc ?? "");
-    return r.statusRaw === "STATUS_SCHEDULED" && Number.isFinite(t) && t > nowMs && t - nowMs <= lookaheadHours * 3_600_000;
-  });
+    return r.statusRaw === "STATUS_SCHEDULED" && Number.isFinite(t) && t - nowMs > minLeadMinutes * 60_000 && t - nowMs <= maxLeadMinutes * 60_000;
+  }).sort((a, b) => Date.parse(a.dateUtc) - Date.parse(b.dateUtc) || String(a.providerEventId).localeCompare(String(b.providerEventId)));
 }
+
+/** Provider event ids this ledger already holds a 200 event-odds response for (one snapshot per game). */
+export function capturedOddsEventIds(ledger) {
+  const ids = new Set();
+  for (const r of ledger?.requests ?? []) {
+    const m = /^nba\|([^|]+)\|/.exec(String(r?.fingerprint ?? ""));
+    if (m && r.status === 200) ids.add(m[1]);
+  }
+  return ids;
+}
+const remainingOf = (headers) => { const n = Number(headers?.["x-requests-remaining"]); return headers?.["x-requests-remaining"] != null && Number.isFinite(n) ? n : null; };
 
 /**
  * @param {object} p
@@ -67,7 +86,10 @@ export function captureWindow(scheduleRows, nowMs, lookaheadHours) {
  * @param {(eventId: string) => object[]} p.rosterFor
  * @param {string[]} [p.markets] defaults to points first
  * @param {string[]} [p.bookmakers] defaults to the eligible-operator allowlist
- * @param {number} [p.lookaheadHours]
+ * @param {number} [p.minLeadMinutes] a game must tip more than this many minutes after `now`
+ * @param {number} [p.maxLeadMinutes] and at most this many
+ * @param {number} [p.minCreditsRemaining] the provider balance floor (ODDS_API_MIN_CREDITS_REMAINING)
+ * @param {number} [p.maxEventsPerRun] event-odds calls per run at most (ODDS_MAX_EVENTS_PER_RUN)
  * @param {boolean} [p.apply] spend only when true
  * @param {string} [p.apiKey]
  * @param {typeof fetch} [p.fetchImpl]
@@ -75,8 +97,8 @@ export function captureWindow(scheduleRows, nowMs, lookaheadHours) {
  */
 export async function runNbaPropCapture({
   now, receiptText, receiptRel = null, ledger = null, scheduleRows = [], rosterFor = () => [],
-  markets = [...POINTS_FIRST_SCOPE], bookmakers = [...ELIGIBLE_OPERATOR_KEYS], lookaheadHours = 30,
-  apply = false, apiKey = "", fetchImpl = globalThis.fetch, clock = () => new Date().toISOString(),
+  markets = [...POINTS_FIRST_SCOPE], bookmakers = [...ELIGIBLE_OPERATOR_KEYS], minLeadMinutes = 0, maxLeadMinutes = 30 * 60,
+  minCreditsRemaining = 2000, maxEventsPerRun = 2, apply = false, apiKey = "", fetchImpl = globalThis.fetch, clock = () => new Date().toISOString(),
 }) {
   const nowMs = Date.parse(now ?? "");
   const refused = (reasons) => ({ version: NBA_PROP_CAPTURE_VERSION, state: CAPTURE_STATE.REFUSED, reasons, calls: [], ledger });
@@ -89,10 +111,13 @@ export async function runNbaPropCapture({
   const authorization = { ok: true, ceiling: auth.ceiling };
 
   let book = ledger ?? emptyLedger(receiptRel, { sport: "nba", program: "NBA" });
-  const window = captureWindow(scheduleRows, nowMs, lookaheadHours);
+  if (!(Number.isInteger(maxEventsPerRun) && maxEventsPerRun >= 1)) return refused([`maxEventsPerRun must be a positive integer (got ${maxEventsPerRun})`]);
+  if (!(Number.isFinite(minCreditsRemaining) && minCreditsRemaining >= 0)) return refused([`minCreditsRemaining must be a number ≥ 0 (got ${minCreditsRemaining})`]);
+  const already = capturedOddsEventIds(ledger);
+  const window = captureWindow(scheduleRows, nowMs, { minLeadMinutes, maxLeadMinutes });
   const plan = planNbaPropCapture({ eventIds: window.map((r) => r.providerEventId), markets, bookmakers });
   if (!plan.ok) return refused([plan.reason]);
-  const base = { version: NBA_PROP_CAPTURE_VERSION, ceiling: auth.ceiling, markets: [...markets], bookmakers: [...bookmakers], regionUnits: regionUnits({ bookmakers }), plan };
+  const base = { version: NBA_PROP_CAPTURE_VERSION, ceiling: auth.ceiling, minCreditsRemaining, maxEventsPerRun, leadWindowMinutes: [minLeadMinutes, maxLeadMinutes], markets: [...markets], bookmakers: [...bookmakers], regionUnits: regionUnits({ bookmakers }), plan };
   if (!window.length) return { ...base, state: CAPTURE_STATE.NOTHING_TO_PRICE, calls: [], ledger: book, reasons: ["no scheduled NBA game tips inside the window"] };
   if (!apply) return { ...base, state: CAPTURE_STATE.DRY_RUN, calls: [], ledger: book, reasons: ["dry run: nothing was spent"] };
   if (!apiKey) return refused(["no API key in this environment"]);
@@ -122,6 +147,8 @@ export async function runNbaPropCapture({
   book = recordRequest(book, { at: now, purpose: "nba props · events listing (free)", endpoint: `/sports/${PROVIDER_SPORT_KEY}/events`, status: list.status, headers: list.headers, charged: false, resultClass: listClass });
   calls.push({ endpoint: "events", status: list.status, resultClass: listClass });
   if (listClass !== "OK") return finish(CAPTURE_STATE.STOPPED, `events listing: ${listClass}`);
+  let remaining = remainingOf(list.headers);
+  if (remaining == null) return finish(CAPTURE_STATE.STOPPED, "the provider balance (x-requests-remaining) could not be read, so the credit floor cannot be shown safe — no paid call made");
 
   const rows = scheduleJoinRows(window);
   const targets = [];
@@ -129,8 +156,11 @@ export async function runNbaPropCapture({
     const j = joinOddsEventToSchedule({ providerEventId: ev.id, home: ev.home_team, away: ev.away_team, scheduledStartUtc: ev.commence_time }, rows, { normalizeName: teamKey });
     if (j.state !== "JOINED" || j.orientation !== "ALIGNED") { skipped.push({ oddsEventId: ev.id ?? null, reason: j.state === "JOINED" ? "ORIENTATION_SWAPPED" : j.state }); continue; }
     if (!(Date.parse(ev.commence_time) > nowMs)) { skipped.push({ oddsEventId: ev.id, reason: "STARTED" }); continue; }
-    targets.push({ oddsEventId: ev.id, espnEventId: j.canonicalEventId });
+    if (already.has(String(ev.id))) { skipped.push({ oddsEventId: ev.id, espnEventId: j.canonicalEventId, reason: "ALREADY_CAPTURED" }); continue; }
+    targets.push({ oddsEventId: ev.id, espnEventId: j.canonicalEventId, tipMs: Date.parse(ev.commence_time) });
   }
+  targets.sort((a, b) => a.tipMs - b.tipMs || String(a.oddsEventId).localeCompare(String(b.oddsEventId)));
+  for (const t of targets.splice(maxEventsPerRun)) skipped.push({ oddsEventId: t.oddsEventId, espnEventId: t.espnEventId, reason: "MAX_EVENTS_PER_RUN" });
 
   // 4–7 · one event-odds call per joined event, each checked before it is made
   const worst = eventOddsWorstCase({ markets, bookmakers });
@@ -140,6 +170,10 @@ export async function runNbaPropCapture({
     if (!allowed.ok) {
       skipped.push(...targets.slice(i).map((x) => ({ oddsEventId: x.oddsEventId, espnEventId: x.espnEventId, reason: "CEILING_REACHED" })));
       return finish(CAPTURE_STATE.CEILING_REACHED, allowed.errors.join("; "));
+    }
+    if (remaining - worst < minCreditsRemaining) {
+      skipped.push(...targets.slice(i).map((x) => ({ oddsEventId: x.oddsEventId, espnEventId: x.espnEventId, reason: "CREDIT_FLOOR" })));
+      return finish(CAPTURE_STATE.CEILING_REACHED, `provider balance ${remaining} − worst case ${worst} would cross the ${minCreditsRemaining}-credit floor`);
     }
     const fingerprint = `nba|${t.oddsEventId}|${[...markets].sort().join(",")}|${[...bookmakers].sort().join(",")}`;
     if (isDuplicateRequest(book, { fingerprint, nowIso: now, freshnessMinutes: 30 }).duplicate) { skipped.push({ ...t, reason: "DUPLICATE_WITHIN_30_MIN" }); continue; }
@@ -162,6 +196,9 @@ export async function runNbaPropCapture({
     });
     calls.push({ endpoint: "event-odds", oddsEventId: t.oddsEventId, espnEventId: t.espnEventId, status: r.status, resultClass: cls, providerLast: r.headers["x-requests-last"] });
     if (STOP_CLASSES.has(cls)) return finish(CAPTURE_STATE.STOPPED, `${cls} on ${t.oddsEventId}`);
+    const after = remainingOf(r.headers);
+    if (after == null) return finish(CAPTURE_STATE.STOPPED, `the provider balance was not reported after ${t.oddsEventId}; stopping before another paid call`);
+    remaining = after;
     responses.push({ status: r.status, body: r.body, fetchedAt: clock() });
   }
   return finish(CAPTURE_STATE.CAPTURED);

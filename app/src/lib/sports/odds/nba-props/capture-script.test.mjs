@@ -40,9 +40,17 @@ test("--authorized refuses without a receipt, with a non-receipt file, and with 
   const b = run("--now", "2026-10-21T12:00:00Z", "--authorized", "--receipt", "README.md");
   assert.equal(b.status, 2);
   assert.match(b.stderr, /not a committed file under docs\/receipts/);
-  for (const f of fs.readdirSync(path.join(APP, "..", "docs/receipts")).filter((x) => /ODDS_AUTHORIZATION/.test(x))) {
+  for (const f of fs.readdirSync(path.join(APP, "..", "docs/receipts")).filter((x) => /ODDS_AUTHORIZATION/.test(x) && !/NBA/i.test(x))) {
     const c = run("--now", "2026-10-21T12:00:00Z", "--authorized", "--receipt", `docs/receipts/${f}`);
     assert.equal(c.status, 2, f);
     assert.match(c.stderr, /does not authorize NBA player props/);
+  }
+  // An NBA receipt, once committed, is DATED: after its date it refuses; and without --apply it never spends.
+  for (const f of fs.readdirSync(path.join(APP, "..", "docs/receipts")).filter((x) => /ODDS_AUTHORIZATION/.test(x) && /NBA/i.test(x))) {
+    const late = run("--now", "2030-01-01T00:00:00Z", "--authorized", "--receipt", `docs/receipts/${f}`);
+    assert.equal(late.status, 2, `${f}: refused after its date`);
+    const dry = run("--now", "2026-10-21T12:00:00Z", "--authorized", "--receipt", `docs/receipts/${f}`);
+    assert.ok([0, 2].includes(dry.status), `${f}: dry run or refused, never a spend (${dry.stderr})`);
+    if (dry.status === 0) assert.match(dry.stdout, /"state": "(DRY_RUN|NOTHING_TO_PRICE)"/);
   }
 });
