@@ -3,13 +3,16 @@ import { forwardRef } from "react";
 import Link from "next/link";
 import { slipView, HANDOFF_NOT_AVAILABLE } from "@/lib/slip/smart-slip.mjs";
 import type { SmartSlip } from "@/lib/slip/smart-slip-store";
+import SportsbookOddsCompare from "@/components/slip/SportsbookOddsCompare";
 
 /**
  * SMART BETSLIP · COMPARE-ONLY (SB-L0). Render-only over lib/slip/smart-slip.mjs, which owns every rule: snapshot
  * invalidation on edit, freshness bands, "Price not verified", same-game detection and the handoff constant.
  *
  * There is no outbound link and no sportsbook action here — the handoff control is a disabled button that explains
- * itself. The only link is the site's own responsible-use page.
+ * itself. The only link is the site's own responsible-use page. "Compare sportsbook odds" (components/slip) lists, per
+ * eligible sportsbook, which of these exact legs it has a recorded price for, and offers a copyable leg-by-leg slip —
+ * still no link (handoff capability MANUAL_ENTRY for every sportsbook; docs/nba/SPORTSBOOK_HANDOFF_CAPABILITY_MATRIX_2026-10-21.md).
  */
 
 interface LegDisplay {
@@ -31,7 +34,9 @@ const SmartBetslip = forwardRef<HTMLHeadingElement, {
   onClear: () => void;
   /** Dev fixture route only (an injected allowlist). Omitted everywhere else: the operator seam decides. */
   isVerifiedOperator?: (label: unknown) => boolean;
-}>(function SmartBetslip({ slip, nowMs, onRemove, onMove, onClear, isVerifiedOperator }, headingRef) {
+  /** Normalised sportsbook price records for "Compare sportsbook odds". Empty everywhere today: no NBA prop capture is authorized. */
+  priceRecords?: readonly unknown[];
+}>(function SmartBetslip({ slip, nowMs, onRemove, onMove, onClear, isVerifiedOperator, priceRecords = [] }, headingRef) {
   /* Until mount there is no reader clock; freshness is a client fact, so the server renders the empty state. */
   const view = slipView(nowMs == null ? { ...slip, legs: [] } : slip, { nowMs: nowMs ?? 0, ...(isVerifiedOperator ? { isVerifiedOperator } : {}) }) as SlipDisplay;
   const n = view.legs.length;
@@ -81,6 +86,8 @@ const SmartBetslip = forwardRef<HTMLHeadingElement, {
       ) : null}
 
       {view.sameGameNote ? <p className="m-0" style={{ color: "var(--vault-warn)", fontSize: 12 }}>{view.sameGameNote}</p> : null}
+
+      {nowMs != null && n > 0 ? <SportsbookOddsCompare legs={slip.legs} priceRecords={priceRecords} nowMs={nowMs} /> : null}
 
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" disabled aria-disabled="true" aria-describedby="smart-betslip-handoff-note" data-handoff-status={HANDOFF_NOT_AVAILABLE}

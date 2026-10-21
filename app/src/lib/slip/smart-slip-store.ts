@@ -21,6 +21,12 @@ export interface SmartSlipLeg {
   readonly book: string | null;
   readonly price: number | null;
   readonly capturedAt: string | null;
+  /** Comparison identity (lib/slip/odds-comparison.mjs); null when the card leg does not carry it. */
+  readonly playerId: string | null;
+  readonly family: string | null;
+  readonly side: string | null;
+  readonly player: string | null;
+  readonly marketLabel: string | null;
 }
 export interface SmartSlip {
   readonly version: 2;

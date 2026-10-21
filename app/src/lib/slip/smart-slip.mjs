@@ -74,6 +74,13 @@ const toLeg = (l) => ({
   book: l?.book ?? null,
   price: typeof l?.price === "number" && Number.isFinite(l.price) ? l.price : null,
   capturedAt: l?.capturedAt ?? null,
+  // Comparison identity (odds-comparison.mjs): optional, null when the card leg does not carry it. Not part of the
+  // leg key or the snapshot id, so stored v2 slips keep their ids.
+  playerId: l?.playerId == null ? null : String(l.playerId),
+  family: l?.family ?? null,
+  side: l?.side ?? null,
+  player: l?.player ?? l?.participant ?? null,
+  marketLabel: l?.marketLabel ?? null,
 });
 
 export const emptySlip = () => ({ version: SMART_SLIP_VERSION, legs: [], pricingSnapshotId: null, sourceCardId: null, invalidatedBy: null });
