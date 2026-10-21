@@ -36,6 +36,7 @@ import { NBA_PLAYER_FAMILIES, OFFICIAL_SNAPSHOT_SCHEMA, PUBLICATION, sealSnapsho
 import { canEnterPredictionProducts, capabilityState } from "../../sport-capability-registry.ts";
 import { americanToImpliedRaw } from "../../projection-framework.ts";
 import { LEG_BOUNDS } from "../eligible-leg/contract.mjs";
+import { NBA_PROP_SETTLEMENT_VERSION } from "../../sports/nba/prop-settlement.mjs";
 
 export const NBA_LEG_SCHEMA = "gtp.products.nba-leg@0";
 export const NBA_LEG_REFUSAL_SCHEMA = "gtp.products.nba-leg-refusal@0";
@@ -223,6 +224,19 @@ export function nbaLegFromEvaluation({ evaluation, snapshot, verification = null
     frozenAt: s.frozenAt,
     lockAt: s.lockAt,
     eventLockAt: Number.isFinite(lockMs) ? new Date(lockMs - LEG_BOUNDS.activationCutoffMs).toISOString() : null,
+    // the evaluator's projection (expected / median), copied
+    projection: copy(ev.projection ?? null),
+    // availability as the official snapshot carried it. `asOf` is the SNAPSHOT's input cutoff: no per-player roster or
+    // injury observation time exists upstream, so none is invented here.
+    availability: {
+      participation: player?.participation ?? null,
+      injuryStatus: player?.injuryStatus ?? null,
+      expectedMinutes: player?.expectedMinutes ?? null,
+      asOf: s.inputAsOf ?? null,
+      asOfBasis: "snapshot inputAsOf",
+    },
+    // the rule that would grade this leg (lib/parlays/nba-lab-grading.mjs routes to it)
+    settlement: { grader: "nba-prop-settlement", version: NBA_PROP_SETTLEMENT_VERSION },
     // the evaluator's numbers, verbatim
     evaluator: { version: ev.version, rule: ev.rule, identityKey: id.key, evaluatedAt: ev.evaluatedAt ?? null, probabilityMethod: ev.probabilityMethod ?? null },
     pOver: ev.pOver,

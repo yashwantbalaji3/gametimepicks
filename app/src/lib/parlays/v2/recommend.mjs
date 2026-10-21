@@ -233,6 +233,7 @@ function cardView(card, price, ranking, tier) {
       // Smart Betslip comparison identity (Lane E, PR 1165): {sport, eventId, playerId, family|market, side, line}
       playerId: l.playerId ?? null, family: l.family ?? null,
       modelProbability: l.modelProbability ?? null, evidence: l.evidence ?? null, twoWay: l.twoWay ?? null,
+      participantStatus: l.participantStatus ?? null,
       provenance: l.provenance ?? null,
     })),
     combinedAmerican: price.american,

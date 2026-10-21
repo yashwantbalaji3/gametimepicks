@@ -35,6 +35,7 @@ import { PUBLIC_RISK_TIERS, getRiskBucketForCombinedOdds } from "../risk-odds-ba
 import { BAND_MAX_LEGS } from "../multi-sport.mjs";
 import { ELIGIBILITY, PROVENANCE, candidateKey, checkCombination, evaluatePool, toCandidate } from "./candidate.mjs";
 import { combinedPrice } from "./pricing.mjs";
+import { LEG_BOUNDS } from "../../products/eligible-leg/contract.mjs";
 import { evaluateCard, recommendCtx, recommendTiers } from "./recommend.mjs";
 
 export const NBA_SOURCE_VERSION = "parlay-lab-v2-nba-source@0";
@@ -109,11 +110,33 @@ export function nbaCandidateInputs({ results = [], snapshots = [], statusFeed = 
         projection: { pOver: leg.pOver, pUnder: leg.pUnder, pPush: leg.pPush },
         authorizationReceiptRef: leg.verification.authorizationReceiptRef,
         priceReceiptRef: leg.verification.priceReceiptRef,
+        // Lossless carry of the rest of the canonical NBA market record (copied, never recomputed).
+        evaluatedAt: leg.evaluator.evaluatedAt ?? null,
+        forecast: leg.projection ?? null,
+        decisive: leg.decisive ?? null,
+        implied: leg.implied ?? null,
+        edge: leg.edge ?? null,
+        ev: leg.ev ?? null,
+        availability: leg.availability ?? null,
+        settlement: leg.settlement ?? null,
+        correlationKeys: leg.correlationKeys ?? null,
+        operatorName: leg.operatorName ?? null,
+        prices: { overAmerican: leg.price.overAmerican, underAmerican: leg.price.underAmerican },
+        eventLockAt: leg.eventLockAt ?? null,
+        expiresAt: legExpiresAt(leg),
       },
       twoWay: { verified: true, sideAmerican: leg.price.sideAmerican, otherAmerican: over ? leg.price.underAmerican : leg.price.overAmerican },
     };
   });
   return { inputs, refusedLegs, duplicateMarkets: { refused: refused.map((x) => ({ marketKey: x.marketKey, reason: x.reason })), alternates } };
+}
+
+/** When a leg stops being offerable: the earlier of its price's 12 h age bound and its event lock (start − 30 min). */
+export function legExpiresAt(leg) {
+  const cap = ms(leg?.capturedAt);
+  const lock = ms(leg?.eventLockAt);
+  const ends = [cap == null ? null : cap + LEG_BOUNDS.maxPriceAgeMs, lock].filter((x) => x != null);
+  return ends.length ? new Date(Math.min(...ends)).toISOString() : null;
 }
 
 /** A candidate@1 from an input, with the extension fields toCandidate does not carry. Fixture legs stay FIXTURE. */
