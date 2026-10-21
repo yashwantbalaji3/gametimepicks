@@ -18,6 +18,7 @@
  * lineage). An identical re-grade appends nothing. `ledgerAppendOnlyViolations` is the post-write guard.
  */
 import { canonicalJson } from "./forecast-receipt.mjs";
+import { boxscoreAthlete, isFinalBoxscore, LINE_STATE, measureAthlete } from "./boxscore-line.mjs";
 
 export const GRADES_ARTIFACT = "nba-top-board-grades";
 export const SETTLEMENT = Object.freeze({ WIN: "WIN", LOSS: "LOSS", PUSH: "PUSH", VOID: "VOID", PENDING: "PENDING", UNGRADABLE: "UNGRADABLE" });
@@ -32,7 +33,6 @@ export const GRADE_REASON = Object.freeze({
   NULL_ACTUAL: "NULL_ACTUAL",
 });
 
-const isInt = (v) => Number.isInteger(v);
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 const r2 = (x) => (isNum(x) ? Number(x.toFixed(2)) : null);
 
@@ -60,16 +60,17 @@ export function gradeBoardRow(row, { boxscore = null, gameStatus = null } = {}) 
   const pendingAs = (reason) => ({ ...base, settlement: { status: SETTLEMENT.PENDING, reason, detail: null }, projectionStatus: PROJECTION_STATUS.PENDING, accuracy: null });
 
   if (POSTPONED.test(String(gameStatus ?? "")) || POSTPONED.test(String(boxscore?.status ?? ""))) return voidAs(GRADE_REASON.GAME_POSTPONED, gameStatus ?? boxscore?.status);
-  if (!boxscore?.boxscoreAvailable || !/FINAL/.test(String(boxscore.status ?? ""))) return pendingAs(GRADE_REASON.NO_FINAL_BOXSCORE);
+  if (!isFinalBoxscore(boxscore)) return pendingAs(GRADE_REASON.NO_FINAL_BOXSCORE);
 
-  const id = String(row.player?.providerAthleteId);
-  const a = (boxscore.players ?? []).find((p) => String(p.providerAthleteId) === id);
-  if (!a) return voidAs(GRADE_REASON.NOT_IN_BOXSCORE, "late scratch or inactive — not listed in the final box score");
-  if (a.didNotPlay) return voidAs(GRADE_REASON.DNP, a.dnpReason ?? null);
-  const actual = a[row.stat];
-  if (!isInt(a.minutes) || !isInt(actual)) {
-    return { ...base, settlement: { status: SETTLEMENT.UNGRADABLE, reason: GRADE_REASON.NULL_ACTUAL, detail: `minutes ${a.minutes} · ${row.stat} ${actual}` }, projectionStatus: PROJECTION_STATUS.UNGRADABLE, accuracy: null };
+  // The shared line reader (boxscore-line.mjs): the player-prop grader reads the same way.
+  const a = boxscoreAthlete(boxscore, row.player?.providerAthleteId);
+  const line = measureAthlete(a, [row.stat]);
+  if (line.state === LINE_STATE.NOT_IN_BOXSCORE) return voidAs(GRADE_REASON.NOT_IN_BOXSCORE, "late scratch or inactive — not listed in the final box score");
+  if (line.state === LINE_STATE.DNP) return voidAs(GRADE_REASON.DNP, line.dnpReason);
+  if (line.state !== LINE_STATE.MEASURED) {
+    return { ...base, settlement: { status: SETTLEMENT.UNGRADABLE, reason: GRADE_REASON.NULL_ACTUAL, detail: `minutes ${a.minutes} · ${row.stat} ${a[row.stat]}` }, projectionStatus: PROJECTION_STATUS.UNGRADABLE, accuracy: null };
   }
+  const actual = line.values[row.stat];
   const { p50, mean } = row.projection ?? {};
   const { p10, p90 } = row.range ?? {};
   const accuracy = {

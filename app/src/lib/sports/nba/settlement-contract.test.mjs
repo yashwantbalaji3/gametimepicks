@@ -91,3 +91,17 @@ test("NO LEDGER WRITER: the contract module performs no filesystem writes", () =
   const src = fs.readFileSync(path.join(process.cwd(), "src", "lib", "sports", "nba", "settlement-contract.mjs"), "utf8");
   assert.ok(!/writeFileSync|appendFileSync|mkdirSync/.test(src), "one settlement writer exists in this repo and this is not it");
 });
+
+test("NO LEDGER WRITER: the NBA player-prop grader and its adapter perform no filesystem writes either", () => {
+  // The player-prop grader lives beside this contract (prop-settlement.mjs), so the one-writer guard covers it too.
+  for (const f of ["prop-settlement.mjs", "prop-settlement-source.mjs", "boxscore-line.mjs"]) {
+    const src = fs.readFileSync(path.join(process.cwd(), "src", "lib", "sports", "nba", f), "utf8");
+    assert.ok(!/writeFileSync|appendFileSync|mkdirSync|createWriteStream|renameSync/.test(src), `${f}: one settlement writer exists in this repo and this is not it`);
+  }
+});
+
+test("the team contract stays closed: player-prop families are not team markets", () => {
+  for (const market of ["pts", "pra", "player_points"]) {
+    assert.equal(gradeNbaLeg({ market, side: "over", line: 20.5 }, FINAL(110, 100)).outcome, "VOID_PENDING_REVIEW", market);
+  }
+});
