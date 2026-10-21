@@ -10,7 +10,10 @@ import { spawnSync } from "node:child_process";
 
 const APP = process.cwd();
 const SCRIPT = path.join(APP, "scripts/nba/capture-nba-props-odds.mjs");
-const run = (...args) => spawnSync(process.execPath, [SCRIPT, ...args], { cwd: APP, encoding: "utf8", env: { PATH: process.env.PATH } });
+// Launched through tsx exactly as the workflow runs it (`npx tsx scripts/nba/capture-nba-props-odds.mjs`): the script
+// imports TypeScript (identity-contract.ts), which plain `node` on the CI's Node 20 cannot load. The environment is
+// still stripped to PATH + HOME, so no ODDS_API_KEY can ever reach the child.
+const run = (...args) => spawnSync("npx", ["tsx", SCRIPT, ...args], { cwd: APP, encoding: "utf8", env: { PATH: process.env.PATH, HOME: process.env.HOME } });
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
 test("the script makes no HTTP call itself and names no provider host; the key is read only after the receipt, with --apply", () => {
