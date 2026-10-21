@@ -75,13 +75,40 @@ test("receipt parser fails closed: today's repository holds no NBA props receipt
   for (const f of receipts) assert.equal(parseNbaPropsReceipt(fs.readFileSync(path.join(APP, "..", "docs/receipts", f), "utf8")).ok, false, f);
   assert.equal(parseNbaPropsReceipt("NBA player props only `basketball_nba` `player_points`").ok, false);
   const full = [
-    "Scope: NBA player props only, `basketball_nba`, markets `player_points`.",
+    "Scope: NBA player props only, `basketball_nba`.",
+    "Prop markets authorized: `player_points`",
     "Effective cumulative ceiling: 40 credits",
     "| Expiry | the 40-credit ceiling |",
     "Do not retry blindly.",
     "Approved by: founder 2026-10-21",
   ].join("\n");
-  assert.deepEqual(parseNbaPropsReceipt(full), { ok: true, ceiling: 40, markets: ["player_points"] });
+  const ok = parseNbaPropsReceipt(full);
+  assert.equal(ok.ok, true, ok.errors?.join("; "));
+  assert.equal(ok.ceiling, 40);
+  assert.deepEqual(ok.markets, ["player_points"]);
+  assert.equal(ok.ledgerRelPath, "data/internal/research/odds/nba/authorization-ledger.json");
   assert.equal(parseNbaPropsReceipt(full.replace("the 40-credit ceiling", "Program 300 close")).ok, false);
   assert.equal(parseNbaPropsReceipt(`${full}\nalso \`americanfootball_nfl\``).ok, false);
+  assert.equal(parseNbaPropsReceipt(full.replace("the 40-credit ceiling", "never")).ok, false, "an expiry that cannot be shown current refuses");
+});
+
+test("receipt parser: prose never widens the markets, and a dated expiry is enforced with a clock (TEST FIXTURE text)", () => {
+  const base = [
+    "Scope: NBA player props only, `basketball_nba`.",
+    "Prop markets authorized: `player_points`",
+    "Effective cumulative ceiling: 800 credits",
+    "| Expiry | the ceiling, or 2026-11-20 23:59 ET, whichever comes first |",
+    "Do not retry blindly.",
+    "Approved by: founder 2026-10-21",
+    "Note: `player_rebounds` and `player_assists` were considered and left out of scope.",
+  ].join("\n");
+  assert.equal(parseNbaPropsReceipt(base).ok, false, "a dated receipt without a clock refuses");
+  const cur = parseNbaPropsReceipt(base, { now: "2026-10-22T00:00:00Z" });
+  assert.equal(cur.ok, true, cur.errors?.join("; "));
+  assert.deepEqual(cur.markets, ["player_points"], "the prose mention of rebounds/assists authorizes nothing");
+  assert.equal(cur.expiry.kind, "DATED");
+  const late = parseNbaPropsReceipt(base, { now: "2026-11-21T05:00:01Z" });
+  assert.equal(late.ok, false);
+  assert.match(late.errors.join("; "), /expired at the end of 2026-11-20 ET/);
+  assert.equal(parseNbaPropsReceipt(base.replace("Prop markets authorized: `player_points`", "Prop markets authorized: none"), { now: "2026-10-22T00:00:00Z" }).ok, false, "no market on the row: nothing is authorized");
 });

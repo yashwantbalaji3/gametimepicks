@@ -38,7 +38,7 @@ export const AUTHORIZED_SPORTS = {
   epl: { sportKey: "soccer_epl", scopeRe: /Premier League only|EPL[- ]only/i },
   /* No NBA receipt exists. This entry only lets a future one be READ (and lets every other sport's receipt refuse
      one that names `basketball_nba`). Without a committed receipt, nothing here authorizes a call. */
-  nba: { sportKey: "basketball_nba", scopeRe: /NBA[- ]only/i },
+  nba: { sportKey: "basketball_nba", scopeRe: /NBA(?: player props)?[- ]only/i },
 };
 
 /**

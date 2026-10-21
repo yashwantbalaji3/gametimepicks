@@ -24,6 +24,7 @@
  * events × markets × region-units.
  */
 import { PROVIDER, PROVIDER_SPORT_KEY, POINTS_FIRST_SCOPE, FAMILY_BY_MARKET_KEY } from "./contract.mjs";
+import { authorizedPropMarkets, parseSportAuthorizationReceipt } from "../p171-authorization.mjs";
 
 export const CREDIT_LEDGER_SCHEMA = "gtp.odds.credit-ledger@1";
 export const COSTING_SOURCE = "https://the-odds-api.com/liveapi/guides/v4/#usage-quota-costs";
@@ -107,24 +108,33 @@ export function recordCall(ledger, { at, endpoint, eventId = null, markets = [],
 
 /**
  * Parse an NBA player-prop authorization receipt. FAIL-CLOSED: every term must be present, or nothing is authorized.
- * Required: "NBA player props only" scope, the `basketball_nba` key, the prop market keys named in backticks, an
- * "Effective cumulative ceiling: N credits" line, a ceiling-only expiry, "do not retry blindly", and an
- * "Approved by: <founder>" line with an ISO date. No such receipt exists in the repository today.
+ *
+ * The terms every sport's receipt shares — one sport key, a cumulative ceiling, "do not retry blindly", and an expiry
+ * that can be shown current (CEILING_ONLY, or DATED and checked against `now`) — are read by the ONE shared parser,
+ * `parseSportAuthorizationReceipt(text, "nba", { now })` (p171-authorization.mjs). This adds the NBA-specific terms:
+ * the words "NBA player props only", an "Effective cumulative ceiling: N credits" line, an "Approved by: <name>
+ * <YYYY-MM-DD>" line, no MLB key, and prop markets read ONLY from the receipt's own authorization row
+ * (`authorizedPropMarkets`: a "Markets added" / "Prop markets authorized" line). A market key mentioned anywhere else
+ * in the prose never widens the allowance. No such receipt exists in the repository today.
+ *
+ * @param {string} markdown
+ * @param {{ now?: string|null }} [opts] required for a DATED expiry (e.g. "the ceiling or 2026-11-20 23:59 ET")
  */
-export function parseNbaPropsReceipt(markdown) {
+export function parseNbaPropsReceipt(markdown, { now = null } = {}) {
   const text = String(markdown ?? "").replace(/^>\s?/gm, "");
   const errors = [];
   if (!/NBA player props only/i.test(text) || !text.includes("`basketball_nba`")) errors.push("scope: must say 'NBA player props only' and name `basketball_nba`");
-  for (const other of ["americanfootball_nfl", "soccer_epl", "mma_mixed_martial_arts", "baseball_mlb"]) if (text.includes(`\`${other}\``)) errors.push(`scope: names \`${other}\` — one receipt authorizes one sport`);
-  const markets = [...text.matchAll(/`(player_[a-z_]+)`/g)].map((m) => m[1]).filter((k) => FAMILY_BY_MARKET_KEY[k]);
-  if (!markets.length) errors.push("markets: no NBA prop market key named");
+  if (text.includes("`baseball_mlb`")) errors.push("scope: names `baseball_mlb` — one receipt authorizes one sport");
+  const shared = parseSportAuthorizationReceipt(text, "nba", { now });
+  if (!shared.ok) errors.push(...shared.errors);
+  const rowMarkets = authorizedPropMarkets(text);
+  const unknown = rowMarkets.filter((k) => !FAMILY_BY_MARKET_KEY[k]);
+  if (unknown.length) errors.push(`markets: not NBA prop market keys: ${unknown.join(", ")}`);
+  const markets = [...new Set(rowMarkets.filter((k) => FAMILY_BY_MARKET_KEY[k]))];
+  if (!markets.length) errors.push("markets: no NBA prop market key on a 'Markets added' / 'Prop markets authorized' line");
   const c = text.match(/Effective cumulative ceiling[^0-9]*?([\d,]+)\s*credits/i);
   const ceiling = c ? Number(c[1].replace(/,/g, "")) : null;
   if (!(ceiling > 0)) errors.push("ceiling: no 'Effective cumulative ceiling: N credits' line");
-  const expiry = text.match(/^\|\s*Expiry\s*\|(.+?)\|\s*$/mi);
-  if (!expiry) errors.push("expiry: no Expiry row");
-  else if (/\bProgram\s+\d+\s+close\b/i.test(expiry[1])) errors.push("expiry: program-scoped expiry cannot be verified from the receipt");
-  if (!/do not retry\s+blindly/i.test(text.replace(/\n/g, " "))) errors.push("discipline: no 'do not retry blindly' term");
   if (!/Approved by:\s*\S+.*\b\d{4}-\d{2}-\d{2}\b/i.test(text)) errors.push("approval: no 'Approved by: <name> <YYYY-MM-DD>' line");
-  return errors.length ? { ok: false, errors } : { ok: true, ceiling, markets: [...new Set(markets)] };
+  return errors.length ? { ok: false, errors: [...new Set(errors)] } : { ok: true, ceiling, markets, expiry: shared.expiry, ledgerRelPath: shared.ledgerRelPath };
 }
