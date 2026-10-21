@@ -26,6 +26,8 @@
  * is checked with checkPossessionDraw (P1–P11); one violation refuses the whole artifact. The stored runs are picked by
  * lib/simulation-theater/nba/possession/selection.mjs against the OFFICIAL snapshot (Elo side + v0.1 players,
  * lib/consistency/official-snapshot.mjs) — the official numbers choose the default run; nothing flows the other way.
+ * Distance: official-representative@3, basis DISPLAYED_MEDIANS (selection.mjs displayedMedianTargets — the panel's
+ * pts / reb / ast / threePm medians for the lane's players), not @2's all-family means (founder item D4, pending).
  *
  * FORWARD SLATES (release owner 2026-10-21): the official v0.1 receipts drive the loop. Every game with an intact official
  * receipt is built at its freeze; the v1 file is optional (no v1 game at the freeze → OFFICIAL_FREEZE_RECONSTRUCTED).
@@ -54,8 +56,7 @@ import { BOX_KEYS, boxToJson } from "../../../src/lib/sports/nba/research/posses
 import { POSSESSION_SIM_VERSION, FITTED, FIT_REPORT, POSSESSION_PARAMS } from "../../../src/lib/sports/nba/research/possession-sim/params.mjs";
 import { canonicalJson, receiptIntegrity, sha256 } from "../../../src/lib/sports/nba/forecast-receipt.mjs";
 import { nbaOfficialSnapshot } from "../../../src/lib/consistency/official-snapshot.mjs";
-import { officialTargets } from "../../../src/lib/consistency/representative.mjs";
-import { DEFAULT_POOL_SIZE, POSSESSION_SELECTION_RULES, poolFeatures, selectPossessionRuns } from "../../../src/lib/simulation-theater/nba/possession/selection.mjs";
+import { DEFAULT_POOL_SIZE, POSSESSION_DISTANCE, POSSESSION_SELECTION_RULES, POSSESSION_SELECTION_VERSION, displayedMedianTargets, poolFeatures, selectPossessionRuns } from "../../../src/lib/simulation-theater/nba/possession/selection.mjs";
 import { officialPanel } from "../../../src/lib/simulation-theater/nba/possession/payload.mjs";
 import { POSSESSION_ARTIFACT, POSSESSION_ARTIFACT_SCHEMA, POSSESSION_CHECKER, ledgerColumns, possessionArtifactPath } from "../../../src/lib/simulation-theater/nba/possession/artifact-contract.mjs";
 
@@ -124,7 +125,9 @@ const blobCache = new Map();
 const blob = (p, want) => { const k = `${p}@${want}`; if (!blobCache.has(k)) blobCache.set(k, blobBySha(p, want)); return blobCache.get(k); };
 
 const out = path.join(ROOT, possessionArtifactPath(DATE));
-const prev = INCREMENTAL && fs.existsSync(out) ? readJson(out) : null;
+// a committed artifact selected under another selection version is never reused (the picks would be stale)
+const prevDoc = INCREMENTAL && fs.existsSync(out) ? readJson(out) : null;
+const prev = prevDoc?.selectionRules?.version === POSSESSION_SELECTION_VERSION ? prevDoc : null;
 const paramsSha = sha256(canonicalJson(POSSESSION_PARAMS));
 const games = [];
 const t0 = Date.now();
@@ -185,9 +188,10 @@ for (const og of offDoc.games ?? []) {
   const engineInputs = { providerEventId: id, inputAsOf: asOf, neutralSite: og.neutralSite === true, home, away, leagueV1: league, leagueExt };
   const prep = preparePossessionGame({ ...engineInputs, params: POSSESSION_PARAMS });
 
-  // official snapshot (the same call the Theater loader makes) → the targets that choose the default run
+  // official snapshot (the same call the Theater loader makes) → the targets that choose the default run:
+  // official-representative@3, basis DISPLAYED_MEDIANS (the panel's 4 lane stats at the median, the lane's players only)
   const snapshot = snapNow;
-  const targets = officialTargets(snapshot);
+  const targets = displayedMedianTargets(snapshot);
   const officialSide = snapshot.game?.winner?.side ?? null;
 
   const features = [];
@@ -235,7 +239,7 @@ for (const og of offDoc.games ?? []) {
     },
     // the official panel, copied verbatim from the snapshot (payload.mjs officialPanel) — what the public candidate
     // renders; possession-loader.mjs refuses the artifact if it ever differs from a fresh rebuild (OFFICIAL_PANEL_DRIFT)
-    official: { snapshotId: snapshot.snapshotId, winnerSide: officialSide, modelVersion: snapshot.modelVersions?.game ?? null, targetPlayers: Object.keys(targets.players).length, panel: officialPanel(snapshot) },
+    official: { snapshotId: snapshot.snapshotId, winnerSide: officialSide, modelVersion: snapshot.modelVersions?.game ?? null, distanceBasis: `${targets.rule} ${targets.basis}`, targetPlayers: Object.keys(targets.players).length, targetTerms: Object.values(targets.players).reduce((n, f) => n + Object.keys(f).length, 0), panel: officialPanel(snapshot) },
     seed: prep.seed, seedPolicy: prep.seedPolicy, poolSize: POOL,
     pool: {
       checkedDraws: checked, violations: 0,
@@ -262,6 +266,7 @@ const doc = {
   modelVersion: POSSESSION_SIM_VERSION,
   engine: { fitReport: { path: FIT_REPORT, sha256: fileSha(fitBytes) }, paramsSha256: paramsSha, checker: POSSESSION_CHECKER, ledgerColumns: ledgerKeys },
   selectionRules: POSSESSION_SELECTION_RULES,
+  distanceRule: POSSESSION_DISTANCE,
   sources: { v1: v1Bytes ? { path: rel(v1Path), sha256: fileSha(v1Bytes) } : null, official: { path: rel(offPath), sha256: fileSha(offBytes) } },
   games,
 };

@@ -5,12 +5,24 @@
  * its seeded runs beside the official projection. Which runs, from a FIXED SEED POOL (runIndex 0 … poolSize − 1 of the
  * engine's own seed policy, seed = hash(providerEventId)), is decided here by documented rules — never by hand:
  *
- *   DEFAULT (the run the Theater opens on). The official-representative rule of lib/consistency/representative.mjs
- *     (`official-representative@2`) applied to the possession pool: distance = the normalised distance of the run's
- *     player lines to the OFFICIAL v0.1 player expectations (team terms are WITHHELD for NBA, so there are none), and
- *     the SIDE CONSTRAINT — only runs won by the official Elo favoured side are eligible. Smallest distance wins; ties →
- *     lowest runIndex. It is labelled "Simulated game · one supporting-simulation run" (gate policy
- *     LABELLED_SUPPORTING_RUNS), never "official".
+ *   DISTANCE (`official-representative@3`, basis DISPLAYED_MEDIANS; founder decision item D4 / G12 — NOT TO MERGE
+ *     until the founder answers). The @2 metric of lib/consistency/representative.mjs (`runDistance`: root of the
+ *     weighted mean of z², team terms first, the players sharing a total weight of 1), aimed at WHAT THE OFFICIAL PANEL
+ *     DISPLAYS instead of at every snapshot family:
+ *       players  only the lane's players — the snapshot players whose family is publicDisplay MEDIAN_1DP (not ruled
+ *                out, at least the lane's expected minutes), i.e. exactly the players officialPanel() prints;
+ *       terms    one per (player, displayed stat) for the 4 lane stats pts, reb, ast, threePm (DISPLAYED_FAMILIES, a
+ *                test pins them to the panel's PANEL_FAMILIES and the lane's NBA_LANE_FAMILIES) — never pra / ptsReb /
+ *                ptsAst / minutes, which the panel does not print as medians;
+ *       centre   the official v0.1 MEDIAN of that stat (the number the panel prints), not the mean;
+ *       scale    that family's stored sd, or (p90 − p10)/2.5631 of its stored quantiles when no sd is stored (the same
+ *                scale @2 uses); a term with no positive scale is dropped;
+ *       team     none (team scores are WITHHELD for NBA), so the SIDE CONSTRAINT of @2 applies unchanged.
+ *     @2 itself is untouched: the v1 quarter-checkpoint Theater, the NFL path and the consistency audit keep
+ *     officialTargets() (all 8 v0.1 families at the mean); only this possession selection reads @3.
+ *   DEFAULT (the run the Theater opens on). Smallest distance among runs won by the official Elo favoured side (the
+ *     SIDE CONSTRAINT); ties → lowest runIndex. It is labelled "Simulated game · one supporting-simulation run" (gate
+ *     policy LABELLED_SUPPORTING_RUNS), never "official".
  *   UPSET what-if. The same distance, but only runs won by the side the official forecast does NOT favour; smallest
  *     distance wins (the most ordinary-looking upset), ties → lowest runIndex.
  *   HIGH-SCORING what-if. The run whose total points is closest to the pool's 90th-percentile total (nearest-rank,
@@ -23,9 +35,9 @@
  * with no remaining candidate yields nothing (recorded), never a substitute. Every what-if is labelled hypothetical and
  * never changes the official projection panel (which is built from the official snapshot only, never from a run).
  */
-import { runDistance } from "../../../consistency/representative.mjs";
+import { REPRESENTATIVE_RULE, runDistance } from "../../../consistency/representative.mjs";
 
-export const POSSESSION_SELECTION_VERSION = "nba-theater-possession-selection@1";
+export const POSSESSION_SELECTION_VERSION = "nba-theater-possession-selection@2";
 export const DEFAULT_POOL_SIZE = 1000;
 
 export const POSSESSION_RUN_KIND = Object.freeze({ DEFAULT: "default", UPSET: "upset", HIGH: "high", LOW: "low", OVERTIME: "overtime" });
@@ -33,7 +45,7 @@ export const POSSESSION_RUN_KIND = Object.freeze({ DEFAULT: "default", UPSET: "u
 export const POSSESSION_SELECTION_RULES = Object.freeze({
   version: POSSESSION_SELECTION_VERSION,
   pool: "runIndex 0 … poolSize − 1 of the engine's fixed seed policy (seed = hash(providerEventId); draw i uses mulberry32(fnv1a32(seed + ':' + i)))",
-  distance: "official-representative@2 distance to the official v0.1 player expectations (team terms withheld for NBA)",
+  distance: "official-representative@3 (basis DISPLAYED_MEDIANS): distance to the official v0.1 MEDIANS the panel displays — pts, reb, ast, threePm for the lane's players only (publicDisplay MEDIAN_1DP: not ruled out, at least the lane's expected minutes); each stat scaled by its stored sd, or (p90 − p10)/2.5631 when no sd is stored; team terms withheld for NBA",
   [POSSESSION_RUN_KIND.DEFAULT]: "smallest distance among runs won by the official Elo favoured side; ties → lowest runIndex",
   [POSSESSION_RUN_KIND.UPSET]: "smallest distance among runs won by the side the official forecast does not favour; ties → lowest runIndex",
   [POSSESSION_RUN_KIND.HIGH]: "total closest to the pool's p90 total (nearest rank); ties → smaller distance → lowest runIndex",
@@ -52,6 +64,47 @@ export const POSSESSION_KIND_TITLE = Object.freeze({
 });
 
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+const Z80 = 2.5631031310892; // p90 − p10 of a standard normal (the @2 fallback scale)
+
+/** The lane stats the official panel prints as medians (payload.mjs PANEL_FAMILIES; a test pins the two equal). */
+export const DISPLAYED_FAMILIES = Object.freeze(["pts", "reb", "ast", "threePm"]);
+const DISPLAYED = "MEDIAN_1DP";
+
+export const POSSESSION_DISTANCE = Object.freeze({
+  id: "official-representative@3",
+  basis: "DISPLAYED_MEDIANS",
+  metric: `${REPRESENTATIVE_RULE.id} runDistance`,
+  families: DISPLAYED_FAMILIES,
+  players: "publicDisplay MEDIAN_1DP (the lane's players)",
+  centre: "median",
+  scale: "sd, else (p90 − p10)/2.5631",
+  teamTerms: Object.freeze([]),
+});
+
+/**
+ * `official-representative@3` (basis DISPLAYED_MEDIANS) targets: the official panel's medians, in the shape
+ * representative.mjs runDistance reads ({ team, players: { [id]: { [family]: { expected, scale } } }, sideConstraint }),
+ * `expected` holding the MEDIAN (the centre the distance measures from). Pure.
+ */
+export function displayedMedianTargets(snapshot) {
+  const players = {};
+  for (const p of snapshot?.players ?? []) {
+    for (const fam of DISPLAYED_FAMILIES) {
+      const e = p.families?.[fam];
+      if (e?.publicDisplay !== DISPLAYED || !isNum(e.median)) continue;
+      const pts = e.distribution?.points ?? [];
+      const q = (qq) => pts.find((x) => x.q === qq)?.v;
+      const scale = isNum(e.sd) ? e.sd : isNum(q(0.9)) && isNum(q(0.1)) ? (q(0.9) - q(0.1)) / Z80 : null;
+      if (!isNum(scale) || scale <= 0) continue;
+      (players[String(p.playerId)] ??= {})[fam] = { expected: e.median, scale, unconditional: false, centre: "median", scaleBasis: isNum(e.sd) ? "sd" : "p90-p10" };
+    }
+  }
+  const side = snapshot?.game?.winner?.side;
+  return {
+    rule: POSSESSION_DISTANCE.id, basis: POSSESSION_DISTANCE.basis, snapshotId: snapshot?.snapshotId ?? null,
+    team: {}, players, sideConstraint: side === "HOME" || side === "AWAY" ? side : null,
+  };
+}
 
 /** Nearest-rank quantile (simulate.mjs `quantiles` rule): s[ceil(q·n) − 1]. */
 export function nearestRank(values, q) {
@@ -62,9 +115,14 @@ export function nearestRank(values, q) {
 
 /**
  * One pool run → the features every rule reads. `lines` = [{ providerAthleteId, ds, pts, reb, ast, threePm }].
- * Families match the official snapshot's v0.1 family names (pts, reb, ast, threePm, pra, ptsReb, ptsAst, minutes).
+ * Families match the official snapshot's v0.1 family names (pts, reb, ast, threePm, pra, ptsReb, ptsAst, minutes); the
+ * @3 targets read only the displayed four. `targets` must be displayedMedianTargets(snapshot) — @2 targets (every
+ * family at the mean) are refused, so the possession selection cannot silently fall back to the other basis.
  */
 export function poolFeatures({ runIndex, final, overtimePeriods, lines }, targets) {
+  if (targets?.rule !== POSSESSION_DISTANCE.id || targets?.basis !== POSSESSION_DISTANCE.basis) {
+    throw new Error(`poolFeatures: targets must be displayedMedianTargets(snapshot) (${POSSESSION_DISTANCE.id} ${POSSESSION_DISTANCE.basis}), got ${targets?.rule ?? "officialTargets (@2)"}`);
+  }
   const players = (lines ?? []).map((l) => {
     const minutes = l.ds / 600;
     return { playerId: String(l.providerAthleteId), stats: { minutes, pts: l.pts, reb: l.reb, ast: l.ast, threePm: l.threePm, pra: l.pts + l.reb + l.ast, ptsReb: l.pts + l.reb, ptsAst: l.pts + l.ast } };

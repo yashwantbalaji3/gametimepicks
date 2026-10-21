@@ -10,17 +10,17 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { POSSESSION_ARTIFACT_SCHEMA, POSSESSION_CHECKER, possessionArtifactPath } from "./artifact-contract.mjs";
-import { DEFAULT_POOL_SIZE, POSSESSION_RUN_KIND, POSSESSION_SELECTION_RULES, nearestRank, poolFeatures, selectPossessionRuns } from "./selection.mjs";
+import { DEFAULT_POOL_SIZE, DISPLAYED_FAMILIES, POSSESSION_DISTANCE, POSSESSION_RUN_KIND, POSSESSION_SELECTION_RULES, POSSESSION_SELECTION_VERSION, displayedMedianTargets, nearestRank, poolFeatures, selectPossessionRuns } from "./selection.mjs";
 import { POSSESSION_SPEEDS, compilePossessionTimeline, frameAt, lastEventAt, nextPlayT, onCourtAt, possessionTransport, prevPlayT } from "./playback.mjs";
 import { boxRows, compareWithOfficial, foldRun, reconcileBox } from "./box.mjs";
 import { playLine } from "./play-text.mjs";
 import { PANEL_FAMILIES, buildPlaybackPayload, officialPanel } from "./payload.mjs";
-import { NBA_LANE_FAMILIES } from "../../../consistency/official-snapshot.mjs";
+import { NBA_LANE_FAMILIES, NBA_PLAYER_FAMILIES } from "../../../consistency/official-snapshot.mjs";
 import { drawFromStoredRun, loadNbaPossessionTheater, possessionRouteEvents, readPossessionArtifact, storedRunProblems } from "./possession-loader.mjs";
 import { POSSESSION_ENGINE_ID } from "./labels.mjs";
 import { checkPossessionDraw } from "../../../sports/nba/research/possession-sim/invariants.mjs";
 import { nbaOfficial } from "../../official-representative.mjs";
-import { officialTargets } from "../../../consistency/representative.mjs";
+import { REPRESENTATIVE_RULE, officialTargets } from "../../../consistency/representative.mjs";
 import { createTransport, transport } from "../../transport-machine.mjs";
 import { NBA_PRIVATE_MARKERS } from "../export-boundary.mjs";
 
@@ -145,11 +145,15 @@ test("deterministic default selection: re-deriving the picks from the stored poo
     // the default is the closest same-side run of the WHOLE pool
     const sameSide = features.filter((f) => (f.home > f.away ? "HOME" : "AWAY") === side);
     assert.equal(Math.min(...sameSide.map((f) => f.distance)), def.distance);
-    // the stored distance is recomputed from the run's OWN event log against the official targets
-    const fold = foldRun(def.events, rostersOf(g));
-    const lines = rostersOf(g).flatMap((ids, t) => ids.map((id) => ({ providerAthleteId: id, ...fold.players[t].get(id) })));
-    const f = poolFeatures({ runIndex: def.runIndex, final: def.final, overtimePeriods: def.overtimePeriods, lines }, officialTargets(snap));
-    assert.equal(f.distance, def.distance);
+    // every stored run's distance is recomputed from the run's OWN event log against the @3 DISPLAYED_MEDIANS targets
+    assert.equal(g.official.distanceBasis, `${POSSESSION_DISTANCE.id} ${POSSESSION_DISTANCE.basis}`);
+    for (const r of g.runs) {
+      const fold = foldRun(r.events, rostersOf(g));
+      const lines = rostersOf(g).flatMap((ids, t) => ids.map((id) => ({ providerAthleteId: id, ...fold.players[t].get(id) })));
+      const f = poolFeatures({ runIndex: r.runIndex, final: r.final, overtimePeriods: r.overtimePeriods, lines }, displayedMedianTargets(snap));
+      assert.equal(f.distance, r.distance, `${g.providerEventId} ${r.kind} run ${r.runIndex}`);
+      assert.equal(g.pool.features.find((x) => x[0] === r.runIndex)[4], r.distance, "the pool row carries the same distance");
+    }
     // high / low around the pool quantiles; overtime run really has OT
     assert.equal(sel.poolTotals.p90, nearestRank(features.map((x) => x.total), 0.9));
     const hi = g.runs.find((r) => r.kind === "high"), lo = g.runs.find((r) => r.kind === "low");
@@ -158,6 +162,94 @@ test("deterministic default selection: re-deriving the picks from the stored poo
     if (ot) assert.ok(ot.overtimePeriods >= 1);
     assert.equal(new Set(g.runs.map((r) => r.runIndex)).size, g.runs.length, "no run carries two roles");
   }
+});
+
+test("distance @3 DISPLAYED_MEDIANS (founder item D4, pending): the targets are exactly what the official panel prints — the lane's players, the 4 lane stats, at the MEDIAN", () => {
+  assert.deepEqual([...DISPLAYED_FAMILIES], [...PANEL_FAMILIES], "the distance reads the panel's stats");
+  assert.deepEqual([...DISPLAYED_FAMILIES], [...NBA_LANE_FAMILIES], "… which are the lane's stats");
+  assert.equal(POSSESSION_DISTANCE.id, "official-representative@3");
+  assert.equal(POSSESSION_DISTANCE.basis, "DISPLAYED_MEDIANS");
+  assert.equal(POSSESSION_SELECTION_VERSION, "nba-theater-possession-selection@2");
+  assert.deepEqual(DOC.selectionRules, { ...POSSESSION_SELECTION_RULES }, "the artifact was selected under the current rules");
+  assert.deepEqual(DOC.distanceRule, JSON.parse(JSON.stringify(POSSESSION_DISTANCE)));
+  assert.match(POSSESSION_SELECTION_RULES.distance, /^official-representative@3 \(basis DISPLAYED_MEDIANS\)/);
+  assert.match(POSSESSION_SELECTION_RULES.distance, /pts, reb, ast, threePm for the lane's players only/);
+  assert.match(POSSESSION_SELECTION_RULES.distance, /stored sd, or \(p90 − p10\)\/2\.5631 when no sd is stored/);
+  for (const id of IDS) {
+    const snap = snapshotOf(id);
+    const t = displayedMedianTargets(snap);
+    const panel = officialPanel(snap);
+    assert.equal(t.sideConstraint, snap.game.winner.side);
+    assert.deepEqual(t.team, {}, "team scores are withheld: no team terms");
+    assert.deepEqual(Object.keys(t.players).sort(), panel.players.map((p) => p.playerId).sort(), `${id}: exactly the panel's players`);
+    assert.ok(Object.keys(t.players).length < snap.players.length, "fewer than the snapshot's players (the lane subset)");
+    let terms = 0;
+    for (const pp of panel.players) {
+      const sp = snap.players.find((x) => String(x.playerId) === pp.playerId);
+      for (const fam of PANEL_FAMILIES) {
+        const term = t.players[pp.playerId][fam];
+        const e = sp.families[fam];
+        if (!(e.sd > 0)) { assert.equal(term, undefined, `${pp.playerId}:${fam} has no positive scale: dropped`); continue; }
+        terms += 1;
+        assert.equal(term.expected, pp.medians[fam], "centre = the median the panel prints");
+        assert.equal(term.expected, e.median);
+        assert.equal(term.scale, e.sd, "scale = the stored sd");
+      }
+      for (const fam of ["pra", "ptsReb", "ptsAst", "minutes"]) assert.equal(t.players[pp.playerId][fam], undefined, `${fam} is not displayed as a median`);
+    }
+    assert.ok(terms >= 4 * panel.players.length - 3, `${id}: ${terms} terms`);
+  }
+});
+
+test("distance @3: median centre, (p90 − p10)/2.5631 fallback scale, non-displayed players excluded; poolFeatures refuses @2 targets", () => {
+  const fam = (o) => ({ publicDisplay: "MEDIAN_1DP", conditioning: "AS_SIMULATED", ...o });
+  const snap = {
+    snapshotId: "s", game: { winner: { side: "AWAY" } },
+    players: [
+      { playerId: "1", families: { pts: fam({ expected: 20, median: 19, sd: 5 }), pra: fam({ expected: 30, median: 29, sd: 6, publicDisplay: null }), minutes: fam({ expected: 30, median: 31, sd: 4, publicDisplay: null }) } },
+      { playerId: "2", families: { reb: fam({ expected: 6, median: 5, sd: null, distribution: { points: [{ q: 0.1, v: 2 }, { q: 0.5, v: 5 }, { q: 0.9, v: 9 }] } }) } },
+      { playerId: "3", families: { pts: fam({ expected: 3, median: 2, sd: 2, publicDisplay: null }) } }, // under the lane's minutes: not displayed
+      { playerId: "4", families: { threePm: fam({ expected: 0, median: 0, sd: 0 }) } }, // no positive scale: dropped
+    ],
+  };
+  const t = displayedMedianTargets(snap);
+  assert.deepEqual(Object.keys(t.players), ["1", "2"]);
+  assert.deepEqual(Object.keys(t.players["1"]), ["pts"]);
+  assert.equal(t.players["1"].pts.expected, 19, "the median, not the mean 20");
+  assert.equal(t.players["1"].pts.scaleBasis, "sd");
+  assert.equal(t.players["2"].reb.scale, 7 / 2.5631031310892);
+  assert.equal(t.players["2"].reb.scaleBasis, "p90-p10");
+  assert.equal(t.sideConstraint, "AWAY");
+  const line = { providerAthleteId: "1", ds: 18000, pts: 24, reb: 0, ast: 0, threePm: 0 };
+  const f = poolFeatures({ runIndex: 0, final: [100, 110], overtimePeriods: 0, lines: [line, { providerAthleteId: "2", ds: 18000, pts: 0, reb: 5, ast: 0, threePm: 0 }] }, t);
+  assert.equal(f.distance, Number(Math.sqrt((1 * 1 + 0) / 2).toFixed(6)), "z = (24 − 19)/5 = 1 and (5 − 5)/scale = 0, equal player weights");
+  assert.throws(() => poolFeatures({ runIndex: 0, final: [100, 110], overtimePeriods: 0, lines: [line] }, officialTargets(snap)), /displayedMedianTargets/);
+});
+
+test("@2 is untouched for every other caller (v1 quarter-checkpoint Theater, NFL, consistency audit): same source bytes, same targets, no @3 import", () => {
+  // representative.mjs byte-identical to PR 1167 head 784de196a1 (a change here is a change to @2 for NFL + the v1 Theater)
+  const src = fs.readFileSync(path.join(APP, "src/lib/consistency/representative.mjs"));
+  assert.equal(crypto.createHash("sha256").update(src).digest("hex"), "8a732106d71a3f38adca42965ac62f6ab56473bcbd92b35a8489080837fabf3d");
+  assert.equal(REPRESENTATIVE_RULE.id, "official-representative@2");
+  assert.doesNotMatch(src.toString("utf8"), /@3|DISPLAYED_MEDIANS|possession/);
+  // @2 still scores every v0.1 family at the MEAN for every snapshot player
+  const snap = snapshotOf(IDS[0]);
+  const t2 = officialTargets(snap);
+  const all = snap.players.filter((p) => Object.values(p.families).some((e) => e.sd > 0));
+  assert.equal(Object.keys(t2.players).length, all.length);
+  assert.ok(Object.keys(t2.players).length > Object.keys(displayedMedianTargets(snap).players).length);
+  for (const p of all) {
+    for (const fam of NBA_PLAYER_FAMILIES) {
+      const e = p.families[fam];
+      if (!(e?.sd > 0)) continue;
+      assert.equal(t2.players[p.playerId][fam].expected, e.expected, `${p.playerId}:${fam} @2 centre = the mean`);
+    }
+  }
+  // only the possession selection (and its generator) reads @3
+  for (const f of ["src/lib/simulation-theater/official-representative.mjs", "src/lib/consistency/audit.mjs", "src/lib/simulation-theater/nba/loader.mjs", "src/lib/simulation-theater/loader.mjs", "src/lib/simulation-theater/public-theater.mjs"]) {
+    assert.doesNotMatch(fs.readFileSync(path.join(APP, f), "utf8"), /displayedMedianTargets|official-representative@3|DISPLAYED_MEDIANS/, f);
+  }
+  assert.match(fs.readFileSync(path.join(APP, "scripts/nba/research/build-theater-possession-runs.mjs"), "utf8"), /const targets = displayedMedianTargets\(snapshot\);/);
 });
 
 test("selection rules: pure, documented, ties → lowest runIndex, no official side → no default, missing OT recorded", () => {
