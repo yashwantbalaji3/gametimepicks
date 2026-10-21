@@ -11,7 +11,7 @@ import Link from "next/link";
 import type { Snapshot } from "@/components/nba/experimental-lane";
 import ProjectionBoard from "@/components/nba/projection-board";
 import { COMBO_STATS, LANE, PROJECTION_BOARD_STATS, COMBO_LABEL } from "@/lib/sports/nba/experimental-public-lane.mjs";
-import { boardOptions, boardRows, statGroups } from "@/lib/sports/nba/projection-board-ops.mjs";
+import { boardOptions, boardRows, packBoard, statGroups } from "@/lib/sports/nba/projection-board-ops.mjs";
 
 const et = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET";
@@ -50,7 +50,7 @@ export default function NbaProjectionsView({ lane }: { lane: Snapshot | null }) 
             game&rsquo;s sum, so it need not equal the sum of the separate medians. Players with at least 10 expected
             minutes who are not ruled out. The default order is expected minutes; a column sort is the reader&rsquo;s own.
           </p>
-          <ProjectionBoard rows={rows} stats={stats} groups={groups} matchups={matchups} teams={teams} />
+          <ProjectionBoard board={packBoard(rows)} stats={stats} groups={groups} matchups={matchups} teams={teams} />
           <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={MUTE}>
             {Object.entries(live.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
           </ul>
