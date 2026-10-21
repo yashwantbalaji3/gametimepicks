@@ -15,10 +15,18 @@ import { notFound } from "next/navigation";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import NbaPossessionSection from "@/components/simulation-theater/nba/possession/NbaPossessionSection";
 import type { PbLoad } from "@/components/simulation-theater/nba/possession/possession-types";
-import { DISABLED_PLACEHOLDER, devRoutesEnabled } from "@/lib/simulation-theater/dev-routes.mjs";
+import { DISABLED_PLACEHOLDER, devRoutesEnabled, devStaticParams } from "@/lib/simulation-theater/dev-routes.mjs";
 import { loadNbaPossessionTheater, possessionRouteEvents } from "@/lib/simulation-theater/nba/possession/possession-loader.mjs";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
+
+// A page's generateStaticParams does not reach child segments (only a layout's does), so this nested page declares its own:
+// same gate as the parent — the inert placeholder only, reading no data, unless the build sets GTP_DEV_ROUTES=1.
+export function generateStaticParams() {
+  return devStaticParams(() => possessionRouteEvents(REPO_ROOT));
+}
+
+export const dynamicParams = false;
 
 const DEV_METADATA: Metadata = {
   title: "NBA Simulation Theater · possession playback · development prototype",
