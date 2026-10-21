@@ -1701,6 +1701,8 @@ Stabilize EPL → correct/grade Ligue 1 → league-specific validation → La Li
 | Date | Decision | Status | Record |
 |---|---|---|---|
 | 2026-10-21 | **Allow `nba-possession-sim-v0` as the NBA Theater replay engine.** Three roles: A = official snapshot (Elo + v0.1), B = v1 challenger, C = Research Possession Simulation. Public presentation is approved **conditionally**, on the 11 founder conditions plus the activation checklist. The research engine is **not** promoted to official | APPROVED (conditional); flag OFF | `docs/launch/approvals/NBA_THEATER_PUBLIC_2026-10-21.md` (gates G1–G12) |
+| 2026-10-21 | **#1130 eligible-operator allowlist APPROVED at exact head `3f778eac45`**, as merged in release vehicle #1176 at `bb5901f75b` (with #1141, #1165 and #1166; flags OFF; NBA registry HISTORICAL_ONLY; prop gate needs a founder promotion record). Merged at 20:55:11Z as `08ad431f7f`; one Production build (20:56:35Z). Production acceptance passed | APPROVED, LIVE | founder, release-owner session |
+| 2026-10-21 | **NBA Simulation Theater public** (possession research engine; G12 approved). #1173 → `0da26c3694`; entry points + h1 #1175 → `a3d8fb7e4b` | LIVE | `docs/launch/approvals/NBA_THEATER_PUBLIC_2026-10-21.md` |
 | 2026-10-21 | **D6 — free public ESPN NBA box scores for player-stat grading (scoped).**
 - Read-only retrieval through the existing ESPN integration; no paid credits.
 - Scratch/cache first; validate event IDs, player identity, MIN/PTS/REB/AST/3PM and source timestamps; check source consistency and data-use terms before any commit; never commit raw responses blindly.
