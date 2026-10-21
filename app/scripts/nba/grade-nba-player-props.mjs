@@ -153,7 +153,7 @@ export function runPropShadowGrading({ repoRoot = DEFAULT_REPO, date = null, sin
   const lineage = appended.reduce((m, e) => ({ ...m, [e.lineageReason]: (m[e.lineageReason] ?? 0) + 1 }), {});
   const heldIds = new Map([...holds, ...held.map((h) => [h.eventId, h])]);
   const summary = summariseShadowGrades(currentShadowGrades([...before, ...appended], { held: heldIds }));
-  log(`appended ${appended.length} entr${appended.length === 1 ? "y" : "ies"} ${JSON.stringify(lineage)} · held ${held.length} game(s) · snapshot refused ${refused.length} · ledger ${before.length} → ${before.length + appended.length} lines`);
+  log(`${write ? "appending" : "would append"} ${appended.length} entr${appended.length === 1 ? "y" : "ies"} ${JSON.stringify(lineage)} · held ${held.length} game(s) · snapshot refused ${refused.length} · ledger ${before.length} → ${before.length + appended.length} lines`);
   for (const [family, s] of Object.entries(summary)) {
     if (s.graded || s.noMeasurement || s.voids) log(`  [shadow, descriptive] ${family}: graded ${s.graded} · MAE ${s.mae == null ? "—" : s.mae.toFixed(3)} · at/below median ${s.atOrBelowMedian}/${s.graded} · p10–p90 covered ${s.band80Covered}/${s.band80N} · no measurement ${s.noMeasurement} · void ${s.voids}`);
   }
