@@ -247,7 +247,16 @@ npx tsx --test src/lib/sports/nba/research/possession-sim/possession-sim.test.mj
 - The research boundary.
 - Params equal the fit report, with Stage A recomputed.
 
-## 7. Proposed Theater event-stream contract (not implemented)
+## 7. Theater event-stream contract
+
+**Update 2026-10-21 (Lane C).** A version of this contract is now implemented for the Theater only:
+`app/scripts/nba/research/build-theater-possession-runs.mjs` writes
+`data/internal/research/nba/theater-possession/<date>.json` (a fixed 1,000-draw seed pool, every draw checked, the
+default / upset / high / low / overtime runs stored with their logs and engine ledgers), and
+`app/src/lib/simulation-theater/nba/possession/` plays them on the dev route
+`/dev/simulation-theater/nba/[eventId]/possession` and the OFF public candidate `/nba/simulation/[eventId]`. The engine
+still feeds no product, board or snapshot; the research boundary test allows only those Theater files. The original
+proposal follows.
 
 **Purpose.** This would let the NBA Theater timeline play a possession log in place of illustrative interpolation
 between quarter checkpoints (`timeline.mjs`). It is a proposal only. Nothing in the Theater reads this engine.

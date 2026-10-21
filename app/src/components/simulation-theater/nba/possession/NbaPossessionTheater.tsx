@@ -203,7 +203,7 @@ export default function NbaPossessionTheater({ payload, palettes, devHooks = fal
   }
 
   return (
-    <div className={`st-root nba-root nbp-root${reduced ? " is-motion-off" : ""}`} style={rootStyle} data-nbp-theater="" data-nbp-ready={ready ? "" : undefined} data-nbp-run={run.kind} data-nbp-motion={reduced ? "off" : "on"} data-nbp-phase={frame.phase} onKeyDown={onKey}>
+    <div className={`st-root nba-root nbp-root${reduced ? " is-motion-off" : ""}`} style={rootStyle} data-nbp-theater="" data-nbp-ready={ready ? "" : undefined} data-nbp-run={run.kind} data-nbp-motion={reduced ? "off" : "on"} data-nbp-phase={frame.phase} onKeyDown={onKey} tabIndex={-1}>
       <PossessionBanner />
       {head}
 
@@ -255,7 +255,7 @@ export default function NbaPossessionTheater({ payload, palettes, devHooks = fal
         </section>
         <section className="nbp-panel" aria-label="Team scoring progression">
           <h2>Team scoring progression</h2>
-          <ScoringProgression compiled={compiled} k={k} teams={teams} palette={palette} />
+          <ScoringProgression compiled={compiled as unknown as Parameters<typeof ScoringProgression>[0]["compiled"]} k={k} teams={teams} palette={palette} />
         </section>
       </div>
 

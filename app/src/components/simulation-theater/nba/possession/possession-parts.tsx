@@ -18,6 +18,7 @@ import {
 } from "@/lib/simulation-theater/nba/possession/labels.mjs";
 
 type Teams = PbPayload["teams"];
+const COLS = BOX_COLUMNS as unknown as [string, string][];
 const SIDES: NbaSide[] = ["away", "home"];
 const fmt1 = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(1) : "—");
 const fmtUtc = (iso: string | null) => (iso ? `${iso.replace("T", " ").replace(/\.\d+Z$/, "Z").replace(/:\d\dZ$/, "Z").replace("Z", " UTC")}` : "—");
@@ -241,17 +242,17 @@ export function PossessionBoxScore({ rows, teams, final, idBase }: { rows: Rows;
         <div key={side} className="nbp-scroll">
           <table className="nbp-table" data-nbp-box-team={side}>
             <caption>{teams[side].name} · {final ? "final box score of this simulated game" : "box score so far (this simulated game)"}</caption>
-            <thead><tr><th scope="col">Player</th>{BOX_COLUMNS.map(([, label]: [string, string]) => <th key={label} scope="col">{label}</th>)}</tr></thead>
+            <thead><tr><th scope="col">Player</th>{COLS.map(([, label]) => <th key={label} scope="col">{label}</th>)}</tr></thead>
             <tbody>
               {rows[side].map((r) => (
                 <tr key={r.providerAthleteId} data-nbp-player={r.providerAthleteId}>
                   <td>{r.name ?? r.providerAthleteId}</td>
-                  {r.ds === 0 && final ? <td colSpan={BOX_COLUMNS.length}>did not play in this run</td> : BOX_COLUMNS.map(([key]: [string, string]) => <td key={key}>{key === "min" ? fmtMinutes(r.ds) : String(r[key])}</td>)}
+                  {r.ds === 0 && final ? <td colSpan={COLS.length}>did not play in this run</td> : COLS.map(([key]) => <td key={key}>{key === "min" ? fmtMinutes(r.ds) : String(r[key])}</td>)}
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr><td>Team</td>{BOX_COLUMNS.map(([key]: [string, string]) => <td key={key}>{key === "min" ? String(Math.round(rows.totals[side].ds / 600)) : String(rows.totals[side][key])}</td>)}</tr>
+              <tr><td>Team</td>{COLS.map(([key]) => <td key={key}>{key === "min" ? String(Math.round(rows.totals[side].ds / 600)) : String(rows.totals[side][key])}</td>)}</tr>
             </tfoot>
           </table>
           <p className="nbp-note">Team rebounds (not credited to a player): {rows.totals[side].teamRebounds}. REB = offensive + defensive player rebounds.</p>

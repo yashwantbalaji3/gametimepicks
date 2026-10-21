@@ -138,3 +138,21 @@ A session that is not the release owner never performs either act.
   - a what-if shown as official;
   - an export-boundary leak;
   - wrong game identity.
+
+## 11. Possession-level public candidate (`/nba/simulation/[eventId]`, Lane C 2026-10-21)
+
+The candidate route plays one stored run of the possession research engine (`nba-possession-sim-v0`) from its event
+log, beside the official projection panel. It is OFF: it renders only when `NBA_THEATER_PUBLIC_ENABLED === true` AND the
+build sets `GTP_NBA_THEATER_PUBLIC=1` (`next.config.mjs` defines it as a compile-time `"1"` / `"0"`). The activation
+change must also:
+
+- [ ] **Reclassify the route public** in `app/src/lib/audits/route-inventory.mjs` (today `internal`, zero exported
+  pages) and regenerate `data/internal/audits/route-inventory-v1.json` from a real build (`--out out`).
+- [ ] **Add the artifact as a build input:** `':(top)data/internal/research/nba/theater-possession/'` in
+  `BUILD_INPUTS` of `app/scripts/vercel-ignore-build.sh` (`build-input-coverage.test.mjs` enforces the pairing).
+- [ ] **Regenerate the runs if the official forecast changed:** `nice -n 19 npx tsx scripts/nba/research/build-theater-possession-runs.mjs --date <YYYY-MM-DD> --write`
+  (the full loader refuses `OFFICIAL_CHANGED` / `OFFICIAL_PANEL_DRIFT` until it is re-run).
+- [ ] **Unit:** `npx tsx --test src/lib/simulation-theater/nba/possession/*.test.mjs src/components/simulation-theater/nba/possession/*.test.mjs`
+- [ ] **Flag-ON export scan:** `scanExportForNbaPrivate(out, { publicTheaterOn: true })` — only the allowlisted engine id,
+  payload schema and `data-nbp-` attributes, and only under `nba/simulation/` and `_next/static/`.
+- [ ] **E2E (dev route, same island):** `GTP_THEATER_E2E=1 npx playwright test -c playwright.theater.config.ts e2e/possession-nba-theater.spec.ts`
