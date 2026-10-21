@@ -20,9 +20,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
 
-import { ENGINE_LABEL } from "../src/lib/simulation-theater/nba/possession/labels.mjs";
+import { ENGINE_LABEL, POSSESSION_BANNER, ROLE_C_LABEL, ROLE_C_NOTE } from "../src/lib/simulation-theater/nba/possession/labels.mjs";
 
-const ENABLED = process.env.GTP_THEATER_E2E === "1" && process.env.GTP_THEATER_TARGET !== "public";
+// GTP_THEATER_TARGET=public: the PUBLIC route /nba/simulation/<id>/ of a flag-ON local build (both acts: the constant flipped
+// locally, never committed, and GTP_NBA_THEATER_PUBLIC=1). It has no dev URL hooks, so runs are chosen by their chips.
+const PUBLIC = process.env.GTP_THEATER_TARGET === "public";
+const ENABLED = process.env.GTP_THEATER_E2E === "1";
 const DATE = process.env.GTP_NBA_THEATER_DATE ?? "2026-10-20";
 type Run = { kind: string; runIndex: number; final: [number, number]; periods: [number[], number[]]; overtimePeriods: number };
 type Game = { providerEventId: string; home: { abbr: string }; away: { abbr: string }; official: { winnerSide: "HOME" | "AWAY" }; runs: Run[] };
@@ -34,9 +37,9 @@ const WIDTHS = [[320, 640], [390, 844], [768, 1024], [1440, 900]] as const;
 // the engine identity text lives in labels.mjs (one source for the UI, the unit tests and this spec)
 const ENGINE = ENGINE_LABEL;
 const WHAT_IF_BANNER = "Hypothetical scenario — not the forecast";
-const url = (id: string, q = "") => `/dev/simulation-theater/nba/${id}/possession/${q}`;
+const url = (id: string, q = "") => (PUBLIC ? `/nba/simulation/${id}/` : `/dev/simulation-theater/nba/${id}/possession/${q}`);
 
-test.skip(!ENABLED, "possession theater spec: set GTP_THEATER_E2E=1 and serve a GTP_DEV_ROUTES=1 build (see header); never on the public target");
+test.skip(!ENABLED, "possession theater spec: set GTP_THEATER_E2E=1 and serve a GTP_DEV_ROUTES=1 build, or a flag-ON build with GTP_THEATER_TARGET=public (see header)");
 test.skip(ENABLED && GAMES.length < 2, `need ≥ 2 games in the committed possession artifact for ${DATE}`);
 
 async function open(page: Page, id: string, q = "") {
@@ -45,6 +48,12 @@ async function open(page: Page, id: string, q = "") {
   page.on("pageerror", (e) => errors.push(String(e)));
   await page.goto(url(id, q), { waitUntil: "networkidle" });
   await page.waitForSelector("[data-nbp-theater][data-nbp-ready]");
+  const kind = /[?&]run=([a-z]+)/.exec(q)?.[1];
+  if (PUBLIC && kind) {
+    // no dev hook on the public route: choose the run the way a reader does
+    await page.locator(`[data-nbp-run-kind="${kind}"]`).click();
+    await page.waitForSelector(`[data-nbp-theater][data-nbp-run="${kind}"]`);
+  }
   return errors;
 }
 const root = (page: Page) => page.locator("[data-nbp-theater]");
@@ -189,3 +198,35 @@ test("what-if end to end: the upset run ends won by the side the official foreca
     await expect(page.locator("[data-nbp-endcard]")).toContainText("overtime");
   }
 });
+
+for (const [w, h] of WIDTHS) {
+  test(`${w}px · founder labelling (approval 2026-10-21): the role C label and its five-point note are visible; the banner says not a real or live game`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    const errors = await open(page, GAMES[0].providerEventId);
+    const note = page.locator("[data-nbp-role-note]");
+    await expect(note).toBeVisible();
+    await expect(note.locator("[data-nbp-role-label]")).toHaveText(ROLE_C_LABEL);
+    await expect(note.locator("li")).toHaveText([...ROLE_C_NOTE]);
+    await expect(page.locator("[data-nbp-banner]")).toHaveText(POSSESSION_BANNER);
+    await expect(page.locator("[data-nbp-oncourt-team]")).toHaveCount(2);
+    for (const side of ["home", "away"]) await expect(page.locator(`[data-nbp-oncourt-team="${side}"] li`)).toHaveCount(5);
+    const body = (await page.locator("body").innerText()).replace(/NOT A REAL OR LIVE GAME/g, "").replace(/overtime is rarer than in real games/g, "");
+    expect(body).not.toMatch(/\blive\b|\breal game|happening now/i);
+    if (PUBLIC) {
+      await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
+      await expect(page.locator('a[href*="/dev/"]')).toHaveCount(0);
+    }
+    expect(errors).toEqual([]);
+  });
+}
+
+test("substitutions update the on-court lineup as the game plays (event log, not decoration)", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, GAMES[0].providerEventId);
+  const before = await page.locator('[data-nbp-oncourt-team="home"] li').allInnerTexts();
+  await page.getByRole("button", { name: "Fast-forward to the next quarter" }).click();
+  await page.getByRole("button", { name: "Fast-forward to the next quarter" }).click();
+  await expect.poll(async () => (await page.locator('[data-nbp-oncourt-team="home"] li').allInnerTexts()).join("|")).not.toBe(before.join("|"));
+  await expect(page.locator('[data-nbp-oncourt-team="home"] li')).toHaveCount(5);
+});
+
