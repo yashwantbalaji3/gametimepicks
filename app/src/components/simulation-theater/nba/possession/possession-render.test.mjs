@@ -44,7 +44,7 @@ test("every game renders: banner first, the honest engine label, the official pa
     for (const later of ["data-nbp-official", "data-nbp-outcome", "data-nbp-scoreboard", "data-nbp-feed"]) assert.ok(h.indexOf(later) > b, `banner precedes ${later}`);
     const t = text(h);
     assert.ok(t.includes(LABELS.POSSESSION_BANNER.replace(/'/g, "'")));
-    assert.ok(t.includes("Possession-level research simulation (nba-possession-sim-v0) — not the official forecast"));
+    assert.ok(t.includes("Research possession engine nba-possession-sim-v0, unvalidated — not the official forecast, not the v1 supporting simulation"));
     assert.ok(t.includes(LABELS.OFFICIAL_PANEL_TITLE) && t.includes(LABELS.OUTCOME_PANEL_TITLE));
     assert.ok(t.includes(LABELS.WHAT_IS_REAL.replace(/'/g, "'")), "what is real possession generation vs decorative is stated");
     assert.ok(t.includes("Decorative court"));
@@ -88,10 +88,11 @@ test("official panel immutability: byte-identical markup for the default run and
   }
 });
 
-test("default run is labelled a supporting-simulation run; every what-if carries the hypothetical banner", () => {
+test("default run is labelled one run of the unvalidated research possession engine (not Gate V2's v1 label); every what-if carries the hypothetical banner", () => {
   for (const load of LOADS) {
     const d = text(render(load));
-    assert.ok(d.includes(REP.SUPPORTING_RUN_TITLE));
+    assert.ok(d.includes(LABELS.DEFAULT_RUN_TITLE), "the default run names the research engine");
+    assert.ok(!d.includes(REP.SUPPORTING_RUN_TITLE), "Gate V2's v1 run label is not used for the possession engine");
     assert.match(render(load), /data-nbp-role="default"/);
     for (const r of load.payload.runs.filter((x) => x.hypothetical)) {
       const h = render(load, r.kind);
@@ -175,4 +176,19 @@ test("FLAG ON (simulated build): the public page renders the labelled Theater; i
   const leak = scanExportForNbaPrivate(dir, { publicTheaterOn: true }).leaks.filter((l) => l.file.endsWith("leak.txt")).map((l) => l.marker);
   assert.ok(leak.includes("theater-possession") && leak.includes("data/internal/research/nba"));
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test("engine identity (release owner 2026-10-21): every Theater surface names 'Research possession engine nba-possession-sim-v0, unvalidated'", () => {
+  assert.equal(LABELS.ENGINE_IDENTITY, "Research possession engine nba-possession-sim-v0, unvalidated");
+  for (const load of LOADS) {
+    for (const kind of [null, "upset", "high", "low"]) {
+      const out = render(load, kind);
+      const text = out.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/\s+/g, " ");
+      const count = (text.match(/nba-possession-sim-v0, unvalidated/gi) ?? []).length;
+      assert.ok(count >= 3, `${load.payload?.eventId ?? "?"} ${kind ?? "default"}: engine identity on banner, outcome panel and engine facts (found ${count})`);
+      assert.match(text, /RESEARCH POSSESSION ENGINE NBA-POSSESSION-SIM-V0, UNVALIDATED/, "the banner names the engine");
+      assert.match(text, new RegExp(`Simulation outcome · this run · ${LABELS.ENGINE_IDENTITY}`), "the outcome panel names the engine");
+      assert.doesNotMatch(text, /one supporting-simulation run/, "the v1 Gate V2 run label is never used for this engine");
+    }
+  }
 });

@@ -285,7 +285,7 @@ test("play-by-play text restates the event only (no invented detail)", () => {
   for (const g of DOC.games) for (const r of g.runs) for (const e of r.events) assert.doesNotMatch(playLine(e, new Map(), ab).text, /dunk|layup|feet|timeout|alley/i);
 });
 
-test("payload: the client gets no private path / hash / supporting-engine id; the default is a labelled supporting run; what-ifs are hypothetical", () => {
+test("payload: the client gets no private path / hash / supporting-engine id; the default is a labelled research-engine run; what-ifs are hypothetical", () => {
   const ALWAYS = NBA_PRIVATE_MARKERS.filter((m) => !["nba-possession-sim-v0", "nba-possession-playback@", "data-nbp-"].includes(m));
   for (const id of IDS) {
     const t = loadNbaPossessionTheater(REPO, id);
