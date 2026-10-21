@@ -1701,6 +1701,12 @@ Stabilize EPL → correct/grade Ligue 1 → league-specific validation → La Li
 | Date | Decision | Status | Record |
 |---|---|---|---|
 | 2026-10-21 | **Allow `nba-possession-sim-v0` as the NBA Theater replay engine.** Three roles: A = official snapshot (Elo + v0.1), B = v1 challenger, C = Research Possession Simulation. Public presentation is approved **conditionally**, on the 11 founder conditions plus the activation checklist. The research engine is **not** promoted to official | APPROVED (conditional); flag OFF | `docs/launch/approvals/NBA_THEATER_PUBLIC_2026-10-21.md` (gates G1–G12) |
+| 2026-10-21 | **D6 — free public ESPN NBA box scores for player-stat grading (scoped).**
+- Read-only retrieval through the existing ESPN integration; no paid credits.
+- Scratch/cache first; validate event IDs, player identity, MIN/PTS/REB/AST/3PM and source timestamps; check source consistency and data-use terms before any commit; never commit raw responses blindly.
+- Then *propose* a minimal normalized integration in the existing pipeline: immutable predictions, append-only grading, disputed-final holds kept.
+- No overwrite of results or settled ledgers; no champion change; no paid odds; no public flag change; data commits must use the build-skip controls.
+- Run 10-20 player shadow grading and report what #1169 still needs. | APPROVED (scoped) | founder, release-owner session, 2026-10-21 |
 | 2026-10-20 | Theater Gate V2 (`LABELLED_SUPPORTING_RUNS`) | APPROVED; merged via #1170, 08:19Z 10-21 | #1162 |
 | 2026-10-20 | `/nba/projections/` (amendment A) | APPROVED; merged via #1170 | #1163, prereg §13 A |
 | 2026-10-20 | Official NBA = Elo side + v0.1 players; v1 is a challenger and its board is research-only | APPROVED; on Production | #1149 |
