@@ -38,6 +38,36 @@ export function boardRows(snapshot, stats) {
   return rows;
 }
 
+/**
+ * The island's WIRE FORMAT (page weight: the props travel in the RSC flight, and the flight is embedded in the HTML).
+ * `packBoard` (server) sends each team once — `t: [abbr, name, game]` — and each row as one array,
+ * `[name, injury || 0, teamIndex, min, ...v]`, IN THE DEFAULT ORDER (sortRows' expected-minutes order, ties by id).
+ * `unpackBoard` (browser) rebuilds the same rows with an index id ("0000", "0001", …), so the default order — and every
+ * tie inside it — is exactly the server's. Every number is carried verbatim; nothing is rounded or recomputed.
+ * @param {ReturnType<typeof boardRows>} rows
+ */
+export function packBoard(rows) {
+  const t = [];
+  const at = new Map();
+  const r = sortRows(rows).map((x) => {
+    const k = `${x.game}\u0000${x.team}`;
+    if (!at.has(k)) { at.set(k, t.length); t.push([x.team, x.teamName, x.game]); }
+    return [x.name, x.injury || 0, at.get(k), x.min, ...x.v];
+  });
+  return { t, r };
+}
+
+/**
+ * @param {{ t: [string, string, string][], r: (string | number | null)[][] }} packed
+ * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[] }[]}
+ */
+export function unpackBoard({ t, r }) {
+  return r.map(([name, injury, ti, min, ...v], i) => {
+    const [team, teamName, game] = t[/** @type {number} */ (ti)];
+    return { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v) };
+  });
+}
+
 /** Matchup and team filter options, in slate order. */
 export function boardOptions(snapshot) {
   const matchups = [];

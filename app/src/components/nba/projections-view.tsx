@@ -18,7 +18,7 @@ import type { BoardGame, SlateRole } from "@/components/nba/projection-board-con
 import ProjectionBoard from "@/components/nba/projection-board";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { COMBO_STATS, LANE, PROJECTION_BOARD_STATS, COMBO_LABEL } from "@/lib/sports/nba/experimental-public-lane.mjs";
-import { boardOptions, boardRows, statGroups, GAME_STATUS_LABEL, slateHref, slateNav } from "@/lib/sports/nba/projection-board-ops.mjs";
+import { boardOptions, boardRows, packBoard, statGroups, GAME_STATUS_LABEL, slateHref, slateNav } from "@/lib/sports/nba/projection-board-ops.mjs";
 
 const et = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET";
@@ -111,7 +111,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
             minutes who are not ruled out. The default order is expected minutes; a column sort is the reader&rsquo;s own.
             {games.length ? " Game status is read-only, from the schedule and finals record (Started: tipped off, no final recorded yet); it never changes a frozen figure." : ""}
           </p>
-          <ProjectionBoard rows={rows} stats={stats} groups={groups} matchups={matchups} teams={teams} />
+          <ProjectionBoard board={packBoard(rows)} stats={stats} groups={groups} matchups={matchups} teams={teams} />
           <ul className="m-0 pl-5 text-[12px] leading-relaxed" style={MUTE}>
             {Object.entries(live.withheld).map(([k, v]) => <li key={k}>{v}</li>)}
           </ul>
